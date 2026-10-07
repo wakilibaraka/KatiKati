@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  KatiKati — Sparkle appcast (skeleton, pre-release)
+
+  Feed URL (Phase 0, slice 0b — Info.plist SUFeedURL):
+    https://wakilibaraka.github.io/KatiKati/appcast.xml
+
+  Served by GitHub Pages from this file at the repo root.
+  Pages source must include /appcast.xml at the published root
+  (main branch / root, or Docs/Archive equivalent if Pages is set to /docs —
+  if Pages serves /docs, move this file to docs/appcast.xml so the URL above resolves).
+
+  Workflow (Sparkle 2, EdDSA):
+    1. Once, on the release Mac: run Sparkle's `bin/generate_keys`.
+       - Private key stays in the login Keychain (generate_appcast needs it).
+       - It prints the public key (base64). Paste it into Info.plist as SUPublicEDKey.
+       - SAME DAY: export the private key from Keychain Access (.p12) to encrypted
+         offline storage (e.g. USB in a drawer). If lost, old installs won't trust
+         new updates (recovery via Developer-ID-signed DMG fallback is painful).
+       - Never commit the private key.
+    2. Info.plist (slice 0b):
+         SUFeedURL = https://wakilibaraka.github.io/KatiKati/appcast.xml
+         SUPublicEDKey = <base64 from generate_keys>  (replaces tungsten placeholder)
+         SUScheduledCheckInterval = 21600  (6 hours, tungsten default)
+    3. Per release, on the release Mac:
+         ./bin/generate_appcast /path/to/updates_folder/
+       then commit + push the updated appcast.xml (+ archives, or GitHub Release URLs).
+       Do NOT hand-edit live <item> entries — generate_appcast writes version,
+       download URL, length, and sparkle:edSignature.
+
+  Status: skeleton with zero <item>s. Valid feed; clients see "no update available".
+  The app builds and runs fine without keys until the first release.
+  MUST resolve keys + Pages before any release (Standing Rules risk).
+
+  References:
+    - https://sparkle-project.org/documentation/publishing/
+    - STANDING_RULES.md §3.5 (one dependency: Sparkle, pinned), §5 (trademark: no tungsten feed URLs)
+    - PHASE_0_CHECKLIST.md slice 0b
+-->
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>KatiKati — Updates</title>
+    <link>https://wakilibaraka.github.io/KatiKati/appcast.xml</link>
+    <description>KatiKati for macOS — update feed.</description>
+    <language>en</language>
+
+    <!--
+      No releases yet. generate_appcast will insert real <item> entries here,
+      newest first. Example of what a generated item looks like (kept commented
+      as a reference — do not uncomment; let the tool generate it):
+
+    <item>
+      <title>KatiKati 1.0 (build 100)</title>
+      <link>https://github.com/wakilibaraka/KatiKati/releases/tag/v1.0</link>
+      <sparkle:releaseNotesLink>https://github.com/wakilibaraka/KatiKati/releases/tag/v1.0</sparkle:releaseNotesLink>
+      <pubDate>Thu, 01 Jan 2027 12:00:00 +0000</pubDate>
+      <enclosure url="https://github.com/wakilibaraka/KatiKati/releases/download/v1.0/KatiKati-1.0.zip"
+                 sparkle:version="100"
+                 sparkle:shortVersionString="1.0"
+                 length="12345678"
+                 type="application/octet-stream"
+                 sparkle:edSignature="REPLACE_ME_generate_appcast_writes_this" />
+      <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
+    </item>
+
+      Notes:
+      - sparkle:version = CFBundleVersion (build number, must increase every release).
+      - sparkle:shortVersionString = CFBundleShortVersionString (marketing version).
+      - length = archive byte size; type is always application/octet-stream for zip/dmg.
+      - sparkle:edSignature = EdDSA signature from your private key (Keychain).
+      - sparkle:minimumSystemVersion = 12.0 (STANDING_RULES macOS floor).
+      - Keep release notes links pointing at GitHub Releases (GPL source offer lives there).
+    -->
+
+  </channel>
+</rss>
