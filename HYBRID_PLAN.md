@@ -1,36 +1,54 @@
-# Splitbar — Hybrid Merge Plan
+# KatiKati — Hybrid Plan (Tungsten Edge core)
 
-**DockBar base × SplitBar-old 4 modes × wakilibaraka/SplitBar segment engine**
+**Tungsten Edge core × SplitBar-old 4 modes × DockBar widgets**
 
-Status: **PLANNED** · Plan v2 (three-repo reorientation) · Date: 2026-10-07  
-New repo: `/Users/baraka/Desktop/Splitbar` (branch `main`)
+Status: **PLANNED** · Plan v3 (tungsten-edge reorientation) · Date: 2026-10-08  
+New repo: `/Users/baraka/Desktop/Splitbar` (branch `main`) → remote `wakilibaraka/KatiKati`  
+Core snapshot: `moonbai-studio/tungsten-edge @ a4e1a55` (2026-10-07, `master`), clone at `/tmp/tungsten-edge`  
+Previous plan: v2 (`DockBar base × SplitBar-old modes × live-SplitBar segments`, commit `3d914c6`) — **superseded by this document.**  
+Product name: **KatiKati** (Swahili *katikati* = “right in the middle / centered” — the centered-bar promise).
+This commit: **plan only — no code changes.**
 
 ---
 
 ## Decisions locked with the owner
 
-1. **New repo from scratch** — not a branch or fork of any of the three source repos.
-2. **Pure AppKit** core: `NSPanel` + `NSStackView` zones exactly like DockBar. No SwiftUI
-   in the bar, islands or flyouts. SwiftUI only inside settings/onboarding windows if
-   convenient (the bar path stays AppKit).
-3. **One base, two donors** (owner-confirmed 2026-10-07):
-   - **Base — DockBar** (`~/dockbar`, `wakilibaraka/dockbar`, fork of rajeshgoli/deskbar):
-     architecture, window management, widgets, settings, tests.
-   - **Donor A — SplitBar-old** (`~/Desktop/SplitBar-old`): the 4 required layout modes,
-     section/island model, pure island geometry, mode picker/onboarding, island tests.
-   - **Donor B — live SplitBar** (`github.com/wakilibaraka/SplitBar`, fork of
-     `senoldogann/EdgeDeckBar`): generalized config-driven segment engine, one-panel-per-
-     segment manager, real-Dock hardening, per-icon flyout anchors, hover previews, glass
-     tokens. **Algorithms and hardening only — its SwiftUI shell is not ported.**
-4. Open (non-blocking): final bundle id; working assumption `com.splitbar.app` (§6).
+1. **New repo from scratch** — not a branch or fork of any source repo. Tungsten Edge enters
+   as a **clean baseline import** (snapshot `a4e1a55`), not a git fork, so history, signing,
+   bundle id and defaults domains start clean while license attribution stays intact (§6).
+2. **Tungsten Edge is the core** (owner-confirmed 2026-10-08, replaces the v2 DockBar-base
+   decision): window inventory + identity, panel/orchestrator architecture, strip UI,
+   settings, multi-display, auto-hide, fullscreen handling, drag & drop, updates, and the
+   ~1300-test culture are all inherited from tungsten-edge. Nothing on the bar path is
+   rewritten in another UI framework.
+3. **Stack follows tungsten**: `NSPanel` hosts (`NonConstrainingPanel` / `ManualPanelHost`)
+   + **SwiftUI strip views** (`DockStripView` family). The v2 "pure AppKit, no SwiftUI on
+   the bar" rule is **retired** — re-implementing tungsten's strip in AppKit would throw
+   away the core's most-tested code for no user-visible gain.
+4. **Two donors, one reference** (see §0/§5):
+   - **Donor A — SplitBar-old** (`~/Desktop/SplitBar-old`, `wakilibaraka/SplitBar-old`):
+     the 4 required layout modes, section/island model, pure island geometry, mode
+     picker/onboarding, island tests.
+   - **Donor B — DockBar** (`~/dockbar`, `wakilibaraka/dockbar`, fork of
+     rajeshgoli/deskbar): weather / clock / tray-cluster widgets, settings-window
+     patterns, AppKit panel lessons. Ported **selectively** — tungsten already covers
+     window management, panels, settings and tests.
+   - **Reference — live SplitBar** (`github.com/wakilibaraka/SplitBar`, fork of
+     `senoldogann/EdgeDeckBar`): consulted for segment priors only where tungsten has no
+     equivalent. Tungsten's orchestrator + `PanelGeometry` supersede its segment manager.
+5. **GPL-3.0-or-later governs anything derived from the core** (§6). Trademark rule is
+   absolute: **never ship under the name "Tungsten Edge" / "钨极" or its icon**
+   (`TRADEMARK.md`) — the app gets a new name, icon, bundle id and defaults domain.
+6. Open (non-blocking): final product name + bundle id; working assumption
+   `com.katikati.app` with `com.katikati.*` defaults (§6).
 
 ## Table of contents
 
 - §0 Sources at a glance
 - §1 Goal (the four modes, in detail) + non-goals
-- §2 Why this split of work (capability matrix)
-- §3 Naming (three vocabularies → one canonical set)
-- §4 Target architecture (components + mechanics)
+- §2 Why tungsten-edge is the core (capability matrix)
+- §3 Naming (tungsten vocabulary → canonical additions)
+- §4 Target architecture (tungsten tree + layout-mode layer)
 - §5 Port allow-list, file-level (and explicitly-not-ported)
 - §6 Build, identity, licensing
 - §7 Phases 0–7 (each shippable + testable)
@@ -43,25 +61,25 @@ New repo: `/Users/baraka/Desktop/Splitbar` (branch `main`)
 
 ## 0. Sources at a glance
 
-| | **DockBar** (base) | **SplitBar-old** (donor A) | **Live SplitBar** (donor B) |
-|---|---|---|---|
-| Path / URL | `~/dockbar` → `wakilibaraka/dockbar` | `~/Desktop/SplitBar-old`, branch `integrate-taskbar-prototype` (clean vs origin) | `github.com/wakilibaraka/SplitBar`, single `main`, clone at `/tmp/splitbar-upstream` |
-| Upstream | fork of rajeshgoli/deskbar | local prototype, MIT © 2026 senoldogann lineage | fork of senoldogann/EdgeDeckBar (restructured in `a2d3de0`) |
-| Stack | **Pure AppKit**, SwiftPM, Swift 6 (lang mode v5), macOS 14 floor | SwiftUI hosted in `NSPanel`s, SwiftPM, macOS 15 | SwiftUI in `NSHostingView`/`NSPanel`, swift-tools 6.0, macOS 15 |
-| Identity | `com.dockbar.app` (dir/test names still `DeskBar`) | local `SplitBar.app` builds | `com.baraka.splitbar`, CI `build.yml` |
-| Scale | ~250 src files: Views ×70, QuickSettings ×30, Services ×30, Utilities ×30 | monolith `TaskbarConceptView.swift` = **7,567 lines** + services | ~9.7k lines (App/Services/Stores/Models) |
-| Tests | **~40 files** in `DeskBarTests` | `TaskbarStripTests` only | **none** (no Tests target) |
-| Splitter | none — one strip panel per display | 4 fixed modes, `displayID#index` panels | generalized `DockSegment`s, 1 panel/segment, config-persisted, auto-migration |
-| Multi-display | ✅ per-display | ✅ per-display (`TaskbarScreenMode`) | ❌ primary display only (CLAUDE.md phase-1 rule) |
-| Dock hide/restore | `DockManager` (independent/autoHide/hidden) | `hideMacDock` + `SplitBarDockRestore` helper + login item | `DockController`: save-before-mutate, crash-recovery file, SIGTERM/SIGINT, dev bypass |
-| Role in merge | **architecture + engine + test culture** | **mode semantics + island math + island tests** | **segment priors + hardening + glass tokens** |
+| | **Tungsten Edge** (core) | **SplitBar-old** (donor A) | **DockBar** (donor B) | **Live SplitBar** (reference) |
+|---|---|---|---|---|
+| Path / URL | `github.com/moonbai-studio/tungsten-edge`, clone at `/tmp/tungsten-edge`, snapshot `a4e1a55` (2026-10-07, `master`, single squashed public commit) | `~/Desktop/SplitBar-old`, `wakilibaraka/SplitBar-old` | `~/dockbar`, `wakilibaraka/dockbar` (fork of rajeshgoli/deskbar) | `github.com/wakilibaraka/SplitBar` (fork of `senoldogann/EdgeDeckBar`), clone at `/tmp/splitbar-upstream` |
+| Stack | SwiftUI strip in `NSPanel` hosts, **Xcode project** (`macos-dock-cc-v2.xcodeproj`), Swift 5.0, floor **macOS 12.0**, **one SPM dep (Sparkle)** | SwiftUI in `NSPanel`s, SwiftPM, macOS 15 | Pure AppKit, SwiftPM, Swift 6 (lang v5), macOS 14 floor | SwiftUI in `NSHostingView`/`NSPanel`, swift-tools 6.0, macOS 15 |
+| Identity | bundle id `com.caye.macosdockcc.v2` (proj), defaults `com.tungsten.edge.*`, tests id `...v2.tests` | local `SplitBar.app` builds | `com.dockbar.app` (dirs/tests still `DeskBar`) | `com.baraka.splitbar`, CI `build.yml` |
+| Scale | **338 Swift files** (~21 MB checkout): `App/` composition+entry+scenes, `Core/` pure decisions, `Platform/` adapters, `UI/ReadModel`, `Tools/WindowLab`, `Scripts/`, `Resources/` (12 localizations) | monolith `TaskbarConceptView.swift` = **7,567 lines** + services | ~250 src files: Views ×70, QuickSettings ×30, Services ×30, Utilities ×30 | ~9.7k lines (App/Services/Stores/Models) |
+| Tests | **~1,300 XCTest cases (~40 s)** + `check_localization.py` + `check_debug_switches.py` + conformance-availability check; CI on `macos-26` w/ Xcode 26 | `TaskbarStripTests` only | ~40 files in `DeskBarTests` | none |
+| Bar model | **single strip + drawer capsule + popups**: `PanelCoordinator` owns 5 `NSPanel`s per display-unit; `TaskbarScreenOrchestrator` owns per-display `Unit`s | 4 fixed modes, `displayID#index` panels | one strip panel per display, 5 bar styles | generalized `DockSegment`s, 1 panel/segment, config-persisted |
+| Multi-display | ✅ `TaskbarScreenPlacement`: `followMouse` / `allScreens` / `allScreensPerDisplay` / `pinned` + `TaskbarPerDisplaySeedController` + `DisplayTopologyStore` | ✅ per-display (`TaskbarScreenMode`) | ✅ per-display | ❌ primary display only |
+| Dock/native integration | `NativeDockPreferencesService`, auto-hide delays (native + edge sliders), `⌥⇧⌘D` toggle, window-lift avoidance, fullscreen-intent monitor, Spaces/overlay handling | `hideMacDock` + `SplitBarDockRestore` helper + login item | `DockManager` (independent/autoHide/hidden) | `DockController`: save-before-mutate, crash-recovery file, signals |
+| Role in merge | **architecture + engine + UI + settings + test culture** | **mode semantics + island math + island tests** | **widget implementations + settings patterns (selective)** | **priors only where tungsten is silent** |
 
 ---
 
 ## 1. Goal
 
-**Splitbar** is a macOS taskbar replacement: an LSUIElement background agent (menu-bar item
-only, no Dock icon of its own) whose bar renders in four required layouts:
+**KatiKati** is a macOS taskbar replacement: an LSUIElement background agent (menu-bar item
+only, no Dock icon of its own) whose bar renders in four required layouts, built on
+tungsten-edge's proven per-window taskbar engine:
 
 | Mode | Visual | Islands | Sections (left → right) |
 |---|---|---|---|
@@ -71,387 +89,478 @@ only, no Dock icon of its own) whose bar renders in four required layouts:
 | `centered` | Narrow, width-adjustable centered bar | 1 (hug) | `[weather, apps, tray, clock]` |
 
 Optional later (present in SplitBar-old, not required by the brief): `macOS` pill mode —
-DockBar's existing `mac` / `floatingCenter` styles cover most of it (Phase 7).
+revisit after Phase 5 using tungsten's `DockPanelHeight` scaling path (Phase 7).
 
 **Invariants that hold in every mode**
 
-- Island panels are non-activating (`canBecomeKey = false`), `.statusBar` level,
-  `collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle]` — they persist
-  across Spaces and stay out of Mission Control.
-- Flyouts open anchored to the island/icon that summoned them (weather from island 1,
-  calendar from island 4, per-icon window previews above the exact icon).
-- All islands on a screen hide together when a fullscreen window covers that screen, and
-  reflow when the screen set or resolution changes.
+- Island panels stay non-activating (tungsten's `.nonactivatingPanel` + `NonConstrainingPanel`
+  discipline), join all Spaces / stay stationary / ignore cycle, persist across Spaces and
+  stay out of Mission Control — extend `PanelCoordinator.allSpacesPanels` coverage to every
+  island panel, never relax it.
+- Flyouts/popups open anchored to the island/chip that summoned them (weather from island 1,
+  calendar from island 4, per-chip window popups above the exact chip) — tungsten's
+  `folderPopupTargetFrame` / tooltip-target geometry generalizes to per-island anchors.
+- All islands on a screen hide together when a fullscreen window covers that screen (tungsten
+  `PanelCoordinator+Fullscreen` + `FullscreenIntentMonitor` path), and reflow when the
+  screen set or resolution changes (`TaskbarScreenOrchestrator.rebuildUnits`).
 - The active mode, centered width and gaps persist across relaunch and switch from
-  Settings **without relaunching**.
+  Settings **without relaunching** (new `com.katikati.*` keys, §6; tungsten
+  `AppSettingsStore` pattern).
+- Tungsten's per-window semantics are preserved verbatim in every mode: one card per window,
+  smart native-tab merging (`groupID` token), greyed-out minimized/hidden states, Spaces
+  switching on click, drawer stashing, drag-to-organize, badges, pinned folders, shelf,
+  trash. Modes change **where chips render**, never **what a chip means**.
 
 ### Non-goals
 
-- No SwiftUI on the bar path (decision 2); no TCA-style reducer store — DockBar's
-  settings + `AppDelegate` wiring governs state.
+- No AppKit rewrite of the strip: `DockStripView` + `PanelCoordinator` + `AppRuntime` stay
+  SwiftUI-in-panel exactly as tungsten ships them. New code is layout/placement/settings;
+  the bar path is never reimplemented.
+- No TCA-style reducer store — tungsten's `…Store` + `AppDelegate` wiring governs state.
 - No wallpaper/personalisation engine, AI-usage, clipboard, quick-notes, secrets or
   `ProcessRunner` features from SplitBar-old in scope (see §5 not-ported; Phase 7 max).
-- Zero third-party dependencies — all three source repos are dependency-free; preserved.
+- No new third-party dependencies beyond tungsten's single Sparkle SPM pin — all donor
+  ports must be dependency-free.
+- No rebranding of tungsten itself: the core stays GPL-3.0-or-later with Moonbai Studio
+  trademark reserved; KatiKati ships under its own name/icon/id (§6).
 
 ---
 
-## 2. Why this split of work
+## 2. Why tungsten-edge is the core
 
-### Capability matrix (verified against the three repos)
+### Capability matrix (verified against the four repos)
 
-| Capability | DockBar | SplitBar-old | Live SplitBar | Verdict |
+| Capability | Tungsten Edge | SplitBar-old | DockBar | Live SplitBar | Verdict |
 |---|---|---|---|---|
-| Fixed 4 taskbar modes + picker | ❌ | ✅ | ❌ (no mode concept) | Port SplitBar-old |
-| Generalized segments (any edge/alignment, config-persisted) | ❌ | ❌ (fixed 4 only) | ✅ `DockSegment` + migration | Port as persistence/geometry *model* |
-| Island/segment geometry (pure) | `BarPanelLayout` (strip-level) | `layoutIslands` + overflow loop | `segmentPanelFrame` (clamped) | Compose: DockBar strip frame + SplitBar-old island split |
-| Multi-panel management | ❌ (1/display) | ✅ `TaskbarPanelController` | ✅ `SegmentPanelManager` | Port SplitBar-old keys, live-repo sync hygiene |
-| AX window mgmt + per-window task buttons | ✅ mature | ❌ prototype | ❌ basic | DockBar only |
-| Launcher / quick settings / tray cluster | ✅ mature | partial | partial pills | DockBar only |
-| Multi-display | ✅ | ✅ | ❌ | DockBar |
-| Fullscreen hide per screen | ✅ + `FullscreenMonitor` (donor A) | ✅ | ❌ | Merge both |
-| Flyout anchoring | ✅ `relativeTo:of:` | per-panel | ✅ per-icon `screenFrame` | DockBar + live per-icon composition |
-| Dock hide/restore hardening | `DockManager` | `hideMacDock` + restore helper | ✅ strongest (`DockController`) | Merge: `DockManager` + live recovery file/signals |
-| Hover window previews (ScreenCaptureKit) | `ThumbnailService` (click) | ❌ | ✅ debounced strip | Port live `WindowPreviewStripController` ideas (Phase 7 or 6) |
-| Glass/material tokens | `DesignSystem` | `ThemeToken`/`GlassProvider` | `LiquidGlass`, `DockMaterialStyle` | Reconcile into DockBar `DesignSystem` |
-| Tests | ✅ ~40 files | ✅ `TaskbarStripTests` | ❌ none | DockBar culture + port island tests |
-| Settings window with search | ✅ | ❌ | SwiftUI `SettingsView` | DockBar + add "Layout" page |
-| Update service | ✅ | ❌ | ❌ | DockBar |
-| Auto-hide handle/activation zone | ✅ | ❌ | ✅ `edgeHandleFrame`/`edgeActivationFrame` | Keep DockBar; adopt live formulas if needed |
+| Fixed 4 taskbar modes + picker | ❌ | ✅ | ❌ | ❌ (no mode concept) | Port SplitBar-old |
+| Per-window taskbar engine (identity, lifecycle, optimistic states) | ✅ best-in-class (`WindowIdentityEngine`, `LifecycleTransitionEngine`, `LifecycleActionPlanner`, `OptimisticWindowState`, `AppTracker` inventory) | ❌ prototype | ✅ mature | ❌ basic | Tungsten only |
+| Native-tab merging (stable card per tab group) | ✅ `groupID` token + `StripItem` slotting | ❌ | ❌ | ❌ | Tungsten only |
+| Strip rendering (drag, hover, badges, drawer, shelf, trash, folders) | ✅ `DockStripView` family + `DragController` + `StripOrderStore` | ❌ | AppKit zones | partial pills | Tungsten only |
+| Multi-panel management | ✅ per-`Unit` `PanelCoordinator` (5 panels each) + incremental `rebuildUnits` | ✅ `TaskbarPanelController` | ❌ (1/display) | ✅ `SegmentPanelManager` | Tungsten pattern; SplitBar-old keys inform slot ids |
+| Panel geometry (pure, tested) | ✅ `PanelGeometry` (`segmentPanelFrame`-class clamp discipline, popup/tooltip/drawer frames) + `PanelGeometryTests` | `layoutIslands` + overflow loop | `BarPanelLayout` (strip-level) | `segmentPanelFrame` (clamped) | Compose: tungsten outer frame + SplitBar-old island split |
+| Multi-display | ✅ richest (`followMouse`/`allScreens`/`allScreensPerDisplay`/`pinned` + seed controller + topology store) | ✅ | ✅ | ❌ | Tungsten |
+| Fullscreen hide per screen | ✅ intent monitor + per-coordinator path | ✅ `FullscreenMonitor` | ✅ | ❌ | Tungsten path; donor-A ideas only if a gap is found |
+| Flyout anchoring | ✅ popup/tooltip/drawer target frames per anchor rect | per-panel | ✅ `relativeTo:of:` | ✅ per-icon `screenFrame` | Tungsten + generalize to per-island anchors |
+| Dock hide/restore hardening | ✅ auto-hide delays, `NativeDockPreferencesService`, window-lift avoidance, signal-safe teardown paths | `hideMacDock` + restore helper | `DockManager` | ✅ save-before-mutate + recovery file | Tungsten; live-SplitBar recovery pattern only if tungsten lacks it |
+| Hover/click previews | ✅ `ChipSnapshotter`, `StackPopupSnapshotProbe`, snapshot-backed popups | ❌ | `ThumbnailService` (click) | ✅ debounced strip | Tungsten |
+| Glass/material | ✅ `DockLiquidGlassConfiguration`, `DockThemeTokens`, `DockGlassRuntimeBridge`, rim plan | `ThemeToken`/`GlassProvider` | `DesignSystem` | `LiquidGlass`, `DockMaterialStyle` | Tungsten tokens stay; DockBar tokens consulted only for weather/tray ports |
+| Weather / clock / tray-cluster widgets | ❌ (no weather/clock/tray cluster in core) | partial | ✅ mature (`WeatherService`, `CalendarTrayButton`, `ConnectivityTrayView`, `WindowsTrayClusterView`, `BatteryMonitor`) | partial pills | Port DockBar widget implementations |
+| Tests | ✅ ~1,300 cases + localization + debug-switch + conformance checks | ✅ `TaskbarStripTests` | ✅ ~40 files | ❌ none | Tungsten culture + port island tests |
+| Settings + onboarding + status menu | ✅ `AppSettingsStore`, `SettingsCoordinator`, `SettingsWindowView`, `WelcomeGuideView`, `StatusMenuController`, `PermissionOnboardingView` | mode picker step | ✅ search + catalog | SwiftUI `SettingsView` | Tungsten + add "Layout" page |
+| Update service | ✅ `SparkleUpdateService` (Sparkle SPM) | ❌ | ✅ custom | ❌ | Tungsten (keep Sparkle pin) |
+| Auto-hide handle/activation zone | ✅ edge delays + `edgeActivationFrame`-class geometry + `⌥⇧⌘D` toggle | ❌ | ✅ | ✅ | Tungsten |
 
 ### Rationale
 
-- **DockBar is the base** because it is the only repo with a tested, AppKit, multi-display,
-  data-driven architecture (`TaskbarStyleSpec` × `TaskbarLayoutStrategy` × `BarEdge`), a
-  real settings catalog, and ~40 passing test files — the new repo inherits a green suite
-  on day one.
+- **Tungsten is the core** because it is the only repo that already *is* a shipping-quality
+  per-window taskbar: stable window identity across tab switches/focus races, optimistic
+  interaction states, per-display orchestrator units, tested panel geometry, drag & drop with
+  carrier surfaces, drawer/shelf/trash/folders/badges, fullscreen/Spaces correctness, and a
+  ~1,300-test suite guarding all of it. Rebuilding any of that on another base would be
+  strictly worse than adding layout modes to tungsten.
 - **SplitBar-old is donor A** because it is the only source of the *4 required modes* as
   semantics: `TaskbarSection.islands(for:)` (which sections group into which island), the
   overflow-collapse loop, and `TaskbarStripTests` proving them. Its structure (7.5k-line
   SwiftUI monolith) is deliberately not ported — only model + math + tests.
-- **Live SplitBar is donor B** because it already battle-tested the *panel-per-chunk*
-  approach in production: per-segment `NSPanel`s with incremental sync and a 0.5 pt
-  minimum gap, clamped cross-edge frame math, config migration detectors for legacy
-  layouts, per-icon flyout anchors that survive multiple panels, and real-Dock
-  save-before-mutate/crash-recovery hardening. It has no tests and no fixed-mode
-  concept, so it contributes **priors and hardening code**, not architecture.
-- Precedence rule when donors disagree: **SplitBar-old wins on mode semantics** (it owns
-  the 4 modes), **live SplitBar wins on multi-panel mechanics** (it ships them), **DockBar
-  wins on everything else** (it is the base).
+- **DockBar is donor B** because it owns the missing widget set (weather, clock, tray
+  cluster) plus settings-window patterns. Tungsten already covers window management,
+  panels, settings infra and tests, so DockBar contributes **implementations, not
+  architecture** — each widget is re-skinned as a tungsten strip chip + popup.
+- **Live SplitBar is reference-only**: tungsten's orchestrator + `PanelGeometry` supersede
+  its `SegmentPanelManager`/`segmentPanelFrame`; consult it only where tungsten documents
+  no equivalent (and record the delta in the porting PR).
+- Precedence rule when sources disagree: **SplitBar-old wins on mode semantics** (it owns
+  the 4 modes), **tungsten wins on everything else** (it is the base). DockBar widget ports
+  adapt to tungsten strip/popup APIs — never the reverse.
+- What changed since v2: DockBar's AppKit strip/panel/settings/test base is replaced by
+  tungsten's SwiftUI-in-panel strip + orchestrator + 1,300-test base; SwiftPM is replaced
+  by tungsten's **Xcode project** build; macOS floor follows tungsten (**12.0**, SDK-gated
+  Liquid Glass via `#available(macOS 26.0, *)`); Swift version follows tungsten (**5.0**);
+  Sparkle becomes the update path; licensing gains a **GPL-3.0-or-later core** with
+  trademark rename obligations (§6).
 
-## 3. Naming (three vocabularies → one canonical set)
+## 3. Naming (tungsten vocabulary → canonical additions)
 
-All three repos collide (`TaskbarMode` alone means two different things). Canonical names
-in the new repo:
+Tungsten's vocabulary stays authoritative; the merge only *adds* layout-mode names. Where
+v2 renamed DockBar concepts, this plan keeps tungsten names and maps donors onto them:
 
-| Concept | DockBar | SplitBar-old | Live SplitBar | **New repo (canonical)** |
-|---|---|---|---|---|
-| Style preset | `TaskbarMode` (custom/windows/mac/classic/eskele/hybrid) | — | `DockMaterialStyle` | **`TaskbarMode`** (keep DockBar's meaning) |
-| Bar layout, the 4 required | — | `TaskbarMode` (windows/split3/split4/centered) | — | **`BarLayoutMode`**: `windows|split3|split4|centered` (+`macOS` later) |
-| Horizontal chunk | zones in one strip | `TaskbarSection` (weather/apps/tray/clock) | `DockSegment` (kind × edge × alignment, UUID id) | **`BarSection`**: `weather|apps|tray|clock` |
-| Island math | `BarPanelLayout` (strip frame) | `TaskbarStrip.layoutIslands` | `segmentPanelFrame` (alignment+offset+clamp) | **`IslandLayoutSolver.layout(...)`** over DockBar `BarPanelLayout` |
-| Panel manager | `AppDelegate` panels dict | `TaskbarPanelController` (`displayID#index`) | `SegmentPanelManager` (per-segment) | **`BarLayoutController`** (`displayID#slot`) |
-| Mode picker UI | — | `OnboardingView` + thumbnails | — | **Settings „Layout" page** + onboarding step |
+| Concept | Tungsten Edge (canonical — kept) | SplitBar-old | DockBar | Live SplitBar | **New in Splitbar** |
+|---|---|---|---|---|---|
+| Layout mode (the 4 required) | — (single-strip assumption) | `TaskbarMode` (windows/split3/split4/centered) | — | — | **`BarLayoutMode`**: `windows\|split3\|split4\|centered` (+`macOS` later, Phase 7) |
+| Content section | strip zones inside `DockStripView` (chips/trash/shelf/folders/drawer entry) | `TaskbarSection` (weather/apps/tray/clock) | task zones | `DockSegment` kinds | **`BarSection`**: `weather\|apps\|tray\|clock` — grouping key only, rendering stays tungsten chips |
+| Island math | `PanelGeometry` + `PanelLayoutMetrics` + `DockPanelHeight` (outer/anchor frames) | `TaskbarStrip.layoutIslands` | `BarPanelLayout` (strip frame) | `segmentPanelFrame` | **`IslandLayoutSolver.layout(...)`** — pure split of tungsten's strip frame; tungsten geometry stays the clamp authority |
+| Panel manager | `TaskbarScreenOrchestrator` + per-`Unit` `PanelCoordinator` | `TaskbarPanelController` (`displayID#index`) | `AppDelegate` panels dict | `SegmentPanelManager` | **Extend orchestrator/coordinator**: `displayUUID#slot` islands inside/beside the strip unit; `rebuildUnits` reconcile extended, not replaced |
+| Mode picker UI | `WelcomeGuideView` + `SettingsWindowView` + `SettingsTab` | `OnboardingView` + thumbnails | settings catalog | — | **Settings "Layout" tab** + welcome-guide step, drawn from `IslandLayoutSolver` |
+| Window item | `StripItem` (`groupID`-stable, tab-merged) | window buttons | task buttons | segment items | **unchanged** — modes never redefine chip identity |
 
-Conceptual model: **style × layout mode × edge** are three independent axes.
-`TaskbarStyleSpec` gains a `layoutMode` override field, reusing the exact pattern of its
-existing `layoutMode` / `edge` / `dockPosition` overrides (incl. equality + resolution
-helper + tests, mirroring `TaskbarStyleSpecTests`).
+Conceptual model: **layout mode is a new axis beside tungsten's existing settings.**
+`AppSettingsStore` gains `barLayoutMode` (+ `centeredWidth`, island gap/margin) under
+`com.katikati.*` keys with the same published-setter + migration pattern tungsten uses for
+`taskbarScreenMode` / `dockPanelHeight` (incl. legacy-tier migration precedent in
+`DockPanelHeight.migratingLegacyTier`). No tungsten key is renamed; tungsten's
+`com.tungsten.edge.*` defaults are left behind on first run (one-way `InstallLineage`-
+aware migration, §6/Phase 0).
 
 ## 4. Target architecture
 
 ```
-Splitbar (LSUIElement agent)
- ├─ AppDelegate
- │   ├─ BarLayoutController              NEW — port of SplitBar-old TaskbarPanelController
- │   │    ├─ panels: [displayID: [IslandSlot: TaskbarPanel]]
- │   │    │    slot 0  → the single "strip" panel (windows / centered modes)
- │   │    │    slot 0..n → one panel per island (split3 / split4)
- │   │    ├─ IslandLayoutSolver          NEW — pure, unit-tested geometry
- │   │    │    (port of TaskbarStrip.layoutIslands + live segmentPanelFrame clamping)
- │   │    ├─ reconcile(old:new) — incremental sync like SegmentPanelManager:
+Splitbar (LSUIElement agent, tungsten tree + layout layer)
+ ├─ App/Entry
+ │   ├─ AppDelegate (tungsten wiring; adds layout-mode store observation)
+ │   ├─ TaskbarScreenOrchestrator      EXTENDED — per-display Unit gains island plan
+ │   │    ├─ Unit(displayUUID?) → PanelCoordinator (+ island panels / island strip splits)
+ │   │    ├─ IslandLayoutSolver        NEW — pure, unit-tested geometry
+ │   │    │    (splits tungsten PanelLayoutMetrics strip frame per BarLayoutMode;
+ │   │    │     SplitBar-old layoutIslands + overflow loop, tungsten clamp authority)
+ │   │    ├─ rebuildUnits(reason:) extended — incremental reconcile per displayUUID#slot:
  │   │    │    reuse panels when key survives, orderOut strays, 0.5 pt min gap
- │   │    └─ boundingFrame() — union of island frames → whole-bar flyout anchor
- │   ├─ TaskbarContentView (refactored → per-slot section view)
- │   │    ├─ WeatherZoneView  ← WeatherWidgetView      (forced .dock placement)
- │   │    ├─ AppsZoneView     ← LauncherZoneView + WindowsTrayClusterView + task zone
- │   │    ├─ TrayZoneView     ← ConnectivityTrayView + battery + quick settings
- │   │    └─ ClockZoneView    ← CalendarTrayButton
- │   └─ everything else unchanged: WindowManager, AX, tray, Launchpick,
- │        QuickSettings, FlyoutPanel, SettingsWindowController, UpdateService,
- │        DockManager (hardened, see below), WeatherService, Calendar, thumbnails
- └─ shared: DesignSystem (absorbs glass tokens from both donors)
+ │   │    └─ boundingFrame() — union of island frames → whole-bar popup anchor
+ │   └─ PanelCoordinator (+Fullscreen/+Layout/+Popups/+Visibility)   EXTENDED
+ │        ├─ strip panel + glass background + drawer/capsule + folder/shelf/trash
+ │        │   popups + tooltip + resize-cursor panels (all unchanged semantics)
+ │        └─ NEW: island panels (split3/split4 slots) or hug-width strip (centered),
+ │             all covered by allSpacesPanels + fullscreen hide/show atomically
+ ├─ App/Scenes
+ │   ├─ DockStripView family (UNCHANGED engine) — chips, drag, hover, badges,
+ │   │    drawer/shelf/trash/folders; per-island instances receive filtered StripItems
+ │   ├─ NEW: weather / clock / tray-cluster chips + popups (ported DockBar
+ │   │    implementations, re-skinned to tungsten chip/popup APIs)
+ │   └─ SettingsWindowView + WelcomeGuideView (+ new "Layout" tab/step)
+ ├─ App/Composition — all tungsten stores UNCHANGED (AppRuntime, StripOrderStore,
+ │    DrawerStore, BadgeStore, KeptAppStore, RunningApplicationStore, ShelfStore,
+ │    PinnedFolderStore, TrashStateStore, DragController, SparkleUpdateService, …)
+ ├─ Core/ + Platform/ — UNCHANGED (identity, lifecycle, placement, AppTracker, AX/CG,
+ │    permissions, Finder, fullscreen classifier, debug switches)
+ └─ shared: DockThemeTokens / DockLiquidGlassConfiguration (stay; absorb only the
+      minimum tokens needed to skin ported DockBar widgets)
 ```
 
 ### Key mechanics
 
-1. **Panel keys**: `"<displayID>#<slot>"` (SplitBar-old's `displayID#index` convention).
-   Mode switch = *reconcile* the panel set — what `TaskbarPanelController.show(_:)` does,
-   but incremental (live repo's `SegmentPanelManager.sync`: keep a panel if its key and
-   size still match, only touch frames that changed, `orderOut` only when leaving).
-2. **Island chrome**: each island is DockBar's `TaskbarPanel` with its existing
-   `isFloating` path — rounded corners, shadow, gap to screen edge; per-slot corner radius
-   and material come from `DesignSystem` tokens.
+1. **Panel keys**: `"<displayUUID>#<slot>"` (SplitBar-old's `displayID#index` convention
+   transplanted onto tungsten's display-UUID units). Mode switch = *reconcile* the island
+   set inside `rebuildUnits` — keep tungsten's incremental discipline (reuse a panel when
+   its key and size still match, only touch frames that changed, `orderOut` only when
+   leaving), extended from units to slots.
+2. **Island chrome**: each island reuses tungsten's existing strip-panel construction
+   (`NonConstrainingPanel` + glass background + `PanelLayoutMetrics` + shadow tokens) —
+   no new panel class; per-slot corner radius/material come from the existing tungsten
+   theme tokens, so height scaling (`DockPanelHeight.scale`) keeps working.
 3. **Geometry** (the Phase-1 contract):
-   - DockBar computes the strip frame via `BarPanelLayout` (bottom-left origin, edge-
-     aware, float/hug variants) — this stays authoritative for *outer* frames.
-   - `IslandLayoutSolver` takes the StripBar-old `layoutIslands` signature
+   - Tungsten's `PanelGeometry`/`PanelLayoutMetrics` stay authoritative for *outer* frames
+     and every popup/tooltip/drawer anchor.
+   - `IslandLayoutSolver` takes the SplitBar-old `layoutIslands` signature
      `(screenWidth, tileStride, appCount, weatherWidth, trayWidth, clockWidth, clusterWidth,
      gap, margin, barHeight, bottomMargin)` → produces island frames in the same
-     bottom-left screen space (both donors' AppKit math is bottom-left; SplitBar-old's
-     SwiftUI y-from-bottom maps 1:1 — *prove with the Phase-1 golden test*).
-   - Live `segmentPanelFrame`'s clamp discipline (never off `visibleFrame`, alignment
-     origin + offset) is re-applied per island as a safety net.
-4. **Horizontal distribution**: DockBar's `leftTaskZoneStackView /
-   neutralTaskZoneStackView / rightTaskZoneStackView` + flexible spacers already encode
-   weather-left / apps-center / tray-right — the refactor promotes these to per-slot zone
-   hosts; each island gets exactly its slot's sections in fixed L→R order (Appendix A).
-5. **Overflow**: port SplitBar-old's loop verbatim — shrink visible app tiles until the
-   island fits, set `showsOverflow`, rest lives behind the overflow flyout
-   (DockBar's existing group/flyout views render it).
-6. **Flyouts**: DockBar `FlyoutPanel.show(contentViewController:relativeTo:of:)` unchanged;
-   add live SplitBar's per-icon composition: `screenFrame = islandFrame + localFrame` —
-   note the y-flip the live repo does (`maxY - logical.maxY`) exists *only* because
-   SwiftUI locals are top-down; in AppKit locals are already bottom-left, so composition
-   is a plain addition + the flip constant is dropped. Test both (Phase 3).
-7. **Fullscreen**: merge SplitBar-old `FullscreenMonitor` logic with DockBar's existing
-   fullscreen handling; hide/show applies to **all slots of that displayID atomically**.
-8. **Widget placement rule**: in all four layout modes, weather/tray/clock are forced into
-   the bar regardless of `WidgetPlacement`'s menu-bar default; the menu-bar placement wins
-   only in plain single-strip styles (migration stamp in `WidgetPlacement.resolve`,
-   mirroring its existing v0.6 precedent — no silent flips for existing installs).
-9. **Real-Dock hardening**: DockBar `DockManager` + live `DockController`'s pieces:
-   save-before-mutate state file, restore-on-launch crash recovery, SIGTERM/SIGINT
-   restore, dev bypass flag (`killall Dock` guard).
+     bottom-left screen space tungsten uses; tungsten clamp discipline (never off
+     `visibleFrame`, alignment origin + offset) validates every island as a safety net.
+   - `DockStripView` instances render per-island `StripItem` slices; strip-internal drag,
+     hover, badges and popups behave exactly as today — only the item filter and the
+     host frame differ per island.
+4. **Content mapping**: tungsten's strip content (window chips + drawer/shelf/trash/folders)
+   is the `apps`-plus-utilities zone; ported DockBar weather/clock/tray widgets become
+   additional chips placed by `BarSection.islands(for:)` grouping (Appendix A). No tungsten
+   chip type is removed or redefined.
+5. **Overflow**: port SplitBar-old's loop verbatim — shrink visible app chips until the
+   island fits, set `showsOverflow`, rest lives behind the overflow popup (tungsten's
+   existing stack/folder popup geometry renders it).
+6. **Popups**: tungsten `folderPopupTargetFrame` / tooltip-target frame functions
+   unchanged; add per-island composition `screenFrame = islandFrame + localFrame`
+   (AppKit locals are bottom-left, so plain addition — no y-flip). Test both (Phase 3).
+7. **Fullscreen/Spaces**: tungsten's `PanelCoordinator+Fullscreen` +
+   `FullscreenIntentMonitor` + overlay-space handling stay the single path; hide/show
+   applies to **all slots of that displayUUID atomically**; `allSpacesPanels` must include
+   every island panel (regression test, Phase 3).
+8. **Settings rule**: layout mode lives beside `taskbarScreenPlacement` in
+   `AppSettingsStore`; in all four layout modes, weather/tray/clock chips are forced into
+   the bar regardless of any ported DockBar placement default; migration is one-way with
+   an `InstallLineage`-style stamp so existing tungsten installs never silently flip.
+9. **Native-Dock posture**: tungsten's `NativeDockPreferencesService` + auto-hide delays +
+   window-lift avoidance are kept as-is. Live-SplitBar `DockController` recovery-file
+   ideas are adopted only if a Phase-5 drill proves tungsten's teardown path loses state
+   (evidence-gated, not ported by default).
 
 ---
 
 ## 5. Port allow-list (file-level)
 
 The §-tables are normative: **if a file/feature is not listed, it is not ported.**
+Tungsten's tree is the baseline — everything there is *kept* unless §5d says otherwise.
 
 ### 5a. From SplitBar-old (donor A) — port model + math + tests
 
 | Source | Target in new repo | Notes |
 |---|---|---|
-| `TaskbarConceptView.swift` → `enum TaskbarMode` | `Models/BarLayoutMode.swift` | 4 cases only; drop `macOS` to Phase 7 |
-| `TaskbarSection` + `islands(for:)` | `Models/BarSection.swift` (section + island grouping) | Keep exact groupings (Appendix A) |
-| `TaskbarStrip.layoutIslands(...)` | `Utilities/IslandLayoutSolver.swift` | Pure function; no views, no timers |
+| `TaskbarConceptView.swift` → `enum TaskbarMode` | `Core/Support/BarLayoutMode.swift` (new) | 4 cases only; drop `macOS` to Phase 7 |
+| `TaskbarSection` + `islands(for:)` | `Core/Support/BarSection.swift` (new section + island grouping) | Keep exact groupings (Appendix A); rendering stays tungsten |
+| `TaskbarStrip.layoutIslands(...)` | `Core/Support/IslandLayoutSolver.swift` (new) | Pure function; no views, no timers; tungsten clamp validates output |
 | `TaskbarStrip.pruned` (divider logic) | *deferred* | Only if dividers are wanted (Phase 7) |
 | `TaskbarStrip` overflow-collapse loop | inside `IslandLayoutSolver` | Returns per-island `showsOverflow` |
-| `Services/TaskbarPanelController.swift` | `Services/BarLayoutController.swift` | `displayID#slot` keys, mode-switch reconcile |
-| `Services/FullscreenMonitor.swift` | merge into DockBar fullscreen path | Applies to all slots per display |
-| `centeredBarWidth` defaults key (`taskbar.centeredWidth`) | `TaskbarSettings.centeredWidth` | Same migration pattern DockBar uses |
-| `TaskbarPanelController` per-display re-layout | `TaskbarScreenMode`-equivalent in DockBar | DockBar already re-styles on screen change |
-| `Tests/SplitBarTests/TaskbarStripTests.swift` | `Tests/SplitbarTests/IslandLayoutSolverTests.swift` | All cases: islands-per-mode, section coverage, bounds, overflow |
-| `OnboardingView` pick-a-layout step | AppKit redraw in `Views/Onboarding/` | Reference screenshots, Appendix B |
-| Mode thumbnails | extend `TaskbarStylePreviewView` | Drawn **from `IslandLayoutSolver`** → preview = real geometry |
+| `Services/TaskbarPanelController.swift` | slot-key + reconcile logic merged into `TaskbarScreenOrchestrator`/`PanelCoordinator` | `displayUUID#slot` keys, mode-switch reconcile; no new manager class |
+| `Services/FullscreenMonitor.swift` | gap-analysis only against tungsten fullscreen path | Adopt ideas only if tungsten path misses a case (evidence-gated) |
+| `centeredBarWidth` defaults key (`taskbar.centeredWidth`) | new `com.katikati.*` centered-width key | Same value semantics; new domain (no shared defaults with tungsten) |
+| `TaskbarPanelController` per-display re-layout | tungsten `rebuildUnits` extension | Tungsten already re-seeds on screen change |
+| `Tests/SplitBarTests/TaskbarStripTests.swift` | `Tests/.../IslandLayoutSolverTests.swift` (new) | All cases: islands-per-mode, section coverage, bounds, overflow |
+| `OnboardingView` pick-a-layout step | new step in `WelcomeGuideView` + "Layout" `SettingsTab` | Reference screenshots, Appendix B |
+| Mode thumbnails | `SettingsWindowView` Layout tab | Drawn **from `IslandLayoutSolver`** → preview = real geometry |
 
-### 5b. From live SplitBar (donor B) — port priors + hardening only
+### 5b. From DockBar (donor B) — port widget implementations only
 
-| Source (commit) | Target in new repo | Notes |
+| Source | Target in new repo | Notes |
 |---|---|---|
-| `Support/PanelGeometry.swift` → `segmentPanelFrame` clamping discipline | validation layer inside `IslandLayoutSolver` | alignment origin + offset + clamp-to-visibleFrame; unit tests copied in spirit |
-| `SegmentPanelManager` incremental sync (`f5fee81`) | `BarLayoutController.reconcile` | reuse-on-key-match, 0.5 pt min gap, touch only changed frames, `sizingOptions = []` lesson for hosting views |
-| `SegmentPanelManager.boundingFrame()/frame(for:)/screenFrame(forItem:inSegment:)` (`04b121d`) | `BarLayoutController` same methods | Drop the SwiftUI y-flip (AppKit locals already bottom-left); per-icon flyout anchors |
-| `Services/DockController.swift` (`f5fee81`) | hardening diff on DockBar's `DockManager` | save-before-mutate file, restore-on-launch, SIGTERM/SIGINT, dev bypass |
-| `Models/DockSegment` migration detectors (`f5fee81`, `a96b7dd`) | `WidgetPlacement.resolve` migration-stamp pattern | *Pattern* port: auto-generated configs migrate, hand-edited untouched |
-| `Views/Common/LiquidGlass.swift`, `ThemedGlassBackground.swift`, `DockMaterialStyle` | tokens in `Utilities/DesignSystem.swift` | AppKit `NSVisualEffectView` rendering; `NSGlassEffectView` feature-detected (macOS 26) |
-| `edgeActivationFrame`/`edgeHandleFrame` | only if auto-hide handle is adopted | Otherwise DockBar's autohide already covers it |
-| `WindowPreviewStripController` (SCK hover previews, `04b121d`) | **Phase 7** candidate | DockBar `ThumbnailService` covers click previews today |
+| `WeatherService` + weather widget views | tungsten-style chip + popup in `App/Scenes` | Re-skin to `StripItem`-adjacent chip + tungsten popup geometry; tokens from tungsten theme |
+| `CalendarTrayButton`/`CalendarView` | clock chip + calendar popup | Same re-skin; per-island anchor (island 4 in split4) |
+| `ConnectivityTrayView` + battery + quick settings | tray-cluster chips + popup | Same re-skin; cram rule: tray+clock share island 3 in split3 |
+| Settings-window search/catalog patterns | "Layout" tab organization in `SettingsWindowView` | *Patterns* only — tungsten settings infra stays |
+| AppKit panel lessons (`TaskbarPanel`, `BarPanelLayout` edge handling) | gap-analysis against `PanelCoordinator`/`PanelGeometry` | Adopt only proven deltas; no AppKit strip rewrite |
+| `ThumbnailService` click previews | gap-analysis against tungsten `ChipSnapshotter`/popups | Tungsten path wins ties |
+| `DockManager` hardening bits | gap-analysis against tungsten native-Dock services | Evidence-gated (Phase-5 drill decides) |
 
-### 5c. From DockBar (base) — kept as-is
+### 5c. From tungsten-edge (core) — kept as-is (baseline import)
 
-Everything under `Sources/DeskBar` is inherited wholesale in Phase 0, notably:
-`WindowManager`/`AXObserverManager`/`AccessibilityService`, `TaskbarStyleSpec` +
-`TaskbarLayoutStrategy` + `TaskbarSettings`, `TaskbarPanel` + `BarPanelLayout`,
-`TaskbarContentView` (then refactored), `FlyoutPanel`/`BorderlessFlyout`/`FlyoutLayout`,
-`QuickSettings*`, `Launchpick/*`, `WeatherService`, `CalendarTrayButton`/`CalendarView`,
-`ConnectivityTrayView`, `WindowsTrayClusterView`, `BatteryMonitor`, `DockManager`,
-`ThumbnailService`, `WindowSwitcherService`, `UpdateService`, `SettingsWindowController` +
-`Settings/` + `SettingsCatalog`, `Onboarding/`, `DesignSystem`, `MigrationManager`,
-`PermissionsManager`, `SingleInstanceLock`, all `Utilities/*`, all ~40 test files,
-`scripts/build.sh|package.sh|release.sh`, `.swiftformat`, CI.
+Everything in snapshot `a4e1a55` is inherited in Phase 0, notably:
+`AppDelegate`/`MacOSDockCCV2App` wiring, `AppRuntime` + `IntentPipeline`,
+`TaskbarScreenOrchestrator` + `PanelCoordinator` (+all `+Topic` splits) +
+`NonConstrainingPanel`/`ManualPanelHost`, `DockStripView` family + `StripProjection` +
+`DragController`, `StripItem`/`DockSnapshot`/`WindowRecord` + identity/lifecycle/placement
+engines, `AppTracker` + AX/CG/fullscreen/Spaces adapters, `AppSettingsStore` +
+`SettingsCoordinator` + `SettingsWindowView` + `WelcomeGuideView` + `StatusMenuController`,
+drawer/shelf/trash/folders/badges/messaging/kept-apps/running-apps stores,
+`PanelGeometry` + `PanelLayoutMetrics` + `DockPanelHeight`, glass/theme tokens +
+`DockGlassRuntimeBridge`, `SparkleUpdateService`, `LaunchAtLoginService`,
+`WindowLiftAvoidanceController`, all `Core/Support` decisions/plans/policies, `Tools/WindowLab`,
+all ~1,300 tests, `Scripts/` (`build_and_run.sh`, `package_release.sh`,
+`install_local_release.sh`, `check_*.py`), CI workflow, `Resources/` localizations
+(12 languages), `.gitignore` + signing/packaging discipline. Rebranding (§6) changes
+names/ids/assets only — never behavior.
 
 ### 5d. Explicitly NOT ported
 
-- SplitBar-old: `WallpaperEngine`, `ThemeToken`/`GlassProvider` (superseded by DesignSystem
-  reconciliation), personalisation flyouts, `WidgetProvider`, `splitbar.html`,
-  `SplitBarDockRestore` (DockBar has a login-item story; live `DockController` has the
-  recovery), `ProcessRunner`, `SecretsStore`/`SecurityKeychain`, AI-usage stack
-  (`AIUsage*`, `ProviderUsageScanner`, `ClaudeStatusLineBridge`, `AIAccountStore`),
-  clipboard stack (`Clipboard*`), quick notes, command palette, window tiling, Bluetooth/
-  NowPlaying/SystemMonitor flyouts (DockBar has its own equivalents where in scope).
-- Live SplitBar: `SegmentContainerView`, `EdgeDockView`, `SegmentPills`, all
-  `Stores/*` reducers, `AppRuntimeController`, SwiftUI `SettingsView`, `DockMagnificationLayout`.
-  (Magnification itself is a DockBar decision, not a donor feature.)
-- DockBar: nothing is removed in Phase 0; de-scoping only happens with owner sign-off.
+- SplitBar-old: `WallpaperEngine`, `ThemeToken`/`GlassProvider` (tungsten tokens win),
+  personalisation flyouts, `WidgetProvider`, `splitbar.html`, `SplitBarDockRestore`
+  (tungsten services own this area), `ProcessRunner`, `SecretsStore`/`SecurityKeychain`,
+  AI-usage stack, clipboard stack, quick notes, command palette, window tiling,
+  Bluetooth/NowPlaying/SystemMonitor flyouts (beyond the §5b widget set).
+- DockBar: AppKit strip/content/panel architecture (`TaskbarPanel`, `TaskbarContentView`,
+  zones/stacks, `TaskbarStyleSpec`/`TaskbarLayoutStrategy` system, `FlyoutPanel` system,
+  `QuickSettings*`, `Launchpick/*`, `UpdateService`, `MigrationManager`,
+  `PermissionsManager`, `SingleInstanceLock`, SwiftPM packaging, `SPEC.md`-era conventions).
+  Nothing AppKit-structural is ported — §5b is widgets + patterns only.
+- Live SplitBar: `SegmentContainerView`, `EdgeDockView`, `SegmentPills`, all `Stores/*`
+  reducers, `AppRuntimeController`, SwiftUI `SettingsView`, `DockMagnificationLayout`,
+  `SegmentPanelManager`, `DockSegment` persistence, `DockController` (unless the Phase-5
+  drill proves a tungsten gap — then最小 diff, evidence-gated).
+- Tungsten: nothing is removed in Phase 0 except rebranding (§6); de-scoping only happens
+  with owner sign-off. `Tools/WindowLab` stays (diagnostic CLI, not shipped). Official
+  tungsten binaries/website/cask/feed stay Moonbai's — never reused or impersonated.
 
 ## 6. Build, identity, licensing
 
-- **Repo**: `/Users/baraka/Desktop/Splitbar`, branch `main`, SwiftPM package (no
-  `.xcodeproj`), swift-tools 6.0 / language mode v5, **platforms macOS 14+** (DockBar's
-  floor; raise only if a Phase-6 API demands 15+ — live SplitBar's `NSGlassEffectView`
-  path must feature-detect anyway).
-- **Targets**: `Splitbar` (app executable), `SplitbarTests`. Phase 0 renames DockBar's
-  `Sources/DeskBar` → `Sources/SplitBar`, `DeskBarTests` → `SplitbarTests`.
-- **Identity**: product `Splitbar.app`, **provisional bundle id `com.splitbar.app`**.
-  ⚠️ Deliberately *not* `com.baraka.splitbar` (live SplitBar's id): both apps must be
-  installable side-by-side during migration, so their ids, app-support directories and
-  defaults domains must differ. If the owner later retires the live repo, an id swap is a
-  one-line `Info.plist` change — flagged as the open question in §8.
-- **Scripts**: reuse `scripts/build.sh`, `scripts/package.sh` (stamps version from tag),
-  `scripts/release.sh`, `Info.plist.template` → `Splitbar.app`; CI runs
-  `swift build && swift test`.
-- **Zero third-party dependencies** — all three sources are dependency-free; preserved.
-- **Licensing (must-do, combined `NOTICE`)**:
-  1. DockBar/DeskBar MIT — rajeshgoli/deskbar lineage, wakilibaraka/dockbar.
-  2. SplitBar-old MIT © 2026 senoldogann + its Status Trio (Apache-2.0 inspired) and
-     AppleSiliconDDC MIT attribution lines — carried verbatim when donor-A code ports.
-  3. Live SplitBar NOTICE (EdgeDeckBar→SplitBar lineage, senoldogann) — for donor-B code.
-  4. Inherited DockBar rules stay: exelban/Stats MIT = OK with attribution; SketchyBar &
-     yabai = **study only, never paste**; anything in `Reference/` is read-only.
-  5. No GPL anywhere; private API (SkyLight/SLS, IOBluetooth, NSGlassEffectView) isolated
-     behind protocols + feature-detected + flagged in PRs (notarization risk).
+- **Repo**: `/Users/baraka/Desktop/Splitbar`, branch `main`. **Build system follows the
+  core: Xcode project** (`macos-dock-cc-v2.xcodeproj`-as-imported, renamed for Splitbar
+  in Phase 0), **Swift 5.0**, **floor macOS 12.0**, runner `macos-26` + newest Xcode 26
+  (tungsten CI rule — the Liquid Glass path needs the macOS 26 SDK behind
+  `#available(macOS 26.0, *)`). SwiftPM is *not* used; tungsten has no `Package.swift`.
+- **Targets**: app (`macos-dock-cc-v2`-as-renamed), unit tests, `window-lab` CLI (diagnostic
+  only). Phase 0 renames product/targets + scheme for Splitbar while keeping the
+  target graph (app/tests/lab) and the `Scripts/` + CI checks intact:
+  `xcodebuild test … CODE_SIGNING_ALLOWED=NO` + `check_localization.py` +
+  `check_debug_switches.py` + conformance-availability check.
+- **Dependencies**: exactly **one** — Sparkle via SPM pin (tungsten's
+  `XCRemoteSwiftPackageReference`). No additions without owner sign-off.
+- **Identity (rebrand, must-do in Phase 0)**: product `KatiKati.app`; **new bundle id**
+  (working assumption `com.katikati.app`); **new defaults domain** (`com.katikati.*` —
+  never reuse `com.tungsten.edge.*` or `com.caye.macosdockcc.v2`); new icon + display
+  name (never "Tungsten Edge"/"钨极"); new Sparkle feed URL + key; new login-item /
+  single-instance scoping. Side-by-side installability with tungsten/edge builds and with
+  both SplitBar repos is required during migration. First-run migrates *user-meaningful*
+  tungsten prefs (screen placement, heights, delays, drawer/kept/folder/shelf choices) to
+  the new domain one-way with an install-lineage stamp — tungsten's own
+  `InstallLineage`/`migratingLegacyTier` patterns are the template.
+- **Scripts/signing**: reuse `Scripts/build_and_run.sh` (dev loop — never bare
+  `xcodebuild` + `open`; Accessibility grant follows signing identity),
+  `Scripts/package_release.sh` (fail-closed release gate), `install_local_release.sh`
+  (same-cert `/Applications` installs); keep the universal-binary + re-sign discipline in
+  `build_app`/`sign_app`. CI stays `xcodebuild test` + the three Python checks.
+- **Licensing (must-do, `LICENSE` + `NOTICE`)**:
+  1. **Tungsten Edge core = GPL-3.0-or-later** (`LICENSE`, © Moonbai Studio). Any repo
+     containing core-derived code is a covered work: keep the license, keep copyright
+     notices, document changes, and ship source (or a written offer) with binaries.
+     This plan assumes KatiKati stays source-available under GPL-3.0-or-later — confirm
+     with the owner in Phase 0; there is no MIT-only option while the core is inside.
+  2. **Trademark reservation (absolute)**: "Tungsten Edge"/"钨极" + logo/icon are *not*
+     GPL-covered (`TRADEMARK.md`, GPL-3.0 §7(e) reservation). Forks/self-builds must use
+     a different name + icon and must not present as official/endorsed — Phase 0
+     rebranding satisfies this; never ship Moonbai's website/cask/feed references.
+  3. SplitBar-old MIT © 2026 senoldogann lineage (+ Status Trio Apache-2.0-inspired and
+     AppleSiliconDDC MIT lines where donor-A code ports) — carried verbatim.
+  4. DockBar/DeskBar MIT (rajeshgoli/deskbar → wakilibaraka/dockbar) — carried verbatim
+     when donor-B code ports.
+  5. Live-SplitBar NOTICE (EdgeDeckBar→SplitBar lineage, senoldogann) — only if
+     reference code is actually pasted (default: no).
+  6. Inherited tungsten rules stay: SketchyBar & yabai = **study only, never paste**;
+     private API (SkyLight/SLS, `NSGlassEffectView`) stays isolated + `#available`-gated
+     + flagged in PRs (notarization risk).
+  7. No additional GPL-incompatible dependencies; Sparkle pin stays (check its license
+     handling in `package_release.sh` flow before first signed release).
 
 ---
 
 ## 7. Phases (each = shippable, testable slice)
 
-Every phase ends with `swift build && swift test` green plus a named verification step.
+Every phase ends with the tungsten gate green: `xcodebuild test … CODE_SIGNING_ALLOWED=NO`
++ `check_localization.py` + `check_debug_switches.py` + conformance-availability check,
+plus a named verification step. Phase numbering is kept stable vs v2 so review history
+still lines up; the *content* is re-based on tungsten.
 
-### Phase 0 — Bootstrap (in this repo)
+### Phase 0 — Baseline import + rebrand (in this repo)
 
-- Import DockBar `main` (clean, in sync with origin) as the baseline tree.
-- Rename: target `DockBar`→`Splitbar`, `Sources/DeskBar`→`Sources/SplitBar`,
-  `DeskBarTests`→`SplitbarTests`, bundle id `com.dockbar.app`→`com.splitbar.app`,
-  uninstall strings, README/agents.md, `Info.plist.template`, package.sh/package.sh
-  output name → `Splitbar.app`. Keep `SettingsCatalog` and internal type names unless a
-  name collides with §3.
-- Adopt `NOTICE` (§6, three entries — donor entries land with their code, placeholder now).
-- **Verify**: `swift build && swift test` green; app launches, bar appears, settings open.
+- Import tungsten snapshot `a4e1a55` as the baseline tree (clean import, no tungsten git
+history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
+  target graph (app/tests/window-lab), CI workflow and `Scripts/` discipline.
+- Rebrand (behavior-neutral): product/target/scheme → Splitbar; bundle ids
+  (`com.caye.macosdockcc.v2*` → new id, working assumption `com.katikati.app`);
+  defaults `com.tungsten.edge.*` → `com.katikati.*` (+ one-way first-run migration with
+  lineage stamp); display name/icon (never tungsten marks); Sparkle feed URL + key;
+  login-item/single-instance scoping; README/agents/CI strings; `Resources/Info.plist` +
+  `.xcstrings` display names (all 12 languages stay passing via `check_localization.py`).
+- Adopt `LICENSE` (GPL-3.0-or-later, Moonbai Studio) + `NOTICE` (§6 entries; donor
+  entries land with their code, placeholder now) + `TRADEMARK.md` reservation note.
+  Confirm with the owner that GPL-3.0-or-later is the intended Splitbar license.
+- **Verify**: tungsten gate green; app launches via `Scripts/build_and_run.sh`, bar
+  appears, settings + welcome guide open, window chips switch/minimize exactly as
+  tungsten does (no behavior delta allowed in Phase 0).
 
 ### Phase 1 — Layout model (pure, no UI)  ← risk retires here
 
 - Add `BarLayoutMode` (4 cases), `BarSection` (4 cases) + `islands(for:)` grouping,
-  `IslandLayoutSolver` — port `layoutIslands` + overflow loop + live clamp discipline.
-- Golden test vs DockBar: for a synthetic 1728×1117 screen (and the multi-display set
-  DockBar's `ScreenGeometryTests` uses), assert island frames ⊆ `BarPanelLayout` strip
-  frame, all inside `visibleFrame`, ≥ 0.5 pt inter-island gaps, bottom-left origin.
+  `IslandLayoutSolver` — port SplitBar-old `layoutIslands` + overflow loop, tungsten
+  clamp discipline as validation layer. Pure `Core/Support`, no AppKit, no AX — tungsten's
+  "pure decisions get unit tests" rule.
+- Golden test vs tungsten: for a synthetic 1728×1117 screen (and tungsten's
+  multi-display topology snapshots), assert island frames ⊆ tungsten strip frame, all
+  inside `visibleFrame`, ≥ 0.5 pt inter-island gaps, bottom-left origin.
 - Port `TaskbarStripTests` wholesale → `IslandLayoutSolverTests`: islands-per-mode
   (1/3/4/1), every section in exactly one island, in-screen bounds, crowded-apps
   overflow (`showsOverflow` flips only when needed), centered-width extremes.
-- `TaskbarStyleSpec.layoutMode` field + resolution helper + equality + tests (mirror
-  `TaskbarStyleSpecTests`, `TaskbarModeMigrationTests` patterns).
-- **Verify**: new + existing tests green; zero UI diff (nothing wired yet).
+- `AppSettingsStore.barLayoutMode` (+ centered width, gap/margin) with resolution helper
+  + equality + migration tests (mirror tungsten's `taskbarScreenMode`/`dockPanelHeight`
+  patterns, incl. legacy-tier precedent).
+- **Verify**: new + existing (~1,300) tests green; zero UI/behavior change (model only).
 
-### Phase 2 — Sectioned content view (still one panel)
+### Phase 2 — Island panels (one display, tungsten construction)
 
-- Refactor `TaskbarContentView` to render an explicit `BarSection` set; extract host
-  views: `WeatherZoneView`, `AppsZoneView`, `TrayZoneView`, `ClockZoneView` around the
-  existing widget/task views. Order within a section fixed (Appendix A).
-- Implement the widget-placement rule (§4.8) in `WidgetPlacement.resolve` + migration
-  stamp + tests (extend `WidgetPlacementTests`).
-- Visuals unchanged: one strip panel, same as DockBar today.
-- **Verify**: `TaskbarContentViewResponsiveTests`, `TaskZoneOrderingTests` updated + green;
-  screenshot diff of the bar before/after refactor ≈ identical.
+- Extend `TaskbarScreenOrchestrator`/`PanelCoordinator` with `displayUUID#slot` islands:
+  `windows`/`centered` = single panel (hug-width for centered); `split3`/`split4` = one
+  panel per island built with tungsten's existing strip-panel path (glass background,
+  metrics, shadow tokens). Incremental `rebuildUnits` reconcile (reuse-on-key-match,
+  touch only changed frames, `orderOut` strays).
+- Per-island `DockStripView` instances with filtered `StripItem` slices (window chips +
+  drawer/shelf/trash/folders distribution per Appendix A); strip-internal drag/hover/
+  badges/popups unchanged.
+- `boundingFrame()` (union of island frames) → whole-bar popup anchor; per-icon anchor
+  composition `screenFrame = islandFrame + localFrame` (plain addition, no y-flip).
+- **Verify**: mode switch without relaunch on one display; panels reuse (no flicker storm
+  in logs); every island ⊆ `visibleFrame`; Instruments idle-CPU ≤ strip baseline + ε.
 
-### Phase 3 — Multi-panel islands
+### Phase 3 — Flyouts, fullscreen, multi-display, Space survival
 
-- `BarLayoutController`: `displayID#slot` panel dictionary; mode switch = reconcile
-  (reuse/adjust/orderOut — SegmentPanelManager discipline). `AppDelegate`'s flat panels
-  dict shrinks to flyout/settings panels.
-- Wire `IslandLayoutSolver` output → per-slot frames; zone hosts move into their slot's
-  panel; island chrome (rounded corners, gap, shadow) via `TaskbarPanel.isFloating` path.
-- Fullscreen hide/show across all slots atomically; screen-change re-layout (DockBar's
-  existing path calls into `BarLayoutController`);
-- Per-icon flyout anchor composition (`islandFrame + localFrame`, no y-flip) — unit test
-  with a fake island + known local frame; `boundingFrame()` for bar-level anchors.
-- Hidden defaults key `barLayoutMode` for dogfooding the 4 modes.
-- **Verify**: island tests green; manual script — each mode on built-in display, Space
-  switch, fullscreen app, resolution change; flyouts open from correct islands; CPU idle
-  check with 4 panels (Instruments) ≤ strip baseline + ε.
+- Generalize tungsten popup/tooltip/drawer target frames to per-island anchors (weather
+  from island 1, calendar from island 4, per-chip popups above exact chip);
+  `allSpacesPanels` covers every island panel; fullscreen intent path hides/shows **all
+  slots of that displayUUID atomically**; `rebuildUnits` reflows on screen-set/resolution
+  change (incl. `pinned` + per-display seed paths).
+- Add per-icon anchor tests + atomic-hide tests + `pinned`-mode island tests.
+- **Verify**: Space-switch survival, fullscreen atomic hide per display, resolution-change
+  reflow, two-display matrix (`followMouse`/`allScreens`/`allScreensPerDisplay`/`pinned`)
+  — all green, no stranded panels.
 
-### Phase 4 — Mode picker & settings
+### Phase 4 — Widgets (DockBar implementations, tungsten skin)
 
-- Settings page **"Layout"**: 4 mode cards with live mini-previews drawn from
-  `IslandLayoutSolver` (extend `TaskbarStylePreviewView` — preview = real geometry),
-  `centeredWidth` slider, gap/inset knobs, per-mode reset.
-- Onboarding: port SplitBar-old's "Pick a layout" step in AppKit (reference screenshots
-  Appendix B); honors `SettingsCatalog` search.
-- Persistence tests: mode/width/gap roundtrip across defaults.
-- **Verify**: switch all modes from Settings without relaunch; relaunch restores;
-  `SettingsCatalogTests` green.
+- Port §5b widget set as tungsten chips + popups: weather, clock/calendar, tray cluster
+  (connectivity + battery + quick settings). Placement forced into bar in all four modes
+  per §4.8; all user-facing strings get 12-language values (`check_localization.py` gate).
+- Drawer/shelf/trash/folder/badge/messaging/kept-apps behavior unchanged; widgets join
+  the existing strip filtering + overflow model (`apps` remains the only
+  overflow-capable section).
+- **Verify**: widgets render in every mode/island per Appendix A; popups anchor to own
+  island; localization + debug-switch checks green.
 
-### Phase 5 — Visual parity with the reference
+### Phase 5 — Hardening (native Dock, teardown, recovery drill)
 
-- Reconcile glass tokens: DockBar `DesignSystem` absorbs donor tokens (corner radii,
-  vibrancy/material per mode, icon-size presets, pill vs capsule thickness — live repo's
-  asymmetric pill/capsule lesson from `04b121d`/`a96b7dd`).
-- Match `Screenshot 2026-10-06 at 02.03.12.png` (split-3: weather pill left, centered app
-  icons, tray+clock pill right); running-indicator styles per mode; hover/press states.
-- Dock-harden: `DockManager` + `DockController` recovery file/signals/dev-bypass;
-  menu-bar-only agent; Dock hide opt-in.
-- **Verify**: side-by-side screenshot review vs reference set; crash-recovery drill
-  (kill -9 during hidden-Dock session → relaunch restores).
+- Keep tungsten native-Dock services as the path; run the recovery drill: kill -9 during
+  Dock-mutating states, SIGTERM/SIGINT teardown, crash-relaunch, dev-bypass guard.
+  Adopt live-SplitBar recovery-file ideas **only** if the drill proves a tungsten gap
+  (evidence-gated diff, recorded in the PR).
+- Window-lift avoidance re-verified with island frames (maximized windows avoid every
+  island, not just the strip rect).
+- **Verify**: drill log in the PR; no lost Dock state; no orphaned island panels after
+  crash-relaunch.
 
-### Phase 6 — Hardening
+### Phase 6 — Settings Layout tab + welcome step + polish
 
-- Per-screen fullscreen matrix (2 displays, one fullscreen); display connect/disconnect
-  mid-session; 5-min idle CPU budget; slow-App-launch overflow stress; relaunch under
-  login-item conditions.
-- Private-API audit (§6.5); notarization dry-run (`codesign --verify`, hardened runtime).
-- **Verify**: adversarial checklist passes; no new warnings; coverage floor held.
+- New "Layout" `SettingsTab` (mode picker with live thumbnails drawn from
+  `IslandLayoutSolver`), `WelcomeGuideView` pick-a-layout step, status-menu mode entry;
+  height/gap/width sliders reuse tungsten's `DockPanelHeight` scaling path.
+- Polish: hover-title tooltips per island, drag-to-resize grip per island panel,
+  edge auto-hide delay interplay with multi-island layouts.
+- **Verify**: mode/width/gaps persist across restarts; switch without relaunch; onboarding
+  snapshot test green.
 
-### Phase 7 (optional, owner-gated)
+### Phase 7 — Deferred / optional (owner sign-off each)
 
-- `macOS` pill mode; SplitBar-style dividers (`pruned` orphan logic); hover preview strip
-  (live `WindowPreviewStripController`); widgets board/personalisation; magnification.
+Dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip upgrades,
+wallpaper/personalisation, clipboard/notes/AI-usage, extra flyouts. Each needs its own
+mini-plan + license check before porting.
 
----
+## 8. Risks, mitigations, open questions
 
-## 8. Risks & open questions
-
-| # | Risk | Impact | Mitigation |
+| # | Risk | Mitigation | Phase |
 |---|---|---|---|
-| 1 | Coordinate-space mismatch porting `layoutIslands` (donor A is SwiftUI; island `y` measured from screen bottom) | Wrong island positions | Phase-1 golden tests vs `BarPanelLayout` on synthetic + DockBar test screens **before any UI wiring**; AppKit locals are bottom-left → donor A's `bottomMargin` maps directly; live repo's clamp is the safety net |
-| 2 | `TaskbarContentView` refactor regressions (~2,400 lines of ordering/grouping logic) | Bar renders wrong for existing users | Phase 2 keeps single-strip rendering; screenshot diff before Phase 3; DockBar's `TaskbarContentViewResponsiveTests`/`TaskZoneOrderingTests` must stay green |
-| 3 | Widget placement flips menu-bar → bar for existing DockBar installs | User surprise | Explicit rule + migration stamp in `WidgetPlacement.resolve` (§4.8), mirroring the file's own v0.6 precedent; tests in `WidgetPlacementTests` |
-| 4 | 4 panels/idle CPU cost, duplicated timers | Battery drain | Max 4 panels/display; all panels share services (one `SharedTimer`); Phase 3 Instruments check vs strip baseline |
-| 5 | Scope creep from two 10k-line donors | Never ships | §5 tables are normative; "if not listed, not ported"; one capability per PR (donor-B CLAUDE.md rule adopted) |
-| 6 | License mixing across three MIT lineages | Distribution violation | Combined `NOTICE` (§6); donor attribution carried verbatim with each ported file; no GPL (SketchyBar/yabai study-only) |
-| 7 | Bundle-id / app-support collision with live SplitBar | Both apps fight over defaults/locks | Fresh `com.splitbar.app` + own defaults domain + own app-support dir + `SingleInstanceLock` scoped to new id (§6) |
-| 8 | Renaming DeskBar→Splitbar breaks DockBar scripts/CI conventions | Build drift | Phase 0 is a pure rename with `swift build && swift test` as exit gate; scripts adapted in same PR |
-| 9 | Donor-A fullscreen logic vs DockBar's existing fullscreen path disagree | Flashes/stranded islands | Phase 3 merges into one path; atomic per-display hide; test with two displays |
-| 10 | macOS 14 floor vs donor-B macOS-15/26 APIs (`NSGlassEffectView`) | Build errors on 14 | Feature-detect + fallback to `NSVisualEffectView` (donor B's own rule); CI matrix includes 14 |
+| 1 | Tungsten snapshot is a single squashed public commit — no upstream history for blame/bisect | Pin `a4e1a55` in §0/B; keep import clean; rely on tungsten's in-code rationale (Chinese comments — translate per-area on demand) + ~1,300 tests as the spec | 0 |
+| 2 | GPL-3.0-or-later copyleft surprises owner (v2 assumed MIT-only) | §6 makes GPL explicit + Phase-0 license confirmation gate; NOTICE/TRADEMARK in first PR; no binary ships before confirmation | 0 |
+| 3 | Trademark slip (shipping tungsten name/icon/feed) | Phase-0 rebrand checklist (§6); `check_localization.py` + string audit for "Tungsten Edge"/"钨极"; new icon/feed/key | 0 |
+| 4 | Bundle-id/defaults collision with tungsten or either SplitBar repo | New id + `com.katikati.*` domain + one-way lineage-stamped migration; side-by-side install test in Phase 0 | 0 |
+| 5 | Multi-island panels break tungsten's per-Unit assumptions (drag surfaces, hover monitors, popups) | Extend, don't fork: `displayUUID#slot` reconcile inside `rebuildUnits`; drag-carrier per screen stays; Phase-2/3 tests pin behavior | 2–3 |
+| 6 | Island frames escape `visibleFrame` on exotic topologies | Tungsten clamp stays authoritative; Phase-1 golden tests on tungsten topology snapshots; 0.5 pt min gap | 1 |
+| 7 | Fullscreen/Spaces regressions with N panels instead of 1 | Atomic per-displayUUID hide/show; `allSpacesPanels` coverage test; two-display + Spaces matrix in Phase 3 | 3 |
+| 8 | Widget ports clash with tungsten theme/glass tokens | Re-skin to tungsten chips/popups; tungsten tokens win; DockBar tokens consulted, never pasted wholesale | 4 |
+| 9 | macOS 12 floor vs Liquid Glass (macOS 26 SDK) | Keep tungsten's `#available(macOS 26.0, *)` gating + fallback; CI stays `macos-26`/Xcode 26 | 0–6 |
+| 10 | SwiftUI-in-panel perf with 3–4 islands | Reuse tungsten construction; Instruments idle-CPU gate (≤ baseline + ε) in Phase 2; no new panel class | 2 |
+| 11 | Signing/Accessibility grant churn from rebrand | Keep `build_and_run.sh` same-cert discipline; never bare `xcodebuild` + `open`; reinstall-local test in Phase 0 | 0 |
+| 12 | Sparkle feed/key rotation breaks updates | New feed URL + key in Phase 0; `package_release.sh` fail-closed gate before any release | 0/5 |
 
 **Open questions for owner (non-blocking):**
 
-1. Final bundle id: `com.splitbar.app` (assumed) vs keeping `com.baraka.splitbar` (would
-   tie the new app to the live repo's identity — only safe once the live repo is retired).
-2. Fate of the live `wakilibaraka/SplitBar` after Phase 5: freeze, keep as parallel
-   experimental branch, or archive once Splitbar reaches parity?
-3. Confirm Phase 7 items are out of the required scope (dividers, `macOS` mode, hover
-   previews, magnification).
+1. Confirm GPL-3.0-or-later as KatiKati's license (required while the tungsten core is
+   inside) — else the core choice must be revisited.
+2. ~~Final product name~~ **decided: KatiKati**; still open: bundle id (`com.katikati.app` assumed) + Sparkle feed host.
+3. Fate of `wakilibaraka/SplitBar` (+ fork link) and `wakilibaraka/dockbar` usage once
+   KatiKati reaches parity: freeze, keep as parallel experiments, or archive?
+4. Confirm Phase 7 items are out of the required scope.
+5. Which tungsten prefs must migrate one-way on first run (screen placement? heights?
+   delays? drawer/kept/folders/shelf?) — default is the §6 user-meaningful set.
 
 ## 9. Acceptance criteria
 
 1. All four required modes render on the built-in display; switchable from Settings
    without relaunch; mode/width/gaps persist across restarts.
-2. `swift build` && `swift test` green: full DockBar suite + ported `IslandLayoutSolver`
-   tests + new placement/migration tests; no warnings-as-errors regressions.
+2. Tungsten gate green: `xcodebuild test … CODE_SIGNING_ALLOWED=NO` (~1,300 + new
+   `IslandLayoutSolver`/placement/migration tests) + localization + debug-switch +
+   conformance checks; no regressions.
 3. Islands are non-activating, survive Space switches, hide atomically for fullscreen per
-   display, reflow on resolution/display-set change; every flyout anchors to its own
-   island/icon (per-icon anchor test green).
+   display, reflow on resolution/display-set change; every popup anchors to its own
+   island/chip (per-island anchor tests green).
 4. Overflow: crowded app sets collapse with `showsOverflow` exactly as SplitBar-old tests
    specify; no island exceeds `visibleFrame`.
-5. No DockBar regression: window switching, launcher, quick settings, tray, calendar,
-   weather, thumbnails, update flow behave exactly as `~/dockbar` does today.
-6. Dock hide/restore: save-before-mutate + crash recovery + SIGTERM/SIGINT restore proven
-   by the Phase-5 drill.
-7. Combined `NOTICE` covers all three codebases; no GPL; private API isolated + flagged;
-   zero third-party dependencies.
-8. Idle CPU with 4 island panels ≤ strip baseline + ε (Phase-3 Instruments number recorded
-   in the PR).
+5. No tungsten regression: per-window switching, tab merging, drawer, drag-to-organize,
+   badges, shelf/trash/folders, hover/tooltips, window-lift, auto-hide, updates behave
+   exactly as snapshot `a4e1a55` does today.
+6. Widgets (§5b) render per Appendix A in every mode with 12-language strings.
+7. Native-Dock drill (§Phase 5) passes with log in the PR; no lost Dock state.
+8. `LICENSE` (GPL-3.0-or-later) + combined `NOTICE` cover all sources; no tungsten
+   marks in product; new id/domain/feed; zero new third-party dependencies.
+9. Idle CPU with 4 island panels ≤ strip baseline + ε (Phase-2 Instruments number in PR).
 
 ---
 
@@ -459,62 +568,99 @@ Every phase ends with `swift build && swift test` green plus a named verificatio
 
 | Mode | Slots | Slot 0 | Slot 1 | Slot 2 | Slot 3 |
 |---|---|---|---|---|---|
-| `windows` | 1 | full-width strip: `[weather] — spacers — [apps CENTERED] — spacers — [tray, clock]` | — | — | — |
-| `split3` | 3 | `[weather]` | `[apps]` (overflow-capable) | `[tray, clock]` | — |
+| `windows` | 1 | full-width strip: `[weather] — spacers — [apps CENTERED] — spacers — [tray, clock]` (+ tungsten drawer/shelf/trash/folders/badges in apps zone) | — | — | — |
+| `split3` | 3 | `[weather]` | `[apps]` (overflow-capable; window chips + drawer/shelf/trash/folders entry) | `[tray, clock]` | — |
 | `split4` | 4 | `[weather]` | `[apps]` (overflow-capable) | `[tray]` | `[clock]` |
 | `centered` | 1 | hug-width centered: `[weather, apps, tray, clock]`, width = `centeredWidth` clamped to content + margins | — | — | — |
 
 Rules:
+
 - Section order inside a slot is always the canonical L→R order weather, apps, tray, clock
-  (only the grouping changes between modes).
-- `apps` is the only overflow-capable section; on overflow: shrink tiles to a floor, then
-  set `showsOverflow` (split-out flyout from DockBar's group/flyout views).
+  (only the grouping changes between modes); tungsten utilities (drawer/shelf/trash/
+  folders) travel with the `apps` island.
+- `apps` is the only overflow-capable section; on overflow: shrink chips to a floor, then
+  set `showsOverflow` (overflow popup uses tungsten stack/folder popup geometry).
 - Gaps: inter-island gap and screen margin come from settings (defaults mirror SplitBar-
-  old's gap/margin); enforce donor-B's 0.5 pt minimum.
-- `centeredWidth` persists under the same defaults key SplitBar-old used
-  (`taskbar.centeredWidth`) so migrating users keep their width.
+  old's gap/margin); enforce 0.5 pt minimum.
+- `centeredWidth` persists under a new `com.katikati.*` key with SplitBar-old's value
+  semantics (new domain — no shared defaults with tungsten or SplitBar-old).
 - Every island frame must satisfy: `frame ⊆ visibleFrame`, `min gap ≥ 0.5pt`,
-  `frame.height == barHeight(mode)`, bottom-left origin screen space.
+  `frame.height` from `DockPanelHeight` metrics, bottom-left origin screen space, and
+  tungsten clamp validation.
+- Tungsten chip semantics are mode-independent: `StripItem` identity (`groupID`),
+  per-display filtering (`displayUUID` + `taskbarScreenPlacement`), optimistic states and
+  toggle planning behave identically in every island.
 
 ## Appendix B — References
 
+**Tungsten Edge** (`/tmp/tungsten-edge`, `moonbai-studio/tungsten-edge @ a4e1a55`)
+
+- `App/Entry/AppDelegate.swift` + `MacOSDockCCV2App.swift` — composition root + wiring.
+- `App/Entry/PanelCoordinator.swift` (+`+Drawer/+Fullscreen/+Layout/+PanelSetup/+Popups/
+  +ResizeCursor/+Spaces/+Tooltip/+Visibility`) + `NonConstrainingPanel.swift` +
+  `ManualPanelHost` — the 5-panels-per-unit construction this plan extends.
+- `App/Entry/TaskbarScreenOrchestrator.swift` — per-display `Unit`s + `rebuildUnits` +
+  `TaskbarPerDisplaySeedController` + hover/fullscreen monitors (extend, don't replace).
+- `App/Composition/PanelGeometry.swift` (`DockPanelHeight`, `PanelLayoutMetrics`, popup/
+  tooltip/drawer target frames) + `AppSettingsStore.swift` (`com.tungsten.edge.*` keys,
+  `taskbarScreenPlacement`, height/delay patterns) — geometry + settings authority.
+- `App/Composition/AppComposition.swift` (`AppRuntime`, `DockSnapshot` consumption,
+  optimistic states) + `IntentPipeline/` — interaction engine (untouched).
+- `App/Scenes/DockStripView*.swift` + `StripProjection` + `UI/ReadModel/StripItem.swift`
+  — strip rendering + per-window slotting (per-island instances filter, never redefine).
+- `Core/` (`WindowIdentityEngine`, `LifecycleTransitionEngine`, `LifecycleActionPlanner`,
+  `PlacementEngine`, `DockSnapshot`/`WindowModels`, ~50 `…Decision/…Plan/…Policy` types) +
+  `Platform/` (`AppTracker`, AX/CG/fullscreen/Spaces/Finder/permissions) — inventory +
+  decisions (untouched).
+- `Resources/` (`Info.plist`, `.xcstrings` ×12 languages, entitlements) +
+  `macos-dock-cc-v2.xcodeproj` (bundle ids `com.caye.macosdockcc.v2*`, Swift 5.0, floor
+  12.0, Sparkle SPM pin) + `Scripts/` + `.github/workflows/ci.yml` — build/ship discipline.
+- `LICENSE` (GPL-3.0-or-later) + `TRADEMARK.md` (name/logo reservation) — §6 obligations.
+- `README.md` (features, build/test commands, folder rules, signing, Chinese code comments
+  note) + `Docs/Archive/Releases/` — operator manual for the core.
+
 **SplitBar-old** (`/Users/baraka/Desktop/SplitBar-old`)
+
 - `Sources/SplitBar/Views/TaskbarConcept/TaskbarConceptView.swift` — `TaskbarMode`,
   `TaskbarSection`, `islands(for:)`, `TaskbarStrip.layoutIslands`, overflow loop,
   `centeredBarWidth` (L1408/L1784).
-- `Sources/SplitBar/Services/TaskbarPanelController.swift` — per-display panel lifecycle.
+- `Sources/SplitBar/Services/TaskbarPanelController.swift` — per-display panel lifecycle
+  (slot-key precedent).
 - `Sources/SplitBar/Services/FullscreenMonitor.swift`, `SplitBarDockRestore/main.swift`.
 - `Tests/SplitBarTests/TaskbarStripTests.swift` — island cases to port.
 - README/build: `./run.sh`, `scripts/build_app.sh`, `xcrun swift build|test`.
 
 **DockBar** (`/Users/baraka/dockbar`)
-- `Sources/DeskBar/Models/{TaskbarStyleSpec,TaskbarLayoutStrategy,TaskbarSettings,BarEdge,WidgetPlacement,SettingsCatalog}.swift`
-- `Sources/DeskBar/Utilities/{BarPanelLayout,BarGeometry,BarContentAxis,BarLengthSolver,ScreenGeometry,TaskbarWidthPlanner,DesignSystem}.swift`
-- `Sources/DeskBar/Views/{TaskbarPanel,TaskbarContentView,FlyoutPanel,TaskbarStylePreviewView,SettingsWindowController}.swift`
-- `Sources/DeskBar/App/{AppDelegate,MigrationManager,PermissionsManager,SingleInstanceLock}.swift`
-- `Sources/DeskBar/Services/{WindowManager,DockManager,ThumbnailService,UpdateService,WorkspaceMonitor}.swift`
-- Tests: `Tests/DeskBarTests/*.swift` (~40, incl. `TaskbarStyleSpecTests`,
-  `WidgetPlacementTests`, `TaskbarContentViewResponsiveTests`, `TaskZoneOrderingTests`,
-  `ScreenGeometryTests`). Docs: `SPEC.md`, `CHANGELOG.md`, `agents.md`.
+
+- Widget implementations: `WeatherService`, `CalendarTrayButton`/`CalendarView`,
+  `ConnectivityTrayView`, `WindowsTrayClusterView`, `BatteryMonitor` (+ quick-settings
+  cluster) — §5b ports.
+- Settings-window search/catalog patterns — "Layout" tab organization precedent.
+- AppKit panel lessons (`TaskbarPanel`, `BarPanelLayout` edge handling) — gap-analysis
+  only; no structural port.
+- Docs: `SPEC.md`, `CHANGELOG.md`, `agents.md`.
 
 **Live SplitBar** (`github.com/wakilibaraka/SplitBar`, clone `/tmp/splitbar-upstream`)
-- `Sources/SplitBar/Models/DockSegment.swift` — `SegmentKind`/`SegmentAlignment`, config
-  decode, legacy-layout migration detectors (`matchesB1Layout`,
-  `matchesLegacyFiveSegmentLayout`).
-- `Sources/SplitBar/Support/PanelGeometry.swift` — `segmentPanelFrame` (alignment+offset+
-  clamp), `flyoutPanelFrame` (segment & per-item), `edgeActivationFrame`,
-  `edgeHandleFrame`, `edgePanelCollectionBehavior()`.
-- `Sources/SplitBar/Services/SegmentPanelManager.swift` — one panel per segment,
-  incremental sync, `boundingFrame()`, `screenFrame(forItem:inSegment:)` (y-flip lesson).
-- `Sources/SplitBar/Services/DockController.swift` — save-before-mutate + crash recovery.
-- `Sources/SplitBar/Views/Common/{LiquidGlass,ThemedGlassBackground}.swift`,
-  `Models/DockMaterialStyle.swift` — glass tokens.
-- Key commits: `a2d3de0` (restructure → SplitBar, `com.baraka.splitbar`), `f5fee81`
-  (segment split + DockController), `04b121d` (asymmetric scaling, per-icon anchors, hover
-  previews), `a96b7dd` (merged center apps, equalized heights). Docs: `CLAUDE.md`, `TASKS.md`.
 
-**Screenshots** (`/tmp/shots`, owner's Desktop)
+- `Sources/SplitBar/Models/DockSegment.swift` — `SegmentKind`/`SegmentAlignment` priors.
+- `Sources/SplitBar/Support/PanelGeometry.swift` — clamp/anchor priors (tungsten
+  `PanelGeometry` wins ties).
+- `Sources/SplitBar/Services/SegmentPanelManager.swift` — incremental-sync priors
+  (tungsten `rebuildUnits` wins ties).
+- `Sources/SplitBar/Services/DockController.swift` — recovery-file priors
+  (evidence-gated, Phase-5 drill decides).
+- Key commits: `a2d3de0` (restructure → SplitBar, `com.baraka.splitbar`), `f5fee81`
+  (segment split + DockController), `04b121d` (asymmetric scaling, per-icon anchors,
+  hover previews), `a96b7dd` (merged center apps, equalized heights). Docs: `CLAUDE.md`,
+  `TASKS.md`.
+
+**Screenshots** (owner's Desktop)
+
 - `Screenshot 2026-10-06 at 02.03.12.png` — split-3 visual target.
 - `Screenshot 2026-10-06 at 00.15.28.png`, `...00.46.50.png` — Windows full / mode picker.
 - `Screenshot 2026-10-07 at 07.16.08.png` — onboarding pick-a-layout.
 - `Screenshot 2026-10-06 at 15.34.57.*`, `03.30.35.png` — widgets/weather flyouts.
+
+**Superseded**: v2 plan (`DockBar base × SplitBar-old modes × live-SplitBar segments`,
+commit `3d914c6`, backup at `/tmp/HYBRID_PLAN.v2.backup.md`) — retained for review
+archaeology; this v3 document governs.
