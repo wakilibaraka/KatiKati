@@ -1311,12 +1311,7 @@ struct DockStripView: View {
                 case .media:
                     EmptyView()
                 case .tray:
-                    Image(systemName: "wifi")
-                        .renderingMode(.template)
-                        .foregroundStyle(.primary)
-                    Image(systemName: "battery.100")
-                        .renderingMode(.template)
-                        .foregroundStyle(.primary)
+                    TrayChip()
                 case .clock:
                     ClockChip()
                 case .apps:

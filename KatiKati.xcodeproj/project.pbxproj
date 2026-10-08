@@ -11,6 +11,10 @@
 		7B1000000000000000000002 /* ClockChipContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1000000000000000000001 /* ClockChipContent.swift */; };
 		7B1000000000000000000003 /* ClockChipContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1000000000000000000001 /* ClockChipContent.swift */; };
 		7B2000000000000000000002 /* ClockChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2000000000000000000001 /* ClockChip.swift */; };
+		7C1000000000000000000002 /* SystemStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1000000000000000000001 /* SystemStatusProvider.swift */; };
+		7C1000000000000000000003 /* SystemStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1000000000000000000001 /* SystemStatusProvider.swift */; };
+		7C2000000000000000000002 /* TrayChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C2000000000000000000001 /* TrayChip.swift */; };
+		7C3000000000000000000002 /* SystemStatusProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C3000000000000000000001 /* SystemStatusProviderTests.swift */; };
 		7B3000000000000000000002 /* ClockChipContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3000000000000000000001 /* ClockChipContentTests.swift */; };
 		7A0000000000000000000002 /* WeatherResponseParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A284300AD2ED48333C88208 /* WeatherResponseParsing.swift */; };
 		5CB341E082E25B7D7886822F /* WeatherResponseParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A284300AD2ED48333C88208 /* WeatherResponseParsing.swift */; };
@@ -562,6 +566,9 @@
 		0C114D06ABCAC4B451E0F16A /* WeatherState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherState.swift; path = Core/Support/WeatherState.swift; sourceTree = SOURCE_ROOT; };
 		7B1000000000000000000001 /* ClockChipContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClockChipContent.swift; path = Core/Support/ClockChipContent.swift; sourceTree = SOURCE_ROOT; };
 		7B2000000000000000000001 /* ClockChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClockChip.swift; path = App/Scenes/ClockChip.swift; sourceTree = SOURCE_ROOT; };
+		7C1000000000000000000001 /* SystemStatusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusProvider.swift; path = Core/Support/SystemStatusProvider.swift; sourceTree = SOURCE_ROOT; };
+		7C2000000000000000000001 /* TrayChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TrayChip.swift; path = App/Scenes/TrayChip.swift; sourceTree = SOURCE_ROOT; };
+		7C3000000000000000000001 /* SystemStatusProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusProviderTests.swift; path = Tests/Unit/Core/Support/SystemStatusProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		7B3000000000000000000001 /* ClockChipContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClockChipContentTests.swift; path = Tests/Unit/Core/Support/ClockChipContentTests.swift; sourceTree = SOURCE_ROOT; };
 		229D407D9AAC13DECF63BBEE /* WeatherResponseParsingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherResponseParsingTests.swift; path = Tests/Unit/WeatherResponseParsingTests.swift; sourceTree = SOURCE_ROOT; };
 		6A284300AD2ED48333C88208 /* WeatherResponseParsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherResponseParsing.swift; path = Core/Support/WeatherResponseParsing.swift; sourceTree = SOURCE_ROOT; };
@@ -1938,6 +1945,8 @@
 				B10000000000000000000005 /* ScanProbeGateDecision.swift in Sources */,
 				D3EB46A2A29E54E9C8B5C492 /* WeatherState.swift in Sources */,
 				7B1000000000000000000002 /* ClockChipContent.swift in Sources */,
+				7C1000000000000000000002 /* SystemStatusProvider.swift in Sources */,
+				7C2000000000000000000002 /* TrayChip.swift in Sources */,
 				7B2000000000000000000002 /* ClockChip.swift in Sources */,
 				5CB341E082E25B7D7886822F /* WeatherResponseParsing.swift in Sources */,
 				CC234F8CB79E1F671C157759 /* WeatherService.swift in Sources */,
@@ -1989,6 +1998,8 @@
 			files = (
 				7A0000000000000000000001 /* WeatherState.swift in Sources */,
 				7B1000000000000000000003 /* ClockChipContent.swift in Sources */,
+				7C1000000000000000000003 /* SystemStatusProvider.swift in Sources */,
+				7C3000000000000000000002 /* SystemStatusProviderTests.swift in Sources */,
 				7B3000000000000000000002 /* ClockChipContentTests.swift in Sources */,
 				7A0000000000000000000002 /* WeatherResponseParsing.swift in Sources */,
 				A7A5000000000000000000C9 /* FinderTrash.swift in Sources */,
