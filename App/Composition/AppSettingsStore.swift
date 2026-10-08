@@ -121,6 +121,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var dockPanelHeight: DockPanelHeight
     /// 任务条布局模式（windows / split3 / split4 / centered）。缺键 = windows。
     @Published private(set) var barLayoutMode: BarLayoutMode
+    /// Widget arrangement order.
+    @Published private(set) var widgetOrder: [BarSection]
     /// 居中模式下的目标宽度（points，默认 720，限制 360...1600）。
     @Published private(set) var centeredWidth: CGFloat
     /// 岛屿之间的间距（points，默认 10，最小 0.5）。
@@ -211,6 +213,14 @@ final class AppSettingsStore: ObservableObject {
         showShelf = defaults.bool(forKey: Keys.showShelf)
         showTrash = defaults.bool(forKey: Keys.showTrash)
         barLayoutMode = BarLayoutMode(rawValue: defaults.string(forKey: Keys.barLayoutMode) ?? "") ?? .windows
+        
+        if let data = defaults.data(forKey: Keys.widgetOrder),
+           let savedOrder = try? JSONDecoder().decode([BarSection].self, from: data) {
+            widgetOrder = savedOrder
+        } else {
+            widgetOrder = [.weather, .media, .apps, .tray, .clock]
+        }
+        
         let storedCentered = Self.storedNumericValue(defaults.object(forKey: Keys.centeredWidth)) ?? Double(Self.defaultCenteredWidth)
         centeredWidth = CGFloat(min(max(storedCentered, Double(Self.minimumCenteredWidth)), Double(Self.maximumCenteredWidth)))
         let storedGap = Self.storedNumericValue(defaults.object(forKey: Keys.islandGap)) ?? Double(Self.defaultIslandGap)
@@ -310,6 +320,14 @@ final class AppSettingsStore: ObservableObject {
         guard barLayoutMode != value else { return }
         barLayoutMode = value
         defaults.set(value.rawValue, forKey: Keys.barLayoutMode)
+    }
+
+    func setWidgetOrder(_ order: [BarSection]) {
+        guard widgetOrder != order else { return }
+        widgetOrder = order
+        if let data = try? JSONEncoder().encode(order) {
+            defaults.set(data, forKey: Keys.widgetOrder)
+        }
     }
 
     func setCenteredWidth(_ value: CGFloat) {
@@ -652,6 +670,7 @@ private enum Keys {
     static let edgeAutoHideDelay = "com.katikati.autoHide.edge.delay"
     static let edgeAutoHideLastEnabledDelay = "com.katikati.autoHide.edge.lastEnabledDelay"
     static let barLayoutMode = "com.katikati.layout.mode"
+    static let widgetOrder = "com.katikati.layout.widgetOrder"
     static let centeredWidth = "com.katikati.layout.centeredWidth"
     static let islandGap = "com.katikati.layout.islandGap"
     static let islandMargin = "com.katikati.layout.islandMargin"
