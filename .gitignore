@@ -41,3 +41,4 @@ Docs/Archive/Engineering/
 !Docs/Archive/Planning/
 !Docs/Archive/Planning/*.md
 Docs/Archive/Samples/
+*.log

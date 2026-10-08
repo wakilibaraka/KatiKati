@@ -3,6 +3,7 @@
 All notable changes to KatiKati are documented in this file.
 
 ### Changed
+- **Standing Rules §1 new item (owner sign-off 2026-10-08):** *Agent hygiene — no vibe-coding damage* — enforced append-only-by-hand rules for generated files (`project.pbxproj`, `*.xcstrings`), mandated human review for non-English strings, banned scratch scripts and `*.log` files from the repo root, mandated explicit `git add` lists, banned eager singletons for gated features, and enforced strict diff budget checks before committing. Full rule in `STANDING_RULES.md` §1 item 7.
 - **Standing Rules §1 new item (owner sign-off 2026-10-08):** *structured edits first* —
   single-anchor editor operations are the default for source changes; regex/`sed`-class
   scripted edits require a `git grep` occurrence check, anchored patterns, and
