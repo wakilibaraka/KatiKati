@@ -14,6 +14,8 @@
 		7C1000000000000000000002 /* SystemStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1000000000000000000001 /* SystemStatusProvider.swift */; };
 		7C1000000000000000000003 /* SystemStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1000000000000000000001 /* SystemStatusProvider.swift */; };
 		7C2000000000000000000002 /* TrayChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C2000000000000000000001 /* TrayChip.swift */; };
+		7D1000000000000000000002 /* NowPlayingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1000000000000000000001 /* NowPlayingService.swift */; };
+		7D2000000000000000000002 /* NowPlayingChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2000000000000000000001 /* NowPlayingChip.swift */; };
 		7C3000000000000000000002 /* SystemStatusProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C3000000000000000000001 /* SystemStatusProviderTests.swift */; };
 		7B3000000000000000000002 /* ClockChipContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3000000000000000000001 /* ClockChipContentTests.swift */; };
 		7A0000000000000000000002 /* WeatherResponseParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A284300AD2ED48333C88208 /* WeatherResponseParsing.swift */; };
@@ -568,6 +570,8 @@
 		7B2000000000000000000001 /* ClockChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClockChip.swift; path = App/Scenes/ClockChip.swift; sourceTree = SOURCE_ROOT; };
 		7C1000000000000000000001 /* SystemStatusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusProvider.swift; path = Core/Support/SystemStatusProvider.swift; sourceTree = SOURCE_ROOT; };
 		7C2000000000000000000001 /* TrayChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TrayChip.swift; path = App/Scenes/TrayChip.swift; sourceTree = SOURCE_ROOT; };
+		7D1000000000000000000001 /* NowPlayingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingService.swift; path = Core/Support/NowPlayingService.swift; sourceTree = SOURCE_ROOT; };
+		7D2000000000000000000001 /* NowPlayingChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingChip.swift; path = App/Scenes/NowPlayingChip.swift; sourceTree = SOURCE_ROOT; };
 		7C3000000000000000000001 /* SystemStatusProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusProviderTests.swift; path = Tests/Unit/Core/Support/SystemStatusProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		7B3000000000000000000001 /* ClockChipContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClockChipContentTests.swift; path = Tests/Unit/Core/Support/ClockChipContentTests.swift; sourceTree = SOURCE_ROOT; };
 		229D407D9AAC13DECF63BBEE /* WeatherResponseParsingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherResponseParsingTests.swift; path = Tests/Unit/WeatherResponseParsingTests.swift; sourceTree = SOURCE_ROOT; };
@@ -1947,6 +1951,8 @@
 				7B1000000000000000000002 /* ClockChipContent.swift in Sources */,
 				7C1000000000000000000002 /* SystemStatusProvider.swift in Sources */,
 				7C2000000000000000000002 /* TrayChip.swift in Sources */,
+				7D1000000000000000000002 /* NowPlayingService.swift in Sources */,
+				7D2000000000000000000002 /* NowPlayingChip.swift in Sources */,
 				7B2000000000000000000002 /* ClockChip.swift in Sources */,
 				5CB341E082E25B7D7886822F /* WeatherResponseParsing.swift in Sources */,
 				CC234F8CB79E1F671C157759 /* WeatherService.swift in Sources */,

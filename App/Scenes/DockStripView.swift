@@ -1309,7 +1309,7 @@ struct DockStripView: View {
                     WeatherChip()
                         .scaleEffect(dockScale)
                 case .media:
-                    EmptyView()
+                    NowPlayingChip()
                 case .tray:
                     TrayChip()
                 case .clock:
