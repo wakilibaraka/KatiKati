@@ -1308,6 +1308,8 @@ struct DockStripView: View {
                 case .weather:
                     WeatherChip()
                         .scaleEffect(dockScale)
+                case .media:
+                    EmptyView()
                 case .tray:
                     Image(systemName: "wifi")
                         .renderingMode(.template)

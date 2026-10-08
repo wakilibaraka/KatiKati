@@ -66,6 +66,7 @@ enum IslandLayoutSolver {
         tileStride: CGFloat,
         appCount: Int,
         weatherWidth: CGFloat,
+        mediaWidth: CGFloat = 0,
         trayWidth: CGFloat,
         clockWidth: CGFloat,
         clusterWidth: CGFloat,
@@ -82,8 +83,10 @@ enum IslandLayoutSolver {
         let y = screenMinY + bottomMargin
         let islandSections = BarSection.islands(for: mode)
 
+        let mediaTotal = mediaWidth > 0 ? 8 + mediaWidth : 0
         func fixedWidth(_ sections: [BarSection]) -> CGFloat? {
             if sections == [.weather] { return weatherWidth }
+            if sections == [.weather, .media] { return weatherWidth + mediaTotal }
             if sections == [.tray, .clock] { return trayWidth + 8 + clockWidth }
             if sections == [.tray] { return trayWidth }
             if sections == [.clock] { return clockWidth }
@@ -98,7 +101,7 @@ enum IslandLayoutSolver {
         case .windows:
             // Single continuous full-width strip across the screen.
             let availableWidth = max(0, screenWidth - 2 * effectiveMargin)
-            let fixedElements = weatherWidth + (trayWidth + 8 + clockWidth) + 2 * effectiveGap
+            let fixedElements = weatherWidth + mediaTotal + (trayWidth + 8 + clockWidth) + 2 * effectiveGap
             let availableForApps = max(0, availableWidth - fixedElements)
 
             var visibleApps = appCount
@@ -119,7 +122,7 @@ enum IslandLayoutSolver {
         case .centered:
             // Single floating centered island hugging its content.
             let maxAllowedWidth = max(0, screenWidth - 2 * effectiveMargin)
-            let fixedElements = weatherWidth + (trayWidth + 8 + clockWidth) + 32
+            let fixedElements = weatherWidth + mediaTotal + (trayWidth + 8 + clockWidth) + 32
 
             var visibleApps = appCount
             while visibleApps > 1, (appsWidth(visibleApps) + fixedElements) > maxAllowedWidth {

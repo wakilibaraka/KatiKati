@@ -917,3 +917,7 @@ widgets-only option (a))
 **Superseded**: v2 plan (`DockBar base × SplitBar-old modes × live-SplitBar segments`,
 commit `3d914c6`, backup at `/tmp/HYBRID_PLAN.v2.backup.md`) — retained for review
 archaeology; this v3 document governs.
+
+## Known Layout Defects (Logged 2026-10-08)
+- **Space next to trash can:** The gap or empty space next to the trash/tray area needs tight alignment review.
+- **Drawer overlapping clock:** In certain modes/directions, the drawer expands to the left and incorrectly overlaps the clock. This geometry intersection needs to be resolved before Phase 4 concludes.
