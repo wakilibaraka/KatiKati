@@ -1316,11 +1316,7 @@ struct DockStripView: View {
                         .renderingMode(.template)
                         .foregroundStyle(.primary)
                 case .clock:
-                    Image(systemName: "clock")
-                        .renderingMode(.template)
-                        .foregroundStyle(.primary)
-                    Text(verbatim: section.title)
-                        .font(.system(size: 12 * dockScale, weight: .medium, design: .rounded))
+                    ClockChip()
                 case .apps:
                     EmptyView()
                 }
