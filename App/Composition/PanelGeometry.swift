@@ -401,7 +401,10 @@ enum PanelGeometry {
             let tileStride = IslandLayoutSolver.tileStride(barHeight: metrics.panelHeight)
             let appCount = max(1, Int((contentWidth / tileStride).rounded()))
             let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth
-            let remainder = contentWidth - (CGFloat(appCount) * tileStride)
+            
+            // IslandLayoutSolver adds 24 to clusterWidth. 
+            // We want appsWidth to be exactly (contentWidth + capsuleSpace).
+            let exactClusterWidth = contentWidth + capsuleSpace - (CGFloat(appCount) * tileStride) - 24
             
             let layout = IslandLayoutSolver.layout(
                 screenWidth: screen.frame.width,
@@ -411,7 +414,7 @@ enum PanelGeometry {
                 weatherWidth: 120,
                 trayWidth: 140,
                 clockWidth: 100,
-                clusterWidth: remainder + capsuleSpace,
+                clusterWidth: exactClusterWidth,
                 gap: gap,
                 margin: margin,
                 barHeight: metrics.panelHeight,
@@ -424,8 +427,12 @@ enum PanelGeometry {
                 return dockTargetFrame(contentWidth: contentWidth, on: screen, placement: placement, metrics: metrics)
             }
             let island = layout.islands[slot]
-            let panelWidth = max(island.frame.width - capsuleSpace, metrics.minimumDockWidth)
-            let panelX = placement == .left ? island.frame.minX + capsuleSpace : island.frame.minX
+            let isApps = island.sections.contains(.apps)
+            let currentCapsuleSpace = isApps ? capsuleSpace : 0
+            
+            let panelWidth = max(island.frame.width - currentCapsuleSpace, metrics.minimumDockWidth)
+            let panelX = (isApps && placement == .left) ? island.frame.minX + currentCapsuleSpace : island.frame.minX
+            
             return CGRect(
                 x: panelX - metrics.shadowPadding,
                 y: island.frame.minY - metrics.shadowPadding,
