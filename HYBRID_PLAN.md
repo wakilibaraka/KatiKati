@@ -523,27 +523,23 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
 - Drawer/shelf/trash/folder/badge/messaging/kept-apps behavior unchanged; widgets join
   the existing strip filtering + overflow model (`apps` remains the only
   overflow-capable section).
-- **Visual direction — themes + icon redesign** (owner 2026-10-08). Separated from
+- **Visual direction — themes, 3D widgets, and vibrant icons** (owner 2026-10-08). Separated from
   widget porting so the strip geometry and popups are wired before the look changes.
-  - **Chosen theme:** `Rose Quartz` (EdgeDeckBar `DockMaterialStyle` preset) as the
-    KatiKati light-appearance identity; **`Obsidian Dark` for dark appearance**, driven
-    by the user's existing appearance setting (`AppSettingsStore.appearanceMode`
-    system/light/dark — reused, **no new appearance key**). Chosen to sit a *tiny* bit
-    apart from tungsten's clean glass — a calm rose-undertone base with the watermark
-    tint kept light so the distinction reads at a glance, not a redesign. Do **not**
-    copy EdgeDeckBar's full pipeline; only the palette and the 12-preset concept are
-    lifted. All 12 `DockMaterialStyle` presets are selectable
-    (system/translucent/crystalClear/obsidianDark/monochrome/titaniumFrost/auroraGlow/
-    deepOcean/forestMoss/cyberpunkGlass/emberSunset/roseQuartz + `customRGBA`), so
-    "all of them can move" — nothing is blocked or removed, and the default stays on
-    the KatiKati pair (`roseQuartz` light / `obsidianDark` dark).
-  - **"Kept" question:** no problem. Keeping the current tungsten-derived look as the
-    default while 12 themes become selectable removes no behavior, adds no dependency,
-    and means the first user-visible version ships the same stripped-down look
-    anyone has now. Themes are additive switches, not a non-default replacement.
+  - **Chosen aesthetic:** A rich, dimensionally-styled Mac aesthetic (inspired by CoolDock).
+    Widgets (Weather, Clock, Battery, Wi-Fi) abandon small, monochrome "bits and bobs"
+    in favor of large, colorful, 3D-like icons (multicolor/hierarchical SF Symbols or
+    rendered views), proper macOS typography (SF Pro Rounded/Display), and solid or
+    vibrant tinted backgrounds.
+  - **Media Tray:** A second tray (`.media`) is introduced next to `.weather` to host Now
+    Playing and Live Activities.
+  - **Touch Bar Widget Policy:** Open-source Touch Bar widgets (e.g., Pock, EnergyBar)
+    are *studied* to cleanly port their backend data-fetching logic (like `MediaRemote` or `IOKit`
+    calls) into pure `Core/Support` services. Their UI views are **not ported**, as Touch Bar
+    views are inherently flat and monochrome. Instead, their UI is written from scratch in
+    SwiftUI to match the vibrant 3D aesthetic constraint.
   - **Icon redesign** (Phase 6 UI too): folder / download / trash chips and the
-    status-menu item are re-drawn to feel distinct from tungsten, not merely recolored.
-    **Chosen shape family (owner 2026-10-08): the "line set"** — one coherent
+    status-menu item are re-drawn to feel distinct from tungsten. Instead of purely
+    wire-mesh outlines, they integrate the colorful 3D macOS design language.
     line-art style across all three so the set reads as designed, not assembled:
     - **Trash → wire-mesh can**: tapered outline + lid + 3×2 mesh grid, drawn as
       line art. Chosen over a fully *colored* trashcan: the mesh is instantly
