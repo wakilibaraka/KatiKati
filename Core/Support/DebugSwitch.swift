@@ -129,6 +129,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     case panelMaterial = "DOCK_PANEL_MATERIAL"
     /// A folder path: its popup content is drawn off-screen to a PNG (`StackPopupSnapshotProbe`).
     case stackPopupSnapshot = "DOCK_STACK_POPUP_SNAPSHOT"
+    /// Debug hot-swap for DockThemeStyle preset (e.g. "DOCK_THEME=obsidianDark").
+    case dockTheme = "DOCK_THEME"
     /// 实验：面板饱和度
     case panelSaturation = "DOCK_PANEL_SATURATION"
     /// 实验：面板厚度档（=1 开）
@@ -188,7 +190,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .liquidGlassWhiteOverlay, .liquidGlassDimming, .liquidGlassBorder, .liquidGlassBorderEdge,
              .liquidGlassBorderCut, .liquidGlassBorderSpread, .liquidGlassBorderWidth, .liquidGlassBorderInner,
              .liquidGlassBackgroundOpacity, .liquidGlassWindowBlur, .liquidGlassContentInset,
-             .liquidGlassSystemVariant, .stackPopupSnapshot:
+             .liquidGlassSystemVariant, .stackPopupSnapshot, .dockTheme:
             return .value
         }
     }

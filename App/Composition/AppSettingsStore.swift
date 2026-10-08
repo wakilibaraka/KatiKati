@@ -121,6 +121,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var islandGap: CGFloat
     /// 任务条距离屏幕左右边缘的外边距（points，默认 12，最小 0）。
     @Published private(set) var islandMargin: CGFloat
+    /// 材质主题。默认 auto (亮色 roseQuartz / 暗色 obsidianDark)。
+    @Published private(set) var themeMaterial: DockThemeStyle
     /// 悬停效果档位。只影响条内 chip 的悬停视觉，静息布局逐像素不变（因此无需 relayout）。
     @Published private(set) var hoverStyle: HoverStyle
     /// 最大化窗口避让任务条（菜单「最大化窗口避开任务条」）。
@@ -207,6 +209,7 @@ final class AppSettingsStore: ObservableObject {
         islandGap = CGFloat(max(Double(Self.minimumIslandGap), storedGap))
         let storedMargin = Self.storedNumericValue(defaults.object(forKey: Keys.islandMargin)) ?? Double(Self.defaultIslandMargin)
         islandMargin = CGFloat(max(Double(Self.minimumIslandMargin), storedMargin))
+        themeMaterial = DockThemeStyle(token: defaults.string(forKey: Keys.themeMaterial) ?? "") ?? .auto
         // 有意**不**进上面的 register：缺键即 false = 老用户维持关。
         // 全新安装那一次由 `seedWindowLiftEnabledForFreshInstall()` 显式写成 true——
         // register 一个 true 会把**所有**从没碰过这个开关的老用户一并打开，而这个功能
@@ -344,6 +347,12 @@ final class AppSettingsStore: ObservableObject {
         guard appearanceMode != value else { return }
         appearanceMode = value
         defaults.set(value.rawValue, forKey: Keys.appearance)
+    }
+
+    func setThemeMaterial(_ value: DockThemeStyle) {
+        guard themeMaterial != value else { return }
+        themeMaterial = value
+        defaults.set(value.token, forKey: Keys.themeMaterial)
     }
 
     func setScrollReverserEnabled(_ value: Bool) {
@@ -631,6 +640,7 @@ private enum Keys {
     static let centeredWidth = "com.katikati.layout.centeredWidth"
     static let islandGap = "com.katikati.layout.islandGap"
     static let islandMargin = "com.katikati.layout.islandMargin"
+    static let themeMaterial = "com.katikati.theme.material"
 }
 
 /// One-way first-run migrator from legacy Tungsten Edge (`com.tungsten.edge.*`) defaults

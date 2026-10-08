@@ -529,6 +529,9 @@
 		BB0000000000000000000031 /* IslandAnchorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000030 /* IslandAnchorTests.swift */; };
 		BB0000000000000000000033 /* AtomicFullscreenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000032 /* AtomicFullscreenTests.swift */; };
 		BB0000000000000000000035 /* PinnedIslandTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000034 /* PinnedIslandTests.swift */; };
+		BB0000000000000000000037 /* DockThemeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000036 /* DockThemeStyle.swift */; };
+		BB0000000000000000000038 /* DockThemeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000036 /* DockThemeStyle.swift */; };
+		BB000000000000000000003A /* DockThemeStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000039 /* DockThemeStyleTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -903,6 +906,8 @@
 		BB0000000000000000000030 /* IslandAnchorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandAnchorTests.swift; sourceTree = "<group>"; };
 		BB0000000000000000000032 /* AtomicFullscreenTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicFullscreenTests.swift; sourceTree = "<group>"; };
 		BB0000000000000000000034 /* PinnedIslandTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinnedIslandTests.swift; sourceTree = "<group>"; };
+		BB0000000000000000000036 /* DockThemeStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockThemeStyle.swift; sourceTree = "<group>"; };
+		BB0000000000000000000039 /* DockThemeStyleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockThemeStyleTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1138,6 +1143,7 @@
 				BB0000000000000000000003 /* BarSection.swift */,
 				BB0000000000000000000005 /* IslandLayoutSolver.swift */,
 				BB0000000000000000000021 /* IslandSlotSet.swift */,
+				BB0000000000000000000036 /* DockThemeStyle.swift */,
 				B1000000000000000000011C /* TaskbarDisplaySet.swift */,
 				D90000000000000000000001 /* InstallLineage.swift */,
 				D90000000000000000000002 /* ScreenTopologySnapshot.swift */,
@@ -1426,6 +1432,7 @@
 				BB0000000000000000000030 /* IslandAnchorTests.swift */,
 				BB0000000000000000000032 /* AtomicFullscreenTests.swift */,
 				BB0000000000000000000034 /* PinnedIslandTests.swift */,
+				BB0000000000000000000039 /* DockThemeStyleTests.swift */,
 				D10000000000000000000007 /* SettingsCoordinatorTests.swift */,
 				D10000000000000000000009 /* AccessoryWindowPresentationTests.swift */,
 				D10000000000000000000042 /* StripContextMenuZoneTests.swift */,
@@ -1813,6 +1820,7 @@
 					BB0000000000000000000004 /* BarSection.swift in Sources */,
 					BB0000000000000000000006 /* IslandLayoutSolver.swift in Sources */,
 					BB0000000000000000000022 /* IslandSlotSet.swift in Sources */,
+					BB0000000000000000000037 /* DockThemeStyle.swift in Sources */,
 					B1000000000000000000011D /* TaskbarDisplaySet.swift in Sources */,
 					B10000000000000000000131 /* WindowDisplayAttribution.swift in Sources */,
 					B1000000000000000000013F /* WindowDisplayMove.swift in Sources */,
@@ -2004,6 +2012,7 @@
 				BB0000000000000000000031 /* IslandAnchorTests.swift in Sources */,
 				BB0000000000000000000033 /* AtomicFullscreenTests.swift in Sources */,
 				BB0000000000000000000035 /* PinnedIslandTests.swift in Sources */,
+				BB000000000000000000003A /* DockThemeStyleTests.swift in Sources */,
 				A00000000000000000009F02 /* GlobalHotKeyMonitor.swift in Sources */,
 				F1A0000000000000000000A2 /* HotKeyShortcutValidation.swift in Sources */,
 				F1A0000000000000000000B2 /* HotKeyGlyphs.swift in Sources */,
@@ -2049,6 +2058,7 @@
 				BB0000000000000000000012 /* BarSection.swift in Sources */,
 				BB0000000000000000000013 /* IslandLayoutSolver.swift in Sources */,
 				BB0000000000000000000023 /* IslandSlotSet.swift in Sources */,
+				BB0000000000000000000038 /* DockThemeStyle.swift in Sources */,
 					B1000000000000000000011E /* TaskbarDisplaySet.swift in Sources */,
 					D90000000000000000000201 /* InstallLineage.swift in Sources */,
 					D90000000000000000000202 /* ScreenTopologySnapshot.swift in Sources */,
