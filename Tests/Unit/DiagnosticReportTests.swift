@@ -23,7 +23,7 @@ final class DiagnosticReportTests: XCTestCase {
 
     func testTextListsEveryFieldOnItsOwnLine() {
         XCTAssertEqual(report().text, """
-        Tungsten Edge diagnostics
+        KatiKati diagnostics
         app: 0.13.3 (140)
         macOS: Version 27.0 (Build 26A428) · Mac17,9
         language: zh-Hans

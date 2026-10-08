@@ -616,10 +616,8 @@ enum TungstenDefaultsMigrator {
         var migratedAny = false
         for (legacyKey, newKey) in keyMap {
             if let legacyVal = defaults.object(forKey: legacyKey) {
-                if defaults.object(forKey: newKey) == nil {
-                    defaults.set(legacyVal, forKey: newKey)
-                    migratedAny = true
-                }
+                defaults.set(legacyVal, forKey: newKey)
+                migratedAny = true
             }
         }
         defaults.set(now, forKey: migrationStampKey)
