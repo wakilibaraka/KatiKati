@@ -2,79 +2,79 @@
   "sourceLanguage" : "en",
   "strings" : {
     "CFBundleDisplayName" : {
-      "comment" : "应用显示名。英文环境只用 Tungsten Edge，不带中文品牌名。",
+      "comment" : "应用显示名。英文环境只用 KatiKati，不带中文品牌名。",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge 钨极"
+            "value" : "KatiKati"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         }
       }
@@ -86,73 +86,73 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge 钨极"
+            "value" : "KatiKati"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge"
+            "value" : "KatiKati"
           }
         }
       }
@@ -164,7 +164,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge uses this to preview the folder shown in Finder, display whether the Trash is empty, and empty the Trash."
+            "value" : "KatiKati uses this to preview the folder shown in Finder, display whether the Trash is empty, and empty the Trash."
           }
         },
         "zh-Hans" : {
@@ -176,61 +176,61 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge會使用這項權限來預覽Finder顯示的檔案夾、顯示垃圾桶是否為空，以及清空垃圾桶。"
+            "value" : "KatiKati會使用這項權限來預覽Finder顯示的檔案夾、顯示垃圾桶是否為空，以及清空垃圾桶。"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edgeは、Finderで表示しているフォルダの内容をプレビューし、ゴミ箱が空かどうかを表示し、ゴミ箱を空にするためにこれを使用します。"
+            "value" : "KatiKatiは、Finderで表示しているフォルダの内容をプレビューし、ゴミ箱が空かどうかを表示し、ゴミ箱を空にするためにこれを使用します。"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge verwendet dies, um den im Finder angezeigten Ordner in der Vorschau zu zeigen, anzuzeigen, ob der Papierkorb leer ist, und den Papierkorb zu entleeren."
+            "value" : "KatiKati verwendet dies, um den im Finder angezeigten Ordner in der Vorschau zu zeigen, anzuzeigen, ob der Papierkorb leer ist, und den Papierkorb zu entleeren."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge utilise cette autorisation pour prévisualiser le dossier affiché dans le Finder, indiquer si la corbeille est vide et vider la corbeille."
+            "value" : "KatiKati utilise cette autorisation pour prévisualiser le dossier affiché dans le Finder, indiquer si la corbeille est vide et vider la corbeille."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge usa este permiso para previsualizar la carpeta abierta en el Finder, mostrar si la papelera está vacía y vaciarla."
+            "value" : "KatiKati usa este permiso para previsualizar la carpeta abierta en el Finder, mostrar si la papelera está vacía y vaciarla."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge usa este permiso para mostrar una vista previa de la carpeta abierta en el Finder, indicar si el basurero está vacío y vaciarlo."
+            "value" : "KatiKati usa este permiso para mostrar una vista previa de la carpeta abierta en el Finder, indicar si el basurero está vacío y vaciarlo."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O Tungsten Edge usa isto para pré-visualizar a pasta exibida no Finder, mostrar se o Lixo está vazio e esvaziar o Lixo."
+            "value" : "O KatiKati usa isto para pré-visualizar a pasta exibida no Finder, mostrar se o Lixo está vazio e esvaziar o Lixo."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O Tungsten Edge utiliza isto para pré-visualizar a pasta apresentada no Finder, indicar se o Lixo está vazio e esvaziar o Lixo."
+            "value" : "O KatiKati utiliza isto para pré-visualizar a pasta apresentada no Finder, indicar se o Lixo está vazio e esvaziar o Lixo."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge usa questa autorizzazione per mostrare l’anteprima della cartella visualizzata nel Finder, indicare se il Cestino è vuoto e svuotarlo."
+            "value" : "KatiKati usa questa autorizzazione per mostrare l’anteprima della cartella visualizzata nel Finder, indicare se il Cestino è vuoto e svuotarlo."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tungsten Edge는 Finder에 표시된 폴더를 미리 보고, 휴지통이 비어 있는지 표시하고, 휴지통을 비우는 데 이 권한을 사용합니다."
+            "value" : "KatiKati는 Finder에 표시된 폴더를 미리 보고, 휴지통이 비어 있는지 표시하고, 휴지통을 비우는 데 이 권한을 사용합니다."
           }
         }
       }

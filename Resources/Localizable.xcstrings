@@ -463,78 +463,78 @@
         }
       }
     },
-    "\n\nIf simply turning the switch back on works, Tungsten Edge restarts itself and there is nothing else to do; going through the cleanup above means reopening it manually afterwards.\nAlso, windows the taskbar had moved out of its way may sit one taskbar height short — maximizing them once puts them back.": {
+    "\n\nIf simply turning the switch back on works, KatiKati restarts itself and there is nothing else to do; going through the cleanup above means reopening it manually afterwards.\nAlso, windows the taskbar had moved out of its way may sit one taskbar height short — maximizing them once puts them back.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\n\n如果直接把开关打开就生效了，钨极会自己重启，不用管；走上面的清理步骤则需要退出后手动重开。\n另外，之前被 Dock 栏让开过的窗口可能会矮一条边——重新最大化一次就复原了。"
+            "value": "\n\n如果直接把开关打开就生效了，KatiKati会自己重启，不用管；走上面的清理步骤则需要退出后手动重开。\n另外，之前被 Dock 栏让开过的窗口可能会矮一条边——重新最大化一次就复原了。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "\n\nIf simply turning the switch back on works, Tungsten Edge restarts itself and there is nothing else to do; going through the cleanup above means reopening it manually afterwards.\nAlso, windows the taskbar had moved out of its way may sit one taskbar height short — maximizing them once puts them back."
+            "value": "\n\nIf simply turning the switch back on works, KatiKati restarts itself and there is nothing else to do; going through the cleanup above means reopening it manually afterwards.\nAlso, windows the taskbar had moved out of its way may sit one taskbar height short — maximizing them once puts them back."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "\n\n如果只是把開關重新打開就生效了，Tungsten Edge會自己重新啟動，不必再做什麼；若走過上面的清除步驟，之後要自行重新打開它。\n另外，先前被工作列挪開過的視窗可能會少一條工作列的高度——重新最大化一次就會復原。"
+            "value": "\n\n如果只是把開關重新打開就生效了，KatiKati會自己重新啟動，不必再做什麼；若走過上面的清除步驟，之後要自行重新打開它。\n另外，先前被工作列挪開過的視窗可能會少一條工作列的高度——重新最大化一次就會復原。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "\n\nスイッチをもう一度オンにするだけで許可が有効になる場合は、Tungsten Edgeが自動的に再起動するので、ほかの操作は不要です。上の手順で記録を削除した場合は、あとから手動で開き直してください。\nまた、タスクバーとの重なりを避けるために移動したウインドウは、高さがタスクバー1本分だけ縮んだままになることがあります。一度最大化し直すと元に戻ります。"
+            "value": "\n\nスイッチをもう一度オンにするだけで許可が有効になる場合は、KatiKatiが自動的に再起動するので、ほかの操作は不要です。上の手順で記録を削除した場合は、あとから手動で開き直してください。\nまた、タスクバーとの重なりを避けるために移動したウインドウは、高さがタスクバー1本分だけ縮んだままになることがあります。一度最大化し直すと元に戻ります。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "\n\nWenn es schon genügt, den Schalter wieder zu aktivieren, startet sich Tungsten Edge von selbst neu und du musst nichts weiter tun; nach der Bereinigung oben musst du es dagegen von Hand wieder öffnen.\nAußerdem können Fenster, die die Taskleiste aus dem Weg geschoben hat, um eine Taskleistenhöhe zu kurz sein – einmal maximieren stellt sie wieder her."
+            "value": "\n\nWenn es schon genügt, den Schalter wieder zu aktivieren, startet sich KatiKati von selbst neu und du musst nichts weiter tun; nach der Bereinigung oben musst du es dagegen von Hand wieder öffnen.\nAußerdem können Fenster, die die Taskleiste aus dem Weg geschoben hat, um eine Taskleistenhöhe zu kurz sein – einmal maximieren stellt sie wieder her."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "\n\nSi le simple fait de réactiver l’interrupteur suffit, Tungsten Edge redémarre automatiquement et aucune autre action n’est nécessaire. Après avoir suivi les étapes de réinitialisation ci-dessus, vous devez toutefois le rouvrir manuellement.\nPar ailleurs, les fenêtres déplacées pour laisser de la place à la barre des tâches peuvent conserver une hauteur réduite de la hauteur d’une barre des tâches. Il suffit de les agrandir une fois pour rétablir leur taille."
+            "value": "\n\nSi le simple fait de réactiver l’interrupteur suffit, KatiKati redémarre automatiquement et aucune autre action n’est nécessaire. Après avoir suivi les étapes de réinitialisation ci-dessus, vous devez toutefois le rouvrir manuellement.\nPar ailleurs, les fenêtres déplacées pour laisser de la place à la barre des tâches peuvent conserver une hauteur réduite de la hauteur d’une barre des tâches. Il suffit de les agrandir une fois pour rétablir leur taille."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "\n\nSi basta con volver a activar el interruptor, Tungsten Edge se reinicia automáticamente y no tienes que hacer nada más; si sigues los pasos de restablecimiento anteriores, tendrás que volver a abrirlo manualmente después.\nAdemás, las ventanas que la barra de tareas había desplazado para hacerse sitio pueden quedar con la altura de una barra de tareas de menos; basta con maximizarlas una vez para que recuperen su tamaño."
+            "value": "\n\nSi basta con volver a activar el interruptor, KatiKati se reinicia automáticamente y no tienes que hacer nada más; si sigues los pasos de restablecimiento anteriores, tendrás que volver a abrirlo manualmente después.\nAdemás, las ventanas que la barra de tareas había desplazado para hacerse sitio pueden quedar con la altura de una barra de tareas de menos; basta con maximizarlas una vez para que recuperen su tamaño."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "\n\nSi basta con volver a activar el interruptor, Tungsten Edge se reinicia automáticamente y no necesitas hacer nada más; si sigues los pasos de restablecimiento anteriores, tendrás que volver a abrirlo manualmente después.\nAdemás, las ventanas que la barra de tareas había desplazado para hacerse lugar pueden quedar con la altura de una barra de tareas de menos; basta con maximizarlas una vez para que recuperen su tamaño."
+            "value": "\n\nSi basta con volver a activar el interruptor, KatiKati se reinicia automáticamente y no necesitas hacer nada más; si sigues los pasos de restablecimiento anteriores, tendrás que volver a abrirlo manualmente después.\nAdemás, las ventanas que la barra de tareas había desplazado para hacerse lugar pueden quedar con la altura de una barra de tareas de menos; basta con maximizarlas una vez para que recuperen su tamaño."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "\n\nSe bastar ativar o interruptor novamente, o Tungsten Edge se reinicia sozinho e não há mais nada a fazer; seguindo a limpeza acima, é preciso reabri-lo manualmente depois.\nAlém disso, janelas que a barra de tarefas havia deslocado para abrir espaço podem ficar com a altura de uma barra de tarefas a menos — basta maximizá-las uma vez para voltarem ao normal."
+            "value": "\n\nSe bastar ativar o interruptor novamente, o KatiKati se reinicia sozinho e não há mais nada a fazer; seguindo a limpeza acima, é preciso reabri-lo manualmente depois.\nAlém disso, janelas que a barra de tarefas havia deslocado para abrir espaço podem ficar com a altura de uma barra de tarefas a menos — basta maximizá-las uma vez para voltarem ao normal."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "\n\nSe bastar voltar a ativar o interruptor, o Tungsten Edge reinicia-se sozinho e não é preciso fazer mais nada; se seguir a limpeza acima, terá de o voltar a abrir manualmente depois.\nAlém disso, as janelas que a barra de tarefas tinha deslocado para abrir espaço podem ficar com a altura de uma barra de tarefas a menos – basta maximizá-las uma vez para voltarem ao normal."
+            "value": "\n\nSe bastar voltar a ativar o interruptor, o KatiKati reinicia-se sozinho e não é preciso fazer mais nada; se seguir a limpeza acima, terá de o voltar a abrir manualmente depois.\nAlém disso, as janelas que a barra de tarefas tinha deslocado para abrir espaço podem ficar com a altura de uma barra de tarefas a menos – basta maximizá-las uma vez para voltarem ao normal."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "\n\nSe basta riattivare l’interruttore, Tungsten Edge si riavvia automaticamente e non devi fare altro; se invece segui i passaggi di pulizia qui sopra, dovrai poi riaprirlo manualmente.\nInoltre, le finestre spostate per lasciare spazio alla barra delle applicazioni potrebbero risultare più basse di un’altezza della barra: basta ingrandirle una volta per riportarle alla dimensione corretta."
+            "value": "\n\nSe basta riattivare l’interruttore, KatiKati si riavvia automaticamente e non devi fare altro; se invece segui i passaggi di pulizia qui sopra, dovrai poi riaprirlo manualmente.\nInoltre, le finestre spostate per lasciare spazio alla barra delle applicazioni potrebbero risultare più basse di un’altezza della barra: basta ingrandirle una volta per riportarle alla dimensione corretta."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\n\n스위치를 다시 켜는 것만으로 해결되면 Tungsten Edge가 자동으로 재실행되므로 따로 할 일은 없습니다. 위의 정리 단계를 거쳤다면 이후에 직접 다시 열어야 합니다.\n또한 작업 표시줄이 비켜 두었던 윈도우는 작업 표시줄 높이만큼 짧아져 있을 수 있습니다. 한 번 최대화하면 원래대로 돌아옵니다."
+            "value": "\n\n스위치를 다시 켜는 것만으로 해결되면 KatiKati가 자동으로 재실행되므로 따로 할 일은 없습니다. 위의 정리 단계를 거쳤다면 이후에 직접 다시 열어야 합니다.\n또한 작업 표시줄이 비켜 두었던 윈도우는 작업 표시줄 높이만큼 짧아져 있을 수 있습니다. 한 번 최대화하면 원래대로 돌아옵니다."
           }
         }
       }
@@ -3679,155 +3679,155 @@
         }
       }
     },
-    "Check your network connection and try again, or email support@tungstenedge.app.": {
+    "Check your network connection and try again, or email support@katikati.app.": {
       "comment": "设置窗口 · 反馈失败弹窗",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "检查网络后重试，或发邮件到 support@tungstenedge.app。"
+            "value": "检查网络后重试，或发邮件到 support@katikati.app。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check your network connection and try again, or email support@tungstenedge.app."
+            "value": "Check your network connection and try again, or email support@katikati.app."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請檢查網路連線後再試一次，或寄信到support@tungstenedge.app。"
+            "value": "請檢查網路連線後再試一次，或寄信到support@katikati.app。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ネットワーク接続を確認してもう一度お試しください。support@tungstenedge.appまでメールでご連絡いただくこともできます。"
+            "value": "ネットワーク接続を確認してもう一度お試しください。support@katikati.appまでメールでご連絡いただくこともできます。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prüfe deine Netzwerkverbindung und versuch es erneut, oder schreib eine E-Mail an support@tungstenedge.app."
+            "value": "Prüfe deine Netzwerkverbindung und versuch es erneut, oder schreib eine E-Mail an support@katikati.app."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vérifiez votre connexion réseau et réessayez, ou écrivez à support@tungstenedge.app."
+            "value": "Vérifiez votre connexion réseau et réessayez, ou écrivez à support@katikati.app."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comprueba tu conexión de red e inténtalo de nuevo, o envía un correo a support@tungstenedge.app."
+            "value": "Comprueba tu conexión de red e inténtalo de nuevo, o envía un correo a support@katikati.app."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifica tu conexión de red e intenta de nuevo, o envía un correo a support@tungstenedge.app."
+            "value": "Verifica tu conexión de red e intenta de nuevo, o envía un correo a support@katikati.app."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifique sua conexão de rede e tente novamente, ou envie um e-mail para support@tungstenedge.app."
+            "value": "Verifique sua conexão de rede e tente novamente, ou envie um e-mail para support@katikati.app."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifique a ligação à rede e volte a tentar, ou envie um e-mail para support@tungstenedge.app."
+            "value": "Verifique a ligação à rede e volte a tentar, ou envie um e-mail para support@katikati.app."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifica la connessione di rete e riprova, oppure scrivi a support@tungstenedge.app."
+            "value": "Verifica la connessione di rete e riprova, oppure scrivi a support@katikati.app."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "네트워크 연결을 확인하고 다시 시도하거나, support@tungstenedge.app 주소로 이메일을 보내십시오."
+            "value": "네트워크 연결을 확인하고 다시 시도하거나, support@katikati.app 주소로 이메일을 보내십시오."
           }
         }
       }
     },
-    "Check your network connection and try again, or leave your address on tungstenedge.app.": {
+    "Check your network connection and try again, or leave your address on katikati.app.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请检查网络连接后重试，也可以到官网 tungstenedge.app 上留邮箱。"
+            "value": "请检查网络连接后重试，也可以到官网 katikati.app 上留邮箱。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check your network connection and try again, or leave your address on tungstenedge.app."
+            "value": "Check your network connection and try again, or leave your address on katikati.app."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請檢查網路連線後再試一次，也可以到tungstenedge.app留下你的電子郵件地址。"
+            "value": "請檢查網路連線後再試一次，也可以到katikati.app留下你的電子郵件地址。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ネットワーク接続を確認してもう一度お試しください。tungstenedge.appでメールアドレスを登録することもできます。"
+            "value": "ネットワーク接続を確認してもう一度お試しください。katikati.appでメールアドレスを登録することもできます。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prüfe deine Netzwerkverbindung und versuch es erneut, oder hinterlasse deine Adresse auf tungstenedge.app."
+            "value": "Prüfe deine Netzwerkverbindung und versuch es erneut, oder hinterlasse deine Adresse auf katikati.app."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vérifiez votre connexion réseau et réessayez, ou laissez votre adresse sur tungstenedge.app."
+            "value": "Vérifiez votre connexion réseau et réessayez, ou laissez votre adresse sur katikati.app."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comprueba tu conexión de red e inténtalo de nuevo, o deja tu correo en tungstenedge.app."
+            "value": "Comprueba tu conexión de red e inténtalo de nuevo, o deja tu correo en katikati.app."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifica tu conexión de red e intenta de nuevo, o deja tu correo en tungstenedge.app."
+            "value": "Verifica tu conexión de red e intenta de nuevo, o deja tu correo en katikati.app."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifique sua conexão de rede e tente novamente, ou deixe seu endereço em tungstenedge.app."
+            "value": "Verifique sua conexão de rede e tente novamente, ou deixe seu endereço em katikati.app."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifique a ligação à rede e volte a tentar, ou deixe o seu endereço em tungstenedge.app."
+            "value": "Verifique a ligação à rede e volte a tentar, ou deixe o seu endereço em katikati.app."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verifica la connessione di rete e riprova, oppure lascia il tuo indirizzo su tungstenedge.app."
+            "value": "Verifica la connessione di rete e riprova, oppure lascia il tuo indirizzo su katikati.app."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "네트워크 연결을 확인하고 다시 시도하거나, tungstenedge.app에 이메일 주소를 남겨 주십시오."
+            "value": "네트워크 연결을 확인하고 다시 시도하거나, katikati.app에 이메일 주소를 남겨 주십시오."
           }
         }
       }
@@ -4823,79 +4823,79 @@
         }
       }
     },
-    "Couldn’t start a new instance of Tungsten Edge: %@\n\nYou can click Retry, or quit and open it manually from your Applications folder.": {
+    "Couldn’t start a new instance of KatiKati: %@\n\nYou can click Retry, or quit and open it manually from your Applications folder.": {
       "comment": "%@ 是系统返回的错误描述",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没能启动新的钨极实例：%@\n\n可以点“重试”，或者退出后从“应用程序”手动打开。"
+            "value": "没能启动新的KatiKati实例：%@\n\n可以点“重试”，或者退出后从“应用程序”手动打开。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn’t start a new instance of Tungsten Edge: %@\n\nYou can click Retry, or quit and open it manually from your Applications folder."
+            "value": "Couldn’t start a new instance of KatiKati: %@\n\nYou can click Retry, or quit and open it manually from your Applications folder."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "無法啟動新的Tungsten Edge：%@\n\n可以按一下「重試」，或先結束，再從「應用程式」檔案夾手動打開。"
+            "value": "無法啟動新的KatiKati：%@\n\n可以按一下「重試」，或先結束，再從「應用程式」檔案夾手動打開。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edgeの新しいインスタンスを起動できませんでした: %@\n\n「再試行」をクリックするか、いったん終了して「アプリケーション」フォルダから手動で開いてください。"
+            "value": "KatiKatiの新しいインスタンスを起動できませんでした: %@\n\n「再試行」をクリックするか、いったん終了して「アプリケーション」フォルダから手動で開いてください。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eine neue Instanz von Tungsten Edge konnte nicht gestartet werden: %@\n\nDu kannst auf „Erneut versuchen“ klicken oder Tungsten Edge beenden und von Hand aus dem Ordner „Programme“ öffnen."
+            "value": "Eine neue Instanz von KatiKati konnte nicht gestartet werden: %@\n\nDu kannst auf „Erneut versuchen“ klicken oder KatiKati beenden und von Hand aus dem Ordner „Programme“ öffnen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible de lancer une nouvelle instance de Tungsten Edge : %@\n\nVous pouvez cliquer sur Réessayer, ou quitter puis l’ouvrir manuellement depuis votre dossier Applications."
+            "value": "Impossible de lancer une nouvelle instance de KatiKati : %@\n\nVous pouvez cliquer sur Réessayer, ou quitter puis l’ouvrir manuellement depuis votre dossier Applications."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se ha podido iniciar una nueva instancia de Tungsten Edge: %@\n\nPuedes hacer clic en Reintentar, o salir de la app y abrirla manualmente desde la carpeta Aplicaciones."
+            "value": "No se ha podido iniciar una nueva instancia de KatiKati: %@\n\nPuedes hacer clic en Reintentar, o salir de la app y abrirla manualmente desde la carpeta Aplicaciones."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se pudo iniciar una nueva instancia de Tungsten Edge: %@\n\nPuedes hacer clic en Reintentar, o salir de la app y abrirla manualmente desde la carpeta Aplicaciones."
+            "value": "No se pudo iniciar una nueva instancia de KatiKati: %@\n\nPuedes hacer clic en Reintentar, o salir de la app y abrirla manualmente desde la carpeta Aplicaciones."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível iniciar uma nova instância do Tungsten Edge: %@\n\nVocê pode clicar em Tentar Novamente, ou encerrar e abri-lo manualmente a partir da pasta Aplicativos."
+            "value": "Não foi possível iniciar uma nova instância do KatiKati: %@\n\nVocê pode clicar em Tentar Novamente, ou encerrar e abri-lo manualmente a partir da pasta Aplicativos."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível iniciar uma nova instância do Tungsten Edge: %@\n\nPode clicar em Voltar a tentar ou sair e abri-lo manualmente a partir da pasta Aplicações."
+            "value": "Não foi possível iniciar uma nova instância do KatiKati: %@\n\nPode clicar em Voltar a tentar ou sair e abri-lo manualmente a partir da pasta Aplicações."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossibile avviare una nuova istanza di Tungsten Edge: %@\n\nPuoi fare clic su Riprova oppure uscire e aprirlo manualmente dalla cartella Applicazioni."
+            "value": "Impossibile avviare una nuova istanza di KatiKati: %@\n\nPuoi fare clic su Riprova oppure uscire e aprirlo manualmente dalla cartella Applicazioni."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge를 새로 시작할 수 없습니다: %@\n\n재시도를 클릭하거나, 종료한 후 응용 프로그램 폴더에서 직접 여십시오."
+            "value": "KatiKati를 새로 시작할 수 없습니다: %@\n\n재시도를 클릭하거나, 종료한 후 응용 프로그램 폴더에서 직접 여십시오."
           }
         }
       }
@@ -5745,7 +5745,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "从钨极 Dock 栏把应用拖到这里"
+            "value": "从KatiKati Dock 栏把应用拖到这里"
           }
         },
         "en": {
@@ -6967,79 +6967,79 @@
         }
       }
     },
-    "Flips mouse-wheel scrolling system-wide, like Scroll Reverser. Trackpads and Magic Mouse are not affected. Tungsten Edge only inverts the direction values of scroll-wheel events; nothing is recorded or sent anywhere. If Scroll Reverser or Mos is also running, the two cancel out — keep only one.": {
+    "Flips mouse-wheel scrolling system-wide, like Scroll Reverser. Trackpads and Magic Mouse are not affected. KatiKati only inverts the direction values of scroll-wheel events; nothing is recorded or sent anywhere. If Scroll Reverser or Mos is also running, the two cancel out — keep only one.": {
       "comment": "设置窗口 · 反转滚轮说明（改写输入事件的披露文案）",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "把鼠标滚轮的滚动方向整体反过来（类似 Scroll Reverser）。触控板和妙控鼠标不受影响。钨极只把滚轮事件的方向值取反，不记录、不发送任何内容。若同时运行 Scroll Reverser 或 Mos，两者会互相抵消，请只保留一个。"
+            "value": "把鼠标滚轮的滚动方向整体反过来（类似 Scroll Reverser）。触控板和妙控鼠标不受影响。KatiKati只把滚轮事件的方向值取反，不记录、不发送任何内容。若同时运行 Scroll Reverser 或 Mos，两者会互相抵消，请只保留一个。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Flips mouse-wheel scrolling system-wide, like Scroll Reverser. Trackpads and Magic Mouse are not affected. Tungsten Edge only inverts the direction values of scroll-wheel events; nothing is recorded or sent anywhere. If Scroll Reverser or Mos is also running, the two cancel out — keep only one."
+            "value": "Flips mouse-wheel scrolling system-wide, like Scroll Reverser. Trackpads and Magic Mouse are not affected. KatiKati only inverts the direction values of scroll-wheel events; nothing is recorded or sent anywhere. If Scroll Reverser or Mos is also running, the two cancel out — keep only one."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在整個系統中反轉滑鼠滾輪的捲動方向，效果和Scroll Reverser一樣。觸控式軌跡板與巧控滑鼠不受影響。Tungsten Edge只會反轉滾輪事件的方向值，不會記錄，也不會傳送到任何地方。若同時執行Scroll Reverser或Mos，兩者會互相抵消，請只保留一個。"
+            "value": "在整個系統中反轉滑鼠滾輪的捲動方向，效果和Scroll Reverser一樣。觸控式軌跡板與巧控滑鼠不受影響。KatiKati只會反轉滾輪事件的方向值，不會記錄，也不會傳送到任何地方。若同時執行Scroll Reverser或Mos，兩者會互相抵消，請只保留一個。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scroll Reverserのように、マウスホイールのスクロール方向をシステム全体で反転します。トラックパッドとMagic Mouseは影響を受けません。Tungsten Edgeはホイールイベントの方向の値を反転するだけで、内容を記録することも、どこかに送信することもありません。Scroll ReverserやMosを同時に動かしていると互いに打ち消し合うので、どちらか一方だけにしてください。"
+            "value": "Scroll Reverserのように、マウスホイールのスクロール方向をシステム全体で反転します。トラックパッドとMagic Mouseは影響を受けません。KatiKatiはホイールイベントの方向の値を反転するだけで、内容を記録することも、どこかに送信することもありません。Scroll ReverserやMosを同時に動かしていると互いに打ち消し合うので、どちらか一方だけにしてください。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kehrt das Scrollen mit dem Mausrad systemweit um, ähnlich wie Scroll Reverser. Trackpads und die Magic Mouse sind nicht betroffen. Tungsten Edge invertiert nur die Richtungswerte von Mausrad-Ereignissen; es wird nichts aufgezeichnet und nichts irgendwohin gesendet. Läuft zusätzlich Scroll Reverser oder Mos, heben sich beide gegenseitig auf – behalte nur eines davon."
+            "value": "Kehrt das Scrollen mit dem Mausrad systemweit um, ähnlich wie Scroll Reverser. Trackpads und die Magic Mouse sind nicht betroffen. KatiKati invertiert nur die Richtungswerte von Mausrad-Ereignissen; es wird nichts aufgezeichnet und nichts irgendwohin gesendet. Läuft zusätzlich Scroll Reverser oder Mos, heben sich beide gegenseitig auf – behalte nur eines davon."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inverse le défilement de la molette dans tout le système, comme Scroll Reverser. Les trackpads et la Magic Mouse ne sont pas concernés. Tungsten Edge se contente d’inverser les valeurs de direction des événements de molette ; rien n’est enregistré ni envoyé où que ce soit. Si Scroll Reverser ou Mos fonctionne en même temps, les deux s’annulent — n’en gardez qu’un."
+            "value": "Inverse le défilement de la molette dans tout le système, comme Scroll Reverser. Les trackpads et la Magic Mouse ne sont pas concernés. KatiKati se contente d’inverser les valeurs de direction des événements de molette ; rien n’est enregistré ni envoyé où que ce soit. Si Scroll Reverser ou Mos fonctionne en même temps, les deux s’annulent — n’en gardez qu’un."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Invierte el desplazamiento con la rueda del ratón en todo el sistema, como Scroll Reverser. Los trackpads y el Magic Mouse no se ven afectados. Tungsten Edge solo invierte los valores de dirección de los eventos de la rueda de desplazamiento; no se registra ni se envía nada a ningún sitio. Si Scroll Reverser o Mos también están en ejecución, se anulan entre sí: deja solo uno."
+            "value": "Invierte el desplazamiento con la rueda del ratón en todo el sistema, como Scroll Reverser. Los trackpads y el Magic Mouse no se ven afectados. KatiKati solo invierte los valores de dirección de los eventos de la rueda de desplazamiento; no se registra ni se envía nada a ningún sitio. Si Scroll Reverser o Mos también están en ejecución, se anulan entre sí: deja solo uno."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Invierte el desplazamiento con la rueda del mouse en todo el sistema, como Scroll Reverser. Los trackpads y el Magic Mouse no se ven afectados. Tungsten Edge sólo invierte los valores de dirección de los eventos de la rueda de desplazamiento; no se registra ni se envía nada a ningún lugar. Si Scroll Reverser o Mos también están en ejecución, se anulan entre sí: deja sólo uno."
+            "value": "Invierte el desplazamiento con la rueda del mouse en todo el sistema, como Scroll Reverser. Los trackpads y el Magic Mouse no se ven afectados. KatiKati sólo invierte los valores de dirección de los eventos de la rueda de desplazamiento; no se registra ni se envía nada a ningún lugar. Si Scroll Reverser o Mos también están en ejecución, se anulan entre sí: deja sólo uno."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inverte a rolagem da roda do mouse em todo o sistema, como o Scroll Reverser. Trackpads e Magic Mouse não são afetados. O Tungsten Edge só inverte os valores de direção dos eventos da roda de rolagem; nada é gravado nem enviado para lugar nenhum. Se o Scroll Reverser ou o Mos estiver em execução ao mesmo tempo, os dois se anulam — mantenha só um."
+            "value": "Inverte a rolagem da roda do mouse em todo o sistema, como o Scroll Reverser. Trackpads e Magic Mouse não são afetados. O KatiKati só inverte os valores de direção dos eventos da roda de rolagem; nada é gravado nem enviado para lugar nenhum. Se o Scroll Reverser ou o Mos estiver em execução ao mesmo tempo, os dois se anulam — mantenha só um."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inverte a deslocação da roda do rato em todo o sistema, como o Scroll Reverser. Os trackpads e o Magic Mouse não são afetados. O Tungsten Edge apenas inverte os valores de direção dos eventos da roda de deslocação; nada é registado nem enviado para lado nenhum. Se o Scroll Reverser ou o Mos estiverem a ser executados ao mesmo tempo, anulam-se mutuamente – mantenha apenas um."
+            "value": "Inverte a deslocação da roda do rato em todo o sistema, como o Scroll Reverser. Os trackpads e o Magic Mouse não são afetados. O KatiKati apenas inverte os valores de direção dos eventos da roda de deslocação; nada é registado nem enviado para lado nenhum. Se o Scroll Reverser ou o Mos estiverem a ser executados ao mesmo tempo, anulam-se mutuamente – mantenha apenas um."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inverte lo scorrimento con la rotellina del mouse in tutto il sistema, come Scroll Reverser. I trackpad e il Magic Mouse non sono interessati. Tungsten Edge inverte soltanto i valori di direzione degli eventi della rotellina: non viene registrato né inviato nulla. Se sono in esecuzione anche Scroll Reverser o Mos, i due si annullano a vicenda: tienine attivo uno solo."
+            "value": "Inverte lo scorrimento con la rotellina del mouse in tutto il sistema, come Scroll Reverser. I trackpad e il Magic Mouse non sono interessati. KatiKati inverte soltanto i valori di direzione degli eventi della rotellina: non viene registrato né inviato nulla. Se sono in esecuzione anche Scroll Reverser o Mos, i due si annullano a vicenda: tienine attivo uno solo."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scroll Reverser처럼 마우스 휠 스크롤 방향을 시스템 전체에서 반전합니다. 트랙패드와 Magic Mouse는 영향을 받지 않습니다. Tungsten Edge는 스크롤 휠 이벤트의 방향 값만 반전하며, 어떤 내용도 기록하거나 어디로도 전송하지 않습니다. Scroll Reverser 또는 Mos가 함께 실행 중이면 서로 상쇄되므로 하나만 사용하십시오."
+            "value": "Scroll Reverser처럼 마우스 휠 스크롤 방향을 시스템 전체에서 반전합니다. 트랙패드와 Magic Mouse는 영향을 받지 않습니다. KatiKati는 스크롤 휠 이벤트의 방향 값만 반전하며, 어떤 내용도 기록하거나 어디로도 전송하지 않습니다. Scroll Reverser 또는 Mos가 함께 실행 중이면 서로 상쇄되므로 하나만 사용하십시오."
           }
         }
       }
@@ -7808,78 +7808,78 @@
         }
       }
     },
-    "If the switch is already on and nothing happens, a permission record left by an older version may no longer match this copy of Tungsten Edge. You can reset it:\n\n1. Quit Tungsten Edge first — while it is running, the minus button in the list is greyed out and the entry cannot be removed.\n2. In Privacy & Security > Accessibility, select Tungsten Edge in the list and remove it with the minus button. There may be more than one entry; remove them all.\n3. Open Tungsten Edge again from your Applications folder, then add it and turn the switch on when prompted.": {
+    "If the switch is already on and nothing happens, a permission record left by an older version may no longer match this copy of KatiKati. You can reset it:\n\n1. Quit KatiKati first — while it is running, the minus button in the list is greyed out and the entry cannot be removed.\n2. In Privacy & Security > Accessibility, select KatiKati in the list and remove it with the minus button. There may be more than one entry; remove them all.\n3. Open KatiKati again from your Applications folder, then add it and turn the switch on when prompted.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "如果你已经打开了开关却还是没生效，可能是旧版本留下的授权记录不再匹配当前这份钨极。可以这样重置一次：\n\n1. 先退出钨极——应用还在运行时，列表里的减号是灰的，删不掉。\n2. 在“隐私与安全性 → 辅助功能”里把列表中的 Tungsten Edge 用减号删掉，可能不止一条，都删掉。\n3. 从“应用程序”重新打开钨极，按提示重新添加并打开开关。"
+            "value": "如果你已经打开了开关却还是没生效，可能是旧版本留下的授权记录不再匹配当前这份KatiKati。可以这样重置一次：\n\n1. 先退出KatiKati——应用还在运行时，列表里的减号是灰的，删不掉。\n2. 在“隐私与安全性 → 辅助功能”里把列表中的 KatiKati 用减号删掉，可能不止一条，都删掉。\n3. 从“应用程序”重新打开KatiKati，按提示重新添加并打开开关。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "If the switch is already on and nothing happens, a permission record left by an older version may no longer match this copy of Tungsten Edge. You can reset it:\n\n1. Quit Tungsten Edge first — while it is running, the minus button in the list is greyed out and the entry cannot be removed.\n2. In Privacy & Security > Accessibility, select Tungsten Edge in the list and remove it with the minus button. There may be more than one entry; remove them all.\n3. Open Tungsten Edge again from your Applications folder, then add it and turn the switch on when prompted."
+            "value": "If the switch is already on and nothing happens, a permission record left by an older version may no longer match this copy of KatiKati. You can reset it:\n\n1. Quit KatiKati first — while it is running, the minus button in the list is greyed out and the entry cannot be removed.\n2. In Privacy & Security > Accessibility, select KatiKati in the list and remove it with the minus button. There may be more than one entry; remove them all.\n3. Open KatiKati again from your Applications folder, then add it and turn the switch on when prompted."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "如果你已經打開開關卻還是沒有反應，可能是舊版本留下的權限記錄已經不符合目前這份Tungsten Edge。你可以重設一次：\n\n1. 先結束Tungsten Edge——App還在執行時，列表裡的減號是灰的，項目刪不掉。\n2. 在「隱私權與安全性」>「輔助使用」裡選取列表中的Tungsten Edge，用減號移除；可能不只一項，全部移除。\n3. 從「應用程式」檔案夾重新打開Tungsten Edge，再依照提示重新加入並打開開關。"
+            "value": "如果你已經打開開關卻還是沒有反應，可能是舊版本留下的權限記錄已經不符合目前這份KatiKati。你可以重設一次：\n\n1. 先結束KatiKati——App還在執行時，列表裡的減號是灰的，項目刪不掉。\n2. 在「隱私權與安全性」>「輔助使用」裡選取列表中的KatiKati，用減號移除；可能不只一項，全部移除。\n3. 從「應用程式」檔案夾重新打開KatiKati，再依照提示重新加入並打開開關。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "スイッチがすでにオンなのに何も起きない場合は、古いバージョンが残した許可の記録が現在のTungsten Edgeと一致していない可能性があります。次の手順でリセットできます。\n\n1. 先にTungsten Edgeを終了してください。実行中はリストの削除（-）ボタンが淡色表示になり、項目を削除できません。\n2. 「プライバシーとセキュリティ」>「アクセシビリティ」でリストからTungsten Edgeを選び、削除（-）ボタンで削除します。項目が複数ある場合は、すべて削除してください。\n3. 「アプリケーション」フォルダからTungsten Edgeを開き直し、表示される案内に従って追加し、スイッチをオンにします。"
+            "value": "スイッチがすでにオンなのに何も起きない場合は、古いバージョンが残した許可の記録が現在のKatiKatiと一致していない可能性があります。次の手順でリセットできます。\n\n1. 先にKatiKatiを終了してください。実行中はリストの削除（-）ボタンが淡色表示になり、項目を削除できません。\n2. 「プライバシーとセキュリティ」>「アクセシビリティ」でリストからKatiKatiを選び、削除（-）ボタンで削除します。項目が複数ある場合は、すべて削除してください。\n3. 「アプリケーション」フォルダからKatiKatiを開き直し、表示される案内に従って追加し、スイッチをオンにします。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wenn der Schalter bereits aktiviert ist und trotzdem nichts passiert, passt womöglich ein Berechtigungseintrag aus einer älteren Version nicht mehr zu dieser Kopie von Tungsten Edge. So setzt du ihn zurück:\n\n1. Beende zuerst Tungsten Edge – solange es läuft, ist die Minustaste in der Liste grau und der Eintrag lässt sich nicht entfernen.\n2. Wähle unter „Datenschutz & Sicherheit“ > „Bedienungshilfen“ Tungsten Edge in der Liste aus und entferne es mit der Minustaste. Es können mehrere Einträge vorhanden sein; entferne sie alle.\n3. Öffne Tungsten Edge erneut aus dem Ordner „Programme“, füge es dann hinzu und aktiviere den Schalter, wenn du dazu aufgefordert wirst."
+            "value": "Wenn der Schalter bereits aktiviert ist und trotzdem nichts passiert, passt womöglich ein Berechtigungseintrag aus einer älteren Version nicht mehr zu dieser Kopie von KatiKati. So setzt du ihn zurück:\n\n1. Beende zuerst KatiKati – solange es läuft, ist die Minustaste in der Liste grau und der Eintrag lässt sich nicht entfernen.\n2. Wähle unter „Datenschutz & Sicherheit“ > „Bedienungshilfen“ KatiKati in der Liste aus und entferne es mit der Minustaste. Es können mehrere Einträge vorhanden sein; entferne sie alle.\n3. Öffne KatiKati erneut aus dem Ordner „Programme“, füge es dann hinzu und aktiviere den Schalter, wenn du dazu aufgefordert wirst."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Si l’interrupteur est déjà activé et que rien ne se passe, il se peut qu’une autorisation laissée par une version antérieure ne corresponde plus à cette copie de Tungsten Edge. Vous pouvez la réinitialiser :\n\n1. Quittez d’abord Tungsten Edge — tant qu’il est en cours d’exécution, le bouton moins de la liste est grisé et l’entrée ne peut pas être supprimée.\n2. Dans Confidentialité et sécurité > Accessibilité, sélectionnez Tungsten Edge dans la liste et supprimez-le à l’aide du bouton moins. Il peut y avoir plusieurs entrées ; supprimez-les toutes.\n3. Rouvrez Tungsten Edge depuis votre dossier Applications, puis ajoutez-le et activez l’interrupteur lorsque vous y êtes invité."
+            "value": "Si l’interrupteur est déjà activé et que rien ne se passe, il se peut qu’une autorisation laissée par une version antérieure ne corresponde plus à cette copie de KatiKati. Vous pouvez la réinitialiser :\n\n1. Quittez d’abord KatiKati — tant qu’il est en cours d’exécution, le bouton moins de la liste est grisé et l’entrée ne peut pas être supprimée.\n2. Dans Confidentialité et sécurité > Accessibilité, sélectionnez KatiKati dans la liste et supprimez-le à l’aide du bouton moins. Il peut y avoir plusieurs entrées ; supprimez-les toutes.\n3. Rouvrez KatiKati depuis votre dossier Applications, puis ajoutez-le et activez l’interrupteur lorsque vous y êtes invité."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Si el interruptor ya está activado y no pasa nada, puede que un registro de permiso que dejó una versión anterior ya no coincida con esta copia de Tungsten Edge. Puedes restablecerlo:\n\n1. Sal primero de Tungsten Edge: mientras se está ejecutando, el botón menos de la lista aparece atenuado y no se puede eliminar la entrada.\n2. En Privacidad y seguridad > Accesibilidad, selecciona Tungsten Edge en la lista y elimínalo con el botón menos. Puede haber más de una entrada; elimínalas todas.\n3. Vuelve a abrir Tungsten Edge desde la carpeta Aplicaciones, añádelo y activa el interruptor cuando se te pida."
+            "value": "Si el interruptor ya está activado y no pasa nada, puede que un registro de permiso que dejó una versión anterior ya no coincida con esta copia de KatiKati. Puedes restablecerlo:\n\n1. Sal primero de KatiKati: mientras se está ejecutando, el botón menos de la lista aparece atenuado y no se puede eliminar la entrada.\n2. En Privacidad y seguridad > Accesibilidad, selecciona KatiKati en la lista y elimínalo con el botón menos. Puede haber más de una entrada; elimínalas todas.\n3. Vuelve a abrir KatiKati desde la carpeta Aplicaciones, añádelo y activa el interruptor cuando se te pida."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Si el interruptor ya está activado y no pasa nada, puede que un registro de permiso que dejó una versión anterior ya no coincida con esta copia de Tungsten Edge. Puedes restablecerlo:\n\n1. Primero sal de Tungsten Edge: mientras se está ejecutando, el botón menos de la lista aparece atenuado y no se puede eliminar la entrada.\n2. En Privacidad y seguridad > Accesibilidad, selecciona Tungsten Edge en la lista y elimínalo con el botón menos. Puede haber más de una entrada; elimínalas todas.\n3. Vuelve a abrir Tungsten Edge desde la carpeta Aplicaciones, agrégalo y activa el interruptor cuando se te solicite."
+            "value": "Si el interruptor ya está activado y no pasa nada, puede que un registro de permiso que dejó una versión anterior ya no coincida con esta copia de KatiKati. Puedes restablecerlo:\n\n1. Primero sal de KatiKati: mientras se está ejecutando, el botón menos de la lista aparece atenuado y no se puede eliminar la entrada.\n2. En Privacidad y seguridad > Accesibilidad, selecciona KatiKati en la lista y elimínalo con el botón menos. Puede haber más de una entrada; elimínalas todas.\n3. Vuelve a abrir KatiKati desde la carpeta Aplicaciones, agrégalo y activa el interruptor cuando se te solicite."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se o interruptor já estiver ativado e nada acontecer, um registro de permissão deixado por uma versão anterior pode não corresponder mais a esta cópia do Tungsten Edge. Você pode redefini-lo:\n\n1. Primeiro, encerre o Tungsten Edge — enquanto ele estiver em execução, o botão de menos na lista fica acinzentado e a entrada não pode ser removida.\n2. Em Privacidade e Segurança > Acessibilidade, selecione Tungsten Edge na lista e remova-o com o botão de menos. Pode haver mais de uma entrada; remova todas.\n3. Abra o Tungsten Edge novamente a partir da pasta Aplicativos, depois adicione-o e ative o interruptor quando solicitado."
+            "value": "Se o interruptor já estiver ativado e nada acontecer, um registro de permissão deixado por uma versão anterior pode não corresponder mais a esta cópia do KatiKati. Você pode redefini-lo:\n\n1. Primeiro, encerre o KatiKati — enquanto ele estiver em execução, o botão de menos na lista fica acinzentado e a entrada não pode ser removida.\n2. Em Privacidade e Segurança > Acessibilidade, selecione KatiKati na lista e remova-o com o botão de menos. Pode haver mais de uma entrada; remova todas.\n3. Abra o KatiKati novamente a partir da pasta Aplicativos, depois adicione-o e ative o interruptor quando solicitado."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se o interruptor já estiver ativado e nada acontecer, é possível que um registo de permissão deixado por uma versão anterior já não corresponda a esta cópia do Tungsten Edge. Pode repô-lo:\n\n1. Comece por sair do Tungsten Edge – enquanto estiver em execução, o botão de menos na lista fica acinzentado e não é possível remover a entrada.\n2. Em Privacidade e segurança > Acessibilidade, selecione Tungsten Edge na lista e remova-o com o botão de menos. Pode existir mais de uma entrada; remova todas.\n3. Volte a abrir o Tungsten Edge a partir da pasta Aplicações, adicione-o e ative o interruptor quando lhe for pedido."
+            "value": "Se o interruptor já estiver ativado e nada acontecer, é possível que um registo de permissão deixado por uma versão anterior já não corresponda a esta cópia do KatiKati. Pode repô-lo:\n\n1. Comece por sair do KatiKati – enquanto estiver em execução, o botão de menos na lista fica acinzentado e não é possível remover a entrada.\n2. Em Privacidade e segurança > Acessibilidade, selecione KatiKati na lista e remova-o com o botão de menos. Pode existir mais de uma entrada; remova todas.\n3. Volte a abrir o KatiKati a partir da pasta Aplicações, adicione-o e ative o interruptor quando lhe for pedido."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se l’interruttore è già attivo e non succede nulla, è possibile che un’autorizzazione rimasta da una versione precedente non corrisponda più a questa copia di Tungsten Edge. Puoi reimpostarla:\n\n1. Esci prima da Tungsten Edge: finché è in esecuzione, il pulsante con il segno meno (–) nell’elenco è disattivato (in grigio) e non è possibile rimuovere la voce.\n2. In Privacy e sicurezza > Accessibilità, seleziona Tungsten Edge nell’elenco e rimuovilo con il pulsante con il segno meno (–). Potrebbero esserci più voci: rimuovile tutte.\n3. Riapri Tungsten Edge dalla cartella Applicazioni, poi aggiungilo e attiva l’interruttore quando richiesto."
+            "value": "Se l’interruttore è già attivo e non succede nulla, è possibile che un’autorizzazione rimasta da una versione precedente non corrisponda più a questa copia di KatiKati. Puoi reimpostarla:\n\n1. Esci prima da KatiKati: finché è in esecuzione, il pulsante con il segno meno (–) nell’elenco è disattivato (in grigio) e non è possibile rimuovere la voce.\n2. In Privacy e sicurezza > Accessibilità, seleziona KatiKati nell’elenco e rimuovilo con il pulsante con il segno meno (–). Potrebbero esserci più voci: rimuovile tutte.\n3. Riapri KatiKati dalla cartella Applicazioni, poi aggiungilo e attiva l’interruttore quando richiesto."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "스위치가 이미 켜져 있는데도 아무 반응이 없다면, 이전 버전이 남긴 권한 기록이 이 Tungsten Edge 사본과 더 이상 일치하지 않을 수 있습니다. 다음과 같이 재설정할 수 있습니다.\n\n1. 먼저 Tungsten Edge를 종료하십시오. 실행 중에는 목록의 빼기(−) 버튼이 비활성화되어 항목을 제거할 수 없습니다.\n2. 개인정보 보호 및 보안 > 손쉬운 사용에서 목록의 Tungsten Edge를 선택하고 빼기(−) 버튼으로 제거하십시오. 항목이 여러 개일 수 있으니 모두 제거하십시오.\n3. 응용 프로그램 폴더에서 Tungsten Edge를 다시 열고, 안내가 나타나면 추가한 다음 스위치를 켜십시오."
+            "value": "스위치가 이미 켜져 있는데도 아무 반응이 없다면, 이전 버전이 남긴 권한 기록이 이 KatiKati 사본과 더 이상 일치하지 않을 수 있습니다. 다음과 같이 재설정할 수 있습니다.\n\n1. 먼저 KatiKati를 종료하십시오. 실행 중에는 목록의 빼기(−) 버튼이 비활성화되어 항목을 제거할 수 없습니다.\n2. 개인정보 보호 및 보안 > 손쉬운 사용에서 목록의 KatiKati를 선택하고 빼기(−) 버튼으로 제거하십시오. 항목이 여러 개일 수 있으니 모두 제거하십시오.\n3. 응용 프로그램 폴더에서 KatiKati를 다시 열고, 안내가 나타나면 추가한 다음 스위치를 켜십시오."
           }
         }
       }
@@ -8956,78 +8956,78 @@
         }
       }
     },
-    "Licensing opens with version 1.0. Tungsten Edge is completely free until then, and founding users who have confirmed their email will receive a permanent free license key.": {
+    "Licensing opens with version 1.0. KatiKati is completely free until then, and founding users who have confirmed their email will receive a permanent free license key.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "授权功能将在 1.0 正式版开放。在那之前钨极完全免费；已完成邮箱确认的原始用户，届时会收到永久免费的授权码。"
+            "value": "授权功能将在 1.0 正式版开放。在那之前KatiKati完全免费；已完成邮箱确认的原始用户，届时会收到永久免费的授权码。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Licensing opens with version 1.0. Tungsten Edge is completely free until then, and founding users who have confirmed their email will receive a permanent free license key."
+            "value": "Licensing opens with version 1.0. KatiKati is completely free until then, and founding users who have confirmed their email will receive a permanent free license key."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "授權將於1.0版開放。在那之前Tungsten Edge完全免費；已完成電子郵件確認的創始使用者，屆時會收到永久免費的授權碼。"
+            "value": "授權將於1.0版開放。在那之前KatiKati完全免費；已完成電子郵件確認的創始使用者，屆時會收到永久免費的授權碼。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ライセンス機能はバージョン1.0で開始します。それまでTungsten Edgeは完全に無料で、メールアドレスの確認を済ませた創設ユーザには、永久に無料のライセンスキーをお送りします。"
+            "value": "ライセンス機能はバージョン1.0で開始します。それまでKatiKatiは完全に無料で、メールアドレスの確認を済ませた創設ユーザには、永久に無料のライセンスキーをお送りします。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Lizenzierung startet mit Version 1.0. Bis dahin ist Tungsten Edge vollständig kostenlos, und Gründungsnutzer, die ihre E-Mail-Adresse bestätigt haben, erhalten dann einen dauerhaft kostenlosen Lizenzschlüssel."
+            "value": "Die Lizenzierung startet mit Version 1.0. Bis dahin ist KatiKati vollständig kostenlos, und Gründungsnutzer, die ihre E-Mail-Adresse bestätigt haben, erhalten dann einen dauerhaft kostenlosen Lizenzschlüssel."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les licences arriveront avec la version 1.0. D’ici là, Tungsten Edge est entièrement gratuit, et les utilisateurs fondateurs ayant confirmé leur adresse e-mail recevront une clé de licence gratuite à vie."
+            "value": "Les licences arriveront avec la version 1.0. D’ici là, KatiKati est entièrement gratuit, et les utilisateurs fondateurs ayant confirmé leur adresse e-mail recevront une clé de licence gratuite à vie."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Las licencias llegarán con la versión 1.0. Hasta entonces, Tungsten Edge es totalmente gratis, y los usuarios fundadores que hayan confirmado su correo electrónico recibirán una clave de licencia gratuita para siempre."
+            "value": "Las licencias llegarán con la versión 1.0. Hasta entonces, KatiKati es totalmente gratis, y los usuarios fundadores que hayan confirmado su correo electrónico recibirán una clave de licencia gratuita para siempre."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Las licencias llegarán con la versión 1.0. Hasta entonces, Tungsten Edge es totalmente gratis, y los usuarios fundadores que hayan confirmado su correo electrónico recibirán una clave de licencia gratuita para siempre."
+            "value": "Las licencias llegarán con la versión 1.0. Hasta entonces, KatiKati es totalmente gratis, y los usuarios fundadores que hayan confirmado su correo electrónico recibirán una clave de licencia gratuita para siempre."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O licenciamento começa com a versão 1.0. Até lá, o Tungsten Edge é totalmente gratuito, e os usuários fundadores que confirmaram o e-mail receberão uma chave de licença gratuita e permanente."
+            "value": "O licenciamento começa com a versão 1.0. Até lá, o KatiKati é totalmente gratuito, e os usuários fundadores que confirmaram o e-mail receberão uma chave de licença gratuita e permanente."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O licenciamento arranca com a versão 1.0. Até lá, o Tungsten Edge é totalmente gratuito e os utilizadores fundadores que tenham confirmado o e-mail receberão uma chave de licença gratuita e permanente."
+            "value": "O licenciamento arranca com a versão 1.0. Até lá, o KatiKati é totalmente gratuito e os utilizadores fundadores que tenham confirmado o e-mail receberão uma chave de licença gratuita e permanente."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le licenze arriveranno con la versione 1.0. Fino ad allora Tungsten Edge è completamente gratuito e gli utenti fondatori che hanno confermato la propria email riceveranno una chiave di licenza gratuita e permanente."
+            "value": "Le licenze arriveranno con la versione 1.0. Fino ad allora KatiKati è completamente gratuito e gli utenti fondatori che hanno confermato la propria email riceveranno una chiave di licenza gratuita e permanente."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "라이선스는 버전 1.0부터 시작됩니다. 그때까지 Tungsten Edge는 완전히 무료이며, 이메일 주소 확인을 완료한 창립 멤버에게는 영구 무료 라이선스 키가 제공됩니다."
+            "value": "라이선스는 버전 1.0부터 시작됩니다. 그때까지 KatiKati는 완전히 무료이며, 이메일 주소 확인을 완료한 창립 멤버에게는 영구 무료 라이선스 키가 제공됩니다."
           }
         }
       }
@@ -9570,7 +9570,7 @@
         }
       }
     },
-    "Move Tungsten Edge to Applications": {
+    "Move KatiKati to Applications": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -9581,67 +9581,67 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Move Tungsten Edge to Applications"
+            "value": "Move KatiKati to Applications"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請將Tungsten Edge移到「應用程式」"
+            "value": "請將KatiKati移到「應用程式」"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edgeを「アプリケーション」に移動してください"
+            "value": "KatiKatiを「アプリケーション」に移動してください"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge in den Ordner „Programme“ bewegen"
+            "value": "KatiKati in den Ordner „Programme“ bewegen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Déplacez Tungsten Edge vers le dossier Applications"
+            "value": "Déplacez KatiKati vers le dossier Applications"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mueve Tungsten Edge a la carpeta Aplicaciones"
+            "value": "Mueve KatiKati a la carpeta Aplicaciones"
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mueve Tungsten Edge a la carpeta Aplicaciones"
+            "value": "Mueve KatiKati a la carpeta Aplicaciones"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mova o Tungsten Edge para Aplicativos"
+            "value": "Mova o KatiKati para Aplicativos"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mova o Tungsten Edge para Aplicações"
+            "value": "Mova o KatiKati para Aplicações"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sposta Tungsten Edge in Applicazioni"
+            "value": "Sposta KatiKati in Applicazioni"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge를 응용 프로그램 폴더로 이동"
+            "value": "KatiKati를 응용 프로그램 폴더로 이동"
           }
         }
       }
@@ -12620,79 +12620,79 @@
         }
       }
     },
-    "Press ⌥⌘D at any time — that’s macOS’s own shortcut for showing and hiding the Dock. You can also change this later from the Tungsten Edge menu bar item.": {
+    "Press ⌥⌘D at any time — that’s macOS’s own shortcut for showing and hiding the Dock. You can also change this later from the KatiKati menu bar item.": {
       "comment": "⚠️ ⌥⌘D 归 macOS 所有，钨极只把它当纯文字写、绝不注册成 keyEquivalent（会抢掉系统的）。钨极自己的全局热键是 ⌥⇧⌘D，别写混。",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Press ⌥⌘D at any time — that’s macOS’s own shortcut for showing and hiding the Dock. You can also change this later from the Tungsten Edge menu bar item."
+            "value": "Press ⌥⌘D at any time — that’s macOS’s own shortcut for showing and hiding the Dock. You can also change this later from the KatiKati menu bar item."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "随时按 ⌥⌘D 就能唤回来——这是 macOS 自带的 Dock 显隐快捷键。也可以之后从钨极的状态栏菜单里改。"
+            "value": "随时按 ⌥⌘D 就能唤回来——这是 macOS 自带的 Dock 显隐快捷键。也可以之后从KatiKati的状态栏菜单里改。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "隨時按⌥⌘D就能叫回來——那是macOS內建的Dock顯示／隱藏快速鍵。之後也可以從選單列上的Tungsten Edge項目更改。"
+            "value": "隨時按⌥⌘D就能叫回來——那是macOS內建的Dock顯示／隱藏快速鍵。之後也可以從選單列上的KatiKati項目更改。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "いつでも⌥⌘Dを押せば呼び戻せます。これはmacOS標準のDock表示/非表示のショートカットです。あとからTungsten Edgeのメニューバー項目で変更することもできます。"
+            "value": "いつでも⌥⌘Dを押せば呼び戻せます。これはmacOS標準のDock表示/非表示のショートカットです。あとからKatiKatiのメニューバー項目で変更することもできます。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drücke jederzeit ⌥⌘D – das ist der Kurzbefehl von macOS zum Ein- und Ausblenden des Docks. Du kannst das später auch über das Tungsten Edge-Symbol in der Menüleiste ändern."
+            "value": "Drücke jederzeit ⌥⌘D – das ist der Kurzbefehl von macOS zum Ein- und Ausblenden des Docks. Du kannst das später auch über das KatiKati-Symbol in der Menüleiste ändern."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Appuyez sur ⌥⌘D à tout moment — c’est le raccourci de macOS pour afficher et masquer le Dock. Vous pourrez aussi modifier ce réglage d’affichage plus tard depuis l’icône Tungsten Edge de la barre des menus."
+            "value": "Appuyez sur ⌥⌘D à tout moment — c’est le raccourci de macOS pour afficher et masquer le Dock. Vous pourrez aussi modifier ce réglage d’affichage plus tard depuis l’icône KatiKati de la barre des menus."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pulsa ⌥⌘D cuando quieras: es el atajo propio de macOS para mostrar y ocultar el Dock. También puedes cambiar más adelante cómo se muestra el Dock desde el icono de Tungsten Edge en la barra de menús."
+            "value": "Pulsa ⌥⌘D cuando quieras: es el atajo propio de macOS para mostrar y ocultar el Dock. También puedes cambiar más adelante cómo se muestra el Dock desde el icono de KatiKati en la barra de menús."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presiona ⌥⌘D cuando quieras: es el atajo propio de macOS para mostrar y ocultar el Dock. También puedes cambiar más adelante cómo se muestra el Dock desde el ícono de Tungsten Edge en la barra de menús."
+            "value": "Presiona ⌥⌘D cuando quieras: es el atajo propio de macOS para mostrar y ocultar el Dock. También puedes cambiar más adelante cómo se muestra el Dock desde el ícono de KatiKati en la barra de menús."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pressione ⌥⌘D a qualquer momento — é o atalho do próprio macOS para mostrar e ocultar o Dock. Você também pode alterar depois como o Dock é mostrado, no item do Tungsten Edge na barra de menus."
+            "value": "Pressione ⌥⌘D a qualquer momento — é o atalho do próprio macOS para mostrar e ocultar o Dock. Você também pode alterar depois como o Dock é mostrado, no item do KatiKati na barra de menus."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prima ⌥⌘D a qualquer momento – é o atalho do próprio macOS para mostrar e ocultar a Dock. Também pode alterar mais tarde a forma como a Dock é mostrada, no item do Tungsten Edge na barra de menus."
+            "value": "Prima ⌥⌘D a qualquer momento – é o atalho do próprio macOS para mostrar e ocultar a Dock. Também pode alterar mais tarde a forma como a Dock é mostrada, no item do KatiKati na barra de menus."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Premi ⌥⌘D in qualsiasi momento: è la scorciatoia di macOS per mostrare e nascondere il Dock. Puoi cambiare anche in seguito come viene mostrato il Dock dall’elemento Tungsten Edge nella barra dei menu."
+            "value": "Premi ⌥⌘D in qualsiasi momento: è la scorciatoia di macOS per mostrare e nascondere il Dock. Puoi cambiare anche in seguito come viene mostrato il Dock dall’elemento KatiKati nella barra dei menu."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "언제든지 ⌥⌘D를 누르십시오. macOS에서 Dock을 보이거나 가리는 기본 단축키입니다. Dock 표시 방식은 나중에 Tungsten Edge 메뉴 막대 항목에서도 변경할 수 있습니다."
+            "value": "언제든지 ⌥⌘D를 누르십시오. macOS에서 Dock을 보이거나 가리는 기본 단축키입니다. Dock 표시 방식은 나중에 KatiKati 메뉴 막대 항목에서도 변경할 수 있습니다."
           }
         }
       }
@@ -13001,78 +13001,78 @@
         }
       }
     },
-    "Quit Tungsten Edge": {
+    "Quit KatiKati": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "退出 Tungsten Edge 钨极"
+            "value": "退出 KatiKati"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quit Tungsten Edge"
+            "value": "Quit KatiKati"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "結束Tungsten Edge"
+            "value": "結束KatiKati"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edgeを終了"
+            "value": "KatiKatiを終了"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge beenden"
+            "value": "KatiKati beenden"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quitter Tungsten Edge"
+            "value": "Quitter KatiKati"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Salir de Tungsten Edge"
+            "value": "Salir de KatiKati"
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Salir de Tungsten Edge"
+            "value": "Salir de KatiKati"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Encerrar Tungsten Edge"
+            "value": "Encerrar KatiKati"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sair de Tungsten Edge"
+            "value": "Sair de KatiKati"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esci da Tungsten Edge"
+            "value": "Esci da KatiKati"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge 종료"
+            "value": "KatiKati 종료"
           }
         }
       }
@@ -13688,7 +13688,7 @@
         }
       }
     },
-    "Restart Tungsten Edge": {
+    "Restart KatiKati": {
       "comment": "语言切换弹窗按钮",
       "localizations": {
         "zh-Hans": {
@@ -13700,143 +13700,143 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restart Tungsten Edge"
+            "value": "Restart KatiKati"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新啟動Tungsten Edge"
+            "value": "重新啟動KatiKati"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edgeを再起動"
+            "value": "KatiKatiを再起動"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge neu starten"
+            "value": "KatiKati neu starten"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Redémarrer Tungsten Edge"
+            "value": "Redémarrer KatiKati"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reiniciar Tungsten Edge"
+            "value": "Reiniciar KatiKati"
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reiniciar Tungsten Edge"
+            "value": "Reiniciar KatiKati"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reabrir Tungsten Edge"
+            "value": "Reabrir KatiKati"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reabrir Tungsten Edge"
+            "value": "Reabrir KatiKati"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Riapri Tungsten Edge"
+            "value": "Riapri KatiKati"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge 재실행"
+            "value": "KatiKati 재실행"
           }
         }
       }
     },
-    "Restarting Tungsten Edge…": {
+    "Restarting KatiKati…": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在重启钨极…"
+            "value": "正在重启KatiKati…"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restarting Tungsten Edge…"
+            "value": "Restarting KatiKati…"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在重新啟動Tungsten Edge⋯"
+            "value": "正在重新啟動KatiKati⋯"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edgeを再起動しています…"
+            "value": "KatiKatiを再起動しています…"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge wird neu gestartet …"
+            "value": "KatiKati wird neu gestartet …"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Redémarrage de Tungsten Edge…"
+            "value": "Redémarrage de KatiKati…"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reiniciando Tungsten Edge…"
+            "value": "Reiniciando KatiKati…"
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reiniciando Tungsten Edge…"
+            "value": "Reiniciando KatiKati…"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reiniciando o Tungsten Edge…"
+            "value": "Reiniciando o KatiKati…"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "A reiniciar o Tungsten Edge…"
+            "value": "A reiniciar o KatiKati…"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Riavvio di Tungsten Edge…"
+            "value": "Riavvio di KatiKati…"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge 재실행 중…"
+            "value": "KatiKati 재실행 중…"
           }
         }
       }
@@ -15524,78 +15524,78 @@
         }
       }
     },
-    "Some items can’t be accessed. Allow Tungsten Edge to access their folder in your Mac’s privacy settings.": {
+    "Some items can’t be accessed. Allow KatiKati to access their folder in your Mac’s privacy settings.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "有项目暂时无法访问。请在系统隐私设置里允许钨极访问它们所在的文件夹。"
+            "value": "有项目暂时无法访问。请在系统隐私设置里允许KatiKati访问它们所在的文件夹。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Some items can’t be accessed. Allow Tungsten Edge to access their folder in your Mac’s privacy settings."
+            "value": "Some items can’t be accessed. Allow KatiKati to access their folder in your Mac’s privacy settings."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "有些項目無法取用。請在Mac的隱私權設定裡允許Tungsten Edge取用它們所在的檔案夾。"
+            "value": "有些項目無法取用。請在Mac的隱私權設定裡允許KatiKati取用它們所在的檔案夾。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "一部の項目にアクセスできません。Macのプライバシー設定で、それらの項目があるフォルダへのTungsten Edgeのアクセスを許可してください。"
+            "value": "一部の項目にアクセスできません。Macのプライバシー設定で、それらの項目があるフォルダへのKatiKatiのアクセスを許可してください。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Auf einige Objekte kann nicht zugegriffen werden. Erlaube Tungsten Edge in den Datenschutzeinstellungen deines Macs den Zugriff auf den betreffenden Ordner."
+            "value": "Auf einige Objekte kann nicht zugegriffen werden. Erlaube KatiKati in den Datenschutzeinstellungen deines Macs den Zugriff auf den betreffenden Ordner."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Certains éléments sont inaccessibles. Autorisez Tungsten Edge à accéder à leur dossier dans les réglages de confidentialité de votre Mac."
+            "value": "Certains éléments sont inaccessibles. Autorisez KatiKati à accéder à leur dossier dans les réglages de confidentialité de votre Mac."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se puede acceder a algunos ítems. Permite que Tungsten Edge acceda a su carpeta en los ajustes de privacidad de tu Mac."
+            "value": "No se puede acceder a algunos ítems. Permite que KatiKati acceda a su carpeta en los ajustes de privacidad de tu Mac."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se puede acceder a algunos elementos. Permite que Tungsten Edge acceda a su carpeta en la configuración de privacidad de tu Mac."
+            "value": "No se puede acceder a algunos elementos. Permite que KatiKati acceda a su carpeta en la configuración de privacidad de tu Mac."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não é possível acessar alguns itens. Permita que o Tungsten Edge acesse a pasta deles nos ajustes de privacidade do seu Mac."
+            "value": "Não é possível acessar alguns itens. Permita que o KatiKati acesse a pasta deles nos ajustes de privacidade do seu Mac."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não é possível aceder a alguns elementos. Permita que o Tungsten Edge aceda à pasta destes nas definições de privacidade do seu Mac."
+            "value": "Não é possível aceder a alguns elementos. Permita que o KatiKati aceda à pasta destes nas definições de privacidade do seu Mac."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alcuni elementi non sono accessibili. Consenti a Tungsten Edge di accedere alla loro cartella nelle impostazioni della privacy del Mac."
+            "value": "Alcuni elementi non sono accessibili. Consenti a KatiKati di accedere alla loro cartella nelle impostazioni della privacy del Mac."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "일부 항목에 접근할 수 없습니다. Mac의 개인정보 보호 설정에서 Tungsten Edge가 해당 폴더에 접근하도록 허용하십시오."
+            "value": "일부 항목에 접근할 수 없습니다. Mac의 개인정보 보호 설정에서 KatiKati가 해당 폴더에 접근하도록 허용하십시오."
           }
         }
       }
@@ -15676,79 +15676,79 @@
         }
       }
     },
-    "Star Tungsten Edge on GitHub — a free way to help it get better.": {
+    "Star KatiKati on GitHub — a free way to help it get better.": {
       "comment": "⚠️ 中文与官网 tungstenedge.app 订阅区下面那句 Star 请求逐字同源，改这里就要同步改官网。调子必须比上面订阅正文更淡——它是顺手帮个忙，不能压过留邮箱的真实理由。",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Star Tungsten Edge on GitHub — a free way to help it get better."
+            "value": "Star KatiKati on GitHub — a free way to help it get better."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 GitHub 点个免费的 Star，支持钨极变得更好。"
+            "value": "在 GitHub 点个免费的 Star，支持KatiKati变得更好。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "到GitHub給Tungsten Edge一顆星——不花錢也能幫它變得更好。"
+            "value": "到GitHub給KatiKati一顆星——不花錢也能幫它變得更好。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "GitHubでTungsten EdgeにStarを付けると、無料で開発を応援できます。"
+            "value": "GitHubでKatiKatiにStarを付けると、無料で開発を応援できます。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gib Tungsten Edge auf GitHub einen Stern – so unterstützt du die Weiterentwicklung, ohne Geld auszugeben."
+            "value": "Gib KatiKati auf GitHub einen Stern – so unterstützt du die Weiterentwicklung, ohne Geld auszugeben."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mettez une étoile à Tungsten Edge sur GitHub — un coup de pouce gratuit pour l’aider à progresser."
+            "value": "Mettez une étoile à KatiKati sur GitHub — un coup de pouce gratuit pour l’aider à progresser."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dale una estrella a Tungsten Edge en GitHub: una forma gratuita de ayudar a que mejore."
+            "value": "Dale una estrella a KatiKati en GitHub: una forma gratuita de ayudar a que mejore."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dale una estrella a Tungsten Edge en GitHub: una forma gratuita de ayudar a que mejore."
+            "value": "Dale una estrella a KatiKati en GitHub: una forma gratuita de ayudar a que mejore."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dê uma estrela ao Tungsten Edge no GitHub — um jeito gratuito de ajudar a melhorá-lo."
+            "value": "Dê uma estrela ao KatiKati no GitHub — um jeito gratuito de ajudar a melhorá-lo."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dê uma estrela ao Tungsten Edge no GitHub – uma forma gratuita de ajudar a melhorá-lo."
+            "value": "Dê uma estrela ao KatiKati no GitHub – uma forma gratuita de ajudar a melhorá-lo."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Metti una stella a Tungsten Edge su GitHub: un modo gratuito per aiutarlo a migliorare."
+            "value": "Metti una stella a KatiKati su GitHub: un modo gratuito per aiutarlo a migliorare."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "GitHub에서 Tungsten Edge에 Star를 눌러 주십시오. 무료로 개선을 도울 수 있는 방법입니다."
+            "value": "GitHub에서 KatiKati에 Star를 눌러 주십시오. 무료로 개선을 도울 수 있는 방법입니다."
           }
         }
       }
@@ -16978,79 +16978,79 @@
         }
       }
     },
-    "The feedback service is temporarily unavailable. Try again later, or email support@tungstenedge.app.": {
+    "The feedback service is temporarily unavailable. Try again later, or email support@katikati.app.": {
       "comment": "反馈失败 · 服务端故障",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "反馈服务暂时不可用，请稍后再试，或发邮件到 support@tungstenedge.app。"
+            "value": "反馈服务暂时不可用，请稍后再试，或发邮件到 support@katikati.app。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The feedback service is temporarily unavailable. Try again later, or email support@tungstenedge.app."
+            "value": "The feedback service is temporarily unavailable. Try again later, or email support@katikati.app."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "意見回饋服務暫時無法使用，請稍後再試，或寄信到support@tungstenedge.app。"
+            "value": "意見回饋服務暫時無法使用，請稍後再試，或寄信到support@katikati.app。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フィードバックサービスは一時的に利用できません。しばらくしてからもう一度お試しいただくか、support@tungstenedge.appまでメールでご連絡ください。"
+            "value": "フィードバックサービスは一時的に利用できません。しばらくしてからもう一度お試しいただくか、support@katikati.appまでメールでご連絡ください。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Feedback-Dienst ist vorübergehend nicht verfügbar. Versuch es später noch einmal oder schreib eine E-Mail an support@tungstenedge.app."
+            "value": "Der Feedback-Dienst ist vorübergehend nicht verfügbar. Versuch es später noch einmal oder schreib eine E-Mail an support@katikati.app."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le service de commentaires est temporairement indisponible. Réessayez plus tard, ou écrivez à support@tungstenedge.app."
+            "value": "Le service de commentaires est temporairement indisponible. Réessayez plus tard, ou écrivez à support@katikati.app."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El servicio de comentarios no está disponible temporalmente. Inténtalo de nuevo más tarde o envía un correo a support@tungstenedge.app."
+            "value": "El servicio de comentarios no está disponible temporalmente. Inténtalo de nuevo más tarde o envía un correo a support@katikati.app."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "El servicio de comentarios no está disponible temporalmente. Intenta de nuevo más tarde o envía un correo a support@tungstenedge.app."
+            "value": "El servicio de comentarios no está disponible temporalmente. Intenta de nuevo más tarde o envía un correo a support@katikati.app."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O serviço de feedback está temporariamente indisponível. Tente novamente mais tarde ou envie um e-mail para support@tungstenedge.app."
+            "value": "O serviço de feedback está temporariamente indisponível. Tente novamente mais tarde ou envie um e-mail para support@katikati.app."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O serviço de comentários está temporariamente indisponível. Volte a tentar mais tarde ou envie um e-mail para support@tungstenedge.app."
+            "value": "O serviço de comentários está temporariamente indisponível. Volte a tentar mais tarde ou envie um e-mail para support@katikati.app."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il servizio feedback non è al momento disponibile. Riprova più tardi oppure scrivi a support@tungstenedge.app."
+            "value": "Il servizio feedback non è al momento disponibile. Riprova più tardi oppure scrivi a support@katikati.app."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "피드백 서비스를 일시적으로 사용할 수 없습니다. 나중에 다시 시도하거나, support@tungstenedge.app 주소로 이메일을 보내십시오."
+            "value": "피드백 서비스를 일시적으로 사용할 수 없습니다. 나중에 다시 시도하거나, support@katikati.app 주소로 이메일을 보내십시오."
           }
         }
       }
@@ -17132,79 +17132,79 @@
         }
       }
     },
-    "The language change takes effect after Tungsten Edge restarts.": {
+    "The language change takes effect after KatiKati restarts.": {
       "comment": "设置窗口 · 语言说明与弹窗正文共用",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "语言更改在钨极重新启动后生效。"
+            "value": "语言更改在KatiKati重新启动后生效。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The language change takes effect after Tungsten Edge restarts."
+            "value": "The language change takes effect after KatiKati restarts."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "語言更改會在Tungsten Edge重新啟動後生效。"
+            "value": "語言更改會在KatiKati重新啟動後生效。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "言語の変更はTungsten Edgeの再起動後に反映されます。"
+            "value": "言語の変更はKatiKatiの再起動後に反映されます。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Sprachänderung wird erst nach einem Neustart von Tungsten Edge wirksam."
+            "value": "Die Sprachänderung wird erst nach einem Neustart von KatiKati wirksam."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le changement de langue prend effet après le redémarrage de Tungsten Edge."
+            "value": "Le changement de langue prend effet après le redémarrage de KatiKati."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El cambio de idioma se aplicará cuando se reinicie Tungsten Edge."
+            "value": "El cambio de idioma se aplicará cuando se reinicie KatiKati."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "El cambio de idioma se aplicará cuando se reinicie Tungsten Edge."
+            "value": "El cambio de idioma se aplicará cuando se reinicie KatiKati."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "A mudança de idioma tem efeito depois que o Tungsten Edge for reiniciado."
+            "value": "A mudança de idioma tem efeito depois que o KatiKati for reiniciado."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "A alteração do idioma entra em vigor depois de o Tungsten Edge reiniciar."
+            "value": "A alteração do idioma entra em vigor depois de o KatiKati reiniciar."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "La modifica della lingua ha effetto dopo il riavvio di Tungsten Edge."
+            "value": "La modifica della lingua ha effetto dopo il riavvio di KatiKati."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "언어 변경은 Tungsten Edge를 재실행한 후에 적용됩니다."
+            "value": "언어 변경은 KatiKati를 재실행한 후에 적용됩니다."
           }
         }
       }
@@ -18048,156 +18048,156 @@
         }
       }
     },
-    "To keep the taskbar from flashing when you switch into full screen, Tungsten Edge has to hide it before your input reaches the app. It therefore watches global left-clicks, key presses and trackpad gestures, and recognizes only four of them: the window’s green button, Control-Command-F, Control-Left/Right arrow, and a three-finger horizontal swipe. What you type is never recorded, logged, or sent anywhere. Turning this off disables the watching completely.": {
+    "To keep the taskbar from flashing when you switch into full screen, KatiKati has to hide it before your input reaches the app. It therefore watches global left-clicks, key presses and trackpad gestures, and recognizes only four of them: the window’s green button, Control-Command-F, Control-Left/Right arrow, and a three-finger horizontal swipe. What you type is never recorded, logged, or sent anywhere. Turning this off disables the watching completely.": {
       "comment": "隐私披露。必须与两份 README 里枚举的四种输入保持一致（AGENTS.md 有护栏）。",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "为了不让 Dock 栏在切进全屏时闪一下，钨极需要在你的输入送到应用之前先把它藏起来。因此会监听全局的鼠标左键按下、键盘按下和触控板手势，只识别窗口绿灯、Control-Command-F、Control-左右方向键和三指水平滑动这四种；不记录输入内容，也不写日志、不发送到任何地方。关闭后这些监听会被完全停用。"
+            "value": "为了不让 Dock 栏在切进全屏时闪一下，KatiKati需要在你的输入送到应用之前先把它藏起来。因此会监听全局的鼠标左键按下、键盘按下和触控板手势，只识别窗口绿灯、Control-Command-F、Control-左右方向键和三指水平滑动这四种；不记录输入内容，也不写日志、不发送到任何地方。关闭后这些监听会被完全停用。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "To keep the taskbar from flashing when you switch into full screen, Tungsten Edge has to hide it before your input reaches the app. It therefore watches global left-clicks, key presses and trackpad gestures, and recognizes only four of them: the window’s green button, Control-Command-F, Control-Left/Right arrow, and a three-finger horizontal swipe. What you type is never recorded, logged, or sent anywhere. Turning this off disables the watching completely."
+            "value": "To keep the taskbar from flashing when you switch into full screen, KatiKati has to hide it before your input reaches the app. It therefore watches global left-clicks, key presses and trackpad gestures, and recognizes only four of them: the window’s green button, Control-Command-F, Control-Left/Right arrow, and a three-finger horizontal swipe. What you type is never recorded, logged, or sent anywhere. Turning this off disables the watching completely."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "為了不讓工作列在切進全螢幕時閃一下，Tungsten Edge必須在你的輸入送到App之前先把它藏起來。因此它會監看全域的滑鼠左鍵按下、按鍵按下與觸控式軌跡板手勢，而且只辨識其中四種：視窗的綠色按鈕、Control-Command-F、Control-左右方向鍵，以及三指水平滑動。你輸入的內容不會被記錄、不會寫進日誌，也不會傳送到任何地方。關閉之後，這些監看會完全停用。"
+            "value": "為了不讓工作列在切進全螢幕時閃一下，KatiKati必須在你的輸入送到App之前先把它藏起來。因此它會監看全域的滑鼠左鍵按下、按鍵按下與觸控式軌跡板手勢，而且只辨識其中四種：視窗的綠色按鈕、Control-Command-F、Control-左右方向鍵，以及三指水平滑動。你輸入的內容不會被記錄、不會寫進日誌，也不會傳送到任何地方。關閉之後，這些監看會完全停用。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "フルスクリーンに切り替えるときにタスクバーがちらつかないよう、Tungsten Edgeは入力がアプリに届く前にタスクバーを隠す必要があります。そのためシステム全体のマウス左ボタンの押下、キー入力、トラックパッドのジェスチャを監視しますが、認識するのはウインドウの緑のボタン、Control-Command-F、Control-左右矢印キー、3本指の横スワイプの4つだけです。入力内容を記録することも、ログに残すことも、どこかに送信することもありません。オフにすると、この監視は完全に停止します。"
+            "value": "フルスクリーンに切り替えるときにタスクバーがちらつかないよう、KatiKatiは入力がアプリに届く前にタスクバーを隠す必要があります。そのためシステム全体のマウス左ボタンの押下、キー入力、トラックパッドのジェスチャを監視しますが、認識するのはウインドウの緑のボタン、Control-Command-F、Control-左右矢印キー、3本指の横スワイプの4つだけです。入力内容を記録することも、ログに残すことも、どこかに送信することもありません。オフにすると、この監視は完全に停止します。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Damit die Taskleiste beim Wechsel in den Vollbildmodus nicht kurz aufblitzt, muss Tungsten Edge sie ausblenden, bevor deine Eingabe die App erreicht. Dafür beobachtet es systemweit Linksklicks, Tastendrücke und Trackpad-Gesten und erkennt davon nur vier: die grüne Taste des Fensters, Control-Command-F, Control-Pfeiltaste links/rechts und ein horizontales Streichen mit drei Fingern. Was du tippst, wird nie aufgezeichnet, protokolliert oder irgendwohin gesendet. Wird dies deaktiviert, entfällt die Beobachtung vollständig."
+            "value": "Damit die Taskleiste beim Wechsel in den Vollbildmodus nicht kurz aufblitzt, muss KatiKati sie ausblenden, bevor deine Eingabe die App erreicht. Dafür beobachtet es systemweit Linksklicks, Tastendrücke und Trackpad-Gesten und erkennt davon nur vier: die grüne Taste des Fensters, Control-Command-F, Control-Pfeiltaste links/rechts und ein horizontales Streichen mit drei Fingern. Was du tippst, wird nie aufgezeichnet, protokolliert oder irgendwohin gesendet. Wird dies deaktiviert, entfällt die Beobachtung vollständig."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pour que la barre des tâches ne scintille pas au passage en plein écran, Tungsten Edge doit la masquer avant que votre action n’atteigne l’app. Il surveille donc, au niveau global, les clics gauche, les frappes au clavier et les gestes du trackpad, et n’en reconnaît que quatre : le bouton vert de la fenêtre, Control-Command-F, Control-flèche gauche/droite et le balayage horizontal à trois doigts. Ce que vous tapez n’est jamais enregistré, ni consigné, ni envoyé où que ce soit. Désactiver cette option supprime complètement cette surveillance."
+            "value": "Pour que la barre des tâches ne scintille pas au passage en plein écran, KatiKati doit la masquer avant que votre action n’atteigne l’app. Il surveille donc, au niveau global, les clics gauche, les frappes au clavier et les gestes du trackpad, et n’en reconnaît que quatre : le bouton vert de la fenêtre, Control-Command-F, Control-flèche gauche/droite et le balayage horizontal à trois doigts. Ce que vous tapez n’est jamais enregistré, ni consigné, ni envoyé où que ce soit. Désactiver cette option supprime complètement cette surveillance."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para que la barra de tareas no parpadee al pasar a pantalla completa, Tungsten Edge tiene que ocultarla antes de que tu acción llegue a la app. Por eso monitoriza en todo el sistema los clics con el botón izquierdo, las pulsaciones de teclas y los gestos del trackpad, y solo reconoce cuatro: el botón verde de la ventana, Control + Comando + F, Control + flecha izquierda/derecha y el deslizamiento horizontal con tres dedos. Lo que escribes nunca se graba, se registra ni se envía a ningún sitio. Si lo desactivas, esa monitorización se detiene por completo."
+            "value": "Para que la barra de tareas no parpadee al pasar a pantalla completa, KatiKati tiene que ocultarla antes de que tu acción llegue a la app. Por eso monitoriza en todo el sistema los clics con el botón izquierdo, las pulsaciones de teclas y los gestos del trackpad, y solo reconoce cuatro: el botón verde de la ventana, Control + Comando + F, Control + flecha izquierda/derecha y el deslizamiento horizontal con tres dedos. Lo que escribes nunca se graba, se registra ni se envía a ningún sitio. Si lo desactivas, esa monitorización se detiene por completo."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para que la barra de tareas no parpadee al pasar a pantalla completa, Tungsten Edge tiene que ocultarla antes de que tu acción llegue a la app. Por eso monitorea en todo el sistema los clics con el botón izquierdo, las teclas que presionas y los gestos del trackpad, y sólo reconoce cuatro: el botón verde de la ventana, Control + Comando + F, Control + flecha izquierda/derecha y el deslizamiento horizontal con tres dedos. Lo que escribes nunca se graba, se registra ni se envía a ningún lugar. Si lo desactivas, ese monitoreo se detiene por completo."
+            "value": "Para que la barra de tareas no parpadee al pasar a pantalla completa, KatiKati tiene que ocultarla antes de que tu acción llegue a la app. Por eso monitorea en todo el sistema los clics con el botón izquierdo, las teclas que presionas y los gestos del trackpad, y sólo reconoce cuatro: el botón verde de la ventana, Control + Comando + F, Control + flecha izquierda/derecha y el deslizamiento horizontal con tres dedos. Lo que escribes nunca se graba, se registra ni se envía a ningún lugar. Si lo desactivas, ese monitoreo se detiene por completo."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para que a barra de tarefas não pisque ao entrar em tela cheia, o Tungsten Edge precisa ocultá-la antes que sua ação chegue ao app. Por isso, ele monitora em todo o sistema os cliques com o botão esquerdo, as teclas pressionadas e os gestos do trackpad, e reconhece apenas quatro deles: o botão verde da janela, Control-Command-F, Control-seta para a esquerda/direita e o gesto de passar três dedos na horizontal. O que você digita nunca é gravado, registrado nem enviado para lugar nenhum. Desativar esta opção desliga completamente esse monitoramento."
+            "value": "Para que a barra de tarefas não pisque ao entrar em tela cheia, o KatiKati precisa ocultá-la antes que sua ação chegue ao app. Por isso, ele monitora em todo o sistema os cliques com o botão esquerdo, as teclas pressionadas e os gestos do trackpad, e reconhece apenas quatro deles: o botão verde da janela, Control-Command-F, Control-seta para a esquerda/direita e o gesto de passar três dedos na horizontal. O que você digita nunca é gravado, registrado nem enviado para lugar nenhum. Desativar esta opção desliga completamente esse monitoramento."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para que a barra de tarefas não pisque ao mudar para ecrã completo, o Tungsten Edge tem de a ocultar antes de a sua ação chegar à aplicação. Por isso, monitoriza em todo o sistema os cliques com o botão esquerdo, as teclas premidas e os gestos do trackpad, e reconhece apenas quatro deles: o botão verde da janela, Controlo-Comando-F, Controlo-seta para a esquerda/direita e o gesto de passar três dedos na horizontal. O que escreve nunca é gravado, registado nem enviado para lado nenhum. Desativar esta opção desliga totalmente essa monitorização."
+            "value": "Para que a barra de tarefas não pisque ao mudar para ecrã completo, o KatiKati tem de a ocultar antes de a sua ação chegar à aplicação. Por isso, monitoriza em todo o sistema os cliques com o botão esquerdo, as teclas premidas e os gestos do trackpad, e reconhece apenas quatro deles: o botão verde da janela, Controlo-Comando-F, Controlo-seta para a esquerda/direita e o gesto de passar três dedos na horizontal. O que escreve nunca é gravado, registado nem enviado para lado nenhum. Desativar esta opção desliga totalmente essa monitorização."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Per evitare che la barra delle applicazioni lampeggi quando passi a tutto schermo, Tungsten Edge deve nasconderla prima che l’input raggiunga l’app. Per questo monitora a livello globale i clic sinistri, la pressione dei tasti e i gesti del trackpad, e ne riconosce solo quattro: il pulsante verde della finestra, Ctrl-Comando-F, Ctrl-Freccia sinistra/destra e lo scorrimento orizzontale con tre dita. Ciò che digiti non viene mai registrato, annotato nei log né inviato da nessuna parte. Se disattivi questa opzione, il monitoraggio viene interrotto del tutto."
+            "value": "Per evitare che la barra delle applicazioni lampeggi quando passi a tutto schermo, KatiKati deve nasconderla prima che l’input raggiunga l’app. Per questo monitora a livello globale i clic sinistri, la pressione dei tasti e i gesti del trackpad, e ne riconosce solo quattro: il pulsante verde della finestra, Ctrl-Comando-F, Ctrl-Freccia sinistra/destra e lo scorrimento orizzontale con tre dita. Ciò che digiti non viene mai registrato, annotato nei log né inviato da nessuna parte. Se disattivi questa opzione, il monitoraggio viene interrotto del tutto."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "전체 화면으로 전환할 때 작업 표시줄이 깜박이지 않도록 하려면, 사용자의 입력이 앱에 전달되기 전에 Tungsten Edge가 작업 표시줄을 먼저 가려야 합니다. 이를 위해 전역 왼쪽 클릭, 키 입력 및 트랙패드 제스처를 모니터링하며, 그중 네 가지만 인식합니다. 윈도우의 녹색 버튼, Control-Command-F, Control-왼쪽/오른쪽 화살표, 세 손가락으로 가로로 쓸어넘기기입니다. 입력한 내용은 기록되거나 로그에 남거나 어디로도 전송되지 않습니다. 이 기능을 끄면 모니터링이 완전히 중단됩니다."
+            "value": "전체 화면으로 전환할 때 작업 표시줄이 깜박이지 않도록 하려면, 사용자의 입력이 앱에 전달되기 전에 KatiKati가 작업 표시줄을 먼저 가려야 합니다. 이를 위해 전역 왼쪽 클릭, 키 입력 및 트랙패드 제스처를 모니터링하며, 그중 네 가지만 인식합니다. 윈도우의 녹색 버튼, Control-Command-F, Control-왼쪽/오른쪽 화살표, 세 손가락으로 가로로 쓸어넘기기입니다. 입력한 내용은 기록되거나 로그에 남거나 어디로도 전송되지 않습니다. 이 기능을 끄면 모니터링이 완전히 중단됩니다."
           }
         }
       }
     },
-    "Today’s attachment allowance is used up. Remove the attachments to send just the text, try again tomorrow, or email support@tungstenedge.app.": {
+    "Today’s attachment allowance is used up. Remove the attachments to send just the text, try again tomorrow, or email support@katikati.app.": {
       "comment": "反馈失败 · 附件通道今日额度用尽",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "今天的附件额度用完了。可以先移除附件只发文字，或明天再试，也可以发邮件到 support@tungstenedge.app。"
+            "value": "今天的附件额度用完了。可以先移除附件只发文字，或明天再试，也可以发邮件到 support@katikati.app。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Today’s attachment allowance is used up. Remove the attachments to send just the text, try again tomorrow, or email support@tungstenedge.app."
+            "value": "Today’s attachment allowance is used up. Remove the attachments to send just the text, try again tomorrow, or email support@katikati.app."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "今天的附件額度用完了。可以先移除附件只傳送文字、明天再試，或寄信到support@tungstenedge.app。"
+            "value": "今天的附件額度用完了。可以先移除附件只傳送文字、明天再試，或寄信到support@katikati.app。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "本日の添付ファイルの上限に達しました。添付を削除してテキストだけ送るか、明日もう一度お試しください。support@tungstenedge.appまでメールでご連絡いただくこともできます。"
+            "value": "本日の添付ファイルの上限に達しました。添付を削除してテキストだけ送るか、明日もう一度お試しください。support@katikati.appまでメールでご連絡いただくこともできます。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das heutige Kontingent für Anhänge ist aufgebraucht. Entferne die Anhänge, um nur den Text zu senden, versuch es morgen noch einmal oder schreib eine E-Mail an support@tungstenedge.app."
+            "value": "Das heutige Kontingent für Anhänge ist aufgebraucht. Entferne die Anhänge, um nur den Text zu senden, versuch es morgen noch einmal oder schreib eine E-Mail an support@katikati.app."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le quota de pièces jointes du jour est épuisé. Retirez les pièces jointes pour n’envoyer que le texte, réessayez demain, ou écrivez à support@tungstenedge.app."
+            "value": "Le quota de pièces jointes du jour est épuisé. Retirez les pièces jointes pour n’envoyer que le texte, réessayez demain, ou écrivez à support@katikati.app."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se ha agotado el cupo de adjuntos de hoy. Quita los adjuntos para enviar solo el texto, inténtalo de nuevo mañana o envía un correo a support@tungstenedge.app."
+            "value": "Se ha agotado el cupo de adjuntos de hoy. Quita los adjuntos para enviar solo el texto, inténtalo de nuevo mañana o envía un correo a support@katikati.app."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se agotó el cupo de adjuntos de hoy. Quita los adjuntos para enviar sólo el texto, intenta de nuevo mañana o envía un correo a support@tungstenedge.app."
+            "value": "Se agotó el cupo de adjuntos de hoy. Quita los adjuntos para enviar sólo el texto, intenta de nuevo mañana o envía un correo a support@katikati.app."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "A cota de anexos de hoje foi atingida. Remova os anexos para enviar só o texto, tente novamente amanhã ou envie um e-mail para support@tungstenedge.app."
+            "value": "A cota de anexos de hoje foi atingida. Remova os anexos para enviar só o texto, tente novamente amanhã ou envie um e-mail para support@katikati.app."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "A quota de anexos de hoje está esgotada. Remova os anexos para enviar apenas o texto, volte a tentar amanhã ou envie um e-mail para support@tungstenedge.app."
+            "value": "A quota de anexos de hoje está esgotada. Remova os anexos para enviar apenas o texto, volte a tentar amanhã ou envie um e-mail para support@katikati.app."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il limite di allegati di oggi è esaurito. Rimuovi gli allegati per inviare solo il testo, riprova domani oppure scrivi a support@tungstenedge.app."
+            "value": "Il limite di allegati di oggi è esaurito. Rimuovi gli allegati per inviare solo il testo, riprova domani oppure scrivi a support@katikati.app."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "오늘의 첨부 파일 허용량을 모두 사용했습니다. 첨부 파일을 제거하고 텍스트만 보내거나, 내일 다시 시도하거나, support@tungstenedge.app 주소로 이메일을 보내십시오."
+            "value": "오늘의 첨부 파일 허용량을 모두 사용했습니다. 첨부 파일을 제거하고 텍스트만 보내거나, 내일 다시 시도하거나, support@katikati.app 주소로 이메일을 보내십시오."
           }
         }
       }
@@ -18356,614 +18356,614 @@
         }
       }
     },
-    "Tungsten Edge": {
+    "KatiKati": {
       "comment": "钨极组的分组标题（热键未注册时）。中文界面带品牌后缀「钨极」，英文只用产品名。",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge 钨极"
+            "value": "KatiKati"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge"
+            "value": "KatiKati"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge"
+            "value": "KatiKati"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge"
+            "value": "KatiKati"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge"
+            "value": "KatiKati"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge"
+            "value": "KatiKati"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge"
+            "value": "KatiKati"
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge"
+            "value": "KatiKati"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge"
+            "value": "KatiKati"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge"
+            "value": "KatiKati"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge"
+            "value": "KatiKati"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge"
+            "value": "KatiKati"
           }
         }
       }
     },
-    "Tungsten Edge (%@ to show/hide)": {
+    "KatiKati (%@ to show/hide)": {
       "comment": "状态栏菜单组标题（%@ = 当前快捷键字形）",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge 钨极（%@ 显隐）"
+            "value": "KatiKati（%@ 显隐）"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge (%@ to show/hide)"
+            "value": "KatiKati (%@ to show/hide)"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge（%@顯示／隱藏）"
+            "value": "KatiKati（%@顯示／隱藏）"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge（%@で表示/非表示）"
+            "value": "KatiKati（%@で表示/非表示）"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge (%@ zum Ein- und Ausblenden)"
+            "value": "KatiKati (%@ zum Ein- und Ausblenden)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge (%@ pour afficher/masquer)"
+            "value": "KatiKati (%@ pour afficher/masquer)"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge (%@ para mostrar/ocultar)"
+            "value": "KatiKati (%@ para mostrar/ocultar)"
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge (%@ para mostrar/ocultar)"
+            "value": "KatiKati (%@ para mostrar/ocultar)"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge (%@ para mostrar/ocultar)"
+            "value": "KatiKati (%@ para mostrar/ocultar)"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge (%@ para mostrar/ocultar)"
+            "value": "KatiKati (%@ para mostrar/ocultar)"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge (%@ per mostrare/nascondere)"
+            "value": "KatiKati (%@ per mostrare/nascondere)"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge(보기/가리기: %@)"
+            "value": "KatiKati(보기/가리기: %@)"
           }
         }
       }
     },
-    "Tungsten Edge is still running. You can try again.": {
+    "KatiKati is still running. You can try again.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "钨极还在运行，可以重试。"
+            "value": "KatiKati还在运行，可以重试。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge is still running. You can try again."
+            "value": "KatiKati is still running. You can try again."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge仍在執行，可以再試一次。"
+            "value": "KatiKati仍在執行，可以再試一次。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edgeはまだ実行中です。もう一度お試しください。"
+            "value": "KatiKatiはまだ実行中です。もう一度お試しください。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge läuft noch. Du kannst es erneut versuchen."
+            "value": "KatiKati läuft noch. Du kannst es erneut versuchen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge est toujours en cours d’exécution. Vous pouvez réessayer."
+            "value": "KatiKati est toujours en cours d’exécution. Vous pouvez réessayer."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge sigue en ejecución. Puedes volver a intentarlo."
+            "value": "KatiKati sigue en ejecución. Puedes volver a intentarlo."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge sigue en ejecución. Puedes intentarlo de nuevo."
+            "value": "KatiKati sigue en ejecución. Puedes intentarlo de nuevo."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O Tungsten Edge ainda está em execução. Você pode tentar novamente."
+            "value": "O KatiKati ainda está em execução. Você pode tentar novamente."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O Tungsten Edge continua em execução. Pode voltar a tentar."
+            "value": "O KatiKati continua em execução. Pode voltar a tentar."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge è ancora in esecuzione. Puoi riprovare."
+            "value": "KatiKati è ancora in esecuzione. Puoi riprovare."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge가 아직 실행 중입니다. 다시 시도할 수 있습니다."
+            "value": "KatiKati가 아직 실행 중입니다. 다시 시도할 수 있습니다."
           }
         }
       }
     },
-    "Tungsten Edge just lost its Accessibility permission, so the taskbar has been put away. Turn Tungsten Edge back on in %@.": {
+    "KatiKati just lost its Accessibility permission, so the taskbar has been put away. Turn KatiKati back on in %@.": {
       "comment": "%@ 同上",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "钨极刚才失去了辅助功能权限，Dock 栏已经收起。请在%@中重新打开 Tungsten Edge 钨极的开关。"
+            "value": "KatiKati刚才失去了辅助功能权限，Dock 栏已经收起。请在%@中重新打开 KatiKati的开关。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge just lost its Accessibility permission, so the taskbar has been put away. Turn Tungsten Edge back on in %@."
+            "value": "KatiKati just lost its Accessibility permission, so the taskbar has been put away. Turn KatiKati back on in %@."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge剛才失去了輔助使用權限，工作列已經收起。請在%@中重新打開Tungsten Edge的開關。"
+            "value": "KatiKati剛才失去了輔助使用權限，工作列已經收起。請在%@中重新打開KatiKati的開關。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edgeのアクセシビリティの許可が失われたため、タスクバーを格納しました。%@でTungsten Edgeをもう一度オンにしてください。"
+            "value": "KatiKatiのアクセシビリティの許可が失われたため、タスクバーを格納しました。%@でKatiKatiをもう一度オンにしてください。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge hat gerade seine Bedienungshilfen-Berechtigung verloren, deshalb wurde die Taskleiste eingeklappt. Aktiviere Tungsten Edge unter %@ wieder."
+            "value": "KatiKati hat gerade seine Bedienungshilfen-Berechtigung verloren, deshalb wurde die Taskleiste eingeklappt. Aktiviere KatiKati unter %@ wieder."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge vient de perdre son autorisation d’accessibilité ; la barre des tâches a donc été retirée. Réactivez Tungsten Edge dans %@."
+            "value": "KatiKati vient de perdre son autorisation d’accessibilité ; la barre des tâches a donc été retirée. Réactivez KatiKati dans %@."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge acaba de perder el permiso de accesibilidad, por lo que se ha ocultado la barra de tareas. Vuelve a activar Tungsten Edge en %@."
+            "value": "KatiKati acaba de perder el permiso de accesibilidad, por lo que se ha ocultado la barra de tareas. Vuelve a activar KatiKati en %@."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge acaba de perder el permiso de accesibilidad, por lo que se ocultó la barra de tareas. Vuelve a activar Tungsten Edge en %@."
+            "value": "KatiKati acaba de perder el permiso de accesibilidad, por lo que se ocultó la barra de tareas. Vuelve a activar KatiKati en %@."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O Tungsten Edge acabou de perder a permissão de Acessibilidade, então a barra de tarefas foi recolhida. Ative o Tungsten Edge novamente em %@."
+            "value": "O KatiKati acabou de perder a permissão de Acessibilidade, então a barra de tarefas foi recolhida. Ative o KatiKati novamente em %@."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O Tungsten Edge acabou de perder a permissão de Acessibilidade, pelo que a barra de tarefas foi recolhida. Volte a ativar o Tungsten Edge em %@."
+            "value": "O KatiKati acabou de perder a permissão de Acessibilidade, pelo que a barra de tarefas foi recolhida. Volte a ativar o KatiKati em %@."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge ha appena perso l’autorizzazione di accessibilità, quindi la barra delle applicazioni è stata nascosta. Riattiva Tungsten Edge in %@."
+            "value": "KatiKati ha appena perso l’autorizzazione di accessibilità, quindi la barra delle applicazioni è stata nascosta. Riattiva KatiKati in %@."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge가 방금 손쉬운 사용 권한을 잃어 작업 표시줄을 숨겼습니다. %@에서 Tungsten Edge를 다시 켜십시오."
+            "value": "KatiKati가 방금 손쉬운 사용 권한을 잃어 작업 표시줄을 숨겼습니다. %@에서 KatiKati를 다시 켜십시오."
           }
         }
       }
     },
-    "Tungsten Edge needs this permission to read and manage your windows.": {
+    "KatiKati needs this permission to read and manage your windows.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge 需要这项权限来读取和操作窗口。"
+            "value": "KatiKati 需要这项权限来读取和操作窗口。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge needs this permission to read and manage your windows."
+            "value": "KatiKati needs this permission to read and manage your windows."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge需要這項權限來讀取與管理你的視窗。"
+            "value": "KatiKati需要這項權限來讀取與管理你的視窗。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edgeはウインドウを読み取って操作するために、この許可を必要とします。"
+            "value": "KatiKatiはウインドウを読み取って操作するために、この許可を必要とします。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge benötigt diese Berechtigung, um deine Fenster zu lesen und zu verwalten."
+            "value": "KatiKati benötigt diese Berechtigung, um deine Fenster zu lesen und zu verwalten."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge a besoin de cette autorisation pour lire et gérer vos fenêtres."
+            "value": "KatiKati a besoin de cette autorisation pour lire et gérer vos fenêtres."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge necesita este permiso para leer y gestionar tus ventanas."
+            "value": "KatiKati necesita este permiso para leer y gestionar tus ventanas."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge necesita este permiso para leer y administrar tus ventanas."
+            "value": "KatiKati necesita este permiso para leer y administrar tus ventanas."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O Tungsten Edge precisa desta permissão para ler e gerenciar suas janelas."
+            "value": "O KatiKati precisa desta permissão para ler e gerenciar suas janelas."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O Tungsten Edge precisa desta permissão para ler e gerir as suas janelas."
+            "value": "O KatiKati precisa desta permissão para ler e gerir as suas janelas."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge richiede questa autorizzazione per leggere e gestire le finestre."
+            "value": "KatiKati richiede questa autorizzazione per leggere e gestire le finestre."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge가 윈도우를 읽고 관리하려면 이 권한이 필요합니다."
+            "value": "KatiKati가 윈도우를 읽고 관리하려면 이 권한이 필요합니다."
           }
         }
       }
     },
-    "Tungsten Edge wake delay": {
+    "KatiKati wake delay": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge 钨极唤醒时间"
+            "value": "KatiKati唤醒时间"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge wake delay"
+            "value": "KatiKati wake delay"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge喚醒時間"
+            "value": "KatiKati喚醒時間"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edgeの呼び出し時間"
+            "value": "KatiKatiの呼び出し時間"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Weckverzögerung von Tungsten Edge"
+            "value": "Weckverzögerung von KatiKati"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Délai de réveil de Tungsten Edge"
+            "value": "Délai de réveil de KatiKati"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Demora para despertar Tungsten Edge"
+            "value": "Demora para despertar KatiKati"
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Demora para despertar Tungsten Edge"
+            "value": "Demora para despertar KatiKati"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Atraso para despertar o Tungsten Edge"
+            "value": "Atraso para despertar o KatiKati"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Atraso para reativar o Tungsten Edge"
+            "value": "Atraso para reativar o KatiKati"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ritardo di risveglio di Tungsten Edge"
+            "value": "Ritardo di risveglio di KatiKati"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge 깨우기 지연"
+            "value": "KatiKati 깨우기 지연"
           }
         }
       }
     },
-    "Tungsten Edge will restart itself once you grant it again.": {
+    "KatiKati will restart itself once you grant it again.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新授权后钨极会自动重启。"
+            "value": "重新授权后KatiKati会自动重启。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge will restart itself once you grant it again."
+            "value": "KatiKati will restart itself once you grant it again."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新授權後Tungsten Edge會自行重新啟動。"
+            "value": "重新授權後KatiKati會自行重新啟動。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "もう一度許可すると、Tungsten Edgeは自動的に再起動します。"
+            "value": "もう一度許可すると、KatiKatiは自動的に再起動します。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sobald du sie erneut erteilst, startet sich Tungsten Edge von selbst neu."
+            "value": "Sobald du sie erneut erteilst, startet sich KatiKati von selbst neu."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge redémarrera de lui-même une fois l’autorisation réaccordée."
+            "value": "KatiKati redémarrera de lui-même une fois l’autorisation réaccordée."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge se reiniciará automáticamente cuando vuelvas a concederle el permiso."
+            "value": "KatiKati se reiniciará automáticamente cuando vuelvas a concederle el permiso."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge se reiniciará automáticamente cuando vuelvas a otorgarle el permiso."
+            "value": "KatiKati se reiniciará automáticamente cuando vuelvas a otorgarle el permiso."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O Tungsten Edge será reiniciado sozinho assim que você conceder a permissão novamente."
+            "value": "O KatiKati será reiniciado sozinho assim que você conceder a permissão novamente."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O Tungsten Edge reinicia-se sozinho assim que voltar a conceder a permissão."
+            "value": "O KatiKati reinicia-se sozinho assim que voltar a conceder a permissão."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge si riavvierà automaticamente dopo la nuova autorizzazione."
+            "value": "KatiKati si riavvierà automaticamente dopo la nuova autorizzazione."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "다시 허용하면 Tungsten Edge가 자동으로 재실행됩니다."
+            "value": "다시 허용하면 KatiKati가 자동으로 재실행됩니다."
           }
         }
       }
     },
-    "Tungsten Edge — update available": {
+    "KatiKati — update available": {
       "comment": "菜单栏图标带小圆点时的辅助功能描述",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "钨极 — 有新版本"
+            "value": "KatiKati — 有新版本"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge — update available"
+            "value": "KatiKati — update available"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge——有可用的更新"
+            "value": "KatiKati——有可用的更新"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge — アップデートがあります"
+            "value": "KatiKati — アップデートがあります"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge – Update verfügbar"
+            "value": "KatiKati – Update verfügbar"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge — mise à jour disponible"
+            "value": "KatiKati — mise à jour disponible"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge: actualización disponible"
+            "value": "KatiKati: actualización disponible"
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge: actualización disponible"
+            "value": "KatiKati: actualización disponible"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge — atualização disponível"
+            "value": "KatiKati — atualização disponível"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge – atualização disponível"
+            "value": "KatiKati – atualização disponível"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge: aggiornamento disponibile"
+            "value": "KatiKati: aggiornamento disponibile"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge — 업데이트 사용 가능"
+            "value": "KatiKati — 업데이트 사용 가능"
           }
         }
       }
@@ -19044,79 +19044,79 @@
         }
       }
     },
-    "Turn on Tungsten Edge in %@. This window closes by itself once you do, and the taskbar finishes starting.": {
+    "Turn on KatiKati in %@. This window closes by itself once you do, and the taskbar finishes starting.": {
       "comment": "%@ 是系统设置里的权限路径，随 macOS 版本不同",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请在%@中，打开 Tungsten Edge 钨极的开关。开启后本窗口会自动关闭，Dock 栏会继续启动。"
+            "value": "请在%@中，打开 KatiKati的开关。开启后本窗口会自动关闭，Dock 栏会继续启动。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Turn on Tungsten Edge in %@. This window closes by itself once you do, and the taskbar finishes starting."
+            "value": "Turn on KatiKati in %@. This window closes by itself once you do, and the taskbar finishes starting."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請在%@中打開Tungsten Edge的開關。打開後這個視窗會自動關閉，工作列也會繼續啟動。"
+            "value": "請在%@中打開KatiKati的開關。打開後這個視窗會自動關閉，工作列也會繼續啟動。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@でTungsten Edgeをオンにしてください。オンにするとこのウインドウは自動的に閉じ、タスクバーの起動が完了します。"
+            "value": "%@でKatiKatiをオンにしてください。オンにするとこのウインドウは自動的に閉じ、タスクバーの起動が完了します。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aktiviere Tungsten Edge unter %@. Sobald du das getan hast, schließt sich dieses Fenster von selbst und die Taskleiste startet vollständig."
+            "value": "Aktiviere KatiKati unter %@. Sobald du das getan hast, schließt sich dieses Fenster von selbst und die Taskleiste startet vollständig."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Activez Tungsten Edge dans %@. Cette fenêtre se ferme alors d’elle-même et la barre des tâches termine son démarrage."
+            "value": "Activez KatiKati dans %@. Cette fenêtre se ferme alors d’elle-même et la barre des tâches termine son démarrage."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Activa Tungsten Edge en %@. Esta ventana se cerrará sola cuando lo hagas y la barra de tareas terminará de iniciarse."
+            "value": "Activa KatiKati en %@. Esta ventana se cerrará sola cuando lo hagas y la barra de tareas terminará de iniciarse."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Activa Tungsten Edge en %@. Esta ventana se cerrará automáticamente cuando lo hagas y la barra de tareas terminará de iniciarse."
+            "value": "Activa KatiKati en %@. Esta ventana se cerrará automáticamente cuando lo hagas y la barra de tareas terminará de iniciarse."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ative o Tungsten Edge em %@. Esta janela se fecha sozinha quando você fizer isso, e a barra de tarefas termina de iniciar."
+            "value": "Ative o KatiKati em %@. Esta janela se fecha sozinha quando você fizer isso, e a barra de tarefas termina de iniciar."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ative o Tungsten Edge em %@. Esta janela fecha-se sozinha assim que o fizer e a barra de tarefas conclui o arranque."
+            "value": "Ative o KatiKati em %@. Esta janela fecha-se sozinha assim que o fizer e a barra de tarefas conclui o arranque."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Attiva Tungsten Edge in %@. Questa finestra si chiude da sola quando lo fai e la barra delle applicazioni completa l’avvio."
+            "value": "Attiva KatiKati in %@. Questa finestra si chiude da sola quando lo fai e la barra delle applicazioni completa l’avvio."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@에서 Tungsten Edge를 켜십시오. 켜면 이 윈도우가 자동으로 닫히고 작업 표시줄이 시작됩니다."
+            "value": "%@에서 KatiKati를 켜십시오. 켜면 이 윈도우가 자동으로 닫히고 작업 표시줄이 시작됩니다."
           }
         }
       }
@@ -19811,79 +19811,79 @@
         }
       }
     },
-    "What should Tungsten Edge add or improve? Tell us how you'd use it.": {
+    "What should KatiKati add or improve? Tell us how you'd use it.": {
       "comment": "设置窗口 · 反馈 · 功能建议的引导文字（输入框为空时叠显）",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "希望钨极增加或改进什么？说说你的使用场景。"
+            "value": "希望KatiKati增加或改进什么？说说你的使用场景。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "What should Tungsten Edge add or improve? Tell us how you'd use it."
+            "value": "What should KatiKati add or improve? Tell us how you'd use it."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "希望Tungsten Edge增加或改進什麼？說說你會怎麼用。"
+            "value": "希望KatiKati增加或改進什麼？說說你會怎麼用。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edgeに追加または改善してほしいことは何ですか? どのように使いたいかも教えてください。"
+            "value": "KatiKatiに追加または改善してほしいことは何ですか? どのように使いたいかも教えてください。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Was sollte Tungsten Edge ergänzen oder verbessern? Erzähl uns, wie du es nutzen würdest."
+            "value": "Was sollte KatiKati ergänzen oder verbessern? Erzähl uns, wie du es nutzen würdest."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Que faudrait-il ajouter ou améliorer dans Tungsten Edge ? Dites-nous comment vous l’utiliseriez."
+            "value": "Que faudrait-il ajouter ou améliorer dans KatiKati ? Dites-nous comment vous l’utiliseriez."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Qué debería añadir o mejorar Tungsten Edge? Cuéntanos cómo lo usarías."
+            "value": "¿Qué debería añadir o mejorar KatiKati? Cuéntanos cómo lo usarías."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Qué debería agregar o mejorar Tungsten Edge? Cuéntanos cómo lo usarías."
+            "value": "¿Qué debería agregar o mejorar KatiKati? Cuéntanos cómo lo usarías."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O que o Tungsten Edge deveria adicionar ou melhorar? Conte como você o usaria."
+            "value": "O que o KatiKati deveria adicionar ou melhorar? Conte como você o usaria."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O que deveria o Tungsten Edge acrescentar ou melhorar? Conte-nos como o utilizaria."
+            "value": "O que deveria o KatiKati acrescentar ou melhorar? Conte-nos como o utilizaria."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cosa dovrebbe aggiungere o migliorare Tungsten Edge? Raccontaci come lo useresti."
+            "value": "Cosa dovrebbe aggiungere o migliorare KatiKati? Raccontaci come lo useresti."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tungsten Edge에 무엇을 추가하거나 개선하면 좋겠습니까? 어떻게 사용할지 알려 주십시오."
+            "value": "KatiKati에 무엇을 추가하거나 개선하면 좋겠습니까? 어떻게 사용할지 알려 주십시오."
           }
         }
       }
@@ -20196,79 +20196,79 @@
         }
       }
     },
-    "Your message or attachments were not accepted. Try shortening the message or using a different file, or email support@tungstenedge.app.": {
+    "Your message or attachments were not accepted. Try shortening the message or using a different file, or email support@katikati.app.": {
       "comment": "反馈失败 · 内容或附件被服务端拒绝",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "内容或附件没被接受。试着精简内容或换一个附件，或发邮件到 support@tungstenedge.app。"
+            "value": "内容或附件没被接受。试着精简内容或换一个附件，或发邮件到 support@katikati.app。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your message or attachments were not accepted. Try shortening the message or using a different file, or email support@tungstenedge.app."
+            "value": "Your message or attachments were not accepted. Try shortening the message or using a different file, or email support@katikati.app."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "你的內容或附件沒有被接受。試著精簡內容或換一個檔案，或寄信到support@tungstenedge.app。"
+            "value": "你的內容或附件沒有被接受。試著精簡內容或換一個檔案，或寄信到support@katikati.app。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "入力した内容または添付ファイルが受け付けられませんでした。内容を短くするか、別のファイルでお試しください。support@tungstenedge.appまでメールでご連絡いただくこともできます。"
+            "value": "入力した内容または添付ファイルが受け付けられませんでした。内容を短くするか、別のファイルでお試しください。support@katikati.appまでメールでご連絡いただくこともできます。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dein Text oder deine Anhänge wurden nicht angenommen. Kürze den Text oder nimm eine andere Datei – oder schreib eine E-Mail an support@tungstenedge.app."
+            "value": "Dein Text oder deine Anhänge wurden nicht angenommen. Kürze den Text oder nimm eine andere Datei – oder schreib eine E-Mail an support@katikati.app."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Votre message ou vos pièces jointes ont été refusés. Essayez de raccourcir le message ou de changer de fichier, ou écrivez à support@tungstenedge.app."
+            "value": "Votre message ou vos pièces jointes ont été refusés. Essayez de raccourcir le message ou de changer de fichier, ou écrivez à support@katikati.app."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se han aceptado tu mensaje o tus adjuntos. Prueba a acortar el mensaje o a usar otro archivo, o envía un correo a support@tungstenedge.app."
+            "value": "No se han aceptado tu mensaje o tus adjuntos. Prueba a acortar el mensaje o a usar otro archivo, o envía un correo a support@katikati.app."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se aceptaron tu mensaje o tus adjuntos. Intenta acortar el mensaje o usar otro archivo, o envía un correo a support@tungstenedge.app."
+            "value": "No se aceptaron tu mensaje o tus adjuntos. Intenta acortar el mensaje o usar otro archivo, o envía un correo a support@katikati.app."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sua mensagem ou seus anexos não foram aceitos. Tente encurtar a mensagem ou usar outro arquivo, ou envie um e-mail para support@tungstenedge.app."
+            "value": "Sua mensagem ou seus anexos não foram aceitos. Tente encurtar a mensagem ou usar outro arquivo, ou envie um e-mail para support@katikati.app."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "A sua mensagem ou os seus anexos não foram aceites. Experimente encurtar a mensagem ou usar outro ficheiro, ou envie um e-mail para support@tungstenedge.app."
+            "value": "A sua mensagem ou os seus anexos não foram aceites. Experimente encurtar a mensagem ou usar outro ficheiro, ou envie um e-mail para support@katikati.app."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il messaggio o gli allegati non sono stati accettati. Prova ad accorciare il messaggio o a usare un altro file, oppure scrivi a support@tungstenedge.app."
+            "value": "Il messaggio o gli allegati non sono stati accettati. Prova ad accorciare il messaggio o a usare un altro file, oppure scrivi a support@katikati.app."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "메시지 또는 첨부 파일이 받아들여지지 않았습니다. 메시지를 줄이거나 다른 파일을 사용해 보거나, support@tungstenedge.app 주소로 이메일을 보내십시오."
+            "value": "메시지 또는 첨부 파일이 받아들여지지 않았습니다. 메시지를 줄이거나 다른 파일을 사용해 보거나, support@katikati.app 주소로 이메일을 보내십시오."
           }
         }
       }
@@ -20502,78 +20502,78 @@
         }
       }
     },
-    "macOS ties Accessibility permission to one specific copy of an app. This copy is running from a temporary or read-only location, so turning the switch on will not take effect — and the permission record stays behind in System Settings after the disk image is ejected. Drag Tungsten Edge to your Applications folder and open it from there.": {
+    "macOS ties Accessibility permission to one specific copy of an app. This copy is running from a temporary or read-only location, so turning the switch on will not take effect — and the permission record stays behind in System Settings after the disk image is ejected. Drag KatiKati to your Applications folder and open it from there.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS 会把辅助功能授权绑定到具体的应用副本上。当前这份钨极跑在一个临时或只读的位置，就算你打开了开关也不会生效，而且卸载磁盘映像后那条授权记录还会留在系统里。请把 Tungsten Edge 拖到“应用程序”文件夹，再从那里重新打开。"
+            "value": "macOS 会把辅助功能授权绑定到具体的应用副本上。当前这份KatiKati跑在一个临时或只读的位置，就算你打开了开关也不会生效，而且卸载磁盘映像后那条授权记录还会留在系统里。请把 KatiKati 拖到“应用程序”文件夹，再从那里重新打开。"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS ties Accessibility permission to one specific copy of an app. This copy is running from a temporary or read-only location, so turning the switch on will not take effect — and the permission record stays behind in System Settings after the disk image is ejected. Drag Tungsten Edge to your Applications folder and open it from there."
+            "value": "macOS ties Accessibility permission to one specific copy of an app. This copy is running from a temporary or read-only location, so turning the switch on will not take effect — and the permission record stays behind in System Settings after the disk image is ejected. Drag KatiKati to your Applications folder and open it from there."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS會把輔助使用權限綁定到某一份特定的App副本上。目前這份執行於暫時或唯讀的位置，就算打開開關也不會生效，而且退出磁碟映像檔後，那筆權限記錄還會留在「系統設定」裡。請把Tungsten Edge拖到「應用程式」檔案夾，再從那裡重新打開。"
+            "value": "macOS會把輔助使用權限綁定到某一份特定的App副本上。目前這份執行於暫時或唯讀的位置，就算打開開關也不會生效，而且退出磁碟映像檔後，那筆權限記錄還會留在「系統設定」裡。請把KatiKati拖到「應用程式」檔案夾，再從那裡重新打開。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOSはアクセシビリティの許可を、アプリの特定のコピーに結び付けます。このコピーは一時的な場所または読み出し専用の場所で実行されているため、スイッチをオンにしても反映されません。さらに、ディスクイメージを取り出したあとも、許可の記録がシステム設定に残ります。Tungsten Edgeを「アプリケーション」フォルダにドラッグし、そこから開いてください。"
+            "value": "macOSはアクセシビリティの許可を、アプリの特定のコピーに結び付けます。このコピーは一時的な場所または読み出し専用の場所で実行されているため、スイッチをオンにしても反映されません。さらに、ディスクイメージを取り出したあとも、許可の記録がシステム設定に残ります。KatiKatiを「アプリケーション」フォルダにドラッグし、そこから開いてください。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS bindet die Bedienungshilfen-Berechtigung an genau eine Kopie einer App. Diese Kopie läuft von einem temporären oder schreibgeschützten Ort, deshalb bleibt das Aktivieren des Schalters wirkungslos – und der Berechtigungseintrag bleibt nach dem Auswerfen des Images in den Systemeinstellungen zurück. Bewege Tungsten Edge in den Ordner „Programme“ und öffne es von dort."
+            "value": "macOS bindet die Bedienungshilfen-Berechtigung an genau eine Kopie einer App. Diese Kopie läuft von einem temporären oder schreibgeschützten Ort, deshalb bleibt das Aktivieren des Schalters wirkungslos – und der Berechtigungseintrag bleibt nach dem Auswerfen des Images in den Systemeinstellungen zurück. Bewege KatiKati in den Ordner „Programme“ und öffne es von dort."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS associe l’autorisation d’accessibilité à une copie précise d’une app. Cette copie s’exécute depuis un emplacement temporaire ou en lecture seule, si bien qu’activer l’interrupteur restera sans effet — et l’autorisation restera inscrite dans Réglages Système après l’éjection de l’image disque. Faites glisser Tungsten Edge dans votre dossier Applications, puis ouvrez-le depuis là."
+            "value": "macOS associe l’autorisation d’accessibilité à une copie précise d’une app. Cette copie s’exécute depuis un emplacement temporaire ou en lecture seule, si bien qu’activer l’interrupteur restera sans effet — et l’autorisation restera inscrite dans Réglages Système après l’éjection de l’image disque. Faites glisser KatiKati dans votre dossier Applications, puis ouvrez-le depuis là."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS asocia el permiso de accesibilidad a una copia concreta de cada app. Esta copia se está ejecutando desde una ubicación temporal o de solo lectura, así que activar el interruptor no surtirá efecto, y el registro del permiso se queda en Ajustes del Sistema después de expulsar la imagen de disco. Arrastra Tungsten Edge a la carpeta Aplicaciones y ábrelo desde allí."
+            "value": "macOS asocia el permiso de accesibilidad a una copia concreta de cada app. Esta copia se está ejecutando desde una ubicación temporal o de solo lectura, así que activar el interruptor no surtirá efecto, y el registro del permiso se queda en Ajustes del Sistema después de expulsar la imagen de disco. Arrastra KatiKati a la carpeta Aplicaciones y ábrelo desde allí."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS asocia el permiso de accesibilidad a una copia específica de cada app. Esta copia se está ejecutando desde una ubicación temporal o de sólo lectura, así que activar el interruptor no tendrá efecto, y el registro del permiso permanece en Configuración del Sistema después de expulsar la imagen de disco. Arrastra Tungsten Edge a la carpeta Aplicaciones y ábrelo desde ahí."
+            "value": "macOS asocia el permiso de accesibilidad a una copia específica de cada app. Esta copia se está ejecutando desde una ubicación temporal o de sólo lectura, así que activar el interruptor no tendrá efecto, y el registro del permiso permanece en Configuración del Sistema después de expulsar la imagen de disco. Arrastra KatiKati a la carpeta Aplicaciones y ábrelo desde ahí."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O macOS associa a permissão de Acessibilidade a uma cópia específica de um app. Esta cópia está em execução a partir de um local temporário ou somente leitura, portanto ativar o interruptor não terá efeito — e o registro da permissão continua nos Ajustes do Sistema depois que a imagem de disco é ejetada. Arraste o Tungsten Edge para a pasta Aplicativos e abra-o de lá."
+            "value": "O macOS associa a permissão de Acessibilidade a uma cópia específica de um app. Esta cópia está em execução a partir de um local temporário ou somente leitura, portanto ativar o interruptor não terá efeito — e o registro da permissão continua nos Ajustes do Sistema depois que a imagem de disco é ejetada. Arraste o KatiKati para a pasta Aplicativos e abra-o de lá."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O macOS associa a permissão de Acessibilidade a uma cópia específica de uma aplicação. Esta cópia está a ser executada a partir de uma localização temporária ou só de leitura, pelo que ativar o interruptor não terá efeito – e o registo da permissão permanece nas Definições do Sistema depois de a imagem de disco ser ejetada. Arraste o Tungsten Edge para a pasta Aplicações e abra-o a partir daí."
+            "value": "O macOS associa a permissão de Acessibilidade a uma cópia específica de uma aplicação. Esta cópia está a ser executada a partir de uma localização temporária ou só de leitura, pelo que ativar o interruptor não terá efeito – e o registo da permissão permanece nas Definições do Sistema depois de a imagem de disco ser ejetada. Arraste o KatiKati para a pasta Aplicações e abra-o a partir daí."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS associa l’autorizzazione di accessibilità a una copia specifica di un’app. Questa copia viene eseguita da una posizione temporanea o di sola lettura, quindi attivare l’interruttore non avrà effetto; inoltre l’autorizzazione resta registrata in Impostazioni di Sistema anche dopo l’espulsione dell’immagine disco. Trascina Tungsten Edge nella cartella Applicazioni e aprilo da lì."
+            "value": "macOS associa l’autorizzazione di accessibilità a una copia specifica di un’app. Questa copia viene eseguita da una posizione temporanea o di sola lettura, quindi attivare l’interruttore non avrà effetto; inoltre l’autorizzazione resta registrata in Impostazioni di Sistema anche dopo l’espulsione dell’immagine disco. Trascina KatiKati nella cartella Applicazioni e aprilo da lì."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS는 손쉬운 사용 권한을 앱의 특정 사본 하나에 연결합니다. 이 사본은 임시 위치 또는 읽기 전용 위치에서 실행 중이므로 스위치를 켜도 적용되지 않으며, 디스크 이미지를 추출한 뒤에도 권한 기록이 시스템 설정에 남게 됩니다. Tungsten Edge를 응용 프로그램 폴더로 드래그한 다음 그곳에서 여십시오."
+            "value": "macOS는 손쉬운 사용 권한을 앱의 특정 사본 하나에 연결합니다. 이 사본은 임시 위치 또는 읽기 전용 위치에서 실행 중이므로 스위치를 켜도 적용되지 않으며, 디스크 이미지를 추출한 뒤에도 권한 기록이 시스템 설정에 남게 됩니다. KatiKati를 응용 프로그램 폴더로 드래그한 다음 그곳에서 여십시오."
           }
         }
       }

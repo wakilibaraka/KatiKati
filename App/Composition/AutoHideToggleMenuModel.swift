@@ -26,8 +26,8 @@ enum AutoHideToggleMenuModel {
     /// `glyphs` = 当前生效组合的字形（2026-08-24 起用户可改键，不再写死 ⌥⇧⌘D）。
     static func edgeSectionTitle(isHotKeyRegistered: Bool, glyphs: String) -> String {
         isHotKeyRegistered
-            ? String(format: String(localized: "Tungsten Edge (%@ to show/hide)"), glyphs)
-            : String(localized: "Tungsten Edge")
+            ? String(format: String(localized: "KatiKati (%@ to show/hide)"), glyphs)
+            : String(localized: "KatiKati")
     }
 
     /// 滑块档位的显示名。滑块本体与确认行必须共用这一份口径，

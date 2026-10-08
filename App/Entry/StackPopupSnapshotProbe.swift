@@ -49,7 +49,7 @@ enum StackPopupSnapshotProbe {
         Self.window = window
         // Thumbnails arrive asynchronously; give them time before drawing.
         DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
-            let output = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("tungsten-stack-popup.png")
+            let output = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("katikati-stack-popup.png")
             if let rep = hosting.bitmapImageRepForCachingDisplay(in: hosting.bounds) {
                 hosting.cacheDisplay(in: hosting.bounds, to: rep)
                 try? rep.representation(using: .png, properties: [:])?.write(to: output)

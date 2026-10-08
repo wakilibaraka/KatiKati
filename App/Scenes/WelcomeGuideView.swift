@@ -94,7 +94,7 @@ struct WelcomeGuideView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Want the Dock back?")
                 .font(.callout.weight(.semibold))
-            Text("Press ⌥⌘D at any time — that’s macOS’s own shortcut for showing and hiding the Dock. You can also change this later from the Tungsten Edge menu bar item.")
+            Text("Press ⌥⌘D at any time — that’s macOS’s own shortcut for showing and hiding the Dock. You can also change this later from the KatiKati menu bar item.")
                 .font(.callout)
                 .fixedSize(horizontal: false, vertical: true)
                 .foregroundStyle(.secondary)

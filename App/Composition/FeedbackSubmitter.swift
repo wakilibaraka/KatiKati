@@ -45,7 +45,7 @@ enum FeedbackCategory: String, CaseIterable {
         case .bug:
             return String(localized: "What went wrong? What did you do when it happened? Paste any details that might help.")
         case .suggestion:
-            return String(localized: "What should Tungsten Edge add or improve? Tell us how you'd use it.")
+            return String(localized: "What should KatiKati add or improve? Tell us how you'd use it.")
         case .other:
             return String(localized: "Anything you want to say — write it here.")
         }
@@ -416,19 +416,19 @@ struct FeedbackAlertContent: Equatable {
         case .attachmentQuota:
             self.init(
                 title: String(localized: "Attachment Limit Reached for Today"),
-                message: String(localized: "Today’s attachment allowance is used up. Remove the attachments to send just the text, try again tomorrow, or email support@tungstenedge.app."),
+                message: String(localized: "Today’s attachment allowance is used up. Remove the attachments to send just the text, try again tomorrow, or email support@katikati.app."),
                 isWarning: true
             )
         case .rejected:
             self.init(
                 title: String(localized: "The Server Didn’t Accept It"),
-                message: String(localized: "Your message or attachments were not accepted. Try shortening the message or using a different file, or email support@tungstenedge.app."),
+                message: String(localized: "Your message or attachments were not accepted. Try shortening the message or using a different file, or email support@katikati.app."),
                 isWarning: true
             )
         case .serverUnavailable:
             self.init(
                 title: String(localized: "Feedback Is Unavailable"),
-                message: String(localized: "The feedback service is temporarily unavailable. Try again later, or email support@tungstenedge.app."),
+                message: String(localized: "The feedback service is temporarily unavailable. Try again later, or email support@katikati.app."),
                 isWarning: true
             )
         case .attachmentUnreadable:
@@ -443,7 +443,7 @@ struct FeedbackAlertContent: Equatable {
     /// 网络不通时的文案，也是 `FeedbackFailure.offline` 的落点。
     static let failure = FeedbackAlertContent(
         title: String(localized: "Can’t Send Right Now"),
-        message: String(localized: "Check your network connection and try again, or email support@tungstenedge.app."),
+        message: String(localized: "Check your network connection and try again, or email support@katikati.app."),
         isWarning: true
     )
 }

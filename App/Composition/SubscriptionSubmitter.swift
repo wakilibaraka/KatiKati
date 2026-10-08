@@ -216,7 +216,7 @@ struct SubscriptionAlertContent: Equatable {
 
     static let failure = SubscriptionAlertContent(
         title: String(localized: "Can’t Subscribe Right Now"),
-        message: String(localized: "Check your network connection and try again, or leave your address on tungstenedge.app."),
+        message: String(localized: "Check your network connection and try again, or leave your address on katikati.app."),
         isWarning: true
     )
 }

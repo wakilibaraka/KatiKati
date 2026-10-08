@@ -55,7 +55,7 @@ struct ShelfGridPopupView: View {
         if entries.isEmpty { return String(localized: "Drag files here to park them") }
         // Kept, not pruned: the file exists but its folder's privacy permission is missing.
         if entries.contains(where: { !$0.isAccessible }) {
-            return String(localized: "Some items can’t be accessed. Allow Tungsten Edge to access their folder in your Mac’s privacy settings.")
+            return String(localized: "Some items can’t be accessed. Allow KatiKati to access their folder in your Mac’s privacy settings.")
         }
         return nil
     }

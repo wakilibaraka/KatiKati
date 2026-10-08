@@ -109,7 +109,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         self.isToggleHotKeyRegistered = isToggleHotKeyRegistered
         self.connectedScreens = connectedScreens
         nativeDockSliderView = PreferenceSliderMenuItemView(accessibilityTitle: String(localized: "Dock wake delay"))
-        edgeSliderView = PreferenceSliderMenuItemView(accessibilityTitle: String(localized: "Tungsten Edge wake delay"))
+        edgeSliderView = PreferenceSliderMenuItemView(accessibilityTitle: String(localized: "KatiKati wake delay"))
         super.init()
         configureStatusItem()
         configureMenu()
@@ -301,7 +301,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         installUpdateItem.isHidden = true
         menu.addItem(installUpdateItem)
 
-        let quitItem = NSMenuItem(title: String(localized: "Quit Tungsten Edge"), action: #selector(quit), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: String(localized: "Quit KatiKati"), action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
     }
@@ -630,11 +630,11 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     /// 靠形状而不是颜色让人看见。
     private static func statusItemImage(badged: Bool) -> NSImage? {
         let base = NSImage(named: "MenuBarIcon")
-            ?? NSImage(systemSymbolName: "rectangle.3.offgrid.fill", accessibilityDescription: "Tungsten Edge")
+            ?? NSImage(systemSymbolName: "rectangle.3.offgrid.fill", accessibilityDescription: "KatiKati")
         guard let base else { return nil }
         base.isTemplate = true
         guard badged else {
-            base.accessibilityDescription = "Tungsten Edge"
+            base.accessibilityDescription = "KatiKati"
             return base
         }
 
@@ -659,7 +659,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
             return true
         }
         image.isTemplate = true
-        image.accessibilityDescription = String(localized: "Tungsten Edge — update available")
+        image.accessibilityDescription = String(localized: "KatiKati — update available")
         return image
     }
 

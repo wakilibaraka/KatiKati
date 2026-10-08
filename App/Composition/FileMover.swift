@@ -49,7 +49,7 @@ struct FileMover {
 
     init(fileSystem: FileMovingFileSystem = LiveFileMovingFileSystem(),
          temporaryName: @escaping (String) -> String = {
-             ".tungsten-drop-\(UUID().uuidString)-\($0)"
+             ".katikati-drop-\(UUID().uuidString)-\($0)"
          }) {
         self.fileSystem = fileSystem
         self.temporaryName = temporaryName
