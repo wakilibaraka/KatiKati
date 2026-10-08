@@ -18,6 +18,19 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
 
     var id: String { rawValue }
 
+    var title: String {
+        switch self {
+        case .weather: return "Weather"
+        case .apps: return "Apps"
+        case .tray: return "Tray"
+        case .clock: return "Clock"
+        }
+    }
+
+    var placeholderEntryID: String {
+        "sec-\(rawValue)"
+    }
+
     /// Grouping of sections into island slots for each layout mode.
     ///
     /// Per HYBRID_PLAN.md Appendix A:

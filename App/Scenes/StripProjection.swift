@@ -35,6 +35,8 @@ enum StripEntry: Identifiable, Hashable {
     /// 不画半透明图标副本：系统拖放期间 macOS 自己已经在光标下画着那个应用的图标，
     /// 再画一份就是两个图标；原生 Dock 同样是「系统拖影 + 空档」。
     case externalDropGhost(key: String)
+    /// Placeholder entry for non-apps island slots (weather, tray, clock) per HYBRID_PLAN.md.
+    case sectionPlaceholder(section: BarSection)
 
     var id: String {
         switch self {
@@ -48,6 +50,7 @@ enum StripEntry: Identifiable, Hashable {
         case .trash: return "trash"
         case let .divider(id): return id
         case let .externalDropGhost(key): return "extghost-\(key)"
+        case let .sectionPlaceholder(section): return section.placeholderEntryID
         }
     }
 }
@@ -167,6 +170,8 @@ struct StripLayoutKey: Equatable {
             form = .launcher    // fixed-size separator, no animation form change
         case .externalDropGhost:
             form = .launcher    // 一张卡的宽度，和保留占位同形
+        case .sectionPlaceholder:
+            form = .launcher
         }
     }
 }

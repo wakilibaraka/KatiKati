@@ -28,6 +28,8 @@ struct DockStripView: View {
     /// 这块屏的窗口卡。**显式传入、无默认值**：漏传就是每块屏都画全部窗口、④ 静默退化成 ③。
     /// ③↔④ 切换不重建单元（key 列表相同），所以是否过滤看 `settingsStore.taskbarScreenPlacement`。
     let displayUUID: String?
+    /// Which island slot this strip renders (0 for single/centered, 0..<3 for split3, 0..<4 for split4).
+    var islandSlot: Int = 0
 
     /// 本条是不是当前拖动的活动表面。没人认领（抽屉起拖尚未转正）时人人可动——谁的条框含着指针谁转正并认领。
     var ownsActiveDrag: Bool {
@@ -667,7 +669,7 @@ struct DockStripView: View {
             }
         case let .keptApp(bid):
             launcherTap(bid, hasRealWindow: false)   // 保留占位只在没有真窗口时存在
-        case .pinnedFolder, .shelf, .trash, .divider, .externalDropGhost:
+        case .pinnedFolder, .shelf, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return   // 空档不可拖，也就不会有飞行中的载荷指向它
         }
     }
@@ -781,7 +783,7 @@ struct DockStripView: View {
                 : nil
             return DragCarrierGeometry.pickUpPose(chipHeight: height, pressedScale: nil,
                                                   hoverScale: hoverScale)
-        case .shelf, .trash, .divider, .externalDropGhost:
+        case .shelf, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return .resting
         }
     }
@@ -1229,7 +1231,7 @@ struct DockStripView: View {
                     Color.clear.preference(key: TrashFramePreferenceKey.self,
                                            value: geo.frame(in: .named("strip")))
                 })
-        case .divider:
+        case .divider, .sectionPlaceholder:
             stripEntryView(entry, projection: projection)
         case .externalDropGhost:
             // 让位空档：**刻意不经 `stripEntryView`**。那个函数是悬停帧的唯一上报口，
@@ -1298,6 +1300,35 @@ struct DockStripView: View {
                      pulseNonce: chipPulseNonces[item.id] ?? 0,
                      badgeText: windowBadge,
                      slotHidden: projection.draggingID == item.id)
+        case let .sectionPlaceholder(section):
+            HStack(spacing: 6 * dockScale) {
+                switch section {
+                case .weather:
+                    Image(systemName: "cloud.sun.fill")
+                        .renderingMode(.template)
+                        .foregroundStyle(.primary)
+                    Text(verbatim: section.title)
+                        .font(.system(size: 12 * dockScale, weight: .medium, design: .rounded))
+                case .tray:
+                    Image(systemName: "wifi")
+                        .renderingMode(.template)
+                        .foregroundStyle(.primary)
+                    Image(systemName: "battery.100")
+                        .renderingMode(.template)
+                        .foregroundStyle(.primary)
+                case .clock:
+                    Image(systemName: "clock")
+                        .renderingMode(.template)
+                        .foregroundStyle(.primary)
+                    Text(verbatim: section.title)
+                        .font(.system(size: 12 * dockScale, weight: .medium, design: .rounded))
+                case .apps:
+                    EmptyView()
+                }
+            }
+            .padding(.horizontal, 10 * dockScale)
+            .frame(height: 36 * dockScale)
+            .contentShape(Rectangle())
         case .divider:
             Rectangle()
                 .fill(theme.zoneDivider.color)

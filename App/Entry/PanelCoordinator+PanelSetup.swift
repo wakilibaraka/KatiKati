@@ -32,6 +32,7 @@ extension PanelCoordinator {
             usesLiquidGlass: usesLiquidGlass,
             stripSurfaceID: stripSurfaceID,
             displayUUID: fixedUnitDisplayUUID,
+            islandSlot: islandSlot,
             onFolderPopupToggle: { [weak self] path, anchorRect in
                 self?.toggleFolderPopup(path: path, anchorVisibleRect: anchorRect)
             },

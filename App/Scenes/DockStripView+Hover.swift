@@ -79,7 +79,7 @@ extension DockStripView {
                 : String(localized: "Shelf")
         case let .pinnedFolder(path):
             return FileManager.default.displayName(atPath: path)
-        case .divider, .externalDropGhost:
+        case .divider, .externalDropGhost, .sectionPlaceholder:
             // 空档本来就不上报悬停帧，走不到这儿；写死 nil 是第二道闸。
             return nil
         }

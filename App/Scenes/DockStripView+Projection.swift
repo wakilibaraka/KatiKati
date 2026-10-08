@@ -20,6 +20,28 @@ extension DockStripView {
     /// A 路线) while the pinned messaging zone keeps its own `MessagingAppStore` order —
     /// the two zones never cross (拖动分区内进行).
     func makeProjection() -> StripProjection {
+        let sections = BarSection.islands(for: settingsStore.barLayoutMode)
+        let hostedSections = islandSlot < sections.count ? sections[islandSlot] : [.apps]
+
+        guard hostedSections.contains(.apps) else {
+            let placeholderEntries = hostedSections.map { StripEntry.sectionPlaceholder(section: $0) }
+            return StripProjection(
+                snapshotItems: [],
+                snapshotBundleIDs: [],
+                hiddenBundleIDs: [],
+                messaging: [],
+                liveNatural: [],
+                liveOrderIDs: [],
+                appKeyByChipID: [:],
+                labelTitleByChipID: [:],
+                entries: placeholderEntries,
+                layoutKeys: placeholderEntries.map(StripLayoutKey.init),
+                messagingIDs: [],
+                draggingID: nil,
+                badgeEntryIDByBundle: [:]
+            )
+        }
+
         // This is the only snapshot-to-strip conversion in one body evaluation. Everything below,
         // including drag callbacks captured by that body, consumes the same immutable projection.
         // The Trash chip stands in for Finder's Trash window, so that window gets no card of its own.
