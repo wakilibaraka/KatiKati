@@ -460,6 +460,7 @@
 		A00000000000000000009E15 /* AXWindowMatchPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000064 /* AXWindowMatchPolicy.swift */; };
 		A00000000000000000009E16 /* ProcessLiveness.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009E03 /* ProcessLiveness.swift */; };
 		A00000000000000000009E17 /* ProcessLiveness.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009E03 /* ProcessLiveness.swift */; };
+		K00000000000000000000001 /* ProcessLiveness.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009E03 /* ProcessLiveness.swift */; };
 		A00000000000000000009E18 /* ProcessLivenessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009E04 /* ProcessLivenessTests.swift */; };
 		A00000000000000000000B91 /* FeedbackTickPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000B90 /* FeedbackTickPolicyTests.swift */; };
 		A00000000000000000009E19 /* ScanAdmissionDecision.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009E05 /* ScanAdmissionDecision.swift */; };
@@ -1858,6 +1859,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				K00000000000000000000001 /* ProcessLiveness.swift in Sources */,
 				E90000000000000000003007 /* DebugSwitch.swift in Sources */,
 				E90000000000000000004003 /* AXElementCache.swift in Sources */,
 				E90000000000000000004002 /* ClickLatencyTrace.swift in Sources */,
