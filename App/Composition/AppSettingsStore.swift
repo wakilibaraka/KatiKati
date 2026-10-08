@@ -99,12 +99,28 @@ final class AppSettingsStore: ObservableObject {
     /// 自动隐藏**开着**时的默认档，也是 remembered 与非有限值的兜底。见上面那条 ⚠️。
     nonisolated static let defaultEnabledEdgeAutoHideDelay: Double = 0.1
 
+    static let defaultCenteredWidth: CGFloat = 720
+    static let minimumCenteredWidth: CGFloat = 360
+    static let maximumCenteredWidth: CGFloat = 1600
+    static let defaultIslandGap: CGFloat = 10
+    static let minimumIslandGap: CGFloat = 0.5
+    static let defaultIslandMargin: CGFloat = 12
+    static let minimumIslandMargin: CGFloat = 0
+
     @Published private(set) var launchAtLogin: Bool
     /// 中转格是否显示在固定文件夹区头位。关掉后它不再渲染，暂存的文件不受影响。
     @Published private(set) var showShelf: Bool
     @Published private(set) var showTrash: Bool
     /// 任务条尺寸档位。面板几何与条内所有 chip 尺寸都由它派生。
     @Published private(set) var dockPanelHeight: DockPanelHeight
+    /// 任务条布局模式（windows / split3 / split4 / centered）。缺键 = windows。
+    @Published private(set) var barLayoutMode: BarLayoutMode
+    /// 居中模式下的目标宽度（points，默认 720，限制 360...1600）。
+    @Published private(set) var centeredWidth: CGFloat
+    /// 岛屿之间的间距（points，默认 10，最小 0.5）。
+    @Published private(set) var islandGap: CGFloat
+    /// 任务条距离屏幕左右边缘的外边距（points，默认 12，最小 0）。
+    @Published private(set) var islandMargin: CGFloat
     /// 悬停效果档位。只影响条内 chip 的悬停视觉，静息布局逐像素不变（因此无需 relayout）。
     @Published private(set) var hoverStyle: HoverStyle
     /// 最大化窗口避让任务条（菜单「最大化窗口避开任务条」）。
@@ -175,11 +191,22 @@ final class AppSettingsStore: ObservableObject {
             Keys.nativeDockAutoHideDelay: Self.defaultNativeDockAutoHideDelay,
             // 首次安装 = 常驻；remembered 的种子仍是有限档，见常量注释。
             Keys.edgeAutoHideDelay: Self.firstRunEdgeAutoHideDelay,
+            Keys.barLayoutMode: BarLayoutMode.windows.rawValue,
+            Keys.centeredWidth: Double(Self.defaultCenteredWidth),
+            Keys.islandGap: Double(Self.defaultIslandGap),
+            Keys.islandMargin: Double(Self.defaultIslandMargin),
         ])
 
         launchAtLogin = defaults.bool(forKey: Keys.launchAtLogin)
         showShelf = defaults.bool(forKey: Keys.showShelf)
         showTrash = defaults.bool(forKey: Keys.showTrash)
+        barLayoutMode = BarLayoutMode(rawValue: defaults.string(forKey: Keys.barLayoutMode) ?? "") ?? .windows
+        let storedCentered = Self.storedNumericValue(defaults.object(forKey: Keys.centeredWidth)) ?? Double(Self.defaultCenteredWidth)
+        centeredWidth = CGFloat(min(max(storedCentered, Double(Self.minimumCenteredWidth)), Double(Self.maximumCenteredWidth)))
+        let storedGap = Self.storedNumericValue(defaults.object(forKey: Keys.islandGap)) ?? Double(Self.defaultIslandGap)
+        islandGap = CGFloat(max(Double(Self.minimumIslandGap), storedGap))
+        let storedMargin = Self.storedNumericValue(defaults.object(forKey: Keys.islandMargin)) ?? Double(Self.defaultIslandMargin)
+        islandMargin = CGFloat(max(Double(Self.minimumIslandMargin), storedMargin))
         // 有意**不**进上面的 register：缺键即 false = 老用户维持关。
         // 全新安装那一次由 `seedWindowLiftEnabledForFreshInstall()` 显式写成 true——
         // register 一个 true 会把**所有**从没碰过这个开关的老用户一并打开，而这个功能
@@ -266,6 +293,33 @@ final class AppSettingsStore: ObservableObject {
         guard dockPanelHeight != value else { return }
         dockPanelHeight = value
         defaults.set(Double(value.points), forKey: Keys.dockPanelHeight)
+    }
+
+    func setBarLayoutMode(_ value: BarLayoutMode) {
+        guard barLayoutMode != value else { return }
+        barLayoutMode = value
+        defaults.set(value.rawValue, forKey: Keys.barLayoutMode)
+    }
+
+    func setCenteredWidth(_ value: CGFloat) {
+        let clamped = min(max(value, Self.minimumCenteredWidth), Self.maximumCenteredWidth)
+        guard centeredWidth != clamped else { return }
+        centeredWidth = clamped
+        defaults.set(Double(clamped), forKey: Keys.centeredWidth)
+    }
+
+    func setIslandGap(_ value: CGFloat) {
+        let clamped = max(Self.minimumIslandGap, value)
+        guard islandGap != clamped else { return }
+        islandGap = clamped
+        defaults.set(Double(clamped), forKey: Keys.islandGap)
+    }
+
+    func setIslandMargin(_ value: CGFloat) {
+        let clamped = max(Self.minimumIslandMargin, value)
+        guard islandMargin != clamped else { return }
+        islandMargin = clamped
+        defaults.set(Double(clamped), forKey: Keys.islandMargin)
     }
 
     /// 只应由 `SettingsCoordinator.applyEdgeToggleShortcut` 在**注册成功后**调用（见属性注释）。
@@ -573,6 +627,10 @@ private enum Keys {
     static let edgeAutoHideEnabled = "com.katikati.autoHide.edge.enabled"
     static let edgeAutoHideDelay = "com.katikati.autoHide.edge.delay"
     static let edgeAutoHideLastEnabledDelay = "com.katikati.autoHide.edge.lastEnabledDelay"
+    static let barLayoutMode = "com.katikati.layout.mode"
+    static let centeredWidth = "com.katikati.layout.centeredWidth"
+    static let islandGap = "com.katikati.layout.islandGap"
+    static let islandMargin = "com.katikati.layout.islandMargin"
 }
 
 /// One-way first-run migrator from legacy Tungsten Edge (`com.tungsten.edge.*`) defaults

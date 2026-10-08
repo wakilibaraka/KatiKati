@@ -8,10 +8,10 @@ This project is derived from and incorporates code from the following works:
 - License: GNU General Public License v3.0 or later (GPL-3.0-or-later)
 - Description: Serves as the core architecture, window observation engine, strip rendering, panel coordination, and baseline test suite for KatiKati.
 
-## 2. SplitBar-old (Placeholder)
-- Copyright (C) Emmanuel Baraka
+## 2. SplitBar-old
+- Copyright (C) 2026 senoldogann, Emmanuel Baraka
 - License: MIT License
-- Description: Donor source for island layout models, center-segment partitioning, and multi-island coordination. Code to be integrated in future phases.
+- Description: Contributed the island layout models (`BarLayoutMode`, `BarSection`), pure island geometry solver (`IslandLayoutSolver`), and test specifications.
 
 ## 3. DockBar (Placeholder)
 - Copyright (C) Emmanuel Baraka

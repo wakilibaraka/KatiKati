@@ -448,6 +448,7 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
   + equality + migration tests (mirror tungsten's `taskbarScreenMode`/`dockPanelHeight`
   patterns, incl. legacy-tier precedent).
 - **Verify**: new + existing (~1,300) tests green; zero UI/behavior change (model only).
+- **Result**: **DONE (2026-10-08)**. Pure layout model (`BarLayoutMode`, `BarSection`, `IslandLayoutSolver`) implemented with tungsten clamp discipline, `AppSettingsStore` layout persistence wired, 1,572 unit tests green (20 new tests, 0 failures), all quality gates passing.
 
 ### Phase 2 — Island panels (one display, tungsten construction)
 

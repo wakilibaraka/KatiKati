@@ -513,6 +513,14 @@
 		D90000000000000000000206 /* TaskbarPerDisplaySeedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D90000000000000000000006 /* TaskbarPerDisplaySeedTests.swift */; };
 		D90000000000000000000207 /* TaskbarPerDisplaySeedControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D90000000000000000000007 /* TaskbarPerDisplaySeedControllerTests.swift */; };
 		D90000000000000000000208 /* DisplayTopologyStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D90000000000000000000008 /* DisplayTopologyStoreTests.swift */; };
+		BB0000000000000000000002 /* BarLayoutMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000001 /* BarLayoutMode.swift */; };
+		BB0000000000000000000004 /* BarSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000003 /* BarSection.swift */; };
+		BB0000000000000000000006 /* IslandLayoutSolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000005 /* IslandLayoutSolver.swift */; };
+		BB0000000000000000000008 /* BarLayoutModeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000007 /* BarLayoutModeTests.swift */; };
+		BB0000000000000000000010 /* IslandLayoutSolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000009 /* IslandLayoutSolverTests.swift */; };
+		BB0000000000000000000011 /* BarLayoutMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000001 /* BarLayoutMode.swift */; };
+		BB0000000000000000000012 /* BarSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000003 /* BarSection.swift */; };
+		BB0000000000000000000013 /* IslandLayoutSolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000005 /* IslandLayoutSolver.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -875,6 +883,11 @@
 		B75000000000000000000013 /* WelcomeGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeGuideView.swift; sourceTree = "<group>"; };
 		B75000000000000000000023 /* WelcomeGuideDecisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeGuideDecisionTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000059 /* KatiKatiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "KatiKatiTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB0000000000000000000001 /* BarLayoutMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarLayoutMode.swift; sourceTree = "<group>"; };
+		BB0000000000000000000003 /* BarSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarSection.swift; sourceTree = "<group>"; };
+		BB0000000000000000000005 /* IslandLayoutSolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandLayoutSolver.swift; sourceTree = "<group>"; };
+		BB0000000000000000000007 /* BarLayoutModeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarLayoutModeTests.swift; sourceTree = "<group>"; };
+		BB0000000000000000000009 /* IslandLayoutSolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandLayoutSolverTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1106,6 +1119,9 @@
 				B1000000000000000000010D /* MinimizeHandoffTarget.swift */,
 				B10000000000000000000112 /* MinimizeSettleGate.swift */,
 				B10000000000000000000117 /* TaskbarScreenPlacement.swift */,
+				BB0000000000000000000001 /* BarLayoutMode.swift */,
+				BB0000000000000000000003 /* BarSection.swift */,
+				BB0000000000000000000005 /* IslandLayoutSolver.swift */,
 				B1000000000000000000011C /* TaskbarDisplaySet.swift */,
 				D90000000000000000000001 /* InstallLineage.swift */,
 				D90000000000000000000002 /* ScreenTopologySnapshot.swift */,
@@ -1386,6 +1402,8 @@
 				A0000000000000000000B060 /* PermissionOnboardingTests.swift */,
 				A00000000000000000000F04 /* FinderAppleEventMatcherTests.swift */,
 				A00000000000000000008040 /* AppSettingsStoreTests.swift */,
+				BB0000000000000000000007 /* BarLayoutModeTests.swift */,
+				BB0000000000000000000009 /* IslandLayoutSolverTests.swift */,
 				D10000000000000000000007 /* SettingsCoordinatorTests.swift */,
 				D10000000000000000000009 /* AccessoryWindowPresentationTests.swift */,
 				D10000000000000000000042 /* StripContextMenuZoneTests.swift */,
@@ -1769,6 +1787,9 @@
 					B1000000000000000000010E /* MinimizeHandoffTarget.swift in Sources */,
 					B10000000000000000000113 /* MinimizeSettleGate.swift in Sources */,
 					B10000000000000000000118 /* TaskbarScreenPlacement.swift in Sources */,
+					BB0000000000000000000002 /* BarLayoutMode.swift in Sources */,
+					BB0000000000000000000004 /* BarSection.swift in Sources */,
+					BB0000000000000000000006 /* IslandLayoutSolver.swift in Sources */,
 					B1000000000000000000011D /* TaskbarDisplaySet.swift in Sources */,
 					B10000000000000000000131 /* WindowDisplayAttribution.swift in Sources */,
 					B1000000000000000000013F /* WindowDisplayMove.swift in Sources */,
@@ -1952,6 +1973,8 @@
 				D20000000000000000000066 /* DragLandingPlanTests.swift in Sources */,
 				D2000000000000000000006A /* StripBlockLandingTests.swift in Sources */,
 				A00000000000000000008041 /* AppSettingsStoreTests.swift in Sources */,
+				BB0000000000000000000008 /* BarLayoutModeTests.swift in Sources */,
+				BB0000000000000000000010 /* IslandLayoutSolverTests.swift in Sources */,
 				A00000000000000000009F02 /* GlobalHotKeyMonitor.swift in Sources */,
 				F1A0000000000000000000A2 /* HotKeyShortcutValidation.swift in Sources */,
 				F1A0000000000000000000B2 /* HotKeyGlyphs.swift in Sources */,
@@ -1993,6 +2016,9 @@
 				B1000000000000000000010F /* MinimizeHandoffTarget.swift in Sources */,
 				B10000000000000000000114 /* MinimizeSettleGate.swift in Sources */,
 				B10000000000000000000119 /* TaskbarScreenPlacement.swift in Sources */,
+				BB0000000000000000000011 /* BarLayoutMode.swift in Sources */,
+				BB0000000000000000000012 /* BarSection.swift in Sources */,
+				BB0000000000000000000013 /* IslandLayoutSolver.swift in Sources */,
 					B1000000000000000000011E /* TaskbarDisplaySet.swift in Sources */,
 					D90000000000000000000201 /* InstallLineage.swift in Sources */,
 					D90000000000000000000202 /* ScreenTopologySnapshot.swift in Sources */,

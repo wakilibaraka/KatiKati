@@ -1541,6 +1541,70 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(defaults.bool(forKey: "com.tungsten.edge.launchAtLogin"), true)
     }
 
+    func testLayoutModeDefaultsAndPersistence() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.barLayoutMode, .windows)
+        XCTAssertEqual(store.centeredWidth, 720)
+        XCTAssertEqual(store.islandGap, 10)
+        XCTAssertEqual(store.islandMargin, 12)
+
+        store.setBarLayoutMode(.split3)
+        XCTAssertEqual(store.barLayoutMode, .split3)
+        XCTAssertEqual(defaults.string(forKey: "com.katikati.layout.mode"), "split3")
+
+        let reloaded = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(reloaded.barLayoutMode, .split3)
+
+        store.setBarLayoutMode(.split4)
+        XCTAssertEqual(store.barLayoutMode, .split4)
+
+        store.setBarLayoutMode(.centered)
+        XCTAssertEqual(store.barLayoutMode, .centered)
+
+        store.setBarLayoutMode(.windows)
+        XCTAssertEqual(store.barLayoutMode, .windows)
+    }
+
+    func testLayoutModeFallbackForUnknownStringDoesNotOverwriteKey() {
+        let defaults = makeDefaults()
+        defaults.set("futureMode2028", forKey: "com.katikati.layout.mode")
+
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.barLayoutMode, .windows)
+        XCTAssertEqual(defaults.string(forKey: "com.katikati.layout.mode"), "futureMode2028")
+    }
+
+    func testLayoutDimensionSettersClampValues() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+
+        store.setCenteredWidth(900)
+        XCTAssertEqual(store.centeredWidth, 900)
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.layout.centeredWidth"), 900)
+
+        store.setCenteredWidth(200)
+        XCTAssertEqual(store.centeredWidth, 360)
+
+        store.setCenteredWidth(3000)
+        XCTAssertEqual(store.centeredWidth, 1600)
+
+        store.setIslandGap(15)
+        XCTAssertEqual(store.islandGap, 15)
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.layout.islandGap"), 15)
+
+        store.setIslandGap(0.1)
+        XCTAssertEqual(store.islandGap, 0.5)
+
+        store.setIslandMargin(24)
+        XCTAssertEqual(store.islandMargin, 24)
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.layout.islandMargin"), 24)
+
+        store.setIslandMargin(-10)
+        XCTAssertEqual(store.islandMargin, 0)
+    }
+
     private func makeDefaults() -> UserDefaults {
         let suiteName = "com.katikati.tests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
