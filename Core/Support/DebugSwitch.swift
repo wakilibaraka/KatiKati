@@ -111,6 +111,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     case windowLiftTrace = "DOCK_WINDOW_LIFT_TRACE"
     /// 实验：最小化失败时退回 App 级 hide
     case minimizeAppFallback = "DOCK_MINIMIZE_APP_FALLBACK"
+    /// Dev-only: skip Accessibility onboarding/prompt/watchdog/suspend so panels render with no AX grant (=1 on; never ship on)
+    case devSkipPermissions = "DOCK_DEV_SKIP_PERMISSIONS"
 
     // MARK: 取值型（调用点自己解析）
     /// 周期对账 AX 读超时毫秒（默认 100；0 = 旧同步路径）
@@ -182,7 +184,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
             return .killSwitch
         case .displayTrace, .launchTrace, .chipProbe, .clickTrace,
              .hoverTrace, .edgehoverTrace, .stripWheelTrace, .chipAnimTrace, .labelProbe,
-             .spaceIntentTrace, .scrollReverserTrace, .windowLiftTrace, .minimizeAppFallback:
+             .spaceIntentTrace, .scrollReverserTrace, .windowLiftTrace, .minimizeAppFallback,
+             .devSkipPermissions:
             return .trace
         case .reconcileAxTimeoutMs, .seedAxTimeoutMs, .dragFlightMs, .labelAnim, .inventoryLog,
              .panelLevel, .panelMaterial, .panelSaturation, .panelThickness,

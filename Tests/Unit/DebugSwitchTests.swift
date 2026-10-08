@@ -38,4 +38,16 @@ final class DebugSwitchTests: XCTestCase {
         XCTAssertEqual(Set(raws).count, raws.count)
         for raw in raws { XCTAssertTrue(raw.hasPrefix("DOCK_"), raw) }
     }
+
+    /// Dev permission bypass: trace polarity, off by default (=1 only), never a kill switch —
+    /// a wrong polarity here would silently skip onboarding for real users.
+    func testDevSkipPermissionsIsTracePolarity() {
+        let s = DebugSwitch.devSkipPermissions
+        XCTAssertEqual(s.rawValue, "DOCK_DEV_SKIP_PERMISSIONS")
+        XCTAssertEqual(s.kind, .trace)
+        XCTAssertFalse(s.isEnabled(in: [:]))
+        XCTAssertFalse(s.isEnabled(in: [s.rawValue: "0"]))
+        XCTAssertFalse(s.isEnabled(in: [s.rawValue: "true"]), "只有字面 \"1\" 才开，同 trace 口径")
+        XCTAssertTrue(s.isEnabled(in: [s.rawValue: "1"]))
+    }
 }

@@ -163,7 +163,10 @@ final class PermissionRecoveryCoordinator: ObservableObject {
             case .stopPermissionEpisode:
                 stopEpisode()
             case .requestSystemPrompt:
-                model?.requestSystemPromptIfNeeded()
+                // DOCK_DEV_SKIP_PERMISSIONS=1 (dev-only, skip AX prompt entirely).
+                if !DebugSwitch.devSkipPermissions.isEnabled() {
+                    model?.requestSystemPromptIfNeeded()
+                }
             case .recheckNow:
                 model?.checkNow()
             case .startWatchdog:

@@ -214,7 +214,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             installLocation: location
         )
         permissionCoordinator = coordinator
-        coordinator.launched(trusted: trusted)
+        // DOCK_DEV_SKIP_PERMISSIONS=1 (dev-only): follow the machine's trusted path so
+        // `startApp` runs and panels render with no AX grant — the untrusted path would fire
+        // `requestSystemPrompt` + onboarding (the prompt this switch exists to skip). Watchdog,
+        // guide and suspension effects stay guarded below, so no revocation episode can follow.
+        coordinator.launched(trusted: trusted || DebugSwitch.devSkipPermissions.isEnabled())
     }
 
     func applicationDidBecomeActive(_ notification: Notification) {
@@ -657,7 +661,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func openSettings(_ sender: Any?) {
         guard !installLocation.isTransient,
               hasStartedApp,
-              permissionService.hasRequiredPermissions() else {
+              // Dev skip: without a grant the guide would hijack Settings (where the theme /
+              // appearance UI lives) — the whole point of running permission-free.
+              permissionService.hasRequiredPermissions() || DebugSwitch.devSkipPermissions.isEnabled() else {
             showPermissionWindow()
             return
         }
@@ -732,7 +738,10 @@ extension AppDelegate: PermissionEffectHandler {
         }
     }
 
-    func showGuideWindow() { showPermissionWindow() }
+    func showGuideWindow() {
+        guard !DebugSwitch.devSkipPermissions.isEnabled() else { return }
+        showPermissionWindow()
+    }
     func updateGuideWindow() { resizePermissionWindowToFit() }
     func closeGuideWindow() { closePermissionWindow() }
 
@@ -776,6 +785,9 @@ extension AppDelegate: PermissionEffectHandler {
     /// 注意这**不是**窗口快照的保护机制——那个由 `WindowLiftAvoidanceController`
     /// 自己在轮询里自检；有会话/待还原状态时仍是 0.2 秒，空闲无快照时才降到 1 秒。
     func startWatchdog() {
+        // Dev skip: no 5s AX sampling → no trustVerdict events → no revocation episode
+        // can suspend the panels we just started without a grant.
+        guard !DebugSwitch.devSkipPermissions.isEnabled() else { return }
         stopWatchdog()
         permissionWatchdogGate.start()
         let timer = Timer(timeInterval: 5, repeats: true) { [weak self] _ in
@@ -817,6 +829,7 @@ extension AppDelegate: PermissionEffectHandler {
     }
 
     func suspendPanelsAndStores() {
+        guard !DebugSwitch.devSkipPermissions.isEnabled() else { return }
         trashSettingSubscription = nil
         TrashStateStore.shared.stop()
         // 设置窗口也要一起收：权限一丢任务条整条被拆掉，留着一扇改任务条外观的窗

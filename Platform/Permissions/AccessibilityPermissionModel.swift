@@ -44,6 +44,10 @@ final class AccessibilityPermissionModel: ObservableObject {
     }
 
     func startPolling() {
+        // DOCK_DEV_SKIP_PERMISSIONS=1 (dev-only): never poll trust — the trusted-path
+        // launch already ran `startApp`; a poll here could open a revocation episode
+        // mid-session and suspend the panels under test.
+        guard !DebugSwitch.devSkipPermissions.isEnabled() else { return }
         // 临时副本待在那个位置永远拿不到有效授权，轮询没有意义。
         guard installLocation.allowsAccessibilityPrompt, !didNotifyGranted else { return }
         if pollingStartedAt == nil { pollingStartedAt = now() }
