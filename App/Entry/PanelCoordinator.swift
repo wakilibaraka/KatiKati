@@ -75,6 +75,7 @@ final class PanelCoordinator: NSObject {
     let drawerStore: DrawerStore
     let messagingStore: MessagingAppStore
     let badgeStore: BadgeStore
+    let weatherService: WeatherService
     let stripOrderStore: StripOrderStore
     let drawerOrderStore: DrawerOrderStore
     let settingsStore: AppSettingsStore
@@ -345,6 +346,7 @@ final class PanelCoordinator: NSObject {
          drawerStore: DrawerStore,
          messagingStore: MessagingAppStore,
          badgeStore: BadgeStore,
+         weatherService: WeatherService,
          stripOrderStore: StripOrderStore,
          drawerOrderStore: DrawerOrderStore,
          settingsStore: AppSettingsStore,
@@ -363,6 +365,7 @@ final class PanelCoordinator: NSObject {
         self.drawerStore = drawerStore
         self.messagingStore = messagingStore
         self.badgeStore = badgeStore
+        self.weatherService = weatherService
         self.stripOrderStore = stripOrderStore
         self.drawerOrderStore = drawerOrderStore
         self.settingsStore = settingsStore

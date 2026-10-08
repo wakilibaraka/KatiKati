@@ -9,6 +9,7 @@ struct DockStripView: View {
     @EnvironmentObject var drawerStore: DrawerStore
     @EnvironmentObject var messagingStore: MessagingAppStore
     @EnvironmentObject var badgeStore: BadgeStore
+    @EnvironmentObject var weatherService: WeatherService
     @EnvironmentObject var stripOrderStore: StripOrderStore
     @EnvironmentObject var pinnedFolderStore: PinnedFolderStore
     @EnvironmentObject var folderCoverStore: PinnedFolderCoverStore
@@ -752,6 +753,7 @@ struct DockStripView: View {
                 .environmentObject(appMembershipController)
                 .environmentObject(settingsStore)
                 .environmentObject(badgeStore)
+                .environmentObject(weatherService)
                 .environmentObject(pinnedFolderStore)
                 .environmentObject(folderCoverStore),
             screenPoint: CGPoint(x: stripRootScreenRect.midX, y: stripRootScreenRect.midY)
@@ -1304,11 +1306,8 @@ struct DockStripView: View {
             HStack(spacing: 6 * dockScale) {
                 switch section {
                 case .weather:
-                    Image(systemName: "cloud.sun.fill")
-                        .renderingMode(.template)
-                        .foregroundStyle(.primary)
-                    Text(verbatim: section.title)
-                        .font(.system(size: 12 * dockScale, weight: .medium, design: .rounded))
+                    WeatherChip()
+                        .scaleEffect(dockScale)
                 case .tray:
                     Image(systemName: "wifi")
                         .renderingMode(.template)

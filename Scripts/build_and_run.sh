@@ -14,12 +14,12 @@ DEVELOPER_ID="${DEVELOPER_ID_APPLICATION:-}"
 FALLBACK_SIGNING_IDENTITY="KatiKati Local Code Signing"
 
 build_app() {
-  # Force the universal product to be re-created on every build. After an `xcodebuild test` has
+  # Force the universal product to be re-created on every build. After an `/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test` has
   # already relinked the per-arch binaries, a plain build can skip CreateUniversalBinary and leave
   # the previous executable in the .app (re-signed below, so its mtime looks fresh) — the launched
   # app then runs old code while the build log says BUILD SUCCEEDED.
   rm -f "$APP_EXECUTABLE"
-  xcodebuild -project "$PROJECT_PATH" -scheme "$APP_NAME" -configuration Debug -derivedDataPath "$DERIVED_DATA_DIR" build >/tmp/katikati-build.log 2>&1
+  /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project "$PROJECT_PATH" -scheme "$APP_NAME" -configuration Debug -derivedDataPath "$DERIVED_DATA_DIR" build >/tmp/katikati-build.log 2>&1
 }
 
 sign_app() {
@@ -54,7 +54,7 @@ sign_app() {
 }
 
 run_cli() {
-  xcodebuild -project "$PROJECT_PATH" -scheme "$CLI_NAME" -configuration Debug -derivedDataPath "$DERIVED_DATA_DIR" build >/tmp/katikati-build.log 2>&1
+  /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project "$PROJECT_PATH" -scheme "$CLI_NAME" -configuration Debug -derivedDataPath "$DERIVED_DATA_DIR" build >/tmp/katikati-build.log 2>&1
   "$DERIVED_DATA_DIR/Build/Products/Debug/$CLI_NAME" "$@"
 }
 

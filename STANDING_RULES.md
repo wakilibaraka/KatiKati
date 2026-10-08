@@ -31,6 +31,34 @@
    hand edits only, with the test diff in the same commit. Scripted-edit
    justification goes in the commit message.
 
+7. **Agent hygiene — no vibe-coding damage (owner 2026-10-08).** Exhibits from the
+   4d slice (2026-10-08): a helper script rewrote `project.pbxproj` wholesale
+   (~2,500 churned lines for a 4-file addition); a second script bulk-wrote
+   `Localizable.xcstrings` (+847 lines of unreviewed translations); throwaway
+   scripts + `build.log` landed in the repo root; unscoped ±line edits rode along
+   in orchestrator/coordinator/strip files. Rules, binding on every agent:
+   a. **Generated files are append-only by hand.** `project.pbxproj`,
+      `*.xcstrings`, `Package.resolved`: add entries with single-anchor editor
+      ops; never regenerate, re-sort, or script-rewrite. pbxproj diffs past
+      ~30 lines for a file addition are rejected on sight.
+   b. **Translations are human-reviewed.** Scripted `xcstrings` writes are
+      drafts only; every non-English value needs a speaker or back-translation
+      pass before merge. The localization gate checks completeness, not
+      correctness — never cite it as proof of translation quality.
+   c. **Repo root stays clean.** No `*.py`, no `*.log`, no scratch files at root
+      or in `Scripts/` unless the file is a permanent, plan-authorized tool.
+      Scratch goes to `/tmp`. `git add` names files explicitly — never bare
+      `git add .` on a tree another agent may be editing.
+   d. **Scope receipts.** Every touched file outside the slice's stated file
+      list gets one commit-message line: what changed there and why the slice
+      required it. Untouched-by-design files with diffs are drive-bys (§1.3).
+   e. **No eager singletons for gated features.** Feature-gated services
+      (weather, now-playing, edge bars) initialize lazily behind their
+      `com.katikati.*` key — never as eager stored properties on app launch.
+   f. **Diff budget enforced at commit time.** `git diff --stat` over ~300
+      lines or touching generated files → stop, split, and ask before
+      committing. A green suite never excuses an unreviewable diff.
+
 
 ## 2. Architecture invariants (HYBRID_PLAN §§3–4)
 

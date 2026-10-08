@@ -355,7 +355,7 @@ names/ids/assets only — never behavior.
   zones/stacks, `TaskbarStyleSpec`/`TaskbarLayoutStrategy` system, `FlyoutPanel` system,
   `QuickSettings*`, `Launchpick/*`, `UpdateService`, `MigrationManager`,
   `PermissionsManager`, `SingleInstanceLock`, SwiftPM packaging, `SPEC.md`-era conventions).
-  Nothing AppKit-structural is ported — §5b is widgets + patterns only.
+  Nothing AppKit-structural is ported — §5b is widgets + patterns only. (Reference hash for Weather: dd47a82)
 - Live SplitBar: `SegmentContainerView`, `EdgeDockView`, `SegmentPills`, all `Stores/*`
   reducers, `AppRuntimeController`, SwiftUI `SettingsView`, `DockMagnificationLayout`,
   `SegmentPanelManager`, `DockSegment` persistence, `DockController` (unless the Phase-5

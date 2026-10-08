@@ -38,6 +38,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     private let drawerStore: DrawerStore
     private let messagingStore: MessagingAppStore
     private let badgeStore: BadgeStore
+    private let weatherService: WeatherService
     private let stripOrderStore: StripOrderStore
     private let drawerOrderStore: DrawerOrderStore
     private let settingsStore: AppSettingsStore
@@ -85,6 +86,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
          drawerStore: DrawerStore,
          messagingStore: MessagingAppStore,
          badgeStore: BadgeStore,
+         weatherService: WeatherService,
          stripOrderStore: StripOrderStore,
          drawerOrderStore: DrawerOrderStore,
          settingsStore: AppSettingsStore,
@@ -107,6 +109,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         self.drawerStore = drawerStore
         self.messagingStore = messagingStore
         self.badgeStore = badgeStore
+        self.weatherService = weatherService
         self.stripOrderStore = stripOrderStore
         self.drawerOrderStore = drawerOrderStore
         self.settingsStore = settingsStore
@@ -286,6 +289,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             drawerStore: drawerStore,
             messagingStore: messagingStore,
             badgeStore: badgeStore,
+            weatherService: weatherService,
             stripOrderStore: stripOrderStore,
             drawerOrderStore: drawerOrderStore,
             settingsStore: settingsStore,

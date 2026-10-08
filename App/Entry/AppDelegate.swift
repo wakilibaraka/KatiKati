@@ -27,6 +27,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let drawerStore = DrawerStore()
     let messagingStore = MessagingAppStore()
     let badgeStore = BadgeStore()
+    let weatherService = WeatherService()
+
     let keptAppStore = KeptAppStore()
     lazy var stripOrderStore = StripOrderStore(
         keptIDsProvider: { [keptAppStore] in Set(keptAppStore.bundleIDs) },
@@ -572,6 +574,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             drawerStore: drawerStore,
             messagingStore: messagingStore,
             badgeStore: badgeStore,
+            weatherService: weatherService,
             stripOrderStore: stripOrderStore,
             drawerOrderStore: drawerOrderStore,
             settingsStore: settingsStore,
