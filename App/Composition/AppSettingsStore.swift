@@ -154,6 +154,7 @@ final class AppSettingsStore: ObservableObject {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        TungstenDefaultsMigrator.migrateIfNeeded(defaults: defaults)
         Self.migrateLegacyEnabledKey(
             defaults: defaults,
             enabledKey: Keys.nativeDockAutoHideEnabled,
@@ -535,41 +536,93 @@ final class AppSettingsStore: ObservableObject {
 }
 
 private enum Keys {
-    static let launchAtLogin = "com.tungsten.edge.launchAtLogin"
-    static let showShelf = "com.tungsten.edge.showShelf"
-    // Never read the retired com.tungsten.edge.trash.visible key.
-    static let showTrash = "com.tungsten.edge.showTrash"
+    static let launchAtLogin = "com.katikati.launchAtLogin"
+    static let showShelf = "com.katikati.showShelf"
+    // Never read the retired com.katikati.trash.visible key.
+    static let showTrash = "com.katikati.showTrash"
     /// Continuous bar height in points (since the drag-to-resize release).
-    static let dockPanelHeight = "com.tungsten.edge.dockPanelHeight"
+    static let dockPanelHeight = "com.katikati.dockPanelHeight"
     /// Legacy four-tier raw string. **Read once for migration, never written or removed.**
-    static let dockSize = "com.tungsten.edge.dockSize"
-    static let hoverStyle = "com.tungsten.edge.hoverStyle"
+    static let dockSize = "com.katikati.dockSize"
+    static let hoverStyle = "com.katikati.hoverStyle"
     /// system / light / dark. Missing key = system.
-    /// The pre-glass `com.tungsten.edge.appearanceMode` is an orphan and stays one: never read,
+    /// The pre-glass `com.katikati.appearanceMode` is an orphan and stays one: never read,
     /// written or removed — a choice made for that older look is not carried over.
-    static let appearance = "com.tungsten.edge.appearance"
-    static let windowLiftEnabled = "com.tungsten.edge.windowLiftEnabled"
-    static let fullscreenIntentEnabled = "com.tungsten.edge.fullscreenIntentEnabled"
+    static let appearance = "com.katikati.appearance"
+    static let windowLiftEnabled = "com.katikati.windowLiftEnabled"
+    static let fullscreenIntentEnabled = "com.katikati.fullscreenIntentEnabled"
     /// 自定义显隐快捷键（字典：keyCode / modifiers / glyphs）。缺键 = 默认 ⌥⇧⌘D。
-    static let edgeToggleShortcut = "com.tungsten.edge.hotKey.edgeAutoHideMode"
-    static let scrollReverserEnabled = "com.tungsten.edge.scrollReverserEnabled"
+    static let edgeToggleShortcut = "com.katikati.hotKey.edgeAutoHideMode"
+    static let scrollReverserEnabled = "com.katikati.scrollReverserEnabled"
     /// 任务条显示位置（followMouse / pinned / allScreens / allScreensPerDisplay）。缺键 = followMouse。
-    /// ⚠️ 旧的 `com.tungsten.edge.displayMode`（早期「单屏/多屏」档，已随功能删除）是孤儿键，
+    /// ⚠️ 旧的 `com.katikati.displayMode`（早期「单屏/多屏」档，已随功能删除）是孤儿键，
     /// **永不再读**（`Docs/05`）——新功能只认下面这两个键。
-    static let taskbarScreenMode = "com.tungsten.edge.taskbarScreen.mode"
+    static let taskbarScreenMode = "com.katikati.taskbarScreen.mode"
     /// 固定屏身份（字典：uuid / name）。切回 followMouse 时保留不删。
-    static let taskbarScreenPinned = "com.tungsten.edge.taskbarScreen.pinned"
+    static let taskbarScreenPinned = "com.katikati.taskbarScreen.pinned"
     /// A fresh install waiting to first see multiple displays. Missing key = existing user,
     /// false = already consumed.
-    static let taskbarScreenPerDisplaySeedPending = "com.tungsten.edge.taskbarScreen.perDisplaySeedPending"
+    static let taskbarScreenPerDisplaySeedPending = "com.katikati.taskbarScreen.perDisplaySeedPending"
     /// ⚠️ 这个键名进了用户磁盘。改名 = 所有已订阅的人重新看到订阅区块。
-    static let hasSubscribed = "com.tungsten.edge.hasSubscribed"
+    static let hasSubscribed = "com.katikati.hasSubscribed"
     /// ⚠️ 同上：改名 = 所有老用户下次启动被欢迎引导再拦一次。
-    static let hasSeenWelcome = "com.tungsten.edge.hasSeenWelcome"
-    static let nativeDockAutoHideEnabled = "com.tungsten.edge.autoHide.nativeDock.enabled"
-    static let nativeDockAutoHideDelay = "com.tungsten.edge.autoHide.nativeDock.delay"
-    static let nativeDockAutoHideLastEnabledDelay = "com.tungsten.edge.autoHide.nativeDock.lastEnabledDelay"
-    static let edgeAutoHideEnabled = "com.tungsten.edge.autoHide.edge.enabled"
-    static let edgeAutoHideDelay = "com.tungsten.edge.autoHide.edge.delay"
-    static let edgeAutoHideLastEnabledDelay = "com.tungsten.edge.autoHide.edge.lastEnabledDelay"
+    static let hasSeenWelcome = "com.katikati.hasSeenWelcome"
+    static let nativeDockAutoHideEnabled = "com.katikati.autoHide.nativeDock.enabled"
+    static let nativeDockAutoHideDelay = "com.katikati.autoHide.nativeDock.delay"
+    static let nativeDockAutoHideLastEnabledDelay = "com.katikati.autoHide.nativeDock.lastEnabledDelay"
+    static let edgeAutoHideEnabled = "com.katikati.autoHide.edge.enabled"
+    static let edgeAutoHideDelay = "com.katikati.autoHide.edge.delay"
+    static let edgeAutoHideLastEnabledDelay = "com.katikati.autoHide.edge.lastEnabledDelay"
+}
+
+/// One-way first-run migrator from legacy Tungsten Edge (`com.tungsten.edge.*`) defaults
+/// to KatiKati (`com.katikati.*`) defaults with an install-lineage stamp.
+enum TungstenDefaultsMigrator {
+    static let migrationStampKey = "com.katikati.migration.tungstenLineageStamp"
+
+    /// Pairs of (legacy tungsten key, new katikati key).
+    static let keyMap: [(legacy: String, new: String)] = [
+        ("com.tungsten.edge.launchAtLogin", "com.katikati.launchAtLogin"),
+        ("com.tungsten.edge.showShelf", "com.katikati.showShelf"),
+        ("com.tungsten.edge.showTrash", "com.katikati.showTrash"),
+        ("com.tungsten.edge.dockPanelHeight", "com.katikati.dockPanelHeight"),
+        ("com.tungsten.edge.dockSize", "com.katikati.dockSize"),
+        ("com.tungsten.edge.hoverStyle", "com.katikati.hoverStyle"),
+        ("com.tungsten.edge.appearance", "com.katikati.appearance"),
+        ("com.tungsten.edge.windowLiftEnabled", "com.katikati.windowLiftEnabled"),
+        ("com.tungsten.edge.fullscreenIntentEnabled", "com.katikati.fullscreenIntentEnabled"),
+        ("com.tungsten.edge.hotKey.edgeAutoHideMode", "com.katikati.hotKey.edgeAutoHideMode"),
+        ("com.tungsten.edge.scrollReverserEnabled", "com.katikati.scrollReverserEnabled"),
+        ("com.tungsten.edge.taskbarScreen.mode", "com.katikati.taskbarScreen.mode"),
+        ("com.tungsten.edge.taskbarScreen.pinned", "com.katikati.taskbarScreen.pinned"),
+        ("com.tungsten.edge.taskbarScreen.perDisplaySeedPending", "com.katikati.taskbarScreen.perDisplaySeedPending"),
+        ("com.tungsten.edge.hasSubscribed", "com.katikati.hasSubscribed"),
+        ("com.tungsten.edge.hasSeenWelcome", "com.katikati.hasSeenWelcome"),
+        ("com.tungsten.edge.autoHide.nativeDock.enabled", "com.katikati.autoHide.nativeDock.enabled"),
+        ("com.tungsten.edge.autoHide.nativeDock.delay", "com.katikati.autoHide.nativeDock.delay"),
+        ("com.tungsten.edge.autoHide.nativeDock.lastEnabledDelay", "com.katikati.autoHide.nativeDock.lastEnabledDelay"),
+        ("com.tungsten.edge.autoHide.edge.enabled", "com.katikati.autoHide.edge.enabled"),
+        ("com.tungsten.edge.autoHide.edge.delay", "com.katikati.autoHide.edge.delay"),
+        ("com.tungsten.edge.autoHide.edge.lastEnabledDelay", "com.katikati.autoHide.edge.lastEnabledDelay"),
+        ("com.tungsten.edge.firstLaunchDate", "com.katikati.firstLaunchDate"),
+        ("com.tungsten.edge.licenseKey", "com.katikati.licenseKey"),
+    ]
+
+    @discardableResult
+    static func migrateIfNeeded(defaults: UserDefaults, now: Date = Date()) -> Bool {
+        guard defaults.object(forKey: migrationStampKey) == nil else {
+            return false
+        }
+        var migratedAny = false
+        for (legacyKey, newKey) in keyMap {
+            if let legacyVal = defaults.object(forKey: legacyKey) {
+                if defaults.object(forKey: newKey) == nil {
+                    defaults.set(legacyVal, forKey: newKey)
+                    migratedAny = true
+                }
+            }
+        }
+        defaults.set(now, forKey: migrationStampKey)
+        return migratedAny
+    }
 }

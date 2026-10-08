@@ -1,5 +1,5 @@
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 /// 任务条进 / 出迟滞框（`StripPointerBox`）：两套口径各测一遍，改数值前先过这里。
 final class StripPointerBoxTests: XCTestCase {

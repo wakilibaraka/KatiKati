@@ -226,9 +226,9 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
 /// 本来就表达不了），删掉既丢值又破坏 `git revert d08e8d6` 的数据边界。留作孤儿键，无害。
 /// 要做有损迁移必须先问 owner。这里只保留名字，防止将来撞键。
 ///
-/// - `com.tungsten.edge.nativeDock.restoreDelay.captured`
-/// - `com.tungsten.edge.nativeDock.restoreDelay.present`
-/// - `com.tungsten.edge.nativeDock.restoreDelay.value`
+/// - `com.katikati.nativeDock.restoreDelay.captured`
+/// - `com.katikati.nativeDock.restoreDelay.present`
+/// - `com.katikati.nativeDock.restoreDelay.value`
 
 enum NativeDockPreferencesError: LocalizedError {
     case sandboxed

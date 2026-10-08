@@ -22,7 +22,7 @@ import Foundation
 enum InstallationRecord {
     /// ⚠️ 这个键名进了用户磁盘。**改名 = 把所有老用户的首装记录清零**，
     /// 他们会在转收费时被误判成新用户。要改必须写迁移。
-    static let firstLaunchDateKey = "com.tungsten.edge.firstLaunchDate"
+    static let firstLaunchDateKey = "com.katikati.firstLaunchDate"
 
     static func firstLaunchDate(defaults: UserDefaults = .standard) -> Date? {
         defaults.object(forKey: firstLaunchDateKey) as? Date

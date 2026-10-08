@@ -1,5 +1,5 @@
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 /// macOS 12 的老登录项路径。真正碰 CoreServices 的 `SharedFileListLoginItems` 在这里用内存列表替掉，
 /// 测的是后端的判断：什么时候算开、重复勾选不重复插、取消要清干净、列表打不开时怎么表现。

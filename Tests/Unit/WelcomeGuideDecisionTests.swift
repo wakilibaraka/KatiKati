@@ -1,5 +1,5 @@
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 /// 首次运行欢迎引导的弹出判据。
 ///

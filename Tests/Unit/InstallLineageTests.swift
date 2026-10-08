@@ -1,5 +1,5 @@
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 final class InstallLineageTests: XCTestCase {
     func testMissingDomainIsPristine() {
@@ -27,6 +27,14 @@ final class InstallLineageTests: XCTestCase {
             "messagingOptOutBundleIDsV2": [String](),
         ]
 
+        XCTAssertEqual(InstallLineage.classify(persistentDomain: domain), .priorUse)
+    }
+
+    func testKatiKatiDomainIsPriorUse() {
+        let domain: [String: Any] = [
+            "com.katikati.dockPanelHeight": 54.0,
+            "com.katikati.hoverStyle": "standard",
+        ]
         XCTAssertEqual(InstallLineage.classify(persistentDomain: domain), .priorUse)
     }
 

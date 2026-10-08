@@ -39,7 +39,7 @@ struct DockPanelHeight: Equatable {
     /// Multiplier for every tier-scaled size. Exactly `1.0` at `native`.
     var scale: CGFloat { points / Self.native.points }
 
-    /// Legacy four-tier raw values (`com.tungsten.edge.dockSize`), read once for migration.
+    /// Legacy four-tier raw values (`com.katikati.dockSize`), read once for migration.
     static func migratingLegacyTier(rawValue: String) -> DockPanelHeight? {
         switch rawValue {
         case "small": return DockPanelHeight(clamping: 46)

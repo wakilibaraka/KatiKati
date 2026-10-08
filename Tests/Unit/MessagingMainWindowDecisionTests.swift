@@ -1,5 +1,5 @@
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 /// 消息区认主窗口的三条规则（2026-08-23）。每条都对应一个真实 app 的形态，别删。
 final class MessagingMainWindowDecisionTests: XCTestCase {

@@ -1,7 +1,7 @@
 import CryptoKit
 import Foundation
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 /// 离线授权码的验证。
 ///

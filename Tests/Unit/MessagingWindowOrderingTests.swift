@@ -1,5 +1,5 @@
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 /// #4：消息应用弹出窗口落窗口区头部。纯 `StripOrdering.reconcile` 的 head-preferred 分支，
 /// 以及真 `StripOrderStore` 双路径（reconciled 渲染 / sync 副作用）一致性（Codex 二审 #2）。

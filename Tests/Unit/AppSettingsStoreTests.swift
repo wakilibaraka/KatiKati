@@ -5,7 +5,7 @@ import XCTest
 final class AppSettingsStoreTests: XCTestCase {
     func testTrashDefaultsIgnoreLegacyKeyAndPersistIndependently() {
         let defaults = makeDefaults()
-        defaults.set(false, forKey: "com.tungsten.edge.trash.visible")
+        defaults.set(false, forKey: "com.katikati.trash.visible")
         let store = AppSettingsStore(defaults: defaults)
         XCTAssertTrue(store.showTrash)
         store.setShowTrash(false)
@@ -27,8 +27,8 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(AppSettingsStore.sliderIndexFromDelay(store.edgeAutoHideDelay), 0)
         XCTAssertEqual(store.nativeDockAutoHideDelay, 1.0)
         XCTAssertEqual(AppSettingsStore.sliderIndexFromDelay(store.nativeDockAutoHideDelay), 10)
-        XCTAssertNil(defaults.object(forKey: "com.tungsten.edge.autoHide.nativeDock.enabled"))
-        XCTAssertNil(defaults.object(forKey: "com.tungsten.edge.autoHide.edge.enabled"))
+        XCTAssertNil(defaults.object(forKey: "com.katikati.autoHide.nativeDock.enabled"))
+        XCTAssertNil(defaults.object(forKey: "com.katikati.autoHide.edge.enabled"))
     }
 
     /// ⚠️ 默认改成常驻之后**最容易踩的一处**：remembered 必须仍是有限档。
@@ -49,38 +49,38 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testLegacyDisabledEnabledKeyMigratesToNeverHideOnlyWhenKeyExists() {
         let defaults = makeDefaults()
-        defaults.set(false, forKey: "com.tungsten.edge.autoHide.nativeDock.enabled")
-        defaults.set(0.0, forKey: "com.tungsten.edge.autoHide.nativeDock.delay")
+        defaults.set(false, forKey: "com.katikati.autoHide.nativeDock.enabled")
+        defaults.set(0.0, forKey: "com.katikati.autoHide.nativeDock.delay")
 
         let store = AppSettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.nativeDockAutoHideDelay, AppSettingsStore.neverHideDelay)
         XCTAssertEqual(AppSettingsStore.sliderIndexFromDelay(store.nativeDockAutoHideDelay), 0)
-        XCTAssertNil(defaults.object(forKey: "com.tungsten.edge.autoHide.nativeDock.enabled"))
+        XCTAssertNil(defaults.object(forKey: "com.katikati.autoHide.nativeDock.enabled"))
     }
 
     func testLegacyEnabledTrueWithZeroDelaySnapsToFiniteMinimum() {
         let defaults = makeDefaults()
-        defaults.set(true, forKey: "com.tungsten.edge.autoHide.nativeDock.enabled")
-        defaults.set(0.0, forKey: "com.tungsten.edge.autoHide.nativeDock.delay")
+        defaults.set(true, forKey: "com.katikati.autoHide.nativeDock.enabled")
+        defaults.set(0.0, forKey: "com.katikati.autoHide.nativeDock.delay")
 
         let store = AppSettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.nativeDockAutoHideDelay, AppSettingsStore.finiteDelayMin)
         XCTAssertEqual(AppSettingsStore.sliderIndexFromDelay(store.nativeDockAutoHideDelay), 1)
-        XCTAssertNil(defaults.object(forKey: "com.tungsten.edge.autoHide.nativeDock.enabled"))
+        XCTAssertNil(defaults.object(forKey: "com.katikati.autoHide.nativeDock.enabled"))
     }
 
     func testLegacyEnabledTrueWithSubMinimumDelaySnapsToFiniteMinimum() {
         let defaults = makeDefaults()
-        defaults.set(true, forKey: "com.tungsten.edge.autoHide.edge.enabled")
-        defaults.set(0.05, forKey: "com.tungsten.edge.autoHide.edge.delay")
+        defaults.set(true, forKey: "com.katikati.autoHide.edge.enabled")
+        defaults.set(0.05, forKey: "com.katikati.autoHide.edge.delay")
 
         let store = AppSettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.edgeAutoHideDelay, AppSettingsStore.finiteDelayMin)
         XCTAssertEqual(AppSettingsStore.sliderIndexFromDelay(store.edgeAutoHideDelay), 1)
-        XCTAssertNil(defaults.object(forKey: "com.tungsten.edge.autoHide.edge.enabled"))
+        XCTAssertNil(defaults.object(forKey: "com.katikati.autoHide.edge.enabled"))
     }
 
     func testSliderDelayMappingKeepsSubMinimumSecondsDistinctFromNeverHide() {
@@ -127,53 +127,53 @@ final class AppSettingsStoreTests: XCTestCase {
     func testDockPanelHeightDefaultsToNativeAndPersists() {
         let defaults = makeDefaults()
         XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight, .native)
-        XCTAssertEqual(defaults.double(forKey: "com.tungsten.edge.dockPanelHeight"), 54, "清洗后的值启动即写回")
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.dockPanelHeight"), 54, "清洗后的值启动即写回")
 
         let store = AppSettingsStore(defaults: defaults)
         store.setDockPanelHeight(DockPanelHeight(clamping: 70))
         XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight.points, 70, "条高要跨重启保持")
-        XCTAssertEqual(defaults.object(forKey: "com.tungsten.edge.dockPanelHeight") as? Double, 70)
+        XCTAssertEqual(defaults.object(forKey: "com.katikati.dockPanelHeight") as? Double, 70)
     }
 
     @MainActor
     func testDockPanelHeightRewritesCorruptStoredValueToNative() {
         let defaults = makeDefaults()
-        defaults.set("huge", forKey: "com.tungsten.edge.dockPanelHeight")
+        defaults.set("huge", forKey: "com.katikati.dockPanelHeight")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight, .native)
         // 必须**立刻重写**，否则每次启动都要重走一遍回退。
-        XCTAssertEqual(defaults.double(forKey: "com.tungsten.edge.dockPanelHeight"), 54)
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.dockPanelHeight"), 54)
 
-        defaults.set(Double.nan, forKey: "com.tungsten.edge.dockPanelHeight")
+        defaults.set(Double.nan, forKey: "com.katikati.dockPanelHeight")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight, .native, "NaN 也要回退")
 
-        defaults.set(999, forKey: "com.tungsten.edge.dockPanelHeight")
+        defaults.set(999, forKey: "com.katikati.dockPanelHeight")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight.points, DockPanelHeight.maximum, "越界夹到范围")
-        XCTAssertEqual(defaults.double(forKey: "com.tungsten.edge.dockPanelHeight"), DockPanelHeight.maximum)
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.dockPanelHeight"), DockPanelHeight.maximum)
     }
 
     @MainActor
     func testLegacyDockSizeMigratesOnceAndIsNeverDeleted() {
         let defaults = makeDefaults()
-        defaults.set("extraLarge", forKey: "com.tungsten.edge.dockSize")
+        defaults.set("extraLarge", forKey: "com.katikati.dockSize")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight.points, 70)
-        XCTAssertEqual(defaults.double(forKey: "com.tungsten.edge.dockPanelHeight"), 70, "迁移结果写进新键")
-        XCTAssertEqual(defaults.string(forKey: "com.tungsten.edge.dockSize"), "extraLarge", "旧键只读不删，回滚还读得回")
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.dockPanelHeight"), 70, "迁移结果写进新键")
+        XCTAssertEqual(defaults.string(forKey: "com.katikati.dockSize"), "extraLarge", "旧键只读不删，回滚还读得回")
     }
 
     @MainActor
     func testNewHeightKeyWinsOverLegacyTier() {
         let defaults = makeDefaults()
-        defaults.set("small", forKey: "com.tungsten.edge.dockSize")
-        defaults.set(63, forKey: "com.tungsten.edge.dockPanelHeight")
+        defaults.set("small", forKey: "com.katikati.dockSize")
+        defaults.set(63, forKey: "com.katikati.dockPanelHeight")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight.points, 63)
     }
 
     @MainActor
     func testUnknownLegacyTierFallsBackToNative() {
         let defaults = makeDefaults()
-        defaults.set("gigantic", forKey: "com.tungsten.edge.dockSize")
+        defaults.set("gigantic", forKey: "com.katikati.dockSize")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight, .native)
-        XCTAssertEqual(defaults.string(forKey: "com.tungsten.edge.dockSize"), "gigantic", "旧键不动")
+        XCTAssertEqual(defaults.string(forKey: "com.katikati.dockSize"), "gigantic", "旧键不动")
     }
 
     @MainActor
@@ -246,12 +246,12 @@ final class AppSettingsStoreTests: XCTestCase {
     @MainActor
     func testHoverStyleRewritesCorruptStoredValueToTheDefault() {
         let defaults = makeDefaults()
-        defaults.set("silent", forKey: "com.tungsten.edge.hoverStyle")
+        defaults.set("silent", forKey: "com.katikati.hoverStyle")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).hoverStyle, HoverStyle.default)
         // 同 dockSize：必须**立刻重写**，否则每次启动都要重走一遍回退，存值和菜单勾选也一直对不上。
-        XCTAssertEqual(defaults.string(forKey: "com.tungsten.edge.hoverStyle"), HoverStyle.default.rawValue)
+        XCTAssertEqual(defaults.string(forKey: "com.katikati.hoverStyle"), HoverStyle.default.rawValue)
 
-        defaults.set(7, forKey: "com.tungsten.edge.hoverStyle")
+        defaults.set(7, forKey: "com.katikati.hoverStyle")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).hoverStyle, HoverStyle.default, "类型不对也要回退")
     }
 
@@ -468,7 +468,7 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testLaunchAtLoginColdStartPresentationUsesRealStatusOverStoredIntent() {
         let defaults = makeDefaults()
-        defaults.set(true, forKey: "com.tungsten.edge.launchAtLogin")
+        defaults.set(true, forKey: "com.katikati.launchAtLogin")
         let store = AppSettingsStore(defaults: defaults)
 
         let presentation = LaunchAtLoginMenuPresentation(state: .off)
@@ -585,7 +585,7 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testToggleFromFiniteDelayEntersResidentAndRestoresSameDelay() {
         let defaults = makeDefaults()
-        defaults.set(0.5, forKey: "com.tungsten.edge.autoHide.edge.delay")
+        defaults.set(0.5, forKey: "com.katikati.autoHide.edge.delay")
         let store = AppSettingsStore(defaults: defaults)
 
         store.toggleEdgeAutoHideMode()
@@ -610,7 +610,7 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testToggleFromResidentWithoutHistoryFallsBackToDefaultDelay() {
         let defaults = makeDefaults()
-        defaults.set(AppSettingsStore.neverHideDelay, forKey: "com.tungsten.edge.autoHide.edge.delay")
+        defaults.set(AppSettingsStore.neverHideDelay, forKey: "com.katikati.autoHide.edge.delay")
         let store = AppSettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.lastEnabledEdgeAutoHideDelay, AppSettingsStore.defaultEnabledEdgeAutoHideDelay)
@@ -621,19 +621,19 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testRememberedSeedsFromCurrentFiniteValueOverStaleStoredValue() {
         let defaults = makeDefaults()
-        defaults.set(0.5, forKey: "com.tungsten.edge.autoHide.edge.delay")
-        defaults.set(2.0, forKey: "com.tungsten.edge.autoHide.edge.lastEnabledDelay")
+        defaults.set(0.5, forKey: "com.katikati.autoHide.edge.delay")
+        defaults.set(2.0, forKey: "com.katikati.autoHide.edge.lastEnabledDelay")
 
         let store = AppSettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.lastEnabledEdgeAutoHideDelay, 0.5)
-        XCTAssertEqual(defaults.double(forKey: "com.tungsten.edge.autoHide.edge.lastEnabledDelay"), 0.5)
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.autoHide.edge.lastEnabledDelay"), 0.5)
     }
 
     func testRememberedIsReadOnlyWhenCurrentIsResident() {
         let defaults = makeDefaults()
-        defaults.set(AppSettingsStore.neverHideDelay, forKey: "com.tungsten.edge.autoHide.edge.delay")
-        defaults.set(2.0, forKey: "com.tungsten.edge.autoHide.edge.lastEnabledDelay")
+        defaults.set(AppSettingsStore.neverHideDelay, forKey: "com.katikati.autoHide.edge.delay")
+        defaults.set(2.0, forKey: "com.katikati.autoHide.edge.lastEnabledDelay")
 
         let store = AppSettingsStore(defaults: defaults)
 
@@ -644,8 +644,8 @@ final class AppSettingsStoreTests: XCTestCase {
         let corruptValues: [Any] = ["字符串", Double.nan, AppSettingsStore.neverHideDelay, -50.0]
         for corrupt in corruptValues {
             let defaults = makeDefaults()
-            defaults.set(AppSettingsStore.neverHideDelay, forKey: "com.tungsten.edge.autoHide.edge.delay")
-            defaults.set(corrupt, forKey: "com.tungsten.edge.autoHide.edge.lastEnabledDelay")
+            defaults.set(AppSettingsStore.neverHideDelay, forKey: "com.katikati.autoHide.edge.delay")
+            defaults.set(corrupt, forKey: "com.katikati.autoHide.edge.lastEnabledDelay")
 
             let store = AppSettingsStore(defaults: defaults)
 
@@ -655,8 +655,8 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testLegacyDisabledMigrationThenToggleRestoresDefaultDelay() {
         let defaults = makeDefaults()
-        defaults.set(false, forKey: "com.tungsten.edge.autoHide.edge.enabled")
-        defaults.set(0.7, forKey: "com.tungsten.edge.autoHide.edge.delay")
+        defaults.set(false, forKey: "com.katikati.autoHide.edge.enabled")
+        defaults.set(0.7, forKey: "com.katikati.autoHide.edge.delay")
 
         let store = AppSettingsStore(defaults: defaults)
         XCTAssertEqual(store.edgeAutoHideDelay, AppSettingsStore.neverHideDelay)
@@ -709,15 +709,15 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(AppSettingsStore.sanitizedStoredDelay(2.04, fallback: 1.0), 2.0)
 
         let defaults = makeDefaults()
-        defaults.set("bad", forKey: "com.tungsten.edge.autoHide.nativeDock.delay")
-        defaults.set(true, forKey: "com.tungsten.edge.autoHide.edge.delay")
+        defaults.set("bad", forKey: "com.katikati.autoHide.nativeDock.delay")
+        defaults.set(true, forKey: "com.katikati.autoHide.edge.delay")
 
         let store = AppSettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.nativeDockAutoHideDelay, AppSettingsStore.defaultNativeDockAutoHideDelay)
         XCTAssertEqual(store.edgeAutoHideDelay, AppSettingsStore.defaultEnabledEdgeAutoHideDelay)
-        XCTAssertEqual(defaults.double(forKey: "com.tungsten.edge.autoHide.nativeDock.delay"), 1.0)
-        XCTAssertEqual(defaults.double(forKey: "com.tungsten.edge.autoHide.edge.delay"), 0.1)
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.autoHide.nativeDock.delay"), 1.0)
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.autoHide.edge.delay"), 0.1)
     }
 
     func testSanitizedLastEnabledDelayNeverReturnsResident() {
@@ -736,7 +736,7 @@ final class AppSettingsStoreTests: XCTestCase {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
         XCTAssertEqual(store.appearanceMode, .system)
-        XCTAssertNil(defaults.object(forKey: "com.tungsten.edge.appearance"),
+        XCTAssertNil(defaults.object(forKey: "com.katikati.appearance"),
                      "reading must not write the default back")
 
         store.setAppearanceMode(.dark)
@@ -747,14 +747,14 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testAppearanceFallsBackToSystemOnABadValueAndIgnoresTheOrphanKey() {
         let defaults = makeDefaults()
-        defaults.set("midnight", forKey: "com.tungsten.edge.appearance")
+        defaults.set("midnight", forKey: "com.katikati.appearance")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).appearanceMode, .system)
 
         // The pre-glass key is an orphan: a choice stored there must not come back.
         let orphaned = makeDefaults()
-        orphaned.set("dark", forKey: "com.tungsten.edge.appearanceMode")
+        orphaned.set("dark", forKey: "com.katikati.appearanceMode")
         XCTAssertEqual(AppSettingsStore(defaults: orphaned).appearanceMode, .system)
-        XCTAssertEqual(orphaned.string(forKey: "com.tungsten.edge.appearanceMode"), "dark")
+        XCTAssertEqual(orphaned.string(forKey: "com.katikati.appearanceMode"), "dark")
     }
 
     func testScrollReverserDefaultsOffAndRoundTrips() {
@@ -792,14 +792,14 @@ final class AppSettingsStoreTests: XCTestCase {
 
         store.setEdgeToggleShortcut(nil)
         XCTAssertNil(store.edgeToggleShortcut)
-        XCTAssertNil(defaults.dictionary(forKey: "com.tungsten.edge.hotKey.edgeAutoHideMode"), "恢复默认要删键，不是写空值")
+        XCTAssertNil(defaults.dictionary(forKey: "com.katikati.hotKey.edgeAutoHideMode"), "恢复默认要删键，不是写空值")
 
         // 坏数据（类型不对 / 字段缺失 / 超范围）一律回落 nil，不能让启动读入炸掉或存半个键。
-        defaults.set(["keyCode": "not-a-number", "glyphs": "X"], forKey: "com.tungsten.edge.hotKey.edgeAutoHideMode")
+        defaults.set(["keyCode": "not-a-number", "glyphs": "X"], forKey: "com.katikati.hotKey.edgeAutoHideMode")
         XCTAssertNil(AppSettingsStore(defaults: defaults).edgeToggleShortcut)
-        defaults.set(["keyCode": 99999, "modifiers": 256, "glyphs": "X"], forKey: "com.tungsten.edge.hotKey.edgeAutoHideMode")
+        defaults.set(["keyCode": 99999, "modifiers": 256, "glyphs": "X"], forKey: "com.katikati.hotKey.edgeAutoHideMode")
         XCTAssertNil(AppSettingsStore(defaults: defaults).edgeToggleShortcut, "keyCode 超出 16 位不认")
-        defaults.set(["keyCode": 40, "modifiers": 256, "glyphs": ""], forKey: "com.tungsten.edge.hotKey.edgeAutoHideMode")
+        defaults.set(["keyCode": 40, "modifiers": 256, "glyphs": ""], forKey: "com.katikati.hotKey.edgeAutoHideMode")
         XCTAssertNil(AppSettingsStore(defaults: defaults).edgeToggleShortcut, "空字形不认")
     }
 
@@ -1174,24 +1174,24 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testNativeRememberedSeedsFromCurrentFiniteValueOverStaleStoredValue() {
         let defaults = makeDefaults()
-        defaults.set(2.0, forKey: "com.tungsten.edge.autoHide.nativeDock.delay")
-        defaults.set(0.5, forKey: "com.tungsten.edge.autoHide.nativeDock.lastEnabledDelay")
+        defaults.set(2.0, forKey: "com.katikati.autoHide.nativeDock.delay")
+        defaults.set(0.5, forKey: "com.katikati.autoHide.nativeDock.lastEnabledDelay")
 
         let store = AppSettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.lastEnabledNativeDockAutoHideDelay, 2.0)
-        XCTAssertEqual(defaults.double(forKey: "com.tungsten.edge.autoHide.nativeDock.lastEnabledDelay"), 2.0)
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.autoHide.nativeDock.lastEnabledDelay"), 2.0)
     }
 
     func testNativeRememberedIsReadWhenCurrentIsResidentAndCorruptFallsBackToNativeDefault() {
         let defaults = makeDefaults()
-        defaults.set(AppSettingsStore.neverHideDelay, forKey: "com.tungsten.edge.autoHide.nativeDock.delay")
-        defaults.set(2.0, forKey: "com.tungsten.edge.autoHide.nativeDock.lastEnabledDelay")
+        defaults.set(AppSettingsStore.neverHideDelay, forKey: "com.katikati.autoHide.nativeDock.delay")
+        defaults.set(2.0, forKey: "com.katikati.autoHide.nativeDock.lastEnabledDelay")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).lastEnabledNativeDockAutoHideDelay, 2.0)
 
         let corrupted = makeDefaults()
-        corrupted.set(AppSettingsStore.neverHideDelay, forKey: "com.tungsten.edge.autoHide.nativeDock.delay")
-        corrupted.set(AppSettingsStore.neverHideDelay, forKey: "com.tungsten.edge.autoHide.nativeDock.lastEnabledDelay")
+        corrupted.set(AppSettingsStore.neverHideDelay, forKey: "com.katikati.autoHide.nativeDock.delay")
+        corrupted.set(AppSettingsStore.neverHideDelay, forKey: "com.katikati.autoHide.nativeDock.lastEnabledDelay")
         // 回退值是 native 组自己的默认档位 1.0，不是 edge 的 0.1。
         XCTAssertEqual(AppSettingsStore(defaults: corrupted).lastEnabledNativeDockAutoHideDelay, AppSettingsStore.defaultNativeDockAutoHideDelay)
     }
@@ -1362,8 +1362,8 @@ final class AppSettingsStoreTests: XCTestCase {
 
         XCTAssertEqual(store.taskbarScreenPlacement, .followMouse)
         // 缺键即默认，init 不许把键写出来（老用户升级无感）。
-        XCTAssertNil(defaults.object(forKey: "com.tungsten.edge.taskbarScreen.mode"))
-        XCTAssertNil(defaults.object(forKey: "com.tungsten.edge.taskbarScreen.pinned"))
+        XCTAssertNil(defaults.object(forKey: "com.katikati.taskbarScreen.mode"))
+        XCTAssertNil(defaults.object(forKey: "com.katikati.taskbarScreen.pinned"))
     }
 
     func testTaskbarScreenPlacementPinnedRoundTrips() {
@@ -1380,14 +1380,14 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testTaskbarScreenPlacementPinnedWithBrokenSelectionFallsBackAndRewritesMode() {
         let defaults = makeDefaults()
-        defaults.set("pinned", forKey: "com.tungsten.edge.taskbarScreen.mode")
-        defaults.set(["uuid": 42], forKey: "com.tungsten.edge.taskbarScreen.pinned")
+        defaults.set("pinned", forKey: "com.katikati.taskbarScreen.mode")
+        defaults.set(["uuid": 42], forKey: "com.katikati.taskbarScreen.pinned")
 
         let store = AppSettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.taskbarScreenPlacement, .followMouse)
         XCTAssertEqual(
-            defaults.string(forKey: "com.tungsten.edge.taskbarScreen.mode"),
+            defaults.string(forKey: "com.katikati.taskbarScreen.mode"),
             "followMouse",
             "坏选择回退后要立刻重写 mode 键，否则每次启动重走回退且 UI 与存值对不上"
         )
@@ -1395,13 +1395,13 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testTaskbarScreenPlacementUnknownModeDegradesWithoutRewritingKey() {
         let defaults = makeDefaults()
-        defaults.set("someFutureMode", forKey: "com.tungsten.edge.taskbarScreen.mode")
+        defaults.set("someFutureMode", forKey: "com.katikati.taskbarScreen.mode")
 
         let store = AppSettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.taskbarScreenPlacement, .followMouse)
         XCTAssertEqual(
-            defaults.string(forKey: "com.tungsten.edge.taskbarScreen.mode"),
+            defaults.string(forKey: "com.katikati.taskbarScreen.mode"),
             "someFutureMode",
             "将来版本的档被老版本读到时只降级运行，不毁掉用户的选择"
         )
@@ -1414,11 +1414,11 @@ final class AppSettingsStoreTests: XCTestCase {
         store.setTaskbarScreenPlacement(.allScreens)
 
         XCTAssertEqual(store.taskbarScreenPlacement, .allScreens)
-        XCTAssertEqual(defaults.string(forKey: "com.tungsten.edge.taskbarScreen.mode"), "allScreens")
+        XCTAssertEqual(defaults.string(forKey: "com.katikati.taskbarScreen.mode"), "allScreens")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).taskbarScreenPlacement, .allScreens)
 
         store.setTaskbarScreenPlacement(.allScreensPerDisplay)
-        XCTAssertEqual(defaults.string(forKey: "com.tungsten.edge.taskbarScreen.mode"), "allScreensPerDisplay")
+        XCTAssertEqual(defaults.string(forKey: "com.katikati.taskbarScreen.mode"), "allScreensPerDisplay")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).taskbarScreenPlacement, .allScreensPerDisplay)
     }
 
@@ -1430,7 +1430,7 @@ final class AppSettingsStoreTests: XCTestCase {
 
         store.setTaskbarScreenPlacement(.allScreens)
 
-        XCTAssertNotNil(defaults.dictionary(forKey: "com.tungsten.edge.taskbarScreen.pinned"))
+        XCTAssertNotNil(defaults.dictionary(forKey: "com.katikati.taskbarScreen.pinned"))
         store.setTaskbarScreenPlacement(.pinned(selection))
         XCTAssertEqual(AppSettingsStore(defaults: defaults).taskbarScreenPlacement, .pinned(selection))
     }
@@ -1444,9 +1444,9 @@ final class AppSettingsStoreTests: XCTestCase {
         store.setTaskbarScreenPlacement(.followMouse)
 
         XCTAssertEqual(store.taskbarScreenPlacement, .followMouse)
-        XCTAssertEqual(defaults.string(forKey: "com.tungsten.edge.taskbarScreen.mode"), "followMouse")
+        XCTAssertEqual(defaults.string(forKey: "com.katikati.taskbarScreen.mode"), "followMouse")
         XCTAssertNotNil(
-            defaults.dictionary(forKey: "com.tungsten.edge.taskbarScreen.pinned"),
+            defaults.dictionary(forKey: "com.katikati.taskbarScreen.pinned"),
             "remembered 惯例：切回跟随鼠标保留上次选的屏"
         )
     }
@@ -1456,7 +1456,7 @@ final class AppSettingsStoreTests: XCTestCase {
         let store = AppSettingsStore(defaults: defaults)
 
         store.armTaskbarPerDisplaySeedForFreshInstall(lineage: .priorUse)
-        XCTAssertNil(defaults.object(forKey: "com.tungsten.edge.taskbarScreen.perDisplaySeedPending"))
+        XCTAssertNil(defaults.object(forKey: "com.katikati.taskbarScreen.perDisplaySeedPending"))
 
         store.armTaskbarPerDisplaySeedForFreshInstall(lineage: .pristine)
         XCTAssertTrue(store.taskbarPerDisplaySeedPending)
@@ -1470,7 +1470,7 @@ final class AppSettingsStoreTests: XCTestCase {
 
         _ = AppSettingsStore(defaults: defaults)
 
-        XCTAssertNil(defaults.object(forKey: "com.tungsten.edge.taskbarScreen.perDisplaySeedPending"))
+        XCTAssertNil(defaults.object(forKey: "com.katikati.taskbarScreen.perDisplaySeedPending"))
     }
 
     func testExplicitUnchangedPlacementChoiceConsumesTaskbarPerDisplaySeed() {
@@ -1481,7 +1481,7 @@ final class AppSettingsStoreTests: XCTestCase {
         store.setTaskbarScreenPlacement(.followMouse)
 
         XCTAssertFalse(store.taskbarPerDisplaySeedPending)
-        XCTAssertNil(defaults.object(forKey: "com.tungsten.edge.taskbarScreen.mode"))
+        XCTAssertNil(defaults.object(forKey: "com.katikati.taskbarScreen.mode"))
     }
 
     func testTaskbarPerDisplaySeedWritesModeAndConsumesMarker() {
@@ -1492,7 +1492,7 @@ final class AppSettingsStoreTests: XCTestCase {
         store.applyTaskbarPerDisplaySeed()
 
         XCTAssertEqual(store.taskbarScreenPlacement, .allScreensPerDisplay)
-        XCTAssertEqual(defaults.string(forKey: "com.tungsten.edge.taskbarScreen.mode"), "allScreensPerDisplay")
+        XCTAssertEqual(defaults.string(forKey: "com.katikati.taskbarScreen.mode"), "allScreensPerDisplay")
         XCTAssertFalse(store.taskbarPerDisplaySeedPending)
     }
 
@@ -1502,7 +1502,7 @@ final class AppSettingsStoreTests: XCTestCase {
 
         store.setTaskbarScreenPlacement(.allScreens)
 
-        XCTAssertNil(defaults.object(forKey: "com.tungsten.edge.taskbarScreen.perDisplaySeedPending"))
+        XCTAssertNil(defaults.object(forKey: "com.katikati.taskbarScreen.perDisplaySeedPending"))
     }
 
     func testPriorUseLineageCannotSeedWindowLift() {
@@ -1512,11 +1512,37 @@ final class AppSettingsStoreTests: XCTestCase {
         store.seedWindowLiftEnabledForFreshInstall(lineage: .priorUse)
 
         XCTAssertFalse(store.windowLiftEnabled)
-        XCTAssertNil(defaults.object(forKey: "com.tungsten.edge.windowLiftEnabled"))
+        XCTAssertNil(defaults.object(forKey: "com.katikati.windowLiftEnabled"))
+    }
+
+    func testOneWayMigrationFromTungstenEdgeDefaults() {
+        let defaults = makeDefaults()
+        // Simulate legacy tungsten keys on disk
+        defaults.set(true, forKey: "com.tungsten.edge.launchAtLogin")
+        defaults.set(false, forKey: "com.tungsten.edge.showShelf")
+        defaults.set(60.0, forKey: "com.tungsten.edge.dockPanelHeight")
+        defaults.set(0.5, forKey: "com.tungsten.edge.autoHide.edge.delay")
+
+        // First initialization migrates legacy keys into com.katikati.*
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertTrue(store.launchAtLogin)
+        XCTAssertFalse(store.showShelf)
+        XCTAssertEqual(store.dockPanelHeight.points, 60.0)
+        XCTAssertEqual(store.edgeAutoHideDelay, 0.5)
+
+        // Verify keys in defaults
+        XCTAssertEqual(defaults.bool(forKey: "com.katikati.launchAtLogin"), true)
+        XCTAssertEqual(defaults.bool(forKey: "com.katikati.showShelf"), false)
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.dockPanelHeight"), 60.0)
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.autoHide.edge.delay"), 0.5)
+        XCTAssertNotNil(defaults.object(forKey: "com.katikati.migration.tungstenLineageStamp"))
+
+        // Legacy keys remain untouched (never deleted)
+        XCTAssertEqual(defaults.bool(forKey: "com.tungsten.edge.launchAtLogin"), true)
     }
 
     private func makeDefaults() -> UserDefaults {
-        let suiteName = "com.tungsten.edge.tests.\(UUID().uuidString)"
+        let suiteName = "com.katikati.tests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
         return defaults

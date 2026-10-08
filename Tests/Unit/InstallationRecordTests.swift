@@ -1,5 +1,5 @@
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 /// 首次启动时间戳。
 ///
@@ -53,11 +53,11 @@ final class InstallationRecordTests: XCTestCase {
 
     /// 键名进了用户磁盘，改名等于把所有人的首装记录清零、转收费时全被误判成新用户。
     func testKeyNameIsFrozen() {
-        XCTAssertEqual(InstallationRecord.firstLaunchDateKey, "com.tungsten.edge.firstLaunchDate")
+        XCTAssertEqual(InstallationRecord.firstLaunchDateKey, "com.katikati.firstLaunchDate")
     }
 
     private func makeDefaults() -> UserDefaults {
-        let suiteName = "com.tungsten.edge.tests.\(UUID().uuidString)"
+        let suiteName = "com.katikati.tests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
         return defaults

@@ -1,5 +1,5 @@
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 /// 三个成员仓库（kept / drawer / messaging）跑遍公开变更后的不变量锁：
 /// - 访达永不在消息区；

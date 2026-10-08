@@ -1,5 +1,5 @@
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 /// 抽屉整块拖进任务条的落点判定。改造前用的是整帧 `contains`，实测（2026-08-18 拖拽日志）
 /// 首次落点 100% 退化成「落到末尾」——因为转正判定框故意伸到条上沿之外 16pt，

@@ -22,7 +22,7 @@ enum LicenseState: Equatable {
 final class LicenseStore: ObservableObject {
     /// ⚠️ 这个键名进了用户磁盘。**改名 = 所有已激活用户回到未激活**，得重新粘一次授权码。
     /// 前缀沿用 `InstallationRecord`。
-    static let licenseKeyDefaultsKey = "com.tungsten.edge.licenseKey"
+    static let licenseKeyDefaultsKey = "com.katikati.licenseKey"
 
     /// 授权码发放还没开始（`licenses` 表 0 条，1.0 才发）。
     ///

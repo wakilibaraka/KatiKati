@@ -1,5 +1,5 @@
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 final class TaskbarPerDisplaySeedTests: XCTestCase {
     func testUpgraderIsInertEvenWithTwoDisplays() {

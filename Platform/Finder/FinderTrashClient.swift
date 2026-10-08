@@ -3,13 +3,13 @@ import Carbon
 import OSLog
 
 final class FinderTrashClient: FinderTrashClienting {
-    private let stateQueue = DispatchQueue(label: "com.tungsten.edge.trash-state", qos: .utility)
+    private let stateQueue = DispatchQueue(label: "com.katikati.trash-state", qos: .utility)
     /// Dedicated and serial: an interactive empty blocks here until Finder's own dialog closes
     /// (up to 600s), which must never hold a thread of the shared user-action queue.
-    private let commandQueue = DispatchQueue(label: "com.tungsten.edge.trash-command", qos: .userInitiated)
+    private let commandQueue = DispatchQueue(label: "com.katikati.trash-command", qos: .userInitiated)
     /// Listing and reveal for the popup: off `stateQueue` so a slow listing never delays the icon's
     /// count reads, off `commandQueue` so it never queues behind an interactive empty.
-    private let listQueue = DispatchQueue(label: "com.tungsten.edge.trash-list", qos: .userInitiated)
+    private let listQueue = DispatchQueue(label: "com.katikati.trash-list", qos: .userInitiated)
     private let lock = NSLock()
     private var generation: UInt64 = 0
     private static let logger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "FinderTrash")

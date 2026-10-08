@@ -383,8 +383,8 @@ final class SettingsCoordinatorTests: XCTestCase {
         let suite = "SettingsCoordinatorTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defaults.removePersistentDomain(forName: suite)
-        defaults.set(launchAtLogin, forKey: "com.tungsten.edge.launchAtLogin")
-        defaults.set(nativeDelay, forKey: "com.tungsten.edge.autoHide.nativeDock.delay")
+        defaults.set(launchAtLogin, forKey: "com.katikati.launchAtLogin")
+        defaults.set(nativeDelay, forKey: "com.katikati.autoHide.nativeDock.delay")
         return AppSettingsStore(defaults: defaults)
     }
 }

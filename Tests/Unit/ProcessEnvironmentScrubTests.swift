@@ -1,5 +1,5 @@
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 final class ProcessEnvironmentScrubTests: XCTestCase {
     /// 实测 owner 机器上微信进程带着的那套变量（终端 + Claude Code），都得清。

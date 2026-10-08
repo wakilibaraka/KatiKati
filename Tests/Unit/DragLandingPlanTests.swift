@@ -1,5 +1,5 @@
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 /// 松手归位飞行的纯判定。这里钉的核心是**坐标换算**：屏幕是左下原点、载体面板是左上原点，
 /// 两者搞混的话图标会朝屏幕另一头飞——而那种错误在肉眼验收里只会被说成「动画怪怪的」。

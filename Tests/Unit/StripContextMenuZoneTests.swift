@@ -1,5 +1,5 @@
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 final class StripContextMenuZoneTests: XCTestCase {
     /// 中档基线的一条典型任务条：内缩 20pt，chip 40 宽、间距 2pt，

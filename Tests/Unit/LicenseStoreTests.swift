@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import macos_dock_cc_v2
+@testable import KatiKati
 
 /// 本机授权凭据的存取。
 ///
@@ -61,7 +61,7 @@ final class LicenseStoreTests: XCTestCase {
 
     /// 键名进了用户磁盘，改名 = 所有已激活用户回到未激活。
     func testKeyNameIsFrozen() {
-        XCTAssertEqual(LicenseStore.licenseKeyDefaultsKey, "com.tungsten.edge.licenseKey")
+        XCTAssertEqual(LicenseStore.licenseKeyDefaultsKey, "com.katikati.licenseKey")
     }
 
     private func makeStore(defaults: UserDefaults) -> LicenseStore {
@@ -69,7 +69,7 @@ final class LicenseStoreTests: XCTestCase {
     }
 
     private func makeDefaults() -> UserDefaults {
-        let suiteName = "com.tungsten.edge.tests.\(UUID().uuidString)"
+        let suiteName = "com.katikati.tests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defaults.removePersistentDomain(forName: suiteName)
         return defaults
