@@ -25,28 +25,30 @@ import Foundation
 enum DockTintBase: Equatable {
     case white
     case black
+    case rgb(DockRGBA)
 }
 
 /// 一个「基色 + 不透明度」的着色值。
 struct DockTint: Equatable {
-    let base: DockTintBase
-    let opacity: Double
+    var base: DockTintBase
+    var opacity: Double
 
     static func white(_ opacity: Double) -> DockTint { .init(base: .white, opacity: opacity) }
     static func black(_ opacity: Double) -> DockTint { .init(base: .black, opacity: opacity) }
+    static func rgba(_ rgba: DockRGBA) -> DockTint { .init(base: .rgb(rgba), opacity: rgba.a) }
 }
 
 /// 同一处视觉的常态 / 强调态两个值（强调 = 悬停，或投放命中）。
 struct DockTintPair: Equatable {
-    let normal: DockTint
-    let emphasized: DockTint
+    var normal: DockTint
+    var emphasized: DockTint
 }
 
 /// 阴影：颜色 + 模糊半径 + 向下偏移（x 恒为 0，整套视觉没有横向偏移的阴影）。
 struct DockShadow: Equatable {
-    let tint: DockTint
-    let radius: CGFloat
-    let y: CGFloat
+    var tint: DockTint
+    var radius: CGFloat
+    var y: CGFloat
 
     /// 阴影向下延伸的总量。**必须 ≤ `PanelCoordinator.shadowPadding`（20pt）**，否则在面板的
     /// 透明边处被硬切成一道齐口直边——这正是用户说的「阴影还会延伸溢出」。
@@ -100,8 +102,8 @@ enum DockPanelMaterial: Equatable {
 /// what gives the card thickness. `tint` pulls the glass toward the side opposite the text, the
 /// same rule as `chipPillFill`; `hoverLift` is laid over it as the hover emphasis.
 struct DockChipPillGlass: Equatable {
-    let tint: DockTint
-    let hoverLift: DockTint
+    var tint: DockTint
+    var hoverLift: DockTint
 }
 
 /// How the hover bubble's surface is built when Liquid Glass is available.
@@ -135,7 +137,7 @@ enum DockShelfTileStyle: String, CaseIterable {
 
     static func resolve(_ raw: String?) -> DockShelfTileStyle {
         guard let raw = raw?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
-              let style = DockShelfTileStyle(rawValue: raw) else { return .tray }
+              var style = DockShelfTileStyle(rawValue: raw) else { return .tray }
         return style
     }
 
@@ -163,9 +165,9 @@ enum DockShelfTileStyle: String, CaseIterable {
 
 /// 不透明 RGB。故意最小化——只有中转格瓷砖用得到，别拿它去替代 `DockTint`。
 struct DockRGB: Equatable {
-    let red: Double
-    let green: Double
-    let blue: Double
+    var red: Double
+    var green: Double
+    var blue: Double
 
     init(_ red: Double, _ green: Double, _ blue: Double) {
         self.red = red
@@ -175,7 +177,7 @@ struct DockRGB: Equatable {
 
     /// 朝白色插值，用于投放命中的提亮。
     func lightened(by amount: Double) -> DockRGB {
-        let t = min(max(amount, 0), 1)
+        var t = min(max(amount, 0), 1)
         return DockRGB(red + (1 - red) * t, green + (1 - green) * t, blue + (1 - blue) * t)
     }
 
@@ -186,19 +188,21 @@ struct DockRGB: Equatable {
 // MARK: - Tokens
 
 struct DockThemeTokens: Equatable {
+    var styleTokens: DockThemeStyleTokens
+
 
     // MARK: 面板（任务条 / 抽屉 / 抽屉胶囊 / 文件夹弹窗 / 中转弹窗 共用）
 
     /// 面板描边的**上沿**。苹果原生玻璃是「上沿亮、下沿几乎没有」，模拟来自上方的光；
     /// 改造前是均匀一圈白 0.15，浅色下就变成用户说的那圈「明显的方格」灰框。
     /// 深色两端同值（0.15 / 0.15）→ 渐变退化成均匀色，与改造前逐像素一致。
-    let panelRimTop: DockTint
+    var panelRimTop: DockTint
     /// 面板描边的**下沿 / 两侧**。
-    let panelRimBottom: DockTint
+    var panelRimBottom: DockTint
     /// 投放命中时的整框高亮（抽屉图标拖到任务条上方、外部目录悬停文件夹区）。
-    let panelRimHighlighted: DockTint
-    let panelRimLineWidth: CGFloat
-    let panelRimHighlightedLineWidth: CGFloat
+    var panelRimHighlighted: DockTint
+    var panelRimLineWidth: CGFloat
+    var panelRimHighlightedLineWidth: CGFloat
 
     // MARK: 玻璃厚度感（内高光 + 内阴影）
     //
@@ -208,12 +212,12 @@ struct DockThemeTokens: Equatable {
     //
     // **深色一律 opacity 0 + width 0**，渲染上等价于不画，深色继续逐像素冻结。
 
-    let panelInnerHighlight: DockTint
-    let panelInnerHighlightWidth: CGFloat
-    let panelInnerHighlightBlur: CGFloat
-    let panelInnerShadow: DockTint
-    let panelInnerShadowWidth: CGFloat
-    let panelInnerShadowBlur: CGFloat
+    var panelInnerHighlight: DockTint
+    var panelInnerHighlightWidth: CGFloat
+    var panelInnerHighlightBlur: CGFloat
+    var panelInnerShadow: DockTint
+    var panelInnerShadowWidth: CGFloat
+    var panelInnerShadowBlur: CGFloat
 
     /// 背景饱和度倍数。**1.0 = 不加滤镜**（此时整个修饰符都不挂，同厚度层的理由）。
     ///
@@ -224,12 +228,12 @@ struct DockThemeTokens: Equatable {
     /// 对比之下 `.opacity()` 是**死路**，别再试：它把材质本身抹掉一部分、露出**没模糊过**的
     /// 原始桌面（实测条内过渡带从 115px 塌成 0.9px，和条外一样锐利），观感廉价，
     /// 不是"更透的玻璃"而是"挖了个洞的玻璃"。通透度只能靠换材质。
-    let panelBackdropSaturation: Double
+    var panelBackdropSaturation: Double
     /// 任务条 + 抽屉胶囊的落地阴影。
-    let stripShadow: DockShadow
+    var stripShadow: DockShadow
     /// 抽屉 + 两个弹窗的落地阴影（比任务条略收，因为它们悬在更高处）。
-    let popupShadow: DockShadow
-    let panelMaterial: DockPanelMaterial
+    var popupShadow: DockShadow
+    var panelMaterial: DockPanelMaterial
 
     // MARK: 多窗口 chip 的标题胶囊
 
@@ -250,17 +254,17 @@ struct DockThemeTokens: Equatable {
     /// 悬停档保持 ×1.4 的既有关系。调参出口：`DOCK_CHIP_PILL_FILL`。
     ///
     /// 卡片的「像张卡」由 `chipPillRimTop` 那圈描边承担，不靠填充——所以描边必须比填充亮。
-    let chipPillFill: DockTintPair
-    let chipPillRimTop: DockTintPair
-    let chipPillRimBottom: DockTint
+    var chipPillFill: DockTintPair
+    var chipPillRimTop: DockTintPair
+    var chipPillRimBottom: DockTint
     /// Non-nil = the pill is system glass where Liquid Glass is available, and `chipPillFill` +
     /// rim are only the fallback (frosted path, drag-carrier bitmap). `nil` = always the flat pill.
-    let chipPillGlass: DockChipPillGlass?
+    var chipPillGlass: DockChipPillGlass?
 
     // MARK: 文字
 
     /// 窗口标题（该窗口在桌面上可见时）。
-    let labelActive: DockTint
+    var labelActive: DockTint
     /// 窗口标题（已最小化 / 隐藏时）。
     ///
     /// 它是整条上对比度最脆的一处：半透明黑字，底板亮度跟壁纸走。深色壁纸下 0.45 会直接化掉
@@ -268,39 +272,39 @@ struct DockThemeTokens: Equatable {
     /// 现值 0.62，owner 2026-08-28 实机签收。再加深就开始吃掉「在不在当前桌面」这个深浅区分，
     /// 别越过 `labelActive` 0.85。
     /// 调参出口：`DOCK_LABEL_INACTIVE`。
-    let labelInactive: DockTint
+    var labelInactive: DockTint
     /// 标题胶囊下方的应用名副标题。
-    let labelSubtitle: DockTint
+    var labelSubtitle: DockTint
 
     // MARK: 指示器
 
     /// 图标底下的运行小圆点。浅色下白点在浅玻璃上完全看不见。
-    let runningDot: DockTint
+    var runningDot: DockTint
     /// 任务条分区之间的竖分隔线。
-    let zoneDivider: DockTint
+    var zoneDivider: DockTint
 
     // MARK: 中转格
 
     /// 中转格瓷砖的配色。**必须不透明**——它是条上唯一一个不是应用图标的 chip，
     /// 半透明的话玻璃底下一暗就消失（owner 2026-08-16 报过）。见 `ShelfChip.shelfIcon`。
     /// 用 `DOCK_SHELF_TILE=blue|graphite|light` 现场换档，不用重编译。
-    let shelfTile: DockShelfTileStyle
+    var shelfTile: DockShelfTileStyle
     /// 投放命中时底板外扩的光晕。
-    let shelfDropGlow: DockTint
+    var shelfDropGlow: DockTint
 
     // MARK: 抽屉胶囊
 
     /// 抽屉为空时的四宫格占位符号。
-    let capsuleGlyph: DockTint
+    var capsuleGlyph: DockTint
     /// 拖卡悬到胶囊上的「微微发光」（去掉过生硬白圈后的替代反馈，owner 2026-06-21）。
-    let capsuleStashGlow: DockTint
+    var capsuleStashGlow: DockTint
 
     // MARK: 固定文件夹 chip
 
     /// 外部文件拖到文件夹 chip 上（= 移入该文件夹）的命中环。
-    let folderDropRing: DockTint
+    var folderDropRing: DockTint
     /// 真缩略图封面的细描边（图标封面不描边）。
-    let folderThumbHairline: DockTint
+    var folderThumbHairline: DockTint
 
     // MARK: Folder / shelf / Trash popup
 
@@ -308,18 +312,18 @@ struct DockThemeTokens: Equatable {
     // with white text in both system appearances, so these are white where everything else on
     // the bar is black. Values are native readings, not taste.
     /// Title and cell names.
-    let stackPopupText: DockTint
+    var stackPopupText: DockTint
     /// The status line (empty shelf, Trash state, unreadable folder).
-    let stackPopupNote: DockTint
+    var stackPopupNote: DockTint
     /// 「Open in Finder」 ring, composited plus-lighter: the native glyph reads backdrop + 124.
-    let stackPopupGlyph: DockTint
+    var stackPopupGlyph: DockTint
     /// Back-button plate when the Dock's own art cannot be loaded (plus-lighter is not used there).
-    let stackPopupBackFill: DockTint
+    var stackPopupBackFill: DockTint
     /// Frosted fallback only — the glass draws its own edge and shadow.
-    let stackPopupHairline: DockTint
+    var stackPopupHairline: DockTint
     /// The drawer's rule under its title row: the system separator's dark value.
-    let stackPopupSeparator: DockTint
-    let stackPopupShadow: DockShadow
+    var stackPopupSeparator: DockTint
+    var stackPopupShadow: DockShadow
 
     // MARK: 窗口标题 tooltip
 
@@ -332,20 +336,20 @@ struct DockThemeTokens: Equatable {
     /// 也就是说原生是**一块近白的板、透三成**。中间走过一次弯路：只拿到黑底那一个读数时，
     /// 我把 173 当成了它的本色，得出「不透明的中性灰」——方向正好反了。**一个背景解不出
     /// 两个未知数**，以后再量这类半透明面，必须取两种背景。
-    let tooltipPlate: DockRGB
+    var tooltipPlate: DockRGB
     /// 见 `tooltipPlate`：0.70 = 透三成背景。
-    let tooltipPlateOpacity: Double
+    var tooltipPlateOpacity: Double
     /// 气泡描边。**必须比填充更亮**——这是玻璃的镜面边，也是「利落」的来源；
     /// 反成暗边等于没有边，气泡会化在背景里（2026-08-17 实测原生剖面）。
-    let tooltipRim: DockTint
-    let tooltipText: DockTint
+    var tooltipRim: DockTint
+    var tooltipText: DockTint
     /// Whether the bubble's text is drawn with CoreGraphics font smoothing. Smoothing dilates
     /// light-on-dark glyphs: measured on the same two characters, the native dark label's stems
     /// are 1.15px against 2.07px smoothed and 1.14px unsmoothed.
-    let tooltipTextSmoothing: Bool
-    let tooltipShadow: DockShadow
+    var tooltipTextSmoothing: Bool
+    var tooltipShadow: DockShadow
     /// Liquid Glass path only; the frosted path always draws the plate, rim and shadow above.
-    let tooltipGlassSurface: DockTooltipSurface
+    var tooltipGlassSurface: DockTooltipSurface
 
     /// 这一套值到底画不画厚度层。**深色必须是 `false`**——不是"画一层全透明的"，而是
     /// 整层根本不进视图树。`.blur(radius: 0)` 在 SwiftUI 里仍可能触发离屏渲染，
@@ -369,7 +373,9 @@ extension DockThemeTokens {
     /// The light column. Text and material must flip together: `NSVisualEffectView` and Liquid
     /// Glass follow the **window's** `effectiveAppearance`, and so does SwiftUI's `colorScheme`,
     /// which is what `resolved(for:)` keys on — never pick a column from anything else.
-    static let light = DockThemeTokens(
+    static func light(styleTokens: DockThemeStyleTokens) -> DockThemeTokens {
+        DockThemeTokens(
+            styleTokens: styleTokens,
         panelRimTop: .white(0.6),
         panelRimBottom: .black(0.1),
         // 投放高亮：叠在平时那圈边**之上**的一圈更亮的边（`DockPanelRimPlan`）。
@@ -444,20 +450,23 @@ extension DockThemeTokens {
         // Regular glass alone was measured and rejected here: it follows the backdrop down to 45
         // on black, where the native light bubble stays 173 (`hover-bubble.md`).
         tooltipGlassSurface: .plateOverClearGlass
-    )
+        )
+    }
 
     /// The dark column: white marks on the system Dock glass in its dark appearance.
     ///
     /// The plate is the system's (variant 3 under `darkAqua`), so nothing here colours it. It
     /// barely lifts a dark backdrop and dims a bright one — white 255 reads about 176 through it —
     /// which makes the bar over a white window the worst case for white text.
-    static let dark = DockThemeTokens(
+    static func dark(styleTokens: DockThemeStyleTokens) -> DockThemeTokens {
+        DockThemeTokens(
+            styleTokens: styleTokens,
         // The theme rim is drawn only on the frosted / fallback plate; the system glass has its own.
         panelRimTop: .white(0.15),
         panelRimBottom: .white(0.15),
-        panelRimHighlighted: light.panelRimHighlighted,
-        panelRimLineWidth: light.panelRimLineWidth,
-        panelRimHighlightedLineWidth: light.panelRimHighlightedLineWidth,
+        panelRimHighlighted: light(styleTokens: styleTokens).panelRimHighlighted,
+        panelRimLineWidth: light(styleTokens: styleTokens).panelRimLineWidth,
+        panelRimHighlightedLineWidth: light(styleTokens: styleTokens).panelRimHighlightedLineWidth,
         // No thickness or saturation candidates in dark: zero means the layers never enter the tree.
         panelInnerHighlight: .white(0),
         panelInnerHighlightWidth: 0,
@@ -492,7 +501,7 @@ extension DockThemeTokens {
         runningDot: .white(0.57),
         zoneDivider: .white(0.18),
 
-        shelfTile: light.shelfTile,
+        shelfTile: light(styleTokens: styleTokens).shelfTile,
         shelfDropGlow: .white(0.25),
 
         capsuleGlyph: .white(0.6),
@@ -502,13 +511,13 @@ extension DockThemeTokens {
         folderThumbHairline: .white(0.3),
 
         // The stack popup is dark in both appearances: same values, by construction.
-        stackPopupText: light.stackPopupText,
-        stackPopupNote: light.stackPopupNote,
-        stackPopupGlyph: light.stackPopupGlyph,
-        stackPopupBackFill: light.stackPopupBackFill,
-        stackPopupHairline: light.stackPopupHairline,
-        stackPopupSeparator: light.stackPopupSeparator,
-        stackPopupShadow: light.stackPopupShadow,
+        stackPopupText: light(styleTokens: styleTokens).stackPopupText,
+        stackPopupNote: light(styleTokens: styleTokens).stackPopupNote,
+        stackPopupGlyph: light(styleTokens: styleTokens).stackPopupGlyph,
+        stackPopupBackFill: light(styleTokens: styleTokens).stackPopupBackFill,
+        stackPopupHairline: light(styleTokens: styleTokens).stackPopupHairline,
+        stackPopupSeparator: light(styleTokens: styleTokens).stackPopupSeparator,
+        stackPopupShadow: light(styleTokens: styleTokens).stackPopupShadow,
 
         // The native dark bubble *is* the system's regular glass in its dark appearance: fill
         // 64 over a 35 backdrop and 172 over 219, and the same edge profile and shadow, row for
@@ -522,5 +531,18 @@ extension DockThemeTokens {
         tooltipTextSmoothing: false,
         tooltipShadow: DockShadow(tint: .black(0.25), radius: 5, y: 2),
         tooltipGlassSurface: .regularGlassAlone
-    )
+        )
+    }
+}
+
+extension DockThemeTokens {
+    func with(styleTokens: DockThemeStyleTokens) -> DockThemeTokens {
+        var copy = self
+        copy.styleTokens = styleTokens
+        copy.panelRimTop = .rgba(styleTokens.rim)
+        copy.panelRimBottom = .rgba(styleTokens.rim)
+        copy.panelRimHighlighted = .rgba(styleTokens.glow)
+        copy.panelInnerHighlight = .rgba(styleTokens.gradientSheen)
+        return copy
+    }
 }

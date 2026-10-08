@@ -13,10 +13,10 @@ This project is derived from and incorporates code from the following works:
 - License: MIT License
 - Description: Contributed the island layout models (`BarLayoutMode`, `BarSection`), pure island geometry solver (`IslandLayoutSolver`), and test specifications.
 
-## 3. DockBar (Placeholder)
+## 3. DockBar (Reference — eyeball-only)
 - Copyright (C) Emmanuel Baraka
 - License: MIT License
-- Description: Donor source for widget components (battery, clock, status items) and layout utilities. Code to be integrated in future phases.
+- Description: Reference (eyeball) source for widget behavior and structure (weather, battery/clock, tray patterns). Plan §5b eyeball-only rule — no code ports; fresh implementations written in tungsten patterns.
 
 ## 4. EdgeDeckBar (Placeholder — Phase 7 §5e)
 - Repository: https://github.com/senoldogann/EdgeDeckBar

@@ -146,7 +146,7 @@ revisit after Phase 5 using tungsten's `DockPanelHeight` scaling path (Phase 7).
 | Dock hide/restore hardening | ✅ auto-hide delays, `NativeDockPreferencesService`, window-lift avoidance, signal-safe teardown paths | `hideMacDock` + restore helper | `DockManager` | ✅ save-before-mutate + recovery file | Tungsten; live-SplitBar recovery pattern only if tungsten lacks it |
 | Hover/click previews | ✅ `ChipSnapshotter`, `StackPopupSnapshotProbe`, snapshot-backed popups | ❌ | `ThumbnailService` (click) | ✅ debounced strip | Tungsten |
 | Glass/material | ✅ `DockLiquidGlassConfiguration`, `DockThemeTokens`, `DockGlassRuntimeBridge`, rim plan | `ThemeToken`/`GlassProvider` | `DesignSystem` | `LiquidGlass`, `DockMaterialStyle` | Tungsten tokens stay; DockBar tokens consulted only for weather/tray ports |
-| Weather / clock / tray-cluster widgets | ❌ (no weather/clock/tray cluster in core) | partial | ✅ mature (`WeatherService`, `CalendarTrayButton`, `ConnectivityTrayView`, `WindowsTrayClusterView`, `BatteryMonitor`) | partial pills | Port DockBar widget implementations |
+| Weather / clock / tray-cluster widgets | ❌ (no weather/clock/tray cluster in core) | partial | ✅ mature (`WeatherService`, `CalendarTrayButton`, `ConnectivityTrayView`, `WindowsTrayClusterView`, `BatteryMonitor`) | partial pills | **Reference (eyeball-only)** — DockBar widget implementations (owner 2026-10-08) |
 | Tests | ✅ ~1,300 cases + localization + debug-switch + conformance checks | ✅ `TaskbarStripTests` | ✅ ~40 files | ❌ none | Tungsten culture + port island tests |
 | Settings + onboarding + status menu | ✅ `AppSettingsStore`, `SettingsCoordinator`, `SettingsWindowView`, `WelcomeGuideView`, `StatusMenuController`, `PermissionOnboardingView` | mode picker step | ✅ search + catalog | SwiftUI `SettingsView` | Tungsten + add "Layout" page |
 | Update service | ✅ `SparkleUpdateService` (Sparkle SPM) | ❌ | ✅ custom | ❌ | Tungsten (keep Sparkle pin) |
@@ -306,9 +306,17 @@ Tungsten's tree is the baseline — everything there is *kept* unless §5d says 
 | `OnboardingView` pick-a-layout step | new step in `WelcomeGuideView` + "Layout" `SettingsTab` | Reference screenshots, Appendix B |
 | Mode thumbnails | `SettingsWindowView` Layout tab | Drawn **from `IslandLayoutSolver`** → preview = real geometry |
 
-### 5b. From DockBar (donor B) — port widget implementations only
+### 5b. From DockBar (donor B) — eyeball-only reference (owner 2026-10-08)
 
-| Source | Target in new repo | Notes |
+**Eyeball-only rule:** DockBar code is a *specimen, never a source*. Study how it
+fetches, decides and renders — then write fresh code in tungsten patterns (pure
+decisions in `Core/Support` + unit tests, thin services in `App/Composition`, tungsten
+chip/popup chrome, Phase-4 theme tokens). **Nothing is pasted or mechanically
+translated**; pin DockBar's commit hash for reference. No donor regression can enter
+because no donor line enters. The table below is a *study list* — the Target column is
+what we build fresh, informed by the Source column.
+
+| Source (study only) | Target (build fresh, tungsten-style) | Notes |
 |---|---|---|
 | `WeatherService` + weather widget views | tungsten-style chip + popup in `App/Scenes` | Re-skin to `StripItem`-adjacent chip + tungsten popup geometry; tokens from tungsten theme |
 | `CalendarTrayButton`/`CalendarView` | clock chip + calendar popup | Same re-skin; per-island anchor (island 4 in split4) |
@@ -362,6 +370,11 @@ Single edge donor (EdgeDeckBar) + noty-as-inspo; widgets-only (option (a)).
 AI Usage/Dispatch stack is explicitly NOT ported. Order: 7a notes → 7b
 widgets → 7c launcher. Each needs owner sign-off + mini-plan + license check.
 Phases 2–6 stay frozen.
+
+**Eyeball-only (owner 2026-10-08, extends §5b's rule to Phase 7):** donor repos
+here are *studied, not copied* — file names in the table mark what to read and the
+behavior to reproduce; all code is written fresh in tungsten patterns with its own
+tests. License/attribution checks stay (entries in `NOTICE` when behavior is derived).
 
 | Source | Take (logic/views only) | Target in new repo | Notes |
 |---|---|---|---|
@@ -529,13 +542,35 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
     and means the first user-visible version ships the same stripped-down look
     anyone has now. Themes are additive switches, not a non-default replacement.
   - **Icon redesign** (Phase 6 UI too): folder / download / trash chips and the
-    status-menu item are re-drawn to feel distinct from tungsten, not merely recolored:
-    folder gains a subtle rounded base + light-on-dark fill; download gains a new
-    arc shape (not the flat arrow); trash gains a dynamic badge — **dot whose size = GB
-    of trash content, number = count of items** (e.g. `1GB`/dot or `12`/number,
-    dot chosen where the value is small, number where it is large). Both forms are
-    drawn from `DockThemeTokens`, so they stay correct across every theme and both
-    light/dark columns are tested, not eyeballed.
+    status-menu item are re-drawn to feel distinct from tungsten, not merely recolored.
+    **Chosen shape family (owner 2026-10-08): the "line set"** — one coherent
+    line-art style across all three so the set reads as designed, not assembled:
+    - **Trash → wire-mesh can**: tapered outline + lid + 3×2 mesh grid, drawn as
+      line art. Chosen over a fully *colored* trashcan: the mesh is instantly
+      distinguishable from tungsten's solid glyph by silhouette alone, stays
+      monochrome (so all 12 theme presets tint it via tokens with zero per-theme art),
+      and keeps the design rule that color on the bar comes from tokens + the badge,
+      not from artwork. Optional theme-tinted rim accent if a color pop is wanted
+      beyond the badge.
+    - **Downloads → shallow tray + down-arrow landing** (line art), not a folder
+      with an arrow. Special-cased on the Downloads pinned folder so the chip shows
+      the tray glyph instead of the system folder cover.
+    - **Folder → outline folder with slanted/asymmetric tab** + light themed fill —
+      same line weight as trash/downloads; clearly not tungsten's folder, still
+      reads as a folder at 16pt.
+    - **Trash badge (unchanged spec):** **dot whose size = GB of trash content**
+      (small values) or **number of items** (large values), e.g. `1GB`/dot or
+      `12`/number — badge form is a pure Core decision; the badge is where color
+      lives (accent/red), correct across every theme.
+    - Both forms draw from `DockThemeTokens`, so they stay correct across every
+      theme and both light/dark columns are tested, not eyeballed.
+  - **Icon-set toggle:** `com.katikati.iconSet` = `modern` (default, the line set
+    above) | `classic` (the old familiar tungsten-era glyphs, kept as fallback art —
+    baseline GPL code, contains no tungsten name/logo marks, so it passes the
+    trademark audit). Missing key = `modern`. Phase 6 Appearance tab exposes it as a
+    segmented control; switching is instant, no relaunch, no other key interaction.
+    Keeping `classic` alive means the door stays open for a future second set
+    without re-plumbing.
   - **Persistence & migration:** `com.katikati.theme.material` (default = `auto` →
     light `roseQuartz` / dark `obsidianDark`; a pinned preset overrides both
     appearances), appearance follows the existing `appearanceMode` setting (reused,
@@ -556,16 +591,17 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
 | **4a — theme model (pure)** | `DockThemeStyle` enum: 12 presets + `customRGBA` + `auto` (light→`roseQuartz`/dark→`obsidianDark`), resolution vs `appearanceMode`, persistence key `com.katikati.theme.material` in `AppSettingsStore`, `DOCK_THEME=<name>` debug hot-swap. No visuals change yet (default `auto` renders identical to current look). | new `Core/Support/DockThemeStyle.swift`; edit `App/Composition/AppSettingsStore.swift` | new `DockThemeStyleTests` (resolution matrix: auto×light/dark/system, pinned override, unknown-key fallback) |
 | **4b — preset data** | Pure value tables for all 12 presets + `customRGBA`: base tint, gradient sheen/glow/rim, blur, `prefersDarkContent` flag — tungsten-format ports of EdgeDeck `GradientThemeSpec`/`ThemedGlassBackground` numbers. Value-frozen per preset × light/dark. | new `Core/Support/DockThemeStyleTokens.swift` (no SwiftUI import, per `DockThemeTokens` discipline) | new `DockThemeStyleTokensTests` (every preset × appearance column frozen; all fields finite; rim ≤ shadow budget) |
 | **4c — glass + strip application** | Wire resolution into `DockTheme.resolved(for:)` → tint/rim/shadow tokens per theme; glass plate (`DockGlassBackdrop` + `DockLiquidGlassConfiguration`) honors preset tint; strip/drawer/capsule/popups/tooltip read themed tokens (all six panels — material consistency is load-bearing, cf. 2026-08-17 glass lesson). Default `auto` still visually ≈ today. | edit `App/Scenes/DockTheme.swift`, `Core/Support/DockThemeTokens.swift`, `App/Scenes/DockGlassBackdrop.swift`, `Core/Support/DockLiquidGlassConfiguration.swift`; read sites across `DockStripView`/`DrawerView`/`StackPopupBackdrop`/`WindowTitleTooltip` | extend `DockThemeTests` (light/dark columns now themed; contrast tests rerun) |
-| **4d — widget: weather** | DockBar `WeatherService` port as tungsten chip + popup in `.weather` slot (replaces 2c placeholder in split slots; joins `windows`/`centered` strip via existing `BarSection` grouping). Themed via 4c tokens. 12-language strings. | new `App/Composition/WeatherService.swift` + `App/Scenes/WeatherChip.swift`/popup; edit `DockStripView+Projection.swift` | new `WeatherServiceTests` (parse/mapping) + `check_localization.py` |
-| **4e — widget: clock/calendar** | DockBar `CalendarTrayButton`/`CalendarView` → clock chip + calendar popup in `.clock` slot (island 3 in split4; shares island with tray in split3 — cram rule). Themed, 12 languages. | new `App/Scenes/ClockChip.swift` + popup; edit projection | new clock/calendar unit tests + localization |
-| **4f — widget: tray cluster** | DockBar connectivity + battery + quick settings → tray chip + popup in `.tray` slot. Themed, 12 languages. | new `App/Scenes/TrayClusterChip.swift` + popup; edit projection | new tray tests + localization |
-| **4g — icon redesign** | Re-drawn folder / download / trash icons (distinct shapes, not recolors) + trash dynamic badge: **dot sized by GB** (small values) or **number of items** (large) — badge form decision is a pure Core function; drawn from themed tokens so light/dark/12-preset correct. `com.katikati.iconSet` key (`modern` default). | new `Core/Support/TrashBadgeDecision.swift` + icon assets; edit `TrashChip`/folder chip views | new `TrashBadgeDecisionTests` (GB→dot, count→number, threshold, empty) |
+| **4d — widget: weather** | **Eyeball-only** (§5b rule): study DockBar `WeatherService` fetch/parse approach, write fresh service in tungsten style + tungsten chip + popup in `.weather` slot (replaces 2c placeholder in split slots; joins `windows`/`centered` strip via existing `BarSection` grouping). Themed via 4c tokens. 12-language strings. | new `App/Composition/WeatherService.swift` + `App/Scenes/WeatherChip.swift`/popup; edit `DockStripView+Projection.swift` | new `WeatherServiceTests` (parse/mapping) + `check_localization.py` |
+| **4e — widget: clock/calendar** | **Eyeball-only** (§5b rule): study DockBar calendar layout, write fresh clock chip + calendar popup in `.clock` slot (island 3 in split4; shares island with tray in split3 — cram rule). Themed, 12 languages. | new `App/Scenes/ClockChip.swift` + popup; edit projection | new clock/calendar unit tests + localization |
+| **4f — widget: tray cluster** | **Eyeball-only** (§5b rule): study DockBar connectivity/battery/quick-settings state handling, write fresh tray chip + popup in `.tray` slot. Themed, 12 languages. | new `App/Scenes/TrayClusterChip.swift` + popup; edit projection | new tray tests + localization |
+| **4g — icon redesign** | Re-drawn folder / download / trash icons per the **line set** spec (Phase-4 visual direction): wire-mesh trash can, arrow+tray downloads (special-cased on the Downloads pinned folder), slanted-tab outline folder — distinct shapes, not recolors. Trash dynamic badge: **dot sized by GB** (small values) or **number of items** (large) — badge-form decision is a pure Core function; drawn from themed tokens so light/dark/12-preset correct. `com.katikati.iconSet` key (`modern` default, `classic` = familiar fallback). | new `Core/Support/TrashBadgeDecision.swift` + line-set art; edit `TrashChip`/folder chip views | new `TrashBadgeDecisionTests` (GB→dot, count→number, threshold, empty) |
 | **4h — visual lock** | Screenshot golden-set per theme (12) × appearance (2) for strip/drawer/popups; idle-CPU re-measure with widgets (timers are new CPU); full tungsten gate; phase-4 log + CHANGELOG + plan `Result:` line. | docs only + Instruments | full gate + CPU number in PR |
 
 Rules for all slices: each ends gate-green (`xcodebuild test` + `check_localization.py`
 + `check_debug_switches.py` + `check_availability_warnings.py`); ≤ ~300 lines per
 commit; widgets are placement-only (no strip-semantics change — Standing Rules §2.4);
-no new dependencies (EdgeDeck numbers are data, not code); UI/Settings picker stays
+donor reference = **eyeball-only** (§5b rule: DockBar studied, never copied); no new
+dependencies (EdgeDeck numbers are data, not code); UI/Settings picker stays
 Phase 6; `DOCK_THEME` stays a debug switch only (`check_debug_switches.py` registers it).
 
 ### Phase 5 — Hardening (native Dock, teardown, recovery drill)
@@ -600,10 +636,10 @@ Phase 6; `DOCK_THEME` stays a debug switch only (`check_debug_switches.py` regis
   `com.katikati.theme.material` (default `auto` = light `roseQuartz` / dark
   `obsidianDark`, all 12 presets + customRGBA selectable as a pinned override);
   appearance stays on the existing `appearanceMode` setting (no duplicate control).
-- **Icon-set config** (next to Appearance): re-drawn folder / download / trash +
+- **Icon-set config** (next to Appearance): the line-set folder / download / trash +
   status-menu item variants, controlled by a single key `com.katikati.iconSet`
-  (default `modern`) so all 12 theme presets and icon variants are independently
-  switchable.
+  (`modern` default | `classic` familiar fallback) as a segmented control, so all
+  12 theme presets and icon variants are independently switchable.
 - **Visual regression gate:** `check_localization.py` stays green; screenshot
   golden-set per theme + icon-set across all 12 languages; no `tungsten` brand
   marks on product chips or menu bar (section 5.5 of the Phase-0 trademark audit).

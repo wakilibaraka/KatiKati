@@ -15,6 +15,14 @@ struct DockGlassBackdrop: View {
     var saturation: Double = 1.0
     var thicknessEnabled: Bool = false
     var matchesDockRefraction: Bool = false
+    var baseTint: DockRGBA? = nil
+
+    private func themedConfiguration() -> DockLiquidGlassConfiguration {
+        var c = DockGlassPresentation.configuration
+        if let tint = baseTint { c.baseTint = tint }
+        return c
+    }
+
 
     var body: some View {
         Group {
@@ -31,7 +39,7 @@ struct DockGlassBackdrop: View {
             } else if #available(macOS 26.0, *), usesLiquidGlass {
                 DockLiquidGlassPlate(
                     cornerRadius: cornerRadius,
-                    configuration: DockGlassPresentation.configuration
+                    configuration: themedConfiguration()
                 )
                 // 玻璃自己就是一块视图，要显式退出命中测试；
                 // **不能挂在 Group 外面** —— 那样回退路径也会跟着变，而回退路径必须逐像素、
@@ -67,6 +75,14 @@ struct DockPanelBackdrop: View {
     let cornerRadius: CGFloat
     let usesLiquidGlass: Bool
     var matchesDockRefraction: Bool = false
+    var baseTint: DockRGBA? = nil
+
+    private func themedConfiguration() -> DockLiquidGlassConfiguration {
+        var c = DockGlassPresentation.configuration
+        if let tint = baseTint { c.baseTint = tint }
+        return c
+    }
+
 
     var body: some View {
         DockGlassBackdrop(material: theme.effectivePanelMaterial,
@@ -74,7 +90,8 @@ struct DockPanelBackdrop: View {
                           cornerRadius: cornerRadius,
                           saturation: theme.effectiveBackdropSaturation,
                           thicknessEnabled: theme.drawsEffectiveThickness,
-                          matchesDockRefraction: matchesDockRefraction)
+                          matchesDockRefraction: matchesDockRefraction,
+                          baseTint: theme.styleTokens.baseTint)
             .padding(-DockLiquidGlassConfiguration.backdropOutset(
                 usesLiquidGlass: usesLiquidGlass,
                 usesSystemVariant: DockGlassPresentation.usesSystemVariant))
@@ -387,8 +404,8 @@ private struct DockLiquidGlassPlate: View {
             cornerRadius: cornerRadius + inset,
             style: .continuous
         ).inset(by: inset)
-        let tint = Color(nsColor: NSColor(deviceWhite: 127.0 / 255.0, alpha: 1))
-            .opacity(configuration.clearTintOpacity)
+        let base = configuration.baseTint
+        let tint = base != nil ? Color(red: base!.r, green: base!.g, blue: base!.b).opacity(base!.a) : Color(nsColor: NSColor(deviceWhite: 127.0 / 255.0, alpha: 1)).opacity(configuration.clearTintOpacity)
 
         shape
             .fill(Color.clear)

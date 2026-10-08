@@ -6,8 +6,8 @@ import XCTest
 /// numbers, which are look and stay free to tune.
 final class DockThemeTests: XCTestCase {
     /// The light column; the tests below that say nothing else are about it.
-    private let theme = DockThemeTokens.light
-    private let dark = DockThemeTokens.dark
+    private let theme = DockThemeTokens.resolved(for: .light)
+    private let dark = DockThemeTokens.resolved(for: .dark)
     private let shadowPadding: CGFloat = 20
 
     // MARK: - 前景方向
@@ -386,8 +386,8 @@ final class DockThemeTests: XCTestCase {
     }
 
     func testResolvedColumnFollowsTheColourScheme() {
-        XCTAssertEqual(DockThemeTokens.resolved(for: .light), .light)
-        XCTAssertEqual(DockThemeTokens.resolved(for: .dark), .dark)
+        XCTAssertEqual(DockThemeTokens.resolved(for: .light), .light(styleTokens: DockThemeStyleTokens.resolve(style: .auto, appearance: .light)))
+        XCTAssertEqual(DockThemeTokens.resolved(for: .dark), .dark(styleTokens: DockThemeStyleTokens.resolve(style: .auto, appearance: .dark)))
     }
 
     /// The glass pill is tinted to the side opposite the text, like the flat pill it falls back to
@@ -435,3 +435,14 @@ private extension DockThemeTokens {
          tooltipRim, tooltipText, tooltipShadow.tint]
     }
 }
+
+    func testCustomThemeOverrides() {
+        let styleTokens = DockThemeStyleTokens.resolve(style: .roseQuartz, appearance: .light)
+        let resolved = DockThemeTokens.resolved(for: .light, style: .roseQuartz)
+        
+        // Assert that the tokens are now using the custom theme values.
+        XCTAssertEqual(resolved.panelRimTop, DockTint.rgba(styleTokens.rim))
+        XCTAssertEqual(resolved.panelRimBottom, DockTint.rgba(styleTokens.rim))
+        XCTAssertEqual(resolved.panelRimHighlighted, DockTint.rgba(styleTokens.glow))
+        XCTAssertEqual(resolved.panelInnerHighlight, DockTint.rgba(styleTokens.gradientSheen))
+    }

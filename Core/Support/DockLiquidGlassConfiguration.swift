@@ -88,6 +88,7 @@ struct DockLiquidGlassConfiguration: Equatable {
     /// Callers read it through `DockGlassPresentation.activeSystemVariant`, which checks
     /// `TEDockGlassSupportsSystemVariant()` first.
     let systemVariant: Int?
+    var baseTint: DockRGBA? = nil
 
     static let dockSystemVariant = 3
 
@@ -191,7 +192,8 @@ struct DockLiquidGlassConfiguration: Equatable {
                 fallback: 4
             ),
             backgroundPlateOpacity: 0.001,
-            systemVariant: systemVariant(DebugSwitch.liquidGlassSystemVariant.value(in: environment))
+            systemVariant: systemVariant(DebugSwitch.liquidGlassSystemVariant.value(in: environment)),
+            baseTint: nil
         )
     }
 

@@ -15,10 +15,39 @@ import SwiftUI
 // material and Liquid Glass follow, so text and plate always flip together. There is deliberately
 // no appearance-free accessor: a view that skipped the environment would stay light on a dark plate.
 
+
+struct DockThemeStyleKey: EnvironmentKey {
+    static let defaultValue: DockThemeStyle = .auto
+}
+
+extension EnvironmentValues {
+    var dockThemeStyle: DockThemeStyle {
+        get { self[DockThemeStyleKey.self] }
+        set { self[DockThemeStyleKey.self] = newValue }
+    }
+}
+
 extension DockThemeTokens {
+
     /// The column for a SwiftUI colour scheme (anything that is not `.dark` is light).
+    static func resolved(for colorScheme: ColorScheme, style: DockThemeStyle) -> DockThemeTokens {
+        let isDark = colorScheme == .dark
+        let appearance: AppearanceMode = isDark ? .dark : .light
+        let styleTokens = DockThemeStyleTokens.resolve(style: style, appearance: appearance)
+        
+        var base = isDark ? DockThemeTokens.dark(styleTokens: styleTokens) : DockThemeTokens.light(styleTokens: styleTokens)
+        
+        // Honor preset tint (if not auto, we override base fields)
+        if style != .auto {
+            base = base.with(styleTokens: styleTokens)
+        }
+        
+        return base
+    }
+    
+    // Fallback for views not yet updated
     static func resolved(for colorScheme: ColorScheme) -> DockThemeTokens {
-        colorScheme == .dark ? .dark : .light
+        resolved(for: colorScheme, style: .auto)
     }
 
     /// 实际生效的材质：`DOCK_PANEL_MATERIAL` 覆盖 token 值（认不出的名字回落，不崩）。
@@ -133,11 +162,11 @@ enum DockEffectSwitches {
         // 这两个不属于底板，但调对比度时和上面几个一起看，所以打在同一处。
         // Both overrides apply to whichever column is showing (opacity only).
         if let raw = DebugSwitch.chipPillFill.value(in: environment) {
-            let pair = DockThemeTokens.light.effectiveChipPillFill
+            let pair = DockThemeTokens.resolved(for: .light).effectiveChipPillFill
             print("[panel] DOCK_CHIP_PILL_FILL=\"\(raw)\" → 实际生效 常态 \(pair.normal.opacity) / 悬停 \(pair.emphasized.opacity)")
         }
         if let raw = DebugSwitch.labelInactive.value(in: environment) {
-            print("[panel] DOCK_LABEL_INACTIVE=\"\(raw)\" → 实际生效 \(DockThemeTokens.light.effectiveLabelInactive.opacity)")
+            print("[panel] DOCK_LABEL_INACTIVE=\"\(raw)\" → 实际生效 \(DockThemeTokens.resolved(for: .light).effectiveLabelInactive.opacity)")
         }
     }
 }
@@ -165,6 +194,7 @@ extension DockTint {
         switch base {
         case .white: return Color.white.opacity(opacity)
         case .black: return Color.black.opacity(opacity)
+        case .rgb(let rgba): return Color(red: rgba.r, green: rgba.g, blue: rgba.b).opacity(opacity)
         }
     }
 
