@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7A0000000000000000000001 /* WeatherState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C114D06ABCAC4B451E0F16A /* WeatherState.swift */; };
+		7A0000000000000000000002 /* WeatherResponseParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A284300AD2ED48333C88208 /* WeatherResponseParsing.swift */; };
 		5CB341E082E25B7D7886822F /* WeatherResponseParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A284300AD2ED48333C88208 /* WeatherResponseParsing.swift */; };
 		A00000000000000000000A101 /* MessagingZoneAdmission.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000A100 /* MessagingZoneAdmission.swift */; };
 		A00000000000000000000A102 /* MessagingZoneAdmission.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000A100 /* MessagingZoneAdmission.swift */; };
@@ -1976,6 +1978,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7A0000000000000000000001 /* WeatherState.swift in Sources */,
+				7A0000000000000000000002 /* WeatherResponseParsing.swift in Sources */,
 				A7A5000000000000000000C9 /* FinderTrash.swift in Sources */,
 				F1D0A0000000000000000012 /* FinderNewWindowTarget.swift in Sources */,
 				F1D0A0000000000000000014 /* FinderNewWindowTargetTests.swift in Sources */,
