@@ -109,10 +109,9 @@ extension PanelCoordinator {
         let screens = NSScreen.screens
         let fromIdx = screens.firstIndex(of: panelScreen).map { "\($0)" } ?? "?"
         let toIdx = screens.firstIndex(of: targetScreen).map { "\($0)" } ?? "?"
-        let actualWidth = PanelGeometry.dockTargetFrame(
+        let actualWidth = dockTargetFrame(
             contentWidth: lastDesiredWidth,
-            on: Self.screenGeometry(targetScreen),
-            metrics: layoutMetrics
+            on: targetScreen
         ).width - Self.shadowPadding * 2
         closeFolderPopup()   // 切屏后旧锚点在旧屏,弹窗收起
         dismissWindowTitleTooltip(suppressCurrentUntilExit: true)
