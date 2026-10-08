@@ -302,6 +302,9 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         coordinator.onHoverMonitorsNeedReconcile = { [weak self] in self?.reconcileHoverMouseMonitors() }
         coordinator.onPanelScreenChanged = { [weak self] in self?.pushPanelScreensToIntentMonitor() }
         coordinator.onLogicalVisibilityChanged = { [weak self] _ in self?.reconcileBadgeGate() }
+        coordinator.onQueryBarBoundingFrame = { [weak self] in
+            self?.boundingFrame(forDisplayUUID: slotKey.display) ?? .zero
+        }
         coordinator.onAccessoryWillOpen = { [weak self] unit, kind in
             self?.closeAccessories(exceptFor: unit, opening: kind)
         }

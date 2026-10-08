@@ -56,6 +56,32 @@ private struct UnitBezierEase {
 extension PanelCoordinator {
     // MARK: - 文件夹/废纸篓弹窗（克隆抽屉模板：懒面板 + 普通容器包 hosting + 淡入淡出 + click-away 监视器）
 
+    /// Opens or toggles a popup anchored to a chip's local frame within this island.
+    func togglePopup(content: PopupContent, localFrame: CGRect) {
+        let screenAnchor = screenFrame(forLocalFrame: localFrame)
+        switch content {
+        case let .folder(path):
+            toggleFolderPopup(path: path, anchorVisibleRect: screenAnchor)
+        case .shelf:
+            toggleShelfPopup(anchorVisibleRect: screenAnchor)
+        case .trash:
+            toggleTrashPopup(anchorVisibleRect: screenAnchor)
+        }
+    }
+
+    /// Opens or toggles a whole-bar popup anchored to the union bounding frame of all islands on this display.
+    func toggleWholeBarPopup(content: PopupContent) {
+        let anchor = barBoundingFrame
+        switch content {
+        case let .folder(path):
+            toggleFolderPopup(path: path, anchorVisibleRect: anchor)
+        case .shelf:
+            toggleShelfPopup(anchorVisibleRect: anchor)
+        case .trash:
+            toggleTrashPopup(anchorVisibleRect: anchor)
+        }
+    }
+
     /// chip 点击入口：同一文件夹再点 = 收起；换文件夹 = 瞬时切换目标。anchorVisibleRect 是 chip 可视矩形（屏幕坐标）。
     func toggleFolderPopup(path: String, anchorVisibleRect: CGRect) {
         if folderPopupWantsOpen, openPopupContent == .folder(path: path) {

@@ -556,6 +556,16 @@ final class PanelCoordinator: NSObject {
         )
     }
 
+    /// Callback querying the whole-bar bounding frame on this coordinator's display.
+    var onQueryBarBoundingFrame: (() -> CGRect)?
+
+    /// The bounding frame of the entire bar on this coordinator's display (union of all island frames).
+    /// Falls back to dockVisibleFrame if no query callback is attached.
+    var barBoundingFrame: CGRect {
+        let queried = onQueryBarBoundingFrame?() ?? .zero
+        return queried != .zero ? queried : dockVisibleFrame
+    }
+
     // MARK: - Window title tooltip
 
     /// 离开宽限：`.exit` 之后不立刻收，等这么久。**这条是「跟手」的关键。**

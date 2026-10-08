@@ -8,6 +8,11 @@ import os
 // PanelCoordinator · 窗口标题气泡：专属面板的展示 / 宽限 / 看门狗 / 鼠标监视。
 // 2026-09-05 从 PanelCoordinator.swift 按 extension 拆出，只搬不改。
 extension PanelCoordinator {
+    /// Window title tooltip anchor calculation for a chip with a local frame on this island.
+    func tooltipAnchor(forLocalFrame localFrame: CGRect) -> CGRect {
+        screenFrame(forLocalFrame: localFrame)
+    }
+
     func handleWindowTitleTooltipEvent(_ event: WindowTitleTooltipEvent) {
         switch event {
         case let .update(request):
