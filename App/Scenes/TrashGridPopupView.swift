@@ -86,8 +86,8 @@ struct TrashGridPopupView: View {
         return menu
     }
 
-    /// The light rendition on purpose, whatever the app's appearance (`TrashIconArt`).
-    private static let emptyIcon: NSImage = TrashIconArt.lightFull
+    /// The native empty trash icon for the grid popup.
+    private static let emptyIcon: NSImage = NSImage(named: NSImage.trashFullName) ?? NSImage()
 }
 
 /// Type icons by extension: the files themselves cannot be read without Full Disk Access.

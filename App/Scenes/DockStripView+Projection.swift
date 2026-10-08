@@ -240,13 +240,27 @@ extension DockStripView {
         var zones = [headEntries, liveWithGhost, tailEntries]
             .map { zone in zone.filter { $0.id != collapsedEntryID } }
             .filter { !$0.isEmpty }
-        var entries: [StripEntry] = []
+        var appsEntries: [StripEntry] = []
         if !zones.isEmpty {
-            entries = zones.removeFirst()
+            appsEntries = zones.removeFirst()
             for (index, zone) in zones.enumerated() {
                 let dividerID = zone.first?.id == "trash" ? "zone-divider-trash" : "zone-divider-\(index)"
-                entries.append(.divider(id: dividerID))
-                entries += zone
+                appsEntries.append(.divider(id: dividerID))
+                appsEntries += zone
+            }
+        }
+        var finalEntries: [StripEntry] = []
+        for section in hostedSections {
+            if section == .apps {
+                if !finalEntries.isEmpty {
+                    finalEntries.append(.divider(id: "layout-divider-pre-apps"))
+                }
+                finalEntries += appsEntries
+            } else {
+                if !finalEntries.isEmpty {
+                    finalEntries.append(.divider(id: "layout-divider-\(section.rawValue)"))
+                }
+                finalEntries.append(.sectionPlaceholder(section: section))
             }
         }
         let messagingIDs = messaging.compactMap { entry -> String? in
@@ -256,7 +270,7 @@ extension DockStripView {
         // 角标落点：常规区里每个 app 显示序最左的那张窗口卡 / 占位卡。消息区成员跳过——
         // 它的红点在区里那枚图标上，独立聊天窗的卡不能再画一个。
         var badgeEntryIDByBundle: [String: String] = [:]
-        for entry in entries {
+        for entry in appsEntries {
             switch entry {
             case let .window(item):
                 guard let bid = item.bundleIdentifier, !msgSet.contains(bid) else { continue }
@@ -285,7 +299,7 @@ extension DockStripView {
             // app 级兜底卡，两者都当不了 `StripItem` 代表卡，跟着代表卡走就永远不让位（双影）。
             draggingID = converted
         } else if let bid = dragController.convertedDrawerBundleID,
-                  let materialized = entries.lazy.compactMap({ entry -> String? in
+                  let materialized = finalEntries.lazy.compactMap({ entry -> String? in
                       switch entry {
                       case let .window(item): return item.bundleIdentifier == bid ? item.id : nil
                       case let .keptApp(id): return id == bid ? entry.id : nil
@@ -310,8 +324,8 @@ extension DockStripView {
             liveOrderIDs: liveOrderIDs,
             appKeyByChipID: appKeys,
             labelTitleByChipID: labelTitleByChipID,
-            entries: entries,
-            layoutKeys: entries.map(StripLayoutKey.init),
+            entries: finalEntries,
+            layoutKeys: finalEntries.map(StripLayoutKey.init),
             messagingIDs: messagingIDs,
             draggingID: draggingID,
             badgeEntryIDByBundle: badgeEntryIDByBundle

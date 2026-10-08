@@ -9,11 +9,14 @@ public struct WeatherChip: View {
     public var body: some View {
         let theme = DockThemeTokens.resolved(for: colorScheme)
         
-        HStack(spacing: 6) {
+        HStack(spacing: 8) {
             Image(systemName: weatherService.currentState.symbolName)
-                .renderingMode(.template)
+                .symbolRenderingMode(.multicolor)
+                .font(.system(size: 16))
+                .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
+            
             Text(verbatim: "\(Int(round(weatherService.currentState.temperatureCelsius)))°")
-                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .font(.system(size: 14, weight: .bold, design: .rounded))
             
             if !weatherService.currentState.isLive {
                 Image(systemName: "exclamationmark.arrow.triangle.2.circlepath")

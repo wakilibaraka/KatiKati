@@ -145,7 +145,7 @@ enum IslandLayoutSolver {
             // Position trailing islands from right to left.
             for (index, sections) in islandSections.enumerated().reversed() {
                 guard let width = fixedWidth(sections) else { continue }
-                if sections == [.weather] {
+                if sections.contains(.weather) {
                     frames[index] = CGRect(x: screenOriginX + effectiveMargin, y: y, width: width, height: barHeight)
                     continue
                 }
