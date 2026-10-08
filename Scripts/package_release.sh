@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# Build, sign, notarize, and package Tungsten Edge for public distribution.
+# Build, sign, notarize, and package KatiKati for public distribution.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PROJECT="$ROOT/macos-dock-cc-v2.xcodeproj"
-SCHEME="macos-dock-cc-v2"
-ENTITLEMENTS="$ROOT/Resources/TungstenEdge.entitlements"
+PROJECT="$ROOT/KatiKati.xcodeproj"
+SCHEME="KatiKati"
+ENTITLEMENTS="$ROOT/Resources/KatiKati.entitlements"
 LICENSE_FILE="$ROOT/LICENSE"
 
-APP_NAME="Tungsten Edge"
-VOL_NAME="Tungsten Edge 钨极"
+APP_NAME="KatiKati"
+VOL_NAME="KatiKati"
 
 DD="$ROOT/build/ReleaseDD"
 DIST="$ROOT/dist"
 PRODUCTS="$DD/Build/Products/Release"
-BUILD_LOG="${TMPDIR:-/tmp}/tungsten-edge-package-build.log"
-TEST_LOG="${TMPDIR:-/tmp}/tungsten-edge-package-tests.log"
+BUILD_LOG="${TMPDIR:-/tmp}/katikati-package-build.log"
+TEST_LOG="${TMPDIR:-/tmp}/katikati-package-tests.log"
 
 DEVELOPER_ID_APPLICATION="${DEVELOPER_ID_APPLICATION:-Developer ID Application: Suzhou Mubai Creativity Design Co., Ltd. (DRPT2MJQD5)}"
-NOTARY_KEYCHAIN_PROFILE="${NOTARY_KEYCHAIN_PROFILE:-tungsten-edge-notary}"
+NOTARY_KEYCHAIN_PROFILE="${NOTARY_KEYCHAIN_PROFILE:-katikati-notary}"
 
 TEMP_ROOT=""
 
@@ -304,7 +304,7 @@ grep -E 'Executed [0-9]+ tests, with 0 failures' "$TEST_LOG" | tail -n 1
 python3 "$ROOT/Scripts/check_availability_warnings.py" "$TEST_LOG" \
   || die "build log has cross-version conformance warnings - they crash at launch on the minimum supported macOS"
 
-TEMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/tungsten-edge-release.XXXXXX")"
+TEMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/katikati-release.XXXXXX")"
 STAGE="$TEMP_ROOT/stage"
 DMG_STAGE="$TEMP_ROOT/dmg-stage"
 NEW_DIST="$TEMP_ROOT/dist"
@@ -386,7 +386,7 @@ codesign_with_timestamp --force \
 verify_app "$APP"
 verify_sparkle_configuration "$APP"
 
-NOTARY_ZIP="$TEMP_ROOT/Tungsten-Edge-$VERSION-notarization.zip"
+NOTARY_ZIP="$TEMP_ROOT/KatiKati-$VERSION-notarization.zip"
 ditto -c -k --keepParent "$APP" "$NOTARY_ZIP"
 notarize_and_require_acceptance "$NOTARY_ZIP" "$TEMP_ROOT/app-notary.json" "app archive"
 
@@ -396,7 +396,7 @@ verify_app "$APP"
 verify_app_gatekeeper "$APP"
 
 echo "==> Creating final Homebrew ZIP"
-ZIP="$NEW_DIST/Tungsten-Edge-$VERSION.zip"
+ZIP="$NEW_DIST/KatiKati-$VERSION.zip"
 (cd "$STAGE" && ditto -c -k --keepParent "$APP_NAME.app" "$ZIP")
 verify_zip "$ZIP"
 
@@ -405,7 +405,7 @@ ditto "$APP" "$DMG_STAGE/$APP_NAME.app"
 cp "$LICENSE_FILE" "$DMG_STAGE/LICENSE"
 ln -s /Applications "$DMG_STAGE/Applications"
 cmp -s "$LICENSE_FILE" "$DMG_STAGE/LICENSE" || die "DMG stage is missing the exact GPL license text"
-DMG="$NEW_DIST/Tungsten-Edge-$VERSION.dmg"
+DMG="$NEW_DIST/KatiKati-$VERSION.dmg"
 # ULMO (LZMA) opens on macOS 10.15+; the deployment target is 12. The ZIP stays as is.
 hdiutil create -volname "$VOL_NAME" -srcfolder "$DMG_STAGE" -ov -format ULMO "$DMG" >/dev/null
 codesign_with_timestamp --force --sign "$DEVELOPER_ID_APPLICATION" --timestamp "$DMG"
@@ -441,9 +441,9 @@ DSYM="$PRODUCTS/$FULL_PRODUCT_NAME.dSYM"
 DSYM_UUIDS="$(dwarfdump --uuid "$DSYM" | awk '{print $2}' | sort)"
 APP_UUIDS="$(dwarfdump --uuid "$APP/Contents/MacOS/$EXECUTABLE_NAME" | awk '{print $2}' | sort)"
 [[ "$DSYM_UUIDS" == "$APP_UUIDS" ]] || die "dSYM UUIDs do not match the signed app - the archive would be useless"
-DSYM_ARCHIVE_DIR="${TUNGSTEN_DSYM_DIR:-$HOME/tungsten-edge-appcast/dsym}"
+DSYM_ARCHIVE_DIR="${KATIKATI_DSYM_DIR:-$HOME/katikati-appcast/dsym}"
 mkdir -p "$DSYM_ARCHIVE_DIR"
-DSYM_ZIP="$DSYM_ARCHIVE_DIR/Tungsten-Edge-$VERSION.app.dSYM.zip"
+DSYM_ZIP="$DSYM_ARCHIVE_DIR/KatiKati-$VERSION.app.dSYM.zip"
 ditto -c -k --sequesterRsrc --keepParent "$DSYM" "$DSYM_ZIP"
 echo "==> dSYM archived: $DSYM_ZIP"
 

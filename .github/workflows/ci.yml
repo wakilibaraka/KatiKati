@@ -14,7 +14,7 @@ on:
   push:
     branches: ['**']
   pull_request:
-    branches: [master]
+    branches: [main]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -46,8 +46,8 @@ jobs:
           set -o pipefail
           mkdir -p build
           xcodebuild test \
-            -project macos-dock-cc-v2.xcodeproj \
-            -scheme macos-dock-cc-v2 \
+            -project KatiKati.xcodeproj \
+            -scheme KatiKati \
             -configuration Debug \
             -derivedDataPath build/DerivedData \
             -destination 'platform=macOS' \

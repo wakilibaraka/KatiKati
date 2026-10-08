@@ -13,9 +13,9 @@ VERSION="${1:-}"
 [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "error: version must look like X.Y.Z, got '$VERSION'" >&2; exit 2; }
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-LOCAL_ZIP="$ROOT/dist/Tungsten-Edge-$VERSION.zip"
-DOWNLOAD_BASE="${DOWNLOAD_BASE:-https://tungstenedge.app/download}"
-REMOTE_URL="$DOWNLOAD_BASE/Tungsten-Edge-$VERSION.zip"
+LOCAL_ZIP="$ROOT/dist/KatiKati-$VERSION.zip"
+DOWNLOAD_BASE="${DOWNLOAD_BASE:-https://github.com/wakilibaraka/KatiKati/releases/download/v$VERSION}"
+REMOTE_URL="$DOWNLOAD_BASE/KatiKati-$VERSION.zip"
 
 fail=0
 note() { printf '%s\n' "$*"; }
@@ -33,7 +33,7 @@ else
 fi
 
 # 2. what the website actually serves
-TMP="$(mktemp -t tungsten-verify.XXXXXX)"
+TMP="$(mktemp -t katikati-verify.XXXXXX)"
 trap 'rm -f "$TMP"' EXIT
 if curl -fsSL --retry 2 -o "$TMP" "$REMOTE_URL"; then
   REMOTE_SHA="$(sha_of "$TMP")"

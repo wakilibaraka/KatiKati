@@ -21,17 +21,17 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PROJECT="$ROOT/macos-dock-cc-v2.xcodeproj"
-SCHEME="macos-dock-cc-v2"
-BUILT_NAME="macos-dock-cc-v2"
-APP_NAME="Tungsten Edge"
+PROJECT="$ROOT/KatiKati.xcodeproj"
+SCHEME="KatiKati"
+BUILT_NAME="KatiKati"
+APP_NAME="KatiKati"
 DEST="/Applications/$APP_NAME.app"
-ENTITLEMENTS="$ROOT/Resources/TungstenEdge.entitlements"
+ENTITLEMENTS="$ROOT/Resources/KatiKati.entitlements"
 DD="$ROOT/build/LocalReleaseDD"
 PRODUCTS="$DD/Build/Products/Release"
 
-DEVELOPER_ID="${DEVELOPER_ID_APPLICATION:-Developer ID Application: Suzhou Mubai Creativity Design Co., Ltd. (DRPT2MJQD5)}"
-FALLBACK_IDENTITY="macos-dock-cc Local Code Signing"
+DEVELOPER_ID="${DEVELOPER_ID_APPLICATION:-}"
+FALLBACK_IDENTITY="KatiKati Local Code Signing"
 
 [[ -f "$ENTITLEMENTS" ]] || { echo "error: 找不到 entitlements：$ENTITLEMENTS" >&2; exit 1; }
 
@@ -60,7 +60,7 @@ xcodebuild -project "$PROJECT" -scheme "$SCHEME" -configuration Release \
   -derivedDataPath "$DD" \
   ARCHS="x86_64 arm64" ONLY_ACTIVE_ARCH=NO \
   CLANG_COVERAGE_MAPPING=NO \
-  build >/tmp/tungsten-local-install.log 2>&1
+  build >/tmp/katikati-local-install.log 2>&1
 echo "    ok"
 
 STAGE="$(mktemp -d)"
