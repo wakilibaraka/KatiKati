@@ -528,6 +528,15 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
 - New "Layout" `SettingsTab` (mode picker with live thumbnails drawn from
   `IslandLayoutSolver`), `WelcomeGuideView` pick-a-layout step, status-menu mode entry;
   height/gap/width sliders reuse tungsten's `DockPanelHeight` scaling path.
+- **Bottom-edge hug toggle** (owner 2026-10-08: tungsten's 8pt floating default
+  kept, hug opt-in): new `com.katikati.layout.bottomGap` (default 8 = current
+  floating; preset Hugging 2, slider 0…12) as a segmented control/slider on the
+  Layout tab. Single substitution in `DockPanelHeight.metrics` (replaces the
+  literal `8`); all four modes + capsule + drawer follow automatically
+  (`dockTargetFrame`/`islandTargetFrame`/`bottomMargin` already thread it).
+  Edge bars (Phase 7) default to hugging; bottom islands default to floating.
+  Tests: hug-value bottom-anchoring cases alongside the existing
+  `bottomGap 8 − shadowPadding 20` pins; solver `validate()` unchanged.
 - Polish: hover-title tooltips per island, drag-to-resize grip per island panel,
   edge auto-hide delay interplay with multi-island layouts.
 - **Verify**: mode/width/gaps persist across restarts; switch without relaunch; onboarding
@@ -586,7 +595,7 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
 ## 9. Acceptance criteria
 
 1. All four required modes render on the built-in display; switchable from Settings
-   without relaunch; mode/width/gaps persist across restarts.
+   without relaunch; mode/width/gaps/bottom-offset persist across restarts.
 2. Tungsten gate green: `xcodebuild test … CODE_SIGNING_ALLOWED=NO` (~1,300 + new
    `IslandLayoutSolver`/placement/migration tests) + localization + debug-switch +
    conformance checks; no regressions.
@@ -649,6 +658,9 @@ Rules:
   tungsten clamp validation; fullscreen hides all panels on that display atomically.
 - Section rule: edge bars never host `apps` window chips (islands own them);
   launcher never owns panels (anchored flyout only).
+- Bottom offset: edge bars default to hugging (2pt); bottom islands default to
+  floating (8pt, tungsten original) with the Phase 6 `com.katikati.layout.bottomGap`
+  toggle (Hugging 2 / slider 0…12).
 
 ---
 
