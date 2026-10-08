@@ -527,6 +527,7 @@
 		BB0000000000000000000027 /* IslandPanelGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000026 /* IslandPanelGeometryTests.swift */; };
 		BB0000000000000000000029 /* IslandStripProjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000028 /* IslandStripProjectionTests.swift */; };
 		BB0000000000000000000031 /* IslandAnchorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000030 /* IslandAnchorTests.swift */; };
+		BB0000000000000000000033 /* AtomicFullscreenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000032 /* AtomicFullscreenTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -899,6 +900,7 @@
 		BB0000000000000000000026 /* IslandPanelGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandPanelGeometryTests.swift; sourceTree = "<group>"; };
 		BB0000000000000000000028 /* IslandStripProjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandStripProjectionTests.swift; sourceTree = "<group>"; };
 		BB0000000000000000000030 /* IslandAnchorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandAnchorTests.swift; sourceTree = "<group>"; };
+		BB0000000000000000000032 /* AtomicFullscreenTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicFullscreenTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1420,6 +1422,7 @@
 				BB0000000000000000000026 /* IslandPanelGeometryTests.swift */,
 				BB0000000000000000000028 /* IslandStripProjectionTests.swift */,
 				BB0000000000000000000030 /* IslandAnchorTests.swift */,
+				BB0000000000000000000032 /* AtomicFullscreenTests.swift */,
 				D10000000000000000000007 /* SettingsCoordinatorTests.swift */,
 				D10000000000000000000009 /* AccessoryWindowPresentationTests.swift */,
 				D10000000000000000000042 /* StripContextMenuZoneTests.swift */,
@@ -1996,6 +1999,7 @@
 				BB0000000000000000000027 /* IslandPanelGeometryTests.swift in Sources */,
 				BB0000000000000000000029 /* IslandStripProjectionTests.swift in Sources */,
 				BB0000000000000000000031 /* IslandAnchorTests.swift in Sources */,
+				BB0000000000000000000033 /* AtomicFullscreenTests.swift in Sources */,
 				A00000000000000000009F02 /* GlobalHotKeyMonitor.swift in Sources */,
 				F1A0000000000000000000A2 /* HotKeyShortcutValidation.swift in Sources */,
 				F1A0000000000000000000B2 /* HotKeyGlyphs.swift in Sources */,

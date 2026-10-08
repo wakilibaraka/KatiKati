@@ -549,18 +549,28 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         fullscreenIntentMonitor?.updatePanelScreens(currentPanelScreenCGFrames)
     }
 
+    /// Units belonging to a given display (or all units if uuid is nil).
+    func units(forDisplayUUID uuid: String? = nil) -> [Unit] {
+        if let uuid {
+            return units.filter { $0.key == uuid }
+        } else {
+            return units
+        }
+    }
+
     /// Union of all dock island frames on the given display (or all units if displayUUID is nil).
     /// Used for whole-bar popup anchoring per HYBRID_PLAN.md §Phase 2.
     func boundingFrame(forDisplayUUID uuid: String? = nil) -> CGRect {
-        let matching: [Unit]
-        if let uuid {
-            matching = units.filter { $0.key == uuid }
-        } else {
-            matching = units
-        }
+        let matching = units(forDisplayUUID: uuid)
         let frames = matching.map(\.coordinator.dockVisibleFrame).filter { $0 != .zero }
         guard let first = frames.first else { return .zero }
         return frames.dropFirst().reduce(first) { $0.union($1) }
+    }
+
+    /// All resident panels across all units on a display (or all displays if uuid is nil).
+    /// Covers every island slot for Spaces membership and private overlay pinning.
+    func allSpacesPanels(forDisplayUUID uuid: String? = nil) -> [NSPanel] {
+        units(forDisplayUUID: uuid).flatMap { $0.coordinator.allSpacesPanels }
     }
 
     // MARK: - 鼠标移动监视器（全进程一套，转发给每个单元）
