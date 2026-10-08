@@ -510,10 +510,44 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
 - Drawer/shelf/trash/folder/badge/messaging/kept-apps behavior unchanged; widgets join
   the existing strip filtering + overflow model (`apps` remains the only
   overflow-capable section).
-- **Verify**: widgets render in every mode/island per Appendix A; popups anchor to own
-  island; localization + debug-switch checks green.
+- **Visual direction — themes + icon redesign** (owner 2026-10-08). Separated from
+  widget porting so the strip geometry and popups are wired before the look changes.
+  - **Chosen theme:** `Deep Ocean` (EdgeDeckBar `DockMaterialStyle` preset #1) as the
+    KatiKati visual identity. Chosen to sit a *tiny* bit apart from tungsten's clean
+    glass — a calm blue-undertone base at ~86% opacity plus a 16pt blur, with the
+    watermark tint kept under 12% so the distinction reads at a glance, not a
+    redesign. Do **not** copy EdgeDeckBar's full pipeline; only the palette and the
+    12-preset concept are lifted. All 12 `DockMaterialStyle` presets are selectable
+    (system/translucent/crystalClear/obsidianDark/monochrome/titaniumFrost/auroraGlow/
+    deepOcean/forestMoss/cyberpunkGlass/emberSunset/roseQuartz + `customRGBA`), so
+    "all of them can move" — nothing is blocked or removed, and the default stays on
+    the KatiKati variant.
+  - **"Kept" question:** no problem. Keeping the current tungsten-derived look as the
+    default while 12 themes become selectable removes no behavior, adds no dependency,
+    and means the first user-visible version ships the same stripped-down look
+    anyone has now. Themes are additive switches, not a non-default replacement.
+  - **Icon redesign** (Phase 6 UI too): folder / download / trash chips and the
+    status-menu item are re-drawn to feel distinct from tungsten, not merely recolored:
+    folder gains a subtle rounded base + light-on-dark fill; download gains a new
+    arc shape (not the flat arrow); trash gains a dynamic badge — **dot whose size = GB
+    of trash content, number = count of items** (e.g. `1GB`/dot or `12`/number,
+    dot chosen where the value is small, number where it is large). Both forms are
+    drawn from `DockThemeTokens`, so they stay correct across every theme and both
+    light/dark columns are tested, not eyeballed.
+  - **Persistence & migration:** `com.katikati.theme.material` (default =
+    `deepOcean`), `com.katikati.theme.appearance` (light/dark/system), and the
+    icon-set choice are stored in `AppSettingsStore` with a one-way `InstallLineage`
+    stamp so existing tungsten installs never silently flip. Debug-only hot-swaps
+    (`DOCK_THEME=<name>`) let Phase 4 tune look without re-running builds.
+  - **Tests:** one test per theme that value-frozen pixels/layer stack for light +
+    dark, plus a screenshot golden-set. Icon variants tested as a separate set.
+  - Scope: Phase 4 owns `DockThemeTokens` + `DockLiquidGlassConfiguration` + theme
+    presets + icon geometry; Phase 6 owns the Settings UI that exposes them (next to
+    the existing `com.katikati.layout.*` and `com.katikati.bottomGap` keys).
 
 ### Phase 5 — Hardening (native Dock, teardown, recovery drill)
+
+### Phase 6 — Settings Layout tab + welcome step + polish
 
 - Keep tungsten native-Dock services as the path; run the recovery drill: kill -9 during
   Dock-mutating states, SIGTERM/SIGINT teardown, crash-relaunch, dev-bypass guard.
@@ -538,6 +572,17 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
   Edge bars (Phase 7) default to hugging; bottom islands default to floating.
   Tests: hug-value bottom-anchoring cases alongside the existing
   `bottomGap 8 − shadowPadding 20` pins; solver `validate()` unchanged.
+- **Appearance tab** (new Settings tab, next to the existing Layout tab): the
+  theme/preset picker from Phase 4, using the same `com.katikati.*` domain:
+  `com.katikati.theme.material` (default `deepOcean`, all 12 presets + customRGBA),
+  `com.katikati.theme.appearance` (light/dark).
+- **Icon-set config** (next to Appearance): re-drawn folder / download / trash +
+  status-menu item variants, controlled by a single key `com.katikati.iconSet`
+  (default `modern`) so all 12 theme presets and icon variants are independently
+  switchable.
+- **Visual regression gate:** `check_localization.py` stays green; screenshot
+  golden-set per theme + icon-set across all 12 languages; no `tungsten` brand
+  marks on product chips or menu bar (section 5.5 of the Phase-0 trademark audit).
 - Polish: hover-title tooltips per island, drag-to-resize grip per island panel,
   edge auto-hide delay interplay with multi-island layouts.
 - **Verify**: mode/width/gaps persist across restarts; switch without relaunch; onboarding
