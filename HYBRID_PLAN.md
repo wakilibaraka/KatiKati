@@ -2,7 +2,7 @@
 
 **Tungsten Edge core × SplitBar-old 4 modes × DockBar widgets**
 
-Status: **PLANNED** · Plan v3 (tungsten-edge reorientation) · Date: 2026-10-08  
+Status: **Phase 0 DONE** (Baseline import + rebrand complete, 1,552 tests green) · Plan v3 · Date: 2026-10-08  
 New repo: `/Users/baraka/Desktop/Splitbar` (branch `main`) → remote `wakilibaraka/KatiKati`  
 Core snapshot: `moonbai-studio/tungsten-edge @ a4e1a55` (2026-10-07, `master`), clone at `/tmp/tungsten-edge`  
 Previous plan: v2 (`DockBar base × SplitBar-old modes × live-SplitBar segments`, commit `3d914c6`) — **superseded by this document.**  
@@ -430,6 +430,7 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
 - **Verify**: tungsten gate green; app launches via `Scripts/build_and_run.sh`, bar
   appears, settings + welcome guide open, window chips switch/minimize exactly as
   tungsten does (no behavior delta allowed in Phase 0).
+- **Result**: **DONE (2026-10-08)**. Clean import, rebrand to KatiKati (`com.katikati.app`), all 12 localizations verified, 1,552 tests green, tagged `v0.0.0-baseline`.
 
 ### Phase 1 — Layout model (pure, no UI)  ← risk retires here
 

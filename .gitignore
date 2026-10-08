@@ -38,5 +38,6 @@ CLAUDE.md
 Docs/*.md
 Docs/Archive/Diagnostics/
 Docs/Archive/Engineering/
-Docs/Archive/Planning/
+!Docs/Archive/Planning/
+!Docs/Archive/Planning/*.md
 Docs/Archive/Samples/
