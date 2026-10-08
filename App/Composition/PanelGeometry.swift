@@ -345,14 +345,19 @@ enum PanelGeometry {
     static func dockTargetFrame(
         contentWidth: CGFloat,
         on screen: PanelScreenGeometry,
+        placement: DrawerPlacement = .right,
         metrics: PanelLayoutMetrics = .tungstenEdge
     ) -> CGRect {
-        let trailing = metrics.capsuleGap + metrics.capsuleWidth
-        let maxWidth = screen.frame.width - 2 * metrics.outerMargin - trailing
+        let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth
+        let maxWidth = screen.frame.width - 2 * metrics.outerMargin - capsuleSpace
         let panelWidth = max(min(contentWidth, maxWidth), metrics.minimumDockWidth)
-        let x = screen.frame.minX + (screen.frame.width - (panelWidth + trailing)) / 2
+        
+        let totalWidth = panelWidth + capsuleSpace
+        let x = screen.frame.minX + (screen.frame.width - totalWidth) / 2
+        
+        let panelX = placement == .left ? x + capsuleSpace : x
         return CGRect(
-            x: x - metrics.shadowPadding,
+            x: panelX - metrics.shadowPadding,
             y: screen.frame.minY + metrics.bottomGap - metrics.shadowPadding,
             width: panelWidth + metrics.shadowPadding * 2,
             height: metrics.windowHeight
@@ -367,6 +372,7 @@ enum PanelGeometry {
         contentWidth: CGFloat,
         mode: BarLayoutMode,
         on screen: PanelScreenGeometry,
+        placement: DrawerPlacement = .right,
         metrics: PanelLayoutMetrics = .tungstenEdge,
         centeredWidth: CGFloat = 720,
         gap: CGFloat = 8,
@@ -374,16 +380,18 @@ enum PanelGeometry {
     ) -> CGRect {
         switch mode {
         case .windows:
-            return dockTargetFrame(contentWidth: contentWidth, on: screen, metrics: metrics)
+            return dockTargetFrame(contentWidth: contentWidth, on: screen, placement: placement, metrics: metrics)
 
         case .centered:
-            let trailing = metrics.capsuleGap + metrics.capsuleWidth
-            let maxWidth = screen.frame.width - 2 * max(0, margin) - trailing
+            let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth
+            let maxWidth = screen.frame.width - 2 * max(0, margin) - capsuleSpace
             let targetWidth = min(maxWidth, max(min(centeredWidth, maxWidth), contentWidth))
             let panelWidth = max(targetWidth, metrics.minimumDockWidth)
-            let x = screen.frame.minX + (screen.frame.width - (panelWidth + trailing)) / 2
+            let totalWidth = panelWidth + capsuleSpace
+            let x = screen.frame.minX + (screen.frame.width - totalWidth) / 2
+            let panelX = placement == .left ? x + capsuleSpace : x
             return CGRect(
-                x: x - metrics.shadowPadding,
+                x: panelX - metrics.shadowPadding,
                 y: screen.frame.minY + metrics.bottomGap - metrics.shadowPadding,
                 width: panelWidth + metrics.shadowPadding * 2,
                 height: metrics.windowHeight
@@ -392,6 +400,9 @@ enum PanelGeometry {
         case .split3, .split4:
             let tileStride = IslandLayoutSolver.tileStride(barHeight: metrics.panelHeight)
             let appCount = max(1, Int((contentWidth / tileStride).rounded()))
+            let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth
+            let remainder = contentWidth - (CGFloat(appCount) * tileStride)
+            
             let layout = IslandLayoutSolver.layout(
                 screenWidth: screen.frame.width,
                 mode: mode,
@@ -400,7 +411,7 @@ enum PanelGeometry {
                 weatherWidth: 120,
                 trayWidth: 140,
                 clockWidth: 100,
-                clusterWidth: 48,
+                clusterWidth: remainder + capsuleSpace,
                 gap: gap,
                 margin: margin,
                 barHeight: metrics.panelHeight,
@@ -410,13 +421,15 @@ enum PanelGeometry {
                 screenMinY: screen.frame.minY
             )
             guard slot < layout.islands.count else {
-                return dockTargetFrame(contentWidth: contentWidth, on: screen, metrics: metrics)
+                return dockTargetFrame(contentWidth: contentWidth, on: screen, placement: placement, metrics: metrics)
             }
             let island = layout.islands[slot]
+            let panelWidth = max(island.frame.width - capsuleSpace, metrics.minimumDockWidth)
+            let panelX = placement == .left ? island.frame.minX + capsuleSpace : island.frame.minX
             return CGRect(
-                x: island.frame.minX - metrics.shadowPadding,
+                x: panelX - metrics.shadowPadding,
                 y: island.frame.minY - metrics.shadowPadding,
-                width: island.frame.width + metrics.shadowPadding * 2,
+                width: panelWidth + metrics.shadowPadding * 2,
                 height: metrics.windowHeight
             )
         }
@@ -425,9 +438,12 @@ enum PanelGeometry {
     static func capsuleTargetFrame(
         forDock dockFrame: CGRect,
         on screen: PanelScreenGeometry,
+        placement: DrawerPlacement,
         metrics: PanelLayoutMetrics = .tungstenEdge
     ) -> CGRect {
-        let rawX = dockFrame.maxX - metrics.shadowPadding + metrics.capsuleGap
+        let rawX = placement == .left
+            ? dockFrame.minX + metrics.shadowPadding - metrics.capsuleGap - metrics.capsuleWidth
+            : dockFrame.maxX - metrics.shadowPadding + metrics.capsuleGap
         let rawY = dockFrame.minY + metrics.shadowPadding + (metrics.panelHeight - metrics.capsuleWidth) / 2
         let clampedX = min(max(rawX, screen.frame.minX), screen.frame.maxX - metrics.capsuleWidth)
         let clampedY = min(max(rawY, screen.frame.minY), screen.frame.maxY - metrics.capsuleWidth)

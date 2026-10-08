@@ -25,6 +25,11 @@ enum AppearanceMode: String, CaseIterable {
     }
 }
 
+enum DrawerPlacement: String, CaseIterable {
+    case left
+    case right
+}
+
 /// 悬停效果档位。
 /// - `standard`：图标 36→24pt 缩放 + 下方冒出名字 + 文件夹格整块放大（原生程序坞手感）。
 /// - `quiet`：鼠标划过任务条时**完全静止**——不缩放、不移动、不冒名字、胶囊底色不提亮。
@@ -110,6 +115,7 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var launchAtLogin: Bool
     /// 中转格是否显示在固定文件夹区头位。关掉后它不再渲染，暂存的文件不受影响。
     @Published private(set) var showShelf: Bool
+    @Published private(set) var drawerPlacement: DrawerPlacement
     @Published private(set) var showTrash: Bool
     /// 任务条尺寸档位。面板几何与条内所有 chip 尺寸都由它派生。
     @Published private(set) var dockPanelHeight: DockPanelHeight
@@ -187,6 +193,7 @@ final class AppSettingsStore: ObservableObject {
         // 从未写过时由下面的播种逻辑决定，而不是静默拿到一个注册出来的假历史值。
         defaults.register(defaults: [
             Keys.launchAtLogin: false,
+            Keys.drawerPlacement: DrawerPlacement.right.rawValue,
             Keys.showShelf: true,
             Keys.showTrash: true,
             Keys.fullscreenIntentEnabled: true,
@@ -200,6 +207,7 @@ final class AppSettingsStore: ObservableObject {
         ])
 
         launchAtLogin = defaults.bool(forKey: Keys.launchAtLogin)
+        drawerPlacement = DrawerPlacement(rawValue: defaults.string(forKey: Keys.drawerPlacement) ?? "") ?? .right
         showShelf = defaults.bool(forKey: Keys.showShelf)
         showTrash = defaults.bool(forKey: Keys.showTrash)
         barLayoutMode = BarLayoutMode(rawValue: defaults.string(forKey: Keys.barLayoutMode) ?? "") ?? .windows
@@ -422,6 +430,12 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value.rawValue, forKey: Keys.hoverStyle)
     }
 
+    func setDrawerPlacement(_ value: DrawerPlacement) {
+        guard drawerPlacement != value else { return }
+        drawerPlacement = value
+        defaults.set(value.rawValue, forKey: Keys.drawerPlacement)
+    }
+
     func setShowShelf(_ value: Bool) {
         guard showShelf != value else { return }
         showShelf = value
@@ -600,6 +614,7 @@ final class AppSettingsStore: ObservableObject {
 
 private enum Keys {
     static let launchAtLogin = "com.katikati.launchAtLogin"
+    static let drawerPlacement = "com.katikati.drawerPlacement"
     static let showShelf = "com.katikati.showShelf"
     // Never read the retired com.katikati.trash.visible key.
     static let showTrash = "com.katikati.showTrash"

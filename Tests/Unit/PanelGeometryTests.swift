@@ -543,7 +543,7 @@ final class PanelGeometryTests: XCTestCase {
         for height in sampleHeights {
             let m = height.metrics
             let dock = PanelGeometry.dockTargetFrame(contentWidth: 620, on: screen, metrics: m)
-            let capsule = PanelGeometry.capsuleTargetFrame(forDock: dock, on: screen, metrics: m)
+            let capsule = PanelGeometry.capsuleTargetFrame(forDock: dock, on: screen, placement: .right, metrics: m)
             // 非零原点屏幕也必须贴物理底边，且面板高度跟着条高走。
             XCTAssertEqual(dock.minY, screen.frame.minY + m.bottomGap - m.shadowPadding, "\(height.points)pt 底边")
             XCTAssertEqual(dock.height, m.windowHeight, "\(height.points)pt 面板高度")
@@ -561,7 +561,7 @@ final class PanelGeometryTests: XCTestCase {
         for height in sampleHeights {
             let m = height.metrics
             let dock = PanelGeometry.dockTargetFrame(contentWidth: 10_000, on: screen, metrics: m)
-            let capsule = PanelGeometry.capsuleTargetFrame(forDock: dock, on: screen, metrics: m)
+            let capsule = PanelGeometry.capsuleTargetFrame(forDock: dock, on: screen, placement: .right, metrics: m)
             let barVisible = dock.insetBy(dx: m.shadowPadding, dy: m.shadowPadding)
             let capsuleVisible = capsule.insetBy(dx: m.shadowPadding, dy: m.shadowPadding)
             XCTAssertEqual(barVisible.minX - screen.frame.minX, m.outerMargin, accuracy: 0.5, "\(height.points)pt 左边距")
@@ -585,7 +585,7 @@ final class PanelGeometryTests: XCTestCase {
         drawerSize: CGSize = CGSize(width: 210, height: 260)
     ) -> (dock: CGRect, capsule: CGRect, drawer: CGRect) {
         let dock = PanelGeometry.dockTargetFrame(contentWidth: contentWidth, on: screen, metrics: metrics)
-        let capsule = PanelGeometry.capsuleTargetFrame(forDock: dock, on: screen, metrics: metrics)
+        let capsule = PanelGeometry.capsuleTargetFrame(forDock: dock, on: screen, placement: .right, metrics: metrics)
         let drawer = PanelGeometry.drawerTargetFrame(forCapsule: capsule, size: drawerSize, on: screen, metrics: metrics)
         return (dock, capsule, drawer)
     }

@@ -300,6 +300,7 @@ extension PanelCoordinator {
             contentWidth: contentWidth,
             mode: settingsStore.barLayoutMode,
             on: Self.screenGeometry(screen),
+            placement: settingsStore.drawerPlacement,
             metrics: layoutMetrics,
             centeredWidth: CGFloat(settingsStore.centeredWidth),
             gap: CGFloat(settingsStore.islandGap),
@@ -317,7 +318,7 @@ extension PanelCoordinator {
 
     /// 胶囊目标 frame（贴任务条右边、纵向居中）。只依赖传入的 dock **目标** frame。
     private func capsuleTargetFrame(forDock dockFrame: NSRect, on screen: NSScreen) -> NSRect {
-        PanelGeometry.capsuleTargetFrame(forDock: dockFrame, on: Self.screenGeometry(screen), metrics: layoutMetrics)
+        PanelGeometry.capsuleTargetFrame(forDock: dockFrame, on: Self.screenGeometry(screen), placement: settingsStore.drawerPlacement, metrics: layoutMetrics)
     }
 
     /// 抽屉目标 frame（右边贴胶囊右边、**底边硬锚在胶囊上方、向上长**）。只依赖传入的胶囊 **目标** frame + 抽屉尺寸。

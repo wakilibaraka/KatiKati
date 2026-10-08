@@ -113,6 +113,11 @@ struct SettingsWindowContent: View {
                         hotKeyControls
                     }
                     HStack {
+                        Text("Drawer Position")
+                        Spacer(minLength: 12)
+                        drawerPlacementPicker
+                    }
+                    HStack {
                         scrollReverserLabel
                         Spacer(minLength: 12)
                         scrollReverserToggle
@@ -145,6 +150,14 @@ struct SettingsWindowContent: View {
                         Text("Show/hide taskbar shortcut")
                     } control: {
                         hotKeyControls
+                    }
+                    Divider().opacity(0.5)
+                    groupRow {
+                        Text("Drawer Position")
+                    } control: {
+                        drawerPlacementPicker
+                            .labelsHidden()
+                            .fixedSize()
                     }
                     Divider().opacity(0.5)
                     groupRow {
@@ -363,6 +376,20 @@ struct SettingsWindowContent: View {
 
     // 登录时启动 2026-08-24 当天两度搬家：随去重进过设置窗口，owner 复议后定为
     // **只在状态栏菜单（第一项）**。这里不再放它，也不再需要 didBecomeActive 刷新。
+
+    private var drawerPlacementPicker: some View {
+        Picker(
+            "Drawer Position",
+            selection: Binding(
+                get: { store.drawerPlacement },
+                set: { store.setDrawerPlacement($0) }
+            )
+        ) {
+            Text("Left").tag(DrawerPlacement.left)
+            Text("Right").tag(DrawerPlacement.right)
+        }
+        .pickerStyle(.menu)
+    }
 
     /// 界面语言（2026-08-24 加，2026-09-01 由三档收成两档、删掉「跟随系统」，见 `Docs/27`）。
     /// 写**应用自己域**的 `AppleLanguages`（与 macOS 13+ 逐 App 语言同一个键），重启生效。
