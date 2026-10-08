@@ -17,3 +17,33 @@ This project is derived from and incorporates code from the following works:
 - Copyright (C) Emmanuel Baraka
 - License: MIT License
 - Description: Donor source for widget components (battery, clock, status items) and layout utilities. Code to be integrated in future phases.
+
+## 4. EdgeDeckBar (Placeholder — Phase 7 §5e)
+- Repository: https://github.com/senoldogann/EdgeDeckBar
+- Copyright (C) 2026 senoldogann
+- License: MIT License
+- Description: Planned donor for edge geometry, auto-hide handle, magnification, reorder, all 6 widgets (system monitor, clipboard, weather, now-playing, bluetooth, quick-notes), and ⌥Space palette dispatch (widgets-only, option (a)). No code ported yet.
+
+## 5. noty (Placeholder — Phase 7 §5e, inspo only)
+- Repository: https://github.com/aimen08/noty
+- Copyright (C) aimen08
+- License: MIT License
+- Description: Planned refinement source for notes backing store (SQLite + AES-GCM), `SyncPlan` decision table, iCloud-Drive-folder sync, one-deck-per-display state machine, NSTextView editor, `.md` front-matter, image store, and undo toast. No code ported yet.
+
+## 6. arc-menu for macOS (Placeholder — Phase 7 §5e, launcher base)
+- Repository: https://github.com/egemenince-git/arc-menu-for-macos
+- Copyright (C) egemenince-git
+- License: MIT License
+- Description: Planned launcher base (app enumeration, pinned/recent/groups, per-app aliases, CLI-by-path). No code ported yet.
+
+## 7. Volant (Placeholder — Phase 7 §5e, launcher patterns)
+- Repository: https://github.com/mysticcoders/volant
+- Copyright (C) Mystic Coders
+- License: MIT License
+- Description: Planned pattern source for launcher ranking, ⌘K alias/hotkey editor, portable text config, encrypted clipboard-history shape, and notes-as-`.md`. No code ported yet.
+
+## 8. Liftoff (Placeholder — Phase 7 §5e, launcher logic)
+- Repository: https://github.com/firstfu/Liftoff
+- Copyright (C) firstfu
+- License: GPL-3.0
+- Description: Planned logic source for launcher live previews, title-matching search, Smart Organize table, and drag-to-Dock. No code ported yet.

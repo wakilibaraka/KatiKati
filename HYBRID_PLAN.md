@@ -50,12 +50,14 @@ This commit: **plan only — no code changes.**
 - §3 Naming (tungsten vocabulary → canonical additions)
 - §4 Target architecture (tungsten tree + layout-mode layer)
 - §5 Port allow-list, file-level (and explicitly-not-ported)
+- §5e Edge-bar + launcher candidates (Phase 7 only — owner's 2026-10-08 decision)
 - §6 Build, identity, licensing
 - §7 Phases 0–7 (each shippable + testable)
 - §8 Risks, mitigations, open questions
 - §9 Acceptance criteria
 - Appendix A — per-mode layout spec (islands, overflow, migration)
 - Appendix B — references (files, commits, screenshots)
+- Appendix C — edge-bar + launcher spec stub (Phase 7 only)
 
 ---
 
@@ -354,6 +356,24 @@ names/ids/assets only — never behavior.
   with owner sign-off. `Tools/WindowLab` stays (diagnostic CLI, not shipped). Official
   tungsten binaries/website/cask/feed stay Moonbai's — never reused or impersonated.
 
+### 5e. Edge-bar + launcher candidates (Phase 7 only — owner's 2026-10-08 decision)
+
+Single edge donor (EdgeDeckBar) + noty-as-inspo; widgets-only (option (a)).
+AI Usage/Dispatch stack is explicitly NOT ported. Order: 7a notes → 7b
+widgets → 7c launcher. Each needs owner sign-off + mini-plan + license check.
+Phases 2–6 stay frozen.
+
+| Source | Take (logic/views only) | Target in new repo | Notes |
+|---|---|---|---|
+| EdgeDeckBar `senoldogann/EdgeDeckBar` MIT — edge geometry + auto-hide handle + magnification + reorder + bounce, all 6 widgets (system monitor + detail window, clipboard history + images, weather, now-playing, bluetooth, quick-notes scratchpad), 12-theme precedent, ⌥Space palette dispatch | tungsten-style edge chips + per-edge flyouts in new `App/Scenes/Edge/` | Re-skin to tungsten chips + `PanelGeometry` popup anchors; tungsten theme tokens win; EdgeDeck theme files consulted, never pasted wholesale; extend `TaskbarScreenOrchestrator.rebuildUnits` with `displayUUID#edgeSlot` — no parallel panel manager |
+| noty `aimen08/noty` MIT — refinements only: `Core.swift` AES-GCM + palette + `Note` model; `Store.swift` SQLite schema + `NoteStore.swift` single-source model; `SyncPlan.swift` pure decision table + `CloudFolder/CloudSyncIndex/CloudSync.swift` iCloud-Drive-folder sync; `DeckController.swift` one-deck-per-display state machine + `DeckPanel.swift` nonactivating/key + `acceptsFirstMouse` lessons; `NoteEditor.swift` NSTextView bridge + 250ms autosave; `ExportImport/NoteDocument` `.md` front-matter; `ImageStore` `noty-img://`; `UndoToast` 10s undo | notes backing store + editor under `App/Scenes/Edge/Notes/` + `Core/Support/NotesSyncPlan.swift` | Sync keepable verbatim (both apps non-sandboxed: `~/Library/Application Support/KatiKati/` + plain-path iCloud Drive folder, no CloudKit entitlement); AES key to Keychain in distributed build; `SyncPlan` ported as pure Core + unit tests first |
+| arc-menu `egemenince-git/arc-menu-for-macos` MIT — launcher base: app enumeration, pinned/recent/groups, per-app search aliases, CLI-by-path → Terminal group, Ctrl-Esc/menu-bar presenting, login items | launcher core in new `App/Scenes/Launcher/` | Zero-dep, closest portable core; Jev-cloud sorting NOT ported (local-only); re-skin to tungsten popup geometry |
+| Volant `mysticcoders/volant` MIT — ranking + config patterns: learn-from-choice ranking, ⌘K alias/hotkey editor, portable text config + backup, encrypted clipboard-history shape, notes-as-`.md` | launcher ranking/config layer | Patterns only — never its sandbox/WASM/Herdr/ACP stacks |
+| EdgeDeckBar ⌥Space palette — apps/widgets/tiling/actions routing, theme-following flyout | launcher dispatch layer | Re-skin to tungsten chips/popups |
+| Liftoff `firstfu/Liftoff` GPL-3.0 — preview + search logic: live thumbnails incl. minimized, title-matching search, Smart Organize lookup table (preview-first), drag-to-Dock | launcher preview/search layer | Logic only, never its AppKit grid; GPL-3.0 compatible with KatiKati's GPL core |
+
+Explicitly NOT ported: EdgeDeckBar `SegmentPanelManager`/stores/settings, AI Usage (Claude/Codex quota, token chart, Ollama, multi-account Keychain switching), Dispatch-to-agent, Terminal automation; noty site/cask/Sparkle wiring/`.stickies` JSON; arc Jev-cloud; Volant sandbox/WASM/Herdr/ACP; Liftoff grid.
+
 ## 6. Build, identity, licensing
 
 - **Repo**: `/Users/baraka/Desktop/Splitbar`, branch `main`. **Build system follows the
@@ -398,10 +418,13 @@ names/ids/assets only — never behavior.
      when donor-B code ports.
   5. Live-SplitBar NOTICE (EdgeDeckBar→SplitBar lineage, senoldogann) — only if
      reference code is actually pasted (default: no).
-  6. Inherited tungsten rules stay: SketchyBar & yabai = **study only, never paste**;
+   6. EdgeDeckBar MIT © 2026 senoldogann; noty MIT © aimen08; arc-menu MIT ©
+      egemenince-git; Volant MIT © Mystic Coders; Liftoff GPL-3.0 © firstfu —
+      carried verbatim when §5e code ports (placeholders in `NOTICE` until then).
+  7. Inherited tungsten rules stay: SketchyBar & yabai = **study only, never paste**;
      private API (SkyLight/SLS, `NSGlassEffectView`) stays isolated + `#available`-gated
      + flagged in PRs (notarization risk).
-  7. No additional GPL-incompatible dependencies; Sparkle pin stays (check its license
+  8. No additional GPL-incompatible dependencies; Sparkle pin stays (check its license
      handling in `package_release.sh` flow before first signed release).
 
 ---
@@ -509,11 +532,22 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
 - **Verify**: mode/width/gaps persist across restarts; switch without relaunch; onboarding
   snapshot test green.
 
-### Phase 7 — Deferred / optional (owner sign-off each)
+### Phase 7 — Deferred (owner sign-off + mini-plan + license check each)
 
-Dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip upgrades,
-wallpaper/personalisation, clipboard/notes/AI-usage, extra flyouts. Each needs its own
-mini-plan + license check before porting.
+- **7a right-edge notes bar** (first): EdgeDeckBar notes + noty sync/crypto/editor
+  per §5e. Local-only `.md` in `~/Library/Application Support/KatiKati/`,
+  iCloud-Drive-folder sync, AES-GCM. Non-activating, all-Spaces, atomic
+  fullscreen-hide per display, popup anchored to its own edge chip.
+- **7b left-edge widgets bar** (second): all 6 EdgeDeckBar widgets per §5e,
+  re-skinned to tungsten chips + `PanelGeometry` anchors.
+- **7c centered launcher** (last): hybrid per §5e — arc-menu base + EdgeDeck
+  dispatch + Volant ranking/config + Liftoff preview/search. ⌥Space or
+  center-slot summon; anchored flyout, no new panel class.
+- Previously listed (still deferred, unchanged): dividers (`pruned` logic),
+  `macOS` pill mode, magnification, hover-preview strip upgrades,
+  wallpaper/personalisation, extra flyouts.
+- **Verify each**: tungsten gate green + per-edge anchor tests + idle CPU ≤
+  island baseline + ε (Instruments number in PR).
 
 ## 8. Risks, mitigations, open questions
 
@@ -531,6 +565,8 @@ mini-plan + license check before porting.
 | 10 | SwiftUI-in-panel perf with 3–4 islands | Reuse tungsten construction; Instruments idle-CPU gate (≤ baseline + ε) in Phase 2; no new panel class | 2 |
 | 11 | Signing/Accessibility grant churn from rebrand | Keep `build_and_run.sh` same-cert discipline; never bare `xcodebuild` + `open`; reinstall-local test in Phase 0 | 0 |
 | 12 | Sparkle feed/key rotation breaks updates | New feed URL + key in Phase 0; `package_release.sh` fail-closed gate before any release | 0/5 |
+| 13 | Vertical edge geometry escapes `visibleFrame` on exotic topologies | Tungsten clamp stays authoritative; Appendix C edge rules; golden tests on tungsten topology snapshots | 7 |
+| 14 | N+2 panels per display break fullscreen/Spaces/CPU assumptions | Extend `rebuildUnits` with `displayUUID#edgeSlot`, atomic per-displayUUID hide/show, `allSpacesPanels` coverage; Instruments idle-CPU gate ≤ island baseline + ε | 7 |
 
 **Open questions for owner (non-blocking):**
 
@@ -542,6 +578,9 @@ mini-plan + license check before porting.
 4. Confirm Phase 7 items are out of the required scope.
 5. Which tungsten prefs must migrate one-way on first run (screen placement? heights?
    delays? drawer/kept/folders/shelf?) — default is the §6 user-meaningful set.
+6. (Resolved 2026-10-08): edge-bar/launcher scope = EdgeDeckBar-only (widgets-only,
+   option (a)) + noty-inspo refinements; order 7a notes → 7b widgets → 7c launcher.
+   AI Usage/Dispatch explicitly out.
 
 ## 9. Acceptance criteria
 
@@ -563,6 +602,10 @@ mini-plan + license check before porting.
 8. `LICENSE` (GPL-3.0-or-later) + combined `NOTICE` cover all sources; no tungsten
    marks in product; new id/domain/feed; zero new third-party dependencies.
 9. Idle CPU with 4 island panels ≤ strip baseline + ε (Phase-2 Instruments number in PR).
+10. Edge bars (7a/7b) + launcher (7c): non-activating, survive Space switches,
+    hide atomically for fullscreen per display, reflow on display-set change;
+    every popup anchors to its own edge/launcher chip; idle CPU ≤ island
+    baseline + ε; notes sync round-trips local ↔ iCloud-Drive folder.
 
 ---
 
@@ -592,6 +635,21 @@ Rules:
 - Tungsten chip semantics are mode-independent: `StripItem` identity (`groupID`),
   per-display filtering (`displayUUID` + `taskbarScreenPlacement`), optimistic states and
   toggle planning behave identically in every island.
+
+## Appendix C — Edge-bar + launcher spec stub (normative when 7a–7c activate)
+
+- Edges: notes = right edge, widgets = left edge, launcher = centered summon
+  over bottom bar. Default: bottom bar + right notes on; left widgets opt-in.
+- Widths: fixed at 7a/7b landing, drag-resizable only via tungsten
+  `DockPanelHeight`-style scaling path (no new resize engine).
+- Gaps/margins: mirror island `islandGap`/`islandMargin` semantics under new
+  `com.katikati.edge.*` keys; enforce 0.5 pt minimum.
+- Every edge frame: `frame ⊆ visibleFrame`, bottom-left origin screen space,
+  tungsten clamp validation; fullscreen hides all panels on that display atomically.
+- Section rule: edge bars never host `apps` window chips (islands own them);
+  launcher never owns panels (anchored flyout only).
+
+---
 
 ## Appendix B — References
 
@@ -655,6 +713,20 @@ Rules:
   (segment split + DockController), `04b121d` (asymmetric scaling, per-icon anchors,
   hover previews), `a96b7dd` (merged center apps, equalized heights). Docs: `CLAUDE.md`,
   `TASKS.md`.
+
+**Edge-bar + launcher candidates** (Phase 7 only — §5e, owner's 2026-10-08 decision,
+widgets-only option (a))
+
+- **EdgeDeckBar** (`github.com/senoldogann/EdgeDeckBar`, MIT) — edge geometry,
+  auto-hide handle, magnification, reorder, 6 widgets, quick-notes, ⌥Space palette.
+- **noty** (`github.com/aimen08/noty`, MIT) — SQLite + AES-GCM notes, SyncPlan,
+  one-deck-per-display, NSTextView editor.
+- **arc-menu** (`github.com/egemenince-git/arc-menu-for-macos`, MIT) —
+  enumeration, aliases, CLI-by-path.
+- **Volant** (`github.com/mysticcoders/volant`, MIT) — ranking, ⌘K editor,
+  portable config.
+- **Liftoff** (`github.com/firstfu/Liftoff`, GPL-3.0) — live previews, title
+  search, Smart Organize.
 
 **Screenshots** (owner's Desktop)
 
