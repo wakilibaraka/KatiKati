@@ -512,16 +512,16 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
   overflow-capable section).
 - **Visual direction — themes + icon redesign** (owner 2026-10-08). Separated from
   widget porting so the strip geometry and popups are wired before the look changes.
-  - **Chosen theme:** `Deep Ocean` (EdgeDeckBar `DockMaterialStyle` preset #1) as the
+  - **Chosen theme:** `Rose Quartz` (EdgeDeckBar `DockMaterialStyle` preset) as the
     KatiKati visual identity. Chosen to sit a *tiny* bit apart from tungsten's clean
-    glass — a calm blue-undertone base at ~86% opacity plus a 16pt blur, with the
-    watermark tint kept under 12% so the distinction reads at a glance, not a
-    redesign. Do **not** copy EdgeDeckBar's full pipeline; only the palette and the
-    12-preset concept are lifted. All 12 `DockMaterialStyle` presets are selectable
+    glass — a calm rose-undertone base with the watermark tint kept light
+    so the distinction reads at a glance, not a redesign. Do **not** copy EdgeDeckBar's
+    full pipeline; only the palette and the 12-preset concept are lifted. All 12
+    `DockMaterialStyle` presets are selectable
     (system/translucent/crystalClear/obsidianDark/monochrome/titaniumFrost/auroraGlow/
     deepOcean/forestMoss/cyberpunkGlass/emberSunset/roseQuartz + `customRGBA`), so
     "all of them can move" — nothing is blocked or removed, and the default stays on
-    the KatiKati variant.
+    the KatiKati variant (`roseQuartz`).
   - **"Kept" question:** no problem. Keeping the current tungsten-derived look as the
     default while 12 themes become selectable removes no behavior, adds no dependency,
     and means the first user-visible version ships the same stripped-down look
@@ -535,7 +535,7 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
     drawn from `DockThemeTokens`, so they stay correct across every theme and both
     light/dark columns are tested, not eyeballed.
   - **Persistence & migration:** `com.katikati.theme.material` (default =
-    `deepOcean`), `com.katikati.theme.appearance` (light/dark/system), and the
+    `roseQuartz`), `com.katikati.theme.appearance` (light/dark/system), and the
     icon-set choice are stored in `AppSettingsStore` with a one-way `InstallLineage`
     stamp so existing tungsten installs never silently flip. Debug-only hot-swaps
     (`DOCK_THEME=<name>`) let Phase 4 tune look without re-running builds.
@@ -574,7 +574,7 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
   `bottomGap 8 − shadowPadding 20` pins; solver `validate()` unchanged.
 - **Appearance tab** (new Settings tab, next to the existing Layout tab): the
   theme/preset picker from Phase 4, using the same `com.katikati.*` domain:
-  `com.katikati.theme.material` (default `deepOcean`, all 12 presets + customRGBA),
+  `com.katikati.theme.material` (default `roseQuartz`, all 12 presets + customRGBA),
   `com.katikati.theme.appearance` (light/dark).
 - **Icon-set config** (next to Appearance): re-drawn folder / download / trash +
   status-menu item variants, controlled by a single key `com.katikati.iconSet`
