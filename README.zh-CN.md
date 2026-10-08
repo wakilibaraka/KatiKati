@@ -2,15 +2,13 @@
 
 <img src="assets/icon.png" width="128" alt="钨极" />
 
-# 钨极
+# KatiKati
 
 **让每个窗口一目了然、一点就到的 macOS Dock 栏——Windows 式的清晰，没有它的臃肿。**
 
 [English](README.md) · 中文
 
-### [⬇ 下载钨极](https://tungstenedge.app)
-
-可直接运行的安装包在[官网](https://tungstenedge.app)，本仓库存放源码。
+基于 [Tungsten Edge](https://github.com/moonbai-studio/tungsten-edge)（© 2026 Moonbai Studio，GPL-3.0-or-later）。
 
 </div>
 
@@ -69,22 +67,13 @@
 
 macOS 在密码框等场景启用 Secure Input 时，不会把键盘事件交给全局 event tap，因此这段时间无法提前识别全屏快捷键；绿灯与触控板手势不受影响。
 
-## 安装
+## 安装与构建
 
-### 方式一：下载安装包（推荐普通用户）
+### 从源码构建（日常开发）
 
-1. 从[官网](https://tungstenedge.app)下载最新的 `.dmg`。
-2. 打开后把 **Tungsten Edge** 拖进「应用程序」文件夹。
-3. 双击打开即可。首次运行时按提示开启**辅助功能**权限（见下方「[开启辅助功能权限](#开启辅助功能权限)」）。
-
-### 方式二：Homebrew（技术用户）
-
-```bash
-brew install --cask tungsten-edge
-```
-
-> 钨极已进入 Homebrew 官方 cask 源。以前的写法
-> `brew install --cask moonbai-studio/tungsten-edge/tungsten-edge` 仍然能用，装的也是官方这份。
+1. 克隆本仓库。
+2. 运行 `./Scripts/build_and_run.sh`。
+3. 首次运行时按提示开启**辅助功能**权限（见下方「[开启辅助功能权限](#开启辅助功能权限)」）。
 
 ## 开启辅助功能权限
 
@@ -200,7 +189,7 @@ Copyright (C) 2026 Moonbai Studio.
 **测试**（1,300 个 XCTest 用例，约 40 秒；CI 每次推送跑的就是这条命令）：
 
 ```bash
-xcodebuild test -project macos-dock-cc-v2.xcodeproj -scheme macos-dock-cc-v2 \
+xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati \
   -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
 python3 Scripts/check_localization.py     # 每条 String(localized:) 都有中文
 python3 Scripts/check_debug_switches.py   # 每个 DOCK_* 环境开关都已登记

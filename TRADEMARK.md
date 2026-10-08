@@ -42,6 +42,17 @@ Questions or permission requests: support@tungstenedge.app
 - 把你的构建说成官方版本，或暗示得到 Moonbai Studio 的认可或支持。
 - 注册或使用容易混淆的域名、社交账号或产品名。
 
-官方构建——https://tungstenedge.app 上经签名公证的安装包、Homebrew cask，以及 Sparkle 自动更新源——只由 Moonbai Studio 提供。不是从这些地方来的构建就不是「Tungsten Edge」，哪怕它一字未改地编译自本仓库。
-
 咨询或申请授权：support@tungstenedge.app
+
+---
+
+## KatiKati Trademark Reservation · KatiKati 商标声明
+
+**"KatiKati" and the KatiKati logo / app icon are trademarks of Emmanuel Baraka.**
+
+The source code of KatiKati is licensed under the GNU General Public License v3.0 or later.
+In accordance with GPL-3.0 section 7(e), the names "KatiKati" and associated brand assets are reserved and excluded from the general license grant. Forks and redistributed binary packages must use a different name and icon.
+
+**「KatiKati」以及 KatiKati 的标志 / 应用图标是 Emmanuel Baraka 的商标。**
+
+KatiKati 源码遵循 GNU General Public License v3.0 或更高版本。依据 GPL-3.0 第 7(e) 条，名称「KatiKati」及相关标识予以保留，不随开源代码一同授权。任何衍生分支或重新打包分发的二进制版本必须更换名称与图标。

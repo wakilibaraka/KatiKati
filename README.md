@@ -2,15 +2,13 @@
 
 <img src="assets/icon.png" width="128" alt="Tungsten Edge" />
 
-# Tungsten Edge
+# KatiKati
 
 **A per-window taskbar for macOS — switch to any window in one click, Windows-style clarity without the clutter.**
 
 English · [中文](README.zh-CN.md)
 
-### [⬇ Download for macOS](https://tungstenedge.app)
-
-Ready-to-run builds live on the [official website](https://tungstenedge.app). This repository holds the source.
+Based on [Tungsten Edge](https://github.com/moonbai-studio/tungsten-edge) (© 2026 Moonbai Studio, GPL-3.0-or-later).
 
 </div>
 
@@ -70,22 +68,13 @@ Separately, when **Reverse mouse scroll direction** (Settings › General, off b
 
 macOS suppresses key events from global event taps while Secure Input is active, such as in a protected password field. During that time the keyboard shortcuts cannot be recognized in advance; green-button and trackpad-gesture detection are unaffected.
 
-## Install
+## Install & Build
 
-### Option 1 — download the installer (recommended)
+### Build from source (recommended for development)
 
-1. Download the latest `.dmg` from the [official website](https://tungstenedge.app).
-2. Open it and drag **Tungsten Edge** into your **Applications** folder.
-3. Double-click to open it. On first run, grant **Accessibility** permission when prompted (see [Grant Accessibility permission](#grant-accessibility-permission) below).
-
-### Option 2 — Homebrew (for technical users)
-
-```bash
-brew install --cask tungsten-edge
-```
-
-> Tungsten Edge is in the official Homebrew cask registry. The older command
-> `brew install --cask moonbai-studio/tungsten-edge/tungsten-edge` still works and installs the same official cask.
+1. Clone this repository.
+2. Run `./Scripts/build_and_run.sh`.
+3. On first run, grant **Accessibility** permission when prompted (see [Grant Accessibility permission](#grant-accessibility-permission) below).
 
 ## Grant Accessibility permission
 
@@ -213,7 +202,7 @@ Release notes for every version are archived under [`Docs/Archive/Releases/`](Do
 **Tests** (1,300 XCTest cases, ~40 s; the same command CI runs on every push):
 
 ```bash
-xcodebuild test -project macos-dock-cc-v2.xcodeproj -scheme macos-dock-cc-v2 \
+xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati \
   -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
 python3 Scripts/check_localization.py     # every String(localized:) has a zh-Hans entry
 python3 Scripts/check_debug_switches.py   # every DOCK_* env switch is registered
