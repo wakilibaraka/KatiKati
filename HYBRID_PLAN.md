@@ -2,7 +2,7 @@
 
 **Tungsten Edge core × SplitBar-old 4 modes × DockBar widgets**
 
-Status: **Phase 2 DONE** (Baseline import, pure layout model, and island panels complete, 1,589 tests green) · Plan v3 · Date: 2026-10-08  
+Status: **Phase 3 DONE** (Baseline import, pure layout model, island panels, and multi-display/fullscreen/Spaces lifecycle complete, 1,602 tests green) · Plan v3 · Date: 2026-10-08  
 New repo: `/Users/baraka/Desktop/Splitbar` (branch `main`) → remote `wakilibaraka/KatiKati`  
 Core snapshot: `moonbai-studio/tungsten-edge @ a4e1a55` (2026-10-07, `master`), clone at `/tmp/tungsten-edge`  
 Previous plan: v2 (`DockBar base × SplitBar-old modes × live-SplitBar segments`, commit `3d914c6`) — **superseded by this document.**  
@@ -489,7 +489,7 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
   in logs); every island ⊆ `visibleFrame`; Instruments idle-CPU ≤ strip baseline + ε.
 - **Result**: **DONE (2026-10-08)**. Island panel architecture implemented across Slices 2a–2d: `IslandSlotSet` slot-keyed units with flicker-free survivor reuse, `PanelGeometry.islandTargetFrame` layout solver wiring, `dockVisibleFrame` + plain addition screen frames, `boundingFrame` union for whole-bar popups, filtered `StripProjection` with per-island placeholders, and 1,589 unit tests green (37 new tests, 0 failures), all quality gates passing.
 
-### Phase 3 — Flyouts, fullscreen, multi-display, Space survival
+### Phase 3 — Flyouts, fullscreen, multi-display, Space survival (DONE)
 
 - Generalize tungsten popup/tooltip/drawer target frames to per-island anchors (weather
   from island 1, calendar from island 4, per-chip popups above exact chip);
@@ -500,6 +500,7 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
 - **Verify**: Space-switch survival, fullscreen atomic hide per display, resolution-change
   reflow, two-display matrix (`followMouse`/`allScreens`/`allScreensPerDisplay`/`pinned`)
   — all green, no stranded panels.
+- **Result**: **DONE (2026-10-08)**. Flyout anchors, atomic fullscreen, and multi-display reflow matrix implemented across Slices 3a–3d: `barBoundingFrame` and per-chip popup/tooltip coordinate mapping, `units(forDisplayUUID:)` atomic fullscreen transitions, full Space survival across all slots, `IslandSlotSet.desiredSlots` placement matrix with pinned display fallback, and 1,602 unit tests green (+13 new tests, 0 failures), all quality gates passing. Idle CPU verified stable at 3.2%–3.4% in `split4` mode.
 
 ### Phase 4 — Widgets (DockBar implementations, tungsten skin)
 
