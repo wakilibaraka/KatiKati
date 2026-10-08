@@ -2,6 +2,14 @@
 
 All notable changes to KatiKati are documented in this file.
 
+### Changed
+- **Standing Rules §1 new item (owner sign-off 2026-10-08):** *structured edits first* —
+  single-anchor editor operations are the default for source changes; regex/`sed`-class
+  scripted edits require a `git grep` occurrence check, anchored patterns, and
+  post-edit build + targeted tests + old-token-absence verification. Heredoc appends
+  into source, repo-root throwaway scripts, and `rm <glob>` inside the repo are
+  forbidden. Full rule in `STANDING_RULES.md` §1 item 6.
+
 ## [Unreleased] — Phase 3: Flyouts, Fullscreen, Multi-Display & Space Survival
 
 ### Added

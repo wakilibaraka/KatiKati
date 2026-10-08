@@ -604,6 +604,34 @@ donor reference = **eyeball-only** (§5b rule: DockBar studied, never copied); n
 dependencies (EdgeDeck numbers are data, not code); UI/Settings picker stays
 Phase 6; `DOCK_THEME` stays a debug switch only (`check_debug_switches.py` registers it).
 
+#### Immediate blocker (before 4d) — permission-free dev launch + macOS 27 naming (owner 2026-10-08)
+
+- **Run without an Accessibility grant (unblocks theme testing):** new debug switch
+  `DOCK_DEV_SKIP_PERMISSIONS=1` (registered in `DebugSwitch` +
+  `check_debug_switches.py`), honored at the permission choke points —
+  `AppDelegate.permissionProbeQueue`, `PermissionRecoveryMachine` /
+  `AccessibilityPermissionModel` onboarding, and
+  `PanelCoordinator.isSuspendedForPermissionLoss` suspension: no prompt, no
+  onboarding window, no suspension; panels render so themes are testable with zero
+  grants. AX-dependent inventory degrades gracefully (drawer/kept/folder/trash/
+  shelf chips still render; window chips appear only if AX is granted later).
+  Defaults **off**; never ships on. Complements — does not replace — the
+  Phase-5 dev-bypass drill.
+- **Stale TCC rows from old instances:** removed instances leave inert
+  Accessibility rows that conflict with re-granting (the 2026-10-08 local cleanup
+  could not touch `TCC.db`). Dev-machine remedy: System Settings → Privacy &
+  Security → Accessibility → delete stale KatiKati / Tungsten Edge rows, or
+  `tccutil reset Accessibility com.katikati.app`, then grant once.
+- **macOS 27 permission naming (owner report — verify first):** owner reports the
+  Accessibility settings name no longer exists on macOS 27. Verify on the dev Mac
+  before editing (Standing Rules §1.5: record the exact current pane name + path;
+  a Sep-2026 macOS 27 System Settings review still lists an "Accessibility
+  settings" section, so the rename is unconfirmed). Then update **copy only** —
+  AX APIs (`AXIsProcessTrusted` etc.) unchanged: `PermissionOnboardingView`
+  strings (titles + path strings incl. the legacy System-Preferences variant),
+  `README.md` grant steps, and `Localizable.xcstrings` values across all 12
+  languages (`check_localization.py` gate).
+
 ### Phase 5 — Hardening (native Dock, teardown, recovery drill)
 
 ### Phase 6 — Settings Layout tab + welcome step + polish

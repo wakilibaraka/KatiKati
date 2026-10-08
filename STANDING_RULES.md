@@ -19,6 +19,17 @@
 5. **External sources where applicable.** AX/CG/Spaces/fullscreen facts, Apple API
    availability, signing/notarization rules → check current Apple docs or a minimal
    local experiment, never memory alone. Link the source in commit or comment.
+6. **Structured edits first (owner 2026-10-08).** Source edits use precise,
+   single-anchor editor operations (one replacement, visible diff before write).
+   Regex/`sed`-class scripted edits only when **all three** hold: the pattern's
+   occurrence list is verified with `git grep` first; the pattern is anchored /
+   word-boundary (never blanket `let`/`var`/identifier class matches); and the edit
+   is verified by build + targeted tests + a grep proving the old token is gone.
+   **Forbidden regardless:** heredoc (`cat <<EOF`) appends into source; throwaway
+   scripts in the repo root (`/tmp` only, if unavoidable); `rm <glob>` inside the
+   repo. Value-frozen files (`Core/Support/*Tokens*`) and comment-as-spec files get
+   hand edits only, with the test diff in the same commit. Scripted-edit
+   justification goes in the commit message.
 
 
 ## 2. Architecture invariants (HYBRID_PLAN §§3–4)
