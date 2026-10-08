@@ -215,7 +215,11 @@ extension PanelCoordinator {
         capsule.layoutIfNeeded()
         relayout(animated: false)
         orderDockSurfaceFront()
-        capsule.orderFrontRegardless()
+        if isCapsuleOwner {
+            capsule.orderFrontRegardless()
+        } else {
+            capsule.orderOut(nil)
+        }
     }
 
     /// `usesLiquidGlass` 由调用方显式传：`setupDockPanel` 里玻璃底板刚建好、还没赋给

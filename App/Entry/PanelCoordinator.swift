@@ -195,6 +195,8 @@ final class PanelCoordinator: NSObject {
     var showShelfSubscription: AnyCancellable?
     var showTrashSubscription: AnyCancellable?
     var dockPanelHeightSubscription: AnyCancellable?
+    var barLayoutModeSubscription: AnyCancellable?
+    var layoutDimensionsSubscription: AnyCancellable?
     /// Height-change transaction generation: swallows animated relayouts other paths queue
     /// while a height change is in flight (see `beginPanelHeightChange`).
     var panelHeightChangeGeneration: UInt64 = 0
@@ -534,6 +536,24 @@ final class PanelCoordinator: NSObject {
     var capsuleVisibleFrame: CGRect? {
         let frame = lastCapsuleTargetFrame != .zero ? lastCapsuleTargetFrame : capsulePanel?.frame
         return frame?.insetBy(dx: Self.shadowPadding, dy: Self.shadowPadding)
+    }
+
+    /// 任务条底板的可视帧（屏幕坐标，目标帧优先，减去 shadowPadding 透明边）。
+    var dockVisibleFrame: CGRect {
+        let frame = lastDockTargetFrame != .zero ? lastDockTargetFrame : (dockPanel?.frame ?? .zero)
+        guard frame != .zero else { return .zero }
+        return frame.insetBy(dx: Self.shadowPadding, dy: Self.shadowPadding)
+    }
+
+    /// Per-icon anchor composition: screenFrame = islandFrame + localFrame (plain addition, no y-flip).
+    func screenFrame(forLocalFrame localFrame: CGRect) -> CGRect {
+        let origin = dockVisibleFrame.origin
+        return CGRect(
+            x: origin.x + localFrame.origin.x,
+            y: origin.y + localFrame.origin.y,
+            width: localFrame.width,
+            height: localFrame.height
+        )
     }
 
     // MARK: - Window title tooltip

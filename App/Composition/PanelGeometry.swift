@@ -359,6 +359,69 @@ enum PanelGeometry {
         )
     }
 
+    /// Computes target window frame for a specific island slot and layout mode.
+    /// In `.windows` mode, matches `dockTargetFrame` exactly.
+    /// In `.centered` and split modes, computes per-island geometry via `IslandLayoutSolver`.
+    static func islandTargetFrame(
+        slot: Int,
+        contentWidth: CGFloat,
+        mode: BarLayoutMode,
+        on screen: PanelScreenGeometry,
+        metrics: PanelLayoutMetrics = .tungstenEdge,
+        centeredWidth: CGFloat = 720,
+        gap: CGFloat = 8,
+        margin: CGFloat = 12
+    ) -> CGRect {
+        switch mode {
+        case .windows:
+            return dockTargetFrame(contentWidth: contentWidth, on: screen, metrics: metrics)
+
+        case .centered:
+            let trailing = metrics.capsuleGap + metrics.capsuleWidth
+            let maxWidth = screen.frame.width - 2 * max(0, margin) - trailing
+            let targetWidth = min(maxWidth, max(min(centeredWidth, maxWidth), contentWidth))
+            let panelWidth = max(targetWidth, metrics.minimumDockWidth)
+            let x = screen.frame.minX + (screen.frame.width - (panelWidth + trailing)) / 2
+            return CGRect(
+                x: x - metrics.shadowPadding,
+                y: screen.frame.minY + metrics.bottomGap - metrics.shadowPadding,
+                width: panelWidth + metrics.shadowPadding * 2,
+                height: metrics.windowHeight
+            )
+
+        case .split3, .split4:
+            let tileStride = IslandLayoutSolver.tileStride(barHeight: metrics.panelHeight)
+            let appCount = max(1, Int((contentWidth / tileStride).rounded()))
+            let layout = IslandLayoutSolver.layout(
+                screenWidth: screen.frame.width,
+                mode: mode,
+                tileStride: tileStride,
+                appCount: appCount,
+                weatherWidth: 120,
+                trayWidth: 140,
+                clockWidth: 100,
+                clusterWidth: 48,
+                gap: gap,
+                margin: margin,
+                barHeight: metrics.panelHeight,
+                bottomMargin: metrics.bottomGap,
+                centeredWidth: centeredWidth,
+                screenOriginX: screen.frame.minX,
+                screenMinY: screen.frame.minY
+            )
+            guard slot < layout.islands.count else {
+                return dockTargetFrame(contentWidth: contentWidth, on: screen, metrics: metrics)
+            }
+            let island = layout.islands[slot]
+            return CGRect(
+                x: island.frame.minX - metrics.shadowPadding,
+                y: island.frame.minY - metrics.shadowPadding,
+                width: island.frame.width + metrics.shadowPadding * 2,
+                height: metrics.windowHeight
+            )
+        }
+    }
+
     static func capsuleTargetFrame(
         forDock dockFrame: CGRect,
         on screen: PanelScreenGeometry,

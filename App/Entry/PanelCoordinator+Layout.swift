@@ -156,6 +156,24 @@ extension PanelCoordinator {
             .sink { [weak self] _ in
                 self?.beginPanelHeightChange()
             }
+        barLayoutModeSubscription = settingsStore.$barLayoutMode
+            .removeDuplicates()
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
+            }
+        layoutDimensionsSubscription = Publishers.CombineLatest3(
+            settingsStore.$centeredWidth,
+            settingsStore.$islandGap,
+            settingsStore.$islandMargin
+        )
+        .removeDuplicates { $0 == $1 }
+        .dropFirst()
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] _ in
+            DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
+        }
     }
 
     /// A height change is a **transaction**, not a content change: panel height, capsule width
@@ -275,9 +293,26 @@ extension PanelCoordinator {
         relayout(animated: false)
     }
 
-    /// Bar target frame: content width, capped; bar + drawer capsule centered as one group.
+    /// Bar target frame: computes island frame using IslandLayoutSolver across all layout modes.
     func dockTargetFrame(contentWidth: CGFloat, on screen: NSScreen) -> NSRect {
-        PanelGeometry.dockTargetFrame(contentWidth: contentWidth, on: Self.screenGeometry(screen), metrics: layoutMetrics)
+        PanelGeometry.islandTargetFrame(
+            slot: islandSlot,
+            contentWidth: contentWidth,
+            mode: settingsStore.barLayoutMode,
+            on: Self.screenGeometry(screen),
+            metrics: layoutMetrics,
+            centeredWidth: CGFloat(settingsStore.centeredWidth),
+            gap: CGFloat(settingsStore.islandGap),
+            margin: CGFloat(settingsStore.islandMargin)
+        )
+    }
+
+    /// Whether this coordinator unit hosts the drawer capsule.
+    /// Per Appendix A, utilities (drawer, shelf, trash, folders) travel with the apps island.
+    var isCapsuleOwner: Bool {
+        let sections = BarSection.islands(for: settingsStore.barLayoutMode)
+        guard islandSlot < sections.count else { return islandSlot == 0 }
+        return sections[islandSlot].contains(.apps)
     }
 
     /// 胶囊目标 frame（贴任务条右边、纵向居中）。只依赖传入的 dock **目标** frame。
@@ -311,10 +346,10 @@ extension PanelCoordinator {
         onPanelScreenChanged?()
 
         let dockT = dockTargetFrame(contentWidth: contentWidth, on: screen)
+        let capsuleOwner = isCapsuleOwner
         // 胶囊（连同按它定位的抽屉）**永远**贴着此刻的条目标帧，拖动中也一样：拖出即合拢让条对称收缩，
-        // 胶囊跟着一起动（原生 Dock 同样整条重新居中）。2026-09-03 曾在拖动期把胶囊钉在旧目标帧上——
-        // 多屏下每个单元都被钉住，B 条变宽压到胶囊、A 条变窄留大缝（owner 当天报）。不要再加锚定。
-        let capsuleT = capsuleTargetFrame(forDock: dockT, on: screen)
+        // 胶囊跟着一起动（原生 Dock 同样整条重新居中）。
+        let capsuleT = capsuleOwner ? capsuleTargetFrame(forDock: dockT, on: screen) : .zero
         // 任务条目标帧一变（宽度/切屏）就关弹窗——不追动画中的锚点（与原生 Dock 行为一致,保 target-frame 纯度）。
         if dockT != lastDockTargetFrame {
             if folderPopupWantsOpen { closeFolderPopup() }
@@ -339,8 +374,12 @@ extension PanelCoordinator {
             ))
         }
         pairs.append((dock, dockT))
-        pairs.append((capsule, capsuleT))
-        if let drawer = drawerPanel, drawer.isVisible, let hosting = drawerContentHost {
+        if capsuleOwner {
+            pairs.append((capsule, capsuleT))
+        } else {
+            capsule.orderOut(nil)
+        }
+        if capsuleOwner, let drawer = drawerPanel, drawer.isVisible, let hosting = drawerContentHost {
             // Smaller than any plate = not laid out yet, never a size: keep the last good one.
             let fitting = hosting.fittingSize
             if Self.isPlausibleDrawerSize(fitting) { lastDrawerSize = fitting }

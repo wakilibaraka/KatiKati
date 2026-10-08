@@ -546,6 +546,20 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         fullscreenIntentMonitor?.updatePanelScreens(currentPanelScreenCGFrames)
     }
 
+    /// Union of all dock island frames on the given display (or all units if displayUUID is nil).
+    /// Used for whole-bar popup anchoring per HYBRID_PLAN.md §Phase 2.
+    func boundingFrame(forDisplayUUID uuid: String? = nil) -> CGRect {
+        let matching: [Unit]
+        if let uuid {
+            matching = units.filter { $0.key == uuid }
+        } else {
+            matching = units
+        }
+        let frames = matching.map(\.coordinator.dockVisibleFrame).filter { $0 != .zero }
+        guard let first = frames.first else { return .zero }
+        return frames.dropFirst().reduce(first) { $0.union($1) }
+    }
+
     // MARK: - 鼠标移动监视器（全进程一套，转发给每个单元）
 
     /// 鼠标移动监视器只服务两件事：**多屏悬停切换**（单屏无对象；固定到某屏 / 所有屏都显示时也无对象）与
