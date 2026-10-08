@@ -2,7 +2,7 @@
 
 **Tungsten Edge core × SplitBar-old 4 modes × DockBar widgets**
 
-Status: **Phase 0 DONE** (Baseline import + rebrand complete, 1,552 tests green) · Plan v3 · Date: 2026-10-08  
+Status: **Phase 2 DONE** (Baseline import, pure layout model, and island panels complete, 1,589 tests green) · Plan v3 · Date: 2026-10-08  
 New repo: `/Users/baraka/Desktop/Splitbar` (branch `main`) → remote `wakilibaraka/KatiKati`  
 Core snapshot: `moonbai-studio/tungsten-edge @ a4e1a55` (2026-10-07, `master`), clone at `/tmp/tungsten-edge`  
 Previous plan: v2 (`DockBar base × SplitBar-old modes × live-SplitBar segments`, commit `3d914c6`) — **superseded by this document.**  
@@ -487,6 +487,7 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
   composition `screenFrame = islandFrame + localFrame` (plain addition, no y-flip).
 - **Verify**: mode switch without relaunch on one display; panels reuse (no flicker storm
   in logs); every island ⊆ `visibleFrame`; Instruments idle-CPU ≤ strip baseline + ε.
+- **Result**: **DONE (2026-10-08)**. Island panel architecture implemented across Slices 2a–2d: `IslandSlotSet` slot-keyed units with flicker-free survivor reuse, `PanelGeometry.islandTargetFrame` layout solver wiring, `dockVisibleFrame` + plain addition screen frames, `boundingFrame` union for whole-bar popups, filtered `StripProjection` with per-island placeholders, and 1,589 unit tests green (37 new tests, 0 failures), all quality gates passing.
 
 ### Phase 3 — Flyouts, fullscreen, multi-display, Space survival
 
