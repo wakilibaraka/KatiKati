@@ -513,15 +513,17 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
 - **Visual direction — themes + icon redesign** (owner 2026-10-08). Separated from
   widget porting so the strip geometry and popups are wired before the look changes.
   - **Chosen theme:** `Rose Quartz` (EdgeDeckBar `DockMaterialStyle` preset) as the
-    KatiKati visual identity. Chosen to sit a *tiny* bit apart from tungsten's clean
-    glass — a calm rose-undertone base with the watermark tint kept light
-    so the distinction reads at a glance, not a redesign. Do **not** copy EdgeDeckBar's
-    full pipeline; only the palette and the 12-preset concept are lifted. All 12
-    `DockMaterialStyle` presets are selectable
+    KatiKati light-appearance identity; **`Obsidian Dark` for dark appearance**, driven
+    by the user's existing appearance setting (`AppSettingsStore.appearanceMode`
+    system/light/dark — reused, **no new appearance key**). Chosen to sit a *tiny* bit
+    apart from tungsten's clean glass — a calm rose-undertone base with the watermark
+    tint kept light so the distinction reads at a glance, not a redesign. Do **not**
+    copy EdgeDeckBar's full pipeline; only the palette and the 12-preset concept are
+    lifted. All 12 `DockMaterialStyle` presets are selectable
     (system/translucent/crystalClear/obsidianDark/monochrome/titaniumFrost/auroraGlow/
     deepOcean/forestMoss/cyberpunkGlass/emberSunset/roseQuartz + `customRGBA`), so
     "all of them can move" — nothing is blocked or removed, and the default stays on
-    the KatiKati variant (`roseQuartz`).
+    the KatiKati pair (`roseQuartz` light / `obsidianDark` dark).
   - **"Kept" question:** no problem. Keeping the current tungsten-derived look as the
     default while 12 themes become selectable removes no behavior, adds no dependency,
     and means the first user-visible version ships the same stripped-down look
@@ -534,9 +536,11 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
     dot chosen where the value is small, number where it is large). Both forms are
     drawn from `DockThemeTokens`, so they stay correct across every theme and both
     light/dark columns are tested, not eyeballed.
-  - **Persistence & migration:** `com.katikati.theme.material` (default =
-    `roseQuartz`), `com.katikati.theme.appearance` (light/dark/system), and the
-    icon-set choice are stored in `AppSettingsStore` with a one-way `InstallLineage`
+  - **Persistence & migration:** `com.katikati.theme.material` (default = `auto` →
+    light `roseQuartz` / dark `obsidianDark`; a pinned preset overrides both
+    appearances), appearance follows the existing `appearanceMode` setting (reused,
+    no new key), and the icon-set choice (`com.katikati.iconSet`) are stored in
+    `AppSettingsStore` with a one-way `InstallLineage`
     stamp so existing tungsten installs never silently flip. Debug-only hot-swaps
     (`DOCK_THEME=<name>`) let Phase 4 tune look without re-running builds.
   - **Tests:** one test per theme that value-frozen pixels/layer stack for light +
@@ -544,6 +548,25 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
   - Scope: Phase 4 owns `DockThemeTokens` + `DockLiquidGlassConfiguration` + theme
     presets + icon geometry; Phase 6 owns the Settings UI that exposes them (next to
     the existing `com.katikati.layout.*` and `com.katikati.bottomGap` keys).
+
+#### Phase 4 slice breakdown (plan only — not started)
+
+| Slice | Scope | Key files (existing / new) | Tests |
+|---|---|---|---|
+| **4a — theme model (pure)** | `DockThemeStyle` enum: 12 presets + `customRGBA` + `auto` (light→`roseQuartz`/dark→`obsidianDark`), resolution vs `appearanceMode`, persistence key `com.katikati.theme.material` in `AppSettingsStore`, `DOCK_THEME=<name>` debug hot-swap. No visuals change yet (default `auto` renders identical to current look). | new `Core/Support/DockThemeStyle.swift`; edit `App/Composition/AppSettingsStore.swift` | new `DockThemeStyleTests` (resolution matrix: auto×light/dark/system, pinned override, unknown-key fallback) |
+| **4b — preset data** | Pure value tables for all 12 presets + `customRGBA`: base tint, gradient sheen/glow/rim, blur, `prefersDarkContent` flag — tungsten-format ports of EdgeDeck `GradientThemeSpec`/`ThemedGlassBackground` numbers. Value-frozen per preset × light/dark. | new `Core/Support/DockThemeStyleTokens.swift` (no SwiftUI import, per `DockThemeTokens` discipline) | new `DockThemeStyleTokensTests` (every preset × appearance column frozen; all fields finite; rim ≤ shadow budget) |
+| **4c — glass + strip application** | Wire resolution into `DockTheme.resolved(for:)` → tint/rim/shadow tokens per theme; glass plate (`DockGlassBackdrop` + `DockLiquidGlassConfiguration`) honors preset tint; strip/drawer/capsule/popups/tooltip read themed tokens (all six panels — material consistency is load-bearing, cf. 2026-08-17 glass lesson). Default `auto` still visually ≈ today. | edit `App/Scenes/DockTheme.swift`, `Core/Support/DockThemeTokens.swift`, `App/Scenes/DockGlassBackdrop.swift`, `Core/Support/DockLiquidGlassConfiguration.swift`; read sites across `DockStripView`/`DrawerView`/`StackPopupBackdrop`/`WindowTitleTooltip` | extend `DockThemeTests` (light/dark columns now themed; contrast tests rerun) |
+| **4d — widget: weather** | DockBar `WeatherService` port as tungsten chip + popup in `.weather` slot (replaces 2c placeholder in split slots; joins `windows`/`centered` strip via existing `BarSection` grouping). Themed via 4c tokens. 12-language strings. | new `App/Composition/WeatherService.swift` + `App/Scenes/WeatherChip.swift`/popup; edit `DockStripView+Projection.swift` | new `WeatherServiceTests` (parse/mapping) + `check_localization.py` |
+| **4e — widget: clock/calendar** | DockBar `CalendarTrayButton`/`CalendarView` → clock chip + calendar popup in `.clock` slot (island 3 in split4; shares island with tray in split3 — cram rule). Themed, 12 languages. | new `App/Scenes/ClockChip.swift` + popup; edit projection | new clock/calendar unit tests + localization |
+| **4f — widget: tray cluster** | DockBar connectivity + battery + quick settings → tray chip + popup in `.tray` slot. Themed, 12 languages. | new `App/Scenes/TrayClusterChip.swift` + popup; edit projection | new tray tests + localization |
+| **4g — icon redesign** | Re-drawn folder / download / trash icons (distinct shapes, not recolors) + trash dynamic badge: **dot sized by GB** (small values) or **number of items** (large) — badge form decision is a pure Core function; drawn from themed tokens so light/dark/12-preset correct. `com.katikati.iconSet` key (`modern` default). | new `Core/Support/TrashBadgeDecision.swift` + icon assets; edit `TrashChip`/folder chip views | new `TrashBadgeDecisionTests` (GB→dot, count→number, threshold, empty) |
+| **4h — visual lock** | Screenshot golden-set per theme (12) × appearance (2) for strip/drawer/popups; idle-CPU re-measure with widgets (timers are new CPU); full tungsten gate; phase-4 log + CHANGELOG + plan `Result:` line. | docs only + Instruments | full gate + CPU number in PR |
+
+Rules for all slices: each ends gate-green (`xcodebuild test` + `check_localization.py`
++ `check_debug_switches.py` + `check_availability_warnings.py`); ≤ ~300 lines per
+commit; widgets are placement-only (no strip-semantics change — Standing Rules §2.4);
+no new dependencies (EdgeDeck numbers are data, not code); UI/Settings picker stays
+Phase 6; `DOCK_THEME` stays a debug switch only (`check_debug_switches.py` registers it).
 
 ### Phase 5 — Hardening (native Dock, teardown, recovery drill)
 
@@ -574,8 +597,9 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
   `bottomGap 8 − shadowPadding 20` pins; solver `validate()` unchanged.
 - **Appearance tab** (new Settings tab, next to the existing Layout tab): the
   theme/preset picker from Phase 4, using the same `com.katikati.*` domain:
-  `com.katikati.theme.material` (default `roseQuartz`, all 12 presets + customRGBA),
-  `com.katikati.theme.appearance` (light/dark).
+  `com.katikati.theme.material` (default `auto` = light `roseQuartz` / dark
+  `obsidianDark`, all 12 presets + customRGBA selectable as a pinned override);
+  appearance stays on the existing `appearanceMode` setting (no duplicate control).
 - **Icon-set config** (next to Appearance): re-drawn folder / download / trash +
   status-menu item variants, controlled by a single key `com.katikati.iconSet`
   (default `modern`) so all 12 theme presets and icon variants are independently
