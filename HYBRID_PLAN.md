@@ -594,6 +594,7 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
 | **4d — widget: weather** | **Eyeball-only** (§5b rule): study DockBar `WeatherService` fetch/parse approach, write fresh service in tungsten style + tungsten chip + popup in `.weather` slot (replaces 2c placeholder in split slots; joins `windows`/`centered` strip via existing `BarSection` grouping — no projection-pipeline redesign). Themed via 4c tokens. 12-language strings. **Owner 2026-10-08: weather ON by default** (`com.katikati.weather.enabled` default true; user can disable; Phase 6 exposes the toggle). **Owner 2026-10-08 extensions (Phase 6+, NOT 4d — 4d ships fetch + chip + popup + last-cached only):** (a) 14-day offline cache — daily aggregates retained 14 days under Application Support, hourly detail 48h, staleness marker + age label, pure `WeatherCachePolicy` decision in Core; (b) severe-weather alerts (rain/snow onset from hourly precipitation probability + weathercode deltas) surfaced as chip animation (bounce/pulse via existing hover-scale path, no new animation engine) + optional system notification (UNUserNotificationCenter, **opt-in**, default off — App Store/TCC surface, never silent) + optional sound (`NSSound` named ping, default off — the bar's only sounds today are error beeps); (c) hover/metric cycler — chip cycles temperature → "feels like" → humidity → condition on hover (or tap), animated via existing `DOCK_LABEL_ANIM` path, metric set user-configurable in Phase 6. All three read themed tokens; all gated by `com.katikati.weather.*` keys. | new `App/Composition/WeatherService.swift` + `App/Scenes/WeatherChip.swift`/popup; edit `DockStripView+Projection.swift` | new `WeatherServiceTests` (parse/mapping) + `check_localization.py` |
 | **4e — widget: clock/calendar** | **Eyeball-only** (§5b rule): study DockBar calendar layout, write fresh clock chip + calendar popup in `.clock` slot (island 3 in split4; shares island with tray in split3 — cram rule). Themed, 12 languages. | new `App/Scenes/ClockChip.swift` + popup; edit projection | new clock/calendar unit tests + localization |
 | **4f — widget: tray cluster** | **Eyeball-only** (§5b rule): study DockBar connectivity/battery/quick-settings state handling, write fresh tray chip + popup in `.tray` slot. Themed, 12 languages. | new `App/Scenes/TrayClusterChip.swift` + popup; edit projection | new tray tests + localization |
+| **4f2 — widget: now-playing (owner 2026-10-08, CoolDock parity)** | *Intent: match CoolDock's music pill (artwork + title/artist + prev/play/next + progress) as a first-class in-bar widget.* Eyeball EdgeDeck now-playing; write fresh `NowPlayingService` in tungsten style (isolated — MediaRemote/private API, same isolation + `#available` + PR-flagging discipline as SkyLight/`NSGlassEffectView` per §5.3). Chip + popup in `.tray` island alongside connectivity/battery (owner Q1(a) 2026-10-08: in-bar, not edge-only; Appendix A grouping updated for the 4th tray chip). Themed, 12 languages. Keys `com.katikati.nowplaying.*`. | new `App/Composition/NowPlayingService.swift` + `App/Scenes/NowPlayingChip.swift`/popup; Appendix A grouping update | new now-playing tests + localization |
 | **4g — icon redesign** | Re-drawn folder / download / trash icons per the **line set** spec (Phase-4 visual direction): wire-mesh trash can, arrow+tray downloads (special-cased on the Downloads pinned folder), slanted-tab outline folder — distinct shapes, not recolors. Trash dynamic badge: **dot sized by GB** (small values) or **number of items** (large) — badge-form decision is a pure Core function; drawn from themed tokens so light/dark/12-preset correct. `com.katikati.iconSet` key (`modern` default, `classic` = familiar fallback). | new `Core/Support/TrashBadgeDecision.swift` + line-set art; edit `TrashChip`/folder chip views | new `TrashBadgeDecisionTests` (GB→dot, count→number, threshold, empty) |
 | **4h — visual lock** | Screenshot golden-set per theme (12) × appearance (2) for strip/drawer/popups; idle-CPU re-measure with widgets (timers are new CPU); full tungsten gate; phase-4 log + CHANGELOG + plan `Result:` line. | docs only + Instruments | full gate + CPU number in PR |
 
@@ -673,6 +674,21 @@ Phase 6; `DOCK_THEME` stays a debug switch only (`check_debug_switches.py` regis
   marks on product chips or menu bar (section 5.5 of the Phase-0 trademark audit).
 - Polish: hover-title tooltips per island, drag-to-resize grip per island panel,
   edge auto-hide delay interplay with multi-island layouts.
+- **Rich inline chip variant (owner 2026-10-08, CoolDock parity, Phase 6+ polish).**
+  *Intent: CoolDock screenshots 2–3 surface rich content (folder thumbnails,
+  clipboard summaries, terminal+weather) inline in the pill, while our model puts
+  richness in popups — record the option to match without conceding the default.*
+  Opt-in per-chip "expanded inline" form; popups stay the default. Clipboard stays
+  edge-only (owner Q2(a) 2026-10-08: clipboard content in the main bar is a
+  privacy-sensitive surface — passwords/visible text on screen; the Phase-7 edge
+  bar keeps it one deliberate glance away). Terminal/CLI pill not recorded
+  separately (owner Q3(a) 2026-10-08: arc-menu's CLI-by-path in 7c covers the
+  function; the pill form is this variant if ever wanted). No strip-semantics
+  change (§2.4).
+- **Light-preset tuning pass (owner 2026-10-08, CoolDock parity).** *Intent:
+  screenshots 2–3's white pills must be reproducible from our light column, not
+  approximated.* During 4h, check `crystalClear`/`titaniumFrost`-family values
+  against the reference whites; record measured values in the 4h log.
 - **Verify**: mode/width/gaps persist across restarts; switch without relaunch; onboarding
   snapshot test green.
 
