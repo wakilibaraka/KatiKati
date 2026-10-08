@@ -16,9 +16,17 @@ import os
 @MainActor
 final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     struct Unit {
-        /// nil = 跟随设置的唯一单元（①②）；否则该单元固定的 display UUID（③④）。
-        let key: String?
+        let slotKey: IslandSlotSet.SlotKey
         let coordinator: PanelCoordinator
+
+        /// nil = 跟随设置的单元（①②）；否则该单元固定的 display UUID（③④）。
+        var key: String? { slotKey.display }
+        var slot: Int { slotKey.slot }
+
+        init(slotKey: IslandSlotSet.SlotKey, coordinator: PanelCoordinator) {
+            self.slotKey = slotKey
+            self.coordinator = coordinator
+        }
     }
 
     private(set) var units: [Unit] = []
@@ -54,6 +62,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     private var started = false
     private var isSuspended = false
     private var placementSubscription: AnyCancellable?
+    private var barLayoutModeSubscription: AnyCancellable?
     private var fullscreenIntentEnabledSubscription: AnyCancellable?
     private var fullscreenIntentMonitor: FullscreenIntentMonitor?
     private var perDisplaySeedController: TaskbarPerDisplaySeedController?
@@ -179,6 +188,18 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
                 )
                 self.reconcileHoverMouseMonitors()
             }
+        barLayoutModeSubscription = settingsStore.$barLayoutMode
+            .removeDuplicates()
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.rebuildUnits(
+                    reason: "mode",
+                    connectedKeys: self.displayTopologyStore.latestSnapshot.identifiedDisplayUUIDs
+                )
+                self.reconcileHoverMouseMonitors()
+            }
         fullscreenIntentEnabledSubscription = settingsStore.$fullscreenIntentEnabled
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
@@ -212,6 +233,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         perDisplaySeedController?.cancel()
         perDisplaySeedController = nil
         placementSubscription = nil
+        barLayoutModeSubscription = nil
         fullscreenIntentEnabledSubscription = nil
         NotificationCenter.default.removeObserver(self)
     }
@@ -226,36 +248,38 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
 
     // MARK: - 单元集合
 
-    /// 按当前设置与屏集合建 / 拆单元。目标 key 列表没变就什么都不做（幂等，可在任何通知里调）。
+    /// 按当前设置、布局模式与屏集合建 / 拆单元。目标 slotKey 列表没变就什么都不做（幂等，可在任何通知里调）。
     private func rebuildUnits(reason: String, connectedKeys: [String]) {
         guard started, !isSuspended else { return }
         cancelInteractiveHeightResize()
-        let desired = TaskbarDisplaySet.desiredUnitKeys(
+        let desired = IslandSlotSet.desiredSlots(
             placement: settingsStore.taskbarScreenPlacement,
-            connectedKeys: connectedKeys
+            connectedKeys: connectedKeys,
+            mode: settingsStore.barLayoutMode
         )
-        let current = units.map(\.key)
+        let current = units.map(\.slotKey)
         guard desired != current else { return }
-        let desiredSet = Set(desired.map { $0 ?? "" })
-        var survivors: [String?: Unit] = [:]
+        let desiredSet = Set(desired)
+        var survivors: [IslandSlotSet.SlotKey: Unit] = [:]
         for unit in units {
-            if desiredSet.contains(unit.key ?? "") {
-                survivors[unit.key] = unit
+            if desiredSet.contains(unit.slotKey) {
+                survivors[unit.slotKey] = unit
             } else {
                 unit.coordinator.setFullscreenIntentRouting(enabled: false)
                 unit.coordinator.tearDown()
             }
         }
-        units = desired.map { key in survivors[key] ?? makeUnit(key: key) }
+        units = desired.map { slotKey in survivors[slotKey] ?? makeUnit(slotKey: slotKey) }
         logger.info("units rebuilt reason=\(reason, privacy: .public) count=\(self.units.count, privacy: .public)")
         pushPanelScreensToIntentMonitor()
         reconcileBadgeGate()
     }
 
-    private func makeUnit(key: String?) -> Unit {
-        let placement: TaskbarUnitPlacement = key.map { .fixed(displayUUID: $0) } ?? .followSettings
+    private func makeUnit(slotKey: IslandSlotSet.SlotKey) -> Unit {
+        let placement: TaskbarUnitPlacement = slotKey.display.map { .fixed(displayUUID: $0) } ?? .followSettings
         let coordinator = PanelCoordinator(
             placement: placement,
+            islandSlot: slotKey.slot,
             dragController: dragController,
             overlaySpaceHost: overlaySpaceHost,
             runtime: runtime,
@@ -296,7 +320,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         coordinator.onInteractiveHeightResizeUpdate = { [weak self] in
             self?.units.forEach { $0.coordinator.commitInteractivePanelHeight() }
         }
-        return Unit(key: key, coordinator: coordinator)
+        return Unit(slotKey: slotKey, coordinator: coordinator)
     }
 
     // MARK: - 高度拖动会话

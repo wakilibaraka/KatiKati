@@ -321,6 +321,8 @@ final class PanelCoordinator: NSObject {
 
     /// 这个单元被安放在哪（见 `TaskbarUnitPlacement`）。③④ 下每屏一个 `.fixed` 单元。
     let unitPlacement: TaskbarUnitPlacement
+    /// The island slot index for this coordinator (0 for single/centered, 0..<3 for split3, 0..<4 for split4).
+    let islandSlot: Int
     /// 常驻面板的私有空间宿主（整个进程一个，编排层持有）。nil = 开关关 / 符号缺失，
     /// 面板保持 `.canJoinAllSpaces` 老行为。见 `OverlaySpaceHost`。
     let overlaySpaceHost: OverlaySpaceHost?
@@ -334,6 +336,7 @@ final class PanelCoordinator: NSObject {
     }
 
     init(placement: TaskbarUnitPlacement,
+         islandSlot: Int = 0,
          dragController: DragController,
          overlaySpaceHost: OverlaySpaceHost?,
          runtime: AppRuntime,
@@ -351,6 +354,7 @@ final class PanelCoordinator: NSObject {
          appMembershipController: AppMembershipController,
          displayTopologyStore: DisplayTopologyStore) {
         self.unitPlacement = placement
+        self.islandSlot = islandSlot
         self.dragController = dragController
         self.overlaySpaceHost = overlaySpaceHost
         self.runtime = runtime
