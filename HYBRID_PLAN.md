@@ -113,7 +113,6 @@ revisit after Phase 5 using tungsten's `DockPanelHeight` scaling path (Phase 7).
   switching on click, drawer stashing, drag-to-organize, badges, pinned folders, shelf,
   trash. Modes change **where chips render**, never **what a chip means**.
 
-### Non-goals
 
 - No AppKit rewrite of the strip: `DockStripView` + `PanelCoordinator` + `AppRuntime` stay
   SwiftUI-in-panel exactly as tungsten ships them. New code is layout/placement/settings;
@@ -631,16 +630,19 @@ Phase 6; `DOCK_THEME` stays a debug switch only (`check_debug_switches.py` regis
 
 ### Phase 5 — Hardening (native Dock, teardown, recovery drill)
 
-### Phase 6 — Settings Layout tab + welcome step + polish
 
 - Keep tungsten native-Dock services as the path; run the recovery drill: kill -9 during
   Dock-mutating states, SIGTERM/SIGINT teardown, crash-relaunch, dev-bypass guard.
+- **Calendar Popup Redesign**: Owner will redesign the Calendar Popup manually in this phase (Phase 4 popup implementation removed/deferred).
+
   Adopt live-SplitBar recovery-file ideas **only** if the drill proves a tungsten gap
   (evidence-gated diff, recorded in the PR).
 - Window-lift avoidance re-verified with island frames (maximized windows avoid every
   island, not just the strip rect).
 - **Verify**: drill log in the PR; no lost Dock state; no orphaned island panels after
   crash-relaunch.
+- **Calendar Popup Redesign**: Owner will redesign the Calendar Popup manually in this phase (Phase 4 popup implementation removed/deferred).
+
 
 ### Phase 6 — Settings Layout tab + welcome step + polish
 
