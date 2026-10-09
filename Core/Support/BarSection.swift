@@ -1,21 +1,27 @@
+import CoreGraphics
 import Foundation
 
 /// Logical content sections of the taskbar.
 ///
 /// Canonical left-to-right order is always:
 /// 1. `weather`
-/// 2. `media` (now playing, live activities)
-/// 3. `apps` (window chips and tungsten utilities: drawer, shelf, trash, pinned folders)
-/// 4. `tray` (status cluster: battery, wifi, bluetooth, quick settings)
-/// 5. `clock` (clock chip & calendar)
+/// 2. `apps` (window chips and tungsten utilities: drawer, shelf, trash, pinned folders)
+/// 3. `clock` (combined clock chip & calendar popup)
+///
+/// The former `media` section (now playing) was removed owner 2026-10-09 (Phase 4U
+/// decision 2): Now Playing returns in the 4f rework as a play/pause mini icon
+/// at the apps island's right end plus a popup — not as a section of its own.
+///
+/// The former `tray` section (status cluster) was removed owner 2026-10-09 (Phase 4U
+/// decision 8b): Wi-Fi, battery, the tray popup, quick settings and the merged ring
+/// icon are Phase 7 edge-bar scope (decision 8c); the bar's right end is the combined
+/// clock chip alone.
 ///
 /// Across layout modes, this sequence is never rearranged; only the grouping into
 /// discrete island slots varies.
 enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable {
     case weather
-    case media
     case apps
-    case tray
     case clock
 
     var id: String { rawValue }
@@ -23,9 +29,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     var title: String {
         switch self {
         case .weather: return "Weather"
-        case .media: return "Media"
         case .apps: return "Apps"
-        case .tray: return "Tray"
         case .clock: return "Clock"
         }
     }
@@ -34,13 +38,28 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         "sec-\(rawValue)"
     }
 
+    /// Fixed default width for the section's placeholder frame when no
+    /// `widgetWidths` override is stored (edited via sliders in Settings —
+    /// Phase 4U decision 3: order hardcoded, widths settings-only).
+    var defaultWidgetWidth: CGFloat {
+        switch self {
+        case .weather: return 120
+        case .apps: return 0
+        case .clock: return 160
+        }
+    }
+
     /// Grouping of sections into island slots for each layout mode.
     ///
-    /// - `.windows`: `[[.weather, .media, .apps, .tray, .clock]]` (1 full-width slot)
+    /// - `.windows`: `[[.weather, .apps, .clock]]` (1 full-width slot)
     /// - `.windows`, `.centered`: `[order]` (1 slot)
     /// - `.split3`: Everything before `.apps` (slot 0), `[.apps]` (slot 1), everything after `.apps` (slot 2)
     /// - `.split4`: Left group, `[.apps]`, first right item, remaining right items.
-    static func islands(for mode: BarLayoutMode, order: [BarSection] = [.weather, .media, .apps, .tray, .clock]) -> [[BarSection]] {
+    ///   With only three canonical sections, the "remaining right items" group is
+    ///   empty, so `.split4` yields the same 3 groups as `.split3` (Phase 4U decision
+    ///   8b removed `tray`); `BarLayoutMode.slotCount` derives from this, so no
+    ///   fourth panel is allocated to duplicate the apps strip.
+    static func islands(for mode: BarLayoutMode, order: [BarSection] = [.weather, .apps, .clock]) -> [[BarSection]] {
         switch mode {
         case .windows, .centered:
             return [order]
@@ -66,7 +85,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     }
 
     /// The 0-based slot index that hosts this section in the given layout mode.
-    func slotIndex(for mode: BarLayoutMode, order: [BarSection] = [.weather, .media, .apps, .tray, .clock]) -> Int {
+    func slotIndex(for mode: BarLayoutMode, order: [BarSection] = [.weather, .apps, .clock]) -> Int {
         let islandGroups = Self.islands(for: mode, order: order)
         for (index, group) in islandGroups.enumerated() {
             if group.contains(self) {

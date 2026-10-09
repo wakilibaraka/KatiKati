@@ -83,16 +83,15 @@ final class AtomicFullscreenTests: XCTestCase {
     }
 
     func testCapsuleOwnershipAcrossSlots() {
-        // In split4 mode:
+        // In split4 mode (decision 8b: `.tray` removed → 3 groups):
         // Slot 0: weather -> capsule: false
         // Slot 1: apps    -> capsule: true
-        // Slot 2: tray    -> capsule: false
-        // Slot 3: clock   -> capsule: false
+        // Slot 2: clock   -> capsule: false
         let sections = BarSection.islands(for: .split4)
-        XCTAssertEqual(sections.count, 4)
+        XCTAssertEqual(sections.count, 3)
 
         let capsuleOwners = sections.map { $0.contains(.apps) }
-        XCTAssertEqual(capsuleOwners, [false, true, false, false])
+        XCTAssertEqual(capsuleOwners, [false, true, false])
 
         // Exactly one slot owns the capsule
         XCTAssertEqual(capsuleOwners.filter { $0 }.count, 1)

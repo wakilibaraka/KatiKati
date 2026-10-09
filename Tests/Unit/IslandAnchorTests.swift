@@ -51,25 +51,21 @@ final class IslandAnchorTests: XCTestCase {
         // Windows mode: 1 slot (index 0 for all)
         XCTAssertEqual(BarSection.weather.slotIndex(for: .windows), 0)
         XCTAssertEqual(BarSection.apps.slotIndex(for: .windows), 0)
-        XCTAssertEqual(BarSection.tray.slotIndex(for: .windows), 0)
         XCTAssertEqual(BarSection.clock.slotIndex(for: .windows), 0)
 
-        // Split3 mode: 3 slots (weather->0, apps->1, tray/clock->2)
+        // Split3 mode: 3 slots (weather->0, apps->1, clock->2)
         XCTAssertEqual(BarSection.weather.slotIndex(for: .split3), 0)
         XCTAssertEqual(BarSection.apps.slotIndex(for: .split3), 1)
-        XCTAssertEqual(BarSection.tray.slotIndex(for: .split3), 2)
         XCTAssertEqual(BarSection.clock.slotIndex(for: .split3), 2)
 
-        // Split4 mode: 4 slots (weather->0, apps->1, tray->2, clock->3)
+        // Split4 mode: 3 slots for the canonical order (decision 8b removed `tray`)
         XCTAssertEqual(BarSection.weather.slotIndex(for: .split4), 0)
         XCTAssertEqual(BarSection.apps.slotIndex(for: .split4), 1)
-        XCTAssertEqual(BarSection.tray.slotIndex(for: .split4), 2)
-        XCTAssertEqual(BarSection.clock.slotIndex(for: .split4), 3)
+        XCTAssertEqual(BarSection.clock.slotIndex(for: .split4), 2)
 
         // Centered mode: 1 slot (index 0 for all)
         XCTAssertEqual(BarSection.weather.slotIndex(for: .centered), 0)
         XCTAssertEqual(BarSection.apps.slotIndex(for: .centered), 0)
-        XCTAssertEqual(BarSection.tray.slotIndex(for: .centered), 0)
         XCTAssertEqual(BarSection.clock.slotIndex(for: .centered), 0)
     }
 
@@ -78,13 +74,12 @@ final class IslandAnchorTests: XCTestCase {
         let gap: CGFloat = 12
         let margin: CGFloat = 16
 
-        // Compute 4 islands in split4 mode
+        // Compute 3 islands in split4 mode (decision 8b: `.tray` removed → 3 groups)
         let slot0 = PanelGeometry.islandTargetFrame(slot: 0, contentWidth: 100, mode: .split4, on: testScreen, metrics: metrics, gap: gap, margin: margin)
         let slot1 = PanelGeometry.islandTargetFrame(slot: 1, contentWidth: 400, mode: .split4, on: testScreen, metrics: metrics, gap: gap, margin: margin)
         let slot2 = PanelGeometry.islandTargetFrame(slot: 2, contentWidth: 120, mode: .split4, on: testScreen, metrics: metrics, gap: gap, margin: margin)
-        let slot3 = PanelGeometry.islandTargetFrame(slot: 3, contentWidth: 90, mode: .split4, on: testScreen, metrics: metrics, gap: gap, margin: margin)
 
-        let islands = [slot0, slot1, slot2, slot3]
+        let islands = [slot0, slot1, slot2]
         let bounding = islands.reduce(islands[0]) { $0.union($1) }
 
         for (idx, island) in islands.enumerated() {
@@ -92,7 +87,7 @@ final class IslandAnchorTests: XCTestCase {
         }
 
         XCTAssertEqual(bounding.minX, slot0.minX)
-        XCTAssertEqual(bounding.maxX, slot3.maxX)
+        XCTAssertEqual(bounding.maxX, slot2.maxX)
     }
 
     func testPopupTargetFramePositionedAboveAnchor() {

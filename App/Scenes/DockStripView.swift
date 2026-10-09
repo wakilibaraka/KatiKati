@@ -3,41 +3,6 @@ import OSLog
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct WidgetResizeHandle: View {
-    let section: BarSection
-    let defaultWidth: CGFloat
-    @EnvironmentObject var store: AppSettingsStore
-    @State private var startWidth: CGFloat?
-
-    var body: some View {
-        Color.clear
-            .frame(width: 8)
-            .contentShape(Rectangle())
-            .onHover { isHovered in
-                if isHovered {
-                    NSCursor.resizeLeftRight.push()
-                } else {
-                    NSCursor.pop()
-                }
-            }
-            .gesture(
-                DragGesture()
-                    .onChanged { value in
-                        if startWidth == nil {
-                            startWidth = store.widgetWidths[section.rawValue] ?? defaultWidth
-                        }
-                        if let start = startWidth {
-                            let newWidth = max(40, start + value.translation.width)
-                            store.setWidgetWidth(newWidth, for: section)
-                        }
-                    }
-                    .onEnded { _ in
-                        startWidth = nil
-                    }
-            )
-    }
-}
-
 struct DockStripView: View {
     @Environment(\.isPanelHeightResizing) var isPanelHeightResizing
     @EnvironmentObject var runtime: AppRuntime
@@ -90,7 +55,10 @@ struct DockStripView: View {
 
     /// 浅 / 深色两套视觉数值（见 `DockThemeTokens`）。深色列是冻结的历史值，调观感只动浅色列。
     @Environment(\.colorScheme) private var colorScheme
-    private var theme: DockThemeTokens { .resolved(for: colorScheme) }
+    // 4c: the strip observes the store, so it reads the pinned style straight from it (live on
+    // every theme change); its subtree gets the same value through the environment injected at
+    // the end of `body`.
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: settingsStore.themeMaterial) }
 
     /// 文件夹 chip 点击 → 弹窗 toggle（path + chip 可视矩形·屏幕坐标）。PanelCoordinator 注入。
     var onFolderPopupToggle: (String, CGRect) -> Void = { _, _ in }
@@ -522,6 +490,10 @@ struct DockStripView: View {
             if !visible { animatedEntryIDs.remove("trash") }
             externalDropHoverEnded(isLanding: false)
         }
+        // 4c: the themed descendants below (chips, labels, backdrop) read the pinned style from
+        // the environment. Injected here — not at the NSHostingView — because this body re-runs on
+        // every `themeMaterial` change, so a theme switch repaints the whole strip immediately.
+        .environment(\.dockThemeStyle, settingsStore.themeMaterial)
         // No .frame(maxWidth: .infinity) here — lets NSHostingView.fittingSize reflect
         // the natural content width so AppDelegate can read it for panel sizing.
     }
@@ -1338,43 +1310,27 @@ struct DockStripView: View {
                      badgeText: windowBadge,
                      slotHidden: projection.draggingID == item.id)
         case let .sectionPlaceholder(section):
-            let defaultWidth: CGFloat = {
-                switch section {
-                case .weather: return 120
-                case .tray: return 140
-                case .clock: return 160
-                default: return 0
-                }
-            }()
+            // Fixed-order, settings-only widths (Phase 4U decision 3): no on-dock
+            // resize handles — width is the stored `widgetWidths` override or this
+            // default, edited via sliders in Settings.
+            let defaultWidth = section.defaultWidgetWidth
             let targetWidth = settingsStore.widgetWidths[section.rawValue] ?? defaultWidth
-            
-            HStack(spacing: 0) {
-                if section != .apps {
-                    WidgetResizeHandle(section: section, defaultWidth: defaultWidth)
-                }
-                HStack(spacing: 6 * dockScale) {
-                    switch section {
-                    case .weather:
-                        WeatherChip()
-                            .scaleEffect(dockScale)
-                    case .media:
-                        NowPlayingChip()
-                    case .tray:
-                        TrayChip()
-                    case .clock:
-                        ClockChip()
-                    case .apps:
-                        EmptyView()
-                    }
-                }
-                .padding(.horizontal, 10 * dockScale)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
-                
-                if section != .apps {
-                    WidgetResizeHandle(section: section, defaultWidth: defaultWidth)
+
+            HStack(spacing: 6 * dockScale) {
+                switch section {
+                case .weather:
+                    WeatherChip()
+                        .scaleEffect(dockScale)
+                case .clock:
+                    ClockChip()
+                        .scaleEffect(dockScale)
+                case .apps:
+                    EmptyView()
                 }
             }
+            .padding(.horizontal, 10 * dockScale)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .clipped()
             .frame(width: section == .apps ? nil : targetWidth, height: 36 * dockScale)
             .contentShape(Rectangle())
         case .divider:

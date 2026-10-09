@@ -5,13 +5,11 @@ final class IslandStripProjectionTests: XCTestCase {
     func testBarSectionTitles() {
         XCTAssertEqual(BarSection.weather.title, "Weather")
         XCTAssertEqual(BarSection.apps.title, "Apps")
-        XCTAssertEqual(BarSection.tray.title, "Tray")
         XCTAssertEqual(BarSection.clock.title, "Clock")
     }
 
     func testSectionPlaceholderEntryID() {
         XCTAssertEqual(BarSection.weather.placeholderEntryID, "sec-weather")
-        XCTAssertEqual(BarSection.tray.placeholderEntryID, "sec-tray")
         XCTAssertEqual(BarSection.clock.placeholderEntryID, "sec-clock")
     }
 
@@ -30,24 +28,23 @@ final class IslandStripProjectionTests: XCTestCase {
         // Split3 mode: 3 slots
         let split3Islands = BarSection.islands(for: .split3)
         XCTAssertEqual(split3Islands.count, 3)
-        XCTAssertEqual(split3Islands[0], [.weather, .media])
+        XCTAssertEqual(split3Islands[0], [.weather])
         XCTAssertFalse(split3Islands[0].contains(.apps))
         XCTAssertEqual(split3Islands[1], [.apps])
         XCTAssertTrue(split3Islands[1].contains(.apps))
-        XCTAssertEqual(split3Islands[2], [.tray, .clock])
+        XCTAssertEqual(split3Islands[2], [.clock])
         XCTAssertFalse(split3Islands[2].contains(.apps))
 
-        // Split4 mode: 4 slots
+        // Split4 mode: the split-4 rule yields 3 groups for the canonical order
+        // (Phase 4U decision 8b removed `tray`)
         let split4Islands = BarSection.islands(for: .split4)
-        XCTAssertEqual(split4Islands.count, 4)
-        XCTAssertEqual(split4Islands[0], [.weather, .media])
+        XCTAssertEqual(split4Islands.count, 3)
+        XCTAssertEqual(split4Islands[0], [.weather])
         XCTAssertEqual(split4Islands[1], [.apps])
-        XCTAssertEqual(split4Islands[2], [.tray])
-        XCTAssertEqual(split4Islands[3], [.clock])
+        XCTAssertEqual(split4Islands[2], [.clock])
         XCTAssertFalse(split4Islands[0].contains(.apps))
         XCTAssertTrue(split4Islands[1].contains(.apps))
         XCTAssertFalse(split4Islands[2].contains(.apps))
-        XCTAssertFalse(split4Islands[3].contains(.apps))
     }
 
     func testSlotIndexForMode() {
@@ -56,12 +53,10 @@ final class IslandStripProjectionTests: XCTestCase {
 
         XCTAssertEqual(BarSection.weather.slotIndex(for: .split3), 0)
         XCTAssertEqual(BarSection.apps.slotIndex(for: .split3), 1)
-        XCTAssertEqual(BarSection.tray.slotIndex(for: .split3), 2)
         XCTAssertEqual(BarSection.clock.slotIndex(for: .split3), 2)
 
         XCTAssertEqual(BarSection.weather.slotIndex(for: .split4), 0)
         XCTAssertEqual(BarSection.apps.slotIndex(for: .split4), 1)
-        XCTAssertEqual(BarSection.tray.slotIndex(for: .split4), 2)
-        XCTAssertEqual(BarSection.clock.slotIndex(for: .split4), 3)
+        XCTAssertEqual(BarSection.clock.slotIndex(for: .split4), 2)
     }
 }

@@ -4,8 +4,10 @@ import Foundation
 ///
 /// KatiKati provides 4 distinct taskbar presentations:
 /// - `.windows`: Traditional single full-width bar across the bottom of the screen.
-/// - `.split3`: Three separate floating islands: Weather on the left, Apps centered, and Tray + Clock on the right.
-/// - `.split4`: Four separate floating islands: Weather on the left, Apps centered, Tray, and Clock separated on the right.
+/// - `.split3`: Three separate floating islands: Weather on the left, Apps centered, and Clock on the right.
+/// - `.split4`: Four-island grouping rule (left / apps / first right / rest right). With the
+///   canonical `weather → apps → clock` order (Phase 4U decision 8b removed `tray`) it
+///   produces the same 3 islands as `.split3`.
 /// - `.centered`: A single floating centered pill/island containing all elements.
 enum BarLayoutMode: String, CaseIterable, Codable, Sendable, Identifiable {
     case windows
@@ -36,22 +38,23 @@ enum BarLayoutMode: String, CaseIterable, Codable, Sendable, Identifiable {
     var isSplit: Bool { !isSingleIsland }
 
     /// Number of panel slots required for this layout mode.
+    ///
+    /// Derived from the island groups the canonical order actually produces rather than
+    /// a hand-kept constant: after the Phase 4U `.tray` removal (decision 8b) `.split4`
+    /// yields 3 groups, and allocating a 4th panel would land in the projection's
+    /// orphan-slot `[.apps]` fallback and duplicate the whole apps strip.
     var slotCount: Int {
-        switch self {
-        case .windows, .centered: return 1
-        case .split3: return 3
-        case .split4: return 4
-        }
+        BarSection.islands(for: self).count
     }
 
     var detail: String {
         switch self {
         case .windows:
-            return "Full-width bar with weather, centered apps, tray and clock"
+            return "Full-width bar with weather, centered apps and clock"
         case .split3:
-            return "Three islands: weather on left, apps centered, tray and clock on right"
+            return "Three islands: weather on left, apps centered, clock on right"
         case .split4:
-            return "Four islands: weather on left, apps centered, tray, and clock"
+            return "Three islands (split-4 rule): weather on left, apps centered, clock"
         case .centered:
             return "Single compact centered floating bar"
         }

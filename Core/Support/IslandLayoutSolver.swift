@@ -49,7 +49,6 @@ enum IslandLayoutSolver {
     ///   - tileStride: Horizontal stride per app chip.
     ///   - appCount: Total number of app items to lay out.
     ///   - weatherWidth: Fixed width of the weather widget/island.
-    ///   - trayWidth: Fixed width of the status tray cluster.
     ///   - clockWidth: Fixed width of the clock / calendar widget.
     ///   - clusterWidth: Utility cluster width (drawer, shelf, trash, pinned folders).
     ///   - gap: Inter-island gap in points (enforces minimum 0.5 pt).
@@ -63,13 +62,11 @@ enum IslandLayoutSolver {
     static func layout(
         screenWidth: CGFloat,
         mode: BarLayoutMode,
-        widgetOrder: [BarSection] = [.weather, .media, .apps, .tray, .clock],
+        widgetOrder: [BarSection] = [.weather, .apps, .clock],
         widgetWidths: [BarSection: CGFloat] = [:],
         tileStride: CGFloat,
         appCount: Int,
         weatherWidth: CGFloat = 120,
-        mediaWidth: CGFloat = 0,
-        trayWidth: CGFloat = 140,
         clockWidth: CGFloat = 160,
         clusterWidth: CGFloat,
         gap: CGFloat,
@@ -89,8 +86,6 @@ enum IslandLayoutSolver {
             if let custom = widgetWidths[section] { return custom }
             switch section {
             case .weather: return weatherWidth
-            case .media: return mediaWidth > 0 ? mediaWidth : 0
-            case .tray: return trayWidth
             case .clock: return clockWidth
             case .apps: return 0
             }
