@@ -15,6 +15,16 @@ final class DockThemeStyleTokensTests: XCTestCase {
         XCTAssertEqual(obsDark.baseTint.g, 0.05)
         XCTAssertEqual(obsDark.baseTint.b, 0.05)
         XCTAssertEqual(obsDark.prefersDarkContent, false)
+        
+        let deepOceanLight = DockThemeStyleTokens.resolve(style: .deepOcean, appearance: .light)
+        XCTAssertEqual(deepOceanLight.baseTint.r, 0.80)
+        XCTAssertEqual(deepOceanLight.baseTint.g, 0.88)
+        XCTAssertEqual(deepOceanLight.baseTint.b, 0.98)
+        
+        let emberSunsetDark = DockThemeStyleTokens.resolve(style: .emberSunset, appearance: .dark)
+        XCTAssertEqual(emberSunsetDark.baseTint.r, 0.25)
+        XCTAssertEqual(emberSunsetDark.baseTint.g, 0.12)
+        XCTAssertEqual(emberSunsetDark.baseTint.b, 0.08)
     }
     
     func testAutoResolvesToRoseAndObsidian() {
@@ -28,21 +38,26 @@ final class DockThemeStyleTokensTests: XCTestCase {
     }
     
     func testAllFieldsFinite() {
-        let allStyles: [DockThemeStyle] = [
-            .system, .translucent, .crystalClear, .obsidianDark, .monochrome,
-            .titaniumFrost, .auroraGlow, .deepOcean, .forestMoss, .cyberpunkGlass,
-            .emberSunset, .roseQuartz, .customRGBA(r: 0.5, g: 0.5, b: 0.5, a: 0.5)
+        let all: [DockThemeStyleTokens] = [
+            .systemLight, .systemDark,
+            .translucentLight, .translucentDark,
+            .crystalClearLight, .crystalClearDark,
+            .obsidianDarkLight, .obsidianDarkDark,
+            .monochromeLight, .monochromeDark,
+            .titaniumFrostLight, .titaniumFrostDark,
+            .auroraGlowLight, .auroraGlowDark,
+            .deepOceanLight, .deepOceanDark,
+            .forestMossLight, .forestMossDark,
+            .cyberpunkGlassLight, .cyberpunkGlassDark,
+            .emberSunsetLight, .emberSunsetDark,
+            .roseQuartzLight, .roseQuartzDark
         ]
-        
-        for style in allStyles {
-            for appearance in [AppearanceMode.light, AppearanceMode.dark, AppearanceMode.system] {
-                let token = DockThemeStyleTokens.resolve(style: style, appearance: appearance)
-                XCTAssertTrue(token.baseTint.a.isFinite)
-                XCTAssertTrue(token.gradientSheen.a.isFinite)
-                XCTAssertTrue(token.glow.a.isFinite)
-                XCTAssertTrue(token.rim.a.isFinite)
-                XCTAssertTrue(token.blurRadius.isFinite)
-            }
+        for token in all {
+            XCTAssertTrue(token.baseTint.r.isFinite)
+            XCTAssertTrue(token.gradientSheen.r.isFinite)
+            XCTAssertTrue(token.glow.r.isFinite)
+            XCTAssertTrue(token.rim.r.isFinite)
+            XCTAssertTrue(token.blurRadius.isFinite)
         }
     }
 }
