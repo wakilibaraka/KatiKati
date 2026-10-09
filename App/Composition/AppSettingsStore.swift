@@ -25,6 +25,20 @@ enum AppearanceMode: String, CaseIterable {
     }
 }
 
+enum NowPlayingTheme: String, CaseIterable {
+    case auto
+    case light
+    case dark
+
+    var displayTitle: String {
+        switch self {
+        case .auto: return String(localized: "Auto")
+        case .light: return String(localized: "Light")
+        case .dark: return String(localized: "Dark")
+        }
+    }
+}
+
 enum DrawerPlacement: String, CaseIterable {
     case left
     case right
@@ -116,6 +130,14 @@ final class AppSettingsStore: ObservableObject {
     /// 中转格是否显示在固定文件夹区头位。关掉后它不再渲染，暂存的文件不受影响。
     @Published private(set) var showShelf: Bool
     @Published private(set) var drawerPlacement: DrawerPlacement
+    @Published var nowPlayingTheme: NowPlayingTheme {
+        didSet {
+            if nowPlayingTheme != oldValue {
+                UserDefaults.standard.set(nowPlayingTheme.rawValue, forKey: Keys.nowPlayingTheme)
+            }
+        }
+    }
+    
     @Published private(set) var showTrash: Bool
     /// 任务条尺寸档位。面板几何与条内所有 chip 尺寸都由它派生。
     @Published private(set) var dockPanelHeight: DockPanelHeight
@@ -217,6 +239,7 @@ final class AppSettingsStore: ObservableObject {
         launchAtLogin = defaults.bool(forKey: Keys.launchAtLogin)
         drawerPlacement = DrawerPlacement(rawValue: defaults.string(forKey: Keys.drawerPlacement) ?? "") ?? .right
         showShelf = defaults.bool(forKey: Keys.showShelf)
+        nowPlayingTheme = NowPlayingTheme(rawValue: defaults.string(forKey: Keys.nowPlayingTheme) ?? "") ?? .auto
         showTrash = defaults.bool(forKey: Keys.showTrash)
         barLayoutMode = BarLayoutMode(rawValue: defaults.string(forKey: Keys.barLayoutMode) ?? "") ?? .windows
         let storedCentered = Self.storedNumericValue(defaults.object(forKey: Keys.centeredWidth)) ?? Double(Self.defaultCenteredWidth)
@@ -639,6 +662,8 @@ private enum Keys {
     static let showShelf = "com.katikati.showShelf"
     // Never read the retired com.katikati.trash.visible key.
     static let showTrash = "com.katikati.showTrash"
+    static let nowPlayingTheme = "com.katikati.nowPlayingTheme"
+
     /// Continuous bar height in points (since the drag-to-resize release).
     static let dockPanelHeight = "com.katikati.dockPanelHeight"
     /// Legacy four-tier raw string. **Read once for migration, never written or removed.**

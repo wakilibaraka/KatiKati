@@ -117,6 +117,20 @@ struct SettingsWindowContent: View {
                         widgetWidthSliders
                     }
                     .padding(.vertical, 4)
+                    
+                    HStack {
+                        Text("Now Playing Theme")
+                        Spacer(minLength: 12)
+                        Picker(Text(verbatim: ""), selection: $store.nowPlayingTheme) {
+                            ForEach(NowPlayingTheme.allCases, id: \.self) {
+                                Text($0.displayTitle)
+                            }
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.menu)
+                        .fixedSize()
+                    }
+                    
                     HStack {
                         Text("Drawer Position")
                         Spacer(minLength: 12)

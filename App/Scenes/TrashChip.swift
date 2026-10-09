@@ -14,32 +14,43 @@ struct TrashChip: View {
     @State private var isPressed = false
     @Environment(\.colorScheme) private var colorScheme
 
+    private var currentImage: String {
+        if isDropTargeted {
+            return "TrashRecycle"
+        } else if isFull {
+            return "TrashFull"
+        } else {
+            return "TrashEmpty"
+        }
+    }
+
     var body: some View {
-        VStack(spacing: 0) {
-            Image(systemName: isFull ? "trash.fill" : "trash")
+        ZStack(alignment: .topTrailing) {
+            Image(currentImage)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: isFull ? [.red.opacity(0.8), .red] : [.gray.opacity(0.7), .gray],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
+                .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 2)
                 .frame(width: ChipPillMetrics.bareIconSlot * scale, height: ChipPillMetrics.bareIconSlot * scale)
                 
-            // Dynamic badge placeholder (dot or count)
+            // Standard macOS red badge (dot) for full state
             if isFull {
                 Circle()
                     .fill(Color.red)
-                    .frame(width: 4 * scale, height: 4 * scale)
-                    .padding(.top, 2 * scale)
+                    .frame(width: 8 * scale, height: 8 * scale)
+                    .overlay(
+                        Circle().stroke(Color.white.opacity(0.8), lineWidth: 1 * scale)
+                    )
+                    .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
+                    .offset(x: -2 * scale, y: 2 * scale)
             }
         }
         .frame(width: ChipPillMetrics.cardWidth * scale, height: ChipPillMetrics.chipHeight * scale)
-        .scaleEffect(isDropTargeted ? 1.08 : 1, anchor: .bottom)
-        .animation(.easeInOut(duration: 0.12), value: isDropTargeted)
+        // Add subtle scale/bounce animation on hover
+        .scaleEffect(isHovered ? 1.05 : 1.0, anchor: .bottom)
+        .scaleEffect(isDropTargeted ? 1.15 : 1.0, anchor: .bottom)
+        .animation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0), value: isHovered)
+        .animation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0), value: isDropTargeted)
+        .animation(.easeInOut(duration: 0.12), value: isFull)
         .chipQuietHoverScale(hoverStyle.showsQuietHoverFeedback(isHovering: isHovered),
                              cardWidth: ChipPillMetrics.cardWidth * scale, scale: scale)
         .chipPressScale(isPressed)
@@ -67,4 +78,3 @@ struct TrashChip: View {
         return menu
     }
 }
-
