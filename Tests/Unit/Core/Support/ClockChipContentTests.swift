@@ -67,7 +67,7 @@ final class ClockChipContentTests: XCTestCase {
     /// indigo 19:00–06:59 — a one-hour drift here would repaint the chip at the wrong time
     /// without any other symptom.
     func testDaylightBoundaryFlipsTheChipHue() {
-        XCTAssertFalse(ClockChipDaylight.isNight(utcDate(6, 59, 0), calendar: utc), "06:59 still indigo")
+        XCTAssertTrue(ClockChipDaylight.isNight(utcDate(6, 59, 0), calendar: utc), "06:59 still indigo")
         XCTAssertFalse(ClockChipDaylight.isNight(utcDate(7, 0, 0), calendar: utc), "07:00 flips warm")
         XCTAssertFalse(ClockChipDaylight.isNight(utcDate(12, 0, 0), calendar: utc))
         XCTAssertFalse(ClockChipDaylight.isNight(utcDate(18, 59, 59), calendar: utc), "18:59 still warm")
