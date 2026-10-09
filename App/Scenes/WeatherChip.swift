@@ -238,6 +238,19 @@ public struct WeatherChip: View {
     /// illustration on the right.
     private func fullPill(state: WeatherState, art: LinearGradient) -> some View {
         HStack(spacing: 8) {
+            Button(action: {
+                // Launcher action placeholder
+            }) {
+                Image(systemName: "macstudio")
+                    .font(.system(size: 16))
+                    .foregroundStyle(.white)
+            }
+            .buttonStyle(.plain)
+            
+            Rectangle()
+                .fill(Color.white.opacity(0.45))
+                .frame(width: 1, height: 20)
+                
             VStack(alignment: .leading, spacing: 0) {
                 Text(state.conditionText)
                     .font(.system(size: 11, weight: .semibold))
@@ -265,6 +278,17 @@ public struct WeatherChip: View {
     /// elements instead of crushing all four.
     private func compactPill(state: WeatherState, art: LinearGradient) -> some View {
         HStack(spacing: 6) {
+            Button(action: {}) {
+                Image(systemName: "macstudio")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.white)
+            }
+            .buttonStyle(.plain)
+            
+            Rectangle()
+                .fill(Color.white.opacity(0.45))
+                .frame(width: 1, height: 16)
+                
             Spacer(minLength: 0)
             temperature(state: state, size: 15)
             WeatherIllustration(condition: state.conditionFamily,

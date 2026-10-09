@@ -121,7 +121,7 @@ struct SettingsWindowContent: View {
                     HStack {
                         Text("Now Playing Theme")
                         Spacer(minLength: 12)
-                        Picker(Text(verbatim: ""), selection: $store.nowPlayingTheme) {
+                        Picker("", selection: $store.nowPlayingTheme) {
                             ForEach(NowPlayingTheme.allCases, id: \.self) {
                                 Text($0.displayTitle)
                             }

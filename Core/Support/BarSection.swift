@@ -40,7 +40,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     /// Phase 4U decision 3: order hardcoded, widths settings-only).
     var defaultWidgetWidth: CGFloat {
         switch self {
-        case .weather: return 120
+        case .weather: return 150
         case .apps: return 0
         case .media: return 140
         case .clock: return 160

@@ -235,7 +235,7 @@ extension DockStripView {
         // The shelf is the last cell of the pinned-app (messaging) zone and shares its divider.
         // Folders sit at the bar's tail in one zone with the Trash, as on the native Dock: no
         // divider between them.
-        let headEntries = [StripEntry.launcherPlaceholder] + messaging + (settingsStore.showShelf ? [StripEntry.shelf] : [])
+        let headEntries = messaging + (settingsStore.showShelf ? [StripEntry.shelf] : [])
         let tailEntries = pinnedEntries + (settingsStore.showTrash ? [StripEntry.trash] : [])
         var zones = [headEntries, liveWithGhost, tailEntries]
             .map { zone in zone.filter { $0.id != collapsedEntryID } }

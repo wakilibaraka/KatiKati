@@ -1,3 +1,5 @@
+#!/bin/bash
+cat << 'INNER' > App/Scenes/TrashChip.swift
 import AppKit
 import SwiftUI
 
@@ -30,21 +32,21 @@ struct TrashChip: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 2)
-                .frame(width: ChipPillMetrics.chipHeight * scale, height: ChipPillMetrics.chipHeight * scale)
+                .frame(width: ChipPillMetrics.bareIconSlot * scale, height: ChipPillMetrics.bareIconSlot * scale)
                 
             // Standard macOS red badge (dot) for full state
             if isFull {
                 Circle()
                     .fill(Color.red)
-                    .frame(width: 10 * scale, height: 10 * scale)
+                    .frame(width: 8 * scale, height: 8 * scale)
                     .overlay(
                         Circle().stroke(Color.white.opacity(0.8), lineWidth: 1 * scale)
                     )
                     .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
-                    .offset(x: -4 * scale, y: 4 * scale)
+                    .offset(x: -2 * scale, y: 2 * scale)
             }
         }
-        .frame(width: ChipPillMetrics.chipHeight * scale, height: ChipPillMetrics.chipHeight * scale)
+        .frame(width: ChipPillMetrics.cardWidth * scale, height: ChipPillMetrics.chipHeight * scale)
         // Add subtle scale/bounce animation on hover
         .scaleEffect(isHovered ? 1.05 : 1.0, anchor: .bottom)
         .scaleEffect(isDropTargeted ? 1.15 : 1.0, anchor: .bottom)
@@ -78,3 +80,4 @@ struct TrashChip: View {
         return menu
     }
 }
+INNER

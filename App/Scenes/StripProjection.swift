@@ -22,7 +22,6 @@ enum StripEntry: Identifiable, Hashable {
     /// 中转格：固定应用区（消息区）最右一格的暂存格，与该区同组、共用其后的分割线；不可拖拽。
     case shelf
     case trash
-    case launcherPlaceholder
     /// Visual separator between zones. 现在最多两条（消息+中转格|窗口、窗口|文件夹+废纸篓），id 必须唯一。
     case divider(id: String)
     /// 从访达拖应用或文件夹进条时、悬停期让位让出来的那个**空档**（一张卡的宽度，不画任何东西）。
@@ -49,7 +48,6 @@ enum StripEntry: Identifiable, Hashable {
         case let .pinnedFolder(path): return "folder-\(path)"
         case .shelf: return "shelf"
         case .trash: return "trash"
-        case .launcherPlaceholder: return "launcher"
         case let .divider(id): return id
         case let .externalDropGhost(key): return "extghost-\(key)"
         case let .sectionPlaceholder(section): return section.placeholderEntryID
@@ -166,7 +164,7 @@ struct StripLayoutKey: Equatable {
             form = .launcher    // fixed-size kept-app icon chip
         case .pinnedFolder:
             form = .launcher    // fixed-size folder chip
-        case .shelf, .trash, .launcherPlaceholder:
+        case .shelf, .trash:
             form = .launcher    // fixed-size shelf chip
         case .divider:
             form = .launcher    // fixed-size separator, no animation form change

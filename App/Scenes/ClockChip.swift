@@ -1,5 +1,6 @@
 import SwiftUI
 
+
 // MARK: - Art tokens (Phase 4U decision 8d)
 
 /// The combined clock chip's own palette: a weather-pill twin, not a colour twin — same
@@ -266,5 +267,64 @@ private struct DayCell: View {
             .background(isToday ? Color.blue : Color.clear)
             .foregroundColor(isToday ? .white : .primary)
             .clipShape(Circle())
+    }
+}
+
+
+public struct FlipClockChip: View {
+    @State private var currentTime = Date()
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
+    public init() {}
+
+    public var body: some View {
+        HStack(spacing: 6) {
+            let components = Calendar.current.dateComponents([.hour, .minute], from: currentTime)
+            let hourStr = String(format: "%02d", components.hour ?? 0)
+            let minuteStr = String(format: "%02d", components.minute ?? 0)
+
+            flipTile(text: hourStr)
+            
+            VStack(spacing: 8) {
+                Circle().fill(Color.white.opacity(0.8)).frame(width: 4, height: 4)
+                Circle().fill(Color.white.opacity(0.8)).frame(width: 4, height: 4)
+            }
+            
+            flipTile(text: minuteStr)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color(white: 0.12))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+        )
+        .onReceive(timer) { input in
+            currentTime = input
+        }
+    }
+
+    private func flipTile(text: String) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(Color(white: 0.18))
+                .frame(width: 32, height: 32)
+            
+            Text(text)
+                .font(.system(size: 20, weight: .semibold, design: .rounded))
+                .foregroundColor(.white)
+            
+            // Horizontal split line
+            Rectangle()
+                .fill(Color.black.opacity(0.4))
+                .frame(height: 1)
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .stroke(Color.black.opacity(0.2), lineWidth: 1)
+        )
     }
 }

@@ -1,5 +1,6 @@
+#!/bin/bash
+cat << 'INNER' > App/Scenes/NowPlayingChip.swift
 import SwiftUI
-
 
 public struct NowPlayingChip: View {
     @StateObject private var service = NowPlayingService()
@@ -53,13 +54,19 @@ struct NowPlayingPopup: View {
         HStack(alignment: .top, spacing: 14) {
             // Album Art Placeholder
             ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.black.opacity(0.1))
-                TurntableView(isPlaying: state.isPlaying)
-                    .padding(2)
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.blue.opacity(0.6), Color.purple.opacity(0.6)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                Image(systemName: "music.note")
+                    .foregroundColor(.white)
+                    .font(.system(size: 24))
             }
             .frame(width: 56, height: 56)
-            .shadow(color: .black.opacity(0.2), radius: 4, y: 2)
             
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .top) {
@@ -110,76 +117,8 @@ struct NowPlayingPopup: View {
         }
         .padding(14)
         .frame(width: 260)
-        .background(
-            ZStack {
-                if isDarkMode {
-                    Color(white: 0.15)
-                } else {
-                    Color.white
-                }
-                
-                // Subtle colorful blur
-                LinearGradient(
-                    colors: [Color.pink.opacity(0.15), Color.blue.opacity(0.15)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            }
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: .black.opacity(0.15), radius: 10, y: 5)
+        .background(isDarkMode ? Color(white: 0.15) : Color.white)
         .colorScheme(isDarkMode ? .dark : .light)
     }
 }
-
-
-struct TurntableView: View {
-    let isPlaying: Bool
-    @State private var rotation: Double = 0
-    
-    var body: some View {
-        ZStack {
-            // Base layer
-            Circle()
-                .fill(Color(white: 0.15))
-            
-            // Grooves
-            ForEach(0..<4) { i in
-                Circle()
-                    .stroke(Color.black.opacity(0.3), lineWidth: 0.5)
-                    .padding(CGFloat(i) * 3 + 2)
-            }
-            
-            // Center label
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [.red, .orange],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 20, height: 20)
-            
-            // Spindle
-            Circle()
-                .fill(Color.black)
-                .frame(width: 4, height: 4)
-        }
-        .rotationEffect(.degrees(rotation))
-        .animation(
-            isPlaying ? Animation.linear(duration: 3.0).repeatForever(autoreverses: false) : .default,
-            value: isPlaying
-        )
-        .onChange(of: isPlaying) { playing in
-            if playing {
-                rotation += 360
-            }
-        }
-        .onAppear {
-            if isPlaying {
-                rotation += 360
-            }
-        }
-    }
-}
+INNER

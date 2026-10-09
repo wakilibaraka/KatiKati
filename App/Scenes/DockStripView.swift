@@ -677,7 +677,7 @@ struct DockStripView: View {
             }
         case let .keptApp(bid):
             launcherTap(bid, hasRealWindow: false)   // 保留占位只在没有真窗口时存在
-        case .pinnedFolder, .shelf, .trash, .launcherPlaceholder, .divider, .externalDropGhost, .sectionPlaceholder:
+        case .pinnedFolder, .shelf, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return   // 空档不可拖，也就不会有飞行中的载荷指向它
         }
     }
@@ -792,7 +792,7 @@ struct DockStripView: View {
                 : nil
             return DragCarrierGeometry.pickUpPose(chipHeight: height, pressedScale: nil,
                                                   hoverScale: hoverScale)
-        case .shelf, .trash, .launcherPlaceholder, .divider, .externalDropGhost, .sectionPlaceholder:
+        case .shelf, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return .resting
         }
     }
@@ -1240,7 +1240,7 @@ struct DockStripView: View {
                     Color.clear.preference(key: TrashFramePreferenceKey.self,
                                            value: geo.frame(in: .named("strip")))
                 })
-        case .launcherPlaceholder, .divider, .sectionPlaceholder:
+        case .divider, .sectionPlaceholder:
             stripEntryView(entry, projection: projection)
         case .externalDropGhost:
             // 让位空档：**刻意不经 `stripEntryView`**。那个函数是悬停帧的唯一上报口，
@@ -1309,9 +1309,6 @@ struct DockStripView: View {
                      pulseNonce: chipPulseNonces[item.id] ?? 0,
                      badgeText: windowBadge,
                      slotHidden: projection.draggingID == item.id)
-        case .launcherPlaceholder:
-            LauncherPlaceholderChip()
-                .scaleEffect(dockScale)
         case let .sectionPlaceholder(section):
             // Fixed-order, settings-only widths (Phase 4U decision 3): no on-dock
             // resize handles — width is the stored `widgetWidths` override or this
@@ -1328,7 +1325,7 @@ struct DockStripView: View {
                     NowPlayingChip()
                         .scaleEffect(dockScale)
                 case .clock:
-                    ClockChip()
+                    FlipClockChip()
                         .scaleEffect(dockScale)
                 case .apps:
                     EmptyView()
