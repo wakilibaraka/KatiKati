@@ -30,7 +30,7 @@ final class IslandStripProjectionTests: XCTestCase {
         // Split3 mode: 3 slots
         let split3Islands = BarSection.islands(for: .split3)
         XCTAssertEqual(split3Islands.count, 3)
-        XCTAssertEqual(split3Islands[0], [.weather])
+        XCTAssertEqual(split3Islands[0], [.weather, .media])
         XCTAssertFalse(split3Islands[0].contains(.apps))
         XCTAssertEqual(split3Islands[1], [.apps])
         XCTAssertTrue(split3Islands[1].contains(.apps))
@@ -40,7 +40,7 @@ final class IslandStripProjectionTests: XCTestCase {
         // Split4 mode: 4 slots
         let split4Islands = BarSection.islands(for: .split4)
         XCTAssertEqual(split4Islands.count, 4)
-        XCTAssertEqual(split4Islands[0], [.weather])
+        XCTAssertEqual(split4Islands[0], [.weather, .media])
         XCTAssertEqual(split4Islands[1], [.apps])
         XCTAssertEqual(split4Islands[2], [.tray])
         XCTAssertEqual(split4Islands[3], [.clock])

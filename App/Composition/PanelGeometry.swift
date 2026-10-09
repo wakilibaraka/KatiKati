@@ -1,3 +1,5 @@
+import Foundation
+
 import CoreGraphics
 
 /// Taskbar height as the user dragged it: whole points, clamped to `minimum...maximum`.

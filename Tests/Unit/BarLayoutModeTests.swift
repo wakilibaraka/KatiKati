@@ -44,24 +44,24 @@ final class BarLayoutModeTests: XCTestCase {
     func testSectionIslandsPerMode() {
         let windowsIslands = BarSection.islands(for: .windows)
         XCTAssertEqual(windowsIslands.count, 1)
-        XCTAssertEqual(windowsIslands[0], [.weather, .apps, .tray, .clock])
+        XCTAssertEqual(windowsIslands[0], [.weather, .media, .apps, .tray, .clock])
 
         let split3Islands = BarSection.islands(for: .split3)
         XCTAssertEqual(split3Islands.count, 3)
-        XCTAssertEqual(split3Islands[0], [.weather])
+        XCTAssertEqual(split3Islands[0], [.weather, .media])
         XCTAssertEqual(split3Islands[1], [.apps])
         XCTAssertEqual(split3Islands[2], [.tray, .clock])
 
         let split4Islands = BarSection.islands(for: .split4)
         XCTAssertEqual(split4Islands.count, 4)
-        XCTAssertEqual(split4Islands[0], [.weather])
+        XCTAssertEqual(split4Islands[0], [.weather, .media])
         XCTAssertEqual(split4Islands[1], [.apps])
         XCTAssertEqual(split4Islands[2], [.tray])
         XCTAssertEqual(split4Islands[3], [.clock])
 
         let centeredIslands = BarSection.islands(for: .centered)
         XCTAssertEqual(centeredIslands.count, 1)
-        XCTAssertEqual(centeredIslands[0], [.weather, .apps, .tray, .clock])
+        XCTAssertEqual(centeredIslands[0], [.weather, .media, .apps, .tray, .clock])
     }
 
     func testEverySectionLivesInExactlyOneIslandPerMode() {

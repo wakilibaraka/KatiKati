@@ -2,7 +2,7 @@
 
 **Tungsten Edge core × SplitBar-old 4 modes × DockBar widgets**
 
-Status: **Phase 3 DONE** (Baseline import, pure layout model, island panels, and multi-display/fullscreen/Spaces lifecycle complete, 1,602 tests green) · Plan v3 · Date: 2026-10-08  
+Status: **Phase 4 (4a-4f2) DONE** (Baseline import, pure layout model, island panels, and multi-display/fullscreen/Spaces lifecycle complete, 1,602 tests green) · Plan v3 · Date: 2026-10-08  
 New repo: `/Users/baraka/Desktop/Splitbar` (branch `main`) → remote `wakilibaraka/KatiKati`  
 Core snapshot: `moonbai-studio/tungsten-edge @ a4e1a55` (2026-10-07, `master`), clone at `/tmp/tungsten-edge`  
 Previous plan: v2 (`DockBar base × SplitBar-old modes × live-SplitBar segments`, commit `3d914c6`) — **superseded by this document.**  
@@ -580,7 +580,7 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
     presets + icon geometry; Phase 6 owns the Settings UI that exposes them (next to
     the existing `com.katikati.layout.*` and `com.katikati.bottomGap` keys).
 
-#### Phase 4 slice breakdown (plan only — not started)
+#### Phase 4 slice breakdown (built, documentation pending)
 
 | Slice | Scope | Key files (existing / new) | Tests |
 |---|---|---|---|

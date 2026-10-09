@@ -1,3 +1,4 @@
+import Foundation
 import CoreGraphics
 import XCTest
 
@@ -592,5 +593,51 @@ final class PanelGeometryTests: XCTestCase {
 
     private func screen(frame: CGRect, visibleFrame: CGRect? = nil, safeAreaTop: CGFloat = 0) -> PanelScreenGeometry {
         PanelScreenGeometry(frame: frame, visibleFrame: visibleFrame ?? frame, safeAreaTop: safeAreaTop)
+    }
+
+    func testCenteredAndSplitModesHandleCapsuleSpacingForAppsIsland() {
+        let sc = screen(frame: CGRect(x: 0, y: 0, width: 1728, height: 982))
+        let defaults = UserDefaults.standard
+        let oldOrder = defaults.data(forKey: "widgetOrder")
+        let oldWidths = defaults.dictionary(forKey: "widgetWidths")
+        
+        let targetOrder: [BarSection] = [.weather, .media, .apps, .tray, .clock]
+        if let encoded = try? JSONEncoder().encode(targetOrder) {
+            defaults.set(encoded, forKey: "widgetOrder")
+        }
+        defaults.set([:], forKey: "widgetWidths")
+        
+        let centeredFrame = PanelGeometry.islandTargetFrame(
+            slot: 0,
+            contentWidth: 800,
+            mode: .centered,
+            on: sc,
+            placement: .right,
+            metrics: metrics,
+            centeredWidth: 1000
+        )
+        XCTAssertGreaterThan(centeredFrame.width, 0)
+        
+        let split3AppsFrame = PanelGeometry.islandTargetFrame(
+            slot: 1,
+            contentWidth: 800,
+            mode: .split3,
+            on: sc,
+            placement: .right,
+            metrics: metrics,
+            centeredWidth: 1000
+        )
+        XCTAssertGreaterThan(split3AppsFrame.width, 0)
+        
+        if let oldOrder = oldOrder {
+            defaults.set(oldOrder, forKey: "widgetOrder")
+        } else {
+            defaults.removeObject(forKey: "widgetOrder")
+        }
+        if let oldWidths = oldWidths {
+            defaults.set(oldWidths, forKey: "widgetWidths")
+        } else {
+            defaults.removeObject(forKey: "widgetWidths")
+        }
     }
 }

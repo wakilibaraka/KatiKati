@@ -15,7 +15,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     ) -> IslandLayoutSolver.IslandLayout {
         IslandLayoutSolver.layout(
             screenWidth: screenWidth,
-            mode: .split3,
+            mode: .split3, widgetOrder: [.weather, .media, .apps, .tray, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: appCount,
             weatherWidth: 200,
@@ -41,7 +41,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     ) -> IslandLayoutSolver.IslandLayout {
         IslandLayoutSolver.layout(
             screenWidth: screenWidth,
-            mode: .split4,
+            mode: .split4, widgetOrder: [.weather, .media, .apps, .tray, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: appCount,
             weatherWidth: 200,
@@ -58,7 +58,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     func testSplitModesExposeExpectedIslands() {
         let windowsLayout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .windows,
+            mode: .windows, widgetOrder: [.weather, .media, .apps, .tray, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: 9,
             weatherWidth: 200,
@@ -80,7 +80,7 @@ final class IslandLayoutSolverTests: XCTestCase {
 
         let centeredLayout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .centered,
+            mode: .centered, widgetOrder: [.weather, .media, .apps, .tray, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: 9,
             weatherWidth: 200,
@@ -99,7 +99,7 @@ final class IslandLayoutSolverTests: XCTestCase {
         for mode in BarLayoutMode.allCases {
             let layout = IslandLayoutSolver.layout(
                 screenWidth: 1728,
-                mode: mode,
+                mode: mode, widgetOrder: [.weather, .media, .apps, .tray, .clock], widgetWidths: [:],
                 tileStride: 46,
                 appCount: 9,
                 weatherWidth: 200,
@@ -175,7 +175,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     func testWindowsModeProducesSingleFullWidthIsland() {
         let layout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .windows,
+            mode: .windows, widgetOrder: [.weather, .media, .apps, .tray, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: 10,
             weatherWidth: 200,
@@ -201,7 +201,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     func testCenteredModeProducesCenteredIsland() {
         let layout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .centered,
+            mode: .centered, widgetOrder: [.weather, .media, .apps, .tray, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: 5,
             weatherWidth: 200,
@@ -230,7 +230,7 @@ final class IslandLayoutSolverTests: XCTestCase {
         // Very small user width expands to fit intrinsic content
         let smallWidthLayout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .centered,
+            mode: .centered, widgetOrder: [.weather, .media, .apps, .tray, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: 8,
             weatherWidth: 200,
@@ -248,7 +248,7 @@ final class IslandLayoutSolverTests: XCTestCase {
         // Huge user width clamps to screen minus margins
         let hugeWidthLayout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .centered,
+            mode: .centered, widgetOrder: [.weather, .media, .apps, .tray, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: 5,
             weatherWidth: 200,

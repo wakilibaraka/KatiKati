@@ -11,6 +11,16 @@ All notable changes to KatiKati are documented in this file.
   into source, repo-root throwaway scripts, and `rm <glob>` inside the repo are
   forbidden. Full rule in `STANDING_RULES.md` §1 item 6.
 
+## [Unreleased] — Phase 4: Widgets, Popups, and Layout
+
+### Added
+- **Weather Widget**: Integrated dynamic weather chip and popup with real-time conditions.
+- **Clock Widget**: Added date/time chip with dynamic widths.
+- **Tray Cluster**: Consolidated system tray icons (battery, wifi, volume) into a unified chip.
+- **Now Playing**: Integrated media playback controls (NowPlayingService) matching CoolDock parity.
+- **Layout Modularity**: Rewrote layout solver for perfect centering, collision truncation, and customizable widget order via Settings.
+- **On-Dock Resizing**: Added direct edge-dragging on dock widgets to resize them visually.
+
 ## [Unreleased] — Phase 3: Flyouts, Fullscreen, Multi-Display & Space Survival
 
 ### Added
