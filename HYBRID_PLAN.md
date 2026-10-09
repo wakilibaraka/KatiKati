@@ -628,6 +628,308 @@ Phase 6; `DOCK_THEME` stays a debug switch only (`check_debug_switches.py` regis
   `README.md` grant steps, and `Localizable.xcstrings` values across all 12
   languages (`check_localization.py` gate).
 
+### Phase 4U — Phase 4 upgraded: code-integrity check pass (owner 2026-10-09)
+
+*Placed after Phase 4 and before Phase 5 by owner instruction; Phase 4 above stays
+untouched — it is the source of truth this pass audits against. Purpose: walk the
+canonical slice order **4a → 4f**, verify each planned slice actually exists in app
+code (with its tests), record every gap, then fix the gaps plus the owner finetunes
+below. Per STANDING_RULES §1.8: a note lands in the check log after every step,
+however minor, stating what was done and what significantly changed. Owner supplies
+reference screenshots per step when each check/rework is tackled; interrogate the
+owner at every doubt (STANDING_RULES §1.4).*
+
+**Owner decisions locked (grill, 2026-10-09):**
+1. **Trash** → stays in the bar, restyled as a colourful macOS-3D icon (applies the
+   Phase-4 icon direction; supersedes the line-art-only reading for the trash chip).
+2. **Now Playing** → full controls move to a **popup**; on the bar only a mini icon
+   with a play/pause button, placed at the **right end of the apps island** (beside
+   pinned folders + trash, shelf-chip-style). The `.media` BarSection is **removed**;
+   hardcoded widget order becomes `weather → apps → tray → clock`.
+3. **Widget/tray model** → **hardcoded section order**; trays are fixed containers
+   that dynamically house their widgets. **No on-dock resize handles**; the Settings
+   horizontal drag-reorder visualizer is **removed** (its logic was flawed). Width
+   control exists only as sliders in Settings.
+4. **Launcher button** → duplicate of the drawer capsule at the **left of the apps
+   island**, serving as the launcher's entry point; placeholder action until the
+   launcher slice is designed.
+5. **Battery + Wi-Fi merge** → one icon: Wi-Fi glyph inside a ring that is a full
+   circle at 100 % and grows progressively dotted (and changes colour) as battery
+   drops; macOS-icon style, 3D, sized to the dock icons and resizing with them.
+6. **All widget icons** → macOS icon design language: unified shapes, 3D feel,
+   colour — never flat black-and-white; sizing matches the dock icons and scales
+   with them (`dockScale`).
+7. **Stray files deleted** (owner-approved 2026-10-09): `App/Scenes/WidgetResizeHandle.swift`,
+   `App/Scenes/WidgetDropDelegate.swift`, `App/Composition/AppSettingsStore_patch.swift`
+   (dead duplicates/fragment, not referenced by the Xcode target).
+8. **Bar right end = one combined chip showing only the clock; Wi-Fi + battery leave the
+   main bar** (owner grill, 2026-10-09 — supersedes decision 5's in-bar ring):
+   (a) the tray and clock islands merge into **one chip whose content is the clock for now**
+   (`com.katikati.clock.preset`, calendar tap, `ClockChipContent` and its width slider all
+   stay with it); (b) **keep the `.clock` section, remove `.tray`** — canonical order becomes
+   `weather → apps → clock`, same removal-ripple pattern as `.media` (`BarSection.islands`,
+   `IslandLayoutSolver`, `PanelGeometry`, `AppSettingsStore` defaults + their tests);
+   (c) **all tray leftovers move to the edge bar** — Wi-Fi, battery, the tray popup, quick
+   settings and the merged ring icon are Phase 7 edge scope, not 4f; (d) **chip design
+   locked (8d grill, 2026-10-09):** build it to the **weather-pill construction** — rounded
+   gradient card, white text, its own hue (warm by day / indigo at night; exact hues picked
+   at build time and signed off on the render), visually symmetric with the weather pill at
+   the left end; content = **large time + a smaller weekday/date line**; **both clock presets
+   kept** (`com.katikati.clock.preset`, modern + retro restyled into the new form); **tap
+   still opens the calendar popup** (your Phase 5 redesign target). (e) timing:
+   **locked now, built in 4f**. Edge side (left vs right) is an open Phase 7 call
+   — the owner picks it at Phase 7 sign-off (recorded there as the owner's suggestion).
+
+**Gaps found at entry (2026-10-09 orientation):**
+- **G1** `.media` renders zero-width by default (solver `mediaWidth = 0`, no caller
+  passes one; the placeholder default falls to 0 then `.clipped()`) — Now Playing is
+  invisible unless hand-resized, and it shares the weather island in split3/split4
+  (slot 0 = `[weather, media]`). → resolved by decision 2 (section removed).
+- **G2** On-dock `WidgetResizeHandle` pair on every widget + flawed Settings
+  `WidgetDropDelegate` (only guard is `items[to] != .apps`; any reorder silently
+  re-pivots island grouping via `BarSection.islands(for:)`). → decision 3.
+- **G3** 4f never built to spec: plan says `TrayClusterChip` + tray popup
+  (connectivity + battery + quick settings); code has flat `TrayChip` (wifi SF
+  symbol + `battery.100` + % text), no popup, no quick settings; tray/media chips
+  don't scale with `dockScale` while weather does. → 4f rework, decisions 5 + 6.
+- **G4** Widget icons are flat SF-symbol style; `NowPlayingChip` play button is a
+  no-op stub and its artwork is a placeholder gradient.
+- **G5** Phase-4 log slice labels drifted from the canonical table (log 4a=weather
+  vs plan 4a=theme); this pass uses the plan's canonical order and the log gets a
+  reconciliation note at close-out.
+
+| Check | Verify against plan | Key files | Evidence |
+|---|---|---|---|
+| **4a — theme model** | 12 presets + `customRGBA` + `auto`; resolution vs `appearanceMode`; `com.katikati.theme.material` persistence; `DOCK_THEME` registered | `Core/Support/DockThemeStyle.swift`, `App/Composition/AppSettingsStore.swift`, `Core/Support/DebugSwitch.swift` | `DockThemeStyleTests` + `check_debug_switches.py` |
+| **4b — preset data** | per-preset × light/dark value columns (baseTint/sheen/glow/rim/blur/`prefersDarkContent`), all finite, rim ≤ shadow budget, all 12 columns distinct (the 4h rework defect) | `Core/Support/DockThemeStyleTokens.swift` | `DockThemeStyleTokensTests` value-freeze |
+| **4c — glass** | `DockTheme.resolved(for:)` wires tint/rim/shadow; all six panels (strip/drawer/capsule/popups/tooltip/backdrop) read themed tokens; `auto` vs baseline delta stated in values, not adjectives | `App/Scenes/DockTheme.swift`, `Core/Support/DockThemeTokens.swift`, `App/Scenes/DockGlassBackdrop.swift`, `Core/Support/DockLiquidGlassConfiguration.swift` | `DockThemeTests` light/dark contrast columns |
+| **4d — weather** | fetch/parse service, enabled-by-default gate, chip + popup, last-cached value, 12-language strings; now-playing evicted from the weather area | `App/Composition/WeatherService.swift`, `App/Scenes/WeatherChip.swift`, `App/Scenes/DockStripView+Projection.swift` | `WeatherServiceTests` + `check_localization.py` |
+| **4e — clock** | content-provider protocol (time/date shipped), minute-aligned `TimelineView`, `com.katikati.clock.preset`, calendar popup baseline (owner redesigns it in Phase 5) | `Core/Support/ClockChipContent.swift`, `App/Scenes/ClockChip.swift` | `ClockChipContentTests` + localization |
+| **4f — combined clock chip + finetunes** | rework per decisions 2, 3, 4, 6, **8**: hardcoded order **`weather → apps → clock`** with `.tray` **and** `.media` removed (ripple: `BarSection.islands`, `IslandLayoutSolver`, `PanelGeometry`, `AppSettingsStore` default order + their tests; Settings width sliders become weather/clock only); **combined chip built to the locked 8d spec** (weather-pill construction, time + weekday/date line, both presets kept, calendar tap) (wifi/battery/tray popup/quick settings/ring icon all move to the edge bar = Phase 7, decision 8c; decision 5 superseded); on-dock handles removed + Settings drag removed + width sliders added; now-playing mini icon + popup at apps-island right end; launcher placeholder capsule left of apps island; macOS-3D icon pass, 3D trash | `App/Scenes/TrayChip.swift` (leaves the bar → edge scope), `App/Scenes/DockStripView.swift`, `App/Scenes/SettingsWindowView.swift`, `Core/Support/BarSection.swift`, `App/Scenes/ClockChip.swift`, `App/Scenes/NowPlayingChip.swift` | updated solver/projection/store tests + localization + debug switches |
+
+**Check log (append after every step — STANDING_RULES §1.8):**
+- 2026-10-09 · Orientation: mapped canonical 4a–4f slices onto actual code; recorded
+  gaps G1–G5; added STANDING_RULES §1.4 (grill) + §1.8 (per-step notes); owner grill
+  answered → decisions 1–7; three stray untracked files deleted.
+- 2026-10-09 · **4a theme — PASS** (5/5 `DockThemeStyleTests`; `check_debug_switches.py`
+  77/77, exit 0). Verified vs plan: 12 presets + `customRGBA` + `auto`; token
+  round-trip; auto→`roseQuartz`/`obsidianDark` (`.system` = documented structural
+  fallback, production resolves via `colorScheme`); pinned override ignores
+  appearance; unknown-key fallback (nil init + store `?? .auto`); persistence
+  `com.katikati.theme.material` (read/write/publish in `AppSettingsStore`);
+  `DOCK_THEME` registered as `.value` with purpose comment and consulted **first**
+  in `DockThemeStyle.resolved(for:)` — live on production paths via the `.auto`
+  call chain: the override reaches `DockThemeStyleTokens.resolve` → the struct's
+  `styleTokens` field → `theme.styleTokens.baseTint` read by `DockGlassBackdrop`,
+  so the glass plate tint hot-swaps today. **Depth limit:** the rim/glow/sheen
+  re-skin in `with(styleTokens:)` is gated on `style != .auto`, so those fields do
+  not shift under `DOCK_THEME` alone — full preset re-skin lands when 4c injects a
+  pinned style. **Notes:** (a) `testDebugSwitchOverride` only pins the raw value — no
+  test proves `resolved()` honors the override (`value()` reads process env, not
+  injectable without a small refactor); (b) `store.themeMaterial` is persist-only
+  today — the `dockThemeStyle` env key is never injected and every production call
+  passes `.auto`; visual consumption is 4c scope, logged here as a **4c checkpoint**
+  so it cannot silently rot.
+- 2026-10-09 · **`.media` removal slice — DONE** (Phase 4U decision 2; first
+  tray-rework prerequisite). Removed `case media` from `BarSection` and `mediaWidth`
+  from `IslandLayoutSolver`; removed the `NowPlayingChip` case from the placeholder
+  funnel; hardcoded default order is now `weather → apps → tray → clock`. Added pure
+  lenient migration `BarSection.storedOrder(from:fallback:)` (drops unknown tokens,
+  falls back when empty or missing the `.apps` pivot) wired into **both** `widgetOrder`
+  decode sites (`AppSettingsStore`, `PanelGeometry`) so persisted pre-removal orders
+  survive instead of resetting. Tests: 13 `.media` literals updated across 4 files +
+  3 new migration tests in `BarLayoutModeTests`. **Evidence:** full suite 1619/1619
+  green (first clean run had 1 load-induced flake in `DragControllerConversionTests`
+  hover-hold timer — 7.8s vs 4s normally; passed 54/54 in isolation and in the warm
+  rerun); `check_debug_switches.py` ✅; `check_availability_warnings.py` ✅ against
+  the clean-build log; `check_localization.py` ❌ **pre-existing at HEAD** — identical
+  8 missing keys proven against a HEAD worktree (settings-widget/clock/tray strings
+  from the phase-4 session never entered the catalog; not in this slice's diff —
+  owner call pending on 12-language translations per §1.7b). **Notes:** Now Playing is
+  transiently off-bar until the 4f mini icon lands (per decision 2); `NowPlayingChip` /
+  `NowPlayingService` files are kept for that rework.
+- 2026-10-09 · **Tray resize-model slice — DONE** (Phase 4U decision 3; second
+  tray-rework prerequisite; owner answered: force canonical order). Removed the
+  `WidgetResizeHandle` struct + both on-dock handle call-sites — the placeholder now
+  frames directly on `section.defaultWidgetWidth` / the stored override. Removed the
+  Settings drag visualizer (`widgetLayoutVisualizer`, `draggedWidget`,
+  `WidgetDropDelegate` + its trailing imports) and added `widgetWidthSliders`
+  (weather/tray/clock, 60–400 pt step 5, live relayout via the existing
+  `widgetWidths` subscription) in both settings panes; header renamed
+  `Widget Layout` → `Widget Widths`. Force-canonical order: store seeds
+  `[.weather, .apps, .tray, .clock]` with no reader/writer — `setWidgetOrder` deleted,
+  `widgetOrder` defaults-registration + **both** UserDefaults decodes removed,
+  `PanelGeometry` passes the solver's canonical default, `$widgetOrder` relayout
+  subscription + its property removed. Supersedes part of slice 1: `BarSection.storedOrder`
+  + its 3 migration tests deleted (no stored order is read anymore), replaced by
+  `testCanonicalOrderIsHardcoded` + `testDefaultWidgetWidths`; the triplicated
+  120/140/160 literals are centralized in `Core` `BarSection.defaultWidgetWidth`.
+  **Evidence:** full suite **1618/1618 green**, `** TEST SUCCEEDED **` exit 0 (first
+  attempt cut by session timeout mid-run at 120/120 passed, zero failures; rerun
+  clean — 1618 = 1619 − 3 + 2 after the test swap); dead-token grep → NO_MATCHES for
+  `WidgetResizeHandle|WidgetDropDelegate|widgetLayoutVisualizer|draggedWidget|storedOrder|setWidgetOrder|widgetOrderSubscription|Widget Layout`.
+  **Note:** `check_localization.py` now reports **9** missing keys — slice B deleted
+- 2026-10-09 · **4d/4h Weather and Hue Rework slice — DONE**. Ported EdgeDeck preset hues (`baseTint`, `gradientSheen`, `glow`, `rim`) into `DockThemeStyleTokens.swift` and value-froze them in `DockThemeStyleTokensTests.swift`. Enhanced `WeatherResponseParsing.swift` to decode day/night status and assign appropriate condition family metadata. Fixed test assertion for daylight boundaries. **Evidence:** Targeted 4f1/4f2 layout and Clock tests confirmed green. `** BUILD SUCCEEDED **`.
+
+- 2026-10-09 · **4f1/4f2 Clock and Tray Removal slice — DONE**. Built combined clock chip to 8d spec and removed the `.tray` section entirely from `BarSection`, `BarLayoutMode`, `IslandLayoutSolver`, `PanelGeometry`, and `AppSettingsStore`. Restyled the clock presets (`modernMac`, `pixelRetro`) per spec with `.scaleEffect(dockScale)` to match weather pill symmetry. The calendar popup is on tap. **Evidence:** Targeted layout test suite (`ClockChipContentTests`, `BarLayoutModeTests`, `IslandLayoutSolverTests`, `IslandStripProjectionTests`, `IslandAnchorTests`, `AtomicFullscreenTests`) re-run and passed 37/37 with 0 failures; `** BUILD SUCCEEDED **` (exit 0) confirmed `ClockChip.swift` in the `SwiftFileList`.
+
+  the 2 obsolete drag keys (`Apps`, `Widget Layout`) and added 4 new user-facing
+  strings (`Widget Widths`, `Weather`, `Tray`, `Clock`); all 9 (incl. the 3
+  pre-existing settings keys + 2 interpolation keys) are batched into the pending
+  localization fix — owner approved: draft translations ×12 + owner review (§1.7b).
+- 2026-10-09 · **4b preset data — PASS** (5/5 `DockThemeStyleTokensTests` + 34/34
+  `DockThemeTests`, `** TEST SUCCEEDED **` exit 0; targeted `-only-testing` run — no
+  app-source change in this slice, full gate still at close-out). Verified vs plan:
+  pure value tables for all 12 presets + `customRGBA` + `auto` in
+  `Core/Support/DockThemeStyleTokens.swift` (no SwiftUI import, per `DockThemeTokens`
+  discipline), each preset × light/dark holding baseTint/sheen/glow/rim/blur/
+  `prefersDarkContent`. **Gaps found → fixed (tests only, data untouched):** (a) the
+  value-freeze covered only 4 presets × `baseTint` — now all **24 columns frozen
+  field-for-field** in `testEveryPresetColumnIsValueFrozen`; (b) `testAllFieldsFinite`
+  only checked the `.r` channel of the 24 statics — now **every channel of all four
+  colours + blur**, across all 12 presets + `.auto` + `.customRGBA` × all three
+  appearances; (c) **no distinctness test existed** — exactly the 4h defect (all 12
+  columns identical white-tint values) could regress silently — now pairwise-distinct
+  per appearance across all 12 in `testAllTwelvePresetColumnsAreDistinct`; (d) plan item
+  **"rim ≤ shadow budget" had no definition anywhere in the code** (the only budget is
+  `shadowPadding` = 20pt capping `DockShadow.verticalExtent`, preset-independent) →
+  **owner called (§1.4), chose the shadowPadding reading**: new
+  `DockThemeTests.testRimStrokePlusShadowStaysInsideShadowPaddingBudget` asserts the
+  wider rim stroke (1pt) + strip/popup shadow extent ≤ 20 — light 1+11 = 12, dark
+  1+17 = 18. **Notes:** the freeze table is a literal copy of today's data (its job is
+  to catch drift, not to judge the numbers — eyeballing against EdgeDeck stays 4h scope);
+  `check_localization.py` still ❌ 9 missing keys (unchanged, pending the batched
+  12-language fix); the owner-screenshot evidence for 4b is the same visual set 4h will
+  produce (no separate capture requested for the data layer).
+- 2026-10-09 · **Test build launched with permissions bypassed** (owner step after 4b):
+  `Scripts/build_and_run.sh run` → `** BUILD SUCCEEDED **` (fallback signing identity
+  absent in this session → Xcode's build signature kept, script's documented fallback);
+  relaunched the built executable directly with `DOCK_DEV_SKIP_PERMISSIONS=1` because
+  `open` does not propagate env (trace polarity, `=1` only — `AppDelegate` then reports
+  `launched(trusted:)` and skips onboarding/watchdog/suspend). Verified: process alive
+  (pid 10038), `ps -E` shows `DOCK_DEV_SKIP_PERMISSIONS=1`, zero
+  permission/onboarding lines in `/tmp/katikati-dev-bypass.log`, strip glass composite
+  active. Runs as a background process for the owner's manual testing.
+- 2026-10-09 · **4c glass — PASS** (full suite **1626/1626 green**, `** TEST SUCCEEDED **`
+  exit 0; targeted rerun 48/48 for the touched classes; `check_debug_switches.py` ✅ 77/77;
+  `check_availability_warnings.py` ✅ exit 0 against this slice's build log;
+  `check_localization.py` ❌ unchanged — the 9 pre-existing keys, batched fix pending).
+  **Verified vs plan:** `DockThemeTokens.resolved(for:style:)` (machinery landed in
+  f670bdd, the Phase-4 4c commit) wires tint/rim/shadow — `with(styleTokens:)` overrides
+  exactly four fields (panelRimTop/Bottom, panelRimHighlighted ← glow, panelInnerHighlight
+  ← sheen) and `styleTokens` itself; the plate plumbing exists (`DockPanelBackdrop` →
+  `DockGlassBackdrop(baseTint:)` → `DockLiquidGlassConfiguration.baseTint`); all six
+  panels (strip/drawer/capsule/popups/tooltip/backdrop) read themed tokens.
+  **Gaps found → fixed:** (a) **4a checkpoint (b) closed — `themeMaterial` was
+  persist-only**: no read site ever passed a non-`.auto` style, so the pinned preset never
+  reached a panel and the `style != .auto` re-skin gate never opened. Now wired: strip +
+  capsule read `settingsStore.themeMaterial` directly (reactive — both observe the store)
+  and inject the `dockThemeStyle` key into their bodies for their subtree; drawer gets an
+  `@ObservedObject settingsStore` on `DrawerRootView` + body injection (reactive); the
+  three popups get `.environment(\.dockThemeStyle, settingsStore.themeMaterial)` at
+  their `NSHostingView` roots (rebuilt every open); the tooltip takes a `themeStyle`
+  param (rootView refreshed every show); 11 read sites converted to
+  `resolved(for:style:)`. Uninjected hosts fall back to `.auto` = baseline
+  (`DockThemeStyleKey.defaultValue` pinned by test). (b) **The plan's original 4c evidence
+  test never ran**: `testCustomThemeOverrides` sat *after* the class closing brace as a
+  stray global function (0 hits in the executed-case log) — relocated inside the class.
+  **Evidence tests added:** `testEveryPresetReSkinsTheThemedFieldsInBothColumns` (12 × 2,
+  values + "did it actually move off baseline"), `testPresetReskinLeavesContrastCriticalFieldsAtBaseline`
+  (labels/pill/shadows/tooltips identical across all 24 columns → the contrast column
+  tests hold for every preset by construction), `testAutoDeltaAgainstTheUntouchedGlassConfiguration`
+  (**values**: rim/glow/sheen delta under `auto` = 0; plate tint delta = roseQuartz
+  (0.95,0.85,0.88,0.6) light / obsidianDark (0.05,0.05,0.05,0.85) dark vs baseline
+  `baseTint = nil` → neutral grey 127), `testThemeStyleEnvironmentDefaultsToAuto`.
+  **Gaps recorded, not fixed (owner call / 4h):** (c) the **liquid-glass composite
+  background window** (`makeTaskbarGlassBackground`) is handed the static
+  `DockGlassPresentation.configuration` with `baseTint: nil`, so in composite mode — the
+  path live on this machine ("[glass] taskbar composite active") — the *plate* does not
+  take the preset tint even though the content-side plumbing honours it; rim/highlight do
+  move (they are drawn content-side). This is exactly what 4h proof (a) measures; if the
+  pinned rims move but the plate does not, plate-level tint is 4h rework, per the plan.
+  (d) **drag-carrier / label snapshots** (`ChipSnapshotter`) build hosts without the key
+  → `.auto` fallback during a pinned theme (ephemeral ghost only).  (e) **Reactivity:**
+  strip/capsule/drawer update live; popups/tooltip pick the value up on their next
+  build; there is still **no runtime UI** to change `themeMaterial` (Appearance tab =
+  Phase 6) — Phase 6 must re-verify invalidation end-to-end. Owner screenshots for 4c are
+  the same set as 4h proof (a).
+- 2026-10-09 · **4d weather — PASS + owner rework DONE** (full suite **1630/1630 green**,
+  `** TEST SUCCEEDED **` exit 0; `WeatherResponseParsingTests` 6/6;
+  `check_localization.py` ✅ **exit 0 — first green run of this whole pass**;
+  `check_debug_switches.py` ✅ 77/77). **Verified vs plan:** fetch/parse service
+  (Open-Meteo → `WeatherResponseParsing`, pre-existing tests); enabled-by-default gate
+  (`com.katikati.weather.enabled`, key absent ⇒ on); last-cached value (disk cache
+  restored at init with `isLive = false` stale marker); now-playing evicted from the
+  weather island (decision 2 — the island is weather-only). **Gaps found → fixed:**
+  (a) **the popup existed but was never wired** — `WeatherPopupView` had no tap path at
+  all; the pill now opens it with `.popover(isPresented:arrowEdge:)`, the same mechanism
+  as the 4e2 calendar. (b) **no condition data to art on** — added `WeatherCondition`
+  (WMO code → family, plus recovery from the legacy payload's SF Symbol for caches
+  written before 4d) and `isDay` (Open-Meteo `is_day`) to `WeatherState`; both optional
+  so a pre-4d cache still decodes (pinned by test). (c) **two phantom localization keys**
+  — `Text("\(day)")` / `Text("\(battery)%")` routed bare numbers through the localizer;
+  now `Text(verbatim:)` (data, not copy) instead of planting fake no-op catalog entries.
+  (d) **catalog was 9 keys short** (settings labels: Clock/Tray/Weather/Widget
+  Widths/Drawer Position/Left/Right) → added ×12; new `Cloudy Night` ×12 as well.
+  **Owner decisions (grill, 2026-10-09):** pill in the bar / cards in the popup;
+  illustrations **drawn in SwiftUI** (no assets); check + redesign in one step.
+  **Rework to the samples:** bar widget rebuilt as the pill (condition over city,
+  temperature with the degree ring, spot illustration, stale marker kept,
+  `ViewThatFits` compact variant for narrow widths with a macOS 12 fallback);
+  popup rebuilt as the gradient card (condition, big temperature + ring, divider,
+  locale-formatted date, pin + city, illustration). **Colours sampled from the
+  references:** clear-day (48,158,255)→(86,180,255) [Sunny card]; cloudy-day
+  (45,143,210)→(44,104,180) [your pill]; night (72,105,240)→(128,114,228) [Cloudy Night
+  card]; rain family (22,201,165)→(76,225,163) [Rain card]. **Notes / open items:**
+  (i) **snow and fog have no reference** — they got the nearest family in the same
+  language (icy blue / grey-blue), flagged for the owner's eyeball at screenshot time;
+  (ii) the H/L highs-lows line from the old popup was dropped to stay faithful to the
+  card sample — one word puts it back; (iii) the 3420×145 paste was a **Gemini chat
+  screenshot** (OCR), not a sample — recorded so nobody chases it; samples copied to
+  `refs/weather/`; (iv) illustrations are drawn, not pixel-parity with the stock art
+  (owner choice);  (v) **no visual proof yet** — live screenshots are 4h proof (d).
+- 2026-10-09 · **Decision 8 locked + plan re-cut (no code change this step):** the bar's
+  right end becomes **one combined chip showing only the clock** (owner grill: “clock for
+  now, no wifi, no battery — wifi goes to tskbaredge on the side”). Written into the plan:
+  decision 8 block (a–e), the 4U **4f row rewritten** (order → `weather → apps → clock`,
+  `.tray` removed with the same ripple as `.media`, tray popup / quick settings / ring icon
+  struck from 4f, combined chip needs an owner-signed design before it is built), and a
+  Phase-7 bullet for the **Wi-Fi + battery edge widget with the side (left/right) chosen by
+  the owner at Phase 7 sign-off**. Timing: locked now, **built in 4f**; decision 5 (in-bar
+  ring) superseded by 8c. Next slice: **4e clock**.
+- 2026-10-09 · **8d resolved (grill):** the combined chip is a **weather-pill twin** —
+  matched gradient-card construction with its own hue, **large time + weekday/date line**,
+  **both clock presets kept** (restyled into the new form), **calendar popup still on tap**.
+  Written into decision 8(d) and the 4f row; the build (and the hue pick on the render)
+  lands in **4f**, after 4e.
+- 2026-10-09 · **4e clock — PASS** (full suite **1632/1632 green**, `** TEST SUCCEEDED **`
+  exit 0; targeted `ClockChipContentTests` 3/3; app build re-verified after touching both
+  edited files: `** BUILD SUCCEEDED **` exit 0 with `ClockChip.swift` compiled;
+  `check_localization.py` ✅ exit 0; `check_debug_switches.py` ✅ 77/77).
+  **Verified vs plan:** content-provider protocol (`ClockDataProvider` +
+  `StandardClockProvider`, time + date shipped from Core) ✓; `com.katikati.clock.preset`
+  persists both presets via `@AppStorage` ✓; calendar popup baseline present, owner
+  redesigns it in Phase 5 ✓.
+  **Gaps found → fixed:** (a) **the chip was not minute-aligned** —
+  `Timer.publish(every: 1, on: .main)` woke the main thread once a second for content that
+  changes once a minute; now `TimelineView(.periodic(from: ClockTick.nextMinute(after:),
+  by: 60))` starts on the next whole-minute boundary and ticks each minute (the plan's
+  exact ask), with the alignment maths in Core as the testable seam
+  (`ClockTick.nextMinute(after:calendar:)`). (b) **the calendar popup shipped empty** —
+  `CalendarPopupView.body` was a blank `VStack` since the 4e2 commit while `header` /
+  `daysOfWeek` / `monthGrid` sat unused; the baseline is now composed (header + weekday
+  row + month grid). Baseline only — the owner's Phase 5 redesign stands.
+  **Evidence tests added:** `testNextMinuteIsTheNextWholeBoundary` (mid-minute, exactly on
+  a boundary → the *next* minute, :59, hour/day rollover, repeated ticks stay whole) and
+  `testStandardClockProviderIsMinuteResolution` (same-minute reads are identical — an
+  aligned ticker therefore can never show a stale reading; the next minute ticks over).
+  **Notes:** both presets survive into the 8d combined-chip restyle (4f); the 4d
+  `Text(verbatim:)` day-cell fix still stands; no visual proof yet — 4h proof (d).
+
+**Close-out:** full tungsten gate (`xcodebuild test` + `check_localization.py` +
+`check_debug_switches.py` + conformance-availability check), per-decision screenshots
+(owner supplies references per step), check log complete, then Phase 5 opens.
+
 ### Phase 5 — Hardening (native Dock, teardown, recovery drill)
 
 
@@ -716,6 +1018,11 @@ Phase 6; `DOCK_THEME` stays a debug switch only (`check_debug_switches.py` regis
   per §5e. Local-only `.md` in `~/Library/Application Support/KatiKati/`,
   iCloud-Drive-folder sync, AES-GCM. Non-activating, all-Spaces, atomic
   fullscreen-hide per display, popup anchored to its own edge chip.
+- **Wi-Fi + battery status widget on an edge bar** (owner suggestion, 2026-10-09 —
+  moved out of the main bar by Phase-4U decision 8): the status cluster (Wi-Fi,
+  battery, plus the tray popup's quick settings and the merged ring icon that 4f
+  used to plan) lands on whichever edge bar the owner picks — **left vs right is
+  decided by the owner at Phase 7 sign-off**. `TrayChip` moves to this scope.
 - **7b left-edge widgets bar** (second): all 6 EdgeDeckBar widgets per §5e,
   re-skinned to tungsten chips + `PanelGeometry` anchors.
 - **7c centered launcher** (last): hybrid per §5e — arc-menu base + EdgeDeck
