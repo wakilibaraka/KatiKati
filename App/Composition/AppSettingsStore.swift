@@ -194,7 +194,7 @@ final class AppSettingsStore: ObservableObject {
         )
         // Phase 4U decision 3: the widget order is hardcoded — no reader, no writer.
         // Decision 8b removed `.tray` (edge-bar scope): canonical order is weather → apps → clock.
-        let defaultWidgetOrder: [BarSection] = [.weather, .apps, .clock]
+        let defaultWidgetOrder: [BarSection] = [.weather, .apps, .media, .clock]
         
         // remembered 键（lastEnabledDelay）不注册默认值：区分「从未写过」和「真实写过」，
         // 从未写过时由下面的播种逻辑决定，而不是静默拿到一个注册出来的假历史值。

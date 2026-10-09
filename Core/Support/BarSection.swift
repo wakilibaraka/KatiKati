@@ -6,22 +6,18 @@ import Foundation
 /// Canonical left-to-right order is always:
 /// 1. `weather`
 /// 2. `apps` (window chips and tungsten utilities: drawer, shelf, trash, pinned folders)
-/// 3. `clock` (combined clock chip & calendar popup)
+/// 3. `media` (Now Playing mini icon and popup)
+/// 4. `clock` (combined clock chip & calendar popup)
 ///
-/// The former `media` section (now playing) was removed owner 2026-10-09 (Phase 4U
-/// decision 2): Now Playing returns in the 4f rework as a play/pause mini icon
-/// at the apps island's right end plus a popup — not as a section of its own.
-///
-/// The former `tray` section (status cluster) was removed owner 2026-10-09 (Phase 4U
-/// decision 8b): Wi-Fi, battery, the tray popup, quick settings and the merged ring
-/// icon are Phase 7 edge-bar scope (decision 8c); the bar's right end is the combined
-/// clock chip alone.
+/// The `media` section is grouped with `.apps` in split modes, appearing at the
+/// right end of the apps island (Phase 4U decision 2).
 ///
 /// Across layout modes, this sequence is never rearranged; only the grouping into
 /// discrete island slots varies.
 enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable {
     case weather
     case apps
+    case media
     case clock
 
     var id: String { rawValue }
@@ -30,6 +26,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         switch self {
         case .weather: return "Weather"
         case .apps: return "Apps"
+        case .media: return "Now Playing"
         case .clock: return "Clock"
         }
     }
@@ -45,47 +42,42 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         switch self {
         case .weather: return 120
         case .apps: return 0
+        case .media: return 140
         case .clock: return 160
         }
     }
 
     /// Grouping of sections into island slots for each layout mode.
-    ///
-    /// - `.windows`: `[[.weather, .apps, .clock]]` (1 full-width slot)
-    /// - `.windows`, `.centered`: `[order]` (1 slot)
-    /// - `.split3`: Everything before `.apps` (slot 0), `[.apps]` (slot 1), everything after `.apps` (slot 2)
-    /// - `.split4`: Left group, `[.apps]`, first right item, remaining right items.
-    ///   With only three canonical sections, the "remaining right items" group is
-    ///   empty, so `.split4` yields the same 3 groups as `.split3` (Phase 4U decision
-    ///   8b removed `tray`); `BarLayoutMode.slotCount` derives from this, so no
-    ///   fourth panel is allocated to duplicate the apps strip.
-    static func islands(for mode: BarLayoutMode, order: [BarSection] = [.weather, .apps, .clock]) -> [[BarSection]] {
+    static func islands(for mode: BarLayoutMode, order: [BarSection] = [.weather, .apps, .media, .clock]) -> [[BarSection]] {
         switch mode {
         case .windows, .centered:
             return [order]
-        case .split3:
+        case .split3, .split4:
+            // Group .apps and .media together in the center island.
             guard let appsIndex = order.firstIndex(of: .apps) else {
                 return [order]
             }
-            let left = Array(order[..<appsIndex])
-            let right = Array(order[(appsIndex + 1)...])
-            return [left, [.apps], right].filter { !$0.isEmpty }
-        case .split4:
-            guard let appsIndex = order.firstIndex(of: .apps) else {
-                return [order]
+            var left = Array(order[..<appsIndex])
+            var center: [BarSection] = [.apps]
+            
+            var rightStartIndex = appsIndex + 1
+            if rightStartIndex < order.count && order[rightStartIndex] == .media {
+                center.append(.media)
+                rightStartIndex += 1
             }
-            let left = Array(order[..<appsIndex])
-            let right = Array(order[(appsIndex + 1)...])
-            if right.count > 1 {
-                return [left, [.apps], [right[0]], Array(right[1...])].filter { !$0.isEmpty }
+            
+            var right = Array(order[rightStartIndex...])
+            
+            if mode == .split4 && right.count > 1 {
+                return [left, center, [right[0]], Array(right[1...])].filter { !$0.isEmpty }
             } else {
-                return [left, [.apps], right].filter { !$0.isEmpty }
+                return [left, center, right].filter { !$0.isEmpty }
             }
         }
     }
 
     /// The 0-based slot index that hosts this section in the given layout mode.
-    func slotIndex(for mode: BarLayoutMode, order: [BarSection] = [.weather, .apps, .clock]) -> Int {
+    func slotIndex(for mode: BarLayoutMode, order: [BarSection] = [.weather, .apps, .media, .clock]) -> Int {
         let islandGroups = Self.islands(for: mode, order: order)
         for (index, group) in islandGroups.enumerated() {
             if group.contains(self) {

@@ -15,7 +15,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     ) -> IslandLayoutSolver.IslandLayout {
         IslandLayoutSolver.layout(
             screenWidth: screenWidth,
-            mode: .split3, widgetOrder: [.weather, .apps, .clock], widgetWidths: [:],
+            mode: .split3, widgetOrder: [.weather, .apps, .media, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: appCount,
             weatherWidth: 200,
@@ -40,7 +40,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     ) -> IslandLayoutSolver.IslandLayout {
         IslandLayoutSolver.layout(
             screenWidth: screenWidth,
-            mode: .split4, widgetOrder: [.weather, .apps, .clock], widgetWidths: [:],
+            mode: .split4, widgetOrder: [.weather, .apps, .media, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: appCount,
             weatherWidth: 200,
@@ -56,7 +56,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     func testSplitModesExposeExpectedIslands() {
         let windowsLayout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .windows, widgetOrder: [.weather, .apps, .clock], widgetWidths: [:],
+            mode: .windows, widgetOrder: [.weather, .apps, .media, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: 9,
             weatherWidth: 200,
@@ -77,7 +77,7 @@ final class IslandLayoutSolverTests: XCTestCase {
 
         let centeredLayout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .centered, widgetOrder: [.weather, .apps, .clock], widgetWidths: [:],
+            mode: .centered, widgetOrder: [.weather, .apps, .media, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: 9,
             weatherWidth: 200,
@@ -95,7 +95,7 @@ final class IslandLayoutSolverTests: XCTestCase {
         for mode in BarLayoutMode.allCases {
             let layout = IslandLayoutSolver.layout(
                 screenWidth: 1728,
-                mode: mode, widgetOrder: [.weather, .apps, .clock], widgetWidths: [:],
+                mode: mode, widgetOrder: [.weather, .apps, .media, .clock], widgetWidths: [:],
                 tileStride: 46,
                 appCount: 9,
                 weatherWidth: 200,
@@ -170,7 +170,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     func testWindowsModeProducesSingleFullWidthIsland() {
         let layout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .windows, widgetOrder: [.weather, .apps, .clock], widgetWidths: [:],
+            mode: .windows, widgetOrder: [.weather, .apps, .media, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: 10,
             weatherWidth: 200,
@@ -184,7 +184,7 @@ final class IslandLayoutSolverTests: XCTestCase {
         XCTAssertEqual(layout.islands.count, 1)
         XCTAssertFalse(layout.showsOverflow)
         let island = layout.islands[0]
-        XCTAssertEqual(island.sections, [.weather, .apps, .clock])
+        XCTAssertEqual(island.sections, [.weather, .apps, .media, .clock])
         XCTAssertEqual(island.frame.minX, 12)
         XCTAssertEqual(island.frame.width, 1728 - 24)
         XCTAssertEqual(island.frame.minY, 8)
@@ -195,7 +195,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     func testCenteredModeProducesCenteredIsland() {
         let layout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .centered, widgetOrder: [.weather, .apps, .clock], widgetWidths: [:],
+            mode: .centered, widgetOrder: [.weather, .apps, .media, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: 5,
             weatherWidth: 200,
@@ -209,7 +209,7 @@ final class IslandLayoutSolverTests: XCTestCase {
         )
         XCTAssertEqual(layout.islands.count, 1)
         let island = layout.islands[0]
-        XCTAssertEqual(island.sections, [.weather, .apps, .clock])
+        XCTAssertEqual(island.sections, [.weather, .apps, .media, .clock])
         XCTAssertEqual(island.frame.minY, 8)
         XCTAssertEqual(island.frame.height, 46)
 
@@ -223,7 +223,7 @@ final class IslandLayoutSolverTests: XCTestCase {
         // Very small user width expands to fit intrinsic content
         let smallWidthLayout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .centered, widgetOrder: [.weather, .apps, .clock], widgetWidths: [:],
+            mode: .centered, widgetOrder: [.weather, .apps, .media, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: 8,
             weatherWidth: 200,
@@ -240,7 +240,7 @@ final class IslandLayoutSolverTests: XCTestCase {
         // Huge user width clamps to screen minus margins
         let hugeWidthLayout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .centered, widgetOrder: [.weather, .apps, .clock], widgetWidths: [:],
+            mode: .centered, widgetOrder: [.weather, .apps, .media, .clock], widgetWidths: [:],
             tileStride: 46,
             appCount: 5,
             weatherWidth: 200,

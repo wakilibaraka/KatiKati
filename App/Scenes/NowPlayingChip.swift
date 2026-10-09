@@ -2,55 +2,66 @@ import SwiftUI
 
 public struct NowPlayingChip: View {
     @StateObject private var service = NowPlayingService()
+    @State private var isHovering = false
+    @State private var showPopup = false
     
     public init() {}
     
     public var body: some View {
-        HStack(spacing: 8) {
-            // Album Art Placeholder
-            RoundedRectangle(cornerRadius: 6)
-                .fill(LinearGradient(
-                    colors: [.purple.opacity(0.8), .blue.opacity(0.8)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ))
-                .frame(width: 28, height: 28)
-                .overlay(
-                    Image(systemName: "music.note")
-                        .font(.system(size: 12))
-                        .foregroundColor(.white)
+        Button(action: {
+            showPopup.toggle()
+        }) {
+            Image(systemName: service.state.isPlaying ? "pause.fill" : "play.fill")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(isHovering ? .primary : .secondary)
+                .frame(width: 32, height: 32)
+                .background(
+                    Circle()
+                        .fill(Color.primary.opacity(isHovering ? 0.1 : 0.05))
                 )
-            
-            // Text and Controls
-            VStack(alignment: .leading, spacing: 2) {
-                Text(service.title ?? "Not Playing")
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-                
-                if let artist = service.artist, !artist.isEmpty {
-                    Text(artist)
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                }
-            }
-            .frame(maxWidth: 100, alignment: .leading)
-            
-            // Minimal playback control
-            Button(action: {
-                // Play/Pause toggle would call service
-            }) {
-                Image(systemName: service.isPlaying ? "pause.fill" : "play.fill")
-                    .font(.system(size: 14))
-                    .foregroundColor(.primary)
-            }
-            .buttonStyle(.plain)
-            .padding(.leading, 4)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Color.primary.opacity(0.08))
-        .clipShape(Capsule())
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            isHovering = hovering
+        }
+        .popover(isPresented: $showPopup, arrowEdge: .top) {
+            NowPlayingPopup(state: service.state, onToggle: {
+                service.togglePlayPause()
+            })
+        }
+    }
+}
+
+struct NowPlayingPopup: View {
+    let state: NowPlayingState
+    let onToggle: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if let title = state.title {
+                Text(title)
+                    .font(.headline)
+            } else {
+                Text("Not Playing")
+                    .font(.headline)
+            }
+            if let artist = state.artist {
+                Text(artist)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            HStack {
+                Spacer()
+                Button(action: onToggle) {
+                    Image(systemName: state.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                        .font(.system(size: 32))
+                }
+                .buttonStyle(.plain)
+                Spacer()
+            }
+            .padding(.top, 8)
+        }
+        .padding()
+        .frame(width: 200)
     }
 }

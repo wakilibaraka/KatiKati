@@ -393,7 +393,7 @@ struct SettingsWindowContent: View {
     /// width is the only knob, and it lives here instead of as on-dock handles.
     private var widgetWidthSliders: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ForEach([BarSection.weather, .clock], id: \.self) { section in
+            ForEach([BarSection.weather, .media, .clock], id: \.self) { section in
                 HStack(spacing: 8) {
                     widgetWidthLabel(for: section)
                     Slider(

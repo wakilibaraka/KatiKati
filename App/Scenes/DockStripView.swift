@@ -1321,6 +1321,9 @@ struct DockStripView: View {
                 case .weather:
                     WeatherChip()
                         .scaleEffect(dockScale)
+                case .media:
+                    NowPlayingChip()
+                        .scaleEffect(dockScale)
                 case .clock:
                     ClockChip()
                         .scaleEffect(dockScale)
