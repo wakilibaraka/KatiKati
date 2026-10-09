@@ -51,13 +51,13 @@ final class BarLayoutModeTests: XCTestCase {
         let split3Islands = BarSection.islands(for: .split3)
         XCTAssertEqual(split3Islands.count, 3)
         XCTAssertEqual(split3Islands[0], [.weather])
-        XCTAssertEqual(split3Islands[1], [.apps])
+        XCTAssertEqual(split3Islands[1], [.apps, .media])
         XCTAssertEqual(split3Islands[2], [.clock])
 
         let split4Islands = BarSection.islands(for: .split4)
         XCTAssertEqual(split4Islands.count, 3)
         XCTAssertEqual(split4Islands[0], [.weather])
-        XCTAssertEqual(split4Islands[1], [.apps])
+        XCTAssertEqual(split4Islands[1], [.apps, .media])
         XCTAssertEqual(split4Islands[2], [.clock])
 
         let centeredIslands = BarSection.islands(for: .centered)

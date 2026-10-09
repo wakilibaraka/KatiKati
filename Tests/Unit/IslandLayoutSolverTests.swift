@@ -126,7 +126,7 @@ final class IslandLayoutSolverTests: XCTestCase {
 
         let ordered = layout.islands.sorted { $0.frame.minX < $1.frame.minX }
         XCTAssertEqual(ordered[0].sections, [.weather])
-        XCTAssertEqual(ordered[1].sections, [.apps])
+        XCTAssertEqual(ordered[1].sections, [.apps, .media])
         XCTAssertEqual(ordered[2].sections, [.clock])
 
         XCTAssertTrue(IslandLayoutSolver.validate(layout: layout, screenWidth: 1728, expectedBarHeight: 46))
@@ -148,7 +148,7 @@ final class IslandLayoutSolverTests: XCTestCase {
 
         let ordered = layout.islands.sorted { $0.frame.minX < $1.frame.minX }
         XCTAssertEqual(ordered[0].sections, [.weather])
-        XCTAssertEqual(ordered[1].sections, [.apps])
+        XCTAssertEqual(ordered[1].sections, [.apps, .media])
         XCTAssertEqual(ordered[2].sections, [.clock])
 
         XCTAssertTrue(IslandLayoutSolver.validate(layout: layout, screenWidth: 1728, expectedBarHeight: 46))
