@@ -70,6 +70,8 @@ extension DockStripView {
             return appBubbleName(bundleID: bid, fallback: bid)
         case let .keptApp(bid):
             return appBubbleName(bundleID: bid, fallback: bid)
+        case .launcherPlaceholder:
+            return String(localized: "Launcher")
         case .trash:
             return String(localized: "Trash")
         case .shelf:
