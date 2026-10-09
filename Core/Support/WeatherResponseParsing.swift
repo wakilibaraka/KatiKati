@@ -9,6 +9,8 @@ public struct OpenMeteoResponse: Decodable {
         public let temperature: Double
         public let weathercode: Int
         public let time: String
+        /// 1 = day, 0 = night. Optional: absent on older/cached payloads.
+        public let is_day: Int?
     }
     public struct Daily: Decodable {
         public let time: [String]?
@@ -58,6 +60,12 @@ public enum WeatherResponseParsing {
         }
 
         let condition = mapWeatherCode(code: current.weathercode)
+        let family = WeatherCondition(code: current.weathercode)
+        let isDay = current.is_day.map { $0 == 1 }
+        // The sample label for a cloudy night (owner reference, 4d): night keeps the plain
+        // condition text for everything else — one extra key to translate, not ten.
+        let nightCloudy = isDay == false && (family == .partlyCloudy || family == .cloudy)
+        let labelText = nightCloudy ? String(localized: "Cloudy Night") : condition.text
         let high = decoded.daily?.temperature_2m_max.first ?? (current.temperature + 3.0)
         let low = decoded.daily?.temperature_2m_min.first ?? (current.temperature - 4.0)
 
@@ -88,14 +96,16 @@ public enum WeatherResponseParsing {
         return WeatherState(
             cityName: cityName,
             temperatureCelsius: current.temperature,
-            conditionText: condition.text,
+            conditionText: labelText,
             symbolName: condition.symbol,
             highCelsius: high,
             lowCelsius: low,
             hourly: hourlyList.isEmpty ? previousHourly : hourlyList,
             daily: forecasts,
             isLive: true,
-            lastUpdated: Date()
+            lastUpdated: Date(),
+            condition: family,
+            isDay: isDay
         )
     }
 

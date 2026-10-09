@@ -1,3 +1,4 @@
+import SwiftUI
 import XCTest
 
 /// The table has two columns, `light` and `dark`. These tests lock invariants tied to function —
@@ -151,6 +152,18 @@ final class DockThemeTests: XCTestCase {
         for column in [theme, dark] {
             XCTAssertLessThanOrEqual(column.stripShadow.verticalExtent, shadowPadding)
             XCTAssertLessThanOrEqual(column.popupShadow.verticalExtent, shadowPadding)
+        }
+    }
+
+    /// 4b「rim ≤ shadow budget」（owner 2026-10-09 reading: ground it in `shadowPadding`）.
+    /// The plate's rim stroke and its shadow share the same transparent border, so the wider of
+    /// the two rim strokes plus the shadow's downward reach must still fit inside the padding —
+    /// anything over is clipped hard at the panel edge (the 「阴影还会延伸溢出」 cut).
+    func testRimStrokePlusShadowStaysInsideShadowPaddingBudget() {
+        for column in [theme, dark] {
+            let rimStroke = max(column.panelRimLineWidth, column.panelRimHighlightedLineWidth)
+            XCTAssertLessThanOrEqual(rimStroke + column.stripShadow.verticalExtent, shadowPadding)
+            XCTAssertLessThanOrEqual(rimStroke + column.popupShadow.verticalExtent, shadowPadding)
         }
     }
 
@@ -399,6 +412,102 @@ final class DockThemeTests: XCTestCase {
         XCTAssertNil(theme.chipPillGlass, "the light pill is signed off as the flat one")
     }
 
+    // MARK: - 4c — glass: the pinned style actually reaches the columns
+
+    private static let presetStyles: [DockThemeStyle] = [
+        .system, .translucent, .crystalClear, .obsidianDark, .monochrome, .titaniumFrost,
+        .auroraGlow, .deepOcean, .forestMoss, .cyberpunkGlass, .emberSunset, .roseQuartz,
+    ]
+
+    /// The re-skin (`with(styleTokens:)`) owns exactly four fields: rim top/bottom, the rim
+    /// highlight (glow) and the inner highlight (sheen) — values, not adjectives, so this is the
+    /// 4c evidence that a pinned style is wired end to end through `resolved(for:style:)`.
+    /// **Relocated into the class during the 4U check (2026-10-09): until then it sat after the
+    /// class closing brace as a stray global function and XCTest never executed it.**
+    func testCustomThemeOverrides() {
+        let styleTokens = DockThemeStyleTokens.resolve(style: .roseQuartz, appearance: .light)
+        let resolved = DockThemeTokens.resolved(for: .light, style: .roseQuartz)
+
+        XCTAssertEqual(resolved.panelRimTop, DockTint.rgba(styleTokens.rim))
+        XCTAssertEqual(resolved.panelRimBottom, DockTint.rgba(styleTokens.rim))
+        XCTAssertEqual(resolved.panelRimHighlighted, DockTint.rgba(styleTokens.glow))
+        XCTAssertEqual(resolved.panelInnerHighlight, DockTint.rgba(styleTokens.gradientSheen))
+    }
+
+    /// All 12 presets × both columns: the four owned fields take the preset's values **and move
+    /// off the auto baseline** — a pinned preset that changes nothing is the 4h defect (the
+    /// identical-white-columns rework), so "does it re-skin" is asserted per preset.
+    func testEveryPresetReSkinsTheThemedFieldsInBothColumns() {
+        for style in Self.presetStyles {
+            for appearance in [AppearanceMode.light, .dark] {
+                let colorScheme: ColorScheme = appearance == .dark ? .dark : .light
+                let column = DockThemeTokens.resolved(for: colorScheme, style: style)
+                let baseline = DockThemeTokens.resolved(for: colorScheme)
+                let tokens = DockThemeStyleTokens.resolve(style: style, appearance: appearance)
+                let label = "\(style.token) / \(appearance.rawValue)"
+                XCTAssertEqual(column.styleTokens, tokens, label)
+                XCTAssertEqual(column.panelRimTop, DockTint.rgba(tokens.rim), label)
+                XCTAssertEqual(column.panelRimBottom, DockTint.rgba(tokens.rim), label)
+                XCTAssertEqual(column.panelRimHighlighted, DockTint.rgba(tokens.glow), label)
+                XCTAssertEqual(column.panelInnerHighlight, DockTint.rgba(tokens.gradientSheen), label)
+                XCTAssertNotEqual(column.panelRimTop, baseline.panelRimTop,
+                                  "\(label): preset rim did not move off the baseline")
+            }
+        }
+    }
+
+    /// The re-skin must never touch a contrast-critical field: labels, pill, shadows, tooltip and
+    /// stack foregrounds. The light/dark contrast tests above then hold for all 24 preset columns
+    /// by construction — that is the "contrast tests rerun" evidence for 4c.
+    func testPresetReskinLeavesContrastCriticalFieldsAtBaseline() {
+        for style in Self.presetStyles {
+            for appearance in [AppearanceMode.light, .dark] {
+                let colorScheme: ColorScheme = appearance == .dark ? .dark : .light
+                let column = DockThemeTokens.resolved(for: colorScheme, style: style)
+                let baseline = DockThemeTokens.resolved(for: colorScheme)
+                let label = "\(style.token) / \(appearance.rawValue)"
+                XCTAssertEqual(column.labelActive, baseline.labelActive, label)
+                XCTAssertEqual(column.labelInactive, baseline.labelInactive, label)
+                XCTAssertEqual(column.labelSubtitle, baseline.labelSubtitle, label)
+                XCTAssertEqual(column.chipPillFill, baseline.chipPillFill, label)
+                XCTAssertEqual(column.chipPillRimTop, baseline.chipPillRimTop, label)
+                XCTAssertEqual(column.stripShadow, baseline.stripShadow, label)
+                XCTAssertEqual(column.popupShadow, baseline.popupShadow, label)
+                XCTAssertEqual(column.tooltipText, baseline.tooltipText, label)
+                XCTAssertEqual(column.tooltipShadow, baseline.tooltipShadow, label)
+                XCTAssertEqual(column.stackPopupText, baseline.stackPopupText, label)
+            }
+        }
+    }
+
+    /// 4c contract: "`auto` vs baseline delta stated in values, not adjectives."
+    /// - rim / glow / sheen under auto: delta **0** — the `style != .auto` gate keeps the signed-
+    ///   off columns byte-identical (pinned by `testResolvedColumnFollowsTheColourScheme`).
+    /// - plate tint under auto: the only delta. `DockPanelBackdrop` always forwards
+    ///   `styleTokens.baseTint` (roseQuartz light / obsidianDark dark), while the untouched
+    ///   `DockLiquidGlassConfiguration.resolve()` (what `DockGlassPresentation.configuration`
+    ///   wraps) ships `baseTint = nil` (neutral grey 127 at `clearTintOpacity`). Numbers, so
+    ///   4h's screenshot proof has a value to measure against.
+    func testAutoDeltaAgainstTheUntouchedGlassConfiguration() {
+        XCTAssertNil(DockLiquidGlassConfiguration.resolve().baseTint,
+                     "the baseline plate is neutral grey")
+        XCTAssertEqual(DockThemeStyleTokens.resolve(style: .auto, appearance: .light).baseTint,
+                       DockRGBA(r: 0.95, g: 0.85, b: 0.88, a: 0.6))
+        XCTAssertEqual(DockThemeStyleTokens.resolve(style: .auto, appearance: .dark).baseTint,
+                       DockRGBA(r: 0.05, g: 0.05, b: 0.05, a: 0.85))
+        // Rim gate: auto keeps the baseline rim; a pinned style moves it.
+        XCTAssertNotEqual(DockThemeTokens.resolved(for: .light).panelRimTop,
+                          DockThemeTokens.resolved(for: .light, style: .roseQuartz).panelRimTop)
+    }
+
+    /// Every read site falls back to this default when a host forgets to inject the key:
+    /// `.auto` = the signed-off baseline, never a half-themed column.
+    func testThemeStyleEnvironmentDefaultsToAuto() {
+        XCTAssertEqual(DockThemeStyleKey.defaultValue, .auto)
+        XCTAssertEqual(DockThemeTokens.resolved(for: .light, style: DockThemeStyleKey.defaultValue),
+                       DockThemeTokens.resolved(for: .light))
+    }
+
     // MARK: - Contrast helpers (levels are 0…255)
 
     private static func composite(_ tint: DockTint, over background: Double) -> Double {
@@ -435,14 +544,3 @@ private extension DockThemeTokens {
          tooltipRim, tooltipText, tooltipShadow.tint]
     }
 }
-
-    func testCustomThemeOverrides() {
-        let styleTokens = DockThemeStyleTokens.resolve(style: .roseQuartz, appearance: .light)
-        let resolved = DockThemeTokens.resolved(for: .light, style: .roseQuartz)
-        
-        // Assert that the tokens are now using the custom theme values.
-        XCTAssertEqual(resolved.panelRimTop, DockTint.rgba(styleTokens.rim))
-        XCTAssertEqual(resolved.panelRimBottom, DockTint.rgba(styleTokens.rim))
-        XCTAssertEqual(resolved.panelRimHighlighted, DockTint.rgba(styleTokens.glow))
-        XCTAssertEqual(resolved.panelInnerHighlight, DockTint.rgba(styleTokens.gradientSheen))
-    }
