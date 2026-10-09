@@ -112,6 +112,11 @@ struct SettingsWindowContent: View {
                         Spacer(minLength: 12)
                         hotKeyControls
                     }
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Widget Layout (Drag to reorder)")
+                        widgetLayoutVisualizer
+                    }
+                    .padding(.vertical, 4)
                     HStack {
                         Text("Drawer Position")
                         Spacer(minLength: 12)
@@ -150,6 +155,12 @@ struct SettingsWindowContent: View {
                         Text("Show/hide taskbar shortcut")
                     } control: {
                         hotKeyControls
+                    }
+                    Divider().opacity(0.5)
+                    groupRow {
+                        Text("Widget Layout")
+                    } control: {
+                        widgetLayoutVisualizer
                     }
                     Divider().opacity(0.5)
                     groupRow {
@@ -376,7 +387,36 @@ struct SettingsWindowContent: View {
 
     // 登录时启动 2026-08-24 当天两度搬家：随去重进过设置窗口，owner 复议后定为
     // **只在状态栏菜单（第一项）**。这里不再放它，也不再需要 didBecomeActive 刷新。
-
+    @State private var draggedWidget: BarSection?
+    
+    private var widgetLayoutVisualizer: some View {
+        HStack(spacing: 8) {
+            ForEach(store.widgetOrder, id: \.self) { section in
+                if section == .apps {
+                    Text("Apps")
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.secondary.opacity(0.15))
+                        .cornerRadius(6)
+                        .opacity(0.8)
+                } else {
+                    Text(section.rawValue.capitalized)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color.accentColor.opacity(0.2))
+                        .cornerRadius(6)
+                        .onDrag {
+                            self.draggedWidget = section
+                            return NSItemProvider(object: section.rawValue as NSString)
+                        }
+                        .onDrop(of: [.plainText], delegate: WidgetDropDelegate(item: section, items: Binding(get: { store.widgetOrder }, set: { store.setWidgetOrder($0) }), draggedItem: $draggedWidget))
+                }
+            }
+        }
+        .padding()
+        .background(Color(NSColor.controlBackgroundColor))
+        .cornerRadius(8)
+    }
     private var drawerPlacementPicker: some View {
         Picker(
             "Drawer Position",
@@ -1126,5 +1166,35 @@ extension DiagnosticReport {
         var buffer = [CChar](repeating: 0, count: size)
         guard sysctlbyname("hw.model", &buffer, &size, nil, 0) == 0 else { return nil }
         return String(cString: buffer)
+    }
+}
+import SwiftUI
+import UniformTypeIdentifiers
+
+struct WidgetDropDelegate: DropDelegate {
+    let item: BarSection
+    @Binding var items: [BarSection]
+    @Binding var draggedItem: BarSection?
+
+    func performDrop(info: DropInfo) -> Bool {
+        draggedItem = nil
+        return true
+    }
+
+    func dropEntered(info: DropInfo) {
+        guard let draggedItem,
+              draggedItem != item,
+              let from = items.firstIndex(of: draggedItem),
+              let to = items.firstIndex(of: item) else { return }
+              
+        if items[to] != .apps {
+            withAnimation {
+                items.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
+            }
+        }
+    }
+    
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        return DropProposal(operation: .move)
     }
 }

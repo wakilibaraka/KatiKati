@@ -63,12 +63,14 @@ enum IslandLayoutSolver {
     static func layout(
         screenWidth: CGFloat,
         mode: BarLayoutMode,
+        widgetOrder: [BarSection] = [.weather, .media, .apps, .tray, .clock],
+        widgetWidths: [BarSection: CGFloat] = [:],
         tileStride: CGFloat,
         appCount: Int,
-        weatherWidth: CGFloat,
+        weatherWidth: CGFloat = 120,
         mediaWidth: CGFloat = 0,
-        trayWidth: CGFloat,
-        clockWidth: CGFloat,
+        trayWidth: CGFloat = 140,
+        clockWidth: CGFloat = 160,
         clusterWidth: CGFloat,
         gap: CGFloat,
         margin: CGFloat,
@@ -81,16 +83,34 @@ enum IslandLayoutSolver {
         let effectiveGap = max(0.5, gap)
         let effectiveMargin = max(0, margin)
         let y = screenMinY + bottomMargin
-        let islandSections = BarSection.islands(for: mode)
+        let islandSections = BarSection.islands(for: mode, order: widgetOrder)
 
-        let mediaTotal = mediaWidth > 0 ? 8 + mediaWidth : 0
+        func width(for section: BarSection) -> CGFloat {
+            if let custom = widgetWidths[section] { return custom }
+            switch section {
+            case .weather: return weatherWidth
+            case .media: return mediaWidth > 0 ? mediaWidth : 0
+            case .tray: return trayWidth
+            case .clock: return clockWidth
+            case .apps: return 0
+            }
+        }
+
         func fixedWidth(_ sections: [BarSection]) -> CGFloat? {
-            if sections == [.weather] { return weatherWidth }
-            if sections == [.weather, .media] { return weatherWidth + mediaTotal }
-            if sections == [.tray, .clock] { return trayWidth + 8 + clockWidth }
-            if sections == [.tray] { return trayWidth }
-            if sections == [.clock] { return clockWidth }
-            return nil
+            if sections.contains(.apps) { return nil }
+            var total: CGFloat = 0
+            var count = 0
+            for sec in sections {
+                let w = width(for: sec)
+                if w > 0 {
+                    total += w
+                    count += 1
+                }
+            }
+            if count > 0 {
+                total += CGFloat(count - 1) * 8 // 8 points gap inside an island group
+            }
+            return total
         }
 
         func appsWidth(_ count: Int) -> CGFloat {
@@ -101,8 +121,14 @@ enum IslandLayoutSolver {
         case .windows:
             // Single continuous full-width strip across the screen.
             let availableWidth = max(0, screenWidth - 2 * effectiveMargin)
-            let fixedElements = weatherWidth + mediaTotal + (trayWidth + 8 + clockWidth) + 2 * effectiveGap
-            let availableForApps = max(0, availableWidth - fixedElements)
+            let allFixedSections = islandSections[0].filter { $0 != .apps }
+            let fixedElements = fixedWidth(allFixedSections) ?? 0
+            
+            // Treat the dividers between fixed sections and apps
+            let numberOfGaps = max(0, islandSections[0].count - 1)
+            let totalInnerGap = CGFloat(numberOfGaps) * 8
+            
+            let availableForApps = max(0, availableWidth - (fixedElements + totalInnerGap))
 
             var visibleApps = appCount
             while visibleApps > 1, appsWidth(visibleApps) > availableForApps {
@@ -122,15 +148,21 @@ enum IslandLayoutSolver {
         case .centered:
             // Single floating centered island hugging its content.
             let maxAllowedWidth = max(0, screenWidth - 2 * effectiveMargin)
-            let fixedElements = weatherWidth + mediaTotal + (trayWidth + 8 + clockWidth) + 32
+            let allFixedSections = islandSections[0].filter { $0 != .apps }
+            let fixedElements = fixedWidth(allFixedSections) ?? 0
+            
+            let numberOfGaps = max(0, islandSections[0].count - 1)
+            let totalInnerGap = CGFloat(numberOfGaps) * 8
+            
+            let totalFixedSpace = fixedElements + totalInnerGap
 
             var visibleApps = appCount
-            while visibleApps > 1, (appsWidth(visibleApps) + fixedElements) > maxAllowedWidth {
+            while visibleApps > 1, (appsWidth(visibleApps) + totalFixedSpace) > maxAllowedWidth {
                 visibleApps -= 1
             }
             let overflow = visibleApps < appCount
 
-            let intrinsic = appsWidth(visibleApps) + fixedElements
+            let intrinsic = appsWidth(visibleApps) + totalFixedSpace
             let finalWidth = min(maxAllowedWidth, max(min(centeredWidth, maxAllowedWidth), intrinsic))
             let x = screenOriginX + (screenWidth - finalWidth) / 2
 
@@ -140,15 +172,22 @@ enum IslandLayoutSolver {
 
         case .split3, .split4:
             var frames = [CGRect](repeating: .zero, count: islandSections.count)
-            var rightEdge = screenOriginX + screenWidth - effectiveMargin
+            let appsIndex = islandSections.firstIndex(where: { $0.contains(.apps) }) ?? 0
+
+            // Position leading islands from left to right.
+            var leftEdge = screenOriginX + effectiveMargin
+            for index in 0..<appsIndex {
+                let sections = islandSections[index]
+                let width = fixedWidth(sections) ?? 0
+                frames[index] = CGRect(x: leftEdge, y: y, width: width, height: barHeight)
+                leftEdge += width + effectiveGap
+            }
 
             // Position trailing islands from right to left.
-            for (index, sections) in islandSections.enumerated().reversed() {
-                guard let width = fixedWidth(sections) else { continue }
-                if sections.contains(.weather) {
-                    frames[index] = CGRect(x: screenOriginX + effectiveMargin, y: y, width: width, height: barHeight)
-                    continue
-                }
+            var rightEdge = screenOriginX + screenWidth - effectiveMargin
+            for index in stride(from: islandSections.count - 1, through: appsIndex + 1, by: -1) {
+                let sections = islandSections[index]
+                let width = fixedWidth(sections) ?? 0
                 rightEdge -= width
                 frames[index] = CGRect(x: rightEdge, y: y, width: width, height: barHeight)
                 rightEdge -= effectiveGap
@@ -157,18 +196,20 @@ enum IslandLayoutSolver {
             var visibleApps = appCount
             var overflow = false
 
-            if let appsIndex = islandSections.firstIndex(where: { $0.contains(.apps) }) {
-                let leftCount = islandSections[..<appsIndex].count
-                let leftReserved = islandSections[..<appsIndex].compactMap(fixedWidth).reduce(0, +)
-                    + CGFloat(leftCount) * effectiveGap + effectiveMargin
+            if appsIndex < islandSections.count {
+                let leftReserved = leftEdge - screenOriginX
                 let rightReserved = (screenOriginX + screenWidth - effectiveMargin) - rightEdge
-                let available = screenWidth - leftReserved - rightReserved
+                // The Apps island stays strictly centered, but we must make sure it doesn't collide
+                // with leftReserved or rightReserved.
+                let maxAllowedHalfWidth = (screenWidth / 2) - max(leftReserved, rightReserved) - effectiveGap
+                let maxAllowedWidth = max(0, maxAllowedHalfWidth * 2)
 
-                while visibleApps > 1, appsWidth(visibleApps) > available {
+                while visibleApps > 1, appsWidth(visibleApps) > maxAllowedWidth {
                     visibleApps -= 1
                 }
                 overflow = visibleApps < appCount
 
+                let available = screenWidth - leftReserved - rightReserved
                 let width = max(tileStride, min(appsWidth(visibleApps), max(0, available)))
                 let spanWidth = max(0, available)
                 frames[appsIndex] = CGRect(

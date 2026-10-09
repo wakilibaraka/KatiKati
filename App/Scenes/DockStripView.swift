@@ -3,6 +3,41 @@ import OSLog
 import SwiftUI
 import UniformTypeIdentifiers
 
+struct WidgetResizeHandle: View {
+    let section: BarSection
+    let defaultWidth: CGFloat
+    @EnvironmentObject var store: AppSettingsStore
+    @State private var startWidth: CGFloat?
+
+    var body: some View {
+        Color.clear
+            .frame(width: 8)
+            .contentShape(Rectangle())
+            .onHover { isHovered in
+                if isHovered {
+                    NSCursor.resizeLeftRight.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        if startWidth == nil {
+                            startWidth = store.widgetWidths[section.rawValue] ?? defaultWidth
+                        }
+                        if let start = startWidth {
+                            let newWidth = max(40, start + value.translation.width)
+                            store.setWidgetWidth(newWidth, for: section)
+                        }
+                    }
+                    .onEnded { _ in
+                        startWidth = nil
+                    }
+            )
+    }
+}
+
 struct DockStripView: View {
     @Environment(\.isPanelHeightResizing) var isPanelHeightResizing
     @EnvironmentObject var runtime: AppRuntime
@@ -1303,23 +1338,44 @@ struct DockStripView: View {
                      badgeText: windowBadge,
                      slotHidden: projection.draggingID == item.id)
         case let .sectionPlaceholder(section):
-            HStack(spacing: 6 * dockScale) {
+            let defaultWidth: CGFloat = {
                 switch section {
-                case .weather:
-                    WeatherChip()
-                        .scaleEffect(dockScale)
-                case .media:
-                    NowPlayingChip()
-                case .tray:
-                    TrayChip()
-                case .clock:
-                    ClockChip()
-                case .apps:
-                    EmptyView()
+                case .weather: return 120
+                case .tray: return 140
+                case .clock: return 160
+                default: return 0
+                }
+            }()
+            let targetWidth = settingsStore.widgetWidths[section.rawValue] ?? defaultWidth
+            
+            HStack(spacing: 0) {
+                if section != .apps {
+                    WidgetResizeHandle(section: section, defaultWidth: defaultWidth)
+                }
+                HStack(spacing: 6 * dockScale) {
+                    switch section {
+                    case .weather:
+                        WeatherChip()
+                            .scaleEffect(dockScale)
+                    case .media:
+                        NowPlayingChip()
+                    case .tray:
+                        TrayChip()
+                    case .clock:
+                        ClockChip()
+                    case .apps:
+                        EmptyView()
+                    }
+                }
+                .padding(.horizontal, 10 * dockScale)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
+                
+                if section != .apps {
+                    WidgetResizeHandle(section: section, defaultWidth: defaultWidth)
                 }
             }
-            .padding(.horizontal, 10 * dockScale)
-            .frame(height: 36 * dockScale)
+            .frame(width: section == .apps ? nil : targetWidth, height: 36 * dockScale)
             .contentShape(Rectangle())
         case .divider:
             Rectangle()

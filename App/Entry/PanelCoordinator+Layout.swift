@@ -174,6 +174,20 @@ extension PanelCoordinator {
         .sink { [weak self] _ in
             DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
         }
+        
+        widgetOrderSubscription = settingsStore.$widgetOrder
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
+            }
+            
+        widgetWidthsSubscription = settingsStore.$widgetWidths
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
+            }
     }
 
     /// A height change is a **transaction**, not a content change: panel height, capsule width
@@ -311,7 +325,7 @@ extension PanelCoordinator {
     /// Whether this coordinator unit hosts the drawer capsule.
     /// Per Appendix A, utilities (drawer, shelf, trash, folders) travel with the apps island.
     var isCapsuleOwner: Bool {
-        let sections = BarSection.islands(for: settingsStore.barLayoutMode)
+        let sections = BarSection.islands(for: settingsStore.barLayoutMode, order: settingsStore.widgetOrder)
         guard islandSlot < sections.count else { return islandSlot == 0 }
         return sections[islandSlot].contains(.apps)
     }

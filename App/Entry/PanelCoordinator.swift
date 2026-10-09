@@ -198,6 +198,8 @@ final class PanelCoordinator: NSObject {
     var dockPanelHeightSubscription: AnyCancellable?
     var barLayoutModeSubscription: AnyCancellable?
     var layoutDimensionsSubscription: AnyCancellable?
+    var widgetOrderSubscription: AnyCancellable?
+    var widgetWidthsSubscription: AnyCancellable?
     /// Height-change transaction generation: swallows animated relayouts other paths queue
     /// while a height change is in flight (see `beginPanelHeightChange`).
     var panelHeightChangeGeneration: UInt64 = 0

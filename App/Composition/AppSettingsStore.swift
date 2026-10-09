@@ -121,6 +121,9 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var dockPanelHeight: DockPanelHeight
     /// 任务条布局模式（windows / split3 / split4 / centered）。缺键 = windows。
     @Published private(set) var barLayoutMode: BarLayoutMode
+    
+    @Published private(set) var widgetOrder: [BarSection]
+    @Published private(set) var widgetWidths: [String: CGFloat]
     /// 居中模式下的目标宽度（points，默认 720，限制 360...1600）。
     @Published private(set) var centeredWidth: CGFloat
     /// 岛屿之间的间距（points，默认 10，最小 0.5）。
@@ -189,6 +192,9 @@ final class AppSettingsStore: ObservableObject {
             enabledKey: Keys.edgeAutoHideEnabled,
             delayKey: Keys.edgeAutoHideDelay
         )
+        let defaultWidgetOrder: [BarSection] = [.weather, .media, .apps, .tray, .clock]
+        let defaultOrderData = (try? JSONEncoder().encode(defaultWidgetOrder)) ?? Data()
+        
         // remembered 键（lastEnabledDelay）不注册默认值：区分「从未写过」和「真实写过」，
         // 从未写过时由下面的播种逻辑决定，而不是静默拿到一个注册出来的假历史值。
         defaults.register(defaults: [
@@ -204,6 +210,8 @@ final class AppSettingsStore: ObservableObject {
             Keys.centeredWidth: Double(Self.defaultCenteredWidth),
             Keys.islandGap: Double(Self.defaultIslandGap),
             Keys.islandMargin: Double(Self.defaultIslandMargin),
+            "widgetOrder": defaultOrderData,
+            "widgetWidths": [String: CGFloat]()
         ])
 
         launchAtLogin = defaults.bool(forKey: Keys.launchAtLogin)
@@ -217,6 +225,15 @@ final class AppSettingsStore: ObservableObject {
         islandGap = CGFloat(max(Double(Self.minimumIslandGap), storedGap))
         let storedMargin = Self.storedNumericValue(defaults.object(forKey: Keys.islandMargin)) ?? Double(Self.defaultIslandMargin)
         islandMargin = CGFloat(max(Double(Self.minimumIslandMargin), storedMargin))
+        
+        if let data = defaults.data(forKey: "widgetOrder"),
+           let decoded = try? JSONDecoder().decode([BarSection].self, from: data) {
+            widgetOrder = decoded
+        } else {
+            widgetOrder = defaultWidgetOrder
+        }
+        widgetWidths = defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:]
+        
         themeMaterial = DockThemeStyle(token: defaults.string(forKey: Keys.themeMaterial) ?? "") ?? .auto
         // 有意**不**进上面的 register：缺键即 false = 老用户维持关。
         // 全新安装那一次由 `seedWindowLiftEnabledForFreshInstall()` 显式写成 true——
@@ -591,6 +608,20 @@ final class AppSettingsStore: ObservableObject {
 
     private static func storedNumericValue(_ value: Any?) -> Double? {
         DefaultsValueParsing.finiteNumericValue(value)
+    }
+    
+    func setWidgetOrder(_ order: [BarSection]) {
+        self.widgetOrder = order
+        if let encoded = try? JSONEncoder().encode(order) {
+            defaults.set(encoded, forKey: "widgetOrder")
+        }
+    }
+    
+    func setWidgetWidth(_ width: CGFloat, for section: BarSection) {
+        var updated = self.widgetWidths
+        updated[section.rawValue] = width
+        self.widgetWidths = updated
+        defaults.set(updated, forKey: "widgetWidths")
     }
 
     private static func storedDockPanelHeight(defaults: UserDefaults) -> DockPanelHeight {

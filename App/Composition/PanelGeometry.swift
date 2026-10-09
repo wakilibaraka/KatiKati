@@ -406,14 +406,30 @@ enum PanelGeometry {
             // We want appsWidth to be exactly (contentWidth + capsuleSpace).
             let exactClusterWidth = contentWidth + capsuleSpace - (CGFloat(appCount) * tileStride) - 24
             
+            let defaults = UserDefaults.standard
+            var widgetOrder: [BarSection] = [.weather, .media, .apps, .tray, .clock]
+            if let data = defaults.data(forKey: "widgetOrder"),
+               let decoded = try? JSONDecoder().decode([BarSection].self, from: data) {
+                widgetOrder = decoded
+            }
+            let stringWidths = defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:]
+            var widgetWidths = [BarSection: CGFloat]()
+            for (key, value) in stringWidths {
+                if let section = BarSection(rawValue: key) {
+                    widgetWidths[section] = value
+                }
+            }
+            
             let layout = IslandLayoutSolver.layout(
                 screenWidth: screen.frame.width,
                 mode: mode,
+                widgetOrder: widgetOrder,
+                widgetWidths: widgetWidths,
                 tileStride: tileStride,
                 appCount: appCount,
                 weatherWidth: 120,
                 trayWidth: 140,
-                clockWidth: 100,
+                clockWidth: 160, // Fixed default width for truncation
                 clusterWidth: exactClusterWidth,
                 gap: gap,
                 margin: margin,
