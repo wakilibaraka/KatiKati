@@ -44,7 +44,8 @@ struct StackPopupChrome<Grid: View>: View {
     @ViewBuilder let grid: () -> Grid
 
     @Environment(\.colorScheme) private var colorScheme
-    private var theme: DockThemeTokens { .resolved(for: colorScheme) }
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
     private typealias Metrics = StackPopupMetrics
 
     private var plateSize: CGSize {

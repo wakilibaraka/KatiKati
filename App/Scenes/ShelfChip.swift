@@ -20,7 +20,8 @@ struct ShelfChip: View {
     let onAddFolder: () -> Void
 
     @Environment(\.colorScheme) private var colorScheme
-    private var theme: DockThemeTokens { .resolved(for: colorScheme) }
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
 
     /// 悬停视觉的总闸：「安静」档下恒 false，图标不缩、名字气泡不出。
     /// 投放反馈（`isDropTargeted` 的提亮/描边/发光）不受它管。

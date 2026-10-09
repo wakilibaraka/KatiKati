@@ -303,7 +303,8 @@ struct FolderGridCell: View {
     let onTap: () -> Void
 
     @Environment(\.colorScheme) private var colorScheme
-    private var theme: DockThemeTokens { .resolved(for: colorScheme) }
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
     private typealias Metrics = StackPopupMetrics
 
     @Environment(\.displayScale) private var displayScale
@@ -418,7 +419,8 @@ struct StackCellLabel: View {
     let metrics: StackCellMetrics
 
     @Environment(\.colorScheme) private var colorScheme
-    private var theme: DockThemeTokens { .resolved(for: colorScheme) }
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
     var body: some View {
         Text(text)
             .font(.system(size: metrics.labelSize))

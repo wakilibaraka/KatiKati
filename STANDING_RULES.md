@@ -13,9 +13,12 @@
    add/update *before* editing. End every slice with the tungsten gate green (§4).
 3. **No drive-by refactors.** Tungsten code is behavior-frozen unless the slice's
    stated goal requires it. Extension and re-skin over rewrite, always.
-4. **Ask when in doubt.** Ambiguous requirement, conflicting tungsten behaviors, or
-   more than one faithful port reading → stop and ask the owner. Record the decision
-   in the commit message.
+4. **Ask when in doubt — grill the owner thoroughly (owner 2026-10-09).** Ambiguous
+   requirement, conflicting tungsten behaviors, more than one faithful port reading,
+   or a cut-off/incomplete instruction → stop and interrogate: present the options
+   concretely and make the owner choose. Never guess, never silently pick a reading.
+   Questioning at every doubt is expected and welcome, not friction. Record the
+   decision in the commit message.
 5. **External sources where applicable.** AX/CG/Spaces/fullscreen facts, Apple API
    availability, signing/notarization rules → check current Apple docs or a minimal
    local experiment, never memory alone. Link the source in commit or comment.
@@ -58,6 +61,14 @@
    f. **Diff budget enforced at commit time.** `git diff --stat` over ~300
       lines or touching generated files → stop, split, and ask before
       committing. A green suite never excuses an unreviewable diff.
+
+8. **Per-step notes, always (owner 2026-10-09).** After *every* step — including
+   minor or purely visual changes — write a note stating what was done and what
+   has significantly changed. Notes land in the active plan tracker —
+   `HYBRID_PLAN.md`, under the relevant phase/slice section (owner 2026-10-09 chose
+   the plan itself as tracker over a separate `task.md`) — as the work happens,
+   never only retroactively at slice end, so the owner can follow progress line by
+   line. A step without a note is an unfinished step.
 
 
 ## 2. Architecture invariants (HYBRID_PLAN §§3–4)

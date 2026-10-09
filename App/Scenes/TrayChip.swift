@@ -14,7 +14,8 @@ public struct TrayChip: View {
             
             // Battery
             HStack(spacing: 4) {
-                Text("\(status.batteryLevel)%")
+                // 4d: "21%" is a number, not a sentence — verbatim (see ClockChip's day cell).
+                Text(verbatim: "\(status.batteryLevel)%")
                     .font(.system(size: 12, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                 

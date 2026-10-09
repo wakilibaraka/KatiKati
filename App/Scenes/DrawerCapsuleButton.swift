@@ -17,7 +17,9 @@ struct DrawerCapsuleButton: View {
     /// 拖卡进抽屉的投放反馈：手指压在投放区时胶囊放大 + 高亮描边。
     @EnvironmentObject var dragController: DragController
     @Environment(\.colorScheme) private var colorScheme
-    private var theme: DockThemeTokens { .resolved(for: colorScheme) }
+    // 4c: pinned style straight from the observed store (same reasoning as the strip: the capsule
+    // is its own hosting root and must follow every theme change without a rebuild).
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: settingsStore.themeMaterial) }
     /// 右键胶囊 → 弹钨极菜单。胶囊是设置的**主要后路入口**：它恒在、位置固定、尺寸等于面板高度，
     /// 而且是钨极自己的部件（不属于任何 app），不像任务条底板那样只剩几条缝可点。
     var onRequestTaskbarMenu: (NSEvent, NSView) -> Void = { _, _ in }
@@ -119,6 +121,9 @@ struct DrawerCapsuleButton: View {
         // cells above, so a right click anywhere on the capsule is the Tungsten menu — the
         // settings fallback entry keeps the whole capsule.
         .overlay(NativeMenuHost(popUpHandler: onRequestTaskbarMenu))
+        // 4c: pinned style for any themed descendant (the backdrop above already reads the store
+        // directly); re-injected on every body run, so a theme change lands without a rebuild.
+        .environment(\.dockThemeStyle, settingsStore.themeMaterial)
     }
 
     // MARK: Preview

@@ -14,7 +14,8 @@ struct StackPopupBackdrop: View {
     let usesLiquidGlass: Bool
 
     @Environment(\.colorScheme) private var colorScheme
-    private var theme: DockThemeTokens { .resolved(for: colorScheme) }
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
 
     var body: some View {
         Group {

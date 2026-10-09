@@ -140,11 +140,13 @@ extension PanelCoordinator {
         let contentHost: ManualPanelHost
         if let hosting = windowTitleTooltipHosting, let existingHost = windowTitleTooltipHost {
             hosting.rootView = WindowTitleTooltipView(title: request.title, style: style,
-                                                    usesLiquidGlass: usesLiquidGlass)
+                                                    usesLiquidGlass: usesLiquidGlass,
+                                                    themeStyle: settingsStore.themeMaterial)
             contentHost = existingHost
         } else {
             let hosting = NSHostingView(rootView: WindowTitleTooltipView(title: request.title, style: style,
-                                                          usesLiquidGlass: usesLiquidGlass))
+                                                          usesLiquidGlass: usesLiquidGlass,
+                                                          themeStyle: settingsStore.themeMaterial))
             hosting.wantsLayer = true
             hosting.layer?.backgroundColor = NSColor.clear.cgColor
             contentHost = ManualPanelHost(contentView: hosting, in: panel)

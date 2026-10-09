@@ -469,6 +469,9 @@ struct DrawerRootView: View {
     let keptAppStore: KeptAppStore
     let runningApplicationStore: RunningApplicationStore
     let appMembershipController: AppMembershipController
+    /// 4c: the drawer's pinned theme style. Observed (not a plain value) so a theme change
+    /// re-runs this body and re-injects it into the whole drawer subtree.
+    @ObservedObject var settingsStore: AppSettingsStore
 
     var body: some View {
         DrawerView(limits: limits,
@@ -481,5 +484,6 @@ struct DrawerRootView: View {
             .environmentObject(drawerOrderStore).environmentObject(dragController)
             .environmentObject(keptAppStore).environmentObject(runningApplicationStore)
             .environmentObject(appMembershipController)
+            .environment(\.dockThemeStyle, settingsStore.themeMaterial)
     }
 }

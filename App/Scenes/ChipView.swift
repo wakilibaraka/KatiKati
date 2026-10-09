@@ -48,7 +48,8 @@ struct ChipView: View {
     @EnvironmentObject var keptAppStore: KeptAppStore
     @EnvironmentObject var appMembershipController: AppMembershipController
     @Environment(\.colorScheme) private var colorScheme
-    private var theme: DockThemeTokens { .resolved(for: colorScheme) }
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
     let item: StripItem
     /// 卡上要显示的那行字，由投影层算好（去掉应用名后缀 + 同一应用几张卡的公共段，issue #41）。
     /// **故意不给默认值**：漏传会静默显示成未处理的长标题，而这里所有测试都是纯几何、

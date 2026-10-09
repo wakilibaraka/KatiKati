@@ -31,7 +31,8 @@ struct PinnedFolderChip: View {
     let isHovered: Bool
 
     @Environment(\.colorScheme) private var colorScheme
-    private var theme: DockThemeTokens { .resolved(for: colorScheme) }
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
 
     /// Hover behaves exactly like an app icon card: the standard tier changes no pixels (the
     /// name bubble is the feedback), the quiet tier gets the shared 1.10 bottom-anchored lift.

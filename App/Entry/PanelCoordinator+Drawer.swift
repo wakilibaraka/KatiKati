@@ -154,7 +154,8 @@ extension PanelCoordinator {
                        runtime: runtime, drawerStore: drawerStore, messagingStore: messagingStore,
                        drawerOrderStore: drawerOrderStore, dragController: dragController,
                        keptAppStore: keptAppStore, runningApplicationStore: runningApplicationStore,
-                       appMembershipController: appMembershipController)
+                       appMembershipController: appMembershipController,
+                       settingsStore: settingsStore)
     }
 
     /// 抽屉面板 + SwiftUI 宿主，**只建一次**；之后只在行列上限变了才换 rootView。

@@ -71,7 +71,8 @@ struct LauncherChip: View {
     var onPrimaryAction: (() -> Void)? = nil
 
     @Environment(\.colorScheme) private var colorScheme
-    private var theme: DockThemeTokens { .resolved(for: colorScheme) }
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
     /// 见 `EnvironmentValues.isDragCarrierSnapshot`：拍副本时不画圆点、不烘投影。
     @Environment(\.isDragCarrierSnapshot) private var isDragCarrierSnapshot
 

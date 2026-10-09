@@ -3,6 +3,13 @@
 All notable changes to KatiKati are documented in this file.
 
 ### Changed
+- **Standing Rules §1 new items (owner sign-off 2026-10-09):** *per-step notes, always* —
+  every step (including minor/visual changes) gets a note in the active plan tracker
+  (`HYBRID_PLAN.md` — owner chose the plan itself as tracker over a separate `task.md`)
+  recording what was done and what significantly changed, written as the work
+  happens; and *grill the owner thoroughly* — ambiguous, cut-off, or conflicting
+  instructions are a stop-and-interrogate signal with concrete options, never a guess.
+  Full rules in `STANDING_RULES.md` §1 items 4 and 8.
 - **Standing Rules §1 new item (owner sign-off 2026-10-08):** *Agent hygiene — no vibe-coding damage* — enforced append-only-by-hand rules for generated files (`project.pbxproj`, `*.xcstrings`), mandated human review for non-English strings, banned scratch scripts and `*.log` files from the repo root, mandated explicit `git add` lists, banned eager singletons for gated features, and enforced strict diff budget checks before committing. Full rule in `STANDING_RULES.md` §1 item 7.
 - **Standing Rules §1 new item (owner sign-off 2026-10-08):** *structured edits first* —
   single-anchor editor operations are the default for source changes; regex/`sed`-class
@@ -20,6 +27,10 @@ All notable changes to KatiKati are documented in this file.
 - **Now Playing**: Integrated media playback controls (NowPlayingService) matching CoolDock parity.
 - **Layout Modularity**: Rewrote layout solver for perfect centering, collision truncation, and customizable widget order via Settings.
 - **On-Dock Resizing**: Added direct edge-dragging on dock widgets to resize them visually.
+
+### Removed
+- **Media section**: `.media` is no longer a bar section — the widget order is hardcoded to `weather → apps → tray → clock` (legacy stored orders from the removed drag-reorder UI are ignored, not restored). Now Playing returns in the 4f tray rework as a play/pause mini icon at the apps island's right end plus a popup (owner decision, 2026-10-09); it is temporarily off-bar until then.
+- **Widget resize model**: on-dock resize handles and the Settings drag-reorder visualizer are gone — width control now lives only as per-widget sliders (weather/tray/clock, 60–400 pt) in Settings, with defaults centralized in `BarSection.defaultWidgetWidth`.
 
 ## [Unreleased] — Phase 3: Flyouts, Fullscreen, Multi-Display & Space Survival
 

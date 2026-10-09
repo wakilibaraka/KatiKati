@@ -175,13 +175,6 @@ extension PanelCoordinator {
             DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
         }
         
-        widgetOrderSubscription = settingsStore.$widgetOrder
-            .dropFirst()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
-            }
-            
         widgetWidthsSubscription = settingsStore.$widgetWidths
             .dropFirst()
             .receive(on: DispatchQueue.main)

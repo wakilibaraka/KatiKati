@@ -646,8 +646,12 @@ struct WindowTitleTooltipView: View {
     /// （它的 `usesLiquidGlass` 是全局唯一来源）。
     let usesLiquidGlass: Bool
 
+    /// 4c: pinned theme style, injected by `PanelCoordinator` (the store's `themeMaterial`).
+    /// Defaults to `.auto`, so an uninjected host renders exactly the signed-off baseline.
+    var themeStyle: DockThemeStyle = .auto
+
     @Environment(\.colorScheme) private var colorScheme
-    private var theme: DockThemeTokens { .resolved(for: colorScheme) }
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: themeStyle) }
 
     var body: some View {
         let shape = WindowTitleTooltipShape(style: style)
