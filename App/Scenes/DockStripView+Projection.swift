@@ -20,7 +20,7 @@ extension DockStripView {
     /// A 路线) while the pinned messaging zone keeps its own `MessagingAppStore` order —
     /// the two zones never cross (拖动分区内进行).
     func makeProjection() -> StripProjection {
-        let sections = BarSection.islands(for: settingsStore.barLayoutMode, order: settingsStore.widgetOrder)
+        let sections = BarSection.islands(for: settingsStore.barLayoutMode)
         let hostedSections = islandSlot < sections.count ? sections[islandSlot] : [.apps]
 
         guard hostedSections.contains(.apps) else {

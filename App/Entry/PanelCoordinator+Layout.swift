@@ -300,7 +300,6 @@ extension PanelCoordinator {
             contentWidth: contentWidth,
             mode: settingsStore.barLayoutMode,
             on: Self.screenGeometry(screen),
-            widgetOrder: settingsStore.widgetOrder,
             placement: settingsStore.drawerPlacement,
             metrics: layoutMetrics,
             centeredWidth: CGFloat(settingsStore.centeredWidth),
@@ -312,7 +311,7 @@ extension PanelCoordinator {
     /// Whether this coordinator unit hosts the drawer capsule.
     /// Per Appendix A, utilities (drawer, shelf, trash, folders) travel with the apps island.
     var isCapsuleOwner: Bool {
-        let sections = BarSection.islands(for: settingsStore.barLayoutMode, order: settingsStore.widgetOrder)
+        let sections = BarSection.islands(for: settingsStore.barLayoutMode)
         guard islandSlot < sections.count else { return islandSlot == 0 }
         return sections[islandSlot].contains(.apps)
     }

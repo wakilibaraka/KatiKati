@@ -112,11 +112,6 @@ struct SettingsWindowContent: View {
                         Spacer(minLength: 12)
                         hotKeyControls
                     }
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Widget Layout Order (Drag to reorder)")
-                        widgetOrderList
-                    }
-                    .padding(.vertical, 4)
                     HStack {
                         Text("Drawer Position")
                         Spacer(minLength: 12)
@@ -155,12 +150,6 @@ struct SettingsWindowContent: View {
                         Text("Show/hide taskbar shortcut")
                     } control: {
                         hotKeyControls
-                    }
-                    Divider().opacity(0.5)
-                    groupRow {
-                        Text("Widget Layout Order")
-                    } control: {
-                        widgetOrderList
                     }
                     Divider().opacity(0.5)
                     groupRow {
@@ -400,35 +389,6 @@ struct SettingsWindowContent: View {
             Text("Right").tag(DrawerPlacement.right)
         }
         .pickerStyle(.menu)
-    }
-
-    private var widgetOrderList: some View {
-        List {
-            ForEach(store.widgetOrder) { section in
-                HStack {
-                    Image(systemName: "line.3.horizontal")
-                        .foregroundColor(.secondary)
-                    Text(section.title)
-                    Spacer()
-                    if section == .apps {
-                        Text("(Center)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-            .onMove { indices, newOffset in
-                var newOrder = store.widgetOrder
-                newOrder.move(fromOffsets: indices, toOffset: newOffset)
-                store.setWidgetOrder(newOrder)
-            }
-        }
-        .frame(height: 160)
-        .cornerRadius(6)
-        .overlay(
-            RoundedRectangle(cornerRadius: 6)
-                .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
-        )
     }
 
     /// 界面语言（2026-08-24 加，2026-09-01 由三档收成两档、删掉「跟随系统」，见 `Docs/27`）。
