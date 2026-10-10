@@ -199,6 +199,7 @@ public struct WeatherIllustration: View {
 
 public struct WeatherChip: View {
     @EnvironmentObject var weatherService: WeatherService
+    @EnvironmentObject var runtime: AppRuntime
     @State private var showingDetail = false
 
     public init() {}
@@ -239,13 +240,14 @@ public struct WeatherChip: View {
     private func fullPill(state: WeatherState, art: LinearGradient) -> some View {
         HStack(spacing: 8) {
             Button(action: {
-                // Launcher action placeholder
+                runtime.onToggleDrawer?()
             }) {
                 Image(systemName: "macstudio")
                     .font(.system(size: 16))
                     .foregroundStyle(.white)
             }
             .buttonStyle(.plain)
+            .help(String(localized: "Launcher"))
             
             Rectangle()
                 .fill(Color.white.opacity(0.45))
@@ -278,12 +280,15 @@ public struct WeatherChip: View {
     /// elements instead of crushing all four.
     private func compactPill(state: WeatherState, art: LinearGradient) -> some View {
         HStack(spacing: 6) {
-            Button(action: {}) {
+            Button(action: {
+                runtime.onToggleDrawer?()
+            }) {
                 Image(systemName: "macstudio")
                     .font(.system(size: 14))
                     .foregroundStyle(.white)
             }
             .buttonStyle(.plain)
+            .help(String(localized: "Launcher"))
             
             Rectangle()
                 .fill(Color.white.opacity(0.45))

@@ -121,7 +121,9 @@ struct SettingsWindowContent: View {
                     HStack {
                         Text("Now Playing Theme")
                         Spacer(minLength: 12)
-                        Picker("", selection: $store.nowPlayingTheme) {
+                        // Label is .labelsHidden(); reuse the row's own header key so the
+                        // picker never introduces an uncatalogued key (gate: one-to-one).
+                        Picker("Now Playing Theme", selection: $store.nowPlayingTheme) {
                             ForEach(NowPlayingTheme.allCases, id: \.self) {
                                 Text($0.displayTitle)
                             }

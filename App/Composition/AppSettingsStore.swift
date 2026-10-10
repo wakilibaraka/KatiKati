@@ -229,7 +229,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.nativeDockAutoHideDelay: Self.defaultNativeDockAutoHideDelay,
             // 首次安装 = 常驻；remembered 的种子仍是有限档，见常量注释。
             Keys.edgeAutoHideDelay: Self.firstRunEdgeAutoHideDelay,
-            Keys.barLayoutMode: BarLayoutMode.windows.rawValue,
+            Keys.barLayoutMode: BarLayoutMode.split3.rawValue,
             Keys.centeredWidth: Double(Self.defaultCenteredWidth),
             Keys.islandGap: Double(Self.defaultIslandGap),
             Keys.islandMargin: Double(Self.defaultIslandMargin),
