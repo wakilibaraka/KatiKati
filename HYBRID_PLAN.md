@@ -1775,6 +1775,10 @@ upgrades, wallpaper/personalisation, extra flyouts.
   and productivity default to all on; first entry into Custom seeds from what is on screen. `Off` now hides widgets too. Controller renders +/gear
   as independent content. Settings: preset menu, Main Side, widget toggles, Custom rows (Left / Right / Hidden per item). Order within a side is
   canonical (no drag-reorder yet). Gate green (1861 tests); strings in separate l10n commit.
+- 2026-10-11 · **7A-D5 — rest deck + tile style (cleanup slice):** both edges already render their item lists through the deck (glass / coloured
+  round buttons landed in D2–D3; the Settings control for tile style comes with D6). This slice retires the pre-deck bar: `EdgeBarLayout`,
+  `PanelGeometry.edgeBarTargetFrame` and their 9 tests are deleted; the weather stack now keeps clear of a deck by `DeckGeometry.fanWidth` (scale-aware,
+  was a hard-coded 56 pt bar) + 8 pt. Gate green (1855 tests).
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,

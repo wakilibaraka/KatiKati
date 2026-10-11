@@ -101,7 +101,8 @@ final class WidgetPanelController {
     private func edgeBarInset(defaults: UserDefaults = .standard) -> CGFloat {
         let barSide: EdgeSide = side == .left ? .left : .right
         guard AppSettingsStore.edgeContent(defaults: defaults)[barSide] != nil else { return 0 }
-        return EdgeBarLayout.width + 8 + 8
+        let scale = DeckSettingsRules.clampedScale((defaults.object(forKey: "com.katikati.edge.deckScale") as? NSNumber)?.doubleValue)
+        return DeckGeometry.fanWidth(DeckMetrics(scale: CGFloat(scale))) + 8
     }
 
     private func show() {

@@ -93,10 +93,13 @@ enum DeckGeometry {
         let h = max(0, min(stackHeight + m.shadowRoom, visible.height - 2 * margin))
         let ideal = rest.midY - h / 2
         let y = min(max(visible.minY + margin, ideal), max(visible.minY + margin, visible.maxY - h - margin))
-        let w = m.tabWidth + m.bleed + m.shadowRoom
+        let w = fanWidth(m)
         let x = side == .right ? visible.maxX - w : visible.minX
         return CGRect(x: x, y: y.rounded(), width: w, height: h)
     }
+
+    /// Width of the fanned panel: the room other panels (the weather stack) keep clear of a deck.
+    static func fanWidth(_ m: DeckMetrics) -> CGFloat { m.tabWidth + m.bleed + m.shadowRoom }
 
     /// New yRatio when the pill is dragged so its centre sits at `pointerY`.
     static func yRatio(forPointerY pointerY: CGFloat, pillHeight: CGFloat, visible: CGRect) -> CGFloat {

@@ -166,4 +166,14 @@ final class VerticalLabelLayoutTests: XCTestCase {
         let none = VerticalLabelLayout.fittingRuns(for: "title", maxAdvance: 10, measure: measure)
         XCTAssertEqual(none, [VerticalLabelRun(text: "…", orientation: .upright)], "no room: ellipsis only")
     }
+
+    func testFanWidthMatchesTheFannedPanelAndScales() {
+        let visible = CGRect(x: 0, y: 0, width: 1440, height: 900)
+        for scale in [0.8, 1, 1.4] as [CGFloat] {
+            let m = DeckMetrics(scale: scale)
+            let f = DeckGeometry.fanFrame(m, side: .left, visible: visible, stackHeight: 300, itemCount: 3, yRatio: 0.5)
+            XCTAssertEqual(f.width, DeckGeometry.fanWidth(m))
+        }
+        XCTAssertGreaterThan(DeckGeometry.fanWidth(DeckMetrics(scale: 1.4)), DeckGeometry.fanWidth(DeckMetrics(scale: 0.8)))
+    }
 }
