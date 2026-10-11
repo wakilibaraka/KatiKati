@@ -706,7 +706,7 @@ owner at every doubt (STANDING_RULES §1.4).*
 | **4d — weather** | fetch/parse service, enabled-by-default gate, chip + popup, last-cached value, 12-language strings; now-playing evicted from the weather area | `App/Composition/WeatherService.swift`, `App/Scenes/WeatherChip.swift`, `App/Scenes/DockStripView+Projection.swift` | `WeatherServiceTests` + `check_localization.py` |
 | **4e — clock** | content-provider protocol (time/date shipped), minute-aligned `TimelineView`, `com.katikati.clock.preset`, calendar popup baseline (owner redesigns it in Phase 5) | `Core/Support/ClockChipContent.swift`, `App/Scenes/ClockChip.swift` | `ClockChipContentTests` + localization |
 | **4f — combined clock chip + finetunes** | rework per decisions 2, 3, 4, 6, **8**: hardcoded order **`weather → apps → clock`** with `.tray` **and** `.media` removed (ripple: `BarSection.islands`, `IslandLayoutSolver`, `PanelGeometry`, `AppSettingsStore` default order + their tests; Settings width sliders become weather/clock only); **combined chip built to the locked 8d spec** (weather-pill construction, time + weekday/date line, both presets kept, calendar tap) (wifi/battery/tray popup/quick settings/ring icon all move to the edge bar = Phase 7, decision 8c; decision 5 superseded); on-dock handles removed + Settings drag removed + width sliders added; now-playing mini icon + popup at apps-island right end; launcher placeholder capsule left of apps island; macOS-3D icon pass, 3D trash. **Owner hand-built 2026-10-11: the `ClockChip` card (`ClockArt` hues, full/compact cards, both presets, calendar tap) plus `FlipClockChip` (flip-tile variant) were written by the owner directly in `ClockChip.swift` — agent did not author the chip views. Render path still serves `FlipClockChip()` at the `.clock` placeholder (`DockStripView.swift:1331`); the 8d `ClockChip()` swap is the remaining agent step.** | `App/Scenes/TrayChip.swift` (leaves the bar → edge scope), `App/Scenes/DockStripView.swift`, `App/Scenes/SettingsWindowView.swift`, `Core/Support/BarSection.swift`, `App/Scenes/ClockChip.swift`, `App/Scenes/NowPlayingChip.swift` | updated solver/projection/store tests + localization + debug switches |
-| **4g — dual-FAB scaffold (owner 2026-10-11; supersedes the earlier "drawer FAB left of weather" framing)** | **(1) Rip the drawer/launcher trigger out of weather:** remove the `macstudio` `Button` + its divider from `WeatherChip.fullPill` (the `.help("Launcher")` → `runtime.onToggleDrawer`) so the weather island holds weather only; the existing drawer capsule (`capsulePanel` / `DrawerCapsuleButton`) is **kept** as the sole drawer trigger (owner: keep current option — do **not** re-anchor the capsule). **(2) Scaffold two new lightweight FAB panels** — plain glyphs, inert payloads for now (built for future use). FABs are **separate `NSPanel`s, not `BarSection`s → zero island/solver/section changes.** Left FAB anchored **left of the weather slot**; right FAB anchored **right of the clock slot**; both track the outermost-island frames so they follow every mode automatically. **(3) Per-mode visibility toggles** (owner: on/off depending on taskbar mode): `com.katikati.fab.left.<mode>` + `com.katikati.fab.right.<mode>` for `windows`/`split3`/`split4`/`centered`, **default off** (future-use). **(4) Geometry safety (no glitch/overflow):** pure `PanelGeometry` functions mirror the existing capsule math (`capsuleGap`/`capsuleWidth`) and **clamp to `visibleFrame`** (left→`minX`, right→`maxX`); FAB is **hidden when its anchor slot has no frame** (overflow-collapse); reuse the capsule panel construction (**no new panel class**, §2 extend-don't-fork). **Left-FAB payload → custom Launchpad-style launcher (Phase 7d); right-FAB payload → on-screen overlay widgets (Phase 7e)** — both future, not 4g. Order: after 4f, before close-out. | `App/Scenes/WeatherChip.swift` (rip macstudio), `App/Composition/PanelGeometry.swift` (2 new pure fns), `App/Entry/PanelCoordinator+PanelSetup.swift` (2 FAB panels mirroring capsule), `App/Composition/AppSettingsStore.swift` (per-mode keys + defaults), new `App/Scenes/FabPanelView.swift` | new geometry tests (left `minX` clamp, right `maxX` clamp, non-zero origin, hidden-when-no-slot, `windows`-mode capsule-collision) + updated `AppSettingsStoreTests` + full gate |
+| **4g — dual-FAB scaffold (owner 2026-10-11; supersedes the earlier "drawer FAB left of weather" framing) — ⚠️ FAB-as-panels design PARTIALLY SUPERSEDED by Phase 4U-A below (FABs become `BarSection`s)** | **(1) Rip the drawer/launcher trigger out of weather:** remove the `macstudio` `Button` + its divider from `WeatherChip.fullPill` (the `.help("Launcher")` → `runtime.onToggleDrawer`) so the weather island holds weather only; the existing drawer capsule (`capsulePanel` / `DrawerCapsuleButton`) is **kept** as the sole drawer trigger (owner: keep current option — do **not** re-anchor the capsule). **(2) Scaffold two new lightweight FAB panels** — plain glyphs, inert payloads for now (built for future use). FABs are **separate `NSPanel`s, not `BarSection`s → zero island/solver/section changes.** Left FAB anchored **left of the weather slot**; right FAB anchored **right of the clock slot**; both track the outermost-island frames so they follow every mode automatically. **(3) Per-mode visibility toggles** (owner: on/off depending on taskbar mode): `com.katikati.fab.left.<mode>` + `com.katikati.fab.right.<mode>` for `windows`/`split3`/`split4`/`centered`, **default off** (future-use). **(4) Geometry safety (no glitch/overflow):** pure `PanelGeometry` functions mirror the existing capsule math (`capsuleGap`/`capsuleWidth`) and **clamp to `visibleFrame`** (left→`minX`, right→`maxX`); FAB is **hidden when its anchor slot has no frame** (overflow-collapse); reuse the capsule panel construction (**no new panel class**, §2 extend-don't-fork). **Left-FAB payload → custom Launchpad-style launcher (Phase 7d); right-FAB payload → on-screen overlay widgets (Phase 7e)** — both future, not 4g. Order: after 4f, before close-out. | `App/Scenes/WeatherChip.swift` (rip macstudio), `App/Composition/PanelGeometry.swift` (2 new pure fns), `App/Entry/PanelCoordinator+PanelSetup.swift` (2 FAB panels mirroring capsule), `App/Composition/AppSettingsStore.swift` (per-mode keys + defaults), new `App/Scenes/FabPanelView.swift` | new geometry tests (left `minX` clamp, right `maxX` clamp, non-zero origin, hidden-when-no-slot, `windows`-mode capsule-collision) + updated `AppSettingsStoreTests` + full gate |
 
 **Check log (append after every step — STANDING_RULES §1.8):**
 - 2026-10-09 · Orientation: mapped canonical 4a–4f slices onto actual code; recorded
@@ -970,6 +970,43 @@ owner at every doubt (STANDING_RULES §1.4).*
 `check_debug_switches.py` + conformance-availability check), per-decision screenshots
 (owner supplies references per step), check log complete **(incl. 4f combined chip +
 4g dual-FAB scaffold + 4h proof)**, then Phase 5 opens.
+
+### Phase 4U-A — FAB-as-sections rework (owner 2026-10-11) · MAJOR island-model change
+
+> [!IMPORTANT]
+> **Read before touching any layout/island code.** This supersedes the 4g decision
+> "FABs are separate floating panels → zero island/solver/section changes." Under 4U-A
+> the left FAB (launcher) and right FAB (widgets) are **promoted to real `BarSection`s**
+> so they participate in island layout — enabling distinct split3/4/5 and a genuine
+> 5-island mode. Large blast radius; **must land as gated sub-slices, each gate-green,
+> never one commit.**
+
+**New canonical section order (6):** `launcher · weather · apps · media · clock · widgets`
+
+**Mode diagrams (target):**
+- `windows`  → `[ launcher · weather · apps · media · clock · widgets ]` (1 island)
+- `centered` → `[ launcher · weather · apps · media · clock · widgets ]` compact, centered (1 island)
+- `split3`   → `[launcher·weather] gap [apps·media] gap [clock·widgets]` (3 islands)
+- `split4`   → `[launcher·weather] gap [apps] gap [media] gap [clock·widgets]` (4 islands)
+- `split5`   → `[launcher] gap [weather] gap [apps·media] gap [clock] gap [widgets]` (5 islands)
+
+Progression: 3 → 4 → 5 separates one more grouping per step; all three distinct (fixes split3 == split4).
+
+**Gated sub-slices (each ends gate-green; ≤300 lines/commit; §1.8 note each):**
+1. **Sections:** add `launcher` + `widgets` `BarSection` cases with `title` / `defaultWidgetWidth` / `minimumWidgetWidth` (~40pt, square) / `placeholderEntryID`; register `com.katikati.*` defaults. Tests: `BarLayoutModeTests` case coverage.
+2. **Grouping:** extend `islands(for:)` — FABs at the outer ends of left/right groups for split3/4; detached into their own islands for split5. Solver delegates (single source of truth) → propagates automatically.
+3. **Geometry/widths:** `PanelGeometry.islandTargetFrame` hardcodes `weatherWidth=150` / `clockWidth=160` and special-cases weather/apps/clock → add width handling for `media`, `launcher`, `widgets`.
+4. **Projection + render:** wire `launcher`/`widgets` into the `DockStripView` projection funnel; render the inert `FloatingActionButton`; payloads stay empty (launcher → 7d, widgets → 7e).
+5. **Settings:** default-order seed + width sliders extended to the new sections (weather/clock-only today).
+6. **Modes + tests:** add `split5` `BarLayoutMode`; update `BarLayoutModeTests`, `IslandLayoutSolverTests`, `IslandStripProjectionTests`, `IslandPanelGeometryTests`, `AtomicFullscreenTests`, `PinnedIslandTests` island-count/grouping assertions; localization "Launcher"/"Widgets" ×12.
+
+**Cautions:**
+- **windows/centered behavior change:** those modes now render FAB buttons at the strip ends → needs owner eyeball (is a far-left launcher button on a full-width bar wanted?).
+- Reverts the earlier 4g "zero solver change" guarantee — expect real solver/projection diffs.
+- The committed floating-panel FAB geometry (`f753baf`) is superseded; per sub-slice decide reuse-vs-remove — do **not** carry both a floating panel and a section for the same FAB.
+- Keep 4g overflow/glitch rules: clamp to `visibleFrame`, hide on overflow-collapse, collision-check left FAB vs the left drawer capsule in `windows`.
+- `split5` is brand-new — no `split5` exists anywhere in the tree today.
+
 
 ### Phase 5 — Hardening (native Dock, teardown, recovery drill)
 
