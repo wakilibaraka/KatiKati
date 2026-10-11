@@ -1583,6 +1583,15 @@ upgrades, wallpaper/personalisation, extra flyouts.
   4b (next): lazy event-driven Platform monitors (IOPS run-loop source, CWWiFiClient events,
   CoreAudio property listeners); frameworks autolinked via `import`. Old stub
   `SystemStatusProvider` + orphan `TrayChip` retire in 7A-5 with the chip.
+- 2026-10-11 · **7A-4b live monitors landed (gate green, 1756 tests):**
+  `Platform/SystemStatus/SystemStatusService.swift` — `@MainActor` ObservableObject publishing
+  `SystemStatus`; **lazy + ref-counted** (`acquire`/`release`; nothing observed until first
+  consumer, fully torn down at zero; §1.7e) and **event-driven, no timers**: IOPS run-loop
+  source (battery), `CWWiFiClient` power/SSID/link/quality events, CoreAudio listeners on the
+  default output device (re-bound when the device changes; volume + mute; `setVolume` for the
+  popover slider). Privacy: no Location request, no password/keychain reads; SSID shown only if
+  the OS provides it. Frameworks autolinked. Tests: lazy/ref-count + sane-readings smoke. Not
+  wired to UI yet (7A-5). Live eyeball (unplug charger, toggle Wi-Fi, change volume) pending.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

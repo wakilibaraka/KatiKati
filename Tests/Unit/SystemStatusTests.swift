@@ -66,3 +66,30 @@ final class SystemStatusTests: XCTestCase {
         XCTAssertEqual(VolumeStatus(level: 0.504, isMuted: false).percent, 50)
     }
 }
+
+@MainActor
+final class SystemStatusServiceTests: XCTestCase {
+    func testServiceIsLazyAndRefCounted() {
+        let service = SystemStatusService()
+        XCTAssertFalse(service.isRunning, "nothing observed until the first acquire")
+        service.acquire()
+        service.acquire()
+        XCTAssertTrue(service.isRunning)
+        service.release()
+        XCTAssertTrue(service.isRunning, "still held by the second consumer")
+        service.release()
+        XCTAssertFalse(service.isRunning)
+        service.release()   // unbalanced release is a no-op
+        XCTAssertFalse(service.isRunning)
+    }
+
+    func testAcquireProducesSaneReadings() {
+        let service = SystemStatusService()
+        service.acquire()
+        defer { service.release() }
+        let s = service.status
+        XCTAssertTrue((0...1).contains(s.volume.level))
+        if let level = s.battery.level { XCTAssertTrue((0...100).contains(level)) }
+        XCTAssertTrue((0...3).contains(s.wifi.signalSteps))
+    }
+}

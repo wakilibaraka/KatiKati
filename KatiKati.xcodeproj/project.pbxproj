@@ -43,7 +43,9 @@
 		7B2000000000000000000002 /* ClockChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2000000000000000000001 /* ClockChip.swift */; };
 		7C1000000000000000000002 /* SystemStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1000000000000000000001 /* SystemStatusProvider.swift */; };
 		7C1000000000000000000003 /* SystemStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1000000000000000000001 /* SystemStatusProvider.swift */; };
+		ED0000000000000000000010 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
 		ED000000000000000000000A /* SystemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000009 /* SystemStatus.swift */; };
+		ED0000000000000000000011 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
 		ED000000000000000000000B /* SystemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000009 /* SystemStatus.swift */; };
 		ED000000000000000000000D /* SystemStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000C /* SystemStatusTests.swift */; };
 		7C2000000000000000000002 /* TrayChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C2000000000000000000001 /* TrayChip.swift */; };
@@ -645,6 +647,7 @@
 		7D1000000000000000000001 /* NowPlayingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingService.swift; path = Core/Support/NowPlayingService.swift; sourceTree = SOURCE_ROOT; };
 		7D2000000000000000000001 /* NowPlayingChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingChip.swift; path = App/Scenes/NowPlayingChip.swift; sourceTree = SOURCE_ROOT; };
 		7C3000000000000000000001 /* SystemStatusProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusProviderTests.swift; path = Tests/Unit/Core/Support/SystemStatusProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		ED000000000000000000000F /* SystemStatusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusService.swift; path = Platform/SystemStatus/SystemStatusService.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000009 /* SystemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatus.swift; path = Core/Support/SystemStatus.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000C /* SystemStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusTests.swift; path = Tests/Unit/SystemStatusTests.swift; sourceTree = SOURCE_ROOT; };
 		7B3000000000000000000001 /* ClockChipContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClockChipContentTests.swift; path = Tests/Unit/Core/Support/ClockChipContentTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2054,6 +2057,7 @@
 				7B1000000000000000000002 /* ClockChipContent.swift in Sources */,
 				7C1000000000000000000002 /* SystemStatusProvider.swift in Sources */,
 				ED000000000000000000000A /* SystemStatus.swift in Sources */,
+				ED0000000000000000000010 /* SystemStatusService.swift in Sources */,
 				7C2000000000000000000002 /* TrayChip.swift in Sources */,
 				7D1000000000000000000002 /* NowPlayingService.swift in Sources */,
 				7D2000000000000000000002 /* NowPlayingChip.swift in Sources */,
@@ -2133,6 +2137,7 @@
 				7B5000000000000000000009 /* CalendarPanelModels.swift in Sources */,
 				7C1000000000000000000003 /* SystemStatusProvider.swift in Sources */,
 				ED000000000000000000000B /* SystemStatus.swift in Sources */,
+				ED0000000000000000000011 /* SystemStatusService.swift in Sources */,
 				7C3000000000000000000002 /* SystemStatusProviderTests.swift in Sources */,
 				ED000000000000000000000D /* SystemStatusTests.swift in Sources */,
 				7B3000000000000000000002 /* ClockChipContentTests.swift in Sources */,
