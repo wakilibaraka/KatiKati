@@ -1564,6 +1564,8 @@ Reference screenshots: one Launchpad-style surface (icon grid + widget tiles, le
 
 - 2026-10-12 · **7B-L4 landed (gate green, 1901 tests):** All Apps + Search side sheet (search field at the sheet's bottom; list narrows while typing); sheet side is `com.katikati.launcher.sheetSide` (default **right**), Settings → Launcher → App List Side, read at each summon; temporary All Apps grid section removed. Live check of L2–L4 follows.
 
+- 2026-10-12 · **7B L2–L4 live check:** ⌥Space opens the launcher with search focused; Recently Installed grid + right-hand All Apps sheet render; typing `cal` narrows both grid and list; Esc closes. Not exercised: Return-to-launch, pin/unpin menu, left-side setting, FAB tap, multi-display/fullscreen. Seen: a faint blurred rectangle mid-screen (likely the app's permission window behind the blur) — recheck with permissions granted.
+
 **Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
 dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.
