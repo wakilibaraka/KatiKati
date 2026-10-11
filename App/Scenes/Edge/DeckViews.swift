@@ -434,6 +434,7 @@ struct DeckRoundButton: View {
         case .productivity(.reminders): return Text("Reminders")
         case .productivity(.alarms): return Text("Alarms")
         case .productivity(.time): return Text("Time")
+        case .productivity(.tasks): return Text("Tasks")
         // The remaining productivity buttons are localized when their flyouts land (P3–P6).
         case let .productivity(item): return Text(verbatim: item.rawValue.capitalized)
         }

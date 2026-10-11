@@ -11,6 +11,7 @@ final class ProductivityServices {
     let timer = CountdownTimerController()
     let stopwatch = StopwatchController()
     let countdowns = EventCountdownStore()
+    lazy var tasks = TasksController()
     private init() {}
 }
 
@@ -19,6 +20,7 @@ enum ProductivityFlyout {
     static func size(_ item: ProductivityItem) -> CGSize {
         switch item {
         case .time: return CGSize(width: 340, height: 340)
+        case .tasks: return CGSize(width: 320, height: 360)
         default: return CGSize(width: 300, height: 290)
         }
     }
@@ -29,12 +31,13 @@ enum ProductivityFlyout {
         case .reminders: return AnyView(RemindersFlyoutView())
         case .alarms: return AnyView(AlarmsFlyoutView())
         case .time: return AnyView(TimeFlyoutView())
+        case .tasks: return AnyView(TasksFlyoutView())
         default: return nil
         }
     }
 
     /// Flyouts with a text field need the panel to take key focus.
-    static func takesKey(_ item: ProductivityItem) -> Bool { item == .time }
+    static func takesKey(_ item: ProductivityItem) -> Bool { item == .time || item == .tasks }
 }
 
 struct RemindersFlyoutView: View {

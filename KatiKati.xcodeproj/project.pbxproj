@@ -650,6 +650,14 @@
 		F3A0000000000000000000A2 /* DiagnosticReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A0000000000000000000A0 /* DiagnosticReport.swift */; };
 		F3A0000000000000000000B1 /* DiagnosticReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A0000000000000000000B0 /* DiagnosticReportTests.swift */; };
 		'K00000000000000000000001' = {isa = PBXBuildFile; fileRef = A00000000000000000009E03 /* ProcessLiveness.swift */; };
+		ED00000000000000000000B5 /* TaskList.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000B4 /* TaskList.swift */; };
+		ED00000000000000000000B6 /* TaskList.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000B4 /* TaskList.swift */; };
+		ED00000000000000000000B8 /* TasksStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000B7 /* TasksStore.swift */; };
+		ED00000000000000000000B9 /* TasksStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000B7 /* TasksStore.swift */; };
+		ED00000000000000000000BB /* TasksController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000BA /* TasksController.swift */; };
+		ED00000000000000000000BD /* TasksFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000BC /* TasksFlyoutView.swift */; };
+		ED00000000000000000000BF /* TaskListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000BE /* TaskListTests.swift */; };
+		ED00000000000000000000C0 /* DeckLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000A2 /* DeckLabel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1109,6 +1117,11 @@
 		F2A0000000000000000000A0 /* SettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTab.swift; sourceTree = "<group>"; };
 		F3A0000000000000000000A0 /* DiagnosticReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticReport.swift; sourceTree = "<group>"; };
 		F3A0000000000000000000B0 /* DiagnosticReportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticReportTests.swift; sourceTree = "<group>"; };
+		ED00000000000000000000B4 /* TaskList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TaskList.swift; path = Core/Support/TaskList.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000B7 /* TasksStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TasksStore.swift; path = Platform/Tasks/TasksStore.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000BA /* TasksController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TasksController.swift; path = Platform/Tasks/TasksController.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000BC /* TasksFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TasksFlyoutView.swift; path = App/Scenes/Edge/TasksFlyoutView.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000BE /* TaskListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TaskListTests.swift; path = Tests/Unit/TaskListTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2145,6 +2158,10 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
+				ED00000000000000000000B5 /* TaskList.swift in Sources */,
+				ED00000000000000000000B8 /* TasksStore.swift in Sources */,
+				ED00000000000000000000BB /* TasksController.swift in Sources */,
+				ED00000000000000000000BD /* TasksFlyoutView.swift in Sources */,
 				ED00000000000000000000B3 /* ProductivityFlyouts.swift in Sources */,
 				ED0000000000000000000063 /* EdgeNotesPopupController.swift in Sources */,
 				ED0000000000000000000051 /* NotesController.swift in Sources */,
@@ -2243,6 +2260,10 @@
 				ED0000000000000000000089 /* DeckGeometryTests.swift in Sources */,
 				ED0000000000000000000082 /* NotePalette.swift in Sources */,
 				ED0000000000000000000084 /* NotePaletteTests.swift in Sources */,
+				ED00000000000000000000C0 /* DeckLabel.swift in Sources */,
+				ED00000000000000000000B6 /* TaskList.swift in Sources */,
+				ED00000000000000000000B9 /* TasksStore.swift in Sources */,
+				ED00000000000000000000BF /* TaskListTests.swift in Sources */,
 				ED0000000000000000000072 /* BluetoothDevices.swift in Sources */,
 				ED0000000000000000000076 /* BluetoothDevicesTests.swift in Sources */,
 				ED0000000000000000000066 /* NotesSyncService.swift in Sources */,

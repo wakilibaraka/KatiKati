@@ -1793,6 +1793,12 @@ upgrades, wallpaper/personalisation, extra flyouts.
   pre-existing `WindowLiftAvoidanceController` polling (`SLWindowListCopyWindowInfo`) plus occasional `SystemStatusService.refreshWiFi` on audio-device changes —
   not from this phase (preset off measured ≈3 %, on ≈3–7 %, run-to-run noise comparable). Instruments' exact number and the real-pointer live check #2
   (hover enter/exit, preview, drag, ⌥-drag, Esc/outside click) are still open — they need the physical pointer.
+- 2026-10-12 · **7A-P3 — Tasks (Hop to-dos + tracker, compact port):** `TaskList` (Core; checklist in place, completing stops the tracker, one tracker at a time,
+  clear completed, lenient Codable) + `TasksStore` (tasks.json, corrupt file → `.bak`) + `TasksController` (persist on change; a tracker left running by a quit is
+  closed at launch rather than crediting the closed time) + `TasksFlyoutView` (add field + button, rows with check / tracker / context menu, total tracked while
+  running; 1 s ticks only while a tracker runs). Hop's reminders/estimates/overrun are not ported (Reminders/Alarms buttons cover them). Live check: add task +
+  start tracker OK (synthetic Return does not fire onCommit → visible + button added). Also fixed a latent D6a break: the test target compiles SettingsLayoutPane, so
+  DeckLabel.swift (DeckFont) is now in the test target. 6 strings in the l10n commit.
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,
