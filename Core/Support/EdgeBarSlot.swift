@@ -35,70 +35,190 @@ enum EdgeSlotSet {
     }
 }
 
-/// A widget tile on the left-edge widgets bar (Phase 7A-8). Each tile opens its own flyout.
+/// Parses a stored comma-separated id list: unknown ids dropped, duplicates collapsed, order kept.
+private func parseIDList<T: RawRepresentable & Hashable>(_ stored: String?) -> [T] where T.RawValue == String {
+    var seen = Set<T>()
+    return (stored ?? "").split(separator: ",").compactMap { part in
+        guard let item = T(rawValue: part.trimmingCharacters(in: .whitespaces)), seen.insert(item).inserted else { return nil }
+        return item
+    }
+}
+
+/// A widget tile (Phase 7A-8). Each tile opens its own flyout.
 /// Raw values are stored in `com.katikati.widgets.tiles`; never rename them.
 enum WidgetTile: String, CaseIterable, Sendable {
     case weather
     case nowPlaying
     case bluetooth
 
-    /// Parses the stored comma-separated list: unknown ids dropped, duplicates collapsed, order kept.
-    static func parse(_ stored: String?) -> [WidgetTile] {
-        var seen = Set<WidgetTile>()
-        return (stored ?? "").split(separator: ",").compactMap { part in
-            guard let tile = WidgetTile(rawValue: part.trimmingCharacters(in: .whitespaces)), seen.insert(tile).inserted else { return nil }
-            return tile
-        }
-    }
-
+    static func parse(_ stored: String?) -> [WidgetTile] { parseIDList(stored) }
     static func serialize(_ tiles: [WidgetTile]) -> String { tiles.map(\.rawValue).joined(separator: ",") }
 }
 
-/// What an edge bar hosts. Notes always live on the right edge; status follows the user's side;
-/// widgets always live on the left edge.
-enum EdgeBarContent: Equatable, Sendable {
-    case notes
-    case status
-    case widget(WidgetTile)
+/// A productivity button (Phase 7A-P1). Each opens its own flyout.
+/// Raw values are stored in `com.katikati.productivity.items`; never rename them.
+enum ProductivityItem: String, CaseIterable, Sendable {
+    case reminders
+    case alarms
+    case time
+    case tasks
+    case clipboard
+    case capture
+    case windows
+
+    /// Items whose flyout exists. An item appears on a bar only once built (no placeholders); P2–P6 add to this.
+    static let built: Set<ProductivityItem> = []
+
+    static func parse(_ stored: String?) -> [ProductivityItem] { parseIDList(stored) }
+    static func serialize(_ items: [ProductivityItem]) -> String { items.map(\.rawValue).joined(separator: ",") }
 }
 
-/// Combines the preset (notes/status) with the enabled widget tiles into per-edge content.
-enum EdgeBarComposition {
-    static let widgetsSide: EdgeSide = .left
+/// What an edge bar hosts, in render order.
+enum EdgeBarContent: Equatable, Sendable {
+    /// The note tabs.
+    case notes
+    case newNote
+    case settings
+    case status
+    case widget(WidgetTile)
+    case productivity(ProductivityItem)
+}
 
-    /// Widgets lead the left bar (above a left-side status trio); notes/status come from the preset.
-    static func resolve(preset: EdgeBarPreset, statusSide: EdgeSide, widgets: [WidgetTile]) -> [EdgeSide: [EdgeBarContent]] {
-        var result = preset.content(statusSide: statusSide)
-        guard !widgets.isEmpty else { return result }
-        result[widgetsSide] = widgets.map(EdgeBarContent.widget) + (result[widgetsSide] ?? [])
+/// Where a movable item lives (Custom layout, 7A-P1).
+enum EdgePlacement: String, CaseIterable, Sendable {
+    case left
+    case right
+    case hidden
+
+    var side: EdgeSide? {
+        switch self {
+        case .left: return .left
+        case .right: return .right
+        case .hidden: return nil
+        }
+    }
+}
+
+/// Every item a bar can host. Case order = top-to-bottom render order on a bar. Raw values are stored in
+/// `com.katikati.edge.custom`; never rename them.
+enum EdgeItem: String, CaseIterable, Sendable {
+    case notes, newNote
+    case reminders, alarms, time, tasks, clipboard, capture, windows
+    case weather, nowPlaying, bluetooth
+    case status
+    case settings
+
+    var content: EdgeBarContent {
+        switch self {
+        case .notes: return .notes
+        case .newNote: return .newNote
+        case .settings: return .settings
+        case .status: return .status
+        case .weather: return .widget(.weather)
+        case .nowPlaying: return .widget(.nowPlaying)
+        case .bluetooth: return .widget(.bluetooth)
+        case .reminders: return .productivity(.reminders)
+        case .alarms: return .productivity(.alarms)
+        case .time: return .productivity(.time)
+        case .tasks: return .productivity(.tasks)
+        case .clipboard: return .productivity(.clipboard)
+        case .capture: return .productivity(.capture)
+        case .windows: return .productivity(.windows)
+        }
+    }
+
+    var productivity: ProductivityItem? {
+        if case let .productivity(item) = content { return item }
+        return nil
+    }
+
+    var widget: WidgetTile? {
+        if case let .widget(tile) = content { return tile }
+        return nil
+    }
+
+    /// Whether the item can be shown (productivity items need a built flyout).
+    func isBuilt(_ built: Set<ProductivityItem> = ProductivityItem.built) -> Bool {
+        productivity.map(built.contains) ?? true
+    }
+
+    /// Stored form: `notes:right,weather:left,clipboard:hidden`. Unknown ids / placements dropped, last entry wins.
+    static func parsePlacements(_ stored: String?) -> [EdgeItem: EdgePlacement] {
+        var result: [EdgeItem: EdgePlacement] = [:]
+        for part in (stored ?? "").split(separator: ",") {
+            let pair = part.split(separator: ":").map { $0.trimmingCharacters(in: .whitespaces) }
+            guard pair.count == 2, let item = EdgeItem(rawValue: pair[0]), let place = EdgePlacement(rawValue: pair[1]) else { continue }
+            result[item] = place
+        }
+        return result
+    }
+
+    static func serialize(_ placements: [EdgeItem: EdgePlacement]) -> String {
+        allCases.compactMap { item in placements[item].map { "\(item.rawValue):\($0.rawValue)" } }.joined(separator: ",")
+    }
+}
+
+/// Resolves a preset (or the custom layout) into per-edge content.
+enum EdgeBarComposition {
+    /// Where every item sits for the preset. `primary` hosts notes / productivity; the rest goes opposite. Custom
+    /// entries win, and an item missing from the stored layout falls back to the Productivity + Rest placement.
+    static func placements(
+        preset: EdgeBarPreset,
+        primary: EdgeSide,
+        widgets: [WidgetTile],
+        productivity: [ProductivityItem],
+        custom: [EdgeItem: EdgePlacement]
+    ) -> [EdgeItem: EdgePlacement] {
+        let main = EdgePlacement(rawValue: primary.rawValue) ?? .right
+        let other: EdgePlacement = main == .left ? .right : .left
+        var result: [EdgeItem: EdgePlacement] = [:]
+        func put(_ items: [EdgeItem], _ place: EdgePlacement) { items.forEach { result[$0] = place } }
+        let notesGroup: [EdgeItem] = [.notes, .newNote, .settings]
+        let widgetItems = EdgeItem.allCases.filter { $0.widget.map(widgets.contains) ?? false }
+        let productivityItems = EdgeItem.allCases.filter { $0.productivity.map(productivity.contains) ?? false }
+        switch preset {
+        case .off: break
+        case .notes: put(notesGroup, main); put(widgetItems, other)
+        case .status: put([.status], main); put(widgetItems, other)
+        case .notesAndStatus: put(notesGroup + [.status], main); put(widgetItems, other)
+        case .productivityAndRest:
+            put(notesGroup + productivityItems, main); put([.status] + widgetItems, other)
+        case .custom:
+            let fallback = placements(preset: .productivityAndRest, primary: primary, widgets: WidgetTile.allCases,
+                                      productivity: ProductivityItem.allCases, custom: [:])
+            return fallback.merging(custom) { _, mine in mine }
+        }
+        return result
+    }
+
+    static func resolve(
+        preset: EdgeBarPreset,
+        primary: EdgeSide,
+        widgets: [WidgetTile],
+        productivity: [ProductivityItem],
+        custom: [EdgeItem: EdgePlacement],
+        built: Set<ProductivityItem> = ProductivityItem.built
+    ) -> [EdgeSide: [EdgeBarContent]] {
+        let map = placements(preset: preset, primary: primary, widgets: widgets, productivity: productivity, custom: custom)
+        var result: [EdgeSide: [EdgeBarContent]] = [:]
+        for item in EdgeItem.allCases where item.isBuilt(built) {
+            guard let side = map[item]?.side else { continue }
+            result[side, default: []].append(item.content)
+        }
         return result
     }
 }
 
-/// User-facing edge-bar presets (Phase 7A-2). Pure: resolves to content per edge.
+/// User-facing edge-bar layouts (Phase 7A-2, 7A-P1). The default is `productivityAndRest`.
 enum EdgeBarPreset: String, CaseIterable, Sendable {
     case off
     case notes
     case notesAndStatus
     case status
+    case productivityAndRest
+    case custom
 
-    static let notesSide: EdgeSide = .right
-
-    /// Content hosted on each active edge for this preset and status side.
-    func content(statusSide: EdgeSide) -> [EdgeSide: [EdgeBarContent]] {
-        switch self {
-        case .off: return [:]
-        case .notes: return [Self.notesSide: [.notes]]
-        case .status: return [statusSide: [.status]]
-        case .notesAndStatus:
-            if statusSide == Self.notesSide { return [Self.notesSide: [.notes, .status]] }
-            return [Self.notesSide: [.notes], statusSide: [.status]]
-        }
-    }
-
-    func activeSides(statusSide: EdgeSide) -> Set<EdgeSide> {
-        Set(content(statusSide: statusSide).keys)
-    }
+    static let `default`: EdgeBarPreset = .productivityAndRest
 }
 
 /// Pure sizing for what an edge bar hosts (Phase 7A-5). One tile per content kind.
@@ -118,7 +238,7 @@ enum EdgeBarLayout {
         switch content {
         case .notes: return notesTileHeight
         case .status: return statusTileHeight
-        case .widget: return widgetTileHeight
+        case .widget, .newNote, .settings, .productivity: return widgetTileHeight
         }
     }
 

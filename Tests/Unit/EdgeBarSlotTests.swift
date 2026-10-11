@@ -100,86 +100,68 @@ final class EdgeBarSlotTests: XCTestCase {
 
     // MARK: Presets
 
+    private func resolve(_ preset: EdgeBarPreset, primary: EdgeSide = .right, widgets: [WidgetTile] = [],
+                         productivity: [ProductivityItem] = [], custom: [EdgeItem: EdgePlacement] = [:],
+                         built: Set<ProductivityItem> = []) -> [EdgeSide: [EdgeBarContent]] {
+        EdgeBarComposition.resolve(preset: preset, primary: primary, widgets: widgets, productivity: productivity,
+                                   custom: custom, built: built)
+    }
+
     func testPresetsResolveContentPerEdge() {
-        XCTAssertTrue(EdgeBarPreset.off.content(statusSide: .right).isEmpty)
-        XCTAssertEqual(EdgeBarPreset.notes.content(statusSide: .left), [.right: [.notes]])
-        XCTAssertEqual(EdgeBarPreset.status.content(statusSide: .left), [.left: [.status]])
-        XCTAssertEqual(EdgeBarPreset.notesAndStatus.content(statusSide: .right), [.right: [.notes, .status]])
-        XCTAssertEqual(EdgeBarPreset.notesAndStatus.content(statusSide: .left), [.right: [.notes], .left: [.status]])
+        XCTAssertTrue(resolve(.off, widgets: [.weather]).isEmpty, "off = nothing, widgets included")
+        XCTAssertEqual(resolve(.notes), [.right: [.notes, .newNote, .settings]])
+        XCTAssertEqual(resolve(.status, primary: .left), [.left: [.status]])
+        XCTAssertEqual(resolve(.notesAndStatus), [.right: [.notes, .newNote, .status, .settings]])
     }
 
-    func testActiveSidesAndRawValuesAreStable() {
-        XCTAssertEqual(EdgeBarPreset.notesAndStatus.activeSides(statusSide: .left), [.left, .right])
-        XCTAssertEqual(EdgeBarPreset.allCases.map(\.rawValue), ["off", "notes", "notesAndStatus", "status"])
+    func testPrimarySideFlipsEveryPreset() {
+        XCTAssertEqual(resolve(.notes, primary: .left), [.left: [.notes, .newNote, .settings]])
+        XCTAssertEqual(resolve(.notesAndStatus, primary: .left, widgets: [.weather]),
+                       [.left: [.notes, .newNote, .status, .settings], .right: [.widget(.weather)]])
     }
 
-    // MARK: Layout + popup
-
-    func testContentHeightStacksTilesWithSpacingAndPadding() {
-        XCTAssertEqual(EdgeBarLayout.contentHeight([]), 0)
-        XCTAssertEqual(EdgeBarLayout.contentHeight([.notes]), EdgeBarLayout.notesTileHeight + 20)
-        XCTAssertEqual(
-            EdgeBarLayout.contentHeight([.notes, .status]),
-            EdgeBarLayout.notesTileHeight + EdgeBarLayout.statusTileHeight + EdgeBarLayout.tileSpacing + 20
-        )
+    func testProductivityAndRestSplitsTheSides() {
+        let r = resolve(.productivityAndRest, widgets: WidgetTile.allCases, productivity: ProductivityItem.allCases,
+                        built: [.reminders, .time])
+        XCTAssertEqual(r[.right], [.notes, .newNote, .productivity(.reminders), .productivity(.time), .settings])
+        XCTAssertEqual(r[.left], [.widget(.weather), .widget(.nowPlaying), .widget(.bluetooth), .status])
+        let swapped = resolve(.productivityAndRest, primary: .left, widgets: [.bluetooth], productivity: [.time], built: [.time])
+        XCTAssertEqual(swapped[.left], [.notes, .newNote, .productivity(.time), .settings])
+        XCTAssertEqual(swapped[.right], [.widget(.bluetooth), .status])
     }
 
-    func testTileFramesFlowTopToBottomInsideTheBar() {
-        let content: [EdgeBarContent] = [.notes, .status]
-        let height = EdgeBarLayout.contentHeight(content)
-        let bar = CGRect(x: 1000, y: 200, width: EdgeBarLayout.width, height: height)
-        let notes = EdgeBarLayout.tileFrame(at: 0, of: content, in: bar)
-        let status = EdgeBarLayout.tileFrame(at: 1, of: content, in: bar)
-        XCTAssertEqual(notes.maxY, bar.maxY - EdgeBarLayout.verticalPadding)
-        XCTAssertEqual(status.minY, bar.minY + EdgeBarLayout.verticalPadding, accuracy: 0.001)
-        XCTAssertEqual(notes.minY - status.maxY, EdgeBarLayout.tileSpacing, accuracy: 0.001)
-        XCTAssertTrue(bar.contains(notes) && bar.contains(status))
-        XCTAssertEqual(EdgeBarLayout.tileFrame(at: 5, of: content, in: bar), .zero)
+    func testUnbuiltAndDisabledProductivityItemsNeverRender() {
+        let none = resolve(.productivityAndRest, productivity: ProductivityItem.allCases)
+        XCTAssertEqual(none[.right], [.notes, .newNote, .settings], "no placeholders for unbuilt items")
+        let off = resolve(.productivityAndRest, productivity: [.time], built: [.time, .tasks])
+        XCTAssertEqual(off[.right], [.notes, .newNote, .productivity(.time), .settings])
     }
 
-    func testPopupOpensInwardAndClampsToVisibleFrame() {
-        let visible = CGRect(x: 0, y: 0, width: 1728, height: 1092)
-        let anchor = CGRect(x: 1664, y: 500, width: 56, height: 40)
-        let right = PanelGeometry.edgeBarPopupFrame(side: .right, anchor: anchor, size: CGSize(width: 240, height: 160), visibleFrame: visible)
-        XCTAssertEqual(right.maxX, anchor.minX - 8, accuracy: 0.001)
-        XCTAssertEqual(right.midY, anchor.midY, accuracy: 0.001)
-        let leftAnchor = CGRect(x: 8, y: 20, width: 56, height: 40)
-        let left = PanelGeometry.edgeBarPopupFrame(side: .left, anchor: leftAnchor, size: CGSize(width: 240, height: 160), visibleFrame: visible)
-        XCTAssertEqual(left.minX, leftAnchor.maxX + 8, accuracy: 0.001)
-        XCTAssertGreaterThanOrEqual(left.minY, visible.minY, "clamped above the bottom")
-        XCTAssertTrue(visible.contains(left) && visible.contains(right))
+    func testCustomLayoutMovesHidesAndFallsBack() {
+        let custom: [EdgeItem: EdgePlacement] = [.notes: .left, .newNote: .left, .status: .right, .weather: .hidden, .settings: .hidden]
+        let r = resolve(.custom, custom: custom)
+        XCTAssertEqual(r[.left]?.prefix(2), [.notes, .newNote][...])
+        XCTAssertTrue(r[.right]?.contains(.status) ?? false)
+        XCTAssertFalse((r[.left] ?? []).contains(.widget(.weather)) || (r[.right] ?? []).contains(.widget(.weather)))
+        XCTAssertFalse((r[.left] ?? []).contains(.settings) || (r[.right] ?? []).contains(.settings))
+        XCTAssertTrue(r[.left]?.contains(.widget(.nowPlaying)) ?? false, "missing item uses the Productivity + Rest side")
     }
 
-    func testPopupOversizedAndNonZeroOriginStaysInside() {
-        let visible = CGRect(x: -1920, y: -300, width: 300, height: 200)
-        let f = PanelGeometry.edgeBarPopupFrame(side: .right, anchor: CGRect(x: -1700, y: -200, width: 56, height: 40),
-                                                size: CGSize(width: 900, height: 900), visibleFrame: visible)
-        XCTAssertTrue(visible.contains(f))
+    func testCustomPlacementsParseAndSerialize() {
+        let parsed = EdgeItem.parsePlacements("notes:right, bogus:left,weather:hidden,time:up,status:left,status:right")
+        XCTAssertEqual(parsed, [.notes: .right, .weather: .hidden, .status: .right])
+        XCTAssertEqual(EdgeItem.serialize(parsed), "notes:right,weather:hidden,status:right", "canonical order")
+        XCTAssertTrue(EdgeItem.parsePlacements(nil).isEmpty)
     }
 
-    // MARK: Widgets (7A-8a)
-
-    func testWidgetTileParseDedupesDropsUnknownAndKeepsOrder() {
-        XCTAssertEqual(WidgetTile.parse("nowPlaying, weather,nowPlaying,bogus"), [.nowPlaying, .weather])
-        XCTAssertEqual(WidgetTile.parse(nil), [])
-        XCTAssertEqual(WidgetTile.parse(""), [])
-        XCTAssertEqual(WidgetTile.serialize([.weather, .nowPlaying]), "weather,nowPlaying")
-        XCTAssertEqual(WidgetTile.allCases.map(\.rawValue), ["weather", "nowPlaying", "bluetooth"], "stored ids are frozen")
-    }
-
-    func testCompositionPutsWidgetsOnTheLeftAndKeepsPresetContent() {
-        let none = EdgeBarComposition.resolve(preset: .notesAndStatus, statusSide: .right, widgets: [])
-        XCTAssertEqual(none, [.right: [.notes, .status]])
-        let withWidgets = EdgeBarComposition.resolve(preset: .notes, statusSide: .right, widgets: [.weather, .nowPlaying])
-        XCTAssertEqual(withWidgets[.left], [.widget(.weather), .widget(.nowPlaying)])
-        XCTAssertEqual(withWidgets[.right], [.notes])
-        let onlyWidgets = EdgeBarComposition.resolve(preset: .off, statusSide: .right, widgets: [.weather])
-        XCTAssertEqual(onlyWidgets, [.left: [.widget(.weather)]])
-    }
-
-    func testLeftStatusSitsBelowWidgets() {
-        let r = EdgeBarComposition.resolve(preset: .status, statusSide: .left, widgets: [.weather])
-        XCTAssertEqual(r[.left], [.widget(.weather), .status])
+    func testProductivityIdsAndPresetRawValuesAreFrozen() {
+        XCTAssertEqual(ProductivityItem.allCases.map(\.rawValue),
+                       ["reminders", "alarms", "time", "tasks", "clipboard", "capture", "windows"])
+        XCTAssertEqual(ProductivityItem.parse("time,bogus,time,tasks"), [.time, .tasks])
+        XCTAssertEqual(EdgeBarPreset.allCases.map(\.rawValue),
+                       ["off", "notes", "notesAndStatus", "status", "productivityAndRest", "custom"])
+        XCTAssertEqual(EdgeBarPreset.default, .productivityAndRest)
+        XCTAssertEqual(EdgeItem.allCases.count, 14)
     }
 
     func testWidgetTilesAreIncludedInBarHeight() {

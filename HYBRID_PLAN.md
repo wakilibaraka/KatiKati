@@ -1767,6 +1767,14 @@ upgrades, wallpaper/personalisation, extra flyouts.
   setting, short edge-side pull transition, closes when the note vanishes, Esc) replaces `NotesPopupView`'s list+editor; `EdgeNotesPopupController`
   hosts it (330×300, no vibrancy plate); `EdgeBarLayout.notesPopupSize` and the dead `No Notes Yet` string removed. No new strings. Gate green
   (1862 tests). Live pull/Esc/outside-click still to verify at live check #2.
+- 2026-10-11 · **7A-P1 — modular layouts (owner, queried):** all presets stay (Off / Notes / Notes & Status / Status) plus **Productivity + Rest
+  (new default)** and **Custom**; every preset flips to either edge via **Main Side** (`com.katikati.edge.side`, replaces `edge.status.side`; the
+  opposite edge gets status + widgets). Core: `ProductivityItem` (frozen ids, `built` set empty until P2–P6 so no placeholders), `EdgeItem` (14
+  placeable items incl. notes tabs, +, gear; case order = render order), `EdgePlacement` left/right/hidden, `EdgeBarComposition.placements/resolve`
+  (one path for presets and Custom; missing Custom entries fall back to Productivity + Rest). Store: `edge.custom`, `productivity.items`; widgets
+  and productivity default to all on; first entry into Custom seeds from what is on screen. `Off` now hides widgets too. Controller renders +/gear
+  as independent content. Settings: preset menu, Main Side, widget toggles, Custom rows (Left / Right / Hidden per item). Order within a side is
+  canonical (no drag-reorder yet). Gate green (1861 tests); strings in separate l10n commit.
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,

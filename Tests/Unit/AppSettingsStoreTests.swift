@@ -124,20 +124,24 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
-    func testEdgeBarSettingsDefaultOffRightClampAndPersist() {
+    func testEdgeBarSettingsDefaultProductivityAndRestClampAndPersist() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertEqual(store.edgeBarPreset, .off)
-        XCTAssertEqual(store.edgeStatusSide, .right)
+        XCTAssertEqual(store.edgeBarPreset, .productivityAndRest, "the default layout")
+        XCTAssertEqual(store.edgePrimarySide, .right)
+        XCTAssertEqual(store.widgetTiles, WidgetTile.allCases, "everything on by default")
+        XCTAssertEqual(store.productivityItems, ProductivityItem.allCases)
         XCTAssertEqual(store.edgeGap, 2)
         XCTAssertEqual(store.edgeMargin, 8)
         XCTAssertFalse(store.notesSyncEnabled, "iCloud sync is opt-in")
-        XCTAssertTrue(store.edgeActiveSides.isEmpty, "off = no edge slots")
-
-        store.setEdgeBarPreset(.notesAndStatus)
-        XCTAssertEqual(store.edgeActiveSides, [.right])
-        store.setEdgeStatusSide(.left)
         XCTAssertEqual(store.edgeActiveSides, [.left, .right])
+
+        store.setEdgeBarPreset(.off)
+        XCTAssertTrue(store.edgeActiveSides.isEmpty, "off = no edge slots")
+        store.setEdgeBarPreset(.notes)
+        store.setEdgePrimarySide(.left)
+        XCTAssertEqual(store.edgeContent[.left], [.notes, .newNote, .settings])
+        store.setProductivityItem(.tasks, enabled: false)
         store.setNotesSyncEnabled(true)
         store.setEdgeGap(0)
         store.setEdgeMargin(-4)
@@ -145,26 +149,46 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.edgeMargin, 0.5)
 
         let reloaded = AppSettingsStore(defaults: defaults)
-        XCTAssertEqual(reloaded.edgeBarPreset, .notesAndStatus)
-        XCTAssertEqual(reloaded.edgeStatusSide, .left)
+        XCTAssertEqual(reloaded.edgeBarPreset, .notes)
+        XCTAssertEqual(reloaded.edgePrimarySide, .left)
+        XCTAssertFalse(reloaded.productivityItems.contains(.tasks))
         XCTAssertEqual(reloaded.edgeGap, 0.5)
         XCTAssertTrue(reloaded.notesSyncEnabled)
     }
 
     @MainActor
-    func testWidgetTilesDefaultEmptyKeepCatalogOrderAndPersist() {
+    func testCustomLayoutSeedsFromTheCurrentPresetAndPersists() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertTrue(store.widgetTiles.isEmpty)
+        store.setEdgeBarPreset(.notes)
+        store.setEdgeBarPreset(.custom)
+        XCTAssertEqual(store.edgePlacement(of: .notes), .right)
+        XCTAssertEqual(store.edgePlacement(of: .status), .hidden, "Notes preset showed no status, so Custom starts hidden")
+        XCTAssertEqual(store.edgePlacement(of: .weather), .left)
+        store.setEdgePlacement(.left, of: .notes)
+        store.setEdgePlacement(.right, of: .status)
+        XCTAssertEqual(store.edgeContent[.left]?.first, .notes)
+        XCTAssertEqual(store.edgeContent[.right], [.newNote, .status, .settings])
+        let reloaded = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(reloaded.edgePlacement(of: .notes), .left)
+        XCTAssertEqual(reloaded.edgeContent, store.edgeContent)
+        XCTAssertEqual(AppSettingsStore.edgeContent(defaults: defaults), store.edgeContent)
+    }
+
+    @MainActor
+    func testWidgetTilesDefaultAllKeepCatalogOrderAndPersist() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        store.setWidgetTile(.weather, enabled: false)
+        store.setWidgetTile(.nowPlaying, enabled: false)
+        store.setWidgetTile(.bluetooth, enabled: false)
+        XCTAssertTrue(AppSettingsStore(defaults: defaults).widgetTiles.isEmpty, "an explicit empty list stays empty")
         store.setWidgetTile(.nowPlaying, enabled: true)
         store.setWidgetTile(.weather, enabled: true)
         XCTAssertEqual(store.widgetTiles, [.weather, .nowPlaying], "catalog order, not click order")
-        XCTAssertEqual(store.edgeContent[.left], [.widget(.weather), .widget(.nowPlaying)])
-        XCTAssertEqual(store.edgeActiveSides, [.left], "widgets alone create the left bar")
+        XCTAssertEqual(store.edgeContent[.left], [.widget(.weather), .widget(.nowPlaying), .status])
         store.setWidgetTile(.weather, enabled: false)
         XCTAssertEqual(AppSettingsStore(defaults: defaults).widgetTiles, [.nowPlaying])
-        store.setWidgetTile(.nowPlaying, enabled: false)
-        XCTAssertTrue(AppSettingsStore(defaults: defaults).widgetTiles.isEmpty)
     }
 
     @MainActor

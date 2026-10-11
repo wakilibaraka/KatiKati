@@ -257,13 +257,14 @@ struct SettingsLayoutPane: View {
                     ForEach(EdgeBarPreset.allCases, id: \.self) { Self.presetTitle($0).tag($0) }
                 }
                 .labelsHidden()
-                .pickerStyle(.segmented)
+                .pickerStyle(.menu)
+                .fixedSize()
                 HStack {
-                    Text("Status Side")
+                    Text("Main Side")
                     Spacer(minLength: 12)
-                    Picker("Status Side", selection: Binding(
-                        get: { store.edgeStatusSide },
-                        set: { store.setEdgeStatusSide($0) }
+                    Picker("Main Side", selection: Binding(
+                        get: { store.edgePrimarySide },
+                        set: { store.setEdgePrimarySide($0) }
                     )) {
                         Text("Left").tag(EdgeSide.left)
                         Text("Right").tag(EdgeSide.right)
@@ -271,19 +272,19 @@ struct SettingsLayoutPane: View {
                     .labelsHidden()
                     .pickerStyle(.segmented)
                     .fixedSize()
-                    .disabled(store.edgeBarPreset == .off || store.edgeBarPreset == .notes)
+                    .disabled(store.edgeBarPreset == .off || store.edgeBarPreset == .custom)
                 }
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Widgets").font(.subheadline.weight(.semibold))
-                    ForEach(WidgetTile.allCases, id: \.self) { tile in
-                        Toggle(isOn: Binding(
-                            get: { store.widgetTiles.contains(tile) },
-                            set: { store.setWidgetTile(tile, enabled: $0) }
-                        )) {
-                            switch tile {
-                            case .weather: Text("Weather")
-                            case .nowPlaying: Text("Now Playing")
-                            case .bluetooth: Text("Bluetooth")
+                if store.edgeBarPreset == .custom {
+                    customRows
+                } else if store.edgeBarPreset != .off {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Widgets").font(.subheadline.weight(.semibold))
+                        ForEach(WidgetTile.allCases, id: \.self) { tile in
+                            Toggle(isOn: Binding(
+                                get: { store.widgetTiles.contains(tile) },
+                                set: { store.setWidgetTile(tile, enabled: $0) }
+                            )) {
+                                Self.itemTitle(EdgeItem.allCases.first { $0.widget == tile } ?? .weather)
                             }
                         }
                     }
@@ -297,7 +298,7 @@ struct SettingsLayoutPane: View {
                     get: { store.notesSyncEnabled },
                     set: { store.setNotesSyncEnabled($0) }
                 ))
-                Text("Slim bars on the screen edges for notes and system status. Notes stay on the right.")
+                Text("Slim bars on the screen edges for notes, productivity and system status. Pick a layout, flip it to either side, or choose Custom to place each item yourself.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -313,6 +314,45 @@ struct SettingsLayoutPane: View {
         case .notes: return Text("Notes")
         case .notesAndStatus: return Text("Notes & Status")
         case .status: return Text("Status")
+        case .productivityAndRest: return Text("Productivity + Rest")
+        case .custom: return Text("Custom")
+        }
+    }
+
+    /// Custom layout: one row per shown item, Left / Right / Hidden.
+    private var customRows: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(EdgeItem.allCases.filter { $0.isBuilt() }, id: \.self) { item in
+                HStack {
+                    Self.itemTitle(item)
+                    Spacer(minLength: 12)
+                    Picker(selection: Binding(
+                        get: { store.edgePlacement(of: item) },
+                        set: { store.setEdgePlacement($0, of: item) }
+                    )) {
+                        Text("Left").tag(EdgePlacement.left)
+                        Text("Right").tag(EdgePlacement.right)
+                        Text("Hidden").tag(EdgePlacement.hidden)
+                    } label: { Self.itemTitle(item) }
+                    .labelsHidden()
+                    .pickerStyle(.segmented)
+                    .fixedSize()
+                }
+            }
+        }
+    }
+
+    private static func itemTitle(_ item: EdgeItem) -> Text {
+        switch item {
+        case .notes: return Text("Notes")
+        case .newNote: return Text("New Note")
+        case .settings: return Text("Settings")
+        case .status: return Text("Status")
+        case .weather: return Text("Weather")
+        case .nowPlaying: return Text("Now Playing")
+        case .bluetooth: return Text("Bluetooth")
+        // Productivity names are localized when each flyout lands (P2–P6); none is shown before that.
+        default: return Text(verbatim: item.rawValue.capitalized)
         }
     }
 

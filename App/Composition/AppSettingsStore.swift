@@ -154,10 +154,12 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var islandMargin: CGFloat
     /// 条底与屏幕下缘的间距（points，默认 8 = 浮动，Hugging 预设 2，限制 0...12）。
     @Published private(set) var bottomGap: CGFloat
-    /// Edge bars (Phase 7A): preset, `.off` until the owner opts in.
+    /// Edge bars (Phase 7A): the layout preset (default Productivity + Rest) and the side that hosts notes / productivity.
     @Published private(set) var edgeBarPreset: EdgeBarPreset
-    /// Side the status cluster lives on (notes stay right). Default right.
-    @Published private(set) var edgeStatusSide: EdgeSide
+    @Published private(set) var edgePrimarySide: EdgeSide
+    /// Enabled productivity buttons (7A-P1; default all) and the Custom layout (item → left / right / hidden).
+    @Published private(set) var productivityItems: [ProductivityItem]
+    @Published private(set) var edgeCustomPlacements: [EdgeItem: EdgePlacement]
     /// Edge-bar gap above the bottom bar / margin from the screen side (min 0.5, Appendix C).
     @Published private(set) var edgeGap: CGFloat
     /// Notes sync with the iCloud Drive folder (7A-7c). Opt-in, default off.
@@ -259,8 +261,10 @@ final class AppSettingsStore: ObservableObject {
             Keys.islandGap: Double(Self.defaultIslandGap),
             Keys.islandMargin: Double(Self.defaultIslandMargin),
             Keys.bottomGap: Double(PanelLayoutMetrics.floatingBottomGap),
-            Keys.edgePreset: EdgeBarPreset.off.rawValue,
-            Keys.edgeStatusSide: EdgeSide.right.rawValue,
+            Keys.edgePreset: EdgeBarPreset.default.rawValue,
+            Keys.edgePrimarySide: EdgeSide.right.rawValue,
+            Keys.widgetTiles: WidgetTile.serialize(WidgetTile.allCases),
+            Keys.productivityItems: ProductivityItem.serialize(ProductivityItem.allCases),
             Keys.edgeGap: Double(PanelGeometry.edgeBarDefaultBottomGap),
             Keys.edgeMargin: 8.0,
             Keys.notesSync: false,
@@ -289,8 +293,10 @@ final class AppSettingsStore: ObservableObject {
         islandMargin = CGFloat(max(Double(Self.minimumIslandMargin), storedMargin))
         let storedBottomGap = Self.storedNumericValue(defaults.object(forKey: Keys.bottomGap)) ?? Double(PanelLayoutMetrics.floatingBottomGap)
         bottomGap = Self.clampedBottomGap(CGFloat(storedBottomGap))
-        edgeBarPreset = EdgeBarPreset(rawValue: defaults.string(forKey: Keys.edgePreset) ?? "") ?? .off
-        edgeStatusSide = EdgeSide(rawValue: defaults.string(forKey: Keys.edgeStatusSide) ?? "") ?? .right
+        edgeBarPreset = EdgeBarPreset(rawValue: defaults.string(forKey: Keys.edgePreset) ?? "") ?? .default
+        edgePrimarySide = EdgeSide(rawValue: defaults.string(forKey: Keys.edgePrimarySide) ?? "") ?? .right
+        productivityItems = ProductivityItem.parse(defaults.string(forKey: Keys.productivityItems))
+        edgeCustomPlacements = EdgeItem.parsePlacements(defaults.string(forKey: Keys.edgeCustom))
         notesSyncEnabled = defaults.bool(forKey: Keys.notesSync)
         widgetTiles = WidgetTile.parse(defaults.string(forKey: Keys.widgetTiles))
         deckScale = DeckSettingsRules.clampedScale(Self.storedNumericValue(defaults.object(forKey: Keys.deckScale)))
@@ -442,14 +448,47 @@ final class AppSettingsStore: ObservableObject {
 
     func setEdgeBarPreset(_ value: EdgeBarPreset) {
         guard edgeBarPreset != value else { return }
+        // First time into Custom: start from what is on screen now, so "Customize" never begins empty.
+        if value == .custom, edgeCustomPlacements.isEmpty {
+            let current = EdgeBarComposition.placements(
+                preset: edgeBarPreset, primary: edgePrimarySide, widgets: widgetTiles, productivity: productivityItems, custom: [:]
+            )
+            setEdgeCustomPlacements(Dictionary(uniqueKeysWithValues: EdgeItem.allCases.map { ($0, current[$0] ?? .hidden) }))
+        }
         edgeBarPreset = value
         defaults.set(value.rawValue, forKey: Keys.edgePreset)
     }
 
-    func setEdgeStatusSide(_ value: EdgeSide) {
-        guard edgeStatusSide != value else { return }
-        edgeStatusSide = value
-        defaults.set(value.rawValue, forKey: Keys.edgeStatusSide)
+    func setEdgePrimarySide(_ value: EdgeSide) {
+        guard edgePrimarySide != value else { return }
+        edgePrimarySide = value
+        defaults.set(value.rawValue, forKey: Keys.edgePrimarySide)
+    }
+
+    func setProductivityItem(_ item: ProductivityItem, enabled: Bool) {
+        let next = ProductivityItem.allCases.filter { $0 == item ? enabled : productivityItems.contains($0) }
+        guard next != productivityItems else { return }
+        productivityItems = next
+        defaults.set(ProductivityItem.serialize(next), forKey: Keys.productivityItems)
+    }
+
+    /// Where an item sits in the Custom layout (an item not yet stored shows where Productivity + Rest puts it).
+    func edgePlacement(of item: EdgeItem) -> EdgePlacement {
+        EdgeBarComposition.placements(preset: .custom, primary: edgePrimarySide, widgets: [], productivity: [],
+                                      custom: edgeCustomPlacements)[item] ?? .hidden
+    }
+
+    func setEdgePlacement(_ place: EdgePlacement, of item: EdgeItem) {
+        var next = EdgeBarComposition.placements(preset: .custom, primary: edgePrimarySide, widgets: [], productivity: [],
+                                                 custom: edgeCustomPlacements)
+        next[item] = place
+        setEdgeCustomPlacements(next)
+    }
+
+    private func setEdgeCustomPlacements(_ value: [EdgeItem: EdgePlacement]) {
+        guard edgeCustomPlacements != value else { return }
+        edgeCustomPlacements = value
+        defaults.set(EdgeItem.serialize(value), forKey: Keys.edgeCustom)
     }
 
     func setDeckScale(_ value: Double) {
@@ -547,9 +586,21 @@ final class AppSettingsStore: ObservableObject {
         Set(edgeContent.keys)
     }
 
-    /// Per-edge content: preset (notes/status) plus the left-edge widget tiles.
+    /// Same resolution straight from stored defaults, for panels that don't hold the store.
+    static func edgeContent(defaults: UserDefaults) -> [EdgeSide: [EdgeBarContent]] {
+        func stored(_ key: String, _ fallback: String) -> String { defaults.string(forKey: key) ?? fallback }
+        return EdgeBarComposition.resolve(
+            preset: EdgeBarPreset(rawValue: stored(Keys.edgePreset, "")) ?? .default,
+            primary: EdgeSide(rawValue: stored(Keys.edgePrimarySide, "")) ?? .right,
+            widgets: WidgetTile.parse(stored(Keys.widgetTiles, WidgetTile.serialize(WidgetTile.allCases))),
+            productivity: ProductivityItem.parse(stored(Keys.productivityItems, ProductivityItem.serialize(ProductivityItem.allCases))),
+            custom: EdgeItem.parsePlacements(defaults.string(forKey: Keys.edgeCustom)))
+    }
+
+    /// Per-edge content for the current preset / custom layout.
     var edgeContent: [EdgeSide: [EdgeBarContent]] {
-        EdgeBarComposition.resolve(preset: edgeBarPreset, statusSide: edgeStatusSide, widgets: widgetTiles)
+        EdgeBarComposition.resolve(preset: edgeBarPreset, primary: edgePrimarySide, widgets: widgetTiles,
+                                   productivity: productivityItems, custom: edgeCustomPlacements)
     }
 
     /// Live panel geometry: the height-derived metrics plus the user's bottom gap.
@@ -899,7 +950,9 @@ private enum Keys {
     static let islandMargin = "com.katikati.layout.islandMargin"
     static let bottomGap = "com.katikati.layout.bottomGap"
     static let edgePreset = "com.katikati.edge.preset"
-    static let edgeStatusSide = "com.katikati.edge.status.side"
+    static let edgePrimarySide = "com.katikati.edge.side"
+    static let edgeCustom = "com.katikati.edge.custom"
+    static let productivityItems = "com.katikati.productivity.items"
     static let edgeGap = "com.katikati.edge.gap"
     static let notesSync = "com.katikati.notes.sync"
     static let widgetTiles = "com.katikati.widgets.tiles"

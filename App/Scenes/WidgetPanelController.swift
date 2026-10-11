@@ -99,11 +99,8 @@ final class WidgetPanelController {
 
     /// Room to leave for an edge bar on this stack's side (bar width + its margin + a gap), 0 when none.
     private func edgeBarInset(defaults: UserDefaults = .standard) -> CGFloat {
-        let preset = EdgeBarPreset(rawValue: defaults.string(forKey: "com.katikati.edge.preset") ?? "") ?? .off
-        let statusSide = EdgeSide(rawValue: defaults.string(forKey: "com.katikati.edge.status.side") ?? "") ?? .right
-        let widgets = WidgetTile.parse(defaults.string(forKey: "com.katikati.widgets.tiles"))
         let barSide: EdgeSide = side == .left ? .left : .right
-        guard EdgeBarComposition.resolve(preset: preset, statusSide: statusSide, widgets: widgets)[barSide] != nil else { return 0 }
+        guard AppSettingsStore.edgeContent(defaults: defaults)[barSide] != nil else { return 0 }
         return EdgeBarLayout.width + 8 + 8
     }
 

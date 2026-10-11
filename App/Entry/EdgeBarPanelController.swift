@@ -148,12 +148,14 @@ final class EdgeBarPanelController {
         var hasNotes = false
         for item in content {
             switch item {
-            case .notes: hasNotes = true; buttons.append(.newNote)
+            case .notes: hasNotes = true
+            case .newNote: buttons.append(.newNote)
+            case .settings: buttons.append(.settings)
             case .status: buttons += StatusKind.allCases.map(DeckButton.status)
             case let .widget(tile): buttons.append(.widget(tile))
+            case .productivity: break // flyouts land in P2–P6; an unbuilt item never reaches a bar
             }
         }
-        if hasNotes { buttons.append(.settings) }
         model.buttons = buttons
         model.accentDashes = buttons.map { NotePalette.entry(at: $0.accent) }
 
