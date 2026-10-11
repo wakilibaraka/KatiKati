@@ -47,6 +47,19 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         }
     }
 
+    /// Minimum usable width: the chip's intrinsic content below this is
+    /// clipped (DockStripView `.clipped()`), so stored/slider/solver widths
+    /// are floored here. Clock ≈ 104 content + 20 island padding ≈ 124;
+    /// weather/media keep headroom under their defaults.
+    var minimumWidgetWidth: CGFloat {
+        switch self {
+        case .weather: return 110
+        case .apps: return 0
+        case .media: return 80
+        case .clock: return 120
+        }
+    }
+
     /// Grouping of sections into island slots for each layout mode.
     static func islands(for mode: BarLayoutMode, order: [BarSection] = [.weather, .apps, .media, .clock]) -> [[BarSection]] {
         switch mode {

@@ -631,8 +631,13 @@ final class AppSettingsStore: ObservableObject {
     }
     
     func setWidgetWidth(_ width: CGFloat, for section: BarSection) {
+        // Floor at the section's intrinsic minimum (e.g. clock = 40 from an
+        // old single-digit tile layout starves FlipClockChip's 2×32 tiles and
+        // renders a clipped pill). Stored value stays honest: what we persist
+        // is what the solver and the render path will use.
+        let floored = max(width, section.minimumWidgetWidth)
         var updated = self.widgetWidths
-        updated[section.rawValue] = width
+        updated[section.rawValue] = floored
         self.widgetWidths = updated
         defaults.set(updated, forKey: "widgetWidths")
     }

@@ -1312,9 +1312,12 @@ struct DockStripView: View {
         case let .sectionPlaceholder(section):
             // Fixed-order, settings-only widths (Phase 4U decision 3): no on-dock
             // resize handles — width is the stored `widgetWidths` override or this
-            // default, edited via sliders in Settings.
+            // default, edited via sliders in Settings. Floored at the intrinsic
+            // minimum so a stale stored value (e.g. clock = 40) can never clip
+            // the chip inside an in-bounds island frame.
             let defaultWidth = section.defaultWidgetWidth
-            let targetWidth = settingsStore.widgetWidths[section.rawValue] ?? defaultWidth
+            let stored = settingsStore.widgetWidths[section.rawValue] ?? defaultWidth
+            let targetWidth = max(stored, section.minimumWidgetWidth)
 
             HStack(spacing: 6 * dockScale) {
                 switch section {

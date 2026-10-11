@@ -1545,7 +1545,9 @@ final class AppSettingsStoreTests: XCTestCase {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
 
-        XCTAssertEqual(store.barLayoutMode, .windows)
+        // First-run default is split3 (Phase 4U finetune follow-up): fresh
+        // installs open the modular layout, not the monolithic strip.
+        XCTAssertEqual(store.barLayoutMode, .split3)
         XCTAssertEqual(store.centeredWidth, 720)
         XCTAssertEqual(store.islandGap, 10)
         XCTAssertEqual(store.islandMargin, 12)
@@ -1572,7 +1574,8 @@ final class AppSettingsStoreTests: XCTestCase {
         defaults.set("futureMode2028", forKey: "com.katikati.layout.mode")
 
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertEqual(store.barLayoutMode, .windows)
+        // Unknown stored value falls back to the first-run default (split3).
+        XCTAssertEqual(store.barLayoutMode, .split3)
         XCTAssertEqual(defaults.string(forKey: "com.katikati.layout.mode"), "futureMode2028")
     }
 
@@ -1603,6 +1606,23 @@ final class AppSettingsStoreTests: XCTestCase {
 
         store.setIslandMargin(-10)
         XCTAssertEqual(store.islandMargin, 0)
+    }
+
+    /// Write-path floor twin of the solver regression: values below the
+    /// intrinsic minimum are persisted floored, never as given.
+    func testSetWidgetWidthFloorsBelowIntrinsicMinimum() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+
+        store.setWidgetWidth(40, for: .clock)
+        XCTAssertEqual(store.widgetWidths["clock"], BarSection.clock.minimumWidgetWidth)
+        XCTAssertEqual(
+            (defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat])?["clock"],
+            BarSection.clock.minimumWidgetWidth
+        )
+
+        store.setWidgetWidth(200, for: .clock)
+        XCTAssertEqual(store.widgetWidths["clock"], 200)
     }
 
     private func makeDefaults() -> UserDefaults {

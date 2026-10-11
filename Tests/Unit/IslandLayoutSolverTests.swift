@@ -286,4 +286,28 @@ final class IslandLayoutSolverTests: XCTestCase {
             expectedBarHeight: 46
         ))
     }
+
+    /// Regression for the cut-off clock pill (2026-10-11): a stale stored
+    /// `clock = 40` override starved FlipClockChip's 2×32 tiles while the
+    /// island math stayed in-bounds — so the pill clipped *inside* a valid
+    /// frame. Stored widths are floored at the intrinsic minimum.
+    func testStaleClockOverrideFloorsAtIntrinsicMinimum() {
+        let layout = IslandLayoutSolver.layout(
+            screenWidth: 1728,
+            mode: .split3, widgetOrder: [.weather, .apps, .media, .clock],
+            widgetWidths: [.clock: 40],
+            tileStride: 46,
+            appCount: 9,
+            weatherWidth: 200,
+            clockWidth: 100,
+            clusterWidth: 140,
+            gap: 10,
+            margin: 12,
+            barHeight: 46,
+            bottomMargin: 8
+        )
+        let clock = layout.islands.first { $0.sections == [.clock] }
+        XCTAssertNotNil(clock)
+        XCTAssertGreaterThanOrEqual(clock!.frame.width, BarSection.clock.minimumWidgetWidth)
+    }
 }

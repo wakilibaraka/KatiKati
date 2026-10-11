@@ -83,7 +83,11 @@ enum IslandLayoutSolver {
         let islandSections = BarSection.islands(for: mode, order: widgetOrder)
 
         func width(for section: BarSection) -> CGFloat {
-            if let custom = widgetWidths[section] { return custom }
+            // Floor stored overrides at the section's intrinsic minimum, same
+            // contract as `AppSettingsStore.setWidgetWidth` — legacy values
+            // (e.g. clock = 40 from the old tile layout) starve the chip and
+            // render a clipped pill while the island math stays in-bounds.
+            if let custom = widgetWidths[section] { return max(custom, section.minimumWidgetWidth) }
             switch section {
             case .weather: return weatherWidth
             case .clock: return clockWidth
