@@ -86,6 +86,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var edgeToggleHotKey: GlobalHotKeyMonitor?
     private var launcherHotKey: GlobalHotKeyMonitor?
     private let screenTimeAlerts = ScreenTimeAlertPresenter()
+    private lazy var pinboardPanel: PinboardPanelController = {
+        let panel = PinboardPanelController()
+        panel.weather = { [weak self] in self?.weatherService }
+        panel.widgets = { [weak self] in self?.settingsStore.pinboardWidgets ?? PinboardWidget.defaultOrder }
+        panel.toggleOrder = { [weak self] in self?.settingsStore.pinboardToggles ?? QuickToggleID.defaultOrder }
+        panel.keepOnTop = { [weak self] in self?.settingsStore.pinboardKeepOnTop ?? false }
+        return panel
+    }()
     private lazy var launcherPanel: LauncherPanelController = {
         let panel = LauncherPanelController()
         panel.sheetSide = { [weak self] in self?.settingsStore.launcherSheetSide ?? .right }
@@ -647,6 +655,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panelCoordinator = coordinator
         runtime.onToggleDrawer = { [weak coordinator] in coordinator?.toggleDrawer() }
         runtime.onToggleLauncher = { [weak self] in self?.launcherPanel.toggle() }
+        runtime.onTogglePinboard = { [weak self] in self?.pinboardPanel.toggle() }
         // Menu height slider ↔ every bar's grip-drag transaction. Weak: the orchestrator is
         // dropped on permission loss.
         settingsCoordinator.taskbarHeightSessionHandler = { [weak coordinator] editing in
@@ -911,6 +920,7 @@ extension AppDelegate: PermissionEffectHandler {
         badgeContextSubscription = nil
         runtime.onToggleDrawer = nil
         runtime.onToggleLauncher = nil
+        runtime.onTogglePinboard = nil
         scrollReverserSettingSubscription?.cancel()
         scrollReverserSettingSubscription = nil
         scrollReverserMonitor?.stop()

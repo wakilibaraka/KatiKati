@@ -178,6 +178,9 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var launcherTint: LauncherTint
     @Published private(set) var launcherIcon: LauncherIconStyle
     @Published private(set) var launcherTiles: [LauncherTile]
+    @Published private(set) var pinboardWidgets: [PinboardWidget]
+    @Published private(set) var pinboardToggles: [QuickToggleID]
+    @Published private(set) var pinboardKeepOnTop: Bool
     @Published private(set) var launcherSearchPosition: LauncherSearchPosition
     @Published private(set) var deckKeepOpen: Bool
     @Published private(set) var deckOpenOnHover: Bool
@@ -285,6 +288,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.launcherTint: LauncherTint.default.rawValue,
             Keys.launcherIcon: LauncherIconStyle.default.rawValue,
             Keys.launcherTiles: LauncherTile.serialize(LauncherTile.allCases),
+            Keys.pinboardKeepOnTop: false,
             Keys.launcherSearchPosition: LauncherSearchPosition.default.rawValue,
             Keys.deckKeepOpen: false,
             Keys.deckOpenOnHover: false,
@@ -322,6 +326,9 @@ final class AppSettingsStore: ObservableObject {
         deckMagnify = defaults.bool(forKey: Keys.deckMagnify)
         launcherSearchPosition = LauncherSearchPosition.parse(defaults.string(forKey: Keys.launcherSearchPosition))
         launcherTiles = LauncherTile.parse(defaults.string(forKey: Keys.launcherTiles))
+        pinboardWidgets = PinboardWidget.parse(defaults.string(forKey: Keys.pinboardWidgets))
+        pinboardToggles = QuickToggleID.parse(defaults.string(forKey: Keys.pinboardToggles))
+        pinboardKeepOnTop = defaults.bool(forKey: Keys.pinboardKeepOnTop)
         launcherTheme = LauncherTheme.parse(defaults.string(forKey: Keys.launcherTheme))
         launcherTint = LauncherTint.parse(defaults.string(forKey: Keys.launcherTint))
         launcherIcon = LauncherIconStyle.parse(defaults.string(forKey: Keys.launcherIcon))
@@ -546,6 +553,30 @@ final class AppSettingsStore: ObservableObject {
         guard next != launcherTiles else { return }
         launcherTiles = next
         defaults.set(LauncherTile.serialize(next), forKey: Keys.launcherTiles)
+    }
+
+    func setPinboardWidget(_ widget: PinboardWidget, enabled: Bool) {
+        var next = pinboardWidgets.filter { $0 != widget }
+        if enabled { next.append(widget) }
+        next = PinboardWidget.defaultOrder.filter { next.contains($0) }
+        guard next != pinboardWidgets else { return }
+        pinboardWidgets = next
+        defaults.set(PinboardWidget.serialize(next), forKey: Keys.pinboardWidgets)
+    }
+
+    func setPinboardToggle(_ id: QuickToggleID, enabled: Bool) {
+        var next = pinboardToggles.filter { $0 != id }
+        if enabled { next.append(id) }
+        next = QuickToggleID.defaultOrder.filter { next.contains($0) }
+        guard next != pinboardToggles else { return }
+        pinboardToggles = next
+        defaults.set(QuickToggleID.serialize(next), forKey: Keys.pinboardToggles)
+    }
+
+    func setPinboardKeepOnTop(_ value: Bool) {
+        guard pinboardKeepOnTop != value else { return }
+        pinboardKeepOnTop = value
+        defaults.set(value, forKey: Keys.pinboardKeepOnTop)
     }
 
     func setLauncherTheme(_ value: LauncherTheme) {
@@ -1045,6 +1076,9 @@ private enum Keys {
     static let launcherTint = "com.katikati.launcher.tint"
     static let launcherIcon = "com.katikati.launcher.icon"
     static let launcherTiles = "com.katikati.launcher.tiles"
+    static let pinboardWidgets = "com.katikati.pinboard.widgets"
+    static let pinboardToggles = "com.katikati.pinboard.toggles"
+    static let pinboardKeepOnTop = "com.katikati.pinboard.keepOnTop"
     static let launcherSearchPosition = "com.katikati.launcher.searchPosition"
     static let deckKeepOpen = "com.katikati.edge.alwaysShown"
     static let deckOpenOnHover = "com.katikati.edge.openOnHover"

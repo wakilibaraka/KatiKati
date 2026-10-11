@@ -713,6 +713,15 @@
 		EE0000000000000000000020 /* ScreenTimeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000001F /* ScreenTimeController.swift */; };
 		EE0000000000000000000022 /* ScreenTimeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000021 /* ScreenTimeViews.swift */; };
 		EE0000000000000000000024 /* ScreenTimeAlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000023 /* ScreenTimeAlertPresenter.swift */; };
+		EE0000000000000000000026 /* PinboardWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000025 /* PinboardWidgets.swift */; };
+		EE0000000000000000000027 /* PinboardWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000025 /* PinboardWidgets.swift */; };
+		EE0000000000000000000029 /* PinboardWidgetsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000028 /* PinboardWidgetsTests.swift */; };
+		EE000000000000000000002B /* QuickToggleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000002A /* QuickToggleEngine.swift */; };
+		EE000000000000000000002D /* PinboardTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000002C /* PinboardTheme.swift */; };
+		EE000000000000000000002F /* WifiBatteryRingIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000002E /* WifiBatteryRingIcon.swift */; };
+		EE0000000000000000000031 /* PinboardWidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000030 /* PinboardWidgetViews.swift */; };
+		EE0000000000000000000033 /* PinboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000032 /* PinboardView.swift */; };
+		EE0000000000000000000035 /* PinboardPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000034 /* PinboardPanelController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1218,6 +1227,14 @@
 		EE000000000000000000001F /* ScreenTimeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeController.swift; path = Platform/ScreenTime/ScreenTimeController.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000021 /* ScreenTimeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeViews.swift; path = App/Scenes/Edge/ScreenTimeViews.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000023 /* ScreenTimeAlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeAlertPresenter.swift; path = App/Entry/ScreenTimeAlertPresenter.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000025 /* PinboardWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardWidgets.swift; path = Core/Support/PinboardWidgets.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000028 /* PinboardWidgetsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardWidgetsTests.swift; path = Tests/Unit/PinboardWidgetsTests.swift; sourceTree = SOURCE_ROOT; };
+		EE000000000000000000002A /* QuickToggleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickToggleEngine.swift; path = Platform/Pinboard/QuickToggleEngine.swift; sourceTree = SOURCE_ROOT; };
+		EE000000000000000000002C /* PinboardTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardTheme.swift; path = App/Scenes/Pinboard/PinboardTheme.swift; sourceTree = SOURCE_ROOT; };
+		EE000000000000000000002E /* WifiBatteryRingIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WifiBatteryRingIcon.swift; path = App/Scenes/Pinboard/WifiBatteryRingIcon.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000030 /* PinboardWidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardWidgetViews.swift; path = App/Scenes/Pinboard/PinboardWidgetViews.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000032 /* PinboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardView.swift; path = App/Scenes/Pinboard/PinboardView.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000034 /* PinboardPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardPanelController.swift; path = App/Entry/PinboardPanelController.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2254,6 +2271,13 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
+				EE0000000000000000000026 /* PinboardWidgets.swift in Sources */,
+				EE000000000000000000002B /* QuickToggleEngine.swift in Sources */,
+				EE000000000000000000002D /* PinboardTheme.swift in Sources */,
+				EE000000000000000000002F /* WifiBatteryRingIcon.swift in Sources */,
+				EE0000000000000000000031 /* PinboardWidgetViews.swift in Sources */,
+				EE0000000000000000000033 /* PinboardView.swift in Sources */,
+				EE0000000000000000000035 /* PinboardPanelController.swift in Sources */,
 				EE0000000000000000000024 /* ScreenTimeAlertPresenter.swift in Sources */,
 				EE0000000000000000000022 /* ScreenTimeViews.swift in Sources */,
 				EE000000000000000000001D /* ScreenTimeStore.swift in Sources */,
@@ -2385,6 +2409,8 @@
 				ED0000000000000000000089 /* DeckGeometryTests.swift in Sources */,
 				ED0000000000000000000082 /* NotePalette.swift in Sources */,
 				ED0000000000000000000084 /* NotePaletteTests.swift in Sources */,
+				EE0000000000000000000027 /* PinboardWidgets.swift in Sources */,
+				EE0000000000000000000029 /* PinboardWidgetsTests.swift in Sources */,
 				EE000000000000000000001E /* ScreenTimeStore.swift in Sources */,
 				EE0000000000000000000019 /* ScreenTime.swift in Sources */,
 				EE000000000000000000001B /* ScreenTimeTests.swift in Sources */,

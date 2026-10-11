@@ -1337,7 +1337,10 @@ struct DockStripView: View {
                         .contentShape(Rectangle())
                         .onTapGesture { runtime.onToggleLauncher?() }
                 case .widgets:
-                    SectionFABGlyph(systemName: "rectangle.3.group") // payload → Phase 7e
+                    PinboardFABGlyph(size: 28 * dockScale)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .contentShape(Rectangle())
+                        .onTapGesture { runtime.onTogglePinboard?() }
                 case .apps:
                     EmptyView()
                 }
