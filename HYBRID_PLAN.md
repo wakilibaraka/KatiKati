@@ -1034,7 +1034,7 @@ Progression: 3 → 4 → 5 separates one more grouping per step; all three disti
 - 2026-10-11 · **Slices 3–6 — PASS.** Solver/`PanelGeometry` already width-handle new sections via `defaultWidgetWidth`; floating FAB geometry (`FABSide`, `fabTargetFrame`) removed; `SectionFABGlyph` renders inert launcher/widgets glyphs; `BarLayoutMode.split5` = `[launcher][weather][apps·media][clock][widgets]` (slotCount 5, distinct 3/4/5); "Widgets" ×12 added, `Launcher` key re-referenced; `check_localization.py` ✅, unit suite ✅. Not done: live eyeball of windows/centered FAB ends and left-launcher vs left-drawer-capsule collision (owner); no settings width sliders for fixed 40pt FABs.
 
 
-### Phase 5 — Hardening (native Dock, teardown, recovery drill)
+### Phase 5 — Hardening (native Dock, teardown, recovery drill) (DONE)
 
 *Scoped into gated sub-slices 2026-10-11 (owner asked to plan Phase 5 in slices, mirroring the
 Phase 2/3/4 cadence and the 4U-A scoping commit). Every slice ends gate-green
@@ -1080,16 +1080,23 @@ for a gap the drill actually proves.*
   - **Verify**: `DOCK_WINDOW_LIFT_TRACE` shows one reservation per display; geometry + existing
     suite green; zero behavior change in any mode.
 
-- **5b — SIGTERM/SIGINT teardown drill (evidence + gap-fix only). — ⏸ DEFERRED (owner
-  2026-10-11: "to be done later") — do not start until the owner schedules the drill.**
+- **5b — SIGTERM/SIGINT teardown drill (evidence + gap-fix only). — ✅ DONE (2026-10-11):
+  drilled on the dev Mac; gap PROVEN under real Accessibility (no signal handlers —
+  SIGTERM/SIGINT killed the process outright, `stopAndRestore` never ran, lifted window
+  stuck) and FIXED (`installTerminationSignalHandlers`, runloop-dispatched `terminate:` —
+  calling it inside the GCD handler deadlocked; `77a20a0`). See phase-5 log addendum 2.**
   Exercise `AppDelegate.applicationShouldTerminate` / `applicationWillTerminate` / `terminateOtherInstances`
   (`stopAndRestore`, monitor stops, in-flight `terminationTask` cancellation). Drill log in PR;
   fix + test only if the drill proves a gap (e.g. a monitor not stopped, a Task surviving
   teardown → "two taskbars").
 
 - **5c — `kill -9` during a Dock-mutating state + crash-relaunch (Dock-state integrity).
-  — ⏸ DEFERRED (owner 2026-10-11: "to be done later") — do not start until the owner
-  schedules the drill.**
+  — ✅ DONE (2026-10-11): idle `kill -9` + relaunch = no orphaned panels (1 process,
+  13 windows = clean baseline); mid-write sequence emulated 30× at random 0–250ms =
+  0 corrupt reads (cfprefsd per-key atomicity → partial application only, reasoned
+  acceptance); C3 gap PROVEN under real Accessibility (lift sessions were memory-only,
+  relaunch did not restore) and FIXED (`WindowLiftRecovery` mirror file replayed at
+  launch, +4 tests; `e482a95`, `77a20a0`). See phase-5 log addenda.**
   The Dock-mutating path is `NativeDockPreferencesService.apply(recommendations:)` →
   `commands(for:)` (writes `com.apple.dock` defaults + a single `killall Dock`). Drill: kill -9
   mid-sequence, relaunch, verify Dock prefs not corrupt, KatiKati recovers, **no orphaned island
@@ -1103,7 +1110,7 @@ for a gap the drill actually proves.*
   `suspendPanelsAndStores`), and can never ship on. Extend `DebugSwitchTests` polarity +
   choke-point coverage; `check_debug_switches.py` green.
 
-- **5e — Floating Calendar Panel (owner design 2026-10-11; supersedes the "owner-external" note — owner now has the agent build it).**
+- **5e — Floating Calendar Panel (owner design 2026-10-11; supersedes the "owner-external" note — owner now has the agent build it). — ✅ DONE (2026-10-11): 5e-A…G panel + tiles rework landed in-repo; eyeball flags in check log.**
   Replaces the `CalendarPopupView` popover (`ClockChip.swift`) with a tall **floating panel on the
   right of the screen**, opened by tapping the clock (click-outside/Esc dismiss). Contents, **all
   visible, no scrolling**: date card · month grid · agenda · world clocks (user-picked, ≤4) ·
@@ -1173,7 +1180,7 @@ for a gap the drill actually proves.*
   **Standing rule (owner): every future widget ships 2–3 presets (layout/style) and keeps the previous
   design as one.**
 
-- **5f — Phase 5 lock + proof gate (closes Phase 5 last, after 5g and 5h).** Drill log(s) in the PR; no lost Dock state; no orphaned
+- **5f — Phase 5 lock + proof gate (closes Phase 5 last, after 5g and 5h). — ✅ PASS (2026-10-11; lock entry in check log, re-verified at phase-close).** Drill log(s) in the PR; no lost Dock state; no orphaned
   island panels after crash-relaunch; full tungsten gate; dated phase-5 log under
   `Docs/Archive/Planning/`, `CHANGELOG.md`, and the `Result:` line here.
 
@@ -1278,6 +1285,29 @@ for a gap the drill actually proves.*
   `SkyTint`/`SceneGeometry` + presets in `Core/Support/SkyTint.swift` (6 tests), `WeatherGlanceView.swift`,
   sky-aware `TileEnv`. **Not verified:** daytime/snow/fog tints live (only unit-tested), light mode, the
   Classic presets re-checked after the change, wide (iPad) widths with Glance.
+- 2026-10-11 · **Phase 5 — DONE (owner directive "mark phase 5 as done").** All sub-slices
+  closed: 5a/5d (main session), 5e–5i (owner's Claude Code session), 5b/5c drilled on the
+  dev Mac — first pass (dev bypass) showed no gap; with real Accessibility two gaps were
+  **proven and fixed** (signal handlers + `WindowLiftRecovery`, `e482a95`/`77a20a0`);
+  5f lock PASS. Status markers on 5b/5c/5e/5f flipped to ✅; phase-log Summary aligned with
+  its addendum 2 (it still read "no gap found, no code changed"); `Result:` line added.
+  Closure gate re-run: **1719 tests, 0 failures, `TEST SUCCEEDED`** + localization /
+  debug-switch / availability checks green. Owner eyeball items (Spring Pop/Instant,
+  light mode, day/snow/fog tints, iPad-width Glance, Classic presets, real EventKit
+  grants) are logged in the phase-5 log and **do not block closure**.
+
+- **Result**: **DONE (2026-10-11)**. Hardening proven by drill, not assertion: 5a window-lift
+  de-dup to one reservation per display (3 invariant tests); 5d dev-bypass polarity lock
+  (8 tests); 5b/5c recovery drills found two real defects — SIGTERM/SIGINT skipped
+  `stopAndRestore` and `kill -9` lost lift sessions — both fixed (runloop-dispatched
+  `installTerminationSignalHandlers` + `WindowLiftRecovery` replay file, +4 tests, verified
+  live: kill -9 with a lifted window → relaunch → restored) with mid-write `kill -9`
+  reasoned-accepted (30× emulation, 0 corrupt reads) and relaunch-idempotence pinned
+  (`IslandSlotSetTests`); 5e floating calendar tiles; 5g/5h weather tiles + Tall layouts +
+  animation presets + extra tiles; 5i weather Glance redesign. Closure gate:
+  **1,719 unit tests green, 0 failures**, localization ×12, debug switches 77/77,
+  availability-warnings clean (build log). Drill log + addenda:
+  `Docs/Archive/Planning/2026-10-11-phase-5-log.md`.
 
 
 ### Phase 6 — Settings Layout tab + welcome step + polish
