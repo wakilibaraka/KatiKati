@@ -1703,6 +1703,13 @@ upgrades, wallpaper/personalisation, extra flyouts.
   chip's `NowPlayingPopup` in a flyout with a lazily-created, event-driven `NowPlayingService`. The weather stack now insets
   itself (`widgetPanelFrame(sideInset:)`, +test) so it no longer covers a left edge bar. Live: left bar 56×124 at the left edge,
   now-playing flyout opened inward, weather panel opened and closed the flyout. No new strings (Widgets/Weather/Now Playing existed).
+- 2026-10-11 · **7A-8b Bluetooth tile landed (gate green, 1825 tests):** pure `BluetoothDeviceParser` over
+  `system_profiler SPBluetoothDataType -json` (schema verified on this Mac: `device_connected` / `device_not_connected`,
+  `device_minorType`, `device_batteryLevel{Main,Left,Right,Case}`) — connected first, lowest-battery badge, symbol per
+  minor type, malformed input → empty; `BluetoothDeviceReader` runs the fixed-argument process off-main with an 8 s
+  timeout **only when the flyout opens or Refresh is tapped (never polled)**; no IOBluetooth/CoreBluetooth, so **no
+  Bluetooth permission prompt**. `WidgetTile.bluetooth`, flyout (list, battery %, connected dot, refresh, System Settings
+  link), Settings toggle. 3 strings x12 (drafts, separate commit). 6 tests. Not live-checked yet (D6 sweep).
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

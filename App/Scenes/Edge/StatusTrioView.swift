@@ -219,6 +219,7 @@ private struct EdgeWidgetTile: View {
         switch tile {
         case .weather: return "cloud.sun.fill"
         case .nowPlaying: return "music.note"
+        case .bluetooth: return "wave.3.right.circle.fill"
         }
     }
 
@@ -226,6 +227,7 @@ private struct EdgeWidgetTile: View {
         switch tile {
         case .weather: return Text("Weather")
         case .nowPlaying: return Text("Now Playing")
+        case .bluetooth: return Text("Bluetooth")
         }
     }
 
@@ -254,5 +256,64 @@ struct NowPlayingFlyoutView: View {
     var body: some View {
         NowPlayingPopup(state: service.state, theme: .auto, onToggle: { service.togglePlayPause() })
             .padding(12)
+    }
+}
+
+/// Bluetooth flyout (7A-8b): connected devices first with battery, a refresh button, and a link to
+/// System Settings. The list is read only when the flyout opens (or on refresh) — never polled.
+struct BluetoothFlyoutView: View {
+    @State private var devices: [BluetoothDevice] = []
+    @State private var loading = true
+
+    static let size = CGSize(width: 300, height: 260)
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Bluetooth").font(.headline)
+                Spacer()
+                if loading { ProgressView().controlSize(.small) }
+                Button { Task { await load() } } label: { Image(systemName: "arrow.clockwise") }
+                    .buttonStyle(.borderless)
+                    .help(Text("Refresh"))
+            }
+            if devices.isEmpty && !loading {
+                Text("No Bluetooth Devices").foregroundStyle(.secondary).font(.callout)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    VStack(spacing: 4) {
+                        ForEach(devices) { row($0) }
+                    }
+                }
+            }
+            Button("Open System Settings…") {
+                if let url = URL(string: "x-apple.systempreferences:com.apple.BluetoothSettings") { NSWorkspace.shared.open(url) }
+            }
+            .buttonStyle(.link)
+            .font(.caption)
+        }
+        .padding(14)
+        .frame(width: Self.size.width, height: Self.size.height, alignment: .topLeading)
+        .task { await load() }
+    }
+
+    private func row(_ d: BluetoothDevice) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: d.symbolName).frame(width: 22)
+            Text(verbatim: d.name).lineLimit(1)
+            Spacer(minLength: 4)
+            if let level = d.lowestBattery {
+                Text(verbatim: "\(level)%").monospacedDigit().foregroundStyle(level <= 20 ? Color.red : Color.secondary)
+            }
+            Circle().fill(d.isConnected ? Color.green : Color.secondary.opacity(0.3)).frame(width: 7, height: 7)
+        }
+        .opacity(d.isConnected ? 1 : 0.55)
+    }
+
+    @MainActor private func load() async {
+        loading = true
+        devices = await BluetoothDeviceReader.read()
+        loading = false
     }
 }

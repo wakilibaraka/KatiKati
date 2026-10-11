@@ -40,6 +40,7 @@ enum EdgeSlotSet {
 enum WidgetTile: String, CaseIterable, Sendable {
     case weather
     case nowPlaying
+    case bluetooth
 
     /// Parses the stored comma-separated list: unknown ids dropped, duplicates collapsed, order kept.
     static func parse(_ stored: String?) -> [WidgetTile] {

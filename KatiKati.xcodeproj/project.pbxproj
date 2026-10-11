@@ -73,6 +73,10 @@
 		ED0000000000000000000065 /* NotesSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000064 /* NotesSyncService.swift */; };
 		ED0000000000000000000066 /* NotesSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000064 /* NotesSyncService.swift */; };
 		ED0000000000000000000068 /* SyncPassSchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000067 /* SyncPassSchedulerTests.swift */; };
+		ED0000000000000000000071 /* BluetoothDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000070 /* BluetoothDevices.swift */; };
+		ED0000000000000000000072 /* BluetoothDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000070 /* BluetoothDevices.swift */; };
+		ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000073 /* BluetoothDeviceReader.swift */; };
+		ED0000000000000000000076 /* BluetoothDevicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000075 /* BluetoothDevicesTests.swift */; };
 		ED0000000000000000000010 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
 		ED000000000000000000000A /* SystemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000009 /* SystemStatus.swift */; };
 		ED0000000000000000000011 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
@@ -693,6 +697,9 @@
 		ED0000000000000000000062 /* EdgeNotesPopupController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EdgeNotesPopupController.swift; path = App/Entry/EdgeNotesPopupController.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000064 /* NotesSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesSyncService.swift; path = Platform/Notes/NotesSyncService.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000067 /* SyncPassSchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SyncPassSchedulerTests.swift; path = Tests/Unit/SyncPassSchedulerTests.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000070 /* BluetoothDevices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BluetoothDevices.swift; path = Core/Support/BluetoothDevices.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000073 /* BluetoothDeviceReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BluetoothDeviceReader.swift; path = Platform/SystemStatus/BluetoothDeviceReader.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000075 /* BluetoothDevicesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BluetoothDevicesTests.swift; path = Tests/Unit/BluetoothDevicesTests.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000F /* SystemStatusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusService.swift; path = Platform/SystemStatus/SystemStatusService.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000009 /* SystemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatus.swift; path = Core/Support/SystemStatus.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000C /* SystemStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusTests.swift; path = Tests/Unit/SystemStatusTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2102,6 +2109,8 @@
 				D3EB46A2A29E54E9C8B5C492 /* WeatherState.swift in Sources */,
 				7B1000000000000000000002 /* ClockChipContent.swift in Sources */,
 				ED000000000000000000000A /* SystemStatus.swift in Sources */,
+				ED0000000000000000000071 /* BluetoothDevices.swift in Sources */,
+				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NotesPopupView.swift in Sources */,
 				ED0000000000000000000063 /* EdgeNotesPopupController.swift in Sources */,
@@ -2195,6 +2204,8 @@
 				7B5000000000000000000013 /* WeatherDetail.swift in Sources */,
 				7B5000000000000000000009 /* CalendarPanelModels.swift in Sources */,
 				ED000000000000000000000B /* SystemStatus.swift in Sources */,
+				ED0000000000000000000072 /* BluetoothDevices.swift in Sources */,
+				ED0000000000000000000076 /* BluetoothDevicesTests.swift in Sources */,
 				ED0000000000000000000066 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000068 /* SyncPassSchedulerTests.swift in Sources */,
 				ED0000000000000000000052 /* NotesController.swift in Sources */,

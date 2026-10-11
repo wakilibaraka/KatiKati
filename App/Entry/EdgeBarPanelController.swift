@@ -211,6 +211,11 @@ final class EdgeBarPanelController {
             // The weather stack already has its own panel (left side); the tile just toggles it.
             popup.dismiss()
             WidgetPanelController.weather.toggle()
+        case .bluetooth:
+            popup.toggle(
+                id: "widget.bluetooth", anchor: anchor, side: slotKey.side, visibleFrame: lastVisibleFrame,
+                size: BluetoothFlyoutView.size, content: AnyView(BluetoothFlyoutView())
+            )
         case .nowPlaying:
             let service = nowPlayingProvider()
             popup.toggle(

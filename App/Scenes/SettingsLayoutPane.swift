@@ -283,6 +283,7 @@ struct SettingsLayoutPane: View {
                             switch tile {
                             case .weather: Text("Weather")
                             case .nowPlaying: Text("Now Playing")
+                            case .bluetooth: Text("Bluetooth")
                             }
                         }
                     }

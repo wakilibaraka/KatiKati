@@ -188,7 +188,7 @@ final class EdgeBarSlotTests: XCTestCase {
         XCTAssertEqual(WidgetTile.parse(nil), [])
         XCTAssertEqual(WidgetTile.parse(""), [])
         XCTAssertEqual(WidgetTile.serialize([.weather, .nowPlaying]), "weather,nowPlaying")
-        XCTAssertEqual(WidgetTile.allCases.map(\.rawValue), ["weather", "nowPlaying"], "stored ids are frozen")
+        XCTAssertEqual(WidgetTile.allCases.map(\.rawValue), ["weather", "nowPlaying", "bluetooth"], "stored ids are frozen")
     }
 
     func testCompositionPutsWidgetsOnTheLeftAndKeepsPresetContent() {
