@@ -101,6 +101,7 @@ struct LauncherView: View {
                                               pinned: model.state.pinned, now: Date())
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
+                    if !model.tiles.isEmpty { LauncherTilesRow(tiles: model.tiles, onClose: onClose) }
                     section(Text("Pinned"), s.pinned)
                     section(Text("Most Used"), s.mostUsed)
                     section(Text("Recently Installed"), s.recentlyInstalled)
@@ -150,6 +151,7 @@ final class LauncherModel: ObservableObject {
     @Published var focusNonce = 0
     @Published var sheetSide: EdgeSide = .right
     @Published var searchPosition: LauncherSearchPosition = .top
+    @Published var tiles: [LauncherTile] = LauncherTile.allCases
     @Published var state = LauncherState()
 }
 

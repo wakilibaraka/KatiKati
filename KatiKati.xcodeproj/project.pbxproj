@@ -692,9 +692,13 @@
 		ED00000000000000000000F7 /* LauncherStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000F6 /* LauncherStoreTests.swift */; };
 		ED00000000000000000000FA /* LauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000F9 /* LauncherView.swift */; };
 		ED00000000000000000000FC /* LauncherPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000FB /* LauncherPanelController.swift */; };
-		ED00000000000000000000FE /* LauncherLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000FD /* LauncherLayout.swift */; };
-		ED00000000000000000000FF /* LauncherLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000FD /* LauncherLayout.swift */; };
-		ED00000000000000000000101 /* LauncherLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000100 /* LauncherLayoutTests.swift */; };
+		EE0000000000000000000002 /* LauncherTiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000001 /* LauncherTiles.swift */; };
+		EE0000000000000000000003 /* LauncherTiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000001 /* LauncherTiles.swift */; };
+		EE0000000000000000000005 /* LauncherTilesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000004 /* LauncherTilesTests.swift */; };
+		EE0000000000000000000007 /* LauncherTilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000006 /* LauncherTilesView.swift */; };
+		EE0000000000000000000009 /* LauncherLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000008 /* LauncherLayout.swift */; };
+		EE000000000000000000000A /* LauncherLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000008 /* LauncherLayout.swift */; };
+		EE000000000000000000000C /* LauncherLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000000B /* LauncherLayoutTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1185,8 +1189,11 @@
 		ED00000000000000000000F6 /* LauncherStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherStoreTests.swift; path = Tests/Unit/LauncherStoreTests.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000F9 /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherView.swift; path = App/Scenes/LauncherView.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000FB /* LauncherPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherPanelController.swift; path = App/Entry/LauncherPanelController.swift; sourceTree = SOURCE_ROOT; };
-		ED00000000000000000000FD /* LauncherLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherLayout.swift; path = Core/Support/LauncherLayout.swift; sourceTree = SOURCE_ROOT; };
-		ED00000000000000000000100 /* LauncherLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherLayoutTests.swift; path = Tests/Unit/LauncherLayoutTests.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000001 /* LauncherTiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherTiles.swift; path = Core/Support/LauncherTiles.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000004 /* LauncherTilesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherTilesTests.swift; path = Tests/Unit/LauncherTilesTests.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000006 /* LauncherTilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherTilesView.swift; path = App/Scenes/LauncherTilesView.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000008 /* LauncherLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherLayout.swift; path = Core/Support/LauncherLayout.swift; sourceTree = SOURCE_ROOT; };
+		EE000000000000000000000B /* LauncherLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherLayoutTests.swift; path = Tests/Unit/LauncherLayoutTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2223,7 +2230,9 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
-				ED00000000000000000000FE /* LauncherLayout.swift in Sources */,
+				EE0000000000000000000009 /* LauncherLayout.swift in Sources */,
+				EE0000000000000000000002 /* LauncherTiles.swift in Sources */,
+				EE0000000000000000000007 /* LauncherTilesView.swift in Sources */,
 				ED00000000000000000000FA /* LauncherView.swift in Sources */,
 				ED00000000000000000000FC /* LauncherPanelController.swift in Sources */,
 				ED00000000000000000000F2 /* LauncherIndexer.swift in Sources */,
@@ -2344,8 +2353,10 @@
 				ED0000000000000000000089 /* DeckGeometryTests.swift in Sources */,
 				ED0000000000000000000082 /* NotePalette.swift in Sources */,
 				ED0000000000000000000084 /* NotePaletteTests.swift in Sources */,
-				ED00000000000000000000FF /* LauncherLayout.swift in Sources */,
-				ED00000000000000000000101 /* LauncherLayoutTests.swift in Sources */,
+				EE000000000000000000000A /* LauncherLayout.swift in Sources */,
+				EE000000000000000000000C /* LauncherLayoutTests.swift in Sources */,
+				EE0000000000000000000003 /* LauncherTiles.swift in Sources */,
+				EE0000000000000000000005 /* LauncherTilesTests.swift in Sources */,
 				ED00000000000000000000F5 /* LauncherStore.swift in Sources */,
 				ED00000000000000000000F7 /* LauncherStoreTests.swift in Sources */,
 				ED00000000000000000000F8 /* LauncherIndexer.swift in Sources */,

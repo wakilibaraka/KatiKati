@@ -89,6 +89,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let panel = LauncherPanelController()
         panel.sheetSide = { [weak self] in self?.settingsStore.launcherSheetSide ?? .right }
         panel.searchPosition = { [weak self] in self?.settingsStore.launcherSearchPosition ?? .top }
+        panel.tiles = { [weak self] in self?.settingsStore.launcherTiles ?? LauncherTile.allCases }
         return panel
     }()
     private var terminationTask: Task<Void, Never>?

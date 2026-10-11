@@ -202,6 +202,17 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
+    func testLauncherTilesDefaultAllAndToggle() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.launcherTiles, LauncherTile.allCases)
+        store.setLauncherTile(.calculator, enabled: false)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherTiles, [.clock, .countdown, .files])
+        store.setLauncherTile(.calculator, enabled: true)
+        XCTAssertEqual(store.launcherTiles, LauncherTile.allCases, "re-enabling restores display order")
+    }
+
+    @MainActor
     func testLauncherSheetSideDefaultsRightAndPersists() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)

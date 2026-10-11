@@ -174,6 +174,7 @@ final class AppSettingsStore: ObservableObject {
     /// Dock-style magnification of the round buttons under the pointer.
     @Published private(set) var deckMagnify: Bool
     @Published private(set) var launcherSheetSide: EdgeSide
+    @Published private(set) var launcherTiles: [LauncherTile]
     @Published private(set) var launcherSearchPosition: LauncherSearchPosition
     @Published private(set) var deckKeepOpen: Bool
     @Published private(set) var deckOpenOnHover: Bool
@@ -277,6 +278,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
             Keys.launcherSheetSide: EdgeSide.right.rawValue,
+            Keys.launcherTiles: LauncherTile.serialize(LauncherTile.allCases),
             Keys.launcherSearchPosition: LauncherSearchPosition.default.rawValue,
             Keys.deckKeepOpen: false,
             Keys.deckOpenOnHover: false,
@@ -313,6 +315,7 @@ final class AppSettingsStore: ObservableObject {
         deckScaleRight = DeckSettingsRules.clampedScale(Self.storedNumericValue(defaults.object(forKey: Keys.deckScaleRight)) ?? legacyScale)
         deckMagnify = defaults.bool(forKey: Keys.deckMagnify)
         launcherSearchPosition = LauncherSearchPosition.parse(defaults.string(forKey: Keys.launcherSearchPosition))
+        launcherTiles = LauncherTile.parse(defaults.string(forKey: Keys.launcherTiles))
         launcherSheetSide = EdgeSide(rawValue: defaults.string(forKey: Keys.launcherSheetSide) ?? "") ?? .right
         deckKeepOpen = defaults.bool(forKey: Keys.deckKeepOpen)
         deckOpenOnHover = defaults.bool(forKey: Keys.deckOpenOnHover)
@@ -525,6 +528,15 @@ final class AppSettingsStore: ObservableObject {
         guard launcherSearchPosition != value else { return }
         launcherSearchPosition = value
         defaults.set(value.rawValue, forKey: Keys.launcherSearchPosition)
+    }
+
+    func setLauncherTile(_ tile: LauncherTile, enabled: Bool) {
+        var next = launcherTiles.filter { $0 != tile }
+        if enabled { next.append(tile) }
+        next = LauncherTile.ordered(next)
+        guard next != launcherTiles else { return }
+        launcherTiles = next
+        defaults.set(LauncherTile.serialize(next), forKey: Keys.launcherTiles)
     }
 
     func setLauncherSheetSide(_ value: EdgeSide) {
@@ -1002,6 +1014,7 @@ private enum Keys {
     static let deckScaleRight = "com.katikati.edge.deckScale.right"
     static let deckMagnify = "com.katikati.edge.magnify"
     static let launcherSheetSide = "com.katikati.launcher.sheetSide"
+    static let launcherTiles = "com.katikati.launcher.tiles"
     static let launcherSearchPosition = "com.katikati.launcher.searchPosition"
     static let deckKeepOpen = "com.katikati.edge.alwaysShown"
     static let deckOpenOnHover = "com.katikati.edge.openOnHover"

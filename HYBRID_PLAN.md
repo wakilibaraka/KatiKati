@@ -1568,6 +1568,8 @@ Reference screenshots: one Launchpad-style surface (icon grid + widget tiles, le
 
 - 2026-10-12 · **7B-L5a landed (gate green, 1906 tests):** search field leaves the sheet and sits centred on a chosen side — `com.katikati.launcher.searchPosition` = top (default) / bottom / left / right (pure `LauncherSearchPosition` + insets, tests); Settings → Launcher → Search Position; a side field stacks beside the sheet when both share a side. Interpretation of "all sides, symmetrical": four centred positions, not corners. L5b (widget tiles) next.
 
+- 2026-10-12 · **7B-L5b landed (gate green, 1911 tests):** widget row above the grid — Clock (time + date), Calculator (pure `CalculatorEngine`, live result), Countdown (existing `EventCountdownStore`), Downloads (newest 4, read only when the tile first appears; may raise the system folder-access prompt); `com.katikati.launcher.tiles` (default all), Settings → Launcher toggles. World-time zones deferred. Housekeeping: `LauncherLayout` pbxproj IDs were 25 chars (overflow in my helper) — replaced with valid `EE…` IDs; helper fixed.
+
 **Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
 dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.

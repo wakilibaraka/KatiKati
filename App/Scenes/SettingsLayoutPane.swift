@@ -336,6 +336,10 @@ struct SettingsLayoutPane: View {
                     }
                     .labelsHidden().pickerStyle(.menu).fixedSize()
                 }
+                Toggle("Clock", isOn: tileBinding(.clock))
+                Toggle("Calculator", isOn: tileBinding(.calculator))
+                Toggle("Countdown", isOn: tileBinding(.countdown))
+                Toggle("Downloads", isOn: tileBinding(.files))
             }
         }
         .padding(Self.margin)
@@ -395,6 +399,10 @@ struct SettingsLayoutPane: View {
     }
 
     /// Custom layout: one row per shown item, Left / Right / Hidden.
+    private func tileBinding(_ tile: LauncherTile) -> Binding<Bool> {
+        Binding(get: { store.launcherTiles.contains(tile) }, set: { store.setLauncherTile(tile, enabled: $0) })
+    }
+
     private var customRows: some View {
         VStack(alignment: .leading, spacing: 8) {
             ForEach(EdgeItem.allCases.filter { $0.isBuilt() }, id: \.self) { item in
