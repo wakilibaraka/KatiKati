@@ -427,7 +427,143 @@ final class PermissionOnboardingTests: XCTestCase {
         XCTAssertFalse(handler.calls.contains("startWatchdog"))
     }
 
+    // MARK: - 开发旁路（DOCK_DEV_SKIP_PERMISSIONS=1）
+    //
+    // 开关关着 = 正式用户的路径：照常轮询 / 照常弹原生请求框。开着 = 开发机免授权跑任务条。
+    // 卡点分布在三处：`AccessibilityPermissionModel.startPolling()`（不查 TCC）、
+    // `PermissionRecoveryCoordinator` 执行 `.requestSystemPrompt` 时（不注册 TCC）、
+    // 以及 AppDelegate 的 `showGuideWindow` / `startWatchdog` / `suspendPanelsAndStores` /
+    // `openSettings`（AppKit，手动验证：这些只在 `NSApplication` 活着时才有意义）。
+    // 下面锁的是前两处——纯 `PermissionService` 替身就能驱动，不碰真 TCC。
+
+    /// 关：`startPolling()` 立刻做一次受信检查并推进引导步骤（正式路径不动）。
+    func testOnboardingModelPollsTrustWhenDevBypassIsOff() {
+        let spy = PermissionSpy(trusted: false)
+        let model = AccessibilityPermissionModel(
+            permissionService: spy.service,
+            installLocation: .applications,
+            initialTrusted: false,
+            now: { 0 }
+        )
+        model.startPolling()
+
+        XCTAssertEqual(spy.trustCheckCount, 1)
+        XCTAssertEqual(model.state, .waiting)
+        model.stop()
+    }
+
+    /// 开（=1）：一次受信检查都不做，也不装 1 秒轮询定时器——否则授权被撤的 episode
+    /// 会在会话中途把面板收起来，开发机上就什么也看不到了。
+    func testOnboardingModelNeverPollsTrustUnderDevBypass() {
+        withDevSkipPermissions {
+            let spy = PermissionSpy(trusted: false)
+            let model = AccessibilityPermissionModel(
+                permissionService: spy.service,
+                installLocation: .applications,
+                initialTrusted: false,
+                now: { 0 }
+            )
+            model.startPolling()
+
+            XCTAssertEqual(spy.trustCheckCount, 0, "旁路开着就不该再读 TCC 状态")
+            XCTAssertEqual(model.state, .waiting, "引导步骤保持初始值，不该被轮询推进")
+            model.stop()
+        }
+    }
+
+    /// 关：首次启动的 onboarding 会真的请求一次原生授权框（走替身计数）。
+    func testInitialLaunchPromptsWhenDevBypassIsOff() {
+        let spy = PermissionSpy(trusted: false)
+        let handler = EffectSpy()
+        let coordinator = PermissionRecoveryCoordinator(
+            handler: handler,
+            permissionService: spy.service,
+            installLocation: .applications
+        )
+
+        coordinator.launched(trusted: false)
+
+        XCTAssertEqual(spy.promptCount, 1)
+        XCTAssertEqual(coordinator.presentation, .waiting)
+        coordinator.quit()
+    }
+
+    /// 开（=1）：引导链照走（窗口、episode、状态机都正常），唯独不向系统注册——
+    /// 开发机上不留一条指向调试副本的死 TCC 记录。
+    func testInitialLaunchSkipsTheSystemPromptUnderDevBypass() {
+        withDevSkipPermissions {
+            let spy = PermissionSpy(trusted: false)
+            let handler = EffectSpy()
+            let coordinator = PermissionRecoveryCoordinator(
+                handler: handler,
+                permissionService: spy.service,
+                installLocation: .applications
+            )
+
+            coordinator.launched(trusted: false)
+
+            XCTAssertEqual(spy.promptCount, 0, "旁路开着时一条系统请求都不该发")
+            XCTAssertEqual(coordinator.presentation, .waiting, "引导态本身不受影响")
+            XCTAssertTrue(handler.calls.contains("showGuide"))
+            coordinator.quit()
+        }
+    }
+
+    /// 运行期恢复这条链上的 `requestSystemPrompt`（`tccutil reset` 之后要重新注册，
+    /// 否则用户根本没东西可勾）同样被旁路拦下；停运副作用依旧派发给 handler——
+    /// 那一道闸在 AppDelegate 的 `suspendPanelsAndStores` 里（AppKit，手动验证）。
+    func testRecoveryPromptIsSuppressedUnderDevBypassWhileSuspendStillReachesTheHandler() {
+        withDevSkipPermissions {
+            var clock: TimeInterval = 0
+            let spy = PermissionSpy(trusted: false)
+            let handler = EffectSpy()
+            let coordinator = PermissionRecoveryCoordinator(
+                handler: handler,
+                permissionService: spy.service,
+                installLocation: .applications,
+                now: { clock }
+            )
+
+            // 旁路开着时 AppDelegate 走的就是这条「已授权」入口。
+            coordinator.launched(trusted: true)
+            XCTAssertEqual(spy.promptCount, 0)
+
+            spy.trusted = false
+            clock = 10
+            coordinator.sampleTrust(false)
+            clock = 20
+            coordinator.sampleTrust(false)
+
+            XCTAssertEqual(coordinator.phase, .suspended(episode: 1))
+            XCTAssertTrue(handler.calls.contains("suspendPanelsAndStores"))
+            XCTAssertEqual(spy.promptCount, 0, "恢复 episode 的重新注册同样被旁路拦下")
+            coordinator.quit()
+        }
+    }
+
+    /// 纯状态机**不看**这个开关：旁路只发生在执行副作用的那一层。
+    /// 谁把开关塞进 `PermissionRecoveryMachine`，开发机上 onboarding 整条链就没了
+    /// （`startPermissionEpisode` 没了 → 授权后 `startApp` 也不会触发）。
+    func testStateMachineStaysSwitchFreeUnderDevBypass() {
+        withDevSkipPermissions {
+            var machine = PermissionRecoveryMachine()
+            let effects = machine.handle(.launched(location: .applications, trusted: false))
+
+            XCTAssertEqual(machine.phase, .onboarding(episode: 1))
+            XCTAssertTrue(effects.contains(.startPermissionEpisode(purpose: .initialLaunch, episode: 1)))
+            XCTAssertTrue(effects.contains(.requestSystemPrompt))
+        }
+    }
+
     // MARK: - Helpers
+
+    /// 用**真进程环境**驱动旁路开关（生产调用点读的就是无参 `isEnabled()`），
+    /// 退出时一定清干净——同一进程里后面的测试必须看到「关」。
+    private func withDevSkipPermissions(_ body: () -> Void) {
+        setenv(DebugSwitch.devSkipPermissions.rawValue, "1", 1)
+        defer { unsetenv(DebugSwitch.devSkipPermissions.rawValue) }
+        body()
+    }
 
     private func location(_ path: String, readOnly: Bool? = false) -> AppInstallLocation {
         AppInstallLocation(
@@ -490,6 +626,8 @@ private final class EffectSpy: PermissionEffectHandler {
 private final class PermissionSpy {
     var trusted: Bool
     private(set) var promptCount = 0
+    /// 受信检查次数：`DOCK_DEV_SKIP_PERMISSIONS=1` 的卡点断言的是「一次都不查」。
+    private(set) var trustCheckCount = 0
 
     init(trusted: Bool) {
         self.trusted = trusted
@@ -499,7 +637,10 @@ private final class PermissionSpy {
     /// 测试结束后还可能再响一次——那时替身若已释放，`unowned` 会直接崩。
     var service: PermissionService {
         PermissionService(
-            trustCheck: { self.trusted },
+            trustCheck: {
+                self.trustCheckCount += 1
+                return self.trusted
+            },
             promptRequest: {
                 self.promptCount += 1
                 return self.trusted
