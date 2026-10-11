@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B5000000000000000000085 /* SkyTintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000084 /* SkyTintTests.swift */; };
+		7B5000000000000000000082 /* SkyTint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000081 /* SkyTint.swift */; };
+		7B5000000000000000000083 /* SkyTint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000081 /* SkyTint.swift */; };
 		7B5000000000000000000072 /* WidgetExtraTiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000071 /* WidgetExtraTiles.swift */; };
 		7B5000000000000000000065 /* WidgetTallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000064 /* WidgetTallTests.swift */; };
 		7B5000000000000000000062 /* WidgetTall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000061 /* WidgetTall.swift */; };
@@ -588,6 +591,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B5000000000000000000084 /* SkyTintTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SkyTintTests.swift; path = Tests/Unit/SkyTintTests.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000081 /* SkyTint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SkyTint.swift; path = Core/Support/SkyTint.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000071 /* WidgetExtraTiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetExtraTiles.swift; path = App/Scenes/WidgetExtraTiles.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000064 /* WidgetTallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetTallTests.swift; path = Tests/Unit/WidgetTallTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000061 /* WidgetTall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetTall.swift; path = Core/Support/WidgetTall.swift; sourceTree = SOURCE_ROOT; };
@@ -1994,6 +1999,7 @@
 				7D1000000000000000000002 /* NowPlayingService.swift in Sources */,
 				7D2000000000000000000002 /* NowPlayingChip.swift in Sources */,
 				7B2000000000000000000002 /* ClockChip.swift in Sources */,
+				7B5000000000000000000082 /* SkyTint.swift in Sources */,
 				7B5000000000000000000072 /* WidgetExtraTiles.swift in Sources */,
 				7B5000000000000000000062 /* WidgetTall.swift in Sources */,
 				7B5000000000000000000056 /* WeatherPanelView.swift in Sources */,
@@ -2056,6 +2062,7 @@
 			files = (
 				7A0000000000000000000001 /* WeatherState.swift in Sources */,
 				7B1000000000000000000003 /* ClockChipContent.swift in Sources */,
+				7B5000000000000000000083 /* SkyTint.swift in Sources */,
 				7B5000000000000000000063 /* WidgetTall.swift in Sources */,
 				7B5000000000000000000043 /* WeatherEffects.swift in Sources */,
 				7B5000000000000000000033 /* WeatherLocations.swift in Sources */,
@@ -2065,6 +2072,7 @@
 				7C1000000000000000000003 /* SystemStatusProvider.swift in Sources */,
 				7C3000000000000000000002 /* SystemStatusProviderTests.swift in Sources */,
 				7B3000000000000000000002 /* ClockChipContentTests.swift in Sources */,
+				7B5000000000000000000085 /* SkyTintTests.swift in Sources */,
 				7B5000000000000000000065 /* WidgetTallTests.swift in Sources */,
 				7B5000000000000000000045 /* WeatherEffectsTests.swift in Sources */,
 				7B5000000000000000000035 /* WeatherLocationsTests.swift in Sources */,

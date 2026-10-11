@@ -242,7 +242,8 @@ extension CalendarPanelLayout {
 
 enum TileKind: CaseIterable { case date, clock, focus, calendar, agenda, reminders, alarms, timer, stopwatch, notes, countdown }
 
-struct TileRGB: Equatable { let r: Double; let g: Double; let b: Double }
+public struct TileRGB: Equatable, Sendable { public let r: Double; public let g: Double; public let b: Double
+    public init(r: Double, g: Double, b: Double) { self.r = r; self.g = g; self.b = b } }
 
 /// Accent / header-band colour per tile. The solid tile base follows system light/dark and is not
 /// part of the palette.
