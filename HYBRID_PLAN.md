@@ -1756,6 +1756,13 @@ upgrades, wallpaper/personalisation, extra flyouts.
   titles ellipsised too early (pitch max 106 → 124, font 11 pt). **Not yet exercised live:** real pointer hover enter/exit, idle fold,
   hover preview/open, drag reorder (D3); the sheet is still the old list+editor (D4). 1 string x12 swapped (`Keep Edge Bars Open`
   replaces `Auto-Hide Edge Bars`, separate commit). Test notes created during the check were removed.
+- 2026-10-11 · **D3a deck interactions landed (gate green, 1862 tests; pointer paths not yet exercised live):** tabs publish their
+  frames (preference key) so the existing mouse poll drives **hover preview (0.18 s)** and **hover-to-open (0.4 s, setting)** with no SwiftUI
+  hover plumbing; `DeckPreviewCard` (note's own paper/ink, 4 body lines, pin, "Empty note"; clicking opens) in the flyout panel, dismissed
+  when the pointer leaves tab and card; **drag-to-reorder** (5 pt slop, 60 %-of-a-slot target, neighbours step aside, lifted tab 1.04×,
+  global-space gesture so the tab's own offset can't feed back) → `NotesController.move`; **context menu** (Pin/Unpin, Color ▸ 8 names,
+  Archive, Delete); dragging suppresses fold/hover. Fixed: `Unpin` was a ternary-String `Text` that never localized. 11 strings x12
+  (drafts, separate commit). D3b (⌥-drag pill, vertical only — notes/widgets are bound to their edges so cross-edge snap is dropped) next.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

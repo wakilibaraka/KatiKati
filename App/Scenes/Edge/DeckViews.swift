@@ -19,7 +19,14 @@ final class DeckViewModel: ObservableObject {
     /// Pill / tile accent colours when there are no note tabs (left deck).
     @Published var accentDashes: [NotePaletteEntry] = []
 
+    /// Tab frames in the panel's top-left view space (published by the tabs themselves); the controller turns the
+    /// mouse poll into hover-preview / hover-open from these, so no SwiftUI hover callbacks are needed.
+    @Published var tabFrames: [String: CGRect] = [:]
+
     var onTab: (String, CGRect) -> Void = { _, _ in }
+    var onReorder: (String, Int) -> Void = { _, _ in }
+    var onContext: (DeckContextAction, String) -> Void = { _, _ in }
+    var onDragging: (Bool) -> Void = { _ in }
     var onButton: (DeckButton, CGRect) -> Void = { _, _ in }
 
     var metrics: DeckMetrics { DeckMetrics(scale: CGFloat(scale)) }
@@ -50,6 +57,21 @@ struct DeckRootView: View {
             if model.showsFan { DeckFanView(model: model) } else { DeckPillView(model: model) }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+/// Right-click menu actions on a tab.
+enum DeckContextAction: Equatable {
+    case togglePin
+    case archive
+    case delete
+    case color(Int)
+}
+
+private struct TabFramesKey: PreferenceKey {
+    static var defaultValue: [String: CGRect] = [:]
+    static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
+        value.merge(nextValue()) { $1 }
     }
 }
 
@@ -126,6 +148,8 @@ struct DeckPillView: View {
 
 struct DeckFanView: View {
     @ObservedObject var model: DeckViewModel
+    @State private var dragID: String?
+    @State private var dragTarget = 0
 
     private var visibleTabs: [Note] { model.visibleTabs }
     private var hiddenCount: Int { model.hiddenCount }
@@ -151,7 +175,24 @@ struct DeckFanView: View {
         return VStack(spacing: spacing) {
             ForEach(Array(visibleTabs.enumerated()), id: \.element.id) { idx, note in
                 DeckTab(note: note, isOpen: model.state.expandedID == note.id, height: layout.itemHeight, strip: layout.pitch,
-                        onRight: model.onRight, metrics: m, deckFont: font) { rect in model.onTab(note.id, rect) }
+                        onRight: model.onRight, metrics: m, deckFont: font, lifted: dragID == note.id,
+                        action: { rect in model.onTab(note.id, rect) },
+                        menu: { model.onContext($0, note.id) },
+                        onDragChanged: { dy in
+                            if dragID != note.id { dragID = note.id; dragTarget = idx; model.onDragging(true) }
+                            let next = DeckGeometry.dragTarget(from: idx, dy: dy, pitch: layout.pitch, count: visibleTabs.count)
+                            if next != dragTarget { dragTarget = next }
+                        },
+                        onDragEnded: { dy in
+                            let to = DeckGeometry.dragTarget(from: idx, dy: dy, pitch: layout.pitch, count: visibleTabs.count)
+                            dragID = nil
+                            model.onDragging(false)
+                            if to != idx { model.onReorder(note.id, to - idx) }
+                        })
+                    .offset(y: dragID == nil ? 0 : DeckGeometry.dragShift(
+                        index: idx, from: visibleTabs.firstIndex { $0.id == dragID } ?? idx, to: dragTarget, pitch: layout.pitch))
+                    .animation(dragID == note.id ? nil : .spring(response: 0.26, dampingFraction: 0.86), value: dragTarget)
+                    .zIndex(dragID == note.id ? 900 : 0)
                     .staged(index: idx, total: total, revealed: model.revealed, onRight: model.onRight, travel: m.tabWidth + 24)
             }
             if hiddenCount > 0 {
@@ -169,6 +210,9 @@ struct DeckFanView: View {
         }
         .frame(width: m.tabWidth)
         .animation(.easeInOut(duration: 0.18), value: visibleTabs.map(\.id))
+        .onPreferenceChange(TabFramesKey.self) { frames in
+            if model.tabFrames != frames { model.tabFrames = frames }
+        }
     }
 
     private func spine(_ layout: DeckLayout) -> some View {
@@ -193,17 +237,24 @@ struct DeckTab: View {
     let onRight: Bool
     let metrics: DeckMetrics
     let deckFont: DeckFont
+    var lifted = false
     let action: (CGRect) -> Void
+    var menu: (DeckContextAction) -> Void = { _ in }
+    var onDragChanged: (CGFloat) -> Void = { _ in }
+    var onDragEnded: (CGFloat) -> Void = { _ in }
 
     @State private var hovering = false
+    @State private var dragging = false
+    /// Local so only this tab redraws while it follows the pointer (not animated: a spring reads as lag).
+    @State private var dy: CGFloat = 0
 
     var body: some View {
         let palette = NotePalette.entry(at: note.color)
         ZStack(alignment: .top) {
             EdgeTabShape(onRight: onRight)
                 .fill(palette.paperColor)
-                .shadow(color: .black.opacity(isOpen || hovering ? 0.32 : 0.22), radius: isOpen || hovering ? 9 : 6,
-                        x: onRight ? -3 : 3, y: 2)
+                .shadow(color: .black.opacity(lifted ? 0.42 : (isOpen || hovering ? 0.32 : 0.22)),
+                        radius: lifted ? 16 : (isOpen || hovering ? 9 : 6), x: onRight ? -3 : 3, y: lifted ? 6 : 2)
             VerticalTabLabel(title: note.displayTitle, strip: strip, onRight: onRight, ink: palette.inkColor,
                              metrics: metrics, deckFont: deckFont)
                 .offset(x: onRight ? -metrics.bleed / 2 : metrics.bleed / 2)
@@ -221,9 +272,14 @@ struct DeckTab: View {
         }
         .overlay(
             GeometryReader { proxy in
-                Color.clear.contentShape(Rectangle()).onTapGesture { action(proxy.frame(in: .global)) }
+                Color.clear.contentShape(Rectangle()).gesture(press(frame: proxy.frame(in: .global)))
             }
         )
+        .background(GeometryReader { proxy in
+            Color.clear.preference(key: TabFramesKey.self, value: [note.id: proxy.frame(in: .global)])
+        })
+        .scaleEffect(lifted ? 1.04 : 1, anchor: onRight ? .trailing : .leading)
+        .offset(y: dy)
         .onHover { hovering = $0 }
         .animation(.easeOut(duration: 0.14), value: hovering)
         .animation(.spring(response: 0.28, dampingFraction: 0.8), value: isOpen)
@@ -231,7 +287,53 @@ struct DeckTab: View {
         .accessibilityLabel(Text(verbatim: note.displayTitle))
         .accessibilityAddTraits(.isButton)
         .accessibilityAction(.default) { action(.zero) }
-        .help(Text(verbatim: note.displayTitle))
+        .contextMenu { contextMenuItems }
+    }
+
+    /// One gesture, not a tap competing with a long-press: a press that never travels is a tap; anything past the
+    /// slop is a reorder drag (and can no longer fire the tap). Global space so the tab's own offset can't feed back.
+    private func press(frame: CGRect) -> some Gesture {
+        DragGesture(minimumDistance: 0, coordinateSpace: .global)
+            .onChanged { v in
+                if !dragging, abs(v.translation.height) > DeckGeometry.dragSlop { dragging = true }
+                guard dragging else { return }
+                dy = v.translation.height
+                onDragChanged(dy)
+            }
+            .onEnded { v in
+                if dragging {
+                    onDragEnded(v.translation.height)
+                } else if abs(v.translation.height) <= DeckGeometry.dragSlop {
+                    action(frame)
+                }
+                dragging = false
+                dy = 0
+            }
+    }
+
+    @ViewBuilder private var contextMenuItems: some View {
+        Button { menu(.togglePin) } label: { note.pinned ? Text("Unpin") : Text("Pin") }
+        Menu {
+            ForEach(0..<NotePalette.all.count, id: \.self) { i in
+                Button { menu(.color(i)) } label: { Self.colorName(i) }
+            }
+        } label: { Text("Color") }
+        Button { menu(.archive) } label: { Text("Archive") }
+        Divider()
+        Button { menu(.delete) } label: { Text("Delete") }
+    }
+
+    static func colorName(_ index: Int) -> Text {
+        switch NotePalette.entry(at: index).name {
+        case "Lemon": return Text("Lemon")
+        case "Peach": return Text("Peach")
+        case "Rose": return Text("Rose")
+        case "Lilac": return Text("Lilac")
+        case "Sky": return Text("Sky")
+        case "Mint": return Text("Mint")
+        case "Sand": return Text("Sand")
+        default: return Text("Slate")
+        }
     }
 }
 

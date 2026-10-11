@@ -47,6 +47,9 @@ final class EdgeBarPanelController {
     private var exitWork: DispatchWorkItem?
     private var shrinkWork: DispatchWorkItem?
     private var revealWork: DispatchWorkItem?
+    private var hoverID: String?
+    private var hoverWork: DispatchWorkItem?
+    private var previewID: String?
 
     init(slotKey: EdgeSlotSet.SlotKey, service: SystemStatusService, notes: @escaping () -> NotesController?,
          nowPlaying: @escaping () -> NowPlayingService) {
@@ -58,6 +61,12 @@ final class EdgeBarPanelController {
         model.onTab = { [weak self] id, rect in self?.tabTapped(id, localRect: rect) }
         model.onButton = { [weak self] button, rect in self?.buttonTapped(button, localRect: rect) }
         notesPopup.onDismiss = { [weak self] outside in self?.notesSheetClosed(outsideClick: outside) }
+        model.onReorder = { [weak self] id, slots in self?.notesProvider()?.move(id: id, by: slots) }
+        model.onDragging = { [weak self] dragging in
+            self?.context.isDragging = dragging
+            if dragging { self?.cancelHover() }
+        }
+        model.onContext = { [weak self] action, id in self?.contextAction(action, id: id) }
     }
 
     /// `DOCK_EDGE_FAN=1`: decks start fanned (inspection aid: behaves like keep-open).
@@ -201,7 +210,9 @@ final class EdgeBarPanelController {
                 lastActivity = Date()
                 exitWork?.cancel()
                 exitWork = nil
+                trackHover(mouse)
             } else if state == .fan, exitWork == nil {
+                cancelHover()
                 let work = DispatchWorkItem { [weak self] in
                     guard let self else { return }
                     self.exitWork = nil
@@ -213,6 +224,82 @@ final class EdgeBarPanelController {
                 exitWork = work
                 DispatchQueue.main.asyncAfter(deadline: .now() + DeckTiming.exitConfirmDelay, execute: work)
             }
+        }
+    }
+
+    // MARK: Hover (preview card / hover-to-open), driven by the same mouse poll
+
+    private func tabUnderPointer(_ mouse: CGPoint) -> String? {
+        guard let panel, model.showsFan else { return nil }
+        return model.tabFrames.first { _, local in
+            CGRect(x: panel.frame.minX + local.minX, y: panel.frame.maxY - local.maxY, width: local.width, height: local.height)
+                .contains(mouse)
+        }?.key
+    }
+
+    private func trackHover(_ mouse: CGPoint) {
+        guard state == .fan, !context.isDragging else { cancelHover(); return }
+        let over = tabUnderPointer(mouse)
+        if over == hoverID { return }
+        hoverWork?.cancel(); hoverWork = nil
+        hoverID = over
+        guard let id = over else {
+            // Left the tab: drop a preview unless the pointer moved onto the card itself.
+            if previewID != nil, !(popup.isShown && popup.frame.insetBy(dx: -4, dy: -4).contains(mouse)) { dismissPreview() }
+            return
+        }
+        if previewID != nil, previewID != id { dismissPreview() }
+        let delay = settings.openOnHover ? DeckTiming.hoverOpenDelay : DeckTiming.previewDelay
+        guard settings.openOnHover || settings.tabPreview else { return }
+        let work = DispatchWorkItem { [weak self] in self?.hoverRested(id) }
+        hoverWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
+    }
+
+    private func hoverRested(_ id: String) {
+        guard hoverID == id, state == .fan, !context.isDragging,
+              let panel, let local = model.tabFrames[id], let notes = notesProvider() else { return }
+        let anchor = CGRect(x: panel.frame.minX + local.minX, y: panel.frame.maxY - local.maxY, width: local.width, height: local.height)
+        if settings.openOnHover {
+            apply(.hoverRested(id))
+            if state == .expanded(id) {
+                popup.dismiss()
+                notesPopup.toggle(anchor: anchor, side: side, visibleFrame: visibleFrame, controller: notes, select: id)
+            }
+        } else if let note = notes.note(id: id) {
+            previewID = id
+            popup.toggle(
+                id: "preview.\(id)", anchor: anchor, side: side, visibleFrame: visibleFrame, size: DeckPreviewCard.size,
+                content: AnyView(DeckPreviewCard(note: note, onRight: side == .right, onOpen: { [weak self] in
+                    self?.dismissPreview()
+                    self?.tabTapped(id, localRect: local)
+                }))
+            )
+        }
+    }
+
+    private func dismissPreview() {
+        previewID = nil
+        popup.dismiss()
+    }
+
+    private func cancelHover() {
+        hoverWork?.cancel(); hoverWork = nil
+        hoverID = nil
+        if previewID != nil { dismissPreview() }
+    }
+
+    private func contextAction(_ action: DeckContextAction, id: String) {
+        guard let notes = notesProvider() else { return }
+        switch action {
+        case .togglePin: notes.togglePin(id: id)
+        case let .color(i): notes.setColor(id: id, i)
+        case .archive:
+            notes.setArchived(id: id, true)
+            apply(.noteRemoved(id))
+        case .delete:
+            notes.delete(id: id)
+            apply(.noteRemoved(id))
         }
     }
 
@@ -284,6 +371,7 @@ final class EdgeBarPanelController {
 
     private func stopTimers() {
         idleTimer?.invalidate(); idleTimer = nil
+        hoverWork?.cancel(); hoverWork = nil
         exitWork?.cancel(); exitWork = nil
         shrinkWork?.cancel(); shrinkWork = nil
         revealWork?.cancel(); revealWork = nil

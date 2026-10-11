@@ -90,7 +90,7 @@ struct NotesPopupView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 12) {
                     Spacer()
-                    Button(note.pinned ? "Unpin" : "Pin") { controller.togglePin(id: id) }
+                    Button { controller.togglePin(id: id) } label: { note.pinned ? Text("Unpin") : Text("Pin") }
                     Button("Delete", role: .destructive) {
                         controller.delete(id: id)
                         selection = controller.notes.first?.id
