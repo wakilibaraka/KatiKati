@@ -1763,6 +1763,13 @@ upgrades, wallpaper/personalisation, extra flyouts.
   global-space gesture so the tab's own offset can't feed back) → `NotesController.move`; **context menu** (Pin/Unpin, Color ▸ 8 names,
   Archive, Delete); dragging suppresses fold/hover. Fixed: `Unpin` was a ternary-String `Text` that never localized. 11 strings x12
   (drafts, separate commit). D3b (⌥-drag pill, vertical only — notes/widgets are bound to their edges so cross-edge snap is dropped) next.
+- 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
+  buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
+  Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,
+  Weather, Now Playing, Bluetooth, System monitor). Productivity side is a Settings choice, **default right**; each button opens its own flyout
+  reusing existing logic; **everything on for every user** (single user, no migration); all four Hop modules moved to the productivity side
+  (system monitor stays rest-side). Slots P1 (pure core + settings) after D4, P2 (Reminders/Alarms/Time flyouts) after D5, P3–P6 = the Hop
+  modules. Recorded in the plan file; no code yet for this addendum.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB
