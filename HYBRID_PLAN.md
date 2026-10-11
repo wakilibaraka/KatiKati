@@ -965,11 +965,32 @@ owner at every doubt (STANDING_RULES §1.4).*
   drawer capsule both sit at the bar's left edge → per-mode toggle defaults the left
   FAB **off in `windows`**, and geometry must collision-check against the capsule
   frame. No code written yet this note — plan only.
+- 2026-10-11 · **4U-A close-out gate — tungsten gate DONE; visual sign-off PARTIALLY
+  DONE (owner proceeding past the eyeball blocker).** Full gate re-run by agent from a
+  clean build+test: **1640 tests, 0 failures, TEST SUCCEEDED**; `check_localization.py`
+  ✅ exit 0; `check_debug_switches.py` ✅ 77/77; `check_availability_warnings.py` ✅
+  exit 0. App launched live with `DOCK_DEV_SKIP_PERMISSIONS=1` (executable launched
+  directly — `open` does not propagate env; pid confirmed, glass strip composite
+  active). Owner accepted the 4U-A visual direction (split5 kept — "I like it"; launcher
+  / widgets FABs as sections accepted) and chose to **proceed past the per-decision
+  screenshot blocker**, recording it as **partially done** rather than blocking Phase 5.
+  **Still outstanding (non-blocking, owner to finalise):** windows/centered FAB ends,
+  split4 media-island adjacency, left-launcher vs left-drawer-capsule collision in
+  `windows`, split5 spacing; and 4h visual proof (ΔE values + idle-CPU re-measure vs
+  3.2–3.4%). FAB width sliders captured for 7d/7e (fixed 40pt today, no slider).
 
 **Close-out:** full tungsten gate (`xcodebuild test` + `check_localization.py` +
-`check_debug_switches.py` + conformance-availability check), per-decision screenshots
-(owner supplies references per step), check log complete **(incl. 4f combined chip +
-4g dual-FAB scaffold + 4h proof)**, then Phase 5 opens.
+`check_debug_switches.py` + conformance-availability check) — ✅ **DONE 2026-10-11
+(1640 tests green, all three Python gates exit 0, re-run by agent)**; per-decision
+screenshots (owner supplies references per step) — ⏳ **PARTIALLY DONE 2026-10-11:
+owner eyeball of the 4U-A layout change (launcher/widgets FABs as sections, split5)
+started on a live permission-bypassed build; sign-off not yet itemised per decision**;
+check log complete **(incl. 4f combined chip + 4g dual-FAB scaffold + 4h proof)**.
+**Remaining owner eyeballs to finalise close-out:** windows/centered FAB glyphs at the
+strip ends (is a far-left launcher on a full-width bar wanted?), split4 media-island
+adjacency (next to clock group), left-launcher vs left-drawer-capsule collision in
+`windows`, split5 spacing; plus 4h visual proof (owner screenshots, ΔE values, idle-CPU
+re-measure vs 3.2–3.4%). Then Phase 5 opens.
 
 ### Phase 4U-A — FAB-as-sections rework (owner 2026-10-11) · MAJOR island-model change
 
