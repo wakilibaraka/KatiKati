@@ -706,7 +706,7 @@ owner at every doubt (STANDING_RULES §1.4).*
 | **4d — weather** | fetch/parse service, enabled-by-default gate, chip + popup, last-cached value, 12-language strings; now-playing evicted from the weather area | `App/Composition/WeatherService.swift`, `App/Scenes/WeatherChip.swift`, `App/Scenes/DockStripView+Projection.swift` | `WeatherServiceTests` + `check_localization.py` |
 | **4e — clock** | content-provider protocol (time/date shipped), minute-aligned `TimelineView`, `com.katikati.clock.preset`, calendar popup baseline (owner redesigns it in Phase 5) | `Core/Support/ClockChipContent.swift`, `App/Scenes/ClockChip.swift` | `ClockChipContentTests` + localization |
 | **4f — combined clock chip + finetunes** | rework per decisions 2, 3, 4, 6, **8**: hardcoded order **`weather → apps → clock`** with `.tray` **and** `.media` removed (ripple: `BarSection.islands`, `IslandLayoutSolver`, `PanelGeometry`, `AppSettingsStore` default order + their tests; Settings width sliders become weather/clock only); **combined chip built to the locked 8d spec** (weather-pill construction, time + weekday/date line, both presets kept, calendar tap) (wifi/battery/tray popup/quick settings/ring icon all move to the edge bar = Phase 7, decision 8c; decision 5 superseded); on-dock handles removed + Settings drag removed + width sliders added; now-playing mini icon + popup at apps-island right end; launcher placeholder capsule left of apps island; macOS-3D icon pass, 3D trash. **Owner hand-built 2026-10-11: the `ClockChip` card (`ClockArt` hues, full/compact cards, both presets, calendar tap) plus `FlipClockChip` (flip-tile variant) were written by the owner directly in `ClockChip.swift` — agent did not author the chip views. Render path still serves `FlipClockChip()` at the `.clock` placeholder (`DockStripView.swift:1331`); the 8d `ClockChip()` swap is the remaining agent step.** | `App/Scenes/TrayChip.swift` (leaves the bar → edge scope), `App/Scenes/DockStripView.swift`, `App/Scenes/SettingsWindowView.swift`, `Core/Support/BarSection.swift`, `App/Scenes/ClockChip.swift`, `App/Scenes/NowPlayingChip.swift` | updated solver/projection/store tests + localization + debug switches |
-| **4g — drawer FAB left of weather (owner 2026-10-11)** | Re-anchor the existing drawer capsule (`capsulePanel`, `DrawerCapsuleButton`) to the **left of the weather island** instead of beside the apps island. Weather island keeps weather only — the FAB is a separate panel, not a `BarSection`, so **zero** island/solver/section changes. New pure function `PanelGeometry.capsuleTargetFrameLeftOfWeather(weatherFrame:on:metrics:)` mirroring the existing right-side math (`capsuleGap` + `capsuleWidth`, clamped to `screen.frame.minX`); `PanelCoordinator` tracks the weather slot frame instead of the apps frame for the capsule. Drawer open-direction anchor (`drawerTargetFrame(forCapsule:)`) re-verified against the new capsule position. Distinct glyph from the 4f4 launcher placeholder (no two grid-glyph buttons). Order: **after 4f** (independent of the combined-chip build), before close-out. | `App/Composition/PanelGeometry.swift` (new function + tests), `App/Entry/PanelCoordinator+PanelSetup.swift` (anchor wiring), `App/Entry/PanelCoordinator+Drawer.swift` (open-direction check) | new capsule-left-of-weather geometry tests (incl. min-X clamp + non-zero screen origin) + full gate |
+| **4g — dual-FAB scaffold (owner 2026-10-11; supersedes the earlier "drawer FAB left of weather" framing)** | **(1) Rip the drawer/launcher trigger out of weather:** remove the `macstudio` `Button` + its divider from `WeatherChip.fullPill` (the `.help("Launcher")` → `runtime.onToggleDrawer`) so the weather island holds weather only; the existing drawer capsule (`capsulePanel` / `DrawerCapsuleButton`) is **kept** as the sole drawer trigger (owner: keep current option — do **not** re-anchor the capsule). **(2) Scaffold two new lightweight FAB panels** — plain glyphs, inert payloads for now (built for future use). FABs are **separate `NSPanel`s, not `BarSection`s → zero island/solver/section changes.** Left FAB anchored **left of the weather slot**; right FAB anchored **right of the clock slot**; both track the outermost-island frames so they follow every mode automatically. **(3) Per-mode visibility toggles** (owner: on/off depending on taskbar mode): `com.katikati.fab.left.<mode>` + `com.katikati.fab.right.<mode>` for `windows`/`split3`/`split4`/`centered`, **default off** (future-use). **(4) Geometry safety (no glitch/overflow):** pure `PanelGeometry` functions mirror the existing capsule math (`capsuleGap`/`capsuleWidth`) and **clamp to `visibleFrame`** (left→`minX`, right→`maxX`); FAB is **hidden when its anchor slot has no frame** (overflow-collapse); reuse the capsule panel construction (**no new panel class**, §2 extend-don't-fork). **Left-FAB payload → custom Launchpad-style launcher (Phase 7d); right-FAB payload → on-screen overlay widgets (Phase 7e)** — both future, not 4g. Order: after 4f, before close-out. | `App/Scenes/WeatherChip.swift` (rip macstudio), `App/Composition/PanelGeometry.swift` (2 new pure fns), `App/Entry/PanelCoordinator+PanelSetup.swift` (2 FAB panels mirroring capsule), `App/Composition/AppSettingsStore.swift` (per-mode keys + defaults), new `App/Scenes/FabPanelView.swift` | new geometry tests (left `minX` clamp, right `maxX` clamp, non-zero origin, hidden-when-no-slot, `windows`-mode capsule-collision) + updated `AppSettingsStoreTests` + full gate |
 
 **Check log (append after every step — STANDING_RULES §1.8):**
 - 2026-10-09 · Orientation: mapped canonical 4a–4f slices onto actual code; recorded
@@ -941,10 +941,35 @@ owner at every doubt (STANDING_RULES §1.4).*
   **Notes:** both presets survive into the 8d combined-chip restyle (4f); the 4d
   `Text(verbatim:)` day-cell fix still stands; no visual proof yet — 4h proof (d).
 
+- 2026-10-11 · **4g scope reframed by owner — dual-FAB scaffold** (supersedes the
+  single "drawer-FAB-left-of-weather" framing). Owner decisions: (a) **keep the
+  existing drawer capsule** as the sole drawer trigger — do NOT re-anchor it;
+  (b) **rip the `macstudio` launcher/drawer glyph + its divider out of
+  `WeatherChip.fullPill`** so weather holds weather only (capsule keeps the drawer
+  reachable → nothing orphaned; verified the capsule's `DrawerCapsuleButton` is the
+  other `onToggleDrawer` caller, so the AppRuntime hook survives); (c) **scaffold
+  two new lightweight FAB panels for future use** — left FAB (left of weather slot)
+  + right FAB (right of clock slot), plain glyphs, inert payloads; (d) **per-mode
+  visibility toggles** `com.katikati.fab.left.<mode>` / `.right.<mode>`
+  (windows/split3/split4/centered), default off; (e) **future payloads recorded, not
+  built:** left FAB → custom Launchpad-style launcher (Phase 7d), right FAB →
+  on-screen overlay widgets (Phase 7e). **Code-confirmed this session:** the
+  4f4 `LauncherPlaceholderChip` / `square.grid.3x3` no longer exist in code (grep
+  hits only in this doc) → no two-launcher glyph collision; the FAB glyph must stay
+  distinct from the capsule's 4-up live preview (it is: plain grid vs preview).
+  **Glitch/overflow safety:** FABs are panels not `BarSection`s (no island-width
+  impact); anchored to outermost slot frames (auto-track every mode); clamped to
+  `visibleFrame`; hidden when the anchor slot is overflow-collapsed; reuse capsule
+  panel construction (no new panel class). **Known collision to design around:** in
+  `windows` mode weather+apps share one island, so a left FAB and a left-positioned
+  drawer capsule both sit at the bar's left edge → per-mode toggle defaults the left
+  FAB **off in `windows`**, and geometry must collision-check against the capsule
+  frame. No code written yet this note — plan only.
+
 **Close-out:** full tungsten gate (`xcodebuild test` + `check_localization.py` +
 `check_debug_switches.py` + conformance-availability check), per-decision screenshots
 (owner supplies references per step), check log complete **(incl. 4f combined chip +
-4g drawer FAB + 4h proof)**, then Phase 5 opens.
+4g dual-FAB scaffold + 4h proof)**, then Phase 5 opens.
 
 ### Phase 5 — Hardening (native Dock, teardown, recovery drill)
 
@@ -1044,6 +1069,19 @@ owner at every doubt (STANDING_RULES §1.4).*
 - **7c centered launcher** (last): hybrid per §5e — arc-menu base + EdgeDeck
   dispatch + Volant ranking/config + Liftoff preview/search. ⌥Space or
   center-slot summon; anchored flyout, no new panel class.
+- **7d left-FAB custom launcher (Launchpad-style)** (owner 2026-10-11; payload for
+  the 4g-scaffolded left FAB): an old-macOS-Launchpad-style full-surface app
+  launcher summoned by the left FAB. Distinct from 7c's centered launcher (different
+  trigger + UX; owner to sequence — they may share the app-enumeration/dispatch
+  core). Needs its own mini-plan + slice: overlay panel (reuse the FAB panel
+  pattern), app grid + paging, launch dispatch, dismiss gesture; no new TCC surface
+  beyond the existing app list; CPU gate. Sign-off + license check per the Phase-7
+  gate.
+- **7e right-FAB on-screen overlay widgets** (owner 2026-10-11; payload for the
+  4g-scaffolded right FAB): an on-screen overlay surface for glanceable widgets
+  (clock/weather/notes) summoned by the right FAB. Scope (which widgets, overlay vs
+  HUD, dismissal) decided in its own mini-plan; reuse the FAB panel pattern; CPU +
+  all-Spaces/fullscreen-hide gate. Sign-off + license check per the Phase-7 gate.
 - Previously listed (still deferred, unchanged): dividers (`pruned` logic),
   `macOS` pill mode, magnification, hover-preview strip upgrades,
   wallpaper/personalisation, extra flyouts.
@@ -1068,6 +1106,7 @@ owner at every doubt (STANDING_RULES §1.4).*
 | 12 | Sparkle feed/key rotation breaks updates | New feed URL + key in Phase 0; `package_release.sh` fail-closed gate before any release | 0/5 |
 | 13 | Vertical edge geometry escapes `visibleFrame` on exotic topologies | Tungsten clamp stays authoritative; Appendix C edge rules; golden tests on tungsten topology snapshots | 7 |
 | 14 | N+2 panels per display break fullscreen/Spaces/CPU assumptions | Extend `rebuildUnits` with `displayUUID#edgeSlot`, atomic per-displayUUID hide/show, `allSpacesPanels` coverage; Instruments idle-CPU gate ≤ island baseline + ε | 7 |
+| 15 | Two always-on FAB panels (left of weather, right of clock) overlap the drawer capsule in `windows` mode or escape `visibleFrame` on narrow screens | FABs are panels not sections (no island-width impact); anchored to outermost slot frames; clamped to `visibleFrame`; hidden when anchor slot collapsed; per-mode toggles default off (esp. `windows`); collision-check vs capsule frame; golden `minX`/`maxX` + non-zero-origin tests | 4U |
 
 **Open questions for owner (non-blocking):**
 
