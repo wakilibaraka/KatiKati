@@ -54,7 +54,7 @@ struct DrawerCapsuleButton: View {
         )
     }
 
-    private var capsuleSide: CGFloat { settingsStore.dockPanelHeight.metrics.capsuleWidth }
+    private var capsuleSide: CGFloat { settingsStore.layoutMetrics.capsuleWidth }
 
     /// 胶囊是**另一棵**长期存活的 NSHostingView 根视图，必须自己观察同一个 store，
     /// 否则换档时任务条变了、胶囊里的四宫格还停在旧尺寸。
@@ -124,6 +124,7 @@ struct DrawerCapsuleButton: View {
         // 4c: pinned style for any themed descendant (the backdrop above already reads the store
         // directly); re-injected on every body run, so a theme change lands without a rebuild.
         .environment(\.dockThemeStyle, settingsStore.themeMaterial)
+        .environment(\.iconSet, settingsStore.iconSet)
     }
 
     // MARK: Preview

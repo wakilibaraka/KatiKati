@@ -20,7 +20,16 @@ struct DockThemeStyleKey: EnvironmentKey {
     static let defaultValue: DockThemeStyle = .auto
 }
 
+struct IconSetKey: EnvironmentKey {
+    static let defaultValue: IconSet = .default
+}
+
 extension EnvironmentValues {
+    var iconSet: IconSet {
+        get { self[IconSetKey.self] }
+        set { self[IconSetKey.self] = newValue }
+    }
+
     var dockThemeStyle: DockThemeStyle {
         get { self[DockThemeStyleKey.self] }
         set { self[DockThemeStyleKey.self] = newValue }

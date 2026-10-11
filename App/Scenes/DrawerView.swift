@@ -485,5 +485,6 @@ struct DrawerRootView: View {
             .environmentObject(keptAppStore).environmentObject(runningApplicationStore)
             .environmentObject(appMembershipController)
             .environment(\.dockThemeStyle, settingsStore.themeMaterial)
+            .environment(\.iconSet, settingsStore.iconSet)
     }
 }

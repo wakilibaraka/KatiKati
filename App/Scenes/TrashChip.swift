@@ -13,6 +13,8 @@ struct TrashChip: View {
     let onEmpty: () -> Void
     @State private var isPressed = false
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.iconSet) private var iconSet
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
 
     private var currentImage: String {
         if isDropTargeted {
@@ -26,10 +28,7 @@ struct TrashChip: View {
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            Image(currentImage)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 2)
+            artwork
                 .frame(width: ChipPillMetrics.chipHeight * scale, height: ChipPillMetrics.chipHeight * scale)
                 
             // Standard macOS red badge (dot) for full state
@@ -60,6 +59,22 @@ struct TrashChip: View {
         .nativeContextMenu { buildMenu() }
         .help(String(localized: "Trash"))
         .accessibilityLabel(String(localized: "Trash"))
+    }
+
+    @ViewBuilder
+    private var artwork: some View {
+        switch iconSet {
+        case .modern:
+            Image(currentImage)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 2)
+        case .classic:
+            // Familiar system glyph, tinted by the themed label colour so every preset reads.
+            Image(systemName: IconSet.classicTrashSymbol(isFull: isFull))
+                .font(.system(size: 22 * scale, weight: .regular))
+                .foregroundStyle(DockThemeTokens.resolved(for: colorScheme, style: dockThemeStyle).labelActive.color)
+        }
     }
 
     private func buildMenu() -> NSMenu {
