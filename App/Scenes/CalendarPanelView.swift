@@ -18,6 +18,11 @@ struct CalendarPanelView: View {
     @StateObject private var clocks = WorldClockStore()
     @StateObject private var focus = FocusTimerController()
     @StateObject private var alarms = AlarmStore()
+    @StateObject private var timer = CountdownTimerController()
+    @StateObject private var stopwatch = StopwatchController()
+    @StateObject private var countdowns = EventCountdownStore()
+    @AppStorage(WidgetExtraPrefs.showNotesKey) private var showNotes = true
+    @AppStorage(WidgetExtraPrefs.showStopwatchKey) private var showStopwatch = true
 
     private let gutter: CGFloat = 8
     private let gap: CGFloat = 10
@@ -32,6 +37,7 @@ struct CalendarPanelView: View {
             switch layout {
             case .mac: macTiles(env: env, inner: inner)
             case .ipad: ipadTiles(env: env, inner: inner)
+            case .tall: tallTiles(env: env, inner: inner)
             }
         }
         .padding(gutter)
@@ -53,7 +59,7 @@ struct CalendarPanelView: View {
             HStack(spacing: gap) {
                 ClockTile(env: env, store: clocks, style: clockStyle, width: t, height: t, zoneLimit: 3)
                 FocusTile(env: env, controller: focus, width: t, height: t)
-            }
+            }.widgetEntrance(0)
             HStack(alignment: .top, spacing: 12) {
                 AgendaPane(env: env, service: calendarService, maxRows: 3, compact: true)
                     .frame(width: (inner - 12) * 0.46, alignment: .topLeading)
@@ -65,6 +71,65 @@ struct CalendarPanelView: View {
             .tileSurface(env)
             listTiles(env: env, tileWidth: t, rows: rows)
         }
+    }
+
+    /// Phase 5h Tall layout: every tile stretches so the stack fills the screen height. The pure
+    /// `TallLayoutPlanner` decides which optional tiles fit and how leftover space is shared.
+    private func tallTiles(env: TileEnv, inner: CGFloat) -> some View {
+        var defs = [
+            TallTile("clock", min: 150, ideal: 200, max: 260, flex: 2),
+            TallTile("calendar", min: 230, ideal: 300, max: 400, flex: 3),
+            TallTile("alarms", min: 112, ideal: 150, max: 230, flex: 1),
+            TallTile("reminders", min: 112, ideal: 150, max: 230, flex: 1),
+            TallTile("timers", min: 190, ideal: 220, max: 280, flex: 1.2),
+        ]
+        if showNotes { defs.append(TallTile("notes", min: 130, ideal: 170, max: 260, flex: 1, optional: 1)) }
+        if showStopwatch { defs.append(TallTile("extras", min: 160, ideal: 190, max: 260, flex: 1, optional: 2)) }
+        let plan = TallLayoutPlanner.plan(defs, available: Double(maxHeight - 2 * gutter), gap: Double(gap))
+        let half = (inner - gap) / 2
+        return VStack(spacing: gap) {
+            ForEach(Array(plan.enumerated()), id: \.offset) { index, item in
+                let h = CGFloat(item.height)
+                Group {
+                    switch item.id {
+                    case "clock": ClockWideTile(env: env, store: clocks, style: clockStyle, width: inner, height: h)
+                    case "calendar": calendarWide(env: env, inner: inner, height: h)
+                    case "alarms":
+                        AlarmsTile(env: env, store: alarms, width: inner, height: h, rows: max(1, Int((h - bandHeight - 10) / 34)), rowHeight: 34, band: bandHeight)
+                    case "reminders":
+                        RemindersTile(env: env, service: calendarService, width: inner, height: h, rows: max(1, Int((h - bandHeight - 10) / 34)), rowHeight: 34)
+                    case "timers":
+                        HStack(spacing: gap) {
+                            FocusTile(env: env, controller: focus, width: half, height: h)
+                            TimerTile(env: env, controller: timer, width: half, height: h)
+                        }
+                    case "notes": NotesTile(env: env, width: inner, height: h)
+                    default:
+                        HStack(spacing: gap) {
+                            StopwatchTile(env: env, controller: stopwatch, width: half, height: h)
+                            CountdownTile(env: env, store: countdowns, width: half, height: h)
+                        }
+                    }
+                }
+                .widgetEntrance(index)
+            }
+        }
+    }
+
+    private func calendarWide(env: TileEnv, inner: CGFloat, height: CGFloat) -> some View {
+        let pad: CGFloat = 16
+        let monthW = (inner - 2 * pad) * 0.56
+        let cell = max(18, min(34, (height - 2 * pad - 52) / 6 - 2))
+        let rows = max(2, Int((height - 2 * pad - 60) / 36))
+        return HStack(alignment: .top, spacing: 16) {
+            AgendaPane(env: env, service: calendarService, maxRows: rows, compact: false)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+            MonthGrid(env: env, service: calendarService, cell: cell, fontSize: 12)
+                .frame(width: monthW)
+        }
+        .padding(pad)
+        .frame(width: inner, height: height, alignment: .topLeading)
+        .tileSurface(env)
     }
 
     private func ipadTiles(env: TileEnv, inner: CGFloat) -> some View {
@@ -110,7 +175,7 @@ struct CalendarPanelView: View {
 
 // MARK: - Date tile (iPad)
 
-private struct DateTile: View {
+struct DateTile: View {
     let env: TileEnv
     @ObservedObject var service: CalendarService
     let width: CGFloat
@@ -139,7 +204,7 @@ private struct DateTile: View {
 
 // MARK: - Agenda pane (next event + later today)
 
-private struct AgendaPane: View {
+struct AgendaPane: View {
     let env: TileEnv
     @ObservedObject var service: CalendarService
     let maxRows: Int
@@ -154,6 +219,7 @@ private struct AgendaPane: View {
         let isToday = cal.isDateInToday(service.selectedDate)
         VStack(alignment: .leading, spacing: 4) {
             if service.eventsAccess == .denied {
+                if !compact { Image(systemName: "calendar.badge.exclamationmark").font(.system(size: 26)).foregroundColor(env.secondary) }
                 Text("Calendar access is off").font(.system(size: 12)).foregroundColor(env.secondary)
                 Button("Open Settings") { Self.openPrivacy("Privacy_Calendars") }.font(.system(size: 12))
             } else {
@@ -215,7 +281,7 @@ private struct AgendaPane: View {
 
 // MARK: - Month grid
 
-private struct MonthGrid: View {
+struct MonthGrid: View {
     let env: TileEnv
     @ObservedObject var service: CalendarService
     let cell: CGFloat
@@ -299,7 +365,7 @@ private struct MonthGrid: View {
 
 // MARK: - Clock tile (flip by default / analog)
 
-private struct ClockTile: View {
+struct ClockTile: View {
     let env: TileEnv
     @ObservedObject var store: WorldClockStore
     let style: CalendarClockStyle
@@ -373,7 +439,7 @@ private struct ClockTile: View {
     }
 }
 
-private struct AnalogFace: View {
+struct AnalogFace: View {
     let env: TileEnv
     let date: Date
 
@@ -404,7 +470,7 @@ private struct AnalogFace: View {
     }
 }
 
-private struct TimeZonePicker: View {
+struct TimeZonePicker: View {
     @ObservedObject var store: WorldClockStore
     let done: () -> Void
     @State private var query = ""
@@ -431,7 +497,7 @@ private struct TimeZonePicker: View {
 
 // MARK: - Focus tile
 
-private struct FocusTile: View {
+struct FocusTile: View {
     let env: TileEnv
     @ObservedObject var controller: FocusTimerController
     let width: CGFloat
@@ -479,7 +545,7 @@ private struct FocusTile: View {
 
 // MARK: - Reminders + alarms (header-band tiles)
 
-private struct RemindersTile: View {
+struct RemindersTile: View {
     let env: TileEnv
     @ObservedObject var service: CalendarService
     let width: CGFloat
@@ -515,7 +581,7 @@ private struct RemindersTile: View {
     }
 }
 
-private struct AlarmsTile: View {
+struct AlarmsTile: View {
     let env: TileEnv
     @ObservedObject var store: AlarmStore
     let width: CGFloat

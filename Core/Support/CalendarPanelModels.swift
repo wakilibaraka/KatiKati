@@ -207,6 +207,8 @@ enum CalendarPanelLayout: String, CaseIterable, Codable, Sendable {
     case mac
     /// Wider three-column tile grid, like the iPad widget board.
     case ipad
+    /// Full-height ~420pt stack (Phase 5h): tiles stretch to use the whole screen height.
+    case tall
 
     static let storageKey = "com.katikati.calendar.layout"
     static let macWidth: CGFloat = 340
@@ -216,14 +218,29 @@ enum CalendarPanelLayout: String, CaseIterable, Codable, Sendable {
         switch self {
         case .mac: return Self.macWidth
         case .ipad: return min(max(screenWidth / 2, 560), 760)
+        case .tall: return 420
         }
     }
+
+    /// True when the stack should grow to the full available height.
+    var fillsHeight: Bool { self == .tall }
 }
 
 /// Which screen edge a widget-tile stack hugs.
 enum WidgetPanelSide: Sendable { case left, right }
 
-enum TileKind: CaseIterable { case date, clock, focus, calendar, agenda, reminders, alarms }
+extension CalendarPanelLayout {
+    /// The shared widget layout: the stored choice, else the pre-rework size preset mapped over
+    /// (`compact420`→mac, `halfScreen`→ipad), else **Tall** for fresh installs. The result is persisted.
+    static func resolve(defaults: UserDefaults = .standard) -> CalendarPanelLayout {
+        if let raw = defaults.string(forKey: storageKey), let layout = CalendarPanelLayout(rawValue: raw) { return layout }
+        let migrated = CalendarPanelSettingsMigration.layout(fromLegacy: defaults.string(forKey: "com.katikati.calendar.panelPreset")) ?? .tall
+        defaults.set(migrated.rawValue, forKey: storageKey)
+        return migrated
+    }
+}
+
+enum TileKind: CaseIterable { case date, clock, focus, calendar, agenda, reminders, alarms, timer, stopwatch, notes, countdown }
 
 struct TileRGB: Equatable { let r: Double; let g: Double; let b: Double }
 
@@ -244,6 +261,10 @@ enum TilePalette: String, CaseIterable, Codable, Sendable {
             case .calendar, .agenda: return TileRGB(r: 0.04, g: 0.52, b: 1.00)
             case .reminders: return TileRGB(r: 0.98, g: 0.80, b: 0.10)
             case .alarms: return TileRGB(r: 1.00, g: 0.58, b: 0.00)
+            case .timer: return TileRGB(r: 1.00, g: 0.42, b: 0.10)
+            case .stopwatch: return TileRGB(r: 0.37, g: 0.36, b: 0.90)
+            case .notes: return TileRGB(r: 0.98, g: 0.80, b: 0.10)
+            case .countdown: return TileRGB(r: 0.69, g: 0.32, b: 0.87)
             }
         case .vivid:
             switch tile {
@@ -253,6 +274,10 @@ enum TilePalette: String, CaseIterable, Codable, Sendable {
             case .calendar, .agenda: return TileRGB(r: 0.00, g: 0.45, b: 1.00)
             case .reminders: return TileRGB(r: 1.00, g: 0.80, b: 0.00)
             case .alarms: return TileRGB(r: 1.00, g: 0.40, b: 0.05)
+            case .timer: return TileRGB(r: 1.00, g: 0.30, b: 0.15)
+            case .stopwatch: return TileRGB(r: 0.30, g: 0.30, b: 1.00)
+            case .notes: return TileRGB(r: 1.00, g: 0.82, b: 0.00)
+            case .countdown: return TileRGB(r: 0.75, g: 0.20, b: 0.95)
             }
         case .pastel:
             switch tile {
@@ -262,6 +287,10 @@ enum TilePalette: String, CaseIterable, Codable, Sendable {
             case .calendar, .agenda: return TileRGB(r: 0.50, g: 0.72, b: 0.98)
             case .reminders: return TileRGB(r: 0.98, g: 0.88, b: 0.45)
             case .alarms: return TileRGB(r: 0.98, g: 0.72, b: 0.45)
+            case .timer: return TileRGB(r: 0.98, g: 0.62, b: 0.50)
+            case .stopwatch: return TileRGB(r: 0.62, g: 0.60, b: 0.95)
+            case .notes: return TileRGB(r: 0.98, g: 0.88, b: 0.45)
+            case .countdown: return TileRGB(r: 0.80, g: 0.62, b: 0.92)
             }
         case .mono:
             return TileRGB(r: 0.36, g: 0.37, b: 0.41)

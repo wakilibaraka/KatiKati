@@ -31,12 +31,46 @@ struct TileEnv {
     }
 }
 
+/// One set of numbers for every widget tile (Phase 5h-I): equal gutters on both sides, one corner
+/// radius, one gap — so the calendar and weather stacks read as a matched pair.
+enum WidgetMetrics {
+    static let radius: CGFloat = 24
+    static let gutter: CGFloat = 8
+    static let gap: CGFloat = 10
+}
+
+/// Entrance for the "spring pop" animation preset: tiles scale up from 92% and fade in, staggered by
+/// `index`. Other presets leave tiles untouched (the window itself animates).
+struct WidgetEntrance: ViewModifier {
+    let index: Int
+    @EnvironmentObject private var state: WidgetPanelState
+
+    func body(content: Content) -> some View {
+        let pop = state.animation == .springPop
+        let shown = !pop || state.entered
+        content
+            .opacity(shown ? 1 : 0)
+            .scaleEffect(shown ? 1 : WidgetAnimationTiming.popScale, anchor: .top)
+            .animation(pop ? .spring(response: 0.42, dampingFraction: 0.78).delay(WidgetAnimationTiming.staggerDelay(forTile: index)) : nil,
+                       value: state.entered)
+    }
+}
+
 extension View {
-    func tileSurface(_ env: TileEnv, radius: CGFloat = 22) -> some View {
+    func widgetEntrance(_ index: Int) -> some View { modifier(WidgetEntrance(index: index)) }
+}
+
+extension View {
+    func tileSurface(_ env: TileEnv, radius: CGFloat = WidgetMetrics.radius) -> some View {
         background(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(env.base))
             .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: radius, style: .continuous).stroke(env.hairline, lineWidth: 0.5))
-            .shadow(color: .black.opacity(env.isDark ? 0.45 : 0.20), radius: 7, y: 3)
+            .overlay(
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .stroke(LinearGradient(colors: [Color.white.opacity(env.isDark ? 0.10 : 0.55), .clear], startPoint: .top, endPoint: .center), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(env.isDark ? 0.40 : 0.16), radius: 12, y: 6)
+            .shadow(color: .black.opacity(env.isDark ? 0.30 : 0.10), radius: 2, y: 1)
     }
 }
 

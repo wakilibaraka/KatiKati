@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B5000000000000000000072 /* WidgetExtraTiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000071 /* WidgetExtraTiles.swift */; };
+		7B5000000000000000000065 /* WidgetTallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000064 /* WidgetTallTests.swift */; };
+		7B5000000000000000000062 /* WidgetTall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000061 /* WidgetTall.swift */; };
+		7B5000000000000000000063 /* WidgetTall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000061 /* WidgetTall.swift */; };
 		7B5000000000000000000056 /* WeatherPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000055 /* WeatherPanelView.swift */; };
 		7B5000000000000000000054 /* WidgetPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000053 /* WidgetPanelController.swift */; };
 		7B5000000000000000000052 /* WidgetTileKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000051 /* WidgetTileKit.swift */; };
@@ -584,6 +588,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B5000000000000000000071 /* WidgetExtraTiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetExtraTiles.swift; path = App/Scenes/WidgetExtraTiles.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000064 /* WidgetTallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetTallTests.swift; path = Tests/Unit/WidgetTallTests.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000061 /* WidgetTall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetTall.swift; path = Core/Support/WidgetTall.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000055 /* WeatherPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherPanelView.swift; path = App/Scenes/WeatherPanelView.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000053 /* WidgetPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetPanelController.swift; path = App/Scenes/WidgetPanelController.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000051 /* WidgetTileKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetTileKit.swift; path = App/Scenes/WidgetTileKit.swift; sourceTree = SOURCE_ROOT; };
@@ -1987,6 +1994,8 @@
 				7D1000000000000000000002 /* NowPlayingService.swift in Sources */,
 				7D2000000000000000000002 /* NowPlayingChip.swift in Sources */,
 				7B2000000000000000000002 /* ClockChip.swift in Sources */,
+				7B5000000000000000000072 /* WidgetExtraTiles.swift in Sources */,
+				7B5000000000000000000062 /* WidgetTall.swift in Sources */,
 				7B5000000000000000000056 /* WeatherPanelView.swift in Sources */,
 				7B5000000000000000000054 /* WidgetPanelController.swift in Sources */,
 				7B5000000000000000000052 /* WidgetTileKit.swift in Sources */,
@@ -2047,6 +2056,7 @@
 			files = (
 				7A0000000000000000000001 /* WeatherState.swift in Sources */,
 				7B1000000000000000000003 /* ClockChipContent.swift in Sources */,
+				7B5000000000000000000063 /* WidgetTall.swift in Sources */,
 				7B5000000000000000000043 /* WeatherEffects.swift in Sources */,
 				7B5000000000000000000033 /* WeatherLocations.swift in Sources */,
 				7B5000000000000000000023 /* WeatherWarnings.swift in Sources */,
@@ -2055,6 +2065,7 @@
 				7C1000000000000000000003 /* SystemStatusProvider.swift in Sources */,
 				7C3000000000000000000002 /* SystemStatusProviderTests.swift in Sources */,
 				7B3000000000000000000002 /* ClockChipContentTests.swift in Sources */,
+				7B5000000000000000000065 /* WidgetTallTests.swift in Sources */,
 				7B5000000000000000000045 /* WeatherEffectsTests.swift in Sources */,
 				7B5000000000000000000035 /* WeatherLocationsTests.swift in Sources */,
 				7B5000000000000000000025 /* WeatherWarningTests.swift in Sources */,

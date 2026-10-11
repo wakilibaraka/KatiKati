@@ -13,6 +13,9 @@ final class WidgetFloatingPanel: NonConstrainingPanel {
 @MainActor
 final class WidgetPanelState: ObservableObject {
     @Published var isVisible = false
+    /// Drives the staggered "spring pop" entrance (false → tiles hidden, true → tiles shown).
+    @Published var entered = false
+    @Published var animation: WidgetAnimationPreset = .instant
 }
 
 /// Owns one floating widget-tile window (calendar on the right, weather on the left). The window is
@@ -40,6 +43,9 @@ final class WidgetPanelController {
     private var outsideClickMonitor: Any?
     private var layoutShown: CalendarPanelLayout?
     private var geometry: PanelScreenGeometry?
+    private var isClosing = false
+    private var isOpening = false
+    private var pendingHeight: CGFloat?
 
     private init(side: WidgetPanelSide, content: @escaping Content) {
         self.side = side
@@ -49,24 +55,47 @@ final class WidgetPanelController {
     private var other: WidgetPanelController { self === Self.calendar ? Self.weather : Self.calendar }
     var isVisible: Bool { panel?.isVisible ?? false }
 
-    func toggle() { isVisible ? close() : show() }
+    func toggle() {
+        guard !isClosing else { return }
+        isVisible ? close() : show()
+    }
+
+    static func currentAnimation(defaults: UserDefaults = .standard) -> WidgetAnimationPreset {
+        WidgetAnimationPreset.resolve(defaults: defaults, reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
+    }
 
     func close() {
-        panel?.orderOut(nil)
-        state.isVisible = false
+        guard let panel, panel.isVisible, !isClosing else { return }
+        isClosing = true
         if let monitor = outsideClickMonitor { NSEvent.removeMonitor(monitor) }
         outsideClickMonitor = nil
+        state.isVisible = false
+        state.entered = false
+        let preset = state.animation
+        let finish = { [weak self] in
+            panel.orderOut(nil)
+            panel.alphaValue = 1
+            self?.isClosing = false
+        }
+        switch preset {
+        case .instant:
+            finish()
+        case .slide, .springPop:
+            var away = panel.frame
+            if preset == .slide, let g = geometry {
+                away.origin.x = WidgetAnimationTiming.slideStartX(target: Double(away.minX), width: Double(away.width), side: side,
+                                                                    screenMinX: Double(g.frame.minX), screenMaxX: Double(g.frame.maxX))
+            }
+            NSAnimationContext.runAnimationGroup({ ctx in
+                ctx.duration = WidgetAnimationTiming.closeDuration
+                ctx.timingFunction = CAMediaTimingFunction(name: .easeIn)
+                panel.animator().alphaValue = 0
+                if preset == .slide { panel.animator().setFrame(away, display: true) }
+            }, completionHandler: finish)
+        }
     }
 
-    /// Reads the shared layout, carrying the pre-rework size preset over once (`compact420`→mac, `halfScreen`→ipad).
-    static func currentLayout(defaults: UserDefaults = .standard) -> CalendarPanelLayout {
-        if let raw = defaults.string(forKey: CalendarPanelLayout.storageKey), let layout = CalendarPanelLayout(rawValue: raw) {
-            return layout
-        }
-        let migrated = CalendarPanelSettingsMigration.layout(fromLegacy: defaults.string(forKey: "com.katikati.calendar.panelPreset")) ?? .mac
-        defaults.set(migrated.rawValue, forKey: CalendarPanelLayout.storageKey)
-        return migrated
-    }
+    static func currentLayout(defaults: UserDefaults = .standard) -> CalendarPanelLayout { .resolve(defaults: defaults) }
 
     private func show() {
         let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }
@@ -83,9 +112,36 @@ final class WidgetPanelController {
         let panel = self.panel ?? makePanel(layout: layout, geometry: geometry)
         // Start at the tallest allowed frame so the tiles never clip while they measure themselves;
         // the first height report shrinks the window to fit.
-        panel.setFrame(PanelGeometry.widgetPanelFrame(on: geometry, layout: layout, side: side, contentHeight: .greatestFiniteMagnitude), display: true)
+        let target = PanelGeometry.widgetPanelFrame(on: geometry, layout: layout, side: side, contentHeight: .greatestFiniteMagnitude)
+        let preset = Self.currentAnimation()
+        state.animation = preset
+        state.entered = false
         state.isVisible = true
-        panel.makeKeyAndOrderFront(nil)
+        pendingHeight = nil
+        if preset == .slide {
+            var start = target
+            start.origin.x = WidgetAnimationTiming.slideStartX(target: Double(target.minX), width: Double(target.width), side: side,
+                                                                 screenMinX: Double(geometry.frame.minX), screenMaxX: Double(geometry.frame.maxX))
+            panel.alphaValue = 0
+            panel.setFrame(start, display: false)
+            panel.makeKeyAndOrderFront(nil)
+            isOpening = true
+            NSAnimationContext.runAnimationGroup({ ctx in
+                ctx.duration = WidgetAnimationTiming.slideDuration
+                ctx.timingFunction = CAMediaTimingFunction(name: .easeOut)
+                panel.animator().alphaValue = 1
+                panel.animator().setFrame(target, display: true)
+            }, completionHandler: { [weak self] in
+                guard let self else { return }
+                self.isOpening = false
+                if let h = self.pendingHeight { self.resize(toContentHeight: h, layout: layout) }
+            })
+        } else {
+            panel.alphaValue = 1
+            panel.setFrame(target, display: true)
+            panel.makeKeyAndOrderFront(nil)
+        }
+        DispatchQueue.main.async { [weak self] in self?.state.entered = true }
         installOutsideClickMonitor()
     }
 
@@ -99,6 +155,7 @@ final class WidgetPanelController {
 
     private func resize(toContentHeight height: CGFloat, layout: CalendarPanelLayout) {
         guard let panel, let geometry, height > 0 else { return }
+        if isOpening { pendingHeight = height; return }
         let frame = PanelGeometry.widgetPanelFrame(on: geometry, layout: layout, side: side, contentHeight: height)
         if frame != panel.frame { panel.setFrame(frame, display: true) }
     }

@@ -1234,10 +1234,11 @@ extension DiagnosticReport {
 /// Settings for the floating widget tiles (Phase 5e). Plain `@AppStorage`: the panel reads the same
 /// keys every time it opens (layout) or live (palette, clock style).
 private struct CalendarLayoutPicker: View {
-    @AppStorage(CalendarPanelLayout.storageKey) private var layout: CalendarPanelLayout = .mac
+    @AppStorage(CalendarPanelLayout.storageKey) private var layout: CalendarPanelLayout = .tall
 
     var body: some View {
         Picker("Widget Layout", selection: $layout) {
+            Text("Tall").tag(CalendarPanelLayout.tall)
             Text("Mac").tag(CalendarPanelLayout.mac)
             Text("iPad").tag(CalendarPanelLayout.ipad)
         }
@@ -1279,6 +1280,9 @@ private struct WeatherSettingsBlock: View {
     @AppStorage(WeatherUnits.windKey) private var windUnit: WindSpeedUnit = .kmh
     @AppStorage(WeatherPrefs.animationsKey) private var animations = true
     @AppStorage(WidgetPanelController.keepBothOpenKey) private var keepBoth = false
+    @AppStorage(WidgetAnimationPreset.storageKey) private var widgetAnimation: WidgetAnimationPreset = .slide
+    @AppStorage(WidgetExtraPrefs.showNotesKey) private var showNotes = true
+    @AppStorage(WidgetExtraPrefs.showStopwatchKey) private var showStopwatch = true
     @State private var thresholds = WeatherPrefs.thresholds()
 
     var body: some View {
@@ -1300,6 +1304,17 @@ private struct WeatherSettingsBlock: View {
                     Text(verbatim: "m/s").tag(WindSpeedUnit.ms)
                 }.pickerStyle(.segmented).labelsHidden().frame(width: 170)
             }
+            HStack {
+                Text("Widget Animation")
+                Spacer(minLength: 12)
+                Picker("Widget Animation", selection: $widgetAnimation) {
+                    Text("Instant").tag(WidgetAnimationPreset.instant)
+                    Text("Slide").tag(WidgetAnimationPreset.slide)
+                    Text("Spring Pop").tag(WidgetAnimationPreset.springPop)
+                }.pickerStyle(.menu).labelsHidden()
+            }
+            Toggle("Show Notes Widget", isOn: $showNotes)
+            Toggle("Show Stopwatch & Countdown", isOn: $showStopwatch)
             Toggle("Weather Animations", isOn: $animations)
             Toggle("Keep Both Widgets Open", isOn: $keepBoth)
             Stepper(value: binding(\.heatFeelsLikeC), in: 25...50, step: 1) {

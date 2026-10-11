@@ -61,13 +61,15 @@ private struct WeatherTiles: View {
                     NeedsLocationTile(env: env, service: service, width: inner)
                 } else {
                     HeroTile(env: env, service: service, state: state, units: u, width: inner,
-                             height: layout == .mac ? 214 : 236, animate: animate)
+                             height: layout == .mac ? 214 : (layout == .ipad ? 236 : 262), animate: animate)
+                        .widgetEntrance(0)
                     let warnings = state.detail.map { WeatherWarningEngine.warnings(for: $0, thresholds: WeatherPrefs.thresholds()) } ?? []
-                    if !warnings.isEmpty { WarningsTile(env: env, warnings: warnings, units: u, width: inner) }
+                    if !warnings.isEmpty { WarningsTile(env: env, warnings: warnings, units: u, width: inner).widgetEntrance(1) }
                     if let d = state.detail {
                         switch layout {
                         case .mac: macTiles(env: env, units: u, detail: d, inner: inner)
                         case .ipad: ipadTiles(env: env, units: u, detail: d, inner: inner)
+                        case .tall: macTiles(env: env, units: u, detail: d, inner: inner)
                         }
                     }
                 }
@@ -86,22 +88,22 @@ private struct WeatherTiles: View {
 
     private func macTiles(env: TileEnv, units: Units, detail: WeatherDetail, inner: CGFloat) -> some View {
         VStack(spacing: gap) {
-            HourlyTile(env: env, detail: detail, units: units, width: inner)
-            TrendTile(env: env, detail: detail, units: units, width: inner)
-            DailyTile(env: env, detail: detail, units: units, width: inner, pageSize: 8)
-            DetailsTile(env: env, detail: detail, units: units, width: inner, columns: 2)
+            HourlyTile(env: env, detail: detail, units: units, width: inner).widgetEntrance(1)
+            TrendTile(env: env, detail: detail, units: units, width: inner).widgetEntrance(2)
+            DailyTile(env: env, detail: detail, units: units, width: inner, pageSize: 8).widgetEntrance(3)
+            DetailsTile(env: env, detail: detail, units: units, width: inner, columns: 2).widgetEntrance(4)
         }
     }
 
     private func ipadTiles(env: TileEnv, units: Units, detail: WeatherDetail, inner: CGFloat) -> some View {
         let left = (inner - gap) * 0.58, right = inner - gap - left
         return VStack(spacing: gap) {
-            HourlyTile(env: env, detail: detail, units: units, width: inner, columns: 12)
+            HourlyTile(env: env, detail: detail, units: units, width: inner, columns: 12).widgetEntrance(1)
             HStack(alignment: .top, spacing: gap) {
                 TrendTile(env: env, detail: detail, units: units, width: left)
                 DailyTile(env: env, detail: detail, units: units, width: right, pageSize: 7)
-            }
-            DetailsTile(env: env, detail: detail, units: units, width: inner, columns: 5)
+            }.widgetEntrance(2)
+            DetailsTile(env: env, detail: detail, units: units, width: inner, columns: 5).widgetEntrance(3)
         }
     }
 }
