@@ -1647,6 +1647,14 @@ upgrades, wallpaper/personalisation, extra flyouts.
   temp folder; the real iCloud Drive path is untested** (needs a signed-in Mac eyeball). Not wired to the app yet —
   the notes UI slice (7A-7) will own enabling sync, scheduling passes (folder-change events, no polling) and the
   localized conflict suffix.
+- 2026-10-11 · **7A-7a notes controller landed (gate green, 1810 tests):** `Platform/Notes/NotesController.swift` —
+  `@MainActor` ObservableObject: published list (pinned → order → created via shared
+  `[Note].inListOrder()`), create (newest on top), edit (applied in memory at once, **250 ms debounced
+  autosave**, no-op edits don't bump `modified`), pin / archive, `flush()`, delete with a **10 s single-level
+  undo** (restores the same id so a synced copy re-links; a pending edit can't resurrect a deleted note),
+  `reload()` for external/sync changes, `lastError` for unreadable notes, `onLocalChange` hook for scheduling
+  sync passes. Scheduler injected → deterministic tests (9). UI-free; 7A-7b adds the notes popup (list +
+  editor), undo toast, wiring to the bar's notes tile, sync enable/scheduling and the strings.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

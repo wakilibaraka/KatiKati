@@ -81,7 +81,6 @@ final class NotesStore {
                 unreadable.append(name)
             }
         }
-        notes.sort { ($0.pinned ? 0 : 1, $0.order, $0.created) < ($1.pinned ? 0 : 1, $1.order, $1.created) }
-        return LoadResult(notes: notes, unreadable: unreadable)
+        return LoadResult(notes: notes.inListOrder(), unreadable: unreadable)
     }
 }

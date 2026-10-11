@@ -41,3 +41,10 @@ struct Note: Equatable, Identifiable, Sendable, Codable {
             .first { !$0.isEmpty } ?? ""
     }
 }
+
+extension Array where Element == Note {
+    /// List order for the notes bar: pinned first, then manual order, then oldest first.
+    func inListOrder() -> [Note] {
+        sorted { ($0.pinned ? 0 : 1, $0.order, $0.created, $0.id) < ($1.pinned ? 0 : 1, $1.order, $1.created, $1.id) }
+    }
+}
