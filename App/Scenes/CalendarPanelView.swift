@@ -14,13 +14,13 @@ struct CalendarPanelView: View {
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
     @AppStorage(CalendarClockStyle.storageKey) private var clockStyle: CalendarClockStyle = .flip
     @Environment(\.colorScheme) private var colorScheme
-    @StateObject private var calendarService = CalendarService()
+    @ObservedObject private var calendarService = ProductivityServices.shared.calendar
     @StateObject private var clocks = WorldClockStore()
-    @StateObject private var focus = FocusTimerController()
-    @StateObject private var alarms = AlarmStore()
-    @StateObject private var timer = CountdownTimerController()
-    @StateObject private var stopwatch = StopwatchController()
-    @StateObject private var countdowns = EventCountdownStore()
+    @ObservedObject private var focus = ProductivityServices.shared.focus
+    @ObservedObject private var alarms = ProductivityServices.shared.alarms
+    @ObservedObject private var timer = ProductivityServices.shared.timer
+    @ObservedObject private var stopwatch = ProductivityServices.shared.stopwatch
+    @ObservedObject private var countdowns = ProductivityServices.shared.countdowns
     @AppStorage(WidgetExtraPrefs.showNotesKey) private var showNotes = true
     @AppStorage(WidgetExtraPrefs.showStopwatchKey) private var showStopwatch = true
 

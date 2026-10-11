@@ -1,10 +1,15 @@
 import AppKit
 import SwiftUI
 
-/// Single non-key flyout panel for an edge bar's tiles (status popovers, now playing, …): positioned by
+/// Single flyout panel (key only when a flyout asks, e.g. a text field) for an edge bar's tiles (status popovers, now playing, …): positioned by
 /// `PanelGeometry.edgeBarPopupFrame`, dismissed by an outside click or a re-tap. One per edge bar.
 /// (Generalized from the 7A-5 status-only popup controller.) Text-entry flyouts (notes) use their own
 /// key-capable panel.
+/// Never takes key on its own; `makeKey` is called only for flyouts that need typing.
+private final class KeyableFlyoutPanel: NonConstrainingPanel {
+    override var canBecomeKey: Bool { true }
+}
+
 @MainActor
 final class EdgeFlyoutController {
     private var panel: NSPanel?
@@ -15,7 +20,8 @@ final class EdgeFlyoutController {
     var frame: CGRect { panel?.frame ?? .zero }
 
     /// Toggles: tapping the open flyout's tile again closes it; another tile swaps the content in place.
-    func toggle(id: String, anchor: CGRect, side: EdgeSide, visibleFrame: CGRect, size: CGSize, content: AnyView) {
+    func toggle(id: String, anchor: CGRect, side: EdgeSide, visibleFrame: CGRect, size: CGSize, content: AnyView,
+                takesKey: Bool = false) {
         if shownID == id { dismiss(); return }
         let frame = PanelGeometry.edgeBarPopupFrame(side: side, anchor: anchor, size: size, visibleFrame: visibleFrame)
         let panel = self.panel ?? makePanel(frame: frame)
@@ -24,7 +30,7 @@ final class EdgeFlyoutController {
         host.frame = CGRect(origin: .zero, size: frame.size)
         panel.contentView = Self.plate(wrapping: host, size: frame.size)
         panel.setFrame(frame, display: true)
-        panel.orderFrontRegardless()
+        if takesKey { panel.makeKeyAndOrderFront(nil) } else { panel.orderFrontRegardless() }
         shownID = id
         installMonitors()
     }
@@ -61,7 +67,7 @@ final class EdgeFlyoutController {
     }
 
     private func makePanel(frame: CGRect) -> NSPanel {
-        let panel = NonConstrainingPanel(
+        let panel = KeyableFlyoutPanel(
             contentRect: frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false
         )
         panel.level = .floating

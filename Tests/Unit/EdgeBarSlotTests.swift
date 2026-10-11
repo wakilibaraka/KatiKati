@@ -111,4 +111,11 @@ final class EdgeBarSlotTests: XCTestCase {
         XCTAssertEqual(EdgeBarPreset.default, .productivityAndRest)
         XCTAssertEqual(EdgeItem.allCases.count, 14)
     }
+
+    func testShippedProductivityButtonsAppearOnTheMainSideByDefault() {
+        XCTAssertEqual(ProductivityItem.built, [.reminders, .alarms, .time])
+        let r = EdgeBarComposition.resolve(preset: .productivityAndRest, primary: .right, widgets: [],
+                                           productivity: ProductivityItem.allCases, custom: [:])
+        XCTAssertEqual(r[.right], [.notes, .newNote, .productivity(.reminders), .productivity(.alarms), .productivity(.time), .settings])
+    }
 }

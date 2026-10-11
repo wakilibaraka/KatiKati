@@ -153,7 +153,7 @@ final class EdgeBarPanelController {
             case .settings: buttons.append(.settings)
             case .status: buttons += StatusKind.allCases.map(DeckButton.status)
             case let .widget(tile): buttons.append(.widget(tile))
-            case .productivity: break // flyouts land in P2–P6; an unbuilt item never reaches a bar
+            case let .productivity(item): buttons.append(.productivity(item))
             }
         }
         model.buttons = buttons
@@ -473,6 +473,11 @@ final class EdgeBarPanelController {
                 id: "status.\(kind)", anchor: anchor, side: side, visibleFrame: visibleFrame,
                 size: kind.popupSize, content: AnyView(StatusPopupView(kind: kind, service: service))
             )
+        case let .productivity(item):
+            notesPopup.dismiss(notify: false)
+            guard let view = ProductivityFlyout.view(item) else { return }
+            popup.toggle(id: "productivity.\(item.rawValue)", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: ProductivityFlyout.size(item), content: view, takesKey: ProductivityFlyout.takesKey(item))
         case let .widget(tile):
             notesPopup.dismiss(notify: false)
             switch tile {

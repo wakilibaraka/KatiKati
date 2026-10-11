@@ -83,6 +83,7 @@ enum DeckButton: Hashable {
     case settings
     case status(StatusKind)
     case widget(WidgetTile)
+    case productivity(ProductivityItem)
 
     var symbol: String {
         switch self {
@@ -94,6 +95,13 @@ enum DeckButton: Hashable {
         case .widget(.weather): return "cloud.sun.fill"
         case .widget(.nowPlaying): return "music.note"
         case .widget(.bluetooth): return "wave.3.right.circle.fill"
+        case .productivity(.reminders): return "checklist"
+        case .productivity(.alarms): return "alarm.fill"
+        case .productivity(.time): return "timer"
+        case .productivity(.tasks): return "list.bullet.rectangle"
+        case .productivity(.clipboard): return "doc.on.clipboard"
+        case .productivity(.capture): return "text.viewfinder"
+        case .productivity(.windows): return "rectangle.split.2x1"
         }
     }
 
@@ -108,6 +116,13 @@ enum DeckButton: Hashable {
         case .widget(.weather): return 1
         case .widget(.nowPlaying): return 2
         case .widget(.bluetooth): return 4
+        case .productivity(.reminders): return 3
+        case .productivity(.alarms): return 6
+        case .productivity(.time): return 5
+        case .productivity(.tasks): return 2
+        case .productivity(.clipboard): return 1
+        case .productivity(.capture): return 4
+        case .productivity(.windows): return 7
         }
     }
 }
@@ -416,6 +431,11 @@ struct DeckRoundButton: View {
         case .widget(.weather): return Text("Weather")
         case .widget(.nowPlaying): return Text("Now Playing")
         case .widget(.bluetooth): return Text("Bluetooth")
+        case .productivity(.reminders): return Text("Reminders")
+        case .productivity(.alarms): return Text("Alarms")
+        case .productivity(.time): return Text("Time")
+        // The remaining productivity buttons are localized when their flyouts land (P3–P6).
+        case let .productivity(item): return Text(verbatim: item.rawValue.capitalized)
         }
     }
 }

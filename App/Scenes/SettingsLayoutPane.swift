@@ -351,7 +351,10 @@ struct SettingsLayoutPane: View {
         case .weather: return Text("Weather")
         case .nowPlaying: return Text("Now Playing")
         case .bluetooth: return Text("Bluetooth")
-        // Productivity names are localized when each flyout lands (P2–P6); none is shown before that.
+        case .reminders: return Text("Reminders")
+        case .alarms: return Text("Alarms")
+        case .time: return Text("Time")
+        // The remaining names are localized when their flyouts land (P3–P6); none is shown before that.
         default: return Text(verbatim: item.rawValue.capitalized)
         }
     }

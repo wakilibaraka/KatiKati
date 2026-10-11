@@ -1779,6 +1779,12 @@ upgrades, wallpaper/personalisation, extra flyouts.
   round buttons landed in D2–D3; the Settings control for tile style comes with D6). This slice retires the pre-deck bar: `EdgeBarLayout`,
   `PanelGeometry.edgeBarTargetFrame` and their 9 tests are deleted; the weather stack now keeps clear of a deck by `DeckGeometry.fanWidth` (scale-aware,
   was a hard-coded 56 pt bar) + 8 pt. Gate green (1855 tests).
+- 2026-10-12 · **7A-P2 — Reminders / Alarms / Time flyouts:** `ProductivityItem.built` = reminders, alarms, time, so those three round buttons now sit on
+  the main side. `ProductivityServices.shared` owns the one CalendarService / AlarmStore / timer / stopwatch / countdown / focus set; the weather-side
+  `CalendarPanelView` now observes the same objects (a timer started in either place is the same timer). Flyouts reuse `RemindersTile` / `AlarmsTile`
+  and `TimerTile` / `StopwatchTile` / `CountdownTile` / `FocusTile` (Time = tabs Timer · Stopwatch · Countdown · Focus; Focus is the existing
+  focus/break cycle, the pomodoro). `EdgeFlyoutController` panel can take key for flyouts that need typing (Time: event-name field). Live check: Time
+  tabs, countdown add (typed + saved), Alarms render OK; Reminders not opened live (would raise the macOS permission prompt). 1 string (Time) in l10n commit.
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,
