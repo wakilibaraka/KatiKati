@@ -1483,7 +1483,7 @@ starts only after Phase 6 lands**: its FAB Settings width sliders edit
 `SettingsWindowView`, the same territory Phase 6 builds. Slice IDs 7a–7e unchanged;
 Appendix C stays normative for both halves.
 
-#### Phase 7A — Edge-bar integration (deferred)
+#### Phase 7A — Edge-bar integration — **DONE 2026-10-12** (owner sign-off; see the closing note in the check log)
 
 - **7a right-edge notes bar** (first): EdgeDeckBar notes + noty sync/crypto/editor
   per §5e. Local-only `.md` in `~/Library/Application Support/KatiKati/`,
@@ -1829,6 +1829,12 @@ upgrades, wallpaper/personalisation, extra flyouts.
   iCloud account, so no real iCloud daemon): create → plaintext `.md` appears; external edit and a foreign `.md` → applied live incl. the open sheet and a new tab; delete in app → file removed;
   all test data removed. IDLE CPU: 60 s cpu-seconds, deck off 7.1 %/9.3 % vs deck on 6.6 %/4.9 % (Debug build) — the deck adds nothing measurable; the ~5–9 % baseline is the pre-existing window-lift
   polling. NOT verified (needs real clicks/drags, blocked without a Finder grant): drag-reorder, ⌥-drag pill, outside-click dismissal; also multi-display, fullscreen/Spaces, real iCloud account.
+- 2026-10-12 · **Phase 7A CLOSED (owner: "skip them, mark 7A done").** Delivered: noty-style decks on both edges (pill → fan → paper sheet, magnification, per-edge size), encrypted notes + opt-in
+  folder sync, status trio, Weather / Now Playing / Bluetooth / System monitor tiles, productivity buttons (Reminders, Alarms, Time, Tasks, Clipboard, Capture, Windows), layouts (Off / Notes / Notes & Status /
+  Status / Productivity + Rest [default] / Custom, any side), Settings, NOTICE §5 + §9, CHANGELOG. Final gate: 1888 tests, 0 failures, localization + debug-switch checks green. **Accepted open items (not blocking
+  the close):** drag-reorder, ⌥-drag pill and outside-click dismissal not exercised with a real pointer (covered by unit tests of the math/state machine); multi-display, fullscreen/Spaces hide and a real
+  iCloud account not verified on this Mac; Windows snap not pressed on a real window; Capture region selector and Reminders permission prompt not driven; Instruments trace not taken (cpu-seconds comparison
+  recorded instead); all 12-language strings are drafts awaiting speaker review (STANDING_RULES §1).
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,
