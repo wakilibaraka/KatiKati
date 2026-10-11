@@ -54,6 +54,13 @@ final class DeckGeometryTests: XCTestCase {
         XCTAssertEqual(base.center(2), base.pitch * 2 + base.itemHeight / 2)
     }
 
+    func testButtonsOnlyStackHasNoLeadingGap() {
+        let l = DeckGeometry.layout(m, panelHeight: 1000, count: 0, hasMore: false, buttons: 3)
+        XCTAssertEqual(l.count, 0)
+        XCTAssertEqual(l.stackHeight, 3 * m.buttonSize + 2 * m.buttonGap)
+        XCTAssertEqual(DeckGeometry.layout(m, panelHeight: 1000, count: 0, hasMore: false, buttons: 0).stackHeight, 0)
+    }
+
     // MARK: Panel frames
 
     func testRestFrameHugsTheEdgeAndFollowsYRatio() {

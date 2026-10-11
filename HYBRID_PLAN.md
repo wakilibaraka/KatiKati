@@ -1733,6 +1733,14 @@ upgrades, wallpaper/personalisation, extra flyouts.
   `DeckTiming` constants (exit confirm 0.15 s, hover open 0.4 s, preview 0.18 s). `DeckSettingsRules` + `EdgeTileStyle` (glass |
   coloured, frozen ids). `AppSettingsStore`: `com.katikati.edge.{deckScale 0.8…1.4, alwaysShown, openOnHover, tabPreview, tileStyle,
   tabFont, yRatio.left/.right}` with sanitising + persistence tests. The old `edge.autoHide` stays until D2 swaps the behaviour.
+- 2026-10-11 · **D2a deck views landed (gate green, 1864 tests; not wired yet):** `App/Scenes/Edge/DeckShapes.swift` (`EdgeTabShape`
+  hand-drawn because `UnevenRoundedRectangle` is macOS 13+, `EdgeLine`, `DeckPressStyle`, palette → `Color`), `DeckLabel.swift`
+  (`DeckFont`: face setting + deck scale, cached text measurement feeding the pure `VerticalLabelMeasure`; `VerticalTabLabel`
+  upright-vs-rotated rendering, `kerning` not the macOS-13 `tracking`), `DeckViews.swift` (`DeckViewModel` publishing state/tabs/buttons,
+  `DeckPillView` dashes, `DeckFanView` shingled stack with negative spacing + 42 ms staged slide-in + dashed spine, `DeckTab` paper tab
+  leaning 3° with bleed, hover shadow, pin dot, accessibility label/action, `DeckMoreTab`, `DeckRoundButton` glass | coloured).
+  `DeckLayout` now supports buttons-only stacks (left deck). 1 string x12 (`Settings`, draft, separate commit). D2b wires the
+  controller/orchestrator and removes the plate.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

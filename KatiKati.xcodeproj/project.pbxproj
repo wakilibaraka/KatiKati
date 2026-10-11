@@ -86,6 +86,9 @@
 		ED0000000000000000000091 /* DeckStateMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000090 /* DeckStateMachine.swift */; };
 		ED0000000000000000000092 /* DeckStateMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000090 /* DeckStateMachine.swift */; };
 		ED0000000000000000000094 /* DeckStateMachineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000093 /* DeckStateMachineTests.swift */; };
+		ED00000000000000000000A1 /* DeckShapes.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000A0 /* DeckShapes.swift */; };
+		ED00000000000000000000A3 /* DeckLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000A2 /* DeckLabel.swift */; };
+		ED00000000000000000000A5 /* DeckViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000A4 /* DeckViews.swift */; };
 		ED0000000000000000000010 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
 		ED000000000000000000000A /* SystemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000009 /* SystemStatus.swift */; };
 		ED0000000000000000000011 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
@@ -715,6 +718,9 @@
 		ED0000000000000000000088 /* DeckGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeckGeometryTests.swift; path = Tests/Unit/DeckGeometryTests.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000090 /* DeckStateMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeckStateMachine.swift; path = Core/Support/DeckStateMachine.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000093 /* DeckStateMachineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeckStateMachineTests.swift; path = Tests/Unit/DeckStateMachineTests.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000A0 /* DeckShapes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeckShapes.swift; path = App/Scenes/Edge/DeckShapes.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000A2 /* DeckLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeckLabel.swift; path = App/Scenes/Edge/DeckLabel.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000A4 /* DeckViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeckViews.swift; path = App/Scenes/Edge/DeckViews.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000F /* SystemStatusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusService.swift; path = Platform/SystemStatus/SystemStatusService.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000009 /* SystemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatus.swift; path = Core/Support/SystemStatus.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000C /* SystemStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusTests.swift; path = Tests/Unit/SystemStatusTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2124,6 +2130,9 @@
 				D3EB46A2A29E54E9C8B5C492 /* WeatherState.swift in Sources */,
 				7B1000000000000000000002 /* ClockChipContent.swift in Sources */,
 				ED000000000000000000000A /* SystemStatus.swift in Sources */,
+				ED00000000000000000000A1 /* DeckShapes.swift in Sources */,
+				ED00000000000000000000A3 /* DeckLabel.swift in Sources */,
+				ED00000000000000000000A5 /* DeckViews.swift in Sources */,
 				ED0000000000000000000091 /* DeckStateMachine.swift in Sources */,
 				ED0000000000000000000086 /* DeckGeometry.swift in Sources */,
 				ED0000000000000000000081 /* NotePalette.swift in Sources */,

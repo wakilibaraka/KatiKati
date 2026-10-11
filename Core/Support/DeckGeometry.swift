@@ -62,14 +62,14 @@ enum DeckGeometry {
     /// strip of each tab is sized to it (clamped), and shrinks on short screens (`heightBudget`).
     static func layout(_ m: DeckMetrics, panelHeight: CGFloat, count: Int, hasMore: Bool,
                        longestLabel: CGFloat = 0, buttons: Int = 0) -> DeckLayout {
-        let n = max(1, count)
+        let n = max(1, count)    // pitch is solved for at least one tab; `count` stays the real number
         var pitch = min(m.pitchMax, max(m.pitchMin, longestLabel + m.labelPad))
         let reserved = hasMore ? m.moreTabHeight + m.tabGap : 0
         let budget = panelHeight * heightBudget - reserved
         if CGFloat(n) * pitch + m.tabLap > budget {
             pitch = max(m.pitchFloor, (budget - m.tabLap) / CGFloat(n))
         }
-        return DeckLayout(metrics: m, itemHeight: pitch + m.tabLap, pitch: pitch, count: n,
+        return DeckLayout(metrics: m, itemHeight: pitch + m.tabLap, pitch: pitch, count: max(0, count),
                           hasMore: hasMore, panelHeight: panelHeight, buttons: buttons)
     }
 
@@ -150,10 +150,13 @@ struct DeckLayout: Equatable, Sendable {
     var spacing: CGFloat { pitch - itemHeight }
 
     var stackHeight: CGFloat {
-        guard count > 0 else { return 0 }
-        var h = CGFloat(count - 1) * pitch + itemHeight
+        var h: CGFloat = count > 0 ? CGFloat(count - 1) * pitch + itemHeight : 0
         if hasMore { h += metrics.tabGap + metrics.moreTabHeight }
-        if buttons > 0 { h += CGFloat(buttons) * (metrics.buttonGap + metrics.buttonSize) }
+        if buttons > 0 {
+            // A gap precedes every button except the first one of a buttons-only stack.
+            let gaps = (count > 0 || hasMore) ? buttons : buttons - 1
+            h += CGFloat(buttons) * metrics.buttonSize + CGFloat(gaps) * metrics.buttonGap
+        }
         return h
     }
 
