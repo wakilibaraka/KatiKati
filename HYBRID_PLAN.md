@@ -1036,18 +1036,87 @@ Progression: 3 → 4 → 5 separates one more grouping per step; all three disti
 
 ### Phase 5 — Hardening (native Dock, teardown, recovery drill)
 
+*Scoped into gated sub-slices 2026-10-11 (owner asked to plan Phase 5 in slices, mirroring the
+Phase 2/3/4 cadence and the 4U-A scoping commit). Every slice ends gate-green
+(`xcodebuild test … CODE_SIGNING_ALLOWED=NO` + `check_localization.py` +
+`check_debug_switches.py` + `check_availability_warnings.py`); ≤ ~300 lines per commit; no
+drive-by refactors (Standing Rules §1). Slices 5b/5c are **evidence-gated** — code lands only
+for a gap the drill actually proves.*
 
+**Original scope (source of truth — kept verbatim):**
 - Keep tungsten native-Dock services as the path; run the recovery drill: kill -9 during
   Dock-mutating states, SIGTERM/SIGINT teardown, crash-relaunch, dev-bypass guard.
 - **Calendar Popup Redesign**: Owner will redesign the Calendar Popup manually in this phase (Phase 4 popup implementation removed/deferred).
-
   Adopt live-SplitBar recovery-file ideas **only** if the drill proves a tungsten gap
   (evidence-gated diff, recorded in the PR).
 - Window-lift avoidance re-verified with island frames (maximized windows avoid every
   island, not just the strip rect).
 - **Verify**: drill log in the PR; no lost Dock state; no orphaned island panels after
   crash-relaunch.
-- **Calendar Popup Redesign**: Owner will redesign the Calendar Popup manually in this phase (Phase 4 popup implementation removed/deferred).
+
+#### Sub-slices
+
+- **5a — window-lift avoidance: one reservation per display (de-dup + invariant test).**
+  *Corrected 2026-10-11 after tracing the geometry: the earlier "taller apps island"
+  rationale is **disproven**. `PanelCoordinator.layoutMetrics` is the **global**
+  `settingsStore.dockPanelHeight.metrics`, and `PanelGeometry.islandTargetFrame` gives
+  **every** split slot `height: metrics.windowHeight` at `y: island.frame.minY -
+  shadowPadding` (IslandLayoutSolver sets `y = screenMinY + bottomMargin` for all). So all
+  islands are the **same height, bottom-aligned → same `taskbarTop`**, and the existing
+  full-width bottom-strip reservation (`Geometry.liftTargetFrame` → `adjustedFrame`) already
+  clears every island. There is **no lift gap**; `windowLiftAvoidanceContexts()` merely
+  returns N **identical** contexts per display (one per island unit) — redundant, not wrong.*
+  Scope is therefore a **de-dup + future-proofing + invariant-pinning** slice:
+  - `App/Entry/TaskbarScreenOrchestrator.swift`: `windowLiftAvoidanceContexts()` returns
+    **one context per display** (drop the N identical per-island copies). Reservation keyed to
+    the display's **union bounding-frame top** (`boundingFrame(forDisplayUUID:)`) so it stays
+    correct if islands ever gain distinct heights.
+  - `Core/Support/WindowLiftAvoidance.swift`: reservation input derived from the bar bounding
+    frame if needed (`Geometry` already carries `screenFrame`/`visibleFrame`/`taskbarTop`).
+  - Tests: new cases in `Tests/Unit/WindowLiftAvoidanceTests.swift` pinning the invariant
+    across `windows`/`split3`/`split4`/`split5`: (a) one context per display; (b) all islands
+    share `taskbarTop`; (c) a window filling the visible frame is raised above **every**
+    island's top; (d) `windows`/`centered` behavior unchanged.
+  - **Verify**: `DOCK_WINDOW_LIFT_TRACE` shows one reservation per display; geometry + existing
+    suite green; zero behavior change in any mode.
+
+- **5b — SIGTERM/SIGINT teardown drill (evidence + gap-fix only).** Exercise
+  `AppDelegate.applicationShouldTerminate` / `applicationWillTerminate` / `terminateOtherInstances`
+  (`stopAndRestore`, monitor stops, in-flight `terminationTask` cancellation). Drill log in PR;
+  fix + test only if the drill proves a gap (e.g. a monitor not stopped, a Task surviving
+  teardown → "two taskbars").
+
+- **5c — `kill -9` during a Dock-mutating state + crash-relaunch (Dock-state integrity).**
+  The Dock-mutating path is `NativeDockPreferencesService.apply(recommendations:)` →
+  `commands(for:)` (writes `com.apple.dock` defaults + a single `killall Dock`). Drill: kill -9
+  mid-sequence, relaunch, verify Dock prefs not corrupt, KatiKati recovers, **no orphaned island
+  panels** (`TaskbarScreenOrchestrator.rebuildUnits` idempotent). Adopt live-SplitBar
+  recovery-file ideas **only if** the drill proves a tungsten gap (evidence-gated diff in the PR);
+  add a relaunch-idempotence test.
+
+- **5d — dev-bypass guard lock (`DOCK_DEV_SKIP_PERMISSIONS`).** Confirm the switch stays **off by
+  default**, honored at every choke point (`AppDelegate.permissionProbeQueue`,
+  `PermissionRecoveryMachine`/`AccessibilityPermissionModel`, `isSuspendedForPermissionLoss` via
+  `suspendPanelsAndStores`), and can never ship on. Extend `DebugSwitchTests` polarity +
+  choke-point coverage; `check_debug_switches.py` green.
+
+- **5e — Calendar Popup Redesign (owner manual).** Owner redesigns the calendar popup by hand in
+  this phase; the Phase-4 `CalendarPopupView` baseline (`App/Scenes/ClockChip.swift`) is
+  deferred. Agent writes no chip code until the owner hands off the design.
+
+- **5f — Phase 5 lock + proof gate.** Drill log(s) in the PR; no lost Dock state; no orphaned
+  island panels after crash-relaunch; full tungsten gate; dated phase-5 log under
+  `Docs/Archive/Planning/`, `CHANGELOG.md`, and the `Result:` line here.
+
+**Owner decisions pending (Standing Rules §1.4 — grill before the gated slices):**
+1. **5a reservation semantics (recommend):** reservation = top of the display's **union bounding
+   frame** (tallest island), **one lift context per display** (vs. today's per-island contexts).
+   Confirm this is the intended "avoid every island."
+2. **5e calendar (recommend):** leave the current `CalendarPopupView` as a live baseline until the
+   redesign lands (clock tap stays functional), rather than stripping it now per "removed/deferred."
+3. **5b/5c drill ownership:** `kill -9` / relaunch / AX grants need the dev Mac. Owner runs the
+   drill and reports a proven gap (agent writes code only for a proven gap), or agent scripts a
+   reproducible drill.
 
 
 ### Phase 6 — Settings Layout tab + welcome step + polish
