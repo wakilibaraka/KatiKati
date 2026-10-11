@@ -1281,6 +1281,8 @@ private struct WeatherSettingsBlock: View {
     @AppStorage(WeatherPrefs.animationsKey) private var animations = true
     @AppStorage(WidgetPanelController.keepBothOpenKey) private var keepBoth = false
     @AppStorage(WidgetAnimationPreset.storageKey) private var widgetAnimation: WidgetAnimationPreset = .slide
+    @AppStorage(WeatherLayoutPreset.storageKey) private var weatherLayout: WeatherLayoutPreset = .glance
+    @AppStorage(WeatherHeroStyle.storageKey) private var heroStyle: WeatherHeroStyle = .scene
     @AppStorage(WidgetExtraPrefs.showNotesKey) private var showNotes = true
     @AppStorage(WidgetExtraPrefs.showStopwatchKey) private var showStopwatch = true
     @State private var thresholds = WeatherPrefs.thresholds()
@@ -1315,6 +1317,22 @@ private struct WeatherSettingsBlock: View {
             }
             Toggle("Show Notes Widget", isOn: $showNotes)
             Toggle("Show Stopwatch & Countdown", isOn: $showStopwatch)
+            HStack {
+                Text("Weather Layout")
+                Spacer(minLength: 12)
+                Picker("Weather Layout", selection: $weatherLayout) {
+                    Text("Glance").tag(WeatherLayoutPreset.glance)
+                    Text("Classic").tag(WeatherLayoutPreset.classic)
+                }.pickerStyle(.segmented).labelsHidden().frame(width: 150)
+            }
+            HStack {
+                Text("Hero Style")
+                Spacer(minLength: 12)
+                Picker("Hero Style", selection: $heroStyle) {
+                    Text("Scene").tag(WeatherHeroStyle.scene)
+                    Text("Classic").tag(WeatherHeroStyle.classic)
+                }.pickerStyle(.segmented).labelsHidden().frame(width: 150)
+            }
             Toggle("Weather Animations", isOn: $animations)
             Toggle("Keep Both Widgets Open", isOn: $keepBoth)
             Stepper(value: binding(\.heatFeelsLikeC), in: 25...50, step: 1) {

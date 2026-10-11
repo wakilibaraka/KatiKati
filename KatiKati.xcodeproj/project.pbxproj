@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B5000000000000000000092 /* WeatherGlanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000091 /* WeatherGlanceView.swift */; };
 		7B5000000000000000000085 /* SkyTintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000084 /* SkyTintTests.swift */; };
 		7B5000000000000000000082 /* SkyTint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000081 /* SkyTint.swift */; };
 		7B5000000000000000000083 /* SkyTint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000081 /* SkyTint.swift */; };
@@ -591,6 +592,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B5000000000000000000091 /* WeatherGlanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherGlanceView.swift; path = App/Scenes/WeatherGlanceView.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000084 /* SkyTintTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SkyTintTests.swift; path = Tests/Unit/SkyTintTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000081 /* SkyTint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SkyTint.swift; path = Core/Support/SkyTint.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000071 /* WidgetExtraTiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetExtraTiles.swift; path = App/Scenes/WidgetExtraTiles.swift; sourceTree = SOURCE_ROOT; };
@@ -1999,6 +2001,7 @@
 				7D1000000000000000000002 /* NowPlayingService.swift in Sources */,
 				7D2000000000000000000002 /* NowPlayingChip.swift in Sources */,
 				7B2000000000000000000002 /* ClockChip.swift in Sources */,
+				7B5000000000000000000092 /* WeatherGlanceView.swift in Sources */,
 				7B5000000000000000000082 /* SkyTint.swift in Sources */,
 				7B5000000000000000000072 /* WidgetExtraTiles.swift in Sources */,
 				7B5000000000000000000062 /* WidgetTall.swift in Sources */,

@@ -13,11 +13,37 @@ struct PanelHeightKey: PreferenceKey {
 struct TileEnv {
     let palette: TilePalette
     let isDark: Bool
+    /// Phase 5i: when set, the tile is a slice of the weather sky — solid sky colour, auto-contrast text.
+    var skyBase: Color? = nil
+    var skyDarkText = false
 
-    var base: Color { isDark ? Color(red: 0.14, green: 0.14, blue: 0.16) : .white }
-    var text: Color { isDark ? .white : Color(white: 0.08) }
-    var secondary: Color { isDark ? Color(white: 0.62) : Color(white: 0.42) }
-    var hairline: Color { isDark ? Color.white.opacity(0.08) : Color.black.opacity(0.06) }
+    var base: Color { skyBase ?? (isDark ? Color(red: 0.14, green: 0.14, blue: 0.16) : .white) }
+    var text: Color {
+        if skyBase != nil { return skyDarkText ? Color(white: 0.10) : .white }
+        return isDark ? .white : Color(white: 0.08)
+    }
+    var secondary: Color {
+        if skyBase != nil { return skyDarkText ? Color.black.opacity(0.55) : Color.white.opacity(0.74) }
+        return isDark ? Color(white: 0.62) : Color(white: 0.42)
+    }
+    var hairline: Color {
+        if skyBase != nil { return skyDarkText ? Color.black.opacity(0.09) : Color.white.opacity(0.16) }
+        return isDark ? Color.white.opacity(0.08) : Color.black.opacity(0.06)
+    }
+
+    /// A sky-coloured copy of this env for the tile `t` of the way down the pane (0 top … 1 bottom).
+    func sky(_ tint: SkyTint, at t: Double) -> TileEnv {
+        var copy = self
+        let c = tint.mix(t)
+        // Pull the colour a touch toward the text-contrast side so small text stays readable.
+        let k = tint.prefersDarkText ? 0.10 : 0.16
+        let target = tint.prefersDarkText ? 1.0 : 0.0
+        copy.skyBase = Color(red: c.r + (target - c.r) * k * (tint.prefersDarkText ? 0.6 : 1),
+                             green: c.g + (target - c.g) * k * (tint.prefersDarkText ? 0.6 : 1),
+                             blue: c.b + (target - c.b) * k * (tint.prefersDarkText ? 0.6 : 1))
+        copy.skyDarkText = tint.prefersDarkText
+        return copy
+    }
 
     func accent(_ tile: TileKind) -> Color {
         let c = palette.accent(for: tile)

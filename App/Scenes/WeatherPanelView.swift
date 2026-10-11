@@ -43,6 +43,8 @@ private struct WeatherTiles: View {
     @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
     @AppStorage(WeatherUnits.windKey) private var windUnit: WindSpeedUnit = .kmh
     @AppStorage(WeatherPrefs.animationsKey) private var animationsEnabled = true
+    @AppStorage(WeatherLayoutPreset.storageKey) private var layoutPreset: WeatherLayoutPreset = .glance
+    @AppStorage(WeatherHeroStyle.storageKey) private var heroStyle: WeatherHeroStyle = .scene
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var panelState: WidgetPanelState
 
@@ -55,6 +57,14 @@ private struct WeatherTiles: View {
         let state = service.currentState
         let animate = animationsEnabled && panelState.isVisible && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         let inner = width - 2 * gutter
+        if layoutPreset == .glance, let detail = state.detail {
+            // Glance never scrolls: it fills the available height exactly.
+            WeatherGlanceView(env: env, service: service, state: state, detail: detail, units: u,
+                              width: inner, height: maxHeight - 2 * gutter, animate: animate, heroStyle: heroStyle)
+                .padding(gutter)
+                .frame(width: width, height: maxHeight, alignment: .top)
+                .onAppear { onHeight(maxHeight); Task { await service.refresh() } }
+        } else {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: gap) {
                 if service.needsLocation && state.detail == nil {
@@ -84,6 +94,7 @@ private struct WeatherTiles: View {
         .frame(width: width)
         .frame(maxHeight: .infinity, alignment: .top)
         .onAppear { Task { await service.refresh() } }
+        }
     }
 
     private func macTiles(env: TileEnv, units: Units, detail: WeatherDetail, inner: CGFloat) -> some View {
@@ -114,7 +125,7 @@ struct Units { let temp: TemperatureUnit; let wind: WindSpeedUnit
 
 // MARK: - Hero
 
-private struct HeroTile: View {
+struct HeroTile: View {
     let env: TileEnv
     @ObservedObject var service: WeatherService
     let state: WeatherState
@@ -241,7 +252,20 @@ struct WeatherEffectsView: View {
 
 // MARK: - Warnings
 
-private struct WarningsTile: View {
+@ViewBuilder func weatherWarningTitle(_ k: WeatherWarningKind) -> some View {
+    switch k {
+    case .heat: Text("Heat")
+    case .freeze: Text("Freeze")
+    case .heavyRain: Text("Heavy rain")
+    case .snow: Text("Snow")
+    case .wind: Text("Strong wind")
+    case .thunderstorm: Text("Thunderstorms")
+    case .uv: Text("High UV")
+    }
+}
+
+
+struct WarningsTile: View {
     let env: TileEnv
     let warnings: [WeatherWarning]
     let units: Units
@@ -268,17 +292,7 @@ private struct WarningsTile: View {
         .tileSurface(env)
     }
 
-    @ViewBuilder private func title(_ k: WeatherWarningKind) -> some View {
-        switch k {
-        case .heat: Text("Heat")
-        case .freeze: Text("Freeze")
-        case .heavyRain: Text("Heavy rain")
-        case .snow: Text("Snow")
-        case .wind: Text("Strong wind")
-        case .thunderstorm: Text("Thunderstorms")
-        case .uv: Text("High UV")
-        }
-    }
+    private func title(_ k: WeatherWarningKind) -> some View { weatherWarningTitle(k) }
 
     private func detail(_ w: WeatherWarning) -> String {
         let value: String
@@ -655,7 +669,7 @@ private struct NeedsLocationTile: View {
     }
 }
 
-private struct CitySearchPopover: View {
+struct CitySearchPopover: View {
     @ObservedObject var service: WeatherService
     let close: () -> Void
     @State private var query = ""
