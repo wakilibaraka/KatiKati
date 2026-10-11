@@ -322,6 +322,20 @@ struct SettingsLayoutPane: View {
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
+                HStack {
+                    Text("Search Position")
+                    Spacer(minLength: 12)
+                    Picker("Search Position", selection: Binding(
+                        get: { store.launcherSearchPosition },
+                        set: { store.setLauncherSearchPosition($0) }
+                    )) {
+                        Text("Top").tag(LauncherSearchPosition.top)
+                        Text("Bottom").tag(LauncherSearchPosition.bottom)
+                        Text("Left").tag(LauncherSearchPosition.left)
+                        Text("Right").tag(LauncherSearchPosition.right)
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
             }
         }
         .padding(Self.margin)

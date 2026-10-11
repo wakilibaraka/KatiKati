@@ -193,6 +193,15 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
+    func testLauncherSearchPositionDefaultsTopAndPersists() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.launcherSearchPosition, .top)
+        store.setLauncherSearchPosition(.left)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherSearchPosition, .left)
+    }
+
+    @MainActor
     func testLauncherSheetSideDefaultsRightAndPersists() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)

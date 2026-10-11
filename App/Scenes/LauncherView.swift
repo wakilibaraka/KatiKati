@@ -31,6 +31,7 @@ struct LauncherView: View {
     }
 
     var body: some View {
+        let inset = model.searchPosition.reservedInsets(sheetSide: model.sheetSide)
         ZStack {
             Color.black.opacity(0.001).onTapGesture(perform: onClose)
             HStack(alignment: .top, spacing: 0) {
@@ -38,9 +39,33 @@ struct LauncherView: View {
                 content.frame(maxWidth: .infinity)
                 if model.sheetSide == .right { sheet }
             }
-            .padding(.top, 60)
+            .padding(.top, 50 + inset.top)
+            .padding(.bottom, inset.bottom)
+            .padding(.leading, inset.leading - (model.sheetSide == .left ? 328 : 0))
+            .padding(.trailing, inset.trailing - (model.sheetSide == .right ? 328 : 0))
+            searchField
         }
         .accessibilityLabel(Text("Launcher"))
+    }
+
+    private var searchField: some View {
+        let p = model.searchPosition
+        let sheetOnSameSide = (p == .left && model.sheetSide == .left) || (p == .right && model.sheetSide == .right)
+        return LauncherSearchField(text: $model.query, focusNonce: model.focusNonce,
+                                   onSubmit: { if let first = matches.first { onLaunch(first) } },
+                                   onCancel: onClose)
+            .frame(width: p.fieldWidth, height: 28)
+            .padding(p == .top ? .top : p == .bottom ? .bottom : p == .left ? .leading : .trailing, 28 + (sheetOnSameSide ? 328 : 0))
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment(p))
+    }
+
+    private func alignment(_ p: LauncherSearchPosition) -> Alignment {
+        switch p {
+        case .top: return .top
+        case .bottom: return .bottom
+        case .left: return .leading
+        case .right: return .trailing
+        }
     }
 
     private var sheet: some View {
@@ -62,16 +87,12 @@ struct LauncherView: View {
                     }
                 }
             }
-            LauncherSearchField(text: $model.query, focusNonce: model.focusNonce,
-                                onSubmit: { if let first = matches.first { onLaunch(first) } },
-                                onCancel: onClose)
-                .frame(height: 28)
         }
         .padding(14)
         .frame(width: 280)
         .frame(maxHeight: .infinity)
         .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Color.primary.opacity(0.08)))
-        .padding(.horizontal, 24).padding(.bottom, 60)
+        .padding(.horizontal, 24).padding(.bottom, 24)
     }
 
     @ViewBuilder private var content: some View {
@@ -128,6 +149,7 @@ final class LauncherModel: ObservableObject {
     @Published var query = ""
     @Published var focusNonce = 0
     @Published var sheetSide: EdgeSide = .right
+    @Published var searchPosition: LauncherSearchPosition = .top
     @Published var state = LauncherState()
 }
 

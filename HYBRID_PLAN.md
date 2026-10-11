@@ -1566,6 +1566,8 @@ Reference screenshots: one Launchpad-style surface (icon grid + widget tiles, le
 
 - 2026-10-12 · **7B L2–L4 live check:** ⌥Space opens the launcher with search focused; Recently Installed grid + right-hand All Apps sheet render; typing `cal` narrows both grid and list; Esc closes. Not exercised: Return-to-launch, pin/unpin menu, left-side setting, FAB tap, multi-display/fullscreen. Seen: a faint blurred rectangle mid-screen (likely the app's permission window behind the blur) — recheck with permissions granted.
 
+- 2026-10-12 · **7B-L5a landed (gate green, 1906 tests):** search field leaves the sheet and sits centred on a chosen side — `com.katikati.launcher.searchPosition` = top (default) / bottom / left / right (pure `LauncherSearchPosition` + insets, tests); Settings → Launcher → Search Position; a side field stacks beside the sheet when both share a side. Interpretation of "all sides, symmetrical": four centred positions, not corners. L5b (widget tiles) next.
+
 **Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
 dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.

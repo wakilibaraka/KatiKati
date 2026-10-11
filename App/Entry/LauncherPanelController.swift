@@ -15,6 +15,7 @@ final class LauncherPanelController {
     private let store = LauncherStore(url: LauncherStore.defaultURL)
     /// Read at each summon so a Settings change applies immediately.
     var sheetSide: () -> EdgeSide = { .right }
+    var searchPosition: () -> LauncherSearchPosition = { .top }
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -26,6 +27,7 @@ final class LauncherPanelController {
         guard let screen else { return }
         model.state = store.load()
         model.sheetSide = sheetSide()
+        model.searchPosition = searchPosition()
         model.query = ""
         indexer.start()
         let panel = self.panel ?? makePanel()

@@ -174,6 +174,7 @@ final class AppSettingsStore: ObservableObject {
     /// Dock-style magnification of the round buttons under the pointer.
     @Published private(set) var deckMagnify: Bool
     @Published private(set) var launcherSheetSide: EdgeSide
+    @Published private(set) var launcherSearchPosition: LauncherSearchPosition
     @Published private(set) var deckKeepOpen: Bool
     @Published private(set) var deckOpenOnHover: Bool
     @Published private(set) var deckTabPreview: Bool
@@ -276,6 +277,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
             Keys.launcherSheetSide: EdgeSide.right.rawValue,
+            Keys.launcherSearchPosition: LauncherSearchPosition.default.rawValue,
             Keys.deckKeepOpen: false,
             Keys.deckOpenOnHover: false,
             Keys.deckTabPreview: true,
@@ -310,6 +312,7 @@ final class AppSettingsStore: ObservableObject {
         deckScaleLeft = DeckSettingsRules.clampedScale(Self.storedNumericValue(defaults.object(forKey: Keys.deckScaleLeft)) ?? legacyScale)
         deckScaleRight = DeckSettingsRules.clampedScale(Self.storedNumericValue(defaults.object(forKey: Keys.deckScaleRight)) ?? legacyScale)
         deckMagnify = defaults.bool(forKey: Keys.deckMagnify)
+        launcherSearchPosition = LauncherSearchPosition.parse(defaults.string(forKey: Keys.launcherSearchPosition))
         launcherSheetSide = EdgeSide(rawValue: defaults.string(forKey: Keys.launcherSheetSide) ?? "") ?? .right
         deckKeepOpen = defaults.bool(forKey: Keys.deckKeepOpen)
         deckOpenOnHover = defaults.bool(forKey: Keys.deckOpenOnHover)
@@ -516,6 +519,12 @@ final class AppSettingsStore: ObservableObject {
             deckScaleRight = v
             defaults.set(v, forKey: Keys.deckScaleRight)
         }
+    }
+
+    func setLauncherSearchPosition(_ value: LauncherSearchPosition) {
+        guard launcherSearchPosition != value else { return }
+        launcherSearchPosition = value
+        defaults.set(value.rawValue, forKey: Keys.launcherSearchPosition)
     }
 
     func setLauncherSheetSide(_ value: EdgeSide) {
@@ -993,6 +1002,7 @@ private enum Keys {
     static let deckScaleRight = "com.katikati.edge.deckScale.right"
     static let deckMagnify = "com.katikati.edge.magnify"
     static let launcherSheetSide = "com.katikati.launcher.sheetSide"
+    static let launcherSearchPosition = "com.katikati.launcher.searchPosition"
     static let deckKeepOpen = "com.katikati.edge.alwaysShown"
     static let deckOpenOnHover = "com.katikati.edge.openOnHover"
     static let deckTabPreview = "com.katikati.edge.tabPreview"

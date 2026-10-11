@@ -88,6 +88,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var launcherPanel: LauncherPanelController = {
         let panel = LauncherPanelController()
         panel.sheetSide = { [weak self] in self?.settingsStore.launcherSheetSide ?? .right }
+        panel.searchPosition = { [weak self] in self?.settingsStore.launcherSearchPosition ?? .top }
         return panel
     }()
     private var terminationTask: Task<Void, Never>?
