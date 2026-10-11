@@ -4,12 +4,13 @@ import SwiftUI
 /// 窗口根视图。和权限引导同一个结构：滚动条平时不出现，窗口高度由内容自然高度决定，
 /// 只有被屏幕高度截断时才真的需要滚。
 struct WelcomeGuideWindowContent: View {
+    let layout: WelcomeGuideLayoutContext
     let onApply: (WelcomeGuideSelection) -> Void
     let onDismiss: () -> Void
 
     var body: some View {
         ScrollView(.vertical) {
-            WelcomeGuideView(onApply: onApply, onDismiss: onDismiss)
+            WelcomeGuideView(layout: layout, onApply: onApply, onDismiss: onDismiss)
         }
         .frame(width: WelcomeGuideView.contentWidth)
     }
@@ -27,17 +28,83 @@ struct WelcomeGuideWindowContent: View {
 /// （副标题、开头总述、每条勾选下面的灰色注解）一条不留，标题左边的图标去掉，⌥⌘D 那段的
 /// 灰底方块也去掉。分区只靠间距和一条分隔线。看到光秃秃的开关别「好心」把图标、色块或注解
 /// 补回来。唯一留下的说明是按钮行左侧那句闪屏预告。
+/// What the pick-a-layout step needs from the store, passed in so the probe and the live
+/// window render the same thing.
+struct WelcomeGuideLayoutContext {
+    var initialMode: BarLayoutMode
+    var inputs: LayoutThumbnailModel.Inputs
+    var onPick: (BarLayoutMode) -> Void
+}
+
 struct WelcomeGuideView: View {
+    let layout: WelcomeGuideLayoutContext
     let onApply: (WelcomeGuideSelection) -> Void
     let onDismiss: () -> Void
 
     @State private var selection = WelcomeGuideSelection.recommended
+    @State private var step = WelcomeGuideStep.first
+    @State private var pickedMode: BarLayoutMode?
 
     /// 宽度固定：窗口高度由 `fittingSize` 决定，宽度不能跟着文案长短抖。
     /// 取值和权限引导一致，两扇引导窗口该长得像一家人。
     static let contentWidth: CGFloat = 520
 
+    /// Both steps are always laid out, stacked; only the current one is visible. The window
+    /// height is measured once at creation (`AppDelegate.showWelcomeWindow`), so the
+    /// stack's height = the taller step and switching steps never changes it.
     var body: some View {
+        ZStack(alignment: .topLeading) {
+            ForEach(WelcomeGuideStep.allCases, id: \.self) { candidate in
+                let isCurrent = candidate == step
+                stepView(candidate)
+                    .opacity(isCurrent ? 1 : 0)
+                    .allowsHitTesting(isCurrent)
+                    .accessibilityHidden(!isCurrent)
+            }
+        }
+        .padding(28)
+        .frame(width: Self.contentWidth, alignment: .leading)
+        .animation(.easeInOut(duration: 0.15), value: step)
+    }
+
+    @ViewBuilder
+    private func stepView(_ step: WelcomeGuideStep) -> some View {
+        switch step {
+        case .pickLayout: pickLayoutStep
+        case .dockSettings: dockSettingsStep
+        }
+    }
+
+    private var currentMode: BarLayoutMode { pickedMode ?? layout.initialMode }
+
+    private var pickLayoutStep: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text("Pick a Layout")
+                .font(.title2.weight(.semibold))
+            Text("Choose how the bar sits at the bottom of your screen. You can change it any time in Settings or from the menu bar.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            LayoutModePicker(selection: currentMode, inputs: layout.inputs,
+                             thumbnailSize: CGSize(width: 74, height: 46)) { mode in
+                pickedMode = mode
+                layout.onPick(mode)
+            }
+            LayoutModeDetail(mode: currentMode)
+                .font(.callout)
+                .lineLimit(2)
+                .frame(maxWidth: .infinity, minHeight: 36, alignment: .topLeading)
+            Divider()
+            HStack(spacing: 8) {
+                Spacer()
+                Button("Continue") { if let next = self.step.next { self.step = next } }
+                    .keyboardShortcut(.defaultAction)
+                    .fixedSize()
+            }
+        }
+    }
+
+    private var dockSettingsStep: some View {
         VStack(alignment: .leading, spacing: 22) {
             // 图标撤走之后，标题得自己撑住这一屏的重心，所以比原来大一号。
             Text("Recommended Dock Settings")
@@ -61,6 +128,8 @@ struct WelcomeGuideView: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer()
+                Button("Back") { if let previous = step.previous { step = previous } }
+                    .fixedSize()
                 Button("Not Now") { onDismiss() }
                     .keyboardShortcut(.cancelAction)
                     .fixedSize()
@@ -70,8 +139,6 @@ struct WelcomeGuideView: View {
                     .fixedSize()
             }
         }
-        .padding(28)
-        .frame(width: Self.contentWidth, alignment: .leading)
     }
 
     private var options: some View {
