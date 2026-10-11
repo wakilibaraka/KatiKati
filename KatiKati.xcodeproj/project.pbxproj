@@ -163,6 +163,11 @@
 		A00000000000000000008021 /* StatusMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000008020 /* StatusMenuController.swift */; };
 		A00000000000000000008031 /* AppSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000008010 /* AppSettingsStore.swift */; };
 		A00000000000000000008041 /* AppSettingsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000008040 /* AppSettingsStoreTests.swift */; };
+		0040AB09E96D58C03A14B20A /* LayoutThumbnailModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71621D0CC7BC468347BECA35 /* LayoutThumbnailModelTests.swift */; };
+		CC14F71A4D844D747E8C8EB6 /* IconSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3142867DCDCA871461F8F7 /* IconSetTests.swift */; };
+		7CCEA0B12BC6D7CB27B79C8C /* WelcomeGuideOnboardingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D18EBBCA120BD5D255C5108B /* WelcomeGuideOnboardingTests.swift */; };
+		2813AE63913A8DF4A5C68CBE /* SettingsLayoutPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97A613F29432B20F1634E08E /* SettingsLayoutPane.swift */; };
+		2E8A037835590C15D95BB4E9 /* WelcomeGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B75000000000000000000013 /* WelcomeGuideView.swift */; };
 		A00000000000000000009011 /* LaunchAtLoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009010 /* LaunchAtLoginService.swift */; };
 		A00000000000000000009021 /* NativeDockPreferencesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009020 /* NativeDockPreferencesService.swift */; };
 		A00000000000000000009031 /* PanelVisibilityState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009030 /* PanelVisibilityState.swift */; };
@@ -387,11 +392,17 @@
 		B78000000000000000000021 /* LicenseVerifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B78000000000000000000023 /* LicenseVerifierTests.swift */; };
 		B78000000000000000000031 /* LicenseStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B78000000000000000000033 /* LicenseStoreTests.swift */; };
 		BB0000000000000000000002 /* BarLayoutMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000001 /* BarLayoutMode.swift */; };
+		A00720618B65E6161BAACE80 /* WelcomeGuideStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9F5F9BB45945C4ACF31863 /* WelcomeGuideStep.swift */; };
+		D44CF9896CA37048D61EBA4F /* LayoutThumbnailModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0732A6DFF85B596F56BA8F0F /* LayoutThumbnailModel.swift */; };
+		B91752371735E2BCF330DF67 /* IconSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F23A0D3709ED117AF62CA3 /* IconSet.swift */; };
 		BB0000000000000000000004 /* BarSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000003 /* BarSection.swift */; };
 		BB0000000000000000000006 /* IslandLayoutSolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000005 /* IslandLayoutSolver.swift */; };
 		BB0000000000000000000008 /* BarLayoutModeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000007 /* BarLayoutModeTests.swift */; };
 		BB0000000000000000000010 /* IslandLayoutSolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000009 /* IslandLayoutSolverTests.swift */; };
 		BB0000000000000000000011 /* BarLayoutMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000001 /* BarLayoutMode.swift */; };
+		DE43722061E5FCAF033BF9CA /* WelcomeGuideStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9F5F9BB45945C4ACF31863 /* WelcomeGuideStep.swift */; };
+		FB1AFD294543A43BC2C8C8BF /* LayoutThumbnailModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0732A6DFF85B596F56BA8F0F /* LayoutThumbnailModel.swift */; };
+		9743672C2E41F6EB7D15EAB5 /* IconSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F23A0D3709ED117AF62CA3 /* IconSet.swift */; };
 		BB0000000000000000000012 /* BarSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000003 /* BarSection.swift */; };
 		BB0000000000000000000013 /* IslandLayoutSolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000005 /* IslandLayoutSolver.swift */; };
 		BB0000000000000000000022 /* IslandSlotSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000021 /* IslandSlotSet.swift */; };
@@ -428,6 +439,8 @@
 		D20000000000000000000000 /* CarrierSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000000 /* CarrierSnapshot.swift */; };
 		D20000000000000000000001 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* SettingsWindowController.swift */; };
 		D20000000000000000000002 /* SettingsWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000002 /* SettingsWindowView.swift */; };
+		D72D6831819EC1CB40EF3F27 /* SettingsAppearancePane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FE57AFF9460A75564CD22C7 /* SettingsAppearancePane.swift */; };
+		3548F02FB356BA920CE2C9E9 /* SettingsLayoutPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97A613F29432B20F1634E08E /* SettingsLayoutPane.swift */; };
 		D20000000000000000000003 /* SettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000003 /* SettingsCoordinator.swift */; };
 		D20000000000000000000004 /* AutoHideToggleMenuModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000004 /* AutoHideToggleMenuModel.swift */; };
 		D20000000000000000000005 /* CarrierSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000000 /* CarrierSnapshot.swift */; };
@@ -710,6 +723,9 @@
 		A00000000000000000008010 /* AppSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsStore.swift; sourceTree = "<group>"; };
 		A00000000000000000008020 /* StatusMenuController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusMenuController.swift; sourceTree = "<group>"; };
 		A00000000000000000008040 /* AppSettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsStoreTests.swift; sourceTree = "<group>"; };
+		71621D0CC7BC468347BECA35 /* LayoutThumbnailModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutThumbnailModelTests.swift; sourceTree = "<group>"; };
+		6A3142867DCDCA871461F8F7 /* IconSetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconSetTests.swift; sourceTree = "<group>"; };
+		D18EBBCA120BD5D255C5108B /* WelcomeGuideOnboardingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeGuideOnboardingTests.swift; sourceTree = "<group>"; };
 		A00000000000000000009010 /* LaunchAtLoginService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginService.swift; sourceTree = "<group>"; };
 		A00000000000000000009020 /* NativeDockPreferencesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeDockPreferencesService.swift; sourceTree = "<group>"; };
 		A00000000000000000009030 /* PanelVisibilityState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelVisibilityState.swift; sourceTree = "<group>"; };
@@ -863,6 +879,9 @@
 		B78000000000000000000023 /* LicenseVerifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseVerifierTests.swift; sourceTree = "<group>"; };
 		B78000000000000000000033 /* LicenseStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseStoreTests.swift; sourceTree = "<group>"; };
 		BB0000000000000000000001 /* BarLayoutMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarLayoutMode.swift; sourceTree = "<group>"; };
+		AC9F5F9BB45945C4ACF31863 /* WelcomeGuideStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeGuideStep.swift; sourceTree = "<group>"; };
+		0732A6DFF85B596F56BA8F0F /* LayoutThumbnailModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutThumbnailModel.swift; sourceTree = "<group>"; };
+		37F23A0D3709ED117AF62CA3 /* IconSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconSet.swift; sourceTree = "<group>"; };
 		BB0000000000000000000003 /* BarSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarSection.swift; sourceTree = "<group>"; };
 		BB0000000000000000000005 /* IslandLayoutSolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandLayoutSolver.swift; sourceTree = "<group>"; };
 		BB0000000000000000000007 /* BarLayoutModeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarLayoutModeTests.swift; sourceTree = "<group>"; };
@@ -890,6 +909,8 @@
 		D10000000000000000000000 /* CarrierSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarrierSnapshot.swift; sourceTree = "<group>"; };
 		D10000000000000000000001 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 		D10000000000000000000002 /* SettingsWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowView.swift; sourceTree = "<group>"; };
+		6FE57AFF9460A75564CD22C7 /* SettingsAppearancePane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAppearancePane.swift; sourceTree = "<group>"; };
+		97A613F29432B20F1634E08E /* SettingsLayoutPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsLayoutPane.swift; sourceTree = "<group>"; };
 		D10000000000000000000003 /* SettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCoordinator.swift; sourceTree = "<group>"; };
 		D10000000000000000000004 /* AutoHideToggleMenuModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoHideToggleMenuModel.swift; sourceTree = "<group>"; };
 		D10000000000000000000005 /* DragCarrierGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragCarrierGeometry.swift; sourceTree = "<group>"; };
@@ -1218,6 +1239,8 @@
 				F1A0000000000000000000C0 /* HotKeyRecorderView.swift */,
 				F2A0000000000000000000A0 /* SettingsTab.swift */,
 				D10000000000000000000002 /* SettingsWindowView.swift */,
+				6FE57AFF9460A75564CD22C7 /* SettingsAppearancePane.swift */,
+				97A613F29432B20F1634E08E /* SettingsLayoutPane.swift */,
 				A00000000000000000000067 /* DockStripView.swift */,
 				A00000000000000000009D00 /* WindowTitleTooltip.swift */,
 				B71000000000000000000003 /* ScreenRectReader.swift */,
@@ -1416,6 +1439,9 @@
 				A0000000000000000000B060 /* PermissionOnboardingTests.swift */,
 				A00000000000000000000F04 /* FinderAppleEventMatcherTests.swift */,
 				A00000000000000000008040 /* AppSettingsStoreTests.swift */,
+				71621D0CC7BC468347BECA35 /* LayoutThumbnailModelTests.swift */,
+				6A3142867DCDCA871461F8F7 /* IconSetTests.swift */,
+				D18EBBCA120BD5D255C5108B /* WelcomeGuideOnboardingTests.swift */,
 				BB0000000000000000000007 /* BarLayoutModeTests.swift */,
 				BB0000000000000000000009 /* IslandLayoutSolverTests.swift */,
 				BB0000000000000000000024 /* IslandSlotSetTests.swift */,
@@ -1579,6 +1605,9 @@
 				B10000000000000000000112 /* MinimizeSettleGate.swift */,
 				B10000000000000000000117 /* TaskbarScreenPlacement.swift */,
 				BB0000000000000000000001 /* BarLayoutMode.swift */,
+				AC9F5F9BB45945C4ACF31863 /* WelcomeGuideStep.swift */,
+				0732A6DFF85B596F56BA8F0F /* LayoutThumbnailModel.swift */,
+				37F23A0D3709ED117AF62CA3 /* IconSet.swift */,
 				BB0000000000000000000003 /* BarSection.swift */,
 				BB0000000000000000000005 /* IslandLayoutSolver.swift */,
 				BB0000000000000000000021 /* IslandSlotSet.swift */,
@@ -1823,6 +1852,8 @@
 				A00000000000000000001040 /* AppDelegate.swift in Sources */,
 				D20000000000000000000001 /* SettingsWindowController.swift in Sources */,
 				D20000000000000000000002 /* SettingsWindowView.swift in Sources */,
+				D72D6831819EC1CB40EF3F27 /* SettingsAppearancePane.swift in Sources */,
+				3548F02FB356BA920CE2C9E9 /* SettingsLayoutPane.swift in Sources */,
 				D20000000000000000000003 /* SettingsCoordinator.swift in Sources */,
 				B78000000000000000000011 /* LicenseStore.swift in Sources */,
 				D20000000000000000000004 /* AutoHideToggleMenuModel.swift in Sources */,
@@ -1911,6 +1942,9 @@
 				B10000000000000000000113 /* MinimizeSettleGate.swift in Sources */,
 				B10000000000000000000118 /* TaskbarScreenPlacement.swift in Sources */,
 				BB0000000000000000000002 /* BarLayoutMode.swift in Sources */,
+				A00720618B65E6161BAACE80 /* WelcomeGuideStep.swift in Sources */,
+				D44CF9896CA37048D61EBA4F /* LayoutThumbnailModel.swift in Sources */,
+				B91752371735E2BCF330DF67 /* IconSet.swift in Sources */,
 				BB0000000000000000000004 /* BarSection.swift in Sources */,
 				BB0000000000000000000006 /* IslandLayoutSolver.swift in Sources */,
 				BB0000000000000000000022 /* IslandSlotSet.swift in Sources */,
@@ -2145,6 +2179,11 @@
 				D20000000000000000000066 /* DragLandingPlanTests.swift in Sources */,
 				D2000000000000000000006A /* StripBlockLandingTests.swift in Sources */,
 				A00000000000000000008041 /* AppSettingsStoreTests.swift in Sources */,
+				0040AB09E96D58C03A14B20A /* LayoutThumbnailModelTests.swift in Sources */,
+				CC14F71A4D844D747E8C8EB6 /* IconSetTests.swift in Sources */,
+				7CCEA0B12BC6D7CB27B79C8C /* WelcomeGuideOnboardingTests.swift in Sources */,
+				2813AE63913A8DF4A5C68CBE /* SettingsLayoutPane.swift in Sources */,
+				2E8A037835590C15D95BB4E9 /* WelcomeGuideView.swift in Sources */,
 				BB0000000000000000000008 /* BarLayoutModeTests.swift in Sources */,
 				BB0000000000000000000010 /* IslandLayoutSolverTests.swift in Sources */,
 				BB0000000000000000000025 /* IslandSlotSetTests.swift in Sources */,
@@ -2197,6 +2236,9 @@
 				B10000000000000000000114 /* MinimizeSettleGate.swift in Sources */,
 				B10000000000000000000119 /* TaskbarScreenPlacement.swift in Sources */,
 				BB0000000000000000000011 /* BarLayoutMode.swift in Sources */,
+				DE43722061E5FCAF033BF9CA /* WelcomeGuideStep.swift in Sources */,
+				FB1AFD294543A43BC2C8C8BF /* LayoutThumbnailModel.swift in Sources */,
+				9743672C2E41F6EB7D15EAB5 /* IconSet.swift in Sources */,
 				BB0000000000000000000012 /* BarSection.swift in Sources */,
 				BB0000000000000000000013 /* IslandLayoutSolver.swift in Sources */,
 				BB0000000000000000000023 /* IslandSlotSet.swift in Sources */,

@@ -1336,8 +1336,9 @@ for a gap the drill actually proves.*
 - **Visual regression gate:** `check_localization.py` stays green; screenshot
   golden-set per theme + icon-set across all 12 languages; no `tungsten` brand
   marks on product chips or menu bar (section 5.5 of the Phase-0 trademark audit).
-- Polish: hover-title tooltips per island, drag-to-resize grip per island panel,
-  edge auto-hide delay interplay with multi-island layouts.
+- Polish: hover-title tooltips per island, ~~drag-to-resize grip per island panel~~ (dropped,
+  owner 2026-10-11 — 4U decision 3: no on-dock resize handles), edge auto-hide delay interplay
+  with multi-island layouts.
 - **Rich inline chip variant (owner 2026-10-08, CoolDock parity, Phase 6+ polish).**
   *Intent: CoolDock screenshots 2–3 surface rich content (folder thumbnails,
   clipboard summaries, terminal+weather) inline in the pill, while our model puts
@@ -1375,6 +1376,64 @@ for a gap the drill actually proves.*
   edge scope when scheduled (owner to confirm phase).
 - **Verify**: mode/width/gaps persist across restarts; switch without relaunch; onboarding
   snapshot test green.
+
+**Phase 6 check log (STANDING_RULES §1.8):**
+- 2026-10-11 · **Plan + design.** Full plan re-read; design canvas (Layout tab, Appearance tab,
+  welcome step, status menu, polish) built as a claude.ai Design artifact. Owner picks:
+  icon set **Modern = current 3D trash art / Classic = SF Symbols**; welcome guide becomes
+  **two steps (Pick a layout → Dock settings)**. Canvas predates the 4U-A re-read (it drew split4
+  = split3); the shipped thumbnails come from the solver, so they show the real 1/3/4/5/1.
+- 2026-10-11 · **6a bottomGap — PASS.** `com.katikati.layout.bottomGap` (default 8 floating,
+  Hugging 2, clamp 0…12, whole points, non-finite → 8). The literal `8` in
+  `DockPanelHeight.metrics` became `metrics(bottomGap:)`; live callers read
+  `AppSettingsStore.layoutMetrics` (strip, capsule, coordinator) and `$bottomGap` joined the
+  relayout sink — every mode + capsule + drawer + window-lift context follow. `tungstenEdge`
+  stays at 8. Tests: hug pins beside the `8 − 20` one (2 → −18, 0 → −20, every mode's islands
+  drop by the delta) + store default/clamp/persist. Solver `validate()` untouched.
+- 2026-10-11 · **6b iconSet — PASS.** `com.katikati.iconSet` (`modern` default, unknown → modern)
+  in `Core/Support/IconSet.swift`; `\.iconSet` environment injected beside `\.dockThemeStyle`
+  (strip, drawer, capsule). Classic draws the trash as `trash` / `trash.fill` in themed label
+  colour and the menu-bar item as an SF Symbol, swapped live by a `$iconSet` sink. **Scope
+  note:** folder/download chips have no "modern" art of their own today (they show folder
+  covers), so the set covers trash + menu-bar icon only.
+- 2026-10-11 · **6c Layout tab — PASS.** New `SettingsTab.layout` + `SettingsLayoutPane`:
+  cropped live preview + five mode cards drawn by `LayoutThumbnailModel` (pure, solver-fed,
+  4 tests), bar height (existing `DockPanelHeight` setter/scaling path), island gap, side
+  margin, centered width (enabled only in Centered), widget widths (moved from General — also
+  fixes the missing "Now Playing" label there), bottom edge Floating/Hugging/Custom + slider.
+  Fixed-height mode description so the pane never changes height in place.
+- 2026-10-11 · **6d Appearance tab — PASS (code).** `SettingsTab.appearance`: Auto + 12 presets
+  + Custom, swatches drawn from the real `DockThemeStyleTokens` columns (Auto shows both),
+  custom tint + opacity → `.customRGBA`; Icon set segmented control with previews. Light/dark
+  stays in General (caption points there; no duplicate control). **Not verified live:** popups
+  and tooltip pick a theme change up on their next open (4c note) — an already-open popup is
+  not re-themed; left as is.
+- 2026-10-11 · **6e welcome step — PASS.** `WelcomeGuideStep` (pure) + two stacked steps in one
+  fixed-height view (the window is measured once). Step 1 writes the mode immediately via
+  `setBarLayoutMode`. **Onboarding snapshot test** = structural, in a real `NSHostingView`
+  (`WelcomeGuideOnboardingTests`: width fixed at 520, height independent of the starting mode,
+  every mode has solver islands) — no image goldens: that would need a new dependency.
+- 2026-10-11 · **6f status menu — PASS (code).** "Layout ▸": five modes (radio), Floating /
+  Hugging (a custom gap checks neither), "Layout Settings…" opening Settings on the Layout tab
+  (`SettingsWindowController.selectBeforePresenting`). Rows are fixed; only states refresh.
+- 2026-10-11 · **6g polish.** (a) Hover title per island section via `.help` (system tooltip,
+  no new panel). (b) **Auto-hide interplay gap found + fixed:** each island ran its own
+  idle-hide check against its own frame, so hovering the apps island let weather/clock hide on
+  their own; `isMouseOutsideInteractivePanels` now also asks the sibling islands on the same
+  display (`onQuerySiblingContainsMouse`), so the bar hides and stays as one surface. Wake was
+  already screen-wide. Not unit-testable (reads `NSEvent.mouseLocation`) → owner eyeball.
+  (c) **Drag-to-resize grip per island — DROPPED (owner 2026-10-11: "no on-dock resize
+  handles").** Phase 4U decision 3 wins; widths stay Settings sliders only. (d) Carried items (rich inline chip, light-preset tuning, 4e2,
+  DockDoor preview) untouched.
+- 2026-10-11 · **6h localization + gate — PASS.** 47 new keys × 12 (catalog 429 × 12,
+  `check_localization.py` ✅); stale `BarLayoutMode` split3/split4 copy corrected to the 4U-A
+  grouping. **Translations are agent drafts — owner review pending (§1.7).** No "Tungsten" in any
+  new UI copy. Gate: **1,731 tests, 0 failures**; debug switches 77/77; availability ✅.
+  Layout pane + welcome step rendered to PNG and eyeballed (dark mode); the live app was **not**
+  launched in this session.
+- **Not done / owner items:** per-theme × icon-set × 12-language image golden set (needs a
+  snapshot dependency or a manual capture pass); live check of persistence across relaunch and
+  of the status-menu entry; light-mode look of both new tabs.
 
 ### Phase 7 — Deferred, split into 7A / 7B (owner 2026-10-11: sign-off + mini-plan + license check each)
 

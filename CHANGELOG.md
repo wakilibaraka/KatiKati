@@ -18,6 +18,18 @@ All notable changes to KatiKati are documented in this file.
   into source, repo-root throwaway scripts, and `rm <glob>` inside the repo are
   forbidden. Full rule in `STANDING_RULES.md` §1 item 6.
 
+## [Unreleased] — Phase 6: Layout + Appearance settings
+
+### Added
+- Settings › Layout: live preview and mode picker drawn from the real layout solver, bar height, island gap, side margin, centered width, widget widths, and a Floating / Hugging bottom edge (`com.katikati.layout.bottomGap`, 0–12 pt).
+- Settings › Appearance: all 12 theme presets plus Auto and Custom, and an icon set switch (Modern 3D / Classic system symbols, `com.katikati.iconSet`).
+- Welcome guide opens with a "Pick a Layout" step before the Dock settings.
+- Status menu › Layout: switch mode and bottom edge, or open Layout settings.
+- Hover titles on each island section.
+
+### Fixed
+- With edge auto-hide on, all islands on a display now hide together; hovering one island no longer lets the others hide.
+
 ## [Unreleased] — Phase 5: Hardening + Floating Widgets
 
 ### Fixed

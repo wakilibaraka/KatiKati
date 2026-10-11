@@ -4,10 +4,8 @@ import Foundation
 ///
 /// KatiKati provides 5 distinct taskbar presentations:
 /// - `.windows`: Traditional single full-width bar across the bottom of the screen.
-/// - `.split3`: Three separate floating islands: Weather on the left, Apps centered, and Clock on the right.
-/// - `.split4`: Four-island grouping rule (left / apps / first right / rest right). With the
-///   canonical `weather → apps → clock` order (Phase 4U decision 8b removed `tray`) it
-///   produces the same 3 islands as `.split3`.
+/// - `.split3`: Three islands: launcher·weather / apps·media / clock·widgets (Phase 4U-A).
+/// - `.split4`: Four islands: launcher·weather / apps / media / clock·widgets (Phase 4U-A).
 /// - `.split5`: Five islands: launcher / weather / apps·media / clock / widgets (Phase 4U-A).
 /// - `.centered`: A single floating centered pill/island containing all elements.
 enum BarLayoutMode: String, CaseIterable, Codable, Sendable, Identifiable {
@@ -53,11 +51,11 @@ enum BarLayoutMode: String, CaseIterable, Codable, Sendable, Identifiable {
     var detail: String {
         switch self {
         case .windows:
-            return "Full-width bar with weather, centered apps and clock"
+            return "Full-width bar with every section in one strip"
         case .split3:
-            return "Three islands: weather on left, apps centered, clock on right"
+            return "Three islands: launcher and weather, apps and now playing, clock and widgets"
         case .split4:
-            return "Three islands (split-4 rule): weather on left, apps centered, clock"
+            return "Four islands: launcher and weather, apps, now playing, clock and widgets"
         case .split5:
             return "Five islands: launcher, weather, apps + now playing, clock, widgets"
         case .centered:
