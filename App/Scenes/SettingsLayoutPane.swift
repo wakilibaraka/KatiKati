@@ -246,9 +246,50 @@ struct SettingsLayoutPane: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+
+            section {
+                Text("Edge Bars")
+            } content: {
+                Picker("Edge Bars", selection: Binding(
+                    get: { store.edgeBarPreset },
+                    set: { store.setEdgeBarPreset($0) }
+                )) {
+                    ForEach(EdgeBarPreset.allCases, id: \.self) { Self.presetTitle($0).tag($0) }
+                }
+                .labelsHidden()
+                .pickerStyle(.segmented)
+                HStack {
+                    Text("Status Side")
+                    Spacer(minLength: 12)
+                    Picker("Status Side", selection: Binding(
+                        get: { store.edgeStatusSide },
+                        set: { store.setEdgeStatusSide($0) }
+                    )) {
+                        Text("Left").tag(EdgeSide.left)
+                        Text("Right").tag(EdgeSide.right)
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.segmented)
+                    .fixedSize()
+                    .disabled(store.edgeBarPreset == .off || store.edgeBarPreset == .notes)
+                }
+                Text("Slim bars on the screen edges for notes and system status. Notes stay on the right.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .padding(Self.margin)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private static func presetTitle(_ preset: EdgeBarPreset) -> Text {
+        switch preset {
+        case .off: return Text("Off")
+        case .notes: return Text("Notes")
+        case .notesAndStatus: return Text("Notes & Status")
+        case .status: return Text("Status")
+        }
     }
 
     private func widgetLabel(_ widget: BarSection) -> Text {

@@ -34,3 +34,35 @@ enum EdgeSlotSet {
         }
     }
 }
+
+/// What an edge bar hosts. Notes always live on the right edge; status follows the user's side.
+enum EdgeBarContent: String, Sendable {
+    case notes
+    case status
+}
+
+/// User-facing edge-bar presets (Phase 7A-2). Pure: resolves to content per edge.
+enum EdgeBarPreset: String, CaseIterable, Sendable {
+    case off
+    case notes
+    case notesAndStatus
+    case status
+
+    static let notesSide: EdgeSide = .right
+
+    /// Content hosted on each active edge for this preset and status side.
+    func content(statusSide: EdgeSide) -> [EdgeSide: [EdgeBarContent]] {
+        switch self {
+        case .off: return [:]
+        case .notes: return [Self.notesSide: [.notes]]
+        case .status: return [statusSide: [.status]]
+        case .notesAndStatus:
+            if statusSide == Self.notesSide { return [Self.notesSide: [.notes, .status]] }
+            return [Self.notesSide: [.notes], statusSide: [.status]]
+        }
+    }
+
+    func activeSides(statusSide: EdgeSide) -> Set<EdgeSide> {
+        Set(content(statusSide: statusSide).keys)
+    }
+}

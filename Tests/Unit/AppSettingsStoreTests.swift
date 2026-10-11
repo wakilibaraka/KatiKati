@@ -127,13 +127,13 @@ final class AppSettingsStoreTests: XCTestCase {
     func testEdgeBarSettingsDefaultOffRightClampAndPersist() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertFalse(store.edgeBarsEnabled)
+        XCTAssertEqual(store.edgeBarPreset, .off)
         XCTAssertEqual(store.edgeStatusSide, .right)
         XCTAssertEqual(store.edgeGap, 2)
         XCTAssertEqual(store.edgeMargin, 8)
         XCTAssertTrue(store.edgeActiveSides.isEmpty, "off = no edge slots")
 
-        store.setEdgeBarsEnabled(true)
+        store.setEdgeBarPreset(.notesAndStatus)
         XCTAssertEqual(store.edgeActiveSides, [.right])
         store.setEdgeStatusSide(.left)
         XCTAssertEqual(store.edgeActiveSides, [.left, .right])
@@ -143,7 +143,7 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.edgeMargin, 0.5)
 
         let reloaded = AppSettingsStore(defaults: defaults)
-        XCTAssertTrue(reloaded.edgeBarsEnabled)
+        XCTAssertEqual(reloaded.edgeBarPreset, .notesAndStatus)
         XCTAssertEqual(reloaded.edgeStatusSide, .left)
         XCTAssertEqual(reloaded.edgeGap, 0.5)
     }

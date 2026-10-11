@@ -1561,6 +1561,13 @@ upgrades, wallpaper/personalisation, extra flyouts.
   visible only while a sibling island unit is logically visible (fullscreen hides both atomically),
   included in `allSpacesPanels`. Tests: `EdgeBarSlotTests` (11) + settings test. Not yet done:
   live fullscreen/Spaces eyeball, side-edge auto-hide (7A-3).
+- 2026-10-11 · **7A-2 presets + Settings landed (gate green, 1745 tests):** `EdgeBarPreset`
+  (off / notes / notesAndStatus / status → content per edge, notes always right, status on the
+  chosen side) in `Core/Support/EdgeBarSlot.swift`; `com.katikati.edge.preset` replaces the
+  never-released `edge.enabled` bool; "Edge Bars" section in `SettingsLayoutPane` (preset
+  segmented control + Status Side Left/Right, disabled when no status). 6 new strings x12
+  (**drafts, owner review — §1.7b**), added as one line-anchored insert (+462 lines, generated
+  file; committed separately). Phase 12 settings refinement may relocate the section.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

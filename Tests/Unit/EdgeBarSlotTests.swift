@@ -97,4 +97,19 @@ final class EdgeBarSlotTests: XCTestCase {
         let f = PanelGeometry.edgeBarTargetFrame(side: .right, contentHeight: 5000, width: 56, on: s, metrics: metrics)
         XCTAssertLessThanOrEqual(f.maxY, s.topUsableY + 0.001)
     }
+
+    // MARK: Presets
+
+    func testPresetsResolveContentPerEdge() {
+        XCTAssertTrue(EdgeBarPreset.off.content(statusSide: .right).isEmpty)
+        XCTAssertEqual(EdgeBarPreset.notes.content(statusSide: .left), [.right: [.notes]])
+        XCTAssertEqual(EdgeBarPreset.status.content(statusSide: .left), [.left: [.status]])
+        XCTAssertEqual(EdgeBarPreset.notesAndStatus.content(statusSide: .right), [.right: [.notes, .status]])
+        XCTAssertEqual(EdgeBarPreset.notesAndStatus.content(statusSide: .left), [.right: [.notes], .left: [.status]])
+    }
+
+    func testActiveSidesAndRawValuesAreStable() {
+        XCTAssertEqual(EdgeBarPreset.notesAndStatus.activeSides(statusSide: .left), [.left, .right])
+        XCTAssertEqual(EdgeBarPreset.allCases.map(\.rawValue), ["off", "notes", "notesAndStatus", "status"])
+    }
 }

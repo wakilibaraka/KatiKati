@@ -154,8 +154,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var islandMargin: CGFloat
     /// 条底与屏幕下缘的间距（points，默认 8 = 浮动，Hugging 预设 2，限制 0...12）。
     @Published private(set) var bottomGap: CGFloat
-    /// Edge bars (Phase 7A): master switch, off until content slices land.
-    @Published private(set) var edgeBarsEnabled: Bool
+    /// Edge bars (Phase 7A): preset, `.off` until the owner opts in.
+    @Published private(set) var edgeBarPreset: EdgeBarPreset
     /// Side the status cluster lives on (notes stay right). Default right.
     @Published private(set) var edgeStatusSide: EdgeSide
     /// Edge-bar gap above the bottom bar / margin from the screen side (min 0.5, Appendix C).
@@ -245,7 +245,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.islandGap: Double(Self.defaultIslandGap),
             Keys.islandMargin: Double(Self.defaultIslandMargin),
             Keys.bottomGap: Double(PanelLayoutMetrics.floatingBottomGap),
-            Keys.edgeEnabled: false,
+            Keys.edgePreset: EdgeBarPreset.off.rawValue,
             Keys.edgeStatusSide: EdgeSide.right.rawValue,
             Keys.edgeGap: Double(PanelGeometry.edgeBarDefaultBottomGap),
             Keys.edgeMargin: 8.0,
@@ -266,7 +266,7 @@ final class AppSettingsStore: ObservableObject {
         islandMargin = CGFloat(max(Double(Self.minimumIslandMargin), storedMargin))
         let storedBottomGap = Self.storedNumericValue(defaults.object(forKey: Keys.bottomGap)) ?? Double(PanelLayoutMetrics.floatingBottomGap)
         bottomGap = Self.clampedBottomGap(CGFloat(storedBottomGap))
-        edgeBarsEnabled = defaults.bool(forKey: Keys.edgeEnabled)
+        edgeBarPreset = EdgeBarPreset(rawValue: defaults.string(forKey: Keys.edgePreset) ?? "") ?? .off
         edgeStatusSide = EdgeSide(rawValue: defaults.string(forKey: Keys.edgeStatusSide) ?? "") ?? .right
         edgeGap = Self.clampedEdgeSpacing(Self.storedNumericValue(defaults.object(forKey: Keys.edgeGap)), fallback: PanelGeometry.edgeBarDefaultBottomGap)
         edgeMargin = Self.clampedEdgeSpacing(Self.storedNumericValue(defaults.object(forKey: Keys.edgeMargin)), fallback: 8)
@@ -407,10 +407,10 @@ final class AppSettingsStore: ObservableObject {
         return min(max(value.rounded(), range.lowerBound), range.upperBound)
     }
 
-    func setEdgeBarsEnabled(_ value: Bool) {
-        guard edgeBarsEnabled != value else { return }
-        edgeBarsEnabled = value
-        defaults.set(value, forKey: Keys.edgeEnabled)
+    func setEdgeBarPreset(_ value: EdgeBarPreset) {
+        guard edgeBarPreset != value else { return }
+        edgeBarPreset = value
+        defaults.set(value.rawValue, forKey: Keys.edgePreset)
     }
 
     func setEdgeStatusSide(_ value: EdgeSide) {
@@ -439,9 +439,9 @@ final class AppSettingsStore: ObservableObject {
         return max(PanelGeometry.edgeBarMinimumSpacing, CGFloat(value))
     }
 
-    /// Sides that currently host an edge bar: notes are always right, status follows its setting.
+    /// Sides that currently host an edge bar, from the preset and the status side.
     var edgeActiveSides: Set<EdgeSide> {
-        edgeBarsEnabled ? [.right, edgeStatusSide] : []
+        edgeBarPreset.activeSides(statusSide: edgeStatusSide)
     }
 
     /// Live panel geometry: the height-derived metrics plus the user's bottom gap.
@@ -790,7 +790,7 @@ private enum Keys {
     static let islandGap = "com.katikati.layout.islandGap"
     static let islandMargin = "com.katikati.layout.islandMargin"
     static let bottomGap = "com.katikati.layout.bottomGap"
-    static let edgeEnabled = "com.katikati.edge.enabled"
+    static let edgePreset = "com.katikati.edge.preset"
     static let edgeStatusSide = "com.katikati.edge.status.side"
     static let edgeGap = "com.katikati.edge.gap"
     static let edgeMargin = "com.katikati.edge.margin"

@@ -208,7 +208,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.reconcileFullscreenIntentMonitor() }
         edgeSettingsSubscription = Publishers.CombineLatest4(
-            settingsStore.$edgeBarsEnabled, settingsStore.$edgeStatusSide,
+            settingsStore.$edgeBarPreset, settingsStore.$edgeStatusSide,
             settingsStore.$edgeGap, settingsStore.$edgeMargin
         )
         .dropFirst()
@@ -295,7 +295,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     private var lastConnectedKeys: [String] = []
 
     private func edgeBarsActive() -> Bool {
-        settingsStore.edgeBarsEnabled
+        settingsStore.edgeBarPreset != .off
             || DebugSwitch.edgeBars.isEnabled(in: ProcessInfo.processInfo.environment)
     }
 
