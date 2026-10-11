@@ -136,3 +136,121 @@ final class WeatherResponseParsingTests: XCTestCase {
         XCTAssertEqual(legacy.cityName, "Istanbul")
     }
 }
+
+// MARK: - 5g-A extended payload
+
+final class WeatherDetailTests: XCTestCase {
+    private let fixture = """
+    {
+      "latitude": 40.99, "longitude": 28.97,
+      "current_weather": {"temperature": 20.0, "weathercode": 61, "time": "2026-10-11T14:00", "is_day": 1},
+      "current": {"relative_humidity_2m": 60, "apparent_temperature": 19.0, "precipitation": 0.4, "cloud_cover": 80,
+                  "pressure_msl": 1012.5, "wind_speed_10m": 18, "wind_direction_10m": 200, "wind_gusts_10m": 35},
+      "hourly": {
+        "time": ["2026-10-11T13:00", "2026-10-11T14:00", "2026-10-11T15:00"],
+        "temperature_2m": [19.0, 20.0, 21.0], "weathercode": [3, 61, 63],
+        "apparent_temperature": [18.0, 19.0, 20.0], "precipitation_probability": [10, 55, 70],
+        "precipitation": [0, 0.4, 1.2], "snowfall": [0, 0, 0], "relative_humidity_2m": [58, 60, 65],
+        "wind_speed_10m": [15, 18, 20], "wind_gusts_10m": [30, 35, 40], "cloud_cover": [70, 80, 90],
+        "visibility": [24000, 20000, 15000], "uv_index": [3, 2.5, 2], "is_day": [1, 1, 1]
+      },
+      "daily": {
+        "time": ["2026-10-11", "2026-10-12"], "weathercode": [61, 3],
+        "temperature_2m_max": [22, 20], "temperature_2m_min": [14, 13],
+        "precipitation_sum": [3.5, 0], "snowfall_sum": [0, 0], "precipitation_probability_max": [70, 10],
+        "uv_index_max": [4, 3], "wind_speed_10m_max": [25, 18], "wind_gusts_10m_max": [45, 30],
+        "sunrise": ["2026-10-11T07:12", "2026-10-12T07:13"], "sunset": ["2026-10-11T18:22", "2026-10-12T18:20"]
+      }
+    }
+    """.data(using: .utf8)!
+
+    func testExtendedParseStartsAtTheCurrentHour() throws {
+        let state = try WeatherResponseParsing.parse(data: fixture, cityName: "Istanbul", previousHourly: [])
+        let d = try XCTUnwrap(state.detail)
+        XCTAssertEqual(d.hourly.count, 2, "13:00 is before the current hour")
+        XCTAssertEqual(d.hourly[0].time, "2026-10-11T14:00")
+        XCTAssertEqual(d.hourly[0].hourLabel, "14:00")
+        XCTAssertEqual(d.hourly[1].precipProbability, 70)
+        XCTAssertEqual(d.apparent, 19.0)
+        XCTAssertEqual(d.pressure, 1012.5)
+        XCTAssertEqual(d.windDirection, 200)
+        XCTAssertEqual(d.visibilityMeters, 20000)
+        XCTAssertEqual(d.uvIndex, 2.5)
+        XCTAssertEqual(d.daily.count, 2)
+        XCTAssertEqual(d.sunrise, "2026-10-11T07:12")
+        XCTAssertEqual(d.daily[0].gustMax, 45)
+        XCTAssertEqual(d.latitude, 40.99)
+    }
+
+    func testNewStyleCurrentBlockAloneIsEnough() throws {
+        let json = """
+        {"latitude": 1, "longitude": 2,
+         "current": {"time": "2026-10-11T14:15", "temperature_2m": 12.5, "weather_code": 71, "is_day": 0,
+                     "relative_humidity_2m": 80, "apparent_temperature": 10},
+         "hourly": {"time": ["2026-10-11T14:00"], "temperature_2m": [12.5], "weathercode": [71]}}
+        """.data(using: .utf8)!
+        let state = try WeatherResponseParsing.parse(data: json, cityName: "Oslo", previousHourly: [])
+        XCTAssertEqual(state.temperatureCelsius, 12.5)
+        XCTAssertEqual(state.conditionFamily, .snow)
+        XCTAssertTrue(state.isNight)
+        XCTAssertEqual(state.detail?.humidity, 80)
+    }
+
+    func testLegacyPayloadHasNoDetailAndOldCacheStillDecodes() throws {
+        let legacy = """
+        {"current_weather": {"temperature": 15.5, "weathercode": 3, "time": "2026-10-08T10:00"},
+         "hourly": {"time": ["2026-10-08T10:00"], "temperature_2m": [15.5], "weathercode": [3]}}
+        """.data(using: .utf8)!
+        XCTAssertNil(try WeatherResponseParsing.parse(data: legacy, cityName: "X", previousHourly: []).detail)
+
+        let oldCache = """
+        {"cityName":"Old","temperatureCelsius":10,"conditionText":"Rain","symbolName":"cloud.rain.fill",
+         "highCelsius":12,"lowCelsius":6,"hourly":[],"daily":[],"isLive":false,"lastUpdated":0}
+        """.data(using: .utf8)!
+        XCTAssertNil(try JSONDecoder().decode(WeatherState.self, from: oldCache).detail)
+    }
+
+    func testStateWithDetailRoundTripsThroughTheCache() throws {
+        let state = try WeatherResponseParsing.parse(data: fixture, cityName: "Istanbul", previousHourly: [])
+        let back = try JSONDecoder().decode(WeatherState.self, from: JSONEncoder().encode(state))
+        XCTAssertEqual(back.detail, state.detail)
+    }
+
+    func testForecastURLAsksForEverythingTheTilesNeed() {
+        let url = WeatherRequest.forecastURL(latitude: 1, longitude: 2)
+        for key in ["apparent_temperature", "precipitation_probability", "snowfall", "uv_index", "visibility",
+                    "wind_gusts_10m", "current=temperature_2m,weather_code,is_day", "sunrise", "sunset", "forecast_days=16", "forecast_hours=48", "timezone=auto"] {
+            XCTAssertTrue(url.contains(key), key)
+        }
+        XCTAssertFalse(url.contains("current_weather"), "current_weather=true suppresses the `current` block")
+        XCTAssertNotNil(URL(string: url))
+    }
+
+    func testUnitConversions() {
+        XCTAssertEqual(TemperatureUnit.fahrenheit.convert(100), 212, accuracy: 0.001)
+        XCTAssertEqual(WeatherUnits.degrees(-0.4, .celsius), "0°")
+        XCTAssertEqual(WeatherUnits.degrees(21.6, .fahrenheit), "71°")
+        XCTAssertEqual(WindSpeedUnit.mph.convert(kmh: 100), 62.1371, accuracy: 0.001)
+        XCTAssertEqual(WindSpeedUnit.ms.convert(kmh: 36), 10, accuracy: 0.001)
+        XCTAssertEqual(WeatherUnits.wind(36, .ms), "10 m/s")
+    }
+
+    func testCompassAndDewPoint() {
+        XCTAssertEqual(WeatherUnits.compass(0), "N")
+        XCTAssertEqual(WeatherUnits.compass(359), "N")
+        XCTAssertEqual(WeatherUnits.compass(200), "S")
+        XCTAssertEqual(WeatherUnits.compass(-90), "W")
+        XCTAssertEqual(WeatherUnits.dewPoint(temperature: 20, humidity: 100), 20, accuracy: 0.05)
+        XCTAssertEqual(WeatherUnits.dewPoint(temperature: 20, humidity: 50), 9.3, accuracy: 0.2)
+    }
+
+    func testMoonPhaseAnchors() {
+        let newMoon = Date(timeIntervalSince1970: 947_182_440)
+        XCTAssertEqual(MoonPhase.fraction(at: newMoon), 0, accuracy: 0.001)
+        XCTAssertEqual(MoonPhase.illumination(at: newMoon), 0, accuracy: 0.001)
+        let full = newMoon.addingTimeInterval(14.765 * 86_400)
+        XCTAssertEqual(MoonPhase.illumination(at: full), 1, accuracy: 0.01)
+        XCTAssertEqual(MoonPhase.symbolName(at: full), "moonphase.full.moon")
+        XCTAssertEqual(MoonPhase.symbolName(at: newMoon), "moonphase.new.moon")
+    }
+}

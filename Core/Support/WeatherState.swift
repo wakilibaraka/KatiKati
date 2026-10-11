@@ -75,6 +75,8 @@ public struct WeatherState: Codable, Equatable, Sendable {
     /// (the computed fallbacks below recover them from `symbolName`).
     public var condition: WeatherCondition?
     public var isDay: Bool?
+    /// 5g: rich payload for the weather tiles; nil for caches written before 5g.
+    public var detail: WeatherDetail?
 
     /// Always resolves: stored value, else inferred from the legacy symbol, else `.cloudy`.
     public var conditionFamily: WeatherCondition {
@@ -95,7 +97,8 @@ public struct WeatherState: Codable, Equatable, Sendable {
         isLive: Bool,
         lastUpdated: Date,
         condition: WeatherCondition? = nil,
-        isDay: Bool? = nil
+        isDay: Bool? = nil,
+        detail: WeatherDetail? = nil
     ) {
         self.cityName = cityName
         self.temperatureCelsius = temperatureCelsius
@@ -109,6 +112,7 @@ public struct WeatherState: Codable, Equatable, Sendable {
         self.lastUpdated = lastUpdated
         self.condition = condition
         self.isDay = isDay
+        self.detail = detail
     }
 
     public static let empty = WeatherState(

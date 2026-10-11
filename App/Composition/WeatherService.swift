@@ -97,7 +97,7 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
     }
 
     private func fetchWeather(latitude: Double, longitude: Double, city: String) async {
-        let urlString = "https://api.open-meteo.com/v1/forecast?latitude=\(latitude)&longitude=\(longitude)&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&forecast_days=14&hourly=temperature_2m,weathercode&timezone=auto"
+        let urlString = WeatherRequest.forecastURL(latitude: latitude, longitude: longitude)
         guard let url = URL(string: urlString) else { return }
 
         do {
