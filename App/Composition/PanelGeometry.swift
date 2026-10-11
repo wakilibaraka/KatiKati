@@ -510,6 +510,39 @@ enum PanelGeometry {
         widgetPanelFrame(on: screen, layout: .mac, contentHeight: .greatestFiniteMagnitude, metrics: metrics).height
     }
 
+    // MARK: Edge bars (Phase 7A)
+
+    /// Minimum gap/margin for edge bars (Appendix C).
+    static let edgeBarMinimumSpacing: CGFloat = 0.5
+    /// Edge bars default to hugging the bottom bar (Appendix C), unlike floating islands.
+    static let edgeBarDefaultBottomGap: CGFloat = 2
+
+    /// Frame of a vertical edge bar: `margin` in from its side edge, vertically centered between
+    /// the menu bar (`topUsableY`) and the bottom bar's top (+ `gap`), `contentHeight`-sized and
+    /// clamped so it never overlaps either. Always `⊆ visibleFrame` (bottom-left origin). Pure.
+    static func edgeBarTargetFrame(
+        side: EdgeSide,
+        contentHeight: CGFloat,
+        width: CGFloat,
+        on screen: PanelScreenGeometry,
+        gap: CGFloat = edgeBarDefaultBottomGap,
+        margin: CGFloat = 8,
+        metrics: PanelLayoutMetrics = .tungstenEdge
+    ) -> CGRect {
+        let visible = screen.visibleFrame
+        let edgeMargin = max(edgeBarMinimumSpacing, margin)
+        let edgeGap = max(edgeBarMinimumSpacing, gap)
+        let barTop = max(screen.frame.minY, visible.minY) + metrics.bottomGap + metrics.panelHeight
+        let bottom = barTop + edgeGap
+        let top = min(visible.maxY, screen.topUsableY)
+        let available = max(0, top - bottom)
+        let height = min(max(0, contentHeight), available)
+        let w = min(max(0, width), max(0, visible.width - 2 * edgeMargin))
+        let x = side == .right ? visible.maxX - edgeMargin - w : visible.minX + edgeMargin
+        let y = bottom + (available - height) / 2
+        return CGRect(x: x, y: y, width: w, height: height)
+    }
+
     // MARK: Folder / shelf / Trash popup
     //
     // The popup window is the plate plus a transparent `StackPopupMetrics.panelMargin` border on

@@ -1542,6 +1542,25 @@ dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.
 
 **Phase 7 check log (append after every step — STANDING_RULES §1.8):**
+- 2026-10-11 · **7A sign-off + sliced (owner):** status cluster defaults to the **right edge
+  with notes**; side is a Settings option with user-friendly presets (7A-2). Slices: 7A-0 refs →
+  7A-1 foundation → 7A-2 presets/Settings → 7A-3 side-edge auto-hide → 7A-4 status providers
+  (real Wi-Fi/battery/volume; today's `SystemStatusProvider` is a stub, `TrayChip` orphaned) →
+  7A-5 status trio chip → 7A-6 notes store+sync → 7A-7 notes UI → 7A-8 widgets bar → 7A-9 verify.
+  Plan correction: no FAB panel exists (FABs are in-strip `SectionFABGlyph`s); edge panels follow
+  `WidgetPanelController`/capsule patterns instead.
+- 2026-10-11 · **7A-0 refs studied (scratchpad clones, study only):** EdgeDeckBar MIT, noty MIT,
+  status-trio **Apache-2.0** (needs NOTICE entry if behavior is derived); EdgeDeckBar and
+  status-trio are `swift-tools 6.0`, status-trio floor **macOS 13** vs our 12 → investigate before
+  any use. No code taken.
+- 2026-10-11 · **7A-1 foundation landed (gate green, 1743 tests):** `Core/Support/EdgeBarSlot.swift`
+  (`EdgeSide`, `EdgeSlotSet` → `displayUUID#edge-left|right`), `PanelGeometry.edgeBarTargetFrame`
+  (vertical, ⊆ visibleFrame, 0.5 pt min, hugging 2 pt), `com.katikati.edge.{enabled,status.side,gap,margin}`
+  in `AppSettingsStore` (default off), `DOCK_EDGE_BARS` (=1 forces on), slim `EdgeBarPanelController`
+  (placeholder plate), orchestrator `reconcileEdgeBars` with a separate `edgeControllers` map (islands untouched),
+  visible only while a sibling island unit is logically visible (fullscreen hides both atomically),
+  included in `allSpacesPanels`. Tests: `EdgeBarSlotTests` (11) + settings test. Not yet done:
+  live fullscreen/Spaces eyeball, side-edge auto-hide (7A-3).
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

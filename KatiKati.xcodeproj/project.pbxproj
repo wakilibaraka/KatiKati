@@ -225,6 +225,7 @@
 		A00000000000000000009721 /* MessagingAppStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009720 /* MessagingAppStoreTests.swift */; };
 		A00000000000000000009731 /* DragControllerConversionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009730 /* DragControllerConversionTests.swift */; };
 		A00000000000000000009751 /* NonConstrainingPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009750 /* NonConstrainingPanel.swift */; };
+		ED0000000000000000000007 /* EdgeBarPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000006 /* EdgeBarPanelController.swift */; };
 		A00000000000000000009752 /* NonConstrainingPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009750 /* NonConstrainingPanel.swift */; };
 		A00000000000000000009771 /* MessagingWindowOrderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009770 /* MessagingWindowOrderingTests.swift */; };
 		A00000000000000000009810 /* CGWindowSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009800 /* CGWindowSnapshot.swift */; };
@@ -408,6 +409,9 @@
 		BB0000000000000000000022 /* IslandSlotSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000021 /* IslandSlotSet.swift */; };
 		BB0000000000000000000023 /* IslandSlotSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000021 /* IslandSlotSet.swift */; };
 		BB0000000000000000000025 /* IslandSlotSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000024 /* IslandSlotSetTests.swift */; };
+		ED0000000000000000000003 /* EdgeBarSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000001 /* EdgeBarSlot.swift */; };
+		ED0000000000000000000004 /* EdgeBarSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000001 /* EdgeBarSlot.swift */; };
+		ED0000000000000000000005 /* EdgeBarSlotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000002 /* EdgeBarSlotTests.swift */; };
 		BB0000000000000000000027 /* IslandPanelGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000026 /* IslandPanelGeometryTests.swift */; };
 		BB0000000000000000000029 /* IslandStripProjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000028 /* IslandStripProjectionTests.swift */; };
 		BB0000000000000000000031 /* IslandAnchorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000030 /* IslandAnchorTests.swift */; };
@@ -767,6 +771,7 @@
 		A00000000000000000009710 /* DragConversionPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragConversionPlanTests.swift; sourceTree = "<group>"; };
 		A00000000000000000009720 /* MessagingAppStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingAppStoreTests.swift; sourceTree = "<group>"; };
 		A00000000000000000009730 /* DragControllerConversionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragControllerConversionTests.swift; sourceTree = "<group>"; };
+		ED0000000000000000000006 /* EdgeBarPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeBarPanelController.swift; sourceTree = "<group>"; };
 		A00000000000000000009750 /* NonConstrainingPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonConstrainingPanel.swift; sourceTree = "<group>"; };
 		A00000000000000000009770 /* MessagingWindowOrderingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingWindowOrderingTests.swift; sourceTree = "<group>"; };
 		A00000000000000000009800 /* CGWindowSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGWindowSnapshot.swift; sourceTree = "<group>"; };
@@ -888,6 +893,8 @@
 		BB0000000000000000000009 /* IslandLayoutSolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandLayoutSolverTests.swift; sourceTree = "<group>"; };
 		BB0000000000000000000021 /* IslandSlotSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandSlotSet.swift; sourceTree = "<group>"; };
 		BB0000000000000000000024 /* IslandSlotSetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandSlotSetTests.swift; sourceTree = "<group>"; };
+		ED0000000000000000000001 /* EdgeBarSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeBarSlot.swift; sourceTree = "<group>"; };
+		ED0000000000000000000002 /* EdgeBarSlotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeBarSlotTests.swift; sourceTree = "<group>"; };
 		BB0000000000000000000026 /* IslandPanelGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandPanelGeometryTests.swift; sourceTree = "<group>"; };
 		BB0000000000000000000028 /* IslandStripProjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandStripProjectionTests.swift; sourceTree = "<group>"; };
 		BB0000000000000000000030 /* IslandAnchorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandAnchorTests.swift; sourceTree = "<group>"; };
@@ -1156,6 +1163,7 @@
 				A0000000000000000000006C /* PanelCoordinator.swift */,
 				B10000000000000000000121 /* TaskbarScreenOrchestrator.swift */,
 				A00000000000000000009750 /* NonConstrainingPanel.swift */,
+				ED0000000000000000000006 /* EdgeBarPanelController.swift */,
 			);
 			path = Entry;
 			sourceTree = "<group>";
@@ -1445,6 +1453,7 @@
 				BB0000000000000000000007 /* BarLayoutModeTests.swift */,
 				BB0000000000000000000009 /* IslandLayoutSolverTests.swift */,
 				BB0000000000000000000024 /* IslandSlotSetTests.swift */,
+				ED0000000000000000000002 /* EdgeBarSlotTests.swift */,
 				BB0000000000000000000026 /* IslandPanelGeometryTests.swift */,
 				BB0000000000000000000028 /* IslandStripProjectionTests.swift */,
 				BB0000000000000000000030 /* IslandAnchorTests.swift */,
@@ -1611,6 +1620,7 @@
 				BB0000000000000000000003 /* BarSection.swift */,
 				BB0000000000000000000005 /* IslandLayoutSolver.swift */,
 				BB0000000000000000000021 /* IslandSlotSet.swift */,
+				ED0000000000000000000001 /* EdgeBarSlot.swift */,
 				BB0000000000000000000036 /* DockThemeStyle.swift */,
 				BB000000000000000000003B /* DockThemeStyleTokens.swift */,
 				B1000000000000000000011C /* TaskbarDisplaySet.swift */,
@@ -1889,6 +1899,7 @@
 				A00000000000000000005011 /* StripOrderStore.swift in Sources */,
 				A00000000000000000006011 /* DragController.swift in Sources */,
 				A00000000000000000009751 /* NonConstrainingPanel.swift in Sources */,
+				ED0000000000000000000007 /* EdgeBarPanelController.swift in Sources */,
 				A00000000000000000007011 /* DrawerOrderStore.swift in Sources */,
 				A00000000000000000008011 /* AppSettingsStore.swift in Sources */,
 				A00000000000000000009F01 /* GlobalHotKeyMonitor.swift in Sources */,
@@ -1948,6 +1959,7 @@
 				BB0000000000000000000004 /* BarSection.swift in Sources */,
 				BB0000000000000000000006 /* IslandLayoutSolver.swift in Sources */,
 				BB0000000000000000000022 /* IslandSlotSet.swift in Sources */,
+				ED0000000000000000000003 /* EdgeBarSlot.swift in Sources */,
 				BB0000000000000000000037 /* DockThemeStyle.swift in Sources */,
 				BB000000000000000000003C /* DockThemeStyleTokens.swift in Sources */,
 				B1000000000000000000011D /* TaskbarDisplaySet.swift in Sources */,
@@ -2187,6 +2199,7 @@
 				BB0000000000000000000008 /* BarLayoutModeTests.swift in Sources */,
 				BB0000000000000000000010 /* IslandLayoutSolverTests.swift in Sources */,
 				BB0000000000000000000025 /* IslandSlotSetTests.swift in Sources */,
+				ED0000000000000000000005 /* EdgeBarSlotTests.swift in Sources */,
 				BB0000000000000000000027 /* IslandPanelGeometryTests.swift in Sources */,
 				BB0000000000000000000029 /* IslandStripProjectionTests.swift in Sources */,
 				BB0000000000000000000031 /* IslandAnchorTests.swift in Sources */,
@@ -2242,6 +2255,7 @@
 				BB0000000000000000000012 /* BarSection.swift in Sources */,
 				BB0000000000000000000013 /* IslandLayoutSolver.swift in Sources */,
 				BB0000000000000000000023 /* IslandSlotSet.swift in Sources */,
+				ED0000000000000000000004 /* EdgeBarSlot.swift in Sources */,
 				BB0000000000000000000038 /* DockThemeStyle.swift in Sources */,
 				BB000000000000000000003D /* DockThemeStyleTokens.swift in Sources */,
 				B1000000000000000000011E /* TaskbarDisplaySet.swift in Sources */,

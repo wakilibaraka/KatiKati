@@ -207,6 +207,13 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.reconcileFullscreenIntentMonitor() }
+        edgeSettingsSubscription = Publishers.CombineLatest4(
+            settingsStore.$edgeBarsEnabled, settingsStore.$edgeStatusSide,
+            settingsStore.$edgeGap, settingsStore.$edgeMargin
+        )
+        .dropFirst()
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] _ in self?.reconcileEdgeBars() }
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(screenParametersChanged),
@@ -233,6 +240,8 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             unit.coordinator.tearDown()
         }
         units = []
+        tearDownEdgeBars()
+        edgeSettingsSubscription = nil
         perDisplaySeedController?.cancel()
         perDisplaySeedController = nil
         placementSubscription = nil
@@ -255,6 +264,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     private func rebuildUnits(reason: String, connectedKeys: [String]) {
         guard started, !isSuspended else { return }
         cancelInteractiveHeightResize()
+        defer { reconcileEdgeBars(connectedKeys: connectedKeys) }
         let desired = IslandSlotSet.desiredSlots(
             placement: settingsStore.taskbarScreenPlacement,
             connectedKeys: connectedKeys,
@@ -276,6 +286,56 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         logger.info("units rebuilt reason=\(reason, privacy: .public) count=\(self.units.count, privacy: .public)")
         pushPanelScreensToIntentMonitor()
         reconcileBadgeGate()
+    }
+
+    // MARK: - Edge bars (Phase 7A) — separate from `units`; island loops never see them
+
+    private var edgeControllers: [EdgeSlotSet.SlotKey: EdgeBarPanelController] = [:]
+    private var edgeSettingsSubscription: AnyCancellable?
+    private var lastConnectedKeys: [String] = []
+
+    private func edgeBarsActive() -> Bool {
+        settingsStore.edgeBarsEnabled
+            || DebugSwitch.edgeBars.isEnabled(in: ProcessInfo.processInfo.environment)
+    }
+
+    /// Diffs the desired `displayUUID#edge-side` keys against live controllers, then positions each
+    /// one against its display's island bar. Visible only while a sibling island unit is logically
+    /// visible, so fullscreen (and any other island hide) hides both atomically.
+    private func reconcileEdgeBars(connectedKeys: [String]? = nil) {
+        if let connectedKeys { lastConnectedKeys = connectedKeys }
+        let sides: Set<EdgeSide> = edgeBarsActive() && !isSuspended
+            ? (settingsStore.edgeActiveSides.isEmpty ? [.right] : settingsStore.edgeActiveSides)
+            : []
+        let desired = EdgeSlotSet.desiredSlots(
+            placement: settingsStore.taskbarScreenPlacement,
+            connectedKeys: lastConnectedKeys,
+            sides: sides
+        )
+        let desiredSet = Set(desired)
+        for (key, controller) in edgeControllers where !desiredSet.contains(key) {
+            controller.tearDown()
+            edgeControllers[key] = nil
+        }
+        let metrics = settingsStore.layoutMetrics
+        for key in desired {
+            let controller = edgeControllers[key] ?? EdgeBarPanelController(slotKey: key)
+            edgeControllers[key] = controller
+            let siblings = units.filter { $0.key == key.display }
+            let visible = siblings.contains { $0.coordinator.isLogicallyVisible }
+            let screen = siblings.compactMap { unit in
+                unit.coordinator.dockPanel.map { unit.coordinator.panelCurrentScreen(panel: $0) }
+            }.first
+            controller.update(
+                screen: screen, visible: visible,
+                gap: settingsStore.edgeGap, margin: settingsStore.edgeMargin, metrics: metrics
+            )
+        }
+    }
+
+    private func tearDownEdgeBars() {
+        edgeControllers.values.forEach { $0.tearDown() }
+        edgeControllers = [:]
     }
 
     private func makeUnit(slotKey: IslandSlotSet.SlotKey) -> Unit {
@@ -305,7 +365,10 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         coordinator.onRequestTaskbarMenu = onRequestTaskbarMenu
         coordinator.onHoverMonitorsNeedReconcile = { [weak self] in self?.reconcileHoverMouseMonitors() }
         coordinator.onPanelScreenChanged = { [weak self] in self?.pushPanelScreensToIntentMonitor() }
-        coordinator.onLogicalVisibilityChanged = { [weak self] _ in self?.reconcileBadgeGate() }
+        coordinator.onLogicalVisibilityChanged = { [weak self] _ in
+            self?.reconcileBadgeGate()
+            self?.reconcileEdgeBars()
+        }
         coordinator.onQueryBarBoundingFrame = { [weak self] in
             self?.boundingFrame(forDisplayUUID: slotKey.display) ?? .zero
         }
@@ -411,6 +474,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         }
         rebuildUnits(reason: "screens", connectedKeys: snapshot.identifiedDisplayUUIDs)
         units.forEach { $0.coordinator.screenParametersChanged() }
+        reconcileEdgeBars()
         pushPanelScreensToIntentMonitor()
         reconcileHoverMouseMonitors()  // 屏幕数量变了：单屏↔多屏切换监视器是否还有存在的必要
     }
@@ -589,6 +653,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     /// Covers every island slot for Spaces membership and private overlay pinning.
     func allSpacesPanels(forDisplayUUID uuid: String? = nil) -> [NSPanel] {
         units(forDisplayUUID: uuid).flatMap { $0.coordinator.allSpacesPanels }
+            + edgeControllers.filter { uuid == nil || $0.key.display == uuid }.values.flatMap(\.allSpacesPanels)
     }
 
     // MARK: - 鼠标移动监视器（全进程一套，转发给每个单元）

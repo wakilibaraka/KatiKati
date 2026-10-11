@@ -2,6 +2,11 @@
 
 All notable changes to KatiKati are documented in this file.
 
+### Added
+- **Phase 7A-1 edge-bar foundation:** `EdgeSlotSet` slot keys, `PanelGeometry.edgeBarTargetFrame`,
+  `com.katikati.edge.*` settings (off by default), `DOCK_EDGE_BARS` switch and a placeholder
+  edge-bar panel hidden together with the island bar in fullscreen. No visible content yet.
+
 ### Changed
 - **Standing Rules §1 new items (owner sign-off 2026-10-09):** *per-step notes, always* —
   every step (including minor/visual changes) gets a note in the active plan tracker
