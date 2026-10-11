@@ -24,11 +24,11 @@ This project is derived from and incorporates code from the following works:
 - License: MIT License
 - Description: Planned donor for edge geometry, auto-hide handle, magnification, reorder, all 6 widgets (system monitor, clipboard, weather, now-playing, bluetooth, quick-notes), and ⌥Space palette dispatch (widgets-only, option (a)). No code ported yet.
 
-## 5. noty (Placeholder — Phase 7 §5e, inspo only)
+## 5. noty (Phase 7A-6 — behavior studied, code re-derived)
 - Repository: https://github.com/aimen08/noty
 - Copyright (C) aimen08
 - License: MIT License
-- Description: Planned refinement source for notes backing store (SQLite + AES-GCM), `SyncPlan` decision table, iCloud-Drive-folder sync, one-deck-per-display state machine, NSTextView editor, `.md` front-matter, image store, and undo toast. No code ported yet.
+- Description: Behavior studied and re-implemented from scratch (no source copied) for the notes sync decision table (`Core/Support/NotesSyncPlan.swift`), `.md` front-matter document (`NoteDocument.swift`), iCloud-Drive-folder sync runner and folder handling (`Platform/Notes/`). Still planned (not yet derived): one-deck-per-display state machine, NSTextView editor, image store, undo toast.
 
 ## 6. arc-menu for macOS (Placeholder — Phase 7 §5e, launcher base)
 - Repository: https://github.com/egemenince-git/arc-menu-for-macos

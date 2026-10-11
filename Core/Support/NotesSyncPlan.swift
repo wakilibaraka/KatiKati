@@ -1,8 +1,8 @@
 import Foundation
 
 /// What the sync runner remembers per note after a successful pass.
-struct NotesSyncIndex: Equatable, Sendable {
-    struct Entry: Equatable, Sendable {
+struct NotesSyncIndex: Equatable, Sendable, Codable {
+    struct Entry: Equatable, Sendable, Codable {
         var fileName: String
         /// The note's `modified` as of the last sync.
         var syncedModified: Date

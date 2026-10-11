@@ -1634,6 +1634,19 @@ upgrades, wallpaper/personalisation, extra flyouts.
   wrong key / path traversal). Keychain provider is not unit-tested (needs a signed host) — eyeball
   on first run. 6c next: sync runner (iCloud folder listing, placeholders, executing `NotesSyncPlan`
   actions, conflict copies, index persistence).
+- 2026-10-11 · **7A-6c sync runner landed (gate green, 1801 tests):** `Core/Support/NoteFileName.swift`
+  (legal/unique/readable file names, case-insensitive), `Platform/Notes/NotesSyncFolder.swift` (plain-path
+  iCloud Drive folder, `NSFileCoordinator` reads/writes, `.Name.md.icloud` placeholders → *unresolved* + download
+  requested, never "deleted"), `Platform/Notes/NotesSyncRunner.swift` (executes `NotesSyncPlan` actions;
+  conflict keeps the loser as a new note titled with an injected, localizable suffix; identity-less / duplicated
+  files adopted and the header written back; per-note errors never abort the pass; **refuses to run when the
+  folder is missing or any local note is undecryptable**, so copies are never mistaken for deletions),
+  `NotesSyncIndexStore` (JSON, loss-safe). 11 tests incl. two-device push/pull/edit/conflict/delete round trips
+  on a temp folder, adopt, wrong key, placeholder, index round-trip. NOTICE §5 (noty) updated: behavior
+  re-derived, no source copied. **Acceptance criterion 10's local↔iCloud round trip is proven against a
+  temp folder; the real iCloud Drive path is untested** (needs a signed-in Mac eyeball). Not wired to the app yet —
+  the notes UI slice (7A-7) will own enabling sync, scheduling passes (folder-change events, no polling) and the
+  localized conflict suffix.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

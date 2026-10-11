@@ -58,6 +58,13 @@
 		ED0000000000000000000037 /* NotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000036 /* NotesStore.swift */; };
 		ED0000000000000000000038 /* NotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000036 /* NotesStore.swift */; };
 		ED000000000000000000003A /* NotesStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000039 /* NotesStoreTests.swift */; };
+		ED0000000000000000000041 /* NoteFileName.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000040 /* NoteFileName.swift */; };
+		ED0000000000000000000042 /* NoteFileName.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000040 /* NoteFileName.swift */; };
+		ED0000000000000000000044 /* NotesSyncFolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000043 /* NotesSyncFolder.swift */; };
+		ED0000000000000000000045 /* NotesSyncFolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000043 /* NotesSyncFolder.swift */; };
+		ED0000000000000000000047 /* NotesSyncRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000046 /* NotesSyncRunner.swift */; };
+		ED0000000000000000000048 /* NotesSyncRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000046 /* NotesSyncRunner.swift */; };
+		ED000000000000000000004A /* NotesSyncRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000049 /* NotesSyncRunnerTests.swift */; };
 		ED0000000000000000000010 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
 		ED000000000000000000000A /* SystemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000009 /* SystemStatus.swift */; };
 		ED0000000000000000000011 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
@@ -668,6 +675,10 @@
 		ED0000000000000000000033 /* KeychainNoteKeyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeychainNoteKeyProvider.swift; path = Platform/Notes/KeychainNoteKeyProvider.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000036 /* NotesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesStore.swift; path = Platform/Notes/NotesStore.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000039 /* NotesStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesStoreTests.swift; path = Tests/Unit/NotesStoreTests.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000040 /* NoteFileName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NoteFileName.swift; path = Core/Support/NoteFileName.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000043 /* NotesSyncFolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesSyncFolder.swift; path = Platform/Notes/NotesSyncFolder.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000046 /* NotesSyncRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesSyncRunner.swift; path = Platform/Notes/NotesSyncRunner.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000049 /* NotesSyncRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesSyncRunnerTests.swift; path = Tests/Unit/NotesSyncRunnerTests.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000F /* SystemStatusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusService.swift; path = Platform/SystemStatus/SystemStatusService.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000009 /* SystemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatus.swift; path = Core/Support/SystemStatus.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000C /* SystemStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusTests.swift; path = Tests/Unit/SystemStatusTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2077,6 +2088,9 @@
 				D3EB46A2A29E54E9C8B5C492 /* WeatherState.swift in Sources */,
 				7B1000000000000000000002 /* ClockChipContent.swift in Sources */,
 				ED000000000000000000000A /* SystemStatus.swift in Sources */,
+				ED0000000000000000000041 /* NoteFileName.swift in Sources */,
+				ED0000000000000000000044 /* NotesSyncFolder.swift in Sources */,
+				ED0000000000000000000047 /* NotesSyncRunner.swift in Sources */,
 				ED0000000000000000000031 /* NoteCipher.swift in Sources */,
 				ED0000000000000000000034 /* KeychainNoteKeyProvider.swift in Sources */,
 				ED0000000000000000000037 /* NotesStore.swift in Sources */,
@@ -2163,6 +2177,10 @@
 				7B5000000000000000000013 /* WeatherDetail.swift in Sources */,
 				7B5000000000000000000009 /* CalendarPanelModels.swift in Sources */,
 				ED000000000000000000000B /* SystemStatus.swift in Sources */,
+				ED0000000000000000000042 /* NoteFileName.swift in Sources */,
+				ED0000000000000000000045 /* NotesSyncFolder.swift in Sources */,
+				ED0000000000000000000048 /* NotesSyncRunner.swift in Sources */,
+				ED000000000000000000004A /* NotesSyncRunnerTests.swift in Sources */,
 				ED0000000000000000000032 /* NoteCipher.swift in Sources */,
 				ED0000000000000000000035 /* KeychainNoteKeyProvider.swift in Sources */,
 				ED0000000000000000000038 /* NotesStore.swift in Sources */,
