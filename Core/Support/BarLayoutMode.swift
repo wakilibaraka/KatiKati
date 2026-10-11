@@ -2,17 +2,19 @@ import Foundation
 
 /// Layout modes supported by KatiKati.
 ///
-/// KatiKati provides 4 distinct taskbar presentations:
+/// KatiKati provides 5 distinct taskbar presentations:
 /// - `.windows`: Traditional single full-width bar across the bottom of the screen.
 /// - `.split3`: Three separate floating islands: Weather on the left, Apps centered, and Clock on the right.
 /// - `.split4`: Four-island grouping rule (left / apps / first right / rest right). With the
 ///   canonical `weather → apps → clock` order (Phase 4U decision 8b removed `tray`) it
 ///   produces the same 3 islands as `.split3`.
+/// - `.split5`: Five islands: launcher / weather / apps·media / clock / widgets (Phase 4U-A).
 /// - `.centered`: A single floating centered pill/island containing all elements.
 enum BarLayoutMode: String, CaseIterable, Codable, Sendable, Identifiable {
     case windows
     case split3
     case split4
+    case split5
     case centered
 
     var id: String { rawValue }
@@ -22,6 +24,7 @@ enum BarLayoutMode: String, CaseIterable, Codable, Sendable, Identifiable {
         case .windows: return "Windows"
         case .split3: return "Split 3"
         case .split4: return "Split 4"
+        case .split5: return "Split 5"
         case .centered: return "Centered"
         }
     }
@@ -30,7 +33,7 @@ enum BarLayoutMode: String, CaseIterable, Codable, Sendable, Identifiable {
     var isSingleIsland: Bool {
         switch self {
         case .windows, .centered: return true
-        case .split3, .split4: return false
+        case .split3, .split4, .split5: return false
         }
     }
 
@@ -55,6 +58,8 @@ enum BarLayoutMode: String, CaseIterable, Codable, Sendable, Identifiable {
             return "Three islands: weather on left, apps centered, clock on right"
         case .split4:
             return "Three islands (split-4 rule): weather on left, apps centered, clock"
+        case .split5:
+            return "Five islands: launcher, weather, apps + now playing, clock, widgets"
         case .centered:
             return "Single compact centered floating bar"
         }

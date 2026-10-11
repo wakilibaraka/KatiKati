@@ -171,7 +171,7 @@ enum IslandLayoutSolver {
             let island = IslandLayout.Island(slot: 0, sections: islandSections[0], frame: frame)
             return IslandLayout(islands: [island], visibleAppTiles: visibleApps, showsOverflow: overflow)
 
-        case .split3, .split4:
+        case .split3, .split4, .split5:
             var frames = [CGRect](repeating: .zero, count: islandSections.count)
             let appsIndex = islandSections.firstIndex(where: { $0.contains(.apps) }) ?? 0
 

@@ -78,7 +78,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         switch mode {
         case .windows, .centered:
             return [order]
-        case .split3, .split4:
+        case .split3, .split4, .split5:
             // Left group, apps (+ media), right group — split4 separates media.
             guard let appsIndex = order.firstIndex(of: .apps) else {
                 return [order]
@@ -92,6 +92,10 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
             }
             let right = Array(order[rightStartIndex...])
 
+            if mode == .split5 {
+                let center: [BarSection] = hasMedia ? [.apps, .media] : [.apps]
+                return left.map { [$0] } + [center] + right.map { [$0] }
+            }
             // split3: media rides with apps; split4 detaches it into its own island.
             if mode == .split4 && hasMedia {
                 return [left, [.apps], [.media], right].filter { !$0.isEmpty }

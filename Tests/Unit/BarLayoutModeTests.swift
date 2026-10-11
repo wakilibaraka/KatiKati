@@ -2,9 +2,22 @@ import XCTest
 @testable import KatiKati
 
 final class BarLayoutModeTests: XCTestCase {
-    func testAllFourModesExist() {
-        XCTAssertEqual(BarLayoutMode.allCases.count, 4)
-        XCTAssertEqual(BarLayoutMode.allCases, [.windows, .split3, .split4, .centered])
+    func testAllFiveModesExist() {
+        XCTAssertEqual(BarLayoutMode.allCases.count, 5)
+        XCTAssertEqual(BarLayoutMode.allCases, [.windows, .split3, .split4, .split5, .centered])
+    }
+
+    func testSplit5SeparatesEveryOuterSection() {
+        let islands = BarSection.islands(for: .split5)
+        XCTAssertEqual(islands, [[.launcher], [.weather], [.apps, .media], [.clock], [.widgets]])
+        XCTAssertEqual(BarLayoutMode.split5.slotCount, 5)
+        XCTAssertTrue(BarLayoutMode.split5.isSplit)
+        XCTAssertEqual(BarSection.widgets.slotIndex(for: .split5), 4)
+    }
+
+    func testSplitModesAreAllDistinct() {
+        let counts = [BarLayoutMode.split3, .split4, .split5].map { $0.slotCount }
+        XCTAssertEqual(counts, [3, 4, 5])
     }
 
     func testSlotCountsAndSplitFlags() {

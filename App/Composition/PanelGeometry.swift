@@ -399,7 +399,7 @@ enum PanelGeometry {
                 height: metrics.windowHeight
             )
 
-        case .split3, .split4:
+        case .split3, .split4, .split5:
             let tileStride = IslandLayoutSolver.tileStride(barHeight: metrics.panelHeight)
             let appCount = max(1, Int((contentWidth / tileStride).rounded()))
             let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth

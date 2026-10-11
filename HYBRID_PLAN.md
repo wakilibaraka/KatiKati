@@ -1010,6 +1010,7 @@ Progression: 3 → 4 → 5 separates one more grouping per step; all three disti
 
 **4U-A check log:**
 - 2026-10-11 · **Slices 1+2 (sections + grouping) — PASS, merged into one commit** (order change forces grouping assertions to move together). `launcher`/`widgets` added; canonical order is `BarSection.canonicalOrder`; split3 = `[launcher·weather][apps·media][clock·widgets]`, split4 = `[launcher·weather][apps][media][clock·widgets]` (4 islands). Unit suite green. Stale `defaultWidgetWidth` weather test (120→150) and PinnedIsland width (198 = 40+8+150) corrected. `check_localization.py` flags dead `Launcher` key (orphaned by 4g rip; slice 5 re-references it). Notes: split4 media island is placed by the solver's right-to-left trailing pass (adjacent to clock group, not apps) — owner eyeball.
+- 2026-10-11 · **Slices 3–6 — PASS.** Solver/`PanelGeometry` already width-handle new sections via `defaultWidgetWidth`; floating FAB geometry (`FABSide`, `fabTargetFrame`) removed; `SectionFABGlyph` renders inert launcher/widgets glyphs; `BarLayoutMode.split5` = `[launcher][weather][apps·media][clock][widgets]` (slotCount 5, distinct 3/4/5); "Widgets" ×12 added, `Launcher` key re-referenced; `check_localization.py` ✅, unit suite ✅. Not done: live eyeball of windows/centered FAB ends and left-launcher vs left-drawer-capsule collision (owner); no settings width sliders for fixed 40pt FABs.
 
 
 ### Phase 5 — Hardening (native Dock, teardown, recovery drill)

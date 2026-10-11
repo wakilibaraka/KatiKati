@@ -434,6 +434,8 @@ struct SettingsWindowContent: View {
     @ViewBuilder
     private func widgetWidthLabel(for section: BarSection) -> some View {
         switch section {
+        case .launcher: Text("Launcher")
+        case .widgets: Text("Widgets")
         case .weather: Text("Weather")
         case .clock: Text("Clock")
         default: EmptyView()

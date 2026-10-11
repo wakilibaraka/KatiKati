@@ -312,4 +312,21 @@ final class IslandLayoutSolverTests: XCTestCase {
         XCTAssertNotNil(clock)
         XCTAssertGreaterThanOrEqual(clock!.frame.width, BarSection.clock.minimumWidgetWidth)
     }
+
+    func testSplit5IslandsStayInsideTheScreenInOrder() {
+        let layout = IslandLayoutSolver.layout(
+            screenWidth: 1728, mode: .split5, widgetOrder: BarSection.canonicalOrder, widgetWidths: [:],
+            tileStride: 46, appCount: 9, clusterWidth: 140,
+            gap: 10, margin: 12, barHeight: 46, bottomMargin: 8,
+            screenOriginX: 0
+        )
+        XCTAssertEqual(layout.islands.count, 5)
+        let ordered = layout.islands.sorted { $0.frame.minX < $1.frame.minX }
+        XCTAssertEqual(ordered.map(\.sections), [[.launcher], [.weather], [.apps, .media], [.clock], [.widgets]])
+        for island in ordered {
+            XCTAssertGreaterThanOrEqual(island.frame.minX, 0)
+            XCTAssertLessThanOrEqual(island.frame.maxX, 1728)
+        }
+        XCTAssertTrue(IslandLayoutSolver.validate(layout: layout, screenWidth: 1728, expectedBarHeight: 46))
+    }
 }
