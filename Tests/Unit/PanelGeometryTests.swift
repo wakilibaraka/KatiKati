@@ -631,3 +631,65 @@ final class PanelGeometryTests: XCTestCase {
         }
     }
 }
+
+// MARK: - Calendar panel (Phase 5e-A)
+
+final class CalendarPanelGeometryTests: XCTestCase {
+    private let metrics = PanelLayoutMetrics.tungstenEdge
+
+    private func screen(origin: CGPoint = .zero, size: CGSize = CGSize(width: 1728, height: 1117), menuBar: CGFloat = 25) -> PanelScreenGeometry {
+        let frame = CGRect(origin: origin, size: size)
+        return PanelScreenGeometry(
+            frame: frame,
+            visibleFrame: CGRect(x: frame.minX, y: frame.minY, width: frame.width, height: frame.height - menuBar),
+            safeAreaTop: 0
+        )
+    }
+
+    func testCompactPresetIs420WideHuggingRightEdge() {
+        let s = screen()
+        let f = PanelGeometry.calendarPanelFrame(on: s, preset: .compact420, metrics: metrics)
+        XCTAssertEqual(f.width, 420)
+        XCTAssertEqual(f.maxX, s.visibleFrame.maxX - metrics.outerMargin)
+    }
+
+    func testHalfScreenPresetIsHalfTheScreenWidth() {
+        let s = screen()
+        let f = PanelGeometry.calendarPanelFrame(on: s, preset: .halfScreen, metrics: metrics)
+        XCTAssertEqual(f.width, 864)
+        XCTAssertEqual(f.maxX, s.visibleFrame.maxX - metrics.outerMargin)
+    }
+
+    func testPanelClearsTaskbarAndMenuBarAndIsAlmostFullHeight() {
+        let s = screen()
+        let f = PanelGeometry.calendarPanelFrame(on: s, preset: .compact420, metrics: metrics)
+        XCTAssertGreaterThanOrEqual(f.minY, metrics.bottomGap + metrics.panelHeight)
+        XCTAssertLessThanOrEqual(f.maxY, s.topUsableY - metrics.outerMargin + 0.001)
+        XCTAssertGreaterThan(f.height, s.frame.height * 0.8)
+    }
+
+    func testNonZeroOriginSecondaryDisplay() {
+        let s = screen(origin: CGPoint(x: -1920, y: -300), size: CGSize(width: 1920, height: 1080))
+        for preset in CalendarPanelPreset.allCases {
+            let f = PanelGeometry.calendarPanelFrame(on: s, preset: preset, metrics: metrics)
+            XCTAssertTrue(s.frame.contains(f), "\(preset) must stay on its own display")
+        }
+    }
+
+    func testNarrowScreenClampsWidthAndShortScreenNeverGoesNegative() {
+        let narrow = screen(size: CGSize(width: 300, height: 800))
+        let f = PanelGeometry.calendarPanelFrame(on: narrow, preset: .compact420, metrics: metrics)
+        XCTAssertLessThanOrEqual(f.width, 300 - 2 * metrics.outerMargin)
+        XCTAssertGreaterThanOrEqual(f.minX, narrow.frame.minX)
+
+        let short = screen(size: CGSize(width: 1280, height: 60))
+        XCTAssertGreaterThanOrEqual(PanelGeometry.calendarPanelFrame(on: short, preset: .halfScreen, metrics: metrics).height, 0)
+    }
+
+    func testPresetColumnCountsAndRawValues() {
+        XCTAssertEqual(CalendarPanelPreset.compact420.columnCount, 2)
+        XCTAssertEqual(CalendarPanelPreset.halfScreen.columnCount, 3)
+        XCTAssertEqual(CalendarPanelPreset.compact420.rawValue, "compact420")
+        XCTAssertEqual(CalendarPanelPreset.halfScreen.rawValue, "halfScreen")
+    }
+}

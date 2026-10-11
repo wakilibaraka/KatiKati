@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 
@@ -38,8 +39,6 @@ public struct ClockChip: View {
         self.provider = provider
     }
 
-    @State private var showingCalendar = false
-
     public var body: some View {
         // Flip tiles are their own form (owner's hand-built variant kept as a
         // third preset): they bypass the 8d gradient card entirely.
@@ -54,10 +53,7 @@ public struct ClockChip: View {
                 card(for: context.date)
             }
             .onTapGesture {
-                showingCalendar.toggle()
-            }
-            .popover(isPresented: $showingCalendar, arrowEdge: .top) {
-                CalendarPopupView()
+                CalendarPanelController.shared.toggle()
             }
         }
     }
@@ -159,7 +155,84 @@ public struct ClockChip: View {
     }
 }
 
-// MARK: - Calendar popup (baseline — the owner redesigns it in Phase 5)
+// MARK: - Floating calendar panel (Phase 5e-A)
+
+/// Panel subclass that can take key focus without activating the app, so Esc (`cancelOperation`)
+/// dismisses it.
+final class CalendarFloatingPanel: NonConstrainingPanel {
+    override var canBecomeKey: Bool { true }
+    override func cancelOperation(_ sender: Any?) { orderOut(nil) }
+}
+
+/// Owns the single floating calendar panel opened by tapping the clock chip. Placement is the pure
+/// `PanelGeometry.calendarPanelFrame`; dismissal = clock tap again, Esc, or a click outside the app.
+@MainActor
+final class CalendarPanelController {
+    static let shared = CalendarPanelController()
+    static let presetDefaultsKey = "com.katikati.calendar.panelPreset"
+
+    private var panel: CalendarFloatingPanel?
+    private var outsideClickMonitor: Any?
+
+    var isVisible: Bool { panel?.isVisible ?? false }
+
+    func toggle() {
+        isVisible ? close() : show()
+    }
+
+    func close() {
+        panel?.orderOut(nil)
+        if let monitor = outsideClickMonitor { NSEvent.removeMonitor(monitor) }
+        outsideClickMonitor = nil
+    }
+
+    private func show() {
+        let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }
+            ?? NSScreen.main ?? NSScreen.screens[0]
+        let preset = UserDefaults.standard.string(forKey: Self.presetDefaultsKey)
+            .flatMap(CalendarPanelPreset.init(rawValue:)) ?? .compact420
+        let geometry = PanelScreenGeometry(
+            frame: screen.frame, visibleFrame: screen.visibleFrame, safeAreaTop: screen.safeAreaInsets.top
+        )
+        let frame = PanelGeometry.calendarPanelFrame(on: geometry, preset: preset)
+
+        let panel = self.panel ?? makePanel()
+        panel.setFrame(frame, display: true)
+        panel.makeKeyAndOrderFront(nil)
+        installOutsideClickMonitor()
+    }
+
+    private func makePanel() -> CalendarFloatingPanel {
+        let panel = CalendarFloatingPanel(
+            contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false
+        )
+        panel.level = .floating
+        panel.collectionBehavior = PanelCollectionBehavior.standard
+        panel.isFloatingPanel = true
+        panel.isMovable = false
+        panel.isOpaque = false
+        panel.backgroundColor = .clear
+        panel.hasShadow = true
+        panel.hidesOnDeactivate = false
+        let hosting = NSHostingView(rootView: CalendarPopupView())
+        hosting.wantsLayer = true
+        hosting.layer?.backgroundColor = NSColor.clear.cgColor
+        panel.contentView = hosting
+        self.panel = panel
+        return panel
+    }
+
+    private func installOutsideClickMonitor() {
+        guard outsideClickMonitor == nil else { return }
+        // Global monitors only see events destined for *other* apps, so a tap on the bar (the clock
+        // chip toggling itself) never races this dismissal.
+        outsideClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+            Task { @MainActor in self?.close() }
+        }
+    }
+}
+
+// MARK: - Calendar popup content (baseline — replaced card-by-card in 5e-B…F)
 
 struct CalendarPopupView: View {
     @State private var currentDate = Date()

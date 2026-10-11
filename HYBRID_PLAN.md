@@ -1166,6 +1166,13 @@ for a gap the drill actually proves.*
 - 2026-10-11 · **5b/5c — DEFERRED by owner** ("to be done later"). 5e — **owner-external**,
   to be done by the owner in Claude Code. 5f (lock + gate + phase log + CHANGELOG) remains
   the closing slice once 5b/5c/5e resolve.
+- 2026-10-11 · **5e-A panel shell — PASS (code), NOT eyeballed.** `CalendarPanelPreset` +
+  pure `PanelGeometry.calendarPanelFrame` (right-edge hug, clears taskbar/menu bar, width clamp,
+  non-zero origin; 6 new tests); `CalendarPanelController` (`ClockChip.swift`) = borderless
+  non-activating floating panel, clock tap toggles, Esc / outside-click (other-app clicks) dismiss;
+  `.popover` removed. Content is still the baseline month view until 5e-B. Unit suite + localization
+  + debug-switch gates green. **Owner to verify on the Mac:** panel position on real displays,
+  Esc focus behavior, and that clicking another in-app panel does not dismiss (by design).
 
 
 ### Phase 6 — Settings Layout tab + welcome step + polish
