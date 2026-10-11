@@ -5,8 +5,6 @@ import SwiftUI
 /// small card, nothing runs for a tile that is off.
 struct LauncherTilesRow: View {
     let tiles: [LauncherTile]
-    let onClose: () -> Void
-
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(alignment: .top, spacing: 14) {
@@ -15,7 +13,6 @@ struct LauncherTilesRow: View {
                     case .clock: LauncherClockTile()
                     case .calculator: LauncherCalculatorTile()
                     case .countdown: LauncherCountdownTile()
-                    case .files: LauncherFilesTile(onOpen: onClose)
                     }
                 }
             }
@@ -91,45 +88,5 @@ private struct LauncherCountdownTile: View {
                 }
             }
         }
-    }
-}
-
-/// Newest items in Downloads. The folder is read when the tile first appears (the first read can raise the system's
-/// folder-access prompt), never before.
-private struct LauncherFilesTile: View {
-    let onOpen: () -> Void
-    @State private var items: [URL] = []
-
-    var body: some View {
-        TileCard(title: Text("Downloads")) {
-            if items.isEmpty {
-                Text("No Files").font(.system(size: 12)).foregroundColor(.secondary)
-            } else {
-                ForEach(items, id: \.self) { url in
-                    Button {
-                        NSWorkspace.shared.open(url)
-                        onOpen()
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(nsImage: NSWorkspace.shared.icon(forFile: url.path)).resizable().frame(width: 16, height: 16)
-                            Text(verbatim: url.lastPathComponent).font(.system(size: 12)).lineLimit(1)
-                            Spacer(minLength: 0)
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-        .onAppear { items = Self.recentDownloads() }
-    }
-
-    private static func recentDownloads(limit: Int = 4) -> [URL] {
-        guard let dir = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first,
-              let urls = try? FileManager.default.contentsOfDirectory(
-                at: dir, includingPropertiesForKeys: [.contentModificationDateKey], options: [.skipsHiddenFiles])
-        else { return [] }
-        func date(_ u: URL) -> Date { (try? u.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast }
-        return Array(urls.sorted { date($0) > date($1) }.prefix(limit))
     }
 }

@@ -1576,6 +1576,8 @@ Reference screenshots: one Launchpad-style surface (icon grid + widget tiles, le
 
 - 2026-10-12 · **7B launcher safe-area fix (gate green, 1917 tests):** the launcher keeps its search field and grid clear of the notch, menu bar, Dock and KatiKati's own bottom bar (`LauncherScreenInsets` from `frame`/`visibleFrame`/`safeAreaInsets.top` + bar height; clamped to a third of the screen; tests).
 
+- 2026-10-12 · **Owner: Downloads tile scrapped from the launcher** (the retired `files` id is ignored when parsing; strings removed). The right-hand Downloads widget's home is still to be confirmed (edge-deck button proposed).
+
 **Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
 dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.

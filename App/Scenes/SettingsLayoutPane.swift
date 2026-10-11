@@ -379,7 +379,6 @@ struct SettingsLayoutPane: View {
                 Toggle("Clock", isOn: tileBinding(.clock))
                 Toggle("Calculator", isOn: tileBinding(.calculator))
                 Toggle("Countdown", isOn: tileBinding(.countdown))
-                Toggle("Downloads", isOn: tileBinding(.files))
             }
         }
         .padding(Self.margin)

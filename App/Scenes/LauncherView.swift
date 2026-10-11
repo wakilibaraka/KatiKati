@@ -103,7 +103,7 @@ struct LauncherView: View {
                                               pinned: model.state.pinned, now: Date())
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
-                    if !model.tiles.isEmpty { LauncherTilesRow(tiles: model.tiles, onClose: onClose) }
+                    if !model.tiles.isEmpty { LauncherTilesRow(tiles: model.tiles) }
                     section(Text("Pinned"), s.pinned)
                     section(Text("Most Used"), s.mostUsed)
                     section(Text("Recently Installed"), s.recentlyInstalled)
