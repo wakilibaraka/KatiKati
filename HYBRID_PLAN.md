@@ -1557,6 +1557,8 @@ Reference screenshots: one Launchpad-style surface (icon grid + widget tiles, le
 
 - 2026-10-12 · **7B-L1b landed (gate green, 1900 tests):** `Platform/Launcher/LauncherStore.swift` (launch counts + pins, `launcher.json`, corrupt file → `.bak`) and `LauncherIndexer.swift` (instant directory scan, then live Spotlight query; lazy `start`/`stop`; skips LSUIElement/background-only). Nothing is wired to UI yet; icon cache lands with the grid (L3).
 
+- 2026-10-12 · **7B-L2 landed (gate green, 1900 tests; live check pending):** `LauncherPanelController` (full-screen blurred borderless panel, key-capable, non-activating, screen under the pointer; indexer runs only while shown), `LauncherView` (AppKit search field focused on open, results list as a stand-in for the L3 grid, Return launches first hit, Esc / background click closes, launches recorded in `launcher.json`), ⌥Space second `GlobalHotKeyMonitor` (id 2, toggles), left FAB tap toggles. Risk: Carbon ⌥-only hotkeys were flaky on macOS 15 (FB15168205) — failure is logged and the FAB still works; a rebinding setting is a follow-up if it bites.
+
 **Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
 dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.

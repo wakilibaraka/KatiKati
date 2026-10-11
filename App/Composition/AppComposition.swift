@@ -90,6 +90,7 @@ final class AppRuntime: ObservableObject {
     private var feedbackTimer: Timer?
     private var startedAt: Date?
     var onToggleDrawer: (() -> Void)?
+    var onToggleLauncher: (() -> Void)?
 
     private let debugSnapshotLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "debug-snapshot")
     private let chipProbeLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "ChipProbe")

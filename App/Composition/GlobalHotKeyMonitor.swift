@@ -25,6 +25,15 @@ struct GlobalHotKeyShortcut: Equatable {
         id: 1
     )
 
+    /// ⌥Space: summons the launcher (Phase 7B-L2). Same signature, distinct id so the two monitors never cross.
+    static let launcherSummon = GlobalHotKeyShortcut(
+        keyCode: UInt32(kVK_Space),
+        carbonModifiers: UInt32(optionKey),
+        displayGlyphs: "⌥Space",
+        signature: 0x5467_4567,
+        id: 2
+    )
+
     // ⌥⌘D（系统 Dock 自带的自动隐藏快捷键）**故意没有定义在这里**：macOS 自己持有它，
     // 注册就是抢。原先留过一份精确定义供菜单展示与按键去重，2026-08-01 删掉系统 Dock 的
     // 显隐命令后两个消费方都没了；菜单里现在只在分组标题上以纯文字提一句 ⌥⌘D。

@@ -84,6 +84,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 常驻切换全局快捷键。回调只切设置（经 settingsStore），不经过 panelCoordinator——
     /// 后者在权限引导完成前是 nil，settingsStore 从 AppDelegate 构造起即存在。
     private var edgeToggleHotKey: GlobalHotKeyMonitor?
+    private var launcherHotKey: GlobalHotKeyMonitor?
+    private lazy var launcherPanel = LauncherPanelController()
     private var terminationTask: Task<Void, Never>?
     private var terminationSignalSources: [DispatchSourceSignal] = []
     private var debugWindow: NSWindow?
@@ -205,6 +207,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if hotKeyStatus != .registered {
                 Logger(subsystem: "com.caye.macosdockcc.v2", category: "hotkey")
                     .warning("常驻切换全局快捷键注册失败：\(String(describing: hotKeyStatus), privacy: .public)，本次启动不重试")
+            }
+
+            let launcherKey = GlobalHotKeyMonitor(shortcut: .launcherSummon) { [weak self] in
+                self?.launcherPanel.toggle()
+            }
+            launcherHotKey = launcherKey
+            if launcherKey.start() != .registered {
+                Logger(subsystem: "com.caye.macosdockcc.v2", category: "hotkey")
+                    .warning("Launcher hotkey ⌥Space registration failed; the left FAB still opens it")
             }
 
             _ = statusMenuController
@@ -616,6 +627,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         panelCoordinator = coordinator
         runtime.onToggleDrawer = { [weak coordinator] in coordinator?.toggleDrawer() }
+        runtime.onToggleLauncher = { [weak self] in self?.launcherPanel.toggle() }
         // Menu height slider ↔ every bar's grip-drag transaction. Weak: the orchestrator is
         // dropped on permission loss.
         settingsCoordinator.taskbarHeightSessionHandler = { [weak coordinator] editing in
@@ -879,6 +891,7 @@ extension AppDelegate: PermissionEffectHandler {
         badgeContextSubscription?.cancel()
         badgeContextSubscription = nil
         runtime.onToggleDrawer = nil
+        runtime.onToggleLauncher = nil
         scrollReverserSettingSubscription?.cancel()
         scrollReverserSettingSubscription = nil
         scrollReverserMonitor?.stop()

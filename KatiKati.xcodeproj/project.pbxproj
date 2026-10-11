@@ -690,6 +690,8 @@
 		ED00000000000000000000F4 /* LauncherStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000F3 /* LauncherStore.swift */; };
 		ED00000000000000000000F5 /* LauncherStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000F3 /* LauncherStore.swift */; };
 		ED00000000000000000000F7 /* LauncherStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000F6 /* LauncherStoreTests.swift */; };
+		ED00000000000000000000FA /* LauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000F9 /* LauncherView.swift */; };
+		ED00000000000000000000FC /* LauncherPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000FB /* LauncherPanelController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1178,6 +1180,8 @@
 		ED00000000000000000000F1 /* LauncherIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherIndexer.swift; path = Platform/Launcher/LauncherIndexer.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000F3 /* LauncherStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherStore.swift; path = Platform/Launcher/LauncherStore.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000F6 /* LauncherStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherStoreTests.swift; path = Tests/Unit/LauncherStoreTests.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000F9 /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherView.swift; path = App/Scenes/LauncherView.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000FB /* LauncherPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherPanelController.swift; path = App/Entry/LauncherPanelController.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2214,6 +2218,8 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
+				ED00000000000000000000FA /* LauncherView.swift in Sources */,
+				ED00000000000000000000FC /* LauncherPanelController.swift in Sources */,
 				ED00000000000000000000F2 /* LauncherIndexer.swift in Sources */,
 				ED00000000000000000000F4 /* LauncherStore.swift in Sources */,
 				ED00000000000000000000ED /* LauncherAppIndex.swift in Sources */,

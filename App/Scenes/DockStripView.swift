@@ -1332,7 +1332,9 @@ struct DockStripView: View {
                     ClockChip()
                         .scaleEffect(dockScale)
                 case .launcher:
-                    SectionFABGlyph(systemName: "square.grid.2x2") // payload → Phase 7d
+                    SectionFABGlyph(systemName: "square.grid.2x2")
+                        .contentShape(Rectangle())
+                        .onTapGesture { runtime.onToggleLauncher?() }
                 case .widgets:
                     SectionFABGlyph(systemName: "rectangle.3.group") // payload → Phase 7e
                 case .apps:
