@@ -1080,13 +1080,16 @@ for a gap the drill actually proves.*
   - **Verify**: `DOCK_WINDOW_LIFT_TRACE` shows one reservation per display; geometry + existing
     suite green; zero behavior change in any mode.
 
-- **5b — SIGTERM/SIGINT teardown drill (evidence + gap-fix only).** Exercise
-  `AppDelegate.applicationShouldTerminate` / `applicationWillTerminate` / `terminateOtherInstances`
+- **5b — SIGTERM/SIGINT teardown drill (evidence + gap-fix only). — ⏸ DEFERRED (owner
+  2026-10-11: "to be done later") — do not start until the owner schedules the drill.**
+  Exercise `AppDelegate.applicationShouldTerminate` / `applicationWillTerminate` / `terminateOtherInstances`
   (`stopAndRestore`, monitor stops, in-flight `terminationTask` cancellation). Drill log in PR;
   fix + test only if the drill proves a gap (e.g. a monitor not stopped, a Task surviving
   teardown → "two taskbars").
 
-- **5c — `kill -9` during a Dock-mutating state + crash-relaunch (Dock-state integrity).**
+- **5c — `kill -9` during a Dock-mutating state + crash-relaunch (Dock-state integrity).
+  — ⏸ DEFERRED (owner 2026-10-11: "to be done later") — do not start until the owner
+  schedules the drill.**
   The Dock-mutating path is `NativeDockPreferencesService.apply(recommendations:)` →
   `commands(for:)` (writes `com.apple.dock` defaults + a single `killall Dock`). Drill: kill -9
   mid-sequence, relaunch, verify Dock prefs not corrupt, KatiKati recovers, **no orphaned island
@@ -1100,23 +1103,58 @@ for a gap the drill actually proves.*
   `suspendPanelsAndStores`), and can never ship on. Extend `DebugSwitchTests` polarity +
   choke-point coverage; `check_debug_switches.py` green.
 
-- **5e — Calendar Popup Redesign (owner manual).** Owner redesigns the calendar popup by hand in
-  this phase; the Phase-4 `CalendarPopupView` baseline (`App/Scenes/ClockChip.swift`) is
-  deferred. Agent writes no chip code until the owner hands off the design.
+- **5e — Calendar Popup Redesign. — OWNER-EXTERNAL (owner 2026-10-11: "i will do it in
+  claude code") — agent writes no calendar code for this slice; the redesign lands from the
+  owner's Claude Code session.** The Phase-4 `CalendarPopupView` baseline
+  (`App/Scenes/ClockChip.swift`) stays live until the owner's redesign replaces it.
 
 - **5f — Phase 5 lock + proof gate.** Drill log(s) in the PR; no lost Dock state; no orphaned
   island panels after crash-relaunch; full tungsten gate; dated phase-5 log under
   `Docs/Archive/Planning/`, `CHANGELOG.md`, and the `Result:` line here.
 
-**Owner decisions pending (Standing Rules §1.4 — grill before the gated slices):**
-1. **5a reservation semantics (recommend):** reservation = top of the display's **union bounding
-   frame** (tallest island), **one lift context per display** (vs. today's per-island contexts).
-   Confirm this is the intended "avoid every island."
-2. **5e calendar (recommend):** leave the current `CalendarPopupView` as a live baseline until the
-   redesign lands (clock tap stays functional), rather than stripping it now per "removed/deferred."
-3. **5b/5c drill ownership:** `kill -9` / relaunch / AX grants need the dev Mac. Owner runs the
-   drill and reports a proven gap (agent writes code only for a proven gap), or agent scripts a
-   reproducible drill.
+**Owner decisions — RESOLVED 2026-10-11 (owner: "Proceed with your recommendations" + team directive):**
+1. **5a reservation semantics — accepted as recommended** (union bounding frame / one
+   context per display); corrected scope executed (see check log below).
+2. **5e calendar — baseline `CalendarPopupView` stays live**; redesign is **owner-external
+   (Claude Code)** per owner 2026-10-11.
+3. **5b/5c drill — owner deferred** ("to be done later"); remains evidence-gated when resumed.
+
+**Phase 5 check log (append after every step — STANDING_RULES §1.8):**
+- 2026-10-11 · **Phase 5 scoped into sub-slices 5a–5f — DONE** (`f0073a8`, docs-only).
+  Original §7 scope preserved verbatim; 5a rationale later corrected (below); 5b/5c marked
+  evidence-gated, 5e owner-external.
+- 2026-10-11 · **5a window-lift de-dup — PASS** (`b4290b6`; sub-agent authored, owner-side
+  audit by main session before commit). *Correction of the original 5a premise:* tracing
+  `PanelGeometry.islandTargetFrame` + `IslandLayoutSolver` proved all islands are equal-height
+  and bottom-aligned (global `settingsStore.dockPanelHeight.metrics`), so the per-island
+  `taskbarTop` was already correct everywhere — **there was no lift gap**. The real defect was
+  redundancy: `windowLiftAvoidanceContexts()` returned N byte-identical contexts per display,
+  which made `WindowLiftAvoidanceController.reconcileContexts`' whole-array `!=` misread every
+  layout-mode switch (split3↔4↔5 = per-screen island count change) as a geometry change,
+  needlessly restore-lifting windows and clearing sessions, plus N redundant CG scans.
+  Shipped: pure `WindowLiftAvoidance.deduplicatedContexts` (value-based, order-preserving —
+  `Set<CGRect>` is macOS 15+, floor is 12) wired into the orchestrator; doc invariant on
+  `PanelCoordinator.windowLiftAvoidanceContext`. Tests added (3): equal-height + union-top
+  invariant across all 5 layout modes; dedup collapses only byte-identical copies (keeps
+  height-override variants); filling window raised above **every** island top per mode with
+  top/left/width untouched. **Evidence:** full suite **1652/1652 green, 0 failures**;
+  `check_localization.py` ✅ (296 keys × 12); `check_debug_switches.py` ✅ (77/77);
+  `check_availability_warnings.py` ✅ (clean against the test build log).
+- 2026-10-11 · **5d dev-bypass guard lock — PASS** (`02673ab`; test-only, zero production
+  change, `DebugSwitch.swift` enum untouched per BASELINE_RULES §4 rule 4). Tests added (8):
+  `DebugSwitchTests` pins `.trace` polarity of `DOCK_DEV_SKIP_PERMISSIONS` (literal `"1"` only —
+  13 hostile values incl. `true`/`1.0`/whitespace; env unset→`1`→unset round-trip proving the
+  no-arg `isEnabled()` production read path); `PermissionOnboardingTests` proves the two pure
+  choke points honor it (no TCC trust-poll + no 1s polling timer under bypass; initial-launch and
+  runtime-recovery `requestSystemPrompt` both suppressed while `.suspended` dispatch still reaches
+  the effect handler) and that `PermissionRecoveryMachine` stays **switch-free** (putting the
+  switch in the pure machine would gut onboarding — pinned so nobody "helpfully" adds it).
+  AppKit-side choke points (`showGuideWindow`/`startWatchdog`/`suspendPanelsAndStores`/
+  `openSettings` in `AppDelegate`) are documented in the test header as **manual verification** —
+  they need a live `NSApplication`. **Evidence:** same full gate as 5a, all green.
+- 2026-10-11 · **5b/5c — DEFERRED by owner** ("to be done later"). 5e — **owner-external**,
+  to be done by the owner in Claude Code. 5f (lock + gate + phase log + CHANGELOG) remains
+  the closing slice once 5b/5c/5e resolve.
 
 
 ### Phase 6 — Settings Layout tab + welcome step + polish
