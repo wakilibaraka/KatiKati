@@ -213,6 +213,20 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
+    func testLauncherLookDefaultsAndPersists() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.launcherTheme, .system)
+        XCTAssertEqual(store.launcherTint, .none)
+        XCTAssertEqual(store.launcherIcon, .orbit)
+        store.setLauncherTheme(.desktop); store.setLauncherTint(.pink); store.setLauncherIcon(.petal)
+        let again = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(again.launcherTheme, .desktop)
+        XCTAssertEqual(again.launcherTint, .pink)
+        XCTAssertEqual(again.launcherIcon, .petal)
+    }
+
+    @MainActor
     func testLauncherSheetSideDefaultsRightAndPersists() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)

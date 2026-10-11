@@ -1572,6 +1572,8 @@ Reference screenshots: one Launchpad-style surface (icon grid + widget tiles, le
 
 - 2026-10-12 · **7B L5 live check:** search centred at the top by default, four tiles render (Clock 01:51, Calculator, Countdown "No events", Downloads list), sheet on the right; typing `12+6*2` in the Calculator tile shows 24. Not exercised: other search positions, left sheet, tile toggles in Settings, Downloads item open, Countdown with events, Return-to-launch, pin menu, FAB tap.
 
+- 2026-10-12 · **7B-L6 + L7 landed (gate green, 1915 tests):** L6 themes — `LauncherTheme` (system default / light / dark / glass / desktop picture), `LauncherTint` wash, `LauncherBackdrop` (blur layers; desktop picture downscaled, blurred, cached per file+mtime; folder/rotating wallpapers fall back to system blur); keys `com.katikati.launcher.theme|tint`; Settings → Launcher. L7 — `LauncherIconView` (gradient squircle with **orbit** default / tiles / petal) replaces the grid-symbol FAB glyph; key `com.katikati.launcher.icon`; Settings shows the three as selectable presets. Live: desktop-picture + purple tint verified (launched with `-com.katikati.launcher.theme desktop`). Not seen live: light/dark/glass themes, the FAB icon in the strip (the bar is not shown while the Accessibility prompt is up), the Settings icon presets. First-time desktop-picture read may touch a protected folder if the wallpaper lives there. L8 (verify) remains.
+
 **Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
 dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.

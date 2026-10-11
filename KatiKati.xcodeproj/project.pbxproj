@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EE0000000000000000000016 /* LauncherIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000014 /* LauncherIconView.swift */; };
 		7B50000000000000000000A2 /* WindowLiftRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000000A1 /* WindowLiftRecovery.swift */; };
 		7B50000000000000000000A3 /* WindowLiftRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000000A1 /* WindowLiftRecovery.swift */; };
 		7B50000000000000000000A5 /* WindowLiftRecoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000000A4 /* WindowLiftRecoveryTests.swift */; };
@@ -699,6 +700,11 @@
 		EE0000000000000000000009 /* LauncherLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000008 /* LauncherLayout.swift */; };
 		EE000000000000000000000A /* LauncherLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000008 /* LauncherLayout.swift */; };
 		EE000000000000000000000C /* LauncherLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000000B /* LauncherLayoutTests.swift */; };
+		EE000000000000000000000E /* LauncherAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000000D /* LauncherAppearance.swift */; };
+		EE000000000000000000000F /* LauncherAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000000D /* LauncherAppearance.swift */; };
+		EE0000000000000000000011 /* LauncherAppearanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000010 /* LauncherAppearanceTests.swift */; };
+		EE0000000000000000000013 /* LauncherBackdrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000012 /* LauncherBackdrop.swift */; };
+		EE0000000000000000000015 /* LauncherIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000014 /* LauncherIconView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1194,6 +1200,10 @@
 		EE0000000000000000000006 /* LauncherTilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherTilesView.swift; path = App/Scenes/LauncherTilesView.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000008 /* LauncherLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherLayout.swift; path = Core/Support/LauncherLayout.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000000B /* LauncherLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherLayoutTests.swift; path = Tests/Unit/LauncherLayoutTests.swift; sourceTree = SOURCE_ROOT; };
+		EE000000000000000000000D /* LauncherAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherAppearance.swift; path = Core/Support/LauncherAppearance.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000010 /* LauncherAppearanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherAppearanceTests.swift; path = Tests/Unit/LauncherAppearanceTests.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000012 /* LauncherBackdrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherBackdrop.swift; path = Platform/Launcher/LauncherBackdrop.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000014 /* LauncherIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherIconView.swift; path = App/Scenes/LauncherIconView.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2230,6 +2240,9 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
+				EE0000000000000000000015 /* LauncherIconView.swift in Sources */,
+				EE0000000000000000000013 /* LauncherBackdrop.swift in Sources */,
+				EE000000000000000000000E /* LauncherAppearance.swift in Sources */,
 				EE0000000000000000000009 /* LauncherLayout.swift in Sources */,
 				EE0000000000000000000002 /* LauncherTiles.swift in Sources */,
 				EE0000000000000000000007 /* LauncherTilesView.swift in Sources */,
@@ -2353,10 +2366,13 @@
 				ED0000000000000000000089 /* DeckGeometryTests.swift in Sources */,
 				ED0000000000000000000082 /* NotePalette.swift in Sources */,
 				ED0000000000000000000084 /* NotePaletteTests.swift in Sources */,
+				EE000000000000000000000F /* LauncherAppearance.swift in Sources */,
+				EE0000000000000000000011 /* LauncherAppearanceTests.swift in Sources */,
 				EE000000000000000000000A /* LauncherLayout.swift in Sources */,
 				EE000000000000000000000C /* LauncherLayoutTests.swift in Sources */,
 				EE0000000000000000000003 /* LauncherTiles.swift in Sources */,
 				EE0000000000000000000005 /* LauncherTilesTests.swift in Sources */,
+				EE0000000000000000000016 /* LauncherIconView.swift in Sources */,
 				ED00000000000000000000F5 /* LauncherStore.swift in Sources */,
 				ED00000000000000000000F7 /* LauncherStoreTests.swift in Sources */,
 				ED00000000000000000000F8 /* LauncherIndexer.swift in Sources */,

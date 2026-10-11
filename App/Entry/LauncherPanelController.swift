@@ -17,6 +17,8 @@ final class LauncherPanelController {
     var sheetSide: () -> EdgeSide = { .right }
     var searchPosition: () -> LauncherSearchPosition = { .top }
     var tiles: () -> [LauncherTile] = { LauncherTile.allCases }
+    var look: () -> (theme: LauncherTheme, tint: LauncherTint) = { (.system, .none) }
+    private var backdrop: LauncherBackdrop?
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -34,6 +36,8 @@ final class LauncherPanelController {
         indexer.start()
         let panel = self.panel ?? makePanel()
         self.panel = panel
+        let look = self.look()
+        panel.appearance = backdrop?.apply(theme: look.theme, tint: look.tint, screen: screen)
         panel.setFrame(screen.frame, display: true)
         panel.makeKeyAndOrderFront(nil)
         model.focusNonce += 1
@@ -71,10 +75,8 @@ final class LauncherPanelController {
         panel.hasShadow = false
         panel.isReleasedWhenClosed = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
-        let blur = NSVisualEffectView()
-        blur.material = .fullScreenUI
-        blur.blendingMode = .behindWindow
-        blur.state = .active
+        let blur = LauncherBackdrop()
+        backdrop = blur
         let host = NSHostingView(rootView: LauncherView(
             indexer: indexer, model: model,
             onLaunch: { [weak self] in self?.launch($0) },

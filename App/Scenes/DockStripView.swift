@@ -1332,7 +1332,8 @@ struct DockStripView: View {
                     ClockChip()
                         .scaleEffect(dockScale)
                 case .launcher:
-                    SectionFABGlyph(systemName: "square.grid.2x2")
+                    LauncherIconView(style: settingsStore.launcherIcon, size: 26 * dockScale)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .contentShape(Rectangle())
                         .onTapGesture { runtime.onToggleLauncher?() }
                 case .widgets:

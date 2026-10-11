@@ -336,6 +336,46 @@ struct SettingsLayoutPane: View {
                     }
                     .labelsHidden().pickerStyle(.menu).fixedSize()
                 }
+                HStack {
+                    Text("Theme")
+                    Spacer(minLength: 12)
+                    Picker("Theme", selection: Binding(get: { store.launcherTheme }, set: { store.setLauncherTheme($0) })) {
+                        Text("System").tag(LauncherTheme.system)
+                        Text("Light").tag(LauncherTheme.light)
+                        Text("Dark").tag(LauncherTheme.dark)
+                        Text("Glass").tag(LauncherTheme.glass)
+                        Text("Desktop Picture").tag(LauncherTheme.desktop)
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                HStack {
+                    Text("Tint")
+                    Spacer(minLength: 12)
+                    Picker("Tint", selection: Binding(get: { store.launcherTint }, set: { store.setLauncherTint($0) })) {
+                        Text("None").tag(LauncherTint.none)
+                        Text("Blue").tag(LauncherTint.blue)
+                        Text("Purple").tag(LauncherTint.purple)
+                        Text("Pink").tag(LauncherTint.pink)
+                        Text("Orange").tag(LauncherTint.orange)
+                        Text("Green").tag(LauncherTint.green)
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                HStack {
+                    Text("Launcher Icon")
+                    Spacer(minLength: 12)
+                    ForEach(LauncherIconStyle.allCases, id: \.self) { style in
+                        Button { store.setLauncherIcon(style) } label: {
+                            VStack(spacing: 4) {
+                                LauncherIconView(style: style, size: 38)
+                                iconName(style).font(.caption)
+                            }
+                            .padding(6)
+                            .background(RoundedRectangle(cornerRadius: 10).stroke(Color.accentColor, lineWidth: store.launcherIcon == style ? 2 : 0))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
                 Toggle("Clock", isOn: tileBinding(.clock))
                 Toggle("Calculator", isOn: tileBinding(.calculator))
                 Toggle("Countdown", isOn: tileBinding(.countdown))
@@ -399,6 +439,14 @@ struct SettingsLayoutPane: View {
     }
 
     /// Custom layout: one row per shown item, Left / Right / Hidden.
+    private func iconName(_ style: LauncherIconStyle) -> Text {
+        switch style {
+        case .orbit: return Text("Orbit")
+        case .tiles: return Text("Tiles")
+        case .petal: return Text("Petal")
+        }
+    }
+
     private func tileBinding(_ tile: LauncherTile) -> Binding<Bool> {
         Binding(get: { store.launcherTiles.contains(tile) }, set: { store.setLauncherTile(tile, enabled: $0) })
     }

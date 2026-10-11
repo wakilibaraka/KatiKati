@@ -90,6 +90,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.sheetSide = { [weak self] in self?.settingsStore.launcherSheetSide ?? .right }
         panel.searchPosition = { [weak self] in self?.settingsStore.launcherSearchPosition ?? .top }
         panel.tiles = { [weak self] in self?.settingsStore.launcherTiles ?? LauncherTile.allCases }
+        panel.look = { [weak self] in (self?.settingsStore.launcherTheme ?? .system, self?.settingsStore.launcherTint ?? .none) }
         return panel
     }()
     private var terminationTask: Task<Void, Never>?

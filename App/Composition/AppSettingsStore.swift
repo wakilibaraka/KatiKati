@@ -174,6 +174,9 @@ final class AppSettingsStore: ObservableObject {
     /// Dock-style magnification of the round buttons under the pointer.
     @Published private(set) var deckMagnify: Bool
     @Published private(set) var launcherSheetSide: EdgeSide
+    @Published private(set) var launcherTheme: LauncherTheme
+    @Published private(set) var launcherTint: LauncherTint
+    @Published private(set) var launcherIcon: LauncherIconStyle
     @Published private(set) var launcherTiles: [LauncherTile]
     @Published private(set) var launcherSearchPosition: LauncherSearchPosition
     @Published private(set) var deckKeepOpen: Bool
@@ -278,6 +281,9 @@ final class AppSettingsStore: ObservableObject {
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
             Keys.launcherSheetSide: EdgeSide.right.rawValue,
+            Keys.launcherTheme: LauncherTheme.default.rawValue,
+            Keys.launcherTint: LauncherTint.default.rawValue,
+            Keys.launcherIcon: LauncherIconStyle.default.rawValue,
             Keys.launcherTiles: LauncherTile.serialize(LauncherTile.allCases),
             Keys.launcherSearchPosition: LauncherSearchPosition.default.rawValue,
             Keys.deckKeepOpen: false,
@@ -316,6 +322,9 @@ final class AppSettingsStore: ObservableObject {
         deckMagnify = defaults.bool(forKey: Keys.deckMagnify)
         launcherSearchPosition = LauncherSearchPosition.parse(defaults.string(forKey: Keys.launcherSearchPosition))
         launcherTiles = LauncherTile.parse(defaults.string(forKey: Keys.launcherTiles))
+        launcherTheme = LauncherTheme.parse(defaults.string(forKey: Keys.launcherTheme))
+        launcherTint = LauncherTint.parse(defaults.string(forKey: Keys.launcherTint))
+        launcherIcon = LauncherIconStyle.parse(defaults.string(forKey: Keys.launcherIcon))
         launcherSheetSide = EdgeSide(rawValue: defaults.string(forKey: Keys.launcherSheetSide) ?? "") ?? .right
         deckKeepOpen = defaults.bool(forKey: Keys.deckKeepOpen)
         deckOpenOnHover = defaults.bool(forKey: Keys.deckOpenOnHover)
@@ -537,6 +546,24 @@ final class AppSettingsStore: ObservableObject {
         guard next != launcherTiles else { return }
         launcherTiles = next
         defaults.set(LauncherTile.serialize(next), forKey: Keys.launcherTiles)
+    }
+
+    func setLauncherTheme(_ value: LauncherTheme) {
+        guard launcherTheme != value else { return }
+        launcherTheme = value
+        defaults.set(value.rawValue, forKey: Keys.launcherTheme)
+    }
+
+    func setLauncherTint(_ value: LauncherTint) {
+        guard launcherTint != value else { return }
+        launcherTint = value
+        defaults.set(value.rawValue, forKey: Keys.launcherTint)
+    }
+
+    func setLauncherIcon(_ value: LauncherIconStyle) {
+        guard launcherIcon != value else { return }
+        launcherIcon = value
+        defaults.set(value.rawValue, forKey: Keys.launcherIcon)
     }
 
     func setLauncherSheetSide(_ value: EdgeSide) {
@@ -1014,6 +1041,9 @@ private enum Keys {
     static let deckScaleRight = "com.katikati.edge.deckScale.right"
     static let deckMagnify = "com.katikati.edge.magnify"
     static let launcherSheetSide = "com.katikati.launcher.sheetSide"
+    static let launcherTheme = "com.katikati.launcher.theme"
+    static let launcherTint = "com.katikati.launcher.tint"
+    static let launcherIcon = "com.katikati.launcher.icon"
     static let launcherTiles = "com.katikati.launcher.tiles"
     static let launcherSearchPosition = "com.katikati.launcher.searchPosition"
     static let deckKeepOpen = "com.katikati.edge.alwaysShown"
