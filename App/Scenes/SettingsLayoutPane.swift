@@ -383,6 +383,23 @@ struct SettingsLayoutPane: View {
             }
 
             section {
+                Text("Pinboard")
+            } content: {
+                ForEach(PinboardWidget.defaultOrder, id: \.self) { w in
+                    Toggle(isOn: Binding(get: { store.pinboardWidgets.contains(w) }, set: { store.setPinboardWidget(w, enabled: $0) })) {
+                        pinboardWidgetTitle(w)
+                    }
+                }
+                Text("Quick Settings Switches").font(.subheadline).padding(.top, 6)
+                ForEach(QuickToggleID.defaultOrder, id: \.self) { id in
+                    Toggle(isOn: Binding(get: { store.pinboardToggles.contains(id) }, set: { store.setPinboardToggle(id, enabled: $0) })) {
+                        id.title
+                    }
+                }
+                Button("Reset Pinboard Position") { UserDefaults.standard.removeObject(forKey: "com.katikati.pinboard.origin") }
+            }
+
+            section {
                 Text("Shortcuts")
             } content: {
                 let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
@@ -413,6 +430,24 @@ struct SettingsLayoutPane: View {
         }
         .padding(Self.margin)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func pinboardWidgetTitle(_ w: PinboardWidget) -> Text {
+        switch w {
+        case .clock: return Text("Clock")
+        case .calendar: return Text("Calendar")
+        case .weather: return Text("Weather")
+        case .nowPlaying: return Text("Now Playing")
+        case .calculator: return Text("Calculator")
+        case .countdown: return Text("Countdown")
+        case .screenTime: return Text("Screen Time")
+        case .quickSettings: return Text("Quick Settings")
+        case .system: return Text("System")
+        case .network: return Text("Network")
+        case .battery: return Text("Battery")
+        case .topApps: return Text("Top Apps")
+        case .batteries: return Text("Batteries")
+        }
     }
 
     private func shortcutActionTitle(_ action: ShortcutAction) -> Text {
@@ -565,6 +600,26 @@ struct SettingsLayoutPane: View {
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
                 .frame(width: 52, alignment: .trailing)
+        }
+    }
+}
+
+extension QuickToggleID {
+    /// Literal `Text` per case so the localization checker sees every key.
+    var title: Text {
+        switch self {
+        case .darkMode: return Text("Dark Mode")
+        case .keepAwake: return Text("Keep Awake")
+        case .hideDesktopIcons: return Text("Hide Desktop")
+        case .showHiddenFiles: return Text("Hidden Files")
+        case .dockAutoHide: return Text("Dock Auto-hide")
+        case .pathBar: return Text("Path Bar")
+        case .muteMic: return Text("Mute Mic")
+        case .emptyTrash: return Text("Empty Trash")
+        case .ejectDisks: return Text("Eject Disks")
+        case .wifi: return Text("Wi-Fi")
+        case .bluetooth: return Text("Bluetooth")
+        case .nightShift: return Text("Night Shift")
         }
     }
 }

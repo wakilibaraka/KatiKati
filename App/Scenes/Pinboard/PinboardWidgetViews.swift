@@ -1,26 +1,6 @@
 import AppKit
 import SwiftUI
 
-extension QuickToggleID {
-    /// Literal `Text` per case so the localization checker sees every key.
-    var title: Text {
-        switch self {
-        case .darkMode: return Text("Dark Mode")
-        case .keepAwake: return Text("Keep Awake")
-        case .hideDesktopIcons: return Text("Hide Desktop")
-        case .showHiddenFiles: return Text("Hidden Files")
-        case .dockAutoHide: return Text("Dock Auto-hide")
-        case .pathBar: return Text("Path Bar")
-        case .muteMic: return Text("Mute Mic")
-        case .emptyTrash: return Text("Empty Trash")
-        case .ejectDisks: return Text("Eject Disks")
-        case .wifi: return Text("Wi-Fi")
-        case .bluetooth: return Text("Bluetooth")
-        case .nightShift: return Text("Night Shift")
-        }
-    }
-}
-
 /// Everything a widget may need, handed down by the panel controller.
 struct PinboardContext {
     let weather: WeatherService
