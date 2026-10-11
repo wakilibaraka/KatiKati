@@ -47,3 +47,9 @@ This project is derived from and incorporates code from the following works:
 - Copyright (C) firstfu
 - License: GPL-3.0
 - Description: Planned logic source for launcher live previews, title-matching search, Smart Organize table, and drag-to-Dock. No code ported yet.
+
+## 9. Hop (Phase 7A-P3–P6 — behavior ported and re-written)
+- Repository: https://github.com/antonyshakirov/hop
+- Copyright (c) 2026 Anton Shakirov
+- License: MIT License
+- Description: Ideas and rules re-implemented in compact form for the edge deck's productivity buttons: to-do list and one-at-a-time time tracker (`Core/Support/TaskList.swift`), clipboard history rules — normalisation, growing-text merge, one-line preview (`ClipboardHistory.swift`), and the window-snapper zone table with the Accessibility move sequence (`WindowSnap.swift`, `Platform/Windows/WindowSnapService.swift`). Hop's reminders, estimates, image/file clipboard, markup, converters and other modules are not used.

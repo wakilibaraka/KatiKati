@@ -16,7 +16,7 @@ struct ClipEntry: Equatable, Identifiable, Sendable {
 }
 
 /// Clipboard history rules. Normalisation, case-insensitive-prefix "growing dictation" merge and the one-line
-/// preview follow Hop's clipboard module (MIT, NOTICE §8).
+/// preview follow Hop's clipboard module (MIT, NOTICE §9).
 struct ClipboardHistory: Equatable, Sendable {
     static let maxLength = 20_000
     static let maxUnpinned = 50

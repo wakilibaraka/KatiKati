@@ -1,6 +1,6 @@
 import CoreGraphics
 
-/// Window zones for the Windows flyout (Phase 7A-P6). The unit rectangles follow Hop's window snapper (MIT, NOTICE §8):
+/// Window zones for the Windows flyout (Phase 7A-P6). The unit rectangles follow Hop's window snapper (MIT, NOTICE §9):
 /// fractions of a screen's visible area with a bottom-left origin.
 enum SnapPosition: String, CaseIterable, Sendable {
     case leftHalf, rightHalf, topHalf, bottomHalf

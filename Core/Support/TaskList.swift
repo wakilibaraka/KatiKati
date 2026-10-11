@@ -1,7 +1,7 @@
 import Foundation
 
 /// One to-do with an optional running time tracker (Phase 7A-P3). The checklist and "one tracker at a time"
-/// behaviour follow Hop's to-dos and tracker (MIT, NOTICE §8), simplified: no reminders, no estimates.
+/// behaviour follow Hop's to-dos and tracker (MIT, NOTICE §9), simplified: no reminders, no estimates.
 struct TaskItem: Codable, Equatable, Identifiable, Sendable {
     let id: UUID
     var text: String
