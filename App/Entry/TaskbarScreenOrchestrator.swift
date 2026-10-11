@@ -309,6 +309,13 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         coordinator.onQueryBarBoundingFrame = { [weak self] in
             self?.boundingFrame(forDisplayUUID: slotKey.display) ?? .zero
         }
+        coordinator.onQuerySiblingContainsMouse = { [weak self, weak coordinator] in
+            guard let self else { return false }
+            return self.units.contains { unit in
+                unit.key == slotKey.display && unit.coordinator !== coordinator
+                    && !unit.coordinator.isMouseOutsideOwnInteractivePanels()
+            }
+        }
         coordinator.onAccessoryWillOpen = { [weak self] unit, kind in
             self?.closeAccessories(exceptFor: unit, opening: kind)
         }

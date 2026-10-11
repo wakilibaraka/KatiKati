@@ -365,7 +365,13 @@ extension PanelCoordinator {
         return mouse.y - screen.frame.minY <= Self.hoverHotZone
     }
 
+    /// Idle-hide check for the whole bar: outside this island's panels **and** every sibling
+    /// island's on the same display, so all islands hide (and stay) together.
     func isMouseOutsideInteractivePanels() -> Bool {
+        isMouseOutsideOwnInteractivePanels() && !(onQuerySiblingContainsMouse?() ?? false)
+    }
+
+    func isMouseOutsideOwnInteractivePanels() -> Bool {
         let mouse = NSEvent.mouseLocation
         if let dock = dockPanel, dock.frame.contains(mouse) { return false }
         if let capsule = capsulePanel, capsule.frame.contains(mouse) { return false }

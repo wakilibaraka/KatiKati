@@ -40,7 +40,7 @@ struct DockStripView: View {
 
     /// 当前尺寸档位派生的面板几何与缩放系数。**条内不写裸尺寸数字**——凡是随任务条一起
     /// 放大缩小的值都乘 `dockScale`；发丝线（分隔线宽、描边）保持 1pt 不缩。
-    private var metrics: PanelLayoutMetrics { settingsStore.dockPanelHeight.metrics }
+    private var metrics: PanelLayoutMetrics { settingsStore.layoutMetrics }
     var dockScale: CGFloat { settingsStore.dockPanelHeight.scale }
     /// 任务条圆角。**玻璃态与毛玻璃态同一个值** —— 几何只有 `DockPanelHeight.metrics` /
     /// `DockShape` 一个来源，换底板材质不改尺寸（否则高度缩放失效，`scale` 的定义
@@ -494,6 +494,7 @@ struct DockStripView: View {
         // the environment. Injected here — not at the NSHostingView — because this body re-runs on
         // every `themeMaterial` change, so a theme switch repaints the whole strip immediately.
         .environment(\.dockThemeStyle, settingsStore.themeMaterial)
+        .environment(\.iconSet, settingsStore.iconSet)
         // No .frame(maxWidth: .infinity) here — lets NSHostingView.fittingSize reflect
         // the natural content width so AppDelegate can read it for panel sizing.
     }
@@ -1343,6 +1344,9 @@ struct DockStripView: View {
             .clipped()
             .frame(width: section == .apps ? nil : targetWidth, height: 36 * dockScale)
             .contentShape(Rectangle())
+            // Phase 6: hover title per island section (system tooltip; a chip's own `.help`
+            // still wins inside it).
+            .help(Self.sectionHoverTitle(section))
         case .divider:
             Rectangle()
                 .fill(theme.zoneDivider.color)
@@ -1510,6 +1514,20 @@ private enum Style {
 
 /// Inert glyph for the `launcher` / `widgets` `BarSection`s (Phase 4U-A). A section, not a floating
 /// panel: it sits inside its island and carries no action until Phase 7d / 7e wire a payload.
+extension DockStripView {
+    /// Localized hover title for a widget section; literals so the localization gate sees them.
+    static func sectionHoverTitle(_ section: BarSection) -> String {
+        switch section {
+        case .launcher: return String(localized: "Launcher")
+        case .weather: return String(localized: "Weather")
+        case .media: return String(localized: "Now Playing")
+        case .clock: return String(localized: "Clock")
+        case .widgets: return String(localized: "Widgets")
+        case .apps: return ""
+        }
+    }
+}
+
 struct SectionFABGlyph: View {
     let systemName: String
 
