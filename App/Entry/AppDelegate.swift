@@ -85,6 +85,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 后者在权限引导完成前是 nil，settingsStore 从 AppDelegate 构造起即存在。
     private var edgeToggleHotKey: GlobalHotKeyMonitor?
     private var terminationTask: Task<Void, Never>?
+    private var terminationSignalSources: [DispatchSourceSignal] = []
     private var debugWindow: NSWindow?
     /// 只在 `DOCK_HOVER_TRACE=1` 时存在，见 `startMainLoopStallProbeIfTracing`。
     private var mainLoopStallProbe: Timer?
@@ -136,6 +137,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 行缓冲 stdout：从命令行/后台启动时，print() 输出到文件默认是块缓冲，
         // 日志要攒满缓冲区才落盘。改成行缓冲后每条 print 立即写出，便于实时读日志。
         setvbuf(stdout, nil, _IOLBF, 0)
+        installTerminationSignalHandlers()
 
         startMainLoopStallProbeIfTracing()
         StackPopupSnapshotProbe.runIfRequested()
@@ -276,6 +278,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 logger.error("旧实例 pid=\(app.processIdentifier, privacy: .public) 3 秒内未退出，强制结束")
                 app.forceTerminate()
             }
+        }
+    }
+
+    /// SIGTERM / SIGINT 默认直接杀进程，绕过 `applicationShouldTerminate`，被抬起的窗口就留在原地
+    /// （5b 演练实测）。改成走礼貌退出，让 `stopAndRestore` 先把窗口还回去。
+    private func installTerminationSignalHandlers() {
+        guard terminationSignalSources.isEmpty else { return }
+        for sig in [SIGTERM, SIGINT] {
+            signal(sig, SIG_IGN)
+            let source = DispatchSource.makeSignalSource(signal: sig, queue: .main)
+            // 不能直接在这个 GCD 块里调 terminate：它会在主队列块里嵌套跑事件循环，
+            // 而 `stopAndRestore` 的 Task 也要靠主队列推进——两边互等，永远退不出去（演练实测）。
+            // 用 runloop 定时器触发，才和 AppleEvent 退出走同一条路径。
+            source.setEventHandler {
+                NSApp.perform(#selector(NSApplication.terminate(_:)), with: nil, afterDelay: 0, inModes: [.common])
+            }
+            source.resume()
+            terminationSignalSources.append(source)
         }
     }
 

@@ -346,9 +346,64 @@ final class WindowLiftAvoidanceController {
         case unreachable
     }
 
-    init(host: WindowLiftAvoidanceHost, isTrustedProbe: @escaping () -> Bool = { AXIsProcessTrusted() }) {
+    /// 崩溃 / `kill -9` 后留给下次启动的还原记录（5c）；`nil` 即不落盘。
+    private let recoveryStore: WindowLiftRecoveryStore?
+
+    init(
+        host: WindowLiftAvoidanceHost,
+        isTrustedProbe: @escaping () -> Bool = { AXIsProcessTrusted() },
+        recoveryStore: WindowLiftRecoveryStore? = WindowLiftRecoveryStore(url: WindowLiftRecoveryStore.defaultURL)
+    ) {
         self.host = host
         self.isTrustedProbe = isTrustedProbe
+        self.recoveryStore = recoveryStore
+    }
+
+    /// 把「现在被抬着 / 等待还原」的窗口镜像到磁盘。进程被强杀时内存里的会话就丢了，
+    /// 这份记录让下次启动能把窗口还回去；干净退出时队列清空，文件随之删除。
+    private func persistRecovery() {
+        guard let recoveryStore else { return }
+        var frames: [WindowLiftAvoidance.WindowKey: ManagedFrames] = pendingRestorations
+        for (key, state) in states {
+            guard let managed = managedFrames[key] else { continue }
+            switch state {
+            case .writing, .lifted, .abandoned: frames[key] = managed
+            case .idle: break
+            }
+        }
+        let entries: [WindowLiftRecoveryEntry] = frames.compactMap { key, f in
+            guard f.userRestoreQuartz == nil,
+                  let start = ProcessLiveness.startTime(pid: key.pid) else { return nil }
+            return WindowLiftRecoveryEntry(
+                pid: key.pid, windowID: key.cgWindowID,
+                startSeconds: Int(start.tv_sec), startMicroseconds: Int32(start.tv_usec),
+                nativeAppKit: .init(f.nativeAppKit), targetAppKit: .init(f.targetAppKit),
+                nativeQuartz: .init(f.nativeQuartz), targetQuartz: .init(f.targetQuartz),
+                primaryScreenHeight: Double(f.primaryScreenHeight)
+            )
+        }
+        recoveryStore.save(entries)
+    }
+
+    /// 启动时把上一次没来得及还原的窗口塞回待还原队列；`restoreOne` 会再核对进程启动时间、
+    /// 窗口是否还在、是否仍停在抬起后的位置，才会写入。
+    private func loadRecoveredRestorations() {
+        guard let recoveryStore else { return }
+        for entry in recoveryStore.load() {
+            let key = WindowLiftAvoidance.WindowKey(pid: entry.pid, cgWindowID: entry.windowID)
+            guard pendingRestorations[key] == nil, states[key] == nil else { continue }
+            pendingRestorations[key] = ManagedFrames(
+                nativeAppKit: entry.nativeAppKit.cgRect,
+                targetAppKit: entry.targetAppKit.cgRect,
+                nativeQuartz: entry.nativeQuartz.cgRect,
+                targetQuartz: entry.targetQuartz.cgRect,
+                primaryScreenHeight: CGFloat(entry.primaryScreenHeight)
+            )
+            pendingRestorationStartTimes[key] = timeval(
+                tv_sec: entry.startSeconds, tv_usec: __darwin_suseconds_t(entry.startMicroseconds)
+            )
+        }
+        if !pendingRestorations.isEmpty { launchRestoreTask(cancelledWrites: []) }
     }
 
     // MARK: - 权限冻结
@@ -501,6 +556,7 @@ final class WindowLiftAvoidanceController {
         eventPollCount = 0
         trailingEventPollCount = 0
         subscribeWorkspaceNotifications()
+        loadRecoveredRestorations()
 
         let geometryObserver = FrontmostWindowGeometryObserver()
         geometryObserver.onEvent = { [weak self] _ in
@@ -1132,6 +1188,7 @@ final class WindowLiftAvoidanceController {
             primaryScreenHeight: context.primaryScreenHeight
         )
         validationGenerations[key] = generation
+        persistRecovery()
 
         let animate = usesAnimatedLift
         let reader = AXWindowReader()
@@ -2271,6 +2328,7 @@ final class WindowLiftAvoidanceController {
             await MainActor.run { [weak self] in
                 guard let self, self.restoreGeneration == generation else { return }
                 self.restoreTask = nil
+                self.persistRecovery()
                 // A user-frame restore queued while this pass ran gets its own pass.
                 if self.pendingRestorations.keys.contains(where: { items[$0] == nil }) {
                     self.launchRestoreTask(cancelledWrites: [])
@@ -2631,6 +2689,7 @@ final class WindowLiftAvoidanceController {
         validationGenerations.removeValue(forKey: key)
         let previous = states.removeValue(forKey: key)
         let frames = managedFrames.removeValue(forKey: key)
+        defer { persistRecovery() }
         if case let .untilNative(userEra) = suppression, let frames {
             setSuppression(frames, userEra: userEra, for: key)
         } else {

@@ -20,6 +20,9 @@ All notable changes to KatiKati are documented in this file.
 
 ## [Unreleased] — Phase 5: Hardening + Floating Widgets
 
+### Fixed
+- Lifted windows are now restored after SIGTERM/SIGINT and after a crash/`kill -9` relaunch (signal handlers + recovery file).
+
 ### Added
 - Floating calendar tiles (right) and weather tiles (left) with Mac/iPad/Tall layouts, palettes, animation presets (Instant/Slide/Spring Pop).
 - Timer, Stopwatch, Countdown, Notes tiles; world clocks, focus timer, alarms, reminders.
