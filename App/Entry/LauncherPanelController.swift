@@ -13,6 +13,8 @@ final class LauncherPanelController {
     private let indexer = LauncherIndexer()
     private let model = LauncherModel()
     private let store = LauncherStore(url: LauncherStore.defaultURL)
+    /// Read at each summon so a Settings change applies immediately.
+    var sheetSide: () -> EdgeSide = { .right }
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -23,6 +25,7 @@ final class LauncherPanelController {
         let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) } ?? NSScreen.main
         guard let screen else { return }
         model.state = store.load()
+        model.sheetSide = sheetSide()
         model.query = ""
         indexer.start()
         let panel = self.panel ?? makePanel()

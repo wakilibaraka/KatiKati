@@ -14,8 +14,9 @@ enum LauncherIconCache {
     }
 }
 
-/// The launcher surface (Phase 7B-L3): search on top, then the Pinned / Most Used / Recently Installed grid.
-/// While searching, one flat grid of matches.
+/// The launcher surface (Phase 7B-L4): the Pinned / Most Used / Recently Installed grid beside a sheet with the full
+/// app list and the search field. The sheet sits on the side chosen in Settings (right by default). While searching,
+/// the grid shows one flat set of matches and the sheet list narrows to them too.
 struct LauncherView: View {
     @ObservedObject var indexer: LauncherIndexer
     @ObservedObject var model: LauncherModel
@@ -32,33 +33,58 @@ struct LauncherView: View {
     var body: some View {
         ZStack {
             Color.black.opacity(0.001).onTapGesture(perform: onClose)
-            VStack(spacing: 22) {
-                LauncherSearchField(text: $model.query, focusNonce: model.focusNonce,
-                                    onSubmit: { if let first = matches.first { onLaunch(first) } },
-                                    onCancel: onClose)
-                    .frame(width: 420, height: 28)
-                content
+            HStack(alignment: .top, spacing: 0) {
+                if model.sheetSide == .left { sheet }
+                content.frame(maxWidth: .infinity)
+                if model.sheetSide == .right { sheet }
             }
-            .padding(.top, 90)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .padding(.top, 60)
         }
         .accessibilityLabel(Text("Launcher"))
+    }
+
+    private var sheet: some View {
+        VStack(spacing: 10) {
+            Text("All Apps").font(.system(size: 13, weight: .semibold)).foregroundColor(.secondary)
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 2) {
+                    ForEach(model.query.isEmpty ? indexer.apps : matches, id: \.bundleID) { app in
+                        Button { onLaunch(app) } label: {
+                            HStack(spacing: 10) {
+                                Image(nsImage: LauncherIconCache.icon(forPath: app.path)).resizable().frame(width: 28, height: 28)
+                                Text(verbatim: app.name).font(.system(size: 13)).lineLimit(1)
+                                Spacer(minLength: 0)
+                            }
+                            .contentShape(Rectangle())
+                            .padding(.vertical, 3).padding(.horizontal, 8)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            LauncherSearchField(text: $model.query, focusNonce: model.focusNonce,
+                                onSubmit: { if let first = matches.first { onLaunch(first) } },
+                                onCancel: onClose)
+                .frame(height: 28)
+        }
+        .padding(14)
+        .frame(width: 280)
+        .frame(maxHeight: .infinity)
+        .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Color.primary.opacity(0.08)))
+        .padding(.horizontal, 24).padding(.bottom, 60)
     }
 
     @ViewBuilder private var content: some View {
         if model.query.isEmpty {
             let s = LauncherAppIndex.sections(apps: indexer.apps, usage: model.state.usage,
                                               pinned: model.state.pinned, now: Date())
-            let shown = Set((s.pinned + s.mostUsed + s.recentlyInstalled).map(\.bundleID))
-            let rest = indexer.apps.filter { !shown.contains($0.bundleID) }
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
                     section(Text("Pinned"), s.pinned)
                     section(Text("Most Used"), s.mostUsed)
                     section(Text("Recently Installed"), s.recentlyInstalled)
-                    section(Text("All Apps"), rest)
                 }
-                .padding(.horizontal, 60).padding(.bottom, 80)
+                .padding(.horizontal, 40).padding(.bottom, 80)
                 .frame(maxWidth: 1000)
             }
         } else if matches.isEmpty {
@@ -66,7 +92,7 @@ struct LauncherView: View {
         } else {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 18) { ForEach(matches, id: \.bundleID, content: cell) }
-                    .padding(.horizontal, 60).padding(.bottom, 80)
+                    .padding(.horizontal, 40).padding(.bottom, 80)
                     .frame(maxWidth: 1000)
             }
         }
@@ -101,6 +127,7 @@ struct LauncherView: View {
 final class LauncherModel: ObservableObject {
     @Published var query = ""
     @Published var focusNonce = 0
+    @Published var sheetSide: EdgeSide = .right
     @Published var state = LauncherState()
 }
 

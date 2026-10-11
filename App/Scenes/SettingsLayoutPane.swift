@@ -306,6 +306,23 @@ struct SettingsLayoutPane: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+
+            section {
+                Text("Launcher")
+            } content: {
+                HStack {
+                    Text("App List Side")
+                    Spacer(minLength: 12)
+                    Picker("App List Side", selection: Binding(
+                        get: { store.launcherSheetSide },
+                        set: { store.setLauncherSheetSide($0) }
+                    )) {
+                        Text("Left").tag(EdgeSide.left)
+                        Text("Right").tag(EdgeSide.right)
+                    }
+                    .labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
+            }
         }
         .padding(Self.margin)
         .frame(maxWidth: .infinity, alignment: .leading)

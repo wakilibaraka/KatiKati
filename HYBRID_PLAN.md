@@ -1562,6 +1562,8 @@ Reference screenshots: one Launchpad-style surface (icon grid + widget tiles, le
 - 2026-10-12 · **7B-L3 landed (gate green, 1900 tests):** grid page — Pinned / Most Used / Recently Installed sections (+ a temporary All Apps section until L4), flat grid while searching, cached 64 pt icons (`LauncherIconCache`), Pin/Unpin context menu persisted to `launcher.json`.
 - 2026-10-12 · **Owner amendment for L4:** the All Apps + Search side sheet can sit on the **left or right, right by default**, with a preset in Settings to switch it (own key, e.g. `com.katikati.launcher.sheetSide`, plus a Settings control and tests). The temporary All Apps grid section is removed when the sheet lands.
 
+- 2026-10-12 · **7B-L4 landed (gate green, 1901 tests):** All Apps + Search side sheet (search field at the sheet's bottom; list narrows while typing); sheet side is `com.katikati.launcher.sheetSide` (default **right**), Settings → Launcher → App List Side, read at each summon; temporary All Apps grid section removed. Live check of L2–L4 follows.
+
 **Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
 dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.

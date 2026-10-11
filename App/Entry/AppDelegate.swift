@@ -85,7 +85,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 后者在权限引导完成前是 nil，settingsStore 从 AppDelegate 构造起即存在。
     private var edgeToggleHotKey: GlobalHotKeyMonitor?
     private var launcherHotKey: GlobalHotKeyMonitor?
-    private lazy var launcherPanel = LauncherPanelController()
+    private lazy var launcherPanel: LauncherPanelController = {
+        let panel = LauncherPanelController()
+        panel.sheetSide = { [weak self] in self?.settingsStore.launcherSheetSide ?? .right }
+        return panel
+    }()
     private var terminationTask: Task<Void, Never>?
     private var terminationSignalSources: [DispatchSourceSignal] = []
     private var debugWindow: NSWindow?

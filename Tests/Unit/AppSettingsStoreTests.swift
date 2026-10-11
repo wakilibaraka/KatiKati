@@ -193,6 +193,17 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
+    func testLauncherSheetSideDefaultsRightAndPersists() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.launcherSheetSide, .right)
+        store.setLauncherSheetSide(.left)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherSheetSide, .left)
+        defaults.set("bogus", forKey: "com.katikati.launcher.sheetSide")
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherSheetSide, .right)
+    }
+
+    @MainActor
     func testDeckSettingsDefaultsClampAndPersist() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
