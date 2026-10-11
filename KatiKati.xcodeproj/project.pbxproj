@@ -682,6 +682,9 @@
 		ED00000000000000000000E7 /* SystemMonitorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E6 /* SystemMonitorController.swift */; };
 		ED00000000000000000000E9 /* SystemMonitorFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E8 /* SystemMonitorFlyoutView.swift */; };
 		ED00000000000000000000EB /* SystemMonitorMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000EA /* SystemMonitorMathTests.swift */; };
+		ED00000000000000000000ED /* LauncherAppIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000EC /* LauncherAppIndex.swift */; };
+		ED00000000000000000000EE /* LauncherAppIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000EC /* LauncherAppIndex.swift */; };
+		ED00000000000000000000F0 /* LauncherAppIndexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000EF /* LauncherAppIndexTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1165,6 +1168,8 @@
 		ED00000000000000000000E6 /* SystemMonitorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorController.swift; path = Platform/SystemMonitor/SystemMonitorController.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000E8 /* SystemMonitorFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorFlyoutView.swift; path = App/Scenes/Edge/SystemMonitorFlyoutView.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000EA /* SystemMonitorMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorMathTests.swift; path = Tests/Unit/SystemMonitorMathTests.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000EC /* LauncherAppIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherAppIndex.swift; path = Core/Support/LauncherAppIndex.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000EF /* LauncherAppIndexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherAppIndexTests.swift; path = Tests/Unit/LauncherAppIndexTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2201,6 +2206,7 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
+				ED00000000000000000000ED /* LauncherAppIndex.swift in Sources */,
 				ED00000000000000000000E1 /* SystemMonitorMath.swift in Sources */,
 				ED00000000000000000000E4 /* SystemMonitorSampler.swift in Sources */,
 				ED00000000000000000000E7 /* SystemMonitorController.swift in Sources */,
@@ -2316,6 +2322,8 @@
 				ED0000000000000000000089 /* DeckGeometryTests.swift in Sources */,
 				ED0000000000000000000082 /* NotePalette.swift in Sources */,
 				ED0000000000000000000084 /* NotePaletteTests.swift in Sources */,
+				ED00000000000000000000EE /* LauncherAppIndex.swift in Sources */,
+				ED00000000000000000000F0 /* LauncherAppIndexTests.swift in Sources */,
 				ED00000000000000000000E2 /* SystemMonitorMath.swift in Sources */,
 				ED00000000000000000000E5 /* SystemMonitorSampler.swift in Sources */,
 				ED00000000000000000000EB /* SystemMonitorMathTests.swift in Sources */,

@@ -1553,6 +1553,8 @@ Reference screenshots: one Launchpad-style surface (icon grid + widget tiles, le
   (today/week) as a **button on the productivity deck** → W3 per-app daily limits, break reminder, gentle block, pause switch.
   Needs its own privacy note before W1.
 
+- 2026-10-12 · **7B-L1a landed (gate green, 1896 tests):** pure `Core/Support/LauncherAppIndex.swift` (merge/dedupe by bundle id, sections pinned > most used > recently installed, launch recording, pin toggle, fuzzy `LauncherSearch`) + 8 tests. Platform indexer (Spotlight + /Applications, live updates, usage store) is L1b.
+
 **Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
 dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.
