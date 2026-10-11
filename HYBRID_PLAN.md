@@ -1103,10 +1103,21 @@ for a gap the drill actually proves.*
   `suspendPanelsAndStores`), and can never ship on. Extend `DebugSwitchTests` polarity +
   choke-point coverage; `check_debug_switches.py` green.
 
-- **5e — Calendar Popup Redesign. — OWNER-EXTERNAL (owner 2026-10-11: "i will do it in
-  claude code") — agent writes no calendar code for this slice; the redesign lands from the
-  owner's Claude Code session.** The Phase-4 `CalendarPopupView` baseline
-  (`App/Scenes/ClockChip.swift`) stays live until the owner's redesign replaces it.
+- **5e — Floating Calendar Panel (owner design 2026-10-11; supersedes the "owner-external" note — owner now has the agent build it).**
+  Replaces the `CalendarPopupView` popover (`ClockChip.swift`) with a tall **floating panel on the
+  right of the screen**, opened by tapping the clock (click-outside/Esc dismiss). Contents, **all
+  visible, no scrolling**: date card · month grid · agenda · world clocks (user-picked, ≤4) ·
+  focus (Pomodoro) · reminders · alarms; theme-glass styled per the owner's reference shots.
+  Real EventKit (agenda + reminders), real in-app alarms (UserNotifications) and focus timer.
+  **Size presets (owner): `compact420` (420pt wide, 2-column cards) and `halfScreen` (half the
+  screen width, 3-column cards)** — `com.katikati.calendar.panelPreset`. **The same two presets are
+  the size vocabulary for the future Weather redesign** (reuse the preset type/geometry, do not
+  invent a third).
+  Sub-slices (each gate-green, ≤300 lines): **5e-A** panel shell + `PanelGeometry.calendarPanelFrame`
+  + clock-tap toggle; **5e-B** card grid + date/month; **5e-C** size presets + setting + this note;
+  **5e-D** EventKit agenda/reminders (+ Info.plist usage strings, fake-store tests); **5e-E** world
+  clocks model + picker; **5e-F** focus timer state machine + alarms/notifications; **5e-G** polish,
+  localization ×12, lock.
 
 - **5f — Phase 5 lock + proof gate.** Drill log(s) in the PR; no lost Dock state; no orphaned
   island panels after crash-relaunch; full tungsten gate; dated phase-5 log under
@@ -1115,8 +1126,8 @@ for a gap the drill actually proves.*
 **Owner decisions — RESOLVED 2026-10-11 (owner: "Proceed with your recommendations" + team directive):**
 1. **5a reservation semantics — accepted as recommended** (union bounding frame / one
    context per display); corrected scope executed (see check log below).
-2. **5e calendar — baseline `CalendarPopupView` stays live**; redesign is **owner-external
-   (Claude Code)** per owner 2026-10-11.
+2. **5e calendar — baseline `CalendarPopupView` stays live until 5e-A lands**; owner then
+   (later 2026-10-11) asked the agent to build the floating panel (see 5e above).
 3. **5b/5c drill — owner deferred** ("to be done later"); remains evidence-gated when resumed.
 
 **Phase 5 check log (append after every step — STANDING_RULES §1.8):**
