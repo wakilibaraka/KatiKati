@@ -1173,6 +1173,19 @@ for a gap the drill actually proves.*
   `.popover` removed. Content is still the baseline month view until 5e-B. Unit suite + localization
   + debug-switch gates green. **Owner to verify on the Mac:** panel position on real displays,
   Esc focus behavior, and that clicking another in-app panel does not dismiss (by design).
+- 2026-10-11 · **5e-B…G — PASS (code), awaiting owner eyeball.** Panel now shows, all at once with
+  no scrolling (`FittedRows` shows what fits + "+N more"): date card · month grid (heat tint,
+  today/selected) · agenda · world clocks (≤4, picker, `com.katikati.calendar.timezones`) · focus
+  (25/5/15 Pomodoro, `FocusTimerModel`) · reminders (check-off) · alarms (daily or weekday-set,
+  `UNUserNotificationCenter` + in-app chime fallback). `compact420` = 2 columns, `halfScreen` = 3;
+  Settings picker `com.katikati.calendar.panelPreset` (also the size vocabulary for the Weather
+  redesign). EventKit via `CalendarService` (Info.plist calendar/reminders usage keys added;
+  macOS 14 full-access API behind `#available`). 11 new model tests (DST, date line, cycle,
+  alarm next-fire); full unit suite 1669 ✅; localization ×12 ✅; debug switches ✅. **Gaps /
+  not verified:** no UI tests for the panel; EventKit + notification flows need real grants
+  (cannot be bypassed by `DOCK_DEV_SKIP_PERMISSIONS`, which only skips Accessibility); alarm UI has
+  no weekday chips yet (model supports them); not yet checked at small screen heights. 5f still
+  open (5b/5c deferred).
 
 
 ### Phase 6 — Settings Layout tab + welcome step + polish

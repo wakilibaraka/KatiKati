@@ -173,6 +173,7 @@ final class CalendarPanelController {
 
     private var panel: CalendarFloatingPanel?
     private var outsideClickMonitor: Any?
+    private var presetShown: CalendarPanelPreset?
 
     var isVisible: Bool { panel?.isVisible ?? false }
 
@@ -196,13 +197,15 @@ final class CalendarPanelController {
         )
         let frame = PanelGeometry.calendarPanelFrame(on: geometry, preset: preset)
 
-        let panel = self.panel ?? makePanel()
+        if presetShown != preset { self.panel?.orderOut(nil); self.panel = nil }
+        presetShown = preset
+        let panel = self.panel ?? makePanel(preset: preset)
         panel.setFrame(frame, display: true)
         panel.makeKeyAndOrderFront(nil)
         installOutsideClickMonitor()
     }
 
-    private func makePanel() -> CalendarFloatingPanel {
+    private func makePanel(preset: CalendarPanelPreset) -> CalendarFloatingPanel {
         let panel = CalendarFloatingPanel(
             contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false
         )
@@ -214,7 +217,7 @@ final class CalendarPanelController {
         panel.backgroundColor = .clear
         panel.hasShadow = true
         panel.hidesOnDeactivate = false
-        let hosting = NSHostingView(rootView: CalendarPopupView())
+        let hosting = NSHostingView(rootView: CalendarPanelView(preset: preset))
         hosting.wantsLayer = true
         hosting.layer?.backgroundColor = NSColor.clear.cgColor
         panel.contentView = hosting
@@ -229,111 +232,6 @@ final class CalendarPanelController {
         outsideClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             Task { @MainActor in self?.close() }
         }
-    }
-}
-
-// MARK: - Calendar popup content (baseline — replaced card-by-card in 5e-B…F)
-
-struct CalendarPopupView: View {
-    @State private var currentDate = Date()
-    private let calendar = Calendar.current
-
-    var body: some View {
-        // 4e gap fixed: the month grid was never composed into the body — the popup rendered an
-        // empty box while `header`/`daysOfWeek`/`monthGrid` sat unused. Baseline only; the owner
-        // redesigns this popup in Phase 5.
-        VStack(spacing: 12) {
-            header
-            daysOfWeek
-            monthGrid
-        }
-        .padding(16)
-        .frame(width: 280)
-        .background(Color(NSColor.windowBackgroundColor))
-        .cornerRadius(12)
-        .shadow(radius: 8)
-    }
-
-    private var header: some View {
-        HStack {
-            Text(currentDate.formatted(.dateTime.month(.wide).year()))
-                .font(.headline)
-            Spacer()
-            HStack(spacing: 8) {
-                Button(action: {
-                    if let newDate = calendar.date(byAdding: .month, value: -1, to: currentDate) {
-                        currentDate = newDate
-                    }
-                }) {
-                    Image(systemName: "chevron.left")
-                }
-                .buttonStyle(.plain)
-
-                Button(action: {
-                    if let newDate = calendar.date(byAdding: .month, value: 1, to: currentDate) {
-                        currentDate = newDate
-                    }
-                }) {
-                    Image(systemName: "chevron.right")
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-
-    private var daysOfWeek: some View {
-        let symbols = calendar.veryShortWeekdaySymbols
-        return HStack {
-            ForEach(symbols, id: \.self) { symbol in
-                Text(symbol)
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity)
-            }
-        }
-    }
-
-    private var monthGrid: some View {
-        let days = extractDays(for: currentDate)
-        let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
-
-        return LazyVGrid(columns: columns, spacing: 4) {
-            ForEach(days, id: \.self) { date in
-                if let date = date {
-                    DayCell(date: date, isToday: calendar.isDateInToday(date))
-                } else {
-                    Color.clear
-                        .aspectRatio(1, contentMode: .fit)
-                }
-            }
-        }
-    }
-
-    private func extractDays(for month: Date) -> [Date?] {
-        guard let monthInterval = calendar.dateInterval(of: .month, for: month),
-              let monthFirstWeek = calendar.dateInterval(of: .weekOfMonth, for: monthInterval.start),
-              let monthLastWeek = calendar.dateInterval(of: .weekOfMonth, for: monthInterval.end - 1)
-        else {
-            return []
-        }
-
-        let startDate = monthFirstWeek.start
-        let endDate = monthLastWeek.end
-
-        var days: [Date?] = []
-        var currentDate = startDate
-
-        while currentDate < endDate {
-            if calendar.isDate(currentDate, equalTo: month, toGranularity: .month) {
-                days.append(currentDate)
-            } else {
-                days.append(nil)
-            }
-            currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
-        }
-
-        return days
     }
 }
 

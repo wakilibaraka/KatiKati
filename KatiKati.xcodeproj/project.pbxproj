@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B5000000000000000000009 /* CalendarPanelModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000001 /* CalendarPanelModels.swift */; };
+		7B5000000000000000000008 /* CalendarPanelModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000007 /* CalendarPanelModelsTests.swift */; };
+		7B5000000000000000000006 /* CalendarPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000005 /* CalendarPanelView.swift */; };
+		7B5000000000000000000004 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000003 /* CalendarService.swift */; };
+		7B5000000000000000000002 /* CalendarPanelModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000001 /* CalendarPanelModels.swift */; };
 		7A0000000000000000000001 /* WeatherState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C114D06ABCAC4B451E0F16A /* WeatherState.swift */; };
 		7B1000000000000000000002 /* ClockChipContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1000000000000000000001 /* ClockChipContent.swift */; };
 		7B1000000000000000000003 /* ClockChipContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1000000000000000000001 /* ClockChipContent.swift */; };
@@ -565,6 +570,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B5000000000000000000007 /* CalendarPanelModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalendarPanelModelsTests.swift; path = Tests/Unit/CalendarPanelModelsTests.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000005 /* CalendarPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalendarPanelView.swift; path = App/Scenes/CalendarPanelView.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000003 /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalendarService.swift; path = App/Composition/CalendarService.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000001 /* CalendarPanelModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalendarPanelModels.swift; path = Core/Support/CalendarPanelModels.swift; sourceTree = SOURCE_ROOT; };
 		0C114D06ABCAC4B451E0F16A /* WeatherState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherState.swift; path = Core/Support/WeatherState.swift; sourceTree = SOURCE_ROOT; };
 		7B1000000000000000000001 /* ClockChipContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClockChipContent.swift; path = Core/Support/ClockChipContent.swift; sourceTree = SOURCE_ROOT; };
 		7B2000000000000000000001 /* ClockChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClockChip.swift; path = App/Scenes/ClockChip.swift; sourceTree = SOURCE_ROOT; };
@@ -1954,6 +1963,9 @@
 				7D1000000000000000000002 /* NowPlayingService.swift in Sources */,
 				7D2000000000000000000002 /* NowPlayingChip.swift in Sources */,
 				7B2000000000000000000002 /* ClockChip.swift in Sources */,
+				7B5000000000000000000006 /* CalendarPanelView.swift in Sources */,
+				7B5000000000000000000004 /* CalendarService.swift in Sources */,
+				7B5000000000000000000002 /* CalendarPanelModels.swift in Sources */,
 				5CB341E082E25B7D7886822F /* WeatherResponseParsing.swift in Sources */,
 				CC234F8CB79E1F671C157759 /* WeatherService.swift in Sources */,
 				BB96449286273F55FD93D51E /* WeatherChip.swift in Sources */,
@@ -2004,9 +2016,11 @@
 			files = (
 				7A0000000000000000000001 /* WeatherState.swift in Sources */,
 				7B1000000000000000000003 /* ClockChipContent.swift in Sources */,
+				7B5000000000000000000009 /* CalendarPanelModels.swift in Sources */,
 				7C1000000000000000000003 /* SystemStatusProvider.swift in Sources */,
 				7C3000000000000000000002 /* SystemStatusProviderTests.swift in Sources */,
 				7B3000000000000000000002 /* ClockChipContentTests.swift in Sources */,
+				7B5000000000000000000008 /* CalendarPanelModelsTests.swift in Sources */,
 				7A0000000000000000000002 /* WeatherResponseParsing.swift in Sources */,
 				A7A5000000000000000000C9 /* FinderTrash.swift in Sources */,
 				F1D0A0000000000000000012 /* FinderNewWindowTarget.swift in Sources */,

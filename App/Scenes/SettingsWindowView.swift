@@ -117,7 +117,13 @@ struct SettingsWindowContent: View {
                         widgetWidthSliders
                     }
                     .padding(.vertical, 4)
-                    
+
+                    HStack {
+                        Text("Calendar Panel Size")
+                        Spacer(minLength: 12)
+                        calendarPanelPresetPicker
+                    }
+
                     HStack {
                         Text("Now Playing Theme")
                         Spacer(minLength: 12)
@@ -177,6 +183,12 @@ struct SettingsWindowContent: View {
                         Text("Widget Widths")
                     } control: {
                         widgetWidthSliders
+                    }
+                    Divider().opacity(0.5)
+                    groupRow {
+                        Text("Calendar Panel Size")
+                    } control: {
+                        calendarPanelPresetPicker
                     }
                     Divider().opacity(0.5)
                     groupRow {
@@ -441,6 +453,10 @@ struct SettingsWindowContent: View {
         default: EmptyView()
         }
     }
+    private var calendarPanelPresetPicker: some View {
+        CalendarPanelPresetPicker()
+    }
+
     private var drawerPlacementPicker: some View {
         Picker(
             "Drawer Position",
@@ -1190,5 +1206,21 @@ extension DiagnosticReport {
         var buffer = [CChar](repeating: 0, count: size)
         guard sysctlbyname("hw.model", &buffer, &size, nil, 0) == 0 else { return nil }
         return String(cString: buffer)
+    }
+}
+
+
+/// Size preset of the floating calendar panel (Phase 5e-C). Plain `@AppStorage`: the panel reads the
+/// same key every time it opens, so no store plumbing is needed.
+private struct CalendarPanelPresetPicker: View {
+    @AppStorage(CalendarPanelController.presetDefaultsKey) private var preset: CalendarPanelPreset = .compact420
+
+    var body: some View {
+        Picker("Calendar Panel Size", selection: $preset) {
+            Text("Compact (420 pt)").tag(CalendarPanelPreset.compact420)
+            Text("Half screen").tag(CalendarPanelPreset.halfScreen)
+        }
+        .pickerStyle(.menu)
+        .labelsHidden()
     }
 }
