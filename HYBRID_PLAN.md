@@ -1537,6 +1537,22 @@ Appendix C stays normative for both halves.
   persist across restarts + no new TCC surface beyond the existing app list +
   idle CPU ≤ island baseline + ε (Instruments number in PR; acceptance criterion 11).
 
+**7B reoriented 2026-10-12 (owner, after 7A closed) — supersedes the 7c/7d split above; plan only, nothing built.**
+Reference screenshots: one Launchpad-style surface (icon grid + widget tiles, left sheet, Light/Dark/Glass/wallpaper themes).
+- **Merged launcher (7c+7d):** one full-screen panel (existing panel pattern, no new class) summoned by the left FAB
+  **and** ⌥Space; ⌥Space opens it with the search field focused and toggles it closed. One page only.
+- **Sources/licences:** LaunchNext (GPL-3.0, compatible) and macos-launchy (AGPL-3.0) are *ideas/logic only, UI written fresh*;
+  NOTICE entries when logic is derived. Native app + Spotlight indexing. Phase 8a drawer reuses the same index later.
+- **Slices:** L1 app-index core (Spotlight + /Applications scan, live updates, launch counts, ranking pinned > most used >
+  recently installed, fuzzy search; pure Core + tests) → L2 summon/shell (⌥Space, FAB, blurred backdrop, Esc) → L3 grid page
+  (lazy, icon cache, pin/unpin) → L4 left sheet = **All Apps + Search only** (Downloads moves to the right widgets later) →
+  L5 widget tiles: Clock/World time, Calculator, Countdown, Files; user picks which show (**Browser tile dropped**) →
+  L6 themes: full picker (Light, Dark, Glass, tints, **current desktop picture, blurred**; no bundled wallpapers) →
+  L7 FAB redesign + launcher icon (three presets rendered as SVG; **orbit is the default**) → L8 verify (gate, idle CPU, live).
+- **B2 Screen Time / Digital Wellbeing (usage + limits):** W1 on-device per-app foreground time (no network) → W2 flyout
+  (today/week) as a **button on the productivity deck** → W3 per-app daily limits, break reminder, gentle block, pause switch.
+  Needs its own privacy note before W1.
+
 **Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
 dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.
