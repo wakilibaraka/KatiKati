@@ -136,4 +136,48 @@ final class EdgeBarSlotTests: XCTestCase {
         XCTAssertEqual(A.action(isHidden: false, mouseInHotZone: true, mouseInBar: false), .cancelIdleHide)
         XCTAssertEqual(A.action(isHidden: false, mouseInHotZone: false, mouseInBar: false, popupOpen: true), .cancelIdleHide)
     }
+
+    // MARK: Layout + popup
+
+    func testContentHeightStacksTilesWithSpacingAndPadding() {
+        XCTAssertEqual(EdgeBarLayout.contentHeight([]), 0)
+        XCTAssertEqual(EdgeBarLayout.contentHeight([.notes]), EdgeBarLayout.notesTileHeight + 20)
+        XCTAssertEqual(
+            EdgeBarLayout.contentHeight([.notes, .status]),
+            EdgeBarLayout.notesTileHeight + EdgeBarLayout.statusTileHeight + EdgeBarLayout.tileSpacing + 20
+        )
+    }
+
+    func testTileFramesFlowTopToBottomInsideTheBar() {
+        let content: [EdgeBarContent] = [.notes, .status]
+        let height = EdgeBarLayout.contentHeight(content)
+        let bar = CGRect(x: 1000, y: 200, width: EdgeBarLayout.width, height: height)
+        let notes = EdgeBarLayout.tileFrame(at: 0, of: content, in: bar)
+        let status = EdgeBarLayout.tileFrame(at: 1, of: content, in: bar)
+        XCTAssertEqual(notes.maxY, bar.maxY - EdgeBarLayout.verticalPadding)
+        XCTAssertEqual(status.minY, bar.minY + EdgeBarLayout.verticalPadding, accuracy: 0.001)
+        XCTAssertEqual(notes.minY - status.maxY, EdgeBarLayout.tileSpacing, accuracy: 0.001)
+        XCTAssertTrue(bar.contains(notes) && bar.contains(status))
+        XCTAssertEqual(EdgeBarLayout.tileFrame(at: 5, of: content, in: bar), .zero)
+    }
+
+    func testPopupOpensInwardAndClampsToVisibleFrame() {
+        let visible = CGRect(x: 0, y: 0, width: 1728, height: 1092)
+        let anchor = CGRect(x: 1664, y: 500, width: 56, height: 40)
+        let right = PanelGeometry.edgeBarPopupFrame(side: .right, anchor: anchor, size: CGSize(width: 240, height: 160), visibleFrame: visible)
+        XCTAssertEqual(right.maxX, anchor.minX - 8, accuracy: 0.001)
+        XCTAssertEqual(right.midY, anchor.midY, accuracy: 0.001)
+        let leftAnchor = CGRect(x: 8, y: 20, width: 56, height: 40)
+        let left = PanelGeometry.edgeBarPopupFrame(side: .left, anchor: leftAnchor, size: CGSize(width: 240, height: 160), visibleFrame: visible)
+        XCTAssertEqual(left.minX, leftAnchor.maxX + 8, accuracy: 0.001)
+        XCTAssertGreaterThanOrEqual(left.minY, visible.minY, "clamped above the bottom")
+        XCTAssertTrue(visible.contains(left) && visible.contains(right))
+    }
+
+    func testPopupOversizedAndNonZeroOriginStaysInside() {
+        let visible = CGRect(x: -1920, y: -300, width: 300, height: 200)
+        let f = PanelGeometry.edgeBarPopupFrame(side: .right, anchor: CGRect(x: -1700, y: -200, width: 56, height: 40),
+                                                size: CGSize(width: 900, height: 900), visibleFrame: visible)
+        XCTAssertTrue(visible.contains(f))
+    }
 }

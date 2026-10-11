@@ -543,6 +543,24 @@ enum PanelGeometry {
         return CGRect(x: x, y: y, width: w, height: height)
     }
 
+    /// Popup (status popover etc.) for an edge-bar tile: opens **inward** (left of a right bar, right of a
+    /// left bar), `gap` off the bar, vertically centered on `anchor`, clamped inside `visibleFrame`. Pure.
+    static func edgeBarPopupFrame(
+        side: EdgeSide,
+        anchor: CGRect,
+        size: CGSize,
+        visibleFrame: CGRect,
+        gap: CGFloat = 8
+    ) -> CGRect {
+        let w = min(max(0, size.width), visibleFrame.width)
+        let h = min(max(0, size.height), visibleFrame.height)
+        let rawX = side == .right ? anchor.minX - gap - w : anchor.maxX + gap
+        let x = min(max(rawX, visibleFrame.minX), visibleFrame.maxX - w)
+        let rawY = anchor.midY - h / 2
+        let y = min(max(rawY, visibleFrame.minY), visibleFrame.maxY - h)
+        return CGRect(x: x, y: y, width: w, height: h)
+    }
+
     // MARK: Folder / shelf / Trash popup
     //
     // The popup window is the plate plus a transparent `StackPopupMetrics.panelMargin` border on
