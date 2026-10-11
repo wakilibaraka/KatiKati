@@ -85,6 +85,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 后者在权限引导完成前是 nil，settingsStore 从 AppDelegate 构造起即存在。
     private var edgeToggleHotKey: GlobalHotKeyMonitor?
     private let shortcutService = ShortcutService()
+    private let shortcutToast = ShortcutToastPresenter()
     private var shortcutSubscription: AnyCancellable?
     private let screenTimeAlerts = ScreenTimeAlertPresenter()
     private lazy var pinboardPanel: PinboardPanelController = {
@@ -135,6 +136,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let permissionProbeQueue = DispatchQueue(label: "com.caye.macosdockcc.v2.permission-probe", qos: .utility)
     private var cachedAccessibilityTrusted = false
     private var hasStartedApp = false
+    /// Launched without the Accessibility grant: the bar, launcher and Pinboard still run, the status menu asks for the
+    /// permission, and the app relaunches itself once the grant lands (window management needs a fresh process).
+    private var isLimitedMode = false
+    private var limitedModeTimer: Timer?
+    private var skipsPermissionGate: Bool { isLimitedMode || DebugSwitch.devSkipPermissions.isEnabled() }
     private let permissionLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "permissions")
     private lazy var statusMenuController = StatusMenuController(
         store: settingsStore,
@@ -147,6 +153,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         onMenuVisibilityChanged: { [weak self] isOpen in
             self?.panelCoordinator?.setTaskbarMenuOpen(isOpen)
         },
+        onRequestAccessibility: { [weak self] in self?.requestAccessibilityFromMenu() },
         onQuit: { NSApp.terminate(nil) },
         hotKeyGlyphs: { [weak self] in
             self?.edgeToggleHotKey?.shortcut.displayGlyphs
@@ -210,6 +217,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         installLocation = location
         let trusted = permissionService.hasRequiredPermissions()
         cachedAccessibilityTrusted = trusted
+        isLimitedMode = !trusted && !location.isTransient
         logPermissionLaunch(installLocation: location, isTrusted: trusted)
 
         if !location.isTransient {
@@ -236,7 +244,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .launcher: self.launcherPanel.toggle()
                 case .pinboard: self.pinboardPanel.toggle()
                 case .quickSettings: self.pinboardPanel.toggle(only: [.quickSettings])
-                case .keepAwake: self.pinboardPanel.toggleKeepAwake()
+                case .keepAwake:
+                    let on = self.pinboardPanel.toggleKeepAwake()
+                    self.shortcutToast.show(on ? String(localized: "Keep Awake On") : String(localized: "Keep Awake Off"),
+                                            symbol: "cup.and.saucer.fill")
                 }
             }
             shortcutSubscription = settingsStore.$shortcutBindings
@@ -267,7 +278,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // `startApp` runs and panels render with no AX grant — the untrusted path would fire
         // `requestSystemPrompt` + onboarding (the prompt this switch exists to skip). Watchdog,
         // guide and suspension effects stay guarded below, so no revocation episode can follow.
-        coordinator.launched(trusted: trusted || DebugSwitch.devSkipPermissions.isEnabled())
+        coordinator.launched(trusted: trusted || skipsPermissionGate)
     }
 
     func applicationDidBecomeActive(_ notification: Notification) {
@@ -739,7 +750,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
               hasStartedApp,
               // Dev skip: without a grant the guide would hijack Settings (where the theme /
               // appearance UI lives) — the whole point of running permission-free.
-              permissionService.hasRequiredPermissions() || DebugSwitch.devSkipPermissions.isEnabled() else {
+              permissionService.hasRequiredPermissions() || skipsPermissionGate else {
             showPermissionWindow()
             return
         }
@@ -807,6 +818,38 @@ extension AppDelegate: PermissionEffectHandler {
         guard !hasStartedApp else { return }
         hasStartedApp = true
         startTaskbarRuntime()
+        if isLimitedMode { startLimitedModePolling() }
+    }
+
+    /// Checks for the grant every 3 s (a cheap trust query) and relaunches into full mode as soon as it lands.
+    private func startLimitedModePolling() {
+        limitedModeTimer?.invalidate()
+        let timer = Timer(timeInterval: 3, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, self.permissionService.hasRequiredPermissions() else { return }
+                self.limitedModeTimer?.invalidate()
+                self.limitedModeTimer = nil
+                self.relaunchIntoFullMode()
+            }
+        }
+        timer.tolerance = 1
+        RunLoop.main.add(timer, forMode: .common)
+        limitedModeTimer = timer
+    }
+
+    private func relaunchIntoFullMode() {
+        let config = NSWorkspace.OpenConfiguration()
+        config.createsNewApplicationInstance = true
+        // The new instance terminates the other instances itself at launch; quit as a fallback if it failed to start.
+        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: config) { _, error in
+            if error != nil { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { NSApp.terminate(nil) }
+        }
+    }
+
+    /// Status-menu entry in limited mode: registers the app in the Accessibility list (the menu item itself opens the pane).
+    private func requestAccessibilityFromMenu() {
+        permissionService.requestAccessibilityPermission()
     }
 
     func setActivationPolicy(_ policy: PermissionActivationPolicy) {
@@ -821,7 +864,7 @@ extension AppDelegate: PermissionEffectHandler {
     }
 
     func showGuideWindow() {
-        guard !DebugSwitch.devSkipPermissions.isEnabled() else { return }
+        guard !skipsPermissionGate else { return }
         showPermissionWindow()
     }
     func updateGuideWindow() { resizePermissionWindowToFit() }
@@ -867,9 +910,9 @@ extension AppDelegate: PermissionEffectHandler {
     /// 注意这**不是**窗口快照的保护机制——那个由 `WindowLiftAvoidanceController`
     /// 自己在轮询里自检；有会话/待还原状态时仍是 0.2 秒，空闲无快照时才降到 1 秒。
     func startWatchdog() {
-        // Dev skip: no 5s AX sampling → no trustVerdict events → no revocation episode
+        // Dev skip / limited mode: no 5s AX sampling → no trustVerdict events → no revocation episode
         // can suspend the panels we just started without a grant.
-        guard !DebugSwitch.devSkipPermissions.isEnabled() else { return }
+        guard !skipsPermissionGate else { return }
         stopWatchdog()
         permissionWatchdogGate.start()
         let timer = Timer(timeInterval: 5, repeats: true) { [weak self] _ in
@@ -911,7 +954,7 @@ extension AppDelegate: PermissionEffectHandler {
     }
 
     func suspendPanelsAndStores() {
-        guard !DebugSwitch.devSkipPermissions.isEnabled() else { return }
+        guard !skipsPermissionGate else { return }
         trashSettingSubscription = nil
         TrashStateStore.shared.stop()
         // 设置窗口也要一起收：权限一丢任务条整条被拆掉，留着一扇改任务条外观的窗

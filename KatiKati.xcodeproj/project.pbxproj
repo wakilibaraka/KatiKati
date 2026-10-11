@@ -731,6 +731,7 @@
 		EE0000000000000000000041 /* PinboardReaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000040 /* PinboardReaders.swift */; };
 		EE0000000000000000000043 /* PinboardMonitorViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000042 /* PinboardMonitorViews.swift */; };
 		EE0000000000000000000045 /* ShortcutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000044 /* ShortcutService.swift */; };
+		EE0000000000000000000047 /* ShortcutToastPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000046 /* ShortcutToastPresenter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1251,6 +1252,7 @@
 		EE0000000000000000000040 /* PinboardReaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardReaders.swift; path = Platform/Pinboard/PinboardReaders.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000042 /* PinboardMonitorViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardMonitorViews.swift; path = App/Scenes/Pinboard/PinboardMonitorViews.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000044 /* ShortcutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutService.swift; path = App/Composition/ShortcutService.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000046 /* ShortcutToastPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutToastPresenter.swift; path = App/Entry/ShortcutToastPresenter.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2287,6 +2289,7 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
+				EE0000000000000000000047 /* ShortcutToastPresenter.swift in Sources */,
 				EE0000000000000000000037 /* Shortcuts.swift in Sources */,
 				EE000000000000000000003C /* PinboardMonitor.swift in Sources */,
 				EE0000000000000000000041 /* PinboardReaders.swift in Sources */,

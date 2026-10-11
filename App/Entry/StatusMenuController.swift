@@ -8,6 +8,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     // 闭包注入而非直接依赖 PermissionService：测试 target 编译本文件但不含 PermissionService.swift。
     private let isAccessibilityTrusted: () -> Bool
     private let onShowDebugConsole: () -> Void
+    private let onRequestAccessibility: () -> Void
     private let onExportDebugSnapshot: () -> Void
     private let onShowSettings: () -> Void
     private let onShowLayoutSettings: () -> Void
@@ -40,7 +41,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
 
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private let menu = NSMenu()
-    private let permissionWarningItem = NSMenuItem(title: String(localized: "Accessibility Permission Required"), action: #selector(openAccessibilitySettings), keyEquivalent: "")
+    private let permissionWarningItem = NSMenuItem(title: String(localized: "Grant Accessibility for Full Functionality…"), action: #selector(openAccessibilitySettings), keyEquivalent: "")
     private let permissionWarningSeparator = NSMenuItem.separator()
     private let settingsItem = NSMenuItem(title: String(localized: "Settings…"), action: #selector(showSettings), keyEquivalent: ",")
     /// 登录项 2026-08-24 当天两度搬家：随菜单去重挪去设置窗口，owner 复议后**回到菜单做第一项**、
@@ -101,6 +102,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
          onShowSettings: @escaping () -> Void,
          onShowLayoutSettings: @escaping () -> Void,
          onMenuVisibilityChanged: @escaping (Bool) -> Void = { _ in },
+         onRequestAccessibility: @escaping () -> Void = {},
          onQuit: @escaping () -> Void,
          hotKeyGlyphs: @escaping () -> String,
          isToggleHotKeyRegistered: @escaping () -> Bool = { false },
@@ -109,6 +111,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         self.settingsCoordinator = settingsCoordinator
         self.isAccessibilityTrusted = isAccessibilityTrusted
         self.onShowDebugConsole = onShowDebugConsole
+        self.onRequestAccessibility = onRequestAccessibility
         self.onExportDebugSnapshot = onExportDebugSnapshot
         self.onShowSettings = onShowSettings
         self.onShowLayoutSettings = onShowLayoutSettings
@@ -747,6 +750,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     }
 
     @objc private func openAccessibilitySettings() {
+        onRequestAccessibility()
         guard let url = AccessibilitySettingsLink.url else { return }
         NSWorkspace.shared.open(url)
     }

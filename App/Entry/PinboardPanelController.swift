@@ -27,7 +27,9 @@ final class PinboardPanelController {
 
     func toggle(only: [PinboardWidget]? = nil) { isShown ? dismiss() : show(only: only) }
 
-    func toggleKeepAwake() { toggles.setKeepAwake(!toggles.keepAwakeOn) }
+    /// Returns the new state so the caller can confirm it on screen.
+    @discardableResult
+    func toggleKeepAwake() -> Bool { toggles.setKeepAwake(!toggles.keepAwakeOn); return toggles.keepAwakeOn }
 
     func show(only: [PinboardWidget]? = nil) {
         guard !isShown, let weather = weather() else { return }
