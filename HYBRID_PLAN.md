@@ -1763,6 +1763,10 @@ upgrades, wallpaper/personalisation, extra flyouts.
   global-space gesture so the tab's own offset can't feed back) → `NotesController.move`; **context menu** (Pin/Unpin, Color ▸ 8 names,
   Archive, Delete); dragging suppresses fold/hover. Fixed: `Unpin` was a ternary-String `Text` that never localized. 11 strings x12
   (drafts, separate commit). D3b (⌥-drag pill, vertical only — notes/widgets are bound to their edges so cross-edge snap is dropped) next.
+- 2026-10-11 · **7A-D4 — note sheet:** `NoteSheetView` (single note on its own paper in ink; 8 colour dots, pin, delete, undo toast, tab-font
+  setting, short edge-side pull transition, closes when the note vanishes, Esc) replaces `NotesPopupView`'s list+editor; `EdgeNotesPopupController`
+  hosts it (330×300, no vibrancy plate); `EdgeBarLayout.notesPopupSize` and the dead `No Notes Yet` string removed. No new strings. Gate green
+  (1862 tests). Live pull/Esc/outside-click still to verify at live check #2.
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,

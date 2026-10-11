@@ -104,8 +104,6 @@ enum EdgeBarPreset: String, CaseIterable, Sendable {
 /// Pure sizing for what an edge bar hosts (Phase 7A-5). One tile per content kind.
 enum EdgeBarLayout {
     static let width: CGFloat = 56
-    /// Notes flyout (list + editor).
-    static let notesPopupSize = CGSize(width: 440, height: 340)
     /// Notes glyph tile (placeholder until 7A-7).
     static let notesTileHeight: CGFloat = 56
     /// Status trio: three stacked glyph buttons.

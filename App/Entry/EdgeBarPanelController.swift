@@ -293,7 +293,7 @@ final class EdgeBarPanelController {
             apply(.hoverRested(id))
             if state == .expanded(id) {
                 popup.dismiss()
-                notesPopup.toggle(anchor: anchor, side: side, visibleFrame: visibleFrame, controller: notes, select: id)
+                notesPopup.toggle(anchor: anchor, side: side, visibleFrame: visibleFrame, controller: notes, select: id, tabFont: settings.tabFont)
             }
         } else if let note = notes.note(id: id) {
             previewID = id
@@ -445,7 +445,7 @@ final class EdgeBarPanelController {
         if wasOpen {
             notesPopup.dismiss(notify: false)
         } else {
-            notesPopup.toggle(anchor: anchor, side: side, visibleFrame: visibleFrame, controller: notes, select: id)
+            notesPopup.toggle(anchor: anchor, side: side, visibleFrame: visibleFrame, controller: notes, select: id, tabFont: settings.tabFont)
         }
     }
 
@@ -462,7 +462,7 @@ final class EdgeBarPanelController {
             let note = notes.create()
             popup.dismiss()
             apply(.tabClicked(note.id))
-            notesPopup.toggle(anchor: anchor, side: side, visibleFrame: visibleFrame, controller: notes, select: note.id)
+            notesPopup.toggle(anchor: anchor, side: side, visibleFrame: visibleFrame, controller: notes, select: note.id, tabFont: settings.tabFont)
         case .settings:
             (NSApp.delegate as? AppDelegate)?.openSettings(selecting: .layout)
         case let .status(kind):

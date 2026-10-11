@@ -19,26 +19,21 @@ final class EdgeNotesPopupController {
 
     var isShown: Bool { panel?.isVisible ?? false }
 
-    func toggle(anchor: CGRect, side: EdgeSide, visibleFrame: CGRect, controller: NotesController, select: String? = nil) {
+    func toggle(anchor: CGRect, side: EdgeSide, visibleFrame: CGRect, controller: NotesController, select: String? = nil, tabFont: String = "") {
         if isShown, shownSelection == select { dismiss(); return }
         if isShown { dismiss(notify: false) }
         shownSelection = select
         self.controller = controller
         controller.reload()
-        let frame = PanelGeometry.edgeBarPopupFrame(side: side, anchor: anchor, size: EdgeBarLayout.notesPopupSize, visibleFrame: visibleFrame)
+        let frame = PanelGeometry.edgeBarPopupFrame(side: side, anchor: anchor, size: NoteSheetView.size, visibleFrame: visibleFrame)
         let panel = self.panel ?? makePanel(frame: frame)
         self.panel = panel
-        let host = NSHostingView(rootView: NotesPopupView(controller: controller, onClose: { [weak self] in self?.dismiss() }, initialSelection: select))
-        let plate = NSVisualEffectView(frame: CGRect(origin: .zero, size: frame.size))
-        plate.material = .hudWindow
-        plate.state = .active
-        plate.wantsLayer = true
-        plate.layer?.cornerRadius = 14
-        plate.layer?.masksToBounds = true
-        host.frame = plate.bounds
-        host.autoresizingMask = [.width, .height]
-        plate.addSubview(host)
-        panel.contentView = plate
+        guard let noteID = select else { return }
+        let host = NSHostingView(rootView: NoteSheetView(
+            controller: controller, noteID: noteID, onRight: side == .right, tabFont: tabFont,
+            onClose: { [weak self] in self?.dismiss() }))
+        host.frame = CGRect(origin: .zero, size: frame.size)
+        panel.contentView = host
         panel.setFrame(frame, display: true)
         panel.makeKeyAndOrderFront(nil)
         installMonitor()
