@@ -21,6 +21,7 @@ enum ProductivityFlyout {
         switch item {
         case .time: return CGSize(width: 340, height: 340)
         case .tasks: return CGSize(width: 320, height: 360)
+        case .windows: return CGSize(width: 300, height: 290)
         default: return CGSize(width: 300, height: 290)
         }
     }
@@ -32,6 +33,7 @@ enum ProductivityFlyout {
         case .alarms: return AnyView(AlarmsFlyoutView())
         case .time: return AnyView(TimeFlyoutView())
         case .tasks: return AnyView(TasksFlyoutView())
+        case .windows: return AnyView(WindowsFlyoutView())
         default: return nil
         }
     }

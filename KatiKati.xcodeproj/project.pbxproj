@@ -658,6 +658,11 @@
 		ED00000000000000000000BD /* TasksFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000BC /* TasksFlyoutView.swift */; };
 		ED00000000000000000000BF /* TaskListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000BE /* TaskListTests.swift */; };
 		ED00000000000000000000C0 /* DeckLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000A2 /* DeckLabel.swift */; };
+		ED00000000000000000000C2 /* WindowSnap.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C1 /* WindowSnap.swift */; };
+		ED00000000000000000000C3 /* WindowSnap.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C1 /* WindowSnap.swift */; };
+		ED00000000000000000000C5 /* WindowSnapService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C4 /* WindowSnapService.swift */; };
+		ED00000000000000000000C7 /* WindowsFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C6 /* WindowsFlyoutView.swift */; };
+		ED00000000000000000000C9 /* WindowSnapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C8 /* WindowSnapTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1122,6 +1127,10 @@
 		ED00000000000000000000BA /* TasksController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TasksController.swift; path = Platform/Tasks/TasksController.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000BC /* TasksFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TasksFlyoutView.swift; path = App/Scenes/Edge/TasksFlyoutView.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000BE /* TaskListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TaskListTests.swift; path = Tests/Unit/TaskListTests.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000C1 /* WindowSnap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSnap.swift; path = Core/Support/WindowSnap.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000C4 /* WindowSnapService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSnapService.swift; path = Platform/Windows/WindowSnapService.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000C6 /* WindowsFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowsFlyoutView.swift; path = App/Scenes/Edge/WindowsFlyoutView.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000C8 /* WindowSnapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSnapTests.swift; path = Tests/Unit/WindowSnapTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2158,6 +2167,9 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
+				ED00000000000000000000C2 /* WindowSnap.swift in Sources */,
+				ED00000000000000000000C5 /* WindowSnapService.swift in Sources */,
+				ED00000000000000000000C7 /* WindowsFlyoutView.swift in Sources */,
 				ED00000000000000000000B5 /* TaskList.swift in Sources */,
 				ED00000000000000000000B8 /* TasksStore.swift in Sources */,
 				ED00000000000000000000BB /* TasksController.swift in Sources */,
@@ -2260,6 +2272,8 @@
 				ED0000000000000000000089 /* DeckGeometryTests.swift in Sources */,
 				ED0000000000000000000082 /* NotePalette.swift in Sources */,
 				ED0000000000000000000084 /* NotePaletteTests.swift in Sources */,
+				ED00000000000000000000C3 /* WindowSnap.swift in Sources */,
+				ED00000000000000000000C9 /* WindowSnapTests.swift in Sources */,
 				ED00000000000000000000C0 /* DeckLabel.swift in Sources */,
 				ED00000000000000000000B6 /* TaskList.swift in Sources */,
 				ED00000000000000000000B9 /* TasksStore.swift in Sources */,

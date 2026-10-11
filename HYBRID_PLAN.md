@@ -1799,6 +1799,10 @@ upgrades, wallpaper/personalisation, extra flyouts.
   running; 1 s ticks only while a tracker runs). Hop's reminders/estimates/overrun are not ported (Reminders/Alarms buttons cover them). Live check: add task +
   start tracker OK (synthetic Return does not fire onCommit → visible + button added). Also fixed a latent D6a break: the test target compiles SettingsLayoutPane, so
   DeckLabel.swift (DeckFont) is now in the test target. 6 strings in the l10n commit.
+- 2026-10-12 · **7A-P6 — Windows (Hop window snapper):** `SnapPosition` (Core; 15 zones as unit rects, offset-origin frames, Cocoa→AX flip, tested) +
+  `WindowSnapService` (AX focused window of the frontmost *other* app — the deck panels are non-activating so that is still the app you were in; Hop's
+  enhanced-UI toggle and size-position-size convergence) + `WindowsFlyoutView` (miniature-screen zone icons; Accessibility-missing hint with Open Settings).
+  Taken ahead of clipboard/capture because it is small. Not live-pressed (would move a real window); renders in the flyout. 17 strings in the l10n commit.
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,
