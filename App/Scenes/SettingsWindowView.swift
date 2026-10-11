@@ -119,12 +119,12 @@ struct SettingsWindowContent: View {
                     .padding(.vertical, 4)
 
                     HStack {
-                        Text("Calendar Layout")
+                        Text("Widget Layout")
                         Spacer(minLength: 12)
                         CalendarLayoutPicker()
                     }
                     HStack {
-                        Text("Calendar Colors")
+                        Text("Widget Colors")
                         Spacer(minLength: 12)
                         CalendarPalettePicker()
                     }
@@ -196,13 +196,13 @@ struct SettingsWindowContent: View {
                     }
                     Divider().opacity(0.5)
                     groupRow {
-                        Text("Calendar Layout")
+                        Text("Widget Layout")
                     } control: {
                         CalendarLayoutPicker()
                     }
                     Divider().opacity(0.5)
                     groupRow {
-                        Text("Calendar Colors")
+                        Text("Widget Colors")
                     } control: {
                         CalendarPalettePicker()
                     }
@@ -1234,12 +1234,12 @@ private struct CalendarLayoutPicker: View {
     @AppStorage(CalendarPanelLayout.storageKey) private var layout: CalendarPanelLayout = .mac
 
     var body: some View {
-        Picker("Calendar Layout", selection: $layout) {
+        Picker("Widget Layout", selection: $layout) {
             Text("Mac").tag(CalendarPanelLayout.mac)
             Text("iPad").tag(CalendarPanelLayout.ipad)
         }
         .pickerStyle(.menu).labelsHidden()
-        .onAppear { layout = CalendarPanelController.currentLayout() }
+        .onAppear { layout = WidgetPanelController.currentLayout() }
     }
 }
 
@@ -1247,7 +1247,7 @@ private struct CalendarPalettePicker: View {
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
 
     var body: some View {
-        Picker("Calendar Colors", selection: $palette) {
+        Picker("Widget Colors", selection: $palette) {
             Text("Classic").tag(TilePalette.classic)
             Text("Vivid").tag(TilePalette.vivid)
             Text("Pastel").tag(TilePalette.pastel)

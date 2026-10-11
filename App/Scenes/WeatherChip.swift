@@ -199,8 +199,6 @@ public struct WeatherIllustration: View {
 
 public struct WeatherChip: View {
     @EnvironmentObject var weatherService: WeatherService
-    @State private var showingDetail = false
-
     public init() {}
 
     public var body: some View {
@@ -228,10 +226,7 @@ public struct WeatherChip: View {
                 .stroke(Color.white.opacity(0.18), lineWidth: 1)
         )
         .contentShape(Rectangle())
-        .onTapGesture { showingDetail = true }
-        .popover(isPresented: $showingDetail, arrowEdge: .top) {
-            WeatherPopupView()
-        }
+        .onTapGesture { WidgetPanelController.weather.toggle() }
     }
 
     /// Owner sample: condition over city on the left, temperature with its degree ring, spot
@@ -290,70 +285,5 @@ public struct WeatherChip: View {
             }
         }
         .foregroundStyle(.white)
-    }
-}
-
-// MARK: - Popup (card)
-
-/// The full reference card: condition label, big temperature with its ring, divider, date and
-/// city, spot illustration — on the condition's gradient. Opens from the pill (owner sample).
-public struct WeatherPopupView: View {
-    @EnvironmentObject var weatherService: WeatherService
-
-    public init() {}
-
-    public var body: some View {
-        let state = weatherService.currentState
-        let art = WeatherArt.gradient(condition: state.conditionFamily, isNight: state.isNight)
-
-        VStack(alignment: .leading, spacing: 12) {
-            Text(state.conditionText)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(.white)
-
-            HStack(alignment: .top, spacing: 14) {
-                HStack(alignment: .top, spacing: 2) {
-                    Text(verbatim: "\(Int(round(state.temperatureCelsius)))")
-                        .font(.system(size: 40, weight: .light, design: .rounded))
-                    Circle()
-                        .stroke(Color.white.opacity(0.9), lineWidth: 2)
-                        .frame(width: 12, height: 12)
-                        .offset(y: 6)
-                }
-                .foregroundStyle(.white)
-
-                Rectangle()
-                    .fill(Color.white.opacity(0.45))
-                    .frame(width: 1, height: 44)
-
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(Date().formatted(.dateTime.weekday(.wide).day().month(.wide)))
-                        .font(.system(size: 13, weight: .regular))
-                    HStack(spacing: 4) {
-                        Image(systemName: "mappin.and.ellipse")
-                            .font(.system(size: 11))
-                        Text(state.cityName)
-                            .font(.system(size: 13, weight: .regular))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                    }
-                }
-                .foregroundStyle(.white.opacity(0.95))
-
-                Spacer(minLength: 0)
-
-                WeatherIllustration(condition: state.conditionFamily,
-                                    isNight: state.isNight,
-                                    size: 72)
-            }
-        }
-        .padding(18)
-        .frame(width: 320, alignment: .leading)
-        .background(art)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Color.white.opacity(0.18), lineWidth: 1)
-        )
     }
 }

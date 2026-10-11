@@ -648,11 +648,24 @@ final class CalendarPanelGeometryTests: XCTestCase {
 
     func testMacLayoutIsAFixedColumnAnchoredTopRight() {
         let s = screen()
-        let f = PanelGeometry.calendarPanelFrame(on: s, layout: .mac, contentHeight: 500, metrics: metrics)
+        let f = PanelGeometry.widgetPanelFrame(on: s, layout: .mac, contentHeight: 500, metrics: metrics)
         XCTAssertEqual(f.width, CalendarPanelLayout.macWidth)
         XCTAssertEqual(f.maxX, s.visibleFrame.maxX - metrics.outerMargin)
         XCTAssertEqual(f.maxY, s.topUsableY - metrics.outerMargin, accuracy: 0.001)
         XCTAssertEqual(f.height, 500, "content-sized, no stretch to full height")
+    }
+
+    func testLeftSideAnchorsTopLeftAndLeftAndRightStacksFitSideBySide() {
+        let s = screen()
+        let left = PanelGeometry.widgetPanelFrame(on: s, layout: .ipad, side: .left, contentHeight: 600, metrics: metrics)
+        let right = PanelGeometry.widgetPanelFrame(on: s, layout: .ipad, side: .right, contentHeight: 600, metrics: metrics)
+        XCTAssertEqual(left.minX, s.visibleFrame.minX + metrics.outerMargin)
+        XCTAssertEqual(left.maxY, right.maxY, "same top edge")
+        XCTAssertLessThan(left.maxX, right.minX, "two iPad stacks do not overlap on a 1728pt display")
+        let narrow = screen(size: CGSize(width: 1100, height: 800))
+        let l2 = PanelGeometry.widgetPanelFrame(on: narrow, layout: .ipad, side: .left, contentHeight: 600, metrics: metrics)
+        let r2 = PanelGeometry.widgetPanelFrame(on: narrow, layout: .ipad, side: .right, contentHeight: 600, metrics: metrics)
+        XCTAssertGreaterThan(l2.maxX, r2.minX, "on a narrow screen they would collide (controller then closes the other)")
     }
 
     func testIPadLayoutIsHalfTheScreenClamped() {
@@ -663,26 +676,26 @@ final class CalendarPanelGeometryTests: XCTestCase {
 
     func testTallContentIsClampedAboveTheTaskbar() {
         let s = screen()
-        let f = PanelGeometry.calendarPanelFrame(on: s, layout: .ipad, contentHeight: 5000, metrics: metrics)
+        let f = PanelGeometry.widgetPanelFrame(on: s, layout: .ipad, contentHeight: 5000, metrics: metrics)
         XCTAssertGreaterThanOrEqual(f.minY, metrics.bottomGap + metrics.panelHeight)
-        XCTAssertEqual(f.height, PanelGeometry.calendarPanelMaxHeight(on: s, metrics: metrics))
+        XCTAssertEqual(f.height, PanelGeometry.widgetPanelMaxHeight(on: s, metrics: metrics))
     }
 
     func testNonZeroOriginSecondaryDisplay() {
         let s = screen(origin: CGPoint(x: -1920, y: -300), size: CGSize(width: 1920, height: 1080))
         for layout in CalendarPanelLayout.allCases {
-            let f = PanelGeometry.calendarPanelFrame(on: s, layout: layout, contentHeight: 600, metrics: metrics)
+            let f = PanelGeometry.widgetPanelFrame(on: s, layout: layout, contentHeight: 600, metrics: metrics)
             XCTAssertTrue(s.frame.contains(f), "\(layout) must stay on its own display")
         }
     }
 
     func testNarrowAndShortScreensNeverGoNegative() {
         let narrow = screen(size: CGSize(width: 300, height: 800))
-        let f = PanelGeometry.calendarPanelFrame(on: narrow, layout: .mac, contentHeight: 400, metrics: metrics)
+        let f = PanelGeometry.widgetPanelFrame(on: narrow, layout: .mac, contentHeight: 400, metrics: metrics)
         XCTAssertLessThanOrEqual(f.width, 300 - 2 * metrics.outerMargin)
         XCTAssertGreaterThanOrEqual(f.minX, narrow.frame.minX)
         let short = screen(size: CGSize(width: 1280, height: 60))
-        XCTAssertGreaterThanOrEqual(PanelGeometry.calendarPanelFrame(on: short, layout: .ipad, contentHeight: 400, metrics: metrics).height, 0)
+        XCTAssertGreaterThanOrEqual(PanelGeometry.widgetPanelFrame(on: short, layout: .ipad, contentHeight: 400, metrics: metrics).height, 0)
     }
 
     func testRawValuesAndLegacyMigration() {

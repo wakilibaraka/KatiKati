@@ -53,7 +53,7 @@ public struct ClockChip: View {
                 card(for: context.date)
             }
             .onTapGesture {
-                CalendarPanelController.shared.toggle()
+                WidgetPanelController.calendar.toggle()
             }
         }
     }
@@ -155,110 +155,6 @@ public struct ClockChip: View {
     }
 }
 
-// MARK: - Floating calendar panel (Phase 5e-A)
-
-/// Panel subclass that can take key focus without activating the app, so Esc (`cancelOperation`)
-/// dismisses it.
-final class CalendarFloatingPanel: NonConstrainingPanel {
-    override var canBecomeKey: Bool { true }
-    override func cancelOperation(_ sender: Any?) { orderOut(nil) }
-}
-
-/// Owns the single floating widget-tile window opened by tapping the clock chip. The window is
-/// transparent and **content-sized**: the tiles report their height and the pure
-/// `PanelGeometry.calendarPanelFrame` places it top-right. Dismissal = clock tap again, Esc, or a
-/// click outside the app.
-@MainActor
-final class CalendarPanelController {
-    static let shared = CalendarPanelController()
-
-    private var panel: CalendarFloatingPanel?
-    private var outsideClickMonitor: Any?
-    private var layoutShown: CalendarPanelLayout?
-    private var geometry: PanelScreenGeometry?
-
-    var isVisible: Bool { panel?.isVisible ?? false }
-
-    func toggle() {
-        isVisible ? close() : show()
-    }
-
-    func close() {
-        panel?.orderOut(nil)
-        if let monitor = outsideClickMonitor { NSEvent.removeMonitor(monitor) }
-        outsideClickMonitor = nil
-    }
-
-    /// Reads the layout, carrying the pre-rework size preset over once (`compact420`→mac, `halfScreen`→ipad).
-    static func currentLayout(defaults: UserDefaults = .standard) -> CalendarPanelLayout {
-        if let raw = defaults.string(forKey: CalendarPanelLayout.storageKey), let layout = CalendarPanelLayout(rawValue: raw) {
-            return layout
-        }
-        let migrated = CalendarPanelSettingsMigration.layout(fromLegacy: defaults.string(forKey: "com.katikati.calendar.panelPreset")) ?? .mac
-        defaults.set(migrated.rawValue, forKey: CalendarPanelLayout.storageKey)
-        return migrated
-    }
-
-    private func show() {
-        let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }
-            ?? NSScreen.main ?? NSScreen.screens[0]
-        let layout = Self.currentLayout()
-        let geometry = PanelScreenGeometry(
-            frame: screen.frame, visibleFrame: screen.visibleFrame, safeAreaTop: screen.safeAreaInsets.top
-        )
-        self.geometry = geometry
-        if layoutShown != layout { self.panel?.orderOut(nil); self.panel = nil }
-        layoutShown = layout
-
-        let panel = self.panel ?? makePanel(layout: layout, geometry: geometry)
-        // Start at the tallest allowed frame so the tiles never clip while they measure themselves;
-        // the first height report shrinks the window to fit.
-        panel.setFrame(PanelGeometry.calendarPanelFrame(on: geometry, layout: layout, contentHeight: .greatestFiniteMagnitude), display: true)
-        panel.makeKeyAndOrderFront(nil)
-        installOutsideClickMonitor()
-    }
-
-    private func resize(toContentHeight height: CGFloat, layout: CalendarPanelLayout) {
-        guard let panel, let geometry, height > 0 else { return }
-        let frame = PanelGeometry.calendarPanelFrame(on: geometry, layout: layout, contentHeight: height)
-        if frame != panel.frame { panel.setFrame(frame, display: true) }
-    }
-
-    private func makePanel(layout: CalendarPanelLayout, geometry: PanelScreenGeometry) -> CalendarFloatingPanel {
-        let panel = CalendarFloatingPanel(
-            contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false
-        )
-        panel.level = .floating
-        panel.collectionBehavior = PanelCollectionBehavior.standard
-        panel.isFloatingPanel = true
-        panel.isMovable = false
-        panel.isOpaque = false
-        panel.backgroundColor = .clear
-        panel.hasShadow = false
-        panel.hidesOnDeactivate = false
-        let width = layout.width(forScreenWidth: geometry.frame.width)
-        let view = CalendarPanelView(
-            layout: layout, width: width,
-            maxHeight: PanelGeometry.calendarPanelMaxHeight(on: geometry),
-            onHeight: { [weak self] h in DispatchQueue.main.async { self?.resize(toContentHeight: h, layout: layout) } }
-        )
-        let hosting = NSHostingView(rootView: view)
-        hosting.wantsLayer = true
-        hosting.layer?.backgroundColor = NSColor.clear.cgColor
-        panel.contentView = hosting
-        self.panel = panel
-        return panel
-    }
-
-    private func installOutsideClickMonitor() {
-        guard outsideClickMonitor == nil else { return }
-        // Global monitors only see events destined for *other* apps, so a tap on the bar (the clock
-        // chip toggling itself) never races this dismissal.
-        outsideClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-            Task { @MainActor in self?.close() }
-        }
-    }
-}
 private struct DayCell: View {
     let date: Date
     let isToday: Bool

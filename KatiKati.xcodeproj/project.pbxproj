@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B5000000000000000000056 /* WeatherPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000055 /* WeatherPanelView.swift */; };
+		7B5000000000000000000054 /* WidgetPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000053 /* WidgetPanelController.swift */; };
+		7B5000000000000000000052 /* WidgetTileKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000051 /* WidgetTileKit.swift */; };
 		7B5000000000000000000045 /* WeatherEffectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000044 /* WeatherEffectsTests.swift */; };
 		7B5000000000000000000042 /* WeatherEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000041 /* WeatherEffects.swift */; };
 		7B5000000000000000000043 /* WeatherEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000041 /* WeatherEffects.swift */; };
@@ -581,6 +584,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B5000000000000000000055 /* WeatherPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherPanelView.swift; path = App/Scenes/WeatherPanelView.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000053 /* WidgetPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetPanelController.swift; path = App/Scenes/WidgetPanelController.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000051 /* WidgetTileKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetTileKit.swift; path = App/Scenes/WidgetTileKit.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000044 /* WeatherEffectsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherEffectsTests.swift; path = Tests/Unit/WeatherEffectsTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000041 /* WeatherEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherEffects.swift; path = Core/Support/WeatherEffects.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000034 /* WeatherLocationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherLocationsTests.swift; path = Tests/Unit/WeatherLocationsTests.swift; sourceTree = SOURCE_ROOT; };
@@ -1981,6 +1987,9 @@
 				7D1000000000000000000002 /* NowPlayingService.swift in Sources */,
 				7D2000000000000000000002 /* NowPlayingChip.swift in Sources */,
 				7B2000000000000000000002 /* ClockChip.swift in Sources */,
+				7B5000000000000000000056 /* WeatherPanelView.swift in Sources */,
+				7B5000000000000000000054 /* WidgetPanelController.swift in Sources */,
+				7B5000000000000000000052 /* WidgetTileKit.swift in Sources */,
 				7B5000000000000000000042 /* WeatherEffects.swift in Sources */,
 				7B5000000000000000000032 /* WeatherLocations.swift in Sources */,
 				7B5000000000000000000022 /* WeatherWarnings.swift in Sources */,

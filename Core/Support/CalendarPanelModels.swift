@@ -220,6 +220,9 @@ enum CalendarPanelLayout: String, CaseIterable, Codable, Sendable {
     }
 }
 
+/// Which screen edge a widget-tile stack hugs.
+enum WidgetPanelSide: Sendable { case left, right }
+
 enum TileKind: CaseIterable { case date, clock, focus, calendar, agenda, reminders, alarms }
 
 struct TileRGB: Equatable { let r: Double; let g: Double; let b: Double }

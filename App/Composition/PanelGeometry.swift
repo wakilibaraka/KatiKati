@@ -473,12 +473,14 @@ enum PanelGeometry {
         )
     }
 
-    /// Frame of the floating widget tiles (Phase 5e): anchored to the top-right of the usable area,
+    /// Frame of a floating widget-tile stack (Phase 5e/5g): anchored to the top-right (calendar) or top-left
+    /// (weather) of the usable area,
     /// `outerMargin` in from the edge and below the menu bar, and **content-sized** — `contentHeight`
     /// is what the tiles measure, clamped so the window never runs under the taskbar. Pure.
-    static func calendarPanelFrame(
+    static func widgetPanelFrame(
         on screen: PanelScreenGeometry,
         layout: CalendarPanelLayout,
+        side: WidgetPanelSide = .right,
         contentHeight: CGFloat,
         metrics: PanelLayoutMetrics = .tungstenEdge
     ) -> CGRect {
@@ -489,12 +491,13 @@ enum PanelGeometry {
         let bottom = max(screen.frame.minY, visible.minY) + metrics.bottomGap + metrics.panelHeight + margin
         let available = max(0, top - bottom)
         let height = min(max(0, contentHeight), available)
-        return CGRect(x: visible.maxX - margin - width, y: top - height, width: width, height: height)
+        let x = side == .right ? visible.maxX - margin - width : visible.minX + margin
+        return CGRect(x: x, y: top - height, width: width, height: height)
     }
 
-    /// Height available to the tiles on this screen (same bounds as `calendarPanelFrame`).
-    static func calendarPanelMaxHeight(on screen: PanelScreenGeometry, metrics: PanelLayoutMetrics = .tungstenEdge) -> CGFloat {
-        calendarPanelFrame(on: screen, layout: .mac, contentHeight: .greatestFiniteMagnitude, metrics: metrics).height
+    /// Height available to the tiles on this screen (same bounds as `widgetPanelFrame`).
+    static func widgetPanelMaxHeight(on screen: PanelScreenGeometry, metrics: PanelLayoutMetrics = .tungstenEdge) -> CGFloat {
+        widgetPanelFrame(on: screen, layout: .mac, contentHeight: .greatestFiniteMagnitude, metrics: metrics).height
     }
 
     // MARK: Folder / shelf / Trash popup
