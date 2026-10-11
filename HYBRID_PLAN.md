@@ -52,7 +52,7 @@ This commit: **plan only — no code changes.**
 - §5 Port allow-list, file-level (and explicitly-not-ported)
 - §5e Edge-bar + launcher candidates (Phase 7 only — owner's 2026-10-08 decision)
 - §6 Build, identity, licensing
-- §7 Phases 0–7 (each shippable + testable)
+- §7 Phases 0–7 (each shippable + testable; Phase 7 split into 7A edge bars / 7B launchers + FAB payloads, owner 2026-10-11)
 - §8 Risks, mitigations, open questions
 - §9 Acceptance criteria
 - Appendix A — per-mode layout spec (islands, overflow, migration)
@@ -1321,7 +1321,7 @@ for a gap the drill actually proves.*
   Layout tab. Single substitution in `DockPanelHeight.metrics` (replaces the
   literal `8`); all four modes + capsule + drawer follow automatically
   (`dockTargetFrame`/`islandTargetFrame`/`bottomMargin` already thread it).
-  Edge bars (Phase 7) default to hugging; bottom islands default to floating.
+  Edge bars (Phase 7A) default to hugging; bottom islands default to floating.
   Tests: hug-value bottom-anchoring cases alongside the existing
   `bottomGap 8 − shadowPadding 20` pins; solver `validate()` unchanged.
 - **Appearance tab** (new Settings tab, next to the existing Layout tab): the
@@ -1344,7 +1344,7 @@ for a gap the drill actually proves.*
   richness in popups — record the option to match without conceding the default.*
   Opt-in per-chip "expanded inline" form; popups stay the default. Clipboard stays
   edge-only (owner Q2(a) 2026-10-08: clipboard content in the main bar is a
-  privacy-sensitive surface — passwords/visible text on screen; the Phase-7 edge
+  privacy-sensitive surface — passwords/visible text on screen; the Phase-7A edge
   bar keeps it one deliberate glance away). Terminal/CLI pill not recorded
   separately (owner Q3(a) 2026-10-08: arc-menu's CLI-by-path in 7c covers the
   function; the pill form is this variant if ever wanted). No strip-semantics
@@ -1376,7 +1376,18 @@ for a gap the drill actually proves.*
 - **Verify**: mode/width/gaps persist across restarts; switch without relaunch; onboarding
   snapshot test green.
 
-### Phase 7 — Deferred (owner sign-off + mini-plan + license check each)
+### Phase 7 — Deferred, split into 7A / 7B (owner 2026-10-11: sign-off + mini-plan + license check each)
+
+**Split (owner directive; boundary confirmed 2026-10-11):** **7A = edge-bar integration**
+— new panel machinery (`displayUUID#edgeSlot` extension of `rebuildUnits`, vertical
+geometry, risks #13/#14, Instruments CPU gate). **7B = launchers & FAB payloads** —
+feature logic riding existing panels (7c explicitly no new panel class; 7d/7e reuse the
+4g/4U-A FAB panel pattern). No dependency inversion (7B does not need 7A), but **7B
+starts only after Phase 6 lands**: its FAB Settings width sliders edit
+`SettingsWindowView`, the same territory Phase 6 builds. Slice IDs 7a–7e unchanged;
+Appendix C stays normative for both halves.
+
+#### Phase 7A — Edge-bar integration (deferred)
 
 - **7a right-edge notes bar** (first): EdgeDeckBar notes + noty sync/crypto/editor
   per §5e. Local-only `.md` in `~/Library/Application Support/KatiKati/`,
@@ -1386,12 +1397,18 @@ for a gap the drill actually proves.*
   moved out of the main bar by Phase-4U decision 8): the status cluster (Wi-Fi,
   battery, plus the tray popup's quick settings and the merged ring icon that 4f
   used to plan) lands on whichever edge bar the owner picks — **left vs right is
-  decided by the owner at Phase 7 sign-off**. `TrayChip` moves to this scope.
+  decided by the owner at 7A sign-off**. `TrayChip` moves to this scope.
 - **7b left-edge widgets bar** (second): all 6 EdgeDeckBar widgets per §5e,
   re-skinned to tungsten chips + `PanelGeometry` anchors.
-- **7c centered launcher** (last): hybrid per §5e — arc-menu base + EdgeDeck
-  dispatch + Volant ranking/config + Liftoff preview/search. ⌥Space or
-  center-slot summon; anchored flyout, no new panel class.
+- **Verify 7A**: tungsten gate green + per-edge anchor tests + idle CPU ≤
+  island baseline + ε (Instruments number in PR); notes sync round-trips
+  local ↔ iCloud-Drive folder (acceptance criterion 10).
+
+#### Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)
+
+- **7c centered launcher** (first in 7B; the original Phase-7 order ran it after 7a/7b):
+  hybrid per §5e — arc-menu base + EdgeDeck dispatch + Volant ranking/config + Liftoff
+  preview/search. ⌥Space or center-slot summon; anchored flyout, no new panel class.
 - **7d left-FAB custom launcher (Launchpad-style)** (owner 2026-10-11; payload for
   the 4g-scaffolded left FAB): an old-macOS-Launchpad-style full-surface app
   launcher summoned by the left FAB. Distinct from 7c's centered launcher (different
@@ -1403,7 +1420,7 @@ for a gap the drill actually proves.*
   the left FAB's `BarSection.launcher` `defaultWidgetWidth`/`minimumWidgetWidth`
   (currently both 40) become the seeded slider value, floored at `minimumWidgetWidth`
   and threaded through `AppSettingsStore` + `IslandLayoutSolver` like weather/clock.
-  Sign-off + license check per the Phase-7 gate.
+  Sign-off + license check per the Phase-7B gate.
 - **7e right-FAB on-screen overlay widgets** (owner 2026-10-11; payload for the
   4g-scaffolded right FAB): an on-screen overlay surface for glanceable widgets
   (clock/weather/notes) summoned by the right FAB. Scope (which widgets, overlay vs
@@ -1413,12 +1430,23 @@ for a gap the drill actually proves.*
   FAB's `BarSection.widgets` `defaultWidgetWidth`/`minimumWidgetWidth` (currently
   both 40) become the seeded slider value, floored at `minimumWidgetWidth` and
   threaded through `AppSettingsStore` + `IslandLayoutSolver` like weather/clock.
-  Sign-off + license check per the Phase-7 gate.
-- Previously listed (still deferred, unchanged): dividers (`pruned` logic),
-  `macOS` pill mode, magnification, hover-preview strip upgrades,
-  wallpaper/personalisation, extra flyouts.
-- **Verify each**: tungsten gate green + per-edge anchor tests + idle CPU ≤
-  island baseline + ε (Instruments number in PR).
+  Sign-off + license check per the Phase-7B gate.
+- **Verify 7B**: tungsten gate green + launcher/FAB anchor tests + FAB width sliders
+  persist across restarts + no new TCC surface beyond the existing app list +
+  idle CPU ≤ island baseline + ε (Instruments number in PR; acceptance criterion 11).
+
+**Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
+dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
+upgrades, wallpaper/personalisation, extra flyouts.
+
+**Phase 7 check log (append after every step — STANDING_RULES §1.8):**
+- 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
+  FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
+  criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB
+  payloads — 7d/7e were previously uncovered); risks #13/#14 re-tagged 7A; Appendix C
+  now normative for both halves. Rationale: 7A = new panel machinery (risks #13/#14),
+  7B = features on existing panels (shares the 7c↔7d dispatch core and one pass of the
+  7d↔7e slider plumbing); 7B sequences after Phase 6 (`SettingsWindowView` collision).
 
 ## 8. Risks, mitigations, open questions
 
@@ -1436,8 +1464,8 @@ for a gap the drill actually proves.*
 | 10 | SwiftUI-in-panel perf with 3–4 islands | Reuse tungsten construction; Instruments idle-CPU gate (≤ baseline + ε) in Phase 2; no new panel class | 2 |
 | 11 | Signing/Accessibility grant churn from rebrand | Keep `build_and_run.sh` same-cert discipline; never bare `xcodebuild` + `open`; reinstall-local test in Phase 0 | 0 |
 | 12 | Sparkle feed/key rotation breaks updates | New feed URL + key in Phase 0; `package_release.sh` fail-closed gate before any release | 0/5 |
-| 13 | Vertical edge geometry escapes `visibleFrame` on exotic topologies | Tungsten clamp stays authoritative; Appendix C edge rules; golden tests on tungsten topology snapshots | 7 |
-| 14 | N+2 panels per display break fullscreen/Spaces/CPU assumptions | Extend `rebuildUnits` with `displayUUID#edgeSlot`, atomic per-displayUUID hide/show, `allSpacesPanels` coverage; Instruments idle-CPU gate ≤ island baseline + ε | 7 |
+| 13 | Vertical edge geometry escapes `visibleFrame` on exotic topologies | Tungsten clamp stays authoritative; Appendix C edge rules; golden tests on tungsten topology snapshots | 7A |
+| 14 | N+2 panels per display break fullscreen/Spaces/CPU assumptions | Extend `rebuildUnits` with `displayUUID#edgeSlot`, atomic per-displayUUID hide/show, `allSpacesPanels` coverage; Instruments idle-CPU gate ≤ island baseline + ε | 7A |
 | 15 | Two always-on FAB panels (left of weather, right of clock) overlap the drawer capsule in `windows` mode or escape `visibleFrame` on narrow screens | FABs are panels not sections (no island-width impact); anchored to outermost slot frames; clamped to `visibleFrame`; hidden when anchor slot collapsed; per-mode toggles default off (esp. `windows`); collision-check vs capsule frame; golden `minX`/`maxX` + non-zero-origin tests | 4U |
 
 **Open questions for owner (non-blocking):**
@@ -1474,10 +1502,15 @@ for a gap the drill actually proves.*
 8. `LICENSE` (GPL-3.0-or-later) + combined `NOTICE` cover all sources; no tungsten
    marks in product; new id/domain/feed; zero new third-party dependencies.
 9. Idle CPU with 4 island panels ≤ strip baseline + ε (Phase-2 Instruments number in PR).
-10. Edge bars (7a/7b) + launcher (7c): non-activating, survive Space switches,
-    hide atomically for fullscreen per display, reflow on display-set change;
-    every popup anchors to its own edge/launcher chip; idle CPU ≤ island
-    baseline + ε; notes sync round-trips local ↔ iCloud-Drive folder.
+10. Edge bars (Phase 7A: 7a/7b): non-activating, survive Space switches, hide
+    atomically for fullscreen per display, reflow on display-set change; every
+    popup anchors to its own edge chip; idle CPU ≤ island baseline + ε; notes
+    sync round-trips local ↔ iCloud-Drive folder.
+11. Launchers & FAB payloads (Phase 7B: 7c/7d/7e): centered launcher and both
+    FAB payloads non-activating, survive Space switches, hide atomically for
+    fullscreen per display, reflow on display-set change; flyouts/popups anchor
+    to their own chip/FAB; FAB width sliders persist across restarts; no new
+    TCC surface beyond the existing app list; idle CPU ≤ island baseline + ε.
 
 ---
 
@@ -1508,7 +1541,7 @@ Rules:
   per-display filtering (`displayUUID` + `taskbarScreenPlacement`), optimistic states and
   toggle planning behave identically in every island.
 
-## Appendix C — Edge-bar + launcher spec stub (normative when 7a–7c activate)
+## Appendix C — Edge-bar + launcher spec stub (normative for Phase 7A + 7B — 7a–7e — when they activate)
 
 - Edges: notes = right edge, widgets = left edge, launcher = centered summon
   over bottom bar. Default: bottom bar + right notes on; left widgets opt-in.
