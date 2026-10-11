@@ -43,6 +43,14 @@
 		7B2000000000000000000002 /* ClockChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2000000000000000000001 /* ClockChip.swift */; };
 		ED0000000000000000000013 /* StatusTrioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000012 /* StatusTrioView.swift */; };
 		ED0000000000000000000015 /* EdgeStatusPopupController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000014 /* EdgeStatusPopupController.swift */; };
+		ED0000000000000000000021 /* NotesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000020 /* NotesModel.swift */; };
+		ED0000000000000000000022 /* NotesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000020 /* NotesModel.swift */; };
+		ED0000000000000000000024 /* NoteDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000023 /* NoteDocument.swift */; };
+		ED0000000000000000000025 /* NoteDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000023 /* NoteDocument.swift */; };
+		ED0000000000000000000027 /* NotesSyncPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000026 /* NotesSyncPlan.swift */; };
+		ED0000000000000000000028 /* NotesSyncPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000026 /* NotesSyncPlan.swift */; };
+		ED000000000000000000002A /* NoteDocumentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000029 /* NoteDocumentTests.swift */; };
+		ED000000000000000000002C /* NotesSyncPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000002B /* NotesSyncPlanTests.swift */; };
 		ED0000000000000000000010 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
 		ED000000000000000000000A /* SystemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000009 /* SystemStatus.swift */; };
 		ED0000000000000000000011 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
@@ -644,6 +652,11 @@
 		7D2000000000000000000001 /* NowPlayingChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingChip.swift; path = App/Scenes/NowPlayingChip.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000012 /* StatusTrioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StatusTrioView.swift; path = App/Scenes/Edge/StatusTrioView.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000014 /* EdgeStatusPopupController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EdgeStatusPopupController.swift; path = App/Entry/EdgeStatusPopupController.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000020 /* NotesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesModel.swift; path = Core/Support/NotesModel.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000023 /* NoteDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NoteDocument.swift; path = Core/Support/NoteDocument.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000026 /* NotesSyncPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesSyncPlan.swift; path = Core/Support/NotesSyncPlan.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000029 /* NoteDocumentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NoteDocumentTests.swift; path = Tests/Unit/NoteDocumentTests.swift; sourceTree = SOURCE_ROOT; };
+		ED000000000000000000002B /* NotesSyncPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesSyncPlanTests.swift; path = Tests/Unit/NotesSyncPlanTests.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000F /* SystemStatusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusService.swift; path = Platform/SystemStatus/SystemStatusService.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000009 /* SystemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatus.swift; path = Core/Support/SystemStatus.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000C /* SystemStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusTests.swift; path = Tests/Unit/SystemStatusTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2053,6 +2066,9 @@
 				D3EB46A2A29E54E9C8B5C492 /* WeatherState.swift in Sources */,
 				7B1000000000000000000002 /* ClockChipContent.swift in Sources */,
 				ED000000000000000000000A /* SystemStatus.swift in Sources */,
+				ED0000000000000000000021 /* NotesModel.swift in Sources */,
+				ED0000000000000000000024 /* NoteDocument.swift in Sources */,
+				ED0000000000000000000027 /* NotesSyncPlan.swift in Sources */,
 				ED0000000000000000000010 /* SystemStatusService.swift in Sources */,
 				ED0000000000000000000013 /* StatusTrioView.swift in Sources */,
 				ED0000000000000000000015 /* EdgeStatusPopupController.swift in Sources */,
@@ -2133,6 +2149,11 @@
 				7B5000000000000000000013 /* WeatherDetail.swift in Sources */,
 				7B5000000000000000000009 /* CalendarPanelModels.swift in Sources */,
 				ED000000000000000000000B /* SystemStatus.swift in Sources */,
+				ED0000000000000000000022 /* NotesModel.swift in Sources */,
+				ED0000000000000000000025 /* NoteDocument.swift in Sources */,
+				ED0000000000000000000028 /* NotesSyncPlan.swift in Sources */,
+				ED000000000000000000002A /* NoteDocumentTests.swift in Sources */,
+				ED000000000000000000002C /* NotesSyncPlanTests.swift in Sources */,
 				ED0000000000000000000011 /* SystemStatusService.swift in Sources */,
 				ED000000000000000000000D /* SystemStatusTests.swift in Sources */,
 				7B3000000000000000000002 /* ClockChipContentTests.swift in Sources */,

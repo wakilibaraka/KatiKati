@@ -1609,6 +1609,17 @@ upgrades, wallpaper/personalisation, extra flyouts.
   (drafts, separate commit); a ternary-String `Text` bug (would not localize) was caught by
   `check_localization.py` and fixed. **Not verified live** (click targets in a non-activating panel,
   popover placement on a real display, Wi-Fi/battery/volume updates) — needs an eyeball pass.
+- 2026-10-11 · **7A-6a notes core landed (gate green, 1781 tests):** pure Core only —
+  `Note` model (whole-second dates, derived title), `NoteDocument` (Markdown + `katikati-id`
+  front-matter render/parse, tolerant of CRLF / bad values / unclosed header / identity-less files),
+  `NotesSyncPlan` (decision table: push / pull / reindex / adopt / deleteLocal / deleteRemote /
+  conflict; unreadable files never read as deleted; lost index with matching stamp reindexes instead
+  of conflicting; duplicate-id files keep the indexed home and adopt the copy) + `NotesSyncIndex`.
+  noty's `SyncPlan` (MIT) studied for the decision table, re-derived and re-tested here — one
+  divergence: the final pull/delete pass walks the de-duplicated set, so a duplicated id is never
+  pulled twice. 22 tests. NOTICE entry for noty to be filled when the store/sync runner lands
+  (behaviour derived). 6b (local store + AES-GCM + iCloud runner) pending an owner call on the
+  at-rest format.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB
