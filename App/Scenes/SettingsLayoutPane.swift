@@ -381,9 +381,47 @@ struct SettingsLayoutPane: View {
                 Toggle("Countdown", isOn: tileBinding(.countdown))
                 Toggle("Screen Time", isOn: tileBinding(.screenTime))
             }
+
+            section {
+                Text("Shortcuts")
+            } content: {
+                let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
+                ForEach(ShortcutAction.allCases, id: \.self) { action in
+                    HStack {
+                        shortcutActionTitle(action)
+                        if duplicated.contains(action) {
+                            Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                                .help(Text("Another action uses the same shortcut"))
+                        }
+                        Spacer(minLength: 12)
+                        Picker(selection: Binding(get: { store.shortcutBindings[action] ?? .off }, set: { store.setShortcut(action, $0) })) {
+                            Text("Off").tag(ShortcutTrigger.off)
+                            Divider()
+                            ForEach(ShortcutChord.allCases, id: \.self) { Text(verbatim: $0.glyphs).tag(ShortcutTrigger.chord($0)) }
+                            Divider()
+                            ForEach(ShortcutTapKey.allCases, id: \.self) { key in
+                                (Text("Double-tap") + Text(verbatim: " \(key.glyph) (\(key.isRight ? "R" : "L"))")).tag(ShortcutTrigger.doubleTap(key))
+                            }
+                        } label: { EmptyView() }
+                        .pickerStyle(.menu).fixedSize()
+                    }
+                }
+                Toggle("Keep Pinboard on Top", isOn: Binding(get: { store.pinboardKeepOnTop }, set: { store.setPinboardKeepOnTop($0) }))
+                Text("Double-tap shortcuts need the Accessibility permission. ⌃Space may also switch input sources.")
+                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            }
         }
         .padding(Self.margin)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func shortcutActionTitle(_ action: ShortcutAction) -> Text {
+        switch action {
+        case .launcher: return Text("Launcher")
+        case .pinboard: return Text("Pinboard")
+        case .quickSettings: return Text("Quick Settings")
+        case .keepAwake: return Text("Keep Awake")
+        }
     }
 
     /// Look and behaviour of the deck itself (7A-D6).

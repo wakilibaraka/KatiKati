@@ -42,6 +42,11 @@ struct PinboardWidgetView: View {
         case .countdown: PinboardCountdownCard()
         case .screenTime: PinboardScreenTimeCard()
         case .quickSettings: PinboardQuickSettingsCard(engine: context.toggles, order: context.toggleOrder)
+        case .system: PinboardSystemCard()
+        case .network: PinboardNetworkCard()
+        case .battery: PinboardBatteryCard()
+        case .topApps: PinboardTopAppsCard()
+        case .batteries: PinboardBatteriesCard()
         }
     }
 }

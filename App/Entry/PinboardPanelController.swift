@@ -25,13 +25,15 @@ final class PinboardPanelController {
 
     var isShown: Bool { panel?.isVisible ?? false }
 
-    func toggle() { isShown ? dismiss() : show() }
+    func toggle(only: [PinboardWidget]? = nil) { isShown ? dismiss() : show(only: only) }
 
-    func show() {
+    func toggleKeepAwake() { toggles.setKeepAwake(!toggles.keepAwakeOn) }
+
+    func show(only: [PinboardWidget]? = nil) {
         guard !isShown, let weather = weather() else { return }
         let panel = self.panel ?? makePanel()
         self.panel = panel
-        let view = PinboardView(widgets: widgets(), context: PinboardContext(weather: weather, toggles: toggles, toggleOrder: toggleOrder()))
+        let view = PinboardView(widgets: only ?? widgets(), context: PinboardContext(weather: weather, toggles: toggles, toggleOrder: toggleOrder()))
         let host = self.host ?? NSHostingView(rootView: AnyView(EmptyView()))
         host.rootView = AnyView(view)
         self.host = host

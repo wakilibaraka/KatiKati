@@ -20,6 +20,11 @@ enum PinboardTheme {
         case .calculator: return [Color(red: 0.30, green: 0.32, blue: 0.38), Color(red: 0.14, green: 0.15, blue: 0.20)]
         case .countdown: return [Color(red: 0.98, green: 0.62, blue: 0.20), Color(red: 0.98, green: 0.80, blue: 0.30)]
         case .screenTime: return [Color(red: 0.36, green: 0.30, blue: 0.90), Color(red: 0.70, green: 0.35, blue: 0.92)]
+        case .system: return [Color(red: 0.05, green: 0.55, blue: 0.50), Color(red: 0.20, green: 0.80, blue: 0.55)]
+        case .network: return [Color(red: 0.10, green: 0.45, blue: 0.85), Color(red: 0.35, green: 0.35, blue: 0.95)]
+        case .battery: return [Color(red: 0.18, green: 0.70, blue: 0.40), Color(red: 0.55, green: 0.85, blue: 0.30)]
+        case .topApps: return [Color(red: 0.90, green: 0.35, blue: 0.20), Color(red: 0.95, green: 0.60, blue: 0.25)]
+        case .batteries: return [Color(red: 0.25, green: 0.55, blue: 0.75), Color(red: 0.30, green: 0.75, blue: 0.80)]
         case .quickSettings: return [Color(red: 0.12, green: 0.14, blue: 0.22), Color(red: 0.20, green: 0.22, blue: 0.34)]
         }
     }

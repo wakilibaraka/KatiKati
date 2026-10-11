@@ -84,7 +84,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 常驻切换全局快捷键。回调只切设置（经 settingsStore），不经过 panelCoordinator——
     /// 后者在权限引导完成前是 nil，settingsStore 从 AppDelegate 构造起即存在。
     private var edgeToggleHotKey: GlobalHotKeyMonitor?
-    private var launcherHotKey: GlobalHotKeyMonitor?
+    private let shortcutService = ShortcutService()
+    private var shortcutSubscription: AnyCancellable?
     private let screenTimeAlerts = ScreenTimeAlertPresenter()
     private lazy var pinboardPanel: PinboardPanelController = {
         let panel = PinboardPanelController()
@@ -229,14 +230,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     .warning("常驻切换全局快捷键注册失败：\(String(describing: hotKeyStatus), privacy: .public)，本次启动不重试")
             }
 
-            let launcherKey = GlobalHotKeyMonitor(shortcut: .launcherSummon) { [weak self] in
-                self?.launcherPanel.toggle()
+            shortcutService.onAction = { [weak self] action in
+                guard let self else { return }
+                switch action {
+                case .launcher: self.launcherPanel.toggle()
+                case .pinboard: self.pinboardPanel.toggle()
+                case .quickSettings: self.pinboardPanel.toggle(only: [.quickSettings])
+                case .keepAwake: self.pinboardPanel.toggleKeepAwake()
+                }
             }
-            launcherHotKey = launcherKey
-            if launcherKey.start() != .registered {
-                Logger(subsystem: "com.caye.macosdockcc.v2", category: "hotkey")
-                    .warning("Launcher hotkey ⌥Space registration failed; the left FAB still opens it")
-            }
+            shortcutSubscription = settingsStore.$shortcutBindings
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] in self?.shortcutService.apply($0) }
 
             let screenTime = ProductivityServices.shared.screenTime
             screenTime.onLimitAction = { [weak self, weak screenTime] id, name, action in
@@ -921,6 +926,9 @@ extension AppDelegate: PermissionEffectHandler {
         runtime.onToggleDrawer = nil
         runtime.onToggleLauncher = nil
         runtime.onTogglePinboard = nil
+        shortcutSubscription?.cancel()
+        shortcutSubscription = nil
+        shortcutService.tearDown()
         scrollReverserSettingSubscription?.cancel()
         scrollReverserSettingSubscription = nil
         scrollReverserMonitor?.stop()

@@ -6,16 +6,17 @@ enum PinboardSize: Equatable, Sendable { case small, wide, large }
 /// The catalog of Pinboard widgets. Adding a widget = one case here + one view in `PinboardWidgetViews`.
 enum PinboardWidget: String, CaseIterable, Sendable {
     case clock, calendar, weather, nowPlaying, calculator, countdown, screenTime, quickSettings
+    case system, network, battery, topApps, batteries
 
     var size: PinboardSize {
         switch self {
-        case .calendar, .weather, .nowPlaying, .countdown: return .small
-        case .clock, .calculator, .screenTime: return .wide
+        case .calendar, .weather, .nowPlaying, .countdown, .network, .battery, .topApps: return .small
+        case .clock, .calculator, .screenTime, .system, .batteries: return .wide
         case .quickSettings: return .large
         }
     }
 
-    static let defaultOrder: [PinboardWidget] = [.clock, .weather, .calendar, .quickSettings, .nowPlaying, .countdown, .calculator, .screenTime]
+    static let defaultOrder: [PinboardWidget] = [.clock, .weather, .calendar, .quickSettings, .system, .network, .battery, .topApps, .batteries, .nowPlaying, .countdown, .calculator, .screenTime]
 
     /// Comma separated raw values. Unknown ids are dropped, duplicates collapse; nil / empty-after-parse of a
     /// never-written key gives the default, an explicit empty string means "none".
