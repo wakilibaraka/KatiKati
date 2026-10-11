@@ -5,6 +5,12 @@ import os.log
 @MainActor
 public final class WeatherService: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published public private(set) var currentState: WeatherState = .empty
+    /// 5g-B: saved cities (≤5) and which place the panel/pill show. `.current` = device location.
+    @Published public private(set) var savedCities: SavedCities
+    @Published public private(set) var selection: WeatherLocationSelection
+    /// True when there is no usable location at all (current denied/failed and no saved city):
+    /// the tiles show the city search instead of a made-up default city.
+    @Published public private(set) var needsLocation = false
 
     private let logger = Logger(subsystem: "com.katikati.app", category: "WeatherService")
     private var refreshTimer: Timer?
@@ -23,7 +29,12 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
 
     public init(cacheURL: URL? = nil) {
         self.cacheURL = cacheURL
+        let defaults = UserDefaults.standard
+        savedCities = defaults.data(forKey: SavedCities.storageKey)
+            .flatMap { try? JSONDecoder().decode(SavedCities.self, from: $0) } ?? SavedCities()
+        selection = WeatherLocationSelection(token: defaults.string(forKey: SavedCities.selectionKey))
         super.init()
+        selection = savedCities.resolved(selection)
 
         if let cacheURL = cacheURL,
            let data = try? Data(contentsOf: cacheURL),
@@ -61,12 +72,85 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
     public func refresh() async {
         guard isEnabled else { return }
 
-        let authStatus = locationManager.authorizationStatus
-        if authStatus == .authorizedAlways  {
-            isFetchingLocation = true
-            locationManager.requestLocation()
+        switch savedCities.resolved(selection) {
+        case .city(let id):
+            guard let city = savedCities.city(id: id) else { return }
+            needsLocation = false
+            await fetchWeather(latitude: city.latitude, longitude: city.longitude, city: city.name)
+        case .current:
+            switch locationManager.authorizationStatus {
+            case .authorizedAlways:
+                needsLocation = false
+                isFetchingLocation = true
+                locationManager.requestLocation()
+            case .notDetermined:
+                locationManager.requestAlwaysAuthorization()
+            default:
+                fallBackFromCurrentLocation()
+            }
+        }
+    }
+
+    /// Current location is unavailable: use the first saved city, else ask the user to search.
+    private func fallBackFromCurrentLocation() {
+        if let first = savedCities.cities.first {
+            select(.city(first.id))
         } else {
-            await fetchWeather(latitude: 41.0082, longitude: 28.9784, city: "Istanbul")
+            needsLocation = true
+        }
+    }
+
+    // MARK: Saved cities
+
+    public func select(_ new: WeatherLocationSelection) {
+        let resolved = savedCities.resolved(new)
+        guard resolved != selection || needsLocation else { return }
+        selection = resolved
+        UserDefaults.standard.set(resolved.token, forKey: SavedCities.selectionKey)
+        Task { await refresh() }
+    }
+
+    public func step(by delta: Int) { select(savedCities.step(from: selection, by: delta)) }
+
+    @discardableResult
+    public func addCity(_ city: SavedCity) -> Bool {
+        var next = savedCities
+        guard next.add(city) else { return false }
+        savedCities = next
+        persistCities()
+        select(.city(city.id))
+        return true
+    }
+
+    public func removeCity(id: Int) {
+        var next = savedCities
+        next.remove(id: id)
+        savedCities = next
+        persistCities()
+        let resolved = next.resolved(selection)
+        if resolved != selection { select(resolved) }
+    }
+
+    private func persistCities() {
+        if let data = try? JSONEncoder().encode(savedCities) { UserDefaults.standard.set(data, forKey: SavedCities.storageKey) }
+    }
+
+    /// Open-Meteo geocoding search; empty on any failure or a too-short query.
+    public func searchCities(_ query: String) async -> [SavedCity] {
+        guard let url = WeatherGeocoding.searchURL(query: query, language: Locale.current.languageCode ?? "en") else { return [] }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            return try WeatherGeocoding.parse(data)
+        } catch {
+            logger.warning("City search failed: \(error.localizedDescription, privacy: .public)")
+            return []
+        }
+    }
+
+    public nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        Task { @MainActor [weak self] in
+            guard let self, self.selection == .current else { return }
+            await self.refresh()
         }
     }
 
@@ -92,7 +176,7 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
             guard let self else { return }
             self.isFetchingLocation = false
             self.logger.warning("Location manager failed: \(error.localizedDescription, privacy: .public)")
-            await self.fetchWeather(latitude: 41.0082, longitude: 28.9784, city: "Istanbul")
+            self.fallBackFromCurrentLocation()
         }
     }
 
