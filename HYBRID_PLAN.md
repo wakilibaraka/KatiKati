@@ -1576,6 +1576,13 @@ upgrades, wallpaper/personalisation, extra flyouts.
   (default off) + Settings toggle (1 string x12, drafts, separate commit); rides the existing
   `pollAllUnits` mouse monitors (`hoverMonitorsNeeded` now includes edge auto-hide) — no new
   global monitor. Not yet verified live (hover feel, multi-display, CPU) — 7A-9.
+- 2026-10-11 · **7A-4a status value types landed (gate green, 1754 tests):** pure
+  `Core/Support/SystemStatus.swift` — `BatteryStatus` (parses an IOPS description dict; rejects UPS /
+  malformed), `WiFiStatus` (RSSI → 0…3 steps, symbols; SSID optional, never requests Location, never
+  reads passwords), `VolumeStatus` (clamped, symbol steps, percent), aggregate `SystemStatus`; 7 tests.
+  4b (next): lazy event-driven Platform monitors (IOPS run-loop source, CWWiFiClient events,
+  CoreAudio property listeners); frameworks autolinked via `import`. Old stub
+  `SystemStatusProvider` + orphan `TrayChip` retire in 7A-5 with the chip.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB
