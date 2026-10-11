@@ -133,6 +133,7 @@ struct SettingsWindowContent: View {
                         Spacer(minLength: 12)
                         CalendarClockStylePicker()
                     }
+                    WeatherSettingsBlock()
 
                     HStack {
                         Text("Now Playing Theme")
@@ -212,6 +213,8 @@ struct SettingsWindowContent: View {
                     } control: {
                         CalendarClockStylePicker()
                     }
+                    Divider().opacity(0.5)
+                    WeatherSettingsBlock()
                     Divider().opacity(0.5)
                     groupRow {
                         Text("Drawer Position")
@@ -1266,5 +1269,56 @@ private struct CalendarClockStylePicker: View {
             Text("Analog").tag(CalendarClockStyle.analog)
         }
         .pickerStyle(.menu).labelsHidden()
+    }
+}
+
+/// Weather widget settings (Phase 5g-G): units, animation, coexistence with the calendar stack and
+/// the forecast-warning thresholds. All plain `@AppStorage` — the tiles read them live.
+private struct WeatherSettingsBlock: View {
+    @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
+    @AppStorage(WeatherUnits.windKey) private var windUnit: WindSpeedUnit = .kmh
+    @AppStorage(WeatherPrefs.animationsKey) private var animations = true
+    @AppStorage(WidgetPanelController.keepBothOpenKey) private var keepBoth = false
+    @State private var thresholds = WeatherPrefs.thresholds()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Temperature Unit")
+                Spacer(minLength: 12)
+                Picker("Temperature Unit", selection: $tempUnit) {
+                    Text(verbatim: "°C").tag(TemperatureUnit.celsius)
+                    Text(verbatim: "°F").tag(TemperatureUnit.fahrenheit)
+                }.pickerStyle(.segmented).labelsHidden().frame(width: 120)
+            }
+            HStack {
+                Text("Wind Speed Unit")
+                Spacer(minLength: 12)
+                Picker("Wind Speed Unit", selection: $windUnit) {
+                    Text(verbatim: "km/h").tag(WindSpeedUnit.kmh)
+                    Text(verbatim: "mph").tag(WindSpeedUnit.mph)
+                    Text(verbatim: "m/s").tag(WindSpeedUnit.ms)
+                }.pickerStyle(.segmented).labelsHidden().frame(width: 170)
+            }
+            Toggle("Weather Animations", isOn: $animations)
+            Toggle("Keep Both Widgets Open", isOn: $keepBoth)
+            Stepper(value: binding(\.heatFeelsLikeC), in: 25...50, step: 1) {
+                HStack { Text("Heat Warning (Feels Like)"); Spacer(); Text(verbatim: "\(Int(thresholds.heatFeelsLikeC))°C").monospacedDigit() }
+            }
+            Stepper(value: binding(\.windKmh), in: 20...120, step: 5) {
+                HStack { Text("Wind Warning"); Spacer(); Text(verbatim: "\(Int(thresholds.windKmh)) km/h").monospacedDigit() }
+            }
+            Stepper(value: binding(\.snowCmPerDay), in: 1...30, step: 1) {
+                HStack { Text("Snow Warning"); Spacer(); Text(verbatim: "\(Int(thresholds.snowCmPerDay)) cm").monospacedDigit() }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func binding(_ key: WritableKeyPath<WeatherThresholds, Double>) -> Binding<Double> {
+        Binding(get: { thresholds[keyPath: key] }, set: { value in
+            thresholds[keyPath: key] = value
+            if let data = try? JSONEncoder().encode(thresholds) { UserDefaults.standard.set(data, forKey: WeatherThresholds.storageKey) }
+        })
     }
 }
