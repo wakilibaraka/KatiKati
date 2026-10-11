@@ -1,35 +1,37 @@
 import AppKit
 import SwiftUI
 
-/// Single popover panel for the status trio (Phase 7A-5): positioned by
-/// `PanelGeometry.edgeBarPopupFrame`, dismissed by an outside click. One per edge bar.
+/// Single non-key flyout panel for an edge bar's tiles (status popovers, now playing, …): positioned by
+/// `PanelGeometry.edgeBarPopupFrame`, dismissed by an outside click or a re-tap. One per edge bar.
+/// (Generalized from the 7A-5 status-only popup controller.) Text-entry flyouts (notes) use their own
+/// key-capable panel.
 @MainActor
-final class EdgeStatusPopupController {
+final class EdgeFlyoutController {
     private var panel: NSPanel?
-    private(set) var shownKind: StatusKind?
+    private(set) var shownID: String?
     private var clickMonitors: [Any] = []
 
-    var isShown: Bool { shownKind != nil }
+    var isShown: Bool { shownID != nil }
     var frame: CGRect { panel?.frame ?? .zero }
 
-    /// Toggles: tapping the open kind again closes it.
-    func toggle(_ kind: StatusKind, anchor: CGRect, side: EdgeSide, visibleFrame: CGRect, service: SystemStatusService) {
-        if shownKind == kind { dismiss(); return }
-        let frame = PanelGeometry.edgeBarPopupFrame(side: side, anchor: anchor, size: kind.popupSize, visibleFrame: visibleFrame)
+    /// Toggles: tapping the open flyout's tile again closes it; another tile swaps the content in place.
+    func toggle(id: String, anchor: CGRect, side: EdgeSide, visibleFrame: CGRect, size: CGSize, content: AnyView) {
+        if shownID == id { dismiss(); return }
+        let frame = PanelGeometry.edgeBarPopupFrame(side: side, anchor: anchor, size: size, visibleFrame: visibleFrame)
         let panel = self.panel ?? makePanel(frame: frame)
         self.panel = panel
-        let host = NSHostingView(rootView: StatusPopupView(kind: kind, service: service))
+        let host = NSHostingView(rootView: content)
         host.frame = CGRect(origin: .zero, size: frame.size)
         panel.contentView = Self.plate(wrapping: host, size: frame.size)
         panel.setFrame(frame, display: true)
         panel.orderFrontRegardless()
-        shownKind = kind
+        shownID = id
         installMonitors()
     }
 
     func dismiss() {
         panel?.orderOut(nil)
-        shownKind = nil
+        shownID = nil
         removeMonitors()
     }
 

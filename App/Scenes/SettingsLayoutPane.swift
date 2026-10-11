@@ -273,6 +273,20 @@ struct SettingsLayoutPane: View {
                     .fixedSize()
                     .disabled(store.edgeBarPreset == .off || store.edgeBarPreset == .notes)
                 }
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Widgets").font(.subheadline.weight(.semibold))
+                    ForEach(WidgetTile.allCases, id: \.self) { tile in
+                        Toggle(isOn: Binding(
+                            get: { store.widgetTiles.contains(tile) },
+                            set: { store.setWidgetTile(tile, enabled: $0) }
+                        )) {
+                            switch tile {
+                            case .weather: Text("Weather")
+                            case .nowPlaying: Text("Now Playing")
+                            }
+                        }
+                    }
+                }
                 Toggle("Auto-Hide Edge Bars", isOn: Binding(
                     get: { store.edgeAutoHide },
                     set: { store.setEdgeAutoHide($0) }

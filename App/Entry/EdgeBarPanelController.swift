@@ -8,10 +8,11 @@ import SwiftUI
 final class EdgeBarPanelController {
     let slotKey: EdgeSlotSet.SlotKey
     private let service: SystemStatusService
-    private let popup = EdgeStatusPopupController()
+    private let popup = EdgeFlyoutController()
     private let notesPopup = EdgeNotesPopupController()
     /// Creates the notes controller on first use (§1.7e); nil if the store/key is unavailable.
     private let notesProvider: () -> NotesController?
+    private let nowPlayingProvider: () -> NowPlayingService
     private var content: [EdgeBarContent] = []
     private var host: NSHostingView<EdgeBarContentView>?
     private var lastVisibleFrame: CGRect = .zero
@@ -26,10 +27,12 @@ final class EdgeBarPanelController {
     private var lastFrame: CGRect = .zero
     private var lastScreenFrame: CGRect = .zero
 
-    init(slotKey: EdgeSlotSet.SlotKey, service: SystemStatusService, notes: @escaping () -> NotesController?) {
+    init(slotKey: EdgeSlotSet.SlotKey, service: SystemStatusService, notes: @escaping () -> NotesController?,
+         nowPlaying: @escaping () -> NowPlayingService) {
         self.slotKey = slotKey
         self.service = service
         self.notesProvider = notes
+        self.nowPlayingProvider = nowPlaying
     }
 
     var allSpacesPanels: [NSPanel] { panel.map { [$0] } ?? [] }
@@ -166,6 +169,8 @@ final class EdgeBarPanelController {
             self?.statusTapped(kind, localRect: rect)
         }, onNotesTap: { [weak self] rect in
             self?.notesTapped(localRect: rect)
+        }, onWidgetTap: { [weak self] tile, rect in
+            self?.widgetTapped(tile, localRect: rect)
         })
         let plate = NSVisualEffectView(frame: CGRect(origin: .zero, size: panel.frame.size))
         plate.material = .hudWindow
@@ -198,9 +203,30 @@ final class EdgeBarPanelController {
         notesPopup.toggle(anchor: anchor, side: slotKey.side, visibleFrame: lastVisibleFrame, controller: notes)
     }
 
+    private func widgetTapped(_ tile: WidgetTile, localRect: CGRect) {
+        guard let anchor = screenRect(localRect) else { return }
+        notesPopup.dismiss()
+        switch tile {
+        case .weather:
+            // The weather stack already has its own panel (left side); the tile just toggles it.
+            popup.dismiss()
+            WidgetPanelController.weather.toggle()
+        case .nowPlaying:
+            let service = nowPlayingProvider()
+            popup.toggle(
+                id: "widget.nowPlaying", anchor: anchor, side: slotKey.side, visibleFrame: lastVisibleFrame,
+                size: CGSize(width: 300, height: 120),
+                content: AnyView(NowPlayingFlyoutView(service: service))
+            )
+        }
+    }
+
     private func statusTapped(_ kind: StatusKind, localRect: CGRect) {
         guard let anchor = screenRect(localRect) else { return }
         notesPopup.dismiss()
-        popup.toggle(kind, anchor: anchor, side: slotKey.side, visibleFrame: lastVisibleFrame, service: service)
+        popup.toggle(
+            id: "status.\(kind)", anchor: anchor, side: slotKey.side, visibleFrame: lastVisibleFrame,
+            size: kind.popupSize, content: AnyView(StatusPopupView(kind: kind, service: service))
+        )
     }
 }

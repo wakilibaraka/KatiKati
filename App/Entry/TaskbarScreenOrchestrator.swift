@@ -211,12 +211,13 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.reconcileNotesSync() }
-        edgeSettingsSubscription = Publishers.CombineLatest(
+        edgeSettingsSubscription = Publishers.CombineLatest3(
             Publishers.CombineLatest4(
                 settingsStore.$edgeBarPreset, settingsStore.$edgeStatusSide,
                 settingsStore.$edgeGap, settingsStore.$edgeMargin
             ),
-            settingsStore.$edgeAutoHide
+            settingsStore.$edgeAutoHide,
+            settingsStore.$widgetTiles
         )
         .dropFirst()
         .receive(on: DispatchQueue.main)
@@ -308,6 +309,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     private var lastConnectedKeys: [String] = []
     /// Lazy (§1.7e): created on first need, observers only run while status content is shown.
     private lazy var statusService = SystemStatusService()
+    private lazy var nowPlayingService = NowPlayingService()
     private var statusServiceHeld = false
     private var notesControllerStorage: NotesController?
     private var notesUnavailable = false
@@ -370,7 +372,8 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         }
         let metrics = settingsStore.layoutMetrics
         for key in desired {
-            let controller = edgeControllers[key] ?? EdgeBarPanelController(slotKey: key, service: statusService, notes: { [weak self] in self?.notesController() })
+            let controller = edgeControllers[key] ?? EdgeBarPanelController(slotKey: key, service: statusService, notes: { [weak self] in self?.notesController() },
+                nowPlaying: { [weak self] in self?.nowPlayingService ?? NowPlayingService() })
             edgeControllers[key] = controller
             let siblings = units.filter { $0.key == key.display }
             let visible = siblings.contains { $0.coordinator.isLogicallyVisible }
@@ -388,8 +391,8 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     /// lone notes tile on the right so the machinery can be eyeballed.
     private func edgeContentBySide() -> [EdgeSide: [EdgeBarContent]] {
         guard !isSuspended else { return [:] }
-        let fromPreset = settingsStore.edgeBarPreset.content(statusSide: settingsStore.edgeStatusSide)
-        if !fromPreset.isEmpty { return fromPreset }
+        let fromSettings = settingsStore.edgeContent
+        if !fromSettings.isEmpty { return fromSettings }
         return edgeBarsActive() ? [.right: [.notes]] : [:]
     }
 

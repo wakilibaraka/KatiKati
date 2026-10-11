@@ -155,6 +155,22 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
+    func testWidgetTilesDefaultEmptyKeepCatalogOrderAndPersist() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertTrue(store.widgetTiles.isEmpty)
+        store.setWidgetTile(.nowPlaying, enabled: true)
+        store.setWidgetTile(.weather, enabled: true)
+        XCTAssertEqual(store.widgetTiles, [.weather, .nowPlaying], "catalog order, not click order")
+        XCTAssertEqual(store.edgeContent[.left], [.widget(.weather), .widget(.nowPlaying)])
+        XCTAssertEqual(store.edgeActiveSides, [.left], "widgets alone create the left bar")
+        store.setWidgetTile(.weather, enabled: false)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).widgetTiles, [.nowPlaying])
+        store.setWidgetTile(.nowPlaying, enabled: false)
+        XCTAssertTrue(AppSettingsStore(defaults: defaults).widgetTiles.isEmpty)
+    }
+
+    @MainActor
     func testBottomGapDefaultsToFloatingClampsAndPersists() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)

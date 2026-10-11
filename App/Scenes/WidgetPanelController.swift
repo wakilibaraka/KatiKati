@@ -97,6 +97,16 @@ final class WidgetPanelController {
 
     static func currentLayout(defaults: UserDefaults = .standard) -> CalendarPanelLayout { .resolve(defaults: defaults) }
 
+    /// Room to leave for an edge bar on this stack's side (bar width + its margin + a gap), 0 when none.
+    private func edgeBarInset(defaults: UserDefaults = .standard) -> CGFloat {
+        let preset = EdgeBarPreset(rawValue: defaults.string(forKey: "com.katikati.edge.preset") ?? "") ?? .off
+        let statusSide = EdgeSide(rawValue: defaults.string(forKey: "com.katikati.edge.status.side") ?? "") ?? .right
+        let widgets = WidgetTile.parse(defaults.string(forKey: "com.katikati.widgets.tiles"))
+        let barSide: EdgeSide = side == .left ? .left : .right
+        guard EdgeBarComposition.resolve(preset: preset, statusSide: statusSide, widgets: widgets)[barSide] != nil else { return 0 }
+        return EdgeBarLayout.width + 8 + 8
+    }
+
     private func show() {
         let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }
             ?? NSScreen.main ?? NSScreen.screens[0]
@@ -112,7 +122,7 @@ final class WidgetPanelController {
         let panel = self.panel ?? makePanel(layout: layout, geometry: geometry)
         // Start at the tallest allowed frame so the tiles never clip while they measure themselves;
         // the first height report shrinks the window to fit.
-        let target = PanelGeometry.widgetPanelFrame(on: geometry, layout: layout, side: side, contentHeight: .greatestFiniteMagnitude)
+        let target = PanelGeometry.widgetPanelFrame(on: geometry, layout: layout, side: side, contentHeight: .greatestFiniteMagnitude, sideInset: edgeBarInset())
         let preset = Self.currentAnimation()
         state.animation = preset
         state.entered = false
@@ -156,7 +166,7 @@ final class WidgetPanelController {
     private func resize(toContentHeight height: CGFloat, layout: CalendarPanelLayout) {
         guard let panel, let geometry, height > 0 else { return }
         if isOpening { pendingHeight = height; return }
-        let frame = PanelGeometry.widgetPanelFrame(on: geometry, layout: layout, side: side, contentHeight: height)
+        let frame = PanelGeometry.widgetPanelFrame(on: geometry, layout: layout, side: side, contentHeight: height, sideInset: edgeBarInset())
         if frame != panel.frame { panel.setFrame(frame, display: true) }
     }
 

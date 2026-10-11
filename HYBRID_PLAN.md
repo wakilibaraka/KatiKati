@@ -1687,6 +1687,22 @@ upgrades, wallpaper/personalisation, extra flyouts.
   Found + fixed: `TextEditor` painted an opaque dark box over the glass plate → hidden via `scrollContentBackground`
   (macOS 13+; macOS 12 keeps the default). Side effects of the check: a Keychain item `com.katikati.notes / note-key`
   was created and `~/Library/Application Support/KatiKati/Notes/` exists (empty).
+- 2026-10-11 · **7A-8 re-scoped with Hop (owner, plan approved):** the widgets bar folds in the best of
+  `antonyshakirov/hop` (MIT, cloned for study; ~20 modules) with no duplicated features. **In:** Bluetooth, System
+  monitor, Clipboard history (opt-in, encrypted, concealed-type filter), Text recognition + QR, Time tracker + to-dos,
+  Window snapper. **Reused (not re-built):** weather, now playing, calendar/clock, timer/stopwatch/countdown tiles, notes
+  (= the quick-notes widget). **Excluded:** torrents, VPN, traffic filter, converter/archives/documents, uninstaller,
+  screenshots/markup. **Parked:** keep awake, color picker, keyboard lock, speed test, app shelves. One tile per module +
+  own flyout; copy-with-attribution allowed, per-file choices recorded in NOTICE at 8h. Slices 8a–8h in the approved plan.
+- 2026-10-11 · **7A-8a widgets bar shell landed (gate green, 1819 tests; live-checked):** `WidgetTile` (weather, nowPlaying;
+  stored ids frozen) + `EdgeBarContent.widget(_)` + pure `EdgeBarComposition.resolve(preset, statusSide, widgets)` (widgets
+  lead the **left** bar, a left-side status trio sits below them; widgets alone create the left bar), `EdgeBarLayout.widgetTileHeight`,
+  `com.katikati.widgets.tiles` (default empty; toggling keeps catalog order), Settings toggles under Edge Bars,
+  `EdgeStatusPopupController` generalized to `EdgeFlyoutController` (id + size + SwiftUI content; status popovers now use it).
+  Tiles: **weather** toggles the existing left weather stack (`WidgetPanelController.weather`), **now playing** opens the strip
+  chip's `NowPlayingPopup` in a flyout with a lazily-created, event-driven `NowPlayingService`. The weather stack now insets
+  itself (`widgetPanelFrame(sideInset:)`, +test) so it no longer covers a left edge bar. Live: left bar 56×124 at the left edge,
+  now-playing flyout opened inward, weather panel opened and closed the flyout. No new strings (Widgets/Weather/Now Playing existed).
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

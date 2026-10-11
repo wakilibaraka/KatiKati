@@ -34,6 +34,7 @@ struct EdgeBarContentView: View {
     @ObservedObject var service: SystemStatusService
     let onStatusTap: (StatusKind, CGRect) -> Void
     let onNotesTap: (CGRect) -> Void
+    let onWidgetTap: (WidgetTile, CGRect) -> Void
 
     var body: some View {
         VStack(spacing: EdgeBarLayout.tileSpacing) {
@@ -43,6 +44,8 @@ struct EdgeBarContentView: View {
                     EdgeNotesTile(onTap: onNotesTap)
                 case .status:
                     StatusTrioView(status: service.status, onTap: onStatusTap)
+                case let .widget(tile):
+                    EdgeWidgetTile(tile: tile, onTap: onWidgetTap)
                 }
             }
         }
@@ -112,7 +115,7 @@ private struct StatusTrioRow<Glyph: View>: View {
     }
 }
 
-/// Popover content for one status (hosted by `EdgeStatusPopupController`).
+/// Popover content for one status (hosted by `EdgeFlyoutController`).
 struct StatusPopupView: View {
     let kind: StatusKind
     @ObservedObject var service: SystemStatusService
@@ -204,5 +207,52 @@ private struct EdgeNotesTile: View {
             .buttonStyle(.plain)
         }
         .frame(width: EdgeBarLayout.width, height: EdgeBarLayout.notesTileHeight)
+    }
+}
+
+/// A glyph tile for one widget (weather, now playing, …); the tap reports its frame for flyout placement.
+private struct EdgeWidgetTile: View {
+    let tile: WidgetTile
+    let onTap: (WidgetTile, CGRect) -> Void
+
+    private var symbol: String {
+        switch tile {
+        case .weather: return "cloud.sun.fill"
+        case .nowPlaying: return "music.note"
+        }
+    }
+
+    private var label: Text {
+        switch tile {
+        case .weather: return Text("Weather")
+        case .nowPlaying: return Text("Now Playing")
+        }
+    }
+
+    var body: some View {
+        GeometryReader { proxy in
+            Button {
+                onTap(tile, proxy.frame(in: .global))
+            } label: {
+                Image(systemName: symbol)
+                    .font(.system(size: 19, weight: .medium))
+                    .symbolRenderingMode(.multicolor)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(label)
+        }
+        .frame(width: EdgeBarLayout.width, height: EdgeBarLayout.widgetTileHeight)
+    }
+}
+
+/// Now-playing flyout: reuses the strip chip's popup view with a shared `NowPlayingService`.
+struct NowPlayingFlyoutView: View {
+    @ObservedObject var service: NowPlayingService
+
+    var body: some View {
+        NowPlayingPopup(state: service.state, theme: .auto, onToggle: { service.togglePlayPause() })
+            .padding(12)
     }
 }

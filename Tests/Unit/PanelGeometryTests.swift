@@ -682,6 +682,18 @@ final class CalendarPanelGeometryTests: XCTestCase {
         XCTAssertGreaterThan(l2.maxX, r2.minX, "on a narrow screen they would collide (controller then closes the other)")
     }
 
+    func testSideInsetShiftsTheStackInwardFromItsOwnSideOnly() {
+        let s = screen()
+        let plainL = PanelGeometry.widgetPanelFrame(on: s, layout: .mac, side: .left, contentHeight: 400, metrics: metrics)
+        let insetL = PanelGeometry.widgetPanelFrame(on: s, layout: .mac, side: .left, contentHeight: 400, sideInset: 72, metrics: metrics)
+        XCTAssertEqual(insetL.minX, plainL.minX + 72, accuracy: 0.001)
+        let plainR = PanelGeometry.widgetPanelFrame(on: s, layout: .mac, side: .right, contentHeight: 400, metrics: metrics)
+        let insetR = PanelGeometry.widgetPanelFrame(on: s, layout: .mac, side: .right, contentHeight: 400, sideInset: 72, metrics: metrics)
+        XCTAssertEqual(insetR.maxX, plainR.maxX - 72, accuracy: 0.001)
+        XCTAssertTrue(s.visibleFrame.contains(insetL) && s.visibleFrame.contains(insetR))
+        XCTAssertEqual(PanelGeometry.widgetPanelFrame(on: s, layout: .mac, side: .left, contentHeight: 400, sideInset: -5, metrics: metrics), plainL, "negative inset ignored")
+    }
+
     func testIPadLayoutIsHalfTheScreenClamped() {
         XCTAssertEqual(CalendarPanelLayout.ipad.width(forScreenWidth: 1728), 760)
         XCTAssertEqual(CalendarPanelLayout.ipad.width(forScreenWidth: 1280), 640)

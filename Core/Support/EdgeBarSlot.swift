@@ -35,10 +35,43 @@ enum EdgeSlotSet {
     }
 }
 
-/// What an edge bar hosts. Notes always live on the right edge; status follows the user's side.
-enum EdgeBarContent: String, Sendable {
+/// A widget tile on the left-edge widgets bar (Phase 7A-8). Each tile opens its own flyout.
+/// Raw values are stored in `com.katikati.widgets.tiles`; never rename them.
+enum WidgetTile: String, CaseIterable, Sendable {
+    case weather
+    case nowPlaying
+
+    /// Parses the stored comma-separated list: unknown ids dropped, duplicates collapsed, order kept.
+    static func parse(_ stored: String?) -> [WidgetTile] {
+        var seen = Set<WidgetTile>()
+        return (stored ?? "").split(separator: ",").compactMap { part in
+            guard let tile = WidgetTile(rawValue: part.trimmingCharacters(in: .whitespaces)), seen.insert(tile).inserted else { return nil }
+            return tile
+        }
+    }
+
+    static func serialize(_ tiles: [WidgetTile]) -> String { tiles.map(\.rawValue).joined(separator: ",") }
+}
+
+/// What an edge bar hosts. Notes always live on the right edge; status follows the user's side;
+/// widgets always live on the left edge.
+enum EdgeBarContent: Equatable, Sendable {
     case notes
     case status
+    case widget(WidgetTile)
+}
+
+/// Combines the preset (notes/status) with the enabled widget tiles into per-edge content.
+enum EdgeBarComposition {
+    static let widgetsSide: EdgeSide = .left
+
+    /// Widgets lead the left bar (above a left-side status trio); notes/status come from the preset.
+    static func resolve(preset: EdgeBarPreset, statusSide: EdgeSide, widgets: [WidgetTile]) -> [EdgeSide: [EdgeBarContent]] {
+        var result = preset.content(statusSide: statusSide)
+        guard !widgets.isEmpty else { return result }
+        result[widgetsSide] = widgets.map(EdgeBarContent.widget) + (result[widgetsSide] ?? [])
+        return result
+    }
 }
 
 /// User-facing edge-bar presets (Phase 7A-2). Pure: resolves to content per edge.
@@ -104,6 +137,8 @@ enum EdgeBarLayout {
     /// Status trio: three stacked glyph buttons.
     static let statusRowHeight: CGFloat = 40
     static let statusTileHeight: CGFloat = statusRowHeight * 3 + 16
+    /// One widget tile (glyph button).
+    static let widgetTileHeight: CGFloat = 48
     static let tileSpacing: CGFloat = 8
     static let verticalPadding: CGFloat = 10
 
@@ -111,6 +146,7 @@ enum EdgeBarLayout {
         switch content {
         case .notes: return notesTileHeight
         case .status: return statusTileHeight
+        case .widget: return widgetTileHeight
         }
     }
 

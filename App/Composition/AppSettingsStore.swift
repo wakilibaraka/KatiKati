@@ -164,6 +164,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var edgeAutoHide: Bool
     /// Notes sync with the iCloud Drive folder (7A-7c). Opt-in, default off.
     @Published private(set) var notesSyncEnabled: Bool
+    /// Enabled widget tiles on the left-edge widgets bar, in display order (7A-8). Empty = no widgets bar.
+    @Published private(set) var widgetTiles: [WidgetTile]
     @Published private(set) var edgeMargin: CGFloat
     /// 材质主题。默认 auto (亮色 roseQuartz / 暗色 obsidianDark)。
     @Published private(set) var themeMaterial: DockThemeStyle
@@ -276,6 +278,7 @@ final class AppSettingsStore: ObservableObject {
         edgeStatusSide = EdgeSide(rawValue: defaults.string(forKey: Keys.edgeStatusSide) ?? "") ?? .right
         edgeAutoHide = defaults.bool(forKey: Keys.edgeAutoHide)
         notesSyncEnabled = defaults.bool(forKey: Keys.notesSync)
+        widgetTiles = WidgetTile.parse(defaults.string(forKey: Keys.widgetTiles))
         edgeGap = Self.clampedEdgeSpacing(Self.storedNumericValue(defaults.object(forKey: Keys.edgeGap)), fallback: PanelGeometry.edgeBarDefaultBottomGap)
         edgeMargin = Self.clampedEdgeSpacing(Self.storedNumericValue(defaults.object(forKey: Keys.edgeMargin)), fallback: 8)
         
@@ -427,6 +430,17 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value.rawValue, forKey: Keys.edgeStatusSide)
     }
 
+    func setWidgetTile(_ tile: WidgetTile, enabled: Bool) {
+        var next = widgetTiles.filter { $0 != tile }
+        if enabled {
+            // Keep catalog order so toggling never reshuffles the bar.
+            next = WidgetTile.allCases.filter { $0 == tile || next.contains($0) }
+        }
+        guard next != widgetTiles else { return }
+        widgetTiles = next
+        defaults.set(WidgetTile.serialize(next), forKey: Keys.widgetTiles)
+    }
+
     func setNotesSyncEnabled(_ value: Bool) {
         guard notesSyncEnabled != value else { return }
         notesSyncEnabled = value
@@ -461,7 +475,12 @@ final class AppSettingsStore: ObservableObject {
 
     /// Sides that currently host an edge bar, from the preset and the status side.
     var edgeActiveSides: Set<EdgeSide> {
-        edgeBarPreset.activeSides(statusSide: edgeStatusSide)
+        Set(edgeContent.keys)
+    }
+
+    /// Per-edge content: preset (notes/status) plus the left-edge widget tiles.
+    var edgeContent: [EdgeSide: [EdgeBarContent]] {
+        EdgeBarComposition.resolve(preset: edgeBarPreset, statusSide: edgeStatusSide, widgets: widgetTiles)
     }
 
     /// Live panel geometry: the height-derived metrics plus the user's bottom gap.
@@ -815,6 +834,7 @@ private enum Keys {
     static let edgeGap = "com.katikati.edge.gap"
     static let edgeAutoHide = "com.katikati.edge.autoHide"
     static let notesSync = "com.katikati.notes.sync"
+    static let widgetTiles = "com.katikati.widgets.tiles"
     static let edgeMargin = "com.katikati.edge.margin"
     static let iconSet = "com.katikati.iconSet"
     static let themeMaterial = "com.katikati.theme.material"

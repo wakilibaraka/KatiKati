@@ -180,4 +180,34 @@ final class EdgeBarSlotTests: XCTestCase {
                                                 size: CGSize(width: 900, height: 900), visibleFrame: visible)
         XCTAssertTrue(visible.contains(f))
     }
+
+    // MARK: Widgets (7A-8a)
+
+    func testWidgetTileParseDedupesDropsUnknownAndKeepsOrder() {
+        XCTAssertEqual(WidgetTile.parse("nowPlaying, weather,nowPlaying,bogus"), [.nowPlaying, .weather])
+        XCTAssertEqual(WidgetTile.parse(nil), [])
+        XCTAssertEqual(WidgetTile.parse(""), [])
+        XCTAssertEqual(WidgetTile.serialize([.weather, .nowPlaying]), "weather,nowPlaying")
+        XCTAssertEqual(WidgetTile.allCases.map(\.rawValue), ["weather", "nowPlaying"], "stored ids are frozen")
+    }
+
+    func testCompositionPutsWidgetsOnTheLeftAndKeepsPresetContent() {
+        let none = EdgeBarComposition.resolve(preset: .notesAndStatus, statusSide: .right, widgets: [])
+        XCTAssertEqual(none, [.right: [.notes, .status]])
+        let withWidgets = EdgeBarComposition.resolve(preset: .notes, statusSide: .right, widgets: [.weather, .nowPlaying])
+        XCTAssertEqual(withWidgets[.left], [.widget(.weather), .widget(.nowPlaying)])
+        XCTAssertEqual(withWidgets[.right], [.notes])
+        let onlyWidgets = EdgeBarComposition.resolve(preset: .off, statusSide: .right, widgets: [.weather])
+        XCTAssertEqual(onlyWidgets, [.left: [.widget(.weather)]])
+    }
+
+    func testLeftStatusSitsBelowWidgets() {
+        let r = EdgeBarComposition.resolve(preset: .status, statusSide: .left, widgets: [.weather])
+        XCTAssertEqual(r[.left], [.widget(.weather), .status])
+    }
+
+    func testWidgetTilesAreIncludedInBarHeight() {
+        let h = EdgeBarLayout.contentHeight([.widget(.weather), .widget(.nowPlaying)])
+        XCTAssertEqual(h, 2 * EdgeBarLayout.widgetTileHeight + EdgeBarLayout.tileSpacing + 2 * EdgeBarLayout.verticalPadding)
+    }
 }

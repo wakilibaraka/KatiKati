@@ -492,16 +492,19 @@ enum PanelGeometry {
         layout: CalendarPanelLayout,
         side: WidgetPanelSide = .right,
         contentHeight: CGFloat,
+        sideInset: CGFloat = 0,
         metrics: PanelLayoutMetrics = .tungstenEdge
     ) -> CGRect {
         let margin = metrics.outerMargin
         let visible = screen.visibleFrame
-        let width = min(layout.width(forScreenWidth: screen.frame.width), max(0, visible.width - 2 * margin))
+        // `sideInset` keeps the stack clear of an edge bar hugging the same side (7A-8).
+        let inset = max(0, sideInset)
+        let width = min(layout.width(forScreenWidth: screen.frame.width), max(0, visible.width - 2 * margin - inset))
         let top = screen.topUsableY - margin
         let bottom = max(screen.frame.minY, visible.minY) + metrics.bottomGap + metrics.panelHeight + margin
         let available = max(0, top - bottom)
         let height = min(max(0, contentHeight), available)
-        let x = side == .right ? visible.maxX - margin - width : visible.minX + margin
+        let x = side == .right ? visible.maxX - margin - inset - width : visible.minX + margin + inset
         return CGRect(x: x, y: top - height, width: width, height: height)
     }
 
