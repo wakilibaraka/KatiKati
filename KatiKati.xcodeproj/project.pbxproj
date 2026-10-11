@@ -685,6 +685,11 @@
 		ED00000000000000000000ED /* LauncherAppIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000EC /* LauncherAppIndex.swift */; };
 		ED00000000000000000000EE /* LauncherAppIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000EC /* LauncherAppIndex.swift */; };
 		ED00000000000000000000F0 /* LauncherAppIndexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000EF /* LauncherAppIndexTests.swift */; };
+		ED00000000000000000000F8 /* LauncherIndexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000F1 /* LauncherIndexer.swift */; };
+		ED00000000000000000000F2 /* LauncherIndexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000F1 /* LauncherIndexer.swift */; };
+		ED00000000000000000000F4 /* LauncherStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000F3 /* LauncherStore.swift */; };
+		ED00000000000000000000F5 /* LauncherStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000F3 /* LauncherStore.swift */; };
+		ED00000000000000000000F7 /* LauncherStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000F6 /* LauncherStoreTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1170,6 +1175,9 @@
 		ED00000000000000000000EA /* SystemMonitorMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorMathTests.swift; path = Tests/Unit/SystemMonitorMathTests.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000EC /* LauncherAppIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherAppIndex.swift; path = Core/Support/LauncherAppIndex.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000EF /* LauncherAppIndexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherAppIndexTests.swift; path = Tests/Unit/LauncherAppIndexTests.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000F1 /* LauncherIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherIndexer.swift; path = Platform/Launcher/LauncherIndexer.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000F3 /* LauncherStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherStore.swift; path = Platform/Launcher/LauncherStore.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000F6 /* LauncherStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherStoreTests.swift; path = Tests/Unit/LauncherStoreTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2206,6 +2214,8 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
+				ED00000000000000000000F2 /* LauncherIndexer.swift in Sources */,
+				ED00000000000000000000F4 /* LauncherStore.swift in Sources */,
 				ED00000000000000000000ED /* LauncherAppIndex.swift in Sources */,
 				ED00000000000000000000E1 /* SystemMonitorMath.swift in Sources */,
 				ED00000000000000000000E4 /* SystemMonitorSampler.swift in Sources */,
@@ -2322,6 +2332,9 @@
 				ED0000000000000000000089 /* DeckGeometryTests.swift in Sources */,
 				ED0000000000000000000082 /* NotePalette.swift in Sources */,
 				ED0000000000000000000084 /* NotePaletteTests.swift in Sources */,
+				ED00000000000000000000F5 /* LauncherStore.swift in Sources */,
+				ED00000000000000000000F7 /* LauncherStoreTests.swift in Sources */,
+				ED00000000000000000000F8 /* LauncherIndexer.swift in Sources */,
 				ED00000000000000000000EE /* LauncherAppIndex.swift in Sources */,
 				ED00000000000000000000F0 /* LauncherAppIndexTests.swift in Sources */,
 				ED00000000000000000000E2 /* SystemMonitorMath.swift in Sources */,

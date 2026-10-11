@@ -1555,6 +1555,8 @@ Reference screenshots: one Launchpad-style surface (icon grid + widget tiles, le
 
 - 2026-10-12 · **7B-L1a landed (gate green, 1896 tests):** pure `Core/Support/LauncherAppIndex.swift` (merge/dedupe by bundle id, sections pinned > most used > recently installed, launch recording, pin toggle, fuzzy `LauncherSearch`) + 8 tests. Platform indexer (Spotlight + /Applications, live updates, usage store) is L1b.
 
+- 2026-10-12 · **7B-L1b landed (gate green, 1900 tests):** `Platform/Launcher/LauncherStore.swift` (launch counts + pins, `launcher.json`, corrupt file → `.bak`) and `LauncherIndexer.swift` (instant directory scan, then live Spotlight query; lazy `start`/`stop`; skips LSUIElement/background-only). Nothing is wired to UI yet; icon cache lands with the grid (L3).
+
 **Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
 dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.
