@@ -13,6 +13,7 @@ final class ProductivityServices {
     let countdowns = EventCountdownStore()
     lazy var tasks = TasksController()
     lazy var clipboard = ClipboardMonitor()
+    lazy var capture = CaptureController()
     private init() {}
 }
 
@@ -23,6 +24,7 @@ enum ProductivityFlyout {
         case .time: return CGSize(width: 340, height: 340)
         case .tasks: return CGSize(width: 320, height: 360)
         case .windows: return CGSize(width: 300, height: 290)
+        case .capture: return CGSize(width: 320, height: 300)
         default: return CGSize(width: 300, height: 290)
         }
     }
@@ -36,6 +38,7 @@ enum ProductivityFlyout {
         case .tasks: return AnyView(TasksFlyoutView())
         case .windows: return AnyView(WindowsFlyoutView())
         case .clipboard: return AnyView(ClipboardFlyoutView())
+        case .capture: return AnyView(CaptureResultView())
         default: return nil
         }
     }

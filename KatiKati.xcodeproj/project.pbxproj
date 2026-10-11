@@ -668,6 +668,13 @@
 		ED00000000000000000000CE /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CD /* ClipboardMonitor.swift */; };
 		ED00000000000000000000D0 /* ClipboardFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CF /* ClipboardFlyoutView.swift */; };
 		ED00000000000000000000D2 /* ClipboardHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000D1 /* ClipboardHistoryTests.swift */; };
+		ED00000000000000000000D4 /* CaptureRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000D3 /* CaptureRules.swift */; };
+		ED00000000000000000000D5 /* CaptureRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000D3 /* CaptureRules.swift */; };
+		ED00000000000000000000D7 /* CaptureController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000D6 /* CaptureController.swift */; };
+		ED00000000000000000000D9 /* CaptureResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000D8 /* CaptureResultView.swift */; };
+		ED00000000000000000000DB /* CaptureRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000DA /* CaptureRulesTests.swift */; };
+		ED00000000000000000000DD /* CaptureController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000DC /* CaptureController.swift */; };
+		ED00000000000000000000DF /* CaptureRecognitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000DE /* CaptureRecognitionTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1140,6 +1147,12 @@
 		ED00000000000000000000CD /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClipboardMonitor.swift; path = Platform/Clipboard/ClipboardMonitor.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000CF /* ClipboardFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClipboardFlyoutView.swift; path = App/Scenes/Edge/ClipboardFlyoutView.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000D1 /* ClipboardHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClipboardHistoryTests.swift; path = Tests/Unit/ClipboardHistoryTests.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000D3 /* CaptureRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CaptureRules.swift; path = Core/Support/CaptureRules.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000D6 /* CaptureController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CaptureController.swift; path = Platform/Capture/CaptureController.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000D8 /* CaptureResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CaptureResultView.swift; path = App/Scenes/Edge/CaptureResultView.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000DA /* CaptureRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CaptureRulesTests.swift; path = Tests/Unit/CaptureRulesTests.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000DC /* CaptureController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CaptureController.swift; path = Platform/Capture/CaptureController.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000DE /* CaptureRecognitionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CaptureRecognitionTests.swift; path = Tests/Unit/CaptureRecognitionTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2176,6 +2189,9 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
+				ED00000000000000000000D4 /* CaptureRules.swift in Sources */,
+				ED00000000000000000000D7 /* CaptureController.swift in Sources */,
+				ED00000000000000000000D9 /* CaptureResultView.swift in Sources */,
 				ED00000000000000000000CB /* ClipboardHistory.swift in Sources */,
 				ED00000000000000000000CE /* ClipboardMonitor.swift in Sources */,
 				ED00000000000000000000D0 /* ClipboardFlyoutView.swift in Sources */,
@@ -2284,6 +2300,10 @@
 				ED0000000000000000000089 /* DeckGeometryTests.swift in Sources */,
 				ED0000000000000000000082 /* NotePalette.swift in Sources */,
 				ED0000000000000000000084 /* NotePaletteTests.swift in Sources */,
+				ED00000000000000000000DD /* CaptureController.swift in Sources */,
+				ED00000000000000000000DF /* CaptureRecognitionTests.swift in Sources */,
+				ED00000000000000000000D5 /* CaptureRules.swift in Sources */,
+				ED00000000000000000000DB /* CaptureRulesTests.swift in Sources */,
 				ED00000000000000000000CC /* ClipboardHistory.swift in Sources */,
 				ED00000000000000000000D2 /* ClipboardHistoryTests.swift in Sources */,
 				ED00000000000000000000C3 /* WindowSnap.swift in Sources */,

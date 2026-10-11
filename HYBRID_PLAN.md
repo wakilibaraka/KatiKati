@@ -1809,6 +1809,11 @@ upgrades, wallpaper/personalisation, extra flyouts.
   the clipboard routinely holds secrets, so this is the one productivity item that is on-screen by default but not collecting by default; it overrides the earlier
   'encrypted history' idea (nothing persisted = nothing to encrypt). Images/files are not recorded (text only). Live check: switch on, two pbcopy copies appear
   newest-first. 6 strings in the l10n commit.
+- 2026-10-12 · **7A-P5 — Capture (text recognition + QR in one button):** the Capture button closes any flyout, runs the system's own region selector
+  (`screencapture -i`), recognises text (Vision, accurate, reading-order sort) and QR/barcodes in the picture, deletes the temp PNG at once, then shows a result flyout at the
+  button (Copy; web links get Open on click only — nothing is opened automatically; Wi-Fi/tel/other payloads stay text). `CaptureRules` is pure + tested; a rendered-image
+  test proves Vision finds both text and a QR payload (first run ~30 s model warm-up, then 0.2 s). Not live-driven: the region selector needs the real pointer. One button
+  instead of Hop's two modules (text recognition, QR) since both come from the same capture. 7 strings in the l10n commit. All seven productivity buttons are now built.
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,

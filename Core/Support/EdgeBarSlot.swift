@@ -66,8 +66,9 @@ enum ProductivityItem: String, CaseIterable, Sendable {
     case capture
     case windows
 
-    /// Items whose flyout exists. An item appears on a bar only once built (no placeholders); P2–P6 add to this.
-    static let built: Set<ProductivityItem> = [.reminders, .alarms, .time, .tasks, .clipboard, .windows]
+    /// Items whose flyout exists. An item appears on a bar only once built (no placeholders); P2–P6 built them all,
+    /// so this is the full set — a future item is added to the enum first and to this set when its flyout lands.
+    static let built = Set(allCases)
 
     static func parse(_ stored: String?) -> [ProductivityItem] { parseIDList(stored) }
     static func serialize(_ items: [ProductivityItem]) -> String { items.map(\.rawValue).joined(separator: ",") }

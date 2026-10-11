@@ -475,6 +475,16 @@ final class EdgeBarPanelController {
             )
         case let .productivity(item):
             notesPopup.dismiss(notify: false)
+            if item == .capture {
+                // The selector needs the screen clear: close any flyout, select, then show the result at the button.
+                popup.dismiss()
+                ProductivityServices.shared.capture.start { [weak self] in
+                    guard let self else { return }
+                    self.popup.toggle(id: "productivity.capture", anchor: anchor, side: self.side, visibleFrame: self.visibleFrame,
+                                      size: ProductivityFlyout.size(.capture), content: AnyView(CaptureResultView()))
+                }
+                return
+            }
             guard let view = ProductivityFlyout.view(item) else { return }
             popup.toggle(id: "productivity.\(item.rawValue)", anchor: anchor, side: side, visibleFrame: visibleFrame,
                          size: ProductivityFlyout.size(item), content: view, takesKey: ProductivityFlyout.takesKey(item))
