@@ -131,12 +131,14 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.edgeStatusSide, .right)
         XCTAssertEqual(store.edgeGap, 2)
         XCTAssertEqual(store.edgeMargin, 8)
+        XCTAssertFalse(store.edgeAutoHide)
         XCTAssertTrue(store.edgeActiveSides.isEmpty, "off = no edge slots")
 
         store.setEdgeBarPreset(.notesAndStatus)
         XCTAssertEqual(store.edgeActiveSides, [.right])
         store.setEdgeStatusSide(.left)
         XCTAssertEqual(store.edgeActiveSides, [.left, .right])
+        store.setEdgeAutoHide(true)
         store.setEdgeGap(0)
         store.setEdgeMargin(-4)
         XCTAssertEqual(store.edgeGap, 0.5, "0.5 pt minimum")
@@ -146,6 +148,7 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.edgeBarPreset, .notesAndStatus)
         XCTAssertEqual(reloaded.edgeStatusSide, .left)
         XCTAssertEqual(reloaded.edgeGap, 0.5)
+        XCTAssertTrue(reloaded.edgeAutoHide)
     }
 
     @MainActor

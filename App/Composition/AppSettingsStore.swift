@@ -160,6 +160,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var edgeStatusSide: EdgeSide
     /// Edge-bar gap above the bottom bar / margin from the screen side (min 0.5, Appendix C).
     @Published private(set) var edgeGap: CGFloat
+    /// Side-edge auto-hide (7A-3): hide after the pointer leaves, reveal on the screen side. Default off.
+    @Published private(set) var edgeAutoHide: Bool
     @Published private(set) var edgeMargin: CGFloat
     /// 材质主题。默认 auto (亮色 roseQuartz / 暗色 obsidianDark)。
     @Published private(set) var themeMaterial: DockThemeStyle
@@ -249,6 +251,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.edgeStatusSide: EdgeSide.right.rawValue,
             Keys.edgeGap: Double(PanelGeometry.edgeBarDefaultBottomGap),
             Keys.edgeMargin: 8.0,
+            Keys.edgeAutoHide: false,
             "widgetWidths": [String: CGFloat]()
         ])
 
@@ -268,6 +271,7 @@ final class AppSettingsStore: ObservableObject {
         bottomGap = Self.clampedBottomGap(CGFloat(storedBottomGap))
         edgeBarPreset = EdgeBarPreset(rawValue: defaults.string(forKey: Keys.edgePreset) ?? "") ?? .off
         edgeStatusSide = EdgeSide(rawValue: defaults.string(forKey: Keys.edgeStatusSide) ?? "") ?? .right
+        edgeAutoHide = defaults.bool(forKey: Keys.edgeAutoHide)
         edgeGap = Self.clampedEdgeSpacing(Self.storedNumericValue(defaults.object(forKey: Keys.edgeGap)), fallback: PanelGeometry.edgeBarDefaultBottomGap)
         edgeMargin = Self.clampedEdgeSpacing(Self.storedNumericValue(defaults.object(forKey: Keys.edgeMargin)), fallback: 8)
         
@@ -417,6 +421,12 @@ final class AppSettingsStore: ObservableObject {
         guard edgeStatusSide != value else { return }
         edgeStatusSide = value
         defaults.set(value.rawValue, forKey: Keys.edgeStatusSide)
+    }
+
+    func setEdgeAutoHide(_ value: Bool) {
+        guard edgeAutoHide != value else { return }
+        edgeAutoHide = value
+        defaults.set(value, forKey: Keys.edgeAutoHide)
     }
 
     func setEdgeGap(_ value: CGFloat) {
@@ -793,6 +803,7 @@ private enum Keys {
     static let edgePreset = "com.katikati.edge.preset"
     static let edgeStatusSide = "com.katikati.edge.status.side"
     static let edgeGap = "com.katikati.edge.gap"
+    static let edgeAutoHide = "com.katikati.edge.autoHide"
     static let edgeMargin = "com.katikati.edge.margin"
     static let iconSet = "com.katikati.iconSet"
     static let themeMaterial = "com.katikati.theme.material"

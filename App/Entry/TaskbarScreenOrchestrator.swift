@@ -207,13 +207,19 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.reconcileFullscreenIntentMonitor() }
-        edgeSettingsSubscription = Publishers.CombineLatest4(
-            settingsStore.$edgeBarPreset, settingsStore.$edgeStatusSide,
-            settingsStore.$edgeGap, settingsStore.$edgeMargin
+        edgeSettingsSubscription = Publishers.CombineLatest(
+            Publishers.CombineLatest4(
+                settingsStore.$edgeBarPreset, settingsStore.$edgeStatusSide,
+                settingsStore.$edgeGap, settingsStore.$edgeMargin
+            ),
+            settingsStore.$edgeAutoHide
         )
         .dropFirst()
         .receive(on: DispatchQueue.main)
-        .sink { [weak self] _ in self?.reconcileEdgeBars() }
+        .sink { [weak self] _ in
+            self?.reconcileEdgeBars()
+            self?.reconcileHoverMouseMonitors()
+        }
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(screenParametersChanged),
@@ -327,7 +333,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
                 unit.coordinator.dockPanel.map { unit.coordinator.panelCurrentScreen(panel: $0) }
             }.first
             controller.update(
-                screen: screen, visible: visible,
+                screen: screen, visible: visible, autoHide: settingsStore.edgeAutoHide,
                 gap: settingsStore.edgeGap, margin: settingsStore.edgeMargin, metrics: metrics
             )
         }
@@ -665,6 +671,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         guard Self.hoverMonitorLeanEnabled else { return true }
         return (NSScreen.screens.count > 1 && settingsStore.taskbarScreenPlacement.allowsHoverScreenSwitching)
             || settingsStore.edgeAutoHideEnabled
+            || (settingsStore.edgeAutoHide && !edgeControllers.isEmpty)
             || PanelCoordinator.edgeHoverTraceEnabled
     }
 
@@ -784,6 +791,10 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
 
     private func pollAllUnits() {
         units.forEach { $0.coordinator.pollMousePosition() }
+        if !edgeControllers.isEmpty {
+            let mouse = NSEvent.mouseLocation
+            edgeControllers.values.forEach { $0.pollMouse(mouse) }
+        }
     }
 
     /// 只摘监视器，**不碰**唤醒/切屏状态——那些由 `removeHoverMouseMonitors` 在真正拆除时负责。

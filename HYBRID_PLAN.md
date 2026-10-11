@@ -1568,6 +1568,14 @@ upgrades, wallpaper/personalisation, extra flyouts.
   segmented control + Status Side Left/Right, disabled when no status). 6 new strings x12
   (**drafts, owner review — §1.7b**), added as one line-anchored insert (+462 lines, generated
   file; committed separately). Phase 12 settings refinement may relocate the section.
+- 2026-10-11 · **7A-3 side-edge auto-hide landed (gate green, 1747 tests):** pure
+  `EdgeBarAutoHide` (2 pt hot zone along the screen side spanning the bar, 0.4 s idle delay,
+  reveal/arm/cancel decision incl. `popupOpen` guard for later popovers) in `EdgeBarSlot.swift`;
+  `EdgeBarPanelController.pollMouse` + one-shot idle timer (no timers while hidden), separate from
+  the island-visibility verdict so fullscreen is never overridden; `com.katikati.edge.autoHide`
+  (default off) + Settings toggle (1 string x12, drafts, separate commit); rides the existing
+  `pollAllUnits` mouse monitors (`hoverMonitorsNeeded` now includes edge auto-hide) — no new
+  global monitor. Not yet verified live (hover feel, multi-display, CPU) — 7A-9.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

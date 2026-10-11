@@ -112,4 +112,28 @@ final class EdgeBarSlotTests: XCTestCase {
         XCTAssertEqual(EdgeBarPreset.notesAndStatus.activeSides(statusSide: .left), [.left, .right])
         XCTAssertEqual(EdgeBarPreset.allCases.map(\.rawValue), ["off", "notes", "notesAndStatus", "status"])
     }
+
+    // MARK: Auto-hide
+
+    func testHotZoneHugsTheScreenSideAndSpansTheBar() {
+        let screen = CGRect(x: -1920, y: -300, width: 1920, height: 1080)
+        let bar = CGRect(x: -1000, y: 100, width: 56, height: 300)
+        let right = EdgeBarAutoHide.hotZone(side: .right, screenFrame: screen, barFrame: bar)
+        XCTAssertEqual(right.maxX, screen.maxX)
+        XCTAssertEqual(right.width, EdgeBarAutoHide.hotZoneWidth)
+        XCTAssertEqual(right.minY, bar.minY)
+        XCTAssertEqual(right.height, bar.height)
+        let left = EdgeBarAutoHide.hotZone(side: .left, screenFrame: screen, barFrame: bar)
+        XCTAssertEqual(left.minX, screen.minX)
+    }
+
+    func testAutoHideActions() {
+        typealias A = EdgeBarAutoHide
+        XCTAssertEqual(A.action(isHidden: true, mouseInHotZone: true, mouseInBar: false), .reveal)
+        XCTAssertEqual(A.action(isHidden: true, mouseInHotZone: false, mouseInBar: false), .none)
+        XCTAssertEqual(A.action(isHidden: false, mouseInHotZone: false, mouseInBar: false), .armIdleHide)
+        XCTAssertEqual(A.action(isHidden: false, mouseInHotZone: false, mouseInBar: true), .cancelIdleHide)
+        XCTAssertEqual(A.action(isHidden: false, mouseInHotZone: true, mouseInBar: false), .cancelIdleHide)
+        XCTAssertEqual(A.action(isHidden: false, mouseInHotZone: false, mouseInBar: false, popupOpen: true), .cancelIdleHide)
+    }
 }

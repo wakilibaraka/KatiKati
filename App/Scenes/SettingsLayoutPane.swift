@@ -273,6 +273,11 @@ struct SettingsLayoutPane: View {
                     .fixedSize()
                     .disabled(store.edgeBarPreset == .off || store.edgeBarPreset == .notes)
                 }
+                Toggle("Auto-Hide Edge Bars", isOn: Binding(
+                    get: { store.edgeAutoHide },
+                    set: { store.setEdgeAutoHide($0) }
+                ))
+                .disabled(store.edgeBarPreset == .off)
                 Text("Slim bars on the screen edges for notes and system status. Notes stay on the right.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
