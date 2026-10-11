@@ -105,6 +105,7 @@ struct NotesPopupView: View {
                     set: { controller.edit(id: id, body: $0) }
                 ))
                 .font(.body)
+                .modifier(TransparentEditorBackground())
                 .padding(6)
             }
         } else {
@@ -130,5 +131,16 @@ struct NotesPopupView: View {
         .padding(.vertical, 8)
         .background(Capsule().fill(.regularMaterial))
         .overlay(Capsule().strokeBorder(Color.primary.opacity(0.12)))
+    }
+}
+
+/// `TextEditor` paints an opaque dark box over the flyout's glass plate; hide it where the API exists (macOS 13+).
+private struct TransparentEditorBackground: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(macOS 13.0, *) {
+            content.scrollContentBackground(.hidden)
+        } else {
+            content
+        }
     }
 }

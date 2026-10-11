@@ -1674,6 +1674,19 @@ upgrades, wallpaper/personalisation, extra flyouts.
   orchestrator starts/stops the service from the setting and touches the Keychain only when enabled; conflict suffix
   is the localized `(conflict)`. 2 strings x12 (drafts, separate commit). **7A-7 is now feature-complete;**
   remaining 7A: widgets bar (7A-8) and the verification slice (7A-9: live eyeball, idle CPU, real-iCloud round trip).
+- 2026-10-11 · **7A live check #1 (dev build, `-com.katikati.edge.preset notesAndStatus` argument-domain override — no
+  persisted defaults; driven through the accessibility tree):** ✅ right-edge bar rendered at the screen side (56×220:
+  notes tile + Wi-Fi/battery/volume column, matches `EdgeBarLayout`); ✅ Wi-Fi popover opened 8 pt inward of the bar
+  (showed the real SSID), battery popover (92 % "On Battery") and volume popover (80 % + slider) reused the same panel,
+  repositioned per tile; ✅ opening notes closed the status popover (exclusive); ✅ new note → typing → title derived
+  from the first line → file on disk is AES-GCM ciphertext (no plaintext); ✅ delete → undo toast → undo restored the same
+  note with its text → delete again removed the `.note` file; ✅ idle CPU ≈ 0.1–0.4 % (one transient 12 % sample while
+  I was clicking). ⚠️ **Not confirmed:** Esc did not close the flyout when sent as a background keystroke (may be a
+  limitation of that input path — needs a hand check; outside-click dismissal also unchecked); fullscreen hide, Spaces
+  and multi-display, auto-hide hover, real iCloud sync, and a proper Instruments idle-CPU number are still owed (7A-9).
+  Found + fixed: `TextEditor` painted an opaque dark box over the glass plate → hidden via `scrollContentBackground`
+  (macOS 13+; macOS 12 keeps the default). Side effects of the check: a Keychain item `com.katikati.notes / note-key`
+  was created and `~/Library/Application Support/KatiKati/Notes/` exists (empty).
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB
