@@ -1803,6 +1803,12 @@ upgrades, wallpaper/personalisation, extra flyouts.
   `WindowSnapService` (AX focused window of the frontmost *other* app — the deck panels are non-activating so that is still the app you were in; Hop's
   enhanced-UI toggle and size-position-size convergence) + `WindowsFlyoutView` (miniature-screen zone icons; Accessibility-missing hint with Open Settings).
   Taken ahead of clipboard/capture because it is small. Not live-pressed (would move a real window); renders in the flyout. 17 strings in the l10n commit.
+- 2026-10-12 · **7A-P4 — Clipboard (Hop clipboard rules, text-only):** `ClipboardHistory` (Core; trim/blank-ignore, dedupe with pin kept, growing-text merge,
+  50 unpinned cap, pinned lead, one-line preview, secret-type skip list per nspasteboard.org) + `ClipboardMonitor` (0.7 s changeCount poll **only while recording**) +
+  `ClipboardFlyoutView` (click row = copy back, pin/delete, record switch, clear). Decision: **recording is opt-in (default off) and memory-only, never written to disk** —
+  the clipboard routinely holds secrets, so this is the one productivity item that is on-screen by default but not collecting by default; it overrides the earlier
+  'encrypted history' idea (nothing persisted = nothing to encrypt). Images/files are not recorded (text only). Live check: switch on, two pbcopy copies appear
+  newest-first. 6 strings in the l10n commit.
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,

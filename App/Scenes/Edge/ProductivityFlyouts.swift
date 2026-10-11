@@ -12,6 +12,7 @@ final class ProductivityServices {
     let stopwatch = StopwatchController()
     let countdowns = EventCountdownStore()
     lazy var tasks = TasksController()
+    lazy var clipboard = ClipboardMonitor()
     private init() {}
 }
 
@@ -34,6 +35,7 @@ enum ProductivityFlyout {
         case .time: return AnyView(TimeFlyoutView())
         case .tasks: return AnyView(TasksFlyoutView())
         case .windows: return AnyView(WindowsFlyoutView())
+        case .clipboard: return AnyView(ClipboardFlyoutView())
         default: return nil
         }
     }

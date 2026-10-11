@@ -663,6 +663,11 @@
 		ED00000000000000000000C5 /* WindowSnapService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C4 /* WindowSnapService.swift */; };
 		ED00000000000000000000C7 /* WindowsFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C6 /* WindowsFlyoutView.swift */; };
 		ED00000000000000000000C9 /* WindowSnapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C8 /* WindowSnapTests.swift */; };
+		ED00000000000000000000CB /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CA /* ClipboardHistory.swift */; };
+		ED00000000000000000000CC /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CA /* ClipboardHistory.swift */; };
+		ED00000000000000000000CE /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CD /* ClipboardMonitor.swift */; };
+		ED00000000000000000000D0 /* ClipboardFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CF /* ClipboardFlyoutView.swift */; };
+		ED00000000000000000000D2 /* ClipboardHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000D1 /* ClipboardHistoryTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1131,6 +1136,10 @@
 		ED00000000000000000000C4 /* WindowSnapService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSnapService.swift; path = Platform/Windows/WindowSnapService.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000C6 /* WindowsFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowsFlyoutView.swift; path = App/Scenes/Edge/WindowsFlyoutView.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000C8 /* WindowSnapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSnapTests.swift; path = Tests/Unit/WindowSnapTests.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000CA /* ClipboardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClipboardHistory.swift; path = Core/Support/ClipboardHistory.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000CD /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClipboardMonitor.swift; path = Platform/Clipboard/ClipboardMonitor.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000CF /* ClipboardFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClipboardFlyoutView.swift; path = App/Scenes/Edge/ClipboardFlyoutView.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000D1 /* ClipboardHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClipboardHistoryTests.swift; path = Tests/Unit/ClipboardHistoryTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2167,6 +2176,9 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
+				ED00000000000000000000CB /* ClipboardHistory.swift in Sources */,
+				ED00000000000000000000CE /* ClipboardMonitor.swift in Sources */,
+				ED00000000000000000000D0 /* ClipboardFlyoutView.swift in Sources */,
 				ED00000000000000000000C2 /* WindowSnap.swift in Sources */,
 				ED00000000000000000000C5 /* WindowSnapService.swift in Sources */,
 				ED00000000000000000000C7 /* WindowsFlyoutView.swift in Sources */,
@@ -2272,6 +2284,8 @@
 				ED0000000000000000000089 /* DeckGeometryTests.swift in Sources */,
 				ED0000000000000000000082 /* NotePalette.swift in Sources */,
 				ED0000000000000000000084 /* NotePaletteTests.swift in Sources */,
+				ED00000000000000000000CC /* ClipboardHistory.swift in Sources */,
+				ED00000000000000000000D2 /* ClipboardHistoryTests.swift in Sources */,
 				ED00000000000000000000C3 /* WindowSnap.swift in Sources */,
 				ED00000000000000000000C9 /* WindowSnapTests.swift in Sources */,
 				ED00000000000000000000C0 /* DeckLabel.swift in Sources */,

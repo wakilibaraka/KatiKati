@@ -396,6 +396,7 @@ struct SettingsLayoutPane: View {
         case .alarms: return Text("Alarms")
         case .time: return Text("Time")
         case .tasks: return Text("Tasks")
+        case .clipboard: return Text("Clipboard")
         case .windows: return Text("Windows")
         // The remaining names are localized when their flyouts land (P3–P6); none is shown before that.
         default: return Text(verbatim: item.rawValue.capitalized)
