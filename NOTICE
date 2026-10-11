@@ -28,7 +28,7 @@ This project is derived from and incorporates code from the following works:
 - Repository: https://github.com/aimen08/noty
 - Copyright (C) aimen08
 - License: MIT License
-- Description: Behavior studied and re-implemented from scratch (no source copied) for the notes sync decision table (`Core/Support/NotesSyncPlan.swift`), `.md` front-matter document (`NoteDocument.swift`), iCloud-Drive-folder sync runner and folder handling (`Platform/Notes/`). Still planned (not yet derived): one-deck-per-display state machine, NSTextView editor, image store, undo toast.
+- Description: Behavior studied and re-implemented from scratch (no source copied) for the notes sync decision table (`Core/Support/NotesSyncPlan.swift`), `.md` front-matter document (`NoteDocument.swift`), iCloud-Drive-folder sync runner and folder handling (`Platform/Notes/`). Phase 7A-D: the deck's pure logic is ported with attribution and re-tested — palette (`NotePalette.swift`), tab/pill geometry and vertical label layout (`DeckGeometry.swift`), deck state machine (`DeckStateMachine.swift`), note reordering (`NotesModel.swift`); all SwiftUI/AppKit (panels, tabs, sheet, preview, drag) is written for KatiKati's own panel stack. Not used: noty's editor, image store, find bar, detach and export.
 
 ## 6. arc-menu for macOS (Placeholder — Phase 7 §5e, launcher base)
 - Repository: https://github.com/egemenince-git/arc-menu-for-macos

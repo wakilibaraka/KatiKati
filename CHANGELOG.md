@@ -3,6 +3,12 @@
 All notable changes to KatiKati are documented in this file.
 
 ### Added
+- **Phase 7A edge decks:** both screen edges host a noty-style deck — a resting pill that fans into shingled paper note tabs
+  (rotated titles, eight paper colours, hover preview / hover-to-open, drag to reorder, ⌥-drag the pill to reposition) with
+  round glass-or-coloured buttons for the rest; a note opens as a paper sheet. Layouts: Off, Notes, Notes & Status, Status,
+  **Productivity + Rest (default)** and **Custom** (every item Left / Right / Hidden), each flippable to either side. Productivity
+  buttons so far: Reminders, Alarms, Time (Timer / Stopwatch / Countdown / Focus). Notes are encrypted at rest with an opt-in
+  iCloud Drive sync. Settings: layout, main side, deck size, button style, tab font, hover behaviours, keep open.
 - **Phase 7A-1 edge-bar foundation:** `EdgeSlotSet` slot keys, `PanelGeometry.edgeBarTargetFrame`,
   `com.katikati.edge.*` settings (off by default), `DOCK_EDGE_BARS` switch and a placeholder
   edge-bar panel hidden together with the island bar in fullscreen. No visible content yet.

@@ -294,6 +294,9 @@ struct SettingsLayoutPane: View {
                     set: { store.setDeckKeepOpen($0) }
                 ))
                 .disabled(store.edgeBarPreset == .off)
+                if store.edgeBarPreset != .off {
+                    deckControls
+                }
                 Toggle("Sync Notes with iCloud Drive", isOn: Binding(
                     get: { store.notesSyncEnabled },
                     set: { store.setNotesSyncEnabled($0) }
@@ -306,6 +309,44 @@ struct SettingsLayoutPane: View {
         }
         .padding(Self.margin)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// Look and behaviour of the deck itself (7A-D6).
+    private var deckControls: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 10) {
+                Text("Bar Size").frame(width: 150, alignment: .leading)
+                Slider(value: Binding(get: { store.deckScale }, set: { store.setDeckScale($0) }),
+                       in: DeckSettingsRules.scaleRange, step: 0.05)
+                Text(verbatim: "\(Int((store.deckScale * 100).rounded()))%")
+                    .monospacedDigit().foregroundStyle(.secondary).frame(width: 52, alignment: .trailing)
+            }
+            HStack {
+                Text("Button Style")
+                Spacer(minLength: 12)
+                Picker("Button Style", selection: Binding(get: { store.edgeTileStyle }, set: { store.setEdgeTileStyle($0) })) {
+                    Text("Glass").tag(EdgeTileStyle.glass)
+                    Text("Coloured").tag(EdgeTileStyle.coloured)
+                }
+                .labelsHidden().pickerStyle(.segmented).fixedSize()
+            }
+            HStack {
+                Text("Note Tab Font")
+                Spacer(minLength: 12)
+                Picker("Note Tab Font", selection: Binding(get: { store.deckTabFont }, set: { store.setDeckTabFont($0) })) {
+                    ForEach(DeckFont.faces, id: \.postScript) { face in
+                        if face.postScript.isEmpty { Text("System").tag(face.postScript) } else { Text(verbatim: face.name).tag(face.postScript) }
+                    }
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            Toggle("Preview Notes on Hover", isOn: Binding(get: { store.deckTabPreview }, set: { store.setDeckTabPreview($0) }))
+            Toggle("Open Notes on Hover", isOn: Binding(get: { store.deckOpenOnHover }, set: { store.setDeckOpenOnHover($0) }))
+            Button("Reset Bar Positions") {
+                store.setDeckYRatio(0.5, for: .left)
+                store.setDeckYRatio(0.5, for: .right)
+            }
+        }
     }
 
     private static func presetTitle(_ preset: EdgeBarPreset) -> Text {

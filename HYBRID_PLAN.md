@@ -1785,6 +1785,9 @@ upgrades, wallpaper/personalisation, extra flyouts.
   and `TimerTile` / `StopwatchTile` / `CountdownTile` / `FocusTile` (Time = tabs Timer · Stopwatch · Countdown · Focus; Focus is the existing
   focus/break cycle, the pomodoro). `EdgeFlyoutController` panel can take key for flyouts that need typing (Time: event-name field). Live check: Time
   tabs, countdown add (typed + saved), Alarms render OK; Reminders not opened live (would raise the macOS permission prompt). 1 string (Time) in l10n commit.
+- 2026-10-12 · **7A-D6a — deck settings, NOTICE, CHANGELOG:** Settings › Edge Bars gains Bar Size (0.8–1.4 slider), Button Style (Glass / Coloured),
+  Note Tab Font (installed faces), Preview / Open Notes on Hover, Reset Bar Positions (all via existing store setters). NOTICE §5 now lists the noty files
+  whose pure logic was ported; CHANGELOG entry for the edge decks. 8 strings in the l10n commit. Remaining for D6: live check #2 (real pointer) + idle-CPU.
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,
