@@ -10,6 +10,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private let onShowDebugConsole: () -> Void
     private let onExportDebugSnapshot: () -> Void
     private let onShowSettings: () -> Void
+    private let onShowLayoutSettings: () -> Void
     /// 菜单开 / 关。任务条的边缘自动隐藏要在菜单开着时停摆，否则空闲计时照跑，
     /// 任务条会从弹出的菜单底下缩掉（同 `folderPopupOpen`）。走闭包是因为
     /// `PanelCoordinator` 在权限引导完成前根本不存在。
@@ -27,6 +28,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private var connectedScreensCache: [(uuid: String, title: String)] = []
     private var screenParametersObserver: NSObjectProtocol?
     private var edgeDelaySubscription: AnyCancellable?
+    private var iconSetSubscription: AnyCancellable?
     /// 待装新版的提示：图标上那个点要在菜单关着时也能亮起来，所以单独订阅。
     private var pendingUpdateSubscription: AnyCancellable?
     private var systemTruthRefreshTask: Task<Void, Never>?
@@ -75,6 +77,11 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     /// 子菜单一开一关会被当成主菜单开关，提前解除边缘自动隐藏抑制。内容改为在父菜单
     /// 显示前（`prepareMenuForPresentation`）建好。
     private let taskbarScreenMenu = NSMenu()
+    /// Phase 6「布局 ▸」：五种模式 + 底边浮动/贴边 + 打开设置的布局页。行固定，只改勾选。
+    private let layoutItem = NSMenuItem(title: String(localized: "Layout"), action: nil, keyEquivalent: "")
+    private let layoutMenu = NSMenu()
+    private var layoutModeItems: [BarLayoutMode: NSMenuItem] = [:]
+    private var bottomEdgeItems: [(gap: CGFloat, item: NSMenuItem)] = []
     /// 下面四条是普通勾选项，**恒在**（菜单开着时不许增删行），勾选状态由 refreshCheckmarks 落。
     private let showShelfItem = NSMenuItem(title: String(localized: "Show Shelf"), action: #selector(toggleShowShelf), keyEquivalent: "")
     private let showTrashItem = NSMenuItem(title: String(localized: "Show Trash"), action: #selector(toggleShowTrash), keyEquivalent: "")
@@ -92,6 +99,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
          onShowDebugConsole: @escaping () -> Void,
          onExportDebugSnapshot: @escaping () -> Void,
          onShowSettings: @escaping () -> Void,
+         onShowLayoutSettings: @escaping () -> Void,
          onMenuVisibilityChanged: @escaping (Bool) -> Void = { _ in },
          onQuit: @escaping () -> Void,
          hotKeyGlyphs: @escaping () -> String,
@@ -103,6 +111,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         self.onShowDebugConsole = onShowDebugConsole
         self.onExportDebugSnapshot = onExportDebugSnapshot
         self.onShowSettings = onShowSettings
+        self.onShowLayoutSettings = onShowLayoutSettings
         self.onMenuVisibilityChanged = onMenuVisibilityChanged
         self.onQuit = onQuit
         self.hotKeyGlyphs = hotKeyGlyphs
@@ -137,6 +146,12 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
                 // 任务条那条路径按左上角定位，底边会从任务条上沿漂走（行数不变规则）。
                 self.refreshInstallUpdateItem(allowsLayoutChange: !self.isMenuOpen)
             }
+        // Appearance › Icon set swaps the menu-bar mark immediately (no relaunch).
+        iconSetSubscription = store.$iconSet
+            .removeDuplicates()
+            .dropFirst()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.refreshStatusItemBadge() }
         refreshStatusItemBadge()
         refreshSystemTruth()
         // 屏幕列表只在拔插时重算一次，菜单打开时读缓存（见 connectedScreensCache）。
@@ -160,7 +175,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     }
 
     private func configureStatusItem() {
-        statusItem.button?.image = Self.statusItemImage(badged: false)
+        statusItem.button?.image = Self.statusItemImage(badged: false, iconSet: store.iconSet)
         statusItem.menu = menu
     }
 
@@ -222,6 +237,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         let taskbarSizeItem = NSMenuItem()
         taskbarSizeItem.view = taskbarSizeSliderView
         menu.addItem(taskbarSizeItem)
+        configureLayoutMenu()
+        menu.addItem(layoutItem)
         menu.addItem(.separator())
 
         nativeDockSectionItem.attributedTitle = Self.sectionTitle(AutoHideToggleMenuModel.nativeDockSectionTitle)
@@ -490,6 +507,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private func refreshCheckmarks(allowsLayoutChange: Bool = true) {
         refreshLaunchAtLoginState(allowsLayoutChange: allowsLayoutChange)
         refreshTaskbarPreferenceStates()
+        refreshLayoutStates()
     }
 
     /// 钨极组四项的勾选。**只改 `state`，不增删行也不翻 `isHidden`**，
@@ -618,7 +636,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     /// 「菜单没打开时也看得见」。所以它挂在 `settingsCoordinator` 的变更订阅上。
     private func refreshStatusItemBadge() {
         statusItem.button?.image = Self.statusItemImage(
-            badged: settingsCoordinator.pendingUpdateVersion != nil
+            badged: settingsCoordinator.pendingUpdateVersion != nil,
+            iconSet: store.iconSet
         )
     }
 
@@ -628,9 +647,11 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     /// 红点要求 `isTemplate = false`，那会一并丢掉系统的自动反色，深色菜单栏和菜单展开时
     /// 的高亮底上图标都会糊掉。所以用「先挖空一圈、再填实心点」的画法让它和图形本体分开，
     /// 靠形状而不是颜色让人看见。
-    private static func statusItemImage(badged: Bool) -> NSImage? {
-        let base = NSImage(named: "MenuBarIcon")
-            ?? NSImage(systemSymbolName: "rectangle.3.offgrid.fill", accessibilityDescription: "KatiKati")
+    private static func statusItemImage(badged: Bool, iconSet: IconSet) -> NSImage? {
+        let drawn = iconSet == .modern ? NSImage(named: "MenuBarIcon") : nil
+        let base = drawn
+            ?? NSImage(systemSymbolName: iconSet == .classic ? IconSet.classicMenuBarSymbol : "rectangle.3.offgrid.fill",
+                       accessibilityDescription: "KatiKati")
         guard let base else { return nil }
         base.isTemplate = true
         guard badged else {
@@ -775,4 +796,82 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         DispatchQueue.main.async { [onShowSettings] in onShowSettings() }
     }
     @objc private func quit() { onQuit() }
+
+    // MARK: - Layout submenu (Phase 6)
+
+    private func configureLayoutMenu() {
+        layoutMenu.removeAllItems()
+        let modeHeader = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+        modeHeader.attributedTitle = Self.sectionTitle(String(localized: "Layout Mode"))
+        modeHeader.isEnabled = false
+        layoutMenu.addItem(modeHeader)
+        for mode in BarLayoutMode.allCases {
+            let item = NSMenuItem(title: Self.layoutModeTitle(mode), action: #selector(selectLayoutMode(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = mode.rawValue
+            item.indentationLevel = 1
+            layoutModeItems[mode] = item
+            layoutMenu.addItem(item)
+        }
+        layoutMenu.addItem(.separator())
+        let edgeHeader = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+        edgeHeader.attributedTitle = Self.sectionTitle(String(localized: "Bottom Edge"))
+        edgeHeader.isEnabled = false
+        layoutMenu.addItem(edgeHeader)
+        bottomEdgeItems = [
+            (PanelLayoutMetrics.floatingBottomGap, String(localized: "Floating")),
+            (PanelLayoutMetrics.huggingBottomGap, String(localized: "Hugging")),
+        ].map { gap, title in
+            let item = NSMenuItem(title: title, action: #selector(selectBottomEdge(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = Double(gap)
+            item.indentationLevel = 1
+            layoutMenu.addItem(item)
+            return (gap, item)
+        }
+        layoutMenu.addItem(.separator())
+        let settingsItem = NSMenuItem(title: String(localized: "Layout Settings…"), action: #selector(showLayoutSettings), keyEquivalent: "")
+        settingsItem.target = self
+        layoutMenu.addItem(settingsItem)
+        layoutItem.submenu = layoutMenu
+        refreshLayoutStates()
+    }
+
+    /// State only — never adds/removes rows, so it is safe while the menu is open.
+    /// A custom bottom gap (slider) checks neither preset.
+    private func refreshLayoutStates() {
+        for (mode, item) in layoutModeItems {
+            item.state = mode == store.barLayoutMode ? .on : .off
+        }
+        for entry in bottomEdgeItems {
+            entry.item.state = entry.gap == store.bottomGap ? .on : .off
+        }
+    }
+
+    static func layoutModeTitle(_ mode: BarLayoutMode) -> String {
+        switch mode {
+        case .windows: return String(localized: "Full Width")
+        case .split3: return String(localized: "Split 3")
+        case .split4: return String(localized: "Split 4")
+        case .split5: return String(localized: "Split 5")
+        case .centered: return String(localized: "Centered")
+        }
+    }
+
+    @objc private func selectLayoutMode(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String, let mode = BarLayoutMode(rawValue: raw) else { return }
+        store.setBarLayoutMode(mode)
+        refreshLayoutStates()
+    }
+
+    @objc private func selectBottomEdge(_ sender: NSMenuItem) {
+        guard let gap = sender.representedObject as? Double else { return }
+        store.setBottomGap(CGFloat(gap))
+        refreshLayoutStates()
+    }
+
+    @objc private func showLayoutSettings() {
+        menu.cancelTrackingWithoutAnimation()
+        DispatchQueue.main.async { [onShowLayoutSettings] in onShowLayoutSettings() }
+    }
 }

@@ -120,6 +120,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         onShowDebugConsole: { [weak self] in self?.showDebugConsole() },
         onExportDebugSnapshot: { [weak self] in self?.exportDebugSnapshot() },
         onShowSettings: { [weak self] in self?.openSettings(nil) },
+        onShowLayoutSettings: { [weak self] in self?.openSettings(selecting: .layout) },
         onMenuVisibilityChanged: { [weak self] isOpen in
             self?.panelCoordinator?.setTaskbarMenuOpen(isOpen)
         },
@@ -387,7 +388,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
+        let layoutContext = WelcomeGuideLayoutContext(
+            initialMode: settingsStore.barLayoutMode,
+            inputs: settingsStore.layoutThumbnailInputs,
+            onPick: { [weak self] mode in self?.settingsStore.setBarLayoutMode(mode) }
+        )
         let content = WelcomeGuideWindowContent(
+            layout: layoutContext,
             onApply: { [weak self] selection in self?.applyWelcomeSelection(selection) },
             onDismiss: { [weak self] in self?.dismissWelcomeGuide() }
         )
@@ -407,7 +414,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         welcomeWindow = window
 
         // 高度量法同权限引导：根视图外面套了 ScrollView，得用一次性探针量不加滚动时的自然高度。
-        let probe = NSHostingView(rootView: WelcomeGuideView(onApply: { _ in }, onDismiss: {}))
+        let probe = NSHostingView(rootView: WelcomeGuideView(layout: layoutContext, onApply: { _ in }, onDismiss: {}))
         probe.setFrameSize(NSSize(width: WelcomeGuideView.contentWidth, height: 0))
         probe.layoutSubtreeIfNeeded()
         let available = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 900
@@ -692,6 +699,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         settingsWindowController.present()
+    }
+
+    /// Settings opened on a given tab (status menu › Layout › Layout Settings…).
+    func openSettings(selecting tab: SettingsTab) {
+        settingsWindowController.selectBeforePresenting(tab)
+        openSettings(nil)
     }
 
     func exportDebugSnapshot() {

@@ -106,6 +106,18 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         select(tab: tab)
     }
 
+    /// Opens on `tab`: switches in place if the window is up, otherwise primes the shared
+    /// tab state so `present()` measures the right page.
+    func selectBeforePresenting(_ tab: SettingsTab) {
+        if window?.isVisible == true {
+            select(tab: tab)
+        } else {
+            tabState.selected = tab
+            window?.toolbar?.selectedItemIdentifier = NSToolbarItem.Identifier(tab.rawValue)
+            window?.title = tab.title
+        }
+    }
+
     private func select(tab: SettingsTab) {
         // 点已选中的标签早退，不空放一遍高度动画。
         guard tabState.selected != tab else { return }
