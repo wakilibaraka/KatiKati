@@ -1330,8 +1330,12 @@ struct DockStripView: View {
                 case .clock:
                     ClockChip()
                         .scaleEffect(dockScale)
-                case .apps, .launcher, .widgets:
-                    EmptyView() // FAB payloads land in 4U-A slice 4 / Phase 7d-7e
+                case .launcher:
+                    SectionFABGlyph(systemName: "square.grid.2x2") // payload → Phase 7d
+                case .widgets:
+                    SectionFABGlyph(systemName: "rectangle.3.group") // payload → Phase 7e
+                case .apps:
+                    EmptyView()
                 }
             }
             .padding(.horizontal, 10 * dockScale)
@@ -1502,4 +1506,18 @@ private enum Style {
 
     // 描边的「顶强底弱」高光已由 DockThemeTokens.panelRimTop / panelRimBottom 正式接管
     //（原先这里的两个常量是零引用的死代码，实际画的是均匀一圈白 0.15）。
+}
+
+/// Inert glyph for the `launcher` / `widgets` `BarSection`s (Phase 4U-A). A section, not a floating
+/// panel: it sits inside its island and carries no action until Phase 7d / 7e wire a payload.
+struct SectionFABGlyph: View {
+    let systemName: String
+
+    var body: some View {
+        Image(systemName: systemName)
+            .font(.system(size: 17, weight: .medium))
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .accessibilityHidden(true)
+    }
 }
