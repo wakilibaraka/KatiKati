@@ -1330,8 +1330,8 @@ struct DockStripView: View {
                 case .clock:
                     ClockChip()
                         .scaleEffect(dockScale)
-                case .apps:
-                    EmptyView()
+                case .apps, .launcher, .widgets:
+                    EmptyView() // FAB payloads land in 4U-A slice 4 / Phase 7d-7e
                 }
             }
             .padding(.horizontal, 10 * dockScale)

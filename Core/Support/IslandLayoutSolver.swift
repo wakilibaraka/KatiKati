@@ -62,7 +62,7 @@ enum IslandLayoutSolver {
     static func layout(
         screenWidth: CGFloat,
         mode: BarLayoutMode,
-        widgetOrder: [BarSection] = [.weather, .apps, .media, .clock],
+        widgetOrder: [BarSection] = BarSection.canonicalOrder,
         widgetWidths: [BarSection: CGFloat] = [:],
         tileStride: CGFloat,
         appCount: Int,
@@ -91,7 +91,7 @@ enum IslandLayoutSolver {
             switch section {
             case .weather: return weatherWidth
             case .clock: return clockWidth
-            case .media: return section.defaultWidgetWidth
+            case .media, .launcher, .widgets: return section.defaultWidgetWidth
 
             case .apps: return 0
             }

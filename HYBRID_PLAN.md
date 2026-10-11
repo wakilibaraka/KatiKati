@@ -1008,6 +1008,10 @@ Progression: 3 → 4 → 5 separates one more grouping per step; all three disti
 - `split5` is brand-new — no `split5` exists anywhere in the tree today.
 
 
+**4U-A check log:**
+- 2026-10-11 · **Slices 1+2 (sections + grouping) — PASS, merged into one commit** (order change forces grouping assertions to move together). `launcher`/`widgets` added; canonical order is `BarSection.canonicalOrder`; split3 = `[launcher·weather][apps·media][clock·widgets]`, split4 = `[launcher·weather][apps][media][clock·widgets]` (4 islands). Unit suite green. Stale `defaultWidgetWidth` weather test (120→150) and PinnedIsland width (198 = 40+8+150) corrected. `check_localization.py` flags dead `Launcher` key (orphaned by 4g rip; slice 5 re-references it). Notes: split4 media island is placed by the solver's right-to-left trailing pass (adjacent to clock group, not apps) — owner eyeball.
+
+
 ### Phase 5 — Hardening (native Dock, teardown, recovery drill)
 
 

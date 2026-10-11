@@ -16,9 +16,8 @@ final class BarLayoutModeTests: XCTestCase {
         XCTAssertFalse(BarLayoutMode.split3.isSingleIsland)
         XCTAssertTrue(BarLayoutMode.split3.isSplit)
 
-        XCTAssertEqual(BarLayoutMode.split4.slotCount, 3)
-        // Decision 8b (`.tray` removed): the split-4 rule yields the same 3 groups as
-        // split3 for the canonical order — a 4th slot would allocate a phantom panel.
+        XCTAssertEqual(BarLayoutMode.split4.slotCount, 4)
+        // 4U-A: split4 detaches media into its own island (launcher·weather | apps | media | clock·widgets).
         XCTAssertFalse(BarLayoutMode.split4.isSingleIsland)
         XCTAssertTrue(BarLayoutMode.split4.isSplit)
 
@@ -46,23 +45,24 @@ final class BarLayoutModeTests: XCTestCase {
     func testSectionIslandsPerMode() {
         let windowsIslands = BarSection.islands(for: .windows)
         XCTAssertEqual(windowsIslands.count, 1)
-        XCTAssertEqual(windowsIslands[0], [.weather, .apps, .media, .clock])
+        XCTAssertEqual(windowsIslands[0], BarSection.canonicalOrder)
 
         let split3Islands = BarSection.islands(for: .split3)
         XCTAssertEqual(split3Islands.count, 3)
-        XCTAssertEqual(split3Islands[0], [.weather])
+        XCTAssertEqual(split3Islands[0], [.launcher, .weather])
         XCTAssertEqual(split3Islands[1], [.apps, .media])
-        XCTAssertEqual(split3Islands[2], [.clock])
+        XCTAssertEqual(split3Islands[2], [.clock, .widgets])
 
         let split4Islands = BarSection.islands(for: .split4)
-        XCTAssertEqual(split4Islands.count, 3)
-        XCTAssertEqual(split4Islands[0], [.weather])
-        XCTAssertEqual(split4Islands[1], [.apps, .media])
-        XCTAssertEqual(split4Islands[2], [.clock])
+        XCTAssertEqual(split4Islands.count, 4)
+        XCTAssertEqual(split4Islands[0], [.launcher, .weather])
+        XCTAssertEqual(split4Islands[1], [.apps])
+        XCTAssertEqual(split4Islands[2], [.media])
+        XCTAssertEqual(split4Islands[3], [.clock, .widgets])
 
         let centeredIslands = BarSection.islands(for: .centered)
         XCTAssertEqual(centeredIslands.count, 1)
-        XCTAssertEqual(centeredIslands[0], [.weather, .apps, .media, .clock])
+        XCTAssertEqual(centeredIslands[0], BarSection.canonicalOrder)
     }
 
     func testEverySectionLivesInExactlyOneIslandPerMode() {
@@ -81,7 +81,7 @@ final class BarLayoutModeTests: XCTestCase {
 
         XCTAssertEqual(BarSection.weather.slotIndex(for: .split4), 0)
         XCTAssertEqual(BarSection.apps.slotIndex(for: .split4), 1)
-        XCTAssertEqual(BarSection.clock.slotIndex(for: .split4), 2)
+        XCTAssertEqual(BarSection.clock.slotIndex(for: .split4), 3)
 
         XCTAssertEqual(BarSection.apps.slotIndex(for: .windows), 0)
         XCTAssertEqual(BarSection.apps.slotIndex(for: .centered), 0)
@@ -91,12 +91,24 @@ final class BarLayoutModeTests: XCTestCase {
 
     func testCanonicalOrderIsHardcoded() {
         // Declaration order IS the canonical widget order: no reader, no writer.
-        XCTAssertEqual(BarSection.allCases, [.weather, .apps, .media, .clock])
+        XCTAssertEqual(BarSection.allCases, [.launcher, .weather, .apps, .media, .clock, .widgets])
+        XCTAssertEqual(BarSection.canonicalOrder, BarSection.allCases)
     }
 
     func testDefaultWidgetWidths() {
-        XCTAssertEqual(BarSection.weather.defaultWidgetWidth, 120)
+        XCTAssertEqual(BarSection.weather.defaultWidgetWidth, 150)
         XCTAssertEqual(BarSection.apps.defaultWidgetWidth, 0)
         XCTAssertEqual(BarSection.clock.defaultWidgetWidth, 160)
+    }
+
+    func testFABSectionsAreSquareAndIdentified() {
+        for fab in [BarSection.launcher, .widgets] {
+            XCTAssertEqual(fab.defaultWidgetWidth, 40)
+            XCTAssertEqual(fab.minimumWidgetWidth, 40)
+        }
+        XCTAssertEqual(BarSection.launcher.title, "Launcher")
+        XCTAssertEqual(BarSection.widgets.title, "Widgets")
+        XCTAssertEqual(BarSection.launcher.placeholderEntryID, "sec-launcher")
+        XCTAssertEqual(BarSection.widgets.placeholderEntryID, "sec-widgets")
     }
 }

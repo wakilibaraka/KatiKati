@@ -61,7 +61,7 @@ final class IslandAnchorTests: XCTestCase {
         // Split4 mode: 3 slots for the canonical order (decision 8b removed `tray`)
         XCTAssertEqual(BarSection.weather.slotIndex(for: .split4), 0)
         XCTAssertEqual(BarSection.apps.slotIndex(for: .split4), 1)
-        XCTAssertEqual(BarSection.clock.slotIndex(for: .split4), 2)
+        XCTAssertEqual(BarSection.clock.slotIndex(for: .split4), 3)
 
         // Centered mode: 1 slot (index 0 for all)
         XCTAssertEqual(BarSection.weather.slotIndex(for: .centered), 0)

@@ -28,20 +28,20 @@ final class IslandStripProjectionTests: XCTestCase {
         // Split3 mode: 3 slots
         let split3Islands = BarSection.islands(for: .split3)
         XCTAssertEqual(split3Islands.count, 3)
-        XCTAssertEqual(split3Islands[0], [.weather])
+        XCTAssertEqual(split3Islands[0], [.launcher, .weather])
         XCTAssertFalse(split3Islands[0].contains(.apps))
         XCTAssertEqual(split3Islands[1], [.apps, .media])
         XCTAssertTrue(split3Islands[1].contains(.apps))
-        XCTAssertEqual(split3Islands[2], [.clock])
+        XCTAssertEqual(split3Islands[2], [.clock, .widgets])
         XCTAssertFalse(split3Islands[2].contains(.apps))
 
-        // Split4 mode: the split-4 rule yields 3 groups for the canonical order
-        // (Phase 4U decision 8b removed `tray`)
+        // Split4 mode (4U-A): media detaches into its own island
         let split4Islands = BarSection.islands(for: .split4)
-        XCTAssertEqual(split4Islands.count, 3)
-        XCTAssertEqual(split4Islands[0], [.weather])
-        XCTAssertEqual(split4Islands[1], [.apps, .media])
-        XCTAssertEqual(split4Islands[2], [.clock])
+        XCTAssertEqual(split4Islands.count, 4)
+        XCTAssertEqual(split4Islands[0], [.launcher, .weather])
+        XCTAssertEqual(split4Islands[1], [.apps])
+        XCTAssertEqual(split4Islands[2], [.media])
+        XCTAssertEqual(split4Islands[3], [.clock, .widgets])
         XCTAssertFalse(split4Islands[0].contains(.apps))
         XCTAssertTrue(split4Islands[1].contains(.apps))
         XCTAssertFalse(split4Islands[2].contains(.apps))
@@ -57,6 +57,6 @@ final class IslandStripProjectionTests: XCTestCase {
 
         XCTAssertEqual(BarSection.weather.slotIndex(for: .split4), 0)
         XCTAssertEqual(BarSection.apps.slotIndex(for: .split4), 1)
-        XCTAssertEqual(BarSection.clock.slotIndex(for: .split4), 2)
+        XCTAssertEqual(BarSection.clock.slotIndex(for: .split4), 3)
     }
 }
