@@ -82,6 +82,184 @@ final class WindowLiftAvoidanceTests: XCTestCase {
         XCTAssertNil(geometry.adjustedFrame(for: otherScreenWindow))
     }
 
+    // MARK: - Phase 5a：每块屏一份避让上下文（HYBRID_PLAN.md）
+
+    /// 生产夹具：与 `geometry` 同一块 1512×982 屏、同一份全局度量（条高 54 / 阴影 20 / 底隙 8）。
+    /// `taskbarTop` 的算式逐字照抄 `PanelCoordinator.windowLiftAvoidanceContext`——
+    /// 这条算式不看岛、不看槽位，正是「每块屏一份上下文」成立的前提。
+    private let layoutMetrics = PanelLayoutMetrics.tungstenEdge
+    private let liftScreenFrame = CGRect(x: 0, y: 0, width: 1512, height: 982)
+    /// 计算属性而不是存储属性：`visibleFrame` 是同类型里更早声明的实例属性，存储属性的
+    /// 初始化器在 `self` 可用之前读不到它。`safeAreaTop: 0` = 这块 fixture 屏没有刘海 /
+    /// 安全区，`topUsableY` 于是等于 `visibleFrame.maxY`（岛框只看 `screen.frame`，不受它影响）。
+    private var liftScreen: PanelScreenGeometry {
+        PanelScreenGeometry(frame: liftScreenFrame, visibleFrame: visibleFrame, safeAreaTop: 0)
+    }
+    private var liftTaskbarTop: CGFloat {
+        liftScreenFrame.minY + layoutMetrics.bottomGap + layoutMetrics.panelHeight
+    }
+
+    /// 每个槽位的岛面板**目标** frame（含 20pt 阴影透明边），即 `dockVisibleFrame` 反推前的那一层。
+    private func islandFrames(mode: BarLayoutMode) -> [CGRect] {
+        (0..<mode.slotCount).map { slot in
+            PanelGeometry.islandTargetFrame(
+                slot: slot,
+                contentWidth: 620,
+                mode: mode,
+                on: liftScreen,
+                metrics: layoutMetrics
+            )
+        }
+    }
+
+    /// 岛可见内容区的顶（面板 frame 减掉阴影边）——窗口被抬起后底边必须高于它。
+    private func islandVisibleTop(_ frame: CGRect) -> CGFloat {
+        frame.maxY - layoutMetrics.shadowPadding
+    }
+
+    /// 逐字照抄 `PanelCoordinator.windowLiftAvoidanceContext` 的构造（CG frame 由同一换算得出），
+    /// 让「同屏各岛的上下文相同」可以在纯函数层面被钉住。
+    private func context(
+        screenFrame: CGRect,
+        visibleFrame: CGRect,
+        taskbarTop: CGFloat,
+        primaryScreenHeight: CGFloat
+    ) -> WindowLiftAvoidanceContext {
+        WindowLiftAvoidanceContext(
+            geometry: WindowLiftAvoidance.Geometry(
+                screenFrame: screenFrame,
+                visibleFrame: visibleFrame,
+                taskbarTop: taskbarTop
+            ),
+            screenCGFrame: WindowLiftAvoidance.quartzFrame(
+                fromAppKit: screenFrame,
+                primaryScreenHeight: primaryScreenHeight
+            ),
+            visibleCGFrame: WindowLiftAvoidance.quartzFrame(
+                fromAppKit: visibleFrame,
+                primaryScreenHeight: primaryScreenHeight
+            ),
+            primaryScreenHeight: primaryScreenHeight
+        )
+    }
+
+    /// (b) 五种布局模式下**每个槽位的岛都同高、同底边对齐**，因此共用同一个 `taskbarTop`；
+    /// 整条条的并集框可见顶也等于它。这是去重不丢几何的前提——哪条不成立，本用例先红。
+    func testEveryIslandSlotSharesTaskbarTopAcrossLayoutModes() {
+        for mode in BarLayoutMode.allCases {
+            let frames = islandFrames(mode: mode)
+            XCTAssertEqual(frames.count, mode.slotCount, "\(mode) 必须给 slotCount 个槽位各一帧")
+            let expectedMinY = liftScreenFrame.minY + layoutMetrics.bottomGap - layoutMetrics.shadowPadding
+            for frame in frames {
+                XCTAssertEqual(frame.minY, expectedMinY, "\(mode) 的岛必须底边对齐")
+                XCTAssertEqual(
+                    islandVisibleTop(frame),
+                    liftTaskbarTop,
+                    "\(mode) 的岛可见顶必须等于 taskbarTop"
+                )
+            }
+            // 并集框（`TaskbarScreenOrchestrator.boundingFrame`）的可见顶 = 任务条预留区顶。
+            let union = frames.dropFirst().reduce(frames[0]) { $0.union($1) }
+            XCTAssertEqual(
+                union.maxY - layoutMetrics.shadowPadding,
+                liftTaskbarTop,
+                "\(mode) 的并集框可见顶必须等于 taskbarTop"
+            )
+        }
+    }
+
+    /// (a) 同屏每个槽位的上下文**逐字节相同**，去重后只剩一份；另一块屏（不同 frame）仍保留一份。
+    /// 这就是 `windowLiftAvoidanceContexts()` 现在返回「每块屏一份」的纯层依据。
+    func testIslandContextsCollapseToOneContextPerDisplay() {
+        // 逐槽位按生产算式造上下文：`taskbarTop` 取该槽位岛的可见顶（并集框顶，`barBoundingFrame`）。
+        let perIsland = islandFrames(mode: .split5).map { frame in
+            context(
+                screenFrame: liftScreenFrame,
+                visibleFrame: visibleFrame,
+                taskbarTop: islandVisibleTop(frame),
+                primaryScreenHeight: liftScreenFrame.maxY
+            )
+        }
+        XCTAssertEqual(perIsland.count, BarLayoutMode.split5.slotCount)
+        for candidate in perIsland {
+            XCTAssertEqual(candidate, perIsland[0], "同屏每个岛的上下文必须逐字节相同")
+        }
+
+        let secondScreenFrame = CGRect(x: 1512, y: 0, width: 1920, height: 1080)
+        let secondVisible = CGRect(x: 1512, y: 33, width: 1920, height: 1047)
+        let second = context(
+            screenFrame: secondScreenFrame,
+            visibleFrame: secondVisible,
+            taskbarTop: secondScreenFrame.minY + layoutMetrics.bottomGap + layoutMetrics.panelHeight,
+            primaryScreenHeight: liftScreenFrame.maxY
+        )
+
+        let deduplicated = WindowLiftAvoidance.deduplicatedContexts(perIsland + perIsland + [second, second])
+        XCTAssertEqual(deduplicated, [perIsland[0], second], "一块屏一份，且保留首次出现的顺序")
+    }
+
+    /// 去重只吃掉**逐字节相同**的份数：真有不同的上下文（另一块屏 / 条高变了）一个都不许并掉。
+    func testDeduplicatedContextsKeepsDistinctContexts() {
+        XCTAssertTrue(WindowLiftAvoidance.deduplicatedContexts([]).isEmpty)
+
+        let base = context(
+            screenFrame: liftScreenFrame,
+            visibleFrame: visibleFrame,
+            taskbarTop: liftTaskbarTop,
+            primaryScreenHeight: liftScreenFrame.maxY
+        )
+        XCTAssertEqual(WindowLiftAvoidance.deduplicatedContexts([base]), [base])
+
+        // 条高拖动期间 `liftContextPanelHeightOverride` 让 taskbarTop 变了 → 两份都必须留下。
+        let tallerBar = context(
+            screenFrame: liftScreenFrame,
+            visibleFrame: visibleFrame,
+            taskbarTop: liftTaskbarTop + 20,
+            primaryScreenHeight: liftScreenFrame.maxY
+        )
+        XCTAssertEqual(
+            WindowLiftAvoidance.deduplicatedContexts([base, tallerBar, base]),
+            [base, tallerBar]
+        )
+    }
+
+    /// (c) 铺满可见区的窗在每种模式下都被抬到**每一个**岛的可见顶之上（不是只避开整条的矩形）；
+    /// (d) windows / centered 的抬升本身不变：顶、左、宽不动，只把底边收到预留区之上。
+    func testMaximizedWindowIsRaisedAboveEveryIslandTopInEveryLayoutMode() {
+        for mode in BarLayoutMode.allCases {
+            let islandTops = islandFrames(mode: mode).map(islandVisibleTop)
+            let liftGeometry = WindowLiftAvoidance.Geometry(
+                screenFrame: liftScreenFrame,
+                visibleFrame: visibleFrame,
+                taskbarTop: liftTaskbarTop
+            )
+
+            for includesTiles in [false, true] {
+                guard let target = liftGeometry.liftTargetFrame(
+                    for: visibleFrame,
+                    includesTiles: includesTiles
+                ) else {
+                    return XCTFail("\(mode) 必须抬铺满可见区的窗")
+                }
+                for top in islandTops {
+                    XCTAssertGreaterThanOrEqual(
+                        target.minY,
+                        top + WindowLiftAvoidance.clearance,
+                        "\(mode)（tiles=\(includesTiles)）抬起的底边必须清掉每个岛"
+                    )
+                }
+            }
+
+            guard let adjusted = liftGeometry.adjustedFrame(for: visibleFrame) else {
+                return XCTFail("\(mode) 必须抬铺满可见区的窗")
+            }
+            XCTAssertEqual(adjusted.minX, visibleFrame.minX)
+            XCTAssertEqual(adjusted.width, visibleFrame.width)
+            XCTAssertEqual(adjusted.maxY, visibleFrame.maxY)
+            XCTAssertEqual(adjusted.minY, liftTaskbarTop + WindowLiftAvoidance.clearance)
+        }
+    }
+
     // MARK: - Bottom-docked tiles
 
     /// macOS 27.0 desktop-tiling frames measured on a 1920×1080 display with a 30pt menu bar

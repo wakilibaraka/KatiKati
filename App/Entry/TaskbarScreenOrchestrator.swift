@@ -459,9 +459,16 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
 
     // MARK: - 最大化避让宿主
 
-    /// 每个常驻且可见的单元一份（③④ 下每块屏各自避让；某块屏的条藏着就不抬那块屏的窗）。
+    /// **每块屏一份**避让上下文（③④ 下每块屏各自避让；某块屏的条藏着就不抬那块屏的窗）。
+    ///
+    /// 不是每个岛一份：同屏各 slot 单元算出的上下文逐字节相同（`taskbarTop` 与岛数/槽位无关，
+    /// 理由见 `WindowLiftAvoidance.deduplicatedContexts`），重复份数只会让
+    /// `reconcileContexts` 把「切布局模式」误判成「几何变了」。去重按值做，所以少一份可见的条
+    /// （那个单元返回 nil）时这块屏仍由其余岛补上一份——去重不改变「哪块屏在避让」的集合。
     func windowLiftAvoidanceContexts() -> [WindowLiftAvoidanceContext] {
-        units.compactMap { $0.coordinator.windowLiftAvoidanceContext() }
+        WindowLiftAvoidance.deduplicatedContexts(
+            units.compactMap { $0.coordinator.windowLiftAvoidanceContext() }
+        )
     }
 
     // MARK: - 拖动控制器接线（store 级副作用）

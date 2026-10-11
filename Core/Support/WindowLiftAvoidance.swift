@@ -1226,6 +1226,35 @@ enum WindowLiftAvoidance {
         return best?.index
     }
 
+    /// 多屏（③④）避让上下文的**去重**（HYBRID_PLAN.md Phase 5a）。
+    ///
+    /// 同一块屏上的每个岛各产出一份上下文（编排层按 slot 建单元），而这些上下文**逐字节相同**：
+    /// `Geometry.taskbarTop` 只由「屏幕底 + 全局 `layoutMetrics`」决定，与岛的数量、宽度、槽位
+    /// 无关——`PanelGeometry.islandTargetFrame` 给每个槽位同样的 `height: metrics.windowHeight`
+    /// 与同样的 `y: screenMinY + bottomGap`（`IslandLayoutSolver` 里 `y` 是单一变量）。所以
+    /// 重复的份数不携带任何几何信息。
+    ///
+    /// 留着重复有两处实打实的害处：
+    /// 1. `WindowLiftAvoidanceController.reconcileContexts` 用整表 `!=` 判「几何变了」→ 切换布局
+    ///    模式（split3 ↔ split4 ↔ split5，即每屏岛数变化）会被误判成几何变化，白白还原并清掉
+    ///    所有会话；去重后这份数组只在「哪块屏有可见的条」或条高变化时才变。
+    /// 2. CG 扫描对每个上下文各扫一遍全表（`WindowLiftCGWindowProbe.capture`）。
+    /// （重复的扫描结果本来也不会被二次抬升：`handleScanResult` 的 `owningContextIndex == index`
+    /// 只认第一份——所以这是**去冗余**，不是修一个可见的错。）
+    ///
+    /// **按值去重，而不是按 display UUID**：上下文本身 `Equatable` 且已携带 `screenCGFrame`，
+    /// 两块不同的屏给不出同一个 screenFrame/visibleFrame 组合；镜像屏是唯一的例外，而那种情况下
+    /// 两份上下文本来就逐字节相同，合并掉没有任何损失。保留首次出现的顺序——扫描按上下文顺序取
+    /// 「第一个能过闸的候选」，顺序即优先级。
+    ///
+    /// 用 `Array.contains` 而不是 `Set`：`CGRect` 的 `Hashable` 一致性是 macOS 15+（同
+    /// `TaskbarScreenOrchestrator.currentPanelScreenCGFrames` 的理由），屏与岛都是个位数，数组足够。
+    static func deduplicatedContexts(_ contexts: [WindowLiftAvoidanceContext]) -> [WindowLiftAvoidanceContext] {
+        contexts.reduce(into: [WindowLiftAvoidanceContext]()) { unique, context in
+            if !unique.contains(context) { unique.append(context) }
+        }
+    }
+
     private static func isValid(frame: CGRect) -> Bool {
         frame.minX.isFinite
             && frame.minY.isFinite

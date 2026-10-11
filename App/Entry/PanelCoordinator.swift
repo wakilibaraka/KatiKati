@@ -499,6 +499,13 @@ final class PanelCoordinator: NSObject {
     var isLogicallyVisible: Bool { panelsAreVisible }
 
     /// 最大化避让只在钨极常驻且真正可见时取得上下文；一次性返回完整几何，避免切屏时撕裂读取。
+    ///
+    /// **同屏每个 slot 单元的这份上下文是逐字节相同的**：`taskbarTop` 只用屏幕底 + 全局
+    /// `layoutMetrics`（`bottomGap` + `panelHeight`），不看本岛的宽度/槽位——`islandTargetFrame`
+    /// 给每个槽位同样的高、同样的底边对齐。所以调用方（`TaskbarScreenOrchestrator`）必须按值去重成
+    /// 每块屏一份，否则重复份数会让避让控制器把「切布局模式」误判成「几何变了」。
+    /// 这条算式**已经等于**整条条的并集框可见顶（`barBoundingFrame` 去掉阴影边，岛等高时成立）；
+    /// 真出现不等高的岛时改这里的 `taskbarTop` 就够，`WindowLiftAvoidanceTests` 的等高不变量会先红。
     func windowLiftAvoidanceContext() -> WindowLiftAvoidanceContext? {
         guard !settingsStore.edgeAutoHideEnabled,
               visibilityState.isVisible,
