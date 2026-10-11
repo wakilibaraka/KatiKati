@@ -33,16 +33,14 @@ struct EdgeBarContentView: View {
     let content: [EdgeBarContent]
     @ObservedObject var service: SystemStatusService
     let onStatusTap: (StatusKind, CGRect) -> Void
+    let onNotesTap: (CGRect) -> Void
 
     var body: some View {
         VStack(spacing: EdgeBarLayout.tileSpacing) {
             ForEach(Array(content.enumerated()), id: \.offset) { _, kind in
                 switch kind {
                 case .notes:
-                    Image(systemName: "note.text")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundStyle(.secondary)
-                        .frame(width: EdgeBarLayout.width, height: EdgeBarLayout.notesTileHeight)
+                    EdgeNotesTile(onTap: onNotesTap)
                 case .status:
                     StatusTrioView(status: service.status, onTap: onStatusTap)
                 }
@@ -187,5 +185,24 @@ struct StatusPopupView: View {
                 set: { service.setVolume(Float($0)) }
             ), in: 0...1)
         }
+    }
+}
+
+private struct EdgeNotesTile: View {
+    let onTap: (CGRect) -> Void
+
+    var body: some View {
+        GeometryReader { proxy in
+            Button {
+                onTap(proxy.frame(in: .global))
+            } label: {
+                Image(systemName: "note.text")
+                    .font(.system(size: 20, weight: .medium))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        }
+        .frame(width: EdgeBarLayout.width, height: EdgeBarLayout.notesTileHeight)
     }
 }

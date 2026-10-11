@@ -68,6 +68,8 @@
 		ED0000000000000000000051 /* NotesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000050 /* NotesController.swift */; };
 		ED0000000000000000000052 /* NotesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000050 /* NotesController.swift */; };
 		ED0000000000000000000054 /* NotesControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000053 /* NotesControllerTests.swift */; };
+		ED0000000000000000000061 /* NotesPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000060 /* NotesPopupView.swift */; };
+		ED0000000000000000000063 /* EdgeNotesPopupController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000062 /* EdgeNotesPopupController.swift */; };
 		ED0000000000000000000010 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
 		ED000000000000000000000A /* SystemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000009 /* SystemStatus.swift */; };
 		ED0000000000000000000011 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
@@ -684,6 +686,8 @@
 		ED0000000000000000000049 /* NotesSyncRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesSyncRunnerTests.swift; path = Tests/Unit/NotesSyncRunnerTests.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000050 /* NotesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesController.swift; path = Platform/Notes/NotesController.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000053 /* NotesControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesControllerTests.swift; path = Tests/Unit/NotesControllerTests.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000060 /* NotesPopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesPopupView.swift; path = App/Scenes/Edge/NotesPopupView.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000062 /* EdgeNotesPopupController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EdgeNotesPopupController.swift; path = App/Entry/EdgeNotesPopupController.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000F /* SystemStatusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusService.swift; path = Platform/SystemStatus/SystemStatusService.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000009 /* SystemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatus.swift; path = Core/Support/SystemStatus.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000C /* SystemStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusTests.swift; path = Tests/Unit/SystemStatusTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2093,6 +2097,8 @@
 				D3EB46A2A29E54E9C8B5C492 /* WeatherState.swift in Sources */,
 				7B1000000000000000000002 /* ClockChipContent.swift in Sources */,
 				ED000000000000000000000A /* SystemStatus.swift in Sources */,
+				ED0000000000000000000061 /* NotesPopupView.swift in Sources */,
+				ED0000000000000000000063 /* EdgeNotesPopupController.swift in Sources */,
 				ED0000000000000000000051 /* NotesController.swift in Sources */,
 				ED0000000000000000000041 /* NoteFileName.swift in Sources */,
 				ED0000000000000000000044 /* NotesSyncFolder.swift in Sources */,

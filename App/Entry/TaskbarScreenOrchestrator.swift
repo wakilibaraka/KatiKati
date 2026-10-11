@@ -302,6 +302,24 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     /// Lazy (§1.7e): created on first need, observers only run while status content is shown.
     private lazy var statusService = SystemStatusService()
     private var statusServiceHeld = false
+    private var notesControllerStorage: NotesController?
+    private var notesUnavailable = false
+
+    /// Lazy: the Keychain key and store are touched only when the notes tile is first opened.
+    private func notesController() -> NotesController? {
+        if let notesControllerStorage { return notesControllerStorage }
+        guard !notesUnavailable else { return nil }
+        do {
+            let store = try NotesStore(directory: NotesStore.defaultDirectory(), keyProvider: KeychainNoteKeyProvider())
+            let controller = NotesController(store: store)
+            notesControllerStorage = controller
+            return controller
+        } catch {
+            notesUnavailable = true
+            logger.error("notes unavailable: \(String(describing: error), privacy: .public)")
+            return nil
+        }
+    }
 
     private func edgeBarsActive() -> Bool {
         settingsStore.edgeBarPreset != .off
@@ -327,7 +345,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         }
         let metrics = settingsStore.layoutMetrics
         for key in desired {
-            let controller = edgeControllers[key] ?? EdgeBarPanelController(slotKey: key, service: statusService)
+            let controller = edgeControllers[key] ?? EdgeBarPanelController(slotKey: key, service: statusService, notes: { [weak self] in self?.notesController() })
             edgeControllers[key] = controller
             let siblings = units.filter { $0.key == key.display }
             let visible = siblings.contains { $0.coordinator.isLogicallyVisible }
@@ -362,6 +380,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     }
 
     private func tearDownEdgeBars() {
+        notesControllerStorage?.flush()
         edgeControllers.values.forEach { $0.tearDown() }
         edgeControllers = [:]
         updateStatusServiceHold([:])

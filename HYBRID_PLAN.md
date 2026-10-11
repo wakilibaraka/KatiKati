@@ -1655,6 +1655,16 @@ upgrades, wallpaper/personalisation, extra flyouts.
   `reload()` for external/sync changes, `lastError` for unreadable notes, `onLocalChange` hook for scheduling
   sync passes. Scheduler injected → deterministic tests (9). UI-free; 7A-7b adds the notes popup (list +
   editor), undo toast, wiring to the bar's notes tile, sync enable/scheduling and the strings.
+- 2026-10-11 · **7A-7b notes flyout landed (gate green, 1810 tests; UI not eyeballed):**
+  `App/Scenes/Edge/NotesPopupView.swift` (note list + `TextEditor` + pin/delete + 10 s undo toast, Esc closes),
+  `App/Entry/EdgeNotesPopupController.swift` (key-capable *non-activating* panel so typing works without
+  stealing app focus; placed by `edgeBarPopupFrame` with the new `EdgeBarLayout.notesPopupSize`; outside click
+  or hide flushes autosave), the bar's notes tile is now a button, status and notes popups are mutually
+  exclusive, and the auto-hide `popupOpen` guard covers both. `NotesController`/`NotesStore`/Keychain key are
+  created **lazily on first tile tap** (§1.7e); an unavailable Keychain/store degrades to "no notes" with a log
+  line. 6 strings x12 (drafts, separate commit). Removed a Sendable warning my timer introduced.
+  **Still open in 7A-7:** the sync toggle + scheduling (7A-7c: setting, folder watcher, debounce after local
+  edits, localized conflict suffix) — sync is not reachable from the UI yet.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

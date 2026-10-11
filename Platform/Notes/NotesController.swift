@@ -28,17 +28,17 @@ final class NotesController: ObservableObject {
     private var cancelAutosave: Cancel?
     private var cancelUndo: Cancel?
 
-    init(store: NotesStore, now: @escaping () -> Date = Date.init, schedule: @escaping Scheduler = NotesController.timerScheduler) {
+    init(store: NotesStore, now: @escaping () -> Date = Date.init, schedule: Scheduler? = nil) {
         self.store = store
         self.now = now
-        self.schedule = schedule
+        self.schedule = schedule ?? Self.timerScheduler
         reload()
     }
 
     static let timerScheduler: Scheduler = { delay, work in
-        let timer = Timer(timeInterval: delay, repeats: false) { _ in MainActor.assumeIsolated { work() } }
-        RunLoop.main.add(timer, forMode: .common)
-        return { timer.invalidate() }
+        let item = DispatchWorkItem { MainActor.assumeIsolated { work() } }
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: item)
+        return { item.cancel() }
     }
 
     func reload() {

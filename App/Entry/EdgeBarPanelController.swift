@@ -9,6 +9,9 @@ final class EdgeBarPanelController {
     let slotKey: EdgeSlotSet.SlotKey
     private let service: SystemStatusService
     private let popup = EdgeStatusPopupController()
+    private let notesPopup = EdgeNotesPopupController()
+    /// Creates the notes controller on first use (§1.7e); nil if the store/key is unavailable.
+    private let notesProvider: () -> NotesController?
     private var content: [EdgeBarContent] = []
     private var host: NSHostingView<EdgeBarContentView>?
     private var lastVisibleFrame: CGRect = .zero
@@ -23,9 +26,10 @@ final class EdgeBarPanelController {
     private var lastFrame: CGRect = .zero
     private var lastScreenFrame: CGRect = .zero
 
-    init(slotKey: EdgeSlotSet.SlotKey, service: SystemStatusService) {
+    init(slotKey: EdgeSlotSet.SlotKey, service: SystemStatusService, notes: @escaping () -> NotesController?) {
         self.slotKey = slotKey
         self.service = service
+        self.notesProvider = notes
     }
 
     var allSpacesPanels: [NSPanel] { panel.map { [$0] } ?? [] }
@@ -41,6 +45,7 @@ final class EdgeBarPanelController {
         shouldBeVisible = false
         guard visible, let screen, !content.isEmpty else {
             popup.dismiss()
+            notesPopup.dismiss()
             hide()
             return
         }
@@ -81,6 +86,7 @@ final class EdgeBarPanelController {
     func hide() {
         guard !isHidden else { return }
         popup.dismiss()
+        notesPopup.dismiss()
         panel?.orderOut(nil)
         isHidden = true
     }
@@ -93,7 +99,7 @@ final class EdgeBarPanelController {
             isHidden: autoHidden,
             mouseInHotZone: zone.contains(mouse),
             mouseInBar: lastFrame.contains(mouse),
-            popupOpen: popup.isShown
+            popupOpen: popup.isShown || notesPopup.isShown
         )
         switch action {
         case .none: break
@@ -121,7 +127,7 @@ final class EdgeBarPanelController {
         let zone = EdgeBarAutoHide.hotZone(side: slotKey.side, screenFrame: lastScreenFrame, barFrame: lastFrame)
         guard EdgeBarAutoHide.action(isHidden: false, mouseInHotZone: zone.contains(mouse),
                                      mouseInBar: lastFrame.contains(mouse),
-                                     popupOpen: popup.isShown) == .armIdleHide else { return }
+                                     popupOpen: popup.isShown || notesPopup.isShown) == .armIdleHide else { return }
         autoHidden = true
         hide()
     }
@@ -133,6 +139,7 @@ final class EdgeBarPanelController {
 
     func tearDown() {
         popup.tearDown()
+        notesPopup.tearDown()
         cancelIdleTimer()
         panel?.orderOut(nil)
         panel = nil
@@ -155,9 +162,11 @@ final class EdgeBarPanelController {
     }
 
     private func installContent(in panel: NSPanel) {
-        let root = EdgeBarContentView(content: content, service: service) { [weak self] kind, rect in
+        let root = EdgeBarContentView(content: content, service: service, onStatusTap: { [weak self] kind, rect in
             self?.statusTapped(kind, localRect: rect)
-        }
+        }, onNotesTap: { [weak self] rect in
+            self?.notesTapped(localRect: rect)
+        })
         let plate = NSVisualEffectView(frame: CGRect(origin: .zero, size: panel.frame.size))
         plate.material = .hudWindow
         plate.state = .active
@@ -174,13 +183,24 @@ final class EdgeBarPanelController {
     }
 
     /// SwiftUI reports the tile in top-left view space; convert to bottom-left screen space.
-    private func statusTapped(_ kind: StatusKind, localRect: CGRect) {
-        guard let panel else { return }
-        let anchor = CGRect(
+    private func screenRect(_ localRect: CGRect) -> CGRect? {
+        guard let panel else { return nil }
+        return CGRect(
             x: panel.frame.minX + localRect.minX,
             y: panel.frame.maxY - localRect.maxY,
             width: localRect.width, height: localRect.height
         )
+    }
+
+    private func notesTapped(localRect: CGRect) {
+        guard let anchor = screenRect(localRect), let notes = notesProvider() else { return }
+        popup.dismiss()
+        notesPopup.toggle(anchor: anchor, side: slotKey.side, visibleFrame: lastVisibleFrame, controller: notes)
+    }
+
+    private func statusTapped(_ kind: StatusKind, localRect: CGRect) {
+        guard let anchor = screenRect(localRect) else { return }
+        notesPopup.dismiss()
         popup.toggle(kind, anchor: anchor, side: slotKey.side, visibleFrame: lastVisibleFrame, service: service)
     }
 }
