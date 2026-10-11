@@ -56,6 +56,8 @@ struct SettingsWindowContent: View {
         Group {
             switch tabState.selected {
             case .general: generalPane
+            case .layout: SettingsLayoutPane(store: store)
+            case .appearance: SettingsAppearancePane(store: store)
             case .advanced: advancedPane
             case .license: licensePane
             case .feedback: feedbackPane
@@ -112,11 +114,6 @@ struct SettingsWindowContent: View {
                         Spacer(minLength: 12)
                         hotKeyControls
                     }
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Widget Widths")
-                        widgetWidthSliders
-                    }
-                    .padding(.vertical, 4)
 
                     HStack {
                         Text("Widget Layout")
@@ -188,12 +185,6 @@ struct SettingsWindowContent: View {
                         Text("Show/hide taskbar shortcut")
                     } control: {
                         hotKeyControls
-                    }
-                    Divider().opacity(0.5)
-                    groupRow {
-                        Text("Widget Widths")
-                    } control: {
-                        widgetWidthSliders
                     }
                     Divider().opacity(0.5)
                     groupRow {
@@ -441,43 +432,6 @@ struct SettingsWindowContent: View {
     // 登录时启动 2026-08-24 当天两度搬家：随去重进过设置窗口，owner 复议后定为
     // **只在状态栏菜单（第一项）**。这里不再放它，也不再需要 didBecomeActive 刷新。
 
-    /// Fixed-order widget widths (Phase 4U decision 3): the section order is
-    /// hardcoded (`BarSection` canonical), so the old drag visualizer is gone —
-    /// width is the only knob, and it lives here instead of as on-dock handles.
-    private var widgetWidthSliders: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            ForEach([BarSection.weather, .media, .clock], id: \.self) { section in
-                HStack(spacing: 8) {
-                    widgetWidthLabel(for: section)
-                    Slider(
-                        value: Binding(
-                            get: { store.widgetWidths[section.rawValue] ?? section.defaultWidgetWidth },
-                            set: { store.setWidgetWidth($0, for: section) }
-                        ),
-                        in: 60...400,
-                        step: 5
-                    )
-                    Text(verbatim: "\(Int(store.widgetWidths[section.rawValue] ?? section.defaultWidgetWidth))")
-                        .monospacedDigit()
-                        .frame(width: 34, alignment: .trailing)
-                }
-            }
-        }
-        .padding(.vertical, 4)
-    }
-
-    /// Localized slider labels. Literals (not `section.title`) so the localization
-    /// gate sees every user-facing string.
-    @ViewBuilder
-    private func widgetWidthLabel(for section: BarSection) -> some View {
-        switch section {
-        case .launcher: Text("Launcher")
-        case .widgets: Text("Widgets")
-        case .weather: Text("Weather")
-        case .clock: Text("Clock")
-        default: EmptyView()
-        }
-    }
     private var drawerPlacementPicker: some View {
         Picker(
             "Drawer Position",

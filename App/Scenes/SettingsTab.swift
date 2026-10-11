@@ -1,12 +1,14 @@
 import Combine
 import Foundation
 
-/// 设置窗口的五个标签页（2026-08-24 分页、同日反馈拎出为独立标签；「Dock 栏」页 2026-09-01
+/// 设置窗口的七个标签页（Phase 6 加「布局」「外观」）（2026-08-24 分页、同日反馈拎出为独立标签；「Dock 栏」页 2026-09-01
 /// 整页搬进状态栏菜单，见 `Docs/27`）。标题复用原分区标题的
 /// 本地化 key；图标全部 macOS 11 起可用（对照 CoreGlyphs name_availability 核过）。
 /// 纯 Foundation/Combine——测试 target 也编译它，别引 AppKit。
 enum SettingsTab: String, CaseIterable {
     case general
+    case layout
+    case appearance
     case advanced
     case license
     case feedback
@@ -15,6 +17,8 @@ enum SettingsTab: String, CaseIterable {
     var title: String {
         switch self {
         case .general: return String(localized: "General")
+        case .layout: return String(localized: "Layout")
+        case .appearance: return String(localized: "Appearance")
         case .advanced: return String(localized: "Advanced")
         case .license: return String(localized: "License")
         case .feedback: return String(localized: "Feedback")
@@ -25,6 +29,8 @@ enum SettingsTab: String, CaseIterable {
     var symbolName: String {
         switch self {
         case .general: return "gearshape"
+        case .layout: return "rectangle.split.3x1"
+        case .appearance: return "paintpalette"
         case .advanced: return "wrench.and.screwdriver"
         case .license: return "key"
         case .feedback: return "paperplane"

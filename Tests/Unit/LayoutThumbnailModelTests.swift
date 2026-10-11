@@ -1,0 +1,43 @@
+import CoreGraphics
+import XCTest
+
+final class LayoutThumbnailModelTests: XCTestCase {
+    func testIslandCountMatchesEachModesSlotCount() {
+        let expected: [BarLayoutMode: Int] = [.windows: 1, .split3: 3, .split4: 4, .split5: 5, .centered: 1]
+        for mode in BarLayoutMode.allCases {
+            let islands = LayoutThumbnailModel.islands(for: mode)
+            XCTAssertEqual(islands.count, expected[mode], "\(mode)")
+            XCTAssertEqual(islands.count, mode.slotCount, "\(mode): thumbnail and panel slots agree")
+        }
+    }
+
+    func testEveryRectStaysInsideTheUnitBoxAndEverySectionAppearsOnce() {
+        for mode in BarLayoutMode.allCases {
+            let islands = LayoutThumbnailModel.islands(for: mode)
+            for island in islands {
+                XCTAssertTrue(CGRect(x: 0, y: 0, width: 1, height: 1).insetBy(dx: -1e-9, dy: -1e-9).contains(island.rect), "\(mode) slot \(island.slot)")
+                XCTAssertGreaterThan(island.rect.width, 0)
+            }
+            XCTAssertEqual(islands.flatMap(\.sections).sorted { $0.rawValue < $1.rawValue },
+                           BarSection.canonicalOrder.sorted { $0.rawValue < $1.rawValue }, "\(mode)")
+        }
+    }
+
+    func testBottomGapMovesIslandsTowardTheEdge() {
+        var hug = LayoutThumbnailModel.Inputs()
+        hug.bottomGap = 2
+        let floating = LayoutThumbnailModel.islands(for: .split3)[0].rect
+        let hugging = LayoutThumbnailModel.islands(for: .split3, inputs: hug)[0].rect
+        XCTAssertEqual(floating.maxY, 1 - 8 / 900, accuracy: 1e-9)
+        XCTAssertEqual(hugging.maxY, 1 - 2 / 900, accuracy: 1e-9)
+    }
+
+    func testCenteredWidthWidensTheCenteredIsland() {
+        var wide = LayoutThumbnailModel.Inputs()
+        wide.centeredWidth = 1300
+        let narrow = LayoutThumbnailModel.islands(for: .centered)[0].rect
+        let widened = LayoutThumbnailModel.islands(for: .centered, inputs: wide)[0].rect
+        XCTAssertGreaterThan(widened.width, narrow.width)
+        XCTAssertEqual(widened.midX, 0.5, accuracy: 1e-6)
+    }
+}
