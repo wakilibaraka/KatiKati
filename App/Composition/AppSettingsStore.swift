@@ -162,6 +162,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var edgeGap: CGFloat
     /// Side-edge auto-hide (7A-3): hide after the pointer leaves, reveal on the screen side. Default off.
     @Published private(set) var edgeAutoHide: Bool
+    /// Notes sync with the iCloud Drive folder (7A-7c). Opt-in, default off.
+    @Published private(set) var notesSyncEnabled: Bool
     @Published private(set) var edgeMargin: CGFloat
     /// 材质主题。默认 auto (亮色 roseQuartz / 暗色 obsidianDark)。
     @Published private(set) var themeMaterial: DockThemeStyle
@@ -252,6 +254,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.edgeGap: Double(PanelGeometry.edgeBarDefaultBottomGap),
             Keys.edgeMargin: 8.0,
             Keys.edgeAutoHide: false,
+            Keys.notesSync: false,
             "widgetWidths": [String: CGFloat]()
         ])
 
@@ -272,6 +275,7 @@ final class AppSettingsStore: ObservableObject {
         edgeBarPreset = EdgeBarPreset(rawValue: defaults.string(forKey: Keys.edgePreset) ?? "") ?? .off
         edgeStatusSide = EdgeSide(rawValue: defaults.string(forKey: Keys.edgeStatusSide) ?? "") ?? .right
         edgeAutoHide = defaults.bool(forKey: Keys.edgeAutoHide)
+        notesSyncEnabled = defaults.bool(forKey: Keys.notesSync)
         edgeGap = Self.clampedEdgeSpacing(Self.storedNumericValue(defaults.object(forKey: Keys.edgeGap)), fallback: PanelGeometry.edgeBarDefaultBottomGap)
         edgeMargin = Self.clampedEdgeSpacing(Self.storedNumericValue(defaults.object(forKey: Keys.edgeMargin)), fallback: 8)
         
@@ -421,6 +425,12 @@ final class AppSettingsStore: ObservableObject {
         guard edgeStatusSide != value else { return }
         edgeStatusSide = value
         defaults.set(value.rawValue, forKey: Keys.edgeStatusSide)
+    }
+
+    func setNotesSyncEnabled(_ value: Bool) {
+        guard notesSyncEnabled != value else { return }
+        notesSyncEnabled = value
+        defaults.set(value, forKey: Keys.notesSync)
     }
 
     func setEdgeAutoHide(_ value: Bool) {
@@ -804,6 +814,7 @@ private enum Keys {
     static let edgeStatusSide = "com.katikati.edge.status.side"
     static let edgeGap = "com.katikati.edge.gap"
     static let edgeAutoHide = "com.katikati.edge.autoHide"
+    static let notesSync = "com.katikati.notes.sync"
     static let edgeMargin = "com.katikati.edge.margin"
     static let iconSet = "com.katikati.iconSet"
     static let themeMaterial = "com.katikati.theme.material"

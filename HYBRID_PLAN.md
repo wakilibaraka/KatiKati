@@ -1665,6 +1665,15 @@ upgrades, wallpaper/personalisation, extra flyouts.
   line. 6 strings x12 (drafts, separate commit). Removed a Sendable warning my timer introduced.
   **Still open in 7A-7:** the sync toggle + scheduling (7A-7c: setting, folder watcher, debounce after local
   edits, localized conflict suffix) — sync is not reachable from the UI yet.
+- 2026-10-11 · **7A-7c notes sync wiring landed (gate green, 1813 tests; not run against real iCloud):**
+  `Platform/Notes/NotesSyncService.swift` — `SyncPassScheduler` (debounce 1.5 s; requests during a pass collapse
+  into one follow-up; idle = no timers; 3 tests) + `NotesSyncService` (pass on start, after debounced local edits via
+  `NotesController.onLocalChange`, and on folder changes via a `DispatchSource` file-system event — **no polling**;
+  runner executes off the main actor, index persisted, controller reloaded only when a pass changed local notes).
+  Opt-in `com.katikati.notes.sync` (default off) + "Sync Notes with iCloud Drive" toggle in the Edge Bars section;
+  orchestrator starts/stops the service from the setting and touches the Keychain only when enabled; conflict suffix
+  is the localized `(conflict)`. 2 strings x12 (drafts, separate commit). **7A-7 is now feature-complete;**
+  remaining 7A: widgets bar (7A-8) and the verification slice (7A-9: live eyeball, idle CPU, real-iCloud round trip).
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

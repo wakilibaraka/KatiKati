@@ -278,6 +278,10 @@ struct SettingsLayoutPane: View {
                     set: { store.setEdgeAutoHide($0) }
                 ))
                 .disabled(store.edgeBarPreset == .off)
+                Toggle("Sync Notes with iCloud Drive", isOn: Binding(
+                    get: { store.notesSyncEnabled },
+                    set: { store.setNotesSyncEnabled($0) }
+                ))
                 Text("Slim bars on the screen edges for notes and system status. Notes stay on the right.")
                     .font(.caption)
                     .foregroundStyle(.secondary)

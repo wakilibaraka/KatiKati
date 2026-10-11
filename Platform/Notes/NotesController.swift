@@ -18,7 +18,7 @@ final class NotesController: ObservableObject {
     @Published private(set) var undoableDeletion: Note?
     @Published private(set) var lastError: String?
 
-    private let store: NotesStore
+    let store: NotesStore
     private let now: () -> Date
     private let schedule: Scheduler
     /// Called after local notes change on disk (a sync pass can be scheduled).

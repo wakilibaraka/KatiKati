@@ -207,6 +207,10 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.reconcileFullscreenIntentMonitor() }
+        notesSyncSubscription = settingsStore.$notesSyncEnabled
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.reconcileNotesSync() }
         edgeSettingsSubscription = Publishers.CombineLatest(
             Publishers.CombineLatest4(
                 settingsStore.$edgeBarPreset, settingsStore.$edgeStatusSide,
@@ -248,6 +252,9 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         units = []
         tearDownEdgeBars()
         edgeSettingsSubscription = nil
+        notesSyncService?.stop()
+        notesSyncService = nil
+        notesSyncSubscription = nil
         perDisplaySeedController?.cancel()
         perDisplaySeedController = nil
         placementSubscription = nil
@@ -304,6 +311,24 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     private var statusServiceHeld = false
     private var notesControllerStorage: NotesController?
     private var notesUnavailable = false
+    private var notesSyncService: NotesSyncService?
+    private var notesSyncSubscription: AnyCancellable?
+
+    /// Starts/stops iCloud notes sync from the opt-in setting. Touches the Keychain only when enabled.
+    private func reconcileNotesSync() {
+        guard !isSuspended, settingsStore.notesSyncEnabled, let controller = notesController() else {
+            notesSyncService?.stop()
+            notesSyncService = nil
+            return
+        }
+        guard notesSyncService == nil else { return }
+        let service = NotesSyncService(
+            controller: controller, store: controller.store,
+            conflictSuffix: String(localized: "(conflict)")
+        )
+        notesSyncService = service
+        service.start()
+    }
 
     /// Lazy: the Keychain key and store are touched only when the notes tile is first opened.
     private func notesController() -> NotesController? {
