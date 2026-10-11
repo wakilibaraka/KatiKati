@@ -1819,6 +1819,10 @@ upgrades, wallpaper/personalisation, extra flyouts.
   formatting) + `SystemMonitorSampler` (host_statistics, vm_statistics64, volume capacity, getifaddrs en*) + `SystemMonitorController` (ref-counted 1 s timer that exists
   only while the flyout is on screen). Found + fixed: `EdgeFlyoutController.dismiss` only ordered the panel out, so SwiftUI `onDisappear` never fired and a sampler would
   have kept running — it now clears the content view; a 5 s `sample` after open→close shows zero SystemMonitor frames. Live: flyout shows live numbers. 5 strings in the l10n commit.
+- 2026-10-12 · **7A-D7 — dock magnification + per-edge size (owner request during 7A-9):** `DeckMagnification` (Core: cosine falloff, 1.55× peak, 76 pt radius, tested);
+  the controller feeds the pointer's panel-space y (from the existing mouse poll, only while fanned) and each round button scales about its edge-side anchor so it grows inward.
+  New settings: `edge.magnify` (default on) and per-edge size `edge.deckScale.left/.right` (0.8–1.4; the old single `deckScale` seeds both). Settings: Left/Right Bar Size sliders +
+  Magnify toggle. Tabs/notes are unaffected by magnification (buttons only). 3 strings in the l10n commit. Real-pointer feel is verified in live check #2.
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,

@@ -14,6 +14,9 @@ final class DeckViewModel: ObservableObject {
     @Published var buttons: [DeckButton] = []
     @Published var tileStyle: EdgeTileStyle = .glass
     @Published var scale: Double = 1
+    @Published var magnify = true
+    /// Pointer's y in the panel's top-left space while it is over the fanned deck (drives button magnification).
+    @Published var pointerY: CGFloat?
     @Published var tabFont: String = ""
     @Published var onRight = true
     /// Pill / tile accent colours when there are no note tabs (left deck).
@@ -225,7 +228,8 @@ struct DeckFanView: View {
                     .staged(index: visibleTabs.count, total: total, revealed: model.revealed, onRight: model.onRight, travel: m.tabWidth + 24)
             }
             ForEach(Array(model.buttons.enumerated()), id: \.element) { i, button in
-                DeckRoundButton(button: button, style: model.tileStyle, size: m.buttonSize) { rect in model.onButton(button, rect) }
+                DeckRoundButton(button: button, style: model.tileStyle, size: m.buttonSize, onRight: model.onRight,
+                                pointerY: model.magnify ? model.pointerY : nil) { rect in model.onButton(button, rect) }
                     .padding(.top, (i == 0 && visibleTabs.isEmpty && hiddenCount == 0 ? 0 : m.buttonGap - spacing))
                     .padding(model.onRight ? .trailing : .leading, (m.tabWidth - m.buttonSize) / 2)
                     .staged(index: visibleTabs.count + (hiddenCount > 0 ? 1 : 0) + i, total: total, revealed: model.revealed,
@@ -389,6 +393,9 @@ struct DeckRoundButton: View {
     let button: DeckButton
     let style: EdgeTileStyle
     let size: CGFloat
+    var onRight = true
+    /// Pointer y in panel space (nil = no magnification).
+    var pointerY: CGFloat?
     let action: (CGRect) -> Void
 
     @State private var hovering = false
@@ -409,9 +416,18 @@ struct DeckRoundButton: View {
             .buttonStyle(.plain)
             .onHover { hovering = $0 }
             .animation(.easeOut(duration: 0.15), value: hovering)
+            // Dock magnification: grows toward the screen interior (anchored on the edge side).
+            .scaleEffect(magnification(proxy.frame(in: .global).midY), anchor: onRight ? .trailing : .leading)
+            .animation(.easeOut(duration: 0.1), value: pointerY)
         }
+
         .frame(width: size, height: size)
         .accessibilityLabel(label)
+    }
+
+    private func magnification(_ centerY: CGFloat) -> CGFloat {
+        guard let pointerY else { return 1 }
+        return DeckMagnification.scale(distance: pointerY - centerY)
     }
 
     @ViewBuilder private var background: some View {

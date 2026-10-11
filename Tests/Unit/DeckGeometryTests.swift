@@ -176,4 +176,14 @@ final class VerticalLabelLayoutTests: XCTestCase {
         }
         XCTAssertGreaterThan(DeckGeometry.fanWidth(DeckMetrics(scale: 1.4)), DeckGeometry.fanWidth(DeckMetrics(scale: 0.8)))
     }
+
+    func testMagnificationPeaksUnderPointerAndFadesToOne() {
+        XCTAssertEqual(DeckMagnification.scale(distance: 0), DeckMagnification.maxScale, accuracy: 0.0001)
+        XCTAssertEqual(DeckMagnification.scale(distance: DeckMagnification.radius), 1)
+        XCTAssertEqual(DeckMagnification.scale(distance: 500), 1)
+        XCTAssertEqual(DeckMagnification.scale(distance: -30), DeckMagnification.scale(distance: 30), "symmetric")
+        let near = DeckMagnification.scale(distance: 20), far = DeckMagnification.scale(distance: 60)
+        XCTAssertGreaterThan(near, far); XCTAssertGreaterThan(far, 1)
+        XCTAssertEqual(DeckMagnification.scale(distance: 0, maxScale: 1), 1)
+    }
 }

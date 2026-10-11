@@ -314,13 +314,16 @@ struct SettingsLayoutPane: View {
     /// Look and behaviour of the deck itself (7A-D6).
     private var deckControls: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 10) {
-                Text("Bar Size").frame(width: 150, alignment: .leading)
-                Slider(value: Binding(get: { store.deckScale }, set: { store.setDeckScale($0) }),
-                       in: DeckSettingsRules.scaleRange, step: 0.05)
-                Text(verbatim: "\(Int((store.deckScale * 100).rounded()))%")
-                    .monospacedDigit().foregroundStyle(.secondary).frame(width: 52, alignment: .trailing)
+            ForEach([EdgeSide.left, EdgeSide.right], id: \.self) { side in
+                HStack(spacing: 10) {
+                    (side == .left ? Text("Left Bar Size") : Text("Right Bar Size")).frame(width: 150, alignment: .leading)
+                    Slider(value: Binding(get: { store.deckScale(for: side) }, set: { store.setDeckScale($0, for: side) }),
+                           in: DeckSettingsRules.scaleRange, step: 0.05)
+                    Text(verbatim: "\(Int((store.deckScale(for: side) * 100).rounded()))%")
+                        .monospacedDigit().foregroundStyle(.secondary).frame(width: 52, alignment: .trailing)
+                }
             }
+            Toggle("Magnify Buttons Under the Pointer", isOn: Binding(get: { store.deckMagnify }, set: { store.setDeckMagnify($0) }))
             HStack {
                 Text("Button Style")
                 Spacer(minLength: 12)

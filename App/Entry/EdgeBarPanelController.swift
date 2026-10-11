@@ -6,6 +6,7 @@ import SwiftUI
 /// snapshot makes `update` a no-op).
 struct DeckSettings: Equatable {
     var scale: Double = 1
+    var magnify = true
     var keepOpen = false
     var openOnHover = false
     var tabPreview = true
@@ -141,6 +142,7 @@ final class EdgeBarPanelController {
 
     private func rebuildItems() {
         model.scale = settings.scale
+        model.magnify = settings.magnify
         model.tileStyle = settings.tileStyle
         model.tabFont = settings.tabFont
 
@@ -221,8 +223,10 @@ final class EdgeBarPanelController {
                 lastActivity = Date()
                 exitWork?.cancel()
                 exitWork = nil
+                updatePointer(mouse)
                 trackHover(mouse)
             } else if state == .fan, exitWork == nil {
+                model.pointerY = nil
                 cancelHover()
                 let work = DispatchWorkItem { [weak self] in
                     guard let self else { return }
@@ -266,6 +270,13 @@ final class EdgeBarPanelController {
             CGRect(x: panel.frame.minX + local.minX, y: panel.frame.maxY - local.maxY, width: local.width, height: local.height)
                 .contains(mouse)
         }?.key
+    }
+
+    /// Pointer y in the panel's top-left space, only while it is over the button column's x-range.
+    private func updatePointer(_ mouse: CGPoint) {
+        guard settings.magnify, let panel, state == .fan, !context.isDragging else { model.pointerY = nil; return }
+        let y = panel.frame.maxY - mouse.y
+        if model.pointerY.map({ abs($0 - y) > 0.5 }) ?? true { model.pointerY = y }
     }
 
     private func trackHover(_ mouse: CGPoint) {

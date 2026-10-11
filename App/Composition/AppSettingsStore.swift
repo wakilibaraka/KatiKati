@@ -168,7 +168,11 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var widgetTiles: [WidgetTile]
     /// Noty-style deck settings (7A-D1): one scale for the whole deck, keep-open, hover behaviours, tile look,
     /// tab font (PostScript name, "" = system) and the pill's vertical position per edge (0 = bottom, 1 = top).
-    @Published private(set) var deckScale: Double
+    /// Size of each edge's deck (0.8…1.4), set per side; the old single `deckScale` seeds both until one is set.
+    @Published private(set) var deckScaleLeft: Double
+    @Published private(set) var deckScaleRight: Double
+    /// Dock-style magnification of the round buttons under the pointer.
+    @Published private(set) var deckMagnify: Bool
     @Published private(set) var deckKeepOpen: Bool
     @Published private(set) var deckOpenOnHover: Bool
     @Published private(set) var deckTabPreview: Bool
@@ -269,6 +273,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.edgeMargin: 8.0,
             Keys.notesSync: false,
             Keys.deckScale: DeckSettingsRules.defaultScale,
+            Keys.deckMagnify: true,
             Keys.deckKeepOpen: false,
             Keys.deckOpenOnHover: false,
             Keys.deckTabPreview: true,
@@ -299,7 +304,10 @@ final class AppSettingsStore: ObservableObject {
         edgeCustomPlacements = EdgeItem.parsePlacements(defaults.string(forKey: Keys.edgeCustom))
         notesSyncEnabled = defaults.bool(forKey: Keys.notesSync)
         widgetTiles = WidgetTile.parse(defaults.string(forKey: Keys.widgetTiles))
-        deckScale = DeckSettingsRules.clampedScale(Self.storedNumericValue(defaults.object(forKey: Keys.deckScale)))
+        let legacyScale = Self.storedNumericValue(defaults.object(forKey: Keys.deckScale))
+        deckScaleLeft = DeckSettingsRules.clampedScale(Self.storedNumericValue(defaults.object(forKey: Keys.deckScaleLeft)) ?? legacyScale)
+        deckScaleRight = DeckSettingsRules.clampedScale(Self.storedNumericValue(defaults.object(forKey: Keys.deckScaleRight)) ?? legacyScale)
+        deckMagnify = defaults.bool(forKey: Keys.deckMagnify)
         deckKeepOpen = defaults.bool(forKey: Keys.deckKeepOpen)
         deckOpenOnHover = defaults.bool(forKey: Keys.deckOpenOnHover)
         deckTabPreview = defaults.bool(forKey: Keys.deckTabPreview)
@@ -491,11 +499,26 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(EdgeItem.serialize(value), forKey: Keys.edgeCustom)
     }
 
-    func setDeckScale(_ value: Double) {
+    func deckScale(for side: EdgeSide) -> Double { side == .left ? deckScaleLeft : deckScaleRight }
+
+    func setDeckScale(_ value: Double, for side: EdgeSide) {
         let v = DeckSettingsRules.clampedScale(value)
-        guard deckScale != v else { return }
-        deckScale = v
-        defaults.set(v, forKey: Keys.deckScale)
+        switch side {
+        case .left:
+            guard deckScaleLeft != v else { return }
+            deckScaleLeft = v
+            defaults.set(v, forKey: Keys.deckScaleLeft)
+        case .right:
+            guard deckScaleRight != v else { return }
+            deckScaleRight = v
+            defaults.set(v, forKey: Keys.deckScaleRight)
+        }
+    }
+
+    func setDeckMagnify(_ value: Bool) {
+        guard deckMagnify != value else { return }
+        deckMagnify = value
+        defaults.set(value, forKey: Keys.deckMagnify)
     }
 
     func setDeckKeepOpen(_ value: Bool) {
@@ -957,6 +980,9 @@ private enum Keys {
     static let notesSync = "com.katikati.notes.sync"
     static let widgetTiles = "com.katikati.widgets.tiles"
     static let deckScale = "com.katikati.edge.deckScale"
+    static let deckScaleLeft = "com.katikati.edge.deckScale.left"
+    static let deckScaleRight = "com.katikati.edge.deckScale.right"
+    static let deckMagnify = "com.katikati.edge.magnify"
     static let deckKeepOpen = "com.katikati.edge.alwaysShown"
     static let deckOpenOnHover = "com.katikati.edge.openOnHover"
     static let deckTabPreview = "com.katikati.edge.tabPreview"

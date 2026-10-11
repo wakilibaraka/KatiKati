@@ -263,3 +263,17 @@ enum VerticalLabelLayout {
         }
     }
 }
+
+/// Dock-style magnification of the deck's round buttons (Phase 7A): the button nearest the pointer grows, its
+/// neighbours follow a cosine falloff, and buttons beyond `radius` stay at 1×.
+enum DeckMagnification {
+    static let maxScale: CGFloat = 1.55
+    static let radius: CGFloat = 76
+
+    /// `distance` is the pointer's vertical distance to the button's centre, in points.
+    static func scale(distance: CGFloat, radius: CGFloat = radius, maxScale: CGFloat = maxScale) -> CGFloat {
+        let d = abs(distance)
+        guard d < radius, maxScale > 1 else { return 1 }
+        return 1 + (maxScale - 1) * (cos(d / radius * .pi) + 1) / 2
+    }
+}
