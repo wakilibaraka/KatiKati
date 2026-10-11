@@ -1328,7 +1328,7 @@ struct DockStripView: View {
                     NowPlayingChip()
                         .scaleEffect(dockScale)
                 case .clock:
-                    FlipClockChip()
+                    ClockChip()
                         .scaleEffect(dockScale)
                 case .apps:
                     EmptyView()

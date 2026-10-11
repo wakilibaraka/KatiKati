@@ -41,18 +41,24 @@ public struct ClockChip: View {
     @State private var showingCalendar = false
 
     public var body: some View {
-        // 4e: minute-aligned. The timeline starts on the next whole-minute boundary and ticks
-        // every 60s from there, so the main thread wakes once a minute and the chip can never
-        // show a reading that is up to 59s stale. A per-second `Timer.publish` used to run here
-        // even though the provider's content is minute-resolution.
-        TimelineView(.periodic(from: ClockTick.nextMinute(after: Date()), by: 60)) { context in
-            card(for: context.date)
-        }
-        .onTapGesture {
-            showingCalendar.toggle()
-        }
-        .popover(isPresented: $showingCalendar, arrowEdge: .top) {
-            CalendarPopupView()
+        // Flip tiles are their own form (owner's hand-built variant kept as a
+        // third preset): they bypass the 8d gradient card entirely.
+        if preset == .flipTiles {
+            FlipClockChip()
+        } else {
+            // 4e: minute-aligned. The timeline starts on the next whole-minute boundary and ticks
+            // every 60s from there, so the main thread wakes once a minute and the chip can never
+            // show a reading that is up to 59s stale. A per-second `Timer.publish` used to run here
+            // even though the provider's content is minute-resolution.
+            TimelineView(.periodic(from: ClockTick.nextMinute(after: Date()), by: 60)) { context in
+                card(for: context.date)
+            }
+            .onTapGesture {
+                showingCalendar.toggle()
+            }
+            .popover(isPresented: $showingCalendar, arrowEdge: .top) {
+                CalendarPopupView()
+            }
         }
     }
 
@@ -129,12 +135,15 @@ public struct ClockChip: View {
 
     /// Preset identity survives the restyle as typography: `modern` stays SF Rounded,
     /// `pixel` stays monospaced and shouts its date line — both inside the one new form.
+    /// `flipTiles` never reaches here (it bypasses the card in `body`).
     private var timeFont: Font {
         switch preset {
         case .modernMac:
             return .system(size: 19, weight: .semibold, design: .rounded)
         case .pixelRetro:
             return .system(size: 18, weight: .bold, design: .monospaced)
+        case .flipTiles:
+            return .system(size: 19, weight: .semibold, design: .rounded)
         }
     }
 
@@ -144,6 +153,8 @@ public struct ClockChip: View {
             return .system(size: 10, weight: .regular, design: .rounded)
         case .pixelRetro:
             return .system(size: 10, weight: .medium, design: .monospaced)
+        case .flipTiles:
+            return .system(size: 10, weight: .regular, design: .rounded)
         }
     }
 }

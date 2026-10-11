@@ -75,4 +75,17 @@ final class ClockChipContentTests: XCTestCase {
         XCTAssertTrue(ClockChipDaylight.isNight(utcDate(23, 30, 0), calendar: utc))
         XCTAssertTrue(ClockChipDaylight.isNight(utcDate(0, 30, 0), calendar: utc))
     }
+
+    // MARK: - 4f: flip tiles as third preset
+
+    /// The flip variant must survive as a selectable stored preset: three
+    /// cases, stable raw values (old `modern`/`pixel` keys still decode),
+    /// and the new `flip` key decodes too.
+    func testFlipTilesPresetRoundTrips() {
+        XCTAssertEqual(ClockPreset.allCases.count, 3)
+        XCTAssertEqual(ClockPreset(rawValue: "modern"), .modernMac)
+        XCTAssertEqual(ClockPreset(rawValue: "pixel"), .pixelRetro)
+        XCTAssertEqual(ClockPreset(rawValue: "flip"), .flipTiles)
+        XCTAssertEqual(ClockPreset.flipTiles.rawValue, "flip")
+    }
 }

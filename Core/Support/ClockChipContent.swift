@@ -4,6 +4,7 @@ import Combine
 public enum ClockPreset: String, CaseIterable, Equatable {
     case modernMac = "modern"
     case pixelRetro = "pixel"
+    case flipTiles = "flip"
 }
 
 public struct ClockContent: Equatable {
