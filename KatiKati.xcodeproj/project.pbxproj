@@ -80,6 +80,9 @@
 		ED0000000000000000000081 /* NotePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000080 /* NotePalette.swift */; };
 		ED0000000000000000000082 /* NotePalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000080 /* NotePalette.swift */; };
 		ED0000000000000000000084 /* NotePaletteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000083 /* NotePaletteTests.swift */; };
+		ED0000000000000000000086 /* DeckGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000085 /* DeckGeometry.swift */; };
+		ED0000000000000000000087 /* DeckGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000085 /* DeckGeometry.swift */; };
+		ED0000000000000000000089 /* DeckGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000088 /* DeckGeometryTests.swift */; };
 		ED0000000000000000000010 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
 		ED000000000000000000000A /* SystemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000009 /* SystemStatus.swift */; };
 		ED0000000000000000000011 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
@@ -705,6 +708,8 @@
 		ED0000000000000000000075 /* BluetoothDevicesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BluetoothDevicesTests.swift; path = Tests/Unit/BluetoothDevicesTests.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000080 /* NotePalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotePalette.swift; path = Core/Support/NotePalette.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000083 /* NotePaletteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotePaletteTests.swift; path = Tests/Unit/NotePaletteTests.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000085 /* DeckGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeckGeometry.swift; path = Core/Support/DeckGeometry.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000088 /* DeckGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeckGeometryTests.swift; path = Tests/Unit/DeckGeometryTests.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000F /* SystemStatusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusService.swift; path = Platform/SystemStatus/SystemStatusService.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000009 /* SystemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatus.swift; path = Core/Support/SystemStatus.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000C /* SystemStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusTests.swift; path = Tests/Unit/SystemStatusTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2114,6 +2119,7 @@
 				D3EB46A2A29E54E9C8B5C492 /* WeatherState.swift in Sources */,
 				7B1000000000000000000002 /* ClockChipContent.swift in Sources */,
 				ED000000000000000000000A /* SystemStatus.swift in Sources */,
+				ED0000000000000000000086 /* DeckGeometry.swift in Sources */,
 				ED0000000000000000000081 /* NotePalette.swift in Sources */,
 				ED0000000000000000000071 /* BluetoothDevices.swift in Sources */,
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
@@ -2210,6 +2216,8 @@
 				7B5000000000000000000013 /* WeatherDetail.swift in Sources */,
 				7B5000000000000000000009 /* CalendarPanelModels.swift in Sources */,
 				ED000000000000000000000B /* SystemStatus.swift in Sources */,
+				ED0000000000000000000087 /* DeckGeometry.swift in Sources */,
+				ED0000000000000000000089 /* DeckGeometryTests.swift in Sources */,
 				ED0000000000000000000082 /* NotePalette.swift in Sources */,
 				ED0000000000000000000084 /* NotePaletteTests.swift in Sources */,
 				ED0000000000000000000072 /* BluetoothDevices.swift in Sources */,
