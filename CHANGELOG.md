@@ -18,6 +18,13 @@ All notable changes to KatiKati are documented in this file.
   into source, repo-root throwaway scripts, and `rm <glob>` inside the repo are
   forbidden. Full rule in `STANDING_RULES.md` §1 item 6.
 
+## [Unreleased] — Phase 5: Hardening + Floating Widgets
+
+### Added
+- Floating calendar tiles (right) and weather tiles (left) with Mac/iPad/Tall layouts, palettes, animation presets (Instant/Slide/Spring Pop).
+- Timer, Stopwatch, Countdown, Notes tiles; world clocks, focus timer, alarms, reminders.
+- Weather Glance layout with mountain-scene hero, sky-tinted tiles, derived warnings, saved cities. Classic layout and hero kept as presets.
+
 ## [Unreleased] — Phase 4: Widgets, Popups, and Layout
 
 ### Added

@@ -1587,3 +1587,5 @@ archaeology; this v3 document governs.
 ## Known Layout Defects (Logged 2026-10-08)
 - ~~**Space next to trash can:** The gap or empty space next to the trash/tray area needs tight alignment review.~~ (Resolved in Phase 4 layout rewrite)
 - ~~**Drawer overlapping clock:** In certain modes/directions, the drawer expands to the left and incorrectly overlaps the clock. This geometry intersection needs to be resolved before Phase 4 concludes.~~ (Resolved in Phase 4 layout rewrite)
+- 2026-10-11 · **5b/5c drills — PASS (no gap).** SIGTERM: exit ~500ms, no survivors, Dock prefs identical. kill -9 idle + relaunch: prefs identical, 1 process, 13 windows/8 on screen = same as clean restart (no orphaned panels). Not proven: kill inside `NativeDockPreferencesService.apply` (needs normal-permission build). No code change.
+- 2026-10-11 · **5f — Phase 5 lock. Result: PASS.** Unit suite, localization, debug switches, availability-warnings (clean build) green. Log: `Docs/Archive/Planning/2026-10-11-phase-5-log.md`; CHANGELOG updated. Owner eyeball items listed in the log remain.
