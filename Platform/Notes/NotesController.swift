@@ -55,7 +55,7 @@ final class NotesController: ObservableObject {
     @discardableResult
     func create(body: String = "") -> Note {
         let top = notes.filter { !$0.pinned }.map(\.order).min() ?? 1
-        let note = Note(body: body, created: now(), order: top - 1)
+        let note = Note(body: body, created: now(), order: top - 1, color: NotePalette.nextIndex(after: notes))
         notes = (notes + [note]).inListOrder()
         persist(note)
         return note
@@ -82,6 +82,26 @@ final class NotesController: ObservableObject {
         let changed = notes[i]
         notes = notes.inListOrder()
         persist(changed)
+    }
+
+    func setColor(id: String, _ color: Int) {
+        guard let i = notes.firstIndex(where: { $0.id == id }), notes[i].color != color else { return }
+        notes[i].color = color
+        notes[i].modified = Note.wholeSeconds(now())
+        persist(notes[i])
+    }
+
+    /// Moves a note `slots` positions in the deck (drag reorder); persists every note whose order changed.
+    func move(id: String, by slots: Int) {
+        let changed = NoteOrdering.reorder(notes.filter { !$0.archived }, id: id, by: slots)
+        guard !changed.isEmpty else { return }
+        for var n in changed {
+            n.modified = Note.wholeSeconds(now())
+            if let i = notes.firstIndex(where: { $0.id == n.id }) { notes[i] = n }
+            persist(n, notify: false)
+        }
+        notes = notes.inListOrder()
+        onLocalChange?()
     }
 
     func setArchived(id: String, _ archived: Bool) {

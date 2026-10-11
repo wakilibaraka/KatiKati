@@ -131,4 +131,30 @@ final class NotesControllerTests: XCTestCase {
         XCTAssertTrue(c2.notes.isEmpty)
         XCTAssertNotNil(c2.lastError)
     }
+
+    func testNewNotesRotateThroughThePaletteAndColorPersists() throws {
+        let c = try makeController()
+        let a = c.create(); clock.addTimeInterval(1)
+        let b = c.create()
+        XCTAssertEqual(a.color, 0)
+        XCTAssertEqual(b.color, 1)
+        c.setColor(id: a.id, 4)
+        XCTAssertEqual(try diskNotes().first { $0.id == a.id }?.color, 4)
+    }
+
+    func testMoveReordersPersistsAndNotifiesOnce() throws {
+        let c = try makeController()
+        let a = c.create(body: "a"); clock.addTimeInterval(1)
+        let b = c.create(body: "b"); clock.addTimeInterval(1)
+        let d = c.create(body: "d")
+        XCTAssertEqual(c.notes.map(\.id), [d.id, b.id, a.id])
+        var changes = 0
+        c.onLocalChange = { changes += 1 }
+        c.move(id: d.id, by: 2)
+        XCTAssertEqual(c.notes.map(\.id), [b.id, a.id, d.id])
+        XCTAssertEqual(try diskNotes().map(\.id), [b.id, a.id, d.id])
+        XCTAssertEqual(changes, 1)
+        c.move(id: d.id, by: 0)
+        XCTAssertEqual(changes, 1, "no-op does not notify")
+    }
 }

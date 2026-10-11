@@ -1710,6 +1710,15 @@ upgrades, wallpaper/personalisation, extra flyouts.
   timeout **only when the flyout opens or Refresh is tapped (never polled)**; no IOBluetooth/CoreBluetooth, so **no
   Bluetooth permission prompt**. `WidgetTile.bluetooth`, flyout (list, battery %, connected dot, refresh, System Settings
   link), Settings toggle. 3 strings x12 (drafts, separate commit). 6 tests. Not live-checked yet (D6 sweep).
+- 2026-10-11 · **Noty-deck redesign approved (owner, plan `7A-D`):** both edges adopt noty's deck model (rest pill → hover fan →
+  pull-out sheet); notes = colour paper tabs, rotated titles, hover preview/open, drag reorder; status/widget tiles = glass round
+  buttons or coloured chips (Settings option); extras = ⌥-drag reposition, deck scale + keep-open, handwritten tab fonts, dashed spine +
+  staggered shingle. Slices D0–D6 (D0 = 8b commit, done). Hop tiles 8c–8h resume afterwards inside the deck.
+- 2026-10-11 · **D1a notes colour + ordering landed (gate green, 1834 tests):** `Core/Support/NotePalette.swift` (8 frozen colours
+  paper/dash/ink, wrap, `nextIndex` rotates from the newest note; values/idea from noty `NoteColor`, MIT), `Note.color`
+  (tolerant decoder: pre-colour encrypted notes decode as 0), `color:` header key in `NoteDocument` (noty-compatible), pure
+  `NoteOrdering.reorder` (dense orders, returns only changed notes), `NotesController.setColor` / `move(id:by:)` / new notes
+  rotate colours. 12 tests. D1b (DeckGeometry + label runs), D1c (state machine + settings keys) next.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

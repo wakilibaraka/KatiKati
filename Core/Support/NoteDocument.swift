@@ -14,6 +14,7 @@ enum NoteDocument {
         static let archived = "archived"
         static let pinned = "pinned"
         static let order = "order"
+        static let color = "color"
         static let title = "title"
     }
 
@@ -37,6 +38,7 @@ enum NoteDocument {
             "\(Key.archived): \(note.archived)",
             "\(Key.pinned): \(note.pinned)",
             "\(Key.order): \(note.order)",
+            "\(Key.color): \(note.color)",
         ]
         if note.hasCustomTitle { header.append("\(Key.title): \(singleLine(note.title))") }
         return fence + "\n" + header.joined(separator: "\n") + "\n" + fence + "\n\n" + note.body
@@ -75,6 +77,7 @@ enum NoteDocument {
                 case Key.archived: note.archived = value == "true"
                 case Key.pinned: note.pinned = value == "true"
                 case Key.order: note.order = Int(value) ?? 0
+                case Key.color: note.color = Int(value) ?? 0
                 case Key.title: note.title = value
                 default: break
                 }
