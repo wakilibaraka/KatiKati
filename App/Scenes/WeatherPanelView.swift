@@ -96,7 +96,7 @@ private struct WeatherTiles: View {
     private func ipadTiles(env: TileEnv, units: Units, detail: WeatherDetail, inner: CGFloat) -> some View {
         let left = (inner - gap) * 0.58, right = inner - gap - left
         return VStack(spacing: gap) {
-            HourlyTile(env: env, detail: detail, units: units, width: inner)
+            HourlyTile(env: env, detail: detail, units: units, width: inner, columns: 12)
             HStack(alignment: .top, spacing: gap) {
                 TrendTile(env: env, detail: detail, units: units, width: left)
                 DailyTile(env: env, detail: detail, units: units, width: right, pageSize: 7)
@@ -288,7 +288,14 @@ private struct WarningsTile: View {
         case .thunderstorm: value = "\(Int(w.peak))%"
         case .uv: value = String(format: "%.0f", w.peak)
         }
-        return "\(w.start.replacingOccurrences(of: "T", with: " ")) · \(value)"
+        return "\(whenLabel(w.start)) · \(value)"
+    }
+
+    /// `2026-10-11T14:00` → "Sun 14:00"; `2026-10-12` → "Mon".
+    private func whenLabel(_ iso: String) -> String {
+        let parts = iso.split(separator: "T")
+        let day = DailyTile.weekday(String(parts.first ?? ""))
+        return parts.count > 1 ? "\(day) \(parts[1])" : day
     }
 
     private func color(_ s: WeatherWarningSeverity) -> Color {
@@ -307,7 +314,7 @@ private struct HourlyTile: View {
     let width: CGFloat
     @State private var page = 0
     @State private var metric: HourlyMetric = .sky
-    private let columns = 6
+    var columns = 6
 
     var body: some View {
         let pages = max(1, (detail.hourly.count + columns - 1) / columns)
@@ -337,8 +344,8 @@ private struct HourlyTile: View {
                 chip(.wind, "wind") { Text("Wind") }
             }
             VStack(spacing: 6) {
-                metricRow(slice, primary: true)
-                metricRow(slice, primary: false)
+                metricRow(slice, primary: true, icon: icons.0)
+                metricRow(slice, primary: false, icon: icons.1)
             }
         }
         .foregroundColor(env.text)
@@ -347,8 +354,17 @@ private struct HourlyTile: View {
         .tileSurface(env)
     }
 
-    private func metricRow(_ slice: [WeatherHourPoint], primary: Bool) -> some View {
+    private var icons: (String, String) {
+        switch metric {
+        case .sky: return ("cloud.fill", "cloud.rain.fill")
+        case .humidity: return ("drop.fill", "thermometer")
+        case .wind: return ("wind", "tornado")
+        }
+    }
+
+    private func metricRow(_ slice: [WeatherHourPoint], primary: Bool, icon: String) -> some View {
         HStack(spacing: 0) {
+            Image(systemName: icon).font(.system(size: 10)).foregroundColor(env.secondary).frame(width: 16)
             ForEach(slice) { h in
                 VStack(spacing: 0) {
                     Text(verbatim: value(h, primary: primary)).font(.system(size: 12, weight: .semibold)).minimumScaleFactor(0.7).lineLimit(1)
@@ -486,7 +502,7 @@ private struct TrendTile: View {
 
 // MARK: - Daily
 
-private struct DailyTile: View {
+struct DailyTile: View {
     let env: TileEnv
     let detail: WeatherDetail
     let units: Units

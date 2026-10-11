@@ -1233,6 +1233,22 @@ for a gap the drill actually proves.*
 - 2026-10-11 · **5g/5h scoped (docs-only).** Weather tile stack on the left + joint polish added before
   5f; owner answers recorded above (coexist default one-at-a-time, shared Widget Layout + palette,
   derived warnings, saved cities, hero-only animation, temp + precip graphs).
+- 2026-10-11 · **5g-A…G built (agent), eyeballed live on the dev Mac in both layouts.** 5g-A extended
+  Open-Meteo payload (`WeatherDetail`; live API checked — `current_weather=true` suppresses the `current`
+  block, so only `current=` is requested), units, dew point, moon phase · 5g-B saved cities (≤5),
+  geocoding client, selection stepping, no more hard-coded Istanbul (`needsLocation` → city search),
+  Info.plist location keys · 5g-C `WeatherWarningEngine` (+ settings thresholds) · 5g-D side-aware
+  `WidgetPanelController` (calendar right / weather left, "Keep both open" default off, closes the other
+  when they would collide), `PanelGeometry.widgetPanelFrame(side:)`; shared `WidgetTileKit` · 5g-E tiles
+  (hero, warnings, hourly + Sky/Humidity/Wind, temp+feels line, precip/snow bars, 16-day range bars,
+  details grid; custom Canvas charts; mac column scrolls when taller than the screen) · 5g-F
+  `WeatherEffects` deterministic particles + Canvas hero (rain/snow/clouds/stars/sun glow/fog/lightning,
+  pauses when hidden or Reduce Motion) · 5g-G Settings (units, animations, keep-both-open, heat/wind/snow
+  thresholds). "Calendar Layout/Colors" renamed **Widget Layout/Colors** (storage keys unchanged).
+  Tests: parser/units/moon, warnings, locations, effects, geometry (suite green), localization ×12 ✅.
+  **Not done / not verified:** per-condition animations only seen for Drizzle (others untested live);
+  no UI tests; light-mode look not checked; Calendar/Reminders stay "access is off" until the user grants
+  macOS permission; 5h joint polish and 5f lock still open.
 
 
 ### Phase 6 — Settings Layout tab + welcome step + polish
