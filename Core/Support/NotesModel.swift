@@ -1,7 +1,7 @@
 import Foundation
 
 /// A note on the right-edge notes bar (Phase 7A-6). Pure value type; persistence lives elsewhere.
-struct Note: Equatable, Identifiable, Sendable {
+struct Note: Equatable, Identifiable, Sendable, Codable {
     var id: String
     /// Empty = derive from the first body line (never frozen into the file).
     var title: String

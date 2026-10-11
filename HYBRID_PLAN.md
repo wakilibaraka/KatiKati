@@ -1620,6 +1620,20 @@ upgrades, wallpaper/personalisation, extra flyouts.
   pulled twice. 22 tests. NOTICE entry for noty to be filled when the store/sync runner lands
   (behaviour derived). 6b (local store + AES-GCM + iCloud runner) pending an owner call on the
   at-rest format.
+- 2026-10-11 · **Owner decisions (7A-6):** notes are **AES-GCM encrypted locally**, plain `.md` only in
+  the opt-in sync folder; sync folder = `~/Library/Mobile Documents/com~apple~CloudDocs/KatiKati Notes`
+  (plain path, no CloudKit entitlement, off until enabled).
+- 2026-10-11 · **7A-6b encrypted local store landed (gate green, 1790 tests):** `Core/Support/NoteCipher.swift`
+  (AES-256-GCM, fresh nonce per seal, combined box; tamper / wrong key / malformed all distinguished;
+  `NoteKeyProviding` + in-memory provider for tests), `Platform/Notes/KeychainNoteKeyProvider.swift`
+  (generic-password item, this-device-only, after-first-unlock, lazy create, race-safe),
+  `Platform/Notes/NotesStore.swift` (`~/Library/Application Support/KatiKati/Notes/<id>.note`, atomic
+  writes, ids sanitized so a synced `katikati-id` can't escape the folder, unreadable files reported and
+  **never deleted**, pinned→order→created sort). `Note` is `Codable`. 9 tests (cipher round-trip /
+  nonce / no plaintext in blob / tamper; store round-trip / encrypted on disk / overwrite+delete /
+  wrong key / path traversal). Keychain provider is not unit-tested (needs a signed host) — eyeball
+  on first run. 6c next: sync runner (iCloud folder listing, placeholders, executing `NotesSyncPlan`
+  actions, conflict copies, index persistence).
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB
