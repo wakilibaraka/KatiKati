@@ -166,6 +166,16 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var notesSyncEnabled: Bool
     /// Enabled widget tiles on the left-edge widgets bar, in display order (7A-8). Empty = no widgets bar.
     @Published private(set) var widgetTiles: [WidgetTile]
+    /// Noty-style deck settings (7A-D1): one scale for the whole deck, keep-open, hover behaviours, tile look,
+    /// tab font (PostScript name, "" = system) and the pill's vertical position per edge (0 = bottom, 1 = top).
+    @Published private(set) var deckScale: Double
+    @Published private(set) var deckKeepOpen: Bool
+    @Published private(set) var deckOpenOnHover: Bool
+    @Published private(set) var deckTabPreview: Bool
+    @Published private(set) var edgeTileStyle: EdgeTileStyle
+    @Published private(set) var deckTabFont: String
+    @Published private(set) var deckYRatioLeft: Double
+    @Published private(set) var deckYRatioRight: Double
     @Published private(set) var edgeMargin: CGFloat
     /// 材质主题。默认 auto (亮色 roseQuartz / 暗色 obsidianDark)。
     @Published private(set) var themeMaterial: DockThemeStyle
@@ -257,6 +267,14 @@ final class AppSettingsStore: ObservableObject {
             Keys.edgeMargin: 8.0,
             Keys.edgeAutoHide: false,
             Keys.notesSync: false,
+            Keys.deckScale: DeckSettingsRules.defaultScale,
+            Keys.deckKeepOpen: false,
+            Keys.deckOpenOnHover: false,
+            Keys.deckTabPreview: true,
+            Keys.edgeTileStyle: EdgeTileStyle.glass.rawValue,
+            Keys.deckTabFont: "",
+            Keys.deckYRatioLeft: 0.5,
+            Keys.deckYRatioRight: 0.5,
             "widgetWidths": [String: CGFloat]()
         ])
 
@@ -279,6 +297,14 @@ final class AppSettingsStore: ObservableObject {
         edgeAutoHide = defaults.bool(forKey: Keys.edgeAutoHide)
         notesSyncEnabled = defaults.bool(forKey: Keys.notesSync)
         widgetTiles = WidgetTile.parse(defaults.string(forKey: Keys.widgetTiles))
+        deckScale = DeckSettingsRules.clampedScale(Self.storedNumericValue(defaults.object(forKey: Keys.deckScale)))
+        deckKeepOpen = defaults.bool(forKey: Keys.deckKeepOpen)
+        deckOpenOnHover = defaults.bool(forKey: Keys.deckOpenOnHover)
+        deckTabPreview = defaults.bool(forKey: Keys.deckTabPreview)
+        edgeTileStyle = EdgeTileStyle(rawValue: defaults.string(forKey: Keys.edgeTileStyle) ?? "") ?? .glass
+        deckTabFont = defaults.string(forKey: Keys.deckTabFont) ?? ""
+        deckYRatioLeft = DeckSettingsRules.clampedRatio(Self.storedNumericValue(defaults.object(forKey: Keys.deckYRatioLeft)))
+        deckYRatioRight = DeckSettingsRules.clampedRatio(Self.storedNumericValue(defaults.object(forKey: Keys.deckYRatioRight)))
         edgeGap = Self.clampedEdgeSpacing(Self.storedNumericValue(defaults.object(forKey: Keys.edgeGap)), fallback: PanelGeometry.edgeBarDefaultBottomGap)
         edgeMargin = Self.clampedEdgeSpacing(Self.storedNumericValue(defaults.object(forKey: Keys.edgeMargin)), fallback: 8)
         
@@ -428,6 +454,59 @@ final class AppSettingsStore: ObservableObject {
         guard edgeStatusSide != value else { return }
         edgeStatusSide = value
         defaults.set(value.rawValue, forKey: Keys.edgeStatusSide)
+    }
+
+    func setDeckScale(_ value: Double) {
+        let v = DeckSettingsRules.clampedScale(value)
+        guard deckScale != v else { return }
+        deckScale = v
+        defaults.set(v, forKey: Keys.deckScale)
+    }
+
+    func setDeckKeepOpen(_ value: Bool) {
+        guard deckKeepOpen != value else { return }
+        deckKeepOpen = value
+        defaults.set(value, forKey: Keys.deckKeepOpen)
+    }
+
+    func setDeckOpenOnHover(_ value: Bool) {
+        guard deckOpenOnHover != value else { return }
+        deckOpenOnHover = value
+        defaults.set(value, forKey: Keys.deckOpenOnHover)
+    }
+
+    func setDeckTabPreview(_ value: Bool) {
+        guard deckTabPreview != value else { return }
+        deckTabPreview = value
+        defaults.set(value, forKey: Keys.deckTabPreview)
+    }
+
+    func setEdgeTileStyle(_ value: EdgeTileStyle) {
+        guard edgeTileStyle != value else { return }
+        edgeTileStyle = value
+        defaults.set(value.rawValue, forKey: Keys.edgeTileStyle)
+    }
+
+    func setDeckTabFont(_ value: String) {
+        guard deckTabFont != value else { return }
+        deckTabFont = value
+        defaults.set(value, forKey: Keys.deckTabFont)
+    }
+
+    func deckYRatio(for side: EdgeSide) -> Double { side == .left ? deckYRatioLeft : deckYRatioRight }
+
+    func setDeckYRatio(_ value: Double, for side: EdgeSide) {
+        let v = DeckSettingsRules.clampedRatio(value)
+        switch side {
+        case .left:
+            guard deckYRatioLeft != v else { return }
+            deckYRatioLeft = v
+            defaults.set(v, forKey: Keys.deckYRatioLeft)
+        case .right:
+            guard deckYRatioRight != v else { return }
+            deckYRatioRight = v
+            defaults.set(v, forKey: Keys.deckYRatioRight)
+        }
     }
 
     func setWidgetTile(_ tile: WidgetTile, enabled: Bool) {
@@ -835,6 +914,14 @@ private enum Keys {
     static let edgeAutoHide = "com.katikati.edge.autoHide"
     static let notesSync = "com.katikati.notes.sync"
     static let widgetTiles = "com.katikati.widgets.tiles"
+    static let deckScale = "com.katikati.edge.deckScale"
+    static let deckKeepOpen = "com.katikati.edge.alwaysShown"
+    static let deckOpenOnHover = "com.katikati.edge.openOnHover"
+    static let deckTabPreview = "com.katikati.edge.tabPreview"
+    static let edgeTileStyle = "com.katikati.edge.tileStyle"
+    static let deckTabFont = "com.katikati.edge.tabFont"
+    static let deckYRatioLeft = "com.katikati.edge.yRatio.left"
+    static let deckYRatioRight = "com.katikati.edge.yRatio.right"
     static let edgeMargin = "com.katikati.edge.margin"
     static let iconSet = "com.katikati.iconSet"
     static let themeMaterial = "com.katikati.theme.material"

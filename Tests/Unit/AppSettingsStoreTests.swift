@@ -171,6 +171,38 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
+    func testDeckSettingsDefaultsClampAndPersist() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.deckScale, 1)
+        XCTAssertFalse(store.deckKeepOpen)
+        XCTAssertFalse(store.deckOpenOnHover)
+        XCTAssertTrue(store.deckTabPreview)
+        XCTAssertEqual(store.edgeTileStyle, .glass)
+        XCTAssertEqual(store.deckTabFont, "")
+        XCTAssertEqual(store.deckYRatio(for: .left), 0.5)
+
+        store.setDeckScale(9)
+        store.setDeckKeepOpen(true)
+        store.setDeckOpenOnHover(true)
+        store.setDeckTabPreview(false)
+        store.setEdgeTileStyle(.coloured)
+        store.setDeckTabFont("Noteworthy-Bold")
+        store.setDeckYRatio(-4, for: .left)
+        store.setDeckYRatio(0.8, for: .right)
+        XCTAssertEqual(store.deckScale, 1.4)
+
+        let r = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(r.deckScale, 1.4)
+        XCTAssertTrue(r.deckKeepOpen && r.deckOpenOnHover)
+        XCTAssertFalse(r.deckTabPreview)
+        XCTAssertEqual(r.edgeTileStyle, .coloured)
+        XCTAssertEqual(r.deckTabFont, "Noteworthy-Bold")
+        XCTAssertEqual(r.deckYRatio(for: .left), 0)
+        XCTAssertEqual(r.deckYRatio(for: .right), 0.8)
+    }
+
+    @MainActor
     func testBottomGapDefaultsToFloatingClampsAndPersists() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)

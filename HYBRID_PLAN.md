@@ -1719,6 +1719,20 @@ upgrades, wallpaper/personalisation, extra flyouts.
   (tolerant decoder: pre-colour encrypted notes decode as 0), `color:` header key in `NoteDocument` (noty-compatible), pure
   `NoteOrdering.reorder` (dense orders, returns only changed notes), `NotesController.setColor` / `move(id:by:)` / new notes
   rotate colours. 12 tests. D1b (DeckGeometry + label runs), D1c (state machine + settings keys) next.
+- 2026-10-11 · **D1b deck geometry landed (gate green, 1850 tests):** `Core/Support/DeckGeometry.swift` — `DeckMetrics(scale)` (every
+  length scaled + rounded to whole points, scale clamped 0.5…2), pill height (≤14 dashes + overflow dash), `DeckLayout` (pitch from the
+  longest label, 68 % height budget shrink to a floor, shingle `spacing`, `stackHeight` incl. `+N` tab and round buttons),
+  panel-frame helpers `restFrame` / `fanFrame` (edge-hugging, yRatio-placed, centred on the pill, ⊆ visibleFrame incl. non-zero
+  origins), `yRatio(forPointerY:)` + `snapSide` for the ⌥-drag, 60 %-of-a-slot `dragTarget` and `dragShift`; `VerticalLabelLayout`
+  (upright CJK/emoji vs rotated Latin runs, truncation with an upright ellipsis) with an injected `VerticalLabelMeasure` so Core has
+  no AppKit. 16 tests (found + fixed: an oversized fan overflowed `visibleFrame`). Re-derived from noty `DeckGeom`/`DeckLayout`/
+  `VerticalLabelLayout` (MIT).
+- 2026-10-11 · **D1c deck state machine + settings landed (gate green, 1863 tests):** `DeckStateMachine.reduce(state, event, ctx)` —
+  rest/fan/expanded with pointer enter/confirmed-exit, tab click toggle, hover-rest open, idle (fan 4 s, unpinned note 60 s, "exceed
+  not equal"), Esc peels one layer, outside click, note removed, keep-open re-pointing; dragging and keep-open suppress folding;
+  `DeckTiming` constants (exit confirm 0.15 s, hover open 0.4 s, preview 0.18 s). `DeckSettingsRules` + `EdgeTileStyle` (glass |
+  coloured, frozen ids). `AppSettingsStore`: `com.katikati.edge.{deckScale 0.8…1.4, alwaysShown, openOnHover, tabPreview, tileStyle,
+  tabFont, yRatio.left/.right}` with sanitising + persistence tests. The old `edge.autoHide` stays until D2 swaps the behaviour.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB
