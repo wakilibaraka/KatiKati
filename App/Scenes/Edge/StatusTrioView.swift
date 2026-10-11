@@ -1,0 +1,191 @@
+import SwiftUI
+
+/// The three statuses the combined chip exposes; each opens its own popover (Phase 7A-5).
+enum StatusKind: CaseIterable, Hashable {
+    case wifi, battery, volume
+
+    var popupSize: CGSize {
+        switch self {
+        case .wifi, .battery: return CGSize(width: 240, height: 112)
+        case .volume: return CGSize(width: 240, height: 124)
+        }
+    }
+
+    /// System Settings pane for the popover's "Open System Settings…" button.
+    var settingsURL: URL? {
+        if #available(macOS 13.0, *) {
+            switch self {
+            case .wifi: return URL(string: "x-apple.systempreferences:com.apple.wifi-settings-extension")
+            case .battery: return URL(string: "x-apple.systempreferences:com.apple.Battery-Settings.extension")
+            case .volume: return URL(string: "x-apple.systempreferences:com.apple.Sound-Settings.extension")
+            }
+        }
+        switch self {
+        case .wifi: return URL(string: "x-apple.systempreferences:com.apple.preference.network")
+        case .battery: return URL(string: "x-apple.systempreferences:com.apple.preference.battery")
+        case .volume: return URL(string: "x-apple.systempreferences:com.apple.preference.sound")
+        }
+    }
+}
+
+/// Edge-bar content: stacked tiles for the preset's content (notes placeholder, status trio).
+struct EdgeBarContentView: View {
+    let content: [EdgeBarContent]
+    @ObservedObject var service: SystemStatusService
+    let onStatusTap: (StatusKind, CGRect) -> Void
+
+    var body: some View {
+        VStack(spacing: EdgeBarLayout.tileSpacing) {
+            ForEach(Array(content.enumerated()), id: \.offset) { _, kind in
+                switch kind {
+                case .notes:
+                    Image(systemName: "note.text")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .frame(width: EdgeBarLayout.width, height: EdgeBarLayout.notesTileHeight)
+                case .status:
+                    StatusTrioView(status: service.status, onTap: onStatusTap)
+                }
+            }
+        }
+        .padding(.vertical, EdgeBarLayout.verticalPadding)
+        .frame(width: EdgeBarLayout.width)
+    }
+}
+
+/// Wi-Fi + battery + volume in one compact column; each glyph is its own popover trigger.
+struct StatusTrioView: View {
+    let status: SystemStatus
+    let onTap: (StatusKind, CGRect) -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            row(.wifi) {
+                wifiGlyph
+                    .foregroundStyle(status.wifi.isConnected ? Color.primary : Color.secondary)
+            }
+            row(.battery) {
+                Image(systemName: status.battery.symbolName)
+                    .foregroundStyle(status.battery.isCharging ? Color.green : Color.primary)
+            }
+            row(.volume) {
+                Image(systemName: status.volume.symbolName)
+            }
+        }
+        .padding(.vertical, 8)
+        .frame(width: EdgeBarLayout.width, height: EdgeBarLayout.statusTileHeight)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.06))
+        )
+    }
+
+    /// Variable-value symbols need macOS 13; on 12 the plain glyph carries the state.
+    @ViewBuilder private var wifiGlyph: some View {
+        if #available(macOS 13.0, *) {
+            Image(systemName: status.wifi.symbolName, variableValue: status.wifi.symbolVariableValue)
+        } else {
+            Image(systemName: status.wifi.symbolName)
+        }
+    }
+
+    private func row<Glyph: View>(_ kind: StatusKind, @ViewBuilder glyph: () -> Glyph) -> some View {
+        StatusTrioRow(kind: kind, onTap: onTap, glyph: glyph())
+    }
+}
+
+private struct StatusTrioRow<Glyph: View>: View {
+    let kind: StatusKind
+    let onTap: (StatusKind, CGRect) -> Void
+    let glyph: Glyph
+
+    var body: some View {
+        GeometryReader { proxy in
+            Button {
+                onTap(kind, proxy.frame(in: .global))
+            } label: {
+                glyph
+                    .font(.system(size: 17, weight: .medium))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        }
+        .frame(height: EdgeBarLayout.statusRowHeight)
+    }
+}
+
+/// Popover content for one status (hosted by `EdgeStatusPopupController`).
+struct StatusPopupView: View {
+    let kind: StatusKind
+    @ObservedObject var service: SystemStatusService
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            switch kind {
+            case .wifi: wifi
+            case .battery: battery
+            case .volume: volume
+            }
+            Spacer(minLength: 0)
+            Button("Open System Settings…") {
+                if let url = kind.settingsURL { NSWorkspace.shared.open(url) }
+            }
+            .buttonStyle(.link)
+            .font(.caption)
+        }
+        .padding(14)
+        .frame(width: kind.popupSize.width, height: kind.popupSize.height, alignment: .topLeading)
+    }
+
+    private var wifi: some View {
+        let wifi = service.status.wifi
+        return VStack(alignment: .leading, spacing: 4) {
+            Text(verbatim: "Wi-Fi").font(.headline)
+            if !wifi.isPoweredOn {
+                Text("Wi-Fi Off").foregroundStyle(.secondary)
+            } else if let ssid = wifi.ssid, wifi.isConnected {
+                Text(verbatim: ssid)
+            } else if wifi.isConnected {
+                Text(verbatim: "\(wifi.rssi ?? 0) dBm").foregroundStyle(.secondary).monospacedDigit()
+            } else {
+                Text("Not Connected").foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var battery: some View {
+        let battery = service.status.battery
+        return VStack(alignment: .leading, spacing: 4) {
+            Text("Battery").font(.headline)
+            if let level = battery.level {
+                Text(verbatim: "\(level)%").font(.title2.weight(.semibold)).monospacedDigit()
+                Group {
+                    if battery.isCharging { Text("Charging") }
+                    else if battery.isPluggedIn { Text("Plugged In") }
+                    else { Text("On Battery") }
+                }
+                .foregroundStyle(.secondary)
+            } else {
+                Text("No Battery").foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var volume: some View {
+        let volume = service.status.volume
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Volume").font(.headline)
+                Spacer()
+                Group {
+                    if volume.isMuted { Text("Muted") } else { Text(verbatim: "\(volume.percent)%") }
+                }
+                .foregroundStyle(.secondary).monospacedDigit()
+            }
+            Slider(value: Binding(
+                get: { Double(volume.level) },
+                set: { service.setVolume(Float($0)) }
+            ), in: 0...1)
+        }
+    }
+}

@@ -1592,6 +1592,23 @@ upgrades, wallpaper/personalisation, extra flyouts.
   popover slider). Privacy: no Location request, no password/keychain reads; SSID shown only if
   the OS provides it. Frameworks autolinked. Tests: lazy/ref-count + sane-readings smoke. Not
   wired to UI yet (7A-5). Live eyeball (unplug charger, toggle Wi-Fi, change volume) pending.
+- 2026-10-11 · **7A-5 status trio chip landed (gate green, 1759 tests):** pure `EdgeBarLayout`
+  (tile sizes/stacking, `tileFrame`) + `PanelGeometry.edgeBarPopupFrame` (opens inward, clamped to
+  visibleFrame) committed first (`54e62ad`). Then `App/Scenes/Edge/StatusTrioView.swift` (Wi-Fi +
+  battery + volume stacked in one compact column; each glyph a popover trigger; Wi-Fi variable-value
+  symbol gated `#available(macOS 13)`), `StatusPopupView` (SSID / dBm, battery %, volume slider via
+  `SystemStatusService.setVolume`, "Open System Settings…" per pane), `EdgeStatusPopupController`
+  (popover panel placed by the pure geometry, outside-click dismiss, toggle on re-tap; feeds the
+  auto-hide `popupOpen` guard), `EdgeBarPanelController` now hosts SwiftUI content per preset
+  (`EdgeBarContentView`; notes tile is still a glyph placeholder for 7A-7), orchestrator holds a
+  **lazy** `SystemStatusService` acquired only while status content is shown. `DOCK_EDGE_BARS=1`
+  with the preset off shows a lone notes tile. Retired: orphan `TrayChip`, stub
+  `SystemStatusProvider` + its test (pbxproj lines removed by verified ID). Behaviour reference:
+  status-trio studied for the combined-icon + per-status-popover pattern only; no code or assets
+  taken, so no NOTICE entry (Apache-2.0 entry stays reserved if that changes). 10 strings x12
+  (drafts, separate commit); a ternary-String `Text` bug (would not localize) was caught by
+  `check_localization.py` and fixed. **Not verified live** (click targets in a non-activating panel,
+  popover placement on a real display, Wi-Fi/battery/volume updates) — needs an eyeball pass.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

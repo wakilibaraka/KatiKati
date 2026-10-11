@@ -299,6 +299,9 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     private var edgeControllers: [EdgeSlotSet.SlotKey: EdgeBarPanelController] = [:]
     private var edgeSettingsSubscription: AnyCancellable?
     private var lastConnectedKeys: [String] = []
+    /// Lazy (§1.7e): created on first need, observers only run while status content is shown.
+    private lazy var statusService = SystemStatusService()
+    private var statusServiceHeld = false
 
     private func edgeBarsActive() -> Bool {
         settingsStore.edgeBarPreset != .off
@@ -310,13 +313,12 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     /// visible, so fullscreen (and any other island hide) hides both atomically.
     private func reconcileEdgeBars(connectedKeys: [String]? = nil) {
         if let connectedKeys { lastConnectedKeys = connectedKeys }
-        let sides: Set<EdgeSide> = edgeBarsActive() && !isSuspended
-            ? (settingsStore.edgeActiveSides.isEmpty ? [.right] : settingsStore.edgeActiveSides)
-            : []
+        let contentBySide = edgeContentBySide()
+        updateStatusServiceHold(contentBySide)
         let desired = EdgeSlotSet.desiredSlots(
             placement: settingsStore.taskbarScreenPlacement,
             connectedKeys: lastConnectedKeys,
-            sides: sides
+            sides: Set(contentBySide.keys)
         )
         let desiredSet = Set(desired)
         for (key, controller) in edgeControllers where !desiredSet.contains(key) {
@@ -325,7 +327,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         }
         let metrics = settingsStore.layoutMetrics
         for key in desired {
-            let controller = edgeControllers[key] ?? EdgeBarPanelController(slotKey: key)
+            let controller = edgeControllers[key] ?? EdgeBarPanelController(slotKey: key, service: statusService)
             edgeControllers[key] = controller
             let siblings = units.filter { $0.key == key.display }
             let visible = siblings.contains { $0.coordinator.isLogicallyVisible }
@@ -333,15 +335,36 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
                 unit.coordinator.dockPanel.map { unit.coordinator.panelCurrentScreen(panel: $0) }
             }.first
             controller.update(
-                screen: screen, visible: visible, autoHide: settingsStore.edgeAutoHide,
+                screen: screen, visible: visible, content: contentBySide[key.side] ?? [], autoHide: settingsStore.edgeAutoHide,
                 gap: settingsStore.edgeGap, margin: settingsStore.edgeMargin, metrics: metrics
             )
+        }
+    }
+
+    /// Content per active edge for the current preset. `DOCK_EDGE_BARS=1` with the preset off shows a
+    /// lone notes tile on the right so the machinery can be eyeballed.
+    private func edgeContentBySide() -> [EdgeSide: [EdgeBarContent]] {
+        guard !isSuspended else { return [:] }
+        let fromPreset = settingsStore.edgeBarPreset.content(statusSide: settingsStore.edgeStatusSide)
+        if !fromPreset.isEmpty { return fromPreset }
+        return edgeBarsActive() ? [.right: [.notes]] : [:]
+    }
+
+    private func updateStatusServiceHold(_ contentBySide: [EdgeSide: [EdgeBarContent]]) {
+        let needed = contentBySide.values.contains { $0.contains(.status) }
+        if needed, !statusServiceHeld {
+            statusService.acquire()
+            statusServiceHeld = true
+        } else if !needed, statusServiceHeld {
+            statusService.release()
+            statusServiceHeld = false
         }
     }
 
     private func tearDownEdgeBars() {
         edgeControllers.values.forEach { $0.tearDown() }
         edgeControllers = [:]
+        updateStatusServiceHold([:])
     }
 
     private func makeUnit(slotKey: IslandSlotSet.SlotKey) -> Unit {
