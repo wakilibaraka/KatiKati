@@ -52,7 +52,7 @@ This commit: **plan only — no code changes.**
 - §5 Port allow-list, file-level (and explicitly-not-ported)
 - §5e Edge-bar + launcher candidates (Phase 7 only — owner's 2026-10-08 decision)
 - §6 Build, identity, licensing
-- §7 Phases 0–7 (each shippable + testable; Phase 7 split into 7A edge bars / 7B launchers + FAB payloads, owner 2026-10-11)
+- §7 Phases 0–10 (each shippable + testable; Phase 7 split into 7A edge bars / 7B launchers + FAB payloads; Phases 8 interior content / 9 strip+interaction+summoning / 10 presets+wallpaper added 2026-10-11)
 - §8 Risks, mitigations, open questions
 - §9 Acceptance criteria
 - Appendix A — per-mode layout spec (islands, overflow, migration)
@@ -74,6 +74,14 @@ This commit: **plan only — no code changes.**
 | Multi-display | ✅ `TaskbarScreenPlacement`: `followMouse` / `allScreens` / `allScreensPerDisplay` / `pinned` + `TaskbarPerDisplaySeedController` + `DisplayTopologyStore` | ✅ per-display (`TaskbarScreenMode`) | ✅ per-display | ❌ primary display only |
 | Dock/native integration | `NativeDockPreferencesService`, auto-hide delays (native + edge sliders), `⌥⇧⌘D` toggle, window-lift avoidance, fullscreen-intent monitor, Spaces/overlay handling | `hideMacDock` + `SplitBarDockRestore` helper + login item | `DockManager` (independent/autoHide/hidden) | `DockController`: save-before-mutate, crash-recovery file, signals |
 | Role in merge | **architecture + engine + UI + settings + test culture** | **mode semantics + island math + island tests** | **widget implementations + settings patterns (selective)** | **priors only where tungsten is silent** |
+
+**Eskele (new reference donor, owner 2026-10-11):** `github.com/wakilibaraka/eskele`
+(fork of `hossainalhaidari/eskele`); no local clone — installed app `/Applications/Eskele.app`
+(0.3.1). MIT; a DockBar-derived feature port (launcher/calendar/quick-settings), macOS 13
+floor, 557 tests, menu-bar agent, minimal edge dock (left/bottom/right) that hides the
+system Dock with a `restore-dock` escape hatch. Role: **eyeball-only reference** — edge
+geometry/auto-hide + Dock-restore lessons feed Phase 7A; never a code source; NOTICE
+entry if behavior is derived.
 
 ---
 
@@ -324,6 +332,8 @@ what we build fresh, informed by the Source column.
 | AppKit panel lessons (`TaskbarPanel`, `BarPanelLayout` edge handling) | gap-analysis against `PanelCoordinator`/`PanelGeometry` | Adopt only proven deltas; no AppKit strip rewrite |
 | `ThumbnailService` click previews | gap-analysis against tungsten `ChipSnapshotter`/popups | Tungsten path wins ties |
 | `DockManager` hardening bits | gap-analysis against tungsten native-Dock services | Evidence-gated (Phase-5 drill decides) |
+| Taskbar button interaction — Window Grouping (multi-window same-app click-to-cycle), right-click action menu, middle-click close, hold-to-quit | study for strip interaction (Phase 9: 9a/9b) | Eyeball-only; tungsten strip semantics stay authoritative (§2.4), behavior-frozen exception per slice |
+| Start Menu Most-Used (Spotlight) + AppBeBack recently-closed restore | study for drawer sections (Phase 8: 8a) | Eyeball-only; drawer = tungsten capsule content |
 
 ### 5c. From tungsten-edge (core) — kept as-is (baseline import)
 
@@ -362,6 +372,12 @@ names/ids/assets only — never behavior.
 - Tungsten: nothing is removed in Phase 0 except rebranding (§6); de-scoping only happens
   with owner sign-off. `Tools/WindowLab` stays (diagnostic CLI, not shipped). Official
   tungsten binaries/website/cask/feed stay Moonbai's — never reused or impersonated.
+
+**Owner override 2026-10-11 (Phase 10):** `WallpaperEngine`, the wallpaper/personalisation
+bits of the personalisation flyouts, `WidgetProvider` + height/personalisation presets, and
+the SplitBar-old NowPlaying flyout are **reopened — as eyeball-only priors for Phase 10
+(10a/10b) and Phase 8 (8b), built fresh in tungsten patterns per the §5b rule.** Everything
+else on this list stays declined.
 
 ### 5e. Edge-bar + launcher candidates (Phase 7 only — owner's 2026-10-08 decision)
 
@@ -447,6 +463,11 @@ Every phase ends with the tungsten gate green: `xcodebuild test … CODE_SIGNING
 + `check_localization.py` + `check_debug_switches.py` + conformance-availability check,
 plus a named verification step. Phase numbering is kept stable vs v2 so review history
 still lines up; the *content* is re-based on tungsten.
+
+**Order (2026-10-11):** Phases 0–6 **DONE** → 7A ∥ 7B (both unblocked; sign-off +
+mini-plan + license gate each) → 8 (interior content) → 9 (strip semantics +
+interaction + summoning) → 10 (widget presets + wallpaper). Phase 8–10 scope added
+2026-10-11 (owner directive, grill-confirmed structure).
 
 ### Phase 0 — Baseline import + rebrand (in this repo)
 
@@ -1310,7 +1331,7 @@ for a gap the drill actually proves.*
   `Docs/Archive/Planning/2026-10-11-phase-5-log.md`.
 
 
-### Phase 6 — Settings Layout tab + welcome step + polish
+### Phase 6 — Settings Layout tab + welcome step + polish (DONE)
 
 - New "Layout" `SettingsTab` (mode picker with live thumbnails drawn from
   `IslandLayoutSolver`), `WelcomeGuideView` pick-a-layout step, status-menu mode entry;
@@ -1359,21 +1380,6 @@ for a gap the drill actually proves.*
   it separately.* Scope when activated: month grid + today highlight baseline;
   alarms/calendar-notification badges, event integration, and provider-driven
   cells decided in the brainstorm, not assumed. Own mini-plan + tests.
-- **DockDoor-style hover preview, single-then-expand (owner 2026-10-08, future
-  phase — NOT Phase 4).** *Intent: hovering a window chip shows ONE preview
-  window (declutter default); moving the mouse into that preview expands to all
-  live windows of the app; optional thematic (themed-tokens) preview chrome with
-  quit / close / minimise actions.* Feasibility: yes — tungsten owns
-  `ChipSnapshotter` (snapshot-backed popups) + `StackPopupSnapshotProbe` +
-  debounced strip hover (plan §5b/§2-matrix rows: "Tungsten path wins ties");
-  DockBar `ThumbnailService` is eyeball-only gap-analysis. Design: hover intent
-  (debounced, existing path) → single `CarrierSnapshot` preview anchored per
-  Phase-3 `screenFrame`; mouse-enter on preview → fan-out to per-window
-  snapshots; actions row (quit/close/minimise, opt-in via settings) rendered in
-  themed popup chrome. New TCC/AX surface: none beyond existing window-list
-  reads, but snapshot cadence is new CPU — Instruments gate when built. Needs
-  its own slice + anchor tests + CPU number; place in Phase 6+ polish or Phase 7
-  edge scope when scheduled (owner to confirm phase).
 - **Verify**: mode/width/gaps persist across restarts; switch without relaunch; onboarding
   snapshot test green.
 
@@ -1434,6 +1440,25 @@ for a gap the drill actually proves.*
 - **Not done / owner items:** per-theme × icon-set × 12-language image golden set (needs a
   snapshot dependency or a manual capture pass); live check of persistence across relaunch and
   of the status-menu entry; light-mode look of both new tabs.
+- 2026-10-11 · **Phase 6 — DONE (verified by main session on owner directive "check phase 6
+  is actually done").** Slices 6a–6h all committed (`4bff890`…`4510af5`); 6g(c)
+  drag-to-resize grip DROPPED by owner (4U decision 3 supersedes); carried items (rich
+  inline chip, light-preset tuning) stay deferred, DockDoor preview moved to Phase 9c.
+  Independent closure gate re-run: **1,731 tests, 0 failures, TEST SUCCEEDED**;
+  `check_localization.py` ✅ (429 keys × 12); `check_debug_switches.py` ✅ (77/77);
+  `check_availability_warnings.py` ✅ (fresh build log). Owner items above (translation
+  drafts §1.7 review, live persistence/status-menu/light-mode eyeball, image golden set)
+  recorded as **non-blocking** — same posture as Phase 5's eyeball list.
+
+- **Result**: **DONE (2026-10-11)**. Settings Layout tab (solver-drawn mode thumbnails +
+  height/gap/width/bottom-edge controls), Appearance tab (Auto + 12 presets + custom tint +
+  icon set), welcome-guide pick-a-layout step (two-step flow), status-menu Layout submenu,
+  bottom-edge hug toggle (`com.katikati.layout.bottomGap`, single substitution in
+  `DockPanelHeight.metrics`), icon-set key (`com.katikati.iconSet`), island auto-hide
+  unified per display + per-island hover titles; drag-grip dropped per 4U decision 3.
+  47 new localization keys ×12 (translations = agent drafts, owner review pending).
+  Closure gate: **1,731 unit tests green, 0 failures** + all three check scripts green.
+  Phase log: in-plan check log above (§6.4 dated entry: `Docs/Archive/Planning/2026-10-11-phase-6-log.md`).
 
 ### Phase 7 — Deferred, split into 7A / 7B (owner 2026-10-11: sign-off + mini-plan + license check each)
 
@@ -1506,6 +1531,79 @@ upgrades, wallpaper/personalisation, extra flyouts.
   now normative for both halves. Rationale: 7A = new panel machinery (risks #13/#14),
   7B = features on existing panels (shares the 7c↔7d dispatch core and one pass of the
   7d↔7e slider plumbing); 7B sequences after Phase 6 (`SettingsWindowView` collision).
+
+### Phase 8 — Interior content rework (deferred: mini-plan each — owner 2026-10-11: "we will plan it out when we get there")
+
+**Classified 2026-10-11 (owner directive; structure confirmed via grill: 8 = interior
+content, 9 = strip semantics + interaction + summoning, 10 = presets + wallpaper).
+Donor priors are eyeball-only study rows (§5b rule) — code written fresh.**
+
+- **8a — Drawer redesign**: most-used / recently-closed / recently-added sections inside
+  the drawer. Owner gates the design (mini-plan when activated). Priors (study only):
+  DockBar Start Menu Most-Used via Spotlight + pinned drag-drop editor + AppBeBack
+  recently-closed restore; SplitBar-old launcher recents/full app catalog.
+- **8b — Now Playing redesign**: rework the 4f mini-icon + popup. Priors: SplitBar-old
+  NowPlaying flyout (§5d — reopened as an eyeball prior only for this slice, never code).
+- **8c — Shelf redesign**: tungsten-core shelf rework — explicit behavior-frozen
+  exception slice, witness tests per §4 rules 2/5.
+- **Verify each**: tungsten gate green + drawer/shelf behavior witnesses + localization ×12.
+
+### Phase 9 — Strip semantics, interaction & summoning (deferred: mini-plan each)
+
+- **9a — Icons / icons+text logic, multi-window of same app**: display-mode rules for
+  window chips, incl. grouping + cycling multiple windows of one app. Priors (study only):
+  DockBar Window Grouping + click-to-cycle, icon-only mode, max button width, minimized
+  dimmed badges; SplitBar-old 5 icon sizes + running indicators. **Care:** §2.4 strip
+  semantics are tungsten-frozen — this slice is an explicit behavior-frozen exception
+  with witnesses (§4 rule 5).
+- **9b — Right-click context menu refinement**: extend tungsten `StripContextMenuZone`
+  menus. Prior (study only): DockBar task-button menu (window list / Hide / Pin /
+  Blacklist / Quit).
+- **9c — Window preview refinement** (DockDoor item MOVED here from the Phase-6 carried
+  list — owner 2026-10-11, was "owner to confirm phase"): *hovering a window chip shows
+  ONE preview window (declutter default); moving the mouse into that preview expands to
+  all live windows of the app; optional themed preview chrome with quit / close /
+  minimise actions.* Feasibility: tungsten owns `ChipSnapshotter` +
+  `StackPopupSnapshotProbe` + debounced strip hover ("Tungsten path wins ties" §5b);
+  DockBar `ThumbnailService`/hover thumbnails are eyeball-only gap-analysis. Design:
+  hover intent (debounced, existing path) → single `CarrierSnapshot` anchored per
+  Phase-3 `screenFrame`; mouse-enter → fan-out to per-window snapshots; actions row
+  (opt-in via settings) in themed popup chrome. No new TCC/AX surface beyond existing
+  window-list reads; snapshot cadence is new CPU — **Instruments gate when built**;
+  anchor tests required.
+- **9d — Shortcuts for widgets/drawers/panels**: extend tungsten `HotKeyRegistrar`
+  (existing `edgeToggleHotKey` pattern) to summon widgets/drawers; reconcile with 7c's
+  ⌥Space palette dispatch (§5e — cross-reference, nothing moves out of 7B). Priors
+  (study only): SplitBar-old `Services` shortcuts, DockBar Command Launcher (⌃⌥⏎).
+- **9e — Hyperkey layer (bindings TBD by owner)**: capslock-as-modifier — caps+W →
+  weather, caps+C → clock/calendar, etc. Own mini-plan: `flagsChanged`/event-tap infra;
+  new global-input surface → CPU/latency gate + Instruments number; every binding
+  registered per §3.4, off by default until owner signs off.
+- **Verify each**: tungsten gate green + menu/preview/shortcut anchor tests + Instruments
+  idle-CPU number in the PR.
+
+### Phase 10 — Widget presets + wallpaper integration (deferred; owner-assigned scope 2026-10-11)
+
+- **10a — Widget presets**: saved widget configurations (layouts/palettes/presets).
+  Priors: SplitBar-old `WidgetProvider` + height/personalisation presets — **§5d override
+  recorded 2026-10-11** (reopened as eyeball-only priors, built fresh in tungsten patterns).
+- **10b — Wallpaper engine**: wallpaper integration incl. SplitBar-old's
+  **weather-reactive wallpapers** — **§5d `WallpaperEngine` override recorded 2026-10-11**
+  (same eyeball-only posture). Themed per Phase-4 tokens; personalisation stays behind
+  the existing Appearance-tab vocabulary.
+- **Verify**: visual-regression gates + localization ×12 + idle CPU ≤ island baseline + ε.
+
+**Phase 8–10 check log (STANDING_RULES §1.8):**
+- 2026-10-11 · **Phases 8/9/10 created (owner directive; structure confirmed via grill).**
+  Source items: drawer (most-used/recently-closed/recently-added), Now Playing + shelf
+  redesign, icons/icons+text incl. multi-window same-app, right-click context menu, window
+  preview (DockDoor moved out of the Phase-6 carried list into 9c), shortcuts, hyperkey
+  (TBD), widget presets + wallpaper (Phase 10 owner-assigned). Donor mining: DockBar →
+  8a/9a/9b/9c priors; SplitBar-old → 8a/8b/9a/10 priors (§5d overrides for wallpaper +
+  WidgetProvider/NowPlaying priors); **Eskele** → new eyeball-only reference in §0
+  (edge-dock geometry + Dock-restore escape hatch feed 7A). **Nothing from this batch
+  enters Phase 7** — 7A/7B unchanged.
+
 
 ## 8. Risks, mitigations, open questions
 
