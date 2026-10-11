@@ -1126,7 +1126,37 @@ for a gap the drill actually proves.*
   clocks model + picker; **5e-F** focus timer state machine + alarms/notifications; **5e-G** polish,
   localization ×12, lock.
 
-- **5f — Phase 5 lock + proof gate.** Drill log(s) in the PR; no lost Dock state; no orphaned
+- **5g — Weather widget tiles (left) (owner 2026-10-11; continuation of 5e, built on its tile system).**
+  Tapping the weather pill toggles a floating tile stack on the **left** (top-left, content-sized,
+  transparent window) — same mechanics, **shared Widget Layout (Mac ~340pt / iPad half-screen), shared
+  palette, solid `tileSurface`** as the calendar (the calendar's `Calendar Layout` setting is renamed
+  **Widget Layout** and migrated). Setting **"Keep both open"**, default **off** (one at a time).
+  Data: **Open-Meteo** forecast + geocoding APIs (no key). Tiles: **Hero** (temp, feels-like, condition,
+  hi/lo, sunrise/sunset, moon) · **Hourly** 24–48h with **Sky / Humidity / Wind** chips and arrows ·
+  **Trend graphs** (temperature + feels-like line 48h; precipitation/snowfall bars 48h + 16-day totals) ·
+  **Daily** up to 16 days (hi/lo range bars, rain chance) · **Details** (UV, pressure, visibility, dew
+  point, precip, cloud cover, wind gust/direction, moon phase) · **Warnings banner**. **Warnings are
+  derived from forecast thresholds** (heat via feels-like, freeze, heavy rain, snow accumulation, strong
+  wind/gusts, thunderstorm, high UV) — labelled forecast-based, not official; thresholds in Settings;
+  badge on the pill. **Locations:** current location when permitted, else city search; ≤5 saved cities
+  with arrows to switch (replaces the hard-coded Istanbul fallback). **Animation:** hero-tile background
+  only (rain, snow, thunder flash, drifting clouds, night stars, sun glow, fog); Canvas +
+  `TimelineView`, runs only while the panel is visible, honours Reduce Motion and a Settings toggle.
+  Weather settings: units (°C/°F; km/h | mph | m/s), animation, thresholds, keep-both-open, saved cities.
+  Charts are custom `Path`/`Canvas` (Swift Charts needs macOS 13; floor is 12).
+  Sub-slices (each gate-green, ≤300 lines): **5g-A** extended Open-Meteo models + parser + unit helpers
+  (+ fixtures, cache back-compat) · **5g-B** geocoding client, saved-cities store, location fix
+  (`NSLocationUsageDescription`, accept `.authorized`) · **5g-C** pure `WeatherWarningEngine` · **5g-D** left
+  panel shell (side-parametrised controller, `PanelGeometry.widgetPanelFrame(side:)`, pill toggle, remove
+  `WeatherPopupView` popover) · **5g-E** tiles (Hero, Hourly, graphs, Daily, Details, Warnings; shared tile
+  system extracted from `CalendarPanelView.swift`) · **5g-F** `WeatherEffectsView` + unit-tested particle
+  simulator · **5g-G** Settings + localization ×12.
+- **5h — Joint polish: weather + calendar (owner: "improve them all together as the last Phase 5 step
+  before Phase 6").** Unify spacing/type scale/shadows/palette application, open/close animation, Esc /
+  outside-click, small-screen budgets, both-open collision rules; full gate + owner eyeball in both layouts
+  × light/dark.
+
+- **5f — Phase 5 lock + proof gate (closes Phase 5 last, after 5g and 5h).** Drill log(s) in the PR; no lost Dock state; no orphaned
   island panels after crash-relaunch; full tungsten gate; dated phase-5 log under
   `Docs/Archive/Planning/`, `CHANGELOG.md`, and the `Result:` line here.
 
@@ -1200,6 +1230,9 @@ for a gap the drill actually proves.*
   fixed (bare `Color.clear` was vertically greedy). Tests: geometry/layout/palette/migration/countdown;
   suite 1671+ ✅, localization ✅, debug switches ✅. **Not verified:** actual on-screen look vs the
   references, small screens, transparent-gap click-through (gaps between tiles still swallow clicks).
+- 2026-10-11 · **5g/5h scoped (docs-only).** Weather tile stack on the left + joint polish added before
+  5f; owner answers recorded above (coexist default one-at-a-time, shared Widget Layout + palette,
+  derived warnings, saved cities, hero-only animation, temp + precip graphs).
 
 
 ### Phase 6 — Settings Layout tab + welcome step + polish
