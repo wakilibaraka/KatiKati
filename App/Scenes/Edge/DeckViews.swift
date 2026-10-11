@@ -27,6 +27,8 @@ final class DeckViewModel: ObservableObject {
     var onReorder: (String, Int) -> Void = { _, _ in }
     var onContext: (DeckContextAction, String) -> Void = { _, _ in }
     var onDragging: (Bool) -> Void = { _ in }
+    /// ⌥-drag of the resting pill: `true` while moving, `false` on release.
+    var onPillDrag: (Bool) -> Void = { _ in }
     var onButton: (DeckButton, CGRect) -> Void = { _, _ in }
 
     var metrics: DeckMetrics { DeckMetrics(scale: CGFloat(scale)) }
@@ -141,6 +143,11 @@ struct DeckPillView: View {
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: model.onRight ? .trailing : .leading)
         .padding(model.onRight ? .trailing : .leading, 1)
+        .contentShape(Rectangle())
+        // The panel only accepts mouse events at rest while ⌥ is held over it, so a plain click never lands here.
+        .gesture(DragGesture(minimumDistance: 2, coordinateSpace: .global)
+            .onChanged { _ in model.onPillDrag(true) }
+            .onEnded { _ in model.onPillDrag(false) })
     }
 }
 

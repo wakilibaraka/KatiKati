@@ -62,12 +62,18 @@ final class EdgeBarPanelController {
         model.onButton = { [weak self] button, rect in self?.buttonTapped(button, localRect: rect) }
         notesPopup.onDismiss = { [weak self] outside in self?.notesSheetClosed(outsideClick: outside) }
         model.onReorder = { [weak self] id, slots in self?.notesProvider()?.move(id: id, by: slots) }
+        model.onPillDrag = { [weak self] moving in self?.pillDrag(moving: moving) }
         model.onDragging = { [weak self] dragging in
             self?.context.isDragging = dragging
             if dragging { self?.cancelHover() }
         }
         model.onContext = { [weak self] action, id in self?.contextAction(action, id: id) }
     }
+
+    /// Called with (side, ratio) when an ⌥-drag of the pill ends, to persist the new height.
+    var onYRatioChanged: ((EdgeSide, Double) -> Void)?
+    private var liveRatio: Double?
+    private var effectiveRatio: CGFloat { CGFloat(liveRatio ?? settings.yRatio) }
 
     /// `DOCK_EDGE_FAN=1`: decks start fanned (inspection aid: behaves like keep-open).
     private static let forceFan = DebugSwitch.edgeFan.isEnabled(in: ProcessInfo.processInfo.environment)
@@ -176,10 +182,10 @@ final class EdgeBarPanelController {
         if model.showsFan {
             let stack = model.layout(panelHeight: visibleFrame.height).stackHeight
             frame = DeckGeometry.fanFrame(m, side: side, visible: visibleFrame, stackHeight: stack,
-                                          itemCount: model.pillItemCount, yRatio: CGFloat(settings.yRatio))
+                                          itemCount: model.pillItemCount, yRatio: effectiveRatio)
         } else {
             frame = DeckGeometry.restFrame(m, side: side, visible: visibleFrame, itemCount: model.pillItemCount,
-                                           yRatio: CGFloat(settings.yRatio))
+                                           yRatio: effectiveRatio)
         }
         panel.ignoresMouseEvents = !model.showsFan
         guard panel.frame != frame else { return }
@@ -193,7 +199,7 @@ final class EdgeBarPanelController {
 
     private func restZone() -> CGRect {
         DeckGeometry.restFrame(model.metrics, side: side, visible: visibleFrame, itemCount: model.pillItemCount,
-                               yRatio: CGFloat(settings.yRatio)).insetBy(dx: -2, dy: -6)
+                               yRatio: effectiveRatio).insetBy(dx: -2, dy: -6)
     }
 
     // MARK: Pointer (existing orchestrator mouse poll)
@@ -202,7 +208,10 @@ final class EdgeBarPanelController {
         guard !isHidden, panel != nil else { return }
         switch state {
         case .rest:
-            if restZone().contains(mouse), !NSEvent.modifierFlags.contains(.option) { apply(.pointerEntered) }
+            let option = NSEvent.modifierFlags.contains(.option)
+            // ⌥ over the pill = grab it (panel takes mouse events); otherwise hovering fans the deck.
+            if liveRatio == nil { panel?.ignoresMouseEvents = !(option && restZone().contains(mouse)) }
+            if restZone().contains(mouse), !option, liveRatio == nil { apply(.pointerEntered) }
         case .fan, .expanded:
             let inside = (panel?.frame.insetBy(dx: -8, dy: -8).contains(mouse) ?? false)
                 || popup.isShown || notesPopup.isShown
@@ -224,6 +233,26 @@ final class EdgeBarPanelController {
                 exitWork = work
                 DispatchQueue.main.asyncAfter(deadline: .now() + DeckTiming.exitConfirmDelay, execute: work)
             }
+        }
+    }
+
+    // MARK: ⌥-drag the pill (vertical only: notes/widgets are bound to their edges)
+
+    private func pillDrag(moving: Bool) {
+        guard state == .rest, let panel else { return }
+        if moving {
+            if liveRatio == nil { NSCursor.closedHand.push() }
+            let h = DeckGeometry.pillHeight(model.metrics, itemCount: model.pillItemCount)
+            let ratio = DeckGeometry.yRatio(forPointerY: NSEvent.mouseLocation.y, pillHeight: h, visible: visibleFrame)
+            liveRatio = Double(ratio)
+            applyFrame()
+        } else if let ratio = liveRatio {
+            NSCursor.pop()
+            liveRatio = nil
+            onYRatioChanged?(side, ratio)
+            settings.yRatio = ratio
+            applyFrame()
+            panel.ignoresMouseEvents = true
         }
     }
 

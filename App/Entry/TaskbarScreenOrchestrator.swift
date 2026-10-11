@@ -372,6 +372,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             let screen = siblings.compactMap { unit in
                 unit.coordinator.dockPanel.map { unit.coordinator.panelCurrentScreen(panel: $0) }
             }.first
+            controller.onYRatioChanged = { [weak self] side, ratio in self?.settingsStore.setDeckYRatio(ratio, for: side) }
             controller.update(
                 screen: screen, visible: visible, content: contentBySide[key.side] ?? [],
                 settings: deckSettings(for: key.side)
