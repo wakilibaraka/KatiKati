@@ -2,6 +2,20 @@ import Foundation
 
 import CoreGraphics
 
+/// Which outer edge of the taskbar a 4g floating-action button (FAB) hugs.
+///
+/// - `left`:  sits left of the weather (outermost) island — future Launchpad-style launcher
+///            trigger (Phase 7d). Off by default in `windows` mode (see 4g risk row: the left edge
+///            collides with a left-placed drawer capsule).
+/// - `right`: sits right of the clock (outermost) island — future on-screen overlay-widgets
+///            trigger (Phase 7e).
+///
+/// Raw values are stable persistence tokens for the per-mode `com.katikati.fab.*` toggle keys.
+enum FABSide: String, CaseIterable, Hashable, Codable, Sendable {
+    case left
+    case right
+}
+
 /// Taskbar height as the user dragged it: whole points, clamped to `minimum...maximum`.
 ///
 /// Every scaled size multiplies `scale`, which is normalised to `native` (the real Dock's
@@ -463,6 +477,38 @@ enum PanelGeometry {
             ? dockFrame.minX + metrics.shadowPadding - metrics.capsuleGap - metrics.capsuleWidth
             : dockFrame.maxX - metrics.shadowPadding + metrics.capsuleGap
         let rawY = dockFrame.minY + metrics.shadowPadding + (metrics.panelHeight - metrics.capsuleWidth) / 2
+        let clampedX = min(max(rawX, screen.frame.minX), screen.frame.maxX - metrics.capsuleWidth)
+        let clampedY = min(max(rawY, screen.frame.minY), screen.frame.maxY - metrics.capsuleWidth)
+        return CGRect(
+            x: clampedX - metrics.shadowPadding,
+            y: clampedY - metrics.shadowPadding,
+            width: metrics.capsuleWidth + metrics.shadowPadding * 2,
+            height: metrics.capsuleWidth + metrics.shadowPadding * 2
+        )
+    }
+
+    /// Target frame for a 4g floating-action button (FAB): a capsule-sized square hugging the outer
+    /// edge of its **anchor island** target frame, vertically centred on the bar and clamped to
+    /// `screen.frame` on every axis — the exact `capsuleTargetFrame` construction, reused.
+    ///
+    /// A FAB is a separate floating panel, never a `BarSection`, so anchoring to the outermost slot
+    /// frame (weather slot for `.left`, clock slot for `.right`) keeps it tracking every layout mode
+    /// without touching island/solver math. Pure: takes the anchor island's **target** frame, not a
+    /// screen or panel, so the coordinate math and the windows-mode clamp are unit-testable here.
+    ///
+    /// - Note: The caller decides *visibility* (the per-mode `com.katikati.fab.*` toggles, and the
+    ///   windows-mode collision with a left-placed drawer capsule). This function only places a FAB
+    ///   that has already been decided visible.
+    static func fabTargetFrame(
+        anchorIslandFrame: CGRect,
+        side: FABSide,
+        on screen: PanelScreenGeometry,
+        metrics: PanelLayoutMetrics = .tungstenEdge
+    ) -> CGRect {
+        let rawX = side == .left
+            ? anchorIslandFrame.minX + metrics.shadowPadding - metrics.capsuleGap - metrics.capsuleWidth
+            : anchorIslandFrame.maxX - metrics.shadowPadding + metrics.capsuleGap
+        let rawY = anchorIslandFrame.minY + metrics.shadowPadding + (metrics.panelHeight - metrics.capsuleWidth) / 2
         let clampedX = min(max(rawX, screen.frame.minX), screen.frame.maxX - metrics.capsuleWidth)
         let clampedY = min(max(rawY, screen.frame.minY), screen.frame.maxY - metrics.capsuleWidth)
         return CGRect(

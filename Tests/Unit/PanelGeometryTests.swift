@@ -571,6 +571,72 @@ final class PanelGeometryTests: XCTestCase {
         }
     }
 
+    // MARK: - FAB (4g dual-FAB scaffold)
+
+    /// The FAB is, by construction, the drawer capsule re-anchored to an outer island edge. This
+    /// equality is the drift guard: if `fabTargetFrame` and `capsuleTargetFrame` ever diverge, the
+    /// 4g "reuse the capsule construction" contract (Standing Rules §2) has been broken.
+    func testFABTargetFrameEqualsCapsuleForTheSameAnchor() {
+        let screen = screen(frame: CGRect(x: -1512, y: -400, width: 1512, height: 982))
+        let anchor = CGRect(x: -1200, y: -12, width: 200, height: 94)
+        XCTAssertEqual(PanelGeometry.fabTargetFrame(anchorIslandFrame: anchor, side: .left, on: screen, metrics: metrics),
+                       PanelGeometry.capsuleTargetFrame(forDock: anchor, on: screen, placement: .left, metrics: metrics))
+        XCTAssertEqual(PanelGeometry.fabTargetFrame(anchorIslandFrame: anchor, side: .right, on: screen, metrics: metrics),
+                       PanelGeometry.capsuleTargetFrame(forDock: anchor, on: screen, placement: .right, metrics: metrics))
+    }
+
+    /// Left FAB hugs the weather island's left edge with exactly `capsuleGap` between them, sits
+    /// vertically centred on the bar, and is a square of `capsuleWidth + 2×shadowPadding`.
+    func testLeftFABHugsWeatherIslandLeftEdge() {
+        let screen = screen(frame: CGRect(x: 0, y: 0, width: 1728, height: 982))
+        let weather = CGRect(x: 100, y: -12, width: 200, height: 94)
+
+        let fab = PanelGeometry.fabTargetFrame(anchorIslandFrame: weather, side: .left, on: screen, metrics: metrics)
+        let fabVisible = fab.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+        let weatherVisible = weather.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+
+        XCTAssertEqual(fabVisible.maxX + metrics.capsuleGap, weatherVisible.minX, accuracy: 0.5, "FAB 与天气岛之间留 capsuleGap")
+        XCTAssertEqual(fab.width, metrics.capsuleWidth + 2 * metrics.shadowPadding, accuracy: 0.5)
+        XCTAssertEqual(fab.height, fab.width, "FAB 是正方形")
+        XCTAssertEqual(fab.midY, weather.midY, accuracy: 0.5, "与条垂直居中对齐")
+    }
+
+    /// Right FAB hugs the clock island's right edge with exactly `capsuleGap` between them.
+    func testRightFABHugsClockIslandRightEdge() {
+        let screen = screen(frame: CGRect(x: 0, y: 0, width: 1728, height: 982))
+        let clock = CGRect(x: 1200, y: -12, width: 200, height: 94)
+
+        let fab = PanelGeometry.fabTargetFrame(anchorIslandFrame: clock, side: .right, on: screen, metrics: metrics)
+        let fabVisible = fab.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+        let clockVisible = clock.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+
+        XCTAssertEqual(fabVisible.minX - metrics.capsuleGap, clockVisible.maxX, accuracy: 0.5, "FAB 与时钟岛之间留 capsuleGap")
+        XCTAssertEqual(fab.width, fab.height, "FAB 是正方形")
+    }
+
+    /// A left FAB whose anchor is already against the screen's left edge (non-zero origin, as on a
+    /// secondary display) must clamp on-screen at `screen.frame.minX`, never spill off the left.
+    func testLeftFABClampsToScreenMinXOnNonZeroOriginScreen() {
+        let screen = screen(frame: CGRect(x: -500, y: 0, width: 1600, height: 982))
+        let weather = CGRect(x: -500, y: -12, width: 150, height: 94) // flush to the left edge
+
+        let fab = PanelGeometry.fabTargetFrame(anchorIslandFrame: weather, side: .left, on: screen, metrics: metrics)
+        let fabVisible = fab.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+
+        XCTAssertEqual(fabVisible.minX, screen.frame.minX, accuracy: 0.5, "贴住屏幕左边界，不越界")
+    }
+
+    /// A right FAB whose anchor is flush to the screen's right edge must clamp at `screen.frame.maxX`.
+    func testRightFABClampsToScreenMaxX() {
+        let screen = screen(frame: CGRect(x: 0, y: 0, width: 1728, height: 982))
+        let clock = CGRect(x: 1578, y: -12, width: 150, height: 94) // flush to the right edge
+
+        let fab = PanelGeometry.fabTargetFrame(anchorIslandFrame: clock, side: .right, on: screen, metrics: metrics)
+        let fabVisible = fab.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+
+        XCTAssertEqual(fabVisible.maxX, screen.frame.maxX, accuracy: 0.5, "贴住屏幕右边界，不越界")
+    }
+
     func testLiftTargetTracksBarHeight() {
         // 最大化避让的 taskbarTop = 屏幕底 + bottomGap + panelHeight，条高一变必须跟着变，
         // 否则被抬起的窗口底边和新任务条对不上。
