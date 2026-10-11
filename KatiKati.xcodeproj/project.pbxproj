@@ -712,6 +712,7 @@
 		EE000000000000000000001E /* ScreenTimeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000001C /* ScreenTimeStore.swift */; };
 		EE0000000000000000000020 /* ScreenTimeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000001F /* ScreenTimeController.swift */; };
 		EE0000000000000000000022 /* ScreenTimeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000021 /* ScreenTimeViews.swift */; };
+		EE0000000000000000000024 /* ScreenTimeAlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000023 /* ScreenTimeAlertPresenter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1216,6 +1217,7 @@
 		EE000000000000000000001C /* ScreenTimeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeStore.swift; path = Platform/ScreenTime/ScreenTimeStore.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000001F /* ScreenTimeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeController.swift; path = Platform/ScreenTime/ScreenTimeController.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000021 /* ScreenTimeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeViews.swift; path = App/Scenes/Edge/ScreenTimeViews.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000023 /* ScreenTimeAlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeAlertPresenter.swift; path = App/Entry/ScreenTimeAlertPresenter.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2252,6 +2254,7 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
+				EE0000000000000000000024 /* ScreenTimeAlertPresenter.swift in Sources */,
 				EE0000000000000000000022 /* ScreenTimeViews.swift in Sources */,
 				EE000000000000000000001D /* ScreenTimeStore.swift in Sources */,
 				EE0000000000000000000020 /* ScreenTimeController.swift in Sources */,

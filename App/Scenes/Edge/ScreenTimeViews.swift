@@ -73,6 +73,7 @@ struct ScreenTimeFlyoutView: View {
                 Text("This Week").font(.system(size: 11, weight: .semibold)).foregroundColor(.secondary)
                 WeekStrip(totals: controller.ledger.week(endingAt: Date(), calendar: .current))
             }
+            limitsSection
             Spacer(minLength: 0)
             Toggle("Track Screen Time", isOn: Binding(get: { controller.enabled }, set: { controller.setEnabled($0) }))
                 .toggleStyle(.switch)
@@ -86,5 +87,40 @@ struct ScreenTimeFlyoutView: View {
                 }
         }
         .padding(14)
+    }
+
+    @ViewBuilder private var limitsSection: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text("Daily Limits").font(.system(size: 11, weight: .semibold)).foregroundColor(.secondary)
+                Spacer()
+                let candidates = controller.ledger.names.filter { controller.limits[$0.key] == nil }.sorted { $0.value < $1.value }
+                if !candidates.isEmpty {
+                    Menu {
+                        ForEach(candidates, id: \.key) { id, name in
+                            Button { controller.setLimit(id, minutes: 60) } label: { Text(verbatim: name) }
+                        }
+                    } label: { Text("Add Limit") }
+                    .menuStyle(.borderlessButton).fixedSize().font(.system(size: 11))
+                }
+            }
+            ForEach(controller.limits.keys.sorted(), id: \.self) { id in
+                HStack {
+                    Text(verbatim: controller.ledger.names[id] ?? id).font(.system(size: 11)).lineLimit(1)
+                    Spacer()
+                    Picker(selection: Binding(get: { controller.limits[id] ?? 60 }, set: { controller.setLimit(id, minutes: $0) })) {
+                        ForEach(limitChoices(including: controller.limits[id]), id: \.self) { Text(verbatim: ScreenTimeLedger.format(Double($0) * 60)).tag($0) }
+                    } label: { EmptyView() }
+                    .labelsHidden().fixedSize().font(.system(size: 11))
+                    Button { controller.setLimit(id, minutes: nil) } label: { Image(systemName: "minus.circle") }.buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private func limitChoices(including current: Int?) -> [Int] {
+        var choices = ScreenTimeLimits.presets
+        if let c = current, !choices.contains(c) { choices.append(c); choices.sort() }
+        return choices
     }
 }

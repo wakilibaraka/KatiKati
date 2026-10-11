@@ -8,6 +8,7 @@ import Foundation
 @MainActor
 final class ScreenTimeController: ObservableObject {
     static let enabledKey = "com.katikati.screentime.enabled"
+    static let limitsKey = "com.katikati.screentime.limits"
     static let retentionDays = 90
     private static let ignored: Set<String> = ["com.apple.loginwindow", "com.apple.ScreenSaver.Engine"]
 
@@ -15,8 +16,11 @@ final class ScreenTimeController: ObservableObject {
     @Published private(set) var enabled: Bool
     /// Bumped on every tick so views showing "now" refresh.
     @Published private(set) var tickCount = 0
-    /// Called after each tick with the up-to-date ledger (limits, W3).
-    var onTick: ((ScreenTimeLedger, _ currentBundleID: String?) -> Void)?
+    /// Daily limits in minutes by bundle id (W3). Empty = none.
+    @Published private(set) var limits: [String: Int]
+    /// Called when a limit needs the owner's attention: the app's id and name, and what to show.
+    var onLimitAction: ((_ bundleID: String, _ name: String, _ action: ScreenTimeLimitAction) -> Void)?
+    private var limitState = ScreenTimeLimitState()
 
     private let store: ScreenTimeStore
     private let defaults: UserDefaults
@@ -34,6 +38,7 @@ final class ScreenTimeController: ObservableObject {
         self.defaults = defaults
         enabled = defaults.bool(forKey: Self.enabledKey)
         ledger = store.load()
+        limits = ScreenTimeLimits.parse(defaults.string(forKey: Self.limitsKey))
     }
 
     func startIfEnabled() { if enabled { start() } }
@@ -44,6 +49,15 @@ final class ScreenTimeController: ObservableObject {
         defaults.set(on, forKey: Self.enabledKey)
         on ? start() : stop()
     }
+
+    func setLimit(_ bundleID: String, minutes: Int?) {
+        if let m = minutes { limits[bundleID] = min(max(m, ScreenTimeLimits.range.lowerBound), ScreenTimeLimits.range.upperBound) }
+        else { limits[bundleID] = nil }
+        defaults.set(ScreenTimeLimits.serialize(limits), forKey: Self.limitsKey)
+    }
+
+    func snooze(_ bundleID: String) { limitState.snooze(bundleID, from: Date()) }
+    func dismissForToday(_ bundleID: String) { limitState.dismissForToday(bundleID, now: Date(), calendar: calendar) }
 
     /// Wipes every stored second and name.
     func deleteAllData() {
@@ -100,7 +114,13 @@ final class ScreenTimeController: ObservableObject {
         tracker.setCounting(!away, at: now, ledger: &ledger, calendar: calendar)
         tickCount &+= 1
         if now.timeIntervalSince(lastSave) >= 60 { save() }
-        onTick?(ledger, tracker.current?.bundleID)
+        if let app = tracker.current, !away,
+           let action = limitState.evaluate(bundleID: app.bundleID,
+                                            usedSeconds: ledger.seconds(bundleID: app.bundleID, day: ScreenTimeLedger.dayKey(now, calendar: calendar)),
+                                            limitMinutes: limits[app.bundleID], now: now,
+                                            day: ScreenTimeLedger.dayKey(now, calendar: calendar)) {
+            onLimitAction?(app.bundleID, app.name, action)
+        }
     }
 
     func save() {

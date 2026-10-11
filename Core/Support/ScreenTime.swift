@@ -103,3 +103,67 @@ struct ScreenTimeTracker: Equatable, Sendable {
         screenAsleep || idleSeconds >= idleThreshold
     }
 }
+
+/// Per-app daily limits (Phase 7B-W3), stored as `bundle.id:minutes,other.id:minutes` in
+/// `com.katikati.screentime.limits`. Minutes are clamped to 5…720; malformed entries are dropped.
+enum ScreenTimeLimits {
+    static let range = 5...720
+    static let presets = [15, 30, 45, 60, 90, 120, 180, 240]
+
+    static func parse(_ stored: String?) -> [String: Int] {
+        var out: [String: Int] = [:]
+        for part in (stored ?? "").split(separator: ",") {
+            guard let colon = part.lastIndex(of: ":"), let m = Int(part[part.index(after: colon)...]) else { continue }
+            let id = String(part[..<colon]).trimmingCharacters(in: .whitespaces)
+            if !id.isEmpty { out[id] = min(max(m, range.lowerBound), range.upperBound) }
+        }
+        return out
+    }
+
+    static func serialize(_ limits: [String: Int]) -> String {
+        limits.keys.sorted().map { "\($0):\(limits[$0]!)" }.joined(separator: ",")
+    }
+}
+
+/// What the limit check wants shown right now.
+enum ScreenTimeLimitAction: Equatable {
+    case warn(minutesLeft: Int)
+    case reached
+}
+
+/// Remembers what was already said today so each warning fires once and a snooze or dismissal is respected.
+struct ScreenTimeLimitState: Equatable {
+    /// Bundle id → day key on which the heads-up was shown.
+    var warned: [String: String] = [:]
+    /// Bundle id → no "reached" prompt before this time.
+    var quietUntil: [String: Date] = [:]
+
+    static let warnMinutes = 5
+    static let snoozeMinutes = 5
+
+    /// Call for the frontmost app on each tick. Nil = nothing to show.
+    mutating func evaluate(bundleID: String, usedSeconds: Double, limitMinutes: Int?, now: Date, day: String) -> ScreenTimeLimitAction? {
+        guard let limit = limitMinutes, limit > 0 else { return nil }
+        let left = Double(limit) * 60 - usedSeconds
+        if left <= 0 {
+            if let until = quietUntil[bundleID], now < until { return nil }
+            quietUntil[bundleID] = now.addingTimeInterval(Double(Self.snoozeMinutes) * 60) // re-prompt cadence if ignored
+            return .reached
+        }
+        if left <= Double(Self.warnMinutes) * 60, warned[bundleID] != day {
+            warned[bundleID] = day
+            return .warn(minutesLeft: max(1, Int((left / 60).rounded(.up))))
+        }
+        return nil
+    }
+
+    mutating func snooze(_ bundleID: String, from now: Date) {
+        quietUntil[bundleID] = now.addingTimeInterval(Double(Self.snoozeMinutes) * 60)
+    }
+
+    /// "Dismiss": stay quiet for this app until the next day starts.
+    mutating func dismissForToday(_ bundleID: String, now: Date, calendar: Calendar) {
+        quietUntil[bundleID] = calendar.nextDate(after: now, matching: DateComponents(hour: 0, minute: 0, second: 0), matchingPolicy: .nextTime)
+            ?? now.addingTimeInterval(86_400)
+    }
+}

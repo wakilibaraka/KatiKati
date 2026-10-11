@@ -85,6 +85,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 后者在权限引导完成前是 nil，settingsStore 从 AppDelegate 构造起即存在。
     private var edgeToggleHotKey: GlobalHotKeyMonitor?
     private var launcherHotKey: GlobalHotKeyMonitor?
+    private let screenTimeAlerts = ScreenTimeAlertPresenter()
     private lazy var launcherPanel: LauncherPanelController = {
         let panel = LauncherPanelController()
         panel.sheetSide = { [weak self] in self?.settingsStore.launcherSheetSide ?? .right }
@@ -229,7 +230,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     .warning("Launcher hotkey ⌥Space registration failed; the left FAB still opens it")
             }
 
-            ProductivityServices.shared.screenTime.startIfEnabled()
+            let screenTime = ProductivityServices.shared.screenTime
+            screenTime.onLimitAction = { [weak self, weak screenTime] id, name, action in
+                guard let screenTime else { return }
+                self?.screenTimeAlerts.show(bundleID: id, name: name, action: action, controller: screenTime)
+            }
+            screenTime.startIfEnabled()
 
             _ = statusMenuController
 

@@ -118,3 +118,42 @@ final class ScreenTimeStoreTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: u.appendingPathExtension("bak").path))
     }
 }
+
+final class ScreenTimeLimitTests: XCTestCase {
+    private let now = Date(timeIntervalSince1970: 1_800_000_000)
+
+    func testParseSerializeClampsAndDropsGarbage() {
+        XCTAssertEqual(ScreenTimeLimits.parse("a.b:60, c:1,d:9999,bad,:5,e:x"), ["a.b": 60, "c": 5, "d": 720])
+        XCTAssertEqual(ScreenTimeLimits.serialize(["b": 30, "a": 60]), "a:60,b:30")
+        XCTAssertEqual(ScreenTimeLimits.parse(nil), [:])
+    }
+
+    func testNoLimitNoAction() {
+        var s = ScreenTimeLimitState()
+        XCTAssertNil(s.evaluate(bundleID: "a", usedSeconds: 9999, limitMinutes: nil, now: now, day: "d"))
+    }
+
+    func testWarnsOncePerDayThenReached() {
+        var s = ScreenTimeLimitState()
+        XCTAssertNil(s.evaluate(bundleID: "a", usedSeconds: 50 * 60, limitMinutes: 60, now: now, day: "d"))
+        XCTAssertEqual(s.evaluate(bundleID: "a", usedSeconds: 56 * 60, limitMinutes: 60, now: now, day: "d"), .warn(minutesLeft: 4))
+        XCTAssertNil(s.evaluate(bundleID: "a", usedSeconds: 57 * 60, limitMinutes: 60, now: now, day: "d"), "once")
+        XCTAssertEqual(s.evaluate(bundleID: "a", usedSeconds: 60 * 60, limitMinutes: 60, now: now, day: "d"), .reached)
+        XCTAssertEqual(s.evaluate(bundleID: "a", usedSeconds: 10, limitMinutes: 60, now: now, day: "d2"), nil)
+    }
+
+    func testReachedRepromptsAfterSnoozeWindowOnly() {
+        var s = ScreenTimeLimitState()
+        XCTAssertEqual(s.evaluate(bundleID: "a", usedSeconds: 4000, limitMinutes: 60, now: now, day: "d"), .reached)
+        XCTAssertNil(s.evaluate(bundleID: "a", usedSeconds: 4010, limitMinutes: 60, now: now.addingTimeInterval(60), day: "d"))
+        XCTAssertEqual(s.evaluate(bundleID: "a", usedSeconds: 4300, limitMinutes: 60, now: now.addingTimeInterval(301), day: "d"), .reached)
+    }
+
+    func testDismissForTodayQuietsUntilMidnight() {
+        var cal = Calendar(identifier: .gregorian); cal.timeZone = TimeZone(identifier: "UTC")!
+        var s = ScreenTimeLimitState()
+        s.dismissForToday("a", now: now, calendar: cal)
+        XCTAssertNil(s.evaluate(bundleID: "a", usedSeconds: 9999, limitMinutes: 10, now: now.addingTimeInterval(3600 * 5), day: "d"))
+        XCTAssertNotNil(s.evaluate(bundleID: "a", usedSeconds: 9999, limitMinutes: 10, now: now.addingTimeInterval(3600 * 30), day: "d2"))
+    }
+}
