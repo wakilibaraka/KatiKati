@@ -1570,6 +1570,8 @@ Reference screenshots: one Launchpad-style surface (icon grid + widget tiles, le
 
 - 2026-10-12 · **7B-L5b landed (gate green, 1911 tests):** widget row above the grid — Clock (time + date), Calculator (pure `CalculatorEngine`, live result), Countdown (existing `EventCountdownStore`), Downloads (newest 4, read only when the tile first appears; may raise the system folder-access prompt); `com.katikati.launcher.tiles` (default all), Settings → Launcher toggles. World-time zones deferred. Housekeeping: `LauncherLayout` pbxproj IDs were 25 chars (overflow in my helper) — replaced with valid `EE…` IDs; helper fixed.
 
+- 2026-10-12 · **7B L5 live check:** search centred at the top by default, four tiles render (Clock 01:51, Calculator, Countdown "No events", Downloads list), sheet on the right; typing `12+6*2` in the Calculator tile shows 24. Not exercised: other search positions, left sheet, tile toggles in Settings, Downloads item open, Countdown with events, Return-to-launch, pin menu, FAB tap.
+
 **Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
 dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.
