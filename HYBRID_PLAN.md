@@ -25,11 +25,11 @@ This commit: **plan only — no code changes.**
    + **SwiftUI strip views** (`DockStripView` family). The v2 "pure AppKit, no SwiftUI on
    the bar" rule is **retired** — re-implementing tungsten's strip in AppKit would throw
    away the core's most-tested code for no user-visible gain.
-4. **Two donors, one reference** (see §0/§5):
-   - **Donor A — SplitBar-old** (`~/Desktop/SplitBar-old`, `wakilibaraka/SplitBar-old`):
+4. **Third-party repos = references, not donors** (terminology owner 2026-10-11; see §0/§5):
+   - **Reference A — SplitBar-old** (`~/Desktop/SplitBar-old`, `wakilibaraka/SplitBar-old`):
      the 4 required layout modes, section/island model, pure island geometry, mode
      picker/onboarding, island tests.
-   - **Donor B — DockBar** (`~/dockbar`, `wakilibaraka/dockbar`, fork of
+   - **Reference B — DockBar** (`~/dockbar`, `wakilibaraka/dockbar`, fork of
      rajeshgoli/deskbar): weather / clock / tray-cluster widgets, settings-window
      patterns, AppKit panel lessons. Ported **selectively** — tungsten already covers
      window management, panels, settings and tests.
@@ -52,7 +52,7 @@ This commit: **plan only — no code changes.**
 - §5 Port allow-list, file-level (and explicitly-not-ported)
 - §5e Edge-bar + launcher candidates (Phase 7 only — owner's 2026-10-08 decision)
 - §6 Build, identity, licensing
-- §7 Phases 0–10 (each shippable + testable; Phase 7 split into 7A edge bars / 7B launchers + FAB payloads; Phases 8 interior content / 9 strip+interaction+summoning / 10 presets+wallpaper added 2026-10-11)
+- §7 Phases 0–12 (each shippable + testable; Phase 7 split into 7A edge bars / 7B launchers + FAB payloads; Phases 8 interior content / 9 strip+interaction+summoning / 10 presets+wallpaper / 11 layout-mode rendering / 12 settings refinement added 2026-10-11)
 - §8 Risks, mitigations, open questions
 - §9 Acceptance criteria
 - Appendix A — per-mode layout spec (islands, overflow, migration)
@@ -63,7 +63,7 @@ This commit: **plan only — no code changes.**
 
 ## 0. Sources at a glance
 
-| | **Tungsten Edge** (core) | **SplitBar-old** (donor A) | **DockBar** (donor B) | **Live SplitBar** (reference) |
+| | **Tungsten Edge** (core) | **SplitBar-old** (reference A) | **DockBar** (reference B) | **Live SplitBar** (reference) |
 |---|---|---|---|---|
 | Path / URL | `github.com/moonbai-studio/tungsten-edge`, clone at `/tmp/tungsten-edge`, snapshot `a4e1a55` (2026-10-07, `master`, single squashed public commit) | `~/Desktop/SplitBar-old`, `wakilibaraka/SplitBar-old` | `~/dockbar`, `wakilibaraka/dockbar` (fork of rajeshgoli/deskbar) | `github.com/wakilibaraka/SplitBar` (fork of `senoldogann/EdgeDeckBar`), clone at `/tmp/splitbar-upstream` |
 | Stack | SwiftUI strip in `NSPanel` hosts, **Xcode project** (`macos-dock-cc-v2.xcodeproj`), Swift 5.0, floor **macOS 12.0**, **one SPM dep (Sparkle)** | SwiftUI in `NSPanel`s, SwiftPM, macOS 15 | Pure AppKit, SwiftPM, Swift 6 (lang v5), macOS 14 floor | SwiftUI in `NSHostingView`/`NSPanel`, swift-tools 6.0, macOS 15 |
@@ -75,13 +75,17 @@ This commit: **plan only — no code changes.**
 | Dock/native integration | `NativeDockPreferencesService`, auto-hide delays (native + edge sliders), `⌥⇧⌘D` toggle, window-lift avoidance, fullscreen-intent monitor, Spaces/overlay handling | `hideMacDock` + `SplitBarDockRestore` helper + login item | `DockManager` (independent/autoHide/hidden) | `DockController`: save-before-mutate, crash-recovery file, signals |
 | Role in merge | **architecture + engine + UI + settings + test culture** | **mode semantics + island math + island tests** | **widget implementations + settings patterns (selective)** | **priors only where tungsten is silent** |
 
-**Eskele (new reference donor, owner 2026-10-11):** `github.com/wakilibaraka/eskele`
+**Eskele (new reference, owner 2026-10-11):** `github.com/wakilibaraka/eskele`
 (fork of `hossainalhaidari/eskele`); no local clone — installed app `/Applications/Eskele.app`
 (0.3.1). MIT; a DockBar-derived feature port (launcher/calendar/quick-settings), macOS 13
 floor, 557 tests, menu-bar agent, minimal edge dock (left/bottom/right) that hides the
 system Dock with a `restore-dock` escape hatch. Role: **eyeball-only reference** — edge
 geometry/auto-hide + Dock-restore lessons feed Phase 7A; never a code source; NOTICE
 entry if behavior is derived.
+
+**Reference policy (owner 2026-10-11):** all third-party repos/apps in this plan are
+*references, not donors* — their code may be broken or unsuitable for this build; use
+their code only after investigation (full policy at the §5 intro).
 
 ---
 
@@ -128,8 +132,7 @@ revisit after Phase 5 using tungsten's `DockPanelHeight` scaling path (Phase 7).
 - No TCA-style reducer store — tungsten's `…Store` + `AppDelegate` wiring governs state.
 - No wallpaper/personalisation engine, AI-usage, clipboard, quick-notes, secrets or
   `ProcessRunner` features from SplitBar-old in scope (see §5 not-ported; Phase 7 max).
-- No new third-party dependencies beyond tungsten's single Sparkle SPM pin — all donor
-  ports must be dependency-free.
+- No new third-party dependencies beyond tungsten's single Sparkle SPM pin — all ports from references must be dependency-free.
 - No rebranding of tungsten itself: the core stays GPL-3.0-or-later with Moonbai Studio
   trademark reserved; KatiKati ships under its own name/icon/id (§6).
 
@@ -148,7 +151,7 @@ revisit after Phase 5 using tungsten's `DockPanelHeight` scaling path (Phase 7).
 | Multi-panel management | ✅ per-`Unit` `PanelCoordinator` (5 panels each) + incremental `rebuildUnits` | ✅ `TaskbarPanelController` | ❌ (1/display) | ✅ `SegmentPanelManager` | Tungsten pattern; SplitBar-old keys inform slot ids |
 | Panel geometry (pure, tested) | ✅ `PanelGeometry` (`segmentPanelFrame`-class clamp discipline, popup/tooltip/drawer frames) + `PanelGeometryTests` | `layoutIslands` + overflow loop | `BarPanelLayout` (strip-level) | `segmentPanelFrame` (clamped) | Compose: tungsten outer frame + SplitBar-old island split |
 | Multi-display | ✅ richest (`followMouse`/`allScreens`/`allScreensPerDisplay`/`pinned` + seed controller + topology store) | ✅ | ✅ | ❌ | Tungsten |
-| Fullscreen hide per screen | ✅ intent monitor + per-coordinator path | ✅ `FullscreenMonitor` | ✅ | ❌ | Tungsten path; donor-A ideas only if a gap is found |
+| Fullscreen hide per screen | ✅ intent monitor + per-coordinator path | ✅ `FullscreenMonitor` | ✅ | ❌ | Tungsten path; reference-A ideas only if a gap is found |
 | Flyout anchoring | ✅ popup/tooltip/drawer target frames per anchor rect | per-panel | ✅ `relativeTo:of:` | ✅ per-icon `screenFrame` | Tungsten + generalize to per-island anchors |
 | Dock hide/restore hardening | ✅ auto-hide delays, `NativeDockPreferencesService`, window-lift avoidance, signal-safe teardown paths | `hideMacDock` + restore helper | `DockManager` | ✅ save-before-mutate + recovery file | Tungsten; live-SplitBar recovery pattern only if tungsten lacks it |
 | Hover/click previews | ✅ `ChipSnapshotter`, `StackPopupSnapshotProbe`, snapshot-backed popups | ❌ | `ThumbnailService` (click) | ✅ debounced strip | Tungsten |
@@ -167,11 +170,11 @@ revisit after Phase 5 using tungsten's `DockPanelHeight` scaling path (Phase 7).
   carrier surfaces, drawer/shelf/trash/folders/badges, fullscreen/Spaces correctness, and a
   ~1,300-test suite guarding all of it. Rebuilding any of that on another base would be
   strictly worse than adding layout modes to tungsten.
-- **SplitBar-old is donor A** because it is the only source of the *4 required modes* as
+- **SplitBar-old is reference A** because it is the only source of the *4 required modes* as
   semantics: `TaskbarSection.islands(for:)` (which sections group into which island), the
   overflow-collapse loop, and `TaskbarStripTests` proving them. Its structure (7.5k-line
   SwiftUI monolith) is deliberately not ported — only model + math + tests.
-- **DockBar is donor B** because it owns the missing widget set (weather, clock, tray
+- **DockBar is reference B** because it owns the missing widget set (weather, clock, tray
   cluster) plus settings-window patterns. Tungsten already covers window management,
   panels, settings infra and tests, so DockBar contributes **implementations, not
   architecture** — each widget is re-skinned as a tungsten strip chip + popup.
@@ -191,7 +194,7 @@ revisit after Phase 5 using tungsten's `DockPanelHeight` scaling path (Phase 7).
 ## 3. Naming (tungsten vocabulary → canonical additions)
 
 Tungsten's vocabulary stays authoritative; the merge only *adds* layout-mode names. Where
-v2 renamed DockBar concepts, this plan keeps tungsten names and maps donors onto them:
+v2 renamed DockBar concepts, this plan keeps tungsten names and maps references onto them:
 
 | Concept | Tungsten Edge (canonical — kept) | SplitBar-old | DockBar | Live SplitBar | **New in Splitbar** |
 |---|---|---|---|---|---|
@@ -296,7 +299,15 @@ Splitbar (LSUIElement agent, tungsten tree + layout layer)
 The §-tables are normative: **if a file/feature is not listed, it is not ported.**
 Tungsten's tree is the baseline — everything there is *kept* unless §5d says otherwise.
 
-### 5a. From SplitBar-old (donor A) — port model + math + tests
+> **Reference policy (owner 2026-10-11):** every third-party repo/app in this plan
+> (SplitBar-old, DockBar, Live SplitBar, Eskele, EdgeDeckBar, noty, arc-menu, Volant,
+> Liftoff, status-trio, …) is a **reference, not a donor**. Their code may be **broken or
+> unsuitable for the current build** (different Swift/macOS floors, unmaintained, AppKit
+> vs SwiftUI mismatch). **Use their code only after investigation** — buildability on our
+> toolchain, fitness for the slice, and license (NOTICE attribution) verified and recorded
+> in that slice's check-log entry first. The default posture stays eyeball-only study.
+
+### 5a. From SplitBar-old (reference A) — port model + math + tests
 
 | Source | Target in new repo | Notes |
 |---|---|---|
@@ -313,14 +324,14 @@ Tungsten's tree is the baseline — everything there is *kept* unless §5d says 
 | `OnboardingView` pick-a-layout step | new step in `WelcomeGuideView` + "Layout" `SettingsTab` | Reference screenshots, Appendix B |
 | Mode thumbnails | `SettingsWindowView` Layout tab | Drawn **from `IslandLayoutSolver`** → preview = real geometry |
 
-### 5b. From DockBar (donor B) — eyeball-only reference (owner 2026-10-08)
+### 5b. From DockBar (reference B) — eyeball-only reference (owner 2026-10-08)
 
 **Eyeball-only rule:** DockBar code is a *specimen, never a source*. Study how it
 fetches, decides and renders — then write fresh code in tungsten patterns (pure
 decisions in `Core/Support` + unit tests, thin services in `App/Composition`, tungsten
 chip/popup chrome, Phase-4 theme tokens). **Nothing is pasted or mechanically
-translated**; pin DockBar's commit hash for reference. No donor regression can enter
-because no donor line enters. The table below is a *study list* — the Target column is
+translated**; pin DockBar's commit hash for reference. No reference regression can enter
+because no reference line enters. The table below is a *study list* — the Target column is
 what we build fresh, informed by the Source column.
 
 | Source (study only) | Target (build fresh, tungsten-style) | Notes |
@@ -381,12 +392,12 @@ else on this list stays declined.
 
 ### 5e. Edge-bar + launcher candidates (Phase 7 only — owner's 2026-10-08 decision)
 
-Single edge donor (EdgeDeckBar) + noty-as-inspo; widgets-only (option (a)).
+Single edge reference (EdgeDeckBar) + noty-as-inspo; widgets-only (option (a)).
 AI Usage/Dispatch stack is explicitly NOT ported. Order: 7a notes → 7b
 widgets → 7c launcher. Each needs owner sign-off + mini-plan + license check.
 Phases 2–6 stay frozen.
 
-**Eyeball-only (owner 2026-10-08, extends §5b's rule to Phase 7):** donor repos
+**Eyeball-only (owner 2026-10-08, extends §5b's rule to Phase 7):** reference repos
 here are *studied, not copied* — file names in the table mark what to read and the
 behavior to reproduce; all code is written fresh in tungsten patterns with its own
 tests. License/attribution checks stay (entries in `NOTICE` when behavior is derived).
@@ -399,6 +410,7 @@ tests. License/attribution checks stay (entries in `NOTICE` when behavior is der
 | Volant `mysticcoders/volant` MIT — ranking + config patterns: learn-from-choice ranking, ⌘K alias/hotkey editor, portable text config + backup, encrypted clipboard-history shape, notes-as-`.md` | launcher ranking/config layer | Patterns only — never its sandbox/WASM/Herdr/ACP stacks |
 | EdgeDeckBar ⌥Space palette — apps/widgets/tiling/actions routing, theme-following flyout | launcher dispatch layer | Re-skin to tungsten chips/popups |
 | Liftoff `firstfu/Liftoff` GPL-3.0 — preview + search logic: live thumbnails incl. minimized, title-matching search, Smart Organize lookup table (preview-first), drag-to-Dock | launcher preview/search layer | Logic only, never its AppKit grid; GPL-3.0 compatible with KatiKati's GPL core |
+| `lingyired/status-trio` Apache-2.0 — combined Wi-Fi + battery + volume status icon (menu bar / Dock / both), per-status popovers, configurable placement, privacy posture (never reads Wi-Fi passwords) | study for the 7A status cluster (combined-trio icon + popover pattern) | Reference (§5 policy: investigate first; NOTICE if behavior is derived) |
 
 Explicitly NOT ported: EdgeDeckBar `SegmentPanelManager`/stores/settings, AI Usage (Claude/Codex quota, token chart, Ollama, multi-account Keychain switching), Dispatch-to-agent, Terminal automation; noty site/cask/Sparkle wiring/`.stickies` JSON; arc Jev-cloud; Volant sandbox/WASM/Herdr/ACP; Liftoff grid.
 
@@ -441,9 +453,9 @@ Explicitly NOT ported: EdgeDeckBar `SegmentPanelManager`/stores/settings, AI Usa
      a different name + icon and must not present as official/endorsed — Phase 0
      rebranding satisfies this; never ship Moonbai's website/cask/feed references.
   3. SplitBar-old MIT © 2026 senoldogann lineage (+ Status Trio Apache-2.0-inspired and
-     AppleSiliconDDC MIT lines where donor-A code ports) — carried verbatim.
+     AppleSiliconDDC MIT lines where reference-A code ports) — carried verbatim.
   4. DockBar/DeskBar MIT (rajeshgoli/deskbar → wakilibaraka/dockbar) — carried verbatim
-     when donor-B code ports.
+     when reference-B code ports.
   5. Live-SplitBar NOTICE (EdgeDeckBar→SplitBar lineage, senoldogann) — only if
      reference code is actually pasted (default: no).
    6. EdgeDeckBar MIT © 2026 senoldogann; noty MIT © aimen08; arc-menu MIT ©
@@ -466,8 +478,9 @@ still lines up; the *content* is re-based on tungsten.
 
 **Order (2026-10-11):** Phases 0–6 **DONE** → 7A ∥ 7B (both unblocked; sign-off +
 mini-plan + license gate each) → 8 (interior content) → 9 (strip semantics +
-interaction + summoning) → 10 (widget presets + wallpaper). Phase 8–10 scope added
-2026-10-11 (owner directive, grill-confirmed structure).
+interaction + summoning) → 10 (widget presets + wallpaper) → 11 (layout-mode rendering)
+→ 12 (settings refinement — **last**, owner). Phases 8–12 scope added 2026-10-11
+(owner directives, grill-confirmed structure).
 
 ### Phase 0 — Baseline import + rebrand (in this repo)
 
@@ -480,8 +493,7 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
   lineage stamp); display name/icon (never tungsten marks); Sparkle feed URL + key;
   login-item/single-instance scoping; README/agents/CI strings; `Resources/Info.plist` +
   `.xcstrings` display names (all 12 languages stay passing via `check_localization.py`).
-- Adopt `LICENSE` (GPL-3.0-or-later, Moonbai Studio) + `NOTICE` (§6 entries; donor
-  entries land with their code, placeholder now) + `TRADEMARK.md` reservation note.
+- Adopt `LICENSE` (GPL-3.0-or-later, Moonbai Studio) + `NOTICE` (§6 entries; reference attributions land with their code, placeholder now) + `TRADEMARK.md` reservation note.
   Confirm with the owner that GPL-3.0-or-later is the intended Splitbar license.
 - **Verify**: tungsten gate green; app launches via `Scripts/build_and_run.sh`, bar
   appears, settings + welcome guide open, window chips switch/minimize exactly as
@@ -617,7 +629,7 @@ history). Keep the `App/Core/Platform/UI/Tools/Scripts/Resources/Tests` layout,
 Rules for all slices: each ends gate-green (`xcodebuild test` + `check_localization.py`
 + `check_debug_switches.py` + `check_availability_warnings.py`); ≤ ~300 lines per
 commit; widgets are placement-only (no strip-semantics change — Standing Rules §2.4);
-donor reference = **eyeball-only** (§5b rule: DockBar studied, never copied); no new
+third-party references stay **eyeball-only** (§5b rule: DockBar studied, never copied); no new
 dependencies (EdgeDeck numbers are data, not code); UI/Settings picker stays
 Phase 6; `DOCK_THEME` stays a debug switch only (`check_debug_switches.py` registers it).
 
@@ -1482,6 +1494,12 @@ Appendix C stays normative for both halves.
   battery, plus the tray popup's quick settings and the merged ring icon that 4f
   used to plan) lands on whichever edge bar the owner picks — **left vs right is
   decided by the owner at 7A sign-off**. `TrayChip` moves to this scope.
+- **Status trio (owner 2026-10-11):** the status cluster above adopts the **combined-icon
+  pattern** from `lingyired/status-trio` (reference, Apache-2.0): Wi-Fi + battery +
+  **volume** in one compact configurable status icon (iPhone Duo-style) with per-status
+  popovers. Reference policy applies (§5 intro): investigate before any code use (Swift 6 /
+  macOS 13 floor vs our macOS 12 floor), NOTICE attribution if behavior is derived. Adds
+  **volume** to the wifi/battery/quick-settings cluster.
 - **7b left-edge widgets bar** (second): all 6 EdgeDeckBar widgets per §5e,
   re-skinned to tungsten chips + `PanelGeometry` anchors.
 - **Verify 7A**: tungsten gate green + per-edge anchor tests + idle CPU ≤
@@ -1531,12 +1549,18 @@ upgrades, wallpaper/personalisation, extra flyouts.
   now normative for both halves. Rationale: 7A = new panel machinery (risks #13/#14),
   7B = features on existing panels (shares the 7c↔7d dispatch core and one pass of the
   7d↔7e slider plumbing); 7B sequences after Phase 6 (`SettingsWindowView` collision).
+- 2026-10-11 · **Terminology sweep + status trio (owner directive).** All "donor" wording →
+  "reference" (23 occurrences, decision 4 retitled "Third-party repos = references, not
+  donors"); reference policy note added at §5 intro + §0 pointer (code may be broken or
+  unsuitable — **investigate before any code use**, NOTICE if derived). **Status trio**
+  (`lingyired/status-trio`, Apache-2.0 — combined wifi/battery/volume icon + popovers)
+  added to **7A**: combined-icon pattern for the status cluster, + a §5e study row.
 
 ### Phase 8 — Interior content rework (deferred: mini-plan each — owner 2026-10-11: "we will plan it out when we get there")
 
 **Classified 2026-10-11 (owner directive; structure confirmed via grill: 8 = interior
 content, 9 = strip semantics + interaction + summoning, 10 = presets + wallpaper).
-Donor priors are eyeball-only study rows (§5b rule) — code written fresh.**
+Reference priors are eyeball-only study rows (§5b rule) — code written fresh.**
 
 - **8a — Drawer redesign**: most-used / recently-closed / recently-added sections inside
   the drawer. Owner gates the design (mini-plan when activated). Priors (study only):
@@ -1591,18 +1615,70 @@ Donor priors are eyeball-only study rows (§5b rule) — code written fresh.**
   **weather-reactive wallpapers** — **§5d `WallpaperEngine` override recorded 2026-10-11**
   (same eyeball-only posture). Themed per Phase-4 tokens; personalisation stays behind
   the existing Appearance-tab vocabulary.
+- **10c — App icon + menu-bar icon art (owner 2026-10-11; placement = recommended, move on
+  request):** redraw the app icon (`.icns`) and the menu-bar/status art. The menu-bar variant
+  slots into **6b's existing `com.katikati.iconSet` machinery** (as the `modern` art — no new
+  Settings work); the app icon replaces the product icon in `Resources`. Trademark gate:
+  never tungsten marks (§6 / `TRADEMARK.md`); README/marketing screenshots updated in the
+  same slice.
 - **Verify**: visual-regression gates + localization ×12 + idle CPU ≤ island baseline + ε.
 
-**Phase 8–10 check log (STANDING_RULES §1.8):**
+**Phase 8–12 check log (STANDING_RULES §1.8):**
 - 2026-10-11 · **Phases 8/9/10 created (owner directive; structure confirmed via grill).**
   Source items: drawer (most-used/recently-closed/recently-added), Now Playing + shelf
   redesign, icons/icons+text incl. multi-window same-app, right-click context menu, window
   preview (DockDoor moved out of the Phase-6 carried list into 9c), shortcuts, hyperkey
-  (TBD), widget presets + wallpaper (Phase 10 owner-assigned). Donor mining: DockBar →
+  (TBD), widget presets + wallpaper (Phase 10 owner-assigned). Reference mining: DockBar →
   8a/9a/9b/9c priors; SplitBar-old → 8a/8b/9a/10 priors (§5d overrides for wallpaper +
   WidgetProvider/NowPlaying priors); **Eskele** → new eyeball-only reference in §0
   (edge-dock geometry + Dock-restore escape hatch feed 7A). **Nothing from this batch
   enters Phase 7** — 7A/7B unchanged.
+- 2026-10-11 · **10c + Phases 11/12 added (owner directives).** (a) **10c** app icon +
+  menu-bar icon art — menu-bar art reuses 6b's `com.katikati.iconSet` machinery, trademark
+  gate applies; placement recommended in Phase 10, move on request. (b) **Phase 11 —
+  layout-mode rendering refinement** ("render well and be distinct"; placement
+  owner-confirmable). (c) **Phase 12 — settings refinement** ("at the end"): full
+  page/button audit; recategorize (owner example appearance→general — flagged: conflicts
+  with 6d's new Appearance tab, confirm at activation); General gains **Permissions +
+  Shortcuts** sections (reverse mouse ✓ already there, edge hotkey ✓ there, hyperkey 9e,
+  ⌥Space); **License tab → About** (audited: dormant tungsten activation machinery —
+  `LicenseStore`/`LicenseVerifier` + `SubscriptionSubmitter` — **gates nothing today**);
+  Widgets page recommended (host for 10a presets + widths from 6c's Layout pane);
+  theme refinement.
+
+### Phase 11 — Layout-mode rendering refinement (deferred; placement owner-confirmable)
+
+- **11a — distinctness + render quality per mode**: make `windows` / `split3` / `split4` /
+  `split5` / `centered` each render well and read as **clearly distinct** — island
+  composition, spacing, widget grouping per mode (owner 2026-10-11). Solver changes keep
+  tungsten clamp discipline + golden tests; Appendix A stays normative (update it if
+  composition changes); Layout-tab thumbnails (6c) follow automatically — they draw from
+  the solver. Per-mode golden screenshots become the visual witnesses.
+- **Verify**: solver goldens + per-mode screenshots + full gate.
+
+### Phase 12 — Settings refinement (deferred; owner 2026-10-11: "at the end")
+
+- **12a — full audit**: every settings page + button exercised; dead/broken controls fixed
+  or removed; manual checklist committed with the PR + unit tests for any pure logic.
+- **12b — recategorize** (owner example: **appearance → general**). ⚠ **Conflicts with 6d's
+  new Appearance tab** — owner confirms exact move (dissolve tab vs partial) at activation.
+- **12c — General becomes the feature hub**: **Permissions** section (Accessibility / Screen
+  Recording / Automation / notifications status + re-trigger buttons — currently only
+  reachable via the onboarding window) and **Shortcuts** section (scroll-reverse toggle ✓
+  already there; edge hotkey `⌥⇧⌘D` rebind ✓ there; hyperkey bindings from 9e; ⌥Space from 7c).
+- **12d — License tab → About** (owner 2026-10-11). *Audited current state:* the License tab
+  is dormant commercial machinery inherited from tungsten — `LicenseStore`/`LicenseVerifier`
+  activation-code entry (credentials signature-checked, re-verified every launch) +
+  `SubscriptionSubmitter` hooks; **it gates nothing today** (no feature consults activation).
+  Move its content into About next to version/credits/GPL notice; tab list becomes
+  General / Layout / (+Appearance, pending 12b) / Widgets / Advanced / Feedback / About.
+- **12e — Widgets page? (owner asked; recommendation: YES)** — dedicated Widgets tab for
+  widget on/off + widths (relocated from the Layout pane where 6c put them) and **Phase-10
+  presets (10a)** as its natural host. Sequencing note: create it **before or with Phase 10**
+  so 10a lands there directly; otherwise 10a lands in Layout and 12e relocates it.
+- **12f — theme refinement** (owner eyeball-driven; final home follows 12b's decision).
+- **Verify**: audit checklist complete (every button witnessed), tab/order tests,
+  localization ×12, full gate.
 
 
 ## 8. Risks, mitigations, open questions
