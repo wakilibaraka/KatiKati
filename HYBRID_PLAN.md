@@ -1109,10 +1109,17 @@ for a gap the drill actually proves.*
   visible, no scrolling**: date card · month grid · agenda · world clocks (user-picked, ≤4) ·
   focus (Pomodoro) · reminders · alarms; theme-glass styled per the owner's reference shots.
   Real EventKit (agenda + reminders), real in-app alarms (UserNotifications) and focus timer.
-  **Size presets (owner): `compact420` (420pt wide, 2-column cards) and `halfScreen` (half the
-  screen width, 3-column cards)** — `com.katikati.calendar.panelPreset`. **The same two presets are
-  the size vocabulary for the future Weather redesign** (reuse the preset type/geometry, do not
-  invent a third).
+  **REWORKED 2026-10-11 (owner rejected the single glass panel): separate solid floating tiles, no outer
+  panel, content-sized, anchored top-right.** Two **layout presets** (Settings → Calendar Layout,
+  `com.katikati.calendar.layout`): **Mac** (one ~340pt column: Clock+Focus tiles, wide Calendar tile =
+  next event/later today + month grid, Reminders+Alarms band tiles) and **iPad** (≈half-screen 3-column
+  grid: Date, Agenda, Month, Clock, Focus, Reminders, Alarms). Replaces the 420/half-screen size presets
+  (migrated `compact420`→mac, `halfScreen`→ipad). **Tile colour palettes** (Classic/Vivid/Pastel/Mono,
+  `com.katikati.calendar.palette`) over a solid base that follows system light/dark. Time Zones tile is a
+  clock, **flip (default) or analog** (`com.katikati.calendar.clockStyle`).
+  **Shared widget vocabulary — applies to ALL future widgets (Weather redesign, Phase 7e overlay widgets):
+  reuse `CalendarPanelLayout` (Mac/iPad), `TilePalette`, and the solid `tileSurface`; do not invent new
+  size/colour systems.**
   Sub-slices (each gate-green, ≤300 lines): **5e-A** panel shell + `PanelGeometry.calendarPanelFrame`
   + clock-tap toggle; **5e-B** card grid + date/month; **5e-C** size presets + setting + this note;
   **5e-D** EventKit agenda/reminders (+ Info.plist usage strings, fake-store tests); **5e-E** world
@@ -1186,6 +1193,13 @@ for a gap the drill actually proves.*
   (cannot be bypassed by `DOCK_DEV_SKIP_PERMISSIONS`, which only skips Accessibility); alarm UI has
   no weekday chips yet (model supports them); not yet checked at small screen heights. 5f still
   open (5b/5c deferred).
+- 2026-10-11 · **5e rework (tiles) — PASS (code), NOT eyeballed by agent.** Replaced the glass panel with
+  solid tiles (`CalendarPanelView.swift`), layouts Mac/iPad, palettes, flip/analog clock tile, band
+  tiles, top-right content-sized transparent window (`PanelGeometry.calendarPanelFrame(contentHeight:)`,
+  window height follows a measured preference), legacy size-preset migration, month-grid greedy-cell bug
+  fixed (bare `Color.clear` was vertically greedy). Tests: geometry/layout/palette/migration/countdown;
+  suite 1671+ ✅, localization ✅, debug switches ✅. **Not verified:** actual on-screen look vs the
+  references, small screens, transparent-gap click-through (gaps between tiles still swallow clicks).
 
 
 ### Phase 6 — Settings Layout tab + welcome step + polish

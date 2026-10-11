@@ -2,19 +2,6 @@ import Foundation
 
 import CoreGraphics
 
-/// Size preset of the floating calendar panel (Phase 5e). Also the size vocabulary for the future
-/// Weather redesign. Raw values are stable persistence tokens (`com.katikati.calendar.panelPreset`).
-enum CalendarPanelPreset: String, CaseIterable, Codable, Sendable {
-    /// 420pt wide, two-column card grid.
-    case compact420
-    /// Half the screen width, three-column card grid.
-    case halfScreen
-
-    static let compactWidth: CGFloat = 420
-
-    var columnCount: Int { self == .compact420 ? 2 : 3 }
-}
-
 /// Taskbar height as the user dragged it: whole points, clamped to `minimum...maximum`.
 ///
 /// Every scaled size multiplies `scale`, which is normalised to `native` (the real Dock's
@@ -486,23 +473,28 @@ enum PanelGeometry {
         )
     }
 
-    /// Frame of the floating calendar panel (Phase 5e): hugs the right edge of the visible area,
-    /// almost full height — from `outerMargin` under the top usable edge down to `outerMargin`
-    /// above the taskbar. Pure; clamped so it can never leave `screen.frame` or collapse on a
-    /// short screen.
+    /// Frame of the floating widget tiles (Phase 5e): anchored to the top-right of the usable area,
+    /// `outerMargin` in from the edge and below the menu bar, and **content-sized** — `contentHeight`
+    /// is what the tiles measure, clamped so the window never runs under the taskbar. Pure.
     static func calendarPanelFrame(
         on screen: PanelScreenGeometry,
-        preset: CalendarPanelPreset,
+        layout: CalendarPanelLayout,
+        contentHeight: CGFloat,
         metrics: PanelLayoutMetrics = .tungstenEdge
     ) -> CGRect {
         let margin = metrics.outerMargin
         let visible = screen.visibleFrame
-        let maxWidth = max(0, visible.width - 2 * margin)
-        let desired = preset == .compact420 ? CalendarPanelPreset.compactWidth : screen.frame.width / 2
-        let width = min(desired, maxWidth)
+        let width = min(layout.width(forScreenWidth: screen.frame.width), max(0, visible.width - 2 * margin))
+        let top = screen.topUsableY - margin
         let bottom = max(screen.frame.minY, visible.minY) + metrics.bottomGap + metrics.panelHeight + margin
-        let top = max(bottom, screen.topUsableY - margin)
-        return CGRect(x: visible.maxX - margin - width, y: bottom, width: width, height: top - bottom)
+        let available = max(0, top - bottom)
+        let height = min(max(0, contentHeight), available)
+        return CGRect(x: visible.maxX - margin - width, y: top - height, width: width, height: height)
+    }
+
+    /// Height available to the tiles on this screen (same bounds as `calendarPanelFrame`).
+    static func calendarPanelMaxHeight(on screen: PanelScreenGeometry, metrics: PanelLayoutMetrics = .tungstenEdge) -> CGFloat {
+        calendarPanelFrame(on: screen, layout: .mac, contentHeight: .greatestFiniteMagnitude, metrics: metrics).height
     }
 
     // MARK: Folder / shelf / Trash popup

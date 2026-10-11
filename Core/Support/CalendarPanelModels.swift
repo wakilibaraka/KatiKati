@@ -196,3 +196,97 @@ enum AgendaFitting {
         return (shown, total - shown)
     }
 }
+
+// MARK: - Layout / palette / clock style (5e rework)
+
+/// Layout preset of the floating widget tiles. Width is part of the layout. These presets, the tile
+/// palette and the tile surface are the shared vocabulary for every future widget (Weather
+/// redesign, Phase 7e overlay widgets).
+enum CalendarPanelLayout: String, CaseIterable, Codable, Sendable {
+    /// One ~340pt column of tiles, like the macOS desktop-widget stack.
+    case mac
+    /// Wider three-column tile grid, like the iPad widget board.
+    case ipad
+
+    static let storageKey = "com.katikati.calendar.layout"
+    static let macWidth: CGFloat = 340
+
+    /// Total window width including the 8pt shadow gutter on each side.
+    func width(forScreenWidth screenWidth: CGFloat) -> CGFloat {
+        switch self {
+        case .mac: return Self.macWidth
+        case .ipad: return min(max(screenWidth / 2, 560), 760)
+        }
+    }
+}
+
+enum TileKind: CaseIterable { case date, clock, focus, calendar, agenda, reminders, alarms }
+
+struct TileRGB: Equatable { let r: Double; let g: Double; let b: Double }
+
+/// Accent / header-band colour per tile. The solid tile base follows system light/dark and is not
+/// part of the palette.
+enum TilePalette: String, CaseIterable, Codable, Sendable {
+    case classic, vivid, pastel, mono
+
+    static let storageKey = "com.katikati.calendar.palette"
+
+    func accent(for tile: TileKind) -> TileRGB {
+        switch self {
+        case .classic:
+            switch tile {
+            case .date: return TileRGB(r: 0.93, g: 0.18, b: 0.27)
+            case .clock: return TileRGB(r: 0.20, g: 0.20, b: 0.22)
+            case .focus: return TileRGB(r: 0.20, g: 0.78, b: 0.35)
+            case .calendar, .agenda: return TileRGB(r: 0.04, g: 0.52, b: 1.00)
+            case .reminders: return TileRGB(r: 0.98, g: 0.80, b: 0.10)
+            case .alarms: return TileRGB(r: 1.00, g: 0.58, b: 0.00)
+            }
+        case .vivid:
+            switch tile {
+            case .date: return TileRGB(r: 1.00, g: 0.16, b: 0.33)
+            case .clock: return TileRGB(r: 0.37, g: 0.36, b: 0.90)
+            case .focus: return TileRGB(r: 0.00, g: 0.85, b: 0.45)
+            case .calendar, .agenda: return TileRGB(r: 0.00, g: 0.45, b: 1.00)
+            case .reminders: return TileRGB(r: 1.00, g: 0.80, b: 0.00)
+            case .alarms: return TileRGB(r: 1.00, g: 0.40, b: 0.05)
+            }
+        case .pastel:
+            switch tile {
+            case .date: return TileRGB(r: 0.98, g: 0.50, b: 0.56)
+            case .clock: return TileRGB(r: 0.62, g: 0.60, b: 0.95)
+            case .focus: return TileRGB(r: 0.45, g: 0.85, b: 0.62)
+            case .calendar, .agenda: return TileRGB(r: 0.50, g: 0.72, b: 0.98)
+            case .reminders: return TileRGB(r: 0.98, g: 0.88, b: 0.45)
+            case .alarms: return TileRGB(r: 0.98, g: 0.72, b: 0.45)
+            }
+        case .mono:
+            return TileRGB(r: 0.36, g: 0.37, b: 0.41)
+        }
+    }
+}
+
+enum CalendarClockStyle: String, CaseIterable, Codable, Sendable {
+    case flip, analog
+    static let storageKey = "com.katikati.calendar.clockStyle"
+}
+
+enum CalendarPanelSettingsMigration {
+    /// Maps the pre-rework size preset values onto layouts (`compact420`→mac, `halfScreen`→ipad).
+    static func layout(fromLegacy value: String?) -> CalendarPanelLayout? {
+        switch value {
+        case "compact420": return .mac
+        case "halfScreen": return .ipad
+        default: return nil
+        }
+    }
+}
+
+// MARK: - Countdown
+
+enum NextEventCountdown {
+    /// First timed event that has not started yet, from a start-sorted list.
+    static func next(startingAfter now: Date, in starts: [Date]) -> Date? {
+        starts.filter { $0 > now }.min()
+    }
+}

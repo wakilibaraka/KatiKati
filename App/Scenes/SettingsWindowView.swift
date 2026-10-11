@@ -119,9 +119,19 @@ struct SettingsWindowContent: View {
                     .padding(.vertical, 4)
 
                     HStack {
-                        Text("Calendar Panel Size")
+                        Text("Calendar Layout")
                         Spacer(minLength: 12)
-                        calendarPanelPresetPicker
+                        CalendarLayoutPicker()
+                    }
+                    HStack {
+                        Text("Calendar Colors")
+                        Spacer(minLength: 12)
+                        CalendarPalettePicker()
+                    }
+                    HStack {
+                        Text("Clock Style")
+                        Spacer(minLength: 12)
+                        CalendarClockStylePicker()
                     }
 
                     HStack {
@@ -186,9 +196,21 @@ struct SettingsWindowContent: View {
                     }
                     Divider().opacity(0.5)
                     groupRow {
-                        Text("Calendar Panel Size")
+                        Text("Calendar Layout")
                     } control: {
-                        calendarPanelPresetPicker
+                        CalendarLayoutPicker()
+                    }
+                    Divider().opacity(0.5)
+                    groupRow {
+                        Text("Calendar Colors")
+                    } control: {
+                        CalendarPalettePicker()
+                    }
+                    Divider().opacity(0.5)
+                    groupRow {
+                        Text("Clock Style")
+                    } control: {
+                        CalendarClockStylePicker()
                     }
                     Divider().opacity(0.5)
                     groupRow {
@@ -453,10 +475,6 @@ struct SettingsWindowContent: View {
         default: EmptyView()
         }
     }
-    private var calendarPanelPresetPicker: some View {
-        CalendarPanelPresetPicker()
-    }
-
     private var drawerPlacementPicker: some View {
         Picker(
             "Drawer Position",
@@ -1210,17 +1228,43 @@ extension DiagnosticReport {
 }
 
 
-/// Size preset of the floating calendar panel (Phase 5e-C). Plain `@AppStorage`: the panel reads the
-/// same key every time it opens, so no store plumbing is needed.
-private struct CalendarPanelPresetPicker: View {
-    @AppStorage(CalendarPanelController.presetDefaultsKey) private var preset: CalendarPanelPreset = .compact420
+/// Settings for the floating widget tiles (Phase 5e). Plain `@AppStorage`: the panel reads the same
+/// keys every time it opens (layout) or live (palette, clock style).
+private struct CalendarLayoutPicker: View {
+    @AppStorage(CalendarPanelLayout.storageKey) private var layout: CalendarPanelLayout = .mac
 
     var body: some View {
-        Picker("Calendar Panel Size", selection: $preset) {
-            Text("Compact (420 pt)").tag(CalendarPanelPreset.compact420)
-            Text("Half screen").tag(CalendarPanelPreset.halfScreen)
+        Picker("Calendar Layout", selection: $layout) {
+            Text("Mac").tag(CalendarPanelLayout.mac)
+            Text("iPad").tag(CalendarPanelLayout.ipad)
         }
-        .pickerStyle(.menu)
-        .labelsHidden()
+        .pickerStyle(.menu).labelsHidden()
+        .onAppear { layout = CalendarPanelController.currentLayout() }
+    }
+}
+
+private struct CalendarPalettePicker: View {
+    @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
+
+    var body: some View {
+        Picker("Calendar Colors", selection: $palette) {
+            Text("Classic").tag(TilePalette.classic)
+            Text("Vivid").tag(TilePalette.vivid)
+            Text("Pastel").tag(TilePalette.pastel)
+            Text("Mono").tag(TilePalette.mono)
+        }
+        .pickerStyle(.menu).labelsHidden()
+    }
+}
+
+private struct CalendarClockStylePicker: View {
+    @AppStorage(CalendarClockStyle.storageKey) private var style: CalendarClockStyle = .flip
+
+    var body: some View {
+        Picker("Clock Style", selection: $style) {
+            Text("Flip clock").tag(CalendarClockStyle.flip)
+            Text("Analog").tag(CalendarClockStyle.analog)
+        }
+        .pickerStyle(.menu).labelsHidden()
     }
 }

@@ -632,7 +632,7 @@ final class PanelGeometryTests: XCTestCase {
     }
 }
 
-// MARK: - Calendar panel (Phase 5e-A)
+// MARK: - Calendar tiles (Phase 5e)
 
 final class CalendarPanelGeometryTests: XCTestCase {
     private let metrics = PanelLayoutMetrics.tungstenEdge
@@ -646,50 +646,69 @@ final class CalendarPanelGeometryTests: XCTestCase {
         )
     }
 
-    func testCompactPresetIs420WideHuggingRightEdge() {
+    func testMacLayoutIsAFixedColumnAnchoredTopRight() {
         let s = screen()
-        let f = PanelGeometry.calendarPanelFrame(on: s, preset: .compact420, metrics: metrics)
-        XCTAssertEqual(f.width, 420)
+        let f = PanelGeometry.calendarPanelFrame(on: s, layout: .mac, contentHeight: 500, metrics: metrics)
+        XCTAssertEqual(f.width, CalendarPanelLayout.macWidth)
         XCTAssertEqual(f.maxX, s.visibleFrame.maxX - metrics.outerMargin)
+        XCTAssertEqual(f.maxY, s.topUsableY - metrics.outerMargin, accuracy: 0.001)
+        XCTAssertEqual(f.height, 500, "content-sized, no stretch to full height")
     }
 
-    func testHalfScreenPresetIsHalfTheScreenWidth() {
-        let s = screen()
-        let f = PanelGeometry.calendarPanelFrame(on: s, preset: .halfScreen, metrics: metrics)
-        XCTAssertEqual(f.width, 864)
-        XCTAssertEqual(f.maxX, s.visibleFrame.maxX - metrics.outerMargin)
+    func testIPadLayoutIsHalfTheScreenClamped() {
+        XCTAssertEqual(CalendarPanelLayout.ipad.width(forScreenWidth: 1728), 760)
+        XCTAssertEqual(CalendarPanelLayout.ipad.width(forScreenWidth: 1280), 640)
+        XCTAssertEqual(CalendarPanelLayout.ipad.width(forScreenWidth: 800), 560)
     }
 
-    func testPanelClearsTaskbarAndMenuBarAndIsAlmostFullHeight() {
+    func testTallContentIsClampedAboveTheTaskbar() {
         let s = screen()
-        let f = PanelGeometry.calendarPanelFrame(on: s, preset: .compact420, metrics: metrics)
+        let f = PanelGeometry.calendarPanelFrame(on: s, layout: .ipad, contentHeight: 5000, metrics: metrics)
         XCTAssertGreaterThanOrEqual(f.minY, metrics.bottomGap + metrics.panelHeight)
-        XCTAssertLessThanOrEqual(f.maxY, s.topUsableY - metrics.outerMargin + 0.001)
-        XCTAssertGreaterThan(f.height, s.frame.height * 0.8)
+        XCTAssertEqual(f.height, PanelGeometry.calendarPanelMaxHeight(on: s, metrics: metrics))
     }
 
     func testNonZeroOriginSecondaryDisplay() {
         let s = screen(origin: CGPoint(x: -1920, y: -300), size: CGSize(width: 1920, height: 1080))
-        for preset in CalendarPanelPreset.allCases {
-            let f = PanelGeometry.calendarPanelFrame(on: s, preset: preset, metrics: metrics)
-            XCTAssertTrue(s.frame.contains(f), "\(preset) must stay on its own display")
+        for layout in CalendarPanelLayout.allCases {
+            let f = PanelGeometry.calendarPanelFrame(on: s, layout: layout, contentHeight: 600, metrics: metrics)
+            XCTAssertTrue(s.frame.contains(f), "\(layout) must stay on its own display")
         }
     }
 
-    func testNarrowScreenClampsWidthAndShortScreenNeverGoesNegative() {
+    func testNarrowAndShortScreensNeverGoNegative() {
         let narrow = screen(size: CGSize(width: 300, height: 800))
-        let f = PanelGeometry.calendarPanelFrame(on: narrow, preset: .compact420, metrics: metrics)
+        let f = PanelGeometry.calendarPanelFrame(on: narrow, layout: .mac, contentHeight: 400, metrics: metrics)
         XCTAssertLessThanOrEqual(f.width, 300 - 2 * metrics.outerMargin)
         XCTAssertGreaterThanOrEqual(f.minX, narrow.frame.minX)
-
         let short = screen(size: CGSize(width: 1280, height: 60))
-        XCTAssertGreaterThanOrEqual(PanelGeometry.calendarPanelFrame(on: short, preset: .halfScreen, metrics: metrics).height, 0)
+        XCTAssertGreaterThanOrEqual(PanelGeometry.calendarPanelFrame(on: short, layout: .ipad, contentHeight: 400, metrics: metrics).height, 0)
     }
 
-    func testPresetColumnCountsAndRawValues() {
-        XCTAssertEqual(CalendarPanelPreset.compact420.columnCount, 2)
-        XCTAssertEqual(CalendarPanelPreset.halfScreen.columnCount, 3)
-        XCTAssertEqual(CalendarPanelPreset.compact420.rawValue, "compact420")
-        XCTAssertEqual(CalendarPanelPreset.halfScreen.rawValue, "halfScreen")
+    func testRawValuesAndLegacyMigration() {
+        XCTAssertEqual(CalendarPanelLayout.mac.rawValue, "mac")
+        XCTAssertEqual(CalendarPanelSettingsMigration.layout(fromLegacy: "compact420"), .mac)
+        XCTAssertEqual(CalendarPanelSettingsMigration.layout(fromLegacy: "halfScreen"), .ipad)
+        XCTAssertNil(CalendarPanelSettingsMigration.layout(fromLegacy: "bogus"))
+        XCTAssertNil(CalendarPanelSettingsMigration.layout(fromLegacy: nil))
+    }
+
+    func testEveryPaletteDefinesEveryTileAndMonoIsUniform() {
+        for palette in TilePalette.allCases {
+            for tile in TileKind.allCases {
+                let c = palette.accent(for: tile)
+                XCTAssertTrue([c.r, c.g, c.b].allSatisfy { (0...1).contains($0) }, "\(palette)/\(tile)")
+            }
+        }
+        XCTAssertEqual(Set(TileKind.allCases.map { TilePalette.mono.accent(for: $0).r }).count, 1)
+        XCTAssertGreaterThanOrEqual(TileKind.allCases.reduce(into: [TileRGB]()) { acc, k in
+            let c = TilePalette.vivid.accent(for: k); if !acc.contains(c) { acc.append(c) } }.count, 5)
+    }
+
+    func testNextEventCountdownPicksEarliestFutureStart() {
+        let now = Date(timeIntervalSince1970: 1000)
+        let starts = [now - 60, now + 900, now + 300]
+        XCTAssertEqual(NextEventCountdown.next(startingAfter: now, in: starts), now + 300)
+        XCTAssertNil(NextEventCountdown.next(startingAfter: now, in: [now - 5]))
     }
 }
