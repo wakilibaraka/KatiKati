@@ -31,3 +31,18 @@ enum LauncherSearchPosition: String, CaseIterable, Sendable {
         return i
     }
 }
+
+/// Space the launcher must keep clear on a screen so nothing sits under the notch, the menu bar, the Dock or a
+/// KatiKati bar (Phase 7B). `frame` is the full screen, `visible` is what macOS leaves usable; `safeTop` is the notch
+/// inset (`safeAreaInsets.top`). Insets are never negative and never exceed a third of the screen.
+enum LauncherScreenInsets {
+    static func compute(frame: CGRect, visible: CGRect, safeTop: Double, extraBottom: Double = 0) -> (top: Double, bottom: Double, leading: Double, trailing: Double) {
+        func clamp(_ v: Double, _ limit: Double) -> Double { min(max(0, v), limit / 3) }
+        return (
+            top: clamp(max(Double(frame.maxY - visible.maxY), safeTop), Double(frame.height)),
+            bottom: clamp(Double(visible.minY - frame.minY) + extraBottom, Double(frame.height)),
+            leading: clamp(Double(visible.minX - frame.minX), Double(frame.width)),
+            trailing: clamp(Double(frame.maxX - visible.maxX), Double(frame.width))
+        )
+    }
+}

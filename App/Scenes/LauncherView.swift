@@ -39,11 +39,13 @@ struct LauncherView: View {
                 content.frame(maxWidth: .infinity)
                 if model.sheetSide == .right { sheet }
             }
-            .padding(.top, 50 + inset.top)
-            .padding(.bottom, inset.bottom)
-            .padding(.leading, inset.leading - (model.sheetSide == .left ? 328 : 0))
-            .padding(.trailing, inset.trailing - (model.sheetSide == .right ? 328 : 0))
+            .padding(.top, 50 + inset.top + model.screenInsets.top)
+            .padding(.bottom, inset.bottom + model.screenInsets.bottom)
+            .padding(.leading, inset.leading - (model.sheetSide == .left ? 328 : 0) + model.screenInsets.leading)
+            .padding(.trailing, inset.trailing - (model.sheetSide == .right ? 328 : 0) + model.screenInsets.trailing)
             searchField
+                .padding(.top, model.screenInsets.top).padding(.bottom, model.screenInsets.bottom)
+                .padding(.leading, model.screenInsets.leading).padding(.trailing, model.screenInsets.trailing)
         }
         .accessibilityLabel(Text("Launcher"))
     }
@@ -152,6 +154,8 @@ final class LauncherModel: ObservableObject {
     @Published var sheetSide: EdgeSide = .right
     @Published var searchPosition: LauncherSearchPosition = .top
     @Published var tiles: [LauncherTile] = LauncherTile.allCases
+    /// Screen space to keep clear (notch, menu bar, Dock, KatiKati bars).
+    @Published var screenInsets: (top: Double, bottom: Double, leading: Double, trailing: Double) = (0, 0, 0, 0)
     @Published var state = LauncherState()
 }
 

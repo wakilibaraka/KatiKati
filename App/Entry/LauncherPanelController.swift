@@ -18,6 +18,8 @@ final class LauncherPanelController {
     var searchPosition: () -> LauncherSearchPosition = { .top }
     var tiles: () -> [LauncherTile] = { LauncherTile.allCases }
     var look: () -> (theme: LauncherTheme, tint: LauncherTint) = { (.system, .none) }
+    /// Height the KatiKati bottom bar occupies (it floats above `visibleFrame`), so the launcher never sits under it.
+    var bottomBarReserve: () -> Double = { 0 }
     private var backdrop: LauncherBackdrop?
 
     var isShown: Bool { panel?.isVisible ?? false }
@@ -32,6 +34,9 @@ final class LauncherPanelController {
         model.sheetSide = sheetSide()
         model.searchPosition = searchPosition()
         model.tiles = tiles()
+        model.screenInsets = LauncherScreenInsets.compute(
+            frame: screen.frame, visible: screen.visibleFrame, safeTop: Double(screen.safeAreaInsets.top),
+            extraBottom: bottomBarReserve())
         model.query = ""
         indexer.start()
         let panel = self.panel ?? makePanel()

@@ -91,6 +91,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.searchPosition = { [weak self] in self?.settingsStore.launcherSearchPosition ?? .top }
         panel.tiles = { [weak self] in self?.settingsStore.launcherTiles ?? LauncherTile.allCases }
         panel.look = { [weak self] in (self?.settingsStore.launcherTheme ?? .system, self?.settingsStore.launcherTint ?? .none) }
+        panel.bottomBarReserve = { [weak self] in
+            guard let store = self?.settingsStore else { return 0 }
+            return Double(store.dockPanelHeight.points + store.bottomGap + 8)
+        }
         return panel
     }()
     private var terminationTask: Task<Void, Never>?

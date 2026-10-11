@@ -25,4 +25,19 @@ final class LauncherLayoutTests: XCTestCase {
     func testSideFieldIsNarrower() {
         XCTAssertLessThan(LauncherSearchPosition.left.fieldWidth, LauncherSearchPosition.top.fieldWidth)
     }
+
+    func testScreenInsetsKeepClearOfNotchMenuBarAndDock() {
+        let frame = CGRect(x: 0, y: 0, width: 1728, height: 1117)
+        let visible = CGRect(x: 0, y: 70, width: 1728, height: 1010) // dock 70 below, menu bar 37 above
+        let i = LauncherScreenInsets.compute(frame: frame, visible: visible, safeTop: 32)
+        XCTAssertEqual(i.top, 37); XCTAssertEqual(i.bottom, 70); XCTAssertEqual(i.leading, 0); XCTAssertEqual(i.trailing, 0)
+        let notchOnly = LauncherScreenInsets.compute(frame: frame, visible: frame, safeTop: 38)
+        XCTAssertEqual(notchOnly.top, 38, "notch inset wins when the menu bar is hidden")
+    }
+
+    func testScreenInsetsAreClamped() {
+        let frame = CGRect(x: 0, y: 0, width: 1000, height: 900)
+        let i = LauncherScreenInsets.compute(frame: frame, visible: CGRect(x: 0, y: 800, width: 1000, height: 100), safeTop: 0)
+        XCTAssertEqual(i.bottom, 300, "never more than a third of the screen")
+    }
 }
