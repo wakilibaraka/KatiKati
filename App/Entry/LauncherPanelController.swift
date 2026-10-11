@@ -50,6 +50,11 @@ final class LauncherPanelController {
         NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: app.path), configuration: NSWorkspace.OpenConfiguration())
     }
 
+    private func togglePin(_ app: LauncherApp) {
+        model.state.pinned = LauncherAppIndex.togglePin(model.state.pinned, app.bundleID)
+        try? store.save(model.state)
+    }
+
     private func makePanel() -> NSPanel {
         let panel = LauncherPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel],
                                   backing: .buffered, defer: true)
@@ -65,7 +70,8 @@ final class LauncherPanelController {
         blur.state = .active
         let host = NSHostingView(rootView: LauncherView(
             indexer: indexer, model: model,
-            onLaunch: { [weak self] in self?.launch($0) }, onClose: { [weak self] in self?.dismiss() }))
+            onLaunch: { [weak self] in self?.launch($0) },
+            onTogglePin: { [weak self] in self?.togglePin($0) }, onClose: { [weak self] in self?.dismiss() }))
         host.translatesAutoresizingMaskIntoConstraints = false
         blur.addSubview(host)
         NSLayoutConstraint.activate([

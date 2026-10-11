@@ -1,52 +1,99 @@
 import AppKit
 import SwiftUI
 
-/// The launcher surface (Phase 7B-L2): a search field over a results list. L3 replaces the list with the grid.
+/// Icons are cached by path; the system already memoises file icons, this just avoids re-sizing per redraw.
+enum LauncherIconCache {
+    private static let cache = NSCache<NSString, NSImage>()
+
+    static func icon(forPath path: String) -> NSImage {
+        if let hit = cache.object(forKey: path as NSString) { return hit }
+        let image = NSWorkspace.shared.icon(forFile: path)
+        image.size = NSSize(width: 64, height: 64)
+        cache.setObject(image, forKey: path as NSString)
+        return image
+    }
+}
+
+/// The launcher surface (Phase 7B-L3): search on top, then the Pinned / Most Used / Recently Installed grid.
+/// While searching, one flat grid of matches.
 struct LauncherView: View {
     @ObservedObject var indexer: LauncherIndexer
     @ObservedObject var model: LauncherModel
     let onLaunch: (LauncherApp) -> Void
+    let onTogglePin: (LauncherApp) -> Void
     let onClose: () -> Void
 
-    private var results: [LauncherApp] {
-        model.query.isEmpty ? indexer.apps : LauncherSearch.search(model.query, in: indexer.apps, usage: model.state.usage)
+    private let columns = [GridItem(.adaptive(minimum: 104, maximum: 128), spacing: 12)]
+
+    private var matches: [LauncherApp] {
+        LauncherSearch.search(model.query, in: indexer.apps, usage: model.state.usage)
     }
 
     var body: some View {
         ZStack {
             Color.black.opacity(0.001).onTapGesture(perform: onClose)
-            VStack(spacing: 18) {
+            VStack(spacing: 22) {
                 LauncherSearchField(text: $model.query, focusNonce: model.focusNonce,
-                                    onSubmit: { if let first = results.first { onLaunch(first) } },
+                                    onSubmit: { if let first = matches.first { onLaunch(first) } },
                                     onCancel: onClose)
                     .frame(width: 420, height: 28)
-                if results.isEmpty {
-                    Text("No Apps Found").foregroundColor(.secondary).padding(.top, 40)
-                } else {
-                    ScrollView {
-                        LazyVStack(alignment: .leading, spacing: 2) {
-                            ForEach(results, id: \.bundleID) { app in
-                                Button { onLaunch(app) } label: {
-                                    HStack(spacing: 10) {
-                                        Image(nsImage: NSWorkspace.shared.icon(forFile: app.path))
-                                            .resizable().frame(width: 32, height: 32)
-                                        Text(verbatim: app.name).font(.system(size: 14))
-                                        Spacer()
-                                    }
-                                    .contentShape(Rectangle())
-                                }
-                                .buttonStyle(.plain)
-                                .padding(.horizontal, 10).padding(.vertical, 3)
-                            }
-                        }
-                    }
-                    .frame(width: 420)
-                }
+                content
             }
-            .padding(.top, 120)
+            .padding(.top, 90)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .accessibilityLabel(Text("Launcher"))
+    }
+
+    @ViewBuilder private var content: some View {
+        if model.query.isEmpty {
+            let s = LauncherAppIndex.sections(apps: indexer.apps, usage: model.state.usage,
+                                              pinned: model.state.pinned, now: Date())
+            let shown = Set((s.pinned + s.mostUsed + s.recentlyInstalled).map(\.bundleID))
+            let rest = indexer.apps.filter { !shown.contains($0.bundleID) }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 26) {
+                    section(Text("Pinned"), s.pinned)
+                    section(Text("Most Used"), s.mostUsed)
+                    section(Text("Recently Installed"), s.recentlyInstalled)
+                    section(Text("All Apps"), rest)
+                }
+                .padding(.horizontal, 60).padding(.bottom, 80)
+                .frame(maxWidth: 1000)
+            }
+        } else if matches.isEmpty {
+            Text("No Apps Found").foregroundColor(.secondary).padding(.top, 40)
+        } else {
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 18) { ForEach(matches, id: \.bundleID, content: cell) }
+                    .padding(.horizontal, 60).padding(.bottom, 80)
+                    .frame(maxWidth: 1000)
+            }
+        }
+    }
+
+    @ViewBuilder private func section(_ title: Text, _ apps: [LauncherApp]) -> some View {
+        if !apps.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                title.font(.system(size: 13, weight: .semibold)).foregroundColor(.secondary)
+                LazyVGrid(columns: columns, spacing: 18) { ForEach(apps, id: \.bundleID, content: cell) }
+            }
+        }
+    }
+
+    private func cell(_ app: LauncherApp) -> some View {
+        let pinned = model.state.pinned.contains(app.bundleID)
+        return Button { onLaunch(app) } label: {
+            VStack(spacing: 6) {
+                Image(nsImage: LauncherIconCache.icon(forPath: app.path)).resizable().frame(width: 64, height: 64)
+                Text(verbatim: app.name).font(.system(size: 12)).lineLimit(1).frame(maxWidth: 100)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            if pinned { Button("Unpin") { onTogglePin(app) } } else { Button("Pin") { onTogglePin(app) } }
+        }
     }
 }
 

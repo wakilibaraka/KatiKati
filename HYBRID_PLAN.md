@@ -1559,6 +1559,9 @@ Reference screenshots: one Launchpad-style surface (icon grid + widget tiles, le
 
 - 2026-10-12 · **7B-L2 landed (gate green, 1900 tests; live check pending):** `LauncherPanelController` (full-screen blurred borderless panel, key-capable, non-activating, screen under the pointer; indexer runs only while shown), `LauncherView` (AppKit search field focused on open, results list as a stand-in for the L3 grid, Return launches first hit, Esc / background click closes, launches recorded in `launcher.json`), ⌥Space second `GlobalHotKeyMonitor` (id 2, toggles), left FAB tap toggles. Risk: Carbon ⌥-only hotkeys were flaky on macOS 15 (FB15168205) — failure is logged and the FAB still works; a rebinding setting is a follow-up if it bites.
 
+- 2026-10-12 · **7B-L3 landed (gate green, 1900 tests):** grid page — Pinned / Most Used / Recently Installed sections (+ a temporary All Apps section until L4), flat grid while searching, cached 64 pt icons (`LauncherIconCache`), Pin/Unpin context menu persisted to `launcher.json`.
+- 2026-10-12 · **Owner amendment for L4:** the All Apps + Search side sheet can sit on the **left or right, right by default**, with a preset in Settings to switch it (own key, e.g. `com.katikati.launcher.sheetSide`, plus a Settings control and tests). The temporary All Apps grid section is removed when the sheet lands.
+
 **Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
 dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.
