@@ -1152,9 +1152,16 @@ for a gap the drill actually proves.*
   system extracted from `CalendarPanelView.swift`) · **5g-F** `WeatherEffectsView` + unit-tested particle
   simulator · **5g-G** Settings + localization ×12.
 - **5h — Joint polish: weather + calendar (owner: "improve them all together as the last Phase 5 step
-  before Phase 6").** Unify spacing/type scale/shadows/palette application, open/close animation, Esc /
-  outside-click, small-screen budgets, both-open collision rules; full gate + owner eyeball in both layouts
-  × light/dark.
+  before Phase 6").** Owner 2026-10-11 decisions, built: **Tall layout** (`CalendarPanelLayout.tall`, 420pt,
+  fills the screen height; default for fresh installs — **Mac and iPad kept as presets**, stored choices
+  untouched) · calendar Tall order: Clock + zones full width → Calendar full width → Alarms → Reminders →
+  **Focus | Timer** → Notes → **Stopwatch | Countdown**, sized by the pure `TallLayoutPlanner` (optional
+  tiles only while they fit; leftover shared by flex) · new tiles: **Timer** (separate from Focus),
+  **Stopwatch** (laps), **Event Countdown**, **Quick Notes** · **animation presets** (Settings → Widget
+  Animation): **Instant** (original, kept), **Slide** (default; from the right for calendar, left for weather)
+  and **Spring Pop** (staggered tile scale+fade); Reduce Motion forces Instant · shared `WidgetMetrics`
+  (radius 24, gutter 8, gap 10), layered shadows + top highlight · toggles for Notes and Stopwatch &
+  Countdown. Suggested future widgets (not built): Now Playing, System stats (CPU/RAM/disk/battery).
 
 - **5f — Phase 5 lock + proof gate (closes Phase 5 last, after 5g and 5h).** Drill log(s) in the PR; no lost Dock state; no orphaned
   island panels after crash-relaunch; full tungsten gate; dated phase-5 log under
@@ -1249,6 +1256,14 @@ for a gap the drill actually proves.*
   **Not done / not verified:** per-condition animations only seen for Drizzle (others untested live);
   no UI tests; light-mode look not checked; Calendar/Reminders stay "access is off" until the user grants
   macOS permission; 5h joint polish and 5f lock still open.
+- 2026-10-11 · **5h built + eyeballed on the dev Mac (Tall calendar + Tall weather, slide animation observed
+  mid-flight).** On a 1117pt display every Tall calendar tile incl. Notes and Stopwatch|Countdown fits
+  (tiles sit near their minimum heights; taller screens get larger tiles). New pure models in
+  `Core/Support/WidgetTall.swift` (planner, timer, stopwatch, countdowns, animation timing) + 22 tests;
+  settings resolution moved to Core (`CalendarPanelLayout.resolve`, `WidgetAnimationPreset.resolve`) so it is
+  testable. **Not verified:** Spring Pop and Instant visually, light mode, Notes/Countdown/Stopwatch
+  interactions beyond layout, weather Tall still scrolls (its content is taller than a 1117pt screen),
+  Calendar/Reminders data (needs macOS permission). 5f lock still open.
 
 
 ### Phase 6 — Settings Layout tab + welcome step + polish

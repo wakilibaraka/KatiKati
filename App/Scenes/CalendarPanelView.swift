@@ -78,13 +78,13 @@ struct CalendarPanelView: View {
     private func tallTiles(env: TileEnv, inner: CGFloat) -> some View {
         var defs = [
             TallTile("clock", min: 150, ideal: 200, max: 260, flex: 2),
-            TallTile("calendar", min: 230, ideal: 300, max: 400, flex: 3),
-            TallTile("alarms", min: 112, ideal: 150, max: 230, flex: 1),
-            TallTile("reminders", min: 112, ideal: 150, max: 230, flex: 1),
-            TallTile("timers", min: 190, ideal: 220, max: 280, flex: 1.2),
+            TallTile("calendar", min: 190, ideal: 300, max: 400, flex: 3),
+            TallTile("alarms", min: 88, ideal: 150, max: 230, flex: 1),
+            TallTile("reminders", min: 88, ideal: 150, max: 230, flex: 1),
+            TallTile("timers", min: 165, ideal: 220, max: 280, flex: 1.2),
         ]
-        if showNotes { defs.append(TallTile("notes", min: 130, ideal: 170, max: 260, flex: 1, optional: 1)) }
-        if showStopwatch { defs.append(TallTile("extras", min: 160, ideal: 190, max: 260, flex: 1, optional: 2)) }
+        if showNotes { defs.append(TallTile("notes", min: 100, ideal: 170, max: 260, flex: 1, optional: 1)) }
+        if showStopwatch { defs.append(TallTile("extras", min: 130, ideal: 190, max: 260, flex: 1, optional: 2)) }
         let plan = TallLayoutPlanner.plan(defs, available: Double(maxHeight - 2 * gutter), gap: Double(gap))
         let half = (inner - gap) / 2
         return VStack(spacing: gap) {

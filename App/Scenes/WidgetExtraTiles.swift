@@ -96,7 +96,7 @@ struct ClockWideTile: View {
                     Text(ctx.date.formatted(.dateTime.weekday(.wide).day().month(.abbreviated)))
                         .font(.system(size: 13, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.7)
                     Divider().opacity(0.4)
-                    ForEach(store.identifiers.prefix(4), id: \.self) { id in
+                    ForEach(store.identifiers.prefix(max(1, min(4, Int((height - 90) / 30)))), id: \.self) { id in
                         if let r = WorldClockModel.reading(for: id, at: ctx.date) {
                             HStack(spacing: 6) {
                                 Image(systemName: r.isNight ? "moon.stars.fill" : "sun.max.fill")
