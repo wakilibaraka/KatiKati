@@ -407,6 +407,9 @@ final class EdgeBarPanelController {
 
     private func idleTick() {
         if popup.isShown || notesPopup.isShown { lastActivity = Date(); return }
+        // A pointer parked on the fanned deck counts as activity (the poll only sees movement, so a resting pointer
+        // would otherwise let the fan fold from under it).
+        if state == .fan, panel?.frame.insetBy(dx: -8, dy: -8).contains(NSEvent.mouseLocation) == true { lastActivity = Date(); return }
         context.openNoteIsPinned = state.expandedID.flatMap { id in model.tabs.first { $0.id == id }?.pinned } ?? false
         apply(.idle(Date().timeIntervalSince(lastActivity)))
     }

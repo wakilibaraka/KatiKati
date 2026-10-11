@@ -1823,6 +1823,12 @@ upgrades, wallpaper/personalisation, extra flyouts.
   the controller feeds the pointer's panel-space y (from the existing mouse poll, only while fanned) and each round button scales about its edge-side anchor so it grows inward.
   New settings: `edge.magnify` (default on) and per-edge size `edge.deckScale.left/.right` (0.8–1.4; the old single `deckScale` seeds both). Settings: Left/Right Bar Size sliders +
   Magnify toggle. Tabs/notes are unaffected by magnification (buttons only). 3 strings in the l10n commit. Real-pointer feel is verified in live check #2.
+- 2026-10-12 · **7A-9 live check #2 (real pointer, this Mac):** VERIFIED — real hover opens the fan on both edges; dock magnification (peak under the pointer, neighbours falloff, grows
+  inward); hover preview card; idle fold back to the pill; Esc closes the sheet (real keypress); colour dots; delete → undo toast → expiry; flyouts (Time/Tasks/Clipboard/System). FOUND + FIXED:
+  a pointer parked on the fanned deck folded it after 4 s (idle counted only movement) — a resting pointer now counts as activity. SYNC pipeline (iCloud-Drive *path*, local folder — this Mac has no
+  iCloud account, so no real iCloud daemon): create → plaintext `.md` appears; external edit and a foreign `.md` → applied live incl. the open sheet and a new tab; delete in app → file removed;
+  all test data removed. IDLE CPU: 60 s cpu-seconds, deck off 7.1 %/9.3 % vs deck on 6.6 %/4.9 % (Debug build) — the deck adds nothing measurable; the ~5–9 % baseline is the pre-existing window-lift
+  polling. NOT verified (needs real clicks/drags, blocked without a Finder grant): drag-reorder, ⌥-drag pill, outside-click dismissal; also multi-display, fullscreen/Spaces, real iCloud account.
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,
