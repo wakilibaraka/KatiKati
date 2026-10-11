@@ -1117,13 +1117,22 @@ Progression: 3 → 4 → 5 separates one more grouping per step; all three disti
   trigger + UX; owner to sequence — they may share the app-enumeration/dispatch
   core). Needs its own mini-plan + slice: overlay panel (reuse the FAB panel
   pattern), app grid + paging, launch dispatch, dismiss gesture; no new TCC surface
-  beyond the existing app list; CPU gate. Sign-off + license check per the Phase-7
-  gate.
+  beyond the existing app list; CPU gate. **Add a Settings width slider for the
+  left FAB** (owner 2026-10-11) — the 4U-A FABs have no slider (fixed 40pt square);
+  the left FAB's `BarSection.launcher` `defaultWidgetWidth`/`minimumWidgetWidth`
+  (currently both 40) become the seeded slider value, floored at `minimumWidgetWidth`
+  and threaded through `AppSettingsStore` + `IslandLayoutSolver` like weather/clock.
+  Sign-off + license check per the Phase-7 gate.
 - **7e right-FAB on-screen overlay widgets** (owner 2026-10-11; payload for the
   4g-scaffolded right FAB): an on-screen overlay surface for glanceable widgets
   (clock/weather/notes) summoned by the right FAB. Scope (which widgets, overlay vs
   HUD, dismissal) decided in its own mini-plan; reuse the FAB panel pattern; CPU +
-  all-Spaces/fullscreen-hide gate. Sign-off + license check per the Phase-7 gate.
+  all-Spaces/fullscreen-hide gate. **Add a Settings width slider for the right FAB**
+  (owner 2026-10-11) — the 4U-A FABs have no slider (fixed 40pt square); the right
+  FAB's `BarSection.widgets` `defaultWidgetWidth`/`minimumWidgetWidth` (currently
+  both 40) become the seeded slider value, floored at `minimumWidgetWidth` and
+  threaded through `AppSettingsStore` + `IslandLayoutSolver` like weather/clock.
+  Sign-off + license check per the Phase-7 gate.
 - Previously listed (still deferred, unchanged): dividers (`pruned` logic),
   `macOS` pill mode, magnification, hover-preview strip upgrades,
   wallpaper/personalisation, extra flyouts.
