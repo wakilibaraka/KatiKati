@@ -152,8 +152,12 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var islandGap: CGFloat
     /// 任务条距离屏幕左右边缘的外边距（points，默认 12，最小 0）。
     @Published private(set) var islandMargin: CGFloat
+    /// 条底与屏幕下缘的间距（points，默认 8 = 浮动，Hugging 预设 2，限制 0...12）。
+    @Published private(set) var bottomGap: CGFloat
     /// 材质主题。默认 auto (亮色 roseQuartz / 暗色 obsidianDark)。
     @Published private(set) var themeMaterial: DockThemeStyle
+    /// 图标集（modern 3D / classic SF Symbols），与主题互相独立。缺键 = modern。
+    @Published private(set) var iconSet: IconSet
     /// 悬停效果档位。只影响条内 chip 的悬停视觉，静息布局逐像素不变（因此无需 relayout）。
     @Published private(set) var hoverStyle: HoverStyle
     /// 最大化窗口避让任务条（菜单「最大化窗口避开任务条」）。
@@ -233,6 +237,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.centeredWidth: Double(Self.defaultCenteredWidth),
             Keys.islandGap: Double(Self.defaultIslandGap),
             Keys.islandMargin: Double(Self.defaultIslandMargin),
+            Keys.bottomGap: Double(PanelLayoutMetrics.floatingBottomGap),
             "widgetWidths": [String: CGFloat]()
         ])
 
@@ -248,6 +253,8 @@ final class AppSettingsStore: ObservableObject {
         islandGap = CGFloat(max(Double(Self.minimumIslandGap), storedGap))
         let storedMargin = Self.storedNumericValue(defaults.object(forKey: Keys.islandMargin)) ?? Double(Self.defaultIslandMargin)
         islandMargin = CGFloat(max(Double(Self.minimumIslandMargin), storedMargin))
+        let storedBottomGap = Self.storedNumericValue(defaults.object(forKey: Keys.bottomGap)) ?? Double(PanelLayoutMetrics.floatingBottomGap)
+        bottomGap = Self.clampedBottomGap(CGFloat(storedBottomGap))
         
         // Hardcoded order (Phase 4U decision 3): any previously stored custom order
         // from the removed drag-reorder UI is ignored, not restored.
@@ -255,6 +262,7 @@ final class AppSettingsStore: ObservableObject {
         widgetWidths = defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:]
         
         themeMaterial = DockThemeStyle(token: defaults.string(forKey: Keys.themeMaterial) ?? "") ?? .auto
+        iconSet = IconSet(storedValue: defaults.string(forKey: Keys.iconSet))
         // 有意**不**进上面的 register：缺键即 false = 老用户维持关。
         // 全新安装那一次由 `seedWindowLiftEnabledForFreshInstall()` 显式写成 true——
         // register 一个 true 会把**所有**从没碰过这个开关的老用户一并打开，而这个功能
@@ -370,6 +378,23 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(Double(clamped), forKey: Keys.islandMargin)
     }
 
+    func setBottomGap(_ value: CGFloat) {
+        let clamped = Self.clampedBottomGap(value)
+        guard bottomGap != clamped else { return }
+        bottomGap = clamped
+        defaults.set(Double(clamped), forKey: Keys.bottomGap)
+    }
+
+    /// Non-finite → floating default; otherwise rounded to whole points and clamped 0...12.
+    static func clampedBottomGap(_ value: CGFloat) -> CGFloat {
+        guard value.isFinite else { return PanelLayoutMetrics.floatingBottomGap }
+        let range = PanelLayoutMetrics.bottomGapRange
+        return min(max(value.rounded(), range.lowerBound), range.upperBound)
+    }
+
+    /// Live panel geometry: the height-derived metrics plus the user's bottom gap.
+    var layoutMetrics: PanelLayoutMetrics { dockPanelHeight.metrics(bottomGap: bottomGap) }
+
     /// 只应由 `SettingsCoordinator.applyEdgeToggleShortcut` 在**注册成功后**调用（见属性注释）。
     func setEdgeToggleShortcut(_ value: StoredHotKeyShortcut?) {
         guard edgeToggleShortcut != value else { return }
@@ -392,6 +417,12 @@ final class AppSettingsStore: ObservableObject {
         guard appearanceMode != value else { return }
         appearanceMode = value
         defaults.set(value.rawValue, forKey: Keys.appearance)
+    }
+
+    func setIconSet(_ value: IconSet) {
+        guard iconSet != value else { return }
+        iconSet = value
+        defaults.set(value.rawValue, forKey: Keys.iconSet)
     }
 
     func setThemeMaterial(_ value: DockThemeStyle) {
@@ -706,6 +737,8 @@ private enum Keys {
     static let centeredWidth = "com.katikati.layout.centeredWidth"
     static let islandGap = "com.katikati.layout.islandGap"
     static let islandMargin = "com.katikati.layout.islandMargin"
+    static let bottomGap = "com.katikati.layout.bottomGap"
+    static let iconSet = "com.katikati.iconSet"
     static let themeMaterial = "com.katikati.theme.material"
 }
 

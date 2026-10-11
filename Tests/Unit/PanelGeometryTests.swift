@@ -57,6 +57,20 @@ final class PanelGeometryTests: XCTestCase {
         XCTAssertEqual(dock.height, 94, "中档 54 + 2×20")
     }
 
+    func testHuggingBottomGapLowersEveryFrameByTheDelta() {
+        let screen = screen(frame: CGRect(x: 0, y: 0, width: 1512, height: 982))
+        let hug = DockPanelHeight.native.metrics(bottomGap: PanelLayoutMetrics.huggingBottomGap)
+        let flush = DockPanelHeight.native.metrics(bottomGap: 0)
+
+        XCTAssertEqual(PanelGeometry.dockTargetFrame(contentWidth: 620, on: screen, metrics: hug).minY, -18, "bottomGap 2 − shadowPadding 20")
+        XCTAssertEqual(PanelGeometry.dockTargetFrame(contentWidth: 620, on: screen, metrics: flush).minY, -20, "bottomGap 0 − shadowPadding 20")
+        for mode in BarLayoutMode.allCases {
+            let floating = PanelGeometry.islandTargetFrame(slot: 0, contentWidth: 620, mode: mode, on: screen, metrics: metrics)
+            let hugging = PanelGeometry.islandTargetFrame(slot: 0, contentWidth: 620, mode: mode, on: screen, metrics: hug)
+            XCTAssertEqual(floating.minY - hugging.minY, 6, "\(mode): islands follow the hug delta")
+        }
+    }
+
     func testDrawerTopCapUsesVisibleFrameWhenMenuBarIsLowerThanSafeAreaCap() {
         let screen = PanelScreenGeometry(
             frame: CGRect(x: 0, y: 0, width: 1512, height: 982),

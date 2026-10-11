@@ -53,8 +53,12 @@ struct DockPanelHeight: Equatable {
     }
 
     /// The single source of panel geometry: AppKit (`PanelCoordinator`) and SwiftUI both
-    /// read it, never their own copy.
-    var metrics: PanelLayoutMetrics {
+    /// read it, never their own copy. Uses the floating bottom gap; live callers go through
+    /// `AppSettingsStore.layoutMetrics`, which threads the user's `bottomGap`.
+    var metrics: PanelLayoutMetrics { metrics(bottomGap: PanelLayoutMetrics.floatingBottomGap) }
+
+    /// Phase 6 hug toggle: `bottomGap` is the only input not derived from the height.
+    func metrics(bottomGap: CGFloat) -> PanelLayoutMetrics {
         PanelLayoutMetrics(
             panelHeight: points,
             // Shadow padding never scales: the shadow tokens are frozen.
@@ -62,7 +66,7 @@ struct DockPanelHeight: Equatable {
             // Written as an expression, not a literal: the relation used to live only in a
             // comment and is exactly what a height change forgets.
             windowHeight: points + 2 * PanelLayoutMetrics.shadowPadding,
-            bottomGap: 8,
+            bottomGap: bottomGap,
             outerMargin: 12,
             capsuleWidth: points,
             capsuleGap: 8,
@@ -85,6 +89,12 @@ struct PanelLayoutMetrics: Equatable {
 
     /// Fixed; never scales with the bar height (see `DockPanelHeight.metrics`).
     static let shadowPadding: CGFloat = 20
+
+    /// Gap between the bar and the screen's bottom edge. Floating (8) is the tungsten
+    /// original; Hugging (2) is the opt-in preset (`com.katikati.layout.bottomGap`).
+    static let floatingBottomGap: CGFloat = 8
+    static let huggingBottomGap: CGFloat = 2
+    static let bottomGapRange: ClosedRange<CGFloat> = 0...12
 
     /// Native-height baseline for default parameters and tests; real values come from
     /// `DockPanelHeight.metrics`.

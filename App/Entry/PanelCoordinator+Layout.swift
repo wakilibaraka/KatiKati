@@ -163,10 +163,11 @@ extension PanelCoordinator {
             .sink { [weak self] _ in
                 DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
             }
-        layoutDimensionsSubscription = Publishers.CombineLatest3(
+        layoutDimensionsSubscription = Publishers.CombineLatest4(
             settingsStore.$centeredWidth,
             settingsStore.$islandGap,
-            settingsStore.$islandMargin
+            settingsStore.$islandMargin,
+            settingsStore.$bottomGap
         )
         .removeDuplicates { $0 == $1 }
         .dropFirst()

@@ -27,7 +27,7 @@ final class PanelCoordinator: NSObject {
     /// Panel geometry follows the user's bar height, so these are **instance** properties that
     /// read the store; only `shadowPadding` stays static (fixed 20, referenced by the drawer
     /// and both popups).
-    var layoutMetrics: PanelLayoutMetrics { settingsStore.dockPanelHeight.metrics }
+    var layoutMetrics: PanelLayoutMetrics { settingsStore.layoutMetrics }
     var panelHeight: CGFloat { layoutMetrics.panelHeight }
     var windowHeight: CGFloat { layoutMetrics.windowHeight }
     var capsuleWidth: CGFloat { layoutMetrics.capsuleWidth }
@@ -569,6 +569,10 @@ final class PanelCoordinator: NSObject {
 
     /// Callback querying the whole-bar bounding frame on this coordinator's display.
     var onQueryBarBoundingFrame: (() -> CGRect)?
+    /// Phase 6: true while the pointer is over a sibling island on the same display. Edge
+    /// auto-hide treats the bar as one surface — without this, hovering the apps island let
+    /// the weather/clock islands idle-hide on their own.
+    var onQuerySiblingContainsMouse: (() -> Bool)?
 
     /// The bounding frame of the entire bar on this coordinator's display (union of all island frames).
     /// Falls back to dockVisibleFrame if no query callback is attached.

@@ -124,6 +124,25 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
+    func testBottomGapDefaultsToFloatingClampsAndPersists() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.bottomGap, 8, "missing key = floating, today's look")
+        XCTAssertEqual(store.layoutMetrics.bottomGap, 8)
+
+        store.setBottomGap(PanelLayoutMetrics.huggingBottomGap)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).bottomGap, 2, "hug survives relaunch")
+        XCTAssertEqual(store.layoutMetrics.bottomGap, 2)
+
+        store.setBottomGap(40)
+        XCTAssertEqual(store.bottomGap, 12)
+        store.setBottomGap(-3)
+        XCTAssertEqual(store.bottomGap, 0)
+        store.setBottomGap(.nan)
+        XCTAssertEqual(store.bottomGap, 8)
+    }
+
+    @MainActor
     func testDockPanelHeightDefaultsToNativeAndPersists() {
         let defaults = makeDefaults()
         XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight, .native)
