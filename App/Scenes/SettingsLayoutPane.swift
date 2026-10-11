@@ -379,6 +379,7 @@ struct SettingsLayoutPane: View {
                 Toggle("Clock", isOn: tileBinding(.clock))
                 Toggle("Calculator", isOn: tileBinding(.calculator))
                 Toggle("Countdown", isOn: tileBinding(.countdown))
+                Toggle("Screen Time", isOn: tileBinding(.screenTime))
             }
         }
         .padding(Self.margin)
@@ -489,6 +490,7 @@ struct SettingsLayoutPane: View {
         case .clipboard: return Text("Clipboard")
         case .capture: return Text("Capture")
         case .windows: return Text("Windows")
+        case .screenTime: return Text("Screen Time")
         }
     }
 

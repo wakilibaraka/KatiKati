@@ -6,6 +6,7 @@ enum LauncherTile: String, CaseIterable, Sendable {
     case clock
     case calculator
     case countdown
+    case screenTime
 
     static func parse(_ stored: String?) -> [LauncherTile] {
         var seen = Set<LauncherTile>()

@@ -66,6 +66,7 @@ enum ProductivityItem: String, CaseIterable, Sendable {
     case clipboard
     case capture
     case windows
+    case screenTime
 
     /// Items whose flyout exists. An item appears on a bar only once built (no placeholders); P2–P6 built them all,
     /// so this is the full set — a future item is added to the enum first and to this set when its flyout lands.
@@ -105,7 +106,7 @@ enum EdgePlacement: String, CaseIterable, Sendable {
 /// `com.katikati.edge.custom`; never rename them.
 enum EdgeItem: String, CaseIterable, Sendable {
     case notes, newNote
-    case reminders, alarms, time, tasks, clipboard, capture, windows
+    case reminders, alarms, time, tasks, clipboard, capture, windows, screenTime
     case weather, nowPlaying, bluetooth, systemMonitor
     case status
     case settings
@@ -127,6 +128,7 @@ enum EdgeItem: String, CaseIterable, Sendable {
         case .clipboard: return .productivity(.clipboard)
         case .capture: return .productivity(.capture)
         case .windows: return .productivity(.windows)
+        case .screenTime: return .productivity(.screenTime)
         }
     }
 

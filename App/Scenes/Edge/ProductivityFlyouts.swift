@@ -15,6 +15,7 @@ final class ProductivityServices {
     lazy var clipboard = ClipboardMonitor()
     lazy var capture = CaptureController()
     lazy var systemMonitor = SystemMonitorController()
+    lazy var screenTime = ScreenTimeController()
     private init() {}
 }
 
@@ -26,6 +27,7 @@ enum ProductivityFlyout {
         case .tasks: return CGSize(width: 320, height: 360)
         case .windows: return CGSize(width: 300, height: 290)
         case .capture: return CGSize(width: 320, height: 300)
+        case .screenTime: return CGSize(width: 340, height: 400)
         default: return CGSize(width: 300, height: 290)
         }
     }
@@ -40,6 +42,7 @@ enum ProductivityFlyout {
         case .windows: return AnyView(WindowsFlyoutView())
         case .clipboard: return AnyView(ClipboardFlyoutView())
         case .capture: return AnyView(CaptureResultView())
+        case .screenTime: return AnyView(ScreenTimeFlyoutView())
         default: return nil
         }
     }

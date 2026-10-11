@@ -705,6 +705,13 @@
 		EE0000000000000000000011 /* LauncherAppearanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000010 /* LauncherAppearanceTests.swift */; };
 		EE0000000000000000000013 /* LauncherBackdrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000012 /* LauncherBackdrop.swift */; };
 		EE0000000000000000000015 /* LauncherIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000014 /* LauncherIconView.swift */; };
+		EE0000000000000000000018 /* ScreenTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000017 /* ScreenTime.swift */; };
+		EE0000000000000000000019 /* ScreenTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000017 /* ScreenTime.swift */; };
+		EE000000000000000000001B /* ScreenTimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000001A /* ScreenTimeTests.swift */; };
+		EE000000000000000000001D /* ScreenTimeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000001C /* ScreenTimeStore.swift */; };
+		EE000000000000000000001E /* ScreenTimeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000001C /* ScreenTimeStore.swift */; };
+		EE0000000000000000000020 /* ScreenTimeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000001F /* ScreenTimeController.swift */; };
+		EE0000000000000000000022 /* ScreenTimeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000021 /* ScreenTimeViews.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1204,6 +1211,11 @@
 		EE0000000000000000000010 /* LauncherAppearanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherAppearanceTests.swift; path = Tests/Unit/LauncherAppearanceTests.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000012 /* LauncherBackdrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherBackdrop.swift; path = Platform/Launcher/LauncherBackdrop.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000014 /* LauncherIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherIconView.swift; path = App/Scenes/LauncherIconView.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000017 /* ScreenTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTime.swift; path = Core/Support/ScreenTime.swift; sourceTree = SOURCE_ROOT; };
+		EE000000000000000000001A /* ScreenTimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeTests.swift; path = Tests/Unit/ScreenTimeTests.swift; sourceTree = SOURCE_ROOT; };
+		EE000000000000000000001C /* ScreenTimeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeStore.swift; path = Platform/ScreenTime/ScreenTimeStore.swift; sourceTree = SOURCE_ROOT; };
+		EE000000000000000000001F /* ScreenTimeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeController.swift; path = Platform/ScreenTime/ScreenTimeController.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000021 /* ScreenTimeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeViews.swift; path = App/Scenes/Edge/ScreenTimeViews.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2240,6 +2252,10 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
+				EE0000000000000000000022 /* ScreenTimeViews.swift in Sources */,
+				EE000000000000000000001D /* ScreenTimeStore.swift in Sources */,
+				EE0000000000000000000020 /* ScreenTimeController.swift in Sources */,
+				EE0000000000000000000018 /* ScreenTime.swift in Sources */,
 				EE0000000000000000000015 /* LauncherIconView.swift in Sources */,
 				EE0000000000000000000013 /* LauncherBackdrop.swift in Sources */,
 				EE000000000000000000000E /* LauncherAppearance.swift in Sources */,
@@ -2366,6 +2382,9 @@
 				ED0000000000000000000089 /* DeckGeometryTests.swift in Sources */,
 				ED0000000000000000000082 /* NotePalette.swift in Sources */,
 				ED0000000000000000000084 /* NotePaletteTests.swift in Sources */,
+				EE000000000000000000001E /* ScreenTimeStore.swift in Sources */,
+				EE0000000000000000000019 /* ScreenTime.swift in Sources */,
+				EE000000000000000000001B /* ScreenTimeTests.swift in Sources */,
 				EE000000000000000000000F /* LauncherAppearance.swift in Sources */,
 				EE0000000000000000000011 /* LauncherAppearanceTests.swift in Sources */,
 				EE000000000000000000000A /* LauncherLayout.swift in Sources */,

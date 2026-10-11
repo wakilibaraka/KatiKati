@@ -207,7 +207,7 @@ final class AppSettingsStoreTests: XCTestCase {
         let store = AppSettingsStore(defaults: defaults)
         XCTAssertEqual(store.launcherTiles, LauncherTile.allCases)
         store.setLauncherTile(.calculator, enabled: false)
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherTiles, [.clock, .countdown])
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherTiles, [.clock, .countdown, .screenTime])
         store.setLauncherTile(.calculator, enabled: true)
         XCTAssertEqual(store.launcherTiles, LauncherTile.allCases, "re-enabling restores display order")
     }

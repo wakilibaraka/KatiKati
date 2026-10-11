@@ -106,6 +106,7 @@ enum DeckButton: Hashable {
         case .productivity(.clipboard): return "doc.on.clipboard"
         case .productivity(.capture): return "text.viewfinder"
         case .productivity(.windows): return "rectangle.split.2x1"
+        case .productivity(.screenTime): return "hourglass"
         }
     }
 
@@ -128,6 +129,7 @@ enum DeckButton: Hashable {
         case .productivity(.clipboard): return 1
         case .productivity(.capture): return 4
         case .productivity(.windows): return 7
+        case .productivity(.screenTime): return 0
         }
     }
 }
@@ -457,6 +459,7 @@ struct DeckRoundButton: View {
         case .productivity(.clipboard): return Text("Clipboard")
         case .productivity(.capture): return Text("Capture")
         case .productivity(.windows): return Text("Windows")
+        case .productivity(.screenTime): return Text("Screen Time")
         }
     }
 }

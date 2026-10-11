@@ -229,6 +229,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     .warning("Launcher hotkey ⌥Space registration failed; the left FAB still opens it")
             }
 
+            ProductivityServices.shared.screenTime.startIfEnabled()
+
             _ = statusMenuController
 
             // 自动更新只在正常安装的副本上跑。挂载在 DMG 里的临时副本更新自己毫无意义

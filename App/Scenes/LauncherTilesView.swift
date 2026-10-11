@@ -13,6 +13,7 @@ struct LauncherTilesRow: View {
                     case .clock: LauncherClockTile()
                     case .calculator: LauncherCalculatorTile()
                     case .countdown: LauncherCountdownTile()
+                    case .screenTime: LauncherScreenTimeTile()
                     }
                 }
             }
@@ -88,5 +89,14 @@ private struct LauncherCountdownTile: View {
                 }
             }
         }
+    }
+}
+
+private struct LauncherScreenTimeTile: View {
+    var body: some View {
+        ScreenTimeSummaryView(rows: 3)
+            .padding(12)
+            .frame(width: 330, height: 128, alignment: .topLeading)
+            .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Color.primary.opacity(0.10)))
     }
 }
