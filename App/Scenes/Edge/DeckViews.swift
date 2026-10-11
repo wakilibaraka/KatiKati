@@ -95,6 +95,7 @@ enum DeckButton: Hashable {
         case .widget(.weather): return "cloud.sun.fill"
         case .widget(.nowPlaying): return "music.note"
         case .widget(.bluetooth): return "wave.3.right.circle.fill"
+        case .widget(.systemMonitor): return "cpu"
         case .productivity(.reminders): return "checklist"
         case .productivity(.alarms): return "alarm.fill"
         case .productivity(.time): return "timer"
@@ -116,6 +117,7 @@ enum DeckButton: Hashable {
         case .widget(.weather): return 1
         case .widget(.nowPlaying): return 2
         case .widget(.bluetooth): return 4
+        case .widget(.systemMonitor): return 6
         case .productivity(.reminders): return 3
         case .productivity(.alarms): return 6
         case .productivity(.time): return 5
@@ -431,6 +433,7 @@ struct DeckRoundButton: View {
         case .widget(.weather): return Text("Weather")
         case .widget(.nowPlaying): return Text("Now Playing")
         case .widget(.bluetooth): return Text("Bluetooth")
+        case .widget(.systemMonitor): return Text("System")
         case .productivity(.reminders): return Text("Reminders")
         case .productivity(.alarms): return Text("Alarms")
         case .productivity(.time): return Text("Time")

@@ -37,6 +37,8 @@ final class EdgeFlyoutController {
 
     func dismiss() {
         panel?.orderOut(nil)
+        // Drop the content so its views disappear (samplers such as the System monitor stop with them).
+        panel?.contentView = nil
         shownID = nil
         removeMonitors()
     }

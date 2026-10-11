@@ -14,6 +14,7 @@ final class ProductivityServices {
     lazy var tasks = TasksController()
     lazy var clipboard = ClipboardMonitor()
     lazy var capture = CaptureController()
+    lazy var systemMonitor = SystemMonitorController()
     private init() {}
 }
 

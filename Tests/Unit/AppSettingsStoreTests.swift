@@ -182,6 +182,7 @@ final class AppSettingsStoreTests: XCTestCase {
         store.setWidgetTile(.weather, enabled: false)
         store.setWidgetTile(.nowPlaying, enabled: false)
         store.setWidgetTile(.bluetooth, enabled: false)
+        store.setWidgetTile(.systemMonitor, enabled: false)
         XCTAssertTrue(AppSettingsStore(defaults: defaults).widgetTiles.isEmpty, "an explicit empty list stays empty")
         store.setWidgetTile(.nowPlaying, enabled: true)
         store.setWidgetTile(.weather, enabled: true)

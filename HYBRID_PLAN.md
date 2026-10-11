@@ -1814,6 +1814,11 @@ upgrades, wallpaper/personalisation, extra flyouts.
   button (Copy; web links get Open on click only — nothing is opened automatically; Wi-Fi/tel/other payloads stay text). `CaptureRules` is pure + tested; a rendered-image
   test proves Vision finds both text and a QR payload (first run ~30 s model warm-up, then 0.2 s). Not live-driven: the region selector needs the real pointer. One button
   instead of Hop's two modules (text recognition, QR) since both come from the same capture. 7 strings in the l10n commit. All seven productivity buttons are now built.
+- 2026-10-12 · **7A-8c — System monitor (rest side):** new `WidgetTile.systemMonitor` / `EdgeItem.systemMonitor` (frozen id, joins the widgets default and Custom) opening a
+  flyout with CPU, memory (active+wired+compressed), disk free and network ↓↑. `SystemMonitorMath` (Core, tested: tick deltas, counter-reset-safe rates, clamped fractions,
+  formatting) + `SystemMonitorSampler` (host_statistics, vm_statistics64, volume capacity, getifaddrs en*) + `SystemMonitorController` (ref-counted 1 s timer that exists
+  only while the flyout is on screen). Found + fixed: `EdgeFlyoutController.dismiss` only ordered the panel out, so SwiftUI `onDisappear` never fired and a sampler would
+  have kept running — it now clears the content view; a 5 s `sample` after open→close shows zero SystemMonitor frames. Live: flyout shows live numbers. 5 strings in the l10n commit.
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,

@@ -494,6 +494,9 @@ final class EdgeBarPanelController {
             case .weather:
                 popup.dismiss()
                 WidgetPanelController.weather.toggle()
+            case .systemMonitor:
+                popup.toggle(id: "widget.systemMonitor", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                             size: SystemMonitorFlyoutView.size, content: AnyView(SystemMonitorFlyoutView()))
             case .bluetooth:
                 popup.toggle(id: "widget.bluetooth", anchor: anchor, side: side, visibleFrame: visibleFrame,
                              size: BluetoothFlyoutView.size, content: AnyView(BluetoothFlyoutView()))

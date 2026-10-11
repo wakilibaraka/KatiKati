@@ -50,6 +50,7 @@ enum WidgetTile: String, CaseIterable, Sendable {
     case weather
     case nowPlaying
     case bluetooth
+    case systemMonitor
 
     static func parse(_ stored: String?) -> [WidgetTile] { parseIDList(stored) }
     static func serialize(_ tiles: [WidgetTile]) -> String { tiles.map(\.rawValue).joined(separator: ",") }
@@ -105,7 +106,7 @@ enum EdgePlacement: String, CaseIterable, Sendable {
 enum EdgeItem: String, CaseIterable, Sendable {
     case notes, newNote
     case reminders, alarms, time, tasks, clipboard, capture, windows
-    case weather, nowPlaying, bluetooth
+    case weather, nowPlaying, bluetooth, systemMonitor
     case status
     case settings
 
@@ -118,6 +119,7 @@ enum EdgeItem: String, CaseIterable, Sendable {
         case .weather: return .widget(.weather)
         case .nowPlaying: return .widget(.nowPlaying)
         case .bluetooth: return .widget(.bluetooth)
+        case .systemMonitor: return .widget(.systemMonitor)
         case .reminders: return .productivity(.reminders)
         case .alarms: return .productivity(.alarms)
         case .time: return .productivity(.time)

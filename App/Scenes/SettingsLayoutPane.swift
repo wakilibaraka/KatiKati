@@ -392,6 +392,7 @@ struct SettingsLayoutPane: View {
         case .weather: return Text("Weather")
         case .nowPlaying: return Text("Now Playing")
         case .bluetooth: return Text("Bluetooth")
+        case .systemMonitor: return Text("System")
         case .reminders: return Text("Reminders")
         case .alarms: return Text("Alarms")
         case .time: return Text("Time")

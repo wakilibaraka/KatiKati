@@ -675,6 +675,13 @@
 		ED00000000000000000000DB /* CaptureRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000DA /* CaptureRulesTests.swift */; };
 		ED00000000000000000000DD /* CaptureController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000DC /* CaptureController.swift */; };
 		ED00000000000000000000DF /* CaptureRecognitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000DE /* CaptureRecognitionTests.swift */; };
+		ED00000000000000000000E1 /* SystemMonitorMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E0 /* SystemMonitorMath.swift */; };
+		ED00000000000000000000E2 /* SystemMonitorMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E0 /* SystemMonitorMath.swift */; };
+		ED00000000000000000000E4 /* SystemMonitorSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E3 /* SystemMonitorSampler.swift */; };
+		ED00000000000000000000E5 /* SystemMonitorSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E3 /* SystemMonitorSampler.swift */; };
+		ED00000000000000000000E7 /* SystemMonitorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E6 /* SystemMonitorController.swift */; };
+		ED00000000000000000000E9 /* SystemMonitorFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E8 /* SystemMonitorFlyoutView.swift */; };
+		ED00000000000000000000EB /* SystemMonitorMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000EA /* SystemMonitorMathTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1153,6 +1160,11 @@
 		ED00000000000000000000DA /* CaptureRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CaptureRulesTests.swift; path = Tests/Unit/CaptureRulesTests.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000DC /* CaptureController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CaptureController.swift; path = Platform/Capture/CaptureController.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000DE /* CaptureRecognitionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CaptureRecognitionTests.swift; path = Tests/Unit/CaptureRecognitionTests.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000E0 /* SystemMonitorMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorMath.swift; path = Core/Support/SystemMonitorMath.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000E3 /* SystemMonitorSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorSampler.swift; path = Platform/SystemMonitor/SystemMonitorSampler.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000E6 /* SystemMonitorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorController.swift; path = Platform/SystemMonitor/SystemMonitorController.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000E8 /* SystemMonitorFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorFlyoutView.swift; path = App/Scenes/Edge/SystemMonitorFlyoutView.swift; sourceTree = SOURCE_ROOT; };
+		ED00000000000000000000EA /* SystemMonitorMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorMathTests.swift; path = Tests/Unit/SystemMonitorMathTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2189,6 +2201,10 @@
 				ED0000000000000000000074 /* BluetoothDeviceReader.swift in Sources */,
 				ED0000000000000000000065 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000061 /* NoteSheetView.swift in Sources */,
+				ED00000000000000000000E1 /* SystemMonitorMath.swift in Sources */,
+				ED00000000000000000000E4 /* SystemMonitorSampler.swift in Sources */,
+				ED00000000000000000000E7 /* SystemMonitorController.swift in Sources */,
+				ED00000000000000000000E9 /* SystemMonitorFlyoutView.swift in Sources */,
 				ED00000000000000000000D4 /* CaptureRules.swift in Sources */,
 				ED00000000000000000000D7 /* CaptureController.swift in Sources */,
 				ED00000000000000000000D9 /* CaptureResultView.swift in Sources */,
@@ -2300,6 +2316,9 @@
 				ED0000000000000000000089 /* DeckGeometryTests.swift in Sources */,
 				ED0000000000000000000082 /* NotePalette.swift in Sources */,
 				ED0000000000000000000084 /* NotePaletteTests.swift in Sources */,
+				ED00000000000000000000E2 /* SystemMonitorMath.swift in Sources */,
+				ED00000000000000000000E5 /* SystemMonitorSampler.swift in Sources */,
+				ED00000000000000000000EB /* SystemMonitorMathTests.swift in Sources */,
 				ED00000000000000000000DD /* CaptureController.swift in Sources */,
 				ED00000000000000000000DF /* CaptureRecognitionTests.swift in Sources */,
 				ED00000000000000000000D5 /* CaptureRules.swift in Sources */,

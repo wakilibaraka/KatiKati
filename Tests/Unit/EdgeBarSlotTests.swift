@@ -72,7 +72,7 @@ final class EdgeBarSlotTests: XCTestCase {
         let r = resolve(.productivityAndRest, widgets: WidgetTile.allCases, productivity: ProductivityItem.allCases,
                         built: [.reminders, .time])
         XCTAssertEqual(r[.right], [.notes, .newNote, .productivity(.reminders), .productivity(.time), .settings])
-        XCTAssertEqual(r[.left], [.widget(.weather), .widget(.nowPlaying), .widget(.bluetooth), .status])
+        XCTAssertEqual(r[.left], [.widget(.weather), .widget(.nowPlaying), .widget(.bluetooth), .widget(.systemMonitor), .status])
         let swapped = resolve(.productivityAndRest, primary: .left, widgets: [.bluetooth], productivity: [.time], built: [.time])
         XCTAssertEqual(swapped[.left], [.notes, .newNote, .productivity(.time), .settings])
         XCTAssertEqual(swapped[.right], [.widget(.bluetooth), .status])
@@ -109,7 +109,7 @@ final class EdgeBarSlotTests: XCTestCase {
         XCTAssertEqual(EdgeBarPreset.allCases.map(\.rawValue),
                        ["off", "notes", "notesAndStatus", "status", "productivityAndRest", "custom"])
         XCTAssertEqual(EdgeBarPreset.default, .productivityAndRest)
-        XCTAssertEqual(EdgeItem.allCases.count, 14)
+        XCTAssertEqual(EdgeItem.allCases.count, 15)
     }
 
     func testShippedProductivityButtonsAppearOnTheMainSideByDefault() {
@@ -117,5 +117,12 @@ final class EdgeBarSlotTests: XCTestCase {
         let r = EdgeBarComposition.resolve(preset: .productivityAndRest, primary: .right, widgets: [],
                                            productivity: ProductivityItem.allCases, custom: [:])
         XCTAssertEqual(r[.right], [.notes, .newNote, .productivity(.reminders), .productivity(.alarms), .productivity(.time), .productivity(.tasks), .productivity(.clipboard), .productivity(.capture), .productivity(.windows), .settings])
+    }
+
+    func testWidgetTileIdsAreFrozenAndParseIsTolerant() {
+        XCTAssertEqual(WidgetTile.allCases.map(\.rawValue), ["weather", "nowPlaying", "bluetooth", "systemMonitor"])
+        XCTAssertEqual(WidgetTile.parse("systemMonitor, weather,bogus,weather"), [.systemMonitor, .weather])
+        XCTAssertEqual(WidgetTile.parse(""), [])
+        XCTAssertEqual(WidgetTile.serialize([.weather, .nowPlaying]), "weather,nowPlaying")
     }
 }
