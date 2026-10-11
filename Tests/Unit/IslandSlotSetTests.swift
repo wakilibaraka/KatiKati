@@ -123,4 +123,17 @@ final class IslandSlotSetTests: XCTestCase {
             IslandSlotSet.SlotKey(display: nil, slot: 3),
         ])
     }
+
+    /// 5c: a crash-relaunch starts with no units; the first desired set equals the one a
+    /// clean launch builds, and re-evaluating it is a no-op (rebuildUnits' `desired != current` guard).
+    func testRelaunchDesiredSlotsAreDeterministicAndIdempotent() {
+        for mode in BarLayoutMode.allCases {
+            let first = IslandSlotSet.desiredSlots(placement: .followMouse, connectedKeys: ["A", "B"], mode: mode)
+            let second = IslandSlotSet.desiredSlots(placement: .followMouse, connectedKeys: ["A", "B"], mode: mode)
+            XCTAssertEqual(first, second)
+            XCTAssertEqual(first.count, mode.slotCount)
+            let diff = IslandSlotSet.diff(previous: first, current: second)
+            XCTAssertTrue(diff.added.isEmpty && diff.removed.isEmpty)
+        }
+    }
 }
