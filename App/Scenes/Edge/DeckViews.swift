@@ -7,6 +7,8 @@ final class DeckViewModel: ObservableObject {
     @Published var state: DeckState = .rest
     /// False → tabs are off-screen (rest / exiting); true → shingled in. Flipped two frames after the panel resizes.
     @Published var revealed = false
+    /// The panel is fan-sized (stays true while the exit animation plays, until the panel shrinks to the pill).
+    @Published var showsFan = false
     @Published var showAll = false
     @Published var tabs: [Note] = []
     @Published var buttons: [DeckButton] = []
@@ -17,11 +19,38 @@ final class DeckViewModel: ObservableObject {
     /// Pill / tile accent colours when there are no note tabs (left deck).
     @Published var accentDashes: [NotePaletteEntry] = []
 
-    var onTab: (String) -> Void = { _ in }
+    var onTab: (String, CGRect) -> Void = { _, _ in }
     var onButton: (DeckButton, CGRect) -> Void = { _, _ in }
 
     var metrics: DeckMetrics { DeckMetrics(scale: CGFloat(scale)) }
     var deckFont: DeckFont { DeckFont(postScript: tabFont, scale: CGFloat(scale)) }
+
+    var visibleTabs: [Note] { showAll ? tabs : Array(tabs.prefix(DeckGeometry.fanLimit)) }
+    var hiddenCount: Int { showAll ? 0 : max(0, tabs.count - DeckGeometry.fanLimit) }
+
+    /// One layout used by both the view and the controller's panel sizing.
+    func layout(panelHeight: CGFloat) -> DeckLayout {
+        let font = deckFont
+        let measure = font.measure
+        let longest = visibleTabs.map { measure.total(VerticalLabelLayout.runs(for: $0.displayTitle.uppercased())) }.max() ?? 0
+        return DeckGeometry.layout(metrics, panelHeight: panelHeight, count: visibleTabs.count,
+                                   hasMore: hiddenCount > 0, longestLabel: longest, buttons: buttons.count)
+    }
+
+    /// Items that give the pill its dashes: note tabs, or one accent per tile when there are no notes.
+    var pillItemCount: Int { max(1, tabs.isEmpty ? buttons.count : tabs.count) }
+}
+
+/// Root view of a deck panel: the pill at rest, the fan otherwise.
+struct DeckRootView: View {
+    @ObservedObject var model: DeckViewModel
+
+    var body: some View {
+        ZStack {
+            if model.showsFan { DeckFanView(model: model) } else { DeckPillView(model: model) }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
 }
 
 /// Round buttons stacked under the tabs.
@@ -98,16 +127,14 @@ struct DeckPillView: View {
 struct DeckFanView: View {
     @ObservedObject var model: DeckViewModel
 
-    private var visibleTabs: [Note] { model.showAll ? model.tabs : Array(model.tabs.prefix(DeckGeometry.fanLimit)) }
-    private var hiddenCount: Int { model.showAll ? 0 : max(0, model.tabs.count - DeckGeometry.fanLimit) }
+    private var visibleTabs: [Note] { model.visibleTabs }
+    private var hiddenCount: Int { model.hiddenCount }
 
     var body: some View {
         let m = model.metrics
         let font = model.deckFont
-        let longest = visibleTabs.map { font.measure.total(VerticalLabelLayout.runs(for: $0.displayTitle.uppercased())) }.max() ?? 0
         GeometryReader { geo in
-            let layout = DeckGeometry.layout(m, panelHeight: max(1, geo.size.height), count: visibleTabs.count,
-                                             hasMore: hiddenCount > 0, longestLabel: longest, buttons: model.buttons.count)
+            let layout = model.layout(panelHeight: max(1, geo.size.height))
             ZStack(alignment: model.onRight ? .topTrailing : .topLeading) {
                 stack(layout: layout, metrics: m, font: font)
                     .overlay(alignment: model.onRight ? .trailing : .leading) { spine(layout) }
@@ -119,20 +146,22 @@ struct DeckFanView: View {
 
     private func stack(layout: DeckLayout, metrics m: DeckMetrics, font: DeckFont) -> some View {
         let total = visibleTabs.count + (hiddenCount > 0 ? 1 : 0) + model.buttons.count
-        return VStack(spacing: layout.spacing) {
+        // Negative spacing makes the tabs shingle, but it would also overlap the buttons: undo it per button.
+        let spacing = visibleTabs.isEmpty ? 0 : layout.spacing
+        return VStack(spacing: spacing) {
             ForEach(Array(visibleTabs.enumerated()), id: \.element.id) { idx, note in
                 DeckTab(note: note, isOpen: model.state.expandedID == note.id, height: layout.itemHeight, strip: layout.pitch,
-                        onRight: model.onRight, metrics: m, deckFont: font) { model.onTab(note.id) }
+                        onRight: model.onRight, metrics: m, deckFont: font) { rect in model.onTab(note.id, rect) }
                     .staged(index: idx, total: total, revealed: model.revealed, onRight: model.onRight, travel: m.tabWidth + 24)
             }
             if hiddenCount > 0 {
                 DeckMoreTab(count: hiddenCount, height: m.moreTabHeight, width: m.tabWidth, onRight: model.onRight) { model.showAll = true }
-                    .padding(.top, m.tabGap - layout.spacing)
+                    .padding(.top, m.tabGap - spacing)
                     .staged(index: visibleTabs.count, total: total, revealed: model.revealed, onRight: model.onRight, travel: m.tabWidth + 24)
             }
             ForEach(Array(model.buttons.enumerated()), id: \.element) { i, button in
                 DeckRoundButton(button: button, style: model.tileStyle, size: m.buttonSize) { rect in model.onButton(button, rect) }
-                    .padding(.top, (i == 0 && visibleTabs.isEmpty && hiddenCount == 0 ? 0 : m.buttonGap) - (i == 0 ? layout.spacing : 0))
+                    .padding(.top, (i == 0 && visibleTabs.isEmpty && hiddenCount == 0 ? 0 : m.buttonGap - spacing))
                     .padding(model.onRight ? .trailing : .leading, (m.tabWidth - m.buttonSize) / 2)
                     .staged(index: visibleTabs.count + (hiddenCount > 0 ? 1 : 0) + i, total: total, revealed: model.revealed,
                             onRight: model.onRight, travel: m.tabWidth + 24)
@@ -164,7 +193,7 @@ struct DeckTab: View {
     let onRight: Bool
     let metrics: DeckMetrics
     let deckFont: DeckFont
-    let action: () -> Void
+    let action: (CGRect) -> Void
 
     @State private var hovering = false
 
@@ -190,14 +219,18 @@ struct DeckTab: View {
                     .padding(.top, 7).padding(onRight ? .trailing : .leading, 9)
             }
         }
-        .onTapGesture(perform: action)
+        .overlay(
+            GeometryReader { proxy in
+                Color.clear.contentShape(Rectangle()).onTapGesture { action(proxy.frame(in: .global)) }
+            }
+        )
         .onHover { hovering = $0 }
         .animation(.easeOut(duration: 0.14), value: hovering)
         .animation(.spring(response: 0.28, dampingFraction: 0.8), value: isOpen)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: note.displayTitle))
         .accessibilityAddTraits(.isButton)
-        .accessibilityAction(.default, action)
+        .accessibilityAction(.default) { action(.zero) }
         .help(Text(verbatim: note.displayTitle))
     }
 }

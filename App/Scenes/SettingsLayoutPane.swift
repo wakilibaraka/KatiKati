@@ -288,9 +288,9 @@ struct SettingsLayoutPane: View {
                         }
                     }
                 }
-                Toggle("Auto-Hide Edge Bars", isOn: Binding(
-                    get: { store.edgeAutoHide },
-                    set: { store.setEdgeAutoHide($0) }
+                Toggle("Keep Edge Bars Open", isOn: Binding(
+                    get: { store.deckKeepOpen },
+                    set: { store.setDeckKeepOpen($0) }
                 ))
                 .disabled(store.edgeBarPreset == .off)
                 Toggle("Sync Notes with iCloud Drive", isOn: Binding(

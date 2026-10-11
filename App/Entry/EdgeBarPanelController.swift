@@ -1,9 +1,24 @@
 import AppKit
+import Combine
 import SwiftUI
 
-/// One edge-bar panel (Phase 7A foundation): a non-activating, all-Spaces panel hugging a screen
-/// side. Content is a placeholder until the notes / status / widgets slices land. Owned by
-/// `TaskbarScreenOrchestrator`, one per `EdgeSlotSet.SlotKey`; never part of `units`.
+/// The deck settings one panel needs (snapshot taken by the orchestrator; `Equatable` so an unchanged
+/// snapshot makes `update` a no-op).
+struct DeckSettings: Equatable {
+    var scale: Double = 1
+    var keepOpen = false
+    var openOnHover = false
+    var tabPreview = true
+    var tileStyle: EdgeTileStyle = .glass
+    var tabFont = ""
+    var yRatio: Double = 0.5
+}
+
+/// One deck per `EdgeSlotSet.SlotKey` (Phase 7A-D2): a pill of colour dashes at rest that fans into shingled
+/// paper tabs and round buttons when the pointer reaches the edge — after noty's deck (MIT, NOTICE §5).
+/// Non-activating, all-Spaces panel, resized per state (never animated; content animates two frames later).
+/// Owned by `TaskbarScreenOrchestrator`; never part of `units`. Pointer input arrives from the orchestrator's
+/// existing mouse poll (`pollMouse`), so there is no extra global monitor.
 @MainActor
 final class EdgeBarPanelController {
     let slotKey: EdgeSlotSet.SlotKey
@@ -13,19 +28,25 @@ final class EdgeBarPanelController {
     /// Creates the notes controller on first use (§1.7e); nil if the store/key is unavailable.
     private let notesProvider: () -> NotesController?
     private let nowPlayingProvider: () -> NowPlayingService
-    private var content: [EdgeBarContent] = []
-    private var host: NSHostingView<EdgeBarContentView>?
-    private var lastVisibleFrame: CGRect = .zero
+
+    private let model = DeckViewModel()
     private(set) var panel: NSPanel?
+    private var notesCancellable: AnyCancellable?
+    private weak var observedNotes: NotesController?
+
+    private var content: [EdgeBarContent] = []
+    private var settings = DeckSettings()
+    private var visibleFrame: CGRect = .zero
+    private var screenFrame: CGRect = .zero
     private var isHidden = true
-    /// Auto-hide (7A-3): `autoHidden` is separate from `isHidden` (fullscreen / island hide).
-    private var autoHideEnabled = false
-    private var autoHidden = false
-    /// Island-side verdict (fullscreen / sibling hidden); auto-hide never overrides it.
-    private var shouldBeVisible = false
+    private var state: DeckState = .rest
+    private var context = DeckContext()
+    private var lastActivity = Date()
+    private var lastKeepOpen = false
     private var idleTimer: Timer?
-    private var lastFrame: CGRect = .zero
-    private var lastScreenFrame: CGRect = .zero
+    private var exitWork: DispatchWorkItem?
+    private var shrinkWork: DispatchWorkItem?
+    private var revealWork: DispatchWorkItem?
 
     init(slotKey: EdgeSlotSet.SlotKey, service: SystemStatusService, notes: @escaping () -> NotesController?,
          nowPlaying: @escaping () -> NowPlayingService) {
@@ -33,53 +54,45 @@ final class EdgeBarPanelController {
         self.service = service
         self.notesProvider = notes
         self.nowPlayingProvider = nowPlaying
+        model.onRight = slotKey.side == .right
+        model.onTab = { [weak self] id, rect in self?.tabTapped(id, localRect: rect) }
+        model.onButton = { [weak self] button, rect in self?.buttonTapped(button, localRect: rect) }
+        notesPopup.onDismiss = { [weak self] outside in self?.notesSheetClosed(outsideClick: outside) }
     }
 
-    var allSpacesPanels: [NSPanel] { panel.map { [$0] } ?? [] }
+    /// `DOCK_EDGE_FAN=1`: decks start fanned (inspection aid: behaves like keep-open).
+    private static let forceFan = DebugSwitch.edgeFan.isEnabled(in: ProcessInfo.processInfo.environment)
 
-    /// Positions the panel on `screen` and shows/hides it. `visible == false` (sibling island
-    /// bar hidden by fullscreen) hides it with the same reconcile pass — atomic per display.
-    func update(screen: NSScreen?, visible: Bool, content: [EdgeBarContent], autoHide: Bool = false, gap: CGFloat, margin: CGFloat, metrics: PanelLayoutMetrics) {
-        if autoHideEnabled != autoHide {
-            autoHideEnabled = autoHide
-            autoHidden = false
-            cancelIdleTimer()
-        }
-        shouldBeVisible = false
+    var allSpacesPanels: [NSPanel] { panel.map { [$0] } ?? [] }
+    private var side: EdgeSide { slotKey.side }
+
+    // MARK: Update (orchestrator → controller)
+
+    /// Idempotent: repositions, rebuilds items and shows/hides without disturbing an open fan.
+    func update(screen: NSScreen?, visible: Bool, content: [EdgeBarContent], settings: DeckSettings) {
         guard visible, let screen, !content.isEmpty else {
-            popup.dismiss()
-            notesPopup.dismiss()
             hide()
             return
         }
-        let frame = PanelGeometry.edgeBarTargetFrame(
-            side: slotKey.side,
-            contentHeight: EdgeBarLayout.contentHeight(content),
-            width: EdgeBarLayout.width,
-            on: PanelCoordinator.screenGeometry(screen),
-            gap: gap,
-            margin: margin,
-            metrics: metrics
-        )
-        guard frame.height > 0, frame.width > 0 else {
-            hide()
-            return
-        }
-        shouldBeVisible = true
-        lastFrame = frame
-        lastScreenFrame = screen.frame
-        lastVisibleFrame = screen.visibleFrame
-        let panel = self.panel ?? makePanel(frame: frame)
+        let settingsChanged = self.settings != settings
+        let contentChanged = self.content != content
+        self.settings = settings
+        self.content = content
+        visibleFrame = screen.visibleFrame
+        screenFrame = screen.frame
+        let keepOpen = settings.keepOpen || Self.forceFan
+        context.keepOpen = keepOpen
+        context.openOnHover = settings.openOnHover
+
+        if contentChanged || settingsChanged || panel == nil { rebuildItems() }
+        let panel = self.panel ?? makePanel()
         self.panel = panel
-        if self.content != content || host == nil {
-            self.content = content
-            installContent(in: panel)
+
+        if keepOpen != lastKeepOpen {
+            lastKeepOpen = keepOpen
+            apply(.keepOpenChanged)
         }
-        if panel.frame != frame { panel.setFrame(frame, display: true) }
-        if autoHideEnabled && autoHidden {
-            hide()
-            return
-        }
+        applyFrame()
         if isHidden {
             panel.orderFrontRegardless()
             isHidden = false
@@ -89,69 +102,199 @@ final class EdgeBarPanelController {
     func hide() {
         guard !isHidden else { return }
         popup.dismiss()
-        notesPopup.dismiss()
+        notesPopup.dismiss(notify: false)
+        stopTimers()
         panel?.orderOut(nil)
         isHidden = true
-    }
-
-    /// Called from the orchestrator's existing mouse poll; no timers run while the bar is hidden.
-    func pollMouse(_ mouse: CGPoint) {
-        guard autoHideEnabled, lastFrame != .zero else { return }
-        let zone = EdgeBarAutoHide.hotZone(side: slotKey.side, screenFrame: lastScreenFrame, barFrame: lastFrame)
-        let action = EdgeBarAutoHide.action(
-            isHidden: autoHidden,
-            mouseInHotZone: zone.contains(mouse),
-            mouseInBar: lastFrame.contains(mouse),
-            popupOpen: popup.isShown || notesPopup.isShown
-        )
-        switch action {
-        case .none: break
-        case .reveal:
-            autoHidden = false
-            if shouldBeVisible, isHidden, let panel {
-                panel.orderFrontRegardless()
-                isHidden = false
-            }
-        case .armIdleHide:
-            guard idleTimer == nil, !isHidden else { return }
-            let timer = Timer(timeInterval: EdgeBarAutoHide.idleDelay, repeats: false) { [weak self] _ in
-                MainActor.assumeIsolated { self?.idleTimerFired() }
-            }
-            RunLoop.main.add(timer, forMode: .common)
-            idleTimer = timer
-        case .cancelIdleHide:
-            cancelIdleTimer()
-        }
-    }
-
-    private func idleTimerFired() {
-        idleTimer = nil
-        let mouse = NSEvent.mouseLocation
-        let zone = EdgeBarAutoHide.hotZone(side: slotKey.side, screenFrame: lastScreenFrame, barFrame: lastFrame)
-        guard EdgeBarAutoHide.action(isHidden: false, mouseInHotZone: zone.contains(mouse),
-                                     mouseInBar: lastFrame.contains(mouse),
-                                     popupOpen: popup.isShown || notesPopup.isShown) == .armIdleHide else { return }
-        autoHidden = true
-        hide()
-    }
-
-    private func cancelIdleTimer() {
-        idleTimer?.invalidate()
-        idleTimer = nil
+        state = .rest
+        model.state = .rest
+        model.showsFan = false
+        model.revealed = false
     }
 
     func tearDown() {
         popup.tearDown()
         notesPopup.tearDown()
-        cancelIdleTimer()
+        stopTimers()
+        notesCancellable = nil
         panel?.orderOut(nil)
         panel = nil
         isHidden = true
     }
 
-    private func makePanel(frame: CGRect) -> NSPanel {
+    // MARK: Items
+
+    private func rebuildItems() {
+        model.scale = settings.scale
+        model.tileStyle = settings.tileStyle
+        model.tabFont = settings.tabFont
+
+        var buttons: [DeckButton] = []
+        var hasNotes = false
+        for item in content {
+            switch item {
+            case .notes: hasNotes = true; buttons.append(.newNote)
+            case .status: buttons += StatusKind.allCases.map(DeckButton.status)
+            case let .widget(tile): buttons.append(.widget(tile))
+            }
+        }
+        if hasNotes { buttons.append(.settings) }
+        model.buttons = buttons
+        model.accentDashes = buttons.map { NotePalette.entry(at: $0.accent) }
+
+        if hasNotes, let notes = notesProvider() {
+            if observedNotes !== notes {
+                observedNotes = notes
+                model.tabs = notes.notes.filter { !$0.archived }
+                notesCancellable = notes.$notes.receive(on: DispatchQueue.main).sink { [weak self] list in
+                    self?.model.tabs = list.filter { !$0.archived }
+                    self?.applyFrame()
+                }
+            }
+        } else if !hasNotes {
+            model.tabs = []
+            notesCancellable = nil
+            observedNotes = nil
+        }
+    }
+
+    // MARK: Frames
+
+    private func applyFrame() {
+        guard let panel else { return }
+        let m = model.metrics
+        let frame: CGRect
+        if model.showsFan {
+            let stack = model.layout(panelHeight: visibleFrame.height).stackHeight
+            frame = DeckGeometry.fanFrame(m, side: side, visible: visibleFrame, stackHeight: stack,
+                                          itemCount: model.pillItemCount, yRatio: CGFloat(settings.yRatio))
+        } else {
+            frame = DeckGeometry.restFrame(m, side: side, visible: visibleFrame, itemCount: model.pillItemCount,
+                                           yRatio: CGFloat(settings.yRatio))
+        }
+        panel.ignoresMouseEvents = !model.showsFan
+        guard panel.frame != frame else { return }
+        // The frame and its content must reach the window server together — never animate the panel.
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        panel.setFrame(frame, display: true, animate: false)
+        panel.contentView?.layoutSubtreeIfNeeded()
+        CATransaction.commit()
+    }
+
+    private func restZone() -> CGRect {
+        DeckGeometry.restFrame(model.metrics, side: side, visible: visibleFrame, itemCount: model.pillItemCount,
+                               yRatio: CGFloat(settings.yRatio)).insetBy(dx: -2, dy: -6)
+    }
+
+    // MARK: Pointer (existing orchestrator mouse poll)
+
+    func pollMouse(_ mouse: CGPoint) {
+        guard !isHidden, panel != nil else { return }
+        switch state {
+        case .rest:
+            if restZone().contains(mouse), !NSEvent.modifierFlags.contains(.option) { apply(.pointerEntered) }
+        case .fan, .expanded:
+            let inside = (panel?.frame.insetBy(dx: -8, dy: -8).contains(mouse) ?? false)
+                || popup.isShown || notesPopup.isShown
+            if inside {
+                lastActivity = Date()
+                exitWork?.cancel()
+                exitWork = nil
+            } else if state == .fan, exitWork == nil {
+                let work = DispatchWorkItem { [weak self] in
+                    guard let self else { return }
+                    self.exitWork = nil
+                    let m = NSEvent.mouseLocation
+                    if !(self.panel?.frame.insetBy(dx: -8, dy: -8).contains(m) ?? false), !self.popup.isShown {
+                        self.apply(.pointerExitConfirmed)
+                    }
+                }
+                exitWork = work
+                DispatchQueue.main.asyncAfter(deadline: .now() + DeckTiming.exitConfirmDelay, execute: work)
+            }
+        }
+    }
+
+    // MARK: State machine glue
+
+    private func apply(_ event: DeckEvent) {
+        let next = DeckStateMachine.reduce(state, event, context)
+        if next != state { transition(to: next) }
+    }
+
+    private func transition(to new: DeckState) {
+        let old = state
+        guard old != new, panel != nil else { return }
+        state = new
+        model.state = new
+        lastActivity = Date()
+        shrinkWork?.cancel(); shrinkWork = nil
+        revealWork?.cancel(); revealWork = nil
+
+        if new.rank >= old.rank {
+            if !model.showsFan {
+                // Resize first, reveal two display frames later (animating the resize drags the deck across the screen).
+                model.showsFan = true
+                applyFrame()
+                let work = DispatchWorkItem { [weak self] in
+                    withAnimation(.spring(response: 0.34, dampingFraction: 0.84)) { self?.model.revealed = true }
+                }
+                revealWork = work
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0 / 60.0, execute: work)
+            } else {
+                withAnimation(.spring(response: 0.34, dampingFraction: 0.84)) { model.revealed = true }
+            }
+        } else if new == .rest {
+            // Let the exit animation play at full size, then shrink the panel to the pill.
+            model.revealed = false
+            model.showAll = false
+            let work = DispatchWorkItem { [weak self] in
+                guard let self, self.state == .rest else { return }
+                self.model.showsFan = false
+                self.applyFrame()
+            }
+            shrinkWork = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45, execute: work)
+        }
+        if new != .rest, new.expandedID == nil { notesPopup.dismiss(notify: false) }
+        if new == .rest { popup.dismiss() }
+        updateIdleWatch()
+    }
+
+    private func updateIdleWatch() {
+        let resting = context.restingState
+        if state.rank > resting.rank, idleTimer == nil {
+            let timer = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
+                MainActor.assumeIsolated { self?.idleTick() }
+            }
+            RunLoop.main.add(timer, forMode: .common)
+            idleTimer = timer
+        } else if state.rank <= resting.rank {
+            idleTimer?.invalidate()
+            idleTimer = nil
+        }
+    }
+
+    private func idleTick() {
+        if popup.isShown || notesPopup.isShown { lastActivity = Date(); return }
+        context.openNoteIsPinned = state.expandedID.flatMap { id in model.tabs.first { $0.id == id }?.pinned } ?? false
+        apply(.idle(Date().timeIntervalSince(lastActivity)))
+    }
+
+    private func stopTimers() {
+        idleTimer?.invalidate(); idleTimer = nil
+        exitWork?.cancel(); exitWork = nil
+        shrinkWork?.cancel(); shrinkWork = nil
+        revealWork?.cancel(); revealWork = nil
+    }
+
+    // MARK: Panel
+
+    private func makePanel() -> NSPanel {
         let panel = NonConstrainingPanel(
-            contentRect: frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false
+            contentRect: CGRect(x: 0, y: 0, width: 40, height: 40),
+            styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false
         )
         panel.level = .floating
         panel.collectionBehavior = PanelCollectionBehavior.standard
@@ -161,77 +304,70 @@ final class EdgeBarPanelController {
         panel.backgroundColor = .clear
         panel.hasShadow = false
         panel.hidesOnDeactivate = false
+        let host = NSHostingView(rootView: DeckRootView(model: model))
+        host.autoresizingMask = [.width, .height]
+        panel.contentView = host
         return panel
     }
 
-    private func installContent(in panel: NSPanel) {
-        let root = EdgeBarContentView(content: content, service: service, onStatusTap: { [weak self] kind, rect in
-            self?.statusTapped(kind, localRect: rect)
-        }, onNotesTap: { [weak self] rect in
-            self?.notesTapped(localRect: rect)
-        }, onWidgetTap: { [weak self] tile, rect in
-            self?.widgetTapped(tile, localRect: rect)
-        })
-        let plate = NSVisualEffectView(frame: CGRect(origin: .zero, size: panel.frame.size))
-        plate.material = .hudWindow
-        plate.state = .active
-        plate.wantsLayer = true
-        plate.layer?.cornerRadius = 14
-        plate.layer?.masksToBounds = true
-        plate.autoresizingMask = [.width, .height]
-        let host = NSHostingView(rootView: root)
-        host.frame = plate.bounds
-        host.autoresizingMask = [.width, .height]
-        plate.addSubview(host)
-        panel.contentView = plate
-        self.host = host
-    }
+    // MARK: Taps
 
-    /// SwiftUI reports the tile in top-left view space; convert to bottom-left screen space.
+    /// SwiftUI reports frames in top-left view space; convert to bottom-left screen space.
     private func screenRect(_ localRect: CGRect) -> CGRect? {
         guard let panel else { return nil }
-        return CGRect(
-            x: panel.frame.minX + localRect.minX,
-            y: panel.frame.maxY - localRect.maxY,
-            width: localRect.width, height: localRect.height
-        )
+        return CGRect(x: panel.frame.minX + localRect.minX, y: panel.frame.maxY - localRect.maxY,
+                      width: localRect.width, height: localRect.height)
     }
 
-    private func notesTapped(localRect: CGRect) {
+    private func tabTapped(_ id: String, localRect: CGRect) {
         guard let anchor = screenRect(localRect), let notes = notesProvider() else { return }
         popup.dismiss()
-        notesPopup.toggle(anchor: anchor, side: slotKey.side, visibleFrame: lastVisibleFrame, controller: notes)
-    }
-
-    private func widgetTapped(_ tile: WidgetTile, localRect: CGRect) {
-        guard let anchor = screenRect(localRect) else { return }
-        notesPopup.dismiss()
-        switch tile {
-        case .weather:
-            // The weather stack already has its own panel (left side); the tile just toggles it.
-            popup.dismiss()
-            WidgetPanelController.weather.toggle()
-        case .bluetooth:
-            popup.toggle(
-                id: "widget.bluetooth", anchor: anchor, side: slotKey.side, visibleFrame: lastVisibleFrame,
-                size: BluetoothFlyoutView.size, content: AnyView(BluetoothFlyoutView())
-            )
-        case .nowPlaying:
-            let service = nowPlayingProvider()
-            popup.toggle(
-                id: "widget.nowPlaying", anchor: anchor, side: slotKey.side, visibleFrame: lastVisibleFrame,
-                size: CGSize(width: 300, height: 120),
-                content: AnyView(NowPlayingFlyoutView(service: service))
-            )
+        lastActivity = Date()
+        let wasOpen = state == .expanded(id)
+        apply(.tabClicked(id))
+        if wasOpen {
+            notesPopup.dismiss(notify: false)
+        } else {
+            notesPopup.toggle(anchor: anchor, side: side, visibleFrame: visibleFrame, controller: notes, select: id)
         }
     }
 
-    private func statusTapped(_ kind: StatusKind, localRect: CGRect) {
+    private func notesSheetClosed(outsideClick: Bool) {
+        apply(outsideClick ? .outsideClick : .escape)
+    }
+
+    private func buttonTapped(_ button: DeckButton, localRect: CGRect) {
         guard let anchor = screenRect(localRect) else { return }
-        notesPopup.dismiss()
-        popup.toggle(
-            id: "status.\(kind)", anchor: anchor, side: slotKey.side, visibleFrame: lastVisibleFrame,
-            size: kind.popupSize, content: AnyView(StatusPopupView(kind: kind, service: service))
-        )
+        lastActivity = Date()
+        switch button {
+        case .newNote:
+            guard let notes = notesProvider() else { return }
+            let note = notes.create()
+            popup.dismiss()
+            apply(.tabClicked(note.id))
+            notesPopup.toggle(anchor: anchor, side: side, visibleFrame: visibleFrame, controller: notes, select: note.id)
+        case .settings:
+            (NSApp.delegate as? AppDelegate)?.openSettings(selecting: .layout)
+        case let .status(kind):
+            notesPopup.dismiss(notify: false)
+            popup.toggle(
+                id: "status.\(kind)", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                size: kind.popupSize, content: AnyView(StatusPopupView(kind: kind, service: service))
+            )
+        case let .widget(tile):
+            notesPopup.dismiss(notify: false)
+            switch tile {
+            case .weather:
+                popup.dismiss()
+                WidgetPanelController.weather.toggle()
+            case .bluetooth:
+                popup.toggle(id: "widget.bluetooth", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                             size: BluetoothFlyoutView.size, content: AnyView(BluetoothFlyoutView()))
+            case .nowPlaying:
+                popup.toggle(id: "widget.nowPlaying", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                             size: CGSize(width: 300, height: 120),
+                             content: AnyView(NowPlayingFlyoutView(service: nowPlayingProvider())))
+            }
+        }
     }
 }

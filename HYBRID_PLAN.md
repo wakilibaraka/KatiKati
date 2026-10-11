@@ -1741,6 +1741,21 @@ upgrades, wallpaper/personalisation, extra flyouts.
   leaning 3° with bleed, hover shadow, pin dot, accessibility label/action, `DeckMoreTab`, `DeckRoundButton` glass | coloured).
   `DeckLayout` now supports buttons-only stacks (left deck). 1 string x12 (`Settings`, draft, separate commit). D2b wires the
   controller/orchestrator and removes the plate.
+- 2026-10-11 · **D2b deck wired in (gate green, 1862 tests; live-checked with `DOCK_EDGE_FAN=1`):** `EdgeBarPanelController` rewritten as
+  the deck controller — one panel per edge, rest = pill frame (click-through), fan = stack frame (`DeckGeometry.restFrame/fanFrame`),
+  frame set first and the staged reveal two display frames later, 0.45 s exit-then-shrink, never an animated panel frame; transitions go
+  through the pure `DeckStateMachine` (pointer enter/confirmed exit via the existing orchestrator mouse poll, 1 s idle watch only
+  while above the resting state, tab/new-note → `expanded`, sheet close → fan/rest). Items: note tabs (observed from
+  `NotesController`), `+` new note, status trio as three round buttons, widget tiles, gear. Old plate, `EdgeBarContentView`/tile views,
+  `EdgeBarAutoHide` + its tests and the `edge.autoHide` setting are gone (replaced by *Keep Edge Bars Open* = `alwaysShown`); orchestrator
+  now drives everything from one debounced `settingsStore.objectWillChange` subscription (`update` is idempotent) and keeps the mouse
+  monitors on while a deck exists. `DOCK_EDGE_FAN=1` (new debug switch) starts decks fanned and kept open. Live: right deck showed
+  rose/peach/lemon paper tabs with rotated titles above the glass `+`/Wi-Fi/battery/volume/gear buttons (matches the noty reference);
+  left deck showed weather/now-playing/Bluetooth glass circles; `+` created notes and opened the sheet. Bugs found live and fixed:
+  buttons overlapped (the shingle's negative VStack spacing also applied to them), a keep-open settings race folded the forced fan,
+  titles ellipsised too early (pitch max 106 → 124, font 11 pt). **Not yet exercised live:** real pointer hover enter/exit, idle fold,
+  hover preview/open, drag reorder (D3); the sheet is still the old list+editor (D4). 1 string x12 swapped (`Keep Edge Bars Open`
+  replaces `Auto-Hide Edge Bars`, separate commit). Test notes created during the check were removed.
 - 2026-10-11 · **Phase 7 split into 7A/7B (owner directive; boundary confirmed: both
   FABs + 7c in 7B, 7b edge widgets bar stays in 7A).** Slice IDs unchanged; acceptance
   criterion #10 split into #10 (edge bars + notes sync) and #11 (launchers & FAB

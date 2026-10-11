@@ -131,7 +131,6 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.edgeStatusSide, .right)
         XCTAssertEqual(store.edgeGap, 2)
         XCTAssertEqual(store.edgeMargin, 8)
-        XCTAssertFalse(store.edgeAutoHide)
         XCTAssertFalse(store.notesSyncEnabled, "iCloud sync is opt-in")
         XCTAssertTrue(store.edgeActiveSides.isEmpty, "off = no edge slots")
 
@@ -139,7 +138,6 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.edgeActiveSides, [.right])
         store.setEdgeStatusSide(.left)
         XCTAssertEqual(store.edgeActiveSides, [.left, .right])
-        store.setEdgeAutoHide(true)
         store.setNotesSyncEnabled(true)
         store.setEdgeGap(0)
         store.setEdgeMargin(-4)
@@ -150,7 +148,6 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.edgeBarPreset, .notesAndStatus)
         XCTAssertEqual(reloaded.edgeStatusSide, .left)
         XCTAssertEqual(reloaded.edgeGap, 0.5)
-        XCTAssertTrue(reloaded.edgeAutoHide)
         XCTAssertTrue(reloaded.notesSyncEnabled)
     }
 

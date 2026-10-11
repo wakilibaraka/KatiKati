@@ -13,17 +13,22 @@ final class EdgeNotesPopupController {
     private var panel: NSPanel?
     private var monitor: Any?
     private weak var controller: NotesController?
+    private(set) var shownSelection: String?
+    /// Called after the flyout closes; `outsideClick` distinguishes a click away from Esc / the close button.
+    var onDismiss: ((_ outsideClick: Bool) -> Void)?
 
     var isShown: Bool { panel?.isVisible ?? false }
 
-    func toggle(anchor: CGRect, side: EdgeSide, visibleFrame: CGRect, controller: NotesController) {
-        if isShown { dismiss(); return }
+    func toggle(anchor: CGRect, side: EdgeSide, visibleFrame: CGRect, controller: NotesController, select: String? = nil) {
+        if isShown, shownSelection == select { dismiss(); return }
+        if isShown { dismiss(notify: false) }
+        shownSelection = select
         self.controller = controller
         controller.reload()
         let frame = PanelGeometry.edgeBarPopupFrame(side: side, anchor: anchor, size: EdgeBarLayout.notesPopupSize, visibleFrame: visibleFrame)
         let panel = self.panel ?? makePanel(frame: frame)
         self.panel = panel
-        let host = NSHostingView(rootView: NotesPopupView(controller: controller, onClose: { [weak self] in self?.dismiss() }))
+        let host = NSHostingView(rootView: NotesPopupView(controller: controller, onClose: { [weak self] in self?.dismiss() }, initialSelection: select))
         let plate = NSVisualEffectView(frame: CGRect(origin: .zero, size: frame.size))
         plate.material = .hudWindow
         plate.state = .active
@@ -39,15 +44,18 @@ final class EdgeNotesPopupController {
         installMonitor()
     }
 
-    func dismiss() {
+    func dismiss(notify: Bool = true, outsideClick: Bool = false) {
+        let wasShown = isShown
         controller?.flush()
         panel?.orderOut(nil)
         if let monitor { NSEvent.removeMonitor(monitor) }
         monitor = nil
+        shownSelection = nil
+        if wasShown, notify { onDismiss?(outsideClick) }
     }
 
     func tearDown() {
-        dismiss()
+        dismiss(notify: false)
         panel = nil
     }
 
@@ -56,7 +64,7 @@ final class EdgeNotesPopupController {
         monitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self, let panel = self.panel, !panel.frame.contains(NSEvent.mouseLocation) else { return }
-                self.dismiss()
+                self.dismiss(outsideClick: true)
             }
         }
     }

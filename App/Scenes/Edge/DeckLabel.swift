@@ -7,7 +7,7 @@ struct DeckFont {
     let postScript: String
     let scale: CGFloat
 
-    private var size: CGFloat { 11.5 * scale }
+    private var size: CGFloat { 11 * scale }
     var tracking: CGFloat { 0.1 * scale }
 
     var nsFont: NSFont {

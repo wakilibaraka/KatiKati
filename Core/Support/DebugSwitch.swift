@@ -171,6 +171,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     case liquidGlassSystemVariant = "DOCK_LIQUID_GLASS_SYSTEM_VARIANT"
     /// Phase 7A: force the edge bars on (=1) regardless of `com.katikati.edge.enabled`; default off.
     case edgeBars = "DOCK_EDGE_BARS"
+    /// Phase 7A-D: start every deck already fanned (=1) so the fan can be inspected without a pointer; default off.
+    case edgeFan = "DOCK_EDGE_FAN"
 
     var kind: Kind {
         switch self {
@@ -187,7 +189,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
         case .displayTrace, .launchTrace, .chipProbe, .clickTrace,
              .hoverTrace, .edgehoverTrace, .stripWheelTrace, .chipAnimTrace, .labelProbe,
              .spaceIntentTrace, .scrollReverserTrace, .windowLiftTrace, .minimizeAppFallback,
-             .devSkipPermissions, .edgeBars:
+             .devSkipPermissions, .edgeBars, .edgeFan:
             return .trace
         case .reconcileAxTimeoutMs, .seedAxTimeoutMs, .dragFlightMs, .labelAnim, .inventoryLog,
              .panelLevel, .panelMaterial, .panelSaturation, .panelThickness,

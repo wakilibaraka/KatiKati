@@ -5,6 +5,7 @@ import SwiftUI
 struct NotesPopupView: View {
     @ObservedObject var controller: NotesController
     let onClose: () -> Void
+    var initialSelection: String?
     @State private var selection: String?
 
     var body: some View {
@@ -22,7 +23,7 @@ struct NotesPopupView: View {
         }
         .frame(width: EdgeBarLayout.notesPopupSize.width, height: EdgeBarLayout.notesPopupSize.height)
         .animation(.easeInOut(duration: 0.15), value: controller.undoableDeletion)
-        .onAppear { if selection == nil { selection = controller.notes.first?.id } }
+        .onAppear { if selection == nil { selection = initialSelection ?? controller.notes.first?.id } }
         .onExitCommand(perform: onClose)
     }
 

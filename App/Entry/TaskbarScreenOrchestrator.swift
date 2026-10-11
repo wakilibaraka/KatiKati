@@ -211,20 +211,13 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.reconcileNotesSync() }
-        edgeSettingsSubscription = Publishers.CombineLatest3(
-            Publishers.CombineLatest4(
-                settingsStore.$edgeBarPreset, settingsStore.$edgeStatusSide,
-                settingsStore.$edgeGap, settingsStore.$edgeMargin
-            ),
-            settingsStore.$edgeAutoHide,
-            settingsStore.$widgetTiles
-        )
-        .dropFirst()
-        .receive(on: DispatchQueue.main)
-        .sink { [weak self] _ in
-            self?.reconcileEdgeBars()
-            self?.reconcileHoverMouseMonitors()
-        }
+        // Any setting can change the deck (scale, tiles, style, position…); `update` is idempotent, so just re-run it.
+        edgeSettingsSubscription = settingsStore.objectWillChange
+            .debounce(for: .milliseconds(60), scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.reconcileEdgeBars()
+                self?.reconcileHoverMouseMonitors()
+            }
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(screenParametersChanged),
@@ -370,7 +363,6 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             controller.tearDown()
             edgeControllers[key] = nil
         }
-        let metrics = settingsStore.layoutMetrics
         for key in desired {
             let controller = edgeControllers[key] ?? EdgeBarPanelController(slotKey: key, service: statusService, notes: { [weak self] in self?.notesController() },
                 nowPlaying: { [weak self] in self?.nowPlayingService ?? NowPlayingService() })
@@ -381,8 +373,8 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
                 unit.coordinator.dockPanel.map { unit.coordinator.panelCurrentScreen(panel: $0) }
             }.first
             controller.update(
-                screen: screen, visible: visible, content: contentBySide[key.side] ?? [], autoHide: settingsStore.edgeAutoHide,
-                gap: settingsStore.edgeGap, margin: settingsStore.edgeMargin, metrics: metrics
+                screen: screen, visible: visible, content: contentBySide[key.side] ?? [],
+                settings: deckSettings(for: key.side)
             )
         }
     }
@@ -405,6 +397,15 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             statusService.release()
             statusServiceHeld = false
         }
+    }
+
+    private func deckSettings(for side: EdgeSide) -> DeckSettings {
+        DeckSettings(
+            scale: settingsStore.deckScale, keepOpen: settingsStore.deckKeepOpen,
+            openOnHover: settingsStore.deckOpenOnHover, tabPreview: settingsStore.deckTabPreview,
+            tileStyle: settingsStore.edgeTileStyle, tabFont: settingsStore.deckTabFont,
+            yRatio: settingsStore.deckYRatio(for: side)
+        )
     }
 
     private func tearDownEdgeBars() {
@@ -741,7 +742,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         guard Self.hoverMonitorLeanEnabled else { return true }
         return (NSScreen.screens.count > 1 && settingsStore.taskbarScreenPlacement.allowsHoverScreenSwitching)
             || settingsStore.edgeAutoHideEnabled
-            || (settingsStore.edgeAutoHide && !edgeControllers.isEmpty)
+            || !edgeControllers.isEmpty
             || PanelCoordinator.edgeHoverTraceEnabled
     }
 

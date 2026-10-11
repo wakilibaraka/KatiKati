@@ -26,7 +26,7 @@ struct DeckMetrics: Equatable, Sendable {
     /// How far the next tab laps over the one before it.
     var tabLap: CGFloat { s(40) }
     var pitchMin: CGFloat { s(56) }
-    var pitchMax: CGFloat { s(106) }
+    var pitchMax: CGFloat { s(124) }
     var pitchFloor: CGFloat { s(36) }
     var labelPad: CGFloat { s(20) }
     var labelInset: CGFloat { s(12) }

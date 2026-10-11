@@ -160,8 +160,6 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var edgeStatusSide: EdgeSide
     /// Edge-bar gap above the bottom bar / margin from the screen side (min 0.5, Appendix C).
     @Published private(set) var edgeGap: CGFloat
-    /// Side-edge auto-hide (7A-3): hide after the pointer leaves, reveal on the screen side. Default off.
-    @Published private(set) var edgeAutoHide: Bool
     /// Notes sync with the iCloud Drive folder (7A-7c). Opt-in, default off.
     @Published private(set) var notesSyncEnabled: Bool
     /// Enabled widget tiles on the left-edge widgets bar, in display order (7A-8). Empty = no widgets bar.
@@ -265,7 +263,6 @@ final class AppSettingsStore: ObservableObject {
             Keys.edgeStatusSide: EdgeSide.right.rawValue,
             Keys.edgeGap: Double(PanelGeometry.edgeBarDefaultBottomGap),
             Keys.edgeMargin: 8.0,
-            Keys.edgeAutoHide: false,
             Keys.notesSync: false,
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckKeepOpen: false,
@@ -294,7 +291,6 @@ final class AppSettingsStore: ObservableObject {
         bottomGap = Self.clampedBottomGap(CGFloat(storedBottomGap))
         edgeBarPreset = EdgeBarPreset(rawValue: defaults.string(forKey: Keys.edgePreset) ?? "") ?? .off
         edgeStatusSide = EdgeSide(rawValue: defaults.string(forKey: Keys.edgeStatusSide) ?? "") ?? .right
-        edgeAutoHide = defaults.bool(forKey: Keys.edgeAutoHide)
         notesSyncEnabled = defaults.bool(forKey: Keys.notesSync)
         widgetTiles = WidgetTile.parse(defaults.string(forKey: Keys.widgetTiles))
         deckScale = DeckSettingsRules.clampedScale(Self.storedNumericValue(defaults.object(forKey: Keys.deckScale)))
@@ -524,12 +520,6 @@ final class AppSettingsStore: ObservableObject {
         guard notesSyncEnabled != value else { return }
         notesSyncEnabled = value
         defaults.set(value, forKey: Keys.notesSync)
-    }
-
-    func setEdgeAutoHide(_ value: Bool) {
-        guard edgeAutoHide != value else { return }
-        edgeAutoHide = value
-        defaults.set(value, forKey: Keys.edgeAutoHide)
     }
 
     func setEdgeGap(_ value: CGFloat) {
@@ -911,7 +901,6 @@ private enum Keys {
     static let edgePreset = "com.katikati.edge.preset"
     static let edgeStatusSide = "com.katikati.edge.status.side"
     static let edgeGap = "com.katikati.edge.gap"
-    static let edgeAutoHide = "com.katikati.edge.autoHide"
     static let notesSync = "com.katikati.notes.sync"
     static let widgetTiles = "com.katikati.widgets.tiles"
     static let deckScale = "com.katikati.edge.deckScale"
