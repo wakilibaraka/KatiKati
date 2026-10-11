@@ -101,7 +101,7 @@ struct SceneHero: View {
         let warnings = WeatherWarningEngine.warnings(for: detail, thresholds: WeatherPrefs.thresholds())
         ZStack(alignment: .top) {
             MountainScene(tint: tint, condition: state.conditionFamily, isNight: state.isNight)
-            WeatherEffectsView(plan: WeatherEffectPlan.plan(condition: state.conditionFamily, isNight: state.isNight), animate: animate)
+            WeatherEffectsView(plan: WeatherEffectPlan.plan(condition: state.conditionFamily, isNight: state.isNight), animate: animate, cloudOpacity: 0.45)
             VStack(spacing: 2) {
                 HStack(spacing: 6) {
                     if !service.savedCities.cities.isEmpty {
@@ -178,16 +178,20 @@ struct MountainScene: View {
             for layer in 0..<3 {
                 let base = h * (0.66 + 0.09 * Double(layer))
                 var p = Path()
+                var edge = Path()
                 p.move(to: CGPoint(x: 0, y: h))
                 var x = 0.0
                 while x <= w + 4 {
-                    p.addLine(to: CGPoint(x: x, y: base + band * 0.35 - band * SceneGeometry.ridge(x: x / w, layer: layer)))
+                    let pt = CGPoint(x: x, y: base + band * 0.35 - band * SceneGeometry.ridge(x: x / w, layer: layer))
+                    p.addLine(to: pt)
+                    x == 0 ? edge.move(to: pt) : edge.addLine(to: pt)
                     x += 4
                 }
                 p.addLine(to: CGPoint(x: w, y: h)); p.closeSubpath()
                 let c = tint.ridges[layer]
-                let light = TileRGB(r: min(1, c.r + 0.16), g: min(1, c.g + 0.16), b: min(1, c.b + 0.16))
+                let light = TileRGB(r: min(1, c.r + 0.22), g: min(1, c.g + 0.22), b: min(1, c.b + 0.22))
                 gc.fill(p, with: .linearGradient(Gradient(colors: [col(light), col(c)]), startPoint: CGPoint(x: 0, y: base - band * 0.6), endPoint: CGPoint(x: 0, y: h)))
+                gc.stroke(edge, with: .color(Color.white.opacity(0.30 - 0.08 * Double(layer))), lineWidth: 1.3)
             }
             // Horizon haze.
             gc.fill(Path(CGRect(x: 0, y: h * 0.62, width: w, height: h * 0.14)),
@@ -259,7 +263,7 @@ private struct HourlySegment: View {
             HStack(spacing: 6) {
                 ForEach(HourlySeries.allCases, id: \.self) { s in chip(s) }
             }
-            seriesChart(hours).frame(maxHeight: .infinity)
+            seriesChart(hours).frame(height: 84)
             timeAxis(hours)
         }
     }
@@ -329,8 +333,8 @@ private struct DailySegment: View {
     @State private var page = 0
 
     var body: some View {
-        let rowH: CGFloat = 32
-        let size = max(5, Int((height - 28 - 24 - 40) / rowH))
+        let rowH: CGFloat = 28
+        let size = max(5, Int((height - 28 - 30 - 30) / rowH))
         let pages = max(1, (detail.daily.count + size - 1) / size)
         let rows = Array(detail.daily.dropFirst(page * size).prefix(size))
         let lo = detail.daily.map(\.low).min() ?? 0, hi = max(detail.daily.map(\.high).max() ?? 1, lo + 1)

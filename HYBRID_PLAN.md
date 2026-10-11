@@ -1163,6 +1163,16 @@ for a gap the drill actually proves.*
   (radius 24, gutter 8, gap 10), layered shadows + top highlight · toggles for Notes and Stopwatch &
   Countdown. Suggested future widgets (not built): Now Playing, System stats (CPU/RAM/disk/battery).
 
+- **5i — Weather glance redesign (owner 2026-10-11): no scrolling, sky-coloured, layered scene.** Weather
+  now defaults to a **Glance** page: layered **mountain/horizon scene hero** (sky gradient, sun/moon, 3
+  ridges, animated weather on top) → next-6-hours strip → one **Hourly | Daily | Details** panel; every
+  datum has a single home (sun times/UV/wind/pressure only in Details; hourly temps only in the strip;
+  16-day totals only in Daily). The whole pane is one **sky** (`SkyTint`: per-condition/night gradient
+  sliced into tiles, auto-contrast text). **Presets kept: Weather Layout = Glance | Classic (previous
+  Mac/iPad/Tall stacks); Hero Style = Scene | Classic (previous icon hero)** — Settings → Weather.
+  **Standing rule (owner): every future widget ships 2–3 presets (layout/style) and keeps the previous
+  design as one.**
+
 - **5f — Phase 5 lock + proof gate (closes Phase 5 last, after 5g and 5h).** Drill log(s) in the PR; no lost Dock state; no orphaned
   island panels after crash-relaunch; full tungsten gate; dated phase-5 log under
   `Docs/Archive/Planning/`, `CHANGELOG.md`, and the `Result:` line here.
@@ -1264,6 +1274,10 @@ for a gap the drill actually proves.*
   testable. **Not verified:** Spring Pop and Instant visually, light mode, Notes/Countdown/Stopwatch
   interactions beyond layout, weather Tall still scrolls (its content is taller than a 1117pt screen),
   Calendar/Reminders data (needs macOS permission). 5f lock still open.
+- 2026-10-11 · **5i built + eyeballed (night/rain tint, all three segments, 988pt, no scrolling).** Pure
+  `SkyTint`/`SceneGeometry` + presets in `Core/Support/SkyTint.swift` (6 tests), `WeatherGlanceView.swift`,
+  sky-aware `TileEnv`. **Not verified:** daytime/snow/fog tints live (only unit-tested), light mode, the
+  Classic presets re-checked after the change, wide (iPad) widths with Glance.
 
 
 ### Phase 6 — Settings Layout tab + welcome step + polish

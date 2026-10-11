@@ -199,6 +199,8 @@ struct HeroTile: View {
 struct WeatherEffectsView: View {
     let plan: WeatherEffectPlan
     let animate: Bool
+    /// Scales the cloud layer (the mountain hero keeps clouds faint so the ridges stay readable).
+    var cloudOpacity: Double = 1
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !animate)) { ctx in
@@ -225,7 +227,7 @@ struct WeatherEffectsView: View {
             let cw = w * 0.42 * c.scale, ch = cw * 0.38, x = c.x * w, y = c.y * h
             for (dx, dy, k) in [(0.0, 0.25, 0.9), (0.28, 0.0, 0.7), (0.55, 0.22, 0.8)] {
                 gc.fill(Path(ellipseIn: CGRect(x: x + dx * cw, y: y + dy * ch, width: cw * k * 0.55, height: ch * k)),
-                        with: .color(Color(white: tint).opacity(c.alpha * 0.55)))
+                        with: .color(Color(white: tint).opacity(c.alpha * 0.55 * cloudOpacity)))
             }
         }
         if plan.fog {
