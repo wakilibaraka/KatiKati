@@ -1788,6 +1788,11 @@ upgrades, wallpaper/personalisation, extra flyouts.
 - 2026-10-12 · **7A-D6a — deck settings, NOTICE, CHANGELOG:** Settings › Edge Bars gains Bar Size (0.8–1.4 slider), Button Style (Glass / Coloured),
   Note Tab Font (installed faces), Preview / Open Notes on Hover, Reset Bar Positions (all via existing store setters). NOTICE §5 now lists the noty files
   whose pure logic was ported; CHANGELOG entry for the edge decks. 8 strings in the l10n commit. Remaining for D6: live check #2 (real pointer) + idle-CPU.
+- 2026-10-12 · **7A-D6b — idle CPU (resting decks, both edges, default layout):** a 10 s `sample` of the running app after 20 s idle holds **zero** frames in
+  Deck* / EdgeBarPanel / EdgeFlyout / pollAllUnits / pollMouse; the main thread is ~99 % blocked in the run loop. Whole-app idle is 3–7 % CPU and comes from the
+  pre-existing `WindowLiftAvoidanceController` polling (`SLWindowListCopyWindowInfo`) plus occasional `SystemStatusService.refreshWiFi` on audio-device changes —
+  not from this phase (preset off measured ≈3 %, on ≈3–7 %, run-to-run noise comparable). Instruments' exact number and the real-pointer live check #2
+  (hover enter/exit, preview, drag, ⌥-drag, Esc/outside click) are still open — they need the physical pointer.
 - 2026-10-11 · **Owner addendum — *Productivity + Rest* preset, new default (queried, nothing assumed):** one edge = productivity (notes tabs +
   buttons: Reminders, Alarms, Time [Timer/Stopwatch/Countdown/Focus tabs — focus and pomodoro are the same existing focus/break timer],
   Tasks [Hop to-dos + tracker], Clipboard, Capture [text recognition + QR], Windows [snapper], gear), the other edge = the rest (status trio,
