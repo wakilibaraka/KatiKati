@@ -52,7 +52,7 @@ This commit: **plan only — no code changes.**
 - §5 Port allow-list, file-level (and explicitly-not-ported)
 - §5e Edge-bar + launcher candidates (Phase 7 only — owner's 2026-10-08 decision)
 - §6 Build, identity, licensing
-- §7 Phases 0–12 (each shippable + testable; Phase 7 split into 7A edge bars / 7B launchers + FAB payloads; Phases 8 interior content / 9 strip+interaction+summoning / 10 presets+wallpaper / 11 layout-mode rendering / 12 settings refinement added 2026-10-11)
+- §7 Phases 0–15 (each shippable + testable; Phase 7 split into 7A edge bars / 7B launchers + FAB payloads; Phases 8 interior content / 9 strip+interaction+summoning / 10 presets+wallpaper / 11 layout-mode rendering / 12 settings refinement added 2026-10-11, extended 2026-10-12 with 13 launcher&edge payload ecosystem / 14 settings architecture & interaction / 15 content and investigation registry)
 - §8 Risks, mitigations, open questions
 - §9 Acceptance criteria
 - Appendix A — per-mode layout spec (islands, overflow, migration)
@@ -1596,6 +1596,8 @@ Reference screenshots: one Launchpad-style surface (icon grid + widget tiles, le
 - 2026-10-12 · **7B Pinboard fixes (gate green):** Bluetooth switch reads power only once Bluetooth permission is granted and the app declares `NSBluetoothAlwaysUsageDescription` (opening Pinboard used to abort with a TCC crash); the floating Pinboard clears the bottom bar (`bottomReserve`). Clock, Calculator and Countdown retired from the Launcher tile row; they live on Pinboard only.
 - 2026-10-12 · **7B Pinboard full-screen wall (gate green, 1956 tests, both checkers clean):** Pinboard opens full-screen like the Launcher. Pure `PinboardLayout.wall(_:columns:)` packs widgets into full-width rows (small = 1 slot, wide = 2, large opens a tall row with smalls stacked two per slot beside it; reading order kept) and `PinboardFullScreen.columns(forWidth:)` picks the column count; `PinboardFullScreenView` renders it. The floating panel's `rows()` is untouched. Two test expectations were wrong (clock and calculator are wide) and were corrected. *Open:* "Pinboard Style" setting (Full Screen / Floating Panel), live check with Accessibility granted, launcher preset layout (scope to be agreed with the owner).
 
+- 2026-10-12 · **7B launcher redo (gate green, 1963 tests, both checkers clean; live check skipped by owner):** Launcher is now one app grid — Most Used (one row; usage first, presets Settings/Safari/Terminal/Messages/Finder/Mail/Calendar… fill gaps), Recently Installed, All Apps — scrolling down (default) or sideways (`com.katikati.launcher.scroll`). Widget tiles and the All Apps side sheet removed (`LauncherTile` retired; `CalculatorEngine` kept for Pinboard). Pure `LauncherAppIndex.page`, `LauncherGrid.columns`, `PinchDetector` + tests. **Pinch gesture** (`com.katikati.launcher.pinch`, off by default): `MultitouchPinchMonitor` reads raw trackpad frames via private MultitouchSupport (soft-fails, no permission); prototype showed 4-5 finger spread falling to ~0.68-0.80 of start, threshold 0.8 may need tuning. macOS's own Launchpad pinch cannot be disabled in code, so Settings explains how to turn it off and opens Trackpad settings. *Not verified live:* grid in both scroll directions, pinch inside the app.
+
 **Previously listed (still deferred, phase TBD — parked 2026-10-11 in neither half):**
 dividers (`pruned` logic), `macOS` pill mode, magnification, hover-preview strip
 upgrades, wallpaper/personalisation, extra flyouts.
@@ -2005,6 +2007,7 @@ Reference priors are eyeball-only study rows (§5b rule) — code written fresh.
   Widgets page recommended (host for 10a presets + widths from 6c's Layout pane);
   theme refinement.
 
+- 2026-10-12 · **§7w ahead plan written** (phases 13–15: launcher & edge payload ecosystem 13, settings architecture & interaction 14, content & investigation registry 15 — no code outside HYBRID_PLAN.md; **BY DEFAULT use the iPad widget layout** = full-screen Pinboard wall).
 ### Phase 11 — Layout-mode rendering refinement (deferred; placement owner-confirmable)
 
 - **11a — distinctness + render quality per mode**: make `windows` / `split3` / `split4` /
@@ -2040,6 +2043,58 @@ Reference priors are eyeball-only study rows (§5b rule) — code written fresh.
   localization ×12, full gate.
 
 
+### §7w — Methodical ahead plan (2026-10-12, documentation only — no code outside HYBRID_PLAN.md)
+
+Methodology
+- **BY DEFAULT USE THE IPAD WIDGET LAYOUT.** The full-screen Pinboard wall (ed188f5) is the
+  default widget layout for presets, panels and launcher payloads: multi-column grid filling the
+  screen, tall rows (small small / wide / large + stacked smalls), matching the iPad reference.
+- The floating two-column panel stays the launchpad snapshot of the same wall — never a separate
+  "layout engine".
+- Every row below is a blueprint: content, priors, acceptance, owner. Verify with the standing
+  gate (tungsten gate + witnesses + localization ×12) and log each step.
+
+**13 — Launcher & edge payload ecosystem (7B continuation; launches right after Pinboard freeze)**
+- **13a — edgebar hover-to-open**: open the edge bar only after the pointer has been held over it
+  for ~1 s (study the optimum among 0.6 / 1.0 / 1.5 s; 1.0 s recommended). A resting pointer must
+  count as inactive.
+- **13b — hover labels**: widget and handle names appear on hover (not on enter), short, consistent
+  with 13c magnification.
+- **13c — magnification sizes**: keep 1.55× peak; add 1.25×/1.85×; per-edge size stays (7A part 2);
+  add `edge.magnify.size` toggle in Settings, default on.
+- **13d — accidental-touch reduction**: background pointer-down outside the bar never wakes or
+  opens anything; pointer-down-only hot triggers; real-pointer live check.
+- **13e — Settings additions**: colour picker stays; **copy screenshot without saving onto the
+  right side** (clipboard, never a file); all 13a–13d toggles live in Settings.
+- Verify: real-pointer live check #3, idle CPU ≤ baseline + ε, localization ×12, 7A regression.
+
+**14 — Settings architecture & interaction (reclassification + UX overhaul)**
+- **14a — Reclassify**: main area = frequent/on/off + simple choices; **Advanced** = compressed
+  power-user view (currently: Pinboard switches, debug, layout internals); hidden = developer.
+  Basis: user-friendly macOS System Settings taxonomy (main/advanced); owner confirms the exact
+  split at activation.
+- **14b — Settings UI overhaul**: wider + more symmetrical + decluttered; fold **License + Feedback
+  into About**; fix broken toggles — **theme switch does nothing today** (verify wiring to the
+  `look` store); **centered vs full-width must be genuinely different** — full width is the wall
+  grid of §7w (not a 320 pt frame); refine toggles into **presets that guarantee no overlap
+  between FABS / dock / bars**.
+- **14c — Investigation registry + fix plan**: clock style change (does it change anything? check
+  store path), widget colour presets (write/read?), theme switch, pinboard switches, floating vs
+  full-width state fidelity. Each finding → fix bug or add feature in this phase.
+- Verify: full settings audit checklist, gate, localization ×12.
+
+**15 — Content & investigation registry (dead code + dead buttons)**
+- **Nothing is deleted**: every dead or broken control is **registered** (repo `Docs/Repository/`),
+  owner + target phase assigned per item.
+- Inventory: clock style path, widget colour-preset path, theme-switch wiring, pinboard switches,
+  centred/full-width duplicate, all findings from 14c.
+- Target phases: 13 (investigate), 14 (register only), **16+ (retirement cleanup)** — decisions
+  per item, logged.
+- Verify: registry complete + every entry has an owner + no entry deleted.
+
+**16 — Retirement cleanup of the registered content** (owner-assigned when the registry is full)
+- Delete only after 12 months of dormancy + owner sign-off; archive first.
+- Verify: registry empty of approved items; tests unchanged.
 ## 8. Risks, mitigations, open questions
 
 | # | Risk | Mitigation | Phase |
