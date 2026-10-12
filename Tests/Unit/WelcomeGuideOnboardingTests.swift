@@ -15,9 +15,11 @@ final class WelcomeGuideOnboardingTests: XCTestCase {
     func testStepsRunPickLayoutThenDockSettings() {
         XCTAssertEqual(WelcomeGuideStep.first, .pickLayout)
         XCTAssertEqual(WelcomeGuideStep.pickLayout.next, .liveIsland)
-        XCTAssertEqual(WelcomeGuideStep.liveIsland.next, .dockSettings)
+        XCTAssertEqual(WelcomeGuideStep.liveIsland.next, .permissions)
+        XCTAssertEqual(WelcomeGuideStep.permissions.next, .dockSettings)
         XCTAssertNil(WelcomeGuideStep.dockSettings.next)
-        XCTAssertEqual(WelcomeGuideStep.dockSettings.previous, .liveIsland)
+        XCTAssertEqual(WelcomeGuideStep.dockSettings.previous, .permissions)
+        XCTAssertEqual(WelcomeGuideStep.permissions.previous, .liveIsland)
         XCTAssertEqual(WelcomeGuideStep.liveIsland.previous, .pickLayout)
         XCTAssertNil(WelcomeGuideStep.pickLayout.previous)
     }

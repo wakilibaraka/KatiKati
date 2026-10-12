@@ -48,6 +48,11 @@ struct WelcomeGuideView: View {
     @State private var step = WelcomeGuideStep.first
     @State private var pickedMode: BarLayoutMode?
     @State private var notchOn: Bool?
+    @State private var accessibilityGranted = AXIsProcessTrusted()
+    @State private var screenRecordingGranted = CGPreflightScreenCaptureAccess()
+    @State private var inputMonitoringGranted = CGPreflightListenEventAccess()
+    /// Re-reads the three grants once a second, only acted on while the Permissions step is showing.
+    private let permissionTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     /// 宽度固定：窗口高度由 `fittingSize` 决定，宽度不能跟着文案长短抖。
     /// 取值和权限引导一致，两扇引导窗口该长得像一家人。
@@ -76,6 +81,7 @@ struct WelcomeGuideView: View {
         switch step {
         case .pickLayout: pickLayoutStep
         case .liveIsland: liveIslandStep
+        case .permissions: permissionsStep
         case .dockSettings: dockSettingsStep
         }
     }
@@ -130,6 +136,47 @@ struct WelcomeGuideView: View {
                     .keyboardShortcut(.defaultAction)
                     .fixedSize()
             }
+        }
+    }
+
+    private var permissionsStep: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text("Permissions")
+                .font(.title2.weight(.semibold))
+            Text("These permissions help KatiKati work properly. You can change them any time in System Settings › Privacy & Security.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            PermissionRow(title: Text("Accessibility"),
+                          note: Text("Shows your open windows as chips and lets you switch to them."),
+                          isGranted: accessibilityGranted,
+                          grant: {
+                              _ = AXIsProcessTrustedWithOptions(["AXTrustedCheckOptionPrompt": true] as CFDictionary)
+                          })
+            PermissionRow(title: Text("Screen Recording"),
+                          note: Text("Shows live window thumbnails in hover previews. Without it, previews show titles only."),
+                          isGranted: screenRecordingGranted,
+                          grant: { _ = CGRequestScreenCaptureAccess() })
+            PermissionRow(title: Text("Input Monitoring"),
+                          note: Text("Only for the optional Hyper key. Skip it if you won’t use that."),
+                          isGranted: inputMonitoringGranted,
+                          grant: { _ = CGRequestListenEventAccess() })
+            Spacer(minLength: 0)
+            Divider()
+            HStack(spacing: 8) {
+                Spacer()
+                Button("Back") { if let previous = step.previous { step = previous } }
+                    .fixedSize()
+                Button("Continue") { if let next = self.step.next { self.step = next } }
+                    .keyboardShortcut(.defaultAction)
+                    .fixedSize()
+            }
+        }
+        .onReceive(permissionTimer) { _ in
+            guard step == .permissions else { return }
+            accessibilityGranted = AXIsProcessTrusted()
+            screenRecordingGranted = CGPreflightScreenCaptureAccess()
+            inputMonitoringGranted = CGPreflightListenEventAccess()
         }
     }
 
@@ -196,5 +243,31 @@ struct WelcomeGuideView: View {
                 .foregroundStyle(.secondary)
         }
         .opacity(selection.hidesDock ? 1 : 0.4)
+    }
+}
+
+/// One permission: what it is, why it helps, and either a check or a Grant button.
+private struct PermissionRow: View {
+    let title: Text
+    let note: Text
+    let isGranted: Bool
+    let grant: () -> Void
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .leading, spacing: 3) {
+                title.font(.body.weight(.semibold))
+                note.font(.callout).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 8)
+            if isGranted {
+                Label { Text("Granted") } icon: { Image(systemName: "checkmark.circle.fill") }
+                    .foregroundStyle(.green)
+                    .fixedSize()
+            } else {
+                Button("Grant", action: grant).fixedSize()
+            }
+        }
     }
 }
