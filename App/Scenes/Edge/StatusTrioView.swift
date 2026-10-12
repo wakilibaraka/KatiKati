@@ -109,7 +109,7 @@ struct NowPlayingFlyoutView: View {
     @ObservedObject var service: NowPlayingService
 
     var body: some View {
-        NowPlayingPopup(state: service.state, theme: .auto, onToggle: { service.togglePlayPause() })
+        NowPlayingPopup(state: service.state, theme: .auto, onToggle: { service.togglePlayPause() }, onNext: { service.nextTrack() }, onPrevious: { service.previousTrack() })
             .padding(12)
     }
 }

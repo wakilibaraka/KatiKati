@@ -106,6 +106,9 @@ final class LiveActivityFeed: ObservableObject {
     /// Play/pause pass-through for the capsule's one affordance (music only). Refreshes immediately
     /// so the popup/capsule can flip without waiting a full tick; MediaRemote's own async update
     /// settles the final state on the next tick.
+    func nextTrack() { nowPlaying.nextTrack(); refresh() }
+    func previousTrack() { nowPlaying.previousTrack(); refresh() }
+
     func togglePlayPause() {
         nowPlaying.togglePlayPause()
         refresh()

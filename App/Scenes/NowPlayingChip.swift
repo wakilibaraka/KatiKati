@@ -84,7 +84,9 @@ struct LiveIslandDockCapsule: View {
             NowPlayingPopup(
                 state: feed.nowPlayingState,
                 theme: settingsStore.nowPlayingTheme,
-                onToggle: { feed.togglePlayPause() }
+                onToggle: { feed.togglePlayPause() },
+                onNext: { feed.nextTrack() },
+                onPrevious: { feed.previousTrack() }
             )
         }
     }
@@ -235,6 +237,8 @@ struct NowPlayingPopup: View {
     let state: NowPlayingState
     let theme: NowPlayingTheme
     let onToggle: () -> Void
+    var onNext: () -> Void = {}
+    var onPrevious: () -> Void = {}
 
     @Environment(\.colorScheme) private var colorScheme
     
@@ -248,13 +252,20 @@ struct NowPlayingPopup: View {
     
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
-            // Album Art Placeholder
+            // Album art when MediaRemote provides it (8b-6), otherwise the turntable.
             ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.black.opacity(0.1))
-                TurntableView(isPlaying: state.isPlaying)
-                    .padding(2)
+                if let data = state.artworkData, let image = NSImage(data: data) {
+                    Image(nsImage: image)
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.black.opacity(0.1))
+                    TurntableView(isPlaying: state.isPlaying)
+                        .padding(2)
+                }
             }
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .frame(width: 56, height: 56)
             .shadow(color: .black.opacity(0.2), radius: 4, y: 2)
             
@@ -284,7 +295,7 @@ struct NowPlayingPopup: View {
                 
                 // Playback Controls
                 HStack(spacing: 24) {
-                    Button(action: {}) {
+                    Button(action: onPrevious) {
                         Image(systemName: "backward.fill")
                             .font(.system(size: 14))
                     }
@@ -296,13 +307,19 @@ struct NowPlayingPopup: View {
                     }
                     .buttonStyle(.plain)
                     
-                    Button(action: {}) {
+                    Button(action: onNext) {
                         Image(systemName: "forward.fill")
                             .font(.system(size: 14))
                     }
                     .buttonStyle(.plain)
                 }
                 .foregroundColor(isDarkMode ? .white : .black)
+
+                if let fraction = state.progress(at: Date()) {
+                    ProgressView(value: fraction)
+                        .progressViewStyle(.linear)
+                        .tint(.pink)
+                }
             }
         }
         .padding(14)
