@@ -308,6 +308,51 @@ struct SettingsLayoutPane: View {
             }
 
             section {
+                Text("Window Chips")
+            } content: {
+                HStack {
+                    Text("Multiple Windows")
+                    Spacer(minLength: 12)
+                    Picker("Multiple Windows", selection: Binding(
+                        get: { store.chipGroupingPlan.defaultPolicy },
+                        set: { store.setChipGroupingDefault($0) }
+                    )) {
+                        Text("One chip per window").tag(WindowChipGroupPolicy.separate)
+                        Text("Group by app").tag(WindowChipGroupPolicy.grouped)
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                ForEach(store.chipGroupingPlan.overrides.keys.sorted(), id: \.self) { bundleID in
+                    HStack {
+                        Text(verbatim: Self.appName(forBundleID: bundleID))
+                        Spacer(minLength: 12)
+                        Picker("Multiple Windows", selection: Binding(
+                            get: { store.chipGroupingPlan.overrides[bundleID] ?? store.chipGroupingPlan.defaultPolicy },
+                            set: { store.setChipGrouping($0, forBundleID: bundleID) }
+                        )) {
+                            Text("One chip per window").tag(WindowChipGroupPolicy.separate)
+                            Text("Group by app").tag(WindowChipGroupPolicy.grouped)
+                        }
+                        .labelsHidden().pickerStyle(.menu).fixedSize()
+                        Button("Remove") { store.setChipGrouping(nil, forBundleID: bundleID) }
+                    }
+                }
+                Menu("Add App…") {
+                    ForEach(Self.runningAppChoices(excluding: Set(store.chipGroupingPlan.overrides.keys)), id: \.bundleID) { app in
+                        Button(app.name) {
+                            let other: WindowChipGroupPolicy = store.chipGroupingPlan.defaultPolicy == .grouped ? .separate : .grouped
+                            store.setChipGrouping(other, forBundleID: app.bundleID)
+                        }
+                    }
+                }
+                .fixedSize()
+                Text("A grouped app shows one chip with a window count; clicking it cycles the app's windows.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            section {
                 Text("Launcher")
             } content: {
                 HStack {
@@ -596,6 +641,21 @@ struct SettingsLayoutPane: View {
         case .windows: return Text("Windows")
         case .screenTime: return Text("Screen Time")
         }
+    }
+
+    private static func appName(forBundleID bundleID: String) -> String {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else { return bundleID }
+        return FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
+    }
+
+    private static func runningAppChoices(excluding: Set<String>) -> [(bundleID: String, name: String)] {
+        NSWorkspace.shared.runningApplications
+            .filter { $0.activationPolicy == .regular }
+            .compactMap { app -> (bundleID: String, name: String)? in
+                guard let bid = app.bundleIdentifier, !excluding.contains(bid) else { return nil }
+                return (bid, app.localizedName ?? bid)
+            }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     private func widgetLabel(_ widget: BarSection) -> Text {

@@ -156,6 +156,8 @@ final class AppSettingsStore: ObservableObject {
     /// OS Notification Center banners for Live Island events (8b-4c). Opt-in, default OFF; only fires
     /// when no in-app surface showed the event.
     @Published private(set) var liveEventOSBanners: Bool
+    /// Phase 9a: per-app window-chip grouping (default `.separate` = today's behaviour).
+    @Published private(set) var chipGroupingPlan: WindowChipGroupingPlan
     /// Strip tracking parameters from copied links (8e). Opt-in, default OFF — it edits the clipboard.
     @Published private(set) var linkCleanerEnabled: Bool
     /// 任务条尺寸档位。面板几何与条内所有 chip 尺寸都由它派生。
@@ -342,6 +344,11 @@ final class AppSettingsStore: ObservableObject {
         notchSkin = LiveIslandSkin(rawValue: defaults.string(forKey: Keys.notchSkin) ?? "") ?? .boring
         liveEventRoute = LiveEventRoute(rawValue: defaults.string(forKey: Keys.liveEventRoute) ?? "") ?? .automatic
         liveEventOSBanners = defaults.bool(forKey: Keys.liveEventOSBanners)
+        chipGroupingPlan = WindowChipGroupingPlan(
+            defaultPolicy: WindowChipGroupPolicy(rawValue: defaults.string(forKey: Keys.chipGroupingDefault) ?? "") ?? .separate,
+            overrides: (defaults.dictionary(forKey: Keys.chipGroupingOverrides) as? [String: String] ?? [:])
+                .compactMapValues(WindowChipGroupPolicy.init(rawValue:))
+        )
         linkCleanerEnabled = defaults.bool(forKey: Keys.linkCleanerEnabled)
         barLayoutMode = BarLayoutMode(rawValue: defaults.string(forKey: Keys.barLayoutMode) ?? "") ?? .split3
         let storedCentered = Self.storedNumericValue(defaults.object(forKey: Keys.centeredWidth)) ?? Double(Self.defaultCenteredWidth)
@@ -894,6 +901,21 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.notchIslandEnabled)
     }
 
+    func setChipGroupingDefault(_ value: WindowChipGroupPolicy) {
+        guard chipGroupingPlan.defaultPolicy != value else { return }
+        chipGroupingPlan.defaultPolicy = value
+        defaults.set(value.rawValue, forKey: Keys.chipGroupingDefault)
+    }
+
+    /// `nil` removes the override (the app follows the default again).
+    func setChipGrouping(_ policy: WindowChipGroupPolicy?, forBundleID bundleID: String) {
+        var plan = chipGroupingPlan
+        plan.overrides[bundleID] = policy
+        guard plan != chipGroupingPlan else { return }
+        chipGroupingPlan = plan
+        defaults.set(plan.overrides.mapValues(\.rawValue), forKey: Keys.chipGroupingOverrides)
+    }
+
     func setShelfShakeEnabled(_ value: Bool) {
         guard shelfShakeEnabled != value else { return }
         shelfShakeEnabled = value
@@ -1130,6 +1152,8 @@ private enum Keys {
     static let notchSkin = "com.katikati.liveIsland.notchSkin"
     static let liveEventRoute = "com.katikati.liveIsland.eventRoute"
     static let liveEventOSBanners = "com.katikati.liveIsland.osBanners"
+    static let chipGroupingDefault = "com.katikati.chips.groupingDefault"
+    static let chipGroupingOverrides = "com.katikati.chips.groupingOverrides"
     static let linkCleanerEnabled = "com.katikati.linkCleaner"
 
     /// Continuous bar height in points (since the drag-to-resize release).

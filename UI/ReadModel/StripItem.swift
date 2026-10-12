@@ -64,15 +64,18 @@ struct StripItem: Hashable {
     /// All real windows behind this chip. A single window → `[id]`; a 标签组 → every tab,
     /// so「关闭窗口」can close the whole group (2026-06-14 拍板「整组关闭」).
     let memberWindowIDs: [String]
+    /// Phase 9a: true when this chip stands for the separate windows of an app the user grouped
+    /// (not the tabs of one native window). "Close Window" then closes only the front window.
+    var isAppGroup: Bool { id.hasPrefix("appgrp-") }
 
     /// Builds a chip from one or more window records. ≥2 records means a 原生标签组
     /// (same app + identical frame) collapsed into a single chip.
-    init(members: [WindowRecord], sameAppCardCount: Int = 1) {
+    init(members: [WindowRecord], sameAppCardCount: Int = 1, groupToken: String? = nil) {
         // Stable SwiftUI identity = 该组的稳定 token（`groupID`）。它【不随激活标签的 CGWindowID
         // 变化】，也不随成员增删（后台标签来去、最小化离开 AX）而变 → 合并卡永不换身份证、不跳不裂。
         // 同组所有成员的 groupID 相同，取首个即可；app-* 兜底卡的 groupID = 自身 id（自成一组）。
         let anchor = members.min { ($0.cgWindowID ?? .max) < ($1.cgWindowID ?? .max) } ?? members[0]
-        let token = members[0].groupID
+        let token = groupToken ?? members[0].groupID
         // Display + action representative = the **visible** tab of the group. In a 原生标签组 the
         // non-current tabs report to AX as `.minimized`; exactly one tab is on-screen. Prefer the
         // truly-focused tab (`.active`, only set while the app is frontmost), else the lone visible
@@ -109,7 +112,7 @@ struct StripItem: Hashable {
         self.init(members: [record], sameAppCardCount: sameAppCardCount)
     }
 
-    static func items(from snapshot: DockSnapshot) -> [StripItem] {
+    static func items(from snapshot: DockSnapshot, grouping plan: WindowChipGroupingPlan = .ungrouped) -> [StripItem] {
         let records = snapshot.orderedWindowIDs.compactMap { snapshot.windows[$0] }
 
         // Collapse 原生标签组 (same app + identical frame) into one slot, preserving
@@ -126,11 +129,26 @@ struct StripItem: Hashable {
             }
         }
 
-        let countByApp = Dictionary(grouping: slots) { appGroupingKey(for: $0[0]) }
+        let merged = WindowChipGrouping.merge(
+            slots: slots,
+            bundleID: { $0.bundleIdentifier },
+            isFallback: { $0.groupID.hasPrefix("app-") || $0.cgWindowID == nil },
+            plan: plan
+        )
+        let countByApp = Dictionary(grouping: merged) { appGroupingKey(for: $0[0]) }
             .mapValues(\.count)
 
-        return slots.map { members in
-            StripItem(members: members, sameAppCardCount: countByApp[appGroupingKey(for: members[0])] ?? 1)
+        return merged.map { members in
+            // A grouped app keeps ONE stable identity even with a single window, so the chip does
+            // not change id when a second window opens.
+            let first = members[0]
+            let grouped = !plan.isInert && !first.groupID.hasPrefix("app-") && first.cgWindowID != nil
+                && first.bundleIdentifier.map { plan.policy(for: $0) == .grouped } == true
+            return StripItem(
+                members: members,
+                sameAppCardCount: countByApp[appGroupingKey(for: first)] ?? 1,
+                groupToken: grouped ? WindowChipGroupingPlan.groupToken(bundleID: first.bundleIdentifier ?? "") : nil
+            )
         }
     }
 
@@ -305,7 +323,7 @@ enum StripOrdering {
     /// 跨重启由 `StripOrderStore` 的 `kern.boottime` 守卫整份丢弃。
     static func persistableLiveOrder(_ order: [String], keptIDs: Set<String> = []) -> [String] {
         order.filter { id in
-            if id.hasPrefix("tabgrp-") { return true }
+            if id.hasPrefix("tabgrp-") || id.hasPrefix("appgrp-") { return true }
             if id.hasPrefix("app-") {
                 let bid = String(id.dropFirst(4))
                 return keptIDs.contains(bid)

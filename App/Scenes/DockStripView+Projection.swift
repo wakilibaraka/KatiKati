@@ -50,7 +50,7 @@ extension DockStripView {
                 TrashWindowAbsorption.absorbedWindowIDs(in: runtime.snapshot, trashTitles: TrashWindowLookup.liveTitles),
                 from: runtime.snapshot)
             : runtime.snapshot
-        let snapshotItems = StripItem.items(from: stripSnapshot)
+        let snapshotItems = StripItem.items(from: stripSnapshot, grouping: settingsStore.chipGroupingPlan)
         let snapshotBundleIDs = Set(snapshotItems.compactMap(\.bundleIdentifier))
         let hiddenBundleIDs = Set(snapshotItems.compactMap { item in
             item.status == "hidden" ? item.bundleIdentifier : nil

@@ -193,6 +193,18 @@ struct ChipView: View {
         }
         .frame(width: ChipPillMetrics.cardWidth * scale,
                height: ChipPillMetrics.chipHeight * scale)
+        .overlay(alignment: .topTrailing) {
+            if item.isAppGroup, item.memberWindowIDs.count > 1, !isDragCarrierSnapshot {
+                Text("\(item.memberWindowIDs.count)")
+                    .font(.system(size: 9 * scale, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 4 * scale)
+                    .frame(minWidth: 14 * scale, minHeight: 14 * scale)
+                    .background(Capsule().fill(Color.accentColor))
+                    .offset(x: 2 * scale, y: -1 * scale)
+                    .allowsHitTesting(false)
+            }
+        }
         // 拖起来的副本不画圆点（原生 Dock 同款：拖动时圆点消失，落位才回来）。
         // 位图在圆点那块因此是**透明**的，交接那一轮条上卡的圆点直接透出来——不会闪也不会晚。
         .overlay(alignment: .bottom) {
@@ -222,7 +234,7 @@ struct ChipView: View {
         .contentShape(Rectangle())
         .onChange(of: isHovered) { recordHoverEvent($0) }
         .onTapGesture {
-            if let drawerTap { drawerTap() } else { runtime.toggle(windowID: item.actionWindowID) }
+            if let drawerTap { drawerTap() } else { performPrimaryTap() }
         }
         // 按压跟着**按下**走，不再等 onTapGesture（那是鼠标抬起才触发的）。挂在 contentShape
         // 之后，命中区域与点击完全一致。
@@ -233,6 +245,18 @@ struct ChipView: View {
         )
         .nativeContextMenu { buildChipMenu() }
         .help(capturedFullTitle)
+    }
+
+    /// Click. A grouped app's chip cycles its windows while the app is already in front
+    /// (Phase 9a); every other chip toggles its window exactly as before.
+    private func performPrimaryTap() {
+        if item.isAppGroup, item.memberWindowIDs.count > 1, item.status == WindowStatus.active.rawValue {
+            let ids = item.memberWindowIDs
+            let front = ids.firstIndex(of: item.actionWindowID)
+            runtime.activate(windowID: ids[WindowChipGrouping.nextIndex(count: ids.count, frontIndex: front)])
+        } else {
+            runtime.toggle(windowID: item.actionWindowID)
+        }
     }
 
     // MARK: - Labeled chip
@@ -329,7 +353,7 @@ struct ChipView: View {
         .contentShape(Rectangle())
         .onChange(of: isHovered) { recordHoverEvent($0) }
         .onTapGesture {
-            if let drawerTap { drawerTap() } else { runtime.toggle(windowID: item.actionWindowID) }
+            if let drawerTap { drawerTap() } else { performPrimaryTap() }
         }
         .chipPressGesture(
             isPressed: $isTapPressed,
@@ -475,7 +499,7 @@ struct ChipView: View {
             // 整组关闭（2026-06-14）：标签组的「关闭窗口」关掉组内每个标签；
             // 普通窗口 memberWindowIDs == [id]，行为不变。
             menu.addItem(ClosureMenuItem(String(localized: "Close Window")) {
-                for wid in item.memberWindowIDs { runtime.close(windowID: wid) }
+                for wid in item.isAppGroup ? [item.actionWindowID] : item.memberWindowIDs { runtime.close(windowID: wid) }
             })
             AppMenuBuilder.appendQuitItems(to: menu, bundleID: bid) {
                 runtime.quit(windowID: item.actionWindowID)
