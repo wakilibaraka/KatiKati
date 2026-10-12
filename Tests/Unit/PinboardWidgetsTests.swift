@@ -41,4 +41,20 @@ final class PinboardWidgetsTests: XCTestCase {
         XCTAssertEqual(PinboardStyle.parse("floating"), .floating)
         XCTAssertEqual(PinboardStyle.allCases.count, 2)
     }
+
+    func testFullScreenCentersTheTwoColumnWall() {
+        // Same wall as the floating panel: cards keep their size, only the frame changes.
+        XCTAssertEqual(PinboardFullScreen.gridWidth(), 320)
+        let o = PinboardFullScreen.origin(gridWidth: 320, gridHeight: 400,
+                                          visible: (x: 0, y: 0, w: 1440, h: 900))
+        XCTAssertEqual(o.x, 560); XCTAssertEqual(o.y, 250)
+        // Taller than the screen: pins to the top, the view scrolls.
+        let tall = PinboardFullScreen.origin(gridWidth: 320, gridHeight: 2000,
+                                             visible: (x: 0, y: 0, w: 1440, h: 900))
+        XCTAssertEqual(tall.x, 560); XCTAssertEqual(tall.y, 0)
+        // Respects a non-zero visible origin.
+        let off = PinboardFullScreen.origin(gridWidth: 320, gridHeight: 400,
+                                            visible: (x: 100, y: 50, w: 1000, h: 800))
+        XCTAssertEqual(off.x, 440); XCTAssertEqual(off.y, 250)
+    }
 }

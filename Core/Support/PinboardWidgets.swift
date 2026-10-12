@@ -99,6 +99,25 @@ enum PinboardStyle: String, CaseIterable, Sendable {
     }
 }
 
+/// Full-screen Pinboard geometry (Phase 7B): the widget wall from the reference — the two-column
+/// grid from `PinboardLayout` centered on the screen over the launcher backdrop. Cards keep their
+/// coloured gradients; only the frame changes. Pure numbers so it is unit-testable.
+enum PinboardFullScreen {
+    /// Width of the centered grid: the same two-column wall as the floating panel, so cards
+    /// keep their exact size — full-screen changes the frame, not the cards.
+    static func gridWidth(unit: Double = 154, gap: Double = 12) -> Double { unit * 2 + gap }
+
+    /// Origin that centers a grid of `gridWidth × gridHeight` inside `visible`.
+    /// A grid taller than the screen pins to the top (the view scrolls); the view's own
+    /// padding keeps it clear of the screen edge.
+    static func origin(gridWidth: Double, gridHeight: Double,
+                       visible: (x: Double, y: Double, w: Double, h: Double)) -> (x: Double, y: Double) {
+        let x = visible.x + max(0, (visible.w - gridWidth) / 2)
+        let y = visible.y + max(0, visible.h - gridHeight) / 2
+        return (x, y)
+    }
+}
+
 /// Where the Pinboard panel sits: remembered between summons, clamped back on-screen.
 enum PinboardPlacement {
     /// Clamps an origin so a panel of `size` stays fully inside `visible`.

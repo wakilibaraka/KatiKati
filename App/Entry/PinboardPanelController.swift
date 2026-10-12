@@ -7,8 +7,10 @@ private final class PinboardPanel: NonConstrainingPanel {
     override func cancelOperation(_ sender: Any?) { onEscape?() }
 }
 
-/// The floating Pinboard (Phase 7B-V1): a draggable, non-activating glass panel opened by the right FAB or its
-/// shortcut. Created on first use; its content is torn down on close so no widget timer runs while hidden.
+/// The Pinboard (Phase 7B): a full-screen widget wall by default (iPad-style, owner 2026-10-12 —
+/// the blurred-desktop backdrop reused from the launcher with the coloured card grid centered on it),
+/// or the floating draggable glass panel (Phase 7B-V1) when `style` returns `.floating`.
+/// Created on first use; its content is torn down on close so no widget timer runs while hidden.
 @MainActor
 final class PinboardPanelController {
     private var panel: PinboardPanel?
@@ -22,8 +24,17 @@ final class PinboardPanelController {
     var widgets: () -> [PinboardWidget] = { PinboardWidget.defaultOrder }
     var toggleOrder: () -> [QuickToggleID] = { QuickToggleID.defaultOrder }
     var keepOnTop: () -> Bool = { false }
+    /// `.fullScreen` (default) shows the widget wall over the whole screen; `.floating` keeps the
+    /// Phase 7B-V1 draggable panel. Read at each summon so a Settings change applies immediately.
+    var style: () -> PinboardStyle = { .default }
+    /// Backdrop look for the full-screen wall (launcher Theme/Tint settings).
+    var look: () -> (theme: LauncherTheme, tint: LauncherTint) = { (.system, .none) }
     /// Height the KatiKati bottom bar occupies (it floats above `visibleFrame`), so the panel never sits under it.
     var bottomReserve: () -> Double = { 0 }
+    private var backdrop: LauncherBackdrop?
+    /// Which frame the live panel was built for; a style change rebuilds it (backdrop vs glass,
+    /// popUpMenu vs floating level, drag tracking) instead of mixing the two.
+    private var liveMode: PinboardStyle?
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -35,6 +46,62 @@ final class PinboardPanelController {
 
     func show(only: [PinboardWidget]? = nil) {
         guard !isShown, let weather = weather() else { return }
+        let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) } ?? NSScreen.main
+        guard let screen else { return }
+        switch style() {
+        case .fullScreen: showFullScreen(only: only, weather: weather, screen: screen)
+        case .floating: showFloating(only: only, weather: weather, screen: screen)
+        }
+    }
+
+    /// The widget wall: full-screen launcher backdrop, coloured card grid centered, Esc / click
+    /// outside the grid dismisses. Reuses `LauncherBackdrop` so the wall matches the launcher look.
+    private func showFullScreen(only: [PinboardWidget]?, weather: WeatherService, screen: NSScreen) {
+        if liveMode != .fullScreen { tearDown() }
+        liveMode = .fullScreen
+        let panel = self.panel ?? makeFullScreenPanel()
+        self.panel = panel
+        let view = PinboardFullScreenView(widgets: only ?? widgets(),
+                                          context: PinboardContext(weather: weather, toggles: toggles, toggleOrder: toggleOrder()),
+                                          onClose: { [weak self] in self?.dismiss() })
+        let host = self.host ?? NSHostingView(rootView: AnyView(EmptyView()))
+        host.rootView = AnyView(view)
+        self.host = host
+        let blur = (panel.contentView as? LauncherBackdrop) ?? makeBackdrop(host: host)
+        if panel.contentView !== blur { panel.contentView = blur }
+        let look = self.look()
+        panel.appearance = backdrop?.apply(theme: look.theme, tint: look.tint, screen: screen)
+        panel.setFrame(screen.frame, display: true)
+        panel.makeKeyAndOrderFront(nil)
+    }
+
+    private func makeFullScreenPanel() -> PinboardPanel {
+        let p = PinboardPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: true)
+        p.level = .popUpMenu
+        p.isOpaque = false
+        p.backgroundColor = .clear
+        p.hasShadow = false
+        p.isReleasedWhenClosed = false
+        p.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
+        p.onEscape = { [weak self] in self?.dismiss() }
+        return p
+    }
+
+    private func makeBackdrop(host: NSView) -> LauncherBackdrop {
+        let blur = LauncherBackdrop()
+        backdrop = blur
+        host.translatesAutoresizingMaskIntoConstraints = false
+        blur.addSubview(host)
+        NSLayoutConstraint.activate([
+            host.leadingAnchor.constraint(equalTo: blur.leadingAnchor), host.trailingAnchor.constraint(equalTo: blur.trailingAnchor),
+            host.topAnchor.constraint(equalTo: blur.topAnchor), host.bottomAnchor.constraint(equalTo: blur.bottomAnchor),
+        ])
+        return blur
+    }
+
+    private func showFloating(only: [PinboardWidget]?, weather: WeatherService, screen: NSScreen) {
+        if liveMode != .floating { tearDown() }
+        liveMode = .floating
         let panel = self.panel ?? makePanel()
         self.panel = panel
         let view = PinboardView(widgets: only ?? widgets(), context: PinboardContext(weather: weather, toggles: toggles, toggleOrder: toggleOrder()))
@@ -42,8 +109,7 @@ final class PinboardPanelController {
         host.rootView = AnyView(view)
         self.host = host
         panel.contentView = Self.glass(around: host)
-        let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) } ?? NSScreen.main
-        guard var visible = screen?.visibleFrame else { return }
+        var visible = screen.visibleFrame
         let reserve = CGFloat(bottomReserve())
         visible.origin.y += reserve
         visible.size.height -= reserve
@@ -65,7 +131,7 @@ final class PinboardPanelController {
 
     func resetPosition() { defaults.removeObject(forKey: originKey) }
 
-    func tearDown() { dismiss(); panel = nil; host = nil }
+    func tearDown() { dismiss(); panel = nil; host = nil; liveMode = nil }
 
     private func makePanel() -> PinboardPanel {
         let p = PinboardPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: true)

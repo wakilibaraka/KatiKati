@@ -94,6 +94,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.widgets = { [weak self] in self?.settingsStore.pinboardWidgets ?? PinboardWidget.defaultOrder }
         panel.toggleOrder = { [weak self] in self?.settingsStore.pinboardToggles ?? QuickToggleID.defaultOrder }
         panel.keepOnTop = { [weak self] in self?.settingsStore.pinboardKeepOnTop ?? false }
+        panel.style = { [weak self] in self?.settingsStore.pinboardStyle ?? .default }
+        panel.look = { [weak self] in (self?.settingsStore.launcherTheme ?? .system, self?.settingsStore.launcherTint ?? .none) }
         panel.bottomReserve = { [weak self] in
             guard let store = self?.settingsStore else { return 0 }
             return Double(store.dockPanelHeight.points + store.bottomGap + 8)
