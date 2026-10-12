@@ -174,6 +174,7 @@ final class AppSettingsStore: ObservableObject {
     /// Dock-style magnification of the round buttons under the pointer.
     @Published private(set) var deckMagnify: Bool
     @Published private(set) var launcherScrollDirection: LauncherScrollDirection
+    @Published private(set) var launcherPinch: Bool
     @Published private(set) var launcherTheme: LauncherTheme
     @Published private(set) var launcherTint: LauncherTint
     @Published private(set) var launcherIcon: LauncherIconStyle
@@ -285,6 +286,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
             Keys.launcherScroll: LauncherScrollDirection.default.rawValue,
+            Keys.launcherPinch: false,
             Keys.launcherTheme: LauncherTheme.default.rawValue,
             Keys.launcherTint: LauncherTint.default.rawValue,
             Keys.launcherIcon: LauncherIconStyle.default.rawValue,
@@ -337,6 +339,7 @@ final class AppSettingsStore: ObservableObject {
         launcherTint = LauncherTint.parse(defaults.string(forKey: Keys.launcherTint))
         launcherIcon = LauncherIconStyle.parse(defaults.string(forKey: Keys.launcherIcon))
         launcherScrollDirection = LauncherScrollDirection.parse(defaults.string(forKey: Keys.launcherScroll))
+        launcherPinch = defaults.bool(forKey: Keys.launcherPinch)
         deckKeepOpen = defaults.bool(forKey: Keys.deckKeepOpen)
         deckOpenOnHover = defaults.bool(forKey: Keys.deckOpenOnHover)
         deckTabPreview = defaults.bool(forKey: Keys.deckTabPreview)
@@ -602,6 +605,12 @@ final class AppSettingsStore: ObservableObject {
         guard launcherIcon != value else { return }
         launcherIcon = value
         defaults.set(value.rawValue, forKey: Keys.launcherIcon)
+    }
+
+    func setLauncherPinch(_ value: Bool) {
+        guard launcherPinch != value else { return }
+        launcherPinch = value
+        defaults.set(value, forKey: Keys.launcherPinch)
     }
 
     func setLauncherScrollDirection(_ value: LauncherScrollDirection) {
@@ -1079,6 +1088,7 @@ private enum Keys {
     static let deckScaleRight = "com.katikati.edge.deckScale.right"
     static let deckMagnify = "com.katikati.edge.magnify"
     static let launcherScroll = "com.katikati.launcher.scroll"
+    static let launcherPinch = "com.katikati.launcher.pinch"
     static let launcherTheme = "com.katikati.launcher.theme"
     static let launcherTint = "com.katikati.launcher.tint"
     static let launcherIcon = "com.katikati.launcher.icon"

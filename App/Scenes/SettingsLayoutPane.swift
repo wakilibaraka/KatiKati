@@ -431,6 +431,12 @@ struct SettingsLayoutPane: View {
                         .pickerStyle(.menu).fixedSize()
                     }
                 }
+                Toggle("Open Launcher with Pinch", isOn: Binding(get: { store.launcherPinch }, set: { store.setLauncherPinch($0) }))
+                Text("Pinch four or more fingers together on the trackpad. Turn off Launchpad under System Settings > Trackpad > More Gestures, or macOS opens its own app list too.")
+                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                Button("Open Trackpad Settings") {
+                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.trackpad") { NSWorkspace.shared.open(url) }
+                }
                 Toggle("Keep Pinboard on Top", isOn: Binding(get: { store.pinboardKeepOnTop }, set: { store.setPinboardKeepOnTop($0) }))
                 Text("Double-tap shortcuts need the Accessibility permission. ⌃Space may also switch input sources.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)

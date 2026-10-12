@@ -85,6 +85,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 后者在权限引导完成前是 nil，settingsStore 从 AppDelegate 构造起即存在。
     private var edgeToggleHotKey: GlobalHotKeyMonitor?
     private let shortcutService = ShortcutService()
+    /// Created only while Settings → Shortcuts → Pinch is on.
+    private var pinchMonitor: MultitouchPinchMonitor?
+    private var pinchSubscription: AnyCancellable?
     private let shortcutToast = ShortcutToastPresenter()
     private var shortcutSubscription: AnyCancellable?
     private let screenTimeAlerts = ScreenTimeAlertPresenter()
@@ -102,6 +105,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         return panel
     }()
+    private func applyPinch(_ on: Bool) {
+        guard on else { pinchMonitor?.stop(); pinchMonitor = nil; return }
+        guard pinchMonitor == nil else { return }
+        let monitor = MultitouchPinchMonitor()
+        monitor.onPinch = { [weak self] in self?.launcherPanel.toggle() }
+        if monitor.start() { pinchMonitor = monitor }
+    }
+
     private lazy var launcherPanel: LauncherPanelController = {
         let panel = LauncherPanelController()
         panel.searchPosition = { [weak self] in self?.settingsStore.launcherSearchPosition ?? .top }
@@ -258,6 +269,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             shortcutSubscription = settingsStore.$shortcutBindings
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] in self?.shortcutService.apply($0) }
+            pinchSubscription = settingsStore.$launcherPinch
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] on in self?.applyPinch(on) }
 
             let screenTime = ProductivityServices.shared.screenTime
             screenTime.onLimitAction = { [weak self, weak screenTime] id, name, action in
@@ -974,6 +988,10 @@ extension AppDelegate: PermissionEffectHandler {
         runtime.onToggleDrawer = nil
         runtime.onToggleLauncher = nil
         runtime.onTogglePinboard = nil
+        pinchSubscription?.cancel()
+        pinchSubscription = nil
+        pinchMonitor?.stop()
+        pinchMonitor = nil
         shortcutSubscription?.cancel()
         shortcutSubscription = nil
         shortcutService.tearDown()

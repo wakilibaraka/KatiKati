@@ -43440,6 +43440,237 @@
         }
       }
     },
+    "Open Launcher with Pinch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Launcher with Pinch"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "捏合手势打开启动台"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以捏合手勢打開啟動台"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピンチでランチャーを開く"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Launcher mit Zusammenziehen öffnen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir le lanceur par pincement"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir el lanzador con pellizco"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir el lanzador con pellizco"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir o lançador com pinça"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir o lançador com pinça"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri il launcher con il pizzico"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "핀치로 런처 열기"
+          }
+        }
+      }
+    },
+    "Pinch four or more fingers together on the trackpad. Turn off Launchpad under System Settings > Trackpad > More Gestures, or macOS opens its own app list too.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pinch four or more fingers together on the trackpad. Turn off Launchpad under System Settings > Trackpad > More Gestures, or macOS opens its own app list too."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在触控板上用四指或更多手指捏合。请在“系统设置 > 触控板 > 更多手势”中关闭“启动台”，否则 macOS 也会打开它自己的 App 列表。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在觸控板上用四指或更多手指捏合。請在「系統設定 > 觸控板 > 更多手勢」中關閉「啟動台」，否則 macOS 也會開啟它自己的 App 列表。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トラックパッドで4本以上の指をつまむように閉じます。「システム設定 > トラックパッド > その他のジェスチャ」で Launchpad をオフにしないと、macOS の App 一覧も開きます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vier oder mehr Finger auf dem Trackpad zusammenziehen. Schalte Launchpad unter Systemeinstellungen > Trackpad > Weitere Gesten aus, sonst öffnet macOS zusätzlich seine eigene App-Liste."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pincez avec quatre doigts ou plus sur le trackpad. Désactivez Launchpad dans Réglages Système > Trackpad > Autres mouvements, sinon macOS ouvre aussi sa propre liste d’apps."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pellizca con cuatro o más dedos en el trackpad. Desactiva Launchpad en Ajustes del Sistema > Trackpad > Más gestos, o macOS abrirá también su propia lista de apps."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pellizca con cuatro o más dedos en el trackpad. Desactiva Launchpad en Ajustes del Sistema > Trackpad > Más gestos, o macOS abrirá también su propia lista de apps."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faça o gesto de pinça com quatro ou mais dedos no trackpad. Desative o Launchpad em Ajustes do Sistema > Trackpad > Mais gestos, ou o macOS abrirá também a própria lista de apps."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faça o gesto de pinça com quatro ou mais dedos no trackpad. Desative o Launchpad em Definições do Sistema > Trackpad > Mais gestos, ou o macOS abrirá também a sua própria lista de apps."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pizzica con quattro o più dita sul trackpad. Disattiva Launchpad in Impostazioni di Sistema > Trackpad > Altri gesti, altrimenti macOS apre anche il proprio elenco di app."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "트랙패드에서 손가락 네 개 이상으로 오므리세요. 시스템 설정 > 트랙패드 > 기타 제스처에서 Launchpad를 끄지 않으면 macOS도 자체 앱 목록을 엽니다."
+          }
+        }
+      }
+    },
+    "Open Trackpad Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Trackpad Settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开触控板设置"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開觸控板設定"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トラックパッド設定を開く"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trackpad-Einstellungen öffnen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les réglages du trackpad"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir ajustes del trackpad"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir ajustes del trackpad"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir ajustes do trackpad"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir definições do trackpad"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri impostazioni del trackpad"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "트랙패드 설정 열기"
+          }
+        }
+      }
+    },
     "Edge Bars": {
       "extractionState": "manual",
       "localizations": {

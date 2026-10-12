@@ -227,6 +227,14 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
+    func testLauncherPinchDefaultsOffAndPersists() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertFalse(store.launcherPinch, "off by default: it clashes with the system Launchpad gesture")
+        store.setLauncherPinch(true)
+        XCTAssertTrue(AppSettingsStore(defaults: defaults).launcherPinch)
+    }
+
     func testLauncherScrollDirectionDefaultsVerticalAndPersists() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
