@@ -100,6 +100,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var colorPicker = ColorPickerService(toast: shortcutToast)
     private var notchSubscription: AnyCancellable?
     private var notchSkinSubscription: AnyCancellable?
+    private lazy var dragShakeWatcher = DragShakeWatcher(shelf: shelfStore)
+    private var shelfShakeSubscription: AnyCancellable?
     private var shortcutSubscription: AnyCancellable?
     private let screenTimeAlerts = ScreenTimeAlertPresenter()
     private lazy var pinboardPanel: PinboardPanelController = {
@@ -312,6 +314,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 .removeDuplicates()
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] on in self?.linkCleaner.setEnabled(on) }
+            shelfShakeSubscription = settingsStore.$shelfShakeEnabled
+                .removeDuplicates()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] on in self?.dragShakeWatcher.setEnabled(on) }
             notchSkinSubscription = settingsStore.$notchSkin
                 .removeDuplicates()
                 .receive(on: DispatchQueue.main)

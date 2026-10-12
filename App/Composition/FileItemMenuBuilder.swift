@@ -22,19 +22,23 @@ enum FileItemMenuBuilder {
         var removeFromShelf: (() -> Void)?
         /// 移到废纸篓成功后的额外收尾（中转弹窗同步移出暂存条目）。
         var onTrashed: (() -> Void)?
+        /// Extra shelf actions (pin / compress / zip / share) shown above 「Remove from Shelf」.
+        var shelfActions: [NSMenuItem] = []
 
         init(url: URL,
              isDirectory: Bool,
              closePopup: @escaping () -> Void,
              pinFolder: (() -> Void)? = nil,
              removeFromShelf: (() -> Void)? = nil,
-             onTrashed: (() -> Void)? = nil) {
+             onTrashed: (() -> Void)? = nil,
+             shelfActions: [NSMenuItem] = []) {
             self.url = url
             self.isDirectory = isDirectory
             self.closePopup = closePopup
             self.pinFolder = pinFolder
             self.removeFromShelf = removeFromShelf
             self.onTrashed = onTrashed
+            self.shelfActions = shelfActions
         }
     }
 
@@ -63,11 +67,12 @@ enum FileItemMenuBuilder {
             pasteboard.clearContents()
             pasteboard.setString(url.path, forType: .string)
         })
-        if context.pinFolder != nil || context.removeFromShelf != nil {
+        if context.pinFolder != nil || context.removeFromShelf != nil || !context.shelfActions.isEmpty {
             menu.addItem(.separator())
             if let pinFolder = context.pinFolder {
                 menu.addItem(ClosureMenuItem(String(localized: "Pin to Taskbar")) { pinFolder() })
             }
+            context.shelfActions.forEach { menu.addItem($0) }
             if let removeFromShelf = context.removeFromShelf {
                 menu.addItem(ClosureMenuItem(String(localized: "Remove from Shelf")) { removeFromShelf() })
             }

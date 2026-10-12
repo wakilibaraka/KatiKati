@@ -37,6 +37,7 @@ struct ShelfGridPopupView: View {
                          gridAnimation: .easeInOut(duration: DrawerAnimation.duration),
                          gridAnimationKey: entries.map(\.url.path)) {
             ForEach(entries, id: \.url) { entry in
+                let pinned = shelfStore.isPinned(entry.url.path)
                 FolderGridCell(iconPath: entry.isAccessible ? entry.url.path : nil,
                                staticIcon: entry.isAccessible ? nil : Self.inaccessibleIcon,
                                label: entry.name,
@@ -46,6 +47,9 @@ struct ShelfGridPopupView: View {
                     // The shelf never drills in: a click opens (a folder opens in Finder).
                     NSWorkspace.shared.open(entry.url)
                     onClosePopup()
+                }
+                .overlay(alignment: .topTrailing) {
+                    if pinned { Image(systemName: "pin.fill").font(.system(size: 10)).foregroundStyle(.orange).padding(6) }
                 }
             }
         }
@@ -62,6 +66,28 @@ struct ShelfGridPopupView: View {
 
     private static let inaccessibleIcon = NSWorkspace.shared.icon(for: .data)
 
+    /// Dropover-style extras for one shelf item: pin, compress, zip, share.
+    private func shelfMenuItems(for url: URL) -> [NSMenuItem] {
+        let store = shelfStore
+        let path = url.path
+        var items: [NSMenuItem] = []
+        if store.isPinned(path) {
+            items.append(ClosureMenuItem(String(localized: "Unpin from Shelf")) { store.togglePin(path) })
+        } else {
+            items.append(ClosureMenuItem(String(localized: "Pin to Shelf")) { store.togglePin(path) })
+        }
+        if ShelfActions.canCompress(url) {
+            items.append(ClosureMenuItem(String(localized: "Compress")) { ShelfActions.compress([url], into: store) })
+        }
+        items.append(ClosureMenuItem(String(localized: "Zip")) { ShelfActions.zip([url], into: store) })
+        if store.itemPaths.count > 1 {
+            items.append(ClosureMenuItem(String(localized: "Zip Everything on Shelf")) { ShelfActions.zip(store.itemPaths.map { URL(fileURLWithPath: $0) }, into: store) })
+        }
+        items.append(ClosureMenuItem(String(localized: "Share…")) { ShelfActions.share([url]) })
+        items.append(ClosureMenuItem(String(localized: "AirDrop")) { ShelfActions.airDrop([url]) })
+        return items
+    }
+
     private func cellMenu(for entry: FolderContentsLoader.Entry) -> NSMenu {
         let canPin = entry.isDirectory && !(isFolderPinned?(entry.url) ?? true)
         let path = entry.url.path
@@ -71,7 +97,8 @@ struct ShelfGridPopupView: View {
             closePopup: onClosePopup,
             pinFolder: canPin ? { onPinFolder?(entry.url) } : nil,
             removeFromShelf: { shelfStore.remove(path) },
-            onTrashed: { shelfStore.remove(path) }
+            onTrashed: { shelfStore.remove(path) },
+            shelfActions: shelfMenuItems(for: entry.url)
         ))
     }
 }

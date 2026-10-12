@@ -6,30 +6,89 @@ import Foundation
 /// 列表操作是纯静态函数（stashing/pruned），进单测。
 @MainActor
 final class ShelfStore: ObservableObject {
-    @Published private(set) var itemPaths: [String] = []
-    private let key = "shelfItemPaths"
+    /// Pinned-first, newest-first display order. Kept as the paths the dock/popup already consume.
+    @Published private(set) var items: [ShelfItem] = []
+    var itemPaths: [String] { items.map(\.path) }
 
-    init() {
-        itemPaths = UserDefaults.standard.stringArray(forKey: key) ?? []
+    private let legacyKey = "shelfItemPaths"
+    private let itemsKey = "shelfItemsV2"
+    private let defaults: UserDefaults
+
+    // Settings (written by `AppSettingsStore`, read here at action time so the store stays independent).
+    nonisolated static let autoExpireKey = "com.katikati.shelf.autoExpire"
+    nonisolated static let expiryDaysKey = "com.katikati.shelf.expiryDays"
+    nonisolated static let storageKey = "com.katikati.shelf.storage"
+    nonisolated static let shakeKey = "com.katikati.shelf.shake"
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        if let data = defaults.data(forKey: itemsKey), let decoded = try? JSONDecoder().decode([ShelfItem].self, from: data) {
+            items = ShelfPolicy.ordered(decoded)
+        } else if let legacy = defaults.stringArray(forKey: legacyKey), !legacy.isEmpty {
+            items = ShelfPolicy.ordered(ShelfPolicy.migrated(paths: legacy, now: Date()))
+            persist()
+        }
+        applyExpiry()
     }
 
+    var storage: ShelfStorage { ShelfStorage(rawValue: defaults.string(forKey: Self.storageKey) ?? "") ?? .reference }
+    var autoExpire: Bool { defaults.bool(forKey: Self.autoExpireKey) }
+    var expiryDays: Int {
+        let d = defaults.integer(forKey: Self.expiryDaysKey)
+        return ShelfPolicy.expiryChoices.contains(d) ? d : 1
+    }
+
+    /// Matches on the normalized form of both sides (`standardizingPath` drops a leading `/private`).
+    private func item(for path: String) -> ShelfItem? {
+        let normalized = Self.normalized(path)
+        return items.first { Self.normalized($0.path) == normalized }
+    }
+
+    func isPinned(_ path: String) -> Bool { item(for: path)?.isPinned ?? false }
+
     func stash(paths: [String]) {
-        let next = Self.stashing(itemPaths, adding: paths.map(Self.normalized))
-        guard next != itemPaths else { return }
-        itemPaths = next
+        let normalized = paths.map(Self.normalized)
+        let entries: [(path: String, isOwnedCopy: Bool)]
+        if storage == .copy {
+            entries = normalized.map { Self.copyIntoShelf($0) ?? ($0, false) }
+        } else {
+            entries = normalized.map { ($0, false) }
+        }
+        let next = ShelfPolicy.ordered(ShelfPolicy.stashing(items, adding: entries, now: Date()))
+        guard next != items else { return }
+        items = next
+        persist()
+    }
+
+    func togglePin(_ path: String) {
+        guard let item = item(for: path) else { return }
+        items = ShelfPolicy.ordered(ShelfPolicy.togglingPin(items, id: item.id))
         persist()
     }
 
     func remove(_ path: String) {
-        let normalized = Self.normalized(path)
-        guard itemPaths.contains(normalized) else { return }
-        itemPaths.removeAll { $0 == normalized }
+        guard let item = item(for: path) else { return }
+        Self.deleteCopyIfOwned(item)
+        items = ShelfPolicy.removing(items, path: item.path)
         persist()
     }
 
+    /// "Clear" keeps pinned items.
     func clear() {
-        guard !itemPaths.isEmpty else { return }
-        itemPaths = []
+        let r = ShelfPolicy.clearingUnpinned(items)
+        guard !r.dropped.isEmpty else { return }
+        r.dropped.forEach(Self.deleteCopyIfOwned)
+        items = ShelfPolicy.ordered(r.kept)
+        persist()
+    }
+
+    /// Drops unpinned items older than the configured days when auto-expire is on.
+    func applyExpiry(now: Date = Date()) {
+        guard autoExpire else { return }
+        let r = ShelfPolicy.expired(items, now: now, days: expiryDays)
+        guard !r.dropped.isEmpty else { return }
+        r.dropped.forEach(Self.deleteCopyIfOwned)
+        items = ShelfPolicy.ordered(r.kept)
         persist()
     }
 
@@ -38,15 +97,47 @@ final class ShelfStore: ObservableObject {
     /// Desktop permission is not granted) is still the user's file.
     @discardableResult
     func prune() -> Bool {
-        let kept = Self.pruned(itemPaths) { FileReachability.of(path: $0) != .missing }
-        guard kept != itemPaths else { return false }
-        itemPaths = kept
+        applyExpiry()
+        let kept = items.filter { FileReachability.of(path: $0.path) != .missing }
+        guard kept.count != items.count else { return false }
+        items = ShelfPolicy.ordered(kept)
         persist()
         return true
     }
 
     private func persist() {
-        UserDefaults.standard.set(itemPaths, forKey: key)
+        if let data = try? JSONEncoder().encode(items) { defaults.set(data, forKey: itemsKey) }
+        defaults.set(items.map(\.path), forKey: legacyKey)   // keep the old key readable for a downgrade
+    }
+
+    // MARK: copy storage
+
+    nonisolated static var shelfFolder: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("KatiKati/Shelf", isDirectory: true)
+    }
+
+    /// Copies `path` into its own `<uuid>` folder under the shelf folder. nil = copy failed (the caller
+    /// falls back to a reference).
+    nonisolated private static func copyIntoShelf(_ path: String) -> (String, Bool)? {
+        let source = URL(fileURLWithPath: path)
+        let dir = shelfFolder.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let target = dir.appendingPathComponent(source.lastPathComponent)
+        do {
+            try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            try FileManager.default.copyItem(at: source, to: target)
+            return (target.path, true)
+        } catch {
+            try? FileManager.default.removeItem(at: dir)
+            return nil
+        }
+    }
+
+    nonisolated private static func deleteCopyIfOwned(_ item: ShelfItem) {
+        guard item.isOwnedCopy else { return }
+        let dir = URL(fileURLWithPath: item.path).deletingLastPathComponent()
+        guard dir.deletingLastPathComponent().standardizedFileURL == shelfFolder.standardizedFileURL else { return }
+        try? FileManager.default.removeItem(at: dir)
     }
 
     // MARK: - 纯逻辑（单测覆盖）

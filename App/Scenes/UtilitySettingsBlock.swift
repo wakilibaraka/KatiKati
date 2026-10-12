@@ -12,10 +12,47 @@ struct UtilitySettingsBlock: View {
             Toggle("Clean Copied Links", isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) }))
                 .toggleStyle(.switch).labelsHidden()
         }
+        Text("Shelf").font(.headline)
+        row("Shake to Shelf") {
+            Toggle("Shake to Shelf", isOn: Binding(get: { store.shelfShakeEnabled }, set: { store.setShelfShakeEnabled($0) }))
+                .toggleStyle(.switch).labelsHidden()
+        }
+        row("Auto-Expire") {
+            Toggle("Auto-Expire", isOn: Binding(get: { store.shelfAutoExpire }, set: { store.setShelfAutoExpire($0) }))
+                .toggleStyle(.switch).labelsHidden()
+        }
+        if store.shelfAutoExpire {
+            row("Expire After") {
+                Picker("Expire After", selection: Binding(get: { store.shelfExpiryDays }, set: { store.setShelfExpiryDays($0) })) {
+                    Text("1 day").tag(1)
+                    Text("3 days").tag(3)
+                    Text("7 days").tag(7)
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+        }
+        row("Storage") {
+            Picker("Storage", selection: Binding(get: { store.shelfStorage }, set: { store.setShelfStorage($0) })) {
+                Text("References").tag(ShelfStorage.reference)
+                Text("Copies").tag(ShelfStorage.copy)
+            }
+            .labelsHidden().pickerStyle(.menu).fixedSize()
+        }
+        row("Clear Unpinned") {
+            Button("Clear Unpinned") { AppDelegate.shared?.shelfStore.clear() }
+        }
         HStack {
             Text("System Dock")
             Spacer(minLength: 12)
             Button("Restore Dock") { AppDelegate.shared?.restoreNativeDock() }
+        }
+    }
+
+    private func row<C: View>(_ title: LocalizedStringKey, @ViewBuilder control: () -> C) -> some View {
+        HStack {
+            Text(title)
+            Spacer(minLength: 12)
+            control()
         }
     }
 }

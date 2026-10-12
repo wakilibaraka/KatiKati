@@ -143,6 +143,12 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var dockIslandEnabled: Bool
     /// Live Island on the notch (default ON; the welcome guide offers a switch to turn it off).
     @Published private(set) var notchIslandEnabled: Bool
+    /// Dropover-style shelf: shake a dragged file to summon the drop target (default on).
+    @Published private(set) var shelfShakeEnabled: Bool
+    /// Drop unpinned shelf items after `shelfExpiryDays` (default off).
+    @Published private(set) var shelfAutoExpire: Bool
+    @Published private(set) var shelfExpiryDays: Int
+    @Published private(set) var shelfStorage: ShelfStorage
     /// Look of the notch Live Island (`boring` = full panel with music + calendar; default).
     @Published private(set) var notchSkin: LiveIslandSkin
     /// Where event notifications show — exactly one place by default, never duplicated (8b-5).
@@ -295,6 +301,10 @@ final class AppSettingsStore: ObservableObject {
             Keys.dockIslandEnabled: true,
             Keys.notchIslandEnabled: true,
             Keys.notchSkin: LiveIslandSkin.boring.rawValue,
+            ShelfStore.shakeKey: true,
+            ShelfStore.autoExpireKey: false,
+            ShelfStore.expiryDaysKey: 1,
+            ShelfStore.storageKey: ShelfStorage.reference.rawValue,
             Keys.liveEventRoute: LiveEventRoute.automatic.rawValue,
             Keys.liveEventOSBanners: false,
             Keys.linkCleanerEnabled: false,
@@ -325,6 +335,10 @@ final class AppSettingsStore: ObservableObject {
         showTrash = defaults.bool(forKey: Keys.showTrash)
         dockIslandEnabled = defaults.bool(forKey: Keys.dockIslandEnabled)
         notchIslandEnabled = defaults.bool(forKey: Keys.notchIslandEnabled)
+        shelfShakeEnabled = defaults.bool(forKey: ShelfStore.shakeKey)
+        shelfAutoExpire = defaults.bool(forKey: ShelfStore.autoExpireKey)
+        shelfExpiryDays = ShelfPolicy.expiryChoices.contains(defaults.integer(forKey: ShelfStore.expiryDaysKey)) ? defaults.integer(forKey: ShelfStore.expiryDaysKey) : 1
+        shelfStorage = ShelfStorage(rawValue: defaults.string(forKey: ShelfStore.storageKey) ?? "") ?? .reference
         notchSkin = LiveIslandSkin(rawValue: defaults.string(forKey: Keys.notchSkin) ?? "") ?? .boring
         liveEventRoute = LiveEventRoute(rawValue: defaults.string(forKey: Keys.liveEventRoute) ?? "") ?? .automatic
         liveEventOSBanners = defaults.bool(forKey: Keys.liveEventOSBanners)
@@ -878,6 +892,30 @@ final class AppSettingsStore: ObservableObject {
         guard notchIslandEnabled != value else { return }
         notchIslandEnabled = value
         defaults.set(value, forKey: Keys.notchIslandEnabled)
+    }
+
+    func setShelfShakeEnabled(_ value: Bool) {
+        guard shelfShakeEnabled != value else { return }
+        shelfShakeEnabled = value
+        defaults.set(value, forKey: ShelfStore.shakeKey)
+    }
+
+    func setShelfAutoExpire(_ value: Bool) {
+        guard shelfAutoExpire != value else { return }
+        shelfAutoExpire = value
+        defaults.set(value, forKey: ShelfStore.autoExpireKey)
+    }
+
+    func setShelfExpiryDays(_ value: Int) {
+        guard ShelfPolicy.expiryChoices.contains(value), shelfExpiryDays != value else { return }
+        shelfExpiryDays = value
+        defaults.set(value, forKey: ShelfStore.expiryDaysKey)
+    }
+
+    func setShelfStorage(_ value: ShelfStorage) {
+        guard shelfStorage != value else { return }
+        shelfStorage = value
+        defaults.set(value.rawValue, forKey: ShelfStore.storageKey)
     }
 
     func setNotchSkin(_ value: LiveIslandSkin) {

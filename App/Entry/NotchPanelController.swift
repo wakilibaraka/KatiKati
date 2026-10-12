@@ -20,8 +20,10 @@ final class NotchPanelController: LiveEventSink {
     // Hover intent: a pure state machine fed from mouse monitors (see `NotchHoverMachine`). The window is
     // never resized by hover itself, so there is no resize → tracking-area → hover feedback loop.
     private var hover = NotchHoverMachine()
-    private var globalMonitor: Any?
-    private var localMonitor: Any?
+    /// 60 Hz poll of `NSEvent.mouseLocation`, alive only while the pointer is near the notch or the
+    /// notch is open (the `StripPointerTracker` pattern). Resident global mouse monitors are banned by
+    /// the project rules (they route every system mouse event through this process).
+    private var hoverTimer: Timer?
     private var tickWork: DispatchWorkItem?
     private var shrinkWork: DispatchWorkItem?
     var theme: () -> NowPlayingTheme = { .auto }
@@ -49,8 +51,7 @@ final class NotchPanelController: LiveEventSink {
         let window = BoringNotchWindow(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         window.collectionBehavior.remove(.fullScreenAuxiliary)
         window.acceptsMouseMovedEvents = true
-        window.ignoresMouseEvents = true   // closed: never swallow clicks meant for the menu bar
-        window.contentView = Self.container(for: NotchIslandView(model: model, metrics: metrics, theme: theme()))
+        window.contentView = container(for: NotchIslandView(model: model, metrics: metrics, theme: theme()))
         panel = window
         LiveActivityFeed.shared.retain()
         holdsFeed = true
@@ -61,12 +62,11 @@ final class NotchPanelController: LiveEventSink {
         model.$event.map { $0 != nil }.removeDuplicates().sink { [weak self] _ in self?.syncWindow() }.store(in: &cancellables)
         NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
             .sink { [weak self] _ in self?.screensChanged() }.store(in: &cancellables)
-        startMouseMonitors()
     }
 
     private func hide() {
         cancellables.removeAll()
-        stopMouseMonitors()
+        stopHoverPolling()
         tickWork?.cancel(); tickWork = nil
         shrinkWork?.cancel(); shrinkWork = nil
         eventWork?.cancel(); eventWork = nil
@@ -93,21 +93,20 @@ final class NotchPanelController: LiveEventSink {
 
     // MARK: hover
 
-    private func startMouseMonitors() {
-        let mask: NSEvent.EventTypeMask = [.mouseMoved, .leftMouseDragged, .leftMouseDown, .leftMouseUp]
-        globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: mask) { [weak self] _ in
+    private func startHoverPolling() {
+        guard hoverTimer == nil else { return }
+        let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.evaluateHover() }
         }
-        localMonitor = NSEvent.addLocalMonitorForEvents(matching: mask) { [weak self] event in
-            MainActor.assumeIsolated { self?.evaluateHover() }
-            return event
-        }
+        timer.tolerance = 0.004
+        RunLoop.main.add(timer, forMode: .common)
+        hoverTimer = timer
+        evaluateHover()
     }
 
-    private func stopMouseMonitors() {
-        if let globalMonitor { NSEvent.removeMonitor(globalMonitor) }
-        if let localMonitor { NSEvent.removeMonitor(localMonitor) }
-        globalMonitor = nil; localMonitor = nil
+    private func stopHoverPolling() {
+        hoverTimer?.invalidate()
+        hoverTimer = nil
     }
 
     private func evaluateHover(now: Date = Date()) {
@@ -122,6 +121,8 @@ final class NotchPanelController: LiveEventSink {
         let wasOpen = hover.isOpen
         hover.update(inTrigger: inTrigger, inKeepOpen: inKeepOpen, pinned: dragging || model.event != nil, now: now)
         if hover.isOpen != wasOpen { applyOpenState() }
+        // Poll only while it matters: pointer near the notch, open, or a dwell/grace timer pending.
+        if !hover.isOpen, !inTrigger, hover.nextDeadline == nil { stopHoverPolling() }
         scheduleTick()
     }
 
@@ -164,7 +165,7 @@ final class NotchPanelController: LiveEventSink {
         guard panel != nil, let screen = targetScreen() else { return }
         metrics = Self.metrics(for: screen)
         syncModelSizes()
-        panel?.contentView = Self.container(for: NotchIslandView(model: model, metrics: metrics, theme: theme()))
+        panel?.contentView = container(for: NotchIslandView(model: model, metrics: metrics, theme: theme()))
         syncWindow(immediate: true)
     }
 
@@ -194,7 +195,6 @@ final class NotchPanelController: LiveEventSink {
         DispatchQueue.main.async { [weak self] in
             guard let self, let panel = self.panel, let screen = self.targetScreen() else { return }
             let target = self.windowFrame(on: screen)
-            panel.ignoresMouseEvents = !self.model.isExpanded
             self.shrinkWork?.cancel(); self.shrinkWork = nil
             let grows = target.width >= panel.frame.width && target.height >= panel.frame.height
             if grows || immediate {
@@ -212,12 +212,28 @@ final class NotchPanelController: LiveEventSink {
 
     /// The hosting view lives inside a plain autoresizing container so SwiftUI's intrinsic size can never
     /// drive the panel (that fed back into window sizing during an update-constraints pass and crashed).
-    private static func container<V: View>(for view: V) -> NSView {
-        let container = NSView(frame: .zero)
+    /// The container also owns the tracking area whose *enter* starts the hover poll.
+    private func container<V: View>(for view: V) -> NSView {
+        let container = NotchTrackingContainer(frame: .zero)
+        container.onEnter = { [weak self] in self?.startHoverPolling() }
         let host = NSHostingView(rootView: view)
         host.frame = container.bounds
         host.autoresizingMask = [.width, .height]
         container.addSubview(host)
         return container
     }
+}
+
+/// Reports the pointer entering the notch window. Enter/exit is reliable for non-key panels (mouse-moved
+/// is not), so it only *starts* the poll; the poll decides everything else.
+final class NotchTrackingContainer: NSView {
+    var onEnter: () -> Void = {}
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        trackingAreas.forEach(removeTrackingArea)
+        addTrackingArea(NSTrackingArea(rect: .zero, options: [.activeAlways, .mouseEnteredAndExited, .inVisibleRect], owner: self, userInfo: nil))
+    }
+
+    override func mouseEntered(with event: NSEvent) { onEnter() }
 }

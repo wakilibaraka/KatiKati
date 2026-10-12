@@ -13,7 +13,7 @@ struct NotchHeaderView: View {
         HStack(spacing: 0) {
             HStack(spacing: NotchLayoutSpec.headerSpacing) {
                 tabButton(.home, symbol: "house.fill")
-                tabButton(.shelf, symbol: "tray.fill")
+                tabButton(.tools, symbol: "square.grid.2x2.fill")
             }
             Spacer(minLength: metrics.closedSize.width)
             HStack(spacing: NotchLayoutSpec.headerSpacing) {
@@ -64,7 +64,7 @@ struct NotchHeaderView: View {
                 .background(Circle().fill(Color.white.opacity(selected ? 0.22 : 0.0)))
         }
         .buttonStyle(.plain)
-        .help(tab == .home ? Text("Home") : Text("Shelf"))
+        .help(tab == .home ? Text("Home") : Text("Tools"))
     }
 
     static func batterySymbol(level: Int, charging: Bool) -> String {

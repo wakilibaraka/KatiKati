@@ -15,7 +15,8 @@ enum LiveIslandSkin: String, CaseIterable, Sendable {
 
 enum NotchTab: String, CaseIterable, Sendable {
     case home
-    case shelf
+    /// Focus & timers, clipboard + quick note, system HUD (the file shelf lives on the dock).
+    case tools
 }
 
 enum NotchLayoutSpec {
