@@ -1927,6 +1927,82 @@ upgrades, wallpaper/personalisation, extra flyouts.
 content, 9 = strip semantics + interaction + summoning, 10 = presets + wallpaper).
 Reference priors are eyeball-only study rows (§5b rule) — code written fresh.**
 
+**2026-10-12 mini-plan (owner-aligned after the orientation session).** The one-line
+8a/8b/8c stubs below are retained verbatim per §6.3 (struck through when Phase 8 closes);
+this mini-plan supersedes them in scope, 8b especially. Phase 8 is the interior-content
+phase: drawer, Now Playing surface, Shelf, Downloads — four slices, each independently
+shippable + owner-gated before build. Owner decisions taken (and **default to user-friendly
+choices** wherever a knob exists):
+
+- **8a — Drawer redesign**: most-used / recently-closed / recently-added sections inside
+  the drawer. Owner gates the design. Priors (study only): DockBar Start Menu Most-Used via
+  Spotlight + pinned drag-drop editor + AppBeBack recently-closed restore; SplitBar-old
+  launcher recents/full app catalog. *De-dup note: the Launcher (7B) already owns "Most
+  Used / Recently Installed / All Apps" — give the drawer's emphasis to **recently-closed
+  restore** so the two surfaces don't overlap.*
+- **8b — Now Playing → "Live Island" (owner 2026-10-12).** *Decision confirmed: scope = (A)
+  morphing Live Island **plus** (B) an in-app live event feed — in-app feed default ON, OS
+  banners opt-in / default OFF (the split the owner confirmed).*
+  - **(A) Surface.** ONE non-activating, hover-expanding capsule (existing island-panel
+    pattern; rework `NowPlayingChip`/`NowPlayingPopup`) that **rotates to the
+    highest-priority live activity**: music when playing → Focus/pomodoro when running
+    (`FocusTimerModel` 25/5/15 + cycle dots) → next event Countdown (`EventCountdownStore`)
+    → Timer/Stopwatch (`CountdownTimerModel`/`StopwatchModel`) → a live clock. Priority +
+    rotation are a **pure `LiveActivityPolicy` in Core** + tests; rendering reuses
+    `DockStripView`/island frames. **Live feed time**: the island ticks (clock/countdown),
+    not just a static state.
+  - **(B) Live event feed.** In-app alerts on the same island for KatiKati's own events —
+    Focus phase change, Timer/Stopwatch done, event Countdown reached, Reminder/Alarm due,
+    Weather severe alert. **Two tiers split by permission:** (1) *in-app toast/banner on the
+    island* — no permission, **default ON** (this is the "default to B" the owner asked for);
+    (2) *OS Notification Center banners* via `UNUserNotificationCenter` — a NEW TCC/App-Store
+    surface, **opt-in, default OFF, never silent** (same posture as the locked weather-alert
+    decision, 4d).
+  - **Data surface.** `NowPlayingService` today exposes only `isPlaying/title/artist` +
+    play/pause (private MediaRemote `dlopen`). For a real island add artwork, duration,
+    progress, prev/next via extra `kMRMediaRemoteNowPlayingInfo*` keys + `kMRNext/kMRPrevious`
+    — private API, keep §5.3 isolation + `#available` + PR-flag discipline, soft-fail as
+    today. Priors (study only): SplitBar-old NowPlaying flyout (§5d reopened as eyeball
+    prior for this slice, never code).
+- **8c — Shelf redesign** — tungsten-core shelf rework — explicit behavior-frozen
+  exception slice, witness tests per §4 rules 2/5. **Decision (owner 2026-10-12) = option 1,
+  clarify in place.** Keep the drop-to-park stash behavior (behavior-frozen); redesign the
+  icon + hover label + empty-state hint so it's self-explanatory. Fixes "I don't know what it
+  does" with no new capability — lowest risk. *Parked (not chosen):* (2) consolidate the edge
+  **Clipboard** flyout (`ClipboardHistory`/`ClipboardMonitor`/`ClipboardFlyoutView`) into the
+  Shelf — **removes duplication** but is a 7A-adjacent move + a memory/Keychain surface to
+  relocate; (3) common folders — **advise against**, duplicates first-class **Pinned Folders**
+  (`PinnedFolderStore`/`PinnedFolderChip`; Downloads already seeded).
+- **8d — Downloads chip** *(new, owner-gated)*: a polished **passive Downloads** folder chip
+  (icon already spec'd in 4g as a "tray + down-arrow") **plus** (owner 2026-10-12) a lightweight
+  **"downloads in progress"** indicator watching `~/Downloads` for `.download`/`.crdownload`
+  partials — dependency-free, no *new* TCC (the Downloads read is already seeded on fresh
+  install; its first open may raise the system access prompt, same posture as Pinned Folders).
+  *User-friendly flag (owner directive):* Safari `.download` / Chrome `.crdownload` are opaque
+  blobs, so a real percentage is unreliable — **default the chip to a reliable "N downloads
+  active" pulse** (partials actively being written, via a dir monitor + mtime heuristic) rather
+  than a fake progress bar; a true % is a stretch goal only if a robust parse emerges.
+  **Torrents / embedded manager (hop / harbor / Motrix) — owner WANTS this; deferred to its own
+  mini-plan, analyzed when we get there (not dropped).** Landmines to resolve there: native Swift
+  app under the one-dependency rule (Sparkle only) → embedding a Rust/Electron engine needs an
+  explicit owner sign-off to relax that rule + a license check; EdgeDeckBar lists torrents as
+  excluded; a real engine = large subsystem + TCC. The only in-theme, dependency-free option is a
+  "launch an installed manager" shell-out.
+- **Build sequence (owner 2026-10-12: "start 8b, then the next hardest, then the rest"):
+  8b → 8d → 8a → 8c.**
+  - **8b first** — flagship, hardest, owner-chosen start (Live Island + live feed).
+  - **8d second (next hardest)** — new filesystem-watch subsystem + opaque partial-file
+    progress parsing + a `~/Downloads` read that can raise the access prompt (landmines above).
+  - **8a third** — drawer content sections; most data plumbing already exists from 7B
+    (`DocumentUsageStore` most-used, `LauncherAppIndex.recentlyInstalled`, `NSWorkspace`
+    launch/quit notifications for recently-closed) → medium effort, reuse-heavy.
+  - **8c last (easiest)** — visuals-only, behavior-frozen.
+  - *Adjustable:* 8a and 8d could swap if you'd rather clear the drawer before the Downloads
+    subsystem; every slice still ships + gates independently.
+- **Verify each**: tungsten gate green + drawer/shelf/Live-Island behavior witnesses +
+  `LiveActivityPolicy` pure-logic tests + localization ×12. Live-island rotation +
+  idle-CPU ≤ island baseline + ε (Instruments number in the PR), same gate as 9c/9e.
+
 - **8a — Drawer redesign**: most-used / recently-closed / recently-added sections inside
   the drawer. Owner gates the design (mini-plan when activated). Priors (study only):
   DockBar Start Menu Most-Used via Spotlight + pinned drag-drop editor + AppBeBack
@@ -1936,6 +2012,28 @@ Reference priors are eyeball-only study rows (§5b rule) — code written fresh.
 - **8c — Shelf redesign**: tungsten-core shelf rework — explicit behavior-frozen
   exception slice, witness tests per §4 rules 2/5.
 - **Verify each**: tungsten gate green + drawer/shelf behavior witnesses + localization ×12.
+
+**Phase 8 check log:**
+- 2026-10-12 · **8b-1 LiveActivityPolicy (pure Core decision engine) — DONE.** First build
+  slice of 8b-A. New `Core/Support/LiveActivityPolicy.swift`: a pure, total, Foundation-only
+  resolver that picks the single highest-priority live activity from a snapshot of every
+  candidate — music(playing) → focus/running → countdown(within `countdownHorizonDays`, default
+  7) → timer/running → stopwatch/running → clock(fallback) — returning a typed `LiveActivity`
+  (`kind` + per-kind content). No UI, no MediaRemote, no EventKit, no timers, no notifications,
+  no user-facing strings (kind→label/SF-Symbol mapping is left to the UI layer, preserving the
+  ×12 localization gate). The app layer will assemble `LiveActivitySnapshot` from the existing
+  services (`NowPlayingService`, `FocusTimerController`, `EventCountdownStore`,
+  `CountdownTimerController`, `StopwatchController`). New `Tests/Unit/LiveActivityPolicyTests.swift`
+  (12 tests): empty→clock, inactive-payload fall-through, full priority ordering (music beats
+  all; paused music hands off; focus beats countdown/timer/stopwatch), countdown horizon
+  boundaries (0 and horizon inclusive, +1 and −1 excluded), timer>stopwatch>clock, finished
+  timer falls back. **Gate:** full `xcodebuild test` **1,925 tests, 0 failures, TEST SUCCEEDED**
+  (1913 baseline + 12 new); `check_localization.py` ✅ (522 keys ×12 — unchanged, no new keys);
+  `check_debug_switches.py` ✅ (79/79 — unchanged); `check_availability_warnings.py` ✅ (pure
+  Foundation, no new availability surface). `project.pbxproj`: +8 additive lines (file-ref +
+  build-file + both Sources phases, app + test), single-anchor, §1.7a. Next: 8b-2 wires
+  `NowPlayingService` (artwork/duration/progress/prev-next via more `kMRMediaRemote*` keys) and
+  builds the snapshot source; 8b-3 reworks `NowPlayingChip`/popup into the morphing capsule.
 
 ### Phase 9 — Strip semantics, interaction & summoning (deferred: mini-plan each)
 

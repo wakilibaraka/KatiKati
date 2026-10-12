@@ -2,6 +2,15 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 8 in progress
+
+### Added
+- **Live Island — decision engine (8b-1):** new pure `LiveActivityPolicy` (Core) that decides which
+  single live activity the Now-Playing island shows, in priority order — music → Focus/pomodoro →
+  event countdown (within 7 days) → countdown timer → stopwatch → live clock — with unit tests.
+  This is the first internal step of the redesigned Now-Playing "Live Island"; the visible capsule
+  and event feed land in following slices.
+
 ## [0.17.0-beta.2] — 2026-10-12
 
 ### Added
