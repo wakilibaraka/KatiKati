@@ -145,6 +145,9 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var notchIslandEnabled: Bool
     /// Where event notifications show — exactly one place by default, never duplicated (8b-5).
     @Published private(set) var liveEventRoute: LiveEventRoute
+    /// OS Notification Center banners for Live Island events (8b-4c). Opt-in, default OFF; only fires
+    /// when no in-app surface showed the event.
+    @Published private(set) var liveEventOSBanners: Bool
     /// 任务条尺寸档位。面板几何与条内所有 chip 尺寸都由它派生。
     @Published private(set) var dockPanelHeight: DockPanelHeight
     /// 任务条布局模式（windows / split3 / split4 / centered）。缺键 = windows。
@@ -288,6 +291,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.dockIslandEnabled: true,
             Keys.notchIslandEnabled: false,
             Keys.liveEventRoute: LiveEventRoute.automatic.rawValue,
+            Keys.liveEventOSBanners: false,
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
             Keys.launcherScroll: LauncherScrollDirection.default.rawValue,
@@ -316,6 +320,7 @@ final class AppSettingsStore: ObservableObject {
         dockIslandEnabled = defaults.bool(forKey: Keys.dockIslandEnabled)
         notchIslandEnabled = defaults.bool(forKey: Keys.notchIslandEnabled)
         liveEventRoute = LiveEventRoute(rawValue: defaults.string(forKey: Keys.liveEventRoute) ?? "") ?? .automatic
+        liveEventOSBanners = defaults.bool(forKey: Keys.liveEventOSBanners)
         barLayoutMode = BarLayoutMode(rawValue: defaults.string(forKey: Keys.barLayoutMode) ?? "") ?? .split3
         let storedCentered = Self.storedNumericValue(defaults.object(forKey: Keys.centeredWidth)) ?? Double(Self.defaultCenteredWidth)
         centeredWidth = CGFloat(min(max(storedCentered, Double(Self.minimumCenteredWidth)), Double(Self.maximumCenteredWidth)))
@@ -867,6 +872,12 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.notchIslandEnabled)
     }
 
+    func setLiveEventOSBanners(_ value: Bool) {
+        guard liveEventOSBanners != value else { return }
+        liveEventOSBanners = value
+        defaults.set(value, forKey: Keys.liveEventOSBanners)
+    }
+
     func setLiveEventRoute(_ value: LiveEventRoute) {
         guard liveEventRoute != value else { return }
         liveEventRoute = value
@@ -1059,6 +1070,7 @@ private enum Keys {
     static let dockIslandEnabled = "com.katikati.liveIsland.dock"
     static let notchIslandEnabled = "com.katikati.liveIsland.notch"
     static let liveEventRoute = "com.katikati.liveIsland.eventRoute"
+    static let liveEventOSBanners = "com.katikati.liveIsland.osBanners"
 
     /// Continuous bar height in points (since the drag-to-resize release).
     static let dockPanelHeight = "com.katikati.dockPanelHeight"

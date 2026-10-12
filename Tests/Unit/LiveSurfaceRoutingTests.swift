@@ -140,4 +140,35 @@ final class LiveSurfaceRoutingTests: XCTestCase {
         XCTAssertEqual(g.users, 0)
         XCTAssertTrue(g.retain(), "can start again after a full stop")
     }
+
+    // MARK: - OS banner fallback
+
+    func testBannerPostedOnlyWhenNoInAppSurfaceUsable() {
+        var d = LiveEventDispatcher()
+        XCTAssertEqual(d.plan(for: event, route: .automatic, usable: [], bannersEnabled: true, now: t0), .init(surfaces: [], postBanner: true))
+    }
+
+    func testBannerNeverAccompaniesAnInAppToast() {
+        var d = LiveEventDispatcher()
+        XCTAssertEqual(d.plan(for: event, route: .automatic, usable: both, bannersEnabled: true, now: t0), .init(surfaces: [.notch], postBanner: false))
+    }
+
+    /// The in-app repeat inside cooldown must not leak out as a banner.
+    func testInAppRepeatIsNotRebannered() {
+        var d = LiveEventDispatcher()
+        _ = d.plan(for: event, route: .dock, usable: both, bannersEnabled: true, now: t0)
+        XCTAssertEqual(d.plan(for: event, route: .dock, usable: both, bannersEnabled: true, now: t0.addingTimeInterval(1)), .init(surfaces: [], postBanner: false))
+    }
+
+    func testBannerOptInOffAndRoutedOffNeverPost() {
+        var d = LiveEventDispatcher()
+        XCTAssertFalse(d.plan(for: event, route: .automatic, usable: [], bannersEnabled: false, now: t0).postBanner)
+        XCTAssertFalse(d.plan(for: event, route: .off, usable: [], bannersEnabled: true, now: t0).postBanner)
+    }
+
+    func testBannerRepeatInsideCooldownDropped() {
+        var d = LiveEventDispatcher()
+        XCTAssertTrue(d.plan(for: event, route: .automatic, usable: [], bannersEnabled: true, now: t0).postBanner)
+        XCTAssertFalse(d.plan(for: event, route: .automatic, usable: [], bannersEnabled: true, now: t0.addingTimeInterval(2)).postBanner)
+    }
 }

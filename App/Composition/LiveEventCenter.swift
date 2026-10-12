@@ -44,6 +44,9 @@ final class LiveEventCenter {
     /// Settings change takes effect immediately. Defaults keep the pre-8b-5 behaviour (dock only).
     var isSurfaceEnabled: (LiveSurface) -> Bool = { $0 == .dock }
     var route: () -> LiveEventRoute = { .automatic }
+    /// Opt-in OS banner tier (8b-4c). Default off; the poster also asks for permission lazily.
+    var osBannersEnabled: () -> Bool = { false }
+    private let banners = LiveEventBannerPoster()
     private var dispatcher = LiveEventDispatcher()
 
     /// The last snapshot, so the next change can be diffed against it. Seeded at `start()` with the
@@ -96,9 +99,12 @@ final class LiveEventCenter {
     @discardableResult
     func deliver(_ event: LiveEvent, now: Date) -> Set<LiveSurface> {
         let usable = Set(sinks.keys.filter { isSurfaceEnabled($0) })
-        let targets = dispatcher.targets(for: event, route: route(), usable: usable, now: now)
-        for surface in targets { sinks[surface]?.show(event) }
-        return targets
+        let plan = dispatcher.plan(for: event, route: route(), usable: usable, bannersEnabled: osBannersEnabled(), now: now)
+        for surface in plan.surfaces { sinks[surface]?.show(event) }
+        // Banner only as a fallback for "no in-app surface can show it" — never doubles a toast, and a
+        // cooldown-dropped repeat of a shown event is not re-bannered.
+        if plan.postBanner { banners.post(event) }
+        return plan.surfaces
     }
 }
 

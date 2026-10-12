@@ -62,6 +62,25 @@ struct LiveEventDispatcher {
 
     /// The surface(s) that should show `event` now — empty when routed off, nothing is usable, or the
     /// event is a repeat inside the cooldown.
+    private var bannerDeduper = LiveEventDeduper()
+
+    /// The full decision for one event: in-app targets, or — only when no in-app surface can show it —
+    /// whether to fall back to an OS banner. A repeat that an in-app surface already showed inside the
+    /// cooldown yields neither (it must not turn into a banner).
+    struct Plan: Equatable {
+        var surfaces: Set<LiveSurface>
+        var postBanner: Bool
+    }
+
+    mutating func plan(for event: LiveEvent, route: LiveEventRoute, usable: Set<LiveSurface>, bannersEnabled: Bool, now: Date) -> Plan {
+        if !LiveSurfaceRouting.targets(route: route, usable: usable).isEmpty {
+            return Plan(surfaces: targets(for: event, route: route, usable: usable, now: now), postBanner: false)
+        }
+        let banner = LiveSurfaceRouting.shouldPostOSBanner(bannersEnabled: bannersEnabled, route: route, shownOn: [])
+            && bannerDeduper.shouldDeliver(event, now: now)
+        return Plan(surfaces: [], postBanner: banner)
+    }
+
     mutating func targets(for event: LiveEvent, route: LiveEventRoute, usable: Set<LiveSurface>, now: Date) -> Set<LiveSurface> {
         let targets = LiveSurfaceRouting.targets(route: route, usable: usable)
         guard !targets.isEmpty, deduper.shouldDeliver(event, now: now) else { return [] }

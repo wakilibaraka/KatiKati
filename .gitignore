@@ -42,3 +42,4 @@ Docs/Archive/Engineering/
 !Docs/Archive/Planning/*.md
 Docs/Archive/Samples/
 *.log
+.freebuff/

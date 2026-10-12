@@ -283,6 +283,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .notch: return self?.settingsStore.notchIslandEnabled ?? false
                 }
             }
+            liveEventCenter.osBannersEnabled = { [weak self] in self?.settingsStore.liveEventOSBanners ?? false }
             liveEventCenter.route = { [weak self] in self?.settingsStore.liveEventRoute ?? .automatic }
             liveEventCenter.start()
 

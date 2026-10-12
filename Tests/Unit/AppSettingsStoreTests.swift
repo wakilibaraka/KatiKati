@@ -24,7 +24,9 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertTrue(store.dockIslandEnabled)
         XCTAssertFalse(store.notchIslandEnabled)
         XCTAssertEqual(store.liveEventRoute, .automatic)
+        XCTAssertFalse(store.liveEventOSBanners, "OS banners are opt-in")
 
+        store.setLiveEventOSBanners(true)
         store.setDockIslandEnabled(false)
         store.setNotchIslandEnabled(true)
         store.setLiveEventRoute(.both)
@@ -32,6 +34,7 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertFalse(reloaded.dockIslandEnabled)
         XCTAssertTrue(reloaded.notchIslandEnabled)
         XCTAssertEqual(reloaded.liveEventRoute, .both)
+        XCTAssertTrue(reloaded.liveEventOSBanners)
     }
 
     /// An unknown stored route string must fall back to automatic, never crash or silence events.
