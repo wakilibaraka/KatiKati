@@ -1803,9 +1803,7 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     private func makeDefaults() -> UserDefaults {
-        let suiteName = "com.katikati.tests.\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suiteName)!
-        defaults.removePersistentDomain(forName: suiteName)
+        let defaults = TestDefaults.make("com.katikati.tests", for: self)
         return defaults
     }
 }

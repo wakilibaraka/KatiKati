@@ -12,9 +12,7 @@ final class MessagingWindowOrderingTests: XCTestCase {
     }
 
     private func makeStore(timeBox: TimeBox) -> StripOrderStore {
-        let suite = "test-msg-order-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
-        defaults.removePersistentDomain(forName: suite)
+        let defaults = TestDefaults.make("test-msg-order", for: self)
         return StripOrderStore(defaults: defaults, now: { timeBox.time })
     }
 

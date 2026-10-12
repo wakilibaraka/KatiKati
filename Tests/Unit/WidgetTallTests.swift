@@ -124,19 +124,19 @@ final class WidgetTallTests: XCTestCase {
 
 final class WidgetPanelSettingsTests: XCTestCase {
     func testFreshInstallsGetTallAndStoredChoicesAreKept() {
-        let suite = UserDefaults(suiteName: "widget-layout-\(UUID().uuidString)")!
+        let suite = TestDefaults.make("widget-layout", for: self)
         XCTAssertEqual(CalendarPanelLayout.resolve(defaults: suite), .tall)
         XCTAssertEqual(suite.string(forKey: CalendarPanelLayout.storageKey), "tall", "default is persisted")
         suite.set("ipad", forKey: CalendarPanelLayout.storageKey)
         XCTAssertEqual(CalendarPanelLayout.resolve(defaults: suite), .ipad)
 
-        let legacy = UserDefaults(suiteName: "widget-layout-\(UUID().uuidString)")!
+        let legacy = TestDefaults.make("widget-layout", for: self)
         legacy.set("compact420", forKey: "com.katikati.calendar.panelPreset")
         XCTAssertEqual(CalendarPanelLayout.resolve(defaults: legacy), .mac, "old size preset still maps to the old Mac layout")
     }
 
     func testAnimationPresetDefaultsStoredValueAndReduceMotion() {
-        let suite = UserDefaults(suiteName: "widget-anim-\(UUID().uuidString)")!
+        let suite = TestDefaults.make("widget-anim", for: self)
         XCTAssertEqual(WidgetAnimationPreset.resolve(defaults: suite, reduceMotion: false), .slide)
         suite.set("springPop", forKey: WidgetAnimationPreset.storageKey)
         XCTAssertEqual(WidgetAnimationPreset.resolve(defaults: suite, reduceMotion: false), .springPop)

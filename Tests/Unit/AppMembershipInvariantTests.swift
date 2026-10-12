@@ -30,19 +30,12 @@ final class AppMembershipInvariantTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        suite = "test-membership-invariants-\(UUID().uuidString)"
-        defaults = UserDefaults(suiteName: suite)!
-        defaults.removePersistentDomain(forName: suite)
+        (defaults, suite) = TestDefaults.makeWithSuite("test-membership-invariants", for: self)
         for (key, value) in Self.frozenSeed { defaults.set(value, forKey: key) }
         kept = KeptAppStore(defaults: defaults)
         drawer = DrawerStore(defaults: defaults)
         messaging = MessagingAppStore(defaults: defaults)
         controller = AppMembershipController(keptAppStore: kept, drawerStore: drawer, messagingStore: messaging)
-    }
-
-    override func tearDown() {
-        defaults.removePersistentDomain(forName: suite)
-        super.tearDown()
     }
 
     private func assertInvariants(_ step: String, file: StaticString = #filePath, line: UInt = #line) {

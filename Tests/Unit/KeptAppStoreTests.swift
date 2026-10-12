@@ -6,9 +6,7 @@ final class KeptAppStoreTests: XCTestCase {
 
     /// 默认把访达播种标记先置真，让迁移用例只考察迁移本身；播种行为由专门的用例覆盖。
     private func makeDefaults(finderSeeded: Bool = true) -> UserDefaults {
-        let suite = "test-kept-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
-        defaults.removePersistentDomain(forName: suite)
+        let defaults = TestDefaults.make("test-kept", for: self)
         if finderSeeded { defaults.set(true, forKey: KeptAppStore.finderSeedKey) }
         return defaults
     }

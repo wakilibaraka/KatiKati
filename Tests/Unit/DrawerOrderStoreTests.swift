@@ -5,9 +5,7 @@ import XCTest
 final class DrawerOrderStoreTests: XCTestCase {
 
     private func makeDefaults() -> UserDefaults {
-        let suite = "test-drawer-order-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
-        defaults.removePersistentDomain(forName: suite)
+        let defaults = TestDefaults.make("test-drawer-order", for: self)
         return defaults
     }
 

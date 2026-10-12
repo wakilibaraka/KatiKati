@@ -278,6 +278,7 @@
 		A00000000000000000009541 /* AppMembershipProjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009540 /* AppMembershipProjectionTests.swift */; };
 		A00000000000000000009551 /* AppMembershipControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009550 /* AppMembershipControllerTests.swift */; };
 		A00000000000000000009561 /* KeptAppPositionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009560 /* KeptAppPositionTests.swift */; };
+		A0000000000000000000ABC2 /* TestDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000ABC1 /* TestDefaults.swift */; };
 		A00000000000000000009571 /* DrawerOrderStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009570 /* DrawerOrderStoreTests.swift */; };
 		A00000000000000000009581 /* AppMembershipMenuPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009580 /* AppMembershipMenuPlan.swift */; };
 		A00000000000000000009582 /* AppMembershipMenuPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009580 /* AppMembershipMenuPlan.swift */; };
@@ -941,6 +942,7 @@
 		A00000000000000000009540 /* AppMembershipProjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMembershipProjectionTests.swift; sourceTree = "<group>"; };
 		A00000000000000000009550 /* AppMembershipControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMembershipControllerTests.swift; sourceTree = "<group>"; };
 		A00000000000000000009560 /* KeptAppPositionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeptAppPositionTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000ABC1 /* TestDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestDefaults.swift; sourceTree = "<group>"; };
 		A00000000000000000009570 /* DrawerOrderStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawerOrderStoreTests.swift; sourceTree = "<group>"; };
 		A00000000000000000009580 /* AppMembershipMenuPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMembershipMenuPlan.swift; sourceTree = "<group>"; };
 		A00000000000000000009590 /* AppMembershipMenuPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMembershipMenuPlanTests.swift; sourceTree = "<group>"; };
@@ -1723,6 +1725,7 @@
 				A00000000000000000009370 /* FolderChipDropZoneTests.swift */,
 				A00000000000000000009530 /* KeptAppStoreTests.swift */,
 				A00000000000000000009560 /* KeptAppPositionTests.swift */,
+				A0000000000000000000ABC1 /* TestDefaults.swift */,
 				A00000000000000000009570 /* DrawerOrderStoreTests.swift */,
 				A00000000000000000009770 /* MessagingWindowOrderingTests.swift */,
 				A00000000000000000009540 /* AppMembershipProjectionTests.swift */,
@@ -2663,6 +2666,7 @@
 				A00000000000000000009541 /* AppMembershipProjectionTests.swift in Sources */,
 				A00000000000000000009551 /* AppMembershipControllerTests.swift in Sources */,
 				A00000000000000000009561 /* KeptAppPositionTests.swift in Sources */,
+				A0000000000000000000ABC2 /* TestDefaults.swift in Sources */,
 				A00000000000000000009571 /* DrawerOrderStoreTests.swift in Sources */,
 				A00000000000000000007012 /* DrawerOrderStore.swift in Sources */,
 				A00000000000000000009771 /* MessagingWindowOrderingTests.swift in Sources */,

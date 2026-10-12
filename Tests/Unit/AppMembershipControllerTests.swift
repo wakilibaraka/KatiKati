@@ -10,9 +10,7 @@ final class AppMembershipControllerTests: XCTestCase {
     private var controller: AppMembershipController!
 
     private func makeDefaults() -> UserDefaults {
-        let suite = "test-membership-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
-        defaults.removePersistentDomain(forName: suite)
+        let defaults = TestDefaults.make("test-membership", for: self)
         return defaults
     }
 

@@ -12,9 +12,7 @@ final class WindowInventoryAnomalyLogTests: XCTestCase {
     }
 
     func testEnablementDefaultsOffAndEnvironmentOverridesDefaults() {
-        let suite = "WindowInventoryAnomalyLogTests.\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
-        defer { defaults.removePersistentDomain(forName: suite) }
+        let defaults = TestDefaults.make("WindowInventoryAnomalyLogTests", for: self)
 
         XCTAssertFalse(WindowInventoryLogConfiguration.resolvedEnabled(environment: [:], defaults: defaults))
         defaults.set(false, forKey: WindowInventoryLogConfiguration.defaultsKey)

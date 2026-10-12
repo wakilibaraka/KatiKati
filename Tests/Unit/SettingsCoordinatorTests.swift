@@ -372,9 +372,7 @@ final class SettingsCoordinatorTests: XCTestCase {
         launchAtLogin: Bool = false,
         nativeDelay: Double = AppSettingsStore.defaultNativeDockAutoHideDelay
     ) -> AppSettingsStore {
-        let suite = "SettingsCoordinatorTests.\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
-        defaults.removePersistentDomain(forName: suite)
+        let defaults = TestDefaults.make("SettingsCoordinatorTests", for: self)
         defaults.set(launchAtLogin, forKey: "com.katikati.launchAtLogin")
         defaults.set(nativeDelay, forKey: "com.katikati.autoHide.nativeDock.delay")
         return AppSettingsStore(defaults: defaults)
