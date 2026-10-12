@@ -21,7 +21,7 @@
 
 1. Layout preserved: `App/` (Composition/Entry/Scenes) · `Core/` · `Platform/` ·
    `UI/` · `Tools/WindowLab/` · `Tests/` · `Scripts/` · `Resources/` ·
-   `.github/workflows/` · `Docs/Archive/Releases/`.
+   `.github/workflows/` · `Docs/Releases/`.
 2. Target graph preserved: app + unit tests + `window-lab` CLI. Only names change.
 3. Downward-only folder rule preserved: `Core` (no AppKit, no AX) → `Platform`
    (system adapters) → `App` (composition + UI). `Tools/WindowLab` not shipped.

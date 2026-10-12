@@ -926,7 +926,7 @@ owner at every doubt (STANDING_RULES §1.4).*
   (ii) the H/L highs-lows line from the old popup was dropped to stay faithful to the
   card sample — one word puts it back; (iii) the 3420×145 paste was a **Gemini chat
   screenshot** (OCR), not a sample — recorded so nobody chases it; samples copied to
-  `refs/weather/`; (iv) illustrations are drawn, not pixel-parity with the stock art
+  `Docs/Archive/Planning/refs/weather/`; (iv) illustrations are drawn, not pixel-parity with the stock art
   (owner choice);  (v) **no visual proof yet** — live screenshots are 4h proof (d).
 - 2026-10-09 · **Decision 8 locked + plan re-cut (no code change this step):** the bar's
   right end becomes **one combined chip showing only the clock** (owner grill: “clock for

@@ -35,7 +35,7 @@
   References:
     - https://sparkle-project.org/documentation/publishing/
     - STANDING_RULES.md §3.5 (one dependency: Sparkle, pinned), §5 (trademark: no tungsten feed URLs)
-    - PHASE_0_CHECKLIST.md slice 0b
+    - Docs/Archive/Planning/PHASE_0_CHECKLIST.md slice 0b
 -->
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>

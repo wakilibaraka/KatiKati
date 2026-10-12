@@ -2,6 +2,8 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [0.17.0-beta.1] — 2026-10-12 — Phase 7: edge decks, launcher, Pinboard
+
 ### Added
 - **Phase 7B launcher, Pinboard and shortcuts (0.17.0 beta):**
   - **Launcher:** one app grid — Most Used (your launches first; Settings, Safari, Terminal, Messages, Finder, Mail and Calendar fill the gaps),
@@ -23,6 +25,11 @@ All notable changes to KatiKati are documented in this file.
 - **Phase 7A-1 edge-bar foundation:** `EdgeSlotSet` slot keys, `PanelGeometry.edgeBarTargetFrame`,
   `com.katikati.edge.*` settings (off by default), `DOCK_EDGE_BARS` switch and a placeholder
   edge-bar panel hidden together with the island bar in fullscreen. No visible content yet.
+
+### Removed
+- **Feedback and License tabs.** Nothing is sent to the upstream project's servers any more; the in-app feedback form,
+  founding-user mailing list and license activation are gone. Report problems with GitHub issues (Settings > About > Diagnostic Info > Copy
+  gives the details to paste). Archived Tungsten Edge release notes, stray patch scripts and upstream community links were removed from the repo.
 
 ### Changed
 - **Standing Rules §1 new items (owner sign-off 2026-10-09):** *per-step notes, always* —

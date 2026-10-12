@@ -142,7 +142,7 @@
 1. **Every commit message:** what changed, why (plan section/issue), how verified
    (gate + named check), decisions taken with owner answers summarized.
 2. **`CHANGELOG.md` in the same PR** as any user-visible change, tungsten
-   release-note style, archived per version under `Docs/Archive/Releases/`.
+   release-note style, kept per version under `Docs/Releases/`.
 3. **HYBRID_PLAN stays the map.** Implementation diverging from plan → update the
    plan section in the same PR. Superseded text struck through with date, not
    deleted, until the phase closes.
