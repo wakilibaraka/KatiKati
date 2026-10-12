@@ -2263,7 +2263,7 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
   report. Not live-checked: music playing, event toast, Shelf tab with items. No source-app badge
   (MediaRemote bundle ID not read). Calendar access is requested on first open of the Full skin. 2021 tests green.
 
-### Phase 9 — Strip semantics, interaction & summoning — BUILT 2026-10-13 (9a–9e; live checks of 9a–9c pending Accessibility; see check-log)
+### Phase 9 — Strip semantics, interaction & summoning — DONE 2026-10-13 (9a–9e; owner sign-off; Hyper firing and custom-key shortcuts not live-tested, see check-log)
 
 - **9a — Icons / icons+text logic, multi-window of same app**: display-mode rules for
   window chips, incl. grouping + cycling multiple windows of one app. Priors (study only):
