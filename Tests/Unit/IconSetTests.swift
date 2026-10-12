@@ -14,9 +14,7 @@ final class IconSetTests: XCTestCase {
 
     @MainActor
     func testStorePersistsIconSetIndependentlyOfTheme() {
-        let suite = "IconSetTests.\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
-        defer { defaults.removePersistentDomain(forName: suite) }
+        let defaults = TestDefaults.make("IconSetTests", for: self)
         let store = AppSettingsStore(defaults: defaults)
         XCTAssertEqual(store.iconSet, .modern)
         store.setThemeMaterial(.deepOcean)

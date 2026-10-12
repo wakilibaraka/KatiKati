@@ -11,9 +11,7 @@ final class KeptAppPositionTests: XCTestCase {
     }
 
     private func makeStore(timeBox: TimeBox, keptIDs: Set<String> = []) -> StripOrderStore {
-        let suite = "test-kept-pos-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
-        defaults.removePersistentDomain(forName: suite)
+        let defaults = TestDefaults.make("test-kept-pos", for: self)
         return StripOrderStore(
             defaults: defaults,
             now: { timeBox.time },
@@ -170,9 +168,7 @@ final class KeptAppPositionTests: XCTestCase {
     // MARK: - Cross-boot stable kept app blocks
 
     func testDifferentBootRestoresRunningKeptAppsAsStableBlocks() {
-        let suite = "test-kept-cross-boot-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
-        defaults.removePersistentDomain(forName: suite)
+        let defaults = TestDefaults.make("test-kept-cross-boot", for: self)
         defaults.set(["com.b", "com.a"], forKey: "stripKeptAppOrderV1")
         defaults.set(["tabgrp-old-a", "tabgrp-old-b"], forKey: "stripLiveOrder")
         defaults.set(1, forKey: "stripLiveOrderBootTime")
@@ -199,8 +195,7 @@ final class KeptAppPositionTests: XCTestCase {
     }
 
     func testColdStartKeepsMessagingPopoutAheadOfStableKeptBlocks() {
-        let suite = "test-kept-message-head-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
+        let defaults = TestDefaults.make("test-kept-message-head", for: self)
         defaults.set(["com.kept"], forKey: "stripKeptAppOrderV1")
         let store = StripOrderStore(
             defaults: defaults,
@@ -225,9 +220,7 @@ final class KeptAppPositionTests: XCTestCase {
     /// 晚到的窗口必须走同一条排名规则——否则「跨重启保留应用顺序固定」对**开机时已在运行**的
     /// 应用完全无效（它们会掉到末尾）。这条锁的就是那个时序。
     func testStableRankStillAppliesToWindowsArrivingAfterTheFirstSync() {
-        let suite = "test-kept-late-arrival-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
-        defaults.removePersistentDomain(forName: suite)
+        let defaults = TestDefaults.make("test-kept-late-arrival", for: self)
         defaults.set(["com.a", "com.b"], forKey: "stripKeptAppOrderV1")
         defaults.set(["tabgrp-old"], forKey: "stripLiveOrder")
         defaults.set(1, forKey: "stripLiveOrderBootTime")
@@ -256,8 +249,7 @@ final class KeptAppPositionTests: XCTestCase {
     }
 
     func testSameBootKeepsExactChipOrderInsteadOfRebuildingBlocks() {
-        let suite = "test-kept-same-boot-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
+        let defaults = TestDefaults.make("test-kept-same-boot", for: self)
         defaults.set(["com.kept"], forKey: "stripKeptAppOrderV1")
         defaults.set(["tabgrp-temp", "tabgrp-kept"], forKey: "stripLiveOrder")
         defaults.set(7, forKey: "stripLiveOrderBootTime")
@@ -277,8 +269,7 @@ final class KeptAppPositionTests: XCTestCase {
     }
 
     func testStableOrderMigratesLegacyPlaceholdersAndAppendsKeptStoreOrder() {
-        let suite = "test-kept-migration-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
+        let defaults = TestDefaults.make("test-kept-migration", for: self)
         defaults.set(["tabgrp-old", "app-com.b", "app-com.a"], forKey: "stripLiveOrder")
         let store = StripOrderStore(
             defaults: defaults,
@@ -290,8 +281,7 @@ final class KeptAppPositionTests: XCTestCase {
     }
 
     func testExistingEmptyStableArchiveIsRepairedBeforeFirstColdRender() {
-        let suite = "test-kept-empty-stable-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
+        let defaults = TestDefaults.make("test-kept-empty-stable", for: self)
         defaults.set([String](), forKey: "stripKeptAppOrderV1")
         defaults.set(1, forKey: "stripLiveOrderBootTime")
         let store = StripOrderStore(
@@ -309,8 +299,7 @@ final class KeptAppPositionTests: XCTestCase {
     func testStableOrderFollowsDragAndPrunesCancelledKeep() {
         final class MembershipBox { var order = ["com.a", "com.b"] }
         let membership = MembershipBox()
-        let suite = "test-kept-stable-drag-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
+        let defaults = TestDefaults.make("test-kept-stable-drag", for: self)
         defaults.set(membership.order, forKey: "stripKeptAppOrderV1")
         let store = StripOrderStore(
             defaults: defaults,

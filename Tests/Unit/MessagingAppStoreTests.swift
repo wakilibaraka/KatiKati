@@ -4,9 +4,7 @@ import XCTest
 final class MessagingAppStoreTests: XCTestCase {
 
     private func makeDefaults() -> UserDefaults {
-        let suite = "test-messaging-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
-        defaults.removePersistentDomain(forName: suite)
+        let defaults = TestDefaults.make("test-messaging", for: self)
         return defaults
     }
 

@@ -21,9 +21,7 @@ final class DragControllerConversionTests: XCTestCase {
     override func setUp() {
         super.setUp()
         _ = NSApplication.shared   // 无宿主 app 的测试 bundle 里创建 NSPanel 前先起 AppKit
-        let suite = "test-dragconv-\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suite)!
-        defaults.removePersistentDomain(forName: suite)
+        let defaults = TestDefaults.make("test-dragconv", for: self)
         drawer = DrawerStore(defaults: defaults)
         kept = KeptAppStore(defaults: defaults)
         messaging = MessagingAppStore(defaults: defaults)
