@@ -173,6 +173,10 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     case edgeBars = "DOCK_EDGE_BARS"
     /// Phase 7A-D: start every deck already fanned (=1) so the fan can be inspected without a pointer; default off.
     case edgeFan = "DOCK_EDGE_FAN"
+    /// Phase 8b-4B: the Live Island's in-app event toast (timer done / focus turn / stopwatch stopped /
+    /// countdown reached today / track change). Default **on**; `=0` silences the toast without
+    /// touching the island's own rendering.
+    case liveEvents = "DOCK_LIVE_EVENTS"
 
     var kind: Kind {
         switch self {
@@ -184,7 +188,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .spaceIntent, .fullscreenIntent, .fullscreenSlsVerdict, .spaceMembershipRepair,
              .overlaySpace, .scrollReverser, .windowLift, .windowLiftAnim, .windowLiftTiles,
              .menuHoverSuspend, .hoverMonitorLean, .stripHoverPoll, .resizeCursor, .chipPressDown, .titleSettle,
-             .finderReopenEvent:
+             .finderReopenEvent, .liveEvents:
             return .killSwitch
         case .displayTrace, .launchTrace, .chipProbe, .clickTrace,
              .hoverTrace, .edgehoverTrace, .stripWheelTrace, .chipAnimTrace, .labelProbe,

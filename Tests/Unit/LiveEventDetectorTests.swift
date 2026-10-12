@@ -138,4 +138,30 @@ final class LiveEventDetectorTests: XCTestCase {
         XCTAssertEqual(LiveEventDetector.events(from: before, to: after),
                        [.timerFinished(total: 300), .trackChanged(title: "B", artist: nil)])
     }
+
+    // MARK: - Presentation mapping (8b-4B)
+
+    /// The toast's symbol + data-derived detail per event. The headline is localized, so it is not
+    /// asserted here (that would pin one language); the symbol and the numbers are deterministic.
+
+    func testPresentationSymbolsAndDetails() {
+        XCTAssertEqual(LiveEventPresentation(.timerFinished(total: 300)).symbol, "timer")
+        XCTAssertEqual(LiveEventPresentation(.timerFinished(total: 300)).detail, "5:00")
+
+        XCTAssertEqual(LiveEventPresentation(.stopwatchStopped(elapsed: 13)).symbol, "stopwatch")
+        XCTAssertEqual(LiveEventPresentation(.stopwatchStopped(elapsed: 13)).detail, "0:13")
+
+        XCTAssertEqual(LiveEventPresentation(.focusCycleCompleted(completedInCycle: 3)).symbol, "checkmark.circle.fill")
+        XCTAssertNil(LiveEventPresentation(.focusCycleCompleted(completedInCycle: 3)).detail)
+
+        XCTAssertEqual(LiveEventPresentation(.countdownReachedToday(label: "Trip")).symbol, "calendar")
+        XCTAssertEqual(LiveEventPresentation(.focusPhaseChanged(phase: .shortBreak)).symbol, "brain.head.profile")
+    }
+
+    /// The track toast shows the title, falling back to the artist when the stream has no title.
+    func testPresentationTrackDetailFallsBackToArtist() {
+        XCTAssertEqual(LiveEventPresentation(.trackChanged(title: "A", artist: "Band")).detail, "A")
+        XCTAssertEqual(LiveEventPresentation(.trackChanged(title: nil, artist: "Band")).detail, "Band")
+        XCTAssertNil(LiveEventPresentation(.trackChanged(title: nil, artist: nil)).detail)
+    }
 }

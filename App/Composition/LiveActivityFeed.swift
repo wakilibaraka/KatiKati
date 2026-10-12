@@ -90,6 +90,26 @@ final class LiveActivityFeed: ObservableObject {
         refresh()
     }
 
+    // MARK: - Change notification (for the event feed)
+
+    /// Fires whenever any source controller publishes a change. The app-level `LiveEventCenter`
+    /// subscribes to this instead of polling, so the Live Island's event feed costs zero idle CPU
+    /// (the §4 idle-CPU posture: no timer, no wakeups when nothing moves).
+    ///
+    /// Emissions are *will*-change, so an observer must read the sources on a later run-loop turn —
+    /// the centre does exactly that with `.receive(on: DispatchQueue.main)`.
+    func sourceChanges() -> AnyPublisher<Void, Never> {
+        Publishers.MergeMany(
+            nowPlaying.objectWillChange,
+            focus.objectWillChange,
+            timer.objectWillChange,
+            stopwatch.objectWillChange,
+            countdowns.objectWillChange
+        )
+        .map { _ in () }
+        .eraseToAnyPublisher()
+    }
+
     // MARK: - Source mapping (pure, testable)
 
     /// Translate the live controllers into `LiveActivitySources`. Reads only; no mutation.

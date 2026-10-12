@@ -2119,6 +2119,30 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
   (ref + app/test build files) + one new test file (ref + test build file). Next: 8b-4b the in-app
   island toast (default ON), then 8b-4c the opt-in OS banner.
 
+- 2026-10-12 · **8b-4b Live-Island in-app event feed (default ON) — DONE.** Second part of 8b-4: the
+  in-app toast tier. New app-layer `App/Composition/LiveEventCenter.swift` (app-only) plus the extracted
+  dual-compiled `App/Composition/LiveEventPresentation.swift`, wired from `AppDelegate` *after* the
+  sources are live (so the seed snapshot is the real state and launch order cannot fake an event).
+  **Design:** one app-wide centre — per-island detection would fire the same toast N times on a
+  multi-display setup — and **event-driven, not polling**: it subscribes to the source controllers'
+  `objectWillChange` via the new `LiveActivityFeed.sourceChanges()`, so the feed adds zero idle CPU (§4).
+  The toast reuses the `ShortcutToastPresenter` panel shape (borderless `.nonactivatingPanel`,
+  click-through, 2.6 s auto-dismiss); `DOCK_LIVE_EVENTS` (`.killSwitch`, **default ON**, `=0` silences)
+  is the field rollback path. **Copy:** 7 new catalog keys (Time's up / Break time / Back to focus /
+  Long break / Focus session complete / Stopwatch stopped / "`%@` is today") ×12 languages, added by a
+  one-off text insertion so the catalog diff is **purely additive (539 insertions, 0 deletions)**; the
+  track toast reuses the existing "Now Playing" key with the title as data. **Build fix witnessed:** the
+  presentation struct first lived in the app-only centre file, so the test bundle failed to *link*
+  (`Undefined symbol: KatiKati.LiveEventPresentation.init`) — the project's convention is **per-file**
+  dual-compilation (`AppSettingsStore.swift` sits in `App/Composition/` yet is compiled into both
+  targets), so it was extracted into its own dual-compiled file. New tests: +2 presentation-mapping
+  tests (symbols + data details; headlines are localized, so deliberately not asserted). **Gate:** full
+  `xcodebuild test` **1,960 tests, 0 failures, TEST SUCCEEDED** (1,958 + 2); `check_localization.py` ✅
+  (**529** ×12); `check_debug_switches.py` ✅ (80/80); `check_availability_warnings.py` ✅;
+  `plutil -lint project.pbxproj` OK. `project.pbxproj`: +8 additive single-anchor lines (§1.7a —
+  app-only centre + dual-compiled presentation). **Still to do: 8b-4c**, the opt-in OS Notification
+  Center banner (default OFF) — the centre deliberately posts no banners yet.
+
 ### Phase 9 — Strip semantics, interaction & summoning (deferred: mini-plan each)
 
 - **9a — Icons / icons+text logic, multi-window of same app**: display-mode rules for

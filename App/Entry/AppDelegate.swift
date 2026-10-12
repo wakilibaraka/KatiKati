@@ -83,6 +83,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var pinchMonitor: MultitouchPinchMonitor?
     private var pinchSubscription: AnyCancellable?
     private let shortcutToast = ShortcutToastPresenter()
+    /// Phase 8b-4B: the Live Island's app-wide event feed. A **single** instance on purpose — each
+    /// island has its own rendering feed, so per-island detection would fire the same toast N times
+    /// on a multi-display setup (see `LiveEventCenter`'s header).
+    private let liveEventCenter = LiveEventCenter()
     private var shortcutSubscription: AnyCancellable?
     private let screenTimeAlerts = ScreenTimeAlertPresenter()
     private lazy var pinboardPanel: PinboardPanelController = {
@@ -270,6 +274,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.screenTimeAlerts.show(bundleID: id, name: name, action: action, controller: screenTime)
             }
             screenTime.startIfEnabled()
+
+            // Phase 8b-4B: start the Live Island's event feed last, once everything it watches is
+            // live, so the seed snapshot is the real state — no phantom "events" from launch order.
+            liveEventCenter.start()
 
             _ = statusMenuController
 

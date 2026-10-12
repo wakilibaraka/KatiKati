@@ -26,6 +26,12 @@ All notable changes to KatiKati are documented in this file.
   groundwork for the island's in-app alerts (landing in 8b-4b) and opt-in OS banners (8b-4c); nothing
   is shown to you yet.
 
+- **Live Island — in-app alerts (8b-4b):** the island now tells you when something worth knowing just
+  happened — a timer ran out, a Focus phase turned over or a session was banked, the stopwatch stopped,
+  an event reached today, or the track changed — as a brief, click-through banner that fades on its own.
+  It is **on by default** and costs nothing when idle (it reacts to changes instead of polling). The
+  optional macOS Notification Center banners arrive next; nothing is sent to Notification Center yet.
+
 ## [0.17.0-beta.2] — 2026-10-12
 
 ### Added
