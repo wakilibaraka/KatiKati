@@ -33,8 +33,7 @@ final class NotchPanelController: LiveEventSink {
         metrics = Self.metrics(for: screen)
         let window = BoringNotchWindow(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         window.collectionBehavior.remove(.fullScreenAuxiliary)
-        let host = NSHostingView(rootView: NotchIslandView(model: model, metrics: metrics, theme: theme()))
-        window.contentView = host
+        window.contentView = Self.container(for: NotchIslandView(model: model, metrics: metrics, theme: theme()))
         panel = window
         LiveActivityFeed.shared.retain()
         holdsFeed = true
@@ -86,13 +85,28 @@ final class NotchPanelController: LiveEventSink {
     private func screensChanged() {
         guard panel != nil, let screen = targetScreen() else { return }
         metrics = Self.metrics(for: screen)
-        panel?.contentView = NSHostingView(rootView: NotchIslandView(model: model, metrics: metrics, theme: theme()))
+        panel?.contentView = Self.container(for: NotchIslandView(model: model, metrics: metrics, theme: theme()))
         applyFrame(on: screen, animated: false)
     }
 
+    /// The hosting view lives inside a plain autoresizing container so SwiftUI's intrinsic size can never
+    /// drive the panel (that fed back into window sizing during an update-constraints pass and crashed).
+    private static func container<V: View>(for view: V) -> NSView {
+        let container = NSView(frame: .zero)
+        let host = NSHostingView(rootView: view)
+        host.frame = container.bounds
+        host.autoresizingMask = [.width, .height]
+        container.addSubview(host)
+        return container
+    }
+
+    /// Deferred one turn: the triggers (hover, event, activity change) fire from inside SwiftUI's own
+    /// update pass, and resizing the window re-entrantly from there is what AppKit objects to.
     private func reframe() {
-        guard panel != nil, let screen = targetScreen() else { return }
-        applyFrame(on: screen, animated: true)
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.panel != nil, let screen = self.targetScreen() else { return }
+            self.applyFrame(on: screen, animated: true)
+        }
     }
 
     private func applyFrame(on screen: NSScreen, animated: Bool) {
