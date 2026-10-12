@@ -18,7 +18,7 @@ English · [中文](README.zh-CN.md)
 
 <img src="assets/screenshots/bar.png" alt="The KatiKati bar: launcher button, weather, apps, now playing, clock and Pinboard button" width="100%" />
 
-> **Beta.** Version 0.17.0 beta 1 is unsigned and not notarized. See [Install](#install). Several new screens were not yet exercised on a real
+> **Beta.** Version 0.17.0 beta 2 is unsigned and not notarized. See [Install](#install). Several new screens were not yet exercised on a real
 > trackpad or across displays, and all new translations are drafts awaiting review. Expect rough edges.
 
 ## What it is
@@ -106,7 +106,7 @@ America), Português (Brazil and Portugal), Italiano and 한국어. Change it in
 
 Requirements: macOS 12 (Monterey) or later, Intel or Apple Silicon (universal binary).
 
-1. Download `KatiKati-0.17.0-beta.1.dmg` from the [latest release](https://github.com/wakilibaraka/KatiKati/releases/latest).
+1. Download `KatiKati-0.17.0-beta.2.dmg` from the [latest release](https://github.com/wakilibaraka/KatiKati/releases/latest).
 2. Open the disk image and drag **KatiKati** to **Applications**.
 3. The beta is not notarized, so on first launch **right-click KatiKati and choose Open**, then confirm.
 4. Optional: grant **Accessibility** (System Settings > Privacy & Security > Accessibility) for the per-window cards. Each new unsigned build may need
