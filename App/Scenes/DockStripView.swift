@@ -1373,6 +1373,7 @@ struct DockStripView: View {
                 onRemove: { pinnedFolderStore.remove(path) },
                 onSetSortOrder: { pinnedFolderStore.setSortOrder($0, for: path) },
                 isDropTarget: externalDropTarget == .moveInto(path: path),
+                showsDownloadActivity: Self.isDownloadsFolder(path) && !pinnedFolderStore.isUnopenedSeed(path),
                 scale: dockScale,
                 hoverStyle: hoverStyle,
                 isHovered: hovered
@@ -1543,5 +1544,13 @@ struct SectionFABGlyph: View {
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityHidden(true)
+    }
+}
+
+extension DockStripView {
+    /// Phase 8d: is this pinned folder the user's Downloads folder (so it gets the activity badge)?
+    static func isDownloadsFolder(_ path: String) -> Bool {
+        guard let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first else { return false }
+        return PinnedFolderStore.normalized(path) == PinnedFolderStore.normalized(downloads.path)
     }
 }

@@ -21,6 +21,8 @@ struct PinnedFolderChip: View {
     let onRemove: () -> Void
     let onSetSortOrder: (FolderSortOrder) -> Void
     var isDropTarget = false
+    /// Show the in-progress-downloads badge (Downloads folder the user has opened; Phase 8d).
+    var showsDownloadActivity = false
     /// 任务条尺寸档位的缩放系数。中档 = 1.0，此时所有尺寸与历史字面值逐像素相同。
     /// **故意不给默认值**——漏传必须是编译错误，见 AGENTS《Taskbar Size Tiers》。
     let scale: CGFloat
@@ -58,6 +60,9 @@ struct PinnedFolderChip: View {
                              scale: scale)
         .contentShape(Rectangle())
         .onTapGesture { onTap() }
+        .overlay(alignment: .topTrailing) {
+            if showsDownloadActivity { DownloadsActivityBadge(scale: scale) }
+        }
         .nativeContextMenu { buildMenu() }
         .help(folderName)
         .animation(.easeOut(duration: 0.12), value: isDropTarget)
