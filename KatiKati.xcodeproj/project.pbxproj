@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B5000000000000000040D12 /* FileNoteKeyProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040D11 /* FileNoteKeyProviderTests.swift */; };
+		7B5000000000000000040C13 /* FileNoteKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040C11 /* FileNoteKeyProvider.swift */; };
+		7B5000000000000000040C12 /* FileNoteKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040C11 /* FileNoteKeyProvider.swift */; };
 		7B5000000000000000040B13 /* HyperkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040B11 /* HyperkeyService.swift */; };
 		7B5000000000000000040B12 /* HyperkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040B11 /* HyperkeyService.swift */; };
 		7B5000000000000000040A13 /* HyperkeyEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040A11 /* HyperkeyEngine.swift */; };
@@ -822,6 +825,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B5000000000000000040D11 /* FileNoteKeyProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FileNoteKeyProviderTests.swift; path = Tests/Unit/FileNoteKeyProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000040C11 /* FileNoteKeyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FileNoteKeyProvider.swift; path = Platform/Notes/FileNoteKeyProvider.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040B11 /* HyperkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HyperkeyService.swift; path = App/Composition/HyperkeyService.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040A11 /* HyperkeyEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HyperkeyEngine.swift; path = Core/Support/HyperkeyEngine.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040911 /* PanelCoordinator+ChipPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "PanelCoordinator+ChipPanel.swift"; path = "App/Entry/PanelCoordinator+ChipPanel.swift"; sourceTree = SOURCE_ROOT; };
@@ -2504,6 +2509,7 @@
 				7B5000000000000000000142 /* LiveIslandStyle.swift in Sources */,
 				7B5000000000000000000132 /* NotchIslandView.swift in Sources */,
 				7B5000000000000000000112 /* NotchGeometry.swift in Sources */,
+				7B5000000000000000040C12 /* FileNoteKeyProvider.swift in Sources */,
 				7B5000000000000000040B12 /* HyperkeyService.swift in Sources */,
 				7B5000000000000000040A12 /* HyperkeyEngine.swift in Sources */,
 				7B5000000000000000040912 /* PanelCoordinator+ChipPanel.swift in Sources */,
@@ -2601,6 +2607,7 @@
 				7B50000000000000000001D3 /* URLCleaner.swift in Sources */,
 				7B5000000000000000000193 /* DownloadActivity.swift in Sources */,
 				7B5000000000000000000113 /* NotchGeometry.swift in Sources */,
+				7B5000000000000000040C13 /* FileNoteKeyProvider.swift in Sources */,
 				7B5000000000000000040B13 /* HyperkeyService.swift in Sources */,
 				7B5000000000000000040A13 /* HyperkeyEngine.swift in Sources */,
 				7B5000000000000000040513 /* WindowThumbnailCapture.swift in Sources */,
@@ -2698,6 +2705,7 @@
 				7B50000000000000000001F2 /* URLCleanerTests.swift in Sources */,
 				7B50000000000000000001A2 /* DownloadActivityTests.swift in Sources */,
 				7B5000000000000000000122 /* NotchGeometryTests.swift in Sources */,
+				7B5000000000000000040D12 /* FileNoteKeyProviderTests.swift in Sources */,
 				7B5000000000000000040412 /* ChipPanelTests.swift in Sources */,
 				7B5000000000000000040112 /* WindowChipGroupingTests.swift in Sources */,
 				7B5000000000000000003B52 /* ShelfIconStateTests.swift in Sources */,

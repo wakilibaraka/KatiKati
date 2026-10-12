@@ -2,8 +2,8 @@ import CryptoKit
 import Foundation
 
 /// At-rest encryption for local notes (Phase 7A-6b): AES-256-GCM, random nonce per seal, the
-/// combined box (nonce ‖ ciphertext ‖ tag) is the stored blob. The key lives in the Keychain
-/// (`KeychainNoteKeyProvider`); this type is pure so it is fully unit-tested.
+/// combined box (nonce ‖ ciphertext ‖ tag) is the stored blob. The key lives in a 0600 file
+/// (`FileNoteKeyProvider`; the Keychain is only read once to migrate old installs); this type is pure so it is fully unit-tested.
 struct NoteCipher {
     enum CipherError: Error, Equatable { case malformed, authenticationFailed }
 
@@ -25,7 +25,7 @@ struct NoteCipher {
     }
 }
 
-/// Where the 256-bit note key comes from. Production = Keychain; tests = in-memory.
+/// Where the 256-bit note key comes from. Production = key file; tests = in-memory.
 protocol NoteKeyProviding {
     func loadOrCreateKey() throws -> SymmetricKey
 }

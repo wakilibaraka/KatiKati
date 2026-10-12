@@ -309,7 +309,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     private var notesSyncService: NotesSyncService?
     private var notesSyncSubscription: AnyCancellable?
 
-    /// Starts/stops iCloud notes sync from the opt-in setting. Touches the Keychain only when enabled.
+    /// Starts/stops iCloud notes sync from the opt-in setting. Never touches the Keychain (notes key is a local file).
     private func reconcileNotesSync() {
         guard !isSuspended, settingsStore.notesSyncEnabled, let controller = notesController() else {
             notesSyncService?.stop()
@@ -330,7 +330,14 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         if let notesControllerStorage { return notesControllerStorage }
         guard !notesUnavailable else { return nil }
         do {
-            let store = try NotesStore(directory: NotesStore.defaultDirectory(), keyProvider: KeychainNoteKeyProvider())
+            let directory = NotesStore.defaultDirectory()
+            // File key: no Keychain prompt when opening Notes. The old Keychain key is read once, only to
+            // migrate notes that already exist (see `FileNoteKeyProvider`).
+            let keys = FileNoteKeyProvider(
+                keyFile: FileNoteKeyProvider.defaultKeyFile(),
+                legacy: KeychainNoteKeyProvider(),
+                hasExistingNotes: { FileNoteKeyProvider.directoryHasNotes(directory) })
+            let store = try NotesStore(directory: directory, keyProvider: keys)
             let controller = NotesController(store: store)
             notesControllerStorage = controller
             return controller
