@@ -28,6 +28,9 @@ final class EdgeBarPanelController {
     private let notesPopup = EdgeNotesPopupController()
     /// Creates the notes controller on first use (§1.7e); nil if the store/key is unavailable.
     private let notesProvider: () -> NotesController?
+    /// The notes controller only if something already created it. Used while the deck rests, so a resting deck never opens the
+    /// Keychain (and never raises its password prompt); the key is read when the deck fans out or a note is used.
+    private let notesPeek: () -> NotesController?
     private let nowPlayingProvider: () -> NowPlayingService
 
     private let model = DeckViewModel()
@@ -53,10 +56,12 @@ final class EdgeBarPanelController {
     private var previewID: String?
 
     init(slotKey: EdgeSlotSet.SlotKey, service: SystemStatusService, notes: @escaping () -> NotesController?,
+         notesPeek: @escaping () -> NotesController?,
          nowPlaying: @escaping () -> NowPlayingService) {
         self.slotKey = slotKey
         self.service = service
         self.notesProvider = notes
+        self.notesPeek = notesPeek
         self.nowPlayingProvider = nowPlaying
         model.onRight = slotKey.side == .right
         model.onTab = { [weak self] id, rect in self?.tabTapped(id, localRect: rect) }
@@ -161,7 +166,7 @@ final class EdgeBarPanelController {
         model.buttons = buttons
         model.accentDashes = buttons.map { NotePalette.entry(at: $0.accent) }
 
-        if hasNotes, let notes = notesProvider() {
+        if hasNotes, let notes = model.showsFan ? notesProvider() : (observedNotes ?? notesPeek()) {
             if observedNotes !== notes {
                 observedNotes = notes
                 model.tabs = notes.notes.filter { !$0.archived }
@@ -365,6 +370,7 @@ final class EdgeBarPanelController {
             if !model.showsFan {
                 // Resize first, reveal two display frames later (animating the resize drags the deck across the screen).
                 model.showsFan = true
+                rebuildItems()   // first moment the note tabs are needed: this is what reads the Keychain key
                 applyFrame()
                 let work = DispatchWorkItem { [weak self] in
                     withAnimation(.spring(response: 0.34, dampingFraction: 0.84)) { self?.model.revealed = true }

@@ -365,6 +365,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         }
         for key in desired {
             let controller = edgeControllers[key] ?? EdgeBarPanelController(slotKey: key, service: statusService, notes: { [weak self] in self?.notesController() },
+                notesPeek: { [weak self] in self?.notesControllerStorage },
                 nowPlaying: { [weak self] in self?.nowPlayingService ?? NowPlayingService() })
             edgeControllers[key] = controller
             let siblings = units.filter { $0.key == key.display }
