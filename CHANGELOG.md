@@ -14,6 +14,12 @@ All notable changes to KatiKati are documented in this file.
   and publish the island's current activity, with unit tests. Split pure (dual-compiled) from app-only
   code to match the project's compile convention; the visible capsule still lands in 8b-3.
 
+- **Live Island — capsule (8b-3):** the Now-Playing spot on the bar is now live. It shows whichever
+  activity is most relevant — music while playing, Focus, an upcoming event (within a week), a running
+  timer or stopwatch, otherwise the clock — and updates every second, with a symbol, a label and the
+  live reading. Tapping it while music plays still opens the full Now Playing panel. (The richer
+  in-app event feed and optional OS banners land next.)
+
 ## [0.17.0-beta.2] — 2026-10-12
 
 ### Added

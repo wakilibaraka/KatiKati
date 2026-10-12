@@ -2072,6 +2072,32 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
   phases, single-anchor §1.7a. Next: 8b-3 reworks `NowPlayingChip`/popup into the morphing capsule and
   wires the feed into the island.
 
+- 2026-10-12 · **8b-3 Live-Island capsule (the visible surface) — DONE.** The island's `.media` slot
+  stops being a static play/pause dot and becomes the live capsule: `NowPlayingChip` now holds the
+  `LiveActivityFeed` (`@StateObject`) and renders whatever `LiveActivityPolicy` resolved — music /
+  focus / event countdown / timer / stopwatch / live clock — re-rendering on the 1 Hz tick so the clock
+  advances, focus/timer remaining counts down and the stopwatch climbs. `[glyph] [label] [value]`
+  morphs in place via `.animation(value: activity.kind)`; `ViewThatFits` drops the label, then lets the
+  value truncate, so the fixed `targetWidth × 36pt` `.clipped()` slot can never overflow.
+  **Naming decision:** kept the type name `NowPlayingChip` + its `App/Scenes/NowPlayingChip.swift` home
+  (and the `.media` call site / pbxproj / section label untouched) — a deliberately minimal diff; the
+  *surface* it draws is the Live Island. **Localization decision:** the six kind labels reuse the
+  existing, already-translated catalog keys (Now Playing / Focus / Countdown / Timer / Stopwatch /
+  Clock) as whole literals, so the catalog stays **522 ×12 with no additions and no orphans**; kinetic
+  numbers are *data* → `Text(verbatim:)` via the new pure `LiveIslandFormat` (never an interpolated
+  `Text` literal, which the gate would read as a missing key). **Interaction:** while a track is
+  winning, tap opens the existing music popup (theme / album art / transport unchanged → keeps the
+  "Now Playing Theme" setting live); other kinds are display-only this slice.
+  **Open question for the owner:** 8b-1's rule is "music only while *playing*", so pausing drops media
+  off the island (the capsule then shows clock/focus) — worth deciding whether paused-but-armed music
+  should hold the island at lower priority. New `LiveIslandFormat` added to the dual-compiled
+  `Core/Support/LiveActivitySources.swift` + 5 tests (`m:ss`/`h:mm:ss` rollover, negative clamp,
+  stopwatch truncation, non-finite guard). **Gate:** full `xcodebuild test` **1,941 tests, 0 failures,
+  TEST SUCCEEDED** (1,936 + 5); `check_localization.py` ✅ (522 ×12, unchanged);
+  `check_debug_switches.py` ✅ (79/79); `check_availability_warnings.py` ✅; `plutil -lint
+  project.pbxproj` OK. No `project.pbxproj` change (existing file reworked in place). Next: 8b-4
+  in-app live event feed (default ON) + opt-in OS banners.
+
 ### Phase 9 — Strip semantics, interaction & summoning (deferred: mini-plan each)
 
 - **9a — Icons / icons+text logic, multi-window of same app**: display-mode rules for

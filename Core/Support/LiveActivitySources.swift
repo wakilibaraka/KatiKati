@@ -98,3 +98,36 @@ extension LiveFocusPhase {
         }
     }
 }
+
+// MARK: - Display formatting (pure, testable)
+
+/// Rendering helpers for the capsule's *kinetic numbers* (focus/timer remaining, stopwatch elapsed).
+///
+/// These are **data, not copy**: the UI renders them through `Text(verbatim:)` / a plain `String`
+/// variable, never `Text("…")` with interpolation — the localization gate scans `Text("literal")`
+/// and would read an interpolated literal as a missing catalog key (a pattern the repo banned in the
+/// earlier localization sweep). Pure and total, so the rollover + clamping rules are unit-testable
+/// without a view.
+enum LiveIslandFormat {
+    /// `m:ss` under an hour, `h:mm:ss` at/after an hour. Negative input clamps to `0:00` — a focus
+    /// timer can briefly report `-1` on the tick it crosses zero, and the capsule must never render
+    /// `-1:-1`.
+    static func clock(_ seconds: Int) -> String {
+        let s = max(0, seconds)
+        let hours = s / 3600
+        let minutes = (s % 3600) / 60
+        let secs = s % 60
+        func pad(_ n: Int) -> String { n < 10 ? "0\(n)" : "\(n)" }
+        return hours > 0
+            ? "\(hours):\(pad(minutes)):\(pad(secs))"
+            : "\(minutes):\(pad(secs))"
+    }
+
+    /// The stopwatch reading, truncating fractional seconds to whole seconds (0.9s should read
+    /// `0:00`, like a real stopwatch, not round up to `0:01`). Non-finite input can't crash the tick
+    /// (`Int(nan)` traps), so it is guarded back to `0:00`.
+    static func stopwatch(_ elapsed: TimeInterval) -> String {
+        guard elapsed.isFinite else { return clock(0) }
+        return clock(Int(elapsed))
+    }
+}

@@ -76,6 +76,20 @@ final class LiveActivityFeed: ObservableObject {
         activity = LiveActivityPolicy.resolve(sources(at: Date()).snapshot(now: Date()))
     }
 
+    // MARK: - Transport (island capsule affordance)
+
+    /// The raw Now-Playing state, for the island's music popup (theme, album art, transport). The
+    /// capsule itself renders the resolved `activity`; this is only for the popup's richer view.
+    var nowPlayingState: NowPlayingState { nowPlaying.state }
+
+    /// Play/pause pass-through for the capsule's one affordance (music only). Refreshes immediately
+    /// so the popup/capsule can flip without waiting a full tick; MediaRemote's own async update
+    /// settles the final state on the next tick.
+    func togglePlayPause() {
+        nowPlaying.togglePlayPause()
+        refresh()
+    }
+
     // MARK: - Source mapping (pure, testable)
 
     /// Translate the live controllers into `LiveActivitySources`. Reads only; no mutation.

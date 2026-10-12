@@ -116,4 +116,41 @@ final class LiveActivitySourcesTests: XCTestCase {
         XCTAssertEqual(LiveFocusPhase(phase: .shortBreak), .shortBreak)
         XCTAssertEqual(LiveFocusPhase(phase: .longBreak), .longBreak)
     }
+
+    // MARK: - LiveIslandFormat (kinetic numbers in the capsule)
+
+    /// Sub-minute readings pad to `m:ss` (a stopwatch reads `0:00` at rest, never `:0`).
+    func testFormatClockSubMinutePads() {
+        XCTAssertEqual(LiveIslandFormat.clock(0), "0:00")
+        XCTAssertEqual(LiveIslandFormat.clock(5), "0:05")
+        XCTAssertEqual(LiveIslandFormat.clock(59), "0:59")
+    }
+
+    /// Minute + hour rollover: 60s is `1:00`, 3599 is `59:59`, 3600 promotes to `1:00:00`.
+    func testFormatClockRollover() {
+        XCTAssertEqual(LiveIslandFormat.clock(60), "1:00")
+        XCTAssertEqual(LiveIslandFormat.clock(3599), "59:59")
+        XCTAssertEqual(LiveIslandFormat.clock(3600), "1:00:00")
+        XCTAssertEqual(LiveIslandFormat.clock(3661), "1:01:01")
+    }
+
+    /// A focus timer can report a small negative on the tick it crosses zero — the capsule must
+    /// clamp, never render `-1:-1`.
+    func testFormatClockClampsNegative() {
+        XCTAssertEqual(LiveIslandFormat.clock(-1), "0:00")
+        XCTAssertEqual(LiveIslandFormat.clock(-3600), "0:00")
+    }
+
+    /// The stopwatch truncates fractional seconds (0.9s is `0:00`, not `0:01`).
+    func testFormatStopwatchTruncates() {
+        XCTAssertEqual(LiveIslandFormat.stopwatch(0), "0:00")
+        XCTAssertEqual(LiveIslandFormat.stopwatch(5.9), "0:05")
+        XCTAssertEqual(LiveIslandFormat.stopwatch(59.99), "0:59")
+    }
+
+    /// Non-finite elapsed can't crash the tick (`Int(nan)` traps) — it falls back to `0:00`.
+    func testFormatStopwatchNonFiniteIsSafe() {
+        XCTAssertEqual(LiveIslandFormat.stopwatch(.nan), "0:00")
+        XCTAssertEqual(LiveIslandFormat.stopwatch(.infinity), "0:00")
+    }
 }
