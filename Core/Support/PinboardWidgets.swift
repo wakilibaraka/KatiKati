@@ -85,6 +85,20 @@ enum QuickToggleID: String, CaseIterable, Sendable {
     static func serialize(_ ids: [QuickToggleID]) -> String { ids.map(\.rawValue).joined(separator: ",") }
 }
 
+/// Presentation of the Pinboard (Phase 7B): full-screen backdrop (default, like the launcher)
+/// or the floating draggable panel (Phase 7B-V1).
+/// Raw values are stored in `com.katikati.pinboard.style`; never rename them.
+enum PinboardStyle: String, CaseIterable, Sendable {
+    case fullScreen
+    case floating
+
+    static let `default`: PinboardStyle = .fullScreen
+
+    static func parse(_ stored: String?) -> PinboardStyle {
+        stored.flatMap(PinboardStyle.init(rawValue:)) ?? .default
+    }
+}
+
 /// Where the Pinboard panel sits: remembered between summons, clamped back on-screen.
 enum PinboardPlacement {
     /// Clamps an origin so a panel of `size` stays fully inside `visible`.

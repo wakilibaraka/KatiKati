@@ -3,10 +3,11 @@ import XCTest
 
 final class LauncherTilesTests: XCTestCase {
     func testFrozenIDsAndParse() {
-        XCTAssertEqual(LauncherTile.allCases.map(\.rawValue), ["clock", "calculator", "countdown", "screenTime"])
-        XCTAssertEqual(LauncherTile.parse("files, clock,bogus,clock"), [.clock], "the retired files id is ignored")
+        XCTAssertEqual(LauncherTile.allCases.map(\.rawValue), ["screenTime"])
+        XCTAssertEqual(LauncherTile.parse("clock, calculator,countdown,bogus,clock"), [], "retired launcher ids are ignored")
         XCTAssertEqual(LauncherTile.parse(nil), [])
-        XCTAssertEqual(LauncherTile.ordered([.countdown, .clock]), [.clock, .countdown])
+        XCTAssertEqual(LauncherTile.parse("screenTime,screenTime"), [.screenTime])
+        XCTAssertEqual(LauncherTile.ordered([.screenTime]), [.screenTime])
     }
 
     func testCalculatorBasics() {

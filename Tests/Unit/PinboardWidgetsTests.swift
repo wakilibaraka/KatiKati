@@ -34,4 +34,11 @@ final class PinboardWidgetsTests: XCTestCase {
         let r = PinboardPlacement.clamp(origin: (x: 5000, y: -50), size: (w: 300, h: 400), visible: (x: 0, y: 0, w: 1440, h: 900))
         XCTAssertEqual(r.x, 1140); XCTAssertEqual(r.y, 0)
     }
+
+    func testPinboardStyleDefaultsFullScreenAndRejectsGarbage() {
+        XCTAssertEqual(PinboardStyle.parse(nil), .fullScreen)
+        XCTAssertEqual(PinboardStyle.parse("bogus"), .fullScreen)
+        XCTAssertEqual(PinboardStyle.parse("floating"), .floating)
+        XCTAssertEqual(PinboardStyle.allCases.count, 2)
+    }
 }

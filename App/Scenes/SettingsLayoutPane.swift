@@ -376,9 +376,6 @@ struct SettingsLayoutPane: View {
                         .buttonStyle(.plain)
                     }
                 }
-                Toggle("Clock", isOn: tileBinding(.clock))
-                Toggle("Calculator", isOn: tileBinding(.calculator))
-                Toggle("Countdown", isOn: tileBinding(.countdown))
                 Toggle("Screen Time", isOn: tileBinding(.screenTime))
             }
 

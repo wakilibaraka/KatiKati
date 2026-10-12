@@ -206,9 +206,10 @@ final class AppSettingsStoreTests: XCTestCase {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
         XCTAssertEqual(store.launcherTiles, LauncherTile.allCases)
-        store.setLauncherTile(.calculator, enabled: false)
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherTiles, [.clock, .countdown, .screenTime])
-        store.setLauncherTile(.calculator, enabled: true)
+        XCTAssertEqual(store.launcherTiles, [.screenTime])
+        store.setLauncherTile(.screenTime, enabled: false)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherTiles, [])
+        store.setLauncherTile(.screenTime, enabled: true)
         XCTAssertEqual(store.launcherTiles, LauncherTile.allCases, "re-enabling restores display order")
     }
 
@@ -224,6 +225,17 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(again.launcherTheme, .desktop)
         XCTAssertEqual(again.launcherTint, .pink)
         XCTAssertEqual(again.launcherIcon, .petal)
+    }
+
+    @MainActor
+    func testPinboardStyleDefaultsFullScreenAndPersists() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.pinboardStyle, .fullScreen)
+        store.setPinboardStyle(.floating)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).pinboardStyle, .floating)
+        defaults.set("bogus", forKey: "com.katikati.pinboard.style")
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).pinboardStyle, .fullScreen)
     }
 
     @MainActor

@@ -178,6 +178,7 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var launcherTint: LauncherTint
     @Published private(set) var launcherIcon: LauncherIconStyle
     @Published private(set) var launcherTiles: [LauncherTile]
+    @Published private(set) var pinboardStyle: PinboardStyle
     @Published private(set) var pinboardWidgets: [PinboardWidget]
     @Published private(set) var pinboardToggles: [QuickToggleID]
     @Published private(set) var pinboardKeepOnTop: Bool
@@ -290,6 +291,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.launcherIcon: LauncherIconStyle.default.rawValue,
             Keys.launcherTiles: LauncherTile.serialize(LauncherTile.allCases),
             Keys.pinboardKeepOnTop: false,
+            Keys.pinboardStyle: PinboardStyle.default.rawValue,
             Keys.launcherSearchPosition: LauncherSearchPosition.default.rawValue,
             Keys.deckKeepOpen: false,
             Keys.deckOpenOnHover: false,
@@ -330,6 +332,7 @@ final class AppSettingsStore: ObservableObject {
         pinboardWidgets = PinboardWidget.parse(defaults.string(forKey: Keys.pinboardWidgets))
         pinboardToggles = QuickToggleID.parse(defaults.string(forKey: Keys.pinboardToggles))
         pinboardKeepOnTop = defaults.bool(forKey: Keys.pinboardKeepOnTop)
+        pinboardStyle = PinboardStyle.parse(defaults.string(forKey: Keys.pinboardStyle))
         shortcutBindings = Dictionary(uniqueKeysWithValues: ShortcutAction.allCases.map {
             ($0, ShortcutTrigger.parse(defaults.string(forKey: Keys.shortcut($0))) ?? $0.defaultTrigger)
         })
@@ -587,6 +590,12 @@ final class AppSettingsStore: ObservableObject {
         guard pinboardKeepOnTop != value else { return }
         pinboardKeepOnTop = value
         defaults.set(value, forKey: Keys.pinboardKeepOnTop)
+    }
+
+    func setPinboardStyle(_ value: PinboardStyle) {
+        guard pinboardStyle != value else { return }
+        pinboardStyle = value
+        defaults.set(value.rawValue, forKey: Keys.pinboardStyle)
     }
 
     func setLauncherTheme(_ value: LauncherTheme) {
@@ -1086,6 +1095,7 @@ private enum Keys {
     static let launcherTint = "com.katikati.launcher.tint"
     static let launcherIcon = "com.katikati.launcher.icon"
     static let launcherTiles = "com.katikati.launcher.tiles"
+    static let pinboardStyle = "com.katikati.pinboard.style"
     static let pinboardWidgets = "com.katikati.pinboard.widgets"
     static let pinboardToggles = "com.katikati.pinboard.toggles"
     static let pinboardKeepOnTop = "com.katikati.pinboard.keepOnTop"
