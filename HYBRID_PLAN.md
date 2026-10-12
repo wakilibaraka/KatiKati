@@ -2020,29 +2020,46 @@ Reference priors are eyeball-only study rows (§5b rule) — code written fresh.
   the solver. Per-mode golden screenshots become the visual witnesses.
 - **Verify**: solver goldens + per-mode screenshots + full gate.
 
-### Phase 12 — Settings refinement (deferred; owner 2026-10-11: "at the end")
+### 15 + 17 — Settings architecture & interaction + content/investigation registry (merged phases 15 + 17, done together since they touch the same pages)
 
-- **12a — full audit**: every settings page + button exercised; dead/broken controls fixed
-  or removed; manual checklist committed with the PR + unit tests for any pure logic.
-- **12b — recategorize** (owner example: **appearance → general**). ⚠ **Conflicts with 6d's
-  new Appearance tab** — owner confirms exact move (dissolve tab vs partial) at activation.
+**Note:** the AI agent may analyse the live app to do both parts together — they touch the same pages
+(Settings, Widgets, Launcher).
+
+**Part A — Settings architecture & interaction** (from §7w 14)
+- **14a — Reclassify**: main area = frequent/on/off + simple choices; **Advanced** = compressed
+  power-user view (currently: Pinboard switches, debug, layout internals); hidden = developer
+  (macOS System Settings taxonomy; owner confirms the exact split at activation).
+- **14b — Settings UI overhaul**: wider + more symmetrical + decluttered; fold **License + Feedback
+  into About**; fix broken toggles — **theme switch does nothing today** (verify wiring to the
+  `look` store); **centered vs full-width must be genuinely different** — full width is the wall
+  grid of §7w (not a 320 pt frame); refine toggles into **presets that guarantee no overlap
+  between FABS / dock / bars**.
+- **12a — Full audit**: every settings page + button exercised; manual checklist committed with
+  the PR + unit tests for any pure logic.
+- **12b — Recategorize**: **appearance → general** (owner confirms exact move at activation;
+  conflicts with 6d's new Appearance tab — dissolve tab vs partial).
 - **12c — General becomes the feature hub**: **Permissions** section (Accessibility / Screen
-  Recording / Automation / notifications status + re-trigger buttons — currently only
-  reachable via the onboarding window) and **Shortcuts** section (scroll-reverse toggle ✓
-  already there; edge hotkey `⌥⇧⌘D` rebind ✓ there; hyperkey bindings from 9e; ⌥Space from 7c).
-- **12d — License tab → About** (owner 2026-10-11). *Audited current state:* the License tab
-  is dormant commercial machinery inherited from tungsten — `LicenseStore`/`LicenseVerifier`
-  activation-code entry (credentials signature-checked, re-verified every launch) +
-  `SubscriptionSubmitter` hooks; **it gates nothing today** (no feature consults activation).
-  Move its content into About next to version/credits/GPL notice; tab list becomes
-  General / Layout / (+Appearance, pending 12b) / Widgets / Advanced / Feedback / About.
-- **12e — Widgets page? (owner asked; recommendation: YES)** — dedicated Widgets tab for
-  widget on/off + widths (relocated from the Layout pane where 6c put them) and **Phase-10
-  presets (10a)** as its natural host. Sequencing note: create it **before or with Phase 10**
-  so 10a lands there directly; otherwise 10a lands in Layout and 12e relocates it.
-- **12f — theme refinement** (owner eyeball-driven; final home follows 12b's decision).
-- **Verify**: audit checklist complete (every button witnessed), tab/order tests,
-  localization ×12, full gate.
+  Recording / Automation / notifications status + re-trigger buttons — currently only reachable
+  via the onboarding window) and **Shortcuts** section (scroll-reverse toggle ✓ already there;
+  edge hotkey `⌥⇧⌘D` rebind ✓ there; hyperkey bindings from 9e; ⌥Space from 7c).
+- **12d — License tab → About**: dormant tungsten commercial machinery (`LicenseStore`/
+  `LicenseVerifier` activation-code entry, re-verified every launch, gates nothing today)
+  moved into About next to version/credits/GPL notice; tab list becomes General / Layout /
+  (+Appearance, pending 12b) / Widgets / Advanced / Feedback / About.
+- **12e — Widgets page? (owner asked; recommendation: YES)** — dedicated Widgets tab for widget
+  on/off + widths (relocated from the Layout pane) and **Phase-10 presets (10a)** as its natural
+  host. Create it **before or with Phase 10** so 10a lands there directly.
+- **12f — Theme refinement** (owner eyeball-driven; final home follows 12b's decision).
+
+**Part B — Content & investigation registry (dead code + dead buttons)** — done together with
+Part A; the AI agent may analyse the live app to do both parts together
+- clock style path, widget colour-preset path, theme-switch wiring, pinboard switches,
+  centred/full-width duplicate, 14c findings;
+- **Nothing is deleted**; every dead or broken control is **registered** (repo
+  `Docs/Repository/`), owner + target phase assigned per item (15 retirement; 14 investigate).
+
+**Verify**: full settings audit checklist, gate, localization ×12, witness tests for each retired
+item, full gate.
 
 
 ### §7w — Methodical ahead plan (2026-10-12, documentation only — no code outside HYBRID_PLAN.md)
@@ -2070,29 +2087,16 @@ Methodology
   right side** (clipboard, never a file); all 13a–13d toggles live in Settings.
 - Verify: real-pointer live check #3, idle CPU ≤ baseline + ε, localization ×12, 7A regression.
 
-**14 — Settings architecture & interaction (reclassification + UX overhaul)**
-- **14a — Reclassify**: main area = frequent/on/off + simple choices; **Advanced** = compressed
-  power-user view (currently: Pinboard switches, debug, layout internals); hidden = developer.
-  Basis: user-friendly macOS System Settings taxonomy (main/advanced); owner confirms the exact
-  split at activation.
-- **14b — Settings UI overhaul**: wider + more symmetrical + decluttered; fold **License + Feedback
-  into About**; fix broken toggles — **theme switch does nothing today** (verify wiring to the
-  `look` store); **centered vs full-width must be genuinely different** — full width is the wall
-  grid of §7w (not a 320 pt frame); refine toggles into **presets that guarantee no overlap
-  between FABS / dock / bars**.
-- **14c — Investigation registry + fix plan**: clock style change (does it change anything? check
-  store path), widget colour presets (write/read?), theme switch, pinboard switches, floating vs
-  full-width state fidelity. Each finding → fix bug or add feature in this phase.
-- Verify: full settings audit checklist, gate, localization ×12.
 
-**15 — Content & investigation registry (dead code + dead buttons)**
-- **Nothing is deleted**: every dead or broken control is **registered** (repo `Docs/Repository/`),
-  owner + target phase assigned per item.
-- Inventory: clock style path, widget colour-preset path, theme-switch wiring, pinboard switches,
-  centred/full-width duplicate, all findings from 14c.
-- Target phases: 13 (investigate), 14 (register only), **16+ (retirement cleanup)** — decisions
-  per item, logged.
-- Verify: registry complete + every entry has an owner + no entry deleted.
+**Part B — Content & investigation registry (dead code + dead buttons)** — done together with
+Part A; the AI agent may analyse the live app to do both parts together
+- clock style path, widget colour-preset path, theme-switch wiring, pinboard switches,
+  centred/full-width duplicate, 14c findings;
+- **Nothing is deleted**; every dead or broken control is **registered** (repo
+  `Docs/Repository/`), owner + target phase assigned per item (15 retirement; 14 investigate).
+
+**Verify**: full settings audit checklist, gate, localization ×12, witness tests for each retired
+item, full gate.
 
 **16 — Retirement cleanup of the registered content** (owner-assigned when the registry is full)
 - Delete only after 12 months of dormancy + owner sign-off; archive first.

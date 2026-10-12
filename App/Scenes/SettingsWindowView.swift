@@ -12,9 +12,7 @@ struct SettingsWindowView: View {
 
     @ObservedObject var store: AppSettingsStore
     @ObservedObject var coordinator: SettingsCoordinator
-    @ObservedObject var licenseStore: LicenseStore
     @ObservedObject var tabState: SettingsTabState
-    let feedbackDraft: FeedbackDraftState
     /// 「通用」页那颗「重新打开新手引导」按钮的动作。**不给默认值**：这里没有任何测试
     /// 会检查 SwiftUI 调用点，给了默认值就等于让"漏传"编译通过（AGENTS.md 的 no-default 铁律）。
     let onShowWelcomeGuide: () -> Void
@@ -27,9 +25,7 @@ struct SettingsWindowView: View {
             SettingsWindowContent(
                 store: store,
                 coordinator: coordinator,
-                licenseStore: licenseStore,
                 tabState: tabState,
-                feedbackDraft: feedbackDraft,
                 onShowWelcomeGuide: onShowWelcomeGuide
             )
         }
@@ -40,17 +36,11 @@ struct SettingsWindowView: View {
 struct SettingsWindowContent: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject var coordinator: SettingsCoordinator
-    @ObservedObject var licenseStore: LicenseStore
     @ObservedObject var tabState: SettingsTabState
-    /// Feedback drafts live on the controller, not in `@State`: they must survive closing the
-    /// window, which tears this whole tree down.
-    @ObservedObject var feedbackDraft: FeedbackDraftState
     let onShowWelcomeGuide: () -> Void
 
     @State private var presentedAlert: SettingsAlert?
     @State private var showsScrollReverserHelp = false
-    @State private var subscriptionEmail = ""
-    @State private var licenseKeyInput = ""
 
     var body: some View {
         Group {
@@ -59,8 +49,6 @@ struct SettingsWindowContent: View {
             case .layout: SettingsLayoutPane(store: store)
             case .appearance: SettingsAppearancePane(store: store)
             case .advanced: advancedPane
-            case .license: licensePane
-            case .feedback: feedbackPane
             case .about: aboutPane
             }
         }
@@ -295,78 +283,6 @@ struct SettingsWindowContent: View {
     }
 
     @ViewBuilder
-    private var licensePane: some View {
-        if #available(macOS 13.0, *) {
-            systemForm {
-                Section {
-                    licenseRow
-                }
-                Section {
-                    subscriptionContent
-                } footer: {
-                    githubStarRow
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-            .padding(.bottom, Self.afterFormMargin)
-        } else {
-            settingsPane {
-                licenseRow
-                Divider()
-                    .padding(.vertical, 2)
-                subscriptionContent
-                githubStarRow
-            }
-            .padding(Self.paneMargin)
-        }
-    }
-
-    @ViewBuilder
-    private var feedbackPane: some View {
-        let presentation = coordinator.feedbackState.presentation
-        if #available(macOS 13.0, *) {
-            systemForm {
-                Section {
-                    feedbackTypePicker
-                        .horizontalRadioGroupLayout()
-                    feedbackEditor
-                        .scrollContentBackground(.hidden)
-                    feedbackAttachmentRow(isEnabled: presentation.isEnabled)
-                    feedbackContactRow(presentation)
-                } header: {
-                    feedbackLeadIn
-                } footer: {
-                    feedbackDisclosure
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-            .padding(.bottom, Self.afterFormMargin)
-        } else {
-            settingsPane {
-                VStack(alignment: .leading, spacing: 8) {
-                    feedbackLeadIn
-                    HStack(spacing: 10) {
-                        Text("Type")
-                            .font(.callout)
-                        feedbackTypePicker
-                            .horizontalRadioGroupLayout()
-                            .labelsHidden()
-                    }
-                    feedbackEditor
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                        )
-                    feedbackAttachmentRow(isEnabled: presentation.isEnabled)
-                    feedbackContactRow(presentation)
-                    feedbackDisclosure
-                }
-            }
-            .padding(Self.paneMargin)
-        }
-    }
-
-    @ViewBuilder
     private var aboutPane: some View {
         if #available(macOS 13.0, *) {
             systemForm {
@@ -385,8 +301,8 @@ struct SettingsWindowContent: View {
         }
     }
 
-    /// Copies `DiagnosticReport` to the clipboard so a user can paste it into a chat or the
-    /// feedback box. Nothing is sent: the feedback form's disclosed fields stay as they are.
+    /// Copies `DiagnosticReport` to the clipboard so a user can paste it into a GitHub issue.
+    /// Nothing is sent anywhere.
     private var diagnosticsRow: some View {
         HStack(spacing: 12) {
             Text("Diagnostic Info")
@@ -419,7 +335,7 @@ struct SettingsWindowContent: View {
 
         let alert = NSAlert()
         alert.messageText = String(localized: "Diagnostic Info Copied")
-        alert.informativeText = String(localized: "Paste it into a feedback message or send it to us. It contains only the app, system and display details shown below — no personal information.")
+        alert.informativeText = String(localized: "Paste it into a GitHub issue when you report a problem. It contains only the app, system and display details shown below — no personal information.")
         alert.accessoryView = scrollView
         alert.addButton(withTitle: String(localized: "OK"))
         if let window = NSApp.keyWindow {
@@ -592,76 +508,6 @@ struct SettingsWindowContent: View {
         }
     }
 
-    /// 授权区块。离线验证：粘一条授权码进去，本地用内嵌公钥验签名，**不联网、不绑设备**
-    ///（产品决策 `Docs/27`，格式契约 `Docs/31-licensing.md`）。
-    ///
-    /// ⚠️ 激活成功后输入框整行消失，区块高度会变。`SettingsWindowController` 只在 `present()`
-    /// 和几个 `@Published` 的订阅里重新量高度，所以那边给 `licenseStore.$state` 加了一条
-    /// `.sink`——删掉它的话，激活之后窗口不会收缩，只会变成可滚动。
-    ///
-    /// ⚠️ 失败提示走 `SettingsAlert`，不要改成在区块里就地长出一行红字（同上，高度不会跟着变）。
-    @ViewBuilder
-    private var licenseRow: some View {
-        switch licenseStore.state {
-        case .activated(let payload):
-            Text(
-                String(
-                    format: String(localized: "Activated · %@ · %@"),
-                    payload.kind.displayTitle,
-                    payload.email
-                )
-            )
-            .font(.callout)
-            .fixedSize(horizontal: false, vertical: true)
-        case .unactivated:
-            // ⚠️ 这一页说出口的每样东西都必须和「授权码到底发没发」对得上。2026-08-25 之前
-            // 它既说「授权码在我们发给你的那封邮件里」，又摆着一个「粘贴授权码」输入框，
-            // 而当时**一条授权码都没签发过**——文案和控件在说同一句假话，反馈里因此收到
-            // 「邮箱并没有收到激活码」。发放没开始时这里只说明现状：没有状态行（没东西可
-            // 激活时「未激活」只会让人以为该去激活点什么），没有输入框，没有按钮。
-            //
-            // 恢复方式：`LicenseStore.isIssuingLicenses` 翻成 true。**用 if 而不是注释掉，
-            // 是为了让两个分支都参与编译**——注释掉的代码没人记得恢复，也会让
-            // `activateLicense()` 变成无引用。
-            VStack(alignment: .leading, spacing: 8) {
-                if LicenseStore.isIssuingLicenses {
-                    Text("Not activated")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                    HStack(spacing: 10) {
-                        TextField(text: $licenseKeyInput, prompt: Text("Paste your license key")) {
-                            Text("Paste your license key")
-                        }
-                            .labelsHidden()
-                            .textFieldStyle(.roundedBorder)
-                            .onSubmit { activateLicense() }
-                        Button("Activate") { activateLicense() }
-                            .disabled(licenseKeyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    }
-                }
-                // 发放开始后它退回配角（输入框才是主角），所以字号跟着开关走。
-                Text("Licensing opens with version 1.0. KatiKati is completely free until then, and founding users who have confirmed their email will receive a permanent free license key.")
-                    .font(LicenseStore.isIssuingLicenses ? .caption : .callout)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-    }
-
-    private func activateLicense() {
-        switch licenseStore.activate(code: licenseKeyInput) {
-        case .success:
-            licenseKeyInput = ""
-        case .failure:
-            // 八种错误对用户是同一件事：这串东西不能用。分门别类地解释只会让人以为
-            // 换个写法就能过——真正的行动永远是「把邮件里那串完整复制一遍」。
-            presentedAlert = SettingsAlert(
-                title: String(localized: "Couldn’t Activate"),
-                message: String(localized: "This license key isn’t valid. Copy the whole key from your email and paste it again.")
-            )
-        }
-    }
-
     private var aboutVersionRow: some View {
         HStack(spacing: 12) {
             if let versionTitle = coordinator.versionTitle {
@@ -689,258 +535,6 @@ struct SettingsWindowContent: View {
                 set: { coordinator.automaticallyChecksForUpdates = $0 }
             )
         )
-    }
-
-    /// 应用内反馈表单（2026-08-24，同日拎成独立标签页）：类型三选一 + 随类型变的引导
-    /// 文字 + 正文 + 选填联系方式 → 官网 `/api/feedback` → D1，owner 在本机控制台看。
-    /// 为什么不是 GitHub / mailto：国内用户打不开 GitHub，mailto 依赖装好的邮件客户端。
-    ///
-    /// ⚠️ **所有高度固定**（TextEditor 定高 140pt；placeholder 是 overlay，不占布局；
-    /// 附件区定高 44pt 且**始终渲染**，加到 3 个也不换行；发送后清空不改布局），
-    /// 结果一律走 `SettingsAlert`——窗口只在 `present()`、license sink 和切页时量高度，
-    /// 就地长出状态行或让附件把 pane 顶高，都只会变成可滚动。
-    /// ⚠️ 披露行必须与实际发送的内容一致（六项：正文 / 联系方式 / 版本 / macOS / 语言 / 附件）；
-    /// 类型并入 message（`FeedbackComposition` 是组装唯一入口），不是独立字段。
-    private var feedbackLeadIn: some View {
-        Text("Ran into a problem or have an idea? Write to us here.")
-            .font(.callout)
-            .foregroundStyle(.secondary)
-    }
-
-    private var feedbackTypePicker: some View {
-        Picker("Type", selection: $feedbackDraft.category) {
-            ForEach(FeedbackCategory.allCases, id: \.self) { category in
-                Text(category.displayName).tag(category)
-            }
-        }
-        .pickerStyle(.radioGroup)
-    }
-
-    private var feedbackEditor: some View {
-        TextEditor(text: $feedbackDraft.message)
-            .font(.callout)
-            .frame(height: 140)
-            .overlay(alignment: .topLeading) {
-                if feedbackDraft.message.isEmpty {
-                    Text(feedbackDraft.category.placeholder)
-                        .font(.callout)
-                        .foregroundStyle(Color(nsColor: .placeholderTextColor))
-                        .padding(.horizontal, 5)
-                        .allowsHitTesting(false)
-                }
-            }
-    }
-
-    private func feedbackContactRow(_ presentation: FeedbackSubmitPresentation) -> some View {
-        HStack(spacing: 10) {
-            // Prompt plus hidden label: inside a grouped form a bare title becomes a leading
-            // label and the field itself shows empty.
-            TextField(text: $feedbackDraft.contact, prompt: Text(String(localized: "Email or WeChat ID (optional)"))) {
-                Text(String(localized: "Email or WeChat ID (optional)"))
-            }
-                .labelsHidden()
-                .textFieldStyle(.roundedBorder)
-                .disabled(!presentation.isEnabled)
-            Button(presentation.title) { submitFeedback() }
-                .disabled(
-                    !presentation.isEnabled
-                        || feedbackDraft.message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                )
-        }
-    }
-
-    private var feedbackDisclosure: some View {
-        Text("Only your message, the contact you enter, the app version, your macOS version, the interface language and the attachments you add (kept for at most 90 days) are sent.")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
-    }
-
-    /// 附件区：一行，**定高 44pt，始终渲染**（一个都没加时也占着这行）。
-    /// 高度绝不能随附件增减变化——设置窗口只在 present / 切页 / license sink 三处量高度，
-    /// 就地长高只会让内容溢出成可滚动（`.claude/rules/settings.md` 是权威）。
-    /// 因此：胶囊限宽、文件名中间截断、整行 `.frame(height:)` + `.clipped()` 兜底。
-    @ViewBuilder
-    private func feedbackAttachmentRow(isEnabled: Bool) -> some View {
-        HStack(spacing: 8) {
-            Button(String(localized: "Add Screenshot or Recording…")) { addFeedbackAttachments() }
-                .disabled(!isEnabled || feedbackDraft.attachments.count >= FeedbackAttachmentCheck.maximumCount)
-            ForEach(feedbackDraft.attachments) { attachment in
-                feedbackAttachmentChip(attachment, isEnabled: isEnabled)
-            }
-            Spacer(minLength: 0)
-        }
-        .frame(height: 44)
-        .clipped()
-    }
-
-    private func feedbackAttachmentChip(_ attachment: FeedbackAttachment, isEnabled: Bool) -> some View {
-        HStack(spacing: 4) {
-            Text(attachment.name)
-                .lineLimit(1)
-                .truncationMode(.middle)
-            Text(attachment.sizeLabel)
-                .foregroundStyle(.secondary)
-            Button {
-                feedbackDraft.attachments.removeAll { $0.id == attachment.id }
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.plain)
-            .disabled(!isEnabled)
-            .help(String(localized: "Remove Attachment"))
-        }
-        .font(.caption)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .frame(maxWidth: 116)
-        .background(Capsule().fill(Color(nsColor: .quaternaryLabelColor)))
-    }
-
-    /// 选文件。可多选，逐个按同一套纯校验放行；**第一个被拒的就当场弹窗并停下**——
-    /// 已经加进去的保留，用户看得见自己还剩几个名额。校验全在本地，40MB 传上去
-    /// 再被服务端 400 拒回来，那几分钟是白等的。
-    private func addFeedbackAttachments() {
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = true
-        panel.canChooseDirectories = false
-        panel.canChooseFiles = true
-        panel.allowedContentTypes = Self.feedbackAttachmentContentTypes
-        panel.prompt = String(localized: "Attach")
-        panel.message = String(localized: "Choose screenshots or screen recordings to send with your feedback.")
-        guard panel.runModal() == .OK else { return }
-
-        for url in panel.urls {
-            let name = url.lastPathComponent
-            let byteCount = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
-            if let rejection = FeedbackAttachmentCheck.validate(
-                adding: name, byteCount: byteCount, to: feedbackDraft.attachments
-            ) {
-                presentedAlert = SettingsAlert(FeedbackAlertContent(attachmentRejection: rejection))
-                return
-            }
-            guard let mimeType = FeedbackAttachmentCheck.mimeType(forFileName: name) else { return }
-            feedbackDraft.attachments.append(FeedbackAttachment(
-                url: url, name: name, byteCount: byteCount, mimeType: mimeType
-            ))
-        }
-    }
-
-    /// 与 `FeedbackAttachmentCheck` 的扩展名白名单一一对应。多放一种，服务端会 400。
-    private static let feedbackAttachmentContentTypes: [UTType] = [
-        .png, .jpeg, .gif, .heic, .quickTimeMovie, .mpeg4Movie
-    ]
-
-    private func submitFeedback() {
-        // 先组装再上锁：空正文直接返回，不占 submitting 状态（按钮 disabled 已挡，这里兜底）。
-        guard let composed = FeedbackComposition.compose(
-            category: feedbackDraft.category, message: feedbackDraft.message
-        ) else { return }
-        guard coordinator.beginFeedback() else { return }
-        let contact = feedbackDraft.contact
-        let attachments = feedbackDraft.attachments
-        Task {
-            let content = await coordinator.performFeedback(
-                message: composed, contact: contact, attachments: attachments
-            )
-            coordinator.finishFeedback()
-            // 失败时草稿**全保留**（含附件列表）：40MB 重选一遍是很实在的惩罚。
-            if content.didSend {
-                feedbackDraft.clear()
-            }
-            presentedAlert = SettingsAlert(content)
-        }
-    }
-
-    /// 「原始用户，永久免费」的留邮箱入口。住在「授权」页（2026-09-01 从「关于」搬来，
-    /// owner 拍板）：紧挨着上面那句「1.0 才开放发放、原始用户届时收到永久免费授权码」。
-    ///
-    /// ⚠️ 标题和正文与官网 tungstenedge.app 的订阅区**逐字同源**（owner 逐句敲定的公开承诺），
-    /// 不要在这里"改得更适合 App"——两处说法一旦分叉，将来兑现承诺时就会有人拿着不同的
-    /// 版本来对质。
-    ///
-    /// ⚠️ 结果一律走 `SettingsAlert`，**不要**改成在区块里就地长出成功/失败文案：
-    /// `SettingsWindowController.resizeToFitKeepingTopEdge()` 只在 `present()` 和几个
-    /// `@Published` 订阅里重新量高度，就地加一行不会让窗口跟着变高，只会变成可滚动。
-    @ViewBuilder
-    private var subscriptionContent: some View {
-        if store.hasSubscribed {
-            // 已经留过的人不该被同一段话反复看见。这只是本机的显示状态，
-            // 不是「是否原始用户」的凭据。
-            Text("You’re subscribed. When licensing arrives, it will be sent straight to your inbox.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-        } else {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Founding Users · Free Forever")
-                    .font(.callout.weight(.medium))
-                Text("Leave your email address and your license will be sent directly to you. It survives switching devices or reinstalling macOS.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                let presentation = coordinator.subscriptionState.presentation
-                HStack(spacing: 10) {
-                    TextField(text: $subscriptionEmail, prompt: Text("you@example.com")) {
-                        Text("you@example.com")
-                    }
-                        .labelsHidden()
-                        .textFieldStyle(.roundedBorder)
-                        .disabled(!presentation.isEnabled)
-                        .onSubmit { submitSubscription() }
-                    Button(presentation.title) { submitSubscription() }
-                        .disabled(!presentation.isEnabled || subscriptionEmail.isEmpty)
-                }
-
-                // ⚠️ 上报首装日期这件事必须写在界面上。一个常驻工具偷偷上报安装日期
-                // 被人发现，损失远大于这份名单的价值。
-                Text("Only your email address and first-launch date are sent, to confirm you as a founding user. No marketing email.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-    }
-
-    /// GitHub 的 Star 请求。**常驻**，和有没有订阅过无关——所以它是 `subscriptionRow` 的
-    /// 同级兄弟，不塞进那个 if/else 里。2026-09-01 跟着订阅块一起搬到「授权」页：
-    /// 下面第 2 条那个"比订阅正文更淡"的调子是相对订阅块定的，两者必须相邻才成立。
-    ///
-    /// ⚠️ 调子沿用官网 tungstenedge.app 订阅区那段（`index.html` 里的 `.sub-star`）已经定死的
-    /// 三条规矩，别在这里重新发挥：
-    /// 1. **常驻**，不是订阅成功之后才冒出来——用户得先在视野里见过它，回头点起来才顺理成章。
-    /// 2. **比订阅正文更淡**。它是"顺手帮个忙"，不能压过留邮箱的真实理由。官网用
-    ///    `opacity .5 / font-weight 300 / 12.5px`；这里对应 `.caption`，而订阅正文是 `.callout`。
-    /// 3. **只说这一次**。订阅结果的 `SettingsAlert` 里不要再提 Star——它一直在视野里，
-    ///    重复只会变吵，还会跟"去邮箱点确认"抢注意力（那一步不点就进不了名单，是承重的）。
-    ///
-    /// ⚠️ 链接用 `Button` 而不是 SwiftUI 的 `Link`：`Scripts/check_localization.py` 的正则
-    /// 不扫 `Link(...)`，改成 `Link` 会让这条文案悄悄绕过本地化检查、在中文系统上露出英文。
-    ///
-    /// ⚠️ 整句是**一个**本地化条目，不要拆成「前半句 + GitHub 按钮 + 后半句」：
-    /// 中英文里 GitHub 出现的位置不一样，拆开就没法翻译了。
-    private var githubStarRow: some View {
-        Button {
-            NSWorkspace.shared.open(SettingsWindowView.repositoryURL)
-        } label: {
-            Text("Star KatiKati on GitHub — a free way to help it get better.")
-        }
-        .buttonStyle(.link)
-        .font(.caption)
-    }
-
-    private func submitSubscription() {
-        // 在飞守卫在共享层，和检查更新同一套路。
-        guard coordinator.beginSubscription() else { return }
-        let email = subscriptionEmail
-        Task {
-            let content = await coordinator.performSubscription(email: email)
-            coordinator.finishSubscription()
-            if content.didSubscribe { subscriptionEmail = "" }
-            presentedAlert = SettingsAlert(content)
-        }
     }
 
     /// 一页的行容器。分区标题随 2026-08-24 分页取消（窗口标题承担），只剩统一行距。
@@ -1071,14 +665,6 @@ private struct SettingsAlert: Identifiable {
         self.action = action
     }
 
-    init(_ content: SubscriptionAlertContent) {
-        self.init(title: content.title, message: content.message)
-    }
-
-    init(_ content: FeedbackAlertContent) {
-        self.init(title: content.title, message: content.message)
-    }
-
     /// 改键失败 → 一句能行动的人话。拒绝理由逐条给（每条的下一步动作不同）；
     /// 注册失败只有一种真实成因（组合被别的应用独占注册）。
     init(hotKeyError: HotKeyChangeError, attemptedGlyphs: String) {
@@ -1111,17 +697,6 @@ private struct SettingsAlert: Identifiable {
                     attemptedGlyphs
                 )
             )
-        }
-    }
-}
-
-extension LicenseKind {
-    /// 授权种类给用户看的名字。`LicenseVerifier` 那边是纯逻辑、不带文案，所以放在这里。
-    /// 用词照 `Docs/30-i18n-glossary.md`：founding = 原始用户 / Founding User。
-    var displayTitle: String {
-        switch self {
-        case .founding: return String(localized: "Founding User")
-        case .paid: return String(localized: "Paid")
         }
     }
 }

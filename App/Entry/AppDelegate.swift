@@ -62,20 +62,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         launchAtLoginService: launchAtLoginService,
         nativeDockPreferencesService: nativeDockPreferencesService,
         updateService: updateService,
-        subscriptionSubmitter: WebsiteSubscriptionSubmitter(),
-        feedbackSubmitter: WebsiteFeedbackSubmitter(),
         // 改键的真实注册入口。临时副本没有 monitor（也进不了设置窗口），兜底报失败。
         hotKeyRegistrar: { [weak self] shortcut in
             self?.edgeToggleHotKey?.update(shortcut: shortcut) ?? .monitorUnavailable
         }
     )
-    /// 本机授权凭据。设置窗口的「授权」区块读它；将来的试用期逻辑也会读它，
-    /// 所以它是 AppDelegate 的一等成员，不藏在设置窗口里。
-    let licenseStore = LicenseStore()
     private lazy var settingsWindowController = SettingsWindowController(
         store: settingsStore,
         coordinator: settingsCoordinator,
-        licenseStore: licenseStore,
         // 直通 showWelcomeWindow()，不走 presentWelcomeGuideIfNeeded()——那条对
         // hasSeenWelcome 已置位的存量用户永远静默跳过，而存量用户正是这个入口的全部受众。
         // 入口 2026-09-01 从状态栏菜单搬进设置卡「通用」页（owner 拍板）；直通这一点不变。
@@ -189,14 +183,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         startMainLoopStallProbeIfTracing()
         StackPopupSnapshotProbe.runIfRequested()
 
-        // 首装时间戳：**故意放在所有分支判断之前**，搬家引导、权限引导、正常启动都要记。
-        // 这三条分支的用户都是真的运行过钨极的人，将来转收费判定老用户时不该把谁漏掉。
-        // 只写一次、之后永不覆盖，理由见 `InstallationRecord`。
-        //
-        // Install lineage was captured before any store was constructed; the first-launch stamp
-        // still lands ahead of every runtime branch.
+        // Install lineage was captured before any store was constructed.
         let isFreshInstall = installLineage == .pristine
-        InstallationRecord.recordFirstLaunchIfNeeded()
         // 全新安装把最大化避让播种为开；老用户维持关（它会改写别人应用的窗口尺寸，
         // 不能靠一次升级静默打开）。理由见 `AppSettingsStore.seedWindowLiftEnabledForFreshInstall`。
         if isFreshInstall {

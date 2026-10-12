@@ -6,7 +6,6 @@ import SwiftUI
 final class SettingsWindowController: NSObject, NSWindowDelegate {
     private let store: AppSettingsStore
     private let coordinator: SettingsCoordinator
-    private let licenseStore: LicenseStore
     /// 「通用」页那颗「重新打开新手引导」按钮。闭包注入：引导窗归 `AppDelegate` 开
     /// （必须直通 `showWelcomeWindow()`，见那边的注释）。
     private let onShowWelcomeGuide: () -> Void
@@ -18,19 +17,14 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
     /// 所选标签（2026-08-24 分页）。controller 持有唯一一份 = 会话内记忆；
     /// 量高探针必须共享它，否则量的是别的页。有意不跨重启持久化。
     private let tabState = SettingsTabState()
-    /// Feedback drafts outlive the window for the same reason: closing drops the host, and with
-    /// it every `@State`. Deliberately not persisted across launches.
-    private let feedbackDraft = FeedbackDraftState()
 
     init(
         store: AppSettingsStore,
         coordinator: SettingsCoordinator,
-        licenseStore: LicenseStore,
         onShowWelcomeGuide: @escaping () -> Void
     ) {
         self.store = store
         self.coordinator = coordinator
-        self.licenseStore = licenseStore
         self.onShowWelcomeGuide = onShowWelcomeGuide
     }
 
@@ -44,9 +38,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
             rootView: SettingsWindowView(
                 store: store,
                 coordinator: coordinator,
-                licenseStore: licenseStore,
                 tabState: tabState,
-                feedbackDraft: feedbackDraft,
                 onShowWelcomeGuide: onShowWelcomeGuide
             )
         )
@@ -57,23 +49,6 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         window.toolbar?.selectedItemIdentifier = NSToolbarItem.Identifier(tabState.selected.rawValue)
 
         sessionSubscriptions.removeAll()
-        // 登录项 2026-08-24 起只在状态栏菜单，设置窗口没有会变高矮的登录行了，它那条量高订阅随之删除。
-        // 剩下两条都在「授权」页：激活成功后少掉输入框那一行，留完邮箱后订阅块塌成一行。
-        // 少了订阅，内容原地变矮不会重新量高度，只会在窗口里留一片空白。
-        licenseStore.$state
-            .dropFirst()
-            .sink { [weak self] _ in
-                DispatchQueue.main.async { self?.resizeToFitKeepingTopEdge() }
-            }
-            .store(in: &sessionSubscriptions)
-        // 订阅块 2026-09-01 从「关于」搬到「授权」页。留完邮箱后整块塌成一行，
-        // 这一页原地变矮——不补这条 sink 就只会在窗口里留一片空白。
-        store.$hasSubscribed
-            .dropFirst()
-            .sink { [weak self] _ in
-                DispatchQueue.main.async { self?.resizeToFitKeepingTopEdge() }
-            }
-            .store(in: &sessionSubscriptions)
 
         resizeToFitKeepingTopEdge()
         repairPlacement(isFirstPresentation: !hasPresented)
@@ -93,7 +68,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         sessionSubscriptions.removeAll()
         window.contentView = NSView()
         hostingView = nil
-        // tabState 与 feedbackDraft 有意不重置：重开回到同一标签，写了一半的反馈还在。
+        // tabState 有意不重置：重开回到同一标签。
     }
 
     // MARK: 标签页
@@ -166,9 +141,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
             rootView: SettingsWindowContent(
                 store: store,
                 coordinator: coordinator,
-                licenseStore: licenseStore,
                 tabState: tabState,
-                feedbackDraft: feedbackDraft,
                 onShowWelcomeGuide: onShowWelcomeGuide
             )
             .frame(width: SettingsWindowView.contentWidth)

@@ -40,10 +40,6 @@ final class SettingsCoordinator: ObservableObject {
     /// 最近一次系统读取或本 App 成功写入的结果。系统 I/O 在服务的专用队列执行，
     /// 菜单与设置窗口先显示这份缓存，再异步刷新。
     @Published private(set) var launchAtLoginState: LaunchAtLoginState
-    /// 同理：订阅按钮连点两下不能发两次请求。
-    @Published private(set) var subscriptionState = SubscriptionSubmitState()
-    /// 反馈发送按钮的在飞守卫，同上。
-    @Published private(set) var feedbackState = FeedbackSubmitState()
 
     private let store: AppSettingsStore
     private let launchAtLoginService: LaunchAtLoginServicing
@@ -52,8 +48,6 @@ final class SettingsCoordinator: ObservableObject {
     /// 原来那套 `UpdateCheckMenuState` 存在的理由是两套界面各有一个入口、各自守卫会发两次
     /// 请求；现在两套界面都问同一个 `SparkleUpdateService`，理由自动满足。
     private let updateService: any UpdateControlling
-    private let subscriptionSubmitter: SubscriptionSubmitting
-    private let feedbackSubmitter: FeedbackSubmitting
     /// 改键时的真实注册入口（AppDelegate 手里的 `GlobalHotKeyMonitor.update(shortcut:)`）。
     /// 闭包注入：monitor 归 AppDelegate 持有，临时副本（DMG）根本没有它。
     private let hotKeyRegistrar: (GlobalHotKeyShortcut) -> GlobalHotKeyMonitor.RegistrationStatus
@@ -70,16 +64,12 @@ final class SettingsCoordinator: ObservableObject {
         launchAtLoginService: LaunchAtLoginServicing,
         nativeDockPreferencesService: NativeDockPreferencesServicing,
         updateService: any UpdateControlling,
-        subscriptionSubmitter: SubscriptionSubmitting,
-        feedbackSubmitter: FeedbackSubmitting,
         hotKeyRegistrar: @escaping (GlobalHotKeyShortcut) -> GlobalHotKeyMonitor.RegistrationStatus
     ) {
         self.store = store
         self.launchAtLoginService = launchAtLoginService
         self.nativeDockPreferencesService = nativeDockPreferencesService
         self.updateService = updateService
-        self.subscriptionSubmitter = subscriptionSubmitter
-        self.feedbackSubmitter = feedbackSubmitter
         self.hotKeyRegistrar = hotKeyRegistrar
         // **镜像只作首帧种子，不是真值来源。** `SMAppService.mainApp.status` 是 XPC，
         // 放在 init 里同步读会把开销带进每一次界面构造；而每个展示入口（菜单 `menuWillOpen`、
@@ -323,82 +313,6 @@ final class SettingsCoordinator: ObservableObject {
             // checkbox keeps its old look while the real value has already flipped.
             objectWillChange.send()
             updateService.automaticallyChecksForUpdates = newValue
-        }
-    }
-
-    // MARK: 应用内反馈
-
-    /// 返回 false = 已经有一次提交在飞，本次忽略。
-    func beginFeedback() -> Bool {
-        feedbackState.begin()
-    }
-
-    func finishFeedback() {
-        feedbackState.finish()
-    }
-
-    /// 把 throws 吞成「一定有文案」，界面层不处理 error——和订阅同一约定。
-    /// 六项（正文 / 联系方式 / 版本 / macOS / 语言 / 附件）就是界面上披露的那六项，别多带。
-    /// 附件任一读不出来或传不上去 → 整单失败，界面据此保留草稿让用户重试。
-    /// 失败文案按真实成因分六种（`FeedbackFailure`）——所有失败都说「检查网络」会
-    /// 在限流、附件额度满这些场合把用户指向完全错误的方向。
-    func performFeedback(
-        message: String,
-        contact: String,
-        attachments: [FeedbackAttachment] = []
-    ) async -> FeedbackAlertContent {
-        if let rejection = FeedbackDraftCheck.validate(message: message, contact: contact) {
-            return FeedbackAlertContent(rejection: rejection)
-        }
-        let trimmedContact = contact.trimmingCharacters(in: .whitespacesAndNewlines)
-        let draft = FeedbackDraft(
-            message: message.trimmingCharacters(in: .whitespacesAndNewlines),
-            contact: trimmedContact.isEmpty ? nil : trimmedContact,
-            // 版本行带构建来源后缀（开发版 / 非安装位置），排查问题时正需要它。
-            appVersion: versionTitle,
-            macosVersion: ProcessInfo.processInfo.operatingSystemVersionString,
-            lang: Bundle.main.preferredLocalizations.first ?? "en",
-            attachments: attachments
-        )
-        do {
-            try await feedbackSubmitter.submit(draft)
-            return .sent
-        } catch {
-            return FeedbackAlertContent(failure: FeedbackFailure(error: error))
-        }
-    }
-
-    // MARK: 邮箱订阅
-
-    /// 返回 false = 已经有一次提交在飞，本次忽略。
-    func beginSubscription() -> Bool {
-        subscriptionState.begin()
-    }
-
-    func finishSubscription() {
-        subscriptionState.finish()
-    }
-
-    /// 把 throws 吞成「一定有文案」，界面层不处理 error——和 `performUpdateCheck` 同一约定。
-    ///
-    /// 首装日期从 `InstallationRecord` 现取：它是「原始用户」的主凭据，随邮箱一起送上去，
-    /// 将来兑现承诺时才能按安装时间筛人，而不是只能看订阅时间。
-    /// ⚠️ 上报这个日期的事**必须**写在设置界面上，不能悄悄发。
-    func performSubscription(email: String) async -> SubscriptionAlertContent {
-        do {
-            let outcome = try await subscriptionSubmitter.submit(
-                email: email,
-                firstLaunchDate: InstallationRecord.firstLaunchDate()
-            )
-            let content = SubscriptionAlertContent(outcome: outcome)
-            if content.didSubscribe {
-                store.setHasSubscribed(true)
-            }
-            return content
-        } catch SubscriptionError.invalidEmail {
-            return .invalidEmail
-        } catch {
-            return .failure
         }
     }
 }

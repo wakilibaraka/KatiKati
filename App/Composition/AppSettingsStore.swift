@@ -216,10 +216,6 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var scrollReverserEnabled: Bool
     /// 任务条显示位置。默认 `.followMouse` = 现状（底边停留切屏）；`.pinned` 固定到某屏。
     @Published private(set) var taskbarScreenPlacement: TaskbarScreenPlacement
-    /// 这台机器上已经成功提交过邮箱订阅。只用来把设置里那段订阅区块收起来，
-    /// 免得已经留过邮箱的人被同一段话反复看见。**不是**「是否为原始用户」的凭据——
-    /// 那个凭据是 `InstallationRecord` 的首装时间戳，以及服务端那份名单。
-    @Published private(set) var hasSubscribed: Bool
     /// 这台机器已经看过首次运行的欢迎引导（建议隐藏系统 Dock 那一屏）。
     /// 一次性显示状态，和「有没有真的去隐藏」无关——用户点了「以后再说」也算看过，
     /// 不再骚扰；想改的人走状态栏菜单里那条系统 Dock 滑杆。
@@ -363,7 +359,6 @@ final class AppSettingsStore: ObservableObject {
         // 会改写别人应用的窗口尺寸，不能靠一次升级静默生效。
         windowLiftEnabled = defaults.bool(forKey: Keys.windowLiftEnabled)
         // 同样有意不进 register：缺键即 false = 还没订阅过。
-        hasSubscribed = defaults.bool(forKey: Keys.hasSubscribed)
         // 同上：缺键即 false = 还没看过欢迎引导。
         hasSeenWelcome = defaults.bool(forKey: Keys.hasSeenWelcome)
         fullscreenIntentEnabled = defaults.bool(forKey: Keys.fullscreenIntentEnabled)
@@ -882,12 +877,6 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.windowLiftEnabled)
     }
 
-    func setHasSubscribed(_ value: Bool) {
-        guard hasSubscribed != value else { return }
-        hasSubscribed = value
-        defaults.set(value, forKey: Keys.hasSubscribed)
-    }
-
     func setHasSeenWelcome(_ value: Bool) {
         guard hasSeenWelcome != value else { return }
         hasSeenWelcome = value
@@ -1062,7 +1051,6 @@ private enum Keys {
     /// false = already consumed.
     static let taskbarScreenPerDisplaySeedPending = "com.katikati.taskbarScreen.perDisplaySeedPending"
     /// ⚠️ 这个键名进了用户磁盘。改名 = 所有已订阅的人重新看到订阅区块。
-    static let hasSubscribed = "com.katikati.hasSubscribed"
     /// ⚠️ 同上：改名 = 所有老用户下次启动被欢迎引导再拦一次。
     static let hasSeenWelcome = "com.katikati.hasSeenWelcome"
     static let nativeDockAutoHideEnabled = "com.katikati.autoHide.nativeDock.enabled"
@@ -1131,7 +1119,6 @@ enum TungstenDefaultsMigrator {
         ("com.tungsten.edge.taskbarScreen.mode", "com.katikati.taskbarScreen.mode"),
         ("com.tungsten.edge.taskbarScreen.pinned", "com.katikati.taskbarScreen.pinned"),
         ("com.tungsten.edge.taskbarScreen.perDisplaySeedPending", "com.katikati.taskbarScreen.perDisplaySeedPending"),
-        ("com.tungsten.edge.hasSubscribed", "com.katikati.hasSubscribed"),
         ("com.tungsten.edge.hasSeenWelcome", "com.katikati.hasSeenWelcome"),
         ("com.tungsten.edge.autoHide.nativeDock.enabled", "com.katikati.autoHide.nativeDock.enabled"),
         ("com.tungsten.edge.autoHide.nativeDock.delay", "com.katikati.autoHide.nativeDock.delay"),
@@ -1139,8 +1126,6 @@ enum TungstenDefaultsMigrator {
         ("com.tungsten.edge.autoHide.edge.enabled", "com.katikati.autoHide.edge.enabled"),
         ("com.tungsten.edge.autoHide.edge.delay", "com.katikati.autoHide.edge.delay"),
         ("com.tungsten.edge.autoHide.edge.lastEnabledDelay", "com.katikati.autoHide.edge.lastEnabledDelay"),
-        ("com.tungsten.edge.firstLaunchDate", "com.katikati.firstLaunchDate"),
-        ("com.tungsten.edge.licenseKey", "com.katikati.licenseKey"),
     ]
 
     @discardableResult

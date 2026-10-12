@@ -208,8 +208,6 @@ final class SettingsCoordinatorTests: XCTestCase {
             launchAtLoginService: launch,
             nativeDockPreferencesService: NativeDockServiceStub(),
             updateService: UpdateControlStub(),
-            subscriptionSubmitter: SubscriptionSubmitterStub(),
-            feedbackSubmitter: FeedbackSubmitterStub(),
             hotKeyRegistrar: { _ in .registered }
         )
 
@@ -236,8 +234,6 @@ final class SettingsCoordinatorTests: XCTestCase {
             launchAtLoginService: LaunchServiceStub(state: .off),
             nativeDockPreferencesService: native,
             updateService: UpdateControlStub(),
-            subscriptionSubmitter: SubscriptionSubmitterStub(),
-            feedbackSubmitter: FeedbackSubmitterStub(),
             hotKeyRegistrar: { _ in .registered }
         )
 
@@ -361,8 +357,6 @@ final class SettingsCoordinatorTests: XCTestCase {
         launch: LaunchServiceStub? = nil,
         native: NativeDockServiceStub? = nil,
         updates: UpdateControlStub? = nil,
-        subscriptions: SubscriptionSubmitterStub? = nil,
-        feedback: FeedbackSubmitterStub? = nil,
         hotKeys: ((GlobalHotKeyShortcut) -> GlobalHotKeyMonitor.RegistrationStatus)? = nil
     ) -> SettingsCoordinator {
         SettingsCoordinator(
@@ -370,8 +364,6 @@ final class SettingsCoordinatorTests: XCTestCase {
             launchAtLoginService: launch ?? LaunchServiceStub(state: .off),
             nativeDockPreferencesService: native ?? NativeDockServiceStub(),
             updateService: updates ?? UpdateControlStub(),
-            subscriptionSubmitter: subscriptions ?? SubscriptionSubmitterStub(),
-            feedbackSubmitter: feedback ?? FeedbackSubmitterStub(),
             hotKeyRegistrar: hotKeys ?? { _ in .registered }
         )
     }
@@ -512,22 +504,6 @@ private final class ControlledNativeDockService: NativeDockPreferencesServicing 
     func openSystemSettings() -> Bool { true }
 }
 
-private final class SubscriptionSubmitterStub: SubscriptionSubmitting, @unchecked Sendable {
-    var outcome: SubscriptionOutcome = .created
-    var error: Error?
-    private(set) var submitCount = 0
-    private(set) var lastEmail: String?
-    private(set) var lastFirstLaunchDate: Date?
-
-    func submit(email: String, firstLaunchDate: Date?) async throws -> SubscriptionOutcome {
-        submitCount += 1
-        lastEmail = email
-        lastFirstLaunchDate = firstLaunchDate
-        if let error { throw error }
-        return outcome
-    }
-}
-
 @MainActor
 private final class UpdateControlStub: UpdateControlling {
     var canCheckForUpdates = true
@@ -543,16 +519,4 @@ private final class UpdateControlStub: UpdateControlling {
 
 private enum TestError: Error {
     case failed
-}
-
-
-/// 反馈提交替身：记录草稿、可脚本化失败。
-private final class FeedbackSubmitterStub: FeedbackSubmitting {
-    private(set) var drafts: [FeedbackDraft] = []
-    var error: Error?
-
-    func submit(_ draft: FeedbackDraft) async throws {
-        if let error { throw error }
-        drafts.append(draft)
-    }
 }

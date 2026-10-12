@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-/// 设置窗口的七个标签页（Phase 6 加「布局」「外观」）（2026-08-24 分页、同日反馈拎出为独立标签；「Dock 栏」页 2026-09-01
+/// 设置窗口的五个标签页（Phase 6 加「布局」「外观」；2026-10 移除「授权」「反馈」）（2026-08-24 分页；「Dock 栏」页 2026-09-01
 /// 整页搬进状态栏菜单，见 `Docs/27`）。标题复用原分区标题的
 /// 本地化 key；图标全部 macOS 11 起可用（对照 CoreGlyphs name_availability 核过）。
 /// 纯 Foundation/Combine——测试 target 也编译它，别引 AppKit。
@@ -10,8 +10,6 @@ enum SettingsTab: String, CaseIterable {
     case layout
     case appearance
     case advanced
-    case license
-    case feedback
     case about
 
     var title: String {
@@ -20,8 +18,6 @@ enum SettingsTab: String, CaseIterable {
         case .layout: return String(localized: "Layout")
         case .appearance: return String(localized: "Appearance")
         case .advanced: return String(localized: "Advanced")
-        case .license: return String(localized: "License")
-        case .feedback: return String(localized: "Feedback")
         case .about: return String(localized: "About")
         }
     }
@@ -32,8 +28,6 @@ enum SettingsTab: String, CaseIterable {
         case .layout: return "rectangle.split.3x1"
         case .appearance: return "paintpalette"
         case .advanced: return "wrench.and.screwdriver"
-        case .license: return "key"
-        case .feedback: return "paperplane"
         case .about: return "info.circle"
         }
     }
@@ -45,24 +39,4 @@ enum SettingsTab: String, CaseIterable {
 @MainActor
 final class SettingsTabState: ObservableObject {
     @Published var selected: SettingsTab = .general
-}
-
-/// The feedback pane's four drafts. Owned by the controller, like `SettingsTabState`, because
-/// closing the window drops the whole SwiftUI tree — `@State` on the root dies with it and the
-/// user reopens to an empty form. Lives until the process exits; never written to UserDefaults.
-/// The height probe shares this instance too.
-@MainActor
-final class FeedbackDraftState: ObservableObject {
-    @Published var message = ""
-    @Published var contact = ""
-    @Published var category: FeedbackCategory = .bug
-    @Published var attachments: [FeedbackAttachment] = []
-
-    /// After a successful send only: a failed one keeps everything, attachments included.
-    func clear() {
-        message = ""
-        contact = ""
-        category = .bug
-        attachments = []
-    }
 }
