@@ -182,6 +182,22 @@ final class WeatherDetailTests: XCTestCase {
         XCTAssertEqual(d.latitude, 40.99)
     }
 
+    func testNullDaysAtTheEndOfTheForecastDoNotBreakParsing() throws {
+        // Open-Meteo returns null for the last, partial day; one null used to fail the whole forecast ("data is missing").
+        let json = """
+        {"latitude": 1, "longitude": 2,
+         "current": {"time": "2026-10-11T14:15", "temperature_2m": 12.5, "weather_code": 3, "is_day": 1},
+         "hourly": {"time": ["2026-10-11T14:00"], "temperature_2m": [12.5], "weathercode": [3]},
+         "daily": {"time": ["2026-10-11", "2026-10-12", "2026-10-13"], "weathercode": [3, 61, null],
+                   "temperature_2m_max": [15, 14, null], "temperature_2m_min": [8, 7, null],
+                   "precipitation_sum": [0, 2, null], "uv_index_max": [3, 2, null]}}
+        """.data(using: .utf8)!
+        let state = try WeatherResponseParsing.parse(data: json, cityName: "Nairobi", previousHourly: [])
+        XCTAssertEqual(state.detail?.daily.count, 2, "the incomplete day is dropped, the rest survive")
+        XCTAssertEqual(state.daily.count, 2)
+        XCTAssertEqual(state.highCelsius, 15)
+    }
+
     func testNewStyleCurrentBlockAloneIsEnough() throws {
         let json = """
         {"latitude": 1, "longitude": 2,

@@ -94,8 +94,9 @@ struct LauncherView: View {
         let width = min(available - 112, 1500)
         let columns = min(8, LauncherGrid.columns(forWidth: width, minCell: 84, gap: Self.gap))
         let cellWidth = (width - Double(columns - 1) * Self.gap) / Double(columns)
-        let icon = CGFloat(min(max(cellWidth * 0.56, 56), 128))
-        return Metrics(columns: columns, icon: icon, rowHeight: Double(icon) + 44 + Self.rowSpacing, width: width)
+        let icon = CGFloat(min(max(cellWidth * 0.68, 56), 150))
+        // icon + gap + one line of label + the space between rows
+        return Metrics(columns: columns, icon: icon, rowHeight: Double(icon) + 8 + 18 + Self.rowSpacing, width: width)
     }
 
     @ViewBuilder private var content: some View {

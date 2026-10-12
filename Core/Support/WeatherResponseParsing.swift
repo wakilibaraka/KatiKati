@@ -33,9 +33,10 @@ public struct OpenMeteoResponse: Decodable {
     }
     public struct Daily: Decodable {
         public let time: [String]?
-        public let weathercode: [Int]?
-        public let temperature_2m_max: [Double]
-        public let temperature_2m_min: [Double]
+        /// The API returns `null` for the last (partial) forecast day, so the day values are optional and incomplete days are skipped.
+        public let weathercode: [Int?]?
+        public let temperature_2m_max: [Double?]
+        public let temperature_2m_min: [Double?]
         public let precipitation_sum: [Double?]?
         public let snowfall_sum: [Double?]?
         public let precipitation_probability_max: [Double?]?
@@ -110,8 +111,8 @@ public enum WeatherResponseParsing {
         // condition text for everything else — one extra key to translate, not ten.
         let nightCloudy = isDay == false && (family == .partlyCloudy || family == .cloudy)
         let labelText = nightCloudy ? String(localized: "Cloudy Night") : condition.text
-        let high = decoded.daily?.temperature_2m_max.first ?? (current.temperature + 3.0)
-        let low = decoded.daily?.temperature_2m_min.first ?? (current.temperature - 4.0)
+        let high = decoded.daily?.temperature_2m_max.first.flatMap { $0 } ?? (current.temperature + 3.0)
+        let low = decoded.daily?.temperature_2m_min.first.flatMap { $0 } ?? (current.temperature - 4.0)
 
         var hourlyList: [HourlyForecast] = []
         if let hourly = decoded.hourly {
@@ -182,10 +183,11 @@ public enum WeatherResponseParsing {
         if let d = r.daily {
             let n = min(d.temperature_2m_max.count, d.temperature_2m_min.count, 16)
             for i in 0..<n {
+                guard let high = d.temperature_2m_max[i], let low = d.temperature_2m_min[i] else { continue }   // incomplete day
                 days.append(WeatherDayPoint(
                     date: d.time?.indices.contains(i) == true ? d.time![i] : "day-\(i)",
-                    code: d.weathercode?.indices.contains(i) == true ? d.weathercode![i] : 2,
-                    high: d.temperature_2m_max[i], low: d.temperature_2m_min[i],
+                    code: (d.weathercode?.indices.contains(i) == true ? d.weathercode![i] : nil) ?? 2,
+                    high: high, low: low,
                     precipSum: at(d.precipitation_sum, i), snowSum: at(d.snowfall_sum, i),
                     precipProbabilityMax: at(d.precipitation_probability_max, i),
                     uvMax: at(d.uv_index_max, i), windMax: at(d.wind_speed_10m_max, i), gustMax: at(d.wind_gusts_10m_max, i),
@@ -219,13 +221,14 @@ public enum WeatherResponseParsing {
         let count = min(daily.temperature_2m_max.count, min(daily.temperature_2m_min.count, 14))
         var forecasts: [DailyForecast] = []
         for index in 0..<count {
-            let code = daily.weathercode?.indices.contains(index) == true ? daily.weathercode![index] : 2
+            guard let high = daily.temperature_2m_max[index], let low = daily.temperature_2m_min[index] else { continue }
+            let code = (daily.weathercode?.indices.contains(index) == true ? daily.weathercode![index] : nil) ?? 2
             let date = daily.time?.indices.contains(index) == true ? daily.time![index] : "day-\(index)"
             forecasts.append(
                 DailyForecast(
                     date: date,
-                    highCelsius: daily.temperature_2m_max[index],
-                    lowCelsius: daily.temperature_2m_min[index],
+                    highCelsius: high,
+                    lowCelsius: low,
                     symbolName: mapWeatherCode(code: code).symbol
                 )
             )

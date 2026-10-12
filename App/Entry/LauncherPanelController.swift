@@ -69,9 +69,13 @@ final class LauncherPanelController {
 
     private func handleScroll(_ event: NSEvent) {
         guard isShown, model.query.isEmpty, model.scrollDirection == .horizontal else { return }
-        let dx = event.scrollingDeltaX, dy = event.scrollingDeltaY
+        // Line-based wheel events may carry only the raw deltas.
+        let dx = event.scrollingDeltaX != 0 ? event.scrollingDeltaX : event.deltaX
+        let dy = event.scrollingDeltaY != 0 ? event.scrollingDeltaY : event.deltaY
         let delta = abs(dx) > abs(dy) ? -dx : -dy
-        if event.hasPreciseScrollingDeltas {
+        // A real trackpad swipe reports gesture phases; anything without them (mouse wheel, remote or synthetic scrolling)
+        // is treated as one page per click.
+        if event.hasPreciseScrollingDeltas, !(event.phase.isEmpty && event.momentumPhase.isEmpty) {
             if event.phase == .began { scrollAccum = 0; scrollFired = false }
             guard event.momentumPhase.isEmpty else { return }
             scrollAccum += delta
@@ -80,7 +84,7 @@ final class LauncherPanelController {
                 model.pageTurns.send(scrollAccum > 0 ? 1 : -1)
             }
             if event.phase == .ended || event.phase == .cancelled { scrollAccum = 0; scrollFired = false }
-        } else if delta != 0, Date().timeIntervalSince(lastWheelTurn) > 0.3 {
+        } else if abs(delta) > 0.01, Date().timeIntervalSince(lastWheelTurn) > 0.3 {
             lastWheelTurn = Date()
             model.pageTurns.send(delta > 0 ? 1 : -1)
         }
