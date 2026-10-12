@@ -46,3 +46,16 @@ enum LauncherScreenInsets {
         )
     }
 }
+
+/// Which way the launcher grid scrolls (Phase 7B launcher redo). Raw values are stored in
+/// `com.katikati.launcher.scroll`; never rename them.
+enum LauncherScrollDirection: String, CaseIterable, Sendable {
+    case vertical
+    case horizontal
+
+    static let `default`: LauncherScrollDirection = .vertical
+
+    static func parse(_ stored: String?) -> LauncherScrollDirection {
+        stored.flatMap(LauncherScrollDirection.init(rawValue:)) ?? .default
+    }
+}

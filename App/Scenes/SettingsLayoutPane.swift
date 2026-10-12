@@ -311,14 +311,14 @@ struct SettingsLayoutPane: View {
                 Text("Launcher")
             } content: {
                 HStack {
-                    Text("App List Side")
+                    Text("Scroll Direction")
                     Spacer(minLength: 12)
-                    Picker("App List Side", selection: Binding(
-                        get: { store.launcherSheetSide },
-                        set: { store.setLauncherSheetSide($0) }
+                    Picker("Scroll Direction", selection: Binding(
+                        get: { store.launcherScrollDirection },
+                        set: { store.setLauncherScrollDirection($0) }
                     )) {
-                        Text("Left").tag(EdgeSide.left)
-                        Text("Right").tag(EdgeSide.right)
+                        Text("Down").tag(LauncherScrollDirection.vertical)
+                        Text("Sideways").tag(LauncherScrollDirection.horizontal)
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
@@ -376,7 +376,6 @@ struct SettingsLayoutPane: View {
                         .buttonStyle(.plain)
                     }
                 }
-                Toggle("Screen Time", isOn: tileBinding(.screenTime))
             }
 
             section {
@@ -527,10 +526,6 @@ struct SettingsLayoutPane: View {
         case .tiles: return Text("Tiles")
         case .petal: return Text("Petal")
         }
-    }
-
-    private func tileBinding(_ tile: LauncherTile) -> Binding<Bool> {
-        Binding(get: { store.launcherTiles.contains(tile) }, set: { store.setLauncherTile(tile, enabled: $0) })
     }
 
     private var customRows: some View {

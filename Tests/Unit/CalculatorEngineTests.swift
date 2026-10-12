@@ -1,15 +1,7 @@
 import XCTest
 @testable import KatiKati
 
-final class LauncherTilesTests: XCTestCase {
-    func testFrozenIDsAndParse() {
-        XCTAssertEqual(LauncherTile.allCases.map(\.rawValue), ["screenTime"])
-        XCTAssertEqual(LauncherTile.parse("clock, calculator,countdown,bogus,clock"), [], "retired launcher ids are ignored")
-        XCTAssertEqual(LauncherTile.parse(nil), [])
-        XCTAssertEqual(LauncherTile.parse("screenTime,screenTime"), [.screenTime])
-        XCTAssertEqual(LauncherTile.ordered([.screenTime]), [.screenTime])
-    }
-
+final class CalculatorEngineTests: XCTestCase {
     func testCalculatorBasics() {
         XCTAssertEqual(CalculatorEngine.evaluate("12+6"), 18)
         XCTAssertEqual(CalculatorEngine.evaluate("2+3*4"), 14)

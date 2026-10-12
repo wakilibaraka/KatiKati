@@ -202,18 +202,6 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
-    func testLauncherTilesDefaultAllAndToggle() {
-        let defaults = makeDefaults()
-        let store = AppSettingsStore(defaults: defaults)
-        XCTAssertEqual(store.launcherTiles, LauncherTile.allCases)
-        XCTAssertEqual(store.launcherTiles, [.screenTime])
-        store.setLauncherTile(.screenTime, enabled: false)
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherTiles, [])
-        store.setLauncherTile(.screenTime, enabled: true)
-        XCTAssertEqual(store.launcherTiles, LauncherTile.allCases, "re-enabling restores display order")
-    }
-
-    @MainActor
     func testLauncherLookDefaultsAndPersists() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
@@ -239,17 +227,16 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
-    func testLauncherSheetSideDefaultsRightAndPersists() {
+    func testLauncherScrollDirectionDefaultsVerticalAndPersists() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertEqual(store.launcherSheetSide, .right)
-        store.setLauncherSheetSide(.left)
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherSheetSide, .left)
-        defaults.set("bogus", forKey: "com.katikati.launcher.sheetSide")
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherSheetSide, .right)
+        XCTAssertEqual(store.launcherScrollDirection, .vertical)
+        store.setLauncherScrollDirection(.horizontal)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherScrollDirection, .horizontal)
+        defaults.set("bogus", forKey: "com.katikati.launcher.scroll")
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherScrollDirection, .vertical)
     }
 
-    @MainActor
     func testDeckSettingsDefaultsClampAndPersist() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)

@@ -14,9 +14,8 @@ final class LauncherPanelController {
     private let model = LauncherModel()
     private let store = LauncherStore(url: LauncherStore.defaultURL)
     /// Read at each summon so a Settings change applies immediately.
-    var sheetSide: () -> EdgeSide = { .right }
     var searchPosition: () -> LauncherSearchPosition = { .top }
-    var tiles: () -> [LauncherTile] = { LauncherTile.allCases }
+    var scrollDirection: () -> LauncherScrollDirection = { .vertical }
     var look: () -> (theme: LauncherTheme, tint: LauncherTint) = { (.system, .none) }
     /// Height the KatiKati bottom bar occupies (it floats above `visibleFrame`), so the launcher never sits under it.
     var bottomBarReserve: () -> Double = { 0 }
@@ -31,9 +30,8 @@ final class LauncherPanelController {
         let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) } ?? NSScreen.main
         guard let screen else { return }
         model.state = store.load()
-        model.sheetSide = sheetSide()
         model.searchPosition = searchPosition()
-        model.tiles = tiles()
+        model.scrollDirection = scrollDirection()
         model.screenInsets = LauncherScreenInsets.compute(
             frame: screen.frame, visible: screen.visibleFrame, safeTop: Double(screen.safeAreaInsets.top),
             extraBottom: bottomBarReserve())

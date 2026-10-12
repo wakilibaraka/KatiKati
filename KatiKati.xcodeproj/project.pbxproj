@@ -693,10 +693,9 @@
 		ED00000000000000000000F7 /* LauncherStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000F6 /* LauncherStoreTests.swift */; };
 		ED00000000000000000000FA /* LauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000F9 /* LauncherView.swift */; };
 		ED00000000000000000000FC /* LauncherPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000FB /* LauncherPanelController.swift */; };
-		EE0000000000000000000002 /* LauncherTiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000001 /* LauncherTiles.swift */; };
-		EE0000000000000000000003 /* LauncherTiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000001 /* LauncherTiles.swift */; };
-		EE0000000000000000000005 /* LauncherTilesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000004 /* LauncherTilesTests.swift */; };
-		EE0000000000000000000007 /* LauncherTilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000006 /* LauncherTilesView.swift */; };
+		EE0000000000000000000002 /* CalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000001 /* CalculatorEngine.swift */; };
+		EE0000000000000000000003 /* CalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000001 /* CalculatorEngine.swift */; };
+		EE0000000000000000000005 /* CalculatorEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000004 /* CalculatorEngineTests.swift */; };
 		EE0000000000000000000009 /* LauncherLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000008 /* LauncherLayout.swift */; };
 		EE000000000000000000000A /* LauncherLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000008 /* LauncherLayout.swift */; };
 		EE000000000000000000000C /* LauncherLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000000B /* LauncherLayoutTests.swift */; };
@@ -1222,9 +1221,8 @@
 		ED00000000000000000000F6 /* LauncherStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherStoreTests.swift; path = Tests/Unit/LauncherStoreTests.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000F9 /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherView.swift; path = App/Scenes/LauncherView.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000FB /* LauncherPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherPanelController.swift; path = App/Entry/LauncherPanelController.swift; sourceTree = SOURCE_ROOT; };
-		EE0000000000000000000001 /* LauncherTiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherTiles.swift; path = Core/Support/LauncherTiles.swift; sourceTree = SOURCE_ROOT; };
-		EE0000000000000000000004 /* LauncherTilesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherTilesTests.swift; path = Tests/Unit/LauncherTilesTests.swift; sourceTree = SOURCE_ROOT; };
-		EE0000000000000000000006 /* LauncherTilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherTilesView.swift; path = App/Scenes/LauncherTilesView.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000001 /* CalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalculatorEngine.swift; path = Core/Support/CalculatorEngine.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000004 /* CalculatorEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalculatorEngineTests.swift; path = Tests/Unit/CalculatorEngineTests.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000008 /* LauncherLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherLayout.swift; path = Core/Support/LauncherLayout.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000000B /* LauncherLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherLayoutTests.swift; path = Tests/Unit/LauncherLayoutTests.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000000D /* LauncherAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherAppearance.swift; path = Core/Support/LauncherAppearance.swift; sourceTree = SOURCE_ROOT; };
@@ -2311,8 +2309,7 @@
 				EE0000000000000000000013 /* LauncherBackdrop.swift in Sources */,
 				EE000000000000000000000E /* LauncherAppearance.swift in Sources */,
 				EE0000000000000000000009 /* LauncherLayout.swift in Sources */,
-				EE0000000000000000000002 /* LauncherTiles.swift in Sources */,
-				EE0000000000000000000007 /* LauncherTilesView.swift in Sources */,
+				EE0000000000000000000002 /* CalculatorEngine.swift in Sources */,
 				ED00000000000000000000FA /* LauncherView.swift in Sources */,
 				ED00000000000000000000FC /* LauncherPanelController.swift in Sources */,
 				ED00000000000000000000F2 /* LauncherIndexer.swift in Sources */,
@@ -2446,8 +2443,8 @@
 				EE0000000000000000000011 /* LauncherAppearanceTests.swift in Sources */,
 				EE000000000000000000000A /* LauncherLayout.swift in Sources */,
 				EE000000000000000000000C /* LauncherLayoutTests.swift in Sources */,
-				EE0000000000000000000003 /* LauncherTiles.swift in Sources */,
-				EE0000000000000000000005 /* LauncherTilesTests.swift in Sources */,
+				EE0000000000000000000003 /* CalculatorEngine.swift in Sources */,
+				EE0000000000000000000005 /* CalculatorEngineTests.swift in Sources */,
 				EE0000000000000000000016 /* LauncherIconView.swift in Sources */,
 				ED00000000000000000000F5 /* LauncherStore.swift in Sources */,
 				ED00000000000000000000F7 /* LauncherStoreTests.swift in Sources */,

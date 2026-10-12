@@ -14,9 +14,9 @@ enum LauncherIconCache {
     }
 }
 
-/// The launcher surface (Phase 7B-L4): the Pinned / Most Used / Recently Installed grid beside a sheet with the full
-/// app list and the search field. The sheet sits on the side chosen in Settings (right by default). While searching,
-/// the grid shows one flat set of matches and the sheet list narrows to them too.
+/// The launcher surface: a search field and one app grid — a Most Used row (usage, then presets), a Recently
+/// Installed row, then All Apps. Scrolls down (default) or sideways, per Settings. While searching, the grid
+/// shows one flat set of matches.
 struct LauncherView: View {
     @ObservedObject var indexer: LauncherIndexer
     @ObservedObject var model: LauncherModel
@@ -24,25 +24,22 @@ struct LauncherView: View {
     let onTogglePin: (LauncherApp) -> Void
     let onClose: () -> Void
 
-    private let columns = [GridItem(.adaptive(minimum: 104, maximum: 128), spacing: 12)]
+    private static let cell = 104.0
+    private static let gap = 12.0
 
     private var matches: [LauncherApp] {
         LauncherSearch.search(model.query, in: indexer.apps, usage: model.state.usage)
     }
 
     var body: some View {
-        let inset = model.searchPosition.reservedInsets(sheetSide: model.sheetSide)
+        let inset = model.searchPosition.reservedInsets(sheetSide: .right, sheetWidth: 0)
         ZStack {
             Color.black.opacity(0.001).onTapGesture(perform: onClose)
-            HStack(alignment: .top, spacing: 0) {
-                if model.sheetSide == .left { sheet }
-                content.frame(maxWidth: .infinity)
-                if model.sheetSide == .right { sheet }
-            }
-            .padding(.top, 50 + inset.top + model.screenInsets.top)
-            .padding(.bottom, inset.bottom + model.screenInsets.bottom)
-            .padding(.leading, inset.leading - (model.sheetSide == .left ? 328 : 0) + model.screenInsets.leading)
-            .padding(.trailing, inset.trailing - (model.sheetSide == .right ? 328 : 0) + model.screenInsets.trailing)
+            content
+                .padding(.top, 50 + inset.top + model.screenInsets.top)
+                .padding(.bottom, inset.bottom + model.screenInsets.bottom)
+                .padding(.leading, inset.leading + model.screenInsets.leading)
+                .padding(.trailing, inset.trailing + model.screenInsets.trailing)
             searchField
                 .padding(.top, model.screenInsets.top).padding(.bottom, model.screenInsets.bottom)
                 .padding(.leading, model.screenInsets.leading).padding(.trailing, model.screenInsets.trailing)
@@ -52,12 +49,11 @@ struct LauncherView: View {
 
     private var searchField: some View {
         let p = model.searchPosition
-        let sheetOnSameSide = (p == .left && model.sheetSide == .left) || (p == .right && model.sheetSide == .right)
         return LauncherSearchField(text: $model.query, focusNonce: model.focusNonce,
                                    onSubmit: { if let first = matches.first { onLaunch(first) } },
                                    onCancel: onClose)
             .frame(width: p.fieldWidth, height: 28)
-            .padding(p == .top ? .top : p == .bottom ? .bottom : p == .left ? .leading : .trailing, 28 + (sheetOnSameSide ? 328 : 0))
+            .padding(p == .top ? .top : p == .bottom ? .bottom : p == .left ? .leading : .trailing, 28)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment(p))
     }
 
@@ -70,63 +66,76 @@ struct LauncherView: View {
         }
     }
 
-    private var sheet: some View {
-        VStack(spacing: 10) {
-            Text("All Apps").font(.system(size: 13, weight: .semibold)).foregroundColor(.secondary)
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 2) {
-                    ForEach(model.query.isEmpty ? indexer.apps : matches, id: \.bundleID) { app in
-                        Button { onLaunch(app) } label: {
-                            HStack(spacing: 10) {
-                                Image(nsImage: LauncherIconCache.icon(forPath: app.path)).resizable().frame(width: 28, height: 28)
-                                Text(verbatim: app.name).font(.system(size: 13)).lineLimit(1)
-                                Spacer(minLength: 0)
-                            }
-                            .contentShape(Rectangle())
-                            .padding(.vertical, 3).padding(.horizontal, 8)
+    @ViewBuilder private var content: some View {
+        GeometryReader { proxy in
+            let width = min(Double(proxy.size.width) - 80, 1400)
+            let columns = LauncherGrid.columns(forWidth: width, minCell: Self.cell, gap: Self.gap)
+            if model.query.isEmpty {
+                let page = LauncherAppIndex.page(apps: indexer.apps, usage: model.state.usage,
+                                                 pinned: model.state.pinned, columns: columns, now: Date())
+                if model.scrollDirection == .horizontal {
+                    sideways(page, height: Double(proxy.size.height))
+                } else {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 26) {
+                            section(Text("Most Used"), page.mostUsed, columns: columns)
+                            section(Text("Recently Installed"), page.recentlyInstalled, columns: columns)
+                            section(Text("All Apps"), page.all, columns: columns)
                         }
-                        .buttonStyle(.plain)
+                        .padding(.horizontal, 40).padding(.bottom, 80)
+                        .frame(maxWidth: 1480)
+                        .frame(maxWidth: .infinity)
                     }
                 }
-            }
-        }
-        .padding(14)
-        .frame(width: 280)
-        .frame(maxHeight: .infinity)
-        .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Color.primary.opacity(0.08)))
-        .padding(.horizontal, 24).padding(.bottom, 24)
-    }
-
-    @ViewBuilder private var content: some View {
-        if model.query.isEmpty {
-            let s = LauncherAppIndex.sections(apps: indexer.apps, usage: model.state.usage,
-                                              pinned: model.state.pinned, now: Date())
-            ScrollView {
-                VStack(alignment: .leading, spacing: 26) {
-                    if !model.tiles.isEmpty { LauncherTilesRow(tiles: model.tiles) }
-                    section(Text("Pinned"), s.pinned)
-                    section(Text("Most Used"), s.mostUsed)
-                    section(Text("Recently Installed"), s.recentlyInstalled)
+            } else if matches.isEmpty {
+                Text("No Apps Found").foregroundColor(.secondary).frame(maxWidth: .infinity).padding(.top, 40)
+            } else {
+                ScrollView {
+                    grid(matches, columns: columns).padding(.horizontal, 40).padding(.bottom, 80)
+                        .frame(maxWidth: 1480).frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, 40).padding(.bottom, 80)
-                .frame(maxWidth: 1000)
-            }
-        } else if matches.isEmpty {
-            Text("No Apps Found").foregroundColor(.secondary).padding(.top, 40)
-        } else {
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 18) { ForEach(matches, id: \.bundleID, content: cell) }
-                    .padding(.horizontal, 40).padding(.bottom, 80)
-                    .frame(maxWidth: 1000)
             }
         }
     }
 
-    @ViewBuilder private func section(_ title: Text, _ apps: [LauncherApp]) -> some View {
+    private func columnItems(_ n: Int) -> [GridItem] {
+        Array(repeating: GridItem(.flexible(minimum: Self.cell, maximum: 160), spacing: Self.gap, alignment: .top), count: max(1, n))
+    }
+
+    private func grid(_ apps: [LauncherApp], columns: Int) -> some View {
+        LazyVGrid(columns: columnItems(columns), spacing: 18) { ForEach(apps, id: \.bundleID, content: cell) }
+    }
+
+    @ViewBuilder private func section(_ title: Text, _ apps: [LauncherApp], columns: Int) -> some View {
         if !apps.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
                 title.font(.system(size: 13, weight: .semibold)).foregroundColor(.secondary)
-                LazyVGrid(columns: columns, spacing: 18) { ForEach(apps, id: \.bundleID, content: cell) }
+                grid(apps, columns: columns)
+            }
+        }
+    }
+
+    /// Sideways mode: each section is a block of rows that scrolls horizontally with the others.
+    private func sideways(_ page: LauncherPage, height: Double) -> some View {
+        let rowHeight = 110.0
+        let rows = max(1, Int((height - 60) / rowHeight))
+        return ScrollView(.horizontal) {
+            HStack(alignment: .top, spacing: 40) {
+                block(Text("Most Used"), page.mostUsed, rows: rows)
+                block(Text("Recently Installed"), page.recentlyInstalled, rows: rows)
+                block(Text("All Apps"), page.all, rows: rows)
+            }
+            .padding(.horizontal, 40)
+        }
+    }
+
+    @ViewBuilder private func block(_ title: Text, _ apps: [LauncherApp], rows: Int) -> some View {
+        if !apps.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                title.font(.system(size: 13, weight: .semibold)).foregroundColor(.secondary)
+                LazyHGrid(rows: Array(repeating: GridItem(.fixed(92), spacing: 18, alignment: .top), count: rows), spacing: Self.gap) {
+                    ForEach(apps, id: \.bundleID, content: cell)
+                }
             }
         }
     }
@@ -138,6 +147,7 @@ struct LauncherView: View {
                 Image(nsImage: LauncherIconCache.icon(forPath: app.path)).resizable().frame(width: 64, height: 64)
                 Text(verbatim: app.name).font(.system(size: 12)).lineLimit(1).frame(maxWidth: 100)
             }
+            .frame(width: Self.cell)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -151,9 +161,8 @@ struct LauncherView: View {
 final class LauncherModel: ObservableObject {
     @Published var query = ""
     @Published var focusNonce = 0
-    @Published var sheetSide: EdgeSide = .right
     @Published var searchPosition: LauncherSearchPosition = .top
-    @Published var tiles: [LauncherTile] = LauncherTile.allCases
+    @Published var scrollDirection: LauncherScrollDirection = .vertical
     /// Screen space to keep clear (notch, menu bar, Dock, KatiKati bars).
     @Published var screenInsets: (top: Double, bottom: Double, leading: Double, trailing: Double) = (0, 0, 0, 0)
     @Published var state = LauncherState()

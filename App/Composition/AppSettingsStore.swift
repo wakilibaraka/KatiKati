@@ -173,11 +173,10 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var deckScaleRight: Double
     /// Dock-style magnification of the round buttons under the pointer.
     @Published private(set) var deckMagnify: Bool
-    @Published private(set) var launcherSheetSide: EdgeSide
+    @Published private(set) var launcherScrollDirection: LauncherScrollDirection
     @Published private(set) var launcherTheme: LauncherTheme
     @Published private(set) var launcherTint: LauncherTint
     @Published private(set) var launcherIcon: LauncherIconStyle
-    @Published private(set) var launcherTiles: [LauncherTile]
     @Published private(set) var pinboardStyle: PinboardStyle
     @Published private(set) var pinboardWidgets: [PinboardWidget]
     @Published private(set) var pinboardToggles: [QuickToggleID]
@@ -285,11 +284,10 @@ final class AppSettingsStore: ObservableObject {
             Keys.notesSync: false,
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
-            Keys.launcherSheetSide: EdgeSide.right.rawValue,
+            Keys.launcherScroll: LauncherScrollDirection.default.rawValue,
             Keys.launcherTheme: LauncherTheme.default.rawValue,
             Keys.launcherTint: LauncherTint.default.rawValue,
             Keys.launcherIcon: LauncherIconStyle.default.rawValue,
-            Keys.launcherTiles: LauncherTile.serialize(LauncherTile.allCases),
             Keys.pinboardKeepOnTop: false,
             Keys.pinboardStyle: PinboardStyle.default.rawValue,
             Keys.launcherSearchPosition: LauncherSearchPosition.default.rawValue,
@@ -328,7 +326,6 @@ final class AppSettingsStore: ObservableObject {
         deckScaleRight = DeckSettingsRules.clampedScale(Self.storedNumericValue(defaults.object(forKey: Keys.deckScaleRight)) ?? legacyScale)
         deckMagnify = defaults.bool(forKey: Keys.deckMagnify)
         launcherSearchPosition = LauncherSearchPosition.parse(defaults.string(forKey: Keys.launcherSearchPosition))
-        launcherTiles = LauncherTile.parse(defaults.string(forKey: Keys.launcherTiles))
         pinboardWidgets = PinboardWidget.parse(defaults.string(forKey: Keys.pinboardWidgets))
         pinboardToggles = QuickToggleID.parse(defaults.string(forKey: Keys.pinboardToggles))
         pinboardKeepOnTop = defaults.bool(forKey: Keys.pinboardKeepOnTop)
@@ -339,7 +336,7 @@ final class AppSettingsStore: ObservableObject {
         launcherTheme = LauncherTheme.parse(defaults.string(forKey: Keys.launcherTheme))
         launcherTint = LauncherTint.parse(defaults.string(forKey: Keys.launcherTint))
         launcherIcon = LauncherIconStyle.parse(defaults.string(forKey: Keys.launcherIcon))
-        launcherSheetSide = EdgeSide(rawValue: defaults.string(forKey: Keys.launcherSheetSide) ?? "") ?? .right
+        launcherScrollDirection = LauncherScrollDirection.parse(defaults.string(forKey: Keys.launcherScroll))
         deckKeepOpen = defaults.bool(forKey: Keys.deckKeepOpen)
         deckOpenOnHover = defaults.bool(forKey: Keys.deckOpenOnHover)
         deckTabPreview = defaults.bool(forKey: Keys.deckTabPreview)
@@ -553,15 +550,6 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value.rawValue, forKey: Keys.launcherSearchPosition)
     }
 
-    func setLauncherTile(_ tile: LauncherTile, enabled: Bool) {
-        var next = launcherTiles.filter { $0 != tile }
-        if enabled { next.append(tile) }
-        next = LauncherTile.ordered(next)
-        guard next != launcherTiles else { return }
-        launcherTiles = next
-        defaults.set(LauncherTile.serialize(next), forKey: Keys.launcherTiles)
-    }
-
     func setPinboardWidget(_ widget: PinboardWidget, enabled: Bool) {
         var next = pinboardWidgets.filter { $0 != widget }
         if enabled { next.append(widget) }
@@ -616,10 +604,10 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value.rawValue, forKey: Keys.launcherIcon)
     }
 
-    func setLauncherSheetSide(_ value: EdgeSide) {
-        guard launcherSheetSide != value else { return }
-        launcherSheetSide = value
-        defaults.set(value.rawValue, forKey: Keys.launcherSheetSide)
+    func setLauncherScrollDirection(_ value: LauncherScrollDirection) {
+        guard launcherScrollDirection != value else { return }
+        launcherScrollDirection = value
+        defaults.set(value.rawValue, forKey: Keys.launcherScroll)
     }
 
     func setDeckMagnify(_ value: Bool) {
@@ -1090,11 +1078,10 @@ private enum Keys {
     static let deckScaleLeft = "com.katikati.edge.deckScale.left"
     static let deckScaleRight = "com.katikati.edge.deckScale.right"
     static let deckMagnify = "com.katikati.edge.magnify"
-    static let launcherSheetSide = "com.katikati.launcher.sheetSide"
+    static let launcherScroll = "com.katikati.launcher.scroll"
     static let launcherTheme = "com.katikati.launcher.theme"
     static let launcherTint = "com.katikati.launcher.tint"
     static let launcherIcon = "com.katikati.launcher.icon"
-    static let launcherTiles = "com.katikati.launcher.tiles"
     static let pinboardStyle = "com.katikati.pinboard.style"
     static let pinboardWidgets = "com.katikati.pinboard.widgets"
     static let pinboardToggles = "com.katikati.pinboard.toggles"

@@ -1,28 +1,5 @@
 import Foundation
 
-/// A widget tile in the launcher grid (Phase 7B-L5). Raw values are stored in `com.katikati.launcher.tiles`;
-/// never rename or reuse them. Order here is display order.
-///
-/// Clock, Calculator and Countdown used to live here too; they moved to the Pinboard (owner 2026-10-12 —
-/// the launcher stays a clean app grid). Their ids are retired: `parse` drops them, so a stored string from
-/// an older build simply resolves to what is still offered.
-enum LauncherTile: String, CaseIterable, Sendable {
-    case screenTime
-
-    static func parse(_ stored: String?) -> [LauncherTile] {
-        var seen = Set<LauncherTile>()
-        return (stored ?? "").split(separator: ",").compactMap {
-            guard let t = LauncherTile(rawValue: $0.trimmingCharacters(in: .whitespaces)), seen.insert(t).inserted else { return nil }
-            return t
-        }
-    }
-
-    static func serialize(_ tiles: [LauncherTile]) -> String { tiles.map(\.rawValue).joined(separator: ",") }
-
-    /// Enabled tiles in display order regardless of the order they were stored in.
-    static func ordered(_ enabled: [LauncherTile]) -> [LauncherTile] { allCases.filter(enabled.contains) }
-}
-
 /// Tiny expression evaluator for the Calculator tile: `+ - * / %`, parentheses, unary minus, decimals; `x`, `×`, `÷`
 /// are accepted as operators. Returns nil for anything malformed or non-finite (never traps).
 enum CalculatorEngine {

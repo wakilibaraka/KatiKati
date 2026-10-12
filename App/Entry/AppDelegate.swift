@@ -104,9 +104,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }()
     private lazy var launcherPanel: LauncherPanelController = {
         let panel = LauncherPanelController()
-        panel.sheetSide = { [weak self] in self?.settingsStore.launcherSheetSide ?? .right }
         panel.searchPosition = { [weak self] in self?.settingsStore.launcherSearchPosition ?? .top }
-        panel.tiles = { [weak self] in self?.settingsStore.launcherTiles ?? LauncherTile.allCases }
+        panel.scrollDirection = { [weak self] in self?.settingsStore.launcherScrollDirection ?? .vertical }
         panel.look = { [weak self] in (self?.settingsStore.launcherTheme ?? .system, self?.settingsStore.launcherTint ?? .none) }
         panel.bottomBarReserve = { [weak self] in
             guard let store = self?.settingsStore else { return 0 }
