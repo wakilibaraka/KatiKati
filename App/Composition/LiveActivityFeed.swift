@@ -34,6 +34,13 @@ final class LiveActivityFeed: ObservableObject {
     private let countdowns: EventCountdownStore
 
     private var ticker: Timer?
+    /// How many rendering surfaces (dock capsule per display, notch) currently need the tick.
+    private var tickGate = LiveTickGate()
+
+    /// The one app-wide feed (8b-5). The dock capsule on every display and the notch all read this,
+    /// so there is a single 1 Hz timer and a single source of truth no matter how many surfaces are
+    /// on. `ProductivityServices.shared` is the precedent for an app-wide `@MainActor` registry.
+    static let shared = LiveActivityFeed()
 
     /// Injected for tests; defaults to the shared registry so the island wiring needs no arguments.
     init(
@@ -69,6 +76,20 @@ final class LiveActivityFeed: ObservableObject {
     func stop() {
         ticker?.invalidate(); ticker = nil
     }
+
+    /// A surface appeared and needs the tick. The timer runs while at least one surface holds the
+    /// feed, so two displays or the dock plus the notch share one timer, and none runs when all are off.
+    func retain() {
+        if tickGate.retain() { start() }
+    }
+
+    /// A surface went away. Pairs with `retain()`; extra releases are ignored.
+    func release() {
+        if tickGate.release() { stop() }
+    }
+
+    /// Whether the tick is running (diagnostics).
+    var isTicking: Bool { ticker != nil }
 
     /// Re-read every source and republish. Also callable on demand (e.g. right before showing the
     /// island so the first frame is already current).

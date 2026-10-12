@@ -24,10 +24,27 @@ import SwiftUI
 // non-activating, click-through `NSPanel` that fades out on its own. `DOCK_LIVE_EVENTS=0` is the
 // field rollback path and silences the toast without touching the island's own rendering.
 
+/// Somewhere an event can be shown (8b-5). The dock registers the bottom toast; the notch registers
+/// its own expansion in 8b-7. The centre never knows which concrete surface it is talking to.
+@MainActor
+protocol LiveEventSink: AnyObject {
+    func show(_ event: LiveEvent)
+}
+
+extension LiveEventToastPresenter: LiveEventSink {}
+
 @MainActor
 final class LiveEventCenter {
     private let feed: LiveActivityFeed
     private let toast = LiveEventToastPresenter()
+
+    /// Registered surfaces. A surface with no sink is simply not usable (e.g. the notch before it exists).
+    private var sinks: [LiveSurface: LiveEventSink] = [:]
+    /// Per-surface "is this switched on right now" and the user's route, read at event time so a
+    /// Settings change takes effect immediately. Defaults keep the pre-8b-5 behaviour (dock only).
+    var isSurfaceEnabled: (LiveSurface) -> Bool = { $0 == .dock }
+    var route: () -> LiveEventRoute = { .automatic }
+    private var dispatcher = LiveEventDispatcher()
 
     /// The last snapshot, so the next change can be diffed against it. Seeded at `start()` with the
     /// *current* state, so the first event is the user's first action — not a burst of "events" for
@@ -39,7 +56,13 @@ final class LiveEventCenter {
     /// default argument: a default argument is evaluated in a nonisolated context, and
     /// `LiveActivityFeed` is `@MainActor`.
     init(feed: LiveActivityFeed? = nil) {
-        self.feed = feed ?? LiveActivityFeed()
+        self.feed = feed ?? LiveActivityFeed.shared
+        sinks[.dock] = toast
+    }
+
+    /// Register (or replace) the sink for a surface. Used by the notch in 8b-7.
+    func register(sink: LiveEventSink, for surface: LiveSurface) {
+        sinks[surface] = sink
     }
 
     /// Begin observing. Idempotent (a second call is a no-op), so it is safe to call from launch.
@@ -62,9 +85,20 @@ final class LiveEventCenter {
         // The detector returns events most-alert-worthy first; the toast shows the top one only —
         // a second toast landing on top of the first is worse than dropping it.
         guard let event = events.first else { return }
-        if DebugSwitch.liveEvents.isEnabled() {
-            toast.show(event)
-        }
+        guard DebugSwitch.liveEvents.isEnabled() else { return }
+        deliver(event, now: Date())
+    }
+
+    /// Route one event to the user's chosen surface(s): usable = registered + enabled, then
+    /// `LiveSurfaceRouting` picks the target(s) (exactly one unless the user chose Both), and the
+    /// deduper drops a repeat inside the cooldown. The OS banner (8b-4c) will hang off the same
+    /// `shownOn` set.
+    @discardableResult
+    func deliver(_ event: LiveEvent, now: Date) -> Set<LiveSurface> {
+        let usable = Set(sinks.keys.filter { isSurfaceEnabled($0) })
+        let targets = dispatcher.targets(for: event, route: route(), usable: usable, now: now)
+        for surface in targets { sinks[surface]?.show(event) }
+        return targets
     }
 }
 

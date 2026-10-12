@@ -277,6 +277,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
             // Phase 8b-4B: start the Live Island's event feed last, once everything it watches is
             // live, so the seed snapshot is the real state — no phantom "events" from launch order.
+            liveEventCenter.isSurfaceEnabled = { [weak self] surface in
+                switch surface {
+                case .dock: return self?.settingsStore.dockIslandEnabled ?? true
+                case .notch: return self?.settingsStore.notchIslandEnabled ?? false
+                }
+            }
+            liveEventCenter.route = { [weak self] in self?.settingsStore.liveEventRoute ?? .automatic }
             liveEventCenter.start()
 
             _ = statusMenuController

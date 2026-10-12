@@ -17,6 +17,30 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertTrue(reloaded.showTrash)
         XCTAssertFalse(reloaded.showShelf)
     }
+    /// Live Island surfaces (8b-5): dock island on, notch island off, events auto-routed; all persist.
+    func testLiveIslandSurfaceDefaultsAndPersistence() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertTrue(store.dockIslandEnabled)
+        XCTAssertFalse(store.notchIslandEnabled)
+        XCTAssertEqual(store.liveEventRoute, .automatic)
+
+        store.setDockIslandEnabled(false)
+        store.setNotchIslandEnabled(true)
+        store.setLiveEventRoute(.both)
+        let reloaded = AppSettingsStore(defaults: defaults)
+        XCTAssertFalse(reloaded.dockIslandEnabled)
+        XCTAssertTrue(reloaded.notchIslandEnabled)
+        XCTAssertEqual(reloaded.liveEventRoute, .both)
+    }
+
+    /// An unknown stored route string must fall back to automatic, never crash or silence events.
+    func testUnknownLiveEventRouteFallsBackToAutomatic() {
+        let defaults = makeDefaults()
+        defaults.set("garbage", forKey: "com.katikati.liveIsland.eventRoute")
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).liveEventRoute, .automatic)
+    }
+
     /// 全新安装：钨极自己那条**默认常驻**（owner 2026-09-01），系统 Dock 的镜像种子仍是 1.0。
     func testFreshInstallDefaultsToAlwaysVisibleForTheTaskbar() {
         let defaults = makeDefaults()

@@ -139,6 +139,12 @@ final class AppSettingsStore: ObservableObject {
     }
     
     @Published private(set) var showTrash: Bool
+    /// Live Island on the dock capsule (default ON — today's behaviour).
+    @Published private(set) var dockIslandEnabled: Bool
+    /// Live Island on the notch (default OFF; the notch surface lands in 8b-7).
+    @Published private(set) var notchIslandEnabled: Bool
+    /// Where event notifications show — exactly one place by default, never duplicated (8b-5).
+    @Published private(set) var liveEventRoute: LiveEventRoute
     /// 任务条尺寸档位。面板几何与条内所有 chip 尺寸都由它派生。
     @Published private(set) var dockPanelHeight: DockPanelHeight
     /// 任务条布局模式（windows / split3 / split4 / centered）。缺键 = windows。
@@ -279,6 +285,9 @@ final class AppSettingsStore: ObservableObject {
             Keys.edgeGap: Double(PanelGeometry.edgeBarDefaultBottomGap),
             Keys.edgeMargin: 8.0,
             Keys.notesSync: false,
+            Keys.dockIslandEnabled: true,
+            Keys.notchIslandEnabled: false,
+            Keys.liveEventRoute: LiveEventRoute.automatic.rawValue,
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
             Keys.launcherScroll: LauncherScrollDirection.default.rawValue,
@@ -304,6 +313,9 @@ final class AppSettingsStore: ObservableObject {
         showShelf = defaults.bool(forKey: Keys.showShelf)
         nowPlayingTheme = NowPlayingTheme(rawValue: defaults.string(forKey: Keys.nowPlayingTheme) ?? "") ?? .auto
         showTrash = defaults.bool(forKey: Keys.showTrash)
+        dockIslandEnabled = defaults.bool(forKey: Keys.dockIslandEnabled)
+        notchIslandEnabled = defaults.bool(forKey: Keys.notchIslandEnabled)
+        liveEventRoute = LiveEventRoute(rawValue: defaults.string(forKey: Keys.liveEventRoute) ?? "") ?? .automatic
         barLayoutMode = BarLayoutMode(rawValue: defaults.string(forKey: Keys.barLayoutMode) ?? "") ?? .split3
         let storedCentered = Self.storedNumericValue(defaults.object(forKey: Keys.centeredWidth)) ?? Double(Self.defaultCenteredWidth)
         centeredWidth = CGFloat(min(max(storedCentered, Double(Self.minimumCenteredWidth)), Double(Self.maximumCenteredWidth)))
@@ -843,6 +855,24 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.showShelf)
     }
 
+    func setDockIslandEnabled(_ value: Bool) {
+        guard dockIslandEnabled != value else { return }
+        dockIslandEnabled = value
+        defaults.set(value, forKey: Keys.dockIslandEnabled)
+    }
+
+    func setNotchIslandEnabled(_ value: Bool) {
+        guard notchIslandEnabled != value else { return }
+        notchIslandEnabled = value
+        defaults.set(value, forKey: Keys.notchIslandEnabled)
+    }
+
+    func setLiveEventRoute(_ value: LiveEventRoute) {
+        guard liveEventRoute != value else { return }
+        liveEventRoute = value
+        defaults.set(value.rawValue, forKey: Keys.liveEventRoute)
+    }
+
     func setShowTrash(_ value: Bool) {
         guard showTrash != value else { return }
         showTrash = value
@@ -1026,6 +1056,9 @@ private enum Keys {
     // Never read the retired com.katikati.trash.visible key.
     static let showTrash = "com.katikati.showTrash"
     static let nowPlayingTheme = "com.katikati.nowPlayingTheme"
+    static let dockIslandEnabled = "com.katikati.liveIsland.dock"
+    static let notchIslandEnabled = "com.katikati.liveIsland.notch"
+    static let liveEventRoute = "com.katikati.liveIsland.eventRoute"
 
     /// Continuous bar height in points (since the drag-to-resize release).
     static let dockPanelHeight = "com.katikati.dockPanelHeight"

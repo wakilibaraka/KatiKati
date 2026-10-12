@@ -29,15 +29,28 @@ import SwiftUI
 // album art / transport — unchanged, which keeps the "Now Playing Theme" setting live). Every other
 // kind is display-only here; its controls live in its own surface.
 
+/// The `.media` slot. Honours the Live Island's per-surface switch (8b-5): with the dock island off
+/// the slot renders nothing and holds no tick, so the notch can run alone.
 public struct NowPlayingChip: View {
-    @StateObject private var feed = LiveActivityFeed()
+    @EnvironmentObject var settingsStore: AppSettingsStore
+
+    public init() {}
+
+    public var body: some View {
+        if settingsStore.dockIslandEnabled {
+            LiveIslandDockCapsule()
+        }
+    }
+}
+
+/// The dock-side renderer. Reads the shared app-wide feed and holds it only while on screen.
+struct LiveIslandDockCapsule: View {
+    @ObservedObject private var feed = LiveActivityFeed.shared
     @EnvironmentObject var settingsStore: AppSettingsStore
     @State private var isHovering = false
     @State private var showPopup = false
     
-    public init() {}
-    
-    public var body: some View {
+    var body: some View {
         let activity = feed.activity
 
         Group {
@@ -63,8 +76,8 @@ public struct NowPlayingChip: View {
         .contentShape(Rectangle())
         .onHover { isHovering = $0 }
         .onTapGesture { tap(for: activity) }
-        .onAppear { feed.start() }
-        .onDisappear { feed.stop() }
+        .onAppear { feed.retain() }
+        .onDisappear { feed.release() }
         .help(helpText(for: activity))
         .animation(.easeInOut(duration: 0.18), value: activity.kind)
         .popover(isPresented: $showPopup, arrowEdge: .top) {

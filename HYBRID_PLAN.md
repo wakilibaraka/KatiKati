@@ -2170,6 +2170,25 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
     override and would live in an isolated `Vendor/` module with a `NOTICE` entry. macOS floor stays
     12.0 (notch APIs `#available`-gated); one dependency (Sparkle) stays.
 
+- 2026-10-12 · **8b-5 Shared feed + surface switches + event routing — DONE (no notch UI yet).**
+  New pure, dual-compiled `Core/Support/LiveSurfaceRouting.swift`: `LiveSurface` (dock/notch),
+  `LiveEventRoute` (automatic/notch/dock/both/off), `LiveSurfaceRouting.targets` (one surface by
+  default; a chosen-but-unusable surface falls through, never doubles, never lost) and
+  `shouldPostOSBanner` (only if no in-app surface showed it — hook for 8b-4c), `LiveEventDeduper`
+  (5 s cooldown keyed on event identity, not incidental payload), `LiveEventDispatcher`, `LiveTickGate`
+  (refcount). App layer: `LiveActivityFeed.shared` + `retain()/release()` (one 1 Hz timer for all
+  surfaces/displays; none when all off); `NowPlayingChip` now a thin wrapper honouring
+  `dockIslandEnabled` around `LiveIslandDockCapsule`; `LiveEventCenter` delivers through registered
+  `LiveEventSink`s via the dispatcher (the notch registers its sink in 8b-7). `AppSettingsStore`:
+  `dockIslandEnabled` (default ON), `notchIslandEnabled` (default OFF), `liveEventRoute` (default
+  automatic) under `com.katikati.liveIsland.*`. **Build lesson (again):** app-only types cannot be
+  linked by the test bundle, so the decision logic was moved into the dual-compiled core file and the
+  app-only centre kept thin. **Gate:** `xcodebuild test` **1,980 tests, 0 failures** (1,960 + 18
+  routing/dispatcher/gate + 2 settings); `check_localization.py` ✅ (no new strings);
+  `check_debug_switches.py` ✅ (80/80); `plutil -lint` OK; `project.pbxproj` +8 additive lines.
+  `check_availability_warnings.py` needs a clean-build log and was not re-run. **Not done:** no Settings
+  UI for the three new settings yet (lands with 8b-7); not run against a real display. Next: 8b-4c, 8b-6, 8b-7.
+
 ### Phase 9 — Strip semantics, interaction & summoning (deferred: mini-plan each)
 
 - **9a — Icons / icons+text logic, multi-window of same app**: display-mode rules for
