@@ -21,6 +21,29 @@ struct LauncherSections: Equatable, Sendable {
     var recentlyInstalled: [LauncherApp]
 }
 
+/// The grid page (Phase 7B launcher redo): one Most Used row, one Recently Installed row, then every app.
+struct LauncherPage: Equatable, Sendable {
+    var mostUsed: [LauncherApp]
+    var recentlyInstalled: [LauncherApp]
+    var all: [LauncherApp]
+}
+
+enum LauncherPresets {
+    /// Shown in Most Used until real usage takes the slots (only the installed ones appear).
+    static let bundleIDs = [
+        "com.apple.systempreferences", "com.apple.Safari", "com.apple.Terminal", "com.apple.MobileSMS",
+        "com.apple.finder", "com.apple.mail", "com.apple.iCal", "com.apple.Notes",
+        "com.apple.Music", "com.apple.Photos", "com.apple.AppStore", "com.apple.calculator",
+    ]
+}
+
+enum LauncherGrid {
+    /// How many icon cells fit one row: the grid's cells are 104 pt minimum with 12 pt gaps.
+    static func columns(forWidth width: Double, minCell: Double = 104, gap: Double = 12) -> Int {
+        max(1, Int((width + gap) / (minCell + gap)))
+    }
+}
+
 enum LauncherAppIndex {
     /// One entry per bundle id; when copies exist the shortest path wins (`/Applications/X.app` beats a nested or
     /// `~/Downloads` copy), then the newer install. Result sorted by localized name, case-insensitive.
@@ -74,6 +97,43 @@ enum LauncherAppIndex {
             .sorted { $0.installedAt != $1.installedAt ? $0.installedAt > $1.installedAt : nameOrder($0, $1) }
             .prefix(max(0, recentLimit))
         return LauncherSections(pinned: pins, mostUsed: Array(used), recentlyInstalled: Array(recent))
+    }
+
+    /// Most Used fills exactly one row (`columns`): pins first, then by launch count, then presets for any
+    /// slot real usage has not taken. Recently Installed is one row of apps not already above. All lists everything.
+    static func page(
+        apps: [LauncherApp],
+        usage: [String: LauncherUsage],
+        pinned: [String],
+        presets: [String] = LauncherPresets.bundleIDs,
+        columns: Int,
+        now: Date,
+        recentDays: Int = 30
+    ) -> LauncherPage {
+        let row = max(1, columns)
+        let byID = Dictionary(apps.map { ($0.bundleID, $0) }, uniquingKeysWith: { a, _ in a })
+        var seen = Set<String>()
+        var top: [LauncherApp] = []
+        func take(_ app: LauncherApp) {
+            guard top.count < row, !seen.contains(app.bundleID) else { return }
+            top.append(app); seen.insert(app.bundleID)
+        }
+        pinned.compactMap { byID[$0] }.forEach(take)
+        apps.filter { (usage[$0.bundleID]?.launches ?? 0) > 0 }
+            .sorted { a, b in
+                let ua = usage[a.bundleID]!, ub = usage[b.bundleID]!
+                if ua.launches != ub.launches { return ua.launches > ub.launches }
+                if ua.lastLaunched != ub.lastLaunched { return ua.lastLaunched > ub.lastLaunched }
+                return nameOrder(a, b)
+            }
+            .forEach(take)
+        presets.compactMap { byID[$0] }.forEach(take)
+        let cutoff = now.addingTimeInterval(-Double(recentDays) * 86_400)
+        let recent = apps
+            .filter { !seen.contains($0.bundleID) && $0.installedAt >= cutoff && $0.installedAt <= now }
+            .sorted { $0.installedAt != $1.installedAt ? $0.installedAt > $1.installedAt : nameOrder($0, $1) }
+            .prefix(row)
+        return LauncherPage(mostUsed: top, recentlyInstalled: Array(recent), all: apps)
     }
 
     /// Records a launch.

@@ -45,6 +45,33 @@ final class LauncherAppIndexTests: XCTestCase {
         XCTAssertTrue(LauncherAppIndex.sections(apps: apps, usage: [:], pinned: [], now: now, recentLimit: -1).recentlyInstalled.isEmpty)
     }
 
+    func testPageFillsOneRowUsageThenPresets() {
+        let apps = [app("com.apple.Safari", "Safari"), app("com.apple.Terminal", "Terminal"), app("com.apple.finder", "Finder"),
+                    app("u", "Used"), app("n", "New", days: 2), app("old", "Old")]
+        var usage: [String: LauncherUsage] = [:]
+        LauncherAppIndex.recordLaunch(&usage, bundleID: "u", at: now)
+        let page = LauncherAppIndex.page(apps: apps, usage: usage, pinned: [], columns: 3, now: now)
+        // Real usage first, then presets in preset order; the row stops at `columns`.
+        XCTAssertEqual(page.mostUsed.map(\.bundleID), ["u", "com.apple.Safari", "com.apple.Terminal"])
+        // Not repeated above; Finder is a preset that missed the row so it is not "recent" (it is old).
+        XCTAssertEqual(page.recentlyInstalled.map(\.bundleID), ["n"])
+        XCTAssertEqual(page.all.count, 6)
+    }
+
+    func testPagePinsFirstAndMissingPresetsSkipped() {
+        let apps = [app("a", "A"), app("com.apple.Safari", "Safari")]
+        let page = LauncherAppIndex.page(apps: apps, usage: [:], pinned: ["a", "gone"], columns: 5, now: now)
+        XCTAssertEqual(page.mostUsed.map(\.bundleID), ["a", "com.apple.Safari"])
+        XCTAssertEqual(LauncherAppIndex.page(apps: [], usage: [:], pinned: [], columns: 0, now: now).mostUsed, [])
+    }
+
+    func testGridColumnsFromWidth() {
+        XCTAssertEqual(LauncherGrid.columns(forWidth: 0), 1)
+        XCTAssertEqual(LauncherGrid.columns(forWidth: 104), 1)
+        XCTAssertEqual(LauncherGrid.columns(forWidth: 232), 2)
+        XCTAssertEqual(LauncherGrid.columns(forWidth: 920), 8)
+    }
+
     func testTogglePin() {
         XCTAssertEqual(LauncherAppIndex.togglePin(["a"], "b"), ["a", "b"])
         XCTAssertEqual(LauncherAppIndex.togglePin(["a", "b"], "a"), ["b"])
