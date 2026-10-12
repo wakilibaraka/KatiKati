@@ -8,8 +8,11 @@ All notable changes to KatiKati are documented in this file.
 - **Live Island — decision engine (8b-1):** new pure `LiveActivityPolicy` (Core) that decides which
   single live activity the Now-Playing island shows, in priority order — music → Focus/pomodoro →
   event countdown (within 7 days) → countdown timer → stopwatch → live clock — with unit tests.
-  This is the first internal step of the redesigned Now-Playing "Live Island"; the visible capsule
-  and the in-app live event feed land in following slices.
+
+- **Live Island — snapshot assembler (8b-2):** the pure source projection (`LiveActivitySources`) and
+  the app-layer 1 Hz ticker (`LiveActivityFeed`) that read Music / Focus / Countdown / Timer / Stopwatch
+  and publish the island's current activity, with unit tests. Split pure (dual-compiled) from app-only
+  code to match the project's compile convention; the visible capsule still lands in 8b-3.
 
 ## [0.17.0-beta.2] — 2026-10-12
 

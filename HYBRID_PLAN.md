@@ -2050,6 +2050,28 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
   `NowPlayingService` (artwork/duration/progress/prev-next via more `kMRMediaRemote*` keys) and
   builds the snapshot source; 8b-3 reworks `NowPlayingChip`/popup into the morphing capsule.
 
+- 2026-10-12 · **8b-2 Live-Island snapshot assembler — DONE.** Second build slice of 8b-A. Split the
+  new code along the app/pure boundary the repo already uses: the **pure** `LiveActivitySources` DTO +
+  `FocusTimerModel.Phase`→`LiveFocusPhase` bridge now live in `Core/Support/LiveActivitySources.swift`
+  (dual-compiled app+test, like `LiveActivityPolicy.swift`); the **impure** `@MainActor final class
+  LiveActivityFeed` — which reads `NowPlayingService`, `FocusTimerController`, `EventCountdownStore`,
+  `CountdownTimerController`, `StopwatchController` and runs a 1 Hz `Timer` only between `start()`/
+  `stop()` so idle CPU stays flat (§4 idle-CPU gate) — lives in `App/Composition/LiveActivityFeed.swift`
+  (app-only, like `NowPlayingService.swift`). `snapshot(now:)` is the pure fold (music nil-title guard;
+  focus progress clamp; countdown horizon flag mirroring the policy; timer `total>0` NaN guard;
+  stopwatch passthrough); `sources(at:)` maps the live controllers into it. **Build fix witnessed:** the
+  first attempt compiled the feed into the *test* target, which failed (`NowPlayingService` not in
+  scope; the dual-compiled pure file also produced two `FocusTimerModel.Phase`/`LiveActivitySnapshot`
+  types) — corrected by the split above, matching the convention that pure Core files are dual-compiled
+  and app-layer files are app-only. New `Tests/Unit/LiveActivitySourcesTests.swift` (11 tests): music
+  payload, nil→fall-through, focus phase bridge + 0.8 progress, paused-focus has no phase, countdown
+  near/far horizon flag, timer progress clamp + `total==0` no-NaN, stopwatch passthrough, full
+  phase-bridge enum. **Gate:** full `xcodebuild test` **1,936 tests, 0 failures, TEST SUCCEEDED**
+  (1,925 + 11); `check_localization.py` ✅ (no new keys); `check_debug_switches.py` ✅ (79/79);
+  `plutil -lint project.pbxproj` OK. `project.pbxproj`: additive file-ref + build-files + both Sources
+  phases, single-anchor §1.7a. Next: 8b-3 reworks `NowPlayingChip`/popup into the morphing capsule and
+  wires the feed into the island.
+
 ### Phase 9 — Strip semantics, interaction & summoning (deferred: mini-plan each)
 
 - **9a — Icons / icons+text logic, multi-window of same app**: display-mode rules for
