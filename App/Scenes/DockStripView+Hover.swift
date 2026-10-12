@@ -77,7 +77,7 @@ extension DockStripView {
             let count = shelfStore.itemPaths.count
             return count > 0
                 ? String(format: String(localized: "Shelf · %d"), count)
-                : String(localized: "Shelf")
+                : String(localized: "Shelf — drag files here to park them")
         case let .pinnedFolder(path):
             return FileManager.default.displayName(atPath: path)
         case .divider, .externalDropGhost, .sectionPlaceholder:

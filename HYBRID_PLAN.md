@@ -2029,14 +2029,16 @@ availability). **Still to come in 8b:** the morphing capsule UI (rework `NowPlay
 `EventCountdownStore`/`CountdownTimerController`/`StopwatchController`), MediaRemote artwork/
 progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS banners opt-in).
 
-- **8a — Drawer redesign**: most-used / recently-closed / recently-added sections inside
+*(Superseded by the 2026-10-12 mini-plan above; struck through per §6.3 — Phase 8 closed.)*
+
+~~- **8a — Drawer redesign**: most-used / recently-closed / recently-added sections inside
   the drawer. Owner gates the design (mini-plan when activated). Priors (study only):
   DockBar Start Menu Most-Used via Spotlight + pinned drag-drop editor + AppBeBack
-  recently-closed restore; SplitBar-old launcher recents/full app catalog.
-- **8b — Now Playing redesign**: rework the 4f mini-icon + popup. Priors: SplitBar-old
-  NowPlaying flyout (§5d — reopened as an eyeball prior only for this slice, never code).
-- **8c — Shelf redesign**: tungsten-core shelf rework — explicit behavior-frozen
-  exception slice, witness tests per §4 rules 2/5.
+  recently-closed restore; SplitBar-old launcher recents/full app catalog.~~
+~~- **8b — Now Playing redesign**: rework the 4f mini-icon + popup. Priors: SplitBar-old
+  NowPlaying flyout (§5d — reopened as an eyeball prior only for this slice, never code).~~
+~~- **8c — Shelf redesign**: tungsten-core shelf rework — explicit behavior-frozen
+  exception slice, witness tests per §4 rules 2/5.~~
 - **Verify each**: tungsten gate green + drawer/shelf behavior witnesses + localization ×12.
 
 **Phase 8 check log:**
@@ -2236,6 +2238,21 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
   signature has no Files & Folders grant blocks the **main thread** in `DirectoryWatcher.init`'s `open()`
   (`PinnedFolderCoverStore.sync`) until the prompt is answered — the whole UI freezes. Worth moving that
   `open()` off-main in the dock-refinement phase.
+
+- 2026-10-12 · **8a + 8c — DONE; PHASE 8 CLOSED.** *8a recently-closed restore* (the mini-plan gave the
+  drawer's emphasis to this, since the Launcher already owns Most Used / Recently Installed): pure
+  `RecentlyClosedList` (newest-first, deduped, capped at 8; 5 tests), event-driven `RecentlyClosedStore`
+  (NSWorkspace launch/terminate; regular apps only, never KatiKati; bundle IDs persisted; zero timers),
+  and a **Recently Closed ▸** submenu on the shared taskbar/capsule/status menu — one click relaunches.
+  **Design note:** the drawer *grid* is a tuned drag-reorder surface, so the section lives in the menu the
+  drawer capsule already pops (right-click), not as new cells in the grid (no drag/layout risk); say so if
+  you want it inside the grid instead. Live-checked: quitting Calculator recorded `com.apple.calculator`.
+  *8c shelf (clarify in place, behaviour frozen):* the tooltip and the empty popup already carried the
+  "drag files here to park them" hint; the hover **bubble** was the missing piece and now reads "Shelf — drag
+  files here to park them" when empty ("Shelf · N" once it holds files). No behaviour change, no new string
+  beyond *Recently Closed*. **Gate:** 2,014 tests, 0 failures; localization ✅ (541 ×12); debug switches ✅.
+  **Phase 8 summary:** 8a ✅ 8b ✅ (Live Island, notch + dock, routing, banners, MediaRemote extras)
+  8c ✅ 8d ✅ 8e ✅ (link cleaner, colour picker; per-app volume, snippets, timed keep-awake deferred).
 
 ### Phase 9 — Strip semantics, interaction & summoning (deferred: mini-plan each)
 

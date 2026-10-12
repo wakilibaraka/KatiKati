@@ -12,6 +12,11 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private let onExportDebugSnapshot: () -> Void
     private let onShowSettings: () -> Void
     private let onPickColor: () -> Void
+    /// Restore entries for "Recently Closed" (provided by the app layer; this file is dual-compiled).
+    struct RecentlyClosedEntry { let title: String; let icon: NSImage?; let restore: () -> Void }
+    private let recentlyClosed: () -> [RecentlyClosedEntry]
+    /// Phase 8a: restore-last-closed apps. Rebuilt each time the menu opens (never while it is open).
+    private let recentlyClosedItem = NSMenuItem(title: String(localized: "Recently Closed"), action: nil, keyEquivalent: "")
     private let onShowLayoutSettings: () -> Void
     /// 菜单开 / 关。任务条的边缘自动隐藏要在菜单开着时停摆，否则空闲计时照跑，
     /// 任务条会从弹出的菜单底下缩掉（同 `folderPopupOpen`）。走闭包是因为
@@ -102,6 +107,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
          onExportDebugSnapshot: @escaping () -> Void,
          onShowSettings: @escaping () -> Void,
          onPickColor: @escaping () -> Void = {},
+         recentlyClosed: @escaping () -> [RecentlyClosedEntry] = { [] },
          onShowLayoutSettings: @escaping () -> Void,
          onMenuVisibilityChanged: @escaping (Bool) -> Void = { _ in },
          onRequestAccessibility: @escaping () -> Void = {},
@@ -117,6 +123,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         self.onExportDebugSnapshot = onExportDebugSnapshot
         self.onShowSettings = onShowSettings
         self.onPickColor = onPickColor
+        self.recentlyClosed = recentlyClosed
         self.onShowLayoutSettings = onShowLayoutSettings
         self.onMenuVisibilityChanged = onMenuVisibilityChanged
         self.onQuit = onQuit
@@ -311,6 +318,9 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         // 「设置…」和「退出」归为底部一组（owner 2026-08-03）：菜单栏应用的普遍习惯是
         // 把这类"进另一个界面"的入口放在下面，上面留给随手切的开关。
         // 登录项 / 检查更新 / 版本号已于 2026-08-24 去重，只留设置窗口。
+        recentlyClosedItem.submenu = NSMenu()
+        recentlyClosedItem.isHidden = true
+        menu.addItem(recentlyClosedItem)
         let pickColorItem = NSMenuItem(title: String(localized: "Pick Color"), action: #selector(pickColor), keyEquivalent: "")
         pickColorItem.target = self
         menu.addItem(pickColorItem)
@@ -375,12 +385,27 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         refreshSystemTruth()
     }
 
+    private func refreshRecentlyClosed() {
+        let entries = recentlyClosed()
+        recentlyClosedItem.isHidden = entries.isEmpty
+        guard let submenu = recentlyClosedItem.submenu else { return }
+        submenu.removeAllItems()
+        for entry in entries {
+            let item = NSMenuItem(title: entry.title, action: #selector(restoreClosedApp(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = entry.restore as AnyObject   // boxed closure; invoked by the action
+            item.image = entry.icon
+            submenu.addItem(item)
+        }
+    }
+
     /// 只读本地缓存并同步 AppKit 对象，不执行任何系统 I/O。
     /// 任务条入口会在量 `menu.size` 前先走这里，确保锚点使用本次真实高度。
     private func prepareMenuForPresentation() {
         let granted = isAccessibilityTrusted()
         permissionWarningItem.isHidden = granted
         permissionWarningSeparator.isHidden = granted
+        refreshRecentlyClosed()
         refreshCheckmarks()
         refreshInstallUpdateItem(allowsLayoutChange: true)
         // 没点确认就关菜单 = 作废：什么都不写，下次打开一切从系统真值重新起步。
@@ -804,6 +829,10 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     @objc private func showSettings() {
         menu.cancelTrackingWithoutAnimation()
         DispatchQueue.main.async { [onShowSettings] in onShowSettings() }
+    }
+    @objc private func restoreClosedApp(_ sender: NSMenuItem) {
+        guard let restore = sender.representedObject as? (() -> Void) else { return }
+        restore()
     }
     @objc private func pickColor() {
         menu.cancelTrackingWithoutAnimation()

@@ -171,6 +171,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         onExportDebugSnapshot: { [weak self] in self?.exportDebugSnapshot() },
         onShowSettings: { [weak self] in self?.openSettings(nil) },
         onPickColor: { [weak self] in self?.colorPicker.pick() },
+        recentlyClosed: {
+            let store = RecentlyClosedStore.shared
+            return store.restorable().map { entry in
+                let icon = NSWorkspace.shared.icon(forFile: entry.url.path)
+                icon.size = NSSize(width: 16, height: 16)
+                return StatusMenuController.RecentlyClosedEntry(
+                    title: AppDisplayNameResolver.displayName(for: entry.id), icon: icon,
+                    restore: { [weak store] in store?.restore(entry.url) })
+            }
+        },
         onShowLayoutSettings: { [weak self] in self?.openSettings(selecting: .layout) },
         onMenuVisibilityChanged: { [weak self] isOpen in
             self?.panelCoordinator?.setTaskbarMenuOpen(isOpen)
@@ -304,6 +314,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             liveEventCenter.osBannersEnabled = { [weak self] in self?.settingsStore.liveEventOSBanners ?? false }
             liveEventCenter.route = { [weak self] in self?.settingsStore.liveEventRoute ?? .automatic }
             liveEventCenter.start()
+            RecentlyClosedStore.shared.start()
 
             _ = statusMenuController
 

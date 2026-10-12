@@ -24,6 +24,10 @@
 		7B5000000000000000000101 /* LiveSurfaceRouting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000104 /* LiveSurfaceRouting.swift */; };
 		7B5000000000000000000102 /* LiveSurfaceRouting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000104 /* LiveSurfaceRouting.swift */; };
 		7B5000000000000000000103 /* LiveSurfaceRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000105 /* LiveSurfaceRoutingTests.swift */; };
+		7B5000000000000000000262 /* RecentlyClosedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000261 /* RecentlyClosedStore.swift */; };
+		7B5000000000000000000252 /* RecentlyClosedListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000251 /* RecentlyClosedListTests.swift */; };
+		7B5000000000000000000242 /* RecentlyClosedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000241 /* RecentlyClosedList.swift */; };
+		7B5000000000000000000243 /* RecentlyClosedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000241 /* RecentlyClosedList.swift */; };
 		7B5000000000000000000232 /* UtilitySettingsBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000231 /* UtilitySettingsBlock.swift */; };
 		7B5000000000000000000222 /* ColorPickerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000221 /* ColorPickerService.swift */; };
 		7B5000000000000000000212 /* LinkCleanerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000211 /* LinkCleanerService.swift */; };
@@ -788,6 +792,9 @@
 		7B50000000000000000000F4 /* LiveEventDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveEventDetectorTests.swift; path = Tests/Unit/LiveEventDetectorTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000104 /* LiveSurfaceRouting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveSurfaceRouting.swift; path = Core/Support/LiveSurfaceRouting.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000105 /* LiveSurfaceRoutingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveSurfaceRoutingTests.swift; path = Tests/Unit/LiveSurfaceRoutingTests.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000261 /* RecentlyClosedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RecentlyClosedStore.swift; path = App/Composition/RecentlyClosedStore.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000251 /* RecentlyClosedListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RecentlyClosedListTests.swift; path = Tests/Unit/RecentlyClosedListTests.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000241 /* RecentlyClosedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RecentlyClosedList.swift; path = Core/Support/RecentlyClosedList.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000231 /* UtilitySettingsBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UtilitySettingsBlock.swift; path = App/Scenes/UtilitySettingsBlock.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000221 /* ColorPickerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ColorPickerService.swift; path = App/Composition/ColorPickerService.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000211 /* LinkCleanerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LinkCleanerService.swift; path = App/Composition/LinkCleanerService.swift; sourceTree = SOURCE_ROOT; };
@@ -2409,6 +2416,8 @@
 				7B5000000000000000000101 /* LiveSurfaceRouting.swift in Sources */,
 				7B500000000000000000010A /* NowPlayingProgress.swift in Sources */,
 				7B50000000000000000000B2 /* LiveEventCenter.swift in Sources */,
+				7B5000000000000000000262 /* RecentlyClosedStore.swift in Sources */,
+				7B5000000000000000000242 /* RecentlyClosedList.swift in Sources */,
 				7B5000000000000000000232 /* UtilitySettingsBlock.swift in Sources */,
 				7B5000000000000000000222 /* ColorPickerService.swift in Sources */,
 				7B5000000000000000000212 /* LinkCleanerService.swift in Sources */,
@@ -2494,6 +2503,7 @@
 				7B50000000000000000000E3 /* LiveActivitySources.swift in Sources */,
 				7B50000000000000000000F3 /* LiveEventDetector.swift in Sources */,
 				7B5000000000000000000102 /* LiveSurfaceRouting.swift in Sources */,
+				7B5000000000000000000243 /* RecentlyClosedList.swift in Sources */,
 				7B50000000000000000001E3 /* ColorFormat.swift in Sources */,
 				7B50000000000000000001D3 /* URLCleaner.swift in Sources */,
 				7B5000000000000000000193 /* DownloadActivity.swift in Sources */,
@@ -2579,6 +2589,7 @@
 				7B50000000000000000000D5 /* LiveActivitySourcesTests.swift in Sources */,
 				7B50000000000000000000F5 /* LiveEventDetectorTests.swift in Sources */,
 				7B5000000000000000000103 /* LiveSurfaceRoutingTests.swift in Sources */,
+				7B5000000000000000000252 /* RecentlyClosedListTests.swift in Sources */,
 				7B5000000000000000000202 /* ColorFormatTests.swift in Sources */,
 				7B50000000000000000001F2 /* URLCleanerTests.swift in Sources */,
 				7B50000000000000000001A2 /* DownloadActivityTests.swift in Sources */,
