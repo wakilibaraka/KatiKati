@@ -12,5 +12,10 @@ struct UtilitySettingsBlock: View {
             Toggle("Clean Copied Links", isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) }))
                 .toggleStyle(.switch).labelsHidden()
         }
+        HStack {
+            Text("System Dock")
+            Spacer(minLength: 12)
+            Button("Restore Dock") { (NSApp.delegate as? AppDelegate)?.restoreNativeDock() }
+        }
     }
 }

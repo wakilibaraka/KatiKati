@@ -11,6 +11,32 @@ struct NativeDockAutohideState: Equatable {
     var delay: Double?
 }
 
+/// The native Dock's autohide settings as they were before KatiKati first changed them. `delay == nil`
+/// means the `autohide-delay` key was absent (system default). Persisted so a quit (or the next launch
+/// after a crash) can put the Dock back exactly as the user had it.
+struct NativeDockOriginal: Codable, Equatable {
+    var autohide: Bool
+    var delay: Double?
+
+    init(_ state: NativeDockAutohideState) {
+        autohide = state.enabled
+        delay = state.delay
+    }
+
+    /// `defaults` writes (delete for an absent key) followed by one `killall Dock`.
+    func restoreCommands() -> [(executable: String, arguments: [String])] {
+        var commands: [(executable: String, arguments: [String])] = [
+            ("/usr/bin/defaults", ["write", "com.apple.dock", "autohide", "-bool", autohide ? "true" : "false"]),
+        ]
+        if let delay {
+            commands.append(("/usr/bin/defaults", ["write", "com.apple.dock", "autohide-delay", "-float", String(format: "%.1f", delay)]))
+        } else {
+            commands.append(("/usr/bin/defaults", ["delete", "com.apple.dock", "autohide-delay"]))
+        }
+        return commands + [("/usr/bin/killall", ["Dock"])]
+    }
+}
+
 /// 写系统 Dock 只剩 `apply(delay:)` 一条路径（owner 2026-08-01 定）：菜单里的显隐命令已删掉，
 /// 整组由滑块 + 确认行表达——滑块能表达全部状态（常驻 / 秒数 / 不唤醒），命令是冗余的，
 /// 而它只切 `autohide` 不碰 `autohide-delay`，字面承诺的「隐藏」大于实际效果，反而误导。
@@ -50,12 +76,18 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
     private let runner: ShellRunner
     private let autohideReader: @Sendable () -> NativeDockAutohideState?
     private let urlOpener: URLOpener
+    private let defaults: UserDefaults
+    static let originalKey = "com.katikati.nativeDock.original"
+    /// The slider delay KatiKati last applied; re-applied on the next launch (the Dock is given back on quit).
+    static let desiredDelayKey = "com.katikati.nativeDock.desiredDelay"
     private let readerQueue = DispatchQueue(label: "com.caye.macosdockcc.v2.native-dock-reader", qos: .userInitiated)
 
     init(sandbox: SandboxEnvironment = .current,
          runner: @escaping ShellRunner = NativeDockPreferencesService.runProcess,
          autohideReader: @escaping @Sendable () -> NativeDockAutohideState? = { NativeDockPreferencesService.readAutohideStateFromSystem() },
-         urlOpener: @escaping URLOpener = NativeDockPreferencesService.openURL) {
+         urlOpener: @escaping URLOpener = NativeDockPreferencesService.openURL,
+         defaults: UserDefaults = .standard) {
+        self.defaults = defaults
         self.sandbox = sandbox
         self.runner = runner
         self.autohideReader = autohideReader
@@ -145,6 +177,7 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
     /// 滑块：整档写入。常驻档只关 `autohide`，不写延迟——延迟此时无意义，写了反而覆盖用户原值。
     func apply(delay: Double) throws {
         guard isAvailable else { throw NativeDockPreferencesError.sandboxed }
+        recordBeforeWrite(delay: delay)
         for command in Self.commands(for: delay) {
             try runner(command.executable, command.arguments)
         }
@@ -152,9 +185,57 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
 
     func apply(recommendations: NativeDockRecommendations) throws {
         guard isAvailable else { throw NativeDockPreferencesError.sandboxed }
+        if let delay = recommendations.autoHideDelay { recordBeforeWrite(delay: delay) }
         for command in Self.commands(for: recommendations) {
             try runner(command.executable, command.arguments)
         }
+    }
+
+    // MARK: restore on quit
+
+    var hasCapturedOriginal: Bool { loadOriginal() != nil }
+
+    private func loadOriginal() -> NativeDockOriginal? {
+        defaults.data(forKey: Self.originalKey).flatMap { try? JSONDecoder().decode(NativeDockOriginal.self, from: $0) }
+    }
+
+    /// Before KatiKati hides the Dock: remember the user's own setting once (never overwritten by a later
+    /// write) and the delay to re-apply next launch. Choosing "always visible" is the user's explicit
+    /// state, so it drops both — nothing is left to restore.
+    private func recordBeforeWrite(delay: Double) {
+        if delay <= AppSettingsStore.neverHideDelay {
+            defaults.removeObject(forKey: Self.originalKey)
+            defaults.removeObject(forKey: Self.desiredDelayKey)
+            return
+        }
+        if loadOriginal() == nil, let state = autohideReader(),
+           let data = try? JSONEncoder().encode(NativeDockOriginal(state)) {
+            defaults.set(data, forKey: Self.originalKey)
+        }
+        defaults.set(delay, forKey: Self.desiredDelayKey)
+    }
+
+    /// Quit / "Restore Dock": put the Dock back as it was before KatiKati changed it. Synchronous (it runs
+    /// from `applicationWillTerminate`). Keeps `desiredDelay` so the next launch hides it again.
+    /// - Parameter forget: also drop the re-apply on next launch (the explicit button).
+    @discardableResult
+    func restoreOriginal(forget: Bool = false) -> Bool {
+        guard isAvailable else { return false }
+        defer { if forget { defaults.removeObject(forKey: Self.desiredDelayKey) } }
+        guard let original = loadOriginal() else { return false }
+        for command in original.restoreCommands() {
+            do { try runner(command.executable, command.arguments) } catch { return false }
+        }
+        defaults.removeObject(forKey: Self.originalKey)
+        return true
+    }
+
+    /// Launch: if KatiKati hid the Dock last time and gave it back on quit, hide it again. A leftover
+    /// captured original means the last run died uncleanly and the Dock is still hidden — leave it.
+    func reapplyDesiredIfNeeded() {
+        guard isAvailable, !hasCapturedOriginal,
+              let delay = defaults.object(forKey: Self.desiredDelayKey) as? Double else { return }
+        try? apply(delay: delay)
     }
 
     static let restartDockCommand: (executable: String, arguments: [String]) = ("/usr/bin/killall", ["Dock"])

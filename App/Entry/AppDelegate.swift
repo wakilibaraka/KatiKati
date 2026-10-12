@@ -438,6 +438,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        // Give the system Dock back as the user had it before KatiKati hid it (next launch re-hides it).
+        nativeDockPreferencesService.restoreOriginal()
         SystemResizeCursor.shared.reset()   // never leave the ▲▼ or a hidden pointer behind us
         SystemCursorHider.shared.show()
         trashSettingSubscription = nil
@@ -780,9 +782,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 任务条真的起来了才谈得上「建议怎么配」。放在这里而不是启动那一刻，是因为
         // 用户得先看见任务条长什么样，那句「它俩都在屏幕底边会互相遮挡」才有所指。
         presentWelcomeGuideIfNeeded()
+        nativeDockPreferencesService.reapplyDesiredIfNeeded()
         // 探针结论（2026-07-06,阶段0探针3）：访达窗口 AX 属性表虽列有 AXDocument 但恒无值
         // （kAXErrorNoValue），AXProxy/AXTitleUIElement 也只有文件夹名无路径——「拖任务条访达
         // 窗口图标固定文件夹」不可行,已按预案砍掉,拖入固定区只走真实文件 URL（系统拖放）。
+    }
+
+    /// Settings › Restore Dock: show the system Dock again and stop re-hiding it at launch.
+    func restoreNativeDock() {
+        if !nativeDockPreferencesService.restoreOriginal(forget: true) {
+            try? nativeDockPreferencesService.apply(delay: AppSettingsStore.neverHideDelay)
+        }
+        settingsStore.setNativeDockAutoHideDelay(AppSettingsStore.neverHideDelay)
     }
 
     /// 文件夹 chip / 中转格右键的「添加固定文件夹…」入口。
