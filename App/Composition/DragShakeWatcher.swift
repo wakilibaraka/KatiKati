@@ -96,6 +96,7 @@ final class ShelfDropTargetPanel {
     private let model = ShelfDropTargetModel()
 
     init(shelf: ShelfStore) {
+        model.itemCount = shelf.itemPaths.count
         model.onDrop = { urls in shelf.stash(paths: urls.map(\.path)) }
         let size = CGSize(width: 220, height: 120)
         panel = NSPanel(contentRect: CGRect(origin: .zero, size: size), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
@@ -123,6 +124,7 @@ final class ShelfDropTargetPanel {
 final class ShelfDropTargetModel: ObservableObject {
     @Published var isTargeted = false
     @Published var dropped = 0
+    @Published var itemCount = 0
     var onDrop: ([URL]) -> Void = { _ in }
 }
 
@@ -131,7 +133,7 @@ struct ShelfDropTargetView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            ShelfTrayArt(size: 44, lifted: model.isTargeted)
+            ShelfTrayArt(size: 44, lifted: model.isTargeted, state: ShelfIconState.from(count: model.itemCount))
             Group {
                 if model.dropped > 0 { Text("Added to Shelf") } else { Text("Drop to Shelf") }
             }

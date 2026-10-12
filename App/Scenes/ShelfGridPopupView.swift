@@ -21,9 +21,13 @@ struct ShelfGridPopupView: View {
         // File attributes are read once per render in shelf order (the shelf is small; the
         // coordinator pruned it before showing the popup).
         let entries = FolderContentsLoader.entries(forPaths: shelfStore.itemPaths)
-        let note = Self.note(for: entries)
-        // An empty shelf is the status line alone: no row of blank cells under it.
-        let layout = entries.isEmpty
+        let showIntro = ShelfIntro.shouldShow(introSeen: shelfStore.introSeen, itemCount: entries.count)
+        let note = showIntro ? nil : Self.note(for: entries)
+        // An empty shelf is the status line alone: no row of blank cells under it. The first-use guide is
+        // a fixed 4 × 1 block (derived, never measured).
+        let layout = showIntro
+            ? StackGridLayout.Result(columns: 4, visibleRows: 1, scrolls: false)
+            : entries.isEmpty
             ? StackGridLayout.Result(columns: StackGridLayout.noteMinColumns, visibleRows: 0, scrolls: false)
             : StackGridLayout.resolve(cellCount: entries.count, limits: context.limits, hasNote: note != nil)
 
@@ -35,7 +39,8 @@ struct ShelfGridPopupView: View {
                          arrow: context.arrow,
                          onPanelSizeChange: onContentResize,
                          gridAnimation: .easeInOut(duration: DrawerAnimation.duration),
-                         gridAnimationKey: entries.map(\.url.path)) {
+                         gridAnimationKey: entries.map(\.url.path),
+                         intro: showIntro ? AnyView(ShelfIntroView()) : nil) {
             ForEach(entries, id: \.url) { entry in
                 let pinned = shelfStore.isPinned(entry.url.path)
                 FolderGridCell(iconPath: entry.isAccessible ? entry.url.path : nil,
@@ -100,5 +105,33 @@ struct ShelfGridPopupView: View {
             onTrashed: { shelfStore.remove(path) },
             shelfActions: shelfMenuItems(for: entry.url)
         ))
+    }
+}
+
+/// The shelf window's first-use notes. Shown only while the shelf has never held anything
+/// (`ShelfIntro.shouldShow`); they never return once a file has been parked.
+struct ShelfIntroView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 11) {
+            row("arrow.down.doc.fill", Text("Drag files onto the shelf, or shake a file while dragging to pop up a drop target."))
+            row("pin.fill", Text("Pin items to keep them. Clear removes only unpinned items."))
+            row("contextualmenu.and.cursorarrow", Text("Right-click an item to Zip, Compress, Share or AirDrop."))
+            row("externaldrive.fill", Text("Items stay where they are. Auto-expire and copy storage are in Settings › Shelf."))
+        }
+        .padding(.top, 6)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+    }
+
+    private func row(_ symbol: String, _ text: Text) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: symbol)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.7))
+                .frame(width: 18)
+            text
+                .font(.system(size: 12))
+                .foregroundStyle(.white.opacity(0.8))
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }

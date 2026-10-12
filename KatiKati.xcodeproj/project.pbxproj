@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B5000000000000000003B52 /* ShelfIconStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003B51 /* ShelfIconStateTests.swift */; };
+		7B5000000000000000003B13 /* ShelfIconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003B11 /* ShelfIconState.swift */; };
+		7B5000000000000000003B12 /* ShelfIconState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003B11 /* ShelfIconState.swift */; };
 		7B5000000000000000003A32 /* NotchToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003A31 /* NotchToolsView.swift */; };
 		7B5000000000000000003A22 /* DragShakeWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003A21 /* DragShakeWatcher.swift */; };
 		7B5000000000000000003A12 /* ShelfActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003A11 /* ShelfActions.swift */; };
@@ -801,6 +804,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B5000000000000000003B51 /* ShelfIconStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfIconStateTests.swift; path = Tests/Unit/ShelfIconStateTests.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000003B11 /* ShelfIconState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfIconState.swift; path = Core/Support/ShelfIconState.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003A31 /* NotchToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchToolsView.swift; path = App/Scenes/Notch/NotchToolsView.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003A21 /* DragShakeWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DragShakeWatcher.swift; path = App/Composition/DragShakeWatcher.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003A11 /* ShelfActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfActions.swift; path = App/Composition/ShelfActions.swift; sourceTree = SOURCE_ROOT; };
@@ -2469,6 +2474,7 @@
 				7B5000000000000000000142 /* LiveIslandStyle.swift in Sources */,
 				7B5000000000000000000132 /* NotchIslandView.swift in Sources */,
 				7B5000000000000000000112 /* NotchGeometry.swift in Sources */,
+				7B5000000000000000003B12 /* ShelfIconState.swift in Sources */,
 				7B5000000000000000003A32 /* NotchToolsView.swift in Sources */,
 				7B5000000000000000003A22 /* DragShakeWatcher.swift in Sources */,
 				7B5000000000000000003A12 /* ShelfActions.swift in Sources */,
@@ -2555,6 +2561,7 @@
 				7B50000000000000000001D3 /* URLCleaner.swift in Sources */,
 				7B5000000000000000000193 /* DownloadActivity.swift in Sources */,
 				7B5000000000000000000113 /* NotchGeometry.swift in Sources */,
+				7B5000000000000000003B13 /* ShelfIconState.swift in Sources */,
 				7B5000000000000000003813 /* ShakeDetector.swift in Sources */,
 				7B5000000000000000003613 /* ShelfItem.swift in Sources */,
 				7B5000000000000000003413 /* NotchHoverMachine.swift in Sources */,
@@ -2645,6 +2652,7 @@
 				7B50000000000000000001F2 /* URLCleanerTests.swift in Sources */,
 				7B50000000000000000001A2 /* DownloadActivityTests.swift in Sources */,
 				7B5000000000000000000122 /* NotchGeometryTests.swift in Sources */,
+				7B5000000000000000003B52 /* ShelfIconStateTests.swift in Sources */,
 				7B5000000000000000003912 /* ShakeDetectorTests.swift in Sources */,
 				7B5000000000000000003712 /* ShelfPolicyTests.swift in Sources */,
 				7B5000000000000000003512 /* NotchHoverMachineTests.swift in Sources */,

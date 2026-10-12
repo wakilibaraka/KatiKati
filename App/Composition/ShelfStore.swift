@@ -19,6 +19,8 @@ final class ShelfStore: ObservableObject {
     nonisolated static let expiryDaysKey = "com.katikati.shelf.expiryDays"
     nonisolated static let storageKey = "com.katikati.shelf.storage"
     nonisolated static let shakeKey = "com.katikati.shelf.shake"
+    /// Set the first time anything is parked; the first-use guide never shows again after it.
+    nonisolated static let introSeenKey = "com.katikati.shelf.introSeen"
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -28,8 +30,11 @@ final class ShelfStore: ObservableObject {
             items = ShelfPolicy.ordered(ShelfPolicy.migrated(paths: legacy, now: Date()))
             persist()
         }
+        if !items.isEmpty { defaults.set(true, forKey: Self.introSeenKey) }   // existing users are past the guide
         applyExpiry()
     }
+
+    var introSeen: Bool { defaults.bool(forKey: Self.introSeenKey) }
 
     var storage: ShelfStorage { ShelfStorage(rawValue: defaults.string(forKey: Self.storageKey) ?? "") ?? .reference }
     var autoExpire: Bool { defaults.bool(forKey: Self.autoExpireKey) }
@@ -57,6 +62,7 @@ final class ShelfStore: ObservableObject {
         let next = ShelfPolicy.ordered(ShelfPolicy.stashing(items, adding: entries, now: Date()))
         guard next != items else { return }
         items = next
+        if !items.isEmpty { defaults.set(true, forKey: Self.introSeenKey) }
         persist()
     }
 

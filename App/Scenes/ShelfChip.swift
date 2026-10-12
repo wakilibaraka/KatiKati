@@ -78,7 +78,7 @@ struct ShelfChip: View {
         let style = theme.effectiveShelfTile
         return Group {
             if style.isIllustration {
-                ShelfTrayArt(size: art, lifted: isDropTargeted)
+                ShelfTrayArt(size: art, lifted: isDropTargeted, state: ShelfIconState.from(count: itemCount))
             } else {
                 ZStack {
                     RoundedRectangle(cornerRadius: art * 0.215, style: .continuous)

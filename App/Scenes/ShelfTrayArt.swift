@@ -12,11 +12,28 @@ struct ShelfTrayArt: View {
     let size: CGFloat
     /// 外部文件拖到格上时整体提亮。
     var lifted: Bool = false
+    /// What is on the shelf: nothing (no papers), one item (one blank paper) or several (three written
+    /// papers). `ShelfIconState.from(count:)`.
+    var state: ShelfIconState = .stack
 
     var body: some View {
         ZStack {
             backPlate
+            // Papers outside the pocket stay sharp; behind the glass they are a blurred, dimmer copy —
+            // the frosted look of the reference. (Masked rather than drawn under a translucent fill, so
+            // the sharp edges never show through the glass.)
             papers
+                .mask {
+                    ZStack {
+                        Rectangle().fill(Color.black)
+                        PocketShape().fill(Color.black).blendMode(.destinationOut)
+                    }
+                    .compositingGroup()
+                }
+            papers
+                .blur(radius: size * 0.035)
+                .opacity(0.55)
+                .mask(PocketShape().fill(Color.black))
             frontPocket
         }
         .frame(width: size, height: size)
@@ -36,19 +53,25 @@ struct ShelfTrayArt: View {
 
     // MARK: 纸
 
-    /// 三张白纸，中间那张最高、两侧略矮并向外倾——参考图里的扇形。
-    /// 画在后板范围内并整体裁掉，免得倾斜的角戳出圆角外面。
-    private var papers: some View {
+    /// Papers for the current state, clipped to the back plate so tilted corners can't poke out.
+    @ViewBuilder private var papers: some View {
         ZStack {
-            paper(offsetX: -0.085, offsetY: 0.010, rotation: -7, scale: 0.94)
-            paper(offsetX: 0.085, offsetY: 0.020, rotation: 7, scale: 0.94)
-            paper(offsetX: 0, offsetY: -0.005, rotation: 0, scale: 1)
+            switch state {
+            case .empty:
+                EmptyView()
+            case .onePaper:
+                paper(offsetX: 0, offsetY: 0.010, rotation: -3, scale: 1, lines: false)
+            case .stack:
+                paper(offsetX: -0.085, offsetY: 0.010, rotation: -7, scale: 0.94, lines: true)
+                paper(offsetX: 0.085, offsetY: 0.020, rotation: 7, scale: 0.94, lines: true)
+                paper(offsetX: 0, offsetY: -0.005, rotation: 0, scale: 1, lines: true)
+            }
         }
         .frame(width: size, height: size)
         .clipShape(RoundedRectangle(cornerRadius: size * 0.215, style: .continuous))
     }
 
-    private func paper(offsetX: CGFloat, offsetY: CGFloat, rotation: Double, scale: CGFloat) -> some View {
+    private func paper(offsetX: CGFloat, offsetY: CGFloat, rotation: Double, scale: CGFloat, lines: Bool) -> some View {
         let width = size * 0.46 * scale
         let height = size * 0.56 * scale
         return RoundedRectangle(cornerRadius: size * 0.05, style: .continuous)
@@ -57,6 +80,19 @@ struct ShelfTrayArt: View {
                 startPoint: .top,
                 endPoint: .bottom
             ))
+            .overlay(alignment: .top) {
+                // "Written" papers: a heavier title bar and two lighter lines, as in the reference.
+                if lines {
+                    VStack(alignment: .leading, spacing: size * 0.028) {
+                        Capsule().fill(Color(white: 0.76)).frame(width: width * 0.72, height: size * 0.03)
+                        Capsule().fill(Color(white: 0.84)).frame(width: width * 0.50, height: size * 0.022)
+                        Capsule().fill(Color(white: 0.84)).frame(width: width * 0.60, height: size * 0.022)
+                    }
+                    .frame(width: width, alignment: .leading)
+                    .padding(.leading, width * 0.14)
+                    .padding(.top, height * 0.12)
+                }
+            }
             .frame(width: width, height: height)
             .rotationEffect(.degrees(rotation))
             // 纸的下半截被前袋盖住，所以整体上移：露出的只是上沿。
@@ -68,13 +104,20 @@ struct ShelfTrayArt: View {
     /// 前袋是半透明的深灰，上沿是参考图里那道「左高右低再回收」的曲线。
     /// 半透明是关键：纸从它背后透出来一点，才有"装在袋子里"的层次。
     private var frontPocket: some View {
-        PocketShape()
-            .fill(LinearGradient(
-                colors: [Color(white: 0.46).opacity(0.94), Color(white: 0.22).opacity(0.97)],
-                startPoint: .topLeading,
-                endPoint: .bottom
-            ))
-            .frame(width: size, height: size)
+        ZStack {
+            // Smoky glass: translucent so the blurred papers read through it.
+            PocketShape()
+                .fill(LinearGradient(
+                    colors: [Color(white: 0.52).opacity(0.62), Color(white: 0.18).opacity(0.90)],
+                    startPoint: .topLeading,
+                    endPoint: .bottom
+                ))
+            // A soft light edge along the rim.
+            PocketShape()
+                .stroke(LinearGradient(colors: [Color.white.opacity(0.35), Color.white.opacity(0.04)],
+                                       startPoint: .top, endPoint: .bottom), lineWidth: max(0.5, size * 0.012))
+        }
+        .frame(width: size, height: size)
     }
 }
 

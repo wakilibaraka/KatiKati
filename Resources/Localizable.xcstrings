@@ -1,6 +1,314 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Drag files onto the shelf, or shake a file while dragging to pop up a drop target.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag files onto the shelf, or shake a file while dragging to pop up a drop target."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把文件拖到暂存架上，或拖动文件时左右摇晃，弹出投放区。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把檔案拖到暫存架上，或拖動檔案時左右搖晃，彈出投放區。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルを棚にドラッグするか、ドラッグ中に振るとドロップ先が表示されます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziehe Dateien auf die Ablage – oder schüttle beim Ziehen, um ein Ablageziel einzublenden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites glisser des fichiers sur l’étagère, ou secouez-les en les faisant glisser pour afficher une zone de dépôt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrastra archivos a la estantería, o sacúdelos mientras arrastras para mostrar una zona de destino."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrastra archivos a la estantería, o sacúdelos mientras arrastras para mostrar una zona de destino."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arraste arquivos para a prateleira ou balance-os ao arrastar para exibir uma área de soltar."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arraste ficheiros para a prateleira ou abane-os ao arrastar para mostrar uma área de largar."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trascina i file sul ripiano, oppure scuotili durante il trascinamento per far apparire una zona di rilascio."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파일을 선반으로 끌어다 놓거나, 드래그 중 흔들면 놓을 곳이 나타납니다."
+          }
+        }
+      }
+    },
+    "Pin items to keep them. Clear removes only unpinned items.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pin items to keep them. Clear removes only unpinned items."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "固定项目即可保留。“清除”只会移除未固定的项目。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "釘選項目即可保留。「清除」只會移除未釘選的項目。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "項目を固定すると残せます。「消去」は固定されていない項目だけを削除します。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hefte Objekte an, um sie zu behalten. „Löschen“ entfernt nur nicht angeheftete Objekte."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épinglez des éléments pour les conserver. « Effacer » ne supprime que les éléments non épinglés."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fija elementos para conservarlos. «Borrar» solo elimina los no fijados."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fija elementos para conservarlos. «Borrar» solo elimina los no fijados."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fixe itens para mantê-los. “Limpar” remove apenas os não fixados."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afixe itens para os manter. “Limpar” remove apenas os não afixados."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fissa gli elementi per conservarli. “Elimina” rimuove solo quelli non fissati."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "항목을 고정하면 유지됩니다. ‘지우기’는 고정되지 않은 항목만 삭제합니다."
+          }
+        }
+      }
+    },
+    "Right-click an item to Zip, Compress, Share or AirDrop.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right-click an item to Zip, Compress, Share or AirDrop."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右键点按项目即可压缩、打包、共享或隔空投送。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右鍵點按項目即可壓縮、打包、分享或使用 AirDrop。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "項目を右クリックすると、Zip・圧縮・共有・AirDropができます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechtsklicke ein Objekt, um es zu zippen, zu komprimieren, zu teilen oder per AirDrop zu senden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites un clic droit sur un élément pour le zipper, le compresser, le partager ou l’envoyer par AirDrop."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz clic derecho en un elemento para comprimirlo, zipearlo, compartirlo o enviarlo por AirDrop."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz clic derecho en un elemento para comprimirlo, zipearlo, compartirlo o enviarlo por AirDrop."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clique com o botão direito em um item para compactar, comprimir, compartilhar ou enviar por AirDrop."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clique com o botão direito num item para compactar, comprimir, partilhar ou enviar por AirDrop."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai clic destro su un elemento per comprimerlo in Zip, ottimizzarlo, condividerlo o inviarlo con AirDrop."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "항목을 오른쪽 클릭하면 압축, 용량 줄이기, 공유, AirDrop을 사용할 수 있습니다."
+          }
+        }
+      }
+    },
+    "Items stay where they are. Auto-expire and copy storage are in Settings › Shelf.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Items stay where they are. Auto-expire and copy storage are in Settings › Shelf."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "项目保留在原位置。自动过期和复制存储在“设置 › 暂存架”中。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "項目保留在原位置。自動過期和複製儲存在「設定 › 暫存架」中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "項目は元の場所に残ります。自動期限切れとコピー保存は「設定 › 棚」にあります。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objekte bleiben an ihrem Ort. Automatisches Ablaufen und Kopiespeicherung findest du unter Einstellungen › Ablage."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les éléments restent à leur place. L’expiration automatique et le stockage par copie se trouvent dans Réglages › Étagère."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los elementos se quedan donde están. La caducidad automática y el almacenamiento por copia están en Ajustes › Estantería."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los elementos se quedan donde están. La caducidad automática y el almacenamiento por copia están en Ajustes › Estantería."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os itens ficam onde estão. Expiração automática e armazenamento por cópia ficam em Ajustes › Prateleira."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os itens ficam onde estão. A expiração automática e o armazenamento por cópia estão em Definições › Prateleira."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gli elementi restano dove sono. Scadenza automatica e archiviazione tramite copia si trovano in Impostazioni › Ripiano."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "항목은 원래 위치에 남아 있습니다. 자동 만료와 복사 저장은 설정 › 선반에 있습니다."
+          }
+        }
+      }
+    },
     "Pin to Shelf": {
       "extractionState": "manual",
       "localizations": {

@@ -40,6 +40,8 @@ struct StackPopupChrome<Grid: View>: View {
     /// Animates cells arriving and leaving; nil while the first population lands.
     var gridAnimation: Animation?
     var gridAnimationKey: [String] = []
+    /// Drawn over the grid area instead of cells (the shelf's first-use guide). The layout still sets the size.
+    var intro: AnyView?
     /// The cells; they land in a `LazyVGrid` of `layout.columns` fixed columns.
     @ViewBuilder let grid: () -> Grid
 
@@ -60,7 +62,14 @@ struct StackPopupChrome<Grid: View>: View {
             if plate.hasSeparator { separator }
             Color.clear.frame(height: plate.gridTop - plate.headerHeight - (plate.hasSeparator ? 1 : 0))
             if let note { noteLine(note) }
-            gridArea
+            ZStack(alignment: .topLeading) {
+                gridArea
+                if let intro {
+                    intro
+                        .frame(width: gridWidth, height: gridHeight, alignment: .topLeading)
+                        .padding(.leading, plate.sidePadding)
+                }
+            }
         }
         .frame(width: plateSize.width, height: plateSize.height, alignment: .top)
         // The plate is what the window leaves for it, not `plateSize`: while the coordinator
