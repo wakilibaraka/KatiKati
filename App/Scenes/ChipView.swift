@@ -195,7 +195,7 @@ struct ChipView: View {
                height: ChipPillMetrics.chipHeight * scale)
         .overlay(alignment: .topTrailing) {
             if item.isAppGroup, item.memberWindowIDs.count > 1, !isDragCarrierSnapshot {
-                Text("\(item.memberWindowIDs.count)")
+                Text(verbatim: "\(item.memberWindowIDs.count)")
                     .font(.system(size: 9 * scale, weight: .bold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 4 * scale)

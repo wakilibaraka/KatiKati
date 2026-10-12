@@ -337,13 +337,15 @@ struct SettingsLayoutPane: View {
                         Button("Remove") { store.setChipGrouping(nil, forBundleID: bundleID) }
                     }
                 }
-                Menu("Add App…") {
+                Menu {
                     ForEach(Self.runningAppChoices(excluding: Set(store.chipGroupingPlan.overrides.keys)), id: \.bundleID) { app in
                         Button(app.name) {
                             let other: WindowChipGroupPolicy = store.chipGroupingPlan.defaultPolicy == .grouped ? .separate : .grouped
                             store.setChipGrouping(other, forBundleID: app.bundleID)
                         }
                     }
+                } label: {
+                    Text("Add App…")
                 }
                 .fixedSize()
                 Text("A grouped app shows one chip with a window count; clicking it cycles the app's windows.")
