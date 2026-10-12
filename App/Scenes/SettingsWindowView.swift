@@ -135,6 +135,7 @@ struct SettingsWindowContent: View {
                         .fixedSize()
                     }
                     
+                    LiveIslandSettingsBlock(store: store)
                     HStack {
                         Text("Drawer Position")
                         Spacer(minLength: 12)
@@ -194,6 +195,8 @@ struct SettingsWindowContent: View {
                     }
                     Divider().opacity(0.5)
                     WeatherSettingsBlock()
+                    Divider().opacity(0.5)
+                    LiveIslandSettingsBlock(store: store)
                     Divider().opacity(0.5)
                     groupRow {
                         Text("Drawer Position")

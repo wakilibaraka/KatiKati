@@ -87,6 +87,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// island has its own rendering feed, so per-island detection would fire the same toast N times
     /// on a multi-display setup (see `LiveEventCenter`'s header).
     private let liveEventCenter = LiveEventCenter()
+    /// Phase 8b-7: the notch skin of the Live Island. Built lazily — only while the setting is on.
+    private let notchPanel = NotchPanelController()
+    private var notchSubscription: AnyCancellable?
     private var shortcutSubscription: AnyCancellable?
     private let screenTimeAlerts = ScreenTimeAlertPresenter()
     private lazy var pinboardPanel: PinboardPanelController = {
@@ -280,9 +283,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             liveEventCenter.isSurfaceEnabled = { [weak self] surface in
                 switch surface {
                 case .dock: return self?.settingsStore.dockIslandEnabled ?? true
-                case .notch: return self?.settingsStore.notchIslandEnabled ?? false
+                case .notch: return (self?.settingsStore.notchIslandEnabled ?? false) && (self?.notchPanel.isUsable ?? false)
                 }
             }
+            notchPanel.theme = { [weak self] in self?.settingsStore.nowPlayingTheme ?? .auto }
+            liveEventCenter.register(sink: notchPanel, for: .notch)
+            notchSubscription = settingsStore.$notchIslandEnabled
+                .removeDuplicates()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] on in self?.notchPanel.setEnabled(on) }
             liveEventCenter.osBannersEnabled = { [weak self] in self?.settingsStore.liveEventOSBanners ?? false }
             liveEventCenter.route = { [weak self] in self?.settingsStore.liveEventRoute ?? .automatic }
             liveEventCenter.start()

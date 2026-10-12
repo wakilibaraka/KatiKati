@@ -1,0 +1,48 @@
+import SwiftUI
+
+/// Phase 8b-7 — Settings rows for the Live Island: where it shows (dock capsule, notch) and where its
+/// event alerts go. Plain label-leading / control-trailing rows so the same block sits in both the
+/// grouped-form and the macOS 12 layouts. Titles are whole literals (localization gate stays one-to-one).
+struct LiveIslandSettingsBlock: View {
+    @ObservedObject var store: AppSettingsStore
+
+    var body: some View {
+        Text("Live Island").font(.headline)
+        row("Dock Island") {
+            Toggle("Dock Island", isOn: Binding(get: { store.dockIslandEnabled }, set: { store.setDockIslandEnabled($0) }))
+                .toggleStyle(.switch).labelsHidden()
+        }
+        row("Notch Island") {
+            Toggle("Notch Island", isOn: Binding(get: { store.notchIslandEnabled }, set: { store.setNotchIslandEnabled($0) }))
+                .toggleStyle(.switch).labelsHidden()
+        }
+        row("Event Alerts") {
+            Picker("Event Alerts", selection: Binding(get: { store.liveEventRoute }, set: { store.setLiveEventRoute($0) })) {
+                ForEach(LiveEventRoute.allCases, id: \.self) { Self.title(for: $0).tag($0) }
+            }
+            .labelsHidden().pickerStyle(.menu).fixedSize()
+        }
+        row("System Banners") {
+            Toggle("System Banners", isOn: Binding(get: { store.liveEventOSBanners }, set: { store.setLiveEventOSBanners($0) }))
+                .toggleStyle(.switch).labelsHidden()
+        }
+    }
+
+    private func row<C: View>(_ title: LocalizedStringKey, @ViewBuilder control: () -> C) -> some View {
+        HStack {
+            Text(title)
+            Spacer(minLength: 12)
+            control()
+        }
+    }
+
+    private static func title(for route: LiveEventRoute) -> Text {
+        switch route {
+        case .automatic: return Text("Automatic")
+        case .notch: return Text("Notch")
+        case .dock: return Text("Dock")
+        case .both: return Text("Both")
+        case .off: return Text("Off")
+        }
+    }
+}

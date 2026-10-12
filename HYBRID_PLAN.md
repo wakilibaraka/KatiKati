@@ -384,6 +384,17 @@ names/ids/assets only — never behavior.
   with owner sign-off. `Tools/WindowLab` stays (diagnostic CLI, not shipped). Official
   tungsten binaries/website/cask/feed stay Moonbai's — never reused or impersonated.
 
+**Owner exception 2026-10-12 (Phase 8b-7) — boring.notch is vendored, not just studied.** Decision 4's
+"references, not donors" rule and §5's "use code only after investigation" gain one named exception:
+`Vendor/boring.notch/` holds **verbatim** copies of `NotchShape.swift` and `BoringNotchWindow.swift`
+(GPL-3.0, `NOTICE` §11), pinned by commit + sha256 in `MANIFEST.txt` and kept current by
+`Scripts/sync_boring_notch.sh check|update`. Investigation recorded: both files import only
+SwiftUI/Cocoa (buildable on our toolchain, no packages — the one-dependency rule holds). The rest of
+boring.notch (Defaults, Lottie, SkyLight, MusicManager… ≈10 SPM deps, 17k lines) stays eyeball-only;
+files KatiKati re-implements are *watched* by the script so drift prompts a manual adapter review.
+Vendored files are never edited here; behaviour changes go in `App/Entry/NotchPanelController.swift`.
+Atoll and vorsaint-utils remain references under the original rule.
+
 **Owner override 2026-10-11 (Phase 10):** `WallpaperEngine`, the wallpaper/personalisation
 bits of the personalisation flyouts, `WidgetProvider` + height/personalisation presets, and
 the SplitBar-old NowPlaying flyout are **reopened — as eyeball-only priors for Phase 10
@@ -2188,6 +2199,23 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
   `check_debug_switches.py` ✅ (80/80); `plutil -lint` OK; `project.pbxproj` +8 additive lines.
   `check_availability_warnings.py` needs a clean-build log and was not re-run. **Not done:** no Settings
   UI for the three new settings yet (lands with 8b-7); not run against a real display. Next: 8b-4c, 8b-6, 8b-7.
+
+- 2026-10-12 · **8b-4c, 8b-6, 8b-7 — DONE; Phase 8b complete (8d/8a/8c remain).** *8b-4c:* opt-in OS
+  banner tier (`LiveEventBannerPoster`, `liveEventOSBanners` default OFF) — a pure
+  `LiveEventDispatcher.plan` posts a banner only when no in-app surface can show the event, never for a
+  cooldown-dropped repeat. *8b-6:* MediaRemote extras (duration/elapsed/timestamp/artwork keys, next/
+  previous commands; same private-API soft-fail posture), pure `NowPlayingProgress` (6 tests), popup
+  shows artwork + progress and its prev/next buttons now work. *8b-7:* the notch surface —
+  vendored `NotchShape` + `BoringNotchWindow` (exception above), pure `NotchGeometry` (6 tests; real
+  notch, fake notch, bad aux areas, placement), `NotchIslandView` + `NotchPanelController` (built only
+  when `notchIslandEnabled`; holds the shared feed tick; `LiveEventSink`; drops `.fullScreenAuxiliary`
+  so it stays out of fullscreen spaces), `LiveIslandStyle` extracted so dock and notch share glyphs and
+  words, Settings > General "Live Island" block (dock/notch switches, Event Alerts route, System
+  Banners) + 9 new strings ×12 (drafts, owner review). **Gate:** `xcodebuild test` **1,997 tests, 0
+  failures**; `check_localization.py` ✅ (538 ×12); `check_debug_switches.py` ✅. **Not verified:** not
+  launched on a real display (launching rewrites the user's Dock prefs) — notch look, hover feel,
+  multi-display and fullscreen behaviour need a live check; `check_availability_warnings.py` needs a
+  clean-build log; Instruments idle-CPU number not taken.
 
 ### Phase 9 — Strip semantics, interaction & summoning (deferred: mini-plan each)
 

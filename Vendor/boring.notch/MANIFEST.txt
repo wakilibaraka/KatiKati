@@ -1,0 +1,10 @@
+# Vendored from https://github.com/TheBoredTeam/boring.notch (GPL-3.0). Verbatim copies — do not edit;
+# change behaviour in KatiKati's adapter (App/Entry/NotchPanelController.swift) instead.
+# Format: sha256  upstream-path  local-file. Maintained by Scripts/sync_boring_notch.sh.
+commit 64b545929cf31681e09b5c375859c1eceeb733eb
+edc3b1ef09db553e39cf8b31987ec32bae41573382df99bc1ffe3b2083d6db45  boringNotch/components/Notch/NotchShape.swift  NotchShape.swift
+4aedc399b5e02e8f41649aa4dc2c5522368169eb0626bd27fbacd6ec4e11fff5  boringNotch/components/Notch/BoringNotchWindow.swift  BoringNotchWindow.swift
+# Watched (not vendored — they need Defaults/other SPM packages; KatiKati re-implements them):
+watch boringNotch/sizing/matters.swift
+watch boringNotch/ContentView.swift
+watch boringNotch/boringNotchApp.swift

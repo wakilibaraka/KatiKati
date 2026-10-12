@@ -24,6 +24,15 @@
 		7B5000000000000000000101 /* LiveSurfaceRouting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000104 /* LiveSurfaceRouting.swift */; };
 		7B5000000000000000000102 /* LiveSurfaceRouting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000104 /* LiveSurfaceRouting.swift */; };
 		7B5000000000000000000103 /* LiveSurfaceRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000105 /* LiveSurfaceRoutingTests.swift */; };
+		7B5000000000000000000182 /* LiveIslandSettingsBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000181 /* LiveIslandSettingsBlock.swift */; };
+		7B5000000000000000000172 /* BoringNotchWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000171 /* BoringNotchWindow.swift */; };
+		7B5000000000000000000162 /* NotchShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000161 /* NotchShape.swift */; };
+		7B5000000000000000000152 /* NotchPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000151 /* NotchPanelController.swift */; };
+		7B5000000000000000000142 /* LiveIslandStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000141 /* LiveIslandStyle.swift */; };
+		7B5000000000000000000132 /* NotchIslandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000131 /* NotchIslandView.swift */; };
+		7B5000000000000000000122 /* NotchGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000121 /* NotchGeometryTests.swift */; };
+		7B5000000000000000000112 /* NotchGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000111 /* NotchGeometry.swift */; };
+		7B5000000000000000000113 /* NotchGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000111 /* NotchGeometry.swift */; };
 		7B500000000000000000010D /* NowPlayingProgressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010E /* NowPlayingProgressTests.swift */; };
 		7B500000000000000000010A /* NowPlayingProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010C /* NowPlayingProgress.swift */; };
 		7B500000000000000000010B /* NowPlayingProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010C /* NowPlayingProgress.swift */; };
@@ -765,6 +774,14 @@
 		7B50000000000000000000F4 /* LiveEventDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveEventDetectorTests.swift; path = Tests/Unit/LiveEventDetectorTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000104 /* LiveSurfaceRouting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveSurfaceRouting.swift; path = Core/Support/LiveSurfaceRouting.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000105 /* LiveSurfaceRoutingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveSurfaceRoutingTests.swift; path = Tests/Unit/LiveSurfaceRoutingTests.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000181 /* LiveIslandSettingsBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveIslandSettingsBlock.swift; path = App/Scenes/LiveIslandSettingsBlock.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000171 /* BoringNotchWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BoringNotchWindow.swift; path = Vendor/boring.notch/BoringNotchWindow.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000161 /* NotchShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchShape.swift; path = Vendor/boring.notch/NotchShape.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000151 /* NotchPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchPanelController.swift; path = App/Entry/NotchPanelController.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000141 /* LiveIslandStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveIslandStyle.swift; path = App/Scenes/LiveIslandStyle.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000131 /* NotchIslandView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchIslandView.swift; path = App/Scenes/NotchIslandView.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000121 /* NotchGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchGeometryTests.swift; path = Tests/Unit/NotchGeometryTests.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000111 /* NotchGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchGeometry.swift; path = Core/Support/NotchGeometry.swift; sourceTree = SOURCE_ROOT; };
 		7B500000000000000000010E /* NowPlayingProgressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingProgressTests.swift; path = Tests/Unit/NowPlayingProgressTests.swift; sourceTree = SOURCE_ROOT; };
 		7B500000000000000000010C /* NowPlayingProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingProgress.swift; path = Core/Support/NowPlayingProgress.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000109 /* LiveEventBannerPoster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveEventBannerPoster.swift; path = App/Composition/LiveEventBannerPoster.swift; sourceTree = SOURCE_ROOT; };
@@ -2367,6 +2384,13 @@
 				7B5000000000000000000101 /* LiveSurfaceRouting.swift in Sources */,
 				7B500000000000000000010A /* NowPlayingProgress.swift in Sources */,
 				7B50000000000000000000B2 /* LiveEventCenter.swift in Sources */,
+				7B5000000000000000000182 /* LiveIslandSettingsBlock.swift in Sources */,
+				7B5000000000000000000172 /* BoringNotchWindow.swift in Sources */,
+				7B5000000000000000000162 /* NotchShape.swift in Sources */,
+				7B5000000000000000000152 /* NotchPanelController.swift in Sources */,
+				7B5000000000000000000142 /* LiveIslandStyle.swift in Sources */,
+				7B5000000000000000000132 /* NotchIslandView.swift in Sources */,
+				7B5000000000000000000112 /* NotchGeometry.swift in Sources */,
 				7B5000000000000000000108 /* LiveEventBannerPoster.swift in Sources */,
 				7B50000000000000000000B4 /* LiveEventPresentation.swift in Sources */,
 				7B5000000000000000000056 /* WeatherPanelView.swift in Sources */,
@@ -2437,6 +2461,7 @@
 				7B50000000000000000000E3 /* LiveActivitySources.swift in Sources */,
 				7B50000000000000000000F3 /* LiveEventDetector.swift in Sources */,
 				7B5000000000000000000102 /* LiveSurfaceRouting.swift in Sources */,
+				7B5000000000000000000113 /* NotchGeometry.swift in Sources */,
 				7B500000000000000000010B /* NowPlayingProgress.swift in Sources */,
 				7B50000000000000000000B5 /* LiveEventPresentation.swift in Sources */,
 				7B5000000000000000000043 /* WeatherEffects.swift in Sources */,
@@ -2518,6 +2543,7 @@
 				7B50000000000000000000D5 /* LiveActivitySourcesTests.swift in Sources */,
 				7B50000000000000000000F5 /* LiveEventDetectorTests.swift in Sources */,
 				7B5000000000000000000103 /* LiveSurfaceRoutingTests.swift in Sources */,
+				7B5000000000000000000122 /* NotchGeometryTests.swift in Sources */,
 				7B500000000000000000010D /* NowPlayingProgressTests.swift in Sources */,
 				7B5000000000000000000045 /* WeatherEffectsTests.swift in Sources */,
 				7B5000000000000000000035 /* WeatherLocationsTests.swift in Sources */,

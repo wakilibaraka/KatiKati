@@ -59,3 +59,13 @@ This project is derived from and incorporates code from the following works:
 - License: GNU General Public License v3.0 (GPL-3.0)
 - Description: A Launchpad alternative. Its feature set (hidden apps, drag-to-reorder, keyboard page turning, layout reset) informed the KatiKati launcher.
   No LaunchNow source code was copied; the implementation here is original.
+
+## 11. boring.notch (Phase 8b-7 — vendored files + adapter; owner exception to "references, not donors")
+- Repository: https://github.com/TheBoredTeam/boring.notch
+- Copyright (C) 2024-2026 The Boring Team and contributors (NotchShape: Kai Azim / DynamicNotchKit, modified)
+- License: GNU General Public License v3.0 (GPL-3.0) — full text in `Vendor/boring.notch/LICENSE`
+- Description: Two files are copied **verbatim** and pinned in `Vendor/boring.notch/MANIFEST.txt`:
+  `NotchShape.swift` (the notch outline) and `BoringNotchWindow.swift` (the panel recipe). Everything else
+  (geometry, view, controller, event routing) is KatiKati's own adapter code; boring.notch's other
+  sources need packages KatiKati does not use and were studied only. `Scripts/sync_boring_notch.sh`
+  reports upstream drift and refreshes the vendored files.
