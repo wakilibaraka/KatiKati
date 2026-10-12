@@ -7,10 +7,10 @@ struct NotchCalendarPanel: View {
 
     var body: some View {
         let now = Date()
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(verbatim: now.formatted(.dateTime.month(.abbreviated))).font(.system(size: 18, weight: .bold))
+                    Text(verbatim: now.formatted(.dateTime.month(.abbreviated))).font(.system(size: 18, weight: .bold, design: .rounded))
                     Text(verbatim: now.formatted(.dateTime.year())).font(.system(size: 12)).foregroundStyle(.white.opacity(0.6))
                 }
                 Spacer()
@@ -33,7 +33,7 @@ struct NotchCalendarPanel: View {
                         .font(.system(size: 9, weight: .medium)).foregroundStyle(.white.opacity(0.6))
                     Text(verbatim: "\(day.dayNumber)")
                         .font(.system(size: 12, weight: day.isToday ? .bold : .regular)).monospacedDigit()
-                        .frame(width: 24, height: 24)
+                        .frame(width: 22, height: 22)
                         .background(Circle().fill(day.isToday ? Color.accentColor : .clear))
                 }
                 .frame(maxWidth: .infinity)

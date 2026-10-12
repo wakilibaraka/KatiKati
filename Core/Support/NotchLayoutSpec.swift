@@ -24,9 +24,14 @@ enum NotchLayoutSpec {
     static let closedCornerRadii = (top: CGFloat(6), bottom: CGFloat(14))
     static let openCornerRadii = (top: CGFloat(19), bottom: CGFloat(24))
     static let openPadding: CGFloat = 12
-    static let homeSpacing: CGFloat = 15
+    static let homeSpacing: CGFloat = 12
+    static let cardRadius: CGFloat = 16
+    static let cardPadding: CGFloat = 12
+    static let cardFillOpacity = 0.07
+    static let headerSpacing: CGFloat = 8
+    static let volumeSliderWidth: CGFloat = 56
     static let calendarColumnWidth: CGFloat = 215
-    static let albumArtSize: CGFloat = 90
+    static let albumArtSize: CGFloat = 88
     static let albumArtCorner: CGFloat = 13
     static let headerButtonSize: CGFloat = 26
     static let progressHeight: CGFloat = 10

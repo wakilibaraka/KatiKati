@@ -486,7 +486,7 @@ final class EdgeBarPanelController {
             apply(.tabClicked(note.id))
             notesPopup.toggle(anchor: anchor, side: side, visibleFrame: visibleFrame, controller: notes, select: note.id, tabFont: settings.tabFont)
         case .settings:
-            (NSApp.delegate as? AppDelegate)?.openSettings(selecting: .layout)
+            AppDelegate.shared?.openSettings(selecting: .layout)
         case let .status(kind):
             notesPopup.dismiss(notify: false)
             popup.toggle(

@@ -15,7 +15,7 @@ struct UtilitySettingsBlock: View {
         HStack {
             Text("System Dock")
             Spacer(minLength: 12)
-            Button("Restore Dock") { (NSApp.delegate as? AppDelegate)?.restoreNativeDock() }
+            Button("Restore Dock") { AppDelegate.shared?.restoreNativeDock() }
         }
     }
 }

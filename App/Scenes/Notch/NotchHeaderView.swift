@@ -11,12 +11,13 @@ struct NotchHeaderView: View {
     var body: some View {
         let side = NotchLayoutSpec.headerButtonSize
         HStack(spacing: 0) {
-            HStack(spacing: 6) {
+            HStack(spacing: NotchLayoutSpec.headerSpacing) {
                 tabButton(.home, symbol: "house.fill")
                 tabButton(.shelf, symbol: "tray.fill")
             }
             Spacer(minLength: metrics.closedSize.width)
-            HStack(spacing: 8) {
+            HStack(spacing: NotchLayoutSpec.headerSpacing) {
+                volume
                 if let level = power.status.battery.level {
                     HStack(spacing: 4) {
                         Text(verbatim: "\(level)%").font(.system(size: 12, weight: .medium)).monospacedDigit()
@@ -25,7 +26,7 @@ struct NotchHeaderView: View {
                     }
                     .foregroundStyle(.white)
                 }
-                Button { (NSApp.delegate as? AppDelegate)?.openSettings(nil) } label: {
+                Button { model.collapse(); model.openSettings() } label: {
                     Image(systemName: "gearshape.fill").font(.system(size: 12, weight: .semibold))
                         .frame(width: side, height: side)
                         .background(Circle().fill(Color.white.opacity(0.12)))
@@ -38,6 +39,20 @@ struct NotchHeaderView: View {
         .frame(height: NotchLayoutSpec.headerHeight(closedHeight: metrics.closedSize.height))
         .onAppear { power.acquire() }
         .onDisappear { power.release() }
+    }
+
+    /// Compact output-volume control: speaker glyph (tap = mute toggle is left to the system) + slider.
+    private var volume: some View {
+        HStack(spacing: 4) {
+            Image(systemName: power.status.volume.isMuted || power.status.volume.level == 0 ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                .font(.system(size: 11)).foregroundStyle(.white.opacity(0.7))
+                .frame(width: 16)
+            Slider(value: Binding(get: { Double(power.status.volume.level) },
+                                  set: { _ = power.setVolume(Float($0)) }), in: 0...1)
+                .controlSize(.mini)
+                .frame(width: NotchLayoutSpec.volumeSliderWidth)
+        }
+        .padding(.trailing, 4)
     }
 
     private func tabButton(_ tab: NotchTab, symbol: String) -> some View {

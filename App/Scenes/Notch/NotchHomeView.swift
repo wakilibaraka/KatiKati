@@ -26,15 +26,27 @@ struct NotchHomeView: View {
         .padding(.bottom, NotchLayoutSpec.openPadding)
     }
 
+    /// Both halves sit on the same soft rounded card so they read as a matched pair.
+    private func card<C: View>(@ViewBuilder _ content: () -> C) -> some View {
+        content()
+            .padding(NotchLayoutSpec.cardPadding)
+            .frame(maxHeight: .infinity, alignment: .topLeading)
+            .background(RoundedRectangle(cornerRadius: NotchLayoutSpec.cardRadius, style: .continuous)
+                .fill(Color.white.opacity(NotchLayoutSpec.cardFillOpacity)))
+    }
+
     private var home: some View {
         let panels = NotchLayoutSpec.panels(activityKind: feed.activity.kind, calendarEnabled: calendarEnabled)
         return HStack(alignment: .top, spacing: NotchLayoutSpec.homeSpacing) {
-            switch panels.left {
-            case .music: NotchMusicPanel(feed: feed, isIdle: feed.activity.kind != .music)
-            case .activity: NotchActivityPanel(activity: feed.activity)
+            card {
+                switch panels.left {
+                case .music: NotchMusicPanel(feed: feed, isIdle: feed.activity.kind != .music)
+                case .activity: NotchActivityPanel(activity: feed.activity)
+                }
             }
+            .frame(maxWidth: .infinity)
             if panels.showsCalendar {
-                NotchCalendarPanel(calendar: ProductivityServices.shared.calendar)
+                card { NotchCalendarPanel(calendar: ProductivityServices.shared.calendar) }
                     .frame(width: NotchLayoutSpec.calendarColumnWidth)
             }
         }

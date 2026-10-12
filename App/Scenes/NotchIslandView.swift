@@ -11,11 +11,20 @@ import SwiftUI
 
 @MainActor
 final class NotchModel: ObservableObject {
-    @Published var isHovering = false
+    /// Driven by `NotchPanelController`'s hover state machine (not by SwiftUI hover, which fed back into
+    /// the window resize and made the notch flicker).
+    @Published var isOpen = false
     @Published var event: LiveEventPresentation?
     @Published var skin: LiveIslandSkin = .boring
     @Published var tab: NotchTab = .home
-    var isExpanded: Bool { isHovering || event != nil }
+    var isExpanded: Bool { isOpen || event != nil }
+    /// Shape sizes, set by the controller (closed width grows with the activity "sneak"). The window is
+    /// as large as the larger of the two while a transition runs, so the shape animates inside it.
+    @Published var closedSize = CGSize(width: NotchGeometry.fallbackNotchWidth, height: NotchGeometry.fallbackHeight)
+    @Published var openSize = NotchGeometry.openSize
+    /// Set by the controller: close the notch now (after an action such as opening Settings).
+    var collapse: () -> Void = {}
+    var openSettings: () -> Void = {}
 }
 
 struct NotchIslandView: View {
@@ -31,6 +40,7 @@ struct NotchIslandView: View {
         let open = NotchLayoutSpec.openCornerRadii
         let closed = NotchLayoutSpec.closedCornerRadii
         let spring = expanded ? NotchLayoutSpec.openSpring : NotchLayoutSpec.closeSpring
+        let size = expanded ? model.openSize : model.closedSize
         ZStack(alignment: .top) {
             NotchShape(topCornerRadius: expanded ? open.top : closed.top, bottomCornerRadius: expanded ? open.bottom : closed.bottom)
                 .fill(Color.black)
@@ -39,20 +49,16 @@ struct NotchIslandView: View {
                     closedContent(activity).padding(.horizontal, 14)
                 } else if boring && model.event == nil {
                     NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
+                        .transition(.opacity)
                 } else {
                     openContent(activity).padding(.horizontal, 24)
                 }
             }
         }
+        .frame(width: size.width, height: size.height, alignment: .top)
         .contentShape(Rectangle())
-        .onHover { hovering in
-            withAnimation(.spring(response: hovering ? NotchLayoutSpec.openSpring.response : NotchLayoutSpec.closeSpring.response,
-                                  dampingFraction: hovering ? NotchLayoutSpec.openSpring.damping : NotchLayoutSpec.closeSpring.damping)) {
-                model.isHovering = hovering
-                if !hovering { model.tab = .home }
-            }
-        }
         .animation(.spring(response: spring.response, dampingFraction: spring.damping), value: expanded)
+        .animation(.spring(response: spring.response, dampingFraction: spring.damping), value: model.closedSize)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .colorScheme(.dark)
     }

@@ -6,6 +6,11 @@ import os
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    /// With `@NSApplicationDelegateAdaptor`, `NSApp.delegate` is SwiftUI's wrapper, not this class — so
+    /// `NSApp.delegate as? AppDelegate` is nil. Anything that needs to call back into the delegate
+    /// (notch gear, Settings › Restore Dock, edge-bar settings chip) goes through this instead.
+    static private(set) weak var shared: AppDelegate?
+
     /// Window titles for the guide windows follow the localized bundle name (`InfoPlist.xcstrings`).
     static var localizedDisplayName: String {
         (Bundle.main.localizedInfoDictionary?["CFBundleDisplayName"] as? String)
@@ -197,6 +202,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     )
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        Self.shared = self
         WeatherPanelHost.service = weatherService
         // 行缓冲 stdout：从命令行/后台启动时，print() 输出到文件默认是块缓冲，
         // 日志要攒满缓冲区才落盘。改成行缓冲后每条 print 立即写出，便于实时读日志。
@@ -310,6 +316,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 .removeDuplicates()
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] skin in self?.notchPanel.skin = skin }
+            notchPanel.onOpenSettings = { [weak self] in self?.openSettings(nil) }
             notchPanel.theme = { [weak self] in self?.settingsStore.nowPlayingTheme ?? .auto }
             liveEventCenter.register(sink: notchPanel, for: .notch)
             notchSubscription = settingsStore.$notchIslandEnabled
