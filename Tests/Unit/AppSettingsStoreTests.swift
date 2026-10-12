@@ -22,7 +22,7 @@ final class AppSettingsStoreTests: XCTestCase {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
         XCTAssertTrue(store.dockIslandEnabled)
-        XCTAssertFalse(store.notchIslandEnabled)
+        XCTAssertTrue(store.notchIslandEnabled)
         XCTAssertEqual(store.liveEventRoute, .automatic)
         XCTAssertFalse(store.liveEventOSBanners, "OS banners are opt-in")
 

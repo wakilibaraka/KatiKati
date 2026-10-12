@@ -61,9 +61,12 @@ enum NotchLayoutSpec {
         var showsCalendar: Bool
     }
 
-    /// Music panel when music is the winning activity; otherwise the current activity (timer, focus…).
+    /// Music panel when music is the winning activity **or nothing is active** (the idle clock fallback
+    /// is never shown on the notch — idle is the Now Playing player with quick actions); otherwise the
+    /// running activity (timer, focus, stopwatch, countdown).
     static func panels(activityKind: LiveActivityKind, calendarEnabled: Bool) -> Panels {
-        Panels(left: activityKind == .music ? .music : .activity, showsCalendar: calendarEnabled)
+        let showsPlayer = activityKind == .music || activityKind == .clock
+        return Panels(left: showsPlayer ? .music : .activity, showsCalendar: calendarEnabled)
     }
 
     // MARK: week strip

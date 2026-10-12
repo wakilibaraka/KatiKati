@@ -34,6 +34,9 @@ struct WelcomeGuideLayoutContext {
     var initialMode: BarLayoutMode
     var inputs: LayoutThumbnailModel.Inputs
     var onPick: (BarLayoutMode) -> Void
+    /// The notch Live Island switch (default on); written to the store as soon as it is flipped.
+    var notchEnabled = true
+    var onNotchToggle: (Bool) -> Void = { _ in }
 }
 
 struct WelcomeGuideView: View {
@@ -44,6 +47,7 @@ struct WelcomeGuideView: View {
     @State private var selection = WelcomeGuideSelection.recommended
     @State private var step = WelcomeGuideStep.first
     @State private var pickedMode: BarLayoutMode?
+    @State private var notchOn: Bool?
 
     /// 宽度固定：窗口高度由 `fittingSize` 决定，宽度不能跟着文案长短抖。
     /// 取值和权限引导一致，两扇引导窗口该长得像一家人。
@@ -71,6 +75,7 @@ struct WelcomeGuideView: View {
     private func stepView(_ step: WelcomeGuideStep) -> some View {
         switch step {
         case .pickLayout: pickLayoutStep
+        case .liveIsland: liveIslandStep
         case .dockSettings: dockSettingsStep
         }
     }
@@ -97,6 +102,30 @@ struct WelcomeGuideView: View {
             Divider()
             HStack(spacing: 8) {
                 Spacer()
+                Button("Continue") { if let next = self.step.next { self.step = next } }
+                    .keyboardShortcut(.defaultAction)
+                    .fixedSize()
+            }
+        }
+    }
+
+    private var liveIslandStep: some View {
+        let binding = Binding(get: { notchOn ?? layout.notchEnabled },
+                              set: { notchOn = $0; layout.onNotchToggle($0) })
+        return VStack(alignment: .leading, spacing: 18) {
+            Text("Live Island")
+                .font(.title2.weight(.semibold))
+            Toggle("Show the Live Island on the notch", isOn: binding)
+            Text("You can change this later in Settings › Live Island.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+            Divider()
+            HStack(spacing: 8) {
+                Spacer()
+                Button("Back") { if let previous = step.previous { step = previous } }
+                    .fixedSize()
                 Button("Continue") { if let next = self.step.next { self.step = next } }
                     .keyboardShortcut(.defaultAction)
                     .fixedSize()

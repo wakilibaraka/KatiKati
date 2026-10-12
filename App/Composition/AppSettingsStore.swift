@@ -141,7 +141,7 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var showTrash: Bool
     /// Live Island on the dock capsule (default ON — today's behaviour).
     @Published private(set) var dockIslandEnabled: Bool
-    /// Live Island on the notch (default OFF; the notch surface lands in 8b-7).
+    /// Live Island on the notch (default ON; the welcome guide offers a switch to turn it off).
     @Published private(set) var notchIslandEnabled: Bool
     /// Look of the notch Live Island (`boring` = full panel with music + calendar; default).
     @Published private(set) var notchSkin: LiveIslandSkin
@@ -293,7 +293,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.edgeMargin: 8.0,
             Keys.notesSync: false,
             Keys.dockIslandEnabled: true,
-            Keys.notchIslandEnabled: false,
+            Keys.notchIslandEnabled: true,
             Keys.notchSkin: LiveIslandSkin.boring.rawValue,
             Keys.liveEventRoute: LiveEventRoute.automatic.rawValue,
             Keys.liveEventOSBanners: false,

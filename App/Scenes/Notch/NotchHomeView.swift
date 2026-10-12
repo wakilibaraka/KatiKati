@@ -30,7 +30,7 @@ struct NotchHomeView: View {
         let panels = NotchLayoutSpec.panels(activityKind: feed.activity.kind, calendarEnabled: calendarEnabled)
         return HStack(alignment: .top, spacing: NotchLayoutSpec.homeSpacing) {
             switch panels.left {
-            case .music: NotchMusicPanel(feed: feed)
+            case .music: NotchMusicPanel(feed: feed, isIdle: feed.activity.kind != .music)
             case .activity: NotchActivityPanel(activity: feed.activity)
             }
             if panels.showsCalendar {

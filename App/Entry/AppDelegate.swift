@@ -507,7 +507,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let layoutContext = WelcomeGuideLayoutContext(
             initialMode: settingsStore.barLayoutMode,
             inputs: settingsStore.layoutThumbnailInputs,
-            onPick: { [weak self] mode in self?.settingsStore.setBarLayoutMode(mode) }
+            onPick: { [weak self] mode in self?.settingsStore.setBarLayoutMode(mode) },
+            notchEnabled: settingsStore.notchIslandEnabled,
+            onNotchToggle: { [weak self] on in self?.settingsStore.setNotchIslandEnabled(on) }
         )
         let content = WelcomeGuideWindowContent(
             layout: layoutContext,

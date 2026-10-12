@@ -27,9 +27,10 @@ final class NotchLayoutSpecTests: XCTestCase {
         XCTAssertEqual(NotchLayoutSpec.headerHeight(closedHeight: 10), NotchLayoutSpec.headerButtonSize)
     }
 
-    func testMusicWinsLeftPanelOtherwiseActivity() {
+    func testMusicOrIdleShowsThePlayerNeverTheClock() {
         XCTAssertEqual(NotchLayoutSpec.panels(activityKind: .music, calendarEnabled: true), .init(left: .music, showsCalendar: true))
-        for kind in LiveActivityKind.allCases where kind != .music {
+        XCTAssertEqual(NotchLayoutSpec.panels(activityKind: .clock, calendarEnabled: true).left, .music)
+        for kind in LiveActivityKind.allCases where kind != .music && kind != .clock {
             XCTAssertEqual(NotchLayoutSpec.panels(activityKind: kind, calendarEnabled: false), .init(left: .activity, showsCalendar: false))
         }
     }
