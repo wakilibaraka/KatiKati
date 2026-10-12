@@ -89,6 +89,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let liveEventCenter = LiveEventCenter()
     /// Phase 8b-7: the notch skin of the Live Island. Built lazily — only while the setting is on.
     private let notchPanel = NotchPanelController()
+    /// Phase 8e menu utilities. The cleaner polls only while its setting is on.
+    private let linkCleaner = LinkCleanerService()
+    private var linkCleanerSubscription: AnyCancellable?
+    private lazy var colorPicker = ColorPickerService(toast: shortcutToast)
     private var notchSubscription: AnyCancellable?
     private var shortcutSubscription: AnyCancellable?
     private let screenTimeAlerts = ScreenTimeAlertPresenter()
@@ -166,6 +170,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         onShowDebugConsole: { [weak self] in self?.showDebugConsole() },
         onExportDebugSnapshot: { [weak self] in self?.exportDebugSnapshot() },
         onShowSettings: { [weak self] in self?.openSettings(nil) },
+        onPickColor: { [weak self] in self?.colorPicker.pick() },
         onShowLayoutSettings: { [weak self] in self?.openSettings(selecting: .layout) },
         onMenuVisibilityChanged: { [weak self] isOpen in
             self?.panelCoordinator?.setTaskbarMenuOpen(isOpen)
@@ -286,6 +291,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .notch: return (self?.settingsStore.notchIslandEnabled ?? false) && (self?.notchPanel.isUsable ?? false)
                 }
             }
+            linkCleanerSubscription = settingsStore.$linkCleanerEnabled
+                .removeDuplicates()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] on in self?.linkCleaner.setEnabled(on) }
             notchPanel.theme = { [weak self] in self?.settingsStore.nowPlayingTheme ?? .auto }
             liveEventCenter.register(sink: notchPanel, for: .notch)
             notchSubscription = settingsStore.$notchIslandEnabled

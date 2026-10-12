@@ -35,14 +35,21 @@ final class DownloadsMonitor: ObservableObject {
 
     private func start() {
         guard let dir = directory else { return }
-        let fd = open(dir.path, O_EVTONLY)
-        guard fd >= 0 else { return }
-        let src = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd, eventMask: [.write, .rename, .delete], queue: .main)
-        src.setEventHandler { [weak self] in self?.scan() }
-        src.setCancelHandler { close(fd) }
-        src.resume()
-        source = src
-        scan()
+        // `open()` on a privacy-protected folder can block while the system asks for access, so it never
+        // runs on the main thread.
+        scanQueue.async { [weak self] in
+            let fd = open(dir.path, O_EVTONLY)
+            guard fd >= 0 else { return }
+            let src = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd, eventMask: [.write, .rename, .delete], queue: .main)
+            src.setCancelHandler { close(fd) }
+            DispatchQueue.main.async {
+                guard let self, self.gate.isActive, self.source == nil else { src.cancel(); return }
+                src.setEventHandler { [weak self] in self?.scan() }
+                src.resume()
+                self.source = src
+                self.scan()
+            }
+        }
     }
 
     private func stop() {

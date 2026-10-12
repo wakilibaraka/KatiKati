@@ -11,6 +11,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private let onRequestAccessibility: () -> Void
     private let onExportDebugSnapshot: () -> Void
     private let onShowSettings: () -> Void
+    private let onPickColor: () -> Void
     private let onShowLayoutSettings: () -> Void
     /// 菜单开 / 关。任务条的边缘自动隐藏要在菜单开着时停摆，否则空闲计时照跑，
     /// 任务条会从弹出的菜单底下缩掉（同 `folderPopupOpen`）。走闭包是因为
@@ -100,6 +101,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
          onShowDebugConsole: @escaping () -> Void,
          onExportDebugSnapshot: @escaping () -> Void,
          onShowSettings: @escaping () -> Void,
+         onPickColor: @escaping () -> Void = {},
          onShowLayoutSettings: @escaping () -> Void,
          onMenuVisibilityChanged: @escaping (Bool) -> Void = { _ in },
          onRequestAccessibility: @escaping () -> Void = {},
@@ -114,6 +116,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         self.onRequestAccessibility = onRequestAccessibility
         self.onExportDebugSnapshot = onExportDebugSnapshot
         self.onShowSettings = onShowSettings
+        self.onPickColor = onPickColor
         self.onShowLayoutSettings = onShowLayoutSettings
         self.onMenuVisibilityChanged = onMenuVisibilityChanged
         self.onQuit = onQuit
@@ -308,6 +311,9 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         // 「设置…」和「退出」归为底部一组（owner 2026-08-03）：菜单栏应用的普遍习惯是
         // 把这类"进另一个界面"的入口放在下面，上面留给随手切的开关。
         // 登录项 / 检查更新 / 版本号已于 2026-08-24 去重，只留设置窗口。
+        let pickColorItem = NSMenuItem(title: String(localized: "Pick Color"), action: #selector(pickColor), keyEquivalent: "")
+        pickColorItem.target = self
+        menu.addItem(pickColorItem)
         settingsItem.target = self
         settingsItem.keyEquivalentModifierMask = [.command]
         menu.addItem(settingsItem)
@@ -798,6 +804,10 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     @objc private func showSettings() {
         menu.cancelTrackingWithoutAnimation()
         DispatchQueue.main.async { [onShowSettings] in onShowSettings() }
+    }
+    @objc private func pickColor() {
+        menu.cancelTrackingWithoutAnimation()
+        DispatchQueue.main.async { [onPickColor] in onPickColor() }
     }
     @objc private func quit() { onQuit() }
 

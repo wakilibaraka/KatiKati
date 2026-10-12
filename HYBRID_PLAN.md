@@ -2217,6 +2217,26 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
   multi-display and fullscreen behaviour need a live check; `check_availability_warnings.py` needs a
   clean-build log; Instruments idle-CPU number not taken.
 
+- 2026-10-12 · **8d + 8e — DONE.** *8d Downloads chip:* the pinned Downloads folder gets a pulsing
+  "N downloads active" badge (`DownloadActivity` pure rules — `.download/.crdownload/.part/.opdownload`
+  partials written within 10 s, 4 tests; `DownloadsMonitor` = directory vnode watcher + a 2 s re-scan
+  only while something is active; the folder `open()` runs off the main thread; badge retains the monitor
+  only when Downloads is pinned **and already opened** by the user, so it never triggers the access
+  prompt itself). No true percentage (opaque partials — as decided). *8e menu utilities:* audited
+  vorsaint-utils against KatiKati — keep-awake (untimed), clipboard history, system monitor, notes, capture
+  and window snap **already exist**, so only genuine gaps were built: **Clean Copied Links**
+  (`URLCleaner` pure, 6 tests; `LinkCleanerService`, opt-in default OFF, 0.7 s poll only while on, skips
+  concealed/transient copies) and **Pick Color** (status-menu item; `NSColorSampler`, no permission,
+  `ColorFormat.hex` 2 tests, hex copied + toast). 2 strings ×12. **Deferred, with reasons:** per-app
+  volume (needs CoreAudio process taps, macOS 14.2+, above the 12.0 floor) and snippets/text expansion
+  (global key tap = new Input Monitoring permission) — each needs its own mini-plan; timed keep-awake is
+  a small follow-up on `QuickToggleEngine`. **Gate:** 2,009 tests, 0 failures; localization ✅
+  (540 ×12); debug switches ✅. **Live-tested:** link cleaner (tracked URL → `…/page?id=5`, plain text
+  untouched). **Finding (pre-existing, not fixed):** with Downloads pinned and *opened*, a build whose
+  signature has no Files & Folders grant blocks the **main thread** in `DirectoryWatcher.init`'s `open()`
+  (`PinnedFolderCoverStore.sync`) until the prompt is answered — the whole UI freezes. Worth moving that
+  `open()` off-main in the dock-refinement phase.
+
 ### Phase 9 — Strip semantics, interaction & summoning (deferred: mini-plan each)
 
 - **9a — Icons / icons+text logic, multi-window of same app**: display-mode rules for
