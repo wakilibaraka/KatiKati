@@ -45,6 +45,51 @@ enum PinboardLayout {
         if let p = pendingSmall { rows.append([p]) }
         return rows
     }
+
+    /// Packs widgets into rows of a full-width wall (Phase 7B grid, owner 2026-10-12 — avoid the narrow
+    /// two-column list's long scroll by using the space left and right). Slots: a small takes one, a wide
+    /// two, a large starts a tall row — two slots for itself, then the smalls that follow stack two per
+    /// slot beside it so the row keeps the large's height. Rows fill their slots before flushing, so the
+    /// wall packs left to right like the iPad reference. Row order is reading order; sizes never change.
+    static func wall(_ widgets: [PinboardWidget], columns: Int) -> [[PinboardWidget]] {
+        guard columns > 0 else { return [] }
+        var rows: [[PinboardWidget]] = []
+        var row: [PinboardWidget] = []
+        var used = 0
+        /// The row was opened by a large: smalls stack two per slot instead of one.
+        var tall = false
+        func flush() { if !row.isEmpty { rows.append(row); row = []; used = 0; tall = false } }
+        for w in widgets {
+            switch w.size {
+            case .large:
+                flush()
+                row = [w]
+                used = 2
+                tall = columns > 2
+                if used >= columns { flush() }
+            case .wide:
+                if tall { flush() }
+                if used + 2 > columns { flush() }
+                row.append(w)
+                used += 2
+                if used >= columns { flush() }
+            case .small:
+                if tall {
+                    row.append(w)
+                    // smalls beside the large = row.count - 1; two fill one slot.
+                    used = 2 + row.count / 2
+                    if used >= columns { flush() }
+                } else {
+                    if used + 1 > columns { flush() }
+                    row.append(w)
+                    used += 1
+                    if used >= columns { flush() }
+                }
+            }
+        }
+        flush()
+        return rows
+    }
 }
 
 /// One-tap system switches (Phase 7B-V2). State and actions live in the Platform engine; this is the catalog.
@@ -102,23 +147,20 @@ enum PinboardStyle: String, CaseIterable, Sendable {
 /// Full-screen Pinboard geometry (Phase 7B): the widget wall from the reference — the two-column
 /// grid from `PinboardLayout` centered on the screen over the launcher backdrop. Cards keep their
 /// coloured gradients; only the frame changes. Pure numbers so it is unit-testable.
-enum PinboardFullScreen {
-    /// Width of the centered grid: the same two-column wall as the floating panel, so cards
-    /// keep their exact size — full-screen changes the frame, not the cards.
-    static func gridWidth(unit: Double = 154, gap: Double = 12) -> Double { unit * 2 + gap }
-
-    /// Origin that centers a grid of `gridWidth × gridHeight` inside `visible`.
-    /// A grid taller than the screen pins to the top (the view scrolls); the view's own
-    /// padding keeps it clear of the screen edge.
-    static func origin(gridWidth: Double, gridHeight: Double,
-                       visible: (x: Double, y: Double, w: Double, h: Double)) -> (x: Double, y: Double) {
-        let x = visible.x + max(0, (visible.w - gridWidth) / 2)
-        let y = visible.y + max(0, visible.h - gridHeight) / 2
-        return (x, y)
+    enum PinboardFullScreen {
+    static func columns(forWidth width: Double, unit: Double = 154, gap: Double = 12) -> Int {
+        max(2, Int((width + gap) / (unit + gap)))
+    }
+}
+extension PinboardWidget: Equatable {
+    static func == (lhs: PinboardWidget, rhs: PinboardWidget) -> Bool {
+        lhs.rawValue == rhs.rawValue
     }
 }
 
-/// Where the Pinboard panel sits: remembered between summons, clamped back on-screen.
+    /// Full-screen Pinboard geometry (Phase 7B): a wall sized to the available width instead of the
+
+    /// Where the Pinboard panel sits: remembered between summons, clamped back on-screen.
 enum PinboardPlacement {
     /// Clamps an origin so a panel of `size` stays fully inside `visible`.
     static func clamp(origin: (x: Double, y: Double), size: (w: Double, h: Double),
