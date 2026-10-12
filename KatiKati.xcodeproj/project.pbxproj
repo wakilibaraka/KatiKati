@@ -18,6 +18,9 @@
 		7B50000000000000000000D5 /* LiveActivitySourcesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000000D4 /* LiveActivitySourcesTests.swift */; };
 		7B50000000000000000000E2 /* LiveActivitySources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000000E1 /* LiveActivitySources.swift */; };
 		7B50000000000000000000E3 /* LiveActivitySources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000000E1 /* LiveActivitySources.swift */; };
+		7B50000000000000000000F2 /* LiveEventDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000000F1 /* LiveEventDetector.swift */; };
+		7B50000000000000000000F3 /* LiveEventDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000000F1 /* LiveEventDetector.swift */; };
+		7B50000000000000000000F5 /* LiveEventDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000000F4 /* LiveEventDetectorTests.swift */; };
 		7B5000000000000000000092 /* WeatherGlanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000091 /* WeatherGlanceView.swift */; };
 		7B5000000000000000000085 /* SkyTintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000084 /* SkyTintTests.swift */; };
 		7B5000000000000000000082 /* SkyTint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000081 /* SkyTint.swift */; };
@@ -747,6 +750,8 @@
 		7B50000000000000000000D1 /* LiveActivityFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveActivityFeed.swift; path = App/Composition/LiveActivityFeed.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000000000D4 /* LiveActivitySourcesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveActivitySourcesTests.swift; path = Tests/Unit/LiveActivitySourcesTests.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000000000E1 /* LiveActivitySources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveActivitySources.swift; path = Core/Support/LiveActivitySources.swift; sourceTree = SOURCE_ROOT; };
+		7B50000000000000000000F1 /* LiveEventDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveEventDetector.swift; path = Core/Support/LiveEventDetector.swift; sourceTree = SOURCE_ROOT; };
+		7B50000000000000000000F4 /* LiveEventDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveEventDetectorTests.swift; path = Tests/Unit/LiveEventDetectorTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000091 /* WeatherGlanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherGlanceView.swift; path = App/Scenes/WeatherGlanceView.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000084 /* SkyTintTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SkyTintTests.swift; path = Tests/Unit/SkyTintTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000081 /* SkyTint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SkyTint.swift; path = Core/Support/SkyTint.swift; sourceTree = SOURCE_ROOT; };
@@ -2338,6 +2343,7 @@
 				7B50000000000000000000C2 /* LiveActivityPolicy.swift in Sources */,
 				7B50000000000000000000D2 /* LiveActivityFeed.swift in Sources */,
 				7B50000000000000000000E2 /* LiveActivitySources.swift in Sources */,
+				7B50000000000000000000F2 /* LiveEventDetector.swift in Sources */,
 				7B5000000000000000000056 /* WeatherPanelView.swift in Sources */,
 				7B5000000000000000000054 /* WidgetPanelController.swift in Sources */,
 				7B5000000000000000000052 /* WidgetTileKit.swift in Sources */,
@@ -2404,6 +2410,7 @@
 				7B50000000000000000000A3 /* WindowLiftRecovery.swift in Sources */,
 				7B50000000000000000000C3 /* LiveActivityPolicy.swift in Sources */,
 				7B50000000000000000000E3 /* LiveActivitySources.swift in Sources */,
+				7B50000000000000000000F3 /* LiveEventDetector.swift in Sources */,
 				7B5000000000000000000043 /* WeatherEffects.swift in Sources */,
 				7B5000000000000000000033 /* WeatherLocations.swift in Sources */,
 				7B5000000000000000000023 /* WeatherWarnings.swift in Sources */,
@@ -2481,6 +2488,7 @@
 				7B50000000000000000000A5 /* WindowLiftRecoveryTests.swift in Sources */,
 				7B50000000000000000000C5 /* LiveActivityPolicyTests.swift in Sources */,
 				7B50000000000000000000D5 /* LiveActivitySourcesTests.swift in Sources */,
+				7B50000000000000000000F5 /* LiveEventDetectorTests.swift in Sources */,
 				7B5000000000000000000045 /* WeatherEffectsTests.swift in Sources */,
 				7B5000000000000000000035 /* WeatherLocationsTests.swift in Sources */,
 				FA050000000000000000002 /* WeatherCacheTests.swift in Sources */,

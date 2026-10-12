@@ -20,6 +20,12 @@ All notable changes to KatiKati are documented in this file.
   live reading. Tapping it while music plays still opens the full Now Playing panel. (The richer
   in-app event feed and optional OS banners land next.)
 
+- **Live Island — event detector (8b-4a):** the pure engine that notices when something worth telling
+  you about just happened — a timer ran out, a Focus phase turned over, a Focus session was banked, the
+  stopwatch stopped, an event reached today, or the track changed — with unit tests. It is the
+  groundwork for the island's in-app alerts (landing in 8b-4b) and opt-in OS banners (8b-4c); nothing
+  is shown to you yet.
+
 ## [0.17.0-beta.2] — 2026-10-12
 
 ### Added

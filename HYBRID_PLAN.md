@@ -2098,6 +2098,27 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
   project.pbxproj` OK. No `project.pbxproj` change (existing file reworked in place). Next: 8b-4
   in-app live event feed (default ON) + opt-in OS banners.
 
+- 2026-10-12 · **8b-4a Live-Island event detector (pure engine) — DONE.** First part of 8b-4 (the event
+  feed the owner split into two permission tiers: in-app toast default ON, OS banners opt-in default
+  OFF). New pure `Core/Support/LiveEventDetector.swift` (dual-compiled app+test; no UI, no AppKit, no
+  `UNUserNotificationCenter`, no timers): `LiveEventDetector.events(from:to:)` compares two consecutive
+  `LiveActivitySources` snapshots — the same value type the 1 Hz feed already builds — and returns the
+  typed `LiveEvent`s that fired, most-alert-worthy first (timerFinished → focusPhaseChanged →
+  focusCycleCompleted → stopwatchStopped → countdownReachedToday → trackChanged). Rules: a
+  running→stopped timer with `total>0`; a focus-phase turnover while still running (`nil` on either side
+  is a start/stop, not news); the cycle counter advancing; the stopwatch stopping; the soonest event
+  arriving at "today" (fires once — no all-day re-announce); a track identity change while playing
+  (empty tracks and same-track resumes are silent). Identical inputs → `[]`, so a steady tick never
+  spams a toast. Reminder/Alarm-due and Weather-severe-alert are deferred (they need sources the island
+  lacks — HYBRID_PLAN §8b-B) and slot in as extra cases later. New
+  `Tests/Unit/LiveEventDetectorTests.swift` (17 tests): the whole quiet/transition/boundary set + the
+  one-tick ordering. **Gate:** full `xcodebuild test` **1,958 tests, 0 failures, TEST SUCCEEDED**
+  (1,941 + 17); `check_localization.py` ✅ (522 ×12 — unchanged; the engine carries no user-facing
+  strings); `check_debug_switches.py` ✅ (79/79); `check_availability_warnings.py` ✅; `plutil -lint
+  project.pbxproj` OK. `project.pbxproj`: +5 additive single-anchor lines (§1.7a) — one new dual file
+  (ref + app/test build files) + one new test file (ref + test build file). Next: 8b-4b the in-app
+  island toast (default ON), then 8b-4c the opt-in OS banner.
+
 ### Phase 9 — Strip semantics, interaction & summoning (deferred: mini-plan each)
 
 - **9a — Icons / icons+text logic, multi-window of same app**: display-mode rules for
