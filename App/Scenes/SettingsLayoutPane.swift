@@ -393,6 +393,18 @@ struct SettingsLayoutPane: View {
                         id.title
                     }
                 }
+                HStack {
+                    Text("Pinboard Style")
+                    Spacer(minLength: 12)
+                    Picker("Pinboard Style", selection: Binding(
+                        get: { store.pinboardStyle },
+                        set: { store.setPinboardStyle($0) }
+                    )) {
+                        Text("Full Screen").tag(PinboardStyle.fullScreen)
+                        Text("Floating Panel").tag(PinboardStyle.floating)
+                    }
+                    .labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
                 Button("Reset Pinboard Position") { UserDefaults.standard.removeObject(forKey: "com.katikati.pinboard.origin") }
             }
 
