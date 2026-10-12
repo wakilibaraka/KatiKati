@@ -2003,6 +2003,21 @@ choices** wherever a knob exists):
   `LiveActivityPolicy` pure-logic tests + localization ×12. Live-island rotation +
   idle-CPU ≤ island baseline + ε (Instruments number in the PR), same gate as 9c/9e.
 
+**8b-1 check log (2026-10-12):** landed the first internal slice of 8b — the pure decision engine,
+no UI. New `Core/Support/LiveActivityPolicy.swift` (kinds `LiveActivityKind`/`LiveFocusPhase`,
+per-activity payloads `MusicContent`/`FocusContent`/`CountdownContent`/`TimerContent`/
+`StopwatchContent`, input `LiveActivitySnapshot`, output `LiveActivity`, and
+`LiveActivityPolicy.resolve` implementing the exact priority order + the 7-day countdown horizon via
+`isWithinHorizon`). New `Tests/Unit/LiveActivityPolicyTests.swift` (12 cases: fallback, music-beats-all,
+paused-music-handoff, focus, countdown+near, far-countdown-ignored, horizon boundaries, timer,
+stopwatch, finished-timer). Both hand-wired into `project.pbxproj` (§1.7a, +8 lines). Gate green:
+**1,925 tests, 0 failures, TEST SUCCEEDED**; `check_localization.py` ✅ (522×12);
+`check_debug_switches.py` ✅ (79/79); `check_availability_warnings.py` ✅ (pure Foundation, no new
+availability). **Still to come in 8b:** the morphing capsule UI (rework `NowPlayingChip`), the
+`LiveActivitySnapshot` app-layer assembler (from `NowPlayingService`/`FocusTimerController`/
+`EventCountdownStore`/`CountdownTimerController`/`StopwatchController`), MediaRemote artwork/
+progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS banners opt-in).
+
 - **8a — Drawer redesign**: most-used / recently-closed / recently-added sections inside
   the drawer. Owner gates the design (mini-plan when activated). Priors (study only):
   DockBar Start Menu Most-Used via Spotlight + pinned drag-drop editor + AppBeBack
