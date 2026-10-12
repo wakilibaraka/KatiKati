@@ -158,6 +158,11 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var liveEventOSBanners: Bool
     /// Phase 9a: per-app window-chip grouping (default `.separate` = today's behaviour).
     @Published private(set) var chipGroupingPlan: WindowChipGroupingPlan
+    /// Phase 9c/9b: hover window preview + the floating jump list on right-click.
+    @Published private(set) var chipPreviewEnabled: Bool
+    @Published private(set) var chipPreviewDelayMs: Int
+    @Published private(set) var chipPreviewThumbWidth: Int
+    @Published private(set) var chipClassicMenu: Bool
     /// Strip tracking parameters from copied links (8e). Opt-in, default OFF — it edits the clipboard.
     @Published private(set) var linkCleanerEnabled: Bool
     /// 任务条尺寸档位。面板几何与条内所有 chip 尺寸都由它派生。
@@ -309,6 +314,10 @@ final class AppSettingsStore: ObservableObject {
             ShelfStore.storageKey: ShelfStorage.reference.rawValue,
             Keys.liveEventRoute: LiveEventRoute.automatic.rawValue,
             Keys.liveEventOSBanners: false,
+            Keys.chipPreviewEnabled: true,
+            Keys.chipPreviewDelayMs: 350,
+            Keys.chipPreviewThumbWidth: 180,
+            Keys.chipClassicMenu: false,
             Keys.linkCleanerEnabled: false,
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
@@ -344,6 +353,10 @@ final class AppSettingsStore: ObservableObject {
         notchSkin = LiveIslandSkin(rawValue: defaults.string(forKey: Keys.notchSkin) ?? "") ?? .boring
         liveEventRoute = LiveEventRoute(rawValue: defaults.string(forKey: Keys.liveEventRoute) ?? "") ?? .automatic
         liveEventOSBanners = defaults.bool(forKey: Keys.liveEventOSBanners)
+        chipPreviewEnabled = defaults.bool(forKey: Keys.chipPreviewEnabled)
+        chipPreviewDelayMs = Self.chipPreviewDelayChoices.contains(defaults.integer(forKey: Keys.chipPreviewDelayMs)) ? defaults.integer(forKey: Keys.chipPreviewDelayMs) : 350
+        chipPreviewThumbWidth = Self.chipPreviewSizeChoices.contains(defaults.integer(forKey: Keys.chipPreviewThumbWidth)) ? defaults.integer(forKey: Keys.chipPreviewThumbWidth) : 180
+        chipClassicMenu = defaults.bool(forKey: Keys.chipClassicMenu)
         chipGroupingPlan = WindowChipGroupingPlan(
             defaultPolicy: WindowChipGroupPolicy(rawValue: defaults.string(forKey: Keys.chipGroupingDefault) ?? "") ?? .separate,
             overrides: (defaults.dictionary(forKey: Keys.chipGroupingOverrides) as? [String: String] ?? [:])
@@ -901,6 +914,33 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.notchIslandEnabled)
     }
 
+    static let chipPreviewDelayChoices = [150, 350, 600]
+    static let chipPreviewSizeChoices = [140, 180, 240]
+
+    func setChipPreviewEnabled(_ value: Bool) {
+        guard chipPreviewEnabled != value else { return }
+        chipPreviewEnabled = value
+        defaults.set(value, forKey: Keys.chipPreviewEnabled)
+    }
+
+    func setChipPreviewDelayMs(_ value: Int) {
+        guard Self.chipPreviewDelayChoices.contains(value), chipPreviewDelayMs != value else { return }
+        chipPreviewDelayMs = value
+        defaults.set(value, forKey: Keys.chipPreviewDelayMs)
+    }
+
+    func setChipPreviewThumbWidth(_ value: Int) {
+        guard Self.chipPreviewSizeChoices.contains(value), chipPreviewThumbWidth != value else { return }
+        chipPreviewThumbWidth = value
+        defaults.set(value, forKey: Keys.chipPreviewThumbWidth)
+    }
+
+    func setChipClassicMenu(_ value: Bool) {
+        guard chipClassicMenu != value else { return }
+        chipClassicMenu = value
+        defaults.set(value, forKey: Keys.chipClassicMenu)
+    }
+
     func setChipGroupingDefault(_ value: WindowChipGroupPolicy) {
         guard chipGroupingPlan.defaultPolicy != value else { return }
         chipGroupingPlan.defaultPolicy = value
@@ -1152,6 +1192,10 @@ private enum Keys {
     static let notchSkin = "com.katikati.liveIsland.notchSkin"
     static let liveEventRoute = "com.katikati.liveIsland.eventRoute"
     static let liveEventOSBanners = "com.katikati.liveIsland.osBanners"
+    static let chipPreviewEnabled = "com.katikati.chips.previewEnabled"
+    static let chipPreviewDelayMs = "com.katikati.chips.previewDelayMs"
+    static let chipPreviewThumbWidth = "com.katikati.chips.previewThumbWidth"
+    static let chipClassicMenu = "com.katikati.chips.classicMenu"
     static let chipGroupingDefault = "com.katikati.chips.groupingDefault"
     static let chipGroupingOverrides = "com.katikati.chips.groupingOverrides"
     static let linkCleanerEnabled = "com.katikati.linkCleaner"

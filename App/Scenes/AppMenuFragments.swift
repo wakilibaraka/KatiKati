@@ -238,7 +238,7 @@ enum AppMenuBuilder {
 
     /// Open a recent doc in its owning app (matches the native Dock); fall back to
     /// the default app if the owner can't be resolved or refuses to open it.
-    private static func openRecent(_ url: URL, appURL: URL?) {
+    static func openRecent(_ url: URL, appURL: URL?) {
         guard let appURL else { NSWorkspace.shared.open(url); return }
         NSWorkspace.shared.open([url], withApplicationAt: appURL, configuration: .init()) { _, error in
             if error != nil { DispatchQueue.main.async { NSWorkspace.shared.open(url) } }

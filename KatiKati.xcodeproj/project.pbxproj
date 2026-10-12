@@ -7,6 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B5000000000000000040913 /* PanelCoordinator+ChipPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040911 /* PanelCoordinator+ChipPanel.swift */; };
+		7B5000000000000000040912 /* PanelCoordinator+ChipPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040911 /* PanelCoordinator+ChipPanel.swift */; };
+		7B5000000000000000040813 /* ChipPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040811 /* ChipPanelView.swift */; };
+		7B5000000000000000040812 /* ChipPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040811 /* ChipPanelView.swift */; };
+		7B5000000000000000040713 /* ChipPanelModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040711 /* ChipPanelModel.swift */; };
+		7B5000000000000000040712 /* ChipPanelModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040711 /* ChipPanelModel.swift */; };
+		7B5000000000000000040613 /* ChipPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040611 /* ChipPanelController.swift */; };
+		7B5000000000000000040612 /* ChipPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040611 /* ChipPanelController.swift */; };
+		7B5000000000000000040513 /* WindowThumbnailCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040511 /* WindowThumbnailCapture.swift */; };
+		7B5000000000000000040512 /* WindowThumbnailCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040511 /* WindowThumbnailCapture.swift */; };
+		7B5000000000000000040412 /* ChipPanelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040411 /* ChipPanelTests.swift */; };
+		7B5000000000000000040313 /* ChipPanelLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040311 /* ChipPanelLayout.swift */; };
+		7B5000000000000000040312 /* ChipPanelLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040311 /* ChipPanelLayout.swift */; };
+		7B5000000000000000040213 /* ChipPanelHoverMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040211 /* ChipPanelHoverMachine.swift */; };
+		7B5000000000000000040212 /* ChipPanelHoverMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040211 /* ChipPanelHoverMachine.swift */; };
 		7B5000000000000000040112 /* WindowChipGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040111 /* WindowChipGroupingTests.swift */; };
 		7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
 		7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
@@ -807,6 +822,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B5000000000000000040911 /* PanelCoordinator+ChipPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "PanelCoordinator+ChipPanel.swift"; path = "App/Entry/PanelCoordinator+ChipPanel.swift"; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000040811 /* ChipPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelView.swift; path = App/Scenes/ChipPanel/ChipPanelView.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000040711 /* ChipPanelModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelModel.swift; path = App/Scenes/ChipPanel/ChipPanelModel.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000040611 /* ChipPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelController.swift; path = App/Entry/ChipPanelController.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000040511 /* WindowThumbnailCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowThumbnailCapture.swift; path = App/Composition/WindowThumbnailCapture.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000040411 /* ChipPanelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelTests.swift; path = Tests/Unit/ChipPanelTests.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000040311 /* ChipPanelLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelLayout.swift; path = Core/Support/ChipPanelLayout.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000040211 /* ChipPanelHoverMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelHoverMachine.swift; path = Core/Support/ChipPanelHoverMachine.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040111 /* WindowChipGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGroupingTests.swift; path = Tests/Unit/WindowChipGroupingTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040011 /* WindowChipGrouping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGrouping.swift; path = Core/Support/WindowChipGrouping.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003B51 /* ShelfIconStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfIconStateTests.swift; path = Tests/Unit/ShelfIconStateTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2479,6 +2502,13 @@
 				7B5000000000000000000142 /* LiveIslandStyle.swift in Sources */,
 				7B5000000000000000000132 /* NotchIslandView.swift in Sources */,
 				7B5000000000000000000112 /* NotchGeometry.swift in Sources */,
+				7B5000000000000000040912 /* PanelCoordinator+ChipPanel.swift in Sources */,
+				7B5000000000000000040812 /* ChipPanelView.swift in Sources */,
+				7B5000000000000000040712 /* ChipPanelModel.swift in Sources */,
+				7B5000000000000000040612 /* ChipPanelController.swift in Sources */,
+				7B5000000000000000040512 /* WindowThumbnailCapture.swift in Sources */,
+				7B5000000000000000040312 /* ChipPanelLayout.swift in Sources */,
+				7B5000000000000000040212 /* ChipPanelHoverMachine.swift in Sources */,
 				7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B12 /* ShelfIconState.swift in Sources */,
 				7B5000000000000000003A32 /* NotchToolsView.swift in Sources */,
@@ -2567,6 +2597,13 @@
 				7B50000000000000000001D3 /* URLCleaner.swift in Sources */,
 				7B5000000000000000000193 /* DownloadActivity.swift in Sources */,
 				7B5000000000000000000113 /* NotchGeometry.swift in Sources */,
+				7B5000000000000000040913 /* PanelCoordinator+ChipPanel.swift in Sources */,
+				7B5000000000000000040813 /* ChipPanelView.swift in Sources */,
+				7B5000000000000000040713 /* ChipPanelModel.swift in Sources */,
+				7B5000000000000000040613 /* ChipPanelController.swift in Sources */,
+				7B5000000000000000040513 /* WindowThumbnailCapture.swift in Sources */,
+				7B5000000000000000040313 /* ChipPanelLayout.swift in Sources */,
+				7B5000000000000000040213 /* ChipPanelHoverMachine.swift in Sources */,
 				7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B13 /* ShelfIconState.swift in Sources */,
 				7B5000000000000000003813 /* ShakeDetector.swift in Sources */,
@@ -2659,6 +2696,7 @@
 				7B50000000000000000001F2 /* URLCleanerTests.swift in Sources */,
 				7B50000000000000000001A2 /* DownloadActivityTests.swift in Sources */,
 				7B5000000000000000000122 /* NotchGeometryTests.swift in Sources */,
+				7B5000000000000000040412 /* ChipPanelTests.swift in Sources */,
 				7B5000000000000000040112 /* WindowChipGroupingTests.swift in Sources */,
 				7B5000000000000000003B52 /* ShelfIconStateTests.swift in Sources */,
 				7B5000000000000000003912 /* ShakeDetectorTests.swift in Sources */,

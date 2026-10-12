@@ -49,6 +49,8 @@ extension PanelCoordinator {
             onWindowTitleTooltipEvent: { [weak self] event in
                 self?.handleWindowTitleTooltipEvent(event)
             },
+            onChipHover: { [weak self] request in self?.handleChipHover(request) },
+            onChipJumpList: { [weak self] id, anchor in self?.handleChipJumpList(chipID: id, anchor: anchor) },
             onRequestTaskbarMenu: { [weak self] event, view in
                 self?.prepareResizeCursorForMenu()
                 self?.onRequestTaskbarMenu?(event, view)

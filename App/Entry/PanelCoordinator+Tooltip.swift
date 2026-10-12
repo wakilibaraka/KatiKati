@@ -21,6 +21,7 @@ extension PanelCoordinator {
             // 以前每张卡各自发请求才需要守卫（卡住的 `isHovering` 会抢面板），
             // 理由留在 `WindowTitleTooltipRequest` 的注释里。
             if windowTitleTooltipSuppressedChipID == request.chipID { return }
+            if chipPanelIsShowing { return }   // the floating preview replaces the bubble
             windowTitleTooltipSuppressedChipID = nil
             cancelWindowTitleTooltipLinger()
 

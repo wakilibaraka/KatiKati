@@ -181,6 +181,8 @@ final class PanelCoordinator: NSObject {
     /// 复用同一棵托管视图：每次悬停新建 `NSHostingView` 会在换 chip 时闪一下，也白付一次构建成本。
     var windowTitleTooltipHosting: NSHostingView<WindowTitleTooltipView>?
     var windowTitleTooltipHost: ManualPanelHost?
+    /// Phase 9: floating window preview / jump list above the strip (lazy; see `PanelCoordinator+ChipPanel`).
+    var chipPanelStorage: ChipPanelController?
     var pinnedFolderStoreSubscription: AnyCancellable?
     var pinnedFolderSortSubscription: AnyCancellable?
     var snapshotWidthSubscription: AnyCancellable?

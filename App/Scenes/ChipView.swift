@@ -51,6 +51,8 @@ struct ChipView: View {
     @Environment(\.dockThemeStyle) private var dockThemeStyle
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
     let item: StripItem
+    /// Phase 9b: when set, right-click opens the floating jump list instead of an `NSMenu`.
+    var onOpenJumpList: (() -> Void)? = nil
     /// 卡上要显示的那行字，由投影层算好（去掉应用名后缀 + 同一应用几张卡的公共段，issue #41）。
     /// **故意不给默认值**：漏传会静默显示成未处理的长标题，而这里所有测试都是纯几何、
     /// 没有一个检查 SwiftUI 调用点——缺的那个默认值就是回归测试本身（同 `scale` 那条铁律）。
@@ -137,6 +139,19 @@ struct ChipView: View {
             return item.isOnDesktop
         }
         return optimistic.status == .active
+    }
+
+    /// Right-click. A window chip opens the floating jump list above the strip (Phase 9b); everything else
+    /// — and the "classic menu" setting — keeps the native `NSMenu`.
+    private var chipContextMenuHost: some View {
+        NativeMenuHost(popUpHandler: { event, view in
+            if let onOpenJumpList {
+                onOpenJumpList()
+            } else {
+                let menu = buildChipMenu()
+                if !menu.items.isEmpty { NSMenu.popUpContextMenu(menu, with: event, for: view) }
+            }
+        })
     }
 
     private var isMessagingAppWindow: Bool {
@@ -243,7 +258,7 @@ struct ChipView: View {
             pulseNonce: pulseNonce,
             onEvent: recordPressEvent
         )
-        .nativeContextMenu { buildChipMenu() }
+        .overlay(chipContextMenuHost)
         .help(capturedFullTitle)
     }
 
@@ -360,7 +375,7 @@ struct ChipView: View {
             pulseNonce: pulseNonce,
             onEvent: recordPressEvent
         )
-        .nativeContextMenu { buildChipMenu() }
+        .overlay(chipContextMenuHost)
         // 标签在 140pt 处截断，而这张卡上的标题还去掉了应用名后缀——完整标题只剩这一个出口。
         // （悬停气泡不算：它显示的是应用名，而且新装用户默认是 `.quiet`、根本没有气泡。）
         .help(capturedFullTitle)

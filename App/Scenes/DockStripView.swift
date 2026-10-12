@@ -73,6 +73,9 @@ struct DockStripView: View {
     /// 悬停名气泡的**唯一**出口（整条只有这一个发送方，见 `bubbleRequest`）。
     /// PanelCoordinator 负责那块独立面板的呈现与收尾。
     var onWindowTitleTooltipEvent: (WindowTitleTooltipEvent) -> Void = { _ in }
+    /// Phase 9: the window chip under the pointer (drives the hover preview), and the right-click jump list.
+    var onChipHover: (ChipHoverRequest?) -> Void = { _ in }
+    var onChipJumpList: (String, CGRect) -> Void = { _, _ in }
     /// 右键任务条底板 → 弹钨极菜单（`StatusMenuController` 持有那个菜单）。
     var onRequestTaskbarMenu: (NSEvent, NSView) -> Void = { _, _ in }
     /// Drag-to-resize on the bar's grip zones (the divider gaps; the end insets only when the
@@ -438,7 +441,9 @@ struct DockStripView: View {
         .onDisappear {
             if let previous = bubbleOwnerID { onWindowTitleTooltipEvent(.exit(chipID: previous)) }
             bubbleOwnerID = nil
+            onChipHover(nil)
         }
+        .onChange(of: chipHoverRequest(projection: projection)) { onChipHover($0) }
         .onChange(of: projection.liveOrderIDs) { _ in reconcileLiveOrder(freshProjection()) }
         .onChange(of: keptAppStore.bundleIDs) { _ in reconcileLiveOrder(freshProjection()) }
         .onChange(of: messagingStore.bundleIDs) { _ in reconcileLiveOrder(freshProjection()) }
@@ -1300,6 +1305,7 @@ struct DockStripView: View {
                 projection.badgeEntryIDByBundle[bid] == item.id ? badgeStore.badgesByBundleID[bid] : nil
             }
             ChipView(item: item,
+                     onOpenJumpList: jumpListOpener(for: item),
                      labelTitle: projection.labelTitleByChipID[item.id] ?? item.title,
                      scale: dockScale,
                      hoverStyle: hoverStyle,

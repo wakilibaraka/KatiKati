@@ -352,6 +352,54 @@ struct SettingsLayoutPane: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+
+                Toggle("Hover Preview", isOn: Binding(
+                    get: { store.chipPreviewEnabled },
+                    set: { store.setChipPreviewEnabled($0) }
+                ))
+                if store.chipPreviewEnabled {
+                    HStack {
+                        Text("Preview Delay")
+                        Spacer(minLength: 12)
+                        Picker("Preview Delay", selection: Binding(
+                            get: { store.chipPreviewDelayMs },
+                            set: { store.setChipPreviewDelayMs($0) }
+                        )) {
+                            Text("Fast").tag(150)
+                            Text("Normal").tag(350)
+                            Text("Slow").tag(600)
+                        }
+                        .labelsHidden().pickerStyle(.segmented).fixedSize()
+                    }
+                    HStack {
+                        Text("Preview Size")
+                        Spacer(minLength: 12)
+                        Picker("Preview Size", selection: Binding(
+                            get: { store.chipPreviewThumbWidth },
+                            set: { store.setChipPreviewThumbWidth($0) }
+                        )) {
+                            Text("Small").tag(140)
+                            Text("Medium").tag(180)
+                            Text("Large").tag(240)
+                        }
+                        .labelsHidden().pickerStyle(.segmented).fixedSize()
+                    }
+                    if !CGPreflightScreenCaptureAccess() {
+                        Text("Window previews need Screen Recording permission. Without it, previews show titles only.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Button("Allow Screen Recording") { _ = CGRequestScreenCaptureAccess() }
+                    }
+                }
+                Toggle("Classic Right-Click Menu", isOn: Binding(
+                    get: { store.chipClassicMenu },
+                    set: { store.setChipClassicMenu($0) }
+                ))
+                Text("Right-click a window chip for a floating jump list above the dock. Turn this on to use the system menu instead.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             section {

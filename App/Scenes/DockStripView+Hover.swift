@@ -107,6 +107,33 @@ extension DockStripView {
         return WindowTitleTooltipRequest(chipID: id, title: title, anchorVisibleRect: anchor)
     }
 
+    /// Phase 9: the window chip the pointer is on, for the hover preview. Unlike `bubbleRequest` this is
+    /// not gated by the hover style — previews work in the default quiet mode — and only real window
+    /// chips qualify (not app-level fallbacks, the shelf, folders or Trash).
+    func chipHoverRequest(projection: StripProjection) -> ChipHoverRequest? {
+        guard !isPanelHeightResizing, dragController.carriedPayload == nil,
+              let id = hoveredEntryID, let anchor = hoveredAnchor,
+              let entry = projection.entries.first(where: { $0.id == id }),
+              case let .window(item) = entry, !item.isAppLevelFallback else { return nil }
+        return ChipHoverRequest(chipID: id, anchorVisibleRect: anchor)
+    }
+
+    /// The right-click handler for a window chip, or nil when the classic `NSMenu` should be used
+    /// (setting, Finder, app-level fallbacks — those keep their specialised menus).
+    func jumpListOpener(for item: StripItem) -> (() -> Void)? {
+        guard !settingsStore.chipClassicMenu, !item.isAppLevelFallback,
+              !FinderTaskbarPolicy.isFinder(item.bundleIdentifier) else { return nil }
+        let id = item.id
+        return { [self] in
+            if let rect = chipScreenRect(forID: id) { onChipJumpList(id, rect) }
+        }
+    }
+
+    /// Screen rect of a chip for the jump list's arrow.
+    func chipScreenRect(forID id: String) -> CGRect? {
+        chipFrames[id].map { stripFrameToScreen($0) }
+    }
+
     /// 右键任务条底板时该不该弹钨极菜单。判定本身在纯 `StripContextMenuZone` 里，
     /// 这里只负责换算坐标、把四个区的帧凑齐（消息区 / 固定文件夹 / 中转格的帧各有独立的
     /// PreferenceKey，从来不合并进 `chipFrames`）。
