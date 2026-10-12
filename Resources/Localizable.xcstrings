@@ -1,6 +1,545 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Notch Tools": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notch Tools"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刘海工具"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "瀏海工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ノッチツール"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notch-Werkzeuge"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outils du notch"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herramientas del notch"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herramientas del notch"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ferramentas do notch"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ferramentas do notch"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strumenti notch"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "노치 도구"
+          }
+        }
+      }
+    },
+    "Record": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Record"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "录制"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "錄製"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "記録"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aufnehmen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grabar"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grabar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gravar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gravar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registra"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기록"
+          }
+        }
+      }
+    },
+    "Press keys…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press keys…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请按下按键…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請按下按鍵…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キーを押してください…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tasten drücken …"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appuyez sur les touches…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulsa las teclas…"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Presiona las teclas…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prima as teclas…"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prima as teclas…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premi i tasti…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "키를 누르세요…"
+          }
+        }
+      }
+    },
+    "Use Caps Lock as Hyper Key": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Caps Lock as Hyper Key"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将大写锁定键用作 Hyper 键"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將大寫鎖定鍵用作 Hyper 鍵"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps LockをHyperキーとして使う"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feststelltaste als Hyper-Taste verwenden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utiliser Verr. Maj comme touche Hyper"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar Bloq Mayús como tecla Hyper"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar Bloq Mayús como tecla Hyper"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar Caps Lock como tecla Hyper"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar Caps Lock como tecla Hyper"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usa Blocco Maiusc come tasto Hyper"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps Lock을 Hyper 키로 사용"
+          }
+        }
+      }
+    },
+    "Hyper turns Caps Lock into ⌃⌥⇧⌘. It listens to keyboard events only, needs the Input Monitoring permission, and Caps Lock is restored when you turn it off or quit.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hyper turns Caps Lock into ⌃⌥⇧⌘. It listens to keyboard events only, needs the Input Monitoring permission, and Caps Lock is restored when you turn it off or quit."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hyper 会把大写锁定键变成 ⌃⌥⇧⌘。它只监听键盘事件，需要“输入监控”权限；关闭或退出时会还原大写锁定键。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hyper 會把大寫鎖定鍵變成 ⌃⌥⇧⌘。它只監聽鍵盤事件，需要「輸入監控」權限；關閉或結束時會還原大寫鎖定鍵。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HyperはCaps Lockを⌃⌥⇧⌘に変えます。キーボードイベントのみを監視し、入力監視の許可が必要です。オフにするか終了するとCaps Lockは元に戻ります。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hyper macht die Feststelltaste zu ⌃⌥⇧⌘. Es werden nur Tastaturereignisse überwacht; die Berechtigung „Eingabeüberwachung“ ist nötig. Beim Ausschalten oder Beenden wird die Feststelltaste wiederhergestellt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hyper transforme Verr. Maj en ⌃⌥⇧⌘. Seuls les événements clavier sont écoutés, l’autorisation Surveillance de l’entrée est requise, et Verr. Maj est restaurée à la désactivation ou à la fermeture."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hyper convierte Bloq Mayús en ⌃⌥⇧⌘. Solo escucha eventos de teclado, requiere el permiso de Supervisión de entrada y Bloq Mayús se restaura al desactivarlo o salir."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hyper convierte Bloq Mayús en ⌃⌥⇧⌘. Solo escucha eventos de teclado, requiere el permiso de Monitoreo de entrada y Bloq Mayús se restaura al desactivarlo o salir."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Hyper transforma o Caps Lock em ⌃⌥⇧⌘. Só escuta eventos de teclado, precisa da permissão de Monitorização de Entrada e o Caps Lock é restaurado ao desativar ou sair."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Hyper transforma o Caps Lock em ⌃⌥⇧⌘. Só escuta eventos de teclado, precisa da permissão de Monitorização de Entrada e o Caps Lock é restaurado ao desativar ou sair."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hyper trasforma Blocco Maiusc in ⌃⌥⇧⌘. Ascolta solo gli eventi della tastiera, richiede l’autorizzazione Monitoraggio input e Blocco Maiusc viene ripristinato quando lo disattivi o esci."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hyper는 Caps Lock을 ⌃⌥⇧⌘로 바꿉니다. 키보드 이벤트만 감시하며 입력 모니터링 권한이 필요하고, 끄거나 종료하면 Caps Lock이 복원됩니다."
+          }
+        }
+      }
+    },
+    "Open Input Monitoring Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Input Monitoring Settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开“输入监控”设置"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開「輸入監控」設定"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入力監視の設定を開く"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen für Eingabeüberwachung öffnen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les réglages de Surveillance de l’entrée"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir ajustes de Supervisión de entrada"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir ajustes de Monitoreo de entrada"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir definições de Monitorização de Entrada"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir definições de Monitorização de Entrada"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri impostazioni Monitoraggio input"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "입력 모니터링 설정 열기"
+          }
+        }
+      }
+    },
+    "Pick a shortcut from the list, or press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick a shortcut from the list, or press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从列表中选择快捷键，或点按“录制”后输入含 ⌃、⌥、⇧ 或 ⌘ 的组合键。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從列表中選擇快速鍵，或按「錄製」後輸入含 ⌃、⌥、⇧ 或 ⌘ 的組合鍵。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リストからショートカットを選ぶか、「記録」を押して⌃・⌥・⇧・⌘を含むキーの組み合わせを入力します。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle ein Kurzbefehl aus der Liste oder drücke „Aufnehmen“ und gib eine Tastenkombination mit ⌃, ⌥, ⇧ oder ⌘ ein."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez un raccourci dans la liste, ou cliquez sur Enregistrer et saisissez une combinaison avec ⌃, ⌥, ⇧ ou ⌘."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige un atajo de la lista, o pulsa Grabar y escribe una combinación con ⌃, ⌥, ⇧ o ⌘."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige un atajo de la lista, o presiona Grabar y escribe una combinación con ⌃, ⌥, ⇧ o ⌘."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha um atalho da lista ou prima Gravar e escreva uma combinação com ⌃, ⌥, ⇧ ou ⌘."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha um atalho da lista ou prima Gravar e escreva uma combinação com ⌃, ⌥, ⇧ ou ⌘."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli una scorciatoia dall’elenco, oppure premi Registra e digita una combinazione con ⌃, ⌥, ⇧ o ⌘."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "목록에서 단축키를 고르거나 ‘기록’을 누른 뒤 ⌃, ⌥, ⇧, ⌘가 들어간 조합을 입력하세요."
+          }
+        }
+      }
+    },
     "Hover Preview": {
       "extractionState": "manual",
       "localizations": {

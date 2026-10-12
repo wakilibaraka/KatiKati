@@ -84,6 +84,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 后者在权限引导完成前是 nil，settingsStore 从 AppDelegate 构造起即存在。
     private var edgeToggleHotKey: GlobalHotKeyMonitor?
     private let shortcutService = ShortcutService()
+    private let hyperkeyService = HyperkeyService()
+    private var hyperkeySubscription: AnyCancellable?
     /// Created only while Settings → Shortcuts → Pinch is on.
     private var pinchMonitor: MultitouchPinchMonitor?
     private var pinchSubscription: AnyCancellable?
@@ -282,12 +284,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .launcher: self.launcherPanel.toggle()
                 case .pinboard: self.pinboardPanel.toggle()
                 case .quickSettings: self.pinboardPanel.toggle(only: [.quickSettings])
+                case .drawer: self.panelCoordinator?.toggleDrawer()
+                case .notchTools: self.notchPanel.toggleTools()
+                case .weather: self.pinboardPanel.toggle(only: [.weather])
+                case .clock: self.pinboardPanel.toggle(only: [.clock])
                 case .keepAwake:
                     let on = self.pinboardPanel.toggleKeepAwake()
                     self.shortcutToast.show(on ? String(localized: "Keep Awake On") : String(localized: "Keep Awake Off"),
                                             symbol: "cup.and.saucer.fill")
                 }
             }
+            hyperkeyService.onAction = shortcutService.onAction
+            hyperkeySubscription = settingsStore.$shortcutBindings
+                .combineLatest(settingsStore.$hyperkeyEnabled)
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] bindings, enabled in
+                    var map: [UInt16: ShortcutAction] = [:]
+                    for (action, trigger) in bindings { if case let .hyper(code) = trigger { map[code] = action } }
+                    self?.hyperkeyService.configure(enabled: enabled, bindings: map)
+                }
             shortcutSubscription = settingsStore.$shortcutBindings
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] in self?.shortcutService.apply($0) }
@@ -1062,6 +1077,7 @@ extension AppDelegate: PermissionEffectHandler {
         shortcutSubscription?.cancel()
         shortcutSubscription = nil
         shortcutService.tearDown()
+        hyperkeyService.tearDown()
         scrollReverserSettingSubscription?.cancel()
         scrollReverserSettingSubscription = nil
         scrollReverserMonitor?.stop()

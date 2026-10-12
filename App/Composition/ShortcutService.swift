@@ -33,6 +33,13 @@ final class ShortcutService {
                 }
             case .doubleTap(let key):
                 tapActions[key, default: []].append(action)
+            case .key(let key):
+                let monitor = GlobalHotKeyMonitor(shortcut: Self.shortcut(for: action, key: key)) { [weak self] in self?.onAction(action) }
+                if monitor.start() == .registered { hotKeys[action] = monitor } else {
+                    log.warning("Shortcut \(key.glyphs, privacy: .public) for \(action.rawValue, privacy: .public) could not be registered")
+                }
+            case .hyper:
+                break   // fired by `HyperkeyService`, which reads the same bindings
             }
         }
         if !tapActions.isEmpty { installEventMonitors() }
@@ -43,6 +50,16 @@ final class ShortcutService {
         hotKeys = [:]
         removeEventMonitors()
         applied = nil
+    }
+
+    private static func shortcut(for action: ShortcutAction, key: ShortcutKey) -> GlobalHotKeyShortcut {
+        var mods: UInt32 = 0
+        if key.modifiers & ShortcutKey.control != 0 { mods |= UInt32(controlKey) }
+        if key.modifiers & ShortcutKey.option != 0 { mods |= UInt32(optionKey) }
+        if key.modifiers & ShortcutKey.shift != 0 { mods |= UInt32(shiftKey) }
+        if key.modifiers & ShortcutKey.command != 0 { mods |= UInt32(cmdKey) }
+        return GlobalHotKeyShortcut(keyCode: UInt32(key.keyCode), carbonModifiers: mods, displayGlyphs: key.glyphs,
+                                    signature: 0x5467_4567, id: action.hotKeyID)
     }
 
     private static func shortcut(for action: ShortcutAction, chord: ShortcutChord) -> GlobalHotKeyShortcut {

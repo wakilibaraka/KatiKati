@@ -163,6 +163,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var chipPreviewDelayMs: Int
     @Published private(set) var chipPreviewThumbWidth: Int
     @Published private(set) var chipClassicMenu: Bool
+    /// Phase 9e: Caps Lock as Hyper. Off by default; needs Input Monitoring.
+    @Published private(set) var hyperkeyEnabled: Bool
     /// Strip tracking parameters from copied links (8e). Opt-in, default OFF — it edits the clipboard.
     @Published private(set) var linkCleanerEnabled: Bool
     /// 任务条尺寸档位。面板几何与条内所有 chip 尺寸都由它派生。
@@ -318,6 +320,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.chipPreviewDelayMs: 350,
             Keys.chipPreviewThumbWidth: 180,
             Keys.chipClassicMenu: false,
+            Keys.hyperkeyEnabled: false,
             Keys.linkCleanerEnabled: false,
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
@@ -357,6 +360,7 @@ final class AppSettingsStore: ObservableObject {
         chipPreviewDelayMs = Self.chipPreviewDelayChoices.contains(defaults.integer(forKey: Keys.chipPreviewDelayMs)) ? defaults.integer(forKey: Keys.chipPreviewDelayMs) : 350
         chipPreviewThumbWidth = Self.chipPreviewSizeChoices.contains(defaults.integer(forKey: Keys.chipPreviewThumbWidth)) ? defaults.integer(forKey: Keys.chipPreviewThumbWidth) : 180
         chipClassicMenu = defaults.bool(forKey: Keys.chipClassicMenu)
+        hyperkeyEnabled = defaults.bool(forKey: Keys.hyperkeyEnabled)
         chipGroupingPlan = WindowChipGroupingPlan(
             defaultPolicy: WindowChipGroupPolicy(rawValue: defaults.string(forKey: Keys.chipGroupingDefault) ?? "") ?? .separate,
             overrides: (defaults.dictionary(forKey: Keys.chipGroupingOverrides) as? [String: String] ?? [:])
@@ -935,6 +939,12 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.chipPreviewThumbWidth)
     }
 
+    func setHyperkeyEnabled(_ value: Bool) {
+        guard hyperkeyEnabled != value else { return }
+        hyperkeyEnabled = value
+        defaults.set(value, forKey: Keys.hyperkeyEnabled)
+    }
+
     func setChipClassicMenu(_ value: Bool) {
         guard chipClassicMenu != value else { return }
         chipClassicMenu = value
@@ -1195,6 +1205,7 @@ private enum Keys {
     static let chipPreviewEnabled = "com.katikati.chips.previewEnabled"
     static let chipPreviewDelayMs = "com.katikati.chips.previewDelayMs"
     static let chipPreviewThumbWidth = "com.katikati.chips.previewThumbWidth"
+    static let hyperkeyEnabled = "com.katikati.hyperkey.enabled"
     static let chipClassicMenu = "com.katikati.chips.classicMenu"
     static let chipGroupingDefault = "com.katikati.chips.groupingDefault"
     static let chipGroupingOverrides = "com.katikati.chips.groupingOverrides"

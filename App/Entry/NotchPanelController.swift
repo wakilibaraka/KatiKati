@@ -140,6 +140,16 @@ final class NotchPanelController: LiveEventSink {
         syncWindow()
     }
 
+    /// Phase 9d shortcut: open the notch on its Tools tab, or close it if it is already showing it.
+    func toggleTools() {
+        guard panel != nil else { return }
+        if model.isOpen, model.tab == .tools { collapse(); return }
+        model.tab = .tools
+        hover.forceOpen()
+        applyOpenState()
+        startHoverPolling()
+    }
+
     func collapse() {
         hover.forceClose()
         model.isOpen = false

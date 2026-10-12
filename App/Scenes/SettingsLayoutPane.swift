@@ -530,8 +530,35 @@ struct SettingsLayoutPane: View {
                             ForEach(ShortcutTapKey.allCases, id: \.self) { key in
                                 (Text("Double-tap") + Text(verbatim: " \(key.glyph) (\(key.isRight ? "R" : "L"))")).tag(ShortcutTrigger.doubleTap(key))
                             }
+                            if case let .key(custom) = store.shortcutBindings[action] ?? .off {
+                                Divider()
+                                Text(verbatim: custom.glyphs).tag(ShortcutTrigger.key(custom))
+                            }
+                            if store.hyperkeyEnabled {
+                                Divider()
+                                ForEach(ShortcutKeyNames.hyperChoices, id: \.self) { code in
+                                    Text(verbatim: "Hyper+" + (ShortcutKeyNames.name(for: code) ?? "?")).tag(ShortcutTrigger.hyper(code))
+                                }
+                            }
                         } label: { EmptyView() }
                         .pickerStyle(.menu).fixedSize()
+                        ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
+                    }
+                }
+                Text("Pick a shortcut from the list, or press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘.")
+                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                Toggle("Use Caps Lock as Hyper Key", isOn: Binding(
+                    get: { store.hyperkeyEnabled },
+                    set: { on in
+                        if on, !HyperkeyService.hasPermission { HyperkeyService.requestPermission() }
+                        store.setHyperkeyEnabled(on)
+                    }
+                ))
+                Text("Hyper turns Caps Lock into ⌃⌥⇧⌘. It listens to keyboard events only, needs the Input Monitoring permission, and Caps Lock is restored when you turn it off or quit.")
+                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                if store.hyperkeyEnabled, !HyperkeyService.hasPermission {
+                    Button("Open Input Monitoring Settings") {
+                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") { NSWorkspace.shared.open(url) }
                     }
                 }
                 Toggle("Open Launcher with Pinch", isOn: Binding(get: { store.launcherPinch }, set: { store.setLauncherPinch($0) }))
@@ -574,6 +601,10 @@ struct SettingsLayoutPane: View {
         case .pinboard: return Text("Pinboard")
         case .quickSettings: return Text("Quick Settings")
         case .keepAwake: return Text("Keep Awake")
+        case .drawer: return Text("Drawer")
+        case .notchTools: return Text("Notch Tools")
+        case .weather: return Text("Weather")
+        case .clock: return Text("Clock")
         }
     }
 
@@ -762,5 +793,41 @@ extension QuickToggleID {
         case .bluetooth: return Text("Bluetooth")
         case .nightShift: return Text("Night Shift")
         }
+    }
+}
+
+/// Records one key combination (at least one of ⌃ ⌥ ⇧ ⌘). A local key monitor lives only while recording.
+private struct ShortcutRecorderButton: View {
+    let onRecord: (ShortcutKey) -> Void
+    @State private var recording = false
+    @State private var monitor: Any?
+
+    var body: some View {
+        Button { recording ? stop() : start() } label: {
+            if recording { Text("Press keys…") } else { Text("Record") }
+        }
+        .onDisappear { stop() }
+    }
+
+    private func start() {
+        recording = true
+        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            if event.keyCode == 53 { stop(); return nil }   // Esc cancels
+            let f = event.modifierFlags
+            var mods: UInt8 = 0
+            if f.contains(.control) { mods |= ShortcutKey.control }
+            if f.contains(.option) { mods |= ShortcutKey.option }
+            if f.contains(.shift) { mods |= ShortcutKey.shift }
+            if f.contains(.command) { mods |= ShortcutKey.command }
+            let key = ShortcutKey(keyCode: event.keyCode, modifiers: mods)
+            if key.isValid { onRecord(key); stop() }
+            return nil
+        }
+    }
+
+    private func stop() {
+        recording = false
+        if let monitor { NSEvent.removeMonitor(monitor) }
+        monitor = nil
     }
 }

@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7B5000000000000000040913 /* PanelCoordinator+ChipPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040911 /* PanelCoordinator+ChipPanel.swift */; };
+		7B5000000000000000040B13 /* HyperkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040B11 /* HyperkeyService.swift */; };
+		7B5000000000000000040B12 /* HyperkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040B11 /* HyperkeyService.swift */; };
+		7B5000000000000000040A13 /* HyperkeyEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040A11 /* HyperkeyEngine.swift */; };
+		7B5000000000000000040A12 /* HyperkeyEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040A11 /* HyperkeyEngine.swift */; };
 		7B5000000000000000040912 /* PanelCoordinator+ChipPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040911 /* PanelCoordinator+ChipPanel.swift */; };
-		7B5000000000000000040813 /* ChipPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040811 /* ChipPanelView.swift */; };
 		7B5000000000000000040812 /* ChipPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040811 /* ChipPanelView.swift */; };
-		7B5000000000000000040713 /* ChipPanelModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040711 /* ChipPanelModel.swift */; };
 		7B5000000000000000040712 /* ChipPanelModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040711 /* ChipPanelModel.swift */; };
-		7B5000000000000000040613 /* ChipPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040611 /* ChipPanelController.swift */; };
 		7B5000000000000000040612 /* ChipPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040611 /* ChipPanelController.swift */; };
 		7B5000000000000000040513 /* WindowThumbnailCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040511 /* WindowThumbnailCapture.swift */; };
 		7B5000000000000000040512 /* WindowThumbnailCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040511 /* WindowThumbnailCapture.swift */; };
@@ -822,6 +822,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B5000000000000000040B11 /* HyperkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HyperkeyService.swift; path = App/Composition/HyperkeyService.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000040A11 /* HyperkeyEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HyperkeyEngine.swift; path = Core/Support/HyperkeyEngine.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040911 /* PanelCoordinator+ChipPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "PanelCoordinator+ChipPanel.swift"; path = "App/Entry/PanelCoordinator+ChipPanel.swift"; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040811 /* ChipPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelView.swift; path = App/Scenes/ChipPanel/ChipPanelView.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040711 /* ChipPanelModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelModel.swift; path = App/Scenes/ChipPanel/ChipPanelModel.swift; sourceTree = SOURCE_ROOT; };
@@ -2502,6 +2504,8 @@
 				7B5000000000000000000142 /* LiveIslandStyle.swift in Sources */,
 				7B5000000000000000000132 /* NotchIslandView.swift in Sources */,
 				7B5000000000000000000112 /* NotchGeometry.swift in Sources */,
+				7B5000000000000000040B12 /* HyperkeyService.swift in Sources */,
+				7B5000000000000000040A12 /* HyperkeyEngine.swift in Sources */,
 				7B5000000000000000040912 /* PanelCoordinator+ChipPanel.swift in Sources */,
 				7B5000000000000000040812 /* ChipPanelView.swift in Sources */,
 				7B5000000000000000040712 /* ChipPanelModel.swift in Sources */,
@@ -2597,10 +2601,8 @@
 				7B50000000000000000001D3 /* URLCleaner.swift in Sources */,
 				7B5000000000000000000193 /* DownloadActivity.swift in Sources */,
 				7B5000000000000000000113 /* NotchGeometry.swift in Sources */,
-				7B5000000000000000040913 /* PanelCoordinator+ChipPanel.swift in Sources */,
-				7B5000000000000000040813 /* ChipPanelView.swift in Sources */,
-				7B5000000000000000040713 /* ChipPanelModel.swift in Sources */,
-				7B5000000000000000040613 /* ChipPanelController.swift in Sources */,
+				7B5000000000000000040B13 /* HyperkeyService.swift in Sources */,
+				7B5000000000000000040A13 /* HyperkeyEngine.swift in Sources */,
 				7B5000000000000000040513 /* WindowThumbnailCapture.swift in Sources */,
 				7B5000000000000000040313 /* ChipPanelLayout.swift in Sources */,
 				7B5000000000000000040213 /* ChipPanelHoverMachine.swift in Sources */,

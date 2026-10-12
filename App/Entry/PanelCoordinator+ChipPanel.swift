@@ -47,7 +47,6 @@ extension PanelCoordinator {
     /// Strip → panel: the window chip under the pointer (nil = none). Called regardless of the
     /// title-bubble style, so previews work in the default quiet mode too.
     func handleChipHover(_ request: ChipHoverRequest?) {
-        NSLog("CHIPDBG hover %@ enabled=%d", request?.chipID ?? "nil", settingsStore.chipPreviewEnabled ? 1 : 0)
         guard settingsStore.chipPreviewEnabled || chipPanelStorage != nil else { return }
         chipPanel.hoverChanged(chipID: request?.chipID, anchor: request?.anchorVisibleRect ?? .zero)
     }
@@ -62,7 +61,6 @@ extension PanelCoordinator {
     func chipPanelContent(forChipID chipID: String) -> ChipPanelContent? {
         let snapshot = runtime.snapshot
         let items = StripItem.items(from: snapshot, grouping: settingsStore.chipGroupingPlan)
-        NSLog("CHIPDBG content %@ found=%d", chipID, items.contains { $0.id == chipID } ? 1 : 0)
         guard let item = items.first(where: { $0.id == chipID }),
               !item.isAppLevelFallback, let bid = item.bundleIdentifier else { return nil }
         let appName = AppDisplayNameResolver.displayName(for: bid)
