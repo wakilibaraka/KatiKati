@@ -22,6 +22,8 @@ final class PinboardPanelController {
     var widgets: () -> [PinboardWidget] = { PinboardWidget.defaultOrder }
     var toggleOrder: () -> [QuickToggleID] = { QuickToggleID.defaultOrder }
     var keepOnTop: () -> Bool = { false }
+    /// Height the KatiKati bottom bar occupies (it floats above `visibleFrame`), so the panel never sits under it.
+    var bottomReserve: () -> Double = { 0 }
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -41,7 +43,10 @@ final class PinboardPanelController {
         self.host = host
         panel.contentView = Self.glass(around: host)
         let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) } ?? NSScreen.main
-        guard let visible = screen?.visibleFrame else { return }
+        guard var visible = screen?.visibleFrame else { return }
+        let reserve = CGFloat(bottomReserve())
+        visible.origin.y += reserve
+        visible.size.height -= reserve
         let height = min(host.fittingSize.height, visible.height - 24)
         let size = NSSize(width: PinboardTheme.panelWidth + PinboardTheme.gap * 2, height: max(160, height))
         panel.setContentSize(size)

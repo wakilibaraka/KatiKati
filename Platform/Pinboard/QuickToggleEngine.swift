@@ -1,4 +1,5 @@
 import AppKit
+import CoreBluetooth
 import CoreWLAN
 import IOKit.pwr_mgt
 import SwiftUI
@@ -21,7 +22,7 @@ final class QuickToggleEngine: ObservableObject {
             var next: [QuickToggleID: Bool] = [:]
             var gone = Set<QuickToggleID>()
             for id in QuickToggleID.allCases where !id.isAction {
-                if let v = Self.read(id) { next[id] = v } else { gone.insert(id) }
+                if let v = Self.read(id) { next[id] = v } else if id == .bluetooth { next[id] = false } else { gone.insert(id) }
             }
             let result = next, missing = gone
             await MainActor.run { [weak self] in
@@ -148,7 +149,10 @@ private enum BluetoothPower {
 
     private static let handle = dlopen("/System/Library/Frameworks/IOBluetooth.framework/IOBluetooth", RTLD_LAZY)
 
+    /// Reading power goes through IOBluetooth, which asks for Bluetooth access. Never read before the user has granted it
+    /// (the first tap on the switch triggers the system prompt), so merely opening Pinboard can't pop a permission dialog.
     static func read() -> Bool? {
+        guard CBManager.authorization == .allowedAlways else { return nil }
         guard let h = handle, let sym = dlsym(h, "IOBluetoothPreferenceGetControllerPowerState") else { return nil }
         return unsafeBitCast(sym, to: GetFn.self)() != 0
     }
