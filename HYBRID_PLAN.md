@@ -52,7 +52,7 @@ This commit: **plan only — no code changes.**
 - §5 Port allow-list, file-level (and explicitly-not-ported)
 - §5e Edge-bar + launcher candidates (Phase 7 only — owner's 2026-10-08 decision)
 - §6 Build, identity, licensing
-- §7 Phases 0–15 (each shippable + testable; Phase 7 split into 7A edge bars / 7B launchers + FAB payloads; Phases 8 interior content / 9 strip+interaction+summoning / 10 presets+wallpaper / 11 layout-mode rendering / 12 settings refinement added 2026-10-11, extended 2026-10-12 with 13 launcher&edge payload ecosystem / 14 settings architecture & interaction / 15 content and investigation registry)
+- §7 Phases 0–18 (each shippable + testable; Phase 7 split into 7A edge bars / 7B launchers + FAB payloads; Phases 8 interior content / 9 strip+interaction+summoning / 10 presets+wallpaper / 11 layout-mode rendering / 12 settings refinement added 2026-10-11, extended 2026-10-12 with 13 launcher&edge payload ecosystem / 14 settings architecture & interaction / 15 content and investigation registry)
 - §8 Risks, mitigations, open questions
 - §9 Acceptance criteria
 - Appendix A — per-mode layout spec (islands, overflow, migration)
@@ -2348,6 +2348,59 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
   the solver. Per-mode golden screenshots become the visual witnesses.
 - **Verify**: solver goldens + per-mode screenshots + full gate.
 
+### Phase 18 — Strip placement: bottom / left / right (planned 2026-10-13; deferred — mini-plan sign-off before any code)
+
+**Goal (owner 2026-10-13):** the KatiKati dock strip can sit on the **bottom** (today), the **left** or
+the **right** edge of the screen, chosen in Settings, per display. Orthogonal to the native-Dock
+hide/restore work (shipped 2026-10-13: the system Dock is given back on quit).
+
+**What exists (investigation, no code):**
+- The main strip is built for the bottom edge: `IslandLayoutSolver` (horizontal islands), `DeckGeometry`,
+  `PanelCoordinator+Layout/+PanelSetup`, `DockStripView` (1.5k lines, horizontal HStack), hover/drag
+  helpers `StripHoverResolution` / `StripDropRouting` / `StripBlockLanding` / `StripWheelScroll`.
+- `StackPopupGeometry` / `StackPopupChrome` anchor popups **above** the strip with an arrow; the shelf,
+  folder and tray popups all inherit that.
+- `WindowLiftAvoidance` (1,280 lines) lifts maximized windows and bottom-docked tiles clear of a
+  **bottom** strip (`targetBottom`, `isBottomDockedTile`). A side strip needs the mirror: shrink windows
+  from the left/right instead.
+- Edge bars (Phase 7A, `EdgeBarSlot`, `EdgeBarPanelController`) already give **vertical** panels on the
+  left/right with `PanelGeometry` anchors and fullscreen hide. They hold notes/widgets, not the dock, but
+  they are the proven vertical machinery and an occupancy conflict if the strip moves to a side.
+- Notch and Live Island are top-edge and unaffected.
+
+**Decisions to confirm at activation (owner):**
+1. Left/right strip is a **vertical stack of chips** (icons only; labels on hover) — not a rotated strip.
+2. Edge-bar conflict: on the same edge the strip takes priority and the edge bar moves/hides, or the
+   Settings picker disables that edge while an edge bar is on it.
+3. Per-display placement, or one global placement. (Recommended: per display; default bottom.)
+4. Whether widgets (clock, weather, FABs) keep their island grouping vertically or collapse to icons.
+
+**Slices (each shippable, gate-green):**
+- **18a — Placement model (pure, tests only).** `StripPlacement { bottom, left, right }` in Core +
+  `AppSettingsStore` setting (default `.bottom`, per-display map); an `Axis` abstraction
+  (main/cross) so layout code stops saying width/height/minY directly. Golden tests: bottom output is
+  byte-identical to today (regression witness).
+- **18b — Solver + geometry for a vertical axis.** `IslandLayoutSolver` / `DeckGeometry` solve along either
+  axis; clamp discipline and Appendix A stay normative. Panel frame per placement; reserved-edge insets
+  fed to the work-area calculation.
+- **18c — Strip view.** `DockStripView` renders a vertical layout (VStack, icon-only chips, running
+  indicators on the inner edge, drop/hover resolution on y). Biggest slice: split `DockStripView` along
+  the axis rather than duplicating it.
+- **18d — Popups and tooltips.** Anchor beside the strip (arrow on the inner edge) instead of above;
+  `StackPopupGeometry` anchor enum; shelf/folder/tray/hover bubbles follow.
+- **18e — Window clearance.** `WindowLiftAvoidance` mirror for left/right (clear the strip's width);
+  tile detection for left/right-docked halves. Highest-risk slice: needs the Accessibility drill from
+  Phase 5 (kill -9 recovery, restore frames) re-run per placement.
+- **18f — Fullscreen / Spaces / multi-display.** Atomic fullscreen hide, per-display placement, screen
+  change re-solve; coordinate with edge-bar occupancy (decision 2).
+- **18g — Settings UI + 12-language strings + live check.** Placement picker (with Layout-tab thumbnails),
+  screenshots per placement on the notched display, idle-CPU ≤ baseline, full gate.
+
+**Risks:** window clearance (18e) and `DockStripView` size (18c) dominate; a bottom regression is
+the main failure mode, so 18a's goldens guard it. **Order:** after Phase 11 (solver refinement) so the
+axis abstraction lands once, on the refined solver. **Not in scope:** top placement, rotating the
+Live Island, changing the native Dock's position.
+
 ### 15 + 17 — Settings architecture & interaction + content/investigation registry (merged phases 15 + 17, done together since they touch the same pages)
 
 **Note:** the AI agent may analyse the live app to do both parts together — they touch the same pages
@@ -2636,3 +2689,4 @@ archaeology; this v3 document governs.
 - 2026-10-11 · **5b/5c follow-up.** B1 (frame restore) and C3 (kill -9 with lifted windows) **blocked**: bypass skips Accessibility so no windows are lifted; owner must grant real AX, then rerun. Mid-write kill -9 emulated 30x on the defaults sequence: 0 corrupt reads, accepted by reasoning. Added relaunch-idempotence test (`IslandSlotSetTests`). Details in the phase-5 log addendum.
 - 2026-10-11 · **5b/5c with Accessibility — gaps PROVEN + FIXED.** SIGTERM/SIGINT bypassed `stopAndRestore` (no handlers) and `kill -9` left lifted windows displaced. Added signal handlers (runloop-dispatched terminate) and a lift recovery file replayed on launch (`WindowLiftRecovery`, 4 tests). kill -9 + relaunch verified restoring; SIGTERM-with-lifted-window needs one owner recheck. 1719 tests green. See phase-5 log addendum 2.
 - 2026-10-12 · **Test defaults leak fixed.** Unit tests left ~37k empty `<prefix>-<UUID>.plist` files in `~/Library/Preferences` (`removePersistentDomain` empties a suite but cfprefsd keeps the file, and recreates it if deleted while live). New `Tests/Unit/TestDefaults.swift` (`TestDefaults.make(prefix, for:)`) empties the suite on teardown and deletes the plists in `testBundleDidFinish`; all suite-creating tests use it. 1913 tests green, 0 leaked plists after a full run.
+- 2026-10-13 · **Native Dock restored on quit** (capture original autohide on first hide, restore on terminate, re-hide on launch, Settings › Restore Dock). Tests 2029 green. Uninstall of a running app can't restore (macOS runs no code on delete) — documented. **Phase 18 (strip placement bottom/left/right) planned**, not started.
