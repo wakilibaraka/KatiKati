@@ -18,6 +18,9 @@ final class NotchPanelController: LiveEventSink {
     private var metrics = NotchMetrics(closedSize: CGSize(width: NotchGeometry.fallbackNotchWidth, height: NotchGeometry.fallbackHeight), hasHardwareNotch: false)
     private var holdsFeed = false
     var theme: () -> NowPlayingTheme = { .auto }
+    var skin: LiveIslandSkin = .boring {
+        didSet { guard skin != oldValue else { return }; model.skin = skin; reframe() }
+    }
 
     /// Whether the panel exists and is on screen — the router's "usable" test for the notch.
     var isUsable: Bool { panel?.isVisible ?? false }
@@ -31,6 +34,7 @@ final class NotchPanelController: LiveEventSink {
     private func show() {
         guard panel == nil, let screen = targetScreen() else { return }
         metrics = Self.metrics(for: screen)
+        model.skin = skin
         let window = BoringNotchWindow(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         window.collectionBehavior.remove(.fullScreenAuxiliary)
         window.contentView = Self.container(for: NotchIslandView(model: model, metrics: metrics, theme: theme()))
@@ -111,7 +115,8 @@ final class NotchPanelController: LiveEventSink {
 
     private func applyFrame(on screen: NSScreen, animated: Bool) {
         let showsActivity = LiveActivityFeed.shared.activity.kind != .clock
-        let size = model.isExpanded ? NotchGeometry.openSize : NotchGeometry.closedCapsuleSize(metrics, showsActivity: showsActivity)
+        let open = NotchGeometry.openSize(for: skin)
+        let size = model.isExpanded ? NotchLayoutSpec.fit(open, screenWidth: screen.frame.width, closedWidth: metrics.closedSize.width) : NotchGeometry.closedCapsuleSize(metrics, showsActivity: showsActivity)
         panel?.setFrame(NotchGeometry.panelFrame(size: size, in: screen.frame), display: true, animate: animated)
     }
 }

@@ -13,6 +13,8 @@ import SwiftUI
 final class NotchModel: ObservableObject {
     @Published var isHovering = false
     @Published var event: LiveEventPresentation?
+    @Published var skin: LiveIslandSkin = .boring
+    @Published var tab: NotchTab = .home
     var isExpanded: Bool { isHovering || event != nil }
 }
 
@@ -25,17 +27,32 @@ struct NotchIslandView: View {
     var body: some View {
         let expanded = model.isExpanded
         let activity = feed.activity
+        let boring = model.skin == .boring
+        let open = NotchLayoutSpec.openCornerRadii
+        let closed = NotchLayoutSpec.closedCornerRadii
+        let spring = expanded ? NotchLayoutSpec.openSpring : NotchLayoutSpec.closeSpring
         ZStack(alignment: .top) {
-            NotchShape(topCornerRadius: expanded ? 19 : 6, bottomCornerRadius: expanded ? 24 : 14)
+            NotchShape(topCornerRadius: expanded ? open.top : closed.top, bottomCornerRadius: expanded ? open.bottom : closed.bottom)
                 .fill(Color.black)
             Group {
-                if expanded { openContent(activity) } else { closedContent(activity) }
+                if !expanded {
+                    closedContent(activity).padding(.horizontal, 14)
+                } else if boring && model.event == nil {
+                    NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
+                } else {
+                    openContent(activity).padding(.horizontal, 24)
+                }
             }
-            .padding(.horizontal, expanded ? 24 : 14)
         }
         .contentShape(Rectangle())
-        .onHover { hovering in withAnimation(.easeInOut(duration: 0.2)) { model.isHovering = hovering } }
-        .animation(.easeInOut(duration: 0.2), value: expanded)
+        .onHover { hovering in
+            withAnimation(.spring(response: hovering ? NotchLayoutSpec.openSpring.response : NotchLayoutSpec.closeSpring.response,
+                                  dampingFraction: hovering ? NotchLayoutSpec.openSpring.damping : NotchLayoutSpec.closeSpring.damping)) {
+                model.isHovering = hovering
+                if !hovering { model.tab = .home }
+            }
+        }
+        .animation(.spring(response: spring.response, dampingFraction: spring.damping), value: expanded)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .colorScheme(.dark)
     }

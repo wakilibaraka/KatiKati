@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B5000000000000000003242 /* NotchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003241 /* NotchHomeView.swift */; };
+		7B5000000000000000003232 /* NotchCalendarPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003231 /* NotchCalendarPanel.swift */; };
+		7B5000000000000000003222 /* NotchMusicPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003221 /* NotchMusicPanel.swift */; };
+		7B5000000000000000003212 /* NotchHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003211 /* NotchHeaderView.swift */; };
+		7B5000000000000000003112 /* NotchLayoutSpecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003111 /* NotchLayoutSpecTests.swift */; };
+		7B5000000000000000003013 /* NotchLayoutSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003011 /* NotchLayoutSpec.swift */; };
+		7B5000000000000000003012 /* NotchLayoutSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003011 /* NotchLayoutSpec.swift */; };
 		EE0000000000000000000016 /* LauncherIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000014 /* LauncherIconView.swift */; };
 		7B50000000000000000000A2 /* WindowLiftRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000000A1 /* WindowLiftRecovery.swift */; };
 		7B50000000000000000000A3 /* WindowLiftRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000000A1 /* WindowLiftRecovery.swift */; };
@@ -781,6 +788,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B5000000000000000003241 /* NotchHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchHomeView.swift; path = App/Scenes/Notch/NotchHomeView.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000003231 /* NotchCalendarPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchCalendarPanel.swift; path = App/Scenes/Notch/NotchCalendarPanel.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000003221 /* NotchMusicPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchMusicPanel.swift; path = App/Scenes/Notch/NotchMusicPanel.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000003211 /* NotchHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchHeaderView.swift; path = App/Scenes/Notch/NotchHeaderView.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000003111 /* NotchLayoutSpecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchLayoutSpecTests.swift; path = Tests/Unit/NotchLayoutSpecTests.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000003011 /* NotchLayoutSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchLayoutSpec.swift; path = Core/Support/NotchLayoutSpec.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000000000A1 /* WindowLiftRecovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowLiftRecovery.swift; path = Core/Support/WindowLiftRecovery.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000000000A4 /* WindowLiftRecoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowLiftRecoveryTests.swift; path = Tests/Unit/WindowLiftRecoveryTests.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000000000C1 /* LiveActivityPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveActivityPolicy.swift; path = Core/Support/LiveActivityPolicy.swift; sourceTree = SOURCE_ROOT; };
@@ -2433,6 +2446,11 @@
 				7B5000000000000000000142 /* LiveIslandStyle.swift in Sources */,
 				7B5000000000000000000132 /* NotchIslandView.swift in Sources */,
 				7B5000000000000000000112 /* NotchGeometry.swift in Sources */,
+				7B5000000000000000003242 /* NotchHomeView.swift in Sources */,
+				7B5000000000000000003232 /* NotchCalendarPanel.swift in Sources */,
+				7B5000000000000000003222 /* NotchMusicPanel.swift in Sources */,
+				7B5000000000000000003212 /* NotchHeaderView.swift in Sources */,
+				7B5000000000000000003012 /* NotchLayoutSpec.swift in Sources */,
 				7B5000000000000000000108 /* LiveEventBannerPoster.swift in Sources */,
 				7B50000000000000000000B4 /* LiveEventPresentation.swift in Sources */,
 				7B5000000000000000000056 /* WeatherPanelView.swift in Sources */,
@@ -2508,6 +2526,7 @@
 				7B50000000000000000001D3 /* URLCleaner.swift in Sources */,
 				7B5000000000000000000193 /* DownloadActivity.swift in Sources */,
 				7B5000000000000000000113 /* NotchGeometry.swift in Sources */,
+				7B5000000000000000003013 /* NotchLayoutSpec.swift in Sources */,
 				7B500000000000000000010B /* NowPlayingProgress.swift in Sources */,
 				7B50000000000000000000B5 /* LiveEventPresentation.swift in Sources */,
 				7B5000000000000000000043 /* WeatherEffects.swift in Sources */,
@@ -2594,6 +2613,7 @@
 				7B50000000000000000001F2 /* URLCleanerTests.swift in Sources */,
 				7B50000000000000000001A2 /* DownloadActivityTests.swift in Sources */,
 				7B5000000000000000000122 /* NotchGeometryTests.swift in Sources */,
+				7B5000000000000000003112 /* NotchLayoutSpecTests.swift in Sources */,
 				7B500000000000000000010D /* NowPlayingProgressTests.swift in Sources */,
 				7B5000000000000000000045 /* WeatherEffectsTests.swift in Sources */,
 				7B5000000000000000000035 /* WeatherLocationsTests.swift in Sources */,

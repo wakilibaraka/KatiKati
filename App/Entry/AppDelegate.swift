@@ -94,6 +94,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var linkCleanerSubscription: AnyCancellable?
     private lazy var colorPicker = ColorPickerService(toast: shortcutToast)
     private var notchSubscription: AnyCancellable?
+    private var notchSkinSubscription: AnyCancellable?
     private var shortcutSubscription: AnyCancellable?
     private let screenTimeAlerts = ScreenTimeAlertPresenter()
     private lazy var pinboardPanel: PinboardPanelController = {
@@ -305,6 +306,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 .removeDuplicates()
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] on in self?.linkCleaner.setEnabled(on) }
+            notchSkinSubscription = settingsStore.$notchSkin
+                .removeDuplicates()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] skin in self?.notchPanel.skin = skin }
             notchPanel.theme = { [weak self] in self?.settingsStore.nowPlayingTheme ?? .auto }
             liveEventCenter.register(sink: notchPanel, for: .notch)
             notchSubscription = settingsStore.$notchIslandEnabled

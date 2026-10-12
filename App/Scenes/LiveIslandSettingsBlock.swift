@@ -16,6 +16,13 @@ struct LiveIslandSettingsBlock: View {
             Toggle("Notch Island", isOn: Binding(get: { store.notchIslandEnabled }, set: { store.setNotchIslandEnabled($0) }))
                 .toggleStyle(.switch).labelsHidden()
         }
+        row("Notch Style") {
+            Picker("Notch Style", selection: Binding(get: { store.notchSkin }, set: { store.setNotchSkin($0) })) {
+                Text("Full").tag(LiveIslandSkin.boring)
+                Text("Compact").tag(LiveIslandSkin.classic)
+            }
+            .labelsHidden().pickerStyle(.menu).fixedSize()
+        }
         row("Event Alerts") {
             Picker("Event Alerts", selection: Binding(get: { store.liveEventRoute }, set: { store.setLiveEventRoute($0) })) {
                 ForEach(LiveEventRoute.allCases, id: \.self) { Self.title(for: $0).tag($0) }

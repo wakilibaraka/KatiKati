@@ -2254,6 +2254,15 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
   **Phase 8 summary:** 8a ✅ 8b ✅ (Live Island, notch + dock, routing, banners, MediaRemote extras)
   8c ✅ 8d ✅ 8e ✅ (link cleaner, colour picker; per-app volume, snippets, timed keep-awake deferred).
 
+- 2026-10-13 · **Notch "Full" skin (boring.notch look, own code) — DONE.** 640×190 open panel:
+  header (Home/Shelf tabs, gear, battery %), music half (art, title/artist, progress, transport) or the
+  winning activity, calendar half (month/year, 7-day strip, next event or empty state). New pure
+  `NotchLayoutSpec` (sizes, radii, springs, week strip, panel choice; 7 tests), `notchSkin` setting
+  (Full default / Compact = old panel), views in `App/Scenes/Notch/`. Body is inset by the top corner radius
+  (NotchShape flares). Live-checked on the notch: layout matches the reference, idle CPU 0.1%, no new crash
+  report. Not live-checked: music playing, event toast, Shelf tab with items. No source-app badge
+  (MediaRemote bundle ID not read). Calendar access is requested on first open of the Full skin. 2021 tests green.
+
 ### Phase 9 — Strip semantics, interaction & summoning (deferred: mini-plan each)
 
 - **9a — Icons / icons+text logic, multi-window of same app**: display-mode rules for

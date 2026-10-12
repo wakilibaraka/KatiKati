@@ -22,7 +22,13 @@ enum NotchGeometry {
     /// The fake notch's height when the menu-bar height is unknown.
     static let fallbackHeight: CGFloat = 24
     /// The open (expanded) notch size.
-    static let openSize = CGSize(width: 420, height: 130)
+    static let openSize = NotchLayoutSpec.openSize
+    /// The original single-row panel's open size (the `classic` skin).
+    static let classicOpenSize = CGSize(width: 420, height: 130)
+
+    static func openSize(for skin: LiveIslandSkin) -> CGSize {
+        skin == .boring ? openSize : classicOpenSize
+    }
     /// Extra width the closed notch grows by on each side to show the live activity.
     static let sneakSide: CGFloat = 64
 

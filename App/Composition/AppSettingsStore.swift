@@ -143,6 +143,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var dockIslandEnabled: Bool
     /// Live Island on the notch (default OFF; the notch surface lands in 8b-7).
     @Published private(set) var notchIslandEnabled: Bool
+    /// Look of the notch Live Island (`boring` = full panel with music + calendar; default).
+    @Published private(set) var notchSkin: LiveIslandSkin
     /// Where event notifications show — exactly one place by default, never duplicated (8b-5).
     @Published private(set) var liveEventRoute: LiveEventRoute
     /// OS Notification Center banners for Live Island events (8b-4c). Opt-in, default OFF; only fires
@@ -292,6 +294,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.notesSync: false,
             Keys.dockIslandEnabled: true,
             Keys.notchIslandEnabled: false,
+            Keys.notchSkin: LiveIslandSkin.boring.rawValue,
             Keys.liveEventRoute: LiveEventRoute.automatic.rawValue,
             Keys.liveEventOSBanners: false,
             Keys.linkCleanerEnabled: false,
@@ -322,6 +325,7 @@ final class AppSettingsStore: ObservableObject {
         showTrash = defaults.bool(forKey: Keys.showTrash)
         dockIslandEnabled = defaults.bool(forKey: Keys.dockIslandEnabled)
         notchIslandEnabled = defaults.bool(forKey: Keys.notchIslandEnabled)
+        notchSkin = LiveIslandSkin(rawValue: defaults.string(forKey: Keys.notchSkin) ?? "") ?? .boring
         liveEventRoute = LiveEventRoute(rawValue: defaults.string(forKey: Keys.liveEventRoute) ?? "") ?? .automatic
         liveEventOSBanners = defaults.bool(forKey: Keys.liveEventOSBanners)
         linkCleanerEnabled = defaults.bool(forKey: Keys.linkCleanerEnabled)
@@ -876,6 +880,12 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.notchIslandEnabled)
     }
 
+    func setNotchSkin(_ value: LiveIslandSkin) {
+        guard notchSkin != value else { return }
+        notchSkin = value
+        defaults.set(value.rawValue, forKey: Keys.notchSkin)
+    }
+
     func setLiveEventOSBanners(_ value: Bool) {
         guard liveEventOSBanners != value else { return }
         liveEventOSBanners = value
@@ -1079,6 +1089,7 @@ private enum Keys {
     static let nowPlayingTheme = "com.katikati.nowPlayingTheme"
     static let dockIslandEnabled = "com.katikati.liveIsland.dock"
     static let notchIslandEnabled = "com.katikati.liveIsland.notch"
+    static let notchSkin = "com.katikati.liveIsland.notchSkin"
     static let liveEventRoute = "com.katikati.liveIsland.eventRoute"
     static let liveEventOSBanners = "com.katikati.liveIsland.osBanners"
     static let linkCleanerEnabled = "com.katikati.linkCleaner"
