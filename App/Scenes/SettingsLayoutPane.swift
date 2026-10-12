@@ -537,6 +537,7 @@ struct SettingsLayoutPane: View {
     /// Custom layout: one row per shown item, Left / Right / Hidden.
     private func iconName(_ style: LauncherIconStyle) -> Text {
         switch style {
+        case .glass: return Text("Glass")
         case .orbit: return Text("Orbit")
         case .tiles: return Text("Tiles")
         case .petal: return Text("Petal")

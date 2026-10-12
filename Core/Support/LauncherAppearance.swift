@@ -37,10 +37,12 @@ enum LauncherTint: String, CaseIterable, Sendable {
 
 /// The launcher FAB's glyph (Phase 7B-L7). Raw values are stored in `com.katikati.launcher.icon`; never rename them.
 enum LauncherIconStyle: String, CaseIterable, Sendable {
+    /// App-style frosted-glass panel with a search pill and app tiles (default).
+    case glass
     case orbit
     case tiles
     case petal
 
-    static let `default`: LauncherIconStyle = .orbit
+    static let `default`: LauncherIconStyle = .glass
     static func parse(_ stored: String?) -> LauncherIconStyle { stored.flatMap(LauncherIconStyle.init(rawValue:)) ?? .default }
 }

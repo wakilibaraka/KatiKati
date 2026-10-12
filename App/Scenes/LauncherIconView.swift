@@ -7,6 +7,20 @@ struct LauncherIconView: View {
     let size: CGFloat
 
     var body: some View {
+        if style == .glass {
+            // The glass launcher icon: a supplied artwork (background removed), shipped as an asset.
+            Image("LauncherIcon")
+                .resizable()
+                .interpolation(.high)
+                .frame(width: size, height: size)
+                .shadow(color: .black.opacity(0.22), radius: size * 0.07, y: size * 0.03)
+                .accessibilityHidden(true)
+        } else {
+            gradientIcon
+        }
+    }
+
+    private var gradientIcon: some View {
         ZStack {
             RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
                 .fill(LinearGradient(colors: [Color(red: 0.42, green: 0.36, blue: 0.98), Color(red: 0.20, green: 0.72, blue: 0.96)],
@@ -22,6 +36,8 @@ struct LauncherIconView: View {
 
     @ViewBuilder private var mark: some View {
         switch style {
+        case .glass:
+            EmptyView()
         case .orbit:
             ZStack {
                 Circle().fill(Color.white).frame(width: size * 0.26, height: size * 0.26)
