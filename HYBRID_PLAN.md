@@ -2143,6 +2143,33 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
   app-only centre + dual-compiled presentation). **Still to do: 8b-4c**, the opt-in OS Notification
   Center banner (default OFF) — the centre deliberately posts no banners yet.
 
+- 2026-10-12 · **Phase 8 re-plan — Live Activities on the notch AND the dock, routed without
+  duplicates (owner directive; DeepSeek run stopped, codebase handed back).** Documentation only.
+  - **Surfaces.** The Live Island renders on two independent surfaces — the dock capsule
+    (`NowPlayingChip`, exists) and a new **notch surface** (8b-7). Each has its own on/off switch
+    (`dockIslandEnabled` default ON, `notchIslandEnabled` default OFF); either can run alone.
+  - **Routing (pure `LiveSurfaceRouting`, Core, unit-tested).** *Ambient* activity (the rotating
+    capsule) may show on both surfaces. *Event notifications* (toasts, OS banners) go to **exactly
+    one place by default**: Settings choice Notch / Dock / Both / Off, default = Notch if enabled and
+    the Mac has one, else Dock; "Both" is explicit opt-in. Dedupe: cooldown drops repeats, a dismiss
+    clears both surfaces, the OS banner (8b-4c) is sent only if no in-app surface showed the event,
+    and `LiveEventCenter` stays the single detector (multi-display fires once). A disabled/hidden/
+    absent chosen surface falls through to the other enabled one — never both, never silently lost.
+    Per-category routing is deferred until asked.
+  - **Shared feed (prerequisite).** Each `NowPlayingChip` owns its own `@StateObject
+    LiveActivityFeed` (own 1 Hz timer). With two surfaces/displays that is N timers and divergent
+    state, so `LiveActivityFeed` becomes one app-wide object owned by `AppDelegate`; the tick runs
+    only while a surface is on (§4 idle-CPU gate).
+  - **New order:** 8b-5 shared feed + surface switches + `LiveSurfaceRouting` → 8b-4c OS banners →
+    8b-6 MediaRemote extras (artwork/progress/prev-next) → 8b-7 notch surface (pure `NotchGeometry`,
+    non-activating panel on the existing `NonConstrainingPanel`/`allSpacesPanels`/fullscreen paths,
+    lazy-built only when enabled) → 8d → 8a → 8c → 8e (menu-utility candidates: keep-awake, per-app
+    volume, snippets — each its own owner-gated mini-plan, only features KatiKati lacks).
+  - **Reference posture unchanged (§5).** boring.notch / Atoll / vorsaint-utils are studied
+    eyeball-only and written fresh; vendoring + an upstream-sync script needs an explicit §5
+    override and would live in an isolated `Vendor/` module with a `NOTICE` entry. macOS floor stays
+    12.0 (notch APIs `#available`-gated); one dependency (Sparkle) stays.
+
 ### Phase 9 — Strip semantics, interaction & summoning (deferred: mini-plan each)
 
 - **9a — Icons / icons+text logic, multi-window of same app**: display-mode rules for
