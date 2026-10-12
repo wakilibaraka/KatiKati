@@ -3,6 +3,16 @@
 All notable changes to KatiKati are documented in this file.
 
 ### Added
+- **Phase 7B launcher, Pinboard and shortcuts (0.17.0 beta):**
+  - **Launcher:** one app grid — Most Used (your launches first; Settings, Safari, Terminal, Messages, Finder, Mail and Calendar fill the gaps),
+    Recently Installed, then All Apps — scrolling down or sideways; search field position, theme, tint and icon are settable; optional
+    trackpad pinch (four or more fingers) opens it.
+  - **Pinboard:** a full-screen widget wall (or the floating panel) with Clock, Calendar, Weather, Now Playing, Calculator, Countdown, Screen Time,
+    System, Network, Battery and health, Top Apps, Batteries and 12 Quick Settings switches; chosen in Settings.
+  - **Shortcuts:** per-action chords and modifier double-taps for the launcher, Pinboard, Quick Settings and Keep Awake.
+  - **Limited mode:** the bar, edge decks, launcher and Pinboard work before Accessibility is granted; the status menu asks for it.
+  - Unsigned beta; all new translations are drafts awaiting speaker review.
+
 - **Phase 7A edge decks:** both screen edges host a noty-style deck — a resting pill that fans into shingled paper note tabs
   (rotated titles, eight paper colours, hover preview / hover-to-open, drag to reorder, ⌥-drag the pill to reposition) with
   round glass-or-coloured buttons for the rest; a note opens as a paper sheet. Layouts: Off, Notes, Notes & Status, Status,
