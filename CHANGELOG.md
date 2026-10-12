@@ -2,7 +2,7 @@
 
 All notable changes to KatiKati are documented in this file.
 
-## [Unreleased]
+## [0.17.0-beta.2] — 2026-10-12
 
 ### Added
 - **Launcher:** 8 icons across and bigger; sliding pages by default (swipe, scroll, arrow keys, dots) or one scrolling page; drag to reorder All Apps;
