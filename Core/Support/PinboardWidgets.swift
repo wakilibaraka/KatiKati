@@ -45,51 +45,6 @@ enum PinboardLayout {
         if let p = pendingSmall { rows.append([p]) }
         return rows
     }
-
-    /// Packs widgets into rows of a full-width wall (Phase 7B grid, owner 2026-10-12 — avoid the narrow
-    /// two-column list's long scroll by using the space left and right). Slots: a small takes one, a wide
-    /// two, a large starts a tall row — two slots for itself, then the smalls that follow stack two per
-    /// slot beside it so the row keeps the large's height. Rows fill their slots before flushing, so the
-    /// wall packs left to right like the iPad reference. Row order is reading order; sizes never change.
-    static func wall(_ widgets: [PinboardWidget], columns: Int) -> [[PinboardWidget]] {
-        guard columns > 0 else { return [] }
-        var rows: [[PinboardWidget]] = []
-        var row: [PinboardWidget] = []
-        var used = 0
-        /// The row was opened by a large: smalls stack two per slot instead of one.
-        var tall = false
-        func flush() { if !row.isEmpty { rows.append(row); row = []; used = 0; tall = false } }
-        for w in widgets {
-            switch w.size {
-            case .large:
-                flush()
-                row = [w]
-                used = 2
-                tall = columns > 2
-                if used >= columns { flush() }
-            case .wide:
-                if tall { flush() }
-                if used + 2 > columns { flush() }
-                row.append(w)
-                used += 2
-                if used >= columns { flush() }
-            case .small:
-                if tall {
-                    row.append(w)
-                    // smalls beside the large = row.count - 1; two fill one slot.
-                    used = 2 + row.count / 2
-                    if used >= columns { flush() }
-                } else {
-                    if used + 1 > columns { flush() }
-                    row.append(w)
-                    used += 1
-                    if used >= columns { flush() }
-                }
-            }
-        }
-        flush()
-        return rows
-    }
 }
 
 /// One-tap system switches (Phase 7B-V2). State and actions live in the Platform engine; this is the catalog.
@@ -147,18 +102,11 @@ enum PinboardStyle: String, CaseIterable, Sendable {
 /// Full-screen Pinboard geometry (Phase 7B): the widget wall from the reference — the two-column
 /// grid from `PinboardLayout` centered on the screen over the launcher backdrop. Cards keep their
 /// coloured gradients; only the frame changes. Pure numbers so it is unit-testable.
-    enum PinboardFullScreen {
-    static func columns(forWidth width: Double, unit: Double = 154, gap: Double = 12) -> Int {
-        max(2, Int((width + gap) / (unit + gap)))
-    }
-}
 extension PinboardWidget: Equatable {
     static func == (lhs: PinboardWidget, rhs: PinboardWidget) -> Bool {
         lhs.rawValue == rhs.rawValue
     }
 }
-
-    /// Full-screen Pinboard geometry (Phase 7B): a wall sized to the available width instead of the
 
     /// Where the Pinboard panel sits: remembered between summons, clamped back on-screen.
 enum PinboardPlacement {
@@ -168,5 +116,79 @@ enum PinboardPlacement {
         let x = min(max(origin.x, visible.x), visible.x + max(0, visible.w - size.w))
         let y = min(max(origin.y, visible.y), visible.y + max(0, visible.h - size.h))
         return (x, y)
+    }
+}
+
+/// The full-screen Pinboard wall (Phase 7B): every card placed on a dense grid of equal cells — a small is 1x1, a wide
+/// 2x1 and the large Quick Settings card 2x2 — then the whole grid is scaled so it fills the screen. Cards are placed in
+/// reading order into the first free spot (like CSS `grid-auto-flow: dense`), so the wall has no holes beside the tall
+/// card and the card sizes never change relative to each other.
+enum PinboardGrid {
+    struct Cell: Equatable {
+        let widget: PinboardWidget
+        let col: Int
+        let row: Int
+        let cols: Int
+        let rows: Int
+    }
+
+    struct Fit: Equatable {
+        let columns: Int
+        let rows: Int
+        let scale: Double
+    }
+
+    static func span(_ size: PinboardSize) -> (cols: Int, rows: Int) {
+        switch size {
+        case .small: return (1, 1)
+        case .wide: return (2, 1)
+        case .large: return (2, 2)
+        }
+    }
+
+    /// Places `widgets` in `columns` columns (at least 2, so a wide card always fits). Returns the cells and the row count.
+    static func pack(_ widgets: [PinboardWidget], columns requested: Int) -> (cells: [Cell], rows: Int) {
+        let columns = max(2, requested)
+        var occupied: [[Bool]] = []
+        func isFree(_ r: Int, _ c: Int, _ w: Int, _ h: Int) -> Bool {
+            for rr in r..<(r + h) where rr < occupied.count {
+                for cc in c..<(c + w) where occupied[rr][cc] { return false }
+            }
+            return true
+        }
+        var cells: [Cell] = []
+        for widget in widgets {
+            let sp = span(widget.size)
+            var placed = false
+            var r = 0
+            while !placed {
+                for c in 0...(columns - sp.cols) where isFree(r, c, sp.cols, sp.rows) {
+                    while occupied.count < r + sp.rows { occupied.append(Array(repeating: false, count: columns)) }
+                    for rr in r..<(r + sp.rows) { for cc in c..<(c + sp.cols) { occupied[rr][cc] = true } }
+                    cells.append(Cell(widget: widget, col: c, row: r, cols: sp.cols, rows: sp.rows))
+                    placed = true
+                    break
+                }
+                r += 1
+            }
+        }
+        return (cells, occupied.count)
+    }
+
+    /// The column count whose grid, scaled to fit `width` x `height`, comes out largest (cards as big as the screen
+    /// allows without scrolling). `unit` and `gap` are the cards' design size; the scale is capped so a short list
+    /// of cards is not blown up absurdly.
+    static func fit(_ widgets: [PinboardWidget], width: Double, height: Double,
+                    unit: Double = 154, gap: Double = 12, maxScale: Double = 2.2, maxColumns: Int = 16) -> Fit {
+        guard !widgets.isEmpty, width > 0, height > 0 else { return Fit(columns: 2, rows: 0, scale: 1) }
+        var best = Fit(columns: 2, rows: 0, scale: 0)
+        for columns in 2...max(2, maxColumns) {
+            let rows = pack(widgets, columns: columns).rows
+            let w = Double(columns) * unit + Double(columns - 1) * gap
+            let h = Double(rows) * unit + Double(max(0, rows - 1)) * gap
+            let scale = min(width / w, height / h, maxScale)
+            if scale > best.scale + 1e-9 { best = Fit(columns: columns, rows: rows, scale: scale) }
+        }
+        return best
     }
 }

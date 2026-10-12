@@ -22,63 +22,46 @@ struct PinboardView: View {
     }
 }
 
-/// The full-screen widget wall (Phase 7B): the same coloured card grid as the floating panel, now a
-/// wide wall that fills the screen instead of a narrow two-column column that scrolls forever.
-/// Slots come from `PinboardLayout.wall` — a small takes one column, a wide two, a large starts a tall
-/// row so the smalls stack beside it. A tap outside the grid closes the wall (same as the launcher).
+/// The full-screen widget wall (Phase 7B): every enabled card on one dense grid (`PinboardGrid`), scaled up so the
+/// wall fills the screen like the launcher does — no long scroll, no empty half. Cards keep their design size and are
+/// scaled as a whole, so text and rings grow with them. A tap outside the grid closes the wall.
 struct PinboardFullScreenView: View {
     let widgets: [PinboardWidget]
     let context: PinboardContext
     let onClose: () -> Void
 
+    /// Clear of the menu bar / notch above and KatiKati's own bar below.
+    private static let topInset: CGFloat = 64
+    private static let bottomInset: CGFloat = 100
+    private static let sideInset: CGFloat = 48
+
     var body: some View {
         ZStack {
             Color.black.opacity(0.001).onTapGesture(perform: onClose)
             GeometryReader { geo in
-                let columns = PinboardFullScreen.columns(forWidth: geo.size.width)
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: PinboardTheme.gap) {
-                        ForEach(Array(PinboardLayout.wall(widgets, columns: columns).enumerated()), id: \.offset) {
-                            _, row in
-                            wallRow(row)
-                        }
+                let availW = max(1, geo.size.width - Self.sideInset * 2)
+                let availH = max(1, geo.size.height - Self.topInset - Self.bottomInset)
+                let fit = PinboardGrid.fit(widgets, width: Double(availW), height: Double(availH),
+                                           unit: Double(PinboardTheme.unit), gap: Double(PinboardTheme.gap))
+                let layout = PinboardGrid.pack(widgets, columns: fit.columns)
+                let unit = PinboardTheme.unit, gap = PinboardTheme.gap
+                let designW = CGFloat(fit.columns) * unit + CGFloat(fit.columns - 1) * gap
+                let designH = CGFloat(fit.rows) * unit + CGFloat(max(0, fit.rows - 1)) * gap
+                let scale = CGFloat(fit.scale)
+                ZStack(alignment: .topLeading) {
+                    ForEach(Array(layout.cells.enumerated()), id: \.offset) { _, cell in
+                        PinboardWidgetView(widget: cell.widget, context: context)
+                            .offset(x: CGFloat(cell.col) * (unit + gap), y: CGFloat(cell.row) * (unit + gap))
                     }
-                    .padding(PinboardTheme.gap)
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .frame(width: designW, height: designH, alignment: .topLeading)
+                .scaleEffect(scale, anchor: .topLeading)
+                .frame(width: designW * scale, height: designH * scale, alignment: .topLeading)
+                .position(x: geo.size.width / 2,
+                          y: Self.topInset + availH / 2)
             }
-            .padding(.horizontal, 48)
-            .padding(.vertical, 48)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityLabel(Text("Pinboard"))
-    }
-
-    /// A wall row — cards left to right, whatever their height. Rows are packed by
-    /// `PinboardLayout.wall`, so a row that opens with the tall Quick Settings card carries the smalls
-    /// that follow stacked two per column beside it, keeping the row's height to the card's.
-    @ViewBuilder private func wallRow(_ row: [PinboardWidget]) -> some View {
-        if row.first?.size == .large, let first = row.first {
-            HStack(alignment: .top, spacing: PinboardTheme.gap) {
-                PinboardWidgetView(widget: first, context: context)
-                ForEach(Array(pairs(Array(row.dropFirst())).enumerated()), id: \.offset) { _, stack in
-                    VStack(spacing: PinboardTheme.gap) {
-                        ForEach(stack, id: \.self) { PinboardWidgetView(widget: $0, context: context) }
-                    }
-                }
-            }
-        } else {
-            HStack(alignment: .top, spacing: PinboardTheme.gap) {
-                ForEach(row, id: \.self) { PinboardWidgetView(widget: $0, context: context) }
-            }
-        }
-    }
-
-    /// Split the smalls of a tall row into stacks of two, so each column beside the large card keeps
-    /// the same 2-unit height (small + gap + small == large's height).
-    private func pairs(_ rest: [PinboardWidget]) -> [[PinboardWidget]] {
-        stride(from: 0, to: rest.count, by: 2).map { i in
-            Array(rest[i..<min(i + 2, rest.count)])
-        }
     }
 }

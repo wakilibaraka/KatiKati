@@ -106,7 +106,7 @@ Requirements: macOS 12 (Monterey) or later, Intel or Apple Silicon (universal bi
 4. Optional: grant **Accessibility** (System Settings > Privacy & Security > Accessibility) for the per-window cards. Each new unsigned build may need
    the permission granted again.
 
-Automatic updates are not live yet: the update feed is not published, so download new versions from the Releases page.
+The in-app update feed is live but has no releases in it yet, so betas are distributed through the Releases page: download new versions from there.
 
 To build from source instead, see [Developers](#developers).
 
@@ -143,8 +143,8 @@ The **Settings window** has five tabs:
 
 KatiKati has no account, no analytics and no feedback form. It does not send your data anywhere. Things that touch the network or system:
 
-- **Update check.** Sparkle checks an update feed on a schedule (you can turn it off in Settings > About). The feed is not published yet, so the check
-  currently finds nothing.
+- **Update check.** Sparkle checks an update feed on a schedule (you can turn it off in Settings > About). The feed is hosted on GitHub Pages and has no
+  releases in it yet, so the check currently finds nothing.
 - **Weather.** The weather chip and card request a forecast for your location (if you allow it) or a city you search for.
 - **Input observation, for blink-free full screen.** To hide the bar *before* a native full-screen transition, KatiKati observes global left-click,
   key-down and trackpad-gesture events and recognizes only four things: the window's green button, `Control-Command-F`, `Control-Left`/`Control-Right`

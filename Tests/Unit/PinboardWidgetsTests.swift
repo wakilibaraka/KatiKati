@@ -42,47 +42,53 @@ final class PinboardWidgetsTests: XCTestCase {
         XCTAssertEqual(PinboardStyle.allCases.count, 2)
     }
 
-    func testWallColumnsFromWidth() {
-        // A 2-column wall exactly fits a 320pt card wall (unit 154 + gap 12, twice).
-        XCTAssertEqual(PinboardFullScreen.columns(forWidth: 320), 2)
-        // 1300pt wide: 7 full columns of (154+12) slots.
-        XCTAssertEqual(PinboardFullScreen.columns(forWidth: 1300), 7)
-        // 1660pt wide: 10 columns.
-        XCTAssertEqual(PinboardFullScreen.columns(forWidth: 1660), 10)
-        // Thinner-than-2-columns: never below the panel's own two-column wall.
-        XCTAssertEqual(PinboardFullScreen.columns(forWidth: 40), 2)
-        // Zero/undefined: the same guard in production, no crash on a truncated screen.
-        XCTAssertEqual(PinboardFullScreen.columns(forWidth: 0), 2)
+    func testGridPlacesCardsDenselyWithoutHoles() {
+        // Four columns: Quick Settings (2x2) takes the top-left, the smalls fill the space beside it.
+        let r = PinboardGrid.pack([.quickSettings, .weather, .calendar, .nowPlaying, .countdown], columns: 4)
+        XCTAssertEqual(r.cells.first, PinboardGrid.Cell(widget: .quickSettings, col: 0, row: 0, cols: 2, rows: 2))
+        XCTAssertEqual(r.cells.dropFirst().map { [$0.col, $0.row] }, [[2, 0], [3, 0], [2, 1], [3, 1]])
+        XCTAssertEqual(r.rows, 2)
     }
 
-    func testWallPacksIntoFullWidthRows() {
-        // Four columns: a small takes one slot, a wide two. Rows flush at 4 slots.
-        let rows = PinboardLayout.wall([.weather, .calendar, .nowPlaying, .countdown, .clock, .weather, .calculator, .battery, .topApps], columns: 4)
-        XCTAssertEqual(rows, [ [.weather, .calendar, .nowPlaying, .countdown],
-                               [.clock, .weather],
-                               [.calculator, .battery, .topApps] ])
-        // A wide that does not fit flushes the row first; left-overs stay left.
-        let rows2 = PinboardLayout.wall([.weather, .calendar, .nowPlaying, .calculator, .countdown, .clock], columns: 4)
-        XCTAssertEqual(rows2, [ [.weather, .calendar, .nowPlaying],
-                                [.calculator, .countdown],
-                                [.clock] ])
-        // Two-columns: wide takes a row of its own; single smalls go left.
-        let rows3 = PinboardLayout.wall([.calculator, .weather, .clock], columns: 2)
-        XCTAssertEqual(rows3, [ [.calculator], [.weather], [.clock] ])
-        // Nothing to pack.
-        XCTAssertEqual(PinboardLayout.wall([], columns: 4), [])
-        // Order is preserved: the four slots fill first-come-first-served.
-        let rows4 = PinboardLayout.wall([.weather, .battery, .clock, .nowPlaying, .countdown], columns: 4)
-        // (clock is wide: 1 + 1 + 2 fills the four slots.)
-        XCTAssertEqual(rows4, [ [.weather, .battery, .clock], [.nowPlaying, .countdown] ])
+    func testGridWideSkipsToTheFirstFreeSpotAndSmallsBackfill() {
+        // Three columns: the wide card sits beside the small (columns 1-2); the next small starts a new row.
+        let r = PinboardGrid.pack([.weather, .clock, .calendar], columns: 3)
+        XCTAssertEqual(r.cells.map { [$0.col, $0.row] }, [[0, 0], [1, 0], [0, 1]])
+        // A wide that does not fit after a small in two columns drops to the next row; a later small backfills the gap.
+        let t = PinboardGrid.pack([.weather, .clock, .calendar], columns: 2)
+        XCTAssertEqual(t.cells.map { [$0.col, $0.row] }, [[0, 0], [0, 1], [1, 0]])
     }
 
-    func testWallLargeOpensATallRow() {
-        // Quick Settings is large: it opens a 7-column row; the following smalls stack two per slot
-        // (weather,calendar | nowPlaying,countdown | battery,topApps) leaving 5 slots used of 7.
-        // The wide that arrives afterwards flushes that row and starts its own; 2 + 2 + 1 + 2 fills 7.
-        let rows = PinboardLayout.wall([.quickSettings, .weather, .calendar, .nowPlaying, .countdown, .battery, .topApps, .clock, .batteries, .network, .calculator], columns: 7)
-        XCTAssertEqual(rows, [ [.quickSettings, .weather, .calendar, .nowPlaying, .countdown, .battery, .topApps],
-                               [.clock, .batteries, .network, .calculator] ])
+    func testGridNeverOverlapsAndKeepsEveryCard() {
+        let all = PinboardWidget.defaultOrder
+        for columns in 2...12 {
+            let r = PinboardGrid.pack(all, columns: columns)
+            XCTAssertEqual(r.cells.count, all.count)
+            var used = Set<[Int]>()
+            for c in r.cells {
+                XCTAssertLessThanOrEqual(c.col + c.cols, max(2, columns))
+                for rr in c.row..<(c.row + c.rows) { for cc in c.col..<(c.col + c.cols) {
+                    XCTAssertTrue(used.insert([rr, cc]).inserted, "overlap at \(rr),\(cc) with \(columns) columns")
+                } }
+            }
+        }
+    }
+
+    func testFitPicksTheColumnCountThatFillsTheScreen() {
+        let all = PinboardWidget.defaultOrder
+        let f = PinboardGrid.fit(all, width: 1614, height: 1016)
+        // The chosen grid, scaled, must fit the screen and beat a narrow two-column layout.
+        let w = Double(f.columns) * 154 + Double(f.columns - 1) * 12
+        let h = Double(f.rows) * 154 + Double(f.rows - 1) * 12
+        XCTAssertLessThanOrEqual(w * f.scale, 1614 + 1e-6)
+        XCTAssertLessThanOrEqual(h * f.scale, 1016 + 1e-6)
+        XCTAssertGreaterThan(f.scale, PinboardGrid.fit(all, width: 1614, height: 1016, maxColumns: 2).scale)
+        XCTAssertGreaterThan(f.scale, 1.2, "a full-size screen should enlarge the cards")
+        XCTAssertGreaterThan(w * f.scale, 1614 * 0.6, "and use most of the width")
+    }
+
+    func testFitHandlesEmptyAndTinyScreens() {
+        XCTAssertEqual(PinboardGrid.fit([], width: 1000, height: 800), PinboardGrid.Fit(columns: 2, rows: 0, scale: 1))
+        XCTAssertGreaterThan(PinboardGrid.fit(PinboardWidget.defaultOrder, width: 300, height: 300).scale, 0)
     }
 }
