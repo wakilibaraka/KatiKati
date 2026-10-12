@@ -38,6 +38,9 @@ KatiKati is a fork of [Tungsten Edge](https://github.com/moonbai-studio/tungsten
 - **Five layouts.** Full Width, Split 3, Split 4, Split 5 and Centered, with adjustable bar height, gaps, margins and widget widths
   (Settings > Layout).
 - **Island widgets on the bar.** Weather, Now Playing and a clock; the clock opens a calendar panel and the weather chip opens a forecast panel.
+  Weather asks for Location Services (or use a city you search for) and keeps the last forecast for each place for up to seven days, so it still
+  shows when you are offline.
+- **Starter apps.** A fresh install keeps Finder, Safari, System Settings and Messages on the bar so it is never empty.
 - **App drawer, shelf, trash and pinned folders.** Drag cards to reorder them, stash apps in the drawer, drop files on the shelf.
 - **Edge decks.** Slim decks on the left and right screen edges hold Notes (encrypted at rest), Reminders, Alarms, Timer and Stopwatch, Tasks,
   Clipboard history (opt-in), Capture (text and QR codes from a screen area), Windows (snap into zones), Screen Time, Weather, Now Playing,
@@ -50,9 +53,12 @@ KatiKati is a fork of [Tungsten Edge](https://github.com/moonbai-studio/tungsten
 
 <img src="assets/screenshots/launcher.png" alt="The launcher: a Most Used row, a Recently Installed row and every app in one grid" width="100%" />
 
-- **One app grid.** A **Most Used** row first (the apps you actually launch; until you have enough history, System Settings, Safari, Terminal,
+- **One app grid, 8 icons across.** A **Most Used** row first (the apps you actually launch; until you have enough history, System Settings, Safari, Terminal,
   Messages, Finder, Mail and Calendar fill the gaps), then **Recently Installed**, then **All Apps**. Search sits at the top, or on any side.
-- **Scrolls down or sideways.** Your choice in Settings > Layout > Launcher.
+- **Sliding pages.** Swipe, scroll, press the arrow keys or click the dots to move between pages; or switch to a single page that scrolls down
+  (Settings > Layout > Launcher).
+- **Make it yours.** Drag apps in All Apps to reorder them. Right-click an app to open it, show it in Finder, copy its path, pin it, move it to the
+  start or hide it from the launcher (hidden apps are still found by search). Settings shows how many are hidden and can show them all again or reset the order.
 - **Open it your way.** The left button on the bar, `⌥Space`, or a four-finger pinch on the trackpad (off by default; see [Shortcuts](#shortcuts-and-gestures)).
 - **Themes.** System, Light, Dark, Glass or your desktop picture, with an optional colour tint and three icon styles.
 

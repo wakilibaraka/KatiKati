@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import CoreLocation
 import os.log
@@ -14,7 +15,9 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
 
     private let logger = Logger(subsystem: "com.katikati.app", category: "WeatherService")
     private var refreshTimer: Timer?
-    private let cacheURL: URL?
+    private let cache: WeatherCache?
+    /// Where the app stands on Location Services, so the panel can offer the right button.
+    @Published public private(set) var locationStatus: CLAuthorizationStatus = .notDetermined
 
     private let locationManager = CLLocationManager()
     private var geocoder = CLGeocoder()
@@ -27,8 +30,8 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
         return UserDefaults.standard.bool(forKey: "com.katikati.weather.enabled")
     }
 
-    public init(cacheURL: URL? = nil) {
-        self.cacheURL = cacheURL
+    public init(cache: WeatherCache? = .standard) {
+        self.cache = cache
         let defaults = UserDefaults.standard
         savedCities = defaults.data(forKey: SavedCities.storageKey)
             .flatMap { try? JSONDecoder().decode(SavedCities.self, from: $0) } ?? SavedCities()
@@ -36,13 +39,9 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
         super.init()
         selection = savedCities.resolved(selection)
 
-        if let cacheURL = cacheURL,
-           let data = try? Data(contentsOf: cacheURL),
-           let cached = try? JSONDecoder().decode(WeatherState.self, from: data) {
-            var staleState = cached
-            staleState.isLive = false
-            self.currentState = staleState
-        }
+        // Offline from the first frame: show the last forecast for this place until a fresh one arrives.
+        if let cached = cache?.load(token: selection.token) { self.currentState = cached }
+        locationStatus = locationManager.authorizationStatus
 
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyKilometer
@@ -84,10 +83,26 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
                 isFetchingLocation = true
                 locationManager.requestLocation()
             case .notDetermined:
-                locationManager.requestAlwaysAuthorization()
+                requestLocationAccess()
             default:
                 fallBackFromCurrentLocation()
             }
+        }
+    }
+
+    /// Asks macOS for Location Services access (the system prompt), or — if it was already refused — opens the Privacy pane,
+    /// because a refused request cannot be asked again.
+    public func requestLocationAccess() {
+        switch locationManager.authorizationStatus {
+        case .notDetermined:
+            NSApp.activate(ignoringOtherApps: true)   // an accessory app's prompt can stay hidden behind other windows
+            locationManager.requestAlwaysAuthorization()
+        case .denied, .restricted:
+            if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices") {
+                NSWorkspace.shared.open(url)
+            }
+        default:
+            Task { await refresh() }
         }
     }
 
@@ -107,6 +122,7 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
         guard resolved != selection || needsLocation else { return }
         selection = resolved
         UserDefaults.standard.set(resolved.token, forKey: SavedCities.selectionKey)
+        if let cached = cache?.load(token: resolved.token) { currentState = cached }   // usable at once, even offline
         Task { await refresh() }
     }
 
@@ -149,7 +165,9 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
 
     public nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         Task { @MainActor [weak self] in
-            guard let self, self.selection == .current else { return }
+            guard let self else { return }
+            self.locationStatus = manager.authorizationStatus
+            guard self.selection == .current else { return }
             await self.refresh()
         }
     }
@@ -188,23 +206,28 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
             let (data, response) = try await URLSession.shared.data(from: url)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                 logger.error("Weather request failed: \(response, privacy: .public)")
+                showCachedForecast()
                 return
             }
 
             let newState = try WeatherResponseParsing.parse(data: data, cityName: city, previousHourly: currentState.hourly)
             self.currentState = newState
-
-            if let cacheURL = cacheURL {
-                if let encoded = try? JSONEncoder().encode(newState) {
-                    try? encoded.write(to: cacheURL, options: .atomic)
-                }
-            }
+            cache?.save(newState, token: savedCities.resolved(selection).token)
         } catch {
             logger.warning("Weather refresh failed: \(error.localizedDescription, privacy: .public)")
-            // Offline = last cached + stale marker
-            var staleState = currentState
-            staleState.isLive = false
-            self.currentState = staleState
+            showCachedForecast()
+        }
+    }
+
+    /// Offline or the request failed: keep showing the newest forecast we have for this place, marked not live.
+    private func showCachedForecast() {
+        let cached = cache?.load(token: savedCities.resolved(selection).token)
+        if let cached, currentState.detail == nil || cached.lastUpdated >= currentState.lastUpdated {
+            currentState = cached
+        } else {
+            var stale = currentState
+            stale.isLive = false
+            currentState = stale
         }
     }
 }

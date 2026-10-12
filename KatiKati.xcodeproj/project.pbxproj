@@ -26,6 +26,7 @@
 		7B5000000000000000000042 /* WeatherEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000041 /* WeatherEffects.swift */; };
 		7B5000000000000000000043 /* WeatherEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000041 /* WeatherEffects.swift */; };
 		7B5000000000000000000035 /* WeatherLocationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000034 /* WeatherLocationsTests.swift */; };
+		FA050000000000000000002 /* WeatherCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA050000000000000000001 /* WeatherCacheTests.swift */; };
 		7B5000000000000000000032 /* WeatherLocations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000031 /* WeatherLocations.swift */; };
 		7B5000000000000000000033 /* WeatherLocations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000031 /* WeatherLocations.swift */; };
 		7B5000000000000000000025 /* WeatherWarningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000024 /* WeatherWarningTests.swift */; };
@@ -39,6 +40,7 @@
 		7B5000000000000000000004 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000003 /* CalendarService.swift */; };
 		7B5000000000000000000002 /* CalendarPanelModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000001 /* CalendarPanelModels.swift */; };
 		7A0000000000000000000001 /* WeatherState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C114D06ABCAC4B451E0F16A /* WeatherState.swift */; };
+		FA040000000000000000002 /* WeatherCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA040000000000000000001 /* WeatherCache.swift */; };
 		7B1000000000000000000002 /* ClockChipContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1000000000000000000001 /* ClockChipContent.swift */; };
 		7B1000000000000000000003 /* ClockChipContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1000000000000000000001 /* ClockChipContent.swift */; };
 		7B2000000000000000000002 /* ClockChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2000000000000000000001 /* ClockChip.swift */; };
@@ -515,6 +517,7 @@
 		D2000000000000000000006C /* StripWheelScroll.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000067 /* StripWheelScroll.swift */; };
 		D2000000000000000000006D /* StripWheelScrollTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000068 /* StripWheelScrollTests.swift */; };
 		D3EB46A2A29E54E9C8B5C492 /* WeatherState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C114D06ABCAC4B451E0F16A /* WeatherState.swift */; };
+		FA040000000000000000003 /* WeatherCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA040000000000000000001 /* WeatherCache.swift */; };
 		D40000000000000000000002 /* NonRegularEvictionDecisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000102 /* NonRegularEvictionDecisionTests.swift */; };
 		D40000000000000000000003 /* NonRegularEvictionDecision.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000103 /* NonRegularEvictionDecision.swift */; };
 		D40000000000000000000004 /* NonRegularEvictionDecision.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000103 /* NonRegularEvictionDecision.swift */; };
@@ -744,6 +747,7 @@
 		7B5000000000000000000044 /* WeatherEffectsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherEffectsTests.swift; path = Tests/Unit/WeatherEffectsTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000041 /* WeatherEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherEffects.swift; path = Core/Support/WeatherEffects.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000034 /* WeatherLocationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherLocationsTests.swift; path = Tests/Unit/WeatherLocationsTests.swift; sourceTree = SOURCE_ROOT; };
+		FA050000000000000000001 /* WeatherCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherCacheTests.swift; path = Tests/Unit/WeatherCacheTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000031 /* WeatherLocations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherLocations.swift; path = Core/Support/WeatherLocations.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000024 /* WeatherWarningTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherWarningTests.swift; path = Tests/Unit/WeatherWarningTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000021 /* WeatherWarnings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherWarnings.swift; path = Core/Support/WeatherWarnings.swift; sourceTree = SOURCE_ROOT; };
@@ -753,6 +757,7 @@
 		7B5000000000000000000003 /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalendarService.swift; path = App/Composition/CalendarService.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000001 /* CalendarPanelModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalendarPanelModels.swift; path = Core/Support/CalendarPanelModels.swift; sourceTree = SOURCE_ROOT; };
 		0C114D06ABCAC4B451E0F16A /* WeatherState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherState.swift; path = Core/Support/WeatherState.swift; sourceTree = SOURCE_ROOT; };
+		FA040000000000000000001 /* WeatherCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherCache.swift; path = Core/Support/WeatherCache.swift; sourceTree = SOURCE_ROOT; };
 		7B1000000000000000000001 /* ClockChipContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClockChipContent.swift; path = Core/Support/ClockChipContent.swift; sourceTree = SOURCE_ROOT; };
 		7B2000000000000000000001 /* ClockChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClockChip.swift; path = App/Scenes/ClockChip.swift; sourceTree = SOURCE_ROOT; };
 		7D1000000000000000000001 /* NowPlayingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingService.swift; path = Core/Support/NowPlayingService.swift; sourceTree = SOURCE_ROOT; };
@@ -1268,6 +1273,7 @@
 				A00000000000000000000056 /* Tests */,
 				A00000000000000000000023 /* Products */,
 				0C114D06ABCAC4B451E0F16A /* WeatherState.swift */,
+				FA040000000000000000001 /* WeatherCache.swift */,
 				6A284300AD2ED48333C88208 /* WeatherResponseParsing.swift */,
 				D6A44E709911DD251BFE9E7A /* WeatherService.swift */,
 				9EB24A22BD3BCC93F739AA5B /* WeatherChip.swift */,
@@ -2233,6 +2239,7 @@
 				B10000000000000000000011 /* CGSnapshotReuseDecision.swift in Sources */,
 				B10000000000000000000005 /* ScanProbeGateDecision.swift in Sources */,
 				D3EB46A2A29E54E9C8B5C492 /* WeatherState.swift in Sources */,
+				FA040000000000000000003 /* WeatherCache.swift in Sources */,
 				7B1000000000000000000002 /* ClockChipContent.swift in Sources */,
 				ED000000000000000000000A /* SystemStatus.swift in Sources */,
 				ED00000000000000000000B1 /* DeckPreview.swift in Sources */,
@@ -2375,6 +2382,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7A0000000000000000000001 /* WeatherState.swift in Sources */,
+				FA040000000000000000002 /* WeatherCache.swift in Sources */,
 				7B1000000000000000000003 /* ClockChipContent.swift in Sources */,
 				7B5000000000000000000083 /* SkyTint.swift in Sources */,
 				7B5000000000000000000063 /* WidgetTall.swift in Sources */,
@@ -2456,6 +2464,7 @@
 				7B50000000000000000000A5 /* WindowLiftRecoveryTests.swift in Sources */,
 				7B5000000000000000000045 /* WeatherEffectsTests.swift in Sources */,
 				7B5000000000000000000035 /* WeatherLocationsTests.swift in Sources */,
+				FA050000000000000000002 /* WeatherCacheTests.swift in Sources */,
 				7B5000000000000000000025 /* WeatherWarningTests.swift in Sources */,
 				7B5000000000000000000008 /* CalendarPanelModelsTests.swift in Sources */,
 				7A0000000000000000000002 /* WeatherResponseParsing.swift in Sources */,

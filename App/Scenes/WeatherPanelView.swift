@@ -1,4 +1,5 @@
 import AppKit
+import CoreLocation
 import SwiftUI
 
 // Phase 5g-D/E/F — the weather tile stack (left side). Same solid-tile system, layouts and palette
@@ -661,6 +662,11 @@ private struct NeedsLocationTile: View {
         VStack(spacing: 10) {
             Image(systemName: "location.slash.fill").font(.system(size: 28)).foregroundColor(env.secondary)
             Text("Allow location or search for a city").font(.system(size: 13, weight: .semibold)).multilineTextAlignment(.center)
+            if service.locationStatus != .authorizedAlways {
+                Button { service.requestLocationAccess() } label: {
+                    Label { Text("Allow Location Access") } icon: { Image(systemName: "location.fill") }
+                }
+            }
             Button { searching.toggle() } label: { Label { Text("Add City") } icon: { Image(systemName: "magnifyingglass") } }
                 .popover(isPresented: $searching) { CitySearchPopover(service: service, close: { searching = false }) }
         }

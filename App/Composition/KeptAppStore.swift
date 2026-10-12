@@ -87,6 +87,17 @@ final class KeptAppStore: ObservableObject {
         logger.info("seeded \(Self.systemAppLauncherBundleID, privacy: .public) into keptAppBundleIDsV3 (fresh install)")
     }
 
+    /// Apps a fresh install keeps on the bar so it is not empty on first launch (Finder is seeded separately).
+    static let freshInstallDefaultApps = ["com.apple.Safari", "com.apple.systempreferences", "com.apple.MobileSMS"]
+
+    /// Fresh installs only (`InstallLineage`); upgraders never get them, and un-keeping one is never undone. Only apps
+    /// that are installed on this Mac are added, in order, after what is already kept.
+    func seedDefaultAppsForFreshInstall(lineage: InstallLineage, isInstalled: (String) -> Bool) {
+        guard lineage == .pristine else { return }
+        for id in Self.freshInstallDefaultApps where isInstalled(id) { add(id) }
+        logger.info("seeded default kept apps (fresh install)")
+    }
+
     /// Authoritative messaging names for the kept-V3 seed, independent of store
     /// init order: if the messaging V2 key exists (even an explicit empty array)
     /// read only it; otherwise fall back to the legacy messaging key. Never union.

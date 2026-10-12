@@ -194,6 +194,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             keptAppStore.seedSystemAppLauncherForFreshInstall(lineage: installLineage) {
                 NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0) != nil
             }
+            keptAppStore.seedDefaultAppsForFreshInstall(lineage: installLineage) {
+                NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0) != nil
+            }
         }
 
         // The appearance setting is applied here and only here (`nil` = follow macOS). The frosted

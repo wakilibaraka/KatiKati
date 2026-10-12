@@ -76,6 +76,21 @@ final class KeptAppStoreTests: XCTestCase {
         XCTAssertTrue(store.bundleIDs.isEmpty)
     }
 
+    func testFreshInstallKeepsSafariSettingsAndMessagesAfterFinder() {
+        let store = KeptAppStore(defaults: makeDefaults(finderSeeded: false))
+        store.seedDefaultAppsForFreshInstall(lineage: .pristine) { _ in true }
+        XCTAssertEqual(store.bundleIDs, [FinderTaskbarPolicy.bundleID, "com.apple.Safari", "com.apple.systempreferences", "com.apple.MobileSMS"])
+    }
+
+    func testDefaultAppsSkipMissingAppsAndNeverTouchUpgraders() {
+        let fresh = KeptAppStore(defaults: makeDefaults())
+        fresh.seedDefaultAppsForFreshInstall(lineage: .pristine) { $0 == "com.apple.Safari" }
+        XCTAssertEqual(fresh.bundleIDs, ["com.apple.Safari"])
+        let upgrader = KeptAppStore(defaults: makeDefaults())
+        upgrader.seedDefaultAppsForFreshInstall(lineage: .priorUse) { _ in true }
+        XCTAssertTrue(upgrader.bundleIDs.isEmpty)
+    }
+
     func testLoadsFromV3Key() {
         let defaults = makeDefaults()
         defaults.set(["com.example.app"], forKey: KeptAppStore.defaultsKey)

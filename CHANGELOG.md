@@ -2,6 +2,19 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased]
+
+### Added
+- **Launcher:** 8 icons across and bigger; sliding pages by default (swipe, scroll, arrow keys, dots) or one scrolling page; drag to reorder All Apps;
+  right-click menu (Open, Show in Finder, Copy Path, Pin, Move to Start, Hide from Launcher); Settings can show all hidden apps and reset the order.
+  Ideas from LaunchNow (code written fresh, credited in NOTICE).
+- **Weather:** a per-place cache of the last forecast (up to 7 days old) so weather works offline; an "Allow Location Access" button.
+- **Bar:** fresh installs keep Finder, Safari, System Settings and Messages on the bar.
+- **Pinboard:** the full-screen wall is a dense grid scaled to fill the screen.
+
+### Fixed
+- The resting edge deck no longer reads the Notes Keychain item at launch, so no password prompt appears until you open the deck or a note.
+
 ## [0.17.0-beta.1] — 2026-10-12 — Phase 7: edge decks, launcher, Pinboard
 
 ### Added
