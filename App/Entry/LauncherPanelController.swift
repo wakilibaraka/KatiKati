@@ -15,11 +15,15 @@ final class LauncherPanelController {
     private let store = LauncherStore(url: LauncherStore.defaultURL)
     /// Read at each summon so a Settings change applies immediately.
     var searchPosition: () -> LauncherSearchPosition = { .top }
-    var scrollDirection: () -> LauncherScrollDirection = { .vertical }
+    var scrollDirection: () -> LauncherScrollDirection = { .horizontal }
     var look: () -> (theme: LauncherTheme, tint: LauncherTint) = { (.system, .none) }
     /// Height the KatiKati bottom bar occupies (it floats above `visibleFrame`), so the launcher never sits under it.
     var bottomBarReserve: () -> Double = { 0 }
     private var backdrop: LauncherBackdrop?
+    private var scrollMonitor: Any?
+    private var scrollAccum: CGFloat = 0
+    private var scrollFired = false
+    private var lastWheelTurn = Date.distantPast
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -44,9 +48,46 @@ final class LauncherPanelController {
         panel.setFrame(screen.frame, display: true)
         panel.makeKeyAndOrderFront(nil)
         model.focusNonce += 1
+        model.pageIndex = 0
+        installScrollMonitor()
+    }
+
+    /// Swipe or scroll turns pages while the launcher shows sliding pages: a trackpad swipe turns one page per gesture,
+    /// a mouse wheel one page per notch (debounced).
+    private func installScrollMonitor() {
+        guard scrollMonitor == nil else { return }
+        scrollMonitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self] event in
+            self?.handleScroll(event)
+            return event
+        }
+    }
+
+    private func removeScrollMonitor() {
+        if let scrollMonitor { NSEvent.removeMonitor(scrollMonitor) }
+        scrollMonitor = nil
+    }
+
+    private func handleScroll(_ event: NSEvent) {
+        guard isShown, model.query.isEmpty, model.scrollDirection == .horizontal else { return }
+        let dx = event.scrollingDeltaX, dy = event.scrollingDeltaY
+        let delta = abs(dx) > abs(dy) ? -dx : -dy
+        if event.hasPreciseScrollingDeltas {
+            if event.phase == .began { scrollAccum = 0; scrollFired = false }
+            guard event.momentumPhase.isEmpty else { return }
+            scrollAccum += delta
+            if !scrollFired, abs(scrollAccum) > 30 {
+                scrollFired = true
+                model.pageTurns.send(scrollAccum > 0 ? 1 : -1)
+            }
+            if event.phase == .ended || event.phase == .cancelled { scrollAccum = 0; scrollFired = false }
+        } else if delta != 0, Date().timeIntervalSince(lastWheelTurn) > 0.3 {
+            lastWheelTurn = Date()
+            model.pageTurns.send(delta > 0 ? 1 : -1)
+        }
     }
 
     func dismiss() {
+        removeScrollMonitor()
         panel?.orderOut(nil)
         indexer.stop()
         model.query = ""
@@ -69,6 +110,29 @@ final class LauncherPanelController {
         try? store.save(model.state)
     }
 
+    private func toggleHidden(_ app: LauncherApp) {
+        model.state.hidden = LauncherOrdering.toggleHidden(model.state.hidden, app.bundleID)
+        try? store.save(model.state)
+    }
+
+    private func reveal(_ app: LauncherApp) {
+        dismiss()
+        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: app.path)])
+    }
+
+    private func copyPath(_ app: LauncherApp) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(app.path, forType: .string)
+    }
+
+    /// Drag-reorder in All Apps: the order on screen becomes the stored order, then the app moves in front of `target`.
+    private func move(_ bundleID: String, before target: LauncherApp?) {
+        let visible = indexer.apps.filter { !model.state.hidden.contains($0.bundleID) }
+        let shown = LauncherOrdering.ordered(visible, by: model.state.order).map(\.bundleID)
+        model.state.order = LauncherOrdering.move(shown, moving: bundleID, before: target?.bundleID ?? shown.first)
+        try? store.save(model.state)
+    }
+
     private func makePanel() -> NSPanel {
         let panel = LauncherPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel],
                                   backing: .buffered, defer: true)
@@ -80,10 +144,14 @@ final class LauncherPanelController {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         let blur = LauncherBackdrop()
         backdrop = blur
-        let host = NSHostingView(rootView: LauncherView(
-            indexer: indexer, model: model,
-            onLaunch: { [weak self] in self?.launch($0) },
-            onTogglePin: { [weak self] in self?.togglePin($0) }, onClose: { [weak self] in self?.dismiss() }))
+        let host = NSHostingView(rootView: LauncherView(indexer: indexer, model: model, actions: LauncherActions(
+            launch: { [weak self] in self?.launch($0) },
+            togglePin: { [weak self] in self?.togglePin($0) },
+            toggleHidden: { [weak self] in self?.toggleHidden($0) },
+            reveal: { [weak self] in self?.reveal($0) },
+            copyPath: { [weak self] in self?.copyPath($0) },
+            move: { [weak self] id, target in self?.move(id, before: target) },
+            close: { [weak self] in self?.dismiss() })))
         host.translatesAutoresizingMaskIntoConstraints = false
         blur.addSubview(host)
         NSLayoutConstraint.activate([

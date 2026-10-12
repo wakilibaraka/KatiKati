@@ -53,7 +53,7 @@ enum LauncherScrollDirection: String, CaseIterable, Sendable {
     case vertical
     case horizontal
 
-    static let `default`: LauncherScrollDirection = .vertical
+    static let `default`: LauncherScrollDirection = .horizontal
 
     static func parse(_ stored: String?) -> LauncherScrollDirection {
         stored.flatMap(LauncherScrollDirection.init(rawValue:)) ?? .default

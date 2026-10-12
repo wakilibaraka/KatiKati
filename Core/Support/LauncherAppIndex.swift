@@ -28,6 +28,73 @@ struct LauncherPage: Equatable, Sendable {
     var all: [LauncherApp]
 }
 
+/// Which block of the launcher a section is (the view supplies the localized title).
+enum LauncherSectionKind: Equatable, Sendable { case mostUsed, recentlyInstalled, allApps }
+
+/// One run of apps on a launcher page. A section that does not fit on one page continues on the next without a header.
+struct LauncherPageSection: Equatable, Sendable {
+    var kind: LauncherSectionKind
+    var apps: [LauncherApp]
+    var showsHeader: Bool
+}
+
+enum LauncherPaging {
+    /// Splits the launcher into slide pages: Most Used, Recently Installed, then All Apps, each in rows of `columns`,
+    /// filling every page to `pageHeight` before starting the next. A header costs `headerHeight`, a row `rowHeight`.
+    static func paginate(_ page: LauncherPage, columns: Int, pageHeight: Double,
+                         rowHeight: Double, headerHeight: Double) -> [[LauncherPageSection]] {
+        let cols = max(1, columns)
+        var pages: [[LauncherPageSection]] = [[]]
+        var remaining = pageHeight
+        let blocks: [(LauncherSectionKind, [LauncherApp])] = [
+            (.mostUsed, page.mostUsed), (.recentlyInstalled, page.recentlyInstalled), (.allApps, page.all),
+        ]
+        for (kind, apps) in blocks where !apps.isEmpty {
+            var rest = apps[...]
+            var first = true
+            while !rest.isEmpty {
+                let header = first ? headerHeight : 0
+                if remaining < header + rowHeight - 1e-9, !(pages[pages.count - 1].isEmpty) {
+                    pages.append([]); remaining = pageHeight
+                }
+                let rowsFit = max(1, Int((remaining - header + 1e-9) / rowHeight))
+                let take = min(rest.count, rowsFit * cols)
+                pages[pages.count - 1].append(LauncherPageSection(kind: kind, apps: Array(rest.prefix(take)), showsHeader: first))
+                remaining -= header + Double((take + cols - 1) / cols) * rowHeight
+                rest = rest.dropFirst(take)
+                first = false
+                if !rest.isEmpty { pages.append([]); remaining = pageHeight }
+            }
+        }
+        return pages.filter { !$0.isEmpty }
+    }
+}
+
+/// The user's own arrangement of All Apps: apps named in `order` come first, in that order; every other app follows in its
+/// existing (name) order, so a newly installed app lands at the end instead of scrambling the layout.
+enum LauncherOrdering {
+    static func ordered(_ apps: [LauncherApp], by order: [String]) -> [LauncherApp] {
+        guard !order.isEmpty else { return apps }
+        var rank: [String: Int] = [:]
+        for (i, id) in order.enumerated() where rank[id] == nil { rank[id] = i }
+        let known = apps.filter { rank[$0.bundleID] != nil }.sorted { rank[$0.bundleID]! < rank[$1.bundleID]! }
+        let rest = apps.filter { rank[$0.bundleID] == nil }
+        return known + rest
+    }
+
+    /// The full order after dragging `moving` in front of `target` (nil target = to the end). `ids` is the order on screen now.
+    static func move(_ ids: [String], moving: String, before target: String?) -> [String] {
+        guard ids.contains(moving), moving != target else { return ids }
+        var out = ids.filter { $0 != moving }
+        if let target, let i = out.firstIndex(of: target) { out.insert(moving, at: i) } else { out.append(moving) }
+        return out
+    }
+
+    static func toggleHidden(_ hidden: [String], _ bundleID: String) -> [String] {
+        hidden.contains(bundleID) ? hidden.filter { $0 != bundleID } : hidden + [bundleID]
+    }
+}
+
 enum LauncherPresets {
     /// Shown in Most Used until real usage takes the slots (only the installed ones appear).
     static let bundleIDs = [
@@ -108,8 +175,11 @@ enum LauncherAppIndex {
         presets: [String] = LauncherPresets.bundleIDs,
         columns: Int,
         now: Date,
-        recentDays: Int = 30
+        recentDays: Int = 30,
+        hidden: Set<String> = [],
+        order: [String] = []
     ) -> LauncherPage {
+        let apps = apps.filter { !hidden.contains($0.bundleID) }
         let row = max(1, columns)
         let byID = Dictionary(apps.map { ($0.bundleID, $0) }, uniquingKeysWith: { a, _ in a })
         var seen = Set<String>()
@@ -133,7 +203,7 @@ enum LauncherAppIndex {
             .filter { !seen.contains($0.bundleID) && $0.installedAt >= cutoff && $0.installedAt <= now }
             .sorted { $0.installedAt != $1.installedAt ? $0.installedAt > $1.installedAt : nameOrder($0, $1) }
             .prefix(row)
-        return LauncherPage(mostUsed: top, recentlyInstalled: Array(recent), all: apps)
+        return LauncherPage(mostUsed: top, recentlyInstalled: Array(recent), all: LauncherOrdering.ordered(apps, by: order))
     }
 
     /// Records a launch.

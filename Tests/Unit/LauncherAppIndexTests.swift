@@ -72,6 +72,50 @@ final class LauncherAppIndexTests: XCTestCase {
         XCTAssertEqual(LauncherGrid.columns(forWidth: 920), 8)
     }
 
+    func testPagingFillsEachPageThenContinuesAllApps() {
+        func apps(_ n: Int, _ tag: String) -> [LauncherApp] { (0..<n).map { app("\(tag)\($0)", "\(tag)\($0)") } }
+        let all = apps(40, "a")
+        let page = LauncherPage(mostUsed: apps(8, "m"), recentlyInstalled: apps(8, "r"), all: all)
+        let pages = LauncherPaging.paginate(page, columns: 8, pageHeight: 400, rowHeight: 100, headerHeight: 30)
+        // Page 1: Most Used (130) + Recently Installed (130) + one row of All Apps (130) = 390 of 400.
+        XCTAssertEqual(pages.count, 2)
+        XCTAssertEqual(pages[0].map(\.kind), [.mostUsed, .recentlyInstalled, .allApps])
+        XCTAssertEqual(pages[0][2].apps.count, 8)
+        XCTAssertTrue(pages[0].allSatisfy(\.showsHeader))
+        // Page 2 continues All Apps without a header: 4 rows of 8 fit in 400.
+        XCTAssertEqual(pages[1].map(\.kind), [.allApps])
+        XCTAssertEqual(pages[1][0].apps.count, 32)
+        XCTAssertFalse(pages[1][0].showsHeader)
+        XCTAssertEqual(pages.flatMap { $0 }.filter { $0.kind == .allApps }.flatMap(\.apps), all, "no app is lost or repeated")
+    }
+
+    func testPagingEdgeCases() {
+        XCTAssertTrue(LauncherPaging.paginate(LauncherPage(mostUsed: [], recentlyInstalled: [], all: []),
+                                              columns: 8, pageHeight: 400, rowHeight: 100, headerHeight: 30).isEmpty)
+        // A page too short for even one row still shows one row per page rather than looping forever.
+        let one = LauncherPage(mostUsed: [], recentlyInstalled: [], all: (0..<5).map { app("x\($0)", "x\($0)") })
+        let pages = LauncherPaging.paginate(one, columns: 2, pageHeight: 10, rowHeight: 100, headerHeight: 30)
+        XCTAssertEqual(pages.flatMap { $0 }.flatMap(\.apps).count, 5)
+        XCTAssertEqual(pages.count, 3)
+    }
+
+    func testHiddenAppsLeaveTheGridAndCustomOrderWins() {
+        let apps = [app("a", "Alpha"), app("b", "Beta"), app("c", "Gamma"), app("d", "Delta")]
+        let page = LauncherAppIndex.page(apps: apps, usage: [:], pinned: [], presets: [], columns: 4, now: now,
+                                         hidden: ["b"], order: ["d", "a"])
+        XCTAssertEqual(page.all.map(\.bundleID), ["d", "a", "c"], "ordered first, hidden gone, the rest keep their order")
+        XCTAssertFalse(page.mostUsed.contains { $0.bundleID == "b" })
+    }
+
+    func testMoveBeforeTargetAndToEnd() {
+        XCTAssertEqual(LauncherOrdering.move(["a", "b", "c", "d"], moving: "d", before: "b"), ["a", "d", "b", "c"])
+        XCTAssertEqual(LauncherOrdering.move(["a", "b", "c"], moving: "a", before: nil), ["b", "c", "a"])
+        XCTAssertEqual(LauncherOrdering.move(["a", "b"], moving: "a", before: "a"), ["a", "b"])
+        XCTAssertEqual(LauncherOrdering.move(["a", "b"], moving: "zz", before: "a"), ["a", "b"])
+        XCTAssertEqual(LauncherOrdering.toggleHidden(["a"], "b"), ["a", "b"])
+        XCTAssertEqual(LauncherOrdering.toggleHidden(["a", "b"], "a"), ["b"])
+    }
+
     func testTogglePin() {
         XCTAssertEqual(LauncherAppIndex.togglePin(["a"], "b"), ["a", "b"])
         XCTAssertEqual(LauncherAppIndex.togglePin(["a", "b"], "a"), ["b"])

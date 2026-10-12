@@ -30,4 +30,19 @@ final class LauncherStoreTests: XCTestCase {
         XCTAssertTrue(apps.contains { $0.bundleID == "com.apple.calculator" },
                       "found \(apps.count): \(apps.prefix(5).map(\.bundleID))")
     }
+
+    func testOldFileWithoutHiddenAndOrderStillLoads() throws {
+        let url = tempURL()
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Data(#"{"usage":{},"pinned":["a"]}"#.utf8).write(to: url)
+        XCTAssertEqual(LauncherStore(url: url).load(), LauncherState(pinned: ["a"]))
+    }
+
+    func testHiddenAndOrderRoundTrip() throws {
+        let url = tempURL()
+        let store = LauncherStore(url: url)
+        try store.save(LauncherState(hidden: ["x"], order: ["b", "a"]))
+        XCTAssertEqual(store.load().hidden, ["x"])
+        XCTAssertEqual(store.load().order, ["b", "a"])
+    }
 }

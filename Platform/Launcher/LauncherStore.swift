@@ -5,6 +5,25 @@ import Foundation
 struct LauncherState: Equatable, Codable {
     var usage: [String: LauncherUsage] = [:]
     var pinned: [String] = []
+    /// Apps the user hid from the grid (still found by search).
+    var hidden: [String] = []
+    /// The user's own All Apps order (see `LauncherOrdering`); empty = alphabetical.
+    var order: [String] = []
+
+    init(usage: [String: LauncherUsage] = [:], pinned: [String] = [], hidden: [String] = [], order: [String] = []) {
+        self.usage = usage
+        self.pinned = pinned
+        self.hidden = hidden
+        self.order = order
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        usage = try c.decodeIfPresent([String: LauncherUsage].self, forKey: .usage) ?? [:]
+        pinned = try c.decodeIfPresent([String].self, forKey: .pinned) ?? []
+        hidden = try c.decodeIfPresent([String].self, forKey: .hidden) ?? []
+        order = try c.decodeIfPresent([String].self, forKey: .order) ?? []
+    }
 }
 
 struct LauncherStore {

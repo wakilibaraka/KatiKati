@@ -317,11 +317,19 @@ struct SettingsLayoutPane: View {
                         get: { store.launcherScrollDirection },
                         set: { store.setLauncherScrollDirection($0) }
                     )) {
-                        Text("Down").tag(LauncherScrollDirection.vertical)
                         Text("Sideways").tag(LauncherScrollDirection.horizontal)
+                        Text("Down").tag(LauncherScrollDirection.vertical)
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
+                HStack {
+                    Text("Hidden Apps")
+                    Spacer(minLength: 12)
+                    Text(verbatim: "\(launcherHiddenCount)").foregroundStyle(.secondary)
+                    Button("Show All Hidden Apps") { updateLauncherState { $0.hidden = [] } }
+                        .disabled(launcherHiddenCount == 0)
+                }
+                Button("Reset App Order") { updateLauncherState { $0.order = [] } }
                 HStack {
                     Text("Search Position")
                     Spacer(minLength: 12)
@@ -444,6 +452,7 @@ struct SettingsLayoutPane: View {
         }
         .padding(Self.margin)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .onAppear { launcherHiddenCount = LauncherStore(url: LauncherStore.defaultURL).load().hidden.count }
     }
 
     private func pinboardWidgetTitle(_ w: PinboardWidget) -> Text {
@@ -532,6 +541,17 @@ struct SettingsLayoutPane: View {
         case .tiles: return Text("Tiles")
         case .petal: return Text("Petal")
         }
+    }
+
+    @State private var launcherHiddenCount = 0
+
+    /// Edits the launcher's saved arrangement (hidden apps, custom order); the launcher re-reads it each time it opens.
+    private func updateLauncherState(_ edit: (inout LauncherState) -> Void) {
+        let launcherStore = LauncherStore(url: LauncherStore.defaultURL)
+        var state = launcherStore.load()
+        edit(&state)
+        try? launcherStore.save(state)
+        launcherHiddenCount = state.hidden.count
     }
 
     private var customRows: some View {
