@@ -2595,6 +2595,13 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   identity**, so the bottom bar is byte-identical by construction; `reservedInset` for window clearance),
   `BarSection.railTileLength`. Store: `stripPlacementMap`, `stripPlacement(forDisplay:)`, setters. 9 tests;
   suite 2203 green. Nothing reads the placement yet.
+- 2026-10-13 · **18b built (geometry, pure).** `PanelGeometry.stripTargetFrame` — bottom returns
+  `islandTargetFrame` unchanged; a rail folds the mode, solves on a virtual screen as wide as the rail is
+  long (below the menu bar/notch, `railTopInset`) with widgets as compact rail tiles
+  (`railWidgetLayout`), then maps plate + shadow padding onto the edge (`railWindowFrame`).
+  `stripCapsuleTargetFrame` puts the capsule under the apps island on a rail. 4 tests (bottom identical
+  for every mode/slot, rails hug the edge below the menu bar without overlap, capsule placement, top
+  margin). Not wired to the coordinator until the strip view renders vertically (18c).
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

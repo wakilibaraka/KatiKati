@@ -491,6 +491,90 @@ enum PanelGeometry {
         }
     }
 
+    // MARK: Side rails (Phase 18b)
+
+    /// Distance from the screen's top edge to the first usable point (menu bar / notch).
+    static func railTopInset(on screen: PanelScreenGeometry) -> CGFloat {
+        max(0, screen.frame.maxY - screen.topUsableY)
+    }
+
+    /// A rail solves as a bottom strip on a virtual screen as wide as the rail is long.
+    static func railVirtualScreen(on screen: PanelScreenGeometry, placement: StripPlacement) -> PanelScreenGeometry {
+        let length = StripAxis.mainLength(placement: placement, screen: screen.frame, topInset: railTopInset(on: screen))
+        let frame = CGRect(x: 0, y: 0, width: length, height: screen.frame.width)
+        return PanelScreenGeometry(frame: frame, visibleFrame: frame, safeAreaTop: 0)
+    }
+
+    /// Maps a window frame solved on `railVirtualScreen` onto the rail's edge. The shadow padding is
+    /// symmetric, so the plate is mapped and the padding re-applied around it.
+    static func railWindowFrame(_ virtualWindow: CGRect, on screen: PanelScreenGeometry,
+                                placement: StripPlacement, metrics: PanelLayoutMetrics) -> CGRect {
+        let plate = virtualWindow.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+        let mapped = StripAxis.map(plate, placement: placement, screen: screen.frame, topInset: railTopInset(on: screen))
+        return mapped.insetBy(dx: -metrics.shadowPadding, dy: -metrics.shadowPadding)
+    }
+
+    /// Widgets as compact rail tiles (decision 1); the apps zone keeps its own measured length.
+    static func railWidgetLayout(_ layout: WidgetLayout) -> WidgetLayout {
+        WidgetLayout(instances: layout.instances.map { inst in
+            var copy = inst
+            if inst.section != .apps {
+                copy.exactWidth = inst.section.railTileLength(barHeight: IslandChrome.nativeBarHeight)
+            }
+            return copy
+        })
+    }
+
+    /// Island window frame for any placement. `.bottom` is exactly `islandTargetFrame`; a rail folds
+    /// the mode (`StripPlacement.effectiveMode`), solves on the virtual screen with rail tiles, and
+    /// maps the result. `contentLength` is the measured main-axis length of this island's content.
+    static func stripTargetFrame(
+        slot: Int,
+        contentLength: CGFloat,
+        mode: BarLayoutMode,
+        stripPlacement: StripPlacement,
+        on screen: PanelScreenGeometry,
+        metrics: PanelLayoutMetrics = .tungstenEdge,
+        centeredWidth: CGFloat = 720,
+        gap: CGFloat = 8,
+        margin: CGFloat = 12,
+        widgetLayout: WidgetLayout? = nil
+    ) -> CGRect {
+        guard stripPlacement.isVertical else {
+            return islandTargetFrame(slot: slot, contentWidth: contentLength, mode: mode, on: screen,
+                                     placement: .right, metrics: metrics, centeredWidth: centeredWidth,
+                                     gap: gap, margin: margin, widgetLayout: widgetLayout)
+        }
+        let virtual = railVirtualScreen(on: screen, placement: stripPlacement)
+        let layout = railWidgetLayout(widgetLayout ?? storedWidgetLayout())
+        let solved = islandTargetFrame(slot: slot, contentWidth: contentLength,
+                                       mode: stripPlacement.effectiveMode(mode), on: virtual,
+                                       placement: .right, metrics: metrics, centeredWidth: centeredWidth,
+                                       gap: gap, margin: margin, widgetLayout: layout)
+        return railWindowFrame(solved, on: screen, placement: stripPlacement, metrics: metrics)
+    }
+
+    /// Capsule window for any placement: right of the bar on the bottom (honouring `drawerPlacement`),
+    /// at the rail's lower end on a side.
+    static func stripCapsuleTargetFrame(
+        forDock dockFrame: CGRect,
+        stripPlacement: StripPlacement,
+        on screen: PanelScreenGeometry,
+        drawerPlacement: DrawerPlacement,
+        metrics: PanelLayoutMetrics = .tungstenEdge
+    ) -> CGRect {
+        guard stripPlacement.isVertical else {
+            return capsuleTargetFrame(forDock: dockFrame, on: screen, placement: drawerPlacement, metrics: metrics)
+        }
+        let plate = dockFrame.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+        let side = metrics.capsuleWidth
+        let x = plate.midX - side / 2
+        let rawY = plate.minY - metrics.capsuleGap - side
+        let y = max(rawY, screen.frame.minY)
+        return CGRect(x: x - metrics.shadowPadding, y: y - metrics.shadowPadding,
+                      width: side + metrics.shadowPadding * 2, height: side + metrics.shadowPadding * 2)
+    }
+
     static func storedWidgetLayout(_ defaults: UserDefaults = .standard) -> WidgetLayout {
         WidgetLayout.decode(defaults.data(forKey: WidgetLayout.defaultsKey))
             ?? WidgetLayout.migrating(legacyWidths: defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:])
