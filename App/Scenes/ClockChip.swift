@@ -33,6 +33,7 @@ public enum ClockArt {
 
 public struct ClockChip: View {
     @AppStorage("com.katikati.clock.preset") private var preset: ClockPreset = .modernMac
+    @Environment(\.widgetSize) private var widgetSize
     private let provider: ClockDataProvider
 
     public init(provider: ClockDataProvider = StandardClockProvider()) {
@@ -70,7 +71,9 @@ public struct ClockChip: View {
         // ViewThatFits is macOS 13+; the floor is 12, so the fallback there is the full
         // layout truncating (same rule as the weather pill).
         return Group {
-            if #available(macOS 13.0, *) {
+            if widgetSize == .small {
+                compactCard(content: content)
+            } else if #available(macOS 13.0, *) {
                 ViewThatFits(in: .horizontal) {
                     fullCard(content: content)
                     compactCard(content: content)

@@ -49,12 +49,15 @@ struct LiveIslandDockCapsule: View {
     @EnvironmentObject var settingsStore: AppSettingsStore
     @State private var isHovering = false
     @State private var showPopup = false
+    @Environment(\.widgetSize) private var widgetSize
     
     var body: some View {
         let activity = feed.activity
 
         Group {
-            if #available(macOS 13.0, *) {
+            if widgetSize == .small {
+                capsule(activity, showsLabel: false)
+            } else if #available(macOS 13.0, *) {
                 ViewThatFits(in: .horizontal) {
                     capsule(activity, showsLabel: true)
                     capsule(activity, showsLabel: false)

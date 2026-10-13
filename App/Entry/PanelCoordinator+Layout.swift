@@ -176,7 +176,8 @@ extension PanelCoordinator {
             DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
         }
         
-        widgetWidthsSubscription = settingsStore.$widgetWidths
+        widgetWidthsSubscription = settingsStore.$widgetLayout
+            .removeDuplicates()
             .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in

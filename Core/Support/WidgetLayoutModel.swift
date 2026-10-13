@@ -113,6 +113,24 @@ struct WidgetLayout: Codable, Equatable, Sendable {
         return result
     }
 
+    /// Copy with `section` edited; no-op for unknown sections.
+    func updating(_ section: BarSection, _ edit: (inout WidgetInstance) -> Void) -> WidgetLayout {
+        WidgetLayout(instances: instances.map { inst in
+            guard inst.section == section else { return inst }
+            var copy = inst
+            edit(&copy)
+            return copy
+        })
+    }
+
+    /// Width the strip should give `section`: exact override, else the size preset, floored at
+    /// the section's intrinsic minimum.
+    func width(for section: BarSection) -> CGFloat {
+        let inst = instance(for: section)
+        let raw = inst.exactWidth ?? section.widgetWidth(for: inst.size)
+        return max(raw, section.minimumWidgetWidth)
+    }
+
     /// First-run migration from the legacy `widgetWidths` slider overrides.
     static func migrating(legacyWidths: [String: CGFloat]) -> WidgetLayout {
         WidgetLayout(instances: BarSection.canonicalOrder.map { section in

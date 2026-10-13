@@ -199,6 +199,7 @@ public struct WeatherIllustration: View {
 
 public struct WeatherChip: View {
     @EnvironmentObject var weatherService: WeatherService
+    @Environment(\.widgetSize) private var widgetSize
     public init() {}
 
     public var body: some View {
@@ -208,7 +209,9 @@ public struct WeatherChip: View {
         // ViewThatFits is macOS 13+; the floor is 12, so the fallback there is the full layout
         // with its labels truncating (the compact pill is a nicety, not a requirement).
         Group {
-            if #available(macOS 13.0, *) {
+            if widgetSize == .small {
+                compactPill(state: state, art: art)
+            } else if #available(macOS 13.0, *) {
                 ViewThatFits(in: .horizontal) {
                     fullPill(state: state, art: art)
                     compactPill(state: state, art: art)
@@ -248,11 +251,11 @@ public struct WeatherChip: View {
 
             Spacer(minLength: 4)
 
-            temperature(state: state, size: 17)
+            temperature(state: state, size: widgetSize == .large ? 19 : 17)
 
             WeatherIllustration(condition: state.conditionFamily,
                                 isNight: state.isNight,
-                                size: 24)
+                                size: widgetSize == .large ? 28 : 24)
         }
     }
 
@@ -285,5 +288,19 @@ public struct WeatherChip: View {
             }
         }
         .foregroundStyle(.white)
+    }
+}
+
+// MARK: - Widget size (Phase 10a-2)
+
+private struct WidgetSizeKey: EnvironmentKey {
+    static let defaultValue: WidgetSize = .medium
+}
+
+extension EnvironmentValues {
+    /// The S/M/L preset the strip resolved for the chip being drawn.
+    var widgetSize: WidgetSize {
+        get { self[WidgetSizeKey.self] }
+        set { self[WidgetSizeKey.self] = newValue }
     }
 }

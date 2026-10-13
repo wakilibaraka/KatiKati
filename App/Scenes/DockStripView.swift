@@ -1322,20 +1322,22 @@ struct DockStripView: View {
             // default, edited via sliders in Settings. Floored at the intrinsic
             // minimum so a stale stored value (e.g. clock = 40) can never clip
             // the chip inside an in-bounds island frame.
-            let defaultWidth = section.defaultWidgetWidth
-            let stored = settingsStore.widgetWidths[section.rawValue] ?? defaultWidth
-            let targetWidth = max(stored, section.minimumWidgetWidth)
+            let targetWidth = settingsStore.widgetLayout.width(for: section)
+            let widgetSize = settingsStore.widgetLayout.instance(for: section).size
 
             HStack(spacing: 6 * dockScale) {
                 switch section {
                 case .weather:
                     WeatherChip()
+                        .environment(\.widgetSize, widgetSize)
                         .scaleEffect(dockScale)
                 case .media:
                     NowPlayingChip()
+                        .environment(\.widgetSize, widgetSize)
                         .scaleEffect(dockScale)
                 case .clock:
                     ClockChip()
+                        .environment(\.widgetSize, widgetSize)
                         .scaleEffect(dockScale)
                 case .launcher:
                     LauncherIconView(style: settingsStore.launcherIcon, size: 26 * dockScale)

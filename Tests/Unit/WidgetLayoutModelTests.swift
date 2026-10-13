@@ -61,3 +61,15 @@ final class WidgetLayoutModelTests: XCTestCase {
         XCTAssertEqual(WidgetLayout.migrating(legacyWidths: [:]), .default)
     }
 }
+
+extension WidgetLayoutModelTests {
+    func testWidthPrefersExactOverrideThenSizeAndFloorsAtMinimum() {
+        var layout = WidgetLayout.default
+        XCTAssertEqual(layout.width(for: .clock), BarSection.clock.defaultWidgetWidth)
+        layout = layout.updating(.clock) { $0.size = .small }
+        XCTAssertEqual(layout.width(for: .clock), BarSection.clock.minimumWidgetWidth, "S (76) floors at the 120 clock minimum")
+        layout = layout.updating(.clock) { $0.exactWidth = 300 }
+        XCTAssertEqual(layout.width(for: .clock), 300)
+        XCTAssertEqual(layout.width(for: .launcher), 40)
+    }
+}

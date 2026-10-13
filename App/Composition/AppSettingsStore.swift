@@ -1179,6 +1179,17 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(layout.encoded(), forKey: WidgetLayout.defaultsKey)
     }
 
+    /// Picks an S/M/L preset; clears the exact-width override so the preset takes effect.
+    func setWidgetSize(_ size: WidgetSize, for section: BarSection) {
+        setWidgetLayout(widgetLayout.updating(section) { $0.size = size; $0.exactWidth = nil })
+        if widgetWidths[section.rawValue] != nil {
+            var updated = widgetWidths
+            updated[section.rawValue] = nil
+            widgetWidths = updated
+            defaults.set(updated, forKey: "widgetWidths")
+        }
+    }
+
     func setWidgetWidth(_ width: CGFloat, for section: BarSection) {
         // Floor at the section's intrinsic minimum (e.g. clock = 40 from an
         // old single-digit tile layout starves FlipClockChip's 2×32 tiles and
@@ -1189,6 +1200,7 @@ final class AppSettingsStore: ObservableObject {
         updated[section.rawValue] = floored
         self.widgetWidths = updated
         defaults.set(updated, forKey: "widgetWidths")
+        setWidgetLayout(widgetLayout.updating(section) { $0.exactWidth = floored })
     }
 
     private static func storedDockPanelHeight(defaults: UserDefaults) -> DockPanelHeight {

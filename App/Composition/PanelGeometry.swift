@@ -419,12 +419,12 @@ enum PanelGeometry {
             let exactClusterWidth = contentWidth + capsuleSpace - (CGFloat(appCount) * tileStride) - 24
             
             let defaults = UserDefaults.standard
-            let stringWidths = defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:]
-            var widgetWidths = [BarSection: CGFloat]()
-            for (key, value) in stringWidths {
-                if let section = BarSection(rawValue: key) {
-                    widgetWidths[section] = value
-                }
+            let widgetWidths: [BarSection: CGFloat]
+            if let stored = WidgetLayout.decode(defaults.data(forKey: WidgetLayout.defaultsKey)) {
+                widgetWidths = stored.solverWidths()
+            } else {
+                let stringWidths = defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:]
+                widgetWidths = WidgetLayout.migrating(legacyWidths: stringWidths).solverWidths()
             }
             
             let layout = IslandLayoutSolver.layout(
