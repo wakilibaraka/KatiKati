@@ -90,5 +90,29 @@ final class StripPlacementTests: XCTestCase {
         XCTAssertEqual(StripAxis.distanceFromStripEdge(p, placement: .bottom, screen: screen), 500)
         XCTAssertEqual(StripAxis.distanceFromStripEdge(CGPoint(x: 1707, y: 500), placement: .right, screen: screen), 3)
     }
+
+    // MARK: 18g edge-bar occupancy
+
+    func testBottomDockLeavesEdgeBarsAlone() {
+        let content: [EdgeSide: [String]] = [.left: ["widgets"], .right: ["notes"]]
+        XCTAssertEqual(EdgeOccupancy.resolve(content, dock: .bottom, policy: .moveAcross), content)
+    }
+
+    func testMoveAcrossToAFreeEdge() {
+        let content: [EdgeSide: [String]] = [.right: ["notes", "status"]]
+        let resolved = EdgeOccupancy.resolve(content, dock: .right, policy: .moveAcross)
+        XCTAssertEqual(resolved, [.left: ["notes", "status"]])
+    }
+
+    func testBothEdgesTakenMergeIntoOneBarOnTheFreeEdge() {
+        let content: [EdgeSide: [String]] = [.left: ["widgets", "notes"], .right: ["notes", "status"]]
+        let resolved = EdgeOccupancy.resolve(content, dock: .left, policy: .moveAcross)
+        XCTAssertEqual(resolved, [.right: ["notes", "status", "widgets"]], "free side first, duplicates dropped")
+    }
+
+    func testHidePolicyDropsTheDisplacedBar() {
+        let content: [EdgeSide: [String]] = [.left: ["widgets"], .right: ["notes"]]
+        XCTAssertEqual(EdgeOccupancy.resolve(content, dock: .left, policy: .hide), [.right: ["notes"]])
+    }
 }
 

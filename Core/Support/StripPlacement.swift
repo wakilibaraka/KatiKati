@@ -132,3 +132,39 @@ extension BarSection {
         }
     }
 }
+
+/// What happens to an edge bar when the dock strip moves onto its edge (Phase 18g, owner
+/// 2026-10-13: "move across is default, merge all into one"). Raw values are stored in
+/// `com.katikati.edge.conflictPolicy`; never rename them.
+enum EdgeConflictPolicy: String, CaseIterable, Codable, Sendable {
+    /// The bar moves to the opposite edge; if a bar is already there, both merge into one bar.
+    case moveAcross
+    /// The bar on the dock's edge is hidden while the dock is there.
+    case hide
+
+    static let defaultsKey = "com.katikati.edge.conflictPolicy"
+}
+
+/// Pure edge-bar occupancy once the dock may sit on a side (Phase 18g).
+enum EdgeOccupancy {
+    /// Edge-bar content per side after making room for a dock rail. The bottom dock changes nothing.
+    /// Merging keeps the free side's items first and drops duplicates, order otherwise preserved.
+    static func resolve<Item: Equatable>(_ content: [EdgeSide: [Item]], dock: StripPlacement,
+                                         policy: EdgeConflictPolicy) -> [EdgeSide: [Item]] {
+        let taken: EdgeSide
+        switch dock {
+        case .bottom: return content
+        case .left: taken = .left
+        case .right: taken = .right
+        }
+        guard let displaced = content[taken], !displaced.isEmpty else { return content }
+        var result = content
+        result[taken] = nil
+        guard policy == .moveAcross else { return result }
+        let other: EdgeSide = taken == .left ? .right : .left
+        var merged = result[other] ?? []
+        for item in displaced where !merged.contains(item) { merged.append(item) }
+        result[other] = merged
+        return result
+    }
+}

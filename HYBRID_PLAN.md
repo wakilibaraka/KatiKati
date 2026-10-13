@@ -2640,6 +2640,13 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   switch measure distance from the strip's own edge (`StripAxis.distanceFromStripEdge`; this unit's
   placement on its screen, the global one elsewhere). Fullscreen hide, Spaces repair and screen-change
   re-solve were already axis-neutral (they relayout through the placement-aware frames). Suite 2216 green.
+- 2026-10-13 · **18g built (edge-bar occupancy).** Owner: "move across is default, merge all into one" — read as:
+  the bar on the dock rail's edge moves to the opposite edge; when that edge already has a bar the two
+  merge into **one** bar there (free side's items first, duplicates dropped). Alternative policy: Hide.
+  Pure `EdgeConflictPolicy` + `EdgeOccupancy.resolve` (4 tests); `AppSettingsStore.edgeContent` (and the
+  static defaults reader used by widget panels) apply it, key `com.katikati.edge.conflictPolicy`, default
+  move across. The orchestrator already re-reconciles edge bars on any store change. *Interpretation to
+  confirm with the owner* (the plan had "merge into the dock"). Suite 2220 green.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

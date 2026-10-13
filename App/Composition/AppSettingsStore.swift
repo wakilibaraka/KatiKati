@@ -202,6 +202,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var bottomGap: CGFloat
     /// Edge bars (Phase 7A): the layout preset (default Productivity + Rest) and the side that hosts notes / productivity.
     @Published private(set) var edgeBarPreset: EdgeBarPreset
+    /// Phase 18g: an edge bar on the dock rail's edge moves across (merging when needed) or hides.
+    @Published private(set) var edgeConflictPolicy: EdgeConflictPolicy
     @Published private(set) var edgePrimarySide: EdgeSide
     /// Enabled productivity buttons (7A-P1; default all) and the Custom layout (item → left / right / hidden).
     @Published private(set) var productivityItems: [ProductivityItem]
@@ -408,6 +410,7 @@ final class AppSettingsStore: ObservableObject {
         let storedBottomGap = Self.storedNumericValue(defaults.object(forKey: Keys.bottomGap)) ?? Double(PanelLayoutMetrics.floatingBottomGap)
         bottomGap = Self.clampedBottomGap(CGFloat(storedBottomGap))
         edgeBarPreset = EdgeBarPreset(rawValue: defaults.string(forKey: Keys.edgePreset) ?? "") ?? .default
+        edgeConflictPolicy = EdgeConflictPolicy(rawValue: defaults.string(forKey: EdgeConflictPolicy.defaultsKey) ?? "") ?? .moveAcross
         edgePrimarySide = EdgeSide(rawValue: defaults.string(forKey: Keys.edgePrimarySide) ?? "") ?? .right
         productivityItems = ProductivityItem.parse(defaults.string(forKey: Keys.productivityItems))
         edgeCustomPlacements = EdgeItem.parsePlacements(defaults.string(forKey: Keys.edgeCustom))
@@ -580,6 +583,12 @@ final class AppSettingsStore: ObservableObject {
         guard value.isFinite else { return PanelLayoutMetrics.floatingBottomGap }
         let range = PanelLayoutMetrics.bottomGapRange
         return min(max(value.rounded(), range.lowerBound), range.upperBound)
+    }
+
+    func setEdgeConflictPolicy(_ value: EdgeConflictPolicy) {
+        guard edgeConflictPolicy != value else { return }
+        edgeConflictPolicy = value
+        defaults.set(value.rawValue, forKey: EdgeConflictPolicy.defaultsKey)
     }
 
     func setEdgeBarPreset(_ value: EdgeBarPreset) {
@@ -819,18 +828,23 @@ final class AppSettingsStore: ObservableObject {
     /// Same resolution straight from stored defaults, for panels that don't hold the store.
     static func edgeContent(defaults: UserDefaults) -> [EdgeSide: [EdgeBarContent]] {
         func stored(_ key: String, _ fallback: String) -> String { defaults.string(forKey: key) ?? fallback }
-        return EdgeBarComposition.resolve(
+        let composed = EdgeBarComposition.resolve(
             preset: EdgeBarPreset(rawValue: stored(Keys.edgePreset, "")) ?? .default,
             primary: EdgeSide(rawValue: stored(Keys.edgePrimarySide, "")) ?? .right,
             widgets: WidgetTile.parse(stored(Keys.widgetTiles, WidgetTile.serialize(WidgetTile.allCases))),
             productivity: ProductivityItem.parse(stored(Keys.productivityItems, ProductivityItem.serialize(ProductivityItem.allCases))),
             custom: EdgeItem.parsePlacements(defaults.string(forKey: Keys.edgeCustom)))
+        let dock = (StripPlacementMap.decode(defaults.data(forKey: StripPlacementMap.defaultsKey)) ?? StripPlacementMap()).global
+        let policy = EdgeConflictPolicy(rawValue: defaults.string(forKey: EdgeConflictPolicy.defaultsKey) ?? "") ?? .moveAcross
+        return EdgeOccupancy.resolve(composed, dock: dock, policy: policy)
     }
 
-    /// Per-edge content for the current preset / custom layout.
+    /// Per-edge content for the current preset / custom layout, then made room for a dock rail (18g).
     var edgeContent: [EdgeSide: [EdgeBarContent]] {
-        EdgeBarComposition.resolve(preset: edgeBarPreset, primary: edgePrimarySide, widgets: widgetTiles,
-                                   productivity: productivityItems, custom: edgeCustomPlacements)
+        EdgeOccupancy.resolve(
+            EdgeBarComposition.resolve(preset: edgeBarPreset, primary: edgePrimarySide, widgets: widgetTiles,
+                                       productivity: productivityItems, custom: edgeCustomPlacements),
+            dock: stripPlacementMap.global, policy: edgeConflictPolicy)
     }
 
     /// Live panel geometry: the height-derived metrics plus the user's bottom gap.
