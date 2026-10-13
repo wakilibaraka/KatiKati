@@ -137,7 +137,7 @@ struct CalendarPanelView: View {
         let u = (inner - 2 * gap) / 3
         let wide = 2 * u + gap
         let agendaRows = max(2, Int((u - 24 - 50) / 34))
-        let fixed = 2 * gutter + 3 * u + 4 * gap + bandHeight + 10
+        let fixed = 2 * gutter + 5 * u + 6 * gap + bandHeight + 10
         let rows = listRows(budget: maxHeight - fixed)
         return VStack(spacing: gap) {
             HStack(spacing: gap) {
@@ -158,6 +158,18 @@ struct CalendarPanelView: View {
                 SystemTile(env: env, width: u, height: u)
                 BluetoothTile(env: env, width: u, height: u)
                 NowPlayingPortTile(env: env, width: u, height: u)
+            }
+            // Phase 16k: the six Pinboard-only widgets, ported into the tile vocabulary
+            // (quickSettings lives on as the Control Center grid, not a tile).
+            HStack(alignment: .top, spacing: gap) {
+                CalculatorTile(env: env, width: u, height: u)
+                ScreenTimeTile(env: env, width: u, height: u)
+                NetworkTile(env: env, width: u, height: u)
+            }
+            HStack(alignment: .top, spacing: gap) {
+                BatteryTile(env: env, width: u, height: u)
+                TopAppsTile(env: env, width: u, height: u)
+                BatteriesTile(env: env, width: u, height: u)
             }
             HStack(alignment: .top, spacing: gap) {
                 FocusTile(env: env, controller: focus, width: u, height: bandHeight + CGFloat(rows) * reminderRow + 10)
@@ -789,5 +801,208 @@ struct NowPlayingPortTile: View {
                 }.buttonStyle(.plain)
             }
         })
+    }
+}
+
+// MARK: - Ported Pinboard-only widgets (Phase 16k)
+
+// The six widgets that lived only on the Pinboard wall, ported into the tile vocabulary with the
+// same services and the same no-polling discipline (samplers start on appear, stop on disappear;
+// Top Apps / Batteries read once per appear plus a manual refresh). All copy reuses existing
+// catalog keys so the localization gate is unchanged.
+
+/// Calculator tile — expression field with a live result (`CalculatorEngine`).
+struct CalculatorTile: View {
+    let env: TileEnv
+    let width: CGFloat
+    let height: CGFloat
+    @State private var expression = ""
+
+    var body: some View {
+        BandTile(env: env, kind: .calculator, width: width, height: height, header: { Text("Calculator") }, content: {
+            VStack(alignment: .leading, spacing: 4) {
+                TextField("Expression", text: $expression).textFieldStyle(.plain).font(.system(size: 18, weight: .light))
+                Text(verbatim: CalculatorEngine.evaluate(expression).map(CalculatorEngine.format) ?? "")
+                    .font(.system(size: 28, weight: .light)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.5)
+                Spacer(minLength: 0)
+            }
+        })
+    }
+}
+
+/// Screen Time tile — today's top apps from the shared ledger.
+struct ScreenTimeTile: View {
+    let env: TileEnv
+    let width: CGFloat
+    let height: CGFloat
+
+    var body: some View {
+        BandTile(env: env, kind: .screenTime, width: width, height: height, header: { Text("Screen Time") }, content: {
+            ScreenTimeSummaryView(rows: 3)
+        })
+    }
+}
+
+/// Network tile — live down/up rates; samples only while on screen.
+struct NetworkTile: View {
+    let env: TileEnv
+    let width: CGFloat
+    let height: CGFloat
+    @ObservedObject private var monitor = ProductivityServices.shared.systemMonitor
+
+    var body: some View {
+        let s = monitor.snapshot
+        BandTile(env: env, kind: .network, width: width, height: height, header: { Text("Network") }, content: {
+            VStack(alignment: .leading, spacing: 8) {
+                row("arrow.down", s.down)
+                row("arrow.up", s.up)
+                Spacer(minLength: 0)
+            }
+        })
+        .onAppear { monitor.acquire() }
+        .onDisappear { monitor.release() }
+    }
+
+    private func row(_ symbol: String, _ rate: Double) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: symbol).font(.system(size: 12, weight: .bold)).foregroundColor(env.secondary)
+            Text(verbatim: SystemMonitorFormat.bytes(rate) + "/s")
+                .font(.system(size: 16, weight: .semibold)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
+        }
+        .padding(.top, 4)
+    }
+}
+
+/// Battery tile — level, charging state, health and cycle count (public IOKit only).
+struct BatteryTile: View {
+    let env: TileEnv
+    let width: CGFloat
+    let height: CGFloat
+    @StateObject private var status = SystemStatusService()
+    @State private var health: BatteryHealth?
+
+    var body: some View {
+        let b = status.status.battery
+        BandTile(env: env, kind: .battery, width: width, height: height, header: { Text("Battery") }, content: {
+            VStack(alignment: .leading, spacing: 4) {
+                if let level = b.level {
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text(verbatim: "\(level)%").font(.system(size: 30, weight: .semibold)).monospacedDigit()
+                        if b.isCharging { Image(systemName: "bolt.fill").font(.system(size: 13)) }
+                    }
+                    if let h = health {
+                        if let pct = h.healthPercent {
+                            HStack(spacing: 4) { Text("Health"); Text(verbatim: "\(pct)%") }
+                                .font(.system(size: 11, weight: .medium)).foregroundColor(env.secondary)
+                        }
+                        HStack(spacing: 4) { Text("Cycles"); Text(verbatim: "\(h.cycleCount)") }
+                            .font(.system(size: 11)).foregroundColor(env.secondary)
+                    }
+                } else {
+                    Text("No Battery").font(.system(size: 11)).foregroundColor(env.secondary)
+                }
+                Spacer(minLength: 0)
+            }
+        })
+        .onAppear { status.acquire(); health = BatteryHealthReader.read() }
+        .onDisappear { status.release() }
+    }
+}
+
+/// Top Apps tile — highest-CPU processes, read on appear plus a manual refresh (never polled).
+struct TopAppsTile: View {
+    let env: TileEnv
+    let width: CGFloat
+    let height: CGFloat
+    @State private var rows: [TopProcess] = []
+    @State private var loading = true
+
+    var body: some View {
+        BandTile(env: env, kind: .topApps, width: width, height: height, header: {
+            HStack {
+                Text("Top Apps"); Spacer()
+                Button { Task.detached(priority: .utility) {
+                    let top = TopProcessReader.read(limit: 4)
+                    await MainActor.run { rows = top; loading = false }
+                } } label: { Image(systemName: "arrow.clockwise") }
+                    .buttonStyle(.borderless)
+                    .help(Text("Refresh"))
+            }
+        }, content: {
+            VStack(alignment: .leading, spacing: 6) {
+                if loading {
+                    ProgressView().controlSize(.small)
+                } else if rows.isEmpty {
+                    Text(verbatim: "—").font(.system(size: 12)).foregroundColor(env.secondary)
+                } else {
+                    ForEach(rows.prefix(4), id: \.name) { p in
+                        HStack {
+                            Text(verbatim: p.name).font(.system(size: 11, weight: .medium)).lineLimit(1)
+                            Spacer(minLength: 4)
+                            Text(verbatim: String(format: "%.0f%%", p.cpu))
+                                .font(.system(size: 11, weight: .bold)).monospacedDigit()
+                        }
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+        })
+        .task {
+            let top = await Task.detached(priority: .utility) { TopProcessReader.read(limit: 4) }.value
+            rows = top; loading = false
+        }
+    }
+}
+
+/// Batteries tile — This Mac plus connected Bluetooth devices that report a battery.
+struct BatteriesTile: View {
+    let env: TileEnv
+    let width: CGFloat
+    let height: CGFloat
+    @StateObject private var status = SystemStatusService()
+    @State private var devices: [BluetoothDevice] = []
+    @State private var loading = true
+
+    var body: some View {
+        BandTile(env: env, kind: .batteries, width: width, height: height, header: {
+            HStack {
+                Text("Batteries"); Spacer()
+                Button { Task { await load() } } label: { Image(systemName: "arrow.clockwise") }
+                    .buttonStyle(.borderless)
+                    .help(Text("Refresh"))
+            }
+        }, content: {
+            VStack(alignment: .leading, spacing: 7) {
+                if let level = status.status.battery.level { line("laptopcomputer", Text("This Mac"), level) }
+                if loading {
+                    ProgressView().controlSize(.small)
+                } else {
+                    ForEach(devices.prefix(4)) { d in line(d.symbolName, Text(verbatim: d.name), d.lowestBattery ?? 0) }
+                    if devices.isEmpty {
+                        Text("No connected devices report a battery").font(.system(size: 10)).foregroundColor(env.secondary)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+        })
+        .onAppear { status.acquire() }
+        .onDisappear { status.release() }
+        .task { await load() }
+    }
+
+    private func line(_ symbol: String, _ name: Text, _ level: Int) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: symbol).font(.system(size: 12)).frame(width: 20)
+            name.font(.system(size: 11, weight: .medium)).lineLimit(1)
+            Spacer(minLength: 4)
+            Text(verbatim: "\(level)%").font(.system(size: 11, weight: .bold)).monospacedDigit().frame(width: 38, alignment: .trailing)
+        }
+    }
+
+    private func load() async {
+        loading = true
+        let all = await BluetoothDeviceReader.read()
+        devices = all.filter { $0.isConnected && $0.lowestBattery != nil }
+        loading = false
     }
 }

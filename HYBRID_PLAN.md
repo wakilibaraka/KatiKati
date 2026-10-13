@@ -2847,7 +2847,19 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
   private hack only, flagged fragile), AirDrop/AirPlay (no on/off API exists — share-sheet/Settings links
   at best), Low Power Mode (`SMAppService` root daemon + XPC — own slice with admin-approval UX), 16j
   (Settings side-picker, "Control Center" rename + ×12, live check, registry). **Owner eyeball:** True
-  Tone + VPN tiles live.
+   Tone + VPN tiles live.
+
+ - 2026-10-13 · **16k built — six Pinboard-only widgets ported as clock-pane tiles; gate green.**
+   `TileKind` += calculator, screenTime, network, battery, topApps, batteries (accents ×4
+   palettes); six `BandTile` tiles in `CalendarPanelView.swift` reusing `CalculatorEngine`,
+   `ScreenTimeSummaryView`, `SystemStatusService`, `BatteryHealthReader`, `TopProcessReader`,
+   `BluetoothDeviceReader` with the no-polling discipline (samplers on appear only; Top
+   Apps / Batteries read once + manual refresh). Wired into the iPad grid (two more u-rows;
+   short screens may clip — same open item as 16a). quickSettings is NOT a tile: it lives on
+   as the Control Center grid. No new strings (all copy reused). Folded in the missing
+   True Tone / VPN `title` cases — the 16i-2 tree did not compile without them. **Verified:**
+   2,224 tests, 0 failures; localization ✅ (716 ×12); debug switches ✅. **Owner eyeball:**
+   the six tiles live in the iPad pane.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

@@ -119,4 +119,17 @@ final class CalendarPanelModelsTests: XCTestCase {
         XCTAssertEqual(AgendaFitting.visibleCount(total: 0, height: 100, rowHeight: 30, reservedForMore: 18).shown, 0)
         XCTAssertEqual(AgendaFitting.visibleCount(total: 5, height: 10, rowHeight: 30, reservedForMore: 18).more, 5)
     }
+
+    // MARK: Ported Pinboard-only widgets (Phase 16k)
+    func testPortedPinboardTilesHaveFiniteAccentsInEveryPalette() {
+        let ported: [TileKind] = [.calculator, .screenTime, .network, .battery, .topApps, .batteries]
+        XCTAssertEqual(ported.count, 6, "quickSettings lives on as the Control Center grid, not a tile")
+        for tile in ported {
+            XCTAssertTrue(TileKind.allCases.contains(tile))
+            for palette in TilePalette.allCases {
+                let c = palette.accent(for: tile)
+                XCTAssertTrue([c.r, c.g, c.b].allSatisfy { (0...1).contains($0) }, "\(palette)/\(tile)")
+            }
+        }
+    }
 }

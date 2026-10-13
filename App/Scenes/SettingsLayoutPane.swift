@@ -1213,6 +1213,8 @@ extension QuickToggleID {
         case .wifi: return Text("Wi-Fi")
         case .bluetooth: return Text("Bluetooth")
         case .nightShift: return Text("Night Shift")
+        case .trueTone: return Text("True Tone")
+        case .vpn: return Text("VPN")
         }
     }
 }

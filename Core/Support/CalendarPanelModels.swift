@@ -240,7 +240,7 @@ extension CalendarPanelLayout {
     }
 }
 
-enum TileKind: CaseIterable { case date, clock, focus, calendar, agenda, reminders, alarms, timer, stopwatch, notes, countdown, weather, system, bluetooth, nowPlaying }
+enum TileKind: CaseIterable { case date, clock, focus, calendar, agenda, reminders, alarms, timer, stopwatch, notes, countdown, weather, system, bluetooth, nowPlaying, calculator, screenTime, network, battery, topApps, batteries }
 
 public struct TileRGB: Equatable, Sendable { public let r: Double; public let g: Double; public let b: Double
     public init(r: Double, g: Double, b: Double) { self.r = r; self.g = g; self.b = b } }
@@ -270,6 +270,12 @@ enum TilePalette: String, CaseIterable, Codable, Sendable {
             case .system: return TileRGB(r: 0.10, g: 0.68, b: 0.62)
             case .bluetooth: return TileRGB(r: 0.20, g: 0.48, b: 0.95)
             case .nowPlaying: return TileRGB(r: 0.90, g: 0.30, b: 0.45)
+            case .calculator: return TileRGB(r: 0.42, g: 0.44, b: 0.52)
+            case .screenTime: return TileRGB(r: 0.72, g: 0.48, b: 0.18)
+            case .network: return TileRGB(r: 0.15, g: 0.65, b: 0.85)
+            case .battery: return TileRGB(r: 0.25, g: 0.72, b: 0.30)
+            case .topApps: return TileRGB(r: 0.85, g: 0.35, b: 0.20)
+            case .batteries: return TileRGB(r: 0.35, g: 0.55, b: 0.90)
             }
         case .vivid:
             switch tile {
@@ -287,6 +293,12 @@ enum TilePalette: String, CaseIterable, Codable, Sendable {
             case .system: return TileRGB(r: 0.00, g: 0.80, b: 0.60)
             case .bluetooth: return TileRGB(r: 0.20, g: 0.40, b: 1.00)
             case .nowPlaying: return TileRGB(r: 1.00, g: 0.20, b: 0.50)
+            case .calculator: return TileRGB(r: 0.30, g: 0.32, b: 0.95)
+            case .screenTime: return TileRGB(r: 0.95, g: 0.55, b: 0.10)
+            case .network: return TileRGB(r: 0.00, g: 0.75, b: 1.00)
+            case .battery: return TileRGB(r: 0.10, g: 0.85, b: 0.30)
+            case .topApps: return TileRGB(r: 1.00, g: 0.30, b: 0.15)
+            case .batteries: return TileRGB(r: 0.25, g: 0.50, b: 1.00)
             }
         case .pastel:
             switch tile {
@@ -304,6 +316,12 @@ enum TilePalette: String, CaseIterable, Codable, Sendable {
             case .system: return TileRGB(r: 0.55, g: 0.90, b: 0.80)
             case .bluetooth: return TileRGB(r: 0.62, g: 0.72, b: 0.98)
             case .nowPlaying: return TileRGB(r: 0.98, g: 0.62, b: 0.72)
+            case .calculator: return TileRGB(r: 0.66, g: 0.68, b: 0.85)
+            case .screenTime: return TileRGB(r: 0.90, g: 0.70, b: 0.45)
+            case .network: return TileRGB(r: 0.55, g: 0.82, b: 0.96)
+            case .battery: return TileRGB(r: 0.55, g: 0.88, b: 0.60)
+            case .topApps: return TileRGB(r: 0.95, g: 0.60, b: 0.50)
+            case .batteries: return TileRGB(r: 0.60, g: 0.72, b: 0.95)
             }
         case .mono:
             return TileRGB(r: 0.36, g: 0.37, b: 0.41)
