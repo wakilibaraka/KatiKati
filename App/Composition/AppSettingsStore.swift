@@ -181,6 +181,10 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var wallpaperEnabled: Bool
     @Published private(set) var wallpaperMode: String
     @Published private(set) var wallpaperFolder: String
+    /// 10a-7: schedule-driven widget presets (off by default); preset ids per window, "" = none.
+    @Published private(set) var contextPresetsEnabled: Bool
+    @Published private(set) var contextWorkPresetID: String
+    @Published private(set) var contextEveningPresetID: String
     /// User-saved widget presets (built-ins live in `WidgetPresets.builtIns`).
     @Published private(set) var userWidgetPresets: [WidgetPreset]
     @Published private(set) var widgetWidths: [String: CGFloat]
@@ -384,6 +388,9 @@ final class AppSettingsStore: ObservableObject {
         wallpaperEnabled = defaults.bool(forKey: Keys.wallpaperEnabled)
         wallpaperMode = WallpaperMode(rawValue: defaults.string(forKey: Keys.wallpaperMode) ?? "")?.rawValue ?? WallpaperMode.both.rawValue
         wallpaperFolder = defaults.string(forKey: Keys.wallpaperFolder) ?? ""
+        contextPresetsEnabled = defaults.bool(forKey: ContextPresetRules.enabledKey)
+        contextWorkPresetID = defaults.string(forKey: Keys.contextWorkPreset) ?? ""
+        contextEveningPresetID = defaults.string(forKey: Keys.contextEveningPreset) ?? ""
         barLayoutMode = BarLayoutMode(rawValue: defaults.string(forKey: Keys.barLayoutMode) ?? "") ?? .split3
         let storedCentered = Self.storedNumericValue(defaults.object(forKey: Keys.centeredWidth)) ?? Double(Self.defaultCenteredWidth)
         centeredWidth = CGFloat(min(max(storedCentered, Double(Self.minimumCenteredWidth)), Double(Self.maximumCenteredWidth)))
@@ -1030,6 +1037,22 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.liveEventOSBanners)
     }
 
+    func setContextPresetsEnabled(_ value: Bool) {
+        guard contextPresetsEnabled != value else { return }
+        contextPresetsEnabled = value
+        defaults.set(value, forKey: ContextPresetRules.enabledKey)
+    }
+
+    func setContextWorkPreset(_ id: String) {
+        contextWorkPresetID = id
+        defaults.set(id, forKey: Keys.contextWorkPreset)
+    }
+
+    func setContextEveningPreset(_ id: String) {
+        contextEveningPresetID = id
+        defaults.set(id, forKey: Keys.contextEveningPreset)
+    }
+
     func setWallpaperEnabled(_ value: Bool) {
         guard wallpaperEnabled != value else { return }
         wallpaperEnabled = value
@@ -1291,6 +1314,8 @@ private enum Keys {
     static let wallpaperEnabled = "com.katikati.wallpaper.enabled"
     static let wallpaperMode = "com.katikati.wallpaper.mode"
     static let wallpaperFolder = "com.katikati.wallpaper.folder"
+    static let contextWorkPreset = "com.katikati.widgets.contextPresets.work"
+    static let contextEveningPreset = "com.katikati.widgets.contextPresets.evening"
 
     /// Continuous bar height in points (since the drag-to-resize release).
     static let dockPanelHeight = "com.katikati.dockPanelHeight"

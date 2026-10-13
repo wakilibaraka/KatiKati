@@ -214,6 +214,7 @@ struct SettingsLayoutPane: View {
                 .listStyle(.plain)
                 .frame(height: CGFloat(store.widgetLayout.order.count) * 38 + 24)
                 presetControls
+                contextPresetControls
             }
 
             section {
@@ -771,6 +772,34 @@ struct SettingsLayoutPane: View {
         case .apps: return Text("Apps")
         case .widgets: return Text("Widgets")
         case .clock: return Text("Clock")
+        }
+    }
+
+    /// 10a-7: pick a preset per time window; fixed windows (Work Hours Mon–Fri 09:00–17:00, Evening 18:00–23:00).
+    private var contextPresetControls: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Toggle(isOn: Binding(get: { store.contextPresetsEnabled }, set: store.setContextPresetsEnabled)) {
+                Text("Context Presets")
+            }
+            if store.contextPresetsEnabled {
+                contextPicker(Text("Work Hours"), selection: store.contextWorkPresetID, set: store.setContextWorkPreset)
+                contextPicker(Text("Evening"), selection: store.contextEveningPresetID, set: store.setContextEveningPreset)
+                Text(verbatim: "Mon–Fri 09:00–17:00 · 18:00–23:00")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func contextPicker(_ label: Text, selection: String, set: @escaping (String) -> Void) -> some View {
+        HStack {
+            label
+            Spacer(minLength: 8)
+            Picker("Presets", selection: Binding(get: { selection }, set: set)) {
+                Text("None").tag("")
+                ForEach(WidgetPresets.builtIns + store.userWidgetPresets) { Text($0.localizedTitle).tag($0.id) }
+            }
+            .labelsHidden()
+            .fixedSize()
         }
     }
 

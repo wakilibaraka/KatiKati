@@ -208,6 +208,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         Self.shared = self
         WallpaperEngine.shared.configure(settings: settingsStore, weather: weatherService)
+        ContextPresetController.shared.configure(settings: settingsStore)
         WeatherPanelHost.service = weatherService
         // 行缓冲 stdout：从命令行/后台启动时，print() 输出到文件默认是块缓冲，
         // 日志要攒满缓冲区才落盘。改成行缓冲后每条 print 立即写出，便于实时读日志。

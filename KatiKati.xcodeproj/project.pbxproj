@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA10A10000000000000000E2 /* ContextPresetController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A10000000000000000E1 /* ContextPresetController.swift */; };
+		FA10A10000000000000000D2 /* SmartStackSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A10000000000000000D1 /* SmartStackSlot.swift */; };
+		FA10A10000000000000000C2 /* StackAndContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A10000000000000000C1 /* StackAndContextTests.swift */; };
+		FA10A10000000000000000B5 /* ContextPresetRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A10000000000000000B4 /* ContextPresetRules.swift */; };
+		FA10A10000000000000000B6 /* ContextPresetRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A10000000000000000B4 /* ContextPresetRules.swift */; };
+		FA10A10000000000000000B2 /* StackRelevance.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A10000000000000000B1 /* StackRelevance.swift */; };
+		FA10A10000000000000000B3 /* StackRelevance.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A10000000000000000B1 /* StackRelevance.swift */; };
 		FA10A1000000000000000082 /* SkyPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000081 /* SkyPalette.swift */; };
 		FA10A1000000000000000083 /* SkyPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000081 /* SkyPalette.swift */; };
 		FA10A1000000000000000092 /* SkyPaletteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000091 /* SkyPaletteTests.swift */; };
@@ -841,6 +848,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FA10A10000000000000000E1 /* ContextPresetController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ContextPresetController.swift; path = App/Composition/ContextPresetController.swift; sourceTree = SOURCE_ROOT; };
+		FA10A10000000000000000D1 /* SmartStackSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SmartStackSlot.swift; path = App/Scenes/SmartStackSlot.swift; sourceTree = SOURCE_ROOT; };
+		FA10A10000000000000000C1 /* StackAndContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackAndContextTests.swift; sourceTree = "<group>"; };
+		FA10A10000000000000000B4 /* ContextPresetRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextPresetRules.swift; sourceTree = "<group>"; };
+		FA10A10000000000000000B1 /* StackRelevance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackRelevance.swift; sourceTree = "<group>"; };
 		FA10A1000000000000000081 /* SkyPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkyPalette.swift; sourceTree = "<group>"; };
 		FA10A1000000000000000091 /* SkyPaletteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkyPaletteTests.swift; sourceTree = "<group>"; };
 		FA10A10000000000000000A1 /* WallpaperEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WallpaperEngine.swift; path = App/Composition/WallpaperEngine.swift; sourceTree = SOURCE_ROOT; };
@@ -1850,6 +1862,7 @@
 				FA10A1000000000000000041 /* LiveIdleActionTests.swift */,
 				FA10A1000000000000000031 /* WidgetPresetTests.swift */,
 				FA10A1000000000000000091 /* SkyPaletteTests.swift */,
+				FA10A10000000000000000C1 /* StackAndContextTests.swift */,
 				FA10A1000000000000000071 /* SolarPhaseTests.swift */,
 				BB0000000000000000000009 /* IslandLayoutSolverTests.swift */,
 				BB0000000000000000000024 /* IslandSlotSetTests.swift */,
@@ -2016,6 +2029,8 @@
 				FA10A1000000000000000001 /* WidgetLayoutModel.swift */,
 				FA10A1000000000000000021 /* WidgetPreset.swift */,
 				FA10A1000000000000000081 /* SkyPalette.swift */,
+				FA10A10000000000000000B4 /* ContextPresetRules.swift */,
+				FA10A10000000000000000B1 /* StackRelevance.swift */,
 				FA10A1000000000000000061 /* WallpaperSelector.swift */,
 				FA10A1000000000000000051 /* SolarPhase.swift */,
 				BB0000000000000000000005 /* IslandLayoutSolver.swift */,
@@ -2354,6 +2369,8 @@
 				FA10A1000000000000000002 /* WidgetLayoutModel.swift in Sources */,
 				FA10A1000000000000000022 /* WidgetPreset.swift in Sources */,
 				FA10A1000000000000000082 /* SkyPalette.swift in Sources */,
+				FA10A10000000000000000B5 /* ContextPresetRules.swift in Sources */,
+				FA10A10000000000000000B2 /* StackRelevance.swift in Sources */,
 				FA10A1000000000000000062 /* WallpaperSelector.swift in Sources */,
 				FA10A1000000000000000052 /* SolarPhase.swift in Sources */,
 				BB0000000000000000000006 /* IslandLayoutSolver.swift in Sources */,
@@ -2530,6 +2547,8 @@
 				7B50000000000000000000C2 /* LiveActivityPolicy.swift in Sources */,
 				7B50000000000000000000D2 /* LiveActivityFeed.swift in Sources */,
 				FA10A10000000000000000A2 /* WallpaperEngine.swift in Sources */,
+				FA10A10000000000000000D2 /* SmartStackSlot.swift in Sources */,
+				FA10A10000000000000000E2 /* ContextPresetController.swift in Sources */,
 				7B50000000000000000000E2 /* LiveActivitySources.swift in Sources */,
 				7B50000000000000000000F2 /* LiveEventDetector.swift in Sources */,
 				7B5000000000000000000101 /* LiveSurfaceRouting.swift in Sources */,
@@ -2828,6 +2847,7 @@
 				FA10A1000000000000000042 /* LiveIdleActionTests.swift in Sources */,
 				FA10A1000000000000000032 /* WidgetPresetTests.swift in Sources */,
 				FA10A1000000000000000092 /* SkyPaletteTests.swift in Sources */,
+				FA10A10000000000000000C2 /* StackAndContextTests.swift in Sources */,
 				FA10A1000000000000000072 /* SolarPhaseTests.swift in Sources */,
 				BB0000000000000000000010 /* IslandLayoutSolverTests.swift in Sources */,
 				BB0000000000000000000025 /* IslandSlotSetTests.swift in Sources */,
@@ -2884,6 +2904,8 @@
 				FA10A1000000000000000003 /* WidgetLayoutModel.swift in Sources */,
 				FA10A1000000000000000023 /* WidgetPreset.swift in Sources */,
 				FA10A1000000000000000083 /* SkyPalette.swift in Sources */,
+				FA10A10000000000000000B6 /* ContextPresetRules.swift in Sources */,
+				FA10A10000000000000000B3 /* StackRelevance.swift in Sources */,
 				FA10A1000000000000000063 /* WallpaperSelector.swift in Sources */,
 				FA10A1000000000000000053 /* SolarPhase.swift in Sources */,
 				BB0000000000000000000013 /* IslandLayoutSolver.swift in Sources */,

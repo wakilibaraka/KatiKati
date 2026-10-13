@@ -67,6 +67,8 @@ struct WidgetInstance: Codable, Equatable, Sendable {
     var size: WidgetSize = .medium
     var isVisible: Bool = true
     var exactWidth: CGFloat?
+    /// 10a-6: when set, this slot is a Smart Stack holding these widgets and shows the most relevant one.
+    var stack: [BarSection]?
 }
 
 /// The persisted widget arrangement: order + per-widget size/visibility.

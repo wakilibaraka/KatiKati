@@ -1329,31 +1329,10 @@ struct DockStripView: View {
             let widgetSize = settingsStore.widgetLayout.instance(for: section).size
 
             HStack(spacing: 6 * dockScale) {
-                switch section {
-                case .weather:
-                    WeatherChip()
-                        .environment(\.widgetSize, widgetSize)
-                        .scaleEffect(dockScale)
-                case .media:
-                    NowPlayingChip()
-                        .environment(\.widgetSize, widgetSize)
-                        .scaleEffect(dockScale)
-                case .clock:
-                    ClockChip()
-                        .environment(\.widgetSize, widgetSize)
-                        .scaleEffect(dockScale)
-                case .launcher:
-                    LauncherIconView(style: settingsStore.launcherIcon, size: 26 * dockScale)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .contentShape(Rectangle())
-                        .onTapGesture { runtime.onToggleLauncher?() }
-                case .widgets:
-                    PinboardFABGlyph(size: 28 * dockScale)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .contentShape(Rectangle())
-                        .onTapGesture { runtime.onTogglePinboard?() }
-                case .apps:
-                    EmptyView()
+                if section.supportsWidgetSizes, let members = settingsStore.widgetLayout.instance(for: section).stack, members.count > 1 {
+                    SmartStackSlot(host: section, members: members) { widgetChip($0, size: widgetSize) }
+                } else {
+                    widgetChip(section, size: widgetSize)
                 }
             }
             .padding(.horizontal, 10 * dockScale)
@@ -1588,5 +1567,40 @@ extension DockStripView {
     static func isDownloadsFolder(_ path: String) -> Bool {
         guard let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first else { return false }
         return PinnedFolderStore.normalized(path) == PinnedFolderStore.normalized(downloads.path)
+    }
+}
+
+
+// MARK: - Section widget content (shared by plain slots and Smart Stack slots)
+
+extension DockStripView {
+    @ViewBuilder
+    func widgetChip(_ section: BarSection, size widgetSize: WidgetSize) -> some View {
+        switch section {
+        case .weather:
+            WeatherChip()
+                .environment(\.widgetSize, widgetSize)
+                .scaleEffect(dockScale)
+        case .media:
+            NowPlayingChip()
+                .environment(\.widgetSize, widgetSize)
+                .scaleEffect(dockScale)
+        case .clock:
+            ClockChip()
+                .environment(\.widgetSize, widgetSize)
+                .scaleEffect(dockScale)
+        case .launcher:
+            LauncherIconView(style: settingsStore.launcherIcon, size: 26 * dockScale)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle())
+                .onTapGesture { runtime.onToggleLauncher?() }
+        case .widgets:
+            PinboardFABGlyph(size: 28 * dockScale)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle())
+                .onTapGesture { runtime.onTogglePinboard?() }
+        case .apps:
+            EmptyView()
+        }
     }
 }

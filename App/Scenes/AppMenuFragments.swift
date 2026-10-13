@@ -340,6 +340,22 @@ enum WidgetMenuBuilder {
             menu.addItem(sizeItem)
         }
 
+        if section.supportsWidgetSizes {
+            let stacked = layout.instance(for: section).stack != nil
+            let stackItem = ClosureMenuItem(String(localized: "Smart Stack")) {
+                store.setWidgetLayout(store.widgetLayout.updating(section) {
+                    $0.stack = stacked ? nil : StackRelevance.defaultMembers
+                })
+            }
+            stackItem.state = stacked ? .on : .off
+            menu.addItem(stackItem)
+            if stacked, let members = layout.instance(for: section).stack {
+                menu.addItem(ClosureMenuItem(String(localized: "Show Next in Stack")) {
+                    SmartStackState.shared.showNext(host: section, members: members)
+                })
+            }
+        }
+
         if let index = layout.order.firstIndex(of: section) {
             if index > 0 {
                 menu.addItem(ClosureMenuItem(String(localized: "Move Left")) {
