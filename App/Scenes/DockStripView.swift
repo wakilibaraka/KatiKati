@@ -322,7 +322,7 @@ struct DockStripView: View {
         // `.coordinateSpace(name: "strip")` 之前**：坐标空间视图的宽度因此在整段悬停里恒定，
         // `chipFrames` 与 `onDrop` 的落点仍然同源，挂载层一个字没动。
         // `nil` 时不套任何 frame——平时完全按自然宽度走，非拖放路径零影响。
-        .frame(width: frozenStripWidth)
+        .frame(width: isRail ? nil : frozenStripWidth, height: isRail ? frozenStripWidth : nil)
         // 跨面板后，被拖的卡片改由 DragController 的全屏载体面板绘制（不再画在任务条 overlay 上 —
         // 任务条窗口只有 92pt 高，自绘 overlay 会被裁掉，飘不出去）。这里只保留"让出空位"的原位隐藏。
         .coordinateSpace(name: "strip")
@@ -347,16 +347,17 @@ struct DockStripView: View {
                     insertIndex: ghost.insertIndex,
                     width: (ChipPillMetrics.cardWidth + Style.chipSpacing) * dockScale)
             },
+            transposesAxis: isRail,
             onHoverBegan: { externalDropHoverBegan($0) },
             onHoverMoved: { externalDropHoverMoved($0) },
             onHoverEnded: { isLanding in externalDropHoverEnded(isLanding: isLanding) },
             onCommit: { target, urls in handleExternalDrop(target, urls: urls) },
             onCommitApplications: { urls, location in
-                handleExternalApplicationDrop(urls, atX: location.x)
+                handleExternalApplicationDrop(urls, atX: mainAxis(location))
             },
             onGhostMoved: { target, bundleID, pinsFolder, location in
                 updateExternalDropGhost(target: target, bundleID: bundleID,
-                                        pinsFolder: pinsFolder, atX: location.x)
+                                        pinsFolder: pinsFolder, atX: mainAxis(location))
             },
             currentGhostIndex: { externalDropGhost?.insertIndex },
             currentFrozenWidth: { frozenStripWidth },
@@ -551,7 +552,7 @@ struct DockStripView: View {
         }) else { return }
         let targetPath = String(hit.key.dropFirst("folder-".count))
         pinnedFolderStore.reorder(draggedPath: path, relativeTo: targetPath,
-                                  after: point.x > hit.value.midX)
+                                  after: mainAxis(point) > mainMid(hit.value))
     }
 
     /// 固定文件夹区左边界（"strip" 局部坐标）：最靠左那个文件夹 chip 的左缘。
@@ -563,10 +564,10 @@ struct DockStripView: View {
     /// 调用方遇到 nil 直接不装 geometry。
     private var folderZoneMinX: CGFloat? {
         FolderChipDropZone.zoneMinX(
-            folderMinX: folderChipFrames.values.map(\.minX).min(),
+            folderMinX: folderChipFrames.values.map { axisRect($0).minX }.min(),
             draggedSlotCollapsed: ownsActiveDrag && dragController.stripSlotCollapsed,
-            trashMinX: settingsStore.showTrash && trashFrame != .zero ? trashFrame.minX : nil,
-            stripWidth: stripRootScreenRect.width)
+            trashMinX: settingsStore.showTrash && trashFrame != .zero ? axisRect(trashFrame).minX : nil,
+            stripWidth: axisRect(stripRootScreenRect).width)
     }
 
     /// 文件夹 chip 拖动中的实时落点分类,写进 DragController 供载体视图（跨 SwiftUI 树）读取做淡出。
@@ -632,7 +633,7 @@ struct DockStripView: View {
             kv.key != id && kv.value.contains(point)
         }) else { return }
         stripOrderStore.reorder(draggedID: id, relativeTo: hit.key,
-                                after: point.x > hit.value.midX, current: current)
+                                after: mainAxis(point) > mainMid(hit.value), current: current)
     }
 
     /// live 区（窗口卡 / 保留占位）重排的**唯一**驱动：指针位置，不是 chip 自己的手势
@@ -854,9 +855,10 @@ struct DockStripView: View {
     /// 抽屉整块落点：**只看 x、永远给得出答案**。判据与理由（以及为什么不能用整帧 `contains`）
     /// 见纯类型 `StripBlockLanding`——简单说，转正判定框故意伸到条上沿之外 16pt，
     /// 而整帧命中在那里永远失败，首次落点因此 100% 退化成末尾。
+    /// `x` is the main-axis coordinate (`mainAxis`): y on a rail, where frames are transposed to match.
     func blockTarget(atX x: CGFloat, excluding block: Set<String>) -> (id: String, after: Bool)? {
         StripBlockLanding.target(pointerX: x,
-                                 frames: chipFrames.filter { !block.contains($0.key) })
+                                 frames: chipFrames.filter { !block.contains($0.key) }.mapValues(axisRect))
     }
 
     /// 条上起拖的载荷（窗口卡 / 占位 / 消息 chip / 文件夹 chip）进出本条判定框 → 告诉控制器：
@@ -875,7 +877,7 @@ struct DockStripView: View {
            DisplayIdentity.uuidString(for: screen) == displayUUID {
             dc.claimStripSurface(stripSurfaceID, displayUUID: displayUUID)
         }
-        let box = StripPointerBox.classify(pointer: dc.globalLocation, stripRect: stripRootScreenRect,
+        let box = StripPointerBox.classify(pointer: stripSpace(dc.globalLocation), stripRect: stripSpace(stripRootScreenRect),
                                            rightReach: metrics.capsuleGap + metrics.capsuleWidth,
                                            profile: .stripPresence)
         if box.enter {
@@ -897,7 +899,7 @@ struct DockStripView: View {
         let r = stripRootScreenRect
         // 右侧容差伸到胶囊外缘的理由见 `StripPointerBox`（对抽屉来源的载荷胶囊没有别的语义，
         // 它的投放区只有任务条面板，并进来不会和收纳打架）。
-        let box = StripPointerBox.classify(pointer: g, stripRect: r,
+        let box = StripPointerBox.classify(pointer: stripSpace(g), stripRect: stripSpace(r),
                                            rightReach: metrics.capsuleGap + metrics.capsuleWidth,
                                            profile: .drawerConversion)
         let enter = box.enter, clearlyOut = box.clearlyOut
@@ -912,7 +914,7 @@ struct DockStripView: View {
             // reject 留在抽屉；releaseToMessaging 由 updateDrawerToMessagingRelease 按消息区范围处理。
             guard mode == .unstash || mode == .keepPlacement else { return }
             // 此刻本组窗口卡还没出现在 live 区，命中目标只在**已有**卡里找（exclude 空集即可）。
-            let target = stripPoint(from: g).flatMap { blockTarget(atX: $0.x, excluding: []) }
+            let target = stripPoint(from: g).flatMap { blockTarget(atX: mainAxis($0), excluding: []) }
             dc.claimStripSurface(stripSurfaceID)   // 转正的这条从此独占写回，直到落地 / 撤销转正
             dc.convertDrawerToStrip()
             stripOrderStore.stageExternalBlock(bundleID: bid, relativeTo: target?.id, after: target?.after ?? false)
@@ -954,7 +956,7 @@ struct DockStripView: View {
               let pt = stripPoint(from: dc.globalLocation) else { return }
         for bid in messagingIDs where bid != p.bundleID {
             guard let f = messagingChipFrames[bid], f.insetBy(dx: -6, dy: -6).contains(pt) else { continue }
-            messagingStore.reorder(draggedID: p.bundleID, relativeTo: bid, after: pt.x > f.midX)
+            messagingStore.reorder(draggedID: p.bundleID, relativeTo: bid, after: mainAxis(pt) > mainMid(f))
             return
         }
     }
@@ -1053,7 +1055,7 @@ struct DockStripView: View {
             HoverTrace.stripBlockReorder(target: nil, after: false, why: "noStripRect")
             return
         }
-        guard let target = blockTarget(atX: pt.x, excluding: Set(blockIDs)) else {
+        guard let target = blockTarget(atX: mainAxis(pt), excluding: Set(blockIDs)) else {
             HoverTrace.stripBlockReorder(target: nil, after: false, why: "liveZoneEmpty")
             return
         }
@@ -1656,6 +1658,30 @@ extension DockStripView {
     /// Phase 18: the edge this strip sits on (its display's override, else the global choice).
     var stripPlacement: StripPlacement { settingsStore.stripPlacement(forDisplay: displayUUID) }
     var isRail: Bool { stripPlacement.isVertical }
+
+    // Axis helpers (Phase 18c-2). Strip space is top-left/y-down, so on a rail the main axis is y
+    // and runs in rail order; transposing points and frames at the boundary lets every x-based
+    // rule (reorder halves, block landing, drop routing, hover) work unchanged on a rail.
+    func mainAxis(_ point: CGPoint) -> CGFloat { isRail ? point.y : point.x }
+    func mainMid(_ rect: CGRect) -> CGFloat { isRail ? rect.midY : rect.midX }
+    func axisPoint(_ point: CGPoint) -> CGPoint { isRail ? CGPoint(x: point.y, y: point.x) : point }
+    /// Screen point/rect → bottom-strip space (`StripAxis.unmap`); identity on the bottom bar.
+    func stripSpace(_ point: CGPoint) -> CGPoint {
+        guard isRail else { return point }
+        return StripAxis.unmap(point, placement: stripPlacement, screen: stripScreenFrame)
+    }
+    func stripSpace(_ rect: CGRect) -> CGRect {
+        guard isRail else { return rect }
+        return StripAxis.unmap(rect, placement: stripPlacement, screen: stripScreenFrame)
+    }
+    private var stripScreenFrame: CGRect {
+        let rect = frames.stripRootScreenRect
+        return (NSScreen.screens.first { $0.frame.intersects(rect) } ?? NSScreen.main)?.frame ?? .zero
+    }
+
+    func axisRect(_ rect: CGRect) -> CGRect {
+        isRail ? CGRect(x: rect.minY, y: rect.minX, width: rect.height, height: rect.width) : rect
+    }
 
     /// Length of the strip's main axis on its screen: the width for the bottom bar, the height below
     /// the menu bar for a rail (`StripAxis.mainLength`).

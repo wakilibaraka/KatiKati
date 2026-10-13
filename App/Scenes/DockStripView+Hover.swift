@@ -35,8 +35,8 @@ extension DockStripView {
             guard let pointer = pointerBox.value, origin != .zero else { return nil }
             let point = CGPoint(x: pointer.x - origin.minX, y: origin.maxY - pointer.y)
             let hit = StripHoverResolution.chip(
-                at: point,
-                frames: frames,
+                at: axisPoint(point),
+                frames: isRail ? frames.mapValues(axisRect) : frames,
                 gapBridge: StripHoverResolution.defaultGapBridge * dockScale
             )
             // 正在飞回去的 / 刚落定还没等到指针移动的那**一张**不给悬停，别的卡照常
@@ -139,16 +139,20 @@ extension DockStripView {
     /// PreferenceKey，从来不合并进 `chipFrames`）。
     func taskbarMenuZoneClaims(atScreen global: CGPoint) -> Bool {
         guard let point = stripPoint(from: global) else { return false }
+        // Gap scanning is along x; a rail transposes into the same shape (Phase 18c-2).
         return StripContextMenuZone.claims(
-            point: point,
-            chipFrames: allStripChipFrames(),
-            bounds: CGRect(origin: .zero, size: stripRootScreenRect.size),
+            point: axisPoint(point),
+            chipFrames: allStripChipFrames().map(axisRect),
+            bounds: axisRect(CGRect(origin: .zero, size: stripRootScreenRect.size)),
             minimumGapWidth: StripContextMenuZone.defaultMinimumGapWidth * dockScale
         )
     }
 
     /// Drag-to-resize grip (and its ▲▼ glyph): the right-click zones kept clear of the chips.
     func resizeGripZoneClaims(atScreen global: CGPoint) -> Bool {
+        // The grip drags the bar's height with the pointer's y; a rail's thickness is its width,
+        // so the grip stays off there and rail thickness comes from Settings (Phase 18c-2).
+        guard !isRail else { return false }
         guard let point = stripPoint(from: global) else { return false }
         return StripContextMenuZone.gripClaims(
             point: point,

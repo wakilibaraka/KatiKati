@@ -23,6 +23,9 @@ struct StripFileDropDelegate: DropDelegate {
     /// The make-way gap open among the pinned folders right now (nil = none). No default: an
     /// omission compiles into a gap that closes under a pointer resting in it at the zone's ends.
     let openFolderGap: StripDropRouting.OpenFolderGap?
+    /// Phase 18c-2: on a side rail the strip's main axis is y; routing is x-based, so the location
+    /// and every frame are transposed (x ↔ y) before routing. `false` on the bottom bar.
+    var transposesAxis: Bool = false
     /// dropEntered = 悬停会话开始;dropUpdated = 会话进行中移动;performDrop/dropExited = 会话结束。
     /// 视图侧据此做「高亮只能由 dropEntered 点亮 + 拖放结束看门狗」（见 externalDropHover*）。
     let onHoverBegan: (StripDropRouting.Target) -> Void
@@ -57,17 +60,25 @@ struct StripFileDropDelegate: DropDelegate {
     }
 
     private func route(_ info: DropInfo, isApplicationDrag: Bool) -> StripDropRouting.Target {
-        StripDropRouting.route(location: info.location,
+        StripDropRouting.route(location: axis(info.location),
                                isApplicationDrag: isApplicationDrag,
                                isTrashItemDrag: DragPasteboardInspector.containsOnlyTrashItems(),
-                               shelfFrame: shelfFrame(),
-                               trashFrame: trashFrame(),
-                               folderFrames: folderFrames(),
+                               shelfFrame: shelfFrame().map(axis),
+                               trashFrame: trashFrame().map(axis),
+                               folderFrames: folderFrames().mapValues(axis),
                                orderedPaths: orderedPaths,
                                headSlack: headSlack,
                                pinEdgeFraction: DragPasteboardInspector.pinsFolders()
                                    ? StripDropRouting.folderPinEdgeFraction : 0,
                                openGap: openFolderGap)
+    }
+
+    private func axis(_ point: CGPoint) -> CGPoint {
+        transposesAxis ? CGPoint(x: point.y, y: point.x) : point
+    }
+
+    private func axis(_ rect: CGRect) -> CGRect {
+        transposesAxis ? CGRect(x: rect.minY, y: rect.minX, width: rect.height, height: rect.width) : rect
     }
 
     private func reportGhost(_ target: StripDropRouting.Target, _ info: DropInfo) {

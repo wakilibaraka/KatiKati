@@ -80,6 +80,24 @@ enum StripAxis {
         }
     }
 
+    /// Inverse of `map` (with no top inset — offsets cancel in relative tests): a screen point in
+    /// bottom-strip space, so screen-space rules written for the bottom bar (`StripPointerBox`)
+    /// classify a rail the same way. Main axis = distance down from the top, cross = from the edge.
+    static func unmap(_ point: CGPoint, placement: StripPlacement, screen: CGRect) -> CGPoint {
+        switch placement {
+        case .bottom: return point
+        case .left: return CGPoint(x: screen.maxY - point.y, y: point.x - screen.minX)
+        case .right: return CGPoint(x: screen.maxY - point.y, y: screen.maxX - point.x)
+        }
+    }
+
+    static func unmap(_ rect: CGRect, placement: StripPlacement, screen: CGRect) -> CGRect {
+        guard placement.isVertical else { return rect }
+        let a = unmap(CGPoint(x: rect.minX, y: rect.minY), placement: placement, screen: screen)
+        let b = unmap(CGPoint(x: rect.maxX, y: rect.maxY), placement: placement, screen: screen)
+        return CGRect(x: min(a.x, b.x), y: min(a.y, b.y), width: abs(a.x - b.x), height: abs(a.y - b.y))
+    }
+
     /// The edge-distance a frame keeps clear on the strip's side of the screen — what windows must
     /// stay out of (window clearance, Phase 18e): bottom → height above `screen.minY`, left → width
     /// from `screen.minX`, right → width from `screen.maxX`.

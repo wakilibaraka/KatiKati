@@ -2612,6 +2612,14 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   capsule ownership use the folded mode; orchestrator slot count per display (`IslandSlotSet.desiredSlots`
   `modeForDisplay`) and a rebuild on `stripPlacementMap` change. Still bottom-only: hover/drop/reorder
   maths (18c-2), popups (18d), window clearance (18e), hot zone/auto-hide (18f). Suite green.
+- 2026-10-13 · **18c-2 built (interaction maths on a rail).** Rule: transpose at the boundary, keep the x-based
+  pure rules. Strip space is top-left/y-down, so on a rail the main axis is y in rail order; helpers
+  `mainAxis`/`mainMid`/`axisPoint`/`axisRect` feed reorder halves (live, folders, messaging), block
+  landing (drawer conversion, external app drops), folder-zone bounds, ghost ordering, hover resolution
+  and the right-click gap zone; `StripAxis.unmap` (inverse of `map`, tested) feeds `StripPointerBox` in
+  screen space; `StripFileDropDelegate.transposesAxis` transposes location + frames before routing;
+  external-drop width freeze freezes the rail's height. The drag-to-resize grip is off on a rail
+  (thickness from Settings). Suite 2209 green.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

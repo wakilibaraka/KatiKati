@@ -74,4 +74,14 @@ final class StripPlacementTests: XCTestCase {
             XCTAssertLessThanOrEqual(tile, 54 * 1.2, "\(section) stays a compact tile on a rail")
         }
     }
+
+    func testUnmapInvertsMapForPointsOnARail() {
+        let solved = CGRect(x: 40, y: 8, width: 300, height: 54)
+        for placement in [StripPlacement.left, .right] {
+            let mapped = StripAxis.map(solved, placement: placement, screen: screen, topInset: 0)
+            XCTAssertEqual(StripAxis.unmap(mapped, placement: placement, screen: screen), solved, "\(placement)")
+        }
+        XCTAssertEqual(StripAxis.unmap(CGPoint(x: 5, y: 7), placement: .bottom, screen: screen), CGPoint(x: 5, y: 7))
+    }
 }
+
