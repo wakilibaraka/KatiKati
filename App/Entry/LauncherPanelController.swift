@@ -44,6 +44,9 @@ final class LauncherPanelController {
             frame: screen.frame, visible: screen.visibleFrame, safeTop: Double(screen.safeAreaInsets.top),
             extraBottom: bottomBarReserve())
         model.query = ""
+        model.editing = false
+        model.focusedID = nil
+        model.openFolderID = nil
         model.prefs = LauncherPrefs.load()
         model.keptIDs = keptApps()
         model.runningIDs = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
@@ -99,6 +102,7 @@ final class LauncherPanelController {
     }
 
     func dismiss() {
+        if panel?.isVisible == true { persist() }
         removeScrollMonitor()
         panel?.orderOut(nil)
         indexer.stop()
@@ -139,13 +143,43 @@ final class LauncherPanelController {
 
     /// Drag-reorder in All Apps: the order on screen becomes the stored order, then the app moves in front of `target`.
     private func move(_ bundleID: String, before target: LauncherApp?) {
-        let visible = indexer.apps.filter { !model.state.hidden.contains($0.bundleID) }
-        let shown = LauncherOrdering.ordered(visible, by: model.state.order).map(\.bundleID)
+        let shown = shownIDs()
         model.state.order = LauncherOrdering.move(shown, moving: bundleID, before: target?.bundleID ?? shown.first)
         try? store.save(model.state)
     }
 
     private func persist() { try? store.save(model.state) }
+
+    /// What All Apps shows right now (loose apps + folder cells), in the user's order — the base for drag/folder edits.
+    private func shownIDs() -> [String] {
+        let visible = indexer.apps.filter { !model.state.hidden.contains($0.bundleID) }
+        let cells = LauncherFolders.loose(visible, folders: model.state.folders) + model.state.folders.map(LauncherFolders.cell)
+        return LauncherOrdering.ordered(cells.sorted(by: LauncherAppIndex.nameOrder), by: model.state.order).map(\.bundleID)
+    }
+
+    /// Edit mode: dropping an app on another app makes a folder where the target was; dropping it on a folder adds it.
+    private func dropOnto(_ dragged: String, target: LauncherApp) {
+        guard dragged != target.bundleID, !LauncherFolders.isFolderID(dragged) else { return }
+        if LauncherFolders.isFolderID(target.bundleID) {
+            model.state.folders = LauncherFolders.add(model.state.folders, appID: dragged, to: target.bundleID)
+        } else {
+            makeFolder(with: [target.bundleID, dragged], replacing: target.bundleID)
+        }
+        persist()
+    }
+
+    private func newFolder(_ app: LauncherApp) {
+        makeFolder(with: [app.bundleID], replacing: app.bundleID)
+        persist()
+    }
+
+    private func makeFolder(with appIDs: [String], replacing target: String) {
+        let seeded = shownIDs()
+        let id = LauncherFolders.newID()
+        model.state.folders = LauncherFolders.create(model.state.folders, id: id, name: String(localized: "Folder"), appIDs: appIDs)
+        model.state.order = LauncherFolders.order(seeded, replacing: target, with: id)
+        model.openFolderID = nil
+    }
 
     private func quickAction(_ action: LauncherQuickAction) {
         dismiss()
@@ -174,7 +208,9 @@ final class LauncherPanelController {
             move: { [weak self] id, target in self?.move(id, before: target) },
             close: { [weak self] in self?.dismiss() },
             persist: { [weak self] in self?.persist() },
-            quickAction: { [weak self] in self?.quickAction($0) })))
+            quickAction: { [weak self] in self?.quickAction($0) },
+            dropOnto: { [weak self] id, target in self?.dropOnto(id, target: target) },
+            newFolder: { [weak self] in self?.newFolder($0) })))
         prefsObserver = model.$prefs.sink { [weak self] in self?.backdrop?.setBlurStrength($0.blur) }
         host.translatesAutoresizingMaskIntoConstraints = false
         blur.addSubview(host)

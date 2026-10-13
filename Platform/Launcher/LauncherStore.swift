@@ -9,12 +9,16 @@ struct LauncherState: Equatable, Codable {
     var hidden: [String] = []
     /// The user's own All Apps order (see `LauncherOrdering`); empty = alphabetical.
     var order: [String] = []
+    /// Phase 13i: user folders in All Apps.
+    var folders: [LauncherFolder] = []
 
-    init(usage: [String: LauncherUsage] = [:], pinned: [String] = [], hidden: [String] = [], order: [String] = []) {
+    init(usage: [String: LauncherUsage] = [:], pinned: [String] = [], hidden: [String] = [], order: [String] = [],
+         folders: [LauncherFolder] = []) {
         self.usage = usage
         self.pinned = pinned
         self.hidden = hidden
         self.order = order
+        self.folders = folders
     }
 
     init(from decoder: Decoder) throws {
@@ -23,6 +27,7 @@ struct LauncherState: Equatable, Codable {
         pinned = try c.decodeIfPresent([String].self, forKey: .pinned) ?? []
         hidden = try c.decodeIfPresent([String].self, forKey: .hidden) ?? []
         order = try c.decodeIfPresent([String].self, forKey: .order) ?? []
+        folders = try c.decodeIfPresent([LauncherFolder].self, forKey: .folders) ?? []
     }
 }
 

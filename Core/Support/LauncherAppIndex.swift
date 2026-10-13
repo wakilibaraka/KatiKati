@@ -217,11 +217,14 @@ enum LauncherAppIndex {
         keptIDs: [String] = [],
         separatePinned: Bool = false,
         sort: LauncherSortMode = .custom,
-        groupByCategory: Bool = false
+        groupByCategory: Bool = false,
+        folders: [LauncherFolder] = []
     ) -> LauncherPage {
-        let apps = apps.filter { !hidden.contains($0.bundleID) }
+        let visible = apps.filter { !hidden.contains($0.bundleID) }
+        // Apps inside a folder leave the grid (they stay pinnable); a folder is one cell in All Apps.
+        let apps = LauncherFolders.loose(visible, folders: folders)
         let row = max(1, columns)
-        let byID = Dictionary(apps.map { ($0.bundleID, $0) }, uniquingKeysWith: { a, _ in a })
+        let byID = Dictionary(visible.map { ($0.bundleID, $0) }, uniquingKeysWith: { a, _ in a })
         var seen = Set<String>()
         var pinnedBlock: [LauncherApp] = []
         if separatePinned {
@@ -251,7 +254,8 @@ enum LauncherAppIndex {
             .filter { !seen.contains($0.bundleID) && $0.installedAt >= cutoff && $0.installedAt <= now }
             .sorted { $0.installedAt != $1.installedAt ? $0.installedAt > $1.installedAt : nameOrder($0, $1) }
             .prefix(row)
-        let sorted = LauncherSort.apply(sort, to: apps, usage: usage, order: order)
+        let folderCells = folders.filter { !LauncherFolders.members(of: $0, in: visible).isEmpty }.map(LauncherFolders.cell)
+        let sorted = LauncherSort.apply(sort, to: apps + folderCells, usage: usage, order: order)
         return LauncherPage(mostUsed: top, recentlyInstalled: Array(recent), all: sorted, pinned: pinnedBlock,
                             groups: groupByCategory ? LauncherSort.groups(sorted) : [])
     }

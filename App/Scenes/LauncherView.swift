@@ -30,6 +30,10 @@ struct LauncherActions {
     let persist: () -> Void
     /// Return with no matching app: open the URL or search the web.
     let quickAction: (LauncherQuickAction) -> Void
+    /// Edit mode: `dragged` dropped on `target` makes a folder (or joins the target folder).
+    let dropOnto: (_ dragged: String, _ target: LauncherApp) -> Void
+    /// Menu: start a folder holding just this app.
+    let newFolder: (LauncherApp) -> Void
 }
 
 /// The launcher surface: a search field and one app grid, 8 icons across — a Most Used row (pins and usage, then
@@ -61,23 +65,46 @@ struct LauncherView: View {
                 .padding(.bottom, inset.bottom + model.screenInsets.bottom)
                 .padding(.leading, inset.leading + model.screenInsets.leading)
                 .padding(.trailing, inset.trailing + model.screenInsets.trailing)
+            if let folder = openFolder { folderOverlay(folder) }
             toolbar
             searchField
                 .padding(.top, model.screenInsets.top).padding(.bottom, model.screenInsets.bottom)
                 .padding(.leading, model.screenInsets.leading).padding(.trailing, model.screenInsets.trailing)
         }
+        .background(pageShortcuts)
         .accessibilityLabel(Text("Launcher"))
+    }
+
+    /// ⌘1–⌘9 jump to a page (invisible buttons; only the key equivalents matter).
+    private var pageShortcuts: some View {
+        ZStack {
+            ForEach(1...9, id: \.self) { n in
+                Button { if model.query.isEmpty { model.pageJumps.send(n - 1) } } label: { Text(verbatim: "") }
+                    .keyboardShortcut(KeyEquivalent(Character("\(n)")), modifiers: .command)
+                    .opacity(0).frame(width: 0, height: 0)
+            }
+        }
+    }
+
+    private var openFolder: LauncherFolder? {
+        model.openFolderID.flatMap { id in model.state.folders.first { $0.id == id } }
     }
 
     private var searchField: some View {
         let p = model.searchPosition
         return LauncherSearchField(text: $model.query, focusNonce: model.focusNonce,
                                    onSubmit: {
-                                       if let first = matches.first { actions.launch(first) }
+                                       if let id = model.focusedID, let item = model.layoutItems[id] { activate(item) }
+                                       else if let first = matches.first { actions.launch(first) }
                                        else if let q = LauncherQuickAction.resolve(model.query) { actions.quickAction(q) }
                                    },
-                                   onCancel: actions.close,
-                                   onPage: { model.pageTurns.send($0) })
+                                   onCancel: {
+                                       if model.openFolderID != nil { model.openFolderID = nil }
+                                       else if model.editing { model.editing = false }
+                                       else { actions.close() }
+                                   },
+                                   onPage: { model.pageTurns.send($0) },
+                                   onArrow: { arrow(dx: $0, dy: $1) })
             .frame(width: p.fieldWidth, height: 28)
             .padding(p == .top ? .top : p == .bottom ? .bottom : p == .left ? .leading : .trailing, 28)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment(p))
@@ -85,6 +112,12 @@ struct LauncherView: View {
 
     private var toolbar: some View {
         HStack(spacing: 10) {
+            Button { model.editing.toggle(); model.openFolderID = nil } label: {
+                Group { if model.editing { Text("Done") } else { Text("Edit") } }
+                    .font(.system(size: 12, weight: .semibold)).padding(.horizontal, 12).frame(height: 30)
+                    .background(Capsule().fill(model.editing ? Color.accentColor.opacity(0.35) : Color.primary.opacity(0.12)))
+            }
+            .buttonStyle(.plain)
             Button { showGear.toggle() } label: {
                 Image(systemName: "gearshape.fill").font(.system(size: 14, weight: .semibold))
                     .frame(width: 30, height: 30).background(Circle().fill(Color.primary.opacity(0.12)))
@@ -138,10 +171,12 @@ struct LauncherView: View {
                                                  columns: m.columns, now: Date(),
                                                  hidden: Set(model.state.hidden), order: model.state.order,
                                                  keptIDs: model.keptIDs, separatePinned: true,
-                                                 sort: model.prefs.sort, groupByCategory: model.prefs.groupByCategory)
+                                                 sort: model.prefs.sort, groupByCategory: model.prefs.groupByCategory,
+                                                 folders: model.state.folders)
                 if model.scrollDirection == .horizontal {
                     pager(page, m, size: proxy.size)
                 } else {
+                    let _ = recordLayout(LauncherPaging.paginateRows(page, columns: m.columns, rowsPerPage: 10_000), columns: m.columns)
                     ScrollView {
                         VStack(alignment: .leading, spacing: 26) {
                             ForEach(LauncherPaging.paginateRows(page, columns: m.columns, rowsPerPage: 10_000)
@@ -169,6 +204,7 @@ struct LauncherView: View {
                 }
                 .frame(maxWidth: .infinity).padding(.top, 40)
             } else {
+                let _ = recordSearchLayout(matches, columns: m.columns)
                 ScrollView {
                     grid(matches, m, reorderable: false).padding(.horizontal, 56).padding(.bottom, 80)
                         .frame(maxWidth: 1612).frame(maxWidth: .infinity)
@@ -187,6 +223,7 @@ struct LauncherView: View {
         let blockHeight = Double(rows) * m.rowHeight + 3 * Self.slotHeight
         let count = max(1, pages.count)
         let index = min(model.pageIndex, count - 1)
+        recordLayout(pages, columns: m.columns)
         return ZStack(alignment: .bottom) {
             HStack(alignment: .top, spacing: 0) {
                 ForEach(Array(pages.enumerated()), id: \.offset) { _, sections in
@@ -219,6 +256,9 @@ struct LauncherView: View {
             })
         .onReceive(model.pageTurns) { delta in
             model.pageIndex = max(0, min(count - 1, min(model.pageIndex, count - 1) + delta))
+        }
+        .onReceive(model.pageJumps) { n in
+            model.pageIndex = max(0, min(count - 1, n))
         }
     }
 
@@ -270,12 +310,68 @@ struct LauncherView: View {
         }
     }
 
+    // MARK: Keyboard focus and layout cache
+
+    private func recordLayout(_ pages: [[LauncherPageSection]], columns: Int) {
+        model.layoutPages = pages.map { $0.map { $0.apps.map(\.bundleID) } }
+        model.layoutColumns = columns
+        var items: [String: LauncherApp] = [:]
+        for page in pages { for section in page { for app in section.apps { items[app.bundleID] = app } } }
+        model.layoutItems = items
+    }
+
+    private func recordSearchLayout(_ apps: [LauncherApp], columns: Int) {
+        model.layoutPages = [[apps.map(\.bundleID)]]
+        model.layoutColumns = columns
+        model.layoutItems = Dictionary(apps.map { ($0.bundleID, $0) }, uniquingKeysWith: { a, _ in a })
+    }
+
+    private func arrow(dx: Int, dy: Int) -> Bool {
+        if model.openFolderID != nil { return false }
+        guard let pos = LauncherFocus.move(pages: model.layoutPages, columns: model.layoutColumns, from: model.focusedID,
+                                           currentPage: model.pageIndex, dx: dx, dy: dy) else { return false }
+        model.focusedID = pos.id
+        if model.query.isEmpty, model.scrollDirection == .horizontal { model.pageIndex = pos.page }
+        return true
+    }
+
+    private func activate(_ app: LauncherApp) {
+        if LauncherFolders.isFolderID(app.bundleID) { model.openFolderID = app.bundleID } else { actions.launch(app) }
+    }
+
+    // MARK: Cells
+
+    private func folder(for app: LauncherApp) -> LauncherFolder? {
+        LauncherFolders.isFolderID(app.bundleID) ? model.state.folders.first { $0.id == app.bundleID } : nil
+    }
+
+    @ViewBuilder private func cellImage(_ app: LauncherApp, icon: CGFloat) -> some View {
+        if let folder = folder(for: app) {
+            let members = LauncherFolders.members(of: folder, in: indexer.apps).prefix(4)
+            ZStack {
+                RoundedRectangle(cornerRadius: icon * 0.23, style: .continuous).fill(Color.primary.opacity(0.16))
+                RoundedRectangle(cornerRadius: icon * 0.23, style: .continuous).strokeBorder(Color.primary.opacity(0.2), lineWidth: 1)
+                LazyVGrid(columns: [GridItem(.fixed(icon * 0.36), spacing: icon * 0.06), GridItem(.fixed(icon * 0.36), spacing: icon * 0.06)],
+                          spacing: icon * 0.06) {
+                    ForEach(Array(members), id: \.bundleID) { m in
+                        Image(nsImage: LauncherIconCache.icon(forPath: m.path)).resizable().interpolation(.high)
+                            .frame(width: icon * 0.36, height: icon * 0.36)
+                    }
+                }
+            }
+            .frame(width: icon, height: icon)
+        } else {
+            Image(nsImage: LauncherIconCache.icon(forPath: app.path)).resizable().interpolation(.high)
+                .frame(width: icon, height: icon)
+                .opacity(model.state.hidden.contains(app.bundleID) ? 0.45 : 1)
+        }
+    }
+
     @ViewBuilder private func cell(_ app: LauncherApp, icon: CGFloat, reorderable: Bool) -> some View {
-        let base = Button { actions.launch(app) } label: {
+        let isFolder = LauncherFolders.isFolderID(app.bundleID)
+        let base = Button { if model.editing && !isFolder { return }; activate(app) } label: {
             VStack(spacing: 8) {
-                Image(nsImage: LauncherIconCache.icon(forPath: app.path)).resizable().interpolation(.high)
-                    .frame(width: icon, height: icon)
-                    .opacity(model.state.hidden.contains(app.bundleID) ? 0.45 : 1)
+                cellImage(app, icon: icon)
                 Text(verbatim: app.name).font(.system(size: 13)).lineLimit(1).frame(maxWidth: icon + 36)
                     .overlay(alignment: .bottom) {
                         if model.prefs.showRunningDot, model.runningIDs.contains(app.bundleID) {
@@ -283,18 +379,25 @@ struct LauncherView: View {
                         }
                     }
             }
+            .padding(6)
+            .background(RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(Color.accentColor, lineWidth: model.focusedID == app.bundleID ? 2.5 : 0))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .modifier(LauncherWiggle(active: model.editing, seed: app.bundleID))
+        .overlay(alignment: .topLeading) { if model.editing { editBadge(app, isFolder: isFolder) } }
         .contextMenu { menu(app, reorderable: reorderable) }
-        if reorderable {
+        if reorderable || model.editing {
             base
                 .onDrag { NSItemProvider(object: app.bundleID as NSString) }
                 .onDrop(of: [.plainText], isTargeted: nil) { providers in
                     guard let provider = providers.first else { return false }
                     _ = provider.loadObject(ofClass: NSString.self) { object, _ in
                         guard let id = object as? String else { return }
-                        DispatchQueue.main.async { actions.move(id, app) }
+                        DispatchQueue.main.async {
+                            if model.editing { actions.dropOnto(id, app) } else { actions.move(id, app) }
+                        }
                     }
                     return true
                 }
@@ -303,9 +406,73 @@ struct LauncherView: View {
         }
     }
 
+    /// Edit mode's corner button: hides an app from the launcher, or dissolves a folder (its apps return to the grid).
+    private func editBadge(_ app: LauncherApp, isFolder: Bool) -> some View {
+        Button {
+            if isFolder {
+                model.state.folders = LauncherFolders.delete(model.state.folders, id: app.bundleID); actions.persist()
+            } else {
+                actions.toggleHidden(app)
+            }
+        } label: {
+            Image(systemName: "minus").font(.system(size: 10, weight: .heavy)).foregroundColor(.white)
+                .frame(width: 20, height: 20).background(Circle().fill(Color.black.opacity(0.55)))
+        }
+        .buttonStyle(.plain)
+        .help(isFolder ? Text("Delete Folder") : Text("Hide from Launcher"))
+    }
+
+    // MARK: Folder overlay
+
+    private func folderOverlay(_ folder: LauncherFolder) -> some View {
+        let members = LauncherFolders.members(of: folder, in: indexer.apps)
+        return ZStack {
+            Color.black.opacity(0.28).onTapGesture { model.openFolderID = nil }
+            VStack(spacing: 18) {
+                TextField("Folder Name", text: Binding(
+                    get: { folder.name },
+                    set: { model.state.folders = LauncherFolders.rename(model.state.folders, id: folder.id, to: $0) }
+                ), onCommit: actions.persist)
+                .textFieldStyle(.plain).multilineTextAlignment(.center).font(.system(size: 20, weight: .semibold))
+                .frame(maxWidth: 260)
+                LazyVGrid(columns: Array(repeating: GridItem(.fixed(96), spacing: 14, alignment: .top), count: min(5, max(1, members.count))),
+                          spacing: 16) {
+                    ForEach(members, id: \.bundleID) { app in
+                        Button { actions.launch(app) } label: {
+                            VStack(spacing: 6) {
+                                Image(nsImage: LauncherIconCache.icon(forPath: app.path)).resizable().interpolation(.high)
+                                    .frame(width: 64, height: 64)
+                                Text(verbatim: app.name).font(.system(size: 12)).lineLimit(1).frame(maxWidth: 92)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            Button("Open") { actions.launch(app) }
+                            Button("Remove from Folder") {
+                                model.state.folders = LauncherFolders.remove(model.state.folders, appID: app.bundleID)
+                                actions.persist()
+                                if !model.state.folders.contains(where: { $0.id == folder.id }) { model.openFolderID = nil }
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(28)
+            .background(RoundedRectangle(cornerRadius: 28, style: .continuous).fill(.regularMaterial))
+            .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).strokeBorder(Color.primary.opacity(0.15)))
+            .shadow(color: .black.opacity(0.3), radius: 24, y: 8)
+        }
+    }
+
     @ViewBuilder private func menu(_ app: LauncherApp, reorderable: Bool) -> some View {
         let pinned = model.state.pinned.contains(app.bundleID)
         let hidden = model.state.hidden.contains(app.bundleID)
+        if LauncherFolders.isFolderID(app.bundleID) {
+            Button("Open") { model.openFolderID = app.bundleID }
+            Button("Delete Folder") {
+                model.state.folders = LauncherFolders.delete(model.state.folders, id: app.bundleID); actions.persist()
+            }
+        } else {
         Button("Open") { actions.launch(app) }
         Button("Show in Finder") { actions.reveal(app) }
         Button("Copy Path") { actions.copyPath(app) }
@@ -314,12 +481,31 @@ struct LauncherView: View {
         if reorderable { Button("Move to Start") { actions.move(app.bundleID, nil) } }
         Divider()
         if hidden { Button("Show in Launcher") { actions.toggleHidden(app) } } else { Button("Hide from Launcher") { actions.toggleHidden(app) } }
+        Divider()
+        Menu {
+            Button("New Folder") { actions.newFolder(app) }
+            ForEach(model.state.folders) { f in
+                Button { model.state.folders = LauncherFolders.add(model.state.folders, appID: app.bundleID, to: f.id); actions.persist() } label: {
+                    Text(verbatim: f.name)
+                }
+            }
+        } label: { Text("Add to Folder") }
+        }
     }
 }
 
 @MainActor
 final class LauncherModel: ObservableObject {
-    @Published var query = "" { didSet { if query != oldValue { pageIndex = 0 } } }
+    @Published var query = "" { didSet { if query != oldValue { pageIndex = 0; focusedID = nil } } }
+    @Published var editing = false
+    @Published var focusedID: String?
+    @Published var openFolderID: String?
+    /// ⌘1–⌘9: absolute page requests.
+    let pageJumps = PassthroughSubject<Int, Never>()
+    /// The grid as last drawn (ids per section per page), for arrow-key focus. Plain properties: writing them never redraws.
+    var layoutPages: [[[String]]] = []
+    var layoutColumns = 1
+    var layoutItems: [String: LauncherApp] = [:]
     @Published var focusNonce = 0
     @Published var searchPosition: LauncherSearchPosition = .top
     @Published var scrollDirection: LauncherScrollDirection = .horizontal
@@ -342,6 +528,8 @@ struct LauncherSearchField: NSViewRepresentable {
     let onSubmit: () -> Void
     let onCancel: () -> Void
     let onPage: (Int) -> Void
+    /// Arrow keys over the grid; return false to let the field handle the key (caret movement).
+    let onArrow: (_ dx: Int, _ dy: Int) -> Bool
 
     func makeNSView(context: Context) -> NSSearchField {
         let field = NSSearchField()
@@ -377,12 +565,20 @@ struct LauncherSearchField: NSViewRepresentable {
             switch selector {
             case #selector(NSResponder.insertNewline(_:)): parent.onSubmit(); return true
             case #selector(NSResponder.cancelOperation(_:)): parent.onCancel(); return true
-            case #selector(NSResponder.moveRight(_:)), #selector(NSResponder.insertTab(_:)):
+            case #selector(NSResponder.insertTab(_:)):
                 guard parent.text.isEmpty else { return false }
                 parent.onPage(1); return true
-            case #selector(NSResponder.moveLeft(_:)), #selector(NSResponder.insertBacktab(_:)):
+            case #selector(NSResponder.insertBacktab(_:)):
                 guard parent.text.isEmpty else { return false }
                 parent.onPage(-1); return true
+            case #selector(NSResponder.moveRight(_:)):
+                guard parent.text.isEmpty else { return false }
+                return parent.onArrow(1, 0)
+            case #selector(NSResponder.moveLeft(_:)):
+                guard parent.text.isEmpty else { return false }
+                return parent.onArrow(-1, 0)
+            case #selector(NSResponder.moveDown(_:)): return parent.onArrow(0, 1)
+            case #selector(NSResponder.moveUp(_:)): return parent.onArrow(0, -1)
             default: return false
             }
         }
@@ -446,5 +642,22 @@ struct LauncherGearPopover: View {
             Text(title).font(.caption).foregroundColor(.secondary)
             Slider(value: value, in: range)
         }
+    }
+}
+
+/// Edit mode's jiggle: a small alternating rotation, stopped under Reduce Motion.
+struct LauncherWiggle: ViewModifier {
+    let active: Bool
+    let seed: String
+    @State private var flip = false
+
+    func body(content: Content) -> some View {
+        let animate = active && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        content
+            .rotationEffect(.degrees(animate ? (flip ? 1.6 : -1.6) : 0))
+            .animation(animate ? .easeInOut(duration: 0.11 + Double(abs(seed.hashValue) % 40) / 1000).repeatForever(autoreverses: true) : .default,
+                       value: flip)
+            .onChange(of: active) { on in flip = on }
+            .onAppear { if active { flip = true } }
     }
 }

@@ -2570,12 +2570,21 @@ Methodology
   Grapher, Dictionary, Digital Color Meter, Console, Keychain Access, Script Editor, Font Book, Image Capture, Audio MIDI Setup,
   Bluetooth File Exchange, News, Stickies); one-tap hide/restore in the gear popover and per-app toggles in Settings → Launcher.
   Hidden apps stay searchable.
-- **13i — extra launcher features (first cut)**: running-app dot, web-search / open-URL fallback when no app matches
-  (`LauncherQuickAction`, DuckDuckGo). **Deferred, owner to pick:** folders, edit/wiggle mode, ⌘1–9 page jump, grid keyboard focus.
+- **13i — extra launcher features**: running-app dot, web-search / open-URL fallback when no app matches
+  (`LauncherQuickAction`, DuckDuckGo); **folders** (`LauncherFolders`; one cell in All Apps, menu Add to Folder / New Folder,
+  folder overlay with rename and Remove from Folder, stored in `launcher.json`); **Edit mode** (toolbar Edit/Done, jiggle unless
+  Reduce Motion, minus badge hides an app or dissolves a folder, drag an app onto another to make a folder, onto a folder to
+  join it; outside edit mode a drop still reorders); **arrow-key focus** over the grid (`LauncherFocus`, Return launches/opens,
+  Tab pages); **⌘1–⌘9** jump to a page.
 - **13j — edge delay + sensitivity**: `EdgeBarPrefs.openDelay` (default 0.4 s) dwell via pure `EdgeDwell` (a pointer left on the pill
   after a fold is ignored until it leaves), `sensitivity` scales the hot zone (default reproduces the old inset).
 - **13k — edge position & zoom**: Settings sliders for each side's height (existing `yRatio`), magnify amount Subtle/Standard/Bold
-  (1.25/1.55/1.85×). Size sliders unchanged (range 0.8–1.4 kept; widening deferred).
+  (1.25/1.55/1.85×). Bar size range widened to 0.7–1.6.
+- **13b/13d/13e (gaps closed)**: hover names are a small bubble beside the button under the pointer (0.35 s, in the bar's flyout
+  panel, toggle `hoverLabels`); "Open Only on Click" (`openOnClick`) opens the bar only on a pointer-down on the pill, and a button
+  already held when the pointer arrives (a drag across the edge) never opens it; new edge item **Copy Screenshot**
+  (`ProductivityItem.screenshot`, `screencapture -i -c`, clipboard only, never a file) sits on the main side with the other
+  productivity buttons.
 - **13l — edge look**: icon sets Classic (default) / Modern / Realistic; flyout plate **Modern (new default)** vs **Glass** preset;
   hover tooltips on the round buttons.
 - Verify: real-pointer live check #3, idle CPU ≤ baseline + ε, localization ×12, 7A regression.
@@ -2876,3 +2885,4 @@ Priority if the owner wants more after 20a/20b: **window switcher → sleep layo
   - **20c:** Option-Tab window switcher (`WindowSwitcherModel` + `WindowSwitcherController`; ⌥Tab / ⌥⇧Tab Carbon hot keys, MRU order, Esc/arrows, release Option to switch; live-checked — panel renders with app icons, selection picks the previous window; thumbnails need Screen Recording and were not seen); sleep/wake and display-change layout restore (`WindowLayoutMemory` + `WindowLayoutRestoreController`, records per display topology, freezes around sleep, 3 s settle, AX `setFrame`; manual "Restore Windows From Last Sleep" button; **unit-tested only, never exercised on real sleep or display changes**); optional menu-bar CPU/MEM readout that opens Activity Monitor (`MenuBarSystemItem`, off by default, sampler exists only while on; **built and unit-tested, not seen live**). New strings are drafts for the pre-release translation gate.
   - **Not done / known limits:** Activity Monitor shortcuts beyond the single click-through; window-switcher shortcut is fixed (not in the shortcut-binding UI); `CGWindowListCreateImage` thumbnails unavailable on this macOS build, so switcher tiles fall back to app icons here.
 - 2026-10-13 · **Phase 13 landed (13a, 13c, 13f–13l; no live check)**: pure `LauncherPlus` (sort, categories, prefs, hide presets, quick action) + `EdgeBarPrefs`/`EdgeDwell` with tests; launcher page 1 Pinned + fixed pages with dividers, gear popover, close button; edge open delay, sensitivity, magnify amount, icon sets, Modern/Glass flyouts, height sliders; 27 new strings ×12 (drafts → `Docs/translation-review-phase13.csv`; Phase 20 drafts → `…phase20.csv`). **Not built:** 13b label styling beyond tooltips, 13d pointer-down-only triggers, 13e screenshot-to-clipboard, 13i folders/edit mode, size-range widening. Owner asked for no more live tests.
+- 2026-10-13 · **Phase 13 gaps closed (no live check):** hover-name bubbles, click-only open, held-button guard, Copy Screenshot item, bar size 0.7–1.6, launcher folders + edit mode + arrow-key focus + ⌘1–9 (pure `LauncherFolders`/`LauncherFocus` tested). Unit suite 2177 green; localization + debug-switch gates clean; 11 more strings ×12 added to `Docs/translation-review-phase13.csv`. Known limits: arrow focus does not auto-scroll the vertical-scroll layout; folder drops while *not* editing are reorders by design; none of the new UI has been seen on screen.
