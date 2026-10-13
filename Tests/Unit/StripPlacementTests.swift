@@ -71,7 +71,7 @@ final class StripPlacementTests: XCTestCase {
         for section in BarSection.allCases where section != .apps {
             let tile = section.railTileLength(barHeight: 54)
             XCTAssertGreaterThan(tile, 0)
-            XCTAssertLessThanOrEqual(tile, 54 * 1.2, "\(section) stays a compact tile on a rail")
+            XCTAssertLessThanOrEqual(tile, 54 * (section == .media ? 1.7 : 1.2), "\(section) stays a compact tile on a rail")
         }
     }
 

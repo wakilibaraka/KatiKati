@@ -50,6 +50,9 @@ struct LiveIslandDockCapsule: View {
     @State private var isHovering = false
     @State private var showPopup = false
     @Environment(\.widgetSize) private var widgetSize
+    /// Phase 18 (owner 2026-10-13): on a side rail the chip has its own vertical layout instead of the
+    /// bottom pill scaled down — idle actions stacked, an activity as ring over value.
+    @Environment(\.liveIslandVertical) private var isVertical
     @EnvironmentObject var runtime: AppRuntime
     @State private var keepAwakeOn = false
     
@@ -57,8 +60,14 @@ struct LiveIslandDockCapsule: View {
         let activity = feed.activity
 
         Group {
-            if LiveIdleAction.showsIdleActions(for: activity.kind) {
-                idleActions
+            if isVertical {
+                if LiveIdleAction.showsIdleActions(for: activity.kind) {
+                    idleActions(vertical: true)
+                } else {
+                    verticalCapsule(activity)
+                }
+            } else if LiveIdleAction.showsIdleActions(for: activity.kind) {
+                idleActions(vertical: false)
             } else if widgetSize == .small {
                 capsule(activity, showsLabel: false)
             } else if #available(macOS 13.0, *) {
@@ -70,7 +79,7 @@ struct LiveIslandDockCapsule: View {
                 capsule(activity, showsLabel: false)
             }
         }
-        .padding(.horizontal, 8)
+        .padding(isVertical ? .vertical : .horizontal, isVertical ? 6 : 8)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -124,22 +133,44 @@ struct LiveIslandDockCapsule: View {
 
     /// Idle state (10c-1): no clock — the time capsule already shows the time. Three one-tap quick actions
     /// that match the notch's Focus / Timer / Keep Awake.
-    private var idleActions: some View {
-        HStack(spacing: 4) {
-            ForEach(LiveIdleAction.allCases, id: \.self) { action in
-                Button { perform(action) } label: {
-                    Image(systemName: action == .keepAwake && keepAwakeOn ? "cup.and.saucer.fill" : action.symbolName)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(idleTint(action))
-                        .frame(width: 24, height: 24)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .help(idleTitle(action))
-                .accessibilityLabel(idleTitle(action))
+    private func idleActions(vertical: Bool) -> some View {
+        let buttons = ForEach(LiveIdleAction.allCases, id: \.self) { action in
+            Button { perform(action) } label: {
+                Image(systemName: action == .keepAwake && keepAwakeOn ? "cup.and.saucer.fill" : action.symbolName)
+                    .font(.system(size: vertical ? 15 : 13, weight: .semibold))
+                    .foregroundStyle(idleTint(action))
+                    .frame(width: vertical ? 30 : 24, height: 24)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(idleTitle(action))
+            .accessibilityLabel(idleTitle(action))
+        }
+        return Group {
+            if vertical {
+                VStack(spacing: 2) { buttons }
+            } else {
+                HStack(spacing: 4) { buttons }
             }
         }
         .onAppear { keepAwakeOn = runtime.isKeepAwakeOn?() ?? false }
+    }
+
+    /// Rail form of an active activity: the ring glyph, larger, over its short value ("4:58", "Live").
+    private func verticalCapsule(_ activity: LiveActivity) -> some View {
+        VStack(spacing: 4) {
+            glyph(for: activity)
+                .scaleEffect(1.3)
+                .frame(width: 30, height: 30)
+            if let value = valueText(for: activity) {
+                value
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            }
+        }
     }
 
     private func idleTitle(_ action: LiveIdleAction) -> String {
@@ -375,3 +406,16 @@ struct TurntableView: View {
         }
     }
 }
+
+private struct LiveIslandVerticalKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    /// Phase 18: the Live Island chip renders its side-rail (vertical) layout.
+    var liveIslandVertical: Bool {
+        get { self[LiveIslandVerticalKey.self] }
+        set { self[LiveIslandVerticalKey.self] = newValue }
+    }
+}
+

@@ -127,7 +127,9 @@ extension BarSection {
     func railTileLength(barHeight: CGFloat) -> CGFloat {
         switch self {
         case .weather, .clock: return (barHeight * 1.15).rounded()
-        case .media, .launcher, .widgets: return barHeight
+        // Live Island: three quick actions stacked (or ring over value) — a tall tile, not a square.
+        case .media: return (barHeight * 1.65).rounded()
+        case .launcher, .widgets: return barHeight
         case .apps: return 0
         }
     }

@@ -2669,6 +2669,11 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   thumbnails on a rail. **Logged for later refinement:** the Live Island tile on a rail is a scaled-down
   pill (small, hard to read) — wants its own vertical design; first launch after each ad-hoc reinstall
   waits on a system dialog (blank chips) until answered.
+- 2026-10-13 · **Rail Live Island tile redesigned (owner request) + owner: merged edge bars are OK.** On a rail
+  the Live Island chip uses its own vertical layout (`\.liveIslandVertical`): idle = Focus / Timer / Keep
+  Awake stacked at full size, active = larger progress ring over the short value; tile length 1.65 × bar
+  thickness (`BarSection.railTileLength`). Live-checked idle on the left rail (legible); active-state check
+  pending (system dialog was in front). Suite 2222 green.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

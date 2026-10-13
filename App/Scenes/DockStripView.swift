@@ -1702,12 +1702,11 @@ extension DockStripView {
         case .clock:
             RailClockTile().nativeScaled(dockScale)
         case .media:
-            // The Live Island chip's small form, fitted into the square slot.
+            // The Live Island chip's own vertical layout (owner 2026-10-13: the scaled-down pill was
+            // too small to read), at native size, scaled with the rail like the other tiles.
             NowPlayingChip()
-                .environment(\.widgetSize, .small)
-                .frame(width: 72, height: 36)
-                .scaleEffect(44 * dockScale / 72)
-                .frame(width: 44 * dockScale, height: 44 * dockScale)
+                .environment(\.liveIslandVertical, true)
+                .nativeScaled(dockScale)
         case .launcher, .widgets, .apps:
             widgetChip(section, size: .small)
         }
