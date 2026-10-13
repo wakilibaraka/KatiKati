@@ -337,7 +337,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.chipPreviewThumbWidth: 180,
             Keys.chipClassicMenu: false,
             Keys.hyperkeyEnabled: false,
-            Keys.showAllRunningApps: true,
+            Keys.showAllRunningApps: false,
             Keys.linkCleanerEnabled: false,
             Keys.wallpaperEnabled: false,
             Keys.wallpaperMode: WallpaperMode.both.rawValue,

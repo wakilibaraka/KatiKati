@@ -12,6 +12,7 @@ final class BackgroundAppsStore: ObservableObject {
         let bundleID: String
         let policy: BackgroundAppClassifier.Policy
         let isHidden: Bool
+        let isHelper: Bool
     }
 
     @Published private(set) var facts: [Fact] = []
@@ -51,7 +52,8 @@ final class BackgroundAppsStore: ObservableObject {
             case .accessory: policy = .accessory
             default: policy = .prohibited
             }
-            return Fact(bundleID: id, policy: policy, isHidden: app.isHidden)
+            return Fact(bundleID: id, policy: policy, isHidden: app.isHidden,
+                        isHelper: BackgroundAppClassifier.looksLikeHelper(bundlePath: app.bundleURL?.path, name: app.localizedName))
         }
         if list != facts { facts = list }
     }
@@ -63,7 +65,7 @@ final class BackgroundAppsStore: ObservableObject {
             selfBundleID: Bundle.main.bundleIdentifier ?? "", keptIDs: kept, messagingIDs: messaging,
             stashedIDs: stashed, ignoredIDs: ignored, showSystemHelpers: showSystemHelpers)
         return BackgroundAppClassifier.background(
-            facts.map { .init(bundleID: $0.bundleID, policy: $0.policy, hasWindows: windowBacked.contains($0.bundleID), isHidden: $0.isHidden) },
+            facts.map { .init(bundleID: $0.bundleID, policy: $0.policy, hasWindows: windowBacked.contains($0.bundleID), isHidden: $0.isHidden, isHelper: $0.isHelper) },
             context)
     }
 }

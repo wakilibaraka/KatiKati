@@ -11,6 +11,8 @@ enum BackgroundAppClassifier {
         var policy: Policy
         var hasWindows: Bool
         var isHidden: Bool
+        /// Lives inside another app's bundle (…app/Contents/…/X.app) or is named like a helper — a worker, not an app.
+        var isHelper: Bool = false
     }
 
     struct Context: Equatable, Sendable {
@@ -24,10 +26,18 @@ enum BackgroundAppClassifier {
 
     static let finderID = "com.apple.finder"
 
+    /// Nested bundle (`Foo.app/Contents/.../Bar.app`) or a name ending in Helper / Updater / Agent / Service.
+    static func looksLikeHelper(bundlePath: String?, name: String?) -> Bool {
+        if let path = bundlePath, path.components(separatedBy: ".app/").count > 2 { return true }
+        let n = (name ?? "").lowercased()
+        return ["helper", "updater", "agent", "service", "daemon"].contains { n.hasSuffix($0) }
+    }
+
     static func isBackground(_ p: Process, _ c: Context) -> Bool {
         if p.bundleID.isEmpty || p.bundleID == c.selfBundleID || p.bundleID == finderID { return false }
         if c.keptIDs.contains(p.bundleID) || c.messagingIDs.contains(p.bundleID)
             || c.stashedIDs.contains(p.bundleID) || c.ignoredIDs.contains(p.bundleID) { return false }
+        if p.isHelper && !c.showSystemHelpers { return false }
         switch p.policy {
         case .prohibited:
             return false

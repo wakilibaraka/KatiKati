@@ -37,3 +37,16 @@ final class BackgroundAppClassifierTests: XCTestCase {
         XCTAssertEqual(out, ["A.app", "b.app"])
     }
 }
+
+extension BackgroundAppClassifierTests {
+    func testHelperDetectionAndExclusion() {
+        XCTAssertTrue(BackgroundAppClassifier.looksLikeHelper(bundlePath: "/Applications/Claude.app/Contents/Frameworks/Claude Helper.app", name: "Claude Helper"))
+        XCTAssertTrue(BackgroundAppClassifier.looksLikeHelper(bundlePath: "/Applications/Foo.app", name: "Updater"))
+        XCTAssertFalse(BackgroundAppClassifier.looksLikeHelper(bundlePath: "/Applications/RClick.app", name: "RClick"))
+        var helper = BackgroundAppClassifier.Process(bundleID: "x.helper", policy: .accessory, hasWindows: false, isHidden: false)
+        helper.isHelper = true
+        XCTAssertFalse(BackgroundAppClassifier.isBackground(helper, BackgroundAppClassifier.Context()))
+        var shown = BackgroundAppClassifier.Context(); shown.showSystemHelpers = true
+        XCTAssertTrue(BackgroundAppClassifier.isBackground(helper, shown))
+    }
+}
