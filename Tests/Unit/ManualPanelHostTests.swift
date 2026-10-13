@@ -176,7 +176,7 @@ final class ManualPanelHostTests: XCTestCase {
 
         presentation.isActive = true
         model.height = DockPanelHeight(clamping: 32)
-        model.height = DockPanelHeight(clamping: 120)
+        model.height = DockPanelHeight(clamping: 90)
         presentation.isActive = false
         await drainMainQueue()
         XCTAssertTrue(delivered.isEmpty)

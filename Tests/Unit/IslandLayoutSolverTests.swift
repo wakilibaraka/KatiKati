@@ -356,7 +356,7 @@ final class IslandLayoutSolverTests: XCTestCase {
             [.weather: 400, .clock: 400, .media: 400],
         ]
         for screenWidth: CGFloat in [1024, 1440, 1710] {
-            for barHeight: CGFloat in [32, 54, 120] {
+            for barHeight: CGFloat in [32, 54, 90] {
                 for gap: CGFloat in [0.5, 40] {
                     for margin: CGFloat in [0, 80] {
                         for widths in widthSets {
@@ -397,5 +397,17 @@ final class IslandLayoutSolverTests: XCTestCase {
         let split5 = WidgetLayout.widgetBudget(screenWidth: 1440, margin: 12, gap: 10, tileStride: 55,
                                                mode: .split5, barHeight: 54)
         XCTAssertLessThan(split5, plain)
+    }
+
+    func testWidgetWidthsScaleWithBarHeight() {
+        func leftWidth(_ h: CGFloat) -> CGFloat {
+            IslandLayoutSolver.layout(
+                screenWidth: 1710, mode: .split3, tileStride: IslandLayoutSolver.tileStride(barHeight: h),
+                appCount: 4, weatherWidth: 150, clockWidth: 160, clusterWidth: 120,
+                gap: 10, margin: 12, barHeight: h, bottomMargin: 8).islands[0].frame.width
+        }
+        // launcher 40 + weather 150 + chrome 53, all × (h / 54).
+        XCTAssertEqual(leftWidth(108), 2 * 243, accuracy: 0.001)
+        XCTAssertEqual(leftWidth(27), 243 / 2, accuracy: 0.001)
     }
 }

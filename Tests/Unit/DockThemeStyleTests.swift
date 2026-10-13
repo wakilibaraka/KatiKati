@@ -45,4 +45,20 @@ final class DockThemeStyleTests: XCTestCase {
         // Just verify it uses the env properly if we write a helper later, or just verify the debug switch exists
         XCTAssertEqual(DebugSwitch.dockTheme.rawValue, "DOCK_THEME")
     }
+
+    // MARK: - Phase 11c: plate overlay
+
+    func testAutoAndSystemKeepTheUntintedNativePlate() {
+        let tint = DockRGBA(r: 0.1, g: 0.2, b: 0.3, a: 0.8)
+        XCTAssertNil(DockThemeStyle.auto.plateOverlay(baseTint: tint))
+        XCTAssertNil(DockThemeStyle.system.plateOverlay(baseTint: tint))
+    }
+
+    func testPresetsTintThePlateAtReducedStrength() {
+        let tint = DockRGBA(r: 0.05, g: 0.15, b: 0.25, a: 0.7)
+        let overlay = DockThemeStyle.deepOcean.plateOverlay(baseTint: tint)
+        XCTAssertEqual(overlay, DockRGBA(r: 0.05, g: 0.15, b: 0.25, a: 0.7 * DockThemeStyle.plateOverlayStrength))
+        XCTAssertNotNil(DockThemeStyle.customRGBA(r: 1, g: 0, b: 0, a: 0.5).plateOverlay(baseTint: tint))
+    }
 }
+

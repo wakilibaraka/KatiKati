@@ -1360,17 +1360,18 @@ struct DockStripView: View {
                     widgetChip(section, size: widgetSize)
                 }
             }
-            .padding(.horizontal, 10 * dockScale)
+            // Small widgets keep a slimmer slot inset so their pill keeps its content (Phase 11d).
+            .padding(.horizontal, (widgetSize == .small ? 4 : 10) * dockScale)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .clipped()
-            .frame(width: section == .apps ? nil : targetWidth, height: 36 * dockScale)
+            .frame(width: section == .apps ? nil : targetWidth * dockScale, height: 36 * dockScale)
             .contentShape(Rectangle())
             // Phase 6: hover title per island section (system tooltip; a chip's own `.help`
             // still wins inside it).
             .help(Self.sectionHoverTitle(section))
             .overlay {
                 if section != .apps && editMode.isEditing {
-                    WidgetEditOverlay(section: section, width: targetWidth)
+                    WidgetEditOverlay(section: section, width: targetWidth * dockScale)
                 }
             }
             .floatingContextMenu {
@@ -1640,15 +1641,15 @@ extension DockStripView {
         case .weather:
             WeatherChip()
                 .environment(\.widgetSize, widgetSize)
-                .scaleEffect(dockScale)
+                .nativeScaled(dockScale)
         case .media:
             NowPlayingChip()
                 .environment(\.widgetSize, widgetSize)
-                .scaleEffect(dockScale)
+                .nativeScaled(dockScale)
         case .clock:
             ClockChip()
                 .environment(\.widgetSize, widgetSize)
-                .scaleEffect(dockScale)
+                .nativeScaled(dockScale)
         case .launcher:
             LauncherIconView(style: settingsStore.launcherIcon, size: 26 * dockScale)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -1664,3 +1665,24 @@ extension DockStripView {
         }
     }
 }
+
+/// Lays a chip out in its slot's **native-scale** size and then scales it, so the scaled chip fills
+/// the slot exactly. A bare `.scaleEffect` scales after layout: above the native bar height the chip
+/// overflowed its slot and was clipped into a square-cornered strip (Phase 11d, live 120 pt check).
+private struct NativeScaled: ViewModifier {
+    let scale: CGFloat
+
+    func body(content: Content) -> some View {
+        GeometryReader { geo in
+            content
+                .frame(width: geo.size.width / max(scale, 0.01), height: geo.size.height / max(scale, 0.01))
+                .scaleEffect(scale)
+                .frame(width: geo.size.width, height: geo.size.height)
+        }
+    }
+}
+
+extension View {
+    func nativeScaled(_ scale: CGFloat) -> some View { modifier(NativeScaled(scale: scale)) }
+}
+

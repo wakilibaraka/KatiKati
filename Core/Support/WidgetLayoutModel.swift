@@ -33,7 +33,9 @@ extension BarSection {
     func widgetWidth(for size: WidgetSize) -> CGFloat {
         guard supportsWidgetSizes else { return defaultWidgetWidth }
         switch (self, size) {
-        case (.weather, .small): return 64
+        // 84, not 64: S keeps glyph + temperature, and 64 left ~28 pt inside the slot and pill
+        // padding — the temperature truncated to "°" (Phase 11d live check).
+        case (.weather, .small): return 84
         case (.weather, .medium): return 150
         case (.weather, .large): return 230
         case (.clock, .small): return 76
@@ -167,15 +169,17 @@ struct WidgetLayout: Codable, Equatable, Sendable {
 
     /// What the island row can spend on widgets: the screen minus side margins, island gaps and room for ~6 app tiles.
     /// With a `mode`, the gaps are that mode's island gaps plus the strip chrome each island draws
-    /// (`IslandChrome.overhead`), so widgets degrade before split islands could collide (Phase 11a).
+    /// (`IslandChrome.overhead`), so widgets degrade before split islands could collide (Phase 11a);
+    /// the result is in native-scale points, the unit widget widths are authored in.
     static func widgetBudget(screenWidth: CGFloat, margin: CGFloat, gap: CGFloat, tileStride: CGFloat,
                              mode: BarLayoutMode? = nil, order: [BarSection] = BarSection.canonicalOrder,
                              barHeight: CGFloat = IslandChrome.nativeBarHeight) -> CGFloat {
         let apps = 6 * tileStride + 24
         guard let mode else { return screenWidth - 2 * margin - 5 * gap - apps }
-        let overhead = IslandChrome.overhead(mode: mode, order: order, gap: gap,
-                                             scale: IslandChrome.scale(barHeight: barHeight))
-        return screenWidth - 2 * margin - overhead - apps
+        let scale = IslandChrome.scale(barHeight: barHeight)
+        let overhead = IslandChrome.overhead(mode: mode, order: order, gap: gap, scale: scale)
+        // Widths are compared at native scale (they are drawn scaled by bar height, Phase 11d).
+        return (screenWidth - 2 * margin - overhead - apps) / max(scale, 0.01)
     }
 
     /// First-run migration from the legacy `widgetWidths` slider overrides.

@@ -90,3 +90,23 @@ extension DockThemeStyle {
         }
     }
 }
+
+extension DockThemeStyle {
+    /// Share of a preset's `baseTint` alpha laid over the system glass / visual-effect plate.
+    /// The glass already brings its own body, so the full token alpha (up to 0.85) reads as paint.
+    static let plateOverlayStrength: CGFloat = 0.55
+
+    /// Colour laid over the dock plate on the system-glass and pre-26 paths, which otherwise drop
+    /// the preset tint entirely — the reason picking a theme changed nothing visible (Phase 11c, B6).
+    /// `auto` and `system` keep the untinted native look (pixel-frozen default).
+    func plateOverlay(baseTint: DockRGBA) -> DockRGBA? {
+        switch self {
+        case .auto, .system:
+            return nil
+        default:
+            return DockRGBA(r: baseTint.r, g: baseTint.g, b: baseTint.b,
+                            a: baseTint.a * Self.plateOverlayStrength)
+        }
+    }
+}
+

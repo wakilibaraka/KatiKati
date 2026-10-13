@@ -21,7 +21,7 @@ extension PanelCoordinator {
         controller.openDelay = { [weak self] in TimeInterval(self?.settingsStore.chipPreviewDelayMs ?? 350) / 1000 }
         controller.thumbnailWidth = { [weak self] in CGFloat(self?.settingsStore.chipPreviewThumbWidth ?? 180) }
         controller.usesLiquidGlass = { [weak self] in self?.usesLiquidGlass ?? false }
-        controller.themeStyle = { [weak self] in self?.settingsStore.themeMaterial ?? .system }
+        controller.themeStyle = { [weak self] in self?.settingsStore.themeMaterial ?? .auto }
         controller.onWillOpen = { [weak self] in
             guard let self else { return }
             self.onAccessoryWillOpen?(self, .tooltip)

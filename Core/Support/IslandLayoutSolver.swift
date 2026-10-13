@@ -81,6 +81,7 @@ enum IslandLayoutSolver {
         let effectiveMargin = max(0, margin)
         let y = screenMinY + bottomMargin
         let islandSections = BarSection.islands(for: mode, order: widgetOrder)
+        let chromeScale = IslandChrome.scale(barHeight: barHeight)
 
         func width(for section: BarSection) -> CGFloat {
             // Floor stored overrides at the section's intrinsic minimum, same
@@ -97,9 +98,11 @@ enum IslandLayoutSolver {
             }
         }
 
+        // Widget widths are authored at the native bar height and scale with it, like the chips
+        // drawn inside them — a 120 pt bar no longer clips a 54 pt-sized pill (Phase 11d).
         func sectionsWidth(_ sections: [BarSection]) -> (total: CGFloat, count: Int) {
             let widths = sections.filter { $0 != .apps }.map(width(for:)).filter { $0 > 0 }
-            return (widths.reduce(0, +), widths.count)
+            return (widths.reduce(0, +) * chromeScale, widths.count)
         }
 
         // Single-island modes: the older 8 pt inner-gap estimate (Phase 11b reworks these).
@@ -108,8 +111,6 @@ enum IslandLayoutSolver {
             let (total, count) = sectionsWidth(sections)
             return count > 0 ? total + CGFloat(count - 1) * 8 : total
         }
-
-        let chromeScale = IslandChrome.scale(barHeight: barHeight)
 
         // Split modes: the width the strip really draws — content insets + dividers (Phase 11a).
         func fixedIslandWidth(_ sections: [BarSection]) -> CGFloat {

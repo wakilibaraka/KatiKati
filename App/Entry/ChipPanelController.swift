@@ -19,7 +19,7 @@ final class ChipPanelController {
     var openDelay: () -> TimeInterval = { 0.35 }
     var thumbnailWidth: () -> CGFloat = { 180 }
     var usesLiquidGlass: () -> Bool = { false }
-    var themeStyle: () -> DockThemeStyle = { .system }
+    var themeStyle: () -> DockThemeStyle = { .auto }
     var onWillOpen: () -> Void = {}
     var onPanelShown: (NSPanel) -> Void = { _ in }
 

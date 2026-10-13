@@ -2541,6 +2541,20 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   plate and the two layout dividers bordering the apps zone become flexible gaps, so leading widgets pin
   left and trailing widgets pin right (B4). Appendix A rewritten to today's sections and modes. Still owed
   in 11b: thumbnails drawing the capsule, smoother mode switch (B8). Full suite 2182 green; live check next.
+- 2026-10-13 · **11b live check (Release, ad-hoc):** Full Width = edge-to-edge bar with ends pinned; capsule
+  present after every mode switch; Split 5 Wi-Fi island on screen; no stray capsule after a Finder
+  fullscreen round-trip (B1/B2/B3/B4 confirmed fixed). Observation: during fullscreen the dock stayed
+  visible in one screenshot — re-check in 11g.
+- 2026-10-13 · **11c built.** `DockThemeStyle.plateOverlay` (Core, tested): presets lay their `baseTint` at
+  55 % alpha over the macOS 26 system-glass and pre-26 visual-effect plates (both dropped it, B6); `auto`
+  and `system` stay untinted (frozen default). Chip panel theme fallback `.system` → `.auto`. B7 judged a
+  false positive (light Settings window behind the apps island's glass) — confirm in 11g.
+- 2026-10-13 · **11d built.** Widget widths scale with bar height in the solver and the strip (chips were
+  scaled after layout and clipped into square-cornered strips at 120 pt); new `nativeScaled` lays a chip
+  out at native size, then scales it. Weather S 64 → 84 pt and small widgets get a 4 pt slot inset (the
+  temperature truncated to "°"). **Owner 2026-10-13: bar height max 120 → 90** (`DockPanelHeight.maximum`;
+  a stored 120 clamps on launch). At the old 120 with margin 80 / gap 40 islands no longer overlapped or
+  left the screen; the apps row scrolls when it cannot fit. Suite 2185 green.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

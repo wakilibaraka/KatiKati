@@ -16,6 +16,8 @@ struct DockGlassBackdrop: View {
     var thicknessEnabled: Bool = false
     var matchesDockRefraction: Bool = false
     var baseTint: DockRGBA? = nil
+    /// Theme colour over the system-glass and visual-effect paths (`DockThemeStyle.plateOverlay`).
+    var plateOverlay: DockRGBA? = nil
 
     private func themedConfiguration() -> DockLiquidGlassConfiguration {
         var c = DockGlassPresentation.configuration
@@ -23,6 +25,14 @@ struct DockGlassBackdrop: View {
         return c
     }
 
+    @ViewBuilder
+    private var overlayFill: some View {
+        if let tint = plateOverlay {
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill(Color(red: tint.r, green: tint.g, blue: tint.b).opacity(tint.a))
+                .allowsHitTesting(false)
+        }
+    }
 
     var body: some View {
         Group {
@@ -35,6 +45,7 @@ struct DockGlassBackdrop: View {
                     usesDiagonalHighlight: matchesDockRefraction && DockGlassPresentation.diagonalHighlightEnabled
                         && variant == DockLiquidGlassConfiguration.dockSystemVariant
                 )
+                    .overlay { overlayFill }
                     .allowsHitTesting(false)
             } else if #available(macOS 26.0, *), usesLiquidGlass {
                 DockLiquidGlassPlate(
@@ -48,6 +59,7 @@ struct DockGlassBackdrop: View {
             } else {
                 DockVisualEffectView(material: material)
                     .dockBackdropSaturation(saturation)
+                    .overlay { overlayFill }
             }
         }
         .onAppear {
@@ -71,6 +83,7 @@ struct DockGlassBackdrop: View {
 /// 但**会把画在底板内部的描边裁掉** —— 所以边缘高光走 `View.dockPanelRim`，
 /// 挂在面板 body 的最外层，不在这里画。
 struct DockPanelBackdrop: View {
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
     let theme: DockThemeTokens
     let cornerRadius: CGFloat
     let usesLiquidGlass: Bool
@@ -91,7 +104,8 @@ struct DockPanelBackdrop: View {
                           saturation: theme.effectiveBackdropSaturation,
                           thicknessEnabled: theme.drawsEffectiveThickness,
                           matchesDockRefraction: matchesDockRefraction,
-                          baseTint: theme.styleTokens.baseTint)
+                          baseTint: theme.styleTokens.baseTint,
+                          plateOverlay: dockThemeStyle.plateOverlay(baseTint: theme.styleTokens.baseTint))
             .padding(-DockLiquidGlassConfiguration.backdropOutset(
                 usesLiquidGlass: usesLiquidGlass,
                 usesSystemVariant: DockGlassPresentation.usesSystemVariant))

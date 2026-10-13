@@ -9,13 +9,13 @@ import CoreGraphics
 /// Heights are rounded to whole points before anything derives from them; a fractional
 /// height would put corner radius, icons and the hairline divider on half pixels.
 struct DockPanelHeight: Equatable {
-    /// 32…120 mirrors the reach of the Dock's own Size slider (tile 16…128 around a default of
-    /// 48) rather than a comfort band around `native`. Both ends are reached only through the
+    /// 32…90 (owner 2026-10-13: was 120, the Dock's own Size reach). Above ~90 the islands, widget
+    /// pills and the apps row stop fitting a laptop screen, so the cap is a comfort band. Both ends are reached only through the
     /// status-menu slider or the grip; nothing seeds them. Below ~38pt the unscaled 9pt ▲▼ grip
     /// glyph reaches past the chip *frame* by under 1pt but stays short of the icon artwork
     /// (`ChipPillMetrics.bareIconVisibleSlot` keeps 3.75pt × scale of transparent margin).
     static let minimum: CGFloat = 32
-    static let maximum: CGFloat = 120
+    static let maximum: CGFloat = 90
 
     /// 54 = the native macOS Dock bar height (@2x screenshot: 108px). Icons (40pt,
     /// `ChipHoverVisual.bareIconSize`) and `ChipPillMetrics.chipHeight` are tuned to it;
