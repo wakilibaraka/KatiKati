@@ -2935,8 +2935,16 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
     report — now a 0.5 pt dead band) and async height reports read on the wrong screen after the
     pointer moved displays (the panel now reuses its shown screen). Nothing deleted this slice.
     Strings +4 ×12 (drafts). **Verified:** 2,216 tests, 0 failures; localization ✅ (711 ×12);
-    debug switches ✅. **Owner eyeball:** bottom edge, merged card, slider order, the four actions
+    debug     switches ✅. **Owner eyeball:** bottom edge, merged card, slider order, the four actions
     live (lock + relaunch ask first). S/M/L presets + open-animation move to **16t**.
+  - 2026-10-13 · **16t — bottom-edge pulse fixed at the source (owner video).** The utility row bounced
+    because the Now Playing card changed height with the feed: two lines + transport buttons with a
+    track, one line + no buttons without — any MediaRemote flap resized the live panel past the dead
+    band. The card now keeps one shape always (title-or-"Nothing Playing" + artist-or-nbsp second
+    line, transport always rendered but dimmed/disabled without a track); the battery header keeps a
+    fixed `%` slot for a missing reading. All other rows were already single-shape. **Verified:**
+    2,216 tests, 0 failures; localization ✅ (711 ×12); debug switches ✅. **Owner eyeball:** open
+    the panel and watch the bottom edge — plus play something in Safari to see the card fill in.
 
  - 2026-10-13 · **16k built — six Pinboard-only widgets ported as clock-pane tiles; gate green.**
    `TileKind` += calculator, screenTime, network, battery, topApps, batteries (accents ×4

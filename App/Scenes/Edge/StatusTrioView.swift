@@ -273,26 +273,36 @@ struct ControlCenterView: View {
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
     }
 
+    /// The card keeps the same shape with and without a track (two text lines + transport row):
+    /// a flapping MediaRemote state must never change its height, or the live panel resize pulses.
     private var nowPlayingCard: some View {
         let s = nowPlaying.state
+        let hasTrack = s.title != nil
         return HStack(spacing: 12) {
             RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.10))
                 .frame(width: 46, height: 46).overlay(Image(systemName: "music.note").foregroundStyle(.secondary))
             VStack(alignment: .leading, spacing: 2) {
-                if let title = s.title {
-                    Text(verbatim: title).font(.system(size: 13, weight: .semibold)).lineLimit(1)
-                    Text(verbatim: s.artist ?? "").font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
-                } else {
-                    Text("Nothing Playing").font(.system(size: 12)).foregroundStyle(.secondary)
+                Group {
+                    if hasTrack {
+                        Text(verbatim: s.title ?? "")
+                    } else {
+                        Text("Nothing Playing")
+                    }
                 }
+                .font(.system(size: 13, weight: hasTrack ? .semibold : .regular))
+                .foregroundStyle(hasTrack ? Color.primary : Color.secondary)
+                .lineLimit(1)
+                // Non-breaking space: keeps the second line (and the card height) when no artist.
+                Text(verbatim: s.artist ?? " ")
+                    .font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
             }
             Spacer(minLength: 0)
-            if s.title != nil {
-                Button { nowPlaying.previousTrack() } label: { Image(systemName: "backward.fill") }.buttonStyle(.plain)
-                Button { nowPlaying.togglePlayPause() } label: { Image(systemName: s.isPlaying ? "pause.fill" : "play.fill") }.buttonStyle(.plain)
-                Button { nowPlaying.nextTrack() } label: { Image(systemName: "forward.fill") }.buttonStyle(.plain)
-            }
+            Button { nowPlaying.previousTrack() } label: { Image(systemName: "backward.fill") }.buttonStyle(.plain)
+            Button { nowPlaying.togglePlayPause() } label: { Image(systemName: s.isPlaying ? "pause.fill" : "play.fill") }.buttonStyle(.plain)
+            Button { nowPlaying.nextTrack() } label: { Image(systemName: "forward.fill") }.buttonStyle(.plain)
         }
+        .disabled(!hasTrack)
+        .opacity(hasTrack ? 1 : 0.55)
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
     }
@@ -423,9 +433,9 @@ private struct ControlCenterBatteryCard: View {
                     .font(.system(size: 14)).frame(width: 22)
                 Text("Battery").font(.system(size: 13, weight: .semibold))
                 Spacer(minLength: 0)
-                if let level = status.status.battery.level {
-                    Text(verbatim: "\(level)%").font(.system(size: 15, weight: .bold)).monospacedDigit()
-                }
+                // Fixed slot: a missing reading must not change the row height (panel pulse).
+                Text(verbatim: status.status.battery.level.map { "\($0)%" } ?? "–")
+                    .font(.system(size: 15, weight: .bold)).monospacedDigit()
             }
             if showsThisMac, let level = status.status.battery.level {
                 line("laptopcomputer", Text("This Mac"), level)
