@@ -1253,6 +1253,32 @@ final class AppSettingsStore: ObservableObject {
             mode: barLayoutMode, order: widgetLayout.visibleOrder, barHeight: dockPanelHeight.points))
     }
 
+    // MARK: Dock styles (Phase 11e)
+
+    /// The built-in style the live values equal, or `nil` (= Custom).
+    var currentDockStyle: DockStyle? {
+        DockStyle.matching(mode: barLayoutMode, barHeight: dockPanelHeight.points, gap: islandGap,
+                           margin: islandMargin, bottomGap: bottomGap)
+    }
+
+    /// One write per setting; the style is first fitted to `screenWidth` so it never overflows.
+    func applyDockStyle(_ style: DockStyle, screenWidth: CGFloat) {
+        let fitted = DockStyleFit.resolve(style, screenWidth: screenWidth, widgetOrder: widgetLayout.visibleOrder)
+        setBarLayoutMode(fitted.mode)
+        setDockPanelHeight(DockPanelHeight(clamping: fitted.size.barHeight))
+        setIslandGap(fitted.spacing.gap)
+        setIslandMargin(fitted.spacing.margin)
+        setBottomGap(fitted.bottomGap)
+        if let id = fitted.widgetPresetID, let preset = WidgetPresets.builtIns.first(where: { $0.id == id }) {
+            applyWidgetPreset(preset)
+        }
+    }
+
+    func setDockSpacing(_ spacing: DockSpacing) {
+        setIslandGap(spacing.gap)
+        setIslandMargin(spacing.margin)
+    }
+
     func setWidgetLayout(_ layout: WidgetLayout) {
         widgetLayout = layout
         widgetOrder = layout.visibleOrder
