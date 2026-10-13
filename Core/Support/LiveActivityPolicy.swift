@@ -228,3 +228,18 @@ enum LiveIdleAction: CaseIterable, Sendable {
     /// The dock chip shows idle actions exactly when the winning activity is the clock fallback.
     static func showsIdleActions(for kind: LiveActivityKind) -> Bool { kind == .clock }
 }
+
+extension LiveActivity {
+    /// 0…1 ring around the dock chip glyph: focus phase, running timer, or track position. Nil when
+    /// the activity has no meaningful progress (clock, stopwatch, countdown, a stream with no duration).
+    var ringProgress: Double? {
+        let raw: Double?
+        switch content {
+        case .focus(let focus): raw = focus.progress
+        case .timer(let timer): raw = timer.progress
+        case .music(let music): raw = music.progress
+        case .countdown, .stopwatch, .clock: raw = nil
+        }
+        return raw.map { min(1, max(0, $0)) }
+    }
+}

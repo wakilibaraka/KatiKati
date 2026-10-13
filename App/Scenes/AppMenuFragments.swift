@@ -365,3 +365,47 @@ enum WidgetMenuBuilder {
         return menu
     }
 }
+
+
+// MARK: - Live Island chip menu (Phase 10c-1b)
+
+/// Full controls for the dock Live Island chip, shown through the floating chip panel (right-click on the
+/// chip). Sections are plain headers + rows, so the panel bridge renders them as it does every dock menu.
+enum LiveIslandMenuBuilder {
+    @MainActor
+    static func menu(feed: LiveActivityFeed, keepAwakeOn: Bool, toggleKeepAwake: @escaping () -> Void) -> NSMenu {
+        let services = ProductivityServices.shared
+        let menu = NSMenu()
+        func header(_ title: String) {
+            if !menu.items.isEmpty { menu.addItem(.separator()) }
+            menu.addItem(NSMenuItem(title: title, action: nil, keyEquivalent: ""))
+        }
+
+        header(String(localized: "Focus"))
+        menu.addItem(ClosureMenuItem(String(localized: "Start / Pause")) { services.focus.toggle() })
+        menu.addItem(ClosureMenuItem(String(localized: "Skip")) { services.focus.skip() })
+        menu.addItem(ClosureMenuItem(String(localized: "Reset")) { services.focus.reset() })
+
+        header(String(localized: "Timer"))
+        for minutes in [5, 15, 25, 60] {
+            menu.addItem(ClosureMenuItem("\(minutes)m") {
+                services.timer.set(seconds: minutes * 60)
+                services.timer.toggle()
+            })
+        }
+        menu.addItem(ClosureMenuItem(String(localized: "Stop")) { services.timer.reset() })
+
+        header(String(localized: "Keep Awake"))
+        let awake = ClosureMenuItem(String(localized: "Keep Awake")) { toggleKeepAwake() }
+        awake.state = keepAwakeOn ? .on : .off
+        menu.addItem(awake)
+
+        if case .music = feed.activity.content {
+            header(String(localized: "Now Playing"))
+            menu.addItem(ClosureMenuItem(String(localized: "Play / Pause")) { feed.togglePlayPause() })
+            menu.addItem(ClosureMenuItem(String(localized: "Next Track")) { feed.nextTrack() })
+            menu.addItem(ClosureMenuItem(String(localized: "Previous Track")) { feed.previousTrack() })
+        }
+        return menu
+    }
+}

@@ -81,6 +81,11 @@ struct LiveIslandDockCapsule: View {
                 .stroke(Color.white.opacity(0.12), lineWidth: 1)
         )
         .contentShape(Rectangle())
+        .floatingContextMenu {
+            LiveIslandMenuBuilder.menu(feed: feed, keepAwakeOn: runtime.isKeepAwakeOn?() ?? keepAwakeOn) {
+                keepAwakeOn = runtime.onToggleKeepAwake?() ?? keepAwakeOn
+            }
+        }
         .onHover { isHovering = $0 }
         .onTapGesture { tap(for: activity) }
         .onAppear { feed.retain() }
@@ -170,11 +175,20 @@ struct LiveIslandDockCapsule: View {
     }
 
     private func glyph(for activity: LiveActivity) -> some View {
-        Image(systemName: symbolName(for: activity.kind))
-            .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(tint(for: activity.kind))
-            .frame(width: 16)
-            .accessibilityHidden(true)
+        ZStack {
+            if let progress = activity.ringProgress {
+                Circle().stroke(tint(for: activity.kind).opacity(0.2), lineWidth: 2)
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(tint(for: activity.kind), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+            }
+            Image(systemName: symbolName(for: activity.kind))
+                .font(.system(size: activity.ringProgress == nil ? 13 : 10, weight: .semibold))
+                .foregroundStyle(tint(for: activity.kind))
+        }
+        .frame(width: activity.ringProgress == nil ? 16 : 22, height: 22)
+        .accessibilityHidden(true)
     }
 
     // MARK: - Kind mapping (shared with the notch surface via `LiveIslandStyle`)
