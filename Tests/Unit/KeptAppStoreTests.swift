@@ -46,38 +46,19 @@ final class KeptAppStoreTests: XCTestCase {
         XCTAssertFalse(second.contains(FinderTaskbarPolicy.bundleID))
     }
 
-    // MARK: - System all-apps entry (owner 2026-10-07: fresh installs only)
+    // MARK: - Fresh-install defaults (owner 2026-10-13: Mail replaces the system all-apps entry)
 
-    func testFreshInstallKeepsAppsRightAfterFinder() {
-        let store = KeptAppStore(defaults: makeDefaults(finderSeeded: false))
-        store.seedSystemAppLauncherForFreshInstall(lineage: .pristine) { _ in true }
-        XCTAssertEqual(store.bundleIDs, [FinderTaskbarPolicy.bundleID, "com.apple.apps.launcher"])
-    }
-
-    func testLaunchpadIsNeverSeededBeforeMacOS26() {
-        let store = KeptAppStore(defaults: makeDefaults())
-        store.seedSystemAppLauncherForFreshInstall(lineage: .pristine) { $0 == "com.apple.launchpad.launcher" }
-        XCTAssertTrue(store.bundleIDs.isEmpty)
-    }
-
-    func testUpgraderNeverGetsSystemAppLauncher() {
-        let defaults = makeDefaults()
-        defaults.set(["com.example.app"], forKey: KeptAppStore.defaultsKey)
-        let store = KeptAppStore(defaults: defaults)
-        store.seedSystemAppLauncherForFreshInstall(lineage: .priorUse) { _ in true }
-        XCTAssertEqual(store.bundleIDs, ["com.example.app"])
-    }
-
-    func testNoInstalledLauncherSeedsNothing() {
-        let store = KeptAppStore(defaults: makeDefaults())
-        store.seedSystemAppLauncherForFreshInstall(lineage: .pristine) { _ in false }
-        XCTAssertTrue(store.bundleIDs.isEmpty)
-    }
-
-    func testFreshInstallKeepsSafariSettingsAndMessagesAfterFinder() {
+    func testFreshInstallNeverSeedsTheSystemAllAppsEntry() {
         let store = KeptAppStore(defaults: makeDefaults(finderSeeded: false))
         store.seedDefaultAppsForFreshInstall(lineage: .pristine) { _ in true }
-        XCTAssertEqual(store.bundleIDs, [FinderTaskbarPolicy.bundleID, "com.apple.Safari", "com.apple.systempreferences", "com.apple.MobileSMS"])
+        XCTAssertFalse(store.bundleIDs.contains("com.apple.apps.launcher"))
+        XCTAssertFalse(store.bundleIDs.contains("com.apple.launchpad.launcher"))
+    }
+
+    func testFreshInstallKeepsMailSafariSettingsAndMessagesAfterFinder() {
+        let store = KeptAppStore(defaults: makeDefaults(finderSeeded: false))
+        store.seedDefaultAppsForFreshInstall(lineage: .pristine) { _ in true }
+        XCTAssertEqual(store.bundleIDs, [FinderTaskbarPolicy.bundleID, "com.apple.mail", "com.apple.Safari", "com.apple.systempreferences", "com.apple.MobileSMS"])
     }
 
     func testDefaultAppsSkipMissingAppsAndNeverTouchUpgraders() {

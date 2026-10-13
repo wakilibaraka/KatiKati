@@ -72,23 +72,11 @@ final class KeptAppStore: ObservableObject {
         logger.info("seeded Finder into keptAppBundleIDsV3 (one-shot)")
     }
 
-    /// The native Dock's all-apps entry on macOS 26+ (Apps, a Spotlight panel). Launchpad
-    /// (macOS 12-15, `com.apple.launchpad.launcher`) is deliberately not seeded: it is a
-    /// full-screen page that covers the taskbar and brings the native Dock back, and its icons
-    /// cannot be dragged onto the taskbar — do not add it back as a fallback.
-    static let systemAppLauncherBundleID = "com.apple.apps.launcher"
-
-    /// A fresh install keeps the system's all-apps entry right after Finder, as the native Dock
-    /// does. Fresh is decided by `InstallLineage` only (AGENTS.md): upgraders never get it, so
-    /// unlike Finder there is no seed marker — an un-check is simply never undone.
-    func seedSystemAppLauncherForFreshInstall(lineage: InstallLineage, isInstalled: (String) -> Bool) {
-        guard lineage == .pristine, isInstalled(Self.systemAppLauncherBundleID) else { return }
-        add(Self.systemAppLauncherBundleID)
-        logger.info("seeded \(Self.systemAppLauncherBundleID, privacy: .public) into keptAppBundleIDsV3 (fresh install)")
-    }
-
+    /// The system all-apps entry (`com.apple.apps.launcher`) is no longer seeded (owner 2026-10-13): Mail takes its
+    /// slot right after Finder. Launchpad (macOS 12-15) stays out too: it is a full-screen page that covers the
+    /// taskbar and brings the native Dock back.
     /// Apps a fresh install keeps on the bar so it is not empty on first launch (Finder is seeded separately).
-    static let freshInstallDefaultApps = ["com.apple.Safari", "com.apple.systempreferences", "com.apple.MobileSMS"]
+    static let freshInstallDefaultApps = ["com.apple.mail", "com.apple.Safari", "com.apple.systempreferences", "com.apple.MobileSMS"]
 
     /// Fresh installs only (`InstallLineage`); upgraders never get them, and un-keeping one is never undone. Only apps
     /// that are installed on this Mac are added, in order, after what is already kept.
