@@ -2297,6 +2297,20 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
 - **Verify each**: tungsten gate green + menu/preview/shortcut anchor tests + Instruments
   idle-CPU number in the PR.
 
+### Execution order from Phase 10 onward (owner-approved 2026-10-13; numbers unchanged, phase content unchanged)
+
+| # | Phase | Why here |
+|---|---|---|
+| 1 | **Phase 10 close-out** (residual list in the 2026-10-13 check-log) → owner sign-off | finish what is built |
+| 2 | **Phase 20a + 20b** — Background Apps drawer, hold-Control RAM overlay | owner's newest requests; self-contained |
+| 3 | **Phase 13** — Launcher & edge payload (§7w; 7B continuation) | follows Pinboard freeze; may overlap 2 |
+| 4 | **Phase 11** — Layout-mode rendering refinement | must precede 18 (axis abstraction built once) |
+| 5 | **Phase 18** — Strip placement bottom / left / right | after 11 |
+| 6 | **Phase 20c extras** (optional): window switcher → sleep layout restore → menu-bar system widget | owner picks |
+| 7 | **Phase 12** (merged 12/14/15/17) — Settings refinement + dead-code registry | last: audits the final feature set |
+
+Phase 16 does not exist; Phase 19 is done.
+
 ### Phase 10 — Widget presets + wallpaper integration (deferred; owner-assigned scope 2026-10-11)
 
 - **10a — Widget presets**: saved widget configurations (layouts/palettes/presets).
@@ -2481,7 +2495,7 @@ the main failure mode, so 18a's goldens guard it. **Order:** after Phase 11 (sol
 axis abstraction lands once, on the refined solver. **Not in scope:** top placement, rotating the
 Live Island, changing the native Dock's position.
 
-### 15 + 17 — Settings architecture & interaction + content/investigation registry (merged phases 15 + 17, done together since they touch the same pages)
+### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
 **Note:** the AI agent may analyse the live app to do both parts together — they touch the same pages
 (Settings, Widgets, Launcher).
