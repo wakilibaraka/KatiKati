@@ -2602,6 +2602,16 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   `stripCapsuleTargetFrame` puts the capsule under the apps island on a rail. 4 tests (bottom identical
   for every mode/slot, rails hug the edge below the menu bar without overlap, capsule placement, top
   margin). Not wired to the coordinator until the strip view renders vertically (18c).
+- 2026-10-13 · **18c-1 built (rendering + wiring).** `DockStripView` stacks along either axis
+  (`StripAxisStack`, HStack/VStack — `AnyLayout` needs macOS 13), vertical scroll + fades, horizontal
+  hairline dividers, Full Width spacers along the rail, no wheel→horizontal interceptor on a rail, window
+  chips icon-only on a rail, running dot on the inner edge (`RunningDotEdge` environment), compact rail
+  tiles (`RailWeatherTile` glyph over °, `RailClockTile` HH over MM in the user's 12/24 h, media = small
+  Live Island chip fitted to the square). Coordinator: `stripPlacement` per unit display, rail frames via
+  `stripTargetFrame`, capsule via `stripCapsuleTargetFrame`, height measured on a rail; projection and
+  capsule ownership use the folded mode; orchestrator slot count per display (`IslandSlotSet.desiredSlots`
+  `modeForDisplay`) and a rebuild on `stripPlacementMap` change. Still bottom-only: hover/drop/reorder
+  maths (18c-2), popups (18d), window clearance (18e), hot zone/auto-hide (18f). Suite green.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

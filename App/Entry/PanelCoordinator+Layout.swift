@@ -304,14 +304,33 @@ extension PanelCoordinator {
         relayout(animated: false)
     }
 
+    /// Phase 18: the edge this unit's strip sits on (same display key the strip view reads).
+    var stripPlacement: StripPlacement { settingsStore.stripPlacement(forDisplay: fixedUnitDisplayUUID) }
+
     /// Bar target frame: computes island frame using IslandLayoutSolver across all layout modes.
+    /// `contentWidth` is the measured main-axis length (the height on a side rail).
     func dockTargetFrame(contentWidth: CGFloat, on screen: NSScreen) -> NSRect {
-        PanelGeometry.islandTargetFrame(
+        let placement = stripPlacement
+        guard placement.isVertical else {
+            return PanelGeometry.islandTargetFrame(
+                slot: islandSlot,
+                contentWidth: contentWidth,
+                mode: settingsStore.barLayoutMode,
+                on: Self.screenGeometry(screen),
+                placement: settingsStore.drawerPlacement,
+                metrics: layoutMetrics,
+                centeredWidth: CGFloat(settingsStore.centeredWidth),
+                gap: CGFloat(settingsStore.islandGap),
+                margin: CGFloat(settingsStore.islandMargin),
+                widgetLayout: settingsStore.widgetLayout
+            )
+        }
+        return PanelGeometry.stripTargetFrame(
             slot: islandSlot,
-            contentWidth: contentWidth,
+            contentLength: contentWidth,
             mode: settingsStore.barLayoutMode,
+            stripPlacement: placement,
             on: Self.screenGeometry(screen),
-            placement: settingsStore.drawerPlacement,
             metrics: layoutMetrics,
             centeredWidth: CGFloat(settingsStore.centeredWidth),
             gap: CGFloat(settingsStore.islandGap),
@@ -323,14 +342,17 @@ extension PanelCoordinator {
     /// Whether this coordinator unit hosts the drawer capsule.
     /// Per Appendix A, utilities (drawer, shelf, trash, folders) travel with the apps island.
     var isCapsuleOwner: Bool {
-        let sections = BarSection.islands(for: settingsStore.barLayoutMode, order: settingsStore.widgetOrder)
+        let sections = BarSection.islands(for: stripPlacement.effectiveMode(settingsStore.barLayoutMode),
+                                          order: settingsStore.widgetOrder)
         guard islandSlot < sections.count else { return islandSlot == 0 }
         return sections[islandSlot].contains(.apps)
     }
 
     /// 胶囊目标 frame（贴任务条右边、纵向居中）。只依赖传入的 dock **目标** frame。
     private func capsuleTargetFrame(forDock dockFrame: NSRect, on screen: NSScreen) -> NSRect {
-        PanelGeometry.capsuleTargetFrame(forDock: dockFrame, on: Self.screenGeometry(screen), placement: settingsStore.drawerPlacement, metrics: layoutMetrics)
+        PanelGeometry.stripCapsuleTargetFrame(forDock: dockFrame, stripPlacement: stripPlacement,
+                                              on: Self.screenGeometry(screen),
+                                              drawerPlacement: settingsStore.drawerPlacement, metrics: layoutMetrics)
     }
 
     /// 抽屉目标 frame（右边贴胶囊右边、**底边硬锚在胶囊上方、向上长**）。只依赖传入的胶囊 **目标** frame + 抽屉尺寸。
@@ -423,7 +445,8 @@ extension PanelCoordinator {
         // `fittingSize` 是**主线程上把整条任务条同步布局一遍**，不是读一个缓存值。
         // 探针量的就是它 + 宽度到底变没变（没变还跑动画就是纯浪费）。
         let measureStart = CACurrentMediaTime()
-        let measured = hosting.fittingSize.width - 2 * Self.shadowPadding
+        let fitting = hosting.fittingSize
+        let measured = (stripPlacement.isVertical ? fitting.height : fitting.width) - 2 * Self.shadowPadding
         HoverTrace.relayout(measureMs: CACurrentMediaTime() - measureStart,
                             width: measured,
                             changed: measured != lastDesiredWidth,

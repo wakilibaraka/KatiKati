@@ -211,16 +211,19 @@ struct DockStripView: View {
                 theme.panelThicknessLayer(cornerRadius: taskbarCornerRadius)
             }
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .center, spacing: Style.chipSpacing * dockScale) {
+            // Phase 18c: one stack, two axes — a side rail stacks the same entries top to bottom.
+            ScrollView(isRail ? .vertical : .horizontal, showsIndicators: false) {
+                StripAxisStack(vertical: isRail, spacing: Style.chipSpacing * dockScale) {
                     ForEach(projection.entries) { entry in
                         chipWithReorder(entry, projection: projection)
                             .transition(.scale(scale: 0.88).combined(with: .opacity))
                     }
                 }
-                .frame(minWidth: fullWidthContentWidth, alignment: .leading)
-                .padding(.horizontal, Style.chipContentInset * dockScale)
-                .frame(height: metrics.panelHeight)
+                .frame(minWidth: isRail ? nil : fullWidthContentWidth,
+                       minHeight: isRail ? fullWidthContentWidth : nil,
+                       alignment: isRail ? .top : .leading)
+                .padding(isRail ? .vertical : .horizontal, Style.chipContentInset * dockScale)
+                .frame(width: isRail ? metrics.panelHeight : nil, height: isRail ? nil : metrics.panelHeight)
                 .animation(frames.renderedCollapsed != dragController.stripSlotCollapsed
                                ? .easeInOut(duration: DrawerAnimation.duration)          // 合拢 / 重开：跟面板走
                                : .spring(response: 0.28, dampingFraction: 0.82),         // 让位：签收过的弹簧
@@ -248,17 +251,30 @@ struct DockStripView: View {
             .clipShape(RoundedRectangle(cornerRadius: taskbarCornerRadius, style: .continuous))
             .compatLeadingScrollAnchor()
             .mask(alignment: .center) {
-                HStack(spacing: 0) {
-                    LinearGradient(colors: [.clear, .black], startPoint: .leading, endPoint: .trailing)
-                        .frame(width: Style.edgeFadeWidth * dockScale)
-                    Color.black
-                    LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
-                        .frame(width: Style.edgeFadeWidth * dockScale)
+                if isRail {
+                    VStack(spacing: 0) {
+                        LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
+                            .frame(height: Style.edgeFadeWidth * dockScale)
+                        Color.black
+                        LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+                            .frame(height: Style.edgeFadeWidth * dockScale)
+                    }
+                } else {
+                    HStack(spacing: 0) {
+                        LinearGradient(colors: [.clear, .black], startPoint: .leading, endPoint: .trailing)
+                            .frame(width: Style.edgeFadeWidth * dockScale)
+                        Color.black
+                        LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
+                            .frame(width: Style.edgeFadeWidth * dockScale)
+                    }
                 }
             }
             .overlay(alignment: .topLeading) {
-                WheelScrollInterceptorRepresentable()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // Vertical wheel → horizontal scroll is a bottom-bar affordance; a rail scrolls natively.
+                if !isRail {
+                    WheelScrollInterceptorRepresentable()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
             }
             // 右键任务条底板弹钨极菜单。
             //
@@ -514,6 +530,7 @@ struct DockStripView: View {
         // every `themeMaterial` change, so a theme switch repaints the whole strip immediately.
         .environment(\.dockThemeStyle, settingsStore.themeMaterial)
         .environment(\.iconSet, settingsStore.iconSet)
+        .environment(\.runningDotEdge, RunningDotEdge(placement: stripPlacement))
         // No .frame(maxWidth: .infinity) here — lets NSHostingView.fittingSize reflect
         // the natural content width so AppDelegate can read it for panel sizing.
     }
@@ -1341,6 +1358,8 @@ struct DockStripView: View {
                      isHovered: hovered,
                      // 只有 app-* 兜底卡（访达常驻 / 保留兜底）代表整个应用；普通窗口卡不列。
                      showsWindowListInMenu: item.isAppLevelFallback,
+                     // A rail is one icon wide: titled pills would spill past it (Phase 18c).
+                     iconOnly: isRail,
                      showRunningDot: true,
                      pulseNonce: chipPulseNonces[item.id] ?? 0,
                      badgeText: windowBadge,
@@ -1355,18 +1374,27 @@ struct DockStripView: View {
             let targetWidth = fitted.width(for: section)
             let widgetSize = fitted.instance(for: section).size
 
-            HStack(spacing: 6 * dockScale) {
-                if section.supportsWidgetSizes, let members = settingsStore.widgetLayout.instance(for: section).stack, members.count > 1 {
-                    SmartStackSlot(host: section, members: members) { widgetChip($0, size: widgetSize) }
+            Group {
+                if isRail {
+                    // Side rail: compact tiles (decision 1), sized by `BarSection.railTileLength`.
+                    railWidgetTile(section)
+                        .frame(width: 44 * dockScale,
+                               height: section.railTileLength(barHeight: IslandChrome.nativeBarHeight) * dockScale)
                 } else {
-                    widgetChip(section, size: widgetSize)
+                    HStack(spacing: 6 * dockScale) {
+                        if section.supportsWidgetSizes, let members = settingsStore.widgetLayout.instance(for: section).stack, members.count > 1 {
+                            SmartStackSlot(host: section, members: members) { widgetChip($0, size: widgetSize) }
+                        } else {
+                            widgetChip(section, size: widgetSize)
+                        }
+                    }
+                    // Small widgets keep a slimmer slot inset so their pill keeps its content (Phase 11d).
+                    .padding(.horizontal, (widgetSize == .small ? 4 : 10) * dockScale)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+                    .frame(width: section == .apps ? nil : targetWidth * dockScale, height: 36 * dockScale)
                 }
             }
-            // Small widgets keep a slimmer slot inset so their pill keeps its content (Phase 11d).
-            .padding(.horizontal, (widgetSize == .small ? 4 : 10) * dockScale)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .clipped()
-            .frame(width: section == .apps ? nil : targetWidth * dockScale, height: 36 * dockScale)
             .contentShape(Rectangle())
             // Phase 6: hover title per island section (system tooltip; a chip's own `.help`
             // still wins inside it).
@@ -1404,6 +1432,11 @@ struct DockStripView: View {
             // Full Width: the gaps either side of the apps zone stretch, pinning the leading widgets
             // to the left end and the trailing ones to the right end (Appendix A, Phase 11b).
             Spacer(minLength: StripContextMenuZone.dividerGapWidth * dockScale)
+        case .divider where isRail:
+            Rectangle()
+                .fill(theme.zoneDivider.color)
+                .frame(width: Style.dividerHeight * dockScale, height: 1)
+                .padding(.vertical, Style.dividerSidePadding * dockScale)
         case .divider:
             Rectangle()
                 .fill(theme.zoneDivider.color)
@@ -1616,8 +1649,42 @@ extension DockStripView {
     var fullWidthContentWidth: CGFloat? {
         guard settingsStore.barLayoutMode == .windows else { return nil }
         let plate = PanelGeometry.fullWidthPlateWidth(
-            screenWidth: stripScreenWidth, margin: CGFloat(settingsStore.islandMargin), metrics: metrics)
+            screenWidth: stripMainLength, margin: CGFloat(settingsStore.islandMargin), metrics: metrics)
         return max(0, plate - 2 * Style.chipContentInset * dockScale)
+    }
+
+    /// Phase 18: the edge this strip sits on (its display's override, else the global choice).
+    var stripPlacement: StripPlacement { settingsStore.stripPlacement(forDisplay: displayUUID) }
+    var isRail: Bool { stripPlacement.isVertical }
+
+    /// Length of the strip's main axis on its screen: the width for the bottom bar, the height below
+    /// the menu bar for a rail (`StripAxis.mainLength`).
+    var stripMainLength: CGFloat {
+        guard isRail else { return stripScreenWidth }
+        let rect = frames.stripRootScreenRect
+        guard let screen = NSScreen.screens.first(where: { $0.frame.intersects(rect) }) ?? NSScreen.main else { return 900 }
+        let geometry = PanelCoordinator.screenGeometry(screen)
+        return StripAxis.mainLength(placement: stripPlacement, screen: geometry.frame,
+                                    topInset: PanelGeometry.railTopInset(on: geometry))
+    }
+
+    @ViewBuilder
+    func railWidgetTile(_ section: BarSection) -> some View {
+        switch section {
+        case .weather:
+            RailWeatherTile().nativeScaled(dockScale)
+        case .clock:
+            RailClockTile().nativeScaled(dockScale)
+        case .media:
+            // The Live Island chip's small form, fitted into the square slot.
+            NowPlayingChip()
+                .environment(\.widgetSize, .small)
+                .frame(width: 72, height: 36)
+                .scaleEffect(44 * dockScale / 72)
+                .frame(width: 44 * dockScale, height: 44 * dockScale)
+        case .launcher, .widgets, .apps:
+            widgetChip(section, size: .small)
+        }
     }
 
     /// The layout dividers bordering the apps zone (`makeProjection` ids).
@@ -1686,5 +1753,21 @@ private struct NativeScaled: ViewModifier {
 
 extension View {
     func nativeScaled(_ scale: CGFloat) -> some View { modifier(NativeScaled(scale: scale)) }
+}
+
+/// HStack on the bottom bar, VStack on a side rail (Phase 18c). `AnyLayout` would do this in one
+/// line but needs macOS 13; the floor is 12.
+private struct StripAxisStack<Content: View>: View {
+    let vertical: Bool
+    let spacing: CGFloat
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        if vertical {
+            VStack(alignment: .center, spacing: spacing, content: content)
+        } else {
+            HStack(alignment: .center, spacing: spacing, content: content)
+        }
+    }
 }
 

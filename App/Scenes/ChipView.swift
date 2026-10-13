@@ -73,6 +73,8 @@ struct ChipView: View {
     /// 那个窗口，恒 false。**故意不给默认值**——漏传必须是编译错误（同 `scale` 那条铁律）。
     let showsWindowListInMenu: Bool
     var iconOnly: Bool = false
+    /// Phase 18c: the dot sits on the strip's inner edge (bottom bar → bottom; rails → toward the screen).
+    @Environment(\.runningDotEdge) private var runningDotEdge
     var showRunningDot: Bool = false
     /// 见 `EnvironmentValues.isDragCarrierSnapshot`：拍副本时不画圆点、不烘投影。
     @Environment(\.isDragCarrierSnapshot) private var isDragCarrierSnapshot
@@ -228,12 +230,12 @@ struct ChipView: View {
         }
         // 拖起来的副本不画圆点（原生 Dock 同款：拖动时圆点消失，落位才回来）。
         // 位图在圆点那块因此是**透明**的，交接那一轮条上卡的圆点直接透出来——不会闪也不会晚。
-        .overlay(alignment: .bottom) {
+        .overlay(alignment: runningDotEdge.alignment) {
             if showRunningDot && !isDragCarrierSnapshot {
                 Circle()
                     .fill(theme.runningDot.color)
                     .frame(width: 4, height: 4)
-                    .padding(.bottom, 2)
+                    .padding(runningDotEdge.paddingEdge, 2)
             }
         }
         // 未读角标：**必须挂在两个缩放之前**，否则图标放大 / 按下回缩时它一动不动
@@ -567,3 +569,45 @@ struct ChipView: View {
         return WindowDisplayTitle.resolve(rawTitle: nil, fallbackName: name)
     }
 }
+
+/// Which side of a chip the running dot hugs (Phase 18c): the strip edge that faces the screen's
+/// content — bottom on the bottom bar, trailing on a left rail, leading on a right rail.
+enum RunningDotEdge {
+    case bottom, leading, trailing
+
+    var alignment: Alignment {
+        switch self {
+        case .bottom: return .bottom
+        case .leading: return .leading
+        case .trailing: return .trailing
+        }
+    }
+
+    var paddingEdge: Edge.Set {
+        switch self {
+        case .bottom: return .bottom
+        case .leading: return .leading
+        case .trailing: return .trailing
+        }
+    }
+
+    init(placement: StripPlacement) {
+        switch placement {
+        case .bottom: self = .bottom
+        case .left: self = .trailing
+        case .right: self = .leading
+        }
+    }
+}
+
+private struct RunningDotEdgeKey: EnvironmentKey {
+    static let defaultValue = RunningDotEdge.bottom
+}
+
+extension EnvironmentValues {
+    var runningDotEdge: RunningDotEdge {
+        get { self[RunningDotEdgeKey.self] }
+        set { self[RunningDotEdgeKey.self] = newValue }
+    }
+}
+

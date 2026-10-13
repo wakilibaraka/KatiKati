@@ -136,4 +136,14 @@ final class IslandSlotSetTests: XCTestCase {
             XCTAssertTrue(diff.added.isEmpty && diff.removed.isEmpty)
         }
     }
+
+    /// Phase 18: a display whose strip is a side rail renders split5 as three islands.
+    func testPerDisplayModeOverrideChangesThatDisplaysSlotCount() {
+        let slots = IslandSlotSet.desiredSlots(
+            placement: .allScreensPerDisplay, connectedKeys: ["A", "B"], mode: .split5,
+            modeForDisplay: { $0 == "B" ? StripPlacement.left.effectiveMode(.split5) : .split5 })
+        XCTAssertEqual(slots.filter { $0.display == "A" }.count, 5)
+        XCTAssertEqual(slots.filter { $0.display == "B" }.count, 3)
+    }
 }
+

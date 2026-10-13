@@ -64,6 +64,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     private var isSuspended = false
     private var placementSubscription: AnyCancellable?
     private var barLayoutModeSubscription: AnyCancellable?
+    private var stripPlacementSubscription: AnyCancellable?
     private var fullscreenIntentEnabledSubscription: AnyCancellable?
     private var fullscreenIntentMonitor: FullscreenIntentMonitor?
     private var perDisplaySeedController: TaskbarPerDisplaySeedController?
@@ -203,6 +204,19 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
                 )
                 self.reconcileHoverMouseMonitors()
             }
+        // Phase 18: moving the strip to another edge can change the island count (rails fold splits).
+        stripPlacementSubscription = settingsStore.$stripPlacementMap
+            .removeDuplicates()
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.rebuildUnits(
+                    reason: "placement-edge",
+                    connectedKeys: self.displayTopologyStore.latestSnapshot.identifiedDisplayUUIDs
+                )
+                for unit in self.units { unit.coordinator.relayout(animated: false) }
+            }
         fullscreenIntentEnabledSubscription = settingsStore.$fullscreenIntentEnabled
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
@@ -253,6 +267,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         perDisplaySeedController = nil
         placementSubscription = nil
         barLayoutModeSubscription = nil
+        stripPlacementSubscription = nil
         fullscreenIntentEnabledSubscription = nil
         NotificationCenter.default.removeObserver(self)
     }
@@ -272,10 +287,13 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         guard started, !isSuspended else { return }
         cancelInteractiveHeightResize()
         defer { reconcileEdgeBars(connectedKeys: connectedKeys) }
+        let mode = settingsStore.barLayoutMode
         let desired = IslandSlotSet.desiredSlots(
             placement: settingsStore.taskbarScreenPlacement,
             connectedKeys: connectedKeys,
-            mode: settingsStore.barLayoutMode
+            mode: mode,
+            // A side rail folds split4/5 into three islands (Phase 18).
+            modeForDisplay: { [settingsStore] key in settingsStore.stripPlacement(forDisplay: key).effectiveMode(mode) }
         )
         let current = units.map(\.slotKey)
         guard desired != current else { return }

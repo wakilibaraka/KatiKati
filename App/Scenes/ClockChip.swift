@@ -253,3 +253,42 @@ public struct FlipClockChip: View {
         )
     }
 }
+
+// MARK: - Rail tile (Phase 18c)
+
+/// The time on a side rail: hours over minutes (decision 1), on the clock's phase art. Same
+/// minute-aligned timeline as the pill — no per-second work. Native size 44 × 56.
+struct RailClockTile: View {
+    @EnvironmentObject private var weatherService: WeatherService
+
+    var body: some View {
+        TimelineView(.periodic(from: ClockTick.nextMinute(after: Date()), by: 60)) { context in
+            let parts = Self.hourMinute(context.date)
+            let art = ClockArt.gradient(phase: ClockArtPhase.phase(
+                context.date, sunTimes: weatherService.currentState.sunTimes(on: context.date)))
+            VStack(spacing: -2) {
+                Text(verbatim: parts.hour)
+                Text(verbatim: parts.minute)
+            }
+            .font(.system(size: 17, weight: .semibold, design: .rounded))
+            .monospacedDigit()
+            .foregroundStyle(.white)
+            .frame(width: 44, height: 56)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(art))
+            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(Color.white.opacity(0.18), lineWidth: 1))
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { WidgetPanelController.calendar.toggle() }
+    }
+
+    /// Two-digit hour in the user's 12/24-hour preference and two-digit minute.
+    static func hourMinute(_ date: Date, locale: Locale = .current, calendar: Calendar = .current) -> (hour: String, minute: String) {
+        let template = DateFormatter.dateFormat(fromTemplate: "j", options: 0, locale: locale) ?? "HH"
+        let uses12 = template.contains("h") || template.contains("K")
+        var hour = calendar.component(.hour, from: date)
+        if uses12 { hour = hour % 12 == 0 ? 12 : hour % 12 }
+        let minute = calendar.component(.minute, from: date)
+        return (String(format: "%02d", hour), String(format: "%02d", minute))
+    }
+}
+

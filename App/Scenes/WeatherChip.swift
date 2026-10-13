@@ -291,6 +291,35 @@ public struct WeatherChip: View {
     }
 }
 
+// MARK: - Rail tile (Phase 18c)
+
+/// Weather on a side rail: condition glyph over the temperature, on the same art as the pill.
+/// Drawn at native scale (44 × 56) — the strip scales it with the bar thickness.
+struct RailWeatherTile: View {
+    @EnvironmentObject var weatherService: WeatherService
+
+    var body: some View {
+        let state = weatherService.currentState
+        VStack(spacing: 2) {
+            Image(systemName: state.symbolName)
+                .symbolRenderingMode(.multicolor)
+                .font(.system(size: 15, weight: .semibold))
+            Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .frame(width: 44, height: 56)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous)
+            .fill(WeatherArt.gradient(condition: state.conditionFamily, isNight: state.isNight)))
+        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(Color.white.opacity(0.18), lineWidth: 1))
+        .contentShape(Rectangle())
+        .onTapGesture { WidgetPanelController.weather.toggle() }
+    }
+}
+
 // MARK: - Widget size (Phase 10a-2)
 
 private struct WidgetSizeKey: EnvironmentKey {
