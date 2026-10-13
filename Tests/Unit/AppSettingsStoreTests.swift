@@ -285,10 +285,10 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
-    func testControlCenterWidgetsDefaultSixAndTolerateGarbage() {
+    func testControlCenterWidgetsDefaultThreeAndTolerateGarbage() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertEqual(store.controlCenterWidgets, TileKind.controlCenterDefault)
+        XCTAssertEqual(store.controlCenterWidgets, [.network, .battery, .batteries])
         store.setControlCenterWidget(.battery, enabled: false)
         XCTAssertFalse(AppSettingsStore(defaults: defaults).controlCenterWidgets.contains(.battery))
         defaults.set("battery,bogus,battery", forKey: "com.katikati.controlcenter.widgets")

@@ -12,6 +12,9 @@ prefs start from the defaults below).
 | Calculator / Screen Time / Network / Battery / Top Apps / Batteries cards | ported 16k | `CalendarPanelView.swift` (same services, `TileKind`) |
 | Network / Battery / Batteries on the widget pane | removed from the pane 2026-10-13 (owner: this page keeps Calculator, Screen Time, Top Apps); still hosted in the Control Center | `ControlCenterView` |
 | Weather / System / Bluetooth on the widget pane | removed from the pane 2026-10-13 with their tile structs, `TileKind` cases and accents (owner); deck buttons keep their own flyouts | — |
+| Now-playing tile on the widget pane | removed 2026-10-13 with its struct, `TileKind` case and accents (owner); lives in Quick Settings on the live MediaRemote feed | `ControlCenterView` now-playing card |
+| Calculator / Screen Time / Top Apps in Quick Settings | removed from the CC default 2026-10-13 (owner); stay on the widget pane; stored-old extras filtered at read | `TileKind.controlCenterDefault` |
+| Network / Battery / Batteries full tiles | replaced by compact rows in Quick Settings 2026-10-13 (owner: no-scroll panel); full-tile structs deleted | `ControlCenterNetworkRow` / `BatteryRow` / `BatteriesRow` |
 | Quick Settings card (14 switches + True Tone + VPN) | the Control Center grid | `ControlCenterView` (`StatusTrioView.swift`) |
 | Right-FAB opener, `⌃⌥Space`, CC utility row | repointed 16l | `ControlCenterPanelController.toggle()` |
 | `.weather` / `.clock` shortcut single-views | repointed 16l | `WidgetPanelController.weather` / `.calendar` |

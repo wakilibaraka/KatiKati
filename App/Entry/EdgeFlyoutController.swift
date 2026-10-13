@@ -131,6 +131,9 @@ final class ControlCenterPanelController {
     var toggleOrder: () -> [QuickToggleID] = { QuickToggleID.defaultOrder }
     /// Phase 16n: user widgets hosted in the panel (stored order; Settings edits it).
     var widgets: () -> [TileKind] = { TileKind.controlCenterDefault }
+    /// Height the KatiKati bottom bar occupies, so the panel floats above the dock (wired by
+    /// `AppDelegate`; 0 when the strip is not at the bottom).
+    var bottomReserve: () -> Double = { 0 }
     /// Bottom-row actions (wired by `AppDelegate`).
     var onSettings: () -> Void = {}
     var onLauncher: () -> Void = {}
@@ -145,20 +148,48 @@ final class ControlCenterPanelController {
     func show() {
         guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) })
                 ?? NSScreen.main ?? NSScreen.screens.first else { return }
-        let size = panelSize(on: screen)
+        let maxHeight = max(240, screen.visibleFrame.height - 24 - CGFloat(bottomReserve()))
+        let size = CGSize(width: Self.width, height: maxHeight)
         let frame = panelFrame(on: screen, size: size)
         let panel = self.panel ?? makePanel()
         self.panel = panel
         let hosting = NSHostingView(rootView: AnyView(ControlCenterView(
             engine: .shared, order: toggleOrder(),
-            widgetTiles: widgets(),
+            widgetTiles: widgets(), maxHeight: maxHeight,
+            onHeight: { [weak self] h in DispatchQueue.main.async { self?.resize(toContentHeight: h) } },
             onSettings: onSettings, onLauncher: onLauncher, onCapture: onCapture,
             onDrawer: onDrawer, onQuit: onQuit)))
         hosting.frame = CGRect(origin: .zero, size: size)
-        panel.contentView = EdgeFlyoutController.plate(wrapping: hosting, size: size, style: .modern)
+        panel.contentView = Self.floatingPlate(wrapping: hosting, size: size)
         panel.setFrame(frame, display: true)
         panel.makeKeyAndOrderFront(nil)
         installOutsideMonitor()
+    }
+
+    /// Shrinks (or grows, as async rows load) the live panel to the reported content height.
+    private func resize(toContentHeight height: CGFloat) {
+        guard let panel, height > 0 else { return }
+        guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) })
+                ?? NSScreen.main ?? NSScreen.screens.first else { return }
+        let maxHeight = max(240, screen.visibleFrame.height - 24 - CGFloat(bottomReserve()))
+        let size = CGSize(width: Self.width, height: min(height, maxHeight))
+        let frame = panelFrame(on: screen, size: size)
+        if frame != panel.frame { panel.setFrame(frame, display: true) }
+    }
+
+    /// Borderless floating plate (Phase 16r): near-opaque surface, large radius, soft system shadow
+    /// from the panel itself — no hairline, so the panel reads as floating, not framed.
+    private static func floatingPlate(wrapping content: NSView, size: CGSize) -> NSView {
+        let plate = NSVisualEffectView(frame: CGRect(origin: .zero, size: size))
+        plate.material = .popover
+        plate.blendingMode = .withinWindow
+        plate.state = .active
+        plate.wantsLayer = true
+        plate.layer?.cornerRadius = 22
+        plate.layer?.masksToBounds = true
+        content.autoresizingMask = [.width, .height]
+        plate.addSubview(content)
+        return plate
     }
 
     func hide() {
@@ -171,11 +202,6 @@ final class ControlCenterPanelController {
     func tearDown() { hide(); panel = nil }
 
     // MARK: Geometry
-
-    private func panelSize(on screen: NSScreen) -> CGSize {
-        let height = min(660, screen.visibleFrame.height - 24)
-        return CGSize(width: Self.width, height: max(240, height))
-    }
 
     /// Flush to the dock's side, top-aligned under the menu bar, stepped inward past a rail on that edge.
     private func panelFrame(on screen: NSScreen, size: CGSize) -> CGRect {

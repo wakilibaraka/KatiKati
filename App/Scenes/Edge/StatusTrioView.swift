@@ -179,11 +179,11 @@ struct BluetoothFlyoutView: View {
 struct ControlCenterView: View {
     @ObservedObject var engine: QuickToggleEngine
     let order: [QuickToggleID]
-    /// Phase 16l: user widgets (the six ported Pinboard tiles) hosted below the switch grid.
+    /// Phase 16l: user widgets (compact rows) hosted below the switch grid.
     let widgetTiles: [TileKind]
-    @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
-    @AppStorage(WidgetExtraPrefs.glassTilesKey) private var glassTiles = false
-    @Environment(\.colorScheme) private var colorScheme
+    /// Phase 16r: cap for the content-sized no-scroll panel; reports `min(content, maxHeight)`.
+    let maxHeight: CGFloat
+    var onHeight: (CGFloat) -> Void = { _ in }
     @StateObject private var status = SystemStatusService()
     @StateObject private var nowPlaying = NowPlayingService()
     @State private var confirming: QuickToggleID?
@@ -214,17 +214,17 @@ struct ControlCenterView: View {
                 slider(icon: "keyboard", value: Binding(get: { keyLight }, set: { self.keyLight = $0; KeyboardBacklight.set($0) }))
             }
             nowPlayingCard
-            ScrollView(.vertical, showsIndicators: false) {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 12) {
-                    ForEach(quickActions, id: \.self) { id in cell(id) }
-                }
-                widgetsSection
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 12) {
+                ForEach(quickActions, id: \.self) { id in cell(id) }
             }
+            widgetsSection
             Spacer(minLength: 0)
             utilityRow
         }
         .padding(16)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .background(GeometryReader { Color.clear.preference(key: PanelHeightKey.self, value: $0.size.height) })
+        .onPreferenceChange(PanelHeightKey.self) { onHeight(min($0, maxHeight)) }
         .onAppear { engine.refresh(); status.acquire() }
         .onDisappear { status.release() }
     }
@@ -296,33 +296,25 @@ struct ControlCenterView: View {
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
     }
 
-    /// Phase 16l: user widgets hosted in the panel — the six ported tiles in the stored order.
-    /// Tiles create their own services and tear them down with the panel (content is dropped on hide).
+    /// Phase 16r: compact widget rows — the panel is a no-scroll screen, so full tiles don't fit.
+    /// Samplers live in the row that needs them (appear/disappear); the shared status service comes
+    /// from the parent view.
     private var widgetsSection: some View {
         Group {
             if !widgetTiles.isEmpty {
-                Text("Widgets").font(.headline).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 4)
-                ForEach(widgetTiles, id: \.self) { kind in
-                    GeometryReader { geo in hostedTile(kind, width: geo.size.width) }
-                        .frame(height: 150)
+                VStack(spacing: 8) {
+                    ForEach(widgetTiles, id: \.self) { kind in compactRow(kind) }
                 }
             }
         }
     }
 
-    private var tileEnv: TileEnv {
-        TileEnv(palette: palette, isDark: colorScheme == .dark, glass: glassTiles)
-    }
-
     @ViewBuilder
-    private func hostedTile(_ kind: TileKind, width: CGFloat) -> some View {
+    private func compactRow(_ kind: TileKind) -> some View {
         switch kind {
-        case .calculator: CalculatorTile(env: tileEnv, width: width, height: 150)
-        case .screenTime: ScreenTimeTile(env: tileEnv, width: width, height: 150)
-        case .network: NetworkTile(env: tileEnv, width: width, height: 150)
-        case .battery: BatteryTile(env: tileEnv, width: width, height: 150)
-        case .topApps: TopAppsTile(env: tileEnv, width: width, height: 150)
-        case .batteries: BatteriesTile(env: tileEnv, width: width, height: 150)
+        case .network: ControlCenterNetworkRow()
+        case .battery: ControlCenterBatteryRow(status: status)
+        case .batteries: ControlCenterBatteriesRow(status: status)
         default: EmptyView()
         }
     }
@@ -376,5 +368,102 @@ struct ControlCenterView: View {
         .buttonStyle(.plain)
         .opacity(gone ? 0.35 : 1)
         .disabled(gone)
+    }
+}
+
+// MARK: - Control Center compact widget rows (Phase 16r)
+
+/// Shared card chrome for the compact rows (matches the slider rows).
+private struct ControlCenterRow<Content: View>: View {
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        HStack(spacing: 10) { content() }
+            .padding(12)
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
+    }
+}
+
+/// Live down/up rates; samples only while the row is on screen.
+private struct ControlCenterNetworkRow: View {
+    @ObservedObject private var monitor = ProductivityServices.shared.systemMonitor
+
+    var body: some View {
+        let s = monitor.snapshot
+        ControlCenterRow {
+            Image(systemName: "arrow.down.up").font(.system(size: 14)).frame(width: 22)
+            Text("Network").font(.system(size: 13, weight: .semibold))
+            Spacer(minLength: 0)
+            Image(systemName: "arrow.down").font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
+            Text(verbatim: SystemMonitorFormat.bytes(s.down) + "/s").font(.system(size: 12)).monospacedDigit()
+            Image(systemName: "arrow.up").font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
+            Text(verbatim: SystemMonitorFormat.bytes(s.up) + "/s").font(.system(size: 12)).monospacedDigit()
+        }
+        .onAppear { monitor.acquire() }
+        .onDisappear { monitor.release() }
+    }
+}
+
+/// Battery level + charging state from the shared status service (acquired by the parent view).
+private struct ControlCenterBatteryRow: View {
+    @ObservedObject var status: SystemStatusService
+
+    var body: some View {
+        let b = status.status.battery
+        ControlCenterRow {
+            Image(systemName: b.isCharging ? "battery.100.bolt" : "battery.75")
+                .font(.system(size: 14)).frame(width: 22)
+            Text("Battery").font(.system(size: 13, weight: .semibold))
+            Spacer(minLength: 0)
+            if let level = b.level {
+                Text(verbatim: "\(level)%").font(.system(size: 13, weight: .bold)).monospacedDigit()
+            } else {
+                Text("No Battery").font(.system(size: 12)).foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+
+/// This Mac plus connected Bluetooth devices that report a battery; read once per open.
+private struct ControlCenterBatteriesRow: View {
+    @ObservedObject var status: SystemStatusService
+    @State private var devices: [BluetoothDevice] = []
+    @State private var loading = true
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Batteries").font(.system(size: 13, weight: .semibold))
+            if let level = status.status.battery.level {
+                line("laptopcomputer", Text("This Mac"), level)
+            }
+            if loading {
+                ProgressView().controlSize(.small)
+            } else {
+                ForEach(devices.prefix(2)) { d in line(d.symbolName, Text(verbatim: d.name), d.lowestBattery ?? 0) }
+                if devices.isEmpty {
+                    Text("No connected devices report a battery").font(.system(size: 11)).foregroundStyle(.secondary)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
+        .task { await load() }
+    }
+
+    private func line(_ symbol: String, _ name: Text, _ level: Int) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: symbol).font(.system(size: 12)).frame(width: 20)
+            name.font(.system(size: 12, weight: .medium)).lineLimit(1)
+            Spacer(minLength: 4)
+            Text(verbatim: "\(level)%").font(.system(size: 12, weight: .bold)).monospacedDigit()
+        }
+    }
+
+    private func load() async {
+        loading = true
+        let all = await BluetoothDeviceReader.read()
+        devices = all.filter { $0.isConnected && $0.lowestBattery != nil }
+        loading = false
     }
 }

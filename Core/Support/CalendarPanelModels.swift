@@ -240,12 +240,14 @@ extension CalendarPanelLayout {
     }
 }
 
-enum TileKind: CaseIterable { case date, clock, focus, calendar, agenda, reminders, alarms, timer, stopwatch, notes, countdown, nowPlaying, calculator, screenTime, network, battery, topApps, batteries }
+enum TileKind: CaseIterable { case date, clock, focus, calendar, agenda, reminders, alarms, timer, stopwatch, notes, countdown, calculator, screenTime, network, battery, topApps, batteries }
 
 extension TileKind {
-    /// Phase 16n: the Control Center's user widgets (the six ported tiles). Stored by case name;
+    /// Phase 16n: the Control Center's user widgets. Stored by case name;
     /// unknown names are dropped, duplicates collapse; nil of a never-written key gives the default.
-    static let controlCenterDefault: [TileKind] = [.calculator, .screenTime, .network, .battery, .topApps, .batteries]
+    /// Phase 16r: calculator / screenTime / topApps stay on the widget pane only — the panel hosts
+    /// network / battery / batteries as compact rows.
+    static let controlCenterDefault: [TileKind] = [.network, .battery, .batteries]
 
     static func parse(_ raw: String?) -> [TileKind] {
         guard let raw else { return controlCenterDefault }
@@ -284,7 +286,6 @@ enum TilePalette: String, CaseIterable, Codable, Sendable {
             case .stopwatch: return TileRGB(r: 0.37, g: 0.36, b: 0.90)
             case .notes: return TileRGB(r: 0.98, g: 0.80, b: 0.10)
             case .countdown: return TileRGB(r: 0.69, g: 0.32, b: 0.87)
-            case .nowPlaying: return TileRGB(r: 0.90, g: 0.30, b: 0.45)
             case .calculator: return TileRGB(r: 0.42, g: 0.44, b: 0.52)
             case .screenTime: return TileRGB(r: 0.72, g: 0.48, b: 0.18)
             case .network: return TileRGB(r: 0.15, g: 0.65, b: 0.85)
@@ -304,7 +305,6 @@ enum TilePalette: String, CaseIterable, Codable, Sendable {
             case .stopwatch: return TileRGB(r: 0.30, g: 0.30, b: 1.00)
             case .notes: return TileRGB(r: 1.00, g: 0.82, b: 0.00)
             case .countdown: return TileRGB(r: 0.75, g: 0.20, b: 0.95)
-            case .nowPlaying: return TileRGB(r: 1.00, g: 0.20, b: 0.50)
             case .calculator: return TileRGB(r: 0.30, g: 0.32, b: 0.95)
             case .screenTime: return TileRGB(r: 0.95, g: 0.55, b: 0.10)
             case .network: return TileRGB(r: 0.00, g: 0.75, b: 1.00)
@@ -324,7 +324,6 @@ enum TilePalette: String, CaseIterable, Codable, Sendable {
             case .stopwatch: return TileRGB(r: 0.62, g: 0.60, b: 0.95)
             case .notes: return TileRGB(r: 0.98, g: 0.88, b: 0.45)
             case .countdown: return TileRGB(r: 0.80, g: 0.62, b: 0.92)
-            case .nowPlaying: return TileRGB(r: 0.98, g: 0.62, b: 0.72)
             case .calculator: return TileRGB(r: 0.66, g: 0.68, b: 0.85)
             case .screenTime: return TileRGB(r: 0.90, g: 0.70, b: 0.45)
             case .network: return TileRGB(r: 0.55, g: 0.82, b: 0.96)

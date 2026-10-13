@@ -2913,6 +2913,17 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
     `min(content, maxHeight)` — short stacks never scroll, tall ones do (panel opens tall and shrinks
     to the report, so no first-frame flash). One orphaned key pruned (`No Weather Yet`; 709 ×12).
     **Verified:** 2,216 tests, 0 failures; localization ✅; debug switches ✅.
+  - 2026-10-13 · **16r — Quick Settings becomes a no-scroll floating panel (owner).** Now-playing tile
+    off the widget pane (deleted with its `TileKind` case + accents; the CC card stays on the live
+    MediaRemote feed, so Safari/YouTube keep working there); calculator / screen-time / top-apps off
+    the CC default (now network / battery / batteries; stored-old extras filtered at read, Settings
+    lists the three). CC user widgets are compact rows (network rates, battery level, This Mac +
+    devices) — full tiles deleted. Shell: content-sized via height preference (short content never
+    scrolls), borderless floating plate (popover, radius 22, no hairline; shadow from the panel),
+    bottom clearance above the dock when the strip is at the bottom. Two orphaned keys pruned
+    (`Health`, `Cycles`; 707 ×12). **Verified:** 2,216 tests, 0 failures; localization ✅; debug
+    switches ✅. **Owner eyeball:** the panel look/feel, compact rows live, Safari now-playing in
+    the CC card. Next: 16s (S/M/L presets, position, animation settings).
 
  - 2026-10-13 · **16k built — six Pinboard-only widgets ported as clock-pane tiles; gate green.**
    `TileKind` += calculator, screenTime, network, battery, topApps, batteries (accents ×4

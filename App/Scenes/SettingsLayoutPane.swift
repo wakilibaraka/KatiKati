@@ -810,11 +810,8 @@ struct SettingsLayoutPane: View {
 
     private func controlCenterWidgetTitle(_ kind: TileKind) -> Text {
         switch kind {
-        case .calculator: return Text("Calculator")
-        case .screenTime: return Text("Screen Time")
         case .network: return Text("Network")
         case .battery: return Text("Battery")
-        case .topApps: return Text("Top Apps")
         case .batteries: return Text("Batteries")
         default: return Text(verbatim: "\(kind)")
         }

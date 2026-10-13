@@ -149,10 +149,11 @@ struct CalendarPanelView: View {
         let u = (inner - 2 * gap) / 3
         let wide = 2 * u + gap
         let agendaRows = max(2, Int((u - 24 - 50) / 34))
-        let fixed = 2 * gutter + 4 * u + 5 * gap + bandHeight + 10
+        let fixed = 2 * gutter + 3 * u + 4 * gap + bandHeight + 10
         let rows = listRows(budget: maxHeight - fixed)
         return VStack(spacing: gap) {
-            // Owner 2026-10-13: weather / system / bluetooth left this page (now-playing stays).
+            // Owner 2026-10-13: weather / system / bluetooth / now-playing left this page —
+            // now-playing lives in Quick Settings and follows the live MediaRemote feed there.
             AgendaPane(env: env, service: calendarService, maxRows: agendaRows, compact: false)
                 .padding(14)
                 .frame(width: inner, height: u, alignment: .topLeading)
@@ -164,7 +165,6 @@ struct CalendarPanelView: View {
                     .tileSurface(env)
                 ClockTile(env: env, store: clocks, style: clockStyle, width: u, height: u, zoneLimit: 3)
             }
-            NowPlayingPortTile(env: env, width: inner, height: u)
             HStack(alignment: .top, spacing: gap) {
                 CalculatorTile(env: env, width: u, height: u)
                 ScreenTimeTile(env: env, width: u, height: u)
@@ -653,41 +653,6 @@ struct AlarmsTile: View {
     }
 }
 
-// MARK: - Ported deck widgets (Phase 16a; weather / system / bluetooth removed 2026-10-13)
-
-// The edge-deck now-playing button also renders as a tile in the calendar pane, reusing the same
-// shared service. The deck button keeps its own behaviour (owner 2026-10-13: "keep current
-// behavior"); this is the pane-side copy in the tile vocabulary.
-
-/// Now-playing tile — the same media card the strip and flyout show, as a pane tile.
-struct NowPlayingPortTile: View {
-    let env: TileEnv
-    let width: CGFloat
-    let height: CGFloat
-    @StateObject private var service = NowPlayingService()
-
-    var body: some View {
-        BandTile(env: env, kind: .nowPlaying, width: width, height: height, header: { Text("Now Playing") }, content: {
-            VStack(alignment: .leading, spacing: 3) {
-                if let title = service.state.title {
-                    Text(verbatim: title).font(.system(size: 12, weight: .semibold)).lineLimit(2)
-                    if let artist = service.state.artist {
-                        Text(verbatim: artist).font(.system(size: 10)).foregroundColor(env.secondary).lineLimit(1)
-                    }
-                } else {
-                    Text("Nothing Playing").font(.system(size: 11)).foregroundColor(env.secondary)
-                }
-                Spacer(minLength: 0)
-                Button { service.togglePlayPause() } label: {
-                    Image(systemName: service.state.isPlaying ? "pause.fill" : "play.fill")
-                        .font(.system(size: 13, weight: .bold)).foregroundColor(.white)
-                        .frame(width: 30, height: 30).background(Circle().fill(env.accent(.nowPlaying)))
-                }.buttonStyle(.plain)
-            }
-        })
-    }
-}
-
 // MARK: - Ported Pinboard-only widgets (Phase 16k)
 
 // The six widgets that lived only on the Pinboard wall, ported into the tile vocabulary with the
@@ -724,72 +689,6 @@ struct ScreenTimeTile: View {
         BandTile(env: env, kind: .screenTime, width: width, height: height, header: { Text("Screen Time") }, content: {
             ScreenTimeSummaryView(rows: 3)
         })
-    }
-}
-
-/// Network tile — live down/up rates; samples only while on screen.
-struct NetworkTile: View {
-    let env: TileEnv
-    let width: CGFloat
-    let height: CGFloat
-    @ObservedObject private var monitor = ProductivityServices.shared.systemMonitor
-
-    var body: some View {
-        let s = monitor.snapshot
-        BandTile(env: env, kind: .network, width: width, height: height, header: { Text("Network") }, content: {
-            VStack(alignment: .leading, spacing: 8) {
-                row("arrow.down", s.down)
-                row("arrow.up", s.up)
-                Spacer(minLength: 0)
-            }
-        })
-        .onAppear { monitor.acquire() }
-        .onDisappear { monitor.release() }
-    }
-
-    private func row(_ symbol: String, _ rate: Double) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: symbol).font(.system(size: 12, weight: .bold)).foregroundColor(env.secondary)
-            Text(verbatim: SystemMonitorFormat.bytes(rate) + "/s")
-                .font(.system(size: 16, weight: .semibold)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
-        }
-        .padding(.top, 4)
-    }
-}
-
-/// Battery tile — level, charging state, health and cycle count (public IOKit only).
-struct BatteryTile: View {
-    let env: TileEnv
-    let width: CGFloat
-    let height: CGFloat
-    @StateObject private var status = SystemStatusService()
-    @State private var health: BatteryHealth?
-
-    var body: some View {
-        let b = status.status.battery
-        BandTile(env: env, kind: .battery, width: width, height: height, header: { Text("Battery") }, content: {
-            VStack(alignment: .leading, spacing: 4) {
-                if let level = b.level {
-                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text(verbatim: "\(level)%").font(.system(size: 30, weight: .semibold)).monospacedDigit()
-                        if b.isCharging { Image(systemName: "bolt.fill").font(.system(size: 13)) }
-                    }
-                    if let h = health {
-                        if let pct = h.healthPercent {
-                            HStack(spacing: 4) { Text("Health"); Text(verbatim: "\(pct)%") }
-                                .font(.system(size: 11, weight: .medium)).foregroundColor(env.secondary)
-                        }
-                        HStack(spacing: 4) { Text("Cycles"); Text(verbatim: "\(h.cycleCount)") }
-                            .font(.system(size: 11)).foregroundColor(env.secondary)
-                    }
-                } else {
-                    Text("No Battery").font(.system(size: 11)).foregroundColor(env.secondary)
-                }
-                Spacer(minLength: 0)
-            }
-        })
-        .onAppear { status.acquire(); health = BatteryHealthReader.read() }
-        .onDisappear { status.release() }
     }
 }
 
@@ -835,58 +734,5 @@ struct TopAppsTile: View {
             let top = await Task.detached(priority: .utility) { TopProcessReader.read(limit: 4) }.value
             rows = top; loading = false
         }
-    }
-}
-
-/// Batteries tile — This Mac plus connected Bluetooth devices that report a battery.
-struct BatteriesTile: View {
-    let env: TileEnv
-    let width: CGFloat
-    let height: CGFloat
-    @StateObject private var status = SystemStatusService()
-    @State private var devices: [BluetoothDevice] = []
-    @State private var loading = true
-
-    var body: some View {
-        BandTile(env: env, kind: .batteries, width: width, height: height, header: {
-            HStack {
-                Text("Batteries"); Spacer()
-                Button { Task { await load() } } label: { Image(systemName: "arrow.clockwise") }
-                    .buttonStyle(.borderless)
-                    .help(Text("Refresh"))
-            }
-        }, content: {
-            VStack(alignment: .leading, spacing: 7) {
-                if let level = status.status.battery.level { line("laptopcomputer", Text("This Mac"), level) }
-                if loading {
-                    ProgressView().controlSize(.small)
-                } else {
-                    ForEach(devices.prefix(4)) { d in line(d.symbolName, Text(verbatim: d.name), d.lowestBattery ?? 0) }
-                    if devices.isEmpty {
-                        Text("No connected devices report a battery").font(.system(size: 10)).foregroundColor(env.secondary)
-                    }
-                }
-                Spacer(minLength: 0)
-            }
-        })
-        .onAppear { status.acquire() }
-        .onDisappear { status.release() }
-        .task { await load() }
-    }
-
-    private func line(_ symbol: String, _ name: Text, _ level: Int) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: symbol).font(.system(size: 12)).frame(width: 20)
-            name.font(.system(size: 11, weight: .medium)).lineLimit(1)
-            Spacer(minLength: 4)
-            Text(verbatim: "\(level)%").font(.system(size: 11, weight: .bold)).monospacedDigit().frame(width: 38, alignment: .trailing)
-        }
-    }
-
-    private func load() async {
-        loading = true
-        let all = await BluetoothDeviceReader.read()
-        devices = all.filter { $0.isConnected && $0.lowestBattery != nil }
-        loading = false
     }
 }
