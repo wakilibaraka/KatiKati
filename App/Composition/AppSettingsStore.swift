@@ -177,6 +177,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var widgetOrder: [BarSection]
     /// Phase 10a widget arrangement (order / size / visibility). Not yet consumed by the strip.
     @Published private(set) var widgetLayout: WidgetLayout
+    /// Phase 18: which edge the strip sits on, globally and per display (default bottom).
+    @Published private(set) var stripPlacementMap: StripPlacementMap
     /// 10b: weather/time reactive desktop wallpaper (off by default), its mode (`WallpaperMode` raw) and optional custom folder.
     @Published private(set) var wallpaperEnabled: Bool
     @Published private(set) var wallpaperMode: String
@@ -447,6 +449,7 @@ final class AppSettingsStore: ObservableObject {
             ?? WidgetLayout.migrating(legacyWidths: legacyWidgetWidths)
         widgetLayout = storedWidgetLayout
         widgetOrder = storedWidgetLayout.visibleOrder
+        stripPlacementMap = StripPlacementMap.decode(defaults.data(forKey: StripPlacementMap.defaultsKey)) ?? StripPlacementMap()
         userWidgetPresets = WidgetPresets.decode(defaults.data(forKey: WidgetPresets.defaultsKey))
         
         themeMaterial = DockThemeStyle(token: defaults.string(forKey: Keys.themeMaterial) ?? "") ?? .auto
@@ -1251,6 +1254,30 @@ final class AppSettingsStore: ObservableObject {
             screenWidth: screenWidth, margin: islandMargin, gap: islandGap,
             tileStride: IslandLayoutSolver.tileStride(barHeight: dockPanelHeight.points),
             mode: barLayoutMode, order: widgetLayout.visibleOrder, barHeight: dockPanelHeight.points))
+    }
+
+    // MARK: Strip placement (Phase 18a)
+
+    func stripPlacement(forDisplay displayUUID: String?) -> StripPlacement {
+        stripPlacementMap.placement(forDisplay: displayUUID)
+    }
+
+    /// Global placement; per-display overrides are kept.
+    func setStripPlacement(_ placement: StripPlacement) {
+        guard stripPlacementMap.global != placement else { return }
+        var map = stripPlacementMap
+        map.global = placement
+        setStripPlacementMap(map)
+    }
+
+    func setStripPlacement(_ placement: StripPlacement, forDisplay displayUUID: String) {
+        setStripPlacementMap(stripPlacementMap.setting(placement, forDisplay: displayUUID))
+    }
+
+    private func setStripPlacementMap(_ map: StripPlacementMap) {
+        guard stripPlacementMap != map else { return }
+        stripPlacementMap = map
+        defaults.set(map.encoded(), forKey: StripPlacementMap.defaultsKey)
     }
 
     // MARK: Dock styles (Phase 11e)

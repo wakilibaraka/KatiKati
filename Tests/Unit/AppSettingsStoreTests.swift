@@ -17,6 +17,18 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertTrue(reloaded.showTrash)
         XCTAssertFalse(reloaded.showShelf)
     }
+    /// Phase 18a: placement defaults to bottom, persists globally and per display.
+    func testStripPlacementDefaultsToBottomAndPersists() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.stripPlacement(forDisplay: "D1"), .bottom)
+        store.setStripPlacement(.left)
+        store.setStripPlacement(.right, forDisplay: "D2")
+        let reloaded = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(reloaded.stripPlacement(forDisplay: "D1"), .left)
+        XCTAssertEqual(reloaded.stripPlacement(forDisplay: "D2"), .right)
+    }
+
     /// Live Island surfaces (8b-5): dock island on, notch island off, events auto-routed; all persist.
     func testLiveIslandSurfaceDefaultsAndPersistence() {
         let defaults = makeDefaults()

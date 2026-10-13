@@ -2587,6 +2587,14 @@ occupancy (move/merge/hide) · 18h Settings + live check.
     unsigned identity); a clean relaunch renders normally. Needs the owner to answer the prompt; would not
     happen with the Developer ID signed install.
   - Suite 2194 green.
+- 2026-10-13 · **Phase 11 closed; branch pushed, main fast-forwarded (ea813ff).**
+- 2026-10-13 · **18a built (pure, no UI).** `Core/Support/StripPlacement.swift`: `StripPlacement`
+  (bottom/left/right; `effectiveMode` folds split4/5 → split3 on a rail), `StripPlacementMap` (global +
+  per-display overrides, JSON at `com.katikati.layout.placement.v1`), `StripAxis` (`mainLength`, `map` —
+  the solver keeps solving a horizontal strip, `map` turns its frame onto the real edge; **bottom is the
+  identity**, so the bottom bar is byte-identical by construction; `reservedInset` for window clearance),
+  `BarSection.railTileLength`. Store: `stripPlacementMap`, `stripPlacement(forDisplay:)`, setters. 9 tests;
+  suite 2203 green. Nothing reads the placement yet.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
