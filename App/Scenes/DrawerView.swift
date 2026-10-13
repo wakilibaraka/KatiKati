@@ -134,7 +134,7 @@ struct DrawerView: View {
         let backgroundIDs = backgroundMembers
         let ids = stashedIDs + backgroundIDs
         let shape = gridShape(cellIDs: ids)
-        return StackPopupChrome(title: String(localized: "Drawer"),
+        return StackPopupChrome(title: backgroundIDs.isEmpty ? String(localized: "Drawer") : String(localized: "Background Apps"),
                                 note: shape.showsHint ? String(localized: "Drag apps here from the taskbar") : nil,
                                 layout: shape.layout,
                                 plate: .drawer,
