@@ -73,6 +73,17 @@ struct DrawerView: View {
         )
     }
 
+    @ObservedObject private var backgroundStore = BackgroundAppsStore.shared
+
+    /// Phase 20a: running apps with no window to switch to, shown after the stashed apps. Auto-populated.
+    private var backgroundMembers: [String] {
+        backgroundStore.backgroundIDs(
+            windowBacked: windowBackedIDs,
+            kept: Set(keptAppStore.bundleIDs),
+            messaging: Set(messagingStore.bundleIDs),
+            stashed: Set(drawerStore.bundleIDs))
+    }
+
     /// 有真窗口的 app（用于启动门控判定）。
     private var windowBackedIDs: Set<String> {
         Set(StripItem.items(from: runtime.snapshot).filter { !$0.isAppLevelFallback }.compactMap(\.bundleIdentifier))
@@ -119,7 +130,9 @@ struct DrawerView: View {
 
     var body: some View {
         // One grid in the drawer's own order: the folder popup's chrome with apps in its cells.
-        let ids = visibleMembers
+        let stashedIDs = visibleMembers
+        let backgroundIDs = backgroundMembers
+        let ids = stashedIDs + backgroundIDs
         let shape = gridShape(cellIDs: ids)
         return StackPopupChrome(title: String(localized: "Drawer"),
                                 note: shape.showsHint ? String(localized: "Drag apps here from the taskbar") : nil,
@@ -130,7 +143,8 @@ struct DrawerView: View {
                                 onPanelSizeChange: onPanelSizeChange,
                                 gridAnimation: .easeInOut(duration: DrawerAnimation.duration),
                                 gridAnimationKey: ids) {
-            ForEach(ids, id: \.self) { drawerChip($0, running: showsAsRunning($0)) }
+            ForEach(stashedIDs, id: \.self) { drawerChip($0, running: showsAsRunning($0)) }
+            ForEach(backgroundIDs, id: \.self) { backgroundChip($0) }
         }
         // 抽屉根视图的屏幕 frame（AppKit 换算,绕开 .global/y 翻转/shadowPadding 的坑,Codex 二审 P1-3）。
         // 与 `"drawer"` 命名空间挂在同一视图上 → 既能判"光标在不在抽屉里",又能把屏幕坐标映回 drawer 空间命中格子。
@@ -229,7 +243,7 @@ struct DrawerView: View {
     /// 抽屉格子里**画什么**。拆出来的唯一理由：载体位图要从这里出
     /// （`ChipSnapshotter`），渲染格子和渲染载体必须是同一份代码、同一批参数。
     /// 外面那层入场动画 / 拖动时置 0 的透明度 / 手势都不能进快照，所以留在 `drawerChip` 里。
-    private func drawerChipContent(_ id: String, running: Bool) -> some View {
+    private func drawerChipContent(_ id: String, running: Bool, extraItems: [LauncherMembershipItem] = []) -> some View {
         LauncherChip(bundleID: id,
                      isRunning: running,
                      isHidden: running ? isHiddenInSnapshot(id) : false,
@@ -260,7 +274,7 @@ struct DrawerView: View {
                          )
                      },
                      onActivateWindow: { runtime.activate(windowID: $0) },
-                     membershipItems: membershipItems(for: id),
+                     membershipItems: membershipItems(for: id) + extraItems,
                      slotHidden: isDragging(id),
                      hoverSuppressed: isHoverSuppressed(id),
                      onLaunch: { runtime.beginLaunch(id) },
@@ -303,6 +317,13 @@ struct DrawerView: View {
     }
 
     @ViewBuilder
+    /// Background-app cell: same chip, no drag (these are not placements), plus an Ignore item in its menu.
+    private func backgroundChip(_ id: String) -> some View {
+        drawerChipContent(id, running: true, extraItems: [
+            LauncherMembershipItem(label: String(localized: "Ignore")) { backgroundStore.ignore(id) }
+        ])
+    }
+
     private func drawerChip(_ id: String, running: Bool) -> some View {
         drawerChipContent(id, running: running)
             .opacity(isDragging(id) ? 0 : 1)
