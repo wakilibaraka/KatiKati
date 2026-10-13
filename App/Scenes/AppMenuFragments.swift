@@ -353,6 +353,12 @@ enum WidgetMenuBuilder {
             }
         }
         menu.addItem(.separator())
+        let presetMenu = NSMenu(title: String(localized: "Apply Preset"))
+        for preset in WidgetPresets.builtIns { presetMenu.addItem(ClosureMenuItem(preset.localizedTitle) { store.applyWidgetPreset(preset) }) }
+        for preset in store.userWidgetPresets { presetMenu.addItem(ClosureMenuItem(preset.name) { store.applyWidgetPreset(preset) }) }
+        let presetItem = NSMenuItem(title: String(localized: "Apply Preset"), action: nil, keyEquivalent: "")
+        presetItem.submenu = presetMenu
+        menu.addItem(presetItem)
         menu.addItem(ClosureMenuItem(String(localized: "Hide")) {
             store.setWidgetLayout(store.widgetLayout.updating(section) { $0.isVisible = false })
         })

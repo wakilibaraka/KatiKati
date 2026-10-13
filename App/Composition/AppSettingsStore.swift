@@ -177,6 +177,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var widgetOrder: [BarSection]
     /// Phase 10a widget arrangement (order / size / visibility). Not yet consumed by the strip.
     @Published private(set) var widgetLayout: WidgetLayout
+    /// User-saved widget presets (built-ins live in `WidgetPresets.builtIns`).
+    @Published private(set) var userWidgetPresets: [WidgetPreset]
     @Published private(set) var widgetWidths: [String: CGFloat]
     /// 居中模式下的目标宽度（points，默认 720，限制 360...1600）。
     @Published private(set) var centeredWidth: CGFloat
@@ -423,6 +425,7 @@ final class AppSettingsStore: ObservableObject {
             ?? WidgetLayout.migrating(legacyWidths: legacyWidgetWidths)
         widgetLayout = storedWidgetLayout
         widgetOrder = storedWidgetLayout.visibleOrder
+        userWidgetPresets = WidgetPresets.decode(defaults.data(forKey: WidgetPresets.defaultsKey))
         
         themeMaterial = DockThemeStyle(token: defaults.string(forKey: Keys.themeMaterial) ?? "") ?? .auto
         iconSet = IconSet(storedValue: defaults.string(forKey: Keys.iconSet))
@@ -1179,6 +1182,21 @@ final class AppSettingsStore: ObservableObject {
         widgetLayout = layout
         widgetOrder = layout.visibleOrder
         defaults.set(layout.encoded(), forKey: WidgetLayout.defaultsKey)
+    }
+
+    func saveCurrentWidgetLayout(as name: String) {
+        userWidgetPresets = WidgetPresets.saving(widgetLayout, as: name, into: userWidgetPresets)
+        defaults.set(WidgetPresets.encode(userWidgetPresets), forKey: WidgetPresets.defaultsKey)
+    }
+
+    func deleteWidgetPreset(id: String) {
+        userWidgetPresets = WidgetPresets.removing(id: id, from: userWidgetPresets)
+        defaults.set(WidgetPresets.encode(userWidgetPresets), forKey: WidgetPresets.defaultsKey)
+    }
+
+    /// One atomic write; exact-width overrides from the preset replace the current ones.
+    func applyWidgetPreset(_ preset: WidgetPreset) {
+        setWidgetLayout(preset.layout)
     }
 
     /// Picks an S/M/L preset; clears the exact-width override so the preset takes effect.

@@ -148,6 +148,7 @@ enum BottomEdgeChoice: Hashable {
 
 struct SettingsLayoutPane: View {
     @ObservedObject var store: AppSettingsStore
+    @State private var newPresetName = ""
 
     private static let margin: CGFloat = 28
     private static let previewFraction: CGFloat = 0.22
@@ -212,6 +213,7 @@ struct SettingsLayoutPane: View {
                 }
                 .listStyle(.plain)
                 .frame(height: CGFloat(store.widgetLayout.order.count) * 34 + 8)
+                presetControls
             }
 
             section {
@@ -768,6 +770,39 @@ struct SettingsLayoutPane: View {
         case .apps: return Text("Apps")
         case .widgets: return Text("Widgets")
         case .clock: return Text("Clock")
+        }
+    }
+
+    private var presetControls: some View {
+        HStack(spacing: 8) {
+            Menu {
+                ForEach(WidgetPresets.builtIns) { preset in
+                    Button(preset.localizedTitle) { store.applyWidgetPreset(preset) }
+                }
+                if !store.userWidgetPresets.isEmpty {
+                    Divider()
+                    ForEach(store.userWidgetPresets) { preset in
+                        Button(preset.name) { store.applyWidgetPreset(preset) }
+                    }
+                    Divider()
+                    Menu("Delete") {
+                        ForEach(store.userWidgetPresets) { preset in
+                            Button(preset.name) { store.deleteWidgetPreset(id: preset.id) }
+                        }
+                    }
+                }
+            } label: {
+                Text("Presets")
+            }
+            .fixedSize()
+            TextField("Name", text: $newPresetName)
+                .textFieldStyle(.roundedBorder)
+                .frame(maxWidth: 160)
+            Button("Save Current Layout") {
+                store.saveCurrentWidgetLayout(as: newPresetName)
+                newPresetName = ""
+            }
+            .disabled(newPresetName.trimmingCharacters(in: .whitespaces).isEmpty)
         }
     }
 
