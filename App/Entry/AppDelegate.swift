@@ -138,8 +138,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.look = { [weak self] in (self?.settingsStore.launcherTheme ?? .system, self?.settingsStore.launcherTint ?? .none) }
         panel.keptApps = { [weak self] in self?.keptAppStore.bundleIDs ?? [] }
         panel.bottomBarReserve = { [weak self] in
-            guard let store = self?.settingsStore else { return 0 }
+            guard let store = self?.settingsStore, store.stripPlacementMap.global == .bottom else { return 0 }
             return Double(store.dockPanelHeight.points + store.bottomGap + 8)
+        }
+        panel.sideBarReserve = { [weak self] in
+            guard let store = self?.settingsStore else { return (0, 0) }
+            let reserve = Double(store.dockPanelHeight.points + store.bottomGap + 8)
+            switch store.stripPlacementMap.global {
+            case .bottom: return (0, 0)
+            case .left: return (reserve, 0)
+            case .right: return (0, reserve)
+            }
         }
         return panel
     }()

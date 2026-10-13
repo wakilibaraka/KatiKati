@@ -8,6 +8,8 @@ import SwiftUI
 final class StackPopupArrowModel: ObservableObject {
     /// Arrow centre minus plate centre, in points.
     @Published var offsetFromCenter: CGFloat = 0
+    /// Phase 18d: beside a side rail the plate opens sideways, so the bottom arrow is dropped.
+    @Published var isHidden = false
     /// Bumped by a host that outlives one showing (the drawer) each time the plate goes away:
     /// a scrolled grid is rebuilt at its top while nobody is looking, never at the next open.
     @Published var scrollGeneration = 0
@@ -92,7 +94,7 @@ struct StackPopupChrome<Grid: View>: View {
         .background {
             GeometryReader { proxy in
                 StackPopupBackdrop(plateSize: proxy.size,
-                                   arrowCenterX: proxy.size.width / 2 + arrow.offsetFromCenter,
+                                   arrowCenterX: arrow.isHidden ? nil : proxy.size.width / 2 + arrow.offsetFromCenter,
                                    usesLiquidGlass: usesLiquidGlass)
             }
         }

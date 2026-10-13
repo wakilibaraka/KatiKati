@@ -99,6 +99,20 @@ final class WidgetPanelController {
 
     /// Room to leave for an edge bar on this stack's side (bar width + its margin + a gap), 0 when none.
     private func edgeBarInset(defaults: UserDefaults = .standard) -> CGFloat {
+        railInset(defaults: defaults) + edgeDeckInset(defaults: defaults)
+    }
+
+    /// Phase 18d: a KatiKati side rail on the panel's side (weather left, calendar right).
+    private func railInset(defaults: UserDefaults) -> CGFloat {
+        let map = StripPlacementMap.decode(defaults.data(forKey: StripPlacementMap.defaultsKey)) ?? StripPlacementMap()
+        let onThisSide = (side == .left && map.global == .left) || (side == .right && map.global == .right)
+        guard onThisSide else { return 0 }
+        let stored = defaults.object(forKey: "com.katikati.dockPanelHeight") as? NSNumber
+        let height = stored.map { DockPanelHeight(clamping: CGFloat($0.doubleValue)) }?.points ?? DockPanelHeight.native.points
+        return height + PanelLayoutMetrics.floatingBottomGap + 8
+    }
+
+    private func edgeDeckInset(defaults: UserDefaults) -> CGFloat {
         let barSide: EdgeSide = side == .left ? .left : .right
         guard AppSettingsStore.edgeContent(defaults: defaults)[barSide] != nil else { return 0 }
         let scaleKey = barSide == .left ? "com.katikati.edge.deckScale.left" : "com.katikati.edge.deckScale.right"

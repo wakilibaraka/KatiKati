@@ -28,7 +28,7 @@ struct ChipPanelView: View {
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .background {
             StackPopupBackdrop(plateSize: plate,
-                               arrowCenterX: plate.width / 2 + arrow.offsetFromCenter,
+                               arrowCenterX: arrow.isHidden ? nil : plate.width / 2 + arrow.offsetFromCenter,
                                usesLiquidGlass: usesLiquidGlass)
         }
         .padding(.bottom, Metrics.arrowHeight)

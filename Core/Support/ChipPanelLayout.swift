@@ -74,8 +74,23 @@ enum ChipPanelLayout {
         arrowHeight: CGFloat = StackPopupMetrics.arrowHeight,
         tipGap: CGFloat = StackPopupMetrics.tipGap,
         screenMargin: CGFloat = 8,
-        arrowInset: CGFloat = StackPopupMetrics.arrowInset
+        arrowInset: CGFloat = StackPopupMetrics.arrowInset,
+        stripPlacement: StripPlacement = .bottom
     ) -> Placement {
+        if stripPlacement.isVertical {
+            // Beside a side rail (Phase 18d): inward of the anchor, vertically centred, clamped to
+            // the screen; no arrow (the caller hides it), so the arrow strip stays empty.
+            let height = plate.height + arrowHeight + 2 * margin
+            let width = plate.width + 2 * margin
+            let x = stripPlacement == .right
+                ? anchor.minX - tipGap + margin - width
+                : anchor.maxX + tipGap - margin
+            let minY = screen.minY + screenMargin - margin
+            let maxY = screen.maxY - screenMargin + margin - height
+            let desired = anchor.midY - height / 2
+            let y = maxY >= minY ? min(max(desired, minY), maxY) : minY
+            return Placement(panelFrame: CGRect(x: x, y: y, width: width, height: height), arrowOffsetFromCenter: 0)
+        }
         let minX = screen.minX + screenMargin
         let maxX = screen.maxX - screenMargin - plate.width
         let desired = anchor.midX - plate.width / 2

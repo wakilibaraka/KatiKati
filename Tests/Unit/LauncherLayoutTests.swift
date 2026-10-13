@@ -40,4 +40,15 @@ final class LauncherLayoutTests: XCTestCase {
         let i = LauncherScreenInsets.compute(frame: frame, visible: CGRect(x: 0, y: 800, width: 1000, height: 100), safeTop: 0)
         XCTAssertEqual(i.bottom, 300, "never more than a third of the screen")
     }
+
+    /// Phase 18d: a side rail pushes the launcher grid in from its edge.
+    func testSideRailReservesLeadingOrTrailingSpace() {
+        let frame = CGRect(x: 0, y: 0, width: 1500, height: 900)
+        let i = LauncherScreenInsets.compute(frame: frame, visible: frame, safeTop: 0, extraLeading: 70)
+        XCTAssertEqual(i.leading, 70)
+        XCTAssertEqual(i.trailing, 0)
+        let j = LauncherScreenInsets.compute(frame: frame, visible: frame, safeTop: 0, extraTrailing: 70)
+        XCTAssertEqual(j.trailing, 70)
+    }
 }
+

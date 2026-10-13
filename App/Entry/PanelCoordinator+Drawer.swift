@@ -75,7 +75,8 @@ extension PanelCoordinator {
     private func drawerAnchor(on screen: NSScreen) -> (capsuleRef: NSRect, limits: StackGridLayout.Limits) {
         let screenGeometry = Self.screenGeometry(screen)
         let capsuleRef = lastCapsuleTargetFrame == .zero ? (capsulePanel?.frame ?? .zero) : lastCapsuleTargetFrame
-        return (capsuleRef, PanelGeometry.drawerGridLimits(forCapsule: capsuleRef, on: screenGeometry, metrics: layoutMetrics))
+        return (capsuleRef, PanelGeometry.drawerGridLimits(forCapsule: capsuleRef, on: screenGeometry, metrics: layoutMetrics,
+                                                                   stripPlacement: stripPlacement))
     }
 
     /// Smaller than any plate means the host has not laid out yet, never a real size.
@@ -135,6 +136,8 @@ extension PanelCoordinator {
         guard let capsule, let drawer, capsule != .zero, drawer != .zero else { return }
         let offset = capsule.midX - drawer.midX   // the capsule's visible rect is inset symmetrically
         if drawerArrow.offsetFromCenter != offset { drawerArrow.offsetFromCenter = offset }
+        let hidesArrow = stripPlacement.isVertical
+        if drawerArrow.isHidden != hidesArrow { drawerArrow.isHidden = hidesArrow }
     }
 
     private func makeDrawerRootView(limits: StackGridLayout.Limits) -> DrawerRootView {

@@ -173,7 +173,8 @@ extension PanelCoordinator {
             anchorVisibleRect: request.anchorVisibleRect,
             size: size,
             tipGap: style.tipGap,
-            on: Self.screenGeometry(screen)
+            on: Self.screenGeometry(screen),
+            stripPlacement: stripPlacement
         )
         panel.setFrame(target, display: true)
 

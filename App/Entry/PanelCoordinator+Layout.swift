@@ -361,7 +361,8 @@ extension PanelCoordinator {
     func drawerTargetFrame(forCapsule capsuleFrame: NSRect, size: CGSize, on screen: NSScreen) -> NSRect {
         // 底部/左右定位使用 screen.frame，切断与原生 Dock visibleFrame 的耦合；
         // 顶部高度仍由 topUsableY 封顶，避免菜单栏和刘海遮挡。
-        PanelGeometry.drawerTargetFrame(forCapsule: capsuleFrame, size: size, on: Self.screenGeometry(screen), metrics: layoutMetrics)
+        PanelGeometry.drawerTargetFrame(forCapsule: capsuleFrame, size: size, on: Self.screenGeometry(screen),
+                                        metrics: layoutMetrics, stripPlacement: stripPlacement)
     }
 
     /// 统一布局入口：算齐三个目标 frame、存好（给 drop zone / 开抽屉读），三面板同组动画到目标。

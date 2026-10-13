@@ -20,6 +20,8 @@ final class ChipPanelController {
     var thumbnailWidth: () -> CGFloat = { 180 }
     var usesLiquidGlass: () -> Bool = { false }
     var themeStyle: () -> DockThemeStyle = { .auto }
+    /// Phase 18d: beside a side rail the panel opens inward and drops its bottom arrow.
+    var stripPlacement: () -> StripPlacement = { .bottom }
     var onWillOpen: () -> Void = {}
     var onPanelShown: (NSPanel) -> Void = { _ in }
 
@@ -206,8 +208,10 @@ final class ChipPanelController {
         let plate = model.plateSize
         guard plate.width > 0 else { return }
         let screen = screenFrameContaining(CGPoint(x: anchor.midX, y: anchor.midY))
-        let placement = ChipPanelLayout.placement(anchor: anchor, plate: plate, screen: screen)
+        let edge = stripPlacement()
+        let placement = ChipPanelLayout.placement(anchor: anchor, plate: plate, screen: screen, stripPlacement: edge)
         arrow.offsetFromCenter = placement.arrowOffsetFromCenter
+        if arrow.isHidden != edge.isVertical { arrow.isHidden = edge.isVertical }
         if panel.frame != placement.panelFrame { panel.setFrame(placement.panelFrame, display: true) }
     }
 

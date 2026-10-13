@@ -20,6 +20,8 @@ final class LauncherPanelController {
     var look: () -> (theme: LauncherTheme, tint: LauncherTint) = { (.system, .none) }
     /// Height the KatiKati bottom bar occupies (it floats above `visibleFrame`), so the launcher never sits under it.
     var bottomBarReserve: () -> Double = { 0 }
+    /// Phase 18d: space a KatiKati side rail takes on the left / right.
+    var sideBarReserve: () -> (leading: Double, trailing: Double) = { (0, 0) }
     /// Bundle ids of the apps kept in the dock; they open page 1 as Pinned.
     var keptApps: () -> [String] = { [] }
     private var backdrop: LauncherBackdrop?
@@ -42,7 +44,8 @@ final class LauncherPanelController {
         model.scrollDirection = scrollDirection()
         model.screenInsets = LauncherScreenInsets.compute(
             frame: screen.frame, visible: screen.visibleFrame, safeTop: Double(screen.safeAreaInsets.top),
-            extraBottom: bottomBarReserve())
+            extraBottom: bottomBarReserve(),
+            extraLeading: sideBarReserve().leading, extraTrailing: sideBarReserve().trailing)
         model.query = ""
         model.editing = false
         model.focusedID = nil

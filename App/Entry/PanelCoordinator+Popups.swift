@@ -228,11 +228,12 @@ extension PanelCoordinator {
         let screen = panelCurrentScreen(panel: mainPanel)
         let screenGeometry = Self.screenGeometry(screen)
         let arrow = StackPopupArrowModel()
+        arrow.isHidden = stripPlacement.isVertical
         let context = StackPopupContext(
             limits: StackGridLayout.limits(
                 screenSize: screenGeometry.frame.size,
                 availablePlateHeight: PanelGeometry.stackPopupAvailablePlateHeight(
-                    anchorVisibleRect: anchorVisibleRect, on: screenGeometry)),
+                    anchorVisibleRect: anchorVisibleRect, on: screenGeometry, stripPlacement: stripPlacement)),
             arrow: arrow)
 
         let hosting = makeHosting(context)
@@ -263,7 +264,8 @@ extension PanelCoordinator {
             lastPopupSize = sync
         }
         let initialFrame = PanelGeometry.folderPopupTargetFrame(
-            anchorVisibleRect: anchorVisibleRect, size: lastPopupSize, on: screenGeometry, metrics: layoutMetrics)
+            anchorVisibleRect: anchorVisibleRect, size: lastPopupSize, on: screenGeometry, metrics: layoutMetrics,
+            stripPlacement: stripPlacement)
         lastPopupTargetFrame = initialFrame
 
         if isSwitching {
@@ -327,7 +329,8 @@ extension PanelCoordinator {
         lastPopupSize = size
         let screen = panelCurrentScreen(panel: dock)
         let target = PanelGeometry.folderPopupTargetFrame(
-            anchorVisibleRect: popupAnchorVisibleRect, size: size, on: Self.screenGeometry(screen), metrics: layoutMetrics)
+            anchorVisibleRect: popupAnchorVisibleRect, size: size, on: Self.screenGeometry(screen), metrics: layoutMetrics,
+            stripPlacement: stripPlacement)
         lastPopupTargetFrame = target
 
         if folderPopupFrameTimer != nil {
@@ -409,6 +412,13 @@ extension PanelCoordinator {
                     let p = ease.progress(at: raw)
                     let width = w0 + (w1 - w0) * p
                     let height = h0 + (h1 - h0) * p
+                    if self.stripPlacement.isVertical {
+                        // Beside a rail both ends are already clamped `railPopupFrame`s: interpolate them.
+                        let x = start.minX + (target.minX - start.minX) * p
+                        let y = start.minY + (target.minY - start.minY) * p
+                        self.setFolderPopupFrame(NSRect(x: x, y: y, width: width, height: height), on: panel, display: true)
+                        return
+                    }
                     // 每帧用当前尺寸重走 PanelGeometry 的居中+钳位公式（与首帧/重定位同一真相）。
                     let origin = PanelGeometry.folderPopupClampedOrigin(
                         desiredCenterX: startCenterX + (endCenterX - startCenterX) * p,

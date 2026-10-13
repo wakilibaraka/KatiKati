@@ -73,4 +73,38 @@ final class RailGeometryTests: XCTestCase {
             .insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
         XCTAssertEqual(top.maxY, screen.topUsableY - 12, accuracy: 0.001, "margin below the menu bar")
     }
+
+    // MARK: 18d popups
+
+    func testStackPopupOpensInwardBesideARailAndStaysOnScreen() {
+        let anchor = CGRect(x: 8, y: 500, width: 54, height: 54)   // a chip on a left rail
+        let size = CGSize(width: 400, height: 300)
+        let left = PanelGeometry.folderPopupTargetFrame(anchorVisibleRect: anchor, size: size, on: screen,
+                                                        stripPlacement: .left)
+        let plate = PanelGeometry.folderPopupPlateFrame(panelFrame: left)
+        XCTAssertEqual(plate.minX, anchor.maxX + StackPopupMetrics.tipGap, accuracy: 0.001, "opens right of a left rail")
+        XCTAssertEqual(left.midY, anchor.midY, accuracy: 0.001, "centred on the anchor")
+
+        let rightAnchor = CGRect(x: 1648, y: 40, width: 54, height: 54)   // low on a right rail
+        let right = PanelGeometry.folderPopupTargetFrame(anchorVisibleRect: rightAnchor, size: size, on: screen,
+                                                         stripPlacement: .right)
+        let rightPlate = PanelGeometry.folderPopupPlateFrame(panelFrame: right)
+        XCTAssertEqual(rightPlate.maxX, rightAnchor.minX - StackPopupMetrics.tipGap, accuracy: 0.001)
+        XCTAssertGreaterThanOrEqual(rightPlate.minY, screen.frame.minY - 0.001, "clamped above the screen bottom")
+    }
+
+    func testTooltipAndChipPanelOpenBesideARail() {
+        let anchor = CGRect(x: 8, y: 600, width: 54, height: 54)
+        let tip = PanelGeometry.windowTitleTooltipTargetFrame(anchorVisibleRect: anchor, size: CGSize(width: 120, height: 40),
+                                                             tipGap: 6, on: screen, stripPlacement: .left)
+        XCTAssertGreaterThan(tip.minX, anchor.maxX - PanelGeometry.windowTitleTooltipShadowPadding)
+        let panel = ChipPanelLayout.placement(anchor: anchor, plate: CGSize(width: 240, height: 160),
+                                              screen: screen.frame, stripPlacement: .left)
+        XCTAssertGreaterThan(panel.panelFrame.midX, anchor.maxX)
+        XCTAssertEqual(panel.arrowOffsetFromCenter, 0)
+        let bottom = ChipPanelLayout.placement(anchor: anchor, plate: CGSize(width: 240, height: 160), screen: screen.frame)
+        XCTAssertEqual(bottom, ChipPanelLayout.placement(anchor: anchor, plate: CGSize(width: 240, height: 160),
+                                                         screen: screen.frame, stripPlacement: .bottom))
+    }
 }
+

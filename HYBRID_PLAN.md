@@ -2620,6 +2620,15 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   screen space; `StripFileDropDelegate.transposesAxis` transposes location + frames before routing;
   external-drop width freeze freezes the rail's height. The drag-to-resize grip is off on a rail
   (thickness from Settings). Suite 2209 green.
+- 2026-10-13 · **18d built (popups beside a rail).** `PanelGeometry.railPopupFrame` — inward of the anchor,
+  vertically centred, clamped between the screen bottom and `topUsableY`. Folder / shelf / Trash popups and
+  the drawer (`folderPopupTargetFrame`/`drawerTargetFrame`/`drawerGridLimits`/available height take
+  `stripPlacement`; the switch tween interpolates rail frames directly), window-title tooltip, chip panel
+  (hover preview, jump list, floating menus — `ChipPanelLayout.placement(stripPlacement:)`). Popups drop
+  their bottom arrow beside a rail (`StackPopupArrowModel.isHidden`, the outline's arrow-free path).
+  Launcher keeps clear of a rail (`LauncherScreenInsets` leading/trailing), weather/calendar panels add the
+  rail's width to their side inset. Memory pill unchanged (overlay inside the strip). Tests: popup / tooltip /
+  chip-panel placement on rails, launcher insets. Suite 2212 green.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

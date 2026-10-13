@@ -716,14 +716,43 @@ enum PanelGeometry {
         return CGPoint(x: x, y: desiredBottomY)
     }
 
+    /// Phase 18d: a popup beside a side rail opens **inward** (right of a left rail, left of a right
+    /// rail) `tipGap` off the anchor, vertically centred on it and clamped between the screen bottom
+    /// and `topUsableY`. `size` and the result are window frames; `border` is the transparent margin
+    /// around the visible plate (the gap is measured plate to anchor).
+    static func railPopupFrame(
+        anchorVisibleRect anchor: CGRect,
+        size: CGSize,
+        stripPlacement: StripPlacement,
+        on screen: PanelScreenGeometry,
+        border: CGFloat,
+        gap: CGFloat = StackPopupMetrics.tipGap
+    ) -> CGRect {
+        let floor = screen.frame.minY - border
+        let ceiling = screen.topUsableY + border
+        let height = min(size.height, max(0, ceiling - floor))
+        let x = stripPlacement == .right
+            ? anchor.minX - gap + border - size.width
+            : anchor.maxX + gap - border
+        let rawY = anchor.midY - height / 2
+        let y = min(max(rawY, floor), ceiling - height)
+        return CGRect(x: x, y: y, width: size.width, height: height)
+    }
+
     /// The popup window's frame: centred on the anchor chip, clamped into the screen, growing
     /// upward only and capped where the plate would cross `topUsableY`. `size` is the whole window.
+    /// On a side rail it opens beside the rail instead (`railPopupFrame`).
     static func folderPopupTargetFrame(
         anchorVisibleRect: CGRect,
         size: CGSize,
         on screen: PanelScreenGeometry,
-        metrics: PanelLayoutMetrics = .tungstenEdge
+        metrics: PanelLayoutMetrics = .tungstenEdge,
+        stripPlacement: StripPlacement = .bottom
     ) -> CGRect {
+        if stripPlacement.isVertical {
+            return railPopupFrame(anchorVisibleRect: anchorVisibleRect, size: size, stripPlacement: stripPlacement,
+                                  on: screen, border: StackPopupMetrics.panelMargin)
+        }
         let origin = folderPopupClampedOrigin(
             desiredCenterX: anchorVisibleRect.midX,
             desiredBottomY: folderPopupDesiredBottomY(anchorVisibleRect: anchorVisibleRect),
@@ -737,7 +766,12 @@ enum PanelGeometry {
 
     /// Height the plate may take above the anchor, leaving `stackPopupTopGap` under the menu bar;
     /// feeds `StackGridLayout.limits`, which takes a status line's height off it when there is one.
-    static func stackPopupAvailablePlateHeight(anchorVisibleRect: CGRect, on screen: PanelScreenGeometry) -> CGFloat {
+    static func stackPopupAvailablePlateHeight(anchorVisibleRect: CGRect, on screen: PanelScreenGeometry,
+                                               stripPlacement: StripPlacement = .bottom) -> CGFloat {
+        // Beside a rail the plate may use the whole usable height (it centres on the anchor).
+        if stripPlacement.isVertical {
+            return screen.topUsableY - stackPopupTopGap - (screen.frame.minY + stackPopupTopGap)
+        }
         let plateBottom = anchorVisibleRect.maxY + StackPopupMetrics.tipGap + StackPopupMetrics.arrowHeight
         return screen.topUsableY - stackPopupTopGap - plateBottom
     }
@@ -758,8 +792,13 @@ enum PanelGeometry {
         anchorVisibleRect: CGRect,
         size: CGSize,
         tipGap: CGFloat,
-        on screen: PanelScreenGeometry
+        on screen: PanelScreenGeometry,
+        stripPlacement: StripPlacement = .bottom
     ) -> CGRect {
+        if stripPlacement.isVertical {
+            return railPopupFrame(anchorVisibleRect: anchorVisibleRect, size: size, stripPlacement: stripPlacement,
+                                  on: screen, border: windowTitleTooltipShadowPadding, gap: tipGap)
+        }
         let inset = windowTitleTooltipShadowPadding
         let visibleWidth = max(0, size.width - 2 * inset)
         let visibleHeight = max(0, size.height - 2 * inset)
@@ -792,23 +831,26 @@ enum PanelGeometry {
         forCapsule capsuleFrame: CGRect,
         size: CGSize,
         on screen: PanelScreenGeometry,
-        metrics: PanelLayoutMetrics = .tungstenEdge
+        metrics: PanelLayoutMetrics = .tungstenEdge,
+        stripPlacement: StripPlacement = .bottom
     ) -> CGRect {
         folderPopupTargetFrame(
             anchorVisibleRect: drawerAnchorVisibleRect(forCapsule: capsuleFrame, metrics: metrics),
-            size: size, on: screen, metrics: metrics)
+            size: size, on: screen, metrics: metrics, stripPlacement: stripPlacement)
     }
 
     /// Rows and columns the drawer's grid may take above its capsule on this screen.
     static func drawerGridLimits(
         forCapsule capsuleFrame: CGRect,
         on screen: PanelScreenGeometry,
-        metrics: PanelLayoutMetrics = .tungstenEdge
+        metrics: PanelLayoutMetrics = .tungstenEdge,
+        stripPlacement: StripPlacement = .bottom
     ) -> StackGridLayout.Limits {
         StackGridLayout.drawerLimits(
             screenSize: screen.frame.size,
             availablePlateHeight: stackPopupAvailablePlateHeight(
-                anchorVisibleRect: drawerAnchorVisibleRect(forCapsule: capsuleFrame, metrics: metrics), on: screen))
+                anchorVisibleRect: drawerAnchorVisibleRect(forCapsule: capsuleFrame, metrics: metrics), on: screen,
+                stripPlacement: stripPlacement))
     }
 
     /// The pointer's lower bound for "inside the drawer body" while dragging a strip chip: the
