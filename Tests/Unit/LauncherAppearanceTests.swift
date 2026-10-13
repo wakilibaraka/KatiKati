@@ -6,14 +6,14 @@ final class LauncherAppearanceTests: XCTestCase {
         XCTAssertEqual(LauncherTheme.parse(nil), .system)
         XCTAssertEqual(LauncherTheme.parse("nope"), .system)
         XCTAssertEqual(LauncherTint.parse(nil), .none)
-        XCTAssertEqual(LauncherIconStyle.parse(nil), .glass)
+        XCTAssertEqual(LauncherIconStyle.parse(nil), .themed)
         XCTAssertEqual(LauncherIconStyle.parse("petal"), .petal)
     }
 
     func testFrozenRawValues() {
         XCTAssertEqual(LauncherTheme.allCases.map(\.rawValue), ["system", "light", "dark", "glass", "desktop"])
         XCTAssertEqual(LauncherTint.allCases.map(\.rawValue), ["none", "blue", "purple", "pink", "orange", "green"])
-        XCTAssertEqual(LauncherIconStyle.allCases.map(\.rawValue), ["glass", "orbit", "tiles", "petal"])
+        XCTAssertEqual(LauncherIconStyle.allCases.map(\.rawValue), ["glass", "orbit", "tiles", "petal", "themed"])
     }
 
     func testTintRGBInRangeAndNoneIsNil() {
@@ -22,5 +22,14 @@ final class LauncherAppearanceTests: XCTestCase {
             let c = t.rgb!
             XCTAssertTrue([c.r, c.g, c.b].allSatisfy { (0...1).contains($0) })
         }
+    }
+}
+
+extension LauncherAppearanceTests {
+    func testThemedGlyphHuesAreNineDistinctInRange() {
+        let hues = LauncherIconStyle.themedCellHues
+        XCTAssertEqual(hues.count, 9)
+        XCTAssertEqual(Set(hues).count, 9)
+        XCTAssertTrue(hues.allSatisfy { (0...1).contains($0) })
     }
 }

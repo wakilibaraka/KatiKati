@@ -27,6 +27,25 @@ public enum ClockArt {
         let (a, b) = stops(isNight: isNight)
         return LinearGradient(colors: [a, b], startPoint: .leading, endPoint: .trailing)
     }
+
+    /// 10c-2: four-step axis. Day / night reuse the frozen 8d stops above.
+    public static func stops(phase: ClockArtPhase) -> (Color, Color) {
+        switch phase {
+        case .night: return stops(isNight: true)
+        case .day: return stops(isNight: false)
+        case .dawn:
+            return (Color(red: 236/255, green: 112/255, blue: 156/255),
+                    Color(red: 250/255, green: 176/255, blue: 82/255))
+        case .dusk:
+            return (Color(red: 238/255, green: 97/255, blue: 84/255),
+                    Color(red: 142/255, green: 88/255, blue: 206/255))
+        }
+    }
+
+    public static func gradient(phase: ClockArtPhase) -> LinearGradient {
+        let (a, b) = stops(phase: phase)
+        return LinearGradient(colors: [a, b], startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
 }
 
 // MARK: - Bar widget (combined clock chip)
@@ -66,7 +85,7 @@ public struct ClockChip: View {
     /// never the form.
     private func card(for date: Date) -> some View {
         let content = provider.currentContent(for: date)
-        let art = ClockArt.gradient(isNight: ClockChipDaylight.isNight(date))
+        let art = ClockArt.gradient(phase: ClockArtPhase.phase(date))
 
         // ViewThatFits is macOS 13+; the floor is 12, so the fallback there is the full
         // layout truncating (same rule as the weather pill).
@@ -138,7 +157,7 @@ public struct ClockChip: View {
     private var timeFont: Font {
         switch preset {
         case .modernMac:
-            return .system(size: 19, weight: .semibold, design: .rounded)
+            return .system(size: widgetSize == .large ? 22 : 19, weight: .semibold, design: .rounded).monospacedDigit()
         case .pixelRetro:
             return .system(size: 18, weight: .bold, design: .monospaced)
         case .flipTiles:

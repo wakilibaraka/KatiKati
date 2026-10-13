@@ -44,6 +44,22 @@ public enum ClockChipDaylight {
     }
 }
 
+/// 10c-2: the time capsule's four-step hue axis. `day` and `night` keep the frozen 8d hues; `dawn` and
+/// `dusk` are the two warm/cool transitions. Fixed local hours for now — 10b-1's sun-position `SolarPhase`
+/// replaces this table when the wallpaper engine lands.
+public enum ClockArtPhase: Equatable, Sendable {
+    case night, dawn, day, dusk
+
+    public static func phase(_ date: Date, calendar: Calendar = .current) -> ClockArtPhase {
+        switch calendar.component(.hour, from: date) {
+        case 5..<7: return .dawn
+        case 7..<17: return .day
+        case 17..<19: return .dusk
+        default: return .night
+        }
+    }
+}
+
 public final class StandardClockProvider: ClockDataProvider {
     private let timeFormatter: DateFormatter
     private let dateFormatter: DateFormatter

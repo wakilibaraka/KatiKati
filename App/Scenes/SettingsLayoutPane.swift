@@ -690,6 +690,7 @@ struct SettingsLayoutPane: View {
         case .orbit: return Text("Orbit")
         case .tiles: return Text("Tiles")
         case .petal: return Text("Petal")
+        case .themed: return Text("Themed")
         }
     }
 

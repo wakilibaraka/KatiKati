@@ -89,3 +89,16 @@ final class ClockChipContentTests: XCTestCase {
         XCTAssertEqual(ClockPreset.flipTiles.rawValue, "flip")
     }
 }
+
+final class ClockArtPhaseTests: XCTestCase {
+    private func phase(_ hour: Int) -> ClockArtPhase {
+        var utc = Calendar(identifier: .gregorian); utc.timeZone = TimeZone(identifier: "UTC")!
+        let date = utc.date(from: DateComponents(year: 2026, month: 1, day: 5, hour: hour, minute: 30))!
+        return ClockArtPhase.phase(date, calendar: utc)
+    }
+
+    func testPhaseBoundaries() {
+        XCTAssertEqual([4, 5, 6, 7, 16, 17, 18, 19, 23, 0].map(phase),
+                       [.night, .dawn, .dawn, .day, .day, .dusk, .dusk, .night, .night, .night])
+    }
+}

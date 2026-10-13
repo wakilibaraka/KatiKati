@@ -5,9 +5,12 @@ import SwiftUI
 struct LauncherIconView: View {
     let style: LauncherIconStyle
     let size: CGFloat
+    @Environment(\.colorScheme) private var scheme
 
     var body: some View {
-        if style == .glass {
+        if style == .themed {
+            themedIcon
+        } else if style == .glass {
             // The glass launcher icon: a supplied artwork (background removed), shipped as an asset.
             Image("LauncherIcon")
                 .resizable()
@@ -18,6 +21,37 @@ struct LauncherIconView: View {
         } else {
             gradientIcon
         }
+    }
+
+    /// 10c-2: glass tile tinted from the system accent, with a 3×3 grid of colourful rounded cells.
+    /// Drawn from tokens (accent + scheme), not artwork, so it follows light/dark and the accent.
+    private var themedIcon: some View {
+        let hues = LauncherIconStyle.themedCellHues
+        let cell = size * 0.19, gap = size * 0.065
+        return ZStack {
+            RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                .fill(.ultraThinMaterial)
+            RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                .fill(LinearGradient(colors: [Color.accentColor.opacity(scheme == .dark ? 0.38 : 0.28),
+                                              Color.accentColor.opacity(scheme == .dark ? 0.12 : 0.06)],
+                                     startPoint: .topLeading, endPoint: .bottomTrailing))
+            RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                .strokeBorder(Color.white.opacity(scheme == .dark ? 0.22 : 0.5), lineWidth: max(0.5, size * 0.025))
+            VStack(spacing: gap) {
+                ForEach(0..<3, id: \.self) { row in
+                    HStack(spacing: gap) {
+                        ForEach(0..<3, id: \.self) { col in
+                            RoundedRectangle(cornerRadius: cell * 0.32, style: .continuous)
+                                .fill(Color(hue: hues[row * 3 + col], saturation: 0.72, brightness: scheme == .dark ? 0.95 : 0.9))
+                                .frame(width: cell, height: cell)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(width: size, height: size)
+        .shadow(color: .black.opacity(0.2), radius: size * 0.08, y: size * 0.03)
+        .accessibilityHidden(true)
     }
 
     private var gradientIcon: some View {
@@ -36,7 +70,7 @@ struct LauncherIconView: View {
 
     @ViewBuilder private var mark: some View {
         switch style {
-        case .glass:
+        case .glass, .themed:
             EmptyView()
         case .orbit:
             ZStack {
