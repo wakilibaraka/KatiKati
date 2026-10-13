@@ -83,5 +83,12 @@ final class StripPlacementTests: XCTestCase {
         }
         XCTAssertEqual(StripAxis.unmap(CGPoint(x: 5, y: 7), placement: .bottom, screen: screen), CGPoint(x: 5, y: 7))
     }
+
+    func testDistanceFromStripEdgeFollowsThePlacement() {
+        let p = CGPoint(x: 3, y: 500)
+        XCTAssertEqual(StripAxis.distanceFromStripEdge(p, placement: .left, screen: screen), 3)
+        XCTAssertEqual(StripAxis.distanceFromStripEdge(p, placement: .bottom, screen: screen), 500)
+        XCTAssertEqual(StripAxis.distanceFromStripEdge(CGPoint(x: 1707, y: 500), placement: .right, screen: screen), 3)
+    }
 }
 

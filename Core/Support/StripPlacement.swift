@@ -98,6 +98,16 @@ enum StripAxis {
         return CGRect(x: min(a.x, b.x), y: min(a.y, b.y), width: abs(a.x - b.x), height: abs(a.y - b.y))
     }
 
+    /// How far a screen point is from the edge the strip sits on — the auto-hide hot zone and edge
+    /// wake measure this instead of "height above the screen bottom" (Phase 18f).
+    static func distanceFromStripEdge(_ point: CGPoint, placement: StripPlacement, screen: CGRect) -> CGFloat {
+        switch placement {
+        case .bottom: return point.y - screen.minY
+        case .left: return point.x - screen.minX
+        case .right: return screen.maxX - point.x
+        }
+    }
+
     /// The edge-distance a frame keeps clear on the strip's side of the screen — what windows must
     /// stay out of (window clearance, Phase 18e): bottom → height above `screen.minY`, left → width
     /// from `screen.minX`, right → width from `screen.maxX`.

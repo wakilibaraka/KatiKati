@@ -54,7 +54,8 @@ extension PanelCoordinator {
         let dyFromBottom: CGFloat
         let inHotZone: Bool
         if let s = curScreen {
-            dyFromBottom = mouse.y - s.frame.minY
+            // Distance from the edge the strip sits on (Phase 18f: a side rail's hot zone is its side).
+            dyFromBottom = StripAxis.distanceFromStripEdge(mouse, placement: stripPlacement(for: s), screen: s.frame)
             inHotZone = dyFromBottom <= Self.hoverHotZone
         } else {
             dyFromBottom = -1
@@ -368,7 +369,15 @@ extension PanelCoordinator {
     private func isMouseInBottomHotZone(on screen: NSScreen) -> Bool {
         let mouse = NSEvent.mouseLocation
         guard screen.frame.contains(mouse) else { return false }
-        return mouse.y - screen.frame.minY <= Self.hoverHotZone
+        return StripAxis.distanceFromStripEdge(mouse, placement: stripPlacement(for: screen), screen: screen.frame)
+            <= Self.hoverHotZone
+    }
+
+    /// The strip edge on `screen`: this unit's own placement on its panel's screen, the global choice
+    /// elsewhere (a follow-mouse unit probing another display).
+    func stripPlacement(for screen: NSScreen) -> StripPlacement {
+        if let panel = dockPanel, panelCurrentScreen(panel: panel) == screen { return stripPlacement }
+        return settingsStore.stripPlacementMap.global
     }
 
     /// Idle-hide check for the whole bar: outside this island's panels **and** every sibling

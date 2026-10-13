@@ -2636,6 +2636,10 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   away from it, height and far side kept; windows tiled on the other side are left alone. The coordinator
   passes the rail's inner x as `taskbarTop`. 3 tests. **Owed:** the Phase 5 Accessibility drill (kill -9,
   frame restore) per placement — in the end-of-phase live check. Suite 2215 green.
+- 2026-10-13 · **18f built (visibility).** Auto-hide reveal hot zone, edge wake and the follow-mouse screen
+  switch measure distance from the strip's own edge (`StripAxis.distanceFromStripEdge`; this unit's
+  placement on its screen, the global one elsewhere). Fullscreen hide, Spaces repair and screen-change
+  re-solve were already axis-neutral (they relayout through the placement-aware frames). Suite 2216 green.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
