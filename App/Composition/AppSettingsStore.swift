@@ -175,6 +175,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var barLayoutMode: BarLayoutMode
     
     @Published private(set) var widgetOrder: [BarSection]
+    /// Phase 10a widget arrangement (order / size / visibility). Not yet consumed by the strip.
+    @Published private(set) var widgetLayout: WidgetLayout
     @Published private(set) var widgetWidths: [String: CGFloat]
     /// 居中模式下的目标宽度（points，默认 720，限制 360...1600）。
     @Published private(set) var centeredWidth: CGFloat
@@ -416,7 +418,10 @@ final class AppSettingsStore: ObservableObject {
         // Hardcoded order (Phase 4U decision 3): any previously stored custom order
         // from the removed drag-reorder UI is ignored, not restored.
         widgetOrder = defaultWidgetOrder
-        widgetWidths = defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:]
+        let legacyWidgetWidths = defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:]
+        widgetWidths = legacyWidgetWidths
+        widgetLayout = WidgetLayout.decode(defaults.data(forKey: WidgetLayout.defaultsKey))
+            ?? WidgetLayout.migrating(legacyWidths: legacyWidgetWidths)
         
         themeMaterial = DockThemeStyle(token: defaults.string(forKey: Keys.themeMaterial) ?? "") ?? .auto
         iconSet = IconSet(storedValue: defaults.string(forKey: Keys.iconSet))
@@ -1169,6 +1174,11 @@ final class AppSettingsStore: ObservableObject {
         DefaultsValueParsing.finiteNumericValue(value)
     }
     
+    func setWidgetLayout(_ layout: WidgetLayout) {
+        widgetLayout = layout
+        defaults.set(layout.encoded(), forKey: WidgetLayout.defaultsKey)
+    }
+
     func setWidgetWidth(_ width: CGFloat, for section: BarSection) {
         // Floor at the section's intrinsic minimum (e.g. clock = 40 from an
         // old single-digit tile layout starves FlipClockChip's 2×32 tiles and

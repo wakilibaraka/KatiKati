@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA10A1000000000000000012 /* WidgetLayoutModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000011 /* WidgetLayoutModelTests.swift */; };
+		FA10A1000000000000000003 /* WidgetLayoutModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000001 /* WidgetLayoutModel.swift */; };
+		FA10A1000000000000000002 /* WidgetLayoutModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000001 /* WidgetLayoutModel.swift */; };
 		7B5000000000000000040D12 /* FileNoteKeyProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040D11 /* FileNoteKeyProviderTests.swift */; };
 		7B5000000000000000040C13 /* FileNoteKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040C11 /* FileNoteKeyProvider.swift */; };
 		7B5000000000000000040C12 /* FileNoteKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040C11 /* FileNoteKeyProvider.swift */; };
@@ -825,6 +828,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FA10A1000000000000000011 /* WidgetLayoutModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetLayoutModelTests.swift; sourceTree = "<group>"; };
+		FA10A1000000000000000001 /* WidgetLayoutModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetLayoutModel.swift; sourceTree = "<group>"; };
 		7B5000000000000000040D11 /* FileNoteKeyProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FileNoteKeyProviderTests.swift; path = Tests/Unit/FileNoteKeyProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040C11 /* FileNoteKeyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FileNoteKeyProvider.swift; path = Platform/Notes/FileNoteKeyProvider.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040B11 /* HyperkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HyperkeyService.swift; path = App/Composition/HyperkeyService.swift; sourceTree = SOURCE_ROOT; };
@@ -1819,6 +1824,7 @@
 				6A3142867DCDCA871461F8F7 /* IconSetTests.swift */,
 				D18EBBCA120BD5D255C5108B /* WelcomeGuideOnboardingTests.swift */,
 				BB0000000000000000000007 /* BarLayoutModeTests.swift */,
+				FA10A1000000000000000011 /* WidgetLayoutModelTests.swift */,
 				BB0000000000000000000009 /* IslandLayoutSolverTests.swift */,
 				BB0000000000000000000024 /* IslandSlotSetTests.swift */,
 				ED0000000000000000000002 /* EdgeBarSlotTests.swift */,
@@ -1981,6 +1987,7 @@
 				0732A6DFF85B596F56BA8F0F /* LayoutThumbnailModel.swift */,
 				37F23A0D3709ED117AF62CA3 /* IconSet.swift */,
 				BB0000000000000000000003 /* BarSection.swift */,
+				FA10A1000000000000000001 /* WidgetLayoutModel.swift */,
 				BB0000000000000000000005 /* IslandLayoutSolver.swift */,
 				BB0000000000000000000021 /* IslandSlotSet.swift */,
 				ED0000000000000000000001 /* EdgeBarSlot.swift */,
@@ -2314,6 +2321,7 @@
 				D44CF9896CA37048D61EBA4F /* LayoutThumbnailModel.swift in Sources */,
 				B91752371735E2BCF330DF67 /* IconSet.swift in Sources */,
 				BB0000000000000000000004 /* BarSection.swift in Sources */,
+				FA10A1000000000000000002 /* WidgetLayoutModel.swift in Sources */,
 				BB0000000000000000000006 /* IslandLayoutSolver.swift in Sources */,
 				BB0000000000000000000022 /* IslandSlotSet.swift in Sources */,
 				ED0000000000000000000003 /* EdgeBarSlot.swift in Sources */,
@@ -2781,6 +2789,7 @@
 				2813AE63913A8DF4A5C68CBE /* SettingsLayoutPane.swift in Sources */,
 				2E8A037835590C15D95BB4E9 /* WelcomeGuideView.swift in Sources */,
 				BB0000000000000000000008 /* BarLayoutModeTests.swift in Sources */,
+				FA10A1000000000000000012 /* WidgetLayoutModelTests.swift in Sources */,
 				BB0000000000000000000010 /* IslandLayoutSolverTests.swift in Sources */,
 				BB0000000000000000000025 /* IslandSlotSetTests.swift in Sources */,
 				ED0000000000000000000005 /* EdgeBarSlotTests.swift in Sources */,
@@ -2833,6 +2842,7 @@
 				FB1AFD294543A43BC2C8C8BF /* LayoutThumbnailModel.swift in Sources */,
 				9743672C2E41F6EB7D15EAB5 /* IconSet.swift in Sources */,
 				BB0000000000000000000012 /* BarSection.swift in Sources */,
+				FA10A1000000000000000003 /* WidgetLayoutModel.swift in Sources */,
 				BB0000000000000000000013 /* IslandLayoutSolver.swift in Sources */,
 				BB0000000000000000000023 /* IslandSlotSet.swift in Sources */,
 				ED0000000000000000000004 /* EdgeBarSlot.swift in Sources */,
