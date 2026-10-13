@@ -312,3 +312,50 @@ struct FloatingMenuHost: View {
         })
     }
 }
+
+
+// MARK: - Strip widget menu (Phase 10a-4)
+
+/// Right-click menu for a strip widget: size presets, hide, and one-step reordering. Shown through the
+/// floating chip panel (`floatingContextMenu`), where the Size submenu becomes a header plus indented rows.
+enum WidgetMenuBuilder {
+    @MainActor
+    static func menu(for section: BarSection, store: AppSettingsStore) -> NSMenu {
+        let menu = NSMenu()
+        guard section != .apps else { return menu }
+        let layout = store.widgetLayout
+
+        if section.supportsWidgetSizes {
+            let current = layout.instance(for: section).size
+            let sizeMenu = NSMenu(title: String(localized: "Size"))
+            for (size, title) in [(WidgetSize.small, String(localized: "Small")),
+                                  (.medium, String(localized: "Medium")),
+                                  (.large, String(localized: "Large"))] {
+                let item = ClosureMenuItem(title) { store.setWidgetSize(size, for: section) }
+                item.state = size == current ? .on : .off
+                sizeMenu.addItem(item)
+            }
+            let sizeItem = NSMenuItem(title: String(localized: "Size"), action: nil, keyEquivalent: "")
+            sizeItem.submenu = sizeMenu
+            menu.addItem(sizeItem)
+        }
+
+        if let index = layout.order.firstIndex(of: section) {
+            if index > 0 {
+                menu.addItem(ClosureMenuItem(String(localized: "Move Left")) {
+                    store.setWidgetLayout(store.widgetLayout.moving(from: IndexSet(integer: index), to: index - 1))
+                })
+            }
+            if index < layout.order.count - 1 {
+                menu.addItem(ClosureMenuItem(String(localized: "Move Right")) {
+                    store.setWidgetLayout(store.widgetLayout.moving(from: IndexSet(integer: index), to: index + 2))
+                })
+            }
+        }
+        menu.addItem(.separator())
+        menu.addItem(ClosureMenuItem(String(localized: "Hide")) {
+            store.setWidgetLayout(store.widgetLayout.updating(section) { $0.isVisible = false })
+        })
+        return menu
+    }
+}

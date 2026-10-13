@@ -1361,6 +1361,7 @@ struct DockStripView: View {
             // Phase 6: hover title per island section (system tooltip; a chip's own `.help`
             // still wins inside it).
             .help(Self.sectionHoverTitle(section))
+            .floatingContextMenu { WidgetMenuBuilder.menu(for: section, store: settingsStore) }
         case .divider:
             Rectangle()
                 .fill(theme.zoneDivider.color)
