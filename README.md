@@ -140,8 +140,8 @@ The **Settings window** has five tabs:
 
 - **General:** language, appearance (System, Light, Dark), the show/hide shortcut, widget layout and colours, clock style, units, weather options,
   Now Playing theme, drawer position, reverse mouse scroll direction, and the setup guide.
-- **Layout:** layout mode and sizes, bottom edge, edge decks, and the Launcher, Pinboard and Shortcuts sections.
-- **Appearance:** the bar's theme (Auto, Translucent, Crystal Clear, Obsidian Dark, Aurora Glow, Deep Ocean and more), icon set, custom tint and opacity.
+- **Layout:** layout mode and sizes, bottom edge, **Widgets** (reorder, hide, Small/Medium/Large, presets, Smart Stack, schedule-based presets; right-click any widget on the bar for the same controls and *Edit Widgets*), edge decks, and the Launcher, Pinboard and Shortcuts sections.
+- **Appearance:** the bar's theme (Auto, Translucent, Crystal Clear, Obsidian Dark, Aurora Glow, Deep Ocean and more), icon set, custom tint and opacity, and an optional **Dynamic Wallpaper** that follows the sun and the weather (it saves your wallpaper first and puts it back when you turn it off or quit).
 - **Advanced:** predicting full-screen transitions.
 - **About:** version, check for updates, and **Diagnostic Info** (copies app, system and display details to paste into a GitHub issue).
 
