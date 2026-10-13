@@ -129,7 +129,8 @@ struct LayoutModeTitle: View {
 struct DockStylePicker: View {
     let selection: String?
     let inputs: LayoutThumbnailModel.Inputs
-    var thumbnailSize = CGSize(width: 104, height: 34)
+    // Five cards must fit the pane's ~504 pt content width (live check 18h: 104 pt overflowed).
+    var thumbnailSize = CGSize(width: 78, height: 34)
     let onSelect: (DockStyle) -> Void
 
     var body: some View {

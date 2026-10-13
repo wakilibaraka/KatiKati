@@ -75,6 +75,8 @@ struct LauncherChip: View {
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
     /// 见 `EnvironmentValues.isDragCarrierSnapshot`：拍副本时不画圆点、不烘投影。
     @Environment(\.isDragCarrierSnapshot) private var isDragCarrierSnapshot
+    /// Phase 18c: on a side rail the dot hugs the inner edge (live check: it sat under the icon).
+    @Environment(\.runningDotEdge) private var runningDotEdge
 
     /// `.selfTracked` 时才用得上（抽屉）。任务条走 `.resolved(…)`，这份状态原地不动。
     @State private var selfHovering = false
@@ -202,12 +204,13 @@ struct LauncherChip: View {
 
     /// 同 `ChipView`：拖起来的副本不画圆点（原生 Dock 同款）。
     @ViewBuilder
-    private func runningDot(visual: LauncherChipVisualPlan.Visual, diameter: CGFloat) -> some View {
+    private func runningDot(visual: LauncherChipVisualPlan.Visual, diameter: CGFloat,
+                            edge: RunningDotEdge = .bottom) -> some View {
         if visual.showsRunningDot && !isDragCarrierSnapshot {
             Circle()
                 .fill(theme.runningDot.color)
                 .frame(width: diameter, height: diameter)
-                .padding(.bottom, 2)
+                .padding(edge.paddingEdge, 2)
         }
     }
 
@@ -228,7 +231,9 @@ struct LauncherChip: View {
             }
             .frame(width: ChipPillMetrics.cardWidth * scale,
                    height: ChipPillMetrics.chipHeight * scale)
-            .overlay(alignment: .bottom) { runningDot(visual: visual, diameter: 4) }
+            .overlay(alignment: runningDotEdge.alignment) {
+                runningDot(visual: visual, diameter: 4, edge: runningDotEdge)
+            }
         case .stackCell:
             // The folder popup's cell with an app in it. The dot sits in the icon's own
             // transparent bottom margin, between the artwork and the name.

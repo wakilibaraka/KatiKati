@@ -109,7 +109,7 @@ struct WelcomeGuideView: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             DockStylePicker(selection: pickedStyleID ?? layout.initialStyleID, inputs: layout.inputs,
-                            thumbnailSize: CGSize(width: 96, height: 32)) { style in
+                            thumbnailSize: CGSize(width: 74, height: 32)) { style in
                 pickedStyleID = style.id
                 pickedMode = style.mode
                 layout.onPickStyle(style)

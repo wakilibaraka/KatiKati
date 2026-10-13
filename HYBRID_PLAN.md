@@ -2656,6 +2656,19 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   menu bar) and draws the capsule below the apps island; rail thumbnails show the whole screen.
   `DisplayIdentity` added to the test target (pbxproj +2). Strings ×12 drafts
   (`Docs/translation-review-phase18.csv`). Suite 2222 green. **Next: end-of-phase live check.**
+- 2026-10-13 · **Phase 18 live check (Release, ad-hoc, 1710×1112).** Verified on screen: Position Left/Right
+  from Settings re-lays the dock live as a rail; Split 3 → three stacked islands (launcher + weather tile,
+  apps, clock HH/MM + Wi-Fi), drawer capsule under the apps island with its badge; Split 5 folds to three;
+  Full Width = full-height rail with widgets pinned to both ends; Centered = compact centred rail; Side
+  Rail style card selects itself; drawer popup opens inward beside the rail without an arrow; Finder's
+  classic menu opens beside the rail; edge bars merge onto the free edge (left bar joined the right one,
+  then moved left when the dock went right); back to Bottom + Split 3 renders as before. **Fixed during the
+  check:** running dot of kept-app chips (`LauncherChip` bar form) now follows the inner edge; five style
+  cards overflowed the Layout pane (cards 104 → 78 pt). **Not verified (needs owner-granted Accessibility /
+  Screen Recording on the ad-hoc build):** window clearance against a rail + the Phase 5 AX drill, hover
+  thumbnails on a rail. **Logged for later refinement:** the Live Island tile on a rail is a scaled-down
+  pill (small, hard to read) — wants its own vertical design; first launch after each ad-hoc reinstall
+  waits on a system dialog (blank chips) until answered.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
