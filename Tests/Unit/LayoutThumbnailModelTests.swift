@@ -56,4 +56,22 @@ final class LayoutThumbnailModelTests: XCTestCase {
             }
         }
     }
+
+    func testRailThumbnailsRunDownTheSideWithTheCapsuleBelowApps() {
+        var inputs = LayoutThumbnailModel.Inputs()
+        inputs.placement = .left
+        for mode in BarLayoutMode.allCases {
+            let islands = LayoutThumbnailModel.islands(for: mode, inputs: inputs)
+            XCTAssertEqual(islands.count, BarSection.islands(for: StripPlacement.left.effectiveMode(mode)).count, "\(mode)")
+            for island in islands {
+                XCTAssertLessThan(island.rect.minX, 0.1, "\(mode): hugs the left edge")
+                XCTAssertGreaterThan(island.rect.height, island.rect.width * 0.5, "\(mode): runs vertically")
+            }
+            let capsule = LayoutThumbnailModel.capsule(for: mode, inputs: inputs)
+            let apps = islands.first { $0.sections.contains(.apps) }!.rect
+            XCTAssertNotNil(capsule)
+            XCTAssertGreaterThanOrEqual(capsule!.minY, apps.maxY - 1e-9, "\(mode): capsule below the apps island")
+        }
+    }
 }
+

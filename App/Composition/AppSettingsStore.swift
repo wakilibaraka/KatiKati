@@ -1299,7 +1299,7 @@ final class AppSettingsStore: ObservableObject {
     /// The built-in style the live values equal, or `nil` (= Custom).
     var currentDockStyle: DockStyle? {
         DockStyle.matching(mode: barLayoutMode, barHeight: dockPanelHeight.points, gap: islandGap,
-                           margin: islandMargin, bottomGap: bottomGap)
+                           margin: islandMargin, bottomGap: bottomGap, placement: stripPlacementMap.global)
     }
 
     /// One write per setting; the style is first fitted to `screenWidth` so it never overflows.
@@ -1310,6 +1310,7 @@ final class AppSettingsStore: ObservableObject {
         setIslandGap(fitted.spacing.gap)
         setIslandMargin(fitted.spacing.margin)
         setBottomGap(fitted.bottomGap)
+        setStripPlacement(fitted.placement)
         if let id = fitted.widgetPresetID, let preset = WidgetPresets.builtIns.first(where: { $0.id == id }) {
             applyWidgetPreset(preset)
         }

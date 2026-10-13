@@ -57,6 +57,8 @@ struct DockStyle: Equatable, Identifiable, Sendable {
     var bottomGap: CGFloat
     /// `WidgetPresets` id applied with the style; `nil` keeps the user's widgets as they are.
     var widgetPresetID: String?
+    /// Which edge the strip sits on (Phase 18h); the global placement a style writes.
+    var placement: StripPlacement = .bottom
 
     /// Localized card title (literal keys so the localization gate sees them).
     var localizedTitle: String {
@@ -65,6 +67,7 @@ struct DockStyle: Equatable, Identifiable, Sendable {
         case "style.classic": return String(localized: "Classic")
         case "style.wide": return String(localized: "Wide")
         case "style.minimal": return String(localized: "Minimal")
+        case "style.sideRail": return String(localized: "Side Rail")
         default: return id
         }
     }
@@ -80,15 +83,21 @@ struct DockStyle: Equatable, Identifiable, Sendable {
     static let minimal = DockStyle(id: "style.minimal", mode: .centered, size: .small, spacing: .compact,
                                    bottomGap: PanelLayoutMetrics.floatingBottomGap, widgetPresetID: nil)
 
+    /// Mode-aware rail on the left edge (owner decision 1): three stacked islands, compact tiles.
+    static let sideRail = DockStyle(id: "style.sideRail", mode: .split3, size: .medium, spacing: .comfortable,
+                                    bottomGap: PanelLayoutMetrics.floatingBottomGap, widgetPresetID: nil,
+                                    placement: .left)
+
     /// Card order in Settings and the welcome guide. Islands first: it is the fresh-install look.
-    static let builtIns: [DockStyle] = [.islands, .classic, .wide, .minimal]
+    static let builtIns: [DockStyle] = [.islands, .classic, .wide, .minimal, .sideRail]
 
     /// The built-in the live values equal, or `nil` (= Custom). Widget presets are not compared:
     /// re-arranging widgets after picking a style keeps the style selected.
     static func matching(mode: BarLayoutMode, barHeight: CGFloat, gap: CGFloat, margin: CGFloat,
-                         bottomGap: CGFloat) -> DockStyle? {
+                         bottomGap: CGFloat, placement: StripPlacement = .bottom) -> DockStyle? {
         builtIns.first { style in
             style.mode == mode
+                && style.placement == placement
                 && abs(style.size.barHeight - barHeight) < 0.5
                 && abs(style.spacing.gap - gap) < 0.25
                 && abs(style.spacing.margin - margin) < 0.25
@@ -120,6 +129,8 @@ enum DockStyleFit {
 
     static func fits(_ style: DockStyle, screenWidth: CGFloat, widgetOrder: [BarSection],
                      widgetWidths: [BarSection: CGFloat]) -> Bool {
+        // A rail's room is the screen height, not its width; its compact tiles always fit there.
+        guard !style.placement.isVertical else { return true }
         let height = style.size.barHeight
         let layout = IslandLayoutSolver.layout(
             screenWidth: screenWidth, mode: style.mode, widgetOrder: widgetOrder, widgetWidths: widgetWidths,

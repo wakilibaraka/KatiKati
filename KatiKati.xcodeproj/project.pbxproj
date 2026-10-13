@@ -760,6 +760,7 @@
 		F1B0000000000000000000B1 /* ScrollReverserMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0000000000000000000B0 /* ScrollReverserMonitor.swift */; };
 		F1B0000000000000000000C1 /* ScrollReverserDecisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0000000000000000000C0 /* ScrollReverserDecisionTests.swift */; };
 		F1B0000000000000000000C3 /* DisplayIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0000000000000000000C2 /* DisplayIdentity.swift */; };
+		FA10A1000000000000000249 /* DisplayIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B0000000000000000000C2 /* DisplayIdentity.swift */; };
 		F1C0000000000000000000A1 /* WindowListMenuPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C0000000000000000000A0 /* WindowListMenuPlan.swift */; };
 		F1C0000000000000000000A2 /* WindowListMenuPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C0000000000000000000A0 /* WindowListMenuPlan.swift */; };
 		F1C0000000000000000000B1 /* WindowListMenuPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C0000000000000000000B0 /* WindowListMenuPlanTests.swift */; };
@@ -2928,6 +2929,7 @@
 				7CCEA0B12BC6D7CB27B79C8C /* WelcomeGuideOnboardingTests.swift in Sources */,
 				2813AE63913A8DF4A5C68CBE /* SettingsLayoutPane.swift in Sources */,
 				2E8A037835590C15D95BB4E9 /* WelcomeGuideView.swift in Sources */,
+				FA10A1000000000000000249 /* DisplayIdentity.swift in Sources */,
 				BB0000000000000000000008 /* BarLayoutModeTests.swift in Sources */,
 				FA10A1000000000000000012 /* WidgetLayoutModelTests.swift in Sources */,
 				FA10A1000000000000000042 /* LiveIdleActionTests.swift in Sources */,

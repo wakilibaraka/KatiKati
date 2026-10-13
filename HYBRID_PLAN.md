@@ -2647,6 +2647,15 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   static defaults reader used by widget panels) apply it, key `com.katikati.edge.conflictPolicy`, default
   move across. The orchestrator already re-reconciles edge bars on any store change. *Interpretation to
   confirm with the owner* (the plan had "merge into the dock"). Suite 2220 green.
+- 2026-10-13 · **18h built (Settings + styles).** Settings › Layout › Size gains **Position** (Bottom / Left /
+  Right, global); Fine-tune lists each display with a placement override ("Same as All Displays" clears it,
+  shown when more than one display is connected); Edge Bars gains "Edge Bar on the Dock's Side" (Move
+  Across / Hide, disabled while the dock is at the bottom). `DockStyle` carries a placement; new **Side
+  Rail** style (split 3, medium, left) — style cards, Settings and the welcome guide show it; a rail
+  style always fits. `LayoutThumbnailModel` solves rails (compact tiles, folded mode, below the reference
+  menu bar) and draws the capsule below the apps island; rail thumbnails show the whole screen.
+  `DisplayIdentity` added to the test target (pbxproj +2). Strings ×12 drafts
+  (`Docs/translation-review-phase18.csv`). Suite 2222 green. **Next: end-of-phase live check.**
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

@@ -21,26 +21,32 @@ struct LayoutModeThumbnail: View {
         Canvas { context, size in
             let screen = Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 5)
             context.fill(screen, with: .color(Color(red: 0.72, green: 0.77, blue: 0.82)))
-            if visibleBottomFraction >= 1 {
+            if visibleBottomFraction >= 1 || inputs.placement.isVertical {
                 // Menu bar strip only when the whole screen is shown.
                 context.fill(Path(CGRect(x: 0, y: 0, width: size.width, height: max(2, size.height * 0.035))),
                              with: .color(.white.opacity(0.55)))
             }
-            let fraction = min(max(visibleBottomFraction, 0.05), 1)
+            // A side rail runs the screen's height: show the whole screen, not the bottom crop.
+            let fraction = inputs.placement.isVertical ? 1 : min(max(visibleBottomFraction, 0.05), 1)
             let top = 1 - fraction
             for island in islands {
                 var rect = CGRect(x: island.rect.minX * size.width,
                                   y: (island.rect.minY - top) / fraction * size.height,
                                   width: island.rect.width * size.width,
                                   height: island.rect.height / fraction * size.height)
-                if rect.height < minimumIslandHeight {
+                if inputs.placement.isVertical {
+                    if rect.width < minimumIslandHeight {
+                        if inputs.placement == .right { rect.origin.x -= minimumIslandHeight - rect.width }
+                        rect.size.width = minimumIslandHeight
+                    }
+                } else if rect.height < minimumIslandHeight {
                     rect.origin.y -= minimumIslandHeight - rect.height
                     rect.size.height = minimumIslandHeight
                 }
-                let pill = Path(roundedRect: rect, cornerRadius: rect.height * 0.32)
+                let pill = Path(roundedRect: rect, cornerRadius: min(rect.width, rect.height) * 0.32)
                 context.fill(pill, with: .color(highlighted ? Color(white: 0.12) : Color(white: 0.25)))
             }
-            if let capsule = LayoutThumbnailModel.capsule(beside: islands, barHeight: inputs.barHeight) {
+            if let capsule = LayoutThumbnailModel.capsule(for: mode, inputs: inputs) {
                 var rect = CGRect(x: capsule.minX * size.width,
                                   y: (capsule.minY - top) / fraction * size.height,
                                   width: capsule.width * size.width,
@@ -49,7 +55,11 @@ struct LayoutModeThumbnail: View {
                     rect.origin.y -= minimumIslandHeight - rect.height
                     rect.size.height = minimumIslandHeight
                 }
-                rect.size.width = max(rect.width, rect.height)
+                if inputs.placement.isVertical {
+                    rect.size.height = max(rect.height, rect.width)
+                } else {
+                    rect.size.width = max(rect.width, rect.height)
+                }
                 context.fill(Path(roundedRect: rect, cornerRadius: rect.height * 0.32),
                              with: .color(highlighted ? Color(white: 0.12) : Color(white: 0.25)))
             }
@@ -164,6 +174,7 @@ struct DockStylePicker: View {
         copy.gap = style.spacing.gap
         copy.margin = style.spacing.margin
         copy.bottomGap = style.bottomGap
+        copy.placement = style.placement
         if let id = style.widgetPresetID, let preset = WidgetPresets.builtIns.first(where: { $0.id == id }) {
             copy.widgetOrder = preset.layout.visibleOrder
         }
@@ -232,6 +243,7 @@ extension AppSettingsStore {
         inputs.margin = islandMargin
         inputs.centeredWidth = centeredWidth
         inputs.bottomGap = bottomGap
+        inputs.placement = stripPlacementMap.global
         let fitted = fittedWidgetLayout(screenWidth: LayoutThumbnailModel.referenceScreen.width)
         inputs.widgetWidths = fitted.solverWidths()
         inputs.widgetOrder = fitted.visibleOrder
@@ -310,6 +322,14 @@ struct SettingsLayoutPane: View {
             section {
                 Text("Size")
             } content: {
+                segmentedRow(Text("Position"), selection: Binding(
+                    get: { store.stripPlacementMap.global },
+                    set: { store.setStripPlacement($0) }
+                )) {
+                    Text("Bottom").tag(StripPlacement.bottom)
+                    Text("Left").tag(StripPlacement.left)
+                    Text("Right").tag(StripPlacement.right)
+                }
                 segmentedRow(Text("Bar Height"), selection: Binding(
                     get: { DockSizeClass.nearest(to: store.dockPanelHeight.points) },
                     set: { store.setDockPanelHeight(DockPanelHeight(clamping: $0.barHeight)) }
@@ -396,6 +416,14 @@ struct SettingsLayoutPane: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
+                        if NSScreen.screens.count > 1 {
+                            Text("Displays").font(.subheadline.weight(.semibold)).padding(.top, 4)
+                            ForEach(NSScreen.screens, id: \.self) { screen in
+                                if let uuid = DisplayIdentity.uuidString(for: screen) {
+                                    displayPlacementRow(name: screen.localizedName, uuid: uuid)
+                                }
+                            }
+                        }
                         Text("Widget Widths").font(.subheadline.weight(.semibold)).padding(.top, 4)
                         ForEach([BarSection.weather, .media, .clock], id: \.self) { widget in
                             sliderRow(widgetLabel(widget),
@@ -425,6 +453,15 @@ struct SettingsLayoutPane: View {
                 .labelsHidden()
                 .pickerStyle(.menu)
                 .fixedSize()
+                // Phase 18g/18h: what an edge bar does when the dock rail takes its side.
+                segmentedRow(Text("Edge Bar on the Dock's Side"), selection: Binding(
+                    get: { store.edgeConflictPolicy },
+                    set: { store.setEdgeConflictPolicy($0) }
+                )) {
+                    Text("Move Across").tag(EdgeConflictPolicy.moveAcross)
+                    Text("Hide").tag(EdgeConflictPolicy.hide)
+                }
+                .disabled(store.stripPlacementMap.global == .bottom)
                 HStack {
                     Text("Main Side")
                     Spacer(minLength: 12)
@@ -1114,6 +1151,25 @@ struct SettingsLayoutPane: View {
             screenWidth: dockScreenWidth, widgetOrder: store.widgetLayout.visibleOrder,
             range: DockPanelHeight.minimum...DockPanelHeight.maximum)
         return max(cap, store.dockPanelHeight.points, DockPanelHeight.minimum + 1)
+    }
+
+    /// One display's placement override; "Same as All Displays" clears it (Phase 18h, decision 5).
+    private func displayPlacementRow(name: String, uuid: String) -> some View {
+        HStack(spacing: 10) {
+            Text(verbatim: name).lineLimit(1).frame(width: 150, alignment: .leading)
+            Picker(selection: Binding<StripPlacement?>(
+                get: { store.stripPlacementMap.perDisplay[uuid] },
+                set: { store.setStripPlacement($0 ?? store.stripPlacementMap.global, forDisplay: uuid) }
+            )) {
+                Text("Same as All Displays").tag(StripPlacement?.none)
+                Text("Bottom").tag(StripPlacement?.some(.bottom))
+                Text("Left").tag(StripPlacement?.some(.left))
+                Text("Right").tag(StripPlacement?.some(.right))
+            } label: { Text(verbatim: name) }
+            .labelsHidden()
+            .pickerStyle(.menu)
+            .fixedSize()
+        }
     }
 
     private func segmentedRow<Value: Hashable, Options: View>(

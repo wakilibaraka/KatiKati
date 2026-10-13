@@ -10,7 +10,7 @@ final class DockStyleTests: XCTestCase {
             for b in styles[(i + 1)...] {
                 XCTAssertFalse(
                     a.mode == b.mode && a.size == b.size && a.spacing == b.spacing && a.bottomGap == b.bottomGap
-                        && a.widgetPresetID == b.widgetPresetID,
+                        && a.widgetPresetID == b.widgetPresetID && a.placement == b.placement,
                     "\(a.id) and \(b.id) would look identical")
             }
         }
@@ -67,4 +67,16 @@ final class DockStyleTests: XCTestCase {
         XCTAssertLessThan(tight, 90)
         XCTAssertGreaterThanOrEqual(tight, 32)
     }
+
+    func testSideRailIsMatchedOnlyOnItsEdge() {
+        let rail = DockStyle.sideRail
+        XCTAssertEqual(DockStyle.matching(mode: rail.mode, barHeight: rail.size.barHeight, gap: rail.spacing.gap,
+                                          margin: rail.spacing.margin, bottomGap: rail.bottomGap,
+                                          placement: .left)?.id, rail.id)
+        XCTAssertEqual(DockStyle.matching(mode: rail.mode, barHeight: rail.size.barHeight, gap: rail.spacing.gap,
+                                          margin: rail.spacing.margin, bottomGap: rail.bottomGap,
+                                          placement: .bottom)?.id, DockStyle.islands.id,
+                       "same values on the bottom read as Islands")
+    }
 }
+
