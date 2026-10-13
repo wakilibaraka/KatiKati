@@ -2314,6 +2314,86 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
   same slice.
 - **Verify**: visual-regression gates + localization ×12 + idle CPU ≤ island baseline + ε.
 
+#### Phase 10 — detailed plan (owner answers 2026-10-13; **planned, not started**)
+
+> Owner decisions: all widgets resizable + re-orderable (power users), some with S/M/L presets when space is short · set the **real** desktop wallpaper, reacting to weather **and** time of day · 10c: Clock chip becomes a **Live Island chip with no clock**, grid launcher personalised to the colourful theme, time capsule redrawn, app icon + menu-bar icon redrawn.
+
+##### Context
+Phase 9 is done. Phase 10 in `HYBRID_PLAN.md` was deferred as 10a widget presets, 10b wallpaper, 10c icon art. You answered:
+- **Widgets:** *every* widget should be resizable and re-orderable (power users); some get a few presets when they hold less space; creative, research-based.
+- **Wallpaper:** set the **real desktop wallpaper**, reacting to **weather and time of day**.
+- **10c:** turn the "Clock" chip into a **Dynamic-Island chip with no clock in it** (the time capsule already shows the time) so it carries more function; make the **grid launcher** personal and matched to the colourful theme; redraw the **time capsule**; redraw the **app icon + menu-bar icon**.
+
+What exists (investigation): the strip's widgets are `BarSection` sections (`launcher, weather, apps, media, clock, widgets`) rendered in `DockStripView`; only a *width* slider exists (`widgetWidths`); `widgetOrder` is hard-coded to `BarSection.canonicalOrder`; there is no hide flag, no named presets, no wallpaper code (only `LauncherBackdrop` *reads* the wallpaper); `WeatherService` already publishes condition + `is_day` + sunrise/sunset; the "Clock 03:29" pill is `LiveIslandDockCapsule` (`NowPlayingChip.swift`), the purple "03:30" is `ClockChip`, the grid button is `LauncherIconView`; the menu-bar art machinery is `IconSet` (`com.katikati.iconSet`, `StatusMenuController.statusItemImage`); the app icon is the Icon Composer bundle `Resources/AppIcon.icon`; there is no art generator. New this session and reusable: the **floating chip panel** (`ChipPanelController`/`ChipPanelMenuBridge`) for right-click menus above the dock.
+
+Standing constraints (STANDING_RULES / HYBRID_PLAN): one slice ≈ ≤300 diff lines; pure logic in `Core/Support` with tests; new keys `com.katikati.*`; strings ×12 via `addstrings`; pbxproj/xcstrings append-only; no always-on timers or global event monitors (idle CPU ≤ island baseline + ε); gated features are lazy singletons; token files hand-edited with freeze tests; every behaviour change needs a witness; HYBRID_PLAN check-log per slice; §5d override already lets us build `WallpaperEngine`/`WidgetProvider` fresh (eyeball-only priors).
+
+##### Design
+
+###### 10a — Widget system ("native-style widgets" on the strip)
+**Model (pure, `Core/Support/WidgetLayoutModel.swift`, dual-compiled):**
+- `WidgetKind` = the existing sections plus new placeable kinds, added one at a time: `weather, clock (time capsule), media, liveIsland, battery, calendarNext, focusTimer, systemMeter`.
+- `WidgetSize` per kind, native-like: **S** (glyph + value), **M** (adds label/secondary), **L** (adds detail: forecast row, date, progress/artwork). Each kind declares its sizes and their widths (e.g. weather S 64 / M 150 / L 230; time S 76 / M 120 / L 170 with date; media S 72 mini-controls / M 140 / L 240 with artwork + progress). `widgetWidths` stays as an "advanced exact width" override.
+- `WidgetSizePolicy.resolve(requested, availableWidth)` — **auto-degrade** (L→M→S) when the island is short on space; this is the "presets when they hold less space" behaviour.
+- `WidgetInstance { kind, size, isVisible }`; `WidgetLayout { order: [WidgetKind], instances }` persisted as one JSON blob at `com.katikati.widgets.layout.v1` (replaces the hard-coded `widgetOrder`; migration reads old `widgetWidths`).
+- `WidgetPreset { id, name, layout, themeStyle?, layoutMode? }` — **built-ins**: *Minimal* (time only), *Commuter* (time + weather S), *Focus* (time + focus timer + keep-awake), *Music* (media L + time S), *Full*. **User presets:** "Save current layout as…" / rename / delete, stored as JSON in defaults. Apply = one atomic write.
+- Layout engine: `IslandLayoutSolver.layout(…)` already takes widths + order; feed it the resolved sizes and drop hidden widgets. Add golden tests so existing modes render identically with the default layout (frozen-semantics witness, §4.5).
+
+**Interaction (power users):**
+1. **Settings › Widgets tab** (the home Phase 12e recommended): live preview strip (reuse `LayoutModeThumbnail`), drag-to-reorder list, eye toggle (hide/show), S/M/L segmented size per widget, per-widget options (clock style = existing `ClockPreset`, weather units…), preset picker + Save/Delete.
+2. **On the strip:** right-click a widget → the floating chip panel (already built): Size ▸ S/M/L, Hide, "Edit Widgets…", "Apply preset ▸". A direct-manipulation **Edit Widgets** mode on the strip (toggle from that menu / the strip menu): widgets show a drag handle + ✕/size badge; drag reorders within the island using the existing strip drag controller; edit mode ends on click-away/Esc. No new global monitors (drag uses the strip's existing gesture path).
+3. **Pinboard** gets the same size model (its S/Wide/L becomes user-selectable) and persisted free position per widget (`PinboardPlacement` already clamps).
+
+**Creative suggestions (ranked; first three are in scope, the rest are listed for your pick):**
+- **Smart Stack** (in scope): a widget slot can hold a stack (e.g. weather + media + next-event) that auto-picks by relevance — music playing → media, rain within an hour → weather, meeting in <15 min → calendar — with a manual swipe/scroll override. Pure `StackRelevance` scorer, tested.
+- **Context presets** (in scope, off by default): auto-switch preset by schedule/Focus/display (Work hours → Focus preset; evening → Music). Pure rule evaluator; evaluated on a minute-aligned tick only while enabled.
+- **Colour per widget** (in scope): accent from theme tokens (colourful theme), not hard-coded gradients.
+- *Not in scope, offered:* export/import preset as a file to share; per-display layouts; widget gallery sheet with live thumbnails; quick-peek (hover a widget → chip panel with its larger "L" view).
+
+###### 10b — Wallpaper engine (weather + time reactive, real wallpaper)
+- **`WallpaperEngine`** — lazy singleton, **off by default** (`com.katikati.wallpaper.enabled`), nothing runs when off.
+- **Pure core** (`Core/Support/`): `SolarPhase` (night / dawn / day / golden / dusk) from sunrise/sunset (Open-Meteo already supplies them; fall back to a NOAA sun-position function from lat/lon) and `WallpaperSelector.pick(phase, condition, pack, mode)` with a deterministic fallback chain (condition+phase → phase → default). Mode: Time / Weather / Both. Unit-tested incl. polar-day edge cases.
+- **Packs:** (1) a built-in **procedural "Sky" pack** — gradients per phase × condition (clear, cloudy, rain, snow, storm, fog) rendered once with CoreGraphics to `Application Support/KatiKati/Wallpapers/` (tiny, no bundled photos, always on-theme); (2) **custom folder** pack using the naming `<phase>-<condition>.jpg|heic`, `<phase>.jpg` as fallbacks.
+- **Apply:** `NSWorkspace.setDesktopImageURL` for every screen; **capture the user's original wallpaper (URL + options per screen) before the first change and restore on disable / quit / "Restore Wallpaper"** — same restore-on-quit discipline as the native Dock work. Re-apply on `NSWorkspaceActiveSpaceDidChange` and display changes (the system sets wallpaper per space/display).
+- **Scheduling without polling:** subscribe to `WeatherService.currentState` (condition change) and arm **one** `Timer` for the next sun-phase boundary; no periodic timer when off; image cache keyed by file+mtime (as `LauncherBackdrop`).
+- **UI:** Settings › Appearance → Wallpaper section (toggle, pack, mode, 5×6 preview grid, Restore). Optional "Tint KatiKati surfaces from the current phase" so dock glass follows the same palette.
+- Caveat to document: macOS has no animated cross-fade for a programmatic change; the swap is instant (acceptable at phase/weather boundaries).
+
+###### 10c — Art refresh
+1. **Live Island chip replaces the Clock chip** (`LiveIslandDockCapsule`): **no time**. Idle = the same quick actions as the notch (Focus, Timer, Keep Awake) plus Now Playing mini; active = ring/progress for Focus/Timer, artwork + waveform for music, download progress, next-event countdown. Click / hover-intent expands to the **chip panel above the dock** with full controls (reuses `ChipPanelController`). Routing/dedupe stays with `LiveSurfaceRouting`. Gets S/M sizes via 10a.
+2. **Grid launcher** → new `LauncherIconStyle.themed` (default for new installs; `glass` art stays selectable): a glass tile tinted from the active theme/accent with a refined colourful 3×3 tile glyph (Launchpad-like palette), light/dark aware; `LauncherIconView` draws it from tokens.
+3. **Time capsule** (`ClockChip`): redraw — SF Rounded tabular numerals, optional date line at M/L, accent gradient from new `DockThemeTokens` clock tokens that follow the sun phase (shares `SolarPhase` with 10b); token values frozen by tests (`DockThemeTests` pattern). Clock presets (modern/pixel/flip) kept.
+4. **App icon + menu-bar icon:** redraw `Resources/AppIcon.icon` (frosted-glass dock pill with an island/notch dot, light/dark/tinted variants) and add a **new `IconSet` style** (menu-bar template PDF in `MenuBarIcon` asset catalog: pill + notch). No generator exists → add `Scripts/make_icons.swift` (CoreGraphics → PNG/PDF) so the art is reproducible. Trademark gate: compare against old Tungsten art, never reuse its marks (TRADEMARK.md / §6).
+
+##### Slices (each shippable, tests + localization ×12 + HYBRID_PLAN log; order matters)
+1. **10a-1** `WidgetLayoutModel` + `WidgetSizePolicy` + store + migration + golden tests (no UI change).
+2. **10a-2** S/M/L renderings for time capsule, weather, media; solver fed resolved sizes.
+3. **10a-3** Settings › Widgets tab (reorder, hide, size, live preview).
+4. **10a-4** On-strip right-click (chip panel) + Edit Widgets drag mode.
+5. **10a-5** Presets (built-in + user) → then Smart Stack, then Context presets.
+6. **10c-1** Live Island chip (no clock) + expand panel.
+7. **10c-2** Themed grid launcher + time-capsule redraw with phase-aware tokens.
+8. **10b-1** Pure `SolarPhase`/`WallpaperSelector` + tests; **10b-2** engine + restore + Sky pack generator; **10b-3** Appearance UI + surface tint.
+9. **10c-3** App icon + menu-bar icon + `make_icons.swift`.
+
+##### Critical files
+`Core/Support/BarSection.swift`, `IslandLayoutSolver.swift`, `LiveSurfaceRouting.swift`, `DockThemeTokens.swift`; new `WidgetLayoutModel.swift`, `WidgetPreset.swift`, `StackRelevance.swift`, `SolarPhase.swift`, `WallpaperSelector.swift`; `App/Composition/AppSettingsStore.swift`, `WeatherService.swift`; `App/Scenes/DockStripView.swift` (+`+Projection`), `ClockChip.swift`, `WeatherChip.swift`, `NowPlayingChip.swift`, `LauncherIconView.swift`, `SettingsLayoutPane.swift`, new `SettingsWidgetsPane.swift`, `SettingsAppearancePane.swift`; `App/Entry/ChipPanelController.swift`, `StatusMenuController.swift`; new `WallpaperEngine.swift`; `Resources/AppIcon.icon`, `Assets.xcassets`; `HYBRID_PLAN.md`.
+
+##### Verification
+- Unit: layout model/size policy/migration goldens (default layout renders identically), preset apply/save, stack relevance, solar phase + selector (incl. polar day/night, missing files), icon-set tests, token freeze tests.
+- Gate each slice: `xcodebuild test`, `check_localization.py`, `check_debug_switches.py`, pbxproj lint.
+- Live (installed build, permissions granted): resize S/M/L and auto-degrade on a narrow island; reorder/hide via Settings and via on-strip edit mode; preset save/apply; wallpaper swaps at a forced phase/condition (debug override), original restored on disable and on quit; space/display change re-applies; Live Island chip idle/active/expand; themed launcher in light/dark; icons at 16–1024 px.
+- Idle CPU with widgets + wallpaper enabled vs baseline (target ≤ island baseline + ε, no timers when wallpaper off); no new global monitors (grep gate).
+- Restore afterwards: wallpaper, prefs, Dock state.
+
+
+##### How to start this in a fresh chat
+1. Open a new Claude Code session in the KatiKati worktree (branch `claude/hopeful-gauss-9a1c88`, or a fresh branch off it) — `/Users/baraka/Desktop/KatiKati/.claude/worktrees/hopeful-gauss-9a1c88`.
+2. Paste: *"Read `HYBRID_PLAN.md`, section 'Phase 10 — detailed plan', and implement slice 10a-1 (WidgetLayoutModel + WidgetSizePolicy + store + migration + golden tests). Follow STANDING_RULES: one slice at a time, tests first for pure logic, strings ×12, HYBRID_PLAN check-log, commit with the Co-Authored-By trailer."* Then continue slice by slice in the order listed under **Slices**.
+3. Gate before each commit: `xcodebuild test -scheme KatiKati -destination 'platform=macOS'`, `python3 Scripts/check_localization.py`, `python3 Scripts/check_debug_switches.py`.
+4. Live checks need an installed build with Accessibility, Screen Recording (and Input Monitoring for Hyper) granted: `xcodebuild build -configuration Release -derivedDataPath /tmp/kk_release`, copy to `/Applications`, re-grant permissions (ad-hoc builds lose them on every rebuild).
+5. Reusable pieces from Phase 9: floating chip panel (`App/Entry/ChipPanelController.swift`, `ChipPanelMenuBridge`), per-app settings pattern (`WindowChipGroupingPlan`), `scratchpad` helpers are session-local — re-create `addfiles.py`/`addstrings.py` style helpers or add files via Xcode.
+
 **Phase 8–12 check log (STANDING_RULES §1.8):**
 - 2026-10-11 · **Phases 8/9/10 created (owner directive; structure confirmed via grill).**
   Source items: drawer (most-used/recently-closed/recently-added), Now Playing + shelf
