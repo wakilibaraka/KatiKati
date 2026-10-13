@@ -31,20 +31,32 @@ struct CalendarPanelView: View {
     private let reminderRow: CGFloat = 26
     private let alarmRow: CGFloat = 30
 
+    /// Measured content height: the panel reports `min(content, maxHeight)` and scrolls the rest.
+    @State private var contentHeight: CGFloat = 0
+
     var body: some View {
         let env = TileEnv(palette: palette, isDark: colorScheme == .dark, glass: glassTiles)
         let inner = width - 2 * gutter
-        VStack(spacing: gap) {
-            switch layout {
-            case .mac: macTiles(env: env, inner: inner)
-            case .ipad: ipadTiles(env: env, inner: inner)
-            case .tall: tallTiles(env: env, inner: inner)
+        // The panel opens at the tallest frame and shrinks to the first height report, so start
+        // uncapped and clamp once measured — short content never scrolls, tall content does.
+        let height = contentHeight > 0 ? min(contentHeight, maxHeight) : maxHeight
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: gap) {
+                switch layout {
+                case .mac: macTiles(env: env, inner: inner)
+                case .ipad: ipadTiles(env: env, inner: inner)
+                case .tall: tallTiles(env: env, inner: inner)
+                }
             }
+            .padding(gutter)
+            .frame(width: width)
+            .background(GeometryReader { Color.clear.preference(key: PanelHeightKey.self, value: $0.size.height) })
         }
-        .padding(gutter)
-        .frame(width: width)
-        .background(GeometryReader { Color.clear.preference(key: PanelHeightKey.self, value: $0.size.height) })
-        .onPreferenceChange(PanelHeightKey.self) { onHeight($0) }
+        .frame(width: width, height: height)
+        .onPreferenceChange(PanelHeightKey.self) {
+            contentHeight = $0
+            onHeight(min($0, maxHeight))
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .onAppear { calendarService.start(); calendarService.refreshAll() }
     }
@@ -140,13 +152,11 @@ struct CalendarPanelView: View {
         let fixed = 2 * gutter + 4 * u + 5 * gap + bandHeight + 10
         let rows = listRows(budget: maxHeight - fixed)
         return VStack(spacing: gap) {
-            HStack(spacing: gap) {
-                WeatherTile(env: env, width: u, height: u)
-                AgendaPane(env: env, service: calendarService, maxRows: agendaRows, compact: false)
-                    .padding(14)
-                    .frame(width: wide, height: u, alignment: .topLeading)
-                    .tileSurface(env)
-            }
+            // Owner 2026-10-13: weather / system / bluetooth left this page (now-playing stays).
+            AgendaPane(env: env, service: calendarService, maxRows: agendaRows, compact: false)
+                .padding(14)
+                .frame(width: inner, height: u, alignment: .topLeading)
+                .tileSurface(env)
             HStack(spacing: gap) {
                 MonthGrid(env: env, service: calendarService, cell: min(30, (wide - 28) / 7 - 2), fontSize: 13)
                     .padding(14)
@@ -154,14 +164,7 @@ struct CalendarPanelView: View {
                     .tileSurface(env)
                 ClockTile(env: env, store: clocks, style: clockStyle, width: u, height: u, zoneLimit: 3)
             }
-            HStack(alignment: .top, spacing: gap) {
-                SystemTile(env: env, width: u, height: u)
-                BluetoothTile(env: env, width: u, height: u)
-                NowPlayingPortTile(env: env, width: u, height: u)
-            }
-            // Phase 16k ported six Pinboard-only widgets; owner 2026-10-13 keeps Calculator,
-            // Screen Time and Top Apps on this page — Network, Battery and Batteries live in the
-            // Control Center (quickSettings lives on as its grid, not a tile).
+            NowPlayingPortTile(env: env, width: inner, height: u)
             HStack(alignment: .top, spacing: gap) {
                 CalculatorTile(env: env, width: u, height: u)
                 ScreenTimeTile(env: env, width: u, height: u)
@@ -650,126 +653,11 @@ struct AlarmsTile: View {
     }
 }
 
-// MARK: - Ported deck widgets (Phase 16a)
+// MARK: - Ported deck widgets (Phase 16a; weather / system / bluetooth removed 2026-10-13)
 
-// The four edge-deck widget buttons (weather / system / bluetooth / now playing) also render as tiles
-// in the calendar pane, reusing the same shared services. The deck buttons keep their own behaviour
-// (owner 2026-10-13: "keep current behavior"); these are the pane-side copies in the tile vocabulary.
-
-/// Weather tile — reuses the shared `WeatherService` (`WeatherPanelHost.service`).
-struct WeatherTile: View {
-    let env: TileEnv
-    let width: CGFloat
-    let height: CGFloat
-
-    var body: some View {
-        if let service = WeatherPanelHost.service {
-            WeatherTileBody(env: env, service: service, width: width, height: height)
-        } else {
-            BandTile(env: env, kind: .weather, width: width, height: height, header: { Text("Weather") }, content: {
-                Text("No Weather Yet").font(.system(size: 12)).foregroundColor(env.secondary)
-            })
-        }
-    }
-}
-
-private struct WeatherTileBody: View {
-    let env: TileEnv
-    @ObservedObject var service: WeatherService
-    let width: CGFloat
-    let height: CGFloat
-
-    var body: some View {
-        let s = service.currentState
-        BandTile(env: env, kind: .weather, width: width, height: height, header: { Text("Weather") }, content: {
-            VStack(alignment: .leading, spacing: 2) {
-                if s.cityName.isEmpty {
-                    Text("No Weather Yet").font(.system(size: 12)).foregroundColor(env.secondary)
-                } else {
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text(verbatim: "\(Int(s.temperatureCelsius.rounded()))°")
-                            .font(.system(size: max(20, height * 0.30), weight: .medium)).monospacedDigit()
-                        Spacer(minLength: 0)
-                        Image(systemName: s.symbolName).font(.system(size: 18)).symbolRenderingMode(.multicolor)
-                    }
-                    Text(verbatim: s.cityName).font(.system(size: 11, weight: .semibold)).lineLimit(1)
-                    Text(verbatim: s.conditionText).font(.system(size: 11)).foregroundColor(env.secondary).lineLimit(1)
-                }
-            }
-        })
-    }
-}
-
-/// System tile — CPU / memory / disk from the shared monitor; samples only while on screen.
-struct SystemTile: View {
-    let env: TileEnv
-    let width: CGFloat
-    let height: CGFloat
-    @ObservedObject private var monitor = ProductivityServices.shared.systemMonitor
-
-    var body: some View {
-        let s = monitor.snapshot
-        BandTile(env: env, kind: .system, width: width, height: height, header: { Text("System") }, content: {
-            VStack(alignment: .leading, spacing: 5) {
-                bar(Text("CPU"), s.cpu)
-                bar(Text("Memory"), s.memory.fraction)
-                bar(Text("Disk"), s.disk.usedFraction)
-            }
-        })
-        .onAppear { monitor.acquire() }
-        .onDisappear { monitor.release() }
-    }
-
-    private func bar(_ label: Text, _ fraction: Double) -> some View {
-        VStack(alignment: .leading, spacing: 1) {
-            HStack { label.font(.system(size: 9, weight: .semibold)); Spacer(minLength: 2)
-                Text(verbatim: SystemMonitorFormat.percent(fraction)).font(.system(size: 9)).foregroundColor(env.secondary) }
-            ProgressView(value: min(1, max(0, fraction))).progressViewStyle(.linear).tint(env.accent(.system))
-        }
-    }
-}
-
-@MainActor
-private final class BluetoothTileModel: ObservableObject {
-    @Published var devices: [BluetoothDevice] = []
-    @Published var loading = true
-    func load() async {
-        loading = true
-        devices = await BluetoothDeviceReader.read()
-        loading = false
-    }
-}
-
-/// Bluetooth tile — connected devices with battery, read once when it appears (never polled).
-struct BluetoothTile: View {
-    let env: TileEnv
-    let width: CGFloat
-    let height: CGFloat
-    @StateObject private var model = BluetoothTileModel()
-
-    var body: some View {
-        let connected = model.devices.filter { $0.isConnected }
-        BandTile(env: env, kind: .bluetooth, width: width, height: height, header: { Text("Bluetooth") }, content: {
-            VStack(alignment: .leading, spacing: 3) {
-                if model.loading {
-                    ProgressView().controlSize(.small)
-                } else if connected.isEmpty {
-                    Text("No Bluetooth Devices").font(.system(size: 11)).foregroundColor(env.secondary)
-                } else {
-                    ForEach(connected.prefix(3)) { d in
-                        HStack(spacing: 5) {
-                            Image(systemName: d.symbolName).font(.system(size: 11))
-                            Text(verbatim: d.name).font(.system(size: 11, weight: .semibold)).lineLimit(1)
-                            Spacer(minLength: 2)
-                            if let b = d.lowestBattery { Text(verbatim: "\(b)%").font(.system(size: 10)).foregroundColor(env.secondary) }
-                        }
-                    }
-                }
-            }
-        })
-        .task { await model.load() }
-    }
-}
+// The edge-deck now-playing button also renders as a tile in the calendar pane, reusing the same
+// shared service. The deck button keeps its own behaviour (owner 2026-10-13: "keep current
+// behavior"); this is the pane-side copy in the tile vocabulary.
 
 /// Now-playing tile — the same media card the strip and flyout show, as a pane tile.
 struct NowPlayingPortTile: View {

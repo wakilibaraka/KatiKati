@@ -2906,6 +2906,13 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
     only, so the witness is live: prompt appears once, answers, never re-fires. Full suite 2216 green
     (one run showed 3 pointer-flakes in `DragControllerConversionTests` while the Mac was in live use —
     54/54 in isolation, clean on rerun).
+  - 2026-10-13 · **16q — weather / system / bluetooth off the pane + scrolling (owner).** The iPad grid
+    is now agenda (full width) + month/clock + now-playing (full width) + calculator/screen-time/top-apps
+    + focus/lists; the three deleted tile structs took their `TileKind` cases and accent arms with them
+    (CC never used them). The pane wraps in a `ScrollView` capped at `maxHeight` and reports
+    `min(content, maxHeight)` — short stacks never scroll, tall ones do (panel opens tall and shrinks
+    to the report, so no first-frame flash). One orphaned key pruned (`No Weather Yet`; 709 ×12).
+    **Verified:** 2,216 tests, 0 failures; localization ✅; debug switches ✅.
 
  - 2026-10-13 · **16k built — six Pinboard-only widgets ported as clock-pane tiles; gate green.**
    `TileKind` += calculator, screenTime, network, battery, topApps, batteries (accents ×4
