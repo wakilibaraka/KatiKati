@@ -18,6 +18,7 @@ prefs start from the defaults below).
 | Battery + Batteries rows in Quick Settings | merged into one topmost card 2026-10-13 (owner); either Settings pick shows it (This Mac follows battery, devices follow batteries) | `ControlCenterBatteryCard` |
 | Quick Settings sliders | moved to the bottom (volume, brightness, keyboard) 2026-10-13 (owner) | `ControlCenterView` body order |
 | Account row in Quick Settings | added 2026-10-13 (owner): current-user avatar + name + gear opens Users & Groups; local directory only, no permission | `ControlCenterAccountRow`, `CurrentUserReader` |
+| Quick Settings size / anchor / animation | added 2026-10-13 (owner 16v): S/M/L widths, top/center/bottom anchor, instant/fade/slide open | `ControlCenterSize` / `Anchor` / `Animation`, `controlCenterFrame` anchor arm |
 | Quick Settings card (14 switches + True Tone + VPN) | the Control Center grid | `ControlCenterView` (`StatusTrioView.swift`) |
 | Right-FAB opener, `⌃⌥Space`, CC utility row | repointed 16l | `ControlCenterPanelController.toggle()` |
 | `.weather` / `.clock` shortcut single-views | repointed 16l | `WidgetPanelController.weather` / `.calendar` |

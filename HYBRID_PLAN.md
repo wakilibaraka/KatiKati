@@ -2952,6 +2952,45 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
     glyph fallback. One new string ×12 (draft). Nothing deleted. **Verified:** 2,216 tests,
     0 failures; localization ✅ (712 ×12); debug switches ✅. Still open: **16v** (S/M/L presets,
     position, open-animation).
+  - 2026-10-13 · **16v planned (close-out slice; owner decisions pending below).** S/M/L size presets,
+    position, open-animation for the Quick Settings panel, then the Phase 16 gate + close decision.
+    - **16v-1 size:** pure `ControlCenterSize` (S 300 / M 360 = today / L 440 wide; height stays
+      content-sized, no-scroll) + `com.katikati.controlcenter.size` + Settings segmented + controller
+      width. No new strings (`Small/Medium/Large` exist). Tests: parse fallback, widths frozen.
+    - **16v-2 position:** Side L/R ships (16g/16n, verified working). If the owner wants more:
+      vertical anchor top/center/bottom-above-dock as pure `PanelGeometry` math + store key + tests.
+    - **16v-3 animation:** pure `ControlCenterAnimation` (instant = today / fade / slide-from-edge) +
+      store key + Settings picker + controller show/hide paths. One new string (`Fade`; `Instant` /
+      `Slide` exist). Tests: parse fallback, frame math per preset.
+    - **16v-4 verify:** full gate + live (preset switching, both sides, all three animations, bottom
+      edge still) + idle-CPU number + close line (contingent on the close decision below).
+  - 2026-10-13 · **16v built — size, anchor, animation (owner answers above).** New
+    `Core/Support/ControlCenterLayout.swift` (dual-compiled): `ControlCenterSize` / `Anchor` /
+    `Animation` with store keys + Settings pickers; size, anchor each read at open; S 300 / M 360 (= today, frozen) / L 440, top/center/bottom-above-dock, instant/fade/
+    slide-from-own-edge. Three new strings ×12 (drafts: `Fade`, `Animation`, `Anchor`).
+    **Verified:** 2,219 tests, 0 failures; localization ✅ (715 ×12); debug switches ✅.
+    **Owner eyeball:** presets, anchors, animations live.
+  - 2026-10-13 · **Phase 16 — DONE (owner: close after 16v, eyeballs non-blocking).** Delivered:
+    widget-pane tiles + iPad default + date preset + wifi→Quick Settings + glass (16a–16f); Control
+    Center shell + layout + brightness/keyboard/True Tone/VPN (16g–16i); Pinboard retirement —
+    six-port, repoint, full delete (16k–16m); CC settings + strings + registry (16n); pane trims,
+    reminders-prompt fix, no-scroll floating shell, battery merge, new switches, pulse fix, account
+    row, size/anchor/animation (16o–16v). Deferred trio parked (Focus/DND, AirDrop/AirPlay, Low Power
+    Mode). Pre-release gates: speaker pass on the translation sheets; idle-CPU with everything on.
+  - 2026-10-13 · **Deferred trio (each needs an explicit owner go; own mini-plan + slice if approved).**
+    - **Focus/DND tile:** no public API and absent from both reference repos — private hack only,
+      flagged fragile, may break per macOS. Proposed: fail-closed probe + tile hidden when
+      unavailable; owner accepts it can break.
+    - **AirDrop/AirPlay tiles:** no on/off API exists — share-sheet/Settings links at best (actions,
+      not toggles, same `isAction` pattern as the 16s four).
+    - **Low Power Mode switch:** `SMAppService` root daemon + XPC → `pmset lowpowermode`; needs admin
+      approval UX + its own slice (the OnlySwitch/status-trio privileged-helper pattern).
+  - 2026-10-13 · **Phase 16 close checklist (owner items; pre-release gates marked *).**
+    Eyeball sweep: CC feel/dismissal, compact rows, Safari now-playing, True Tone/VPN tiles,
+    brightness/keyboard sliders, account avatar + Users & Groups landing, glass mode, `.date`
+    preset, S/M/L + animations once built. *Speaker pass on `Docs/translation-review-phase16.csv`
+    (+ earlier sheets). *Idle-CPU with everything on. Decision: close with eyeballs non-blocking
+    (Phases 5/6 posture) or hold open.
 
  - 2026-10-13 · **16k built — six Pinboard-only widgets ported as clock-pane tiles; gate green.**
    `TileKind` += calculator, screenTime, network, battery, topApps, batteries (accents ×4

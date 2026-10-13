@@ -865,6 +865,8 @@
 		EE000000000000000000004A /* QuickToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000048 /* QuickToggles.swift */; };
 		EE000000000000000000004C /* QuickTogglesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004B /* QuickTogglesTests.swift */; };
 		EE000000000000000000004E /* SystemHealthReaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004D /* SystemHealthReaders.swift */; };
+		EE0000000000000000000050 /* ControlCenterLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004F /* ControlCenterLayout.swift */; };
+		EE0000000000000000000051 /* ControlCenterLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004F /* ControlCenterLayout.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1484,6 +1486,7 @@
 		EE0000000000000000000048 /* QuickToggles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickToggles.swift; path = Core/Support/QuickToggles.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000004B /* QuickTogglesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickTogglesTests.swift; path = Tests/Unit/QuickTogglesTests.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000004D /* SystemHealthReaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemHealthReaders.swift; path = Platform/SystemStatus/SystemHealthReaders.swift; sourceTree = SOURCE_ROOT; };
+		EE000000000000000000004F /* ControlCenterLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ControlCenterLayout.swift; path = Core/Support/ControlCenterLayout.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2545,6 +2548,7 @@
 				EE000000000000000000002B /* QuickToggleEngine.swift in Sources */,
 				EE0000000000000000000049 /* QuickToggles.swift in Sources */,
 				EE000000000000000000004E /* SystemHealthReaders.swift in Sources */,
+				EE0000000000000000000050 /* ControlCenterLayout.swift in Sources */,
 				FA030000000000000000002 /* MultitouchPinchMonitor.swift in Sources */,
 				EE0000000000000000000024 /* ScreenTimeAlertPresenter.swift in Sources */,
 				EE0000000000000000000022 /* ScreenTimeViews.swift in Sources */,
@@ -2766,6 +2770,7 @@
 				FA020000000000000000002 /* PinchGestureTests.swift in Sources */,
 				EE000000000000000000003F /* SystemHealthTests.swift in Sources */,
 				EE000000000000000000004A /* QuickToggles.swift in Sources */,
+				EE0000000000000000000051 /* ControlCenterLayout.swift in Sources */,
 				EE000000000000000000004C /* QuickTogglesTests.swift in Sources */,
 				EE000000000000000000001E /* ScreenTimeStore.swift in Sources */,
 				EE0000000000000000000019 /* ScreenTime.swift in Sources */,

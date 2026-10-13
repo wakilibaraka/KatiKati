@@ -724,6 +724,45 @@ struct SettingsLayoutPane: View {
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
+                HStack {
+                    Text("Size")
+                    Spacer(minLength: 12)
+                    Picker("Size", selection: Binding(
+                        get: { store.controlCenterSize },
+                        set: { store.setControlCenterSize($0) }
+                    )) {
+                        Text("Small").tag(ControlCenterSize.small)
+                        Text("Medium").tag(ControlCenterSize.medium)
+                        Text("Large").tag(ControlCenterSize.large)
+                    }
+                    .labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
+                HStack {
+                    Text("Anchor")
+                    Spacer(minLength: 12)
+                    Picker("Anchor", selection: Binding(
+                        get: { store.controlCenterAnchor },
+                        set: { store.setControlCenterAnchor($0) }
+                    )) {
+                        Text("Top").tag(ControlCenterAnchor.top)
+                        Text("Center").tag(ControlCenterAnchor.center)
+                        Text("Bottom").tag(ControlCenterAnchor.bottom)
+                    }
+                    .labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
+                HStack {
+                    Text("Animation")
+                    Spacer(minLength: 12)
+                    Picker("Animation", selection: Binding(
+                        get: { store.controlCenterAnimation },
+                        set: { store.setControlCenterAnimation($0) }
+                    )) {
+                        Text("Instant").tag(ControlCenterAnimation.instant)
+                        Text("Fade").tag(ControlCenterAnimation.fade)
+                        Text("Slide").tag(ControlCenterAnimation.slide)
+                    }
+                    .labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
                 Text("Widgets").font(.subheadline).padding(.top, 6)
                 ForEach(TileKind.controlCenterDefault, id: \.self) { kind in
                     Toggle(isOn: Binding(get: { store.controlCenterWidgets.contains(kind) }, set: { store.setControlCenterWidget(kind, enabled: $0) })) {

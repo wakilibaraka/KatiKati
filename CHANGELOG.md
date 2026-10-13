@@ -43,6 +43,8 @@ All notable changes to KatiKati are documented in this file.
   battery + batteries merged into one topmost card; sliders moved to the bottom; four new switches
   (Screen Saver, Lock Screen, Relaunch Finder, Screen Mirroring — all fire-and-done, no new
   permission); resize loop guarded against bottom-edge jitter.
+- **Quick Settings presets (16v):** S/M/L panel widths, top/center/bottom edge anchor and
+  instant/fade/slide open animation, all in Settings › Layout › Control Center.
 
 ## [Unreleased] — Phase 8 in progress
 

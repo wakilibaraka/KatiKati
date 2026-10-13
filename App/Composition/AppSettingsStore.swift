@@ -229,6 +229,10 @@ final class AppSettingsStore: ObservableObject {
     /// Phase 16n: which switches and widgets the Control Center shows (user presets).
     @Published private(set) var controlCenterToggles: [QuickToggleID]
     @Published private(set) var controlCenterWidgets: [TileKind]
+    /// Phase 16v: Control Center size preset, vertical anchor and open animation.
+    @Published private(set) var controlCenterSize: ControlCenterSize
+    @Published private(set) var controlCenterAnchor: ControlCenterAnchor
+    @Published private(set) var controlCenterAnimation: ControlCenterAnimation
     @Published private(set) var shortcutBindings: [ShortcutAction: ShortcutTrigger]
     @Published private(set) var launcherSearchPosition: LauncherSearchPosition
     @Published private(set) var deckKeepOpen: Bool
@@ -355,6 +359,9 @@ final class AppSettingsStore: ObservableObject {
             Keys.launcherIcon: LauncherIconStyle.default.rawValue,
             Keys.controlCenterToggles: QuickToggleID.serialize(QuickToggleID.defaultOrder),
             Keys.controlCenterWidgets: TileKind.serialize(TileKind.controlCenterDefault),
+            Keys.controlCenterSize: ControlCenterSize.default.rawValue,
+            Keys.controlCenterAnchor: ControlCenterAnchor.default.rawValue,
+            Keys.controlCenterAnimation: ControlCenterAnimation.default.rawValue,
             Keys.launcherSearchPosition: LauncherSearchPosition.default.rawValue,
             Keys.deckKeepOpen: false,
             Keys.deckOpenOnHover: false,
@@ -422,6 +429,9 @@ final class AppSettingsStore: ObservableObject {
         launcherSearchPosition = LauncherSearchPosition.parse(defaults.string(forKey: Keys.launcherSearchPosition))
         controlCenterToggles = QuickToggleID.parse(defaults.string(forKey: Keys.controlCenterToggles))
         controlCenterWidgets = TileKind.parse(defaults.string(forKey: Keys.controlCenterWidgets))
+        controlCenterSize = ControlCenterSize.parse(defaults.string(forKey: Keys.controlCenterSize))
+        controlCenterAnchor = ControlCenterAnchor.parse(defaults.string(forKey: Keys.controlCenterAnchor))
+        controlCenterAnimation = ControlCenterAnimation.parse(defaults.string(forKey: Keys.controlCenterAnimation))
         shortcutBindings = Dictionary(uniqueKeysWithValues: ShortcutAction.allCases.map {
             ($0, ShortcutTrigger.parse(defaults.string(forKey: Keys.shortcut($0))) ?? $0.defaultTrigger)
         })
@@ -674,6 +684,24 @@ final class AppSettingsStore: ObservableObject {
         guard next != controlCenterWidgets else { return }
         controlCenterWidgets = next
         defaults.set(TileKind.serialize(next), forKey: Keys.controlCenterWidgets)
+    }
+
+    func setControlCenterSize(_ value: ControlCenterSize) {
+        guard controlCenterSize != value else { return }
+        controlCenterSize = value
+        defaults.set(value.rawValue, forKey: Keys.controlCenterSize)
+    }
+
+    func setControlCenterAnchor(_ value: ControlCenterAnchor) {
+        guard controlCenterAnchor != value else { return }
+        controlCenterAnchor = value
+        defaults.set(value.rawValue, forKey: Keys.controlCenterAnchor)
+    }
+
+    func setControlCenterAnimation(_ value: ControlCenterAnimation) {
+        guard controlCenterAnimation != value else { return }
+        controlCenterAnimation = value
+        defaults.set(value.rawValue, forKey: Keys.controlCenterAnimation)
     }
 
     func setShortcut(_ action: ShortcutAction, _ trigger: ShortcutTrigger) {
@@ -1456,6 +1484,9 @@ private enum Keys {
     static let launcherIcon = "com.katikati.launcher.icon"
     static let controlCenterToggles = "com.katikati.controlcenter.toggles"
     static let controlCenterWidgets = "com.katikati.controlcenter.widgets"
+    static let controlCenterSize = "com.katikati.controlcenter.size"
+    static let controlCenterAnchor = "com.katikati.controlcenter.anchor"
+    static let controlCenterAnimation = "com.katikati.controlcenter.animation"
     static func shortcut(_ action: ShortcutAction) -> String { "com.katikati.shortcut.\(action.rawValue)" }
     static let launcherSearchPosition = "com.katikati.launcher.searchPosition"
     static let deckKeepOpen = "com.katikati.edge.alwaysShown"

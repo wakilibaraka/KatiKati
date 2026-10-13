@@ -117,6 +117,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 .filter(TileKind.controlCenterDefault.contains)
         }
         panel.toggleOrder = { [weak self] in self?.settingsStore.controlCenterToggles ?? QuickToggleID.defaultOrder }
+        panel.panelSize = { [weak self] in self?.settingsStore.controlCenterSize ?? .default }
+        panel.panelAnchor = { [weak self] in self?.settingsStore.controlCenterAnchor ?? .default }
+        panel.panelAnimation = { [weak self] in self?.settingsStore.controlCenterAnimation ?? .default }
         panel.bottomReserve = { [weak self] in
             guard let store = self?.settingsStore, store.stripPlacementMap.global == .bottom else { return 0 }
             return Double(store.dockPanelHeight.points + store.bottomGap + 8)

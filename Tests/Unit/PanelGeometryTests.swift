@@ -765,4 +765,34 @@ final class CalendarPanelGeometryTests: XCTestCase {
         let railed = PanelGeometry.controlCenterFrame(side: .right, visibleFrame: vf, size: size, railInset: 48)
         XCTAssertEqual(railed.maxX, vf.maxX - 12 - 48, "steps inward past a rail on the same edge")
     }
+
+    func testControlCenterSizeAnchorAnimationParse() {
+        XCTAssertEqual(ControlCenterSize.parse(nil), .medium)
+        XCTAssertEqual(ControlCenterSize.parse("bogus"), .medium)
+        XCTAssertEqual(ControlCenterSize.parse("large"), .large)
+        XCTAssertEqual(ControlCenterSize.small.width, 300)
+        XCTAssertEqual(ControlCenterSize.medium.width, 360, "pre-preset width, frozen")
+        XCTAssertEqual(ControlCenterSize.large.width, 440)
+        XCTAssertEqual(ControlCenterAnchor.parse(nil), .top)
+        XCTAssertEqual(ControlCenterAnchor.parse("bogus"), .top)
+        XCTAssertEqual(ControlCenterAnimation.parse(nil), .instant)
+        XCTAssertEqual(ControlCenterAnimation.parse("bogus"), .instant)
+    }
+
+    func testControlCenterFrameAnchors() {
+        let vf = CGRect(x: 0, y: 0, width: 1728, height: 1055)
+        let size = CGSize(width: 360, height: 600)
+        let top = PanelGeometry.controlCenterFrame(side: .right, visibleFrame: vf, size: size, railInset: 0)
+        XCTAssertEqual(top.maxY, vf.maxY - 12, "top is the default anchor")
+        let bottom = PanelGeometry.controlCenterFrame(
+            side: .right, visibleFrame: vf, size: size, railInset: 0, bottomReserve: 70, anchor: .bottom)
+        XCTAssertEqual(bottom.minY, vf.minY + 12 + 70, "sits above the dock clearance")
+        let center = PanelGeometry.controlCenterFrame(
+            side: .right, visibleFrame: vf, size: size, railInset: 0, anchor: .center)
+        XCTAssertEqual(center.midY, vf.midY, accuracy: 0.001)
+        // Narrower presets keep the same edge flush.
+        let small = PanelGeometry.controlCenterFrame(
+            side: .left, visibleFrame: vf, size: CGSize(width: 300, height: 600), railInset: 0)
+        XCTAssertEqual(small.minX, vf.minX + 12)
+    }
 }

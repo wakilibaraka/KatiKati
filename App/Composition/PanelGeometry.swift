@@ -657,10 +657,21 @@ enum PanelGeometry {
 
     /// Phase 16g: the Control Center side panel — flush to the dock's side, top-aligned under the menu
     /// bar, `margin` from the screen edges, stepped inward past a rail (`railInset`) on the same edge.
-    static func controlCenterFrame(side: EdgeSide, visibleFrame: CGRect, size: CGSize, railInset: CGFloat, margin: CGFloat = 12) -> CGRect {
+    /// Phase 16v: `anchor` picks the vertical placement (top = pre-anchor behavior); `bottomReserve`
+    /// is the dock clearance the bottom anchor sits above. Both default to the old behavior.
+    static func controlCenterFrame(side: EdgeSide, visibleFrame: CGRect, size: CGSize, railInset: CGFloat, margin: CGFloat = 12, bottomReserve: CGFloat = 0, anchor: ControlCenterAnchor = .top) -> CGRect {
         let x = side == .right ? visibleFrame.maxX - size.width - margin - railInset
                               : visibleFrame.minX + margin + railInset
-        return CGRect(x: x, y: visibleFrame.maxY - size.height - margin, width: size.width, height: size.height)
+        let y: CGFloat
+        switch anchor {
+        case .top:
+            y = visibleFrame.maxY - size.height - margin
+        case .center:
+            y = visibleFrame.midY - size.height / 2
+        case .bottom:
+            y = visibleFrame.minY + margin + bottomReserve
+        }
+        return CGRect(x: x, y: y, width: size.width, height: size.height)
     }
 
     // MARK: Folder / shelf / Trash popup

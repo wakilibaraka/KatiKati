@@ -118,7 +118,6 @@ final class EdgeFlyoutController {
 @MainActor
 final class ControlCenterPanelController {
     static let sideKey = "com.katikati.controlcenter.side"
-    static let width: CGFloat = 360
 
     private var panel: KeyableFlyoutPanel?
     private var outsideMonitor: Any?
@@ -135,6 +134,10 @@ final class ControlCenterPanelController {
     var toggleOrder: () -> [QuickToggleID] = { QuickToggleID.defaultOrder }
     /// Phase 16n: user widgets hosted in the panel (stored order; Settings edits it).
     var widgets: () -> [TileKind] = { TileKind.controlCenterDefault }
+    /// Phase 16v: size preset, vertical anchor and open animation (each read at open).
+    var panelSize: () -> ControlCenterSize = { .default }
+    var panelAnchor: () -> ControlCenterAnchor = { .default }
+    var panelAnimation: () -> ControlCenterAnimation = { .default }
     /// Height the KatiKati bottom bar occupies, so the panel floats above the dock (wired by
     /// `AppDelegate`; 0 when the strip is not at the bottom).
     var bottomReserve: () -> Double = { 0 }
@@ -154,7 +157,8 @@ final class ControlCenterPanelController {
                 ?? NSScreen.main ?? NSScreen.screens.first else { return }
         shownScreen = screen
         let maxHeight = max(240, screen.visibleFrame.height - 24 - CGFloat(bottomReserve()))
-        let size = CGSize(width: Self.width, height: maxHeight)
+        let width = panelSize().width
+        let size = CGSize(width: width, height: maxHeight)
         let frame = panelFrame(on: screen, size: size)
         let panel = self.panel ?? makePanel()
         self.panel = panel
@@ -166,8 +170,33 @@ final class ControlCenterPanelController {
             onDrawer: onDrawer, onQuit: onQuit)))
         hosting.frame = CGRect(origin: .zero, size: size)
         panel.contentView = Self.floatingPlate(wrapping: hosting, size: size)
-        panel.setFrame(frame, display: true)
-        panel.makeKeyAndOrderFront(nil)
+        switch panelAnimation() {
+        case .instant:
+            panel.alphaValue = 1
+            panel.setFrame(frame, display: true)
+            panel.makeKeyAndOrderFront(nil)
+        case .fade:
+            panel.alphaValue = 0
+            panel.setFrame(frame, display: false)
+            panel.makeKeyAndOrderFront(nil)
+            NSAnimationContext.runAnimationGroup({ ctx in
+                ctx.duration = 0.18
+                panel.animator().alphaValue = 1
+            })
+        case .slide:
+            var start = frame
+            // Slides in from its own edge (right edge → from the right).
+            start.origin.x += side() == .right ? 18 : -18
+            panel.alphaValue = 0
+            panel.setFrame(start, display: false)
+            panel.makeKeyAndOrderFront(nil)
+            NSAnimationContext.runAnimationGroup({ ctx in
+                ctx.duration = 0.22
+                ctx.timingFunction = CAMediaTimingFunction(name: .easeOut)
+                panel.animator().alphaValue = 1
+                panel.animator().setFrame(frame, display: true)
+            })
+        }
         installOutsideMonitor()
     }
 
@@ -181,7 +210,8 @@ final class ControlCenterPanelController {
             ?? NSScreen.main ?? NSScreen.screens.first
         guard let screen else { return }
         let maxHeight = max(240, screen.visibleFrame.height - 24 - CGFloat(bottomReserve()))
-        let size = CGSize(width: Self.width, height: min(height, maxHeight))
+        let width = panelSize().width
+        let size = CGSize(width: width, height: min(height, maxHeight))
         let frame = panelFrame(on: screen, size: size)
         guard abs(frame.height - panel.frame.height) > 0.5 else { return }
         panel.setFrame(frame, display: true)
@@ -213,9 +243,13 @@ final class ControlCenterPanelController {
 
     // MARK: Geometry
 
-    /// Flush to the dock's side, top-aligned under the menu bar, stepped inward past a rail on that edge.
+    /// Flush to the dock's side at the chosen vertical anchor, stepped inward past a rail on
+    /// that edge.
     private func panelFrame(on screen: NSScreen, size: CGSize) -> CGRect {
-        PanelGeometry.controlCenterFrame(side: side(), visibleFrame: screen.visibleFrame, size: size, railInset: railInset())
+        PanelGeometry.controlCenterFrame(
+            side: side(), visibleFrame: screen.visibleFrame, size: size,
+            railInset: railInset(), bottomReserve: CGFloat(bottomReserve()),
+            anchor: panelAnchor())
     }
 
     /// Room to leave for a KatiKati side rail when the strip sits on the Control Center's edge.

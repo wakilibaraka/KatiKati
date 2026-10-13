@@ -297,6 +297,29 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(TileKind.parse(""), [])
     }
 
+    @MainActor
+    func testControlCenterSizeAnchorAnimationDefaultAndPersist() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.controlCenterSize, .medium)
+        XCTAssertEqual(store.controlCenterAnchor, .top)
+        XCTAssertEqual(store.controlCenterAnimation, .instant)
+        store.setControlCenterSize(.large)
+        store.setControlCenterAnchor(.bottom)
+        store.setControlCenterAnimation(.slide)
+        let again = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(again.controlCenterSize, .large)
+        XCTAssertEqual(again.controlCenterAnchor, .bottom)
+        XCTAssertEqual(again.controlCenterAnimation, .slide)
+        defaults.set("bogus", forKey: "com.katikati.controlcenter.size")
+        defaults.set("bogus", forKey: "com.katikati.controlcenter.anchor")
+        defaults.set("bogus", forKey: "com.katikati.controlcenter.animation")
+        let fallback = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(fallback.controlCenterSize, .medium)
+        XCTAssertEqual(fallback.controlCenterAnchor, .top)
+        XCTAssertEqual(fallback.controlCenterAnimation, .instant)
+    }
+
     func testDeckSettingsDefaultsClampAndPersist() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
