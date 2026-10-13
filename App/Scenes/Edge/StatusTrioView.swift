@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// The three statuses the combined chip exposes; each opens its own popover (Phase 7A-5).
@@ -221,6 +222,7 @@ struct ControlCenterView: View {
             }
             Spacer(minLength: 0)
             utilityRow
+            accountRow
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -328,6 +330,11 @@ struct ControlCenterView: View {
                 ControlCenterNetworkRow()
             }
         }
+    }
+
+    /// Phase 16u: the account row at the very bottom — avatar + name + gear opens Users & Groups.
+    private var accountRow: some View {
+        ControlCenterAccountRow()
     }
 
     private var utilityRow: some View {
@@ -472,5 +479,47 @@ private struct ControlCenterBatteryCard: View {
         let all = await BluetoothDeviceReader.read()
         devices = all.filter { $0.isConnected && $0.lowestBattery != nil }
         loading = false
+    }
+}
+
+// MARK: - Control Center account row (Phase 16u)
+
+/// The current macOS user (avatar + name) with a gear button; both open Users & Groups
+/// ("Manage accounts"). Read once per open; picture falls back to a person glyph.
+private struct ControlCenterAccountRow: View {
+    @State private var user: CurrentUser?
+
+    var body: some View {
+        Button(action: CurrentUserReader.openUsersGroups) {
+            HStack(spacing: 12) {
+                avatar
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: user?.fullName ?? NSUserName())
+                        .font(.system(size: 14, weight: .semibold)).lineLimit(1)
+                    Text("Manage accounts").font(.system(size: 11)).foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "gearshape").font(.system(size: 16)).foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
+        }
+        .buttonStyle(.plain)
+        .task { user = CurrentUserReader.read() }
+    }
+
+    @ViewBuilder
+    private var avatar: some View {
+        if let data = user?.avatar, let image = NSImage(data: data) {
+            Image(nsImage: image)
+                .resizable().scaledToFill()
+                .frame(width: 44, height: 44)
+                .clipShape(Circle())
+        } else {
+            Image(systemName: "person.crop.circle.fill")
+                .font(.system(size: 40)).foregroundStyle(.secondary)
+                .frame(width: 44, height: 44)
+        }
     }
 }

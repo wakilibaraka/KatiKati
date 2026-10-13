@@ -2945,6 +2945,13 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
     fixed `%` slot for a missing reading. All other rows were already single-shape. **Verified:**
     2,216 tests, 0 failures; localization ✅ (711 ×12); debug switches ✅. **Owner eyeball:** open
     the panel and watch the bottom edge — plus play something in Safari to see the card fill in.
+  - 2026-10-13 · **16u — account row at the bottom of Quick Settings (owner).** Avatar + full name +
+    gear button below the utility row; the whole row opens Users & Groups ("Manage accounts", with a
+    main-Settings fallback if the pane URL fails). `CurrentUserReader` reads the local directory
+    (`/Local/Default`: full name, JPEGPhoto, else Picture path) — no permission, no network; person
+    glyph fallback. One new string ×12 (draft). Nothing deleted. **Verified:** 2,216 tests,
+    0 failures; localization ✅ (712 ×12); debug switches ✅. Still open: **16v** (S/M/L presets,
+    position, open-animation).
 
  - 2026-10-13 · **16k built — six Pinboard-only widgets ported as clock-pane tiles; gate green.**
    `TileKind` += calculator, screenTime, network, battery, topApps, batteries (accents ×4
