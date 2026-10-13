@@ -92,6 +92,9 @@ final class AppRuntime: ObservableObject {
     var onToggleDrawer: (() -> Void)?
     var onToggleLauncher: (() -> Void)?
     var onTogglePinboard: (() -> Void)?
+    /// Toggles Keep Awake and returns the new state (wired by the app delegate; nil in tests).
+    var onToggleKeepAwake: (() -> Bool)?
+    var isKeepAwakeOn: (() -> Bool)?
 
     private let debugSnapshotLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "debug-snapshot")
     private let chipProbeLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "ChipProbe")

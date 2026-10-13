@@ -764,6 +764,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         runtime.onToggleDrawer = { [weak coordinator] in coordinator?.toggleDrawer() }
         runtime.onToggleLauncher = { [weak self] in self?.launcherPanel.toggle() }
         runtime.onTogglePinboard = { [weak self] in self?.pinboardPanel.toggle() }
+        runtime.onToggleKeepAwake = { [weak self] in self?.pinboardPanel.toggleKeepAwake() ?? false }
+        runtime.isKeepAwakeOn = { [weak self] in self?.pinboardPanel.isKeepAwakeOn ?? false }
         // Menu height slider ↔ every bar's grip-drag transaction. Weak: the orchestrator is
         // dropped on permission loss.
         settingsCoordinator.taskbarHeightSessionHandler = { [weak coordinator] editing in
@@ -1070,6 +1072,8 @@ extension AppDelegate: PermissionEffectHandler {
         runtime.onToggleDrawer = nil
         runtime.onToggleLauncher = nil
         runtime.onTogglePinboard = nil
+        runtime.onToggleKeepAwake = nil
+        runtime.isKeepAwakeOn = nil
         pinchSubscription?.cancel()
         pinchSubscription = nil
         pinchMonitor?.stop()

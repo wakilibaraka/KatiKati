@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA10A1000000000000000042 /* LiveIdleActionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000041 /* LiveIdleActionTests.swift */; };
 		FA10A1000000000000000032 /* WidgetPresetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000031 /* WidgetPresetTests.swift */; };
 		FA10A1000000000000000023 /* WidgetPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000021 /* WidgetPreset.swift */; };
 		FA10A1000000000000000022 /* WidgetPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000021 /* WidgetPreset.swift */; };
@@ -831,6 +832,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FA10A1000000000000000041 /* LiveIdleActionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveIdleActionTests.swift; sourceTree = "<group>"; };
 		FA10A1000000000000000031 /* WidgetPresetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPresetTests.swift; sourceTree = "<group>"; };
 		FA10A1000000000000000021 /* WidgetPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPreset.swift; sourceTree = "<group>"; };
 		FA10A1000000000000000011 /* WidgetLayoutModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetLayoutModelTests.swift; sourceTree = "<group>"; };
@@ -1830,6 +1832,7 @@
 				D18EBBCA120BD5D255C5108B /* WelcomeGuideOnboardingTests.swift */,
 				BB0000000000000000000007 /* BarLayoutModeTests.swift */,
 				FA10A1000000000000000011 /* WidgetLayoutModelTests.swift */,
+				FA10A1000000000000000041 /* LiveIdleActionTests.swift */,
 				FA10A1000000000000000031 /* WidgetPresetTests.swift */,
 				BB0000000000000000000009 /* IslandLayoutSolverTests.swift */,
 				BB0000000000000000000024 /* IslandSlotSetTests.swift */,
@@ -2798,6 +2801,7 @@
 				2E8A037835590C15D95BB4E9 /* WelcomeGuideView.swift in Sources */,
 				BB0000000000000000000008 /* BarLayoutModeTests.swift in Sources */,
 				FA10A1000000000000000012 /* WidgetLayoutModelTests.swift in Sources */,
+				FA10A1000000000000000042 /* LiveIdleActionTests.swift in Sources */,
 				FA10A1000000000000000032 /* WidgetPresetTests.swift in Sources */,
 				BB0000000000000000000010 /* IslandLayoutSolverTests.swift in Sources */,
 				BB0000000000000000000025 /* IslandSlotSetTests.swift in Sources */,

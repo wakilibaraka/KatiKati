@@ -50,12 +50,16 @@ struct LiveIslandDockCapsule: View {
     @State private var isHovering = false
     @State private var showPopup = false
     @Environment(\.widgetSize) private var widgetSize
+    @EnvironmentObject var runtime: AppRuntime
+    @State private var keepAwakeOn = false
     
     var body: some View {
         let activity = feed.activity
 
         Group {
-            if widgetSize == .small {
+            if LiveIdleAction.showsIdleActions(for: activity.kind) {
+                idleActions
+            } else if widgetSize == .small {
                 capsule(activity, showsLabel: false)
             } else if #available(macOS 13.0, *) {
                 ViewThatFits(in: .horizontal) {
@@ -115,6 +119,53 @@ struct LiveIslandDockCapsule: View {
                     .minimumScaleFactor(0.7)
                     .layoutPriority(1)
             }
+        }
+    }
+
+    /// Idle state (10c-1): no clock — the time capsule already shows the time. Three one-tap quick actions
+    /// that match the notch's Focus / Timer / Keep Awake.
+    private var idleActions: some View {
+        HStack(spacing: 4) {
+            ForEach(LiveIdleAction.allCases, id: \.self) { action in
+                Button { perform(action) } label: {
+                    Image(systemName: action == .keepAwake && keepAwakeOn ? "cup.and.saucer.fill" : action.symbolName)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(idleTint(action))
+                        .frame(width: 24, height: 24)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .help(idleTitle(action))
+                .accessibilityLabel(idleTitle(action))
+            }
+        }
+        .onAppear { keepAwakeOn = runtime.isKeepAwakeOn?() ?? false }
+    }
+
+    private func idleTitle(_ action: LiveIdleAction) -> String {
+        switch action {
+        case .focus: return String(localized: "Focus")
+        case .timer: return String(localized: "Timer")
+        case .keepAwake: return String(localized: "Keep Awake")
+        }
+    }
+
+    private func idleTint(_ action: LiveIdleAction) -> Color {
+        switch action {
+        case .focus: return .orange
+        case .timer: return .teal
+        case .keepAwake: return keepAwakeOn ? .green : .secondary
+        }
+    }
+
+    private func perform(_ action: LiveIdleAction) {
+        let services = ProductivityServices.shared
+        switch action {
+        case .focus: services.focus.toggle()
+        case .timer:
+            services.timer.set(seconds: LiveIdleAction.quickTimerSeconds)
+            services.timer.toggle()
+        case .keepAwake: keepAwakeOn = runtime.onToggleKeepAwake?() ?? keepAwakeOn
         }
     }
 

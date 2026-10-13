@@ -203,3 +203,28 @@ enum LiveActivityPolicy {
         return LiveActivity(kind: .clock, content: .clock)
     }
 }
+
+
+// MARK: - Dock capsule idle actions (Phase 10c-1)
+
+/// What the dock Live Island chip offers when nothing is live (the policy's `.clock` fallback). The chip
+/// no longer draws the time — the time capsule owns that — so the idle state is these quick actions.
+enum LiveIdleAction: CaseIterable, Sendable {
+    case focus
+    case timer
+    case keepAwake
+
+    var symbolName: String {
+        switch self {
+        case .focus: return "brain.head.profile"
+        case .timer: return "timer"
+        case .keepAwake: return "cup.and.saucer"
+        }
+    }
+
+    /// Default length a one-tap timer starts with.
+    static let quickTimerSeconds = 5 * 60
+
+    /// The dock chip shows idle actions exactly when the winning activity is the clock fallback.
+    static func showsIdleActions(for kind: LiveActivityKind) -> Bool { kind == .clock }
+}
