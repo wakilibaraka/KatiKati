@@ -81,6 +81,8 @@ final class QuickToggleEngine: ObservableObject {
         case .wifi: return CWWiFiClient.shared().interface()?.powerOn()
         case .bluetooth: return BluetoothPower.read()
         case .nightShift: return NightShift.read()
+        case .trueTone: return TrueTone.read()
+        case .vpn: return VPNService.anyConnected()
         case .emptyTrash, .ejectDisks: return nil
         }
     }
@@ -113,6 +115,8 @@ final class QuickToggleEngine: ObservableObject {
             return (try? iface.setPower(on)) != nil
         case .bluetooth: return BluetoothPower.write(on)
         case .nightShift: return NightShift.write(on)
+        case .trueTone: return TrueTone.write(on)
+        case .vpn: return VPNService.set(on)
         }
     }
 
@@ -254,5 +258,101 @@ enum KeyboardBacklight {
         guard let client, client.responds(to: setSel) else { return }
         typealias Fn = @convention(c) (AnyObject, Selector, Float, UInt64) -> Bool
         _ = unsafeBitCast(client.method(for: setSel), to: Fn.self)(client, setSel, Float(min(1, max(0, level))), 1)
+    }
+}
+
+/// Phase 16i: True Tone via the private CoreBrightness `CBTrueToneClient` (same ObjC-runtime technique
+/// as the Night Shift client above; gated on `supported() && available()`). Fail-closed. Mirrors
+/// OnlySwitch (MIT) — credited in `NOTICE`.
+private enum TrueTone {
+    private static let client: NSObject? = {
+        _ = dlopen("/System/Library/PrivateFrameworks/CoreBrightness.framework/CoreBrightness", RTLD_LAZY)
+        return (NSClassFromString("CBTrueToneClient") as? NSObject.Type)?.init()
+    }()
+
+    static func read() -> Bool? {
+        guard let client else { return nil }
+        typealias FlagFn = @convention(c) (AnyObject, Selector) -> Bool
+        for sel in ["supported", "available", "enabled"] {
+            guard client.responds(to: NSSelectorFromString(sel)) else { return nil }
+        }
+        let supported = unsafeBitCast(client.method(for: NSSelectorFromString("supported")), to: FlagFn.self)(client, NSSelectorFromString("supported"))
+        let available = unsafeBitCast(client.method(for: NSSelectorFromString("available")), to: FlagFn.self)(client, NSSelectorFromString("available"))
+        guard supported, available else { return nil }
+        return unsafeBitCast(client.method(for: NSSelectorFromString("enabled")), to: FlagFn.self)(client, NSSelectorFromString("enabled"))
+    }
+
+    static func write(_ on: Bool) -> Bool {
+        guard let client, client.responds(to: NSSelectorFromString("setEnabled:")) else { return false }
+        typealias Fn = @convention(c) (AnyObject, Selector, Bool) -> Bool
+        return unsafeBitCast(client.method(for: NSSelectorFromString("setEnabled:")), to: Fn.self)(client, NSSelectorFromString("setEnabled:"), on)
+    }
+}
+
+/// Phase 16i: Network-configured VPNs via `/usr/sbin/scutil --nc`. Best-effort single toggle — the tile
+/// reflects whether any configured service is connected; turning on connects the first configured
+/// service, turning off disconnects the connected one. Third-party agents without a Network service are
+/// out of scope.
+enum VPNService {
+    struct Entry: Equatable {
+        let id: String
+        let name: String
+        let connected: Bool
+    }
+
+    static func list() -> [Entry] { parse(output("/usr/sbin/scutil", ["--nc", "list"])) }
+
+    /// `scutil --nc list` prints lines like
+    /// ``  * (Connected)  01234567-89AB-CDEF-0123-456789ABCDEF  "My VPN"  [VPN:...] ``.
+    /// Tolerant: skips unparseable lines, never fabricates a service.
+    static func parse(_ text: String) -> [Entry] {
+        var entries: [Entry] = []
+        for line in text.components(separatedBy: .newlines) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard trimmed.hasPrefix("*") || trimmed.hasPrefix("(") else { continue }
+            let connected = trimmed.contains("(Connected)")
+            guard let id = trimmed.split(separator: " ").first(where: { $0.contains("-") && $0.count >= 8 }).map(String.init) else { continue }
+            let name: String = {
+                guard let first = trimmed.firstIndex(of: "\""),
+                      let last = trimmed.lastIndex(of: "\""), first != last else { return id }
+                return String(trimmed[trimmed.index(after: first)..<last])
+            }()
+            entries.append(Entry(id: id, name: name, connected: connected))
+        }
+        return entries
+    }
+
+    static func anyConnected() -> Bool { list().contains { $0.connected } }
+
+    static func set(_ on: Bool) -> Bool {
+        let services = list()
+        if on {
+            guard let target = services.first(where: { !$0.connected }) ?? services.first else { return false }
+            return status("/usr/sbin/scutil", ["--nc", "start", target.id]) == 0
+        }
+        guard let active = services.first(where: { $0.connected }) else { return true }
+        return status("/usr/sbin/scutil", ["--nc", "stop", active.id]) == 0
+    }
+
+    private static func status(_ path: String, _ args: [String]) -> Int32 {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: path)
+        p.arguments = args
+        p.standardOutput = FileHandle.nullDevice
+        p.standardError = FileHandle.nullDevice
+        do { try p.run(); p.waitUntilExit(); return p.terminationStatus } catch { return -1 }
+    }
+
+    private static func output(_ path: String, _ args: [String]) -> String {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: path)
+        p.arguments = args
+        let out = Pipe()
+        p.standardOutput = out
+        p.standardError = FileHandle.nullDevice
+        do { try p.run() } catch { return "" }
+        let data = out.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        return String(data: data, encoding: .utf8) ?? ""
     }
 }

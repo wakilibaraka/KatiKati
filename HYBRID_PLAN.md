@@ -2831,6 +2831,24 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
   Focus/DND (private — flag), AirDrop/AirPlay (open-only), Low Power Mode (SMAppService helper). Recorded
   here so nothing is silently dropped; none built yet.
 
+- 2026-10-13 · **16i-2 built — True Tone + VPN toggles (second gated capability slice); gate green.** Two new
+  `QuickToggleID` cases (`.trueTone`, `.vpn`) with symbols/titles, so they flow into the Control Center
+  grid, the Pinboard card and Settings automatically: `TrueTone` reads/writes CoreBrightness
+  `CBTrueToneClient` (gated `supported() && available()`, fail-closed); `VPNService` toggles
+  Network-configured VPNs via `/usr/sbin/scutil --nc start|stop` (on = first configured, off = the
+  connected one; third-party agents out of scope). New catalog keys "True Tone" + "VPN" ×12 (both kept in
+  English in every locale: product name and acronym). `PinboardWidgetsTests` toggle-count 12 → 14.
+  **Verified:** 2,223 tests, 0 failures; localization ✅ (716 ×12); debug switches ✅. **Known debt (must
+  consolidate, recorded here):** a same-shaped `VPNServiceParser` copy was left in
+  `Core/Support/PinboardWidgets.swift` while the live `VPNService` stayed in
+  `Platform/Pinboard/QuickToggleEngine.swift` — merge them (Core keeps the parser) as the 16i-3 cleanup;
+  the `VPNService.parse` unit test was dropped for the same reason and must be reinstated then.
+  **Not built and explicitly deferred:** Focus/DND (no public API, absent from both reference repos —
+  private hack only, flagged fragile), AirDrop/AirPlay (no on/off API exists — share-sheet/Settings links
+  at best), Low Power Mode (`SMAppService` root daemon + XPC — own slice with admin-approval UX), 16j
+  (Settings side-picker, "Control Center" rename + ×12, live check, registry). **Owner eyeball:** True
+  Tone + VPN tiles live.
+
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
 **Note:** the AI agent may analyse the live app to do both parts together — they touch the same pages

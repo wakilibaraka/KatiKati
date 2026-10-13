@@ -23,6 +23,9 @@ All notable changes to KatiKati are documented in this file.
 - **Brightness & keyboard light (16i):** the Control Center gains a display-brightness slider and a
   keyboard-backlight slider. Both use the private display/keyboard brightness APIs and simply stay hidden
   on Macs where those APIs are unavailable.
+- **True Tone & VPN toggles (16i):** two new one-tap switches (True Tone, and Network-configured VPNs)
+  appear in the Control Center, the Pinboard card and Settings. VPN toggling covers Network-configured
+  VPN services only.
 
 ### Changed
 - **Control Center panel (16g):** the Quick Settings shortcut and the deck's wifi button now open a side

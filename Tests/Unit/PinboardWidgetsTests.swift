@@ -23,7 +23,7 @@ final class PinboardWidgetsTests: XCTestCase {
     }
 
     func testToggleParseAndFlags() {
-        XCTAssertEqual(QuickToggleID.parse(nil).count, 12)
+        XCTAssertEqual(QuickToggleID.parse(nil).count, 14, "trueTone + vpn joined the catalog")
         XCTAssertEqual(QuickToggleID.parse("wifi,nope,darkMode"), [.wifi, .darkMode])
         XCTAssertTrue(QuickToggleID.emptyTrash.needsConfirm)
         XCTAssertFalse(QuickToggleID.darkMode.isAction)
