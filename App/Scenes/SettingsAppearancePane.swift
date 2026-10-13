@@ -9,6 +9,7 @@ struct SettingsAppearancePane: View {
     @ObservedObject var store: AppSettingsStore
 
     @Environment(\.colorScheme) private var colorScheme
+    @AppStorage(MemoryOverlayController.enabledKey) private var memoryOverlayEnabled = true
 
     private static let margin: CGFloat = 28
     private static let presets: [DockThemeStyle] = [
@@ -62,6 +63,13 @@ struct SettingsAppearancePane: View {
                 Text("Applies to the trash and the menu bar icon. Independent of the theme.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+
+            section {
+                Toggle(isOn: $memoryOverlayEnabled) { Text("Hold Control to Show Memory").font(.headline) }
+            } content: {
+                Text("While the pointer is over the dock, holding Control shows how much memory each app uses.")
+                    .font(.caption).foregroundStyle(.secondary)
             }
 
             wallpaperSection

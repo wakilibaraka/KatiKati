@@ -7,6 +7,7 @@ struct DockStripView: View {
     @Environment(\.isPanelHeightResizing) var isPanelHeightResizing
     @EnvironmentObject var runtime: AppRuntime
     @ObservedObject var editMode = WidgetEditMode.shared
+    @ObservedObject var memoryOverlay = MemoryOverlayController.shared
     @EnvironmentObject var drawerStore: DrawerStore
     @EnvironmentObject var messagingStore: MessagingAppStore
     @EnvironmentObject var badgeStore: BadgeStore
@@ -286,6 +287,7 @@ struct DockStripView: View {
         }
         // The rim never changes during a drag: every drag-in (drawer icon, app, folder) is answered
         // by the icons making way, and a rim that follows hover state is the surface that flickers.
+        .onHover { MemoryOverlayController.shared.pointer(inside: $0) }
         .overlay {
             if settingsStore.tintSurfacesByPhase {
                 PhaseSurfaceTint(cornerRadius: taskbarCornerRadius)
@@ -1282,10 +1284,25 @@ struct DockStripView: View {
     /// ——`ChipView.onWindowTitleTooltipEvent` 当年那种"某个调用点漏传、编译还过"的坑
     /// 在这条路径上不会重演。分隔线也报：它占住那 5pt，指针压上去就没人拥有气泡，
     /// 于是宽缝天然是"什么都不弹"，两边的卡也不会隔着它抢。
+    /// Which app a chip belongs to, for the hold-Control memory pill.
+    static func memoryBundleID(_ entry: StripEntry) -> String? {
+        switch entry {
+        case let .window(item): return item.bundleIdentifier
+        case let .messagingApp(bid, _): return bid
+        case let .keptApp(bid): return bid
+        default: return nil
+        }
+    }
+
     @ViewBuilder
     private func stripEntryView(_ entry: StripEntry, projection: StripProjection) -> some View {
         stripEntryContent(entry, projection: projection,
                           hovered: hoveredEntryID == entry.id, entrance: true)
+            .overlay(alignment: .top) {
+                if memoryOverlay.controlHeld, let id = Self.memoryBundleID(entry), let bytes = memoryOverlay.memory[id] {
+                    MemoryPill(bytes: bytes).offset(y: -2 * dockScale)
+                }
+            }
             .background(
                 GeometryReader { geo in
                     Color.clear.preference(key: StripHoverFramePreferenceKey.self,

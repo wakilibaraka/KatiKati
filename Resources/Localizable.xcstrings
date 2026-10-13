@@ -25647,6 +25647,158 @@
         }
       }
     },
+    "Hold Control to Show Memory": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold Control to Show Memory"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住 Control 显示内存"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住 Control 顯示記憶體"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Controlを押している間メモリを表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control halten, um Speicher anzuzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenir Contrôle pour afficher la mémoire"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén Control para ver la memoria"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén Control para ver la memoria"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure Control para ver a memória"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenha Control para ver a memória"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni premuto Control per vedere la memoria"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control을 누르면 메모리 표시"
+          }
+        }
+      }
+    },
+    "While the pointer is over the dock, holding Control shows how much memory each app uses.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "While the pointer is over the dock, holding Control shows how much memory each app uses."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "指针在程序坞上时，按住 Control 会显示每个应用占用的内存。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "指標在 Dock 上時，按住 Control 會顯示每個 App 佔用的記憶體。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ポインタがDock上にあるときControlを押すと、各アプリのメモリ使用量を表示します。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halten Sie Control, während der Zeiger über dem Dock ist, um den Speicherverbrauch jeder App zu sehen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand le pointeur est sur le Dock, maintenez Contrôle pour voir la mémoire utilisée par chaque app."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con el puntero sobre el Dock, mantén Control para ver cuánta memoria usa cada app."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con el puntero sobre el Dock, mantén Control para ver cuánta memoria usa cada app."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com o ponteiro sobre o Dock, segure Control para ver quanta memória cada app usa."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com o ponteiro sobre o Dock, mantenha Control para ver quanta memória cada app usa."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con il puntatore sul Dock, tieni premuto Control per vedere la memoria usata da ogni app."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "포인터가 Dock 위에 있을 때 Control을 누르면 각 앱의 메모리 사용량이 표시됩니다."
+          }
+        }
+      }
+    },
     "Widget Widths": {
       "localizations": {
         "en": {

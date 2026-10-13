@@ -74,6 +74,7 @@ struct DrawerView: View {
     }
 
     @ObservedObject private var backgroundStore = BackgroundAppsStore.shared
+    @ObservedObject private var memoryOverlay = MemoryOverlayController.shared
 
     /// Phase 20a: running apps with no window to switch to, shown after the stashed apps. Auto-populated.
     private var backgroundMembers: [String] {
@@ -143,9 +144,10 @@ struct DrawerView: View {
                                 onPanelSizeChange: onPanelSizeChange,
                                 gridAnimation: .easeInOut(duration: DrawerAnimation.duration),
                                 gridAnimationKey: ids) {
-            ForEach(stashedIDs, id: \.self) { drawerChip($0, running: showsAsRunning($0)) }
-            ForEach(backgroundIDs, id: \.self) { backgroundChip($0) }
+            ForEach(stashedIDs, id: \.self) { drawerChip($0, running: showsAsRunning($0)).memoryPill($0, overlay: memoryOverlay) }
+            ForEach(backgroundIDs, id: \.self) { backgroundChip($0).memoryPill($0, overlay: memoryOverlay) }
         }
+        .onHover { MemoryOverlayController.shared.pointer(inside: $0) }
         // 抽屉根视图的屏幕 frame（AppKit 换算,绕开 .global/y 翻转/shadowPadding 的坑,Codex 二审 P1-3）。
         // 与 `"drawer"` 命名空间挂在同一视图上 → 既能判"光标在不在抽屉里",又能把屏幕坐标映回 drawer 空间命中格子。
         // **抽屉面板自己挪了，也要重报落点锚点。** 松手那一刻 `teardown` 清掉 `conversion`，
@@ -320,6 +322,9 @@ struct DrawerView: View {
     /// Background-app cell: same chip, no drag (these are not placements), plus an Ignore item in its menu.
     private func backgroundChip(_ id: String) -> some View {
         drawerChipContent(id, running: true, extraItems: [
+            LauncherMembershipItem(label: String(localized: "Quit")) {
+                NSRunningApplication.runningApplications(withBundleIdentifier: id).forEach { $0.terminate() }
+            },
             LauncherMembershipItem(label: String(localized: "Ignore")) { backgroundStore.ignore(id) }
         ])
     }
@@ -507,5 +512,14 @@ struct DrawerRootView: View {
             .environmentObject(appMembershipController)
             .environment(\.dockThemeStyle, settingsStore.themeMaterial)
             .environment(\.iconSet, settingsStore.iconSet)
+    }
+}
+
+private extension View {
+    /// Hold-Control memory pill over a drawer cell (Phase 20b).
+    func memoryPill(_ bundleID: String, overlay: MemoryOverlayController) -> some View {
+        self.overlay(alignment: .top) {
+            if overlay.controlHeld, let bytes = overlay.memory[bundleID] { MemoryPill(bytes: bytes).offset(y: 4) }
+        }
     }
 }

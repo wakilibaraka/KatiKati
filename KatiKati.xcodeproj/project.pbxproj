@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA10A1000000000000000142 /* ProcessMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000141 /* ProcessMemory.swift */; };
+		FA10A1000000000000000143 /* ProcessMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000141 /* ProcessMemory.swift */; };
+		FA10A1000000000000000152 /* ProcessMemoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000151 /* ProcessMemoryTests.swift */; };
+		FA10A1000000000000000162 /* ProcessMemoryReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000161 /* ProcessMemoryReader.swift */; };
+		FA10A1000000000000000172 /* MemoryOverlayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000171 /* MemoryOverlayController.swift */; };
 		FA10A1000000000000000132 /* BackgroundAppsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000131 /* BackgroundAppsStore.swift */; };
 		FA10A1000000000000000112 /* BackgroundAppClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000111 /* BackgroundAppClassifier.swift */; };
 		FA10A1000000000000000113 /* BackgroundAppClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000111 /* BackgroundAppClassifier.swift */; };
@@ -854,6 +859,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FA10A1000000000000000141 /* ProcessMemory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessMemory.swift; sourceTree = "<group>"; };
+		FA10A1000000000000000151 /* ProcessMemoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessMemoryTests.swift; sourceTree = "<group>"; };
+		FA10A1000000000000000161 /* ProcessMemoryReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProcessMemoryReader.swift; path = App/Composition/ProcessMemoryReader.swift; sourceTree = SOURCE_ROOT; };
+		FA10A1000000000000000171 /* MemoryOverlayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MemoryOverlayController.swift; path = App/Composition/MemoryOverlayController.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000131 /* BackgroundAppsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BackgroundAppsStore.swift; path = App/Composition/BackgroundAppsStore.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000111 /* BackgroundAppClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundAppClassifier.swift; sourceTree = "<group>"; };
 		FA10A1000000000000000121 /* BackgroundAppClassifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundAppClassifierTests.swift; sourceTree = "<group>"; };
@@ -1874,6 +1883,7 @@
 				FA10A1000000000000000031 /* WidgetPresetTests.swift */,
 				FA10A1000000000000000091 /* SkyPaletteTests.swift */,
 				FA10A1000000000000000121 /* BackgroundAppClassifierTests.swift */,
+				FA10A1000000000000000151 /* ProcessMemoryTests.swift */,
 				FA10A10000000000000000C1 /* StackAndContextTests.swift */,
 				FA10A1000000000000000071 /* SolarPhaseTests.swift */,
 				BB0000000000000000000009 /* IslandLayoutSolverTests.swift */,
@@ -2042,6 +2052,7 @@
 				FA10A1000000000000000021 /* WidgetPreset.swift */,
 				FA10A1000000000000000081 /* SkyPalette.swift */,
 				FA10A1000000000000000111 /* BackgroundAppClassifier.swift */,
+				FA10A1000000000000000141 /* ProcessMemory.swift */,
 				FA10A10000000000000000B4 /* ContextPresetRules.swift */,
 				FA10A10000000000000000B1 /* StackRelevance.swift */,
 				FA10A1000000000000000061 /* WallpaperSelector.swift */,
@@ -2383,6 +2394,7 @@
 				FA10A1000000000000000022 /* WidgetPreset.swift in Sources */,
 				FA10A1000000000000000082 /* SkyPalette.swift in Sources */,
 				FA10A1000000000000000112 /* BackgroundAppClassifier.swift in Sources */,
+				FA10A1000000000000000142 /* ProcessMemory.swift in Sources */,
 				FA10A10000000000000000B5 /* ContextPresetRules.swift in Sources */,
 				FA10A10000000000000000B2 /* StackRelevance.swift in Sources */,
 				FA10A1000000000000000062 /* WallpaperSelector.swift in Sources */,
@@ -2566,6 +2578,8 @@
 				FA10A10000000000000000F2 /* PhaseSurfaceTint.swift in Sources */,
 				FA10A1000000000000000102 /* WidgetEditMode.swift in Sources */,
 				FA10A1000000000000000132 /* BackgroundAppsStore.swift in Sources */,
+				FA10A1000000000000000162 /* ProcessMemoryReader.swift in Sources */,
+				FA10A1000000000000000172 /* MemoryOverlayController.swift in Sources */,
 				7B50000000000000000000E2 /* LiveActivitySources.swift in Sources */,
 				7B50000000000000000000F2 /* LiveEventDetector.swift in Sources */,
 				7B5000000000000000000101 /* LiveSurfaceRouting.swift in Sources */,
@@ -2865,6 +2879,7 @@
 				FA10A1000000000000000032 /* WidgetPresetTests.swift in Sources */,
 				FA10A1000000000000000092 /* SkyPaletteTests.swift in Sources */,
 				FA10A1000000000000000122 /* BackgroundAppClassifierTests.swift in Sources */,
+				FA10A1000000000000000152 /* ProcessMemoryTests.swift in Sources */,
 				FA10A10000000000000000C2 /* StackAndContextTests.swift in Sources */,
 				FA10A1000000000000000072 /* SolarPhaseTests.swift in Sources */,
 				BB0000000000000000000010 /* IslandLayoutSolverTests.swift in Sources */,
@@ -2923,6 +2938,7 @@
 				FA10A1000000000000000023 /* WidgetPreset.swift in Sources */,
 				FA10A1000000000000000083 /* SkyPalette.swift in Sources */,
 				FA10A1000000000000000113 /* BackgroundAppClassifier.swift in Sources */,
+				FA10A1000000000000000143 /* ProcessMemory.swift in Sources */,
 				FA10A10000000000000000B6 /* ContextPresetRules.swift in Sources */,
 				FA10A10000000000000000B3 /* StackRelevance.swift in Sources */,
 				FA10A1000000000000000063 /* WallpaperSelector.swift in Sources */,
