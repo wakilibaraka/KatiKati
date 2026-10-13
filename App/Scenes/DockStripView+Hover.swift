@@ -173,6 +173,7 @@ extension DockStripView {
         var frames = Array(chipFrames.values)
         frames.append(contentsOf: folderChipFrames.values)
         frames.append(contentsOf: messagingChipFrames.values)
+        frames.append(contentsOf: self.frames.sectionFrames.values)
         if shelfFrame != .zero { frames.append(shelfFrame) }
         if settingsStore.showTrash, trashFrame != .zero { frames.append(trashFrame) }
         return frames

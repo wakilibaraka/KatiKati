@@ -183,7 +183,9 @@ final class WallpaperEngine {
             }
             if !result.isEmpty { return result }
         }
-        return Dictionary(uniqueKeysWithValues: WallpaperSelector.allSkyKeys.map { key in (key, { SkyPackRenderer.fileURL(for: key) }) })
+        var sky: [String: () -> URL?] = Dictionary(uniqueKeysWithValues: WallpaperSelector.allSkyKeys.map { key in (key, { SkyPackRenderer.fileURL(for: key) }) })
+        for (alias, base) in WallpaperSelector.skyPackAliases { sky[alias] = { SkyPackRenderer.fileURL(for: base) } }
+        return sky
     }
 }
 

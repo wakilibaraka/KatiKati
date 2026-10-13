@@ -81,11 +81,6 @@ struct LiveIslandDockCapsule: View {
                 .stroke(Color.white.opacity(0.12), lineWidth: 1)
         )
         .contentShape(Rectangle())
-        .floatingContextMenu {
-            LiveIslandMenuBuilder.menu(feed: feed, keepAwakeOn: runtime.isKeepAwakeOn?() ?? keepAwakeOn) {
-                keepAwakeOn = runtime.onToggleKeepAwake?() ?? keepAwakeOn
-            }
-        }
         .onHover { isHovering = $0 }
         .onTapGesture { tap(for: activity) }
         .onAppear { feed.retain() }

@@ -96,3 +96,19 @@ final class WallpaperSelectorTests: XCTestCase {
         XCTAssertEqual(WallpaperSelector.pick(phase: .night, sky: .snow, mode: .weather, available: pack), "default")
     }
 }
+
+extension WallpaperSelectorTests {
+    func testSkyPackAliasesMakeEveryModeResolve() {
+        let aliases = WallpaperSelector.skyPackAliases
+        let keys = Set(WallpaperSelector.allSkyKeys).union(aliases.keys)
+        XCTAssertTrue(aliases.values.allSatisfy { WallpaperSelector.allSkyKeys.contains($0) })
+        for phase in SolarPhase.allCases {
+            for sky in WallpaperSky.allCases {
+                for mode in WallpaperMode.allCases {
+                    XCTAssertNotNil(WallpaperSelector.pick(phase: phase, sky: sky, mode: mode, available: keys), "\(phase) \(sky) \(mode)")
+                }
+            }
+        }
+        XCTAssertEqual(WallpaperSelector.pick(phase: .dusk, sky: .rain, mode: .time, available: keys), "dusk")
+    }
+}

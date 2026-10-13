@@ -468,6 +468,9 @@ struct DockStripView: View {
             self.frames.folderChipFrames = frames
             updateLandingAnchor()
         }
+        .onPreferenceChange(SectionFramePreferenceKey.self) { frames in
+            self.frames.sectionFrames = frames
+        }
         .onPreferenceChange(MessagingChipFramePreferenceKey.self) { frames in
             HoverTrace.stripInput("messagingFrames", surface: stripSurfaceID, changed: frames != self.frames.messagingChipFrames)
             self.frames.messagingChipFrames = frames
@@ -1361,7 +1364,30 @@ struct DockStripView: View {
             // Phase 6: hover title per island section (system tooltip; a chip's own `.help`
             // still wins inside it).
             .help(Self.sectionHoverTitle(section))
-            .floatingContextMenu { WidgetMenuBuilder.menu(for: section, store: settingsStore) }
+            .floatingContextMenu {
+                let menu = WidgetMenuBuilder.menu(for: section, store: settingsStore)
+                // The Live Island chip's own controls ride in front of the widget menu: this overlay
+                // sits above the capsule, so a menu on the capsule itself would never be reached.
+                guard section == .media else { return menu }
+                let awake = runtime.isKeepAwakeOn?() ?? false
+                let live = LiveIslandMenuBuilder.menu(feed: LiveActivityFeed.shared, keepAwakeOn: awake) {
+                    _ = runtime.onToggleKeepAwake?()
+                }
+                var index = 0
+                for item in live.items {
+                    live.removeItem(item)
+                    menu.insertItem(item, at: index)
+                    index += 1
+                }
+                menu.insertItem(.separator(), at: index)
+                return menu
+            }
+            .background(
+                GeometryReader { geo in
+                    Color.clear.preference(key: SectionFramePreferenceKey.self,
+                                           value: [section.rawValue: geo.frame(in: .named("strip"))])
+                }
+            )
         case .divider:
             Rectangle()
                 .fill(theme.zoneDivider.color)

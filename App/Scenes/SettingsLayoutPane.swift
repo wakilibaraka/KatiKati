@@ -212,7 +212,7 @@ struct SettingsLayoutPane: View {
                     .onMove { store.setWidgetLayout(store.widgetLayout.moving(from: $0, to: $1)) }
                 }
                 .listStyle(.plain)
-                .frame(height: CGFloat(store.widgetLayout.order.count) * 34 + 8)
+                .frame(height: CGFloat(store.widgetLayout.order.count) * 38 + 24)
                 presetControls
             }
 

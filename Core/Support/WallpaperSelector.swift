@@ -27,6 +27,15 @@ enum WallpaperSelector {
         WallpaperSky.allCases.map { "\(phase.rawValue)-\($0.rawValue)" }
     }
 
+    /// Extra keys the built-in Sky pack answers so every mode finds a file: `<phase>` (time mode) maps to that
+    /// phase under a clear sky, `any-<sky>` (weather mode) to that sky by day, `default` to day-clear.
+    static let skyPackAliases: [String: String] = {
+        var map: [String: String] = ["default": "day-clear"]
+        for phase in SolarPhase.allCases { map[phase.rawValue] = "\(phase.rawValue)-clear" }
+        for sky in WallpaperSky.allCases { map["any-\(sky.rawValue)"] = "day-\(sky.rawValue)" }
+        return map
+    }()
+
     /// Ordered candidates for a state; the first one the pack has wins (condition+phase → phase → default).
     static func candidates(phase: SolarPhase, sky: WallpaperSky, mode: WallpaperMode) -> [String] {
         switch mode {

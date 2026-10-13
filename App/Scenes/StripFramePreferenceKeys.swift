@@ -31,6 +31,16 @@ struct MessagingChipFramePreferenceKey: PreferenceKey {
     }
 }
 
+/// Widget-section placeholder frames (weather / now playing / clock / launcher / pinboard). Kept out of
+/// every other table; only the taskbar right-click zones read them, so the strip menu never claims a point
+/// that belongs to a widget's own menu (Phase 10 live-check fix).
+struct SectionFramePreferenceKey: PreferenceKey {
+    static var defaultValue: [String: CGRect] = [:]
+    static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
+        value.merge(nextValue(), uniquingKeysWith: { _, new in new })
+    }
+}
+
 /// 中转格 frame（单值）。独立于 FolderChipFramePreferenceKey（评审：文件夹帧字典不混 sentinel）。
 struct ShelfFramePreferenceKey: PreferenceKey {
     static var defaultValue: CGRect = .zero
@@ -74,6 +84,8 @@ final class StripFrameBox {
     var folderChipFrames: [String: CGRect] = [:]
     /// Messaging chip frames by bundle id — in-zone reorder and the drawer→messaging release range.
     var messagingChipFrames: [String: CGRect] = [:]
+    /// Widget-section placeholder frames — excluded from the taskbar-menu claim zone.
+    var sectionFrames: [String: CGRect] = [:]
     var shelfFrame: CGRect = .zero
     var trashFrame: CGRect = .zero
     /// The content area's frame in screen coordinates (bottom-left); `.zero` until first reported.
