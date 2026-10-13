@@ -2924,6 +2924,19 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
     (`Health`, `Cycles`; 707 ×12). **Verified:** 2,216 tests, 0 failures; localization ✅; debug
     switches ✅. **Owner eyeball:** the panel look/feel, compact rows live, Safari now-playing in
     the CC card. Next: 16s (S/M/L presets, position, animation settings).
+  - 2026-10-13 · **16s built — battery merge, reorder, glitch fix, four new switches (owner).**
+    Battery + batteries are one topmost card (either Settings pick shows it; This Mac follows the
+    battery pick, devices the batteries pick); sliders (volume, brightness, keyboard) moved to the
+    bottom above the utility row; network row stays in the middle. Four new `QuickToggleID` actions
+    in the OnlySwitch genre — Screen Saver, Lock Screen, Relaunch Finder, Screen Mirroring
+    (fire-and-done via `open`/`pmset`/`killall`, no new permission, no private API; lock + relaunch
+    ask first like Empty Trash; AirDrop skipped — no open URL; DND/Low Power stay deferred).
+    Bottom-glitch analysis: the likely causes were the resize feedback loop (report → relayout →
+    report — now a 0.5 pt dead band) and async height reports read on the wrong screen after the
+    pointer moved displays (the panel now reuses its shown screen). Nothing deleted this slice.
+    Strings +4 ×12 (drafts). **Verified:** 2,216 tests, 0 failures; localization ✅ (711 ×12);
+    debug switches ✅. **Owner eyeball:** bottom edge, merged card, slider order, the four actions
+    live (lock + relaunch ask first). S/M/L presets + open-animation move to **16t**.
 
  - 2026-10-13 · **16k built — six Pinboard-only widgets ported as clock-pane tiles; gate green.**
    `TileKind` += calculator, screenTime, network, battery, topApps, batteries (accents ×4

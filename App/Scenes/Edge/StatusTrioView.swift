@@ -203,9 +203,15 @@ struct ControlCenterView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Quick Settings").font(.headline)
+            batteryCard
             HStack(spacing: 10) {
                 ForEach(connectivity, id: \.self) { id in tile(id) }
             }
+            nowPlayingCard
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 12) {
+                ForEach(quickActions, id: \.self) { id in cell(id) }
+            }
+            widgetsSection
             volumeRow
             if let brightness {
                 slider(icon: "sun.max.fill", value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayServicesBrightness.set($0) }))
@@ -213,11 +219,6 @@ struct ControlCenterView: View {
             if let keyLight {
                 slider(icon: "keyboard", value: Binding(get: { keyLight }, set: { self.keyLight = $0; KeyboardBacklight.set($0) }))
             }
-            nowPlayingCard
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 12) {
-                ForEach(quickActions, id: \.self) { id in cell(id) }
-            }
-            widgetsSection
             Spacer(minLength: 0)
             utilityRow
         }
@@ -296,26 +297,26 @@ struct ControlCenterView: View {
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
     }
 
-    /// Phase 16r: compact widget rows — the panel is a no-scroll screen, so full tiles don't fit.
-    /// Samplers live in the row that needs them (appear/disappear); the shared status service comes
-    /// from the parent view.
-    private var widgetsSection: some View {
+    /// Phase 16s: battery + batteries as one topmost card. Either Settings pick shows the card;
+    /// the This Mac section follows the battery pick, the device rows follow the batteries pick.
+    private var batteryCard: some View {
         Group {
-            if !widgetTiles.isEmpty {
-                VStack(spacing: 8) {
-                    ForEach(widgetTiles, id: \.self) { kind in compactRow(kind) }
-                }
+            if widgetTiles.contains(.battery) || widgetTiles.contains(.batteries) {
+                ControlCenterBatteryCard(
+                    status: status,
+                    showsThisMac: widgetTiles.contains(.battery),
+                    showsDevices: widgetTiles.contains(.batteries))
             }
         }
     }
 
-    @ViewBuilder
-    private func compactRow(_ kind: TileKind) -> some View {
-        switch kind {
-        case .network: ControlCenterNetworkRow()
-        case .battery: ControlCenterBatteryRow(status: status)
-        case .batteries: ControlCenterBatteriesRow(status: status)
-        default: EmptyView()
+    /// Phase 16r: compact widget rows — the panel is a no-scroll screen, so full tiles don't fit.
+    /// Battery + batteries render as one topmost card (`batteryCard`); only network rows live here.
+    private var widgetsSection: some View {
+        Group {
+            if widgetTiles.contains(.network) {
+                ControlCenterNetworkRow()
+            }
         }
     }
 
@@ -404,44 +405,39 @@ private struct ControlCenterNetworkRow: View {
     }
 }
 
-/// Battery level + charging state from the shared status service (acquired by the parent view).
-private struct ControlCenterBatteryRow: View {
+/// Battery + batteries as one card (Phase 16s): This Mac level plus connected Bluetooth devices
+/// that report a battery. Devices are read once per open; the shared status service is the parent's.
+/// Either Settings pick shows the card; the This Mac section follows the battery pick, the device
+/// rows follow the batteries pick.
+private struct ControlCenterBatteryCard: View {
     @ObservedObject var status: SystemStatusService
-
-    var body: some View {
-        let b = status.status.battery
-        ControlCenterRow {
-            Image(systemName: b.isCharging ? "battery.100.bolt" : "battery.75")
-                .font(.system(size: 14)).frame(width: 22)
-            Text("Battery").font(.system(size: 13, weight: .semibold))
-            Spacer(minLength: 0)
-            if let level = b.level {
-                Text(verbatim: "\(level)%").font(.system(size: 13, weight: .bold)).monospacedDigit()
-            } else {
-                Text("No Battery").font(.system(size: 12)).foregroundStyle(.secondary)
-            }
-        }
-    }
-}
-
-/// This Mac plus connected Bluetooth devices that report a battery; read once per open.
-private struct ControlCenterBatteriesRow: View {
-    @ObservedObject var status: SystemStatusService
+    let showsThisMac: Bool
+    let showsDevices: Bool
     @State private var devices: [BluetoothDevice] = []
     @State private var loading = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Batteries").font(.system(size: 13, weight: .semibold))
-            if let level = status.status.battery.level {
+            HStack {
+                Image(systemName: status.status.battery.isCharging ? "battery.100.bolt" : "battery.75")
+                    .font(.system(size: 14)).frame(width: 22)
+                Text("Battery").font(.system(size: 13, weight: .semibold))
+                Spacer(minLength: 0)
+                if let level = status.status.battery.level {
+                    Text(verbatim: "\(level)%").font(.system(size: 15, weight: .bold)).monospacedDigit()
+                }
+            }
+            if showsThisMac, let level = status.status.battery.level {
                 line("laptopcomputer", Text("This Mac"), level)
             }
-            if loading {
-                ProgressView().controlSize(.small)
-            } else {
-                ForEach(devices.prefix(2)) { d in line(d.symbolName, Text(verbatim: d.name), d.lowestBattery ?? 0) }
-                if devices.isEmpty {
-                    Text("No connected devices report a battery").font(.system(size: 11)).foregroundStyle(.secondary)
+            if showsDevices {
+                if loading {
+                    ProgressView().controlSize(.small)
+                } else {
+                    ForEach(devices.prefix(2)) { d in line(d.symbolName, Text(verbatim: d.name), d.lowestBattery ?? 0) }
+                    if devices.isEmpty {
+                        Text("No connected devices report a battery").font(.system(size: 11)).foregroundStyle(.secondary)
+                    }
                 }
             }
         }
@@ -461,6 +457,7 @@ private struct ControlCenterBatteriesRow: View {
     }
 
     private func load() async {
+        guard showsDevices else { return }
         loading = true
         let all = await BluetoothDeviceReader.read()
         devices = all.filter { $0.isConnected && $0.lowestBattery != nil }

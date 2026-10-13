@@ -69,8 +69,9 @@ It holds the Quick Settings switches, your widgets, and the connectivity control
 
 - **Widgets:** Calculator, Screen Time (opt-in), Network, Battery with
   health and cycles, Top Apps, Batteries (your Mac and connected Bluetooth devices). The same tiles also live in the widget pane.
-- **Quick Settings** has 14 switches: Dark Mode, Keep Awake, Hide Desktop, Hidden Files, Dock Auto-hide, Path Bar, Mute Mic, Empty Trash (asks first),
-  Eject Disks, Wi-Fi, Bluetooth, Night Shift, True Tone and VPN. Bluetooth, Night Shift and True Tone rely on system interfaces that macOS does not document, so they can stop
+- **Quick Settings** has 18 switches: Dark Mode, Keep Awake, Hide Desktop, Hidden Files, Dock Auto-hide, Path Bar, Mute Mic, Empty Trash (asks first),
+  Eject Disks, Wi-Fi, Bluetooth, Night Shift, True Tone, VPN, Screen Saver, Lock Screen (asks first), Relaunch Finder (asks first) and Screen Mirroring
+  (opens Display Settings). Bluetooth, Night Shift and True Tone rely on system interfaces that macOS does not document, so they can stop
   working after a macOS update; they fail quietly. VPN covers Network-configured VPN services only.
 - iPad, Apple Watch and iPhone batteries are not shown: macOS does not expose them to a Mac.
 

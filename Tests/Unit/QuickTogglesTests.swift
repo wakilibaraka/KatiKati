@@ -5,9 +5,15 @@ import XCTest
 /// reinstated VPN parser test (the 16i-2 debt: Core keeps the single parser implementation).
 final class QuickTogglesTests: XCTestCase {
     func testToggleParseAndFlags() {
-        XCTAssertEqual(QuickToggleID.parse(nil).count, 14, "trueTone + vpn joined the catalog")
+        XCTAssertEqual(QuickToggleID.parse(nil).count, 18, "screen saver + lock + relaunch + mirroring joined the catalog")
         XCTAssertEqual(QuickToggleID.parse("wifi,nope,darkMode"), [.wifi, .darkMode])
+        XCTAssertEqual(QuickToggleID.parse("screenSaver,screenMirroring"), [.screenSaver, .screenMirroring])
         XCTAssertTrue(QuickToggleID.emptyTrash.needsConfirm)
+        XCTAssertTrue(QuickToggleID.lockScreen.needsConfirm)
+        XCTAssertTrue(QuickToggleID.relaunchFinder.needsConfirm)
+        XCTAssertFalse(QuickToggleID.screenSaver.needsConfirm)
+        XCTAssertTrue(QuickToggleID.screenSaver.isAction)
+        XCTAssertTrue(QuickToggleID.screenMirroring.isAction)
         XCTAssertFalse(QuickToggleID.darkMode.isAction)
         XCTAssertTrue(QuickToggleID.ejectDisks.isAction)
     }

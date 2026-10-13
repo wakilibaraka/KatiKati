@@ -36,7 +36,13 @@ All notable changes to KatiKati are documented in this file.
   weather/clock shortcuts now open the Control Center and the weather/calendar panes; the wall,
   its panel, catalog, `com.katikati.pinboard.*` keys and strings are deleted (registry:
   `Docs/Repository/pinboard-retirement.md`). The Control Center gains a Settings section (side,
-  widget picks, switch picks) and hosts the six tiles; keep-awake runs off the shared toggle engine.
+  widget picks, switch picks) and hosts user widgets; keep-awake runs off the shared toggle engine.
+- **Quick Settings rework (16r–16s):** no-scroll content-sized floating panel (borderless, above the
+  dock); weather / system / bluetooth / now-playing tiles off the widget pane; calculator /
+  screen-time / top-apps off the panel default (network / battery / batteries as compact rows);
+  battery + batteries merged into one topmost card; sliders moved to the bottom; four new switches
+  (Screen Saver, Lock Screen, Relaunch Finder, Screen Mirroring — all fire-and-done, no new
+  permission); resize loop guarded against bottom-edge jitter.
 
 ## [Unreleased] — Phase 8 in progress
 

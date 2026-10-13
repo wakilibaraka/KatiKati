@@ -122,6 +122,10 @@ final class ControlCenterPanelController {
 
     private var panel: KeyableFlyoutPanel?
     private var outsideMonitor: Any?
+    /// The screen the live panel was built for. `resize` reuses it instead of re-reading the mouse
+    /// position — an async height report landing after the pointer moved displays must not jump the
+    /// panel across screens (that read as a bottom-edge glitch).
+    private var shownScreen: NSScreen?
 
     /// Which edge the panel hugs; read each time it opens so a Settings change applies immediately.
     var side: () -> EdgeSide = {
@@ -148,6 +152,7 @@ final class ControlCenterPanelController {
     func show() {
         guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) })
                 ?? NSScreen.main ?? NSScreen.screens.first else { return }
+        shownScreen = screen
         let maxHeight = max(240, screen.visibleFrame.height - 24 - CGFloat(bottomReserve()))
         let size = CGSize(width: Self.width, height: maxHeight)
         let frame = panelFrame(on: screen, size: size)
@@ -167,14 +172,19 @@ final class ControlCenterPanelController {
     }
 
     /// Shrinks (or grows, as async rows load) the live panel to the reported content height.
+    /// The 0.5 pt dead band stops the report → relayout → report feedback loop from jittering the
+    /// bottom edge on live updates (sliders, now-playing, monitor ticks all re-layout the view).
     private func resize(toContentHeight height: CGFloat) {
         guard let panel, height > 0 else { return }
-        guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) })
-                ?? NSScreen.main ?? NSScreen.screens.first else { return }
+        let screen = shownScreen
+            ?? NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) })
+            ?? NSScreen.main ?? NSScreen.screens.first
+        guard let screen else { return }
         let maxHeight = max(240, screen.visibleFrame.height - 24 - CGFloat(bottomReserve()))
         let size = CGSize(width: Self.width, height: min(height, maxHeight))
         let frame = panelFrame(on: screen, size: size)
-        if frame != panel.frame { panel.setFrame(frame, display: true) }
+        guard abs(frame.height - panel.frame.height) > 0.5 else { return }
+        panel.setFrame(frame, display: true)
     }
 
     /// Borderless floating plate (Phase 16r): near-opaque surface, large radius, soft system shadow

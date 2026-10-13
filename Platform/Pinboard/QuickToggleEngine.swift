@@ -83,7 +83,7 @@ final class QuickToggleEngine: ObservableObject {
         case .nightShift: return NightShift.read()
         case .trueTone: return TrueTone.read()
         case .vpn: return VPNService.anyConnected()
-        case .emptyTrash, .ejectDisks: return nil
+        case .emptyTrash, .ejectDisks, .screenSaver, .lockScreen, .relaunchFinder, .screenMirroring: return nil
         }
     }
 
@@ -117,6 +117,10 @@ final class QuickToggleEngine: ObservableObject {
         case .nightShift: return NightShift.write(on)
         case .trueTone: return TrueTone.write(on)
         case .vpn: return VPNService.set(on)
+        case .screenSaver: return run("/usr/bin/open", ["-a", "ScreenSaverEngine"])
+        case .lockScreen: return run("/usr/bin/pmset", ["displaysleepnow"])
+        case .relaunchFinder: return run("/usr/bin/killall", ["Finder"])
+        case .screenMirroring: return run("/usr/bin/open", ["x-apple.systempreferences:com.apple.Displays-Settings.extension"])
         }
     }
 

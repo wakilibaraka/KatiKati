@@ -5,11 +5,18 @@ enum QuickToggleID: String, CaseIterable, Sendable {
     case darkMode, keepAwake, hideDesktopIcons, showHiddenFiles, dockAutoHide, pathBar
     case muteMic, emptyTrash, ejectDisks, wifi, bluetooth, nightShift
     case trueTone, vpn
+    /// Phase 16s: utility actions in the OnlySwitch genre (open-only or fire-and-done, no new
+    /// permission, no private API): start the screen saver, lock the screen, relaunch the Finder,
+    /// open Display Settings for screen mirroring.
+    case screenSaver, lockScreen, relaunchFinder, screenMirroring
 
     /// Actions have no on/off state: they run and report done.
-    var isAction: Bool { self == .emptyTrash || self == .ejectDisks }
+    var isAction: Bool {
+        self == .emptyTrash || self == .ejectDisks || self == .screenSaver || self == .lockScreen
+            || self == .relaunchFinder || self == .screenMirroring
+    }
     /// Needs a confirmation click before it runs.
-    var needsConfirm: Bool { self == .emptyTrash }
+    var needsConfirm: Bool { self == .emptyTrash || self == .lockScreen || self == .relaunchFinder }
 
     var symbolName: String {
         switch self {
@@ -27,6 +34,10 @@ enum QuickToggleID: String, CaseIterable, Sendable {
         case .nightShift: return "sun.max.fill"
         case .trueTone: return "circle.lefthalf.filled"
         case .vpn: return "network"
+        case .screenSaver: return "moon.zzz.fill"
+        case .lockScreen: return "lock.fill"
+        case .relaunchFinder: return "arrow.clockwise"
+        case .screenMirroring: return "airplayvideo"
         }
     }
 
