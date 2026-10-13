@@ -11,6 +11,7 @@ struct SettingsAppearancePane: View {
     @Environment(\.colorScheme) private var colorScheme
     @AppStorage(BackgroundAppsStore.showSystemHelpersKey) private var showSystemHelpers = false
     @ObservedObject private var backgroundStore = BackgroundAppsStore.shared
+    @AppStorage(WindowSwitcherController.enabledKey) private var switcherEnabled = true
     @AppStorage(MemoryOverlayController.enabledKey) private var memoryOverlayEnabled = true
 
     private static let margin: CGFloat = 28
@@ -82,6 +83,13 @@ struct SettingsAppearancePane: View {
                 }
             } content: {
                 Text("Background Apps lists running apps that have no window. Apple helper processes stay hidden unless this is on.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+
+            section {
+                Toggle(isOn: $switcherEnabled) { Text("Option-Tab Window Switcher").font(.headline) }
+            } content: {
+                Text("Hold Option and press Tab to pick a window from a thumbnail grid; release to switch. Shift reverses, Esc cancels.")
                     .font(.caption).foregroundStyle(.secondary)
             }
 

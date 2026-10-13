@@ -50282,6 +50282,160 @@
           }
         }
       }
+    },
+    "Option-Tab Window Switcher": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Option-Tab Window Switcher"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Option-Tab 窗口切换器"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Option-Tab 視窗切換器"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Option-Tab ウインドウ切り替え"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Option-Tab-Fensterumschalter"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélecteur de fenêtres Option-Tab"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selector de ventanas Option-Tab"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selector de ventanas Option-Tab"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alternador de janelas Option-Tab"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alternador de janelas Option-Tab"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selettore finestre Option-Tab"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Option-Tab 윈도우 전환기"
+          }
+        }
+      }
+    },
+    "Hold Option and press Tab to pick a window from a thumbnail grid; release to switch. Shift reverses, Esc cancels.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold Option and press Tab to pick a window from a thumbnail grid; release to switch. Shift reverses, Esc cancels."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住 Option 并按 Tab，从缩略图网格中选择窗口；松开即切换。Shift 反向，Esc 取消。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住 Option 並按 Tab，從縮圖格狀選擇視窗；放開即切換。Shift 反向，Esc 取消。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optionを押したままTabを押すとサムネイル一覧からウインドウを選べます。離すと切り替わります。Shiftで逆順、Escでキャンセル。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Option halten und Tab drücken, um ein Fenster aus dem Vorschaurasten zu wählen; loslassen zum Wechseln. Shift kehrt die Richtung um, Esc bricht ab."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenez Option et appuyez sur Tab pour choisir une fenêtre dans la grille de miniatures ; relâchez pour basculer. Maj inverse, Échap annule."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén Option y pulsa Tab para elegir una ventana de la cuadrícula de miniaturas; suelta para cambiar. Shift invierte, Esc cancela."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén Option y presiona Tab para elegir una ventana de la cuadrícula de miniaturas; suelta para cambiar. Shift invierte, Esc cancela."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure Option e pressione Tab para escolher uma janela na grade de miniaturas; solte para alternar. Shift inverte, Esc cancela."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenha Option e prima Tab para escolher uma janela na grelha de miniaturas; largue para mudar. Shift inverte, Esc cancela."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni premuto Option e premi Tab per scegliere una finestra dalla griglia di miniature; rilascia per passare. Maiusc inverte, Esc annulla."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Option을 누른 채 Tab을 눌러 축소판 격자에서 윈도우를 선택하고, 놓으면 전환됩니다. Shift는 역방향, Esc는 취소입니다."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
