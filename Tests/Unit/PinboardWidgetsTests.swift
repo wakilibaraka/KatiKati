@@ -91,4 +91,18 @@ final class PinboardWidgetsTests: XCTestCase {
         XCTAssertEqual(PinboardGrid.fit([], width: 1000, height: 800), PinboardGrid.Fit(columns: 2, rows: 0, scale: 1))
         XCTAssertGreaterThan(PinboardGrid.fit(PinboardWidget.defaultOrder, width: 300, height: 300).scale, 0)
     }
+
+    func testControlCenterTileMapsOnlyTheSixPortedWidgets() {
+        XCTAssertEqual(PinboardWidget.calculator.controlCenterTile, .calculator)
+        XCTAssertEqual(PinboardWidget.screenTime.controlCenterTile, .screenTime)
+        XCTAssertEqual(PinboardWidget.network.controlCenterTile, .network)
+        XCTAssertEqual(PinboardWidget.battery.controlCenterTile, .battery)
+        XCTAssertEqual(PinboardWidget.topApps.controlCenterTile, .topApps)
+        XCTAssertEqual(PinboardWidget.batteries.controlCenterTile, .batteries)
+        for w in PinboardWidget.allCases where w.controlCenterTile != nil {
+            XCTAssertTrue([PinboardWidget.calculator, .screenTime, .network, .battery, .topApps, .batteries].contains(w))
+        }
+        XCTAssertNil(PinboardWidget.quickSettings.controlCenterTile, "quick settings lives on as the grid")
+        XCTAssertNil(PinboardWidget.weather.controlCenterTile, "already a pane tile")
+    }
 }

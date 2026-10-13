@@ -179,6 +179,11 @@ struct BluetoothFlyoutView: View {
 struct ControlCenterView: View {
     @ObservedObject var engine: QuickToggleEngine
     let order: [QuickToggleID]
+    /// Phase 16l: user widgets (the six ported Pinboard tiles) hosted below the switch grid.
+    let widgetTiles: [TileKind]
+    @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
+    @AppStorage(WidgetExtraPrefs.glassTilesKey) private var glassTiles = false
+    @Environment(\.colorScheme) private var colorScheme
     @StateObject private var status = SystemStatusService()
     @StateObject private var nowPlaying = NowPlayingService()
     @State private var confirming: QuickToggleID?
@@ -214,6 +219,7 @@ struct ControlCenterView: View {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 12) {
                     ForEach(quickActions, id: \.self) { id in cell(id) }
                 }
+                widgetsSection
             }
             Spacer(minLength: 0)
             utilityRow
@@ -289,6 +295,37 @@ struct ControlCenterView: View {
         }
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
+    }
+
+    /// Phase 16l: user widgets hosted in the panel — the six ported tiles in the stored order.
+    /// Tiles create their own services and tear them down with the panel (content is dropped on hide).
+    private var widgetsSection: some View {
+        Group {
+            if !widgetTiles.isEmpty {
+                Text("Widgets").font(.headline).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 4)
+                ForEach(widgetTiles, id: \.self) { kind in
+                    GeometryReader { geo in hostedTile(kind, width: geo.size.width) }
+                        .frame(height: 150)
+                }
+            }
+        }
+    }
+
+    private var tileEnv: TileEnv {
+        TileEnv(palette: palette, isDark: colorScheme == .dark, glass: glassTiles)
+    }
+
+    @ViewBuilder
+    private func hostedTile(_ kind: TileKind, width: CGFloat) -> some View {
+        switch kind {
+        case .calculator: CalculatorTile(env: tileEnv, width: width, height: 150)
+        case .screenTime: ScreenTimeTile(env: tileEnv, width: width, height: 150)
+        case .network: NetworkTile(env: tileEnv, width: width, height: 150)
+        case .battery: BatteryTile(env: tileEnv, width: width, height: 150)
+        case .topApps: TopAppsTile(env: tileEnv, width: width, height: 150)
+        case .batteries: BatteriesTile(env: tileEnv, width: width, height: 150)
+        default: EmptyView()
+        }
     }
 
     private var utilityRow: some View {

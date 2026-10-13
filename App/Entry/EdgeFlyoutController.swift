@@ -129,6 +129,8 @@ final class ControlCenterPanelController {
         return EdgeSide(rawValue: raw) ?? .right
     }
     var toggleOrder: () -> [QuickToggleID] = { QuickToggleID.defaultOrder }
+    /// Phase 16l: user widgets hosted in the panel (the six ported tiles, stored order).
+    var widgets: () -> [PinboardWidget] = { [] }
     /// Bottom-row actions (wired by `AppDelegate`).
     var onSettings: () -> Void = {}
     var onLauncher: () -> Void = {}
@@ -150,6 +152,7 @@ final class ControlCenterPanelController {
         self.panel = panel
         let hosting = NSHostingView(rootView: AnyView(ControlCenterView(
             engine: .shared, order: toggleOrder(),
+            widgetTiles: widgets().compactMap(\.controlCenterTile),
             onSettings: onSettings, onLauncher: onLauncher, onCapture: onCapture,
             onPinboard: onPinboard, onDrawer: onDrawer, onQuit: onQuit)))
         hosting.frame = CGRect(origin: .zero, size: size)

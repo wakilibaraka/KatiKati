@@ -1750,10 +1750,11 @@ extension DockStripView {
                 .contentShape(Rectangle())
                 .onTapGesture { runtime.onToggleLauncher?() }
         case .widgets:
-            PinboardFABGlyph(size: 28 * dockScale)
+            // Phase 16l: the right FAB opens the Control Center (the Pinboard retires in 16m).
+            SectionFABGlyph(systemName: "slider.horizontal.3")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
-                .onTapGesture { runtime.onTogglePinboard?() }
+                .onTapGesture { runtime.onToggleControlCenter?() }
         case .apps:
             EmptyView()
         }

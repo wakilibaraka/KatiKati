@@ -88,6 +88,23 @@ enum QuickToggleID: String, CaseIterable, Sendable {
     static func serialize(_ ids: [QuickToggleID]) -> String { ids.map(\.rawValue).joined(separator: ",") }
 }
 
+/// Phase 16l: the clock-pane tile for the six ported widgets; nil for everything that already
+/// lives in the pane (clock/calendar/weather/nowPlaying/countdown/system) or lives on as the
+/// Control Center grid (quickSettings). Deleted with the rest of the Pinboard in 16m.
+extension PinboardWidget {
+    var controlCenterTile: TileKind? {
+        switch self {
+        case .calculator: return .calculator
+        case .screenTime: return .screenTime
+        case .network: return .network
+        case .battery: return .battery
+        case .topApps: return .topApps
+        case .batteries: return .batteries
+        case .clock, .calendar, .weather, .nowPlaying, .countdown, .system, .quickSettings: return nil
+        }
+    }
+}
+
 /// Presentation of the Pinboard (Phase 7B): full-screen backdrop (default, like the launcher)
 /// or the floating draggable panel (Phase 7B-V1).
 /// Raw values are stored in `com.katikati.pinboard.style`; never rename them.

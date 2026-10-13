@@ -126,6 +126,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Phase 16g: the Control Center side panel (wifi deck button + the Quick Settings shortcut).
     private lazy var controlCenterPanel: ControlCenterPanelController = {
         let panel = ControlCenterPanelController()
+        panel.widgets = { [weak self] in self?.settingsStore.pinboardWidgets ?? PinboardWidget.defaultOrder }
         panel.onSettings = { [weak self] in self?.openSettings(nil) }
         panel.onLauncher = { [weak self] in self?.launcherPanel.toggle() }
         panel.onCapture = { ScreenshotCommand.run() }
@@ -307,12 +308,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 guard let self else { return }
                 switch action {
                 case .launcher: self.launcherPanel.toggle()
-                case .pinboard: self.pinboardPanel.toggle()
+                case .pinboard: self.controlCenterPanel.toggle()
                 case .quickSettings: self.controlCenterPanel.toggle()
                 case .drawer: self.panelCoordinator?.toggleDrawer()
                 case .notchTools: self.notchPanel.toggleTools()
-                case .weather: self.pinboardPanel.toggle(only: [.weather])
-                case .clock: self.pinboardPanel.toggle(only: [.clock])
+                case .weather: WidgetPanelController.weather.toggle()
+                case .clock: WidgetPanelController.calendar.toggle()
                 case .keepAwake:
                     let on = self.pinboardPanel.toggleKeepAwake()
                     self.shortcutToast.show(on ? String(localized: "Keep Awake On") : String(localized: "Keep Awake Off"),
@@ -799,6 +800,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         runtime.onToggleDrawer = { [weak coordinator] in coordinator?.toggleDrawer() }
         runtime.onToggleLauncher = { [weak self] in self?.launcherPanel.toggle() }
         runtime.onTogglePinboard = { [weak self] in self?.pinboardPanel.toggle() }
+        runtime.onToggleControlCenter = { [weak self] in self?.controlCenterPanel.toggle() }
         runtime.onToggleKeepAwake = { [weak self] in self?.pinboardPanel.toggleKeepAwake() ?? false }
         runtime.isKeepAwakeOn = { [weak self] in self?.pinboardPanel.isKeepAwakeOn ?? false }
         // Menu height slider ↔ every bar's grip-drag transaction. Weak: the orchestrator is
@@ -1107,6 +1109,7 @@ extension AppDelegate: PermissionEffectHandler {
         runtime.onToggleDrawer = nil
         runtime.onToggleLauncher = nil
         runtime.onTogglePinboard = nil
+        runtime.onToggleControlCenter = nil
         runtime.onToggleKeepAwake = nil
         runtime.isKeepAwakeOn = nil
         pinchSubscription?.cancel()

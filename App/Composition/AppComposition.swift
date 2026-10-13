@@ -92,6 +92,9 @@ final class AppRuntime: ObservableObject {
     var onToggleDrawer: (() -> Void)?
     var onToggleLauncher: (() -> Void)?
     var onTogglePinboard: (() -> Void)?
+    /// Phase 16l: the right-FAB (widgets section) opens the Control Center. `onTogglePinboard`
+    /// stays wired to the Pinboard panel until 16m deletes it.
+    var onToggleControlCenter: (() -> Void)?
     /// Toggles Keep Awake and returns the new state (wired by the app delegate; nil in tests).
     var onToggleKeepAwake: (() -> Bool)?
     var isKeepAwakeOn: (() -> Bool)?

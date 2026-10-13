@@ -2848,6 +2848,18 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
   at best), Low Power Mode (`SMAppService` root daemon + XPC — own slice with admin-approval UX), 16j
   (Settings side-picker, "Control Center" rename + ×12, live check, registry). **Owner eyeball:** True
    Tone + VPN tiles live.
+ - 2026-10-13 · **16l built — Pinboard triggers repointed to the Control Center + widget hosting; gate green.**
+   Right FAB (`.widgets` chip → `slider.horizontal.3` glyph via `onToggleControlCenter`) and the
+   `.pinboard` shortcut (same stored raw value, bindings preserved) now open the Control
+   Center; `.weather`/`.clock` shortcuts open their own widget panes
+   (`WidgetPanelController.weather/calendar`) instead of a Pinboard single-view. The panel
+   hosts user widgets: `ControlCenterView` renders the stored `pinboardWidgets` order mapped
+   through `PinboardWidget.controlCenterTile` (the six only) below the switch grid, in the
+   pane tile vocabulary. The switch grid already follows the user's toggle order (= presets);
+   wifi/Bluetooth tiles + battery/volume + VPN/TrueTone + Settings row complete the locked
+   CC scope. Pinboard stays reachable via the CC utility row until 16m deletes it.
+   **Verified:** 2,225 tests, 0 failures; localization ✅ (716 ×12);
+   debug switches ✅. **Owner eyeball:** CC widgets section live.
 
  - 2026-10-13 · **16k built — six Pinboard-only widgets ported as clock-pane tiles; gate green.**
    `TileKind` += calculator, screenTime, network, battery, topApps, batteries (accents ×4
