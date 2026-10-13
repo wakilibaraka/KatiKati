@@ -2307,7 +2307,8 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
 | 4 | **Phase 11** — Layout-mode rendering refinement | must precede 18 (axis abstraction built once) |
 | 5 | **Phase 18** — Strip placement bottom / left / right | after 11 |
 | 6 | **Phase 20c extras** (optional): window switcher → sleep layout restore → menu-bar system widget | owner picks |
-| 7 | **Phase 12** (merged 12/14/15/17) — Settings refinement + dead-code registry | last: audits the final feature set |
+| 7 | **Phases 21–26** — input guards, clipboard+, launcher superpowers, translate, notification control, tiling | new capabilities; each gated |
+| 8 | **Phase 12** (merged 12/14/15/17) — Settings refinement + dead-code registry | last: audits the final feature set |
 
 Phase 16 does not exist; Phase 19 is done. *(Superseded 2026-10-13: Phase 16 was later created — see the
 Phase 16 sections below; the sentence above referred to the retired §7w numbering and is kept for history.)*
@@ -3003,6 +3004,99 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
    True Tone / VPN `title` cases — the 16i-2 tree did not compile without them. **Verified:**
    2,224 tests, 0 failures; localization ✅ (716 ×12); debug switches ✅. **Owner eyeball:**
    the six tiles live in the iPad pane.
+
+### Phases 21–26 — System-utility suite (proposed, owner 2026-10-14; plan only, no code)
+
+Source: the owner's 2026-10-14 feature survey (clipboard/notch, launcher, keyboard pause, Cmd+Q
+delay, notification mover, dictionary/translation, image/PDF compression, Winfo, tiling) plus its
+architecture notes (one event tap with a priority pipeline, one AXObserver broadcast, thread
+isolation). De-duped against what KatiKati already ships — **about half the list exists** and those
+items become *extend* slices, not new builds. All references are eyeball-only study (§5 policy);
+NOTICE entries land if behavior is derived. Each phase needs its own owner sign-off + mini-plan +
+license check (Phase 7B gate precedent) before any code.
+
+**Already shipped — no new phase (polish only on request):**
+- Clipboard history (7A-P4: opt-in, memory-only, secret-type filter) — Phase 22 extends it.
+- Launcher (7B: Spotlight index, fuzzy search, usage ranking, quick actions, URL fallback) — Phase 23 extends it.
+- Window snapper (7A-P6: 15 AX zones) — Phase 26a extends it; Winfo needs are covered by hover
+  previews + the 20c switcher + jump lists.
+- Image/video compression + zip (Phase 19 shelf: ImageIO JPEG/HEIC, AVFoundation 720p, `ditto`) —
+  only PDF compress (Quartz filter) is missing → slice 22e.
+
+**Reference mining (study only, reimplement from behaviour; NOTICE per §5):**
+
+| Repo | License (checked 2026-10-14 unless noted) | Take |
+|---|---|---|
+| `p0deje/Maccy` | MIT ✓ verified | `changeCount` discipline, ignore-patterns, password-field caution |
+| `ospfranco/sol` | verify at activation | launcher actions, math answers, AppleScript/shortcut runner |
+| `miladsafarzadeh1/PawPause-mac` | verify existence + license at activation | pause-toggle pattern only |
+| `dteoh/SlowQuitApps` | GPL-2.0-or-later ✓ verified (compatible) | hold-to-quit + overlay + whitelist/blacklist pattern |
+| `NotWadeGrimridge/PingPlace` | GPL-3.0 ✓ verified | AX reposition, 8 positions; KNOWN LIMIT: only the first notification of a burst moves (upstream issue); upstream needs macOS 26.4.1+ |
+| `tisfeng/Easydict` | GPL-3.0 ✓ verified | selection/translate flow, Apple Dictionary + Apple Translate offline paths; NO online services (no API keys in KatiKati) |
+| `keycastr/keycastr` | verify at activation | overlay visualizer pattern |
+| `nikitabobko/AeroSpace` | MIT ✓ verified | tree/BSP math, AXObserver discipline |
+| `ianyh/Amethyst` | verify at activation | layout presets |
+
+**Architecture rules (binding on all six phases; extend existing disciplines, don't invent new ones):**
+1. **One keyboard tap.** The Hyperkey precedent (9e) governs: key-events-only `CGEventTap` on its own
+   thread, O(1) callback, exists only while a feature is on, off by default. Priority pipeline in one
+   place: Pause → SlowQuit → Hyperkey/bindings → pass to OS. The no-resident-*mouse*-monitor rule
+   stands untouched.
+2. **One AXObserver broadcast.** A single observer for windowCreated/Moved/Focused rebroadcasts
+   internally to the taskbar/Winfo paths and the tiling engine — no per-feature observers.
+3. **Thread isolation + lazy managers.** TWM math on a background actor; only the final
+   `AXUIElementSetAttributeValue` runs on main. Every feature is a lazy toggleable manager (§1.7e):
+   nothing runs, polls, or observes until its setting is on. No new third-party dependencies; macOS
+   12 floor holds (`Translation` framework is macOS 15+ → `#available`-gated or skipped; Easydict
+   itself needs 13+).
+
+#### Phase 21 — Input guards (pause + hold-to-quit + optional key visualizer)
+
+- **21a keyboard pause** (PawPause pattern): manual toggle that swallows all keyDown until the unlock
+  chord. Needs Input Monitoring (new surface — Hyperkey request-with-explanation precedent).
+- **21b SlowQuit** (SlowQuitApps pattern, GPL-2.0-or-later ✓): hold ⌘Q ~1 s with a center-screen
+  progress overlay; release early cancels; app whitelist/blacklist (`com.katikati.slowquit.*`).
+- **21c key visualizer** (keycastr pattern, owner override required): floating overlay of live
+  keystrokes. Privacy posture follows the clipboard-bar decision — never logs, and needs an explicit
+  owner override to build at all (it displays secrets as typed).
+- Slices share the one tap + pipeline (pure `KeyGuardPipeline` decision + tests first). Settings zone
+  + onboarding permission step. Verify: tap latency + idle CPU + no swallowed keys when off.
+
+#### Phase 22 — Clipboard+ and drawer PDF output
+
+- Extends 7A-P4 (history stays opt-in, memory-only unless the owner re-decides): **copy/paste sounds**
+  (`NSSound`, default off — the bar's only sounds today are error beeps), **notch toast on copy**
+  (top-center drop-down on `changeCount`, Reduce-Motion-safe), **ignore-patterns** (Maccy discipline),
+  optional paste-as-plain-text action.
+- **22e PDF reduce** (Phase 19 follow-up, same shelf tray + no-TCC posture): `PDFDocument` +
+  Quartz "Reduce File Size" filter; shares the shelf result-lands-back flow.
+- Verify: no recording while off (idle CPU flat), secret types never toast.
+
+#### Phase 23 — Launcher superpowers (extends 7B)
+
+- Sol study: **math quick-answers** (reuse `CalculatorEngine`, proven in the L5 tile), **AppleScript /
+  shortcut runner** action, file-action parity over the existing Spotlight path. No React Native, no
+  new index (the 7B index stays the source of truth). Verify: answer latency, no new TCC surface.
+
+#### Phase 24 — Translate & Define (Easydict study, GPL-3.0 ✓)
+
+- Selected-text / hover translation, **offline first**: `NaturalLanguage`/`NLTagger` on the 12 floor,
+  `Translation` framework behind `#available(macOS 15, *)`; `DCSCopyTextDefinition` dictionary card
+  in a KatiKati popover. Online services explicitly OUT (no keys). No new permission (existing AX
+  selection reads). Verify: offline path with no network.
+
+#### Phase 25 — Notification relocation (PingPlace study, GPL-3.0 ✓) — approve with caution
+
+- AX position override for Notification Center banners, position presets, fail-closed capability probe
+  (absent/hacked UI → feature hides itself), default OFF. Recorded limits: burst-stacking (only the
+  first moves), breaks per macOS (private UI). Recommend parking unless the owner explicitly wants it.
+
+#### Phase 26 — Tiling (AeroSpace MIT ✓ / Amethyst verify)
+
+- **26a (small, recommended):** hotkey-driven halves/thirds/quarters on the existing 7A-P6 snapper.
+- **26b (big, own mini-plan):** BSP auto-tile engine on a background actor behind a master toggle,
+  fed by the single AXObserver broadcast; layouts as pure tested math; fights nothing (no code
+  injection, unlike yabai). Verify: AX-traffic budget + idle CPU + instant-off restores frames.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
