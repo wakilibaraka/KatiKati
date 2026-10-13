@@ -273,6 +273,30 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherScrollDirection, .horizontal)
     }
 
+    @MainActor
+    func testControlCenterTogglesDefaultAllAndPersist() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.controlCenterToggles, QuickToggleID.defaultOrder)
+        store.setControlCenterToggle(.wifi, enabled: false)
+        XCTAssertFalse(AppSettingsStore(defaults: defaults).controlCenterToggles.contains(.wifi))
+        store.setControlCenterToggle(.wifi, enabled: true)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).controlCenterToggles, QuickToggleID.defaultOrder)
+    }
+
+    @MainActor
+    func testControlCenterWidgetsDefaultSixAndTolerateGarbage() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.controlCenterWidgets, TileKind.controlCenterDefault)
+        store.setControlCenterWidget(.battery, enabled: false)
+        XCTAssertFalse(AppSettingsStore(defaults: defaults).controlCenterWidgets.contains(.battery))
+        defaults.set("battery,bogus,battery", forKey: "com.katikati.controlcenter.widgets")
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).controlCenterWidgets, [.battery])
+        XCTAssertEqual(TileKind.parse(nil), TileKind.controlCenterDefault)
+        XCTAssertEqual(TileKind.parse(""), [])
+    }
+
     func testDeckSettingsDefaultsClampAndPersist() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)

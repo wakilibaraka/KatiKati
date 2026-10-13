@@ -29,7 +29,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     }
 }
 
-/// A key chord on Space. Four alternatives per the owner's brief, plus ⌃⌥Space (Pinboard's default).
+/// A key chord on Space. Four alternatives per the owner's brief, plus ⌃⌥Space (the Control Center default).
 enum ShortcutChord: String, CaseIterable, Sendable {
     case optionSpace, controlSpace, optionShiftSpace, controlShiftSpace, controlOptionSpace
 

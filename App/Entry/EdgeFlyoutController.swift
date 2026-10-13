@@ -129,8 +129,8 @@ final class ControlCenterPanelController {
         return EdgeSide(rawValue: raw) ?? .right
     }
     var toggleOrder: () -> [QuickToggleID] = { QuickToggleID.defaultOrder }
-    /// Phase 16m: user widgets hosted in the panel (the six ported tiles, all on).
-    var widgets: () -> [TileKind] = { [.calculator, .screenTime, .network, .battery, .topApps, .batteries] }
+    /// Phase 16n: user widgets hosted in the panel (stored order; Settings edits it).
+    var widgets: () -> [TileKind] = { TileKind.controlCenterDefault }
     /// Bottom-row actions (wired by `AppDelegate`).
     var onSettings: () -> Void = {}
     var onLauncher: () -> Void = {}

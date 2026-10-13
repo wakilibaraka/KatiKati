@@ -226,6 +226,9 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var launcherTheme: LauncherTheme
     @Published private(set) var launcherTint: LauncherTint
     @Published private(set) var launcherIcon: LauncherIconStyle
+    /// Phase 16n: which switches and widgets the Control Center shows (user presets).
+    @Published private(set) var controlCenterToggles: [QuickToggleID]
+    @Published private(set) var controlCenterWidgets: [TileKind]
     @Published private(set) var shortcutBindings: [ShortcutAction: ShortcutTrigger]
     @Published private(set) var launcherSearchPosition: LauncherSearchPosition
     @Published private(set) var deckKeepOpen: Bool
@@ -350,6 +353,8 @@ final class AppSettingsStore: ObservableObject {
             Keys.launcherTheme: LauncherTheme.default.rawValue,
             Keys.launcherTint: LauncherTint.default.rawValue,
             Keys.launcherIcon: LauncherIconStyle.default.rawValue,
+            Keys.controlCenterToggles: QuickToggleID.serialize(QuickToggleID.defaultOrder),
+            Keys.controlCenterWidgets: TileKind.serialize(TileKind.controlCenterDefault),
             Keys.launcherSearchPosition: LauncherSearchPosition.default.rawValue,
             Keys.deckKeepOpen: false,
             Keys.deckOpenOnHover: false,
@@ -415,6 +420,8 @@ final class AppSettingsStore: ObservableObject {
         deckScaleRight = DeckSettingsRules.clampedScale(Self.storedNumericValue(defaults.object(forKey: Keys.deckScaleRight)) ?? legacyScale)
         deckMagnify = defaults.bool(forKey: Keys.deckMagnify)
         launcherSearchPosition = LauncherSearchPosition.parse(defaults.string(forKey: Keys.launcherSearchPosition))
+        controlCenterToggles = QuickToggleID.parse(defaults.string(forKey: Keys.controlCenterToggles))
+        controlCenterWidgets = TileKind.parse(defaults.string(forKey: Keys.controlCenterWidgets))
         shortcutBindings = Dictionary(uniqueKeysWithValues: ShortcutAction.allCases.map {
             ($0, ShortcutTrigger.parse(defaults.string(forKey: Keys.shortcut($0))) ?? $0.defaultTrigger)
         })
@@ -646,6 +653,27 @@ final class AppSettingsStore: ObservableObject {
         guard launcherSearchPosition != value else { return }
         launcherSearchPosition = value
         defaults.set(value.rawValue, forKey: Keys.launcherSearchPosition)
+    }
+
+    func setControlCenterToggle(_ id: QuickToggleID, enabled: Bool) {
+        var next = controlCenterToggles.filter { $0 != id }
+        if enabled {
+            // Keep catalog order so toggling never reshuffles the grid.
+            next = QuickToggleID.defaultOrder.filter { $0 == id || next.contains($0) }
+        }
+        guard next != controlCenterToggles else { return }
+        controlCenterToggles = next
+        defaults.set(QuickToggleID.serialize(next), forKey: Keys.controlCenterToggles)
+    }
+
+    func setControlCenterWidget(_ kind: TileKind, enabled: Bool) {
+        var next = controlCenterWidgets.filter { $0 != kind }
+        if enabled {
+            next = TileKind.controlCenterDefault.filter { $0 == kind || next.contains($0) }
+        }
+        guard next != controlCenterWidgets else { return }
+        controlCenterWidgets = next
+        defaults.set(TileKind.serialize(next), forKey: Keys.controlCenterWidgets)
     }
 
     func setShortcut(_ action: ShortcutAction, _ trigger: ShortcutTrigger) {
@@ -1426,6 +1454,8 @@ private enum Keys {
     static let launcherTheme = "com.katikati.launcher.theme"
     static let launcherTint = "com.katikati.launcher.tint"
     static let launcherIcon = "com.katikati.launcher.icon"
+    static let controlCenterToggles = "com.katikati.controlcenter.toggles"
+    static let controlCenterWidgets = "com.katikati.controlcenter.widgets"
     static func shortcut(_ action: ShortcutAction) -> String { "com.katikati.shortcut.\(action.rawValue)" }
     static let launcherSearchPosition = "com.katikati.launcher.searchPosition"
     static let deckKeepOpen = "com.katikati.edge.alwaysShown"

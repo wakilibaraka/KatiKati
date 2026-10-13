@@ -13,25 +13,30 @@ All notable changes to KatiKati are documented in this file.
 - **Clock/date as presets (16c):** the clock tile gains a **Date** preset and shows the date under the
   time; the separate date tile was absorbed, so clock and date are no longer duplicated.
 - **Wi-Fi becomes Quick Settings (16d):** the deck's wifi button opens a control-panel UI of one-tap
-  system switches (Dark Mode, Keep Awake, Wi-Fi, Bluetooth and the rest), shared with the Pinboard.
+  system switches (Dark Mode, Keep Awake, Wi-Fi, Bluetooth and the rest), shared with the Control Center.
 - **Glass tiles (16f):** the pane tiles are solid by default; a Settings switch ("Glass") draws them on
   blur instead.
 - **Control Center layout (16h):** the side panel now shows an iPad-style arrangement — a Wi-Fi/Bluetooth
   connectivity cluster (Wi-Fi shows the network name), a volume slider, a now-playing card with
-  transport, the one-tap switch grid, and a bottom row (Settings, Launcher, Capture, Pinboard, Drawer,
+  transport, the one-tap switch grid, and a bottom row (Settings, Launcher, Capture, Drawer,
   Quit).
 - **Brightness & keyboard light (16i):** the Control Center gains a display-brightness slider and a
   keyboard-backlight slider. Both use the private display/keyboard brightness APIs and simply stay hidden
   on Macs where those APIs are unavailable.
 - **True Tone & VPN toggles (16i):** two new one-tap switches (True Tone, and Network-configured VPNs)
-  appear in the Control Center, the Pinboard card and Settings. VPN toggling covers Network-configured
+  appear in the Control Center grid and Settings. VPN toggling covers Network-configured
   VPN services only.
 
 ### Changed
 - **Control Center panel (16g):** the Quick Settings shortcut and the deck's wifi button now open a side
   panel that hugs the screen edge next to the dock (default right) instead of the full-screen Pinboard.
-  It steps clear of a dock rail on the same edge and closes on Esc or a click outside. The full-screen
-  Pinboard keeps its Quick Settings card.
+  It steps clear of a dock rail on the same edge and closes on Esc or a click outside.
+- **Pinboard retired (16k–16n):** the six Pinboard-only widgets (Calculator, Screen Time, Network,
+  Battery, Top Apps, Batteries) moved into the widget pane; the right-FAB, `⌃⌥Space` and
+  weather/clock shortcuts now open the Control Center and the weather/calendar panes; the wall,
+  its panel, catalog, `com.katikati.pinboard.*` keys and strings are deleted (registry:
+  `Docs/Repository/pinboard-retirement.md`). The Control Center gains a Settings section (side,
+  widget picks, switch picks) and hosts the six tiles; keep-awake runs off the shared toggle engine.
 
 ## [Unreleased] — Phase 8 in progress
 

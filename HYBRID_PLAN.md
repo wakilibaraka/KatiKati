@@ -2875,8 +2875,24 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
    10 refs, 12 phase lines), +7 (3 refs, 4 build files, 4 phase lines), fresh `EE…0048–004E` IDs,
    `plutil` OK. Deliberately kept: `ShortcutAction.pinboard` (frozen raw value — stored bindings
    survive; fires the Control Center; label renamed in 16n), the `Platform/Pinboard/` directory
-   name (engine + pinch monitor live there), docs/README (16n). **Verified:** 2,213 tests,
-   0 failures; localization ✅ (709 ×12); debug switches ✅.
+    name (engine + pinch monitor live there), docs/README (16n). **Verified:** 2,213 tests,
+    0 failures; localization ✅ (709 ×12); debug switches ✅.
+  - 2026-10-13 · **16n built — settings/strings/registry + live check (folds in 16j); gate green.**
+    Settings › Layout gains a **Control Center** section (Side picker for
+    `com.katikati.controlcenter.side`, widget picks for the six, switch picks for the 14) backed by
+    new store keys `com.katikati.controlcenter.toggles/widgets` (`TileKind.parse/serialize` by case
+    name in Core + tests; controller reads the store at each open). The `.pinboard` shortcut is now
+    labeled **Control Center** (same frozen raw value). Strings: +`Control Center` +`Side` ×12
+    (agent drafts — speaker pass in `Docs/translation-review-phase16.csv`), −`Pinboard` (orphaned by
+    the rename); 710 ×12 green. Registry: `Docs/Repository/pinboard-retirement.md` (first entry);
+    `WIDGET_INVENTORY.md` §6 marked retired (+§7/§8); CHANGELOG Unreleased-16 entries fixed to the
+    present + 16k–16n notes; README en/zh Pinboard section → Control Center (+14 switches, VPN/True
+    Tone caveats), dead `pinboard.png` asset deleted. **Live check (bypass build):** launch → strip
+    composite active, 0 errors; idle 0.6% CPU (10 s sample, zero Pinboard frames); relaunch with
+    `side=left`, `widgets=battery,network,bogus`, `toggles=wifi,vpn` → alive, 0 errors (bogus
+    dropped); osascript quit clean; test prefs removed. **Not verified live (owner eyeball):** the CC
+    panel on screen, the six tiles rendering, the Settings section interaction, Esc/outside
+    dismissal. **Verified:** 2,216 tests, 0 failures; localization ✅ (710 ×12); debug switches ✅.
 
  - 2026-10-13 · **16k built — six Pinboard-only widgets ported as clock-pane tiles; gate green.**
    `TileKind` += calculator, screenTime, network, battery, topApps, batteries (accents ×4

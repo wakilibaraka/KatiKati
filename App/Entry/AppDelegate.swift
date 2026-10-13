@@ -112,6 +112,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Phase 16g: the Control Center side panel (wifi deck button + the Quick Settings shortcut).
     private lazy var controlCenterPanel: ControlCenterPanelController = {
         let panel = ControlCenterPanelController()
+        panel.widgets = { [weak self] in self?.settingsStore.controlCenterWidgets ?? TileKind.controlCenterDefault }
+        panel.toggleOrder = { [weak self] in self?.settingsStore.controlCenterToggles ?? QuickToggleID.defaultOrder }
         panel.onSettings = { [weak self] in self?.openSettings(nil) }
         panel.onLauncher = { [weak self] in self?.launcherPanel.toggle() }
         panel.onCapture = { ScreenshotCommand.run() }

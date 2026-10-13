@@ -4,7 +4,7 @@
 
 # KatiKati
 
-**A per-window taskbar for macOS, with an app launcher, a widget Pinboard and quick settings.**
+**A per-window taskbar for macOS, with an app launcher, widgets and quick settings.**
 
 *katikati* is Swahili for "right in the middle".
 
@@ -16,7 +16,7 @@ English · [中文](README.zh-CN.md)
 
 ---
 
-<img src="assets/screenshots/bar.png" alt="The KatiKati bar: launcher button, weather, apps, now playing, clock and Pinboard button" width="100%" />
+<img src="assets/screenshots/bar.png" alt="The KatiKati bar: launcher button, weather, apps, now playing, clock and Control Center button" width="100%" />
 
 > **Beta.** Version 0.17.0 beta 2 is unsigned and not notarized. See [Install](#install). Several new screens were not yet exercised on a real
 > trackpad or across displays, and all new translations are drafts awaiting review. Expect rough edges.
@@ -62,18 +62,16 @@ KatiKati is a fork of [Tungsten Edge](https://github.com/moonbai-studio/tungsten
 - **Open it your way.** The left button on the bar, `⌥Space`, or a four-finger pinch on the trackpad (off by default; see [Shortcuts](#shortcuts-and-gestures)).
 - **Themes.** System, Light, Dark, Glass or your desktop picture, with an optional colour tint and three icon styles.
 
-### Pinboard and Quick Settings
+### Control Center
 
-<img src="assets/screenshots/pinboard.png" alt="The Pinboard: coloured widget cards and the Quick Settings grid" width="100%" />
+The Control Center is a side panel (left or right, your choice in Settings), opened from the button at the right end of the bar or with `⌃⌥Space`.
+It holds the Quick Settings switches, your widgets, and the connectivity controls.
 
-The Pinboard is a page of glanceable cards, opened from the button at the right end of the bar or with `⌃⌥Space`. It runs as a full-screen
-wall (default) or as a floating panel, and you choose which cards appear.
-
-- **Cards:** Clock, Calendar, Weather, Now Playing, Calculator, Countdown, Screen Time (opt-in), System (CPU, memory, disk), Network, Battery with
-  health and cycles, Top Apps, Batteries (your Mac and connected Bluetooth devices) and Quick Settings.
-- **Quick Settings** has 12 switches: Dark Mode, Keep Awake, Hide Desktop, Hidden Files, Dock Auto-hide, Path Bar, Mute Mic, Empty Trash (asks first),
-  Eject Disks, Wi-Fi, Bluetooth and Night Shift. Bluetooth and Night Shift rely on system interfaces that macOS does not document, so they can stop
-  working after a macOS update; they fail quietly.
+- **Widgets:** Calculator, Screen Time (opt-in), Network, Battery with
+  health and cycles, Top Apps, Batteries (your Mac and connected Bluetooth devices). The same tiles also live in the widget pane.
+- **Quick Settings** has 14 switches: Dark Mode, Keep Awake, Hide Desktop, Hidden Files, Dock Auto-hide, Path Bar, Mute Mic, Empty Trash (asks first),
+  Eject Disks, Wi-Fi, Bluetooth, Night Shift, True Tone and VPN. Bluetooth, Night Shift and True Tone rely on system interfaces that macOS does not document, so they can stop
+  working after a macOS update; they fail quietly. VPN covers Network-configured VPN services only.
 - iPad, Apple Watch and iPhone batteries are not shown: macOS does not expose them to a Mac.
 
 ### Shortcuts and gestures
@@ -81,7 +79,7 @@ wall (default) or as a floating panel, and you choose which cards appear.
 | Action | Default | Alternatives |
 |---|---|---|
 | Open the launcher | `⌥Space` | `⌃Space`, `⌥⇧Space`, `⌃⇧Space`, `⌃⌥Space`, or double-tap `⌘`, `⌃` or `⌥` |
-| Open the Pinboard | `⌃⌥Space` | same list |
+| Open the Control Center | `⌃⌥Space` | same list |
 | Quick Settings only | off | same list |
 | Keep Awake on/off | off | same list (shows a short toast) |
 | Show or hide the bar | `⌥⇧⌘D` | rebind in Settings > General |
@@ -93,7 +91,7 @@ Trackpad > More Gestures before using it. `⌃Space` may also clash with the mac
 
 ### Works without Accessibility
 
-KatiKati starts even before you grant Accessibility. In this *limited mode* the bar, edge decks, launcher, Pinboard and shortcuts work; what needs
+KatiKati starts even before you grant Accessibility. In this *limited mode* the bar, edge decks, launcher, Control Center and shortcuts work; what needs
 Accessibility is reading and managing other apps' windows (the per-window cards). The status menu shows **Grant Accessibility for Full
 Functionality...**; when you grant it, KatiKati relaunches itself into full mode.
 
@@ -140,7 +138,7 @@ The **Settings window** has five tabs:
 
 - **General:** language, appearance (System, Light, Dark), the show/hide shortcut, widget layout and colours, clock style, units, weather options,
   Now Playing theme, drawer position, reverse mouse scroll direction, and the setup guide.
-- **Layout:** layout mode and sizes, bottom edge, **Widgets** (reorder, hide, Small/Medium/Large, presets, Smart Stack, schedule-based presets; right-click any widget on the bar for the same controls and *Edit Widgets*), edge decks, and the Launcher, Pinboard and Shortcuts sections.
+- **Layout:** layout mode and sizes, bottom edge, **Widgets** (reorder, hide, Small/Medium/Large, presets, Smart Stack, schedule-based presets; right-click any widget on the bar for the same controls and *Edit Widgets*), edge decks, and the Launcher, Control Center and Shortcuts sections.
 - **Appearance:** the bar's theme (Auto, Translucent, Crystal Clear, Obsidian Dark, Aurora Glow, Deep Ocean and more), icon set, custom tint and opacity, and an optional **Dynamic Wallpaper** that follows the sun and the weather (it saves your wallpaper first and puts it back when you turn it off or quit).
 - **Advanced:** predicting full-screen transitions.
 - **About:** version, check for updates, and **Diagnostic Info** (copies app, system and display details to paste into a GitHub issue).
@@ -206,7 +204,7 @@ python3 Scripts/check_debug_switches.py   # every DOCK_* environment switch is r
 | Folder | What lives there | Rule of thumb |
 |---|---|---|
 | `Core/` | Pure decisions: window identity, placement, layout packing, shortcuts, launcher ordering, pinch detection | No AppKit, no Accessibility. If behaviour can be a pure function of facts, it goes here with a unit test. |
-| `Platform/` | System adapters: Accessibility, CoreGraphics window lists, event taps, the launcher indexer, Pinboard readers and the quick-toggle engine | Talks to macOS and hands facts up to Core. |
+| `Platform/` | System adapters: Accessibility, CoreGraphics window lists, event taps, the launcher indexer, system-health readers and the quick-toggle engine | Talks to macOS and hands facts up to Core. |
 | `App/` | Composition and UI: `AppDelegate`, the panel controllers, SwiftUI scenes, and the `…Store` classes that persist settings in `UserDefaults` | Large types are split into `Type+Topic.swift` extensions. |
 | `Tools/WindowLab/` | A replay CLI for window-identity scenarios | Not part of the shipping app. |
 

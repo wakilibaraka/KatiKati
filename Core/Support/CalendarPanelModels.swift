@@ -242,6 +242,24 @@ extension CalendarPanelLayout {
 
 enum TileKind: CaseIterable { case date, clock, focus, calendar, agenda, reminders, alarms, timer, stopwatch, notes, countdown, weather, system, bluetooth, nowPlaying, calculator, screenTime, network, battery, topApps, batteries }
 
+extension TileKind {
+    /// Phase 16n: the Control Center's user widgets (the six ported tiles). Stored by case name;
+    /// unknown names are dropped, duplicates collapse; nil of a never-written key gives the default.
+    static let controlCenterDefault: [TileKind] = [.calculator, .screenTime, .network, .battery, .topApps, .batteries]
+
+    static func parse(_ raw: String?) -> [TileKind] {
+        guard let raw else { return controlCenterDefault }
+        var seen = Set<String>()
+        return raw.split(separator: ",").compactMap { part -> TileKind? in
+            let name = part.trimmingCharacters(in: .whitespaces)
+            guard !name.isEmpty, seen.insert(name).inserted else { return nil }
+            return TileKind.allCases.first { "\($0)" == name }
+        }
+    }
+
+    static func serialize(_ tiles: [TileKind]) -> String { tiles.map { "\($0)" }.joined(separator: ",") }
+}
+
 public struct TileRGB: Equatable, Sendable { public let r: Double; public let g: Double; public let b: Double
     public init(r: Double, g: Double, b: Double) { self.r = r; self.g = g; self.b = b } }
 

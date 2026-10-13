@@ -132,4 +132,12 @@ final class CalendarPanelModelsTests: XCTestCase {
             }
         }
     }
+
+    // MARK: Control Center widget order (Phase 16n)
+    func testControlCenterWidgetParseRoundTripsAndDropsUnknown() {
+        XCTAssertEqual(TileKind.parse(nil), TileKind.controlCenterDefault)
+        XCTAssertEqual(TileKind.parse(""), [])
+        XCTAssertEqual(TileKind.parse("battery,bogus,battery,network"), [.battery, .network])
+        XCTAssertEqual(TileKind.parse(TileKind.serialize([.topApps, .calculator])), [.topApps, .calculator])
+    }
 }

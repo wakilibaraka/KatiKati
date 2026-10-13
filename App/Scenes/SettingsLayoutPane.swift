@@ -271,6 +271,10 @@ struct SettingsLayoutPane: View {
     @State private var newPresetName = ""
     /// Fine-tune starts collapsed: styles + Size/Spacing cover the common choices (Phase 11f).
     @State private var showsFineTune = false
+    /// Control Center edge; the panel reads it at each open (Phase 16n). The literal duplicates
+    /// `ControlCenterPanelController.sideKey` — that file is app-target-only, and this pane also
+    /// compiles into the test target.
+    @AppStorage("com.katikati.controlcenter.side") private var controlCenterSideRaw = EdgeSide.right.rawValue
 
     /// Width styles are fitted to: the screen the dock is on (main until it reports).
     private var dockScreenWidth: CGFloat { NSScreen.main?.frame.width ?? LayoutThumbnailModel.referenceScreen.width }
@@ -706,6 +710,35 @@ struct SettingsLayoutPane: View {
             }
 
             section {
+                Text("Control Center")
+            } content: {
+                HStack {
+                    Text("Side")
+                    Spacer(minLength: 12)
+                    Picker("Side", selection: Binding(
+                        get: { EdgeSide(rawValue: controlCenterSideRaw) ?? .right },
+                        set: { controlCenterSideRaw = $0.rawValue }
+                    )) {
+                        Text("Left").tag(EdgeSide.left)
+                        Text("Right").tag(EdgeSide.right)
+                    }
+                    .labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
+                Text("Widgets").font(.subheadline).padding(.top, 6)
+                ForEach(TileKind.controlCenterDefault, id: \.self) { kind in
+                    Toggle(isOn: Binding(get: { store.controlCenterWidgets.contains(kind) }, set: { store.setControlCenterWidget(kind, enabled: $0) })) {
+                        controlCenterWidgetTitle(kind)
+                    }
+                }
+                Text("Quick Settings").font(.subheadline).padding(.top, 6)
+                ForEach(QuickToggleID.defaultOrder, id: \.self) { id in
+                    Toggle(isOn: Binding(get: { store.controlCenterToggles.contains(id) }, set: { store.setControlCenterToggle(id, enabled: $0) })) {
+                        id.title
+                    }
+                }
+            }
+
+            section {
                 Text("Shortcuts")
             } content: {
                 let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
@@ -775,10 +808,22 @@ struct SettingsLayoutPane: View {
         }
     }
 
+    private func controlCenterWidgetTitle(_ kind: TileKind) -> Text {
+        switch kind {
+        case .calculator: return Text("Calculator")
+        case .screenTime: return Text("Screen Time")
+        case .network: return Text("Network")
+        case .battery: return Text("Battery")
+        case .topApps: return Text("Top Apps")
+        case .batteries: return Text("Batteries")
+        default: return Text(verbatim: "\(kind)")
+        }
+    }
+
     private func shortcutActionTitle(_ action: ShortcutAction) -> Text {
         switch action {
         case .launcher: return Text("Launcher")
-        case .pinboard: return Text("Pinboard")
+        case .pinboard: return Text("Control Center")
         case .quickSettings: return Text("Quick Settings")
         case .keepAwake: return Text("Keep Awake")
         case .drawer: return Text("Drawer")
