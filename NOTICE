@@ -69,3 +69,21 @@ This project is derived from and incorporates code from the following works:
   (geometry, view, controller, event routing) is KatiKati's own adapter code; boring.notch's other
   sources need packages KatiKati does not use and were studied only. `Scripts/sync_boring_notch.sh`
   reports upstream drift and refreshes the vendored files.
+
+## 12. OnlySwitch (Phase 16i — technique studied, code re-derived)
+- Repository: https://github.com/jacklandrin/OnlySwitch
+- Copyright (C) 2021 jack
+- License: MIT License
+- Description: The private-API technique for built-in display brightness (`DisplayServicesGet/SetBrightness`)
+  and keyboard backlight (`KeyboardBrightnessClient` in CoreBrightness) was studied and re-implemented from
+  scratch via `dlopen`/`dlsym` and the ObjC runtime in `Platform/Pinboard/QuickToggleEngine.swift`
+  (`DisplayServicesBrightness`, `KeyboardBacklight`). No OnlySwitch source is copied. Also referenced for the
+  Control Center capabilities map (Night Shift, True Tone, Low Power Mode, VPN) in HYBRID_PLAN.md §Phase 16.
+
+## 13. Status Trio (Phase 16i — behavior studied, code re-derived)
+- Repository: https://github.com/lingyired/status-trio
+- Copyright 2026 lingyired
+- License: Apache License 2.0
+- Description: Reference for the Control Center's system-status reads and the privileged-helper pattern
+  (Wi-Fi/Bluetooth/volume/battery, VPN status via SystemConfiguration, Low Power Mode via SMAppService + XPC,
+  subprocess `ReadWatchdog` discipline). No Status Trio source is copied.

@@ -20,6 +20,9 @@ All notable changes to KatiKati are documented in this file.
   connectivity cluster (Wi-Fi shows the network name), a volume slider, a now-playing card with
   transport, the one-tap switch grid, and a bottom row (Settings, Launcher, Capture, Pinboard, Drawer,
   Quit).
+- **Brightness & keyboard light (16i):** the Control Center gains a display-brightness slider and a
+  keyboard-backlight slider. Both use the private display/keyboard brightness APIs and simply stay hidden
+  on Macs where those APIs are unavailable.
 
 ### Changed
 - **Control Center panel (16g):** the Quick Settings shortcut and the deck's wifi button now open a side

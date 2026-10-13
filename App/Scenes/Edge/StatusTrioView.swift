@@ -182,6 +182,9 @@ struct ControlCenterView: View {
     @StateObject private var status = SystemStatusService()
     @StateObject private var nowPlaying = NowPlayingService()
     @State private var confirming: QuickToggleID?
+    /// Phase 16i: read once on appear; nil when the private API is unavailable (slider hidden).
+    @State private var brightness: Double? = DisplayServicesBrightness.current()
+    @State private var keyLight: Double? = KeyboardBacklight.isAvailable ? KeyboardBacklight.current() : nil
 
     var onSettings: () -> Void = {}
     var onLauncher: () -> Void = {}
@@ -200,6 +203,12 @@ struct ControlCenterView: View {
                 ForEach(connectivity, id: \.self) { id in tile(id) }
             }
             volumeRow
+            if let brightness {
+                slider(icon: "sun.max.fill", value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayServicesBrightness.set($0) }))
+            }
+            if let keyLight {
+                slider(icon: "keyboard", value: Binding(get: { keyLight }, set: { self.keyLight = $0; KeyboardBacklight.set($0) }))
+            }
             nowPlayingCard
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 12) {
@@ -243,10 +252,15 @@ struct ControlCenterView: View {
 
     private var volumeRow: some View {
         let v = status.status.volume
-        return HStack(spacing: 10) {
-            Image(systemName: v.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill").font(.system(size: 14)).frame(width: 22)
-            Slider(value: Binding(get: { Double(v.level) }, set: { _ = status.setVolume(Float($0)) }), in: 0...1)
-            Text(verbatim: "\(Int((v.level * 100).rounded()))").font(.system(size: 12)).monospacedDigit()
+        return slider(icon: v.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill",
+                      value: Binding(get: { Double(v.level) }, set: { _ = status.setVolume(Float($0)) }))
+    }
+
+    private func slider(icon: String, value: Binding<Double>) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon).font(.system(size: 14)).frame(width: 22)
+            Slider(value: value, in: 0...1)
+            Text(verbatim: "\(Int((value.wrappedValue * 100).rounded()))").font(.system(size: 12)).monospacedDigit()
                 .foregroundStyle(.secondary).frame(width: 28, alignment: .trailing)
         }
         .padding(12)

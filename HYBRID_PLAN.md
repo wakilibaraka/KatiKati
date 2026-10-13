@@ -2816,6 +2816,21 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
   AirDrop/AirPlay tiles, Focus/DND, keyboard backlight, VPN, Low Power Mode. **Owner eyeball:** live look
   of the layout, the connectivity tiles, volume slider, now-playing card and utility row.
 
+- 2026-10-13 · **16i-1 built — brightness + keyboard backlight (first gated capability slice); gate green.**
+  Two fail-closed private-API wrappers added to `Platform/Pinboard/QuickToggleEngine.swift`:
+  `DisplayServicesBrightness` (built-in panel via `DisplayServicesGet/SetBrightness`, `dlopen`/`dlsym` so no
+  private framework is linked at build time) and `KeyboardBacklight` (CoreBrightness
+  `KeyboardBrightnessClient` via the ObjC runtime, same technique as the Night Shift client). Both return
+  nil / no-op when the symbols are gone, so the Control Center hides the corresponding slider on machines
+  where the API is missing. `ControlCenterView` gained a Display slider (sun icon) and a keyboard-backlight
+  slider (keyboard icon) under the volume row, via a shared `slider(icon:value:)` helper — **icons only, no
+  new strings**. NOTICE entries 12 (OnlySwitch, MIT) and 13 (Status Trio, Apache-2.0) added for the studied
+  techniques (no code copied; both reimplemented fresh). **Verified:** 2,223 tests, 0 failures; localization
+  ✅ (714 ×12); debug switches ✅. **Owner eyeball:** the two sliders live (private-API availability on this
+  Mac). **Remaining 16i sub-slices (each gated):** True Tone (`CBTrueToneClient`), VPN (`scutil --nc`),
+  Focus/DND (private — flag), AirDrop/AirPlay (open-only), Low Power Mode (SMAppService helper). Recorded
+  here so nothing is silently dropped; none built yet.
+
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
 **Note:** the AI agent may analyse the live app to do both parts together — they touch the same pages

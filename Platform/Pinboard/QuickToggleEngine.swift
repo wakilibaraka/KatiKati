@@ -1,5 +1,6 @@
 import AppKit
 import CoreBluetooth
+import CoreGraphics
 import CoreWLAN
 import IOKit.pwr_mgt
 import SwiftUI
@@ -189,5 +190,69 @@ private enum NightShift {
         guard let client, client.responds(to: NSSelectorFromString("setEnabled:")) else { return false }
         typealias Fn = @convention(c) (AnyObject, Selector, Bool) -> Bool
         return unsafeBitCast(client.method(for: NSSelectorFromString("setEnabled:")), to: Fn.self)(client, NSSelectorFromString("setEnabled:"), on)
+    }
+}
+
+/// Phase 16i: built-in display brightness via the private **DisplayServices** framework, loaded with
+/// `dlopen`/`dlsym` so nothing links a private framework at build time. Fail-closed: unsupported → nil,
+/// the Control Center simply hides the slider. Mirrors OnlySwitch's `DisplayManager`/`DisplayServices`
+/// usage (MIT) — credited in `NOTICE`. External displays are out of scope.
+enum DisplayServicesBrightness {
+    private typealias GetFn = @convention(c) (CGDirectDisplayID, UnsafeMutablePointer<Float>) -> Int32
+    private typealias SetFn = @convention(c) (CGDirectDisplayID, Float) -> Int32
+
+    private static let handle = dlopen("/System/Library/PrivateFrameworks/DisplayServices.framework/DisplayServices", RTLD_LAZY)
+
+    private static func builtInDisplay() -> CGDirectDisplayID {
+        var count: UInt32 = 0
+        var ids = [CGDirectDisplayID](repeating: 0, count: 16)
+        guard CGGetOnlineDisplayList(16, &ids, &count) == .success else { return 0 }
+        return ids.prefix(Int(count)).first { CGDisplayIsBuiltin($0) != 0 } ?? 0
+    }
+
+    /// 0...1 for the built-in panel, or nil when the symbols are gone / no built-in display.
+    static func current() -> Double? {
+        guard let h = handle, let sym = dlsym(h, "DisplayServicesGetBrightness") else { return nil }
+        let id = builtInDisplay()
+        guard id != 0 else { return nil }
+        var value: Float = 0
+        guard unsafeBitCast(sym, to: GetFn.self)(id, &value) == 0, value >= 0, value <= 1.5 else { return nil }
+        return Double(min(1, max(0, value)))
+    }
+
+    static func set(_ level: Double) {
+        guard let h = handle, let sym = dlsym(h, "DisplayServicesSetBrightness") else { return }
+        let id = builtInDisplay()
+        guard id != 0 else { return }
+        _ = unsafeBitCast(sym, to: SetFn.self)(id, Float(min(1, max(0, level))))
+    }
+}
+
+/// Phase 16i: built-in keyboard backlight via the private CoreBrightness `KeyboardBrightnessClient`
+/// (same ObjC-runtime technique as the Night Shift client above). Fail-closed on missing symbols.
+/// Mirrors OnlySwitch's `KeyboardManager`/`KeyboardBrightnessClient` (MIT) — credited in `NOTICE`.
+enum KeyboardBacklight {
+    private static let client: NSObject? = {
+        _ = dlopen("/System/Library/PrivateFrameworks/CoreBrightness.framework/CoreBrightness", RTLD_LAZY)
+        return (NSClassFromString("KeyboardBrightnessClient") as? NSObject.Type)?.init()
+    }()
+
+    private static let getSel = NSSelectorFromString("brightnessForKeyboard:")
+    private static let setSel = NSSelectorFromString("setBrightness:forKeyboard:")
+
+    static var isAvailable: Bool { client?.responds(to: getSel) ?? false }
+
+    static func current() -> Double? {
+        guard let client, client.responds(to: getSel) else { return nil }
+        typealias Fn = @convention(c) (AnyObject, Selector, UInt64) -> Float
+        let value = unsafeBitCast(client.method(for: getSel), to: Fn.self)(client, getSel, 1)
+        guard value.isFinite else { return nil }
+        return Double(min(1, max(0, value)))
+    }
+
+    static func set(_ level: Double) {
+        guard let client, client.responds(to: setSel) else { return }
+        typealias Fn = @convention(c) (AnyObject, Selector, Float, UInt64) -> Bool
+        _ = unsafeBitCast(client.method(for: setSel), to: Fn.self)(client, setSel, Float(min(1, max(0, level))), 1)
     }
 }
