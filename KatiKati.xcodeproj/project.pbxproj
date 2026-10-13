@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA10A1000000000000000072 /* SolarPhaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000071 /* SolarPhaseTests.swift */; };
+		FA10A1000000000000000063 /* WallpaperSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000061 /* WallpaperSelector.swift */; };
+		FA10A1000000000000000062 /* WallpaperSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000061 /* WallpaperSelector.swift */; };
+		FA10A1000000000000000053 /* SolarPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000051 /* SolarPhase.swift */; };
+		FA10A1000000000000000052 /* SolarPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000051 /* SolarPhase.swift */; };
 		FA10A1000000000000000042 /* LiveIdleActionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000041 /* LiveIdleActionTests.swift */; };
 		FA10A1000000000000000032 /* WidgetPresetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000031 /* WidgetPresetTests.swift */; };
 		FA10A1000000000000000023 /* WidgetPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000021 /* WidgetPreset.swift */; };
@@ -832,6 +837,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FA10A1000000000000000071 /* SolarPhaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolarPhaseTests.swift; sourceTree = "<group>"; };
+		FA10A1000000000000000061 /* WallpaperSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallpaperSelector.swift; sourceTree = "<group>"; };
+		FA10A1000000000000000051 /* SolarPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolarPhase.swift; sourceTree = "<group>"; };
 		FA10A1000000000000000041 /* LiveIdleActionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveIdleActionTests.swift; sourceTree = "<group>"; };
 		FA10A1000000000000000031 /* WidgetPresetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPresetTests.swift; sourceTree = "<group>"; };
 		FA10A1000000000000000021 /* WidgetPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPreset.swift; sourceTree = "<group>"; };
@@ -1834,6 +1842,7 @@
 				FA10A1000000000000000011 /* WidgetLayoutModelTests.swift */,
 				FA10A1000000000000000041 /* LiveIdleActionTests.swift */,
 				FA10A1000000000000000031 /* WidgetPresetTests.swift */,
+				FA10A1000000000000000071 /* SolarPhaseTests.swift */,
 				BB0000000000000000000009 /* IslandLayoutSolverTests.swift */,
 				BB0000000000000000000024 /* IslandSlotSetTests.swift */,
 				ED0000000000000000000002 /* EdgeBarSlotTests.swift */,
@@ -1998,6 +2007,8 @@
 				BB0000000000000000000003 /* BarSection.swift */,
 				FA10A1000000000000000001 /* WidgetLayoutModel.swift */,
 				FA10A1000000000000000021 /* WidgetPreset.swift */,
+				FA10A1000000000000000061 /* WallpaperSelector.swift */,
+				FA10A1000000000000000051 /* SolarPhase.swift */,
 				BB0000000000000000000005 /* IslandLayoutSolver.swift */,
 				BB0000000000000000000021 /* IslandSlotSet.swift */,
 				ED0000000000000000000001 /* EdgeBarSlot.swift */,
@@ -2333,6 +2344,8 @@
 				BB0000000000000000000004 /* BarSection.swift in Sources */,
 				FA10A1000000000000000002 /* WidgetLayoutModel.swift in Sources */,
 				FA10A1000000000000000022 /* WidgetPreset.swift in Sources */,
+				FA10A1000000000000000062 /* WallpaperSelector.swift in Sources */,
+				FA10A1000000000000000052 /* SolarPhase.swift in Sources */,
 				BB0000000000000000000006 /* IslandLayoutSolver.swift in Sources */,
 				BB0000000000000000000022 /* IslandSlotSet.swift in Sources */,
 				ED0000000000000000000003 /* EdgeBarSlot.swift in Sources */,
@@ -2803,6 +2816,7 @@
 				FA10A1000000000000000012 /* WidgetLayoutModelTests.swift in Sources */,
 				FA10A1000000000000000042 /* LiveIdleActionTests.swift in Sources */,
 				FA10A1000000000000000032 /* WidgetPresetTests.swift in Sources */,
+				FA10A1000000000000000072 /* SolarPhaseTests.swift in Sources */,
 				BB0000000000000000000010 /* IslandLayoutSolverTests.swift in Sources */,
 				BB0000000000000000000025 /* IslandSlotSetTests.swift in Sources */,
 				ED0000000000000000000005 /* EdgeBarSlotTests.swift in Sources */,
@@ -2857,6 +2871,8 @@
 				BB0000000000000000000012 /* BarSection.swift in Sources */,
 				FA10A1000000000000000003 /* WidgetLayoutModel.swift in Sources */,
 				FA10A1000000000000000023 /* WidgetPreset.swift in Sources */,
+				FA10A1000000000000000063 /* WallpaperSelector.swift in Sources */,
+				FA10A1000000000000000053 /* SolarPhase.swift in Sources */,
 				BB0000000000000000000013 /* IslandLayoutSolver.swift in Sources */,
 				BB0000000000000000000023 /* IslandSlotSet.swift in Sources */,
 				ED0000000000000000000004 /* EdgeBarSlot.swift in Sources */,
