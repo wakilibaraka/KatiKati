@@ -207,6 +207,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Self.shared = self
+        WallpaperEngine.shared.configure(settings: settingsStore, weather: weatherService)
         WeatherPanelHost.service = weatherService
         // 行缓冲 stdout：从命令行/后台启动时，print() 输出到文件默认是块缓冲，
         // 日志要攒满缓冲区才落盘。改成行缓冲后每条 print 立即写出，便于实时读日志。
@@ -468,6 +469,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         // Give the system Dock back as the user had it before KatiKati hid it (next launch re-hides it).
         nativeDockPreferencesService.restoreOriginal()
+        WallpaperEngine.shared.restoreForQuit()
         SystemResizeCursor.shared.reset()   // never leave the ▲▼ or a hidden pointer behind us
         SystemCursorHider.shared.show()
         trashSettingSubscription = nil

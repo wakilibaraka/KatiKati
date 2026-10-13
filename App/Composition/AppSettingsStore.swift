@@ -177,6 +177,10 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var widgetOrder: [BarSection]
     /// Phase 10a widget arrangement (order / size / visibility). Not yet consumed by the strip.
     @Published private(set) var widgetLayout: WidgetLayout
+    /// 10b: weather/time reactive desktop wallpaper (off by default), its mode (`WallpaperMode` raw) and optional custom folder.
+    @Published private(set) var wallpaperEnabled: Bool
+    @Published private(set) var wallpaperMode: String
+    @Published private(set) var wallpaperFolder: String
     /// User-saved widget presets (built-ins live in `WidgetPresets.builtIns`).
     @Published private(set) var userWidgetPresets: [WidgetPreset]
     @Published private(set) var widgetWidths: [String: CGFloat]
@@ -329,6 +333,8 @@ final class AppSettingsStore: ObservableObject {
             Keys.hyperkeyEnabled: false,
             Keys.showAllRunningApps: true,
             Keys.linkCleanerEnabled: false,
+            Keys.wallpaperEnabled: false,
+            Keys.wallpaperMode: WallpaperMode.both.rawValue,
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
             Keys.launcherScroll: LauncherScrollDirection.default.rawValue,
@@ -375,6 +381,9 @@ final class AppSettingsStore: ObservableObject {
                 .compactMapValues(WindowChipGroupPolicy.init(rawValue:))
         )
         linkCleanerEnabled = defaults.bool(forKey: Keys.linkCleanerEnabled)
+        wallpaperEnabled = defaults.bool(forKey: Keys.wallpaperEnabled)
+        wallpaperMode = WallpaperMode(rawValue: defaults.string(forKey: Keys.wallpaperMode) ?? "")?.rawValue ?? WallpaperMode.both.rawValue
+        wallpaperFolder = defaults.string(forKey: Keys.wallpaperFolder) ?? ""
         barLayoutMode = BarLayoutMode(rawValue: defaults.string(forKey: Keys.barLayoutMode) ?? "") ?? .split3
         let storedCentered = Self.storedNumericValue(defaults.object(forKey: Keys.centeredWidth)) ?? Double(Self.defaultCenteredWidth)
         centeredWidth = CGFloat(min(max(storedCentered, Double(Self.minimumCenteredWidth)), Double(Self.maximumCenteredWidth)))
@@ -1021,6 +1030,22 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.liveEventOSBanners)
     }
 
+    func setWallpaperEnabled(_ value: Bool) {
+        guard wallpaperEnabled != value else { return }
+        wallpaperEnabled = value
+        defaults.set(value, forKey: Keys.wallpaperEnabled)
+    }
+
+    func setWallpaperMode(_ value: WallpaperMode) {
+        wallpaperMode = value.rawValue
+        defaults.set(value.rawValue, forKey: Keys.wallpaperMode)
+    }
+
+    func setWallpaperFolder(_ path: String) {
+        wallpaperFolder = path
+        defaults.set(path, forKey: Keys.wallpaperFolder)
+    }
+
     func setLinkCleanerEnabled(_ value: Bool) {
         guard linkCleanerEnabled != value else { return }
         linkCleanerEnabled = value
@@ -1263,6 +1288,9 @@ private enum Keys {
     static let chipGroupingDefault = "com.katikati.chips.groupingDefault"
     static let chipGroupingOverrides = "com.katikati.chips.groupingOverrides"
     static let linkCleanerEnabled = "com.katikati.linkCleaner"
+    static let wallpaperEnabled = "com.katikati.wallpaper.enabled"
+    static let wallpaperMode = "com.katikati.wallpaper.mode"
+    static let wallpaperFolder = "com.katikati.wallpaper.folder"
 
     /// Continuous bar height in points (since the drag-to-resize release).
     static let dockPanelHeight = "com.katikati.dockPanelHeight"
