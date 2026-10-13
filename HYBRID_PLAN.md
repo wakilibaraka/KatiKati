@@ -2309,7 +2309,8 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
 | 6 | **Phase 20c extras** (optional): window switcher → sleep layout restore → menu-bar system widget | owner picks |
 | 7 | **Phase 12** (merged 12/14/15/17) — Settings refinement + dead-code registry | last: audits the final feature set |
 
-Phase 16 does not exist; Phase 19 is done.
+Phase 16 does not exist; Phase 19 is done. *(Superseded 2026-10-13: Phase 16 was later created — see the
+Phase 16 sections below; the sentence above referred to the retired §7w numbering and is kept for history.)*
 
 ### Phase 10 — Widget presets + wallpaper integration — DONE 2026-10-13 (owner sign-off; Space-change re-apply confirmed by owner; translation sheet `Docs/translation-review-phase10.csv` deferred to a pre-release gate)
 
@@ -2711,6 +2712,94 @@ button becomes a Quick Settings control panel; tiles are solid by default with a
   (shared engine), `App/Entry/PinboardPanelController.swift` (shared engine). **Not done / owner eyeball:**
   live check of the new pane tiles, the Quick Settings panel, glass mode, the `.date` preset; idle-CPU
   number not taken; iPad grid is now four rows — short screens may clip (budget adjusted, not measured live).
+
+### Phase 16 (continued) — Control Center side panel (owner 2026-10-13; "still Phase 16, not 17")
+
+**Why:** the 16d wifi flyout and the full-screen Pinboard `quickSettings` card are two surfaces for one
+thing, and the full-screen one is the wrong shape — the owner saw the full-screen Pinboard when the Quick
+Settings entry fired (`AppDelegate.swift:298` → `pinboardPanel.toggle(only: [.quickSettings])`). One
+iPad-style **Control Center** should hang on the screen edge where the dock is, never full-screen, with
+**nothing orphaned** from the full-page Pinboard wall.
+
+**Owner decisions (2026-10-13):**
+- Shape = **edge-hugging side panel** (width ~360, content-sized, scrolls when tall) — **not full-screen**.
+- Side = **user choice in Settings, default right** (new `com.katikati.controlcenter.side`); must respect
+  the dock rail / edge-bar occupancy so the two never overlap.
+- Scope = everything in the reference images + existing toggles + volume + now playing + **brightness** +
+  Wi-Fi + Bluetooth + **keyboard brightness** + **VPN** + **Focus** + **AirDrop/AirPlay**.
+- **Focus = macOS Focus / Do Not Disturb** (not the in-app focus timer).
+- The full-screen Pinboard `quickSettings` card stays reachable (nothing orphaned) — decide at 16g whether
+  it opens the panel or is kept as-is.
+
+**Reference mining (study only, reimplement from behaviour; credit in `NOTICE` per §5):**
+- **OnlySwitch** (MIT, jacklandrin) — cloned read-only to the session scratchpad: the switch map for
+  brightness, keyboard backlight, Night Shift, True Tone, Low Power Mode and the `defaults`/AppleScript
+  toggles (concrete private-API specifics below).
+- **status-trio** (Apache-2.0, lingyired) — cloned read-only: Wi-Fi/Bluetooth/volume/battery/VPN read
+  patterns, CoreWLAN/CoreAudio, DDC external volume, the privileged-helper (Low Power Mode) pattern and
+  its `ReadWatchdog` subprocess discipline.
+
+**Feasibility (from the two repos):**
+| Control | Verdict | Mechanism (source) |
+|---|---|---|
+| Display brightness | feasible, private | `DisplayServicesGet/SetBrightness` (private C API), built-in; external via DDC/CI `IOAVService*` (Apple Silicon) — OnlySwitch `DimScreenSwitch`/`DisplayManager`/`DDCControl.m` |
+| Keyboard backlight | feasible, private | CoreBrightness `KeyboardBrightnessClient` `setBrightness:forKeyboard:1` — OnlySwitch `KeyLightSwitch`/`KeyboardManager.m` |
+| Night Shift | **already present** | CoreBrightness `CBBlueLightClient` (KatiKati already ships it) |
+| True Tone | feasible, private | CoreBrightness `CBTrueToneClient` (gate `supported() && available()`) — OnlySwitch |
+| Wi-Fi power | **already present** | CoreWLAN `CWInterface.setPower`; SSID needs Location (status-trio) |
+| Bluetooth power | **already present** | CoreBluetooth/IOBluetooth (`BluetoothPower`) |
+| Volume / sound | **already present** | CoreAudio HAL `kAudioHardwareServiceDeviceProperty_VirtualMainVolume` (status-trio) |
+| Now Playing | **already present** | `NowPlayingService` (MediaRemote adapter) |
+| **VPN** | partial | toggle via `/usr/sbin/scutil --nc start\|stop <service>`; status via SystemConfiguration `SCNetworkConnectionGetStatus` (read pattern: status-trio `VPNProbe`). Covers Network-configured VPNs only; no API for third-party agents. |
+| **Focus / DND** | fragile | **no public API; absent from both repos.** Options: private `DoNotDisturb`/`com.apple.donotdisturb`, or `shortcuts run`, or the `defaults` hack. Gate + flag; may break per macOS. |
+| **AirDrop** | open-only | **no on/off API** (absent from both repos) — can only open the share sheet / Settings. |
+| **AirPlay / Screen Mirroring** | open-only | **no API** (absent from both repos) — open Display Settings / the system picker only. |
+| Low Power Mode | feasible, privileged | `SMAppService` root daemon + XPC → `/usr/bin/pmset -a lowpowermode 0\|1` (OnlySwitch + status-trio); needs admin approval, own slice. |
+| Lock / Screenshot | feasible | screenshot via existing `ScreenshotCommand`; lock via `SACLockScreenImmediate` (private) or `pmset displaysleepnow`. |
+
+**Slices (each shippable, gate-green; `HYBRID_PLAN.md` updated in every slice — the owner's standing rule):**
+- **16g — Control Center placement + shell.** New `ControlCenterPanelController` (side panel; side from
+  `com.katikati.controlcenter.side`, default right; width ~360; content-capped height + scroll; reuses the
+  `EdgeFlyoutController` glass/modern plate; respects rail/edge-bar occupancy). Repoint the Quick Settings
+  entry (`AppDelegate.swift:298`) and the 16d wifi button to it. Keep the Pinboard `quickSettings` card reachable.
+- **16h — iPad design v1.** Connectivity cluster (Wi-Fi / Bluetooth / AirDrop\* / AirPlay\*), Display +
+  Sound sliders, Now Playing card, quick-action grid (the 12 existing `QuickToggleID` + Focus\* + brightness),
+  bottom utility row (Settings / Launcher / Capture / Tasks / Tray / Quit). Reuses `QuickToggleEngine`,
+  `SystemStatusService`, `NowPlayingService`.
+- **16i — new capabilities, one gated slice each** (marked private/partial in the PR): brightness
+  (DisplayServices), keyboard backlight (`KeyboardBrightnessClient`), True Tone (`CBTrueToneClient`), VPN
+  (`scutil --nc`), Focus/DND (private — flagged), AirDrop/AirPlay (open-only), Low Power Mode (privileged
+  helper). Each behind an availability/capability probe and inert when unavailable.
+- **16j — Settings + strings ×12 + live check + registry.** Side picker, per-control toggles; new strings
+  ×12 (draft sheet); any not-implementable control registered in `Docs/Repository` for Phase 12 (nothing
+  silently dropped).
+- **Verify:** tungsten gate + localization + debug switches + live check; private-API controls flagged.
+- **Known limits to record:** AirDrop/AirPlay cannot truly toggle; Focus/DND, brightness, keyboard backlight
+  and True Tone are private and may break on a macOS update; VPN toggling covers Network-configured VPNs only.
+
+- 2026-10-13 · **Phase 16 continuation planned (16g–16j); no code yet.** Reference mining done against
+  `lingyired/status-trio` (Apache-2.0) and `jacklandrin/OnlySwitch` (MIT), both cloned read-only to the
+  session scratchpad; feasibility table above is sourced from their actual implementations. Awaiting owner
+  approval to start 16g. **Note:** the earlier execution-order line "Phase 16 does not exist" refers to the
+  retired §7w numbering; Phase 16 was created 2026-10-13 and is separate.
+
+- 2026-10-13 · **16g built — Control Center side panel shell + repoint; gate green.** New
+  `ControlCenterPanelController` (in `App/Entry/EdgeFlyoutController.swift`, so no pbxproj churn): a
+  side panel flush to the dock's edge, top-aligned under the menu bar, width 360, height capped to the
+  screen and scrollable — never full-screen. Side comes from `com.katikati.controlcenter.side` (default
+  right) and steps inward past a KatiKati side rail on the same edge (`railInset`). Dismissed by
+  re-toggle, Esc (`KeyableFlyoutPanel.onEscape`), or an outside click. The 16d `QuickSettingsPanelView`
+  was **renamed `ControlCenterView`** and now fills the panel (16h grows it into the iPad layout) — no
+  dead code. Repointed: the Quick Settings shortcut (`AppDelegate.swift` `.quickSettings`) and the edge
+  deck's wifi button (`EdgeBarPanelController` `.status(.wifi)` → `AppDelegate.shared?.toggleControlCenter()`)
+  now open the panel instead of the full-screen Pinboard/small flyout. `EdgeFlyoutController.plate` made
+  internal for reuse. The **full-screen Pinboard `quickSettings` card stays reachable** (still in
+  `PinboardWidget.defaultOrder`) — nothing orphaned. Pure placement extracted to
+  `PanelGeometry.controlCenterFrame` (dual-compiled, geometry authority §2.5) with a new
+  `PanelGeometryTests.testControlCenterPanelHugsTheDockEdge`. **Verified:** 2,223 tests, 0 failures;
+  localization ✅ (714 ×12); debug switches ✅; no new strings (header still reuses "Quick Settings" — the
+  iPad layout + new strings land in 16h/16j). **Not done / owner eyeball:** live check of the panel
+  placement/side, Esc/outside dismissal, and rail-collision feel.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

@@ -173,23 +173,24 @@ struct BluetoothFlyoutView: View {
     }
 }
 
-/// Phase 16d: the wifi deck button opens this control-panel UI — the same one-tap switches as the
-/// Pinboard Quick Settings card, through the shared `QuickToggleEngine`. Theme-adaptive (light/dark).
-struct QuickSettingsPanelView: View {
+/// Phase 16g: the Control Center content — the one-tap switches through the shared `QuickToggleEngine`.
+/// The 16h slice grows this into the full iPad-style layout; for now it is the switch grid in a side panel.
+struct ControlCenterView: View {
     @ObservedObject var engine: QuickToggleEngine
     let order: [QuickToggleID]
     @State private var confirming: QuickToggleID?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Quick Settings").font(.headline)
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 4), spacing: 10) {
-                ForEach(order, id: \.self) { id in cell(id) }
+            ScrollView(.vertical, showsIndicators: false) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 12) {
+                    ForEach(order, id: \.self) { id in cell(id) }
+                }
             }
-            Spacer(minLength: 0)
         }
-        .padding(14)
-        .frame(width: 300, height: 214, alignment: .topLeading)
+        .padding(16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .onAppear { engine.refresh() }
     }
 

@@ -123,6 +123,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         return panel
     }()
+    /// Phase 16g: the Control Center side panel (wifi deck button + the Quick Settings shortcut).
+    private lazy var controlCenterPanel = ControlCenterPanelController()
+    /// Shown from the edge deck's wifi button (`AppDelegate.shared?.toggleControlCenter()`).
+    func toggleControlCenter() { controlCenterPanel.toggle() }
     private func applyPinch(_ on: Bool) {
         guard on else { pinchMonitor?.stop(); pinchMonitor = nil; return }
         guard pinchMonitor == nil else { return }
@@ -295,7 +299,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 switch action {
                 case .launcher: self.launcherPanel.toggle()
                 case .pinboard: self.pinboardPanel.toggle()
-                case .quickSettings: self.pinboardPanel.toggle(only: [.quickSettings])
+                case .quickSettings: self.controlCenterPanel.toggle()
                 case .drawer: self.panelCoordinator?.toggleDrawer()
                 case .notchTools: self.notchPanel.toggleTools()
                 case .weather: self.pinboardPanel.toggle(only: [.weather])

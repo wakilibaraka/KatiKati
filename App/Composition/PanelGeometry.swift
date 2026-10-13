@@ -655,6 +655,14 @@ enum PanelGeometry {
         return CGRect(x: x, y: y, width: w, height: h)
     }
 
+    /// Phase 16g: the Control Center side panel — flush to the dock's side, top-aligned under the menu
+    /// bar, `margin` from the screen edges, stepped inward past a rail (`railInset`) on the same edge.
+    static func controlCenterFrame(side: EdgeSide, visibleFrame: CGRect, size: CGSize, railInset: CGFloat, margin: CGFloat = 12) -> CGRect {
+        let x = side == .right ? visibleFrame.maxX - size.width - margin - railInset
+                              : visibleFrame.minX + margin + railInset
+        return CGRect(x: x, y: visibleFrame.maxY - size.height - margin, width: size.width, height: size.height)
+    }
+
     // MARK: Folder / shelf / Trash popup
     //
     // The popup window is the plate plus a transparent `StackPopupMetrics.panelMargin` border on

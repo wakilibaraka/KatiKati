@@ -750,4 +750,19 @@ final class CalendarPanelGeometryTests: XCTestCase {
         XCTAssertEqual(NextEventCountdown.next(startingAfter: now, in: starts), now + 300)
         XCTAssertNil(NextEventCountdown.next(startingAfter: now, in: [now - 5]))
     }
+
+    func testControlCenterPanelHugsTheDockEdge() {
+        let vf = CGRect(x: 0, y: 0, width: 1728, height: 1055)
+        let size = CGSize(width: 360, height: 660)
+        let right = PanelGeometry.controlCenterFrame(side: .right, visibleFrame: vf, size: size, railInset: 0)
+        XCTAssertEqual(right.maxX, vf.maxX - 12, "flush to the right edge")
+        XCTAssertEqual(right.maxY, vf.maxY - 12, "top-aligned under the menu bar")
+        XCTAssertEqual(right.width, 360)
+
+        let left = PanelGeometry.controlCenterFrame(side: .left, visibleFrame: vf, size: size, railInset: 0)
+        XCTAssertEqual(left.minX, vf.minX + 12, "flush to the left edge")
+
+        let railed = PanelGeometry.controlCenterFrame(side: .right, visibleFrame: vf, size: size, railInset: 48)
+        XCTAssertEqual(railed.maxX, vf.maxX - 12 - 48, "steps inward past a rail on the same edge")
+    }
 }

@@ -536,12 +536,9 @@ final class EdgeBarPanelController {
         case let .status(kind):
             notesPopup.dismiss(notify: false)
             if kind == .wifi {
-                // Phase 16d: the wifi button is the Quick Settings control panel (shared engine).
-                popup.toggle(
-                    id: "quicksettings", anchor: anchor, side: side, visibleFrame: visibleFrame,
-                    size: CGSize(width: 300, height: 214),
-                    content: AnyView(QuickSettingsPanelView(engine: .shared, order: QuickToggleID.defaultOrder))
-                )
+                // Phase 16g: the wifi button opens the Control Center side panel (was the small flyout).
+                popup.dismiss()
+                AppDelegate.shared?.toggleControlCenter()
             } else {
                 popup.toggle(
                     id: "status.\(kind)", anchor: anchor, side: side, visibleFrame: visibleFrame,

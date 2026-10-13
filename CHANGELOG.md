@@ -17,6 +17,12 @@ All notable changes to KatiKati are documented in this file.
 - **Glass tiles (16f):** the pane tiles are solid by default; a Settings switch ("Glass") draws them on
   blur instead.
 
+### Changed
+- **Control Center panel (16g):** the Quick Settings shortcut and the deck's wifi button now open a side
+  panel that hugs the screen edge next to the dock (default right) instead of the full-screen Pinboard.
+  It steps clear of a dock rail on the same edge and closes on Esc or a click outside. The full-screen
+  Pinboard keeps its Quick Settings card.
+
 ## [Unreleased] — Phase 8 in progress
 
 ### Added
