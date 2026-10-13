@@ -51,6 +51,11 @@ struct SystemSnapshot: Equatable, Sendable {
 }
 
 enum SystemMonitorFormat {
+    /// Compact menu-bar text, e.g. `CPU 12% · MEM 61%`. Phase 20c.
+    static func menuBarTitle(_ snapshot: SystemSnapshot) -> String {
+        "CPU \(percent(snapshot.cpu)) · MEM \(percent(snapshot.memory.fraction))"
+    }
+
     /// `0%`…`100%`.
     static func percent(_ fraction: Double) -> String { "\(Int((min(1, max(0, fraction)) * 100).rounded()))%" }
 

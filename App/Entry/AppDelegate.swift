@@ -83,7 +83,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 常驻切换全局快捷键。回调只切设置（经 settingsStore），不经过 panelCoordinator——
     /// 后者在权限引导完成前是 nil，settingsStore 从 AppDelegate 构造起即存在。
     private var edgeToggleHotKey: GlobalHotKeyMonitor?
+    private lazy var menuBarSystem = MenuBarSystemItem()
     private lazy var windowSwitcher = WindowSwitcherController(runtime: runtime)
+    private(set) lazy var layoutRestore = WindowLayoutRestoreController(runtime: runtime, displayTable: { [displayTopologyStore] in displayTopologyStore.table })
     private let shortcutService = ShortcutService()
     private let hyperkeyService = HyperkeyService()
     private var hyperkeySubscription: AnyCancellable?
@@ -689,6 +691,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         runningApplicationStore.start()
         runtime.start()
         windowSwitcher.start()
+        layoutRestore.start()
+        menuBarSystem.start()
 
         // Auto tier of the messaging list: register an app only when it both matches the
         // whitelist / social-networking category **and** currently has an identifiable main

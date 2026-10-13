@@ -12,6 +12,8 @@ struct SettingsAppearancePane: View {
     @AppStorage(BackgroundAppsStore.showSystemHelpersKey) private var showSystemHelpers = false
     @ObservedObject private var backgroundStore = BackgroundAppsStore.shared
     @AppStorage(WindowSwitcherController.enabledKey) private var switcherEnabled = true
+    @AppStorage(WindowLayoutRestoreController.enabledKey) private var layoutRestoreEnabled = true
+    @AppStorage(MenuBarSystemItem.enabledKey) private var menuBarSystemEnabled = false
     @AppStorage(MemoryOverlayController.enabledKey) private var memoryOverlayEnabled = true
 
     private static let margin: CGFloat = 28
@@ -90,6 +92,23 @@ struct SettingsAppearancePane: View {
                 Toggle(isOn: $switcherEnabled) { Text("Option-Tab Window Switcher").font(.headline) }
             } content: {
                 Text("Hold Option and press Tab to pick a window from a thumbnail grid; release to switch. Shift reverses, Esc cancels.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+
+            section {
+                Toggle(isOn: $layoutRestoreEnabled) { Text("Restore Window Layout After Sleep").font(.headline) }
+                Button("Restore Windows From Last Sleep") {
+                    (NSApp.delegate as? AppDelegate)?.layoutRestore.restoreNow()
+                }
+            } content: {
+                Text("After the Mac wakes or a display is reconnected, windows that moved are put back where they were. Needs Accessibility access.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+
+            section {
+                Toggle(isOn: $menuBarSystemEnabled) { Text("Show CPU and Memory in the Menu Bar").font(.headline) }
+            } content: {
+                Text("A small CPU and memory readout in the menu bar. Click it to open Activity Monitor.")
                     .font(.caption).foregroundStyle(.secondary)
             }
 

@@ -50436,6 +50436,391 @@
           }
         }
       }
+    },
+    "Restore Window Layout After Sleep": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Window Layout After Sleep"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "睡眠唤醒后恢复窗口布局"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "睡眠喚醒後恢復視窗配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スリープ復帰後にウインドウ配置を復元"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fensteranordnung nach dem Ruhezustand wiederherstellen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurer la disposition des fenêtres après la veille"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar la disposición de ventanas tras la suspensión"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar la disposición de ventanas tras la suspensión"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar o layout das janelas após repouso"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar a disposição das janelas após suspensão"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ripristina la disposizione delle finestre dopo la sospensione"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "잠자기 후 윈도우 배치 복원"
+          }
+        }
+      }
+    },
+    "Restore Windows From Last Sleep": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Windows From Last Sleep"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复上次睡眠前的窗口"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢復上次睡眠前的視窗"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前回のスリープ前のウインドウを復元"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fenster vom letzten Ruhezustand wiederherstellen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurer les fenêtres d’avant la dernière veille"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar ventanas de la última suspensión"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar ventanas de la última suspensión"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar janelas do último repouso"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar janelas da última suspensão"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ripristina le finestre dall’ultima sospensione"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "마지막 잠자기 이전 윈도우 복원"
+          }
+        }
+      }
+    },
+    "After the Mac wakes or a display is reconnected, windows that moved are put back where they were. Needs Accessibility access.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After the Mac wakes or a display is reconnected, windows that moved are put back where they were. Needs Accessibility access."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac 唤醒或重新连接显示器后，被移动的窗口会回到原位。需要辅助功能权限。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac 喚醒或重新連接顯示器後，被移動的視窗會回到原位。需要輔助使用權限。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Macの復帰やディスプレイの再接続後に、移動したウインドウを元の位置に戻します。アクセシビリティの許可が必要です。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach dem Aufwachen des Macs oder dem erneuten Anschließen eines Displays werden verschobene Fenster an ihre alte Position zurückgesetzt. Erfordert Bedienungshilfen-Zugriff."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Après la sortie de veille du Mac ou la reconnexion d’un écran, les fenêtres déplacées reviennent à leur place. Nécessite l’accès à l’accessibilité."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuando el Mac se reactiva o se vuelve a conectar una pantalla, las ventanas que se movieron vuelven a su sitio. Requiere acceso de accesibilidad."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuando la Mac se reactiva o se vuelve a conectar una pantalla, las ventanas que se movieron vuelven a su lugar. Requiere acceso de accesibilidad."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depois que o Mac ativa ou uma tela é reconectada, as janelas que se moveram voltam ao lugar. Requer acesso de acessibilidade."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depois de o Mac reativar ou de um ecrã ser religado, as janelas que se moveram voltam ao sítio. Requer acesso de acessibilidade."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando il Mac si riattiva o uno schermo viene ricollegato, le finestre spostate tornano al loro posto. Richiede l’accesso all’accessibilità."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac이 깨어나거나 디스플레이가 다시 연결되면 이동된 윈도우가 원래 위치로 돌아갑니다. 손쉬운 사용 권한이 필요합니다."
+          }
+        }
+      }
+    },
+    "Show CPU and Memory in the Menu Bar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show CPU and Memory in the Menu Bar"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在菜单栏显示 CPU 和内存"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在選單列顯示 CPU 和記憶體"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メニューバーにCPUとメモリを表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CPU und Speicher in der Menüleiste anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher le CPU et la mémoire dans la barre des menus"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar CPU y memoria en la barra de menús"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar CPU y memoria en la barra de menús"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar CPU e memória na barra de menus"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar CPU e memória na barra de menus"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra CPU e memoria nella barra dei menu"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메뉴 막대에 CPU 및 메모리 표시"
+          }
+        }
+      }
+    },
+    "A small CPU and memory readout in the menu bar. Click it to open Activity Monitor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A small CPU and memory readout in the menu bar. Click it to open Activity Monitor."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在菜单栏显示精简的 CPU 和内存读数。点按即可打开“活动监视器”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在選單列顯示精簡的 CPU 和記憶體讀數。點按即可打開「活動監視器」。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メニューバーにCPUとメモリの小さな表示を出します。クリックするとアクティビティモニタが開きます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine kleine CPU- und Speicheranzeige in der Menüleiste. Ein Klick öffnet die Aktivitätsanzeige."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un petit relevé du CPU et de la mémoire dans la barre des menus. Cliquez dessus pour ouvrir Moniteur d’activité."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una pequeña lectura de CPU y memoria en la barra de menús. Haz clic para abrir Monitor de Actividad."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una pequeña lectura de CPU y memoria en la barra de menús. Haz clic para abrir el Monitor de Actividad."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma pequena leitura de CPU e memória na barra de menus. Clique para abrir o Monitor de Atividade."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma pequena leitura de CPU e memória na barra de menus. Clique para abrir o Monitor de Atividade."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una piccola lettura di CPU e memoria nella barra dei menu. Fai clic per aprire Monitoraggio Attività."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메뉴 막대에 CPU와 메모리 수치를 작게 표시합니다. 클릭하면 활동 모니터가 열립니다."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
