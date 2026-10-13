@@ -340,6 +340,32 @@ enum WidgetMenuBuilder {
             menu.addItem(sizeItem)
         }
 
+        if section == .clock {
+            let current = UserDefaults.standard.string(forKey: "com.katikati.clock.preset") ?? ClockPreset.modernMac.rawValue
+            let styleMenu = NSMenu(title: String(localized: "Clock Style"))
+            for (preset, title) in [(ClockPreset.modernMac, String(localized: "Modern")),
+                                    (.pixelRetro, String(localized: "Pixel")),
+                                    (.flipTiles, String(localized: "Flip clock"))] {
+                let item = ClosureMenuItem(title) { UserDefaults.standard.set(preset.rawValue, forKey: "com.katikati.clock.preset") }
+                item.state = preset.rawValue == current ? .on : .off
+                styleMenu.addItem(item)
+            }
+            let styleItem = NSMenuItem(title: String(localized: "Clock Style"), action: nil, keyEquivalent: "")
+            styleItem.submenu = styleMenu
+            menu.addItem(styleItem)
+        }
+        if section == .weather {
+            let current = UserDefaults.standard.string(forKey: WeatherUnits.temperatureKey) ?? TemperatureUnit.celsius.rawValue
+            let unitMenu = NSMenu(title: String(localized: "Temperature Unit"))
+            for (unit, title) in [(TemperatureUnit.celsius, "°C"), (.fahrenheit, "°F")] {
+                let item = ClosureMenuItem(title) { UserDefaults.standard.set(unit.rawValue, forKey: WeatherUnits.temperatureKey) }
+                item.state = unit.rawValue == current ? .on : .off
+                unitMenu.addItem(item)
+            }
+            let unitItem = NSMenuItem(title: String(localized: "Temperature Unit"), action: nil, keyEquivalent: "")
+            unitItem.submenu = unitMenu
+            menu.addItem(unitItem)
+        }
         if section.supportsWidgetSizes {
             let stacked = layout.instance(for: section).stack != nil
             let stackItem = ClosureMenuItem(String(localized: "Smart Stack")) {
@@ -375,6 +401,9 @@ enum WidgetMenuBuilder {
         let presetItem = NSMenuItem(title: String(localized: "Apply Preset"), action: nil, keyEquivalent: "")
         presetItem.submenu = presetMenu
         menu.addItem(presetItem)
+        menu.addItem(ClosureMenuItem(WidgetEditMode.shared.isEditing ? String(localized: "Done Editing Widgets") : String(localized: "Edit Widgets")) {
+            WidgetEditMode.shared.toggle()
+        })
         menu.addItem(ClosureMenuItem(String(localized: "Hide")) {
             store.setWidgetLayout(store.widgetLayout.updating(section) { $0.isVisible = false })
         })

@@ -181,6 +181,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var wallpaperEnabled: Bool
     @Published private(set) var wallpaperMode: String
     @Published private(set) var wallpaperFolder: String
+    /// 10b: tint the dock surface from the current sun phase (off by default).
+    @Published private(set) var tintSurfacesByPhase: Bool
     /// 10a-7: schedule-driven widget presets (off by default); preset ids per window, "" = none.
     @Published private(set) var contextPresetsEnabled: Bool
     @Published private(set) var contextWorkPresetID: String
@@ -388,6 +390,7 @@ final class AppSettingsStore: ObservableObject {
         wallpaperEnabled = defaults.bool(forKey: Keys.wallpaperEnabled)
         wallpaperMode = WallpaperMode(rawValue: defaults.string(forKey: Keys.wallpaperMode) ?? "")?.rawValue ?? WallpaperMode.both.rawValue
         wallpaperFolder = defaults.string(forKey: Keys.wallpaperFolder) ?? ""
+        tintSurfacesByPhase = defaults.bool(forKey: Keys.tintByPhase)
         contextPresetsEnabled = defaults.bool(forKey: ContextPresetRules.enabledKey)
         contextWorkPresetID = defaults.string(forKey: Keys.contextWorkPreset) ?? ""
         contextEveningPresetID = defaults.string(forKey: Keys.contextEveningPreset) ?? ""
@@ -1053,6 +1056,12 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(id, forKey: Keys.contextEveningPreset)
     }
 
+    func setTintSurfacesByPhase(_ value: Bool) {
+        guard tintSurfacesByPhase != value else { return }
+        tintSurfacesByPhase = value
+        defaults.set(value, forKey: Keys.tintByPhase)
+    }
+
     func setWallpaperEnabled(_ value: Bool) {
         guard wallpaperEnabled != value else { return }
         wallpaperEnabled = value
@@ -1226,6 +1235,13 @@ final class AppSettingsStore: ObservableObject {
         DefaultsValueParsing.finiteNumericValue(value)
     }
     
+    /// The saved layout with widgets auto-degraded (L→M→S) to fit `screenWidth`; what the strip and solver use.
+    func fittedWidgetLayout(screenWidth: CGFloat) -> WidgetLayout {
+        widgetLayout.fitted(toBudget: WidgetLayout.widgetBudget(
+            screenWidth: screenWidth, margin: islandMargin, gap: islandGap,
+            tileStride: IslandLayoutSolver.tileStride(barHeight: dockPanelHeight.points)))
+    }
+
     func setWidgetLayout(_ layout: WidgetLayout) {
         widgetLayout = layout
         widgetOrder = layout.visibleOrder
@@ -1263,7 +1279,7 @@ final class AppSettingsStore: ObservableObject {
         // old single-digit tile layout starves FlipClockChip's 2×32 tiles and
         // renders a clipped pill). Stored value stays honest: what we persist
         // is what the solver and the render path will use.
-        let floored = max(width, section.minimumWidgetWidth)
+        let floored = max(width, section.minimumExactWidth)
         var updated = self.widgetWidths
         updated[section.rawValue] = floored
         self.widgetWidths = updated
@@ -1314,6 +1330,7 @@ private enum Keys {
     static let wallpaperEnabled = "com.katikati.wallpaper.enabled"
     static let wallpaperMode = "com.katikati.wallpaper.mode"
     static let wallpaperFolder = "com.katikati.wallpaper.folder"
+    static let tintByPhase = "com.katikati.theme.tintByPhase"
     static let contextWorkPreset = "com.katikati.widgets.contextPresets.work"
     static let contextEveningPreset = "com.katikati.widgets.contextPresets.evening"
 

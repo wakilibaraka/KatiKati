@@ -6,6 +6,7 @@ import UniformTypeIdentifiers
 struct DockStripView: View {
     @Environment(\.isPanelHeightResizing) var isPanelHeightResizing
     @EnvironmentObject var runtime: AppRuntime
+    @ObservedObject var editMode = WidgetEditMode.shared
     @EnvironmentObject var drawerStore: DrawerStore
     @EnvironmentObject var messagingStore: MessagingAppStore
     @EnvironmentObject var badgeStore: BadgeStore
@@ -285,6 +286,11 @@ struct DockStripView: View {
         }
         // The rim never changes during a drag: every drag-in (drawer icon, app, folder) is answered
         // by the icons making way, and a rim that follows hover state is the surface that flickers.
+        .overlay {
+            if settingsStore.tintSurfacesByPhase {
+                PhaseSurfaceTint(cornerRadius: taskbarCornerRadius)
+            }
+        }
         .dockPanelRim(
             cornerRadius: taskbarCornerRadius,
             style: theme.panelRimStyle(highlighted: false),
@@ -1325,8 +1331,9 @@ struct DockStripView: View {
             // default, edited via sliders in Settings. Floored at the intrinsic
             // minimum so a stale stored value (e.g. clock = 40) can never clip
             // the chip inside an in-bounds island frame.
-            let targetWidth = settingsStore.widgetLayout.width(for: section)
-            let widgetSize = settingsStore.widgetLayout.instance(for: section).size
+            let fitted = settingsStore.fittedWidgetLayout(screenWidth: stripScreenWidth)
+            let targetWidth = fitted.width(for: section)
+            let widgetSize = fitted.instance(for: section).size
 
             HStack(spacing: 6 * dockScale) {
                 if section.supportsWidgetSizes, let members = settingsStore.widgetLayout.instance(for: section).stack, members.count > 1 {
@@ -1343,6 +1350,11 @@ struct DockStripView: View {
             // Phase 6: hover title per island section (system tooltip; a chip's own `.help`
             // still wins inside it).
             .help(Self.sectionHoverTitle(section))
+            .overlay {
+                if section != .apps && editMode.isEditing {
+                    WidgetEditOverlay(section: section, width: targetWidth)
+                }
+            }
             .floatingContextMenu {
                 let menu = WidgetMenuBuilder.menu(for: section, store: settingsStore)
                 // The Live Island chip's own controls ride in front of the widget menu: this overlay
@@ -1574,6 +1586,13 @@ extension DockStripView {
 // MARK: - Section widget content (shared by plain slots and Smart Stack slots)
 
 extension DockStripView {
+    /// Width of the screen this strip sits on (for widget auto-degrade); main screen until geometry reports.
+    var stripScreenWidth: CGFloat {
+        let rect = frames.stripRootScreenRect
+        let screen = NSScreen.screens.first { $0.frame.intersects(rect) } ?? NSScreen.main
+        return screen?.frame.width ?? 1440
+    }
+
     @ViewBuilder
     func widgetChip(_ section: BarSection, size widgetSize: WidgetSize) -> some View {
         switch section {

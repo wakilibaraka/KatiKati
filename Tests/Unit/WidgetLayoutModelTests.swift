@@ -67,7 +67,7 @@ extension WidgetLayoutModelTests {
         var layout = WidgetLayout.default
         XCTAssertEqual(layout.width(for: .clock), BarSection.clock.defaultWidgetWidth)
         layout = layout.updating(.clock) { $0.size = .small }
-        XCTAssertEqual(layout.width(for: .clock), BarSection.clock.minimumWidgetWidth, "S (76) floors at the 120 clock minimum")
+        XCTAssertEqual(layout.width(for: .clock), 76, "S is honoured now that the preset floor is 76")
         layout = layout.updating(.clock) { $0.exactWidth = 300 }
         XCTAssertEqual(layout.width(for: .clock), 300)
         XCTAssertEqual(layout.width(for: .launcher), 40)
@@ -85,5 +85,22 @@ extension WidgetLayoutModelTests {
     func testVisibleOrderDropsHiddenButNeverApps() {
         let layout = WidgetLayout.default.updating(.weather) { $0.isVisible = false }.updating(.apps) { $0.isVisible = false }
         XCTAssertEqual(layout.visibleOrder, [.launcher, .apps, .media, .clock, .widgets])
+    }
+}
+
+extension WidgetLayoutModelTests {
+    func testFittedDegradesWidestFirstAndSparesExactAndFixedWidgets() {
+        var layout = WidgetLayout.default.updating(.weather) { $0.size = .large }.updating(.media) { $0.size = .large }
+        XCTAssertEqual(layout.fitted(toBudget: 10_000), layout)
+        // weather 230 + media 240 + clock 160 + launcher 40 + widgets 40 = 710
+        let tight = layout.fitted(toBudget: 560)
+        XCTAssertEqual(tight.instance(for: .media).size, .medium, "widest (media 240) steps down first")
+        XCTAssertLessThanOrEqual(tight.instance(for: .weather).size, .large)
+        let floor = layout.fitted(toBudget: 0)
+        XCTAssertEqual(floor.instance(for: .weather).size, .small)
+        XCTAssertEqual(floor.instance(for: .clock).size, .small)
+        layout = layout.updating(.weather) { $0.exactWidth = 300 }
+        XCTAssertEqual(layout.fitted(toBudget: 0).instance(for: .weather).size, .large, "exact widths are never degraded")
+        XCTAssertGreaterThan(WidgetLayout.widgetBudget(screenWidth: 1440, margin: 12, gap: 10, tileStride: 54), 700)
     }
 }

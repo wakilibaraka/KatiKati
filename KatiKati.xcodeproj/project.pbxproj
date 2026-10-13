@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA10A1000000000000000102 /* WidgetEditMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000101 /* WidgetEditMode.swift */; };
+		FA10A10000000000000000F2 /* PhaseSurfaceTint.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A10000000000000000F1 /* PhaseSurfaceTint.swift */; };
 		FA10A10000000000000000E2 /* ContextPresetController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A10000000000000000E1 /* ContextPresetController.swift */; };
 		FA10A10000000000000000D2 /* SmartStackSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A10000000000000000D1 /* SmartStackSlot.swift */; };
 		FA10A10000000000000000C2 /* StackAndContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A10000000000000000C1 /* StackAndContextTests.swift */; };
@@ -848,6 +850,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FA10A1000000000000000101 /* WidgetEditMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetEditMode.swift; path = App/Scenes/WidgetEditMode.swift; sourceTree = SOURCE_ROOT; };
+		FA10A10000000000000000F1 /* PhaseSurfaceTint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PhaseSurfaceTint.swift; path = App/Scenes/PhaseSurfaceTint.swift; sourceTree = SOURCE_ROOT; };
 		FA10A10000000000000000E1 /* ContextPresetController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ContextPresetController.swift; path = App/Composition/ContextPresetController.swift; sourceTree = SOURCE_ROOT; };
 		FA10A10000000000000000D1 /* SmartStackSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SmartStackSlot.swift; path = App/Scenes/SmartStackSlot.swift; sourceTree = SOURCE_ROOT; };
 		FA10A10000000000000000C1 /* StackAndContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackAndContextTests.swift; sourceTree = "<group>"; };
@@ -2549,6 +2553,8 @@
 				FA10A10000000000000000A2 /* WallpaperEngine.swift in Sources */,
 				FA10A10000000000000000D2 /* SmartStackSlot.swift in Sources */,
 				FA10A10000000000000000E2 /* ContextPresetController.swift in Sources */,
+				FA10A10000000000000000F2 /* PhaseSurfaceTint.swift in Sources */,
+				FA10A1000000000000000102 /* WidgetEditMode.swift in Sources */,
 				7B50000000000000000000E2 /* LiveActivitySources.swift in Sources */,
 				7B50000000000000000000F2 /* LiveEventDetector.swift in Sources */,
 				7B5000000000000000000101 /* LiveSurfaceRouting.swift in Sources */,

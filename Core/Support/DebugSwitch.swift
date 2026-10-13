@@ -178,6 +178,10 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     /// touching the island's own rendering.
     case liveEvents = "DOCK_LIVE_EVENTS"
 
+    /// Phase 10b live-check aid: force the wallpaper's sun phase / sky, `phase` or `phase:sky` (e.g. `dusk:rain`).
+    /// Value switch; parsed by `WallpaperDebugOverride`. Unset in normal use.
+    case wallpaperPhase = "DOCK_WALLPAPER_PHASE"
+
     var kind: Kind {
         switch self {
         case .eventAxAsync, .reconcileSkip, .scanGate, .frontmostCache,
@@ -201,7 +205,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .liquidGlassWhiteOverlay, .liquidGlassDimming, .liquidGlassBorder, .liquidGlassBorderEdge,
              .liquidGlassBorderCut, .liquidGlassBorderSpread, .liquidGlassBorderWidth, .liquidGlassBorderInner,
              .liquidGlassBackgroundOpacity, .liquidGlassWindowBlur, .liquidGlassContentInset,
-             .liquidGlassSystemVariant, .stackPopupSnapshot, .dockTheme:
+             .liquidGlassSystemVariant, .stackPopupSnapshot, .dockTheme, .wallpaperPhase:
             return .value
         }
     }

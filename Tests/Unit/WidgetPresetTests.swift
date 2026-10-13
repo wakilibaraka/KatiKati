@@ -4,7 +4,7 @@ import XCTest
 final class WidgetPresetTests: XCTestCase {
     func testBuiltInsAreStableAndFullIsDefault() {
         XCTAssertEqual(WidgetPresets.builtIns.map(\.id),
-                       ["builtin.minimal", "builtin.commuter", "builtin.music", "builtin.full"])
+                       ["builtin.minimal", "builtin.commuter", "builtin.music", "builtin.focus", "builtin.full"])
         XCTAssertEqual(WidgetPresets.builtIns.last?.layout, .default)
         XCTAssertTrue(WidgetPresets.builtIns.allSatisfy(\.isBuiltIn))
     }
@@ -15,6 +15,7 @@ final class WidgetPresetTests: XCTestCase {
             XCTAssertTrue(preset.layout.visibleOrder.contains(.clock), preset.id)
         }
         let music = WidgetPresets.builtIns[2].layout
+        XCTAssertEqual(WidgetPresets.builtIns[3].layout.visibleOrder, [.launcher, .apps, .media, .clock])
         XCTAssertEqual(music.instance(for: .media).size, .large)
         XCTAssertFalse(music.visibleOrder.contains(.weather))
     }

@@ -1819,10 +1819,10 @@ final class AppSettingsStoreTests: XCTestCase {
         let store = AppSettingsStore(defaults: defaults)
 
         store.setWidgetWidth(40, for: .clock)
-        XCTAssertEqual(store.widgetWidths["clock"], BarSection.clock.minimumWidgetWidth)
+        XCTAssertEqual(store.widgetWidths["clock"], BarSection.clock.minimumExactWidth)
         XCTAssertEqual(
             (defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat])?["clock"],
-            BarSection.clock.minimumWidgetWidth
+            BarSection.clock.minimumExactWidth
         )
 
         store.setWidgetWidth(200, for: .clock)

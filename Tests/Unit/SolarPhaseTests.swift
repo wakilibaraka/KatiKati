@@ -112,3 +112,23 @@ extension WallpaperSelectorTests {
         XCTAssertEqual(WallpaperSelector.pick(phase: .dusk, sky: .rain, mode: .time, available: keys), "dusk")
     }
 }
+
+extension WallpaperSelectorTests {
+    func testDebugOverrideParsing() {
+        XCTAssertEqual(WallpaperDebugOverride.parse("dusk")?.phase, .dusk)
+        XCTAssertNil(WallpaperDebugOverride.parse("dusk")?.sky)
+        XCTAssertEqual(WallpaperDebugOverride.parse("Night:Rain")?.sky, .rain)
+        XCTAssertNil(WallpaperDebugOverride.parse("noon"))
+        XCTAssertNil(WallpaperDebugOverride.parse("dusk:hail"))
+        XCTAssertNil(WallpaperDebugOverride.parse(nil))
+    }
+
+    func testWeatherStateSunTimesFallBackToCoordinates() {
+        var s = WeatherState.empty
+        XCTAssertNil(s.sunTimes())
+        s.latitude = 51.4779; s.longitude = -0.0015
+        let t = s.sunTimes(on: Date(timeIntervalSince1970: 1_781_000_000))
+        XCTAssertNotNil(t?.sunrise)
+        XCTAssertNotNil(t?.sunset)
+    }
+}

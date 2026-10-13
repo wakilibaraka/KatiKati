@@ -125,9 +125,9 @@ extension AppSettingsStore {
         inputs.margin = islandMargin
         inputs.centeredWidth = centeredWidth
         inputs.bottomGap = bottomGap
-        for (key, value) in widgetWidths {
-            if let section = BarSection(rawValue: key) { inputs.widgetWidths[section] = value }
-        }
+        let fitted = fittedWidgetLayout(screenWidth: LayoutThumbnailModel.referenceScreen.width)
+        inputs.widgetWidths = fitted.solverWidths()
+        inputs.widgetOrder = fitted.visibleOrder
         return inputs
     }
 }

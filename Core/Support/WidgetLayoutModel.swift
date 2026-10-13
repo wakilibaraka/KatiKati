@@ -145,7 +145,29 @@ struct WidgetLayout: Codable, Equatable, Sendable {
     func width(for section: BarSection) -> CGFloat {
         let inst = instance(for: section)
         let raw = inst.exactWidth ?? section.widgetWidth(for: inst.size)
-        return max(raw, section.minimumWidgetWidth)
+        return max(raw, inst.exactWidth == nil ? section.minimumWidgetWidth : section.minimumExactWidth)
+    }
+
+    /// Auto-degrade to fit a width budget (L→M→S, widest first) — the "presets when they hold less space"
+    /// behaviour. Hand-set exact widths and non-sizable widgets are never touched. Not persisted.
+    func fitted(toBudget budget: CGFloat) -> WidgetLayout {
+        var layout = self
+        func total(_ l: WidgetLayout) -> CGFloat {
+            l.instances.filter { $0.isVisible && $0.section != .apps }.reduce(0) { $0 + l.width(for: $1.section) }
+        }
+        while total(layout) > budget {
+            let candidate = layout.instances
+                .filter { $0.isVisible && $0.exactWidth == nil && $0.section.supportsWidgetSizes && $0.size > .small }
+                .max { layout.width(for: $0.section) < layout.width(for: $1.section) }
+            guard let section = candidate?.section else { break }
+            layout = layout.updating(section) { $0.size = $0.size == .large ? .medium : .small }
+        }
+        return layout
+    }
+
+    /// What the island row can spend on widgets: the screen minus side margins, island gaps and room for ~6 app tiles.
+    static func widgetBudget(screenWidth: CGFloat, margin: CGFloat, gap: CGFloat, tileStride: CGFloat) -> CGFloat {
+        screenWidth - 2 * margin - 5 * gap - (6 * tileStride + 24)
     }
 
     /// First-run migration from the legacy `widgetWidths` slider overrides.

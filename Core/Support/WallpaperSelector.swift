@@ -50,3 +50,17 @@ enum WallpaperSelector {
         candidates(phase: phase, sky: sky, mode: mode).first(where: available.contains)
     }
 }
+
+/// `DOCK_WALLPAPER_PHASE` parsing: `dusk` or `dusk:rain`. Unknown words → nil (override ignored).
+enum WallpaperDebugOverride {
+    static func parse(_ raw: String?) -> (phase: SolarPhase, sky: WallpaperSky?)? {
+        guard let raw, !raw.isEmpty else { return nil }
+        let parts = raw.lowercased().split(separator: ":").map(String.init)
+        guard let phase = SolarPhase(rawValue: parts[0]) else { return nil }
+        if parts.count > 1 {
+            guard let sky = WallpaperSky(rawValue: parts[1]) else { return nil }
+            return (phase, sky)
+        }
+        return (phase, nil)
+    }
+}

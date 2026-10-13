@@ -421,7 +421,9 @@ enum PanelGeometry {
             let defaults = UserDefaults.standard
             let storedLayout = WidgetLayout.decode(defaults.data(forKey: WidgetLayout.defaultsKey))
                 ?? WidgetLayout.migrating(legacyWidths: defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:])
-            let widgetWidths = storedLayout.solverWidths()
+            let fittedLayout = storedLayout.fitted(toBudget: WidgetLayout.widgetBudget(
+                screenWidth: screen.frame.width, margin: margin, gap: gap, tileStride: tileStride))
+            let widgetWidths = fittedLayout.solverWidths()
             
             let layout = IslandLayoutSolver.layout(
                 screenWidth: screen.frame.width,

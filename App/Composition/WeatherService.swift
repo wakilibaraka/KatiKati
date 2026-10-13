@@ -210,7 +210,9 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
                 return
             }
 
-            let newState = try WeatherResponseParsing.parse(data: data, cityName: city, previousHourly: currentState.hourly)
+            var newState = try WeatherResponseParsing.parse(data: data, cityName: city, previousHourly: currentState.hourly)
+            newState.latitude = latitude
+            newState.longitude = longitude
             self.currentState = newState
             cache?.save(newState, token: savedCities.resolved(selection).token)
         } catch {

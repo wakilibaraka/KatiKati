@@ -75,3 +75,12 @@ enum SunCalculator {
     private static func radians(_ d: Double) -> Double { d * .pi / 180 }
     private static func degrees(_ r: Double) -> Double { r * 180 / .pi }
 }
+
+extension WeatherState {
+    /// Today's sun times: the feed's own sunrise/sunset, else the sunrise equation from the stored coordinates.
+    func sunTimes(on date: Date = Date(), calendar: Calendar = .current) -> SunTimes? {
+        if let parsed = SunTimes.parse(sunrise: detail?.sunrise, sunset: detail?.sunset, calendar: calendar) { return parsed }
+        guard let latitude, let longitude else { return nil }
+        return SunCalculator.times(on: date, latitude: latitude, longitude: longitude, calendar: calendar)
+    }
+}

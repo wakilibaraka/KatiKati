@@ -105,10 +105,10 @@ final class WallpaperEngine {
         guard isRunning, let settings else { return }
         let now = Date()
         let state = weather?.currentState ?? .empty
-        let times = SunTimes.parse(sunrise: state.detail?.sunrise, sunset: state.detail?.sunset)
-            ?? SunTimes(sunrise: nil, sunset: nil, polar: state.isNight ? .night : .day)
-        let phase = SolarPhaseResolver.phase(at: now, times: times)
-        let sky = WallpaperSky(state.conditionFamily)
+        let times = state.sunTimes(on: now) ?? SunTimes(sunrise: nil, sunset: nil, polar: state.isNight ? .night : .day)
+        let forced = WallpaperDebugOverride.parse(DebugSwitch.wallpaperPhase.value())
+        let phase = forced?.phase ?? SolarPhaseResolver.phase(at: now, times: times)
+        let sky = forced?.sky ?? WallpaperSky(state.conditionFamily)
         let mode = WallpaperMode(rawValue: settings.wallpaperMode) ?? .both
         armTimer(after: now, times: times)
 

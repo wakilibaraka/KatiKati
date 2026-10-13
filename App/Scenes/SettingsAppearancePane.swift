@@ -106,6 +106,9 @@ struct SettingsAppearancePane: View {
                 Button("Choose Folder…") { chooseWallpaperFolder() }
             }
             skyPreviewGrid
+            Toggle(isOn: Binding(get: { store.tintSurfacesByPhase }, set: store.setTintSurfacesByPhase)) {
+                Text("Tint Dock by Time of Day")
+            }
             HStack {
                 Spacer()
                 Button("Restore Wallpaper") { WallpaperEngine.shared.restoreNow() }

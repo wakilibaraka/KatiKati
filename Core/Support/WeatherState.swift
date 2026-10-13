@@ -77,6 +77,9 @@ public struct WeatherState: Codable, Equatable, Sendable {
     public var isDay: Bool?
     /// 5g: rich payload for the weather tiles; nil for caches written before 5g.
     public var detail: WeatherDetail?
+    /// 10: where the forecast is for, so sun times can be computed when the feed has none. Nil for older caches.
+    public var latitude: Double?
+    public var longitude: Double?
 
     /// Always resolves: stored value, else inferred from the legacy symbol, else `.cloudy`.
     public var conditionFamily: WeatherCondition {

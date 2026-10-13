@@ -23,6 +23,8 @@ enum LayoutThumbnailModel {
         var centeredWidth: CGFloat = 720
         var bottomGap: CGFloat = PanelLayoutMetrics.floatingBottomGap
         var widgetWidths: [BarSection: CGFloat] = [:]
+        /// Visible widget order (hidden widgets dropped) — the preview follows Settings › Widgets.
+        var widgetOrder: [BarSection] = BarSection.canonicalOrder
         /// Representative app count: enough to show the apps island's weight, few enough
         /// that no reference mode overflows.
         var appCount: Int = 10
@@ -38,6 +40,7 @@ enum LayoutThumbnailModel {
         let layout = IslandLayoutSolver.layout(
             screenWidth: screen.width,
             mode: mode,
+            widgetOrder: inputs.widgetOrder,
             widgetWidths: inputs.widgetWidths,
             tileStride: stride,
             appCount: inputs.appCount,

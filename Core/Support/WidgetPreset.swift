@@ -14,6 +14,7 @@ struct WidgetPreset: Codable, Equatable, Identifiable, Sendable {
         case "builtin.minimal": return String(localized: "Minimal")
         case "builtin.commuter": return String(localized: "Commuter")
         case "builtin.music": return String(localized: "Music")
+        case "builtin.focus": return String(localized: "Focus")
         case "builtin.full": return String(localized: "Full")
         default: return name
         }
@@ -39,6 +40,8 @@ enum WidgetPresets {
                      layout: layout(hidden: [.media, .widgets], sizes: [.weather: .small])),
         WidgetPreset(id: "builtin.music", name: "Music",
                      layout: layout(hidden: [.weather, .widgets], sizes: [.media: .large, .clock: .small])),
+        WidgetPreset(id: "builtin.focus", name: "Focus",
+                     layout: layout(hidden: [.weather, .widgets], sizes: [.media: .medium, .clock: .small])),
         WidgetPreset(id: "builtin.full", name: "Full", layout: .default),
     ]
 

@@ -63,7 +63,7 @@ public struct ClockChip: View {
     public var body: some View {
         // Flip tiles are their own form (owner's hand-built variant kept as a
         // third preset): they bypass the 8d gradient card entirely.
-        if preset == .flipTiles {
+        if preset == .flipTiles && widgetSize != .small {
             FlipClockChip()
         } else {
             // 4e: minute-aligned. The timeline starts on the next whole-minute boundary and ticks
@@ -86,7 +86,7 @@ public struct ClockChip: View {
     /// never the form.
     private func card(for date: Date) -> some View {
         let content = provider.currentContent(for: date)
-        let art = ClockArt.gradient(phase: ClockArtPhase.phase(date, sunTimes: SunTimes.parse(sunrise: weatherService.currentState.detail?.sunrise, sunset: weatherService.currentState.detail?.sunset)))
+        let art = ClockArt.gradient(phase: ClockArtPhase.phase(date, sunTimes: weatherService.currentState.sunTimes(on: date)))
 
         // ViewThatFits is macOS 13+; the floor is 12, so the fallback there is the full
         // layout truncating (same rule as the weather pill).

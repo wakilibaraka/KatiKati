@@ -65,11 +65,22 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     var minimumWidgetWidth: CGFloat {
         switch self {
         case .launcher: return 40
-        case .weather: return 110
+        case .weather: return 64
         case .apps: return 0
+        case .media: return 72
+        case .clock: return 76
+        case .widgets: return 40
+        }
+    }
+
+    /// Floor for a **hand-set** width (Settings slider): the S presets are compact forms, but an exact
+    /// width keeps the full pill (and the flip tiles) from clipping, so it stays at the old minimums.
+    var minimumExactWidth: CGFloat {
+        switch self {
+        case .weather: return 110
         case .media: return 80
         case .clock: return 120
-        case .widgets: return 40
+        default: return minimumWidgetWidth
         }
     }
 
