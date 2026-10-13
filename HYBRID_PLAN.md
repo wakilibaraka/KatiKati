@@ -2898,6 +2898,14 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
     stay hosted in the Control Center with their Settings picks — views, `TileKind`, accents, store
     keys and strings untouched, so no migration. Live-verified on the owner's screenshot before the
     removal (all six rendered).
+  - 2026-10-13 · **16p — stuck reminders prompt fixed (owner screenshot).** `CalendarService.start()`
+    fired `requestFullAccessToEvents/Reminders` blind on every pane/flyout appear, so a second request
+    went out while one prompt was already up and wedged the TCC alert. Now the service checks
+    `authorizationStatus(for:)` first (granted → use, denied/restricted → show the access-off UI, only
+    `.notDetermined` prompts) with an in-flight guard per entity. `CalendarService.swift` is app-target
+    only, so the witness is live: prompt appears once, answers, never re-fires. Full suite 2216 green
+    (one run showed 3 pointer-flakes in `DragControllerConversionTests` while the Mac was in live use —
+    54/54 in isolation, clean on rerun).
 
  - 2026-10-13 · **16k built — six Pinboard-only widgets ported as clock-pane tiles; gate green.**
    `TileKind` += calculator, screenTime, network, battery, topApps, batteries (accents ×4

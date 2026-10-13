@@ -39,6 +39,10 @@ final class CalendarService: ObservableObject {
     private let store = EKEventStore()
     private let calendar = Calendar.current
     private var observer: NSObjectProtocol?
+    /// A second request while one is in flight wedges the TCC alert on screen (the pane and the
+    /// edge flyout both call `start()` on appear), so concurrent requests collapse into one.
+    private var isRequestingEvents = false
+    private var isRequestingReminders = false
 
     init() {
         observer = NotificationCenter.default.addObserver(forName: .EKEventStoreChanged, object: store, queue: .main) { [weak self] _ in
@@ -54,10 +58,31 @@ final class CalendarService: ObservableObject {
     }
 
     private func requestEvents() {
+        // Never re-prompt a decided status: asking again while the alert is up is what sticks it.
+        if #available(macOS 14.0, *) {
+            switch EKEventStore.authorizationStatus(for: .event) {
+            case .fullAccess:
+                eventsAccess = .granted; refreshAgenda(); refreshDensity(); return
+            case .notDetermined:
+                break
+            case .denied, .restricted, .writeOnly:
+                eventsAccess = .denied; refreshAgenda(); refreshDensity(); return
+            @unknown default:
+                eventsAccess = .denied; refreshAgenda(); refreshDensity(); return
+            }
+        } else if EKEventStore.authorizationStatus(for: .event) == .authorized {
+            eventsAccess = .granted; refreshAgenda(); refreshDensity(); return
+        } else if EKEventStore.authorizationStatus(for: .event) != .notDetermined {
+            eventsAccess = .denied; refreshAgenda(); refreshDensity(); return
+        }
+        guard !isRequestingEvents else { return }
+        isRequestingEvents = true
         let done: (Bool) -> Void = { [weak self] ok in
             Task { @MainActor in
-                self?.eventsAccess = ok ? .granted : .denied
-                self?.refreshAgenda(); self?.refreshDensity()
+                guard let self else { return }
+                self.isRequestingEvents = false
+                self.eventsAccess = ok ? .granted : .denied
+                self.refreshAgenda(); self.refreshDensity()
             }
         }
         if #available(macOS 14.0, *) {
@@ -68,10 +93,30 @@ final class CalendarService: ObservableObject {
     }
 
     private func requestReminders() {
+        if #available(macOS 14.0, *) {
+            switch EKEventStore.authorizationStatus(for: .reminder) {
+            case .fullAccess:
+                remindersAccess = .granted; refreshReminders(); return
+            case .notDetermined:
+                break
+            case .denied, .restricted, .writeOnly:
+                remindersAccess = .denied; refreshReminders(); return
+            @unknown default:
+                remindersAccess = .denied; refreshReminders(); return
+            }
+        } else if EKEventStore.authorizationStatus(for: .reminder) == .authorized {
+            remindersAccess = .granted; refreshReminders(); return
+        } else if EKEventStore.authorizationStatus(for: .reminder) != .notDetermined {
+            remindersAccess = .denied; refreshReminders(); return
+        }
+        guard !isRequestingReminders else { return }
+        isRequestingReminders = true
         let done: (Bool) -> Void = { [weak self] ok in
             Task { @MainActor in
-                self?.remindersAccess = ok ? .granted : .denied
-                self?.refreshReminders()
+                guard let self else { return }
+                self.isRequestingReminders = false
+                self.remindersAccess = ok ? .granted : .denied
+                self.refreshReminders()
             }
         }
         if #available(macOS 14.0, *) {
