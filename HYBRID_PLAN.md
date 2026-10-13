@@ -2568,6 +2568,10 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   width, bottom edge, widget widths). Welcome guide's layout step shows the style cards plus a 7-theme row
   (`ThemeSwatch`, shared with Appearance). New strings ×12 (drafts; `Docs/translation-review-phase11.csv`).
   Suite 2192 green. Live check deferred to the end of Phase 11 (owner 2026-10-13).
+- 2026-10-13 · **11b finished.** Layout thumbnails draw the drawer capsule beside the apps island (plate
+  gives up its slot; Centered centres bar + capsule as a group), so previews match the live bar
+  (`LayoutThumbnailModel.capsule`, tests: on screen, no overlap). Mode switch snaps survivors instead of
+  springing them beside freshly built units (B8). Suite 2193 green.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

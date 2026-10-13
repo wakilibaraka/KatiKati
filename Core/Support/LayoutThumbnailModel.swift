@@ -30,6 +30,16 @@ enum LayoutThumbnailModel {
         var appCount: Int = 10
     }
 
+    /// Capsule gap + width (`PanelLayoutMetrics.capsuleGap` + bar height).
+    static func capsuleSpace(barHeight: CGFloat) -> CGFloat { 8 + barHeight }
+
+    /// The drawer capsule beside the apps island, in the same unit space (`nil` without apps).
+    static func capsule(beside islands: [Island], barHeight: CGFloat, screen: CGSize = referenceScreen) -> CGRect? {
+        guard let apps = islands.first(where: { $0.sections.contains(.apps) })?.rect else { return nil }
+        return CGRect(x: apps.maxX + 8 / screen.width, y: apps.minY,
+                      width: barHeight / screen.width, height: apps.height)
+    }
+
     /// 16:10 reference screen, the common MacBook aspect.
     static let referenceScreen = CGSize(width: 1440, height: 900)
 
@@ -54,7 +64,18 @@ enum LayoutThumbnailModel {
             centeredWidth: inputs.centeredWidth
         )
         return layout.islands.map { island in
-            let f = island.frame
+            var f = island.frame
+            if island.sections.contains(.apps) {
+                // The drawer capsule rides at the apps island's end, as on the live bar
+                // (`PanelGeometry.islandTargetFrame`): the plate gives up its slot (Phase 11b).
+                let capsuleSpace = Self.capsuleSpace(barHeight: inputs.barHeight)
+                if mode == .centered {
+                    // Centered keeps its width; bar + capsule are centred as one group.
+                    f.origin.x -= capsuleSpace / 2
+                } else {
+                    f.size.width = max(f.width - capsuleSpace, f.height)
+                }
+            }
             // Solver space is bottom-left; flip to top-left for drawing.
             let rect = CGRect(
                 x: f.minX / screen.width,

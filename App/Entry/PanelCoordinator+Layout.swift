@@ -161,7 +161,9 @@ extension PanelCoordinator {
             .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
+                // Snap, don't spring: units the orchestrator builds for the new mode appear at once,
+                // and survivors sliding for ~1.5 s beside them read as overlapping islands (Phase 11b, B8).
+                DispatchQueue.main.async { [weak self] in self?.relayout(animated: false) }
             }
         layoutDimensionsSubscription = Publishers.CombineLatest4(
             settingsStore.$centeredWidth,

@@ -38,6 +38,22 @@ final class LayoutThumbnailModelTests: XCTestCase {
         let narrow = LayoutThumbnailModel.islands(for: .centered)[0].rect
         let widened = LayoutThumbnailModel.islands(for: .centered, inputs: wide)[0].rect
         XCTAssertGreaterThan(widened.width, narrow.width)
-        XCTAssertEqual(widened.midX, 0.5, accuracy: 1e-6)
+        // Bar + capsule are centred together, as on the live bar.
+        let capsule = LayoutThumbnailModel.capsule(beside: LayoutThumbnailModel.islands(for: .centered, inputs: wide),
+                                                   barHeight: wide.barHeight)!
+        XCTAssertEqual((widened.minX + capsule.maxX) / 2, 0.5, accuracy: 1e-6)
+    }
+
+    func testEveryModeDrawsTheCapsuleOnScreenWithoutOverlap() {
+        for mode in BarLayoutMode.allCases {
+            let islands = LayoutThumbnailModel.islands(for: mode)
+            let capsule = LayoutThumbnailModel.capsule(beside: islands, barHeight: LayoutThumbnailModel.Inputs().barHeight)
+            XCTAssertNotNil(capsule, "\(mode)")
+            guard let capsule else { continue }
+            XCTAssertLessThanOrEqual(capsule.maxX, 1 + 1e-9, "\(mode)")
+            for island in islands {
+                XCTAssertFalse(island.rect.intersects(capsule), "\(mode) slot \(island.slot)")
+            }
+        }
     }
 }

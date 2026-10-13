@@ -40,6 +40,19 @@ struct LayoutModeThumbnail: View {
                 let pill = Path(roundedRect: rect, cornerRadius: rect.height * 0.32)
                 context.fill(pill, with: .color(highlighted ? Color(white: 0.12) : Color(white: 0.25)))
             }
+            if let capsule = LayoutThumbnailModel.capsule(beside: islands, barHeight: inputs.barHeight) {
+                var rect = CGRect(x: capsule.minX * size.width,
+                                  y: (capsule.minY - top) / fraction * size.height,
+                                  width: capsule.width * size.width,
+                                  height: capsule.height / fraction * size.height)
+                if rect.height < minimumIslandHeight {
+                    rect.origin.y -= minimumIslandHeight - rect.height
+                    rect.size.height = minimumIslandHeight
+                }
+                rect.size.width = max(rect.width, rect.height)
+                context.fill(Path(roundedRect: rect, cornerRadius: rect.height * 0.32),
+                             with: .color(highlighted ? Color(white: 0.12) : Color(white: 0.25)))
+            }
         }
         .accessibilityHidden(true)
     }
