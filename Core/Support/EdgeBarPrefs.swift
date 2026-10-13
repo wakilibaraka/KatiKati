@@ -33,6 +33,10 @@ struct EdgeBarPrefs: Equatable, Codable, Sendable {
     var magnifyAmount = EdgeMagnifyAmount.standard
     var iconSet = EdgeIconSet.classic
     var flyoutStyle = EdgeFlyoutStyle.modern
+    /// 13d: open only on a deliberate pointer-down on the pill, never on hover.
+    var openOnClick = false
+    /// 13b: a small name bubble beside the button under the pointer.
+    var hoverLabels = true
 
     func clamped() -> EdgeBarPrefs {
         var p = self
@@ -57,16 +61,23 @@ struct EdgeBarPrefs: Equatable, Codable, Sendable {
     }
 }
 
-/// 13a/13d: the pointer must rest on the pill for `delay` before the bar opens, and a pointer left sitting on the pill after
-/// the bar folded (or while another bar is busy) does nothing until it leaves and comes back.
+/// 13a/13d: the pointer must rest on the pill for `delay` before the bar opens (or, in click-only mode, press on it), and a
+/// pointer left sitting on the pill after the bar folded does nothing until it leaves and comes back. A button already held
+/// when the pointer arrives (dragging something across the edge) never opens the bar.
 struct EdgeDwell: Equatable, Sendable {
     private var enteredAt: Date?
+    private var wasInside = false
+    private var ignoreUntilRelease = false
     private(set) var armed = true
 
-    /// Feed one poll. Returns true exactly when the dwell completes.
-    mutating func update(inside: Bool, now: Date, delay: TimeInterval) -> Bool {
+    /// Feed one poll. Returns true exactly when the bar should open.
+    mutating func update(inside: Bool, pressed: Bool = false, now: Date, delay: TimeInterval, clickOnly: Bool = false) -> Bool {
+        defer { wasInside = inside }
+        if !pressed { ignoreUntilRelease = false }
+        else if inside, !wasInside { ignoreUntilRelease = true }
         guard inside else { enteredAt = nil; armed = true; return false }
-        guard armed else { return false }
+        guard armed, !ignoreUntilRelease else { enteredAt = nil; return false }
+        if clickOnly { return pressed }
         let start = enteredAt ?? now
         enteredAt = start
         guard now.timeIntervalSince(start) >= delay else { return false }
@@ -76,4 +87,11 @@ struct EdgeDwell: Equatable, Sendable {
 
     /// The bar is open (or folding): ignore the pointer until it leaves the zone.
     mutating func disarm() { enteredAt = nil; armed = false }
+}
+
+/// 13e: the copy-to-clipboard screenshot. `-i` lets the user select an area, `-c` sends it to the clipboard — there is no
+/// file argument, so nothing is ever saved.
+enum ScreenshotCommand {
+    static let launchPath = "/usr/sbin/screencapture"
+    static let arguments = ["-i", "-c"]
 }

@@ -65,6 +65,8 @@ enum ProductivityItem: String, CaseIterable, Sendable {
     case tasks
     case clipboard
     case capture
+    /// 13e: select an area and copy it to the clipboard (never saved to a file).
+    case screenshot
     case windows
     case screenTime
 
@@ -106,7 +108,7 @@ enum EdgePlacement: String, CaseIterable, Sendable {
 /// `com.katikati.edge.custom`; never rename them.
 enum EdgeItem: String, CaseIterable, Sendable {
     case notes, newNote
-    case reminders, alarms, time, tasks, clipboard, capture, windows, screenTime
+    case reminders, alarms, time, tasks, clipboard, capture, screenshot, windows, screenTime
     case weather, nowPlaying, bluetooth, systemMonitor
     case status
     case settings
@@ -127,6 +129,7 @@ enum EdgeItem: String, CaseIterable, Sendable {
         case .tasks: return .productivity(.tasks)
         case .clipboard: return .productivity(.clipboard)
         case .capture: return .productivity(.capture)
+        case .screenshot: return .productivity(.screenshot)
         case .windows: return .productivity(.windows)
         case .screenTime: return .productivity(.screenTime)
         }

@@ -87,8 +87,8 @@ final class DeckStateMachineTests: XCTestCase {
     func testSettingsRulesClampAndFallBack() {
         XCTAssertEqual(DeckSettingsRules.clampedScale(nil), 1)
         XCTAssertEqual(DeckSettingsRules.clampedScale(.nan), 1)
-        XCTAssertEqual(DeckSettingsRules.clampedScale(5), 1.4)
-        XCTAssertEqual(DeckSettingsRules.clampedScale(0.1), 0.8)
+        XCTAssertEqual(DeckSettingsRules.clampedScale(5), 1.6)
+        XCTAssertEqual(DeckSettingsRules.clampedScale(0.1), 0.7)
         XCTAssertEqual(DeckSettingsRules.clampedRatio(nil), 0.5)
         XCTAssertEqual(DeckSettingsRules.clampedRatio(-3), 0)
         XCTAssertEqual(DeckSettingsRules.clampedRatio(7), 1)

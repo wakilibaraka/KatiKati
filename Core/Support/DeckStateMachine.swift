@@ -115,7 +115,7 @@ enum DeckStateMachine {
 
 /// Validation shared by the deck settings (store) and the views.
 enum DeckSettingsRules {
-    static let scaleRange: ClosedRange<Double> = 0.8...1.4
+    static let scaleRange: ClosedRange<Double> = 0.7...1.6
     static let defaultScale = 1.0
 
     static func clampedScale(_ value: Double?) -> Double {

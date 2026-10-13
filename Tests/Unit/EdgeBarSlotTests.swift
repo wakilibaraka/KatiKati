@@ -104,19 +104,19 @@ final class EdgeBarSlotTests: XCTestCase {
 
     func testProductivityIdsAndPresetRawValuesAreFrozen() {
         XCTAssertEqual(ProductivityItem.allCases.map(\.rawValue),
-                       ["reminders", "alarms", "time", "tasks", "clipboard", "capture", "windows", "screenTime"])
+                       ["reminders", "alarms", "time", "tasks", "clipboard", "capture", "screenshot", "windows", "screenTime"])
         XCTAssertEqual(ProductivityItem.parse("time,bogus,time,tasks"), [.time, .tasks])
         XCTAssertEqual(EdgeBarPreset.allCases.map(\.rawValue),
                        ["off", "notes", "notesAndStatus", "status", "productivityAndRest", "custom"])
         XCTAssertEqual(EdgeBarPreset.default, .productivityAndRest)
-        XCTAssertEqual(EdgeItem.allCases.count, 16)
+        XCTAssertEqual(EdgeItem.allCases.count, 17)
     }
 
     func testShippedProductivityButtonsAppearOnTheMainSideByDefault() {
         XCTAssertEqual(ProductivityItem.built, Set(ProductivityItem.allCases))
         let r = EdgeBarComposition.resolve(preset: .productivityAndRest, primary: .right, widgets: [],
                                            productivity: ProductivityItem.allCases, custom: [:])
-        XCTAssertEqual(r[.right], [.notes, .newNote, .productivity(.reminders), .productivity(.alarms), .productivity(.time), .productivity(.tasks), .productivity(.clipboard), .productivity(.capture), .productivity(.windows), .productivity(.screenTime), .settings])
+        XCTAssertEqual(r[.right], [.notes, .newNote, .productivity(.reminders), .productivity(.alarms), .productivity(.time), .productivity(.tasks), .productivity(.clipboard), .productivity(.capture), .productivity(.screenshot), .productivity(.windows), .productivity(.screenTime), .settings])
     }
 
     func testWidgetTileIdsAreFrozenAndParseIsTolerant() {

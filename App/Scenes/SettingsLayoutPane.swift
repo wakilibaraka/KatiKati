@@ -704,6 +704,8 @@ struct SettingsLayoutPane: View {
                     Text("Realistic").tag(EdgeIconSet.realistic)
                 }.labelsHidden().pickerStyle(.segmented).fixedSize()
             }
+            Toggle("Open Only on Click", isOn: edgePrefBinding(\.openOnClick))
+            Toggle("Show Button Names on Hover", isOn: edgePrefBinding(\.hoverLabels))
             edgePrefRow("Flyout Style") {
                 Picker("Flyout Style", selection: edgePrefBinding(\.flyoutStyle)) {
                     Text("Modern").tag(EdgeFlyoutStyle.modern)
@@ -812,6 +814,7 @@ struct SettingsLayoutPane: View {
         case .clipboard: return Text("Clipboard")
         case .capture: return Text("Capture")
         case .windows: return Text("Windows")
+        case .screenshot: return Text("Copy Screenshot")
         case .screenTime: return Text("Screen Time")
         }
     }

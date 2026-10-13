@@ -56,6 +56,8 @@ final class EdgeBarPanelController {
     private var hoverWork: DispatchWorkItem?
     private var previewID: String?
     private var dwell = EdgeDwell()
+    private var labelIndex: Int?
+    private var labelWork: DispatchWorkItem?
 
     init(slotKey: EdgeSlotSet.SlotKey, service: SystemStatusService, notes: @escaping () -> NotesController?,
          notesPeek: @escaping () -> NotesController?,
@@ -227,7 +229,9 @@ final class EdgeBarPanelController {
             if liveRatio == nil { panel?.ignoresMouseEvents = !(option && restZone().contains(mouse)) }
             if liveRatio == nil, !option {
                 // 13a/13d: the pointer must rest on the pill for the open delay; one left sitting there after a fold is ignored.
-                if dwell.update(inside: restZone().contains(mouse), now: Date(), delay: settings.prefs.openDelay) {
+                let pressed = NSEvent.pressedMouseButtons & 1 != 0
+                if dwell.update(inside: restZone().contains(mouse), pressed: pressed, now: Date(),
+                                delay: settings.prefs.openDelay, clickOnly: settings.prefs.openOnClick) {
                     apply(.pointerEntered)
                 }
             }
@@ -241,9 +245,11 @@ final class EdgeBarPanelController {
                 exitWork = nil
                 updatePointer(mouse)
                 trackHover(mouse)
+                trackLabel(mouse)
             } else if state == .fan, exitWork == nil {
                 model.pointerY = nil
                 cancelHover()
+                cancelLabel()
                 let work = DispatchWorkItem { [weak self] in
                     guard let self else { return }
                     self.exitWork = nil
@@ -312,6 +318,35 @@ final class EdgeBarPanelController {
         let work = DispatchWorkItem { [weak self] in self?.hoverRested(id) }
         hoverWork = work
         DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
+    }
+
+    // MARK: Hover names (13b)
+
+    private func trackLabel(_ mouse: CGPoint) {
+        guard settings.prefs.hoverLabels, state == .fan, !context.isDragging else { cancelLabel(); return }
+        let idx = model.buttonFrames.first { screenRect($0.value)?.contains(mouse) ?? false }?.key
+        if idx == labelIndex { return }
+        cancelLabel()
+        labelIndex = idx
+        guard let idx, !(popup.isShown && !(popup.shownID?.hasPrefix("label.") ?? false)) else { return }
+        let work = DispatchWorkItem { [weak self] in self?.showLabel(idx) }
+        labelWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: work)
+    }
+
+    private func showLabel(_ idx: Int) {
+        guard labelIndex == idx, state == .fan, !context.isDragging, model.buttons.indices.contains(idx),
+              let local = model.buttonFrames[idx], let anchor = screenRect(local) else { return }
+        let bubble = DeckLabelBubble(button: model.buttons[idx])
+        let size = NSHostingView(rootView: bubble).fittingSize
+        popup.toggle(id: "label.\(idx)", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                     size: CGSize(width: max(40, size.width), height: max(24, size.height)), content: AnyView(bubble))
+    }
+
+    private func cancelLabel() {
+        labelWork?.cancel(); labelWork = nil
+        labelIndex = nil
+        if popup.shownID?.hasPrefix("label.") == true { popup.dismiss() }
     }
 
     private func hoverRested(_ id: String) {
@@ -506,6 +541,15 @@ final class EdgeBarPanelController {
             )
         case let .productivity(item):
             notesPopup.dismiss(notify: false)
+            if item == .screenshot {
+                // Select an area; the image goes to the clipboard and nowhere else.
+                popup.dismiss()
+                let task = Process()
+                task.executableURL = URL(fileURLWithPath: ScreenshotCommand.launchPath)
+                task.arguments = ScreenshotCommand.arguments
+                try? task.run()
+                return
+            }
             if item == .capture {
                 // The selector needs the screen clear: close any flyout, select, then show the result at the button.
                 popup.dismiss()

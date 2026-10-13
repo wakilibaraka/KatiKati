@@ -27,6 +27,8 @@ final class DeckViewModel: ObservableObject {
     /// Tab frames in the panel's top-left view space (published by the tabs themselves); the controller turns the
     /// mouse poll into hover-preview / hover-open from these, so no SwiftUI hover callbacks are needed.
     @Published var tabFrames: [String: CGRect] = [:]
+    /// Round-button frames (same space) by index in `buttons`; drives the hover-name bubble.
+    @Published var buttonFrames: [Int: CGRect] = [:]
 
     var onTab: (String, CGRect) -> Void = { _, _ in }
     var onReorder: (String, Int) -> Void = { _, _ in }
@@ -107,6 +109,7 @@ enum DeckButton: Hashable {
         case .productivity(.tasks): return "list.bullet.rectangle"
         case .productivity(.clipboard): return "doc.on.clipboard"
         case .productivity(.capture): return "text.viewfinder"
+        case .productivity(.screenshot): return "camera.viewfinder"
         case .productivity(.windows): return "rectangle.split.2x1"
         case .productivity(.screenTime): return "hourglass"
         }
@@ -130,6 +133,7 @@ enum DeckButton: Hashable {
         case .productivity(.tasks): return 2
         case .productivity(.clipboard): return 1
         case .productivity(.capture): return 4
+        case .productivity(.screenshot): return 2
         case .productivity(.windows): return 7
         case .productivity(.screenTime): return 0
         }
@@ -235,6 +239,9 @@ struct DeckFanView: View {
                 DeckRoundButton(button: button, style: model.tileStyle, iconSet: model.iconSet, peak: model.magnifyPeak,
                                 size: m.buttonSize, onRight: model.onRight,
                                 pointerY: model.magnify ? model.pointerY : nil) { rect in model.onButton(button, rect) }
+                    .background(GeometryReader { proxy in
+                        Color.clear.preference(key: ButtonFramesKey.self, value: [i: proxy.frame(in: .global)])
+                    })
                     .padding(.top, (i == 0 && visibleTabs.isEmpty && hiddenCount == 0 ? 0 : m.buttonGap - spacing))
                     .padding(model.onRight ? .trailing : .leading, (m.tabWidth - m.buttonSize) / 2)
                     .staged(index: visibleTabs.count + (hiddenCount > 0 ? 1 : 0) + i, total: total, revealed: model.revealed,
@@ -245,6 +252,9 @@ struct DeckFanView: View {
         .animation(.easeInOut(duration: 0.18), value: visibleTabs.map(\.id))
         .onPreferenceChange(TabFramesKey.self) { frames in
             if model.tabFrames != frames { model.tabFrames = frames }
+        }
+        .onPreferenceChange(ButtonFramesKey.self) { frames in
+            if model.buttonFrames != frames { model.buttonFrames = frames }
         }
     }
 
@@ -423,7 +433,6 @@ struct DeckRoundButton: View {
             }
             .buttonStyle(.plain)
             .onHover { hovering = $0 }
-            .help(label)
             .animation(.easeOut(duration: 0.15), value: hovering)
             // Dock magnification: grows toward the screen interior (anchored on the edge side).
             .scaleEffect(magnification(proxy.frame(in: .global).midY), anchor: onRight ? .trailing : .leading)
@@ -472,27 +481,7 @@ struct DeckRoundButton: View {
         }
     }
 
-    private var label: Text {
-        switch button {
-        case .newNote: return Text("New Note")
-        case .settings: return Text("Settings")
-        case .status(.wifi): return Text(verbatim: "Wi-Fi")
-        case .status(.battery): return Text("Battery")
-        case .status(.volume): return Text("Volume")
-        case .widget(.weather): return Text("Weather")
-        case .widget(.nowPlaying): return Text("Now Playing")
-        case .widget(.bluetooth): return Text("Bluetooth")
-        case .widget(.systemMonitor): return Text("System")
-        case .productivity(.reminders): return Text("Reminders")
-        case .productivity(.alarms): return Text("Alarms")
-        case .productivity(.time): return Text("Time")
-        case .productivity(.tasks): return Text("Tasks")
-        case .productivity(.clipboard): return Text("Clipboard")
-        case .productivity(.capture): return Text("Capture")
-        case .productivity(.windows): return Text("Windows")
-        case .productivity(.screenTime): return Text("Screen Time")
-        }
-    }
+    private var label: Text { button.labelText }
 }
 
 // MARK: - Staging (the 42 ms shingle)
@@ -516,5 +505,51 @@ private struct DeckStaged: ViewModifier {
 extension View {
     fileprivate func staged(index: Int, total: Int, revealed: Bool, onRight: Bool, travel: CGFloat) -> some View {
         modifier(DeckStaged(index: index, total: total, revealed: revealed, onRight: onRight, travel: travel))
+    }
+}
+
+extension DeckButton {
+    /// The button's name (hover bubble, tooltip, VoiceOver).
+    var labelText: Text {
+        switch self {
+        case .newNote: return Text("New Note")
+        case .settings: return Text("Settings")
+        case .status(.wifi): return Text(verbatim: "Wi-Fi")
+        case .status(.battery): return Text("Battery")
+        case .status(.volume): return Text("Volume")
+        case .widget(.weather): return Text("Weather")
+        case .widget(.nowPlaying): return Text("Now Playing")
+        case .widget(.bluetooth): return Text("Bluetooth")
+        case .widget(.systemMonitor): return Text("System")
+        case .productivity(.reminders): return Text("Reminders")
+        case .productivity(.alarms): return Text("Alarms")
+        case .productivity(.time): return Text("Time")
+        case .productivity(.tasks): return Text("Tasks")
+        case .productivity(.clipboard): return Text("Clipboard")
+        case .productivity(.capture): return Text("Capture")
+        case .productivity(.screenshot): return Text("Copy Screenshot")
+        case .productivity(.windows): return Text("Windows")
+        case .productivity(.screenTime): return Text("Screen Time")
+        }
+    }
+}
+
+/// 13b: the small name bubble shown beside the button under the pointer (hosted in the bar's flyout panel).
+struct DeckLabelBubble: View {
+    let button: DeckButton
+
+    var body: some View {
+        button.labelText
+            .font(.system(size: 12, weight: .semibold))
+            .lineLimit(1)
+            .padding(.horizontal, 12).padding(.vertical, 6)
+            .fixedSize()
+    }
+}
+
+struct ButtonFramesKey: PreferenceKey {
+    static var defaultValue: [Int: CGRect] = [:]
+    static func reduce(value: inout [Int: CGRect], nextValue: () -> [Int: CGRect]) {
+        value.merge(nextValue()) { $1 }
     }
 }

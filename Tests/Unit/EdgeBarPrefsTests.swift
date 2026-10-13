@@ -51,4 +51,34 @@ final class EdgeBarPrefsTests: XCTestCase {
         var d = EdgeDwell()
         XCTAssertTrue(d.update(inside: true, now: Date(), delay: 0))
     }
+
+    func testClickOnlyOpensOnPressAndIgnoresADragInProgress() {
+        var d = EdgeDwell()
+        let t = Date(timeIntervalSince1970: 1000)
+        XCTAssertFalse(d.update(inside: true, now: t, delay: 0.4, clickOnly: true), "hover alone does nothing")
+        XCTAssertTrue(d.update(inside: true, pressed: true, now: t, delay: 0.4, clickOnly: true))
+        var e = EdgeDwell()
+        _ = e.update(inside: false, pressed: true, now: t, delay: 0, clickOnly: true)   // button held outside…
+        XCTAssertFalse(e.update(inside: true, pressed: true, now: t, delay: 0, clickOnly: true), "…then dragged in")
+        XCTAssertFalse(e.update(inside: true, pressed: false, now: t, delay: 0, clickOnly: true))
+        XCTAssertTrue(e.update(inside: true, pressed: true, now: t, delay: 0, clickOnly: true), "a fresh press works")
+    }
+
+    func testHoverDwellAlsoIgnoresAHeldButtonArrival() {
+        var d = EdgeDwell()
+        let t = Date(timeIntervalSince1970: 1000)
+        _ = d.update(inside: false, pressed: true, now: t, delay: 0)
+        XCTAssertFalse(d.update(inside: true, pressed: true, now: t, delay: 0))
+        XCTAssertTrue(d.update(inside: true, pressed: false, now: t.addingTimeInterval(1), delay: 0))
+    }
+
+    func testScreenshotCommandNeverWritesAFile() {
+        XCTAssertEqual(ScreenshotCommand.arguments, ["-i", "-c"])
+        XCTAssertFalse(ScreenshotCommand.arguments.contains { $0.hasPrefix("/") || $0.hasSuffix(".png") })
+    }
+
+    func testNewPrefsDefaults() {
+        XCTAssertFalse(EdgeBarPrefs().openOnClick)
+        XCTAssertTrue(EdgeBarPrefs().hoverLabels)
+    }
 }
