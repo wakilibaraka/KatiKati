@@ -83,6 +83,8 @@ struct MemoryPill: View {
         Text(verbatim: ProcessMemory.format(bytes: bytes))
             .font(.system(size: 9, weight: .bold, design: .rounded))
             .monospacedDigit()
+            .lineLimit(1)
+            .fixedSize()
             .foregroundStyle(.white)
             .padding(.horizontal, 5).padding(.vertical, 1.5)
             .background(Capsule().fill(color(tier)))

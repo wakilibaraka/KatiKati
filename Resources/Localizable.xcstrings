@@ -18309,7 +18309,7 @@
       }
     },
     "System": {
-      "comment": "设置窗口 · 通用 · 外观",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -18320,19 +18320,19 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "跟随系统"
+            "value": "系统"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "跟隨系統"
+            "value": "系統"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "システムに合わせる"
+            "value": "システム"
           }
         },
         "de": {
@@ -40889,83 +40889,6 @@
         }
       }
     },
-    "System": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "System"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "系统"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "系統"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "システム"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "System"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Système"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sistema"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sistema"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sistema"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sistema"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sistema"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "시스템"
-          }
-        }
-      }
-    },
     "CPU": {
       "extractionState": "manual",
       "localizations": {
@@ -50125,6 +50048,237 @@
           "stringUnit": {
             "state": "translated",
             "value": "반투명"
+          }
+        }
+      }
+    },
+    "Background Apps lists running apps that have no window. Apple helper processes stay hidden unless this is on.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hintergrund-Apps listet laufende Apps ohne Fenster auf. Apple-Hilfsprozesse bleiben ausgeblendet, solange dies nicht aktiviert ist."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background Apps lists running apps that have no window. Apple helper processes stay hidden unless this is on."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps en segundo plano muestra las apps en ejecución sin ventana. Los procesos auxiliares de Apple permanecen ocultos salvo que esto esté activado."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps en segundo plano muestra las apps en ejecución sin ventana. Los procesos auxiliares de Apple permanecen ocultos a menos que esto esté activado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les apps en arrière-plan listent les apps ouvertes sans fenêtre. Les processus d’assistance Apple restent masqués sauf si cette option est activée."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App in background elenca le app in esecuzione senza finestra. I processi helper di Apple restano nascosti a meno che questa opzione sia attiva."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「バックグラウンドApp」にはウインドウのない実行中のAppが表示されます。オンにしない限り、Appleのヘルパープロセスは表示されません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "백그라운드 앱은 창이 없는 실행 중인 앱을 보여 줍니다. 이 옵션을 켜지 않으면 Apple 도우미 프로세스는 숨겨집니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps em segundo plano lista os apps em execução sem janela. Os processos auxiliares da Apple ficam ocultos, a menos que isto esteja ativado."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As apps em segundo plano listam as apps em execução sem janela. Os processos auxiliares da Apple ficam ocultos, a não ser que isto esteja ativado."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“后台 App”列出没有窗口的运行中 App。除非开启此项，否则 Apple 辅助进程保持隐藏。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「背景 App」列出沒有視窗的執行中 App。除非開啟此項，否則 Apple 輔助程序保持隱藏。"
+          }
+        }
+      }
+    },
+    "Reset Ignored Apps": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignorierte Apps zurücksetzen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset Ignored Apps"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restablecer apps ignoradas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restablecer apps ignoradas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réinitialiser les apps ignorées"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ripristina app ignorate"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無視したアプリをリセット"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무시한 앱 초기화"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redefinir apps ignorados"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repor apps ignoradas"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置已忽略的 App"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重設已忽略的 App"
+          }
+        }
+      }
+    },
+    "Show System Helpers": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Systemhelfer anzeigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show System Helpers"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar ayudantes del sistema"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar ayudantes del sistema"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher les assistants système"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra helper di sistema"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "システムヘルパーを表示"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시스템 도우미 표시"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar auxiliares do sistema"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar auxiliares do sistema"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示系统辅助进程"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示系統輔助程序"
           }
         }
       }

@@ -17,6 +17,7 @@ final class BackgroundAppsStore: ObservableObject {
 
     @Published private(set) var facts: [Fact] = []
     @Published private(set) var ignored: Set<String>
+    static let showSystemHelpersKey = "com.katikati.drawer.showSystemHelpers"
     private static let ignoredKey = "com.katikati.drawer.backgroundIgnored"
     private let defaults = UserDefaults.standard
     private var observers: [NSObjectProtocol] = []

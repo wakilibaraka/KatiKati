@@ -9,6 +9,8 @@ struct SettingsAppearancePane: View {
     @ObservedObject var store: AppSettingsStore
 
     @Environment(\.colorScheme) private var colorScheme
+    @AppStorage(BackgroundAppsStore.showSystemHelpersKey) private var showSystemHelpers = false
+    @ObservedObject private var backgroundStore = BackgroundAppsStore.shared
     @AppStorage(MemoryOverlayController.enabledKey) private var memoryOverlayEnabled = true
 
     private static let margin: CGFloat = 28
@@ -69,6 +71,17 @@ struct SettingsAppearancePane: View {
                 Toggle(isOn: $memoryOverlayEnabled) { Text("Hold Control to Show Memory").font(.headline) }
             } content: {
                 Text("While the pointer is over the dock, holding Control shows how much memory each app uses.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+
+            section {
+                Toggle(isOn: $showSystemHelpers) { Text("Show System Helpers").font(.headline) }
+                HStack {
+                    Button("Reset Ignored Apps") { backgroundStore.unignoreAll() }
+                        .disabled(backgroundStore.ignored.isEmpty)
+                }
+            } content: {
+                Text("Background Apps lists running apps that have no window. Apple helper processes stay hidden unless this is on.")
                     .font(.caption).foregroundStyle(.secondary)
             }
 

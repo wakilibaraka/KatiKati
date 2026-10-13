@@ -74,6 +74,7 @@ struct DrawerView: View {
     }
 
     @ObservedObject private var backgroundStore = BackgroundAppsStore.shared
+    @AppStorage(BackgroundAppsStore.showSystemHelpersKey) private var showSystemHelpers = false
     @ObservedObject private var memoryOverlay = MemoryOverlayController.shared
 
     /// Phase 20a: running apps with no window to switch to, shown after the stashed apps. Auto-populated.
@@ -82,7 +83,8 @@ struct DrawerView: View {
             windowBacked: windowBackedIDs,
             kept: Set(keptAppStore.bundleIDs),
             messaging: Set(messagingStore.bundleIDs),
-            stashed: Set(drawerStore.bundleIDs))
+            stashed: Set(drawerStore.bundleIDs),
+            showSystemHelpers: showSystemHelpers)
     }
 
     /// 有真窗口的 app（用于启动门控判定）。
@@ -322,8 +324,17 @@ struct DrawerView: View {
     /// Background-app cell: same chip, no drag (these are not placements), plus an Ignore item in its menu.
     private func backgroundChip(_ id: String) -> some View {
         drawerChipContent(id, running: true, extraItems: [
+            LauncherMembershipItem(label: String(localized: "Open")) {
+                NSRunningApplication.runningApplications(withBundleIdentifier: id).first?.activate(options: [.activateAllWindows])
+            },
+            LauncherMembershipItem(label: String(localized: "Hide")) {
+                NSRunningApplication.runningApplications(withBundleIdentifier: id).forEach { $0.hide() }
+            },
             LauncherMembershipItem(label: String(localized: "Quit")) {
                 NSRunningApplication.runningApplications(withBundleIdentifier: id).forEach { $0.terminate() }
+            },
+            LauncherMembershipItem(label: String(localized: "Force Quit")) {
+                NSRunningApplication.runningApplications(withBundleIdentifier: id).forEach { $0.forceTerminate() }
             },
             LauncherMembershipItem(label: String(localized: "Ignore")) { backgroundStore.ignore(id) }
         ])

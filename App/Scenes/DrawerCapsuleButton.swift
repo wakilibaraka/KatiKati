@@ -54,6 +54,17 @@ struct DrawerCapsuleButton: View {
         )
     }
 
+    @ObservedObject private var backgroundStore = BackgroundAppsStore.shared
+    @AppStorage(BackgroundAppsStore.showSystemHelpersKey) private var showSystemHelpers = false
+
+    /// Phase 20a: how many background apps the drawer holds, shown as a small badge on the capsule.
+    private var backgroundCount: Int {
+        let windowBacked = Set(StripItem.items(from: runtime.snapshot).filter { !$0.isAppLevelFallback }.compactMap(\.bundleIdentifier))
+        return backgroundStore.backgroundIDs(
+            windowBacked: windowBacked, kept: Set(keptAppStore.bundleIDs), messaging: Set(messagingStore.bundleIDs),
+            stashed: Set(drawerStore.bundleIDs), showSystemHelpers: showSystemHelpers).count
+    }
+
     private var capsuleSide: CGFloat { settingsStore.layoutMetrics.capsuleWidth }
 
     /// 胶囊是**另一棵**长期存活的 NSHostingView 根视图，必须自己观察同一个 store，
@@ -104,6 +115,18 @@ struct DrawerCapsuleButton: View {
         // The hit cells split the whole padded frame into quadrants, so each target is as large
         // as the capsule allows and reaches the screen edge.
         .overlay(hitGrid(apps: apps))
+        .overlay(alignment: .topTrailing) {
+            let count = backgroundCount
+            if count > 0 {
+                Text(verbatim: "\(count)")
+                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white).lineLimit(1).fixedSize()
+                    .padding(.horizontal, 4.5).padding(.vertical, 1)
+                    .background(Capsule().fill(Color.accentColor))
+                    .padding(PanelCoordinator.shadowPadding - 2)
+                    .allowsHitTesting(false)
+            }
+        }
         // Takes scroll events only (see `DrawerCapsuleScrollView.hitTest`); clicks fall through.
         .overlay(DrawerCapsuleScrollReceiver(enabled: hoverEnabled && pageCount > 1) { event in
             switch event {
