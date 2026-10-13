@@ -202,6 +202,19 @@ struct SettingsLayoutPane: View {
             }
 
             section {
+                Text("Widgets")
+            } content: {
+                List {
+                    ForEach(store.widgetLayout.order, id: \.self) { widget in
+                        widgetRow(widget)
+                    }
+                    .onMove { store.setWidgetLayout(store.widgetLayout.moving(from: $0, to: $1)) }
+                }
+                .listStyle(.plain)
+                .frame(height: CGFloat(store.widgetLayout.order.count) * 34 + 8)
+            }
+
+            section {
                 Text("Widget Widths")
             } content: {
                 ForEach([BarSection.weather, .media, .clock], id: \.self) { widget in
@@ -751,8 +764,45 @@ struct SettingsLayoutPane: View {
         switch widget {
         case .weather: return Text("Weather")
         case .media: return Text("Now Playing")
-        default: return Text("Clock")
+        case .launcher: return Text("Launcher")
+        case .apps: return Text("Apps")
+        case .widgets: return Text("Widgets")
+        case .clock: return Text("Clock")
         }
+    }
+
+    /// One reorderable row: name, S/M/L (sizable widgets only), show/hide (never for Apps).
+    private func widgetRow(_ widget: BarSection) -> some View {
+        let instance = store.widgetLayout.instance(for: widget)
+        return HStack(spacing: 10) {
+            widgetLabel(widget)
+                .foregroundStyle(instance.isVisible ? .primary : .secondary)
+            Spacer(minLength: 8)
+            if widget.supportsWidgetSizes {
+                Picker("Size", selection: Binding(
+                    get: { instance.size },
+                    set: { store.setWidgetSize($0, for: widget) }
+                )) {
+                    Text("Small").tag(WidgetSize.small)
+                    Text("Medium").tag(WidgetSize.medium)
+                    Text("Large").tag(WidgetSize.large)
+                }
+                .labelsHidden()
+                .pickerStyle(.segmented)
+                .fixedSize()
+                .disabled(!instance.isVisible)
+            }
+            if widget != .apps {
+                Button {
+                    store.setWidgetLayout(store.widgetLayout.updating(widget) { $0.isVisible.toggle() })
+                } label: {
+                    Image(systemName: instance.isVisible ? "eye" : "eye.slash")
+                }
+                .buttonStyle(.borderless)
+                .help(instance.isVisible ? Text("Hide") : Text("Show"))
+            }
+        }
+        .frame(height: 30)
     }
 
     private func section<Header: View, Content: View>(

@@ -73,3 +73,17 @@ extension WidgetLayoutModelTests {
         XCTAssertEqual(layout.width(for: .launcher), 40)
     }
 }
+
+extension WidgetLayoutModelTests {
+    func testMovingFollowsOnMoveSemantics() {
+        let moved = WidgetLayout.default.moving(from: IndexSet(integer: 4), to: 1) // clock before weather
+        XCTAssertEqual(moved.order, [.launcher, .clock, .weather, .apps, .media, .widgets])
+        let down = WidgetLayout.default.moving(from: IndexSet(integer: 0), to: 3) // launcher after weather+apps
+        XCTAssertEqual(down.order, [.weather, .apps, .launcher, .media, .clock, .widgets])
+    }
+
+    func testVisibleOrderDropsHiddenButNeverApps() {
+        let layout = WidgetLayout.default.updating(.weather) { $0.isVisible = false }.updating(.apps) { $0.isVisible = false }
+        XCTAssertEqual(layout.visibleOrder, [.launcher, .apps, .media, .clock, .widgets])
+    }
+}

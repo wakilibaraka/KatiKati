@@ -94,6 +94,21 @@ struct WidgetLayout: Codable, Equatable, Sendable {
         instances.first { $0.section == section } ?? WidgetInstance(section: section)
     }
 
+    /// Order handed to the island solver / strip: hidden widgets dropped (`apps` can't be hidden).
+    var visibleOrder: [BarSection] {
+        instances.filter { $0.isVisible || $0.section == .apps }.map(\.section)
+    }
+
+    /// Moves the section at `source` offsets to `destination` (SwiftUI `onMove` semantics).
+    func moving(from source: IndexSet, to destination: Int) -> WidgetLayout {
+        var list = instances
+        let moved = source.sorted().map { list[$0] }
+        let before = source.filter { $0 < destination }.count
+        for index in source.sorted().reversed() { list.remove(at: index) }
+        list.insert(contentsOf: moved, at: destination - before)
+        return WidgetLayout(instances: list)
+    }
+
     var hiddenSections: Set<BarSection> {
         Set(instances.filter { !$0.isVisible }.map(\.section))
     }

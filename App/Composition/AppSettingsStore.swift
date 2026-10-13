@@ -417,11 +417,12 @@ final class AppSettingsStore: ObservableObject {
         
         // Hardcoded order (Phase 4U decision 3): any previously stored custom order
         // from the removed drag-reorder UI is ignored, not restored.
-        widgetOrder = defaultWidgetOrder
         let legacyWidgetWidths = defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:]
         widgetWidths = legacyWidgetWidths
-        widgetLayout = WidgetLayout.decode(defaults.data(forKey: WidgetLayout.defaultsKey))
+        let storedWidgetLayout = WidgetLayout.decode(defaults.data(forKey: WidgetLayout.defaultsKey))
             ?? WidgetLayout.migrating(legacyWidths: legacyWidgetWidths)
+        widgetLayout = storedWidgetLayout
+        widgetOrder = storedWidgetLayout.visibleOrder
         
         themeMaterial = DockThemeStyle(token: defaults.string(forKey: Keys.themeMaterial) ?? "") ?? .auto
         iconSet = IconSet(storedValue: defaults.string(forKey: Keys.iconSet))
@@ -1176,6 +1177,7 @@ final class AppSettingsStore: ObservableObject {
     
     func setWidgetLayout(_ layout: WidgetLayout) {
         widgetLayout = layout
+        widgetOrder = layout.visibleOrder
         defaults.set(layout.encoded(), forKey: WidgetLayout.defaultsKey)
     }
 
