@@ -71,6 +71,7 @@ final class LauncherIndexer: ObservableObject {
             || bundle.object(forInfoDictionaryKey: "LSBackgroundOnly") as? Bool == true { return nil }
         let name = FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
         let date = added ?? (try? url.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? .distantPast
-        return LauncherApp(bundleID: id, name: name, path: url.path, installedAt: date)
+        let category = bundle.object(forInfoDictionaryKey: "LSApplicationCategoryType") as? String ?? ""
+        return LauncherApp(bundleID: id, name: name, path: url.path, installedAt: date, category: category)
     }
 }

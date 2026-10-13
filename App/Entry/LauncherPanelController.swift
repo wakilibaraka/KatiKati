@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 
 private final class LauncherPanel: NonConstrainingPanel {
@@ -19,7 +20,10 @@ final class LauncherPanelController {
     var look: () -> (theme: LauncherTheme, tint: LauncherTint) = { (.system, .none) }
     /// Height the KatiKati bottom bar occupies (it floats above `visibleFrame`), so the launcher never sits under it.
     var bottomBarReserve: () -> Double = { 0 }
+    /// Bundle ids of the apps kept in the dock; they open page 1 as Pinned.
+    var keptApps: () -> [String] = { [] }
     private var backdrop: LauncherBackdrop?
+    private var prefsObserver: AnyCancellable?
     private var scrollMonitor: Any?
     private var scrollAccum: CGFloat = 0
     private var scrollFired = false
@@ -40,11 +44,15 @@ final class LauncherPanelController {
             frame: screen.frame, visible: screen.visibleFrame, safeTop: Double(screen.safeAreaInsets.top),
             extraBottom: bottomBarReserve())
         model.query = ""
+        model.prefs = LauncherPrefs.load()
+        model.keptIDs = keptApps()
+        model.runningIDs = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
         indexer.start()
         let panel = self.panel ?? makePanel()
         self.panel = panel
         let look = self.look()
         panel.appearance = backdrop?.apply(theme: look.theme, tint: look.tint, screen: screen)
+        backdrop?.setBlurStrength(model.prefs.blur)
         panel.setFrame(screen.frame, display: true)
         panel.makeKeyAndOrderFront(nil)
         model.focusNonce += 1
@@ -137,6 +145,15 @@ final class LauncherPanelController {
         try? store.save(model.state)
     }
 
+    private func persist() { try? store.save(model.state) }
+
+    private func quickAction(_ action: LauncherQuickAction) {
+        dismiss()
+        switch action {
+        case .open(let url), .webSearch(let url): NSWorkspace.shared.open(url)
+        }
+    }
+
     private func makePanel() -> NSPanel {
         let panel = LauncherPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel],
                                   backing: .buffered, defer: true)
@@ -155,7 +172,10 @@ final class LauncherPanelController {
             reveal: { [weak self] in self?.reveal($0) },
             copyPath: { [weak self] in self?.copyPath($0) },
             move: { [weak self] id, target in self?.move(id, before: target) },
-            close: { [weak self] in self?.dismiss() })))
+            close: { [weak self] in self?.dismiss() },
+            persist: { [weak self] in self?.persist() },
+            quickAction: { [weak self] in self?.quickAction($0) })))
+        prefsObserver = model.$prefs.sink { [weak self] in self?.backdrop?.setBlurStrength($0.blur) }
         host.translatesAutoresizingMaskIntoConstraints = false
         blur.addSubview(host)
         NSLayoutConstraint.activate([

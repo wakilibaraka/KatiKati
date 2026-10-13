@@ -136,6 +136,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.searchPosition = { [weak self] in self?.settingsStore.launcherSearchPosition ?? .top }
         panel.scrollDirection = { [weak self] in self?.settingsStore.launcherScrollDirection ?? .horizontal }
         panel.look = { [weak self] in (self?.settingsStore.launcherTheme ?? .system, self?.settingsStore.launcherTint ?? .none) }
+        panel.keptApps = { [weak self] in self?.keptAppStore.bundleIDs ?? [] }
         panel.bottomBarReserve = { [weak self] in
             guard let store = self?.settingsStore else { return 0 }
             return Double(store.dockPanelHeight.points + store.bottomGap + 8)

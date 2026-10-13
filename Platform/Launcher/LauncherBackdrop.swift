@@ -28,6 +28,13 @@ final class LauncherBackdrop: NSView {
 
     required init?(coder: NSCoder) { fatalError("code-only") }
 
+    /// 13g: 0…1 blur strength (1 = the full system blur). Lower values let the desktop show through.
+    func setBlurStrength(_ value: Double) {
+        let a = 0.3 + 0.7 * min(max(value, 0), 1)
+        blur.alphaValue = a
+        picture.alphaValue = a
+    }
+
     /// Applies a theme + tint. Returns the appearance the hosted SwiftUI should use (nil = follow the system).
     func apply(theme: LauncherTheme, tint: LauncherTint, screen: NSScreen) -> NSAppearance? {
         var appearance: NSAppearance?

@@ -6,6 +6,8 @@ struct LauncherApp: Equatable, Hashable, Sendable {
     var name: String
     var path: String
     var installedAt: Date
+    /// `LSApplicationCategoryType` from the app's Info.plist ("" = none). Used by Sort by Category.
+    var category: String = ""
 }
 
 /// Launch history for one app. Counts only start when the launcher ships (macOS keeps no history).
@@ -26,10 +28,14 @@ struct LauncherPage: Equatable, Sendable {
     var mostUsed: [LauncherApp]
     var recentlyInstalled: [LauncherApp]
     var all: [LauncherApp]
+    /// 13f: dock-kept + launcher-pinned apps as their own first block (empty unless `page(separatePinned:)`).
+    var pinned: [LauncherApp] = []
+    /// 13g: when non-empty (Group by Category) these blocks replace `all`.
+    var groups: [LauncherAppGroup] = []
 }
 
 /// Which block of the launcher a section is (the view supplies the localized title).
-enum LauncherSectionKind: Equatable, Sendable { case mostUsed, recentlyInstalled, allApps }
+enum LauncherSectionKind: Equatable, Hashable, Sendable { case pinned, mostUsed, recentlyInstalled, allApps, category(String) }
 
 /// One run of apps on a launcher page. A section that does not fit on one page continues on the next without a header.
 struct LauncherPageSection: Equatable, Sendable {
@@ -64,6 +70,36 @@ enum LauncherPaging {
                 rest = rest.dropFirst(take)
                 first = false
                 if !rest.isEmpty { pages.append([]); remaining = pageHeight }
+            }
+        }
+        return pages.filter { !$0.isEmpty }
+    }
+
+    /// 13f: fixed-capacity pages. Every page holds `rowsPerPage` rows of `columns`; section titles cost no height (the view
+    /// draws divider lines in a reserved gap), so page 1 has the same grid as every other page. A block that does not fit
+    /// continues on the next page.
+    static func paginateRows(_ page: LauncherPage, columns: Int, rowsPerPage: Int) -> [[LauncherPageSection]] {
+        let cols = max(1, columns), rows = max(1, rowsPerPage)
+        var blocks: [(LauncherSectionKind, [LauncherApp])] = [
+            (.pinned, page.pinned), (.mostUsed, page.mostUsed), (.recentlyInstalled, page.recentlyInstalled),
+        ]
+        if page.groups.isEmpty {
+            blocks.append((.allApps, page.all))
+        } else {
+            blocks += page.groups.map { (.category($0.title), $0.apps) }
+        }
+        var pages: [[LauncherPageSection]] = [[]]
+        var rowsLeft = rows
+        for (kind, apps) in blocks where !apps.isEmpty {
+            var rest = apps[...]
+            var first = true
+            while !rest.isEmpty {
+                if rowsLeft == 0 { pages.append([]); rowsLeft = rows }
+                let take = min(rest.count, rowsLeft * cols)
+                pages[pages.count - 1].append(LauncherPageSection(kind: kind, apps: Array(rest.prefix(take)), showsHeader: first))
+                rowsLeft -= (take + cols - 1) / cols
+                rest = rest.dropFirst(take)
+                first = false
             }
         }
         return pages.filter { !$0.isEmpty }
@@ -177,18 +213,30 @@ enum LauncherAppIndex {
         now: Date,
         recentDays: Int = 30,
         hidden: Set<String> = [],
-        order: [String] = []
+        order: [String] = [],
+        keptIDs: [String] = [],
+        separatePinned: Bool = false,
+        sort: LauncherSortMode = .custom,
+        groupByCategory: Bool = false
     ) -> LauncherPage {
         let apps = apps.filter { !hidden.contains($0.bundleID) }
         let row = max(1, columns)
         let byID = Dictionary(apps.map { ($0.bundleID, $0) }, uniquingKeysWith: { a, _ in a })
         var seen = Set<String>()
+        var pinnedBlock: [LauncherApp] = []
+        if separatePinned {
+            // Dock-kept apps first (their dock order), then the launcher's own pins; each app once.
+            for id in keptIDs + pinned where !seen.contains(id) {
+                if let app = byID[id] { pinnedBlock.append(app); seen.insert(id) }
+            }
+        }
+        let legacyPins = separatePinned ? [] : pinned
         var top: [LauncherApp] = []
         func take(_ app: LauncherApp) {
             guard top.count < row, !seen.contains(app.bundleID) else { return }
             top.append(app); seen.insert(app.bundleID)
         }
-        pinned.compactMap { byID[$0] }.forEach(take)
+        legacyPins.compactMap { byID[$0] }.forEach(take)
         apps.filter { (usage[$0.bundleID]?.launches ?? 0) > 0 }
             .sorted { a, b in
                 let ua = usage[a.bundleID]!, ub = usage[b.bundleID]!
@@ -203,7 +251,9 @@ enum LauncherAppIndex {
             .filter { !seen.contains($0.bundleID) && $0.installedAt >= cutoff && $0.installedAt <= now }
             .sorted { $0.installedAt != $1.installedAt ? $0.installedAt > $1.installedAt : nameOrder($0, $1) }
             .prefix(row)
-        return LauncherPage(mostUsed: top, recentlyInstalled: Array(recent), all: LauncherOrdering.ordered(apps, by: order))
+        let sorted = LauncherSort.apply(sort, to: apps, usage: usage, order: order)
+        return LauncherPage(mostUsed: top, recentlyInstalled: Array(recent), all: sorted, pinned: pinnedBlock,
+                            groups: groupByCategory ? LauncherSort.groups(sorted) : [])
     }
 
     /// Records a launch.
