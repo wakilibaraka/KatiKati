@@ -8,24 +8,24 @@ final class IslandPanelGeometryTests: XCTestCase {
         safeAreaTop: 25
     )
 
-    func testWindowsModeMatchesDockTargetFrame() {
+    func testWindowsModeIsAFullWidthPlateNotAHugBar() {
         let metrics = PanelLayoutMetrics.tungstenEdge
-        let contentWidth: CGFloat = 500
-
-        let legacyFrame = PanelGeometry.dockTargetFrame(
-            contentWidth: contentWidth,
-            on: testScreen,
-            metrics: metrics
-        )
-        let islandFrame = PanelGeometry.islandTargetFrame(
-            slot: 0,
-            contentWidth: contentWidth,
-            mode: .windows,
-            on: testScreen,
-            metrics: metrics
-        )
-
-        XCTAssertEqual(islandFrame, legacyFrame)
+        let margin: CGFloat = 12
+        for contentWidth: CGFloat in [300, 500, 900] {
+            let frame = PanelGeometry.islandTargetFrame(
+                slot: 0, contentWidth: contentWidth, mode: .windows, on: testScreen,
+                metrics: metrics, margin: margin)
+            let plate = frame.width - 2 * metrics.shadowPadding
+            XCTAssertEqual(plate, 1440 - 2 * margin - (metrics.capsuleGap + metrics.capsuleWidth),
+                           "Full Width ignores content width (Phase 11b)")
+            XCTAssertEqual(frame.minX + metrics.shadowPadding, margin)
+        }
+        // Distinct from Centered at the same content width.
+        let centered = PanelGeometry.islandTargetFrame(
+            slot: 0, contentWidth: 500, mode: .centered, on: testScreen, metrics: metrics, margin: margin)
+        let full = PanelGeometry.islandTargetFrame(
+            slot: 0, contentWidth: 500, mode: .windows, on: testScreen, metrics: metrics, margin: margin)
+        XCTAssertGreaterThan(full.width, centered.width)
     }
 
     func testCenteredModeHugsContent() {

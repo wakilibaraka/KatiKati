@@ -313,7 +313,8 @@ extension PanelCoordinator {
             metrics: layoutMetrics,
             centeredWidth: CGFloat(settingsStore.centeredWidth),
             gap: CGFloat(settingsStore.islandGap),
-            margin: CGFloat(settingsStore.islandMargin)
+            margin: CGFloat(settingsStore.islandMargin),
+            widgetLayout: settingsStore.widgetLayout
         )
     }
 
@@ -398,6 +399,11 @@ extension PanelCoordinator {
             pairs.append((drawer, drawerT))
         }
         let commit = setFrames(pairs, animated: anim, batched: batched)
+        // A mode switch can hand capsule ownership to a surviving unit whose capsule was ordered
+        // out; nothing else re-shows it until the next visibility flip (Phase 11-0, B2).
+        if capsuleOwner, panelsAreVisible, !capsule.isVisible, !isSuspendedForPermissionLoss {
+            capsule.orderFrontRegardless()
+        }
         if drawerWantsOpen { syncDrawerArrow(after: commit) }
     }
 

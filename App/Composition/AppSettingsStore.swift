@@ -1249,7 +1249,8 @@ final class AppSettingsStore: ObservableObject {
     func fittedWidgetLayout(screenWidth: CGFloat) -> WidgetLayout {
         widgetLayout.fitted(toBudget: WidgetLayout.widgetBudget(
             screenWidth: screenWidth, margin: islandMargin, gap: islandGap,
-            tileStride: IslandLayoutSolver.tileStride(barHeight: dockPanelHeight.points)))
+            tileStride: IslandLayoutSolver.tileStride(barHeight: dockPanelHeight.points),
+            mode: barLayoutMode, order: widgetLayout.visibleOrder, barHeight: dockPanelHeight.points))
     }
 
     func setWidgetLayout(_ layout: WidgetLayout) {

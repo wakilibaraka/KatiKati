@@ -2495,6 +2495,53 @@ the main failure mode, so 18a's goldens guard it. **Order:** after Phase 11 (sol
 axis abstraction lands once, on the refined solver. **Not in scope:** top placement, rotating the
 Live Island, changing the native Dock's position.
 
+### Phase 11 + 18 — detailed plan (owner 2026-10-13: "execute 11 and 18 together"; plan file approved)
+
+**Live findings (installed build, Split 3, 1710×1112 pt; prefs restored after the test):**
+- **B1** ghost tab + floating "20" behind the left island — a non-owner drawer capsule ordered front by
+  `applyPanelVisibility` (no `isCapsuleOwner` gate), never framed, left at its (0,0) creation rect.
+- **B2** after a mode switch the owner capsule (2×2 + "20") is gone until relaunch — nothing re-orders it front.
+- **B3** Split 5: the Wi-Fi island runs past the right screen edge — fixed islands took `minimumDockWidth`
+  (120 pt) at their solver x, and solver widths ignored the strip's 2×20 pt insets + 13 pt dividers.
+- **B4** Full Width draws the same hug bar as Centered (live path routes `.windows` to `dockTargetFrame`).
+- **B5** Bar 120 / gap 40 / margin 80: trash clipped, widgets island vanishes, weather/clock pills clipped
+  and not scaled; no overlap resolution, `validate` never called live.
+- **B6** dock themes change nothing visible: `baseTint` dropped on the macOS 26 system-glass path.
+- **B7** Light appearance "only lightens the apps island" — suspected false positive (the light Settings
+  window sat behind that island's glass); re-check in 11c.
+- **B8** mode switch passes through intermediate states for >1.5 s.
+- **B9** `islandTargetFrame` read `WidgetLayout` from `UserDefaults.standard`, not the store.
+
+**Owner decisions:** vertical dock = mode-aware rail (Full Width/Centered = one rail; Split 3/4/5 = three
+stacked islands, compact square widget tiles, labels toward screen centre, capsule at the apps island's end) ·
+Settings = Dock Style cards + Position/Size/Spacing + collapsed Fine-tune (sliders clamped to what fits) ·
+theme stays separate from styles; onboarding offers style + look together · edge bar on the dock's edge:
+default moves across, "Merge into Dock" when both edges are taken or chosen, options Move/Merge/Hide in
+Settings · per-display placement map, one global picker + per-display override in Fine-tune.
+
+**Slices:** 11-0 capsule hotfixes · 11a solver truth (chrome metrics, overlap resolution, store layout) ·
+11b mode distinctness (true Full Width, Appendix A, thumbnails) · 11c theme wiring · 11d pills scale with
+height · 11e `DockStyle` model · 11f Settings Layout restructure + onboarding · 11g live check ·
+18a placement + axis model · 18b solver/geometry on an axis · 18c axis-generic strip (helpers, then view) ·
+18d popups beside the dock · 18e window clearance · 18f visibility/fullscreen/displays · 18g edge-bar
+occupancy (move/merge/hide) · 18h Settings + live check.
+
+**Phase 11/18 check log:**
+- 2026-10-13 · **11-0 + 11a built.** Capsule order-front gated on `isCapsuleOwner` (B1); `layoutPanels`
+  re-shows the owner capsule after a rebuild hands it ownership (B2). New `IslandChrome` (Core, in
+  `IslandLayoutSolver.swift`): content inset 20 + divider 13, scaled by bar height — the strip's inset now
+  reads it too. Split islands are sized chrome-true; overlap resolution collapses gaps to 0.5 then shrinks
+  fixed islands proportionally; the apps island stays centred but slides toward the roomier side instead of
+  dropping tiles; fixed islands no longer take `minimumDockWidth` (B3). Widget auto-degrade budget is
+  mode-aware (`IslandChrome.overhead`). `islandTargetFrame` takes the store's `WidgetLayout` (B9) and logs
+  a failed `validate` in Debug. Tests: chrome width, extreme matrix (3 screens × 3 heights × 2 gaps ×
+  2 margins × 3 width sets × 3 split modes: all valid), lopsided groups, mode budget.
+- 2026-10-13 · **11b (geometry part) built.** Full Width is a real edge-to-edge plate inside the side
+  margins (`PanelGeometry.fullWidthPlateWidth`, capsule keeps its slot); the strip stretches its row to the
+  plate and the two layout dividers bordering the apps zone become flexible gaps, so leading widgets pin
+  left and trailing widgets pin right (B4). Appendix A rewritten to today's sections and modes. Still owed
+  in 11b: thumbnails drawing the capsule, smoother mode switch (B8). Full suite 2182 green; live check next.
+
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
 **Note:** the AI agent may analyse the live app to do both parts together — they touch the same pages
@@ -2525,6 +2572,22 @@ Live Island, changing the native Dock's position.
   on/off + widths (relocated from the Layout pane) and **Phase-10 presets (10a)** as its natural
   host. Create it **before or with Phase 10** so 10a lands there directly.
 - **12f — Theme refinement** (owner eyeball-driven; final home follows 12b's decision).
+
+**Notes logged during Phase 11/18 (2026-10-13 live audit — registry input, not fixed there):**
+- Settings window is 1074 pt tall and runs behind the dock; should respect the dock's reserved edge (18e).
+- Behaviour toggles live in Appearance (Hold-Control memory, System Helpers, Option-Tab, Restore Layout After
+  Sleep, CPU in menu bar) → General/Advanced.
+- Theme names wrap mid-word in the grid ("Translucen t", "Monochro me").
+- General › Clock Style / Widget Colors / Widget Layout only drive popups; the bar clock
+  (`com.katikati.clock.preset`) is settable only from the right-click menu.
+- Every pane has a second macOS 12 copy (`generalPane` etc.) — changes are made twice.
+- Advanced tab holds one toggle; natural home for developer items.
+- Widget Widths sliders: dead lower range (floors 110/80); an exact width silently overrides S/M/L.
+- Launcher, edge bars, notch, pinboard, calendar/weather panels run their own theme systems; the dock theme
+  never reaches them. Chip panel theme fallback was `.system` (others `.auto`).
+- Hover style (standard/quiet) only in the status menu; gap/margin setters have no upper bound; stale
+  comments `AppSettingsStore.swift:177,179`; the Edge Bars block makes the Layout pane very long.
+- Translations added in 11f/18h are drafts (speaker pass, rule 1.b).
 
 **Part B — Content & investigation registry (dead code + dead buttons)** — done together with
 Part A; the AI agent may analyse the live app to do both parts together
@@ -2671,12 +2734,17 @@ item, full gate.
 
 ## Appendix A — Per-mode layout spec (normative)
 
-| Mode | Slots | Slot 0 | Slot 1 | Slot 2 | Slot 3 |
-|---|---|---|---|---|---|
-| `windows` | 1 | full-width strip: `[weather] — spacers — [apps CENTERED] — spacers — [tray, clock]` (+ tungsten drawer/shelf/trash/folders/badges in apps zone) | — | — | — |
-| `split3` | 3 | `[weather]` | `[apps]` (overflow-capable; window chips + drawer/shelf/trash/folders entry) | `[tray, clock]` | — |
-| `split4` | 4 | `[weather]` | `[apps]` (overflow-capable) | `[tray]` | `[clock]` |
-| `centered` | 1 | hug-width centered: `[weather, apps, tray, clock]`, width = `centeredWidth` clamped to content + margins | — | — | — |
+> Rewritten 2026-10-13 (Phase 11b). The earlier table named a `tray` section and had no split5 /
+> launcher / media / widgets; sections are now `launcher, weather, apps, media, clock, widgets`
+> (`BarSection.canonicalOrder`, user-reorderable — the grouping below follows the visible order).
+
+| Mode | Slots | Composition |
+|---|---|---|
+| `windows` (Full Width) | 1 | edge-to-edge plate inside the side margins (capsule keeps its slot at the end): `[launcher · weather] — flex — [apps] — flex — [media · clock · widgets]`; leading widgets pinned left, trailing pinned right |
+| `split3` | 3 | `[launcher · weather]` · `[apps · media]` (+ capsule) · `[clock · widgets]` |
+| `split4` | 4 | `[launcher · weather]` · `[apps]` (+ capsule) · `[media]` · `[clock · widgets]` |
+| `split5` | 5 | `[launcher]` · `[weather]` · `[apps · media]` (+ capsule) · `[clock]` · `[widgets]` |
+| `centered` | 1 | floating pill, width `max(centeredWidth, content)` capped to the screen, everything in one row |
 
 Rules:
 
@@ -2687,6 +2755,10 @@ Rules:
   set `showsOverflow` (overflow popup uses tungsten stack/folder popup geometry).
 - Gaps: inter-island gap and screen margin come from settings (defaults mirror SplitBar-
   old's gap/margin); enforce 0.5 pt minimum.
+- Fixed (non-apps) islands are sized chrome-true: widget widths + 2 × 20 pt content inset +
+  13 pt per inner divider, scaled by bar height (`IslandChrome`). When the row does not fit:
+  gaps collapse to 0.5 pt, then fixed islands shrink proportionally; islands never overlap and
+  the apps island slides off centre before dropping tiles (Phase 11a).
 - `centeredWidth` persists under a new `com.katikati.*` key with SplitBar-old's value
   semantics (new domain — no shared defaults with tungsten or SplitBar-old).
 - Every island frame must satisfy: `frame ⊆ visibleFrame`, `min gap ≥ 0.5pt`,

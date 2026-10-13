@@ -218,6 +218,7 @@ struct DockStripView: View {
                             .transition(.scale(scale: 0.88).combined(with: .opacity))
                     }
                 }
+                .frame(minWidth: fullWidthContentWidth, alignment: .leading)
                 .padding(.horizontal, Style.chipContentInset * dockScale)
                 .frame(height: metrics.panelHeight)
                 .animation(frames.renderedCollapsed != dragController.stripSlotCollapsed
@@ -1396,6 +1397,10 @@ struct DockStripView: View {
                                            value: [section.rawValue: geo.frame(in: .named("strip"))])
                 }
             )
+        case let .divider(id) where fullWidthContentWidth != nil && fullWidthFlexibleDividerIDs.contains(id):
+            // Full Width: the gaps either side of the apps zone stretch, pinning the leading widgets
+            // to the left end and the trailing ones to the right end (Appendix A, Phase 11b).
+            Spacer(minLength: StripContextMenuZone.dividerGapWidth * dockScale)
         case .divider:
             Rectangle()
                 .fill(theme.zoneDivider.color)
@@ -1548,7 +1553,7 @@ private enum Style {
     // The icon's transparent artwork margin is equal on both axes and cancels out here.
     static let chipContentInset: CGFloat = DebugSwitch.stripBalancedInsets.isEnabled()
         ? (ChipPillMetrics.chipHeight - ChipPillMetrics.cardWidth) / 2
-        : 20
+        : IslandChrome.contentInset
     // Keep the resting end icons outside the scroll fade when the padding is reduced.
     static let edgeFadeWidth: CGFloat = min(16, chipContentInset)
     // 真身在 `ChipPillMetrics.chipSpacing`（气泡的邻域判定也要用中心间距，而本 enum 是
@@ -1603,6 +1608,25 @@ extension DockStripView {
 // MARK: - Section widget content (shared by plain slots and Smart Stack slots)
 
 extension DockStripView {
+    /// Full Width only: the width the content row stretches to (plate minus the end insets); `nil`
+    /// elsewhere so every other mode keeps measuring its natural width.
+    var fullWidthContentWidth: CGFloat? {
+        guard settingsStore.barLayoutMode == .windows else { return nil }
+        let plate = PanelGeometry.fullWidthPlateWidth(
+            screenWidth: stripScreenWidth, margin: CGFloat(settingsStore.islandMargin), metrics: metrics)
+        return max(0, plate - 2 * Style.chipContentInset * dockScale)
+    }
+
+    /// The layout dividers bordering the apps zone (`makeProjection` ids).
+    var fullWidthFlexibleDividerIDs: Set<String> {
+        let order = settingsStore.widgetOrder
+        var ids: Set<String> = ["layout-divider-pre-apps"]
+        if let apps = order.firstIndex(of: .apps), apps + 1 < order.count {
+            ids.insert("layout-divider-\(order[apps + 1].rawValue)")
+        }
+        return ids
+    }
+
     /// Width of the screen this strip sits on (for widget auto-degrade); main screen until geometry reports.
     var stripScreenWidth: CGFloat {
         let rect = frames.stripRootScreenRect

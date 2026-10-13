@@ -376,8 +376,14 @@ enum PanelGeometry {
         )
     }
 
+    /// Plate width of the Full Width bar: the screen minus both side margins and the capsule slot.
+    /// `DockStripView` stretches its content to it (flexible gaps around the apps zone).
+    static func fullWidthPlateWidth(screenWidth: CGFloat, margin: CGFloat, metrics: PanelLayoutMetrics) -> CGFloat {
+        max(0, screenWidth - 2 * max(0, margin) - (metrics.capsuleGap + metrics.capsuleWidth))
+    }
+
     /// Computes target window frame for a specific island slot and layout mode.
-    /// In `.windows` mode, matches `dockTargetFrame` exactly.
+    /// In `.windows` mode, a full-width plate inside the margins (Phase 11b).
     /// In `.centered` and split modes, computes per-island geometry via `IslandLayoutSolver`.
     static func islandTargetFrame(
         slot: Int,
@@ -388,11 +394,23 @@ enum PanelGeometry {
         metrics: PanelLayoutMetrics = .tungstenEdge,
         centeredWidth: CGFloat = 720,
         gap: CGFloat = 8,
-        margin: CGFloat = 12
+        margin: CGFloat = 12,
+        widgetLayout: WidgetLayout? = nil
     ) -> CGRect {
         switch mode {
         case .windows:
-            return dockTargetFrame(contentWidth: contentWidth, on: screen, placement: placement, metrics: metrics)
+            // Full Width is a true edge-to-edge bar inside the side margins (the capsule keeps its
+            // slot at the end), never a hug bar — that was indistinguishable from Centered (Phase 11b).
+            let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth
+            let panelWidth = max(fullWidthPlateWidth(screenWidth: screen.frame.width, margin: margin, metrics: metrics),
+                                 metrics.minimumDockWidth)
+            let panelX = screen.frame.minX + max(0, margin) + (placement == .left ? capsuleSpace : 0)
+            return CGRect(
+                x: panelX - metrics.shadowPadding,
+                y: screen.frame.minY + metrics.bottomGap - metrics.shadowPadding,
+                width: panelWidth + metrics.shadowPadding * 2,
+                height: metrics.windowHeight
+            )
 
         case .centered:
             let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth
@@ -418,11 +436,12 @@ enum PanelGeometry {
             // We want appsWidth to be exactly (contentWidth + capsuleSpace).
             let exactClusterWidth = contentWidth + capsuleSpace - (CGFloat(appCount) * tileStride) - 24
             
-            let defaults = UserDefaults.standard
-            let storedLayout = WidgetLayout.decode(defaults.data(forKey: WidgetLayout.defaultsKey))
-                ?? WidgetLayout.migrating(legacyWidths: defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:])
+            // The live caller passes the store's layout (Phase 11a, B9); the defaults read is the
+            // fallback for callers without a store.
+            let storedLayout = widgetLayout ?? Self.storedWidgetLayout()
             let fittedLayout = storedLayout.fitted(toBudget: WidgetLayout.widgetBudget(
-                screenWidth: screen.frame.width, margin: margin, gap: gap, tileStride: tileStride))
+                screenWidth: screen.frame.width, margin: margin, gap: gap, tileStride: tileStride,
+                mode: mode, order: storedLayout.visibleOrder, barHeight: metrics.panelHeight))
             let widgetWidths = fittedLayout.solverWidths()
             
             let layout = IslandLayoutSolver.layout(
@@ -450,7 +469,17 @@ enum PanelGeometry {
             let isApps = island.sections.contains(.apps)
             let currentCapsuleSpace = isApps ? capsuleSpace : 0
             
-            let panelWidth = max(island.frame.width - currentCapsuleSpace, metrics.minimumDockWidth)
+            #if DEBUG
+            if !IslandLayoutSolver.validate(layout: layout, screenWidth: screen.frame.width,
+                                            screenOriginX: screen.frame.minX, expectedBarHeight: metrics.panelHeight) {
+                NSLog("KatiKati: island layout failed validation for %@", "\(mode)")
+            }
+            #endif
+            // Only the apps island takes the dock minimum: a fixed island is exactly its solver
+            // frame, or a narrow trailing island grows past the screen edge (Phase 11a, B3).
+            let panelWidth = isApps
+                ? max(island.frame.width - currentCapsuleSpace, metrics.minimumDockWidth)
+                : island.frame.width
             let panelX = (isApps && placement == .left) ? island.frame.minX + currentCapsuleSpace : island.frame.minX
             
             return CGRect(
@@ -460,6 +489,11 @@ enum PanelGeometry {
                 height: metrics.windowHeight
             )
         }
+    }
+
+    static func storedWidgetLayout(_ defaults: UserDefaults = .standard) -> WidgetLayout {
+        WidgetLayout.decode(defaults.data(forKey: WidgetLayout.defaultsKey))
+            ?? WidgetLayout.migrating(legacyWidths: defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:])
     }
 
     static func capsuleTargetFrame(

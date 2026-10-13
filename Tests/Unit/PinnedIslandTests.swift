@@ -119,8 +119,8 @@ final class PinnedIslandTests: XCTestCase {
         )
         let slot1VisibleWidth = slot1Frame.width - metrics.shadowPadding * 2
 
-        // launcher (40) + inner gap (8) + weather (150) vs apps slot width (flex)
-        XCTAssertEqual(slot0VisibleWidth, 198)
+        // launcher (40) + weather (150) + strip chrome (2×20 inset + 13 divider) vs apps slot width (flex)
+        XCTAssertEqual(slot0VisibleWidth, 243)
         XCTAssertGreaterThan(slot1VisibleWidth, slot0VisibleWidth)
         XCTAssertLessThan(slot1VisibleWidth, testScreen.frame.width)
     }

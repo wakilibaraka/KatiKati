@@ -329,4 +329,73 @@ final class IslandLayoutSolverTests: XCTestCase {
         }
         XCTAssertTrue(IslandLayoutSolver.validate(layout: layout, screenWidth: 1728, expectedBarHeight: 46))
     }
+
+    // MARK: - Phase 11a: chrome-true widths + overlap resolution
+
+    func testFixedIslandWidthIncludesStripChrome() {
+        // launcher 40 + weather 150 at native scale: 2×20 inset + one 13 pt divider.
+        let width = IslandChrome.fixedIslandWidth(contentWidth: 190, sectionCount: 2, scale: 1)
+        XCTAssertEqual(width, 190 + 40 + 13)
+        XCTAssertEqual(IslandChrome.fixedIslandWidth(contentWidth: 0, sectionCount: 0, scale: 1), 0)
+    }
+
+    func testSplitFixedIslandsMatchTheWidthTheStripDraws() {
+        let layout = IslandLayoutSolver.layout(
+            screenWidth: 1710, mode: .split3, tileStride: 55, appCount: 8,
+            weatherWidth: 150, clockWidth: 160, clusterWidth: 120,
+            gap: 10, margin: 12, barHeight: 54, bottomMargin: 8)
+        let left = layout.islands[0]
+        XCTAssertEqual(left.sections, [.launcher, .weather])
+        XCTAssertEqual(left.frame.width, 40 + 150 + 40 + 13, accuracy: 0.001)
+    }
+
+    func testExtremeSettingsNeverOverlapOrLeaveTheScreen() {
+        let widthSets: [[BarSection: CGFloat]] = [
+            [:],
+            [.weather: 230, .clock: 210, .media: 240],
+            [.weather: 400, .clock: 400, .media: 400],
+        ]
+        for screenWidth: CGFloat in [1024, 1440, 1710] {
+            for barHeight: CGFloat in [32, 54, 120] {
+                for gap: CGFloat in [0.5, 40] {
+                    for margin: CGFloat in [0, 80] {
+                        for widths in widthSets {
+                            for mode in [BarLayoutMode.split3, .split4, .split5] {
+                                let layout = IslandLayoutSolver.layout(
+                                    screenWidth: screenWidth, mode: mode, widgetWidths: widths,
+                                    tileStride: IslandLayoutSolver.tileStride(barHeight: barHeight),
+                                    appCount: 14, weatherWidth: 150, clockWidth: 160, clusterWidth: barHeight * 3,
+                                    gap: gap, margin: margin, barHeight: barHeight, bottomMargin: 8)
+                                XCTAssertTrue(
+                                    IslandLayoutSolver.validate(layout: layout, screenWidth: screenWidth,
+                                                                expectedBarHeight: barHeight),
+                                    "\(mode) w=\(screenWidth) h=\(barHeight) gap=\(gap) margin=\(margin) widths=\(widths)")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    func testLopsidedGroupsSlideAppsInsteadOfDroppingTiles() {
+        // Everything on the right: the apps island may leave screen centre but keeps its tiles.
+        let layout = IslandLayoutSolver.layout(
+            screenWidth: 1440, mode: .split3,
+            widgetOrder: [.apps, .launcher, .weather, .media, .clock, .widgets],
+            widgetWidths: [.weather: 230, .clock: 210],
+            tileStride: 55, appCount: 8, weatherWidth: 150, clockWidth: 160, clusterWidth: 120,
+            gap: 10, margin: 12, barHeight: 54, bottomMargin: 8)
+        XCTAssertFalse(layout.showsOverflow)
+        let apps = layout.islands.first { $0.sections.contains(.apps) }!
+        XCTAssertLessThan(apps.frame.midX, 720, "apps slid off centre toward the empty side")
+        XCTAssertTrue(IslandLayoutSolver.validate(layout: layout, screenWidth: 1440, expectedBarHeight: 54))
+    }
+
+    func testModeAwareWidgetBudgetReservesIslandChrome() {
+        let plain = WidgetLayout.widgetBudget(screenWidth: 1440, margin: 12, gap: 10, tileStride: 55)
+        let split5 = WidgetLayout.widgetBudget(screenWidth: 1440, margin: 12, gap: 10, tileStride: 55,
+                                               mode: .split5, barHeight: 54)
+        XCTAssertLessThan(split5, plain)
+    }
 }

@@ -307,7 +307,13 @@ extension PanelCoordinator {
             let fadingPanels = [dockGlassBackgroundPanel, dockPanel, capsulePanel].compactMap { $0 }
             if fadeIn { for panel in fadingPanels { panel.alphaValue = 0 } }
             orderDockSurfaceFront()
-            capsulePanel?.orderFrontRegardless()
+            // Only the apps island owns the drawer capsule; a non-owner capsule is never framed
+            // and would surface at its creation rect as a ghost tab (Phase 11-0, B1).
+            if isCapsuleOwner {
+                capsulePanel?.orderFrontRegardless()
+            } else {
+                capsulePanel?.orderOut(nil)
+            }
             if drawerWantsOpen { drawerPanel?.orderFrontRegardless() }
             // 实测 orderOut/orderFront 不掉私有空间成员资格，这里只是一次读回；掉了才真的补。
             pinResidentPanelsIfNeeded()

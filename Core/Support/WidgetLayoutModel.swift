@@ -166,8 +166,16 @@ struct WidgetLayout: Codable, Equatable, Sendable {
     }
 
     /// What the island row can spend on widgets: the screen minus side margins, island gaps and room for ~6 app tiles.
-    static func widgetBudget(screenWidth: CGFloat, margin: CGFloat, gap: CGFloat, tileStride: CGFloat) -> CGFloat {
-        screenWidth - 2 * margin - 5 * gap - (6 * tileStride + 24)
+    /// With a `mode`, the gaps are that mode's island gaps plus the strip chrome each island draws
+    /// (`IslandChrome.overhead`), so widgets degrade before split islands could collide (Phase 11a).
+    static func widgetBudget(screenWidth: CGFloat, margin: CGFloat, gap: CGFloat, tileStride: CGFloat,
+                             mode: BarLayoutMode? = nil, order: [BarSection] = BarSection.canonicalOrder,
+                             barHeight: CGFloat = IslandChrome.nativeBarHeight) -> CGFloat {
+        let apps = 6 * tileStride + 24
+        guard let mode else { return screenWidth - 2 * margin - 5 * gap - apps }
+        let overhead = IslandChrome.overhead(mode: mode, order: order, gap: gap,
+                                             scale: IslandChrome.scale(barHeight: barHeight))
+        return screenWidth - 2 * margin - overhead - apps
     }
 
     /// First-run migration from the legacy `widgetWidths` slider overrides.

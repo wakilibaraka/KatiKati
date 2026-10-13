@@ -97,21 +97,24 @@ enum IslandLayoutSolver {
             }
         }
 
+        func sectionsWidth(_ sections: [BarSection]) -> (total: CGFloat, count: Int) {
+            let widths = sections.filter { $0 != .apps }.map(width(for:)).filter { $0 > 0 }
+            return (widths.reduce(0, +), widths.count)
+        }
+
+        // Single-island modes: the older 8 pt inner-gap estimate (Phase 11b reworks these).
         func fixedWidth(_ sections: [BarSection]) -> CGFloat? {
             if sections.contains(.apps) { return nil }
-            var total: CGFloat = 0
-            var count = 0
-            for sec in sections {
-                let w = width(for: sec)
-                if w > 0 {
-                    total += w
-                    count += 1
-                }
-            }
-            if count > 0 {
-                total += CGFloat(count - 1) * 8 // 8 points gap inside an island group
-            }
-            return total
+            let (total, count) = sectionsWidth(sections)
+            return count > 0 ? total + CGFloat(count - 1) * 8 : total
+        }
+
+        let chromeScale = IslandChrome.scale(barHeight: barHeight)
+
+        // Split modes: the width the strip really draws — content insets + dividers (Phase 11a).
+        func fixedIslandWidth(_ sections: [BarSection]) -> CGFloat {
+            let (total, count) = sectionsWidth(sections)
+            return IslandChrome.fixedIslandWidth(contentWidth: total, sectionCount: count, scale: chromeScale)
         }
 
         func appsWidth(_ count: Int) -> CGFloat {
@@ -174,56 +177,57 @@ enum IslandLayoutSolver {
         case .split3, .split4, .split5:
             var frames = [CGRect](repeating: .zero, count: islandSections.count)
             let appsIndex = islandSections.firstIndex(where: { $0.contains(.apps) }) ?? 0
+            let hasApps = islandSections.indices.contains(appsIndex) && islandSections[appsIndex].contains(.apps)
+
+            // Overlap resolution (Phase 11a): the fixed islands plus the smallest apps island
+            // must fit the span. First collapse the gaps to their minimum, then shrink the fixed
+            // islands proportionally (their content scrolls inside). Islands never overlap.
+            var fixedWidths = islandSections.map { $0.contains(.apps) ? 0 : fixedIslandWidth($0) }
+            let span = max(0, screenWidth - 2 * effectiveMargin)
+            let gapCount = CGFloat(max(0, islandSections.count - 1))
+            let minApps = hasApps ? min(appsWidth(1), span) : 0
+            var islandGap = effectiveGap
+            func required() -> CGFloat { fixedWidths.reduce(0, +) + gapCount * islandGap + minApps }
+            if required() > span { islandGap = 0.5 }
+            let fixedTotal = fixedWidths.reduce(0, +)
+            if required() > span, fixedTotal > 0 {
+                let shrink = max(0, (span - minApps - gapCount * islandGap) / fixedTotal)
+                fixedWidths = fixedWidths.map { $0 * shrink }
+            }
 
             // Position leading islands from left to right.
             var leftEdge = screenOriginX + effectiveMargin
             for index in 0..<appsIndex {
-                let sections = islandSections[index]
-                let width = fixedWidth(sections) ?? 0
+                let width = fixedWidths[index]
                 frames[index] = CGRect(x: leftEdge, y: y, width: width, height: barHeight)
-                leftEdge += width + effectiveGap
+                leftEdge += width + islandGap
             }
 
             // Position trailing islands from right to left.
             var rightEdge = screenOriginX + screenWidth - effectiveMargin
             for index in stride(from: islandSections.count - 1, through: appsIndex + 1, by: -1) {
-                let sections = islandSections[index]
-                let width = fixedWidth(sections) ?? 0
+                let width = fixedWidths[index]
                 rightEdge -= width
                 frames[index] = CGRect(x: rightEdge, y: y, width: width, height: barHeight)
-                rightEdge -= effectiveGap
+                rightEdge -= islandGap
             }
 
             var visibleApps = appCount
             var overflow = false
 
-            if appsIndex < islandSections.count {
-                let leftReserved = leftEdge - screenOriginX
-                let rightReserved = (screenOriginX + screenWidth - effectiveMargin) - rightEdge
-                // The Apps island stays strictly centered, but we must make sure it doesn't collide
-                // with leftReserved or rightReserved.
-                let maxAllowedHalfWidth = (screenWidth / 2) - max(leftReserved, rightReserved) - effectiveGap
-                let maxAllowedWidth = max(0, maxAllowedHalfWidth * 2)
-
-                while visibleApps > 1, appsWidth(visibleApps) > maxAllowedWidth {
+            if hasApps {
+                // The apps island stays screen-centred while it fits; with lopsided widget groups
+                // it slides toward the roomier side instead of dropping tiles early.
+                let available = max(0, rightEdge - leftEdge)
+                while visibleApps > 1, appsWidth(visibleApps) > available {
                     visibleApps -= 1
                 }
                 overflow = visibleApps < appCount
 
-                let available = screenWidth - leftReserved - rightReserved
-                let width = max(tileStride, min(appsWidth(visibleApps), max(0, available)))
-                let spanWidth = max(0, available)
-                frames[appsIndex] = CGRect(
-                    x: screenOriginX + leftReserved + max(0, (spanWidth - width) / 2),
-                    y: y,
-                    width: width,
-                    height: barHeight
-                )
-            }
-
-            // Clamping pass: validate against screen bounds
-            for i in 0..<frames.count {
-                frames[i].origin.x = max(screenOriginX, min(frames[i].origin.x, screenOriginX + screenWidth - frames[i].width))
+                let width = min(appsWidth(visibleApps), available)
+                let centredX = screenOriginX + (screenWidth - width) / 2
+                let x = min(max(centredX, leftEdge), rightEdge - width)
+                frames[appsIndex] = CGRect(x: x, y: y, width: width, height: barHeight)
             }
 
             let islands = islandSections.enumerated().map { (index, sections) in
@@ -275,3 +279,42 @@ enum IslandLayoutSolver {
         return true
     }
 }
+
+/// Chrome `DockStripView` draws around and between a fixed island's sections: the horizontal
+/// content inset at both ends and a divider gap between neighbouring sections, both scaled with
+/// the bar height. The solver sizes fixed islands with it so a frame never clips its own content
+/// (Phase 11a: split islands were 8 pt-gap estimates, ~45 pt narrower than what the strip drew).
+enum IslandChrome {
+    /// `DockStripView.Style.chipContentInset` at native scale.
+    static let contentInset: CGFloat = 20
+    /// Divider gap between sections inside one island (`StripContextMenuZone.dividerGapWidth`).
+    static let dividerGap: CGFloat = StripContextMenuZone.dividerGapWidth
+    /// The bar height `dockScale` is measured against (`DockPanelHeight.native`).
+    static let nativeBarHeight: CGFloat = 54
+
+    static func scale(barHeight: CGFloat) -> CGFloat {
+        barHeight / nativeBarHeight
+    }
+
+    static func fixedIslandWidth(contentWidth: CGFloat, sectionCount: Int, scale: CGFloat) -> CGFloat {
+        guard sectionCount > 0 else { return 0 }
+        return contentWidth + 2 * contentInset * scale + CGFloat(sectionCount - 1) * dividerGap * scale
+    }
+
+    /// Chrome + island gaps a mode spends besides the widget widths themselves; feeds the widget
+    /// auto-degrade budget so L→M→S kicks in before islands would collide.
+    static func overhead(mode: BarLayoutMode, order: [BarSection], gap: CGFloat, scale: CGFloat) -> CGFloat {
+        let islands = BarSection.islands(for: mode, order: order)
+        var total = CGFloat(max(0, islands.count - 1)) * max(0.5, gap)
+        for sections in islands {
+            let widgets = sections.filter { $0 != .apps }.count
+            if sections.contains(.apps) {
+                total += CGFloat(widgets) * dividerGap * scale
+            } else if widgets > 0 {
+                total += fixedIslandWidth(contentWidth: 0, sectionCount: widgets, scale: scale)
+            }
+        }
+        return total
+    }
+}
+
