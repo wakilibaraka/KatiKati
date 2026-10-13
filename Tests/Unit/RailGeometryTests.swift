@@ -106,5 +106,40 @@ final class RailGeometryTests: XCTestCase {
         XCTAssertEqual(bottom, ChipPanelLayout.placement(anchor: anchor, plate: CGSize(width: 240, height: 160),
                                                          screen: screen.frame, stripPlacement: .bottom))
     }
+
+    // MARK: 18e window clearance
+
+    func testMaximizedWindowNarrowsAwayFromALeftRail() {
+        let visible = CGRect(x: 0, y: 0, width: 1710, height: 1074)
+        let geometry = WindowLiftAvoidance.Geometry(screenFrame: screen.frame, visibleFrame: visible,
+                                                    taskbarTop: 8 + 54, placement: .left)
+        let target = geometry.liftTargetFrame(for: visible, includesTiles: true)
+        XCTAssertNotNil(target)
+        guard let target else { return }
+        XCTAssertEqual(target.minX, 62 + WindowLiftAvoidance.clearance, accuracy: 0.001)
+        XCTAssertEqual(target.maxX, visible.maxX, accuracy: 0.001, "far side unchanged")
+        XCTAssertEqual(target.minY, visible.minY, accuracy: 0.001)
+        XCTAssertEqual(target.maxY, visible.maxY, accuracy: 0.001, "full height kept")
+    }
+
+    func testRightRailClearsTheRightEdgeAndLeavesLeftHalvesAlone() {
+        let visible = CGRect(x: 0, y: 0, width: 1710, height: 1074)
+        let edge = screen.frame.maxX - 62
+        let geometry = WindowLiftAvoidance.Geometry(screenFrame: screen.frame, visibleFrame: visible,
+                                                    taskbarTop: edge, placement: .right)
+        let rightHalf = CGRect(x: 855, y: 0, width: 855, height: 1074)
+        let target = geometry.liftTargetFrame(for: rightHalf, includesTiles: true)
+        XCTAssertEqual(target?.maxX ?? 0, edge - WindowLiftAvoidance.clearance, accuracy: 0.001)
+        XCTAssertEqual(target?.minX ?? 0, 855, accuracy: 0.001)
+        let leftHalf = CGRect(x: 0, y: 0, width: 855, height: 1074)
+        XCTAssertNil(geometry.liftTargetFrame(for: leftHalf, includesTiles: true), "not docked against the rail")
+    }
+
+    func testBottomGeometryIsUnchangedByThePlacementField() {
+        let visible = CGRect(x: 0, y: 0, width: 1710, height: 1074)
+        let a = WindowLiftAvoidance.Geometry(screenFrame: screen.frame, visibleFrame: visible, taskbarTop: 62)
+        let b = WindowLiftAvoidance.Geometry(screenFrame: screen.frame, visibleFrame: visible, taskbarTop: 62, placement: .bottom)
+        XCTAssertEqual(a.liftTargetFrame(for: visible, includesTiles: true), b.liftTargetFrame(for: visible, includesTiles: true))
+    }
 }
 

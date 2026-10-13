@@ -2629,6 +2629,13 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   Launcher keeps clear of a rail (`LauncherScreenInsets` leading/trailing), weather/calendar panels add the
   rail's width to their side inset. Memory pill unchanged (overlay inside the strip). Tests: popup / tooltip /
   chip-panel placement on rails, launcher insets. Suite 2212 green.
+- 2026-10-13 · **18e built (window clearance on a rail).** `WindowLiftAvoidance.Geometry.placement`: on a rail
+  the three entry points the controller uses (`isLiftEligible`, `liftTargetFrame`,
+  `suppressionReleasesOnNewFrame`) run the unchanged bottom rules in bottom-strip space
+  (`StripAxis.unmap`, back with `map`) — maximized windows and windows tiled against the rail are narrowed
+  away from it, height and far side kept; windows tiled on the other side are left alone. The coordinator
+  passes the rail's inner x as `taskbarTop`. 3 tests. **Owed:** the Phase 5 Accessibility drill (kill -9,
+  frame restore) per placement — in the end-of-phase live check. Suite 2215 green.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

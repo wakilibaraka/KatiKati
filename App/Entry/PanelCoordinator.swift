@@ -518,14 +518,21 @@ final class PanelCoordinator: NSObject {
 
         let screen = panelCurrentScreen(panel: panel)
         let primaryScreenHeight = Self.quartzPrimaryScreenHeight
+        // Visibility guards above stay live (a hidden or unplugged bar leaves the set);
+        // only the height is frozen during a drag, see `liftContextPanelHeightOverride`.
+        let thickness = layoutMetrics.bottomGap + (liftContextPanelHeightOverride ?? layoutMetrics.panelHeight)
+        let placement = stripPlacement
+        let innerEdge: CGFloat
+        switch placement {
+        case .bottom: innerEdge = screen.frame.minY + thickness
+        case .left: innerEdge = screen.frame.minX + thickness
+        case .right: innerEdge = screen.frame.maxX - thickness
+        }
         let geometry = WindowLiftAvoidance.Geometry(
             screenFrame: screen.frame,
             visibleFrame: screen.visibleFrame,
-            // Visibility guards above stay live (a hidden or unplugged bar leaves the set);
-            // only the height is frozen during a drag, see `liftContextPanelHeightOverride`.
-            taskbarTop: screen.frame.minY
-                + layoutMetrics.bottomGap
-                + (liftContextPanelHeightOverride ?? layoutMetrics.panelHeight)
+            taskbarTop: innerEdge,
+            placement: placement
         )
         return WindowLiftAvoidanceContext(
             geometry: geometry,

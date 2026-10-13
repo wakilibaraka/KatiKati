@@ -112,7 +112,31 @@ enum WindowLiftAvoidance {
         /// AppKit global coordinates (bottom-left origin).
         let screenFrame: CGRect
         let visibleFrame: CGRect
+        /// The strip's inner edge: its top on the bottom bar; on a side rail (Phase 18e) the rail's
+        /// inner x — `maxX` of a left rail's plate, `minX` of a right rail's.
         let taskbarTop: CGFloat
+        /// Which edge the strip occupies. A rail runs the same rules in bottom-strip space
+        /// (`StripAxis.unmap`): the rail's edge becomes the "bottom", so a maximized window or a
+        /// window tiled against the rail is narrowed away from it, top and far side unchanged.
+        var placement: StripPlacement = .bottom
+
+        /// This geometry seen as a bottom strip (identity for `.bottom`).
+        private var asBottomStrip: Geometry {
+            guard placement.isVertical else { return self }
+            let edge = placement == .left ? taskbarTop - screenFrame.minX : screenFrame.maxX - taskbarTop
+            return Geometry(screenFrame: StripAxis.unmap(screenFrame, placement: placement, screen: screenFrame),
+                            visibleFrame: StripAxis.unmap(visibleFrame, placement: placement, screen: screenFrame),
+                            taskbarTop: edge)
+        }
+
+        private func toStripSpace(_ frame: CGRect) -> CGRect {
+            StripAxis.unmap(frame, placement: placement, screen: screenFrame)
+        }
+
+        private func fromStripSpace(_ frame: CGRect) -> CGRect {
+            guard placement.isVertical else { return frame }
+            return StripAxis.map(frame, placement: placement, screen: screenFrame, topInset: 0)
+        }
 
         func fillsVisibleFrame(
             _ frame: CGRect,
@@ -162,7 +186,10 @@ enum WindowLiftAvoidance {
         /// `includesTiles` (`DOCK_WINDOW_LIFT_TILES`). No default on purpose — the controller's
         /// kill switch must reach every call.
         func isLiftEligible(_ frame: CGRect, includesTiles: Bool) -> Bool {
-            fillsVisibleFrame(frame) || (includesTiles && isBottomDockedTile(frame))
+            if placement.isVertical {
+                return asBottomStrip.isLiftEligible(toStripSpace(frame), includesTiles: includesTiles)
+            }
+            return fillsVisibleFrame(frame) || (includesTiles && isBottomDockedTile(frame))
         }
 
         /// `adjustedFrame(for:)` widened to bottom-docked tiles: same target bottom, same fixed
@@ -172,6 +199,10 @@ enum WindowLiftAvoidance {
             includesTiles: Bool,
             clearance: CGFloat = WindowLiftAvoidance.clearance
         ) -> CGRect? {
+            if placement.isVertical {
+                return asBottomStrip.liftTargetFrame(for: toStripSpace(frame), includesTiles: includesTiles,
+                                                     clearance: clearance).map(fromStripSpace)
+            }
             guard isLiftEligible(frame, includesTiles: includesTiles),
                   clearance.isFinite,
                   clearance >= 0,
@@ -196,6 +227,11 @@ enum WindowLiftAvoidance {
             userEra: Bool,
             includesTiles: Bool
         ) -> Bool {
+            if placement.isVertical {
+                return asBottomStrip.suppressionReleasesOnNewFrame(
+                    toStripSpace(frame), suppressedNative: toStripSpace(suppressedNative),
+                    userEra: userEra, includesTiles: includesTiles)
+            }
             guard includesTiles, userEra, isLiftEligible(frame, includesTiles: true) else {
                 return false
             }
