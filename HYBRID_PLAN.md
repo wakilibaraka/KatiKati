@@ -2675,6 +2675,43 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   thickness (`BarSection.railTileLength`). Live-checked idle on the left rail (legible); active-state check
   pending (system dialog was in front). Suite 2222 green.
 
+### Phase 16 — Edge-deck widgets into the widget pane + wifi → Quick Settings (owner 2026-10-13; runs before Phase 12)
+
+**Owner decisions (2026-10-13):** iPad is the default widget view; the four deck widget buttons
+(weather / system / bluetooth / now playing) **also** render as tiles in the calendar pane; the deck
+buttons **keep their current behaviour — nothing is removed** ("keep current behavior"); wifi's deck
+button becomes a Quick Settings control panel; tiles are solid by default with an optional glass look.
+
+- **16a — port (not redesign):** `WeatherTile`, `SystemTile`, `BluetoothTile`, `NowPlayingPortTile`
+  appended to `App/Scenes/CalendarPanelView.swift` in the existing tile vocabulary
+  (`BandTile`/`tileSurface`), reusing the shared `WeatherService` (`WeatherPanelHost.service`),
+  `ProductivityServices.shared.systemMonitor`, `BluetoothDeviceReader`, `NowPlayingService`. Four new
+  `TileKind` cases with palette accents (classic/vivid/pastel/mono). Wired into the iPad grid.
+- **16b — iPad default:** `CalendarPanelLayout.resolve` fresh-install fallback `.tall` → `.ipad`
+  (existing stored choices kept); Settings picker default follows.
+- **16c — clock/date as presets:** `CalendarClockStyle` gains `.date`; the clock tile shows a date
+  line under the face and a full date card for `.date`; the separate `DateTile` is absorbed (no
+  duplication).
+- **16d — wifi → Quick Settings:** `QuickSettingsPanelView` (shared `QuickToggleEngine.shared`,
+  `QuickToggleID.defaultOrder`); the deck's `.status(.wifi)` opens it instead of the small status
+  popup. Battery/volume unchanged. `PinboardPanelController` switched to the shared engine so
+  keep-awake never diverges.
+- **16e — deck unchanged:** no edge-deck widget is removed; the deck buttons keep their flyouts/panes.
+- **16f — solid default + glass toggle:** `TileEnv.glass` + `tileSurface` material branch; Settings ›
+  widget section toggle (reuses the catalogued "Glass" key). Off by default.
+- **Verify:** tungsten gate green — **2,222 tests, 0 failures**, localization ✅ (714 keys ×12),
+  debug switches ✅. No new strings (all reused).
+
+- 2026-10-13 · **Phase 16 built (16a–16f), gate green.** Files: `Core/Support/CalendarPanelModels.swift`
+  (iPad default, `.date` clock style, 4 new `TileKind` + accents), `App/Scenes/CalendarPanelView.swift`
+  (ported tiles, unified date face, glass env, iPad grid), `App/Scenes/WidgetTileKit.swift` (glass),
+  `App/Scenes/WidgetExtraTiles.swift` (glass key, wide-clock date face), `App/Scenes/SettingsWindowView.swift`
+  (Glass toggle, Date clock preset), `App/Scenes/Edge/StatusTrioView.swift` (`QuickSettingsPanelView`),
+  `App/Entry/EdgeBarPanelController.swift` (wifi → Quick Settings), `Platform/Pinboard/QuickToggleEngine.swift`
+  (shared engine), `App/Entry/PinboardPanelController.swift` (shared engine). **Not done / owner eyeball:**
+  live check of the new pane tiles, the Quick Settings panel, glass mode, the `.date` preset; idle-CPU
+  number not taken; iPad grid is now four rows — short screens may clip (budget adjusted, not measured live).
+
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
 **Note:** the AI agent may analyse the live app to do both parts together — they touch the same pages

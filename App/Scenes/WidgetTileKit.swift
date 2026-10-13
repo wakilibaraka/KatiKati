@@ -16,6 +16,8 @@ struct TileEnv {
     /// Phase 5i: when set, the tile is a slice of the weather sky — solid sky colour, auto-contrast text.
     var skyBase: Color? = nil
     var skyDarkText = false
+    /// Phase 16f: draw the tile on `.ultraThinMaterial` instead of the solid base (off by default).
+    var glass = false
 
     var base: Color { skyBase ?? (isDark ? Color(red: 0.14, green: 0.14, blue: 0.16) : .white) }
     var text: Color {
@@ -88,7 +90,13 @@ extension View {
 
 extension View {
     func tileSurface(_ env: TileEnv, radius: CGFloat = WidgetMetrics.radius) -> some View {
-        background(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(env.base))
+        background {
+            if env.glass {
+                RoundedRectangle(cornerRadius: radius, style: .continuous).fill(.ultraThinMaterial)
+            } else {
+                RoundedRectangle(cornerRadius: radius, style: .continuous).fill(env.base)
+            }
+        }
             .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: radius, style: .continuous).stroke(env.hairline, lineWidth: 0.5))
             .overlay(

@@ -16,7 +16,7 @@ final class PinboardPanelController {
     private var panel: PinboardPanel?
     private var host: NSHostingView<AnyView>?
     private var outsideMonitor: Any?
-    private let toggles = QuickToggleEngine()
+    private let toggles = QuickToggleEngine.shared
     private let defaults = UserDefaults.standard
     private let originKey = "com.katikati.pinboard.origin"
 

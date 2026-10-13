@@ -9,6 +9,10 @@ import SwiftUI
 /// CoreWLAN); Night Shift and Bluetooth power use private frameworks and report unavailable if the symbols are gone.
 @MainActor
 final class QuickToggleEngine: ObservableObject {
+    /// Phase 16d: the edge deck's Quick Settings panel and Pinboard share one engine, so keep-awake
+    /// and the switch states never diverge between the two surfaces.
+    static let shared = QuickToggleEngine()
+
     @Published private(set) var states: [QuickToggleID: Bool] = [:]
     @Published private(set) var unavailable: Set<QuickToggleID> = []
     @Published private(set) var flash: QuickToggleID?

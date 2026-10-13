@@ -172,3 +172,53 @@ struct BluetoothFlyoutView: View {
         loading = false
     }
 }
+
+/// Phase 16d: the wifi deck button opens this control-panel UI — the same one-tap switches as the
+/// Pinboard Quick Settings card, through the shared `QuickToggleEngine`. Theme-adaptive (light/dark).
+struct QuickSettingsPanelView: View {
+    @ObservedObject var engine: QuickToggleEngine
+    let order: [QuickToggleID]
+    @State private var confirming: QuickToggleID?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Quick Settings").font(.headline)
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 4), spacing: 10) {
+                ForEach(order, id: \.self) { id in cell(id) }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(14)
+        .frame(width: 300, height: 214, alignment: .topLeading)
+        .onAppear { engine.refresh() }
+    }
+
+    private func cell(_ id: QuickToggleID) -> some View {
+        let on = engine.states[id] ?? false
+        let gone = engine.unavailable.contains(id)
+        let armed = confirming == id
+        return Button {
+            if id.needsConfirm && !armed {
+                confirming = id
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) { if confirming == id { confirming = nil } }
+                return
+            }
+            confirming = nil
+            engine.perform(id)
+        } label: {
+            VStack(spacing: 4) {
+                Image(systemName: engine.flash == id ? "checkmark" : id.symbolName)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(on || armed ? .white : .primary)
+                    .frame(width: 44, height: 44)
+                    .background(Circle().fill(armed ? Color.red.opacity(0.9) : (on ? Color.accentColor : Color.primary.opacity(0.10))))
+                    .overlay(armed ? Image(systemName: "exclamationmark").font(.system(size: 9, weight: .heavy)).foregroundColor(.white).offset(x: 14, y: -14) : nil)
+                id.title.font(.system(size: 9, weight: .medium)).lineLimit(1).minimumScaleFactor(0.7)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .buttonStyle(.plain)
+        .opacity(gone ? 0.35 : 1)
+        .disabled(gone)
+    }
+}

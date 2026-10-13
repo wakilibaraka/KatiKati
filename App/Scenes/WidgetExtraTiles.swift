@@ -66,6 +66,8 @@ enum WidgetExtraPrefs {
     static let showNotesKey = "com.katikati.widgets.showNotes"
     static let showStopwatchKey = "com.katikati.widgets.showStopwatch"
     static let notesKey = "com.katikati.widgets.notes"
+    /// Phase 16f: glass/blur tiles in the widget pane (off = solid, the default).
+    static let glassTilesKey = "com.katikati.widgets.glass"
 }
 
 // MARK: - Clock + time zones (full width)
@@ -139,6 +141,9 @@ struct ClockWideTile: View {
         case .analog:
             let d = min(leftW, height - 32)
             AnalogFace(env: env, date: date).frame(width: d, height: d).frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .date:
+            ClockDateFace(env: env, date: date, width: leftW, height: height - 32)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 

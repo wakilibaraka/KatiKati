@@ -118,6 +118,11 @@ struct SettingsWindowContent: View {
                         Spacer(minLength: 12)
                         CalendarClockStylePicker()
                     }
+                    HStack {
+                        Text("Glass")
+                        Spacer(minLength: 12)
+                        GlassTilesToggle()
+                    }
                     WeatherSettingsBlock()
 
                     HStack {
@@ -193,6 +198,12 @@ struct SettingsWindowContent: View {
                         Text("Clock Style")
                     } control: {
                         CalendarClockStylePicker()
+                    }
+                    Divider().opacity(0.5)
+                    groupRow {
+                        Text("Glass")
+                    } control: {
+                        GlassTilesToggle()
                     }
                     Divider().opacity(0.5)
                     WeatherSettingsBlock()
@@ -769,7 +780,7 @@ extension DiagnosticReport {
 /// Settings for the floating widget tiles (Phase 5e). Plain `@AppStorage`: the panel reads the same
 /// keys every time it opens (layout) or live (palette, clock style).
 private struct CalendarLayoutPicker: View {
-    @AppStorage(CalendarPanelLayout.storageKey) private var layout: CalendarPanelLayout = .tall
+    @AppStorage(CalendarPanelLayout.storageKey) private var layout: CalendarPanelLayout = .ipad
 
     var body: some View {
         Picker("Widget Layout", selection: $layout) {
@@ -803,8 +814,19 @@ private struct CalendarClockStylePicker: View {
         Picker("Clock Style", selection: $style) {
             Text("Flip clock").tag(CalendarClockStyle.flip)
             Text("Analog").tag(CalendarClockStyle.analog)
+            Text("Date").tag(CalendarClockStyle.date)
         }
         .pickerStyle(.menu).labelsHidden()
+    }
+}
+
+/// Phase 16f: glass/blur tiles in the widget pane (off = solid, the default). Label lives on the row.
+private struct GlassTilesToggle: View {
+    @AppStorage(WidgetExtraPrefs.glassTilesKey) private var glassTiles = false
+
+    var body: some View {
+        Toggle(isOn: $glassTiles) { EmptyView() }
+            .toggleStyle(.switch).labelsHidden()
     }
 }
 

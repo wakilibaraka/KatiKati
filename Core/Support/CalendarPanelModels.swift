@@ -231,16 +231,16 @@ enum WidgetPanelSide: Sendable { case left, right }
 
 extension CalendarPanelLayout {
     /// The shared widget layout: the stored choice, else the pre-rework size preset mapped over
-    /// (`compact420`→mac, `halfScreen`→ipad), else **Tall** for fresh installs. The result is persisted.
+    /// (`compact420`→mac, `halfScreen`→ipad), else **iPad** for fresh installs (Phase 16b). The result is persisted.
     static func resolve(defaults: UserDefaults = .standard) -> CalendarPanelLayout {
         if let raw = defaults.string(forKey: storageKey), let layout = CalendarPanelLayout(rawValue: raw) { return layout }
-        let migrated = CalendarPanelSettingsMigration.layout(fromLegacy: defaults.string(forKey: "com.katikati.calendar.panelPreset")) ?? .tall
+        let migrated = CalendarPanelSettingsMigration.layout(fromLegacy: defaults.string(forKey: "com.katikati.calendar.panelPreset")) ?? .ipad
         defaults.set(migrated.rawValue, forKey: storageKey)
         return migrated
     }
 }
 
-enum TileKind: CaseIterable { case date, clock, focus, calendar, agenda, reminders, alarms, timer, stopwatch, notes, countdown }
+enum TileKind: CaseIterable { case date, clock, focus, calendar, agenda, reminders, alarms, timer, stopwatch, notes, countdown, weather, system, bluetooth, nowPlaying }
 
 public struct TileRGB: Equatable, Sendable { public let r: Double; public let g: Double; public let b: Double
     public init(r: Double, g: Double, b: Double) { self.r = r; self.g = g; self.b = b } }
@@ -266,6 +266,10 @@ enum TilePalette: String, CaseIterable, Codable, Sendable {
             case .stopwatch: return TileRGB(r: 0.37, g: 0.36, b: 0.90)
             case .notes: return TileRGB(r: 0.98, g: 0.80, b: 0.10)
             case .countdown: return TileRGB(r: 0.69, g: 0.32, b: 0.87)
+            case .weather: return TileRGB(r: 0.30, g: 0.62, b: 0.95)
+            case .system: return TileRGB(r: 0.10, g: 0.68, b: 0.62)
+            case .bluetooth: return TileRGB(r: 0.20, g: 0.48, b: 0.95)
+            case .nowPlaying: return TileRGB(r: 0.90, g: 0.30, b: 0.45)
             }
         case .vivid:
             switch tile {
@@ -279,6 +283,10 @@ enum TilePalette: String, CaseIterable, Codable, Sendable {
             case .stopwatch: return TileRGB(r: 0.30, g: 0.30, b: 1.00)
             case .notes: return TileRGB(r: 1.00, g: 0.82, b: 0.00)
             case .countdown: return TileRGB(r: 0.75, g: 0.20, b: 0.95)
+            case .weather: return TileRGB(r: 0.00, g: 0.60, b: 1.00)
+            case .system: return TileRGB(r: 0.00, g: 0.80, b: 0.60)
+            case .bluetooth: return TileRGB(r: 0.20, g: 0.40, b: 1.00)
+            case .nowPlaying: return TileRGB(r: 1.00, g: 0.20, b: 0.50)
             }
         case .pastel:
             switch tile {
@@ -292,6 +300,10 @@ enum TilePalette: String, CaseIterable, Codable, Sendable {
             case .stopwatch: return TileRGB(r: 0.62, g: 0.60, b: 0.95)
             case .notes: return TileRGB(r: 0.98, g: 0.88, b: 0.45)
             case .countdown: return TileRGB(r: 0.80, g: 0.62, b: 0.92)
+            case .weather: return TileRGB(r: 0.55, g: 0.78, b: 0.98)
+            case .system: return TileRGB(r: 0.55, g: 0.90, b: 0.80)
+            case .bluetooth: return TileRGB(r: 0.62, g: 0.72, b: 0.98)
+            case .nowPlaying: return TileRGB(r: 0.98, g: 0.62, b: 0.72)
             }
         case .mono:
             return TileRGB(r: 0.36, g: 0.37, b: 0.41)
@@ -300,7 +312,7 @@ enum TilePalette: String, CaseIterable, Codable, Sendable {
 }
 
 enum CalendarClockStyle: String, CaseIterable, Codable, Sendable {
-    case flip, analog
+    case flip, analog, date
     static let storageKey = "com.katikati.calendar.clockStyle"
 }
 

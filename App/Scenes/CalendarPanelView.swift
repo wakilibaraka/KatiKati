@@ -13,6 +13,7 @@ struct CalendarPanelView: View {
 
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
     @AppStorage(CalendarClockStyle.storageKey) private var clockStyle: CalendarClockStyle = .flip
+    @AppStorage(WidgetExtraPrefs.glassTilesKey) private var glassTiles = false
     @Environment(\.colorScheme) private var colorScheme
     @ObservedObject private var calendarService = ProductivityServices.shared.calendar
     @StateObject private var clocks = WorldClockStore()
@@ -31,7 +32,7 @@ struct CalendarPanelView: View {
     private let alarmRow: CGFloat = 30
 
     var body: some View {
-        let env = TileEnv(palette: palette, isDark: colorScheme == .dark)
+        let env = TileEnv(palette: palette, isDark: colorScheme == .dark, glass: glassTiles)
         let inner = width - 2 * gutter
         VStack(spacing: gap) {
             switch layout {
@@ -136,11 +137,11 @@ struct CalendarPanelView: View {
         let u = (inner - 2 * gap) / 3
         let wide = 2 * u + gap
         let agendaRows = max(2, Int((u - 24 - 50) / 34))
-        let fixed = 2 * gutter + 2 * u + 3 * gap + bandHeight + 10
+        let fixed = 2 * gutter + 3 * u + 4 * gap + bandHeight + 10
         let rows = listRows(budget: maxHeight - fixed)
         return VStack(spacing: gap) {
             HStack(spacing: gap) {
-                DateTile(env: env, service: calendarService, width: u, height: u)
+                WeatherTile(env: env, width: u, height: u)
                 AgendaPane(env: env, service: calendarService, maxRows: agendaRows, compact: false)
                     .padding(14)
                     .frame(width: wide, height: u, alignment: .topLeading)
@@ -152,6 +153,11 @@ struct CalendarPanelView: View {
                     .frame(width: wide, height: u, alignment: .top)
                     .tileSurface(env)
                 ClockTile(env: env, store: clocks, style: clockStyle, width: u, height: u, zoneLimit: 3)
+            }
+            HStack(alignment: .top, spacing: gap) {
+                SystemTile(env: env, width: u, height: u)
+                BluetoothTile(env: env, width: u, height: u)
+                NowPlayingPortTile(env: env, width: u, height: u)
             }
             HStack(alignment: .top, spacing: gap) {
                 FocusTile(env: env, controller: focus, width: u, height: bandHeight + CGFloat(rows) * reminderRow + 10)
@@ -173,16 +179,15 @@ struct CalendarPanelView: View {
     private func listRows(budget: CGFloat) -> Int { max(2, min(5, Int(budget / alarmRow))) }
 }
 
-// MARK: - Date tile (iPad)
+// MARK: - Date card face (Phase 16c: the clock tile's `.date` preset)
 
-struct DateTile: View {
+struct ClockDateFace: View {
     let env: TileEnv
-    @ObservedObject var service: CalendarService
+    let date: Date
     let width: CGFloat
     let height: CGFloat
 
     var body: some View {
-        let date = service.selectedDate
         VStack(spacing: 0) {
             Text(date.formatted(.dateTime.month(.wide)).uppercased())
                 .font(.system(size: 18, weight: .bold)).foregroundColor(env.onAccent(.date))
@@ -198,7 +203,6 @@ struct DateTile: View {
         }
         .frame(width: width, height: height)
         .tileSurface(env)
-        .onTapGesture { service.selectedDate = Date(); service.displayedMonth = Date() }
     }
 }
 
@@ -389,6 +393,11 @@ struct ClockTile: View {
             TimelineView(.periodic(from: Date(), by: 1)) { ctx in
                 VStack(spacing: 6) {
                     face(at: ctx.date).frame(maxWidth: .infinity)
+                    if style != .date {
+                        Text(ctx.date.formatted(.dateTime.weekday(.wide).day().month(.wide)))
+                            .font(.system(size: 11, weight: .semibold)).foregroundColor(env.secondary)
+                            .lineLimit(1).minimumScaleFactor(0.7)
+                    }
                     Spacer(minLength: 0)
                     ForEach(store.identifiers.prefix(zoneLimit), id: \.self) { id in
                         if let r = WorldClockModel.reading(for: id, at: ctx.date) {
@@ -426,6 +435,8 @@ struct ClockTile: View {
             }
         case .analog:
             AnalogFace(env: env, date: date).frame(width: min(width - 24, height * 0.46), height: min(width - 24, height * 0.46))
+        case .date:
+            ClockDateFace(env: env, date: date, width: width - 24, height: height - 44)
         }
     }
 
@@ -626,6 +637,156 @@ struct AlarmsTile: View {
                         .contextMenu { Button("Remove") { store.remove(a.id) } }
                     }
                 }
+            }
+        })
+    }
+}
+
+// MARK: - Ported deck widgets (Phase 16a)
+
+// The four edge-deck widget buttons (weather / system / bluetooth / now playing) also render as tiles
+// in the calendar pane, reusing the same shared services. The deck buttons keep their own behaviour
+// (owner 2026-10-13: "keep current behavior"); these are the pane-side copies in the tile vocabulary.
+
+/// Weather tile — reuses the shared `WeatherService` (`WeatherPanelHost.service`).
+struct WeatherTile: View {
+    let env: TileEnv
+    let width: CGFloat
+    let height: CGFloat
+
+    var body: some View {
+        if let service = WeatherPanelHost.service {
+            WeatherTileBody(env: env, service: service, width: width, height: height)
+        } else {
+            BandTile(env: env, kind: .weather, width: width, height: height, header: { Text("Weather") }, content: {
+                Text("No Weather Yet").font(.system(size: 12)).foregroundColor(env.secondary)
+            })
+        }
+    }
+}
+
+private struct WeatherTileBody: View {
+    let env: TileEnv
+    @ObservedObject var service: WeatherService
+    let width: CGFloat
+    let height: CGFloat
+
+    var body: some View {
+        let s = service.currentState
+        BandTile(env: env, kind: .weather, width: width, height: height, header: { Text("Weather") }, content: {
+            VStack(alignment: .leading, spacing: 2) {
+                if s.cityName.isEmpty {
+                    Text("No Weather Yet").font(.system(size: 12)).foregroundColor(env.secondary)
+                } else {
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text(verbatim: "\(Int(s.temperatureCelsius.rounded()))°")
+                            .font(.system(size: max(20, height * 0.30), weight: .medium)).monospacedDigit()
+                        Spacer(minLength: 0)
+                        Image(systemName: s.symbolName).font(.system(size: 18)).symbolRenderingMode(.multicolor)
+                    }
+                    Text(verbatim: s.cityName).font(.system(size: 11, weight: .semibold)).lineLimit(1)
+                    Text(verbatim: s.conditionText).font(.system(size: 11)).foregroundColor(env.secondary).lineLimit(1)
+                }
+            }
+        })
+    }
+}
+
+/// System tile — CPU / memory / disk from the shared monitor; samples only while on screen.
+struct SystemTile: View {
+    let env: TileEnv
+    let width: CGFloat
+    let height: CGFloat
+    @ObservedObject private var monitor = ProductivityServices.shared.systemMonitor
+
+    var body: some View {
+        let s = monitor.snapshot
+        BandTile(env: env, kind: .system, width: width, height: height, header: { Text("System") }, content: {
+            VStack(alignment: .leading, spacing: 5) {
+                bar(Text("CPU"), s.cpu)
+                bar(Text("Memory"), s.memory.fraction)
+                bar(Text("Disk"), s.disk.usedFraction)
+            }
+        })
+        .onAppear { monitor.acquire() }
+        .onDisappear { monitor.release() }
+    }
+
+    private func bar(_ label: Text, _ fraction: Double) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            HStack { label.font(.system(size: 9, weight: .semibold)); Spacer(minLength: 2)
+                Text(verbatim: SystemMonitorFormat.percent(fraction)).font(.system(size: 9)).foregroundColor(env.secondary) }
+            ProgressView(value: min(1, max(0, fraction))).progressViewStyle(.linear).tint(env.accent(.system))
+        }
+    }
+}
+
+@MainActor
+private final class BluetoothTileModel: ObservableObject {
+    @Published var devices: [BluetoothDevice] = []
+    @Published var loading = true
+    func load() async {
+        loading = true
+        devices = await BluetoothDeviceReader.read()
+        loading = false
+    }
+}
+
+/// Bluetooth tile — connected devices with battery, read once when it appears (never polled).
+struct BluetoothTile: View {
+    let env: TileEnv
+    let width: CGFloat
+    let height: CGFloat
+    @StateObject private var model = BluetoothTileModel()
+
+    var body: some View {
+        let connected = model.devices.filter { $0.isConnected }
+        BandTile(env: env, kind: .bluetooth, width: width, height: height, header: { Text("Bluetooth") }, content: {
+            VStack(alignment: .leading, spacing: 3) {
+                if model.loading {
+                    ProgressView().controlSize(.small)
+                } else if connected.isEmpty {
+                    Text("No Bluetooth Devices").font(.system(size: 11)).foregroundColor(env.secondary)
+                } else {
+                    ForEach(connected.prefix(3)) { d in
+                        HStack(spacing: 5) {
+                            Image(systemName: d.symbolName).font(.system(size: 11))
+                            Text(verbatim: d.name).font(.system(size: 11, weight: .semibold)).lineLimit(1)
+                            Spacer(minLength: 2)
+                            if let b = d.lowestBattery { Text(verbatim: "\(b)%").font(.system(size: 10)).foregroundColor(env.secondary) }
+                        }
+                    }
+                }
+            }
+        })
+        .task { await model.load() }
+    }
+}
+
+/// Now-playing tile — the same media card the strip and flyout show, as a pane tile.
+struct NowPlayingPortTile: View {
+    let env: TileEnv
+    let width: CGFloat
+    let height: CGFloat
+    @StateObject private var service = NowPlayingService()
+
+    var body: some View {
+        BandTile(env: env, kind: .nowPlaying, width: width, height: height, header: { Text("Now Playing") }, content: {
+            VStack(alignment: .leading, spacing: 3) {
+                if let title = service.state.title {
+                    Text(verbatim: title).font(.system(size: 12, weight: .semibold)).lineLimit(2)
+                    if let artist = service.state.artist {
+                        Text(verbatim: artist).font(.system(size: 10)).foregroundColor(env.secondary).lineLimit(1)
+                    }
+                } else {
+                    Text("Nothing Playing").font(.system(size: 11)).foregroundColor(env.secondary)
+                }
+                Spacer(minLength: 0)
+                Button { service.togglePlayPause() } label: {
+                    Image(systemName: service.state.isPlaying ? "pause.fill" : "play.fill")
+                        .font(.system(size: 13, weight: .bold)).foregroundColor(.white)
+                        .frame(width: 30, height: 30).background(Circle().fill(env.accent(.nowPlaying)))
+                }.buttonStyle(.plain)
             }
         })
     }

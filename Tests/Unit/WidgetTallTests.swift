@@ -123,12 +123,12 @@ final class WidgetTallTests: XCTestCase {
 }
 
 final class WidgetPanelSettingsTests: XCTestCase {
-    func testFreshInstallsGetTallAndStoredChoicesAreKept() {
+    func testFreshInstallsGetIPadAndStoredChoicesAreKept() {
         let suite = TestDefaults.make("widget-layout", for: self)
-        XCTAssertEqual(CalendarPanelLayout.resolve(defaults: suite), .tall)
-        XCTAssertEqual(suite.string(forKey: CalendarPanelLayout.storageKey), "tall", "default is persisted")
-        suite.set("ipad", forKey: CalendarPanelLayout.storageKey)
         XCTAssertEqual(CalendarPanelLayout.resolve(defaults: suite), .ipad)
+        XCTAssertEqual(suite.string(forKey: CalendarPanelLayout.storageKey), "ipad", "default is persisted")
+        suite.set("tall", forKey: CalendarPanelLayout.storageKey)
+        XCTAssertEqual(CalendarPanelLayout.resolve(defaults: suite), .tall)
 
         let legacy = TestDefaults.make("widget-layout", for: self)
         legacy.set("compact420", forKey: "com.katikati.calendar.panelPreset")

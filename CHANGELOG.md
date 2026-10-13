@@ -2,6 +2,21 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 16: widget pane + wifi Quick Settings
+
+### Added
+- **Widget pane (16a):** the four edge-deck widgets — weather, system, bluetooth, now playing — now also
+  appear as tiles in the calendar/clock pane, in the same solid tile style, reusing the same shared
+  services. The edge-deck buttons keep their current behaviour; nothing was removed.
+- **iPad is the default widget view (16b):** fresh installs open the widget pane in the iPad grid;
+  existing saved choices are kept.
+- **Clock/date as presets (16c):** the clock tile gains a **Date** preset and shows the date under the
+  time; the separate date tile was absorbed, so clock and date are no longer duplicated.
+- **Wi-Fi becomes Quick Settings (16d):** the deck's wifi button opens a control-panel UI of one-tap
+  system switches (Dark Mode, Keep Awake, Wi-Fi, Bluetooth and the rest), shared with the Pinboard.
+- **Glass tiles (16f):** the pane tiles are solid by default; a Settings switch ("Glass") draws them on
+  blur instead.
+
 ## [Unreleased] — Phase 8 in progress
 
 ### Added
