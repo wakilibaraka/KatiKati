@@ -706,35 +706,6 @@ struct SettingsLayoutPane: View {
             }
 
             section {
-                Text("Pinboard")
-            } content: {
-                ForEach(PinboardWidget.defaultOrder, id: \.self) { w in
-                    Toggle(isOn: Binding(get: { store.pinboardWidgets.contains(w) }, set: { store.setPinboardWidget(w, enabled: $0) })) {
-                        pinboardWidgetTitle(w)
-                    }
-                }
-                Text("Quick Settings Switches").font(.subheadline).padding(.top, 6)
-                ForEach(QuickToggleID.defaultOrder, id: \.self) { id in
-                    Toggle(isOn: Binding(get: { store.pinboardToggles.contains(id) }, set: { store.setPinboardToggle(id, enabled: $0) })) {
-                        id.title
-                    }
-                }
-                HStack {
-                    Text("Pinboard Style")
-                    Spacer(minLength: 12)
-                    Picker("Pinboard Style", selection: Binding(
-                        get: { store.pinboardStyle },
-                        set: { store.setPinboardStyle($0) }
-                    )) {
-                        Text("Full Screen").tag(PinboardStyle.fullScreen)
-                        Text("Floating Panel").tag(PinboardStyle.floating)
-                    }
-                    .labelsHidden().pickerStyle(.segmented).fixedSize()
-                }
-                Button("Reset Pinboard Position") { UserDefaults.standard.removeObject(forKey: "com.katikati.pinboard.origin") }
-            }
-
-            section {
                 Text("Shortcuts")
             } content: {
                 let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
@@ -791,7 +762,6 @@ struct SettingsLayoutPane: View {
                 Button("Open Trackpad Settings") {
                     if let url = URL(string: "x-apple.systempreferences:com.apple.preference.trackpad") { NSWorkspace.shared.open(url) }
                 }
-                Toggle("Keep Pinboard on Top", isOn: Binding(get: { store.pinboardKeepOnTop }, set: { store.setPinboardKeepOnTop($0) }))
                 Text("Double-tap shortcuts need the Accessibility permission. ⌃Space may also switch input sources.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
@@ -802,24 +772,6 @@ struct SettingsLayoutPane: View {
             let hidden = LauncherStore(url: LauncherStore.defaultURL).load().hidden
             launcherHiddenCount = hidden.count
             launcherHiddenIDs = Set(hidden)
-        }
-    }
-
-    private func pinboardWidgetTitle(_ w: PinboardWidget) -> Text {
-        switch w {
-        case .clock: return Text("Clock")
-        case .calendar: return Text("Calendar")
-        case .weather: return Text("Weather")
-        case .nowPlaying: return Text("Now Playing")
-        case .calculator: return Text("Calculator")
-        case .countdown: return Text("Countdown")
-        case .screenTime: return Text("Screen Time")
-        case .quickSettings: return Text("Quick Settings")
-        case .system: return Text("System")
-        case .network: return Text("Network")
-        case .battery: return Text("Battery")
-        case .topApps: return Text("Top Apps")
-        case .batteries: return Text("Batteries")
         }
     }
 

@@ -23,7 +23,7 @@ struct WidgetEditOverlay: View {
     var body: some View {
         HStack(spacing: compact ? 0 : 6) {
             button("chevron.left") { move(by: -1) }
-            // Narrow widgets (launcher / Pinboard, 40 pt) get only the arrows; the ✓ lives on the wider ones.
+            // Narrow widgets (launcher / widgets, 40 pt) get only the arrows; the ✓ lives on the wider ones.
             if !compact { button("checkmark") { editMode.end() } }
             button("chevron.right") { move(by: 1) }
         }

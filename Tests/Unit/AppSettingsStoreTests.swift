@@ -255,17 +255,6 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
-    func testPinboardStyleDefaultsFullScreenAndPersists() {
-        let defaults = makeDefaults()
-        let store = AppSettingsStore(defaults: defaults)
-        XCTAssertEqual(store.pinboardStyle, .fullScreen)
-        store.setPinboardStyle(.floating)
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).pinboardStyle, .floating)
-        defaults.set("bogus", forKey: "com.katikati.pinboard.style")
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).pinboardStyle, .fullScreen)
-    }
-
-    @MainActor
     func testLauncherPinchDefaultsOffAndPersists() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)

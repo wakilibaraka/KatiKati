@@ -129,13 +129,12 @@ final class ControlCenterPanelController {
         return EdgeSide(rawValue: raw) ?? .right
     }
     var toggleOrder: () -> [QuickToggleID] = { QuickToggleID.defaultOrder }
-    /// Phase 16l: user widgets hosted in the panel (the six ported tiles, stored order).
-    var widgets: () -> [PinboardWidget] = { [] }
+    /// Phase 16m: user widgets hosted in the panel (the six ported tiles, all on).
+    var widgets: () -> [TileKind] = { [.calculator, .screenTime, .network, .battery, .topApps, .batteries] }
     /// Bottom-row actions (wired by `AppDelegate`).
     var onSettings: () -> Void = {}
     var onLauncher: () -> Void = {}
     var onCapture: () -> Void = {}
-    var onPinboard: () -> Void = {}
     var onDrawer: () -> Void = {}
     var onQuit: () -> Void = {}
 
@@ -152,9 +151,9 @@ final class ControlCenterPanelController {
         self.panel = panel
         let hosting = NSHostingView(rootView: AnyView(ControlCenterView(
             engine: .shared, order: toggleOrder(),
-            widgetTiles: widgets().compactMap(\.controlCenterTile),
+            widgetTiles: widgets(),
             onSettings: onSettings, onLauncher: onLauncher, onCapture: onCapture,
-            onPinboard: onPinboard, onDrawer: onDrawer, onQuit: onQuit)))
+            onDrawer: onDrawer, onQuit: onQuit)))
         hosting.frame = CGRect(origin: .zero, size: size)
         panel.contentView = EdgeFlyoutController.plate(wrapping: hosting, size: size, style: .modern)
         panel.setFrame(frame, display: true)

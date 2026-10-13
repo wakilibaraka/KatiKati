@@ -109,28 +109,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var shelfShakeSubscription: AnyCancellable?
     private var shortcutSubscription: AnyCancellable?
     private let screenTimeAlerts = ScreenTimeAlertPresenter()
-    private lazy var pinboardPanel: PinboardPanelController = {
-        let panel = PinboardPanelController()
-        panel.weather = { [weak self] in self?.weatherService }
-        panel.widgets = { [weak self] in self?.settingsStore.pinboardWidgets ?? PinboardWidget.defaultOrder }
-        panel.toggleOrder = { [weak self] in self?.settingsStore.pinboardToggles ?? QuickToggleID.defaultOrder }
-        panel.keepOnTop = { [weak self] in self?.settingsStore.pinboardKeepOnTop ?? false }
-        panel.style = { [weak self] in self?.settingsStore.pinboardStyle ?? .default }
-        panel.look = { [weak self] in (self?.settingsStore.launcherTheme ?? .system, self?.settingsStore.launcherTint ?? .none) }
-        panel.bottomReserve = { [weak self] in
-            guard let store = self?.settingsStore else { return 0 }
-            return Double(store.dockPanelHeight.points + store.bottomGap + 8)
-        }
-        return panel
-    }()
     /// Phase 16g: the Control Center side panel (wifi deck button + the Quick Settings shortcut).
     private lazy var controlCenterPanel: ControlCenterPanelController = {
         let panel = ControlCenterPanelController()
-        panel.widgets = { [weak self] in self?.settingsStore.pinboardWidgets ?? PinboardWidget.defaultOrder }
         panel.onSettings = { [weak self] in self?.openSettings(nil) }
         panel.onLauncher = { [weak self] in self?.launcherPanel.toggle() }
         panel.onCapture = { ScreenshotCommand.run() }
-        panel.onPinboard = { [weak self] in self?.pinboardPanel.toggle() }
         panel.onDrawer = { [weak self] in self?.panelCoordinator?.toggleDrawer() }
         panel.onQuit = { NSApp.terminate(nil) }
         return panel
@@ -194,7 +178,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let permissionProbeQueue = DispatchQueue(label: "com.caye.macosdockcc.v2.permission-probe", qos: .utility)
     private var cachedAccessibilityTrusted = false
     private var hasStartedApp = false
-    /// Launched without the Accessibility grant: the bar, launcher and Pinboard still run, the status menu asks for the
+    /// Launched without the Accessibility grant: the bar, launcher and Control Center still run, the status menu asks for the
     /// permission, and the app relaunches itself once the grant lands (window management needs a fresh process).
     private var isLimitedMode = false
     private var limitedModeTimer: Timer?
@@ -315,8 +299,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .weather: WidgetPanelController.weather.toggle()
                 case .clock: WidgetPanelController.calendar.toggle()
                 case .keepAwake:
-                    let on = self.pinboardPanel.toggleKeepAwake()
-                    self.shortcutToast.show(on ? String(localized: "Keep Awake On") : String(localized: "Keep Awake Off"),
+                    let engine = QuickToggleEngine.shared
+                    engine.setKeepAwake(!engine.keepAwakeOn)
+                    self.shortcutToast.show(engine.keepAwakeOn ? String(localized: "Keep Awake On") : String(localized: "Keep Awake Off"),
                                             symbol: "cup.and.saucer.fill")
                 }
             }
@@ -799,10 +784,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panelCoordinator = coordinator
         runtime.onToggleDrawer = { [weak coordinator] in coordinator?.toggleDrawer() }
         runtime.onToggleLauncher = { [weak self] in self?.launcherPanel.toggle() }
-        runtime.onTogglePinboard = { [weak self] in self?.pinboardPanel.toggle() }
         runtime.onToggleControlCenter = { [weak self] in self?.controlCenterPanel.toggle() }
-        runtime.onToggleKeepAwake = { [weak self] in self?.pinboardPanel.toggleKeepAwake() ?? false }
-        runtime.isKeepAwakeOn = { [weak self] in self?.pinboardPanel.isKeepAwakeOn ?? false }
+        runtime.onToggleKeepAwake = {
+            let engine = QuickToggleEngine.shared
+            engine.setKeepAwake(!engine.keepAwakeOn)
+            return engine.keepAwakeOn
+        }
+        runtime.isKeepAwakeOn = { QuickToggleEngine.shared.keepAwakeOn }
         // Menu height slider ↔ every bar's grip-drag transaction. Weak: the orchestrator is
         // dropped on permission loss.
         settingsCoordinator.taskbarHeightSessionHandler = { [weak coordinator] editing in
@@ -1108,7 +1096,6 @@ extension AppDelegate: PermissionEffectHandler {
         badgeContextSubscription = nil
         runtime.onToggleDrawer = nil
         runtime.onToggleLauncher = nil
-        runtime.onTogglePinboard = nil
         runtime.onToggleControlCenter = nil
         runtime.onToggleKeepAwake = nil
         runtime.isKeepAwakeOn = nil

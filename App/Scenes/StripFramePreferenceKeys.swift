@@ -31,7 +31,7 @@ struct MessagingChipFramePreferenceKey: PreferenceKey {
     }
 }
 
-/// Widget-section placeholder frames (weather / now playing / clock / launcher / pinboard). Kept out of
+/// Widget-section placeholder frames (weather / now playing / clock / launcher / widgets). Kept out of
 /// every other table; only the taskbar right-click zones read them, so the strip menu never claims a point
 /// that belongs to a widget's own menu (Phase 10 live-check fix).
 struct SectionFramePreferenceKey: PreferenceKey {

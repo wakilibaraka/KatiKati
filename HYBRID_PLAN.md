@@ -2860,6 +2860,23 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
    CC scope. Pinboard stays reachable via the CC utility row until 16m deletes it.
    **Verified:** 2,225 tests, 0 failures; localization ✅ (716 ×12);
    debug switches ✅. **Owner eyeball:** CC widgets section live.
+ - 2026-10-13 · **16m built — full Pinboard delete; gate green.** Deleted: `PinboardPanelController`,
+   all five `App/Scenes/Pinboard/` views, `Core/Support/PinboardWidgets.swift` (catalog, layout,
+   style, placement, grid), `Platform/Pinboard/PinboardReaders.swift`, both Pinboard test files,
+   the Settings Pinboard section (+ keep-on-top toggle), the CC utility-row Pinboard button, the
+   `com.katikati.pinboard.*` store keys + setters, and 7 orphaned catalog keys (709 ×12).
+   Kept by moving, verbatim: `QuickToggleID` + `VPNServiceParser` → new `Core/Support/QuickToggles.swift`;
+   `BatteryHealth`/`TopProcess*` → `SystemMonitorMath.swift`; readers →
+   `Platform/SystemStatus/SystemHealthReaders.swift`; monitor tests →
+   `Tests/Unit/SystemHealthTests.swift` (renamed). Paid the 16i-2 debt: Platform `VPNService`
+   is now a thin wrapper over the single Core parser, and the dropped `parse` test is reinstated
+   in the new `QuickTogglesTests.swift` (with the moved toggle catalog test). Keep-awake now runs
+   off `QuickToggleEngine.shared` (shortcut, runtime, toast). pbxproj: −34 lines (12 build files,
+   10 refs, 12 phase lines), +7 (3 refs, 4 build files, 4 phase lines), fresh `EE…0048–004E` IDs,
+   `plutil` OK. Deliberately kept: `ShortcutAction.pinboard` (frozen raw value — stored bindings
+   survive; fires the Control Center; label renamed in 16n), the `Platform/Pinboard/` directory
+   name (engine + pinch monitor live there), docs/README (16n). **Verified:** 2,213 tests,
+   0 failures; localization ✅ (709 ×12); debug switches ✅.
 
  - 2026-10-13 · **16k built — six Pinboard-only widgets ported as clock-pane tiles; gate green.**
    `TileKind` += calculator, screenTime, network, battery, topApps, batteries (accents ×4

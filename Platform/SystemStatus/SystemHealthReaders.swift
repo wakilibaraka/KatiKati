@@ -1,7 +1,8 @@
 import Foundation
 import IOKit
 
-/// Platform readers behind the V3 cards. Each is a one-shot read; the card decides how often to call.
+/// Platform readers behind the system-health tiles (Phase 16m: moved verbatim from
+/// `Platform/Pinboard/PinboardReaders.swift`). Each is a one-shot read; the tile decides how often to call.
 enum BatteryHealthReader {
     static func read() -> BatteryHealth? {
         let service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("AppleSmartBattery"))

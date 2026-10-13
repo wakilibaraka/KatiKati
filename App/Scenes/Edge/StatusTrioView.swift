@@ -194,7 +194,6 @@ struct ControlCenterView: View {
     var onSettings: () -> Void = {}
     var onLauncher: () -> Void = {}
     var onCapture: () -> Void = {}
-    var onPinboard: () -> Void = {}
     var onDrawer: () -> Void = {}
     var onQuit: () -> Void = {}
 
@@ -333,7 +332,6 @@ struct ControlCenterView: View {
             utility("gearshape", "Settings", onSettings)
             utility("square.grid.2x2", "Launcher", onLauncher)
             utility("camera.viewfinder", "Capture", onCapture)
-            utility("square.grid.3x3", "Pinboard", onPinboard)
             utility("rectangle.stack", "Drawer", onDrawer)
             utility("power", "Quit", onQuit)
         }

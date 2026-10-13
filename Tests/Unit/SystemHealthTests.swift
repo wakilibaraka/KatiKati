@@ -1,7 +1,7 @@
 import XCTest
 @testable import KatiKati
 
-final class PinboardMonitorTests: XCTestCase {
+final class SystemHealthTests: XCTestCase {
     func testBatteryHealthIntel() {
         let h = BatteryHealth(registry: ["CycleCount": 312, "DesignCapacity": 6000, "MaxCapacity": 5100, "Temperature": 3050])
         XCTAssertEqual(h?.cycleCount, 312)

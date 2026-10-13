@@ -850,29 +850,21 @@
 		EE0000000000000000000020 /* ScreenTimeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000001F /* ScreenTimeController.swift */; };
 		EE0000000000000000000022 /* ScreenTimeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000021 /* ScreenTimeViews.swift */; };
 		EE0000000000000000000024 /* ScreenTimeAlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000023 /* ScreenTimeAlertPresenter.swift */; };
-		EE0000000000000000000026 /* PinboardWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000025 /* PinboardWidgets.swift */; };
-		EE0000000000000000000027 /* PinboardWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000025 /* PinboardWidgets.swift */; };
-		EE0000000000000000000029 /* PinboardWidgetsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000028 /* PinboardWidgetsTests.swift */; };
 		EE000000000000000000002B /* QuickToggleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000002A /* QuickToggleEngine.swift */; };
 		FA030000000000000000002 /* MultitouchPinchMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA030000000000000000001 /* MultitouchPinchMonitor.swift */; };
-		EE000000000000000000002D /* PinboardTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000002C /* PinboardTheme.swift */; };
-		EE000000000000000000002F /* WifiBatteryRingIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000002E /* WifiBatteryRingIcon.swift */; };
-		EE0000000000000000000031 /* PinboardWidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000030 /* PinboardWidgetViews.swift */; };
-		EE0000000000000000000033 /* PinboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000032 /* PinboardView.swift */; };
-		EE0000000000000000000035 /* PinboardPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000034 /* PinboardPanelController.swift */; };
 		EE0000000000000000000037 /* Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000036 /* Shortcuts.swift */; };
 		FA010000000000000000002 /* PinchGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA010000000000000000001 /* PinchGesture.swift */; };
 		EE0000000000000000000038 /* Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000036 /* Shortcuts.swift */; };
 		FA010000000000000000003 /* PinchGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA010000000000000000001 /* PinchGesture.swift */; };
 		EE000000000000000000003A /* ShortcutsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000039 /* ShortcutsTests.swift */; };
 		FA020000000000000000002 /* PinchGestureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA020000000000000000001 /* PinchGestureTests.swift */; };
-		EE000000000000000000003C /* PinboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000003B /* PinboardMonitor.swift */; };
-		EE000000000000000000003D /* PinboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000003B /* PinboardMonitor.swift */; };
-		EE000000000000000000003F /* PinboardMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000003E /* PinboardMonitorTests.swift */; };
-		EE0000000000000000000041 /* PinboardReaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000040 /* PinboardReaders.swift */; };
-		EE0000000000000000000043 /* PinboardMonitorViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000042 /* PinboardMonitorViews.swift */; };
+		EE000000000000000000003F /* SystemHealthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000003E /* SystemHealthTests.swift */; };
 		EE0000000000000000000045 /* ShortcutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000044 /* ShortcutService.swift */; };
 		EE0000000000000000000047 /* ShortcutToastPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000046 /* ShortcutToastPresenter.swift */; };
+		EE0000000000000000000049 /* QuickToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000048 /* QuickToggles.swift */; };
+		EE000000000000000000004A /* QuickToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000048 /* QuickToggles.swift */; };
+		EE000000000000000000004C /* QuickTogglesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004B /* QuickTogglesTests.swift */; };
+		EE000000000000000000004E /* SystemHealthReaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004D /* SystemHealthReaders.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1480,25 +1472,18 @@
 		EE000000000000000000001F /* ScreenTimeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeController.swift; path = Platform/ScreenTime/ScreenTimeController.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000021 /* ScreenTimeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeViews.swift; path = App/Scenes/Edge/ScreenTimeViews.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000023 /* ScreenTimeAlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenTimeAlertPresenter.swift; path = App/Entry/ScreenTimeAlertPresenter.swift; sourceTree = SOURCE_ROOT; };
-		EE0000000000000000000025 /* PinboardWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardWidgets.swift; path = Core/Support/PinboardWidgets.swift; sourceTree = SOURCE_ROOT; };
-		EE0000000000000000000028 /* PinboardWidgetsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardWidgetsTests.swift; path = Tests/Unit/PinboardWidgetsTests.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000002A /* QuickToggleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickToggleEngine.swift; path = Platform/Pinboard/QuickToggleEngine.swift; sourceTree = SOURCE_ROOT; };
 		FA030000000000000000001 /* MultitouchPinchMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MultitouchPinchMonitor.swift; path = Platform/Pinboard/MultitouchPinchMonitor.swift; sourceTree = SOURCE_ROOT; };
-		EE000000000000000000002C /* PinboardTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardTheme.swift; path = App/Scenes/Pinboard/PinboardTheme.swift; sourceTree = SOURCE_ROOT; };
-		EE000000000000000000002E /* WifiBatteryRingIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WifiBatteryRingIcon.swift; path = App/Scenes/Pinboard/WifiBatteryRingIcon.swift; sourceTree = SOURCE_ROOT; };
-		EE0000000000000000000030 /* PinboardWidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardWidgetViews.swift; path = App/Scenes/Pinboard/PinboardWidgetViews.swift; sourceTree = SOURCE_ROOT; };
-		EE0000000000000000000032 /* PinboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardView.swift; path = App/Scenes/Pinboard/PinboardView.swift; sourceTree = SOURCE_ROOT; };
-		EE0000000000000000000034 /* PinboardPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardPanelController.swift; path = App/Entry/PinboardPanelController.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000036 /* Shortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Shortcuts.swift; path = Core/Support/Shortcuts.swift; sourceTree = SOURCE_ROOT; };
 		FA010000000000000000001 /* PinchGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinchGesture.swift; path = Core/Support/PinchGesture.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000039 /* ShortcutsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutsTests.swift; path = Tests/Unit/ShortcutsTests.swift; sourceTree = SOURCE_ROOT; };
 		FA020000000000000000001 /* PinchGestureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinchGestureTests.swift; path = Tests/Unit/PinchGestureTests.swift; sourceTree = SOURCE_ROOT; };
-		EE000000000000000000003B /* PinboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardMonitor.swift; path = Core/Support/PinboardMonitor.swift; sourceTree = SOURCE_ROOT; };
-		EE000000000000000000003E /* PinboardMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardMonitorTests.swift; path = Tests/Unit/PinboardMonitorTests.swift; sourceTree = SOURCE_ROOT; };
-		EE0000000000000000000040 /* PinboardReaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardReaders.swift; path = Platform/Pinboard/PinboardReaders.swift; sourceTree = SOURCE_ROOT; };
-		EE0000000000000000000042 /* PinboardMonitorViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinboardMonitorViews.swift; path = App/Scenes/Pinboard/PinboardMonitorViews.swift; sourceTree = SOURCE_ROOT; };
+		EE000000000000000000003E /* SystemHealthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemHealthTests.swift; path = Tests/Unit/SystemHealthTests.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000044 /* ShortcutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutService.swift; path = App/Composition/ShortcutService.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000046 /* ShortcutToastPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutToastPresenter.swift; path = App/Entry/ShortcutToastPresenter.swift; sourceTree = SOURCE_ROOT; };
+		EE0000000000000000000048 /* QuickToggles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickToggles.swift; path = Core/Support/QuickToggles.swift; sourceTree = SOURCE_ROOT; };
+		EE000000000000000000004B /* QuickTogglesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickTogglesTests.swift; path = Tests/Unit/QuickTogglesTests.swift; sourceTree = SOURCE_ROOT; };
+		EE000000000000000000004D /* SystemHealthReaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemHealthReaders.swift; path = Platform/SystemStatus/SystemHealthReaders.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2556,18 +2541,11 @@
 				EE0000000000000000000047 /* ShortcutToastPresenter.swift in Sources */,
 				EE0000000000000000000037 /* Shortcuts.swift in Sources */,
 				FA010000000000000000002 /* PinchGesture.swift in Sources */,
-				EE000000000000000000003C /* PinboardMonitor.swift in Sources */,
-				EE0000000000000000000041 /* PinboardReaders.swift in Sources */,
-				EE0000000000000000000043 /* PinboardMonitorViews.swift in Sources */,
 				EE0000000000000000000045 /* ShortcutService.swift in Sources */,
-				EE0000000000000000000026 /* PinboardWidgets.swift in Sources */,
 				EE000000000000000000002B /* QuickToggleEngine.swift in Sources */,
+				EE0000000000000000000049 /* QuickToggles.swift in Sources */,
+				EE000000000000000000004E /* SystemHealthReaders.swift in Sources */,
 				FA030000000000000000002 /* MultitouchPinchMonitor.swift in Sources */,
-				EE000000000000000000002D /* PinboardTheme.swift in Sources */,
-				EE000000000000000000002F /* WifiBatteryRingIcon.swift in Sources */,
-				EE0000000000000000000031 /* PinboardWidgetViews.swift in Sources */,
-				EE0000000000000000000033 /* PinboardView.swift in Sources */,
-				EE0000000000000000000035 /* PinboardPanelController.swift in Sources */,
 				EE0000000000000000000024 /* ScreenTimeAlertPresenter.swift in Sources */,
 				EE0000000000000000000022 /* ScreenTimeViews.swift in Sources */,
 				EE000000000000000000001D /* ScreenTimeStore.swift in Sources */,
@@ -2786,10 +2764,9 @@
 				FA010000000000000000003 /* PinchGesture.swift in Sources */,
 				EE000000000000000000003A /* ShortcutsTests.swift in Sources */,
 				FA020000000000000000002 /* PinchGestureTests.swift in Sources */,
-				EE000000000000000000003D /* PinboardMonitor.swift in Sources */,
-				EE000000000000000000003F /* PinboardMonitorTests.swift in Sources */,
-				EE0000000000000000000027 /* PinboardWidgets.swift in Sources */,
-				EE0000000000000000000029 /* PinboardWidgetsTests.swift in Sources */,
+				EE000000000000000000003F /* SystemHealthTests.swift in Sources */,
+				EE000000000000000000004A /* QuickToggles.swift in Sources */,
+				EE000000000000000000004C /* QuickTogglesTests.swift in Sources */,
 				EE000000000000000000001E /* ScreenTimeStore.swift in Sources */,
 				EE0000000000000000000019 /* ScreenTime.swift in Sources */,
 				EE000000000000000000001B /* ScreenTimeTests.swift in Sources */,
