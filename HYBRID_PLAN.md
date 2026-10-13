@@ -2307,7 +2307,7 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
 | 4 | **Phase 11** — Layout-mode rendering refinement | must precede 18 (axis abstraction built once) |
 | 5 | **Phase 18** — Strip placement bottom / left / right | after 11 |
 | 6 | **Phase 20c extras** (optional): window switcher → sleep layout restore → menu-bar system widget | owner picks |
-| 7 | **Phases 21–26** — input guards, clipboard+, launcher superpowers, translate, notification control, tiling | new capabilities; each gated |
+| 7 | **Phases 21–26** — launcher superpowers → clipboard+ → translate → input guards → notification relocation → tiling (easiest → hardest; **all before Phase 12**) | new capabilities; each gated + owner sign-off |
 | 8 | **Phase 12** (merged 12/14/15/17) — Settings refinement + dead-code registry | last: audits the final feature set |
 
 Phase 16 does not exist; Phase 19 is done. *(Superseded 2026-10-13: Phase 16 was later created — see the
@@ -3005,98 +3005,318 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
    2,224 tests, 0 failures; localization ✅ (716 ×12); debug switches ✅. **Owner eyeball:**
    the six tiles live in the iPad pane.
 
-### Phases 21–26 — System-utility suite (proposed, owner 2026-10-14; plan only, no code)
+### Phases 21–26 — System-utility suite (proposed + planned, owner 2026-10-14; plan only, no code)
 
 Source: the owner's 2026-10-14 feature survey (clipboard/notch, launcher, keyboard pause, Cmd+Q
 delay, notification mover, dictionary/translation, image/PDF compression, Winfo, tiling) plus its
 architecture notes (one event tap with a priority pipeline, one AXObserver broadcast, thread
 isolation). De-duped against what KatiKati already ships — **about half the list exists** and those
 items become *extend* slices, not new builds. All references are eyeball-only study (§5 policy);
-NOTICE entries land if behavior is derived. Each phase needs its own owner sign-off + mini-plan +
-license check (Phase 7B gate precedent) before any code.
+NOTICE entries land if behavior is derived. Each phase needs its own **owner sign-off + mini-plan +
+license check** (Phase 7B gate precedent) before any code.
+
+**Reorientation (owner 2026-10-14):** the phases are renumbered in **build order, easiest → hardest**,
+and **all six land before Phase 12** (the settings/registry pass, which stays last so it audits the
+final feature set). Owner decisions locked this batch: **build the key visualizer (24c)** — an explicit
+override of the "never display typed secrets" caution, recorded with its posture below;
+**build notification relocation (25) with caution** — fail-closed + default off; keep the offline-only
+translate posture (no API keys).
+
+**Build order:**
+
+| # | Phase | Difficulty | New permission? |
+|---|---|---|---|
+| 21 | Launcher superpowers (math, commands, shortcuts runner, file actions) | easy | no (Automation prompt only when a runner is used) |
+| 22 | Clipboard+ and shelf PDF reduce | easy | no |
+| 23 | Translate & Define (offline) | medium | no |
+| 24 | Input guards (pause, hold-to-quit, key visualizer) | medium-hard | **Input Monitoring** |
+| 25 | Notification relocation | hard (fragile) | no (uses existing Accessibility) |
+| 26 | Tiling (26a snap hotkeys → 26b BSP engine) | hardest | no (uses existing Accessibility) |
 
 **Already shipped — no new phase (polish only on request):**
-- Clipboard history (7A-P4: opt-in, memory-only, secret-type filter) — Phase 22 extends it.
-- Launcher (7B: Spotlight index, fuzzy search, usage ranking, quick actions, URL fallback) — Phase 23 extends it.
-- Window snapper (7A-P6: 15 AX zones) — Phase 26a extends it; Winfo needs are covered by hover
+- Clipboard history (7A-P4: opt-in, memory-only, secret-type filter) — **Phase 22** extends it.
+- Launcher (7B: Spotlight index, fuzzy search, usage ranking, quick actions, URL fallback) — **Phase 21** extends it.
+- Window snapper (7A-P6: 15 AX zones) — **Phase 26a** extends it; Winfo needs are covered by hover
   previews + the 20c switcher + jump lists.
-- Image/video compression + zip (Phase 19 shelf: ImageIO JPEG/HEIC, AVFoundation 720p, `ditto`) —
-  only PDF compress (Quartz filter) is missing → slice 22e.
+- Image/video compression + zip (`App/Composition/ShelfActions.swift`: ImageIO JPEG/HEIC,
+  AVFoundation 720p, `ditto`) — only PDF reduce (Quartz filter) is missing → slice **22e**.
 
 **Reference mining (study only, reimplement from behaviour; NOTICE per §5):**
 
 | Repo | License (checked 2026-10-14 unless noted) | Take |
 |---|---|---|
+| `ospfranco/sol` | verify at activation | launcher actions, math answers, script/shortcut runner |
 | `p0deje/Maccy` | MIT ✓ verified | `changeCount` discipline, ignore-patterns, password-field caution |
-| `ospfranco/sol` | verify at activation | launcher actions, math answers, AppleScript/shortcut runner |
+| `tisfeng/Easydict` | GPL-3.0 ✓ verified | selection/translate flow, Apple Dictionary + Apple Translate offline paths; NO online services |
 | `miladsafarzadeh1/PawPause-mac` | verify existence + license at activation | pause-toggle pattern only |
 | `dteoh/SlowQuitApps` | GPL-2.0-or-later ✓ verified (compatible) | hold-to-quit + overlay + whitelist/blacklist pattern |
-| `NotWadeGrimridge/PingPlace` | GPL-3.0 ✓ verified | AX reposition, 8 positions; KNOWN LIMIT: only the first notification of a burst moves (upstream issue); upstream needs macOS 26.4.1+ |
-| `tisfeng/Easydict` | GPL-3.0 ✓ verified | selection/translate flow, Apple Dictionary + Apple Translate offline paths; NO online services (no API keys in KatiKati) |
 | `keycastr/keycastr` | verify at activation | overlay visualizer pattern |
+| `NotWadeGrimridge/PingPlace` | GPL-3.0 ✓ verified | AX reposition, positions; KNOWN LIMIT: only the first notification of a burst moves (upstream issue); upstream needs macOS 26.4.1+ |
 | `nikitabobko/AeroSpace` | MIT ✓ verified | tree/BSP math, AXObserver discipline |
 | `ianyh/Amethyst` | verify at activation | layout presets |
 
 **Architecture rules (binding on all six phases; extend existing disciplines, don't invent new ones):**
-1. **One keyboard tap.** The Hyperkey precedent (9e) governs: key-events-only `CGEventTap` on its own
-   thread, O(1) callback, exists only while a feature is on, off by default. Priority pipeline in one
-   place: Pause → SlowQuit → Hyperkey/bindings → pass to OS. The no-resident-*mouse*-monitor rule
-   stands untouched.
+1. **One keyboard tap.** The Hyperkey precedent (`App/Composition/HyperkeyService.swift`) governs:
+   key-events-only `CGEventTap` on its own thread, O(1) callback, exists only while a feature is on,
+   off by default. Priority pipeline lives in one place: Pause → SlowQuit → Hyperkey/bindings → pass
+   to OS. The no-resident-*mouse*-monitor rule stands untouched.
 2. **One AXObserver broadcast.** A single observer for windowCreated/Moved/Focused rebroadcasts
    internally to the taskbar/Winfo paths and the tiling engine — no per-feature observers.
 3. **Thread isolation + lazy managers.** TWM math on a background actor; only the final
    `AXUIElementSetAttributeValue` runs on main. Every feature is a lazy toggleable manager (§1.7e):
-   nothing runs, polls, or observes until its setting is on. No new third-party dependencies; macOS
-   12 floor holds (`Translation` framework is macOS 15+ → `#available`-gated or skipped; Easydict
-   itself needs 13+).
+   nothing runs, polls, or observes until its setting is on.
+4. **Floor + dependencies.** No new third-party dependencies (the single Sparkle pin stands). macOS
+   12 floor holds: `Translation` framework is macOS 15+ → `#available`-gated or skipped; `NLTagger`
+   works on 12. Every permission is requested with an explanation, never silently (WelcomeGuide
+   permissions-step + Settings pattern).
+5. **Every slice ≤ ~300 lines, gate-green** (`xcodebuild test` + `check_localization.py` +
+   `check_debug_switches.py` + availability check), strings ×12, HYBRID_PLAN check-log entry.
 
-#### Phase 21 — Input guards (pause + hold-to-quit + optional key visualizer)
+#### Phase 21 — Launcher superpowers (extends 7B) — easiest, no new permission
 
-- **21a keyboard pause** (PawPause pattern): manual toggle that swallows all keyDown until the unlock
-  chord. Needs Input Monitoring (new surface — Hyperkey request-with-explanation precedent).
-- **21b SlowQuit** (SlowQuitApps pattern, GPL-2.0-or-later ✓): hold ⌘Q ~1 s with a center-screen
-  progress overlay; release early cancels; app whitelist/blacklist (`com.katikati.slowquit.*`).
-- **21c key visualizer** (keycastr pattern, owner override required): floating overlay of live
-  keystrokes. Privacy posture follows the clipboard-bar decision — never logs, and needs an explicit
-  owner override to build at all (it displays secrets as typed).
-- Slices share the one tap + pipeline (pure `KeyGuardPipeline` decision + tests first). Settings zone
-  + onboarding permission step. Verify: tap latency + idle CPU + no swallowed keys when off.
+**Goal.** Turn the existing launcher into a command surface: math/answer rows, a small command
+grammar, an AppleScript/shortcut runner, and file-action parity — all through the 7B index that
+already exists. No React Native (Sol study is logic only), no second index.
 
-#### Phase 22 — Clipboard+ and drawer PDF output
+**Reference.** `ospfranco/sol` (verify licence) — read its action taxonomy and answer-row ordering.
+Reuse `LauncherAppIndex`, `LauncherSearch`, `LauncherQuickAction`, `CalculatorEngine` (already proven
+in the L5 tile), `LauncherStore` (`launcher.json`).
 
-- Extends 7A-P4 (history stays opt-in, memory-only unless the owner re-decides): **copy/paste sounds**
-  (`NSSound`, default off — the bar's only sounds today are error beeps), **notch toast on copy**
-  (top-center drop-down on `changeCount`, Reduce-Motion-safe), **ignore-patterns** (Maccy discipline),
-  optional paste-as-plain-text action.
-- **22e PDF reduce** (Phase 19 follow-up, same shelf tray + no-TCC posture): `PDFDocument` +
-  Quartz "Reduce File Size" filter; shares the shelf result-lands-back flow.
-- Verify: no recording while off (idle CPU flat), secret types never toast.
+**Native path.** Pure Swift. Math answers via `CalculatorEngine.evaluate` (shipped). Commands are
+prefixes resolved by a pure `LauncherCommandParser` (`>` shell/script, `= math`, `@ web search`,
+`/ path`, else fuzzy app search).Scripts run via `osascript` subprocess (Automation TCC prompt fires
+only the first time a script controls another app) or `shortcuts run <name>` for Shortcuts.
+File actions reuse `NSWorkspace` + existing Finder helpers.
 
-#### Phase 23 — Launcher superpowers (extends 7B)
+**Pure seams (tested first).**
+- `LauncherCommandParser.parse(_:) -> LauncherQuery` — prefix routing, tolerant of empty/malformed;
+  decides `.apps` / `.math` / `.web` / `.path` / `.script` / `.shortcut`.
+- `LauncherRanking` extension — answer rows (math/web/search) rank above app matches at equal score,
+  stable tie-break.
+- `LauncherScriptSafety.classify(_:)` — flags destructive script prefixes for a confirm guard.
 
-- Sol study: **math quick-answers** (reuse `CalculatorEngine`, proven in the L5 tile), **AppleScript /
-  shortcut runner** action, file-action parity over the existing Spotlight path. No React Native, no
-  new index (the 7B index stays the source of truth). Verify: answer latency, no new TCC surface.
+**Slices.** 21a command parser + routing (pure + tests, no UI) → 21b math/web answer rows in the grid
+(reuse `CalculatorEngine`; already-translated strings) → 21c script/shortcut runner with a confirm
+step for destructive scripts + Settings toggle (default off) → 21d key `⌘K`-style action hints row +
+`Docs/WIDGET_INVENTORY.md` update.
 
-#### Phase 24 — Translate & Define (Easydict study, GPL-3.0 ✓)
+**Keys / settings.** `com.katikati.launcher.commands.enabled` (default on for math/web), 
+`com.katikati.launcher.scripts.enabled` (default off; needs the Automation prompt when first used).
 
-- Selected-text / hover translation, **offline first**: `NaturalLanguage`/`NLTagger` on the 12 floor,
-  `Translation` framework behind `#available(macOS 15, *)`; `DCSCopyTextDefinition` dictionary card
-  in a KatiKati popover. Online services explicitly OUT (no keys). No new permission (existing AX
-  selection reads). Verify: offline path with no network.
+**Permissions.** None at rest. `osascript`/`shortcuts` may raise a one-time Automation/Shortcuts
+prompt only when a runner is used — explained in the row's help text.
 
-#### Phase 25 — Notification relocation (PingPlace study, GPL-3.0 ✓) — approve with caution
+**Risks / limits.** Script runner can do anything the user types — gated off by default + confirm on
+destructive prefixes; the launcher stays a search surface, not a terminal. `shortcuts run` availability
+on the 12 floor needs a probe (CLI exists from macOS 12).
 
-- AX position override for Notification Center banners, position presets, fail-closed capability probe
-  (absent/hacked UI → feature hides itself), default OFF. Recorded limits: burst-stacking (only the
-  first moves), breaks per macOS (private UI). Recommend parking unless the owner explicitly wants it.
+**Verify.** Gate + launcher answer latency (Instruments; the 7B indexer is unchanged) + no TCC prompt
+until a runner is actually used.
 
-#### Phase 26 — Tiling (AeroSpace MIT ✓ / Amethyst verify)
+#### Phase 22 — Clipboard+ and shelf PDF reduce — easy, no new permission
 
-- **26a (small, recommended):** hotkey-driven halves/thirds/quarters on the existing 7A-P6 snapper.
-- **26b (big, own mini-plan):** BSP auto-tile engine on a background actor behind a master toggle,
-  fed by the single AXObserver broadcast; layouts as pure tested math; fights nothing (no code
-  injection, unlike yabai). Verify: AX-traffic budget + idle CPU + instant-off restores frames.
+**Goal.** Build on the shipped clipboard (7A-P4) and shelf (Phase 19) without changing their privacy
+posture: optional copy/paste sounds, a notch toast on copy, ignore-patterns, paste-as-plain-text, and
+the missing PDF compressor.
+
+**Reference.** `p0deje/Maccy` (MIT ✓) — ignore-pattern discipline, the "never record password-manager
+copies" caution. Reuse `ClipboardHistory`, `ClipboardMonitor`, `ClipboardFlyoutView`,
+`NotchPanelController`/`BoringNotchWindow`, `ShelfActions`.
+
+**Native path.** `NSPasteboard.general.changeCount` polling already exists in `ClipboardMonitor` (only
+while recording). Sounds via `NSSound`; notch toast via a transient top-center `NSWindow`/reuse of the
+notch surface, Reduce-Motion-safe; ignore-patterns as pure prefix/regex rules; plain-text paste by
+writing `.string` only. PDF reduce via `PDFDocument` + a Quartz "Reduce File Size" filter written
+through `CGContext`, landing back on the shelf like the image/video actions.
+
+**Pure seams (tested first).**
+- `ClipboardIgnoreRules.matches(_ item:) -> Bool` — bundle/type/prefix rules; default skips password
+  managers and `org.nspasteboard.ConcealedType`/`TransientType` (already in the monitor).
+- `ClipboardToastPolicy` — when to toast (never for concealed/transient or ignore-matched items).
+- `PDFReducePlan.quality(for:)` — maps a target size/quality to the Quartz filter settings.
+
+**Slices.** 22a ignore-rules + toast policy (pure + tests) → 22b copy/paste sounds (`NSSound`, default
+off, Settings toggle) → 22c notch toast on copy (Reduce-Motion-safe, off by default) → 22d
+paste-as-plain-text action in the clipboard flyout → 22e PDF reduce in `ShelfActions` (+ result lands
+back on the shelf).
+
+**Keys / settings.** `com.katikati.clipboard.sounds` (off), `com.katikati.clipboard.notchToast` (off),
+`com.katikati.clipboard.ignorePatterns` (list).
+
+**Permissions.** None. PDF read/write stays inside the shelf's existing file-access posture.
+
+**Risks / limits.** Sounds can annoy — off by default; toast must never fire for secrets; PDF Quartz
+filter is a private-ish constant (`kCGImageDestinationLossyCompressionQuality` path) — fail-closed to
+"copy unchanged" if unavailable.
+
+**Verify.** Idle CPU flat when everything is off; a copied password never toasts or plays; PDF result
+opens and is smaller.
+
+#### Phase 23 — Translate & Define (offline) — medium, no new permission
+
+**Goal.** Select or hover text → a KatiKati popover with a translation and/or dictionary card, fully
+offline by default.
+
+**Reference.** `tisfeng/Easydict` (GPL-3.0 ✓) — selection-flow and Apple Dictionary/Translate offline
+paths only; NO online services, no keys (explicitly out).
+
+**Native path.** Read the selection via the existing Accessibility surface (focused element
+`kAXSelectedText`, already permissioned). Language id + tokenise with `NaturalLanguage`/`NLTagger`
+(macOS 12). Apple Dictionary via `DCSCopyTextDefinition` (CoreServices). Apple Translate behind
+`#available(macOS 15, *)` (`Translation` framework), else hide the translate half and keep Dictionary.
+Popover reuses the floating chip/panel pattern; a Translate action can sit on the edge deck too.
+
+**Pure seams (tested first).**
+- `TranslateRequest.detect(_ text:) -> TranslateRequest` — source-language guess, direction, whether
+  the string is worth translating (URLs/numbers short-circuit).
+- `DictionaryCardModel` — trims the `DCSCopyTextDefinition` payload into headword + senses.
+- `TranslationAvailability.resolve(os:)` — gates the translate half (macOS 15+) vs dictionary-only.
+
+**Slices.** 23a availability + request pure core + tests → 23b dictionary card popover (12 floor) →
+23c translate popover (`#available(macOS 15)`) → 23d selection trigger + Settings (default: off until
+the user enables; no network ever) + strings ×12.
+
+**Keys / settings.** `com.katikati.translate.enabled` (off), `com.katikati.translate.trigger`
+(selection / hover).
+
+**Permissions.** None new (uses the Accessibility grant already required for window management).
+
+**Risks / limits.** `Translation` needs macOS 15 (floor is 12) — dictionary-only there; offline
+translation quality is macOS's, not ours; no OCR (that already exists in the Capture button).
+
+**Verify.** Works with Wi-Fi off; on a 12/13/14 machine the translate half hides itself.
+
+#### Phase 24 — Input guards (pause, hold-to-quit, key visualizer) — medium-hard, new Input Monitoring
+
+**Goal.** One shared keyboard tap that powers three guards: manual keyboard **pause**, a **hold-to-quit**
+⌘Q delay, and a **key visualizer** overlay (owner override).
+
+**Reference.** `miladsafarzadeh1/PawPause-mac` (verify existence + licence) — pause pattern;
+`dteoh/SlowQuitApps` (GPL-2.0-or-later ✓) — hold-to-quit + overlay + whitelist/blacklist;
+`keycastr/keycastr` (verify licence) — overlay vis. The tap/pipeline machinery is modelled on the
+shipped `HyperkeyService`.
+
+**Native path.** One key-events-only `CGEventTap` (`.cgSessionEventTap`, `.headInsertEventTap`) on its
+own thread, off by default, torn down when all three guards are off — extending the documented
+Hyperkey exception. A pure `KeyGuardPipeline` decides per keyDown: swallow (pause/SlowQuit armed),
+consume+fire, or pass through. SlowQuit overlay is a center-screen non-activating panel timed with a
+background timer; the visualizer is a floating overlay fed by the same tap (coalesced to ≤ ~20 Hz).
+
+**Pure seams (tested first).**
+- `KeyGuardPipeline.reduce(event, state) -> KeyGuardDecision` — the whole priority order, table-tested
+  (pause swallows everything but the unlock chord; SlowQuit only swallows held ⌘Q; pass-through is the
+  default; nothing is swallowed when every guard is off).
+- `SlowQuitTiming` — hold threshold, cancel-on-release, progress fraction; injected clock.
+- `SlowQuitPolicy` — per-app allow/deny lists.
+- `KeyVisualizerBuffer` — bounded ring of recent keycaps, coalescing + cap (never unbounded, never
+  persisted).
+
+**Slices.** 24a `KeyGuardPipeline` + `SlowQuitTiming`/`Policy` pure core + tests (no UI) → 24b the one
+shared tap + pause toggle + Settings + onboarding Input-Monitoring step (extend the existing step) →
+24c SlowQuit overlay + timer + allow-list → 24d key visualizer overlay (owner override; off by default,
+never logs, auto-hides after idle) → 24e latency/CPU verify.
+
+**Keys / settings.** `com.katikati.keyguard.pause`, `.slowQuit` (+ `.duration`, allow-list),
+`.visualizer` (all off). `DOCK_KEYGUARD_TRACE` debug switch for the pipeline.
+
+**Permissions.** **Input Monitoring** (new) — requested with an explanation, folded into the existing
+WelcomeGuide permissions step; feature inert without it.
+
+**Risks / limits.** An active tap that misbehaves can eat keystrokes — the pipeline defaults to
+pass-through, the tap is disabled the instant all guards are off, and a kill-switch (`DOCK_KEYGUARD_OFF`)
+forces pass-through. The visualizer displays secrets as typed (owner-accepted); it never writes to
+disk and hides on idle.
+
+**Verify.** Tap latency (sub-frame add) + idle CPU flat with all guards off + zero swallowed keys when
+off (pipeline table) + unlock chord always works.
+
+#### Phase 25 — Notification relocation — hard (fragile), uses existing Accessibility
+
+**Goal (owner: build with caution).** Move macOS notification banners to a chosen position using the
+Accessibility API — the PingPlace technique, fail-closed and off by default.
+
+**Reference.** `NotWadeGrimridge/PingPlace` (GPL-3.0 ✓) — AX position override; **known limits to
+carry**: only the first notification of a burst moves (upstream issue), and the private Notification
+Center UI breaks across macOS releases. Upstream needs macOS 26.4.1+; our probe must handle "UI shape
+unknown → do nothing".
+
+**Native path.** Find the NotificationCenter process, attach an `AXUIElement` to its window(s), read
+`kAXPositionAttribute`/`kAXSizeAttribute`, and set `kAXPositionAttribute` to a preset slot. A pure
+`NotificationPlacement` computes the target frame from the screen's `visibleFrame` and the banner
+size; a capability probe decides whether the UI looks as expected before touching anything.
+
+**Pure seams (tested first).**
+- `NotificationPlacement.frame(slot:screen:banner:) -> CGRect` — top-left/top-center/…/bottom-right,
+  clamped to `visibleFrame`.
+- `NotificationUICapability.evaluate(_ observed:) -> Bool` — fail-closed: unknown subrole/shape → false.
+- `NotificationMoveGuard` — debounce so a move-triggered AX change doesn't loop.
+
+**Slices.** 25a placement + capability pure core + tests → 25b observer + move, default OFF, Settings
+position picker + enable toggle → 25c fail-closed probe hardening on the current macOS + honest
+"may stop working after an update" copy.
+
+**Keys / settings.** `com.katikati.notifications.move` (off), `.position` (8 slots).
+
+**Permissions.** None new (existing Accessibility). No code injection (unlike yabai) — pure AX.
+
+**Risks / limits.** Private UI, per-release breakage, burst partial-move — all documented in Settings.
+Fail-closed is mandatory: no match → leave notifications alone.
+
+**Verify.** On the current macOS: enabling moves a banner to the chosen slot; an unknown UI shape leaves
+notifications untouched; disabling restores default behavior immediately.
+
+#### Phase 26 — Tiling (snap hotkeys → BSP engine) — hardest, uses existing Accessibility
+
+**Goal.** Start with hotkey-driven snapping on the shipped snapper (26a), then a real BSP auto-tile
+engine behind a master toggle (26b).
+
+**Reference.** `nikitabobko/AeroSpace` (MIT ✓) — tree/BSP math, AXObserver discipline; `ianyh/Amethyst`
+(verify licence) — layout presets. Extend `Platform/Windows/WindowSnapService.swift`, `SnapPosition`,
+`WindowsFlyoutView` (7A-P6) and the single AXObserver rule.
+
+**Native path.** 26a is hotkeys + `ShortcutAction` entries calling the existing snap service (halves,
+thirds, quarters, center, maximize). 26b maintains a per-desktop BSP tree; window create/destroy/move
+arrives via the one AXObserver broadcast; the layout math runs on a background actor; only the final
+`AXUIElementSetAttributeValue` frames are applied on main. Layouts are presets computed by pure code.
+
+**Pure seams (tested first).**
+- `SnapRects.rect(for position:screen:) -> CGRect` — the 26a fractions, clamped; golden-tested.
+- `TilingTree` — BSP insert/remove/focus/resize, split ratios, invariants (no overlap, tiles cover the
+  work area) — heavily tested pure core.
+- `TilingLayout.resolve(tree:screen:gaps:) -> [WindowID: CGRect]` — the pure geometry the actor applies.
+- `TilingGaps` — inner/outer gaps, min tile size.
+
+**Slices.** 26a snap hotkeys + Settings + golden rect tests (easy, reuse snapper) → 26b-1 `TilingTree`
+pure core + tests (no AX) → 26b-2 AXObserver bridge + background actor + apply frames → 26b-3 master
+toggle (default off), enable/disable restore, per-display trees → 26b-4 verify (AX-traffic budget,
+idle CPU, instant-off restores frames).
+
+**Keys / settings.** `com.katikati.snap.hotkeys` (26a), `com.katikati.tiling.enabled` (off),
+`.layout` presets, `.gaps`.
+
+**Permissions.** None new (existing Accessibility).
+
+**Risks / limits.** TWM is a heavy, high-risk subsystem — it fights native animations and can thrash if
+the actor or the observer misbehaves; therefore behind a master toggle, off by default, with an
+instant restore of pre-tiling frames on disable. 26b gets its own mini-plan + owner sign-off before
+code. Per §5: no code injection.
+
+**Verify.** 26a rects golden + hotkeys live; 26b layout invariants + AX frame writes only on main +
+idle CPU flat while off + disable restores every managed window.
+
+**Phases 21–26 check log (STANDING_RULES §1.8):**
+- 2026-10-14 · **Reoriented + detailed (plan only, no code).** Phases renumbered easiest → hardest
+  (21 launcher → 22 clipboard → 23 translate → 24 input guards → 25 notifications → 26 tiling) and
+  pinned to land **before Phase 12**. De-dup recorded (half the survey already ships as 7A-P4 / 7B /
+  7A-P6 / Phase 19 shelf-compression). Licences verified for Maccy (MIT), SlowQuitApps
+  (GPL-2.0-or-later), Easydict (GPL-3.0), AeroSpace (MIT), PingPlace (GPL-3.0); the rest
+  (Sol, PawPause, keycastr, Amethyst) flagged **verify-at-activation** per the §5 reference policy.
+  Owner decisions locked: build the key visualizer (24d) with the never-logs/never-persists posture,
+  build notification relocation (25) fail-closed + off-by-default with the private-UI limits
+  documented, translate stays offline-only. Each phase now carries Goal / Reference / Native path /
+  Pure seams / Slices / Keys / Permissions / Risks / Verify; every slice is ≤ ~300 lines and
+  gate-green. No production code touched.
+
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
