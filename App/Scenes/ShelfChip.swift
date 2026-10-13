@@ -7,6 +7,8 @@ import SwiftUI
 /// 数量**不做外凸角标**，改成悬停名字气泡里的文字，避免与固定区其余 chip 的"零装饰"视觉基调冲突。
 struct ShelfChip: View {
     let itemCount: Int
+    /// Changes each time a drag-shake pops the drop target; the chip bounces once to say "it's down here".
+    let shakePulse: Int
     let isDropTargeted: Bool
     /// 任务条尺寸档位的缩放系数。中档 = 1.0，此时所有尺寸与历史字面值逐像素相同。
     /// **故意不给默认值**——漏传必须是编译错误，见 AGENTS《Taskbar Size Tiers》。
@@ -19,6 +21,7 @@ struct ShelfChip: View {
     let onClear: () -> Void
     let onAddFolder: () -> Void
 
+    @State private var pulsing = false
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dockThemeStyle) private var dockThemeStyle
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
@@ -50,6 +53,13 @@ struct ShelfChip: View {
         .chipQuietHoverScale(quietHoverFeedback,
                              cardWidth: ChipPillMetrics.cardWidth * scale,
                              scale: scale)
+        .scaleEffect(pulsing ? 1.28 : 1)
+        .onChange(of: shakePulse) { _ in
+            withAnimation(.spring(response: 0.22, dampingFraction: 0.45)) { pulsing = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) { pulsing = false }
+            }
+        }
         .contentShape(Rectangle())
         .onTapGesture { onTap() }
         .nativeContextMenu { buildMenu() }

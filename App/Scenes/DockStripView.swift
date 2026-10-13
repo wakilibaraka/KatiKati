@@ -1393,6 +1393,7 @@ struct DockStripView: View {
         case .shelf:
             ShelfChip(
                 itemCount: shelfStore.itemPaths.count,
+                shakePulse: shelfStore.shakePulse,
                 isDropTargeted: externalDropTarget == .stash,
                 scale: dockScale,
                 hoverStyle: hoverStyle,

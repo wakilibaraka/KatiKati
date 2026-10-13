@@ -42,6 +42,9 @@ struct StackPopupChrome<Grid: View>: View {
     var gridAnimationKey: [String] = []
     /// Drawn over the grid area instead of cells (the shelf's first-use guide). The layout still sets the size.
     var intro: AnyView?
+    /// Replaces the note line's text with a custom view (the shelf's multi-select action bar). `note` must be
+    /// non-nil so the layout reserves the line.
+    var noteAccessory: AnyView?
     /// The cells; they land in a `LazyVGrid` of `layout.columns` fixed columns.
     @ViewBuilder let grid: () -> Grid
 
@@ -61,7 +64,15 @@ struct StackPopupChrome<Grid: View>: View {
             header
             if plate.hasSeparator { separator }
             Color.clear.frame(height: plate.gridTop - plate.headerHeight - (plate.hasSeparator ? 1 : 0))
-            if let note { noteLine(note) }
+            if let note {
+                if let noteAccessory {
+                    noteAccessory
+                        .padding(.horizontal, plate.sidePadding)
+                        .frame(width: plateSize.width, height: Metrics.noteHeight)
+                } else {
+                    noteLine(note)
+                }
+            }
             ZStack(alignment: .topLeading) {
                 gridArea
                 if let intro {

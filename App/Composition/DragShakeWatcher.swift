@@ -72,6 +72,7 @@ final class DragShakeWatcher {
         guard leftDown else { endSampling(); return }
         let location = NSEvent.mouseLocation
         if detector.add(x: Double(location.x), at: Date().timeIntervalSince(epoch)), dropTarget == nil {
+            shelf.pulseForShake()
             let panel = ShelfDropTargetPanel(shelf: shelf)
             panel.present(near: location)
             dropTarget = panel

@@ -353,6 +353,14 @@ struct SettingsLayoutPane: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
+                Toggle("Show All Running Apps", isOn: Binding(
+                    get: { store.showAllRunningApps },
+                    set: { store.setShowAllRunningApps($0) }
+                ))
+                Text("Gives every running app a chip, even when it has no open window — like the system Dock.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
                 Toggle("Hover Preview", isOn: Binding(
                     get: { store.chipPreviewEnabled },
                     set: { store.setChipPreviewEnabled($0) }

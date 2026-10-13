@@ -17,12 +17,19 @@ struct ShelfGridPopupView: View {
     var onPinFolder: ((URL) -> Void)?
     var isFolderPinned: ((URL) -> Bool)?
 
+    /// Paths picked with ⌘/⇧-click (or by clicking while a selection exists). Drives the action bar.
+    @State private var selected = Set<String>()
+
     var body: some View {
         // File attributes are read once per render in shelf order (the shelf is small; the
         // coordinator pruned it before showing the popup).
         let entries = FolderContentsLoader.entries(forPaths: shelfStore.itemPaths)
         let showIntro = ShelfIntro.shouldShow(introSeen: shelfStore.introSeen, itemCount: entries.count)
-        let note = showIntro ? nil : Self.note(for: entries)
+        let livePaths = Set(entries.map(\.url.path))
+        let picked = selected.intersection(livePaths)
+        let selecting = !picked.isEmpty && !showIntro
+        // A selection swaps the status line for the action bar (the line is reserved either way).
+        let note = showIntro ? nil : (selecting ? " " : Self.note(for: entries))
         // An empty shelf is the status line alone: no row of blank cells under it. The first-use guide is
         // a fixed 4 × 1 block (derived, never measured).
         let layout = showIntro
@@ -40,7 +47,8 @@ struct ShelfGridPopupView: View {
                          onPanelSizeChange: onContentResize,
                          gridAnimation: .easeInOut(duration: DrawerAnimation.duration),
                          gridAnimationKey: entries.map(\.url.path),
-                         intro: showIntro ? AnyView(ShelfIntroView()) : nil) {
+                         intro: showIntro ? AnyView(ShelfIntroView()) : nil,
+                         noteAccessory: selecting ? AnyView(selectionBar(for: picked)) : nil) {
             ForEach(entries, id: \.url) { entry in
                 let pinned = shelfStore.isPinned(entry.url.path)
                 FolderGridCell(iconPath: entry.isAccessible ? entry.url.path : nil,
@@ -49,15 +57,75 @@ struct ShelfGridPopupView: View {
                                preview: entry.isAccessible && !entry.isDirectory ? .init(stamp: entry.dateModified) : nil,
                                dragURL: entry.isAccessible ? entry.url : nil,
                                contextMenu: { cellMenu(for: entry) }) {
-                    // The shelf never drills in: a click opens (a folder opens in Finder).
-                    NSWorkspace.shared.open(entry.url)
-                    onClosePopup()
+                    // ⌘/⇧-click, or any click while a selection exists, toggles selection. Otherwise the shelf
+                    // never drills in: a click opens (a folder opens in Finder).
+                    let flags = NSEvent.modifierFlags
+                    if selecting || flags.contains(.command) || flags.contains(.shift) {
+                        if selected.contains(entry.url.path) { selected.remove(entry.url.path) } else { selected.insert(entry.url.path) }
+                    } else {
+                        NSWorkspace.shared.open(entry.url)
+                        onClosePopup()
+                    }
+                }
+                .overlay {
+                    if picked.contains(entry.url.path) {
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(Color.accentColor, lineWidth: 2)
+                            .padding(6)
+                            .allowsHitTesting(false)
+                    }
+                }
+                .overlay(alignment: .topLeading) {
+                    if picked.contains(entry.url.path) {
+                        Image(systemName: "checkmark.circle.fill").font(.system(size: 14))
+                            .foregroundStyle(Color.accentColor).padding(6)
+                            .allowsHitTesting(false)
+                    }
                 }
                 .overlay(alignment: .topTrailing) {
                     if pinned { Image(systemName: "pin.fill").font(.system(size: 10)).foregroundStyle(.orange).padding(6) }
                 }
             }
         }
+    }
+
+    /// Action bar for the current selection: count, then Pin / Zip / Compress / Share / AirDrop / Remove.
+    private func selectionBar(for picked: Set<String>) -> some View {
+        let store = shelfStore
+        let urls = store.itemPaths.filter { picked.contains($0) }.map { URL(fileURLWithPath: $0) }
+        let allPinned = urls.allSatisfy { store.isPinned($0.path) }
+        let compressible = urls.filter(ShelfActions.canCompress)
+        func finish() { selected = [] }
+        return HStack(spacing: 4) {
+            Text(String(format: String(localized: "%d selected"), urls.count))
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.white.opacity(0.85))
+                .lineLimit(1)
+            Spacer(minLength: 6)
+            barButton("pin\(allPinned ? ".slash" : "")", help: allPinned ? Text("Unpin from Shelf") : Text("Pin to Shelf")) {
+                for u in urls where store.isPinned(u.path) == allPinned { store.togglePin(u.path) }
+            }
+            barButton("doc.zipper", help: Text("Zip")) { ShelfActions.zip(urls, into: store); finish() }
+            if !compressible.isEmpty {
+                barButton("arrow.down.right.and.arrow.up.left", help: Text("Compress")) { ShelfActions.compress(compressible, into: store); finish() }
+            }
+            barButton("square.and.arrow.up", help: Text("Share…")) { ShelfActions.share(urls); finish() }
+            barButton("airplayaudio", help: Text("AirDrop")) { ShelfActions.airDrop(urls); finish() }
+            barButton("minus.circle", help: Text("Remove from Shelf")) { for u in urls { store.remove(u.path) }; finish() }
+            barButton("xmark", help: Text("Clear Selection")) { finish() }
+        }
+    }
+
+    private func barButton(_ symbol: String, help: Text, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.9))
+                .frame(width: 26, height: 24)
+                .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.white.opacity(0.12)))
+        }
+        .buttonStyle(.plain)
+        .help(help)
     }
 
     private static func note(for entries: [FolderContentsLoader.Entry]) -> String? {

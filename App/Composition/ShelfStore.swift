@@ -8,6 +8,9 @@ import Foundation
 final class ShelfStore: ObservableObject {
     /// Pinned-first, newest-first display order. Kept as the paths the dock/popup already consume.
     @Published private(set) var items: [ShelfItem] = []
+    /// Bumped when a drag-shake pops the drop target; the dock's shelf chip pulses on each change.
+    @Published private(set) var shakePulse = 0
+    func pulseForShake() { shakePulse += 1 }
     var itemPaths: [String] { items.map(\.path) }
 
     private let legacyKey = "shelfItemPaths"

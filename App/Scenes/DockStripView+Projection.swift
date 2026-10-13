@@ -120,7 +120,12 @@ extension DockStripView {
         // 数组位置只影响"无记忆的新 id"落点——即跨机器重启（boottime 丢档）后占位落 live 区头部。
         let snapshotByBundle = Dictionary(grouping: snapshotItems, by: { $0.bundleIdentifier ?? "" })
         var keptPlaceholders: [StripEntry] = []
-        for bid in keptIDs {
+        // "Show all running apps": a running app with no window (WhatsApp in the menu bar, a hidden app)
+        // gets the same placeholder a kept app does. Not persisted as kept, so quitting the app removes it.
+        let runningExtras: [String] = settingsStore.showAllRunningApps
+            ? runningIDs.subtracting(keptIDs).filter { $0 != Bundle.main.bundleIdentifier }.sorted()
+            : []
+        for bid in keptIDs + runningExtras {
             guard !drawerStore.contains(bid),
                   !msgSet.contains(bid) else { continue }
             // 访达有意留在 `.window` 兜底卡这条路径上：它带着专属菜单（最近使用的文件夹 /
