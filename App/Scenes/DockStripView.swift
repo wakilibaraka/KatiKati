@@ -290,7 +290,9 @@ struct DockStripView: View {
         // by the icons making way, and a rim that follows hover state is the surface that flickers.
         .onHover { MemoryOverlayController.shared.pointer(inside: $0) }
         .overlay {
-            if settingsStore.tintSurfacesByPhase {
+            // An explicitly picked theme wins over the time-of-day tint, which otherwise washed the
+            // theme's plate colour out on the islands while the capsule showed it (Phase 11g).
+            if settingsStore.tintSurfacesByPhase, settingsStore.themeMaterial.tintsPlate == false {
                 PhaseSurfaceTint(cornerRadius: taskbarCornerRadius)
             }
         }

@@ -75,8 +75,10 @@ struct DockStyle: Equatable, Identifiable, Sendable {
                                    bottomGap: PanelLayoutMetrics.floatingBottomGap, widgetPresetID: nil)
     static let wide = DockStyle(id: "style.wide", mode: .windows, size: .small, spacing: .compact,
                                 bottomGap: PanelLayoutMetrics.huggingBottomGap, widgetPresetID: nil)
-    static let minimal = DockStyle(id: "style.minimal", mode: .centered, size: .small, spacing: .comfortable,
-                                   bottomGap: PanelLayoutMetrics.floatingBottomGap, widgetPresetID: "builtin.minimal")
+    // No built-in applies a widget preset: a style that hid widgets left them hidden after switching
+    // to another style (live check 11g) — widgets, like the theme, stay the user's own choice.
+    static let minimal = DockStyle(id: "style.minimal", mode: .centered, size: .small, spacing: .compact,
+                                   bottomGap: PanelLayoutMetrics.floatingBottomGap, widgetPresetID: nil)
 
     /// Card order in Settings and the welcome guide. Islands first: it is the fresh-install look.
     static let builtIns: [DockStyle] = [.islands, .classic, .wide, .minimal]

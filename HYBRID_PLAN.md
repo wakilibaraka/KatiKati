@@ -2572,6 +2572,21 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   gives up its slot; Centered centres bar + capsule as a group), so previews match the live bar
   (`LayoutThumbnailModel.capsule`, tests: on screen, no overlap). Mode switch snaps survivors instead of
   springing them beside freshly built units (B8). Suite 2193 green.
+- 2026-10-13 · **11g live check (Release, ad-hoc) — findings + fixes.**
+  - Style cards apply live: Wide = hugging full-width bar, Classic = centred pill, Minimal = small centred,
+    Islands = split 3. **Bug found + fixed:** Minimal applied the Minimal widget preset, and switching back
+    left weather / Now Playing / widgets hidden — no built-in style touches widgets any more (Minimal =
+    centred, small, compact). Style thumbnails cropped to the bottom strip (differences were invisible);
+    Size row relabelled "Bar Height". Owner's widgets restored by hand.
+  - Themes: a red custom theme tints every island after relaunch and live (red → Auto updates all);
+    presets looked unchanged on the islands because the "Tint Dock by Time of Day" overlay (on for the
+    owner) sits above the plate — **fixed:** the phase tint now applies only under Auto/System
+    (`DockThemeStyle.tintsPlate`). Capsule always showed the theme. B7 not reproduced.
+  - **Install artefact, not code:** the first launch after each ad-hoc reinstall shows blank chips and
+    ignores quit while a UserNotificationCenter system dialog is pending (a permission prompt for the new
+    unsigned identity); a clean relaunch renders normally. Needs the owner to answer the prompt; would not
+    happen with the Developer ID signed install.
+  - Suite 2194 green.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

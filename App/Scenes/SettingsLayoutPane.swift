@@ -119,7 +119,7 @@ struct LayoutModeTitle: View {
 struct DockStylePicker: View {
     let selection: String?
     let inputs: LayoutThumbnailModel.Inputs
-    var thumbnailSize = CGSize(width: 104, height: 58)
+    var thumbnailSize = CGSize(width: 104, height: 34)
     let onSelect: (DockStyle) -> Void
 
     var body: some View {
@@ -130,7 +130,10 @@ struct DockStylePicker: View {
                     onSelect(style)
                 } label: {
                     VStack(spacing: 5) {
-                        LayoutModeThumbnail(mode: style.mode, inputs: styledInputs(style), highlighted: isSelected)
+                        // Cropped to the bottom strip like the Preview: on a whole-screen thumbnail the
+                        // size and spacing differences between styles were too small to see.
+                        LayoutModeThumbnail(mode: style.mode, inputs: styledInputs(style), highlighted: isSelected,
+                                            minimumIslandHeight: 3, visibleBottomFraction: 0.16)
                             .frame(width: thumbnailSize.width, height: thumbnailSize.height)
                         Text(style.localizedTitle)
                             .font(.system(size: 11, weight: isSelected ? .semibold : .regular))
@@ -307,7 +310,7 @@ struct SettingsLayoutPane: View {
             section {
                 Text("Size")
             } content: {
-                segmentedRow(Text("Size"), selection: Binding(
+                segmentedRow(Text("Bar Height"), selection: Binding(
                     get: { DockSizeClass.nearest(to: store.dockPanelHeight.points) },
                     set: { store.setDockPanelHeight(DockPanelHeight(clamping: $0.barHeight)) }
                 )) {

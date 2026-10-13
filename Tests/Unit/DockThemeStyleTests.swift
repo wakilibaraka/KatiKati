@@ -54,6 +54,13 @@ final class DockThemeStyleTests: XCTestCase {
         XCTAssertNil(DockThemeStyle.system.plateOverlay(baseTint: tint))
     }
 
+    func testOnlyAutoAndSystemLeaveThePlateToTheTimeOfDayTint() {
+        XCTAssertFalse(DockThemeStyle.auto.tintsPlate)
+        XCTAssertFalse(DockThemeStyle.system.tintsPlate)
+        XCTAssertTrue(DockThemeStyle.deepOcean.tintsPlate)
+        XCTAssertTrue(DockThemeStyle.customRGBA(r: 1, g: 0, b: 0, a: 1).tintsPlate)
+    }
+
     func testPresetsTintThePlateAtReducedStrength() {
         let tint = DockRGBA(r: 0.05, g: 0.15, b: 0.25, a: 0.7)
         let overlay = DockThemeStyle.deepOcean.plateOverlay(baseTint: tint)
