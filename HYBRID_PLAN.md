@@ -2893,6 +2893,11 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
     dropped); osascript quit clean; test prefs removed. **Not verified live (owner eyeball):** the CC
     panel on screen, the six tiles rendering, the Settings section interaction, Esc/outside
     dismissal. **Verified:** 2,216 tests, 0 failures; localization ✅ (710 ×12); debug switches ✅.
+  - 2026-10-13 · **16o — Network / Battery / Batteries off the widget pane (owner).** The iPad grid
+    keeps Calculator, Screen Time and Top Apps (one row; budget back to 4u); the three removed tiles
+    stay hosted in the Control Center with their Settings picks — views, `TileKind`, accents, store
+    keys and strings untouched, so no migration. Live-verified on the owner's screenshot before the
+    removal (all six rendered).
 
  - 2026-10-13 · **16k built — six Pinboard-only widgets ported as clock-pane tiles; gate green.**
    `TileKind` += calculator, screenTime, network, battery, topApps, batteries (accents ×4

@@ -137,7 +137,7 @@ struct CalendarPanelView: View {
         let u = (inner - 2 * gap) / 3
         let wide = 2 * u + gap
         let agendaRows = max(2, Int((u - 24 - 50) / 34))
-        let fixed = 2 * gutter + 5 * u + 6 * gap + bandHeight + 10
+        let fixed = 2 * gutter + 4 * u + 5 * gap + bandHeight + 10
         let rows = listRows(budget: maxHeight - fixed)
         return VStack(spacing: gap) {
             HStack(spacing: gap) {
@@ -159,17 +159,13 @@ struct CalendarPanelView: View {
                 BluetoothTile(env: env, width: u, height: u)
                 NowPlayingPortTile(env: env, width: u, height: u)
             }
-            // Phase 16k: the six Pinboard-only widgets, ported into the tile vocabulary
-            // (quickSettings lives on as the Control Center grid, not a tile).
+            // Phase 16k ported six Pinboard-only widgets; owner 2026-10-13 keeps Calculator,
+            // Screen Time and Top Apps on this page — Network, Battery and Batteries live in the
+            // Control Center (quickSettings lives on as its grid, not a tile).
             HStack(alignment: .top, spacing: gap) {
                 CalculatorTile(env: env, width: u, height: u)
                 ScreenTimeTile(env: env, width: u, height: u)
-                NetworkTile(env: env, width: u, height: u)
-            }
-            HStack(alignment: .top, spacing: gap) {
-                BatteryTile(env: env, width: u, height: u)
                 TopAppsTile(env: env, width: u, height: u)
-                BatteriesTile(env: env, width: u, height: u)
             }
             HStack(alignment: .top, spacing: gap) {
                 FocusTile(env: env, controller: focus, width: u, height: bandHeight + CGFloat(rows) * reminderRow + 10)

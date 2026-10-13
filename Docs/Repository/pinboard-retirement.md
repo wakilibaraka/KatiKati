@@ -10,6 +10,7 @@ prefs start from the defaults below).
 |---|---|---|
 | Clock / Calendar / Weather / Now Playing / Countdown cards | already in the widget pane since 16a / Phase 5 | `CalendarPanelView.swift` (`TileKind`) |
 | Calculator / Screen Time / Network / Battery / Top Apps / Batteries cards | ported 16k | `CalendarPanelView.swift` (same services, `TileKind`) |
+| Network / Battery / Batteries on the widget pane | removed from the pane 2026-10-13 (owner: this page keeps Calculator, Screen Time, Top Apps); still hosted in the Control Center | `ControlCenterView` |
 | Quick Settings card (14 switches + True Tone + VPN) | the Control Center grid | `ControlCenterView` (`StatusTrioView.swift`) |
 | Right-FAB opener, `⌃⌥Space`, CC utility row | repointed 16l | `ControlCenterPanelController.toggle()` |
 | `.weather` / `.clock` shortcut single-views | repointed 16l | `WidgetPanelController.weather` / `.calendar` |
