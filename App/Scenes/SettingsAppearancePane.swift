@@ -63,9 +63,83 @@ struct SettingsAppearancePane: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            wallpaperSection
         }
         .padding(Self.margin)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    // MARK: - Wallpaper (Phase 10b-3)
+
+    private var wallpaperSection: some View {
+        section {
+            Toggle(isOn: Binding(get: { store.wallpaperEnabled }, set: store.setWallpaperEnabled)) {
+                Text("Dynamic Wallpaper").font(.headline)
+            }
+        } content: {
+            HStack {
+                Text("Mode")
+                Spacer(minLength: 12)
+                Picker("Mode", selection: Binding(
+                    get: { WallpaperMode(rawValue: store.wallpaperMode) ?? .both },
+                    set: store.setWallpaperMode
+                )) {
+                    Text("Time").tag(WallpaperMode.time)
+                    Text("Weather").tag(WallpaperMode.weather)
+                    Text("Both").tag(WallpaperMode.both)
+                }
+                .labelsHidden()
+                .pickerStyle(.segmented)
+                .fixedSize()
+            }
+            HStack(spacing: 8) {
+                if store.wallpaperFolder.isEmpty {
+                    Text("Built-in Sky").foregroundStyle(.secondary)
+                } else {
+                    Text(verbatim: (store.wallpaperFolder as NSString).lastPathComponent).foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 8)
+                if !store.wallpaperFolder.isEmpty {
+                    Button("Built-in Sky") { store.setWallpaperFolder("") }
+                }
+                Button("Choose Folder…") { chooseWallpaperFolder() }
+            }
+            skyPreviewGrid
+            HStack {
+                Spacer()
+                Button("Restore Wallpaper") { WallpaperEngine.shared.restoreNow() }
+                    .disabled(!store.wallpaperEnabled)
+            }
+        }
+    }
+
+    /// 5 phases (rows) × 6 skies (columns) of the built-in pack, straight from `SkyPalette`.
+    private var skyPreviewGrid: some View {
+        VStack(spacing: 3) {
+            ForEach(SolarPhase.allCases, id: \.self) { phase in
+                HStack(spacing: 3) {
+                    ForEach(WallpaperSky.allCases, id: \.self) { sky in
+                        let stops = SkyPalette.stops(phase: phase, sky: sky)
+                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .fill(LinearGradient(colors: [color(stops.top), color(stops.bottom)], startPoint: .top, endPoint: .bottom))
+                            .frame(height: 22)
+                            .help(Text(verbatim: "\(phase.rawValue) · \(sky.rawValue)"))
+                    }
+                }
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    private func color(_ c: SkyRGB) -> Color { Color(red: c.r, green: c.g, blue: c.b) }
+
+    private func chooseWallpaperFolder() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        if panel.runModal() == .OK, let url = panel.url { store.setWallpaperFolder(url.path) }
     }
 
     // MARK: - Theme cards
