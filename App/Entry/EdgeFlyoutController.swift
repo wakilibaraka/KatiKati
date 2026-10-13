@@ -129,6 +129,13 @@ final class ControlCenterPanelController {
         return EdgeSide(rawValue: raw) ?? .right
     }
     var toggleOrder: () -> [QuickToggleID] = { QuickToggleID.defaultOrder }
+    /// Bottom-row actions (wired by `AppDelegate`).
+    var onSettings: () -> Void = {}
+    var onLauncher: () -> Void = {}
+    var onCapture: () -> Void = {}
+    var onPinboard: () -> Void = {}
+    var onDrawer: () -> Void = {}
+    var onQuit: () -> Void = {}
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -141,7 +148,10 @@ final class ControlCenterPanelController {
         let frame = panelFrame(on: screen, size: size)
         let panel = self.panel ?? makePanel()
         self.panel = panel
-        let hosting = NSHostingView(rootView: AnyView(ControlCenterView(engine: .shared, order: toggleOrder())))
+        let hosting = NSHostingView(rootView: AnyView(ControlCenterView(
+            engine: .shared, order: toggleOrder(),
+            onSettings: onSettings, onLauncher: onLauncher, onCapture: onCapture,
+            onPinboard: onPinboard, onDrawer: onDrawer, onQuit: onQuit)))
         hosting.frame = CGRect(origin: .zero, size: size)
         panel.contentView = EdgeFlyoutController.plate(wrapping: hosting, size: size, style: .modern)
         panel.setFrame(frame, display: true)

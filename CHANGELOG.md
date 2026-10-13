@@ -16,6 +16,10 @@ All notable changes to KatiKati are documented in this file.
   system switches (Dark Mode, Keep Awake, Wi-Fi, Bluetooth and the rest), shared with the Pinboard.
 - **Glass tiles (16f):** the pane tiles are solid by default; a Settings switch ("Glass") draws them on
   blur instead.
+- **Control Center layout (16h):** the side panel now shows an iPad-style arrangement — a Wi-Fi/Bluetooth
+  connectivity cluster (Wi-Fi shows the network name), a volume slider, a now-playing card with
+  transport, the one-tap switch grid, and a bottom row (Settings, Launcher, Capture, Pinboard, Drawer,
+  Quit).
 
 ### Changed
 - **Control Center panel (16g):** the Quick Settings shortcut and the deck's wifi button now open a side

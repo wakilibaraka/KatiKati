@@ -94,4 +94,12 @@ struct EdgeDwell: Equatable, Sendable {
 enum ScreenshotCommand {
     static let launchPath = "/usr/sbin/screencapture"
     static let arguments = ["-i", "-c"]
+
+    /// Phase 16h: select an area; the image goes to the clipboard and nowhere else.
+    static func run() {
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: launchPath)
+        task.arguments = arguments
+        try? task.run()
+    }
 }

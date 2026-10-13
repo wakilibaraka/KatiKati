@@ -2801,6 +2801,21 @@ iPad-style **Control Center** should hang on the screen edge where the dock is, 
   iPad layout + new strings land in 16h/16j). **Not done / owner eyeball:** live check of the panel
   placement/side, Esc/outside dismissal, and rail-collision feel.
 
+- 2026-10-13 · **16h built — iPad-style Control Center layout (v1); gate green.** `ControlCenterView`
+  (`App/Scenes/Edge/StatusTrioView.swift`) is now the full layout: a header, a **connectivity cluster**
+  (Wi-Fi with SSID subtitle + Bluetooth, large tiles driven by `QuickToggleEngine`), a **volume slider**
+  (`SystemStatusService`), a **now-playing card** (`NowPlayingService`, transport buttons), the
+  **quick-action grid** (the remaining `QuickToggleID`s, 4-col), and a **bottom utility row**
+  (Settings / Launcher / Capture / Pinboard / Drawer / Quit). Actions are injected closures wired in
+  `AppDelegate` (the controller exposes `onSettings/onLauncher/onCapture/onPinboard/onDrawer/onQuit`);
+  Capture uses a new pure `ScreenshotCommand.run()` (area select → clipboard). `SystemStatusService`
+  acquired on appear / released on disappear. **Verified:** 2,223 tests, 0 failures; localization ✅
+  (714 ×12); debug switches ✅; **no new strings** (reused "Not Connected", "Nothing Playing",
+  "Quick Settings", and the existing utility labels — the header stays "Quick Settings"; the rename to
+  "Control Center" + ×12 translations is deferred to 16j). **Not done (16i):** display-brightness slider,
+  AirDrop/AirPlay tiles, Focus/DND, keyboard backlight, VPN, Low Power Mode. **Owner eyeball:** live look
+  of the layout, the connectivity tiles, volume slider, now-playing card and utility row.
+
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
 **Note:** the AI agent may analyse the live app to do both parts together — they touch the same pages

@@ -173,25 +173,131 @@ struct BluetoothFlyoutView: View {
     }
 }
 
-/// Phase 16g: the Control Center content — the one-tap switches through the shared `QuickToggleEngine`.
-/// The 16h slice grows this into the full iPad-style layout; for now it is the switch grid in a side panel.
+/// Phase 16h: the Control Center content — iPad-style layout: a connectivity cluster, a volume slider,
+/// a now-playing card, the one-tap switch grid, and a bottom utility row. All through the shared
+/// `QuickToggleEngine` / `SystemStatusService` / `NowPlayingService`. The brightness/cluster extras land in 16i.
 struct ControlCenterView: View {
     @ObservedObject var engine: QuickToggleEngine
     let order: [QuickToggleID]
+    @StateObject private var status = SystemStatusService()
+    @StateObject private var nowPlaying = NowPlayingService()
     @State private var confirming: QuickToggleID?
 
+    var onSettings: () -> Void = {}
+    var onLauncher: () -> Void = {}
+    var onCapture: () -> Void = {}
+    var onPinboard: () -> Void = {}
+    var onDrawer: () -> Void = {}
+    var onQuit: () -> Void = {}
+
+    private var connectivity: [QuickToggleID] { [.wifi, .bluetooth] }
+    private var quickActions: [QuickToggleID] { order.filter { !connectivity.contains($0) } }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             Text("Quick Settings").font(.headline)
+            HStack(spacing: 10) {
+                ForEach(connectivity, id: \.self) { id in tile(id) }
+            }
+            volumeRow
+            nowPlayingCard
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 12) {
-                    ForEach(order, id: \.self) { id in cell(id) }
+                    ForEach(quickActions, id: \.self) { id in cell(id) }
                 }
             }
+            Spacer(minLength: 0)
+            utilityRow
         }
         .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .onAppear { engine.refresh() }
+        .onAppear { engine.refresh(); status.acquire() }
+        .onDisappear { status.release() }
+    }
+
+    private func tile(_ id: QuickToggleID) -> some View {
+        let on = engine.states[id] ?? false
+        return Button { engine.perform(id) } label: {
+            VStack(alignment: .leading, spacing: 6) {
+                Image(systemName: id.symbolName).font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(on ? .white : .primary)
+                    .frame(width: 40, height: 40)
+                    .background(Circle().fill(on ? Color.accentColor : Color.primary.opacity(0.10)))
+                id.title.font(.system(size: 13, weight: .semibold))
+                subtitle(id).font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(on ? Color.accentColor.opacity(0.16) : Color.primary.opacity(0.06)))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func subtitle(_ id: QuickToggleID) -> Text {
+        guard id == .wifi else { return Text(verbatim: "") }
+        let w = status.status.wifi
+        if w.isPoweredOn, let ssid = w.ssid, w.isConnected { return Text(verbatim: ssid) }
+        return Text("Not Connected")
+    }
+
+    private var volumeRow: some View {
+        let v = status.status.volume
+        return HStack(spacing: 10) {
+            Image(systemName: v.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill").font(.system(size: 14)).frame(width: 22)
+            Slider(value: Binding(get: { Double(v.level) }, set: { _ = status.setVolume(Float($0)) }), in: 0...1)
+            Text(verbatim: "\(Int((v.level * 100).rounded()))").font(.system(size: 12)).monospacedDigit()
+                .foregroundStyle(.secondary).frame(width: 28, alignment: .trailing)
+        }
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
+    }
+
+    private var nowPlayingCard: some View {
+        let s = nowPlaying.state
+        return HStack(spacing: 12) {
+            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.10))
+                .frame(width: 46, height: 46).overlay(Image(systemName: "music.note").foregroundStyle(.secondary))
+            VStack(alignment: .leading, spacing: 2) {
+                if let title = s.title {
+                    Text(verbatim: title).font(.system(size: 13, weight: .semibold)).lineLimit(1)
+                    Text(verbatim: s.artist ?? "").font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
+                } else {
+                    Text("Nothing Playing").font(.system(size: 12)).foregroundStyle(.secondary)
+                }
+            }
+            Spacer(minLength: 0)
+            if s.title != nil {
+                Button { nowPlaying.previousTrack() } label: { Image(systemName: "backward.fill") }.buttonStyle(.plain)
+                Button { nowPlaying.togglePlayPause() } label: { Image(systemName: s.isPlaying ? "pause.fill" : "play.fill") }.buttonStyle(.plain)
+                Button { nowPlaying.nextTrack() } label: { Image(systemName: "forward.fill") }.buttonStyle(.plain)
+            }
+        }
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
+    }
+
+    private var utilityRow: some View {
+        HStack(spacing: 6) {
+            utility("gearshape", "Settings", onSettings)
+            utility("square.grid.2x2", "Launcher", onLauncher)
+            utility("camera.viewfinder", "Capture", onCapture)
+            utility("square.grid.3x3", "Pinboard", onPinboard)
+            utility("rectangle.stack", "Drawer", onDrawer)
+            utility("power", "Quit", onQuit)
+        }
+    }
+
+    private func utility(_ symbol: String, _ label: LocalizedStringKey, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: symbol).font(.system(size: 16))
+                Text(label).font(.system(size: 9)).lineLimit(1).minimumScaleFactor(0.7)
+            }
+            .frame(maxWidth: .infinity).padding(.vertical, 8)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.06)))
+        }
+        .buttonStyle(.plain)
     }
 
     private func cell(_ id: QuickToggleID) -> some View {
