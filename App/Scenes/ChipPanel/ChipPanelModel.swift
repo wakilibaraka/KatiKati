@@ -26,6 +26,9 @@ struct ChipPanelAction: Identifiable {
     var isChecked: Bool?
     var isDestructive = false
     var separatorBefore = false
+    /// Grayed section label (an `NSMenuItem` with no action).
+    var isHeader = false
+    var icon: NSImage?
     /// Receives whether ⌥ was held at the click.
     let handler: (Bool) -> Void
 }
@@ -41,6 +44,8 @@ struct ChipPanelContent {
     var allWindows: [ChipPanelWindow]
     var recents: [ChipPanelRecent]
     var actions: [ChipPanelAction]
+    /// False for a bare menu converted from an `NSMenu` (Downloads, Trash, shelf…): no app header row.
+    var showsHeader: Bool { !appName.isEmpty }
 }
 
 enum ChipPanelMode: Equatable { case preview, menu }
@@ -74,7 +79,9 @@ final class ChipPanelModel: ObservableObject {
             return ChipPanelLayout.menuPlateSize(
                 windowRows: min(content.allWindows.count, Self.maxMenuWindows),
                 recentRows: min(content.recents.count, Self.maxRecents),
-                actionRows: content.actions.count)
+                actionRows: content.actions.count,
+                actionSeparators: content.actions.enumerated().filter { $0.offset > 0 && $0.element.separatorBefore }.count,
+                hasHeader: content.showsHeader)
         }
     }
 
@@ -94,4 +101,55 @@ struct ChipHoverRequest: Equatable {
     let chipID: String
     /// Screen coordinates (y up) of the chip's visible rect.
     let anchorVisibleRect: CGRect
+}
+
+
+/// Turns any `NSMenu` into the floating panel's rows, so every dock chip's right-click menu can float above
+/// the dock instead of covering it. Option-alternate items (Quit / Force Quit) become `optionTitle`.
+enum ChipPanelMenuBridge {
+    @MainActor
+    static func content(from menu: NSMenu) -> ChipPanelContent {
+        var actions: [ChipPanelAction] = []
+        var pendingSeparator = false
+        var counter = 0
+        func invoke(_ item: NSMenuItem) {
+            if let closure = item as? ClosureMenuItem { closure.handler() }
+            else if let action = item.action { NSApp.sendAction(action, to: item.target, from: item) }
+        }
+        func add(_ items: [NSMenuItem], indent: Bool) {
+            for item in items {
+                if item.isSeparatorItem { pendingSeparator = true; continue }
+                if item.isHidden { continue }
+                if item.isAlternate, let last = actions.indices.last {
+                    let base = actions[last]
+                    let main = base.handler
+                    actions[last] = ChipPanelAction(
+                        id: base.id, title: base.title, optionTitle: item.title, isChecked: base.isChecked,
+                        isDestructive: base.isDestructive, separatorBefore: base.separatorBefore,
+                        isHeader: base.isHeader, icon: base.icon
+                    ) { option in option ? invoke(item) : main(false) }
+                    continue
+                }
+                counter += 1
+                let title = (indent ? "    " : "") + item.title
+                if let submenu = item.submenu {
+                    actions.append(ChipPanelAction(id: "m\(counter)", title: item.title, separatorBefore: pendingSeparator,
+                                                   isHeader: true, handler: { _ in }))
+                    pendingSeparator = false
+                    add(submenu.items, indent: true)
+                    continue
+                }
+                let isHeader = item.action == nil && !(item is ClosureMenuItem)
+                actions.append(ChipPanelAction(
+                    id: "m\(counter)", title: title,
+                    isChecked: item.state == .off ? nil : true,
+                    separatorBefore: pendingSeparator, isHeader: isHeader, icon: item.image
+                ) { _ in if item.isEnabled { invoke(item) } })
+                pendingSeparator = false
+            }
+        }
+        add(menu.items, indent: false)
+        return ChipPanelContent(chipID: "menu", bundleID: nil, appName: "", icon: NSImage(),
+                                ownWindows: [], allWindows: [], recents: [], actions: actions)
+    }
 }

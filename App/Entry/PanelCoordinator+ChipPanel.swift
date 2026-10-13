@@ -51,6 +51,10 @@ extension PanelCoordinator {
         chipPanel.hoverChanged(chipID: request?.chipID, anchor: request?.anchorVisibleRect ?? .zero)
     }
 
+    func handleChipMenu(_ menu: NSMenu, anchor: CGRect) {
+        chipPanel.openMenu(menu, anchor: anchor)
+    }
+
     func handleChipJumpList(chipID: String, anchor: CGRect) {
         chipPanel.openMenu(chipID: chipID, anchor: anchor)
     }

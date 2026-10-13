@@ -161,7 +161,7 @@ struct LauncherChip: View {
                 )
             }
         )
-        .nativeContextMenu { buildLauncherMenu() }
+        .floatingContextMenu { buildLauncherMenu() }
         .help(displayName)
         // 格子一空就清按压（理由见 `slotHidden`）。图标此刻透明，这次回弹没人看得见。
         .onChange(of: slotHidden) { hidden in

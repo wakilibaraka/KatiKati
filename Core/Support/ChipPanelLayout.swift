@@ -45,11 +45,15 @@ enum ChipPanelLayout {
         return CGSize(width: width, height: height)
     }
 
-    static func menuPlateSize(windowRows: Int, recentRows: Int, actionRows: Int) -> CGSize {
-        var height = 2 * plateInset / 2 + menuHeaderHeight
+    static func menuPlateSize(windowRows: Int, recentRows: Int, actionRows: Int,
+                              actionSeparators: Int = 0, hasHeader: Bool = true) -> CGSize {
+        var height = plateInset / 2 + (hasHeader ? menuHeaderHeight : 0)
         if windowRows > 0 { height += menuSeparatorHeight + CGFloat(windowRows) * menuRowHeight }
         if recentRows > 0 { height += menuSeparatorHeight + menuSectionLabelHeight + CGFloat(recentRows) * menuRowHeight }
-        if actionRows > 0 { height += menuSeparatorHeight + CGFloat(actionRows) * menuRowHeight }
+        if actionRows > 0 {
+            height += (hasHeader || windowRows > 0 || recentRows > 0 ? menuSeparatorHeight : 0)
+                + CGFloat(actionRows) * menuRowHeight + CGFloat(actionSeparators) * menuSeparatorHeight
+        }
         return CGSize(width: menuWidth, height: height + plateInset / 2)
     }
 

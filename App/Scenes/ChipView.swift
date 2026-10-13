@@ -47,6 +47,7 @@ struct ChipView: View {
     @EnvironmentObject var messagingStore: MessagingAppStore
     @EnvironmentObject var keptAppStore: KeptAppStore
     @EnvironmentObject var appMembershipController: AppMembershipController
+    @Environment(\.chipMenuPresenter) private var chipMenuPresenter
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dockThemeStyle) private var dockThemeStyle
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
@@ -149,7 +150,12 @@ struct ChipView: View {
                 onOpenJumpList()
             } else {
                 let menu = buildChipMenu()
-                if !menu.items.isEmpty { NSMenu.popUpContextMenu(menu, with: event, for: view) }
+                guard !menu.items.isEmpty else { return }
+                if let presenter = chipMenuPresenter, let window = view.window {
+                    presenter(menu, window.convertToScreen(view.convert(view.bounds, to: nil)))
+                } else {
+                    NSMenu.popUpContextMenu(menu, with: event, for: view)
+                }
             }
         })
     }

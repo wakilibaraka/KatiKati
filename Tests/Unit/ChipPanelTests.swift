@@ -74,6 +74,13 @@ final class ChipPanelLayoutTests: XCTestCase {
         XCTAssertEqual(one.height, two.height)
     }
 
+    func testBareMenuHasNoHeaderAndCountsSeparators() {
+        let bare = ChipPanelLayout.menuPlateSize(windowRows: 0, recentRows: 0, actionRows: 3, actionSeparators: 1, hasHeader: false)
+        let withHeader = ChipPanelLayout.menuPlateSize(windowRows: 0, recentRows: 0, actionRows: 3, actionSeparators: 1)
+        XCTAssertEqual(bare.height, 6 + 3 * ChipPanelLayout.menuRowHeight + ChipPanelLayout.menuSeparatorHeight + 6)
+        XCTAssertGreaterThan(withHeader.height, bare.height)
+    }
+
     func testPlacementCentresAboveAnchor() {
         let screen = CGRect(x: 0, y: 0, width: 1440, height: 900)
         let anchor = CGRect(x: 700, y: 10, width: 60, height: 60)

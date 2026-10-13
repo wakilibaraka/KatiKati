@@ -56,7 +56,7 @@ struct TrashChip: View {
         .contentShape(Rectangle())
         .onTapGesture(perform: onTap)
         .chipPressGesture(isPressed: $isPressed)
-        .nativeContextMenu { buildMenu() }
+        .floatingContextMenu { buildMenu() }
         .help(String(localized: "Trash"))
         .accessibilityLabel(String(localized: "Trash"))
     }

@@ -62,7 +62,7 @@ struct ShelfChip: View {
         }
         .contentShape(Rectangle())
         .onTapGesture { onTap() }
-        .nativeContextMenu { buildMenu() }
+        .floatingContextMenu { buildMenu() }
         .help(helpText)
         .animation(.easeInOut(duration: 0.18), value: showsHover)
         .animation(.easeInOut(duration: 0.12), value: isDropTargeted)

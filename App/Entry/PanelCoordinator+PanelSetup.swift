@@ -68,6 +68,7 @@ extension PanelCoordinator {
             onLabelWidthChange: { [weak self] starting in self?.beginLabelWidthFollow(starting: starting) },
             onLabelBoxWidthTick: { [weak self] id, width in self?.labelBoxWidthDidTick(chipID: id, width: width) }
         ).environmentObject(runtime).environmentObject(drawerStore).environmentObject(messagingStore).environmentObject(badgeStore).environmentObject(weatherService).environmentObject(stripOrderStore).environmentObject(pinnedFolderStore).environmentObject(folderCoverStore).environmentObject(shelfStore).environmentObject(dragController).environmentObject(keptAppStore).environmentObject(runningApplicationStore).environmentObject(appMembershipController).environmentObject(settingsStore).environmentObject(displayTopologyStore)
+            .environment(\.chipMenuPresenter, { [weak self] menu, anchor in self?.handleChipMenu(menu, anchor: anchor) })
             .modifier(PanelHeightResizeModifier(presentation: heightResizePresentation)))
         hosting.autoresizingMask = [.width, .height]
         // Prevent NSHostingView from adding its own opaque background over the blur

@@ -11,7 +11,7 @@ import SwiftUI
 
 /// An `NSMenuItem` that runs a closure when picked (AppKit needs target/action).
 final class ClosureMenuItem: NSMenuItem {
-    private let handler: () -> Void
+    let handler: () -> Void
     init(_ title: String, handler: @escaping () -> Void) {
         self.handler = handler
         super.init(title: title, action: #selector(invoke), keyEquivalent: "")
@@ -101,6 +101,12 @@ extension View {
     /// Attach a native AppKit right-click menu, rebuilt fresh on each open.
     func nativeContextMenu(_ builder: @escaping () -> NSMenu) -> some View {
         overlay(NativeMenuHost(builder: builder))
+    }
+
+    /// Right-click menu that floats **above** the dock (the chip panel) instead of covering it. Falls back
+    /// to the native `NSMenu` where no presenter is injected (drawer, drag snapshots).
+    func floatingContextMenu(_ builder: @escaping () -> NSMenu) -> some View {
+        overlay(FloatingMenuHost(builder: builder))
     }
 }
 
@@ -270,5 +276,39 @@ enum AppMenuBuilder {
                 e?.postToPid(finder.processIdentifier)
             }
         }
+    }
+}
+
+
+/// Environment hook the panel coordinator fills in: show this menu as the floating chip panel above `anchor`
+/// (screen coordinates, y up).
+typealias ChipMenuPresenter = (NSMenu, CGRect) -> Void
+
+private struct ChipMenuPresenterKey: EnvironmentKey {
+    static let defaultValue: ChipMenuPresenter? = nil
+}
+
+extension EnvironmentValues {
+    var chipMenuPresenter: ChipMenuPresenter? {
+        get { self[ChipMenuPresenterKey.self] }
+        set { self[ChipMenuPresenterKey.self] = newValue }
+    }
+}
+
+struct FloatingMenuHost: View {
+    let builder: () -> NSMenu
+    @Environment(\.chipMenuPresenter) private var presenter
+
+    var body: some View {
+        NativeMenuHost(popUpHandler: { event, view in
+            let menu = builder()
+            guard !menu.items.isEmpty else { return }
+            if let presenter, let window = view.window {
+                let rect = window.convertToScreen(view.convert(view.bounds, to: nil))
+                presenter(menu, rect)
+            } else {
+                NSMenu.popUpContextMenu(menu, with: event, for: view)
+            }
+        })
     }
 }

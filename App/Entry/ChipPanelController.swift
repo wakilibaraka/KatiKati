@@ -149,6 +149,18 @@ final class ChipPanelController {
         startPolling()
     }
 
+    /// Any chip's `NSMenu`, shown as the floating panel above `anchor`.
+    func openMenu(_ menu: NSMenu, anchor: CGRect) {
+        machine.forceClose()
+        self.anchor = anchor
+        model.content = ChipPanelMenuBridge.content(from: menu)
+        model.mode = .menu
+        model.expanded = true
+        show()
+        installMouseDownMonitors()
+        startPolling()
+    }
+
     // MARK: Presentation
 
     private func ensurePanel() -> NSPanel {

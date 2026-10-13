@@ -63,7 +63,7 @@ struct PinnedFolderChip: View {
         .overlay(alignment: .topTrailing) {
             if showsDownloadActivity { DownloadsActivityBadge(scale: scale) }
         }
-        .nativeContextMenu { buildMenu() }
+        .floatingContextMenu { buildMenu() }
         .help(folderName)
         .animation(.easeOut(duration: 0.12), value: isDropTarget)
     }

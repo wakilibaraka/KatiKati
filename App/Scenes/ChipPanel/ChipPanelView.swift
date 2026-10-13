@@ -65,6 +65,7 @@ struct ChipPanelView: View {
     private var menuBody: some View {
         let content = model.content
         return VStack(alignment: .leading, spacing: 0) {
+            if content?.showsHeader == true {
             HStack(spacing: 8) {
                 if let icon = content?.icon {
                     Image(nsImage: icon).resizable().frame(width: 22, height: 22)
@@ -76,6 +77,7 @@ struct ChipPanelView: View {
             }
             .padding(.horizontal, 14)
             .frame(height: ChipPanelLayout.menuHeaderHeight)
+            }
 
             if let windows = content?.allWindows, !windows.isEmpty {
                 menuSeparator
@@ -99,15 +101,32 @@ struct ChipPanelView: View {
                 }
             }
             if let actions = content?.actions, !actions.isEmpty {
-                menuSeparator
-                ForEach(actions) { action in
-                    ChipPanelRow(
-                        title: (model.optionHeld ? action.optionTitle : nil) ?? action.title,
-                        leading: AnyView(Image(systemName: action.isChecked == true ? "checkmark" : "circle")
-                            .font(.system(size: 9, weight: .bold))
-                            .opacity(action.isChecked == true ? 1 : 0)),
-                        isDestructive: action.isDestructive
-                    ) { model.runAction(action) }
+                if content?.showsHeader == true || !(content?.allWindows.isEmpty ?? true) || !(content?.recents.isEmpty ?? true) {
+                    menuSeparator
+                }
+                ForEach(Array(actions.enumerated()), id: \.element.id) { index, action in
+                    if index > 0, action.separatorBefore { menuSeparator }
+                    if action.isHeader {
+                        Text(verbatim: action.title)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 14)
+                            .frame(height: ChipPanelLayout.menuRowHeight, alignment: .bottomLeading)
+                    } else {
+                        ChipPanelRow(
+                            title: (model.optionHeld ? action.optionTitle : nil) ?? action.title,
+                            leading: AnyView(Group {
+                                if let icon = action.icon {
+                                    Image(nsImage: icon).resizable().frame(width: 14, height: 14)
+                                } else {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 9, weight: .bold))
+                                        .opacity(action.isChecked == true ? 1 : 0)
+                                }
+                            }),
+                            isDestructive: action.isDestructive
+                        ) { model.runAction(action) }
+                    }
                 }
             }
         }
