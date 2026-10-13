@@ -60,6 +60,24 @@ public enum ClockArtPhase: Equatable, Sendable {
     }
 }
 
+extension ClockArtPhase {
+    /// Sun-position phase → capsule hue step (golden hour reads as the warm dusk step).
+    init(solar: SolarPhase) {
+        switch solar {
+        case .night: self = .night
+        case .dawn: self = .dawn
+        case .day: self = .day
+        case .golden, .dusk: self = .dusk
+        }
+    }
+
+    /// Real sunrise/sunset when known, otherwise the fixed-hour table.
+    static func phase(_ date: Date, sunTimes: SunTimes?, calendar: Calendar = .current) -> ClockArtPhase {
+        guard let sunTimes else { return phase(date, calendar: calendar) }
+        return ClockArtPhase(solar: SolarPhaseResolver.phase(at: date, times: sunTimes))
+    }
+}
+
 public final class StandardClockProvider: ClockDataProvider {
     private let timeFormatter: DateFormatter
     private let dateFormatter: DateFormatter

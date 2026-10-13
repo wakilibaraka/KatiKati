@@ -53,6 +53,7 @@ public enum ClockArt {
 public struct ClockChip: View {
     @AppStorage("com.katikati.clock.preset") private var preset: ClockPreset = .modernMac
     @Environment(\.widgetSize) private var widgetSize
+    @EnvironmentObject private var weatherService: WeatherService
     private let provider: ClockDataProvider
 
     public init(provider: ClockDataProvider = StandardClockProvider()) {
@@ -85,7 +86,7 @@ public struct ClockChip: View {
     /// never the form.
     private func card(for date: Date) -> some View {
         let content = provider.currentContent(for: date)
-        let art = ClockArt.gradient(phase: ClockArtPhase.phase(date))
+        let art = ClockArt.gradient(phase: ClockArtPhase.phase(date, sunTimes: SunTimes.parse(sunrise: weatherService.currentState.detail?.sunrise, sunset: weatherService.currentState.detail?.sunset)))
 
         // ViewThatFits is macOS 13+; the floor is 12, so the fallback there is the full
         // layout truncating (same rule as the weather pill).

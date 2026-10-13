@@ -102,3 +102,16 @@ final class ClockArtPhaseTests: XCTestCase {
                        [.night, .dawn, .dawn, .day, .day, .dusk, .dusk, .night, .night, .night])
     }
 }
+
+extension ClockArtPhaseTests {
+    func testSunTimesDriveThePhaseAndFallBackToHours() {
+        var utc = Calendar(identifier: .gregorian); utc.timeZone = TimeZone(identifier: "UTC")!
+        let rise = utc.date(from: DateComponents(year: 2026, month: 6, day: 1, hour: 4, minute: 0))!
+        let times = SunTimes(sunrise: rise, sunset: rise.addingTimeInterval(16 * 3600))
+        XCTAssertEqual(ClockArtPhase.phase(rise.addingTimeInterval(3600), sunTimes: times, calendar: utc), .day)
+        XCTAssertEqual(ClockArtPhase.phase(rise.addingTimeInterval(-600), sunTimes: times, calendar: utc), .dawn)
+        XCTAssertEqual(ClockArtPhase.phase(rise.addingTimeInterval(15.5 * 3600), sunTimes: times, calendar: utc), .dusk)
+        XCTAssertEqual(ClockArtPhase.phase(rise.addingTimeInterval(17 * 3600), sunTimes: times, calendar: utc), .night)
+        XCTAssertEqual(ClockArtPhase.phase(rise, sunTimes: nil, calendar: utc), ClockArtPhase.phase(rise, calendar: utc))
+    }
+}
