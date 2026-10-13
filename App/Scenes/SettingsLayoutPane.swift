@@ -449,6 +449,18 @@ struct SettingsLayoutPane: View {
                         .disabled(launcherHiddenCount == 0)
                 }
                 Button("Reset App Order") { updateLauncherState { $0.order = [] } }
+                DisclosureGroup("Hide Rarely Used Apps") {
+                    HStack {
+                        Button("Hide All Suggested") { updateLauncherState { $0.hidden = LauncherHidePresets.hidingAll($0.hidden) } }
+                        Button("Restore Suggested") { updateLauncherState { $0.hidden = LauncherHidePresets.restoringAll($0.hidden) } }
+                    }
+                    ForEach(LauncherHidePresets.entries, id: \.bundleID) { entry in
+                        Toggle(isOn: Binding(
+                            get: { launcherHiddenIDs.contains(entry.bundleID) },
+                            set: { _ in updateLauncherState { $0.hidden = LauncherOrdering.toggleHidden($0.hidden, entry.bundleID) } }
+                        )) { Text(verbatim: entry.name) }
+                    }
+                }
                 HStack {
                     Text("Search Position")
                     Spacer(minLength: 12)
@@ -598,7 +610,11 @@ struct SettingsLayoutPane: View {
         }
         .padding(Self.margin)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .onAppear { launcherHiddenCount = LauncherStore(url: LauncherStore.defaultURL).load().hidden.count }
+        .onAppear {
+            let hidden = LauncherStore(url: LauncherStore.defaultURL).load().hidden
+            launcherHiddenCount = hidden.count
+            launcherHiddenIDs = Set(hidden)
+        }
     }
 
     private func pinboardWidgetTitle(_ w: PinboardWidget) -> Text {
@@ -632,6 +648,15 @@ struct SettingsLayoutPane: View {
         }
     }
 
+    private func edgePrefBinding<V>(_ key: WritableKeyPath<EdgeBarPrefs, V>) -> Binding<V> {
+        Binding(get: { store.edgePrefs[keyPath: key] },
+                set: { var p = store.edgePrefs; p[keyPath: key] = $0; store.setEdgePrefs(p) })
+    }
+
+    private func edgePrefRow<C: View>(_ title: LocalizedStringKey, @ViewBuilder _ control: () -> C) -> some View {
+        HStack { Text(title); Spacer(minLength: 12); control() }
+    }
+
     /// Look and behaviour of the deck itself (7A-D6).
     private var deckControls: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -645,6 +670,46 @@ struct SettingsLayoutPane: View {
                 }
             }
             Toggle("Magnify Buttons Under the Pointer", isOn: Binding(get: { store.deckMagnify }, set: { store.setDeckMagnify($0) }))
+            edgePrefRow("Magnify Amount") {
+                Picker("Magnify Amount", selection: edgePrefBinding(\.magnifyAmount)) {
+                    Text("Subtle").tag(EdgeMagnifyAmount.subtle)
+                    Text("Standard").tag(EdgeMagnifyAmount.standard)
+                    Text("Bold").tag(EdgeMagnifyAmount.bold)
+                }.labelsHidden().pickerStyle(.segmented).fixedSize()
+            }
+            HStack(spacing: 10) {
+                Text("Open Delay").frame(width: 150, alignment: .leading)
+                Slider(value: edgePrefBinding(\.openDelay), in: EdgeBarPrefs.openDelayRange, step: 0.05)
+                Text(verbatim: String(format: "%.2f s", store.edgePrefs.openDelay))
+                    .monospacedDigit().foregroundStyle(.secondary).frame(width: 52, alignment: .trailing)
+            }
+            HStack(spacing: 10) {
+                Text("Edge Sensitivity").frame(width: 150, alignment: .leading)
+                Slider(value: edgePrefBinding(\.sensitivity), in: 0...1, step: 0.05)
+                Text(verbatim: "\(Int((store.edgePrefs.sensitivity * 100).rounded()))%")
+                    .monospacedDigit().foregroundStyle(.secondary).frame(width: 52, alignment: .trailing)
+            }
+            ForEach([EdgeSide.left, EdgeSide.right], id: \.self) { side in
+                HStack(spacing: 10) {
+                    (side == .left ? Text("Left Bar Height") : Text("Right Bar Height")).frame(width: 150, alignment: .leading)
+                    Slider(value: Binding(get: { 1 - store.deckYRatio(for: side) }, set: { store.setDeckYRatio(1 - $0, for: side) }), in: 0...1)
+                    Text(verbatim: "\(Int(((1 - store.deckYRatio(for: side)) * 100).rounded()))%")
+                        .monospacedDigit().foregroundStyle(.secondary).frame(width: 52, alignment: .trailing)
+                }
+            }
+            edgePrefRow("Button Icons") {
+                Picker("Button Icons", selection: edgePrefBinding(\.iconSet)) {
+                    Text("Classic").tag(EdgeIconSet.classic)
+                    Text("Modern").tag(EdgeIconSet.modern)
+                    Text("Realistic").tag(EdgeIconSet.realistic)
+                }.labelsHidden().pickerStyle(.segmented).fixedSize()
+            }
+            edgePrefRow("Flyout Style") {
+                Picker("Flyout Style", selection: edgePrefBinding(\.flyoutStyle)) {
+                    Text("Modern").tag(EdgeFlyoutStyle.modern)
+                    Text("Glass").tag(EdgeFlyoutStyle.glass)
+                }.labelsHidden().pickerStyle(.segmented).fixedSize()
+            }
             HStack {
                 Text("Button Style")
                 Spacer(minLength: 12)
@@ -696,6 +761,7 @@ struct SettingsLayoutPane: View {
     }
 
     @State private var launcherHiddenCount = 0
+    @State private var launcherHiddenIDs: Set<String> = []
 
     /// Edits the launcher's saved arrangement (hidden apps, custom order); the launcher re-reads it each time it opens.
     private func updateLauncherState(_ edit: (inout LauncherState) -> Void) {
@@ -704,6 +770,7 @@ struct SettingsLayoutPane: View {
         edit(&state)
         try? launcherStore.save(state)
         launcherHiddenCount = state.hidden.count
+        launcherHiddenIDs = Set(state.hidden)
     }
 
     private var customRows: some View {

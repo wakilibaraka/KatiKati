@@ -13,6 +13,8 @@ final class DeckViewModel: ObservableObject {
     @Published var tabs: [Note] = []
     @Published var buttons: [DeckButton] = []
     @Published var tileStyle: EdgeTileStyle = .glass
+    @Published var iconSet: EdgeIconSet = .classic
+    @Published var magnifyPeak: CGFloat = DeckMagnification.maxScale
     @Published var scale: Double = 1
     @Published var magnify = true
     /// Pointer's y in the panel's top-left space while it is over the fanned deck (drives button magnification).
@@ -230,7 +232,8 @@ struct DeckFanView: View {
                     .staged(index: visibleTabs.count, total: total, revealed: model.revealed, onRight: model.onRight, travel: m.tabWidth + 24)
             }
             ForEach(Array(model.buttons.enumerated()), id: \.element) { i, button in
-                DeckRoundButton(button: button, style: model.tileStyle, size: m.buttonSize, onRight: model.onRight,
+                DeckRoundButton(button: button, style: model.tileStyle, iconSet: model.iconSet, peak: model.magnifyPeak,
+                                size: m.buttonSize, onRight: model.onRight,
                                 pointerY: model.magnify ? model.pointerY : nil) { rect in model.onButton(button, rect) }
                     .padding(.top, (i == 0 && visibleTabs.isEmpty && hiddenCount == 0 ? 0 : m.buttonGap - spacing))
                     .padding(model.onRight ? .trailing : .leading, (m.tabWidth - m.buttonSize) / 2)
@@ -394,6 +397,8 @@ struct DeckMoreTab: View {
 struct DeckRoundButton: View {
     let button: DeckButton
     let style: EdgeTileStyle
+    var iconSet: EdgeIconSet = .classic
+    var peak: CGFloat = DeckMagnification.maxScale
     let size: CGFloat
     var onRight = true
     /// Pointer y in panel space (nil = no magnification).
@@ -409,7 +414,8 @@ struct DeckRoundButton: View {
             } label: {
                 Image(systemName: button.symbol)
                     .font(.system(size: size * 0.43, weight: .semibold))
-                    .foregroundColor(style == .coloured ? .white : Color.primary.opacity(0.78))
+                    .foregroundColor(iconSet != .classic || style == .coloured ? .white : Color.primary.opacity(0.78))
+                    .shadow(color: .black.opacity(iconSet == .realistic ? 0.35 : 0), radius: 1, y: 1)
                     .frame(width: size, height: size)
                     .background(background)
                     .scaleEffect(hovering ? 1.08 : 1)
@@ -417,6 +423,7 @@ struct DeckRoundButton: View {
             }
             .buttonStyle(.plain)
             .onHover { hovering = $0 }
+            .help(label)
             .animation(.easeOut(duration: 0.15), value: hovering)
             // Dock magnification: grows toward the screen interior (anchored on the edge side).
             .scaleEffect(magnification(proxy.frame(in: .global).midY), anchor: onRight ? .trailing : .leading)
@@ -429,10 +436,34 @@ struct DeckRoundButton: View {
 
     private func magnification(_ centerY: CGFloat) -> CGFloat {
         guard let pointerY else { return 1 }
-        return DeckMagnification.scale(distance: pointerY - centerY)
+        return DeckMagnification.scale(distance: pointerY - centerY, maxScale: peak)
     }
 
     @ViewBuilder private var background: some View {
+        let accent = NotePalette.entry(at: button.accent).dashColor
+        switch iconSet {
+        case .modern:
+            // Flat squircle tile with a soft two-stop gradient of the button's accent.
+            RoundedRectangle(cornerRadius: size * 0.3, style: .continuous)
+                .fill(LinearGradient(colors: [accent.opacity(0.95), accent.opacity(0.7)], startPoint: .top, endPoint: .bottom))
+                .shadow(color: accent.opacity(0.35), radius: 4, y: 2)
+        case .realistic:
+            // Raised glass bead: body gradient, bright top gloss, inner rim, contact shadow.
+            ZStack {
+                Circle().fill(RadialGradient(colors: [accent.opacity(0.95), accent.opacity(0.55)], center: .topLeading,
+                                             startRadius: 1, endRadius: size))
+                Circle().fill(LinearGradient(colors: [.white.opacity(0.55), .white.opacity(0)], startPoint: .top, endPoint: .center))
+                    .padding(size * 0.06).mask(Circle().padding(size * 0.02))
+                Circle().strokeBorder(LinearGradient(colors: [.white.opacity(0.6), .black.opacity(0.25)], startPoint: .top, endPoint: .bottom),
+                                      lineWidth: 1)
+            }
+            .shadow(color: .black.opacity(0.35), radius: 5, y: 2)
+        case .classic:
+            classicBackground
+        }
+    }
+
+    @ViewBuilder private var classicBackground: some View {
         switch style {
         case .glass:
             Circle().fill(.regularMaterial).shadow(color: .black.opacity(0.22), radius: 5, y: 1)

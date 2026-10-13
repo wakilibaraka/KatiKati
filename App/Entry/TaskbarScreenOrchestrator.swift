@@ -413,7 +413,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             scale: settingsStore.deckScale(for: side), magnify: settingsStore.deckMagnify, keepOpen: settingsStore.deckKeepOpen,
             openOnHover: settingsStore.deckOpenOnHover, tabPreview: settingsStore.deckTabPreview,
             tileStyle: settingsStore.edgeTileStyle, tabFont: settingsStore.deckTabFont,
-            yRatio: settingsStore.deckYRatio(for: side)
+            yRatio: settingsStore.deckYRatio(for: side), prefs: settingsStore.edgePrefs
         )
     }
 

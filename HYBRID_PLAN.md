@@ -2560,6 +2560,24 @@ Methodology
   opens anything; pointer-down-only hot triggers; real-pointer live check.
 - **13e — Settings additions**: colour picker stays; **copy screenshot without saving onto the
   right side** (clipboard, never a file); all 13a–13d toggles live in Settings.
+- **13f — launcher page 1 + symmetry (owner 2026-10-13)**: page 1 opens with **Pinned** (dock-kept ∪ launcher pins, deduped),
+  then Most Used / Recently Installed, then All. Every page is the same fixed grid (`LauncherPaging.paginateRows`); captions
+  become hairline dividers in a reserved slot so page 1's first row sits where every other page's does; pages are centred.
+- **13g — launcher toolbar**: ✕ close button + gear popover (blur, icon size, columns, rows, sort by Custom/Name/Most Used/
+  Recently Added/Category, group by category, running-app dot, hide-rarely-used). Prefs are one JSON blob
+  (`com.katikati.launcher.prefs`, `LauncherPrefs`).
+- **13h — hide rarely used apps**: `LauncherHidePresets` (Chess, Podcasts, Magnifier, Automator, Stocks, Voice Memos, Photo Booth,
+  Grapher, Dictionary, Digital Color Meter, Console, Keychain Access, Script Editor, Font Book, Image Capture, Audio MIDI Setup,
+  Bluetooth File Exchange, News, Stickies); one-tap hide/restore in the gear popover and per-app toggles in Settings → Launcher.
+  Hidden apps stay searchable.
+- **13i — extra launcher features (first cut)**: running-app dot, web-search / open-URL fallback when no app matches
+  (`LauncherQuickAction`, DuckDuckGo). **Deferred, owner to pick:** folders, edit/wiggle mode, ⌘1–9 page jump, grid keyboard focus.
+- **13j — edge delay + sensitivity**: `EdgeBarPrefs.openDelay` (default 0.4 s) dwell via pure `EdgeDwell` (a pointer left on the pill
+  after a fold is ignored until it leaves), `sensitivity` scales the hot zone (default reproduces the old inset).
+- **13k — edge position & zoom**: Settings sliders for each side's height (existing `yRatio`), magnify amount Subtle/Standard/Bold
+  (1.25/1.55/1.85×). Size sliders unchanged (range 0.8–1.4 kept; widening deferred).
+- **13l — edge look**: icon sets Classic (default) / Modern / Realistic; flyout plate **Modern (new default)** vs **Glass** preset;
+  hover tooltips on the round buttons.
 - Verify: real-pointer live check #3, idle CPU ≤ baseline + ε, localization ×12, 7A regression.
 
 
@@ -2857,3 +2875,4 @@ Priority if the owner wants more after 20a/20b: **window switcher → sleep layo
   - **20b:** hold-Control memory pills on strip chips and drawer cells (green < 500 MB, amber < 2 GB, red above; process-tree footprint via `proc_pid_rusage`; modifier timer only while the pointer is over a dock panel). Live-checked on an earlier build (Finder 170.8 MB, Claude 2.02 GB); the later single-line-pill fix is compiled and unit-tested only. Toggle in Settings › Appearance.
   - **20c:** Option-Tab window switcher (`WindowSwitcherModel` + `WindowSwitcherController`; ⌥Tab / ⌥⇧Tab Carbon hot keys, MRU order, Esc/arrows, release Option to switch; live-checked — panel renders with app icons, selection picks the previous window; thumbnails need Screen Recording and were not seen); sleep/wake and display-change layout restore (`WindowLayoutMemory` + `WindowLayoutRestoreController`, records per display topology, freezes around sleep, 3 s settle, AX `setFrame`; manual "Restore Windows From Last Sleep" button; **unit-tested only, never exercised on real sleep or display changes**); optional menu-bar CPU/MEM readout that opens Activity Monitor (`MenuBarSystemItem`, off by default, sampler exists only while on; **built and unit-tested, not seen live**). New strings are drafts for the pre-release translation gate.
   - **Not done / known limits:** Activity Monitor shortcuts beyond the single click-through; window-switcher shortcut is fixed (not in the shortcut-binding UI); `CGWindowListCreateImage` thumbnails unavailable on this macOS build, so switcher tiles fall back to app icons here.
+- 2026-10-13 · **Phase 13 landed (13a, 13c, 13f–13l; no live check)**: pure `LauncherPlus` (sort, categories, prefs, hide presets, quick action) + `EdgeBarPrefs`/`EdgeDwell` with tests; launcher page 1 Pinned + fixed pages with dividers, gear popover, close button; edge open delay, sensitivity, magnify amount, icon sets, Modern/Glass flyouts, height sliders; 27 new strings ×12 (drafts → `Docs/translation-review-phase13.csv`; Phase 20 drafts → `…phase20.csv`). **Not built:** 13b label styling beyond tooltips, 13d pointer-down-only triggers, 13e screenshot-to-clipboard, 13i folders/edit mode, size-range widening. Owner asked for no more live tests.

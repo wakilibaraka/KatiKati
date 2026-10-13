@@ -232,6 +232,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var deckOpenOnHover: Bool
     @Published private(set) var deckTabPreview: Bool
     @Published private(set) var edgeTileStyle: EdgeTileStyle
+    /// Phase 13: open delay, hot-zone sensitivity, magnify amount, icon set, flyout style (one JSON blob).
+    @Published private(set) var edgePrefs: EdgeBarPrefs
     @Published private(set) var deckTabFont: String
     @Published private(set) var deckYRatioLeft: Double
     @Published private(set) var deckYRatioRight: Double
@@ -430,6 +432,7 @@ final class AppSettingsStore: ObservableObject {
         deckOpenOnHover = defaults.bool(forKey: Keys.deckOpenOnHover)
         deckTabPreview = defaults.bool(forKey: Keys.deckTabPreview)
         edgeTileStyle = EdgeTileStyle(rawValue: defaults.string(forKey: Keys.edgeTileStyle) ?? "") ?? .glass
+        edgePrefs = EdgeBarPrefs.load(defaults)
         deckTabFont = defaults.string(forKey: Keys.deckTabFont) ?? ""
         deckYRatioLeft = DeckSettingsRules.clampedRatio(Self.storedNumericValue(defaults.object(forKey: Keys.deckYRatioLeft)))
         deckYRatioRight = DeckSettingsRules.clampedRatio(Self.storedNumericValue(defaults.object(forKey: Keys.deckYRatioRight)))
@@ -731,6 +734,13 @@ final class AppSettingsStore: ObservableObject {
         guard deckTabPreview != value else { return }
         deckTabPreview = value
         defaults.set(value, forKey: Keys.deckTabPreview)
+    }
+
+    func setEdgePrefs(_ value: EdgeBarPrefs) {
+        let v = value.clamped()
+        guard edgePrefs != v else { return }
+        edgePrefs = v
+        v.save(defaults)
     }
 
     func setEdgeTileStyle(_ value: EdgeTileStyle) {

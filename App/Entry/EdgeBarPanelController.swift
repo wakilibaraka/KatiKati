@@ -13,6 +13,7 @@ struct DeckSettings: Equatable {
     var tileStyle: EdgeTileStyle = .glass
     var tabFont = ""
     var yRatio: Double = 0.5
+    var prefs = EdgeBarPrefs()
 }
 
 /// One deck per `EdgeSlotSet.SlotKey` (Phase 7A-D2): a pill of colour dashes at rest that fans into shingled
@@ -54,6 +55,7 @@ final class EdgeBarPanelController {
     private var hoverID: String?
     private var hoverWork: DispatchWorkItem?
     private var previewID: String?
+    private var dwell = EdgeDwell()
 
     init(slotKey: EdgeSlotSet.SlotKey, service: SystemStatusService, notes: @escaping () -> NotesController?,
          notesPeek: @escaping () -> NotesController?,
@@ -149,6 +151,9 @@ final class EdgeBarPanelController {
         model.scale = settings.scale
         model.magnify = settings.magnify
         model.tileStyle = settings.tileStyle
+        model.iconSet = settings.prefs.iconSet
+        model.magnifyPeak = CGFloat(settings.prefs.magnifyAmount.peak)
+        popup.style = settings.prefs.flyoutStyle
         model.tabFont = settings.tabFont
 
         var buttons: [DeckButton] = []
@@ -208,7 +213,7 @@ final class EdgeBarPanelController {
 
     private func restZone() -> CGRect {
         DeckGeometry.restFrame(model.metrics, side: side, visible: visibleFrame, itemCount: model.pillItemCount,
-                               yRatio: effectiveRatio).insetBy(dx: -2, dy: -6)
+                               yRatio: effectiveRatio).insetBy(dx: -settings.prefs.zoneInset.dx, dy: -settings.prefs.zoneInset.dy)
     }
 
     // MARK: Pointer (existing orchestrator mouse poll)
@@ -220,8 +225,14 @@ final class EdgeBarPanelController {
             let option = NSEvent.modifierFlags.contains(.option)
             // ⌥ over the pill = grab it (panel takes mouse events); otherwise hovering fans the deck.
             if liveRatio == nil { panel?.ignoresMouseEvents = !(option && restZone().contains(mouse)) }
-            if restZone().contains(mouse), !option, liveRatio == nil { apply(.pointerEntered) }
+            if liveRatio == nil, !option {
+                // 13a/13d: the pointer must rest on the pill for the open delay; one left sitting there after a fold is ignored.
+                if dwell.update(inside: restZone().contains(mouse), now: Date(), delay: settings.prefs.openDelay) {
+                    apply(.pointerEntered)
+                }
+            }
         case .fan, .expanded:
+            dwell.disarm()
             let inside = (panel?.frame.insetBy(dx: -8, dy: -8).contains(mouse) ?? false)
                 || popup.isShown || notesPopup.isShown
             if inside {

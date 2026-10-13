@@ -15,6 +15,8 @@ final class EdgeFlyoutController {
     private var panel: NSPanel?
     private(set) var shownID: String?
     private var clickMonitors: [Any] = []
+    /// 13l: the plate behind the flyout (read each time a flyout opens).
+    var style: EdgeFlyoutStyle = .modern
 
     var isShown: Bool { shownID != nil }
     var frame: CGRect { panel?.frame ?? .zero }
@@ -28,7 +30,7 @@ final class EdgeFlyoutController {
         self.panel = panel
         let host = NSHostingView(rootView: content)
         host.frame = CGRect(origin: .zero, size: frame.size)
-        panel.contentView = Self.plate(wrapping: host, size: frame.size)
+        panel.contentView = Self.plate(wrapping: host, size: frame.size, style: style)
         panel.setFrame(frame, display: true)
         if takesKey { panel.makeKeyAndOrderFront(nil) } else { panel.orderFrontRegardless() }
         shownID = id
@@ -83,12 +85,22 @@ final class EdgeFlyoutController {
         return panel
     }
 
-    private static func plate(wrapping content: NSView, size: CGSize) -> NSView {
+    private static func plate(wrapping content: NSView, size: CGSize, style: EdgeFlyoutStyle) -> NSView {
         let plate = NSVisualEffectView(frame: CGRect(origin: .zero, size: size))
-        plate.material = .hudWindow
         plate.state = .active
         plate.wantsLayer = true
-        plate.layer?.cornerRadius = 14
+        switch style {
+        case .glass:
+            plate.material = .hudWindow
+            plate.layer?.cornerRadius = 14
+        case .modern:
+            // Adaptive, near-opaque surface with a crisp hairline and a larger radius (the system adds the soft shadow).
+            plate.material = .popover
+            plate.blendingMode = .withinWindow
+            plate.layer?.cornerRadius = 20
+            plate.layer?.borderWidth = 1
+            plate.layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.55).cgColor
+        }
         plate.layer?.masksToBounds = true
         content.autoresizingMask = [.width, .height]
         plate.addSubview(content)
