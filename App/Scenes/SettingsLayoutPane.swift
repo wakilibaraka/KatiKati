@@ -101,6 +101,97 @@ struct LayoutModeTitle: View {
     }
 }
 
+/// The built-in dock styles as cards (Phase 11f) — Settings › Layout and the welcome guide.
+/// Each thumbnail draws the style's own mode, height and spacing through the solver.
+struct DockStylePicker: View {
+    let selection: String?
+    let inputs: LayoutThumbnailModel.Inputs
+    var thumbnailSize = CGSize(width: 104, height: 58)
+    let onSelect: (DockStyle) -> Void
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            ForEach(DockStyle.builtIns) { style in
+                let isSelected = style.id == selection
+                Button {
+                    onSelect(style)
+                } label: {
+                    VStack(spacing: 5) {
+                        LayoutModeThumbnail(mode: style.mode, inputs: styledInputs(style), highlighted: isSelected)
+                            .frame(width: thumbnailSize.width, height: thumbnailSize.height)
+                        Text(style.localizedTitle)
+                            .font(.system(size: 11, weight: isSelected ? .semibold : .regular))
+                            .lineLimit(1)
+                    }
+                    .padding(6)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 9, style: .continuous)
+                            .fill(isSelected ? Color.accentColor.opacity(0.12) : Color.clear)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 9, style: .continuous)
+                            .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
+                    )
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("dockStyle.\(style.id)")
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
+            }
+        }
+    }
+
+    private func styledInputs(_ style: DockStyle) -> LayoutThumbnailModel.Inputs {
+        var copy = inputs
+        copy.barHeight = style.size.barHeight
+        copy.gap = style.spacing.gap
+        copy.margin = style.spacing.margin
+        copy.bottomGap = style.bottomGap
+        if let id = style.widgetPresetID, let preset = WidgetPresets.builtIns.first(where: { $0.id == id }) {
+            copy.widgetOrder = preset.layout.visibleOrder
+        }
+        return copy
+    }
+}
+
+/// Plate tint + rim from the real preset tokens (both appearance columns for Auto). Shared by the
+/// Appearance theme grid and the welcome guide's theme row (Phase 11f).
+struct ThemeSwatch: View {
+    let style: DockThemeStyle
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: 7, style: .continuous)
+        if style == .auto {
+            HStack(spacing: 0) {
+                plate(DockThemeStyleTokens.resolve(style: .auto, appearance: .light))
+                plate(DockThemeStyleTokens.resolve(style: .auto, appearance: .dark))
+            }
+            .clipShape(shape)
+            .overlay(shape.strokeBorder(Color.primary.opacity(0.15)))
+        } else {
+            let tokens = DockThemeStyleTokens.resolve(style: style, appearance: colorScheme == .dark ? .dark : .light)
+            plate(tokens)
+                .clipShape(shape)
+                .overlay(shape.strokeBorder(color(tokens.rim).opacity(max(0.35, tokens.rim.a)), lineWidth: 1.5))
+        }
+    }
+
+    private func plate(_ tokens: DockThemeStyleTokens) -> some View {
+        ZStack {
+            // Neutral desktop under the translucent plate so alpha reads as it does on screen.
+            Color(white: 0.62)
+            color(tokens.baseTint)
+            LinearGradient(colors: [color(tokens.gradientSheen), .clear], startPoint: .top, endPoint: .center)
+        }
+    }
+
+    private func color(_ rgba: DockRGBA) -> Color {
+        Color(.sRGB, red: Double(rgba.r), green: Double(rgba.g), blue: Double(rgba.b), opacity: Double(rgba.a))
+    }
+}
+
 /// One-line description of a mode under the picker.
 struct LayoutModeDetail: View {
     let mode: BarLayoutMode
@@ -149,6 +240,11 @@ enum BottomEdgeChoice: Hashable {
 struct SettingsLayoutPane: View {
     @ObservedObject var store: AppSettingsStore
     @State private var newPresetName = ""
+    /// Fine-tune starts collapsed: styles + Size/Spacing cover the common choices (Phase 11f).
+    @State private var showsFineTune = false
+
+    /// Width styles are fitted to: the screen the dock is on (main until it reports).
+    private var dockScreenWidth: CGFloat { NSScreen.main?.frame.width ?? LayoutThumbnailModel.referenceScreen.width }
 
     private static let margin: CGFloat = 28
     private static let previewFraction: CGFloat = 0.22
@@ -169,6 +265,20 @@ struct SettingsLayoutPane: View {
             }
 
             section {
+                HStack {
+                    Text("Dock Style")
+                    Spacer(minLength: 8)
+                    if store.currentDockStyle == nil {
+                        Text("Custom").font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+            } content: {
+                DockStylePicker(selection: store.currentDockStyle?.id, inputs: inputs) {
+                    store.applyDockStyle($0, screenWidth: dockScreenWidth)
+                }
+            }
+
+            section {
                 Text("Layout Mode")
             } content: {
                 LayoutModePicker(selection: store.barLayoutMode, inputs: inputs) { store.setBarLayoutMode($0) }
@@ -184,22 +294,22 @@ struct SettingsLayoutPane: View {
             section {
                 Text("Size")
             } content: {
-                sliderRow(Text("Bar Height"),
-                          value: store.dockPanelHeight.points,
-                          range: DockPanelHeight.minimum...DockPanelHeight.maximum, step: 1) {
-                    store.setDockPanelHeight(DockPanelHeight(clamping: $0))
+                segmentedRow(Text("Size"), selection: Binding(
+                    get: { DockSizeClass.nearest(to: store.dockPanelHeight.points) },
+                    set: { store.setDockPanelHeight(DockPanelHeight(clamping: $0.barHeight)) }
+                )) {
+                    Text("Small").tag(DockSizeClass.small)
+                    Text("Medium").tag(DockSizeClass.medium)
+                    Text("Large").tag(DockSizeClass.large)
                 }
-                sliderRow(Text("Gap Between Islands"), value: store.islandGap, range: 0.5...40, step: 0.5) {
-                    store.setIslandGap($0)
+                segmentedRow(Text("Spacing"), selection: Binding(
+                    get: { DockSpacing.matching(gap: store.islandGap, margin: store.islandMargin) },
+                    set: { if let spacing = $0 { store.setDockSpacing(spacing) } }
+                )) {
+                    Text("Compact").tag(DockSpacing?.some(.compact))
+                    Text("Comfortable").tag(DockSpacing?.some(.comfortable))
+                    Text("Airy").tag(DockSpacing?.some(.airy))
                 }
-                sliderRow(Text("Side Margin"), value: store.islandMargin, range: 0...80, step: 1) {
-                    store.setIslandMargin($0)
-                }
-                sliderRow(Text("Centered Width"), value: store.centeredWidth,
-                          range: AppSettingsStore.minimumCenteredWidth...AppSettingsStore.maximumCenteredWidth, step: 10) {
-                    store.setCenteredWidth($0)
-                }
-                .disabled(store.barLayoutMode != .centered)
             }
 
             section {
@@ -218,49 +328,73 @@ struct SettingsLayoutPane: View {
             }
 
             section {
-                Text("Widget Widths")
-            } content: {
-                ForEach([BarSection.weather, .media, .clock], id: \.self) { widget in
-                    sliderRow(widgetLabel(widget),
-                              value: store.widgetWidths[widget.rawValue] ?? widget.defaultWidgetWidth,
-                              range: 60...400, step: 5) {
-                        store.setWidgetWidth($0, for: widget)
-                    }
-                }
-            }
-
-            section {
-                HStack {
-                    Text("Bottom Edge")
-                    Spacer(minLength: 12)
-                    Picker("Bottom Edge", selection: Binding(
-                        get: { BottomEdgeChoice(gap: store.bottomGap) },
-                        set: { choice in
-                            switch choice {
-                            case .floating: store.setBottomGap(PanelLayoutMetrics.floatingBottomGap)
-                            case .hugging: store.setBottomGap(PanelLayoutMetrics.huggingBottomGap)
-                            case .custom:
-                                if BottomEdgeChoice(gap: store.bottomGap) != .custom { store.setBottomGap(5) }
+                DisclosureGroup(isExpanded: $showsFineTune) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Exact values for power users. Bar height is capped at what still fits this screen.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        sliderRow(Text("Bar Height"),
+                                  value: store.dockPanelHeight.points,
+                                  range: DockPanelHeight.minimum...fittingMaximumBarHeight, step: 1) {
+                            store.setDockPanelHeight(DockPanelHeight(clamping: $0))
+                        }
+                        sliderRow(Text("Gap Between Islands"), value: store.islandGap, range: 0.5...40, step: 0.5) {
+                            store.setIslandGap($0)
+                        }
+                        sliderRow(Text("Side Margin"), value: store.islandMargin, range: 0...80, step: 1) {
+                            store.setIslandMargin($0)
+                        }
+                        sliderRow(Text("Centered Width"), value: store.centeredWidth,
+                                  range: AppSettingsStore.minimumCenteredWidth...AppSettingsStore.maximumCenteredWidth, step: 10) {
+                            store.setCenteredWidth($0)
+                        }
+                        .disabled(store.barLayoutMode != .centered)
+                        HStack {
+                            Text("Bottom Edge")
+                            Spacer(minLength: 12)
+                            Picker("Bottom Edge", selection: Binding(
+                                get: { BottomEdgeChoice(gap: store.bottomGap) },
+                                set: { choice in
+                                    switch choice {
+                                    case .floating: store.setBottomGap(PanelLayoutMetrics.floatingBottomGap)
+                                    case .hugging: store.setBottomGap(PanelLayoutMetrics.huggingBottomGap)
+                                    case .custom:
+                                        if BottomEdgeChoice(gap: store.bottomGap) != .custom { store.setBottomGap(5) }
+                                    }
+                                }
+                            )) {
+                                Text("Floating").tag(BottomEdgeChoice.floating)
+                                Text("Hugging").tag(BottomEdgeChoice.hugging)
+                                Text("Custom").tag(BottomEdgeChoice.custom)
+                            }
+                            .labelsHidden()
+                            .pickerStyle(.segmented)
+                            .fixedSize()
+                        }
+                        sliderRow(Text("Distance From Edge"), value: store.bottomGap,
+                                  range: PanelLayoutMetrics.bottomGapRange, step: 1) {
+                            store.setBottomGap($0)
+                        }
+                        Text("Floating keeps the bar 8 pt above the screen edge. Hugging sits it almost on the edge.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text("Widget Widths").font(.subheadline.weight(.semibold)).padding(.top, 4)
+                        ForEach([BarSection.weather, .media, .clock], id: \.self) { widget in
+                            sliderRow(widgetLabel(widget),
+                                      value: store.widgetWidths[widget.rawValue] ?? widget.defaultWidgetWidth,
+                                      range: 60...400, step: 5) {
+                                store.setWidgetWidth($0, for: widget)
                             }
                         }
-                    )) {
-                        Text("Floating").tag(BottomEdgeChoice.floating)
-                        Text("Hugging").tag(BottomEdgeChoice.hugging)
-                        Text("Custom").tag(BottomEdgeChoice.custom)
                     }
-                    .labelsHidden()
-                    .pickerStyle(.segmented)
-                    .fixedSize()
+                    .padding(.top, 8)
+                } label: {
+                    Text("Fine-tune").font(.headline)
                 }
             } content: {
-                sliderRow(Text("Distance From Edge"), value: store.bottomGap,
-                          range: PanelLayoutMetrics.bottomGapRange, step: 1) {
-                    store.setBottomGap($0)
-                }
-                Text("Floating keeps the bar 8 pt above the screen edge. Hugging sits it almost on the edge.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                EmptyView()
             }
 
             section {
@@ -954,6 +1088,27 @@ struct SettingsLayoutPane: View {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(Color.primary.opacity(0.04))
         )
+    }
+
+    /// Fine-tune's Bar Height cap on the dock's screen (never below the current value, so the
+    /// slider can always show where the bar is).
+    private var fittingMaximumBarHeight: CGFloat {
+        let cap = DockStyleFit.maximumBarHeight(
+            mode: store.barLayoutMode, gap: store.islandGap, margin: store.islandMargin, bottomGap: store.bottomGap,
+            screenWidth: dockScreenWidth, widgetOrder: store.widgetLayout.visibleOrder,
+            range: DockPanelHeight.minimum...DockPanelHeight.maximum)
+        return max(cap, store.dockPanelHeight.points, DockPanelHeight.minimum + 1)
+    }
+
+    private func segmentedRow<Value: Hashable, Options: View>(
+        _ label: Text, selection: Binding<Value>, @ViewBuilder options: () -> Options
+    ) -> some View {
+        HStack(spacing: 10) {
+            label.frame(width: 150, alignment: .leading)
+            Picker(selection: selection, content: options) { label }
+                .labelsHidden()
+                .pickerStyle(.segmented)
+        }
     }
 
     private func sliderRow(_ label: Text, value: CGFloat, range: ClosedRange<CGFloat>, step: CGFloat,

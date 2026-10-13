@@ -201,7 +201,7 @@ struct SettingsAppearancePane: View {
             store.setThemeMaterial(style)
         } label: {
             VStack(spacing: 4) {
-                swatch(style)
+                ThemeSwatch(style: style)
                     .frame(width: 54, height: 34)
                 ThemeName(style: style)
                     .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
@@ -219,38 +219,6 @@ struct SettingsAppearancePane: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-
-    /// Plate tint + rim from the real preset tokens (both appearance columns for Auto).
-    @ViewBuilder
-    private func swatch(_ style: DockThemeStyle) -> some View {
-        let shape = RoundedRectangle(cornerRadius: 7, style: .continuous)
-        if style == .auto {
-            HStack(spacing: 0) {
-                plate(DockThemeStyleTokens.resolve(style: .auto, appearance: .light))
-                plate(DockThemeStyleTokens.resolve(style: .auto, appearance: .dark))
-            }
-            .clipShape(shape)
-            .overlay(shape.strokeBorder(Color.primary.opacity(0.15)))
-        } else {
-            let tokens = DockThemeStyleTokens.resolve(style: style, appearance: colorScheme == .dark ? .dark : .light)
-            plate(tokens)
-                .clipShape(shape)
-                .overlay(shape.strokeBorder(color(tokens.rim).opacity(max(0.35, tokens.rim.a)), lineWidth: 1.5))
-        }
-    }
-
-    private func plate(_ tokens: DockThemeStyleTokens) -> some View {
-        ZStack {
-            // Neutral desktop under the translucent plate so alpha reads as it does on screen.
-            Color(white: 0.62)
-            color(tokens.baseTint)
-            LinearGradient(colors: [color(tokens.gradientSheen), .clear], startPoint: .top, endPoint: .center)
-        }
-    }
-
-    private func color(_ rgba: DockRGBA) -> Color {
-        Color(.sRGB, red: Double(rgba.r), green: Double(rgba.g), blue: Double(rgba.b), opacity: Double(rgba.a))
     }
 
     private func isSame(_ lhs: DockThemeStyle, _ rhs: DockThemeStyle) -> Bool {

@@ -2555,6 +2555,19 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   temperature truncated to "°"). **Owner 2026-10-13: bar height max 120 → 90** (`DockPanelHeight.maximum`;
   a stored 120 clamps on launch). At the old 120 with margin 80 / gap 40 islands no longer overlapped or
   left the screen; the apps row scrolls when it cannot fit. Suite 2185 green.
+- 2026-10-13 · **11e built.** `Core/Support/DockStyle.swift`: `DockSizeClass` (S 46 / M 54 native / L 68),
+  `DockSpacing` (Compact 4/6 · Comfortable 10/12 · Airy 18/24 gap/margin), `DockStyle` built-ins Islands
+  (split3, M, Comfortable, floating) · Classic (centered, M) · Wide (Full Width, S, Compact, hugging) ·
+  Minimal (centered, S, + Minimal widget preset); `matching` detects the live style (else Custom);
+  `DockStyleFit.resolve` steps size then spacing down until 6 app tiles fit the screen (mode never
+  changes); `maximumBarHeight` caps Fine-tune's slider. Store: `currentDockStyle`, `applyDockStyle`,
+  `setDockSpacing`. Theme is never part of a style (owner decision 3). 7 tests.
+- 2026-10-13 · **11f built.** Settings › Layout order: Preview → Dock Style cards (thumbnails drawn by the
+  solver with each style's own values; "Custom" tag when none matches) → Layout Mode → Size (S/M/L) +
+  Spacing → Widgets → collapsed **Fine-tune** (exact bar height capped to what fits, gap, margin, centred
+  width, bottom edge, widget widths). Welcome guide's layout step shows the style cards plus a 7-theme row
+  (`ThemeSwatch`, shared with Appearance). New strings ×12 (drafts; `Docs/translation-review-phase11.csv`).
+  Suite 2192 green. Live check deferred to the end of Phase 11 (owner 2026-10-13).
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

@@ -34,6 +34,11 @@ struct WelcomeGuideLayoutContext {
     var initialMode: BarLayoutMode
     var inputs: LayoutThumbnailModel.Inputs
     var onPick: (BarLayoutMode) -> Void
+    /// Phase 11f: the step offers dock styles and a theme row (theme never rides on a style).
+    var initialStyleID: String? = nil
+    var onPickStyle: (DockStyle) -> Void = { _ in }
+    var initialTheme: DockThemeStyle = .auto
+    var onPickTheme: (DockThemeStyle) -> Void = { _ in }
     /// The notch Live Island switch (default on); written to the store as soon as it is flipped.
     var notchEnabled = true
     var onNotchToggle: (Bool) -> Void = { _ in }
@@ -47,6 +52,13 @@ struct WelcomeGuideView: View {
     @State private var selection = WelcomeGuideSelection.recommended
     @State private var step = WelcomeGuideStep.first
     @State private var pickedMode: BarLayoutMode?
+    @State private var pickedStyleID: String?
+    @State private var pickedTheme: DockThemeStyle?
+
+    /// A short, varied row from the Appearance grid; the full set stays in Settings › Appearance.
+    private static let onboardingThemes: [DockThemeStyle] = [
+        .auto, .translucent, .titaniumFrost, .deepOcean, .forestMoss, .emberSunset, .cyberpunkGlass,
+    ]
     @State private var notchOn: Bool?
     @State private var accessibilityGranted = AXIsProcessTrusted()
     @State private var screenRecordingGranted = CGPreflightScreenCaptureAccess()
@@ -96,15 +108,34 @@ struct WelcomeGuideView: View {
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
-            LayoutModePicker(selection: currentMode, inputs: layout.inputs,
-                             thumbnailSize: CGSize(width: 74, height: 46)) { mode in
-                pickedMode = mode
-                layout.onPick(mode)
+            DockStylePicker(selection: pickedStyleID ?? layout.initialStyleID, inputs: layout.inputs,
+                            thumbnailSize: CGSize(width: 96, height: 52)) { style in
+                pickedStyleID = style.id
+                pickedMode = style.mode
+                layout.onPickStyle(style)
             }
             LayoutModeDetail(mode: currentMode)
                 .font(.callout)
                 .lineLimit(2)
                 .frame(maxWidth: .infinity, minHeight: 36, alignment: .topLeading)
+            Text("Theme").font(.headline)
+            HStack(spacing: 8) {
+                ForEach(Self.onboardingThemes, id: \.token) { theme in
+                    let isSelected = theme == (pickedTheme ?? layout.initialTheme)
+                    Button {
+                        pickedTheme = theme
+                        layout.onPickTheme(theme)
+                    } label: {
+                        ThemeSwatch(style: theme)
+                            .frame(width: 52, height: 32)
+                            .padding(3)
+                            .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous)
+                                .strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: 2))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
+                }
+            }
             Divider()
             HStack(spacing: 8) {
                 Spacer()

@@ -540,6 +540,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             initialMode: settingsStore.barLayoutMode,
             inputs: settingsStore.layoutThumbnailInputs,
             onPick: { [weak self] mode in self?.settingsStore.setBarLayoutMode(mode) },
+            initialStyleID: settingsStore.currentDockStyle?.id,
+            onPickStyle: { [weak self] style in
+                self?.settingsStore.applyDockStyle(style, screenWidth: NSScreen.main?.frame.width ?? 1440)
+            },
+            initialTheme: settingsStore.themeMaterial,
+            onPickTheme: { [weak self] theme in self?.settingsStore.setThemeMaterial(theme) },
             notchEnabled: settingsStore.notchIslandEnabled,
             onNotchToggle: { [weak self] on in self?.settingsStore.setNotchIslandEnabled(on) }
         )
