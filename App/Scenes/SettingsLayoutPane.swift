@@ -1410,7 +1410,7 @@ extension QuickToggleID {
 }
 
 /// Records one key combination (at least one of ⌃ ⌥ ⇧ ⌘). A local key monitor lives only while recording.
-private struct ShortcutRecorderButton: View {
+struct ShortcutRecorderButton: View {
     let onRecord: (ShortcutKey) -> Void
     @State private var recording = false
     @State private var monitor: Any?

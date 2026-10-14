@@ -3676,6 +3676,32 @@ Posture (matching this plan's default-off habit): master toggle **off** → once
   pass that trips the pre-existing conflict (a call from an inactive app was verified **not** to crash
   on its own). The app frames in both reports are unsymbolicated (ad-hoc stripped install), so the
   offending view still has to be named from a stderr-captured Debug build.
+- 2026-10-14 · **Phase 26 — Tiling (26a snap hotkeys + 26b BSP auto-tiler) — PASS (Phase 26 complete).**
+  - **26a (snap hotkeys):** Pure seam `SnapRects` (`Core/Support/SnapRects.swift`) golden-tested across all
+    15 zones on a canonical screen (`Tests/Unit/SnapRectsTests.swift`, 20 tests). 15 new `ShortcutAction`
+    cases (ids 12–26, default `.off`), wired in `AppDelegate.shortcutService.onAction` to
+    `WindowSnapService.apply`. Settings › Shortcuts gains a grouped "Snap Hotkeys" section (Halves,
+    Quarters, Thirds, Full) with recording buttons and localized action titles.
+  - **26b-1 (pure BSP tree + gaps):** `Core/Support/TilingTree.swift` (`TilingTreeNode` recursive enum,
+    insert/remove/focus/swap, depth-alternating split orientation, ratio 0.5, whole-point pixel alignment) +
+    `Core/Support/TilingGaps.swift` (`inner`/`outer` points, fixed 200×150 min size). Invariant tests
+    in `Tests/Unit/TilingTreeTests.swift` (11 tests: partition coverage, non-overlapping tiles, sibling
+    expansion on removal, focus navigation and wrap-around, geometry-preserving swap).
+  - **26b-2 (layout presets + float policy):** `Core/Support/TilingLayout.swift` (`bsp`, `mainStack` with
+    0.55 main ratio and equal-height vertical stack, `monocle` full-area tile) + `Core/Support/TilingPolicy.swift`
+    (floating exclusions by bundle ID with defaults for Utility/Preferences apps, newline-delimited serialization).
+    Tested in `Tests/Unit/TilingLayoutTests.swift` (8 tests).
+  - **26b-3 (engine + AX bridge):** `App/Composition/TilingEngine.swift` background manager. In-memory
+    pre-tiling frame snapshot (`preTilingFrames`), AX writes on MainActor only, single-broadcast `DockSnapshot`
+    subscription (decoupled from concrete runtime via publisher), and non-fighting user drag policy (manual
+    move/resize releases window for the session). 6 tiling `ShortcutAction` cases (ids 27–32) for toggle,
+    cycle layout, focus next/prev, and swap next/prev.
+  - **26b-4 (Settings tab + master toggle + restore):** Dedicated "Tiling" tab in Settings
+    (`SettingsTilingPane.swift` + `SettingsTab.tiling`), master toggle (`com.katikati.tiling.enabled`, default
+    off), instant restore of pre-tiling frames on disable, preset selector, gap sliders, floating apps text
+    editor, and tiling shortcuts.
+  - **Gate:** 2,356 unit tests / 0 failures · `check_localization.py` ✅ (785 keys × 12 languages) ·
+    `check_debug_switches.py` ✅ (83 switches) · `check_availability_warnings.py` ✅. Phase 26 complete.
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
