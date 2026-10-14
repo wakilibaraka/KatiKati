@@ -14,6 +14,10 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case snapTopLeft, snapTopRight, snapBottomLeft, snapBottomRight
     case snapLeftThird, snapCenterThird, snapRightThird, snapLeftTwoThirds, snapRightTwoThirds
     case snapCenter, snapMaximize
+    /// Phase 26b tiling actions: master toggle, layout cycle, focus nav, and tile swap. All default `.off`.
+    case toggleTiling, cycleTilingLayout
+    case tilingFocusNext, tilingFocusPrevious
+    case tilingSwapNext, tilingSwapPrevious
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -44,6 +48,13 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .snapRightTwoThirds: return 24
         case .snapCenter: return 25
         case .snapMaximize: return 26
+        // Phase 26b tiling actions: ids 27–32
+        case .toggleTiling: return 27
+        case .cycleTilingLayout: return 28
+        case .tilingFocusNext: return 29
+        case .tilingFocusPrevious: return 30
+        case .tilingSwapNext: return 31
+        case .tilingSwapPrevious: return 32
         }
     }
 
@@ -58,6 +69,20 @@ enum ShortcutAction: String, CaseIterable, Sendable {
              .snapTopLeft, .snapTopRight, .snapBottomLeft, .snapBottomRight,
              .snapLeftThird, .snapCenterThird, .snapRightThird, .snapLeftTwoThirds, .snapRightTwoThirds,
              .snapCenter, .snapMaximize: return .off
+        // All tiling actions default to off — user assigns.
+        case .toggleTiling, .cycleTilingLayout,
+             .tilingFocusNext, .tilingFocusPrevious,
+             .tilingSwapNext, .tilingSwapPrevious: return .off
+        }
+    }
+
+    /// Whether this action belongs to Phase 26b auto-tiling.
+    var isTilingAction: Bool {
+        switch self {
+        case .toggleTiling, .cycleTilingLayout,
+             .tilingFocusNext, .tilingFocusPrevious,
+             .tilingSwapNext, .tilingSwapPrevious: return true
+        default: return false
         }
     }
 

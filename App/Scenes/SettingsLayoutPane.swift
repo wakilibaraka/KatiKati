@@ -783,8 +783,8 @@ struct SettingsLayoutPane: View {
                 Text("Shortcuts")
             } content: {
                 let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
-                // General feature shortcuts (non-snap actions only).
-                ForEach(ShortcutAction.allCases.filter { $0.snapPosition == nil }, id: \.self) { action in
+                // General feature shortcuts (non-snap, non-tiling actions only).
+                ForEach(ShortcutAction.allCases.filter { $0.snapPosition == nil && !$0.isTilingAction }, id: \.self) { action in
                     HStack {
                         shortcutActionTitle(action)
                         if duplicated.contains(action) {
@@ -999,6 +999,13 @@ struct SettingsLayoutPane: View {
         case .snapRightTwoThirds: return Text("Snap Right Two-Thirds")
         case .snapCenter: return Text("Snap Center")
         case .snapMaximize: return Text("Snap Maximize")
+        // Phase 26b tiling actions
+        case .toggleTiling: return Text("Toggle Tiling")
+        case .cycleTilingLayout: return Text("Cycle Tiling Layout")
+        case .tilingFocusNext: return Text("Focus Next Tile")
+        case .tilingFocusPrevious: return Text("Focus Previous Tile")
+        case .tilingSwapNext: return Text("Swap with Next Tile")
+        case .tilingSwapPrevious: return Text("Swap with Previous Tile")
         }
     }
 

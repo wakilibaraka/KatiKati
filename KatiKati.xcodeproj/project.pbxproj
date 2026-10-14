@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A0000000000000000001F081 /* TilingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F080 /* TilingEngine.swift */; };
+		A0000000000000000001F082 /* TilingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F080 /* TilingEngine.swift */; };
 		A0000000000000000001F051 /* TilingPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F050 /* TilingPolicy.swift */; };
 		A0000000000000000001F052 /* TilingPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F050 /* TilingPolicy.swift */; };
 		A0000000000000000001F061 /* TilingLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F060 /* TilingLayout.swift */; };
@@ -955,6 +957,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A0000000000000000001F080 /* TilingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingEngine.swift; path = App/Composition/TilingEngine.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F050 /* TilingPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingPolicy.swift; path = Core/Support/TilingPolicy.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F060 /* TilingLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingLayout.swift; path = Core/Support/TilingLayout.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F070 /* TilingLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TilingLayoutTests.swift; sourceTree = "<group>"; };
@@ -2729,6 +2732,7 @@
 				A0000000000000000000A311 /* NotificationPlacement.swift in Sources */,
 				A0000000000000000000A281 /* KeyGuardService.swift in Sources */,
 				A0000000000000000000A321 /* NotificationMoveService.swift in Sources */,
+				A0000000000000000001F081 /* TilingEngine.swift in Sources */,
 				A0000000000000000000A291 /* SlowQuitOverlay.swift in Sources */,
 				A0000000000000000000A301 /* KeyVisualizerOverlay.swift in Sources */,
 				A0000000000000000000A1D1 /* AppRemoval.swift in Sources */,
@@ -3193,6 +3197,7 @@
 				A0000000000000000000A312 /* NotificationPlacement.swift in Sources */,
 				A0000000000000000000A282 /* KeyGuardService.swift in Sources */,
 				A0000000000000000000A322 /* NotificationMoveService.swift in Sources */,
+				A0000000000000000001F082 /* TilingEngine.swift in Sources */,
 				A0000000000000000000A292 /* SlowQuitOverlay.swift in Sources */,
 				A0000000000000000000A302 /* KeyVisualizerOverlay.swift in Sources */,
 				A0000000000000000000FA02 /* LauncherChipVisualPlan.swift in Sources */,

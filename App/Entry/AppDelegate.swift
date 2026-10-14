@@ -321,6 +321,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     engine.setKeepAwake(!engine.keepAwakeOn)
                     self.shortcutToast.show(engine.keepAwakeOn ? String(localized: "Keep Awake On") : String(localized: "Keep Awake Off"),
                                             symbol: "cup.and.saucer.fill")
+                case .toggleTiling:
+                    TilingEngine.shared.setEnabled(!TilingEngine.shared.isEnabled)
+                case .cycleTilingLayout:
+                    TilingEngine.shared.cycleLayout()
+                case .tilingFocusNext:
+                    TilingEngine.shared.focusNext()
+                case .tilingFocusPrevious:
+                    TilingEngine.shared.focusPrevious()
+                case .tilingSwapNext:
+                    TilingEngine.shared.swapNext()
+                case .tilingSwapPrevious:
+                    TilingEngine.shared.swapPrevious()
                 default:
                     // Phase 26a: snap-zone hotkeys — any action with a SnapPosition calls the service.
                     if let position = action.snapPosition {
@@ -737,6 +749,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         runtime.start()
         windowSwitcher.start()
         layoutRestore.start()
+        TilingEngine.shared.start(snapshotStream: runtime.$snapshot)
         menuBarSystem.start()
 
         // Auto tier of the messaging list: register an app only when it both matches the
@@ -1139,6 +1152,7 @@ extension AppDelegate: PermissionEffectHandler {
         hyperkeyService.tearDown()
         KeyGuardService.shared.tearDown()
         NotificationMoveService.shared.tearDown()
+        TilingEngine.shared.stop()
         scrollReverserSettingSubscription?.cancel()
         scrollReverserSettingSubscription = nil
         scrollReverserMonitor?.stop()
