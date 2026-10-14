@@ -67,6 +67,7 @@ final class ShortcutService {
         if chord.usesControl { mods |= UInt32(controlKey) }
         if chord.usesOption { mods |= UInt32(optionKey) }
         if chord.usesShift { mods |= UInt32(shiftKey) }
+        if chord.usesCommand { mods |= UInt32(cmdKey) }
         return GlobalHotKeyShortcut(keyCode: UInt32(kVK_Space), carbonModifiers: mods, displayGlyphs: chord.glyphs,
                                     signature: 0x5467_4567, id: action.hotKeyID)
     }

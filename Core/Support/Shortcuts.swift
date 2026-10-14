@@ -5,6 +5,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case launcher, pinboard, quickSettings, keepAwake
     /// Phase 9d: the drawer, the notch's Tools tab, and the Weather / Clock widgets on their own.
     case drawer, notchTools, weather, clock
+    /// Phase 27: the ⌘Space command bar (a Raycast/Sol-style palette over the same index).
+    case commandBar
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -17,6 +19,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .notchTools: return 7
         case .weather: return 8
         case .clock: return 9
+        case .commandBar: return 10
         }
     }
 
@@ -24,21 +27,23 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         switch self {
         case .launcher: return .chord(.optionSpace)
         case .pinboard: return .chord(.controlOptionSpace)
+        case .commandBar: return .chord(.commandSpace)
         case .quickSettings, .keepAwake, .drawer, .notchTools, .weather, .clock: return .off
         }
     }
 }
 
-/// A key chord on Space. Four alternatives per the owner's brief, plus ⌃⌥Space (the Control Center default).
+/// A key chord on Space. Four alternatives per the owner's brief, plus ⌃⌥Space (Control Center) and ⌘Space (Phase 27).
 enum ShortcutChord: String, CaseIterable, Sendable {
-    case optionSpace, controlSpace, optionShiftSpace, controlShiftSpace, controlOptionSpace
+    case optionSpace, controlSpace, optionShiftSpace, controlShiftSpace, controlOptionSpace, commandSpace
 
     var usesControl: Bool { self == .controlSpace || self == .controlShiftSpace || self == .controlOptionSpace }
     var usesOption: Bool { self == .optionSpace || self == .optionShiftSpace || self == .controlOptionSpace }
     var usesShift: Bool { self == .optionShiftSpace || self == .controlShiftSpace }
+    var usesCommand: Bool { self == .commandSpace }
 
     var glyphs: String {
-        (usesControl ? "⌃" : "") + (usesOption ? "⌥" : "") + (usesShift ? "⇧" : "") + "Space"
+        (usesControl ? "⌃" : "") + (usesOption ? "⌥" : "") + (usesShift ? "⇧" : "") + (usesCommand ? "⌘" : "") + "Space"
     }
 }
 

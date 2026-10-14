@@ -873,6 +873,8 @@
 		EE000000000000000000003F /* SystemHealthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000003E /* SystemHealthTests.swift */; };
 		EE0000000000000000000045 /* ShortcutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000044 /* ShortcutService.swift */; };
 		A0000000000000000000E001 /* LauncherRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000E000 /* LauncherRunner.swift */; };
+		A0000000000000000000F101 /* CommandBarPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F100 /* CommandBarPanelController.swift */; };
+		A0000000000000000000F111 /* CommandBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F110 /* CommandBarView.swift */; };
 		A0000000000000000000F001 /* CommandBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F000 /* CommandBar.swift */; };
 		A0000000000000000000F002 /* CommandBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F000 /* CommandBar.swift */; };
 		A0000000000000000000F011 /* CommandBarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F010 /* CommandBarTests.swift */; };
@@ -1507,6 +1509,8 @@
 		EE000000000000000000003E /* SystemHealthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemHealthTests.swift; path = Tests/Unit/SystemHealthTests.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000044 /* ShortcutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutService.swift; path = App/Composition/ShortcutService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000E000 /* LauncherRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherRunner.swift; path = App/Composition/LauncherRunner.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000F100 /* CommandBarPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CommandBarPanelController.swift; path = App/Entry/CommandBarPanelController.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000F110 /* CommandBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CommandBarView.swift; path = App/Scenes/CommandBarView.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000F000 /* CommandBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandBar.swift; sourceTree = "<group>"; };
 		A0000000000000000000F010 /* CommandBarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandBarTests.swift; sourceTree = "<group>"; };
 		EE0000000000000000000046 /* ShortcutToastPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutToastPresenter.swift; path = App/Entry/ShortcutToastPresenter.swift; sourceTree = SOURCE_ROOT; };
@@ -2588,6 +2592,8 @@
 				FA010000000000000000002 /* PinchGesture.swift in Sources */,
 				EE0000000000000000000045 /* ShortcutService.swift in Sources */,
 				A0000000000000000000E001 /* LauncherRunner.swift in Sources */,
+				A0000000000000000000F101 /* CommandBarPanelController.swift in Sources */,
+				A0000000000000000000F111 /* CommandBarView.swift in Sources */,
 				EE000000000000000000002B /* QuickToggleEngine.swift in Sources */,
 				EE0000000000000000000049 /* QuickToggles.swift in Sources */,
 				EE000000000000000000004E /* SystemHealthReaders.swift in Sources */,

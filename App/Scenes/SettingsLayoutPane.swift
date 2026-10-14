@@ -866,6 +866,7 @@ struct SettingsLayoutPane: View {
         case .notchTools: return Text("Notch Tools")
         case .weather: return Text("Weather")
         case .clock: return Text("Clock")
+        case .commandBar: return Text("Command Bar")
         }
     }
 

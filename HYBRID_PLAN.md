@@ -3382,6 +3382,17 @@ idle CPU flat while off + disable restores every managed window.
   `KillAppConfirmation` was **not** split out — the confirm is unconditional, so a seam for it would be
   dead weight (recorded deviation). **Verified:** `xcodebuild test` 2,255 / 0 failures ·
   `check_localization.py` ✅ · `check_availability_warnings.py` ✅. No strings.
+- 2026-10-14 · **27b — command-bar panel + ⌘Space summon (+ kill-app) — PASS (code).** New
+  `App/Entry/CommandBarPanelController.swift` + `App/Scenes/CommandBarView.swift`: a compact
+  non-activating palette over the same `LauncherIndexer` (the full-screen launcher is untouched on
+  ⌥Space). New `ShortcutAction.commandBar` (id 10, default `.chord(.commandSpace)`; new `ShortcutChord`
+  `.commandSpace` + `usesCommand`) wired in `AppDelegate`. **27c (kill-app) landed here too:** `quit`
+  rows come from `CommandBarResults.build` over `NSWorkspace.runningApplications` (regular apps only),
+  and `confirmQuit` runs an `NSAlert` then `terminate()` — no force path yet. New string "Command Bar".
+  Gate: 2,255 tests / 0 failures; localization ✅; availability ✅. **Not done:** arrow-key selection
+  (Return runs the first row; first row always highlighted), force-quit, and the Spotlight handoff
+  (27d). **Risk:** ⌘Space registration fails (silently, logged) while Spotlight still owns it — the
+  guided setup is 27d.
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)

@@ -162,6 +162,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         return panel
     }()
+    /// Phase 27: the ⌘Space command bar, kept separate from the full-screen launcher.
+    private lazy var commandBarPanel = CommandBarPanelController()
     private var terminationTask: Task<Void, Never>?
     private var terminationSignalSources: [DispatchSourceSignal] = []
     private var debugWindow: NSWindow?
@@ -304,6 +306,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 guard let self else { return }
                 switch action {
                 case .launcher: self.launcherPanel.toggle()
+                case .commandBar: self.commandBarPanel.toggle()
                 case .pinboard: self.controlCenterPanel.toggle()
                 case .quickSettings: self.controlCenterPanel.toggle()
                 case .drawer: self.panelCoordinator?.toggleDrawer()
