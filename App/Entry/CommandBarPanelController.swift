@@ -268,7 +268,10 @@ final class CommandBarPanelController {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         let host = NSHostingView(rootView: CommandBarView(model: model,
                                                           onRun: { [weak self] in self?.run($0) },
-                                                          onClose: { [weak self] in self?.dismiss() }))
+                                                          onClose: { [weak self] in self?.dismiss() },
+                                                          onRemove: { app, removal in
+                                                              AppRemovalService.confirmAndPerform(bundleID: app.bundleID, name: app.name, appPath: app.path, removal: removal)
+                                                          }))
         panel.contentView = host
         appsObserver = indexer.$apps.sink { [weak self] apps in
             self?.model.apps = apps

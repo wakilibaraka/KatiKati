@@ -55645,6 +55645,40 @@
         "it": { "stringUnit": { "state": "translated", "value": "Mostra suggerimenti comandi" } },
         "ko": { "stringUnit": { "state": "translated", "value": "명령 힌트 표시" } }
       }
+    },
+    "Delete Data": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Delete Data" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "删除数据" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "刪除資料" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "データを削除" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Daten löschen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Supprimer les données" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Borrar datos" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Borrar datos" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Apagar dados" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Apagar dados" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Elimina dati" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "데이터 삭제" } }
+      }
+    },
+    "Uninstall": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Uninstall" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "卸载" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "卸載" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "アンインストール" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Deinstallieren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Désinstaller" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Desinstalar" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Desinstalar" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Desinstalar" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Desinstalar" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Disinstalla" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "제거" } }
+      }
     }
   },
   "version": "1.0"

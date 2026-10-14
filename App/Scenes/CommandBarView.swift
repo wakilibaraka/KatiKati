@@ -36,6 +36,7 @@ struct CommandBarView: View {
     @ObservedObject var model: CommandBarModel
     let onRun: (CommandBarResult) -> Void
     let onClose: () -> Void
+    let onRemove: (LauncherApp, AppRemoval) -> Void
     @FocusState private var focused: Bool
     @AppStorage("com.katikati.commandbar.hints") private var showHints = true
 
@@ -56,6 +57,7 @@ struct CommandBarView: View {
                             row(result, selected: index == model.selection)
                                 .id(index)
                                 .onTapGesture { onRun(result) }
+                                .contextMenu { rowMenu(result) }
                         }
                     }
                     .padding(6)
@@ -72,6 +74,13 @@ struct CommandBarView: View {
         .onAppear { focused = true }
         .onChange(of: model.focusNonce) { _ in focused = true }
         .accessibilityLabel(Text("Command Bar"))
+    }
+
+    @ViewBuilder private func rowMenu(_ result: CommandBarResult) -> some View {
+        if case .app(let app) = result {
+            Button("Uninstall…") { onRemove(app, .uninstall) }
+            Button("Delete Data…") { onRemove(app, .deleteData) }
+        }
     }
 
     /// The removable hints strip (Phase 29i): the major keywords as plain chips, plus a ✕ to hide it.

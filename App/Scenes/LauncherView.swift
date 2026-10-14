@@ -34,6 +34,10 @@ struct LauncherActions {
     let dropOnto: (_ dragged: String, _ target: LauncherApp) -> Void
     /// Menu: start a folder holding just this app.
     let newFolder: (LauncherApp) -> Void
+    /// Move the app bundle to the Trash (confirmed).
+    let uninstall: (LauncherApp) -> Void
+    /// Move the app's support files to the Trash (confirmed).
+    let deleteData: (LauncherApp) -> Void
 }
 
 /// The launcher surface: a search field and one app grid, 8 icons across — a Most Used row (pins and usage, then
@@ -590,6 +594,9 @@ struct LauncherView: View {
                 }
             }
         } label: { Text("Add to Folder") }
+        Divider()
+        Button("Uninstall…") { actions.uninstall(app) }
+        Button("Delete Data…") { actions.deleteData(app) }
         }
     }
 }

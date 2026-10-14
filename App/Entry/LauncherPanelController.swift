@@ -184,6 +184,11 @@ final class LauncherPanelController {
         model.openFolderID = nil
     }
 
+    /// Phase 30b: confirm and move an app / its data to the Trash.
+    private func confirmRemoval(_ app: LauncherApp, _ removal: AppRemoval) {
+        AppRemovalService.confirmAndPerform(bundleID: app.bundleID, name: app.name, appPath: app.path, removal: removal)
+    }
+
     private func quickAction(_ action: LauncherQuickAction) {
         dismiss()
         switch action {
@@ -213,7 +218,9 @@ final class LauncherPanelController {
             persist: { [weak self] in self?.persist() },
             quickAction: { [weak self] in self?.quickAction($0) },
             dropOnto: { [weak self] id, target in self?.dropOnto(id, target: target) },
-            newFolder: { [weak self] in self?.newFolder($0) })))
+            newFolder: { [weak self] in self?.newFolder($0) },
+            uninstall: { [weak self] in self?.confirmRemoval($0, .uninstall) },
+            deleteData: { [weak self] in self?.confirmRemoval($0, .deleteData) })))
         prefsObserver = model.$prefs.sink { [weak self] in self?.backdrop?.setBlurStrength($0.blur) }
         host.translatesAutoresizingMaskIntoConstraints = false
         blur.addSubview(host)
