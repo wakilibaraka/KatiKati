@@ -12,6 +12,10 @@
 		A0000000000000000001F111 /* RadialDialModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F110 /* RadialDialModel.swift */; };
 		A0000000000000000001F112 /* RadialDialModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F110 /* RadialDialModel.swift */; };
 		A0000000000000000001F121 /* RadialDialGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F120 /* RadialDialGeometryTests.swift */; };
+		A0000000000000000001F131 /* RadialSectorShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F130 /* RadialSectorShape.swift */; };
+		A0000000000000000001F141 /* RadialDialCenterHub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F140 /* RadialDialCenterHub.swift */; };
+		A0000000000000000001F151 /* RadialDialWedgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F150 /* RadialDialWedgeView.swift */; };
+		A0000000000000000001F161 /* RadialDialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F160 /* RadialDialView.swift */; };
 		A0000000000000000001F091 /* SettingsTilingPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F090 /* SettingsTilingPane.swift */; };
 		A0000000000000000001F092 /* SettingsTilingPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F090 /* SettingsTilingPane.swift */; };
 		A0000000000000000001F081 /* TilingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F080 /* TilingEngine.swift */; };
@@ -967,6 +971,10 @@
 		A0000000000000000001F100 /* RadialDialGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialDialGeometry.swift; path = Core/Support/RadialDialGeometry.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F110 /* RadialDialModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialDialModel.swift; path = Core/Support/RadialDialModel.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F120 /* RadialDialGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadialDialGeometryTests.swift; sourceTree = "<group>"; };
+		A0000000000000000001F130 /* RadialSectorShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialSectorShape.swift; path = App/Scenes/RadialDial/RadialSectorShape.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000001F140 /* RadialDialCenterHub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialDialCenterHub.swift; path = App/Scenes/RadialDial/RadialDialCenterHub.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000001F150 /* RadialDialWedgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialDialWedgeView.swift; path = App/Scenes/RadialDial/RadialDialWedgeView.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000001F160 /* RadialDialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialDialView.swift; path = App/Scenes/RadialDial/RadialDialView.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F090 /* SettingsTilingPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTilingPane.swift; sourceTree = "<group>"; };
 		A0000000000000000001F080 /* TilingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingEngine.swift; path = App/Composition/TilingEngine.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F050 /* TilingPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingPolicy.swift; path = Core/Support/TilingPolicy.swift; sourceTree = SOURCE_ROOT; };
@@ -1851,6 +1859,10 @@
 				6FE57AFF9460A75564CD22C7 /* SettingsAppearancePane.swift */,
 				97A613F29432B20F1634E08E /* SettingsLayoutPane.swift */,
 				A0000000000000000001F090 /* SettingsTilingPane.swift */,
+				A0000000000000000001F130 /* RadialSectorShape.swift */,
+				A0000000000000000001F140 /* RadialDialCenterHub.swift */,
+				A0000000000000000001F150 /* RadialDialWedgeView.swift */,
+				A0000000000000000001F160 /* RadialDialView.swift */,
 				A00000000000000000000067 /* DockStripView.swift */,
 				A00000000000000000009D00 /* WindowTitleTooltip.swift */,
 				B71000000000000000000003 /* ScreenRectReader.swift */,
@@ -2756,6 +2768,10 @@
 				A0000000000000000000A131 /* DictionaryService.swift in Sources */,
 				A0000000000000000000A141 /* TranslatePanelController.swift in Sources */,
 				A0000000000000000000A151 /* TranslateCardView.swift in Sources */,
+				A0000000000000000001F131 /* RadialSectorShape.swift in Sources */,
+				A0000000000000000001F141 /* RadialDialCenterHub.swift in Sources */,
+				A0000000000000000001F151 /* RadialDialWedgeView.swift in Sources */,
+				A0000000000000000001F161 /* RadialDialView.swift in Sources */,
 				A0000000000000000000A161 /* GeneratorService.swift in Sources */,
 				A0000000000000000000A181 /* ProcessLister.swift in Sources */,
 				EE000000000000000000002B /* QuickToggleEngine.swift in Sources */,
