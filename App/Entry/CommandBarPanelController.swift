@@ -34,6 +34,7 @@ final class CommandBarPanelController {
         model.apps = indexer.apps
         model.custom = CustomCommand.parse(UserDefaults.standard.string(forKey: CustomCommand.key) ?? "")
         model.processes = ProcessLister.list()
+        model.clips = Array(ProductivityServices.shared.clipboard.history.displayOrder.prefix(50))
         model.refresh()
         let panel = self.panel ?? makePanel()
         self.panel = panel
@@ -155,6 +156,9 @@ final class CommandBarPanelController {
         case .file(let entry):
             dismiss()
             NSWorkspace.shared.open(URL(fileURLWithPath: entry.path))
+        case .clip(let entry):
+            ProductivityServices.shared.clipboard.copy(entry)
+            dismiss()
         }
     }
 

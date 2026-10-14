@@ -170,6 +170,13 @@ final class CommandKeywordTests: XCTestCase {
         XCTAssertEqual(CommandBarResults.build(query: "fq saf", apps: [], usage: [:], running: [safari]), [.forceQuit(safari)])
         XCTAssertEqual(CommandBarResults.build(query: "kill saf", apps: [], usage: [:], running: [safari]), [.quit(safari)])
     }
+
+    func testClipboardModeRows() {
+        let hello = ClipEntry(text: "hello world")
+        let goodbye = ClipEntry(text: "goodbye")
+        let rows = CommandBarResults.build(query: "clip hello", apps: [], usage: [:], running: [], clips: [hello, goodbye])
+        XCTAssertEqual(rows, [.clip(hello)])
+    }
 }
 
 final class FileQueryTests: XCTestCase {

@@ -46,6 +46,8 @@ enum CommandBarResult: Equatable, Sendable {
     case path(String)
     /// A filesystem result (Phase 29g): open / reveal / trash.
     case file(FileEntry)
+    /// A clipboard-history entry (Phase 29h): copy it back.
+    case clip(ClipEntry)
 }
 
 /// Phase 28a: a generator row — type a keyword, get a fresh value to copy. The pure cases make their own
@@ -144,10 +146,11 @@ enum CommandBarResults {
                       custom: [CustomCommand] = [],
                       processes: [ProcessEntry] = [],
                       files: [FileEntry] = [],
+                      clips: [ClipEntry] = [],
                       generate: (CommandGenerator) -> String = { $0.value() }) -> [CommandBarResult] {
         let keyword = CommandKeyword.parse(query)
         if case .mode(let mode, let argument)? = keyword {
-            return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes, files: files)
+            return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes, files: files, clips: clips)
         }
         let routed = LauncherCommandParser.parse(query)
         switch routed {
@@ -204,10 +207,14 @@ enum CommandBarResults {
     /// Shortcut; `app` forces an app search.
     private static func modeRows(_ mode: CommandBarMode, _ argument: String, apps: [LauncherApp],
                                  usage: [String: LauncherUsage], running: [RunningAppRef],
-                                 processes: [ProcessEntry], files: [FileEntry]) -> [CommandBarResult] {
+                                 processes: [ProcessEntry], files: [FileEntry], clips: [ClipEntry]) -> [CommandBarResult] {
         switch mode {
         case .file, .image:
             return files.map(CommandBarResult.file)
+        case .clipboard:
+            let needle = argument.lowercased()
+            let matched = needle.isEmpty ? clips : clips.filter { $0.text.lowercased().contains(needle) }
+            return matched.map(CommandBarResult.clip)
         case .kill, .forceQuit:
             let matched = argument.isEmpty
                 ? running

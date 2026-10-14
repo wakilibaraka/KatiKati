@@ -15,10 +15,11 @@ final class CommandBarModel: ObservableObject {
     var custom: [CustomCommand] = []
     var processes: [ProcessEntry] = []
     var files: [FileEntry] = []
+    var clips: [ClipEntry] = []
 
     func refresh() {
         results = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
-                                          custom: custom, processes: processes, files: files,
+                                          custom: custom, processes: processes, files: files, clips: clips,
                                           generate: { GeneratorService.value(for: $0) ?? "" })
         selection = 0
     }
@@ -36,6 +37,7 @@ struct CommandBarView: View {
     let onRun: (CommandBarResult) -> Void
     let onClose: () -> Void
     @FocusState private var focused: Bool
+    @AppStorage("com.katikati.commandbar.hints") private var showHints = true
 
     var body: some View {
         VStack(spacing: 0) {
@@ -62,6 +64,7 @@ struct CommandBarView: View {
                     withAnimation(.easeOut(duration: 0.12)) { proxy.scrollTo(value, anchor: .center) }
                 }
             }
+            if showHints { footer }
         }
         .frame(width: 640, height: 380)
         .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(.ultraThinMaterial))
@@ -69,6 +72,24 @@ struct CommandBarView: View {
         .onAppear { focused = true }
         .onChange(of: model.focusNonce) { _ in focused = true }
         .accessibilityLabel(Text("Command Bar"))
+    }
+
+    /// The removable hints strip (Phase 29i): the major keywords as plain chips, plus a ✕ to hide it.
+    private var footer: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "return").font(.system(size: 10, weight: .semibold))
+            ForEach(["f", "img", "clip", "kill", "fq", "kp", "sc", "ocr", "cs"], id: \.self) { key in
+                Text(verbatim: key)
+                    .font(.system(size: 10, weight: .medium))
+                    .padding(.horizontal, 5).padding(.vertical, 2)
+                    .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.primary.opacity(0.08)))
+            }
+            Spacer(minLength: 0)
+            Button { showHints = false } label: { Image(systemName: "xmark") }
+                .buttonStyle(.plain).font(.system(size: 9))
+        }
+        .padding(.horizontal, 12).padding(.vertical, 6)
+        .foregroundColor(.secondary)
     }
 
     @ViewBuilder private func row(_ result: CommandBarResult, selected: Bool) -> some View {
@@ -132,6 +153,9 @@ struct CommandBarView: View {
                 Text(verbatim: entry.name)
                 Text(verbatim: entry.path).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
                 Spacer(minLength: 0)
+            case .clip(let entry):
+                Text(verbatim: ClipboardHistory.previewLine(entry.text)).lineLimit(1)
+                Spacer(minLength: 0)
             }
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
@@ -171,6 +195,8 @@ struct CommandBarView: View {
         case .file(let entry):
             Image(nsImage: LauncherIconCache.icon(forPath: entry.path))
                 .resizable().aspectRatio(contentMode: .fit).frame(width: 24, height: 24)
+        case .clip:
+            Image(systemName: "doc.on.clipboard").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         }
     }
 }

@@ -10,6 +10,7 @@ struct UtilitySettingsBlock: View {
     @AppStorage(ClipboardMonitor.ignorePatternsKey) private var clipboardIgnorePatterns = ""
     @AppStorage(LauncherRunner.enabledKey) private var launcherScripts = false
     @AppStorage(CustomCommand.key) private var customCommands = ""
+    @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
 
     var body: some View {
         HStack {
@@ -32,6 +33,9 @@ struct UtilitySettingsBlock: View {
         Text("Launcher").font(.headline)
         row("Script Commands") {
             Toggle("Script Commands", isOn: $launcherScripts).toggleStyle(.switch).labelsHidden()
+        }
+        row("Show Command Hints") {
+            Toggle("Show Command Hints", isOn: $commandHints).toggleStyle(.switch).labelsHidden()
         }
         VStack(alignment: .leading, spacing: 4) {
             Button("Replace Spotlight") {

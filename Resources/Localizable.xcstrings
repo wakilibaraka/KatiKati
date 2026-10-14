@@ -55628,6 +55628,23 @@
         "it": { "stringUnit": { "state": "translated", "value": "Sei sicuro?" } },
         "ko": { "stringUnit": { "state": "translated", "value": "계속하시겠습니까?" } }
       }
+    },
+    "Show Command Hints": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Show Command Hints" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "显示命令提示" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "顯示指令提示" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "コマンドヒントを表示" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Befehlshinweise anzeigen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Afficher les astuces de commande" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mostrar sugerencias de comandos" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mostrar sugerencias de comandos" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mostrar dicas de comando" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mostrar sugestões de comando" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mostra suggerimenti comandi" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "명령 힌트 표시" } }
+      }
     }
   },
   "version": "1.0"
