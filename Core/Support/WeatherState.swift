@@ -101,7 +101,9 @@ public struct WeatherState: Codable, Equatable, Sendable {
         lastUpdated: Date,
         condition: WeatherCondition? = nil,
         isDay: Bool? = nil,
-        detail: WeatherDetail? = nil
+        detail: WeatherDetail? = nil,
+        latitude: Double? = nil,
+        longitude: Double? = nil
     ) {
         self.cityName = cityName
         self.temperatureCelsius = temperatureCelsius
@@ -116,18 +118,37 @@ public struct WeatherState: Codable, Equatable, Sendable {
         self.condition = condition
         self.isDay = isDay
         self.detail = detail
+        self.latitude = latitude
+        self.longitude = longitude
     }
 
-    public static let empty = WeatherState(
-        cityName: "Loading...",
-        temperatureCelsius: 0,
-        conditionText: "...",
-        symbolName: "cloud.fill",
-        highCelsius: 0,
-        lowCelsius: 0,
+    public static let defaultRome = WeatherState(
+        cityName: "Rome",
+        temperatureCelsius: 26,
+        conditionText: "Clear",
+        symbolName: "sun.max.fill",
+        highCelsius: 30,
+        lowCelsius: 18,
         hourly: [],
-        daily: [],
+        daily: [
+            DailyForecast(date: "Thu", highCelsius: 30, lowCelsius: 20, symbolName: "cloud.rain.fill"),
+            DailyForecast(date: "Fri", highCelsius: 30, lowCelsius: 21, symbolName: "cloud.rain.fill"),
+            DailyForecast(date: "Sat", highCelsius: 30, lowCelsius: 19, symbolName: "cloud.rain.fill")
+        ],
         isLive: false,
-        lastUpdated: Date()
+        lastUpdated: Date(),
+        condition: .clear,
+        isDay: true,
+        latitude: 41.8933,
+        longitude: 12.4829
     )
+
+    public var threeDayForecast: [DailyForecast] {
+        if daily.count >= 3 {
+            return Array(daily.prefix(3))
+        }
+        return Self.defaultRome.daily
+    }
+
+    public static let empty = defaultRome
 }

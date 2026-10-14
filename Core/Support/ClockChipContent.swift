@@ -5,6 +5,16 @@ public enum ClockPreset: String, CaseIterable, Equatable {
     case modernMac = "modern"
     case pixelRetro = "pixel"
     case flipTiles = "flip"
+    case stackedCard = "stacked"
+
+    public var title: String {
+        switch self {
+        case .modernMac: return "Modern Mac"
+        case .pixelRetro: return "Pixel Retro"
+        case .flipTiles: return "Flip Clock"
+        case .stackedCard: return "Stacked Time & Date"
+        }
+    }
 }
 
 public struct ClockContent: Equatable {

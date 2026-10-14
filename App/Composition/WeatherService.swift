@@ -40,7 +40,11 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
         selection = savedCities.resolved(selection)
 
         // Offline from the first frame: show the last forecast for this place until a fresh one arrives.
-        if let cached = cache?.load(token: selection.token) { self.currentState = cached }
+        if let cached = cache?.load(token: selection.token) {
+            self.currentState = cached
+        } else {
+            self.currentState = .defaultRome
+        }
         locationStatus = locationManager.authorizationStatus
 
         locationManager.delegate = self
@@ -106,12 +110,14 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
         }
     }
 
-    /// Current location is unavailable: use the first saved city, else ask the user to search.
+    /// Current location is unavailable: use the first saved city, else fallback to Rome.
     private func fallBackFromCurrentLocation() {
         if let first = savedCities.cities.first {
             select(.city(first.id))
         } else {
-            needsLocation = true
+            Task {
+                await fetchWeather(latitude: 41.8933, longitude: 12.4829, city: "Rome")
+            }
         }
     }
 

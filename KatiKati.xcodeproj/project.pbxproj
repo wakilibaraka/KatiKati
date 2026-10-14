@@ -20,6 +20,9 @@
 		A0000000000000000001F181 /* RadialDialPresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F180 /* RadialDialPresets.swift */; };
 		A0000000000000000001F182 /* RadialDialPresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F180 /* RadialDialPresets.swift */; };
 		A0000000000000000001F191 /* RadialDialPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F190 /* RadialDialPanelController.swift */; };
+		A0000000000000000001F201 /* SystemGaugeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F200 /* SystemGaugeModel.swift */; };
+		A0000000000000000001F202 /* SystemGaugeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F200 /* SystemGaugeModel.swift */; };
+		A0000000000000000001F211 /* SystemGaugeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F210 /* SystemGaugeTests.swift */; };
 		A0000000000000000001F091 /* SettingsTilingPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F090 /* SettingsTilingPane.swift */; };
 		A0000000000000000001F092 /* SettingsTilingPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F090 /* SettingsTilingPane.swift */; };
 		A0000000000000000001F081 /* TilingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F080 /* TilingEngine.swift */; };
@@ -982,6 +985,8 @@
 		A0000000000000000001F170 /* RadialSnapPreviewPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialSnapPreviewPanelController.swift; path = App/Scenes/RadialDial/RadialSnapPreviewPanelController.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F180 /* RadialDialPresets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialDialPresets.swift; path = Core/Support/RadialDialPresets.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F190 /* RadialDialPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialDialPanelController.swift; path = App/Entry/RadialDialPanelController.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000001F200 /* SystemGaugeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemGaugeModel.swift; path = Core/Support/SystemGaugeModel.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000001F210 /* SystemGaugeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemGaugeTests.swift; sourceTree = "<group>"; };
 		A0000000000000000001F090 /* SettingsTilingPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTilingPane.swift; sourceTree = "<group>"; };
 		A0000000000000000001F080 /* TilingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingEngine.swift; path = App/Composition/TilingEngine.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F050 /* TilingPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingPolicy.swift; path = Core/Support/TilingPolicy.swift; sourceTree = SOURCE_ROOT; };
@@ -2121,6 +2126,7 @@
 				A0000000000000000001F040 /* TilingTreeTests.swift */,
 				A0000000000000000001F070 /* TilingLayoutTests.swift */,
 				A0000000000000000001F120 /* RadialDialGeometryTests.swift */,
+				A0000000000000000001F210 /* SystemGaugeTests.swift */,
 				A0000000000000000000D030 /* PDFReducePlanTests.swift */,
 				A0000000000000000000D050 /* LauncherAnswersTests.swift */,
 				A0000000000000000000F010 /* CommandBarTests.swift */,
@@ -2266,6 +2272,7 @@
 				A0000000000000000001F100 /* RadialDialGeometry.swift */,
 				A0000000000000000001F110 /* RadialDialModel.swift */,
 				A0000000000000000001F180 /* RadialDialPresets.swift */,
+				A0000000000000000001F200 /* SystemGaugeModel.swift */,
 				F1C0000000000000000000A0 /* WindowListMenuPlan.swift */,
 				F1F0000000000000000000A0 /* AppLanguageOption.swift */,
 				F1D0000000000000000000A0 /* DocumentUsageRanking.swift */,
@@ -2825,6 +2832,7 @@
 				A0000000000000000001F101 /* RadialDialGeometry.swift in Sources */,
 				A0000000000000000001F111 /* RadialDialModel.swift in Sources */,
 				A0000000000000000001F181 /* RadialDialPresets.swift in Sources */,
+				A0000000000000000001F201 /* SystemGaugeModel.swift in Sources */,
 				ED00000000000000000000C5 /* WindowSnapService.swift in Sources */,
 				ED00000000000000000000C7 /* WindowsFlyoutView.swift in Sources */,
 				ED00000000000000000000B5 /* TaskList.swift in Sources */,
@@ -3059,6 +3067,8 @@
 				A0000000000000000001F112 /* RadialDialModel.swift in Sources */,
 				A0000000000000000001F121 /* RadialDialGeometryTests.swift in Sources */,
 				A0000000000000000001F182 /* RadialDialPresets.swift in Sources */,
+				A0000000000000000001F202 /* SystemGaugeModel.swift in Sources */,
+				A0000000000000000001F211 /* SystemGaugeTests.swift in Sources */,
 				ED00000000000000000000C0 /* DeckLabel.swift in Sources */,
 				ED00000000000000000000B6 /* TaskList.swift in Sources */,
 				ED00000000000000000000B9 /* TasksStore.swift in Sources */,

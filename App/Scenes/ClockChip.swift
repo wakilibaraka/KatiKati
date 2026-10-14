@@ -157,7 +157,7 @@ public struct ClockChip: View {
     /// `flipTiles` never reaches here (it bypasses the card in `body`).
     private var timeFont: Font {
         switch preset {
-        case .modernMac:
+        case .modernMac, .stackedCard:
             return .system(size: widgetSize == .large ? 22 : 19, weight: .semibold, design: .rounded).monospacedDigit()
         case .pixelRetro:
             return .system(size: 18, weight: .bold, design: .monospaced)
@@ -168,7 +168,7 @@ public struct ClockChip: View {
 
     private var dateFont: Font {
         switch preset {
-        case .modernMac:
+        case .modernMac, .stackedCard:
             return .system(size: 10, weight: .regular, design: .rounded)
         case .pixelRetro:
             return .system(size: 10, weight: .medium, design: .monospaced)
