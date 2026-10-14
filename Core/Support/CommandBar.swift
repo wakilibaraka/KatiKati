@@ -52,6 +52,8 @@ enum CommandBarResult: Equatable, Sendable {
     case trash(TrashAction)
     /// An emoji (Phase 30f): copy it.
     case emoji(EmojiEntry)
+    /// A browser bookmark (Phase 30g): open it.
+    case bookmark(Bookmark)
 }
 
 /// Phase 28a: a generator row — type a keyword, get a fresh value to copy. The pure cases make their own
@@ -151,10 +153,11 @@ enum CommandBarResults {
                       processes: [ProcessEntry] = [],
                       files: [FileEntry] = [],
                       clips: [ClipEntry] = [],
+                      bookmarks: [Bookmark] = [],
                       generate: (CommandGenerator) -> String = { $0.value() }) -> [CommandBarResult] {
         let keyword = CommandKeyword.parse(query)
         if case .mode(let mode, let argument)? = keyword {
-            return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes, files: files, clips: clips)
+            return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes, files: files, clips: clips, bookmarks: bookmarks)
         }
         let routed = LauncherCommandParser.parse(query)
         switch routed {
@@ -212,10 +215,13 @@ enum CommandBarResults {
     /// Shortcut; `app` forces an app search.
     private static func modeRows(_ mode: CommandBarMode, _ argument: String, apps: [LauncherApp],
                                  usage: [String: LauncherUsage], running: [RunningAppRef],
-                                 processes: [ProcessEntry], files: [FileEntry], clips: [ClipEntry]) -> [CommandBarResult] {
+                                 processes: [ProcessEntry], files: [FileEntry], clips: [ClipEntry],
+                                 bookmarks: [Bookmark]) -> [CommandBarResult] {
         switch mode {
         case .file, .image:
             return files.map(CommandBarResult.file)
+        case .bookmark:
+            return BookmarkImport.matching(argument, in: bookmarks).prefix(30).map(CommandBarResult.bookmark)
         case .clipboard:
             let needle = argument.lowercased()
             let matched = needle.isEmpty ? clips : clips.filter { $0.text.lowercased().contains(needle) }

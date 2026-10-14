@@ -214,6 +214,28 @@ final class FileQueryTests: XCTestCase {
     }
 }
 
+final class BookmarkImportTests: XCTestCase {
+    func testChromeParse() {
+        let json = #"{"roots":{"bookmark_bar":{"children":[{"name":"Swift","url":"https://swift.org"},{"children":[{"name":"Docs","url":"https://docs.example"}]}]}}}"#
+        let marks = BookmarkImport.parseChrome(Data(json.utf8))
+        XCTAssertEqual(Set(marks.map(\.title)), ["Swift", "Docs"])
+    }
+
+    func testSafariParse() {
+        let plist: [String: Any] = ["Children": [["URLString": "https://a.com", "URIDictionary": ["title": "A"]]]]
+        XCTAssertEqual(BookmarkImport.parseSafari(plist), [Bookmark(title: "A", url: "https://a.com")])
+    }
+
+    func testMatchingAndModeRow() {
+        let marks = [Bookmark(title: "Swift Blog", url: "https://swift.org/blog"),
+                     Bookmark(title: "News", url: "https://news.example")]
+        XCTAssertEqual(BookmarkImport.matching("swift", in: marks).map(\.title), ["Swift Blog"])
+        XCTAssertEqual(BookmarkImport.matching("example", in: marks).map(\.title), ["News"])
+        let rows = CommandBarResults.build(query: "bm swift", apps: [], usage: [:], running: [], bookmarks: marks)
+        XCTAssertEqual(rows, [.bookmark(marks[0])])
+    }
+}
+
 final class SpotlightHandoffTests: XCTestCase {
 
     func testStepsAreOrderedAndNonEmpty() {

@@ -27,6 +27,8 @@ enum BarActionService {
             osascript("tell application \"System Events\" to shut down")
         case .logout:
             osascript("tell application \"System Events\" to log out")
+        case .menuBar:
+            toggleMenuBarAutoHide()
         case .play:
             nowPlaying.togglePlayPause()
         case .next:
@@ -61,5 +63,12 @@ enum BarActionService {
 
     private static func osascript(_ source: String) {
         shell("/usr/bin/osascript", ["-e", source])
+    }
+
+    /// Toggle the menu bar's auto-hide (private `_HIHideMenuBar`), then restart SystemUIServer so it takes.
+    private static func toggleMenuBarAutoHide() {
+        let current = UserDefaults.standard.bool(forKey: "_HIHideMenuBar")
+        shell("/usr/bin/defaults", ["write", "NSGlobalDomain", "_HIHideMenuBar", "-bool", current ? "false" : "true"])
+        shell("/usr/bin/killall", ["SystemUIServer"])
     }
 }

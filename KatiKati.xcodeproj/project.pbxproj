@@ -898,6 +898,9 @@
 		A0000000000000000000A1F1 /* AppRemovalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A1F0 /* AppRemovalService.swift */; };
 		A0000000000000000000A201 /* EmojiCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A200 /* EmojiCatalog.swift */; };
 		A0000000000000000000A202 /* EmojiCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A200 /* EmojiCatalog.swift */; };
+		A0000000000000000000A211 /* Bookmarks.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A210 /* Bookmarks.swift */; };
+		A0000000000000000000A212 /* Bookmarks.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A210 /* Bookmarks.swift */; };
+		A0000000000000000000A221 /* BookmarkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A220 /* BookmarkService.swift */; };
 		A0000000000000000000A1D1 /* AppRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A1D0 /* AppRemoval.swift */; };
 		A0000000000000000000A1D2 /* AppRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A1D0 /* AppRemoval.swift */; };
 		A0000000000000000000A1E1 /* AppRemovalPlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A1E0 /* AppRemovalPlannerTests.swift */; };
@@ -1549,6 +1552,8 @@
 		A0000000000000000000A1C0 /* FileSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FileSearchService.swift; path = App/Composition/FileSearchService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A1F0 /* AppRemovalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppRemovalService.swift; path = App/Composition/AppRemovalService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A200 /* EmojiCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiCatalog.swift; sourceTree = "<group>"; };
+		A0000000000000000000A210 /* Bookmarks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bookmarks.swift; sourceTree = "<group>"; };
+		A0000000000000000000A220 /* BookmarkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BookmarkService.swift; path = App/Composition/BookmarkService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A1D0 /* AppRemoval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemoval.swift; sourceTree = "<group>"; };
 		A0000000000000000000A1E0 /* AppRemovalPlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemovalPlannerTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000F000 /* CommandBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandBar.swift; sourceTree = "<group>"; };
@@ -2157,6 +2162,7 @@
 				A0000000000000000000A1B0 /* FileQuery.swift */,
 				A0000000000000000000A1D0 /* AppRemoval.swift */,
 				A0000000000000000000A200 /* EmojiCatalog.swift */,
+				A0000000000000000000A210 /* Bookmarks.swift */,
 				F1C0000000000000000000A0 /* WindowListMenuPlan.swift */,
 				F1F0000000000000000000A0 /* AppLanguageOption.swift */,
 				F1D0000000000000000000A0 /* DocumentUsageRanking.swift */,
@@ -2651,6 +2657,8 @@
 				A0000000000000000000A1C1 /* FileSearchService.swift in Sources */,
 				A0000000000000000000A1F1 /* AppRemovalService.swift in Sources */,
 				A0000000000000000000A201 /* EmojiCatalog.swift in Sources */,
+				A0000000000000000000A211 /* Bookmarks.swift in Sources */,
+				A0000000000000000000A221 /* BookmarkService.swift in Sources */,
 				A0000000000000000000A1D1 /* AppRemoval.swift in Sources */,
 				A0000000000000000000A121 /* SelectedTextReader.swift in Sources */,
 				A0000000000000000000A131 /* DictionaryService.swift in Sources */,
@@ -3094,6 +3102,7 @@
 				A0000000000000000000A1B2 /* FileQuery.swift in Sources */,
 				A0000000000000000000A1D2 /* AppRemoval.swift in Sources */,
 				A0000000000000000000A202 /* EmojiCatalog.swift in Sources */,
+				A0000000000000000000A212 /* Bookmarks.swift in Sources */,
 				A0000000000000000000FA02 /* LauncherChipVisualPlan.swift in Sources */,
 				A0000000000000000000FF02 /* LaunchGateDecision.swift in Sources */,
 				B10000000000000000000009 /* BadgeReadPlan.swift in Sources */,

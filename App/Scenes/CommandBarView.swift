@@ -16,10 +16,12 @@ final class CommandBarModel: ObservableObject {
     var processes: [ProcessEntry] = []
     var files: [FileEntry] = []
     var clips: [ClipEntry] = []
+    var bookmarks: [Bookmark] = []
 
     func refresh() {
         results = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
                                           custom: custom, processes: processes, files: files, clips: clips,
+                                          bookmarks: bookmarks,
                                           generate: { GeneratorService.value(for: $0) ?? "" })
         selection = 0
     }
@@ -177,6 +179,10 @@ struct CommandBarView: View {
                 Text(verbatim: entry.char).font(.system(size: 18))
                 Text(verbatim: entry.name).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
                 Spacer(minLength: 0)
+            case .bookmark(let bookmark):
+                Text(verbatim: bookmark.title).lineLimit(1)
+                Text(verbatim: bookmark.url).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
+                Spacer(minLength: 0)
             }
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
@@ -222,6 +228,8 @@ struct CommandBarView: View {
             Image(systemName: action.symbol).font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .emoji(let entry):
             Text(verbatim: entry.char).font(.system(size: 20)).frame(width: 24, height: 24)
+        case .bookmark:
+            Image(systemName: "bookmark").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         }
     }
 }

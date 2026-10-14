@@ -35,6 +35,7 @@ final class CommandBarPanelController {
         model.custom = CustomCommand.parse(UserDefaults.standard.string(forKey: CustomCommand.key) ?? "")
         model.processes = ProcessLister.list()
         model.clips = Array(ProductivityServices.shared.clipboard.history.displayOrder.prefix(50))
+        model.bookmarks = BookmarkService.load()
         model.refresh()
         let panel = self.panel ?? makePanel()
         self.panel = panel
@@ -170,6 +171,9 @@ final class CommandBarPanelController {
             NSPasteboard.general.clearContents()
             NSPasteboard.general.setString(entry.char, forType: .string)
             dismiss()
+        case .bookmark(let bookmark):
+            dismiss()
+            if let url = URL(string: bookmark.url) { NSWorkspace.shared.open(url) }
         }
     }
 

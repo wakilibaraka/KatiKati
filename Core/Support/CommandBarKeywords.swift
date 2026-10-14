@@ -4,7 +4,7 @@ import Foundation
 /// by a space** is a mode (takes the rest as its argument). Layered above the single-char prefixes.
 /// Learned from Snap (keyword+argument actions) and Cling/oil-find (short filter words).
 enum CommandBarMode: CaseIterable, Sendable {
-    case file, image, clipboard, emoji, kill, forceQuit, killProcess, shortcut, apps
+    case file, image, clipboard, emoji, bookmark, kill, forceQuit, killProcess, shortcut, apps
 
     var keywords: [String] {
         switch self {
@@ -12,6 +12,7 @@ enum CommandBarMode: CaseIterable, Sendable {
         case .image: return ["img", "image"]
         case .clipboard: return ["clip", "clipboard"]
         case .emoji: return ["emoji", "em"]
+        case .bookmark: return ["bm", "bookmark"]
         case .kill: return ["kill"]
         case .forceQuit: return ["fq"]
         case .killProcess: return ["kp"]
@@ -25,7 +26,7 @@ enum CommandBarMode: CaseIterable, Sendable {
 /// handled by `BarActionService` (media keys, power, OCR, opening apps).
 enum BarMacro: CaseIterable, Sendable {
     case ocr, shortcutsApp, terminal, screensaver, lock, sleep, restart, shutdown, logout
-    case darkMode, keepAwake, muteMic, nightShift, trueTone, wifi, bluetooth
+    case darkMode, keepAwake, muteMic, nightShift, trueTone, wifi, bluetooth, menuBar
     case emptyTrash, eject, hideDesktopIcons, dockAutoHide, relaunchFinder
     case play, next, previous
 
@@ -47,6 +48,7 @@ enum BarMacro: CaseIterable, Sendable {
         case .trueTone: return ["truetone"]
         case .wifi: return ["wifi"]
         case .bluetooth: return ["bt"]
+        case .menuBar: return ["menubar"]
         case .emptyTrash: return ["emptytrash"]
         case .eject: return ["eject"]
         case .hideDesktopIcons: return ["hideicons"]
@@ -96,6 +98,7 @@ enum BarMacro: CaseIterable, Sendable {
         case .restart: return "arrow.clockwise"
         case .shutdown: return "power"
         case .logout: return "rectangle.portrait.and.arrow.right"
+        case .menuBar: return "menubar.rectangle"
         case .play: return "play.fill"
         case .next: return "forward.fill"
         case .previous: return "backward.fill"
