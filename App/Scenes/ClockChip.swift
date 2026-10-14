@@ -51,7 +51,7 @@ public enum ClockArt {
 // MARK: - Bar widget (combined clock chip)
 
 public struct ClockChip: View {
-    @AppStorage("com.katikati.clock.preset") private var preset: ClockPreset = .modernMac
+    @AppStorage("com.katikati.clock.preset") private var preset: ClockPreset = .stackedCard
     @Environment(\.widgetSize) private var widgetSize
     @EnvironmentObject private var weatherService: WeatherService
     private let provider: ClockDataProvider
@@ -65,6 +65,13 @@ public struct ClockChip: View {
         // third preset): they bypass the 8d gradient card entirely.
         if preset == .flipTiles && widgetSize != .small {
             FlipClockChip()
+        } else if preset == .stackedCard {
+            TimelineView(.periodic(from: ClockTick.nextMinute(after: Date()), by: 60)) { context in
+                StackedClockCardView(content: provider.currentContent(for: context.date), widgetSize: widgetSize)
+            }
+            .onTapGesture {
+                WidgetPanelController.calendar.toggle()
+            }
         } else {
             // 4e: minute-aligned. The timeline starts on the next whole-minute boundary and ticks
             // every 60s from there, so the main thread wakes once a minute and the chip can never
@@ -292,3 +299,62 @@ struct RailClockTile: View {
     }
 }
 
+// MARK: - Stacked Time & Date Pod (Phase 32)
+
+private struct StackedClockCardView: View {
+    let content: ClockContent
+    let widgetSize: WidgetSize
+    @State private var isHovered = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(content.primaryText)
+                .font(.system(size: timeFontSize, weight: .bold, design: .rounded).monospacedDigit())
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+
+            if let secondary = content.secondaryText {
+                Text(secondary)
+                    .font(.system(size: dateFontSize, weight: .medium, design: .rounded))
+                    .foregroundStyle(Color.white.opacity(0.82))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(red: 0.11, green: 0.12, blue: 0.15).opacity(0.88))
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(isHovered ? Color.white.opacity(0.28) : Color.white.opacity(0.12), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(isHovered ? 0.35 : 0.18), radius: isHovered ? 6 : 3, x: 0, y: 2)
+        .scaleEffect(isHovered ? 1.03 : 1.0)
+        .animation(.spring(response: 0.28, dampingFraction: 0.72), value: isHovered)
+        .onHover { hovering in
+            isHovered = hovering
+        }
+        .contentShape(Rectangle())
+    }
+
+    private var timeFontSize: CGFloat {
+        switch widgetSize {
+        case .small: return 15
+        case .medium: return 18
+        case .large: return 20
+        }
+    }
+
+    private var dateFontSize: CGFloat {
+        switch widgetSize {
+        case .small: return 9
+        case .medium: return 10.5
+        case .large: return 11.5
+        }
+    }
+}

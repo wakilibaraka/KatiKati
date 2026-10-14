@@ -341,9 +341,10 @@ enum WidgetMenuBuilder {
         }
 
         if section == .clock {
-            let current = UserDefaults.standard.string(forKey: "com.katikati.clock.preset") ?? ClockPreset.modernMac.rawValue
+            let current = UserDefaults.standard.string(forKey: "com.katikati.clock.preset") ?? ClockPreset.stackedCard.rawValue
             let styleMenu = NSMenu(title: String(localized: "Clock Style"))
-            for (preset, title) in [(ClockPreset.modernMac, String(localized: "Modern")),
+            for (preset, title) in [(ClockPreset.stackedCard, String(localized: "Stacked")),
+                                    (ClockPreset.modernMac, String(localized: "Modern")),
                                     (.pixelRetro, String(localized: "Pixel")),
                                     (.flipTiles, String(localized: "Flip clock"))] {
                 let item = ClosureMenuItem(title) { UserDefaults.standard.set(preset.rawValue, forKey: "com.katikati.clock.preset") }
