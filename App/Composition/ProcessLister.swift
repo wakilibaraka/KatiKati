@@ -9,10 +9,10 @@ enum ProcessLister {
         process.arguments = ["-axo", "pid=,comm="]
         let output = Pipe()
         process.standardOutput = output
-        process.standardError = Pipe()
+        process.standardError = FileHandle.nullDevice
         guard (try? process.run()) != nil else { return [] }
-        process.waitUntilExit()
         let data = output.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
         let text = String(data: data, encoding: .utf8) ?? ""
         return text.split(whereSeparator: \.isNewline).compactMap(parse)
     }

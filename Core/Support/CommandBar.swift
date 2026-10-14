@@ -29,7 +29,7 @@ struct EventEntry: Equatable, Sendable {
 }
 
 /// One row in the command bar.
-enum CommandBarResult: Equatable, Sendable {
+enum CommandBarResult: Equatable, Sendable, Identifiable {
     /// A math or web answer (Phase 21's `LauncherAnswer`).
     case answer(LauncherAnswer)
     /// Launch (or focus) an installed app.
@@ -64,6 +64,50 @@ enum CommandBarResult: Equatable, Sendable {
     case bookmark(Bookmark)
     /// A calendar event (Phase 30i): open Calendar.
     case event(EventEntry)
+
+    var id: String {
+        switch self {
+        case .answer(let answer):
+            switch answer {
+            case .math(let expression, let value):
+                return "answer:math:\(expression)=\(value)"
+            case .web(let query):
+                return "answer:web:\(query)"
+            }
+        case .app(let app):
+            return "app:\(app.bundleID):\(app.path)"
+        case .quit(let ref):
+            return "quit:\(ref.bundleID):\(ref.pid)"
+        case .forceQuit(let ref):
+            return "forceQuit:\(ref.bundleID):\(ref.pid)"
+        case .action(let macro):
+            return "action:\(macro.keyword)"
+        case .generator(let gen, let value):
+            return "generator:\(gen.rawValue):\(value)"
+        case .custom(let cmd):
+            return "custom:\(cmd.name):\(cmd.target)"
+        case .process(let entry):
+            return "process:\(entry.pid):\(entry.name)"
+        case .script(let payload):
+            return "script:\(payload)"
+        case .shortcut(let name):
+            return "shortcut:\(name)"
+        case .path(let path):
+            return "path:\(path)"
+        case .file(let entry):
+            return "file:\(entry.path)"
+        case .clip(let entry):
+            return "clip:\(entry.id)"
+        case .trash(let action):
+            return "trash:\(action.rawValue)"
+        case .emoji(let entry):
+            return "emoji:\(entry.char):\(entry.name)"
+        case .bookmark(let bookmark):
+            return "bookmark:\(bookmark.title):\(bookmark.url)"
+        case .event(let event):
+            return "event:\(event.id)"
+        }
+    }
 }
 
 /// Phase 28a: a generator row — type a keyword, get a fresh value to copy. The pure cases make their own

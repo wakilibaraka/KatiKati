@@ -271,3 +271,64 @@ final class SpotlightHandoffTests: XCTestCase {
         XCTAssertEqual(url?.scheme, "x-apple.systempreferences")
     }
 }
+
+final class CommandBarResultIdentityTests: XCTestCase {
+    func testStableIDConsistency() {
+        let app = LauncherApp(bundleID: "com.apple.Safari", name: "Safari", path: "/Applications/Safari.app", installedAt: .distantPast, category: "")
+        let resApp = CommandBarResult.app(app)
+        XCTAssertEqual(resApp.id, "app:com.apple.Safari:/Applications/Safari.app")
+
+        let math = CommandBarResult.answer(.math(expression: "2+2", value: "4"))
+        XCTAssertEqual(math.id, "answer:math:2+2=4")
+
+        let web = CommandBarResult.answer(.web(query: "swift news"))
+        XCTAssertEqual(web.id, "answer:web:swift news")
+
+        let proc = CommandBarResult.process(ProcessEntry(pid: 1234, name: "zsh", path: "/bin/zsh"))
+        XCTAssertEqual(proc.id, "process:1234:zsh")
+
+        let file = CommandBarResult.file(FileEntry(path: "/tmp/doc.pdf", name: "doc.pdf"))
+        XCTAssertEqual(file.id, "file:/tmp/doc.pdf")
+
+        let quit = CommandBarResult.quit(RunningAppRef(bundleID: "com.apple.Safari", name: "Safari", pid: 999, path: "/Applications/Safari.app"))
+        XCTAssertEqual(quit.id, "quit:com.apple.Safari:999")
+
+        let forceQuit = CommandBarResult.forceQuit(RunningAppRef(bundleID: "com.apple.Safari", name: "Safari", pid: 999, path: "/Applications/Safari.app"))
+        XCTAssertEqual(forceQuit.id, "forceQuit:com.apple.Safari:999")
+
+        let action = CommandBarResult.action(.emptyTrash)
+        XCTAssertEqual(action.id, "action:emptytrash")
+
+        let bookmark = CommandBarResult.bookmark(Bookmark(title: "Apple", url: "https://apple.com"))
+        XCTAssertEqual(bookmark.id, "bookmark:Apple:https://apple.com")
+
+        let clip = CommandBarResult.clip(ClipEntry(id: UUID(uuidString: "E621E1F8-C36C-495A-93FC-0C247A3E6E5F")!, text: "hello"))
+        XCTAssertEqual(clip.id, "clip:E621E1F8-C36C-495A-93FC-0C247A3E6E5F")
+
+        let trash = CommandBarResult.trash(.empty)
+        XCTAssertEqual(trash.id, "trash:empty")
+
+        let emoji = CommandBarResult.emoji(EmojiEntry(char: "🎉", name: "party"))
+        XCTAssertEqual(emoji.id, "emoji:🎉:party")
+
+        let event = CommandBarResult.event(EventEntry(id: "cal-123", title: "Meeting", start: .distantPast, allDay: false))
+        XCTAssertEqual(event.id, "event:cal-123")
+
+        let gen = CommandBarResult.generator(.uuid, value: "1234")
+        XCTAssertEqual(gen.id, "generator:uuid:1234")
+
+        let custom = CommandBarResult.custom(CustomCommand(name: "GitHub", target: "https://github.com", kind: .link))
+        XCTAssertEqual(custom.id, "custom:GitHub:https://github.com")
+
+        let script = CommandBarResult.script("display dialog \"hi\"")
+        XCTAssertEqual(script.id, "script:display dialog \"hi\"")
+
+        let shortcut = CommandBarResult.shortcut("My Action")
+        XCTAssertEqual(shortcut.id, "shortcut:My Action")
+
+        let path = CommandBarResult.path("/tmp/folder")
+        XCTAssertEqual(path.id, "path:/tmp/folder")
+    }
+}
+
+

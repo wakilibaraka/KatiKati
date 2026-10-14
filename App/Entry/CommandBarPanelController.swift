@@ -20,6 +20,10 @@ final class CommandBarPanelController {
     private var queryObserver: AnyCancellable?
     private var keyMonitor: Any?
     private var outsideMonitor: Any?
+    private var isLoadingProcesses = false
+    private var isLoadingBookmarks = false
+    private var lastProcessListTime: Date?
+    private var fileSearchTask: Task<Void, Never>?
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -31,20 +35,24 @@ final class CommandBarPanelController {
         model.query = ""
         model.usage = store.load().usage
         model.running = Self.runningApps()
+        indexer.start()
         model.apps = indexer.apps
         model.custom = CustomCommand.parse(UserDefaults.standard.string(forKey: CustomCommand.key) ?? "")
-        model.processes = ProcessLister.list()
         model.clips = Array(ProductivityServices.shared.clipboard.history.displayOrder.prefix(50))
-        model.bookmarks = BookmarkService.load()
-        model.refresh()
+        model.refresh(resetSelection: true)
         FileIndexService.shared.prepare()
+        if model.processes.isEmpty {
+            loadProcessesAsync()
+        }
+        if model.bookmarks.isEmpty {
+            loadBookmarksAsync()
+        }
         let panel = self.panel ?? makePanel()
         self.panel = panel
         let size = NSSize(width: 640, height: 380)
         let f = screen.visibleFrame
         panel.setFrame(NSRect(x: f.midX - size.width / 2, y: f.maxY - size.height - f.height * 0.12, width: size.width, height: size.height), display: true)
         panel.makeKeyAndOrderFront(nil)
-        indexer.start()
         model.focusNonce += 1
         installKeyMonitor()
         installOutsideMonitor()
@@ -53,6 +61,8 @@ final class CommandBarPanelController {
     func dismiss() {
         panel?.orderOut(nil)
         indexer.stop()
+        fileSearchTask?.cancel()
+        fileSearchTask = nil
         model.query = ""
         removeMonitors()
     }
@@ -234,30 +244,104 @@ final class CommandBarPanelController {
     /// `f `/`img `/`ev ` run a debounced search off the main thread (Phase 29g / 30i).
     private func searchFiles(_ query: String) {
         guard case .mode(let mode, let argument)? = CommandKeyword.parse(query) else {
+            fileSearchTask?.cancel()
+            fileSearchTask = nil
             model.files = []; model.events = []
             return
         }
         switch mode {
         case .event:
+            fileSearchTask?.cancel()
+            fileSearchTask = nil
             model.files = []
             model.events = ProductivityServices.shared.calendar.searchEvents(argument)
             model.refresh()
         case .file, .image:
             model.events = []
             let fileQuery = FileQuery.parse(argument, imageOnly: mode == .image)
-            guard fileQuery.isValid else { model.files = []; model.refresh(); return }
+            guard fileQuery.isValid else {
+                fileSearchTask?.cancel()
+                fileSearchTask = nil
+                model.files = []
+                model.refresh()
+                return
+            }
             if let indexed = FileIndexService.shared.search(terms: fileQuery.terms, extensions: fileQuery.extensions,
                                                             imageOnly: fileQuery.imageOnly) {
+                fileSearchTask?.cancel()
+                fileSearchTask = nil
                 model.files = indexed
                 model.refresh()
                 return
             }
-            Task.detached(priority: .userInitiated) { [weak self] in
+            fileSearchTask?.cancel()
+            fileSearchTask = Task { [weak self] in
                 let entries = FileSearchService.search(fileQuery)
-                await MainActor.run { self?.model.files = entries; self?.model.refresh() }
+                guard !Task.isCancelled else { return }
+                await MainActor.run {
+                    guard let self, !Task.isCancelled else { return }
+                    self.model.files = entries
+                    self.model.refresh()
+                }
+            }
+        case .bookmark:
+            fileSearchTask?.cancel()
+            fileSearchTask = nil
+            model.files = []; model.events = []
+            if model.bookmarks.isEmpty {
+                loadBookmarksAsync()
             }
         default:
+            fileSearchTask?.cancel()
+            fileSearchTask = nil
             model.files = []; model.events = []
+        }
+    }
+
+    private func handleQueryChange(_ query: String) {
+        if query.hasPrefix("!") || query.hasPrefix("kp ") {
+            loadProcessesAsync()
+        }
+        if query.hasPrefix("bm ") && model.bookmarks.isEmpty {
+            loadBookmarksAsync()
+        }
+        searchFiles(query)
+    }
+
+    private func loadProcessesAsync() {
+        if let last = lastProcessListTime, Date().timeIntervalSince(last) < 5, !model.processes.isEmpty {
+            return
+        }
+        guard !isLoadingProcesses else { return }
+        isLoadingProcesses = true
+        Task.detached(priority: .userInitiated) { [weak self] in
+            let procs = ProcessLister.list()
+            await MainActor.run {
+                guard let self else { return }
+                self.isLoadingProcesses = false
+                self.lastProcessListTime = Date()
+                self.model.processes = procs
+                let q = self.model.query
+                if q.hasPrefix("!") || q.hasPrefix("kp ") {
+                    self.model.refresh()
+                }
+            }
+        }
+    }
+
+    private func loadBookmarksAsync() {
+        guard !isLoadingBookmarks else { return }
+        isLoadingBookmarks = true
+        Task.detached(priority: .userInitiated) { [weak self] in
+            let marks = BookmarkService.load()
+            await MainActor.run {
+                guard let self else { return }
+                self.isLoadingBookmarks = false
+                self.model.bookmarks = marks
+                if self.model.query.hasPrefix("bm ") {
+                    self.model.refresh()
+                }
+            }
         }
     }
 
@@ -338,7 +422,7 @@ final class CommandBarPanelController {
         }
         queryObserver = model.$query
             .debounce(for: .milliseconds(150), scheduler: DispatchQueue.main)
-            .sink { [weak self] query in self?.searchFiles(query) }
+            .sink { [weak self] query in self?.handleQueryChange(query) }
         return panel
     }
 }

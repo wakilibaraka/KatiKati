@@ -1,12 +1,19 @@
 import AppKit
 import SwiftUI
 
+struct CommandBarRowItem: Identifiable, Equatable {
+    let id: String
+    let index: Int
+    let result: CommandBarResult
+}
+
 /// Phase 27b: the command-bar's state. The controller fills `apps`/`running`/`usage` at summon; the view
 /// edits `query` and reads `results`. `selection` is driven by the controller's key monitor.
 @MainActor
 final class CommandBarModel: ObservableObject {
     @Published var query = ""
     @Published var results: [CommandBarResult] = []
+    @Published var rowItems: [CommandBarRowItem] = []
     @Published var selection = 0
     var focusNonce = 0
     var apps: [LauncherApp] = []
@@ -19,12 +26,59 @@ final class CommandBarModel: ObservableObject {
     var bookmarks: [Bookmark] = []
     var events: [EventEntry] = []
 
-    func refresh() {
+    private var cachedWifi: (password: String, date: Date)?
+    private var isFetchingWifiPassword = false
+    private var lastQuery: String?
+
+    func generateValue(for generator: CommandGenerator) -> String {
+        switch generator {
+        case .wifiPassword:
+            if let cached = cachedWifi, Date().timeIntervalSince(cached.date) < 60 {
+                return cached.password
+            }
+            if !isFetchingWifiPassword {
+                isFetchingWifiPassword = true
+                Task.detached(priority: .userInitiated) {
+                    let pwd = GeneratorService.wifiPassword()
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        self.isFetchingWifiPassword = false
+                        if let pwd, !pwd.isEmpty {
+                            self.cachedWifi = (password: pwd, date: Date())
+                        }
+                        let trimmed = self.query.trimmingCharacters(in: .whitespaces).lowercased()
+                        if trimmed == "wifi" {
+                            self.refresh()
+                        }
+                    }
+                }
+            }
+            return ""
+        default:
+            return GeneratorService.value(for: generator) ?? ""
+        }
+    }
+
+    func refresh(resetSelection: Bool = false) {
+        let shouldReset = resetSelection || (query != lastQuery)
+        lastQuery = query
         results = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
                                           custom: custom, processes: processes, files: files, clips: clips,
                                           bookmarks: bookmarks, events: events,
-                                          generate: { GeneratorService.value(for: $0) ?? "" })
-        selection = 0
+                                          generate: { [weak self] in self?.generateValue(for: $0) ?? "" })
+        var seen = [String: Int]()
+        rowItems = results.enumerated().map { index, result in
+            let base = result.id
+            let count = seen[base, default: 0]
+            seen[base] = count + 1
+            let uniqueID = count == 0 ? base : "\(base)#\(count)"
+            return CommandBarRowItem(id: uniqueID, index: index, result: result)
+        }
+        if shouldReset {
+            selection = 0
+        } else {
+            selection = results.isEmpty ? 0 : min(selection, results.count - 1)
+        }
     }
 
     func move(_ delta: Int) {
@@ -51,22 +105,37 @@ struct CommandBarView: View {
                 .focused($focused)
                 .padding(.horizontal, 16).padding(.vertical, 14)
                 .onChange(of: model.query) { _ in model.refresh() }
-                .onSubmit { if let first = model.results.first { onRun(first) } }
+                .onSubmit {
+                    if model.results.indices.contains(model.selection) {
+                        onRun(model.results[model.selection])
+                    } else if let first = model.results.first {
+                        onRun(first)
+                    }
+                }
             Divider().opacity(0.25)
             ScrollViewReader { proxy in
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 2) {
-                        ForEach(Array(model.results.enumerated()), id: \.offset) { index, result in
-                            row(result, selected: index == model.selection)
-                                .id(index)
-                                .onTapGesture { onRun(result) }
-                                .contextMenu { rowMenu(result) }
+                    LazyVStack(alignment: .leading, spacing: 2) {
+                        ForEach(model.rowItems) { item in
+                            row(item.result, selected: item.index == model.selection)
+                                .id(item.id)
+                                .onTapGesture { onRun(item.result) }
+                                .contextMenu { rowMenu(item.result) }
                         }
                     }
                     .padding(6)
                 }
                 .onChange(of: model.selection) { value in
-                    withAnimation(.easeOut(duration: 0.12)) { proxy.scrollTo(value, anchor: .center) }
+                    let items = model.rowItems
+                    if items.indices.contains(value) {
+                        let targetID = items[value].id
+                        withAnimation(.easeOut(duration: 0.12)) { proxy.scrollTo(targetID, anchor: .center) }
+                    }
+                }
+                .onChange(of: model.query) { _ in
+                    if let firstID = model.rowItems.first?.id {
+                        proxy.scrollTo(firstID, anchor: .top)
+                    }
                 }
             }
             if showHints { footer }

@@ -42,20 +42,36 @@ enum GeneratorService {
         return result
     }
 
+    private static let cacheLock = NSLock()
+    private static var cachedWifi: (ssid: String, password: String, date: Date)?
+
     /// The current network's Wi-Fi password, read from the login keychain. Fail-closed (may need approval).
     static func wifiPassword() -> String? {
         guard let ssid = CWWiFiClient.shared().interface()?.ssid(), !ssid.isEmpty else { return nil }
+        cacheLock.lock()
+        if let cached = cachedWifi, cached.ssid == ssid, Date().timeIntervalSince(cached.date) < 60 {
+            cacheLock.unlock()
+            return cached.password
+        }
+        cacheLock.unlock()
+
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/security")
         process.arguments = ["find-generic-password", "-D", "AirPort network password", "-a", ssid, "-w"]
         let output = Pipe()
         process.standardOutput = output
-        process.standardError = Pipe()
+        process.standardError = FileHandle.nullDevice
         guard (try? process.run()) != nil else { return nil }
+        let data = output.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
         guard process.terminationStatus == 0 else { return nil }
-        let data = output.fileHandleForReading.readDataToEndOfFile()
         let text = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
-        return (text?.isEmpty == false) ? text : nil
+        if let text, !text.isEmpty {
+            cacheLock.lock()
+            cachedWifi = (ssid, text, Date())
+            cacheLock.unlock()
+            return text
+        }
+        return nil
     }
 }

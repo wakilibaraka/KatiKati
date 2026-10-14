@@ -16,7 +16,9 @@ final class LauncherIndexer: ObservableObject {
 
     func start() {
         guard query == nil else { return }
-        apps = LauncherAppIndex.merged(Self.scanDirectories())
+        if apps.isEmpty {
+            apps = LauncherAppIndex.merged(Self.scanDirectories())
+        }
         let q = NSMetadataQuery()
         q.predicate = NSPredicate(format: "kMDItemContentType == 'com.apple.application-bundle'")
         q.searchScopes = Self.roots

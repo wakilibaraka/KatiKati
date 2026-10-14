@@ -14,14 +14,36 @@ enum FileSearchService {
         process.arguments = arguments
         let output = Pipe()
         process.standardOutput = output
-        process.standardError = Pipe()
+        process.standardError = FileHandle.nullDevice
         guard (try? process.run()) != nil else { return [] }
-        process.waitUntilExit()
-        let data = output.fileHandleForReading.readDataToEndOfFile()
-        let text = String(data: data, encoding: .utf8) ?? ""
-        return text.split(separator: "\0", omittingEmptySubsequences: true).prefix(limit).map { path in
-            let value = String(path)
-            return FileEntry(path: value, name: (value as NSString).lastPathComponent)
+
+        var buffer = Data()
+        var results: [FileEntry] = []
+        let handle = output.fileHandleForReading
+        let nul = UInt8(0)
+
+        while results.count < limit {
+            if Task.isCancelled { break }
+            let chunk = handle.availableData
+            if chunk.isEmpty { break }
+            buffer.append(chunk)
+
+            while let nulIndex = buffer.firstIndex(of: nul) {
+                let pathData = buffer.subdata(in: 0..<nulIndex)
+                buffer.removeSubrange(0...nulIndex)
+                if !pathData.isEmpty, let path = String(data: pathData, encoding: .utf8) {
+                    let name = (path as NSString).lastPathComponent
+                    results.append(FileEntry(path: path, name: name))
+                    if results.count >= limit { break }
+                }
+            }
         }
+
+        if process.isRunning {
+            process.terminate()
+        }
+        try? handle.close()
+        process.waitUntilExit()
+        return results
     }
 }
