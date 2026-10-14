@@ -55696,6 +55696,23 @@
         "it": { "stringUnit": { "state": "translated", "value": "Svuota senza conferma" } },
         "ko": { "stringUnit": { "state": "translated", "value": "확인 없이 비우기" } }
       }
+    },
+    "Fast File Index": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Fast File Index" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "快速文件索引" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "快速檔案索引" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "高速ファイル索引" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schneller Dateiindex" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Index de fichiers rapide" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Índice de archivos rápido" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Índice de archivos rápido" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Índice de arquivos rápido" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Índice de ficheiros rápido" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Indice file veloce" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "빠른 파일 색인" } }
+      }
     }
   },
   "version": "1.0"

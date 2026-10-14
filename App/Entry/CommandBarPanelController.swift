@@ -37,6 +37,7 @@ final class CommandBarPanelController {
         model.clips = Array(ProductivityServices.shared.clipboard.history.displayOrder.prefix(50))
         model.bookmarks = BookmarkService.load()
         model.refresh()
+        FileIndexService.shared.prepare()
         let panel = self.panel ?? makePanel()
         self.panel = panel
         let size = NSSize(width: 640, height: 380)
@@ -230,6 +231,12 @@ final class CommandBarPanelController {
             model.events = []
             let fileQuery = FileQuery.parse(argument, imageOnly: mode == .image)
             guard fileQuery.isValid else { model.files = []; model.refresh(); return }
+            if let indexed = FileIndexService.shared.search(terms: fileQuery.terms, extensions: fileQuery.extensions,
+                                                            imageOnly: fileQuery.imageOnly) {
+                model.files = indexed
+                model.refresh()
+                return
+            }
             Task.detached(priority: .userInitiated) { [weak self] in
                 let entries = FileSearchService.search(fileQuery)
                 await MainActor.run { self?.model.files = entries; self?.model.refresh() }

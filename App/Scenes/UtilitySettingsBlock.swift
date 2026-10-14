@@ -11,6 +11,7 @@ struct UtilitySettingsBlock: View {
     @AppStorage(LauncherRunner.enabledKey) private var launcherScripts = false
     @AppStorage(CustomCommand.key) private var customCommands = ""
     @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
+    @AppStorage(FileIndexService.enabledKey) private var fastIndex = true
 
     var body: some View {
         HStack {
@@ -36,6 +37,9 @@ struct UtilitySettingsBlock: View {
         }
         row("Show Command Hints") {
             Toggle("Show Command Hints", isOn: $commandHints).toggleStyle(.switch).labelsHidden()
+        }
+        row("Fast File Index") {
+            Toggle("Fast File Index", isOn: $fastIndex).toggleStyle(.switch).labelsHidden()
         }
         VStack(alignment: .leading, spacing: 4) {
             Button("Replace Spotlight") {

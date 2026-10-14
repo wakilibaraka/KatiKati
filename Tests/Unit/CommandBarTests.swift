@@ -242,6 +242,21 @@ final class BookmarkImportTests: XCTestCase {
     }
 }
 
+final class FileIndexTests: XCTestCase {
+    func testSearchNarrowsByTerms() {
+        var index = FileIndex()
+        index.rebuild([
+            .init(path: "/a/Report.pdf", name: "Report.pdf", isDirectory: false),
+            .init(path: "/a/photo.png", name: "photo.png", isDirectory: false),
+            .init(path: "/a/Project", name: "Project", isDirectory: true),
+        ])
+        XCTAssertEqual(index.search(["rep"]).map(\.name), ["Report.pdf"])
+        XCTAssertEqual(index.search(["pro", "ject"]).map(\.name), ["Project"])
+        XCTAssertTrue(index.search([]).isEmpty)
+        XCTAssertEqual(index.count, 3)
+    }
+}
+
 final class SpotlightHandoffTests: XCTestCase {
 
     func testStepsAreOrderedAndNonEmpty() {
