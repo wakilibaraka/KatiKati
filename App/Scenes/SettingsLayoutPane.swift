@@ -1006,6 +1006,7 @@ struct SettingsLayoutPane: View {
         case .tilingFocusPrevious: return Text("Focus Previous Tile")
         case .tilingSwapNext: return Text("Swap with Next Tile")
         case .tilingSwapPrevious: return Text("Swap with Previous Tile")
+        case .radialDial: return Text("Radial Dial")
         }
     }
 

@@ -19,6 +19,7 @@
 		A0000000000000000001F171 /* RadialSnapPreviewPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F170 /* RadialSnapPreviewPanelController.swift */; };
 		A0000000000000000001F181 /* RadialDialPresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F180 /* RadialDialPresets.swift */; };
 		A0000000000000000001F182 /* RadialDialPresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F180 /* RadialDialPresets.swift */; };
+		A0000000000000000001F191 /* RadialDialPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F190 /* RadialDialPanelController.swift */; };
 		A0000000000000000001F091 /* SettingsTilingPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F090 /* SettingsTilingPane.swift */; };
 		A0000000000000000001F092 /* SettingsTilingPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F090 /* SettingsTilingPane.swift */; };
 		A0000000000000000001F081 /* TilingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F080 /* TilingEngine.swift */; };
@@ -980,6 +981,7 @@
 		A0000000000000000001F160 /* RadialDialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialDialView.swift; path = App/Scenes/RadialDial/RadialDialView.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F170 /* RadialSnapPreviewPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialSnapPreviewPanelController.swift; path = App/Scenes/RadialDial/RadialSnapPreviewPanelController.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F180 /* RadialDialPresets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialDialPresets.swift; path = Core/Support/RadialDialPresets.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000001F190 /* RadialDialPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialDialPanelController.swift; path = App/Entry/RadialDialPanelController.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F090 /* SettingsTilingPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTilingPane.swift; sourceTree = "<group>"; };
 		A0000000000000000001F080 /* TilingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingEngine.swift; path = App/Composition/TilingEngine.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F050 /* TilingPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingPolicy.swift; path = Core/Support/TilingPolicy.swift; sourceTree = SOURCE_ROOT; };
@@ -1869,6 +1871,7 @@
 				A0000000000000000001F150 /* RadialDialWedgeView.swift */,
 				A0000000000000000001F160 /* RadialDialView.swift */,
 				A0000000000000000001F170 /* RadialSnapPreviewPanelController.swift */,
+				A0000000000000000001F190 /* RadialDialPanelController.swift */,
 				A00000000000000000000067 /* DockStripView.swift */,
 				A00000000000000000009D00 /* WindowTitleTooltip.swift */,
 				B71000000000000000000003 /* ScreenRectReader.swift */,
@@ -2780,6 +2783,7 @@
 				A0000000000000000001F151 /* RadialDialWedgeView.swift in Sources */,
 				A0000000000000000001F161 /* RadialDialView.swift in Sources */,
 				A0000000000000000001F171 /* RadialSnapPreviewPanelController.swift in Sources */,
+				A0000000000000000001F191 /* RadialDialPanelController.swift in Sources */,
 				A0000000000000000000A161 /* GeneratorService.swift in Sources */,
 				A0000000000000000000A181 /* ProcessLister.swift in Sources */,
 				EE000000000000000000002B /* QuickToggleEngine.swift in Sources */,

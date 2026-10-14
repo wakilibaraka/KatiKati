@@ -276,6 +276,10 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         (unitContainingMouse() ?? units.first)?.coordinator.toggleDrawer()
     }
 
+    func toggleShelf() {
+        (unitContainingMouse() ?? units.first)?.coordinator.toggleWholeBarPopup(content: .shelf)
+    }
+
     func setTaskbarMenuOpen(_ open: Bool) {
         units.forEach { $0.coordinator.setTaskbarMenuOpen(open) }
     }

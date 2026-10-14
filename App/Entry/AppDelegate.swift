@@ -133,6 +133,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }()
     /// Shown from the edge deck's wifi button (`AppDelegate.shared?.toggleControlCenter()`).
     func toggleControlCenter() { controlCenterPanel.toggle() }
+    /// Shown from the radial dial / command bar (`AppDelegate.shared?.toggleShelf()`).
+    func toggleShelf() { panelCoordinator?.toggleShelf() }
     private func applyPinch(_ on: Bool) {
         guard on else { pinchMonitor?.stop(); pinchMonitor = nil; return }
         guard pinchMonitor == nil else { return }
@@ -163,7 +165,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return panel
     }()
     /// Phase 27: the ⌘Space command bar, kept separate from the full-screen launcher.
-    private lazy var commandBarPanel = CommandBarPanelController()
+    private(set) lazy var commandBarPanel = CommandBarPanelController()
+    /// Phase 31: the colourful interactive radial dial / pie menu.
+    private(set) lazy var radialDialPanel = RadialDialPanelController.shared
     /// Phase 23: the define/translate card for the current selection.
     private lazy var translatePanel = TranslatePanelController()
     private var terminationTask: Task<Void, Never>?
@@ -333,6 +337,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     TilingEngine.shared.swapNext()
                 case .tilingSwapPrevious:
                     TilingEngine.shared.swapPrevious()
+                case .radialDial:
+                    self.radialDialPanel.toggle()
                 default:
                     // Phase 26a: snap-zone hotkeys — any action with a SnapPosition calls the service.
                     if let position = action.snapPosition {
@@ -1153,6 +1159,7 @@ extension AppDelegate: PermissionEffectHandler {
         KeyGuardService.shared.tearDown()
         NotificationMoveService.shared.tearDown()
         TilingEngine.shared.stop()
+        radialDialPanel.tearDown()
         scrollReverserSettingSubscription?.cancel()
         scrollReverserSettingSubscription = nil
         scrollReverserMonitor?.stop()

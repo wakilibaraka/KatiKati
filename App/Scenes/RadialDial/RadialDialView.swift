@@ -157,7 +157,7 @@ struct RadialDialView: View {
                 selectItem(currentPage.items[idx])
             }
         case .outside:
-            break
+            onDismiss()
         }
     }
 
