@@ -16,6 +16,7 @@ struct LauncherCommandPrefixes: Equatable, Sendable {
     var web: Character = "@"
     var path: Character = "/"
     var shortcut: Character = ":"
+    var process: Character = "!"
 
     static let `default` = LauncherCommandPrefixes()
 }
@@ -34,11 +35,13 @@ enum LauncherQuery: Equatable, Sendable {
     case script(String)
     /// A Shortcuts.app shortcut name for the runner (21c).
     case shortcut(String)
+    /// A process-name filter for the process killer (28e): `!safari`.
+    case process(String)
 
     /// The text after the prefix, trimmed (for `.apps`, the whole trimmed query).
     var payload: String {
         switch self {
-        case .apps(let s), .math(let s), .web(let s), .path(let s), .script(let s), .shortcut(let s):
+        case .apps(let s), .math(let s), .web(let s), .path(let s), .script(let s), .shortcut(let s), .process(let s):
             return s
         }
     }
@@ -65,6 +68,7 @@ enum LauncherCommandParser {
         if first == prefixes.web { return .web(payload) }
         if first == prefixes.path { return .path(payload.hasPrefix("/") ? payload : "/" + payload) }
         if first == prefixes.shortcut { return .shortcut(payload) }
+        if first == prefixes.process { return .process(payload) }
         return .apps(trimmed)
     }
 }

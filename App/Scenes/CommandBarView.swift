@@ -13,10 +13,11 @@ final class CommandBarModel: ObservableObject {
     var running: [RunningAppRef] = []
     var usage: [String: LauncherUsage] = [:]
     var custom: [CustomCommand] = []
+    var processes: [ProcessEntry] = []
 
     func refresh() {
         results = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
-                                          custom: custom,
+                                          custom: custom, processes: processes,
                                           generate: { GeneratorService.value(for: $0) ?? "" })
         selection = 0
     }
@@ -101,6 +102,10 @@ struct CommandBarView: View {
                     Text(verbatim: command.target).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
                 }
                 Spacer(minLength: 0)
+            case .process(let entry):
+                Text(verbatim: entry.name)
+                Text(verbatim: "\(entry.pid)").font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
+                Spacer(minLength: 0)
             }
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
@@ -124,6 +129,8 @@ struct CommandBarView: View {
             Image(systemName: "wand.and.stars").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .custom(let command):
             Image(systemName: command.kind == .link ? "link" : "terminal").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .process:
+            Image(systemName: "bolt.slash").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         }
     }
 }

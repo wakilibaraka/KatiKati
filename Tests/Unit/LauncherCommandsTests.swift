@@ -9,6 +9,7 @@ final class LauncherCommandsTests: XCTestCase {
         XCTAssertEqual(LauncherCommandParser.parse("@swift news"), .web("swift news"))
         XCTAssertEqual(LauncherCommandParser.parse("/Users/me/Notes.txt"), .path("/Users/me/Notes.txt"))
         XCTAssertEqual(LauncherCommandParser.parse(":Clean Up"), .shortcut("Clean Up"))
+        XCTAssertEqual(LauncherCommandParser.parse("!safari"), .process("safari"))
     }
 
     func testPlainQueryIsAppSearch() {
@@ -22,7 +23,7 @@ final class LauncherCommandsTests: XCTestCase {
     }
 
     func testPrefixOnlyFallsBackToAppSearch() {
-        for prefix in ["=", "@", "/", ">", ":"] {
+        for prefix in ["=", "@", "/", ">", ":", "!"] {
             XCTAssertEqual(LauncherCommandParser.parse(prefix), .apps(prefix), prefix)
             XCTAssertEqual(LauncherCommandParser.parse("\(prefix)   "), .apps(prefix), prefix)
         }
@@ -66,6 +67,7 @@ final class LauncherCommandsTests: XCTestCase {
         XCTAssertEqual(p.web, "@")
         XCTAssertEqual(p.path, "/")
         XCTAssertEqual(p.shortcut, ":")
+        XCTAssertEqual(p.process, "!")
     }
 }
 

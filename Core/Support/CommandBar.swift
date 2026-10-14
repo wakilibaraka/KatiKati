@@ -13,6 +13,13 @@ struct RunningAppRef: Equatable, Sendable {
     var path: String
 }
 
+/// A running process, mapped from `ps` so the process-killer list stays pure and testable.
+struct ProcessEntry: Equatable, Sendable {
+    var pid: Int32
+    var name: String
+    var path: String
+}
+
 /// One row in the command bar.
 enum CommandBarResult: Equatable, Sendable {
     /// A math or web answer (Phase 21's `LauncherAnswer`).
@@ -25,6 +32,8 @@ enum CommandBarResult: Equatable, Sendable {
     case generator(CommandGenerator, value: String)
     /// A user-defined entry (Phase 28c): open a link or run a script.
     case custom(CustomCommand)
+    /// Kill a process (Phase 28e, `!name`): confirmed, then SIGTERM / SIGKILL.
+    case process(ProcessEntry)
 }
 
 /// Phase 28a: a generator row — type a keyword, get a fresh value to copy. The pure cases make their own
@@ -122,8 +131,20 @@ enum CommandBarResults {
                       usage: [String: LauncherUsage],
                       running: [RunningAppRef],
                       custom: [CustomCommand] = [],
+                      processes: [ProcessEntry] = [],
                       generate: (CommandGenerator) -> String = { $0.value() }) -> [CommandBarResult] {
         let routed = LauncherCommandParser.parse(query)
+        if case .process(let term) = routed {
+            guard !term.isEmpty else { return [] }
+            return processes
+                .filter { LauncherSearch.score(query: term, name: $0.name) != nil }
+                .sorted { a, b in
+                    let sa = LauncherSearch.score(query: term, name: a.name) ?? 0
+                    let sb = LauncherSearch.score(query: term, name: b.name) ?? 0
+                    return sa != sb ? sa > sb : a.name.localizedCaseInsensitiveCompare(b.name) == .orderedAscending
+                }
+                .map(CommandBarResult.process)
+        }
         guard case .apps(let term) = routed else {
             return LauncherAnswers.answers(for: routed).map(CommandBarResult.answer)
         }

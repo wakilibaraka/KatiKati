@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import Darwin
 import SwiftUI
 
 private final class CommandBarPanel: NonConstrainingPanel {
@@ -31,6 +32,7 @@ final class CommandBarPanelController {
         model.running = Self.runningApps()
         model.apps = indexer.apps
         model.custom = CustomCommand.parse(UserDefaults.standard.string(forKey: CustomCommand.key) ?? "")
+        model.processes = ProcessLister.list()
         model.refresh()
         let panel = self.panel ?? makePanel()
         self.panel = panel
@@ -125,6 +127,24 @@ final class CommandBarPanelController {
             case .command:
                 _ = LauncherRunner.run(.script(command.target))
             }
+        case .process(let entry):
+            dismiss()
+            confirmKill(entry)
+        }
+    }
+
+    private func confirmKill(_ entry: ProcessEntry) {
+        let alert = NSAlert()
+        alert.messageText = entry.name
+        alert.informativeText = "PID \(entry.pid)"
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String(localized: "Kill"))
+        alert.addButton(withTitle: String(localized: "Force Quit"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        switch alert.runModal() {
+        case .alertFirstButtonReturn: kill(entry.pid, SIGTERM)
+        case .alertSecondButtonReturn: kill(entry.pid, SIGKILL)
+        default: break
         }
     }
 

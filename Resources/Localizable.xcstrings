@@ -55594,6 +55594,23 @@
         "it": { "stringUnit": { "state": "translated", "value": "Comandi personalizzati" } },
         "ko": { "stringUnit": { "state": "translated", "value": "사용자 명령" } }
       }
+    },
+    "Kill": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Kill" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "结束进程" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "結束處理程序" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "強制終了" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Beenden" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Tuer" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Finalizar" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Finalizar" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Encerrar" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Encerrar" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Termina" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "종료" } }
+      }
     }
   },
   "version": "1.0"

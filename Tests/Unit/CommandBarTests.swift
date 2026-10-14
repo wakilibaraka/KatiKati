@@ -87,6 +87,17 @@ final class CommandGeneratorTests: XCTestCase {
         guard case .generator(.uuid, "fixed") = rows.first else { return XCTFail("expected generator row, got \(rows)") }
     }
 
+    func testProcessRouteListsMatchingProcesses() {
+        let processes = [ProcessEntry(pid: 1, name: "Safari", path: "/Applications/Safari.app"),
+                         ProcessEntry(pid: 2, name: "Finder", path: "/System/Finder")]
+        let rows = CommandBarResults.build(query: "!saf", apps: [], usage: [:], running: [], processes: processes)
+        guard case .process(let entry) = rows.first else { return XCTFail("expected process row, got \(rows)") }
+        XCTAssertEqual(entry.name, "Safari")
+        XCTAssertEqual(rows.count, 1)
+        XCTAssertTrue(CommandBarResults.build(query: "!", apps: [], usage: [:], running: [], processes: processes).isEmpty,
+                      "a bare ! shows nothing until there is a filter")
+    }
+
     func testSystemKeywordsMatch() {
         XCTAssertEqual(CommandGenerator.match("json"), .formatJSON)
         XCTAssertEqual(CommandGenerator.match("ip"), .ipAddress)
