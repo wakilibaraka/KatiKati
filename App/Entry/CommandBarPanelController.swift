@@ -174,6 +174,9 @@ final class CommandBarPanelController {
         case .bookmark(let bookmark):
             dismiss()
             if let url = URL(string: bookmark.url) { NSWorkspace.shared.open(url) }
+        case .event:
+            dismiss()
+            NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Calendar.app"))
         }
     }
 
@@ -212,17 +215,27 @@ final class CommandBarPanelController {
         model.refresh()
     }
 
-    /// `f `/`img ` run a debounced Spotlight search off the main thread (Phase 29g).
+    /// `f `/`img `/`ev ` run a debounced search off the main thread (Phase 29g / 30i).
     private func searchFiles(_ query: String) {
-        guard case .mode(let mode, let argument)? = CommandKeyword.parse(query), mode == .file || mode == .image else {
-            model.files = []
+        guard case .mode(let mode, let argument)? = CommandKeyword.parse(query) else {
+            model.files = []; model.events = []
             return
         }
-        let fileQuery = FileQuery.parse(argument, imageOnly: mode == .image)
-        guard fileQuery.isValid else { model.files = []; model.refresh(); return }
-        Task.detached(priority: .userInitiated) { [weak self] in
-            let entries = FileSearchService.search(fileQuery)
-            await MainActor.run { self?.model.files = entries; self?.model.refresh() }
+        switch mode {
+        case .event:
+            model.files = []
+            model.events = ProductivityServices.shared.calendar.searchEvents(argument)
+            model.refresh()
+        case .file, .image:
+            model.events = []
+            let fileQuery = FileQuery.parse(argument, imageOnly: mode == .image)
+            guard fileQuery.isValid else { model.files = []; model.refresh(); return }
+            Task.detached(priority: .userInitiated) { [weak self] in
+                let entries = FileSearchService.search(fileQuery)
+                await MainActor.run { self?.model.files = entries; self?.model.refresh() }
+            }
+        default:
+            model.files = []; model.events = []
         }
     }
 

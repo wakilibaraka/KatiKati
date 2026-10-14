@@ -128,6 +128,20 @@ final class CalendarService: ObservableObject {
 
     func refreshAll() { refreshAgenda(); refreshDensity(); refreshReminders() }
 
+    /// Phase 30i: events whose title matches `query` over the next `days` (empty when not granted).
+    func searchEvents(_ query: String, days: Int = 365, limit: Int = 30) -> [EventEntry] {
+        guard eventsAccess == .granted else { return [] }
+        let start = Date()
+        guard let end = calendar.date(byAdding: .day, value: days, to: start) else { return [] }
+        let predicate = store.predicateForEvents(withStart: start, end: end, calendars: nil)
+        let needle = query.lowercased()
+        return store.events(matching: predicate)
+            .filter { needle.isEmpty || ($0.title ?? "").lowercased().contains(needle) }
+            .sorted { $0.startDate < $1.startDate }
+            .prefix(limit)
+            .map { EventEntry(id: $0.eventIdentifier ?? UUID().uuidString, title: $0.title ?? "", start: $0.startDate, allDay: $0.isAllDay) }
+    }
+
     func refreshAgenda() {
         guard eventsAccess == .granted else { events = []; return }
         let day = calendar.startOfDay(for: selectedDate)

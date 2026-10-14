@@ -20,6 +20,14 @@ struct ProcessEntry: Equatable, Sendable {
     var path: String
 }
 
+/// Phase 30i: a calendar event (title + start), mapped from EventKit so the bar stays free of it.
+struct EventEntry: Equatable, Sendable {
+    var id: String
+    var title: String
+    var start: Date
+    var allDay: Bool
+}
+
 /// One row in the command bar.
 enum CommandBarResult: Equatable, Sendable {
     /// A math or web answer (Phase 21's `LauncherAnswer`).
@@ -54,6 +62,8 @@ enum CommandBarResult: Equatable, Sendable {
     case emoji(EmojiEntry)
     /// A browser bookmark (Phase 30g): open it.
     case bookmark(Bookmark)
+    /// A calendar event (Phase 30i): open Calendar.
+    case event(EventEntry)
 }
 
 /// Phase 28a: a generator row — type a keyword, get a fresh value to copy. The pure cases make their own
@@ -154,10 +164,11 @@ enum CommandBarResults {
                       files: [FileEntry] = [],
                       clips: [ClipEntry] = [],
                       bookmarks: [Bookmark] = [],
+                      events: [EventEntry] = [],
                       generate: (CommandGenerator) -> String = { $0.value() }) -> [CommandBarResult] {
         let keyword = CommandKeyword.parse(query)
         if case .mode(let mode, let argument)? = keyword {
-            return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes, files: files, clips: clips, bookmarks: bookmarks)
+            return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes, files: files, clips: clips, bookmarks: bookmarks, events: events)
         }
         let routed = LauncherCommandParser.parse(query)
         switch routed {
@@ -216,12 +227,14 @@ enum CommandBarResults {
     private static func modeRows(_ mode: CommandBarMode, _ argument: String, apps: [LauncherApp],
                                  usage: [String: LauncherUsage], running: [RunningAppRef],
                                  processes: [ProcessEntry], files: [FileEntry], clips: [ClipEntry],
-                                 bookmarks: [Bookmark]) -> [CommandBarResult] {
+                                 bookmarks: [Bookmark], events: [EventEntry]) -> [CommandBarResult] {
         switch mode {
         case .file, .image:
             return files.map(CommandBarResult.file)
         case .bookmark:
             return BookmarkImport.matching(argument, in: bookmarks).prefix(30).map(CommandBarResult.bookmark)
+        case .event:
+            return events.map(CommandBarResult.event)
         case .clipboard:
             let needle = argument.lowercased()
             let matched = needle.isEmpty ? clips : clips.filter { $0.text.lowercased().contains(needle) }

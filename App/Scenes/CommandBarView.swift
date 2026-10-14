@@ -17,11 +17,12 @@ final class CommandBarModel: ObservableObject {
     var files: [FileEntry] = []
     var clips: [ClipEntry] = []
     var bookmarks: [Bookmark] = []
+    var events: [EventEntry] = []
 
     func refresh() {
         results = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
                                           custom: custom, processes: processes, files: files, clips: clips,
-                                          bookmarks: bookmarks,
+                                          bookmarks: bookmarks, events: events,
                                           generate: { GeneratorService.value(for: $0) ?? "" })
         selection = 0
     }
@@ -183,6 +184,11 @@ struct CommandBarView: View {
                 Text(verbatim: bookmark.title).lineLimit(1)
                 Text(verbatim: bookmark.url).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
                 Spacer(minLength: 0)
+            case .event(let event):
+                Text(verbatim: event.title).lineLimit(1)
+                Text(verbatim: event.start.formatted(date: .abbreviated, time: event.allDay ? .omitted : .shortened))
+                    .font(.system(size: 11)).foregroundColor(.secondary)
+                Spacer(minLength: 0)
             }
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
@@ -230,6 +236,8 @@ struct CommandBarView: View {
             Text(verbatim: entry.char).font(.system(size: 20)).frame(width: 24, height: 24)
         case .bookmark:
             Image(systemName: "bookmark").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .event:
+            Image(systemName: "calendar").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         }
     }
 }

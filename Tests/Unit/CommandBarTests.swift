@@ -189,6 +189,12 @@ final class CommandKeywordTests: XCTestCase {
         let rows = CommandBarResults.build(query: "emoji heart", apps: [], usage: [:], running: [])
         guard case .emoji? = rows.first else { return XCTFail("expected emoji rows, got \(rows)") }
     }
+
+    func testEventModeRows() {
+        let event = EventEntry(id: "e", title: "Standup", start: Date(timeIntervalSince1970: 0), allDay: false)
+        XCTAssertEqual(CommandBarResults.build(query: "ev standup", apps: [], usage: [:], running: [], events: [event]),
+                       [.event(event)])
+    }
 }
 
 final class FileQueryTests: XCTestCase {

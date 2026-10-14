@@ -4,7 +4,7 @@ import Foundation
 /// by a space** is a mode (takes the rest as its argument). Layered above the single-char prefixes.
 /// Learned from Snap (keyword+argument actions) and Cling/oil-find (short filter words).
 enum CommandBarMode: CaseIterable, Sendable {
-    case file, image, clipboard, emoji, bookmark, kill, forceQuit, killProcess, shortcut, apps
+    case file, image, clipboard, emoji, bookmark, event, kill, forceQuit, killProcess, shortcut, apps
 
     var keywords: [String] {
         switch self {
@@ -13,6 +13,7 @@ enum CommandBarMode: CaseIterable, Sendable {
         case .clipboard: return ["clip", "clipboard"]
         case .emoji: return ["emoji", "em"]
         case .bookmark: return ["bm", "bookmark"]
+        case .event: return ["ev", "event"]
         case .kill: return ["kill"]
         case .forceQuit: return ["fq"]
         case .killProcess: return ["kp"]
