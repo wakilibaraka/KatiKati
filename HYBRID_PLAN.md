@@ -3466,6 +3466,23 @@ idle CPU flat while off + disable restores every managed window.
   leftovers (`ev ` EventKit search, file Quick Look, own FSEvents filename index). Flags: Safari/Chrome
   bookmarks are behind Full Disk Access; Quick Look in a non-activating panel was previously ruled out;
   the own index must stay idle when off. Awaiting owner go to start 30a.
+- 2026-10-14 · **Phase 30 (a–k) delivered — PASS (code).**
+  - **A** app actions: `AppRemoval`/`AppRemovalPlanner` (pure) + `AppRemovalService`; **Uninstall** (quit,
+    bundle → Trash) and **Delete Data** (support/caches/prefs/containers → Trash) in the launcher and the
+    command-bar app rows, with a confirm listing the paths. Both go to Trash (undoable).
+  - **B** Trash: `TrashAction` + `trash` keyword lists **Open Trash / Empty Trash** (right-click → Empty
+    Without Confirmation), reusing `TrashStateStore`.
+  - **C** 28d: **emoji picker** (`emoji `/`em `, curated pure catalog), **bookmark search** (`bm `, Chrome
+    JSON + Safari plist, fail-closed), **menu-bar auto-hide** (`menubar`). *OS theme is already covered by
+    `dark`; "blacken menu bar" is not achievable (menu bar can't be tinted) — dropped.*
+  - **D** 29 gaps: **`ev `** calendar search (EventKit), **file Quick Look** (Space → `qlmanage -p`,
+    out-of-process so the non-activating panel is fine), **own fast filename index**
+    (`FileIndex`+`DirectoryScanner`+`FileIndexService`, background build, Spotlight fallback, toggle
+    `com.katikati.index.enabled`).
+  - Gate: **2,294 tests / 0 failures** · localization ✅ (740 keys ×12) · availability ✅. New strings:
+    Uninstall, Delete Data, Empty Without Confirmation, Fast File Index. **Not done (recorded):** the
+    index refreshes lazily instead of via **FSEvents** (live updates) — follow-up; index is opt-in via
+    Settings.
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
