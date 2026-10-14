@@ -48,6 +48,8 @@ enum CommandBarResult: Equatable, Sendable {
     case file(FileEntry)
     /// A clipboard-history entry (Phase 29h): copy it back.
     case clip(ClipEntry)
+    /// A Trash operation (Phase 30d/e).
+    case trash(TrashAction)
 }
 
 /// Phase 28a: a generator row — type a keyword, get a fresh value to copy. The pure cases make their own
@@ -165,6 +167,7 @@ enum CommandBarResults {
         case .math, .web:
             return LauncherAnswers.answers(for: routed).map(CommandBarResult.answer)
         case .apps(let term):
+            if term.lowercased() == "trash" { return [.trash(.open), .trash(.empty)] }
             var rows = appRows(term, apps: apps, usage: usage, running: running, custom: custom, generate: generate)
             if case .macro(let macro)? = keyword { rows.insert(.action(macro), at: 0) }
             return rows

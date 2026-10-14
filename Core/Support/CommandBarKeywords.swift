@@ -46,7 +46,7 @@ enum BarMacro: CaseIterable, Sendable {
         case .trueTone: return ["truetone"]
         case .wifi: return ["wifi"]
         case .bluetooth: return ["bt"]
-        case .emptyTrash: return ["trash"]
+        case .emptyTrash: return ["emptytrash"]
         case .eject: return ["eject"]
         case .hideDesktopIcons: return ["hideicons"]
         case .dockAutoHide: return ["dock"]
@@ -122,4 +122,12 @@ enum CommandKeyword {
         if let mode = CommandBarMode.allCases.first(where: { $0.keywords.contains(word) }) { return .mode(mode, argument) }
         return nil
     }
+}
+
+/// Phase 30d: a Trash operation, offered as rows when the query is `trash`.
+enum TrashAction: String, CaseIterable, Sendable {
+    case open, empty, emptyWithoutConfirmation
+
+    var needsConfirm: Bool { self == .empty }
+    var symbol: String { self == .open ? "trash" : "trash.slash" }
 }

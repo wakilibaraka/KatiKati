@@ -159,7 +159,23 @@ final class CommandBarPanelController {
         case .clip(let entry):
             ProductivityServices.shared.clipboard.copy(entry)
             dismiss()
+        case .trash(let action):
+            dismiss()
+            switch action {
+            case .open: TrashStateStore.shared.openTrash()
+            case .empty: confirmEmptyTrash()
+            case .emptyWithoutConfirmation: TrashStateStore.shared.emptyTrash()
+            }
         }
+    }
+
+    private func confirmEmptyTrash() {
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Empty Trash")
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String(localized: "Empty Trash"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        if alert.runModal() == .alertFirstButtonReturn { TrashStateStore.shared.emptyTrash() }
     }
 
     /// File-row extras (Phase 29g): ⌘⏎ reveal, ⌘C copy path, ⌘⌫ trash.

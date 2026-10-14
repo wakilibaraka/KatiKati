@@ -150,7 +150,8 @@ final class CommandKeywordTests: XCTestCase {
         XCTAssertEqual(CommandKeyword.parse("ocr"), .macro(.ocr))
         XCTAssertEqual(CommandKeyword.parse("LOCK"), .macro(.lock))
         XCTAssertEqual(CommandKeyword.parse("cs"), .macro(.shortcutsApp))
-        XCTAssertEqual(CommandKeyword.parse("trash"), .macro(.emptyTrash))
+        XCTAssertEqual(CommandKeyword.parse("emptytrash"), .macro(.emptyTrash))
+        XCTAssertNil(CommandKeyword.parse("trash"), "trash is the action list, not a macro")
     }
 
     func testModeParse() {
@@ -176,6 +177,11 @@ final class CommandKeywordTests: XCTestCase {
         let goodbye = ClipEntry(text: "goodbye")
         let rows = CommandBarResults.build(query: "clip hello", apps: [], usage: [:], running: [], clips: [hello, goodbye])
         XCTAssertEqual(rows, [.clip(hello)])
+    }
+
+    func testTrashKeywordListsOpenAndEmpty() {
+        XCTAssertEqual(CommandBarResults.build(query: "trash", apps: [], usage: [:], running: []),
+                       [.trash(.open), .trash(.empty)])
     }
 }
 

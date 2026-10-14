@@ -55679,6 +55679,23 @@
         "it": { "stringUnit": { "state": "translated", "value": "Disinstalla" } },
         "ko": { "stringUnit": { "state": "translated", "value": "제거" } }
       }
+    },
+    "Empty Without Confirmation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Empty Without Confirmation" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "直接清空（不确认）" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "直接清空（不確認）" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "確認なしで空にする" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Ohne Bestätigung leeren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Vider sans confirmation" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Vaciar sin confirmación" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Vaciar sin confirmación" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Esvaziar sem confirmação" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Esvaziar sem confirmação" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Svuota senza conferma" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "확인 없이 비우기" } }
+      }
     }
   },
   "version": "1.0"
