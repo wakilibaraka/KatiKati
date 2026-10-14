@@ -16,6 +16,7 @@ final class KeyGuardService: ObservableObject {
     static let slowQuitKey = "com.katikati.keyguard.slowQuit"
     static let slowQuitDurationKey = "com.katikati.keyguard.slowQuitDuration"
     static let slowQuitExceptionsKey = "com.katikati.keyguard.slowQuitExceptions"
+    static let visualizerKey = "com.katikati.keyguard.visualizer"
 
     @Published private(set) var isPaused = UserDefaults.standard.bool(forKey: KeyGuardService.pauseKey)
     @Published private(set) var isSlowQuitEnabled = UserDefaults.standard.bool(forKey: KeyGuardService.slowQuitKey)
@@ -26,6 +27,8 @@ final class KeyGuardService: ObservableObject {
     }()
     /// Comma-separated bundle IDs that quit instantly instead of on hold.
     @Published private(set) var slowQuitExceptions = UserDefaults.standard.string(forKey: KeyGuardService.slowQuitExceptionsKey) ?? ""
+    /// Phase 24d: the key visualizer. Off by default (owner override); keycaps are never logged or saved.
+    @Published private(set) var isVisualizerEnabled = UserDefaults.standard.bool(forKey: KeyGuardService.visualizerKey)
 
     private let log = Logger(subsystem: "com.katikati.app", category: "keyguard")
     private var tapThread: Thread?
@@ -40,6 +43,8 @@ final class KeyGuardService: ObservableObject {
     private var holdTarget: NSRunningApplication?
     private var holdTimer: Timer?
     private var overlay: SlowQuitOverlayController?
+    private var keyOverlay: KeyVisualizerController?
+    private var visualizerTimer: Timer?
 
     static var hasPermission: Bool { CGPreflightListenEventAccess() }
     @discardableResult static func requestPermission() -> Bool { CGRequestListenEventAccess() }
@@ -77,6 +82,13 @@ final class KeyGuardService: ObservableObject {
         refresh()
     }
 
+    func setVisualizer(_ on: Bool) {
+        guard on != isVisualizerEnabled else { return }
+        isVisualizerEnabled = on
+        UserDefaults.standard.set(on, forKey: Self.visualizerKey)
+        refresh()
+    }
+
     /// The SlowQuit allow/deny view the pipeline sees. `deny` = quit instantly, no hold.
     var slowQuitPolicy: SlowQuitPolicy {
         let deny = slowQuitExceptions
@@ -101,8 +113,10 @@ final class KeyGuardService: ObservableObject {
             }
         }
         shared.update(state: makeState())
-        let anyOn = isPaused || isSlowQuitEnabled
+        shared.setVisualizer(enabled: isVisualizerEnabled)
+        let anyOn = isPaused || isSlowQuitEnabled || isVisualizerEnabled
         if anyOn, !started { start() } else if !anyOn, started { stop() }
+        updateVisualizerTimer()
     }
 
     private func makeState() -> KeyGuardState {
@@ -126,8 +140,10 @@ final class KeyGuardService: ObservableObject {
             log.warning("KeyGuard needs Input Monitoring; not starting")
             isPaused = false
             isSlowQuitEnabled = false
+            isVisualizerEnabled = false
             UserDefaults.standard.set(false, forKey: Self.pauseKey)
             UserDefaults.standard.set(false, forKey: Self.slowQuitKey)
+            UserDefaults.standard.set(false, forKey: Self.visualizerKey)
             shared.update(state: makeState())
             return
         }
@@ -158,6 +174,9 @@ final class KeyGuardService: ObservableObject {
 
     private func stop() {
         endHold()
+        visualizerTimer?.invalidate()
+        visualizerTimer = nil
+        keyOverlay?.hide()
         if let tap { CGEvent.tapEnable(tap: tap, enable: false) }
         if let loop = tapRunLoop { CFRunLoopStop(loop) }
         tap = nil; tapRunLoop = nil; tapThread = nil; started = false
@@ -217,16 +236,69 @@ final class KeyGuardService: ObservableObject {
         holdTarget = nil
         overlay?.hide()
     }
+
+    // MARK: - Key visualizer (24d)
+
+    /// The tap thread only appends to a bounded buffer; one 20 Hz main-actor read paints it, so typing
+    /// never hops threads per keystroke and the overlay can never grow unbounded.
+    private func updateVisualizerTimer() {
+        if isVisualizerEnabled, started, visualizerTimer == nil {
+            visualizerTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+                MainActor.assumeIsolated { self?.refreshKeycaps() }
+            }
+        } else if (!isVisualizerEnabled || !started), let timer = visualizerTimer {
+            timer.invalidate()
+            visualizerTimer = nil
+            keyOverlay?.hide()
+        }
+    }
+
+    private func refreshKeycaps() {
+        let symbols = shared.keycaps().map(\.symbol)
+        if symbols.isEmpty {
+            keyOverlay?.hide()
+            return
+        }
+        let overlay = keyOverlay ?? KeyVisualizerController()
+        keyOverlay = overlay
+        overlay.show(symbols)
+    }
 }
 
 /// State shared with the tap thread. Everything the callback touches is lock-protected and O(1).
 /// `slowQuitHolding` is owned by the pipeline: `update` preserves it, so a settings/frontmost push
-/// in the middle of a hold cannot cancel the keyUp that fires the quit.
+/// in the middle of a hold cannot cancel the keyUp that fires the quit. The keycaps the visualizer
+/// paints live here too — bounded by `KeyVisualizerBuffer`, never logged, never persisted.
 final class KeyGuardShared: @unchecked Sendable {
     private let lock = NSLock()
     private var state = KeyGuardState(unlockKey: keyGuardUnlock)
+    private var caps = KeyVisualizerBuffer()
+    private var capsPrunedAt = Date.distantPast
+    private var visualizerOn = false
     var port: CFMachPort?
     var onAction: (KeyGuardAction) -> Void = { _ in }
+
+    func setVisualizer(enabled: Bool) {
+        lock.lock()
+        visualizerOn = enabled
+        if !enabled { caps.clear() }
+        lock.unlock()
+    }
+
+    /// Coalesces repeats and drops the oldest past the cap. Idle for >1.5 s clears it (the overlay hides).
+    func record(symbol: String) {
+        lock.lock(); defer { lock.unlock() }
+        guard visualizerOn else { return }
+        caps.push(symbol: symbol, at: Date())
+        let now = Date()
+        if now.timeIntervalSince(capsPrunedAt) > 0.5 {
+            caps.prune(olderThan: 1.5, now: now)
+            capsPrunedAt = now
+        }
+    }
+
+    func keycaps() -> [KeycapVisual] { lock.lock(); defer { lock.unlock() }; return caps.items }
+    func clearKeycaps() { lock.lock(); caps.clear(); lock.unlock() }
 
     func update(state newState: KeyGuardState) {
         lock.lock()
@@ -236,7 +308,12 @@ final class KeyGuardShared: @unchecked Sendable {
         lock.unlock()
     }
 
-    func reset() { lock.lock(); state = KeyGuardState(unlockKey: keyGuardUnlock); lock.unlock() }
+    func reset() {
+        lock.lock()
+        state = KeyGuardState(unlockKey: keyGuardUnlock)
+        caps.clear()
+        lock.unlock()
+    }
 
     func decide(_ event: KeyGuardEvent) -> (decision: KeyGuardDecision, state: KeyGuardState) {
         lock.lock(); defer { lock.unlock() }
@@ -262,6 +339,7 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
     let modifiers = keyModifiers(event.flags)
     let keyEvent: KeyGuardEvent = type == .keyDown ? .keyDown(keyCode: code, modifiers: modifiers)
                                                   : .keyUp(keyCode: code, modifiers: modifiers)
+    if type == .keyDown, let symbol = keycapSymbol(event) { shared.record(symbol: symbol) }
     let outcome = shared.decide(keyEvent)
     if DebugSwitch.keyGuardTrace.isEnabled() {
         keyGuardLog.debug("keyguard \(String(describing: keyEvent)) -> \(String(describing: outcome.decision))")
@@ -273,6 +351,23 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
         shared.onAction(action)
         return nil
     }
+}
+
+/// The character a keyDown produced ("a", "⌘A", "→"), or nil for a key that shows nothing worth
+/// putting on a keycap. The visualizer only ever holds these — never a full keystroke log.
+private func keycapSymbol(_ event: CGEvent) -> String? {
+    var count = 0
+    var buffer = [UniChar](repeating: 0, count: 4)
+    event.keyboardGetUnicodeString(maxStringLength: 4, actualStringLength: &count, unicodeString: &buffer)
+    guard count > 0 else { return nil }
+    let text = String(utf16CodeUnits: buffer, count: count)
+    let mods = keyModifiers(event.flags)
+    var prefix = ""
+    if mods.contains(.control) { prefix += "⌃" }
+    if mods.contains(.option) { prefix += "⌥" }
+    if mods.contains(.shift) { prefix += "⇧" }
+    if mods.contains(.command) { prefix += "⌘" }
+    return prefix.isEmpty ? text : prefix + text
 }
 
 private func keyModifiers(_ flags: CGEventFlags) -> KeyModifiers {

@@ -862,7 +862,16 @@ struct SettingsLayoutPane: View {
                     ))
                     .textFieldStyle(.roundedBorder)
                 }
-                if (keyGuard.isPaused || keyGuard.isSlowQuitEnabled), !KeyGuardService.hasPermission {
+                Toggle("Show Keys You Type", isOn: Binding(
+                    get: { keyGuard.isVisualizerEnabled },
+                    set: { on in
+                        if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
+                        keyGuard.setVisualizer(on)
+                    }
+                ))
+                Text("Shows the keys you press in a small overlay. It displays what you type — treat it as a screen-sharing risk. Nothing is logged or saved, and it hides itself a moment after you stop typing.")
+                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                if keyGuard.isPaused || keyGuard.isSlowQuitEnabled || keyGuard.isVisualizerEnabled, !KeyGuardService.hasPermission {
                     Button("Open Input Monitoring Settings") {
                         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") { NSWorkspace.shared.open(url) }
                     }

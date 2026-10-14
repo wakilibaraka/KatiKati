@@ -55815,6 +55815,40 @@
         "it": { "stringUnit": { "state": "translated", "value": "Esci subito, senza premere (ID bundle)" } },
         "ko": { "stringUnit": { "state": "translated", "value": "길게 누르지 않고 즉시 종료(ID 번호)" } }
       }
+    },
+    "Show Keys You Type": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Show Keys You Type" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "显示你输入的按键" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "顯示你輸入的按鍵" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "入力中のキーを表示" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Eingegebene Tasten anzeigen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Afficher les touches tapées" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mostrar las teclas que escribes" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mostrar las teclas que escribes" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mostrar as teclas digitadas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mostrar as teclas introduzidas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mostra i tasti premuti" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "입력하는 키 표시" } }
+      }
+    },
+    "Shows the keys you press in a small overlay. It displays what you type — treat it as a screen-sharing risk. Nothing is logged or saved, and it hides itself a moment after you stop typing.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Shows the keys you press in a small overlay. It displays what you type — treat it as a screen-sharing risk. Nothing is logged or saved, and it hides itself a moment after you stop typing." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "在一个小浮层里显示你按下的按键。它会显示你输入的内容——当作屏幕共享风险对待。不会记录或保存任何内容，停止输入后会自动隐藏。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "在一個小浮層裡顯示你按下的按鍵。它會顯示你輸入的內容——當作螢幕共享風險對待。不會記錄或儲存任何內容，停止輸入後會自動隱藏。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "押したキーを小さなオーバーレイに表示します。入力内容が画面に映るため、画面共有時のリスクとして扱ってください。記録も保存もせず、入力を止めるごとく隠れます。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Zeigt die gedrückten Tasten in einem kleinen Overlay an. Es zeigt, was du eingibst — behandle es als Screen-Sharing-Risiko. Nichts wird protokolliert oder gespeichert, und es blendet sich aus, sobald du aufhörst zu tippen." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Affiche les touches que vous pressez dans une petite fenêtre flottante. Elle montre ce que vous tapez — à traiter comme un risque de partage d’écran. Rien n’est journalisé ni enregistré, et elle se masque d’elle-même quand vous cessez de taper." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Muestra las teclas que pulsas en una superposición pequeña. Muestra lo que escribes — trátalo como un riesgo al compartir pantalla. No se registra ni se guarda nada, y se oculta sola cuando dejas de escribir." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Muestra las teclas que presionas en una superposición pequeña. Muestra lo que escribes — trátalo como un riesgo al compartir pantalla. No se registra ni se guarda nada, y se oculta sola cuando dejas de escribir." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mostra as teclas que você pressiona em uma sobreposição pequena. Ela exibe o que você digita — trate como um risco de compartilhamento de tela. Nada é registrado ou salvo, e ela se oculta sozinha quando você para de digitar." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mostra as teclas que prim numa sobreposição pequena. Apresenta o que escreve — trate como um risco de partilha do ecrã. Nada é registado ou guardado, e esconde-se sozinha quando deixa de escrever." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mostra i tasti che premi in una piccola sovrapposizione. Visualizza quello che digita — trattalo come un rischio di condivisione dello schermo. Nulla viene registrato o salvato, e si nasconde da sola quando smetti di digitare." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "작은 오버레이에 누르는 키를 표시합니다. 입력 내용이 표시되므로 화면 공유 위험으로 취급하세요. 아무것도 기록하거나 저장하지 않으며, 입력을 멈추면 저절로 사라집니다." } }
+      }
     }
   },
   "version": "1.0"

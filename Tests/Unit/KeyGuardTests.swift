@@ -87,6 +87,32 @@ final class KeyGuardSharedTests: XCTestCase {
         XCTAssertEqual(shared.decide(.keyDown(keyCode: 0, modifiers: [])).decision, .passThrough)
         XCTAssertEqual(shared.decide(.keyDown(keyCode: q, modifiers: [.command])).decision, .passThrough)
     }
+
+    /// The visualizer is off by default: the tap thread must not even buffer a keycap until it is on,
+    /// and turning it off clears whatever was buffered.
+    func testKeycapsAreBufferedOnlyWhileTheVisualizerIsOn() {
+        let shared = KeyGuardShared()
+        shared.record(symbol: "a")
+        XCTAssertTrue(shared.keycaps().isEmpty, "visualizer off by default")
+
+        shared.setVisualizer(enabled: true)
+        shared.record(symbol: "a")
+        XCTAssertEqual(shared.keycaps().map(\.symbol), ["a"])
+
+        shared.setVisualizer(enabled: false)
+        XCTAssertTrue(shared.keycaps().isEmpty, "turning it off clears the strip")
+    }
+
+    /// The strip holds at most `KeyVisualizerBuffer.capacity` keycaps and coalesces a repeat of the
+    /// newest one, so a long hold never grows the strip without bound.
+    func testKeycapBufferStaysBoundedAndCoalesces() {
+        let shared = KeyGuardShared()
+        shared.setVisualizer(enabled: true)
+        for _ in 0..<20 { shared.record(symbol: "a") }
+        XCTAssertEqual(shared.keycaps().map(\.symbol), ["a"], "a repeat of the newest coalesces")
+        for symbol in ["b", "c", "d", "e", "f", "g", "h"] { shared.record(symbol: symbol) }
+        XCTAssertEqual(shared.keycaps().count, KeyVisualizerBuffer.capacity)
+    }
 }
 
 final class KeyVisualizerBufferTests: XCTestCase {

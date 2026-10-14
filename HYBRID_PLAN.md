@@ -3519,6 +3519,15 @@ idle CPU flat while off + disable restores every managed window.
   `App/Scenes/SlowQuitOverlay.swift`. Strings: +4 keys ×12 languages. Gate: 2,304 tests / 0 failures,
   `** TEST SUCCEEDED **`, `AVAIL_OK`, localization + debug-switch green. **Not yet:** key visualizer (24d),
   latency/CPU verify (24e).
+- 2026-10-14 · **24d — key visualizer overlay — PASS.** A KeyCastr-style strip fed by the same tap: the
+  callback composes a keycap ("a", "⌘A") and appends it to a bounded, coalescing `KeyVisualizerBuffer` inside
+  `KeyGuardShared` — O(1), lock-protected, never logged, never persisted. A 20 Hz main-actor timer reads the
+  buffer and paints a floating non-activating strip (bottom-center, joins every space incl. full screen,
+  ignores the mouse); it hides itself the moment the buffer is empty (idle prune at 1.5 s) and again the
+  instant the guard is turned off. Off by default; enabling requests Input Monitoring like the other two
+  guards. New file `App/Scenes/KeyVisualizerOverlay.swift`. Strings: +2 keys ×12 languages. Tests: +2 for the
+  shared buffer (records only while on; bounded + coalescing). Gate: 2,306 tests / 0 failures, `** TEST
+  SUCCEEDED **`, `AVAIL_OK`, localization + debug-switch green. **Not yet:** latency/CPU verify (24e).
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)

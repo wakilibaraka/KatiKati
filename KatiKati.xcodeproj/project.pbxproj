@@ -912,6 +912,8 @@
 		A0000000000000000000A282 /* KeyGuardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A280 /* KeyGuardService.swift */; };
 		A0000000000000000000A291 /* SlowQuitOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A290 /* SlowQuitOverlay.swift */; };
 		A0000000000000000000A292 /* SlowQuitOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A290 /* SlowQuitOverlay.swift */; };
+		A0000000000000000000A301 /* KeyVisualizerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A300 /* KeyVisualizerOverlay.swift */; };
+		A0000000000000000000A302 /* KeyVisualizerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A300 /* KeyVisualizerOverlay.swift */; };
 		A0000000000000000000A1D1 /* AppRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A1D0 /* AppRemoval.swift */; };
 		A0000000000000000000A1D2 /* AppRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A1D0 /* AppRemoval.swift */; };
 		A0000000000000000000A1E1 /* AppRemovalPlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A1E0 /* AppRemovalPlannerTests.swift */; };
@@ -1572,6 +1574,7 @@
 		A0000000000000000000A270 /* KeyGuardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyGuardTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000A280 /* KeyGuardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeyGuardService.swift; path = App/Composition/KeyGuardService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A290 /* SlowQuitOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SlowQuitOverlay.swift; path = App/Scenes/SlowQuitOverlay.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000A300 /* KeyVisualizerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeyVisualizerOverlay.swift; path = App/Scenes/KeyVisualizerOverlay.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A1D0 /* AppRemoval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemoval.swift; sourceTree = "<group>"; };
 		A0000000000000000000A1E0 /* AppRemovalPlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemovalPlannerTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000F000 /* CommandBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandBar.swift; sourceTree = "<group>"; };
@@ -2686,6 +2689,7 @@
 				A0000000000000000000A261 /* KeyGuard.swift in Sources */,
 				A0000000000000000000A281 /* KeyGuardService.swift in Sources */,
 				A0000000000000000000A291 /* SlowQuitOverlay.swift in Sources */,
+				A0000000000000000000A301 /* KeyVisualizerOverlay.swift in Sources */,
 				A0000000000000000000A1D1 /* AppRemoval.swift in Sources */,
 				A0000000000000000000A121 /* SelectedTextReader.swift in Sources */,
 				A0000000000000000000A131 /* DictionaryService.swift in Sources */,
@@ -3134,6 +3138,7 @@
 				A0000000000000000000A262 /* KeyGuard.swift in Sources */,
 				A0000000000000000000A282 /* KeyGuardService.swift in Sources */,
 				A0000000000000000000A292 /* SlowQuitOverlay.swift in Sources */,
+				A0000000000000000000A302 /* KeyVisualizerOverlay.swift in Sources */,
 				A0000000000000000000FA02 /* LauncherChipVisualPlan.swift in Sources */,
 				A0000000000000000000FF02 /* LaunchGateDecision.swift in Sources */,
 				B10000000000000000000009 /* BadgeReadPlan.swift in Sources */,
