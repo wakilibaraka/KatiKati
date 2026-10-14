@@ -16,6 +16,8 @@ final class CommandBarPanelController {
     private let store = LauncherStore(url: LauncherStore.defaultURL)
     private let model = CommandBarModel()
     private var appsObserver: AnyCancellable?
+    private var keyMonitor: Any?
+    private var outsideMonitor: Any?
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -37,12 +39,51 @@ final class CommandBarPanelController {
         panel.makeKeyAndOrderFront(nil)
         indexer.start()
         model.focusNonce += 1
+        installKeyMonitor()
+        installOutsideMonitor()
     }
 
     func dismiss() {
         panel?.orderOut(nil)
         indexer.stop()
         model.query = ""
+        removeMonitors()
+    }
+
+    /// ↑/↓ move the selection, ⏎ runs it, Esc closes. A local monitor is the only way to steer the list
+    /// without the text field eating the arrow keys.
+    private func installKeyMonitor() {
+        guard keyMonitor == nil else { return }
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self, self.isShown else { return event }
+            switch event.keyCode {
+            case 53: self.dismiss(); return nil              // Esc
+            case 125: self.model.move(1); return nil         // ↓
+            case 126: self.model.move(-1); return nil        // ↑
+            case 36, 76: self.runSelected(); return nil       // Return / keypad Enter
+            default: return event
+            }
+        }
+    }
+
+    private func installOutsideMonitor() {
+        guard outsideMonitor == nil else { return }
+        outsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+            self?.dismiss()
+        }
+    }
+
+    private func removeMonitors() {
+        if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
+        if let outsideMonitor { NSEvent.removeMonitor(outsideMonitor) }
+        keyMonitor = nil
+        outsideMonitor = nil
+    }
+
+    private func runSelected() {
+        let index = model.selection
+        guard model.results.indices.contains(index) else { return }
+        run(model.results[index])
     }
 
     /// Regular (Dock) apps only: background agents and the app itself have no business in the kill list.
@@ -80,9 +121,13 @@ final class CommandBarPanelController {
         alert.informativeText = ref.name
         alert.alertStyle = .warning
         alert.addButton(withTitle: String(localized: "Quit"))
+        alert.addButton(withTitle: String(localized: "Force Quit"))
         alert.addButton(withTitle: String(localized: "Cancel"))
-        if alert.runModal() == .alertFirstButtonReturn {
-            NSRunningApplication(processIdentifier: ref.pid)?.terminate()
+        let app = NSRunningApplication(processIdentifier: ref.pid)
+        switch alert.runModal() {
+        case .alertFirstButtonReturn: app?.terminate()
+        case .alertSecondButtonReturn: app?.forceTerminate()
+        default: break
         }
     }
 

@@ -2,11 +2,12 @@ import AppKit
 import SwiftUI
 
 /// Phase 27b: the command-bar's state. The controller fills `apps`/`running`/`usage` at summon; the view
-/// edits `query` and reads `results`.
+/// edits `query` and reads `results`. `selection` is driven by the controller's key monitor.
 @MainActor
 final class CommandBarModel: ObservableObject {
     @Published var query = ""
     @Published var results: [CommandBarResult] = []
+    @Published var selection = 0
     var focusNonce = 0
     var apps: [LauncherApp] = []
     var running: [RunningAppRef] = []
@@ -14,6 +15,12 @@ final class CommandBarModel: ObservableObject {
 
     func refresh() {
         results = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running)
+        selection = 0
+    }
+
+    func move(_ delta: Int) {
+        guard !results.isEmpty else { return }
+        selection = min(max(selection + delta, 0), results.count - 1)
     }
 }
 
@@ -35,14 +42,20 @@ struct CommandBarView: View {
                 .onChange(of: model.query) { _ in model.refresh() }
                 .onSubmit { if let first = model.results.first { onRun(first) } }
             Divider().opacity(0.25)
-            ScrollView {
-                VStack(alignment: .leading, spacing: 2) {
-                    ForEach(Array(model.results.enumerated()), id: \.offset) { index, result in
-                        row(result, selected: index == 0)
-                            .onTapGesture { onRun(result) }
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 2) {
+                        ForEach(Array(model.results.enumerated()), id: \.offset) { index, result in
+                            row(result, selected: index == model.selection)
+                                .id(index)
+                                .onTapGesture { onRun(result) }
+                        }
                     }
+                    .padding(6)
                 }
-                .padding(6)
+                .onChange(of: model.selection) { value in
+                    withAnimation(.easeOut(duration: 0.12)) { proxy.scrollTo(value, anchor: .center) }
+                }
             }
         }
         .frame(width: 640, height: 380)
@@ -55,7 +68,7 @@ struct CommandBarView: View {
 
     @ViewBuilder private func row(_ result: CommandBarResult, selected: Bool) -> some View {
         HStack(spacing: 10) {
-            Image(systemName: symbol(result)).font(.system(size: 15, weight: .semibold)).frame(width: 22)
+            icon(result)
             switch result {
             case .answer(.math(_, let value)):
                 Text(verbatim: value).font(.system(size: 15, weight: .semibold))
@@ -68,8 +81,10 @@ struct CommandBarView: View {
                 Text(verbatim: app.name)
                 Spacer(minLength: 0)
             case .quit(let running):
-                Text("Quit").foregroundColor(.secondary)
-                Text(verbatim: running.name)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: running.name)
+                    Text("Quit").font(.system(size: 11)).foregroundColor(.secondary)
+                }
                 Spacer(minLength: 0)
             }
         }
@@ -78,12 +93,18 @@ struct CommandBarView: View {
         .contentShape(Rectangle())
     }
 
-    private func symbol(_ result: CommandBarResult) -> String {
+    @ViewBuilder private func icon(_ result: CommandBarResult) -> some View {
         switch result {
-        case .answer(.math): return "equal"
-        case .answer(.web): return "globe"
-        case .app: return "app"
-        case .quit: return "power"
+        case .answer(.math):
+            Image(systemName: "equal").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .answer(.web):
+            Image(systemName: "globe").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .app(let app):
+            Image(nsImage: LauncherIconCache.icon(forPath: app.path))
+                .resizable().aspectRatio(contentMode: .fit).frame(width: 24, height: 24)
+        case .quit(let running):
+            Image(nsImage: LauncherIconCache.icon(forPath: running.path))
+                .resizable().aspectRatio(contentMode: .fit).frame(width: 24, height: 24)
         }
     }
 }

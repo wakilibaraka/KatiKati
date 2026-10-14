@@ -3416,6 +3416,11 @@ idle CPU flat while off + disable restores every managed window.
   `check_debug_switches.py` ✅ · `check_availability_warnings.py` ✅. **Live check pending** (owner
   will verify: select text → shortcut → card). **Not done:** hover trigger, WelcomeGuide step, an
   explicit "select text first" toast (silent no-op today).
+- 2026-10-14 · **27b-fix — command-bar UX (owner feedback) — PASS (code).** App icons for app/quit rows
+  (reuse `LauncherIconCache`); ↑/↓ selection + ⏎ + **Esc** via a local key monitor; **click-outside
+  closes** via a global mouse monitor; Sol-style **Quit / Force Quit / Cancel** (was quit-only). No new
+  strings. Gate: 2,264 tests / 0 failures; localization; availability. Sol parity is **not** complete —
+  see the new parity list.
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
