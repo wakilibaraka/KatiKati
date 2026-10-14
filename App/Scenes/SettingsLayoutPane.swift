@@ -268,6 +268,7 @@ enum BottomEdgeChoice: Hashable {
 
 struct SettingsLayoutPane: View {
     @ObservedObject var store: AppSettingsStore
+    @ObservedObject private var keyGuard = KeyGuardService.shared
     @State private var newPresetName = ""
     /// Fine-tune starts collapsed: styles + Size/Spacing cover the common choices (Phase 11f).
     @State private var showsFineTune = false
@@ -824,6 +825,20 @@ struct SettingsLayoutPane: View {
                 Text("Hyper turns Caps Lock into ⌃⌥⇧⌘. It listens to keyboard events only, needs the Input Monitoring permission, and Caps Lock is restored when you turn it off or quit.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 if store.hyperkeyEnabled, !HyperkeyService.hasPermission {
+                    Button("Open Input Monitoring Settings") {
+                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") { NSWorkspace.shared.open(url) }
+                    }
+                }
+                Toggle("Pause Keyboard", isOn: Binding(
+                    get: { keyGuard.isPaused },
+                    set: { on in
+                        if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
+                        keyGuard.setPaused(on)
+                    }
+                ))
+                Text("While paused, key presses are ignored (the mouse still works). Press ⌃⌥⌘P to unpause. Needs the Input Monitoring permission.")
+                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                if keyGuard.isPaused, !KeyGuardService.hasPermission {
                     Button("Open Input Monitoring Settings") {
                         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") { NSWorkspace.shared.open(url) }
                     }

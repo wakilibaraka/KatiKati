@@ -30,6 +30,7 @@ enum BarMacro: CaseIterable, Sendable {
     case darkMode, keepAwake, muteMic, nightShift, trueTone, wifi, bluetooth, menuBar
     case emptyTrash, eject, hideDesktopIcons, dockAutoHide, relaunchFinder
     case play, next, previous
+    case pauseKeyboard
 
     var keywords: [String] {
         switch self {
@@ -58,6 +59,7 @@ enum BarMacro: CaseIterable, Sendable {
         case .play: return ["play"]
         case .next: return ["next"]
         case .previous: return ["prev"]
+        case .pauseKeyboard: return ["pause"]
         }
     }
 
@@ -103,6 +105,7 @@ enum BarMacro: CaseIterable, Sendable {
         case .play: return "play.fill"
         case .next: return "forward.fill"
         case .previous: return "backward.fill"
+        case .pauseKeyboard: return "pause.circle"
         default: return "bolt"
         }
     }

@@ -338,6 +338,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             pinchSubscription = settingsStore.$launcherPinch
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] on in self?.applyPinch(on) }
+            KeyGuardService.shared.refresh()
 
             let screenTime = ProductivityServices.shared.screenTime
             screenTime.onLimitAction = { [weak self, weak screenTime] id, name, action in
@@ -1130,6 +1131,7 @@ extension AppDelegate: PermissionEffectHandler {
         shortcutSubscription = nil
         shortcutService.tearDown()
         hyperkeyService.tearDown()
+        KeyGuardService.shared.tearDown()
         scrollReverserSettingSubscription?.cancel()
         scrollReverserSettingSubscription = nil
         scrollReverserMonitor?.stop()

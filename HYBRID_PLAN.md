@@ -3490,6 +3490,21 @@ idle CPU flat while off + disable restores every managed window.
   (bounded ring, coalesces repeats, never persisted). Tests: `Tests/Unit/KeyGuardTests.swift` (10).
   Gate: 2,302 tests / 0 failures. **Not yet:** the shared CGEventTap, the Input Monitoring request, the
   overlays, and Settings (24b–e).
+- 2026-10-14 · **24b — the one shared tap + pause guard — PASS.** New `App/Composition/KeyGuardService.swift`
+  (`KeyGuardService.shared`): a key-events-only `CGEventTap` (`.cgSessionEventTap` / `.headInsertEventTap`,
+  `.defaultTap`) on its own `com.katikati.keyguard` thread, started only while a guard is on and stopped the
+  instant the last one is off; every event goes through the lock-protected `KeyGuardShared` →
+  `KeyGuardPipeline.reduce` (O(1), no AppKit on the tap thread), actions hop back to the main actor. Pause
+  swallows every key except the fixed unlock chord **⌃⌥⌘P** (keyCode 35), so the owner can always get out.
+  Permission is **Input Monitoring** (`CGPreflightListenEventAccess` / `CGRequestListenEventAccess`) — never
+  requested silently; without it the tap does not start and the persisted pause is cleared. Wiring:
+  `BarMacro.pauseKeyboard` (keyword `pause`, SF `pause.circle`) + `BarActionService`, `AppDelegate`
+  `refresh()` at launch / `tearDown()` on quit, and a Settings Keyboard block (toggle → requests permission
+  on first enable, explainer line, deep link to `Privacy_ListenEvent` when paused without permission).
+  Strings: +2 keys ×12 languages, and fixed the stale `Delete Data` / `Uninstall` catalog keys left by 30b/c
+  (the source uses the `…` form). Gate: 2,302 tests / 0 failures, `** TEST SUCCEEDED **`, `AVAIL_OK`,
+  localization + debug-switch checks green. **Not yet:** SlowQuit overlay (24c), key visualizer (24d),
+  latency/CPU verify (24e).
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)

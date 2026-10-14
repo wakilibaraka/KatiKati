@@ -55646,10 +55646,10 @@
         "ko": { "stringUnit": { "state": "translated", "value": "명령 힌트 표시" } }
       }
     },
-    "Delete Data": {
+    "Delete Data…": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Delete Data" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Delete Data…" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "删除数据" } },
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "刪除資料" } },
         "ja": { "stringUnit": { "state": "translated", "value": "データを削除" } },
@@ -55663,10 +55663,10 @@
         "ko": { "stringUnit": { "state": "translated", "value": "데이터 삭제" } }
       }
     },
-    "Uninstall": {
+    "Uninstall…": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Uninstall" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Uninstall…" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "卸载" } },
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "卸載" } },
         "ja": { "stringUnit": { "state": "translated", "value": "アンインストール" } },
@@ -55712,6 +55712,40 @@
         "pt-PT": { "stringUnit": { "state": "translated", "value": "Índice de ficheiros rápido" } },
         "it": { "stringUnit": { "state": "translated", "value": "Indice file veloce" } },
         "ko": { "stringUnit": { "state": "translated", "value": "빠른 파일 색인" } }
+      }
+    },
+    "Pause Keyboard": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Pause Keyboard" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "暂停键盘" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "暫停鍵盤" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "キーボードを一時停止" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Tastatur anhalten" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Mettre le clavier en pause" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Pausar teclado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Pausar teclado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pausar teclado" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pausar teclado" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Sospendi tastiera" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "키보드 일시 중지" } }
+      }
+    },
+    "While paused, key presses are ignored (the mouse still works). Press ⌃⌥⌘P to unpause. Needs the Input Monitoring permission.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "While paused, key presses are ignored (the mouse still works). Press ⌃⌥⌘P to unpause. Needs the Input Monitoring permission." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "暂停期间按键无效（鼠标仍可用）。按 ⌃⌥⌘P 恢复。需要“输入监控”权限。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "暫停期間按鍵無效（滑鼠仍可用）。按 ⌃⌥⌘P 恢復。需要「輸入監控」權限。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "一時停止中はキー入力が無視されます（マウスは動作します）。⌃⌥⌘P で解除できます。入力監視の許可が必要です。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Im angehaltenen Zustand werden Tastatureingaben ignoriert (die Maus funktioniert weiter). ⌃⌥⌘P setzt die Eingabe fort. Erfordert die Berechtigung „Eingabeüberwachung“." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "En pause, les frappes sont ignorées (la souris fonctionne toujours). Appuyez sur ⌃⌥⌘P pour reprendre. Nécessite l’autorisation de surveillance des saisies." } },
+        "es": { "stringUnit": { "state": "translated", "value": "En pausa, las pulsaciones se ignoran (el ratón sigue funcionando). Pulsa ⌃⌥⌘P para reanudar. Requiere el permiso de monitorización de entrada." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "En pausa, las pulsaciones se ignoran (el ratón sigue funcionando). Presiona ⌃⌥⌘P para reanudar. Requiere el permiso de monitoreo de entrada." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Em pausa, as teclas são ignoradas (o mouse continua funcionando). Pressione ⌃⌥⌘P para retomar. Requer a permissão de Monitoramento de Entrada." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Em pausa, as teclas são ignoradas (o rato continua a funcionar). Prima ⌃⌥⌘P para retomar. Requer a permissão de Monitorização de Entrada." } },
+        "it": { "stringUnit": { "state": "translated", "value": "In pausa, i tasti vengono ignorati (il mouse funziona sempre). Premi ⌃⌥⌘P per riprendere. Richiede il permesso di monitoraggio degli input." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "일시 중지 중에는 키 입력이 무시됩니다(마우스는 계속 작동). ⌃⌥⌘P를 눌러 재개합니다. 입력 모니터링 권한이 필요합니다." } }
       }
     }
   },
