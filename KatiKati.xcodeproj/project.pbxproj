@@ -908,6 +908,9 @@
 		A0000000000000000000A261 /* KeyGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A260 /* KeyGuard.swift */; };
 		A0000000000000000000A262 /* KeyGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A260 /* KeyGuard.swift */; };
 		A0000000000000000000A271 /* KeyGuardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A270 /* KeyGuardTests.swift */; };
+		A0000000000000000000A311 /* NotificationPlacement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A310 /* NotificationPlacement.swift */; };
+		A0000000000000000000A312 /* NotificationPlacement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A310 /* NotificationPlacement.swift */; };
+		A0000000000000000000A331 /* NotificationPlacementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A330 /* NotificationPlacementTests.swift */; };
 		A0000000000000000000A281 /* KeyGuardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A280 /* KeyGuardService.swift */; };
 		A0000000000000000000A282 /* KeyGuardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A280 /* KeyGuardService.swift */; };
 		A0000000000000000000A291 /* SlowQuitOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A290 /* SlowQuitOverlay.swift */; };
@@ -1572,6 +1575,8 @@
 		A0000000000000000000A250 /* FileIndexService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FileIndexService.swift; path = App/Composition/FileIndexService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A260 /* KeyGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyGuard.swift; sourceTree = "<group>"; };
 		A0000000000000000000A270 /* KeyGuardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyGuardTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000A310 /* NotificationPlacement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPlacement.swift; sourceTree = "<group>"; };
+		A0000000000000000000A330 /* NotificationPlacementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPlacementTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000A280 /* KeyGuardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeyGuardService.swift; path = App/Composition/KeyGuardService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A290 /* SlowQuitOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SlowQuitOverlay.swift; path = App/Scenes/SlowQuitOverlay.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A300 /* KeyVisualizerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeyVisualizerOverlay.swift; path = App/Scenes/KeyVisualizerOverlay.swift; sourceTree = SOURCE_ROOT; };
@@ -2058,6 +2063,7 @@
 				A0000000000000000000A110 /* TranslateTests.swift */,
 				A0000000000000000000A1E0 /* AppRemovalPlannerTests.swift */,
 				A0000000000000000000A270 /* KeyGuardTests.swift */,
+				A0000000000000000000A330 /* NotificationPlacementTests.swift */,
 				A0000000000000000000FA10 /* LauncherChipVisualPlanTests.swift */,
 				A0000000000000000000FF10 /* LaunchGateDecisionTests.swift */,
 				A0000000000000000000FF30 /* AppLaunchTargetDecisionTests.swift */,
@@ -2187,6 +2193,7 @@
 				A0000000000000000000A210 /* Bookmarks.swift */,
 				A0000000000000000000A230 /* FileIndex.swift */,
 				A0000000000000000000A260 /* KeyGuard.swift */,
+				A0000000000000000000A310 /* NotificationPlacement.swift */,
 				F1C0000000000000000000A0 /* WindowListMenuPlan.swift */,
 				F1F0000000000000000000A0 /* AppLanguageOption.swift */,
 				F1D0000000000000000000A0 /* DocumentUsageRanking.swift */,
@@ -2687,6 +2694,7 @@
 				A0000000000000000000A241 /* DirectoryScanner.swift in Sources */,
 				A0000000000000000000A251 /* FileIndexService.swift in Sources */,
 				A0000000000000000000A261 /* KeyGuard.swift in Sources */,
+				A0000000000000000000A311 /* NotificationPlacement.swift in Sources */,
 				A0000000000000000000A281 /* KeyGuardService.swift in Sources */,
 				A0000000000000000000A291 /* SlowQuitOverlay.swift in Sources */,
 				A0000000000000000000A301 /* KeyVisualizerOverlay.swift in Sources */,
@@ -3136,6 +3144,7 @@
 				A0000000000000000000A212 /* Bookmarks.swift in Sources */,
 				A0000000000000000000A232 /* FileIndex.swift in Sources */,
 				A0000000000000000000A262 /* KeyGuard.swift in Sources */,
+				A0000000000000000000A312 /* NotificationPlacement.swift in Sources */,
 				A0000000000000000000A282 /* KeyGuardService.swift in Sources */,
 				A0000000000000000000A292 /* SlowQuitOverlay.swift in Sources */,
 				A0000000000000000000A302 /* KeyVisualizerOverlay.swift in Sources */,
@@ -3210,6 +3219,7 @@
 				A0000000000000000000A111 /* TranslateTests.swift in Sources */,
 				A0000000000000000000A1E1 /* AppRemovalPlannerTests.swift in Sources */,
 				A0000000000000000000A271 /* KeyGuardTests.swift in Sources */,
+				A0000000000000000000A331 /* NotificationPlacementTests.swift in Sources */,
 				A0000000000000000000FA11 /* LauncherChipVisualPlanTests.swift in Sources */,
 				A0000000000000000000FF11 /* LaunchGateDecisionTests.swift in Sources */,
 				A0000000000000000000FF31 /* AppLaunchTargetDecisionTests.swift in Sources */,

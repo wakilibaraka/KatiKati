@@ -3304,6 +3304,48 @@ code. Per §5: no code injection.
 **Verify.** 26a rects golden + hotkeys live; 26b layout invariants + AX frame writes only on main +
 idle CPU flat while off + disable restores every managed window.
 
+**Suggestions — five more priors surveyed for the owner (2026-10-14; PROPOSALS ONLY — nothing above was changed, no slice committed, no code).** Sources read verbatim: `trelliswm.app` (`#features`, `how-it-works`), `nikitabobko/AeroSpace` guide, `ianyh/Amethyst`, `niri-wm/niri` README (PaperWM), `koekeishiya/yabai` doc.
+
+**(A) Where each prior slots in.**
+
+| Prior | What it actually brings (verbatim where quoted) | Slots into |
+|---|---|---|
+| **yabai** — *"probably the most popular option"* | *"a tiling window manager for macOS based on **binary space partitioning**"*; **Rule** domain (app/title filters = per-app arrange rules); **Signal** domain (`window_created`/`window_destroyed`/`window_focused`/`window_moved`/`window_resized`/`window_minimized`, `space_changed`, `display_*`, `system_woke`); `query`/mouse actions | **Shape only, never code.** Its advanced path is `--load-sa` → *"System Integrity Protection must be partially disabled"*, which Phase 26 already forbids (`No code injection (unlike yabai) — pure AX`) and the inherited rule repeats (`SketchyBar & yabai = study only, never paste`). But its *shape* maps cleanly onto what 26 already plans: `Signal` ≈ the single AXObserver broadcast in **26b-2**; `Rule` ≈ a pure `TilingRule` table in **26b-1**. |
+| **AeroSpace** — *"an i3-like tiling window manager for macOS"* (already the reference) | `Tree` + **Layouts** (`tiles`, `accordion`, `horizontal`, `vertical`, `floating`), **Normalization**, **Floating windows**; emulated virtual workspaces; **binding modes** (normal / service / input); `on-window-detected` + `on-focus-changed` callbacks; `layout shrink`/`expand` + `normalize-tree`; per-workspace→monitor; TOML + a **socket protocol / CLI** | Widens today's reference: **binding modes are the natural home for the hybrid switch below**; `on-window-detected` answers **per-app rules**; **Normalization (tree re-balance) is an invariant today's `TilingTree` seam does not yet state**; the socket/CLI shape is the power-user surface. |
+| **Amethyst** — *"a tiling window manager for macOS along the lines of xmonad"* | Ready-made preset catalog: `Tall`, `Wide`, `Middle-Wide`/`3Column-{Left,Right}`, `Widescreen-Tall`, `Column`, `Row`, `Fullscreen`, `Floating`, **`BSP`**, `Custom (beta)`; main-pane `shrink`/`expand`/`count`; **`Toggle float for focused window`**; **`Toggle global tiling`**; *throw focused window to space/screen* | **26b `.layout` presets** — this *is* the preset catalog, so the key already planned doesn't need inventing — plus the **power-user keyboard layer** (cycle layout, main-pane size/count, per-window float toggle, global-tiling toggle). Licence stays *verify-at-activation* as flagged. |
+| **niri / PaperWM** — *"A scrollable-tiling Wayland compositor"* | *"Windows are arranged in columns on an infinite strip going to the right. **Opening a new window never causes existing windows to resize.**"* · per-monitor strip · *"Workspaces are dynamic and arranged vertically"* · floating since 25.01 · README: *"Niri is heavily inspired by PaperWM"* — and for **our platform** the same README lists ***"Paneru and PaperWM.spoon: scrollable tiling on top of macOS"*** | **A third tiling family, absent from 26 today** — the anti-jank option, because nothing ever resizes an existing window, which directly sidesteps 26b's stated worst risk (*"fights native animations and can thrash"*). Slots in as a **later `.layout` family after BSP**, not as the core. GPL-3.0 → study-only (§5); the two **macOS** priors (`Paneru`, `PaperWM.spoon`) are the eyeball-only things to read first. |
+| **TrellisWM** — *"The fractal window manager for Mac"* | Hand-driven, **not** an auto-tiler: *"Dock anywhere"*, *"Spaces nest inside spaces, as deep as you like"*, **"Tab groups"** (*"Drop a window on another's middle to stack them under one strip, whatever their apps"*), **Saved views** (9/display, `⌃⌥⇧ + number`), back/forward history, `⌃⌥Space` = show everything, pinch-to-zoom, one arrangement per display, **URL commands** (`trelliswm://arrange` → Raycast/Alfred/Shortcuts/Stream Deck), and **"Float All Windows on Desktop"** as the undo | **The manual pole of the hybrid switch, plus tabbing + the undo contract.** Slots into **26a** (user-driven placement), the **tabbing** suggestion below, and supplies the *"back to a normal Mac"* escape that the master toggle owes the user. ⚠️ **Eyeball-only, take no requirements**: proprietary/Pro, early access, **macOS 14+** (our floor is **12**), and its live previews need **Screen Recording** — a *new* permission Phase 26 promises not to take. |
+
+**Licence / posture recap for these five:** AeroSpace MIT ✓ verified · Amethyst verify-at-activation · yabai MIT but **excluded by the no-injection rule** · niri + PaperWM GPL-3.0 → study-only · TrellisWM proprietary → eyeball-only, no code, no requirement.
+
+**(B) Proposed: a hybrid manual / semi / auto system the owner chooses from.** Today's plan has only a master toggle (`com.katikati.tiling.enabled`, off). The suggestion is a `TilingMode` riding on it:
+
+- **Manual** — the engine never moves a window you placed; only 26a snaps (and drag-to-dock) act. This is the TrellisWM / "my desktop, my hands" pole.
+- **Semi** — the engine arranges **new** windows into the tree, but any window the user subsequently drags or moves is *released* and never yanked back. Least surprise; the likely default once the toggle is on.
+- **Auto** — the engine owns placement end-to-end and per-app rules (`on-window-detected`-shaped) apply. The power-user pole.
+
+Posture (matching this plan's default-off habit): master toggle **off** → once enabled, mode defaults to **Manual**, so nothing moves until the owner opts in; Semi/Auto are explicit Settings choices, never hidden behaviour. One keystroke back to a normal Mac stays available (TrellisWM's *"Float All Windows on Desktop"* contract) — that is already 26b-3's disable-restore. **Cost is small on purpose:** the three modes are three answers to one pure predicate — *may `applyFrames()` move this window right now?* — so it lands as a pure `TilingPermission` seam inside 26b-2's bridge, not a new subsystem, and AeroSpace **binding modes** are its keyboard home.
+
+**(C) The owner's three extra requirements, none of which today's slice list contains:**
+
+1. **Borders.** Honest caveat: the AeroSpace guide I read does **not** document a borders section (verify at activation — yabai historically shipped `window_border` and later removed it), so do not assume a ready prior exists. Cheap regardless: draw a thin **focus border** ourselves from AX focus events (`on-focus-changed`-shaped), geometry pure + one overlay window per display, no new permission. Risks to write into the mini-plan: it must follow the window's frame through animations, must not fight `WindowLiftAvoidance` or the hover-thumbnail carrier snapshots, and it must visually belong to the existing chip/glass language rather than look like a foreign outline.
+2. **Tabbing.** Two distinct sources: **(i)** i3-style stacked/tabbed **containers inside the tree** — the AeroSpace `accordion` lineage (confirm the exact layout name at activation); cheap, because it is only a new container kind in the already-planned `TilingTree`. **(ii)** TrellisWM's cross-app **"Tab groups"** (*"Drop a window on another's middle to stack them under one strip, whatever their apps"*, drag a tab out to tear it off); heavier, wants `NSWindow.tabbingMode` or our own stack container plus tear-off gestures. Suggested order: **(i) first**, since it reuses 26b-1 and adds no window types.
+3. **Power-user friendly.** Amethyst's preset cycling + main-pane `shrink`/`expand`/`count` + per-window *float* and *global tiling* toggles; AeroSpace **binding modes**; yabai-shaped **rules** as a pure `TilingRule` table; and the cheapest of all — **tiling actions in the command bar we already shipped (Phases 27–30)**, which reuses shipped work instead of inventing a new UI surface.
+
+**Suggested shape if the owner adopts these (still PROPOSALS):** leave **26a → 26b-1..4 exactly as written**, then append **26c borders → 26d tabbing (tree container first) → 26e hybrid mode switch + power-user layer → 26f scrollable family (read `Paneru` / `PaperWM.spoon` first)**. Each still needs its own mini-plan + owner sign-off + licence check (the Phase 7B gate) before code, and each stays ≤ ~300 lines and gate-green per §1.8. None of this is scheduled until the owner picks which of 26c–26f to commit.
+
+**(D) Owner directive (2026-10-14): "the user must be able to choose between any of the recommended and non-recommended modes."** Recorded verbatim in intent. This **supersedes the "defer 26f" recommendation above** — nothing gets hidden from the user because we judged it heavier or less recommended. Nothing above is deleted; this paragraph is the override.
+
+- **Two independent, both user-facing axes.**
+  - **Family** — *what* arranges the windows: `manual` (no auto-tiling, 26a snaps only) · `presets` (Amethyst's catalog: `Tall` / `Wide` / `Column` / `Row` / `3Column-*` / `Widescreen-Tall` / `Fullscreen` / `Floating`) · `bsp` (AeroSpace / yabai / Amethyst BSP) · `scrollable` (niri / PaperWM strip, never resizes) · `fractal` (TrellisWM-style nesting + docking) · `floating` (plain macOS).
+  - **Control** — *how much* the engine may do: `manual` · `semi` · `auto` (per **(B)**).
+  - Orthogonal by design, so `scrollable + semi` and `fractal + manual` are both legal Settings combinations; the picker never forces a pairing.
+- **The one architectural change this implies — and it is cheap now, expensive later.** Today's plan states `TilingTree` (BSP) as *the* core. Under this directive the pure seam must instead be a **`TilingFamily`** abstraction with one pure entry point (`layout(windows:workArea:) -> [WindowID: CGRect]`), so **BSP is one implementation, the scrollable strip another** (strip + viewport, no resizes), **the fractal model a third**, and the Amethyst presets are column/row math. Each implementation keeps its own golden tests, and `applyFrames()` in **26b-2 stays unchanged**. Retrofitting a family-neutral seam onto a BSP-only tree would rewrite the tested core — so if this directive stands, it belongs **in 26b-1, not later**.
+- **The picker ships listing every family from day one**, greying out ones not yet landed rather than hiding them, so the Settings surface never changes shape as families land.
+- **"Non-recommended" is a cost statement, never a licence relaxation.** `scrollable` stays **GPL-3.0 → study-only (§5)**; `fractal` stays **proprietary / eyeball-only → we reimplement the *behaviour* fresh, never copy code**. Both still obey the master-toggle **default off**, the no-injection rule (no yabai-style scripting addition) and "no new permission".
+- **Honest cost ordering inside the expanded scope:** `presets` (pure geometry, cheapest) → `bsp` (26b as planned) → `scrollable` (pure geometry + viewport, no resize fights) → **`fractal` the most expensive** — nested spaces must be reconciled with macOS Spaces/full-screen semantics, plus its saved-views / zoom / camera UX, and its live previews would need Screen Recording (a permission 26 promises not to take) so that one must ship *without* previews.
+- **Net effect on the slice list:** 26a, 26b-1..4, 26c, 26d, 26e as written, plus **26f scrollable** and a **26g fractal** — all selectable, all behind the same master toggle, each still gated + owner-signed individually.
+
 **Phases 21–26 check log (STANDING_RULES §1.8):**
 - 2026-10-14 · **Reoriented + detailed (plan only, no code).** Phases renumbered easiest → hardest
   (21 launcher → 22 clipboard → 23 translate → 24 input guards → 25 notifications → 26 tiling) and
@@ -3540,8 +3582,17 @@ idle CPU flat while off + disable restores every managed window.
   `testPauseSwallowsEverythingButTheUnlockChord`). The `DOCK_KEYGUARD_OFF` kill-switch (=1) stops the tap
   outright as the documented field fallback. Gate: 2,307 tests / 0 failures, `** TEST SUCCEEDED **`, `AVAIL_OK`,
   localization + debug-switch green. **Phase 24 (24a–e) is done.**
-
-
+- 2026-10-14 · **25a — notification placement + UI probe pure core — PASS (code), no AX.** New
+  `Core/Support/NotificationPlacement.swift`: `NotificationSlot` (8 slots — the 3×3 grid **without the
+  dead centre**, the only way the plan's "8 slots" reads; raw values `top-left` … `bottom-right`),
+  `NotificationPlacement.frame(slot:workArea:banner:)` (CG/top-left-origin work area in, banner frame
+  out, 12 pt edge margin, clamped so a slot can never push a banner under the Dock or off a narrow
+  display), `NotificationUICapability.evaluate` (fail-closed probe over a `NotificationUIObservation`:
+  known banner subrole + readable frames + settable position + ≤10k walked nodes, else false →
+  notifications untouched), `NotificationMoveGuard` (0.35 s cooldown, injected clock, so our own AX
+  write cannot become a move storm). Tests: `Tests/Unit/NotificationPlacementTests.swift` (12).
+  Gate: **2,316 tests / 0 failures**, localization ✅ (746 keys ×12), debug-switch ✅,
+  availability ✅. **Not yet:** the AX observer + move, Settings, honest copy (25b–c).
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
 
 **Goal.** A compact Raycast/Sol-style command palette summoned by **⌘Space**, made **default**, sitting
