@@ -106,6 +106,18 @@ struct CommandBarView: View {
                 Text(verbatim: entry.name)
                 Text(verbatim: "\(entry.pid)").font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
                 Spacer(minLength: 0)
+            case .script(let payload):
+                Text("Run Script").font(.system(size: 13, weight: .medium))
+                Text(verbatim: payload).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
+                Spacer(minLength: 0)
+            case .shortcut(let name):
+                Text("Shortcuts").font(.system(size: 13, weight: .medium))
+                Text(verbatim: name).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
+                Spacer(minLength: 0)
+            case .path(let path):
+                Text(verbatim: (path as NSString).lastPathComponent)
+                Text(verbatim: path).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
+                Spacer(minLength: 0)
             }
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
@@ -131,6 +143,12 @@ struct CommandBarView: View {
             Image(systemName: command.kind == .link ? "link" : "terminal").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .process:
             Image(systemName: "bolt.slash").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .script:
+            Image(systemName: "terminal").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .shortcut:
+            Image(systemName: "bolt.fill").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .path:
+            Image(systemName: "doc").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         }
     }
 }

@@ -34,6 +34,12 @@ enum CommandBarResult: Equatable, Sendable {
     case custom(CustomCommand)
     /// Kill a process (Phase 28e, `!name`): confirmed, then SIGTERM / SIGKILL.
     case process(ProcessEntry)
+    /// A `>` script payload (Phase 29a) run through `LauncherRunner`.
+    case script(String)
+    /// A `:` Shortcut name (Phase 29a) run through `LauncherRunner`.
+    case shortcut(String)
+    /// A `/` path (Phase 29a) to open.
+    case path(String)
 }
 
 /// Phase 28a: a generator row — type a keyword, get a fresh value to copy. The pure cases make their own
@@ -123,9 +129,8 @@ enum JSONPrettyPrinter {
 }
 
 enum CommandBarResults {
-    /// The rows for `query`, in display order: answers / generator → running-app quit rows → app matches.
-    /// A non-app route (math/web) yields only its answer rows. Empty input yields nothing. `generate`
-    /// fills a generator's value (the app layer handles the system-backed ones).
+    /// The rows for `query`. Math/web → answer rows; the word routes (`/` `>` `:` `!`) → their own rows;
+    /// plain search → generator / custom / app matches, each running app's Quit row right after it.
     static func build(query: String,
                       apps: [LauncherApp],
                       usage: [String: LauncherUsage],
@@ -134,22 +139,28 @@ enum CommandBarResults {
                       processes: [ProcessEntry] = [],
                       generate: (CommandGenerator) -> String = { $0.value() }) -> [CommandBarResult] {
         let routed = LauncherCommandParser.parse(query)
-        if case .process(let term) = routed {
-            guard !term.isEmpty else { return [] }
-            return processes
-                .filter { LauncherSearch.score(query: term, name: $0.name) != nil }
-                .sorted { a, b in
-                    let sa = LauncherSearch.score(query: term, name: a.name) ?? 0
-                    let sb = LauncherSearch.score(query: term, name: b.name) ?? 0
-                    return sa != sb ? sa > sb : a.name.localizedCaseInsensitiveCompare(b.name) == .orderedAscending
-                }
-                .map(CommandBarResult.process)
-        }
-        guard case .apps(let term) = routed else {
+        switch routed {
+        case .process(let term):
+            return processRows(term, processes)
+        case .script(let payload):
+            return payload.isEmpty ? [] : [.script(payload)]
+        case .shortcut(let name):
+            return name.isEmpty ? [] : [.shortcut(name)]
+        case .path(let path):
+            return [.path(path)]
+        case .math, .web:
             return LauncherAnswers.answers(for: routed).map(CommandBarResult.answer)
+        case .apps(let term):
+            return appRows(term, apps: apps, usage: usage, running: running, custom: custom, generate: generate)
         }
-        guard !term.isEmpty else { return [] }
+    }
 
+    /// Answers / generator → custom → app matches, with a running app's Quit row immediately after it
+    /// (Phase 29a), then any leftover running match.
+    private static func appRows(_ term: String, apps: [LauncherApp], usage: [String: LauncherUsage],
+                                running: [RunningAppRef], custom: [CustomCommand],
+                                generate: (CommandGenerator) -> String) -> [CommandBarResult] {
+        guard !term.isEmpty else { return [] }
         var out: [CommandBarResult] = []
         if let generator = CommandGenerator.match(term) {
             let value = generate(generator)
@@ -157,16 +168,35 @@ enum CommandBarResults {
         }
         out += CustomCommand.matching(term, in: custom).map(CommandBarResult.custom)
 
-        let quits = running
-            .filter { LauncherSearch.score(query: term, name: $0.name) != nil }
+        var used = Set<String>()
+        for app in LauncherSearch.search(term, in: apps, usage: usage) {
+            out.append(.app(app))
+            if let ref = running.first(where: { !$0.bundleID.isEmpty && $0.bundleID == app.bundleID }) {
+                out.append(.quit(ref))
+                used.insert(ref.bundleID)
+            }
+        }
+        out += running
+            .filter { !used.contains($0.bundleID) && LauncherSearch.score(query: term, name: $0.name) != nil }
             .sorted { a, b in
                 let sa = LauncherSearch.score(query: term, name: a.name) ?? 0
                 let sb = LauncherSearch.score(query: term, name: b.name) ?? 0
                 return sa != sb ? sa > sb : a.name.localizedCaseInsensitiveCompare(b.name) == .orderedAscending
             }
             .map(CommandBarResult.quit)
+        return out
+    }
 
-        return out + quits + LauncherSearch.search(term, in: apps, usage: usage).map(CommandBarResult.app)
+    private static func processRows(_ term: String, _ processes: [ProcessEntry]) -> [CommandBarResult] {
+        guard !term.isEmpty else { return [] }
+        return processes
+            .filter { LauncherSearch.score(query: term, name: $0.name) != nil }
+            .sorted { a, b in
+                let sa = LauncherSearch.score(query: term, name: a.name) ?? 0
+                let sb = LauncherSearch.score(query: term, name: b.name) ?? 0
+                return sa != sb ? sa > sb : a.name.localizedCaseInsensitiveCompare(b.name) == .orderedAscending
+            }
+            .map(CommandBarResult.process)
     }
 }
 

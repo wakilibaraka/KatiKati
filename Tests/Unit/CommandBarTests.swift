@@ -20,13 +20,19 @@ final class CommandBarTests: XCTestCase {
         XCTAssertEqual(rows, [.answer(.web(query: "swift news"))])
     }
 
-    func testRunningAppsRankBeforeAppMatches() {
+    func testAppMatchComesBeforeItsQuitRow() {
         let rows = CommandBarResults.build(query: "safari",
                                            apps: [app("com.apple.Safari", "Safari")],
                                            usage: [:],
                                            running: [running("com.apple.Safari", "Safari")])
-        XCTAssertEqual(rows, [.quit(running("com.apple.Safari", "Safari")),
-                              .app(app("com.apple.Safari", "Safari"))])
+        XCTAssertEqual(rows, [.app(app("com.apple.Safari", "Safari")),
+                              .quit(running("com.apple.Safari", "Safari"))])
+    }
+
+    func testWordRoutesProduceTheirRows() {
+        XCTAssertEqual(CommandBarResults.build(query: ">ls -la", apps: [], usage: [:], running: []), [.script("ls -la")])
+        XCTAssertEqual(CommandBarResults.build(query: ":Clean Up", apps: [], usage: [:], running: []), [.shortcut("Clean Up")])
+        XCTAssertEqual(CommandBarResults.build(query: "/tmp/x", apps: [], usage: [:], running: []), [.path("/tmp/x")])
     }
 
     func testNotRunningAppHasNoQuitRow() {

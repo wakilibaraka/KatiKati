@@ -130,6 +130,15 @@ final class CommandBarPanelController {
         case .process(let entry):
             dismiss()
             confirmKill(entry)
+        case .script(let payload):
+            dismiss()
+            _ = LauncherRunner.run(.script(payload))
+        case .shortcut(let name):
+            dismiss()
+            _ = LauncherRunner.run(.shortcut(name))
+        case .path(let path):
+            dismiss()
+            NSWorkspace.shared.open(URL(fileURLWithPath: path))
         }
     }
 
