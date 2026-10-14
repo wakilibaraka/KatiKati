@@ -103,6 +103,34 @@ final class KeyGuardSharedTests: XCTestCase {
         XCTAssertTrue(shared.keycaps().isEmpty, "turning it off clears the strip")
     }
 
+    /// 24e: the tap thread does this work for every key event. The shared holder (lock + reduce + keycap
+    /// buffer) must stay far under one 60 Hz frame, so a stuck key can never back the system up.
+    func testTapPathStaysSubFrameUnderLoad() {
+        let shared = KeyGuardShared()
+        shared.setVisualizer(enabled: true)
+        shared.update(state: KeyGuardState(slowQuitEnabled: true, slowQuitApplies: true))
+        let q = KeyGuardPipeline.quitKeyCode
+
+        var decisions = 0
+        var pressed = 0
+        var released = 0
+        let start = DispatchTime.now()
+        for _ in 0..<100_000 {
+            let down = shared.decide(.keyDown(keyCode: q, modifiers: [.command]))
+            let up = shared.decide(.keyUp(keyCode: q, modifiers: []))
+            shared.record(symbol: "⌘Q")
+            decisions += 2
+            if case .consumeAndFire(.slowQuitPressed) = down.decision { pressed += 1 }
+            if case .consumeAndFire(.slowQuitReleased) = up.decision { released += 1 }
+        }
+        let elapsedNanos = DispatchTime.now().uptimeNanoseconds - start.uptimeNanoseconds
+        let perKeyMicros = Double(elapsedNanos) / Double(decisions) / 1_000
+
+        XCTAssertEqual(pressed, 100_000, "every ⌘Q down is held")
+        XCTAssertEqual(released, 100_000, "every ⌘Q up releases the hold")
+        XCTAssertLessThan(perKeyMicros, 5, "tap path is O(1) per key; got \(String(format: "%.2f", perKeyMicros)) µs")
+    }
+
     /// The strip holds at most `KeyVisualizerBuffer.capacity` keycaps and coalesces a repeat of the
     /// newest one, so a long hold never grows the strip without bound.
     func testKeycapBufferStaysBoundedAndCoalesces() {

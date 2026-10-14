@@ -3528,6 +3528,18 @@ idle CPU flat while off + disable restores every managed window.
   guards. New file `App/Scenes/KeyVisualizerOverlay.swift`. Strings: +2 keys ×12 languages. Tests: +2 for the
   shared buffer (records only while on; bounded + coalescing). Gate: 2,306 tests / 0 failures, `** TEST
   SUCCEEDED **`, `AVAIL_OK`, localization + debug-switch green. **Not yet:** latency/CPU verify (24e).
+- 2026-10-14 · **24e — latency/CPU verify — PASS (Phase 24 complete).** Measured the claims the plan asked
+  for. **Tap latency:** the per-key path (lock + `KeyGuardPipeline.reduce` + keycap buffer) does 200k
+  decisions in ≈ 32 ms in `testTapPathStaysSubFrameUnderLoad` — ≈ 0.16 µs/key, asserted < 5 µs, i.e. three
+  orders of magnitude under one 60 Hz frame, so a stuck key cannot back the system up. **Idle CPU:** ran the
+  built app with every guard off (the default) and sampled it — **no `com.katikati.keyguard` thread exists at
+  all** (0 keyguard mentions in a `sample`), because `refresh()` tears the tap down the instant the last guard
+  goes off. Idle CPU is the app's own baseline (≈ 4–5 % for the dock panels), with **zero** keyguard
+  contribution — not "low", structurally zero. **Zero swallowed keys when off** and **the unlock chord always
+  works** are table-tested (`testNothingSwallowedWhenAllGuardsOff`,
+  `testPauseSwallowsEverythingButTheUnlockChord`). The `DOCK_KEYGUARD_OFF` kill-switch (=1) stops the tap
+  outright as the documented field fallback. Gate: 2,307 tests / 0 failures, `** TEST SUCCEEDED **`, `AVAIL_OK`,
+  localization + debug-switch green. **Phase 24 (24a–e) is done.**
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
