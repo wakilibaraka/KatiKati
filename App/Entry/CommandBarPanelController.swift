@@ -115,6 +115,12 @@ final class CommandBarPanelController {
         case .quit(let ref):
             dismiss()
             confirmQuit(ref)
+        case .forceQuit(let ref):
+            dismiss()
+            confirmForceQuit(ref)
+        case .action(let macro):
+            dismiss()
+            runMacro(macro)
         case .generator(_, let value):
             NSPasteboard.general.clearContents()
             NSPasteboard.general.setString(value, forType: .string)
@@ -171,6 +177,31 @@ final class CommandBarPanelController {
         case .alertSecondButtonReturn: app?.forceTerminate()
         default: break
         }
+    }
+
+    private func confirmForceQuit(_ ref: RunningAppRef) {
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Force Quit")
+        alert.informativeText = ref.name
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String(localized: "Force Quit"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        if alert.runModal() == .alertFirstButtonReturn {
+            NSRunningApplication(processIdentifier: ref.pid)?.forceTerminate()
+        }
+    }
+
+    private func runMacro(_ macro: BarMacro) {
+        if macro.needsConfirm {
+            let alert = NSAlert()
+            alert.messageText = String(localized: "Are you sure?")
+            alert.informativeText = macro.keyword
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: String(localized: "Continue"))
+            alert.addButton(withTitle: String(localized: "Cancel"))
+            guard alert.runModal() == .alertFirstButtonReturn else { return }
+        }
+        BarActionService.run(macro)
     }
 
     private func makePanel() -> NSPanel {

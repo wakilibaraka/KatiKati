@@ -90,6 +90,15 @@ struct CommandBarView: View {
                     Text("Quit").font(.system(size: 11)).foregroundColor(.secondary)
                 }
                 Spacer(minLength: 0)
+            case .forceQuit(let running):
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: running.name)
+                    Text("Force Quit").font(.system(size: 11)).foregroundColor(.secondary)
+                }
+                Spacer(minLength: 0)
+            case .action(let macro):
+                Text(verbatim: macro.keyword).font(.system(size: 13, weight: .medium))
+                Spacer(minLength: 0)
             case .generator(let generator, let value):
                 VStack(alignment: .leading, spacing: 1) {
                     Text(verbatim: generator.displayName).font(.system(size: 13, weight: .medium))
@@ -137,6 +146,11 @@ struct CommandBarView: View {
         case .quit(let running):
             Image(nsImage: LauncherIconCache.icon(forPath: running.path))
                 .resizable().aspectRatio(contentMode: .fit).frame(width: 24, height: 24)
+        case .forceQuit(let running):
+            Image(nsImage: LauncherIconCache.icon(forPath: running.path))
+                .resizable().aspectRatio(contentMode: .fit).frame(width: 24, height: 24)
+        case .action(let macro):
+            Image(systemName: macro.symbol).font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .generator:
             Image(systemName: "wand.and.stars").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .custom(let command):

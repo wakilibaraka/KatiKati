@@ -55611,6 +55611,23 @@
         "it": { "stringUnit": { "state": "translated", "value": "Termina" } },
         "ko": { "stringUnit": { "state": "translated", "value": "종료" } }
       }
+    },
+    "Are you sure?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Are you sure?" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "确定吗？" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "確定嗎？" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "よろしいですか？" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Bist du sicher?" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Êtes-vous sûr ?" } },
+        "es": { "stringUnit": { "state": "translated", "value": "¿Estás seguro?" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "¿Estás seguro?" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Tem certeza?" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Tem a certeza?" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Sei sicuro?" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "계속하시겠습니까?" } }
+      }
     }
   },
   "version": "1.0"

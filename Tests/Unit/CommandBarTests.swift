@@ -46,12 +46,10 @@ final class CommandBarTests: XCTestCase {
     }
 
     func testQuitRowsAreBestMatchFirst() {
-        let rows = CommandBarResults.build(query: "term",
-                                           apps: [],
-                                           usage: [:],
-                                           running: [running("a", "Terminal"), running("b", "iTerm")])
-        // "Terminal" scores as a prefix match; "iTerm" only as a substring.
-        XCTAssertEqual(rows.first, .quit(running("a", "Terminal")))
+        let canary = RunningAppRef(bundleID: "a", name: "Chrome Canary", pid: 1, path: "/a.app")
+        let chrome = RunningAppRef(bundleID: "b", name: "Chrome", pid: 2, path: "/b.app")
+        let rows = CommandBarResults.build(query: "chrome", apps: [], usage: [:], running: [canary, chrome])
+        XCTAssertEqual(rows.first, .quit(chrome))
     }
 }
 
@@ -144,6 +142,33 @@ final class CustomCommandTests: XCTestCase {
     func testSerializeRoundTrips() {
         let commands = CustomCommand.parse("A = https://a\nB = b")
         XCTAssertEqual(CustomCommand.parse(CustomCommand.serialize(commands)), commands)
+    }
+}
+
+final class CommandKeywordTests: XCTestCase {
+    func testMacroParse() {
+        XCTAssertEqual(CommandKeyword.parse("ocr"), .macro(.ocr))
+        XCTAssertEqual(CommandKeyword.parse("LOCK"), .macro(.lock))
+        XCTAssertEqual(CommandKeyword.parse("cs"), .macro(.shortcutsApp))
+        XCTAssertEqual(CommandKeyword.parse("trash"), .macro(.emptyTrash))
+    }
+
+    func testModeParse() {
+        XCTAssertEqual(CommandKeyword.parse("fq chrome"), .mode(.forceQuit, "chrome"))
+        XCTAssertEqual(CommandKeyword.parse("kp saf"), .mode(.killProcess, "saf"))
+        XCTAssertEqual(CommandKeyword.parse("sc My Shortcut"), .mode(.shortcut, "My Shortcut"))
+        XCTAssertNil(CommandKeyword.parse("kill"), "no trailing space → not a mode")
+        XCTAssertNil(CommandKeyword.parse("hello world"))
+    }
+
+    func testMacroRow() {
+        XCTAssertEqual(CommandBarResults.build(query: "ocr", apps: [], usage: [:], running: []), [.action(.ocr)])
+    }
+
+    func testForceQuitModeRows() {
+        let safari = RunningAppRef(bundleID: "s", name: "Safari", pid: 1, path: "/Safari.app")
+        XCTAssertEqual(CommandBarResults.build(query: "fq saf", apps: [], usage: [:], running: [safari]), [.forceQuit(safari)])
+        XCTAssertEqual(CommandBarResults.build(query: "kill saf", apps: [], usage: [:], running: [safari]), [.quit(safari)])
     }
 }
 

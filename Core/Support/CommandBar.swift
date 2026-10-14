@@ -28,6 +28,10 @@ enum CommandBarResult: Equatable, Sendable {
     case app(LauncherApp)
     /// Quit a running app (graceful `terminate()`; the UI confirms first).
     case quit(RunningAppRef)
+    /// Force-quit a running app (`forceTerminate()`; the UI confirms first). Phase 29b (`fq `).
+    case forceQuit(RunningAppRef)
+    /// A native macOS action (Phase 29b): run it.
+    case action(BarMacro)
     /// A generated value (Phase 28a): copy it.
     case generator(CommandGenerator, value: String)
     /// A user-defined entry (Phase 28c): open a link or run a script.
@@ -138,6 +142,10 @@ enum CommandBarResults {
                       custom: [CustomCommand] = [],
                       processes: [ProcessEntry] = [],
                       generate: (CommandGenerator) -> String = { $0.value() }) -> [CommandBarResult] {
+        let keyword = CommandKeyword.parse(query)
+        if case .mode(let mode, let argument)? = keyword {
+            return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes)
+        }
         let routed = LauncherCommandParser.parse(query)
         switch routed {
         case .process(let term):
@@ -151,7 +159,9 @@ enum CommandBarResults {
         case .math, .web:
             return LauncherAnswers.answers(for: routed).map(CommandBarResult.answer)
         case .apps(let term):
-            return appRows(term, apps: apps, usage: usage, running: running, custom: custom, generate: generate)
+            var rows = appRows(term, apps: apps, usage: usage, running: running, custom: custom, generate: generate)
+            if case .macro(let macro)? = keyword { rows.insert(.action(macro), at: 0) }
+            return rows
         }
     }
 
@@ -185,6 +195,32 @@ enum CommandBarResults {
             }
             .map(CommandBarResult.quit)
         return out
+    }
+
+    /// Rows for a keyword mode. `kill`/`fq` list running apps; `kp` lists processes; `sc` runs a named
+    /// Shortcut; `app` forces an app search.
+    private static func modeRows(_ mode: CommandBarMode, _ argument: String, apps: [LauncherApp],
+                                 usage: [String: LauncherUsage], running: [RunningAppRef],
+                                 processes: [ProcessEntry]) -> [CommandBarResult] {
+        switch mode {
+        case .kill, .forceQuit:
+            let matched = argument.isEmpty
+                ? running
+                : running.filter { LauncherSearch.score(query: argument, name: $0.name) != nil }
+            return matched
+                .sorted { a, b in
+                    let sa = LauncherSearch.score(query: argument, name: a.name) ?? 0
+                    let sb = LauncherSearch.score(query: argument, name: b.name) ?? 0
+                    return sa != sb ? sa > sb : a.name.localizedCaseInsensitiveCompare(b.name) == .orderedAscending
+                }
+                .map { mode == .kill ? .quit($0) : .forceQuit($0) }
+        case .killProcess:
+            return processRows(argument, processes)
+        case .shortcut:
+            return argument.isEmpty ? [] : [.shortcut(argument)]
+        case .apps:
+            return appRows(argument, apps: apps, usage: usage, running: running, custom: [], generate: { _ in "" })
+        }
     }
 
     private static func processRows(_ term: String, _ processes: [ProcessEntry]) -> [CommandBarResult] {
