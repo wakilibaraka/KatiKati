@@ -3347,6 +3347,19 @@ Posture (matching this plan's default-off habit): master toggle **off** → once
 - **Net effect on the slice list:** 26a, 26b-1..4, 26c, 26d, 26e as written, plus **26f scrollable** and a **26g fractal** — all selectable, all behind the same master toggle, each still gated + owner-signed individually.
 
 **Phases 21–26 check log (STANDING_RULES §1.8):**
+- 2026-10-14 · **Phase 33 added — notch design & refinement (plan only, no code).** No dedicated
+  notch phase existed: the surface was built in 8b-7 (vendored `NotchShape` + `BoringNotchWindow`,
+  `NotchGeometry`), the 2026-10-13 "Notch Full skin" entry (`NotchLayoutSpec`, Full/Compact), Phase 22
+  (notch toast, still planned) and Phase 32 (dock/widget motion — proposed, not the notch). New
+  section "Phase 33 — Notch design & refinement", placed after 32 and before Phase 12 (so it runs after
+  26 and still lands before the final phase). **Numbered 33 rather than inserted as 26.5** so the 51
+  pushed commits and every existing cross-reference keep their numbers. Scope: a written design spec
+  the code and tests both obey (`NotchDesignSpec`), one motion language with a reduced-motion path
+  (`NotchMotionSpec`), a panel IA with an explicit notch-vs-dock split (`NotchPanelPlan`), a fallback
+  plan for non-notched displays (`NotchFallbackPlan` reusing `NotchGeometry`'s fake-notch cases), and
+  33e screenshots on notched + non-notched × light + dark as the eyeball gate. Own risk: it is an
+  owner-gated visual change with no capability in it. Own constraint: the vendored boring.notch files
+  stay verbatim and unedited; behaviour changes go in `NotchPanelController`.
 - 2026-10-14 · **Reoriented + detailed (plan only, no code).** Phases renumbered easiest → hardest
   (21 launcher → 22 clipboard → 23 translate → 24 input guards → 25 notifications → 26 tiling) and
   pinned to land **before Phase 12**. De-dup recorded (half the survey already ships as 7A-P4 / 7B /
@@ -3955,6 +3968,70 @@ Three motion tiers with very different cost:
 **Risks.** Tier 2/3 burn idle CPU (the hard gate); circular tiles change hit-testing (reuse the 18c-2 axis helpers — `StripPointerBox`, `StripHoverResolution` — rather than re-deriving); circular wells crop icon artwork; and any of it must stay visually consistent with `DockThemeTokens.panelRimTop/Bottom` + the 0.18 rim, or it reads as a foreign skin. Both halves are owner-gated visual-language changes, so neither ships silently behind a default.
 
 **Verify.** Motion token defaults pinned by tests; Instruments shows ≤ island baseline with everything idle; every newer-than-12 API guarded; `DockIconFrame`'s default is byte-identical to today's pill; strings ×12; full gate.
+
+### Phase 33 — Notch design & refinement (owner 2026-10-14; PLAN ONLY, no code)
+
+**No dedicated phase existed.** The notch is built, but scattered across four earlier entries — 8b-7
+(notch surface: vendored `NotchShape` + `BoringNotchWindow`, pure `NotchGeometry`, `NotchIslandView`),
+the 2026-10-13 **"Notch Full skin"** entry (640×190 open panel, `NotchLayoutSpec`, Full/Compact choice),
+Phase 22 (notch toast on copy — planned), and Phase 32 (dock/widget motion + circular icons — proposed,
+*not* notch). So the notch has capabilities and no design phase. This one is the design phase: no new
+capability, one coherent look and feel, and the honest limits of a private window on someone else's
+hardware.
+
+**Goal.** One notch that reads as one object: a written design spec the code and the tests both obey,
+one motion language, a panel IA that says what belongs in the notch versus the dock, and proof it looks
+right on **notched and non-notched** displays in light and dark. Owner-gated by nature — it defines the
+product's identity, so it gets the eyeball gate (screenshots) plus the test gate, not either alone.
+
+**State today (reuse, don't rebuild).** `NotchGeometry` (64) · `NotchHoverMachine` (87) ·
+`NotchLayoutSpec` (102, 7 tests) · `NotchIslandView` (138) · `App/Scenes/Notch/` — Header (80), Home (54),
+Music (170), Tools (157), Calendar (69) · `NotchPanelController` (behaviour changes live here, never in
+the vendored files) · `LiveIslandStyle` shared with the dock · Settings "Live Island" block
+(`notchIslandEnabled`, default OFF) · `com.katikati.notice.toast` waiting on Phase 22.
+
+**Reference posture (§5).** `Vendor/boring.notch/` holds **verbatim** `NotchShape.swift` +
+`BoringNotchWindow.swift` under the owner's Phase 8b-7 vendoring exception, synced by
+`Scripts/sync_boring_notch.sh`, **never edited here**. Study the *shape math and the open/close
+choreography* only. Dynamic Notches and NotchNook are **verify licence at activation**; any non-MIT
+donor is behaviour-only. No dependency is added (the Sparkle pin stands).
+
+**Native path.** Numbers move into one pure spec; motion gets the Phase 32 Tier-1 vocabulary
+(`withAnimation` / `.animation(value:)`) with **no free-running loop**; the window itself stays
+`BoringNotchWindow` + the adapter. Every newer-than-12 API (`PhaseAnimator`, `.symbolEffect`,
+`contentTransition`) is `#available`-gated — `check_availability_warnings.py` fails the build otherwise.
+
+**Pure seams (tested first).**
+- `NotchDesignSpec.resolve(surface:display:) -> NotchMetrics` — the single table the views read today
+  (open/closed sizes, corner radii, insets, type scale, light/dark values), so a notch pixel is a test
+  and not a literal in five views.
+- `NotchMotionSpec` — open/close/hover/drag durations + spring parameters + the **reduced-motion**
+  path, as data.
+- `NotchPanelPlan.action(for:available:)` — which panel handles an action, and whether it belongs in
+  the notch or the dock (the de-dup rule with `LiveSurfaceRouting`).
+- `NotchFallbackPlan` — geometry on a display with **no** notch / no usable aux areas, reusing
+  `NotchGeometry`'s fake-notch cases rather than re-deriving.
+
+**Slices (suggestion order).** 33a design audit + `NotchDesignSpec` + tests (pure, no UI change) →
+33b motion language + reduced-motion path → 33c panel IA + notch/dock split → 33d notch toast wiring
+(joins Phase 22 when it lands) → 33e live check: screenshots on notched + non-notched, light + dark,
+hover, fullscreen, VoiceOver.
+
+**Keys / settings.** Existing `notchSkin` (Full/Compact) stays; add `com.katikati.notch.motion`
+(`full` / `reduced` — reduced mirrors the system setting) and `com.katikati.notch.panels` (panel order
++ visibility). Defaults keep today's look and today's off-by-default posture.
+
+**Permissions.** None new.
+
+**Risks.** Design churn without a live notched display on the bench — mitigate with the screenshots in
+33e, not with taste. The notch window is a private, per-release surface (same class of risk as Phase
+25); it must fail closed to *closed*, never to a broken window. Tapping/moving it fights native window
+animations — reuse the 11/18 capsule-ownership lesson. **Do not** edit the vendored files.
+
+**Verify.** Spec/motion/plan defaults pinned by tests; the spec's defaults render **byte-identical** to
+today (no surprise change on upgrade); reduced-motion path hides no content; idle CPU flat when the
+notch is off (nothing runs) and ≤ island baseline when on; every newer-than-12 API guarded; screenshots
+×{notched, non-notched} ×{light, dark} in the PR; full gate.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
