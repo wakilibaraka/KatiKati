@@ -55543,6 +55543,40 @@
         "it": { "stringUnit": { "state": "translated", "value": "Disattiva Mostra ricerca Spotlight." } },
         "ko": { "stringUnit": { "state": "translated", "value": "Spotlight 검색 표시를 끕니다." } }
       }
+    },
+    "No definition found": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "No definition found" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "未找到释义" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "找不到釋義" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "定義が見つかりません" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Keine Definition gefunden" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Aucune définition trouvée" } },
+        "es": { "stringUnit": { "state": "translated", "value": "No se encontró ninguna definición" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "No se encontró ninguna definición" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Nenhuma definição encontrada" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Nenhuma definição encontrada" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Nessuna definizione trovata" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "정의를 찾을 수 없습니다" } }
+      }
+    },
+    "Translate": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Translate" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "翻译" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "翻譯" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "翻訳" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Übersetzen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Traduire" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Traducir" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Traducir" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Traduzir" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Traduzir" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Traduci" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "번역" } }
+      }
     }
   },
   "version": "1.0"

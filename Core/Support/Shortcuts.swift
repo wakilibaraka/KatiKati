@@ -7,6 +7,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case drawer, notchTools, weather, clock
     /// Phase 27: the ⌘Space command bar (a Raycast/Sol-style palette over the same index).
     case commandBar
+    /// Phase 23: define/translate the current selection (off by default).
+    case translate
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -20,6 +22,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .weather: return 8
         case .clock: return 9
         case .commandBar: return 10
+        case .translate: return 11
         }
     }
 
@@ -28,7 +31,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .launcher: return .chord(.optionSpace)
         case .pinboard: return .chord(.controlOptionSpace)
         case .commandBar: return .chord(.commandSpace)
-        case .quickSettings, .keepAwake, .drawer, .notchTools, .weather, .clock: return .off
+        case .quickSettings, .keepAwake, .drawer, .notchTools, .weather, .clock, .translate: return .off
         }
     }
 }

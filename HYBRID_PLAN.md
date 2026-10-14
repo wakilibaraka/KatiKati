@@ -3400,6 +3400,22 @@ idle CPU flat while off + disable restores every managed window.
   for now; wiring it into the first-run guide needs `WelcomeGuideStep` changes and is deferred.
   Gate: 2,255 tests / 0 failures; localization ✅ (728 keys ×12); availability ✅. **Caveat:** the 6
   entries use a compact one-line `stringUnit` shape (valid, differs from the file's expanded style).
+- 2026-10-14 · **Phase 23 — Translate & Define (offline) — PASS (code).** New
+  `Core/Support/Translate.swift` (`TranslateRequest.detect` with URL/number short-circuits +
+  `NLLanguageRecognizer` language guess, `TranslationAvailability`, `DictionaryCardModel.parse`),
+  `Platform/Accessibility/SelectedTextReader.swift` (system-wide `kAXSelectedText`), 
+  `App/Composition/DictionaryService.swift` (`DCSCopyTextDefinition`), 
+  `App/Entry/TranslatePanelController.swift` + `App/Scenes/TranslateCardView.swift` (near-pointer
+  non-activating card; Esc/outside-click closes). **Trigger deviation (recorded):** the plan's
+  `translate.trigger` selection/hover *setting* is replaced by a **`ShortcutAction.translate`**
+  (default `.off`, id 11) that the user assigns; the edge-deck route was rejected because the default
+  deck includes every built productivity item, which would make Translate on by default. Translation
+  half is `#available(macOS 15, *)` via `.translationTask`; macOS 12–14 shows the dictionary only. No
+  new permission, no network. Strings: "Translate", "No definition found".
+  **Verified:** `xcodebuild test` 2,264 / 0 failures · `check_localization.py` ✅ (730 keys ×12) ·
+  `check_debug_switches.py` ✅ · `check_availability_warnings.py` ✅. **Live check pending** (owner
+  will verify: select text → shortcut → card). **Not done:** hover trigger, WelcomeGuide step, an
+  explicit "select text first" toast (silent no-op today).
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)

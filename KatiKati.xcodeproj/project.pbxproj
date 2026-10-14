@@ -878,6 +878,13 @@
 		A0000000000000000000F001 /* CommandBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F000 /* CommandBar.swift */; };
 		A0000000000000000000F002 /* CommandBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F000 /* CommandBar.swift */; };
 		A0000000000000000000F011 /* CommandBarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F010 /* CommandBarTests.swift */; };
+		A0000000000000000000A101 /* Translate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A100 /* Translate.swift */; };
+		A0000000000000000000A102 /* Translate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A100 /* Translate.swift */; };
+		A0000000000000000000A111 /* TranslateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A110 /* TranslateTests.swift */; };
+		A0000000000000000000A121 /* SelectedTextReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A120 /* SelectedTextReader.swift */; };
+		A0000000000000000000A131 /* DictionaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A130 /* DictionaryService.swift */; };
+		A0000000000000000000A141 /* TranslatePanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A140 /* TranslatePanelController.swift */; };
+		A0000000000000000000A151 /* TranslateCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A150 /* TranslateCardView.swift */; };
 		EE0000000000000000000047 /* ShortcutToastPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000046 /* ShortcutToastPresenter.swift */; };
 		EE0000000000000000000049 /* QuickToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000048 /* QuickToggles.swift */; };
 		EE000000000000000000004A /* QuickToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000048 /* QuickToggles.swift */; };
@@ -1511,6 +1518,12 @@
 		A0000000000000000000E000 /* LauncherRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherRunner.swift; path = App/Composition/LauncherRunner.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000F100 /* CommandBarPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CommandBarPanelController.swift; path = App/Entry/CommandBarPanelController.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000F110 /* CommandBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CommandBarView.swift; path = App/Scenes/CommandBarView.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000A100 /* Translate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translate.swift; sourceTree = "<group>"; };
+		A0000000000000000000A110 /* TranslateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslateTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000A120 /* SelectedTextReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedTextReader.swift; sourceTree = "<group>"; };
+		A0000000000000000000A130 /* DictionaryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DictionaryService.swift; path = App/Composition/DictionaryService.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000A140 /* TranslatePanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TranslatePanelController.swift; path = App/Entry/TranslatePanelController.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000A150 /* TranslateCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TranslateCardView.swift; path = App/Scenes/TranslateCardView.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000F000 /* CommandBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandBar.swift; sourceTree = "<group>"; };
 		A0000000000000000000F010 /* CommandBarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandBarTests.swift; sourceTree = "<group>"; };
 		EE0000000000000000000046 /* ShortcutToastPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutToastPresenter.swift; path = App/Entry/ShortcutToastPresenter.swift; sourceTree = SOURCE_ROOT; };
@@ -1834,6 +1847,7 @@
 			isa = PBXGroup;
 			children = (
 				A00000000000000000000054 /* AXWindowReader.swift */,
+				A0000000000000000000A120 /* SelectedTextReader.swift */,
 				C90000000000000000000003 /* AXElementCache.swift */,
 				A00000000000000000000064 /* AXWindowMatchPolicy.swift */,
 				A0000000000000000000000F /* AccessibilitySource.swift */,
@@ -1988,6 +2002,7 @@
 				A0000000000000000000D030 /* PDFReducePlanTests.swift */,
 				A0000000000000000000D050 /* LauncherAnswersTests.swift */,
 				A0000000000000000000F010 /* CommandBarTests.swift */,
+				A0000000000000000000A110 /* TranslateTests.swift */,
 				A0000000000000000000FA10 /* LauncherChipVisualPlanTests.swift */,
 				A0000000000000000000FF10 /* LaunchGateDecisionTests.swift */,
 				A0000000000000000000FF30 /* AppLaunchTargetDecisionTests.swift */,
@@ -2108,6 +2123,7 @@
 				A0000000000000000000D020 /* PDFReducePlan.swift */,
 				A0000000000000000000D040 /* LauncherAnswers.swift */,
 				A0000000000000000000F000 /* CommandBar.swift */,
+				A0000000000000000000A100 /* Translate.swift */,
 				F1C0000000000000000000A0 /* WindowListMenuPlan.swift */,
 				F1F0000000000000000000A0 /* AppLanguageOption.swift */,
 				F1D0000000000000000000A0 /* DocumentUsageRanking.swift */,
@@ -2594,6 +2610,11 @@
 				A0000000000000000000E001 /* LauncherRunner.swift in Sources */,
 				A0000000000000000000F101 /* CommandBarPanelController.swift in Sources */,
 				A0000000000000000000F111 /* CommandBarView.swift in Sources */,
+				A0000000000000000000A101 /* Translate.swift in Sources */,
+				A0000000000000000000A121 /* SelectedTextReader.swift in Sources */,
+				A0000000000000000000A131 /* DictionaryService.swift in Sources */,
+				A0000000000000000000A141 /* TranslatePanelController.swift in Sources */,
+				A0000000000000000000A151 /* TranslateCardView.swift in Sources */,
 				EE000000000000000000002B /* QuickToggleEngine.swift in Sources */,
 				EE0000000000000000000049 /* QuickToggles.swift in Sources */,
 				EE000000000000000000004E /* SystemHealthReaders.swift in Sources */,
@@ -3024,6 +3045,7 @@
 				A0000000000000000000D022 /* PDFReducePlan.swift in Sources */,
 				A0000000000000000000D042 /* LauncherAnswers.swift in Sources */,
 				A0000000000000000000F002 /* CommandBar.swift in Sources */,
+				A0000000000000000000A102 /* Translate.swift in Sources */,
 				A0000000000000000000FA02 /* LauncherChipVisualPlan.swift in Sources */,
 				A0000000000000000000FF02 /* LaunchGateDecision.swift in Sources */,
 				B10000000000000000000009 /* BadgeReadPlan.swift in Sources */,
@@ -3092,6 +3114,7 @@
 				A0000000000000000000D031 /* PDFReducePlanTests.swift in Sources */,
 				A0000000000000000000D051 /* LauncherAnswersTests.swift in Sources */,
 				A0000000000000000000F011 /* CommandBarTests.swift in Sources */,
+				A0000000000000000000A111 /* TranslateTests.swift in Sources */,
 				A0000000000000000000FA11 /* LauncherChipVisualPlanTests.swift in Sources */,
 				A0000000000000000000FF11 /* LaunchGateDecisionTests.swift in Sources */,
 				A0000000000000000000FF31 /* AppLaunchTargetDecisionTests.swift in Sources */,

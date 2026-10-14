@@ -164,6 +164,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }()
     /// Phase 27: the ⌘Space command bar, kept separate from the full-screen launcher.
     private lazy var commandBarPanel = CommandBarPanelController()
+    /// Phase 23: the define/translate card for the current selection.
+    private lazy var translatePanel = TranslatePanelController()
     private var terminationTask: Task<Void, Never>?
     private var terminationSignalSources: [DispatchSourceSignal] = []
     private var debugWindow: NSWindow?
@@ -307,6 +309,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 switch action {
                 case .launcher: self.launcherPanel.toggle()
                 case .commandBar: self.commandBarPanel.toggle()
+                case .translate: self.translatePanel.toggleSelection()
                 case .pinboard: self.controlCenterPanel.toggle()
                 case .quickSettings: self.controlCenterPanel.toggle()
                 case .drawer: self.panelCoordinator?.toggleDrawer()
