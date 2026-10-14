@@ -3393,6 +3393,13 @@ idle CPU flat while off + disable restores every managed window.
   (Return runs the first row; first row always highlighted), force-quit, and the Spotlight handoff
   (27d). **Risk:** ⌘Space registration fails (silently, logged) while Spotlight still owns it — the
   guided setup is 27d.
+- 2026-10-14 · **27d — Spotlight hand-off in Settings — PASS (code).** `UtilitySettingsBlock` › Launcher
+  now has a "Replace Spotlight" button (opens `SpotlightHandoff.settingsURL` = System Settings ›
+  Keyboard) plus the five `SpotlightHandoff.Step` lines as localized copy. 6 new strings (drafts).
+  **Not done (recorded):** the WelcomeGuide **onboarding step** itself — the hand-off lives in Settings
+  for now; wiring it into the first-run guide needs `WelcomeGuideStep` changes and is deferred.
+  Gate: 2,255 tests / 0 failures; localization ✅ (728 keys ×12); availability ✅. **Caveat:** the 6
+  entries use a compact one-line `stringUnit` shape (valid, differs from the file's expanded style).
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)

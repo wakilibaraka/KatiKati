@@ -55441,6 +55441,108 @@
           }
         }
       }
+    },
+    "Click Keyboard Shortcuts….": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Click Keyboard Shortcuts…." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "点按“键盘快捷键…”。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "點按「鍵盤快速鍵…」。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "「キーボードショートカット…」をクリックします。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Auf „Tastaturkurzbefehle…“ klicken." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Cliquez sur Raccourcis clavier…." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Haz clic en Atajos de teclado…." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Haz clic en Atajos de teclado…." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Clique em Atalhos de Teclado…." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Clique em Atalhos de Teclado…." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Fai clic su Scorciatoie da tastiera…." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "키보드 단축키…를 클릭합니다." } }
+      }
+    },
+    "Come back and press ⌘Space to test.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Come back and press ⌘Space to test." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "返回后按 ⌘Space 测试。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "返回後按 ⌘Space 測試。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "戻って ⌘Space を押してテストします。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Zurückkehren und ⌘Space zum Testen drücken." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Revenez et appuyez sur ⌘Space pour tester." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Vuelve y pulsa ⌘Space para probar." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Vuelve y pulsa ⌘Space para probar." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Volte e pressione ⌘Space para testar." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Volte e prima ⌘Space para testar." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Torna qui e premi ⌘Space per provare." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "돌아와서 ⌘Space를 눌러 테스트합니다." } }
+      }
+    },
+    "Open System Settings › Keyboard.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Open System Settings › Keyboard." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "打开“系统设置”›“键盘”。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "打開「系統設定」›「鍵盤」。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "システム設定 › キーボードを開きます。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Systemeinstellungen › Tastatur öffnen." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ouvrez Réglages Système › Clavier." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Abre Ajustes del Sistema › Teclado." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Abre Ajustes del Sistema › Teclado." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Abra Ajustes do Sistema › Teclado." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Abra Definições do Sistema › Teclado." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Apri Impostazioni di Sistema › Tastiera." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "시스템 설정 › 키보드를 엽니다." } }
+      }
+    },
+    "Replace Spotlight": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Replace Spotlight" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "替换 Spotlight" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "取代 Spotlight" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Spotlight を置き換え" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Spotlight ersetzen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Remplacer Spotlight" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Reemplazar Spotlight" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Reemplazar Spotlight" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Substituir o Spotlight" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Substituir o Spotlight" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Sostituisci Spotlight" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Spotlight 대체" } }
+      }
+    },
+    "Select Spotlight in the list.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Select Spotlight in the list." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "在列表中选择“Spotlight”。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "在清單中選擇「Spotlight」。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "一覧で「Spotlight」を選択します。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "In der Liste „Spotlight“ auswählen." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Sélectionnez Spotlight dans la liste." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Selecciona Spotlight en la lista." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Selecciona Spotlight en la lista." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Selecione Spotlight na lista." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Selecione Spotlight na lista." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Seleziona Spotlight nell'elenco." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "목록에서 Spotlight를 선택합니다." } }
+      }
+    },
+    "Turn off Show Spotlight search.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Turn off Show Spotlight search." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "关闭“显示 Spotlight 搜索”。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "關閉「顯示 Spotlight 搜尋」。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "「Spotlight 検索を表示」をオフにします。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "„Spotlight-Suche einblenden“ deaktivieren." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Désactivez Afficher la recherche Spotlight." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Desactiva Mostrar búsqueda de Spotlight." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Desactiva Mostrar búsqueda de Spotlight." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Desative Mostrar pesquisa do Spotlight." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Desative Mostrar pesquisa do Spotlight." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Disattiva Mostra ricerca Spotlight." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Spotlight 검색 표시를 끕니다." } }
+      }
     }
   },
   "version": "1.0"

@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Phase 8e — Settings row for the menu utilities that need a switch (the link cleaner; the colour picker
@@ -31,6 +32,15 @@ struct UtilitySettingsBlock: View {
         row("Script Commands") {
             Toggle("Script Commands", isOn: $launcherScripts).toggleStyle(.switch).labelsHidden()
         }
+        VStack(alignment: .leading, spacing: 4) {
+            Button("Replace Spotlight") {
+                if let url = URL(string: SpotlightHandoff.settingsURL) { NSWorkspace.shared.open(url) }
+            }
+            ForEach(SpotlightHandoff.steps(), id: \.self) { step in
+                spotlightStepText(step).font(.caption).foregroundColor(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
         Text("Shelf").font(.headline)
         row("Shake to Shelf") {
             Toggle("Shake to Shelf", isOn: Binding(get: { store.shelfShakeEnabled }, set: { store.setShelfShakeEnabled($0) }))
@@ -72,6 +82,16 @@ struct UtilitySettingsBlock: View {
             Text(title)
             Spacer(minLength: 12)
             control()
+        }
+    }
+
+    private func spotlightStepText(_ step: SpotlightHandoff.Step) -> Text {
+        switch step {
+        case .openKeyboard: return Text("Open System Settings › Keyboard.")
+        case .openShortcuts: return Text("Click Keyboard Shortcuts….")
+        case .selectSpotlight: return Text("Select Spotlight in the list.")
+        case .uncheckShowSearch: return Text("Turn off Show Spotlight search.")
+        case .testHere: return Text("Come back and press ⌘Space to test.")
         }
     }
 }
