@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A0000000000000000001F051 /* TilingPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F050 /* TilingPolicy.swift */; };
+		A0000000000000000001F052 /* TilingPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F050 /* TilingPolicy.swift */; };
+		A0000000000000000001F061 /* TilingLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F060 /* TilingLayout.swift */; };
+		A0000000000000000001F062 /* TilingLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F060 /* TilingLayout.swift */; };
+		A0000000000000000001F071 /* TilingLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F070 /* TilingLayoutTests.swift */; };
 		A0000000000000000001F021 /* TilingGaps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F020 /* TilingGaps.swift */; };
 		A0000000000000000001F022 /* TilingGaps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F020 /* TilingGaps.swift */; };
 		A0000000000000000001F031 /* TilingTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F030 /* TilingTree.swift */; };
@@ -950,6 +955,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A0000000000000000001F050 /* TilingPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingPolicy.swift; path = Core/Support/TilingPolicy.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000001F060 /* TilingLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingLayout.swift; path = Core/Support/TilingLayout.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000001F070 /* TilingLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TilingLayoutTests.swift; sourceTree = "<group>"; };
 		A0000000000000000001F020 /* TilingGaps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingGaps.swift; path = Core/Support/TilingGaps.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F030 /* TilingTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingTree.swift; path = Core/Support/TilingTree.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F040 /* TilingTreeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TilingTreeTests.swift; sourceTree = "<group>"; };
@@ -2075,6 +2083,7 @@
 				A0000000000000000000D010 /* ClipboardPlusTests.swift */,
 				A0000000000000000001F010 /* SnapRectsTests.swift */,
 				A0000000000000000001F040 /* TilingTreeTests.swift */,
+				A0000000000000000001F070 /* TilingLayoutTests.swift */,
 				A0000000000000000000D030 /* PDFReducePlanTests.swift */,
 				A0000000000000000000D050 /* LauncherAnswersTests.swift */,
 				A0000000000000000000F010 /* CommandBarTests.swift */,
@@ -2215,6 +2224,8 @@
 				A0000000000000000001F000 /* SnapRects.swift */,
 				A0000000000000000001F020 /* TilingGaps.swift */,
 				A0000000000000000001F030 /* TilingTree.swift */,
+				A0000000000000000001F050 /* TilingPolicy.swift */,
+				A0000000000000000001F060 /* TilingLayout.swift */,
 				F1C0000000000000000000A0 /* WindowListMenuPlan.swift */,
 				F1F0000000000000000000A0 /* AppLanguageOption.swift */,
 				F1D0000000000000000000A0 /* DocumentUsageRanking.swift */,
@@ -2761,6 +2772,8 @@
 				A0000000000000000001F001 /* SnapRects.swift in Sources */,
 				A0000000000000000001F021 /* TilingGaps.swift in Sources */,
 				A0000000000000000001F031 /* TilingTree.swift in Sources */,
+				A0000000000000000001F051 /* TilingPolicy.swift in Sources */,
+				A0000000000000000001F061 /* TilingLayout.swift in Sources */,
 				ED00000000000000000000C5 /* WindowSnapService.swift in Sources */,
 				ED00000000000000000000C7 /* WindowsFlyoutView.swift in Sources */,
 				ED00000000000000000000B5 /* TaskList.swift in Sources */,
@@ -2988,6 +3001,9 @@
 				A0000000000000000001F022 /* TilingGaps.swift in Sources */,
 				A0000000000000000001F032 /* TilingTree.swift in Sources */,
 				A0000000000000000001F041 /* TilingTreeTests.swift in Sources */,
+				A0000000000000000001F052 /* TilingPolicy.swift in Sources */,
+				A0000000000000000001F062 /* TilingLayout.swift in Sources */,
+				A0000000000000000001F071 /* TilingLayoutTests.swift in Sources */,
 				ED00000000000000000000C0 /* DeckLabel.swift in Sources */,
 				ED00000000000000000000B6 /* TaskList.swift in Sources */,
 				ED00000000000000000000B9 /* TasksStore.swift in Sources */,
