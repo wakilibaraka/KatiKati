@@ -277,6 +277,12 @@ struct SettingsLayoutPane: View {
     /// `ControlCenterPanelController.sideKey` — that file is app-target-only, and this pane also
     /// compiles into the test target.
     @AppStorage("com.katikati.controlcenter.side") private var controlCenterSideRaw = EdgeSide.right.rawValue
+    @AppStorage("com.katikati.dial.enabled") private var dialEnabled: Bool = true
+    @AppStorage("com.katikati.dial.theme") private var dialThemeRaw: String = RadialDialTheme.lilacGlass.rawValue
+    @AppStorage("com.katikati.dial.mouseTrigger") private var dialMouseTriggerRaw: String = RadialMouseTrigger.off.rawValue
+    @AppStorage("com.katikati.dial.triggerMode") private var dialTriggerModeRaw: String = RadialTriggerMode.tapToggle.rawValue
+
+
 
     /// Width styles are fitted to: the screen the dock is on (main until it reports).
     private var dockScreenWidth: CGFloat { NSScreen.main?.frame.width ?? LayoutThumbnailModel.referenceScreen.width }
@@ -923,6 +929,48 @@ struct SettingsLayoutPane: View {
                     }
                 }
             }
+
+            section {
+                Text("Radial Dial")
+            } content: {
+                Toggle("Enable Radial Dial", isOn: $dialEnabled)
+                Text("Summons a circular pie menu at your cursor for lightning-fast window snapping, app launching, and quick actions with spring physics.")
+                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                if dialEnabled {
+                    HStack {
+                        Text("Theme")
+                        Spacer(minLength: 12)
+                        Picker("Theme", selection: Binding(get: { RadialDialTheme(rawValue: dialThemeRaw) ?? .lilacGlass }, set: { dialThemeRaw = $0.rawValue })) {
+                            ForEach(RadialDialTheme.allCases, id: \.self) { theme in
+                                radialDialThemeTitle(theme).tag(theme)
+                            }
+                        }
+                        .labelsHidden().pickerStyle(.menu).fixedSize()
+                    }
+                    HStack {
+                        Text("Mouse Trigger")
+                        Spacer(minLength: 12)
+                        Picker("Mouse Trigger", selection: Binding(get: { RadialMouseTrigger(rawValue: dialMouseTriggerRaw) ?? .off }, set: { dialMouseTriggerRaw = $0.rawValue })) {
+                            ForEach(RadialMouseTrigger.allCases, id: \.self) { trigger in
+                                radialMouseTriggerTitle(trigger).tag(trigger)
+                            }
+                        }
+                        .labelsHidden().pickerStyle(.menu).fixedSize()
+                    }
+                    HStack {
+                        Text("Trigger Mode")
+                        Spacer(minLength: 12)
+                        Picker("Trigger Mode", selection: Binding(get: { RadialTriggerMode(rawValue: dialTriggerModeRaw) ?? .tapToggle }, set: { dialTriggerModeRaw = $0.rawValue })) {
+                            ForEach(RadialTriggerMode.allCases, id: \.self) { mode in
+                                radialTriggerModeTitle(mode).tag(mode)
+                            }
+                        }
+                        .labelsHidden().pickerStyle(.menu).fixedSize()
+                    }
+                    Text("You can also summon the Radial Dial with the shortcut assigned in the Shortcuts section above.")
+                        .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                }
+            }
         }
         .padding(Self.margin)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -1020,6 +1068,34 @@ struct SettingsLayoutPane: View {
         case .bottomLeft: return Text("Bottom Left")
         case .bottomCenter: return Text("Bottom Center")
         case .bottomRight: return Text("Bottom Right")
+        }
+    }
+
+    private func radialDialThemeTitle(_ theme: RadialDialTheme) -> Text {
+        switch theme {
+        case .lilacGlass: return Text("Lilac Glass")
+        case .darkObsidian: return Text("Dark Obsidian")
+        case .systemFrosted: return Text("System Frosted")
+        case .neonCyber: return Text("Neon Cyber")
+        }
+    }
+
+    private func radialMouseTriggerTitle(_ trigger: RadialMouseTrigger) -> Text {
+        switch trigger {
+        case .off: return Text("Off")
+        case .middleClick: return Text("Middle Click")
+        case .controlRightClick: return Text("Control + Right Click")
+        case .optionRightClick: return Text("Option + Right Click")
+        case .commandRightClick: return Text("Command + Right Click")
+        case .button4: return Text("Mouse Button 4")
+        case .button5: return Text("Mouse Button 5")
+        }
+    }
+
+    private func radialTriggerModeTitle(_ mode: RadialTriggerMode) -> Text {
+        switch mode {
+        case .tapToggle: return Text("Tap / Click to Toggle")
+        case .holdRelease: return Text("Hold & Release")
         }
     }
 

@@ -61,6 +61,19 @@ final class RadialDialPanelController: ObservableObject {
         self.triggerMode = RadialTriggerMode(rawValue: storedModeRaw) ?? .tapToggle
 
         setupMouseTriggerMonitor()
+        NotificationCenter.default.addObserver(self, selector: #selector(defaultsDidChange), name: UserDefaults.didChangeNotification, object: nil)
+    }
+
+    @objc private func defaultsDidChange() {
+        let storedEnabled = UserDefaults.standard.object(forKey: "com.katikati.dial.enabled") as? Bool ?? true
+        let storedThemeRaw = UserDefaults.standard.string(forKey: "com.katikati.dial.theme") ?? RadialDialTheme.lilacGlass.rawValue
+        let storedMouseRaw = UserDefaults.standard.string(forKey: "com.katikati.dial.mouseTrigger") ?? RadialMouseTrigger.off.rawValue
+        let storedModeRaw = UserDefaults.standard.string(forKey: "com.katikati.dial.triggerMode") ?? RadialTriggerMode.tapToggle.rawValue
+
+        if isEnabled != storedEnabled { isEnabled = storedEnabled }
+        if theme.rawValue != storedThemeRaw, let t = RadialDialTheme(rawValue: storedThemeRaw) { theme = t }
+        if mouseTrigger.rawValue != storedMouseRaw, let m = RadialMouseTrigger(rawValue: storedMouseRaw) { mouseTrigger = m }
+        if triggerMode.rawValue != storedModeRaw, let md = RadialTriggerMode(rawValue: storedModeRaw) { triggerMode = md }
     }
 
     func toggle() {

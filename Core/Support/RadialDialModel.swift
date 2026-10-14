@@ -7,6 +7,13 @@ enum RadialTriggerMode: String, CaseIterable, Codable, Sendable {
     case tapToggle
     /// Hold shortcut/mouse button down, flick towards sector, and release to execute.
     case holdRelease
+
+    var title: String {
+        switch self {
+        case .tapToggle: return "Tap / Click to Toggle"
+        case .holdRelease: return "Hold & Release"
+        }
+    }
 }
 
 /// Mouse button and modifier combo presets that can summon the radial dial.
@@ -48,6 +55,15 @@ enum RadialDialTheme: String, CaseIterable, Codable, Sendable {
     case systemFrosted
     /// High-contrast neon cyan & magenta edge glow.
     case neonCyber
+
+    var title: String {
+        switch self {
+        case .lilacGlass: return "Lilac Glass"
+        case .darkObsidian: return "Dark Obsidian"
+        case .systemFrosted: return "System Frosted"
+        case .neonCyber: return "Neon Cyber"
+        }
+    }
 }
 
 /// Standard page identifiers in the radial dial.
