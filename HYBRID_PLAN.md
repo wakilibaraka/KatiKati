@@ -3374,6 +3374,14 @@ idle CPU flat while off + disable restores every managed window.
   (no shipped UI release yet).
 - 2026-10-14 · **Phase 27 planned (owner 2026-10-14): Sol-like ⌘Space command bar.** See the new
   section below.
+- 2026-10-14 · **27a — command-bar pure core (pure + tests) — PASS.** New
+  `Core/Support/CommandBar.swift`: `RunningAppRef`, `CommandBarResult` (`.answer`/`.app`/`.quit`),
+  `CommandBarResults.build(query:apps:usage:running:)` (answers → running-app quit rows → app matches;
+  non-app routes yield only answers) and `SpotlightHandoff` (ordered `Step` cases + the System Settings
+  deep link; string-free so the UI owns localized copy). Tests: `Tests/Unit/CommandBarTests.swift` (8).
+  `KillAppConfirmation` was **not** split out — the confirm is unconditional, so a seam for it would be
+  dead weight (recorded deviation). **Verified:** `xcodebuild test` 2,255 / 0 failures ·
+  `check_localization.py` ✅ · `check_availability_warnings.py` ✅. No strings.
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)

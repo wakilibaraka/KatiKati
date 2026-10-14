@@ -873,6 +873,9 @@
 		EE000000000000000000003F /* SystemHealthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000003E /* SystemHealthTests.swift */; };
 		EE0000000000000000000045 /* ShortcutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000044 /* ShortcutService.swift */; };
 		A0000000000000000000E001 /* LauncherRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000E000 /* LauncherRunner.swift */; };
+		A0000000000000000000F001 /* CommandBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F000 /* CommandBar.swift */; };
+		A0000000000000000000F002 /* CommandBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F000 /* CommandBar.swift */; };
+		A0000000000000000000F011 /* CommandBarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F010 /* CommandBarTests.swift */; };
 		EE0000000000000000000047 /* ShortcutToastPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000046 /* ShortcutToastPresenter.swift */; };
 		EE0000000000000000000049 /* QuickToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000048 /* QuickToggles.swift */; };
 		EE000000000000000000004A /* QuickToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000048 /* QuickToggles.swift */; };
@@ -1504,6 +1507,8 @@
 		EE000000000000000000003E /* SystemHealthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemHealthTests.swift; path = Tests/Unit/SystemHealthTests.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000044 /* ShortcutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutService.swift; path = App/Composition/ShortcutService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000E000 /* LauncherRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherRunner.swift; path = App/Composition/LauncherRunner.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000F000 /* CommandBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandBar.swift; sourceTree = "<group>"; };
+		A0000000000000000000F010 /* CommandBarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandBarTests.swift; sourceTree = "<group>"; };
 		EE0000000000000000000046 /* ShortcutToastPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutToastPresenter.swift; path = App/Entry/ShortcutToastPresenter.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000048 /* QuickToggles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickToggles.swift; path = Core/Support/QuickToggles.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000004B /* QuickTogglesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickTogglesTests.swift; path = Tests/Unit/QuickTogglesTests.swift; sourceTree = SOURCE_ROOT; };
@@ -1978,6 +1983,7 @@
 				A0000000000000000000D010 /* ClipboardPlusTests.swift */,
 				A0000000000000000000D030 /* PDFReducePlanTests.swift */,
 				A0000000000000000000D050 /* LauncherAnswersTests.swift */,
+				A0000000000000000000F010 /* CommandBarTests.swift */,
 				A0000000000000000000FA10 /* LauncherChipVisualPlanTests.swift */,
 				A0000000000000000000FF10 /* LaunchGateDecisionTests.swift */,
 				A0000000000000000000FF30 /* AppLaunchTargetDecisionTests.swift */,
@@ -2097,6 +2103,7 @@
 				A0000000000000000000D000 /* ClipboardPlus.swift */,
 				A0000000000000000000D020 /* PDFReducePlan.swift */,
 				A0000000000000000000D040 /* LauncherAnswers.swift */,
+				A0000000000000000000F000 /* CommandBar.swift */,
 				F1C0000000000000000000A0 /* WindowListMenuPlan.swift */,
 				F1F0000000000000000000A0 /* AppLanguageOption.swift */,
 				F1D0000000000000000000A0 /* DocumentUsageRanking.swift */,
@@ -2441,6 +2448,7 @@
 				A0000000000000000000D001 /* ClipboardPlus.swift in Sources */,
 				A0000000000000000000D021 /* PDFReducePlan.swift in Sources */,
 				A0000000000000000000D041 /* LauncherAnswers.swift in Sources */,
+				A0000000000000000000F001 /* CommandBar.swift in Sources */,
 				F1C0000000000000000000A1 /* WindowListMenuPlan.swift in Sources */,
 				F1F0000000000000000000A1 /* AppLanguageOption.swift in Sources */,
 				F1D0000000000000000000A1 /* DocumentUsageRanking.swift in Sources */,
@@ -3009,6 +3017,7 @@
 				A0000000000000000000D002 /* ClipboardPlus.swift in Sources */,
 				A0000000000000000000D022 /* PDFReducePlan.swift in Sources */,
 				A0000000000000000000D042 /* LauncherAnswers.swift in Sources */,
+				A0000000000000000000F002 /* CommandBar.swift in Sources */,
 				A0000000000000000000FA02 /* LauncherChipVisualPlan.swift in Sources */,
 				A0000000000000000000FF02 /* LaunchGateDecision.swift in Sources */,
 				B10000000000000000000009 /* BadgeReadPlan.swift in Sources */,
@@ -3076,6 +3085,7 @@
 				A0000000000000000000D011 /* ClipboardPlusTests.swift in Sources */,
 				A0000000000000000000D031 /* PDFReducePlanTests.swift in Sources */,
 				A0000000000000000000D051 /* LauncherAnswersTests.swift in Sources */,
+				A0000000000000000000F011 /* CommandBarTests.swift in Sources */,
 				A0000000000000000000FA11 /* LauncherChipVisualPlanTests.swift in Sources */,
 				A0000000000000000000FF11 /* LaunchGateDecisionTests.swift in Sources */,
 				A0000000000000000000FF31 /* AppLaunchTargetDecisionTests.swift in Sources */,
