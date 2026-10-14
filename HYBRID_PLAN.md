@@ -3481,8 +3481,15 @@ idle CPU flat while off + disable restores every managed window.
     `com.katikati.index.enabled`).
   - Gate: **2,294 tests / 0 failures** · localization ✅ (740 keys ×12) · availability ✅. New strings:
     Uninstall, Delete Data, Empty Without Confirmation, Fast File Index. **Not done (recorded):** the
-    index refreshes lazily instead of via **FSEvents** (live updates) — follow-up; index is opt-in via
-    Settings.
+  index refreshes lazily instead of via **FSEvents** (live updates) — follow-up; index is opt-in via
+  Settings.
+- 2026-10-14 · **24a — key-guard pure core — PASS (code).** New `Core/Support/KeyGuard.swift`:
+  `KeyGuardPipeline.reduce` (pause swallows everything but the unlock chord; SlowQuit swallows a held
+  ⌘Q; pass-through by default — nothing swallowed when every guard is off), `SlowQuitTiming`
+  (injected-threshold progress/fire), `SlowQuitPolicy` (allow/deny/unknown), `KeyVisualizerBuffer`
+  (bounded ring, coalesces repeats, never persisted). Tests: `Tests/Unit/KeyGuardTests.swift` (10).
+  Gate: 2,302 tests / 0 failures. **Not yet:** the shared CGEventTap, the Input Monitoring request, the
+  overlays, and Settings (24b–e).
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
