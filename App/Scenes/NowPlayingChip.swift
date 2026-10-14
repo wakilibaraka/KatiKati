@@ -428,8 +428,12 @@ extension EnvironmentValues {
 
 private struct ExpandedMediaCardView: View {
     @ObservedObject private var feed = LiveActivityFeed.shared
+    @StateObject private var systemStatus = SystemStatusService()
     @State private var isHovered = false
     @State private var timelineNow = Date()
+    @State private var currentPage: Int = 0
+    @State private var scrollDirection: Int = 1
+    @State private var showPopup = false
     @Environment(\.widgetSize) private var widgetSize
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -439,8 +443,98 @@ private struct ExpandedMediaCardView: View {
         let title = (state.title?.isEmpty ?? true) ? "God's Plan" : (state.title ?? "God's Plan")
         let artist = (state.artist?.isEmpty ?? true) ? "Drake" : (state.artist ?? "Drake")
 
-        HStack(spacing: 9) {
-            // Album Artwork
+        HStack(spacing: 8) {
+            // Paged Content area with vertical sliding animation
+            ZStack {
+                if currentPage == 0 {
+                    trackPageView(state: state, progress: progress, title: title, artist: artist)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: scrollDirection >= 0 ? .bottom : .top).combined(with: .opacity),
+                            removal: .move(edge: scrollDirection >= 0 ? .top : .bottom).combined(with: .opacity)
+                        ))
+                } else if currentPage == 1 {
+                    volumePageView
+                        .transition(.asymmetric(
+                            insertion: .move(edge: scrollDirection >= 0 ? .bottom : .top).combined(with: .opacity),
+                            removal: .move(edge: scrollDirection >= 0 ? .top : .bottom).combined(with: .opacity)
+                        ))
+                } else {
+                    spectrumPageView(state: state)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: scrollDirection >= 0 ? .bottom : .top).combined(with: .opacity),
+                            removal: .move(edge: scrollDirection >= 0 ? .top : .bottom).combined(with: .opacity)
+                        ))
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .clipped()
+
+            // Vertical Pagination Dots (Apple-style interactive indicator)
+            VStack(spacing: 3) {
+                ForEach(0..<3) { page in
+                    Capsule(style: .continuous)
+                        .fill(currentPage == page ? Color.white : Color.white.opacity(0.28))
+                        .frame(width: 3, height: currentPage == page ? 8 : 3)
+                        .scaleEffect(currentPage == page ? 1.1 : 1.0)
+                        .animation(.spring(response: 0.25, dampingFraction: 0.7), value: currentPage)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            scrollDirection = page >= currentPage ? 1 : -1
+                            withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+                                currentPage = page
+                            }
+                        }
+                }
+            }
+            .padding(.trailing, 1)
+        }
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(red: 0.11, green: 0.12, blue: 0.16).opacity(0.88))
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(isHovered ? Color.white.opacity(0.28) : Color.white.opacity(0.12), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(isHovered ? 0.32 : 0.16), radius: isHovered ? 6 : 3, x: 0, y: 2)
+        .scaleEffect(isHovered ? 1.02 : 1.0)
+        .animation(.spring(response: 0.28, dampingFraction: 0.72), value: isHovered)
+        .onHover { isHovered = $0 }
+        .overlay(
+            VerticalWheelScrollNSViewRepresentable { direction in
+                let target = min(max(currentPage + direction, 0), 2)
+                guard target != currentPage else { return }
+                scrollDirection = direction
+                withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+                    currentPage = target
+                }
+            }
+            .allowsHitTesting(true)
+        )
+        .onReceive(timer) { input in
+            timelineNow = input
+        }
+        .onAppear { feed.retain() }
+        .onDisappear { feed.release() }
+        .popover(isPresented: $showPopup, arrowEdge: .top) {
+            NowPlayingPopup(
+                state: state,
+                theme: .auto,
+                onToggle: { feed.togglePlayPause() },
+                onNext: { feed.nextTrack() },
+                onPrevious: { feed.previousTrack() }
+            )
+        }
+    }
+
+    // MARK: - Page 0: Track Info & Transport
+
+    private func trackPageView(state: NowPlayingState, progress: Double, title: String, artist: String) -> some View {
+        HStack(spacing: 8) {
+            // Album Artwork (never clipped)
             ZStack {
                 if let data = state.artworkData, let img = NSImage(data: data) {
                     Image(nsImage: img)
@@ -453,16 +547,15 @@ private struct ExpandedMediaCardView: View {
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
-                    Image(systemName: "music.note")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.85))
+                    TurntableView(isPlaying: state.isPlaying)
+                        .padding(2)
                 }
             }
             .frame(width: 32, height: 32)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    .stroke(Color.white.opacity(0.18), lineWidth: 1)
             )
 
             // Track details + Scrubber Bar
@@ -498,7 +591,7 @@ private struct ExpandedMediaCardView: View {
                 }
                 .frame(height: 6)
             }
-            .frame(minWidth: 60)
+            .frame(minWidth: 55, maxWidth: .infinity, alignment: .leading)
 
             // Playback Transport Controls
             HStack(spacing: 5) {
@@ -506,13 +599,15 @@ private struct ExpandedMediaCardView: View {
                     Image(systemName: "backward.fill")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(Color.white.opacity(0.85))
+                        .frame(width: 18, height: 18)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
 
                 Button(action: { feed.togglePlayPause() }) {
                     ZStack {
                         Circle()
-                            .fill(Color.white.opacity(0.18))
+                            .fill(Color.white.opacity(0.20))
                             .frame(width: 22, height: 22)
                         Image(systemName: state.isPlaying ? "pause.fill" : "play.fill")
                             .font(.system(size: 10, weight: .bold))
@@ -525,31 +620,254 @@ private struct ExpandedMediaCardView: View {
                     Image(systemName: "forward.fill")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(Color.white.opacity(0.85))
+                        .frame(width: 18, height: 18)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 9)
-        .padding(.vertical, 5)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(red: 0.11, green: 0.12, blue: 0.15).opacity(0.88))
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(isHovered ? Color.white.opacity(0.28) : Color.white.opacity(0.12), lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(isHovered ? 0.35 : 0.18), radius: isHovered ? 6 : 3, x: 0, y: 2)
-        .scaleEffect(isHovered ? 1.02 : 1.0)
-        .animation(.spring(response: 0.28, dampingFraction: 0.72), value: isHovered)
-        .onHover { isHovered = $0 }
-        .onReceive(timer) { input in
-            timelineNow = input
+    }
+
+    // MARK: - Page 1: Volume & Audio Destination
+
+    private var volumePageView: some View {
+        let vol = systemStatus.status.volume
+        return HStack(spacing: 8) {
+            // Audio destination icon
+            ZStack {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color.white.opacity(0.10))
+                    .frame(width: 32, height: 32)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                    )
+                Image(systemName: "airplayaudio")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color(red: 0.38, green: 0.68, blue: 1.0))
+            }
+
+            // Volume level slider & device label
+            VStack(alignment: .leading, spacing: 2) {
+                HStack {
+                    Text("Volume")
+                        .font(.system(size: 10.5, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Spacer()
+                    Text(vol.isMuted ? "Muted" : "\(vol.percent)%")
+                        .font(.system(size: 9.5, weight: .semibold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(Color.white.opacity(0.75))
+                }
+
+                // Interactive volume slider
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(Color.white.opacity(0.18))
+                            .frame(height: 4)
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color(red: 0.38, green: 0.68, blue: 1.0),
+                                             Color(red: 0.58, green: 0.45, blue: 0.95)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: max(3, geo.size.width * CGFloat(vol.isMuted ? 0 : vol.level)), height: 4)
+                    }
+                    .contentShape(Rectangle())
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { val in
+                                let fraction = Float(min(max(val.location.x / geo.size.width, 0.0), 1.0))
+                                systemStatus.setVolume(fraction)
+                            }
+                    )
+                }
+                .frame(height: 6)
+            }
+            .frame(minWidth: 55, maxWidth: .infinity, alignment: .leading)
+
+            // Quick Mute / Unmute
+            Button(action: {
+                let current = systemStatus.status.volume.level
+                if current > 0 {
+                    systemStatus.setVolume(0)
+                } else {
+                    systemStatus.setVolume(0.5)
+                }
+            }) {
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.20))
+                        .frame(width: 22, height: 22)
+                    Image(systemName: vol.symbolName)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+            }
+            .buttonStyle(.plain)
         }
-        .onAppear { feed.retain() }
-        .onDisappear { feed.release() }
+    }
+
+    // MARK: - Page 2: Audio Spectrum & Session Status
+
+    private func spectrumPageView(state: NowPlayingState) -> some View {
+        HStack(spacing: 8) {
+            // Animated Equalizer Bars
+            HStack(alignment: .bottom, spacing: 2) {
+                ForEach(0..<5) { bar in
+                    EqualizerBar(index: bar, isPlaying: state.isPlaying)
+                }
+            }
+            .frame(width: 32, height: 32)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color.white.opacity(0.08))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(Color.white.opacity(0.18), lineWidth: 1)
+            )
+
+            // Live session status / playback indicator
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Now Playing")
+                    .font(.system(size: 10.5, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(state.isPlaying ? Color.green : Color.orange)
+                        .frame(width: 5, height: 5)
+                    Text(state.isPlaying ? "Playing Live" : "Paused")
+                        .font(.system(size: 9.5, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.75))
+                }
+
+                Text(timeString(for: state))
+                    .font(.system(size: 9, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(Color.white.opacity(0.65))
+                    .lineLimit(1)
+            }
+            .frame(minWidth: 55, maxWidth: .infinity, alignment: .leading)
+
+            // Popup flyout opener
+            Button(action: { showPopup.toggle() }) {
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.20))
+                        .frame(width: 22, height: 22)
+                    Image(systemName: "arrow.up.left.and.arrow.down.right")
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func timeString(for state: NowPlayingState) -> String {
+        let el = Int(state.elapsed ?? 84)
+        let dur = Int(state.duration ?? 218)
+        let elM = el / 60
+        let elS = el % 60
+        let durM = dur / 60
+        let durS = dur % 60
+        return String(format: "%d:%02d / %d:%02d", elM, elS, durM, durS)
     }
 }
+
+// MARK: - Equalizer Bar
+
+private struct EqualizerBar: View {
+    let index: Int
+    let isPlaying: Bool
+    @State private var barHeight: CGFloat = 5
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 1.5)
+            .fill(
+                LinearGradient(
+                    colors: [Color(red: 0.38, green: 0.68, blue: 1.0), Color(red: 0.72, green: 0.45, blue: 1.0)],
+                    startPoint: .bottom,
+                    endPoint: .top
+                )
+            )
+            .frame(width: 3, height: isPlaying ? barHeight : 4)
+            .onAppear {
+                syncAnimation()
+            }
+            .onChange(of: isPlaying) { _ in
+                syncAnimation()
+            }
+    }
+
+    private func syncAnimation() {
+        if isPlaying {
+            let heights: [CGFloat] = [16, 10, 20, 12, 18]
+            let duration = 0.42 + Double(index) * 0.07
+            withAnimation(Animation.easeInOut(duration: duration).repeatForever(autoreverses: true)) {
+                barHeight = heights[index % heights.count]
+            }
+        } else {
+            withAnimation(.default) {
+                barHeight = 4
+            }
+        }
+    }
+}
+
+// MARK: - Wheel Scroll Vertical Paging Interceptor
+
+private struct VerticalWheelScrollNSViewRepresentable: NSViewRepresentable {
+    var onStep: (Int) -> Void
+
+    func makeNSView(context: Context) -> VerticalWheelNSView {
+        let view = VerticalWheelNSView()
+        view.onStep = onStep
+        return view
+    }
+
+    func updateNSView(_ nsView: VerticalWheelNSView, context: Context) {
+        nsView.onStep = onStep
+    }
+}
+
+private final class VerticalWheelNSView: NSView {
+    var onStep: ((Int) -> Void)?
+    private var lastScrollTime: TimeInterval = 0
+    private var accumulatedDelta: CGFloat = 0
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        // Only intercept scrollWheel events so standard mouse clicks pass directly to buttons beneath!
+        if let event = NSApp.currentEvent, event.type == .scrollWheel {
+            return self
+        }
+        return nil
+    }
+
+    override func scrollWheel(with event: NSEvent) {
+        let delta = event.scrollingDeltaY
+        let now = CACurrentMediaTime()
+
+        accumulatedDelta += delta
+
+        // Hysteresis cooldown (0.24s) prevents erratic multiple skips
+        if now - lastScrollTime > 0.24 && abs(accumulatedDelta) > 1.2 {
+            if accumulatedDelta > 0 {
+                onStep?(-1) // scroll up -> previous page
+            } else {
+                onStep?(1)  // scroll down -> next page
+            }
+            lastScrollTime = now
+            accumulatedDelta = 0
+        }
+    }
+}
+
 
 

@@ -37,13 +37,13 @@ public struct DynamicGaugeFABView: View {
 
         ZStack(alignment: .leading) {
             // Container backdrop
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color(red: 0.11, green: 0.12, blue: 0.15).opacity(0.92))
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(red: 0.11, green: 0.12, blue: 0.16).opacity(0.88))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .stroke(isHovered ? Color.white.opacity(0.28) : Color.white.opacity(0.12), lineWidth: 1)
                 )
-                .shadow(color: Color.black.opacity(isHovered ? 0.35 : 0.18), radius: isHovered ? 6 : 3, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(isHovered ? 0.32 : 0.16), radius: isHovered ? 6 : 3, x: 0, y: 2)
 
             if isExpanded {
                 expandedContent(metrics: metrics)

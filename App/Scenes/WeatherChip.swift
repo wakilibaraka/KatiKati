@@ -360,19 +360,19 @@ private struct DetailedWeatherPodView: View {
                 fullDetailedView
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
         .background(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(red: 0.11, green: 0.12, blue: 0.15).opacity(0.88))
+                .fill(Color(red: 0.11, green: 0.12, blue: 0.16).opacity(0.88))
         )
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(isHovered ? Color.white.opacity(0.28) : Color.white.opacity(0.12), lineWidth: 1)
         )
-        .shadow(color: Color.black.opacity(isHovered ? 0.35 : 0.18), radius: isHovered ? 6 : 3, x: 0, y: 2)
-        .scaleEffect(isHovered ? 1.03 : 1.0)
+        .shadow(color: Color.black.opacity(isHovered ? 0.32 : 0.16), radius: isHovered ? 6 : 3, x: 0, y: 2)
+        .scaleEffect(isHovered ? 1.02 : 1.0)
         .animation(.spring(response: 0.28, dampingFraction: 0.72), value: isHovered)
         .onHover { hovering in
             isHovered = hovering

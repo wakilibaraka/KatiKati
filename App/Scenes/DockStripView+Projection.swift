@@ -256,7 +256,7 @@ extension DockStripView {
             }
         }
         var finalEntries: [StripEntry] = []
-        for section in hostedSections {
+        for (index, section) in hostedSections.enumerated() {
             if section == .apps {
                 if !finalEntries.isEmpty {
                     finalEntries.append(.divider(id: "layout-divider-pre-apps"))
@@ -264,7 +264,14 @@ extension DockStripView {
                 finalEntries += appsEntries
             } else {
                 if !finalEntries.isEmpty {
-                    finalEntries.append(.divider(id: "layout-divider-\(section.rawValue)"))
+                    let prev = hostedSections[index - 1]
+                    // Add a divider when transitioning from apps to the right widget cluster.
+                    // Consecutive widgets (.launcher + .weather, .media + .clock + .widgets)
+                    // flow together naturally without divider clutter.
+                    let needsDivider = (prev == .apps)
+                    if needsDivider {
+                        finalEntries.append(.divider(id: "layout-divider-\(section.rawValue)"))
+                    }
                 }
                 finalEntries.append(.sectionPlaceholder(section: section))
             }
