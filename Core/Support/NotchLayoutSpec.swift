@@ -17,6 +17,13 @@ enum NotchTab: String, CaseIterable, Sendable {
     case home
     /// Focus & timers, clipboard + quick note, system HUD (the file shelf lives on the dock).
     case tools
+
+    var localizedTitle: String {
+        switch self {
+        case .home: return String(localized: "Home")
+        case .tools: return String(localized: "Tools")
+        }
+    }
 }
 
 enum NotchLayoutSpec {

@@ -11,9 +11,10 @@ struct NotchHeaderView: View {
     var body: some View {
         let side = NotchLayoutSpec.headerButtonSize
         HStack(spacing: 0) {
-            HStack(spacing: NotchLayoutSpec.headerSpacing) {
-                tabButton(.home, symbol: "house.fill")
-                tabButton(.tools, symbol: "square.grid.2x2.fill")
+            HStack(spacing: 4) {
+                ForEach(NotchPage.allCases) { page in
+                    pageButton(page)
+                }
             }
             Spacer(minLength: metrics.closedSize.width)
             HStack(spacing: NotchLayoutSpec.headerSpacing) {
@@ -32,7 +33,7 @@ struct NotchHeaderView: View {
                         .background(Circle().fill(Color.white.opacity(0.12)))
                 }
                 .buttonStyle(.plain)
-                .help(Text("KatiKati Settings"))
+                .help(Text(verbatim: "KatiKati Settings"))
             }
         }
         .foregroundStyle(.white)
@@ -55,16 +56,22 @@ struct NotchHeaderView: View {
         .padding(.trailing, 4)
     }
 
-    private func tabButton(_ tab: NotchTab, symbol: String) -> some View {
-        let side = NotchLayoutSpec.headerButtonSize
-        let selected = model.tab == tab
-        return Button { withAnimation(.easeInOut(duration: 0.2)) { model.tab = tab } } label: {
-            Image(systemName: symbol).font(.system(size: 12, weight: .semibold))
+    private func pageButton(_ page: NotchPage) -> some View {
+        let selected = model.activePage == page
+        let side: CGFloat = 24
+        return Button {
+            withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
+                model.activePage = page
+            }
+        } label: {
+            Image(systemName: page.symbol)
+                .font(.system(size: 11, weight: .semibold))
                 .frame(width: side, height: side)
-                .background(Circle().fill(Color.white.opacity(selected ? 0.22 : 0.0)))
+                .background(Circle().fill(Color.white.opacity(selected ? 0.24 : 0.0)))
+                .foregroundStyle(selected ? Color.white : Color.white.opacity(0.5))
         }
         .buttonStyle(.plain)
-        .help(tab == .home ? Text("Home") : Text("Tools"))
+        .help(Text(verbatim: page.title))
     }
 
     static func batterySymbol(level: Int, charging: Bool) -> String {

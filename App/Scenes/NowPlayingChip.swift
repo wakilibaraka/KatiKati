@@ -101,6 +101,8 @@ struct LiveIslandDockCapsule: View {
         .onDisappear { feed.release() }
         .help(helpText(for: activity))
         .animation(.easeInOut(duration: 0.18), value: activity.kind)
+        .opacity(NotchDockCompanionPolicy.shouldHideDockCapsule(notchExpanded: feed.isNotchExpanded) ? 0.0 : 1.0)
+        .animation(.spring(response: NotchMotionSpec.wingSneakSpring.response, dampingFraction: NotchMotionSpec.wingSneakSpring.dampingRatio), value: feed.isNotchExpanded)
         .popover(isPresented: $showPopup, arrowEdge: .top) {
             NowPlayingPopup(
                 state: feed.nowPlayingState,

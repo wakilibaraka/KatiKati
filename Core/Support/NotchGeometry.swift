@@ -14,6 +14,14 @@ struct NotchMetrics: Equatable {
     var closedSize: CGSize
     /// `true` when the screen has real notch hardware; `false` means the notch is drawn as a fake pill.
     var hasHardwareNotch: Bool
+    /// Hardware camera & sensor keepout area within the closed notch coordinates.
+    var cameraKeepoutBox: CGRect
+
+    init(closedSize: CGSize, hasHardwareNotch: Bool, cameraKeepoutBox: CGRect = .zero) {
+        self.closedSize = closedSize
+        self.hasHardwareNotch = hasHardwareNotch
+        self.cameraKeepoutBox = cameraKeepoutBox
+    }
 }
 
 enum NotchGeometry {
@@ -38,18 +46,13 @@ enum NotchGeometry {
     ///   - auxLeftWidth / auxRightWidth: `auxiliaryTopLeftArea?.width` / `auxiliaryTopRightArea?.width`.
     ///   - menuBarHeight: `frame.maxY - visibleFrame.maxY`, used as the fake-notch height.
     static func metrics(screenWidth: CGFloat, safeAreaTop: CGFloat, auxLeftWidth: CGFloat?, auxRightWidth: CGFloat?, menuBarHeight: CGFloat) -> NotchMetrics {
-        var width = fallbackNotchWidth
-        if let l = auxLeftWidth, let r = auxRightWidth, l >= 0, r >= 0, screenWidth - l - r > 0 {
-            width = screenWidth - l - r + 4
-        }
-        let hasNotch = safeAreaTop > 0
-        let height: CGFloat
-        if hasNotch {
-            height = safeAreaTop
-        } else {
-            height = menuBarHeight > 0 ? menuBarHeight : fallbackHeight
-        }
-        return NotchMetrics(closedSize: CGSize(width: width, height: height), hasHardwareNotch: hasNotch)
+        NotchDesignSpec.resolve(
+            screenWidth: screenWidth,
+            safeAreaTop: safeAreaTop,
+            auxLeftWidth: auxLeftWidth,
+            auxRightWidth: auxRightWidth,
+            menuBarHeight: menuBarHeight
+        )
     }
 
     /// Panel frame (AppKit bottom-left coordinates) for a notch of `size`, top-centred on `screenFrame`.

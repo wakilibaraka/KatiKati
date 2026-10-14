@@ -546,3 +546,102 @@ extension DockThemeTokens {
         return copy
     }
 }
+
+// MARK: - Phase 33f: Dock Shapes & Edge Presets
+
+/// Modular dock frame geometries (Phase 33f: Dock Rebuild)
+enum DockShapeToken: String, CaseIterable, Codable, Sendable {
+    /// Tactile debossed well with inner shadow, brushed texture, and light rim highlight
+    case beveledWell = "beveledWell"
+    /// Apple-standard continuous G2 curvature with liquid glass refraction
+    case liquidSquircle = "liquidSquircle"
+    /// Classic continuous rounded capsule
+    case pill = "pill"
+    /// Distinct detached tiles per app category
+    case segmentedTile = "segmentedTile"
+
+    func cornerRadius(for barHeight: CGFloat) -> CGFloat {
+        switch self {
+        case .beveledWell:
+            return 16.0
+        case .liquidSquircle:
+            return 20.0
+        case .pill:
+            return barHeight / 2.0
+        case .segmentedTile:
+            return 12.0
+        }
+    }
+
+    var innerShadowRadius: CGFloat {
+        switch self {
+        case .beveledWell: return 3.0
+        case .liquidSquircle: return 1.5
+        case .pill: return 0.0
+        case .segmentedTile: return 1.0
+        }
+    }
+
+    var rimHighlightOpacity: Double {
+        switch self {
+        case .beveledWell: return 0.24
+        case .liquidSquircle: return 0.16
+        case .pill: return 0.12
+        case .segmentedTile: return 0.18
+        }
+    }
+
+    var hasDebossedBevel: Bool {
+        self == .beveledWell
+    }
+
+    var isSegmented: Bool {
+        self == .segmentedTile
+    }
+}
+
+/// Screen edge anchor and dock placement presets (Phase 33f)
+enum DockEdgePreset: String, CaseIterable, Codable, Sendable {
+    /// Detached floating island at bottom screen center (default)
+    case bottomFloating = "bottomFloating"
+    /// Flush taskbar attached directly to screen bottom edge
+    case bottomEdgeAnchored = "bottomEdgeAnchored"
+    /// Flanks the top menu bar / notch as an auxiliary upper deck
+    case topNotchCompanion = "topNotchCompanion"
+    /// Left or right edge vertical application launcher
+    case sideVerticalRail = "sideVerticalRail"
+
+    var placement: StripPlacement {
+        switch self {
+        case .bottomFloating, .bottomEdgeAnchored:
+            return .bottom
+        case .topNotchCompanion:
+            return .bottom
+        case .sideVerticalRail:
+            return .left
+        }
+    }
+
+    var isFloating: Bool {
+        switch self {
+        case .bottomFloating, .topNotchCompanion, .sideVerticalRail:
+            return true
+        case .bottomEdgeAnchored:
+            return false
+        }
+    }
+
+    var defaultBottomGap: CGFloat {
+        switch self {
+        case .bottomFloating: return 12.0
+        case .bottomEdgeAnchored: return 0.0
+        case .topNotchCompanion: return 0.0
+        case .sideVerticalRail: return 12.0
+        }
+    }
+
+    var isNotchCompanion: Bool {
+        self == .topNotchCompanion
+    }
+}
+

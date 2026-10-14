@@ -26,6 +26,7 @@ import Foundation
 @MainActor
 final class LiveActivityFeed: ObservableObject {
     @Published public private(set) var activity: LiveActivity
+    @Published public var isNotchExpanded = false
 
     private let nowPlaying: NowPlayingService
     private let focus: FocusTimerController
@@ -36,6 +37,7 @@ final class LiveActivityFeed: ObservableObject {
     private var ticker: Timer?
     /// How many rendering surfaces (dock capsule per display, notch) currently need the tick.
     private var tickGate = LiveTickGate()
+    private var cancellables = Set<AnyCancellable>()
 
     /// The one app-wide feed (8b-5). The dock capsule on every display and the notch all read this,
     /// so there is a single 1 Hz timer and a single source of truth no matter how many surfaces are
@@ -56,6 +58,14 @@ final class LiveActivityFeed: ObservableObject {
         self.stopwatch = stopwatch
         self.countdowns = countdowns
         self.activity = LiveActivityPolicy.resolve(LiveActivitySnapshot(now: Date()))
+
+        // Phase 33 addition: Wire instant reactive updates when nowPlaying or any productivity source changes
+        sourceChanges()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.refresh()
+            }
+            .store(in: &cancellables)
     }
 
     deinit { ticker?.invalidate() }
@@ -111,6 +121,21 @@ final class LiveActivityFeed: ObservableObject {
 
     func togglePlayPause() {
         nowPlaying.togglePlayPause()
+        refresh()
+    }
+
+    func play() {
+        nowPlaying.play()
+        refresh()
+    }
+
+    func pause() {
+        nowPlaying.pause()
+        refresh()
+    }
+
+    func seek(to seconds: Double) {
+        nowPlaying.seek(to: seconds)
         refresh()
     }
 

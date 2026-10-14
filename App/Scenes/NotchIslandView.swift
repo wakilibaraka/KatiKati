@@ -17,6 +17,7 @@ final class NotchModel: ObservableObject {
     @Published var event: LiveEventPresentation?
     @Published var skin: LiveIslandSkin = .boring
     @Published var tab: NotchTab = .home
+    @Published var activePage: NotchPage = .aiTracker
     var isExpanded: Bool { isOpen || event != nil }
     /// Shape sizes, set by the controller (closed width grows with the activity "sneak"). The window is
     /// as large as the larger of the two while a transition runs, so the shape animates inside it.
@@ -25,6 +26,10 @@ final class NotchModel: ObservableObject {
     /// Set by the controller: close the notch now (after an action such as opening Settings).
     var collapse: () -> Void = {}
     var openSettings: () -> Void = {}
+
+    func stepPage(forward: Bool) {
+        activePage = forward ? activePage.next(wrap: true) : activePage.previous(wrap: true)
+    }
 }
 
 struct NotchIslandView: View {
@@ -37,19 +42,27 @@ struct NotchIslandView: View {
         let expanded = model.isExpanded
         let activity = feed.activity
         let boring = model.skin == .boring
-        let open = NotchLayoutSpec.openCornerRadii
-        let closed = NotchLayoutSpec.closedCornerRadii
-        let spring = expanded ? NotchLayoutSpec.openSpring : NotchLayoutSpec.closeSpring
+        let open = NotchDesignSpec.openCornerRadii
+        let closed = NotchDesignSpec.closedCornerRadii
+        let spring = expanded ? NotchMotionSpec.openSpring : NotchMotionSpec.closeSpring
         let size = expanded ? model.openSize : model.closedSize
         ZStack(alignment: .top) {
-            NotchShape(topCornerRadius: expanded ? open.top : closed.top, bottomCornerRadius: expanded ? open.bottom : closed.bottom)
-                .fill(Color.black)
+            NotchContinuousMaskShape(
+                topCornerRadius: expanded ? open.topFlaring : closed.topFlaring,
+                bottomCornerRadius: expanded ? open.bottomSquircle : closed.bottomSquircle,
+                flaringTopEars: metrics.hasHardwareNotch
+            )
+            .fill(Color.black)
             Group {
                 if !expanded {
                     closedContent(activity).padding(.horizontal, 14)
                 } else if boring && model.event == nil {
-                    NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
-                        .transition(.opacity)
+                    VStack(spacing: 0) {
+                        NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
+                            .transition(.opacity)
+                        Spacer(minLength: 0)
+                        pageIndicatorDots
+                    }
                 } else {
                     openContent(activity).padding(.horizontal, 24)
                 }
@@ -57,10 +70,56 @@ struct NotchIslandView: View {
         }
         .frame(width: size.width, height: size.height, alignment: .top)
         .contentShape(Rectangle())
-        .animation(.spring(response: spring.response, dampingFraction: spring.damping), value: expanded)
-        .animation(.spring(response: spring.response, dampingFraction: spring.damping), value: model.closedSize)
+        .contextMenu {
+            Section {
+                ForEach(NotchPage.allCases) { page in
+                    Button {
+                        withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
+                            model.activePage = page
+                        }
+                    } label: {
+                        HStack {
+                            Text(page.title)
+                            if model.activePage == page {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                }
+            }
+            Divider()
+            Button {
+                model.collapse()
+            } label: {
+                Text(verbatim: "Collapse Notch")
+            }
+            Button {
+                model.openSettings()
+            } label: {
+                Text(verbatim: "KatiKati Settings…")
+            }
+        }
+        .animation(.spring(response: spring.response, dampingFraction: spring.dampingRatio), value: expanded)
+        .animation(.spring(response: spring.response, dampingFraction: spring.dampingRatio), value: model.closedSize)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .colorScheme(.dark)
+    }
+
+    private var pageIndicatorDots: some View {
+        HStack(spacing: 6) {
+            ForEach(NotchPage.allCases) { page in
+                Capsule()
+                    .fill(model.activePage == page ? Color.white.opacity(0.9) : Color.white.opacity(0.25))
+                    .frame(width: model.activePage == page ? 18 : 6, height: 4)
+                    .contentShape(Rectangle().inset(by: -4))
+                    .onTapGesture {
+                        withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
+                            model.activePage = page
+                        }
+                    }
+            }
+        }
+        .padding(.bottom, 6)
     }
 
     // MARK: Closed — glyph left of the notch, value right of it

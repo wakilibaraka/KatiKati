@@ -148,4 +148,55 @@ final class DockThemeStyleTokensTests: XCTestCase {
             }
         }
     }
+
+    // MARK: - Phase 33f: Dock Shapes & Edge Presets Tests
+
+    func testDockShapeTokensGeometryAndTokens() {
+        XCTAssertEqual(DockShapeToken.allCases.count, 4)
+        XCTAssertEqual(DockShapeToken.beveledWell.cornerRadius(for: 54), 16)
+        XCTAssertEqual(DockShapeToken.liquidSquircle.cornerRadius(for: 54), 20)
+        XCTAssertEqual(DockShapeToken.pill.cornerRadius(for: 54), 27)
+        XCTAssertEqual(DockShapeToken.segmentedTile.cornerRadius(for: 54), 12)
+
+        XCTAssertTrue(DockShapeToken.beveledWell.hasDebossedBevel)
+        XCTAssertFalse(DockShapeToken.liquidSquircle.hasDebossedBevel)
+        XCTAssertFalse(DockShapeToken.pill.hasDebossedBevel)
+        XCTAssertFalse(DockShapeToken.segmentedTile.hasDebossedBevel)
+
+        XCTAssertTrue(DockShapeToken.segmentedTile.isSegmented)
+        XCTAssertFalse(DockShapeToken.beveledWell.isSegmented)
+
+        XCTAssertEqual(DockShapeToken.beveledWell.innerShadowRadius, 3.0)
+        XCTAssertEqual(DockShapeToken.liquidSquircle.innerShadowRadius, 1.5)
+        XCTAssertEqual(DockShapeToken.pill.innerShadowRadius, 0.0)
+        XCTAssertEqual(DockShapeToken.segmentedTile.innerShadowRadius, 1.0)
+
+        XCTAssertGreaterThan(DockShapeToken.beveledWell.rimHighlightOpacity, DockShapeToken.pill.rimHighlightOpacity)
+    }
+
+    func testDockEdgePresetsPlacementAndGap() {
+        XCTAssertEqual(DockEdgePreset.allCases.count, 4)
+        XCTAssertEqual(DockEdgePreset.bottomFloating.placement, .bottom)
+        XCTAssertEqual(DockEdgePreset.bottomEdgeAnchored.placement, .bottom)
+        XCTAssertEqual(DockEdgePreset.sideVerticalRail.placement, .left)
+
+        XCTAssertTrue(DockEdgePreset.bottomFloating.isFloating)
+        XCTAssertFalse(DockEdgePreset.bottomEdgeAnchored.isFloating)
+        XCTAssertTrue(DockEdgePreset.topNotchCompanion.isFloating)
+        XCTAssertTrue(DockEdgePreset.sideVerticalRail.isFloating)
+
+        XCTAssertEqual(DockEdgePreset.bottomFloating.defaultBottomGap, 12.0)
+        XCTAssertEqual(DockEdgePreset.bottomEdgeAnchored.defaultBottomGap, 0.0)
+        XCTAssertEqual(DockEdgePreset.topNotchCompanion.defaultBottomGap, 0.0)
+        XCTAssertEqual(DockEdgePreset.sideVerticalRail.defaultBottomGap, 12.0)
+
+        XCTAssertTrue(DockEdgePreset.topNotchCompanion.isNotchCompanion)
+        XCTAssertFalse(DockEdgePreset.bottomFloating.isNotchCompanion)
+    }
+
+    func testDockCompanionAutoHidingPolicy() {
+        XCTAssertTrue(NotchDockCompanionPolicy.shouldHideDockCapsule(notchExpanded: true))
+        XCTAssertFalse(NotchDockCompanionPolicy.shouldHideDockCapsule(notchExpanded: false))
+    }
 }
+

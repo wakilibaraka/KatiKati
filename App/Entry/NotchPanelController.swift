@@ -20,6 +20,7 @@ final class NotchPanelController: LiveEventSink {
     // Hover intent: a pure state machine fed from mouse monitors (see `NotchHoverMachine`). The window is
     // never resized by hover itself, so there is no resize → tracking-area → hover feedback loop.
     private var hover = NotchHoverMachine()
+    private var gesture = NotchGestureSupport()
     /// 60 Hz poll of `NSEvent.mouseLocation`, alive only while the pointer is near the notch or the
     /// notch is open (the `StripPointerTracker` pattern). Resident global mouse monitors are banned by
     /// the project rules (they route every system mouse event through this process).
@@ -71,6 +72,7 @@ final class NotchPanelController: LiveEventSink {
         shrinkWork?.cancel(); shrinkWork = nil
         eventWork?.cancel(); eventWork = nil
         model.event = nil; model.isOpen = false
+        LiveActivityFeed.shared.isNotchExpanded = false
         hover.forceClose()
         panel?.orderOut(nil)
         panel = nil
@@ -136,7 +138,17 @@ final class NotchPanelController: LiveEventSink {
     }
 
     private func applyOpenState() {
+        if hover.isOpen && !model.isOpen {
+            let nowPlaying = LiveActivityFeed.shared.activity.kind == .music
+            let focusOrTimer = [.focus, .countdown, .timer, .stopwatch].contains(LiveActivityFeed.shared.activity.kind)
+            model.activePage = NotchPagingPolicy.defaultPage(
+                nowPlayingActive: nowPlaying,
+                aiTurnActive: false,
+                timerActive: focusOrTimer
+            )
+        }
         model.isOpen = hover.isOpen
+        LiveActivityFeed.shared.isNotchExpanded = model.isExpanded
         syncWindow()
     }
 
@@ -153,6 +165,7 @@ final class NotchPanelController: LiveEventSink {
     func collapse() {
         hover.forceClose()
         model.isOpen = false
+        LiveActivityFeed.shared.isNotchExpanded = false
         syncWindow()
     }
 
@@ -220,12 +233,68 @@ final class NotchPanelController: LiveEventSink {
         }
     }
 
+    private func handleScroll(_ event: NSEvent) -> Bool {
+        guard panel != nil, event.modifierFlags.intersection([.command, .control, .option, .shift]).isEmpty else {
+            gesture = NotchGestureSupport()
+            return false
+        }
+        let precise = event.hasPreciseScrollingDeltas
+        let inverted = event.isDirectionInvertedFromDevice
+        let x = NotchGestureSupport.movement(Double(event.scrollingDeltaX), precise: precise, inverted: inverted)
+        let y = NotchGestureSupport.movement(Double(event.scrollingDeltaY), precise: precise, inverted: inverted)
+
+        let horizontalMode: NotchGestureSupport.HorizontalMode = (model.activePage == .audioDeck) ? .trackSkip : .pageNavigation
+
+        guard let action = gesture.handle(
+            x: x,
+            y: y,
+            timestamp: event.timestamp,
+            began: event.phase.contains(.began),
+            ended: !event.phase.intersection([.ended, .cancelled]).isEmpty,
+            momentum: !event.momentumPhase.isEmpty,
+            precise: precise,
+            hasPhase: !event.phase.isEmpty,
+            allowVertical: true,
+            allowHorizontal: model.isExpanded,
+            expanded: model.isExpanded,
+            horizontalMode: horizontalMode
+        ) else {
+            return false
+        }
+
+        switch action {
+        case .open:
+            hover.forceOpen()
+            applyOpenState()
+            startHoverPolling()
+        case .close:
+            collapse()
+        case .nextPage:
+            withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
+                model.stepPage(forward: true)
+            }
+        case .previousPage:
+            withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
+                model.stepPage(forward: false)
+            }
+        case .nextTrack:
+            LiveActivityFeed.shared.nextTrack()
+        case .previousTrack:
+            LiveActivityFeed.shared.previousTrack()
+        }
+        return true
+    }
+
     /// The hosting view lives inside a plain autoresizing container so SwiftUI's intrinsic size can never
     /// drive the panel (that fed back into window sizing during an update-constraints pass and crashed).
     /// The container also owns the tracking area whose *enter* starts the hover poll.
     private func container<V: View>(for view: V) -> NSView {
         let container = NotchTrackingContainer(frame: .zero)
         container.onEnter = { [weak self] in self?.startHoverPolling() }
+        container.onScroll = { [weak self] event in
+            guard let self else { return false }
+            return self.handleScroll(event)
+        }
         let host = NSHostingView(rootView: view)
         host.frame = container.bounds
         host.autoresizingMask = [.width, .height]
@@ -238,6 +307,7 @@ final class NotchPanelController: LiveEventSink {
 /// is not), so it only *starts* the poll; the poll decides everything else.
 final class NotchTrackingContainer: NSView {
     var onEnter: () -> Void = {}
+    var onScroll: ((NSEvent) -> Bool)?
 
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
@@ -246,4 +316,11 @@ final class NotchTrackingContainer: NSView {
     }
 
     override func mouseEntered(with event: NSEvent) { onEnter() }
+
+    override func scrollWheel(with event: NSEvent) {
+        if onScroll?(event) == true {
+            return
+        }
+        super.scrollWheel(with: event)
+    }
 }

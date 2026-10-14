@@ -189,6 +189,42 @@
 		7B5000000000000000000122 /* NotchGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000121 /* NotchGeometryTests.swift */; };
 		7B5000000000000000000112 /* NotchGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000111 /* NotchGeometry.swift */; };
 		7B5000000000000000000113 /* NotchGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000111 /* NotchGeometry.swift */; };
+		FA33A0000000000000000002 /* NotchDesignSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000001 /* NotchDesignSpec.swift */; };
+		FA33A0000000000000000003 /* NotchDesignSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000001 /* NotchDesignSpec.swift */; };
+		FA33A0000000000000000012 /* NotchMotionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000011 /* NotchMotionSpec.swift */; };
+		FA33A0000000000000000013 /* NotchMotionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000011 /* NotchMotionSpec.swift */; };
+		FA33A0000000000000000022 /* NotchDesignSpecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000021 /* NotchDesignSpecTests.swift */; };
+		FA33A0000000000000000032 /* NotchContinuousMaskShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000031 /* NotchContinuousMaskShape.swift */; };
+		FA33A0000000000000000033 /* NotchContinuousMaskShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000031 /* NotchContinuousMaskShape.swift */; };
+		FA33A0000000000000000042 /* NotchContinuousMaskShapeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000041 /* NotchContinuousMaskShapeTests.swift */; };
+		FA33A0000000000000000052 /* NotchSectionPaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000051 /* NotchSectionPaging.swift */; };
+		FA33A0000000000000000053 /* NotchSectionPaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000051 /* NotchSectionPaging.swift */; };
+		FA33A0000000000000000062 /* NotchGestureSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000061 /* NotchGestureSupport.swift */; };
+		FA33A0000000000000000063 /* NotchGestureSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000061 /* NotchGestureSupport.swift */; };
+		FA33A0000000000000000072 /* NotchGestureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000071 /* NotchGestureTests.swift */; };
+		FA33A0000000000000000082 /* AgentUsageModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000081 /* AgentUsageModels.swift */; };
+		FA33A0000000000000000083 /* AgentUsageModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000081 /* AgentUsageModels.swift */; };
+		FA33A0000000000000000092 /* AgentPricing.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000091 /* AgentPricing.swift */; };
+		FA33A0000000000000000093 /* AgentPricing.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000091 /* AgentPricing.swift */; };
+		FA33A00000000000000000A2 /* AgentClaudeParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000A1 /* AgentClaudeParser.swift */; };
+		FA33A00000000000000000A3 /* AgentClaudeParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000A1 /* AgentClaudeParser.swift */; };
+		FA33A00000000000000000B2 /* AgentUsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000B1 /* AgentUsageService.swift */; };
+		FA33A00000000000000000B3 /* AgentUsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000B1 /* AgentUsageService.swift */; };
+		FA33A00000000000000000C2 /* AgentUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000C1 /* AgentUsageTests.swift */; };
+		FA33A00000000000000000D2 /* NotchAIPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000D1 /* NotchAIPageView.swift */; };
+		FA33A00000000000000000E2 /* NotchVinylDeckPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000E1 /* NotchVinylDeckPageView.swift */; };
+		FA33A00000000000000000F2 /* NotchRetroClockPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000F1 /* NotchRetroClockPageView.swift */; };
+		FA33A0000000000000000102 /* NotchProductivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000101 /* NotchProductivityPageView.swift */; };
+		FA33A0000000000000000112 /* NotchHardwareHudPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000111 /* NotchHardwareHudPageView.swift */; };
+		FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000121 /* NotchFallbackPlan.swift */; };
+		FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000121 /* NotchFallbackPlan.swift */; };
+		FA33A0000000000000000132 /* NotchFallbackPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000131 /* NotchFallbackPlanTests.swift */; };
+		FA33A0000000000000000142 /* DownloadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000141 /* DownloadItem.swift */; };
+		FA33A0000000000000000143 /* DownloadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000141 /* DownloadItem.swift */; };
+		FA33A0000000000000000152 /* DownloadManagerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000151 /* DownloadManagerService.swift */; };
+		FA33A0000000000000000153 /* DownloadManagerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000151 /* DownloadManagerService.swift */; };
+		FA33A0000000000000000162 /* NotchDownloadsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000161 /* NotchDownloadsPageView.swift */; };
+		FA33A0000000000000000172 /* DownloadManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000171 /* DownloadManagerTests.swift */; };
 		7B500000000000000000010D /* NowPlayingProgressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010E /* NowPlayingProgressTests.swift */; };
 		7B500000000000000000010A /* NowPlayingProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010C /* NowPlayingProgress.swift */; };
 		7B500000000000000000010B /* NowPlayingProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010C /* NowPlayingProgress.swift */; };
@@ -1108,6 +1144,30 @@
 		7B5000000000000000000131 /* NotchIslandView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchIslandView.swift; path = App/Scenes/NotchIslandView.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000121 /* NotchGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchGeometryTests.swift; path = Tests/Unit/NotchGeometryTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000111 /* NotchGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchGeometry.swift; path = Core/Support/NotchGeometry.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000001 /* NotchDesignSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchDesignSpec.swift; path = Core/Support/NotchDesignSpec.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000011 /* NotchMotionSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchMotionSpec.swift; path = Core/Support/NotchMotionSpec.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000021 /* NotchDesignSpecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchDesignSpecTests.swift; path = Tests/Unit/NotchDesignSpecTests.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000031 /* NotchContinuousMaskShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchContinuousMaskShape.swift; path = App/Scenes/Notch/NotchContinuousMaskShape.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000041 /* NotchContinuousMaskShapeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchContinuousMaskShapeTests.swift; path = Tests/Unit/NotchContinuousMaskShapeTests.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000051 /* NotchSectionPaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchSectionPaging.swift; path = Core/Support/NotchSectionPaging.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000061 /* NotchGestureSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchGestureSupport.swift; path = Core/Support/NotchGestureSupport.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000071 /* NotchGestureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchGestureTests.swift; path = Tests/Unit/NotchGestureTests.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000081 /* AgentUsageModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentUsageModels.swift; path = Core/Support/AgentUsage/AgentUsageModels.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000091 /* AgentPricing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentPricing.swift; path = Core/Support/AgentUsage/AgentPricing.swift; sourceTree = SOURCE_ROOT; };
+		FA33A00000000000000000A1 /* AgentClaudeParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentClaudeParser.swift; path = Core/Support/AgentUsage/AgentClaudeParser.swift; sourceTree = SOURCE_ROOT; };
+		FA33A00000000000000000B1 /* AgentUsageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentUsageService.swift; path = App/Composition/AgentUsageService.swift; sourceTree = SOURCE_ROOT; };
+		FA33A00000000000000000C1 /* AgentUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentUsageTests.swift; path = Tests/Unit/AgentUsageTests.swift; sourceTree = SOURCE_ROOT; };
+		FA33A00000000000000000D1 /* NotchAIPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchAIPageView.swift; path = App/Scenes/Notch/NotchAIPageView.swift; sourceTree = SOURCE_ROOT; };
+		FA33A00000000000000000E1 /* NotchVinylDeckPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchVinylDeckPageView.swift; path = App/Scenes/Notch/NotchVinylDeckPageView.swift; sourceTree = SOURCE_ROOT; };
+		FA33A00000000000000000F1 /* NotchRetroClockPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchRetroClockPageView.swift; path = App/Scenes/Notch/NotchRetroClockPageView.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000101 /* NotchProductivityPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchProductivityPageView.swift; path = App/Scenes/Notch/NotchProductivityPageView.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000111 /* NotchHardwareHudPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchHardwareHudPageView.swift; path = App/Scenes/Notch/NotchHardwareHudPageView.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000121 /* NotchFallbackPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchFallbackPlan.swift; path = Core/Support/NotchFallbackPlan.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000131 /* NotchFallbackPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchFallbackPlanTests.swift; path = Tests/Unit/NotchFallbackPlanTests.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000141 /* DownloadItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadItem.swift; path = Core/Support/DownloadManager/DownloadItem.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000151 /* DownloadManagerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadManagerService.swift; path = App/Composition/DownloadManagerService.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000161 /* NotchDownloadsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchDownloadsPageView.swift; path = App/Scenes/Notch/NotchDownloadsPageView.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000171 /* DownloadManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadManagerTests.swift; path = Tests/Unit/DownloadManagerTests.swift; sourceTree = SOURCE_ROOT; };
 		7B500000000000000000010E /* NowPlayingProgressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingProgressTests.swift; path = Tests/Unit/NowPlayingProgressTests.swift; sourceTree = SOURCE_ROOT; };
 		7B500000000000000000010C /* NowPlayingProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingProgress.swift; path = Core/Support/NowPlayingProgress.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000109 /* LiveEventBannerPoster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveEventBannerPoster.swift; path = App/Composition/LiveEventBannerPoster.swift; sourceTree = SOURCE_ROOT; };
@@ -2901,6 +2961,24 @@
 				7B5000000000000000000142 /* LiveIslandStyle.swift in Sources */,
 				7B5000000000000000000132 /* NotchIslandView.swift in Sources */,
 				7B5000000000000000000112 /* NotchGeometry.swift in Sources */,
+				FA33A0000000000000000002 /* NotchDesignSpec.swift in Sources */,
+				FA33A0000000000000000012 /* NotchMotionSpec.swift in Sources */,
+				FA33A0000000000000000032 /* NotchContinuousMaskShape.swift in Sources */,
+				FA33A0000000000000000052 /* NotchSectionPaging.swift in Sources */,
+				FA33A0000000000000000062 /* NotchGestureSupport.swift in Sources */,
+				FA33A0000000000000000082 /* AgentUsageModels.swift in Sources */,
+				FA33A0000000000000000092 /* AgentPricing.swift in Sources */,
+				FA33A00000000000000000A2 /* AgentClaudeParser.swift in Sources */,
+				FA33A00000000000000000B2 /* AgentUsageService.swift in Sources */,
+				FA33A00000000000000000D2 /* NotchAIPageView.swift in Sources */,
+				FA33A00000000000000000E2 /* NotchVinylDeckPageView.swift in Sources */,
+				FA33A00000000000000000F2 /* NotchRetroClockPageView.swift in Sources */,
+				FA33A0000000000000000102 /* NotchProductivityPageView.swift in Sources */,
+				FA33A0000000000000000112 /* NotchHardwareHudPageView.swift in Sources */,
+				FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */,
+				FA33A0000000000000000142 /* DownloadItem.swift in Sources */,
+				FA33A0000000000000000152 /* DownloadManagerService.swift in Sources */,
+				FA33A0000000000000000162 /* NotchDownloadsPageView.swift in Sources */,
 				7B5000000000000000040C12 /* FileNoteKeyProvider.swift in Sources */,
 				7B5000000000000000040B12 /* HyperkeyService.swift in Sources */,
 				7B5000000000000000040A12 /* HyperkeyEngine.swift in Sources */,
@@ -2999,6 +3077,18 @@
 				7B50000000000000000001D3 /* URLCleaner.swift in Sources */,
 				7B5000000000000000000193 /* DownloadActivity.swift in Sources */,
 				7B5000000000000000000113 /* NotchGeometry.swift in Sources */,
+				FA33A0000000000000000003 /* NotchDesignSpec.swift in Sources */,
+				FA33A0000000000000000013 /* NotchMotionSpec.swift in Sources */,
+				FA33A0000000000000000033 /* NotchContinuousMaskShape.swift in Sources */,
+				FA33A0000000000000000053 /* NotchSectionPaging.swift in Sources */,
+				FA33A0000000000000000063 /* NotchGestureSupport.swift in Sources */,
+				FA33A0000000000000000083 /* AgentUsageModels.swift in Sources */,
+				FA33A0000000000000000093 /* AgentPricing.swift in Sources */,
+				FA33A00000000000000000A3 /* AgentClaudeParser.swift in Sources */,
+				FA33A00000000000000000B3 /* AgentUsageService.swift in Sources */,
+				FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */,
+				FA33A0000000000000000143 /* DownloadItem.swift in Sources */,
+				FA33A0000000000000000153 /* DownloadManagerService.swift in Sources */,
 				7B5000000000000000040C13 /* FileNoteKeyProvider.swift in Sources */,
 				7B5000000000000000040B13 /* HyperkeyService.swift in Sources */,
 				7B5000000000000000040A13 /* HyperkeyEngine.swift in Sources */,
@@ -3111,6 +3201,12 @@
 				7B50000000000000000001F2 /* URLCleanerTests.swift in Sources */,
 				7B50000000000000000001A2 /* DownloadActivityTests.swift in Sources */,
 				7B5000000000000000000122 /* NotchGeometryTests.swift in Sources */,
+				FA33A0000000000000000022 /* NotchDesignSpecTests.swift in Sources */,
+				FA33A0000000000000000042 /* NotchContinuousMaskShapeTests.swift in Sources */,
+				FA33A0000000000000000072 /* NotchGestureTests.swift in Sources */,
+				FA33A00000000000000000C2 /* AgentUsageTests.swift in Sources */,
+				FA33A0000000000000000132 /* NotchFallbackPlanTests.swift in Sources */,
+				FA33A0000000000000000172 /* DownloadManagerTests.swift in Sources */,
 				7B5000000000000000040D12 /* FileNoteKeyProviderTests.swift in Sources */,
 				7B5000000000000000040412 /* ChipPanelTests.swift in Sources */,
 				7B5000000000000000040112 /* WindowChipGroupingTests.swift in Sources */,
