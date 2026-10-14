@@ -3429,6 +3429,14 @@ idle CPU flat while off + disable restores every managed window.
   `xcodebuild test` **2,275 / 0 failures** · `check_localization.py` ✅ · `check_availability_warnings.py`
   ✅. **Note:** `CaptureRecognitionTests` (Vision OCR) fails only while the built app is running
   (E5RT/GPU contention) — passes once the app is killed; not caused by this work.
+- 2026-10-14 · **Phase 29 planned (owner 2026-10-14): command-bar modes, native actions, footer.**
+  Plan only, no code. Fixes result order (app first, quit second); adds word+space keyword modes
+  (`kill`/`fq`/`kp`/`file`/`img`/`sc`/`app`) and immediate native actions (`ocr`, `cs`, `lock`, `sleep`,
+  `dark`, `awake`, `mute`, `night`, `truetone`, `wifi`, `bt`, `trash`, `eject`, media keys); a removable
+  footer hints strip (`com.katikati.commandbar.hints`, default on). Reuses `QuickToggleEngine`,
+  `NowPlayingService`, `CaptureController.recognise`, `mdfind`. Assumptions flagged: `wifi` becomes the
+  toggle (password → `wifipw`); file/image search is Spotlight filenames only. Deferred: Photos search,
+  DND/Focus, restart/shutdown, full-screen OCR. Awaiting owner go to start 29a.
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
@@ -3501,6 +3509,102 @@ big features) is deferred to a future phase.** No new permissions; everything is
 
 **Verify.** `uuid`/`nanoid`/`lorem` copy a fresh value; `json` pretty-prints the clipboard; `ip` shows the
 en0 address; `wifi` reads the keychain; a custom `Name = …` row runs; `!saf` lists Safari and kills it.
+
+### Phase 29 — Command bar: modes, native actions, footer (owner 2026-10-14; PLAN ONLY, no code yet)
+
+**Goal.** Make the ⌘Space bar a real command palette: fix result order, add **keyword modes**
+(`fq `/`kp `/`kill ` + `file `/`img `/`sc `), add **native macOS actions** (`ocr`, `cs`, `lock`, `sleep`,
+`dark`, media keys, …), and a **removable footer** listing the major commands. All native, no new
+permissions except where noted; nothing extra runs at rest.
+
+**Design decisions (assumptions — tell me to change any).**
+- Keyword triggers are **typed words + a space** (Raycast-style), not new key chords. Existing single-char
+  prefixes (`= @ / > : !`) keep working. `ShortcutChord` stays Space-only; extra modifier+letter chords
+  are already possible via `ShortcutTrigger.key` if you want one later.
+- `wifi` currently means *Wi-Fi password* (28b). To free `wifi` for the toggle, the password keyword
+  becomes **`wifipw`** (small rename; recorded).
+- File/image search uses **Spotlight (`mdfind`)** — filenames, no content search, async + debounced, cap ~20.
+- OCR reuses the shipped `CaptureController.recognise(_:)`; `ocr` = select a screen region → text on the
+  clipboard. Clipboard-image OCR is a follow-on if wanted.
+
+**Result order (fix).** App matches come **first**, and a running app's **Quit row sits immediately after
+it** (App, Quit, App, Quit…); running apps that are not in the installed index trail at the end. (Today
+quit rows precede the app rows.)
+
+**Keyword set (the "full set").**
+
+*Search modes (type `word ` then the filter):*
+| keyword | rows | run |
+|---|---|---|
+| `kill ` | running apps | graceful `terminate()` + confirm |
+| `fq ` | running apps | `forceTerminate()` + confirm |
+| `kp ` | all processes (alias of `!`) | SIGTERM / SIGKILL + confirm |
+| `file ` | files & folders by name | open |
+| `img ` | image files by name | open |
+| `sc ` | Shortcuts by name | `shortcuts run` (via `LauncherRunner`) |
+| `app ` | force app search (skip actions) | launch |
+
+*Immediate actions (type the word, ⏎ runs):*
+| keyword | action | reuse |
+|---|---|---|
+| `ocr` | region capture → OCR → copy | `CaptureController.recognise` |
+| `cs` | open the Shortcuts app | `NSWorkspace.open` |
+| `lock` | lock screen | `pmset displaysleepnow` (QuickToggle `lockScreen`) |
+| `sleep` | sleep now | `pmset sleepnow` (new, 1 line) |
+| `ss` | start screensaver | QuickToggle `screenSaver` |
+| `dark` | toggle dark mode | QuickToggle `darkMode` |
+| `awake` | toggle keep-awake | QuickToggle `keepAwake` |
+| `mute` | toggle mic | QuickToggle `muteMic` |
+| `night` | toggle Night Shift | QuickToggle `nightShift` |
+| `truetone` | toggle True Tone | QuickToggle `trueTone` |
+| `wifi` | toggle Wi-Fi | QuickToggle `wifi` |
+| `bt` | toggle Bluetooth | QuickToggle `bluetooth` |
+| `trash` | empty trash (confirm) | QuickToggle `emptyTrash` |
+| `eject` | eject disks | QuickToggle `ejectDisks` |
+| `hideicons` | hide desktop icons | QuickToggle `hideDesktopIcons` |
+| `dock` | dock auto-hide | QuickToggle `dockAutoHide` |
+| `finder` | relaunch Finder | QuickToggle `relaunchFinder` |
+| `play` / `next` / `prev` | media transport | `NowPlayingService` |
+
+*Kept from 28:* `uuid`, `nanoid`, `lorem`, `json`, `ip`, `wifipw`.
+
+**Footer (removable).** A strip under the list showing the major commands as plain chips
+(`⏎ Open · fq Force Quit · kp Kill Process · file Files · img Images · ocr OCR · cs Shortcuts`), switching
+to mode-specific hints inside a mode. Toggle `com.katikati.commandbar.hints` (default **on**); a small ✕ in
+the strip hides it too.
+
+**Pure seams (tested first).**
+- `CommandKeyword.match(_ query:) -> (keyword:, argument:)?` — word+space routing, tolerant.
+- `BarAction` (the immediate actions) + `BarActionService.run(_:)` (app layer; reuses the engines).
+- `FileSearch.query(_ term:, imageOnly:) -> String` (the `mdfind` predicate) + `FileSearch.parse(_:) -> [FileEntry]`.
+- `CommandBarResults` reorder + new result cases (`.action`, `.file`, `.shortcut`, `.script`, `.path`).
+
+**Slices.**
+- **29a** ordering fix + bar rows for the existing dead routes (`.script`/`.shortcut`/`.path`) — small.
+- **29b** keyword layer (Core) + `BarAction`/`FileEntry`/result cases + tests.
+- **29c** quit/force-quit/kill modes (`kill `/`fq `/`kp `).
+- **29d** `BarActionService` + the toggle/media/lock/sleep actions (reuse `QuickToggleEngine`,
+  `NowPlayingService`, `pmset`).
+- **29e** `ocr` (region capture + existing recognizer) and `cs`.
+- **29f** `file `/`img ` via `mdfind` (async, debounced, capped).
+- **29g** footer strip + `com.katikati.commandbar.hints` + Settings.
+- **29h** Settings section, strings ×12, verify.
+
+**Keys.** `com.katikati.commandbar.hints` (on). Everything else is fixed keywords.
+
+**Permissions.** None new (media keys use the existing MediaRemote soft-load; OCR uses the screen-capture
+grant already needed by Capture). `fq`/`kp` need no Accessibility.
+
+**Risks / limits.** `mdfind` can be slow on cold caches → async + cap + fail-closed. `kill`/`force quit`
+can lose work → always confirmed, graceful first. Media transport depends on the private MediaRemote
+(soft-fail, as Now Playing already is). `cs` only opens the app; `sc `/`:` run shortcuts.
+
+**Deferred (recorded).** Photos-library search (needs the Photos permission; no Photos code today),
+Do-Not-Disturb/Focus (no public API), restart/shutdown/logout (destructive), full-screen OCR (privacy).
+
+**Verify.** Search "chrome" → Chrome row first, Quit second; `fq chrome`, `kp saf`, `file invoice`, `img
+cat`, `sc My Shortcut`; `ocr` copies text; `dark`/`lock`/`play` work; the footer toggles off; every mode
+is inert when off.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
