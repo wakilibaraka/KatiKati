@@ -3882,6 +3882,63 @@ Empty work and match Finder's count; `emoji party` copies; `bm` lists Safari/Chr
 fail-closed hint); `theme` cycles light/dark/auto; `ev standup` opens the day; `f` returns instantly from
 the own index; each mode inert when off.
 
+### Phase 31 — Radial dial: window management + capture + action sequences (owner 2026-10-14; PROPOSED — suggestion only, not scheduled)
+
+**Prior (study-only, §5):** `MrKai77/Loop` (*"Window management made elegant"*, Swift/SwiftUI, topics include `radial-menu`). **GPL-3.0** → **behaviour only + NOTICE credit, never code** — the same posture as niri/PaperWM/yabai. It is the radial-menu reference: *"you can effortlessly choose your window direction using a radial menu triggered by a simple key press, and customize it according to your preferences with personalized colors"*. **Availability note:** Loop states *"Compatible with macOS 13 and later"* while our floor is **12**, so its UI code is not a drop-in reference either — read it for *behaviour*, not implementation. **Zero external dependency**, and deliberately **no `loop://` URL-scheme / AppleScript shell-out** (the owner chose reimplement-fresh; those stay optional later ideas, never a requirement).
+
+**What the prior is worth mining:** the radial trigger; a full action catalog (Halves · Quarters · Horizontal Thirds · Vertical Thirds · screen switching next/prev/left/right/top/bottom · Larger/Smaller · Shrink/Grow ×4 · Move ×4 · **Cycle** · **Initial Frame** · **Undo**); **Theming Options** (personalised colours); **Stashed Windows**; **Action Sequences (Cycles)**; **Resize Adjacent Windows**; **Padding/Margins**; **Preview Window**.
+
+**Goal.** A radial dial — the pointer-centric sibling of the ⌘Space command bar — that answers one question fast (*"where should this window go?"*), and can also drive **screenshots** and other quick actions. Native, optional, off by default.
+
+**Owner decisions still open (needed before any slice):**
+1. **Trigger:** hold a modifier and open at the pointer · a plain hotkey opening it centred · or a pinch/trackpad gesture (the repo already has `MultitouchPinchMonitor` + `StripPointerTracker`).
+2. **Scope v1:** window actions only, or window + capture + capture-destination together?
+3. **Shared or separate action taxonomy** vs the ⌘Space command bar (Phases 27–30)? **Recommended: shared** — one action registry both surfaces call, so they can never drift.
+4. **Unresolved reference:** *"vorsaintutilis radial dial"* — I could not tie that name to an app, repo or handle. Name it (or send a frame) and it folds in as a second prior.
+
+**Reuse — none of this is new ground.** Window actions land on the **existing snapper** (`WindowSnapService` / `SnapPosition`, Phase 26a) and the single AX observer; capture lands on **`Platform/Capture/CaptureController.swift`** + `StackPopupSnapshotProbe` (9c); theming is `DockThemeTokens`; the overlay is the `LiveEventToastPresenter` / `ShortcutToastPresenter` non-activating-panel pattern.
+
+**Pure seams (tested first).**
+- `DialGeometry.sector(for point:center:) -> Sector?` — angle + ring hit-testing; golden-tested.
+- `DialLayout.resolve(actions:) -> [Action: Sector]` — distributing N actions into rings, ring-overflow rules; tested.
+- `ActionSequence` — the cycle state machine (Loop's *Action Sequences*): which frame comes next, wrapped; pure + heavily tested.
+- `CaptureSelection` — target (area / window / full) × destination (clipboard / Desktop / file); pure + tested.
+
+**Slices (suggestion order).** 31a `DialGeometry` + `DialLayout` + tests (pure, no UI) → 31b radial overlay panel + `DockThemeTokens` theming + live check → 31c window actions wired to the existing snapper (no new AX) → 31d capture actions (**Screen Recording — new TCC, opt-in, fail-closed, never silent, never at launch**) → 31e cycles + **stashed windows** → 31f Settings + strings ×12 + live check.
+
+**De-dup (must be written into the mini-plan):** *Stashed Windows* vs **Phase 8c Shelf** · action taxonomy vs **26a snapping / Phase 26 tiling** · capture vs **9c** · the action registry vs **Phases 27–30's command bar** · overlay ownership vs the Phase 11/18 lesson (**B1** a non-owner capsule left at its (0,0) creation rect; **B2** the owner capsule never re-ordered front after a rebuild).
+
+**Keys / settings.** `com.katikati.dial.enabled` (off) · `.trigger` · `.actions` · `.capture.enabled` (off) · `.themed`.
+
+**Permissions.** Existing Accessibility covers window moves. **Screen Recording is new** — opt-in, fail-closed, never silent, never at launch (same posture as 4d's weather alerts and 25's notification relocation).
+
+**Risks.** A new overlay window + global input surface: keep it **off by default** and inert when off, `.ignoresMouseEvents` except over a sector, `.nonactivatingPanel`, and honour the B1/B2 ownership lesson. *Resize adjacent windows* and cycles are the pieces most likely to fight native animations — do them last. Per §5: no code injection, study-only on the GPL-3.0 prior, NOTICE credit if behaviour is derived.
+
+**Verify.** Sectors hit-test at every angle; the layout never loses an action; cycles are reversible (Initial Frame / Undo restore frames); capture never runs without the grant; everything inert when off; idle CPU flat; strings ×12; full gate.
+
+### Phase 32 — Dock/widget motion language + circular icon look (owner 2026-10-14; PROPOSED — suggestion only, not scheduled)
+
+**Two visual-language changes, deliberately separate from Phase 26.** Neither adds a capability; both change how already-shipped surfaces look and feel. **Owner-gated by nature** — they define the product's visual identity, so they get an eyeball gate, not just a test gate.
+
+**(A) Motion.** *Written after reviewing the reference video `macwidgetanimationlive.mp4` — the file itself is undecodable (AVFoundation returns `Code=-11829 "Cannot Open" … "This media may be damaged"`, and a hand atom-walk shows a corrupt atom after `moov`), so this section is derived from the animation model, not the clip. A PNG frame sharpens it.*
+
+Three motion tiers with very different cost:
+- **Tier 1 — state-change** (`withAnimation` / `.animation(value:)`): cheap, **zero idle CPU**, and roughly 80% of what people mean by "widget animation". Existing precedent in-tree: `FlipClockChip`.
+- **Tier 2 — continuous** (`TimelineView`): the **§4 idle-CPU gate** lives here, and the codebase already documents the fix — `ClockChip` **removed a per-second `Timer.publish`** and now ticks on minute boundaries via `TimelineView(.periodic(from: nextMinute, by: 60))`. Rule: schedule on the resolution the widget actually displays, stop it in `onDisappear`, never run a free-running 60 fps loop.
+- **Tier 3 — panel/frame motion** (`NSAnimationContext`, 15 uses today): riskiest, and it must follow the Phase 11/18 capsule-ownership lesson (B1/B2).
+
+**Availability trap.** The floor is **macOS 12** and `check_availability_warnings.py` **fails the build** on any *"only available in macOS N"* warning in our sources — so `PhaseAnimator`, `.symbolEffect` and `contentTransition` need `#available` guards (the `ViewThatFits` pattern `ClockChip` already uses). None of those APIs exist in the tree today.
+
+**Motion as data (the testable seam).** A pure `WidgetMotion` token table in Core — durations / easings / springs per widget, overridable in Settings, mirroring 11e's `DockSizeClass` / `DockSpacing`. Witnesses are token tests + the existing `DOCK_CHIP_ANIM_TRACE` / `DOCK_LABEL_ANIM` / `DOCK_CHIP_PROBE` switches + a manual Release live check — **this repo has no visual-regression harness**, so screenshots stay a human witness.
+
+**(B) Circular / icon-type dock.** ~80% already exists: `ChipView.iconOnly` (used on side rails *and* messaging apps), `BarSection.railTileLength` (the square-tile measure), `RunningDotEdge` (already adapts per placement), plus `dockScale` magnification and `DragLandingPlan` flight. The cheap route is an opt-in **`DockIconFrame { pill, squircle, circle }`** token on `DockStyle` / `DockThemeTokens`, **default = today's pill**, behind a debug switch. Prefer **squircle wells over true circles** — square-cornered icon artwork (Finder, Trash) is cropped by a hard `Circle()`.
+
+**Slices (suggestion order).** 32a `WidgetMotion` tokens + tests (pure) → 32b one Tier-1 widget morph on data change → 32c ambient motion **only with an Instruments idle-CPU number in the PR** → 32d `DockIconFrame` opt-in + Settings → 32e strings ×12 + live check + screenshot proof.
+
+**Risks.** Tier 2/3 burn idle CPU (the hard gate); circular tiles change hit-testing (reuse the 18c-2 axis helpers — `StripPointerBox`, `StripHoverResolution` — rather than re-deriving); circular wells crop icon artwork; and any of it must stay visually consistent with `DockThemeTokens.panelRimTop/Bottom` + the 0.18 rim, or it reads as a foreign skin. Both halves are owner-gated visual-language changes, so neither ships silently behind a default.
+
+**Verify.** Motion token defaults pinned by tests; Instruments shows ≤ island baseline with everything idle; every newer-than-12 API guarded; `DockIconFrame`'s default is byte-identical to today's pill; strings ×12; full gate.
+
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
 **Note:** the AI agent may analyse the live app to do both parts together — they touch the same pages
