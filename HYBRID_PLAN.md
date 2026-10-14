@@ -3593,6 +3593,28 @@ Posture (matching this plan's default-off habit): master toggle **off** → once
   write cannot become a move storm). Tests: `Tests/Unit/NotificationPlacementTests.swift` (12).
   Gate: **2,316 tests / 0 failures**, localization ✅ (746 keys ×12), debug-switch ✅,
   availability ✅. **Not yet:** the AX observer + move, Settings, honest copy (25b–c).
+- 2026-10-14 · **25b — observer + move + Settings — PASS.** New `App/Composition/NotificationMoveService.swift`
+  (`NotificationMoveService.shared`): one `AXObserver` on the `com.apple.notificationcenterui` process
+  (app-level window-created + `AXChildrenChanged`, then per-window children-changed/destroyed),
+  registered on the main run loop; every notification runs the bounded window walk →
+  `NotificationUICapability.evaluate` → a single `AXUIElementSetAttributeValue` position write. The
+  window (usually full-screen-sized) moves, not the banner: the banner's offset inside its window is
+  preserved, so the pure `NotificationPlacement.frame` math stays in banner space. First move per
+  window records the original origin; turning the toggle off (or quitting) restores every window we
+  touched and drops the observer, so idle AX traffic is structurally zero. Idempotence (<1 pt) skips
+  a redundant write, and the 0.35 s `NotificationMoveGuard` cooldown caps a move storm. Off by
+  default (`com.katikati.notifications.move`), slot `com.katikati.notifications.position` (raw values
+  `top-left` … `bottom-right`, default `top-center` = macOS's own placement). No new permission
+  (Accessibility is already required); without the grant the toggle clears itself, like KeyGuard's
+  permission posture. Wiring: `AppDelegate.refresh()` + `tearDown()`, and a Settings › Layout
+  **Notifications** section (enable toggle → position menu of the 8 slots, shown only while on).
+  **No new `DOCK_*` switch** — the feature is a single fail-closed observer, not a debug-switchable
+  pipeline; move results are logged at info/warning in the `notifmove` category instead.
+  Strings: +7 keys ×12 languages (reusing the existing `Top Left`/`Top Right`/`Bottom Left`/
+  `Bottom Right`/`Position` keys; translations are agent-drafted, owner review pending per §1.7b).
+  Gate: 2,316 tests / 0 failures, `** TEST SUCCEEDED **`, localization ✅ (753 keys ×12),
+  debug-switch ✅, availability ✅. **Not yet:** live probe + honest-copy verification (25c).
+
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
 
 **Goal.** A compact Raycast/Sol-style command palette summoned by **⌘Space**, made **default**, sitting

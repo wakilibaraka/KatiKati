@@ -269,6 +269,7 @@ enum BottomEdgeChoice: Hashable {
 struct SettingsLayoutPane: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var keyGuard = KeyGuardService.shared
+    @ObservedObject private var notifMove = NotificationMoveService.shared
     @State private var newPresetName = ""
     /// Fine-tune starts collapsed: styles + Size/Spacing cover the common choices (Phase 11f).
     @State private var showsFineTune = false
@@ -885,6 +886,29 @@ struct SettingsLayoutPane: View {
                 Text("Double-tap shortcuts need the Accessibility permission. ⌃Space may also switch input sources.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
+
+            section {
+                Text("Notifications")
+            } content: {
+                Toggle("Move Notification Banners", isOn: Binding(
+                    get: { notifMove.isEnabled },
+                    set: { notifMove.setEnabled($0) }
+                ))
+                Text("KatiKati moves each notification banner to the position you pick with the Accessibility API. Notification Center's private interface changes between macOS updates: when the layout looks unfamiliar, KatiKati leaves notifications alone, and only the first banner of a burst moves. Turning this off restores the macOS default immediately.")
+                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                if notifMove.isEnabled {
+                    HStack {
+                        Text("Position")
+                        Spacer(minLength: 12)
+                        Picker("Position", selection: Binding(get: { notifMove.slot }, set: { notifMove.setSlot($0) })) {
+                            ForEach(NotificationSlot.allCases, id: \.self) { slot in
+                                notificationSlotTitle(slot).tag(slot)
+                            }
+                        }
+                        .labelsHidden().pickerStyle(.menu).fixedSize()
+                    }
+                }
+            }
         }
         .padding(Self.margin)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -916,6 +940,19 @@ struct SettingsLayoutPane: View {
         case .clock: return Text("Clock")
         case .commandBar: return Text("Command Bar")
         case .translate: return Text("Translate")
+        }
+    }
+
+    private func notificationSlotTitle(_ slot: NotificationSlot) -> Text {
+        switch slot {
+        case .topLeft: return Text("Top Left")
+        case .topCenter: return Text("Top Center")
+        case .topRight: return Text("Top Right")
+        case .middleLeft: return Text("Middle Left")
+        case .middleRight: return Text("Middle Right")
+        case .bottomLeft: return Text("Bottom Left")
+        case .bottomCenter: return Text("Bottom Center")
+        case .bottomRight: return Text("Bottom Right")
         }
     }
 

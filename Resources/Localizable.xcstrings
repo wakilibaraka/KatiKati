@@ -55849,6 +55849,125 @@
         "it": { "stringUnit": { "state": "translated", "value": "Mostra i tasti che premi in una piccola sovrapposizione. Visualizza quello che digita — trattalo come un rischio di condivisione dello schermo. Nulla viene registrato o salvato, e si nasconde da sola quando smetti di digitare." } },
         "ko": { "stringUnit": { "state": "translated", "value": "작은 오버레이에 누르는 키를 표시합니다. 입력 내용이 표시되므로 화면 공유 위험으로 취급하세요. 아무것도 기록하거나 저장하지 않으며, 입력을 멈추면 저절로 사라집니다." } }
       }
+    },
+    "Bottom Center": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Bottom Center" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "底部居中" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "底部置中" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "下部中央" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Unten Mitte" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "En bas au centre" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Abajo al centro" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Abajo al centro" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Centro inferior" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Centro inferior" } },
+        "it": { "stringUnit": { "state": "translated", "value": "In basso al centro" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "하단 가운데" } }
+      }
+    },
+    "KatiKati moves each notification banner to the position you pick with the Accessibility API. Notification Center's private interface changes between macOS updates: when the layout looks unfamiliar, KatiKati leaves notifications alone, and only the first banner of a burst moves. Turning this off restores the macOS default immediately.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "KatiKati moves each notification banner to the position you pick with the Accessibility API. Notification Center's private interface changes between macOS updates: when the layout looks unfamiliar, KatiKati leaves notifications alone, and only the first banner of a burst moves. Turning this off restores the macOS default immediately." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "KatiKati 使用辅助功能 API 把每条通知横幅移到你选择的位置。通知中心的界面属于私有实现，会随 macOS 更新而改变：界面一旦看起来不同，KatiKati 就保持通知原位不动；连续来的多条通知中只有第一条会被移动。关闭后会立即恢复 macOS 的默认位置。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "KatiKati 使用輔助功能 API 把每則通知橫幅移到你選擇的位置。通知中心的介面屬於私有實作，會隨 macOS 更新而改變：介面一旦看起來不同，KatiKati 就保持通知原位不動；連續來的多則通知中只有第一則會被移動。關閉後會立即恢復 macOS 的預設位置。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "KatiKati はアクセシビリティ API を使って、通知バナーを指定した位置に移動します。通知センターのインターフェースは非公開のもので、macOS のアップデートごとに変わる場合があります。表示が想定と異なるときは通知をそのままにしておき、連続して届く通知では最初の 1 件だけが移動します。オフにすると macOS のデフォルト位置に戻ります。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "KatiKati verschiebt jeden Mitteilungsbanner über die Accessibility-API auf die von dir gewählte Position. Die private Schnittstelle des Mitteilungszentrums ändert sich mit jedem macOS-Update: Sieht das Layout anders aus als erwartet, lässt KatiKati die Mitteilungen unverändert, und nur der erste Banner eines Stapels wird verschoben. Ausschalten stellt die macOS-Standardposition sofort wieder her." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "KatiKati déplace chaque bannière de notification à la position choisie via l'API d'accessibilité. L'interface privée du Centre de notifications change d'une version macOS à l'autre : si la disposition ne correspond pas à ce qui est attendu, KatiKati laisse les notifications à leur place, et seule la première bannière d'une salve est déplacée. Désactiver cette option rétablit immédiatement la position par défaut de macOS." } },
+        "es": { "stringUnit": { "state": "translated", "value": "KatiKati mueve cada notificación emergente a la posición que elijas mediante la API de Accesibilidad. La interfaz privada del Centro de notificaciones cambia con cada actualización de macOS: si el diseño no es el esperado, KatiKati deja las notificaciones donde están, y solo se mueve el primer aviso de una ráfaga. Al desactivarlo se restaura de inmediato la posición predeterminada de macOS." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "KatiKati mueve cada banner de notificación a la posición que elijas mediante la API de Accesibilidad. La interfaz privada del Centro de notificaciones cambia con cada actualización de macOS: si el diseño no es el esperado, KatiKati deja las notificaciones donde están, y solo se mueve el primer banner de una ráfaga. Al desactivarlo se restaura de inmediato la posición predeterminada de macOS." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "O KatiKati move cada banner de notificação para a posição escolhida por você usando a API de Acessibilidade. A interface privada do Centro de Notificações muda a cada atualização do macOS: se o layout não for o esperado, o KatiKati deixa as notificações como estão, e apenas o primeiro banner de uma sequência é movido. Desativar isso restaura imediatamente a posição padrão do macOS." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "O KatiKati move cada banner de notificação para a posição escolhida por si através da API de Acessibilidade. A interface privada do Centro de Notificações muda a cada atualização do macOS: se a disposição não for a esperada, o KatiKati deixa as notificações onde estão, e apenas o primeiro banner de uma série é movido. Desativar esta opção repõe de imediato a posição predefinida do macOS." } },
+        "it": { "stringUnit": { "state": "translated", "value": "KatiKati sposta ogni banner di notifica nella posizione che scegli tramite l'API di accessibilità. L'interfaccia privata del Centro notifiche cambia con ogni aggiornamento di macOS: se il layout non è quello previsto, KatiKati lascia le notifiche dov'erano, e solo il primo banner di una raffica viene spostato. Disattivandolo ripristina subito la posizione predefinita di macOS." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "KatiKati는 접근성 API를 사용해 알림 배너를 원하는 위치로 옮깁니다. 알림 센터의 비공개 인터페이스는 macOS 업데이트마다 달라질 수 있습니다. 화면 구조가 예상과 다르면 알림을 그대로 두고, 연속으로 오는 알림에서는 첫 배너만 옮깁니다. 끄면 macOS 기본 위치로 즉시 돌아옵니다." } }
+      }
+    },
+    "Middle Left": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Middle Left" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "左侧居中" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "左側置中" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "左中央" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Links Mitte" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "À gauche au centre" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Izquierda al centro" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Izquierda al centro" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Centro esquerdo" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Centro esquerdo" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Sinistra al centro" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "왼쪽 가운데" } }
+      }
+    },
+    "Middle Right": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Middle Right" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "右侧居中" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "右側置中" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "右中央" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Rechts Mitte" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "À droite au centre" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Derecha al centro" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Derecha al centro" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Centro direito" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Centro direito" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Destra al centro" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "오른쪽 가운데" } }
+      }
+    },
+    "Move Notification Banners": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Move Notification Banners" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "移动通知横幅" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "移動通知橫幅" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "通知バナーを移動" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Mitteilungsbanner verschieben" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Déplacer les bannières de notification" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mover las notificaciones emergentes" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mover los banners de notificaciones" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mover os banners de notificações" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mover os banners de notificações" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Sposta i banner delle notifiche" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "알림 배너 위치 이동" } }
+      }
+    },
+    "Notifications": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Notifications" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "通知" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "通知" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "通知" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Mitteilungen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Notifications" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Notificaciones" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Notificaciones" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Notificações" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Notificações" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Notifiche" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "알림" } }
+      }
+    },
+    "Top Center": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Top Center" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "顶部居中" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "頂部置中" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "上部中央" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Oben Mitte" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "En haut au centre" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Arriba al centro" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Arriba al centro" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Centro superior" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Centro superior" } },
+        "it": { "stringUnit": { "state": "translated", "value": "In alto al centro" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "상단 가운데" } }
+      }
     }
   },
   "version": "1.0"
