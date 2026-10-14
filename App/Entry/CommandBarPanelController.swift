@@ -17,6 +17,7 @@ final class CommandBarPanelController {
     private let store = LauncherStore(url: LauncherStore.defaultURL)
     private let model = CommandBarModel()
     private var appsObserver: AnyCancellable?
+    private var queryObserver: AnyCancellable?
     private var keyMonitor: Any?
     private var outsideMonitor: Any?
 
@@ -63,7 +64,13 @@ final class CommandBarPanelController {
             case 53: self.dismiss(); return nil              // Esc
             case 125: self.model.move(1); return nil         // ↓
             case 126: self.model.move(-1); return nil        // ↑
-            case 36, 76: self.runSelected(); return nil       // Return / keypad Enter
+            case 36, 76:                                     // Return / keypad Enter
+                if event.modifierFlags.contains(.command) { self.revealSelected() } else { self.runSelected() }
+                return nil
+            case 8 where event.modifierFlags.contains(.command):   // ⌘C
+                self.copyPathSelected(); return nil
+            case 51 where event.modifierFlags.contains(.command):  // ⌘⌫
+                self.trashSelected(); return nil
             default: return event
             }
         }
@@ -145,6 +152,49 @@ final class CommandBarPanelController {
         case .path(let path):
             dismiss()
             NSWorkspace.shared.open(URL(fileURLWithPath: path))
+        case .file(let entry):
+            dismiss()
+            NSWorkspace.shared.open(URL(fileURLWithPath: entry.path))
+        }
+    }
+
+    /// File-row extras (Phase 29g): ⌘⏎ reveal, ⌘C copy path, ⌘⌫ trash.
+    private func selectedFile() -> FileEntry? {
+        guard model.results.indices.contains(model.selection),
+              case .file(let entry) = model.results[model.selection] else { return nil }
+        return entry
+    }
+
+    private func revealSelected() {
+        guard let file = selectedFile() else { runSelected(); return }
+        dismiss()
+        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: file.path)])
+    }
+
+    private func copyPathSelected() {
+        guard let file = selectedFile() else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(file.path, forType: .string)
+    }
+
+    private func trashSelected() {
+        guard let file = selectedFile() else { return }
+        NSWorkspace.shared.recycle([URL(fileURLWithPath: file.path)], completionHandler: nil)
+        model.files.removeAll { $0.path == file.path }
+        model.refresh()
+    }
+
+    /// `f `/`img ` run a debounced Spotlight search off the main thread (Phase 29g).
+    private func searchFiles(_ query: String) {
+        guard case .mode(let mode, let argument)? = CommandKeyword.parse(query), mode == .file || mode == .image else {
+            model.files = []
+            return
+        }
+        let fileQuery = FileQuery.parse(argument, imageOnly: mode == .image)
+        guard fileQuery.isValid else { model.files = []; model.refresh(); return }
+        Task.detached(priority: .userInitiated) { [weak self] in
+            let entries = FileSearchService.search(fileQuery)
+            await MainActor.run { self?.model.files = entries; self?.model.refresh() }
         }
     }
 
@@ -220,6 +270,9 @@ final class CommandBarPanelController {
             self?.model.apps = apps
             self?.model.refresh()
         }
+        queryObserver = model.$query
+            .debounce(for: .milliseconds(150), scheduler: DispatchQueue.main)
+            .sink { [weak self] query in self?.searchFiles(query) }
         return panel
     }
 }

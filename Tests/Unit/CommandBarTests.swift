@@ -172,6 +172,29 @@ final class CommandKeywordTests: XCTestCase {
     }
 }
 
+final class FileQueryTests: XCTestCase {
+    func testParseOperators() {
+        let query = FileQuery.parse("report ext:pdf;docx kind:doc in:~/Docs !draft")
+        XCTAssertEqual(query.terms, ["report"])
+        XCTAssertEqual(query.extensions, ["pdf", "docx"])
+        XCTAssertEqual(query.kinds, ["doc"])
+        XCTAssertEqual(query.excluded, ["draft"])
+        XCTAssertEqual(query.path, (NSHomeDirectory() as NSString).appendingPathComponent("Docs"))
+    }
+
+    func testValidityAndPredicate() {
+        XCTAssertFalse(FileQuery.parse("").isValid)
+        XCTAssertTrue(FileQuery.parse("report").predicate().contains("kMDItemFSName"))
+        XCTAssertTrue(FileQuery.parse("cat", imageOnly: true).predicate().contains("public.image"))
+    }
+
+    func testImageModeRowsPassThroughFiles() {
+        let entry = FileEntry(path: "/tmp/cat.png", name: "cat.png")
+        let rows = CommandBarResults.build(query: "img cat", apps: [], usage: [:], running: [], files: [entry])
+        XCTAssertEqual(rows, [.file(entry)])
+    }
+}
+
 final class SpotlightHandoffTests: XCTestCase {
 
     func testStepsAreOrderedAndNonEmpty() {

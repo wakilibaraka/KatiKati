@@ -14,10 +14,11 @@ final class CommandBarModel: ObservableObject {
     var usage: [String: LauncherUsage] = [:]
     var custom: [CustomCommand] = []
     var processes: [ProcessEntry] = []
+    var files: [FileEntry] = []
 
     func refresh() {
         results = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
-                                          custom: custom, processes: processes,
+                                          custom: custom, processes: processes, files: files,
                                           generate: { GeneratorService.value(for: $0) ?? "" })
         selection = 0
     }
@@ -127,6 +128,10 @@ struct CommandBarView: View {
                 Text(verbatim: (path as NSString).lastPathComponent)
                 Text(verbatim: path).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
                 Spacer(minLength: 0)
+            case .file(let entry):
+                Text(verbatim: entry.name)
+                Text(verbatim: entry.path).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
+                Spacer(minLength: 0)
             }
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
@@ -163,6 +168,9 @@ struct CommandBarView: View {
             Image(systemName: "bolt.fill").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .path:
             Image(systemName: "doc").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .file(let entry):
+            Image(nsImage: LauncherIconCache.icon(forPath: entry.path))
+                .resizable().aspectRatio(contentMode: .fit).frame(width: 24, height: 24)
         }
     }
 }
