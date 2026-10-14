@@ -173,6 +173,10 @@ struct CommandBarView: View {
             case .trash(let action):
                 Text(action == .open ? "Open Trash" : "Empty Trash")
                 Spacer(minLength: 0)
+            case .emoji(let entry):
+                Text(verbatim: entry.char).font(.system(size: 18))
+                Text(verbatim: entry.name).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
+                Spacer(minLength: 0)
             }
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
@@ -216,6 +220,8 @@ struct CommandBarView: View {
             Image(systemName: "doc.on.clipboard").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .trash(let action):
             Image(systemName: action.symbol).font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .emoji(let entry):
+            Text(verbatim: entry.char).font(.system(size: 20)).frame(width: 24, height: 24)
         }
     }
 }

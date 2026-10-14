@@ -183,6 +183,12 @@ final class CommandKeywordTests: XCTestCase {
         XCTAssertEqual(CommandBarResults.build(query: "trash", apps: [], usage: [:], running: []),
                        [.trash(.open), .trash(.empty)])
     }
+
+    func testEmojiModeMatchesByName() {
+        XCTAssertTrue(EmojiCatalog.matching("heart").contains { $0.char == "❤️" })
+        let rows = CommandBarResults.build(query: "emoji heart", apps: [], usage: [:], running: [])
+        guard case .emoji? = rows.first else { return XCTFail("expected emoji rows, got \(rows)") }
+    }
 }
 
 final class FileQueryTests: XCTestCase {

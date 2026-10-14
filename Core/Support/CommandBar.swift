@@ -50,6 +50,8 @@ enum CommandBarResult: Equatable, Sendable {
     case clip(ClipEntry)
     /// A Trash operation (Phase 30d/e).
     case trash(TrashAction)
+    /// An emoji (Phase 30f): copy it.
+    case emoji(EmojiEntry)
 }
 
 /// Phase 28a: a generator row — type a keyword, get a fresh value to copy. The pure cases make their own
@@ -218,6 +220,8 @@ enum CommandBarResults {
             let needle = argument.lowercased()
             let matched = needle.isEmpty ? clips : clips.filter { $0.text.lowercased().contains(needle) }
             return matched.map(CommandBarResult.clip)
+        case .emoji:
+            return EmojiCatalog.matching(argument).prefix(40).map(CommandBarResult.emoji)
         case .kill, .forceQuit:
             let matched = argument.isEmpty
                 ? running

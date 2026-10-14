@@ -166,6 +166,10 @@ final class CommandBarPanelController {
             case .empty: confirmEmptyTrash()
             case .emptyWithoutConfirmation: TrashStateStore.shared.emptyTrash()
             }
+        case .emoji(let entry):
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(entry.char, forType: .string)
+            dismiss()
         }
     }
 
