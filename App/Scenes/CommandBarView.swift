@@ -86,6 +86,12 @@ struct CommandBarView: View {
                     Text("Quit").font(.system(size: 11)).foregroundColor(.secondary)
                 }
                 Spacer(minLength: 0)
+            case .generator(let generator, let value):
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: generator.displayName).font(.system(size: 13, weight: .medium))
+                    Text(verbatim: value).font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary).lineLimit(1)
+                }
+                Spacer(minLength: 0)
             }
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
@@ -105,6 +111,8 @@ struct CommandBarView: View {
         case .quit(let running):
             Image(nsImage: LauncherIconCache.icon(forPath: running.path))
                 .resizable().aspectRatio(contentMode: .fit).frame(width: 24, height: 24)
+        case .generator:
+            Image(systemName: "wand.and.stars").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         }
     }
 }

@@ -49,6 +49,45 @@ final class CommandBarTests: XCTestCase {
     }
 }
 
+final class CommandGeneratorTests: XCTestCase {
+    private struct SeededRNG: RandomNumberGenerator {
+        var state: UInt64
+        mutating func next() -> UInt64 {
+            state = state &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407
+            return state
+        }
+    }
+
+    func testMatch() {
+        XCTAssertEqual(CommandGenerator.match("uuid"), .uuid)
+        XCTAssertEqual(CommandGenerator.match("UUID"), .uuid)
+        XCTAssertEqual(CommandGenerator.match("nanoid"), .nanoID)
+        XCTAssertEqual(CommandGenerator.match("lorem"), .loremIpsum)
+        XCTAssertNil(CommandGenerator.match("uu"), "partial words do not match")
+        XCTAssertNil(CommandGenerator.match(""))
+        XCTAssertNil(CommandGenerator.match("zzz"))
+    }
+
+    func testNanoIDLengthAndCharset() {
+        var rng = SeededRNG(state: 1)
+        let id = CommandGenerator.nanoID.value(using: &rng)
+        XCTAssertEqual(id.count, CommandGenerator.nanoIDLength)
+        XCTAssertTrue(id.allSatisfy { "_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".contains($0) })
+    }
+
+    func testLoremIsASentence() {
+        var rng = SeededRNG(state: 7)
+        let text = CommandGenerator.loremIpsum.value(using: &rng)
+        XCTAssertFalse(text.isEmpty)
+        XCTAssertTrue(text.hasSuffix("."))
+    }
+
+    func testBuildPrependsGeneratorRow() {
+        let rows = CommandBarResults.build(query: "uuid", apps: [], usage: [:], running: [], generate: { _ in "fixed" })
+        guard case .generator(.uuid, "fixed") = rows.first else { return XCTFail("expected generator row, got \(rows)") }
+    }
+}
+
 final class SpotlightHandoffTests: XCTestCase {
 
     func testStepsAreOrderedAndNonEmpty() {

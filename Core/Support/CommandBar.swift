@@ -21,20 +21,88 @@ enum CommandBarResult: Equatable, Sendable {
     case app(LauncherApp)
     /// Quit a running app (graceful `terminate()`; the UI confirms first).
     case quit(RunningAppRef)
+    /// A generated value (Phase 28a): copy it.
+    case generator(CommandGenerator, value: String)
+}
+
+/// Phase 28a: a generator row — type a keyword, get a fresh value to copy. The pure cases make their own
+/// value here; system-backed ones (JSON / IP / Wi-Fi) are filled by the app layer when it calls
+/// `CommandBarResults.build(generate:)`.
+enum CommandGenerator: String, CaseIterable, Sendable {
+    case uuid
+    case nanoID = "nanoid"
+    case loremIpsum = "lorem"
+
+    var keyword: String { rawValue }
+
+    /// Shown in the row (not localized — these are proper names).
+    var displayName: String {
+        switch self {
+        case .uuid: return "UUID"
+        case .nanoID: return "NanoID"
+        case .loremIpsum: return "Lorem Ipsum"
+        }
+    }
+
+    /// Matches only the complete keyword (case-insensitive). Prefix matching would surface a generator
+    /// for every app whose name starts with `u`/`n`/`l`, so the user types the word in full.
+    static func match(_ query: String) -> CommandGenerator? {
+        let q = query.trimmingCharacters(in: .whitespaces).lowercased()
+        guard !q.isEmpty else { return nil }
+        return allCases.first { $0.keyword == q }
+    }
+
+    func value() -> String {
+        var rng = SystemRandomNumberGenerator()
+        return value(using: &rng)
+    }
+
+    func value<R: RandomNumberGenerator>(using rng: inout R) -> String {
+        switch self {
+        case .uuid: return UUID().uuidString
+        case .nanoID: return Self.nanoID(using: &rng)
+        case .loremIpsum: return Self.loremIpsum(using: &rng)
+        }
+    }
+
+    static let nanoIDLength = 21
+    private static let alphabet = Array("_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+    private static func nanoID<R: RandomNumberGenerator>(using rng: inout R) -> String {
+        String((0..<nanoIDLength).map { _ in alphabet[Int.random(in: 0..<alphabet.count, using: &rng)] })
+    }
+
+    private static let loremWords = ["lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit",
+                                     "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore",
+                                     "magna", "aliqua", "enim", "veniam", "quis", "nostrud", "exercitation"]
+
+    private static func loremIpsum<R: RandomNumberGenerator>(using rng: inout R) -> String {
+        let words = (0..<12).map { _ in loremWords[Int.random(in: 0..<loremWords.count, using: &rng)] }
+        let sentence = words.joined(separator: " ")
+        return sentence.prefix(1).uppercased() + sentence.dropFirst() + "."
+    }
 }
 
 enum CommandBarResults {
-    /// The rows for `query`, in display order: answers → running-app quit rows → app matches. A
-    /// non-app route (math/web) yields only its answer rows. Empty input yields nothing.
+    /// The rows for `query`, in display order: answers / generator → running-app quit rows → app matches.
+    /// A non-app route (math/web) yields only its answer rows. Empty input yields nothing. `generate`
+    /// fills a generator's value (the app layer handles the system-backed ones).
     static func build(query: String,
                       apps: [LauncherApp],
                       usage: [String: LauncherUsage],
-                      running: [RunningAppRef]) -> [CommandBarResult] {
+                      running: [RunningAppRef],
+                      generate: (CommandGenerator) -> String = { $0.value() }) -> [CommandBarResult] {
         let routed = LauncherCommandParser.parse(query)
         guard case .apps(let term) = routed else {
             return LauncherAnswers.answers(for: routed).map(CommandBarResult.answer)
         }
         guard !term.isEmpty else { return [] }
+
+        var out: [CommandBarResult] = []
+        if let generator = CommandGenerator.match(term) {
+            let value = generate(generator)
+            if !value.isEmpty { out.append(.generator(generator, value: value)) }
+        }
 
         let quits = running
             .filter { LauncherSearch.score(query: term, name: $0.name) != nil }
@@ -45,7 +113,7 @@ enum CommandBarResults {
             }
             .map(CommandBarResult.quit)
 
-        return quits + LauncherSearch.search(term, in: apps, usage: usage).map(CommandBarResult.app)
+        return out + quits + LauncherSearch.search(term, in: apps, usage: usage).map(CommandBarResult.app)
     }
 }
 

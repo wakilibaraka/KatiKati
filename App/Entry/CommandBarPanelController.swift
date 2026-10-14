@@ -112,6 +112,10 @@ final class CommandBarPanelController {
         case .quit(let ref):
             dismiss()
             confirmQuit(ref)
+        case .generator(_, let value):
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(value, forType: .string)
+            dismiss()
         }
     }
 
