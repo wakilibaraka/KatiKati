@@ -59,6 +59,7 @@ struct ClipboardFlyoutView: View {
         }
         .buttonStyle(.plain)
         .contextMenu {
+            Button("Paste as Plain Text") { monitor.pastePlain(entry) }
             if entry.pinned { Button("Unpin") { monitor.togglePin(entry.id) } } else { Button("Pin") { monitor.togglePin(entry.id) } }
             Button("Delete") { monitor.remove(entry.id) }
         }

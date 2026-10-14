@@ -32,6 +32,8 @@ enum LiveEvent: Equatable, Sendable {
     case stopwatchStopped(elapsed: TimeInterval)
     /// The soonest upcoming event arrived at "today".
     case countdownReachedToday(label: String)
+    /// A text copy was recorded (Phase 22c, opt-in; delivered directly, not by the detector diff).
+    case clipboardCopied(preview: String)
 }
 
 enum LiveEventDetector {

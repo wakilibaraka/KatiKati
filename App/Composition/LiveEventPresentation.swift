@@ -55,6 +55,11 @@ struct LiveEventPresentation {
             symbol = "calendar"
             headline = String(format: String(localized: "%@ is today"), label)
             detail = nil
+
+        case let .clipboardCopied(preview):
+            symbol = "doc.on.clipboard"
+            headline = String(localized: "Clipboard")
+            detail = preview
         }
     }
 }

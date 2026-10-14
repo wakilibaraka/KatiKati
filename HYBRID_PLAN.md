@@ -3316,7 +3316,113 @@ idle CPU flat while off + disable restores every managed window.
   documented, translate stays offline-only. Each phase now carries Goal / Reference / Native path /
   Pure seams / Slices / Keys / Permissions / Risks / Verify; every slice is ≤ ~300 lines and
   gate-green. No production code touched.
+- 2026-10-14 · **21a — launcher command parser (pure + tests) — PASS (code), no UI.** New
+  `Core/Support/LauncherCommands.swift`: `LauncherQuery` (`.apps`/`.math`/`.web`/`.path`/`.script`/
+  `.shortcut`), `LauncherCommandParser.parse(_:prefixes:)` and `LauncherScriptSafety.classify(_:)`.
+  Grammar as planned (`>` script, `= math`, `@ web`, `/ path`); **shortcut prefix = `:`** (owner
+  delegated the choice; `~` rejected because a home-relative path `~/Docs` starts with it). Prefixes
+  live in a `LauncherCommandPrefixes` value with `.default`, so a Settings surface can swap them
+  without a parser change (owner: "user can modify in settings"). Tolerant routing: empty → `.apps("")`;
+  a bare prefix or unrecognised first char falls back to `.apps` (a stray prefix never hijacks search);
+  `.path` restores the leading `/` (route marker == path separator); only the leading prefix routes.
+  `LauncherScriptSafety` is **advisory only** (the 21c confirm step is the guarantee): segment split
+  on `;|&`/newline, base-name match against a destructive-command set (so `/bin/rm` and `mkfs.ext4`
+  match), plus fork-bomb / `> /` / `| sh` / `do shell script` markers. Tests:
+  `Tests/Unit/LauncherCommandsTests.swift` (15 cases). pbxproj: +10 lines, `plutil` OK. **Verified:**
+  `xcodebuild test` 2,234 tests / 0 failures · `check_localization.py` ✅ · `check_debug_switches.py`
+  ✅ · `check_availability_warnings.py` ✅. `LauncherRanking` (answer-row ordering) deferred to 21b
+  with its UI, as planned. No user-facing strings, no debug switch, no CHANGELOG (internals only).
+- 2026-10-14 · **21b — launcher math/web answer rows — PASS (code).** New
+  `Core/Support/LauncherAnswers.swift` (`LauncherAnswer` + `LauncherAnswers.answers(for:)`). Wired into
+  `App/Scenes/LauncherView.swift`: a query routing to `.math`/`.web` shows answer rows above app matches
+  (Return = copy the result / open the web search), reusing `CalculatorEngine` and the existing
+  "Search the Web" string. `LauncherRanking` was **not** built: answer rows occupy their own section
+  above the grid, so no interleaving/ranking is needed (recorded deviation). Tests:
+  `Tests/Unit/LauncherAnswersTests.swift` (4). No new strings.
+- 2026-10-14 · **21c — script/shortcut runner — PASS (code).** New
+  `App/Composition/LauncherRunner.swift`: `.script` → `osascript -e`, `.shortcut` → `shortcuts run`,
+  both gated off by default behind `com.katikati.launcher.scripts.enabled`; a destructive script
+  (`LauncherScriptSafety`) gets an `NSAlert` confirm first. `LauncherView` offers a Run row only while
+  the setting is on; Settings › Launcher › Script Commands toggles it (new strings "Run Script",
+  "Script Commands"). The one-time Automation/Shortcuts prompt fires only on first real use.
+- 2026-10-14 · **21d — docs — PASS.** `Docs/WIDGET_INVENTORY.md` §5 now documents the command grammar.
+  The visible "action hints row" was **deferred** (would add localized copy for marginal value; the
+  grammar is documented and the Settings toggle names the feature) — revisit with the Phase 27 bar.
+  The `.path` route is reserved but **not wired** yet (deferred).
+- 2026-10-14 · **22a — clipboard ignore rules + toast policy (pure + tests) — PASS.** New
+  `Core/Support/ClipboardPlus.swift` (`ClipboardIgnoreRules`: `/regex/`-or-substring lines,
+  `ClipboardToastPolicy`). `ClipboardMonitor.poll` applies the rules (key
+  `com.katikati.clipboard.ignorePatterns`) so matched copies are never recorded. Tests:
+  `Tests/Unit/ClipboardPlusTests.swift` (7).
+- 2026-10-14 · **22b/c/d — clipboard sounds, copy toast, paste-as-plain-text — PASS (code).** Copy sound
+  `NSSound("Tink")` (`com.katikati.clipboard.sounds`, off) and copy toast
+  (`com.katikati.clipboard.notchToast`, off) via a new `LiveEvent.clipboardCopied` case delivered
+  through the existing `LiveEventCenter` (so it follows the island route/notch). `ClipboardMonitor`
+  gained `onRecorded`; `pastePlain(_:)` copies then posts ⌘V (needs Accessibility; silent if denied).
+  Flyout menu item "Paste as Plain Text". Settings › Clipboard rows for both toggles + ignore-pattern
+  field. Reduce-Motion is **not** special-cased in the toast (matches the existing presenters —
+  recorded gap).
+- 2026-10-14 · **22e — PDF reduce — PASS (code).** New `Core/Support/PDFReducePlan.swift` (pure quality /
+  raster scale) + `ShelfActions.reducePDF` (PDFKit: each page re-rasterised at 75 % and JPEG-encoded at
+  60 %, fail-closed). Wired into the shelf selection bar and per-item menu (reuses "Compress"). Tests:
+  `Tests/Unit/PDFReducePlanTests.swift` (2). **Trade-off:** pages become raster (text no longer
+  selectable) — the standard "reduce file size" behaviour.
+- 2026-10-14 · **Phases 21 + 22 gate — PASS.** `xcodebuild test` 2,247 tests / 0 failures ·
+  `check_localization.py` ✅ (721 keys) · `check_debug_switches.py` ✅ · `check_availability_warnings.py`
+  ✅. New strings (7): "Copy Sounds", "Copy Notifications", "Ignore Patterns", "Paste as Plain Text",
+  "Run Script", "Script Commands" (**translations are drafts — §1.7b review pending**). No CHANGELOG
+  (no shipped UI release yet).
+- 2026-10-14 · **Phase 27 planned (owner 2026-10-14): Sol-like ⌘Space command bar.** See the new
+  section below.
 
+
+### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
+
+**Goal.** A compact Raycast/Sol-style command palette summoned by **⌘Space**, made **default**, sitting
+**separate** from the existing full-screen launcher (which keeps ⌥Space). It answers math, launches apps,
+searches the web, runs commands, and can **kill an app** — the Sol behaviours the owner asked for.
+
+**Owner decisions (locked 2026-10-14).**
+- **Native reimplementation, no ported code.** Sol is React Native and its licence is unverified (§5
+  study-only policy): implement the *behaviours*, never copy code. A NOTICE entry lands only if behaviour
+  is directly derived.
+- **Default = the bar on ⌘Space; the full-screen launcher is untouched** on its own shortcut (⌥Space).
+- **Spotlight replacement is guided, not silent.** macOS exposes no API to take ⌘Space; the user must
+  clear it in System Settings › Keyboard Shortcuts › Spotlight. KatiKati ships a first-run/Settings helper
+  with a deep link and a "press ⌘Space to test" check; the Carbon hotkey registers only once the slot is
+  free, and the UI says so.
+
+**Reference.** `ospfranco/sol` — *verify licence at activation*; behaviour study only (action taxonomy,
+answer-row ordering, kill-app flow).
+
+**Native path.** Reuse `LauncherIndexer`/`LauncherSearch` (7B), `LauncherCommandParser`/`LauncherAnswers`
+(21), `CalculatorEngine`, and `LauncherScriptSafety`. A new non-activating `NSPanel` hosts a search field
++ result list. **Kill app:** list running apps (`NSWorkspace.shared.runningApplications`) as results; an
+explicit "Quit / Force Quit" action calls `terminate()` / `forceTerminate()` behind a confirm.
+
+**Pure seams (tested first).**
+- `CommandBarResults.build(query:apps:usage:running:) -> [CommandBarResult]` — one ordered list
+  (answer rows → kill-app matches → app matches), stable tie-break; this is the `LauncherRanking` dropped
+  from 21b.
+- `SpotlightHandoff.steps(for os:) -> [String]` — the exact Settings path per macOS version.
+- `KillAppConfirmation.plan(for app:) -> …` — whether a confirm is needed and the button wording.
+
+**Slices.** 27a pure results + kill-app plan + Spotlight steps (pure + tests) → 27b panel + summon
+(`ShortcutAction.commandBar`, default ⌘Space) reusing the 21b answer rows → 27c kill-app action with
+confirm → 27d Spotlight handoff onboarding step + Settings + strings ×12 → 27e verify.
+
+**Keys / settings.** `com.katikati.commandbar.enabled` (default on once the shortcut is free),
+`com.katikati.commandbar.spotlightHintSeen`; new `ShortcutAction.commandBar` default ⌘Space.
+
+**Permissions.** None new (kill uses only public `NSRunningApplication`, which needs no Accessibility).
+
+**Risks / limits.** ⌘Space may stay held by Spotlight → the bar simply can't register; we guide, never
+fight. Sol licence unverified → native only. Killing an app can lose unsaved work → confirm + prefer a
+graceful `terminate()` first. A second palette must not fork the 7B launcher's systems (one index, one
+search) — the bar reuses them.
+
+**Verify.** ⌘Space summon after the user frees Spotlight; math/web/app rows reuse 21; kill-app asks first
+and works with Wi-Fi off; the old launcher still opens on ⌥Space; idle CPU flat while the bar is closed.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 

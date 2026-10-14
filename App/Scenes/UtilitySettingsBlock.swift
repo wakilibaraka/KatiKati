@@ -4,6 +4,10 @@ import SwiftUI
 /// is a menu action and needs none). Same plain-row shape as `LiveIslandSettingsBlock`.
 struct UtilitySettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
+    @AppStorage(ClipboardMonitor.soundsKey) private var clipboardSounds = false
+    @AppStorage(ClipboardMonitor.notchToastKey) private var clipboardToast = false
+    @AppStorage(ClipboardMonitor.ignorePatternsKey) private var clipboardIgnorePatterns = ""
+    @AppStorage(LauncherRunner.enabledKey) private var launcherScripts = false
 
     var body: some View {
         HStack {
@@ -11,6 +15,21 @@ struct UtilitySettingsBlock: View {
             Spacer(minLength: 12)
             Toggle("Clean Copied Links", isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) }))
                 .toggleStyle(.switch).labelsHidden()
+        }
+        Text("Clipboard").font(.headline)
+        row("Copy Sounds") {
+            Toggle("Copy Sounds", isOn: $clipboardSounds).toggleStyle(.switch).labelsHidden()
+        }
+        row("Copy Notifications") {
+            Toggle("Copy Notifications", isOn: $clipboardToast).toggleStyle(.switch).labelsHidden()
+        }
+        row("Ignore Patterns") {
+            TextField("Ignore Patterns", text: $clipboardIgnorePatterns)
+                .textFieldStyle(.roundedBorder).frame(width: 220)
+        }
+        Text("Launcher").font(.headline)
+        row("Script Commands") {
+            Toggle("Script Commands", isOn: $launcherScripts).toggleStyle(.switch).labelsHidden()
         }
         Text("Shelf").font(.headline)
         row("Shake to Shelf") {

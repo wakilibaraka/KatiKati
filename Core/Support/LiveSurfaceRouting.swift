@@ -121,6 +121,7 @@ extension LiveEvent {
         case .timerFinished: return "timerFinished"
         case .stopwatchStopped: return "stopwatchStopped"
         case let .countdownReachedToday(label): return "countdownToday|\(label)"
+        case let .clipboardCopied(preview): return "clipboard|\(preview)"
         }
     }
 }

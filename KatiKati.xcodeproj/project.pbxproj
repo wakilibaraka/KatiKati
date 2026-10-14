@@ -407,6 +407,18 @@
 		A00000000000000000009401 /* LauncherMenuPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009400 /* LauncherMenuPlan.swift */; };
 		A00000000000000000009402 /* LauncherMenuPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009400 /* LauncherMenuPlan.swift */; };
 		A00000000000000000009411 /* LauncherMenuPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009410 /* LauncherMenuPlanTests.swift */; };
+		A0000000000000000000C001 /* LauncherCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C000 /* LauncherCommands.swift */; };
+		A0000000000000000000C002 /* LauncherCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C000 /* LauncherCommands.swift */; };
+		A0000000000000000000C011 /* LauncherCommandsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C010 /* LauncherCommandsTests.swift */; };
+		A0000000000000000000D001 /* ClipboardPlus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000D000 /* ClipboardPlus.swift */; };
+		A0000000000000000000D002 /* ClipboardPlus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000D000 /* ClipboardPlus.swift */; };
+		A0000000000000000000D011 /* ClipboardPlusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000D010 /* ClipboardPlusTests.swift */; };
+		A0000000000000000000D021 /* PDFReducePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000D020 /* PDFReducePlan.swift */; };
+		A0000000000000000000D022 /* PDFReducePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000D020 /* PDFReducePlan.swift */; };
+		A0000000000000000000D031 /* PDFReducePlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000D030 /* PDFReducePlanTests.swift */; };
+		A0000000000000000000D041 /* LauncherAnswers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000D040 /* LauncherAnswers.swift */; };
+		A0000000000000000000D042 /* LauncherAnswers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000D040 /* LauncherAnswers.swift */; };
+		A0000000000000000000D051 /* LauncherAnswersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000D050 /* LauncherAnswersTests.swift */; };
 		A00000000000000000009501 /* KeptAppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009500 /* KeptAppStore.swift */; };
 		A00000000000000000009502 /* KeptAppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009500 /* KeptAppStore.swift */; };
 		A00000000000000000009511 /* RunningApplicationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009510 /* RunningApplicationStore.swift */; };
@@ -860,6 +872,7 @@
 		FA020000000000000000002 /* PinchGestureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA020000000000000000001 /* PinchGestureTests.swift */; };
 		EE000000000000000000003F /* SystemHealthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000003E /* SystemHealthTests.swift */; };
 		EE0000000000000000000045 /* ShortcutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000044 /* ShortcutService.swift */; };
+		A0000000000000000000E001 /* LauncherRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000E000 /* LauncherRunner.swift */; };
 		EE0000000000000000000047 /* ShortcutToastPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000046 /* ShortcutToastPresenter.swift */; };
 		EE0000000000000000000049 /* QuickToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000048 /* QuickToggles.swift */; };
 		EE000000000000000000004A /* QuickToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000048 /* QuickToggles.swift */; };
@@ -1171,6 +1184,14 @@
 		A00000000000000000009370 /* FolderChipDropZoneTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderChipDropZoneTests.swift; sourceTree = "<group>"; };
 		A00000000000000000009400 /* LauncherMenuPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherMenuPlan.swift; sourceTree = "<group>"; };
 		A00000000000000000009410 /* LauncherMenuPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherMenuPlanTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000C000 /* LauncherCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherCommands.swift; sourceTree = "<group>"; };
+		A0000000000000000000C010 /* LauncherCommandsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherCommandsTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000D000 /* ClipboardPlus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardPlus.swift; sourceTree = "<group>"; };
+		A0000000000000000000D010 /* ClipboardPlusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardPlusTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000D020 /* PDFReducePlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReducePlan.swift; sourceTree = "<group>"; };
+		A0000000000000000000D030 /* PDFReducePlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReducePlanTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000D040 /* LauncherAnswers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherAnswers.swift; sourceTree = "<group>"; };
+		A0000000000000000000D050 /* LauncherAnswersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherAnswersTests.swift; sourceTree = "<group>"; };
 		A00000000000000000009500 /* KeptAppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeptAppStore.swift; sourceTree = "<group>"; };
 		A00000000000000000009510 /* RunningApplicationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningApplicationStore.swift; sourceTree = "<group>"; };
 		A00000000000000000009520 /* AppMembershipController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMembershipController.swift; sourceTree = "<group>"; };
@@ -1482,6 +1503,7 @@
 		FA020000000000000000001 /* PinchGestureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinchGestureTests.swift; path = Tests/Unit/PinchGestureTests.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000003E /* SystemHealthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemHealthTests.swift; path = Tests/Unit/SystemHealthTests.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000044 /* ShortcutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutService.swift; path = App/Composition/ShortcutService.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000E000 /* LauncherRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherRunner.swift; path = App/Composition/LauncherRunner.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000046 /* ShortcutToastPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutToastPresenter.swift; path = App/Entry/ShortcutToastPresenter.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000048 /* QuickToggles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickToggles.swift; path = Core/Support/QuickToggles.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000004B /* QuickTogglesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickTogglesTests.swift; path = Tests/Unit/QuickTogglesTests.swift; sourceTree = SOURCE_ROOT; };
@@ -1952,6 +1974,10 @@
 				A000000000000000000DE520 /* FileDragItemProviderTests.swift */,
 				A00000000000000000009930 /* FileMoverTests.swift */,
 				A00000000000000000009410 /* LauncherMenuPlanTests.swift */,
+				A0000000000000000000C010 /* LauncherCommandsTests.swift */,
+				A0000000000000000000D010 /* ClipboardPlusTests.swift */,
+				A0000000000000000000D030 /* PDFReducePlanTests.swift */,
+				A0000000000000000000D050 /* LauncherAnswersTests.swift */,
 				A0000000000000000000FA10 /* LauncherChipVisualPlanTests.swift */,
 				A0000000000000000000FF10 /* LaunchGateDecisionTests.swift */,
 				A0000000000000000000FF30 /* AppLaunchTargetDecisionTests.swift */,
@@ -2067,6 +2093,10 @@
 				A00000000000000000009900 /* FolderDropPlan.swift */,
 				A000000000000000000DE500 /* FileDragItemProvider.swift */,
 				A00000000000000000009400 /* LauncherMenuPlan.swift */,
+				A0000000000000000000C000 /* LauncherCommands.swift */,
+				A0000000000000000000D000 /* ClipboardPlus.swift */,
+				A0000000000000000000D020 /* PDFReducePlan.swift */,
+				A0000000000000000000D040 /* LauncherAnswers.swift */,
 				F1C0000000000000000000A0 /* WindowListMenuPlan.swift */,
 				F1F0000000000000000000A0 /* AppLanguageOption.swift */,
 				F1D0000000000000000000A0 /* DocumentUsageRanking.swift */,
@@ -2407,6 +2437,10 @@
 				A000000000000000000DE501 /* FileDragItemProvider.swift in Sources */,
 				A00000000000000000009911 /* FileMover.swift in Sources */,
 				A00000000000000000009401 /* LauncherMenuPlan.swift in Sources */,
+				A0000000000000000000C001 /* LauncherCommands.swift in Sources */,
+				A0000000000000000000D001 /* ClipboardPlus.swift in Sources */,
+				A0000000000000000000D021 /* PDFReducePlan.swift in Sources */,
+				A0000000000000000000D041 /* LauncherAnswers.swift in Sources */,
 				F1C0000000000000000000A1 /* WindowListMenuPlan.swift in Sources */,
 				F1F0000000000000000000A1 /* AppLanguageOption.swift in Sources */,
 				F1D0000000000000000000A1 /* DocumentUsageRanking.swift in Sources */,
@@ -2545,6 +2579,7 @@
 				EE0000000000000000000037 /* Shortcuts.swift in Sources */,
 				FA010000000000000000002 /* PinchGesture.swift in Sources */,
 				EE0000000000000000000045 /* ShortcutService.swift in Sources */,
+				A0000000000000000000E001 /* LauncherRunner.swift in Sources */,
 				EE000000000000000000002B /* QuickToggleEngine.swift in Sources */,
 				EE0000000000000000000049 /* QuickToggles.swift in Sources */,
 				EE000000000000000000004E /* SystemHealthReaders.swift in Sources */,
@@ -2970,6 +3005,10 @@
 				A000000000000000000DE502 /* FileDragItemProvider.swift in Sources */,
 				A00000000000000000009912 /* FileMover.swift in Sources */,
 				A00000000000000000009402 /* LauncherMenuPlan.swift in Sources */,
+				A0000000000000000000C002 /* LauncherCommands.swift in Sources */,
+				A0000000000000000000D002 /* ClipboardPlus.swift in Sources */,
+				A0000000000000000000D022 /* PDFReducePlan.swift in Sources */,
+				A0000000000000000000D042 /* LauncherAnswers.swift in Sources */,
 				A0000000000000000000FA02 /* LauncherChipVisualPlan.swift in Sources */,
 				A0000000000000000000FF02 /* LaunchGateDecision.swift in Sources */,
 				B10000000000000000000009 /* BadgeReadPlan.swift in Sources */,
@@ -3033,6 +3072,10 @@
 				A000000000000000000DE521 /* FileDragItemProviderTests.swift in Sources */,
 				A00000000000000000009931 /* FileMoverTests.swift in Sources */,
 				A00000000000000000009411 /* LauncherMenuPlanTests.swift in Sources */,
+				A0000000000000000000C011 /* LauncherCommandsTests.swift in Sources */,
+				A0000000000000000000D011 /* ClipboardPlusTests.swift in Sources */,
+				A0000000000000000000D031 /* PDFReducePlanTests.swift in Sources */,
+				A0000000000000000000D051 /* LauncherAnswersTests.swift in Sources */,
 				A0000000000000000000FA11 /* LauncherChipVisualPlanTests.swift in Sources */,
 				A0000000000000000000FF11 /* LaunchGateDecisionTests.swift in Sources */,
 				A0000000000000000000FF31 /* AppLaunchTargetDecisionTests.swift in Sources */,

@@ -56,6 +56,15 @@ struct LauncherView: View {
         LauncherSearch.search(model.query, in: indexer.apps, usage: model.state.usage)
     }
 
+    /// Phase 21b: math/web answer rows for a routed query (`=2+2`, `@swift news`).
+    private var routed: LauncherQuery { LauncherCommandParser.parse(model.query) }
+    private var answers: [LauncherAnswer] { LauncherAnswers.answers(for: routed) }
+    /// Phase 21c: the query is a runnable script/shortcut and the user has scripts switched on.
+    private var isRunnable: Bool {
+        guard LauncherRunner.isEnabled else { return false }
+        switch routed { case .script, .shortcut: return true; default: return false }
+    }
+
     var body: some View {
         let inset = model.searchPosition.reservedInsets(sheetSide: .right, sheetWidth: 0)
         ZStack {
@@ -95,6 +104,8 @@ struct LauncherView: View {
         return LauncherSearchField(text: $model.query, focusNonce: model.focusNonce,
                                    onSubmit: {
                                        if let id = model.focusedID, let item = model.layoutItems[id] { activate(item) }
+                                       else if let answer = answers.first { run(answer) }
+                                       else if isRunnable { _ = LauncherRunner.run(routed) }
                                        else if let first = matches.first { actions.launch(first) }
                                        else if let q = LauncherQuickAction.resolve(model.query) { actions.quickAction(q) }
                                    },
@@ -189,28 +200,117 @@ struct LauncherView: View {
                         .frame(maxWidth: .infinity)
                     }
                 }
-            } else if matches.isEmpty {
-                VStack(spacing: 12) {
-                    Text("No Apps Found").foregroundColor(.secondary)
-                    if let q = LauncherQuickAction.resolve(model.query) {
-                        Button { actions.quickAction(q) } label: {
-                            switch q {
-                            case .open: Text("Open in Browser")
-                            case .webSearch: Text("Search the Web")
-                            }
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-                }
-                .frame(maxWidth: .infinity).padding(.top, 40)
+            } else if matches.isEmpty && answers.isEmpty && !isRunnable {
+                noResults
             } else {
                 let _ = recordSearchLayout(matches, columns: m.columns)
                 ScrollView {
-                    grid(matches, m, reorderable: false).padding(.horizontal, 56).padding(.bottom, 80)
-                        .frame(maxWidth: 1612).frame(maxWidth: .infinity)
+                    VStack(alignment: .leading, spacing: 18) {
+                        if !answers.isEmpty { answerSection }
+                        commandSection
+                        if !matches.isEmpty { grid(matches, m, reorderable: false) }
+                    }
+                    .padding(.horizontal, 56).padding(.bottom, 80)
+                    .frame(maxWidth: 1612).frame(maxWidth: .infinity)
                 }
             }
         }
+    }
+
+    @ViewBuilder private var noResults: some View {
+        VStack(spacing: 12) {
+            Text("No Apps Found").foregroundColor(.secondary)
+            if let q = LauncherQuickAction.resolve(model.query) {
+                Button { actions.quickAction(q) } label: {
+                    switch q {
+                    case .open: Text("Open in Browser")
+                    case .webSearch: Text("Search the Web")
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+            }
+        }
+        .frame(maxWidth: .infinity).padding(.top, 40)
+    }
+
+    // MARK: Answer rows (Phase 21b)
+
+    @ViewBuilder private var answerSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(Array(answers.enumerated()), id: \.offset) { _, answer in
+                Button { run(answer) } label: { answerLabel(answer) }
+                    .buttonStyle(.plain)
+            }
+        }
+    }
+
+    @ViewBuilder private func answerLabel(_ answer: LauncherAnswer) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: answerSymbol(answer)).font(.system(size: 17, weight: .semibold)).frame(width: 26)
+            switch answer {
+            case .math(let expression, let value):
+                Text(verbatim: value).font(.system(size: 20, weight: .semibold))
+                Text(verbatim: expression).font(.system(size: 14)).foregroundColor(.secondary)
+            case .web(let query):
+                Text("Search the Web").font(.system(size: 15, weight: .medium))
+                Text(verbatim: query).font(.system(size: 14)).foregroundColor(.secondary).lineLimit(1)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 14).padding(.vertical, 10)
+        .frame(maxWidth: 640, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.08)))
+        .contentShape(Rectangle())
+    }
+
+    private func answerSymbol(_ answer: LauncherAnswer) -> String {
+        switch answer {
+        case .math: return "equal"
+        case .web: return "globe"
+        }
+    }
+
+    /// Math copies the result; web opens the search. Both close the launcher.
+    private func run(_ answer: LauncherAnswer) {
+        switch answer {
+        case .math(_, let value):
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(value, forType: .string)
+            actions.close()
+        case .web(let query):
+            if let q = LauncherQuickAction.resolve(query) { actions.quickAction(q) }
+        }
+    }
+
+    // MARK: Command rows (Phase 21c)
+
+    @ViewBuilder private var commandSection: some View {
+        if LauncherRunner.isEnabled {
+            switch routed {
+            case .script(let payload):
+                commandRow("terminal", title: "Run Script", detail: payload) { _ = LauncherRunner.run(routed) }
+            case .shortcut(let name):
+                commandRow("bolt.fill", title: "Shortcuts", detail: name) { _ = LauncherRunner.run(routed) }
+            default:
+                EmptyView()
+            }
+        }
+    }
+
+    private func commandRow(_ symbol: String, title: LocalizedStringKey, detail: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: symbol).font(.system(size: 17, weight: .semibold)).frame(width: 26)
+                Text(title).font(.system(size: 15, weight: .medium))
+                Text(verbatim: detail).font(.system(size: 14)).foregroundColor(.secondary).lineLimit(1)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 14).padding(.vertical, 10)
+            .frame(maxWidth: 640, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.08)))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: Sliding pages

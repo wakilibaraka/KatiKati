@@ -370,6 +370,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             liveEventCenter.osBannersEnabled = { [weak self] in self?.settingsStore.liveEventOSBanners ?? false }
             liveEventCenter.route = { [weak self] in self?.settingsStore.liveEventRoute ?? .automatic }
             liveEventCenter.start()
+            ProductivityServices.shared.clipboard.onRecorded = { [weak self] text in
+                guard UserDefaults.standard.bool(forKey: ClipboardMonitor.notchToastKey),
+                      ClipboardToastPolicy.shouldToast(text) else { return }
+                self?.liveEventCenter.deliver(.clipboardCopied(preview: ClipboardHistory.previewLine(text)), now: Date())
+            }
             RecentlyClosedStore.shared.start()
 
             _ = statusMenuController

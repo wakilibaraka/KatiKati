@@ -6,9 +6,15 @@ import AppKit
 @MainActor
 final class ClipboardMonitor: ObservableObject {
     static let enabledKey = "com.katikati.clipboard.enabled"
+    static let soundsKey = "com.katikati.clipboard.sounds"
+    static let notchToastKey = "com.katikati.clipboard.notchToast"
+    static let ignorePatternsKey = "com.katikati.clipboard.ignorePatterns"
 
     @Published private(set) var history = ClipboardHistory()
     @Published private(set) var isRecording: Bool
+    /// Fired for every external copy that gets recorded (never for `copy(_:)` from the flyout). The app
+    /// layer decides whether that earns a toast; the monitor stays free of presentation.
+    var onRecorded: ((String) -> Void)?
     private let defaults: UserDefaults
     private let pasteboard: NSPasteboard
     private var lastChange: Int
@@ -42,6 +48,21 @@ final class ClipboardMonitor: ObservableObject {
         history.remember(entry.text)
     }
 
+    /// Copies the entry, then sends ⌘V to the still-frontmost app (the flyout is non-activating). Only
+    /// text is written, so nothing rich pastes. Needs Accessibility for the keystroke; silent if denied.
+    func pastePlain(_ entry: ClipEntry) {
+        copy(entry)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+            guard let source = CGEventSource(stateID: .combinedSessionState),
+                  let down = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: true),
+                  let up = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: false) else { return }
+            down.flags = .maskCommand
+            up.flags = .maskCommand
+            down.post(tap: .cghidEventTap)
+            up.post(tap: .cghidEventTap)
+        }
+    }
+
     func togglePin(_ id: UUID) { history.togglePin(id) }
     func remove(_ id: UUID) { history.remove(id) }
     func clear() { history.clear() }
@@ -59,7 +80,11 @@ final class ClipboardMonitor: ObservableObject {
         lastChange = pasteboard.changeCount
         let types = (pasteboard.types ?? []).map(\.rawValue)
         guard ClipboardHistory.shouldRecord(types: types), let text = pasteboard.string(forType: .string) else { return }
+        let rules = ClipboardIgnoreRules.parseLines(defaults.string(forKey: Self.ignorePatternsKey) ?? "")
+        guard !ClipboardIgnoreRules.matches(text, rules: rules) else { return }
         history.remember(text)
+        if defaults.bool(forKey: Self.soundsKey) { NSSound(named: "Tink")?.play() }
+        onRecorded?(text)
     }
 
     deinit { timer?.invalidate() }

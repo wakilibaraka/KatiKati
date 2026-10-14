@@ -2,6 +2,7 @@ import AppKit
 import AVFoundation
 import ImageIO
 import OSLog
+import PDFKit
 import UniformTypeIdentifiers
 
 /// Dropover-style actions on shelf items: zip, compress (images via ImageIO, videos via AVFoundation) and
@@ -18,6 +19,7 @@ enum ShelfActions {
     static func isImage(_ url: URL) -> Bool { (UTType(filenameExtension: url.pathExtension)?.conforms(to: .image)) ?? false }
     static func isVideo(_ url: URL) -> Bool { (UTType(filenameExtension: url.pathExtension)?.conforms(to: .movie)) ?? false }
     static func canCompress(_ url: URL) -> Bool { isImage(url) || isVideo(url) }
+    static func isPDF(_ url: URL) -> Bool { (UTType(filenameExtension: url.pathExtension)?.conforms(to: .pdf)) ?? false }
 
     // MARK: zip
 
@@ -104,6 +106,53 @@ enum ShelfActions {
                 if session.status == .completed { continuation.resume(returning: out) } else { continuation.resume(throwing: session.error ?? Failure.failed) }
             }
         }
+    }
+
+    // MARK: PDF reduce
+
+    /// Re-rasterises each page at 75 % and re-encodes it as JPEG (60 %), the one compression kind the
+    /// shelf lacked. Fail-closed: an unreadable page is skipped, and nothing is stashed on failure.
+    static func reducePDF(_ urls: [URL], into shelf: ShelfStore) {
+        for url in urls where isPDF(url) {
+            let folder = destinationFolder(for: url)
+            Task {
+                do {
+                    let out = try await Task.detached(priority: .userInitiated) { try reducePDFFile(url, in: folder) }.value
+                    shelf.stash(paths: [out.path])
+                } catch {
+                    logger.error("pdf reduce failed: \(String(describing: error), privacy: .public)")
+                    NSSound.beep()
+                }
+            }
+        }
+    }
+
+    nonisolated private static func reducePDFFile(_ url: URL, in folder: URL) throws -> URL {
+        guard let doc = PDFDocument(url: url), doc.pageCount > 0 else { throw Failure.unsupported }
+        let quality = PDFReducePlan.quality(PDFReducePlan.defaultQuality)
+        let reduced = PDFDocument()
+        for i in 0..<doc.pageCount {
+            guard let page = doc.page(at: i) else { continue }
+            let bounds = page.bounds(for: .mediaBox)
+            let size = PDFReducePlan.renderedSize(width: Double(bounds.width), height: Double(bounds.height))
+            let thumb = page.thumbnail(of: NSSize(width: size.width, height: size.height), for: .mediaBox)
+            guard let cg = thumb.cgImage(forProposedRect: nil, context: nil, hints: nil),
+                  let data = jpegData(cg, quality: quality), let image = NSImage(data: data),
+                  let reducedPage = PDFPage(image: image) else { continue }
+            reduced.insert(reducedPage, at: reduced.pageCount)
+        }
+        guard reduced.pageCount > 0 else { throw Failure.failed }
+        let out = uniqueURL(folder.appendingPathComponent("\(url.deletingPathExtension().lastPathComponent) reduced.pdf"))
+        guard reduced.write(to: out) else { throw Failure.failed }
+        return out
+    }
+
+    nonisolated private static func jpegData(_ image: CGImage, quality: Double) -> Data? {
+        let data = NSMutableData()
+        guard let dest = CGImageDestinationCreateWithData(data, "public.jpeg" as CFString, 1, nil) else { return nil }
+        CGImageDestinationAddImage(dest, image, [kCGImageDestinationLossyCompressionQuality: quality] as CFDictionary)
+        guard CGImageDestinationFinalize(dest) else { return nil }
+        return data as Data
     }
 
     // MARK: share
