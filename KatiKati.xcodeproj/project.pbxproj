@@ -905,6 +905,9 @@
 		A0000000000000000000A232 /* FileIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A230 /* FileIndex.swift */; };
 		A0000000000000000000A241 /* DirectoryScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A240 /* DirectoryScanner.swift */; };
 		A0000000000000000000A251 /* FileIndexService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A250 /* FileIndexService.swift */; };
+		A0000000000000000000A261 /* KeyGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A260 /* KeyGuard.swift */; };
+		A0000000000000000000A262 /* KeyGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A260 /* KeyGuard.swift */; };
+		A0000000000000000000A271 /* KeyGuardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A270 /* KeyGuardTests.swift */; };
 		A0000000000000000000A1D1 /* AppRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A1D0 /* AppRemoval.swift */; };
 		A0000000000000000000A1D2 /* AppRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A1D0 /* AppRemoval.swift */; };
 		A0000000000000000000A1E1 /* AppRemovalPlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A1E0 /* AppRemovalPlannerTests.swift */; };
@@ -1561,6 +1564,8 @@
 		A0000000000000000000A230 /* FileIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileIndex.swift; sourceTree = "<group>"; };
 		A0000000000000000000A240 /* DirectoryScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DirectoryScanner.swift; path = App/Composition/DirectoryScanner.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A250 /* FileIndexService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FileIndexService.swift; path = App/Composition/FileIndexService.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000A260 /* KeyGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyGuard.swift; sourceTree = "<group>"; };
+		A0000000000000000000A270 /* KeyGuardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyGuardTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000A1D0 /* AppRemoval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemoval.swift; sourceTree = "<group>"; };
 		A0000000000000000000A1E0 /* AppRemovalPlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemovalPlannerTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000F000 /* CommandBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandBar.swift; sourceTree = "<group>"; };
@@ -2043,6 +2048,7 @@
 				A0000000000000000000F010 /* CommandBarTests.swift */,
 				A0000000000000000000A110 /* TranslateTests.swift */,
 				A0000000000000000000A1E0 /* AppRemovalPlannerTests.swift */,
+				A0000000000000000000A270 /* KeyGuardTests.swift */,
 				A0000000000000000000FA10 /* LauncherChipVisualPlanTests.swift */,
 				A0000000000000000000FF10 /* LaunchGateDecisionTests.swift */,
 				A0000000000000000000FF30 /* AppLaunchTargetDecisionTests.swift */,
@@ -2171,6 +2177,7 @@
 				A0000000000000000000A200 /* EmojiCatalog.swift */,
 				A0000000000000000000A210 /* Bookmarks.swift */,
 				A0000000000000000000A230 /* FileIndex.swift */,
+				A0000000000000000000A260 /* KeyGuard.swift */,
 				F1C0000000000000000000A0 /* WindowListMenuPlan.swift */,
 				F1F0000000000000000000A0 /* AppLanguageOption.swift */,
 				F1D0000000000000000000A0 /* DocumentUsageRanking.swift */,
@@ -2670,6 +2677,7 @@
 				A0000000000000000000A231 /* FileIndex.swift in Sources */,
 				A0000000000000000000A241 /* DirectoryScanner.swift in Sources */,
 				A0000000000000000000A251 /* FileIndexService.swift in Sources */,
+				A0000000000000000000A261 /* KeyGuard.swift in Sources */,
 				A0000000000000000000A1D1 /* AppRemoval.swift in Sources */,
 				A0000000000000000000A121 /* SelectedTextReader.swift in Sources */,
 				A0000000000000000000A131 /* DictionaryService.swift in Sources */,
@@ -3115,6 +3123,7 @@
 				A0000000000000000000A202 /* EmojiCatalog.swift in Sources */,
 				A0000000000000000000A212 /* Bookmarks.swift in Sources */,
 				A0000000000000000000A232 /* FileIndex.swift in Sources */,
+				A0000000000000000000A262 /* KeyGuard.swift in Sources */,
 				A0000000000000000000FA02 /* LauncherChipVisualPlan.swift in Sources */,
 				A0000000000000000000FF02 /* LaunchGateDecision.swift in Sources */,
 				B10000000000000000000009 /* BadgeReadPlan.swift in Sources */,
@@ -3185,6 +3194,7 @@
 				A0000000000000000000F011 /* CommandBarTests.swift in Sources */,
 				A0000000000000000000A111 /* TranslateTests.swift in Sources */,
 				A0000000000000000000A1E1 /* AppRemovalPlannerTests.swift in Sources */,
+				A0000000000000000000A271 /* KeyGuardTests.swift in Sources */,
 				A0000000000000000000FA11 /* LauncherChipVisualPlanTests.swift in Sources */,
 				A0000000000000000000FF11 /* LaunchGateDecisionTests.swift in Sources */,
 				A0000000000000000000FF31 /* AppLaunchTargetDecisionTests.swift in Sources */,
