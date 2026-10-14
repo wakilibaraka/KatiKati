@@ -119,9 +119,26 @@ struct RadialDialView: View {
             hoveredSector = nil
             isCenterHovered = false
         }
+        updateSnapPreview()
+    }
+
+    private func updateSnapPreview() {
+        guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }) ?? NSScreen.main else {
+            RadialSnapPreviewPanelController.shared.hidePreview()
+            return
+        }
+
+        if isCenterHovered, let centerItem = currentPage.centerItem, case .snap(let pos) = centerItem.action {
+            RadialSnapPreviewPanelController.shared.showPreview(for: pos, on: screen, theme: theme)
+        } else if let idx = hoveredSector, idx < currentPage.items.count, case .snap(let pos) = currentPage.items[idx].action {
+            RadialSnapPreviewPanelController.shared.showPreview(for: pos, on: screen, theme: theme)
+        } else {
+            RadialSnapPreviewPanelController.shared.hidePreview()
+        }
     }
 
     private func handlePointerUp(at point: CGPoint) {
+        RadialSnapPreviewPanelController.shared.hidePreview()
         let result = RadialDialGeometry.hitTest(
             point: point,
             center: center,
@@ -145,6 +162,7 @@ struct RadialDialView: View {
     }
 
     private func selectItem(_ item: RadialDialItem) {
+        RadialSnapPreviewPanelController.shared.hidePreview()
         switch item.action {
         case .page(let pageID):
             if let targetIdx = pages.firstIndex(where: { $0.id == pageID }) {
@@ -160,6 +178,7 @@ struct RadialDialView: View {
     }
 
     private func previousPage() {
+        RadialSnapPreviewPanelController.shared.hidePreview()
         guard !pages.isEmpty else { return }
         withAnimation(.spring(response: 0.25, dampingFraction: 0.78)) {
             currentPageIndex = (currentPageIndex - 1 + pages.count) % pages.count
@@ -169,6 +188,7 @@ struct RadialDialView: View {
     }
 
     private func nextPage() {
+        RadialSnapPreviewPanelController.shared.hidePreview()
         guard !pages.isEmpty else { return }
         withAnimation(.spring(response: 0.25, dampingFraction: 0.78)) {
             currentPageIndex = (currentPageIndex + 1) % pages.count
