@@ -74,6 +74,8 @@ final class CommandBarPanelController {
                 self.copyPathSelected(); return nil
             case 51 where event.modifierFlags.contains(.command):  // ⌘⌫
                 self.trashSelected(); return nil
+            case 49:                                               // Space → Quick Look a file
+                return self.quickLookSelected() ? nil : event
             default: return event
             }
         }
@@ -214,6 +216,19 @@ final class CommandBarPanelController {
         NSWorkspace.shared.recycle([URL(fileURLWithPath: file.path)], completionHandler: nil)
         model.files.removeAll { $0.path == file.path }
         model.refresh()
+    }
+
+    /// Space → Quick Look. `qlmanage -p` shows the panel out-of-process, so it works even though the bar
+    /// is a non-activating panel (a `QLPreviewPanel` here could not be key).
+    private func quickLookSelected() -> Bool {
+        guard let file = selectedFile() else { return false }
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/qlmanage")
+        process.arguments = ["-p", file.path]
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
+        try? process.run()
+        return true
     }
 
     /// `f `/`img `/`ev ` run a debounced search off the main thread (Phase 29g / 30i).
