@@ -3615,6 +3615,31 @@ Posture (matching this plan's default-off habit): master toggle **off** → once
   Gate: 2,316 tests / 0 failures, `** TEST SUCCEEDED **`, localization ✅ (753 keys ×12),
   debug-switch ✅, availability ✅. **Not yet:** live probe + honest-copy verification (25c).
 
+- 2026-10-14 · **25c — live probe + honest copy — PASS (Phase 25 complete).** Probed the real
+  Notification Center UI on this macOS (26.x) with a throwaway AX CLI in `/tmp` (Terminal holds the
+  grant; the debug app build is ad-hoc signed and does not, so the app-level move itself could not be
+  driven from this session — see residual). Findings, all matching the shipped capability set:
+  idle → **0 windows**; a posted banner → **1 window**, frame `(0,0,1710,1112)`, `kAXPositionAttribute`
+  **settable**, 8 AX nodes walked, descendant subrole **`AXNotificationCenterBanner`** (also
+  `AXSystemDialog`, `AXHostingView` — correctly ignored) → `NotificationUICapability.evaluate` = true
+  for exactly this shape, and **any other shape stays false → notifications untouched** (table-tested).
+  The fragile half is proven live too: a position **write moved the window +60 pt and the restore put
+  it back at (0,0)**, both `AXError.success`. Two honest limits observed and now carried in the
+  Settings copy: the NC window **persists after a banner dismisses** (it keeps reporting the banner
+  subrole), and the burst partial-move limit from upstream stands. The permission posture was
+  exercised live: with the toggle on and no Accessibility grant, the app logs "needs Accessibility;
+  not starting" and **clears the persisted toggle itself** (same fail-closed contract as KeyGuard).
+  Gate unchanged from 25b (no code edits after it): 2,316 tests / 0 failures, localization ✅,
+  debug-switch ✅, availability ✅. **Phase 25 (25a–c) is done.**
+  **Residual (recorded, not blocking):** the app-level end-to-end move (service → banner lands in the
+  slot) needs the owner's signed build — `build_and_run.sh` found no signing identity in this
+  keychain ("0 valid identities"), so the debug app cannot inherit the Accessibility grant; the AX
+  calls the service makes are the exact ones proven live above. **Known limits carried:** only the
+  first banner of a burst moves (upstream issue), the private NC UI can break any release (fail-closed
+  → leave alone), and opening the Notification-Center panel is not distinguished from a banner window
+  beyond the subrole probe (worst case: a panel window is moved and restored when it stops matching).
+
+
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
 
 **Goal.** A compact Raycast/Sol-style command palette summoned by **⌘Space**, made **default**, sitting
