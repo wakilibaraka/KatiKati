@@ -3429,14 +3429,18 @@ idle CPU flat while off + disable restores every managed window.
   `xcodebuild test` **2,275 / 0 failures** · `check_localization.py` ✅ · `check_availability_warnings.py`
   ✅. **Note:** `CaptureRecognitionTests` (Vision OCR) fails only while the built app is running
   (E5RT/GPU contention) — passes once the app is killed; not caused by this work.
-- 2026-10-14 · **Phase 29 planned (owner 2026-10-14): command-bar modes, native actions, footer.**
-  Plan only, no code. Fixes result order (app first, quit second); adds word+space keyword modes
-  (`kill`/`fq`/`kp`/`file`/`img`/`sc`/`app`) and immediate native actions (`ocr`, `cs`, `lock`, `sleep`,
-  `dark`, `awake`, `mute`, `night`, `truetone`, `wifi`, `bt`, `trash`, `eject`, media keys); a removable
-  footer hints strip (`com.katikati.commandbar.hints`, default on). Reuses `QuickToggleEngine`,
-  `NowPlayingService`, `CaptureController.recognise`, `mdfind`. Assumptions flagged: `wifi` becomes the
-  toggle (password → `wifipw`); file/image search is Spotlight filenames only. Deferred: Photos search,
-  DND/Focus, restart/shutdown, full-screen OCR. Awaiting owner go to start 29a.
+- 2026-10-14 · **Phase 29 planned + refined from cloned references (owner 2026-10-14).** Plan only, no
+  code. Studied `techrisdev/Snap` (GPL-3.0), `FuzzyIdeas/Cling` (GPL-3.0), `oil-oil/oil-find` (MIT);
+  licences compatible, NOTICE on derivation. Fixes result order (app first, quit second); adds short
+  keyword **modes** (`f`/`img`/`ev`/`clip`/`kill`/`fq`/`kp`/`sc`/`app`) and **macros** (`ocr`, `cs`,
+  `term`, `ss`, `lock`, `sleep`, `restart`/`shutdown`/`logout`, the toggle + media words); an oil-find-style
+  **file-query syntax** (`ext:`/`kind:`/`size:`/`dm:`/`!`/`in:`/`depth:`) with Cling/oil-find **file-row
+  actions** (open/reveal/Quick Look/copy path/trash); calendar (`ev`) + clipboard (`clip`) search; a
+  removable footer (`com.katikati.commandbar.hints`, default on). Reuses `QuickToggleEngine`,
+  `NowPlayingService`, `CaptureController.recognise`, Spotlight, EventKit. Assumptions flagged: `wifi`
+  becomes the toggle (password → `wifipw`); search is Spotlight-based for now. **Deferred:** own fast
+  filename index (oil-find/Cling, FSEvents) → Phase 30; snippets; contacts; Photos; DND/Focus; full-screen
+  OCR. Awaiting owner go to start 29a.
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
@@ -3510,100 +3514,112 @@ big features) is deferred to a future phase.** No new permissions; everything is
 **Verify.** `uuid`/`nanoid`/`lorem` copy a fresh value; `json` pretty-prints the clipboard; `ip` shows the
 en0 address; `wifi` reads the keychain; a custom `Name = …` row runs; `!saf` lists Safari and kills it.
 
-### Phase 29 — Command bar: modes, native actions, footer (owner 2026-10-14; PLAN ONLY, no code yet)
+### Phase 29 — Command bar, learned from Snap / Cling / oil-find (owner 2026-10-14; PLAN ONLY, no code)
 
-**Goal.** Make the ⌘Space bar a real command palette: fix result order, add **keyword modes**
-(`fq `/`kp `/`kill ` + `file `/`img `/`sc `), add **native macOS actions** (`ocr`, `cs`, `lock`, `sleep`,
-`dark`, media keys, …), and a **removable footer** listing the major commands. All native, no new
-permissions except where noted; nothing extra runs at rest.
+**References studied (cloned 2026-10-14; licences all GPL-compatible — §5).**
+- `techrisdev/Snap` (**GPL-3.0**) — one `NSMetadataQuery` over files, keyword+argument actions, AppleScript
+  system actions (sleep/restart/shut down/terminal/quit), a JSON config with **blocked paths** + result
+  limit, clipboard history, snippets, a music controller.
+- `FuzzyIdeas/Cling` (**GPL-3.0**) — fuzzy scoring, **apps first**, quick type filters, extension-aware
+  queries (`.png icon`), operators (`in:PATH`, `!exclude`, `^prefix`, `suffix$`, `name/`), scopes +
+  `.fsignore`, FSEvents live index, file actions (open/reveal/trash/copy-path/Quick Look).
+- `oil-oil/oil-find` (**MIT**) — own fast filename index (FSEvents), rich query syntax
+  (`ext:`, `kind:`, `file:`/`folder:`, `size:`, `dm:`, `regex:`, wildcards, `!`, `|`, pinyin), a **footer
+  bar**, and keyboard actions (⌘⏎ reveal, Space Quick Look, ⌘C path, ⌘⌫ trash, Tab switch kind).
+- `ospfranco/sol` (MIT, already studied) — generators, process killer, custom actions.
+NOTICE entries land if behaviour is derived (Snap & Cling GPL-3.0, oil-find MIT).
 
-**Design decisions (assumptions — tell me to change any).**
-- Keyword triggers are **typed words + a space** (Raycast-style), not new key chords. Existing single-char
-  prefixes (`= @ / > : !`) keep working. `ShortcutChord` stays Space-only; extra modifier+letter chords
-  are already possible via `ShortcutTrigger.key` if you want one later.
-- `wifi` currently means *Wi-Fi password* (28b). To free `wifi` for the toggle, the password keyword
-  becomes **`wifipw`** (small rename; recorded).
-- File/image search uses **Spotlight (`mdfind`)** — filenames, no content search, async + debounced, cap ~20.
-- OCR reuses the shipped `CaptureController.recognise(_:)`; `ocr` = select a screen region → text on the
-  clipboard. Clipboard-image OCR is a follow-on if wanted.
+**Goal.** Turn the ⌘Space bar into a real palette: fix result order, add **short-keyword modes and macros**,
+**file/image/event/clipboard search**, and a **removable footer**. Native; nothing extra runs at rest.
 
-**Result order (fix).** App matches come **first**, and a running app's **Quit row sits immediately after
-it** (App, Quit, App, Quit…); running apps that are not in the installed index trail at the end. (Today
-quit rows precede the app rows.)
+**Design decisions (assumptions — tell me to change).**
+- Triggers are **short keywords**: `mode ` (word + space, takes an argument) or `macro` (bare word, runs).
+  Single-char prefixes (`= @ / > : !`) keep working. No new key chords.
+- **`wifi`** becomes the Wi-Fi toggle; the 28b password keyword becomes **`wifipw`**.
+- File/image/event/clipboard search in 29 uses **Spotlight (`NSMetadataQuery`/`mdfind`) + EventKit + the
+  shipped clipboard**. oil-find/Cling's **own fast filename index** (FSEvents) is **deferred to Phase 30**.
+- File rows get the Cling/oil-find actions: ⏎ open · ⌘⏎ reveal · **Space** Quick Look · ⌘C copy path · ⌘⌫ trash.
 
-**Keyword set (the "full set").**
+**Result order (fix, Cling/Snap parity).** App matches **first**; a running app's **Quit row immediately
+after it** (App, Quit, App, Quit…); running apps not in the index trail at the end.
 
-*Search modes (type `word ` then the filter):*
-| keyword | rows | run |
-|---|---|---|
-| `kill ` | running apps | graceful `terminate()` + confirm |
-| `fq ` | running apps | `forceTerminate()` + confirm |
-| `kp ` | all processes (alias of `!`) | SIGTERM / SIGKILL + confirm |
-| `file ` | files & folders by name | open |
-| `img ` | image files by name | open |
-| `sc ` | Shortcuts by name | `shortcuts run` (via `LauncherRunner`) |
-| `app ` | force app search (skip actions) | launch |
+**Keyword lexicon (short).**
 
-*Immediate actions (type the word, ⏎ runs):*
+*Modes — type `word ` then the filter:*
+| keyword | alias | rows | run |
+|---|---|---|---|
+| `f ` | `file ` | files & folders (Spotlight) | open / reveal / Quick Look / trash |
+| `img ` | `image ` | image files | as above |
+| `ev ` | — | calendar events (EventKit) | reveal day |
+| `clip ` | — | clipboard history | copy back |
+| `kill ` | — | running apps | graceful `terminate()` + confirm |
+| `fq ` | — | running apps | `forceTerminate()` + confirm |
+| `kp ` | `!` | all processes | SIGTERM / SIGKILL + confirm |
+| `sc ` | `:` | Shortcuts by name | `shortcuts run` |
+| `app ` | — | apps only (skip actions) | launch |
+
+*Macros — type the word, ⏎ runs:*
 | keyword | action | reuse |
 |---|---|---|
 | `ocr` | region capture → OCR → copy | `CaptureController.recognise` |
 | `cs` | open the Shortcuts app | `NSWorkspace.open` |
-| `lock` | lock screen | `pmset displaysleepnow` (QuickToggle `lockScreen`) |
-| `sleep` | sleep now | `pmset sleepnow` (new, 1 line) |
-| `ss` | start screensaver | QuickToggle `screenSaver` |
-| `dark` | toggle dark mode | QuickToggle `darkMode` |
-| `awake` | toggle keep-awake | QuickToggle `keepAwake` |
-| `mute` | toggle mic | QuickToggle `muteMic` |
-| `night` | toggle Night Shift | QuickToggle `nightShift` |
-| `truetone` | toggle True Tone | QuickToggle `trueTone` |
-| `wifi` | toggle Wi-Fi | QuickToggle `wifi` |
-| `bt` | toggle Bluetooth | QuickToggle `bluetooth` |
-| `trash` | empty trash (confirm) | QuickToggle `emptyTrash` |
-| `eject` | eject disks | QuickToggle `ejectDisks` |
-| `hideicons` | hide desktop icons | QuickToggle `hideDesktopIcons` |
-| `dock` | dock auto-hide | QuickToggle `dockAutoHide` |
-| `finder` | relaunch Finder | QuickToggle `relaunchFinder` |
+| `term` | open Terminal | `NSWorkspace.open` |
+| `ss` | screensaver | QuickToggle `screenSaver` |
+| `lock` | lock screen | QuickToggle `lockScreen` |
+| `sleep` | sleep now | `pmset sleepnow` |
+| `restart` / `shutdown` / `logout` | power (confirm) | `osascript` System Events |
+| `dark` / `awake` / `mute` / `night` / `truetone` / `wifi` / `bt` | toggles | `QuickToggleEngine` |
+| `trash` / `eject` / `hideicons` / `dock` / `finder` | utility toggles | `QuickToggleEngine` |
 | `play` / `next` / `prev` | media transport | `NowPlayingService` |
 
 *Kept from 28:* `uuid`, `nanoid`, `lorem`, `json`, `ip`, `wifipw`.
 
-**Footer (removable).** A strip under the list showing the major commands as plain chips
-(`⏎ Open · fq Force Quit · kp Kill Process · file Files · img Images · ocr OCR · cs Shortcuts`), switching
-to mode-specific hints inside a mode. Toggle `com.katikati.commandbar.hints` (default **on**); a small ✕ in
-the strip hides it too.
+**File-search syntax (inside `f `/`img `, borrowed from oil-find/Cling).** `ext:pdf;docx` ·
+`kind:image|video|doc|code|archive|folder|app` · `size:>10mb`, `size:1mb..5mb` · `dm:today|week|YYYY-MM-DD` ·
+`!term` (exclude) · `a | b` (or) · `^prefix` / `suffix$` · `*.png` · `in:~/Documents` · `depth:N`.
+A pure `FileQuery` parser builds the `NSMetadataQuery` predicate (no shell-out where possible); results are
+capped (~25) and honour a **blocked-paths** default (`/System/Library/Frameworks`, `/usr`, …) like Snap.
+
+**Footer (removable).** A strip under the list: the major keywords as chips
+(`⏎ Open · fq Force Quit · kp Kill · f Files · img Images · ev Events · ocr OCR · cs Shortcuts`), mode-aware,
+plus the query time (oil-find). Toggle `com.katikati.commandbar.hints` (default **on**); a ✕ hides it.
 
 **Pure seams (tested first).**
-- `CommandKeyword.match(_ query:) -> (keyword:, argument:)?` — word+space routing, tolerant.
-- `BarAction` (the immediate actions) + `BarActionService.run(_:)` (app layer; reuses the engines).
-- `FileSearch.query(_ term:, imageOnly:) -> String` (the `mdfind` predicate) + `FileSearch.parse(_:) -> [FileEntry]`.
-- `CommandBarResults` reorder + new result cases (`.action`, `.file`, `.shortcut`, `.script`, `.path`).
+- `CommandKeyword.match(_:) -> (keyword:, argument:)?` — word+space routing, tolerant.
+- `FileQuery.parse(_:) -> FileQuery` + `FileQuery.predicate()` — the operator grammar above.
+- `BarAction` (macros) + `BarActionService.run(_:)` (app layer; reuses the engines).
+- `CommandBarResults` reorder + new result cases (`.action`, `.file`, `.event`, `.clipboard`, `.shortcut`,
+  `.script`, `.path`).
 
 **Slices.**
-- **29a** ordering fix + bar rows for the existing dead routes (`.script`/`.shortcut`/`.path`) — small.
-- **29b** keyword layer (Core) + `BarAction`/`FileEntry`/result cases + tests.
-- **29c** quit/force-quit/kill modes (`kill `/`fq `/`kp `).
-- **29d** `BarActionService` + the toggle/media/lock/sleep actions (reuse `QuickToggleEngine`,
-  `NowPlayingService`, `pmset`).
-- **29e** `ocr` (region capture + existing recognizer) and `cs`.
-- **29f** `file `/`img ` via `mdfind` (async, debounced, capped).
-- **29g** footer strip + `com.katikati.commandbar.hints` + Settings.
-- **29h** Settings section, strings ×12, verify.
+- **29a** ordering fix + bar rows for the existing dead routes (`.script`/`.shortcut`/`.path`).
+- **29b** keyword core (`CommandKeyword`, `BarAction`, result cases) + tests.
+- **29c** quit / force-quit / kill modes (`kill `/`fq `/`kp `).
+- **29d** native macros — toggles + media (`QuickToggleEngine`, `NowPlayingService`).
+- **29e** power macros (`lock`/`sleep`/`ss`/`restart`/`shutdown`/`logout`, confirmed) + `term`/`cs`.
+- **29f** `ocr` (region capture + existing recognizer).
+- **29g** `f `/`img ` — `FileQuery` operators + Spotlight search + the file-row actions (open/reveal/Quick
+  Look/copy path/trash).
+- **29h** `ev ` (EventKit) + `clip ` (clipboard history) modes.
+- **29i** footer strip + `com.katikati.commandbar.hints` + Settings.
+- **29j** strings ×12 + full verify.
 
-**Keys.** `com.katikati.commandbar.hints` (on). Everything else is fixed keywords.
+**Keys.** `com.katikati.commandbar.hints` (on). Keywords are fixed.
 
-**Permissions.** None new (media keys use the existing MediaRemote soft-load; OCR uses the screen-capture
-grant already needed by Capture). `fq`/`kp` need no Accessibility.
+**Permissions.** None new: media keys use the existing MediaRemote soft-load; OCR uses the capture grant;
+`ev ` uses the calendar grant already requested by the Calendar panel. `fq`/`kp` need no Accessibility.
 
-**Risks / limits.** `mdfind` can be slow on cold caches → async + cap + fail-closed. `kill`/`force quit`
-can lose work → always confirmed, graceful first. Media transport depends on the private MediaRemote
-(soft-fail, as Now Playing already is). `cs` only opens the app; `sc `/`:` run shortcuts.
+**Risks / limits.** Spotlight can be slow on cold caches → async + cap + fail-closed (Phase 30's own index
+fixes this). `kill`/`force quit`/`restart`/`shutdown` lose work → always confirmed, graceful first. Media
+transport is MediaRemote-dependent (soft-fail). `ev ` depends on EventKit access.
 
-**Deferred (recorded).** Photos-library search (needs the Photos permission; no Photos code today),
-Do-Not-Disturb/Focus (no public API), restart/shutdown/logout (destructive), full-screen OCR (privacy).
+**Deferred (recorded).** **Own fast filename index (oil-find/Cling, FSEvents) → Phase 30.** Snippet
+expansion (needs a global typing listener). Contacts search (Contacts permission). Photos-library search.
+DND/Focus (no public API). Full-screen OCR (privacy).
 
-**Verify.** Search "chrome" → Chrome row first, Quit second; `fq chrome`, `kp saf`, `file invoice`, `img
-cat`, `sc My Shortcut`; `ocr` copies text; `dark`/`lock`/`play` work; the footer toggles off; every mode
+**Verify.** "chrome" → Chrome first, Quit second; `fq chrome`, `kp saf`, `kill safari`; `f report ext:pdf`,
+`img cat`, `f ~/Docs dm:today`; Space Quick Look, ⌘⏎ reveal, ⌘⌫ trash on a file row; `ev standup`, `clip`;
+`ocr` copies text; `dark`/`lock`/`play` work; `restart` confirms first; the footer toggles off; every mode
 is inert when off.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
