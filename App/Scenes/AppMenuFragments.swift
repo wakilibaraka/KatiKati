@@ -392,6 +392,19 @@ enum WidgetMenuBuilder {
             styleItem.submenu = styleMenu
             menu.addItem(styleItem)
         }
+        if section == .media {
+            let current = UserDefaults.standard.string(forKey: "com.katikati.media.preset") ?? NowPlayingPreset.expandedCard.rawValue
+            let styleMenu = NSMenu(title: String(localized: "Media Player Style"))
+            for (preset, title) in [(NowPlayingPreset.expandedCard, String(localized: "Expanded Card")),
+                                    (NowPlayingPreset.miniChip, String(localized: "Mini Chip"))] {
+                let item = ClosureMenuItem(title) { UserDefaults.standard.set(preset.rawValue, forKey: "com.katikati.media.preset") }
+                item.state = preset.rawValue == current ? .on : .off
+                styleMenu.addItem(item)
+            }
+            let styleItem = NSMenuItem(title: String(localized: "Media Player Style"), action: nil, keyEquivalent: "")
+            styleItem.submenu = styleMenu
+            menu.addItem(styleItem)
+        }
         if section.supportsWidgetSizes {
             let stacked = layout.instance(for: section).stack != nil
             let stackItem = ClosureMenuItem(String(localized: "Smart Stack")) {

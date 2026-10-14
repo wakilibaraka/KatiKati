@@ -33,12 +33,17 @@ import SwiftUI
 /// the slot renders nothing and holds no tick, so the notch can run alone.
 public struct NowPlayingChip: View {
     @EnvironmentObject var settingsStore: AppSettingsStore
+    @AppStorage("com.katikati.media.preset") private var mediaPreset: NowPlayingPreset = .expandedCard
 
     public init() {}
 
     public var body: some View {
         if settingsStore.dockIslandEnabled {
-            LiveIslandDockCapsule()
+            if mediaPreset == .expandedCard {
+                ExpandedMediaCardView()
+            } else {
+                LiveIslandDockCapsule()
+            }
         }
     }
 }
@@ -418,4 +423,133 @@ extension EnvironmentValues {
         set { self[LiveIslandVerticalKey.self] = newValue }
     }
 }
+
+// MARK: - Expanded Media Player Card (Phase 32)
+
+private struct ExpandedMediaCardView: View {
+    @ObservedObject private var feed = LiveActivityFeed.shared
+    @State private var isHovered = false
+    @State private var timelineNow = Date()
+    @Environment(\.widgetSize) private var widgetSize
+    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
+    var body: some View {
+        let state = feed.nowPlayingState
+        let progress = state.progress(at: timelineNow) ?? 0.35
+        let title = (state.title?.isEmpty ?? true) ? "God's Plan" : (state.title ?? "God's Plan")
+        let artist = (state.artist?.isEmpty ?? true) ? "Drake" : (state.artist ?? "Drake")
+
+        HStack(spacing: 9) {
+            // Album Artwork
+            ZStack {
+                if let data = state.artworkData, let img = NSImage(data: data) {
+                    Image(nsImage: img)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    LinearGradient(
+                        colors: [Color(red: 0.35, green: 0.25, blue: 0.75),
+                                 Color(red: 0.15, green: 0.18, blue: 0.45)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    Image(systemName: "music.note")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.85))
+                }
+            }
+            .frame(width: 32, height: 32)
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+            )
+
+            // Track details + Scrubber Bar
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 11.5, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+
+                Text(artist)
+                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .foregroundStyle(Color.white.opacity(0.75))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+
+                // Scrubber Bar
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(Color.white.opacity(0.18))
+                            .frame(height: 3)
+
+                        Capsule()
+                            .fill(Color.white.opacity(0.88))
+                            .frame(width: max(3, geo.size.width * CGFloat(progress)), height: 3)
+
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 6, height: 6)
+                            .offset(x: max(0, min(geo.size.width - 6, geo.size.width * CGFloat(progress) - 3)))
+                    }
+                }
+                .frame(height: 6)
+            }
+            .frame(minWidth: 60)
+
+            // Playback Transport Controls
+            HStack(spacing: 5) {
+                Button(action: { feed.previousTrack() }) {
+                    Image(systemName: "backward.fill")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(Color.white.opacity(0.85))
+                }
+                .buttonStyle(.plain)
+
+                Button(action: { feed.togglePlayPause() }) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.18))
+                            .frame(width: 22, height: 22)
+                        Image(systemName: state.isPlaying ? "pause.fill" : "play.fill")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                }
+                .buttonStyle(.plain)
+
+                Button(action: { feed.nextTrack() }) {
+                    Image(systemName: "forward.fill")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(Color.white.opacity(0.85))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(red: 0.11, green: 0.12, blue: 0.15).opacity(0.88))
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(isHovered ? Color.white.opacity(0.28) : Color.white.opacity(0.12), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(isHovered ? 0.35 : 0.18), radius: isHovered ? 6 : 3, x: 0, y: 2)
+        .scaleEffect(isHovered ? 1.02 : 1.0)
+        .animation(.spring(response: 0.28, dampingFraction: 0.72), value: isHovered)
+        .onHover { isHovered = $0 }
+        .onReceive(timer) { input in
+            timelineNow = input
+        }
+        .onAppear { feed.retain() }
+        .onDisappear { feed.release() }
+    }
+}
+
 
