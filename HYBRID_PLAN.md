@@ -3458,6 +3458,14 @@ idle CPU flat while off + disable restores every managed window.
   **Files:** `Core/Support/{CommandBarKeywords,FileQuery}.swift`,
   `App/Composition/{BarActionService,FileSearchService}.swift`, `CommandBar{,View,PanelController}`,
   `UtilitySettingsBlock`.
+- 2026-10-14 · **Phase 30 planned (owner 2026-10-14): close 28d + 29 leftovers + app/trash work.** Plan
+  only. Parts: **A** app actions (uninstall bundle → Trash, delete support files, add-to-dock/pin) wired
+  to the launcher + command-bar right-click; **B** a real **Trash** feature (`trash` keyword → Open /
+  Empty / count, right-click; reuses `FinderTrashClient`/`TrashStateStore`); **C** 28d (emoji picker,
+  browser-bookmark import, OS-theme cycle, menu-bar auto-hide — media keys already shipped); **D** 29
+  leftovers (`ev ` EventKit search, file Quick Look, own FSEvents filename index). Flags: Safari/Chrome
+  bookmarks are behind Full Disk Access; Quick Look in a non-activating panel was previously ruled out;
+  the own index must stay idle when off. Awaiting owner go to start 30a.
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
@@ -3638,6 +3646,69 @@ DND/Focus (no public API). Full-screen OCR (privacy).
 `img cat`, `f ~/Docs dm:today`; Space Quick Look, ⌘⏎ reveal, ⌘⌫ trash on a file row; `ev standup`, `clip`;
 `ocr` copies text; `dark`/`lock`/`play` work; `restart` confirms first; the footer toggles off; every mode
 is inert when off.
+
+### Phase 30 — App management, Trash, and the remaining Sol + 29 gaps (owner 2026-10-14; PLAN ONLY)
+
+**Goal.** Close **28d** + the **29 leftovers** + the new asks (uninstall/delete apps, a real Trash
+feature) in one efficient pass, reusing what already ships. No new permission except where noted.
+
+**Reuse (no rewrite):** `FinderTrashClient` (`openTrash`/`empty(interactive:)`/`count`/`listItemURLs`/
+`reveal`), `TrashStateStore`, `FileItemMenuBuilder` (already does `trashItem` + `noteTrashedInApp`),
+`QuickToggleEngine`, `CalendarService` (EventKit), `CaptureController`, `NowPlayingService`.
+
+**Part A — App actions (launcher + command bar right-click).**
+- **30a** pure `AppAction` / `AppActionPlan`: which actions apply to an app (open, reveal, quit, force
+  quit, **uninstall**, **delete data**, add-to-dock/pin, copy path) + confirm flags. Tested.
+- **30b** wire the plan into `LauncherView`'s context menu and the command-bar app rows (a right-click /
+  ⌘K action menu), reusing `NSWorkspace.recycle` + `TrashStateStore.noteTrashedInApp()`.
+- **30c** uninstall = move the `.app` bundle to **Trash** (quit first, confirm); **delete** = move the
+  app's support/container/caches (`~/Library/{Application Support,Caches,Preferences,Containers}`) to
+  Trash (confirm, lists what will go). *Assumption to confirm:* "add" = **Add to Dock / Pin** (both exist).
+
+**Part B — Trash feature (searchable + right-click).**
+- **30d** pure `TrashAction` + rows (Open Trash · Empty Trash · Empty without confirmation · item count).
+- **30e** the `trash` keyword becomes an **action list** (was: immediate empty) → rows *Open Trash* /
+  *Empty Trash*; right-click gives *Open in Finder*, *Empty…*, *Empty without confirmation*. Reuses
+  `FinderTrashClient` + `TrashStateStore`. Also add *Move to Trash* as a file-row action in the bar.
+
+**Part C — 28d remaining Sol features.**
+- **30f** **Emoji picker** (`emoji ` mode): a curated emoji dataset (pure, in Core) + fuzzy search; select
+  copies. Softer, reviewed set — not the whole Unicode table.
+- **30g** **Browser bookmark import** (`bm ` mode): read **Safari** (`Bookmarks.plist`) and **Chrome**
+  (`Bookmarks.json`) into a searchable list; open on select. *Risk:* those paths sit behind **Full Disk
+  Access** (TCC) on current macOS — fail-closed with a one-line hint (no prompt).
+- **30h** **OS theme cycle** (`theme`: Light → Dark → Auto, `osascript` System Events) and **menu-bar
+  auto-hide** (`menubar` toggle). *(Media-key forwarding already shipped in 29b.)*
+
+**Part D — 29 leftovers.**
+- **30i** **`ev ` calendar search** (EventKit via `CalendarService`): match events by title in a window;
+  Enter opens Calendar on that date. No new permission (calendar already requested by the panel).
+- **30j** **File Quick Look (Space)** in the bar. *Risk:* the repo already decided **Quick Look cannot run
+  in a non-activating panel** (`FileItemMenuBuilder` note). Try `QLPreviewPanel` with the bar key; if it
+  fails, fall back to **⌘Y preview via a child window** or *reveal in Finder* — decide at build time.
+- **30k** **Own fast filename index** (oil-find/Cling style) so `f ` is instant, not Spotlight:
+  - **30k-1** pure `FileIndex` (names in a flat buffer) + `DirectoryScanner` (skip system/Library) +
+    prefix/narrowing search + tests.
+  - **30k-2** `FSEvents` watcher (create/rename/delete → incremental update) + persistence + catch-up.
+  - **30k-3** wire into `f `/`img ` behind `com.katikati.index.enabled` (default on once built), with a
+    Settings toggle and index-size readout. Spotlight stays the fallback.
+
+**Keys.** `com.katikati.index.enabled` (own index). Others reuse existing keys.
+
+**Permissions.** None new for A/B/C-theme/menubar. `bm ` touches Full-Disk-Access paths (fail-closed).
+`ev ` uses the existing calendar grant.
+
+**Risks.** Uninstall/delete are destructive → always confirmed, graceful quit first, results go to Trash
+(undoable). Bookmark files behind TCC. Quick Look in a non-activating panel is a known unknown. The own
+index adds a background scanner + FSEvents → must stay idle when off and not poll.
+
+**Slices (order).** 30a→30b→30c (apps) · 30d→30e (trash) · 30f→30g→30h (Sol) · 30i→30j→30k (29 gaps),
+gating + committing each. Then Phase 12 stays last.
+
+**Verify.** Right-click an app → Uninstall moves it to Trash (app quits first); search `trash` → Open /
+Empty work and match Finder's count; `emoji party` copies; `bm` lists Safari/Chrome bookmarks (or a
+fail-closed hint); `theme` cycles light/dark/auto; `ev standup` opens the day; `f` returns instantly from
+the own index; each mode inert when off.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
