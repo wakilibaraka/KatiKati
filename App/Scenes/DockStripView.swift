@@ -19,6 +19,7 @@ struct DockStripView: View {
     @ObservedObject var trashStore = TrashStateStore.shared
     @EnvironmentObject var settingsStore: AppSettingsStore
     @EnvironmentObject var displayTopologyStore: DisplayTopologyStore
+    @AppStorage("com.katikati.widgets.fabStyle") private var widgetsFABStyle: String = "gauge"
 
     /// 这条任务条的底板是不是原生 Liquid Glass。由 `PanelCoordinator` 在建面板时一次定死
     /// （背景窗口建成功才为 true），**显式传入、没有默认值**：同 `scale` / `hoverStyle`，
@@ -1750,11 +1751,18 @@ extension DockStripView {
                 .contentShape(Rectangle())
                 .onTapGesture { runtime.onToggleLauncher?() }
         case .widgets:
-            // Phase 16l: the right FAB opens the Control Center (the Pinboard retires in 16m).
-            SectionFABGlyph(systemName: "slider.horizontal.3")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .contentShape(Rectangle())
-                .onTapGesture { runtime.onToggleControlCenter?() }
+            // Phase 16l / Phase 32: right FAB opens Control Center / System Monitor
+            if widgetsFABStyle == "classic" {
+                SectionFABGlyph(systemName: "slider.horizontal.3")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture { runtime.onToggleControlCenter?() }
+            } else {
+                DynamicGaugeFABView {
+                    runtime.onToggleControlCenter?()
+                }
+                .nativeScaled(dockScale)
+            }
         case .apps:
             EmptyView()
         }

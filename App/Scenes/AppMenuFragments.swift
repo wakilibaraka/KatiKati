@@ -379,6 +379,19 @@ enum WidgetMenuBuilder {
             styleItem.submenu = styleMenu
             menu.addItem(styleItem)
         }
+        if section == .widgets {
+            let current = UserDefaults.standard.string(forKey: "com.katikati.widgets.fabStyle") ?? "gauge"
+            let styleMenu = NSMenu(title: String(localized: "FAB Style"))
+            for (key, title) in [("gauge", String(localized: "Dynamic Gauge")),
+                                 ("classic", String(localized: "Classic Glyph"))] {
+                let item = ClosureMenuItem(title) { UserDefaults.standard.set(key, forKey: "com.katikati.widgets.fabStyle") }
+                item.state = key == current ? .on : .off
+                styleMenu.addItem(item)
+            }
+            let styleItem = NSMenuItem(title: String(localized: "FAB Style"), action: nil, keyEquivalent: "")
+            styleItem.submenu = styleMenu
+            menu.addItem(styleItem)
+        }
         if section.supportsWidgetSizes {
             let stacked = layout.instance(for: section).stack != nil
             let stackItem = ClosureMenuItem(String(localized: "Smart Stack")) {
