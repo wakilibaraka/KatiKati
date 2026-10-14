@@ -1753,14 +1753,14 @@ extension DockStripView {
                 .contentShape(Rectangle())
                 .onTapGesture { runtime.onToggleLauncher?() }
         case .widgets:
-            // Phase 16l / Phase 32: right FAB opens Control Center / System Monitor
+            // Phase 33 refinement: left FAB displays Wi-Fi surrounded by volume dots, opens Quick Settings
             if widgetsFABStyle == "classic" {
                 SectionFABGlyph(systemName: "slider.horizontal.3")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .contentShape(Rectangle())
                     .onTapGesture { runtime.onToggleControlCenter?() }
             } else {
-                DynamicGaugeFABView {
+                WiFiVolumeFABView {
                     runtime.onToggleControlCenter?()
                 }
                 .nativeScaled(dockScale)

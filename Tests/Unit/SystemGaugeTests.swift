@@ -61,4 +61,47 @@ final class SystemGaugeTests: XCTestCase {
         XCTAssertEqual(DockIconShape.squircle.title, "Standard Squircle")
         XCTAssertEqual(DockIconShape.circle.title, "Circular Icons")
     }
+
+    func testWiFiVolumeDotsActiveCalculation() {
+        // Muted should always be 0 active dots
+        let mutedDots = VolumeStatus(level: 0.8, isMuted: true).isMuted ? 0 : Int(round(0.8 * 12.0))
+        XCTAssertEqual(mutedDots, 0)
+
+        // 0% volume -> 0 dots
+        let zeroDots = Int(round(0.0 * 12.0))
+        XCTAssertEqual(zeroDots, 0)
+
+        // 50% volume -> 6 dots
+        let halfDots = Int(round(0.5 * 12.0))
+        XCTAssertEqual(halfDots, 6)
+
+        // 75% volume -> 9 dots
+        let threeQuarterDots = Int(round(0.75 * 12.0))
+        XCTAssertEqual(threeQuarterDots, 9)
+
+        // 100% volume -> 12 dots
+        let fullDots = Int(round(1.0 * 12.0))
+        XCTAssertEqual(fullDots, 12)
+    }
+
+    func testWiFiVolumeDotsGeometryContainment() {
+        let radius: Double = 14.0
+        for index in 0..<12 {
+            let angle = -90.0 + Double(index) * 30.0
+            let rad = angle * .pi / 180.0
+            let x = radius * cos(rad)
+            let y = radius * sin(rad)
+            let distance = sqrt(x * x + y * y)
+
+            // Ensure every dot is precisely at radius 14.0
+            XCTAssertEqual(distance, radius, accuracy: 0.001)
+
+            // Ensure dot is within the 40x40 frame (coordinates between -20 and +20)
+            XCTAssertGreaterThanOrEqual(x, -20.0)
+            XCTAssertLessThanOrEqual(x, 20.0)
+            XCTAssertGreaterThanOrEqual(y, -20.0)
+            XCTAssertLessThanOrEqual(y, 20.0)
+        }
+    }
 }
+

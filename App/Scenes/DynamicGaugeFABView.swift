@@ -196,3 +196,60 @@ public struct DynamicGaugeFABView: View {
         }
     }
 }
+
+/// Standalone circular gauge disc showing RAM percentage in center and CPU pressure on the outer arc.
+public struct DynamicGaugeCompactDiscView: View {
+    @StateObject private var monitor = SystemMonitorController()
+    var scale: CGFloat = 1.0
+
+    public init(scale: CGFloat = 1.0) {
+        self.scale = scale
+    }
+
+    public var body: some View {
+        let metrics = SystemGaugeMetrics.compute(
+            usedMemory: monitor.snapshot.memory.used,
+            totalMemory: monitor.snapshot.memory.total,
+            cpuUsage: monitor.snapshot.cpu
+        )
+
+        ZStack {
+            // Background track
+            Circle()
+                .stroke(Color.white.opacity(0.12), style: StrokeStyle(lineWidth: 3 * scale, lineCap: .round))
+                .padding(4 * scale)
+
+            // CPU Pressure Arc
+            Circle()
+                .trim(from: 0.0, to: max(0.05, CGFloat(metrics.cpuPressure)))
+                .stroke(gaugeColor(for: metrics.pressureLevel),
+                        style: StrokeStyle(lineWidth: 3 * scale, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .padding(4 * scale)
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: metrics.cpuPressure)
+
+            // Center RAM %
+            Text(verbatim: "\(metrics.ramPercentage)")
+                .font(.system(size: 13 * scale, weight: .bold, design: .rounded).monospacedDigit())
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .frame(width: 40 * scale, height: 40 * scale)
+        .onAppear { monitor.acquire() }
+        .onDisappear { monitor.release() }
+        .help(Text(verbatim: "RAM: \(metrics.ramPercentage)% • CPU: \(Int(round(metrics.cpuPressure * 100)))%"))
+    }
+
+    private func gaugeColor(for level: SystemGaugeMetrics.PressureLevel) -> Color {
+        switch level {
+        case .normal:
+            return Color(red: 0.25, green: 0.85, blue: 0.55)
+        case .warning:
+            return Color(red: 1.0, green: 0.65, blue: 0.20)
+        case .critical:
+            return Color(red: 1.0, green: 0.32, blue: 0.32)
+        }
+    }
+}
+

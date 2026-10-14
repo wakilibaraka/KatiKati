@@ -91,9 +91,7 @@ struct DrawerCapsuleButton: View {
             // Hover and press feedback move only the cell under the pointer; the outer frame
             // (backdrop + rim) stays still.
             if ids.isEmpty {
-                Image(systemName: "square.grid.2x2")
-                    .font(.system(size: 20 * dockScale, weight: .medium))
-                    .foregroundStyle(theme.capsuleGlyph.color)
+                DynamicGaugeCompactDiscView(scale: dockScale)
                     .cellFeedback(hovered: hoverEnabled && hoveredCell != nil, pressed: pressedCell != nil)
             } else {
                 pagedPreview(ids: ids, pageCount: pageCount, page: page, hitPage: hitPage)
@@ -115,18 +113,6 @@ struct DrawerCapsuleButton: View {
         // The hit cells split the whole padded frame into quadrants, so each target is as large
         // as the capsule allows and reaches the screen edge.
         .overlay(hitGrid(apps: apps))
-        .overlay(alignment: .topTrailing) {
-            let count = backgroundCount
-            if count > 0 {
-                Text(verbatim: "\(count)")
-                    .font(.system(size: 9, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white).lineLimit(1).fixedSize()
-                    .padding(.horizontal, 4.5).padding(.vertical, 1)
-                    .background(Capsule().fill(Color.accentColor))
-                    .padding(PanelCoordinator.shadowPadding - 2)
-                    .allowsHitTesting(false)
-            }
-        }
         // Takes scroll events only (see `DrawerCapsuleScrollView.hitTest`); clicks fall through.
         .overlay(DrawerCapsuleScrollReceiver(enabled: hoverEnabled && pageCount > 1) { event in
             switch event {

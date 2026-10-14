@@ -24,6 +24,7 @@
 		A0000000000000000001F202 /* SystemGaugeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F200 /* SystemGaugeModel.swift */; };
 		A0000000000000000001F211 /* SystemGaugeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F210 /* SystemGaugeTests.swift */; };
 		A0000000000000000001F221 /* DynamicGaugeFABView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F220 /* DynamicGaugeFABView.swift */; };
+		FA33A0000000000000000181 /* WiFiVolumeFABView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000180 /* WiFiVolumeFABView.swift */; };
 		A0000000000000000001F091 /* SettingsTilingPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F090 /* SettingsTilingPane.swift */; };
 		A0000000000000000001F092 /* SettingsTilingPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F090 /* SettingsTilingPane.swift */; };
 		A0000000000000000001F081 /* TilingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F080 /* TilingEngine.swift */; };
@@ -1025,6 +1026,7 @@
 		A0000000000000000001F200 /* SystemGaugeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemGaugeModel.swift; path = Core/Support/SystemGaugeModel.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F210 /* SystemGaugeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemGaugeTests.swift; sourceTree = "<group>"; };
 		A0000000000000000001F220 /* DynamicGaugeFABView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicGaugeFABView.swift; sourceTree = "<group>"; };
+		FA33A0000000000000000180 /* WiFiVolumeFABView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiVolumeFABView.swift; sourceTree = "<group>"; };
 		A0000000000000000001F090 /* SettingsTilingPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTilingPane.swift; sourceTree = "<group>"; };
 		A0000000000000000001F080 /* TilingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingEngine.swift; path = App/Composition/TilingEngine.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F050 /* TilingPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingPolicy.swift; path = Core/Support/TilingPolicy.swift; sourceTree = SOURCE_ROOT; };
@@ -1940,6 +1942,7 @@
 				A0000000000000000001F170 /* RadialSnapPreviewPanelController.swift */,
 				A0000000000000000001F190 /* RadialDialPanelController.swift */,
 				A0000000000000000001F220 /* DynamicGaugeFABView.swift */,
+				FA33A0000000000000000180 /* WiFiVolumeFABView.swift */,
 				A00000000000000000000067 /* DockStripView.swift */,
 				A00000000000000000009D00 /* WindowTitleTooltip.swift */,
 				B71000000000000000000003 /* ScreenRectReader.swift */,
@@ -2897,6 +2900,7 @@
 				A0000000000000000001F181 /* RadialDialPresets.swift in Sources */,
 				A0000000000000000001F201 /* SystemGaugeModel.swift in Sources */,
 				A0000000000000000001F221 /* DynamicGaugeFABView.swift in Sources */,
+				FA33A0000000000000000181 /* WiFiVolumeFABView.swift in Sources */,
 				ED00000000000000000000C5 /* WindowSnapService.swift in Sources */,
 				ED00000000000000000000C7 /* WindowsFlyoutView.swift in Sources */,
 				ED00000000000000000000B5 /* TaskList.swift in Sources */,
