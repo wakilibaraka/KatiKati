@@ -200,36 +200,42 @@ public struct WeatherIllustration: View {
 public struct WeatherChip: View {
     @EnvironmentObject var weatherService: WeatherService
     @Environment(\.widgetSize) private var widgetSize
+    @AppStorage("com.katikati.weather.chipPreset") private var chipPreset: WeatherChipPreset = .detailedForecast
     public init() {}
 
     public var body: some View {
         let state = weatherService.currentState
-        let art = WeatherArt.gradient(condition: state.conditionFamily, isNight: state.isNight)
+        if chipPreset == .detailedForecast {
+            DetailedWeatherPodView(state: state, widgetSize: widgetSize)
+                .onTapGesture { WidgetPanelController.weather.toggle() }
+        } else {
+            let art = WeatherArt.gradient(condition: state.conditionFamily, isNight: state.isNight)
 
-        // ViewThatFits is macOS 13+; the floor is 12, so the fallback there is the full layout
-        // with its labels truncating (the compact pill is a nicety, not a requirement).
-        Group {
-            if widgetSize == .small {
-                compactPill(state: state, art: art)
-            } else if #available(macOS 13.0, *) {
-                ViewThatFits(in: .horizontal) {
-                    fullPill(state: state, art: art)
+            // ViewThatFits is macOS 13+; the floor is 12, so the fallback there is the full layout
+            // with its labels truncating (the compact pill is a nicety, not a requirement).
+            Group {
+                if widgetSize == .small {
                     compactPill(state: state, art: art)
+                } else if #available(macOS 13.0, *) {
+                    ViewThatFits(in: .horizontal) {
+                        fullPill(state: state, art: art)
+                        compactPill(state: state, art: art)
+                    }
+                } else {
+                    fullPill(state: state, art: art)
                 }
-            } else {
-                fullPill(state: state, art: art)
             }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(art))
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(Color.white.opacity(0.18), lineWidth: 1)
+            )
+            .contentShape(Rectangle())
+            .onTapGesture { WidgetPanelController.weather.toggle() }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(art))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(Color.white.opacity(0.18), lineWidth: 1)
-        )
-        .contentShape(Rectangle())
-        .onTapGesture { WidgetPanelController.weather.toggle() }
     }
 
     /// Owner sample: condition over city on the left, temperature with its degree ring, spot
@@ -333,3 +339,111 @@ extension EnvironmentValues {
         set { self[WidgetSizeKey.self] = newValue }
     }
 }
+
+// MARK: - Detailed Weather Pod (Phase 32)
+
+private struct DetailedWeatherPodView: View {
+    let state: WeatherState
+    let widgetSize: WidgetSize
+    @State private var isHovered = false
+
+    var body: some View {
+        Group {
+            if widgetSize == .small {
+                compactDetailedView
+            } else if #available(macOS 13.0, *) {
+                ViewThatFits(in: .horizontal) {
+                    fullDetailedView
+                    compactDetailedView
+                }
+            } else {
+                fullDetailedView
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(red: 0.11, green: 0.12, blue: 0.15).opacity(0.88))
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(isHovered ? Color.white.opacity(0.28) : Color.white.opacity(0.12), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(isHovered ? 0.35 : 0.18), radius: isHovered ? 6 : 3, x: 0, y: 2)
+        .scaleEffect(isHovered ? 1.03 : 1.0)
+        .animation(.spring(response: 0.28, dampingFraction: 0.72), value: isHovered)
+        .onHover { hovering in
+            isHovered = hovering
+        }
+        .contentShape(Rectangle())
+    }
+
+    private var fullDetailedView: some View {
+        HStack(spacing: 10) {
+            // Left column: Current temperature & city
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
+                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+
+                Text(state.cityName.isEmpty ? "Rome" : state.cityName)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundStyle(Color.white.opacity(0.82))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+
+            // Subtle divider
+            Rectangle()
+                .fill(Color.white.opacity(0.14))
+                .frame(width: 1, height: 26)
+
+            // Right column: 3-day forecast columns
+            HStack(spacing: 8) {
+                ForEach(state.threeDayForecast) { item in
+                    VStack(spacing: 2) {
+                        Text(item.date)
+                            .font(.system(size: 9.5, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.75))
+                            .lineLimit(1)
+
+                        Image(systemName: item.symbolName)
+                            .font(.system(size: 11, weight: .medium))
+                            .symbolRenderingMode(.multicolor)
+                            .frame(height: 12)
+
+                        Text(verbatim: "\(Int(round(item.highCelsius)))°")
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                    }
+                }
+            }
+        }
+    }
+
+    private var compactDetailedView: some View {
+        HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+
+                Text(state.cityName.isEmpty ? "Rome" : state.cityName)
+                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .foregroundStyle(Color.white.opacity(0.8))
+                    .lineLimit(1)
+            }
+
+            Image(systemName: state.symbolName)
+                .font(.system(size: 14, weight: .medium))
+                .symbolRenderingMode(.multicolor)
+        }
+    }
+}
+

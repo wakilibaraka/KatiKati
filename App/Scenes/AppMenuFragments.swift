@@ -366,6 +366,18 @@ enum WidgetMenuBuilder {
             let unitItem = NSMenuItem(title: String(localized: "Temperature Unit"), action: nil, keyEquivalent: "")
             unitItem.submenu = unitMenu
             menu.addItem(unitItem)
+
+            let currentPreset = UserDefaults.standard.string(forKey: "com.katikati.weather.chipPreset") ?? WeatherChipPreset.detailedForecast.rawValue
+            let styleMenu = NSMenu(title: String(localized: "Weather Style"))
+            for (preset, title) in [(WeatherChipPreset.detailedForecast, String(localized: "Detailed Forecast")),
+                                    (WeatherChipPreset.classicPill, String(localized: "Classic Pill"))] {
+                let item = ClosureMenuItem(title) { UserDefaults.standard.set(preset.rawValue, forKey: "com.katikati.weather.chipPreset") }
+                item.state = preset.rawValue == currentPreset ? .on : .off
+                styleMenu.addItem(item)
+            }
+            let styleItem = NSMenuItem(title: String(localized: "Weather Style"), action: nil, keyEquivalent: "")
+            styleItem.submenu = styleMenu
+            menu.addItem(styleItem)
         }
         if section.supportsWidgetSizes {
             let stacked = layout.instance(for: section).stack != nil
