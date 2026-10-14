@@ -281,6 +281,10 @@ struct SettingsLayoutPane: View {
     @AppStorage("com.katikati.dial.theme") private var dialThemeRaw: String = RadialDialTheme.lilacGlass.rawValue
     @AppStorage("com.katikati.dial.mouseTrigger") private var dialMouseTriggerRaw: String = RadialMouseTrigger.off.rawValue
     @AppStorage("com.katikati.dial.triggerMode") private var dialTriggerModeRaw: String = RadialTriggerMode.tapToggle.rawValue
+    @AppStorage("com.katikati.clock.preset") private var clockPresetRaw: String = ClockPreset.stackedCard.rawValue
+    @AppStorage("com.katikati.weather.chipPreset") private var weatherPresetRaw: String = WeatherChipPreset.detailedForecast.rawValue
+    @AppStorage("com.katikati.media.preset") private var mediaPresetRaw: String = NowPlayingPreset.expandedCard.rawValue
+    @AppStorage("com.katikati.widgets.fabStyle") private var fabStyleRaw: String = "gauge"
 
 
 
@@ -374,6 +378,67 @@ struct SettingsLayoutPane: View {
                 .frame(height: CGFloat(store.widgetLayout.order.count) * 38 + 24)
                 presetControls
                 contextPresetControls
+            }
+
+            section {
+                Text("Widget Styles & Presets")
+            } content: {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Text("Clock Style")
+                        Spacer(minLength: 12)
+                        Picker("Clock Style", selection: $clockPresetRaw) {
+                            ForEach(ClockPreset.allCases, id: \.rawValue) { preset in
+                                Text(preset.title).tag(preset.rawValue)
+                            }
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.menu)
+                        .frame(width: 170)
+                    }
+
+                    HStack {
+                        Text("Weather Style")
+                        Spacer(minLength: 12)
+                        Picker("Weather Style", selection: $weatherPresetRaw) {
+                            ForEach(WeatherChipPreset.allCases, id: \.rawValue) { preset in
+                                Text(preset.title).tag(preset.rawValue)
+                            }
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.menu)
+                        .frame(width: 170)
+                    }
+
+                    HStack {
+                        Text("Now Playing Style")
+                        Spacer(minLength: 12)
+                        Picker("Now Playing Style", selection: $mediaPresetRaw) {
+                            ForEach(NowPlayingPreset.allCases, id: \.rawValue) { preset in
+                                Text(preset.title).tag(preset.rawValue)
+                            }
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.menu)
+                        .frame(width: 170)
+                    }
+
+                    HStack {
+                        Text("Right FAB Style")
+                        Spacer(minLength: 12)
+                        Picker("Right FAB Style", selection: $fabStyleRaw) {
+                            Text("Dynamic Gauge").tag("gauge")
+                            Text("Classic Glyph").tag("classic")
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.menu)
+                        .frame(width: 170)
+                    }
+
+                    Text("Switch between custom Phase 32 pods and legacy widget presets. You can also switch styles by right-clicking each widget on the dock.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             section {

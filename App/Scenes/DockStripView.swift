@@ -1395,7 +1395,7 @@ struct DockStripView: View {
                     .padding(.horizontal, (widgetSize == .small ? 4 : 10) * dockScale)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .clipped()
-                    .frame(width: section == .apps ? nil : targetWidth * dockScale, height: 36 * dockScale)
+                    .frame(width: section == .apps ? nil : targetWidth * dockScale, height: 42 * dockScale)
                 }
             }
             .contentShape(Rectangle())

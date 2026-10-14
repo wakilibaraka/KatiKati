@@ -50,6 +50,7 @@ struct ChipView: View {
     @Environment(\.chipMenuPresenter) private var chipMenuPresenter
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dockThemeStyle) private var dockThemeStyle
+    @AppStorage("com.katikati.dock.iconShape") private var iconShapeRaw: String = DockIconShape.squircle.rawValue
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
     let item: StripItem
     /// Phase 9b: when set, right-click opens the floating jump list instead of an `NSMenu`.
@@ -443,12 +444,19 @@ struct ChipView: View {
 
     // MARK: - Shared Icon
 
+    @ViewBuilder
     private func appIcon(size: CGFloat) -> some View {
-        Image(nsImage: AppIconResolver.icon(for: item.bundleIdentifier ?? item.appID))
+        let img = Image(nsImage: AppIconResolver.icon(for: item.bundleIdentifier ?? item.appID))
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: size, height: size)
-            .clipShape(RoundedRectangle(cornerRadius: size / 4, style: .continuous))
+
+        if iconShapeRaw == DockIconShape.circle.rawValue {
+            img.clipShape(Circle())
+                .overlay(Circle().stroke(Color.white.opacity(0.16), lineWidth: 0.5))
+        } else {
+            img.clipShape(RoundedRectangle(cornerRadius: size / 4, style: .continuous))
+        }
             // 我们**不额外加**外投影（owner 2026-08-19）：加过的那层是净多出来的，
             // 条上量到图标正下方比两侧空隙暗 18–24。中转格方块、文件夹封面同此。
             //

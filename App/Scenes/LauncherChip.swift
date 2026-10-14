@@ -28,6 +28,7 @@ struct LauncherChip: View {
     /// Runtime-owned launch session state. The chip only renders this state; it does
     /// not infer readiness from process state or own a second launch timeout.
     let isLaunching: Bool
+    @AppStorage("com.katikati.dock.iconShape") private var iconShapeRaw: String = DockIconShape.squircle.rawValue
     /// 高度系数（条内传 `DockPanelHeight.scale`，抽屉恒定 0.7）。**故意不给默认值**——漏传必须是编译错误，
     /// 见 AGENTS《Taskbar Size Tiers》。
     let scale: CGFloat
@@ -192,12 +193,23 @@ struct LauncherChip: View {
         }
     }
 
+    @ViewBuilder
     private func icon(size: CGFloat, bounceLift: CGFloat) -> some View {
-        Image(nsImage: AppIconResolver.icon(for: bundleID))
+        let img = Image(nsImage: AppIconResolver.icon(for: bundleID))
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: size, height: size)
-            .clipShape(RoundedRectangle(cornerRadius: size / 4, style: .continuous))
+
+        let shaped = Group {
+            if iconShapeRaw == DockIconShape.circle.rawValue {
+                img.clipShape(Circle())
+                    .overlay(Circle().stroke(Color.white.opacity(0.16), lineWidth: 0.5))
+            } else {
+                img.clipShape(RoundedRectangle(cornerRadius: size / 4, style: .continuous))
+            }
+        }
+
+        shaped
             .offset(y: bounceUp ? -bounceLift : 0)
             .animation(.easeInOut(duration: 0.25), value: bounceUp)
     }

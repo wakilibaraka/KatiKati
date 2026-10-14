@@ -150,5 +150,16 @@ public struct WeatherState: Codable, Equatable, Sendable {
         return Self.defaultRome.daily
     }
 
-    public static let empty = defaultRome
+    public static let empty = WeatherState(
+        cityName: "Loading...",
+        temperatureCelsius: 0,
+        conditionText: "...",
+        symbolName: "cloud.fill",
+        highCelsius: 0,
+        lowCelsius: 0,
+        hourly: [],
+        daily: [],
+        isLive: false,
+        lastUpdated: Date()
+    )
 }

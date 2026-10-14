@@ -15,6 +15,7 @@ struct SettingsAppearancePane: View {
     @AppStorage(WindowLayoutRestoreController.enabledKey) private var layoutRestoreEnabled = true
     @AppStorage(MenuBarSystemItem.enabledKey) private var menuBarSystemEnabled = false
     @AppStorage(MemoryOverlayController.enabledKey) private var memoryOverlayEnabled = true
+    @AppStorage("com.katikati.dock.iconShape") private var iconShapeRaw: String = DockIconShape.squircle.rawValue
 
     private static let margin: CGFloat = 28
     private static let presets: [DockThemeStyle] = [
@@ -66,6 +67,24 @@ struct SettingsAppearancePane: View {
                     iconPreview(.classic)
                 }
                 Text("Applies to the trash and the menu bar icon. Independent of the theme.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            section {
+                HStack {
+                    Text("Dock App Icon Shape")
+                    Spacer(minLength: 12)
+                    Picker("Dock App Icon Shape", selection: $iconShapeRaw) {
+                        Text("Squircle").tag(DockIconShape.squircle.rawValue)
+                        Text("Circle").tag(DockIconShape.circle.rawValue)
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.segmented)
+                    .fixedSize()
+                }
+            } content: {
+                Text("Switch dock app icons between standard macOS squircle and clean circular masking.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
