@@ -513,7 +513,7 @@ extension DeckButton {
     var labelText: Text {
         switch self {
         case .newNote: return Text("New Note")
-        case .settings: return Text("Settings")
+        case .settings: return Text("KatiKati Settings")
         case .status(.wifi): return Text(verbatim: "Wi-Fi")
         case .status(.battery): return Text("Battery")
         case .status(.volume): return Text("Volume")

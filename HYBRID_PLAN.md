@@ -3651,6 +3651,31 @@ Posture (matching this plan's default-off habit): master toggle **off** → once
   first banner of a burst moves (upstream issue), the private NC UI can break any release (fail-closed
   → leave alone), and opening the Notification-Center panel is not distinguished from a banner window
   beyond the subrole probe (worst case: a panel window is moved and restored when it stops matching).
+- 2026-10-14 · **Owner edits — Settings rename + hugging/centred defaults (code).** (1) **Every
+  user-facing Settings entry point now reads "KatiKati Settings"** — the taskbar/status-bar right-click
+  item (`StatusMenuController`, was `Settings…`), the app menu's ⌘, item (`MacOSDockCCV2App`), the
+  Control Center utility-row gear, the deck tile, the quick-access pane entry, and the notch header's
+  tooltip. Motivation: a menu-bar app's "Settings" is ambiguous next to **System Settings**. The
+  catalog's `Settings` / `Settings…` keys were **renamed in place** (values re-localized ×12) rather
+  than added-and-deleted, so the key count stays 753. `Layout Settings…` is untouched — it is already
+  qualified by "Layout". (2) **Hugging replaces floating as the default bottom gap** and **(3)
+  centred replaces split3 as the default layout mode**, for existing installs too (owner decision):
+  a one-shot `com.katikati.migration.huggingCentredDefaults` stamp clears the saved
+  `layout.mode` + `layout.bottomGap` on first launch so the new defaults actually apply, after which
+  a deliberate change sticks. Both the seeded `register(defaults:)` values and the read-path fallbacks
+  moved together, and the registered seeds had to move as well or the migration would be a no-op.
+  Tests: the two first-run-default tests now assert centred/hugging, a new
+  `testHuggingCentredDefaultsReplaceSavedValuesOnce` covers force-once-then-stick, and the
+  unknown-layout-mode test pre-arms the stamp so it keeps testing the read path in isolation.
+  (4) **"Pick Color" crash — diagnosed, fix pending owner repro.** Not a color-picker bug: the crash
+  report (`KatiKati-2026-10-14-093722.ips`, plus the identical `2026-10-12-164258.ips`) is an uncaught
+  `NSException` → `EXC_BREAKPOINT` in `-[NSApplication _crashOnException:]` from
+  `updateConstraintsForSubtreeIfNeeded` during display-cycle flush — i.e. **a SwiftUI Auto Layout
+  conflict in one of our windows**, raised from an observer AppKit cannot catch, so the app dies.
+  `NSColorSampler.show` is only the trigger: activating the app for the eyedropper forces a layout
+  pass that trips the pre-existing conflict (a call from an inactive app was verified **not** to crash
+  on its own). The app frames in both reports are unsymbolicated (ad-hoc stripped install), so the
+  offending view still has to be named from a stderr-captured Debug build.
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)

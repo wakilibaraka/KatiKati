@@ -357,15 +357,15 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
-    func testBottomGapDefaultsToFloatingClampsAndPersists() {
+    func testBottomGapDefaultsToHuggingClampsAndPersists() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertEqual(store.bottomGap, 8, "missing key = floating, today's look")
-        XCTAssertEqual(store.layoutMetrics.bottomGap, 8)
-
-        store.setBottomGap(PanelLayoutMetrics.huggingBottomGap)
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).bottomGap, 2, "hug survives relaunch")
+        XCTAssertEqual(store.bottomGap, 2, "missing key = hugging (owner 2026-10-14)")
         XCTAssertEqual(store.layoutMetrics.bottomGap, 2)
+
+        store.setBottomGap(PanelLayoutMetrics.floatingBottomGap)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).bottomGap, 8, "float survives relaunch")
+        XCTAssertEqual(store.layoutMetrics.bottomGap, 8)
 
         store.setBottomGap(40)
         XCTAssertEqual(store.bottomGap, 12)
@@ -1797,9 +1797,9 @@ final class AppSettingsStoreTests: XCTestCase {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
 
-        // First-run default is split3 (Phase 4U finetune follow-up): fresh
-        // installs open the modular layout, not the monolithic strip.
-        XCTAssertEqual(store.barLayoutMode, .split3)
+        // First-run default is centred (owner 2026-10-14): fresh installs open the
+        // single centred island, not the modular three-island layout.
+        XCTAssertEqual(store.barLayoutMode, .centered)
         XCTAssertEqual(store.centeredWidth, 720)
         XCTAssertEqual(store.islandGap, 10)
         XCTAssertEqual(store.islandMargin, 12)
@@ -1823,12 +1823,34 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testLayoutModeFallbackForUnknownStringDoesNotOverwriteKey() {
         let defaults = makeDefaults()
+        // Stamp pre-armed: this test covers the read path. The hugging/centred one-shot (owner
+        // 2026-10-14) deliberately clears a saved layout mode once, which is tested separately.
+        defaults.set(true, forKey: "com.katikati.migration.huggingCentredDefaults")
         defaults.set("futureMode2028", forKey: "com.katikati.layout.mode")
 
         let store = AppSettingsStore(defaults: defaults)
-        // Unknown stored value falls back to the first-run default (split3).
-        XCTAssertEqual(store.barLayoutMode, .split3)
+        // Unknown stored value falls back to the first-run default (centred).
+        XCTAssertEqual(store.barLayoutMode, .centered)
         XCTAssertEqual(defaults.string(forKey: "com.katikati.layout.mode"), "futureMode2028")
+    }
+
+    /// Owner 2026-10-14: an install that already saved layout mode / bottom gap gets the new
+    /// defaults too — once, so a later deliberate change still sticks.
+    func testHuggingCentredDefaultsReplaceSavedValuesOnce() {
+        let defaults = makeDefaults()
+        defaults.set("split3", forKey: "com.katikati.layout.mode")
+        defaults.set(8, forKey: "com.katikati.layout.bottomGap")
+
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.barLayoutMode, .centered)
+        XCTAssertEqual(store.bottomGap, PanelLayoutMetrics.huggingBottomGap)
+
+        // Second launch must not stomp a value the user changed after the switch.
+        store.setBarLayoutMode(.split4)
+        store.setBottomGap(6)
+        let reloaded = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(reloaded.barLayoutMode, .split4)
+        XCTAssertEqual(reloaded.bottomGap, 6)
     }
 
     func testLayoutDimensionSettersClampValues() {

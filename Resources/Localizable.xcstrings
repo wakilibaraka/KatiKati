@@ -16933,7 +16933,7 @@
         }
       }
     },
-    "Settings…": {
+    "KatiKati Settings…": {
       "comment": "状态栏菜单项，打开设置窗口",
       "localizations": {
         "zh-Hans": {
@@ -36346,7 +36346,7 @@
         }
       }
     },
-    "Settings": {
+    "KatiKati Settings": {
       "extractionState": "manual",
       "localizations": {
         "en": {

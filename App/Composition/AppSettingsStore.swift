@@ -305,6 +305,7 @@ final class AppSettingsStore: ObservableObject {
             enabledKey: Keys.edgeAutoHideEnabled,
             delayKey: Keys.edgeAutoHideDelay
         )
+        Self.forceNewLayoutDefaults(defaults: defaults)
         // Phase 4U decision 3: the widget order is hardcoded — no reader, no writer.
         // Decision 8b removed `.tray` (edge-bar scope): canonical order is weather → apps → clock.
         let defaultWidgetOrder: [BarSection] = BarSection.canonicalOrder
@@ -320,11 +321,11 @@ final class AppSettingsStore: ObservableObject {
             Keys.nativeDockAutoHideDelay: Self.defaultNativeDockAutoHideDelay,
             // 首次安装 = 常驻；remembered 的种子仍是有限档，见常量注释。
             Keys.edgeAutoHideDelay: Self.firstRunEdgeAutoHideDelay,
-            Keys.barLayoutMode: BarLayoutMode.split3.rawValue,
+            Keys.barLayoutMode: BarLayoutMode.centered.rawValue,
             Keys.centeredWidth: Double(Self.defaultCenteredWidth),
             Keys.islandGap: Double(Self.defaultIslandGap),
             Keys.islandMargin: Double(Self.defaultIslandMargin),
-            Keys.bottomGap: Double(PanelLayoutMetrics.floatingBottomGap),
+            Keys.bottomGap: Double(PanelLayoutMetrics.huggingBottomGap),
             Keys.edgePreset: EdgeBarPreset.default.rawValue,
             Keys.edgePrimarySide: EdgeSide.right.rawValue,
             Keys.widgetTiles: WidgetTile.serialize(WidgetTile.allCases),
@@ -406,14 +407,14 @@ final class AppSettingsStore: ObservableObject {
         contextPresetsEnabled = defaults.bool(forKey: ContextPresetRules.enabledKey)
         contextWorkPresetID = defaults.string(forKey: Keys.contextWorkPreset) ?? ""
         contextEveningPresetID = defaults.string(forKey: Keys.contextEveningPreset) ?? ""
-        barLayoutMode = BarLayoutMode(rawValue: defaults.string(forKey: Keys.barLayoutMode) ?? "") ?? .split3
+        barLayoutMode = BarLayoutMode(rawValue: defaults.string(forKey: Keys.barLayoutMode) ?? "") ?? .centered
         let storedCentered = Self.storedNumericValue(defaults.object(forKey: Keys.centeredWidth)) ?? Double(Self.defaultCenteredWidth)
         centeredWidth = CGFloat(min(max(storedCentered, Double(Self.minimumCenteredWidth)), Double(Self.maximumCenteredWidth)))
         let storedGap = Self.storedNumericValue(defaults.object(forKey: Keys.islandGap)) ?? Double(Self.defaultIslandGap)
         islandGap = CGFloat(max(Double(Self.minimumIslandGap), storedGap))
         let storedMargin = Self.storedNumericValue(defaults.object(forKey: Keys.islandMargin)) ?? Double(Self.defaultIslandMargin)
         islandMargin = CGFloat(max(Double(Self.minimumIslandMargin), storedMargin))
-        let storedBottomGap = Self.storedNumericValue(defaults.object(forKey: Keys.bottomGap)) ?? Double(PanelLayoutMetrics.floatingBottomGap)
+        let storedBottomGap = Self.storedNumericValue(defaults.object(forKey: Keys.bottomGap)) ?? Double(PanelLayoutMetrics.huggingBottomGap)
         bottomGap = Self.clampedBottomGap(CGFloat(storedBottomGap))
         edgeBarPreset = EdgeBarPreset(rawValue: defaults.string(forKey: Keys.edgePreset) ?? "") ?? .default
         edgeConflictPolicy = EdgeConflictPolicy(rawValue: defaults.string(forKey: EdgeConflictPolicy.defaultsKey) ?? "") ?? .moveAcross
@@ -1399,10 +1400,22 @@ final class AppSettingsStore: ObservableObject {
         }
         defaults.removeObject(forKey: enabledKey)
     }
+
+    /// Owner 2026-10-14: **hugging** (not floating) and **centred** (not split3) are the defaults,
+    /// and an install that already saved one of them gets the new default too. A stamp makes this
+    /// run exactly once, so a later deliberate change to either setting still sticks.
+    private static func forceNewLayoutDefaults(defaults: UserDefaults) {
+        guard defaults.object(forKey: Keys.huggingCentredDefaultsStamp) == nil else { return }
+        defaults.removeObject(forKey: Keys.bottomGap)
+        defaults.removeObject(forKey: Keys.barLayoutMode)
+        defaults.set(true, forKey: Keys.huggingCentredDefaultsStamp)
+    }
 }
 
 private enum Keys {
     static let launchAtLogin = "com.katikati.launchAtLogin"
+    /// Read-once stamp for the hugging + centred default switch (see `forceNewLayoutDefaults`).
+    static let huggingCentredDefaultsStamp = "com.katikati.migration.huggingCentredDefaults"
     static let drawerPlacement = "com.katikati.drawerPlacement"
     static let showShelf = "com.katikati.showShelf"
     // Never read the retired com.katikati.trash.visible key.

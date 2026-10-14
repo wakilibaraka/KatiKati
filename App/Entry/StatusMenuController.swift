@@ -49,7 +49,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private let menu = NSMenu()
     private let permissionWarningItem = NSMenuItem(title: String(localized: "Grant Accessibility for Full Functionality…"), action: #selector(openAccessibilitySettings), keyEquivalent: "")
     private let permissionWarningSeparator = NSMenuItem.separator()
-    private let settingsItem = NSMenuItem(title: String(localized: "Settings…"), action: #selector(showSettings), keyEquivalent: ",")
+    private let settingsItem = NSMenuItem(title: String(localized: "KatiKati Settings…"), action: #selector(showSettings), keyEquivalent: ",")
     /// 登录项 2026-08-24 当天两度搬家：随菜单去重挪去设置窗口，owner 复议后**回到菜单做第一项**、
     /// 设置窗口不再放（仍不重复）。别再挪回设置窗口，除非 owner 再开口。
     private let launchAtLoginItem = NSMenuItem(title: String(localized: "Open at Login"), action: #selector(toggleLaunchAtLogin), keyEquivalent: "")

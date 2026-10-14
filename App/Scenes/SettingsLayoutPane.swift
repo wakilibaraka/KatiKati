@@ -1109,7 +1109,7 @@ struct SettingsLayoutPane: View {
         switch item {
         case .notes: return Text("Notes")
         case .newNote: return Text("New Note")
-        case .settings: return Text("Settings")
+        case .settings: return Text("KatiKati Settings")
         case .status: return Text("Status")
         case .weather: return Text("Weather")
         case .nowPlaying: return Text("Now Playing")

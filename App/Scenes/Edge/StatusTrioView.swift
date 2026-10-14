@@ -339,7 +339,7 @@ struct ControlCenterView: View {
 
     private var utilityRow: some View {
         HStack(spacing: 6) {
-            utility("gearshape", "Settings", onSettings)
+            utility("gearshape", "KatiKati Settings", onSettings)
             utility("square.grid.2x2", "Launcher", onLauncher)
             utility("camera.viewfinder", "Capture", onCapture)
             utility("rectangle.stack", "Drawer", onDrawer)

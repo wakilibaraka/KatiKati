@@ -32,7 +32,7 @@ struct NotchHeaderView: View {
                         .background(Circle().fill(Color.white.opacity(0.12)))
                 }
                 .buttonStyle(.plain)
-                .help(Text("Settings"))
+                .help(Text("KatiKati Settings"))
             }
         }
         .foregroundStyle(.white)
