@@ -61,6 +61,34 @@ final class SlowQuitTests: XCTestCase {
     }
 }
 
+final class KeyGuardSharedTests: XCTestCase {
+    private let q = KeyGuardPipeline.quitKeyCode
+
+    /// A settings/frontmost push in the middle of a hold must not cancel the keyUp that fires the quit.
+    func testUpdatePreservesAnInProgressHold() {
+        let shared = KeyGuardShared()
+        shared.update(state: KeyGuardState(slowQuitEnabled: true, slowQuitApplies: true))
+        let down = shared.decide(.keyDown(keyCode: q, modifiers: [.command]))
+        XCTAssertEqual(down.decision, .consumeAndFire(.slowQuitPressed))
+
+        shared.update(state: KeyGuardState(slowQuitEnabled: true, slowQuitApplies: true))
+
+        let up = shared.decide(.keyUp(keyCode: q, modifiers: []))
+        XCTAssertEqual(up.decision, .consumeAndFire(.slowQuitReleased), "the hold survived the state push")
+    }
+
+    func testResetDropsEveryGuard() {
+        let shared = KeyGuardShared()
+        let unlock = KeyChord(keyCode: 49, modifiers: [.control, .option])
+        shared.update(state: KeyGuardState(paused: true, unlockKey: unlock))
+        XCTAssertEqual(shared.decide(.keyDown(keyCode: 0, modifiers: [])).decision, .swallow)
+
+        shared.reset()
+        XCTAssertEqual(shared.decide(.keyDown(keyCode: 0, modifiers: [])).decision, .passThrough)
+        XCTAssertEqual(shared.decide(.keyDown(keyCode: q, modifiers: [.command])).decision, .passThrough)
+    }
+}
+
 final class KeyVisualizerBufferTests: XCTestCase {
     func testCoalescesRepeatsAndCaps() {
         var buffer = KeyVisualizerBuffer()

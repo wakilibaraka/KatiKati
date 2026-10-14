@@ -114,6 +114,12 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     /// Dev-only: skip Accessibility onboarding/prompt/watchdog/suspend so panels render with no AX grant (=1 on; never ship on)
     case devSkipPermissions = "DOCK_DEV_SKIP_PERMISSIONS"
 
+    /// Phase 24e: the key-guard pipeline's per-event log (category keyguard); =1 prints
+    case keyGuardTrace = "DOCK_KEYGUARD_TRACE"
+    /// Phase 24: kill-switch — the key-guard tap passes every event through (=1), no swallow, no overlay.
+    /// Polarity matches `.trace` on purpose: unset = guards live, `=1` = force pass-through.
+    case keyGuardOff = "DOCK_KEYGUARD_OFF"
+
     // MARK: 取值型（调用点自己解析）
     /// 周期对账 AX 读超时毫秒（默认 100；0 = 旧同步路径）
     case reconcileAxTimeoutMs = "DOCK_RECONCILE_AX_TIMEOUT_MS"
@@ -197,7 +203,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
         case .displayTrace, .launchTrace, .chipProbe, .clickTrace,
              .hoverTrace, .edgehoverTrace, .stripWheelTrace, .chipAnimTrace, .labelProbe,
              .spaceIntentTrace, .scrollReverserTrace, .windowLiftTrace, .minimizeAppFallback,
-             .devSkipPermissions, .edgeBars, .edgeFan:
+             .devSkipPermissions, .edgeBars, .edgeFan, .keyGuardTrace, .keyGuardOff:
             return .trace
         case .reconcileAxTimeoutMs, .seedAxTimeoutMs, .dragFlightMs, .labelAnim, .inventoryLog,
              .panelLevel, .panelMaterial, .panelSaturation, .panelThickness,

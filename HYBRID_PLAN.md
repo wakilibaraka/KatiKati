@@ -3505,6 +3505,20 @@ idle CPU flat while off + disable restores every managed window.
   (the source uses the `…` form). Gate: 2,302 tests / 0 failures, `** TEST SUCCEEDED **`, `AVAIL_OK`,
   localization + debug-switch checks green. **Not yet:** SlowQuit overlay (24c), key visualizer (24d),
   latency/CPU verify (24e).
+- 2026-10-14 · **24c — SlowQuit: hold-to-quit ⌘Q — PASS.** A held physical ⌘Q is eaten by the pipeline and
+  turned into a hold: a center-screen, non-activating, mouse-ignoring, all-spaces panel (app icon + name +
+  progress bar) runs a 20 Hz progress ticker; reaching the threshold calls `NSRunningApplication.terminate()`,
+  releasing early cancels. Threshold is persisted (`com.katikati.keyguard.slowQuitDuration`, default 0.6 s,
+  clamped 0.2–5) and editable in Settings alongside the on/off toggle and a comma-separated bundle-ID
+  exception list (quit instantly, no hold — `com.katikati.keyguard.slowQuitExceptions`). `slowQuitApplies` is
+  pushed into the pipeline from a `didActivateApplication` observer, so exempt apps never swallow ⌘Q at all;
+  the press handler re-checks the frontmost app before starting a hold. `KeyGuardShared.update` now preserves
+  `slowQuitHolding` (only the pipeline mutates it), so a settings/frontmost push mid-hold cannot cancel the
+  keyUp that fires the quit — covered by a test. Registered `DOCK_KEYGUARD_TRACE` (per-key-event pipeline
+  log) and the `DOCK_KEYGUARD_OFF` kill-switch (`=1` stops the tap entirely, zero swallow). New file
+  `App/Scenes/SlowQuitOverlay.swift`. Strings: +4 keys ×12 languages. Gate: 2,304 tests / 0 failures,
+  `** TEST SUCCEEDED **`, `AVAIL_OK`, localization + debug-switch green. **Not yet:** key visualizer (24d),
+  latency/CPU verify (24e).
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)

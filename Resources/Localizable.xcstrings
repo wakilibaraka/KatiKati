@@ -55747,6 +55747,74 @@
         "it": { "stringUnit": { "state": "translated", "value": "In pausa, i tasti vengono ignorati (il mouse funziona sempre). Premi ⌃⌥⌘P per riprendere. Richiede il permesso di monitoraggio degli input." } },
         "ko": { "stringUnit": { "state": "translated", "value": "일시 중지 중에는 키 입력이 무시됩니다(마우스는 계속 작동). ⌃⌥⌘P를 눌러 재개합니다. 입력 모니터링 권한이 필요합니다." } }
       }
+    },
+    "Hold ⌘Q to Quit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Hold ⌘Q to Quit" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "按住 ⌘Q 退出" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "按住 ⌘Q 結束" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "⌘Q を長押しして終了" } },
+        "de": { "stringUnit": { "state": "translated", "value": "⌘Q gedrückt halten zum Beenden" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Maintenir ⌘Q pour quitter" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mantén ⌘Q para salir" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mantén presionado ⌘Q para salir" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Segure ⌘Q para sair" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Prema ⌘Q para sair" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Tieni premuto ⌘Q per uscire" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "⌘Q 길게 눌러 종료" } }
+      }
+    },
+    "Hold duration": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Hold duration" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "按住时长" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "按住時間" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "長押し時間" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Haltezeit" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Durée de maintien" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Duración de la pulsación" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Duración de la pulsación" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Duração da pressão" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Duração da premência" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Durata della pressione" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "누르는 시간" } }
+      }
+    },
+    "Press and hold ⌘Q for a moment to quit an app; releasing early cancels it. Apps listed below quit instantly instead.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Press and hold ⌘Q for a moment to quit an app; releasing early cancels it. Apps listed below quit instantly instead." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "按住 ⌘Q 一小会儿即可退出 App，提前松开会取消。下面列出的 App 会立即退出。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "按住 ⌘Q 一小會兒即可結束 App，提前放開會取消。下面列出的 App 會立即結束。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "⌘Q を少し長押しするとアプリを終了します。早く離すと取り消しになります。下の一覧にあるアプリはすぐに終了します。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "⌘Q einen Moment gedrückt halten, um eine App zu beenden; frühes Loslassen bricht ab. Die unten aufgeführten Apps werden sofort beendet." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Appuyez et maintenez ⌘Q un instant pour quitter une app ; relâcher tôt annule. Les apps listées ci-dessous quittent immédiatement." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mantén pulsado ⌘Q un momento para salir de una app; soltar antes cancela. Las apps de abajo salen al instante." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mantén presionado ⌘Q un momento para salir de una app; soltar antes cancela. Las apps de abajo salen al instante." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pressione e segure ⌘Q por um momento para sair de um app; soltar antes cancela. Os apps abaixo saem imediatamente." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Prima e mantenha ⌘Q por um momento para sair de uma app; largar antes cancela. As apps abaixo saem de imediato." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Premi e tieni premuto ⌘Q per un istante per uscire da un'app; rilasciare prima annulla. Le app elencate sotto escono subito." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "⌘Q를 잠시 길게 눌러 앱을 종료합니다. 일찍 떼면 취소됩니다. 아래에 나열된 앱은 즉시 종료됩니다." } }
+      }
+    },
+    "Quit instantly, no hold (bundle IDs)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Quit instantly, no hold (bundle IDs)" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "立即退出，不需按住（Bundle ID）" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "立即結束，不需按住（Bundle ID）" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "長押しせず即時に終了（バンドル ID）" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Sofort beenden, ohne Halten (Bundle-ID)" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Quitter immédiatement, sans maintien (ID de bundle)" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Salir al instante, sin mantener (ID de paquete)" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Salir al instante, sin mantener (ID de paquete)" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Sair imediatamente, sem segurar (ID do bundle)" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Sair de imediato, sem premir (ID do bundle)" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Esci subito, senza premere (ID bundle)" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "길게 누르지 않고 즉시 종료(ID 번호)" } }
+      }
     }
   },
   "version": "1.0"

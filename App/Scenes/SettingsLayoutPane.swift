@@ -838,7 +838,31 @@ struct SettingsLayoutPane: View {
                 ))
                 Text("While paused, key presses are ignored (the mouse still works). Press ⌃⌥⌘P to unpause. Needs the Input Monitoring permission.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                if keyGuard.isPaused, !KeyGuardService.hasPermission {
+                Toggle("Hold ⌘Q to Quit", isOn: Binding(
+                    get: { keyGuard.isSlowQuitEnabled },
+                    set: { on in
+                        if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
+                        keyGuard.setSlowQuit(on)
+                    }
+                ))
+                Text("Press and hold ⌘Q for a moment to quit an app; releasing early cancels it. Apps listed below quit instantly instead.")
+                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                if keyGuard.isSlowQuitEnabled {
+                    HStack {
+                        Text("Hold duration")
+                        Slider(value: Binding(get: { keyGuard.slowQuitDuration },
+                                              set: { keyGuard.setSlowQuitDuration($0) }),
+                               in: 0.2...3, step: 0.1)
+                        Text(String(format: "%.1fs", keyGuard.slowQuitDuration))
+                            .monospacedDigit().frame(width: 48, alignment: .trailing)
+                    }
+                    TextField("Quit instantly, no hold (bundle IDs)", text: Binding(
+                        get: { keyGuard.slowQuitExceptions },
+                        set: { keyGuard.setSlowQuitExceptions($0) }
+                    ))
+                    .textFieldStyle(.roundedBorder)
+                }
+                if (keyGuard.isPaused || keyGuard.isSlowQuitEnabled), !KeyGuardService.hasPermission {
                     Button("Open Input Monitoring Settings") {
                         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") { NSWorkspace.shared.open(url) }
                     }
