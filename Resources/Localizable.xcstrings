@@ -55577,6 +55577,23 @@
         "it": { "stringUnit": { "state": "translated", "value": "Traduci" } },
         "ko": { "stringUnit": { "state": "translated", "value": "번역" } }
       }
+    },
+    "Custom Commands": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Custom Commands" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "自定义命令" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "自訂指令" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "カスタムコマンド" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Eigene Befehle" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Commandes personnalisées" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Comandos personalizados" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Comandos personalizados" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Comandos personalizados" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Comandos personalizados" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Comandi personalizzati" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "사용자 명령" } }
+      }
     }
   },
   "version": "1.0"

@@ -103,6 +103,33 @@ final class CommandGeneratorTests: XCTestCase {
     }
 }
 
+final class CustomCommandTests: XCTestCase {
+    func testParsesNameAndTargetPerLine() {
+        let commands = CustomCommand.parse("Open GitHub = https://github.com\n\nNotepad = open -a Notes")
+        XCTAssertEqual(commands.count, 2)
+        XCTAssertEqual(commands[0], CustomCommand(name: "Open GitHub", target: "https://github.com", kind: .link))
+        XCTAssertEqual(commands[1].kind, .command)
+    }
+
+    func testLinkDetection() {
+        XCTAssertEqual(CustomCommand.kind(of: "https://a.com"), .link)
+        XCTAssertEqual(CustomCommand.kind(of: "http://a.com"), .link)
+        XCTAssertEqual(CustomCommand.kind(of: "open -a Notes"), .command)
+    }
+
+    func testMatchingIsCaseInsensitivePrefix() {
+        let commands = CustomCommand.parse("Deploy = deploy.sh\nDocs = https://docs.example")
+        XCTAssertEqual(CustomCommand.matching("dep", in: commands).map(\.name), ["Deploy"])
+        XCTAssertEqual(CustomCommand.matching("DOCS", in: commands).map(\.name), ["Docs"])
+        XCTAssertTrue(CustomCommand.matching("", in: commands).isEmpty)
+    }
+
+    func testSerializeRoundTrips() {
+        let commands = CustomCommand.parse("A = https://a\nB = b")
+        XCTAssertEqual(CustomCommand.parse(CustomCommand.serialize(commands)), commands)
+    }
+}
+
 final class SpotlightHandoffTests: XCTestCase {
 
     func testStepsAreOrderedAndNonEmpty() {

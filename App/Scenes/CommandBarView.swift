@@ -12,9 +12,11 @@ final class CommandBarModel: ObservableObject {
     var apps: [LauncherApp] = []
     var running: [RunningAppRef] = []
     var usage: [String: LauncherUsage] = [:]
+    var custom: [CustomCommand] = []
 
     func refresh() {
         results = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
+                                          custom: custom,
                                           generate: { GeneratorService.value(for: $0) ?? "" })
         selection = 0
     }
@@ -93,6 +95,12 @@ struct CommandBarView: View {
                     Text(verbatim: value).font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary).lineLimit(1)
                 }
                 Spacer(minLength: 0)
+            case .custom(let command):
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: command.name).font(.system(size: 13, weight: .medium))
+                    Text(verbatim: command.target).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
+                }
+                Spacer(minLength: 0)
             }
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
@@ -114,6 +122,8 @@ struct CommandBarView: View {
                 .resizable().aspectRatio(contentMode: .fit).frame(width: 24, height: 24)
         case .generator:
             Image(systemName: "wand.and.stars").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .custom(let command):
+            Image(systemName: command.kind == .link ? "link" : "terminal").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         }
     }
 }

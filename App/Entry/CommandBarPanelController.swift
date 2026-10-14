@@ -30,6 +30,7 @@ final class CommandBarPanelController {
         model.usage = store.load().usage
         model.running = Self.runningApps()
         model.apps = indexer.apps
+        model.custom = CustomCommand.parse(UserDefaults.standard.string(forKey: CustomCommand.key) ?? "")
         model.refresh()
         let panel = self.panel ?? makePanel()
         self.panel = panel
@@ -116,6 +117,14 @@ final class CommandBarPanelController {
             NSPasteboard.general.clearContents()
             NSPasteboard.general.setString(value, forType: .string)
             dismiss()
+        case .custom(let command):
+            dismiss()
+            switch command.kind {
+            case .link:
+                if let url = URL(string: command.target) { NSWorkspace.shared.open(url) }
+            case .command:
+                _ = LauncherRunner.run(.script(command.target))
+            }
         }
     }
 

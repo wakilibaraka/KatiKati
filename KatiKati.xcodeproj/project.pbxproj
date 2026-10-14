@@ -886,6 +886,8 @@
 		A0000000000000000000A141 /* TranslatePanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A140 /* TranslatePanelController.swift */; };
 		A0000000000000000000A151 /* TranslateCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A150 /* TranslateCardView.swift */; };
 		A0000000000000000000A161 /* GeneratorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A160 /* GeneratorService.swift */; };
+		A0000000000000000000A171 /* CustomCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A170 /* CustomCommands.swift */; };
+		A0000000000000000000A172 /* CustomCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A170 /* CustomCommands.swift */; };
 		EE0000000000000000000047 /* ShortcutToastPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000046 /* ShortcutToastPresenter.swift */; };
 		EE0000000000000000000049 /* QuickToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000048 /* QuickToggles.swift */; };
 		EE000000000000000000004A /* QuickToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000048 /* QuickToggles.swift */; };
@@ -1526,6 +1528,7 @@
 		A0000000000000000000A140 /* TranslatePanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TranslatePanelController.swift; path = App/Entry/TranslatePanelController.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A150 /* TranslateCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TranslateCardView.swift; path = App/Scenes/TranslateCardView.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A160 /* GeneratorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GeneratorService.swift; path = App/Composition/GeneratorService.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000A170 /* CustomCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCommands.swift; sourceTree = "<group>"; };
 		A0000000000000000000F000 /* CommandBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandBar.swift; sourceTree = "<group>"; };
 		A0000000000000000000F010 /* CommandBarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandBarTests.swift; sourceTree = "<group>"; };
 		EE0000000000000000000046 /* ShortcutToastPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutToastPresenter.swift; path = App/Entry/ShortcutToastPresenter.swift; sourceTree = SOURCE_ROOT; };
@@ -2126,6 +2129,7 @@
 				A0000000000000000000D040 /* LauncherAnswers.swift */,
 				A0000000000000000000F000 /* CommandBar.swift */,
 				A0000000000000000000A100 /* Translate.swift */,
+				A0000000000000000000A170 /* CustomCommands.swift */,
 				F1C0000000000000000000A0 /* WindowListMenuPlan.swift */,
 				F1F0000000000000000000A0 /* AppLanguageOption.swift */,
 				F1D0000000000000000000A0 /* DocumentUsageRanking.swift */,
@@ -2613,6 +2617,7 @@
 				A0000000000000000000F101 /* CommandBarPanelController.swift in Sources */,
 				A0000000000000000000F111 /* CommandBarView.swift in Sources */,
 				A0000000000000000000A101 /* Translate.swift in Sources */,
+				A0000000000000000000A171 /* CustomCommands.swift in Sources */,
 				A0000000000000000000A121 /* SelectedTextReader.swift in Sources */,
 				A0000000000000000000A131 /* DictionaryService.swift in Sources */,
 				A0000000000000000000A141 /* TranslatePanelController.swift in Sources */,
@@ -3049,6 +3054,7 @@
 				A0000000000000000000D042 /* LauncherAnswers.swift in Sources */,
 				A0000000000000000000F002 /* CommandBar.swift in Sources */,
 				A0000000000000000000A102 /* Translate.swift in Sources */,
+				A0000000000000000000A172 /* CustomCommands.swift in Sources */,
 				A0000000000000000000FA02 /* LauncherChipVisualPlan.swift in Sources */,
 				A0000000000000000000FF02 /* LaunchGateDecision.swift in Sources */,
 				B10000000000000000000009 /* BadgeReadPlan.swift in Sources */,

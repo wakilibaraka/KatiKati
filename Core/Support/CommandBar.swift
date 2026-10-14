@@ -23,6 +23,8 @@ enum CommandBarResult: Equatable, Sendable {
     case quit(RunningAppRef)
     /// A generated value (Phase 28a): copy it.
     case generator(CommandGenerator, value: String)
+    /// A user-defined entry (Phase 28c): open a link or run a script.
+    case custom(CustomCommand)
 }
 
 /// Phase 28a: a generator row — type a keyword, get a fresh value to copy. The pure cases make their own
@@ -119,6 +121,7 @@ enum CommandBarResults {
                       apps: [LauncherApp],
                       usage: [String: LauncherUsage],
                       running: [RunningAppRef],
+                      custom: [CustomCommand] = [],
                       generate: (CommandGenerator) -> String = { $0.value() }) -> [CommandBarResult] {
         let routed = LauncherCommandParser.parse(query)
         guard case .apps(let term) = routed else {
@@ -131,6 +134,7 @@ enum CommandBarResults {
             let value = generate(generator)
             if !value.isEmpty { out.append(.generator(generator, value: value)) }
         }
+        out += CustomCommand.matching(term, in: custom).map(CommandBarResult.custom)
 
         let quits = running
             .filter { LauncherSearch.score(query: term, name: $0.name) != nil }

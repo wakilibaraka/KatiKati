@@ -9,6 +9,7 @@ struct UtilitySettingsBlock: View {
     @AppStorage(ClipboardMonitor.notchToastKey) private var clipboardToast = false
     @AppStorage(ClipboardMonitor.ignorePatternsKey) private var clipboardIgnorePatterns = ""
     @AppStorage(LauncherRunner.enabledKey) private var launcherScripts = false
+    @AppStorage(CustomCommand.key) private var customCommands = ""
 
     var body: some View {
         HStack {
@@ -41,6 +42,11 @@ struct UtilitySettingsBlock: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        Text("Custom Commands").font(.headline)
+        TextEditor(text: $customCommands)
+            .font(.system(size: 11, design: .monospaced))
+            .frame(height: 60)
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.primary.opacity(0.15)))
         Text("Shelf").font(.headline)
         row("Shake to Shelf") {
             Toggle("Shake to Shelf", isOn: Binding(get: { store.shelfShakeEnabled }, set: { store.setShelfShakeEnabled($0) }))
