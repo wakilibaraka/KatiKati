@@ -246,7 +246,7 @@ final class AppSettingsStoreTests: XCTestCase {
         let store = AppSettingsStore(defaults: defaults)
         XCTAssertEqual(store.launcherTheme, .system)
         XCTAssertEqual(store.launcherTint, .none)
-        XCTAssertEqual(store.launcherIcon, .themed)
+        XCTAssertEqual(store.launcherIcon, .liquidBento)
         store.setLauncherTheme(.desktop); store.setLauncherTint(.pink); store.setLauncherIcon(.petal)
         let again = AppSettingsStore(defaults: defaults)
         XCTAssertEqual(again.launcherTheme, .desktop)

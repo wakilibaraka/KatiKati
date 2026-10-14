@@ -6,14 +6,14 @@ final class LauncherAppearanceTests: XCTestCase {
         XCTAssertEqual(LauncherTheme.parse(nil), .system)
         XCTAssertEqual(LauncherTheme.parse("nope"), .system)
         XCTAssertEqual(LauncherTint.parse(nil), .none)
-        XCTAssertEqual(LauncherIconStyle.parse(nil), .themed)
+        XCTAssertEqual(LauncherIconStyle.parse(nil), .liquidBento)
         XCTAssertEqual(LauncherIconStyle.parse("petal"), .petal)
     }
 
     func testFrozenRawValues() {
         XCTAssertEqual(LauncherTheme.allCases.map(\.rawValue), ["system", "light", "dark", "glass", "desktop"])
         XCTAssertEqual(LauncherTint.allCases.map(\.rawValue), ["none", "blue", "purple", "pink", "orange", "green"])
-        XCTAssertEqual(LauncherIconStyle.allCases.map(\.rawValue), ["glass", "orbit", "tiles", "petal", "themed"])
+        XCTAssertEqual(LauncherIconStyle.allCases.map(\.rawValue), ["liquidBento", "visionMono", "starburst", "glass", "orbit", "tiles", "petal", "themed"])
     }
 
     func testTintRGBInRangeAndNoneIsNil() {

@@ -1748,10 +1748,10 @@ extension DockStripView {
                 .environment(\.widgetSize, widgetSize)
                 .nativeScaled(dockScale)
         case .launcher:
-            LauncherIconView(style: settingsStore.launcherIcon, size: 26 * dockScale)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .contentShape(Rectangle())
-                .onTapGesture { runtime.onToggleLauncher?() }
+            LauncherFABView(settingsStore: settingsStore) {
+                runtime.onToggleLauncher?()
+            }
+            .nativeScaled(dockScale)
         case .widgets:
             // Phase 33 refinement: left FAB displays Wi-Fi surrounded by volume dots, opens Quick Settings
             if widgetsFABStyle == "classic" {

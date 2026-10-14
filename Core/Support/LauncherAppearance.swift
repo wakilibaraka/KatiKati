@@ -37,15 +37,21 @@ enum LauncherTint: String, CaseIterable, Sendable {
 
 /// The launcher FAB's glyph (Phase 7B-L7). Raw values are stored in `com.katikati.launcher.icon`; never rename them.
 enum LauncherIconStyle: String, CaseIterable, Sendable {
+    /// Modern Liquid Glass Bento matrix with Apple jewel-tone gradients (default).
+    case liquidBento = "liquidBento"
+    /// Minimalist Vision monochrome frosted glass grid.
+    case visionMono = "visionMono"
+    /// Modern dynamic starburst aperture glyph.
+    case starburstAperture = "starburst"
     /// App-style frosted-glass panel with a search pill and app tiles.
     case glass
     case orbit
     case tiles
     case petal
-    /// 10c-2: glass tile tinted from the accent colour with a colourful 3×3 tile glyph (default).
+    /// 10c-2: glass tile tinted from the accent colour with a colourful 3×3 tile glyph.
     case themed
 
-    static let `default`: LauncherIconStyle = .themed
+    static let `default`: LauncherIconStyle = .liquidBento
 
     /// Hue (0…1) of each cell in the themed 3×3 glyph, row-major — a Launchpad-like spread.
     static let themedCellHues: [Double] = [0.02, 0.09, 0.15, 0.36, 0.48, 0.58, 0.68, 0.78, 0.92]
