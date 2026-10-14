@@ -3421,6 +3421,14 @@ idle CPU flat while off + disable restores every managed window.
   closes** via a global mouse monitor; Sol-style **Quit / Force Quit / Cancel** (was quit-only). No new
   strings. Gate: 2,264 tests / 0 failures; localization; availability. Sol parity is **not** complete —
   see the new parity list.
+- 2026-10-14 · **Phase 28 (a–e) — Sol parity rows — PASS (code); 28d deferred.** 28a generators
+  (UUID/NanoID/Lorem, injectable RNG), 28b system generators (JSON/IP/Wi-Fi via `GeneratorService`),
+  28c custom commands & links (`Name = target`, Settings editor), 28e process killer (`!name` route over
+  a `ps` snapshot, Kill/Force Quit). **28d deferred to a future phase** (emoji picker, media keys,
+  bookmark import, OS theme switch, blacken menu bar). New strings: "Custom Commands", "Kill". Gate:
+  `xcodebuild test` **2,275 / 0 failures** · `check_localization.py` ✅ · `check_availability_warnings.py`
+  ✅. **Note:** `CaptureRecognitionTests` (Vision OCR) fails only while the built app is running
+  (E5RT/GPU contention) — passes once the app is killed; not caused by this work.
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
@@ -3470,6 +3478,29 @@ search) — the bar reuses them.
 
 **Verify.** ⌘Space summon after the user frees Spotlight; math/web/app rows reuse 21; kill-app asks first
 and works with Wi-Fi off; the old launcher still opens on ⌥Space; idle CPU flat while the bar is closed.
+
+### Phase 28 — Sol parity rows in the ⌘Space command bar (owner 2026-10-14; native reimplementation)
+
+**Goal.** Bring the cheap, high-value Sol commands into the command bar as native rows. **28d (Sol's
+big features) is deferred to a future phase.** No new permissions; everything is offline.
+
+**Slices.**
+- **28a — generators** (UUID, NanoID, Lorem Ipsum): exact-keyword rows (`uuid`/`nanoid`/`lorem`); a
+  fresh value is shown and Return/click copies it. Pure `CommandGenerator` with an injectable RNG.
+- **28b — system generators** (Format JSON, IP Address, Wi-Fi Password): the app layer
+  (`GeneratorService`) fills these — clipboard JSON pretty-print, `getifaddrs` en0 IPv4, CoreWLAN SSID +
+  `security` keychain read. Fail-closed.
+- **28c — custom commands & links**: user-defined entries, `Name = target` one per line; a
+  `http(s)://` target opens, anything else runs through `LauncherRunner`. Settings › Launcher editor.
+- **28d — DEFERRED to a future phase**: emoji picker, media-key forwarding, browser-bookmark import,
+  OS theme switch, blacken menu bar.
+- **28e — process killer**: a `!name` route (new `LauncherCommandParser` prefix) lists processes from a
+  `ps` snapshot taken at summon, filtered live; Kill / Force Quit (SIGTERM / SIGKILL) behind a confirm.
+
+**Keys.** `com.katikati.commandbar.custom` (the custom entries). No new permissions.
+
+**Verify.** `uuid`/`nanoid`/`lorem` copy a fresh value; `json` pretty-prints the clipboard; `ip` shows the
+en0 address; `wifi` reads the keychain; a custom `Name = …` row runs; `!saf` lists Safari and kills it.
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
