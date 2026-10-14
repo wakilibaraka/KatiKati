@@ -14,7 +14,8 @@ final class CommandBarModel: ObservableObject {
     var usage: [String: LauncherUsage] = [:]
 
     func refresh() {
-        results = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running)
+        results = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
+                                          generate: { GeneratorService.value(for: $0) ?? "" })
         selection = 0
     }
 

@@ -86,6 +86,21 @@ final class CommandGeneratorTests: XCTestCase {
         let rows = CommandBarResults.build(query: "uuid", apps: [], usage: [:], running: [], generate: { _ in "fixed" })
         guard case .generator(.uuid, "fixed") = rows.first else { return XCTFail("expected generator row, got \(rows)") }
     }
+
+    func testSystemKeywordsMatch() {
+        XCTAssertEqual(CommandGenerator.match("json"), .formatJSON)
+        XCTAssertEqual(CommandGenerator.match("ip"), .ipAddress)
+        XCTAssertEqual(CommandGenerator.match("wifi"), .wifiPassword)
+        XCTAssertTrue(CommandGenerator.formatJSON.isSystemBacked)
+        XCTAssertFalse(CommandGenerator.uuid.isSystemBacked)
+    }
+
+    func testPrettyJSON() {
+        let pretty = JSONPrettyPrinter.pretty(#"{"a":1,"b":[2,3]}"#)
+        XCTAssertNotNil(pretty)
+        XCTAssertTrue(pretty?.contains("\n") == true)
+        XCTAssertNil(JSONPrettyPrinter.pretty("not json"))
+    }
 }
 
 final class SpotlightHandoffTests: XCTestCase {

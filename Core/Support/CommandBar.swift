@@ -32,6 +32,9 @@ enum CommandGenerator: String, CaseIterable, Sendable {
     case uuid
     case nanoID = "nanoid"
     case loremIpsum = "lorem"
+    case formatJSON = "json"
+    case ipAddress = "ip"
+    case wifiPassword = "wifi"
 
     var keyword: String { rawValue }
 
@@ -41,6 +44,18 @@ enum CommandGenerator: String, CaseIterable, Sendable {
         case .uuid: return "UUID"
         case .nanoID: return "NanoID"
         case .loremIpsum: return "Lorem Ipsum"
+        case .formatJSON: return "Format JSON"
+        case .ipAddress: return "IP Address"
+        case .wifiPassword: return "Wi-Fi Password"
+        }
+    }
+
+    /// System-backed generators read the clipboard / network / keychain, so the app layer fills their
+    /// value (`GeneratorService`); the pure cases make their own.
+    var isSystemBacked: Bool {
+        switch self {
+        case .uuid, .nanoID, .loremIpsum: return false
+        case .formatJSON, .ipAddress, .wifiPassword: return true
         }
     }
 
@@ -62,6 +77,7 @@ enum CommandGenerator: String, CaseIterable, Sendable {
         case .uuid: return UUID().uuidString
         case .nanoID: return Self.nanoID(using: &rng)
         case .loremIpsum: return Self.loremIpsum(using: &rng)
+        case .formatJSON, .ipAddress, .wifiPassword: return ""   // filled by GeneratorService
         }
     }
 
@@ -80,6 +96,18 @@ enum CommandGenerator: String, CaseIterable, Sendable {
         let words = (0..<12).map { _ in loremWords[Int.random(in: 0..<loremWords.count, using: &rng)] }
         let sentence = words.joined(separator: " ")
         return sentence.prefix(1).uppercased() + sentence.dropFirst() + "."
+    }
+}
+
+/// Phase 28b: pretty-print a JSON string, or nil if it isn't valid JSON. Pure and unit-tested.
+enum JSONPrettyPrinter {
+    static func pretty(_ raw: String) -> String? {
+        guard let data = raw.data(using: .utf8), let object = try? JSONSerialization.jsonObject(with: data),
+              JSONSerialization.isValidJSONObject(object),
+              let pretty = try? JSONSerialization.data(withJSONObject: object,
+                                                       options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]),
+              let text = String(data: pretty, encoding: .utf8) else { return nil }
+        return text
     }
 }
 
