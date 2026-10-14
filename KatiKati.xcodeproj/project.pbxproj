@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A0000000000000000001F001 /* SnapRects.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F000 /* SnapRects.swift */; };
+		A0000000000000000001F002 /* SnapRects.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F000 /* SnapRects.swift */; };
+		A0000000000000000001F011 /* SnapRectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F010 /* SnapRectsTests.swift */; };
 		FA10A1000000000000000236 /* LauncherFoldersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000235 /* LauncherFoldersTests.swift */; };
 		FA10A1000000000000000234 /* LauncherFolders.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000232 /* LauncherFolders.swift */; };
 		FA10A1000000000000000233 /* LauncherFolders.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000232 /* LauncherFolders.swift */; };
@@ -942,6 +945,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A0000000000000000001F000 /* SnapRects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SnapRects.swift; path = Core/Support/SnapRects.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000001F010 /* SnapRectsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapRectsTests.swift; sourceTree = "<group>"; };
 		FA10A1000000000000000235 /* LauncherFoldersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherFoldersTests.swift; path = Tests/Unit/LauncherFoldersTests.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000232 /* LauncherFolders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherFolders.swift; path = Core/Support/LauncherFolders.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000229 /* EdgeBarPrefsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EdgeBarPrefsTests.swift; path = Tests/Unit/EdgeBarPrefsTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2060,6 +2065,7 @@
 				A00000000000000000009410 /* LauncherMenuPlanTests.swift */,
 				A0000000000000000000C010 /* LauncherCommandsTests.swift */,
 				A0000000000000000000D010 /* ClipboardPlusTests.swift */,
+				A0000000000000000001F010 /* SnapRectsTests.swift */,
 				A0000000000000000000D030 /* PDFReducePlanTests.swift */,
 				A0000000000000000000D050 /* LauncherAnswersTests.swift */,
 				A0000000000000000000F010 /* CommandBarTests.swift */,
@@ -2197,6 +2203,7 @@
 				A0000000000000000000A230 /* FileIndex.swift */,
 				A0000000000000000000A260 /* KeyGuard.swift */,
 				A0000000000000000000A310 /* NotificationPlacement.swift */,
+				A0000000000000000001F000 /* SnapRects.swift */,
 				F1C0000000000000000000A0 /* WindowListMenuPlan.swift */,
 				F1F0000000000000000000A0 /* AppLanguageOption.swift */,
 				F1D0000000000000000000A0 /* DocumentUsageRanking.swift */,
@@ -2740,6 +2747,7 @@
 				ED00000000000000000000CE /* ClipboardMonitor.swift in Sources */,
 				ED00000000000000000000D0 /* ClipboardFlyoutView.swift in Sources */,
 				ED00000000000000000000C2 /* WindowSnap.swift in Sources */,
+				A0000000000000000001F001 /* SnapRects.swift in Sources */,
 				ED00000000000000000000C5 /* WindowSnapService.swift in Sources */,
 				ED00000000000000000000C7 /* WindowsFlyoutView.swift in Sources */,
 				ED00000000000000000000B5 /* TaskList.swift in Sources */,
@@ -2962,6 +2970,8 @@
 				ED00000000000000000000D2 /* ClipboardHistoryTests.swift in Sources */,
 				ED00000000000000000000C3 /* WindowSnap.swift in Sources */,
 				ED00000000000000000000C9 /* WindowSnapTests.swift in Sources */,
+				A0000000000000000001F002 /* SnapRects.swift in Sources */,
+				A0000000000000000001F011 /* SnapRectsTests.swift in Sources */,
 				ED00000000000000000000C0 /* DeckLabel.swift in Sources */,
 				ED00000000000000000000B6 /* TaskList.swift in Sources */,
 				ED00000000000000000000B9 /* TasksStore.swift in Sources */,

@@ -321,6 +321,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     engine.setKeepAwake(!engine.keepAwakeOn)
                     self.shortcutToast.show(engine.keepAwakeOn ? String(localized: "Keep Awake On") : String(localized: "Keep Awake Off"),
                                             symbol: "cup.and.saucer.fill")
+                default:
+                    // Phase 26a: snap-zone hotkeys — any action with a SnapPosition calls the service.
+                    if let position = action.snapPosition {
+                        WindowSnapService.apply(position)
+                    }
                 }
             }
             hyperkeyService.onAction = shortcutService.onAction

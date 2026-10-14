@@ -9,6 +9,11 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case commandBar
     /// Phase 23: define/translate the current selection (off by default).
     case translate
+    /// Phase 26a: one case per snap zone (15 total). All default to `.off` — user assigns.
+    case snapLeftHalf, snapRightHalf, snapTopHalf, snapBottomHalf
+    case snapTopLeft, snapTopRight, snapBottomLeft, snapBottomRight
+    case snapLeftThird, snapCenterThird, snapRightThird, snapLeftTwoThirds, snapRightTwoThirds
+    case snapCenter, snapMaximize
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -23,6 +28,22 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .clock: return 9
         case .commandBar: return 10
         case .translate: return 11
+        // Phase 26a snap zones: ids 12–26
+        case .snapLeftHalf: return 12
+        case .snapRightHalf: return 13
+        case .snapTopHalf: return 14
+        case .snapBottomHalf: return 15
+        case .snapTopLeft: return 16
+        case .snapTopRight: return 17
+        case .snapBottomLeft: return 18
+        case .snapBottomRight: return 19
+        case .snapLeftThird: return 20
+        case .snapCenterThird: return 21
+        case .snapRightThird: return 22
+        case .snapLeftTwoThirds: return 23
+        case .snapRightTwoThirds: return 24
+        case .snapCenter: return 25
+        case .snapMaximize: return 26
         }
     }
 
@@ -32,6 +53,33 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .pinboard: return .chord(.controlOptionSpace)
         case .commandBar: return .chord(.commandSpace)
         case .quickSettings, .keepAwake, .drawer, .notchTools, .weather, .clock, .translate: return .off
+        // All snap zones default to off — user assigns via Settings › Shortcuts › Snap Hotkeys.
+        case .snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf,
+             .snapTopLeft, .snapTopRight, .snapBottomLeft, .snapBottomRight,
+             .snapLeftThird, .snapCenterThird, .snapRightThird, .snapLeftTwoThirds, .snapRightTwoThirds,
+             .snapCenter, .snapMaximize: return .off
+        }
+    }
+
+    /// The `SnapPosition` this action maps to, or `nil` for non-snap actions.
+    var snapPosition: SnapPosition? {
+        switch self {
+        case .snapLeftHalf: return .leftHalf
+        case .snapRightHalf: return .rightHalf
+        case .snapTopHalf: return .topHalf
+        case .snapBottomHalf: return .bottomHalf
+        case .snapTopLeft: return .topLeft
+        case .snapTopRight: return .topRight
+        case .snapBottomLeft: return .bottomLeft
+        case .snapBottomRight: return .bottomRight
+        case .snapLeftThird: return .leftThird
+        case .snapCenterThird: return .centerThird
+        case .snapRightThird: return .rightThird
+        case .snapLeftTwoThirds: return .leftTwoThirds
+        case .snapRightTwoThirds: return .rightTwoThirds
+        case .snapCenter: return .center
+        case .snapMaximize: return .maximize
+        default: return nil
         }
     }
 }

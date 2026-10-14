@@ -55445,528 +55445,4003 @@
     "Click Keyboard Shortcuts….": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Click Keyboard Shortcuts…." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "点按“键盘快捷键…”。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "點按「鍵盤快速鍵…」。" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "「キーボードショートカット…」をクリックします。" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Auf „Tastaturkurzbefehle…“ klicken." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Cliquez sur Raccourcis clavier…." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Haz clic en Atajos de teclado…." } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Haz clic en Atajos de teclado…." } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Clique em Atalhos de Teclado…." } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Clique em Atalhos de Teclado…." } },
-        "it": { "stringUnit": { "state": "translated", "value": "Fai clic su Scorciatoie da tastiera…." } },
-        "ko": { "stringUnit": { "state": "translated", "value": "키보드 단축키…를 클릭합니다." } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click Keyboard Shortcuts…."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点按“键盘快捷键…”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點按「鍵盤快速鍵…」。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「キーボードショートカット…」をクリックします。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf „Tastaturkurzbefehle…“ klicken."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cliquez sur Raccourcis clavier…."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz clic en Atajos de teclado…."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz clic en Atajos de teclado…."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clique em Atalhos de Teclado…."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clique em Atalhos de Teclado…."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai clic su Scorciatoie da tastiera…."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "키보드 단축키…를 클릭합니다."
+          }
+        }
       }
     },
     "Come back and press ⌘Space to test.": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Come back and press ⌘Space to test." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "返回后按 ⌘Space 测试。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "返回後按 ⌘Space 測試。" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "戻って ⌘Space を押してテストします。" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Zurückkehren und ⌘Space zum Testen drücken." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Revenez et appuyez sur ⌘Space pour tester." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Vuelve y pulsa ⌘Space para probar." } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Vuelve y pulsa ⌘Space para probar." } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Volte e pressione ⌘Space para testar." } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Volte e prima ⌘Space para testar." } },
-        "it": { "stringUnit": { "state": "translated", "value": "Torna qui e premi ⌘Space per provare." } },
-        "ko": { "stringUnit": { "state": "translated", "value": "돌아와서 ⌘Space를 눌러 테스트합니다." } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Come back and press ⌘Space to test."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回后按 ⌘Space 测试。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回後按 ⌘Space 測試。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "戻って ⌘Space を押してテストします。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zurückkehren und ⌘Space zum Testen drücken."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revenez et appuyez sur ⌘Space pour tester."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuelve y pulsa ⌘Space para probar."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuelve y pulsa ⌘Space para probar."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volte e pressione ⌘Space para testar."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volte e prima ⌘Space para testar."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torna qui e premi ⌘Space per provare."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "돌아와서 ⌘Space를 눌러 테스트합니다."
+          }
+        }
       }
     },
     "Open System Settings › Keyboard.": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Open System Settings › Keyboard." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "打开“系统设置”›“键盘”。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "打開「系統設定」›「鍵盤」。" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "システム設定 › キーボードを開きます。" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Systemeinstellungen › Tastatur öffnen." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Ouvrez Réglages Système › Clavier." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Abre Ajustes del Sistema › Teclado." } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Abre Ajustes del Sistema › Teclado." } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Abra Ajustes do Sistema › Teclado." } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Abra Definições do Sistema › Teclado." } },
-        "it": { "stringUnit": { "state": "translated", "value": "Apri Impostazioni di Sistema › Tastiera." } },
-        "ko": { "stringUnit": { "state": "translated", "value": "시스템 설정 › 키보드를 엽니다." } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings › Keyboard."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开“系统设置”›“键盘”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開「系統設定」›「鍵盤」。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "システム設定 › キーボードを開きます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Systemeinstellungen › Tastatur öffnen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez Réglages Système › Clavier."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre Ajustes del Sistema › Teclado."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre Ajustes del Sistema › Teclado."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abra Ajustes do Sistema › Teclado."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abra Definições do Sistema › Teclado."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Impostazioni di Sistema › Tastiera."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시스템 설정 › 키보드를 엽니다."
+          }
+        }
       }
     },
     "Replace Spotlight": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Replace Spotlight" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "替换 Spotlight" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "取代 Spotlight" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "Spotlight を置き換え" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Spotlight ersetzen" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Remplacer Spotlight" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Reemplazar Spotlight" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Reemplazar Spotlight" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Substituir o Spotlight" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Substituir o Spotlight" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Sostituisci Spotlight" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "Spotlight 대체" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace Spotlight"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "替换 Spotlight"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取代 Spotlight"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotlight を置き換え"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotlight ersetzen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplacer Spotlight"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reemplazar Spotlight"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reemplazar Spotlight"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substituir o Spotlight"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substituir o Spotlight"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sostituisci Spotlight"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotlight 대체"
+          }
+        }
       }
     },
     "Select Spotlight in the list.": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Select Spotlight in the list." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "在列表中选择“Spotlight”。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "在清單中選擇「Spotlight」。" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "一覧で「Spotlight」を選択します。" } },
-        "de": { "stringUnit": { "state": "translated", "value": "In der Liste „Spotlight“ auswählen." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Sélectionnez Spotlight dans la liste." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Selecciona Spotlight en la lista." } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Selecciona Spotlight en la lista." } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Selecione Spotlight na lista." } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Selecione Spotlight na lista." } },
-        "it": { "stringUnit": { "state": "translated", "value": "Seleziona Spotlight nell'elenco." } },
-        "ko": { "stringUnit": { "state": "translated", "value": "목록에서 Spotlight를 선택합니다." } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select Spotlight in the list."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在列表中选择“Spotlight”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在清單中選擇「Spotlight」。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一覧で「Spotlight」を選択します。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In der Liste „Spotlight“ auswählen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionnez Spotlight dans la liste."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona Spotlight en la lista."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona Spotlight en la lista."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecione Spotlight na lista."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecione Spotlight na lista."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona Spotlight nell'elenco."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "목록에서 Spotlight를 선택합니다."
+          }
+        }
       }
     },
     "Turn off Show Spotlight search.": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Turn off Show Spotlight search." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "关闭“显示 Spotlight 搜索”。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "關閉「顯示 Spotlight 搜尋」。" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "「Spotlight 検索を表示」をオフにします。" } },
-        "de": { "stringUnit": { "state": "translated", "value": "„Spotlight-Suche einblenden“ deaktivieren." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Désactivez Afficher la recherche Spotlight." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Desactiva Mostrar búsqueda de Spotlight." } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Desactiva Mostrar búsqueda de Spotlight." } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Desative Mostrar pesquisa do Spotlight." } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Desative Mostrar pesquisa do Spotlight." } },
-        "it": { "stringUnit": { "state": "translated", "value": "Disattiva Mostra ricerca Spotlight." } },
-        "ko": { "stringUnit": { "state": "translated", "value": "Spotlight 검색 표시를 끕니다." } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn off Show Spotlight search."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭“显示 Spotlight 搜索”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉「顯示 Spotlight 搜尋」。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「Spotlight 検索を表示」をオフにします。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Spotlight-Suche einblenden“ deaktivieren."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désactivez Afficher la recherche Spotlight."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desactiva Mostrar búsqueda de Spotlight."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desactiva Mostrar búsqueda de Spotlight."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desative Mostrar pesquisa do Spotlight."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desative Mostrar pesquisa do Spotlight."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disattiva Mostra ricerca Spotlight."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spotlight 검색 표시를 끕니다."
+          }
+        }
       }
     },
     "No definition found": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "No definition found" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "未找到释义" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "找不到釋義" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "定義が見つかりません" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Keine Definition gefunden" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Aucune définition trouvée" } },
-        "es": { "stringUnit": { "state": "translated", "value": "No se encontró ninguna definición" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "No se encontró ninguna definición" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Nenhuma definição encontrada" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Nenhuma definição encontrada" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Nessuna definizione trovata" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "정의를 찾을 수 없습니다" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No definition found"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未找到释义"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "找不到釋義"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "定義が見つかりません"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Definition gefunden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune définition trouvée"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontró ninguna definición"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontró ninguna definición"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhuma definição encontrada"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhuma definição encontrada"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna definizione trovata"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정의를 찾을 수 없습니다"
+          }
+        }
       }
     },
     "Translate": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Translate" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "翻译" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "翻譯" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "翻訳" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Übersetzen" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Traduire" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Traducir" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Traducir" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Traduzir" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Traduzir" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Traduci" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "번역" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translate"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翻译"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翻譯"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翻訳"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Übersetzen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traduire"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traducir"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traducir"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traduzir"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traduzir"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traduci"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "번역"
+          }
+        }
       }
     },
     "Custom Commands": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Custom Commands" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "自定义命令" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "自訂指令" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "カスタムコマンド" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Eigene Befehle" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Commandes personnalisées" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Comandos personalizados" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Comandos personalizados" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Comandos personalizados" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Comandos personalizados" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Comandi personalizzati" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "사용자 명령" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Commands"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义命令"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自訂指令"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カスタムコマンド"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene Befehle"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commandes personnalisées"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comandos personalizados"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comandos personalizados"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comandos personalizados"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comandos personalizados"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comandi personalizzati"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 명령"
+          }
+        }
       }
     },
     "Kill": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Kill" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "结束进程" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "結束處理程序" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "強制終了" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Beenden" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Tuer" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Finalizar" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Finalizar" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Encerrar" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Encerrar" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Termina" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "종료" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kill"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "结束进程"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "結束處理程序"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "強制終了"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beenden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tuer"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finalizar"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finalizar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encerrar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encerrar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Termina"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "종료"
+          }
+        }
       }
     },
     "Are you sure?": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Are you sure?" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "确定吗？" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "確定嗎？" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "よろしいですか？" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Bist du sicher?" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Êtes-vous sûr ?" } },
-        "es": { "stringUnit": { "state": "translated", "value": "¿Estás seguro?" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "¿Estás seguro?" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Tem certeza?" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Tem a certeza?" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Sei sicuro?" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "계속하시겠습니까?" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定吗？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確定嗎？"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "よろしいですか？"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bist du sicher?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Êtes-vous sûr ?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Estás seguro?"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Estás seguro?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tem certeza?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tem a certeza?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sei sicuro?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계속하시겠습니까?"
+          }
+        }
       }
     },
     "Show Command Hints": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Show Command Hints" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "显示命令提示" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "顯示指令提示" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "コマンドヒントを表示" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Befehlshinweise anzeigen" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Afficher les astuces de commande" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Mostrar sugerencias de comandos" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Mostrar sugerencias de comandos" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mostrar dicas de comando" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mostrar sugestões de comando" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Mostra suggerimenti comandi" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "명령 힌트 표시" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Command Hints"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示命令提示"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示指令提示"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コマンドヒントを表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Befehlshinweise anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher les astuces de commande"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar sugerencias de comandos"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar sugerencias de comandos"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar dicas de comando"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar sugestões de comando"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra suggerimenti comandi"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "명령 힌트 표시"
+          }
+        }
       }
     },
     "Delete Data…": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Delete Data…" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "删除数据" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "刪除資料" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "データを削除" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Daten löschen" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Supprimer les données" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Borrar datos" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Borrar datos" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Apagar dados" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Apagar dados" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Elimina dati" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "데이터 삭제" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Data…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除数据"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除資料"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "データを削除"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daten löschen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer les données"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Borrar datos"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Borrar datos"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apagar dados"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apagar dados"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina dati"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "데이터 삭제"
+          }
+        }
       }
     },
     "Uninstall…": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Uninstall…" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "卸载" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "卸載" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "アンインストール" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Deinstallieren" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Désinstaller" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Desinstalar" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Desinstalar" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Desinstalar" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Desinstalar" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Disinstalla" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "제거" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uninstall…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "卸载"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "卸載"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アンインストール"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deinstallieren"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désinstaller"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desinstalar"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desinstalar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desinstalar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desinstalar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disinstalla"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "제거"
+          }
+        }
       }
     },
     "Empty Without Confirmation": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Empty Without Confirmation" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "直接清空（不确认）" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "直接清空（不確認）" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "確認なしで空にする" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Ohne Bestätigung leeren" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Vider sans confirmation" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Vaciar sin confirmación" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Vaciar sin confirmación" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Esvaziar sem confirmação" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Esvaziar sem confirmação" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Svuota senza conferma" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "확인 없이 비우기" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty Without Confirmation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直接清空（不确认）"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直接清空（不確認）"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認なしで空にする"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ohne Bestätigung leeren"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vider sans confirmation"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaciar sin confirmación"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaciar sin confirmación"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esvaziar sem confirmação"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esvaziar sem confirmação"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Svuota senza conferma"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확인 없이 비우기"
+          }
+        }
       }
     },
     "Fast File Index": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Fast File Index" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "快速文件索引" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "快速檔案索引" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "高速ファイル索引" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Schneller Dateiindex" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Index de fichiers rapide" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Índice de archivos rápido" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Índice de archivos rápido" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Índice de arquivos rápido" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Índice de ficheiros rápido" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Indice file veloce" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "빠른 파일 색인" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fast File Index"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快速文件索引"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快速檔案索引"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高速ファイル索引"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schneller Dateiindex"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Index de fichiers rapide"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Índice de archivos rápido"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Índice de archivos rápido"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Índice de arquivos rápido"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Índice de ficheiros rápido"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indice file veloce"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "빠른 파일 색인"
+          }
+        }
       }
     },
     "Pause Keyboard": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Pause Keyboard" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "暂停键盘" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "暫停鍵盤" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "キーボードを一時停止" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Tastatur anhalten" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Mettre le clavier en pause" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Pausar teclado" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Pausar teclado" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pausar teclado" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pausar teclado" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Sospendi tastiera" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "키보드 일시 중지" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause Keyboard"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂停键盘"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暫停鍵盤"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キーボードを一時停止"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tastatur anhalten"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettre le clavier en pause"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausar teclado"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausar teclado"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausar teclado"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausar teclado"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sospendi tastiera"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "키보드 일시 중지"
+          }
+        }
       }
     },
     "While paused, key presses are ignored (the mouse still works). Press ⌃⌥⌘P to unpause. Needs the Input Monitoring permission.": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "While paused, key presses are ignored (the mouse still works). Press ⌃⌥⌘P to unpause. Needs the Input Monitoring permission." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "暂停期间按键无效（鼠标仍可用）。按 ⌃⌥⌘P 恢复。需要“输入监控”权限。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "暫停期間按鍵無效（滑鼠仍可用）。按 ⌃⌥⌘P 恢復。需要「輸入監控」權限。" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "一時停止中はキー入力が無視されます（マウスは動作します）。⌃⌥⌘P で解除できます。入力監視の許可が必要です。" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Im angehaltenen Zustand werden Tastatureingaben ignoriert (die Maus funktioniert weiter). ⌃⌥⌘P setzt die Eingabe fort. Erfordert die Berechtigung „Eingabeüberwachung“." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "En pause, les frappes sont ignorées (la souris fonctionne toujours). Appuyez sur ⌃⌥⌘P pour reprendre. Nécessite l’autorisation de surveillance des saisies." } },
-        "es": { "stringUnit": { "state": "translated", "value": "En pausa, las pulsaciones se ignoran (el ratón sigue funcionando). Pulsa ⌃⌥⌘P para reanudar. Requiere el permiso de monitorización de entrada." } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "En pausa, las pulsaciones se ignoran (el ratón sigue funcionando). Presiona ⌃⌥⌘P para reanudar. Requiere el permiso de monitoreo de entrada." } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Em pausa, as teclas são ignoradas (o mouse continua funcionando). Pressione ⌃⌥⌘P para retomar. Requer a permissão de Monitoramento de Entrada." } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Em pausa, as teclas são ignoradas (o rato continua a funcionar). Prima ⌃⌥⌘P para retomar. Requer a permissão de Monitorização de Entrada." } },
-        "it": { "stringUnit": { "state": "translated", "value": "In pausa, i tasti vengono ignorati (il mouse funziona sempre). Premi ⌃⌥⌘P per riprendere. Richiede il permesso di monitoraggio degli input." } },
-        "ko": { "stringUnit": { "state": "translated", "value": "일시 중지 중에는 키 입력이 무시됩니다(마우스는 계속 작동). ⌃⌥⌘P를 눌러 재개합니다. 입력 모니터링 권한이 필요합니다." } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "While paused, key presses are ignored (the mouse still works). Press ⌃⌥⌘P to unpause. Needs the Input Monitoring permission."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂停期间按键无效（鼠标仍可用）。按 ⌃⌥⌘P 恢复。需要“输入监控”权限。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暫停期間按鍵無效（滑鼠仍可用）。按 ⌃⌥⌘P 恢復。需要「輸入監控」權限。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一時停止中はキー入力が無視されます（マウスは動作します）。⌃⌥⌘P で解除できます。入力監視の許可が必要です。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im angehaltenen Zustand werden Tastatureingaben ignoriert (die Maus funktioniert weiter). ⌃⌥⌘P setzt die Eingabe fort. Erfordert die Berechtigung „Eingabeüberwachung“."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En pause, les frappes sont ignorées (la souris fonctionne toujours). Appuyez sur ⌃⌥⌘P pour reprendre. Nécessite l’autorisation de surveillance des saisies."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En pausa, las pulsaciones se ignoran (el ratón sigue funcionando). Pulsa ⌃⌥⌘P para reanudar. Requiere el permiso de monitorización de entrada."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En pausa, las pulsaciones se ignoran (el ratón sigue funcionando). Presiona ⌃⌥⌘P para reanudar. Requiere el permiso de monitoreo de entrada."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em pausa, as teclas são ignoradas (o mouse continua funcionando). Pressione ⌃⌥⌘P para retomar. Requer a permissão de Monitoramento de Entrada."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em pausa, as teclas são ignoradas (o rato continua a funcionar). Prima ⌃⌥⌘P para retomar. Requer a permissão de Monitorização de Entrada."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In pausa, i tasti vengono ignorati (il mouse funziona sempre). Premi ⌃⌥⌘P per riprendere. Richiede il permesso di monitoraggio degli input."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "일시 중지 중에는 키 입력이 무시됩니다(마우스는 계속 작동). ⌃⌥⌘P를 눌러 재개합니다. 입력 모니터링 권한이 필요합니다."
+          }
+        }
       }
     },
     "Hold ⌘Q to Quit": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Hold ⌘Q to Quit" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "按住 ⌘Q 退出" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "按住 ⌘Q 結束" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "⌘Q を長押しして終了" } },
-        "de": { "stringUnit": { "state": "translated", "value": "⌘Q gedrückt halten zum Beenden" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Maintenir ⌘Q pour quitter" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Mantén ⌘Q para salir" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Mantén presionado ⌘Q para salir" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Segure ⌘Q para sair" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Prema ⌘Q para sair" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Tieni premuto ⌘Q per uscire" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "⌘Q 길게 눌러 종료" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold ⌘Q to Quit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住 ⌘Q 退出"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住 ⌘Q 結束"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘Q を長押しして終了"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘Q gedrückt halten zum Beenden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenir ⌘Q pour quitter"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén ⌘Q para salir"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén presionado ⌘Q para salir"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure ⌘Q para sair"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prema ⌘Q para sair"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni premuto ⌘Q per uscire"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘Q 길게 눌러 종료"
+          }
+        }
       }
     },
     "Hold duration": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Hold duration" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "按住时长" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "按住時間" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "長押し時間" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Haltezeit" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Durée de maintien" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Duración de la pulsación" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Duración de la pulsación" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Duração da pressão" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Duração da premência" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Durata della pressione" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "누르는 시간" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold duration"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住时长"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住時間"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "長押し時間"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haltezeit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durée de maintien"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duración de la pulsación"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duración de la pulsación"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duração da pressão"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duração da premência"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durata della pressione"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "누르는 시간"
+          }
+        }
       }
     },
     "Press and hold ⌘Q for a moment to quit an app; releasing early cancels it. Apps listed below quit instantly instead.": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Press and hold ⌘Q for a moment to quit an app; releasing early cancels it. Apps listed below quit instantly instead." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "按住 ⌘Q 一小会儿即可退出 App，提前松开会取消。下面列出的 App 会立即退出。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "按住 ⌘Q 一小會兒即可結束 App，提前放開會取消。下面列出的 App 會立即結束。" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "⌘Q を少し長押しするとアプリを終了します。早く離すと取り消しになります。下の一覧にあるアプリはすぐに終了します。" } },
-        "de": { "stringUnit": { "state": "translated", "value": "⌘Q einen Moment gedrückt halten, um eine App zu beenden; frühes Loslassen bricht ab. Die unten aufgeführten Apps werden sofort beendet." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Appuyez et maintenez ⌘Q un instant pour quitter une app ; relâcher tôt annule. Les apps listées ci-dessous quittent immédiatement." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Mantén pulsado ⌘Q un momento para salir de una app; soltar antes cancela. Las apps de abajo salen al instante." } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Mantén presionado ⌘Q un momento para salir de una app; soltar antes cancela. Las apps de abajo salen al instante." } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pressione e segure ⌘Q por um momento para sair de um app; soltar antes cancela. Os apps abaixo saem imediatamente." } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Prima e mantenha ⌘Q por um momento para sair de uma app; largar antes cancela. As apps abaixo saem de imediato." } },
-        "it": { "stringUnit": { "state": "translated", "value": "Premi e tieni premuto ⌘Q per un istante per uscire da un'app; rilasciare prima annulla. Le app elencate sotto escono subito." } },
-        "ko": { "stringUnit": { "state": "translated", "value": "⌘Q를 잠시 길게 눌러 앱을 종료합니다. 일찍 떼면 취소됩니다. 아래에 나열된 앱은 즉시 종료됩니다." } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press and hold ⌘Q for a moment to quit an app; releasing early cancels it. Apps listed below quit instantly instead."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住 ⌘Q 一小会儿即可退出 App，提前松开会取消。下面列出的 App 会立即退出。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住 ⌘Q 一小會兒即可結束 App，提前放開會取消。下面列出的 App 會立即結束。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘Q を少し長押しするとアプリを終了します。早く離すと取り消しになります。下の一覧にあるアプリはすぐに終了します。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘Q einen Moment gedrückt halten, um eine App zu beenden; frühes Loslassen bricht ab. Die unten aufgeführten Apps werden sofort beendet."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appuyez et maintenez ⌘Q un instant pour quitter une app ; relâcher tôt annule. Les apps listées ci-dessous quittent immédiatement."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén pulsado ⌘Q un momento para salir de una app; soltar antes cancela. Las apps de abajo salen al instante."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén presionado ⌘Q un momento para salir de una app; soltar antes cancela. Las apps de abajo salen al instante."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pressione e segure ⌘Q por um momento para sair de um app; soltar antes cancela. Os apps abaixo saem imediatamente."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prima e mantenha ⌘Q por um momento para sair de uma app; largar antes cancela. As apps abaixo saem de imediato."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premi e tieni premuto ⌘Q per un istante per uscire da un'app; rilasciare prima annulla. Le app elencate sotto escono subito."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘Q를 잠시 길게 눌러 앱을 종료합니다. 일찍 떼면 취소됩니다. 아래에 나열된 앱은 즉시 종료됩니다."
+          }
+        }
       }
     },
     "Quit instantly, no hold (bundle IDs)": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Quit instantly, no hold (bundle IDs)" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "立即退出，不需按住（Bundle ID）" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "立即結束，不需按住（Bundle ID）" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "長押しせず即時に終了（バンドル ID）" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Sofort beenden, ohne Halten (Bundle-ID)" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Quitter immédiatement, sans maintien (ID de bundle)" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Salir al instante, sin mantener (ID de paquete)" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Salir al instante, sin mantener (ID de paquete)" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Sair imediatamente, sem segurar (ID do bundle)" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Sair de imediato, sem premir (ID do bundle)" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Esci subito, senza premere (ID bundle)" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "길게 누르지 않고 즉시 종료(ID 번호)" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit instantly, no hold (bundle IDs)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "立即退出，不需按住（Bundle ID）"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "立即結束，不需按住（Bundle ID）"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "長押しせず即時に終了（バンドル ID）"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sofort beenden, ohne Halten (Bundle-ID)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitter immédiatement, sans maintien (ID de bundle)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salir al instante, sin mantener (ID de paquete)"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salir al instante, sin mantener (ID de paquete)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sair imediatamente, sem segurar (ID do bundle)"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sair de imediato, sem premir (ID do bundle)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esci subito, senza premere (ID bundle)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "길게 누르지 않고 즉시 종료(ID 번호)"
+          }
+        }
       }
     },
     "Show Keys You Type": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Show Keys You Type" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "显示你输入的按键" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "顯示你輸入的按鍵" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "入力中のキーを表示" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Eingegebene Tasten anzeigen" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Afficher les touches tapées" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Mostrar las teclas que escribes" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Mostrar las teclas que escribes" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mostrar as teclas digitadas" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mostrar as teclas introduzidas" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Mostra i tasti premuti" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "입력하는 키 표시" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Keys You Type"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示你输入的按键"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示你輸入的按鍵"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入力中のキーを表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eingegebene Tasten anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher les touches tapées"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar las teclas que escribes"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar las teclas que escribes"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar as teclas digitadas"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar as teclas introduzidas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra i tasti premuti"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "입력하는 키 표시"
+          }
+        }
       }
     },
     "Shows the keys you press in a small overlay. It displays what you type — treat it as a screen-sharing risk. Nothing is logged or saved, and it hides itself a moment after you stop typing.": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Shows the keys you press in a small overlay. It displays what you type — treat it as a screen-sharing risk. Nothing is logged or saved, and it hides itself a moment after you stop typing." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "在一个小浮层里显示你按下的按键。它会显示你输入的内容——当作屏幕共享风险对待。不会记录或保存任何内容，停止输入后会自动隐藏。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "在一個小浮層裡顯示你按下的按鍵。它會顯示你輸入的內容——當作螢幕共享風險對待。不會記錄或儲存任何內容，停止輸入後會自動隱藏。" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "押したキーを小さなオーバーレイに表示します。入力内容が画面に映るため、画面共有時のリスクとして扱ってください。記録も保存もせず、入力を止めるごとく隠れます。" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Zeigt die gedrückten Tasten in einem kleinen Overlay an. Es zeigt, was du eingibst — behandle es als Screen-Sharing-Risiko. Nichts wird protokolliert oder gespeichert, und es blendet sich aus, sobald du aufhörst zu tippen." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Affiche les touches que vous pressez dans une petite fenêtre flottante. Elle montre ce que vous tapez — à traiter comme un risque de partage d’écran. Rien n’est journalisé ni enregistré, et elle se masque d’elle-même quand vous cessez de taper." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Muestra las teclas que pulsas en una superposición pequeña. Muestra lo que escribes — trátalo como un riesgo al compartir pantalla. No se registra ni se guarda nada, y se oculta sola cuando dejas de escribir." } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Muestra las teclas que presionas en una superposición pequeña. Muestra lo que escribes — trátalo como un riesgo al compartir pantalla. No se registra ni se guarda nada, y se oculta sola cuando dejas de escribir." } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mostra as teclas que você pressiona em uma sobreposição pequena. Ela exibe o que você digita — trate como um risco de compartilhamento de tela. Nada é registrado ou salvo, e ela se oculta sozinha quando você para de digitar." } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mostra as teclas que prim numa sobreposição pequena. Apresenta o que escreve — trate como um risco de partilha do ecrã. Nada é registado ou guardado, e esconde-se sozinha quando deixa de escrever." } },
-        "it": { "stringUnit": { "state": "translated", "value": "Mostra i tasti che premi in una piccola sovrapposizione. Visualizza quello che digita — trattalo come un rischio di condivisione dello schermo. Nulla viene registrato o salvato, e si nasconde da sola quando smetti di digitare." } },
-        "ko": { "stringUnit": { "state": "translated", "value": "작은 오버레이에 누르는 키를 표시합니다. 입력 내용이 표시되므로 화면 공유 위험으로 취급하세요. 아무것도 기록하거나 저장하지 않으며, 입력을 멈추면 저절로 사라집니다." } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows the keys you press in a small overlay. It displays what you type — treat it as a screen-sharing risk. Nothing is logged or saved, and it hides itself a moment after you stop typing."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在一个小浮层里显示你按下的按键。它会显示你输入的内容——当作屏幕共享风险对待。不会记录或保存任何内容，停止输入后会自动隐藏。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在一個小浮層裡顯示你按下的按鍵。它會顯示你輸入的內容——當作螢幕共享風險對待。不會記錄或儲存任何內容，停止輸入後會自動隱藏。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "押したキーを小さなオーバーレイに表示します。入力内容が画面に映るため、画面共有時のリスクとして扱ってください。記録も保存もせず、入力を止めるごとく隠れます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeigt die gedrückten Tasten in einem kleinen Overlay an. Es zeigt, was du eingibst — behandle es als Screen-Sharing-Risiko. Nichts wird protokolliert oder gespeichert, und es blendet sich aus, sobald du aufhörst zu tippen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affiche les touches que vous pressez dans une petite fenêtre flottante. Elle montre ce que vous tapez — à traiter comme un risque de partage d’écran. Rien n’est journalisé ni enregistré, et elle se masque d’elle-même quand vous cessez de taper."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muestra las teclas que pulsas en una superposición pequeña. Muestra lo que escribes — trátalo como un riesgo al compartir pantalla. No se registra ni se guarda nada, y se oculta sola cuando dejas de escribir."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muestra las teclas que presionas en una superposición pequeña. Muestra lo que escribes — trátalo como un riesgo al compartir pantalla. No se registra ni se guarda nada, y se oculta sola cuando dejas de escribir."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra as teclas que você pressiona em uma sobreposição pequena. Ela exibe o que você digita — trate como um risco de compartilhamento de tela. Nada é registrado ou salvo, e ela se oculta sozinha quando você para de digitar."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra as teclas que prim numa sobreposição pequena. Apresenta o que escreve — trate como um risco de partilha do ecrã. Nada é registado ou guardado, e esconde-se sozinha quando deixa de escrever."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra i tasti che premi in una piccola sovrapposizione. Visualizza quello che digita — trattalo come un rischio di condivisione dello schermo. Nulla viene registrato o salvato, e si nasconde da sola quando smetti di digitare."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "작은 오버레이에 누르는 키를 표시합니다. 입력 내용이 표시되므로 화면 공유 위험으로 취급하세요. 아무것도 기록하거나 저장하지 않으며, 입력을 멈추면 저절로 사라집니다."
+          }
+        }
       }
     },
     "Bottom Center": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Bottom Center" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "底部居中" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "底部置中" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "下部中央" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Unten Mitte" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "En bas au centre" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Abajo al centro" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Abajo al centro" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Centro inferior" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Centro inferior" } },
-        "it": { "stringUnit": { "state": "translated", "value": "In basso al centro" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "하단 가운데" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bottom Center"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "底部居中"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "底部置中"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下部中央"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unten Mitte"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En bas au centre"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abajo al centro"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abajo al centro"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centro inferior"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centro inferior"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In basso al centro"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "하단 가운데"
+          }
+        }
       }
     },
     "KatiKati moves each notification banner to the position you pick with the Accessibility API. Notification Center's private interface changes between macOS updates: when the layout looks unfamiliar, KatiKati leaves notifications alone, and only the first banner of a burst moves. Turning this off restores the macOS default immediately.": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "KatiKati moves each notification banner to the position you pick with the Accessibility API. Notification Center's private interface changes between macOS updates: when the layout looks unfamiliar, KatiKati leaves notifications alone, and only the first banner of a burst moves. Turning this off restores the macOS default immediately." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "KatiKati 使用辅助功能 API 把每条通知横幅移到你选择的位置。通知中心的界面属于私有实现，会随 macOS 更新而改变：界面一旦看起来不同，KatiKati 就保持通知原位不动；连续来的多条通知中只有第一条会被移动。关闭后会立即恢复 macOS 的默认位置。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "KatiKati 使用輔助功能 API 把每則通知橫幅移到你選擇的位置。通知中心的介面屬於私有實作，會隨 macOS 更新而改變：介面一旦看起來不同，KatiKati 就保持通知原位不動；連續來的多則通知中只有第一則會被移動。關閉後會立即恢復 macOS 的預設位置。" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "KatiKati はアクセシビリティ API を使って、通知バナーを指定した位置に移動します。通知センターのインターフェースは非公開のもので、macOS のアップデートごとに変わる場合があります。表示が想定と異なるときは通知をそのままにしておき、連続して届く通知では最初の 1 件だけが移動します。オフにすると macOS のデフォルト位置に戻ります。" } },
-        "de": { "stringUnit": { "state": "translated", "value": "KatiKati verschiebt jeden Mitteilungsbanner über die Accessibility-API auf die von dir gewählte Position. Die private Schnittstelle des Mitteilungszentrums ändert sich mit jedem macOS-Update: Sieht das Layout anders aus als erwartet, lässt KatiKati die Mitteilungen unverändert, und nur der erste Banner eines Stapels wird verschoben. Ausschalten stellt die macOS-Standardposition sofort wieder her." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "KatiKati déplace chaque bannière de notification à la position choisie via l'API d'accessibilité. L'interface privée du Centre de notifications change d'une version macOS à l'autre : si la disposition ne correspond pas à ce qui est attendu, KatiKati laisse les notifications à leur place, et seule la première bannière d'une salve est déplacée. Désactiver cette option rétablit immédiatement la position par défaut de macOS." } },
-        "es": { "stringUnit": { "state": "translated", "value": "KatiKati mueve cada notificación emergente a la posición que elijas mediante la API de Accesibilidad. La interfaz privada del Centro de notificaciones cambia con cada actualización de macOS: si el diseño no es el esperado, KatiKati deja las notificaciones donde están, y solo se mueve el primer aviso de una ráfaga. Al desactivarlo se restaura de inmediato la posición predeterminada de macOS." } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "KatiKati mueve cada banner de notificación a la posición que elijas mediante la API de Accesibilidad. La interfaz privada del Centro de notificaciones cambia con cada actualización de macOS: si el diseño no es el esperado, KatiKati deja las notificaciones donde están, y solo se mueve el primer banner de una ráfaga. Al desactivarlo se restaura de inmediato la posición predeterminada de macOS." } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "O KatiKati move cada banner de notificação para a posição escolhida por você usando a API de Acessibilidade. A interface privada do Centro de Notificações muda a cada atualização do macOS: se o layout não for o esperado, o KatiKati deixa as notificações como estão, e apenas o primeiro banner de uma sequência é movido. Desativar isso restaura imediatamente a posição padrão do macOS." } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "O KatiKati move cada banner de notificação para a posição escolhida por si através da API de Acessibilidade. A interface privada do Centro de Notificações muda a cada atualização do macOS: se a disposição não for a esperada, o KatiKati deixa as notificações onde estão, e apenas o primeiro banner de uma série é movido. Desativar esta opção repõe de imediato a posição predefinida do macOS." } },
-        "it": { "stringUnit": { "state": "translated", "value": "KatiKati sposta ogni banner di notifica nella posizione che scegli tramite l'API di accessibilità. L'interfaccia privata del Centro notifiche cambia con ogni aggiornamento di macOS: se il layout non è quello previsto, KatiKati lascia le notifiche dov'erano, e solo il primo banner di una raffica viene spostato. Disattivandolo ripristina subito la posizione predefinita di macOS." } },
-        "ko": { "stringUnit": { "state": "translated", "value": "KatiKati는 접근성 API를 사용해 알림 배너를 원하는 위치로 옮깁니다. 알림 센터의 비공개 인터페이스는 macOS 업데이트마다 달라질 수 있습니다. 화면 구조가 예상과 다르면 알림을 그대로 두고, 연속으로 오는 알림에서는 첫 배너만 옮깁니다. 끄면 macOS 기본 위치로 즉시 돌아옵니다." } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KatiKati moves each notification banner to the position you pick with the Accessibility API. Notification Center's private interface changes between macOS updates: when the layout looks unfamiliar, KatiKati leaves notifications alone, and only the first banner of a burst moves. Turning this off restores the macOS default immediately."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KatiKati 使用辅助功能 API 把每条通知横幅移到你选择的位置。通知中心的界面属于私有实现，会随 macOS 更新而改变：界面一旦看起来不同，KatiKati 就保持通知原位不动；连续来的多条通知中只有第一条会被移动。关闭后会立即恢复 macOS 的默认位置。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KatiKati 使用輔助功能 API 把每則通知橫幅移到你選擇的位置。通知中心的介面屬於私有實作，會隨 macOS 更新而改變：介面一旦看起來不同，KatiKati 就保持通知原位不動；連續來的多則通知中只有第一則會被移動。關閉後會立即恢復 macOS 的預設位置。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KatiKati はアクセシビリティ API を使って、通知バナーを指定した位置に移動します。通知センターのインターフェースは非公開のもので、macOS のアップデートごとに変わる場合があります。表示が想定と異なるときは通知をそのままにしておき、連続して届く通知では最初の 1 件だけが移動します。オフにすると macOS のデフォルト位置に戻ります。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KatiKati verschiebt jeden Mitteilungsbanner über die Accessibility-API auf die von dir gewählte Position. Die private Schnittstelle des Mitteilungszentrums ändert sich mit jedem macOS-Update: Sieht das Layout anders aus als erwartet, lässt KatiKati die Mitteilungen unverändert, und nur der erste Banner eines Stapels wird verschoben. Ausschalten stellt die macOS-Standardposition sofort wieder her."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KatiKati déplace chaque bannière de notification à la position choisie via l'API d'accessibilité. L'interface privée du Centre de notifications change d'une version macOS à l'autre : si la disposition ne correspond pas à ce qui est attendu, KatiKati laisse les notifications à leur place, et seule la première bannière d'une salve est déplacée. Désactiver cette option rétablit immédiatement la position par défaut de macOS."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KatiKati mueve cada notificación emergente a la posición que elijas mediante la API de Accesibilidad. La interfaz privada del Centro de notificaciones cambia con cada actualización de macOS: si el diseño no es el esperado, KatiKati deja las notificaciones donde están, y solo se mueve el primer aviso de una ráfaga. Al desactivarlo se restaura de inmediato la posición predeterminada de macOS."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KatiKati mueve cada banner de notificación a la posición que elijas mediante la API de Accesibilidad. La interfaz privada del Centro de notificaciones cambia con cada actualización de macOS: si el diseño no es el esperado, KatiKati deja las notificaciones donde están, y solo se mueve el primer banner de una ráfaga. Al desactivarlo se restaura de inmediato la posición predeterminada de macOS."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O KatiKati move cada banner de notificação para a posição escolhida por você usando a API de Acessibilidade. A interface privada do Centro de Notificações muda a cada atualização do macOS: se o layout não for o esperado, o KatiKati deixa as notificações como estão, e apenas o primeiro banner de uma sequência é movido. Desativar isso restaura imediatamente a posição padrão do macOS."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O KatiKati move cada banner de notificação para a posição escolhida por si através da API de Acessibilidade. A interface privada do Centro de Notificações muda a cada atualização do macOS: se a disposição não for a esperada, o KatiKati deixa as notificações onde estão, e apenas o primeiro banner de uma série é movido. Desativar esta opção repõe de imediato a posição predefinida do macOS."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KatiKati sposta ogni banner di notifica nella posizione che scegli tramite l'API di accessibilità. L'interfaccia privata del Centro notifiche cambia con ogni aggiornamento di macOS: se il layout non è quello previsto, KatiKati lascia le notifiche dov'erano, e solo il primo banner di una raffica viene spostato. Disattivandolo ripristina subito la posizione predefinita di macOS."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KatiKati는 접근성 API를 사용해 알림 배너를 원하는 위치로 옮깁니다. 알림 센터의 비공개 인터페이스는 macOS 업데이트마다 달라질 수 있습니다. 화면 구조가 예상과 다르면 알림을 그대로 두고, 연속으로 오는 알림에서는 첫 배너만 옮깁니다. 끄면 macOS 기본 위치로 즉시 돌아옵니다."
+          }
+        }
       }
     },
     "Middle Left": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Middle Left" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "左侧居中" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "左側置中" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "左中央" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Links Mitte" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "À gauche au centre" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Izquierda al centro" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Izquierda al centro" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Centro esquerdo" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Centro esquerdo" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Sinistra al centro" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "왼쪽 가운데" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Middle Left"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左侧居中"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左側置中"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左中央"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links Mitte"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À gauche au centre"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izquierda al centro"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Izquierda al centro"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centro esquerdo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centro esquerdo"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinistra al centro"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "왼쪽 가운데"
+          }
+        }
       }
     },
     "Middle Right": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Middle Right" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "右侧居中" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "右側置中" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "右中央" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Rechts Mitte" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "À droite au centre" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Derecha al centro" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Derecha al centro" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Centro direito" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Centro direito" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Destra al centro" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "오른쪽 가운데" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Middle Right"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右侧居中"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右側置中"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右中央"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechts Mitte"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À droite au centre"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Derecha al centro"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Derecha al centro"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centro direito"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centro direito"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Destra al centro"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오른쪽 가운데"
+          }
+        }
       }
     },
     "Move Notification Banners": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Move Notification Banners" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "移动通知横幅" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "移動通知橫幅" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "通知バナーを移動" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Mitteilungsbanner verschieben" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Déplacer les bannières de notification" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Mover las notificaciones emergentes" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Mover los banners de notificaciones" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mover os banners de notificações" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mover os banners de notificações" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Sposta i banner delle notifiche" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "알림 배너 위치 이동" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move Notification Banners"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移动通知横幅"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移動通知橫幅"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知バナーを移動"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitteilungsbanner verschieben"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déplacer les bannières de notification"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mover las notificaciones emergentes"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mover los banners de notificaciones"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mover os banners de notificações"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mover os banners de notificações"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sposta i banner delle notifiche"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "알림 배너 위치 이동"
+          }
+        }
       }
     },
     "Notifications": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Notifications" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "通知" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "通知" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "通知" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Mitteilungen" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Notifications" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Notificaciones" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Notificaciones" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Notificações" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Notificações" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Notifiche" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "알림" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitteilungen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notificaciones"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notificaciones"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notificações"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notificações"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifiche"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "알림"
+          }
+        }
       }
     },
     "Top Center": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Top Center" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "顶部居中" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "頂部置中" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "上部中央" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Oben Mitte" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "En haut au centre" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Arriba al centro" } },
-        "es-419": { "stringUnit": { "state": "translated", "value": "Arriba al centro" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Centro superior" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Centro superior" } },
-        "it": { "stringUnit": { "state": "translated", "value": "In alto al centro" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "상단 가운데" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top Center"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顶部居中"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "頂部置中"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上部中央"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oben Mitte"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En haut au centre"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arriba al centro"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arriba al centro"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centro superior"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centro superior"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In alto al centro"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "상단 가운데"
+          }
+        }
+      }
+    },
+    "Snap Left Half": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Left Half"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نصف يسار"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links ½"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitad izquierda"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moitié gauche"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metà sinistra"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左半分"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "왼쪽 절반"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links half"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metade esquerda"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Левая половина"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左半"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左半"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitad izquierda"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metade esquerda"
+          }
+        }
+      }
+    },
+    "Snap Right Half": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Right Half"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نصف يمين"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechts ½"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitad derecha"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moitié droite"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metà destra"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右半分"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오른쪽 절반"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechts half"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metade direita"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Правая половина"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右半"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右半"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitad derecha"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metade direita"
+          }
+        }
+      }
+    },
+    "Snap Top Half": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Top Half"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نصف أعلى"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oben ½"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitad superior"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moitié haute"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metà superiore"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上半分"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "위쪽 절반"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boven half"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metade superior"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Верхняя половина"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上半"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上半"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitad superior"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metade superior"
+          }
+        }
+      }
+    },
+    "Snap Bottom Half": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Bottom Half"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نصف أسفل"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unten ½"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitad inferior"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moitié basse"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metà inferiore"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下半分"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아래쪽 절반"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onder half"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metade inferior"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нижняя половина"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下半"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下半"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitad inferior"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metade inferior"
+          }
+        }
+      }
+    },
+    "Snap Top-Left": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Top-Left"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أعلى يسار"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oben links"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arriba izquierda"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haut gauche"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In alto a sinistra"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左上"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "왼쪽 위"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boven links"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Superior esquerdo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Верх-лево"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左上"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左上"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arriba izquierda"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Superior esquerdo"
+          }
+        }
+      }
+    },
+    "Snap Top-Right": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Top-Right"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أعلى يمين"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oben rechts"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arriba derecha"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haut droit"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In alto a destra"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右上"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오른쪽 위"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boven rechts"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Superior direito"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Верх-право"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右上"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右上"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arriba derecha"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Superior direito"
+          }
+        }
+      }
+    },
+    "Snap Bottom-Left": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Bottom-Left"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أسفل يسار"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unten links"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abajo izquierda"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bas gauche"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In basso a sinistra"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左下"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "왼쪽 아래"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onder links"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inferior esquerdo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Низ-лево"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左下"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左下"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abajo izquierda"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inferior esquerdo"
+          }
+        }
+      }
+    },
+    "Snap Bottom-Right": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Bottom-Right"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أسفل يمين"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unten rechts"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abajo derecha"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bas droit"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In basso a destra"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右下"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오른쪽 아래"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onder rechts"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inferior direito"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Низ-право"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右下"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右下"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abajo derecha"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inferior direito"
+          }
+        }
+      }
+    },
+    "Snap Left Third": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Left Third"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ثلث يسار"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links ⅓"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tercio izquierdo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiers gauche"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terzo sinistro"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左1/3"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "왼쪽 3분의 1"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links ⅓"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terço esquerdo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Левая треть"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左三分之一"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左三分之一"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tercio izquierdo"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terço esquerdo"
+          }
+        }
+      }
+    },
+    "Snap Center Third": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Center Third"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ثلث أوسط"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitte ⅓"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tercio central"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiers central"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terzo centrale"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中央1/3"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가운데 3분의 1"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Midden ⅓"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terço central"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Центральная треть"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中间三分之一"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中間三分之一"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tercio central"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terço central"
+          }
+        }
+      }
+    },
+    "Snap Right Third": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Right Third"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ثلث يمين"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechts ⅓"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tercio derecho"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiers droit"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terzo destro"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右1/3"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오른쪽 3분의 1"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechts ⅓"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terço direito"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Правая треть"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右三分之一"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右三分之一"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tercio derecho"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terço direito"
+          }
+        }
+      }
+    },
+    "Snap Left Two-Thirds": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Left Two-Thirds"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ثلثان يسار"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links ⅔"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dos tercios izquierda"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deux tiers gauche"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Due terzi sinistro"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左2/3"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "왼쪽 2/3"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links ⅔"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dois terços esquerdo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Две трети слева"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左三分之二"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左三分之二"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dos tercios izquierda"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dois terços esquerdo"
+          }
+        }
+      }
+    },
+    "Snap Right Two-Thirds": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Right Two-Thirds"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ثلثان يمين"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechts ⅔"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dos tercios derecha"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deux tiers droit"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Due terzi destro"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右2/3"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오른쪽 2/3"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechts ⅔"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dois terços direito"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Две трети справа"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右三分之二"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右三分之二"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dos tercios derecha"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dois terços direito"
+          }
+        }
+      }
+    },
+    "Snap Center": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Center"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "توسيط"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitte"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centrar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centre"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centro"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中央"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가운데"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Midden"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centro"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Центр"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "居中"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "置中"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centrar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centro"
+          }
+        }
+      }
+    },
+    "Snap Maximize": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تكبير"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximizar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximiser"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Massimizza"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最大化"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "최대화"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximaliseer"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximizar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Развернуть"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最大化"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最大化"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximizar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximizar"
+          }
+        }
+      }
+    },
+    "Snap Hotkeys": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Hotkeys"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختصارات المحاذاة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fang-Tastenkürzel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atajos de encaje"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atajos de encaje"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raccourcis d'ancrage"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scorciatoie di snap"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スナップショートカット"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스냅 단축키"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snap-sneltoetsen"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atalhos de encaixe"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atalhos de encaixe"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Горячие клавиши привязки"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "贴靠快捷键"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "貼齊快速鍵"
+          }
+        }
+      }
+    },
+    "All snap hotkeys default to Off. Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "All snap hotkeys default to Off. Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جميع اختصارات المحاذاة معطّلة افتراضياً. اضغط تسجيل واكتب تركيبة مفاتيح مع ⌃ أو ⌥ أو ⇧ أو ⌘."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Fang-Tastenkürzel sind standardmäßig deaktiviert. Drücke Aufnehmen und tippe eine Tastenkombination mit ⌃, ⌥, ⇧ oder ⌘."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos los atajos de encaje están desactivados por defecto. Pulsa Grabar y escribe una combinación con ⌃, ⌥, ⇧ o ⌘."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos los atajos de encaje están desactivados por defecto. Pulsa Grabar y escribe una combinación con ⌃, ⌥, ⇧ o ⌘."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous les raccourcis d'ancrage sont désactivés par défaut. Appuyez sur Enregistrer et tapez une combinaison avec ⌃, ⌥, ⇧ ou ⌘."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutte le scorciatoie di snap sono disattivate per impostazione predefinita. Premi Registra e digita una combinazione con ⌃, ⌥, ⇧ o ⌘."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべてのスナップショートカットはデフォルトでオフです。「記録」を押して⌃、⌥、⇧、⌘のいずれかを含むキーを入力してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 스냅 단축키는 기본적으로 꺼져 있습니다. 기록을 누르고 ⌃, ⌥, ⇧ 또는 ⌘를 포함한 키 조합을 입력하세요."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle snap-sneltoetsen zijn standaard uitgeschakeld. Druk op Opnemen en typ een combinatie met ⌃, ⌥, ⇧ of ⌘."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos os atalhos de encaixe estão desativados por padrão. Pressione Gravar e digite uma combinação com ⌃, ⌥, ⇧ ou ⌘."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todos os atalhos de encaixe estão desativados por predefinição. Prima Gravar e escreva uma combinação com ⌃, ⌥, ⇧ ou ⌘."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Все горячие клавиши привязки выключены по умолчанию. Нажмите «Запись» и введите комбинацию с ⌃, ⌥, ⇧ или ⌘."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所有贴靠快捷键默认关闭。按下「录制」后输入包含 ⌃、⌥、⇧ 或 ⌘ 的按键组合。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所有貼齊快速鍵預設為關閉。按下「錄製」後輸入含 ⌃、⌥、⇧ 或 ⌘ 的按鍵組合。"
+          }
+        }
       }
     }
   },

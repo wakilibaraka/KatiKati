@@ -783,7 +783,8 @@ struct SettingsLayoutPane: View {
                 Text("Shortcuts")
             } content: {
                 let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
-                ForEach(ShortcutAction.allCases, id: \.self) { action in
+                // General feature shortcuts (non-snap actions only).
+                ForEach(ShortcutAction.allCases.filter { $0.snapPosition == nil }, id: \.self) { action in
                     HStack {
                         shortcutActionTitle(action)
                         if duplicated.contains(action) {
@@ -816,6 +817,19 @@ struct SettingsLayoutPane: View {
                 }
                 Text("Pick a shortcut from the list, or press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                // ── Snap Hotkeys sub-section ──────────────────────────────────────
+                Text("Snap Hotkeys").font(.subheadline).padding(.top, 6)
+                snapHotkeyGroup(title: "Halves", actions: [.snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf],
+                                store: store, duplicated: duplicated)
+                snapHotkeyGroup(title: "Quarters", actions: [.snapTopLeft, .snapTopRight, .snapBottomLeft, .snapBottomRight],
+                                store: store, duplicated: duplicated)
+                snapHotkeyGroup(title: "Thirds", actions: [.snapLeftThird, .snapCenterThird, .snapRightThird, .snapLeftTwoThirds, .snapRightTwoThirds],
+                                store: store, duplicated: duplicated)
+                snapHotkeyGroup(title: "Full", actions: [.snapCenter, .snapMaximize],
+                                store: store, duplicated: duplicated)
+                Text("All snap hotkeys default to Off. Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘.")
+                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+
                 Toggle("Use Caps Lock as Hyper Key", isOn: Binding(
                     get: { store.hyperkeyEnabled },
                     set: { on in
@@ -928,6 +942,35 @@ struct SettingsLayoutPane: View {
         }
     }
 
+    @ViewBuilder
+    private func snapHotkeyGroup(title: String, actions: [ShortcutAction],
+                                 store: AppSettingsStore, duplicated: Set<ShortcutAction>) -> some View {
+        Text(verbatim: title).font(.caption).foregroundStyle(.secondary).padding(.top, 2)
+        ForEach(actions, id: \.self) { action in
+            HStack {
+                shortcutActionTitle(action)
+                if duplicated.contains(action) {
+                    Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                        .help(Text("Another action uses the same shortcut"))
+                }
+                Spacer(minLength: 12)
+                Picker(selection: Binding(get: { store.shortcutBindings[action] ?? .off },
+                                         set: { store.setShortcut(action, $0) })) {
+                    Text("Off").tag(ShortcutTrigger.off)
+                    Divider()
+                    ForEach(ShortcutChord.allCases, id: \.self) { Text(verbatim: $0.glyphs).tag(ShortcutTrigger.chord($0)) }
+                    Divider()
+                    if case let .key(custom) = store.shortcutBindings[action] ?? .off {
+                        Text(verbatim: custom.glyphs).tag(ShortcutTrigger.key(custom))
+                        Divider()
+                    }
+                } label: { EmptyView() }
+                .pickerStyle(.menu).fixedSize()
+                ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
+            }
+        }
+    }
+
     private func shortcutActionTitle(_ action: ShortcutAction) -> Text {
         switch action {
         case .launcher: return Text("Launcher")
@@ -940,6 +983,22 @@ struct SettingsLayoutPane: View {
         case .clock: return Text("Clock")
         case .commandBar: return Text("Command Bar")
         case .translate: return Text("Translate")
+        // Phase 26a snap zones
+        case .snapLeftHalf: return Text("Snap Left Half")
+        case .snapRightHalf: return Text("Snap Right Half")
+        case .snapTopHalf: return Text("Snap Top Half")
+        case .snapBottomHalf: return Text("Snap Bottom Half")
+        case .snapTopLeft: return Text("Snap Top-Left")
+        case .snapTopRight: return Text("Snap Top-Right")
+        case .snapBottomLeft: return Text("Snap Bottom-Left")
+        case .snapBottomRight: return Text("Snap Bottom-Right")
+        case .snapLeftThird: return Text("Snap Left Third")
+        case .snapCenterThird: return Text("Snap Center Third")
+        case .snapRightThird: return Text("Snap Right Third")
+        case .snapLeftTwoThirds: return Text("Snap Left Two-Thirds")
+        case .snapRightTwoThirds: return Text("Snap Right Two-Thirds")
+        case .snapCenter: return Text("Snap Center")
+        case .snapMaximize: return Text("Snap Maximize")
         }
     }
 
