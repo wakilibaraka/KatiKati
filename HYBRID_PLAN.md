@@ -3441,6 +3441,23 @@ idle CPU flat while off + disable restores every managed window.
   becomes the toggle (password → `wifipw`); search is Spotlight-based for now. **Deferred:** own fast
   filename index (oil-find/Cling, FSEvents) → Phase 30; snippets; contacts; Photos; DND/Focus; full-screen
   OCR. Awaiting owner go to start 29a.
+- 2026-10-14 · **Phase 29 (a, b–f, g, h/i) — command bar delivery — PASS (code).**
+  - **29a** result order fixed (app first, its Quit right after); `/` `>` `:` routes now show rows.
+  - **29b–f** `CommandBarKeywords` (`CommandBarMode` + `BarMacro`): modes `f`/`img`/`clip`/`kill`/`fq`/`kp`/
+    `sc`/`app`; macros `ocr`/`cs`/`term`/`ss`/`lock`/`sleep`/`restart`/`shutdown`/`logout` + the toggle &
+    media words. Macros **prepend a row** (never hide an app of the same name — fixed a `term`/Terminal
+    collision). `BarActionService` runs them (QuickToggleEngine / NowPlayingService / pmset / osascript /
+    NSWorkspace / OCR). Force-quit mode + confirm dialogs.
+  - **29g** `FileQuery` (`ext:`/`kind:`/`in:`/`!`, oil-find-style) + `mdfind` search; file rows open, with
+    ⌘⏎ reveal / ⌘C path / ⌘⌫ trash.
+  - **29h** `clip` searches the clipboard history (copy back). **29i** removable footer hints
+    (`com.katikati.commandbar.hints`, Settings › Launcher). New strings: "Are you sure?", "Show Command
+    Hints". Gate: **2,284 tests / 0 failures** · localization ✅ (736 keys ×12) · availability ✅.
+  **Not done (recorded):** `ev ` calendar search (EventKit) — deferred; file **Quick Look** (Space) —
+  deferred; own fast filename index → **Phase 30**; `trash`/`eject` reuse the toggle engine's confirm.
+  **Files:** `Core/Support/{CommandBarKeywords,FileQuery}.swift`,
+  `App/Composition/{BarActionService,FileSearchService}.swift`, `CommandBar{,View,PanelController}`,
+  `UtilitySettingsBlock`.
 
 
 ### Phase 27 — Command bar: a Sol/Raycast-style ⌘Space palette (owner 2026-10-14; plan only, native reimplementation)
