@@ -1,0 +1,40 @@
+
+=== after2 general: window 900x666   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  578.0  
+    text left inset=  28.0  content bottom=  666.0 (window 666)
+
+=== after2 appearance: window 900x1074   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  986.0  
+    text left inset=  42.0  content bottom= 1560.0 (window 1074)
+
+=== after2 widgets: window 900x1074   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  986.0  
+    text left inset=  28.0  content bottom= 1387.1 (window 1074)
+
+=== after2 notch: window 900x1068   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  980.0  
+    text left inset=  42.0  content bottom= 1043.0 (window 1068)
+
+=== after2 edge_bars: window 900x1058   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  970.0  
+    text left inset=  42.0  content bottom= 1046.4 (window 1058)
+
+=== after2 window_management: window 900x1074   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  986.0  
+    text left inset=  42.0  content bottom= 1474.5 (window 1074)
+
+=== after2 launcher___tools: window 900x1074   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  986.0  
+    text left inset=  42.0  content bottom= 2350.0 (window 1074)
+
+=== after2 shortcuts: window 900x1074   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  986.0  
+    text left inset=  42.0  content bottom= 1309.5 (window 1074)
+
+=== after2 advanced: window 900x587   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  499.0  
+    text left inset=  42.0  content bottom=  561.4 (window 587)
+
+=== after2 about: window 900x256   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  168.0  
+    text left inset=  42.0  content bottom=  231.0 (window 256)

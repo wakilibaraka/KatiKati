@@ -1,0 +1,44 @@
+
+=== before general: window 900x621   cards=2
+    card x=   0.0 w= 900.0 y=   88.0 h=  533.0  
+    card x=  98.0 w= 704.0 y=  116.0 h=  432.5  gap -505.0
+    text left inset= 108.0  content bottom=  592.5 (window 621)
+
+=== before appearance: window 900x1074   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  986.0  
+    text left inset=  42.0  content bottom= 1470.0 (window 1074)
+
+=== before widgets: window 900x1074   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  986.0  
+    text left inset=  28.0  content bottom= 1249.4 (window 1074)
+
+=== before notch: window 900x1036   cards=2
+    card x=   0.0 w= 900.0 y=   88.0 h=  948.0  
+    card x=  98.0 w= 704.0 y=  116.0 h=  892.0  gap -920.0
+    text left inset= 108.0  content bottom=  996.5 (window 1036)
+
+=== before edge_bars: window 900x944   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  856.0  
+    text left inset=  42.0  content bottom=  905.6 (window 944)
+
+=== before window_management: window 900x776   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  688.0  
+    text left inset=  20.0  content bottom=  749.5 (window 776)
+
+=== before launcher___tools: window 900x1074   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  986.0  
+    text left inset=  28.0  content bottom= 2086.0 (window 1074)
+
+=== before shortcuts: window 900x1074   cards=1
+    card x=   0.0 w= 900.0 y=   88.0 h=  986.0  
+    text left inset=  42.0  content bottom= 1759.5 (window 1074)
+
+=== before advanced: window 900x778   cards=2
+    card x=   0.0 w= 900.0 y=   88.0 h=  690.0  
+    card x=  98.0 w= 704.0 y=  248.5 h=  501.0  gap -529.5
+    text left inset= 108.0  content bottom=  738.0 (window 778)
+
+=== before about: window 900x271   cards=2
+    card x=   0.0 w= 900.0 y=   88.0 h=  183.0  
+    card x=  98.0 w= 704.0 y=  116.0 h=  126.5  gap -155.0
+    text left inset= 108.0  content bottom=  232.5 (window 271)
