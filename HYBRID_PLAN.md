@@ -4235,6 +4235,7 @@ Overlooked by decision (owner agreed): Face Unlock, Stocks, embedded Terminal, F
 
 - 2026-10-15 · **37c delivered — PASS (code; not live-checked).** `NotchPage.teleprompter` (7th page) exists only while `com.katikati.teleprompter.enabled` is on (Settings › Teleprompter Notch Page, **default off**): `NotchPage.visible(teleprompter:)` drives paging, the header, the dots and the context menu, so with it off the gallery is byte-identical to the six pages (witnessed in `testTeleprompterPageIsOptional`; existing paging tests untouched). The page is the compact `TeleprompterView` (scroll + play/restart + "open window"); it pauses when the page disappears. Strings ×12.
 - 2026-10-15 · **37e (live check) is the owner's:** open ⌘Space `prompter`, paste a script with a link, tap the chip and send it to the prompter; turn on the notch page and scroll to it; confirm the window is absent from a screen recording.
+- 2026-10-15 · **Owner note: 37e is the LAST bit of Phase 12** — the teleprompter live check (steps above) is performed and signed off during the Phase 12 audit, not before.
 
 #### Phase 37 — Teleprompter with link reader (notch page + floating window)
 
@@ -4252,6 +4253,8 @@ resizable floating window (long scripts, link reader). Default OFF; costs nothin
 #### Phase 35 — Phase 12 code share (decided now, built with Phase 12)
 
 Folds into Phase 12 so it is audited once: **12c** Permissions + Shortcuts sections in General (live status, re-trigger buttons), **12d** License → About, **12e** Widgets tab (before/with 10a presets), the **theme-switch wiring fix**, notch/lock/teleprompter/Phase-36 settings pages placed in the new taxonomy. **Owner-only (not done by the agent):** 12a on-screen audit, 12b Appearance→General split, 12f theme refinement. Decision recorded: Phase 34–37 settings are added under **Advanced → Notch** and relocated by Phase 12, not before.
+
+**Owner note (2026-10-15): Phase 37e (live teleprompter check) is the last bit of Phase 12 and must be checked there.**
 
 #### Phase 38 — Lock-screen notch (EXPERIMENTAL; probe first, then owner decides)
 
@@ -4320,6 +4323,7 @@ Part A; the AI agent may analyse the live app to do both parts together
   `Docs/Repository/`), owner + target phase assigned per item (15 retirement; 14 investigate).
 
 **Verify**: full settings audit checklist, gate, localization ×12, witness tests for each retired
+**Closing item (owner, 2026-10-15): 37e live teleprompter check is the last bit of Phase 12 — check it before Phase 12 is declared done.**
 item, full gate.
 
 
