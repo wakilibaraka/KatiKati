@@ -57,10 +57,10 @@ struct SettingsWindowContent: View {
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
             case .appearance: SettingsAppearancePane(store: store)
             case .windowManagement: windowManagementPane
-            case .launcherTools: launcherToolsPane
+            case .launcher: launcherPane
             case .shortcuts: SettingsLayoutPane(store: store, mode: .shortcuts)
             case .advanced: advancedPane
-            case .about: aboutPane
+            case .tools: toolsPane
             }
         }
         // **不许写死宽度**：外面套着 ScrollView，刚性宽度在可视区变窄时会被居中 = 整页平移。
@@ -116,6 +116,15 @@ struct SettingsWindowContent: View {
         // Permissions are a second group, not a setting of the first: its own card, never a
         // card inside a card.
         PermissionsSettingsBlock()
+        // What used to be the About page, minus the page: four rows nobody visits are read here,
+        // next to the settings they belong to (`Docs/SETTINGS.md` rule 5 allows three sections).
+        SettingsCard(Text("About")) {
+            aboutVersionRow
+            SettingsDivider()
+            autoUpdateToggle
+            SettingsDivider()
+            diagnosticsRow
+        }
         welcomeGuideButton
     }
 
@@ -139,10 +148,16 @@ struct SettingsWindowContent: View {
         WindowBehaviourSettingsBlock()
     }
 
-    /// 「启动器与工具」页: launcher and Control Center sections, then the utility switches.
+    /// 「启动器」页: the launcher and the Control Center, then the launcher's own rows. The tools
+    /// that used to share this page are on their own tab now (`SettingsTab.tools`).
     @ViewBuilder
-    private var launcherToolsPane: some View {
+    private var launcherPane: some View {
         SettingsLayoutPane(store: store, mode: .launcher)
+        LauncherSettingsBlock()
+    }
+
+    /// 「工具」页: the clipboard, commands and snippets, in the slot the About page left.
+    private var toolsPane: some View {
         UtilitySettingsBlock(store: store)
     }
 
@@ -166,17 +181,6 @@ struct SettingsWindowContent: View {
 
     private var fullscreenIntentNote: String {
         String(localized: "To keep the taskbar from flashing when you switch into full screen, KatiKati has to hide it before your input reaches the app. It therefore watches global left-clicks, key presses and trackpad gestures, and recognizes only four of them: the window’s green button, Control-Command-F, Control-Left/Right arrow, and a three-finger horizontal swipe. What you type is never recorded, logged, or sent anywhere. Turning this off disables the watching completely.")
-    }
-
-    @ViewBuilder
-    private var aboutPane: some View {
-        SettingsCard {
-            aboutVersionRow
-            SettingsDivider()
-            autoUpdateToggle
-            SettingsDivider()
-            diagnosticsRow
-        }
     }
 
     /// Copies `DiagnosticReport` to the clipboard so a user can paste it into a GitHub issue.

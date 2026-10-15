@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-/// 设置窗口的十个标签页（Phase 12，2026-10：「布局」页拆散进通用/小组件/刘海/边栏/窗口管理/启动器与工具/快捷键；移除「授权」「反馈」）（2026-08-24 分页；「Dock 栏」页 2026-09-01
+/// 设置窗口的十个标签页（Phase 12，2026-10：「布局」页拆散进通用/小组件/刘海/边栏/窗口管理/启动器/工具/快捷键；移除「授权」「反馈」）（2026-08-24 分页；「Dock 栏」页 2026-09-01
 /// 整页搬进状态栏菜单，见 `Docs/27`）。标题复用原分区标题的
 /// 本地化 key；图标全部 macOS 11 起可用（对照 CoreGlyphs name_availability 核过）。
 /// 纯 Foundation/Combine——测试 target 也编译它，别引 AppKit。
@@ -13,10 +13,13 @@ enum SettingsTab: String, CaseIterable {
     case edgeBars
     // Raw value stays "tiling": it is the toolbar item identifier.
     case windowManagement = "tiling"
-    case launcherTools
+    case launcher
     case shortcuts
     case advanced
-    case about
+    // Takes the slot the About page left (2026-10-15). The count stays ten and About's four rows
+    // moved to General, where they are read — a page of four rows nobody visits was the wrong
+    // trade (`Docs/SETTINGS.md` §3).
+    case tools
 
     var title: String {
         switch self {
@@ -26,10 +29,10 @@ enum SettingsTab: String, CaseIterable {
         case .edgeBars: return String(localized: "Edge Bars")
         case .appearance: return String(localized: "Appearance")
         case .windowManagement: return String(localized: "Window Management")
-        case .launcherTools: return String(localized: "Launcher & Tools")
+        case .launcher: return String(localized: "Launcher")
         case .shortcuts: return String(localized: "Shortcuts")
         case .advanced: return String(localized: "Advanced")
-        case .about: return String(localized: "About")
+        case .tools: return String(localized: "Tools")
         }
     }
 
@@ -41,10 +44,12 @@ enum SettingsTab: String, CaseIterable {
         case .edgeBars: return "sidebar.right"
         case .appearance: return "paintpalette"
         case .windowManagement: return "rectangle.split.2x2"
-        case .launcherTools: return "magnifyingglass"
+        case .launcher: return "magnifyingglass"
         case .shortcuts: return "command"
         case .advanced: return "wrench.and.screwdriver"
-        case .about: return "info.circle"
+        // The clipboard is the page's first tool; macOS 11+, checked against CoreGlyphs
+        // name_availability alongside the rest of this set.
+        case .tools: return "doc.on.clipboard"
         }
     }
 }

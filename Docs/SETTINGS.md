@@ -93,16 +93,17 @@ foundation (rules 1–3 on every page); each slice below is its own commit.
 
 | Page | Owes | Rules it closes |
 |---|---|---|
-| **General** | Takes About's four info rows (version, update check, auto-update, diagnostics) when the Tools slice repurposes About's slot. Stays at three sections. | 5, 6 |
+| **General** | Landed (2026-10-15): the About card — version + Check for Updates, auto-update, diagnostics — is this page's third section, so its budget under rule 5 is spent. Nothing owed. | — |
 | **Appearance** | Theme cards get a caption (rule 8) while 12f contrast is open. *Not* a duplicate, checked live 2026-10-15: **Icon Set** and **Dock App Icon Shape** are two different settings (menu-bar icon set vs dock icon masking), and the two cards under the picker are previews, not a second control. | 8 |
 | **Widgets** | The **two "Clock Style" labels**, confirmed live 2026-10-15: the tile clock (`CalendarClockStyle`, `App/Scenes/WidgetLookSettingsBlock.swift:16`) and the dock clock preset (`com.katikati.clock.preset`, `App/Scenes/SettingsLayoutPane.swift:776`) are two different keys wearing one visible name — rename one. `WeatherSettingsBlock` (`App/Scenes/SettingsWindowView.swift`, 8 hand-rolled `HStack` rows + 3 `Stepper`s + 2 plain `Toggle`s) still bypasses the row system: that is the ungrouped wall rule 5 names. | 3, 5, 6 |
 | **Notch** | Owns the demo preview's caption and, jointly with the tracker's **Compact-notch** item (§4), the skin decision before this page is signed off. | 8, §4 |
 | **Edge Bars** | ~28 controls in one card: split into sections, header on each (rule 5). | 5 |
 | **Window Management** | Window Chips' two-line note → the row's ⓘ (rule 4). | 4 |
-| **Launcher & Tools** | Becomes **Tools**: the launcher and control panel stay here, the clipboard/commands/snippets/text areas move to the new **Tools** page, which **reuses About's slot** in the tab strip (About's content moves to General). Text areas get placeholders + first-run hints, and the Spotlight steps' four hardcoded lines become an ⓘ. | 4, 5, 8 |
+| **Launcher** | Landed (2026-10-15): the page is the launcher, the Control Center and the launcher's own rows (`LauncherSettingsBlock`). Owes: the Spotlight steps' four hard-coded lines become that row's ⓘ. | 4 |
+| **Tools** | Landed (2026-10-15): clipboard, commands, snippets and shelf, in the slot About left. Owes: placeholders + first-run hints on the two editors (rule 8), and it carries four sections against rule 5's three — merge the two editor cards or move Shelf. | 5, 8 |
 | **Shortcuts** | ~35 rows into sections, plus a filter (rule 5) — the largest wall left. | 5 |
 | **Advanced** | Notification banners' note runs to three lines, so it belongs on that row's ⓘ (rule 4). **Reset Ignored Apps** is disabled with no reason on its row — say why (rule 7). | 4, 7 |
-| **About** | Removed as a page when Tools takes the slot; its four rows land in General. | 6 |
+| **About** | Gone as a page (2026-10-15); its four rows are the About card on General, and the tab it freed is Tools. | — |
 | **All pages** | **Accessibility audit**: ~18 `labelsHidden()` toggles (Edge Bars tiles, Control Center widgets, several Chips switches) expose no label to VoiceOver, and the Appearance behaviour toggles likewise. Rule 9 is not satisfied until each row names its control. | 9 |
 | **Layout-pane leftovers** | Two cards in `SettingsLayoutPane` still build rows by hand (`:442` window-chip app list, `:1267` quick-toggle list) — both belong on `SettingsRow` before Edge Bars and Window Management are signed off. | 3 |
 | **Close-out** | After-shots of the ten pages against the before-set (`Docs/Repository/settings-sweep-2026-10.md` plus the 2026-10-15 capture), measured margins and section gaps, macOS 12 parity read-through (this tree compiles for 12; there is no macOS 12 machine in the session), and the Better Design review the plan asks for. | 1, 10 |

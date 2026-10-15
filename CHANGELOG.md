@@ -28,6 +28,10 @@ All notable changes to KatiKati are documented in this file.
   VPN services only.
 
 ### Changed
+- **Settings gains a Tools page (Phase 12):** the clipboard, the command and snippet editors and the shelf move off
+  Launcher & Tools onto their own **Tools** tab, which takes the slot the **About** page left. About's four rows
+  (version + Check for Updates, auto-update, diagnostics) now sit in a card at the end of **General**, and the
+  launcher's page keeps the launcher, the Control Center and the launcher's own switches. Ten tabs, nothing lost.
 - **Settings is one grid (Phase 12 form-and-function pass):** all ten pages render through one card and
   one row type, so the content inset is the same 42 pt everywhere (it used to run 20 / 28 / 42 / 108 pt
   from page to page and the gap between two sections varied on the same page). The duplicate

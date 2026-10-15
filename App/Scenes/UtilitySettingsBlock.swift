@@ -1,29 +1,28 @@
 import AppKit
 import SwiftUI
 
-/// Phase 8e — Settings rows for the menu utilities that need a switch (the link cleaner; the colour picker
-/// is a menu action and needs none). Now one card per existing group, all through the shared row
-/// system (`Docs/SETTINGS.md` rule 2), so every row shares the same grid as the rest of the window.
+/// Phase 12 (2026-10-15) — the Tools page's rows: the clipboard, the command and snippet editors,
+/// and the shelf. It used to also carry the launcher's own rows and to share its page with the
+/// launcher; the tools are their own tab now (`SettingsTab.tools`), and the launcher's rows are in
+/// `LauncherSettingsBlock`. All rows go through the shared system (`Docs/SETTINGS.md` rule 2).
 struct UtilitySettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
     @AppStorage(ClipboardMonitor.soundsKey) private var clipboardSounds = false
     @AppStorage(ClipboardMonitor.notchToastKey) private var clipboardToast = false
     @AppStorage(ClipboardMonitor.ignorePatternsKey) private var clipboardIgnorePatterns = ""
-    @AppStorage(LauncherRunner.enabledKey) private var launcherScripts = false
     @AppStorage(CustomCommand.key) private var customCommands = ""
     @AppStorage(CustomCommand.snippetsKey) private var snippets = ""
-    @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
-    @AppStorage(FileIndexService.enabledKey) private var fastIndex = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
-            SettingsCard {
+            SettingsCard(Text("Clipboard")) {
+                // Cleaning copied links is a clipboard job, so it opens this card rather than
+                // sitting in a headerless card of its own (`Docs/SETTINGS.md` rule 5).
                 SettingsToggleRow(
                     Text("Clean Copied Links"),
                     isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) })
                 )
-            }
-            SettingsCard(Text("Clipboard")) {
+                SettingsDivider()
                 SettingsToggleRow(Text("Copy Sounds"), isOn: $clipboardSounds)
                 SettingsDivider()
                 SettingsToggleRow(Text("Copy Notifications"), isOn: $clipboardToast)
@@ -31,20 +30,6 @@ struct UtilitySettingsBlock: View {
                 SettingsRow(Text("Ignore Patterns")) {
                     TextField("Ignore Patterns", text: $clipboardIgnorePatterns)
                         .textFieldStyle(.roundedBorder).frame(width: 220)
-                }
-            }
-            SettingsCard(Text("Launcher")) {
-                SettingsToggleRow(Text("Script Commands"), isOn: $launcherScripts)
-                SettingsDivider()
-                SettingsToggleRow(Text("Show Command Hints"), isOn: $commandHints)
-                SettingsDivider()
-                SettingsToggleRow(Text("Fast File Index"), isOn: $fastIndex)
-                SettingsDivider()
-                SettingsButtonRow(Text("Replace Spotlight")) {
-                    if let url = URL(string: SpotlightHandoff.settingsURL) { NSWorkspace.shared.open(url) }
-                }
-                ForEach(SpotlightHandoff.steps(), id: \.self) { step in
-                    SettingsNote(spotlightStepText(step))
                 }
             }
             SettingsCard(Text("Custom Commands")) {
@@ -94,6 +79,34 @@ struct UtilitySettingsBlock: View {
                 SettingsRow(Text("System Dock")) {
                     Button("Restore Dock") { AppDelegate.shared?.restoreNativeDock() }
                 }
+            }
+        }
+    }
+
+}
+
+/// Phase 12 (2026-10-15) — the launcher's own rows (script commands, command hints, the file
+/// index, the Spotlight hand-off), split out of `UtilitySettingsBlock` when the tools got their own
+/// tab. The launcher and the Control Center share the Launcher page; these rows belong to neither
+/// the clipboard nor the shelf.
+struct LauncherSettingsBlock: View {
+    @AppStorage(LauncherRunner.enabledKey) private var launcherScripts = false
+    @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
+    @AppStorage(FileIndexService.enabledKey) private var fastIndex = true
+
+    var body: some View {
+        SettingsCard(Text("Launcher")) {
+            SettingsToggleRow(Text("Script Commands"), isOn: $launcherScripts)
+            SettingsDivider()
+            SettingsToggleRow(Text("Show Command Hints"), isOn: $commandHints)
+            SettingsDivider()
+            SettingsToggleRow(Text("Fast File Index"), isOn: $fastIndex)
+            SettingsDivider()
+            SettingsButtonRow(Text("Replace Spotlight")) {
+                if let url = URL(string: SpotlightHandoff.settingsURL) { NSWorkspace.shared.open(url) }
+            }
+            ForEach(SpotlightHandoff.steps(), id: \.self) { step in
+                SettingsNote(spotlightStepText(step))
             }
         }
     }

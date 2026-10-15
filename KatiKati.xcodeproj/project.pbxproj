@@ -224,6 +224,7 @@
 		FB52C00000000000000000112 /* SettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB52C00000000000000000111 /* SettingsCard.swift */; };
 		FB52C00000000000000000113 /* SettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB52C00000000000000000111 /* SettingsCard.swift */; };
 		FB52C00000000000000000122 /* SettingsMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB52C00000000000000000121 /* SettingsMetricsTests.swift */; };
+		FB52C00000000000000000132 /* SettingsTabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB52C00000000000000000131 /* SettingsTabTests.swift */; };
 		7B5000000000000000000113 /* NotchGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000111 /* NotchGeometry.swift */; };
 		FA33A0000000000000000002 /* NotchDesignSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000001 /* NotchDesignSpec.swift */; };
 		FA33A0000000000000000003 /* NotchDesignSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000001 /* NotchDesignSpec.swift */; };
@@ -1204,6 +1205,7 @@
 		FB52C00000000000000000101 /* SettingsMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsMetrics.swift; path = Core/Support/SettingsMetrics.swift; sourceTree = SOURCE_ROOT; };
 		FB52C00000000000000000111 /* SettingsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsCard.swift; path = App/Scenes/SettingsCard.swift; sourceTree = SOURCE_ROOT; };
 		FB52C00000000000000000121 /* SettingsMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsMetricsTests.swift; path = Tests/Unit/SettingsMetricsTests.swift; sourceTree = SOURCE_ROOT; };
+		FB52C00000000000000000131 /* SettingsTabTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsTabTests.swift; path = Tests/Unit/SettingsTabTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000021 /* NotchDesignSpecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchDesignSpecTests.swift; path = Tests/Unit/NotchDesignSpecTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000031 /* NotchContinuousMaskShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchContinuousMaskShape.swift; path = App/Scenes/Notch/NotchContinuousMaskShape.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000041 /* NotchContinuousMaskShapeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchContinuousMaskShapeTests.swift; path = Tests/Unit/NotchContinuousMaskShapeTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3295,6 +3297,7 @@
 				FB52C00000000000000000103 /* SettingsMetrics.swift in Sources */,
 				FB52C00000000000000000113 /* SettingsCard.swift in Sources */,
 				FB52C00000000000000000122 /* SettingsMetricsTests.swift in Sources */,
+				FB52C00000000000000000132 /* SettingsTabTests.swift in Sources */,
 				FA33A0000000000000000022 /* NotchDesignSpecTests.swift in Sources */,
 				FA33A0000000000000000042 /* NotchContinuousMaskShapeTests.swift in Sources */,
 				FA33A0000000000000000072 /* NotchGestureTests.swift in Sources */,
