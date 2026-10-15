@@ -13,6 +13,7 @@ struct UtilitySettingsBlock: View {
     @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
     @AppStorage(FileIndexService.enabledKey) private var fastIndex = true
     @AppStorage(DailyHelpersService.hideFromCaptureKey) private var hideFromCapture = false
+    @AppStorage(DailyHelpersService.capsLockKey) private var capsLockHUD = false
 
     var body: some View {
         HStack {
@@ -35,6 +36,9 @@ struct UtilitySettingsBlock: View {
         Text("Daily Helpers").font(.headline)
         row("Hide from Screen Capture") {
             Toggle("Hide from Screen Capture", isOn: $hideFromCapture).toggleStyle(.switch).labelsHidden()
+        }
+        row("Caps Lock Indicator") {
+            Toggle("Caps Lock Indicator", isOn: $capsLockHUD).toggleStyle(.switch).labelsHidden()
         }
         Text("Launcher").font(.headline)
         row("Script Commands") {

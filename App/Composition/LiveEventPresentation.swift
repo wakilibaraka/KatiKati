@@ -65,6 +65,15 @@ struct LiveEventPresentation {
             symbol = "arrow.down.circle.fill"
             headline = String(localized: "Download finished")
             detail = name
+
+        case let .notice(kind, extra):
+            detail = extra
+            switch kind {
+            case .capsLockOn: symbol = "capslock.fill"; headline = String(localized: "Caps Lock On")
+            case .capsLockOff: symbol = "capslock"; headline = String(localized: "Caps Lock Off")
+            case .batteryHigh: symbol = "battery.75percent"; headline = String(localized: "Battery at 80%")
+            case .batteryFull: symbol = "battery.100percent.bolt"; headline = String(localized: "Fully Charged")
+            }
         }
     }
 }

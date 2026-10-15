@@ -8,11 +8,17 @@ import AppKit
 final class DailyHelpersService {
     static let shared = DailyHelpersService()
     static let hideFromCaptureKey = "com.katikati.helpers.hideFromCapture"
+    static let capsLockKey = "com.katikati.helpers.capsLock"
+
+    /// Set by `AppDelegate` to `liveEventCenter.deliver`.
+    var deliver: (LiveEvent) -> Void = { _ in }
 
     private var defaultsObserver: NSObjectProtocol?
     private var occlusionObserver: NSObjectProtocol?
     /// Windows this service hid, so turning the switch off restores exactly those (and no others).
     private var hidden = Set<Int>()
+    private var capsMonitor: Any?
+    private var caps = CapsLockTracker()
 
     func start() {
         guard defaultsObserver == nil else { return }
@@ -24,6 +30,7 @@ final class DailyHelpersService {
 
     func refresh() {
         applyCaptureHiding(UserDefaults.standard.bool(forKey: Self.hideFromCaptureKey))
+        applyCapsLock(UserDefaults.standard.bool(forKey: Self.capsLockKey))
     }
 
     // MARK: 36d — hide from screen capture
@@ -46,6 +53,27 @@ final class DailyHelpersService {
             occlusionObserver = nil
             for window in NSApp.windows where hidden.contains(window.windowNumber) { window.sharingType = .readOnly }
             hidden.removeAll()
+        }
+    }
+
+    // MARK: 36a — Caps Lock HUD
+
+    /// A global `flagsChanged` monitor that exists only while the switch is on. It needs Input Monitoring
+    /// (same gate as the key guards); without it the helper stays off rather than prompting from here.
+    private func applyCapsLock(_ on: Bool) {
+        if on, capsMonitor == nil, KeyGuardService.hasPermission {
+            caps = CapsLockTracker()
+            _ = caps.update(isOn: CGEventSource.flagsState(.combinedSessionState).contains(.maskAlphaShift))
+            capsMonitor = NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged) { [weak self] event in
+                let isOn = event.modifierFlags.contains(.capsLock)
+                MainActor.assumeIsolated {
+                    guard let self, let kind = self.caps.update(isOn: isOn) else { return }
+                    self.deliver(.notice(kind, detail: nil))
+                }
+            }
+        } else if !on, let monitor = capsMonitor {
+            NSEvent.removeMonitor(monitor)
+            capsMonitor = nil
         }
     }
 }

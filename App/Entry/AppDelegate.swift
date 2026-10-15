@@ -363,6 +363,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 .sink { [weak self] on in self?.applyPinch(on) }
             KeyGuardService.shared.refresh()
             NotificationMoveService.shared.refresh()
+            DailyHelpersService.shared.deliver = { [weak self] in self?.liveEventCenter.deliver($0, now: Date()) }
             DailyHelpersService.shared.start()
 
             let screenTime = ProductivityServices.shared.screenTime
