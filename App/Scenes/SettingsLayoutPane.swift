@@ -281,10 +281,6 @@ struct SettingsLayoutPane: View {
     @AppStorage("com.katikati.dial.theme") private var dialThemeRaw: String = RadialDialTheme.lilacGlass.rawValue
     @AppStorage("com.katikati.dial.mouseTrigger") private var dialMouseTriggerRaw: String = RadialMouseTrigger.off.rawValue
     @AppStorage("com.katikati.dial.triggerMode") private var dialTriggerModeRaw: String = RadialTriggerMode.tapToggle.rawValue
-    @AppStorage("com.katikati.clock.preset") private var clockPresetRaw: String = ClockPreset.stackedCard.rawValue
-    @AppStorage("com.katikati.weather.chipPreset") private var weatherPresetRaw: String = WeatherChipPreset.detailedForecast.rawValue
-    @AppStorage("com.katikati.media.preset") private var mediaPresetRaw: String = NowPlayingPreset.expandedCard.rawValue
-    @AppStorage("com.katikati.widgets.fabStyle") private var fabStyleRaw: String = "gauge"
 
 
 
@@ -771,56 +767,9 @@ struct SettingsLayoutPane: View {
             contextPresetControls
         }
 
-        SettingsCard(Text("Widget Styles & Presets")) {
-            VStack(alignment: .leading, spacing: 10) {
-                SettingsRow(Text("Clock Style")) {
-                    Picker("Clock Style", selection: $clockPresetRaw) {
-                        ForEach(ClockPreset.allCases, id: \.rawValue) { preset in
-                            Text(preset.title).tag(preset.rawValue)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
-                    .frame(width: 170)
-                }
-
-                SettingsRow(Text("Weather Style")) {
-                    Picker("Weather Style", selection: $weatherPresetRaw) {
-                        ForEach(WeatherChipPreset.allCases, id: \.rawValue) { preset in
-                            Text(preset.title).tag(preset.rawValue)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
-                    .frame(width: 170)
-                }
-
-                SettingsRow(Text("Now Playing Style")) {
-                    Picker("Now Playing Style", selection: $mediaPresetRaw) {
-                        ForEach(NowPlayingPreset.allCases, id: \.rawValue) { preset in
-                            Text(preset.title).tag(preset.rawValue)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
-                    .frame(width: 170)
-                }
-
-                SettingsRow(Text("Right FAB Style")) {
-                    Picker("Right FAB Style", selection: $fabStyleRaw) {
-                        Text("Dynamic Gauge").tag("gauge")
-                        Text("Classic Glyph").tag("classic")
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
-                    .frame(width: 170)
-                }
-
-                Text("Switch between custom Phase 32 pods and legacy widget presets. You can also switch styles by right-clicking each widget on the dock.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
+        // The style presets moved to `WidgetLookSettingsBlock` (2026-10-15): they are appearance, and
+        // keeping them here made the page four sections where `Docs/SETTINGS.md` rule 5 allows three.
+        // Same keys, same controls.
     }
 
     var body: some View {

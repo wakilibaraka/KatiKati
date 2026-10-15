@@ -615,73 +615,60 @@ struct WeatherSettingsBlock: View {
     @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
     @AppStorage(WeatherUnits.windKey) private var windUnit: WindSpeedUnit = .kmh
     @AppStorage(WeatherPrefs.animationsKey) private var animations = true
-    @AppStorage(WidgetPanelController.keepBothOpenKey) private var keepBoth = false
-    @AppStorage(WidgetAnimationPreset.storageKey) private var widgetAnimation: WidgetAnimationPreset = .slide
     @AppStorage(WeatherLayoutPreset.storageKey) private var weatherLayout: WeatherLayoutPreset = .glance
     @AppStorage(WeatherHeroStyle.storageKey) private var heroStyle: WeatherHeroStyle = .scene
-    @AppStorage(WidgetExtraPrefs.showNotesKey) private var showNotes = true
-    @AppStorage(WidgetExtraPrefs.showStopwatchKey) private var showStopwatch = true
     @State private var thresholds = WeatherPrefs.thresholds()
 
+    /// Rows only, no card: `WidgetLookSettingsBlock` puts them in the "Weather" section. Every row is
+    /// a shared variant, so a control's alignment follows its type instead of this block's opinion
+    /// (`Docs/SETTINGS.md` rule 3).
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("Temperature Unit")
-                Spacer(minLength: 12)
-                Picker("Temperature Unit", selection: $tempUnit) {
-                    Text(verbatim: "°C").tag(TemperatureUnit.celsius)
-                    Text(verbatim: "°F").tag(TemperatureUnit.fahrenheit)
-                }.pickerStyle(.segmented).labelsHidden().frame(width: 120)
-            }
-            HStack {
-                Text("Wind Speed Unit")
-                Spacer(minLength: 12)
-                Picker("Wind Speed Unit", selection: $windUnit) {
-                    Text(verbatim: "km/h").tag(WindSpeedUnit.kmh)
-                    Text(verbatim: "mph").tag(WindSpeedUnit.mph)
-                    Text(verbatim: "m/s").tag(WindSpeedUnit.ms)
-                }.pickerStyle(.segmented).labelsHidden().frame(width: 170)
-            }
-            HStack {
-                Text("Widget Animation")
-                Spacer(minLength: 12)
-                Picker("Widget Animation", selection: $widgetAnimation) {
-                    Text("Instant").tag(WidgetAnimationPreset.instant)
-                    Text("Slide").tag(WidgetAnimationPreset.slide)
-                    Text("Spring Pop").tag(WidgetAnimationPreset.springPop)
-                }.pickerStyle(.menu).labelsHidden()
-            }
-            Toggle("Show Notes Widget", isOn: $showNotes)
-            Toggle("Show Stopwatch & Countdown", isOn: $showStopwatch)
-            HStack {
-                Text("Weather Layout")
-                Spacer(minLength: 12)
-                Picker("Weather Layout", selection: $weatherLayout) {
-                    Text("Glance").tag(WeatherLayoutPreset.glance)
-                    Text("Classic").tag(WeatherLayoutPreset.classic)
-                }.pickerStyle(.segmented).labelsHidden().frame(width: 150)
-            }
-            HStack {
-                Text("Hero Style")
-                Spacer(minLength: 12)
-                Picker("Hero Style", selection: $heroStyle) {
-                    Text("Scene").tag(WeatherHeroStyle.scene)
-                    Text("Classic").tag(WeatherHeroStyle.classic)
-                }.pickerStyle(.segmented).labelsHidden().frame(width: 150)
-            }
-            Toggle("Weather Animations", isOn: $animations)
-            Toggle("Keep Both Widgets Open", isOn: $keepBoth)
-            Stepper(value: binding(\.heatFeelsLikeC), in: 25...50, step: 1) {
-                HStack { Text("Heat Warning (Feels Like)"); Spacer(); Text(verbatim: "\(Int(thresholds.heatFeelsLikeC))°C").monospacedDigit() }
-            }
-            Stepper(value: binding(\.windKmh), in: 20...120, step: 5) {
-                HStack { Text("Wind Warning"); Spacer(); Text(verbatim: "\(Int(thresholds.windKmh)) km/h").monospacedDigit() }
-            }
-            Stepper(value: binding(\.snowCmPerDay), in: 1...30, step: 1) {
-                HStack { Text("Snow Warning"); Spacer(); Text(verbatim: "\(Int(thresholds.snowCmPerDay)) cm").monospacedDigit() }
-            }
+        SettingsSegmentedRow(Text("Temperature Unit"), selection: $tempUnit) {
+            Text(verbatim: "°C").tag(TemperatureUnit.celsius)
+            Text(verbatim: "°F").tag(TemperatureUnit.fahrenheit)
         }
-        .padding(.vertical, 4)
+        SettingsDivider()
+        SettingsSegmentedRow(Text("Wind Speed Unit"), selection: $windUnit) {
+            Text(verbatim: "km/h").tag(WindSpeedUnit.kmh)
+            Text(verbatim: "mph").tag(WindSpeedUnit.mph)
+            Text(verbatim: "m/s").tag(WindSpeedUnit.ms)
+        }
+        SettingsDivider()
+        SettingsSegmentedRow(Text("Weather Layout"), selection: $weatherLayout) {
+            Text("Glance").tag(WeatherLayoutPreset.glance)
+            Text("Classic").tag(WeatherLayoutPreset.classic)
+        }
+        SettingsDivider()
+        SettingsSegmentedRow(Text("Hero Style"), selection: $heroStyle) {
+            Text("Scene").tag(WeatherHeroStyle.scene)
+            Text("Classic").tag(WeatherHeroStyle.classic)
+        }
+        SettingsDivider()
+        SettingsToggleRow(Text("Weather Animations"), isOn: $animations)
+        SettingsDivider()
+        SettingsStepperRow(
+            Text("Heat Warning (Feels Like)"),
+            value: binding(\.heatFeelsLikeC),
+            in: 25...50,
+            step: 1,
+            readout: "\(Int(thresholds.heatFeelsLikeC))°C"
+        )
+        SettingsDivider()
+        SettingsStepperRow(
+            Text("Wind Warning"),
+            value: binding(\.windKmh),
+            in: 20...120,
+            step: 5,
+            readout: "\(Int(thresholds.windKmh)) km/h"
+        )
+        SettingsDivider()
+        SettingsStepperRow(
+            Text("Snow Warning"),
+            value: binding(\.snowCmPerDay),
+            in: 1...30,
+            step: 1,
+            readout: "\(Int(thresholds.snowCmPerDay)) cm"
+        )
     }
 
     private func binding(_ key: WritableKeyPath<WeatherThresholds, Double>) -> Binding<Double> {

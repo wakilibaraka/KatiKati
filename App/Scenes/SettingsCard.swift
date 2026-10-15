@@ -256,6 +256,46 @@ struct SettingsSliderRow<Value: BinaryFloatingPoint>: View where Value.Stride: B
     }
 }
 
+/// A stepper row: label leading, the stepper trailing, with the value shown beside it. The stepper's
+/// own label is hidden and taken from the row, so the row reads as one control (rules 3 and 9).
+struct SettingsStepperRow: View {
+    private let label: Text
+    private let note: Text?
+    private let value: Binding<Double>
+    private let range: ClosedRange<Double>
+    private let step: Double
+    private let readout: String
+
+    init(
+        _ label: Text,
+        value: Binding<Double>,
+        in range: ClosedRange<Double>,
+        step: Double,
+        readout: String,
+        note: Text? = nil
+    ) {
+        self.label = label
+        self.value = value
+        self.range = range
+        self.step = step
+        self.readout = readout
+        self.note = note
+    }
+
+    var body: some View {
+        SettingsRow(label, note: note) {
+            HStack(spacing: SettingsMetrics.controlSpacing) {
+                Text(verbatim: readout)
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+                Stepper(value: value, in: range, step: step) { label }
+                    .labelsHidden()
+                    .accessibilityLabel(label)
+            }
+        }
+    }
+}
+
 /// A lone action inside a card. The button is the row, so an action never gets labelled twice
 /// (rule 6) — used for Restore/Clear/Reset-style buttons.
 struct SettingsButtonRow: View {

@@ -28,6 +28,11 @@ All notable changes to KatiKati are documented in this file.
   VPN services only.
 
 ### Changed
+- **Widgets page regrouped (Phase 12):** the weather widget's rows now live in their own **Weather** card
+  on the shared grid (they were the one block on the page with no card, inset 14 pt shallower), and the
+  widget appearance rows and style presets share one card. The clock *tile*'s row is renamed **Clock Tile
+  Style** so the page stops showing two rows both called *Clock Style* — the dock clock's preset keeps that
+  name. No setting moved and no key changed.
 - **Settings gains a Tools page (Phase 12):** the clipboard, the command and snippet editors and the shelf move off
   Launcher & Tools onto their own **Tools** tab, which takes the slot the **About** page left. About's four rows
   (version + Check for Updates, auto-update, diagnostics) now sit in a card at the end of **General**, and the
