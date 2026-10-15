@@ -126,10 +126,16 @@ struct NotchIslandView: View {
 
     private func closedContent(_ activity: LiveActivity) -> some View {
         HStack(spacing: 0) {
-            Image(systemName: LiveIslandStyle.symbolName(for: activity.kind))
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(LiveIslandStyle.tint(for: activity.kind))
-                .frame(width: NotchGeometry.sneakSide - 14, alignment: .leading)
+            HStack(spacing: 4) {
+                Image(systemName: LiveIslandStyle.symbolName(for: activity.kind))
+                    .foregroundStyle(LiveIslandStyle.tint(for: activity.kind))
+                if let second = feed.secondaryActivity {
+                    Image(systemName: LiveIslandStyle.symbolName(for: second.kind))
+                        .foregroundStyle(LiveIslandStyle.tint(for: second.kind))
+                }
+            }
+            .font(.system(size: 12, weight: .semibold))
+            .frame(width: NotchGeometry.sneakSide - 14, alignment: .leading)
             Spacer(minLength: metrics.closedSize.width - 8)
             if let value = LiveIslandStyle.valueText(for: activity) {
                 value

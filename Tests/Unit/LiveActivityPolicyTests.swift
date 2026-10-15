@@ -167,4 +167,16 @@ final class LiveActivityPolicyTests: XCTestCase {
         )
         XCTAssertEqual(LiveActivityPolicy.resolve(s).kind, .clock)
     }
+
+    // Phase 34g: the closed notch can show a runner-up activity.
+    func testSecondaryIsRunnerUpAndNeverTheClock() {
+        let both = LiveActivitySnapshot(
+            music: MusicContent(title: "T", artist: "A", progress: 0.5, hasPrevious: true, hasNext: true), musicIsPlaying: true,
+            timer: TimerContent(remaining: 30, total: 60, progress: 0.5), timerIsRunning: true)
+        XCTAssertEqual(LiveActivityPolicy.resolve(both).kind, .music)
+        XCTAssertEqual(LiveActivityPolicy.secondary(both, after: .music)?.kind, .timer)
+        var musicOnly = both; musicOnly.timerIsRunning = false
+        XCTAssertNil(LiveActivityPolicy.secondary(musicOnly, after: .music))
+        XCTAssertNil(LiveActivityPolicy.secondary(LiveActivitySnapshot(), after: .clock))
+    }
 }

@@ -26,6 +26,8 @@ import Foundation
 @MainActor
 final class LiveActivityFeed: ObservableObject {
     @Published public private(set) var activity: LiveActivity
+    /// The runner-up live activity, shown as a second glyph in the closed notch (Phase 34g).
+    @Published public private(set) var secondaryActivity: LiveActivity?
     @Published public var isNotchExpanded = false
 
     private let nowPlaying: NowPlayingService
@@ -104,7 +106,9 @@ final class LiveActivityFeed: ObservableObject {
     /// Re-read every source and republish. Also callable on demand (e.g. right before showing the
     /// island so the first frame is already current).
     func refresh() {
-        activity = LiveActivityPolicy.resolve(sources(at: Date()).snapshot(now: Date()))
+        let snapshot = sources(at: Date()).snapshot(now: Date())
+        activity = LiveActivityPolicy.resolve(snapshot)
+        secondaryActivity = LiveActivityPolicy.secondary(snapshot, after: activity.kind)
     }
 
     // MARK: - Transport (island capsule affordance)

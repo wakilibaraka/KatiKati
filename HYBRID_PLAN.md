@@ -4195,6 +4195,8 @@ Verify: no `verbatim` mock literal remains (grep witness test), sampler off when
 
 - 2026-10-15 · **Phase 34e delivered — PASS (code; not live-checked).** New `LiveEvent.downloadFinished(name:)` (dedupe key, presentation "Download finished", localized ×12). `DownloadsMonitor` fires `onFinished` when its active count drops and reads the newest non-partial file name off the main thread; `AppDelegate` delivers it through `LiveEventCenter`. **Limits:** only while the monitor runs (Downloads folder opened once, a surface retains it); the toast is click-through, so **no Reveal button** yet. **Found, not touched:** `DownloadManagerService` seeds fake demo items and runs `simulateProgressForActiveDemos` — a mock to retire in Phase 12's registry.
 
+- 2026-10-15 · **Phase 34g delivered — PASS (code; not live-checked) — Phase 34 complete (34a–34g).** Pure `LiveActivityPolicy.secondary(_:after:)` (runner-up live activity, never the clock) + `LiveActivityFeed.secondaryActivity`; the closed notch's left wing shows two glyphs (primary + runner-up), value text stays the primary's. **Scope note:** the right wing still shows one value — two values do not fit the 64 pt wings; revisit only if the owner wants wider wings. Test `testSecondaryIsRunnerUpAndNeverTheClock`. **Owner eyeball needed** on a notched display (two glyphs in a 50 pt slot).
+
 #### Phase 36 — Small daily features (all cheap; each its own slice, own toggle, default off)
 
 | Slice | Feature | Design | Cost / difficulty |

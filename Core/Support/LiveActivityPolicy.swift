@@ -176,6 +176,22 @@ enum LiveActivityPolicy {
         daysRemaining >= 0 && daysRemaining <= countdownHorizonDays
     }
 
+    /// The next-best *live* activity behind `primary` (Phase 34g: the closed notch shows two glyphs).
+    /// Nil when nothing else is live — the clock never counts as a second activity.
+    public static func secondary(_ s: LiveActivitySnapshot, after primary: LiveActivityKind) -> LiveActivity? {
+        var rest = s
+        switch primary {
+        case .music: rest.musicIsPlaying = false
+        case .focus: rest.focusIsRunning = false
+        case .countdown: rest.countdownIsNear = false
+        case .timer: rest.timerIsRunning = false
+        case .stopwatch: rest.stopwatchIsRunning = false
+        case .clock: return nil
+        }
+        let next = resolve(rest)
+        return next.kind == .clock ? nil : next
+    }
+
     /// Resolve the highest-priority live activity from a snapshot. Pure and total: always returns
     /// something (worst case `.clock`).
     public static func resolve(_ s: LiveActivitySnapshot) -> LiveActivity {
