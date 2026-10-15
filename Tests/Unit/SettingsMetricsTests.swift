@@ -18,6 +18,25 @@ final class SettingsMetricsTests: XCTestCase {
         XCTAssertGreaterThan(SettingsMetrics.controlSpacing, 0)
     }
 
+    /// A pair's two halves are equal (`Docs/SETTINGS.md` rules 5 and 10): the window is a fixed
+    /// width, and both halves must be the same number of points or one of them squeezes its
+    /// trailing control (measured live 2026-10-15: a Record button at 20 pt reading “…”).
+    func testAPairsHalvesSplitTheCardEvenly() {
+        XCTAssertEqual(SettingsMetrics.halfRowWidth * 2, SettingsMetrics.cardContentWidth,
+                       "two halves must fill one card, no more and no less")
+        XCTAssertEqual(SettingsMetrics.cardContentWidth,
+                       SettingsMetrics.windowWidth - 2 * SettingsMetrics.paneMargin - 2 * SettingsMetrics.cardPadding,
+                       "a card's content is the window minus the page margin and the card's padding")
+    }
+
+    /// A checklist cell is tighter than a settings row (`Docs/SETTINGS.md` rule 5): the grid only
+    /// saves a page height while a cell stays near the checkbox it carries.
+    func testAChecklistCellIsTighterThanARow() {
+        XCTAssertGreaterThan(SettingsMetrics.gridRowVerticalPadding, 0,
+                             "a cell with no padding reads as a wrapped column")
+        XCTAssertLessThan(SettingsMetrics.gridRowVerticalPadding, SettingsMetrics.rowVerticalPadding)
+    }
+
     func testCardSitsInsideThePageAndLeavesRoomForAControl() {
         XCTAssertLessThan(SettingsMetrics.cardPadding, SettingsMetrics.paneMargin,
                           "a card padded wider than the page margin starts to read as its own page")

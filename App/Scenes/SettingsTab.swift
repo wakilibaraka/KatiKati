@@ -15,11 +15,13 @@ enum SettingsTab: String, CaseIterable {
     case windowManagement = "tiling"
     case launcher
     case shortcuts
-    case advanced
     // Takes the slot the About page left (2026-10-15). The count stays ten and About's four rows
     // moved to General, where they are read — a page of four rows nobody visits was the wrong
     // trade (`Docs/SETTINGS.md` §3).
     case tools
+    // Last (owner, 2026-10-15): the page you visit once sits at the end of the strip, so the tools
+    // used mid-session are no longer behind it.
+    case advanced
 
     var title: String {
         switch self {

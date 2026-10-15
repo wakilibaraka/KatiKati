@@ -23,9 +23,11 @@ struct UtilitySettingsBlock: View {
                     isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) })
                 )
                 SettingsDivider()
-                SettingsToggleRow(Text("Copy Sounds"), isOn: $clipboardSounds)
+                SettingsRowPair(
+                    left: { SettingsToggleRow(Text("Copy Sounds"), isOn: $clipboardSounds) },
+                    right: { SettingsToggleRow(Text("Copy Notifications"), isOn: $clipboardToast) }
+                )
                 SettingsDivider()
-                SettingsToggleRow(Text("Copy Notifications"), isOn: $clipboardToast)
                 SettingsDivider()
                 SettingsRow(Text("Ignore Patterns")) {
                     TextField("Ignore Patterns", text: $clipboardIgnorePatterns)
@@ -46,16 +48,22 @@ struct UtilitySettingsBlock: View {
                 SettingsNote(Text("One per line: ;sig = Best regards, Sam. Type the trigger in ⌘Space and press Return to paste it."))
             }
             SettingsCard(Text("Shelf")) {
-                SettingsToggleRow(
-                    Text("Shake to Shelf"),
-                    isOn: Binding(get: { store.shelfShakeEnabled }, set: { store.setShelfShakeEnabled($0) })
-                )
-                SettingsDivider()
-                SettingsToggleRow(
-                    Text("Auto-Expire"),
-                    isOn: Binding(get: { store.shelfAutoExpire }, set: { store.setShelfAutoExpire($0) })
+                SettingsRowPair(
+                    left: {
+                        SettingsToggleRow(
+                            Text("Shake to Shelf"),
+                            isOn: Binding(get: { store.shelfShakeEnabled }, set: { store.setShelfShakeEnabled($0) })
+                        )
+                    },
+                    right: {
+                        SettingsToggleRow(
+                            Text("Auto-Expire"),
+                            isOn: Binding(get: { store.shelfAutoExpire }, set: { store.setShelfAutoExpire($0) })
+                        )
+                    }
                 )
                 if store.shelfAutoExpire {
+                    SettingsDivider()
                     SettingsRow(Text("Expire After")) {
                         Picker("Expire After", selection: Binding(get: { store.shelfExpiryDays }, set: { store.setShelfExpiryDays($0) })) {
                             Text("1 day").tag(1)
@@ -96,9 +104,11 @@ struct LauncherSettingsBlock: View {
 
     var body: some View {
         SettingsCard(Text("Launcher")) {
-            SettingsToggleRow(Text("Script Commands"), isOn: $launcherScripts)
-            SettingsDivider()
-            SettingsToggleRow(Text("Show Command Hints"), isOn: $commandHints)
+            // Three switches, two on the first line (`Docs/SETTINGS.md` rule 5).
+            SettingsRowPair(
+                left: { SettingsToggleRow(Text("Script Commands"), isOn: $launcherScripts) },
+                right: { SettingsToggleRow(Text("Show Command Hints"), isOn: $commandHints) }
+            )
             SettingsDivider()
             SettingsToggleRow(Text("Fast File Index"), isOn: $fastIndex)
             SettingsDivider()

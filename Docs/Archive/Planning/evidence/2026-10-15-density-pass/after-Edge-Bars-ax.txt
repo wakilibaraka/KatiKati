@@ -1,0 +1,58 @@
+WINDOW	Edge Bars	405	168	900	997
+AXStaticText	42.0	102.0	Edge Bars
+AXStaticText	42.0	140.0	Edge Bars
+AXPopUpButton	695.5	136.0	Productivity + Rest
+AXStaticText	42.0	181.0	Edge Bar on the Dock's Side
+AXRadioGroup	655.0	177.0	
+AXStaticText	42.0	222.0	Main Side
+AXRadioGroup	746.0	218.0	
+AXStaticText	42.0	263.0	Keep Edge Bars Open
+AXCheckBox	804.0	259.0	0
+AXStaticText	42.0	301.0	Slim bars on the screen edges for notes, produ
+AXStaticText	42.0	362.0	Widgets
+AXStaticText	42.0	485.0	Size & Behaviour
+AXStaticText	42.0	519.0	Left Bar Size
+AXSlider	202.0	519.0	1
+AXStaticText	821.5	519.0	100%
+AXStaticText	42.0	551.0	Right Bar Size
+AXSlider	202.0	551.0	1
+AXStaticText	821.5	551.0	100%
+AXStaticText	42.0	583.0	Open Delay
+AXSlider	202.0	583.0	0.4
+AXStaticText	819.5	583.0	0.40 s
+AXStaticText	42.0	615.0	Edge Sensitivity
+AXSlider	202.0	615.0	0.25
+AXStaticText	829.5	615.0	25%
+AXStaticText	42.0	647.0	Left Bar Height
+AXSlider	202.0	647.0	0.5
+AXStaticText	829.5	647.0	50%
+AXStaticText	42.0	679.0	Right Bar Height
+AXSlider	202.0	679.0	0.5
+AXStaticText	829.5	679.0	50%
+AXStaticText	42.0	715.0	Magnify Buttons Under the Pointer
+AXCheckBox	396.0	711.0	1
+AXStaticText	450.0	715.0	Magnify Amount
+AXRadioGroup	619.5	711.0	
+AXStaticText	42.0	755.0	Button Icons
+AXRadioGroup	225.0	751.0	
+AXStaticText	450.0	755.0	Flyout Style
+AXRadioGroup	716.0	751.0	
+AXStaticText	42.0	795.0	Button Style
+AXRadioGroup	291.0	791.0	
+AXStaticText	450.0	795.0	Note Tab Font
+AXPopUpButton	729.0	791.0	System
+AXStaticText	42.0	835.0	Open Only on Click
+AXCheckBox	396.0	831.0	1
+AXStaticText	450.0	835.0	Show Button Names on Hover
+AXCheckBox	804.0	831.0	1
+AXStaticText	42.0	875.0	Preview Notes on Hover
+AXCheckBox	396.0	871.0	1
+AXStaticText	450.0	875.0	Open Notes on Hover
+AXCheckBox	804.0	871.0	1
+AXButton	42.0	911.0	
+AXStaticText	42.0	955.0	Sync Notes with iCloud Drive
+AXCheckBox	804.0	951.0	0
+AXCheckBox	42.0	392.0	1
+AXCheckBox	450.0	392.0	1
+AXCheckBox	42.0	416.4	1
+AXCheckBox	450.0	416.4	1

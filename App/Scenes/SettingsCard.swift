@@ -124,6 +124,28 @@ struct SettingsToggleRow: View {
     }
 }
 
+/// A checklist cell: a checkbox with its name beside it, laid out by `SettingsGrid`. This is the
+/// control the window's checklists have always used (what tiles exist, which quick settings show,
+/// which apps the launcher hides), and it stays deliberately shorter than a settings row
+/// (`SettingsMetrics.gridRowVerticalPadding`) — eighteen of these are a list to scan, not eighteen
+/// preferences. The checkbox takes its name from the cell for VoiceOver (rule 9).
+struct SettingsCheckboxRow: View {
+    private let label: Text
+    private let isOn: Binding<Bool>
+
+    init(_ label: Text, isOn: Binding<Bool>) {
+        self.label = label
+        self.isOn = isOn
+    }
+
+    var body: some View {
+        Toggle(isOn: isOn) { label }
+            .toggleStyle(.checkbox)
+            .accessibilityLabel(label)
+            .padding(.vertical, SettingsMetrics.gridRowVerticalPadding)
+    }
+}
+
 /// The ⓘ that carries a row's long explanation (`Docs/SETTINGS.md` rule 4): the note under a row
 /// stays one line, and anything longer opens on demand on the row it explains.
 struct SettingsInfoButton: View {
@@ -148,6 +170,64 @@ struct SettingsInfoButton: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(width: 300, alignment: .leading)
                 .padding(14)
+        }
+    }
+}
+
+/// A card's rows in two columns (`Docs/SETTINGS.md` rule 5): a checklist long enough to run past the
+/// screen uses the window's width instead of leaving the right half of the card empty while the
+/// reader scrolls. Reading order is left, right, next line, and every cell is an ordinary row, so
+/// its control keeps the row's accessibility label (rule 9).
+struct SettingsGrid<Item, ID: Hashable, Row: View>: View {
+    private let items: [Item]
+    private let id: KeyPath<Item, ID>
+    private let row: (Item) -> Row
+
+    init(_ items: [Item], id: KeyPath<Item, ID>, @ViewBuilder row: @escaping (Item) -> Row) {
+        self.items = items
+        self.id = id
+        self.row = row
+    }
+
+    var body: some View {
+        LazyVGrid(
+            // No gutter between the columns: the second one then starts at exactly half the card,
+            // which is where `SettingsRowPair`'s right half starts too (rule 1).
+            columns: [GridItem(.flexible(), spacing: 0, alignment: .leading),
+                      GridItem(.flexible(), spacing: 0, alignment: .leading)],
+            alignment: .leading,
+            spacing: 0
+        ) {
+            ForEach(items, id: id) { item in
+                row(item)
+            }
+        }
+    }
+}
+
+/// Two rows side by side in a card (`Docs/SETTINGS.md` rule 5): a card whose rows are mostly narrow
+/// controls — a switch, a menu, a segmented picker — uses the window's width instead of running one
+/// row per line, which is what pulls the long pages back inside the window. Reading order is left,
+/// right, like `SettingsGrid`, and each half is an ordinary row, so its control keeps the row's
+/// accessibility label (rule 9). A slider never pairs: its track needs the card's width.
+struct SettingsRowPair<Left: View, Right: View>: View {
+    private let left: Left
+    private let right: Right
+
+    init(@ViewBuilder left: () -> Left, @ViewBuilder right: () -> Right) {
+        self.left = left()
+        self.right = right()
+    }
+
+    var body: some View {
+        // Two `maxWidth: .infinity` children are not two equal children: both an `HStack` and a
+        // two-column grid size them by their own content, so the half with the wider control took
+        // the width from the other one (measured live 2026-10-15: the right half's Record button
+        // rendered as “…” at 20 pt while the left half's said “Record”). The window is a fixed 900
+        // pt (rule 10), so a half is `SettingsMetrics.halfRowWidth` and both halves are equal.
+        HStack(alignment: .top, spacing: 0) {
+            left.frame(width: SettingsMetrics.halfRowWidth, alignment: .leading)
+            right.frame(width: SettingsMetrics.halfRowWidth, alignment: .leading)
         }
     }
 }
@@ -297,20 +377,28 @@ struct SettingsStepperRow: View {
 }
 
 /// A lone action inside a card. The button is the row, so an action never gets labelled twice
-/// (rule 6) — used for Restore/Clear/Reset-style buttons.
+/// (rule 6) — used for Restore/Clear/Reset-style buttons. A button that can be `.disabled` passes
+/// its reason as the note (rule 7: the state is visible on the row, not only in a tooltip).
 struct SettingsButtonRow: View {
     private let title: Text
+    private let note: Text?
     private let action: () -> Void
 
-    init(_ title: Text, action: @escaping () -> Void) {
+    init(_ title: Text, note: Text? = nil, action: @escaping () -> Void) {
         self.title = title
+        self.note = note
         self.action = action
     }
 
     var body: some View {
-        HStack(spacing: SettingsMetrics.controlSpacing) {
-            Button(action: action) { title }
-            Spacer(minLength: 0)
+        VStack(alignment: .leading, spacing: SettingsMetrics.rowNoteSpacing) {
+            HStack(spacing: SettingsMetrics.controlSpacing) {
+                Button(action: action) { title }
+                Spacer(minLength: 0)
+            }
+            if let note {
+                SettingsNote(note)
+            }
         }
         .padding(.vertical, SettingsMetrics.rowVerticalPadding)
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -67554,6 +67554,57 @@
           }
         }
       }
+    },
+    "Size & Behaviour": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Size & Behaviour"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "Size & Behaviour"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "Size & Behaviour"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "Size & Behaviour"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Size & Behaviour"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Size & Behaviour"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Size & Behaviour"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Size & Behaviour"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Size & Behaviour"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Size & Behaviour"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Size & Behaviour"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "Size & Behaviour"}}
+      }
+    },
+    "No background app is ignored right now.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No background app is ignored right now."}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "No background app is ignored right now."}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "No background app is ignored right now."}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "No background app is ignored right now."}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "No background app is ignored right now."}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "No background app is ignored right now."}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "No background app is ignored right now."}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "No background app is ignored right now."}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "No background app is ignored right now."}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "No background app is ignored right now."}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "No background app is ignored right now."}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "No background app is ignored right now."}}
+      }
+    },
+    "Turn Dynamic Wallpaper on to restore it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Turn Dynamic Wallpaper on to restore it."}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "Turn Dynamic Wallpaper on to restore it."}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "Turn Dynamic Wallpaper on to restore it."}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "Turn Dynamic Wallpaper on to restore it."}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Turn Dynamic Wallpaper on to restore it."}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Turn Dynamic Wallpaper on to restore it."}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Turn Dynamic Wallpaper on to restore it."}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Turn Dynamic Wallpaper on to restore it."}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Turn Dynamic Wallpaper on to restore it."}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Turn Dynamic Wallpaper on to restore it."}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Turn Dynamic Wallpaper on to restore it."}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "Turn Dynamic Wallpaper on to restore it."}}
+      }
     }
   },
   "version": "1.0"

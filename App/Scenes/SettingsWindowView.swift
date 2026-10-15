@@ -3,8 +3,9 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct SettingsWindowView: View {
-    // Wide enough for ten toolbar items without the overflow chevron.
-    static let contentWidth: CGFloat = 900
+    // Wide enough for ten toolbar items without the overflow chevron. The number lives in
+    // `SettingsMetrics` because a pair's half is arithmetic on it (`cardContentWidth`).
+    static let contentWidth: CGFloat = SettingsMetrics.windowWidth
 
     /// 公开仓库主页。**只给「求 Star」用**——用户可见的「去下载」永远指向官网
     /// （2026-08-13 起 GitHub release 页不再附安装包，指过去是个空页面），
@@ -109,9 +110,8 @@ struct SettingsWindowContent: View {
                 hotKeyControls
             }
             SettingsDivider()
-            drawerPlacementPicker
-            SettingsDivider()
-            scrollReverserToggle
+            // Two narrow rows on one line (`Docs/SETTINGS.md` rule 5).
+            SettingsRowPair(left: { drawerPlacementPicker }, right: { scrollReverserToggle })
         }
         // Permissions are a second group, not a setting of the first: its own card, never a
         // card inside a card.
@@ -121,9 +121,7 @@ struct SettingsWindowContent: View {
         SettingsCard(Text("About")) {
             aboutVersionRow
             SettingsDivider()
-            autoUpdateToggle
-            SettingsDivider()
-            diagnosticsRow
+            SettingsRowPair(left: { autoUpdateToggle }, right: { diagnosticsRow })
         }
         welcomeGuideButton
     }
@@ -131,13 +129,14 @@ struct SettingsWindowContent: View {
     // 「高级」= 需要额外能力、默认就对、基本不用碰的开关。单独一页不是为了藏，
     // 而是让常用页只留日常会调的东西；真想拒绝这个能力的人找得到（owner 2026-08-09，
     // 2026-08-24 分页时 owner 确认保留「高级」这一页）。
+    //
+    // Two sections, each with a header (Phase 12 A6–A7): the full-screen prediction row was a
+    // headerless card of one row above these, which a page owes a title it cannot name. It is the
+    // first row of **Behaviour** now — the same content, one section fewer.
     @ViewBuilder
     private var advancedPane: some View {
-        SettingsCard {
-            fullscreenIntentToggle
-        }
+        BehaviourSettingsBlock(store: store)
         SettingsLayoutPane(store: store, mode: .notifications)
-        BehaviourSettingsBlock()
     }
 
     /// 「窗口管理」页: tiling, window chips, and the two window behaviours.
@@ -166,21 +165,6 @@ struct SettingsWindowContent: View {
     private var notchPane: some View {
         LiveIslandSettingsBlock(store: store)
         NotchHelpersSettingsBlock()
-    }
-
-    private var fullscreenIntentToggle: some View {
-        SettingsToggleRow(
-            Text("Predict full-screen transitions to prevent taskbar flicker"),
-            isOn: binding(
-                get: { store.fullscreenIntentEnabled },
-                set: store.setFullscreenIntentEnabled
-            ),
-            info: fullscreenIntentNote
-        )
-    }
-
-    private var fullscreenIntentNote: String {
-        String(localized: "To keep the taskbar from flashing when you switch into full screen, KatiKati has to hide it before your input reaches the app. It therefore watches global left-clicks, key presses and trackpad gestures, and recognizes only four of them: the window’s green button, Control-Command-F, Control-Left/Right arrow, and a three-finger horizontal swipe. What you type is never recorded, logged, or sent anywhere. Turning this off disables the watching completely.")
     }
 
     /// Copies `DiagnosticReport` to the clipboard so a user can paste it into a GitHub issue.
@@ -599,7 +583,9 @@ struct CalendarClockStylePicker: View {
     }
 }
 
-/// Phase 16f: glass/blur tiles in the widget pane (off = solid, the default). Label lives on the row.
+/// Phase 16f: glass/blur tiles in the widget pane (off = solid, the default). The row draws the
+/// name and puts it on the control for VoiceOver (`WidgetLookSettingsBlock`) — a `labelsHidden`
+/// toggle with no name of its own reads as an unnamed checkbox (measured live 2026-10-15).
 struct GlassTilesToggle: View {
     @AppStorage(WidgetExtraPrefs.glassTilesKey) private var glassTiles = false
 
@@ -623,26 +609,38 @@ struct WeatherSettingsBlock: View {
     /// a shared variant, so a control's alignment follows its type instead of this block's opinion
     /// (`Docs/SETTINGS.md` rule 3).
     var body: some View {
-        SettingsSegmentedRow(Text("Temperature Unit"), selection: $tempUnit) {
-            Text(verbatim: "°C").tag(TemperatureUnit.celsius)
-            Text(verbatim: "°F").tag(TemperatureUnit.fahrenheit)
-        }
+        // The four unit/layout pickers are two lines, not four (`Docs/SETTINGS.md` rule 5): the
+        // thresholds below stay on their own lines, because a stepper needs the card's width.
+        SettingsRowPair(
+            left: {
+                SettingsSegmentedRow(Text("Temperature Unit"), selection: $tempUnit) {
+                    Text(verbatim: "°C").tag(TemperatureUnit.celsius)
+                    Text(verbatim: "°F").tag(TemperatureUnit.fahrenheit)
+                }
+            },
+            right: {
+                SettingsSegmentedRow(Text("Wind Speed Unit"), selection: $windUnit) {
+                    Text(verbatim: "km/h").tag(WindSpeedUnit.kmh)
+                    Text(verbatim: "mph").tag(WindSpeedUnit.mph)
+                    Text(verbatim: "m/s").tag(WindSpeedUnit.ms)
+                }
+            }
+        )
         SettingsDivider()
-        SettingsSegmentedRow(Text("Wind Speed Unit"), selection: $windUnit) {
-            Text(verbatim: "km/h").tag(WindSpeedUnit.kmh)
-            Text(verbatim: "mph").tag(WindSpeedUnit.mph)
-            Text(verbatim: "m/s").tag(WindSpeedUnit.ms)
-        }
-        SettingsDivider()
-        SettingsSegmentedRow(Text("Weather Layout"), selection: $weatherLayout) {
-            Text("Glance").tag(WeatherLayoutPreset.glance)
-            Text("Classic").tag(WeatherLayoutPreset.classic)
-        }
-        SettingsDivider()
-        SettingsSegmentedRow(Text("Hero Style"), selection: $heroStyle) {
-            Text("Scene").tag(WeatherHeroStyle.scene)
-            Text("Classic").tag(WeatherHeroStyle.classic)
-        }
+        SettingsRowPair(
+            left: {
+                SettingsSegmentedRow(Text("Weather Layout"), selection: $weatherLayout) {
+                    Text("Glance").tag(WeatherLayoutPreset.glance)
+                    Text("Classic").tag(WeatherLayoutPreset.classic)
+                }
+            },
+            right: {
+                SettingsSegmentedRow(Text("Hero Style"), selection: $heroStyle) {
+                    Text("Scene").tag(WeatherHeroStyle.scene)
+                    Text("Classic").tag(WeatherHeroStyle.classic)
+                }
+            }
+        )
         SettingsDivider()
         SettingsToggleRow(Text("Weather Animations"), isOn: $animations)
         SettingsDivider()

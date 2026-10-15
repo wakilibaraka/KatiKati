@@ -28,6 +28,25 @@ All notable changes to KatiKati are documented in this file.
   VPN services only.
 
 ### Changed
+- **Advanced is the last tab (Phase 12):** the strip ends **Tools · Advanced** — the page you visit
+  once is last, so the tools used mid-session are not behind it.
+- **Narrow rows sit two to a line (Phase 12):** on the long pages a menu, a segmented picker, a
+  switch or a lone button takes half the card and shares its line, with the two halves exactly
+  equal. Measured against the previous build: **Widgets 1440 → 1114 pt**, **Launcher 1291 → 1132**,
+  General 790 → 708, Appearance 1479 → 1400, Edge Bars 955 → 914, Tools 822 → 741, Advanced
+  521 → 482, Window Management 1357 → 1317. Sliders, editors and rows with two controls (a shortcut
+  picker and its Record button) stay full width. No setting moved and no key changed.
+- **Advanced is two sections (Phase 12):** the full-screen prediction row — a card of its own with
+  no header — is the first row of **Behaviour**, and the notification banner's three-line paragraph
+  is now that row's ⓘ. Nothing was removed.
+- **Long checklists use the window's width (Phase 12):** the Control Center's widgets and its
+  eighteen quick settings, the Edge Bar's tiles, the custom edge-item list and the launcher's
+  hidden apps were single columns of checkboxes — two thirds of the card empty while the page ran
+  past the screen. They are two-column grids now, so the same controls fit in half the height, and
+  the Edge Bars page pairs its narrower rows two to a line as well. That page also splits into
+  three sections — Edge Bars, Widgets, Size & Behaviour — instead of one card of ~28 controls, and
+  every row is a little tighter (8 pt inside a row instead of 11), which alone takes about 13 % off
+  each long page. No setting moved and no key changed.
 - **The Shortcuts page is three sections with a search field (Phase 12):** the page was one card of ~35
   rows two screens long, so finding one shortcut meant scrolling past all of them. Every key assignment
   now sits in the **Shortcuts** card behind a **Search Shortcuts** field — it matches what you read, in
@@ -69,6 +88,16 @@ All notable changes to KatiKati are documented in this file.
   permission); resize loop guarded against bottom-edge jitter.
 - **Quick Settings presets (16v):** S/M/L panel widths, top/center/bottom edge anchor and
   instant/fade/slide open animation, all in Settings › Layout › Control Center.
+
+### Fixed
+- **Disabled buttons say why** (Phase 12): **Reset Ignored Apps** (Advanced) and **Restore Wallpaper**
+  (Appearance) were disabled with nothing on the row explaining it; both now carry the reason —
+  “No background app is ignored right now.” and “Turn Dynamic Wallpaper on to restore it.”
+- The Widgets page's **Glass** switch (16f) was the one toggle in Settings that announced no name to
+  VoiceOver: its label lived on the row. It now carries the row's name, and the audit that found it
+  (every checkbox on the ten pages, read from the running app) is recorded in
+  `Docs/Archive/Planning/evidence/2026-10-15-density-pass/label-audit.txt` — 76 checkboxes, none
+  unnamed.
 
 ## [Unreleased] — Phase 8 in progress
 

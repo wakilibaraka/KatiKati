@@ -73,7 +73,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
 
     // MARK: 标签页
 
-    /// 防 NSToolbar 自动校验把图标项置灰（我们的五个标签恒可点）。
+    /// 防 NSToolbar 自动校验把图标项置灰（我们的十个标签恒可点）。
     func validateToolbarItem(_ item: NSToolbarItem) -> Bool { true }
 
     @objc private func selectToolbarTab(_ sender: NSToolbarItem) {

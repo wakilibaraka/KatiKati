@@ -1,9 +1,13 @@
 import SwiftUI
 
-/// Phase 12b/35 — the five behaviour switches that used to sit on the Appearance tab (they change
-/// what the app does, not how it looks). Same keys, same copy; only the home moved to Advanced.
+/// Phase 12b/35 — the behaviour switches that used to sit on the Appearance tab (they change what
+/// the app does, not how it looks). Same keys, same copy; only the home moved to Advanced.
 /// Renders through the shared card/row system (`Docs/SETTINGS.md` rule 2).
+///
+/// `store` is explicit and has no default: the full-screen row reads the app's own setting, and a
+/// missing argument must fail the build, not quietly point at another store (`AGENTS.md`).
 struct BehaviourSettingsBlock: View {
+    @ObservedObject var store: AppSettingsStore
     @AppStorage(BackgroundAppsStore.showSystemHelpersKey) private var showSystemHelpers = false
     @ObservedObject private var backgroundStore = BackgroundAppsStore.shared
     @AppStorage(MenuBarSystemItem.enabledKey) private var menuBarSystemEnabled = false
@@ -11,6 +15,17 @@ struct BehaviourSettingsBlock: View {
 
     var body: some View {
         SettingsCard(Text("Behaviour")) {
+            // Was a headerless card of its own above this one: one row is not a section, and the
+            // page then owed a header nothing could name (`Docs/SETTINGS.md` rule 5).
+            SettingsToggleRow(
+                Text("Predict full-screen transitions to prevent taskbar flicker"),
+                isOn: Binding(
+                    get: { store.fullscreenIntentEnabled },
+                    set: store.setFullscreenIntentEnabled
+                ),
+                info: fullscreenIntentNote
+            )
+            SettingsDivider()
             SettingsToggleRow(
                 Text("Hold Control to Show Memory"),
                 isOn: $memoryOverlayEnabled,
@@ -22,7 +37,11 @@ struct BehaviourSettingsBlock: View {
                 isOn: $showSystemHelpers,
                 note: Text("Background Apps lists running apps that have no window. Apple helper processes stay hidden unless this is on.")
             )
-            SettingsButtonRow(Text("Reset Ignored Apps")) { backgroundStore.unignoreAll() }
+            // Rule 7: it was disabled with nothing on the row saying why.
+            SettingsButtonRow(
+                Text("Reset Ignored Apps"),
+                note: backgroundStore.ignored.isEmpty ? Text("No background app is ignored right now.") : nil
+            ) { backgroundStore.unignoreAll() }
                 .disabled(backgroundStore.ignored.isEmpty)
             SettingsDivider()
             SettingsToggleRow(
@@ -31,6 +50,10 @@ struct BehaviourSettingsBlock: View {
                 note: Text("A small CPU and memory readout in the menu bar. Click it to open Activity Monitor.")
             )
         }
+    }
+
+    private var fullscreenIntentNote: String {
+        String(localized: "To keep the taskbar from flashing when you switch into full screen, KatiKati has to hide it before your input reaches the app. It therefore watches global left-clicks, key presses and trackpad gestures, and recognizes only four of them: the window’s green button, Control-Command-F, Control-Left/Right arrow, and a three-finger horizontal swipe. What you type is never recorded, logged, or sent anywhere. Turning this off disables the watching completely.")
     }
 }
 
@@ -42,17 +65,25 @@ struct WindowBehaviourSettingsBlock: View {
 
     var body: some View {
         SettingsCard {
-            SettingsToggleRow(
-                Text("Option-Tab Window Switcher"),
-                isOn: $switcherEnabled,
-                note: Text("Hold Option and press Tab to pick a window from a thumbnail grid; release to switch. Shift reverses, Esc cancels.")
+            // Two switches on one line (`Docs/SETTINGS.md` rule 5) — this card was the longest
+            // run of one-row-per-line switches left on the page.
+            SettingsRowPair(
+                left: {
+                    SettingsToggleRow(
+                        Text("Option-Tab Window Switcher"),
+                        isOn: $switcherEnabled,
+                        note: Text("Hold Option and press Tab to pick a window from a thumbnail grid; release to switch. Shift reverses, Esc cancels.")
+                    )
+                },
+                right: {
+                    SettingsToggleRow(
+                        Text("Restore Window Layout After Sleep"),
+                        isOn: $layoutRestoreEnabled,
+                        note: Text("After the Mac wakes or a display is reconnected, windows that moved are put back where they were. Needs Accessibility access.")
+                    )
+                }
             )
             SettingsDivider()
-            SettingsToggleRow(
-                Text("Restore Window Layout After Sleep"),
-                isOn: $layoutRestoreEnabled,
-                note: Text("After the Mac wakes or a display is reconnected, windows that moved are put back where they were. Needs Accessibility access.")
-            )
             SettingsButtonRow(Text("Restore Windows From Last Sleep")) {
                 (NSApp.delegate as? AppDelegate)?.layoutRestore.restoreNow()
             }

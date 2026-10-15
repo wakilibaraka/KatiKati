@@ -322,22 +322,29 @@ struct SettingsLayoutPane: View {
             }
 
             SettingsCard(Text("Size")) {
-                SettingsSegmentedRow(Text("Position"), selection: Binding(
-                    get: { store.stripPlacementMap.global },
-                    set: { store.setStripPlacement($0) }
-                )) {
-                    Text("Bottom").tag(StripPlacement.bottom)
-                    Text("Left").tag(StripPlacement.left)
-                    Text("Right").tag(StripPlacement.right)
-                }
-                SettingsSegmentedRow(Text("Bar Height"), selection: Binding(
-                    get: { DockSizeClass.nearest(to: store.dockPanelHeight.points) },
-                    set: { store.setDockPanelHeight(DockPanelHeight(clamping: $0.barHeight)) }
-                )) {
-                    Text("Small").tag(DockSizeClass.small)
-                    Text("Medium").tag(DockSizeClass.medium)
-                    Text("Large").tag(DockSizeClass.large)
-                }
+                SettingsRowPair(
+                    left: {
+                        SettingsSegmentedRow(Text("Position"), selection: Binding(
+                            get: { store.stripPlacementMap.global },
+                            set: { store.setStripPlacement($0) }
+                        )) {
+                            Text("Bottom").tag(StripPlacement.bottom)
+                            Text("Left").tag(StripPlacement.left)
+                            Text("Right").tag(StripPlacement.right)
+                        }
+                    },
+                    right: {
+                        SettingsSegmentedRow(Text("Bar Height"), selection: Binding(
+                            get: { DockSizeClass.nearest(to: store.dockPanelHeight.points) },
+                            set: { store.setDockPanelHeight(DockPanelHeight(clamping: $0.barHeight)) }
+                        )) {
+                            Text("Small").tag(DockSizeClass.small)
+                            Text("Medium").tag(DockSizeClass.medium)
+                            Text("Large").tag(DockSizeClass.large)
+                        }
+                    }
+                )
+                SettingsDivider()
                 SettingsSegmentedRow(Text("Spacing"), selection: Binding(
                     get: { DockSpacing.matching(gap: store.islandGap, margin: store.islandMargin) },
                     set: { if let spacing = $0 { store.setDockSpacing(spacing) } }
@@ -426,7 +433,13 @@ struct SettingsLayoutPane: View {
     @ViewBuilder
     private var chipSections: some View {
             SettingsCard(Text("Window Chips")) {
-                SettingsRow(Text("Multiple Windows")) {
+                // The card's four paragraphs are the rows' own explanations now (rule 4): three of
+                // them belonged to a switch that could not carry them, and the card rendered three
+                // hand-rolled `Toggle`s beside their text instead of rows (rule 3).
+                SettingsRow(
+                    Text("Multiple Windows"),
+                    info: String(localized: "A grouped app shows one chip with a window count; clicking it cycles the app's windows.")
+                ) {
                     Picker("Multiple Windows", selection: Binding(
                         get: { store.chipGroupingPlan.defaultPolicy },
                         set: { store.setChipGroupingDefault($0) }
@@ -437,18 +450,18 @@ struct SettingsLayoutPane: View {
                     .labelsHidden().pickerStyle(.menu).fixedSize()
                 }
                 ForEach(store.chipGroupingPlan.overrides.keys.sorted(), id: \.self) { bundleID in
-                    HStack {
-                        Text(verbatim: Self.appName(forBundleID: bundleID))
-                        Spacer(minLength: 12)
-                        Picker("Multiple Windows", selection: Binding(
-                            get: { store.chipGroupingPlan.overrides[bundleID] ?? store.chipGroupingPlan.defaultPolicy },
-                            set: { store.setChipGrouping($0, forBundleID: bundleID) }
-                        )) {
-                            Text("One chip per window").tag(WindowChipGroupPolicy.separate)
-                            Text("Group by app").tag(WindowChipGroupPolicy.grouped)
+                    SettingsRow(Text(verbatim: Self.appName(forBundleID: bundleID))) {
+                        HStack(spacing: SettingsMetrics.controlSpacing) {
+                            Picker("Multiple Windows", selection: Binding(
+                                get: { store.chipGroupingPlan.overrides[bundleID] ?? store.chipGroupingPlan.defaultPolicy },
+                                set: { store.setChipGrouping($0, forBundleID: bundleID) }
+                            )) {
+                                Text("One chip per window").tag(WindowChipGroupPolicy.separate)
+                                Text("Group by app").tag(WindowChipGroupPolicy.grouped)
+                            }
+                            .labelsHidden().pickerStyle(.menu).fixedSize()
+                            Button("Remove") { store.setChipGrouping(nil, forBundleID: bundleID) }
                         }
-                        .labelsHidden().pickerStyle(.menu).fixedSize()
-                        Button("Remove") { store.setChipGrouping(nil, forBundleID: bundleID) }
                     }
                 }
                 Menu {
@@ -462,62 +475,69 @@ struct SettingsLayoutPane: View {
                     Text("Add App…")
                 }
                 .fixedSize()
-                Text("A grouped app shows one chip with a window count; clicking it cycles the app's windows.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
 
-                Toggle("Show All Running Apps", isOn: Binding(
-                    get: { store.showAllRunningApps },
-                    set: { store.setShowAllRunningApps($0) }
-                )).accessibilityLabel("Show All Running Apps")
-                Text("Gives every running app a chip, even when it has no open window — like the system Dock.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                Toggle("Hover Preview", isOn: Binding(
-                    get: { store.chipPreviewEnabled },
-                    set: { store.setChipPreviewEnabled($0) }
-                )).accessibilityLabel("Hover Preview")
+                SettingsRowPair(
+                    left: {
+                        SettingsToggleRow(
+                            Text("Show All Running Apps"),
+                            isOn: Binding(
+                                get: { store.showAllRunningApps },
+                                set: { store.setShowAllRunningApps($0) }
+                            ),
+                            note: Text("Gives every running app a chip, even when it has no open window — like the system Dock.")
+                        )
+                    },
+                    right: {
+                        SettingsToggleRow(
+                            Text("Hover Preview"),
+                            isOn: Binding(
+                                get: { store.chipPreviewEnabled },
+                                set: { store.setChipPreviewEnabled($0) }
+                            )
+                        )
+                    }
+                )
                 if store.chipPreviewEnabled {
-                    SettingsRow(Text("Preview Delay")) {
-                        Picker("Preview Delay", selection: Binding(
-                            get: { store.chipPreviewDelayMs },
-                            set: { store.setChipPreviewDelayMs($0) }
-                        )) {
-                            Text("Fast").tag(150)
-                            Text("Normal").tag(350)
-                            Text("Slow").tag(600)
+                    SettingsDivider()
+                    SettingsRowPair(
+                        left: {
+                            SettingsSegmentedRow(Text("Preview Delay"), selection: Binding(
+                                get: { store.chipPreviewDelayMs },
+                                set: { store.setChipPreviewDelayMs($0) }
+                            )) {
+                                Text("Fast").tag(150)
+                                Text("Normal").tag(350)
+                                Text("Slow").tag(600)
+                            }
+                        },
+                        right: {
+                            SettingsSegmentedRow(Text("Preview Size"), selection: Binding(
+                                get: { store.chipPreviewThumbWidth },
+                                set: { store.setChipPreviewThumbWidth($0) }
+                            )) {
+                                Text("Small").tag(140)
+                                Text("Medium").tag(180)
+                                Text("Large").tag(240)
+                            }
                         }
-                        .labelsHidden().pickerStyle(.segmented).fixedSize()
-                    }
-                    SettingsRow(Text("Preview Size")) {
-                        Picker("Preview Size", selection: Binding(
-                            get: { store.chipPreviewThumbWidth },
-                            set: { store.setChipPreviewThumbWidth($0) }
-                        )) {
-                            Text("Small").tag(140)
-                            Text("Medium").tag(180)
-                            Text("Large").tag(240)
-                        }
-                        .labelsHidden().pickerStyle(.segmented).fixedSize()
-                    }
+                    )
                     if !CGPreflightScreenCaptureAccess() {
-                        Text("Window previews need Screen Recording permission. Without it, previews show titles only.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                        Button("Allow Screen Recording") { _ = CGRequestScreenCaptureAccess() }
+                        SettingsDivider()
+                        SettingsButtonRow(
+                            Text("Allow Screen Recording"),
+                            note: Text("Window previews need Screen Recording permission. Without it, previews show titles only.")
+                        ) { _ = CGRequestScreenCaptureAccess() }
                     }
                 }
-                Toggle("Classic Right-Click Menu", isOn: Binding(
-                    get: { store.chipClassicMenu },
-                    set: { store.setChipClassicMenu($0) }
-                )).accessibilityLabel("Classic Right-Click Menu")
-                Text("Right-click a window chip for a floating jump list above the dock. Turn this on to use the system menu instead.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                SettingsDivider()
+                SettingsToggleRow(
+                    Text("Classic Right-Click Menu"),
+                    isOn: Binding(
+                        get: { store.chipClassicMenu },
+                        set: { store.setChipClassicMenu($0) }
+                    ),
+                    info: String(localized: "Right-click a window chip for a floating jump list above the dock. Turn this on to use the system menu instead.")
+                )
             }
     }
 
@@ -545,36 +565,39 @@ struct SettingsLayoutPane: View {
                         Button("Hide All Suggested") { updateLauncherState { $0.hidden = LauncherHidePresets.hidingAll($0.hidden) } }
                         Button("Restore Suggested") { updateLauncherState { $0.hidden = LauncherHidePresets.restoringAll($0.hidden) } }
                     }
-                    ForEach(LauncherHidePresets.entries, id: \.bundleID) { entry in
-                        Toggle(isOn: Binding(
+                    SettingsGrid(LauncherHidePresets.entries, id: \.bundleID) { entry in
+                        SettingsCheckboxRow(Text(verbatim: entry.name), isOn: Binding(
                             get: { launcherHiddenIDs.contains(entry.bundleID) },
                             set: { _ in updateLauncherState { $0.hidden = LauncherOrdering.toggleHidden($0.hidden, entry.bundleID) } }
-                        )) { Text(verbatim: entry.name) }
-                        .accessibilityLabel(Text(verbatim: entry.name))
+                        ))
                     }
                 }
-                SettingsRow(Text("Search Position")) {
-                    Picker("Search Position", selection: Binding(
-                        get: { store.launcherSearchPosition },
-                        set: { store.setLauncherSearchPosition($0) }
-                    )) {
-                        Text("Top").tag(LauncherSearchPosition.top)
-                        Text("Bottom").tag(LauncherSearchPosition.bottom)
-                        Text("Left").tag(LauncherSearchPosition.left)
-                        Text("Right").tag(LauncherSearchPosition.right)
+                SettingsRowPair(
+                    left: {
+                        SettingsPickerRow(Text("Search Position"), selection: Binding(
+                            get: { store.launcherSearchPosition },
+                            set: { store.setLauncherSearchPosition($0) }
+                        )) {
+                            Text("Top").tag(LauncherSearchPosition.top)
+                            Text("Bottom").tag(LauncherSearchPosition.bottom)
+                            Text("Left").tag(LauncherSearchPosition.left)
+                            Text("Right").tag(LauncherSearchPosition.right)
+                        }
+                    },
+                    right: {
+                        SettingsPickerRow(Text("Theme"), selection: Binding(
+                            get: { store.launcherTheme },
+                            set: { store.setLauncherTheme($0) }
+                        )) {
+                            Text("System").tag(LauncherTheme.system)
+                            Text("Light").tag(LauncherTheme.light)
+                            Text("Dark").tag(LauncherTheme.dark)
+                            Text("Glass").tag(LauncherTheme.glass)
+                            Text("Desktop Picture").tag(LauncherTheme.desktop)
+                        }
                     }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
-                SettingsRow(Text("Theme")) {
-                    Picker("Theme", selection: Binding(get: { store.launcherTheme }, set: { store.setLauncherTheme($0) })) {
-                        Text("System").tag(LauncherTheme.system)
-                        Text("Light").tag(LauncherTheme.light)
-                        Text("Dark").tag(LauncherTheme.dark)
-                        Text("Glass").tag(LauncherTheme.glass)
-                        Text("Desktop Picture").tag(LauncherTheme.desktop)
-                    }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
+                )
+                SettingsDivider()
                 SettingsRow(Text("Tint")) {
                     Picker("Tint", selection: Binding(get: { store.launcherTint }, set: { store.setLauncherTint($0) })) {
                         Text("None").tag(LauncherTint.none)
@@ -602,62 +625,64 @@ struct SettingsLayoutPane: View {
             }
 
             SettingsCard(Text("Control Center")) {
-                SettingsRow(Text("Side")) {
-                    Picker("Side", selection: Binding(
-                        get: { EdgeSide(rawValue: controlCenterSideRaw) ?? .right },
-                        set: { controlCenterSideRaw = $0.rawValue }
-                    )) {
-                        Text("Left").tag(EdgeSide.left)
-                        Text("Right").tag(EdgeSide.right)
+                // Four segmented rows in a row: two per line (`Docs/SETTINGS.md` rule 5).
+                SettingsRowPair(
+                    left: {
+                        SettingsSegmentedRow(Text("Side"), selection: Binding(
+                            get: { EdgeSide(rawValue: controlCenterSideRaw) ?? .right },
+                            set: { controlCenterSideRaw = $0.rawValue }
+                        )) {
+                            Text("Left").tag(EdgeSide.left)
+                            Text("Right").tag(EdgeSide.right)
+                        }
+                    },
+                    right: {
+                        SettingsSegmentedRow(Text("Size"), selection: Binding(
+                            get: { store.controlCenterSize },
+                            set: { store.setControlCenterSize($0) }
+                        )) {
+                            Text("Small").tag(ControlCenterSize.small)
+                            Text("Medium").tag(ControlCenterSize.medium)
+                            Text("Large").tag(ControlCenterSize.large)
+                        }
                     }
-                    .labelsHidden().pickerStyle(.segmented).fixedSize()
-                }
-                SettingsRow(Text("Size")) {
-                    Picker("Size", selection: Binding(
-                        get: { store.controlCenterSize },
-                        set: { store.setControlCenterSize($0) }
-                    )) {
-                        Text("Small").tag(ControlCenterSize.small)
-                        Text("Medium").tag(ControlCenterSize.medium)
-                        Text("Large").tag(ControlCenterSize.large)
+                )
+                SettingsDivider()
+                SettingsRowPair(
+                    left: {
+                        SettingsSegmentedRow(Text("Anchor"), selection: Binding(
+                            get: { store.controlCenterAnchor },
+                            set: { store.setControlCenterAnchor($0) }
+                        )) {
+                            Text("Top").tag(ControlCenterAnchor.top)
+                            Text("Center").tag(ControlCenterAnchor.center)
+                            Text("Bottom").tag(ControlCenterAnchor.bottom)
+                        }
+                    },
+                    right: {
+                        SettingsSegmentedRow(Text("Animation"), selection: Binding(
+                            get: { store.controlCenterAnimation },
+                            set: { store.setControlCenterAnimation($0) }
+                        )) {
+                            Text("Instant").tag(ControlCenterAnimation.instant)
+                            Text("Fade").tag(ControlCenterAnimation.fade)
+                            Text("Slide").tag(ControlCenterAnimation.slide)
+                        }
                     }
-                    .labelsHidden().pickerStyle(.segmented).fixedSize()
-                }
-                SettingsRow(Text("Anchor")) {
-                    Picker("Anchor", selection: Binding(
-                        get: { store.controlCenterAnchor },
-                        set: { store.setControlCenterAnchor($0) }
-                    )) {
-                        Text("Top").tag(ControlCenterAnchor.top)
-                        Text("Center").tag(ControlCenterAnchor.center)
-                        Text("Bottom").tag(ControlCenterAnchor.bottom)
-                    }
-                    .labelsHidden().pickerStyle(.segmented).fixedSize()
-                }
-                SettingsRow(Text("Animation")) {
-                    Picker("Animation", selection: Binding(
-                        get: { store.controlCenterAnimation },
-                        set: { store.setControlCenterAnimation($0) }
-                    )) {
-                        Text("Instant").tag(ControlCenterAnimation.instant)
-                        Text("Fade").tag(ControlCenterAnimation.fade)
-                        Text("Slide").tag(ControlCenterAnimation.slide)
-                    }
-                    .labelsHidden().pickerStyle(.segmented).fixedSize()
-                }
+                )
                 Text("Widgets").font(.subheadline).padding(.top, 6)
-                ForEach(TileKind.controlCenterDefault, id: \.self) { kind in
-                    Toggle(isOn: Binding(get: { store.controlCenterWidgets.contains(kind) }, set: { store.setControlCenterWidget(kind, enabled: $0) })) {
-                        controlCenterWidgetTitle(kind)
-                    }
-                    .accessibilityLabel(controlCenterWidgetTitle(kind))
+                SettingsGrid(TileKind.controlCenterDefault, id: \.self) { kind in
+                    SettingsCheckboxRow(controlCenterWidgetTitle(kind), isOn: Binding(
+                        get: { store.controlCenterWidgets.contains(kind) },
+                        set: { store.setControlCenterWidget(kind, enabled: $0) }
+                    ))
                 }
                 Text("Quick Settings").font(.subheadline).padding(.top, 6)
-                ForEach(QuickToggleID.defaultOrder, id: \.self) { id in
-                    Toggle(isOn: Binding(get: { store.controlCenterToggles.contains(id) }, set: { store.setControlCenterToggle(id, enabled: $0) })) {
-                        id.title
-                    }
-                    .accessibilityLabel(id.title)
+                SettingsGrid(QuickToggleID.defaultOrder, id: \.self) { id in
+                    SettingsCheckboxRow(id.title, isOn: Binding(
+                        get: { store.controlCenterToggles.contains(id) },
+                        set: { store.setControlCenterToggle(id, enabled: $0) }
+                    ))
                 }
             }
     }
@@ -665,92 +690,117 @@ struct SettingsLayoutPane: View {
     @ViewBuilder
     private var notificationSections: some View {
             SettingsCard(Text("Notifications")) {
-                Toggle("Move Notification Banners", isOn: Binding(
-                    get: { notifMove.isEnabled },
-                    set: { notifMove.setEnabled($0) }
-                )).accessibilityLabel("Move Notification Banners")
-                Text("KatiKati moves each notification banner to the position you pick with the Accessibility API. Notification Center's private interface changes between macOS updates: when the layout looks unfamiliar, KatiKati leaves notifications alone, and only the first banner of a burst moves. Turning this off restores the macOS default immediately.")
-                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                // The paragraph this card used to hold is the row's own explanation now (rule 4),
+                // and the hand-rolled `Toggle` beside it was the last row on the page not built
+                // from the shared set (rule 3) — it read as a bare control with no note beside it.
+                SettingsToggleRow(
+                    Text("Move Notification Banners"),
+                    isOn: Binding(get: { notifMove.isEnabled }, set: { notifMove.setEnabled($0) }),
+                    info: String(localized: "KatiKati moves each notification banner to the position you pick with the Accessibility API. Notification Center's private interface changes between macOS updates: when the layout looks unfamiliar, KatiKati leaves notifications alone, and only the first banner of a burst moves. Turning this off restores the macOS default immediately.")
+                )
                 if notifMove.isEnabled {
-                    SettingsRow(Text("Position")) {
-                        Picker("Position", selection: Binding(get: { notifMove.slot }, set: { notifMove.setSlot($0) })) {
-                            ForEach(NotificationSlot.allCases, id: \.self) { slot in
-                                notificationSlotTitle(slot).tag(slot)
-                            }
+                    SettingsDivider()
+                    SettingsPickerRow(Text("Position"), selection: Binding(
+                        get: { notifMove.slot },
+                        set: { notifMove.setSlot($0) }
+                    )) {
+                        ForEach(NotificationSlot.allCases, id: \.self) { slot in
+                            notificationSlotTitle(slot).tag(slot)
                         }
-                        .labelsHidden().pickerStyle(.menu).fixedSize()
                     }
                 }
             }
     }
 
+    /// The Edge Bars page (Phase 12 A5). Three sections — the bar, the widgets it carries, and its
+    /// size and behaviour — where the page used to be one card of ~28 controls, and the two
+    /// checklists are two-column grids: a single column of four or seventeen checkboxes left the
+    /// right half of the card empty and ran the page past the screen (`Docs/SETTINGS.md` rule 5).
     @ViewBuilder
     private var edgeBarSections: some View {
-            SettingsCard(Text("Edge Bars")) {
-                Picker("Edge Bars", selection: Binding(
-                    get: { store.edgeBarPreset },
-                    set: { store.setEdgeBarPreset($0) }
-                )) {
-                    ForEach(EdgeBarPreset.allCases, id: \.self) { Self.presetTitle($0).tag($0) }
-                }
-                .labelsHidden()
-                .pickerStyle(.menu)
-                .fixedSize()
-                // Phase 18g/18h: what an edge bar does when the dock rail takes its side.
-                SettingsSegmentedRow(Text("Edge Bar on the Dock's Side"), selection: Binding(
-                    get: { store.edgeConflictPolicy },
-                    set: { store.setEdgeConflictPolicy($0) }
-                )) {
-                    Text("Move Across").tag(EdgeConflictPolicy.moveAcross)
-                    Text("Hide").tag(EdgeConflictPolicy.hide)
-                }
-                .disabled(store.stripPlacementMap.global == .bottom)
-                SettingsRow(Text("Main Side")) {
-                    Picker("Main Side", selection: Binding(
+        SettingsCard(
+            Text("Edge Bars"),
+            note: Text("Slim bars on the screen edges for notes, productivity and system status. Pick a layout, flip it to either side, or choose Custom to place each item yourself.")
+        ) {
+            SettingsPickerRow(Text("Edge Bars"), selection: Binding(
+                get: { store.edgeBarPreset },
+                set: { store.setEdgeBarPreset($0) }
+            )) {
+                ForEach(EdgeBarPreset.allCases, id: \.self) { Self.presetTitle($0).tag($0) }
+            }
+            SettingsDivider()
+            SettingsRowPair(
+                left: {
+                    // Phase 18g/18h: what an edge bar does when the dock rail takes its side.
+                    SettingsSegmentedRow(Text("Edge Bar on the Dock's Side"), selection: Binding(
+                        get: { store.edgeConflictPolicy },
+                        set: { store.setEdgeConflictPolicy($0) }
+                    )) {
+                        Text("Move Across").tag(EdgeConflictPolicy.moveAcross)
+                        Text("Hide").tag(EdgeConflictPolicy.hide)
+                    }
+                    .disabled(store.stripPlacementMap.global == .bottom)
+                },
+                right: {
+                    SettingsSegmentedRow(Text("Main Side"), selection: Binding(
                         get: { store.edgePrimarySide },
                         set: { store.setEdgePrimarySide($0) }
                     )) {
                         Text("Left").tag(EdgeSide.left)
                         Text("Right").tag(EdgeSide.right)
                     }
-                    .labelsHidden()
-                    .pickerStyle(.segmented)
-                    .fixedSize()
                     .disabled(store.edgeBarPreset == .off || store.edgeBarPreset == .custom)
                 }
-                if store.edgeBarPreset == .custom {
-                    customRows
-                } else if store.edgeBarPreset != .off {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Widgets").font(.subheadline.weight(.semibold))
-                        ForEach(WidgetTile.allCases, id: \.self) { tile in
-                            Toggle(isOn: Binding(
-                                get: { store.widgetTiles.contains(tile) },
-                                set: { store.setWidgetTile(tile, enabled: $0) }
-                            )) {
-                                Self.itemTitle(EdgeItem.allCases.first { $0.widget == tile } ?? .weather)
-                            }
-                            .accessibilityLabel(Self.itemTitle(EdgeItem.allCases.first { $0.widget == tile } ?? .weather))
-                        }
+            )
+            SettingsDivider()
+            SettingsToggleRow(Text("Keep Edge Bars Open"), isOn: Binding(
+                get: { store.deckKeepOpen },
+                set: { store.setDeckKeepOpen($0) }
+            ))
+            .disabled(store.edgeBarPreset == .off)
+        }
+
+        // Custom places every item itself; a preset carries a fixed set of tiles. Either way the
+        // list is a grid, and the card is absent while the bars are off.
+        if store.edgeBarPreset == .custom {
+            SettingsCard(Text("Widgets")) {
+                SettingsGrid(EdgeItem.allCases.filter { $0.isBuilt() }, id: \.self) { item in
+                    SettingsRow(Self.itemTitle(item)) {
+                        Picker(selection: Binding(
+                            get: { store.edgePlacement(of: item) },
+                            set: { store.setEdgePlacement($0, of: item) }
+                        )) {
+                            Text("Left").tag(EdgePlacement.left)
+                            Text("Right").tag(EdgePlacement.right)
+                            Text("Hidden").tag(EdgePlacement.hidden)
+                        } label: { Self.itemTitle(item) }
+                        .labelsHidden()
+                        .pickerStyle(.segmented)
+                        .fixedSize()
                     }
                 }
-                Toggle("Keep Edge Bars Open", isOn: Binding(
-                    get: { store.deckKeepOpen },
-                    set: { store.setDeckKeepOpen($0) }
-                )).accessibilityLabel("Keep Edge Bars Open")
-                .disabled(store.edgeBarPreset == .off)
-                if store.edgeBarPreset != .off {
-                    deckControls
-                }
-                Toggle("Sync Notes with iCloud Drive", isOn: Binding(
-                    get: { store.notesSyncEnabled },
-                    set: { store.setNotesSyncEnabled($0) }
-                )).accessibilityLabel("Sync Notes with iCloud Drive")
-                Text("Slim bars on the screen edges for notes, productivity and system status. Pick a layout, flip it to either side, or choose Custom to place each item yourself.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
             }
+        } else if store.edgeBarPreset != .off {
+            SettingsCard(Text("Widgets")) {
+                SettingsGrid(WidgetTile.allCases, id: \.self) { tile in
+                    SettingsCheckboxRow(
+                        Self.itemTitle(EdgeItem.allCases.first { $0.widget == tile } ?? .weather),
+                        isOn: Binding(
+                            get: { store.widgetTiles.contains(tile) },
+                            set: { store.setWidgetTile(tile, enabled: $0) }
+                        )
+                    )
+                }
+            }
+        }
+
+        SettingsCard(Text("Size & Behaviour")) {
+            deckControls
+            SettingsToggleRow(Text("Sync Notes with iCloud Drive"), isOn: Binding(
+                get: { store.notesSyncEnabled },
+                set: { store.setNotesSyncEnabled($0) }
+            ))
+        }
     }
 
     @ViewBuilder
@@ -824,6 +874,11 @@ struct SettingsLayoutPane: View {
                     .accessibilityLabel(Text("Search Shortcuts"))
             }
             SettingsDivider()
+            // One assignment per line, deliberately: an assignment is a name, a menu and a Record
+            // button, and a half of the card cannot hold three controls — measured live
+            // 2026-10-15, the Record button was squeezed to 20 pt and read “…” in both halves. Rule
+            // 5's exception ("a row whose control needs the width never pairs") applies, so the
+            // page's height is handled by the find field above instead.
             ForEach(filteredFeatureShortcuts, id: \.self) { action in
                 shortcutRow(action, duplicated: duplicated)
                 SettingsDivider()
@@ -1165,7 +1220,10 @@ struct SettingsLayoutPane: View {
                 set: { var p = store.edgePrefs; p[keyPath: key] = $0; store.setEdgePrefs(p) })
     }
 
-    /// Look and behaviour of the deck itself (7A-D6).
+    /// Look and behaviour of the deck itself (7A-D6). The sliders keep the card's full width — a
+    /// track in half a card is unusable — and the narrow rows (switches, menus, segmented pickers)
+    /// sit two to a line, which is what pulls this page back inside the window (`Docs/SETTINGS.md`
+    /// rule 5). Same keys, same controls as before; only the arrangement changed.
     private var deckControls: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach([EdgeSide.left, EdgeSide.right], id: \.self) { side in
@@ -1177,17 +1235,6 @@ struct SettingsLayoutPane: View {
                     valueText: "\(Int((store.deckScale(for: side) * 100).rounded()))%",
                     set: { store.setDeckScale($0, for: side) }
                 )
-            }
-            SettingsToggleRow(
-                Text("Magnify Buttons Under the Pointer"),
-                isOn: Binding(get: { store.deckMagnify }, set: { store.setDeckMagnify($0) })
-            )
-            SettingsRow(Text("Magnify Amount")) {
-                Picker("Magnify Amount", selection: edgePrefBinding(\.magnifyAmount)) {
-                    Text("Subtle").tag(EdgeMagnifyAmount.subtle)
-                    Text("Standard").tag(EdgeMagnifyAmount.standard)
-                    Text("Bold").tag(EdgeMagnifyAmount.bold)
-                }.labelsHidden().pickerStyle(.segmented).fixedSize()
             }
             SettingsSliderRow(
                 Text("Open Delay"),
@@ -1223,39 +1270,71 @@ struct SettingsLayoutPane: View {
                     set: { store.setDeckYRatio(1 - $0, for: side) }
                 )
             }
-            SettingsRow(Text("Button Icons")) {
-                Picker("Button Icons", selection: edgePrefBinding(\.iconSet)) {
-                    Text("Classic").tag(EdgeIconSet.classic)
-                    Text("Modern").tag(EdgeIconSet.modern)
-                    Text("Realistic").tag(EdgeIconSet.realistic)
-                }.labelsHidden().pickerStyle(.segmented).fixedSize()
-            }
-            SettingsToggleRow(Text("Open Only on Click"), isOn: edgePrefBinding(\.openOnClick))
-            SettingsToggleRow(Text("Show Button Names on Hover"), isOn: edgePrefBinding(\.hoverLabels))
-            SettingsRow(Text("Flyout Style")) {
-                Picker("Flyout Style", selection: edgePrefBinding(\.flyoutStyle)) {
-                    Text("Modern").tag(EdgeFlyoutStyle.modern)
-                    Text("Glass").tag(EdgeFlyoutStyle.glass)
-                }.labelsHidden().pickerStyle(.segmented).fixedSize()
-            }
-            SettingsRow(Text("Button Style")) {
-                Picker("Button Style", selection: Binding(get: { store.edgeTileStyle }, set: { store.setEdgeTileStyle($0) })) {
-                    Text("Glass").tag(EdgeTileStyle.glass)
-                    Text("Coloured").tag(EdgeTileStyle.coloured)
+            SettingsRowPair {
+                SettingsToggleRow(Text("Magnify Buttons Under the Pointer"), isOn: Binding(
+                    get: { store.deckMagnify },
+                    set: { store.setDeckMagnify($0) }
+                ))
+            } right: {
+                SettingsRow(Text("Magnify Amount")) {
+                    Picker("Magnify Amount", selection: edgePrefBinding(\.magnifyAmount)) {
+                        Text("Subtle").tag(EdgeMagnifyAmount.subtle)
+                        Text("Standard").tag(EdgeMagnifyAmount.standard)
+                        Text("Bold").tag(EdgeMagnifyAmount.bold)
+                    }.labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
-                .labelsHidden().pickerStyle(.segmented).fixedSize()
             }
-            SettingsRow(Text("Note Tab Font")) {
-                Picker("Note Tab Font", selection: Binding(get: { store.deckTabFont }, set: { store.setDeckTabFont($0) })) {
-                    ForEach(DeckFont.faces, id: \.postScript) { face in
-                        if face.postScript.isEmpty { Text("System").tag(face.postScript) } else { Text(verbatim: face.name).tag(face.postScript) }
+            SettingsRowPair {
+                SettingsRow(Text("Button Icons")) {
+                    Picker("Button Icons", selection: edgePrefBinding(\.iconSet)) {
+                        Text("Classic").tag(EdgeIconSet.classic)
+                        Text("Modern").tag(EdgeIconSet.modern)
+                        Text("Realistic").tag(EdgeIconSet.realistic)
+                    }.labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
+            } right: {
+                SettingsRow(Text("Flyout Style")) {
+                    Picker("Flyout Style", selection: edgePrefBinding(\.flyoutStyle)) {
+                        Text("Modern").tag(EdgeFlyoutStyle.modern)
+                        Text("Glass").tag(EdgeFlyoutStyle.glass)
+                    }.labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
+            }
+            SettingsRowPair {
+                SettingsRow(Text("Button Style")) {
+                    Picker("Button Style", selection: Binding(get: { store.edgeTileStyle }, set: { store.setEdgeTileStyle($0) })) {
+                        Text("Glass").tag(EdgeTileStyle.glass)
+                        Text("Coloured").tag(EdgeTileStyle.coloured)
                     }
+                    .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
-                .labelsHidden().pickerStyle(.menu).fixedSize()
+            } right: {
+                SettingsRow(Text("Note Tab Font")) {
+                    Picker("Note Tab Font", selection: Binding(get: { store.deckTabFont }, set: { store.setDeckTabFont($0) })) {
+                        ForEach(DeckFont.faces, id: \.postScript) { face in
+                            if face.postScript.isEmpty { Text("System").tag(face.postScript) } else { Text(verbatim: face.name).tag(face.postScript) }
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
             }
-            Toggle("Preview Notes on Hover", isOn: Binding(get: { store.deckTabPreview }, set: { store.setDeckTabPreview($0) })).accessibilityLabel("Preview Notes on Hover")
-            Toggle("Open Notes on Hover", isOn: Binding(get: { store.deckOpenOnHover }, set: { store.setDeckOpenOnHover($0) })).accessibilityLabel("Open Notes on Hover")
-            Button("Reset Bar Positions") {
+            SettingsRowPair {
+                SettingsToggleRow(Text("Open Only on Click"), isOn: edgePrefBinding(\.openOnClick))
+            } right: {
+                SettingsToggleRow(Text("Show Button Names on Hover"), isOn: edgePrefBinding(\.hoverLabels))
+            }
+            SettingsRowPair {
+                SettingsToggleRow(Text("Preview Notes on Hover"), isOn: Binding(
+                    get: { store.deckTabPreview },
+                    set: { store.setDeckTabPreview($0) }
+                ))
+            } right: {
+                SettingsToggleRow(Text("Open Notes on Hover"), isOn: Binding(
+                    get: { store.deckOpenOnHover },
+                    set: { store.setDeckOpenOnHover($0) }
+                ))
+            }
+            SettingsButtonRow(Text("Reset Bar Positions")) {
                 store.setDeckYRatio(0.5, for: .left)
                 store.setDeckYRatio(0.5, for: .right)
             }

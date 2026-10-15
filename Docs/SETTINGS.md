@@ -18,11 +18,15 @@ A rule is a defect if a page breaks it unaccountably. "Check" is how to see the 
 
 1. **One grid.** The window edge → content inset is `SettingsMetrics.paneMargin` (28), card → card
    `sectionSpacing` (20), header → first row `cardHeaderSpacing` (10), a row's own padding
-   `rowVerticalPadding` (11), a row's label → its note `rowNoteSpacing` (3), and the trailing
-   control column is at least `rowMinimumLabelGap` (12) clear of its label. **No page invents an
+   `rowVerticalPadding` (8), and a `SettingsGrid` cell its own `gridRowVerticalPadding` (4), a row's label → its note `rowNoteSpacing` (3), and the trailing
+   control column is at least `rowMinimumLabelGap` (12) clear of its label. The window's own width
+   is `windowWidth` (900) — the one number `SettingsWindowView.contentWidth` reads — so a card's
+   content box is `cardContentWidth` and a `SettingsRowPair` half is `halfRowWidth`, both arithmetic
+   on it rather than a guess. **No page invents an
    inset or a spacing.** *Check:* measure the left edge of the first control on each of the ten
    pages — one number, not ten; grep a page for a literal `.padding(` and find none outside a
-   custom control.
+   custom control. A `SettingsGrid`'s second column starts at exactly half the card's content
+   width — a grid is still one grid, not a page's own arrangement.
 2. **One container.** Every page renders its sections as `SettingsCard`, and the page's own stack
    is `SettingsPane` — applied **once, by `SettingsWindowContent`**, so a page body renders cards
    and nothing else. There is no second box implementation and no `#available` branch in the
@@ -42,8 +46,19 @@ A rule is a defect if a page breaks it unaccountably. "Check" is how to see the 
    scroll reversal is the pattern, and the full-screen-prediction note now uses it.
 5. **Grouping before adding.** A page has at most three top-level sections; a section gets a header
    (`SettingsCard(Text("…"))`) once it passes ~8 rows; a list longer than a screenful gets a
-   filter/affordance rather than a scroll. *Check:* count the cards on a page; count `SettingsRow`s
-   inside a headerless card.
+   filter/affordance rather than a scroll. A card whose rows are long and narrow — a checklist of
+   switches, a run of menus, segmented pickers or switches — uses the window's width: a checklist
+   is a `SettingsGrid` (two columns), and unlike rows are paired with `SettingsRowPair`. A single
+   column of four to eighteen narrow rows leaves half the card dead and runs the page past the
+   screen, which is the same defect as a scroll. A pair's two halves are exactly `halfRowWidth`
+   each: an `HStack` and a grid both size a column by its own content, so the half holding the
+   wider control takes the width and squeezes the other one's control (measured live 2026-10-15:
+   a Record button at 20 pt reading “…” against 67 pt in the other half).
+   A row whose control needs the width — a slider, a text field, a row carrying a menu *and* a
+   button, a row with a paragraph of its own — never pairs; it is one per line and the page's
+   height is handled another way (Shortcuts carries a find field for exactly that reason).
+   *Check:* count the cards on a page; count `SettingsRow`s inside a headerless card; measure a
+   grid's column starts (42 pt and half the card) and a pair's control widths (the two halves match).
 6. **One control per setting, one label per row.** Two controls for the same key, or a row that
    prints its label twice (a manual `Text` beside a `Picker` that draws its own label), is a defect
    and not a style choice. *Check:* `Text("Drawer Position")` appears once in the tree — inside
@@ -74,6 +89,8 @@ A rule is a defect if a page breaks it unaccountably. "Check" is how to see the 
 | `SettingsPane` | `App/Scenes/SettingsCard.swift` | A page's stack: one set of cards, the page margin. Applied by `SettingsWindowContent` for all ten pages. |
 | `SettingsCard` | same | One section: optional header, rows, an optional one-line note, one background. |
 | `SettingsRow` + variants | same | One row shape per control type, plus `SettingsInfoButton` (rule 4) and `SettingsNote`. |
+| `SettingsGrid` | same | A card's checklist in two columns (rule 5) — cells are ordinary rows. |
+| `SettingsRowPair` | same | Two unlike narrow rows on one line (rule 5) — each half is an ordinary row. |
 | `SettingsDivider` | same | The row separator inside a card. |
 
 `SettingsCard.swift` is dual-compiled (it ships in the test target as well as the app), so anything
@@ -91,21 +108,26 @@ four margins (`paneMargin` 28, `systemFormMargin` 20, `afterFormMargin` 8, the l
 The ten pages, in tab order, with the page that owns each remaining slice. This pass landed the
 foundation (rules 1–3 on every page); each slice below is its own commit.
 
+The strip reads General · Appearance · Widgets · Notch · Edge Bars · Window Management · Launcher ·
+Shortcuts · **Tools · Advanced**: the one page a user visits once is last (owner, 2026-10-15), so
+the tools used mid-session are not behind it.
+
 | Page | Owes | Rules it closes |
 |---|---|---|
 | **General** | Landed (2026-10-15): the About card — version + Check for Updates, auto-update, diagnostics — is this page's third section, so its budget under rule 5 is spent. Nothing owed. | — |
 | **Appearance** | Theme cards get a caption (rule 8) while 12f contrast is open. *Not* a duplicate, checked live 2026-10-15: **Icon Set** and **Dock App Icon Shape** are two different settings (menu-bar icon set vs dock icon masking), and the two cards under the picker are previews, not a second control. | 8 |
 | **Widgets** | Landed (2026-10-15): the weather rows are on the shared row system inside their own *Weather* card, the appearance rows and the style presets share one card, and the page is **three** sections. The clock tile's row is renamed **Clock Tile Style** so it stops duplicating the dock clock's *Clock Style* (both keys unchanged). Nothing owed. | — |
 | **Notch** | Owns the demo preview's caption and, jointly with the tracker's **Compact-notch** item (§4), the skin decision before this page is signed off. | 8, §4 |
-| **Edge Bars** | ~28 controls in one card: split into sections, header on each (rule 5). | 5 |
-| **Window Management** | Window Chips' two-line note → the row's ⓘ (rule 4). | 4 |
-| **Launcher** | Landed (2026-10-15): the page is the launcher, the Control Center and the launcher's own rows (`LauncherSettingsBlock`). Owes: the Spotlight steps' four hard-coded lines become that row's ⓘ. | 4 |
+| **Edge Bars** | Landed (2026-10-15): three sections — **Edge Bars** (preset, dock-side policy, main side, keep open), **Widgets** (the tile checklist as a grid, or the custom item list on rows) and **Size & Behaviour** — every control on the row system, and the page's paragraph a card note. Nothing owed. | — |
+| **Window Management** | Landed (2026-10-15): the card's four paragraphs are their rows' notes/ⓘ and its three hand-rolled `Toggle`s are `SettingsToggleRow`s (rules 3 and 4), the preview and switch rows pair, the two window behaviours are one line, and the app-override list is on `SettingsRow`. Owes: the page carries **six** sections against rule 5's three (Tiling, Layout, Floating Applications, Tiling Shortcuts, Window Chips, Window Behaviour) — a regroup, not a row change, which is why it still runs past the window. The tiling assignments stay one per line: a name, a menu and a Record button do not fit half a card (measured). | 5 |
+| **Launcher** | Landed (2026-10-15): the page is the launcher, the Control Center and the launcher's own rows (`LauncherSettingsBlock`), with the Control Center's widget and quick-setting checklists and the launcher's hidden-app list as two-column grids. Owes: the Spotlight steps' four hard-coded lines become that row's ⓘ. | 4 |
 | **Tools** | Landed (2026-10-15): clipboard, commands, snippets and shelf, in the slot About left. Owes: placeholders + first-run hints on the two editors (rule 8), and it carries four sections against rule 5's three — merge the two editor cards or move Shelf. | 5, 8 |
-| **Shortcuts** | Landed (2026-10-15): the page is three sections — **Shortcuts** (a find field, the eleven feature actions, the fifteen snap zones under their captions), **Keyboard** (the input behaviours) and **Radial Dial** — with every row on the shared system, every long note behind its row's ⓘ, the pickers named for VoiceOver and the four snap captions translated. Nothing owed. | — |
-| **Advanced** | Notification banners' note runs to three lines, so it belongs on that row's ⓘ (rule 4). **Reset Ignored Apps** is disabled with no reason on its row — say why (rule 7). | 4, 7 |
+| **Shortcuts** | Landed (2026-10-15): the page is three sections — **Shortcuts** (a find field, the eleven feature actions, the fifteen snap zones under their captions), **Keyboard** (the input behaviours) and **Radial Dial** — with every row on the shared system, every long note behind its row's ⓘ, the pickers named for VoiceOver and the four snap captions translated. The 26 assignments were tried two per line and put back: three controls do not fit half a card (measured live 2026-10-15, the Record button squeezed to 20 pt in both halves), which is rule 5's own exception, and the find field is this page's answer to its height. | — |
+| **Advanced** | Landed (2026-10-15): the notification banner paragraph is its row's ⓘ and the row is a `SettingsToggleRow` (rules 3 and 4), **Reset Ignored Apps** says why it is disabled on its own row (rule 7), and the headerless one-row card above the page was folded into **Behaviour** — one row is not a section, and the page owed a title it could not name. Two sections, each with a header; the page fits the window. | — |
 | **About** | Gone as a page (2026-10-15); its four rows are the About card on General, and the tab it freed is Tools. | — |
-| **All pages** | **Accessibility audit**: ~18 `labelsHidden()` toggles (Edge Bars tiles, Control Center widgets, several Chips switches) expose no label to VoiceOver, and the Appearance behaviour toggles likewise. Rule 9 is not satisfied until each row names its control. | 9 |
-| **Layout-pane leftovers** | Two cards in `SettingsLayoutPane` still build rows by hand (`:442` window-chip app list, `:1267` quick-toggle list) — both belong on `SettingsRow` before Edge Bars and Window Management are signed off. | 3 |
+| **All pages** | **Accessibility audit — done (2026-10-15), and the earlier note here was wrong.** It claimed ~18 `labelsHidden()` toggles exposed no label; it had been read off `AXTitle`, which a SwiftUI toggle leaves empty while it puts the name on `AXDescription`. Every checkbox on all ten pages was then probed for `AXDescription`/`AXTitle`/`AXHelp` on the running build: **one** control was genuinely unnamed, the Widgets page's **Glass** switch (`GlassTilesToggle`), and it now carries its row's name. Repro: press each tab and read `AXDescription` on every `AXCheckBox` — ten pages, zero empty. Read `AXDescription` when auditing a toggle, not `AXTitle`. | — |
+| **Layout-pane leftovers** | Landed (2026-10-15): the two hand-rolled `HStack` row lists are gone — the window-chip app list (old `:442`) is on `SettingsRow`, the quick-setting list (old `:1267`) and the launcher's hidden-app list are `SettingsGrid`s. Standalone buttons and disclosures inside a card are controls, not rows (rule 3). | — |
+| **Rows two per line** | Landed (2026-10-15, owner: "window management, edge bar etc to use two lines"): every page's narrow rows — menus, segmented pickers, switches, lone buttons — pair, with a pair's halves exactly `halfRowWidth` each; sliders, editors, rows with two controls and rows with a long note stay full width. Measured live against the previous build: Widgets 1440 → 1114 pt, Launcher 1291 → 1132, General 790 → 708, Appearance 1479 → 1400, Edge Bars 955 → 914, Tools 822 → 741, Advanced 521 → 482, Window Management 1357 → 1317. **Appearance (1400), Widgets (1114), Window Management (1317), Launcher (1132) and Shortcuts (1940) still run past the 1074 pt window** — their height is section count and tall controls, not single-column rows. | 5, 10 |
 | **Close-out** | After-shots of the ten pages against the before-set (`Docs/Repository/settings-sweep-2026-10.md` plus the 2026-10-15 capture), measured margins and section gaps, macOS 12 parity read-through (this tree compiles for 12; there is no macOS 12 machine in the session), and the Better Design review the plan asks for. | 1, 10 |
 
 ## 4. Where the Compact-notch decision attaches

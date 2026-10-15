@@ -15,7 +15,9 @@ final class SettingsTabTests: XCTestCase {
         XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 10,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
-        XCTAssertEqual(SettingsTab.allCases.last, .tools, "Tools takes the slot About left")
+        XCTAssertEqual(SettingsTab.allCases.last, .advanced,
+                       "the page visited once sits at the end; Tools is one before it")
+        XCTAssertEqual(SettingsTab.allCases.dropLast().last, .tools, "Tools takes the slot About left")
         XCTAssertEqual(SettingsTab(rawValue: "tiling"), .windowManagement,
                        "a stored toolbar identifier must keep resolving after a rename")
     }

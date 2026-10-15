@@ -1,0 +1,68 @@
+WINDOW	Launcher	405	38	900	1074
+AXStaticText	42.0	102.0	Launcher
+AXStaticText	42.0	143.0	Scroll Direction
+AXRadioGroup	696.0	139.0	
+AXStaticText	42.0	189.0	Hidden Apps
+AXStaticText	682.0	189.0	0
+AXButton	700.5	185.0	
+AXButton	42.0	220.0	
+AXStaticText	42.0	283.0	Search Position
+AXPopUpButton	766.0	279.0	Top
+AXStaticText	42.0	329.0	Theme
+AXPopUpButton	713.5	325.0	System
+AXStaticText	42.0	375.0	Tint
+AXPopUpButton	765.5	371.0	None
+AXStaticText	42.0	442.5	Launcher Icon
+AXButton	335.5	417.0	
+AXButton	418.0	417.0	
+AXButton	499.5	417.0	
+AXButton	566.5	417.0	
+AXButton	625.5	416.0	
+AXButton	686.5	417.0	
+AXButton	746.5	417.0	
+AXButton	806.5	417.0	
+AXStaticText	42.0	543.0	Control Center
+AXStaticText	42.0	584.0	Side
+AXRadioGroup	746.0	580.0	
+AXStaticText	42.0	630.0	Size
+AXRadioGroup	640.5	626.0	
+AXStaticText	42.0	676.0	Anchor
+AXRadioGroup	652.5	672.0	
+AXStaticText	42.0	722.0	Animation
+AXRadioGroup	661.5	718.0	
+AXStaticText	42.0	759.0	Widgets
+AXCheckBox	42.0	773.0	1
+AXCheckBox	42.0	789.4	1
+AXCheckBox	42.0	805.8	1
+AXStaticText	42.0	828.3	Quick Settings
+AXCheckBox	42.0	842.3	1
+AXCheckBox	42.0	858.7	1
+AXCheckBox	42.0	875.1	1
+AXCheckBox	42.0	891.5	1
+AXCheckBox	42.0	907.9	1
+AXCheckBox	42.0	924.4	1
+AXCheckBox	42.0	940.8	1
+AXCheckBox	42.0	957.2	1
+AXCheckBox	42.0	973.6	1
+AXCheckBox	42.0	990.0	1
+AXCheckBox	42.0	1006.5	1
+AXCheckBox	42.0	1022.9	1
+AXCheckBox	42.0	1039.3	1
+AXCheckBox	42.0	1055.7	1
+AXCheckBox	42.0	1072.1	1
+AXCheckBox	42.0	1088.6	1
+AXCheckBox	42.0	1105.0	1
+AXCheckBox	42.0	1121.4	1
+AXStaticText	42.0	1185.8	Launcher
+AXStaticText	42.0	1226.8	Script Commands
+AXCheckBox	804.0	1223.0	1
+AXStaticText	42.0	1273.8	Show Command Hints
+AXCheckBox	804.0	1270.0	1
+AXStaticText	42.0	1320.8	Fast File Index
+AXCheckBox	804.0	1317.0	1
+AXButton	42.0	1364.0	
+AXStaticText	42.0	1398.8	Open System Settings › Keyboard.
+AXStaticText	42.0	1411.8	Click Keyboard Shortcuts….
+AXStaticText	42.0	1424.8	Select Spotlight in the list.
+AXStaticText	42.0	1437.8	Turn off Show Spotlight search.
+AXStaticText	42.0	1450.8	Come back and press ⌘Space to test.

@@ -26,32 +26,42 @@ struct WidgetLookSettingsBlock: View {
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
             SettingsCard(Text("Widget Appearance")) {
-                SettingsRow(Text("Widget Layout")) { CalendarLayoutPicker() }
+                // Menus and switches, two rows per line (`Docs/SETTINGS.md` rule 5): this card was
+                // ten rows deep, one narrow control each.
+                SettingsRowPair(
+                    left: { SettingsRow(Text("Widget Layout")) { CalendarLayoutPicker() } },
+                    right: { SettingsRow(Text("Widget Colors")) { CalendarPalettePicker() } }
+                )
                 SettingsDivider()
-                SettingsRow(Text("Widget Colors")) { CalendarPalettePicker() }
+                SettingsRowPair(
+                    // Not the dock clock's preset (that is "Clock Style" further down): this one is
+                    // the clock *tile*'s look. Two rows with one name was a defect, not a style choice.
+                    left: { SettingsRow(Text("Clock Tile Style")) { CalendarClockStylePicker() } },
+                    right: { SettingsRow(Text("Glass")) { GlassTilesToggle().accessibilityLabel(Text("Glass")) } }
+                )
                 SettingsDivider()
-                // Not the dock clock's preset (that is "Clock Style" further down): this one is the
-                // clock *tile*'s look. Two rows with one name was a defect, not a style choice.
-                SettingsRow(Text("Clock Tile Style")) { CalendarClockStylePicker() }
-                SettingsDivider()
-                SettingsRow(Text("Glass")) { GlassTilesToggle() }
-                SettingsDivider()
-                SettingsRow(Text("Now Playing Theme")) {
-                    Picker("Now Playing Theme", selection: $store.nowPlayingTheme) {
-                        ForEach(NowPlayingTheme.allCases, id: \.self) { Text($0.displayTitle) }
+                SettingsRowPair(
+                    left: {
+                        SettingsRow(Text("Now Playing Theme")) {
+                            Picker("Now Playing Theme", selection: $store.nowPlayingTheme) {
+                                ForEach(NowPlayingTheme.allCases, id: \.self) { Text($0.displayTitle) }
+                            }
+                            .labelsHidden().pickerStyle(.menu).fixedSize()
+                        }
+                    },
+                    right: {
+                        SettingsPickerRow(Text("Widget Animation"), selection: $widgetAnimation) {
+                            Text("Instant").tag(WidgetAnimationPreset.instant)
+                            Text("Slide").tag(WidgetAnimationPreset.slide)
+                            Text("Spring Pop").tag(WidgetAnimationPreset.springPop)
+                        }
                     }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
+                )
                 SettingsDivider()
-                SettingsPickerRow(Text("Widget Animation"), selection: $widgetAnimation) {
-                    Text("Instant").tag(WidgetAnimationPreset.instant)
-                    Text("Slide").tag(WidgetAnimationPreset.slide)
-                    Text("Spring Pop").tag(WidgetAnimationPreset.springPop)
-                }
-                SettingsDivider()
-                SettingsToggleRow(Text("Show Notes Widget"), isOn: $showNotes)
-                SettingsDivider()
-                SettingsToggleRow(Text("Show Stopwatch & Countdown"), isOn: $showStopwatch)
+                SettingsRowPair(
+                    left: { SettingsToggleRow(Text("Show Notes Widget"), isOn: $showNotes) },
+                    right: { SettingsToggleRow(Text("Show Stopwatch & Countdown"), isOn: $showStopwatch) }
+                )
                 SettingsDivider()
                 SettingsToggleRow(Text("Keep Both Widgets Open"), isOn: $keepBoth)
                 SettingsDivider()
@@ -61,37 +71,49 @@ struct WidgetLookSettingsBlock: View {
                     Text("Widget Styles & Presets"),
                     info: String(localized: "Switch between custom Phase 32 pods and legacy widget presets. You can also switch styles by right-clicking each widget on the dock.")
                 ) { EmptyView() }
-                SettingsRow(Text("Clock Style")) {
-                    Picker("Clock Style", selection: $clockPresetRaw) {
-                        ForEach(ClockPreset.allCases, id: \.rawValue) { preset in
-                            Text(preset.title).tag(preset.rawValue)
+                SettingsRowPair(
+                    left: {
+                        SettingsRow(Text("Clock Style")) {
+                            Picker("Clock Style", selection: $clockPresetRaw) {
+                                ForEach(ClockPreset.allCases, id: \.rawValue) { preset in
+                                    Text(preset.title).tag(preset.rawValue)
+                                }
+                            }
+                            .labelsHidden().pickerStyle(.menu).fixedSize()
+                        }
+                    },
+                    right: {
+                        SettingsRow(Text("Weather Style")) {
+                            Picker("Weather Style", selection: $weatherPresetRaw) {
+                                ForEach(WeatherChipPreset.allCases, id: \.rawValue) { preset in
+                                    Text(preset.title).tag(preset.rawValue)
+                                }
+                            }
+                            .labelsHidden().pickerStyle(.menu).fixedSize()
                         }
                     }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
-                SettingsRow(Text("Weather Style")) {
-                    Picker("Weather Style", selection: $weatherPresetRaw) {
-                        ForEach(WeatherChipPreset.allCases, id: \.rawValue) { preset in
-                            Text(preset.title).tag(preset.rawValue)
+                )
+                SettingsRowPair(
+                    left: {
+                        SettingsRow(Text("Now Playing Style")) {
+                            Picker("Now Playing Style", selection: $mediaPresetRaw) {
+                                ForEach(NowPlayingPreset.allCases, id: \.rawValue) { preset in
+                                    Text(preset.title).tag(preset.rawValue)
+                                }
+                            }
+                            .labelsHidden().pickerStyle(.menu).fixedSize()
+                        }
+                    },
+                    right: {
+                        SettingsRow(Text("Right FAB Style")) {
+                            Picker("Right FAB Style", selection: $fabStyleRaw) {
+                                Text("Dynamic Gauge").tag("gauge")
+                                Text("Classic Glyph").tag("classic")
+                            }
+                            .labelsHidden().pickerStyle(.menu).fixedSize()
                         }
                     }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
-                SettingsRow(Text("Now Playing Style")) {
-                    Picker("Now Playing Style", selection: $mediaPresetRaw) {
-                        ForEach(NowPlayingPreset.allCases, id: \.rawValue) { preset in
-                            Text(preset.title).tag(preset.rawValue)
-                        }
-                    }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
-                SettingsRow(Text("Right FAB Style")) {
-                    Picker("Right FAB Style", selection: $fabStyleRaw) {
-                        Text("Dynamic Gauge").tag("gauge")
-                        Text("Classic Glyph").tag("classic")
-                    }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
+                )
             }
 
             // The weather widget's rows, in their own card: units and warning thresholds are not

@@ -1,0 +1,68 @@
+WINDOW	Launcher	405	38	900	1074
+AXStaticText	42.0	102.0	Launcher
+AXStaticText	42.0	140.0	Scroll Direction
+AXRadioGroup	696.0	136.0	
+AXStaticText	42.0	180.0	Hidden Apps
+AXStaticText	682.0	180.0	0
+AXButton	700.5	176.0	
+AXButton	42.0	208.0	
+AXStaticText	42.0	268.0	Search Position
+AXPopUpButton	358.0	264.0	Top
+AXStaticText	450.0	268.0	Theme
+AXPopUpButton	713.5	264.0	System
+AXStaticText	42.0	309.0	Tint
+AXPopUpButton	765.5	305.0	None
+AXStaticText	42.0	370.5	Launcher Icon
+AXButton	334.5	344.0	
+AXButton	418.0	345.0	
+AXButton	499.5	345.0	
+AXButton	566.5	345.0	
+AXButton	626.5	345.0	
+AXButton	686.5	345.0	
+AXButton	746.5	345.0	
+AXButton	806.5	345.0	
+AXStaticText	42.0	468.0	Control Center
+AXStaticText	42.0	506.0	Side
+AXRadioGroup	338.0	502.0	
+AXStaticText	450.0	506.0	Size
+AXRadioGroup	640.5	502.0	
+AXStaticText	42.0	547.0	Anchor
+AXRadioGroup	244.5	543.0	
+AXStaticText	450.0	547.0	Animation
+AXRadioGroup	661.5	543.0	
+AXStaticText	42.0	581.0	Widgets
+AXStaticText	42.0	650.0	Quick Settings
+AXStaticText	42.0	932.0	Launcher
+AXStaticText	42.0	970.0	Script Commands
+AXCheckBox	396.0	966.0	1
+AXStaticText	450.0	970.0	Show Command Hints
+AXCheckBox	804.0	966.0	1
+AXStaticText	42.0	1011.0	Fast File Index
+AXCheckBox	804.0	1007.0	1
+AXButton	42.0	1048.0	
+AXStaticText	42.0	1080.0	Open System Settings › Keyboard.
+AXStaticText	42.0	1093.0	Click Keyboard Shortcuts….
+AXStaticText	42.0	1106.0	Select Spotlight in the list.
+AXStaticText	42.0	1119.0	Turn off Show Spotlight search.
+AXStaticText	42.0	1132.0	Come back and press ⌘Space to test.
+AXCheckBox	42.0	599.0	1
+AXCheckBox	450.0	599.0	1
+AXCheckBox	42.0	623.4	1
+AXCheckBox	42.0	668.0	1
+AXCheckBox	450.0	668.0	1
+AXCheckBox	42.0	692.4	1
+AXCheckBox	450.0	692.4	1
+AXCheckBox	42.0	716.8	1
+AXCheckBox	450.0	716.8	1
+AXCheckBox	42.0	741.3	1
+AXCheckBox	450.0	741.3	1
+AXCheckBox	42.0	765.7	1
+AXCheckBox	450.0	765.7	1
+AXCheckBox	42.0	790.1	1
+AXCheckBox	450.0	790.1	1
+AXCheckBox	42.0	814.5	1
+AXCheckBox	450.0	814.5	1
+AXCheckBox	42.0	838.9	1
+AXCheckBox	450.0	838.9	1
+AXCheckBox	42.0	863.4	1
+AXCheckBox	450.0	863.4	1

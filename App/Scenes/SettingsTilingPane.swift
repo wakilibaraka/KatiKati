@@ -81,6 +81,9 @@ struct SettingsTilingPane: View {
                         .tilingSwapNext,
                         .tilingSwapPrevious
                     ]
+                    // One per line, like the Shortcuts page: an assignment is a name, a menu and a
+                    // Record button, and three controls do not fit half a card (rule 5's
+                    // exception; measured live 2026-10-15).
                     ForEach(tilingActions, id: \.self) { action in
                         SettingsRow(shortcutActionTitle(action)) {
                             HStack(spacing: SettingsMetrics.controlSpacing) {

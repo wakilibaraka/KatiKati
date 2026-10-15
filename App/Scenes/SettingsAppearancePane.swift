@@ -79,21 +79,28 @@ struct SettingsAppearancePane: View {
 
     private var wallpaperSection: some View {
         SettingsCard {
-            SettingsToggleRow(
-                Text("Dynamic Wallpaper"),
-                isOn: Binding(get: { store.wallpaperEnabled }, set: store.setWallpaperEnabled)
+            // The switch and the mode it governs, one line (`Docs/SETTINGS.md` rule 5).
+            SettingsRowPair(
+                left: {
+                    SettingsToggleRow(
+                        Text("Dynamic Wallpaper"),
+                        isOn: Binding(get: { store.wallpaperEnabled }, set: store.setWallpaperEnabled)
+                    )
+                },
+                right: {
+                    SettingsSegmentedRow(
+                        Text("Mode"),
+                        selection: Binding(
+                            get: { WallpaperMode(rawValue: store.wallpaperMode) ?? .both },
+                            set: store.setWallpaperMode
+                        )
+                    ) {
+                        Text("Time").tag(WallpaperMode.time)
+                        Text("Weather").tag(WallpaperMode.weather)
+                        Text("Both").tag(WallpaperMode.both)
+                    }
+                }
             )
-            SettingsSegmentedRow(
-                Text("Mode"),
-                selection: Binding(
-                    get: { WallpaperMode(rawValue: store.wallpaperMode) ?? .both },
-                    set: store.setWallpaperMode
-                )
-            ) {
-                Text("Time").tag(WallpaperMode.time)
-                Text("Weather").tag(WallpaperMode.weather)
-                Text("Both").tag(WallpaperMode.both)
-            }
             // The row's label is the source in use; the buttons change it.
             SettingsRow(
                 store.wallpaperFolder.isEmpty
@@ -112,7 +119,11 @@ struct SettingsAppearancePane: View {
                 Text("Tint Dock by Time of Day"),
                 isOn: Binding(get: { store.tintSurfacesByPhase }, set: store.setTintSurfacesByPhase)
             )
-            SettingsButtonRow(Text("Restore Wallpaper")) { WallpaperEngine.shared.restoreNow() }
+            // Rule 7: disabled with no reason on the row before this.
+            SettingsButtonRow(
+                Text("Restore Wallpaper"),
+                note: store.wallpaperEnabled ? nil : Text("Turn Dynamic Wallpaper on to restore it.")
+            ) { WallpaperEngine.shared.restoreNow() }
                 .disabled(!store.wallpaperEnabled)
         }
     }

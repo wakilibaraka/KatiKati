@@ -1,0 +1,62 @@
+WINDOW	Window Management	405	38	900	1074
+AXStaticText	42.0	102.0	Tiling
+AXStaticText	42.0	143.0	Enable Auto-Tiling
+AXCheckBox	804.0	139.0	1
+AXStaticText	42.0	166.0	Automatically tile open windows in binary spac
+AXStaticText	42.0	238.0	Layout
+AXStaticText	42.0	279.0	Preset
+AXRadioGroup	550.5	275.0	
+AXStaticText	42.0	322.0	Inner Gap
+AXSlider	202.0	322.0	
+AXStaticText	833.5	322.0	8 pt
+AXStaticText	42.0	361.0	Outer Gap
+AXSlider	202.0	361.0	
+AXStaticText	833.5	361.0	8 pt
+AXStaticText	42.0	436.0	Floating Applications
+AXStaticText	42.0	462.0	Applications listed below will float and never
+AXStaticText	42.0	603.0	Tiling Shortcuts
+AXStaticText	42.0	644.0	Toggle Tiling
+AXPopUpButton	670.5	640.0	Off
+AXButton	791.0	640.0	
+AXStaticText	42.0	690.0	Cycle Tiling Layout
+AXPopUpButton	670.5	686.0	Off
+AXButton	791.0	686.0	
+AXStaticText	42.0	736.0	Focus Next Tile
+AXPopUpButton	670.5	732.0	Off
+AXButton	791.0	732.0	
+AXStaticText	42.0	782.0	Focus Previous Tile
+AXPopUpButton	670.5	778.0	Off
+AXButton	791.0	778.0	
+AXStaticText	42.0	828.0	Swap with Next Tile
+AXPopUpButton	670.5	824.0	Off
+AXButton	791.0	824.0	
+AXStaticText	42.0	874.0	Swap with Previous Tile
+AXPopUpButton	670.5	870.0	Off
+AXButton	791.0	870.0	
+AXStaticText	42.0	953.0	Window Chips
+AXStaticText	42.0	994.0	Multiple Windows
+AXPopUpButton	683.0	990.0	One chip per window
+AXStaticText	42.0	1049.0	A grouped app shows one chip with a window cou
+AXCheckBox	42.0	1062.0	1
+AXStaticText	42.0	1078.4	Gives every running app a chip, even when it h
+AXCheckBox	42.0	1091.4	1
+AXStaticText	42.0	1122.8	Preview Delay
+AXRadioGroup	654.0	1119.0	
+AXStaticText	42.0	1168.8	Preview Size
+AXRadioGroup	640.5	1165.0	
+AXStaticText	42.0	1199.8	Window previews need Screen Recording permissi
+AXButton	42.0	1213.0	
+AXCheckBox	42.0	1236.8	1
+AXStaticText	42.0	1253.3	Right-click a window chip for a floating jump 
+AXStaticText	42.0	1329.3	Option-Tab Window Switcher
+AXCheckBox	804.0	1325.5	1
+AXStaticText	42.0	1352.3	Hold Option and press Tab to pick a window fro
+AXStaticText	42.0	1392.3	Restore Window Layout After Sleep
+AXCheckBox	804.0	1388.5	1
+AXStaticText	42.0	1415.3	After the Mac wakes or a display is reconnecte
+AXButton	42.0	1450.5	
+AXTextArea	42.0	475.0	com.apple.ActivityMonitor com.apple.DiskUtilit
+AXButton	841.0	475.0	
+AXButton	841.0	475.0	
+AXButton	849.0	540.0	
+AXButton	849.0	478.0	

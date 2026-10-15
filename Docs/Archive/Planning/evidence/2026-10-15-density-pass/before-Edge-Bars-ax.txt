@@ -1,0 +1,52 @@
+WINDOW	Edge Bars	405	135	900	1058
+AXStaticText	42.0	102.0	Edge Bars
+AXPopUpButton	42.0	128.0	Productivity + Rest
+AXStaticText	42.0	167.0	Edge Bar on the Dock's Side
+AXRadioGroup	655.0	163.0	
+AXStaticText	42.0	213.0	Main Side
+AXRadioGroup	746.0	209.0	
+AXStaticText	42.0	244.0	Widgets
+AXCheckBox	42.0	264.0	1
+AXCheckBox	42.0	286.4	1
+AXCheckBox	42.0	308.8	1
+AXCheckBox	42.0	331.3	1
+AXCheckBox	42.0	347.7	0
+AXStaticText	42.0	375.1	Left Bar Size
+AXSlider	202.0	375.0	1
+AXStaticText	821.5	375.1	100%
+AXStaticText	42.0	413.1	Right Bar Size
+AXSlider	202.0	413.0	1
+AXStaticText	821.5	413.1	100%
+AXStaticText	42.0	455.1	Magnify Buttons Under the Pointer
+AXCheckBox	804.0	451.0	1
+AXStaticText	42.0	501.1	Magnify Amount
+AXRadioGroup	619.5	497.0	
+AXStaticText	42.0	543.1	Open Delay
+AXSlider	202.0	543.0	0.4
+AXStaticText	819.5	543.1	0.40 s
+AXStaticText	42.0	581.1	Edge Sensitivity
+AXSlider	202.0	581.0	0.25
+AXStaticText	829.5	581.1	25%
+AXStaticText	42.0	619.1	Left Bar Height
+AXSlider	202.0	619.0	0.5
+AXStaticText	829.5	619.1	50%
+AXStaticText	42.0	657.1	Right Bar Height
+AXSlider	202.0	657.0	0.5
+AXStaticText	829.5	657.1	50%
+AXStaticText	42.0	699.1	Button Icons
+AXRadioGroup	633.0	695.0	
+AXStaticText	42.0	745.1	Open Only on Click
+AXCheckBox	804.0	741.0	1
+AXStaticText	42.0	791.1	Show Button Names on Hover
+AXCheckBox	804.0	787.0	1
+AXStaticText	42.0	837.1	Flyout Style
+AXRadioGroup	716.0	833.0	
+AXStaticText	42.0	883.1	Button Style
+AXRadioGroup	699.0	879.0	
+AXStaticText	42.0	929.1	Note Tab Font
+AXPopUpButton	729.0	925.0	System
+AXCheckBox	42.0	960.1	1
+AXCheckBox	42.0	976.5	1
+AXButton	42.0	993.0	
+AXCheckBox	42.0	1016.9	0
+AXStaticText	42.0	1033.4	Slim bars on the screen edges for notes, produ
