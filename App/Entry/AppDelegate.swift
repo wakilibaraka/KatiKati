@@ -406,6 +406,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                       ClipboardToastPolicy.shouldToast(text) else { return }
                 self?.liveEventCenter.deliver(.clipboardCopied(preview: ClipboardHistory.previewLine(text)), now: Date())
             }
+            DownloadsMonitor.shared.onFinished = { [weak self] name in
+                self?.liveEventCenter.deliver(.downloadFinished(name: name), now: Date())
+            }
             RecentlyClosedStore.shared.start()
 
             _ = statusMenuController

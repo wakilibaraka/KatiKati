@@ -15,6 +15,8 @@ final class DownloadsMonitor: ObservableObject {
     static let shared = DownloadsMonitor()
 
     @Published private(set) var activeCount = 0
+    /// Fires (main thread) when the active count drops: a download finished. Carries the newest file's name.
+    var onFinished: ((String?) -> Void)?
 
     private var gate = LiveTickGate()
     private var source: DispatchSourceFileSystemObject?
@@ -68,6 +70,7 @@ final class DownloadsMonitor: ObservableObject {
 
     private func apply(_ count: Int) {
         guard gate.isActive else { return }
+        if count < activeCount { announceFinished() }
         if count != activeCount { activeCount = count }
         if count > 0, rescan == nil {
             let t = Timer(timeInterval: 2, repeats: true) { [weak self] _ in
@@ -78,6 +81,22 @@ final class DownloadsMonitor: ObservableObject {
         } else if count == 0 {
             rescan?.invalidate(); rescan = nil
         }
+    }
+
+    private func announceFinished() {
+        guard let dir = directory, let onFinished else { return }
+        scanQueue.async {
+            let name = Self.newestFinishedName(in: dir)
+            DispatchQueue.main.async { onFinished(name) }
+        }
+    }
+
+    nonisolated private static func newestFinishedName(in dir: URL) -> String? {
+        let keys: [URLResourceKey] = [.contentModificationDateKey]
+        let urls = (try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: keys, options: [.skipsHiddenFiles])) ?? []
+        return urls.filter { !DownloadActivity.isPartial($0.lastPathComponent) }
+            .max { ((try? $0.resourceValues(forKeys: Set(keys)))?.contentModificationDate ?? .distantPast) < ((try? $1.resourceValues(forKeys: Set(keys)))?.contentModificationDate ?? .distantPast) }?
+            .lastPathComponent
     }
 
     /// Reads the folder (off the main thread): partial entries only, newest mtime of a bundle's contents.

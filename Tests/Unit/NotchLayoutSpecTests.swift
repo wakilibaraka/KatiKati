@@ -70,4 +70,10 @@ final class NotchLayoutSpecTests: XCTestCase {
             for literal in bad { XCTAssertFalse(src.contains(literal), "\(file) still has \(literal)") }
         }
     }
+
+    // Phase 34e: a finished download is its own deduped event kind.
+    func testDownloadFinishedDedupeKeyDiffersByName() {
+        XCTAssertNotEqual(LiveEvent.downloadFinished(name: "a.zip").dedupeKey, LiveEvent.downloadFinished(name: "b.zip").dedupeKey)
+        XCTAssertEqual(LiveEvent.downloadFinished(name: nil).dedupeKey, "download|")
+    }
 }

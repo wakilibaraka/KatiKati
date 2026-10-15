@@ -60,6 +60,11 @@ struct LiveEventPresentation {
             symbol = "doc.on.clipboard"
             headline = String(localized: "Clipboard")
             detail = preview
+
+        case let .downloadFinished(name):
+            symbol = "arrow.down.circle.fill"
+            headline = String(localized: "Download finished")
+            detail = name
         }
     }
 }

@@ -34,6 +34,8 @@ enum LiveEvent: Equatable, Sendable {
     case countdownReachedToday(label: String)
     /// A text copy was recorded (Phase 22c, opt-in; delivered directly, not by the detector diff).
     case clipboardCopied(preview: String)
+    /// A browser download finished (Phase 34e; delivered directly by `DownloadsMonitor`, not by the diff).
+    case downloadFinished(name: String?)
 }
 
 enum LiveEventDetector {
