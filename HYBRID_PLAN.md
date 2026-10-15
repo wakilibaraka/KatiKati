@@ -4099,7 +4099,64 @@ notch is off (nothing runs) and ≤ island baseline when on; every newer-than-12
   - **Phase 22**: Notch toast on clipboard copy and system notification banner integration.
   - **Eyeball Verification**: Live testing on physical MacBook notch displays under light and dark modes.
 
+---
 
+### Recent User Refinements & Enhancements (Post-Phase 33 / Pre-Phase 12, Oct 15 2026)
+
+*The following refinements were requested directly by the project owner to polish bilateral dock symmetry, eliminate component redundancies, add high-value productivity micro-tools, and solve layout space-filling gaps.*
+
+#### 1. Bilateral Dock Symmetry & Launcher Aesthetic Presets
+- **Launcher Squircle FAB Container (`App/Scenes/LauncherFABView.swift`):**
+  - **Bilateral Balance:** Resolved visual dock asymmetry where the right side featured two $40 \times 40\text{ pt}$ continuous squircle tiles (`WiFiVolumeFABView` and `DrawerCapsuleButton`), while the left side had a bare $26\text{ pt}$ launcher icon.
+  - **Container Geometry:** Wrapped `LauncherIconView` in an identical $40 \times 40\text{ pt}$ continuous squircle container (`RoundedRectangle(cornerRadius: 14, style: .continuous)`), dark glass backing (`Color.black.opacity(0.88)`), hairline border (`Color.white.opacity(0.16)`), and elevation drop shadow (`radius: 3, y: 2`).
+  - **New Aesthetic Presets (`Core/Support/LauncherAppearance.swift`):**
+    - `.liquidBento` (Active Default): 9-cell micro-app glass matrix featuring Apple jewel-tone gradients (coral, amber, gold, mint, cyan, azure, indigo, violet, fuchsia) on frosted micro-plate backing with subtle specular bevels.
+    - `.visionMono`: Apple VisionOS / macOS Launchpad-style frosted glass grid with subtle high-contrast luminescent tiles.
+    - `.starburstAperture`: Dynamic 8-blade camera aperture with a radiant glowing core.
+  - **Settings & Localization:** Exposed in **Settings → Layout → Launcher Icon Style** (`SettingsLayoutPane.swift`) and localized across all 12 supported languages (`Localizable.xcstrings`).
+
+#### 2. Dock Button Placement Swap & Quick Settings Wi-Fi Volume FAB
+- **Dock Button Swap (`App/Scenes/DockStripView.swift`):**
+  - Swapped positions of the system gauges disc (`DynamicGaugeCompactDiscView`) and the capsule drawer button (`DrawerCapsuleButton`).
+  - Established the dynamic RAM/CPU pressure disc as the rightmost anchor of the taskbar for visual weight distribution.
+- **Wi-Fi Volume FAB (`App/Scenes/WiFiVolumeFABView.swift`):**
+  - Replaced the legacy 4-square icon with a native Wi-Fi glyph surrounded by a 12-dot circular volume meter (`WiFiVolumeFABView`).
+  - Real-time binding to Mac system volume (`SystemStatusService`) that opens Control Center / Quick Settings on click.
+
+#### 3. Unified 5-Page Multi-Utility Capsule Widget (`App/Scenes/NowPlayingChip.swift`)
+- **Redundancy Removal:** Removed the redundant "Now Playing" spectrum page (Page 2), consolidating media playback strictly into Page 0 (Vinyl Player) and Page 1 (Volume).
+- **Expanded 5-Page Bento Carousel:**
+  - **Page 0 — Vinyl Music Player:** Rotating grooved vinyl turntable, album artwork, track title, artist, live scrubber bar, and previous/play/next transport controls.
+  - **Page 1 — Volume & Audio Destination:** AirPlay destination icon, real-time volume slider (interactive drag gesture with azure-to-purple gradient), and quick mute/unmute circular button.
+  - **Page 2 — Pomodoro Focus:** 25m/5m work-break cycle with dynamic radial progress ring, phase indicator (coral flame for `.focus`, mint cup for `.shortBreak`, lavender sparkle for `.longBreak`), 4-dot cycle progress tracker (`● ● ○ ○`), countdown timer (`24:18`), and Play/Pause + Skip buttons wired to `ProductivityServices.shared.focus`.
+  - **Page 3 — Stay Awake & Sleep Inhibitor:** Visual ember coffee cup tile with glowing aura when active; auto-off duration presets (`15m`, `30m`, `1h`, `2h`, `∞`) with live countdown timer (`28:45 Left`) and auto-release when time expires; master power toggle wired to `QuickToggleEngine.shared` (`setKeepAwake`).
+  - **Page 4 — Smart Alarm & Power Nap:** Amber/gold bell with upcoming alarm countdown (`07:30 AM • in 4h 12m`), 15-minute missed alarm detection (`Missed at 07:15 AM`), alarm enable/disable toggle, and a one-tap `+20m` Power Nap button wired to `ProductivityServices.shared.alarms`.
+- **Navigation & Gestures:** 5 Apple-style vertical micro-capsule pagination dots (`ForEach(0..<5)`) with active capsule expansion (8pt vs 3pt) and two-finger vertical wheel scrolling.
+
+#### 4. Adaptive Space-Filling for Clock and Weather Widgets (`App/Scenes/ClockChip.swift`, `App/Scenes/WeatherChip.swift`)
+- **Root Cause Fixed:** Medium (~150-160pt) and Large (~210-230pt) widget sizes previously left large empty black dead spaces because the inner content was fixed-width and `ViewThatFits` prematurely collapsed into compact single-column layouts.
+- **Clock Widget Expansion (`StackedClockCardView` in `ClockChip.swift`):**
+  - **Small (~76pt):** Compact digital time (`02:46`) and weekday/date stack.
+  - **Medium (~160pt):** Digital time & date on left; hairline vertical separator; right dynamically displays upcoming calendar events (`Meeting in 35m` with category color dot), upcoming alarm (`07:30 🔔`), or live ticking seconds (`:24`) with Week and Day-of-year numbers.
+  - **Large (~210pt):** Digital time with live seconds (`02:46:24`) and full date on left; hairline separator; right displays upcoming calendar event title plus next alarm status countdown pill (`🔔 07:30 AM (in 4h)`).
+  - **Tick Rate Optimization:** Adjusted `TimelineView` to tick every 1s for Medium/Large to keep seconds and event timers live, while maintaining 60s minute-aligned ticks for Small to ensure zero unnecessary wakeups.
+- **Weather Widget Expansion (`DetailedWeatherPodView` in `WeatherChip.swift`):**
+  - Replaced ambiguous `ViewThatFits` sizing with explicit `switch widgetSize` branches for Small, Medium, and Large.
+  - **Small (~84pt):** Compact temperature, city name, and condition icon.
+  - **Medium (~150pt):** Current temp + condition symbol, city name, hairline divider, and 3-step forecast micro-cards with daily high temperatures.
+  - **Large (~230pt):** Current temp, condition symbol, city name, High/Low range (`H:22° L:14°`), hairline divider, and 3-day forecast with daily high and low temperatures.
+  - **Zero Dead-Space Fallback:** Added realistic default forecast steps derived from current state so the space is always visually balanced even when live weather network data is loading or offline.
+
+#### 5. Recent Git Commits Reference
+- `573b9d0` — `feat(widgets): replace duplicate now playing with pomodoro, add stay awake and smart alarm pages, and fill medium/large clock and weather spaces`
+- `ec68448` — `feat(launcher): balance dock symmetry with 40x40 squircle FAB and add liquid bento preset`
+- `8623baf` — `docs(plan): mark Phase 31 Radial Dial as DONE with full resolution of owner decisions and slice records`
+- `e249449` — `feat(dock): swap gauge and capsule positions, add Wi-Fi volume dots button for Quick Settings`
+- `4d5c62b` — `feat(notch): implement Phase 33 notch suite, download manager hub, and universal media playback`
+- `ddd7b43` — `feat(dock): refine symmetry, vertical wheel paging for Now Playing, and reduce dock gaps`
+- `bedc965` — `fix(commandbar): resolve pipe buffer deadlocks, stream file search, and eliminate main-thread summon latency`
+
+---
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
