@@ -59,4 +59,15 @@ final class NotchLayoutSpecTests: XCTestCase {
         XCTAssertEqual(NotchLayoutSpec.clockText(3725), "1:02:05")
         XCTAssertEqual(NotchLayoutSpec.clockText(-4), "0:00")
     }
+
+    // Phase 34 witness: the notch pages must never ship hardcoded demo numbers again.
+    func testNotchPagesHaveNoMockLiterals() throws {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        for (file, bad) in [("NotchHardwareHudPageView", ["\"14%\"", "\"18.4 GB\"", "38°C"]),
+                            ("NotchProductivityPageView", ["No conflicts today"]),
+                            ("NotchRetroClockPageView", ["UTC+3"])] {
+            let src = try String(contentsOf: root.appendingPathComponent("App/Scenes/Notch/\(file).swift"), encoding: .utf8)
+            for literal in bad { XCTAssertFalse(src.contains(literal), "\(file) still has \(literal)") }
+        }
+    }
 }

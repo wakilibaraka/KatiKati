@@ -4191,6 +4191,8 @@ hardcodes "No conflicts today"; `NotchRetroClockPageView` hardcodes "UTC+3"; hea
 Pure seams: `HardwareHudModel` (formatting, hide-if-unavailable), `NotchAgendaModel`, `LiveActivityPolicy.top(2)`.
 Verify: no `verbatim` mock literal remains (grep witness test), sampler off when page hidden, tests + gate green.
 
+- 2026-10-15 · **Phase 34 (34a–34d, 34f) delivered — PASS (code; not live-checked).** Hardware page now reads `SystemMonitorController` (CPU, RAM used/total/fraction, disk used) and `ProcessInfo.thermalState`; sampler acquired on appear, released on disappear. **GPU load and fan RPM removed — no public source exists, so no number is shown.** Calendar page reads `CalendarService` (next event, "No events today", "Calendar access off"). Retro clock uses `TimeZone.current.abbreviation()`. Vinyl deck already rendered `artworkData` (placeholder only when nil) — no change. Witness test `testNotchPagesHaveNoMockLiterals`. **Deferred: 34e download-finished toast (no download event kind in `LiveEventDetector`; needs a detector + toast slice) and 34g two-activity pill (medium risk).**
+
 #### Phase 36 — Small daily features (all cheap; each its own slice, own toggle, default off)
 
 | Slice | Feature | Design | Cost / difficulty |

@@ -3,6 +3,7 @@ import SwiftUI
 // Phase 33e — Page 4: Productivity & Calendar (Bento Card A: Obsidian/Scarlet Calendar, Card B: Focus Hourglass & Decision Spinner)
 
 struct NotchProductivityPageView: View {
+    @ObservedObject private var agenda = ProductivityServices.shared.calendar
     @ObservedObject private var focus = ProductivityServices.shared.focus
     @State private var decisionResult: String = "Ready"
     @State private var spinDegrees: Double = 0.0
@@ -14,6 +15,14 @@ struct NotchProductivityPageView: View {
             calendarCard
             focusCard
         }
+        .onAppear { agenda.start() }
+    }
+
+    private var agendaLine: String {
+        if agenda.eventsAccess == .denied { return "Calendar access off" }
+        let upcoming = agenda.events.filter { $0.isAllDay || $0.end > Date() }
+        guard let next = upcoming.first else { return "No events today" }
+        return next.isAllDay ? next.title : "\(next.start.formatted(date: .omitted, time: .shortened)) \(next.title)"
     }
 
     // MARK: - Card A: Obsidian / Scarlet Calendar Card
@@ -54,7 +63,7 @@ struct NotchProductivityPageView: View {
                     Text(verbatim: today.formatted(.dateTime.weekday(.wide)))
                         .font(.system(size: 13, weight: .bold))
                         .foregroundStyle(.white)
-                    Text(verbatim: "No conflicts today")
+                    Text(verbatim: agendaLine)
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.white.opacity(0.5))
                 }

@@ -4,6 +4,17 @@ import SwiftUI
 
 struct NotchHardwareHudPageView: View {
     @StateObject private var power = SystemStatusService()
+    @ObservedObject private var monitor = ProductivityServices.shared.systemMonitor
+
+    private var thermal: (label: String, color: Color) {
+        switch ProcessInfo.processInfo.thermalState {
+        case .nominal: return ("NOMINAL", .green)
+        case .fair: return ("FAIR", .yellow)
+        case .serious: return ("SERIOUS", .orange)
+        case .critical: return ("CRITICAL", .red)
+        @unknown default: return ("UNKNOWN", .gray)
+        }
+    }
 
     var body: some View {
         HStack(spacing: NotchDesignSpec.cardSpacing) {
@@ -22,18 +33,18 @@ struct NotchHardwareHudPageView: View {
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                     Spacer()
-                    Text(verbatim: "NOMINAL")
+                    Text(verbatim: thermal.label)
                         .font(.system(size: 9, weight: .heavy))
-                        .foregroundStyle(.green)
+                        .foregroundStyle(thermal.color)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Capsule().fill(Color.green.opacity(0.15)))
+                        .background(Capsule().fill(thermal.color.opacity(0.15)))
                 }
 
                 HStack(spacing: 16) {
                     // CPU gauge
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(verbatim: "14%")
+                        Text(verbatim: SystemMonitorFormat.percent(monitor.snapshot.cpu))
                             .font(.system(size: 26, weight: .heavy, design: .rounded))
                             .foregroundStyle(.white)
                         Text(verbatim: "CPU Load")
@@ -41,12 +52,12 @@ struct NotchHardwareHudPageView: View {
                             .foregroundStyle(.white.opacity(0.5))
                     }
 
-                    // GPU gauge
+                    // Disk (real); there is no public GPU load API, so no GPU number is shown.
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(verbatim: "8%")
+                        Text(verbatim: SystemMonitorFormat.percent(monitor.snapshot.disk.total > 0 ? 1 - Double(monitor.snapshot.disk.free) / Double(monitor.snapshot.disk.total) : 0))
                             .font(.system(size: 26, weight: .heavy, design: .rounded))
                             .foregroundStyle(.white)
-                        Text(verbatim: "GPU Load")
+                        Text(verbatim: "Disk Used")
                             .font(.system(size: 10, weight: .medium))
                             .foregroundStyle(.white.opacity(0.5))
                     }
@@ -58,8 +69,8 @@ struct NotchHardwareHudPageView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "thermometer.medium")
                         .font(.system(size: 11))
-                        .foregroundStyle(.green)
-                    Text(verbatim: "Thermals 38°C · Fan 0 RPM")
+                        .foregroundStyle(thermal.color)
+                    Text(verbatim: "Thermal state: \(thermal.label.capitalized)")
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.white.opacity(0.6))
                 }
@@ -107,10 +118,10 @@ struct NotchHardwareHudPageView: View {
 
                 // RAM readout
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: "18.4 GB")
+                    Text(verbatim: ByteCountFormatter.string(fromByteCount: Int64(monitor.snapshot.memory.used), countStyle: .memory))
                         .font(.system(size: 26, weight: .heavy, design: .rounded))
                         .foregroundStyle(.white)
-                    Text(verbatim: "of 36 GB allocated (51%)")
+                    Text(verbatim: "of \(ByteCountFormatter.string(fromByteCount: Int64(monitor.snapshot.memory.total), countStyle: .memory)) (\(SystemMonitorFormat.percent(monitor.snapshot.memory.fraction)))")
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.white.opacity(0.5))
                 }
@@ -121,7 +132,7 @@ struct NotchHardwareHudPageView: View {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
                         Capsule().fill(Color.white.opacity(0.12)).frame(height: 6)
-                        Capsule().fill(Color.purple).frame(width: geo.size.width * 0.51, height: 6)
+                        Capsule().fill(Color.purple).frame(width: geo.size.width * CGFloat(min(1, max(0, monitor.snapshot.memory.fraction))), height: 6)
                     }
                 }
                 .frame(height: 6)
@@ -137,7 +148,7 @@ struct NotchHardwareHudPageView: View {
                     )
             )
         }
-        .onAppear { power.acquire() }
-        .onDisappear { power.release() }
+        .onAppear { power.acquire(); monitor.acquire() }
+        .onDisappear { power.release(); monitor.release() }
     }
 }

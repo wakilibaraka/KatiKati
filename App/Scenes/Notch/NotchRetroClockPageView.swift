@@ -67,7 +67,7 @@ struct NotchRetroClockPageView: View {
                             .foregroundStyle(.white.opacity(0.9))
                     }
                     Spacer()
-                    Text(verbatim: "UTC+3")
+                    Text(verbatim: TimeZone.current.abbreviation() ?? "UTC")
                         .font(.system(size: 9, weight: .bold, design: .monospaced))
                         .foregroundStyle(.white.opacity(0.5))
                 }
