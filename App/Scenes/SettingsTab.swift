@@ -9,6 +9,7 @@ enum SettingsTab: String, CaseIterable {
     case general
     case layout
     case widgets
+    case notch
     case edgeBars
     case appearance
     // Raw value stays "tiling": it is the toolbar item identifier.
@@ -21,6 +22,7 @@ enum SettingsTab: String, CaseIterable {
         case .general: return String(localized: "General")
         case .layout: return String(localized: "Layout")
         case .widgets: return String(localized: "Widgets")
+        case .notch: return String(localized: "Notch")
         case .edgeBars: return String(localized: "Edge Bars")
         case .appearance: return String(localized: "Appearance")
         case .windowManagement: return String(localized: "Window Management")
@@ -34,6 +36,7 @@ enum SettingsTab: String, CaseIterable {
         case .general: return "gearshape"
         case .layout: return "rectangle.split.3x1"
         case .widgets: return "square.grid.2x2"
+        case .notch: return "capsule.tophalf.filled"
         case .edgeBars: return "sidebar.right"
         case .appearance: return "paintpalette"
         case .windowManagement: return "rectangle.split.2x2"

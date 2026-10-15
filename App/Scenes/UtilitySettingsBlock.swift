@@ -13,12 +13,6 @@ struct UtilitySettingsBlock: View {
     @AppStorage(CustomCommand.snippetsKey) private var snippets = ""
     @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
     @AppStorage(FileIndexService.enabledKey) private var fastIndex = true
-    @AppStorage(DailyHelpersService.hideFromCaptureKey) private var hideFromCapture = false
-    @AppStorage(DailyHelpersService.capsLockKey) private var capsLockHUD = false
-    @AppStorage(DailyHelpersService.batteryKey) private var batteryNudge = false
-    @AppStorage(DailyHelpersService.ejectKey) private var usbEject = false
-    @AppStorage(DailyHelpersService.privacyKey) private var privacyDot = false
-    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
 
     var body: some View {
         HStack {
@@ -38,37 +32,6 @@ struct UtilitySettingsBlock: View {
             TextField("Ignore Patterns", text: $clipboardIgnorePatterns)
                 .textFieldStyle(.roundedBorder).frame(width: 220)
         }
-        Text("Daily Helpers").font(.headline)
-        row("Hide from Screen Capture") {
-            Toggle("Hide from Screen Capture", isOn: $hideFromCapture).toggleStyle(.switch).labelsHidden().accessibilityLabel("Hide from Screen Capture")
-        }
-        row("Caps Lock Indicator") {
-            Toggle("Caps Lock Indicator", isOn: $capsLockHUD).toggleStyle(.switch).labelsHidden().accessibilityLabel("Caps Lock Indicator")
-        }
-        row("Charge Notices") {
-            Toggle("Charge Notices", isOn: $batteryNudge).toggleStyle(.switch).labelsHidden().accessibilityLabel("Charge Notices")
-        }
-        HStack {
-            Text("Clean Keyboard")
-            Spacer(minLength: 12)
-            Button("Lock for 60 Seconds") { KeyGuardService.shared.startCleaningLock() }
-        }
-        Text("Keys are off for 60 seconds. Press ⌃⌥⌘P to unlock sooner.").font(.caption).foregroundColor(.secondary)
-        row("Offer to Eject Drives") {
-            Toggle("Offer to Eject Drives", isOn: $usbEject).toggleStyle(.switch).labelsHidden().accessibilityLabel("Offer to Eject Drives")
-        }
-        row("Camera and Mic Indicator") {
-            Toggle("Camera and Mic Indicator", isOn: $privacyDot).toggleStyle(.switch).labelsHidden().accessibilityLabel("Camera and Mic Indicator")
-        }
-        HStack {
-            Text("Teleprompter")
-            Spacer(minLength: 12)
-            Button("Open Teleprompter Window") { TeleprompterWindowController.shared.show() }
-        }
-        row("Teleprompter Notch Page") {
-            Toggle("Teleprompter Notch Page", isOn: $teleprompterPage).toggleStyle(.switch).labelsHidden().accessibilityLabel("Teleprompter Notch Page")
-        }
-        Text("Opens from ⌘Space (prompter). The window is hidden from screen recordings and shares.").font(.caption).foregroundColor(.secondary)
         Text("Launcher").font(.headline)
         row("Script Commands") {
             Toggle("Script Commands", isOn: $launcherScripts).toggleStyle(.switch).labelsHidden().accessibilityLabel("Script Commands")
@@ -150,6 +113,59 @@ struct UtilitySettingsBlock: View {
         case .selectSpotlight: return Text("Select Spotlight in the list.")
         case .uncheckShowSearch: return Text("Turn off Show Spotlight search.")
         case .testHere: return Text("Come back and press ⌘Space to test.")
+        }
+    }
+}
+
+/// Phase 12 — the helpers that surface in the notch (indicators, notices, teleprompter page), split
+/// out of `UtilitySettingsBlock` so the Notch page owns them.
+struct NotchHelpersSettingsBlock: View {
+    @AppStorage(DailyHelpersService.hideFromCaptureKey) private var hideFromCapture = false
+    @AppStorage(DailyHelpersService.capsLockKey) private var capsLockHUD = false
+    @AppStorage(DailyHelpersService.batteryKey) private var batteryNudge = false
+    @AppStorage(DailyHelpersService.ejectKey) private var usbEject = false
+    @AppStorage(DailyHelpersService.privacyKey) private var privacyDot = false
+    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
+
+    var body: some View {
+        Text("Daily Helpers").font(.headline)
+        row("Hide from Screen Capture") {
+            Toggle("Hide from Screen Capture", isOn: $hideFromCapture).toggleStyle(.switch).labelsHidden().accessibilityLabel("Hide from Screen Capture")
+        }
+        row("Caps Lock Indicator") {
+            Toggle("Caps Lock Indicator", isOn: $capsLockHUD).toggleStyle(.switch).labelsHidden().accessibilityLabel("Caps Lock Indicator")
+        }
+        row("Charge Notices") {
+            Toggle("Charge Notices", isOn: $batteryNudge).toggleStyle(.switch).labelsHidden().accessibilityLabel("Charge Notices")
+        }
+        HStack {
+            Text("Clean Keyboard")
+            Spacer(minLength: 12)
+            Button("Lock for 60 Seconds") { KeyGuardService.shared.startCleaningLock() }
+        }
+        Text("Keys are off for 60 seconds. Press ⌃⌥⌘P to unlock sooner.").font(.caption).foregroundColor(.secondary)
+        row("Offer to Eject Drives") {
+            Toggle("Offer to Eject Drives", isOn: $usbEject).toggleStyle(.switch).labelsHidden().accessibilityLabel("Offer to Eject Drives")
+        }
+        row("Camera and Mic Indicator") {
+            Toggle("Camera and Mic Indicator", isOn: $privacyDot).toggleStyle(.switch).labelsHidden().accessibilityLabel("Camera and Mic Indicator")
+        }
+        HStack {
+            Text("Teleprompter")
+            Spacer(minLength: 12)
+            Button("Open Teleprompter Window") { TeleprompterWindowController.shared.show() }
+        }
+        row("Teleprompter Notch Page") {
+            Toggle("Teleprompter Notch Page", isOn: $teleprompterPage).toggleStyle(.switch).labelsHidden().accessibilityLabel("Teleprompter Notch Page")
+        }
+        Text("Opens from ⌘Space (prompter). The window is hidden from screen recordings and shares.").font(.caption).foregroundColor(.secondary)
+    }
+
+    private func row<C: View>(_ title: LocalizedStringKey, @ViewBuilder control: () -> C) -> some View {
+        HStack {
+            Text(title)
+            Spacer(minLength: 12)
+            control()
         }
     }
 }

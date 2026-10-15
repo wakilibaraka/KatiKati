@@ -49,6 +49,7 @@ struct SettingsWindowContent: View {
             case .general: generalPane
             case .layout: SettingsLayoutPane(store: store)
             case .widgets: SettingsLayoutPane(store: store, mode: .widgets)
+            case .notch: notchPane
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
             case .appearance: SettingsAppearancePane(store: store)
             case .windowManagement: SettingsTilingPane(store: store)
@@ -217,7 +218,6 @@ struct SettingsWindowContent: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 Section {
-                    LiveIslandSettingsBlock(store: store)
                     UtilitySettingsBlock(store: store)
                     BehaviourSettingsBlock()
                 }
@@ -229,11 +229,30 @@ struct SettingsWindowContent: View {
                     fullscreenIntentToggle
                 }
                 Divider().opacity(0.5)
-                LiveIslandSettingsBlock(store: store)
-                Divider().opacity(0.5)
                 UtilitySettingsBlock(store: store)
                 Divider().opacity(0.5)
                 BehaviourSettingsBlock()
+            }
+            .padding(Self.paneMargin)
+        }
+    }
+
+    /// 「刘海」页: the Live Island block plus the helpers that surface in the notch.
+    @ViewBuilder
+    private var notchPane: some View {
+        if #available(macOS 13.0, *) {
+            systemForm {
+                Section {
+                    LiveIslandSettingsBlock(store: store)
+                    NotchHelpersSettingsBlock()
+                }
+            }
+            .padding(.bottom, Self.afterFormMargin)
+        } else {
+            settingsPane {
+                LiveIslandSettingsBlock(store: store)
+                Divider().opacity(0.5)
+                NotchHelpersSettingsBlock()
             }
             .padding(Self.paneMargin)
         }
