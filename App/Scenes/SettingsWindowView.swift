@@ -52,7 +52,7 @@ struct SettingsWindowContent: View {
             case .notch: notchPane
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
             case .appearance: SettingsAppearancePane(store: store)
-            case .windowManagement: SettingsTilingPane(store: store)
+            case .windowManagement: windowManagementPane
             case .advanced: advancedPane
             case .about: aboutPane
             }
@@ -234,6 +234,18 @@ struct SettingsWindowContent: View {
                 BehaviourSettingsBlock()
             }
             .padding(Self.paneMargin)
+        }
+    }
+
+    /// 「窗口管理」页: tiling, window chips, and the two window behaviours.
+    private var windowManagementPane: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SettingsTilingPane(store: store)
+            SettingsLayoutPane(store: store, mode: .chips)
+            VStack(alignment: .leading, spacing: 8) {
+                WindowBehaviourSettingsBlock()
+            }
+            .padding([.horizontal, .bottom], 28)
         }
     }
 

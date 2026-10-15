@@ -4264,6 +4264,7 @@ Folds into Phase 12 so it is audited once: **12c** Permissions + Shortcuts secti
 - 2026-10-15 · **12 slice 1 done:** Preview, Layout Mode, Size and Fine-tune moved out of Layout into General (`SettingsLayoutPane(mode: .geometry)` embedded under the General form, both macOS copies; macOS 12 uses negative padding to cancel the double margin — verify at close-out). Build + gates green; live check deferred.
 - 2026-10-15 · **12 slice 2 done:** Widget Layout/Colors/Clock Style/Glass/Weather/Now Playing Theme moved from General to the top of the Widgets tab via new `WidgetLookSettingsBlock` (one copy now serves macOS 12 and 13, so the macOS-12 Now Playing parity fix is subsumed). Pickers made internal. Build + gates green.
 - 2026-10-15 · **12 slice 3 done:** new **Notch** tab (`SettingsTab.notch`, `notchPane` in both macOS copies) holding `LiveIslandSettingsBlock` plus new `NotchHelpersSettingsBlock` (Daily Helpers + Teleprompter, split out of `UtilitySettingsBlock`); removed Live Island from Advanced. Title 'Notch' (existing key reused). Build + gates green; live check deferred.
+- 2026-10-15 · **12 slice 4 done:** Window Management tab now composes Tiling, Window Chips (`SettingsLayoutPane(mode: .chips)`, moved out of Layout) and `WindowBehaviourSettingsBlock` (Option-Tab switcher + restore after sleep, split from `BehaviourSettingsBlock`). Build + gates green; live check deferred.
 
 #### Phase 38 — Lock-screen notch (EXPERIMENTAL; probe first, then owner decides)
 

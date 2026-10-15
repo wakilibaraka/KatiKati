@@ -296,7 +296,7 @@ struct SettingsLayoutPane: View {
 
     /// Phase 12e — the same pane serves two tabs: Layout keeps the dock geometry, Widgets takes
     /// the widget list, presets and styles.
-    enum Mode { case layout, widgets, edgeBars, geometry }
+    enum Mode { case layout, widgets, edgeBars, geometry, chips }
     var mode: Mode = .layout
 
     @ViewBuilder
@@ -432,6 +432,112 @@ struct SettingsLayoutPane: View {
                 }
             } content: {
                 EmptyView()
+            }
+    }
+
+    @ViewBuilder
+    private var chipSections: some View {
+            section {
+                Text("Window Chips")
+            } content: {
+                HStack {
+                    Text("Multiple Windows")
+                    Spacer(minLength: 12)
+                    Picker("Multiple Windows", selection: Binding(
+                        get: { store.chipGroupingPlan.defaultPolicy },
+                        set: { store.setChipGroupingDefault($0) }
+                    )) {
+                        Text("One chip per window").tag(WindowChipGroupPolicy.separate)
+                        Text("Group by app").tag(WindowChipGroupPolicy.grouped)
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                ForEach(store.chipGroupingPlan.overrides.keys.sorted(), id: \.self) { bundleID in
+                    HStack {
+                        Text(verbatim: Self.appName(forBundleID: bundleID))
+                        Spacer(minLength: 12)
+                        Picker("Multiple Windows", selection: Binding(
+                            get: { store.chipGroupingPlan.overrides[bundleID] ?? store.chipGroupingPlan.defaultPolicy },
+                            set: { store.setChipGrouping($0, forBundleID: bundleID) }
+                        )) {
+                            Text("One chip per window").tag(WindowChipGroupPolicy.separate)
+                            Text("Group by app").tag(WindowChipGroupPolicy.grouped)
+                        }
+                        .labelsHidden().pickerStyle(.menu).fixedSize()
+                        Button("Remove") { store.setChipGrouping(nil, forBundleID: bundleID) }
+                    }
+                }
+                Menu {
+                    ForEach(Self.runningAppChoices(excluding: Set(store.chipGroupingPlan.overrides.keys)), id: \.bundleID) { app in
+                        Button(app.name) {
+                            let other: WindowChipGroupPolicy = store.chipGroupingPlan.defaultPolicy == .grouped ? .separate : .grouped
+                            store.setChipGrouping(other, forBundleID: app.bundleID)
+                        }
+                    }
+                } label: {
+                    Text("Add App…")
+                }
+                .fixedSize()
+                Text("A grouped app shows one chip with a window count; clicking it cycles the app's windows.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Toggle("Show All Running Apps", isOn: Binding(
+                    get: { store.showAllRunningApps },
+                    set: { store.setShowAllRunningApps($0) }
+                )).accessibilityLabel("Show All Running Apps")
+                Text("Gives every running app a chip, even when it has no open window — like the system Dock.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Toggle("Hover Preview", isOn: Binding(
+                    get: { store.chipPreviewEnabled },
+                    set: { store.setChipPreviewEnabled($0) }
+                )).accessibilityLabel("Hover Preview")
+                if store.chipPreviewEnabled {
+                    HStack {
+                        Text("Preview Delay")
+                        Spacer(minLength: 12)
+                        Picker("Preview Delay", selection: Binding(
+                            get: { store.chipPreviewDelayMs },
+                            set: { store.setChipPreviewDelayMs($0) }
+                        )) {
+                            Text("Fast").tag(150)
+                            Text("Normal").tag(350)
+                            Text("Slow").tag(600)
+                        }
+                        .labelsHidden().pickerStyle(.segmented).fixedSize()
+                    }
+                    HStack {
+                        Text("Preview Size")
+                        Spacer(minLength: 12)
+                        Picker("Preview Size", selection: Binding(
+                            get: { store.chipPreviewThumbWidth },
+                            set: { store.setChipPreviewThumbWidth($0) }
+                        )) {
+                            Text("Small").tag(140)
+                            Text("Medium").tag(180)
+                            Text("Large").tag(240)
+                        }
+                        .labelsHidden().pickerStyle(.segmented).fixedSize()
+                    }
+                    if !CGPreflightScreenCaptureAccess() {
+                        Text("Window previews need Screen Recording permission. Without it, previews show titles only.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Button("Allow Screen Recording") { _ = CGRequestScreenCaptureAccess() }
+                    }
+                }
+                Toggle("Classic Right-Click Menu", isOn: Binding(
+                    get: { store.chipClassicMenu },
+                    set: { store.setChipClassicMenu($0) }
+                )).accessibilityLabel("Classic Right-Click Menu")
+                Text("Right-click a window chip for a floating jump list above the dock. Turn this on to use the system menu instead.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
     }
 
@@ -598,110 +704,9 @@ struct SettingsLayoutPane: View {
                 edgeBarSections
             } else if mode == .geometry {
                 geometrySections
+            } else if mode == .chips {
+                chipSections
             } else {
-            section {
-                Text("Window Chips")
-            } content: {
-                HStack {
-                    Text("Multiple Windows")
-                    Spacer(minLength: 12)
-                    Picker("Multiple Windows", selection: Binding(
-                        get: { store.chipGroupingPlan.defaultPolicy },
-                        set: { store.setChipGroupingDefault($0) }
-                    )) {
-                        Text("One chip per window").tag(WindowChipGroupPolicy.separate)
-                        Text("Group by app").tag(WindowChipGroupPolicy.grouped)
-                    }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
-                ForEach(store.chipGroupingPlan.overrides.keys.sorted(), id: \.self) { bundleID in
-                    HStack {
-                        Text(verbatim: Self.appName(forBundleID: bundleID))
-                        Spacer(minLength: 12)
-                        Picker("Multiple Windows", selection: Binding(
-                            get: { store.chipGroupingPlan.overrides[bundleID] ?? store.chipGroupingPlan.defaultPolicy },
-                            set: { store.setChipGrouping($0, forBundleID: bundleID) }
-                        )) {
-                            Text("One chip per window").tag(WindowChipGroupPolicy.separate)
-                            Text("Group by app").tag(WindowChipGroupPolicy.grouped)
-                        }
-                        .labelsHidden().pickerStyle(.menu).fixedSize()
-                        Button("Remove") { store.setChipGrouping(nil, forBundleID: bundleID) }
-                    }
-                }
-                Menu {
-                    ForEach(Self.runningAppChoices(excluding: Set(store.chipGroupingPlan.overrides.keys)), id: \.bundleID) { app in
-                        Button(app.name) {
-                            let other: WindowChipGroupPolicy = store.chipGroupingPlan.defaultPolicy == .grouped ? .separate : .grouped
-                            store.setChipGrouping(other, forBundleID: app.bundleID)
-                        }
-                    }
-                } label: {
-                    Text("Add App…")
-                }
-                .fixedSize()
-                Text("A grouped app shows one chip with a window count; clicking it cycles the app's windows.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Toggle("Show All Running Apps", isOn: Binding(
-                    get: { store.showAllRunningApps },
-                    set: { store.setShowAllRunningApps($0) }
-                )).accessibilityLabel("Show All Running Apps")
-                Text("Gives every running app a chip, even when it has no open window — like the system Dock.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                Toggle("Hover Preview", isOn: Binding(
-                    get: { store.chipPreviewEnabled },
-                    set: { store.setChipPreviewEnabled($0) }
-                )).accessibilityLabel("Hover Preview")
-                if store.chipPreviewEnabled {
-                    HStack {
-                        Text("Preview Delay")
-                        Spacer(minLength: 12)
-                        Picker("Preview Delay", selection: Binding(
-                            get: { store.chipPreviewDelayMs },
-                            set: { store.setChipPreviewDelayMs($0) }
-                        )) {
-                            Text("Fast").tag(150)
-                            Text("Normal").tag(350)
-                            Text("Slow").tag(600)
-                        }
-                        .labelsHidden().pickerStyle(.segmented).fixedSize()
-                    }
-                    HStack {
-                        Text("Preview Size")
-                        Spacer(minLength: 12)
-                        Picker("Preview Size", selection: Binding(
-                            get: { store.chipPreviewThumbWidth },
-                            set: { store.setChipPreviewThumbWidth($0) }
-                        )) {
-                            Text("Small").tag(140)
-                            Text("Medium").tag(180)
-                            Text("Large").tag(240)
-                        }
-                        .labelsHidden().pickerStyle(.segmented).fixedSize()
-                    }
-                    if !CGPreflightScreenCaptureAccess() {
-                        Text("Window previews need Screen Recording permission. Without it, previews show titles only.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                        Button("Allow Screen Recording") { _ = CGRequestScreenCaptureAccess() }
-                    }
-                }
-                Toggle("Classic Right-Click Menu", isOn: Binding(
-                    get: { store.chipClassicMenu },
-                    set: { store.setChipClassicMenu($0) }
-                )).accessibilityLabel("Classic Right-Click Menu")
-                Text("Right-click a window chip for a floating jump list above the dock. Turn this on to use the system menu instead.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
             section {
                 Text("Launcher")
             } content: {
