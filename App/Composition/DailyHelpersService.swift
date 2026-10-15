@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 
 // Phase 36 — the small daily helpers. One owner, one `UserDefaults` change observer: every helper is a
 // default-OFF key, started only while on and torn down when off, so a disabled helper costs nothing.
@@ -9,6 +10,7 @@ final class DailyHelpersService {
     static let shared = DailyHelpersService()
     static let hideFromCaptureKey = "com.katikati.helpers.hideFromCapture"
     static let capsLockKey = "com.katikati.helpers.capsLock"
+    static let batteryKey = "com.katikati.helpers.batteryNudge"
 
     /// Set by `AppDelegate` to `liveEventCenter.deliver`.
     var deliver: (LiveEvent) -> Void = { _ in }
@@ -19,6 +21,9 @@ final class DailyHelpersService {
     private var hidden = Set<Int>()
     private var capsMonitor: Any?
     private var caps = CapsLockTracker()
+    private var batteryStatus: SystemStatusService?
+    private var batterySub: AnyCancellable?
+    private var batteryRule = BatteryNoticeRule()
 
     func start() {
         guard defaultsObserver == nil else { return }
@@ -31,6 +36,7 @@ final class DailyHelpersService {
     func refresh() {
         applyCaptureHiding(UserDefaults.standard.bool(forKey: Self.hideFromCaptureKey))
         applyCapsLock(UserDefaults.standard.bool(forKey: Self.capsLockKey))
+        applyBattery(UserDefaults.standard.bool(forKey: Self.batteryKey))
     }
 
     // MARK: 36d — hide from screen capture
@@ -74,6 +80,26 @@ final class DailyHelpersService {
         } else if !on, let monitor = capsMonitor {
             NSEvent.removeMonitor(monitor)
             capsMonitor = nil
+        }
+    }
+
+    // MARK: 36b — charge / unplug island
+
+    /// Rides `SystemStatusService` (IOKit power-source notification — event-driven, no polling) only while on.
+    private func applyBattery(_ on: Bool) {
+        if on, batteryStatus == nil {
+            let service = SystemStatusService()
+            batteryRule = BatteryNoticeRule()
+            batteryStatus = service
+            service.acquire()
+            batterySub = service.$status.map(\.battery).removeDuplicates().sink { [weak self] battery in
+                guard let self, let kind = self.batteryRule.update(battery) else { return }
+                self.deliver(.notice(kind, detail: battery.level.map { "\($0)%" }))
+            }
+        } else if !on, let service = batteryStatus {
+            batterySub = nil
+            service.release()
+            batteryStatus = nil
         }
     }
 }

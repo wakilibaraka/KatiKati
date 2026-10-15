@@ -4217,6 +4217,8 @@ Overlooked by decision (owner agreed): Face Unlock, Stocks, embedded Terminal, F
 
 - 2026-10-15 · **36a delivered — PASS (code; not live-checked).** `LiveEvent.notice(LiveNoticeKind, detail)` (shared by 36a/36b; dedupe key, presentation, strings ×12), pure `CapsLockTracker` (first reading = baseline, then on/off transitions) + test, `com.katikati.helpers.capsLock` (default off). The `flagsChanged` monitor exists only while on **and** Input Monitoring is granted (no prompt from here; stays off otherwise). Needs a live check of the toast on the dock/notch surface.
 
+- 2026-10-15 · **36b delivered — PASS (code; not live-checked).** Pure `BatteryNoticeRule` (nudge once at 80% while charging, once at 100%; first reading only seeds so launching at 90% is silent; re-arms on unplug or a drop of 5 points) + 2 tests. `com.katikati.helpers.batteryNudge` (default off) rides a private `SystemStatusService` (IOKit power-source notification, no polling) acquired only while on. Reuses `.notice` (strings "Battery at 80%", "Fully Charged", "Charge Notices" ×12). **Limit:** the toast is a notice, not a button; "unplug" is the user's own action.
+
 #### Phase 37 — Teleprompter with link reader (notch page + floating window)
 
 **Goal.** A script reader that scrolls under the camera. **One engine, two hosts:** a 7th notch page (short scripts) and a

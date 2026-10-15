@@ -14,6 +14,7 @@ struct UtilitySettingsBlock: View {
     @AppStorage(FileIndexService.enabledKey) private var fastIndex = true
     @AppStorage(DailyHelpersService.hideFromCaptureKey) private var hideFromCapture = false
     @AppStorage(DailyHelpersService.capsLockKey) private var capsLockHUD = false
+    @AppStorage(DailyHelpersService.batteryKey) private var batteryNudge = false
 
     var body: some View {
         HStack {
@@ -39,6 +40,9 @@ struct UtilitySettingsBlock: View {
         }
         row("Caps Lock Indicator") {
             Toggle("Caps Lock Indicator", isOn: $capsLockHUD).toggleStyle(.switch).labelsHidden()
+        }
+        row("Charge Notices") {
+            Toggle("Charge Notices", isOn: $batteryNudge).toggleStyle(.switch).labelsHidden()
         }
         Text("Launcher").font(.headline)
         row("Script Commands") {

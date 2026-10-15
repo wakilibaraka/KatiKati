@@ -19,3 +19,29 @@ struct CapsLockTracker: Equatable, Sendable {
         return now ? .capsLockOn : .capsLockOff
     }
 }
+
+/// 36b — "unplug" nudges while charging: once at 80% (the battery-health sweet spot) and once when full.
+/// The first reading only seeds the state, so launching at 90% plugged in does not announce anything.
+/// Each nudge re-arms after the level drops back or the charger is unplugged.
+struct BatteryNoticeRule: Equatable, Sendable {
+    static let highThreshold = 80
+    private var seeded = false
+    private var armedHigh = true
+    private var armedFull = true
+
+    mutating func update(_ battery: BatteryStatus) -> LiveNoticeKind? {
+        guard let level = battery.level else { return nil }
+        if !seeded {
+            seeded = true
+            armedHigh = level < Self.highThreshold
+            armedFull = level < 100
+            return nil
+        }
+        if !battery.isPluggedIn || level < Self.highThreshold - 5 { armedHigh = true }
+        if !battery.isPluggedIn || level < 95 { armedFull = true }
+        guard battery.isPluggedIn else { return nil }
+        if level >= 100, armedFull { armedFull = false; armedHigh = false; return .batteryFull }
+        if battery.isCharging, level >= Self.highThreshold, armedHigh { armedHigh = false; return .batteryHigh }
+        return nil
+    }
+}
