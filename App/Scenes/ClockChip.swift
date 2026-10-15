@@ -66,8 +66,8 @@ public struct ClockChip: View {
         if preset == .flipTiles && widgetSize != .small {
             FlipClockChip()
         } else if preset == .stackedCard {
-            TimelineView(.periodic(from: ClockTick.nextMinute(after: Date()), by: 60)) { context in
-                StackedClockCardView(content: provider.currentContent(for: context.date), widgetSize: widgetSize)
+            TimelineView(.periodic(from: Date(), by: widgetSize == .small ? 60 : 1)) { context in
+                StackedClockCardView(content: provider.currentContent(for: context.date), widgetSize: widgetSize, date: context.date)
             }
             .onTapGesture {
                 WidgetPanelController.calendar.toggle()
@@ -304,22 +304,20 @@ struct RailClockTile: View {
 private struct StackedClockCardView: View {
     let content: ClockContent
     let widgetSize: WidgetSize
+    var date: Date = Date()
+    @ObservedObject private var calendarService = ProductivityServices.shared.calendar
+    @ObservedObject private var alarmStore = ProductivityServices.shared.alarms
     @State private var isHovered = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(content.primaryText)
-                .font(.system(size: timeFontSize, weight: .bold, design: .rounded).monospacedDigit())
-                .foregroundStyle(.white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-
-            if let secondary = content.secondaryText {
-                Text(secondary)
-                    .font(.system(size: dateFontSize, weight: .medium, design: .rounded))
-                    .foregroundStyle(Color.white.opacity(0.82))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
+        Group {
+            switch widgetSize {
+            case .small:
+                compactView
+            case .medium:
+                mediumView
+            case .large:
+                largeView
             }
         }
         .padding(.horizontal, 9)
@@ -342,19 +340,204 @@ private struct StackedClockCardView: View {
         .contentShape(Rectangle())
     }
 
-    private var timeFontSize: CGFloat {
-        switch widgetSize {
-        case .small: return 15
-        case .medium: return 18
-        case .large: return 20
+    private var compactView: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(content.primaryText)
+                .font(.system(size: 15, weight: .bold, design: .rounded).monospacedDigit())
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+
+            if let secondary = content.secondaryText {
+                Text(secondary)
+                    .font(.system(size: 9.5, weight: .medium, design: .rounded))
+                    .foregroundStyle(Color.white.opacity(0.82))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
         }
     }
 
-    private var dateFontSize: CGFloat {
-        switch widgetSize {
-        case .small: return 9
-        case .medium: return 10.5
-        case .large: return 11.5
+    private var mediumView: some View {
+        let cal = Calendar.current
+        let nextEvent = calendarService.events
+            .filter { ($0.start > date || ($0.start <= date && $0.end > date)) && !cal.isDateInYesterday($0.start) }
+            .sorted { $0.start < $1.start }
+            .first
+        let nextAlarmTuple = AlarmList.next(in: alarmStore.alarms, after: date)
+        let sec = cal.component(.second, from: date)
+
+        return HStack(spacing: 8) {
+            // Left: Time & Date
+            VStack(alignment: .leading, spacing: 1.5) {
+                Text(content.primaryText)
+                    .font(.system(size: 17, weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+
+                if let secondary = content.secondaryText {
+                    Text(secondary)
+                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.80))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+            }
+
+            // Hairline separator
+            Rectangle()
+                .fill(Color.white.opacity(0.14))
+                .frame(width: 1, height: 24)
+
+            // Right: Upcoming event / alarm / live seconds
+            VStack(alignment: .leading, spacing: 2) {
+                if let event = nextEvent {
+                    HStack(spacing: 3) {
+                        Circle()
+                            .fill(event.color)
+                            .frame(width: 5, height: 5)
+                        Text(verbatim: event.title)
+                            .font(.system(size: 9.5, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                    }
+
+                    Text(verbatim: formatEventRelative(event.start))
+                        .font(.system(size: 9, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.70))
+                        .lineLimit(1)
+                } else if let (alarm, fireDate) = nextAlarmTuple {
+                    HStack(spacing: 3) {
+                        Image(systemName: "alarm.fill")
+                            .font(.system(size: 8.5))
+                            .foregroundStyle(Color(red: 1.0, green: 0.82, blue: 0.25))
+                        Text(verbatim: String(format: "%02d:%02d", alarm.hour, alarm.minute))
+                            .font(.system(size: 9.5, weight: .bold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(.white)
+                    }
+
+                    Text(verbatim: formatAlarmRelative(fireDate))
+                        .font(.system(size: 9, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color(red: 1.0, green: 0.82, blue: 0.25).opacity(0.85))
+                        .lineLimit(1)
+                } else {
+                    HStack(spacing: 2) {
+                        Text(verbatim: ":\(String(format: "%02d", sec))")
+                            .font(.system(size: 11, weight: .bold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(Color(red: 0.38, green: 0.68, blue: 1.0))
+                    }
+
+                    Text(verbatim: "W\(cal.component(.weekOfYear, from: date)) • D\(cal.ordinality(of: .day, in: .year, for: date) ?? 1)")
+                        .font(.system(size: 8.5, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.60))
+                        .lineLimit(1)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+
+    private var largeView: some View {
+        let cal = Calendar.current
+        let nextEvent = calendarService.events
+            .filter { ($0.start > date || ($0.start <= date && $0.end > date)) && !cal.isDateInYesterday($0.start) }
+            .sorted { $0.start < $1.start }
+            .first
+        let nextAlarmTuple = AlarmList.next(in: alarmStore.alarms, after: date)
+        let sec = cal.component(.second, from: date)
+
+        return HStack(spacing: 10) {
+            // Left: Time with live seconds + Date
+            VStack(alignment: .leading, spacing: 1.5) {
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    Text(content.primaryText)
+                        .font(.system(size: 18, weight: .bold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(.white)
+
+                    Text(verbatim: ":\(String(format: "%02d", sec))")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(Color(red: 0.38, green: 0.68, blue: 1.0))
+                }
+                .lineLimit(1)
+
+                if let secondary = content.secondaryText {
+                    Text(secondary)
+                        .font(.system(size: 10.5, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.82))
+                        .lineLimit(1)
+                }
+            }
+
+            // Hairline separator
+            Rectangle()
+                .fill(Color.white.opacity(0.14))
+                .frame(width: 1, height: 26)
+
+            // Right: Upcoming event + Alarm badge
+            VStack(alignment: .leading, spacing: 2.5) {
+                if let event = nextEvent {
+                    HStack(spacing: 3) {
+                        Circle()
+                            .fill(event.color)
+                            .frame(width: 5, height: 5)
+                        Text(verbatim: event.title)
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                    }
+
+                    Text(verbatim: formatEventRelative(event.start))
+                        .font(.system(size: 9, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.75))
+                        .lineLimit(1)
+                } else {
+                    HStack(spacing: 4) {
+                        Image(systemName: "calendar")
+                            .font(.system(size: 9))
+                            .foregroundStyle(Color.white.opacity(0.60))
+                        Text(verbatim: "No Events")
+                            .font(.system(size: 9.5, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.80))
+                    }
+                }
+
+                if let (alarm, fireDate) = nextAlarmTuple {
+                    HStack(spacing: 3) {
+                        Image(systemName: "alarm.fill")
+                            .font(.system(size: 8.5))
+                            .foregroundStyle(Color(red: 1.0, green: 0.82, blue: 0.25))
+                        Text(verbatim: "\(String(format: "%02d:%02d", alarm.hour, alarm.minute)) (\(formatAlarmRelative(fireDate)))")
+                            .font(.system(size: 8.5, weight: .medium, design: .rounded))
+                            .foregroundStyle(Color(red: 1.0, green: 0.82, blue: 0.25).opacity(0.90))
+                            .lineLimit(1)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func formatEventRelative(_ start: Date) -> String {
+        let diff = Int(start.timeIntervalSince(date))
+        if diff <= 0 {
+            return "Now"
+        }
+        let m = diff / 60
+        let h = m / 60
+        if h > 0 {
+            return "in \(h)h \(m % 60)m"
+        }
+        return "in \(max(1, m))m"
+    }
+
+    private func formatAlarmRelative(_ fireDate: Date) -> String {
+        let diff = Int(fireDate.timeIntervalSince(date))
+        let m = max(1, diff / 60)
+        let h = m / 60
+        if h > 0 {
+            return "in \(h)h \(m % 60)m"
+        }
+        return "in \(m)m"
     }
 }

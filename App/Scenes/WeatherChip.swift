@@ -349,15 +349,13 @@ private struct DetailedWeatherPodView: View {
 
     var body: some View {
         Group {
-            if widgetSize == .small {
+            switch widgetSize {
+            case .small:
                 compactDetailedView
-            } else if #available(macOS 13.0, *) {
-                ViewThatFits(in: .horizontal) {
-                    fullDetailedView
-                    compactDetailedView
-                }
-            } else {
-                fullDetailedView
+            case .medium:
+                mediumDetailedView
+            case .large:
+                largeDetailedView
             }
         }
         .padding(.horizontal, 9)
@@ -380,52 +378,6 @@ private struct DetailedWeatherPodView: View {
         .contentShape(Rectangle())
     }
 
-    private var fullDetailedView: some View {
-        HStack(spacing: 10) {
-            // Left column: Current temperature & city
-            VStack(alignment: .leading, spacing: 1) {
-                Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
-                    .font(.system(size: 19, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-
-                Text(state.cityName.isEmpty ? "Rome" : state.cityName)
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
-                    .foregroundStyle(Color.white.opacity(0.82))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-            }
-
-            // Subtle divider
-            Rectangle()
-                .fill(Color.white.opacity(0.14))
-                .frame(width: 1, height: 26)
-
-            // Right column: 3-day forecast columns
-            HStack(spacing: 8) {
-                ForEach(state.threeDayForecast) { item in
-                    VStack(spacing: 2) {
-                        Text(item.date)
-                            .font(.system(size: 9.5, weight: .semibold, design: .rounded))
-                            .foregroundStyle(Color.white.opacity(0.75))
-                            .lineLimit(1)
-
-                        Image(systemName: item.symbolName)
-                            .font(.system(size: 11, weight: .medium))
-                            .symbolRenderingMode(.multicolor)
-                            .frame(height: 12)
-
-                        Text(verbatim: "\(Int(round(item.highCelsius)))°")
-                            .font(.system(size: 10, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
-                            .lineLimit(1)
-                    }
-                }
-            }
-        }
-    }
-
     private var compactDetailedView: some View {
         HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 1) {
@@ -444,6 +396,125 @@ private struct DetailedWeatherPodView: View {
                 .font(.system(size: 14, weight: .medium))
                 .symbolRenderingMode(.multicolor)
         }
+    }
+
+    private var mediumDetailedView: some View {
+        HStack(spacing: 8) {
+            // Left column: Current temperature & city
+            VStack(alignment: .leading, spacing: 1) {
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
+                    Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+
+                    Image(systemName: state.symbolName)
+                        .font(.system(size: 11, weight: .medium))
+                        .symbolRenderingMode(.multicolor)
+                }
+
+                Text(state.cityName.isEmpty ? "Rome" : state.cityName)
+                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .foregroundStyle(Color.white.opacity(0.80))
+                    .lineLimit(1)
+            }
+
+            // Divider
+            Rectangle()
+                .fill(Color.white.opacity(0.14))
+                .frame(width: 1, height: 24)
+
+            // Right column: 3-step forecast micro-cards
+            HStack(spacing: 6) {
+                ForEach(forecastItems.prefix(3)) { item in
+                    VStack(spacing: 1.5) {
+                        Text(verbatim: item.date)
+                            .font(.system(size: 8.5, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.70))
+                            .lineLimit(1)
+
+                        Image(systemName: item.symbolName)
+                            .font(.system(size: 10, weight: .medium))
+                            .symbolRenderingMode(.multicolor)
+                            .frame(height: 11)
+
+                        Text(verbatim: "\(Int(round(item.highCelsius)))°")
+                            .font(.system(size: 9.5, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+    }
+
+    private var largeDetailedView: some View {
+        HStack(spacing: 10) {
+            // Left column: Temp + Icon, City, High/Low
+            VStack(alignment: .leading, spacing: 1) {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
+                        .font(.system(size: 19, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+
+                    Image(systemName: state.symbolName)
+                        .font(.system(size: 13, weight: .medium))
+                        .symbolRenderingMode(.multicolor)
+                }
+
+                Text(state.cityName.isEmpty ? "Rome" : state.cityName)
+                    .font(.system(size: 10.5, weight: .medium, design: .rounded))
+                    .foregroundStyle(Color.white.opacity(0.82))
+                    .lineLimit(1)
+
+                Text(verbatim: "H:\(Int(round(state.highCelsius)))° L:\(Int(round(state.lowCelsius)))°")
+                    .font(.system(size: 8.5, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(Color.white.opacity(0.65))
+            }
+
+            // Divider
+            Rectangle()
+                .fill(Color.white.opacity(0.14))
+                .frame(width: 1, height: 26)
+
+            // Right: 3-day forecast items with daily high/low
+            HStack(spacing: 8) {
+                ForEach(forecastItems.prefix(3)) { item in
+                    VStack(spacing: 2) {
+                        Text(verbatim: item.date)
+                            .font(.system(size: 9, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.75))
+                            .lineLimit(1)
+
+                        Image(systemName: item.symbolName)
+                            .font(.system(size: 11, weight: .medium))
+                            .symbolRenderingMode(.multicolor)
+                            .frame(height: 12)
+
+                        HStack(spacing: 2) {
+                            Text(verbatim: "\(Int(round(item.highCelsius)))°")
+                                .font(.system(size: 9.5, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+                            Text(verbatim: "\(Int(round(item.lowCelsius)))°")
+                                .font(.system(size: 8.5, weight: .medium, design: .rounded))
+                                .foregroundStyle(Color.white.opacity(0.60))
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+    }
+
+    private var forecastItems: [DailyForecast] {
+        if !state.threeDayForecast.isEmpty {
+            return state.threeDayForecast
+        }
+        return [
+            DailyForecast(date: "Today", highCelsius: state.highCelsius, lowCelsius: state.lowCelsius, symbolName: state.symbolName),
+            DailyForecast(date: "Tomorrow", highCelsius: state.highCelsius + 1, lowCelsius: state.lowCelsius, symbolName: state.symbolName),
+            DailyForecast(date: "Later", highCelsius: state.highCelsius - 1, lowCelsius: state.lowCelsius - 1, symbolName: state.symbolName)
+        ]
     }
 }
 
