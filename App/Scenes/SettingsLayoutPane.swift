@@ -291,7 +291,6 @@ struct SettingsLayoutPane: View {
     /// Width styles are fitted to: the screen the dock is on (main until it reports).
     private var dockScreenWidth: CGFloat { NSScreen.main?.frame.width ?? LayoutThumbnailModel.referenceScreen.width }
 
-    private static let margin: CGFloat = 28
     private static let previewFraction: CGFloat = 0.22
 
     /// Phase 12e — one pane, several tabs: Appearance embeds the dock geometry, Widgets takes
@@ -302,9 +301,7 @@ struct SettingsLayoutPane: View {
     @ViewBuilder
     private var geometrySections: some View {
         let inputs = store.layoutThumbnailInputs
-            section {
-                Text("Preview")
-            } content: {
+            SettingsCard(Text("Preview")) {
                 // Bottom 22% of the reference screen, drawn at full pane width.
                 LayoutModeThumbnail(mode: store.barLayoutMode, inputs: inputs, highlighted: true,
                                     minimumIslandHeight: 3, visibleBottomFraction: Self.previewFraction)
@@ -314,9 +311,7 @@ struct SettingsLayoutPane: View {
                     .frame(height: 72)
             }
 
-            section {
-                Text("Layout Mode")
-            } content: {
+            SettingsCard(Text("Layout Mode")) {
                 LayoutModePicker(selection: store.barLayoutMode, inputs: inputs) { store.setBarLayoutMode($0) }
                 // Fixed two-line box: the window is measured once per tab switch, so the
                 // pane height must not change with the selected mode.
@@ -327,10 +322,8 @@ struct SettingsLayoutPane: View {
                     .frame(maxWidth: .infinity, minHeight: 30, alignment: .topLeading)
             }
 
-            section {
-                Text("Size")
-            } content: {
-                segmentedRow(Text("Position"), selection: Binding(
+            SettingsCard(Text("Size")) {
+                SettingsSegmentedRow(Text("Position"), selection: Binding(
                     get: { store.stripPlacementMap.global },
                     set: { store.setStripPlacement($0) }
                 )) {
@@ -338,7 +331,7 @@ struct SettingsLayoutPane: View {
                     Text("Left").tag(StripPlacement.left)
                     Text("Right").tag(StripPlacement.right)
                 }
-                segmentedRow(Text("Bar Height"), selection: Binding(
+                SettingsSegmentedRow(Text("Bar Height"), selection: Binding(
                     get: { DockSizeClass.nearest(to: store.dockPanelHeight.points) },
                     set: { store.setDockPanelHeight(DockPanelHeight(clamping: $0.barHeight)) }
                 )) {
@@ -346,7 +339,7 @@ struct SettingsLayoutPane: View {
                     Text("Medium").tag(DockSizeClass.medium)
                     Text("Large").tag(DockSizeClass.large)
                 }
-                segmentedRow(Text("Spacing"), selection: Binding(
+                SettingsSegmentedRow(Text("Spacing"), selection: Binding(
                     get: { DockSpacing.matching(gap: store.islandGap, margin: store.islandMargin) },
                     set: { if let spacing = $0 { store.setDockSpacing(spacing) } }
                 )) {
@@ -356,32 +349,30 @@ struct SettingsLayoutPane: View {
                 }
             }
 
-            section {
+            SettingsCard {
                 DisclosureGroup(isExpanded: $showsFineTune) {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Exact values for power users. Bar height is capped at what still fits this screen.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
-                        sliderRow(Text("Bar Height"),
+                        SettingsSliderRow(Text("Bar Height"),
                                   value: store.dockPanelHeight.points,
                                   range: DockPanelHeight.minimum...fittingMaximumBarHeight, step: 1) {
                             store.setDockPanelHeight(DockPanelHeight(clamping: $0))
                         }
-                        sliderRow(Text("Gap Between Islands"), value: store.islandGap, range: 0.5...40, step: 0.5) {
+                        SettingsSliderRow(Text("Gap Between Islands"), value: store.islandGap, range: 0.5...40, step: 0.5) {
                             store.setIslandGap($0)
                         }
-                        sliderRow(Text("Side Margin"), value: store.islandMargin, range: 0...80, step: 1) {
+                        SettingsSliderRow(Text("Side Margin"), value: store.islandMargin, range: 0...80, step: 1) {
                             store.setIslandMargin($0)
                         }
-                        sliderRow(Text("Centered Width"), value: store.centeredWidth,
+                        SettingsSliderRow(Text("Centered Width"), value: store.centeredWidth,
                                   range: AppSettingsStore.minimumCenteredWidth...AppSettingsStore.maximumCenteredWidth, step: 10) {
                             store.setCenteredWidth($0)
                         }
                         .disabled(store.barLayoutMode != .centered)
-                        HStack {
-                            Text("Bottom Edge")
-                            Spacer(minLength: 12)
+                        SettingsRow(Text("Bottom Edge")) {
                             Picker("Bottom Edge", selection: Binding(
                                 get: { BottomEdgeChoice(gap: store.bottomGap) },
                                 set: { choice in
@@ -401,7 +392,7 @@ struct SettingsLayoutPane: View {
                             .pickerStyle(.segmented)
                             .fixedSize()
                         }
-                        sliderRow(Text("Distance From Edge"), value: store.bottomGap,
+                        SettingsSliderRow(Text("Distance From Edge"), value: store.bottomGap,
                                   range: PanelLayoutMetrics.bottomGapRange, step: 1) {
                             store.setBottomGap($0)
                         }
@@ -419,7 +410,7 @@ struct SettingsLayoutPane: View {
                         }
                         Text("Widget Widths").font(.subheadline.weight(.semibold)).padding(.top, 4)
                         ForEach([BarSection.weather, .media, .clock], id: \.self) { widget in
-                            sliderRow(widgetLabel(widget),
+                            SettingsSliderRow(widgetLabel(widget),
                                       value: store.widgetWidths[widget.rawValue] ?? widget.defaultWidgetWidth,
                                       range: widget.minimumExactWidth...400, step: 5) {
                                 store.setWidgetWidth($0, for: widget)
@@ -430,19 +421,13 @@ struct SettingsLayoutPane: View {
                 } label: {
                     Text("Fine-tune").font(.headline)
                 }
-            } content: {
-                EmptyView()
             }
     }
 
     @ViewBuilder
     private var chipSections: some View {
-            section {
-                Text("Window Chips")
-            } content: {
-                HStack {
-                    Text("Multiple Windows")
-                    Spacer(minLength: 12)
+            SettingsCard(Text("Window Chips")) {
+                SettingsRow(Text("Multiple Windows")) {
                     Picker("Multiple Windows", selection: Binding(
                         get: { store.chipGroupingPlan.defaultPolicy },
                         set: { store.setChipGroupingDefault($0) }
@@ -496,9 +481,7 @@ struct SettingsLayoutPane: View {
                     set: { store.setChipPreviewEnabled($0) }
                 )).accessibilityLabel("Hover Preview")
                 if store.chipPreviewEnabled {
-                    HStack {
-                        Text("Preview Delay")
-                        Spacer(minLength: 12)
+                    SettingsRow(Text("Preview Delay")) {
                         Picker("Preview Delay", selection: Binding(
                             get: { store.chipPreviewDelayMs },
                             set: { store.setChipPreviewDelayMs($0) }
@@ -509,9 +492,7 @@ struct SettingsLayoutPane: View {
                         }
                         .labelsHidden().pickerStyle(.segmented).fixedSize()
                     }
-                    HStack {
-                        Text("Preview Size")
-                        Spacer(minLength: 12)
+                    SettingsRow(Text("Preview Size")) {
                         Picker("Preview Size", selection: Binding(
                             get: { store.chipPreviewThumbWidth },
                             set: { store.setChipPreviewThumbWidth($0) }
@@ -543,12 +524,8 @@ struct SettingsLayoutPane: View {
 
     @ViewBuilder
     private var launcherSections: some View {
-            section {
-                Text("Launcher")
-            } content: {
-                HStack {
-                    Text("Scroll Direction")
-                    Spacer(minLength: 12)
+            SettingsCard(Text("Launcher")) {
+                SettingsRow(Text("Scroll Direction")) {
                     Picker("Scroll Direction", selection: Binding(
                         get: { store.launcherScrollDirection },
                         set: { store.setLauncherScrollDirection($0) }
@@ -558,9 +535,7 @@ struct SettingsLayoutPane: View {
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
-                HStack {
-                    Text("Hidden Apps")
-                    Spacer(minLength: 12)
+                SettingsRow(Text("Hidden Apps")) {
                     Text(verbatim: "\(launcherHiddenCount)").foregroundStyle(.secondary)
                     Button("Show All Hidden Apps") { updateLauncherState { $0.hidden = [] } }
                         .disabled(launcherHiddenCount == 0)
@@ -579,9 +554,7 @@ struct SettingsLayoutPane: View {
                         .accessibilityLabel(Text(verbatim: entry.name))
                     }
                 }
-                HStack {
-                    Text("Search Position")
-                    Spacer(minLength: 12)
+                SettingsRow(Text("Search Position")) {
                     Picker("Search Position", selection: Binding(
                         get: { store.launcherSearchPosition },
                         set: { store.setLauncherSearchPosition($0) }
@@ -593,9 +566,7 @@ struct SettingsLayoutPane: View {
                     }
                     .labelsHidden().pickerStyle(.menu).fixedSize()
                 }
-                HStack {
-                    Text("Theme")
-                    Spacer(minLength: 12)
+                SettingsRow(Text("Theme")) {
                     Picker("Theme", selection: Binding(get: { store.launcherTheme }, set: { store.setLauncherTheme($0) })) {
                         Text("System").tag(LauncherTheme.system)
                         Text("Light").tag(LauncherTheme.light)
@@ -605,9 +576,7 @@ struct SettingsLayoutPane: View {
                     }
                     .labelsHidden().pickerStyle(.menu).fixedSize()
                 }
-                HStack {
-                    Text("Tint")
-                    Spacer(minLength: 12)
+                SettingsRow(Text("Tint")) {
                     Picker("Tint", selection: Binding(get: { store.launcherTint }, set: { store.setLauncherTint($0) })) {
                         Text("None").tag(LauncherTint.none)
                         Text("Blue").tag(LauncherTint.blue)
@@ -618,9 +587,7 @@ struct SettingsLayoutPane: View {
                     }
                     .labelsHidden().pickerStyle(.menu).fixedSize()
                 }
-                HStack {
-                    Text("Launcher Icon")
-                    Spacer(minLength: 12)
+                SettingsRow(Text("Launcher Icon")) {
                     ForEach(LauncherIconStyle.allCases, id: \.self) { style in
                         Button { store.setLauncherIcon(style) } label: {
                             VStack(spacing: 4) {
@@ -635,12 +602,8 @@ struct SettingsLayoutPane: View {
                 }
             }
 
-            section {
-                Text("Control Center")
-            } content: {
-                HStack {
-                    Text("Side")
-                    Spacer(minLength: 12)
+            SettingsCard(Text("Control Center")) {
+                SettingsRow(Text("Side")) {
                     Picker("Side", selection: Binding(
                         get: { EdgeSide(rawValue: controlCenterSideRaw) ?? .right },
                         set: { controlCenterSideRaw = $0.rawValue }
@@ -650,9 +613,7 @@ struct SettingsLayoutPane: View {
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
-                HStack {
-                    Text("Size")
-                    Spacer(minLength: 12)
+                SettingsRow(Text("Size")) {
                     Picker("Size", selection: Binding(
                         get: { store.controlCenterSize },
                         set: { store.setControlCenterSize($0) }
@@ -663,9 +624,7 @@ struct SettingsLayoutPane: View {
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
-                HStack {
-                    Text("Anchor")
-                    Spacer(minLength: 12)
+                SettingsRow(Text("Anchor")) {
                     Picker("Anchor", selection: Binding(
                         get: { store.controlCenterAnchor },
                         set: { store.setControlCenterAnchor($0) }
@@ -676,9 +635,7 @@ struct SettingsLayoutPane: View {
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
-                HStack {
-                    Text("Animation")
-                    Spacer(minLength: 12)
+                SettingsRow(Text("Animation")) {
                     Picker("Animation", selection: Binding(
                         get: { store.controlCenterAnimation },
                         set: { store.setControlCenterAnimation($0) }
@@ -708,9 +665,7 @@ struct SettingsLayoutPane: View {
 
     @ViewBuilder
     private var notificationSections: some View {
-            section {
-                Text("Notifications")
-            } content: {
+            SettingsCard(Text("Notifications")) {
                 Toggle("Move Notification Banners", isOn: Binding(
                     get: { notifMove.isEnabled },
                     set: { notifMove.setEnabled($0) }
@@ -718,9 +673,7 @@ struct SettingsLayoutPane: View {
                 Text("KatiKati moves each notification banner to the position you pick with the Accessibility API. Notification Center's private interface changes between macOS updates: when the layout looks unfamiliar, KatiKati leaves notifications alone, and only the first banner of a burst moves. Turning this off restores the macOS default immediately.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 if notifMove.isEnabled {
-                    HStack {
-                        Text("Position")
-                        Spacer(minLength: 12)
+                    SettingsRow(Text("Position")) {
                         Picker("Position", selection: Binding(get: { notifMove.slot }, set: { notifMove.setSlot($0) })) {
                             ForEach(NotificationSlot.allCases, id: \.self) { slot in
                                 notificationSlotTitle(slot).tag(slot)
@@ -734,9 +687,7 @@ struct SettingsLayoutPane: View {
 
     @ViewBuilder
     private var edgeBarSections: some View {
-            section {
-                Text("Edge Bars")
-            } content: {
+            SettingsCard(Text("Edge Bars")) {
                 Picker("Edge Bars", selection: Binding(
                     get: { store.edgeBarPreset },
                     set: { store.setEdgeBarPreset($0) }
@@ -747,7 +698,7 @@ struct SettingsLayoutPane: View {
                 .pickerStyle(.menu)
                 .fixedSize()
                 // Phase 18g/18h: what an edge bar does when the dock rail takes its side.
-                segmentedRow(Text("Edge Bar on the Dock's Side"), selection: Binding(
+                SettingsSegmentedRow(Text("Edge Bar on the Dock's Side"), selection: Binding(
                     get: { store.edgeConflictPolicy },
                     set: { store.setEdgeConflictPolicy($0) }
                 )) {
@@ -755,9 +706,7 @@ struct SettingsLayoutPane: View {
                     Text("Hide").tag(EdgeConflictPolicy.hide)
                 }
                 .disabled(store.stripPlacementMap.global == .bottom)
-                HStack {
-                    Text("Main Side")
-                    Spacer(minLength: 12)
+                SettingsRow(Text("Main Side")) {
                     Picker("Main Side", selection: Binding(
                         get: { store.edgePrimarySide },
                         set: { store.setEdgePrimarySide($0) }
@@ -809,9 +758,7 @@ struct SettingsLayoutPane: View {
     private var widgetSections: some View {
         // The widget-look block is composed by the Widgets tab instead: its controls live in the
         // app-only `SettingsWindowView`, and this pane also compiles into the test target.
-        section {
-            Text("Widgets")
-        } content: {
+        SettingsCard(Text("Widgets")) {
             List {
                 ForEach(store.widgetLayout.order, id: \.self) { widget in
                     widgetRow(widget)
@@ -824,13 +771,9 @@ struct SettingsLayoutPane: View {
             contextPresetControls
         }
 
-        section {
-            Text("Widget Styles & Presets")
-        } content: {
+        SettingsCard(Text("Widget Styles & Presets")) {
             VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text("Clock Style")
-                    Spacer(minLength: 12)
+                SettingsRow(Text("Clock Style")) {
                     Picker("Clock Style", selection: $clockPresetRaw) {
                         ForEach(ClockPreset.allCases, id: \.rawValue) { preset in
                             Text(preset.title).tag(preset.rawValue)
@@ -841,9 +784,7 @@ struct SettingsLayoutPane: View {
                     .frame(width: 170)
                 }
 
-                HStack {
-                    Text("Weather Style")
-                    Spacer(minLength: 12)
+                SettingsRow(Text("Weather Style")) {
                     Picker("Weather Style", selection: $weatherPresetRaw) {
                         ForEach(WeatherChipPreset.allCases, id: \.rawValue) { preset in
                             Text(preset.title).tag(preset.rawValue)
@@ -854,9 +795,7 @@ struct SettingsLayoutPane: View {
                     .frame(width: 170)
                 }
 
-                HStack {
-                    Text("Now Playing Style")
-                    Spacer(minLength: 12)
+                SettingsRow(Text("Now Playing Style")) {
                     Picker("Now Playing Style", selection: $mediaPresetRaw) {
                         ForEach(NowPlayingPreset.allCases, id: \.rawValue) { preset in
                             Text(preset.title).tag(preset.rawValue)
@@ -867,9 +806,7 @@ struct SettingsLayoutPane: View {
                     .frame(width: 170)
                 }
 
-                HStack {
-                    Text("Right FAB Style")
-                    Spacer(minLength: 12)
+                SettingsRow(Text("Right FAB Style")) {
                     Picker("Right FAB Style", selection: $fabStyleRaw) {
                         Text("Dynamic Gauge").tag("gauge")
                         Text("Classic Glyph").tag("classic")
@@ -888,7 +825,7 @@ struct SettingsLayoutPane: View {
 
     var body: some View {
         let inputs = store.layoutThumbnailInputs
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
             if mode == .widgets {
                 widgetSections
             } else if mode == .edgeBars {
@@ -902,9 +839,7 @@ struct SettingsLayoutPane: View {
             } else if mode == .notifications {
                 notificationSections
             } else {
-            section {
-                Text("Shortcuts")
-            } content: {
+            SettingsCard(Text("Shortcuts")) {
                 let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
                 // General feature shortcuts (non-snap, non-tiling actions only).
                 ForEach(ShortcutAction.allCases.filter { $0.snapPosition == nil && !$0.isTilingAction }, id: \.self) { action in
@@ -1024,16 +959,12 @@ struct SettingsLayoutPane: View {
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
 
-            section {
-                Text("Radial Dial")
-            } content: {
+            SettingsCard(Text("Radial Dial")) {
                 Toggle("Enable Radial Dial", isOn: $dialEnabled).accessibilityLabel("Enable Radial Dial")
                 Text("Summons a circular pie menu at your cursor for lightning-fast window snapping, app launching, and quick actions with spring physics.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 if dialEnabled {
-                    HStack {
-                        Text("Theme")
-                        Spacer(minLength: 12)
+                    SettingsRow(Text("Theme")) {
                         Picker("Theme", selection: Binding(get: { RadialDialTheme(rawValue: dialThemeRaw) ?? .lilacGlass }, set: { dialThemeRaw = $0.rawValue })) {
                             ForEach(RadialDialTheme.allCases, id: \.self) { theme in
                                 radialDialThemeTitle(theme).tag(theme)
@@ -1041,9 +972,7 @@ struct SettingsLayoutPane: View {
                         }
                         .labelsHidden().pickerStyle(.menu).fixedSize()
                     }
-                    HStack {
-                        Text("Mouse Trigger")
-                        Spacer(minLength: 12)
+                    SettingsRow(Text("Mouse Trigger")) {
                         Picker("Mouse Trigger", selection: Binding(get: { RadialMouseTrigger(rawValue: dialMouseTriggerRaw) ?? .off }, set: { dialMouseTriggerRaw = $0.rawValue })) {
                             ForEach(RadialMouseTrigger.allCases, id: \.self) { trigger in
                                 radialMouseTriggerTitle(trigger).tag(trigger)
@@ -1051,9 +980,7 @@ struct SettingsLayoutPane: View {
                         }
                         .labelsHidden().pickerStyle(.menu).fixedSize()
                     }
-                    HStack {
-                        Text("Trigger Mode")
-                        Spacer(minLength: 12)
+                    SettingsRow(Text("Trigger Mode")) {
                         Picker("Trigger Mode", selection: Binding(get: { RadialTriggerMode(rawValue: dialTriggerModeRaw) ?? .tapToggle }, set: { dialTriggerModeRaw = $0.rawValue })) {
                             ForEach(RadialTriggerMode.allCases, id: \.self) { mode in
                                 radialTriggerModeTitle(mode).tag(mode)
@@ -1067,7 +994,6 @@ struct SettingsLayoutPane: View {
             }
             }
         }
-        .padding(Self.margin)
         .frame(maxWidth: .infinity, alignment: .leading)
         .onAppear {
             let hidden = LauncherStore(url: LauncherStore.defaultURL).load().hidden
@@ -1199,77 +1125,87 @@ struct SettingsLayoutPane: View {
                 set: { var p = store.edgePrefs; p[keyPath: key] = $0; store.setEdgePrefs(p) })
     }
 
-    private func edgePrefRow<C: View>(_ title: LocalizedStringKey, @ViewBuilder _ control: () -> C) -> some View {
-        HStack { Text(title); Spacer(minLength: 12); control() }
-    }
-
     /// Look and behaviour of the deck itself (7A-D6).
     private var deckControls: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
             ForEach([EdgeSide.left, EdgeSide.right], id: \.self) { side in
-                HStack(spacing: 10) {
-                    (side == .left ? Text("Left Bar Size") : Text("Right Bar Size")).frame(width: 150, alignment: .leading)
-                    Slider(value: Binding(get: { store.deckScale(for: side) }, set: { store.setDeckScale($0, for: side) }),
-                           in: DeckSettingsRules.scaleRange, step: 0.05)
-                    Text(verbatim: "\(Int((store.deckScale(for: side) * 100).rounded()))%")
-                        .monospacedDigit().foregroundStyle(.secondary).frame(width: 52, alignment: .trailing)
-                }
+                SettingsSliderRow(
+                    side == .left ? Text("Left Bar Size") : Text("Right Bar Size"),
+                    value: store.deckScale(for: side),
+                    range: DeckSettingsRules.scaleRange,
+                    step: 0.05,
+                    valueText: "\(Int((store.deckScale(for: side) * 100).rounded()))%",
+                    set: { store.setDeckScale($0, for: side) }
+                )
             }
-            Toggle("Magnify Buttons Under the Pointer", isOn: Binding(get: { store.deckMagnify }, set: { store.setDeckMagnify($0) })).accessibilityLabel("Magnify Buttons Under the Pointer")
-            edgePrefRow("Magnify Amount") {
+            SettingsToggleRow(
+                Text("Magnify Buttons Under the Pointer"),
+                isOn: Binding(get: { store.deckMagnify }, set: { store.setDeckMagnify($0) })
+            )
+            SettingsRow(Text("Magnify Amount")) {
                 Picker("Magnify Amount", selection: edgePrefBinding(\.magnifyAmount)) {
                     Text("Subtle").tag(EdgeMagnifyAmount.subtle)
                     Text("Standard").tag(EdgeMagnifyAmount.standard)
                     Text("Bold").tag(EdgeMagnifyAmount.bold)
                 }.labelsHidden().pickerStyle(.segmented).fixedSize()
             }
-            HStack(spacing: 10) {
-                Text("Open Delay").frame(width: 150, alignment: .leading)
-                Slider(value: edgePrefBinding(\.openDelay), in: EdgeBarPrefs.openDelayRange, step: 0.05)
-                Text(verbatim: String(format: "%.2f s", store.edgePrefs.openDelay))
-                    .monospacedDigit().foregroundStyle(.secondary).frame(width: 52, alignment: .trailing)
-            }
-            HStack(spacing: 10) {
-                Text("Edge Sensitivity").frame(width: 150, alignment: .leading)
-                Slider(value: edgePrefBinding(\.sensitivity), in: 0...1, step: 0.05)
-                Text(verbatim: "\(Int((store.edgePrefs.sensitivity * 100).rounded()))%")
-                    .monospacedDigit().foregroundStyle(.secondary).frame(width: 52, alignment: .trailing)
-            }
-            ForEach([EdgeSide.left, EdgeSide.right], id: \.self) { side in
-                HStack(spacing: 10) {
-                    (side == .left ? Text("Left Bar Height") : Text("Right Bar Height")).frame(width: 150, alignment: .leading)
-                    Slider(value: Binding(get: { 1 - store.deckYRatio(for: side) }, set: { store.setDeckYRatio(1 - $0, for: side) }), in: 0...1)
-                    Text(verbatim: "\(Int(((1 - store.deckYRatio(for: side)) * 100).rounded()))%")
-                        .monospacedDigit().foregroundStyle(.secondary).frame(width: 52, alignment: .trailing)
+            SettingsSliderRow(
+                Text("Open Delay"),
+                value: store.edgePrefs.openDelay,
+                range: EdgeBarPrefs.openDelayRange,
+                step: 0.05,
+                valueText: String(format: "%.2f s", store.edgePrefs.openDelay),
+                set: { value in
+                    var prefs = store.edgePrefs
+                    prefs.openDelay = value
+                    store.setEdgePrefs(prefs)
                 }
+            )
+            SettingsSliderRow(
+                Text("Edge Sensitivity"),
+                value: store.edgePrefs.sensitivity,
+                range: 0...1,
+                step: 0.05,
+                valueText: "\(Int((store.edgePrefs.sensitivity * 100).rounded()))%",
+                set: { value in
+                    var prefs = store.edgePrefs
+                    prefs.sensitivity = value
+                    store.setEdgePrefs(prefs)
+                }
+            )
+            ForEach([EdgeSide.left, EdgeSide.right], id: \.self) { side in
+                SettingsSliderRow(
+                    side == .left ? Text("Left Bar Height") : Text("Right Bar Height"),
+                    value: 1 - store.deckYRatio(for: side),
+                    range: 0...1,
+                    step: 0.01,
+                    valueText: "\(Int(((1 - store.deckYRatio(for: side)) * 100).rounded()))%",
+                    set: { store.setDeckYRatio(1 - $0, for: side) }
+                )
             }
-            edgePrefRow("Button Icons") {
+            SettingsRow(Text("Button Icons")) {
                 Picker("Button Icons", selection: edgePrefBinding(\.iconSet)) {
                     Text("Classic").tag(EdgeIconSet.classic)
                     Text("Modern").tag(EdgeIconSet.modern)
                     Text("Realistic").tag(EdgeIconSet.realistic)
                 }.labelsHidden().pickerStyle(.segmented).fixedSize()
             }
-            Toggle("Open Only on Click", isOn: edgePrefBinding(\.openOnClick)).accessibilityLabel("Open Only on Click")
-            Toggle("Show Button Names on Hover", isOn: edgePrefBinding(\.hoverLabels)).accessibilityLabel("Show Button Names on Hover")
-            edgePrefRow("Flyout Style") {
+            SettingsToggleRow(Text("Open Only on Click"), isOn: edgePrefBinding(\.openOnClick))
+            SettingsToggleRow(Text("Show Button Names on Hover"), isOn: edgePrefBinding(\.hoverLabels))
+            SettingsRow(Text("Flyout Style")) {
                 Picker("Flyout Style", selection: edgePrefBinding(\.flyoutStyle)) {
                     Text("Modern").tag(EdgeFlyoutStyle.modern)
                     Text("Glass").tag(EdgeFlyoutStyle.glass)
                 }.labelsHidden().pickerStyle(.segmented).fixedSize()
             }
-            HStack {
-                Text("Button Style")
-                Spacer(minLength: 12)
+            SettingsRow(Text("Button Style")) {
                 Picker("Button Style", selection: Binding(get: { store.edgeTileStyle }, set: { store.setEdgeTileStyle($0) })) {
                     Text("Glass").tag(EdgeTileStyle.glass)
                     Text("Coloured").tag(EdgeTileStyle.coloured)
                 }
                 .labelsHidden().pickerStyle(.segmented).fixedSize()
             }
-            HStack {
-                Text("Note Tab Font")
-                Spacer(minLength: 12)
+            SettingsRow(Text("Note Tab Font")) {
                 Picker("Note Tab Font", selection: Binding(get: { store.deckTabFont }, set: { store.setDeckTabFont($0) })) {
                     ForEach(DeckFont.faces, id: \.postScript) { face in
                         if face.postScript.isEmpty { Text("System").tag(face.postScript) } else { Text(verbatim: face.name).tag(face.postScript) }
@@ -1490,22 +1426,6 @@ struct SettingsLayoutPane: View {
         .frame(height: 30)
     }
 
-    private func section<Header: View, Content: View>(
-        @ViewBuilder header: () -> Header,
-        @ViewBuilder content: () -> Content
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            header().font(.headline)
-            content()
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.primary.opacity(0.04))
-        )
-    }
-
     /// Fine-tune's Bar Height cap on the dock's screen (never below the current value, so the
     /// slider can always show where the bar is).
     private var fittingMaximumBarHeight: CGFloat {
@@ -1518,8 +1438,7 @@ struct SettingsLayoutPane: View {
 
     /// One display's placement override; "Same as All Displays" clears it (Phase 18h, decision 5).
     private func displayPlacementRow(name: String, uuid: String) -> some View {
-        HStack(spacing: 10) {
-            Text(verbatim: name).lineLimit(1).frame(width: 150, alignment: .leading)
+        SettingsRow(Text(verbatim: name)) {
             Picker(selection: Binding<StripPlacement?>(
                 get: { store.stripPlacementMap.perDisplay[uuid] },
                 set: { store.setStripPlacement($0 ?? store.stripPlacementMap.global, forDisplay: uuid) }
@@ -1535,28 +1454,6 @@ struct SettingsLayoutPane: View {
         }
     }
 
-    private func segmentedRow<Value: Hashable, Options: View>(
-        _ label: Text, selection: Binding<Value>, @ViewBuilder options: () -> Options
-    ) -> some View {
-        HStack(spacing: 10) {
-            label.frame(width: 150, alignment: .leading)
-            Picker(selection: selection, content: options) { label }
-                .labelsHidden()
-                .pickerStyle(.segmented)
-        }
-    }
-
-    private func sliderRow(_ label: Text, value: CGFloat, range: ClosedRange<CGFloat>, step: CGFloat,
-                           set: @escaping (CGFloat) -> Void) -> some View {
-        HStack(spacing: 10) {
-            label.frame(width: 150, alignment: .leading)
-            Slider(value: Binding(get: { value }, set: set), in: range, step: step)
-            Text(verbatim: value.rounded() == value ? "\(Int(value)) pt" : String(format: "%.1f pt", value))
-                .monospacedDigit()
-                .foregroundStyle(.secondary)
-                .frame(width: 52, alignment: .trailing)
-        }
-    }
 }
 
 extension QuickToggleID {

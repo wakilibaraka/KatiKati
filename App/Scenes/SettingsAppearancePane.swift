@@ -4,6 +4,10 @@ import SwiftUI
 // Phase 6 Appearance tab: the Phase-4 theme presets (`com.katikati.theme.material`) and the
 // icon set (`com.katikati.iconSet`). Light/dark itself stays on General › Appearance
 // (`appearanceMode`) — this page never duplicates that control.
+//
+// Phase 12 (2026-10-15): renders through `SettingsCard`/`SettingsRow` only, and only cards — the
+// page margin comes from `SettingsWindowContent` through `SettingsPane` (`Docs/SETTINGS.md` rule 1),
+// instead of this file cancelling an embedded pane's own margin with a negative padding.
 
 struct SettingsAppearancePane: View {
     @ObservedObject var store: AppSettingsStore
@@ -11,7 +15,6 @@ struct SettingsAppearancePane: View {
     @Environment(\.colorScheme) private var colorScheme
     @AppStorage("com.katikati.dock.iconShape") private var iconShapeRaw: String = DockIconShape.squircle.rawValue
 
-    private static let margin: CGFloat = 28
     private static let presets: [DockThemeStyle] = [
         .system, .translucent, .crystalClear, .obsidianDark, .monochrome, .titaniumFrost,
         .auroraGlow, .deepOcean, .forestMoss, .cyberpunkGlass, .emberSunset, .roseQuartz,
@@ -25,14 +28,11 @@ struct SettingsAppearancePane: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            // Phase 12: preview, layout mode and size live here. The pane brings its own margin.
+        Group {
+            // Phase 12: preview, layout mode and size live here, as their own cards.
             SettingsLayoutPane(store: store, mode: .geometry)
-                .padding(-Self.margin)
 
-            section {
-                Text("Theme")
-            } content: {
+            SettingsCard(Text("Theme")) {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 88), spacing: 8)], spacing: 10) {
                     ForEach(choices, id: \.token) { style in
                         themeCard(style)
@@ -41,102 +41,79 @@ struct SettingsAppearancePane: View {
                 if case let .customRGBA(r, g, b, a) = store.themeMaterial {
                     customControls(r: r, g: g, b: b, a: a)
                 }
-                Text("Auto uses Rose Quartz in light mode and Obsidian Dark in dark mode. Light or dark is set in General › Appearance.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                SettingsNote(Text("Auto uses Rose Quartz in light mode and Obsidian Dark in dark mode. Light or dark is set in General › Appearance."))
             }
 
-            section {
-                HStack {
-                    Text("Icon Set")
-                    Spacer(minLength: 12)
-                    Picker("Icon Set", selection: Binding(get: { store.iconSet }, set: store.setIconSet)) {
-                        Text("Modern").tag(IconSet.modern)
-                        Text("Classic").tag(IconSet.classic)
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.segmented)
-                    .fixedSize()
+            SettingsCard {
+                // The picker is the control; the two cards under it are previews, not a second control.
+                SettingsSegmentedRow(
+                    Text("Icon Set"),
+                    selection: Binding(get: { store.iconSet }, set: store.setIconSet)
+                ) {
+                    Text("Modern").tag(IconSet.modern)
+                    Text("Classic").tag(IconSet.classic)
                 }
-            } content: {
                 HStack(spacing: 12) {
                     iconPreview(.modern)
                     iconPreview(.classic)
                 }
-                Text("Applies to the trash and the menu bar icon. Independent of the theme.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                SettingsNote(Text("Applies to the trash and the menu bar icon. Independent of the theme."))
             }
 
-            section {
-                HStack {
-                    Text("Dock App Icon Shape")
-                    Spacer(minLength: 12)
-                    Picker("Dock App Icon Shape", selection: $iconShapeRaw) {
-                        Text("Squircle").tag(DockIconShape.squircle.rawValue)
-                        Text("Circle").tag(DockIconShape.circle.rawValue)
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.segmented)
-                    .fixedSize()
+            SettingsCard {
+                SettingsSegmentedRow(
+                    Text("Dock App Icon Shape"),
+                    selection: $iconShapeRaw
+                ) {
+                    Text("Squircle").tag(DockIconShape.squircle.rawValue)
+                    Text("Circle").tag(DockIconShape.circle.rawValue)
                 }
-            } content: {
-                Text("Switch dock app icons between standard macOS squircle and clean circular masking.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                SettingsNote(Text("Switch dock app icons between standard macOS squircle and clean circular masking."))
             }
 
             wallpaperSection
         }
-        .padding(Self.margin)
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: - Wallpaper (Phase 10b-3)
 
     private var wallpaperSection: some View {
-        section {
-            Toggle(isOn: Binding(get: { store.wallpaperEnabled }, set: store.setWallpaperEnabled)) {
-                Text("Dynamic Wallpaper").font(.headline)
-            }
-        } content: {
-            HStack {
-                Text("Mode")
-                Spacer(minLength: 12)
-                Picker("Mode", selection: Binding(
+        SettingsCard {
+            SettingsToggleRow(
+                Text("Dynamic Wallpaper"),
+                isOn: Binding(get: { store.wallpaperEnabled }, set: store.setWallpaperEnabled)
+            )
+            SettingsSegmentedRow(
+                Text("Mode"),
+                selection: Binding(
                     get: { WallpaperMode(rawValue: store.wallpaperMode) ?? .both },
                     set: store.setWallpaperMode
-                )) {
-                    Text("Time").tag(WallpaperMode.time)
-                    Text("Weather").tag(WallpaperMode.weather)
-                    Text("Both").tag(WallpaperMode.both)
-                }
-                .labelsHidden()
-                .pickerStyle(.segmented)
-                .fixedSize()
+                )
+            ) {
+                Text("Time").tag(WallpaperMode.time)
+                Text("Weather").tag(WallpaperMode.weather)
+                Text("Both").tag(WallpaperMode.both)
             }
-            HStack(spacing: 8) {
-                if store.wallpaperFolder.isEmpty {
-                    Text("Built-in Sky").foregroundStyle(.secondary)
-                } else {
-                    Text(verbatim: (store.wallpaperFolder as NSString).lastPathComponent).foregroundStyle(.secondary)
+            // The row's label is the source in use; the buttons change it.
+            SettingsRow(
+                store.wallpaperFolder.isEmpty
+                    ? Text("Built-in Sky")
+                    : Text(verbatim: (store.wallpaperFolder as NSString).lastPathComponent)
+            ) {
+                HStack(spacing: 8) {
+                    if !store.wallpaperFolder.isEmpty {
+                        Button("Built-in Sky") { store.setWallpaperFolder("") }
+                    }
+                    Button("Choose Folder…") { chooseWallpaperFolder() }
                 }
-                Spacer(minLength: 8)
-                if !store.wallpaperFolder.isEmpty {
-                    Button("Built-in Sky") { store.setWallpaperFolder("") }
-                }
-                Button("Choose Folder…") { chooseWallpaperFolder() }
             }
             skyPreviewGrid
-            Toggle(isOn: Binding(get: { store.tintSurfacesByPhase }, set: store.setTintSurfacesByPhase)) {
-                Text("Tint Dock by Time of Day")
-            }
-            HStack {
-                Spacer()
-                Button("Restore Wallpaper") { WallpaperEngine.shared.restoreNow() }
-                    .disabled(!store.wallpaperEnabled)
-            }
+            SettingsToggleRow(
+                Text("Tint Dock by Time of Day"),
+                isOn: Binding(get: { store.tintSurfacesByPhase }, set: store.setTintSurfacesByPhase)
+            )
+            SettingsButtonRow(Text("Restore Wallpaper")) { WallpaperEngine.shared.restoreNow() }
+                .disabled(!store.wallpaperEnabled)
         }
     }
 
@@ -203,7 +180,7 @@ struct SettingsAppearancePane: View {
     }
 
     private func customControls(r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: SettingsMetrics.controlSpacing) {
             Text("Custom Tint")
             ColorPicker("Custom Tint", selection: Binding(
                 get: { Color(.sRGB, red: Double(r), green: Double(g), blue: Double(b)) },
@@ -252,19 +229,6 @@ struct SettingsAppearancePane: View {
         .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous)
             .strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: 2))
         .accessibilityElement(children: .combine)
-    }
-
-    private func section<Header: View, Content: View>(
-        @ViewBuilder header: () -> Header,
-        @ViewBuilder content: () -> Content
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            header().font(.headline)
-            content()
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.04)))
     }
 }
 

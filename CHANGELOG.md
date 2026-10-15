@@ -28,6 +28,13 @@ All notable changes to KatiKati are documented in this file.
   VPN services only.
 
 ### Changed
+- **Settings is one grid (Phase 12 form-and-function pass):** all ten pages render through one card and
+  one row type, so the content inset is the same 42 pt everywhere (it used to run 20 / 28 / 42 / 108 pt
+  from page to page and the gap between two sections varied on the same page). The duplicate
+  "Drawer Position" label is gone — the picker no longer prints its own label beside the row's. Pages
+  that used to end in a six-line paragraph show an ⓘ on the row instead (Advanced is 190 pt shorter),
+  and the window now sizes to its content wherever the content fits. Rules and the pages that still
+  owe work: `Docs/SETTINGS.md`.
 - **Control Center panel (16g):** the Quick Settings shortcut and the deck's wifi button now open a side
   panel that hugs the screen edge next to the dock (default right) instead of the full-screen Pinboard.
   It steps clear of a dock rail on the same edge and closes on Esc or a click outside.

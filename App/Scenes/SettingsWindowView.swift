@@ -41,17 +41,17 @@ struct SettingsWindowContent: View {
     let onShowWelcomeGuide: () -> Void
 
     @State private var presentedAlert: SettingsAlert?
-    @State private var showsScrollReverserHelp = false
 
     var body: some View {
-        Group {
+        // The page margin lives here, once for all ten pages; every pane body renders cards only,
+        // so no page can invent an inset of its own (`Docs/SETTINGS.md` rule 1).
+        SettingsPane {
             switch tabState.selected {
             case .general: generalPane
             case .widgets:
                 // Composed here, not inside the pane: `WidgetLookSettingsBlock` drives the pickers
                 // defined in this app-only file, and the pane also compiles into the test target.
                 WidgetLookSettingsBlock(store: store)
-                    .padding([.horizontal, .top], Self.paneMargin)
                 SettingsLayoutPane(store: store, mode: .widgets)
             case .notch: notchPane
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
@@ -63,11 +63,8 @@ struct SettingsWindowContent: View {
             case .about: aboutPane
             }
         }
-        // No padding here: each pane brings its own, because the system form already insets
-        // its boxes (`systemForm`) and the macOS 12 layouts pad by `Self.paneMargin`.
         // **不许写死宽度**：外面套着 ScrollView，刚性宽度在可视区变窄时会被居中 = 整页平移。
         // 弹性宽度下左边缘恒在 padding 处，最多重排换行。测高探针给的仍是 contentWidth 的提案。
-        .frame(maxWidth: .infinity, alignment: .leading)
         .alert(item: $presentedAlert) { alert in
             guard let actionTitle = alert.actionTitle, let action = alert.action else {
                 return Alert(
@@ -87,208 +84,83 @@ struct SettingsWindowContent: View {
 
     // 分区标题行随分页取消（窗口标题承担）。页体全部是**本根视图**的计算属性——
     // 草稿 @State（presentedAlert / 订阅邮箱 / 授权码）必须留在根上，
-    // 下放进页级子视图 = 切页即清空（settings.md 有对应规则）。反馈的四份草稿在 `feedbackDraft`。
-    /// Every pane is the system's own grouped `Form` on macOS 13+ (`systemForm`), so radius,
-    /// fill and dividers follow each OS release; macOS 12 has no grouped form and keeps the
-    /// hand-built layouts in the `else` branches.
+    // 下放进页级子视图 = 切页即清空（`Docs/SETTINGS.md` 规则 1 附注同源问题）。反馈的四份草稿在 `feedbackDraft`。
+    /// Every pane renders through `SettingsCard`/`SettingsRow` (`Docs/SETTINGS.md` rules 2 and 3).
+    /// It used to branch on macOS 13: that path was the system grouped `Form` and the macOS 12 path
+    /// hand-built its own boxes, so the same page looked different on each release and the two
+    /// drifted apart (the macOS 12 copy of one row had already fixed a duplicate label the other
+    /// had not). One container now serves both.
     ///
     /// 「通用」页: one box — label leading, control trailing — with the setup-guide entry under
     /// it. Rows carry no grey note; the one disclosure this page owes (scroll reversal) sits
     /// behind that row's help button.
     @ViewBuilder
     private var generalPane: some View {
-        if #available(macOS 13.0, *) {
-            VStack(alignment: .trailing, spacing: 0) {
-                systemForm {
-                    languagePicker
-                    // Plain stacks, not `LabeledContent`: that aligns on the text baseline, which
-                    // an AppKit-backed control lacks — the recorder drops below its own label.
-                    HStack {
-                        Text("Appearance")
-                        Spacer(minLength: 12)
-                        appearanceCards
-                    }
-                    HStack {
-                        Text("Show/hide taskbar shortcut")
-                        Spacer(minLength: 12)
-                        hotKeyControls
-                    }
-
-                    PermissionsSettingsBlock()
-                    HStack {
-                        Text("Drawer Position")
-                        Spacer(minLength: 12)
-                        drawerPlacementPicker
-                    }
-                    HStack {
-                        scrollReverserLabel
-                        Spacer(minLength: 12)
-                        scrollReverserToggle
-                            .toggleStyle(.switch)
-                            .labelsHidden()
-                    }
-                }
-                welcomeGuideButton
-                    .padding(.trailing, Self.paneMargin)
+        SettingsCard {
+            languagePicker
+            SettingsDivider()
+            // Plain stacks, not `LabeledContent`: that aligns on the text baseline, which an
+            // AppKit-backed control lacks — the recorder drops below its own label.
+            SettingsRow(Text("Appearance")) {
+                appearanceCards
             }
-            .padding(.bottom, Self.paneMargin)
-        } else {
-            settingsPane {
-                settingsGroup {
-                    groupRow {
-                        Text("Language")
-                    } control: {
-                        languagePicker
-                            .labelsHidden()
-                            .fixedSize()
-                    }
-                    Divider().opacity(0.5)
-                    groupRow {
-                        Text("Appearance")
-                    } control: {
-                        appearanceCards
-                    }
-                    Divider().opacity(0.5)
-                    groupRow {
-                        Text("Show/hide taskbar shortcut")
-                    } control: {
-                        hotKeyControls
-                    }
-                    Divider().opacity(0.5)
-                    PermissionsSettingsBlock()
-                    Divider().opacity(0.5)
-                    groupRow {
-                        Text("Drawer Position")
-                    } control: {
-                        drawerPlacementPicker
-                            .labelsHidden()
-                            .fixedSize()
-                    }
-                    Divider().opacity(0.5)
-                    groupRow {
-                        scrollReverserLabel
-                    } control: {
-                        scrollReverserToggle
-                            .toggleStyle(.switch)
-                            .controlSize(.small)
-                            .labelsHidden()
-                    }
-                }
-                HStack {
-                    Spacer()
-                    welcomeGuideButton
-                }
+            SettingsDivider()
+            SettingsRow(Text("Show/hide taskbar shortcut")) {
+                hotKeyControls
             }
-            .padding(Self.paneMargin)
+            SettingsDivider()
+            drawerPlacementPicker
+            SettingsDivider()
+            scrollReverserToggle
         }
+        // Permissions are a second group, not a setting of the first: its own card, never a
+        // card inside a card.
+        PermissionsSettingsBlock()
+        welcomeGuideButton
     }
-
-    /// Distance from the window edge to a pane's content, boxes included.
-    private static let paneMargin: CGFloat = 28
-    /// Margin a grouped `Form` keeps around its boxes.
-    private static let systemFormMargin: CGFloat = 20
-
-    /// A pane as the system's grouped form, its boxes `paneMargin` from the window's top and
-    /// sides. The form's own bottom margin is left as is — what follows decides the rest.
-    @available(macOS 13.0, *)
-    private func systemForm<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        Form(content: content)
-            .formStyle(.grouped)
-            // The window is sized to its content and the page scrolls as a whole; a form that
-            // scrolls by itself has no height to measure.
-            .scrollDisabled(true)
-            .fixedSize(horizontal: false, vertical: true)
-            .padding([.horizontal, .top], Self.paneMargin - Self.systemFormMargin)
-    }
-
-    /// Bottom padding for a pane that ends with its form.
-    private static let afterFormMargin = paneMargin - systemFormMargin
 
     // 「高级」= 需要额外能力、默认就对、基本不用碰的开关。单独一页不是为了藏，
     // 而是让常用页只留日常会调的东西；真想拒绝这个能力的人找得到（owner 2026-08-09，
     // 2026-08-24 分页时 owner 确认保留「高级」这一页）。
     @ViewBuilder
     private var advancedPane: some View {
-        if #available(macOS 13.0, *) {
-            systemForm {
-                Section {
-                    fullscreenIntentToggle
-                } footer: {
-                    Text(fullscreenIntentNote)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                Section {
-                    SettingsLayoutPane(store: store, mode: .notifications)
-                    BehaviourSettingsBlock()
-                }
-            }
-            .padding(.bottom, Self.afterFormMargin)
-        } else {
-            settingsPane {
-                settingRow(note: fullscreenIntentNote) {
-                    fullscreenIntentToggle
-                }
-                Divider().opacity(0.5)
-                SettingsLayoutPane(store: store, mode: .notifications)
-                Divider().opacity(0.5)
-                BehaviourSettingsBlock()
-            }
-            .padding(Self.paneMargin)
+        SettingsCard {
+            fullscreenIntentToggle
         }
+        SettingsLayoutPane(store: store, mode: .notifications)
+        BehaviourSettingsBlock()
     }
 
     /// 「窗口管理」页: tiling, window chips, and the two window behaviours.
+    @ViewBuilder
     private var windowManagementPane: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            SettingsTilingPane(store: store)
-            SettingsLayoutPane(store: store, mode: .chips)
-            VStack(alignment: .leading, spacing: 8) {
-                WindowBehaviourSettingsBlock()
-            }
-            .padding([.horizontal, .bottom], 28)
-        }
+        SettingsTilingPane(store: store)
+        SettingsLayoutPane(store: store, mode: .chips)
+        WindowBehaviourSettingsBlock()
     }
 
     /// 「启动器与工具」页: launcher and Control Center sections, then the utility switches.
+    @ViewBuilder
     private var launcherToolsPane: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            SettingsLayoutPane(store: store, mode: .launcher)
-            VStack(alignment: .leading, spacing: 8) {
-                UtilitySettingsBlock(store: store)
-            }
-            .padding([.horizontal, .bottom], 28)
-        }
+        SettingsLayoutPane(store: store, mode: .launcher)
+        UtilitySettingsBlock(store: store)
     }
 
     /// 「刘海」页: the Live Island block plus the helpers that surface in the notch.
     @ViewBuilder
     private var notchPane: some View {
-        if #available(macOS 13.0, *) {
-            systemForm {
-                Section {
-                    LiveIslandSettingsBlock(store: store)
-                    NotchHelpersSettingsBlock()
-                }
-            }
-            .padding(.bottom, Self.afterFormMargin)
-        } else {
-            settingsPane {
-                LiveIslandSettingsBlock(store: store)
-                Divider().opacity(0.5)
-                NotchHelpersSettingsBlock()
-            }
-            .padding(Self.paneMargin)
-        }
+        LiveIslandSettingsBlock(store: store)
+        NotchHelpersSettingsBlock()
     }
 
     private var fullscreenIntentToggle: some View {
-        Toggle(
-            "Predict full-screen transitions to prevent taskbar flicker",
+        SettingsToggleRow(
+            Text("Predict full-screen transitions to prevent taskbar flicker"),
             isOn: binding(
                 get: { store.fullscreenIntentEnabled },
                 set: store.setFullscreenIntentEnabled
-            )
+            ),
+            info: fullscreenIntentNote
         )
     }
 
@@ -298,29 +170,19 @@ struct SettingsWindowContent: View {
 
     @ViewBuilder
     private var aboutPane: some View {
-        if #available(macOS 13.0, *) {
-            systemForm {
-                aboutVersionRow
-                autoUpdateToggle
-                diagnosticsRow
-            }
-            .padding(.bottom, Self.afterFormMargin)
-        } else {
-            settingsPane {
-                aboutVersionRow
-                autoUpdateToggle
-                diagnosticsRow
-            }
-            .padding(Self.paneMargin)
+        SettingsCard {
+            aboutVersionRow
+            SettingsDivider()
+            autoUpdateToggle
+            SettingsDivider()
+            diagnosticsRow
         }
     }
 
     /// Copies `DiagnosticReport` to the clipboard so a user can paste it into a GitHub issue.
     /// Nothing is sent anywhere.
     private var diagnosticsRow: some View {
-        HStack(spacing: 12) {
-            Text("Diagnostic Info")
-            Spacer()
+        SettingsRow(Text("Diagnostic Info")) {
             Button("Copy") {
                 let report = DiagnosticReport.collect(appVersion: coordinator.versionTitle)
                 NSPasteboard.general.clearContents()
@@ -362,9 +224,11 @@ struct SettingsWindowContent: View {
     // 登录时启动 2026-08-24 当天两度搬家：随去重进过设置窗口，owner 复议后定为
     // **只在状态栏菜单（第一项）**。这里不再放它，也不再需要 didBecomeActive 刷新。
 
+    /// One control, one label (rule 6): the picker hides its own label and the row supplies it —
+    /// this row used to read “Drawer Position” twice.
     private var drawerPlacementPicker: some View {
-        Picker(
-            "Drawer Position",
+        SettingsPickerRow(
+            Text("Drawer Position"),
             selection: Binding(
                 get: { store.drawerPlacement },
                 set: { store.setDrawerPlacement($0) }
@@ -373,7 +237,6 @@ struct SettingsWindowContent: View {
             Text("Left").tag(DrawerPlacement.left)
             Text("Right").tag(DrawerPlacement.right)
         }
-        .pickerStyle(.menu)
     }
 
     /// 界面语言（2026-08-24 加，2026-09-01 由三档收成两档、删掉「跟随系统」，见 `Docs/27`）。
@@ -384,8 +247,8 @@ struct SettingsWindowContent: View {
     /// ⚠️ 没设过语言的人键是不存在的，此时选单显示的是**推断值**（当前实际加载的那份
     /// `.lproj`）。**这条读取路径绝不许回写**：一回写就等于替所有从没选过的用户把语言钉死。
     private var languagePicker: some View {
-        Picker(
-            String(localized: "Language"),
+        SettingsPickerRow(
+            Text("Language"),
             selection: Binding(
                 get: { Self.currentLanguageOption() },
                 set: { applyLanguage($0) }
@@ -395,7 +258,6 @@ struct SettingsWindowContent: View {
                 Text(option.displayName).tag(option)
             }
         }
-        .pickerStyle(.menu)
     }
 
     private static func currentLanguageOption() -> AppLanguageOption {
@@ -467,35 +329,14 @@ struct SettingsWindowContent: View {
 
     /// 全局反转鼠标滚轮。作用于整个系统而不只是任务条，所以放「通用」。
     /// 说明必须写清「只改写方向值、不记录不发送」——这是全项目唯一改写别人输入事件的功能。
-    /// It sits behind the help button beside the title, not under the toggle: the page shows
-    /// no notes, but this disclosure must stay reachable in the app — and a hover tooltip is
-    /// not reachable enough (it needs a still pointer and an active window).
+    /// It sits behind the row’s ⓘ rather than under the toggle: this page shows no notes, and
+    /// a hover tooltip is not reachable enough (it needs a still pointer and an active window).
     private var scrollReverserToggle: some View {
-        Toggle(
-            "Reverse mouse scroll direction",
-            isOn: binding(get: { store.scrollReverserEnabled }, set: store.setScrollReverserEnabled)
+        SettingsToggleRow(
+            Text("Reverse mouse scroll direction"),
+            isOn: binding(get: { store.scrollReverserEnabled }, set: store.setScrollReverserEnabled),
+            info: scrollReverserHelp
         )
-    }
-
-    private var scrollReverserLabel: some View {
-        HStack(spacing: 6) {
-            Text("Reverse mouse scroll direction")
-            // A text-sized symbol, not the system help bezel: that one is as tall as the row.
-            Button { showsScrollReverserHelp = true } label: {
-                Image(systemName: "questionmark.circle")
-                    .foregroundStyle(.secondary)
-            }
-                .buttonStyle(.plain)
-                // A bare symbol reads as an unnamed button; say the disclosure itself.
-                .accessibilityLabel(Text(scrollReverserHelp))
-                .popover(isPresented: $showsScrollReverserHelp, arrowEdge: .bottom) {
-                    Text(scrollReverserHelp)
-                        .font(.callout)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(width: 300, alignment: .leading)
-                        .padding(14)
-                }
-        }
     }
 
     private var scrollReverserHelp: String {
@@ -523,12 +364,7 @@ struct SettingsWindowContent: View {
     }
 
     private var aboutVersionRow: some View {
-        HStack(spacing: 12) {
-            if let versionTitle = coordinator.versionTitle {
-                Text(versionTitle)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
+        SettingsRow(Text(coordinator.versionTitle ?? "")) {
             // Sparkle 自带结果界面（有新版 / 已是最新 / 查不到），所以这里不再接
             // `SettingsAlert`——原来那条「去官网手动下载」的提示随之删掉了。
             Button("Check for Updates…") {
@@ -542,71 +378,13 @@ struct SettingsWindowContent: View {
         // 自动检查默认是开的（`SUEnableAutomaticChecks`）。**必须给关的入口**：
         // 一个用户关不掉的后台定期联网检查，比多一个勾选项糟糕得多。
         // 真值在 Sparkle 那边，这里不做镜像。
-        Toggle(
-            "Check for updates automatically",
+        SettingsToggleRow(
+            Text("Check for updates automatically"),
             isOn: Binding(
                 get: { coordinator.automaticallyChecksForUpdates },
                 set: { coordinator.automaticallyChecksForUpdates = $0 }
             )
         )
-    }
-
-    /// 一页的行容器。分区标题随 2026-08-24 分页取消（窗口标题承担），只剩统一行距。
-    ///
-    /// 行距 20 是和 `settingRow` 的 3 配对的：**20 : 3 的对比**才让「一行设置 + 它下面那句
-    /// 灰色说明」读成一个整体。原先是 12 : 3，四段文字糊成一片（owner 2026-09-01）。
-    private func settingsPane<Content: View>(
-        @ViewBuilder content: () -> Content
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 20) {
-            content()
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    /// macOS 12 stand-in for the grouped form's box: rows stacked edge to edge, a `Divider()`
-    /// between them.
-    private func settingsGroup<Content: View>(
-        @ViewBuilder content: () -> Content
-    ) -> some View {
-        VStack(spacing: 0) {
-            content()
-        }
-        .padding(.horizontal, 14)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.primary.opacity(0.04))
-        )
-    }
-
-    /// One row of a `settingsGroup`: label leading, control(s) pushed to the trailing edge.
-    private func groupRow<Label: View, Control: View>(
-        @ViewBuilder label: () -> Label,
-        @ViewBuilder control: () -> Control
-    ) -> some View {
-        HStack(spacing: 10) {
-            label()
-            Spacer(minLength: 12)
-            control()
-        }
-        .padding(.vertical, 11)
-        .contentShape(Rectangle())
-    }
-
-    /// 开关 + 一行灰色说明。说明是给「不知道这个开关在干嘛」的人看的，
-    /// 菜单里塞不下，设置窗口有的是地方。
-    private func settingRow<Content: View>(
-        note: String,
-        @ViewBuilder content: () -> Content
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            content()
-            Text(note)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func binding<Value>(
