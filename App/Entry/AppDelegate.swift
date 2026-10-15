@@ -222,7 +222,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     restore: { [weak store] in store?.restore(entry.url) })
             }
         },
-        onShowLayoutSettings: { [weak self] in self?.openSettings(selecting: .general) },
+        onShowLayoutSettings: { [weak self] in self?.openSettings(selecting: .appearance) },
         onMenuVisibilityChanged: { [weak self] isOpen in
             self?.panelCoordinator?.setTaskbarMenuOpen(isOpen)
         },

@@ -4269,6 +4269,7 @@ Folds into Phase 12 so it is audited once: **12c** Permissions + Shortcuts secti
 - 2026-10-15 · **12 slice 6 done:** new **Shortcuts** tab (Shortcuts incl. keyboard/input switches + Radial Dial; `SettingsLayoutPane` default mode renamed `.shortcuts`); Notification-banner section moved to Advanced (`mode: .notifications`); **Layout tab removed** (empty). `openSettings(selecting: .layout)` callers retargeted: welcome-guide layout link → General, edge-bar settings button → Edge Bars. This also lands the deferred 12c Shortcuts move. Build + gates green.
 - 2026-10-15 · **12 slice 7 done:** tab order set to General · Appearance · Widgets · Notch · Edge Bars · Window Management · Launcher & Tools · Shortcuts · Advanced · About (10 pages); `SettingsTab` doc comment updated. All build-only slices (0–7) complete; next is slice 8 close-out checks (live) then slice 9 registry/cleanup.
 - 2026-10-15 · **Phase 12 slice 8a** — live check: at width 720 only 8 of 10 toolbar tabs fit (Advanced/About overflowed); window widened to 900, all 10 reachable (AX-verified). Remaining slice 8 checks pending.
+- 2026-10-15 · **Phase 12 slice 8b** — Preview, Layout Mode, Size and Fine-tune moved from General to the top of Appearance (macOS 13 + 12); "Show layout settings" now opens Appearance. Build + 3 gates pass; not live-checked. Done/not-done list added to the Phase 12 section; owner paused slice 9 and the remaining slice 8 checks.
 
 #### Phase 38 — Lock-screen notch (EXPERIMENTAL; probe first, then owner decides)
 
@@ -4283,6 +4284,10 @@ Folds into Phase 12 so it is audited once: **12c** Permissions + Shortcuts secti
 **Remaining open items (none block Phase 34 planning):** exact lock-screen API behaviour (38a); whether the sampler exposes thermals/GPU (34a, resolved by reading it); teleprompter hotkey (37, chosen at build).
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
+
+**Phase 12 status (2026-10-15, owner stop point).**
+- **Done (code, build + gates only):** 10-page Settings taxonomy (General · Appearance · Widgets · Notch · Edge Bars · Window Management · Launcher & Tools · Shortcuts · Advanced · About); Permissions in General; widget look controls moved to Widgets; Notch page (Live Island + notch helpers); Window Management (tiling + chips + switcher/restore); Launcher & Tools; Shortcuts page; Dock Style merged into Layout Mode; Preview/Layout Mode/Size/Fine-tune now on Appearance; window width 900 so all 10 tabs fit (AX-verified reachable).
+- **Not done (owner paused here; Settings follow-ups):** slice 8 remainder — per-page screenshots, exercising every control, macOS 12 layout parity, VoiceOver label re-audit, window height vs dock reserved edge, unit tests, Better Design review (`get-review-rules`, `check-comprehension`, `inspect-spacing`); 12f theme-refinement choice; centered-vs-full-width confirm; **37e teleprompter live check (last bit of Phase 12)**; Phase 9 Hyper-key/custom-shortcut live checks; slice 9 registry + cleanup (asks first before any deletion: DownloadManagerService demo downloads, `stash@{0}`, stale worktrees, stale comments `AppSettingsStore.swift:177,179`, unbounded gap/margin setters, unused style presets); owner language pass for new strings ("Behaviour", "Window Management", "Launcher & Tools"). Phase 38 stays on hold.
 
 **Note:** the AI agent may analyse the live app to do both parts together — they touch the same pages
 (Settings, Widgets, Launcher).

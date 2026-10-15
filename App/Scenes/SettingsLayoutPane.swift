@@ -294,7 +294,7 @@ struct SettingsLayoutPane: View {
     private static let margin: CGFloat = 28
     private static let previewFraction: CGFloat = 0.22
 
-    /// Phase 12e — the same pane serves two tabs: Layout keeps the dock geometry, Widgets takes
+    /// Phase 12e — one pane, several tabs: Appearance embeds the dock geometry, Widgets takes
     /// the widget list, presets and styles.
     enum Mode { case shortcuts, widgets, edgeBars, geometry, chips, launcher, notifications }
     var mode: Mode = .shortcuts

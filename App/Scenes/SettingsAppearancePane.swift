@@ -26,6 +26,10 @@ struct SettingsAppearancePane: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
+            // Phase 12: preview, layout mode and size live here. The pane brings its own margin.
+            SettingsLayoutPane(store: store, mode: .geometry)
+                .padding(-Self.margin)
+
             section {
                 Text("Theme")
             } content: {
