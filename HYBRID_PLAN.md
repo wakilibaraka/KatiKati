@@ -4229,6 +4229,8 @@ Overlooked by decision (owner agreed): Face Unlock, Stocks, embedded Terminal, F
 
 - 2026-10-15 · **36g delivered — PASS (code; not live-checked) — Phase 36 complete (36a–36h).** Text snippets ride the existing custom-command plumbing: `CustomCommand.Kind.snippet` + `parseSnippets` (`trigger = text`, `\n` escape; stored in `com.katikati.commandbar.snippets`, edited in Settings › Text Snippets). Type the trigger in ⌘Space → Return copies it and sends ⌘V when Accessibility is granted (clipboard only otherwise). A snippet is only ever copied/pasted, never executed. **No global typing expander** (needs a keystroke buffer — secrets risk; decided in the plan). Test + strings ×12. **Not done in 36 (decided):** Reveal-in-Finder on the 34e toast (toast is click-through).
 
+- 2026-10-15 · **Phase 37 execution (37a–37e, commit + push per slice).** **37a delivered — PASS (code).** `Core/Support/Teleprompter.swift`: `TeleprompterSpeed` (WPM→points/s; `shortcut:` ~6 words/line estimate), `TeleprompterScroll` (clamped, ignores stalled frames), `ScriptLinks` (http(s) via `NSDataDetector`, deduped), `LinkFetchPolicy` (https only; localhost/.local/private/link-local/IPv6 refused), `ReadableText.extract` (title, `<article>` preference, strips script/style/nav/header/footer/aside/form, entity decode; under 200 chars = "not readable here"). 6 tests incl. hostile HTML.
+
 #### Phase 37 — Teleprompter with link reader (notch page + floating window)
 
 **Goal.** A script reader that scrolls under the camera. **One engine, two hosts:** a 7th notch page (short scripts) and a
