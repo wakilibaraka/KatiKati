@@ -14,6 +14,7 @@ enum SettingsTab: String, CaseIterable {
     case appearance
     // Raw value stays "tiling": it is the toolbar item identifier.
     case windowManagement = "tiling"
+    case launcherTools
     case advanced
     case about
 
@@ -26,6 +27,7 @@ enum SettingsTab: String, CaseIterable {
         case .edgeBars: return String(localized: "Edge Bars")
         case .appearance: return String(localized: "Appearance")
         case .windowManagement: return String(localized: "Window Management")
+        case .launcherTools: return String(localized: "Launcher & Tools")
         case .advanced: return String(localized: "Advanced")
         case .about: return String(localized: "About")
         }
@@ -40,6 +42,7 @@ enum SettingsTab: String, CaseIterable {
         case .edgeBars: return "sidebar.right"
         case .appearance: return "paintpalette"
         case .windowManagement: return "rectangle.split.2x2"
+        case .launcherTools: return "magnifyingglass"
         case .advanced: return "wrench.and.screwdriver"
         case .about: return "info.circle"
         }

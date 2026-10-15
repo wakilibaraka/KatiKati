@@ -296,7 +296,7 @@ struct SettingsLayoutPane: View {
 
     /// Phase 12e — the same pane serves two tabs: Layout keeps the dock geometry, Widgets takes
     /// the widget list, presets and styles.
-    enum Mode { case layout, widgets, edgeBars, geometry, chips }
+    enum Mode { case layout, widgets, edgeBars, geometry, chips, launcher }
     var mode: Mode = .layout
 
     @ViewBuilder
@@ -542,6 +542,171 @@ struct SettingsLayoutPane: View {
     }
 
     @ViewBuilder
+    private var launcherSections: some View {
+            section {
+                Text("Launcher")
+            } content: {
+                HStack {
+                    Text("Scroll Direction")
+                    Spacer(minLength: 12)
+                    Picker("Scroll Direction", selection: Binding(
+                        get: { store.launcherScrollDirection },
+                        set: { store.setLauncherScrollDirection($0) }
+                    )) {
+                        Text("Sideways").tag(LauncherScrollDirection.horizontal)
+                        Text("Down").tag(LauncherScrollDirection.vertical)
+                    }
+                    .labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
+                HStack {
+                    Text("Hidden Apps")
+                    Spacer(minLength: 12)
+                    Text(verbatim: "\(launcherHiddenCount)").foregroundStyle(.secondary)
+                    Button("Show All Hidden Apps") { updateLauncherState { $0.hidden = [] } }
+                        .disabled(launcherHiddenCount == 0)
+                }
+                Button("Reset App Order") { updateLauncherState { $0.order = [] } }
+                DisclosureGroup("Hide Rarely Used Apps") {
+                    HStack {
+                        Button("Hide All Suggested") { updateLauncherState { $0.hidden = LauncherHidePresets.hidingAll($0.hidden) } }
+                        Button("Restore Suggested") { updateLauncherState { $0.hidden = LauncherHidePresets.restoringAll($0.hidden) } }
+                    }
+                    ForEach(LauncherHidePresets.entries, id: \.bundleID) { entry in
+                        Toggle(isOn: Binding(
+                            get: { launcherHiddenIDs.contains(entry.bundleID) },
+                            set: { _ in updateLauncherState { $0.hidden = LauncherOrdering.toggleHidden($0.hidden, entry.bundleID) } }
+                        )) { Text(verbatim: entry.name) }
+                        .accessibilityLabel(Text(verbatim: entry.name))
+                    }
+                }
+                HStack {
+                    Text("Search Position")
+                    Spacer(minLength: 12)
+                    Picker("Search Position", selection: Binding(
+                        get: { store.launcherSearchPosition },
+                        set: { store.setLauncherSearchPosition($0) }
+                    )) {
+                        Text("Top").tag(LauncherSearchPosition.top)
+                        Text("Bottom").tag(LauncherSearchPosition.bottom)
+                        Text("Left").tag(LauncherSearchPosition.left)
+                        Text("Right").tag(LauncherSearchPosition.right)
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                HStack {
+                    Text("Theme")
+                    Spacer(minLength: 12)
+                    Picker("Theme", selection: Binding(get: { store.launcherTheme }, set: { store.setLauncherTheme($0) })) {
+                        Text("System").tag(LauncherTheme.system)
+                        Text("Light").tag(LauncherTheme.light)
+                        Text("Dark").tag(LauncherTheme.dark)
+                        Text("Glass").tag(LauncherTheme.glass)
+                        Text("Desktop Picture").tag(LauncherTheme.desktop)
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                HStack {
+                    Text("Tint")
+                    Spacer(minLength: 12)
+                    Picker("Tint", selection: Binding(get: { store.launcherTint }, set: { store.setLauncherTint($0) })) {
+                        Text("None").tag(LauncherTint.none)
+                        Text("Blue").tag(LauncherTint.blue)
+                        Text("Purple").tag(LauncherTint.purple)
+                        Text("Pink").tag(LauncherTint.pink)
+                        Text("Orange").tag(LauncherTint.orange)
+                        Text("Green").tag(LauncherTint.green)
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                HStack {
+                    Text("Launcher Icon")
+                    Spacer(minLength: 12)
+                    ForEach(LauncherIconStyle.allCases, id: \.self) { style in
+                        Button { store.setLauncherIcon(style) } label: {
+                            VStack(spacing: 4) {
+                                LauncherIconView(style: style, size: 38)
+                                iconName(style).font(.caption)
+                            }
+                            .padding(6)
+                            .background(RoundedRectangle(cornerRadius: 10).stroke(Color.accentColor, lineWidth: store.launcherIcon == style ? 2 : 0))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            section {
+                Text("Control Center")
+            } content: {
+                HStack {
+                    Text("Side")
+                    Spacer(minLength: 12)
+                    Picker("Side", selection: Binding(
+                        get: { EdgeSide(rawValue: controlCenterSideRaw) ?? .right },
+                        set: { controlCenterSideRaw = $0.rawValue }
+                    )) {
+                        Text("Left").tag(EdgeSide.left)
+                        Text("Right").tag(EdgeSide.right)
+                    }
+                    .labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
+                HStack {
+                    Text("Size")
+                    Spacer(minLength: 12)
+                    Picker("Size", selection: Binding(
+                        get: { store.controlCenterSize },
+                        set: { store.setControlCenterSize($0) }
+                    )) {
+                        Text("Small").tag(ControlCenterSize.small)
+                        Text("Medium").tag(ControlCenterSize.medium)
+                        Text("Large").tag(ControlCenterSize.large)
+                    }
+                    .labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
+                HStack {
+                    Text("Anchor")
+                    Spacer(minLength: 12)
+                    Picker("Anchor", selection: Binding(
+                        get: { store.controlCenterAnchor },
+                        set: { store.setControlCenterAnchor($0) }
+                    )) {
+                        Text("Top").tag(ControlCenterAnchor.top)
+                        Text("Center").tag(ControlCenterAnchor.center)
+                        Text("Bottom").tag(ControlCenterAnchor.bottom)
+                    }
+                    .labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
+                HStack {
+                    Text("Animation")
+                    Spacer(minLength: 12)
+                    Picker("Animation", selection: Binding(
+                        get: { store.controlCenterAnimation },
+                        set: { store.setControlCenterAnimation($0) }
+                    )) {
+                        Text("Instant").tag(ControlCenterAnimation.instant)
+                        Text("Fade").tag(ControlCenterAnimation.fade)
+                        Text("Slide").tag(ControlCenterAnimation.slide)
+                    }
+                    .labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
+                Text("Widgets").font(.subheadline).padding(.top, 6)
+                ForEach(TileKind.controlCenterDefault, id: \.self) { kind in
+                    Toggle(isOn: Binding(get: { store.controlCenterWidgets.contains(kind) }, set: { store.setControlCenterWidget(kind, enabled: $0) })) {
+                        controlCenterWidgetTitle(kind)
+                    }
+                    .accessibilityLabel(controlCenterWidgetTitle(kind))
+                }
+                Text("Quick Settings").font(.subheadline).padding(.top, 6)
+                ForEach(QuickToggleID.defaultOrder, id: \.self) { id in
+                    Toggle(isOn: Binding(get: { store.controlCenterToggles.contains(id) }, set: { store.setControlCenterToggle(id, enabled: $0) })) {
+                        id.title
+                    }
+                    .accessibilityLabel(id.title)
+                }
+            }
+    }
+
+    @ViewBuilder
     private var edgeBarSections: some View {
             section {
                 Text("Edge Bars")
@@ -706,169 +871,9 @@ struct SettingsLayoutPane: View {
                 geometrySections
             } else if mode == .chips {
                 chipSections
+            } else if mode == .launcher {
+                launcherSections
             } else {
-            section {
-                Text("Launcher")
-            } content: {
-                HStack {
-                    Text("Scroll Direction")
-                    Spacer(minLength: 12)
-                    Picker("Scroll Direction", selection: Binding(
-                        get: { store.launcherScrollDirection },
-                        set: { store.setLauncherScrollDirection($0) }
-                    )) {
-                        Text("Sideways").tag(LauncherScrollDirection.horizontal)
-                        Text("Down").tag(LauncherScrollDirection.vertical)
-                    }
-                    .labelsHidden().pickerStyle(.segmented).fixedSize()
-                }
-                HStack {
-                    Text("Hidden Apps")
-                    Spacer(minLength: 12)
-                    Text(verbatim: "\(launcherHiddenCount)").foregroundStyle(.secondary)
-                    Button("Show All Hidden Apps") { updateLauncherState { $0.hidden = [] } }
-                        .disabled(launcherHiddenCount == 0)
-                }
-                Button("Reset App Order") { updateLauncherState { $0.order = [] } }
-                DisclosureGroup("Hide Rarely Used Apps") {
-                    HStack {
-                        Button("Hide All Suggested") { updateLauncherState { $0.hidden = LauncherHidePresets.hidingAll($0.hidden) } }
-                        Button("Restore Suggested") { updateLauncherState { $0.hidden = LauncherHidePresets.restoringAll($0.hidden) } }
-                    }
-                    ForEach(LauncherHidePresets.entries, id: \.bundleID) { entry in
-                        Toggle(isOn: Binding(
-                            get: { launcherHiddenIDs.contains(entry.bundleID) },
-                            set: { _ in updateLauncherState { $0.hidden = LauncherOrdering.toggleHidden($0.hidden, entry.bundleID) } }
-                        )) { Text(verbatim: entry.name) }
-                        .accessibilityLabel(Text(verbatim: entry.name))
-                    }
-                }
-                HStack {
-                    Text("Search Position")
-                    Spacer(minLength: 12)
-                    Picker("Search Position", selection: Binding(
-                        get: { store.launcherSearchPosition },
-                        set: { store.setLauncherSearchPosition($0) }
-                    )) {
-                        Text("Top").tag(LauncherSearchPosition.top)
-                        Text("Bottom").tag(LauncherSearchPosition.bottom)
-                        Text("Left").tag(LauncherSearchPosition.left)
-                        Text("Right").tag(LauncherSearchPosition.right)
-                    }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
-                HStack {
-                    Text("Theme")
-                    Spacer(minLength: 12)
-                    Picker("Theme", selection: Binding(get: { store.launcherTheme }, set: { store.setLauncherTheme($0) })) {
-                        Text("System").tag(LauncherTheme.system)
-                        Text("Light").tag(LauncherTheme.light)
-                        Text("Dark").tag(LauncherTheme.dark)
-                        Text("Glass").tag(LauncherTheme.glass)
-                        Text("Desktop Picture").tag(LauncherTheme.desktop)
-                    }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
-                HStack {
-                    Text("Tint")
-                    Spacer(minLength: 12)
-                    Picker("Tint", selection: Binding(get: { store.launcherTint }, set: { store.setLauncherTint($0) })) {
-                        Text("None").tag(LauncherTint.none)
-                        Text("Blue").tag(LauncherTint.blue)
-                        Text("Purple").tag(LauncherTint.purple)
-                        Text("Pink").tag(LauncherTint.pink)
-                        Text("Orange").tag(LauncherTint.orange)
-                        Text("Green").tag(LauncherTint.green)
-                    }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
-                HStack {
-                    Text("Launcher Icon")
-                    Spacer(minLength: 12)
-                    ForEach(LauncherIconStyle.allCases, id: \.self) { style in
-                        Button { store.setLauncherIcon(style) } label: {
-                            VStack(spacing: 4) {
-                                LauncherIconView(style: style, size: 38)
-                                iconName(style).font(.caption)
-                            }
-                            .padding(6)
-                            .background(RoundedRectangle(cornerRadius: 10).stroke(Color.accentColor, lineWidth: store.launcherIcon == style ? 2 : 0))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-
-            section {
-                Text("Control Center")
-            } content: {
-                HStack {
-                    Text("Side")
-                    Spacer(minLength: 12)
-                    Picker("Side", selection: Binding(
-                        get: { EdgeSide(rawValue: controlCenterSideRaw) ?? .right },
-                        set: { controlCenterSideRaw = $0.rawValue }
-                    )) {
-                        Text("Left").tag(EdgeSide.left)
-                        Text("Right").tag(EdgeSide.right)
-                    }
-                    .labelsHidden().pickerStyle(.segmented).fixedSize()
-                }
-                HStack {
-                    Text("Size")
-                    Spacer(minLength: 12)
-                    Picker("Size", selection: Binding(
-                        get: { store.controlCenterSize },
-                        set: { store.setControlCenterSize($0) }
-                    )) {
-                        Text("Small").tag(ControlCenterSize.small)
-                        Text("Medium").tag(ControlCenterSize.medium)
-                        Text("Large").tag(ControlCenterSize.large)
-                    }
-                    .labelsHidden().pickerStyle(.segmented).fixedSize()
-                }
-                HStack {
-                    Text("Anchor")
-                    Spacer(minLength: 12)
-                    Picker("Anchor", selection: Binding(
-                        get: { store.controlCenterAnchor },
-                        set: { store.setControlCenterAnchor($0) }
-                    )) {
-                        Text("Top").tag(ControlCenterAnchor.top)
-                        Text("Center").tag(ControlCenterAnchor.center)
-                        Text("Bottom").tag(ControlCenterAnchor.bottom)
-                    }
-                    .labelsHidden().pickerStyle(.segmented).fixedSize()
-                }
-                HStack {
-                    Text("Animation")
-                    Spacer(minLength: 12)
-                    Picker("Animation", selection: Binding(
-                        get: { store.controlCenterAnimation },
-                        set: { store.setControlCenterAnimation($0) }
-                    )) {
-                        Text("Instant").tag(ControlCenterAnimation.instant)
-                        Text("Fade").tag(ControlCenterAnimation.fade)
-                        Text("Slide").tag(ControlCenterAnimation.slide)
-                    }
-                    .labelsHidden().pickerStyle(.segmented).fixedSize()
-                }
-                Text("Widgets").font(.subheadline).padding(.top, 6)
-                ForEach(TileKind.controlCenterDefault, id: \.self) { kind in
-                    Toggle(isOn: Binding(get: { store.controlCenterWidgets.contains(kind) }, set: { store.setControlCenterWidget(kind, enabled: $0) })) {
-                        controlCenterWidgetTitle(kind)
-                    }
-                    .accessibilityLabel(controlCenterWidgetTitle(kind))
-                }
-                Text("Quick Settings").font(.subheadline).padding(.top, 6)
-                ForEach(QuickToggleID.defaultOrder, id: \.self) { id in
-                    Toggle(isOn: Binding(get: { store.controlCenterToggles.contains(id) }, set: { store.setControlCenterToggle(id, enabled: $0) })) {
-                        id.title
-                    }
-                    .accessibilityLabel(id.title)
-                }
-            }
-
             section {
                 Text("Shortcuts")
             } content: {

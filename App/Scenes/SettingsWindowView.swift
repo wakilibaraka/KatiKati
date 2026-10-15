@@ -53,6 +53,7 @@ struct SettingsWindowContent: View {
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
             case .appearance: SettingsAppearancePane(store: store)
             case .windowManagement: windowManagementPane
+            case .launcherTools: launcherToolsPane
             case .advanced: advancedPane
             case .about: aboutPane
             }
@@ -218,7 +219,6 @@ struct SettingsWindowContent: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 Section {
-                    UtilitySettingsBlock(store: store)
                     BehaviourSettingsBlock()
                 }
             }
@@ -228,8 +228,6 @@ struct SettingsWindowContent: View {
                 settingRow(note: fullscreenIntentNote) {
                     fullscreenIntentToggle
                 }
-                Divider().opacity(0.5)
-                UtilitySettingsBlock(store: store)
                 Divider().opacity(0.5)
                 BehaviourSettingsBlock()
             }
@@ -244,6 +242,17 @@ struct SettingsWindowContent: View {
             SettingsLayoutPane(store: store, mode: .chips)
             VStack(alignment: .leading, spacing: 8) {
                 WindowBehaviourSettingsBlock()
+            }
+            .padding([.horizontal, .bottom], 28)
+        }
+    }
+
+    /// 「启动器与工具」页: launcher and Control Center sections, then the utility switches.
+    private var launcherToolsPane: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SettingsLayoutPane(store: store, mode: .launcher)
+            VStack(alignment: .leading, spacing: 8) {
+                UtilitySettingsBlock(store: store)
             }
             .padding([.horizontal, .bottom], 28)
         }
