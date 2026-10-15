@@ -142,8 +142,6 @@ struct SettingsWindowContent: View {
                         .fixedSize()
                     }
                     
-                    LiveIslandSettingsBlock(store: store)
-                    UtilitySettingsBlock(store: store)
                     PermissionsSettingsBlock()
                     HStack {
                         Text("Drawer Position")
@@ -211,10 +209,6 @@ struct SettingsWindowContent: View {
                     Divider().opacity(0.5)
                     WeatherSettingsBlock()
                     Divider().opacity(0.5)
-                    LiveIslandSettingsBlock(store: store)
-                    Divider().opacity(0.5)
-                    UtilitySettingsBlock(store: store)
-                    Divider().opacity(0.5)
                     PermissionsSettingsBlock()
                     Divider().opacity(0.5)
                     groupRow {
@@ -278,6 +272,11 @@ struct SettingsWindowContent: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                Section {
+                    LiveIslandSettingsBlock(store: store)
+                    UtilitySettingsBlock(store: store)
+                    BehaviourSettingsBlock()
+                }
             }
             .padding(.bottom, Self.afterFormMargin)
         } else {
@@ -285,6 +284,12 @@ struct SettingsWindowContent: View {
                 settingRow(note: fullscreenIntentNote) {
                     fullscreenIntentToggle
                 }
+                Divider().opacity(0.5)
+                LiveIslandSettingsBlock(store: store)
+                Divider().opacity(0.5)
+                UtilitySettingsBlock(store: store)
+                Divider().opacity(0.5)
+                BehaviourSettingsBlock()
             }
             .padding(Self.paneMargin)
         }

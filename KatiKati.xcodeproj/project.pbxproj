@@ -207,6 +207,7 @@
 		7B5000000000000000000192 /* DownloadActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000191 /* DownloadActivity.swift */; };
 		7B5000000000000000000193 /* DownloadActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000191 /* DownloadActivity.swift */; };
 		FB12C00000000000000A02 /* PermissionsSettingsBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB12C00000000000000A01 /* PermissionsSettingsBlock.swift */; };
+		FB12C00000000000000B02 /* BehaviourSettingsBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB12C00000000000000B01 /* BehaviourSettingsBlock.swift */; };
 		7B5000000000000000000182 /* LiveIslandSettingsBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000181 /* LiveIslandSettingsBlock.swift */; };
 		7B5000000000000000000172 /* BoringNotchWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000171 /* BoringNotchWindow.swift */; };
 		7B5000000000000000000162 /* NotchShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000161 /* NotchShape.swift */; };
@@ -1179,6 +1180,7 @@
 		7B50000000000000000001A1 /* DownloadActivityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadActivityTests.swift; path = Tests/Unit/DownloadActivityTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000191 /* DownloadActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadActivity.swift; path = Core/Support/DownloadActivity.swift; sourceTree = SOURCE_ROOT; };
 		FB12C00000000000000A01 /* PermissionsSettingsBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PermissionsSettingsBlock.swift; path = App/Scenes/PermissionsSettingsBlock.swift; sourceTree = SOURCE_ROOT; };
+		FB12C00000000000000B01 /* BehaviourSettingsBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BehaviourSettingsBlock.swift; path = App/Scenes/BehaviourSettingsBlock.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000181 /* LiveIslandSettingsBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveIslandSettingsBlock.swift; path = App/Scenes/LiveIslandSettingsBlock.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000171 /* BoringNotchWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BoringNotchWindow.swift; path = Vendor/boring.notch/BoringNotchWindow.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000161 /* NotchShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchShape.swift; path = Vendor/boring.notch/NotchShape.swift; sourceTree = SOURCE_ROOT; };
@@ -3003,6 +3005,7 @@
 				7B5000000000000000000192 /* DownloadActivity.swift in Sources */,
 				7B5000000000000000000182 /* LiveIslandSettingsBlock.swift in Sources */,
 				FB12C00000000000000A02 /* PermissionsSettingsBlock.swift in Sources */,
+				FB12C00000000000000B02 /* BehaviourSettingsBlock.swift in Sources */,
 				7B5000000000000000000172 /* BoringNotchWindow.swift in Sources */,
 				7B5000000000000000000162 /* NotchShape.swift in Sources */,
 				7B5000000000000000000152 /* NotchPanelController.swift in Sources */,
