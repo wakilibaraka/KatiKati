@@ -3,7 +3,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct SettingsWindowView: View {
-    static let contentWidth: CGFloat = 560
+    // Wide enough for ten toolbar items without the overflow chevron.
+    static let contentWidth: CGFloat = 720
 
     /// 公开仓库主页。**只给「求 Star」用**——用户可见的「去下载」永远指向官网
     /// （2026-08-13 起 GitHub release 页不再附安装包，指过去是个空页面），
@@ -50,7 +51,7 @@ struct SettingsWindowContent: View {
             case .widgets: SettingsLayoutPane(store: store, mode: .widgets)
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
             case .appearance: SettingsAppearancePane(store: store)
-            case .tiling: SettingsTilingPane(store: store)
+            case .windowManagement: SettingsTilingPane(store: store)
             case .advanced: advancedPane
             case .about: aboutPane
             }
