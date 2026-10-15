@@ -299,14 +299,13 @@ struct NowPlayingPopup: View {
                     }
                     Spacer()
                     // AirPlay Icon
-                    Button(action: {}) {
+                    AudioOutputMenu {
                         Image(systemName: "airplayaudio")
                             .font(.system(size: 12))
                             .foregroundColor(isDarkMode ? .white : .primary)
                             .frame(width: 24, height: 24)
                             .background(Circle().fill(isDarkMode ? Color.white.opacity(0.1) : Color.black.opacity(0.05)))
                     }
-                    .buttonStyle(.plain)
                 }
                 
                 // Playback Controls
@@ -664,17 +663,19 @@ private struct ExpandedMediaCardView: View {
         let vol = systemStatus.status.volume
         return HStack(spacing: 8) {
             // Audio destination icon
-            ZStack {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(Color.white.opacity(0.10))
-                    .frame(width: 32, height: 32)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .stroke(Color.white.opacity(0.18), lineWidth: 1)
-                    )
-                Image(systemName: "airplayaudio")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color(red: 0.38, green: 0.68, blue: 1.0))
+            AudioOutputMenu {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color.white.opacity(0.10))
+                        .frame(width: 32, height: 32)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                        )
+                    Image(systemName: "airplayaudio")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color(red: 0.38, green: 0.68, blue: 1.0))
+                }
             }
 
             // Volume level slider & device label

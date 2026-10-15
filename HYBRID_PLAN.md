@@ -4223,6 +4223,8 @@ Overlooked by decision (owner agreed): Face Unlock, Stocks, embedded Terminal, F
 
 - 2026-10-15 · **36c delivered — PASS (code; not live-checked).** `USBEjectPill.swift` (own clickable panel — toasts are click-through; top-centre, 8 s auto-dismiss, Eject → `unmountAndEjectDevice`, shows Ejected / Couldn't Eject) fed by `NSWorkspace.didMountNotification` only while `com.katikati.helpers.usbEject` (default off). Pure `EjectPolicy` (ejectable/removable, not internal, local, not root) + test. Strings ×12. Needs a live check with a real USB drive.
 
+- 2026-10-15 · **36e delivered — PASS (code; not live-checked).** `Platform/SystemStatus/AudioOutputSwitcher.swift`: output-device list + set-default via CoreAudio, no listener (queried only when the menu appears or a device is picked). `AudioOutputMenu` now wraps both AirPlay glyphs on the Now Playing card / volume page (they were dead buttons). Always on — no toggle, since it replaces a no-op control. String "Audio Output" ×12. Needs a live check with two outputs (e.g. speakers + AirPods).
+
 #### Phase 37 — Teleprompter with link reader (notch page + floating window)
 
 **Goal.** A script reader that scrolls under the camera. **One engine, two hosts:** a 7th notch page (short scripts) and a
