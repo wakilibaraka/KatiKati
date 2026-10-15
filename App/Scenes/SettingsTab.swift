@@ -1,16 +1,16 @@
 import Combine
 import Foundation
 
-/// 设置窗口的标签页（Phase 12 起目标十页，逐步到位）（Phase 6 加「布局」「外观」；2026-10 移除「授权」「反馈」）（2026-08-24 分页；「Dock 栏」页 2026-09-01
+/// 设置窗口的十个标签页（Phase 12，2026-10：「布局」页拆散进通用/小组件/刘海/边栏/窗口管理/启动器与工具/快捷键；移除「授权」「反馈」）（2026-08-24 分页；「Dock 栏」页 2026-09-01
 /// 整页搬进状态栏菜单，见 `Docs/27`）。标题复用原分区标题的
 /// 本地化 key；图标全部 macOS 11 起可用（对照 CoreGlyphs name_availability 核过）。
 /// 纯 Foundation/Combine——测试 target 也编译它，别引 AppKit。
 enum SettingsTab: String, CaseIterable {
     case general
+    case appearance
     case widgets
     case notch
     case edgeBars
-    case appearance
     // Raw value stays "tiling": it is the toolbar item identifier.
     case windowManagement = "tiling"
     case launcherTools
