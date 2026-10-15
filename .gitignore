@@ -41,6 +41,11 @@ Docs/Archive/Diagnostics/
 Docs/Archive/Engineering/
 !Docs/Archive/Planning/
 !Docs/Archive/Planning/*.md
+# The one top-level Doc that is published: the Settings code cites it by path
+# (`App/Scenes/SettingsCard.swift` and the panes), so it has to resolve in a
+# clone for the citation to mean anything. Everything else under Docs/*.md stays
+# working-tree-only.
+!Docs/SETTINGS.md
 Docs/Archive/Samples/
 *.log
 .freebuff/
