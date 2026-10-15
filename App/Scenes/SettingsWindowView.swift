@@ -47,7 +47,12 @@ struct SettingsWindowContent: View {
         Group {
             switch tabState.selected {
             case .general: generalPane
-            case .widgets: SettingsLayoutPane(store: store, mode: .widgets)
+            case .widgets:
+                // Composed here, not inside the pane: `WidgetLookSettingsBlock` drives the pickers
+                // defined in this app-only file, and the pane also compiles into the test target.
+                WidgetLookSettingsBlock(store: store)
+                    .padding([.horizontal, .top], Self.paneMargin)
+                SettingsLayoutPane(store: store, mode: .widgets)
             case .notch: notchPane
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
             case .appearance: SettingsAppearancePane(store: store)

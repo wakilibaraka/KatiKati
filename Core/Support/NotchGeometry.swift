@@ -37,6 +37,13 @@ enum NotchGeometry {
     static func openSize(for skin: LiveIslandSkin) -> CGSize {
         skin == .boring ? openSize : classicOpenSize
     }
+
+    /// Silhouette the Settings/guide demo draws: the skin's open panel, or the closed capsule.
+    static func previewSize(for skin: LiveIslandSkin, expanded: Bool) -> CGSize {
+        expanded
+            ? openSize(for: skin)
+            : CGSize(width: NotchDesignSpec.fallbackClosedWidth, height: NotchDesignSpec.fallbackClosedHeight)
+    }
     /// Extra width the closed notch grows by on each side to show the live activity.
     static let sneakSide: CGFloat = 64
 

@@ -2297,18 +2297,19 @@ progress/prev-next keys, and the two-tier live event feed (in-app default-on, OS
 - **Verify each**: tungsten gate green + menu/preview/shortcut anchor tests + Instruments
   idle-CPU number in the PR.
 
-### Execution order from Phase 10 onward (owner-approved 2026-10-13; numbers unchanged, phase content unchanged)
+### Execution order from Phase 10 onward (owner-approved 2026-10-13; reprioritized 2026-10-15 via /grill-me)
 
-| # | Phase | Why here |
-|---|---|---|
-| 1 | **Phase 10 close-out** (residual list in the 2026-10-13 check-log) → owner sign-off | finish what is built |
-| 2 | **Phase 20a + 20b** — Background Apps drawer, hold-Control RAM overlay | owner's newest requests; self-contained |
-| 3 | **Phase 13** — Launcher & edge payload (§7w; 7B continuation) | follows Pinboard freeze; may overlap 2 |
-| 4 | **Phase 11** — Layout-mode rendering refinement | must precede 18 (axis abstraction built once) |
-| 5 | **Phase 18** — Strip placement bottom / left / right | after 11 |
-| 6 | **Phase 20c extras** (optional): window switcher → sleep layout restore → menu-bar system widget | owner picks |
-| 7 | **Phases 21–26** — launcher superpowers → clipboard+ → translate → input guards → notification relocation → tiling (easiest → hardest; **all before Phase 12**) | new capabilities; each gated + owner sign-off |
-| 8 | **Phase 12** (merged 12/14/15/17) — Settings refinement + dead-code registry | last: audits the final feature set |
+| # | Phase / Domain Block | Scope & Status | Why here |
+|---|---|---|---|
+| 1 | **Phase 10 close-out** | Widget presets + wallpaper integration | **DONE 2026-10-13** |
+| 2 | **Phase 20a + 20b** | Background Apps drawer, hold-Control RAM overlay | **DONE 2026-10-13** |
+| 3 | **Phase 13 / 7B baseline** | Launcher & edge payload ecosystem | **DONE 2026-10-13** |
+| 4 | **Phases 31, 33, 34, 36, 37** | Radial dial, Notch suite, Daily helpers, Teleprompter | **DONE 2026-10-15** |
+| 5 | **Phase 12 (merged 12/14/15/17/35)** | 10-tab Settings overhaul & interactive live demo | **IN PROGRESS (closing out)** |
+| 6 | **BLOCK 1 — Dock & Multi-Edge Rails (Phase 39 + 11 + 18 + 20c)** | Bilateral symmetry, 40×40 squircles, inward running dots, 4pt density, 40×40 rotating vinyl, multi-edge placement | **NEXT (first post-Phase 12 block)** |
+| 7 | **BLOCK 2 — Widgets & Interior Readability (Phase 39e + 8 + 10 close-out)** | Apple Weather typography overhaul, Clock/Weather symmetry, 5-page media sync | Follows Block 1 |
+| 8 | **BLOCK 3 — Productivity & Launcher Superpowers (Phase 7B/13/21 + 22 + 23 + 24 + 26)** | ⌘Space + Launcher hybrid: Clipboard+, Translate, PDF Reduce, Input Guards, BSP Tiling | Follows Block 2 |
+| 9 | **BLOCK 4 — Notch Deep Integration & Native Downloads (Phase 25 + 33 + 38)** | Native Swift BitTorrent engine, Notification banner relocation, Lock-screen notch probe (opt-in spike) | Deep macOS hooks |
 
 Phase 16 does not exist; Phase 19 is done. *(Superseded 2026-10-13: Phase 16 was later created — see the
 Phase 16 sections below; the sentence above referred to the retired §7w numbering and is kept for history.)*
@@ -4270,6 +4271,11 @@ Folds into Phase 12 so it is audited once: **12c** Permissions + Shortcuts secti
 - 2026-10-15 · **12 slice 7 done:** tab order set to General · Appearance · Widgets · Notch · Edge Bars · Window Management · Launcher & Tools · Shortcuts · Advanced · About (10 pages); `SettingsTab` doc comment updated. All build-only slices (0–7) complete; next is slice 8 close-out checks (live) then slice 9 registry/cleanup.
 - 2026-10-15 · **Phase 12 slice 8a** — live check: at width 720 only 8 of 10 toolbar tabs fit (Advanced/About overflowed); window widened to 900, all 10 reachable (AX-verified). Remaining slice 8 checks pending.
 - 2026-10-15 · **Phase 12 slice 8b** — Preview, Layout Mode, Size and Fine-tune moved from General to the top of Appearance (macOS 13 + 12); "Show layout settings" now opens Appearance. Build + 3 gates pass; not live-checked. Done/not-done list added to the Phase 12 section; owner paused slice 9 and the remaining slice 8 checks.
+- 2026-10-15 · **12 notch-preview slice (new; owner-approved after the slice-9 pause, built on `bad2303`).** The Notch tab and the guide's Live Island step now carry an interactive demo: `App/Scenes/NotchPreview.swift` (dual-compiled) draws the real closed/open silhouettes at the sizes the selected skin uses — `NotchGeometry.previewSize(for:expanded:)`, unit-tested in `NotchGeometryTests` — and grows/shrinks on a click; the five Live Island rows gained localized hover help (6 new keys × 12 languages; drafts). The demo is deliberately isolated: no feed, media, timer or panel, and placeholder plates instead of numbers, so it cannot pass invented values off as live data (Phase 34 witness). Rebuilt from a stale base: the earlier attempt sat on `e5dd3de` (34 commits behind) and registered the file twice in the app target, so it could not link; that work is stashed (`phase-12 slice1 …`), not merged.
+- 2026-10-15 · **Upstream red gate fixed (slice-2 regression, `4aaf8b5`).** `WidgetLookSettingsBlock` was added app-only while its consumer `SettingsLayoutPane` is dual-compiled, so **`xcodebuild test` could not compile the test target on `bad2303`** — verified independently in a clean worktree at that commit (`SettingsLayoutPane.swift:810: cannot find 'WidgetLookSettingsBlock' in scope`, 3 failures, exit 65). Fix is the smaller of the two faithful readings: the block is composed by the app-only Widgets tab (`SettingsWindowView`, inset by `paneMargin`) instead of inside the pane. **Cost to live-check:** the block now sits 28 pt above the pane's first section instead of 18. The alternative (moving the shared pickers into a dual-compiled file) was rejected for now: they need app-only `WeatherPrefs`/`WidgetExtraPrefs`, so it would cascade.
+- 2026-10-15 · **Notch-preview slice verification.** `xcodebuild test` (CI's exact command, `CODE_SIGNING_ALLOWED=NO`): **TEST SUCCEEDED, 2429 tests, 0 failures**; `check_localization.py` + `check_debug_switches.py` + `check_availability_warnings.py` all green. Not verified: the live look and the widget-look spacing above (no notched display in this session; the preview draws the notched silhouette regardless of hardware).
+- 2026-10-15 · **Notch-preview slice polish (owner review of the live Notch tab).** Three changes: (1) the demo now draws the **floating-island** silhouette (`flaringTopEars: false`) — in a settings row there is no bezel above the shape, so the hardware notch's flared ears had nothing to meet and read as clipped; (2) its drawing frame is now an explicit `.frame(height:)` instead of a flexible max, because a `Shape` has no intrinsic size and `.fit` therefore solves against whatever the surrounding form proposes — the guard test records that reasoning, but the harness **could not reproduce** the live proportions, so treat the ratio as hardened, not as a proven fix; (3) the demo's own card background was dropped: it stacked a second translucent surface inside the section box, which the Apple materials rule forbids. Separately, **Settings toolbar icons are now drawn into one 18×18 box**: SF Symbols measured 18–22 pt wide × 17–21 pt tall at a single point size, which is what made the tab strip look ragged.
+- 2026-10-15 · **Owner note — the Compact notch needs plan work.** "Compact" is the `classic` skin (`LiveIslandSkin`, `NotchLayoutSpec`); the demo shows it, but its silhouette, sizing and content were never designed against the reference layout the `boring` skin follows. Track it as its own follow-up before the Notch page is signed off, and record the decision in this file when it is made.
 
 #### Phase 38 — Lock-screen notch (EXPERIMENTAL; probe first, then owner decides)
 
@@ -4704,3 +4710,69 @@ Priority if the owner wants more after 20a/20b: **window switcher → sleep layo
   - **Not done / known limits:** Activity Monitor shortcuts beyond the single click-through; window-switcher shortcut is fixed (not in the shortcut-binding UI); `CGWindowListCreateImage` thumbnails unavailable on this macOS build, so switcher tiles fall back to app icons here.
 - 2026-10-13 · **Phase 13 landed (13a, 13c, 13f–13l; no live check)**: pure `LauncherPlus` (sort, categories, prefs, hide presets, quick action) + `EdgeBarPrefs`/`EdgeDwell` with tests; launcher page 1 Pinned + fixed pages with dividers, gear popover, close button; edge open delay, sensitivity, magnify amount, icon sets, Modern/Glass flyouts, height sliders; 27 new strings ×12 (drafts → `Docs/translation-review-phase13.csv`; Phase 20 drafts → `…phase20.csv`). **Not built:** 13b label styling beyond tooltips, 13d pointer-down-only triggers, 13e screenshot-to-clipboard, 13i folders/edit mode, size-range widening. Owner asked for no more live tests.
 - 2026-10-13 · **Phase 13 gaps closed (no live check):** hover-name bubbles, click-only open, held-button guard, Copy Screenshot item, bar size 0.7–1.6, launcher folders + edit mode + arrow-key focus + ⌘1–9 (pure `LauncherFolders`/`LauncherFocus` tested). Unit suite 2177 green; localization + debug-switch gates clean; 11 more strings ×12 added to `Docs/translation-review-phase13.csv`. Known limits: arrow focus does not auto-scroll the vertical-scroll layout; folder drops while *not* editing are reorders by design; none of the new UI has been seen on screen.
+
+---
+
+### Post-Phase-12 Domain-Clustered Execution Plan (Owner-Approved 2026-10-15 via /grill-me)
+
+To eliminate code thrashing, prevent cross-domain regression, and ensure seamless bilateral symmetry, the remaining backlog, deferred items, and new refinements are grouped into **four domain-clustered super-blocks** executed sequentially after Phase 12 completes:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│ Post-Phase 12 Execution Pipeline                                                │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ BLOCK 1: Dock & Multi-Edge Rails (Phase 39 + 11 + 18 + 20c)                     │
+│ ├─ Universal 40×40 Squircle Matrix (Launcher, Weather, Clock, Wi-Fi, Disc)     │
+│ ├─ Inward-facing running dots (Right edge on Left Rail, Left edge on Right Rail)│
+│ ├─ High-density vertical rail spacing (4pt gap, 18×1 compact dividers)          │
+│ ├─ Vertical Now Playing: 40×40 Rotating Vinyl Disc with interactive flyout      │
+│ ├─ Multi-edge strip placement (Bottom, Left, Right) + axis solver               │
+│ └─ Default unified continuous capsule on rails + sleep/wake layout restore      │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ BLOCK 2: Widgets & Interior Readability (Phase 39e + 8 + 10 Close-out)          │
+│ ├─ Apple Weather typography overhaul: 11–14pt bold text, High/Low badges       │
+│ ├─ Medium & Large Clock/Weather symmetric information density                   │
+│ └─ Dock & Notch 5-page media synchronization (Vinyl, Volume, Focus, Wake, Alarm)│
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ BLOCK 3: Productivity & Launcher Superpowers (Phase 7B/13/21 + 22 + 23 + 24 + 26│
+│ ├─ Hybrid Surfacing: ⌘Space Command Palette + Mouse Launcher/Shelf FABs         │
+│ ├─ Rich Clipboard+ history manager & 1-click PDF compressor                     │
+│ ├─ Offline Apple Translation & Dictionary lookup                                │
+│ ├─ Input Guards: ⌘Q hold-to-quit delay & Key Visualizer HUD                     │
+│ └─ BSP Window Tiling engine with Radial Dial gesture snapping                   │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ BLOCK 4: Notch Deep Integration & Native Downloads (Phase 25 + 33 + 38)         │
+│ ├─ Embedded Lightweight Swift BitTorrent Client (real piece-by-piece download)  │
+│ ├─ System Notification Relocation into Dynamic Island drop-downs                │
+│ ├─ Notch dual-activity wing glyphs & download-finished toasts                   │
+│ └─ Lock-Screen Notch Overlay (Isolated, opt-in experimental spike)             │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Block 1 — Dock & Multi-Edge Rails (Phase 39 + 11 + 18 + 20c)
+1. **Slice 39a (Universal 40×40 Squircle Geometry):** Standardize all rail anchors (`WeatherChip`, `ClockChip`, `WiFiVolumeFABView`, `LauncherFABView`, `DynamicGaugeCompactDiscView`) into identical 40×40 continuous squircles (14pt radius).
+2. **Slice 39b (Inward Running Dot Alignment):** Correct `RunningDotEdge` to anchor dots to `.trailing` (right) on Left rails and `.leading` (left) on Right rails, facing user workspace.
+3. **Slice 39c (Vertical Density & Dividers):** Reduce rail chip spacing to 4pt (`verticalChipSpacing = 4`); slim dividers to 18×1pt with 3pt padding.
+4. **Slice 39d (Vertical Now Playing Adaptation):** Replace horizontal player card with a 40×40 spinning vinyl disc with album art spindle; hover/click reveals floating 5-page player flyout.
+5. **Phase 11 + 18 (Multi-Edge Strip Placement):** Reconcile `StripPlacement` (.bottom, .left, .right) with `StripAxis` mapper; default to unified continuous glass capsule on rails (warning/option provided for mode-mirroring).
+6. **Phase 20c (Sleep/Wake Layout Memory):** Preserve multi-monitor window and strip positions across sleep/wake and display topology shifts.
+
+#### Block 2 — Widgets & Interior Readability (Phase 39e + 8 + 10 Close-out)
+1. **Slice 39e (Apple Weather Typography Overhaul):** Redesign Medium (~150pt) and Large (~220pt) Weather chips with 11–14pt bold text, High/Low badges, high-contrast white tokens, and eliminate cramped micro-forecast columns.
+2. **Phase 10 Close-out:** Finalize S/M/L presets, weather-reactive desktop wallpaper engine, and Space-change re-application.
+3. **Phase 8 (Interior Micro-Tool Parity):** Synchronize the unified 5-page capsule (Vinyl, Volume, Pomodoro Focus, Stay Awake, Smart Alarm) between Dock chips and Notch popups.
+
+#### Block 3 — Productivity & Launcher Superpowers (Phase 7B/13/21 + 22 + 23 + 24 + 26)
+1. **Hybrid Architecture:** Surfaced concurrently via ⌘Space Command Palette (instant keyboard actions) and Launcher / Shelf FABs (drag & mouse ergonomics).
+2. **Phase 21 (Launcher Superpowers):** File tagging, fast shell script execution, app search actions.
+3. **Phase 22 (Clipboard+ & Shelf PDF):** Full clipboard history search, persistent snippets, and 1-click PDF size reducer.
+4. **Phase 23 (Offline Translation & Dictionary):** Integrated Apple Translation framework for instant offline word and phrase lookups.
+5. **Phase 24 (Input Guards):** Timed `⌘Q` hold-to-quit guard to prevent accidental app termination; on-screen key visualizer HUD for demos.
+6. **Phase 26 (BSP Window Tiling):** Binary Space Partitioning window tiling engine with keyboard snapping and Radial Dial gesture integration.
+
+#### Block 4 — Notch Deep Integration & Native Downloads (Phase 25 + 33 + 38)
+1. **Phase 33 Native BitTorrent Engine:** Integrate an embedded lightweight Swift BitTorrent protocol client (inspired by Hop/Harbor) so magnet links and .torrent files download genuine piece-by-piece files to `~/Downloads` directly inside KatiKati (retiring fake synthetic demo mocks).
+2. **Phase 25 (Notification Relocation):** Intercept and reroute macOS system notification banners into smooth Notch / Dynamic Island slide-downs.
+3. **Phase 34e/g Polish:** Dual-activity wing glyphs on closed notch pill and download-finished toasts.
+4. **Phase 38 (Lock-Screen Notch Spike):** Isolated, opt-in experimental probe evaluating lock-screen window levels and wake security.
+

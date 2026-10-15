@@ -201,6 +201,26 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
     }
 }
 
+private extension NSImage {
+    /// Draw centered in a fixed box instead of returning self, so every toolbar glyph occupies the
+    /// same rect regardless of its optical width. A drawing handler keeps it resolution-independent
+    /// (a `lockFocus` bitmap would be drawn at 1× and look soft on a Retina display).
+    func centered(in size: NSSize) -> NSImage {
+        let glyph = self
+        let box = NSImage(size: size, flipped: false) { rect in
+            glyph.draw(
+                at: NSPoint(x: rect.midX - glyph.size.width / 2, y: rect.midY - glyph.size.height / 2),
+                from: .zero,
+                operation: .sourceOver,
+                fraction: 1
+            )
+            return true
+        }
+        box.isTemplate = isTemplate
+        return box
+    }
+}
+
 extension SettingsWindowController: NSToolbarDelegate {
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
         SettingsTab.allCases.map { NSToolbarItem.Identifier($0.rawValue) }
@@ -224,7 +244,14 @@ extension SettingsWindowController: NSToolbarDelegate {
         let item = NSToolbarItem(itemIdentifier: itemIdentifier)
         item.label = tab.title
         item.paletteLabel = tab.title
-        item.image = NSImage(systemSymbolName: tab.symbolName, accessibilityDescription: tab.title)
+        // SF Symbols vary in optical size — measured at point size 15: 18–22 pt wide, 17–21 pt tall —
+        // so untamed images make the tab strip look ragged. Draw every symbol into one box that
+        // contains the widest and tallest of the set (`wrench.and.screwdriver`, 22×21), so the icons
+        // line up in one column and their labels share a baseline.
+        let iconSize = NSSize(width: 22, height: 22)
+        item.image = NSImage(systemSymbolName: tab.symbolName, accessibilityDescription: tab.title)?
+            .withSymbolConfiguration(.init(pointSize: 15, weight: .regular))?
+            .centered(in: iconSize)
         item.target = self
         item.action = #selector(selectToolbarTab(_:))
         return item

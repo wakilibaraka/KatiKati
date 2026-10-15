@@ -807,8 +807,8 @@ struct SettingsLayoutPane: View {
 
     @ViewBuilder
     private var widgetSections: some View {
-        WidgetLookSettingsBlock(store: store)
-
+        // The widget-look block is composed by the Widgets tab instead: its controls live in the
+        // app-only `SettingsWindowView`, and this pane also compiles into the test target.
         section {
             Text("Widgets")
         } content: {

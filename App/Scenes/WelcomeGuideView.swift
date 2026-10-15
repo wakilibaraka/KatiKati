@@ -41,6 +41,8 @@ struct WelcomeGuideLayoutContext {
     var onPickTheme: (DockThemeStyle) -> Void = { _ in }
     /// The notch Live Island switch (default on); written to the store as soon as it is flipped.
     var notchEnabled = true
+    /// Read-only: which look the step's demo draws. The guide never changes the skin itself.
+    var notchSkin: LiveIslandSkin = .boring
     var onNotchToggle: (Bool) -> Void = { _ in }
 }
 
@@ -153,6 +155,7 @@ struct WelcomeGuideView: View {
             Text("Live Island")
                 .font(.title2.weight(.semibold))
             Toggle("Show the Live Island on the notch", isOn: binding)
+            NotchPreview(skin: layout.notchSkin, isEnabled: notchOn ?? layout.notchEnabled)
             Text("You can change this later in Settings › Live Island.")
                 .font(.callout)
                 .foregroundStyle(.secondary)

@@ -608,6 +608,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             initialTheme: settingsStore.themeMaterial,
             onPickTheme: { [weak self] theme in self?.settingsStore.setThemeMaterial(theme) },
             notchEnabled: settingsStore.notchIslandEnabled,
+            notchSkin: settingsStore.notchSkin,
             onNotchToggle: { [weak self] on in self?.settingsStore.setNotchIslandEnabled(on) }
         )
         let content = WelcomeGuideWindowContent(

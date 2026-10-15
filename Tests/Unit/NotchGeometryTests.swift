@@ -37,6 +37,16 @@ final class NotchGeometryTests: XCTestCase {
         XCTAssertEqual(f.maxY, screen.maxY, "flush with the top edge")
     }
 
+    /// The Settings/guide demo draws the real silhouette: the skin's open panel, or the closed capsule.
+    func testPreviewSizeFollowsTheSkinAndTheExpandedState() {
+        XCTAssertEqual(NotchGeometry.previewSize(for: .boring, expanded: true), NotchGeometry.openSize)
+        XCTAssertEqual(NotchGeometry.previewSize(for: .classic, expanded: true), NotchGeometry.classicOpenSize)
+        let closed = NotchGeometry.previewSize(for: .boring, expanded: false)
+        XCTAssertEqual(closed, CGSize(width: NotchDesignSpec.fallbackClosedWidth, height: NotchDesignSpec.fallbackClosedHeight))
+        XCTAssertEqual(closed, NotchGeometry.previewSize(for: .classic, expanded: false), "the closed capsule does not depend on the skin")
+        XCTAssertLessThan(closed.height, NotchGeometry.previewSize(for: .boring, expanded: true).height)
+    }
+
     func testClosedCapsuleGrowsOnlyWhenShowingActivity() {
         let m = NotchMetrics(closedSize: CGSize(width: 185, height: 32), hasHardwareNotch: true)
         XCTAssertEqual(NotchGeometry.closedCapsuleSize(m, showsActivity: false).width, 185)

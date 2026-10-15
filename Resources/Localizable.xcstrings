@@ -1,6 +1,108 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Shows the Live Island capsule on the dock.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Shows the Live Island capsule on the dock."}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "在程序坞显示实时岛胶囊。"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "在 Dock 顯示即時島膠囊。"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "Dock に Live Island カプセルを表示します。"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Zeigt die Live-Island-Kapsel im Dock."}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Affiche la capsule Live Island dans le Dock."}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Muestra la cápsula Live Island en el Dock."}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Muestra la cápsula Live Island en el Dock."}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Mostra a cápsula Live Island no Dock."}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Mostra a cápsula Live Island na Dock."}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Mostra la capsula Live Island nel Dock."}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "Dock에 Live Island 캡슐을 표시합니다."}}
+      }
+    },
+    "Shows or hides the Live Island at the top of the screen.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Shows or hides the Live Island at the top of the screen."}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "显示或隐藏屏幕顶部的实时岛。"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "顯示或隱藏螢幕頂端的即時島。"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "画面上部の Live Island を表示または非表示にします。"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Blendet die Live Island oben auf dem Bildschirm ein oder aus."}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Affiche ou masque la Live Island en haut de l’écran."}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Muestra u oculta Live Island en la parte superior de la pantalla."}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Muestra u oculta Live Island en la parte superior de la pantalla."}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Mostra ou oculta a Live Island na parte superior da tela."}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Mostra ou oculta a Live Island na parte superior do ecrã."}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Mostra o nasconde Live Island nella parte alta dello schermo."}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "화면 상단에 Live Island를 표시하거나 숨깁니다."}}
+      }
+    },
+    "Full uses a multi-panel layout; Compact uses a simpler player card.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Full uses a multi-panel layout; Compact uses a simpler player card."}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "完整样式使用多面板布局；紧凑样式使用简洁的播放器卡片。"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "完整樣式使用多面板版面；精簡樣式使用簡潔的播放器卡片。"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "フルは複数パネル、コンパクトはシンプルなプレーヤーカードです。"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Voll nutzt mehrere Bereiche, Kompakt eine einfache Player-Karte."}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Complet utilise plusieurs panneaux ; Compact une carte de lecture simplifiée."}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Completo usa varios paneles; Compacto usa una tarjeta de reproducción sencilla."}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Completo usa varios paneles; Compacto usa una tarjeta de reproducción sencilla."}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Completo usa vários painéis; Compacto usa um cartão de reprodução simples."}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Completo usa vários painéis; Compacto usa um cartão de reprodução simples."}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Completo usa più pannelli; Compatto usa una scheda player più semplice."}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "전체는 여러 패널을, 간결은 단순한 플레이어 카드를 사용합니다."}}
+      }
+    },
+    "Choose where Live Island event alerts appear.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Choose where Live Island event alerts appear."}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "选择实时岛事件提醒的显示位置。"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "選擇即時島事件提醒的顯示位置。"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "Live Island のイベント通知を表示する場所を選びます。"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Wähle, wo Live-Island-Ereignisse angezeigt werden."}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Choisissez où afficher les alertes d’événement Live Island."}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Elige dónde aparecen las alertas de eventos de Live Island."}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Elige dónde aparecen las alertas de eventos de Live Island."}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Escolha onde os alertas de eventos da Live Island aparecem."}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Escolha onde aparecem os alertas de eventos da Live Island."}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Scegli dove mostrare gli avvisi degli eventi Live Island."}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "Live Island 이벤트 알림을 표시할 위치를 선택합니다."}}
+      }
+    },
+    "Also show Live Island alerts as macOS notifications.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Also show Live Island alerts as macOS notifications."}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "同时将实时岛提醒显示为 macOS 通知。"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "同時將即時島提醒顯示為 macOS 通知。"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "Live Island の通知を macOS の通知としても表示します。"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Zeigt Live-Island-Hinweise zusätzlich als macOS-Mitteilungen."}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Affiche aussi les alertes Live Island dans les notifications macOS."}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "También muestra las alertas de Live Island como notificaciones de macOS."}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "También muestra las alertas de Live Island como notificaciones de macOS."}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Também mostra alertas da Live Island como notificações do macOS."}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Também mostra alertas da Live Island como notificações do macOS."}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Mostra anche gli avvisi Live Island come notifiche macOS."}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "Live Island 알림을 macOS 알림으로도 표시합니다."}}
+      }
+    },
+    "Click to expand or collapse the demo preview.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Click to expand or collapse the demo preview."}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "点按可展开或收起演示预览。"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "按一下即可展開或收合示範預覽。"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "クリックしてデモプレビューを展開または折りたたみます。"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Klicke, um die Demo-Vorschau ein- oder auszuklappen."}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Cliquez pour développer ou réduire l’aperçu de démonstration."}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Haz clic para expandir o contraer la vista de demostración."}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Haz clic para expandir o contraer la vista de demostración."}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Clique para expandir ou recolher a prévia de demonstração."}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Clique para expandir ou recolher a pré-visualização de demonstração."}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Fai clic per espandere o comprimere l’anteprima dimostrativa."}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "클릭하여 데모 미리 보기를 펼치거나 접습니다."}}
+      }
+    },
     "%d selected": {
       "extractionState": "manual",
       "localizations": {
