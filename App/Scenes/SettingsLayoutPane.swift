@@ -294,9 +294,96 @@ struct SettingsLayoutPane: View {
     private static let margin: CGFloat = 28
     private static let previewFraction: CGFloat = 0.22
 
+    /// Phase 12e — the same pane serves two tabs: Layout keeps the dock geometry, Widgets takes
+    /// the widget list, presets and styles.
+    enum Mode { case layout, widgets }
+    var mode: Mode = .layout
+
+    @ViewBuilder
+    private var widgetSections: some View {
+        section {
+            Text("Widgets")
+        } content: {
+            List {
+                ForEach(store.widgetLayout.order, id: \.self) { widget in
+                    widgetRow(widget)
+                }
+                .onMove { store.setWidgetLayout(store.widgetLayout.moving(from: $0, to: $1)) }
+            }
+            .listStyle(.plain)
+            .frame(height: CGFloat(store.widgetLayout.order.count) * 38 + 24)
+            presetControls
+            contextPresetControls
+        }
+
+        section {
+            Text("Widget Styles & Presets")
+        } content: {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("Clock Style")
+                    Spacer(minLength: 12)
+                    Picker("Clock Style", selection: $clockPresetRaw) {
+                        ForEach(ClockPreset.allCases, id: \.rawValue) { preset in
+                            Text(preset.title).tag(preset.rawValue)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .frame(width: 170)
+                }
+
+                HStack {
+                    Text("Weather Style")
+                    Spacer(minLength: 12)
+                    Picker("Weather Style", selection: $weatherPresetRaw) {
+                        ForEach(WeatherChipPreset.allCases, id: \.rawValue) { preset in
+                            Text(preset.title).tag(preset.rawValue)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .frame(width: 170)
+                }
+
+                HStack {
+                    Text("Now Playing Style")
+                    Spacer(minLength: 12)
+                    Picker("Now Playing Style", selection: $mediaPresetRaw) {
+                        ForEach(NowPlayingPreset.allCases, id: \.rawValue) { preset in
+                            Text(preset.title).tag(preset.rawValue)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .frame(width: 170)
+                }
+
+                HStack {
+                    Text("Right FAB Style")
+                    Spacer(minLength: 12)
+                    Picker("Right FAB Style", selection: $fabStyleRaw) {
+                        Text("Dynamic Gauge").tag("gauge")
+                        Text("Classic Glyph").tag("classic")
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .frame(width: 170)
+                }
+
+                Text("Switch between custom Phase 32 pods and legacy widget presets. You can also switch styles by right-clicking each widget on the dock.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
     var body: some View {
         let inputs = store.layoutThumbnailInputs
         VStack(alignment: .leading, spacing: 18) {
+            if mode == .widgets {
+                widgetSections
+            } else {
             section {
                 Text("Preview")
             } content: {
@@ -362,82 +449,6 @@ struct SettingsLayoutPane: View {
                     Text("Compact").tag(DockSpacing?.some(.compact))
                     Text("Comfortable").tag(DockSpacing?.some(.comfortable))
                     Text("Airy").tag(DockSpacing?.some(.airy))
-                }
-            }
-
-            section {
-                Text("Widgets")
-            } content: {
-                List {
-                    ForEach(store.widgetLayout.order, id: \.self) { widget in
-                        widgetRow(widget)
-                    }
-                    .onMove { store.setWidgetLayout(store.widgetLayout.moving(from: $0, to: $1)) }
-                }
-                .listStyle(.plain)
-                .frame(height: CGFloat(store.widgetLayout.order.count) * 38 + 24)
-                presetControls
-                contextPresetControls
-            }
-
-            section {
-                Text("Widget Styles & Presets")
-            } content: {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        Text("Clock Style")
-                        Spacer(minLength: 12)
-                        Picker("Clock Style", selection: $clockPresetRaw) {
-                            ForEach(ClockPreset.allCases, id: \.rawValue) { preset in
-                                Text(preset.title).tag(preset.rawValue)
-                            }
-                        }
-                        .labelsHidden()
-                        .pickerStyle(.menu)
-                        .frame(width: 170)
-                    }
-
-                    HStack {
-                        Text("Weather Style")
-                        Spacer(minLength: 12)
-                        Picker("Weather Style", selection: $weatherPresetRaw) {
-                            ForEach(WeatherChipPreset.allCases, id: \.rawValue) { preset in
-                                Text(preset.title).tag(preset.rawValue)
-                            }
-                        }
-                        .labelsHidden()
-                        .pickerStyle(.menu)
-                        .frame(width: 170)
-                    }
-
-                    HStack {
-                        Text("Now Playing Style")
-                        Spacer(minLength: 12)
-                        Picker("Now Playing Style", selection: $mediaPresetRaw) {
-                            ForEach(NowPlayingPreset.allCases, id: \.rawValue) { preset in
-                                Text(preset.title).tag(preset.rawValue)
-                            }
-                        }
-                        .labelsHidden()
-                        .pickerStyle(.menu)
-                        .frame(width: 170)
-                    }
-
-                    HStack {
-                        Text("Right FAB Style")
-                        Spacer(minLength: 12)
-                        Picker("Right FAB Style", selection: $fabStyleRaw) {
-                            Text("Dynamic Gauge").tag("gauge")
-                            Text("Classic Glyph").tag("classic")
-                        }
-                        .labelsHidden()
-                        .pickerStyle(.menu)
-                        .frame(width: 170)
-                    }
-
-                    Text("Switch between custom Phase 32 pods and legacy widget presets. You can also switch styles by right-clicking each widget on the dock.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
             }
 
@@ -1035,6 +1046,7 @@ struct SettingsLayoutPane: View {
                     Text("You can also summon the Radial Dial with the shortcut assigned in the Shortcuts section above.")
                         .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
+            }
             }
         }
         .padding(Self.margin)

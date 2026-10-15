@@ -47,6 +47,7 @@ struct SettingsWindowContent: View {
             switch tabState.selected {
             case .general: generalPane
             case .layout: SettingsLayoutPane(store: store)
+            case .widgets: SettingsLayoutPane(store: store, mode: .widgets)
             case .appearance: SettingsAppearancePane(store: store)
             case .tiling: SettingsTilingPane(store: store)
             case .advanced: advancedPane
