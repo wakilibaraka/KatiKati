@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FB36A00000000000000A02 /* DailyHelpersService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB36A00000000000000A01 /* DailyHelpersService.swift */; };
+		FB36A00000000000000A03 /* DailyHelpersService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB36A00000000000000A01 /* DailyHelpersService.swift */; };
 		A0000000000000000001F101 /* RadialDialGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F100 /* RadialDialGeometry.swift */; };
 		A0000000000000000001F102 /* RadialDialGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F100 /* RadialDialGeometry.swift */; };
 		A0000000000000000001F111 /* RadialDialModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F110 /* RadialDialModel.swift */; };
@@ -1014,6 +1016,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FB36A00000000000000A01 /* DailyHelpersService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DailyHelpersService.swift; path = App/Composition/DailyHelpersService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F100 /* RadialDialGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialDialGeometry.swift; path = Core/Support/RadialDialGeometry.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F110 /* RadialDialModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RadialDialModel.swift; path = Core/Support/RadialDialModel.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F120 /* RadialDialGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadialDialGeometryTests.swift; sourceTree = "<group>"; };
@@ -2986,6 +2989,7 @@
 				FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000142 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000152 /* DownloadManagerService.swift in Sources */,
+				FB36A00000000000000A02 /* DailyHelpersService.swift in Sources */,
 				FA33A0000000000000000162 /* NotchDownloadsPageView.swift in Sources */,
 				7B5000000000000000040C12 /* FileNoteKeyProvider.swift in Sources */,
 				7B5000000000000000040B12 /* HyperkeyService.swift in Sources */,
@@ -3097,6 +3101,7 @@
 				FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000143 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000153 /* DownloadManagerService.swift in Sources */,
+				FB36A00000000000000A03 /* DailyHelpersService.swift in Sources */,
 				7B5000000000000000040C13 /* FileNoteKeyProvider.swift in Sources */,
 				7B5000000000000000040B13 /* HyperkeyService.swift in Sources */,
 				7B5000000000000000040A13 /* HyperkeyEngine.swift in Sources */,

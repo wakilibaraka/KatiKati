@@ -12,6 +12,7 @@ struct UtilitySettingsBlock: View {
     @AppStorage(CustomCommand.key) private var customCommands = ""
     @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
     @AppStorage(FileIndexService.enabledKey) private var fastIndex = true
+    @AppStorage(DailyHelpersService.hideFromCaptureKey) private var hideFromCapture = false
 
     var body: some View {
         HStack {
@@ -30,6 +31,10 @@ struct UtilitySettingsBlock: View {
         row("Ignore Patterns") {
             TextField("Ignore Patterns", text: $clipboardIgnorePatterns)
                 .textFieldStyle(.roundedBorder).frame(width: 220)
+        }
+        Text("Daily Helpers").font(.headline)
+        row("Hide from Screen Capture") {
+            Toggle("Hide from Screen Capture", isOn: $hideFromCapture).toggleStyle(.switch).labelsHidden()
         }
         Text("Launcher").font(.headline)
         row("Script Commands") {
