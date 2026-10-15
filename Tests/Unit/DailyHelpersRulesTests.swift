@@ -38,6 +38,17 @@ final class DailyHelpersRulesTests: XCTestCase {
         XCTAssertEqual(CleaningLock.clamped(9999), 300)
     }
 
+    /// Phase 12 safety fix: a lock whose window passed while the app was not running (crash,
+    /// force-quit) must release the keyboard instead of holding it.
+    func testCleaningLockResumesOnlyInsideItsWindowAndOtherwiseFailsOpen() {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        XCTAssertEqual(CleaningLock.launchDecision(deadline: nil, now: now), .release)
+        XCTAssertEqual(CleaningLock.launchDecision(deadline: now.addingTimeInterval(-0.5), now: now), .release)
+        XCTAssertEqual(CleaningLock.launchDecision(deadline: now, now: now), .release)
+        XCTAssertEqual(CleaningLock.launchDecision(deadline: now.addingTimeInterval(42.4), now: now), .resume(seconds: 43))
+        XCTAssertEqual(CleaningLock.launchDecision(deadline: now.addingTimeInterval(300), now: now), .resume(seconds: 300))
+    }
+
     func testEjectPolicyOffersOnlyExternalLocalEjectables() {
         XCTAssertTrue(EjectPolicy.isOffered(isEjectable: true, isInternal: false, isLocal: true, isRoot: false))
         XCTAssertFalse(EjectPolicy.isOffered(isEjectable: true, isInternal: true, isLocal: true, isRoot: false))

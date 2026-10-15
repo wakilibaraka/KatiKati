@@ -32,7 +32,12 @@ struct SettingsAppearancePane: View {
             // Phase 12: preview, layout mode and size live here, as their own cards.
             SettingsLayoutPane(store: store, mode: .geometry)
 
-            SettingsCard(Text("Theme")) {
+            SettingsCard(
+                Text("Theme"),
+                // Rule 8: the swatches are previews, and they say so. It used to be a two-line
+                // paragraph under the grid, which rule 4 does not allow on a card either.
+                note: Text("Swatches show the dock plate's tint; Auto follows light and dark, set in General.")
+            ) {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 88), spacing: 8)], spacing: 10) {
                     ForEach(choices, id: \.token) { style in
                         themeCard(style)
@@ -41,7 +46,28 @@ struct SettingsAppearancePane: View {
                 if case let .customRGBA(r, g, b, a) = store.themeMaterial {
                     customControls(r: r, g: g, b: b, a: a)
                 }
-                SettingsNote(Text("Auto uses Rose Quartz in light mode and Obsidian Dark in dark mode. Light or dark is set in General › Appearance."))
+                // 12f. Only a pinned preset tints the plate, so on Auto / System these two would be
+                // controls that visibly do nothing — they appear with the theme that has a tint.
+                if store.themeMaterial.tintsPlate {
+                    SettingsDivider()
+                    SettingsSliderRow(
+                        Text("Vibrancy"),
+                        value: store.themeVibrancy,
+                        range: DockThemeStyle.vibrancyRange,
+                        step: 0.05,
+                        valueText: "\(Int((store.themeVibrancy * 100).rounded()))%",
+                        set: store.setThemeVibrancy
+                    )
+                    SettingsDivider()
+                    SettingsSliderRow(
+                        Text("Contrast"),
+                        value: store.themeContrast,
+                        range: DockThemeStyle.contrastRange,
+                        step: 0.1,
+                        valueText: String(format: "%.1f×", Double(store.themeContrast)),
+                        set: store.setThemeContrast
+                    )
+                }
             }
 
             SettingsCard {

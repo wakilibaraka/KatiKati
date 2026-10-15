@@ -215,7 +215,8 @@ struct DockStripView: View {
 
             // Phase 18c: one stack, two axes — a side rail stacks the same entries top to bottom.
             ScrollView(isRail ? .vertical : .horizontal, showsIndicators: false) {
-                StripAxisStack(vertical: isRail, spacing: Style.chipSpacing * dockScale) {
+                StripAxisStack(vertical: isRail,
+                               spacing: (isRail ? Style.railChipSpacing : Style.chipSpacing) * dockScale) {
                     ForEach(projection.entries) { entry in
                         chipWithReorder(entry, projection: projection)
                             .transition(.scale(scale: 0.88).combined(with: .opacity))
@@ -532,6 +533,7 @@ struct DockStripView: View {
         // the environment. Injected here — not at the NSHostingView — because this body re-runs on
         // every `themeMaterial` change, so a theme switch repaints the whole strip immediately.
         .environment(\.dockThemeStyle, settingsStore.themeMaterial)
+        .environment(\.themeTuning, settingsStore.themeTuning)
         .environment(\.iconSet, settingsStore.iconSet)
         .environment(\.runningDotEdge, RunningDotEdge(placement: stripPlacement))
         // No .frame(maxWidth: .infinity) here — lets NSHostingView.fittingSize reflect
@@ -1381,9 +1383,10 @@ struct DockStripView: View {
 
             Group {
                 if isRail {
-                    // Side rail: compact tiles (decision 1), sized by `BarSection.railTileLength`.
+                    // Side rail: one size for every tile (Phase 40b), so a widget matches the app chips
+                    // beside it — `BarSection.railTileLength` is the rail's own square measure.
                     railWidgetTile(section)
-                        .frame(width: 44 * dockScale,
+                        .frame(width: BarSection.railTileSize * dockScale,
                                height: section.railTileLength(barHeight: IslandChrome.nativeBarHeight) * dockScale)
                 } else {
                     HStack(spacing: 6 * dockScale) {
@@ -1438,10 +1441,12 @@ struct DockStripView: View {
             // to the left end and the trailing ones to the right end (Appendix A, Phase 11b).
             Spacer(minLength: StripContextMenuZone.dividerGapWidth * dockScale)
         case .divider where isRail:
+            // Phase 40d: `dividerSidePadding` is derived from the bottom bar's 13 pt divider gap; on a rail
+            // that opened a 13 pt hole against 4 pt neighbours, which is what read as uneven spacing. The
+            // rail keeps the hairline marking a group boundary but adds no padding of its own.
             Rectangle()
                 .fill(theme.zoneDivider.color)
                 .frame(width: Style.dividerHeight * dockScale, height: 1)
-                .padding(.vertical, Style.dividerSidePadding * dockScale)
         case .divider:
             Rectangle()
                 .fill(theme.zoneDivider.color)
@@ -1601,7 +1606,12 @@ private enum Style {
     // private，别的文件读不到）。改它必须同步改 `StripContextMenuZone.defaultMinimumGapWidth`，
     // 理由见那边的注释。
     static let chipSpacing: CGFloat      = ChipPillMetrics.chipSpacing
-    static let dividerHeight: CGFloat    = 20  // zone divider height (pt)
+    /// Rail-only chip gap (Phase 40d). Deliberately **not** `ChipPillMetrics.chipSpacing`: that value is
+    /// shared with the bottom bar and its `StripContextMenuZone` thresholds move with it, and a vertical
+    /// run of icons wants a little more air than a horizontal one. Rail dividers no longer add padding on
+    /// top of this, so every gap on the rail is this number.
+    static let railChipSpacing: CGFloat  = 4
+    static let dividerHeight: CGFloat    = 20  // zone divider height (height of a bottom-bar divider; the rail's hairline length)
     /// Each side of the hairline. With `chipSpacing` the divider gap is `StripContextMenuZone.dividerGapWidth`.
     static let dividerSidePadding: CGFloat = (StripContextMenuZone.dividerGapWidth - 1) / 2 - chipSpacing
 

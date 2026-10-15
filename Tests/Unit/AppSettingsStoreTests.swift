@@ -1877,21 +1877,44 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.islandMargin, 0)
     }
 
-    /// Write-path floor twin of the solver regression: values below the
-    /// intrinsic minimum are persisted floored, never as given.
-    func testSetWidgetWidthFloorsBelowIntrinsicMinimum() {
+    /// Phase 40e: the exact-width sliders retired, so a preset is the only sizing — and picking one must
+    /// clear any stored width, including one a pre-40e install migrated into `exactWidth`. Otherwise a
+    /// hidden override would keep beating the preset the user just chose.
+    /// Phase 12: the two Appearance plate knobs default to the identity, clamp to their sliders'
+    /// range, and round-trip — a stored value outside the range is pulled back in on read.
+    func testThemeTuningDefaultsToIdentityClampsAndPersists() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.themeTuning, .identity)
+        XCTAssertEqual(store.themeVibrancy, DockThemeStyle.identityVibrancy)
+        XCTAssertEqual(store.themeContrast, 1)
 
-        store.setWidgetWidth(40, for: .clock)
-        XCTAssertEqual(store.widgetWidths["clock"], BarSection.clock.minimumExactWidth)
-        XCTAssertEqual(
-            (defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat])?["clock"],
-            BarSection.clock.minimumExactWidth
-        )
+        store.setThemeVibrancy(5)
+        store.setThemeContrast(0.01)
+        XCTAssertEqual(store.themeVibrancy, DockThemeStyle.vibrancyRange.upperBound)
+        XCTAssertEqual(store.themeContrast, DockThemeStyle.contrastRange.lowerBound)
 
-        store.setWidgetWidth(200, for: .clock)
-        XCTAssertEqual(store.widgetWidths["clock"], 200)
+        let reloaded = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(reloaded.themeVibrancy, DockThemeStyle.vibrancyRange.upperBound)
+        XCTAssertEqual(reloaded.themeContrast, DockThemeStyle.contrastRange.lowerBound)
+
+        // A hand-edited key cannot put the plate outside what the sliders can express.
+        defaults.set(99.0, forKey: "com.katikati.theme.vibrancy")
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).themeVibrancy, DockThemeStyle.vibrancyRange.upperBound)
+    }
+
+    func testSetWidgetSizeClearsAnyWidthOverride() {
+        let defaults = makeDefaults()
+        // A pre-40e install: a legacy width for the clock, migrated into the layout at first read.
+        defaults.set(["clock": 300], forKey: "widgetWidths")
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.widgetLayout.instance(for: .clock).exactWidth, 300,
+                       "the legacy width is still honoured on read, so the upgrade is not a surprise")
+
+        store.setWidgetSize(.medium, for: .clock)
+        XCTAssertNil(store.widgetLayout.instance(for: .clock).exactWidth,
+                     "choosing a preset drops the override, so S/M/L is authoritative")
+        XCTAssertEqual(store.widgetLayout.instance(for: .clock).size, .medium)
     }
 
     private func makeDefaults() -> UserDefaults {

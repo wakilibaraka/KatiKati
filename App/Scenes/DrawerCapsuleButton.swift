@@ -133,6 +133,7 @@ struct DrawerCapsuleButton: View {
         // 4c: pinned style for any themed descendant (the backdrop above already reads the store
         // directly); re-injected on every body run, so a theme change lands without a rebuild.
         .environment(\.dockThemeStyle, settingsStore.themeMaterial)
+        .environment(\.themeTuning, settingsStore.themeTuning)
         .environment(\.iconSet, settingsStore.iconSet)
     }
 

@@ -37,8 +37,22 @@ struct NotchIslandView: View {
     @ObservedObject var model: NotchModel
     @ObservedObject private var feed = LiveActivityFeed.shared
     @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
+    /// `AppSettingsStore.Keys.themeMaterial`, which is file-private; the key itself is the contract.
+    @AppStorage("com.katikati.theme.material") private var themeMaterialToken = DockThemeStyle.auto.token
     let metrics: NotchMetrics
     let theme: NowPlayingTheme
+
+    /// Phase 12: the plate and content scheme, decided in `NotchTheme` (Core, tested). The island is a
+    /// dark surface by design — this view pins `.colorScheme(.dark)` below — so the dark column is the
+    /// one resolved.
+    private var notchTheme: NotchTheme.Resolution {
+        let style = DockThemeStyle(token: themeMaterialToken) ?? .auto
+        return NotchTheme.resolve(
+            hasHardwareNotch: metrics.hasHardwareNotch,
+            tintsPlate: style.tintsPlate,
+            tokens: DockThemeStyleTokens.resolve(style: style, appearance: .dark)
+        )
+    }
 
     var body: some View {
         let expanded = model.isExpanded
@@ -54,7 +68,7 @@ struct NotchIslandView: View {
                 bottomCornerRadius: expanded ? open.bottomSquircle : closed.bottomSquircle,
                 flaringTopEars: metrics.hasHardwareNotch
             )
-            .fill(Color.black)
+            .fill(notchTheme.plate.color)
             Group {
                 if !expanded {
                     closedContent(activity).padding(.horizontal, 14)
@@ -104,7 +118,7 @@ struct NotchIslandView: View {
         .animation(.spring(response: spring.response, dampingFraction: spring.dampingRatio), value: expanded)
         .animation(.spring(response: spring.response, dampingFraction: spring.dampingRatio), value: model.closedSize)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .colorScheme(.dark)
+        .colorScheme(notchTheme.prefersDarkContent ? .light : .dark)
     }
 
     private var pageIndicatorDots: some View {

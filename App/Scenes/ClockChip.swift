@@ -259,28 +259,29 @@ public struct FlipClockChip: View {
 
 // MARK: - Rail tile (Phase 18c)
 
-/// The time on a side rail: hours over minutes (decision 1), on the clock's phase art. Same
-/// minute-aligned timeline as the pill — no per-second work. Native size 44 × 56.
+/// The time on a side rail: hours over minutes, in the same 40 × 40 chrome as the app chips and FABs
+/// beside it (Phase 40b/40f — it used to be 44 × 56 on a 10 pt-radius phase gradient). Same minute-aligned
+/// timeline as the pill — no per-second work.
 struct RailClockTile: View {
     @EnvironmentObject private var weatherService: WeatherService
+    @State private var isHovered = false
 
     var body: some View {
         TimelineView(.periodic(from: ClockTick.nextMinute(after: Date()), by: 60)) { context in
             let parts = Self.hourMinute(context.date)
-            let art = ClockArt.gradient(phase: ClockArtPhase.phase(
-                context.date, sunTimes: weatherService.currentState.sunTimes(on: context.date)))
             VStack(spacing: -2) {
                 Text(verbatim: parts.hour)
                 Text(verbatim: parts.minute)
             }
-            .font(.system(size: 17, weight: .semibold, design: .rounded))
+            // 15, not the 44 × 56 tile's 17: two lines have to clear 40 pt (Phase 40b).
+            .font(.system(size: 15, weight: .semibold, design: .rounded))
             .monospacedDigit()
             .foregroundStyle(.white)
-            .frame(width: 44, height: 56)
-            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(art))
-            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(Color.white.opacity(0.18), lineWidth: 1))
+            .frame(width: BarSection.railTileSize, height: BarSection.railTileSize)
+            .dockTileChrome(isHovered: isHovered)
         }
         .contentShape(Rectangle())
+        .onHover { isHovered = $0 }
         .onTapGesture { WidgetPanelController.calendar.toggle() }
     }
 

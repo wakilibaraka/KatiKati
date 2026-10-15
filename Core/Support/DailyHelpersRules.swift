@@ -51,6 +51,29 @@ struct BatteryNoticeRule: Equatable, Sendable {
 enum CleaningLock {
     static let defaultSeconds = 60.0
     static func clamped(_ seconds: Double) -> Double { min(max(seconds, 10), 300) }
+
+    /// What a lock that outlived its own process does at the next launch.
+    enum Launch: Equatable {
+        /// Nothing pending, or the window has passed: the lock must not hold the keyboard.
+        case release
+        /// Still inside the window: hold it for the seconds left.
+        case resume(seconds: Int)
+    }
+
+    /// Phase 12 safety fix. The lock pauses the keyboard through the persisted 24b pause, but its
+    /// deadline was never written down — so a crash or force-quit mid-lock came up with a dead
+    /// keyboard until ⌃⌥⌘P. The deadline is persisted now and this is the whole decision on it:
+    /// a window still running resumes, anything else fails **open**.
+    ///
+    /// The one case it cannot answer: a *pre-fix* crash leaves `isPaused` on with no deadline at
+    /// all, which is indistinguishable from a deliberate 24b pause — the caller leaves that alone
+    /// (`shortcut:` nothing persists a lock's start before Phase 12, so `nil` must stay hands-off).
+    static func launchDecision(deadline: Date?, now: Date) -> Launch {
+        guard let deadline else { return .release }
+        let left = deadline.timeIntervalSince(now)
+        guard left > 0 else { return .release }
+        return .resume(seconds: Int(left.rounded(.up)))
+    }
 }
 
 /// 36c — which mounted volumes get an eject pill: real external, ejectable drives only (never the boot

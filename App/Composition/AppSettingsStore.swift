@@ -191,7 +191,6 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var contextEveningPresetID: String
     /// User-saved widget presets (built-ins live in `WidgetPresets.builtIns`).
     @Published private(set) var userWidgetPresets: [WidgetPreset]
-    @Published private(set) var widgetWidths: [String: CGFloat]
     /// 居中模式下的目标宽度（points，默认 720，限制 360...1600）。
     @Published private(set) var centeredWidth: CGFloat
     /// 岛屿之间的间距（points，默认 10，最小 0.5）。
@@ -247,6 +246,10 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var edgeMargin: CGFloat
     /// 材质主题。默认 auto (亮色 roseQuartz / 暗色 obsidianDark)。
     @Published private(set) var themeMaterial: DockThemeStyle
+    /// Phase 12 —— Appearance 页的两个底板旋钮。默认值就是滑块出现前的观感（
+    /// `ThemeTuning.identity`），所以从没碰过它们的人看到的底板逐像素不变。
+    @Published private(set) var themeVibrancy: CGFloat
+    @Published private(set) var themeContrast: CGFloat
     /// 图标集（modern 3D / classic SF Symbols），与主题互相独立。缺键 = modern。
     @Published private(set) var iconSet: IconSet
     /// 悬停效果档位。只影响条内 chip 的悬停视觉，静息布局逐像素不变（因此无需 relayout）。
@@ -336,6 +339,8 @@ final class AppSettingsStore: ObservableObject {
             Keys.dockIslandEnabled: true,
             Keys.notchIslandEnabled: true,
             Keys.notchSkin: LiveIslandSkin.boring.rawValue,
+            Keys.themeVibrancy: Double(DockThemeStyle.identityVibrancy),
+            Keys.themeContrast: 1.0,
             ShelfStore.shakeKey: true,
             ShelfStore.autoExpireKey: false,
             ShelfStore.expiryDaysKey: 1,
@@ -370,8 +375,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.edgeTileStyle: EdgeTileStyle.glass.rawValue,
             Keys.deckTabFont: "",
             Keys.deckYRatioLeft: 0.5,
-            Keys.deckYRatioRight: 0.5,
-            "widgetWidths": [String: CGFloat]()
+            Keys.deckYRatioRight: 0.5
         ])
 
         launchAtLogin = defaults.bool(forKey: Keys.launchAtLogin)
@@ -454,8 +458,9 @@ final class AppSettingsStore: ObservableObject {
         
         // Hardcoded order (Phase 4U decision 3): any previously stored custom order
         // from the removed drag-reorder UI is ignored, not restored.
+        // Phase 40e: the sliders that wrote this legacy dictionary retired, but the migration stays — a
+        // stored width still renders as it did, and picking any S/M/L preset clears it (`setWidgetSize`).
         let legacyWidgetWidths = defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:]
-        widgetWidths = legacyWidgetWidths
         let storedWidgetLayout = WidgetLayout.decode(defaults.data(forKey: WidgetLayout.defaultsKey))
             ?? WidgetLayout.migrating(legacyWidths: legacyWidgetWidths)
         widgetLayout = storedWidgetLayout
@@ -464,6 +469,17 @@ final class AppSettingsStore: ObservableObject {
         userWidgetPresets = WidgetPresets.decode(defaults.data(forKey: WidgetPresets.defaultsKey))
         
         themeMaterial = DockThemeStyle(token: defaults.string(forKey: Keys.themeMaterial) ?? "") ?? .auto
+        // Both knobs go through the same clamp the setters use, so a hand-edited key cannot put the
+        // plate somewhere the sliders cannot.
+        themeVibrancy = ThemeTuning.resolved(
+            vibrancy: Self.storedNumericValue(defaults.object(forKey: Keys.themeVibrancy))
+                .map { CGFloat($0) } ?? DockThemeStyle.identityVibrancy,
+            contrast: 1
+        ).vibrancy
+        themeContrast = ThemeTuning.resolved(
+            vibrancy: DockThemeStyle.identityVibrancy,
+            contrast: Self.storedNumericValue(defaults.object(forKey: Keys.themeContrast)).map { CGFloat($0) } ?? 1
+        ).contrast
         iconSet = IconSet(storedValue: defaults.string(forKey: Keys.iconSet))
         // 有意**不**进上面的 register：缺键即 false = 老用户维持关。
         // 全新安装那一次由 `seedWindowLiftEnabledForFreshInstall()` 显式写成 true——
@@ -901,6 +917,25 @@ final class AppSettingsStore: ObservableObject {
         guard themeMaterial != value else { return }
         themeMaterial = value
         defaults.set(value.token, forKey: Keys.themeMaterial)
+    }
+
+    func setThemeVibrancy(_ value: CGFloat) {
+        let clamped = ThemeTuning.resolved(vibrancy: value, contrast: themeContrast).vibrancy
+        guard themeVibrancy != clamped else { return }
+        themeVibrancy = clamped
+        defaults.set(Double(clamped), forKey: Keys.themeVibrancy)
+    }
+
+    func setThemeContrast(_ value: CGFloat) {
+        let clamped = ThemeTuning.resolved(vibrancy: themeVibrancy, contrast: value).contrast
+        guard themeContrast != clamped else { return }
+        themeContrast = clamped
+        defaults.set(Double(clamped), forKey: Keys.themeContrast)
+    }
+
+    /// What the themed surfaces read, one value for the environment (`\.themeTuning`).
+    var themeTuning: ThemeTuning {
+        ThemeTuning.resolved(vibrancy: themeVibrancy, contrast: themeContrast)
     }
 
     func setScrollReverserEnabled(_ value: Bool) {
@@ -1359,28 +1394,12 @@ final class AppSettingsStore: ObservableObject {
         setWidgetLayout(preset.layout)
     }
 
-    /// Picks an S/M/L preset; clears the exact-width override so the preset takes effect.
+    /// Picks an S/M/L preset and clears any width override so the preset takes effect. **This is the only
+    /// path that sets a widget's width now** — the exact-width sliders and their `widgetWidths` key retired
+    /// in Phase 40e, because a stored width silently overrode the chosen preset. `exactWidth` itself stays:
+    /// the rail's own geometry sets it (`PanelGeometry.railWidgetLayout`).
     func setWidgetSize(_ size: WidgetSize, for section: BarSection) {
         setWidgetLayout(widgetLayout.updating(section) { $0.size = size; $0.exactWidth = nil })
-        if widgetWidths[section.rawValue] != nil {
-            var updated = widgetWidths
-            updated[section.rawValue] = nil
-            widgetWidths = updated
-            defaults.set(updated, forKey: "widgetWidths")
-        }
-    }
-
-    func setWidgetWidth(_ width: CGFloat, for section: BarSection) {
-        // Floor at the section's intrinsic minimum (e.g. clock = 40 from an
-        // old single-digit tile layout starves FlipClockChip's 2×32 tiles and
-        // renders a clipped pill). Stored value stays honest: what we persist
-        // is what the solver and the render path will use.
-        let floored = max(width, section.minimumExactWidth)
-        var updated = self.widgetWidths
-        updated[section.rawValue] = floored
-        self.widgetWidths = updated
-        defaults.set(updated, forKey: "widgetWidths")
-        setWidgetLayout(widgetLayout.updating(section) { $0.exactWidth = floored })
     }
 
     private static func storedDockPanelHeight(defaults: UserDefaults) -> DockPanelHeight {
@@ -1512,6 +1531,8 @@ private enum Keys {
     static let edgeMargin = "com.katikati.edge.margin"
     static let iconSet = "com.katikati.iconSet"
     static let themeMaterial = "com.katikati.theme.material"
+    static let themeVibrancy = "com.katikati.theme.vibrancy"
+    static let themeContrast = "com.katikati.theme.contrast"
 }
 
 /// One-way first-run migrator from legacy Tungsten Edge (`com.tungsten.edge.*`) defaults

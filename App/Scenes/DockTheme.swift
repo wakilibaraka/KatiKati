@@ -24,6 +24,10 @@ struct IconSetKey: EnvironmentKey {
     static let defaultValue: IconSet = .default
 }
 
+struct ThemeTuningKey: EnvironmentKey {
+    static let defaultValue = ThemeTuning.identity
+}
+
 extension EnvironmentValues {
     var iconSet: IconSet {
         get { self[IconSetKey.self] }
@@ -33,6 +37,20 @@ extension EnvironmentValues {
     var dockThemeStyle: DockThemeStyle {
         get { self[DockThemeStyleKey.self] }
         set { self[DockThemeStyleKey.self] = newValue }
+    }
+
+    /// The Appearance page's two plate knobs (`ThemeTuning`), injected beside `dockThemeStyle` at
+    /// every site that injects that one — same reason: the surfaces read it, they never own it.
+    var themeTuning: ThemeTuning {
+        get { self[ThemeTuningKey.self] }
+        set { self[ThemeTuningKey.self] = newValue }
+    }
+}
+
+extension DockRGBA {
+    /// The SwiftUI bridge for a token colour: the tables hold sRGB channels and a separate alpha.
+    var color: Color {
+        Color(.sRGB, red: Double(r), green: Double(g), blue: Double(b), opacity: Double(a))
     }
 }
 
@@ -380,6 +398,37 @@ extension View {
     /// 光晕不在「不烘投影」的范围内：它是卡自己的一部分（拖动中也该跟着走），不是落地要交接的投影。
     func dockGlow(_ tint: DockTint, radius: CGFloat, active: Bool) -> some View {
         self.shadow(color: tint.color(active: active), radius: active ? radius : 0)
+    }
+}
+
+/// The one container every dock tile wears: the Launcher and Wi-Fi/Volume buttons, the weather pod and the
+/// two rail tiles. **These numbers are the Launcher/Wi-Fi buttons' recipe, copied verbatim** — those two were
+/// the owner-approved look, and five other surfaces each carried a near-copy with a different radius, stroke
+/// alpha or hover curve, which is how the dock came to read as several docks (Phase 40b/40f). A new tile uses
+/// this modifier; it does not restate the numbers.
+struct DockTileChrome: ViewModifier {
+    let isHovered: Bool
+    var cornerRadius: CGFloat = 14
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(Color(red: 0.11, green: 0.12, blue: 0.16).opacity(0.88))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(isHovered ? Color.white.opacity(0.28) : Color.white.opacity(0.12), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(isHovered ? 0.32 : 0.16), radius: isHovered ? 6 : 3, x: 0, y: 2)
+            .scaleEffect(isHovered ? 1.04 : 1.0)
+            .animation(.spring(response: 0.28, dampingFraction: 0.75), value: isHovered)
+    }
+}
+
+extension View {
+    func dockTileChrome(isHovered: Bool, cornerRadius: CGFloat = 14) -> some View {
+        modifier(DockTileChrome(isHovered: isHovered, cornerRadius: cornerRadius))
     }
 }
 

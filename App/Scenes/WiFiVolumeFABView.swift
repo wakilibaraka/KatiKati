@@ -18,15 +18,6 @@ public struct WiFiVolumeFABView: View {
         let activeDots = volume.isMuted ? 0 : Int(round(volumeLevel * 12.0))
 
         ZStack {
-            // Container backdrop matching DynamicGaugeFABView
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(red: 0.11, green: 0.12, blue: 0.16).opacity(0.88))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(isHovered ? Color.white.opacity(0.28) : Color.white.opacity(0.12), lineWidth: 1)
-                )
-                .shadow(color: Color.black.opacity(isHovered ? 0.32 : 0.16), radius: isHovered ? 6 : 3, x: 0, y: 2)
-
             // Circular ring of 12 discrete volume dots
             volumeDotsRing(activeCount: activeDots, isMuted: volume.isMuted)
 
@@ -36,8 +27,9 @@ public struct WiFiVolumeFABView: View {
                 .foregroundStyle(Color.white.opacity(isHovered ? 1.0 : 0.92))
         }
         .frame(width: 40, height: 40)
-        .scaleEffect(isHovered ? 1.04 : 1.0)
-        .animation(.spring(response: 0.28, dampingFraction: 0.75), value: isHovered)
+        // The plate is the shared one now (Phase 40f) — this button is one of the two the recipe was
+        // named after, so its pixels are unchanged.
+        .dockTileChrome(isHovered: isHovered)
         .contentShape(Rectangle())
         .onHover { hovering in
             isHovered = hovering

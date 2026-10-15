@@ -84,10 +84,10 @@ enum IslandLayoutSolver {
         let chromeScale = IslandChrome.scale(barHeight: barHeight)
 
         func width(for section: BarSection) -> CGFloat {
-            // Floor stored overrides at the section's intrinsic minimum, same
-            // contract as `AppSettingsStore.setWidgetWidth` — legacy values
-            // (e.g. clock = 40 from the old tile layout) starve the chip and
-            // render a clipped pill while the island math stays in-bounds.
+            // Floor stored overrides at the section's intrinsic minimum — legacy values (e.g. clock = 40
+            // from the old tile layout) starve the chip and render a clipped pill while the island math
+            // stays in-bounds. Phase 40e retired the slider that wrote these, but the rail still sets the
+            // width and pre-40e values still migrate in, so the floor stays.
             if let custom = widgetWidths[section] { return max(custom, section.minimumWidgetWidth) }
             switch section {
             case .weather: return weatherWidth

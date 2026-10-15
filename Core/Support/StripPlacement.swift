@@ -126,11 +126,38 @@ extension BarSection {
     /// icon slot). Scales with the bar thickness like every other strip metric.
     func railTileLength(barHeight: CGFloat) -> CGFloat {
         switch self {
-        case .weather, .clock: return (barHeight * 1.15).rounded()
+        // Phase 40b: ONE size for every rail tile, because the app chips beside them are already
+        // `ChipPillMetrics.cardWidth` (40) with `iconOnly` — a 56 pt weather tile next to 40 pt icons is
+        // what made the rail look like two docks bolted together. The number is the rail tile's native
+        // size; `DockStripView` scales it by `dockScale` like every other strip metric.
+        case .weather, .clock, .launcher, .widgets: return Self.railTileSize
         // Live Island: three quick actions stacked (or ring over value) — a tall tile, not a square.
         case .media: return (barHeight * 1.65).rounded()
-        case .launcher, .widgets: return barHeight
         case .apps: return 0
+        }
+    }
+
+    /// Native side of a rail tile. Matches `ChipPillMetrics.cardWidth`, the app chips it sits among.
+    static let railTileSize: CGFloat = 40
+}
+
+/// Which side of a chip the running dot hugs: **the screen edge**, the same rule the bottom bar already
+/// follows (its dot sits at the bottom). Phase 18c put a rail's dot on the workspace-facing edge instead,
+/// which is why the bottom bar and the rail disagreed — corrected in Phase 40c. On a left rail the screen
+/// edge is the leading side; on a right rail the trailing one.
+///
+/// The type lives here rather than beside its SwiftUI consumers for the repo's own reason (Standing Rules
+/// §2.2): it is a pure decision of the placement, and `App/Scenes` is not compiled into the test target — a
+/// rule stated only there cannot be pinned by a test, which is exactly how the old mapping survived. The
+/// SwiftUI half (`alignment`, `paddingEdge`) stays in `ChipView.swift`.
+enum RunningDotEdge: Equatable {
+    case bottom, leading, trailing
+
+    init(placement: StripPlacement) {
+        switch placement {
+        case .bottom: self = .bottom
+        case .left: self = .leading
+        case .right: self = .trailing
         }
     }
 }

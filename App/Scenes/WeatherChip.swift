@@ -295,29 +295,31 @@ public struct WeatherChip: View {
 
 // MARK: - Rail tile (Phase 18c)
 
-/// Weather on a side rail: condition glyph over the temperature, on the same art as the pill.
-/// Drawn at native scale (44 × 56) — the strip scales it with the bar thickness.
+/// Weather on a side rail: condition glyph over the temperature, in the same 40 × 40 chrome as the app
+/// chips and the FABs beside it (Phase 40b/40f — it used to be 44 × 56 on a 10 pt-radius weather gradient,
+/// so it read as a different dock from the 40 pt icons it sat among). Drawn at native size; the strip
+/// scales it by `dockScale` like every other rail metric.
 struct RailWeatherTile: View {
     @EnvironmentObject var weatherService: WeatherService
+    @State private var isHovered = false
 
     var body: some View {
         let state = weatherService.currentState
-        VStack(spacing: 2) {
+        VStack(spacing: 1) {
             Image(systemName: state.symbolName)
                 .symbolRenderingMode(.multicolor)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.system(size: 14, weight: .semibold))
             Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .font(.system(size: 12, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
         }
-        .frame(width: 44, height: 56)
-        .background(RoundedRectangle(cornerRadius: 10, style: .continuous)
-            .fill(WeatherArt.gradient(condition: state.conditionFamily, isNight: state.isNight)))
-        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(Color.white.opacity(0.18), lineWidth: 1))
+        .frame(width: BarSection.railTileSize, height: BarSection.railTileSize)
+        .dockTileChrome(isHovered: isHovered)
         .contentShape(Rectangle())
+        .onHover { isHovered = $0 }
         .onTapGesture { WidgetPanelController.weather.toggle() }
     }
 }
@@ -356,18 +358,9 @@ private struct DetailedWeatherPodView: View {
         }
         .padding(.horizontal, 9)
         .padding(.vertical, 5)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(red: 0.11, green: 0.12, blue: 0.16).opacity(0.88))
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(isHovered ? Color.white.opacity(0.28) : Color.white.opacity(0.12), lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(isHovered ? 0.32 : 0.16), radius: isHovered ? 6 : 3, x: 0, y: 2)
-        .scaleEffect(isHovered ? 1.02 : 1.0)
-        .animation(.spring(response: 0.28, dampingFraction: 0.72), value: isHovered)
+        // Phase 40f: the FABs' own chrome, so the pod and the buttons beside it cannot drift
+        // (it used to hover at 1.02 / damping 0.72 against the FABs' 1.04 / 0.75).
+        .dockTileChrome(isHovered: isHovered)
         .onHover { hovering in
             isHovered = hovering
         }
@@ -419,28 +412,32 @@ private struct DetailedWeatherPodView: View {
                 .fill(Color.white.opacity(0.14))
                 .frame(width: 1, height: 24)
 
-            // Right column: 3-step forecast micro-cards
+            // Right column: 3-step forecast, one equal-width column each so the two sides balance
+            // (Phase 40a: `weekdayLabel()`, never the raw API date — that printed as "2026-…").
             HStack(spacing: 6) {
                 ForEach(forecastItems.prefix(3)) { item in
-                    VStack(spacing: 1.5) {
-                        Text(verbatim: item.date)
-                            .font(.system(size: 8.5, weight: .semibold, design: .rounded))
-                            .foregroundStyle(Color.white.opacity(0.70))
+                    VStack(spacing: 2) {
+                        Text(verbatim: item.weekdayLabel())
+                            .font(.system(size: 10.5, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.78))
                             .lineLimit(1)
+                            .minimumScaleFactor(0.75)
 
                         Image(systemName: item.symbolName)
-                            .font(.system(size: 10, weight: .medium))
+                            .font(.system(size: 10.5, weight: .medium))
                             .symbolRenderingMode(.multicolor)
-                            .frame(height: 11)
+                            .frame(height: 12)
 
                         Text(verbatim: "\(Int(round(item.highCelsius)))°")
-                            .font(.system(size: 9.5, weight: .bold, design: .rounded))
+                            .font(.system(size: 10.5, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
                             .lineLimit(1)
+                            .minimumScaleFactor(0.75)
                     }
+                    .frame(maxWidth: .infinity)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            .frame(maxWidth: .infinity)
         }
     }
 
@@ -473,32 +470,37 @@ private struct DetailedWeatherPodView: View {
                 .fill(Color.white.opacity(0.14))
                 .frame(width: 1, height: 26)
 
-            // Right: 3-day forecast items with daily high/low
-            HStack(spacing: 8) {
+            // Right: 3-day forecast, one equal-width column each so the two sides balance
+            // (Phase 40a: `weekdayLabel()`, never the raw API date).
+            HStack(spacing: 6) {
                 ForEach(forecastItems.prefix(3)) { item in
-                    VStack(spacing: 2) {
-                        Text(verbatim: item.date)
-                            .font(.system(size: 9, weight: .semibold, design: .rounded))
-                            .foregroundStyle(Color.white.opacity(0.75))
+                    VStack(spacing: 3) {
+                        Text(verbatim: item.weekdayLabel())
+                            .font(.system(size: 11.5, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.78))
                             .lineLimit(1)
+                            .minimumScaleFactor(0.75)
 
                         Image(systemName: item.symbolName)
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.system(size: 12, weight: .medium))
                             .symbolRenderingMode(.multicolor)
-                            .frame(height: 12)
+                            .frame(height: 13)
 
                         HStack(spacing: 2) {
                             Text(verbatim: "\(Int(round(item.highCelsius)))°")
-                                .font(.system(size: 9.5, weight: .bold, design: .rounded))
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
                                 .foregroundStyle(.white)
                             Text(verbatim: "\(Int(round(item.lowCelsius)))°")
-                                .font(.system(size: 8.5, weight: .medium, design: .rounded))
-                                .foregroundStyle(Color.white.opacity(0.60))
+                                .font(.system(size: 10, weight: .medium, design: .rounded))
+                                .foregroundStyle(Color.white.opacity(0.62))
                         }
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
                     }
+                    .frame(maxWidth: .infinity)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            .frame(maxWidth: .infinity)
         }
     }
 

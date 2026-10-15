@@ -18517,6 +18517,83 @@
         }
       }
     },
+    "Swatches show the dock plate's tint; Auto follows light and dark, set in General.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swatches show the dock plate's tint; Auto follows light and dark, set in General."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Swatches show the dock plate's tint; Auto follows light and dark, set in General."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Swatches show the dock plate's tint; Auto follows light and dark, set in General."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Swatches show the dock plate's tint; Auto follows light and dark, set in General."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Swatches show the dock plate's tint; Auto follows light and dark, set in General."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Swatches show the dock plate's tint; Auto follows light and dark, set in General."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Swatches show the dock plate's tint; Auto follows light and dark, set in General."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Swatches show the dock plate's tint; Auto follows light and dark, set in General."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Swatches show the dock plate's tint; Auto follows light and dark, set in General."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Swatches show the dock plate's tint; Auto follows light and dark, set in General."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Swatches show the dock plate's tint; Auto follows light and dark, set in General."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Swatches show the dock plate's tint; Auto follows light and dark, set in General."
+          }
+        }
+      }
+    },
     "Switch already on but nothing happens?": {
       "localizations": {
         "zh-Hans": {
@@ -23651,6 +23728,83 @@
         }
       }
     },
+    "Commands & Snippets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commands & Snippets"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Commands & Snippets"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Commands & Snippets"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Commands & Snippets"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Commands & Snippets"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Commands & Snippets"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Commands & Snippets"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Commands & Snippets"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Commands & Snippets"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Commands & Snippets"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Commands & Snippets"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Commands & Snippets"
+          }
+        }
+      }
+    },
     "Commuter": {
       "localizations": {
         "en": {
@@ -26003,82 +26157,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "포인터가 Dock 위에 있을 때 Control을 누르면 각 앱의 메모리 사용량이 표시됩니다."
-          }
-        }
-      }
-    },
-    "Widget Widths": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Widget Widths"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "小组件宽度"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "小工具寬度"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ウィジェットの幅"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Widget-Breiten"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Largeur des widgets"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ancho de los widgets"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ancho de los widgets"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Largura dos widgets"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Largura dos widgets"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Larghezza dei widget"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "위젯 너비"
           }
         }
       }
@@ -30779,6 +30857,83 @@
         }
       }
     },
+    "Vibrancy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibrancy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vibrancy"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vibrancy"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vibrancy"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vibrancy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vibrancy"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vibrancy"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vibrancy"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vibrancy"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vibrancy"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vibrancy"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Vibrancy"
+          }
+        }
+      }
+    },
     "Visibility": {
       "extractionState": "manual",
       "localizations": {
@@ -33239,83 +33394,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "오로라"
-          }
-        }
-      }
-    },
-    "Auto uses Rose Quartz in light mode and Obsidian Dark in dark mode. Light or dark is set in General › Appearance.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto uses Rose Quartz in light mode and Obsidian Dark in dark mode. Light or dark is set in General › Appearance."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "自动：浅色模式用玫瑰石英，深色模式用黑曜石。浅色或深色在“通用 › 外观”中设置。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "自動：淺色模式用玫瑰石英，深色模式用黑曜石。淺色或深色在「一般 › 外觀」中設定。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "自動ではライトモードにローズクォーツ、ダークモードにオブシディアンを使います。ライト/ダークは「一般 › 外観」で設定します。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automatisch nutzt Rosenquarz im hellen und Obsidian im dunklen Modus. Hell oder dunkel legst du unter Allgemein › Erscheinungsbild fest."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto utilise Quartz rose en mode clair et Obsidienne en mode sombre. Le mode clair ou sombre se règle dans Général › Apparence."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automático usa Cuarzo rosa en modo claro y Obsidiana en modo oscuro. El modo claro u oscuro se ajusta en General › Apariencia."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automático usa Cuarzo rosa en modo claro y Obsidiana en modo oscuro. El modo claro u oscuro se ajusta en General › Apariencia."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automático usa Quartzo rosa no modo claro e Obsidiana no modo escuro. Claro ou escuro é definido em Geral › Aparência."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automático usa Quartzo rosa no modo claro e Obsidiana no modo escuro. Claro ou escuro é definido em Geral › Aspeto."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automatico usa Quarzo rosa in modalità chiara e Ossidiana in modalità scura. Chiaro o scuro si imposta in Generali › Aspetto."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "자동은 라이트 모드에서 로즈 쿼츠, 다크 모드에서 옵시디언을 사용합니다. 라이트 또는 다크는 일반 › 화면 모드에서 설정합니다."
           }
         }
       }
@@ -48412,6 +48490,83 @@
         }
       }
     },
+    "One command per line: ;name = /path/to/script": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One command per line: ;name = /path/to/script"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "One command per line: ;name = /path/to/script"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "One command per line: ;name = /path/to/script"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "One command per line: ;name = /path/to/script"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "One command per line: ;name = /path/to/script"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "One command per line: ;name = /path/to/script"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "One command per line: ;name = /path/to/script"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "One command per line: ;name = /path/to/script"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "One command per line: ;name = /path/to/script"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "One command per line: ;name = /path/to/script"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "One command per line: ;name = /path/to/script"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "One command per line: ;name = /path/to/script"
+          }
+        }
+      }
+    },
     "One compact bar floating in the middle.": {
       "extractionState": "manual",
       "localizations": {
@@ -49255,6 +49410,83 @@
           "stringUnit": {
             "state": "translated",
             "value": "5분할"
+          }
+        }
+      }
+    },
+    "The shape preview is a demo: the silhouette only, never live activity.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The shape preview is a demo: the silhouette only, never live activity."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "The shape preview is a demo: the silhouette only, never live activity."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "The shape preview is a demo: the silhouette only, never live activity."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "The shape preview is a demo: the silhouette only, never live activity."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "The shape preview is a demo: the silhouette only, never live activity."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "The shape preview is a demo: the silhouette only, never live activity."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "The shape preview is a demo: the silhouette only, never live activity."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "The shape preview is a demo: the silhouette only, never live activity."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "The shape preview is a demo: the silhouette only, never live activity."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "The shape preview is a demo: the silhouette only, never live activity."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "The shape preview is a demo: the silhouette only, never live activity."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "The shape preview is a demo: the silhouette only, never live activity."
           }
         }
       }
@@ -62041,6 +62273,83 @@
           "stringUnit": {
             "state": "translated",
             "value": "中鍵按一下"
+          }
+        }
+      }
+    },
+    "Contrast": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contrast"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Contrast"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Contrast"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Contrast"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Contrast"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Contrast"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Contrast"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Contrast"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Contrast"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Contrast"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Contrast"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Contrast"
           }
         }
       }

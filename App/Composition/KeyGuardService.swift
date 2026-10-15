@@ -17,6 +17,9 @@ final class KeyGuardService: ObservableObject {
     static let slowQuitDurationKey = "com.katikati.keyguard.slowQuitDuration"
     static let slowQuitExceptionsKey = "com.katikati.keyguard.slowQuitExceptions"
     static let visualizerKey = "com.katikati.keyguard.visualizer"
+    /// Phase 12: a cleaning lock's deadline, persisted so a crash mid-lock cannot leave the keyboard
+    /// disabled until ⌃⌥⌘P (see `CleaningLock.launchDecision`).
+    static let cleaningEndKey = "com.katikati.keyguard.cleaningEnd"
 
     @Published private(set) var isPaused = UserDefaults.standard.bool(forKey: KeyGuardService.pauseKey)
     @Published private(set) var isSlowQuitEnabled = UserDefaults.standard.bool(forKey: KeyGuardService.slowQuitKey)
@@ -65,6 +68,27 @@ final class KeyGuardService: ObservableObject {
     private var cleaningTimer: Timer?
     private var cleaningEnd: Date?
 
+    /// The lock's deadline is the only thing here that is reconciled at launch: the pause it uses is
+    /// persisted, so a crash mid-lock used to come up locked. A window that has already passed
+    /// releases it; a window still running resumes with the time left.
+    init() {
+        let stored = UserDefaults.standard.object(forKey: Self.cleaningEndKey) as? Date
+        switch CleaningLock.launchDecision(deadline: stored, now: Date()) {
+        case .resume(let seconds):
+            cleaningEnd = stored
+            cleaningRemaining = seconds
+            startCleaningTimer()
+        case .release:
+            UserDefaults.standard.removeObject(forKey: Self.cleaningEndKey)
+            // Only a deadline we just expired may unpause: with no deadline at all the pause is the
+            // user's own (24b) and stays theirs. `stored == nil` is that case.
+            if stored != nil {
+                isPaused = false
+                UserDefaults.standard.set(false, forKey: Self.pauseKey)
+            }
+        }
+    }
+
     /// A timed pause for wiping the keyboard. Reuses the Phase 24b swallow-all + fixed ⌃⌥⌘P unlock, and
     /// frees itself when the time is up (fail-open). Asks for Input Monitoring first; false if not granted.
     @discardableResult
@@ -72,27 +96,38 @@ final class KeyGuardService: ObservableObject {
         guard Self.hasPermission else { Self.requestPermission(); return false }
         let end = Date().addingTimeInterval(CleaningLock.clamped(seconds))
         cleaningEnd = end
+        UserDefaults.standard.set(end, forKey: Self.cleaningEndKey)
         cleaningRemaining = Int(end.timeIntervalSinceNow.rounded(.up))
         setPaused(true)
-        cleaningTimer?.invalidate()
-        cleaningTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            MainActor.assumeIsolated { self?.cleaningTick() }
-        }
+        startCleaningTimer()
         return isPaused
     }
 
     func endCleaningLock() {
         guard cleaningEnd != nil else { return }
+        cancelCleaningLock()
+        setPaused(false)
+    }
+
+    private func startCleaningTimer() {
+        cleaningTimer?.invalidate()
+        cleaningTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.cleaningTick() }
+        }
+    }
+
+    /// Clears the countdown and its persisted deadline without touching the pause.
+    private func cancelCleaningLock() {
         cleaningTimer?.invalidate(); cleaningTimer = nil
         cleaningEnd = nil
         cleaningRemaining = nil
-        setPaused(false)
+        UserDefaults.standard.removeObject(forKey: Self.cleaningEndKey)
     }
 
     private func cleaningTick() {
         guard let end = cleaningEnd else { return }
         // Unlocked early by the chord: just clean up the countdown.
-        if !isPaused { cleaningTimer?.invalidate(); cleaningTimer = nil; cleaningEnd = nil; cleaningRemaining = nil; return }
+        if !isPaused { cancelCleaningLock(); return }
         let left = Int(end.timeIntervalSinceNow.rounded(.up))
         if left <= 0 { endCleaningLock() } else { cleaningRemaining = left }
     }

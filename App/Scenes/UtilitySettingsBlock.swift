@@ -28,24 +28,25 @@ struct UtilitySettingsBlock: View {
                     right: { SettingsToggleRow(Text("Copy Notifications"), isOn: $clipboardToast) }
                 )
                 SettingsDivider()
-                SettingsDivider()
                 SettingsRow(Text("Ignore Patterns")) {
                     TextField("Ignore Patterns", text: $clipboardIgnorePatterns)
                         .textFieldStyle(.roundedBorder).frame(width: 220)
                 }
             }
-            SettingsCard(Text("Custom Commands")) {
-                TextEditor(text: $customCommands)
-                    .font(.system(size: 11, design: .monospaced))
-                    .frame(height: 60)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.primary.opacity(0.15)))
-            }
-            SettingsCard(Text("Text Snippets")) {
-                TextEditor(text: $snippets)
-                    .font(.system(size: 11, design: .monospaced))
-                    .frame(height: 60)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.primary.opacity(0.15)))
-                SettingsNote(Text("One per line: ;sig = Best regards, Sam. Type the trigger in ⌘Space and press Return to paste it."))
+            // The two editors are one section, not two (`Docs/SETTINGS.md` rule 5's three-section
+            // budget): they are the same kind of thing, and the page was one card over it.
+            SettingsCard(Text("Commands & Snippets")) {
+                SettingsEditorRow(
+                    Text("Custom Commands"),
+                    text: $customCommands,
+                    placeholder: Text("One command per line: ;name = /path/to/script")
+                )
+                SettingsDivider()
+                SettingsEditorRow(
+                    Text("Text Snippets"),
+                    text: $snippets,
+                    placeholder: Text("One per line: ;sig = Best regards, Sam. Type the trigger in ⌘Space and press Return to paste it.")
+                )
             }
             SettingsCard(Text("Shelf")) {
                 SettingsRowPair(
@@ -112,22 +113,24 @@ struct LauncherSettingsBlock: View {
             SettingsDivider()
             SettingsToggleRow(Text("Fast File Index"), isOn: $fastIndex)
             SettingsDivider()
-            SettingsButtonRow(Text("Replace Spotlight")) {
+            // Rule 4: the five steps used to be five notes under this button. They are the row's
+            // ⓘ now. Each step stays a whole literal (rule 9) — they are joined, never assembled.
+            SettingsButtonRow(
+                Text("Replace Spotlight"),
+                info: SpotlightHandoff.steps().map(spotlightStepText).joined(separator: "\n")
+            ) {
                 if let url = URL(string: SpotlightHandoff.settingsURL) { NSWorkspace.shared.open(url) }
-            }
-            ForEach(SpotlightHandoff.steps(), id: \.self) { step in
-                SettingsNote(spotlightStepText(step))
             }
         }
     }
 
-    private func spotlightStepText(_ step: SpotlightHandoff.Step) -> Text {
+    private func spotlightStepText(_ step: SpotlightHandoff.Step) -> String {
         switch step {
-        case .openKeyboard: return Text("Open System Settings › Keyboard.")
-        case .openShortcuts: return Text("Click Keyboard Shortcuts….")
-        case .selectSpotlight: return Text("Select Spotlight in the list.")
-        case .uncheckShowSearch: return Text("Turn off Show Spotlight search.")
-        case .testHere: return Text("Come back and press ⌘Space to test.")
+        case .openKeyboard: return String(localized: "Open System Settings › Keyboard.")
+        case .openShortcuts: return String(localized: "Click Keyboard Shortcuts….")
+        case .selectSpotlight: return String(localized: "Select Spotlight in the list.")
+        case .uncheckShowSearch: return String(localized: "Turn off Show Spotlight search.")
+        case .testHere: return String(localized: "Come back and press ⌘Space to test.")
         }
     }
 }

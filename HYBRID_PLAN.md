@@ -4789,3 +4789,141 @@ To eliminate code thrashing, prevent cross-domain regression, and ensure seamles
 3. **Phase 34e/g Polish:** Dual-activity wing glyphs on closed notch pill and download-finished toasts.
 4. **Phase 38 (Lock-Screen Notch Spike):** Isolated, opt-in experimental probe evaluating lock-screen window levels and wake security.
 
+---
+
+### Phase 12 close-out + theme plan (owner-approved 2026-10-15; **built 2026-10-15** — notes below)
+
+- 2026-10-15 · **Phase 12 close-out + theme engine built.** Gate green: `xcodebuild test` (CI's exact
+  command, `CODE_SIGNING_ALLOWED=NO`) — **TEST SUCCEEDED, 2443 tests, 0 failures** (2434 + the 9 added
+  here); `check_localization.py` (**880 keys × 12 languages**); `check_debug_switches.py` (83);
+  `check_availability_warnings.py` (1 clean log). `project.pbxproj` **not touched** (no new file, so no
+  hand entries). Four slices, in the order the plan lists them. **README note:** §1.7f's ~300-line
+  budget was already spent before this work — the diff is ~1600 lines, of which ~615 are the six new
+  strings × 12 languages in `Localizable.xcstrings` (generated file, hand-added entries). **Not
+  live-checked:** no GUI session was available, so every look claim below is compile- and
+  unit-verified only, and §1.8's per-step notes were written at slice end rather than per step.
+- 2026-10-15 · **Cleaning lock fails open.** New pure `CleaningLock.launchDecision(deadline:now:)` (Core,
+  tested: `resume` only inside the window, `release` otherwise) plus `com.katikati.keyguard.cleaningEnd`,
+  written on arm, cleared on end/early-unlock/`tearDown`, read once in `KeyGuardService.init`. **Limit
+  that stays:** with *no* deadline at all, a pause is the user's own 24b pause and is left alone — a
+  crash from a pre-fix build is indistinguishable from it, so only locks armed from now on are covered.
+- 2026-10-15 · **Theme engine — gradients.** `DockThemeStyleTokens.baseTintBottom` (defaulted, so all 24
+  preset literals still compile and `DockThemeStyleTokensTests`' freeze only gained the 12 rows that now
+  carry a stop) + `DockGradientPreset` (six families, hand-picked stops per appearance — derived stops
+  read as a shade, not a gradient). `DockGlassBackdrop.overlayFill` draws
+  `LinearGradient` when a stop exists and the flat tint otherwise; `DockPanelBackdrop` is the one call
+  site, so all five surfaces move together. **Known limit (as planned):** the non-system-variant Liquid
+  Glass path tints through a single `configuration.baseTint` and takes the top stop only.
+- 2026-10-15 · **Theme engine — the two sliders.** `ThemeTuning` (Core, clamped, `vibrancy` 0.1–1.0 with
+  **0.55 = the pre-slider look** and `contrast` 0.5–2.0 with 1 = the preset's own colours) rides the
+  environment beside `dockThemeStyle`; injected at all seven sites that inject that one. Keys
+  `com.katikati.theme.vibrancy|contrast`, registered + clamped on read. Contrast is a pure push away from
+  mid-grey applied to the plate tint only — text colours are untouched. The two sliders are shown only
+  for a pinned theme (`tintsPlate`), because on Auto/System they would visibly do nothing. `ThemeSwatch`
+  draws the gradient too.
+- 2026-10-15 · **Notch theme.** `NotchTheme.resolve(hasHardwareNotch:tintsPlate:tokens:)` next to
+  `NotchDesignSpec` (Core, tested): **invariant — a hardware notch is always black with light content**;
+  a floating island takes the tint only when a preset is pinned, so the default look does not move.
+  Wired into `NotchIslandView` (plate fill + content scheme).
+- 2026-10-15 · **The five close-out items.** Launcher: the Spotlight steps are now the row's ⓘ (the five
+  strings stay whole literals, joined with newlines — nothing assembled); Tools: the two editor cards are
+  one **Commands & Snippets** card with placeholders on both editors (new `SettingsEditorRow`), four
+  sections → three, and the Clipboard card's doubled divider removed; Notch: the shape preview gets its
+  demo caption; Window Management: four cards inside `SettingsTilingPane` merged into one, six sections →
+  three with the two inner blocks keeping their labels. New keys: Vibrancy, Contrast, the Appearance
+  caption, Commands & Snippets, one command placeholder, the notch demo caption; `SettingsButtonRow`
+  gained the `info:` slot it was missing.
+
+Approved in the same review as Phase 40 and logged here so the tracker carries it. Five decisions recorded: the
+cleaning lock **fails open** after a crash; the theme engine gains **gradient presets plus one Vibrancy slider**;
+gradients draw on **all five themed surfaces** through the shared backdrop; the Notch tints **only as a floating
+island** (a hardware notch keeps a black plate so the shape still meets the bezel); 12f is a **Contrast slider**
+on Appearance rather than a change to the frozen preset values.
+
+- **Cleaning lock fails open (safety).** `KeyGuardService` restores `isPaused` from `UserDefaults` but never
+  persisted `cleaningEnd`, so a crash or force-quit mid-lock disables the keyboard on the next launch until
+  ⌃⌥⌘P. The fix is a pure `CleaningLock` seam plus a persisted deadline, cleared on arm/end/tearDown.
+- **Theme engine.** `DockThemeStyleTokens` is a single solid `baseTint` today and `plateOverlay` returns one
+  `DockRGBA`, so a gradient needs a second stop. Add `var baseTintBottom: DockRGBA? = nil` (a defaulted stored
+  property keeps the 24 existing literals compiling), a small set of gradient presets, and a vibrancy value that
+  scales `plateOverlayStrength` with the current 0.55 as the identity point. `overlayFill` in `DockGlassBackdrop`
+  draws the gradient. **Known limit:** the non-system-variant Liquid Glass path tints through a single
+  `configuration.baseTint`, so it takes the top stop only; the macOS 26 system-variant path and the
+  visual-effect fallback show the gradient.
+- **Twelve f (Contrast) + the caption** the Appearance page already owed, on one shared resolution path.
+- **Notch theme.** A pure decision next to `NotchDesignSpec` returns the plate colour and content scheme; its
+  test states the invariant — a hardware notch is always black with light content.
+- **Phase 12 close-out items** still owed by `Docs/SETTINGS.md` §3: Launcher's Spotlight ⓘ, the Tools editors'
+  placeholders, the Notch demo caption, Window Management's six sections regrouped to three, and Tools' four to
+  three.
+
+**Four stale premises this review corrected** (so the file stops contradicting the code): the theme grid's
+mid-word wrap was already fixed; **12d** had nothing to move (`SettingsTab.about` was retired and its rows are a
+card on General); the settings window already sizes to content clamped to `visibleFrame − 80`, so it does *not*
+run behind the Dock; and 39b's running-dot wording was **wrong** — see Phase 40c.
+
+---
+
+### Phase 40 — Vertical Dock: bilateral symmetry, rail geometry, widget readability
+
+Owner-approved 2026-10-15. Absorbs and corrects the Block 1/Block 2 vertical slices: **39a → 40b, 39b → 40c,
+39c → 40d, 39d stays with Block 1**; 39e is not duplicated here. **Reconciliation:** 39b said to anchor rail dots
+to `.trailing` on a left rail — that is the *inner* edge, and is what the code already did. Decision 40c reverses
+it. Five decisions: the running dot sits on the **screen edge**, matching the bottom bar; weather M/L get
+**weekday labels, larger type, symmetric columns**; **every rail tile is a 40×40 squircle**; rail density is
+**4 pt with dividers only between groups**; **S/M/L is the only sizing** and the free width sliders retire.
+
+| Slice | Scope |
+|---|---|
+| **40a** | The weather date bug: `DailyForecast.date` holds the raw API string (`"2026-10-15"`) and the chip printed it verbatim at 9 pt, truncating to `2026-…`. Pure weekday helper in `Core/Support`; the cached field is unchanged so old caches still decode. |
+| **40b** | Universal 40×40 rail tile: `railTileLength` collapses weather/clock/launcher/widgets onto one value, the two-line tiles are redrawn at 40×40, and the weather/clock rail art moves onto the shared 14 pt-radius chrome the FABs already use. |
+| **40c** | `RunningDotEdge(placement:)` moves to the screen edge (`.leading` on a left rail, `.trailing` on a right rail). |
+| **40d** | Rail spacing gets its own constant (4 pt, rail only — `ChipPillMetrics.chipSpacing` and its guard tests are untouched) and the rail divider stops opening a 13 pt hole against 2 pt neighbours. |
+| **40e** | The **Widget Widths** sliders retire; S/M/L is authoritative. **`exactWidth` stays** — the rail's own geometry sets it (`PanelGeometry.railWidgetLayout`), so removing the field would break rails. |
+| **40f** | Vertical widget parity: the rail tiles and the weather pod adopt the FABs' chrome (radius 14, dark glass, stroke 0.12/0.28, shadow, hover 1.04, spring 0.75). |
+| **40g** | Live check: spacing, dot side, tile size at every preset, weather M/L legibility. |
+
+- 2026-10-15 · **Phase 40 built (40a–40f).** `xcodebuild test` (CI's exact command, `CODE_SIGNING_ALLOWED=NO`):
+  **TEST SUCCEEDED, 2434 tests, 0 failures**; `check_localization.py` (875 keys × 12 languages),
+  `check_debug_switches.py` (83) and `check_availability_warnings.py` all green. `project.pbxproj` **not touched**.
+- 2026-10-15 · **40a — the weather date bug.** `DailyForecast.date` is the API's calendar day and the medium
+  and large pods printed it verbatim at 8.5–9 pt, so three columns in the 230 pt chip truncated to `2026-…`.
+  New pure `DailyForecast.weekdayLabel(locale:calendar:)` in `Core/Support/WeatherState.swift`; the **cached
+  field is unchanged** so pre-40a caches still decode, and a non-date (`"Today"`, `"day-0"`) passes through.
+  Both pods now show the weekday at 10.5 / 11.5 pt and three **equal-width** columns (`.frame(maxWidth:
+  .infinity)` per column instead of a trailing-aligned row), with `minimumScaleFactor(0.75)` as the guard
+  against the widths below. Test: `testForecastDateRendersAsAWeekday` (en_US, fixed UTC calendar).
+- 2026-10-15 · **40b/40f — one tile size, one chrome.** `BarSection.railTileSize = 40` is the single rail tile
+  size (weather/clock/launcher/widgets; `media` keeps its 1.65 × Live Island tile, `apps` stays 0), and
+  `DockStripView` no longer hardcodes the old `44` width. Confirmed against the code: the app chips beside them
+  are already `ChipPillMetrics.cardWidth` (40) with `iconOnly`, which is why a 44 × 56 weather tile read as a
+  second dock. New `DockTileChrome` (`App/Scenes/DockTheme.swift`) is the FABs' own recipe — radius 14, dark
+  glass fill, stroke 0.12/0.28, shadow, hover 1.04, spring 0.75 — now worn by the two rail tiles, the weather
+  pod (which hovered at 1.02 / 0.72) and both FABs. `DynamicGaugeCompactDiscView` deliberately keeps its ring:
+  it has no plate and is a dial, not a card.
+- 2026-10-15 · **40c — the running dot moved to the screen edge.** `RunningDotEdge(placement:)` now maps
+  `.left → .leading`, `.right → .trailing`. **It also moved to `Core/Support/StripPlacement.swift`**: the test
+  target does not compile `App/Scenes`, which is why the first build failed to link
+  (`Undefined symbols: KatiKati.RunningDotEdge.init(placement:)`). Per Standing Rules §2.2 the mapping is a pure
+  decision, so it belongs in Core; `alignment`/`paddingEdge` stay in `ChipView.swift`. That is the structural
+  reason Phase 18c's workspace-facing dot survived a whole phase with no test — now pinned by
+  `testRunningDotFacesTheScreenEdge`.
+- 2026-10-15 · **40d — uniform rail spacing.** The rail's extra unevenness was `dividerSidePadding`, derived
+  from the bottom bar's 13 pt divider gap: on a rail it opened a 13 pt hole against 2 pt neighbours. A rail
+  divider now adds no padding of its own, and the rail gets its own `Style.railChipSpacing = 4` — deliberately
+  **not** `ChipPillMetrics.chipSpacing`, which is shared with the bottom bar and guarded by the
+  `StripContextMenuZone` thresholds (bottom bar untouched).
+- 2026-10-15 · **40e — S/M/L is the only sizing.** The **Widget Widths** sliders and `AppSettingsStore`'s
+  `widgetWidths` / `setWidgetWidth` retired, and the now-unreferenced `Widget Widths` key left the catalog
+  (875 keys; the localization gate fails on unreferenced entries, so leaving it would have gone red).
+  **`exactWidth` was kept on purpose** — `PanelGeometry.railWidgetLayout` sets it, so deleting it would have
+  broken rails. The legacy `widgetWidths` migration also stays: a stored width still renders, and
+  `setWidgetSize` (which already cleared `exactWidth`) is now the only writer of a width.
+  Test: `testSetWidgetSizeClearsAnyWidthOverride` replaces the old slider-floor test.
+- 2026-10-15 · **40g — NOT DONE.** Everything above is compile- and unit-verified only. The look is unverified:
+  the rail's tile size and spacing at each S/M/L preset, the running dot's side on a real left and right rail,
+  the weather pod's three columns at 150 and 230 pt (the type sizes were chosen against the measured content
+  box — 132 pt at Medium, 212 pt at Large — not seen rendered), and the `VStack(spacing: -2)` clock numerals in
+  a 40 pt tile. **40b's specific risk stands:** 44 × 56 → 40 × 40 removed 16 pt of height, so the two-line
+  weather/clock tiles are the thing to look at first. No GUI session was available for this build.
+

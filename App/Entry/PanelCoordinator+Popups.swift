@@ -128,7 +128,8 @@ extension PanelCoordinator {
                 onContentResize: { [weak self] size in self?.repositionFolderPopup(animated: true, contentSize: size) },
                 onPinFolder: { [weak self] url in self?.pinnedFolderStore.add(url.path) },
                 isFolderPinned: { [weak self] url in self?.pinnedFolderStore.contains(url.path) ?? true }
-            ).environment(\.dockThemeStyle, settingsStore.themeMaterial))
+            ).environment(\.dockThemeStyle, settingsStore.themeMaterial)
+             .environment(\.themeTuning, settingsStore.themeTuning))
         }
     }
 
@@ -146,7 +147,8 @@ extension PanelCoordinator {
                 onContentResize: { [weak self] size in self?.repositionFolderPopup(animated: true, contentSize: size) },
                 onPinFolder: { [weak self] url in self?.pinnedFolderStore.add(url.path) },
                 isFolderPinned: { [weak self] url in self?.pinnedFolderStore.contains(url.path) ?? true }
-            ).environment(\.dockThemeStyle, settingsStore.themeMaterial))
+            ).environment(\.dockThemeStyle, settingsStore.themeMaterial)
+             .environment(\.themeTuning, settingsStore.themeTuning))
         }
     }
 
@@ -175,7 +177,8 @@ extension PanelCoordinator {
                     self?.closeFolderPopup()
                     TrashStateStore.openTrashWindow(runtime: runtime, store: store)
                 }
-            ).environment(\.dockThemeStyle, settingsStore.themeMaterial))
+            ).environment(\.dockThemeStyle, settingsStore.themeMaterial)
+             .environment(\.themeTuning, settingsStore.themeTuning))
         }
         // After presenting: the popup that just went away cleared the listing (see
         // `clearTrashListingIfShowing`), and the view's own `onDisappear` would fire too late —

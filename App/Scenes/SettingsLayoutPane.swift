@@ -210,7 +210,13 @@ struct ThemeSwatch: View {
         ZStack {
             // Neutral desktop under the translucent plate so alpha reads as it does on screen.
             Color(white: 0.62)
-            color(tokens.baseTint)
+            // Phase 12: the gradient half of a preset is what tells the twelve swatches apart, so the
+            // preview draws it — the top stop alone was part of why the sweep read them as one theme.
+            if let bottom = tokens.baseTintBottom {
+                LinearGradient(colors: [color(tokens.baseTint), color(bottom)], startPoint: .top, endPoint: .bottom)
+            } else {
+                color(tokens.baseTint)
+            }
             LinearGradient(colors: [color(tokens.gradientSheen), .clear], startPoint: .top, endPoint: .center)
         }
     }
@@ -412,14 +418,6 @@ struct SettingsLayoutPane: View {
                                 if let uuid = DisplayIdentity.uuidString(for: screen) {
                                     displayPlacementRow(name: screen.localizedName, uuid: uuid)
                                 }
-                            }
-                        }
-                        Text("Widget Widths").font(.subheadline.weight(.semibold)).padding(.top, 4)
-                        ForEach([BarSection.weather, .media, .clock], id: \.self) { widget in
-                            SettingsSliderRow(widgetLabel(widget),
-                                      value: store.widgetWidths[widget.rawValue] ?? widget.defaultWidgetWidth,
-                                      range: widget.minimumExactWidth...400, step: 5) {
-                                store.setWidgetWidth($0, for: widget)
                             }
                         }
                     }

@@ -109,4 +109,36 @@ final class NotchDesignSpecTests: XCTestCase {
         let stationary = NotchMotionSpec.projectEndpoint(current: 100, velocity: 0)
         XCTAssertEqual(stationary, 100)
     }
+
+    // MARK: - Phase 12: the notch's plate and content scheme
+
+    /// The invariant the owner's decision rests on: a hardware notch is always black with light
+    /// content, whatever theme is pinned. Only a floating island may carry a tint.
+    func testHardwareNotchStaysBlackWithLightContentUnderEveryTheme() {
+        for style in [DockThemeStyle.auto, .system, .emberSunset, .titaniumFrost, .deepOcean] {
+            let tokens = DockThemeStyleTokens.resolve(style: style, appearance: .dark)
+            for tints in [true, false] {
+                let resolved = NotchTheme.resolve(hasHardwareNotch: true, tintsPlate: tints, tokens: tokens)
+                XCTAssertEqual(resolved.plate, NotchTheme.blackPlate, "\(style.token) tinted a hardware notch")
+                XCTAssertFalse(resolved.prefersDarkContent, "\(style.token) flipped the notch's content scheme")
+            }
+        }
+    }
+
+    func testOnlyATintedFloatingIslandChangesThePlate() {
+        let sunset = DockThemeStyleTokens.resolve(style: .emberSunset, appearance: .dark)
+        let island = NotchTheme.resolve(hasHardwareNotch: false, tintsPlate: true, tokens: sunset)
+        XCTAssertNotEqual(island.plate, NotchTheme.blackPlate)
+        XCTAssertEqual(island.plate.r, sunset.baseTint.r)
+        XCTAssertGreaterThanOrEqual(island.plate.a, 0.94, "the silhouette has to stay solid")
+
+        // auto / system tint nothing, so the island keeps the black plate it has always drawn.
+        let auto = NotchTheme.resolve(
+            hasHardwareNotch: false,
+            tintsPlate: DockThemeStyle.auto.tintsPlate,
+            tokens: DockThemeStyleTokens.resolve(style: .auto, appearance: .dark)
+        )
+        XCTAssertEqual(auto.plate, NotchTheme.blackPlate)
+        XCTAssertFalse(auto.prefersDarkContent)
+    }
 }

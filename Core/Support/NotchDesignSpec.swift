@@ -91,3 +91,41 @@ struct NotchDesignSpec: Equatable, Sendable {
         openPanelSize(screenWidth: screenWidth, closedWidth: fallbackClosedWidth)
     }
 }
+
+/// Phase 12 — the notch's plate colour and the scheme its content is drawn in.
+///
+/// Owner decision (2026-10-15): the notch tints **only as a floating island**. A hardware notch keeps
+/// a black plate, because the shape has to meet the bezel and any tint there draws a seam against the
+/// screen it is cut into. `auto` / `system` tint nothing at all (`tintsPlate`), so the default look
+/// is the black plate the island has always drawn.
+///
+/// Next to `NotchDesignSpec` and dual-compiled for its reason: the invariant below is a test, not a
+/// comment. The views half (`Color`, `ColorScheme`) stays in `NotchIslandView`.
+enum NotchTheme {
+    struct Resolution: Equatable {
+        let plate: DockRGBA
+        /// `true` = dark content (a pale plate); `false` = light content, which is what every notch
+        /// surface is drawn for today.
+        let prefersDarkContent: Bool
+    }
+
+    static let blackPlate = DockRGBA(r: 0, g: 0, b: 0, a: 1)
+
+    /// **Invariant:** a hardware notch is always black with light content.
+    static func resolve(
+        hasHardwareNotch: Bool,
+        tintsPlate: Bool,
+        tokens: DockThemeStyleTokens
+    ) -> Resolution {
+        guard !hasHardwareNotch, tintsPlate else {
+            return Resolution(plate: blackPlate, prefersDarkContent: false)
+        }
+        // A floating island carries the preset's tint, near-opaque so the silhouette still reads as a
+        // solid shape over the desktop.
+        return Resolution(
+            plate: DockRGBA(r: tokens.baseTint.r, g: tokens.baseTint.g, b: tokens.baseTint.b,
+                            a: max(tokens.baseTint.a, 0.94)),
+            prefersDarkContent: tokens.prefersDarkContent
+        )
+    }
+}

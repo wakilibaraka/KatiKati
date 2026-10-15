@@ -60,6 +60,30 @@ public struct DailyForecast: Codable, Equatable, Sendable, Identifiable {
     public let symbolName: String
 }
 
+extension DailyForecast {
+    /// The API's `date` is a calendar day (`"2026-10-15"`), never a label to print: the medium and large
+    /// weather widgets printed it verbatim at 9 pt, so three columns in a 230 pt chip truncated it to
+    /// `"2026-…"` (Phase 40a). Anything that is not that shape — the `"Today"` / `"Tomorrow"` / `"Later"`
+    /// fallbacks the chip builds when live data is missing — passes through unchanged.
+    ///
+    /// The stored field is deliberately left alone: it is cached, and a cache written before this change
+    /// must still decode.
+    func weekdayLabel(locale: Locale = .current, calendar: Calendar = .current) -> String {
+        let parser = DateFormatter()
+        parser.locale = Locale(identifier: "en_US_POSIX")
+        parser.calendar = calendar
+        parser.timeZone = calendar.timeZone
+        parser.dateFormat = "yyyy-MM-dd"
+        guard let day = parser.date(from: date) else { return date }
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.calendar = calendar
+        formatter.timeZone = calendar.timeZone
+        formatter.setLocalizedDateFormatFromTemplate("EEE")
+        return formatter.string(from: day)
+    }
+}
+
 public struct WeatherState: Codable, Equatable, Sendable {
     public var cityName: String
     public var temperatureCelsius: Double

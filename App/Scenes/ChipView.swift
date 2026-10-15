@@ -578,11 +578,12 @@ struct ChipView: View {
     }
 }
 
-/// Which side of a chip the running dot hugs (Phase 18c): the strip edge that faces the screen's
-/// content — bottom on the bottom bar, trailing on a left rail, leading on a right rail.
-enum RunningDotEdge {
-    case bottom, leading, trailing
+/// The SwiftUI half of `RunningDotEdge`. The type and its placement rule live in
+/// `Core/Support/StripPlacement.swift` (Standing Rules §2.2: a pure decision belongs in Core, and this file
+/// is not compiled into the test target — the old mapping survived a phase precisely because no test could
+/// reach it).
 
+extension RunningDotEdge {
     var alignment: Alignment {
         switch self {
         case .bottom: return .bottom
@@ -596,14 +597,6 @@ enum RunningDotEdge {
         case .bottom: return .bottom
         case .leading: return .leading
         case .trailing: return .trailing
-        }
-    }
-
-    init(placement: StripPlacement) {
-        switch placement {
-        case .bottom: self = .bottom
-        case .left: self = .trailing
-        case .right: self = .leading
         }
     }
 }

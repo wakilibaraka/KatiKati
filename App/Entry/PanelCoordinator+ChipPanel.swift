@@ -22,6 +22,7 @@ extension PanelCoordinator {
         controller.thumbnailWidth = { [weak self] in CGFloat(self?.settingsStore.chipPreviewThumbWidth ?? 180) }
         controller.usesLiquidGlass = { [weak self] in self?.usesLiquidGlass ?? false }
         controller.themeStyle = { [weak self] in self?.settingsStore.themeMaterial ?? .auto }
+        controller.themeTuning = { [weak self] in self?.settingsStore.themeTuning ?? .identity }
         controller.stripPlacement = { [weak self] in self?.stripPlacement ?? .bottom }
         controller.onWillOpen = { [weak self] in
             guard let self else { return }

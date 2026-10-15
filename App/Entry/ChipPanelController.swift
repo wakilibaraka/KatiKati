@@ -20,6 +20,8 @@ final class ChipPanelController {
     var thumbnailWidth: () -> CGFloat = { 180 }
     var usesLiquidGlass: () -> Bool = { false }
     var themeStyle: () -> DockThemeStyle = { .auto }
+    /// Phase 12: the Appearance page's plate knobs, injected beside the style (identity default).
+    var themeTuning: () -> ThemeTuning = { .identity }
     /// Phase 18d: beside a side rail the panel opens inward and drops its bottom arrow.
     var stripPlacement: () -> StripPlacement = { .bottom }
     var onWillOpen: () -> Void = {}
@@ -171,6 +173,7 @@ final class ChipPanelController {
         let view = ChipPanelView(model: model, arrow: arrow, usesLiquidGlass: usesLiquidGlass(),
                                  onPanelSizeChange: { [weak self] _ in self?.reposition() })
             .environment(\.dockThemeStyle, themeStyle())
+            .environment(\.themeTuning, themeTuning())
         let host = NSHostingView(rootView: AnyView(view))
         host.wantsLayer = true
         host.layer?.backgroundColor = NSColor.clear.cgColor

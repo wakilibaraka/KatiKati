@@ -2,6 +2,51 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 12 close-out: a lock that fails open, a gradient theme engine, a notch theme
+
+### Fixed
+- **The keyboard cleaning lock can no longer outlive a crash.** The lock pauses the keyboard through the
+  persisted pause but never wrote its own deadline down, so a crash or force-quit during those 60 seconds
+  came up with dead keys until you pressed ⌃⌥⌘P. The deadline is persisted now and a window that has
+  already passed releases the lock instead of resuming it.
+
+### Added
+- **Gradient presets.** Aurora Glow, Deep Ocean, Forest Moss, Cyberpunk Glass, Ember Sunset and Rose Quartz
+  now draw their plate as a gradient instead of one flat tint, on all five floating surfaces at once — and
+  the Appearance swatches show it, which is what makes the twelve presets tell apart. Auto and System keep
+  the untinted plate.
+- **Vibrancy and Contrast sliders (Appearance).** Vibrancy sets how strongly a theme tints the plate; 55 % is
+  the standard glass look you already had. Contrast pushes the tint away from mid-grey, for a desktop where
+  the presets read too alike. Both appear with a pinned theme, because only a pinned theme tints the plate.
+- **A notch theme.** The Dynamic Island takes the theme's tint **only as a floating island**. A hardware
+  notch keeps its black plate, so the shape still meets the bezel.
+
+### Changed
+- **Window Management is three sections, not six.** Tiling, Layout, Floating Applications and Tiling
+  Shortcuts share one card (each block keeps its own label); no row, key or value changed.
+- **The Tools editors share one card.** Custom Commands and Text Snippets were two sections and are one;
+  both editors now show a placeholder while they are empty, so the page is never two blank boxes.
+- **The Spotlight hand-off steps are the row's ⓘ**, not five lines of text under a button, and the notch
+  page's shape preview carries a caption saying it is a demo.
+
+## [Unreleased] — Phase 40: vertical dock geometry & widget readability
+
+### Fixed
+- **The weather forecast no longer prints a raw date.** `DailyForecast.date` carries the API's calendar day
+  (`"2026-10-15"`) and the medium and large weather widgets printed it verbatim in a 9 pt font, so three
+  columns in a 230 pt chip truncated to `2026-…`. They now show the localized weekday (`Thu`), larger and bold.
+
+### Changed
+- **Every rail tile is one 40×40 squircle.** Weather and clock tiles were 44×56 with a 10 pt radius while the
+  launcher and Wi-Fi buttons were 40×40 at 14 pt, and the gauge disc differed again — so the dock looked like
+  several docks. They now share one size and one chrome.
+- **The running-app dot sits on the screen edge on a rail,** matching the bottom bar (it used to sit on the
+  workspace-facing edge, where the bottom bar and the rail disagreed).
+- **Rail spacing is uniform.** A divider between rail sections no longer opens a 13 pt gap against 2 pt
+  neighbours, which is what made the vertical icons read as unevenly spaced.
+- **S/M/L is the only widget sizing.** The arbitrary **Widget Widths** sliders retired, so a stored width can no
+  longer silently override the chosen preset.
+
 ## [Unreleased] — Phase 16: widget pane + wifi Quick Settings
 
 ### Added

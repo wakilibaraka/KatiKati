@@ -75,6 +75,29 @@ final class StripPlacementTests: XCTestCase {
         }
     }
 
+    /// Phase 40b: one size for every rail tile but the Live Island, and it is the app chips' own width —
+    /// a 56 pt weather tile beside 40 pt icons is the two-docks defect the owner reported. The tile is
+    /// native-sized and scaled by `dockScale`, so the bar's thickness must not change it.
+    func testEveryRailTileMatchesTheAppChipsBesideIt() {
+        for section in BarSection.allCases where section != .apps && section != .media {
+            XCTAssertEqual(section.railTileLength(barHeight: 54), BarSection.railTileSize, "\(section)")
+            XCTAssertEqual(section.railTileLength(barHeight: 30), BarSection.railTileSize,
+                           "\(section): native-sized, scaled by dockScale — not by barHeight")
+        }
+        XCTAssertEqual(BarSection.railTileSize, ChipPillMetrics.cardWidth,
+                       "a rail tile must be the width of the app chip it sits beside")
+    }
+
+    /// Phase 40c: the dot hugs the screen edge, the same rule the bottom bar already followed. Phase 18c
+    /// put a rail's dot on the workspace-facing edge instead, which is why the bar and the rail disagreed.
+    func testRunningDotFacesTheScreenEdge() {
+        XCTAssertEqual(RunningDotEdge(placement: .bottom), .bottom)
+        XCTAssertEqual(RunningDotEdge(placement: .left), .leading,
+                       "on a left rail the screen edge is the leading side")
+        XCTAssertEqual(RunningDotEdge(placement: .right), .trailing,
+                       "on a right rail the screen edge is the trailing side")
+    }
+
     func testUnmapInvertsMapForPointsOnARail() {
         let solved = CGRect(x: 40, y: 8, width: 300, height: 54)
         for placement in [StripPlacement.left, .right] {

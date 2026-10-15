@@ -15,6 +15,10 @@ struct DockThemeStyleTokens: Equatable {
     let rim: DockRGBA
     let blurRadius: CGFloat
     let prefersDarkContent: Bool
+    /// The gradient's second stop (Phase 12). Last and defaulted on purpose: every one of the 24
+    /// preset literals below was a single solid tint, and they keep compiling — and keep their frozen
+    /// values — while `DockGradientPreset` fills this in for the six styles that get a gradient.
+    var baseTintBottom: DockRGBA? = nil
 
     static let systemLight = DockThemeStyleTokens(
         baseTint: DockRGBA(r: 0.9, g: 0.9, b: 0.9, a: 0.5),
@@ -232,7 +236,22 @@ struct DockThemeStyleTokens: Equatable {
         prefersDarkContent: false
     )
 
+    /// The one entry point: the frozen column plus the gradient stop its style's preset names.
     static func resolve(style: DockThemeStyle, appearance: AppearanceMode) -> DockThemeStyleTokens {
+        column(style: style, appearance: appearance)
+            .withGradient(DockGradientPreset.forStyle(style.resolved(for: appearance)).bottom(for: appearance))
+    }
+
+    /// Fills the gradient's bottom stop. A separate step so the 24 preset literals above stay exactly
+    /// what `DockThemeStyleTokensTests` freezes.
+    func withGradient(_ bottom: DockRGBA?) -> DockThemeStyleTokens {
+        guard let bottom else { return self }
+        var copy = self
+        copy.baseTintBottom = bottom
+        return copy
+    }
+
+    private static func column(style: DockThemeStyle, appearance: AppearanceMode) -> DockThemeStyleTokens {
         let isDark = appearance == .dark
         let resolvedStyle = style.resolved(for: appearance)
         
@@ -272,6 +291,59 @@ struct DockThemeStyleTokens: Equatable {
             )
         case .auto:
             return isDark ? .obsidianDarkDark : .roseQuartzLight
+        }
+    }
+}
+
+/// Phase 12 — which presets draw as a gradient, and the bottom stop each one uses.
+///
+/// A *small* set on purpose, and hand-picked per family rather than derived from the frozen column:
+/// a derived stop (the top stop darkened) reads as a shade of the same paint, not as a gradient, and
+/// a value derived from a frozen token would start moving whenever that token moves. Everything not
+/// listed stays `.solid` — the state all twelve presets were in before this existed.
+///
+/// The plate this draws on is `DockGlassBackdrop.overlayFill` through `DockPanelBackdrop`, i.e. all
+/// five themed floating surfaces at once. **Known limit:** the non-system-variant Liquid Glass path
+/// tints through a single `configuration.baseTint`, so it takes the top stop only.
+enum DockGradientPreset: Equatable {
+    case solid, aurora, ocean, forest, neon, sunset, rose
+
+    static func forStyle(_ style: DockThemeStyle) -> DockGradientPreset {
+        switch style {
+        case .auroraGlow: return .aurora
+        case .deepOcean: return .ocean
+        case .forestMoss: return .forest
+        case .cyberpunkGlass: return .neon
+        case .emberSunset: return .sunset
+        case .roseQuartz: return .rose
+        default: return .solid
+        }
+    }
+
+    /// The bottom stop for an appearance (`nil` = keep the solid tint). The alpha is the preset's own,
+    /// scaled like the top stop's by `DockThemeStyle.plateOverlay`.
+    func bottom(for appearance: AppearanceMode) -> DockRGBA? {
+        let isDark = appearance == .dark
+        switch self {
+        case .solid: return nil
+        case .aurora:
+            return isDark ? DockRGBA(r: 0.06, g: 0.32, b: 0.24, a: 0.65)
+                          : DockRGBA(r: 0.66, g: 0.90, b: 0.80, a: 0.50)
+        case .ocean:
+            return isDark ? DockRGBA(r: 0.02, g: 0.07, b: 0.22, a: 0.70)
+                          : DockRGBA(r: 0.62, g: 0.78, b: 0.98, a: 0.55)
+        case .forest:
+            return isDark ? DockRGBA(r: 0.05, g: 0.17, b: 0.07, a: 0.70)
+                          : DockRGBA(r: 0.72, g: 0.88, b: 0.70, a: 0.55)
+        case .neon:
+            return isDark ? DockRGBA(r: 0.30, g: 0.03, b: 0.38, a: 0.75)
+                          : DockRGBA(r: 0.80, g: 0.62, b: 0.96, a: 0.60)
+        case .sunset:
+            return isDark ? DockRGBA(r: 0.40, g: 0.10, b: 0.06, a: 0.70)
+                          : DockRGBA(r: 0.98, g: 0.72, b: 0.60, a: 0.55)
+        case .rose:
+            return isDark ? DockRGBA(r: 0.30, g: 0.12, b: 0.20, a: 0.70)
+                          : DockRGBA(r: 0.90, g: 0.72, b: 0.82, a: 0.60)
         }
     }
 }

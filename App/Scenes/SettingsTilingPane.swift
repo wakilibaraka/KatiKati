@@ -10,103 +10,109 @@ struct SettingsTilingPane: View {
     @State private var floatingAppsDraft: String = ""
 
     var body: some View {
-        VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
-            SettingsCard(Text("Tiling")) {
-                SettingsToggleRow(
-                    Text("Enable Auto-Tiling"),
-                    isOn: Binding(
-                        get: { engine.isEnabled },
-                        set: { on in
-                            if on, !AXIsProcessTrusted() {
-                                // Accessibility check
-                            }
-                            engine.setEnabled(on)
+        // One card, not four. Window Management carried **six** sections — Tiling, Layout, Floating
+        // Applications, Tiling Shortcuts, Window Chips, Window Behaviour — against rule 5's three,
+        // and the extra headers plus their gaps are exactly what ran the page past the window. Every
+        // row below is unchanged; the ones that only apply while tiling is on keep that guard, and
+        // the shortcut block keeps its own label so the grouping is still visible inside the card.
+        SettingsCard(Text("Tiling")) {
+            SettingsToggleRow(
+                Text("Enable Auto-Tiling"),
+                isOn: Binding(
+                    get: { engine.isEnabled },
+                    set: { on in
+                        if on, !AXIsProcessTrusted() {
+                            // Accessibility check
                         }
-                    ),
-                    note: Text("Automatically tile open windows in binary space partitions or presets. Disabling instantly restores pre-tiling window frames.")
-                )
-            }
+                        engine.setEnabled(on)
+                    }
+                ),
+                note: Text("Automatically tile open windows in binary space partitions or presets. Disabling instantly restores pre-tiling window frames.")
+            )
 
             if engine.isEnabled {
-                SettingsCard(Text("Layout")) {
-                    SettingsSegmentedRow(
-                        Text("Preset"),
-                        selection: Binding(get: { engine.preset }, set: { engine.setPreset($0) })
-                    ) {
-                        ForEach(TilingLayoutPreset.allCases, id: \.self) { preset in
-                            Text(preset.localizedTitleKey).tag(preset)
-                        }
+                SettingsDivider()
+                SettingsSegmentedRow(
+                    Text("Preset"),
+                    selection: Binding(get: { engine.preset }, set: { engine.setPreset($0) })
+                ) {
+                    ForEach(TilingLayoutPreset.allCases, id: \.self) { preset in
+                        Text(preset.localizedTitleKey).tag(preset)
                     }
-                    SettingsDivider()
-                    SettingsSliderRow(
-                        Text("Inner Gap"),
-                        value: engine.gaps.inner,
-                        range: 0...32,
-                        step: 1,
-                        valueText: "\(Int(engine.gaps.inner)) pt",
-                        set: { engine.setGaps(TilingGaps(inner: CGFloat($0), outer: engine.gaps.outer)) }
-                    )
-                    SettingsDivider()
-                    SettingsSliderRow(
-                        Text("Outer Gap"),
-                        value: engine.gaps.outer,
-                        range: 0...32,
-                        step: 1,
-                        valueText: "\(Int(engine.gaps.outer)) pt",
-                        set: { engine.setGaps(TilingGaps(inner: engine.gaps.inner, outer: CGFloat($0))) }
-                    )
                 }
+                SettingsDivider()
+                SettingsSliderRow(
+                    Text("Inner Gap"),
+                    value: engine.gaps.inner,
+                    range: 0...32,
+                    step: 1,
+                    valueText: "\(Int(engine.gaps.inner)) pt",
+                    set: { engine.setGaps(TilingGaps(inner: CGFloat($0), outer: engine.gaps.outer)) }
+                )
+                SettingsDivider()
+                SettingsSliderRow(
+                    Text("Outer Gap"),
+                    value: engine.gaps.outer,
+                    range: 0...32,
+                    step: 1,
+                    valueText: "\(Int(engine.gaps.outer)) pt",
+                    set: { engine.setGaps(TilingGaps(inner: engine.gaps.inner, outer: CGFloat($0))) }
+                )
 
-                SettingsCard(Text("Floating Applications")) {
-                    SettingsNote(Text("Applications listed below will float and never be tiled (one bundle identifier per line):"))
-                    TextEditor(text: Binding(
-                        get: { floatingAppsDraft.isEmpty ? engine.policy.serializedPatterns : floatingAppsDraft },
-                        set: {
-                            floatingAppsDraft = $0
-                            engine.setPolicy(TilingPolicy.parse(patterns: $0))
-                        }
-                    ))
-                    .font(.system(.body, design: .monospaced))
-                    .frame(height: 80)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 1))
-                }
+                SettingsDivider()
+                // The two blocks inside the card keep their own label, so the grouping survives the
+                // merge without a second card (rule 5's three-section budget).
+                Text("Floating Applications")
+                    .font(.subheadline)
+                SettingsNote(Text("Applications listed below will float and never be tiled (one bundle identifier per line):"))
+                TextEditor(text: Binding(
+                    get: { floatingAppsDraft.isEmpty ? engine.policy.serializedPatterns : floatingAppsDraft },
+                    set: {
+                        floatingAppsDraft = $0
+                        engine.setPolicy(TilingPolicy.parse(patterns: $0))
+                    }
+                ))
+                .font(.system(.body, design: .monospaced))
+                .frame(height: 80)
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 1))
 
-                SettingsCard(Text("Tiling Shortcuts")) {
-                    let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
-                    let tilingActions: [ShortcutAction] = [
-                        .toggleTiling,
-                        .cycleTilingLayout,
-                        .tilingFocusNext,
-                        .tilingFocusPrevious,
-                        .tilingSwapNext,
-                        .tilingSwapPrevious
-                    ]
-                    // One per line, like the Shortcuts page: an assignment is a name, a menu and a
-                    // Record button, and three controls do not fit half a card (rule 5's
-                    // exception; measured live 2026-10-15).
-                    ForEach(tilingActions, id: \.self) { action in
-                        SettingsRow(shortcutActionTitle(action)) {
-                            HStack(spacing: SettingsMetrics.controlSpacing) {
-                                if duplicated.contains(action) {
-                                    Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                                        .help(Text("Another action uses the same shortcut"))
-                                }
-                                Picker(selection: Binding(
-                                    get: { store.shortcutBindings[action] ?? .off },
-                                    set: { store.setShortcut(action, $0) }
-                                )) {
-                                    Text("Off").tag(ShortcutTrigger.off)
-                                    Divider()
-                                    ForEach(ShortcutChord.allCases, id: \.self) { Text(verbatim: $0.glyphs).tag(ShortcutTrigger.chord($0)) }
-                                    Divider()
-                                    if case let .key(custom) = store.shortcutBindings[action] ?? .off {
-                                        Text(verbatim: custom.glyphs).tag(ShortcutTrigger.key(custom))
-                                        Divider()
-                                    }
-                                } label: { EmptyView() }
-                                .pickerStyle(.menu).fixedSize()
-                                ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
+                SettingsDivider()
+                Text("Tiling Shortcuts")
+                    .font(.subheadline)
+                let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
+                let tilingActions: [ShortcutAction] = [
+                    .toggleTiling,
+                    .cycleTilingLayout,
+                    .tilingFocusNext,
+                    .tilingFocusPrevious,
+                    .tilingSwapNext,
+                    .tilingSwapPrevious
+                ]
+                // One per line, like the Shortcuts page: an assignment is a name, a menu and a
+                // Record button, and three controls do not fit half a card (rule 5's
+                // exception; measured live 2026-10-15).
+                ForEach(tilingActions, id: \.self) { action in
+                    SettingsRow(shortcutActionTitle(action)) {
+                        HStack(spacing: SettingsMetrics.controlSpacing) {
+                            if duplicated.contains(action) {
+                                Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                                    .help(Text("Another action uses the same shortcut"))
                             }
+                            Picker(selection: Binding(
+                                get: { store.shortcutBindings[action] ?? .off },
+                                set: { store.setShortcut(action, $0) }
+                            )) {
+                                Text("Off").tag(ShortcutTrigger.off)
+                                Divider()
+                                ForEach(ShortcutChord.allCases, id: \.self) { Text(verbatim: $0.glyphs).tag(ShortcutTrigger.chord($0)) }
+                                Divider()
+                                if case let .key(custom) = store.shortcutBindings[action] ?? .off {
+                                    Text(verbatim: custom.glyphs).tag(ShortcutTrigger.key(custom))
+                                    Divider()
+                                }
+                            } label: { EmptyView() }
+                            .pickerStyle(.menu).fixedSize()
+                            ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
                         }
                     }
                 }

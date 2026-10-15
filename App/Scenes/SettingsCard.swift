@@ -382,11 +382,16 @@ struct SettingsStepperRow: View {
 struct SettingsButtonRow: View {
     private let title: Text
     private let note: Text?
+    private let info: String?
     private let action: () -> Void
 
-    init(_ title: Text, note: Text? = nil, action: @escaping () -> Void) {
+    /// `info` is the row's long explanation (`Docs/SETTINGS.md` rule 4). It sits beside the button
+    /// rather than on it: several one-line steps under a button is what this row had before, which is
+    /// the shape rule 4 replaces.
+    init(_ title: Text, note: Text? = nil, info: String? = nil, action: @escaping () -> Void) {
         self.title = title
         self.note = note
+        self.info = info
         self.action = action
     }
 
@@ -394,11 +399,54 @@ struct SettingsButtonRow: View {
         VStack(alignment: .leading, spacing: SettingsMetrics.rowNoteSpacing) {
             HStack(spacing: SettingsMetrics.controlSpacing) {
                 Button(action: action) { title }
+                if let info {
+                    SettingsInfoButton(text: info)
+                }
                 Spacer(minLength: 0)
             }
             if let note {
                 SettingsNote(note)
             }
+        }
+        .padding(.vertical, SettingsMetrics.rowVerticalPadding)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+/// An editor row (`Docs/SETTINGS.md` rule 8): the text area shows its placeholder while it is empty,
+/// so a first-run page is never a blank box, and the field takes its VoiceOver name from the row
+/// (rule 9). The placeholder is a whole localized literal, never assembled from fragments.
+struct SettingsEditorRow: View {
+    private let label: Text
+    private let placeholder: Text
+    private let text: Binding<String>
+    private let height: CGFloat
+
+    init(_ label: Text, text: Binding<String>, placeholder: Text, height: CGFloat = 60) {
+        self.label = label
+        self.text = text
+        self.placeholder = placeholder
+        self.height = height
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SettingsMetrics.rowNoteSpacing) {
+            label
+            TextEditor(text: text)
+                .font(.system(size: 11, design: .monospaced))
+                .frame(height: height)
+                .overlay(alignment: .topLeading) {
+                    if text.wrappedValue.isEmpty {
+                        placeholder
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 8)
+                            .padding(.leading, 5)
+                            .allowsHitTesting(false)
+                    }
+                }
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.primary.opacity(0.15)))
+                .accessibilityLabel(label)
         }
         .padding(.vertical, SettingsMetrics.rowVerticalPadding)
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -7,7 +7,12 @@ struct LiveIslandSettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
 
     var body: some View {
-        SettingsCard(Text("Live Island")) {
+        // Rule 8: the preview above the rows is a demo, and it says so. The notch page is not signed
+        // off while the Compact skin's own decision is open (`Docs/SETTINGS.md` §4).
+        SettingsCard(
+            Text("Live Island"),
+            note: Text("The shape preview is a demo: the silhouette only, never live activity.")
+        ) {
             NotchPreview(skin: store.notchSkin, isEnabled: store.notchIslandEnabled)
             SettingsToggleRow(
                 Text("Dock Island"),

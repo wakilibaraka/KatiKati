@@ -269,4 +269,22 @@ final class WeatherDetailTests: XCTestCase {
         XCTAssertEqual(MoonPhase.symbolName(at: full), "moonphase.full.moon")
         XCTAssertEqual(MoonPhase.symbolName(at: newMoon), "moonphase.new.moon")
     }
+
+    /// Phase 40a: the raw API day is not a label. The chip printed `"2026-10-15"` verbatim in a 9 pt
+    /// font and three columns of it truncated to `"2026-…"`; the weekday is what belongs there.
+    /// Anything that is not a calendar day — the chip's own `"Today"`/`"Tomorrow"` fallbacks — passes
+    /// through unchanged rather than being dropped.
+    func testForecastDateRendersAsAWeekday() {
+        let locale = Locale(identifier: "en_US")
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        func label(_ date: String) -> String {
+            DailyForecast(date: date, highCelsius: 26, lowCelsius: 17, symbolName: "sun.max.fill")
+                .weekdayLabel(locale: locale, calendar: calendar)
+        }
+        XCTAssertEqual(label("2026-10-15"), "Thu")
+        XCTAssertEqual(label("2026-10-16"), "Fri")
+        XCTAssertEqual(label("Today"), "Today", "the chip's fallback label passes through")
+        XCTAssertEqual(label("day-0"), "day-0", "a malformed day passes through, never crashes")
+    }
 }

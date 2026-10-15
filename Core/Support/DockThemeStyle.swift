@@ -1,6 +1,26 @@
 import Foundation
 import CoreGraphics
 
+/// Phase 12 — the Appearance page's two plate knobs, carried together because they always travel
+/// together: from the store, through the environment, to the one backdrop all five floating surfaces
+/// share. Pure values, no SwiftUI, so the identity points are unit-tested.
+struct ThemeTuning: Equatable {
+    var vibrancy: CGFloat = DockThemeStyle.identityVibrancy
+    /// `1` = the preset's own colours; above it separates the tint from the wallpaper, below it
+    /// flattens the preset.
+    var contrast: CGFloat = 1
+
+    static let identity = ThemeTuning()
+
+    /// Whatever the store or a stale key hands over, clamped to the sliders' own range.
+    static func resolved(vibrancy: CGFloat, contrast: CGFloat) -> ThemeTuning {
+        ThemeTuning(
+            vibrancy: min(max(vibrancy, DockThemeStyle.vibrancyRange.lowerBound), DockThemeStyle.vibrancyRange.upperBound),
+            contrast: min(max(contrast, DockThemeStyle.contrastRange.lowerBound), DockThemeStyle.contrastRange.upperBound)
+        )
+    }
+}
+
 /// Dock theme material style, covering both light and dark appearances.
 enum DockThemeStyle: Equatable, Codable {
     case system
@@ -96,6 +116,15 @@ extension DockThemeStyle {
     /// The glass already brings its own body, so the full token alpha (up to 0.85) reads as paint.
     static let plateOverlayStrength: CGFloat = 0.55
 
+    /// The Appearance page's two plate knobs (Phase 12). `vibrancy` scales the tint's alpha and the
+    /// identity is the 0.55 this file has always used, so a user who never touches the slider sees
+    /// exactly the plate they saw before it existed. `contrast` pushes each channel away from
+    /// mid-grey (1 = untouched): the sweep found the twelve presets nearly indistinguishable on a
+    /// dark backdrop, and this is the slider that separates them without touching the frozen columns.
+    static let identityVibrancy: CGFloat = plateOverlayStrength
+    static let vibrancyRange: ClosedRange<CGFloat> = 0.1 ... 1.0
+    static let contrastRange: ClosedRange<CGFloat> = 0.5 ... 2.0
+
     /// Colour laid over the dock plate on the system-glass and pre-26 paths, which otherwise drop
     /// the preset tint entirely — the reason picking a theme changed nothing visible (Phase 11c, B6).
     /// `auto` and `system` keep the untinted native look (pixel-frozen default).
@@ -107,14 +136,39 @@ extension DockThemeStyle {
         }
     }
 
-    func plateOverlay(baseTint: DockRGBA) -> DockRGBA? {
-        switch self {
-        case .auto, .system:
-            return nil
-        default:
-            return DockRGBA(r: baseTint.r, g: baseTint.g, b: baseTint.b,
-                            a: baseTint.a * Self.plateOverlayStrength)
+    func plateOverlay(
+        baseTint: DockRGBA,
+        vibrancy: CGFloat = identityVibrancy,
+        contrast: CGFloat = 1
+    ) -> DockRGBA? {
+        guard tintsPlate else { return nil }
+        return Self.plateTint(baseTint, vibrancy: vibrancy, contrast: contrast)
+    }
+
+    /// The gradient's bottom stop (`DockGradientPreset`), through the same vibrancy/contrast pass as
+    /// the top one so both stops still read as one material. `nil` when the style tints nothing or
+    /// has no gradient, i.e. `overlayFill` then draws the flat tint it always drew.
+    func plateOverlayBottom(
+        baseTintBottom: DockRGBA?,
+        vibrancy: CGFloat = identityVibrancy,
+        contrast: CGFloat = 1
+    ) -> DockRGBA? {
+        guard tintsPlate, let bottom = baseTintBottom else { return nil }
+        return Self.plateTint(bottom, vibrancy: vibrancy, contrast: contrast)
+    }
+
+    private static func plateTint(_ colour: DockRGBA, vibrancy: CGFloat, contrast: CGFloat) -> DockRGBA {
+        // `contrast == 1` leaves the channels bit-for-bit alone: `0.5 + (v - 0.5) * 1` is *not* exactly
+        // `v` in binary floating point (0.05 comes back as 0.04999999999999999), and "a user who never
+        // moved the slider sees the plate they had before it existed" is a promise about pixels.
+        guard contrast != 1 else {
+            return DockRGBA(r: colour.r, g: colour.g, b: colour.b, a: colour.a * vibrancy)
         }
+        func push(_ channel: CGFloat) -> CGFloat {
+            min(max(0.5 + (channel - 0.5) * contrast, 0), 1)
+        }
+        return DockRGBA(r: push(colour.r), g: push(colour.g), b: push(colour.b),
+                        a: colour.a * vibrancy)
     }
 }
 

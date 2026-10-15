@@ -44,9 +44,9 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         "sec-\(rawValue)"
     }
 
-    /// Fixed default width for the section's placeholder frame when no
-    /// `widgetWidths` override is stored (edited via sliders in Settings —
-    /// Phase 4U decision 3: order hardcoded, widths settings-only).
+    /// The width this section's S/M/L presets are built on. Phase 4U decision 3 still holds — the order is
+    /// hardcoded and widths are settings-only — but the exact-width sliders retired in Phase 40e, so a
+    /// preset (or the rail's own geometry) is the only input now; nothing stores an arbitrary number here.
     var defaultWidgetWidth: CGFloat {
         switch self {
         case .launcher: return 40
