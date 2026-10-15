@@ -11,6 +11,7 @@ struct BehaviourSettingsBlock: View {
     @AppStorage(MemoryOverlayController.enabledKey) private var memoryOverlayEnabled = true
 
     var body: some View {
+        Text("Behaviour").font(.headline)
         Toggle(isOn: $memoryOverlayEnabled) { Text("Hold Control to Show Memory") }
         Text("While the pointer is over the dock, holding Control shows how much memory each app uses.").font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
         Toggle(isOn: $showSystemHelpers) { Text("Show System Helpers") }
