@@ -47,13 +47,13 @@ struct SettingsWindowContent: View {
         Group {
             switch tabState.selected {
             case .general: generalPane
-            case .layout: SettingsLayoutPane(store: store)
             case .widgets: SettingsLayoutPane(store: store, mode: .widgets)
             case .notch: notchPane
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
             case .appearance: SettingsAppearancePane(store: store)
             case .windowManagement: windowManagementPane
             case .launcherTools: launcherToolsPane
+            case .shortcuts: SettingsLayoutPane(store: store, mode: .shortcuts)
             case .advanced: advancedPane
             case .about: aboutPane
             }
@@ -219,6 +219,7 @@ struct SettingsWindowContent: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 Section {
+                    SettingsLayoutPane(store: store, mode: .notifications)
                     BehaviourSettingsBlock()
                 }
             }
@@ -228,6 +229,8 @@ struct SettingsWindowContent: View {
                 settingRow(note: fullscreenIntentNote) {
                     fullscreenIntentToggle
                 }
+                Divider().opacity(0.5)
+                SettingsLayoutPane(store: store, mode: .notifications)
                 Divider().opacity(0.5)
                 BehaviourSettingsBlock()
             }

@@ -7,7 +7,6 @@ import Foundation
 /// 纯 Foundation/Combine——测试 target 也编译它，别引 AppKit。
 enum SettingsTab: String, CaseIterable {
     case general
-    case layout
     case widgets
     case notch
     case edgeBars
@@ -15,19 +14,20 @@ enum SettingsTab: String, CaseIterable {
     // Raw value stays "tiling": it is the toolbar item identifier.
     case windowManagement = "tiling"
     case launcherTools
+    case shortcuts
     case advanced
     case about
 
     var title: String {
         switch self {
         case .general: return String(localized: "General")
-        case .layout: return String(localized: "Layout")
         case .widgets: return String(localized: "Widgets")
         case .notch: return String(localized: "Notch")
         case .edgeBars: return String(localized: "Edge Bars")
         case .appearance: return String(localized: "Appearance")
         case .windowManagement: return String(localized: "Window Management")
         case .launcherTools: return String(localized: "Launcher & Tools")
+        case .shortcuts: return String(localized: "Shortcuts")
         case .advanced: return String(localized: "Advanced")
         case .about: return String(localized: "About")
         }
@@ -36,13 +36,13 @@ enum SettingsTab: String, CaseIterable {
     var symbolName: String {
         switch self {
         case .general: return "gearshape"
-        case .layout: return "rectangle.split.3x1"
         case .widgets: return "square.grid.2x2"
         case .notch: return "capsule.tophalf.filled"
         case .edgeBars: return "sidebar.right"
         case .appearance: return "paintpalette"
         case .windowManagement: return "rectangle.split.2x2"
         case .launcherTools: return "magnifyingglass"
+        case .shortcuts: return "command"
         case .advanced: return "wrench.and.screwdriver"
         case .about: return "info.circle"
         }

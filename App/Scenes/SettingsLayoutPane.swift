@@ -296,8 +296,8 @@ struct SettingsLayoutPane: View {
 
     /// Phase 12e — the same pane serves two tabs: Layout keeps the dock geometry, Widgets takes
     /// the widget list, presets and styles.
-    enum Mode { case layout, widgets, edgeBars, geometry, chips, launcher }
-    var mode: Mode = .layout
+    enum Mode { case shortcuts, widgets, edgeBars, geometry, chips, launcher, notifications }
+    var mode: Mode = .shortcuts
 
     @ViewBuilder
     private var geometrySections: some View {
@@ -707,6 +707,32 @@ struct SettingsLayoutPane: View {
     }
 
     @ViewBuilder
+    private var notificationSections: some View {
+            section {
+                Text("Notifications")
+            } content: {
+                Toggle("Move Notification Banners", isOn: Binding(
+                    get: { notifMove.isEnabled },
+                    set: { notifMove.setEnabled($0) }
+                )).accessibilityLabel("Move Notification Banners")
+                Text("KatiKati moves each notification banner to the position you pick with the Accessibility API. Notification Center's private interface changes between macOS updates: when the layout looks unfamiliar, KatiKati leaves notifications alone, and only the first banner of a burst moves. Turning this off restores the macOS default immediately.")
+                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                if notifMove.isEnabled {
+                    HStack {
+                        Text("Position")
+                        Spacer(minLength: 12)
+                        Picker("Position", selection: Binding(get: { notifMove.slot }, set: { notifMove.setSlot($0) })) {
+                            ForEach(NotificationSlot.allCases, id: \.self) { slot in
+                                notificationSlotTitle(slot).tag(slot)
+                            }
+                        }
+                        .labelsHidden().pickerStyle(.menu).fixedSize()
+                    }
+                }
+            }
+    }
+
+    @ViewBuilder
     private var edgeBarSections: some View {
             section {
                 Text("Edge Bars")
@@ -873,6 +899,8 @@ struct SettingsLayoutPane: View {
                 chipSections
             } else if mode == .launcher {
                 launcherSections
+            } else if mode == .notifications {
+                notificationSections
             } else {
             section {
                 Text("Shortcuts")
@@ -994,29 +1022,6 @@ struct SettingsLayoutPane: View {
                 }
                 Text("Double-tap shortcuts need the Accessibility permission. ⌃Space may also switch input sources.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-            }
-
-            section {
-                Text("Notifications")
-            } content: {
-                Toggle("Move Notification Banners", isOn: Binding(
-                    get: { notifMove.isEnabled },
-                    set: { notifMove.setEnabled($0) }
-                )).accessibilityLabel("Move Notification Banners")
-                Text("KatiKati moves each notification banner to the position you pick with the Accessibility API. Notification Center's private interface changes between macOS updates: when the layout looks unfamiliar, KatiKati leaves notifications alone, and only the first banner of a burst moves. Turning this off restores the macOS default immediately.")
-                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                if notifMove.isEnabled {
-                    HStack {
-                        Text("Position")
-                        Spacer(minLength: 12)
-                        Picker("Position", selection: Binding(get: { notifMove.slot }, set: { notifMove.setSlot($0) })) {
-                            ForEach(NotificationSlot.allCases, id: \.self) { slot in
-                                notificationSlotTitle(slot).tag(slot)
-                            }
-                        }
-                        .labelsHidden().pickerStyle(.menu).fixedSize()
-                    }
-                }
             }
 
             section {
