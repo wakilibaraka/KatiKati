@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 
 struct SettingsWindowView: View {
     // Wide enough for ten toolbar items without the overflow chevron.
-    static let contentWidth: CGFloat = 720
+    static let contentWidth: CGFloat = 900
 
     /// 公开仓库主页。**只给「求 Star」用**——用户可见的「去下载」永远指向官网
     /// （2026-08-13 起 GitHub release 页不再附安装包，指过去是个空页面），
