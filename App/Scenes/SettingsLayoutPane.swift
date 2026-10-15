@@ -510,6 +510,8 @@ struct SettingsLayoutPane: View {
 
     @ViewBuilder
     private var widgetSections: some View {
+        WidgetLookSettingsBlock(store: store)
+
         section {
             Text("Widgets")
         } content: {

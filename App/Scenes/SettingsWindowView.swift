@@ -107,43 +107,6 @@ struct SettingsWindowContent: View {
                         hotKeyControls
                     }
 
-                    HStack {
-                        Text("Widget Layout")
-                        Spacer(minLength: 12)
-                        CalendarLayoutPicker()
-                    }
-                    HStack {
-                        Text("Widget Colors")
-                        Spacer(minLength: 12)
-                        CalendarPalettePicker()
-                    }
-                    HStack {
-                        Text("Clock Style")
-                        Spacer(minLength: 12)
-                        CalendarClockStylePicker()
-                    }
-                    HStack {
-                        Text("Glass")
-                        Spacer(minLength: 12)
-                        GlassTilesToggle()
-                    }
-                    WeatherSettingsBlock()
-
-                    HStack {
-                        Text("Now Playing Theme")
-                        Spacer(minLength: 12)
-                        // Label is .labelsHidden(); reuse the row's own header key so the
-                        // picker never introduces an uncatalogued key (gate: one-to-one).
-                        Picker("Now Playing Theme", selection: $store.nowPlayingTheme) {
-                            ForEach(NowPlayingTheme.allCases, id: \.self) {
-                                Text($0.displayTitle)
-                            }
-                        }
-                        .labelsHidden()
-                        .pickerStyle(.menu)
-                        .fixedSize()
-                    }
-                    
                     PermissionsSettingsBlock()
                     HStack {
                         Text("Drawer Position")
@@ -186,45 +149,6 @@ struct SettingsWindowContent: View {
                         Text("Show/hide taskbar shortcut")
                     } control: {
                         hotKeyControls
-                    }
-                    Divider().opacity(0.5)
-                    groupRow {
-                        Text("Widget Layout")
-                    } control: {
-                        CalendarLayoutPicker()
-                    }
-                    Divider().opacity(0.5)
-                    groupRow {
-                        Text("Widget Colors")
-                    } control: {
-                        CalendarPalettePicker()
-                    }
-                    Divider().opacity(0.5)
-                    groupRow {
-                        Text("Clock Style")
-                    } control: {
-                        CalendarClockStylePicker()
-                    }
-                    Divider().opacity(0.5)
-                    groupRow {
-                        Text("Glass")
-                    } control: {
-                        GlassTilesToggle()
-                    }
-                    Divider().opacity(0.5)
-                    WeatherSettingsBlock()
-                    Divider().opacity(0.5)
-                    groupRow {
-                        Text("Now Playing Theme")
-                    } control: {
-                        Picker("Now Playing Theme", selection: $store.nowPlayingTheme) {
-                            ForEach(NowPlayingTheme.allCases, id: \.self) {
-                                Text($0.displayTitle)
-                            }
-                        }
-                        .labelsHidden()
-                        .pickerStyle(.menu)
-                        .fixedSize()
                     }
                     Divider().opacity(0.5)
                     PermissionsSettingsBlock()
@@ -809,7 +733,7 @@ extension DiagnosticReport {
 
 /// Settings for the floating widget tiles (Phase 5e). Plain `@AppStorage`: the panel reads the same
 /// keys every time it opens (layout) or live (palette, clock style).
-private struct CalendarLayoutPicker: View {
+struct CalendarLayoutPicker: View {
     @AppStorage(CalendarPanelLayout.storageKey) private var layout: CalendarPanelLayout = .ipad
 
     var body: some View {
@@ -823,7 +747,7 @@ private struct CalendarLayoutPicker: View {
     }
 }
 
-private struct CalendarPalettePicker: View {
+struct CalendarPalettePicker: View {
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
 
     var body: some View {
@@ -837,7 +761,7 @@ private struct CalendarPalettePicker: View {
     }
 }
 
-private struct CalendarClockStylePicker: View {
+struct CalendarClockStylePicker: View {
     @AppStorage(CalendarClockStyle.storageKey) private var style: CalendarClockStyle = .flip
 
     var body: some View {
@@ -851,7 +775,7 @@ private struct CalendarClockStylePicker: View {
 }
 
 /// Phase 16f: glass/blur tiles in the widget pane (off = solid, the default). Label lives on the row.
-private struct GlassTilesToggle: View {
+struct GlassTilesToggle: View {
     @AppStorage(WidgetExtraPrefs.glassTilesKey) private var glassTiles = false
 
     var body: some View {
@@ -862,7 +786,7 @@ private struct GlassTilesToggle: View {
 
 /// Weather widget settings (Phase 5g-G): units, animation, coexistence with the calendar stack and
 /// the forecast-warning thresholds. All plain `@AppStorage` — the tiles read them live.
-private struct WeatherSettingsBlock: View {
+struct WeatherSettingsBlock: View {
     @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
     @AppStorage(WeatherUnits.windKey) private var windUnit: WindSpeedUnit = .kmh
     @AppStorage(WeatherPrefs.animationsKey) private var animations = true
