@@ -4261,6 +4261,7 @@ Folds into Phase 12 so it is audited once: **12c** Permissions + Shortcuts secti
 - 2026-10-15 · **12 macOS-12 parity:** Now Playing Theme picker added to the macOS 12 General copy (was missing). Behaviour header added on Advanced (non-English entries `needs_review`, owner does language pass later).
 - 2026-10-15 · **12 sweep slice:** theme grid adaptive (no mid-word wrap); widget-width sliders floor at each widget's exact minimum (no dead range); VoiceOver labels added to switch/checkbox toggles in Layout, Tiling, Live Island, Utility; Dock Style cards removed from Settings so Layout Mode is the single authority (size/position/spacing stay independent; DockStylePicker + applyDockStyle kept for the welcome guide, key `Dock Style` removed from catalog); new **Edge Bars** tab (`SettingsTab.edgeBars`) holds the Edge Bars section moved out of Layout.
 - 2026-10-15 · **12 slice 0 (10-page plan) done:** plan saved to `Docs/Repository/settings-10-pages-plan.md`. `SettingsTab.tiling` → `windowManagement` (raw value kept), title 'Window Management'; settings window content width 560 → 720 so ten toolbar items fit. Build only; live fit check at close-out.
+- 2026-10-15 · **12 slice 1 done:** Preview, Layout Mode, Size and Fine-tune moved out of Layout into General (`SettingsLayoutPane(mode: .geometry)` embedded under the General form, both macOS copies; macOS 12 uses negative padding to cancel the double margin — verify at close-out). Build + gates green; live check deferred.
 
 #### Phase 38 — Lock-screen notch (EXPERIMENTAL; probe first, then owner decides)
 

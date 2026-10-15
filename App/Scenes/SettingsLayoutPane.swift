@@ -296,8 +296,144 @@ struct SettingsLayoutPane: View {
 
     /// Phase 12e — the same pane serves two tabs: Layout keeps the dock geometry, Widgets takes
     /// the widget list, presets and styles.
-    enum Mode { case layout, widgets, edgeBars }
+    enum Mode { case layout, widgets, edgeBars, geometry }
     var mode: Mode = .layout
+
+    @ViewBuilder
+    private var geometrySections: some View {
+        let inputs = store.layoutThumbnailInputs
+            section {
+                Text("Preview")
+            } content: {
+                // Bottom 22% of the reference screen, drawn at full pane width.
+                LayoutModeThumbnail(mode: store.barLayoutMode, inputs: inputs, highlighted: true,
+                                    minimumIslandHeight: 3, visibleBottomFraction: Self.previewFraction)
+                    // Fixed height (≈ the cropped ratio at the pane's 504pt content width): the
+                    // window's height probe proposes no height, so `aspectRatio` would collapse.
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 72)
+            }
+
+            section {
+                Text("Layout Mode")
+            } content: {
+                LayoutModePicker(selection: store.barLayoutMode, inputs: inputs) { store.setBarLayoutMode($0) }
+                // Fixed two-line box: the window is measured once per tab switch, so the
+                // pane height must not change with the selected mode.
+                LayoutModeDetail(mode: store.barLayoutMode)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, minHeight: 30, alignment: .topLeading)
+            }
+
+            section {
+                Text("Size")
+            } content: {
+                segmentedRow(Text("Position"), selection: Binding(
+                    get: { store.stripPlacementMap.global },
+                    set: { store.setStripPlacement($0) }
+                )) {
+                    Text("Bottom").tag(StripPlacement.bottom)
+                    Text("Left").tag(StripPlacement.left)
+                    Text("Right").tag(StripPlacement.right)
+                }
+                segmentedRow(Text("Bar Height"), selection: Binding(
+                    get: { DockSizeClass.nearest(to: store.dockPanelHeight.points) },
+                    set: { store.setDockPanelHeight(DockPanelHeight(clamping: $0.barHeight)) }
+                )) {
+                    Text("Small").tag(DockSizeClass.small)
+                    Text("Medium").tag(DockSizeClass.medium)
+                    Text("Large").tag(DockSizeClass.large)
+                }
+                segmentedRow(Text("Spacing"), selection: Binding(
+                    get: { DockSpacing.matching(gap: store.islandGap, margin: store.islandMargin) },
+                    set: { if let spacing = $0 { store.setDockSpacing(spacing) } }
+                )) {
+                    Text("Compact").tag(DockSpacing?.some(.compact))
+                    Text("Comfortable").tag(DockSpacing?.some(.comfortable))
+                    Text("Airy").tag(DockSpacing?.some(.airy))
+                }
+            }
+
+            section {
+                DisclosureGroup(isExpanded: $showsFineTune) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Exact values for power users. Bar height is capped at what still fits this screen.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        sliderRow(Text("Bar Height"),
+                                  value: store.dockPanelHeight.points,
+                                  range: DockPanelHeight.minimum...fittingMaximumBarHeight, step: 1) {
+                            store.setDockPanelHeight(DockPanelHeight(clamping: $0))
+                        }
+                        sliderRow(Text("Gap Between Islands"), value: store.islandGap, range: 0.5...40, step: 0.5) {
+                            store.setIslandGap($0)
+                        }
+                        sliderRow(Text("Side Margin"), value: store.islandMargin, range: 0...80, step: 1) {
+                            store.setIslandMargin($0)
+                        }
+                        sliderRow(Text("Centered Width"), value: store.centeredWidth,
+                                  range: AppSettingsStore.minimumCenteredWidth...AppSettingsStore.maximumCenteredWidth, step: 10) {
+                            store.setCenteredWidth($0)
+                        }
+                        .disabled(store.barLayoutMode != .centered)
+                        HStack {
+                            Text("Bottom Edge")
+                            Spacer(minLength: 12)
+                            Picker("Bottom Edge", selection: Binding(
+                                get: { BottomEdgeChoice(gap: store.bottomGap) },
+                                set: { choice in
+                                    switch choice {
+                                    case .floating: store.setBottomGap(PanelLayoutMetrics.floatingBottomGap)
+                                    case .hugging: store.setBottomGap(PanelLayoutMetrics.huggingBottomGap)
+                                    case .custom:
+                                        if BottomEdgeChoice(gap: store.bottomGap) != .custom { store.setBottomGap(5) }
+                                    }
+                                }
+                            )) {
+                                Text("Floating").tag(BottomEdgeChoice.floating)
+                                Text("Hugging").tag(BottomEdgeChoice.hugging)
+                                Text("Custom").tag(BottomEdgeChoice.custom)
+                            }
+                            .labelsHidden()
+                            .pickerStyle(.segmented)
+                            .fixedSize()
+                        }
+                        sliderRow(Text("Distance From Edge"), value: store.bottomGap,
+                                  range: PanelLayoutMetrics.bottomGapRange, step: 1) {
+                            store.setBottomGap($0)
+                        }
+                        Text("Floating keeps the bar 8 pt above the screen edge. Hugging sits it almost on the edge.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if NSScreen.screens.count > 1 {
+                            Text("Displays").font(.subheadline.weight(.semibold)).padding(.top, 4)
+                            ForEach(NSScreen.screens, id: \.self) { screen in
+                                if let uuid = DisplayIdentity.uuidString(for: screen) {
+                                    displayPlacementRow(name: screen.localizedName, uuid: uuid)
+                                }
+                            }
+                        }
+                        Text("Widget Widths").font(.subheadline.weight(.semibold)).padding(.top, 4)
+                        ForEach([BarSection.weather, .media, .clock], id: \.self) { widget in
+                            sliderRow(widgetLabel(widget),
+                                      value: store.widgetWidths[widget.rawValue] ?? widget.defaultWidgetWidth,
+                                      range: widget.minimumExactWidth...400, step: 5) {
+                                store.setWidgetWidth($0, for: widget)
+                            }
+                        }
+                    }
+                    .padding(.top, 8)
+                } label: {
+                    Text("Fine-tune").font(.headline)
+                }
+            } content: {
+                EmptyView()
+            }
+    }
 
     @ViewBuilder
     private var edgeBarSections: some View {
@@ -458,139 +594,9 @@ struct SettingsLayoutPane: View {
                 widgetSections
             } else if mode == .edgeBars {
                 edgeBarSections
+            } else if mode == .geometry {
+                geometrySections
             } else {
-            section {
-                Text("Preview")
-            } content: {
-                // Bottom 22% of the reference screen, drawn at full pane width.
-                LayoutModeThumbnail(mode: store.barLayoutMode, inputs: inputs, highlighted: true,
-                                    minimumIslandHeight: 3, visibleBottomFraction: Self.previewFraction)
-                    // Fixed height (≈ the cropped ratio at the pane's 504pt content width): the
-                    // window's height probe proposes no height, so `aspectRatio` would collapse.
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 72)
-            }
-
-            section {
-                Text("Layout Mode")
-            } content: {
-                LayoutModePicker(selection: store.barLayoutMode, inputs: inputs) { store.setBarLayoutMode($0) }
-                // Fixed two-line box: the window is measured once per tab switch, so the
-                // pane height must not change with the selected mode.
-                LayoutModeDetail(mode: store.barLayoutMode)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                    .frame(maxWidth: .infinity, minHeight: 30, alignment: .topLeading)
-            }
-
-            section {
-                Text("Size")
-            } content: {
-                segmentedRow(Text("Position"), selection: Binding(
-                    get: { store.stripPlacementMap.global },
-                    set: { store.setStripPlacement($0) }
-                )) {
-                    Text("Bottom").tag(StripPlacement.bottom)
-                    Text("Left").tag(StripPlacement.left)
-                    Text("Right").tag(StripPlacement.right)
-                }
-                segmentedRow(Text("Bar Height"), selection: Binding(
-                    get: { DockSizeClass.nearest(to: store.dockPanelHeight.points) },
-                    set: { store.setDockPanelHeight(DockPanelHeight(clamping: $0.barHeight)) }
-                )) {
-                    Text("Small").tag(DockSizeClass.small)
-                    Text("Medium").tag(DockSizeClass.medium)
-                    Text("Large").tag(DockSizeClass.large)
-                }
-                segmentedRow(Text("Spacing"), selection: Binding(
-                    get: { DockSpacing.matching(gap: store.islandGap, margin: store.islandMargin) },
-                    set: { if let spacing = $0 { store.setDockSpacing(spacing) } }
-                )) {
-                    Text("Compact").tag(DockSpacing?.some(.compact))
-                    Text("Comfortable").tag(DockSpacing?.some(.comfortable))
-                    Text("Airy").tag(DockSpacing?.some(.airy))
-                }
-            }
-
-            section {
-                DisclosureGroup(isExpanded: $showsFineTune) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Exact values for power users. Bar height is capped at what still fits this screen.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                        sliderRow(Text("Bar Height"),
-                                  value: store.dockPanelHeight.points,
-                                  range: DockPanelHeight.minimum...fittingMaximumBarHeight, step: 1) {
-                            store.setDockPanelHeight(DockPanelHeight(clamping: $0))
-                        }
-                        sliderRow(Text("Gap Between Islands"), value: store.islandGap, range: 0.5...40, step: 0.5) {
-                            store.setIslandGap($0)
-                        }
-                        sliderRow(Text("Side Margin"), value: store.islandMargin, range: 0...80, step: 1) {
-                            store.setIslandMargin($0)
-                        }
-                        sliderRow(Text("Centered Width"), value: store.centeredWidth,
-                                  range: AppSettingsStore.minimumCenteredWidth...AppSettingsStore.maximumCenteredWidth, step: 10) {
-                            store.setCenteredWidth($0)
-                        }
-                        .disabled(store.barLayoutMode != .centered)
-                        HStack {
-                            Text("Bottom Edge")
-                            Spacer(minLength: 12)
-                            Picker("Bottom Edge", selection: Binding(
-                                get: { BottomEdgeChoice(gap: store.bottomGap) },
-                                set: { choice in
-                                    switch choice {
-                                    case .floating: store.setBottomGap(PanelLayoutMetrics.floatingBottomGap)
-                                    case .hugging: store.setBottomGap(PanelLayoutMetrics.huggingBottomGap)
-                                    case .custom:
-                                        if BottomEdgeChoice(gap: store.bottomGap) != .custom { store.setBottomGap(5) }
-                                    }
-                                }
-                            )) {
-                                Text("Floating").tag(BottomEdgeChoice.floating)
-                                Text("Hugging").tag(BottomEdgeChoice.hugging)
-                                Text("Custom").tag(BottomEdgeChoice.custom)
-                            }
-                            .labelsHidden()
-                            .pickerStyle(.segmented)
-                            .fixedSize()
-                        }
-                        sliderRow(Text("Distance From Edge"), value: store.bottomGap,
-                                  range: PanelLayoutMetrics.bottomGapRange, step: 1) {
-                            store.setBottomGap($0)
-                        }
-                        Text("Floating keeps the bar 8 pt above the screen edge. Hugging sits it almost on the edge.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                        if NSScreen.screens.count > 1 {
-                            Text("Displays").font(.subheadline.weight(.semibold)).padding(.top, 4)
-                            ForEach(NSScreen.screens, id: \.self) { screen in
-                                if let uuid = DisplayIdentity.uuidString(for: screen) {
-                                    displayPlacementRow(name: screen.localizedName, uuid: uuid)
-                                }
-                            }
-                        }
-                        Text("Widget Widths").font(.subheadline.weight(.semibold)).padding(.top, 4)
-                        ForEach([BarSection.weather, .media, .clock], id: \.self) { widget in
-                            sliderRow(widgetLabel(widget),
-                                      value: store.widgetWidths[widget.rawValue] ?? widget.defaultWidgetWidth,
-                                      range: widget.minimumExactWidth...400, step: 5) {
-                                store.setWidgetWidth($0, for: widget)
-                            }
-                        }
-                    }
-                    .padding(.top, 8)
-                } label: {
-                    Text("Fine-tune").font(.headline)
-                }
-            } content: {
-                EmptyView()
-            }
-
             section {
                 Text("Window Chips")
             } content: {

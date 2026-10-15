@@ -158,6 +158,9 @@ struct SettingsWindowContent: View {
                             .labelsHidden()
                     }
                 }
+                // Phase 12: preview, layout mode and size live on General now.
+                SettingsLayoutPane(store: store, mode: .geometry)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 welcomeGuideButton
                     .padding(.trailing, Self.paneMargin)
             }
@@ -243,6 +246,8 @@ struct SettingsWindowContent: View {
                             .labelsHidden()
                     }
                 }
+                SettingsLayoutPane(store: store, mode: .geometry)
+                    .padding(-Self.paneMargin)
                 HStack {
                     Spacer()
                     welcomeGuideButton
