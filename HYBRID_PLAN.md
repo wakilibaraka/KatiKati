@@ -2,7 +2,7 @@
 
 **Tungsten Edge core × SplitBar-old 4 modes × DockBar widgets**
 
-Status: **Phase 4 DONE** (Baseline import, pure layout model, island panels, and multi-display/fullscreen/Spaces lifecycle complete, 1,602 tests green) · Plan v3 · Date: 2026-10-08  
+Status (2026-10-15): **Phases 0–11, 13, 16, 18–33 done in code; Phase 12 pending (last); Phases 34–38 planned (§ before Phase 12)** · Plan v3 · Date: 2026-10-08  
 New repo: `/Users/baraka/Desktop/Splitbar` (branch `main`) → remote `wakilibaraka/KatiKati`  
 Core snapshot: `moonbai-studio/tungsten-edge @ a4e1a55` (2026-10-07, `master`), clone at `/tmp/tungsten-edge`  
 Previous plan: v2 (`DockBar base × SplitBar-old modes × live-SplitBar segments`, commit `3d914c6`) — **superseded by this document.**  
@@ -4157,6 +4157,83 @@ notch is off (nothing runs) and ≤ island baseline when on; every newer-than-12
 - `bedc965` — `fix(commandbar): resolve pipe buffer deadlocks, stream file search, and eliminate main-thread summon latency`
 
 ---
+
+### Phases 34–38 — Fixes, small daily features, Teleprompter, lock-screen notch (owner 2026-10-15; PLAN ONLY, no code; all decisions locked before Phase 12)
+
+**Owner decisions (2026-10-15):** Phases 34–38 approved. **No code for Phase 34 yet — more planning first.** All
+architecture decisions are made **now**, before Phase 12 starts. Teleprompter lives in a **notch page + a floating
+window** (one engine). Lock-screen notch: **probe first, then decide**. Phase 36 contains all eight daily
+features. Order: **34 → 36 → 37 → 35/12 → 38** (38 last: private-API, optional). Phase 12 stays the audit of the final feature set.
+
+**Shared rules (extend, don't invent):** new work reuses `SystemMonitorSampler`, `CalendarService`, `NowPlayingService`
+(`artworkData`), `DownloadsMonitor`/`DownloadManagerService`, `NotificationMoveService`, the toast key
+`com.katikati.notice.toast`, `NotchFallbackPlan`, `NotchSectionPaging`. Nothing is deleted. Vendored `Vendor/boring.notch/`
+files are never edited. Every sampler runs **only while its page/feature is visible or on** (idle CPU ≤ baseline + ε). Every
+newer-than-12 API is `#available`-gated (`check_availability_warnings.py`). New strings ×12 languages
+(`check_localization.py`); new debug switches registered (`check_debug_switches.py`). New keys under `com.katikati.*`,
+default OFF unless it replaces a mock. One pure seam + tests first per slice.
+
+#### Phase 34 — Notch fixes & refinements (do first; no new permission except Calendar already granted)
+
+State today (verified at `e5dd3de`): `NotchHardwareHudPageView` hardcodes "14%", "18.4 GB"; `NotchProductivityPageView`
+hardcodes "No conflicts today"; `NotchRetroClockPageView` hardcodes "UTC+3"; header status line says "Phase 4 DONE".
+
+| Slice | Work | Effort / cost |
+|---|---|---|
+| 34a | Hardware page reads `SystemMonitorSampler` (CPU, GPU if available, RAM, thermals/fan only if the sampler exposes them, else row hidden — never a fake number). Sampler starts on page appear, stops on disappear, 1–2 s. | easy; ~0 when page hidden |
+| 34b | Calendar page reads `CalendarService` (next events, "No events today" only when truly empty; permission-denied state with a Settings link). | easy |
+| 34c | Retro clock zone from `TimeZone.current.abbreviation()` (fallback GMT±N). | trivial |
+| 34d | Vinyl deck label already reads `artworkData`; verify the placeholder only shows when artwork is nil; fix if not. | trivial |
+| 34e | Download-finished toast through `com.katikati.notice.toast` (Phase 22 tail) with Reveal in Finder, from `DownloadsMonitor`. | easy |
+| 34f | Plan hygiene: fix stale status line, record these checks. | trivial |
+| 34g | **Last, medium risk:** closed pill shows two activities (timer + music) via `LiveActivityPolicy` returning up to 2 and `NotchIslandView` using left and right wings. Pure policy + tests first; single-winner stays the default fallback. | medium |
+
+Pure seams: `HardwareHudModel` (formatting, hide-if-unavailable), `NotchAgendaModel`, `LiveActivityPolicy.top(2)`.
+Verify: no `verbatim` mock literal remains (grep witness test), sampler off when page hidden, tests + gate green.
+
+#### Phase 36 — Small daily features (all cheap; each its own slice, own toggle, default off)
+
+| Slice | Feature | Design | Cost / difficulty |
+|---|---|---|---|
+| 36a | Caps Lock HUD | notch toast on modifier flag change via the existing key-events tap (`HyperkeyEngine` precedent, one tap, O(1)); no new permission beyond Input Monitoring already used | easy |
+| 36b | Charge / unplug island | `SystemStatusService` battery events; thresholds 80%/100% + "unplug" toast; no polling | easy |
+| 36c | USB eject pill | `NSWorkspace.didMountNotification` + `NSWorkspace.unmountAndEjectDevice`; ejectable external volumes only; reuses the toggle engine's confirm | easy |
+| 36d | Hide island from screen capture | `NSWindow.sharingType = .none` on the notch/dock panels behind one toggle; applied in `NotchPanelController`, not the vendored window | trivial |
+| 36e | Audio output switcher | CoreAudio device list + `kAudioHardwarePropertyDefaultOutputDevice` set, inside the volume page; listener only while page visible | easy-medium |
+| 36f | Keyboard cleaning lock | timed key block (default 60 s) on the shared tap; **always escapable** (hold Esc 3 s) and auto-releases on timeout — fail-open | easy-medium, safety-critical |
+| 36g | Text snippets | store + expand in the ⌘Space command bar (trigger → paste), no global typing expander (would need a keystroke buffer = secrets risk) | easy |
+| 36h | Privacy dot | CoreMediaIO / CoreAudio "in use" property listeners → coloured dot in the pill; no capture, no new permission | easy-medium |
+
+Overlooked by decision (owner agreed): Face Unlock, Stocks, embedded Terminal, FFT spectrum, Lottie, Message Island, knock-to-control, local developer API, DDC/CI, menu-bar icon hiding, mascots. Deferred (post-12, medium): per-app volume mixer (CoreAudio tap, macOS 14.4+), camera mirror, call island, agent approvals, notification mirror, more AI providers.
+
+#### Phase 37 — Teleprompter with link reader (notch page + floating window)
+
+**Goal.** A script reader that scrolls under the camera. **One engine, two hosts:** a 7th notch page (short scripts) and a
+resizable floating window (long scripts, link reader). Default OFF; costs nothing when closed; no camera access.
+
+- **Pure seams:** `TeleprompterModel` (script, words/min → scroll speed, position, play/pause/back-step, mirror flip), `ScriptSource` (paste / file / clipboard / URL), `LinkExtractor` (find URLs in script), `ReadableText.extract(html:) -> (title, text)` (strip scripts/styles/nav, keep paragraphs).
+- **Scrolling:** one `TimelineView`/display-linked animation only while playing; paused = zero work. Reduced-motion = stepwise paging. Controls: speed, font size, opacity, mirror, eye-line marker, ⌥-hotkey to start/stop.
+- **Link reader (owner ask):** URLs in the script show as chips. Tap → fetch with `URLSession` (https only, 10 s timeout, 2 MB cap, no cookies/credentials, user-initiated only) → readable text in a reader view → "Send to prompter" or read in place. **Fail closed:** paywalled/JS-only pages say so; nothing is auto-fetched; no tracking; no new dependency (own tag-stripper; SwiftSoup not added).
+- **Notch page host:** joins `NotchSectionPaging`; compact 640×190 layout; "Open floating" button for long text.
+- **Permissions:** none. **Risks:** extraction quality is best-effort; notch window height limits long text (hence the floating host); network fetch is the only new outbound call and is per-click.
+- **Slices:** 37a pure model + extractor + tests → 37b floating window → 37c notch page → 37d link reader → 37e live check.
+- **Verify:** extractor golden tests (article, no-article, hostile HTML), scroll off when paused, no network until a chip is tapped, gate green.
+
+#### Phase 35 — Phase 12 code share (decided now, built with Phase 12)
+
+Folds into Phase 12 so it is audited once: **12c** Permissions + Shortcuts sections in General (live status, re-trigger buttons), **12d** License → About, **12e** Widgets tab (before/with 10a presets), the **theme-switch wiring fix**, notch/lock/teleprompter/Phase-36 settings pages placed in the new taxonomy. **Owner-only (not done by the agent):** 12a on-screen audit, 12b Appearance→General split, 12f theme refinement. Decision recorded: Phase 34–37 settings are added under **Advanced → Notch** and relocated by Phase 12, not before.
+
+#### Phase 38 — Lock-screen notch (EXPERIMENTAL; probe first, then owner decides)
+
+**Owner scope.** If the probe works, the lock-screen notch shows the notch pages: **clock, alarms, timer/countdowns, Now Playing, Hardware stats, Calendar, downloads, AI usage**. Not lock-screen widgets.
+
+- **38a — probe (small spike, one throwaway window, no product code):** can a window above the lock screen be shown (private `SkyLight`/`CGSSetWindowLevel`-class APIs, as boring.notch uses) on this macOS, and **does it take clicks/scroll**, or display-only? Decision gate: **owner reviews the probe result before any build.**
+- **Privacy (decided):** master toggle default **OFF**; per-page allow-list, **default = clock, alarms/timer, Now Playing, Hardware only**; **Calendar, downloads, AI usage are opt-in individually with a visible warning** (anyone at a locked Mac can see them). Never any text input on the lock screen; the teleprompter is excluded.
+- **Fail closed:** any API failure or macOS mismatch → nothing shown, never a broken window; feature gated by an OS-version allow-list; unlock/screen-saver/sleep events tear the window down. No sampler runs while locked unless a page that needs it is allowed.
+- **If input does not work:** ship display-only pages, no gestures; tell the user in the settings copy.
+- **Risks:** private API breaks per macOS release (same class as Phase 25); App Store-incompatible (we are not distributed there); privacy exposure. **Not built until 38a passes and the owner approves.**
+
+**Remaining open items (none block Phase 34 planning):** exact lock-screen API behaviour (38a); whether the sampler exposes thermals/GPU (34a, resolved by reading it); teleprompter hotkey (37, chosen at build).
 
 ### Phase 12 (= merged 12 + 14 + 15 + 17) — Settings refinement, architecture & interaction + content/investigation registry (done together, LAST in execution order; text below unchanged, heading only renamed 2026-10-13)
 
