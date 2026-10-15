@@ -143,6 +143,7 @@ struct SettingsWindowContent: View {
                     
                     LiveIslandSettingsBlock(store: store)
                     UtilitySettingsBlock(store: store)
+                    PermissionsSettingsBlock()
                     HStack {
                         Text("Drawer Position")
                         Spacer(minLength: 12)
@@ -212,6 +213,8 @@ struct SettingsWindowContent: View {
                     LiveIslandSettingsBlock(store: store)
                     Divider().opacity(0.5)
                     UtilitySettingsBlock(store: store)
+                    Divider().opacity(0.5)
+                    PermissionsSettingsBlock()
                     Divider().opacity(0.5)
                     groupRow {
                         Text("Drawer Position")

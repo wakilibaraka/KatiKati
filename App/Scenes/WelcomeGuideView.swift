@@ -278,7 +278,7 @@ struct WelcomeGuideView: View {
 }
 
 /// One permission: what it is, why it helps, and either a check or a Grant button.
-private struct PermissionRow: View {
+struct PermissionRow: View {
     let title: Text
     let note: Text
     let isGranted: Bool

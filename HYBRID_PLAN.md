@@ -4255,6 +4255,7 @@ resizable floating window (long scripts, link reader). Default OFF; costs nothin
 Folds into Phase 12 so it is audited once: **12c** Permissions + Shortcuts sections in General (live status, re-trigger buttons), **12d** License → About, **12e** Widgets tab (before/with 10a presets), the **theme-switch wiring fix**, notch/lock/teleprompter/Phase-36 settings pages placed in the new taxonomy. **Owner-only (not done by the agent):** 12a on-screen audit, 12b Appearance→General split, 12f theme refinement. Decision recorded: Phase 34–37 settings are added under **Advanced → Notch** and relocated by Phase 12, not before.
 
 **Owner note (2026-10-15): Phase 37e (live teleprompter check) is the last bit of Phase 12 and must be checked there.**
+- 2026-10-15 · **12c Permissions section done (Shortcuts section pending):** `PermissionsSettingsBlock` in General (both macOS copies) — live Accessibility / Screen Recording / Input Monitoring status + Grant buttons, reusing the welcome guide's `PermissionRow` and existing strings (no new keys). Live-verified on the installed build. Sweep baseline: `Docs/Repository/settings-sweep-2026-10.md` — **theme switch works** (subtle tint), 12d has no code to move, ~18 unlabeled checkboxes (VoiceOver).
 
 #### Phase 38 — Lock-screen notch (EXPERIMENTAL; probe first, then owner decides)
 
