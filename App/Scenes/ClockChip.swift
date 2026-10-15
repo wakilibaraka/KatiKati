@@ -95,18 +95,14 @@ public struct ClockChip: View {
         let content = provider.currentContent(for: date)
         let art = ClockArt.gradient(phase: ClockArtPhase.phase(date, sunTimes: weatherService.currentState.sunTimes(on: date)))
 
-        // ViewThatFits is macOS 13+; the floor is 12, so the fallback there is the full
-        // layout truncating (same rule as the weather pill).
         return Group {
             if widgetSize == .small {
                 compactCard(content: content)
-            } else if #available(macOS 13.0, *) {
+            } else {
                 ViewThatFits(in: .horizontal) {
                     fullCard(content: content)
                     compactCard(content: content)
                 }
-            } else {
-                fullCard(content: content)
             }
         }
         .padding(.horizontal, 8)

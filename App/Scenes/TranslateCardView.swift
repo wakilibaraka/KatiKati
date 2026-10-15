@@ -3,8 +3,8 @@ import SwiftUI
 import Translation
 #endif
 
-/// Phase 23b/c: the define/translate card. Dictionary on the 12 floor; the translation half appears only
-/// on macOS 15+. Fully offline — nothing here touches the network.
+/// Phase 23b/c: the define/translate card — the dictionary half plus the offline Apple translation.
+/// Fully offline — nothing here touches the network.
 struct TranslateCardView: View {
     let request: TranslateRequest
     let dictionary: DictionaryCardModel?
@@ -22,10 +22,8 @@ struct TranslateCardView: View {
             } else {
                 Text("No definition found").font(.system(size: 12)).foregroundColor(.secondary)
             }
-            if #available(macOS 15, *) {
-                Divider().opacity(0.3)
-                TranslationSection(text: request.text)
-            }
+            Divider().opacity(0.3)
+            TranslationSection(text: request.text)
         }
         .padding(14)
         .frame(width: 320, alignment: .leading)
@@ -34,8 +32,7 @@ struct TranslateCardView: View {
     }
 }
 
-/// macOS 15+: the offline Apple translation half, driven by `.translationTask`. Hidden entirely below 15.
-@available(macOS 15, *)
+/// The offline Apple translation half, driven by `.translationTask`.
 private struct TranslationSection: View {
     let text: String
     @State private var output: String?

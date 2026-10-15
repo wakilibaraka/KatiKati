@@ -251,7 +251,7 @@ struct DockStripView: View {
                 .environment(\.chipPillUsesGlass, usesLiquidGlass)
             }
             .clipShape(RoundedRectangle(cornerRadius: taskbarCornerRadius, style: .continuous))
-            .compatLeadingScrollAnchor()
+            .defaultScrollAnchor(.leading)
             .mask(alignment: .center) {
                 if isRail {
                     VStack(spacing: 0) {

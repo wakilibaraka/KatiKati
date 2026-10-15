@@ -145,7 +145,8 @@ final class WindowSwitcherController: ObservableObject {
         guard WindowThumbnailCapture.isAuthorized else { return }
         for tile in tiles {
             guard let cg = tile.cgWindowID, !tile.isMinimized else { continue }
-            WindowThumbnailCapture.capture(windowID: cg, maxPixelSize: CGSize(width: 520, height: 320)) { [weak self] image in
+            Task { @MainActor [weak self] in
+                let image = await WindowThumbnailCapture.capture(windowID: cg, maxPixelSize: CGSize(width: 520, height: 320))
                 guard let self, self.panel != nil, let image else { return }
                 self.thumbnails[tile.id] = image
             }

@@ -45,12 +45,6 @@ struct TranslateRequest: Equatable, Sendable {
     }
 }
 
-/// Phase 23a: the translate half needs macOS 15 (`Translation`); the dictionary works on the 12 floor.
-enum TranslationAvailability {
-    static func translateAvailable(os: OperatingSystemVersion) -> Bool { os.majorVersion >= 15 }
-    static var isAvailableNow: Bool { translateAvailable(os: ProcessInfo.processInfo.operatingSystemVersion) }
-}
-
 /// Phase 23a: a dictionary result trimmed from `DCSCopyTextDefinition` into a headword + sense lines.
 struct DictionaryCardModel: Equatable, Sendable {
     var headword: String

@@ -692,11 +692,7 @@ final class AppSettingsStoreTests: XCTestCase {
         ))
     }
 
-    func testLaunchAtLoginMenuPresentationCoversFourStates() {
-        XCTAssertEqual(
-            LaunchAtLoginMenuPresentation(state: .unsupported),
-            LaunchAtLoginMenuPresentation(title: String(localized: "Open at Login (Unavailable)"), isEnabled: false, isChecked: false, showsSettingsItem: false)
-        )
+    func testLaunchAtLoginMenuPresentationCoversEveryState() {
         XCTAssertEqual(
             LaunchAtLoginMenuPresentation(state: .off),
             LaunchAtLoginMenuPresentation(title: String(localized: "Open at Login"), isEnabled: true, isChecked: false, showsSettingsItem: false)
@@ -711,8 +707,7 @@ final class AppSettingsStoreTests: XCTestCase {
         )
     }
 
-    func testLaunchAtLoginMenuToggleDecisionCoversFourStates() {
-        XCTAssertNil(LaunchAtLoginMenuModel.requestedEnabledValue(afterSelecting: .unsupported))
+    func testLaunchAtLoginMenuToggleDecisionCoversEveryState() {
         XCTAssertEqual(LaunchAtLoginMenuModel.requestedEnabledValue(afterSelecting: .off), true)
         XCTAssertEqual(LaunchAtLoginMenuModel.requestedEnabledValue(afterSelecting: .on), false)
         XCTAssertEqual(LaunchAtLoginMenuModel.requestedEnabledValue(afterSelecting: .requiresApproval), true)

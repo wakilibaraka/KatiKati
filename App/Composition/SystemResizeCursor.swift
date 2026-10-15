@@ -60,13 +60,9 @@ final class SystemResizeCursor {
                           resizeCursor: cursor)
         }()
 
-        /// The ▲▼ without the horizontal bar `resizeUpDown` carries. Public on macOS 15+; the
-        /// same system cursor has long existed privately as the window-edge resize cursor.
+        /// The ▲▼ without the horizontal bar `resizeUpDown` carries — public since macOS 15.
         private static func frameResizeCursor() -> NSCursor? {
-            if #available(macOS 15.0, *) { return .frameResize(position: .top, directions: .all) }
-            let selector = NSSelectorFromString("_windowResizeNorthSouthCursor")
-            guard NSCursor.responds(to: selector) else { return nil }
-            return NSCursor.perform(selector)?.takeUnretainedValue() as? NSCursor
+            .frameResize(position: .top, directions: .all)
         }
 
         private static func coreCursorType(of cursor: NSCursor) -> Int32? {

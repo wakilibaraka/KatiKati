@@ -211,18 +211,14 @@ public struct WeatherChip: View {
         } else {
             let art = WeatherArt.gradient(condition: state.conditionFamily, isNight: state.isNight)
 
-            // ViewThatFits is macOS 13+; the floor is 12, so the fallback there is the full layout
-            // with its labels truncating (the compact pill is a nicety, not a requirement).
             Group {
                 if widgetSize == .small {
                     compactPill(state: state, art: art)
-                } else if #available(macOS 13.0, *) {
+                } else {
                     ViewThatFits(in: .horizontal) {
                         fullPill(state: state, art: art)
                         compactPill(state: state, art: art)
                     }
-                } else {
-                    fullPill(state: state, art: art)
                 }
             }
             .padding(.horizontal, 8)

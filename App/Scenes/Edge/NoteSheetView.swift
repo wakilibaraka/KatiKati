@@ -90,7 +90,7 @@ struct NoteSheetView: View {
     }
 }
 
-/// `TextEditor` paints an opaque box on macOS 12; on 13+ the paper shows through.
+/// `scrollContentBackground(.hidden)` is what lets the note's own paper colour show through.
 private struct NoteBodyEditor: View {
     @Binding var text: String
     let ink: Color
@@ -102,10 +102,6 @@ private struct NoteBodyEditor: View {
     }
 
     var body: some View {
-        if #available(macOS 13.0, *) {
-            TextEditor(text: $text).font(font).foregroundColor(ink).scrollContentBackground(.hidden)
-        } else {
-            TextEditor(text: $text).font(font).foregroundColor(ink)
-        }
+        TextEditor(text: $text).font(font).foregroundColor(ink).scrollContentBackground(.hidden)
     }
 }

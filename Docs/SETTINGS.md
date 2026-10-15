@@ -29,8 +29,9 @@ A rule is a defect if a page breaks it unaccountably. "Check" is how to see the 
    width — a grid is still one grid, not a page's own arrangement.
 2. **One container.** Every page renders its sections as `SettingsCard`, and the page's own stack
    is `SettingsPane` — applied **once, by `SettingsWindowContent`**, so a page body renders cards
-   and nothing else. There is no second box implementation and no `#available` branch in the
-   layout: macOS 12 and 13+ go through the same code. *Check:* grep `settingsGroup|groupRow|
+   and nothing else. There is no second box implementation: the old macOS 12/13+ layout split was
+   retired 2026-10-15, and the floor rose to macOS 15 the same day, so no version branch is left.
+   *Check:* grep `settingsGroup|groupRow|
    settingsPane|settingRow|systemForm|formStyle` → only this file and the history comments.
 3. **One row type.** A row is `SettingsRow` with a named variant: `SettingsToggleRow`,
    `SettingsPickerRow`, `SettingsSegmentedRow`, `SettingsSliderRow`, `SettingsButtonRow` (and
@@ -128,7 +129,7 @@ the tools used mid-session are not behind it.
 | **All pages** | **Accessibility audit — done (2026-10-15), and the earlier note here was wrong.** It claimed ~18 `labelsHidden()` toggles exposed no label; it had been read off `AXTitle`, which a SwiftUI toggle leaves empty while it puts the name on `AXDescription`. Every checkbox on all ten pages was then probed for `AXDescription`/`AXTitle`/`AXHelp` on the running build: **one** control was genuinely unnamed, the Widgets page's **Glass** switch (`GlassTilesToggle`), and it now carries its row's name. Repro: press each tab and read `AXDescription` on every `AXCheckBox` — ten pages, zero empty. Read `AXDescription` when auditing a toggle, not `AXTitle`. | — |
 | **Layout-pane leftovers** | Landed (2026-10-15): the two hand-rolled `HStack` row lists are gone — the window-chip app list (old `:442`) is on `SettingsRow`, the quick-setting list (old `:1267`) and the launcher's hidden-app list are `SettingsGrid`s. Standalone buttons and disclosures inside a card are controls, not rows (rule 3). | — |
 | **Rows two per line** | Landed (2026-10-15, owner: "window management, edge bar etc to use two lines"): every page's narrow rows — menus, segmented pickers, switches, lone buttons — pair, with a pair's halves exactly `halfRowWidth` each; sliders, editors, rows with two controls and rows with a long note stay full width. Measured live against the previous build: Widgets 1440 → 1114 pt, Launcher 1291 → 1132, General 790 → 708, Appearance 1479 → 1400, Edge Bars 955 → 914, Tools 822 → 741, Advanced 521 → 482, Window Management 1357 → 1317. **Appearance (1400), Widgets (1114), Window Management (1317), Launcher (1132) and Shortcuts (1940) still run past the 1074 pt window** — their height is section count and tall controls, not single-column rows. | 5, 10 |
-| **Close-out** | After-shots of the ten pages against the before-set (`Docs/Repository/settings-sweep-2026-10.md` plus the 2026-10-15 capture), measured margins and section gaps, macOS 12 parity read-through (this tree compiles for 12; there is no macOS 12 machine in the session), and the Better Design review the plan asks for. | 1, 10 |
+| **Close-out** | After-shots of the ten pages against the before-set (`Docs/Repository/settings-sweep-2026-10.md` plus the 2026-10-15 capture), measured margins and section gaps (the macOS 12 parity read-through is **retired**: the floor is macOS 15 since 2026-10-15, so there is no 12 path left to check), and the Better Design review the plan asks for. | 1, 10 |
 
 ## 4. Where the Compact-notch decision attaches
 

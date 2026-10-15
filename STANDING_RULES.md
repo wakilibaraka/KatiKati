@@ -98,7 +98,7 @@
    `com.tungsten.edge.*` / `com.caye.macosdockcc.v2` except in the one-way first-run
    migrator (Phase 0). Never reuse `com.baraka.splitbar` — side-by-side installs stay
    possible.
-2. **macOS floor 12.0, Swift 5.0, Xcode project build.** New APIs `#available`-gated;
+2. **macOS floor 15.0, Swift 5.0, Xcode project build.** New APIs `#available`-gated;
    Liquid Glass only behind `#available(macOS 26.0, *)` with tungsten fallback. CI
    stays `macos-26` + newest Xcode 26.
 3. **Twelve localizations stay green.** Every user-facing string in every language;

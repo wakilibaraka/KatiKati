@@ -103,7 +103,7 @@ America), Português (Brazil and Portugal), Italiano and 한국어. Change it in
 
 ## Install
 
-Requirements: macOS 12 (Monterey) or later, Intel or Apple Silicon (universal binary).
+Requirements: macOS 15 (Sequoia) or later, Intel or Apple Silicon (universal binary).
 
 1. Download `KatiKati-0.17.0-beta.2.dmg` from the [latest release](https://github.com/wakilibaraka/KatiKati/releases/latest).
 2. Open the disk image and drag **KatiKati** to **Applications**.

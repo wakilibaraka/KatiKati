@@ -59,20 +59,14 @@ final class CalendarService: ObservableObject {
 
     private func requestEvents() {
         // Never re-prompt a decided status: asking again while the alert is up is what sticks it.
-        if #available(macOS 14.0, *) {
-            switch EKEventStore.authorizationStatus(for: .event) {
-            case .fullAccess:
-                eventsAccess = .granted; refreshAgenda(); refreshDensity(); return
-            case .notDetermined:
-                break
-            case .denied, .restricted, .writeOnly:
-                eventsAccess = .denied; refreshAgenda(); refreshDensity(); return
-            @unknown default:
-                eventsAccess = .denied; refreshAgenda(); refreshDensity(); return
-            }
-        } else if EKEventStore.authorizationStatus(for: .event) == .authorized {
+        switch EKEventStore.authorizationStatus(for: .event) {
+        case .fullAccess:
             eventsAccess = .granted; refreshAgenda(); refreshDensity(); return
-        } else if EKEventStore.authorizationStatus(for: .event) != .notDetermined {
+        case .notDetermined:
+            break
+        case .denied, .restricted, .writeOnly:
+            eventsAccess = .denied; refreshAgenda(); refreshDensity(); return
+        @unknown default:
             eventsAccess = .denied; refreshAgenda(); refreshDensity(); return
         }
         guard !isRequestingEvents else { return }
@@ -85,28 +79,18 @@ final class CalendarService: ObservableObject {
                 self.refreshAgenda(); self.refreshDensity()
             }
         }
-        if #available(macOS 14.0, *) {
-            store.requestFullAccessToEvents { ok, _ in done(ok) }
-        } else {
-            store.requestAccess(to: .event) { ok, _ in done(ok) }
-        }
+        store.requestFullAccessToEvents { ok, _ in done(ok) }
     }
 
     private func requestReminders() {
-        if #available(macOS 14.0, *) {
-            switch EKEventStore.authorizationStatus(for: .reminder) {
-            case .fullAccess:
-                remindersAccess = .granted; refreshReminders(); return
-            case .notDetermined:
-                break
-            case .denied, .restricted, .writeOnly:
-                remindersAccess = .denied; refreshReminders(); return
-            @unknown default:
-                remindersAccess = .denied; refreshReminders(); return
-            }
-        } else if EKEventStore.authorizationStatus(for: .reminder) == .authorized {
+        switch EKEventStore.authorizationStatus(for: .reminder) {
+        case .fullAccess:
             remindersAccess = .granted; refreshReminders(); return
-        } else if EKEventStore.authorizationStatus(for: .reminder) != .notDetermined {
+        case .notDetermined:
+            break
+        case .denied, .restricted, .writeOnly:
+            remindersAccess = .denied; refreshReminders(); return
+        @unknown default:
             remindersAccess = .denied; refreshReminders(); return
         }
         guard !isRequestingReminders else { return }
@@ -119,11 +103,7 @@ final class CalendarService: ObservableObject {
                 self.refreshReminders()
             }
         }
-        if #available(macOS 14.0, *) {
-            store.requestFullAccessToReminders { ok, _ in done(ok) }
-        } else {
-            store.requestAccess(to: .reminder) { ok, _ in done(ok) }
-        }
+        store.requestFullAccessToReminders { ok, _ in done(ok) }
     }
 
     func refreshAll() { refreshAgenda(); refreshDensity(); refreshReminders() }

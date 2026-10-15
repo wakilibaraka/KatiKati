@@ -161,10 +161,7 @@ struct PermissionOnboardingView: View {
     }
 
     private var settingsPath: String {
-        if #available(macOS 13, *) {
-            return String(localized: "System Settings > Privacy & Security > Accessibility")
-        }
-        return String(localized: "System Preferences > Security & Privacy > Privacy > Accessibility")
+        String(localized: "System Settings > Privacy & Security > Accessibility")
     }
 
     // MARK: - 按钮

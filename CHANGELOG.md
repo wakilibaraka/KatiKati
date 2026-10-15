@@ -28,6 +28,15 @@ All notable changes to KatiKati are documented in this file.
   VPN services only.
 
 ### Changed
+- **The minimum macOS is 15 (Sequoia) (Phase 12):** the floor moved from 12 to 15, and every version
+  branch that existed only for 12–14 is gone — the legacy login-item list backend
+  (`LSSharedFileList*`), the macOS 12 permission paths and System Settings deep links, EventKit's
+  old `requestAccess`, the runtime “is Translate available” probe, the private
+  `_windowResizeNorthSouthCursor` cursor fallback with its hand-drawn glyph, and the
+  `TextEditor`/`ViewThatFits` fallbacks in the note sheet and the chips. **Hover-preview thumbnails
+  are captured with ScreenCaptureKit now**: `CGWindowListCreateImage` is obsoleted in the SDK at
+  this floor. macOS 12 left Apple's security updates in 2025 and 14 in August 2026, so no Mac that
+  still gets security updates is dropped.
 - **Advanced is the last tab (Phase 12):** the strip ends **Tools · Advanced** — the page you visit
   once is last, so the tools used mid-session are not behind it.
 - **Narrow rows sit two to a line (Phase 12):** on the long pages a menu, a segmented picker, a

@@ -250,11 +250,10 @@ final class ChipPanelController {
         for window in model.previewWindows where window.marker != .minimized {
             guard let cg = window.cgWindowID else { continue }
             let id = window.id
-            WindowThumbnailCapture.capture(windowID: cg, maxPixelSize: px) { [weak self] image in
-                MainActor.assumeIsolated {
-                    guard let self, self.isVisible, let image else { return }
-                    self.model.thumbnails[id] = image
-                }
+            Task { @MainActor [weak self] in
+                let image = await WindowThumbnailCapture.capture(windowID: cg, maxPixelSize: px)
+                guard let self, self.isVisible, let image else { return }
+                self.model.thumbnails[id] = image
             }
         }
     }

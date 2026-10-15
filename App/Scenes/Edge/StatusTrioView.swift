@@ -14,17 +14,10 @@ enum StatusKind: CaseIterable, Hashable {
 
     /// System Settings pane for the popover's "Open System Settings…" button.
     var settingsURL: URL? {
-        if #available(macOS 13.0, *) {
-            switch self {
-            case .wifi: return URL(string: "x-apple.systempreferences:com.apple.wifi-settings-extension")
-            case .battery: return URL(string: "x-apple.systempreferences:com.apple.Battery-Settings.extension")
-            case .volume: return URL(string: "x-apple.systempreferences:com.apple.Sound-Settings.extension")
-            }
-        }
         switch self {
-        case .wifi: return URL(string: "x-apple.systempreferences:com.apple.preference.network")
-        case .battery: return URL(string: "x-apple.systempreferences:com.apple.preference.battery")
-        case .volume: return URL(string: "x-apple.systempreferences:com.apple.preference.sound")
+        case .wifi: return URL(string: "x-apple.systempreferences:com.apple.wifi-settings-extension")
+        case .battery: return URL(string: "x-apple.systempreferences:com.apple.Battery-Settings.extension")
+        case .volume: return URL(string: "x-apple.systempreferences:com.apple.Sound-Settings.extension")
         }
     }
 }

@@ -75,13 +75,11 @@ struct LiveIslandDockCapsule: View {
                 idleActions(vertical: false)
             } else if widgetSize == .small {
                 capsule(activity, showsLabel: false)
-            } else if #available(macOS 13.0, *) {
+            } else {
                 ViewThatFits(in: .horizontal) {
                     capsule(activity, showsLabel: true)
                     capsule(activity, showsLabel: false)
                 }
-            } else {
-                capsule(activity, showsLabel: false)
             }
         }
         .padding(isVertical ? .vertical : .horizontal, isVertical ? 6 : 8)

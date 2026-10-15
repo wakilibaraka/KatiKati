@@ -26,16 +26,6 @@ final class TranslateRequestTests: XCTestCase {
     }
 }
 
-final class TranslationAvailabilityTests: XCTestCase {
-
-    func testTranslateNeedsMacOS15() {
-        XCTAssertFalse(TranslationAvailability.translateAvailable(os: OperatingSystemVersion(majorVersion: 12, minorVersion: 0, patchVersion: 0)))
-        XCTAssertFalse(TranslationAvailability.translateAvailable(os: OperatingSystemVersion(majorVersion: 14, minorVersion: 6, patchVersion: 0)))
-        XCTAssertTrue(TranslationAvailability.translateAvailable(os: OperatingSystemVersion(majorVersion: 15, minorVersion: 0, patchVersion: 0)))
-        XCTAssertTrue(TranslationAvailability.translateAvailable(os: OperatingSystemVersion(majorVersion: 26, minorVersion: 0, patchVersion: 0)))
-    }
-}
-
 final class DictionaryCardModelTests: XCTestCase {
 
     func testParsesHeadwordAndSenses() {
