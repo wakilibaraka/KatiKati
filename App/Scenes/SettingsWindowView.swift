@@ -209,6 +209,19 @@ struct SettingsWindowContent: View {
                     Divider().opacity(0.5)
                     WeatherSettingsBlock()
                     Divider().opacity(0.5)
+                    groupRow {
+                        Text("Now Playing Theme")
+                    } control: {
+                        Picker("Now Playing Theme", selection: $store.nowPlayingTheme) {
+                            ForEach(NowPlayingTheme.allCases, id: \.self) {
+                                Text($0.displayTitle)
+                            }
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.menu)
+                        .fixedSize()
+                    }
+                    Divider().opacity(0.5)
                     PermissionsSettingsBlock()
                     Divider().opacity(0.5)
                     groupRow {
