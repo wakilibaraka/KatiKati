@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FB37A00000000000000F02 /* TeleprompterWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000F01 /* TeleprompterWindowController.swift */; };
+		FB37A00000000000000F03 /* TeleprompterWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000F01 /* TeleprompterWindowController.swift */; };
+		FB37A00000000000000E02 /* LinkReaderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000E01 /* LinkReaderModel.swift */; };
+		FB37A00000000000000E03 /* LinkReaderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000E01 /* LinkReaderModel.swift */; };
+		FB37A00000000000000D02 /* TeleprompterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000D01 /* TeleprompterView.swift */; };
+		FB37A00000000000000D03 /* TeleprompterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000D01 /* TeleprompterView.swift */; };
+		FB37A00000000000000C02 /* TeleprompterModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000C01 /* TeleprompterModel.swift */; };
+		FB37A00000000000000C03 /* TeleprompterModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000C01 /* TeleprompterModel.swift */; };
 		FB37A00000000000000B02 /* TeleprompterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000B01 /* TeleprompterTests.swift */; };
 		FB37A00000000000000A02 /* Teleprompter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000A01 /* Teleprompter.swift */; };
 		FB37A00000000000000A03 /* Teleprompter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000A01 /* Teleprompter.swift */; };
@@ -1028,6 +1036,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FB37A00000000000000F01 /* TeleprompterWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TeleprompterWindowController.swift; path = App/Entry/TeleprompterWindowController.swift; sourceTree = SOURCE_ROOT; };
+		FB37A00000000000000E01 /* LinkReaderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LinkReaderModel.swift; path = App/Composition/LinkReaderModel.swift; sourceTree = SOURCE_ROOT; };
+		FB37A00000000000000D01 /* TeleprompterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TeleprompterView.swift; path = App/Scenes/TeleprompterView.swift; sourceTree = SOURCE_ROOT; };
+		FB37A00000000000000C01 /* TeleprompterModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TeleprompterModel.swift; path = App/Composition/TeleprompterModel.swift; sourceTree = SOURCE_ROOT; };
 		FB37A00000000000000B01 /* TeleprompterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TeleprompterTests.swift; path = Tests/Unit/TeleprompterTests.swift; sourceTree = SOURCE_ROOT; };
 		FB37A00000000000000A01 /* Teleprompter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Teleprompter.swift; path = Core/Support/Teleprompter.swift; sourceTree = SOURCE_ROOT; };
 		FB36A00000000000000F01 /* PrivacyUseProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PrivacyUseProbe.swift; path = Platform/SystemStatus/PrivacyUseProbe.swift; sourceTree = SOURCE_ROOT; };
@@ -3008,6 +3020,10 @@
 				FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000142 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000152 /* DownloadManagerService.swift in Sources */,
+				FB37A00000000000000F02 /* TeleprompterWindowController.swift in Sources */,
+				FB37A00000000000000E02 /* LinkReaderModel.swift in Sources */,
+				FB37A00000000000000D02 /* TeleprompterView.swift in Sources */,
+				FB37A00000000000000C02 /* TeleprompterModel.swift in Sources */,
 				FB37A00000000000000A02 /* Teleprompter.swift in Sources */,
 				FB36A00000000000000F02 /* PrivacyUseProbe.swift in Sources */,
 				FB36A00000000000000E02 /* AudioOutputSwitcher.swift in Sources */,
@@ -3125,6 +3141,10 @@
 				FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000143 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000153 /* DownloadManagerService.swift in Sources */,
+				FB37A00000000000000F03 /* TeleprompterWindowController.swift in Sources */,
+				FB37A00000000000000E03 /* LinkReaderModel.swift in Sources */,
+				FB37A00000000000000D03 /* TeleprompterView.swift in Sources */,
+				FB37A00000000000000C03 /* TeleprompterModel.swift in Sources */,
 				FB37A00000000000000A03 /* Teleprompter.swift in Sources */,
 				FB36A00000000000000F03 /* PrivacyUseProbe.swift in Sources */,
 				FB36A00000000000000E03 /* AudioOutputSwitcher.swift in Sources */,

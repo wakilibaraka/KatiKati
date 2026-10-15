@@ -59,6 +59,12 @@ struct UtilitySettingsBlock: View {
         row("Camera and Mic Indicator") {
             Toggle("Camera and Mic Indicator", isOn: $privacyDot).toggleStyle(.switch).labelsHidden()
         }
+        HStack {
+            Text("Teleprompter")
+            Spacer(minLength: 12)
+            Button("Open Teleprompter Window") { TeleprompterWindowController.shared.show() }
+        }
+        Text("Opens from ⌘Space (prompter). The window is hidden from screen recordings and shares.").font(.caption).foregroundColor(.secondary)
         Text("Launcher").font(.headline)
         row("Script Commands") {
             Toggle("Script Commands", isOn: $launcherScripts).toggleStyle(.switch).labelsHidden()
