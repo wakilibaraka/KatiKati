@@ -4227,6 +4227,8 @@ Overlooked by decision (owner agreed): Face Unlock, Stocks, embedded Terminal, F
 
 - 2026-10-15 · **36h delivered — PASS (code; not live-checked).** `PrivacyUseProbe` (CoreAudio default-input and CoreMediaIO camera `IsRunningSomewhere` — never opens a device, no permission) + `PrivacyDotController` (click-through panel beside the notch: green camera, orange mic) behind `com.katikati.helpers.privacyDot` (default off). **`shortcut:` 2 s poll of two property reads only while on** instead of per-device listeners; revisit if the wakeups show. Pure `PrivacyDots` + test; strings ×12. Live check: start a FaceTime/Photo Booth and a voice memo.
 
+- 2026-10-15 · **36g delivered — PASS (code; not live-checked) — Phase 36 complete (36a–36h).** Text snippets ride the existing custom-command plumbing: `CustomCommand.Kind.snippet` + `parseSnippets` (`trigger = text`, `\n` escape; stored in `com.katikati.commandbar.snippets`, edited in Settings › Text Snippets). Type the trigger in ⌘Space → Return copies it and sends ⌘V when Accessibility is granted (clipboard only otherwise). A snippet is only ever copied/pasted, never executed. **No global typing expander** (needs a keystroke buffer — secrets risk; decided in the plan). Test + strings ×12. **Not done in 36 (decided):** Reveal-in-Finder on the 34e toast (toast is click-through).
+
 #### Phase 37 — Teleprompter with link reader (notch page + floating window)
 
 **Goal.** A script reader that scrolls under the camera. **One engine, two hosts:** a 7th notch page (short scripts) and a

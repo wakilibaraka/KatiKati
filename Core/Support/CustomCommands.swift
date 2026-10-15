@@ -4,9 +4,11 @@ import Foundation
 /// a link (opened); anything else is a script run through `LauncherRunner`. Stored as one entry per line:
 /// `Name = target`. Pure parsing/serialization.
 struct CustomCommand: Equatable, Identifiable, Sendable {
-    enum Kind: Equatable, Sendable { case link, command }
+    enum Kind: Equatable, Sendable { case link, command, snippet }
 
     static let key = "com.katikati.commandbar.custom"
+    /// Phase 36g: text snippets, stored as `trigger = text` lines (`\n` in the text is a line break).
+    static let snippetsKey = "com.katikati.commandbar.snippets"
 
     var name: String
     var target: String
@@ -39,5 +41,13 @@ struct CustomCommand: Equatable, Identifiable, Sendable {
         let q = query.trimmingCharacters(in: .whitespaces).lowercased()
         guard !q.isEmpty else { return [] }
         return commands.filter { $0.name.lowercased().hasPrefix(q) }
+    }
+}
+
+extension CustomCommand {
+    /// Phase 36g: parse snippet lines into `.snippet` entries whose `target` is the expansion. The expansion
+    /// is only ever copied/pasted, never run — so a snippet can hold any text, including shell-looking text.
+    static func parseSnippets(_ raw: String) -> [CustomCommand] {
+        parse(raw).map { CustomCommand(name: $0.name, target: $0.target.replacingOccurrences(of: "\\n", with: "\n"), kind: .snippet) }
     }
 }

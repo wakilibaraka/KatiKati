@@ -65732,6 +65732,160 @@
           }
         }
       }
+    },
+    "Text Snippets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Snippets"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文本片段"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文字片段"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "テキストスニペット"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Textbausteine"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extraits de texte"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fragmentos de texto"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fragmentos de texto"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trechos de texto"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excertos de texto"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snippet di testo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "텍스트 스니펫"
+          }
+        }
+      }
+    },
+    "One per line: ;sig = Best regards, Sam. Type the trigger in ⌘Space and press Return to paste it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One per line: ;sig = Best regards, Sam. Type the trigger in ⌘Space and press Return to paste it."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每行一条:;sig = 此致,Sam。在 ⌘Space 中输入触发词并按回车即可粘贴。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每行一條:;sig = 此致,Sam。在 ⌘Space 中輸入觸發詞並按 Return 即可貼上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1行に1つ:;sig = よろしくお願いします、Sam。⌘Space でトリガーを入力し Return で貼り付けます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine pro Zeile: ;sig = Viele Grüße, Sam. Kürzel in ⌘Space eingeben und Return drücken, um einzufügen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un par ligne : ;sig = Cordialement, Sam. Saisissez le déclencheur dans ⌘Espace puis Retour pour le coller."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uno por línea: ;sig = Saludos, Sam. Escribe el activador en ⌘Space y pulsa Intro para pegarlo."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uno por línea: ;sig = Saludos, Sam. Escribe el activador en ⌘Space y presiona Intro para pegarlo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um por linha: ;sig = Atenciosamente, Sam. Digite o gatilho no ⌘Space e pressione Return para colar."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um por linha: ;sig = Cumprimentos, Sam. Escreva o atalho em ⌘Space e prima Return para colar."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uno per riga: ;sig = Cordiali saluti, Sam. Scrivi il trigger in ⌘Space e premi Invio per incollarlo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한 줄에 하나: ;sig = 감사합니다, Sam. ⌘Space에 트리거를 입력하고 Return을 누르면 붙여넣어요."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

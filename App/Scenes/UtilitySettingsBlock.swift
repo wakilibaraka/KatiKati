@@ -10,6 +10,7 @@ struct UtilitySettingsBlock: View {
     @AppStorage(ClipboardMonitor.ignorePatternsKey) private var clipboardIgnorePatterns = ""
     @AppStorage(LauncherRunner.enabledKey) private var launcherScripts = false
     @AppStorage(CustomCommand.key) private var customCommands = ""
+    @AppStorage(CustomCommand.snippetsKey) private var snippets = ""
     @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
     @AppStorage(FileIndexService.enabledKey) private var fastIndex = true
     @AppStorage(DailyHelpersService.hideFromCaptureKey) private var hideFromCapture = false
@@ -82,6 +83,12 @@ struct UtilitySettingsBlock: View {
             .font(.system(size: 11, design: .monospaced))
             .frame(height: 60)
             .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.primary.opacity(0.15)))
+        Text("Text Snippets").font(.headline)
+        TextEditor(text: $snippets)
+            .font(.system(size: 11, design: .monospaced))
+            .frame(height: 60)
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.primary.opacity(0.15)))
+        Text("One per line: ;sig = Best regards, Sam. Type the trigger in ⌘Space and press Return to paste it.").font(.caption).foregroundColor(.secondary)
         Text("Shelf").font(.headline)
         row("Shake to Shelf") {
             Toggle("Shake to Shelf", isOn: Binding(get: { store.shelfShakeEnabled }, set: { store.setShelfShakeEnabled($0) }))

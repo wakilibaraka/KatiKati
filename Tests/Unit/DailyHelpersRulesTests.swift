@@ -51,4 +51,12 @@ final class DailyHelpersRulesTests: XCTestCase {
         XCTAssertFalse(PrivacyDots(camera: true).isEmpty)
         XCTAssertFalse(PrivacyDots(microphone: true).isEmpty)
     }
+
+    func testSnippetsParseAsSnippetKindWithNewlineEscape() {
+        let list = CustomCommand.parseSnippets(";sig = Best,\\nSam\n;addr = 1 Main St")
+        XCTAssertEqual(list.map(\.name), [";sig", ";addr"])
+        XCTAssertEqual(list[0].target, "Best,\nSam")
+        XCTAssertTrue(list.allSatisfy { $0.kind == .snippet })
+        XCTAssertEqual(CustomCommand.matching(";s", in: list).count, 1)
+    }
 }

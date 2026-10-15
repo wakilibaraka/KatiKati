@@ -29,6 +29,21 @@ final class CommandBarPanelController {
 
     func toggle() { isShown ? dismiss() : show() }
 
+    /// Copies the snippet and, once the bar has handed focus back, sends ⌘V (needs Accessibility; without it
+    /// the text is simply on the clipboard).
+    private func pasteSnippet(_ text: String) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+        guard AXIsProcessTrusted() else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            guard let source = CGEventSource(stateID: .combinedSessionState),
+                  let down = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: true),
+                  let up = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: false) else { return }
+            down.flags = .maskCommand; up.flags = .maskCommand
+            down.post(tap: .cghidEventTap); up.post(tap: .cghidEventTap)
+        }
+    }
+
     func show() {
         guard !isShown else { return }
         guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }) ?? NSScreen.main else { return }
@@ -38,6 +53,7 @@ final class CommandBarPanelController {
         indexer.start()
         model.apps = indexer.apps
         model.custom = CustomCommand.parse(UserDefaults.standard.string(forKey: CustomCommand.key) ?? "")
+            + CustomCommand.parseSnippets(UserDefaults.standard.string(forKey: CustomCommand.snippetsKey) ?? "")
         model.clips = Array(ProductivityServices.shared.clipboard.history.displayOrder.prefix(50))
         model.refresh(resetSelection: true)
         FileIndexService.shared.prepare()
@@ -154,6 +170,8 @@ final class CommandBarPanelController {
                 if let url = URL(string: command.target) { NSWorkspace.shared.open(url) }
             case .command:
                 _ = LauncherRunner.run(.script(command.target))
+            case .snippet:
+                pasteSnippet(command.target)
             }
         case .process(let entry):
             dismiss()

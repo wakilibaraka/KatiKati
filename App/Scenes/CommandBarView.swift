@@ -285,7 +285,7 @@ struct CommandBarView: View {
         case .generator:
             Image(systemName: "wand.and.stars").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .custom(let command):
-            Image(systemName: command.kind == .link ? "link" : "terminal").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+            Image(systemName: command.kind == .link ? "link" : (command.kind == .snippet ? "text.append" : "terminal")).font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .process:
             Image(systemName: "bolt.slash").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .script:
