@@ -37,4 +37,12 @@ final class DailyHelpersRulesTests: XCTestCase {
         XCTAssertEqual(CleaningLock.clamped(60), 60)
         XCTAssertEqual(CleaningLock.clamped(9999), 300)
     }
+
+    func testEjectPolicyOffersOnlyExternalLocalEjectables() {
+        XCTAssertTrue(EjectPolicy.isOffered(isEjectable: true, isInternal: false, isLocal: true, isRoot: false))
+        XCTAssertFalse(EjectPolicy.isOffered(isEjectable: true, isInternal: true, isLocal: true, isRoot: false))
+        XCTAssertFalse(EjectPolicy.isOffered(isEjectable: true, isInternal: false, isLocal: false, isRoot: false))
+        XCTAssertFalse(EjectPolicy.isOffered(isEjectable: true, isInternal: false, isLocal: true, isRoot: true))
+        XCTAssertFalse(EjectPolicy.isOffered(isEjectable: false, isInternal: false, isLocal: true, isRoot: false))
+    }
 }

@@ -52,3 +52,11 @@ enum CleaningLock {
     static let defaultSeconds = 60.0
     static func clamped(_ seconds: Double) -> Double { min(max(seconds, 10), 300) }
 }
+
+/// 36c — which mounted volumes get an eject pill: real external, ejectable drives only (never the boot
+/// volume, an internal disk, a disk image, or a network share).
+enum EjectPolicy {
+    static func isOffered(isEjectable: Bool, isInternal: Bool, isLocal: Bool, isRoot: Bool) -> Bool {
+        isEjectable && !isInternal && isLocal && !isRoot
+    }
+}

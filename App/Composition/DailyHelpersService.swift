@@ -11,6 +11,7 @@ final class DailyHelpersService {
     static let hideFromCaptureKey = "com.katikati.helpers.hideFromCapture"
     static let capsLockKey = "com.katikati.helpers.capsLock"
     static let batteryKey = "com.katikati.helpers.batteryNudge"
+    static let ejectKey = "com.katikati.helpers.usbEject"
 
     /// Set by `AppDelegate` to `liveEventCenter.deliver`.
     var deliver: (LiveEvent) -> Void = { _ in }
@@ -24,6 +25,8 @@ final class DailyHelpersService {
     private var batteryStatus: SystemStatusService?
     private var batterySub: AnyCancellable?
     private var batteryRule = BatteryNoticeRule()
+    private var mountObserver: NSObjectProtocol?
+    private let ejectPill = USBEjectPillController()
 
     func start() {
         guard defaultsObserver == nil else { return }
@@ -37,6 +40,7 @@ final class DailyHelpersService {
         applyCaptureHiding(UserDefaults.standard.bool(forKey: Self.hideFromCaptureKey))
         applyCapsLock(UserDefaults.standard.bool(forKey: Self.capsLockKey))
         applyBattery(UserDefaults.standard.bool(forKey: Self.batteryKey))
+        applyEject(UserDefaults.standard.bool(forKey: Self.ejectKey))
     }
 
     // MARK: 36d — hide from screen capture
@@ -101,5 +105,31 @@ final class DailyHelpersService {
             service.release()
             batteryStatus = nil
         }
+    }
+
+    // MARK: 36c — USB eject pill
+
+    /// `NSWorkspace.didMountNotification` (event-driven, only while on).
+    private func applyEject(_ on: Bool) {
+        if on, mountObserver == nil {
+            mountObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didMountNotification, object: nil, queue: .main) { [weak self] note in
+                guard let url = note.userInfo?[NSWorkspace.volumeURLUserInfoKey] as? URL else { return }
+                MainActor.assumeIsolated { self?.offerEject(url) }
+            }
+        } else if !on, let observer = mountObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(observer)
+            mountObserver = nil
+            ejectPill.hide()
+        }
+    }
+
+    private func offerEject(_ url: URL) {
+        let keys: Set<URLResourceKey> = [.volumeIsEjectableKey, .volumeIsRemovableKey, .volumeIsInternalKey, .volumeIsLocalKey, .volumeNameKey]
+        guard let values = try? url.resourceValues(forKeys: keys),
+              EjectPolicy.isOffered(isEjectable: (values.volumeIsEjectable ?? false) || (values.volumeIsRemovable ?? false),
+                                    isInternal: values.volumeIsInternal ?? false,
+                                    isLocal: values.volumeIsLocal ?? true,
+                                    isRoot: url.path == "/") else { return }
+        ejectPill.show(volumeURL: url, name: values.volumeName ?? url.lastPathComponent)
     }
 }

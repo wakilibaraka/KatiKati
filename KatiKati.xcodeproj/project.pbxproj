@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FB36A00000000000000D02 /* USBEjectPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB36A00000000000000D01 /* USBEjectPill.swift */; };
+		FB36A00000000000000D03 /* USBEjectPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB36A00000000000000D01 /* USBEjectPill.swift */; };
 		FB36A00000000000000C02 /* DailyHelpersRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB36A00000000000000C01 /* DailyHelpersRulesTests.swift */; };
 		FB36A00000000000000B02 /* DailyHelpersRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB36A00000000000000B01 /* DailyHelpersRules.swift */; };
 		FB36A00000000000000B03 /* DailyHelpersRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB36A00000000000000B01 /* DailyHelpersRules.swift */; };
@@ -1019,6 +1021,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FB36A00000000000000D01 /* USBEjectPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = USBEjectPill.swift; path = App/Scenes/USBEjectPill.swift; sourceTree = SOURCE_ROOT; };
 		FB36A00000000000000C01 /* DailyHelpersRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DailyHelpersRulesTests.swift; path = Tests/Unit/DailyHelpersRulesTests.swift; sourceTree = SOURCE_ROOT; };
 		FB36A00000000000000B01 /* DailyHelpersRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DailyHelpersRules.swift; path = Core/Support/DailyHelpersRules.swift; sourceTree = SOURCE_ROOT; };
 		FB36A00000000000000A01 /* DailyHelpersService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DailyHelpersService.swift; path = App/Composition/DailyHelpersService.swift; sourceTree = SOURCE_ROOT; };
@@ -2994,6 +2997,7 @@
 				FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000142 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000152 /* DownloadManagerService.swift in Sources */,
+				FB36A00000000000000D02 /* USBEjectPill.swift in Sources */,
 				FB36A00000000000000B02 /* DailyHelpersRules.swift in Sources */,
 				FB36A00000000000000A02 /* DailyHelpersService.swift in Sources */,
 				FA33A0000000000000000162 /* NotchDownloadsPageView.swift in Sources */,
@@ -3107,6 +3111,7 @@
 				FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000143 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000153 /* DownloadManagerService.swift in Sources */,
+				FB36A00000000000000D03 /* USBEjectPill.swift in Sources */,
 				FB36A00000000000000B03 /* DailyHelpersRules.swift in Sources */,
 				FB36A00000000000000A03 /* DailyHelpersService.swift in Sources */,
 				7B5000000000000000040C13 /* FileNoteKeyProvider.swift in Sources */,
