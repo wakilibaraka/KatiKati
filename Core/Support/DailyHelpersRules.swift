@@ -45,3 +45,10 @@ struct BatteryNoticeRule: Equatable, Sendable {
         return nil
     }
 }
+
+/// 36f — keyboard cleaning lock length. Long enough to wipe a keyboard, short enough that a forgotten
+/// lock frees itself (the fixed ⌃⌥⌘P chord from Phase 24b always unlocks sooner).
+enum CleaningLock {
+    static let defaultSeconds = 60.0
+    static func clamped(_ seconds: Double) -> Double { min(max(seconds, 10), 300) }
+}

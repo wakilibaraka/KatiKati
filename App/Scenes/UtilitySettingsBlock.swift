@@ -44,6 +44,10 @@ struct UtilitySettingsBlock: View {
         row("Charge Notices") {
             Toggle("Charge Notices", isOn: $batteryNudge).toggleStyle(.switch).labelsHidden()
         }
+        row("Clean Keyboard") {
+            Button("Lock for 60 Seconds") { KeyGuardService.shared.startCleaningLock() }
+        }
+        Text("Keys are off for 60 seconds. Press ⌃⌥⌘P to unlock sooner.").font(.caption).foregroundColor(.secondary)
         Text("Launcher").font(.headline)
         row("Script Commands") {
             Toggle("Script Commands", isOn: $launcherScripts).toggleStyle(.switch).labelsHidden()

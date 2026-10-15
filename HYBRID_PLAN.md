@@ -4219,6 +4219,8 @@ Overlooked by decision (owner agreed): Face Unlock, Stocks, embedded Terminal, F
 
 - 2026-10-15 · **36b delivered — PASS (code; not live-checked).** Pure `BatteryNoticeRule` (nudge once at 80% while charging, once at 100%; first reading only seeds so launching at 90% is silent; re-arms on unplug or a drop of 5 points) + 2 tests. `com.katikati.helpers.batteryNudge` (default off) rides a private `SystemStatusService` (IOKit power-source notification, no polling) acquired only while on. Reuses `.notice` (strings "Battery at 80%", "Fully Charged", "Charge Notices" ×12). **Limit:** the toast is a notice, not a button; "unplug" is the user's own action.
 
+- 2026-10-15 · **36f delivered — PASS (code; not live-checked).** `KeyGuardService.startCleaningLock/endCleaningLock` (reuses the Phase 24b swallow-all pause and its fixed ⌃⌥⌘P unlock; default 60 s, pure `CleaningLock.clamped` 10–300 s + test; countdown timer exists only while locked; ends itself, ends on quit because the paused flag is persisted; Input Monitoring requested first, never silently). Triggers: ⌘Space `clean` (`BarMacro.cleanKeyboard`) and Settings › Daily Helpers › Clean Keyboard. Strings ×12. **Risk (safety-critical, owner live check):** while locked the keyboard is dead except ⌃⌥⌘P; the mouse/trackpad still work, and a crash during the lock leaves the persisted pause on until ⌃⌥⌘P.
+
 #### Phase 37 — Teleprompter with link reader (notch page + floating window)
 
 **Goal.** A script reader that scrolls under the camera. **One engine, two hosts:** a 7th notch page (short scripts) and a

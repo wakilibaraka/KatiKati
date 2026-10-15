@@ -31,4 +31,10 @@ final class DailyHelpersRulesTests: XCTestCase {
         XCTAssertNil(rule.update(BatteryStatus(level: 90, isCharging: true, isPluggedIn: true)))
         XCTAssertNil(rule.update(BatteryStatus(level: 92, isCharging: true, isPluggedIn: true)))
     }
+
+    func testCleaningLockDurationIsClamped() {
+        XCTAssertEqual(CleaningLock.clamped(1), 10)
+        XCTAssertEqual(CleaningLock.clamped(60), 60)
+        XCTAssertEqual(CleaningLock.clamped(9999), 300)
+    }
 }

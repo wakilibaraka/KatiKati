@@ -58,6 +58,45 @@ final class KeyGuardService: ObservableObject {
 
     func togglePause() { setPaused(!isPaused) }
 
+    // MARK: Cleaning lock (Phase 36f)
+
+    /// Seconds left on a timed cleaning lock, nil when none runs.
+    @Published private(set) var cleaningRemaining: Int?
+    private var cleaningTimer: Timer?
+    private var cleaningEnd: Date?
+
+    /// A timed pause for wiping the keyboard. Reuses the Phase 24b swallow-all + fixed ⌃⌥⌘P unlock, and
+    /// frees itself when the time is up (fail-open). Asks for Input Monitoring first; false if not granted.
+    @discardableResult
+    func startCleaningLock(seconds: Double = CleaningLock.defaultSeconds) -> Bool {
+        guard Self.hasPermission else { Self.requestPermission(); return false }
+        let end = Date().addingTimeInterval(CleaningLock.clamped(seconds))
+        cleaningEnd = end
+        cleaningRemaining = Int(end.timeIntervalSinceNow.rounded(.up))
+        setPaused(true)
+        cleaningTimer?.invalidate()
+        cleaningTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.cleaningTick() }
+        }
+        return isPaused
+    }
+
+    func endCleaningLock() {
+        guard cleaningEnd != nil else { return }
+        cleaningTimer?.invalidate(); cleaningTimer = nil
+        cleaningEnd = nil
+        cleaningRemaining = nil
+        setPaused(false)
+    }
+
+    private func cleaningTick() {
+        guard let end = cleaningEnd else { return }
+        // Unlocked early by the chord: just clean up the countdown.
+        if !isPaused { cleaningTimer?.invalidate(); cleaningTimer = nil; cleaningEnd = nil; cleaningRemaining = nil; return }
+        let left = Int(end.timeIntervalSinceNow.rounded(.up))
+        if left <= 0 { endCleaningLock() } else { cleaningRemaining = left }
+    }
+
     func setSlowQuit(_ on: Bool) {
         guard on != isSlowQuitEnabled else { return }
         isSlowQuitEnabled = on
@@ -65,7 +104,11 @@ final class KeyGuardService: ObservableObject {
         refresh()
     }
 
-    func tearDown() { stop() }
+    func tearDown() {
+        // Never leave the keyboard locked behind a quit: the paused flag is persisted.
+        if cleaningEnd != nil { endCleaningLock() }
+        stop()
+    }
 
     func setSlowQuitDuration(_ seconds: Double) {
         let clamped = min(max(seconds, 0.2), 5)

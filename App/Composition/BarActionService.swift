@@ -37,6 +37,8 @@ enum BarActionService {
             nowPlaying.previousTrack()
         case .pauseKeyboard:
             KeyGuardService.shared.togglePause()
+        case .cleanKeyboard:
+            KeyGuardService.shared.startCleaningLock()
         default:
             break
         }
