@@ -101,7 +101,7 @@ foundation (rules 1–3 on every page); each slice below is its own commit.
 | **Window Management** | Window Chips' two-line note → the row's ⓘ (rule 4). | 4 |
 | **Launcher** | Landed (2026-10-15): the page is the launcher, the Control Center and the launcher's own rows (`LauncherSettingsBlock`). Owes: the Spotlight steps' four hard-coded lines become that row's ⓘ. | 4 |
 | **Tools** | Landed (2026-10-15): clipboard, commands, snippets and shelf, in the slot About left. Owes: placeholders + first-run hints on the two editors (rule 8), and it carries four sections against rule 5's three — merge the two editor cards or move Shelf. | 5, 8 |
-| **Shortcuts** | ~35 rows into sections, plus a filter (rule 5) — the largest wall left. | 5 |
+| **Shortcuts** | Landed (2026-10-15): the page is three sections — **Shortcuts** (a find field, the eleven feature actions, the fifteen snap zones under their captions), **Keyboard** (the input behaviours) and **Radial Dial** — with every row on the shared system, every long note behind its row's ⓘ, the pickers named for VoiceOver and the four snap captions translated. Nothing owed. | — |
 | **Advanced** | Notification banners' note runs to three lines, so it belongs on that row's ⓘ (rule 4). **Reset Ignored Apps** is disabled with no reason on its row — say why (rule 7). | 4, 7 |
 | **About** | Gone as a page (2026-10-15); its four rows are the About card on General, and the tab it freed is Tools. | — |
 | **All pages** | **Accessibility audit**: ~18 `labelsHidden()` toggles (Edge Bars tiles, Control Center widgets, several Chips switches) expose no label to VoiceOver, and the Appearance behaviour toggles likewise. Rule 9 is not satisfied until each row names its control. | 9 |

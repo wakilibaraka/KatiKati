@@ -719,6 +719,108 @@
         }
       }
     },
+    "Keyboard": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Keyboard"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "Keyboard"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "Keyboard"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "Keyboard"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Keyboard"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Keyboard"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Keyboard"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Keyboard"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Keyboard"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Keyboard"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Keyboard"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "Keyboard"}}
+      }
+    },
+    "Search Shortcuts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Search Shortcuts"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "Search Shortcuts"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "Search Shortcuts"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "Search Shortcuts"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Search Shortcuts"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Search Shortcuts"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Search Shortcuts"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Search Shortcuts"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Search Shortcuts"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Search Shortcuts"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Search Shortcuts"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "Search Shortcuts"}}
+      }
+    },
+    "No shortcuts match.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No shortcuts match."}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "No shortcuts match."}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "No shortcuts match."}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "No shortcuts match."}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "No shortcuts match."}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "No shortcuts match."}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "No shortcuts match."}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "No shortcuts match."}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "No shortcuts match."}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "No shortcuts match."}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "No shortcuts match."}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "No shortcuts match."}}
+      }
+    },
+    "Halves": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Halves"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "Halves"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "Halves"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "Halves"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Halves"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Halves"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Halves"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Halves"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Halves"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Halves"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Halves"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "Halves"}}
+      }
+    },
+    "Quarters": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Quarters"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "Quarters"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "Quarters"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "Quarters"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Quarters"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Quarters"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Quarters"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Quarters"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Quarters"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Quarters"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Quarters"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "Quarters"}}
+      }
+    },
+    "Thirds": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Thirds"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "Thirds"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "Thirds"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "Thirds"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Thirds"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Thirds"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Thirds"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Thirds"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Thirds"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Thirds"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Thirds"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "Thirds"}}
+      }
+    },
     "Permissions": {
       "extractionState": "manual",
       "localizations": {

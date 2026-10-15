@@ -28,6 +28,14 @@ All notable changes to KatiKati are documented in this file.
   VPN services only.
 
 ### Changed
+- **The Shortcuts page is three sections with a search field (Phase 12):** the page was one card of ~35
+  rows two screens long, so finding one shortcut meant scrolling past all of them. Every key assignment
+  now sits in the **Shortcuts** card behind a **Search Shortcuts** field — it matches what you read, in
+  your language, and says so when nothing matches — the keyboard behaviours that change how typing
+  reaches apps (Hyper key, Pause Keyboard, Hold ⌘Q, Show Keys You Type, Open Launcher with Pinch) are
+  the **Keyboard** card, and the **Radial Dial** keeps its own. The four snap captions (Halves,
+  Quarters, Thirds, Full) were printed in English in every language and are now translatable. No
+  setting moved and no key changed.
 - **Widgets page regrouped (Phase 12):** the weather widget's rows now live in their own **Weather** card
   on the shared grid (they were the one block on the page with no card, inset 14 pt shallower), and the
   widget appearance rows and style presets share one card. The clock *tile*'s row is renamed **Clock Tile

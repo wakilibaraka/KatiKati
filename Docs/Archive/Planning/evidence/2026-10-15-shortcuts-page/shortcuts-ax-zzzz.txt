@@ -1,0 +1,36 @@
+WINDOW	Shortcuts	405	38	900	1074
+AXStaticText	42.0	102.0	Shortcuts
+AXStaticText	42.0	143.0	Search Shortcuts
+AXButton	154.0	144.5	
+AXTextField	638.0	139.0	zzzz
+AXStaticText	42.0	175.0	No shortcuts match.
+AXStaticText	42.0	198.0	Double-tap shortcuts need the Accessibility pe
+AXStaticText	42.0	259.0	Keyboard
+AXStaticText	42.0	300.0	Use Caps Lock as Hyper Key
+AXButton	223.0	301.5	
+AXCheckBox	804.0	296.0	1
+AXButton	42.0	342.0	
+AXStaticText	42.0	393.0	Pause Keyboard
+AXButton	147.0	394.5	
+AXCheckBox	804.0	389.0	0
+AXStaticText	42.0	440.0	Hold ⌘Q to Quit
+AXButton	147.5	441.5	
+AXCheckBox	804.0	436.0	0
+AXStaticText	42.0	487.0	Show Keys You Type
+AXButton	174.0	488.5	
+AXCheckBox	804.0	483.0	0
+AXStaticText	42.0	534.0	Open Launcher with Pinch
+AXButton	208.0	535.5	
+AXCheckBox	804.0	530.0	1
+AXButton	42.0	576.0	
+AXStaticText	42.0	659.0	Radial Dial
+AXStaticText	42.0	700.0	Enable Radial Dial
+AXButton	157.0	701.5	
+AXCheckBox	804.0	696.0	1
+AXStaticText	42.0	747.0	Theme
+AXPopUpButton	715.5	743.0	Lilac Glass
+AXStaticText	42.0	794.0	Mouse Trigger
+AXPopUpButton	668.0	790.0	Off
+AXStaticText	42.0	841.0	Trigger Mode
+AXPopUpButton	687.5	837.0	Tap / Click to Toggle
+AXStaticText	42.0	882.0	You can also summon the Radial Dial with the s

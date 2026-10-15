@@ -26,6 +26,35 @@ final class ShortcutsTests: XCTestCase {
         XCTAssertEqual(ShortcutConflicts.duplicated(b), [.launcher, .pinboard])
     }
 
+    // Phase 12 A4 — the Settings page's find field and the fifteen snap zones it lists.
+
+    func testShortcutFindRule() {
+        XCTAssertTrue(SettingsLayoutPane.shortcutMatches("Snap Left Half", query: ""), "an empty field lists everything")
+        XCTAssertTrue(SettingsLayoutPane.shortcutMatches("Snap Left Half", query: "   "))
+        XCTAssertTrue(SettingsLayoutPane.shortcutMatches("Snap Left Half", query: "left"))
+        XCTAssertTrue(SettingsLayoutPane.shortcutMatches("Snap Left Half", query: "LEFT"))
+        XCTAssertTrue(SettingsLayoutPane.shortcutMatches("Snap Left Half", query: " half "), "the query is trimmed")
+        XCTAssertFalse(SettingsLayoutPane.shortcutMatches("Snap Left Half", query: "right"))
+    }
+
+    /// The defect class the pages kept hitting: two rows wearing one name. A find field makes it
+    /// worse, since a search would return the wrong one of the pair.
+    func testEveryShortcutHasItsOwnName() {
+        let names = ShortcutAction.allCases.map(SettingsLayoutPane.shortcutActionName)
+        XCTAssertTrue(names.allSatisfy { !$0.isEmpty }, "every action has a name")
+        XCTAssertEqual(Set(names).count, names.count, "two actions must not show one name")
+    }
+
+    /// A zone that loses its row in Settings is a feature nobody can reach, so the page's four
+    /// groups have to be every snap zone exactly once.
+    func testSnapGroupsCoverEverySnapZoneOnce() {
+        let listed = SettingsLayoutPane.snapHotkeyGroups.flatMap { $0 }
+        let zones = ShortcutAction.allCases.filter { $0.snapPosition != nil }
+        XCTAssertEqual(Set(listed), Set(zones))
+        XCTAssertEqual(listed.count, zones.count, "no zone twice")
+        XCTAssertEqual(zones.count, 15)
+    }
+
     private func tap(_ d: inout ModifierDoubleTapDetector, _ code: UInt16, at t: TimeInterval, hold: TimeInterval = 0.05) -> ShortcutTapKey? {
         _ = d.modifierChanged(keyCode: code, isDown: true, time: t)
         return d.modifierChanged(keyCode: code, isDown: false, time: t + hold)

@@ -1,0 +1,119 @@
+WINDOW	Shortcuts	405	38	900	1074
+AXStaticText	42.0	102.0	Shortcuts
+AXStaticText	42.0	143.0	Search Shortcuts
+AXButton	154.0	144.5	
+AXTextField	638.0	139.0	
+AXStaticText	42.0	190.0	Launcher
+AXPopUpButton	627.0	186.0	⌥Space
+AXButton	791.0	186.0	
+AXStaticText	42.0	237.0	Control Center
+AXPopUpButton	627.0	233.0	⌃⌥Space
+AXButton	791.0	233.0	
+AXStaticText	42.0	284.0	Quick Settings
+AXPopUpButton	627.0	280.0	Off
+AXButton	791.0	280.0	
+AXStaticText	42.0	331.0	Keep Awake
+AXPopUpButton	627.0	327.0	Off
+AXButton	791.0	327.0	
+AXStaticText	42.0	378.0	Drawer
+AXPopUpButton	627.0	374.0	Off
+AXButton	791.0	374.0	
+AXStaticText	42.0	425.0	Notch Tools
+AXPopUpButton	627.0	421.0	Off
+AXButton	791.0	421.0	
+AXStaticText	42.0	472.0	Weather
+AXPopUpButton	627.0	468.0	Off
+AXButton	791.0	468.0	
+AXStaticText	42.0	519.0	Clock
+AXPopUpButton	627.0	515.0	Off
+AXButton	791.0	515.0	
+AXStaticText	42.0	566.0	Command Bar
+AXPopUpButton	627.0	562.0	⌘Space
+AXButton	791.0	562.0	
+AXStaticText	42.0	613.0	Translate
+AXPopUpButton	627.0	609.0	Off
+AXButton	791.0	609.0	
+AXStaticText	42.0	660.0	Radial Dial
+AXPopUpButton	627.0	656.0	Off
+AXButton	791.0	656.0	
+AXStaticText	42.0	703.0	Snap Hotkeys
+AXButton	132.5	704.5	
+AXStaticText	42.0	732.0	Halves
+AXStaticText	42.0	760.0	Snap Left Half
+AXPopUpButton	627.0	756.0	Off
+AXButton	791.0	756.0	
+AXStaticText	42.0	806.0	Snap Right Half
+AXPopUpButton	627.0	802.0	Off
+AXButton	791.0	802.0	
+AXStaticText	42.0	852.0	Snap Top Half
+AXPopUpButton	627.0	848.0	Off
+AXButton	791.0	848.0	
+AXStaticText	42.0	898.0	Snap Bottom Half
+AXPopUpButton	627.0	894.0	Off
+AXButton	791.0	894.0	
+AXStaticText	42.0	931.0	Quarters
+AXStaticText	42.0	959.0	Snap Top-Left
+AXPopUpButton	627.0	955.0	Off
+AXButton	791.0	955.0	
+AXStaticText	42.0	1005.0	Snap Top-Right
+AXPopUpButton	627.0	1001.0	Off
+AXButton	791.0	1001.0	
+AXStaticText	42.0	1051.0	Snap Bottom-Left
+AXPopUpButton	627.0	1047.0	Off
+AXButton	791.0	1047.0	
+AXStaticText	42.0	1097.0	Snap Bottom-Right
+AXPopUpButton	627.0	1093.0	Off
+AXButton	791.0	1093.0	
+AXStaticText	42.0	1130.0	Thirds
+AXStaticText	42.0	1158.0	Snap Left Third
+AXPopUpButton	627.0	1154.0	Off
+AXButton	791.0	1154.0	
+AXStaticText	42.0	1204.0	Snap Center Third
+AXPopUpButton	627.0	1200.0	Off
+AXButton	791.0	1200.0	
+AXStaticText	42.0	1250.0	Snap Right Third
+AXPopUpButton	627.0	1246.0	Off
+AXButton	791.0	1246.0	
+AXStaticText	42.0	1296.0	Snap Left Two-Thirds
+AXPopUpButton	627.0	1292.0	Off
+AXButton	791.0	1292.0	
+AXStaticText	42.0	1342.0	Snap Right Two-Thirds
+AXPopUpButton	627.0	1338.0	Off
+AXButton	791.0	1338.0	
+AXStaticText	42.0	1375.0	Full
+AXStaticText	42.0	1403.0	Snap Center
+AXPopUpButton	627.0	1399.0	Off
+AXButton	791.0	1399.0	
+AXStaticText	42.0	1449.0	Snap Maximize
+AXPopUpButton	627.0	1445.0	Off
+AXButton	791.0	1445.0	
+AXStaticText	42.0	1490.0	Double-tap shortcuts need the Accessibility pe
+AXStaticText	42.0	1551.0	Keyboard
+AXStaticText	42.0	1592.0	Use Caps Lock as Hyper Key
+AXButton	223.0	1593.5	
+AXCheckBox	804.0	1588.0	1
+AXButton	42.0	1634.0	
+AXStaticText	42.0	1685.0	Pause Keyboard
+AXButton	147.0	1686.5	
+AXCheckBox	804.0	1681.0	0
+AXStaticText	42.0	1732.0	Hold ⌘Q to Quit
+AXButton	147.5	1733.5	
+AXCheckBox	804.0	1728.0	0
+AXStaticText	42.0	1779.0	Show Keys You Type
+AXButton	174.0	1780.5	
+AXCheckBox	804.0	1775.0	0
+AXStaticText	42.0	1826.0	Open Launcher with Pinch
+AXButton	208.0	1827.5	
+AXCheckBox	804.0	1822.0	1
+AXButton	42.0	1868.0	
+AXStaticText	42.0	1951.0	Radial Dial
+AXStaticText	42.0	1992.0	Enable Radial Dial
+AXButton	157.0	1993.5	
+AXCheckBox	804.0	1988.0	1
+AXStaticText	42.0	2039.0	Theme
+AXPopUpButton	715.5	2035.0	Lilac Glass
+AXStaticText	42.0	2086.0	Mouse Trigger
+AXPopUpButton	668.0	2082.0	Off
+AXStaticText	42.0	2133.0	Trigger Mode
+AXPopUpButton	687.5	2129.0	Tap / Click to Toggle
+AXStaticText	42.0	2174.0	You can also summon the Radial Dial with the s

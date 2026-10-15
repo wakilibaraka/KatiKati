@@ -273,6 +273,9 @@ struct SettingsLayoutPane: View {
     @State private var newPresetName = ""
     /// Fine-tune starts collapsed: styles + Size/Spacing cover the common choices (Phase 11f).
     @State private var showsFineTune = false
+    /// The Shortcuts page's find field (Phase 12 A4). Localized titles only, so it matches what
+    /// the reader sees in every language.
+    @State private var shortcutFilter = ""
     /// Control Center edge; the panel reads it at each open (Phase 16n). The literal duplicates
     /// `ControlCenterPanelController.sideKey` — that file is app-target-only, and this pane also
     /// compiles into the test target.
@@ -788,159 +791,7 @@ struct SettingsLayoutPane: View {
             } else if mode == .notifications {
                 notificationSections
             } else {
-            SettingsCard(Text("Shortcuts")) {
-                let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
-                // General feature shortcuts (non-snap, non-tiling actions only).
-                ForEach(ShortcutAction.allCases.filter { $0.snapPosition == nil && !$0.isTilingAction }, id: \.self) { action in
-                    HStack {
-                        shortcutActionTitle(action)
-                        if duplicated.contains(action) {
-                            Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                                .help(Text("Another action uses the same shortcut"))
-                        }
-                        Spacer(minLength: 12)
-                        Picker(selection: Binding(get: { store.shortcutBindings[action] ?? .off }, set: { store.setShortcut(action, $0) })) {
-                            Text("Off").tag(ShortcutTrigger.off)
-                            Divider()
-                            ForEach(ShortcutChord.allCases, id: \.self) { Text(verbatim: $0.glyphs).tag(ShortcutTrigger.chord($0)) }
-                            Divider()
-                            ForEach(ShortcutTapKey.allCases, id: \.self) { key in
-                                (Text("Double-tap") + Text(verbatim: " \(key.glyph) (\(key.isRight ? "R" : "L"))")).tag(ShortcutTrigger.doubleTap(key))
-                            }
-                            if case let .key(custom) = store.shortcutBindings[action] ?? .off {
-                                Divider()
-                                Text(verbatim: custom.glyphs).tag(ShortcutTrigger.key(custom))
-                            }
-                            if store.hyperkeyEnabled {
-                                Divider()
-                                ForEach(ShortcutKeyNames.hyperChoices, id: \.self) { code in
-                                    Text(verbatim: "Hyper+" + (ShortcutKeyNames.name(for: code) ?? "?")).tag(ShortcutTrigger.hyper(code))
-                                }
-                            }
-                        } label: { EmptyView() }
-                        .pickerStyle(.menu).fixedSize()
-                        ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
-                    }
-                }
-                Text("Pick a shortcut from the list, or press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘.")
-                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                // ── Snap Hotkeys sub-section ──────────────────────────────────────
-                Text("Snap Hotkeys").font(.subheadline).padding(.top, 6)
-                snapHotkeyGroup(title: "Halves", actions: [.snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf],
-                                store: store, duplicated: duplicated)
-                snapHotkeyGroup(title: "Quarters", actions: [.snapTopLeft, .snapTopRight, .snapBottomLeft, .snapBottomRight],
-                                store: store, duplicated: duplicated)
-                snapHotkeyGroup(title: "Thirds", actions: [.snapLeftThird, .snapCenterThird, .snapRightThird, .snapLeftTwoThirds, .snapRightTwoThirds],
-                                store: store, duplicated: duplicated)
-                snapHotkeyGroup(title: "Full", actions: [.snapCenter, .snapMaximize],
-                                store: store, duplicated: duplicated)
-                Text("All snap hotkeys default to Off. Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘.")
-                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-
-                Toggle("Use Caps Lock as Hyper Key", isOn: Binding(
-                    get: { store.hyperkeyEnabled },
-                    set: { on in
-                        if on, !HyperkeyService.hasPermission { HyperkeyService.requestPermission() }
-                        store.setHyperkeyEnabled(on)
-                    }
-                )).accessibilityLabel("Use Caps Lock as Hyper Key")
-                Text("Hyper turns Caps Lock into ⌃⌥⇧⌘. It listens to keyboard events only, needs the Input Monitoring permission, and Caps Lock is restored when you turn it off or quit.")
-                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                if store.hyperkeyEnabled, !HyperkeyService.hasPermission {
-                    Button("Open Input Monitoring Settings") {
-                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") { NSWorkspace.shared.open(url) }
-                    }
-                }
-                Toggle("Pause Keyboard", isOn: Binding(
-                    get: { keyGuard.isPaused },
-                    set: { on in
-                        if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
-                        keyGuard.setPaused(on)
-                    }
-                )).accessibilityLabel("Pause Keyboard")
-                Text("While paused, key presses are ignored (the mouse still works). Press ⌃⌥⌘P to unpause. Needs the Input Monitoring permission.")
-                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                Toggle("Hold ⌘Q to Quit", isOn: Binding(
-                    get: { keyGuard.isSlowQuitEnabled },
-                    set: { on in
-                        if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
-                        keyGuard.setSlowQuit(on)
-                    }
-                )).accessibilityLabel("Hold ⌘Q to Quit")
-                Text("Press and hold ⌘Q for a moment to quit an app; releasing early cancels it. Apps listed below quit instantly instead.")
-                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                if keyGuard.isSlowQuitEnabled {
-                    HStack {
-                        Text("Hold duration")
-                        Slider(value: Binding(get: { keyGuard.slowQuitDuration },
-                                              set: { keyGuard.setSlowQuitDuration($0) }),
-                               in: 0.2...3, step: 0.1)
-                        Text(String(format: "%.1fs", keyGuard.slowQuitDuration))
-                            .monospacedDigit().frame(width: 48, alignment: .trailing)
-                    }
-                    TextField("Quit instantly, no hold (bundle IDs)", text: Binding(
-                        get: { keyGuard.slowQuitExceptions },
-                        set: { keyGuard.setSlowQuitExceptions($0) }
-                    ))
-                    .textFieldStyle(.roundedBorder)
-                }
-                Toggle("Show Keys You Type", isOn: Binding(
-                    get: { keyGuard.isVisualizerEnabled },
-                    set: { on in
-                        if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
-                        keyGuard.setVisualizer(on)
-                    }
-                )).accessibilityLabel("Show Keys You Type")
-                Text("Shows the keys you press in a small overlay. It displays what you type — treat it as a screen-sharing risk. Nothing is logged or saved, and it hides itself a moment after you stop typing.")
-                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                if keyGuard.isPaused || keyGuard.isSlowQuitEnabled || keyGuard.isVisualizerEnabled, !KeyGuardService.hasPermission {
-                    Button("Open Input Monitoring Settings") {
-                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") { NSWorkspace.shared.open(url) }
-                    }
-                }
-                Toggle("Open Launcher with Pinch", isOn: Binding(get: { store.launcherPinch }, set: { store.setLauncherPinch($0) })).accessibilityLabel("Open Launcher with Pinch")
-                Text("Pinch four or more fingers together on the trackpad. Turn off Launchpad under System Settings > Trackpad > More Gestures, or macOS opens its own app list too.")
-                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                Button("Open Trackpad Settings") {
-                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.trackpad") { NSWorkspace.shared.open(url) }
-                }
-                Text("Double-tap shortcuts need the Accessibility permission. ⌃Space may also switch input sources.")
-                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-            }
-
-            SettingsCard(Text("Radial Dial")) {
-                Toggle("Enable Radial Dial", isOn: $dialEnabled).accessibilityLabel("Enable Radial Dial")
-                Text("Summons a circular pie menu at your cursor for lightning-fast window snapping, app launching, and quick actions with spring physics.")
-                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                if dialEnabled {
-                    SettingsRow(Text("Theme")) {
-                        Picker("Theme", selection: Binding(get: { RadialDialTheme(rawValue: dialThemeRaw) ?? .lilacGlass }, set: { dialThemeRaw = $0.rawValue })) {
-                            ForEach(RadialDialTheme.allCases, id: \.self) { theme in
-                                radialDialThemeTitle(theme).tag(theme)
-                            }
-                        }
-                        .labelsHidden().pickerStyle(.menu).fixedSize()
-                    }
-                    SettingsRow(Text("Mouse Trigger")) {
-                        Picker("Mouse Trigger", selection: Binding(get: { RadialMouseTrigger(rawValue: dialMouseTriggerRaw) ?? .off }, set: { dialMouseTriggerRaw = $0.rawValue })) {
-                            ForEach(RadialMouseTrigger.allCases, id: \.self) { trigger in
-                                radialMouseTriggerTitle(trigger).tag(trigger)
-                            }
-                        }
-                        .labelsHidden().pickerStyle(.menu).fixedSize()
-                    }
-                    SettingsRow(Text("Trigger Mode")) {
-                        Picker("Trigger Mode", selection: Binding(get: { RadialTriggerMode(rawValue: dialTriggerModeRaw) ?? .tapToggle }, set: { dialTriggerModeRaw = $0.rawValue })) {
-                            ForEach(RadialTriggerMode.allCases, id: \.self) { mode in
-                                radialTriggerModeTitle(mode).tag(mode)
-                            }
-                        }
-                        .labelsHidden().pickerStyle(.menu).fixedSize()
-                    }
-                    Text("You can also summon the Radial Dial with the shortcut assigned in the Shortcuts section above.")
-                        .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                }
-            }
+                shortcutSections
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -948,6 +799,270 @@ struct SettingsLayoutPane: View {
             let hidden = LauncherStore(url: LauncherStore.defaultURL).load().hidden
             launcherHiddenCount = hidden.count
             launcherHiddenIDs = Set(hidden)
+        }
+    }
+
+    /// The Shortcuts page (Phase 12 A4). Every key assignment lives in the first card — a find
+    /// field, the feature actions, then the fifteen snap zones; the keyboard behaviours that change
+    /// how typing reaches apps are the second; the dial is the third. Three sections is the page's
+    /// budget (`Docs/SETTINGS.md` rule 5) and the long first one is why it carries a filter: 26
+    /// assignment rows is more than a reader should have to scroll through to find one.
+    @ViewBuilder
+    private var shortcutSections: some View {
+        let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
+        SettingsCard(
+            Text("Shortcuts"),
+            note: Text("Double-tap shortcuts need the Accessibility permission. ⌃Space may also switch input sources.")
+        ) {
+            SettingsRow(
+                Text("Search Shortcuts"),
+                info: String(localized: "Pick a shortcut from the list, or press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘.")
+            ) {
+                TextField("Search Shortcuts", text: $shortcutFilter)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 220)
+                    .accessibilityLabel(Text("Search Shortcuts"))
+            }
+            SettingsDivider()
+            ForEach(filteredFeatureShortcuts, id: \.self) { action in
+                shortcutRow(action, duplicated: duplicated)
+                SettingsDivider()
+            }
+            if hasVisibleSnapHotkeys {
+                SettingsRow(
+                    Text("Snap Hotkeys"),
+                    info: String(localized: "All snap hotkeys default to Off. Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘.")
+                ) { EmptyView() }
+                snapHotkeyGroup(title: Text("Halves"), actions: Self.snapHotkeyGroups[0], duplicated: duplicated)
+                snapHotkeyGroup(title: Text("Quarters"), actions: Self.snapHotkeyGroups[1], duplicated: duplicated)
+                snapHotkeyGroup(title: Text("Thirds"), actions: Self.snapHotkeyGroups[2], duplicated: duplicated)
+                snapHotkeyGroup(title: Text("Full"), actions: Self.snapHotkeyGroups[3], duplicated: duplicated)
+            }
+            if filteredFeatureShortcuts.isEmpty, !hasVisibleSnapHotkeys {
+                SettingsNote(Text("No shortcuts match."))
+            }
+        }
+
+        SettingsCard(Text("Keyboard")) {
+            SettingsToggleRow(
+                Text("Use Caps Lock as Hyper Key"),
+                isOn: Binding(
+                    get: { store.hyperkeyEnabled },
+                    set: { on in
+                        if on, !HyperkeyService.hasPermission { HyperkeyService.requestPermission() }
+                        store.setHyperkeyEnabled(on)
+                    }
+                ),
+                info: String(localized: "Hyper turns Caps Lock into ⌃⌥⇧⌘. It listens to keyboard events only, needs the Input Monitoring permission, and Caps Lock is restored when you turn it off or quit.")
+            )
+            if store.hyperkeyEnabled, !HyperkeyService.hasPermission {
+                SettingsButtonRow(Text("Open Input Monitoring Settings")) { openInputMonitoringSettings() }
+            }
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Pause Keyboard"),
+                isOn: Binding(
+                    get: { keyGuard.isPaused },
+                    set: { on in
+                        if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
+                        keyGuard.setPaused(on)
+                    }
+                ),
+                info: String(localized: "While paused, key presses are ignored (the mouse still works). Press ⌃⌥⌘P to unpause. Needs the Input Monitoring permission.")
+            )
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Hold ⌘Q to Quit"),
+                isOn: Binding(
+                    get: { keyGuard.isSlowQuitEnabled },
+                    set: { on in
+                        if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
+                        keyGuard.setSlowQuit(on)
+                    }
+                ),
+                info: String(localized: "Press and hold ⌘Q for a moment to quit an app; releasing early cancels it. Apps listed below quit instantly instead.")
+            )
+            if keyGuard.isSlowQuitEnabled {
+                SettingsSliderRow(
+                    Text("Hold duration"),
+                    value: keyGuard.slowQuitDuration,
+                    range: 0.2...3,
+                    step: 0.1,
+                    valueText: String(format: "%.1fs", keyGuard.slowQuitDuration),
+                    set: { keyGuard.setSlowQuitDuration($0) }
+                )
+                SettingsRow(Text("Quit instantly, no hold (bundle IDs)")) {
+                    TextField("Quit instantly, no hold (bundle IDs)", text: Binding(
+                        get: { keyGuard.slowQuitExceptions },
+                        set: { keyGuard.setSlowQuitExceptions($0) }
+                    ))
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 220)
+                }
+            }
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Show Keys You Type"),
+                isOn: Binding(
+                    get: { keyGuard.isVisualizerEnabled },
+                    set: { on in
+                        if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
+                        keyGuard.setVisualizer(on)
+                    }
+                ),
+                info: String(localized: "Shows the keys you press in a small overlay. It displays what you type — treat it as a screen-sharing risk. Nothing is logged or saved, and it hides itself a moment after you stop typing.")
+            )
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Open Launcher with Pinch"),
+                isOn: Binding(get: { store.launcherPinch }, set: { store.setLauncherPinch($0) }),
+                info: String(localized: "Pinch four or more fingers together on the trackpad. Turn off Launchpad under System Settings > Trackpad > More Gestures, or macOS opens its own app list too.")
+            )
+            if keyGuard.isPaused || keyGuard.isSlowQuitEnabled || keyGuard.isVisualizerEnabled, !KeyGuardService.hasPermission {
+                SettingsButtonRow(Text("Open Input Monitoring Settings")) { openInputMonitoringSettings() }
+            }
+            SettingsButtonRow(Text("Open Trackpad Settings")) {
+                if let url = URL(string: "x-apple.systempreferences:com.apple.preference.trackpad") { NSWorkspace.shared.open(url) }
+            }
+        }
+
+        SettingsCard(
+            Text("Radial Dial"),
+            note: Text("You can also summon the Radial Dial with the shortcut assigned in the Shortcuts section above.")
+        ) {
+            SettingsToggleRow(
+                Text("Enable Radial Dial"),
+                isOn: $dialEnabled,
+                info: String(localized: "Summons a circular pie menu at your cursor for lightning-fast window snapping, app launching, and quick actions with spring physics.")
+            )
+            if dialEnabled {
+                SettingsDivider()
+                SettingsPickerRow(Text("Theme"), selection: Binding(
+                    get: { RadialDialTheme(rawValue: dialThemeRaw) ?? .lilacGlass },
+                    set: { dialThemeRaw = $0.rawValue }
+                )) {
+                    ForEach(RadialDialTheme.allCases, id: \.self) { theme in
+                        radialDialThemeTitle(theme).tag(theme)
+                    }
+                }
+                SettingsDivider()
+                SettingsPickerRow(Text("Mouse Trigger"), selection: Binding(
+                    get: { RadialMouseTrigger(rawValue: dialMouseTriggerRaw) ?? .off },
+                    set: { dialMouseTriggerRaw = $0.rawValue }
+                )) {
+                    ForEach(RadialMouseTrigger.allCases, id: \.self) { trigger in
+                        radialMouseTriggerTitle(trigger).tag(trigger)
+                    }
+                }
+                SettingsDivider()
+                SettingsPickerRow(Text("Trigger Mode"), selection: Binding(
+                    get: { RadialTriggerMode(rawValue: dialTriggerModeRaw) ?? .tapToggle },
+                    set: { dialTriggerModeRaw = $0.rawValue }
+                )) {
+                    ForEach(RadialTriggerMode.allCases, id: \.self) { mode in
+                        radialTriggerModeTitle(mode).tag(mode)
+                    }
+                }
+            }
+        }
+    }
+
+    /// The eleven feature shortcuts (every action that neither snaps nor tiles), filtered by the
+    /// find field. Declaration order is the menu order, so the page never reorders itself.
+    private var filteredFeatureShortcuts: [ShortcutAction] {
+        ShortcutAction.allCases
+            .filter { $0.snapPosition == nil && !$0.isTilingAction }
+            .filter(matchesFilter)
+    }
+
+    /// The fifteen snap zones in the four groups the page captions (Halves, Quarters, Thirds,
+    /// Full). One list, so the page and its "is anything left after filtering" check cannot drift,
+    /// and `Tests/Unit/ShortcutsTests.swift` pins that it is every snap zone exactly once.
+    static let snapHotkeyGroups: [[ShortcutAction]] = [
+        [.snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf],
+        [.snapTopLeft, .snapTopRight, .snapBottomLeft, .snapBottomRight],
+        [.snapLeftThird, .snapCenterThird, .snapRightThird, .snapLeftTwoThirds, .snapRightTwoThirds],
+        [.snapCenter, .snapMaximize],
+    ]
+
+    private var hasVisibleSnapHotkeys: Bool {
+        Self.snapHotkeyGroups.contains { $0.contains(where: matchesFilter) }
+    }
+
+    /// Matching is on the localized name, so a search for what the reader sees works in all twelve
+    /// languages. The rule itself is static and pinned by `Tests/Unit/ShortcutsTests.swift`.
+    static func shortcutMatches(_ name: String, query: String) -> Bool {
+        let trimmed = query.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return true }
+        // `localizedStandardContains` is the comparison a search field wants: case- and
+        // diacritic-insensitive, so typing "cafe" finds "Café".
+        return name.localizedStandardContains(trimmed)
+    }
+
+    private func matchesFilter(_ action: ShortcutAction) -> Bool {
+        Self.shortcutMatches(Self.shortcutActionName(action), query: shortcutFilter)
+    }
+
+    /// One assignment: the action's name, its warning glyph when two actions share a shortcut, the
+    /// current binding and the Record button. Through the row system, so the label/control columns
+    /// match every other page (`Docs/SETTINGS.md` rules 3 and 6).
+    private func shortcutRow(_ action: ShortcutAction, duplicated: Set<ShortcutAction>) -> some View {
+        SettingsRow(Text(verbatim: Self.shortcutActionName(action))) {
+            HStack(spacing: SettingsMetrics.controlSpacing) {
+                if duplicated.contains(action) {
+                    Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                        .help(Text("Another action uses the same shortcut"))
+                }
+                shortcutPicker(action)
+                ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
+            }
+        }
+    }
+
+    /// The binding menu. Its own label is hidden, so the row carries the name for VoiceOver too.
+    private func shortcutPicker(_ action: ShortcutAction) -> some View {
+        Picker(selection: Binding(get: { store.shortcutBindings[action] ?? .off },
+                                  set: { store.setShortcut(action, $0) })) {
+            Text("Off").tag(ShortcutTrigger.off)
+            Divider()
+            ForEach(ShortcutChord.allCases, id: \.self) { Text(verbatim: $0.glyphs).tag(ShortcutTrigger.chord($0)) }
+            Divider()
+            ForEach(ShortcutTapKey.allCases, id: \.self) { key in
+                (Text("Double-tap") + Text(verbatim: " \(key.glyph) (\(key.isRight ? "R" : "L"))")).tag(ShortcutTrigger.doubleTap(key))
+            }
+            if case let .key(custom) = store.shortcutBindings[action] ?? .off {
+                Divider()
+                Text(verbatim: custom.glyphs).tag(ShortcutTrigger.key(custom))
+            }
+            if store.hyperkeyEnabled {
+                Divider()
+                ForEach(ShortcutKeyNames.hyperChoices, id: \.self) { code in
+                    Text(verbatim: "Hyper+" + (ShortcutKeyNames.name(for: code) ?? "?")).tag(ShortcutTrigger.hyper(code))
+                }
+            }
+        } label: { EmptyView() }
+        .pickerStyle(.menu)
+        .fixedSize()
+        .accessibilityLabel(Text(verbatim: Self.shortcutActionName(action)))
+    }
+
+    /// One snap group. The caption and its rows both disappear when the find field excludes them,
+    /// so an empty group never leaves a stray heading.
+    @ViewBuilder
+    private func snapHotkeyGroup(title: Text, actions: [ShortcutAction],
+                                 duplicated: Set<ShortcutAction>) -> some View {
+        let matching = actions.filter(matchesFilter)
+        if !matching.isEmpty {
+            title.font(.caption).foregroundStyle(.secondary).padding(.top, 2)
+            ForEach(matching, id: \.self) { action in
+                shortcutRow(action, duplicated: duplicated)
+            }
+        }
+    }
+
+    private func openInputMonitoringSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") {
+            NSWorkspace.shared.open(url)
         }
     }
 
@@ -960,71 +1075,47 @@ struct SettingsLayoutPane: View {
         }
     }
 
-    @ViewBuilder
-    private func snapHotkeyGroup(title: String, actions: [ShortcutAction],
-                                 store: AppSettingsStore, duplicated: Set<ShortcutAction>) -> some View {
-        Text(verbatim: title).font(.caption).foregroundStyle(.secondary).padding(.top, 2)
-        ForEach(actions, id: \.self) { action in
-            HStack {
-                shortcutActionTitle(action)
-                if duplicated.contains(action) {
-                    Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                        .help(Text("Another action uses the same shortcut"))
-                }
-                Spacer(minLength: 12)
-                Picker(selection: Binding(get: { store.shortcutBindings[action] ?? .off },
-                                         set: { store.setShortcut(action, $0) })) {
-                    Text("Off").tag(ShortcutTrigger.off)
-                    Divider()
-                    ForEach(ShortcutChord.allCases, id: \.self) { Text(verbatim: $0.glyphs).tag(ShortcutTrigger.chord($0)) }
-                    Divider()
-                    if case let .key(custom) = store.shortcutBindings[action] ?? .off {
-                        Text(verbatim: custom.glyphs).tag(ShortcutTrigger.key(custom))
-                        Divider()
-                    }
-                } label: { EmptyView() }
-                .pickerStyle(.menu).fixedSize()
-                ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
-            }
-        }
-    }
 
-    private func shortcutActionTitle(_ action: ShortcutAction) -> Text {
+    /// The action's name in one place, as a `String`: the row label, the VoiceOver label and the
+    /// find field all need the same text, and a search field can only match a string
+    /// (`String(localized:)` keeps the literal visible to `Scripts/check_localization.py`). Static,
+    /// so `Tests/Unit/ShortcutsTests.swift` can pin that no two actions wear one name.
+    static func shortcutActionName(_ action: ShortcutAction) -> String {
         switch action {
-        case .launcher: return Text("Launcher")
-        case .pinboard: return Text("Control Center")
-        case .quickSettings: return Text("Quick Settings")
-        case .keepAwake: return Text("Keep Awake")
-        case .drawer: return Text("Drawer")
-        case .notchTools: return Text("Notch Tools")
-        case .weather: return Text("Weather")
-        case .clock: return Text("Clock")
-        case .commandBar: return Text("Command Bar")
-        case .translate: return Text("Translate")
+        case .launcher: return String(localized: "Launcher")
+        case .pinboard: return String(localized: "Control Center")
+        case .quickSettings: return String(localized: "Quick Settings")
+        case .keepAwake: return String(localized: "Keep Awake")
+        case .drawer: return String(localized: "Drawer")
+        case .notchTools: return String(localized: "Notch Tools")
+        case .weather: return String(localized: "Weather")
+        case .clock: return String(localized: "Clock")
+        case .commandBar: return String(localized: "Command Bar")
+        case .translate: return String(localized: "Translate")
         // Phase 26a snap zones
-        case .snapLeftHalf: return Text("Snap Left Half")
-        case .snapRightHalf: return Text("Snap Right Half")
-        case .snapTopHalf: return Text("Snap Top Half")
-        case .snapBottomHalf: return Text("Snap Bottom Half")
-        case .snapTopLeft: return Text("Snap Top-Left")
-        case .snapTopRight: return Text("Snap Top-Right")
-        case .snapBottomLeft: return Text("Snap Bottom-Left")
-        case .snapBottomRight: return Text("Snap Bottom-Right")
-        case .snapLeftThird: return Text("Snap Left Third")
-        case .snapCenterThird: return Text("Snap Center Third")
-        case .snapRightThird: return Text("Snap Right Third")
-        case .snapLeftTwoThirds: return Text("Snap Left Two-Thirds")
-        case .snapRightTwoThirds: return Text("Snap Right Two-Thirds")
-        case .snapCenter: return Text("Snap Center")
-        case .snapMaximize: return Text("Snap Maximize")
+        case .snapLeftHalf: return String(localized: "Snap Left Half")
+        case .snapRightHalf: return String(localized: "Snap Right Half")
+        case .snapTopHalf: return String(localized: "Snap Top Half")
+        case .snapBottomHalf: return String(localized: "Snap Bottom Half")
+        case .snapTopLeft: return String(localized: "Snap Top-Left")
+        case .snapTopRight: return String(localized: "Snap Top-Right")
+        case .snapBottomLeft: return String(localized: "Snap Bottom-Left")
+        case .snapBottomRight: return String(localized: "Snap Bottom-Right")
+        case .snapLeftThird: return String(localized: "Snap Left Third")
+        case .snapCenterThird: return String(localized: "Snap Center Third")
+        case .snapRightThird: return String(localized: "Snap Right Third")
+        case .snapLeftTwoThirds: return String(localized: "Snap Left Two-Thirds")
+        case .snapRightTwoThirds: return String(localized: "Snap Right Two-Thirds")
+        case .snapCenter: return String(localized: "Snap Center")
+        case .snapMaximize: return String(localized: "Snap Maximize")
         // Phase 26b tiling actions
-        case .toggleTiling: return Text("Toggle Tiling")
-        case .cycleTilingLayout: return Text("Cycle Tiling Layout")
-        case .tilingFocusNext: return Text("Focus Next Tile")
-        case .tilingFocusPrevious: return Text("Focus Previous Tile")
-        case .tilingSwapNext: return Text("Swap with Next Tile")
-        case .tilingSwapPrevious: return Text("Swap with Previous Tile")
-        case .radialDial: return Text("Radial Dial")
+        case .toggleTiling: return String(localized: "Toggle Tiling")
+        case .cycleTilingLayout: return String(localized: "Cycle Tiling Layout")
+        case .tilingFocusNext: return String(localized: "Focus Next Tile")
+        case .tilingFocusPrevious: return String(localized: "Focus Previous Tile")
+        case .tilingSwapNext: return String(localized: "Swap with Next Tile")
+        case .tilingSwapPrevious: return String(localized: "Swap with Previous Tile")
+        case .radialDial: return String(localized: "Radial Dial")
         }
     }
 
