@@ -4233,6 +4233,9 @@ Overlooked by decision (owner agreed): Face Unlock, Stocks, embedded Terminal, F
 
 - 2026-10-15 · **37b + 37d delivered together — PASS (code; not live-checked).** `TeleprompterModel` (persisted script/WPM/font/mirror; 30 Hz timer only while playing, stops at the end), shared `TeleprompterView` (scroll area with eye-line marker at 35%, play/restart/nudge, speed + size sliders, mirror, edit, link chips), floating `TeleprompterWindowController` (resizable, always on top, **`sharingType = .none` so it never appears in recordings/shares**), opened from ⌘Space `prompter`/`tp` and Settings › Teleprompter. **Link reader** (`LinkReaderModel`): fetch only on chip tap; https only; private/local hosts refused (re-checked after redirects); ephemeral session (no cookies/credentials), 10 s timeout, 2 MB cap, text/HTML only; unreadable pages say so; "Send to Prompter" replaces the script. Strings ×12. Not stored, no dependency.
 
+- 2026-10-15 · **37c delivered — PASS (code; not live-checked).** `NotchPage.teleprompter` (7th page) exists only while `com.katikati.teleprompter.enabled` is on (Settings › Teleprompter Notch Page, **default off**): `NotchPage.visible(teleprompter:)` drives paging, the header, the dots and the context menu, so with it off the gallery is byte-identical to the six pages (witnessed in `testTeleprompterPageIsOptional`; existing paging tests untouched). The page is the compact `TeleprompterView` (scroll + play/restart + "open window"); it pauses when the page disappears. Strings ×12.
+- 2026-10-15 · **37e (live check) is the owner's:** open ⌘Space `prompter`, paste a script with a link, tap the chip and send it to the prompter; turn on the notch page and scroll to it; confirm the window is absent from a screen recording.
+
 #### Phase 37 — Teleprompter with link reader (notch page + floating window)
 
 **Goal.** A script reader that scrolls under the camera. **One engine, two hosts:** a 7th notch page (short scripts) and a

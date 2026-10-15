@@ -28,13 +28,15 @@ final class NotchModel: ObservableObject {
     var openSettings: () -> Void = {}
 
     func stepPage(forward: Bool) {
-        activePage = forward ? activePage.next(wrap: true) : activePage.previous(wrap: true)
+        let tp = UserDefaults.standard.bool(forKey: TeleprompterModel.enabledKey)
+        activePage = forward ? activePage.next(wrap: true, teleprompter: tp) : activePage.previous(wrap: true, teleprompter: tp)
     }
 }
 
 struct NotchIslandView: View {
     @ObservedObject var model: NotchModel
     @ObservedObject private var feed = LiveActivityFeed.shared
+    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     let metrics: NotchMetrics
     let theme: NowPlayingTheme
 
@@ -72,7 +74,7 @@ struct NotchIslandView: View {
         .contentShape(Rectangle())
         .contextMenu {
             Section {
-                ForEach(NotchPage.allCases) { page in
+                ForEach(NotchPage.visible(teleprompter: teleprompterPage)) { page in
                     Button {
                         withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
                             model.activePage = page
@@ -107,7 +109,7 @@ struct NotchIslandView: View {
 
     private var pageIndicatorDots: some View {
         HStack(spacing: 6) {
-            ForEach(NotchPage.allCases) { page in
+            ForEach(NotchPage.visible(teleprompter: teleprompterPage)) { page in
                 Capsule()
                     .fill(model.activePage == page ? Color.white.opacity(0.9) : Color.white.opacity(0.25))
                     .frame(width: model.activePage == page ? 18 : 6, height: 4)

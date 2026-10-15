@@ -7,12 +7,13 @@ struct NotchHeaderView: View {
     @ObservedObject var model: NotchModel
     let metrics: NotchMetrics
     @StateObject private var power = SystemStatusService()
+    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
 
     var body: some View {
         let side = NotchLayoutSpec.headerButtonSize
         HStack(spacing: 0) {
             HStack(spacing: 4) {
-                ForEach(NotchPage.allCases) { page in
+                ForEach(NotchPage.visible(teleprompter: teleprompterPage)) { page in
                     pageButton(page)
                 }
             }

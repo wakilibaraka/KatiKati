@@ -11,6 +11,7 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
     case downloadDeck = 3   // Page 4: Download Manager & Torrent Hub
     case calendarFocus = 4  // Page 5: Obsidian Calendar & Focus Hourglass / Spinner
     case hardwareHud = 5    // Page 6: Hardware HUD & Sensory Deck
+    case teleprompter = 6   // Page 7 (Phase 37c): only present while the owner turns it on
 
     var id: Int { rawValue }
 
@@ -22,6 +23,7 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         case .downloadDeck: return "Downloads & Torrents"
         case .calendarFocus: return "Obsidian Calendar"
         case .hardwareHud: return "Hardware HUD"
+        case .teleprompter: return "Teleprompter"
         }
     }
 
@@ -33,24 +35,27 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         case .downloadDeck: return "arrow.down.circle.fill"
         case .calendarFocus: return "calendar"
         case .hardwareHud: return "cpu"
+        case .teleprompter: return "text.alignleft"
         }
     }
 
-    func next(wrap: Bool = true) -> NotchPage {
-        let all = Self.allCases
-        let nextIndex = rawValue + 1
-        if nextIndex < all.count {
-            return all[nextIndex]
-        }
+    /// The pages in paging order. The teleprompter page exists only while it is switched on, so with it
+    /// off the gallery is exactly the six pages it always was.
+    static func visible(teleprompter: Bool) -> [NotchPage] {
+        teleprompter ? allCases : allCases.filter { $0 != .teleprompter }
+    }
+
+    func next(wrap: Bool = true, teleprompter: Bool = false) -> NotchPage {
+        let all = Self.visible(teleprompter: teleprompter)
+        guard let index = all.firstIndex(of: self) else { return all[0] }
+        if index + 1 < all.count { return all[index + 1] }
         return wrap ? all[0] : self
     }
 
-    func previous(wrap: Bool = true) -> NotchPage {
-        let all = Self.allCases
-        let prevIndex = rawValue - 1
-        if prevIndex >= 0 {
-            return all[prevIndex]
-        }
+    func previous(wrap: Bool = true, teleprompter: Bool = false) -> NotchPage {
+        let all = Self.visible(teleprompter: teleprompter)
+        guard let index = all.firstIndex(of: self) else { return all[0] }
+        if index > 0 { return all[index - 1] }
         return wrap ? all[all.count - 1] : self
     }
 }

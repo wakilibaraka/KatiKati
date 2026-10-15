@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FB37A00000000000001002 /* NotchTeleprompterPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000001001 /* NotchTeleprompterPageView.swift */; };
+		FB37A00000000000001003 /* NotchTeleprompterPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000001001 /* NotchTeleprompterPageView.swift */; };
 		FB37A00000000000000F02 /* TeleprompterWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000F01 /* TeleprompterWindowController.swift */; };
 		FB37A00000000000000F03 /* TeleprompterWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000F01 /* TeleprompterWindowController.swift */; };
 		FB37A00000000000000E02 /* LinkReaderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000E01 /* LinkReaderModel.swift */; };
@@ -1036,6 +1038,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FB37A00000000000001001 /* NotchTeleprompterPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchTeleprompterPageView.swift; path = App/Scenes/Notch/NotchTeleprompterPageView.swift; sourceTree = SOURCE_ROOT; };
 		FB37A00000000000000F01 /* TeleprompterWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TeleprompterWindowController.swift; path = App/Entry/TeleprompterWindowController.swift; sourceTree = SOURCE_ROOT; };
 		FB37A00000000000000E01 /* LinkReaderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LinkReaderModel.swift; path = App/Composition/LinkReaderModel.swift; sourceTree = SOURCE_ROOT; };
 		FB37A00000000000000D01 /* TeleprompterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TeleprompterView.swift; path = App/Scenes/TeleprompterView.swift; sourceTree = SOURCE_ROOT; };
@@ -3020,6 +3023,7 @@
 				FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000142 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000152 /* DownloadManagerService.swift in Sources */,
+				FB37A00000000000001002 /* NotchTeleprompterPageView.swift in Sources */,
 				FB37A00000000000000F02 /* TeleprompterWindowController.swift in Sources */,
 				FB37A00000000000000E02 /* LinkReaderModel.swift in Sources */,
 				FB37A00000000000000D02 /* TeleprompterView.swift in Sources */,
@@ -3141,6 +3145,7 @@
 				FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000143 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000153 /* DownloadManagerService.swift in Sources */,
+				FB37A00000000000001003 /* NotchTeleprompterPageView.swift in Sources */,
 				FB37A00000000000000F03 /* TeleprompterWindowController.swift in Sources */,
 				FB37A00000000000000E03 /* LinkReaderModel.swift in Sources */,
 				FB37A00000000000000D03 /* TeleprompterView.swift in Sources */,

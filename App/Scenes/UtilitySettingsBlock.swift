@@ -18,6 +18,7 @@ struct UtilitySettingsBlock: View {
     @AppStorage(DailyHelpersService.batteryKey) private var batteryNudge = false
     @AppStorage(DailyHelpersService.ejectKey) private var usbEject = false
     @AppStorage(DailyHelpersService.privacyKey) private var privacyDot = false
+    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
 
     var body: some View {
         HStack {
@@ -63,6 +64,9 @@ struct UtilitySettingsBlock: View {
             Text("Teleprompter")
             Spacer(minLength: 12)
             Button("Open Teleprompter Window") { TeleprompterWindowController.shared.show() }
+        }
+        row("Teleprompter Notch Page") {
+            Toggle("Teleprompter Notch Page", isOn: $teleprompterPage).toggleStyle(.switch).labelsHidden()
         }
         Text("Opens from ⌘Space (prompter). The window is hidden from screen recordings and shares.").font(.caption).foregroundColor(.secondary)
         Text("Launcher").font(.headline)

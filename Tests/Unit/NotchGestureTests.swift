@@ -272,4 +272,15 @@ final class NotchGestureTests: XCTestCase {
         let s1 = scroll.steps(deltaX: 15, timestamp: 1.05, precise: true, hasPhase: true, began: false, ended: false, momentum: false)
         XCTAssertEqual(s1, -1) // negative delta moves forward, positive moves backward
     }
+
+    // Phase 37c: the teleprompter page is the 7th page only while switched on; off, paging is the original six.
+    func testTeleprompterPageIsOptional() {
+        XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 6)
+        XCTAssertEqual(NotchPage.visible(teleprompter: true).last, .teleprompter)
+        XCTAssertEqual(NotchPage.hardwareHud.next(wrap: true), .aiTracker)
+        XCTAssertEqual(NotchPage.hardwareHud.next(wrap: true, teleprompter: true), .teleprompter)
+        XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: true), .aiTracker)
+        XCTAssertEqual(NotchPage.aiTracker.previous(wrap: true, teleprompter: true), .teleprompter)
+        XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: false), .aiTracker)   // switched off while on it
+    }
 }
