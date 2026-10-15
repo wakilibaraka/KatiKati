@@ -4225,6 +4225,8 @@ Overlooked by decision (owner agreed): Face Unlock, Stocks, embedded Terminal, F
 
 - 2026-10-15 · **36e delivered — PASS (code; not live-checked).** `Platform/SystemStatus/AudioOutputSwitcher.swift`: output-device list + set-default via CoreAudio, no listener (queried only when the menu appears or a device is picked). `AudioOutputMenu` now wraps both AirPlay glyphs on the Now Playing card / volume page (they were dead buttons). Always on — no toggle, since it replaces a no-op control. String "Audio Output" ×12. Needs a live check with two outputs (e.g. speakers + AirPods).
 
+- 2026-10-15 · **36h delivered — PASS (code; not live-checked).** `PrivacyUseProbe` (CoreAudio default-input and CoreMediaIO camera `IsRunningSomewhere` — never opens a device, no permission) + `PrivacyDotController` (click-through panel beside the notch: green camera, orange mic) behind `com.katikati.helpers.privacyDot` (default off). **`shortcut:` 2 s poll of two property reads only while on** instead of per-device listeners; revisit if the wakeups show. Pure `PrivacyDots` + test; strings ×12. Live check: start a FaceTime/Photo Booth and a voice memo.
+
 #### Phase 37 — Teleprompter with link reader (notch page + floating window)
 
 **Goal.** A script reader that scrolls under the camera. **One engine, two hosts:** a 7th notch page (short scripts) and a

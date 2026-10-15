@@ -16,6 +16,7 @@ struct UtilitySettingsBlock: View {
     @AppStorage(DailyHelpersService.capsLockKey) private var capsLockHUD = false
     @AppStorage(DailyHelpersService.batteryKey) private var batteryNudge = false
     @AppStorage(DailyHelpersService.ejectKey) private var usbEject = false
+    @AppStorage(DailyHelpersService.privacyKey) private var privacyDot = false
 
     var body: some View {
         HStack {
@@ -53,6 +54,9 @@ struct UtilitySettingsBlock: View {
         Text("Keys are off for 60 seconds. Press ⌃⌥⌘P to unlock sooner.").font(.caption).foregroundColor(.secondary)
         row("Offer to Eject Drives") {
             Toggle("Offer to Eject Drives", isOn: $usbEject).toggleStyle(.switch).labelsHidden()
+        }
+        row("Camera and Mic Indicator") {
+            Toggle("Camera and Mic Indicator", isOn: $privacyDot).toggleStyle(.switch).labelsHidden()
         }
         Text("Launcher").font(.headline)
         row("Script Commands") {

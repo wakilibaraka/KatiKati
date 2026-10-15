@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FB36A00000000000000F02 /* PrivacyUseProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB36A00000000000000F01 /* PrivacyUseProbe.swift */; };
+		FB36A00000000000000F03 /* PrivacyUseProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB36A00000000000000F01 /* PrivacyUseProbe.swift */; };
 		FB36A00000000000000E02 /* AudioOutputSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB36A00000000000000E01 /* AudioOutputSwitcher.swift */; };
 		FB36A00000000000000E03 /* AudioOutputSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB36A00000000000000E01 /* AudioOutputSwitcher.swift */; };
 		FB36A00000000000000D02 /* USBEjectPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB36A00000000000000D01 /* USBEjectPill.swift */; };
@@ -1023,6 +1025,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FB36A00000000000000F01 /* PrivacyUseProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PrivacyUseProbe.swift; path = Platform/SystemStatus/PrivacyUseProbe.swift; sourceTree = SOURCE_ROOT; };
 		FB36A00000000000000E01 /* AudioOutputSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AudioOutputSwitcher.swift; path = Platform/SystemStatus/AudioOutputSwitcher.swift; sourceTree = SOURCE_ROOT; };
 		FB36A00000000000000D01 /* USBEjectPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = USBEjectPill.swift; path = App/Scenes/USBEjectPill.swift; sourceTree = SOURCE_ROOT; };
 		FB36A00000000000000C01 /* DailyHelpersRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DailyHelpersRulesTests.swift; path = Tests/Unit/DailyHelpersRulesTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3000,6 +3003,7 @@
 				FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000142 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000152 /* DownloadManagerService.swift in Sources */,
+				FB36A00000000000000F02 /* PrivacyUseProbe.swift in Sources */,
 				FB36A00000000000000E02 /* AudioOutputSwitcher.swift in Sources */,
 				FB36A00000000000000D02 /* USBEjectPill.swift in Sources */,
 				FB36A00000000000000B02 /* DailyHelpersRules.swift in Sources */,
@@ -3115,6 +3119,7 @@
 				FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000143 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000153 /* DownloadManagerService.swift in Sources */,
+				FB36A00000000000000F03 /* PrivacyUseProbe.swift in Sources */,
 				FB36A00000000000000E03 /* AudioOutputSwitcher.swift in Sources */,
 				FB36A00000000000000D03 /* USBEjectPill.swift in Sources */,
 				FB36A00000000000000B03 /* DailyHelpersRules.swift in Sources */,

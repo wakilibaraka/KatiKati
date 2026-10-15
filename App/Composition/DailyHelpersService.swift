@@ -12,6 +12,7 @@ final class DailyHelpersService {
     static let capsLockKey = "com.katikati.helpers.capsLock"
     static let batteryKey = "com.katikati.helpers.batteryNudge"
     static let ejectKey = "com.katikati.helpers.usbEject"
+    static let privacyKey = "com.katikati.helpers.privacyDot"
 
     /// Set by `AppDelegate` to `liveEventCenter.deliver`.
     var deliver: (LiveEvent) -> Void = { _ in }
@@ -27,6 +28,8 @@ final class DailyHelpersService {
     private var batteryRule = BatteryNoticeRule()
     private var mountObserver: NSObjectProtocol?
     private let ejectPill = USBEjectPillController()
+    private var privacyTimer: Timer?
+    private let privacyDots = PrivacyDotController()
 
     func start() {
         guard defaultsObserver == nil else { return }
@@ -41,6 +44,7 @@ final class DailyHelpersService {
         applyCapsLock(UserDefaults.standard.bool(forKey: Self.capsLockKey))
         applyBattery(UserDefaults.standard.bool(forKey: Self.batteryKey))
         applyEject(UserDefaults.standard.bool(forKey: Self.ejectKey))
+        applyPrivacy(UserDefaults.standard.bool(forKey: Self.privacyKey))
     }
 
     // MARK: 36d — hide from screen capture
@@ -131,5 +135,27 @@ final class DailyHelpersService {
                                     isLocal: values.volumeIsLocal ?? true,
                                     isRoot: url.path == "/") else { return }
         ejectPill.show(volumeURL: url, name: values.volumeName ?? url.lastPathComponent)
+    }
+
+    // MARK: 36h — privacy dot
+
+    /// shortcut: two property reads every 2 s while on, instead of per-device property listeners (which need
+    /// re-registering as cameras come and go); move to listeners if the wakeups ever show in Activity Monitor.
+    private func applyPrivacy(_ on: Bool) {
+        if on, privacyTimer == nil {
+            let timer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
+                MainActor.assumeIsolated { self?.pollPrivacy() }
+            }
+            timer.tolerance = 0.5
+            privacyTimer = timer
+            pollPrivacy()
+        } else if !on, privacyTimer != nil {
+            privacyTimer?.invalidate(); privacyTimer = nil
+            privacyDots.hide()
+        }
+    }
+
+    private func pollPrivacy() {
+        privacyDots.update(PrivacyDots(camera: PrivacyUseProbe.cameraInUse(), microphone: PrivacyUseProbe.microphoneInUse()))
     }
 }

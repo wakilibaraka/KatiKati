@@ -60,3 +60,10 @@ enum EjectPolicy {
         isEjectable && !isInternal && isLocal && !isRoot
     }
 }
+
+/// 36h — which privacy dots show (green camera, orange microphone, both can show together).
+struct PrivacyDots: Equatable, Sendable {
+    var camera = false
+    var microphone = false
+    var isEmpty: Bool { !camera && !microphone }
+}

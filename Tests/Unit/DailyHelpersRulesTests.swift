@@ -45,4 +45,10 @@ final class DailyHelpersRulesTests: XCTestCase {
         XCTAssertFalse(EjectPolicy.isOffered(isEjectable: true, isInternal: false, isLocal: true, isRoot: true))
         XCTAssertFalse(EjectPolicy.isOffered(isEjectable: false, isInternal: false, isLocal: true, isRoot: false))
     }
+
+    func testPrivacyDotsEmptyOnlyWhenNothingInUse() {
+        XCTAssertTrue(PrivacyDots().isEmpty)
+        XCTAssertFalse(PrivacyDots(camera: true).isEmpty)
+        XCTAssertFalse(PrivacyDots(microphone: true).isEmpty)
+    }
 }
