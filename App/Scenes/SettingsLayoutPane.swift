@@ -296,8 +296,81 @@ struct SettingsLayoutPane: View {
 
     /// Phase 12e — the same pane serves two tabs: Layout keeps the dock geometry, Widgets takes
     /// the widget list, presets and styles.
-    enum Mode { case layout, widgets }
+    enum Mode { case layout, widgets, edgeBars }
     var mode: Mode = .layout
+
+    @ViewBuilder
+    private var edgeBarSections: some View {
+            section {
+                Text("Edge Bars")
+            } content: {
+                Picker("Edge Bars", selection: Binding(
+                    get: { store.edgeBarPreset },
+                    set: { store.setEdgeBarPreset($0) }
+                )) {
+                    ForEach(EdgeBarPreset.allCases, id: \.self) { Self.presetTitle($0).tag($0) }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .fixedSize()
+                // Phase 18g/18h: what an edge bar does when the dock rail takes its side.
+                segmentedRow(Text("Edge Bar on the Dock's Side"), selection: Binding(
+                    get: { store.edgeConflictPolicy },
+                    set: { store.setEdgeConflictPolicy($0) }
+                )) {
+                    Text("Move Across").tag(EdgeConflictPolicy.moveAcross)
+                    Text("Hide").tag(EdgeConflictPolicy.hide)
+                }
+                .disabled(store.stripPlacementMap.global == .bottom)
+                HStack {
+                    Text("Main Side")
+                    Spacer(minLength: 12)
+                    Picker("Main Side", selection: Binding(
+                        get: { store.edgePrimarySide },
+                        set: { store.setEdgePrimarySide($0) }
+                    )) {
+                        Text("Left").tag(EdgeSide.left)
+                        Text("Right").tag(EdgeSide.right)
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.segmented)
+                    .fixedSize()
+                    .disabled(store.edgeBarPreset == .off || store.edgeBarPreset == .custom)
+                }
+                if store.edgeBarPreset == .custom {
+                    customRows
+                } else if store.edgeBarPreset != .off {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Widgets").font(.subheadline.weight(.semibold))
+                        ForEach(WidgetTile.allCases, id: \.self) { tile in
+                            Toggle(isOn: Binding(
+                                get: { store.widgetTiles.contains(tile) },
+                                set: { store.setWidgetTile(tile, enabled: $0) }
+                            )) {
+                                Self.itemTitle(EdgeItem.allCases.first { $0.widget == tile } ?? .weather)
+                            }
+                            .accessibilityLabel(Self.itemTitle(EdgeItem.allCases.first { $0.widget == tile } ?? .weather))
+                        }
+                    }
+                }
+                Toggle("Keep Edge Bars Open", isOn: Binding(
+                    get: { store.deckKeepOpen },
+                    set: { store.setDeckKeepOpen($0) }
+                )).accessibilityLabel("Keep Edge Bars Open")
+                .disabled(store.edgeBarPreset == .off)
+                if store.edgeBarPreset != .off {
+                    deckControls
+                }
+                Toggle("Sync Notes with iCloud Drive", isOn: Binding(
+                    get: { store.notesSyncEnabled },
+                    set: { store.setNotesSyncEnabled($0) }
+                )).accessibilityLabel("Sync Notes with iCloud Drive")
+                Text("Slim bars on the screen edges for notes, productivity and system status. Pick a layout, flip it to either side, or choose Custom to place each item yourself.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+    }
 
     @ViewBuilder
     private var widgetSections: some View {
@@ -383,6 +456,8 @@ struct SettingsLayoutPane: View {
         VStack(alignment: .leading, spacing: 18) {
             if mode == .widgets {
                 widgetSections
+            } else if mode == .edgeBars {
+                edgeBarSections
             } else {
             section {
                 Text("Preview")
@@ -394,20 +469,6 @@ struct SettingsLayoutPane: View {
                     // window's height probe proposes no height, so `aspectRatio` would collapse.
                     .frame(maxWidth: .infinity)
                     .frame(height: 72)
-            }
-
-            section {
-                HStack {
-                    Text("Dock Style")
-                    Spacer(minLength: 8)
-                    if store.currentDockStyle == nil {
-                        Text("Custom").font(.caption).foregroundStyle(.secondary)
-                    }
-                }
-            } content: {
-                DockStylePicker(selection: store.currentDockStyle?.id, inputs: inputs) {
-                    store.applyDockStyle($0, screenWidth: dockScreenWidth)
-                }
             }
 
             section {
@@ -517,7 +578,7 @@ struct SettingsLayoutPane: View {
                         ForEach([BarSection.weather, .media, .clock], id: \.self) { widget in
                             sliderRow(widgetLabel(widget),
                                       value: store.widgetWidths[widget.rawValue] ?? widget.defaultWidgetWidth,
-                                      range: 60...400, step: 5) {
+                                      range: widget.minimumExactWidth...400, step: 5) {
                                 store.setWidgetWidth($0, for: widget)
                             }
                         }
@@ -528,75 +589,6 @@ struct SettingsLayoutPane: View {
                 }
             } content: {
                 EmptyView()
-            }
-
-            section {
-                Text("Edge Bars")
-            } content: {
-                Picker("Edge Bars", selection: Binding(
-                    get: { store.edgeBarPreset },
-                    set: { store.setEdgeBarPreset($0) }
-                )) {
-                    ForEach(EdgeBarPreset.allCases, id: \.self) { Self.presetTitle($0).tag($0) }
-                }
-                .labelsHidden()
-                .pickerStyle(.menu)
-                .fixedSize()
-                // Phase 18g/18h: what an edge bar does when the dock rail takes its side.
-                segmentedRow(Text("Edge Bar on the Dock's Side"), selection: Binding(
-                    get: { store.edgeConflictPolicy },
-                    set: { store.setEdgeConflictPolicy($0) }
-                )) {
-                    Text("Move Across").tag(EdgeConflictPolicy.moveAcross)
-                    Text("Hide").tag(EdgeConflictPolicy.hide)
-                }
-                .disabled(store.stripPlacementMap.global == .bottom)
-                HStack {
-                    Text("Main Side")
-                    Spacer(minLength: 12)
-                    Picker("Main Side", selection: Binding(
-                        get: { store.edgePrimarySide },
-                        set: { store.setEdgePrimarySide($0) }
-                    )) {
-                        Text("Left").tag(EdgeSide.left)
-                        Text("Right").tag(EdgeSide.right)
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.segmented)
-                    .fixedSize()
-                    .disabled(store.edgeBarPreset == .off || store.edgeBarPreset == .custom)
-                }
-                if store.edgeBarPreset == .custom {
-                    customRows
-                } else if store.edgeBarPreset != .off {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Widgets").font(.subheadline.weight(.semibold))
-                        ForEach(WidgetTile.allCases, id: \.self) { tile in
-                            Toggle(isOn: Binding(
-                                get: { store.widgetTiles.contains(tile) },
-                                set: { store.setWidgetTile(tile, enabled: $0) }
-                            )) {
-                                Self.itemTitle(EdgeItem.allCases.first { $0.widget == tile } ?? .weather)
-                            }
-                        }
-                    }
-                }
-                Toggle("Keep Edge Bars Open", isOn: Binding(
-                    get: { store.deckKeepOpen },
-                    set: { store.setDeckKeepOpen($0) }
-                ))
-                .disabled(store.edgeBarPreset == .off)
-                if store.edgeBarPreset != .off {
-                    deckControls
-                }
-                Toggle("Sync Notes with iCloud Drive", isOn: Binding(
-                    get: { store.notesSyncEnabled },
-                    set: { store.setNotesSyncEnabled($0) }
-                ))
-                Text("Slim bars on the screen edges for notes, productivity and system status. Pick a layout, flip it to either side, or choose Custom to place each item yourself.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
             }
 
             section {
@@ -648,7 +640,7 @@ struct SettingsLayoutPane: View {
                 Toggle("Show All Running Apps", isOn: Binding(
                     get: { store.showAllRunningApps },
                     set: { store.setShowAllRunningApps($0) }
-                ))
+                )).accessibilityLabel("Show All Running Apps")
                 Text("Gives every running app a chip, even when it has no open window — like the system Dock.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -656,7 +648,7 @@ struct SettingsLayoutPane: View {
                 Toggle("Hover Preview", isOn: Binding(
                     get: { store.chipPreviewEnabled },
                     set: { store.setChipPreviewEnabled($0) }
-                ))
+                )).accessibilityLabel("Hover Preview")
                 if store.chipPreviewEnabled {
                     HStack {
                         Text("Preview Delay")
@@ -695,7 +687,7 @@ struct SettingsLayoutPane: View {
                 Toggle("Classic Right-Click Menu", isOn: Binding(
                     get: { store.chipClassicMenu },
                     set: { store.setChipClassicMenu($0) }
-                ))
+                )).accessibilityLabel("Classic Right-Click Menu")
                 Text("Right-click a window chip for a floating jump list above the dock. Turn this on to use the system menu instead.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -735,6 +727,7 @@ struct SettingsLayoutPane: View {
                             get: { launcherHiddenIDs.contains(entry.bundleID) },
                             set: { _ in updateLauncherState { $0.hidden = LauncherOrdering.toggleHidden($0.hidden, entry.bundleID) } }
                         )) { Text(verbatim: entry.name) }
+                        .accessibilityLabel(Text(verbatim: entry.name))
                     }
                 }
                 HStack {
@@ -852,12 +845,14 @@ struct SettingsLayoutPane: View {
                     Toggle(isOn: Binding(get: { store.controlCenterWidgets.contains(kind) }, set: { store.setControlCenterWidget(kind, enabled: $0) })) {
                         controlCenterWidgetTitle(kind)
                     }
+                    .accessibilityLabel(controlCenterWidgetTitle(kind))
                 }
                 Text("Quick Settings").font(.subheadline).padding(.top, 6)
                 ForEach(QuickToggleID.defaultOrder, id: \.self) { id in
                     Toggle(isOn: Binding(get: { store.controlCenterToggles.contains(id) }, set: { store.setControlCenterToggle(id, enabled: $0) })) {
                         id.title
                     }
+                    .accessibilityLabel(id.title)
                 }
             }
 
@@ -918,7 +913,7 @@ struct SettingsLayoutPane: View {
                         if on, !HyperkeyService.hasPermission { HyperkeyService.requestPermission() }
                         store.setHyperkeyEnabled(on)
                     }
-                ))
+                )).accessibilityLabel("Use Caps Lock as Hyper Key")
                 Text("Hyper turns Caps Lock into ⌃⌥⇧⌘. It listens to keyboard events only, needs the Input Monitoring permission, and Caps Lock is restored when you turn it off or quit.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 if store.hyperkeyEnabled, !HyperkeyService.hasPermission {
@@ -932,7 +927,7 @@ struct SettingsLayoutPane: View {
                         if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
                         keyGuard.setPaused(on)
                     }
-                ))
+                )).accessibilityLabel("Pause Keyboard")
                 Text("While paused, key presses are ignored (the mouse still works). Press ⌃⌥⌘P to unpause. Needs the Input Monitoring permission.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 Toggle("Hold ⌘Q to Quit", isOn: Binding(
@@ -941,7 +936,7 @@ struct SettingsLayoutPane: View {
                         if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
                         keyGuard.setSlowQuit(on)
                     }
-                ))
+                )).accessibilityLabel("Hold ⌘Q to Quit")
                 Text("Press and hold ⌘Q for a moment to quit an app; releasing early cancels it. Apps listed below quit instantly instead.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 if keyGuard.isSlowQuitEnabled {
@@ -965,7 +960,7 @@ struct SettingsLayoutPane: View {
                         if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
                         keyGuard.setVisualizer(on)
                     }
-                ))
+                )).accessibilityLabel("Show Keys You Type")
                 Text("Shows the keys you press in a small overlay. It displays what you type — treat it as a screen-sharing risk. Nothing is logged or saved, and it hides itself a moment after you stop typing.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 if keyGuard.isPaused || keyGuard.isSlowQuitEnabled || keyGuard.isVisualizerEnabled, !KeyGuardService.hasPermission {
@@ -973,7 +968,7 @@ struct SettingsLayoutPane: View {
                         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") { NSWorkspace.shared.open(url) }
                     }
                 }
-                Toggle("Open Launcher with Pinch", isOn: Binding(get: { store.launcherPinch }, set: { store.setLauncherPinch($0) }))
+                Toggle("Open Launcher with Pinch", isOn: Binding(get: { store.launcherPinch }, set: { store.setLauncherPinch($0) })).accessibilityLabel("Open Launcher with Pinch")
                 Text("Pinch four or more fingers together on the trackpad. Turn off Launchpad under System Settings > Trackpad > More Gestures, or macOS opens its own app list too.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 Button("Open Trackpad Settings") {
@@ -989,7 +984,7 @@ struct SettingsLayoutPane: View {
                 Toggle("Move Notification Banners", isOn: Binding(
                     get: { notifMove.isEnabled },
                     set: { notifMove.setEnabled($0) }
-                ))
+                )).accessibilityLabel("Move Notification Banners")
                 Text("KatiKati moves each notification banner to the position you pick with the Accessibility API. Notification Center's private interface changes between macOS updates: when the layout looks unfamiliar, KatiKati leaves notifications alone, and only the first banner of a burst moves. Turning this off restores the macOS default immediately.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 if notifMove.isEnabled {
@@ -1009,7 +1004,7 @@ struct SettingsLayoutPane: View {
             section {
                 Text("Radial Dial")
             } content: {
-                Toggle("Enable Radial Dial", isOn: $dialEnabled)
+                Toggle("Enable Radial Dial", isOn: $dialEnabled).accessibilityLabel("Enable Radial Dial")
                 Text("Summons a circular pie menu at your cursor for lightning-fast window snapping, app launching, and quick actions with spring physics.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 if dialEnabled {
@@ -1197,7 +1192,7 @@ struct SettingsLayoutPane: View {
                         .monospacedDigit().foregroundStyle(.secondary).frame(width: 52, alignment: .trailing)
                 }
             }
-            Toggle("Magnify Buttons Under the Pointer", isOn: Binding(get: { store.deckMagnify }, set: { store.setDeckMagnify($0) }))
+            Toggle("Magnify Buttons Under the Pointer", isOn: Binding(get: { store.deckMagnify }, set: { store.setDeckMagnify($0) })).accessibilityLabel("Magnify Buttons Under the Pointer")
             edgePrefRow("Magnify Amount") {
                 Picker("Magnify Amount", selection: edgePrefBinding(\.magnifyAmount)) {
                     Text("Subtle").tag(EdgeMagnifyAmount.subtle)
@@ -1232,8 +1227,8 @@ struct SettingsLayoutPane: View {
                     Text("Realistic").tag(EdgeIconSet.realistic)
                 }.labelsHidden().pickerStyle(.segmented).fixedSize()
             }
-            Toggle("Open Only on Click", isOn: edgePrefBinding(\.openOnClick))
-            Toggle("Show Button Names on Hover", isOn: edgePrefBinding(\.hoverLabels))
+            Toggle("Open Only on Click", isOn: edgePrefBinding(\.openOnClick)).accessibilityLabel("Open Only on Click")
+            Toggle("Show Button Names on Hover", isOn: edgePrefBinding(\.hoverLabels)).accessibilityLabel("Show Button Names on Hover")
             edgePrefRow("Flyout Style") {
                 Picker("Flyout Style", selection: edgePrefBinding(\.flyoutStyle)) {
                     Text("Modern").tag(EdgeFlyoutStyle.modern)
@@ -1259,8 +1254,8 @@ struct SettingsLayoutPane: View {
                 }
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }
-            Toggle("Preview Notes on Hover", isOn: Binding(get: { store.deckTabPreview }, set: { store.setDeckTabPreview($0) }))
-            Toggle("Open Notes on Hover", isOn: Binding(get: { store.deckOpenOnHover }, set: { store.setDeckOpenOnHover($0) }))
+            Toggle("Preview Notes on Hover", isOn: Binding(get: { store.deckTabPreview }, set: { store.setDeckTabPreview($0) })).accessibilityLabel("Preview Notes on Hover")
+            Toggle("Open Notes on Hover", isOn: Binding(get: { store.deckOpenOnHover }, set: { store.setDeckOpenOnHover($0) })).accessibilityLabel("Open Notes on Hover")
             Button("Reset Bar Positions") {
                 store.setDeckYRatio(0.5, for: .left)
                 store.setDeckYRatio(0.5, for: .right)
@@ -1382,6 +1377,7 @@ struct SettingsLayoutPane: View {
             Toggle(isOn: Binding(get: { store.contextPresetsEnabled }, set: store.setContextPresetsEnabled)) {
                 Text("Context Presets")
             }
+            .accessibilityLabel("Context Presets")
             if store.contextPresetsEnabled {
                 contextPicker(Text("Work Hours"), selection: store.contextWorkPresetID, set: store.setContextWorkPreset)
                 contextPicker(Text("Evening"), selection: store.contextEveningPresetID, set: store.setContextEveningPreset)

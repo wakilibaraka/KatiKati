@@ -9,6 +9,7 @@ enum SettingsTab: String, CaseIterable {
     case general
     case layout
     case widgets
+    case edgeBars
     case appearance
     case tiling
     case advanced
@@ -19,6 +20,7 @@ enum SettingsTab: String, CaseIterable {
         case .general: return String(localized: "General")
         case .layout: return String(localized: "Layout")
         case .widgets: return String(localized: "Widgets")
+        case .edgeBars: return String(localized: "Edge Bars")
         case .appearance: return String(localized: "Appearance")
         case .tiling: return String(localized: "Tiling")
         case .advanced: return String(localized: "Advanced")
@@ -31,6 +33,7 @@ enum SettingsTab: String, CaseIterable {
         case .general: return "gearshape"
         case .layout: return "rectangle.split.3x1"
         case .widgets: return "square.grid.2x2"
+        case .edgeBars: return "sidebar.right"
         case .appearance: return "paintpalette"
         case .tiling: return "rectangle.split.2x2"
         case .advanced: return "wrench.and.screwdriver"

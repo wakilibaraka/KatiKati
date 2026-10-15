@@ -10,11 +10,11 @@ struct LiveIslandSettingsBlock: View {
         Text("Live Island").font(.headline)
         row("Dock Island") {
             Toggle("Dock Island", isOn: Binding(get: { store.dockIslandEnabled }, set: { store.setDockIslandEnabled($0) }))
-                .toggleStyle(.switch).labelsHidden()
+                .toggleStyle(.switch).labelsHidden().accessibilityLabel("Dock Island")
         }
         row("Notch Island") {
             Toggle("Notch Island", isOn: Binding(get: { store.notchIslandEnabled }, set: { store.setNotchIslandEnabled($0) }))
-                .toggleStyle(.switch).labelsHidden()
+                .toggleStyle(.switch).labelsHidden().accessibilityLabel("Notch Island")
         }
         row("Notch Style") {
             Picker("Notch Style", selection: Binding(get: { store.notchSkin }, set: { store.setNotchSkin($0) })) {
@@ -31,7 +31,7 @@ struct LiveIslandSettingsBlock: View {
         }
         row("System Banners") {
             Toggle("System Banners", isOn: Binding(get: { store.liveEventOSBanners }, set: { store.setLiveEventOSBanners($0) }))
-                .toggleStyle(.switch).labelsHidden()
+                .toggleStyle(.switch).labelsHidden().accessibilityLabel("System Banners")
         }
     }
 

@@ -25,14 +25,14 @@ struct UtilitySettingsBlock: View {
             Text("Clean Copied Links")
             Spacer(minLength: 12)
             Toggle("Clean Copied Links", isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) }))
-                .toggleStyle(.switch).labelsHidden()
+                .toggleStyle(.switch).labelsHidden().accessibilityLabel("Clean Copied Links")
         }
         Text("Clipboard").font(.headline)
         row("Copy Sounds") {
-            Toggle("Copy Sounds", isOn: $clipboardSounds).toggleStyle(.switch).labelsHidden()
+            Toggle("Copy Sounds", isOn: $clipboardSounds).toggleStyle(.switch).labelsHidden().accessibilityLabel("Copy Sounds")
         }
         row("Copy Notifications") {
-            Toggle("Copy Notifications", isOn: $clipboardToast).toggleStyle(.switch).labelsHidden()
+            Toggle("Copy Notifications", isOn: $clipboardToast).toggleStyle(.switch).labelsHidden().accessibilityLabel("Copy Notifications")
         }
         row("Ignore Patterns") {
             TextField("Ignore Patterns", text: $clipboardIgnorePatterns)
@@ -40,13 +40,13 @@ struct UtilitySettingsBlock: View {
         }
         Text("Daily Helpers").font(.headline)
         row("Hide from Screen Capture") {
-            Toggle("Hide from Screen Capture", isOn: $hideFromCapture).toggleStyle(.switch).labelsHidden()
+            Toggle("Hide from Screen Capture", isOn: $hideFromCapture).toggleStyle(.switch).labelsHidden().accessibilityLabel("Hide from Screen Capture")
         }
         row("Caps Lock Indicator") {
-            Toggle("Caps Lock Indicator", isOn: $capsLockHUD).toggleStyle(.switch).labelsHidden()
+            Toggle("Caps Lock Indicator", isOn: $capsLockHUD).toggleStyle(.switch).labelsHidden().accessibilityLabel("Caps Lock Indicator")
         }
         row("Charge Notices") {
-            Toggle("Charge Notices", isOn: $batteryNudge).toggleStyle(.switch).labelsHidden()
+            Toggle("Charge Notices", isOn: $batteryNudge).toggleStyle(.switch).labelsHidden().accessibilityLabel("Charge Notices")
         }
         HStack {
             Text("Clean Keyboard")
@@ -55,10 +55,10 @@ struct UtilitySettingsBlock: View {
         }
         Text("Keys are off for 60 seconds. Press ⌃⌥⌘P to unlock sooner.").font(.caption).foregroundColor(.secondary)
         row("Offer to Eject Drives") {
-            Toggle("Offer to Eject Drives", isOn: $usbEject).toggleStyle(.switch).labelsHidden()
+            Toggle("Offer to Eject Drives", isOn: $usbEject).toggleStyle(.switch).labelsHidden().accessibilityLabel("Offer to Eject Drives")
         }
         row("Camera and Mic Indicator") {
-            Toggle("Camera and Mic Indicator", isOn: $privacyDot).toggleStyle(.switch).labelsHidden()
+            Toggle("Camera and Mic Indicator", isOn: $privacyDot).toggleStyle(.switch).labelsHidden().accessibilityLabel("Camera and Mic Indicator")
         }
         HStack {
             Text("Teleprompter")
@@ -66,18 +66,18 @@ struct UtilitySettingsBlock: View {
             Button("Open Teleprompter Window") { TeleprompterWindowController.shared.show() }
         }
         row("Teleprompter Notch Page") {
-            Toggle("Teleprompter Notch Page", isOn: $teleprompterPage).toggleStyle(.switch).labelsHidden()
+            Toggle("Teleprompter Notch Page", isOn: $teleprompterPage).toggleStyle(.switch).labelsHidden().accessibilityLabel("Teleprompter Notch Page")
         }
         Text("Opens from ⌘Space (prompter). The window is hidden from screen recordings and shares.").font(.caption).foregroundColor(.secondary)
         Text("Launcher").font(.headline)
         row("Script Commands") {
-            Toggle("Script Commands", isOn: $launcherScripts).toggleStyle(.switch).labelsHidden()
+            Toggle("Script Commands", isOn: $launcherScripts).toggleStyle(.switch).labelsHidden().accessibilityLabel("Script Commands")
         }
         row("Show Command Hints") {
-            Toggle("Show Command Hints", isOn: $commandHints).toggleStyle(.switch).labelsHidden()
+            Toggle("Show Command Hints", isOn: $commandHints).toggleStyle(.switch).labelsHidden().accessibilityLabel("Show Command Hints")
         }
         row("Fast File Index") {
-            Toggle("Fast File Index", isOn: $fastIndex).toggleStyle(.switch).labelsHidden()
+            Toggle("Fast File Index", isOn: $fastIndex).toggleStyle(.switch).labelsHidden().accessibilityLabel("Fast File Index")
         }
         VStack(alignment: .leading, spacing: 4) {
             Button("Replace Spotlight") {
@@ -102,11 +102,11 @@ struct UtilitySettingsBlock: View {
         Text("Shelf").font(.headline)
         row("Shake to Shelf") {
             Toggle("Shake to Shelf", isOn: Binding(get: { store.shelfShakeEnabled }, set: { store.setShelfShakeEnabled($0) }))
-                .toggleStyle(.switch).labelsHidden()
+                .toggleStyle(.switch).labelsHidden().accessibilityLabel("Shake to Shelf")
         }
         row("Auto-Expire") {
             Toggle("Auto-Expire", isOn: Binding(get: { store.shelfAutoExpire }, set: { store.setShelfAutoExpire($0) }))
-                .toggleStyle(.switch).labelsHidden()
+                .toggleStyle(.switch).labelsHidden().accessibilityLabel("Auto-Expire")
         }
         if store.shelfAutoExpire {
             row("Expire After") {

@@ -29,7 +29,7 @@ struct SettingsAppearancePane: View {
             section {
                 Text("Theme")
             } content: {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 7), spacing: 10) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 88), spacing: 8)], spacing: 10) {
                     ForEach(choices, id: \.token) { style in
                         themeCard(style)
                     }
@@ -177,6 +177,7 @@ struct SettingsAppearancePane: View {
                 ThemeName(style: style)
                     .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
                     .lineLimit(2)
+                    .minimumScaleFactor(0.85)
                     .multilineTextAlignment(.center)
                     .frame(height: 26, alignment: .top)
             }

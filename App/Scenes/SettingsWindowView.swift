@@ -48,6 +48,7 @@ struct SettingsWindowContent: View {
             case .general: generalPane
             case .layout: SettingsLayoutPane(store: store)
             case .widgets: SettingsLayoutPane(store: store, mode: .widgets)
+            case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
             case .appearance: SettingsAppearancePane(store: store)
             case .tiling: SettingsTilingPane(store: store)
             case .advanced: advancedPane

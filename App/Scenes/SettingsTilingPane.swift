@@ -20,7 +20,7 @@ struct SettingsTilingPane: View {
                         }
                         engine.setEnabled(on)
                     }
-                ))
+                )).accessibilityLabel("Enable Auto-Tiling")
                 Text("Automatically tile open windows in binary space partitions or presets. Disabling instantly restores pre-tiling window frames.")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
