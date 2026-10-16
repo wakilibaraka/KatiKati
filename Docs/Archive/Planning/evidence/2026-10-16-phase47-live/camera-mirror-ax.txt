@@ -1,0 +1,107 @@
+WINDOWS=11
+--- window 0
+AXWindow /AXSystemDialog [535,0 640x190] D=system dialog
+  AXGroup /AXHostingView [535,0 640x190] D=group
+  AXButton [557,12 10x12] D=button H=AI Mission Control
+  AXButton [587,13 7x11] D=button H=Vinyl Audio Deck
+  AXButton [612,13 11x11] D=button H=Retro Flip Clock
+  AXButton [640,13 11x11] D=button H=Downloads & Torrents
+  AXButton [668,13 11x10] D=button H=Obsidian Calendar
+  AXButton [696,13 11x11] D=button H=Hardware HUD
+  AXButton [724,14 11x10] D=button H=Teleprompter
+  AXButton [746,7 24x24] D=button H=Camera Mirror
+  AXButton [781,13 11x12] D=button H=Notifications
+  AXImage [1012,14 12x9] D=image
+  AXSlider [1030,13 56x12] D=slider
+  AXValueIndicator [1041,13 16x12] D=value indicator
+  AXStaticText [1098,3 0x30] D=text V=48%
+  AXImage [1104,14 20x9] D=image
+  AXButton [1134,6 26x26] D=button H=KatiKati Settings
+  AXImage [566,56 13x13] D=image
+  AXStaticText [588,55 88x15] D=text V=System Default
+--- window 1
+AXWindow /AXSystemDialog [31072,-31072 1710x1112] D=system dialog
+--- window 2
+AXWindow /AXSystemDialog [1696,466 14x218] D=system dialog
+  AXGroup /AXHostingView [1696,466 14x218] D=group
+--- window 3
+AXWindow /AXSystemDialog [0,504 14x142] D=system dialog
+  AXGroup /AXHostingView [0,504 14x142] D=group
+--- window 4
+AXWindow /AXSystemDialog [1430,1043 294x87] D=system dialog
+  AXGroup /AXHostingView [1430,1043 294x87] D=group
+  AXScrollArea [1450,1063 254x47] D=scroll area
+  AXStaticText [1467,1071 46x18] D=text H=Clock V=09:01
+  AXStaticText [1515,1075 17x13] D=text H=Clock V=:37
+  AXImage [1552,1077 7x7] D=image H=Clock
+  AXStaticText [1564,1076 41x10] D=text H=Clock V=No Events
+  AXStaticText [1467,1090 45x11] D=text H=Clock V=Fri, Oct 16
+  AXImage [1552,1089 6x7] D=image H=Clock
+  AXStaticText [1562,1088 62x8] D=text H=Clock V=03:22 (in 18h 20m)
+  AXImage [1640,1069 35x35] D=image H=Widgets
+--- window 5
+AXWindow /AXSystemDialog [1450,1063 254x47] D=system dialog
+--- window 6
+AXWindow /AXSystemDialog [1288,1043 87x87] D=system dialog
+  AXGroup /AXHostingView [1288,1043 87x87] D=group
+  AXUnknown [1288,1043 43x43]
+  AXStaticText [1316,1071 30x30] D=text H=RAM: 64% • CPU: 26% V=64
+  AXUnknown [1331,1043 43x43]
+  AXUnknown [1288,1086 43x43]
+  AXUnknown [1331,1086 43x43]
+--- window 7
+AXWindow /AXSystemDialog [334,1043 987x87] D=system dialog
+  AXGroup /AXHostingView [334,1043 987x87] D=group
+  AXScrollArea [354,1063 947x47] D=scroll area
+  AXImage [360,1063 35x47] D=image H=WhatsApp
+  AXImage [439,1063 34x47] D=image H=Finder
+  AXImage [476,1063 35x47] D=image H=Mail
+  AXImage [512,1063 35x47] D=image H=Safari
+  AXImage [549,1063 35x47] D=image H=System Settings
+  AXImage [585,1063 35x47] D=image H=Messages
+  AXImage [622,1063 35x47] D=image H=Terminal
+  AXImage [659,1063 34x47] D=image H=App Store
+  AXImage [695,1063 34x47] D=image H=OpenCode
+  AXImage [732,1063 34x47] D=image H=Google Chrome
+  AXImage [768,1063 35x47] D=image H=Pearcleaner
+  AXImage [805,1063 35x47] D=image H=Install Command Line Developer Tools
+  AXImage [841,1063 35x47] D=image H=Freebuff
+  AXImage [878,1063 35x47] D=image H=Antigravity
+  AXImage [914,1063 35x47] D=image H=Spotify
+  AXImage [951,1063 35x47] D=image H=Zoom
+  AXImage [1003,1071 16x22] D=image H=Downloads
+  AXImage [1002,1072 18x26] D=image H=Downloads
+  AXImage [997,1077 28x21] D=image H=Downloads
+  AXImage [1030,1063 47x47] D=image H=Trash
+  AXImage [1096,1072 27x27] D=image H=Now Playing
+  AXStaticText [1131,1071 67x9] D=text H=Now Playing V=Spiritual Growth
+  AXStaticText [1131,1082 42x8] D=text H=Now Playing V=LOGGSOMA
+  AXButton [1213,1078 15x15] D=button H=Now Playing
+  AXButton [1233,1076 19x19] D=button H=Now Playing
+  AXButton [1257,1078 15x15] D=button H=Now Playing
+  AXStaticText [1131,1093 17x8] D=text H=Now Playing V=1:43
+  AXStaticText [1188,1093 17x8] D=text H=Now Playing V=2:55
+--- window 8
+AXWindow /AXSystemDialog [354,1063 947x47] D=system dialog
+--- window 9
+AXWindow /AXSystemDialog [-14,1043 311x87] D=system dialog
+  AXGroup /AXHostingView [-14,1043 311x87] D=group
+  AXScrollArea [6,1063 271x47] D=scroll area
+  AXStaticText [60,1065 29x20] D=text H=Weather V=20°
+  AXImage [93,1072 13x9] D=image H=Weather
+  AXStaticText [138,1069 10x8] D=text H=Weather V=Fri
+  AXStaticText [175,1069 13x8] D=text H=Weather V=Sat
+  AXStaticText [213,1069 14x8] D=text H=Weather V=Sun
+  AXStaticText [60,1086 18x11] D=text H=Weather V=Juja
+  AXImage [137,1080 12x12] D=image H=Weather
+  AXImage [176,1080 12x12] D=image H=Weather
+  AXImage [215,1080 12x12] D=image H=Weather
+  AXStaticText [60,1098 45x8] D=text H=Weather V=H:26° L:15°
+  AXStaticText [128,1094 13x8] D=text H=Weather V=26°
+  AXStaticText [144,1094 13x8] D=text H=Weather V=15°
+  AXStaticText [167,1094 13x8] D=text H=Weather V=28°
+  AXStaticText [183,1094 12x8] D=text H=Weather V=17°
+  AXStaticText [206,1094 13x8] D=text H=Weather V=27°
+  AXStaticText [222,1094 13x8] D=text H=Weather V=16°
+--- window 10
+AXWindow /AXSystemDialog [6,1063 271x47] D=system dialog
