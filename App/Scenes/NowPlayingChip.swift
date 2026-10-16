@@ -108,7 +108,8 @@ struct LiveIslandDockCapsule: View {
                 access: feed.playerAccess,
                 onToggle: { feed.togglePlayPause() },
                 onNext: { feed.nextTrack() },
-                onPrevious: { feed.previousTrack() }
+                onPrevious: { feed.previousTrack() },
+                onSeek: { feed.seek(to: $0) }
             )
         }
     }
@@ -248,6 +249,54 @@ struct LiveIslandDockCapsule: View {
     }
 }
 
+/// A progress bar you can scrub: press anywhere on it and the fill follows the pointer, release and the
+/// player is sent there.
+///
+/// The vinyl notch page had a version of this of its own, and the dock card and the notch panel drew
+/// display-only bars — which is why one surface could seek and the others could not (Phase 47). One
+/// gesture, one look, four surfaces (notch panel, dock card, popup, vinyl deck).
+struct MusicScrubBar: View {
+    let progress: Double
+    let duration: TimeInterval
+    var trackHeight: CGFloat = 3
+    var tint: Color = .white
+    var knob: Bool = true
+    let onSeek: (Double) -> Void
+
+    /// Non-nil only while the pointer is down: the fill follows the drag instead of the player, which has
+    /// not heard about it yet.
+    @State private var dragging: Double?
+
+    var body: some View {
+        GeometryReader { geo in
+            let width = max(1, geo.size.width)
+            let fraction = min(1, max(0, dragging ?? progress))
+            ZStack(alignment: .leading) {
+                Capsule().fill(tint.opacity(0.2)).frame(height: trackHeight)
+                Capsule().fill(tint.opacity(0.9))
+                    .frame(width: max(trackHeight, width * CGFloat(fraction)), height: trackHeight)
+                if knob {
+                    Circle().fill(tint)
+                        .frame(width: trackHeight * 2, height: trackHeight * 2)
+                        .offset(x: max(0, min(width - trackHeight * 2, width * CGFloat(fraction) - trackHeight)))
+                }
+            }
+            .frame(width: width, height: max(trackHeight * 2, 8), alignment: .leading)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in dragging = value.location.x / width }
+                    .onEnded { value in
+                        let target = min(1, max(0, value.location.x / width))
+                        dragging = nil
+                        onSeek(target * duration)
+                    }
+            )
+        }
+        .frame(height: max(trackHeight * 2, 8))
+    }
+}
+
 struct NowPlayingPopup: View {
     let state: NowPlayingState
     let theme: NowPlayingTheme
@@ -256,6 +305,7 @@ struct NowPlayingPopup: View {
     let onToggle: () -> Void
     var onNext: () -> Void = {}
     var onPrevious: () -> Void = {}
+    var onSeek: (Double) -> Void = { _ in }
 
     @Environment(\.colorScheme) private var colorScheme
     
@@ -341,10 +391,11 @@ struct NowPlayingPopup: View {
                 }
                 .foregroundColor(isDarkMode ? .white : .black)
 
-                if let fraction = state.progress(at: Date()) {
-                    ProgressView(value: fraction)
-                        .progressViewStyle(.linear)
-                        .tint(.pink)
+                // A scrubber, not a ProgressView (Phase 47): the popup is the dock chip's own surface,
+                // so seeking has to work here too.
+                if let fraction = state.progress(at: Date()), let duration = state.duration, duration > 0 {
+                    MusicScrubBar(progress: fraction, duration: duration, trackHeight: 3, tint: .pink,
+                                  onSeek: onSeek)
                 }
             }
         }
@@ -576,7 +627,8 @@ private struct ExpandedMediaCardView: View {
                 access: feed.playerAccess,
                 onToggle: { feed.togglePlayPause() },
                 onNext: { feed.nextTrack() },
-                onPrevious: { feed.previousTrack() }
+                onPrevious: { feed.previousTrack() },
+                onSeek: { feed.seek(to: $0) }
             )
         }
     }
@@ -638,9 +690,9 @@ private struct ExpandedMediaCardView: View {
 
                 // Tracking bar — only for a real position and a real track length; a track with no
                 // reported elapsed time (or nothing playing) draws no bar rather than a fraction we
-                // made up. Elapsed sits on the left, the duration on the right (Phase 43); the bar
-                // itself is display-only, like the popup's — a drag gesture here would fight the
-                // strip's own horizontal scroll.
+                // made up. Elapsed sits on the left, the duration on the right (Phase 43). It is
+                // scrubbable now (Phase 47): the bar is its own drag target, and the strip scrolls on the
+                // wheel, so the two gestures never fight.
                 if let progress, let duration = state.duration, duration > 0 {
                     let elapsed = NowPlayingProgress.elapsed(at: timelineNow, elapsed: state.elapsed,
                                                               asOf: state.elapsedAsOf, rate: state.rate,
@@ -648,23 +700,9 @@ private struct ExpandedMediaCardView: View {
                     HStack(spacing: 5) {
                         Text(verbatim: NotchLayoutSpec.clockText(elapsed))
 
-                        GeometryReader { geo in
-                            ZStack(alignment: .leading) {
-                                Capsule()
-                                    .fill(Color.white.opacity(0.18))
-                                    .frame(height: 3)
-
-                                Capsule()
-                                    .fill(Color.white.opacity(0.88))
-                                    .frame(width: max(3, geo.size.width * CGFloat(progress)), height: 3)
-
-                                Circle()
-                                    .fill(Color.white)
-                                    .frame(width: 6, height: 6)
-                                    .offset(x: max(0, min(geo.size.width - 6, geo.size.width * CGFloat(progress) - 3)))
-                            }
-                        }
-                        .frame(height: 6)
+                        MusicScrubBar(progress: progress, duration: duration, trackHeight: 3,
+                                      tint: .white, onSeek: { feed.seek(to: $0) })
+                            .frame(height: 6)
 
                         Text(verbatim: NotchLayoutSpec.clockText(duration))
                     }

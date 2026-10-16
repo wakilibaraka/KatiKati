@@ -74,13 +74,8 @@ struct NotchMusicPanel: View {
             let total = state.duration ?? 0
             let elapsed = fraction * total
             VStack(spacing: 2) {
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        Capsule().fill(Color.white.opacity(0.2))
-                        Capsule().fill(Color.white).frame(width: geo.size.width * fraction)
-                    }
-                }
-                .frame(height: 4)
+                MusicScrubBar(progress: fraction, duration: total, trackHeight: 4, tint: .white,
+                              onSeek: { feed.seek(to: $0) })
                 HStack {
                     Text(verbatim: NotchLayoutSpec.clockText(elapsed))
                     Spacer()

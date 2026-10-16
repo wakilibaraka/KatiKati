@@ -117,4 +117,30 @@ enum AppleScriptNowPlaying {
         return out
         """.replacingOccurrences(of: "@ART@", with: transientArtworkPath)
     }
+
+    // MARK: Transport target (Phase 47)
+
+    /// The player a transport command must address. The fallback reading names the app it read;
+    /// MediaRemote ever only left a bundle id behind — and in an unsigned build MediaRemote is the very
+    /// reading that never arrives, so addressing the transport through that bundle id is what left the
+    /// island's and the notch's buttons dead while the player was playing.
+    static func transportTarget(fallbackApp: String?, bundleIdentifier: String?) -> String? {
+        if let fallbackApp { return fallbackApp }
+        switch bundleIdentifier {
+        case "com.spotify.client": return "Spotify"
+        case "com.apple.Music": return "Music"
+        default: return nil
+        }
+    }
+
+    /// Whether the AppleScript fallback is the live source and so has to be re-read on the tick: it is
+    /// the source once it has named a player, and the only source while nothing is known yet.
+    ///
+    /// It used to be read only while the state was still empty, which froze every surface on the first
+    /// track it found — the position interpolated off `elapsedAsOf` and nothing else ever moved again
+    /// (Phase 47). With MediaRemote answering, `fallbackApp` is nil and a title is present, so the
+    /// polling ends the moment the framework takes over.
+    static func fallbackIsLive(fallbackApp: String?, title: String?) -> Bool {
+        fallbackApp != nil || (title?.isEmpty ?? true)
+    }
 }

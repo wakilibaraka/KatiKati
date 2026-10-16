@@ -166,10 +166,15 @@ public final class NowPlayingService: ObservableObject {
     /// MediaRemote can stay completely silent for an ad-hoc-signed process — measured 2026-10-16 with a
     /// minimal `dlopen` probe, none of the three callbacks above fires at all (the earlier measurement
     /// saw an empty dictionary instead). `queryNowPlayingInfo()` then never runs, so the scriptable
-    /// players are read from here instead, at most once per `fallbackInterval` and only while the state
-    /// is still empty, so MediaRemote's own answer always wins when it does arrive.
+    /// players are read from here instead, at most once per `fallbackInterval`.
+    ///
+    /// Phase 47: that read no longer stops at the first track. Reading only while the state was empty
+    /// froze the surfaces on it — a track changed in the player, or skipped by the surfaces' own Next,
+    /// never appeared, so those buttons read as dead. The rule is now
+    /// `AppleScriptNowPlaying.fallbackIsLive`, and MediaRemote's own answer still wins and ends the
+    /// polling the moment it arrives.
     private func readFallbackIfIdle() {
-        guard state.title?.isEmpty ?? true else { return }
+        guard AppleScriptNowPlaying.fallbackIsLive(fallbackApp: fallbackApp, title: state.title) else { return }
         readFallback()
     }
 
@@ -316,10 +321,50 @@ public final class NowPlayingService: ObservableObject {
         }
     }
 
-    /// Transport for the fallback player: the private framework command goes nowhere in an unsigned build.
+    /// The player a transport command addresses, or nil when nothing scriptable can be commanded.
+    private var scriptablePlayer: String? {
+        AppleScriptNowPlaying.transportTarget(fallbackApp: fallbackApp, bundleIdentifier: state.bundleIdentifier)
+    }
+
+    /// Transport for the fallback player: the private framework command goes nowhere in an unsigned
+    /// build, so this is the one that has to work — through the player the *reading* named. Phase 47: it
+    /// used to be sent only when the state carried Spotify's or Music's bundle id, which is the value the
+    /// fallback reading is what sets and the silent MediaRemote never set at all.
     private func fallbackTransport(_ command: String) {
-        guard let app = fallbackApp else { return }
+        guard let app = scriptablePlayer else { return }
         executeAppleScript("tell application \"" + app + "\" to " + command)
+        reRead(after: 0.4)
+    }
+
+    /// The player applies a transport command a beat after it returns, so the surfaces ask again instead
+    /// of waiting out the 2 s poll — otherwise a press reads as dead (Phase 47).
+    private func reRead(after delay: TimeInterval) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            guard let self else { return }
+            self.lastFallbackRead = .distantPast
+            self.readFallback()
+        }
+    }
+
+    /// The surface must not wait for the player to confirm a press. Only applied when a scriptable player
+    /// actually took the command: with none, nothing moved and the state must not claim it did.
+    private func optimistically(_ mutate: (inout NowPlayingState) -> Void) {
+        guard scriptablePlayer != nil else { return }
+        var next = state
+        mutate(&next)
+        state = next
+    }
+
+    /// Play/pause is the one command whose own state the surfaces draw (the glyph, the ring), and the
+    /// player reports it back a beat later: flip it now, moving the position's reference to the flip so
+    /// the bar does not jump when the re-read lands (Phase 47).
+    private func optimisticPlay(_ isPlaying: Bool) {
+        optimistically { state in
+            guard state.isPlaying != isPlaying else { return }
+            state.elapsedAsOf = Date()
+            state.isPlaying = isPlaying
+            state.rate = isPlaying ? 1 : 0
+        }
     }
 
     /// Synchronous script run, on the calling (background) queue. Empty string on any failure.
@@ -335,6 +380,7 @@ public final class NowPlayingService: ObservableObject {
         if let sendCommand = mrSendCommand {
             _ = sendCommand(0, nil)
         }
+        optimisticPlay(true)
         fallbackTransport("play")
     }
 
@@ -342,6 +388,7 @@ public final class NowPlayingService: ObservableObject {
         if let sendCommand = mrSendCommand {
             _ = sendCommand(1, nil)
         }
+        optimisticPlay(false)
         fallbackTransport("pause")
     }
 
@@ -349,39 +396,32 @@ public final class NowPlayingService: ObservableObject {
         if let sendCommand = mrSendCommand {
             _ = sendCommand(2, nil)
         }
-        // Fallback for Music / Spotify if needed
-        if state.bundleIdentifier == "com.apple.Music" {
-            executeAppleScript("tell application \"Music\" to playpause")
-        } else if state.bundleIdentifier == "com.spotify.client" {
-            executeAppleScript("tell application \"Spotify\" to playpause")
-        }
+        optimisticPlay(!state.isPlaying)
+        fallbackTransport("playpause")
     }
 
-    /// MRMediaRemoteCommandNextTrack = 4, PreviousTrack = 5.
+    /// MRMediaRemoteCommandNextTrack = 4, PreviousTrack = 5. The skip itself is the player's; the new
+    /// track comes back on the forced re-read, so the surfaces follow the button (Phase 47).
     public func nextTrack() {
         if let sendCommand = mrSendCommand {
             _ = sendCommand(4, nil)
         }
-        if state.bundleIdentifier == "com.apple.Music" {
-            executeAppleScript("tell application \"Music\" to next track")
-        } else if state.bundleIdentifier == "com.spotify.client" {
-            executeAppleScript("tell application \"Spotify\" to next track")
-        }
+        fallbackTransport("next track")
     }
 
     public func previousTrack() {
         if let sendCommand = mrSendCommand {
             _ = sendCommand(5, nil)
         }
-        if state.bundleIdentifier == "com.apple.Music" {
-            executeAppleScript("tell application \"Music\" to previous track")
-        } else if state.bundleIdentifier == "com.spotify.client" {
-            executeAppleScript("tell application \"Spotify\" to previous track")
-        }
+        fallbackTransport("previous track")
     }
 
     public func seek(to seconds: Double) {
         mrSetElapsedTime?(seconds)
+        optimistically { state in
+            state.elapsed = Swift.max(0, seconds)
+            state.elapsedAsOf = Date()
+        }
         fallbackTransport("set player position to " + String(Swift.max(0, seconds)))
     }
 

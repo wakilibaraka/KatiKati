@@ -104,7 +104,8 @@ struct NowPlayingFlyoutView: View {
 
     var body: some View {
         NowPlayingPopup(state: service.state, theme: .auto, access: service.playerAccess,
-                        onToggle: { service.togglePlayPause() }, onNext: { service.nextTrack() }, onPrevious: { service.previousTrack() })
+                        onToggle: { service.togglePlayPause() }, onNext: { service.nextTrack() },
+                        onPrevious: { service.previousTrack() }, onSeek: { service.seek(to: $0) })
             .padding(12)
     }
 }

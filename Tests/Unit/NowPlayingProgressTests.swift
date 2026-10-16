@@ -124,4 +124,27 @@ final class NowPlayingProgressTests: XCTestCase {
         XCTAssertEqual(PlayerAccess.automationSettingsURL?.absoluteString,
                        "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation")
     }
+
+    // MARK: Phase 47 — which player a transport command addresses, and when the fallback is live
+
+    /// The fallback reading names the player it read; a MediaRemote reading ever only gave a bundle id.
+    /// Both must resolve, because in an unsigned build MediaRemote is precisely the reading that never
+    /// arrives — addressing the transport by that unset bundle id is what left the buttons dead.
+    func testTransportTargetPrefersTheFallbackPlayerAndMapsTheBundleIDs() {
+        XCTAssertEqual(AppleScriptNowPlaying.transportTarget(fallbackApp: "Spotify", bundleIdentifier: nil), "Spotify")
+        XCTAssertEqual(AppleScriptNowPlaying.transportTarget(fallbackApp: "Music", bundleIdentifier: "com.spotify.client"), "Music")
+        XCTAssertEqual(AppleScriptNowPlaying.transportTarget(fallbackApp: nil, bundleIdentifier: "com.spotify.client"), "Spotify")
+        XCTAssertEqual(AppleScriptNowPlaying.transportTarget(fallbackApp: nil, bundleIdentifier: "com.apple.Music"), "Music")
+        XCTAssertNil(AppleScriptNowPlaying.transportTarget(fallbackApp: nil, bundleIdentifier: nil))
+        XCTAssertNil(AppleScriptNowPlaying.transportTarget(fallbackApp: nil, bundleIdentifier: "com.apple.Safari"))
+    }
+
+    /// The fallback is re-read while it is the live source and while nothing is known yet; once
+    /// MediaRemote has answered (`fallbackApp` nil, a title present) the polling stops.
+    func testFallbackStaysLiveOnItsOwnReadingsAndStopsWhenMediaRemoteAnswers() {
+        XCTAssertTrue(AppleScriptNowPlaying.fallbackIsLive(fallbackApp: "Spotify", title: "Track"))
+        XCTAssertTrue(AppleScriptNowPlaying.fallbackIsLive(fallbackApp: nil, title: nil))
+        XCTAssertTrue(AppleScriptNowPlaying.fallbackIsLive(fallbackApp: nil, title: ""))
+        XCTAssertFalse(AppleScriptNowPlaying.fallbackIsLive(fallbackApp: nil, title: "Track"))
+    }
 }

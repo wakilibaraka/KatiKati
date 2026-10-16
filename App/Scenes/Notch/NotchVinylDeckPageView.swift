@@ -82,26 +82,15 @@ struct NotchVinylDeckPageView: View {
                         .lineLimit(1)
                 }
 
-                // Interactive scrubber bar, elapsed on the left and the track's length on the right
-                // (Phase 43 — the same tracking bar the dock chip carries).
+                // Interactive scrubber bar, elapsed on the left and the track's length on the right.
+                // Phase 47: this was the only surface that could seek; the bar itself now lives in
+                // `MusicScrubBar` and is shared with the dock card, the popup and the notch panel, so
+                // one gesture behaves the same everywhere.
                 if let fraction = feed.nowPlayingState.progress(at: Date()),
                    let duration = feed.nowPlayingState.duration, duration > 0 {
                     VStack(spacing: 3) {
-                        GeometryReader { geo in
-                            ZStack(alignment: .leading) {
-                                Capsule().fill(Color.white.opacity(0.12)).frame(height: 5)
-                                Capsule().fill(Color.pink).frame(width: max(5, geo.size.width * CGFloat(fraction)), height: 5)
-                            }
-                            .contentShape(Rectangle())
-                            .gesture(
-                                DragGesture(minimumDistance: 0)
-                                    .onEnded { value in
-                                        let clickFraction = max(0, min(1, value.location.x / geo.size.width))
-                                        feed.seek(to: Double(clickFraction) * duration)
-                                    }
-                            )
-                        }
-                        .frame(height: 5)
+                        MusicScrubBar(progress: fraction, duration: duration, trackHeight: 5, tint: .pink,
+                                      onSeek: { feed.seek(to: $0) })
 
                         HStack {
                             Text(verbatim: NotchLayoutSpec.clockText(fraction * duration))
