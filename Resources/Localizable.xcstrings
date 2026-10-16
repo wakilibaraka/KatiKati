@@ -1,6 +1,91 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Notifications Notch Page": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Notifications Notch Page"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "刘海页显示通知"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "瀏海頁顯示通知"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "ノッチページに通知を表示"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Benachrichtigungen als Notch-Seite"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Page d'encoche des notifications"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Página de muesca de notificaciones"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Página de muesca de notificaciones"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Página da notch com notificações"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Página da notch com notificações"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Pagina notch delle notifiche"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "노치 페이지 알림"}}
+      }
+    },
+    "No Notifications Yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No Notifications Yet"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "暂无通知"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "尚無通知"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "通知はまだありません"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Noch keine Benachrichtigungen"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Aucune notification pour l'instant"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Aún no hay notificaciones"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Aún no hay notificaciones"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Nenhuma notificação ainda"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Ainda não há notificações"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Ancora nessuna notifica"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "아직 알림 없음"}}
+      }
+    },
+    "Full Disk Access Is Off": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Full Disk Access Is Off"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "完全磁盘访问权限已关闭"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "取用完整磁碟權限已關閉"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "フルディスクアクセスがオフです"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Voller Festplattenzugriff ist aus"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "L'accès complet au disque est désactivé"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "El acceso total al disco está desactivado"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "El acceso total al disco está desactivado"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "O acesso total ao disco está desativado"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "O acesso total ao disco está desativado"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "L'accesso completo al disco è disattivato"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "전체 디스크 접근이 꺼져 있음"}}
+      }
+    },
+    "Notification History Unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Notification History Unavailable"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "无法读取通知历史"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "無法讀取通知記錄"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "通知履歴を読み取れません"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Benachrichtigungsverlauf nicht verfügbar"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Historique des notifications indisponible"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Historial de notificaciones no disponible"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Historial de notificaciones no disponible"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Histórico de notificações indisponível"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Histórico de notificações indisponível"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Cronologia delle notifiche non disponibile"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "알림 기록을 사용할 수 없음"}}
+      }
+    },
+    "Accessibility Is Off": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Accessibility Is Off"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "辅助功能权限已关闭"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "輔助使用權限已關閉"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "アクセシビリティがオフです"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Bedienungshilfen sind aus"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "L'accessibilité est désactivée"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "La accesibilidad está desactivada"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "La accesibilidad está desactivada"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "A acessibilidade está desativada"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "A acessibilidade está desativada"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "L'accessibilità è disattivata"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "손쉬운 사용이 꺼져 있음"}}
+      }
+    },
     "Camera Mirror": {
       "extractionState": "manual",
       "localizations": {

@@ -145,6 +145,7 @@ struct NotchHelpersSettingsBlock: View {
     @AppStorage(DailyHelpersService.privacyKey) private var privacyDot = false
     @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
+    @AppStorage(NotificationMirrorService.enabledKey) private var notificationsPage = false
 
     var body: some View {
         SettingsCard(Text("Daily Helpers")) {
@@ -169,6 +170,8 @@ struct NotchHelpersSettingsBlock: View {
             SettingsToggleRow(Text("Teleprompter Notch Page"), isOn: $teleprompterPage)
             SettingsDivider()
             SettingsToggleRow(Text("Camera Mirror Notch Page"), isOn: $cameraMirrorPage)
+            SettingsDivider()
+            SettingsToggleRow(Text("Notifications Notch Page"), isOn: $notificationsPage)
         }
     }
 }

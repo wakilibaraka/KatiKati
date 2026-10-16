@@ -5457,3 +5457,58 @@ night art all along; only the surfaces added later missed it.
   palette, not a new defect, but a dark-text rule would be the fix); the sky plate is drawn from
   `WeatherArt`, not the `SkyPalette` the wallpaper and the dock tint share, so the three weather surfaces agree
   on condition and hour but not on their exact colours.
+
+- 2026-10-16 · **Phase 47 (a-c) delivered — PASS (code).** The owner asked for three things together (the
+  media controls on the notch and the island, a camera mirror with a device dropdown, notification
+  mirroring); built as three slices, each committed and gated on its own.
+  - **47a — the music surfaces follow the player.** The measured defect is the poll, not the AppleScript:
+    `readFallbackIfIdle` re-read only while the state was still empty, so once a track was known the
+    fallback never read again — a skip the player accepted never reached the notch or the island, play/pause
+    never flipped its glyph, and the widgets sat on the old track (only the position interpolated, which is
+    what made it look alive). The transport was additionally addressed through `state.bundleIdentifier`, a
+    gate that leaves the command with no target whenever the reading did not carry one; it now commands
+    `AppleScriptNowPlaying.transportTarget(...)` — the player the reading itself named. The fallback re-reads
+    while it is the live source (`fallbackIsLive`), forces a re-read 0.4 s after every press
+    (`reRead(after:)`) and flips play/pause at once (`optimisticPlay`). **Verified on this machine** with the
+    shipped script and parser compiled together against the running Spotify: `app=Spotify playing=false
+    title 16 chars artist 8 duration 175 position 103 artwork=true bundle=com.spotify.client`, and
+    `transportTarget(fallbackApp: "Spotify", bundleIdentifier: nil)` → `Spotify` (i.e. the command has a
+    target even with no bundle id at all). Not verified live: a press on the notch/island surfaces
+    themselves, which needs the app running with a player attached. The vinyl deck's drag-to-seek became `MusicScrubBar`
+    (`App/Scenes/NowPlayingChip.swift`) and the notch panel, the dock card and the popup use it in place of
+    their display-only bars — the dock card's old comment ("a drag would fight the strip's own scroll") is
+    answered in place: the bar is its own drag target and the strip scrolls on the wheel.
+  - **47b — the camera mirror.** Page 8 (`NotchPage.cameraMirror`), present only while
+    `com.katikati.notch.mirror` is on. `CameraMirrorService` opens the chosen camera only while the page is
+    on screen and stops it when the page goes away (another page, a collapsed notch, the switch off); the
+    dropdown lists what `AVCaptureDevice.DiscoverySession` reports (built-in, external, Continuity, Desk
+    View) with a System Default entry that follows the Mac's own default. First camera ask in the app:
+    `NSCameraUsageDescription` in `Resources/Info.plist`. **No new entitlement** — the app is not sandboxed
+    (its only entitlement is Automation's Apple events). A refused grant is its own state
+    (`CameraMirrorRules.availability`), never "no camera".
+  - **47c — mirrored notifications.** Page 9 (`NotchPage.notifications`) behind
+    `com.katikati.notch.notifications`: live banners read from Notification Center's own AX tree through an
+    observer of its own (so Phase 25's relocation feature is untouched), and the store's history read out of
+    `~/Library/Group Containers/group.com.apple.usernoted/db2/db` — `record.data` is the notification's own
+    binary property list (`req.titl` / `req.subt` / `req.body`), `app.identifier` the bundle id, newest 40 by
+    `COALESCE(delivered_date, request_date)` — opened `SQLITE_OPEN_READONLY` when the page opens and closed
+    immediately after. Both grants are stated, never requested from code: "Accessibility Is Off" (live
+    banners) and "Full Disk Access Is Off" (history) with the System Settings door. The store's schema was
+    read for this work; **no notification content was read** while building or testing it.
+  - **Strings ×12:** 11 keys (Camera Mirror, Camera Mirror Notch Page, System Default, Choose Camera, No
+    Camera Found, Camera Access Is Off, Notifications Notch Page, No Notifications Yet, Full Disk Access Is
+    Off, Notification History Unavailable, Accessibility Is Off), English translated and the other eleven
+    drafts marked needs_review, listed for review in `Docs/translation-review-phase47.csv`. No new debug
+    switch, so `check_debug_switches.py` moved by nothing (86 registered).
+  - **Gate:** `xcodebuild test` green (47a 2485 / 47b 2489 / 47c 2494 tests, 0 failures, 2 skipped = the
+    opt-in live torrent pair), `check_localization.py` (895 keys = 895 × 12), `check_debug_switches.py`
+    (86/86), `check_availability_warnings.py <build log>` clean. Not run: `check_settings_page_heights.py`
+    (the Notch page gained two rows — the mirror switch and the notifications switch — so its own height
+    check is owed on the next Settings pass).
+  - **Limits, recorded (owner live check owed on all three):** no player was playing during this session, no
+    camera was opened and no grant was raised, and the two new pages have not been seen on a real notched
+    display. The live banner is a heuristic over Notification Center's private UI — an unreadable banner
+    shows nothing rather than a guess, and a live banner has no app name because the AX tree does not name
+    the notifying app; the store's `usda` field (an NSKeyedArchiver archive, not JSON) is not read, so an
+    app that keeps its body only there shows a title alone; the notifications page lists the newest four of
+    the 40 it reads, because the open notch is about 130 pt tall and does not scroll.

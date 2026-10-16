@@ -30,9 +30,10 @@ final class NotchModel: ObservableObject {
     func stepPage(forward: Bool) {
         let tp = UserDefaults.standard.bool(forKey: TeleprompterModel.enabledKey)
         let mirror = UserDefaults.standard.bool(forKey: CameraMirrorService.enabledKey)
+        let notifications = UserDefaults.standard.bool(forKey: NotificationMirrorService.enabledKey)
         activePage = forward
-            ? activePage.next(wrap: true, teleprompter: tp, mirror: mirror)
-            : activePage.previous(wrap: true, teleprompter: tp, mirror: mirror)
+            ? activePage.next(wrap: true, teleprompter: tp, mirror: mirror, notifications: notifications)
+            : activePage.previous(wrap: true, teleprompter: tp, mirror: mirror, notifications: notifications)
     }
 }
 
@@ -41,6 +42,7 @@ struct NotchIslandView: View {
     @ObservedObject private var feed = LiveActivityFeed.shared
     @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
+    @AppStorage(NotificationMirrorService.enabledKey) private var notificationsPage = false
     /// `AppSettingsStore.Keys.themeMaterial`, which is file-private; the key itself is the contract.
     @AppStorage("com.katikati.theme.material") private var themeMaterialToken = DockThemeStyle.auto.token
     let metrics: NotchMetrics
@@ -92,7 +94,8 @@ struct NotchIslandView: View {
         .contentShape(Rectangle())
         .contextMenu {
             Section {
-                ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage)) { page in
+                ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage,
+                                          notifications: notificationsPage)) { page in
                     Button {
                         withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
                             model.activePage = page
@@ -127,7 +130,8 @@ struct NotchIslandView: View {
 
     private var pageIndicatorDots: some View {
         HStack(spacing: 6) {
-            ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage)) { page in
+            ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage,
+                                          notifications: notificationsPage)) { page in
                 Capsule()
                     .fill(model.activePage == page ? Color.white.opacity(0.9) : Color.white.opacity(0.25))
                     .frame(width: model.activePage == page ? 18 : 6, height: 4)

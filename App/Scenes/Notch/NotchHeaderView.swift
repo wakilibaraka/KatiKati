@@ -9,12 +9,14 @@ struct NotchHeaderView: View {
     @StateObject private var power = SystemStatusService()
     @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
+    @AppStorage(NotificationMirrorService.enabledKey) private var notificationsPage = false
 
     var body: some View {
         let side = NotchLayoutSpec.headerButtonSize
         HStack(spacing: 0) {
             HStack(spacing: 4) {
-                ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage)) { page in
+                ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage,
+                                          notifications: notificationsPage)) { page in
                     pageButton(page)
                 }
             }

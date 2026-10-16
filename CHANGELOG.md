@@ -18,6 +18,29 @@ All notable changes to KatiKati are documented in this file.
   through the app's registered debug switches (`Core/Support/DebugSwitch.swift`), and unset is exactly the
   squircle that ships today. The retired `com.katikati.dock.iconShape` key is simply ignored from now on.
 
+## [Unreleased] — Phase 47: the music surfaces answer the player, a camera mirror, mirrored notifications
+
+### Fixed
+- **The music widgets now follow the player — on the press, and on the player's own track changes.** The
+  poll was the fault: the 2 s AppleScript re-read stopped as soon as a track was known, so a skip the player
+  accepted never reached the notch or the island and play/pause never flipped its glyph — the widgets sat on
+  the old track. The fallback now re-reads while it is the live source, re-reads 0.4 s after every press and
+  flips play/pause at once. The transport was also addressed through a bundle id only some readings set,
+  which could leave a command with no target at all; it now commands the player the reading itself named.
+- **The tracking bars scrub.** Only the notch's vinyl page could seek; the notch music panel, the dock card
+  and the popup drew bars you could not touch. One shared scrubber now sits on all four.
+
+### Added
+- **A camera mirror notch page, with the camera chosen from a dropdown.** An 8th page (Settings › Notch ›
+  Camera mirror) shows a live mirrored preview of whichever camera you pick — built-in, external or
+  Continuity. The camera opens only while that page is on screen and is released the moment you leave it:
+  this is the app's first camera ask, and a refused grant says so and opens the Camera pane instead of
+  pretending there is no camera.
+- **A notifications notch page fed by Notification Center itself.** A 9th page (Settings › Notch ›
+  Notifications) shows the banner Notification Center is drawing now plus the history its own database
+  keeps. Accessibility feeds the live banner; Full Disk Access feeds the history, read read-only while the
+  page is open. Either grant missing is stated with the Settings door, never shown as an empty list.
+
 ## [Unreleased] — Phase 46: the weather widget wears the weather, and the bar hugs the edge
 
 ### Added

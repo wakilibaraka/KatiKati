@@ -1054,6 +1054,13 @@
 		C47000000000000000000008 /* NotchMirrorPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000007 /* NotchMirrorPageView.swift */; };
 		C47000000000000000000009 /* NotchMirrorPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000007 /* NotchMirrorPageView.swift */; };
 		C4700000000000000000000B /* CameraMirrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4700000000000000000000A /* CameraMirrorTests.swift */; };
+		C4700000000000000000000D /* MirroredNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4700000000000000000000C /* MirroredNotification.swift */; };
+		C4700000000000000000000E /* MirroredNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4700000000000000000000C /* MirroredNotification.swift */; };
+		C47000000000000000000010 /* NotificationMirrorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4700000000000000000000F /* NotificationMirrorService.swift */; };
+		C47000000000000000000011 /* NotificationMirrorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4700000000000000000000F /* NotificationMirrorService.swift */; };
+		C47000000000000000000013 /* NotchNotificationsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000012 /* NotchNotificationsPageView.swift */; };
+		C47000000000000000000014 /* NotchNotificationsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000012 /* NotchNotificationsPageView.swift */; };
+		C47000000000000000000016 /* NotificationMirrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000015 /* NotificationMirrorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1797,6 +1804,10 @@
 		C47000000000000000000004 /* CameraMirrorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraMirrorService.swift; path = App/Composition/CameraMirrorService.swift; sourceTree = SOURCE_ROOT; };
 		C47000000000000000000007 /* NotchMirrorPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchMirrorPageView.swift; path = App/Scenes/Notch/NotchMirrorPageView.swift; sourceTree = SOURCE_ROOT; };
 		C4700000000000000000000A /* CameraMirrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraMirrorTests.swift; path = Tests/Unit/CameraMirrorTests.swift; sourceTree = SOURCE_ROOT; };
+		C4700000000000000000000C /* MirroredNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MirroredNotification.swift; path = Core/Support/MirroredNotification.swift; sourceTree = SOURCE_ROOT; };
+		C4700000000000000000000F /* NotificationMirrorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotificationMirrorService.swift; path = App/Composition/NotificationMirrorService.swift; sourceTree = SOURCE_ROOT; };
+		C47000000000000000000012 /* NotchNotificationsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchNotificationsPageView.swift; path = App/Scenes/Notch/NotchNotificationsPageView.swift; sourceTree = SOURCE_ROOT; };
+		C47000000000000000000015 /* NotificationMirrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotificationMirrorTests.swift; path = Tests/Unit/NotificationMirrorTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3133,6 +3144,9 @@
 				C47000000000000000000003 /* CameraMirrorRules.swift in Sources */,
 				C47000000000000000000006 /* CameraMirrorService.swift in Sources */,
 				C47000000000000000000008 /* NotchMirrorPageView.swift in Sources */,
+				C4700000000000000000000E /* MirroredNotification.swift in Sources */,
+				C47000000000000000000010 /* NotificationMirrorService.swift in Sources */,
+				C47000000000000000000014 /* NotchNotificationsPageView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3706,6 +3720,10 @@
 				C47000000000000000000005 /* CameraMirrorService.swift in Sources */,
 				C47000000000000000000009 /* NotchMirrorPageView.swift in Sources */,
 				C4700000000000000000000B /* CameraMirrorTests.swift in Sources */,
+				C4700000000000000000000D /* MirroredNotification.swift in Sources */,
+				C47000000000000000000011 /* NotificationMirrorService.swift in Sources */,
+				C47000000000000000000013 /* NotchNotificationsPageView.swift in Sources */,
+				C47000000000000000000016 /* NotificationMirrorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
