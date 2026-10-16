@@ -430,6 +430,21 @@ extension View {
     func dockTileChrome(isHovered: Bool, cornerRadius: CGFloat = 14) -> some View {
         modifier(DockTileChrome(isHovered: isHovered, cornerRadius: cornerRadius))
     }
+
+    /// The dock app icon's frame (Phase 32d, **packed**: the Settings row is gone, so `DOCK_ICON_FRAME`
+    /// decides). Unset = the squircle macOS draws icons in — the shape every icon wears today; `circle`
+    /// = the hard circular crop plus the 0.16 hairline rim that preset shipped with. One home for the
+    /// branch: `ChipView`, `LauncherChip` and `DrawerCapsuleButton` each wore their own copy of it.
+    @ViewBuilder
+    func dockIconMask(size: CGFloat) -> some View {
+        switch DockIconShape.packed {
+        case .squircle:
+            clipShape(RoundedRectangle(cornerRadius: size / 4, style: .continuous))
+        case .circle:
+            clipShape(Circle())
+                .overlay(Circle().stroke(Color.white.opacity(0.16), lineWidth: 0.5))
+        }
+    }
 }
 
 struct ChipPillUsesGlassKey: EnvironmentKey {

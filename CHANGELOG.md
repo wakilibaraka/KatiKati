@@ -2,6 +2,15 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 32: the dock's motion language, and the circular icon look is packed
+
+### Changed
+- **The dock app icon shape is no longer a setting.** The circular mask was packed on the owner's call
+  (2026-10-16): every icon wears the standard macOS squircle again, and the one-click switch left
+  Settings › Appearance. The look is not deleted — `DOCK_ICON_FRAME=circle` brings it back for a launch,
+  through the app's registered debug switches (`Core/Support/DebugSwitch.swift`), and unset is exactly the
+  squircle that ships today. The retired `com.katikati.dock.iconShape` key is simply ignored from now on.
+
 ## [Unreleased] — Phase 12 close-out: a lock that fails open, a gradient theme engine, a notch theme
 
 ### Fixed

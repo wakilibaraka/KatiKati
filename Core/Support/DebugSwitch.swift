@@ -188,6 +188,11 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     /// Value switch; parsed by `WallpaperDebugOverride`. Unset in normal use.
     case wallpaperPhase = "DOCK_WALLPAPER_PHASE"
 
+    /// Phase 32d, packed (owner 2026-10-16): the dock app icons' frame, `circle` or unset for the
+    /// squircle every icon wears today. Value switch; read once by `DockIconShape.packed`.
+    /// `launchctl setenv DOCK_ICON_FRAME circle` → `open` → `launchctl unsetenv DOCK_ICON_FRAME`.
+    case dockIconFrame = "DOCK_ICON_FRAME"
+
     var kind: Kind {
         switch self {
         case .eventAxAsync, .reconcileSkip, .scanGate, .frontmostCache,
@@ -211,7 +216,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .liquidGlassWhiteOverlay, .liquidGlassDimming, .liquidGlassBorder, .liquidGlassBorderEdge,
              .liquidGlassBorderCut, .liquidGlassBorderSpread, .liquidGlassBorderWidth, .liquidGlassBorderInner,
              .liquidGlassBackgroundOpacity, .liquidGlassWindowBlur, .liquidGlassContentInset,
-             .liquidGlassSystemVariant, .stackPopupSnapshot, .dockTheme, .wallpaperPhase:
+             .liquidGlassSystemVariant, .stackPopupSnapshot, .dockTheme, .wallpaperPhase,
+             .dockIconFrame:
             return .value
         }
     }

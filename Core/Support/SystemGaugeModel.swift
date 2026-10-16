@@ -30,17 +30,21 @@ public struct SystemGaugeMetrics: Equatable, Sendable {
     }
 }
 
-/// Dock app icon masking style preference.
-public enum DockIconShape: String, CaseIterable, Equatable, Codable, Sendable {
+/// Dock app icon masking style (Phase 32d). **Packed (owner 2026-10-16):** the Settings row is gone,
+/// so the frame is fixed at launch by the `DOCK_ICON_FRAME` switch — squircle + nothing else set is
+/// what every dock icon wears today. The on-disk key `com.katikati.dock.iconShape` retires with the
+/// row, which is why this type no longer carries a title: nothing user-facing names these cases.
+public enum DockIconShape: String, Equatable, Codable, Sendable {
     case squircle = "squircle"
     case circle = "circle"
 
-    public var title: String {
-        switch self {
-        case .squircle: return "Standard Squircle"
-        case .circle: return "Circular Icons"
-        }
+    /// Anything unset or unrecognized is today's squircle, so the dock's look cannot change by accident.
+    public static func packedValue(_ raw: String?) -> DockIconShape {
+        raw.flatMap(DockIconShape.init(rawValue:)) ?? .squircle
     }
+
+    /// Read once per process: the switch is environment-only, so it cannot change mid-run.
+    public static let packed = packedValue(DebugSwitch.dockIconFrame.value())
 }
 
 /// Weather widget presentation preset.

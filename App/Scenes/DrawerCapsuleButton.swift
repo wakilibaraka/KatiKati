@@ -492,7 +492,6 @@ private struct DrawerCapsuleAppIcon: View {
 
     @State private var bounceUp = false
     @State private var bounceTimer: Timer?
-    @AppStorage("com.katikati.dock.iconShape") private var iconShapeRaw: String = DockIconShape.squircle.rawValue
 
     var body: some View {
         let img = Image(nsImage: AppIconResolver.icon(for: bundleID))
@@ -501,12 +500,7 @@ private struct DrawerCapsuleAppIcon: View {
             .frame(width: size, height: size)
 
         let shaped = Group {
-            if iconShapeRaw == DockIconShape.circle.rawValue {
-                img.clipShape(Circle())
-                    .overlay(Circle().stroke(Color.white.opacity(0.16), lineWidth: 0.5))
-            } else {
-                img.clipShape(RoundedRectangle(cornerRadius: size / 4, style: .continuous))
-            }
+            img.dockIconMask(size: size)
         }
 
         shaped

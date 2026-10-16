@@ -13,7 +13,6 @@ struct SettingsAppearancePane: View {
     @ObservedObject var store: AppSettingsStore
 
     @Environment(\.colorScheme) private var colorScheme
-    @AppStorage("com.katikati.dock.iconShape") private var iconShapeRaw: String = DockIconShape.squircle.rawValue
 
     private static let presets: [DockThemeStyle] = [
         .system, .translucent, .crystalClear, .obsidianDark, .monochrome, .titaniumFrost,
@@ -84,17 +83,6 @@ struct SettingsAppearancePane: View {
                     iconPreview(.classic)
                 }
                 SettingsNote(Text("Applies to the trash and the menu bar icon. Independent of the theme."))
-            }
-
-            SettingsCard {
-                SettingsSegmentedRow(
-                    Text("Dock App Icon Shape"),
-                    selection: $iconShapeRaw
-                ) {
-                    Text("Squircle").tag(DockIconShape.squircle.rawValue)
-                    Text("Circle").tag(DockIconShape.circle.rawValue)
-                }
-                SettingsNote(Text("Switch dock app icons between standard macOS squircle and clean circular masking."))
             }
 
             wallpaperSection

@@ -58,8 +58,12 @@ final class SystemGaugeTests: XCTestCase {
         XCTAssertEqual(NowPlayingPreset.miniChip.title, "Mini Player")
         XCTAssertEqual(NowPlayingPreset.expandedCard.title, "Expanded Artwork Card")
 
-        XCTAssertEqual(DockIconShape.squircle.title, "Standard Squircle")
-        XCTAssertEqual(DockIconShape.circle.title, "Circular Icons")
+        // Phase 32d: the shape's own labels went with its Settings row. What has to hold now is the
+        // packed resolver — the switch's value, and today's squircle for anything unset or unknown.
+        XCTAssertEqual(DockIconShape.packedValue(nil), .squircle)
+        XCTAssertEqual(DockIconShape.packedValue("squircle"), .squircle)
+        XCTAssertEqual(DockIconShape.packedValue("circle"), .circle)
+        XCTAssertEqual(DockIconShape.packedValue("hexagon"), .squircle)
     }
 
     func testWiFiVolumeDotsActiveCalculation() {
