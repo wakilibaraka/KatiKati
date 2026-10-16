@@ -30,6 +30,8 @@ struct NotchHomeView: View {
                     NotchHardwareHudPageView()
                 case .teleprompter:
                     NotchTeleprompterPageView()
+                case .cameraMirror:
+                    NotchMirrorPageView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

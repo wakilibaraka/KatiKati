@@ -3,7 +3,8 @@ import Foundation
 // Phase 33c — NotchSectionPaging: 5-page bento gallery structure, discrete row paging,
 // and context-aware default page opening logic. Dual-compiled.
 
-/// The 6 dedicated pages of the redesigned Dynamic Island Notch bento gallery.
+/// The dedicated pages of the redesigned Dynamic Island Notch bento gallery: six always-on pages, plus
+/// the teleprompter and the camera mirror, which exist only while their own switch is on.
 enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
     case aiTracker = 0      // Page 1: AI Mission Control (Claude, Codex, OpenCode, Copilot)
     case audioDeck = 1      // Page 2: Vinyl Turntable & Audio Scrubber Deck
@@ -12,6 +13,7 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
     case calendarFocus = 4  // Page 5: Obsidian Calendar & Focus Hourglass / Spinner
     case hardwareHud = 5    // Page 6: Hardware HUD & Sensory Deck
     case teleprompter = 6   // Page 7 (Phase 37c): only present while the owner turns it on
+    case cameraMirror = 7   // Page 8 (Phase 47b): the live camera mirror, only while it is switched on
 
     var id: Int { rawValue }
 
@@ -24,6 +26,9 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         case .calendarFocus: return "Obsidian Calendar"
         case .hardwareHud: return "Hardware HUD"
         case .teleprompter: return "Teleprompter"
+        // Localised at the source: the title is rendered as data (`Text(page.title)`), so a bare literal
+        // would ship English in every language — and the catalog gate reads it as an unreferenced key.
+        case .cameraMirror: return String(localized: "Camera Mirror")
         }
     }
 
@@ -36,24 +41,31 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         case .calendarFocus: return "calendar"
         case .hardwareHud: return "cpu"
         case .teleprompter: return "text.alignleft"
+        case .cameraMirror: return "camera.viewfinder"
         }
     }
 
-    /// The pages in paging order. The teleprompter page exists only while it is switched on, so with it
-    /// off the gallery is exactly the six pages it always was.
-    static func visible(teleprompter: Bool) -> [NotchPage] {
-        teleprompter ? allCases : allCases.filter { $0 != .teleprompter }
+    /// The pages in paging order. The teleprompter and the camera mirror exist only while their own
+    /// switch is on, so with both off the gallery is exactly the six pages it always was.
+    static func visible(teleprompter: Bool, mirror: Bool = false) -> [NotchPage] {
+        allCases.filter { page in
+            switch page {
+            case .teleprompter: return teleprompter
+            case .cameraMirror: return mirror
+            default: return true
+            }
+        }
     }
 
-    func next(wrap: Bool = true, teleprompter: Bool = false) -> NotchPage {
-        let all = Self.visible(teleprompter: teleprompter)
+    func next(wrap: Bool = true, teleprompter: Bool = false, mirror: Bool = false) -> NotchPage {
+        let all = Self.visible(teleprompter: teleprompter, mirror: mirror)
         guard let index = all.firstIndex(of: self) else { return all[0] }
         if index + 1 < all.count { return all[index + 1] }
         return wrap ? all[0] : self
     }
 
-    func previous(wrap: Bool = true, teleprompter: Bool = false) -> NotchPage {
-        let all = Self.visible(teleprompter: teleprompter)
+    func previous(wrap: Bool = true, teleprompter: Bool = false, mirror: Bool = false) -> NotchPage {
+        let all = Self.visible(teleprompter: teleprompter, mirror: mirror)
         guard let index = all.firstIndex(of: self) else { return all[0] }
         if index > 0 { return all[index - 1] }
         return wrap ? all[all.count - 1] : self

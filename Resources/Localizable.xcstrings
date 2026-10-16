@@ -1,6 +1,108 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Camera Mirror": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Camera Mirror"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "相机镜像"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "相機鏡像"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "カメラミラー"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Kameraspiegel"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Miroir de la caméra"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Espejo de la cámara"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Espejo de la cámara"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Espelho da câmera"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Espelho da câmara"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Specchio della fotocamera"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "카메라 미러"}}
+      }
+    },
+    "Camera Mirror Notch Page": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Camera Mirror Notch Page"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "刘海页显示相机镜像"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "瀏海頁顯示相機鏡像"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "ノッチページにカメラミラーを表示"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Kameraspiegel als Notch-Seite"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Page d'encoche du miroir de la caméra"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Página de muesca del espejo de la cámara"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Página de muesca del espejo de la cámara"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Página da notch com espelho da câmera"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Página da notch com espelho da câmara"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Pagina notch con specchio della fotocamera"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "노치 페이지 카메라 미러"}}
+      }
+    },
+    "System Default": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "System Default"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "系统默认"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "系統預設"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "システムデフォルト"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Systemstandard"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Par défaut du système"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Predeterminado del sistema"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Predeterminado del sistema"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Padrão do sistema"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Predefinição do sistema"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Predefinito di sistema"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "시스템 기본값"}}
+      }
+    },
+    "Choose Camera": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Choose Camera"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "选择相机"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "選擇相機"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "カメラを選択"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Kamera wählen"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Choisir la caméra"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Elegir cámara"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Elegir cámara"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Escolher câmera"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Escolher câmara"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Scegli fotocamera"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "카메라 선택"}}
+      }
+    },
+    "No Camera Found": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No Camera Found"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "未找到相机"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "找不到相機"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "カメラが見つかりません"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Keine Kamera gefunden"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Aucune caméra détectée"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "No se encontró ninguna cámara"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "No se encontró ninguna cámara"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Nenhuma câmera encontrada"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Nenhuma câmara encontrada"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Nessuna fotocamera trovata"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "카메라를 찾을 수 없음"}}
+      }
+    },
+    "Camera Access Is Off": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Camera Access Is Off"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "相机访问权限已关闭"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "相機取用權限已關閉"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "カメラへのアクセスがオフです"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Kamerazugriff ist aus"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "L'accès à la caméra est désactivé"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "El acceso a la cámara está desactivado"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "El acceso a la cámara está desactivado"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "O acesso à câmera está desativado"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "O acesso à câmara está desativado"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "L'accesso alla fotocamera è disattivato"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "카메라 접근이 꺼져 있음"}}
+      }
+    },
     "Shows the Live Island capsule on the dock.": {
       "extractionState": "manual",
       "localizations": {

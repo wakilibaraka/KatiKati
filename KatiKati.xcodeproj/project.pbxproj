@@ -1047,6 +1047,13 @@
 		EE000000000000000000004E /* SystemHealthReaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004D /* SystemHealthReaders.swift */; };
 		EE0000000000000000000050 /* ControlCenterLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004F /* ControlCenterLayout.swift */; };
 		EE0000000000000000000051 /* ControlCenterLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004F /* ControlCenterLayout.swift */; };
+		C47000000000000000000002 /* CameraMirrorRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000001 /* CameraMirrorRules.swift */; };
+		C47000000000000000000003 /* CameraMirrorRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000001 /* CameraMirrorRules.swift */; };
+		C47000000000000000000005 /* CameraMirrorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000004 /* CameraMirrorService.swift */; };
+		C47000000000000000000006 /* CameraMirrorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000004 /* CameraMirrorService.swift */; };
+		C47000000000000000000008 /* NotchMirrorPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000007 /* NotchMirrorPageView.swift */; };
+		C47000000000000000000009 /* NotchMirrorPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000007 /* NotchMirrorPageView.swift */; };
+		C4700000000000000000000B /* CameraMirrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4700000000000000000000A /* CameraMirrorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1786,6 +1793,10 @@
 		EE000000000000000000004B /* QuickTogglesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickTogglesTests.swift; path = Tests/Unit/QuickTogglesTests.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000004D /* SystemHealthReaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemHealthReaders.swift; path = Platform/SystemStatus/SystemHealthReaders.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000004F /* ControlCenterLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ControlCenterLayout.swift; path = Core/Support/ControlCenterLayout.swift; sourceTree = SOURCE_ROOT; };
+		C47000000000000000000001 /* CameraMirrorRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraMirrorRules.swift; path = Core/Support/CameraMirrorRules.swift; sourceTree = SOURCE_ROOT; };
+		C47000000000000000000004 /* CameraMirrorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraMirrorService.swift; path = App/Composition/CameraMirrorService.swift; sourceTree = SOURCE_ROOT; };
+		C47000000000000000000007 /* NotchMirrorPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchMirrorPageView.swift; path = App/Scenes/Notch/NotchMirrorPageView.swift; sourceTree = SOURCE_ROOT; };
+		C4700000000000000000000A /* CameraMirrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraMirrorTests.swift; path = Tests/Unit/CameraMirrorTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3119,6 +3130,9 @@
 				5CB341E082E25B7D7886822F /* WeatherResponseParsing.swift in Sources */,
 				CC234F8CB79E1F671C157759 /* WeatherService.swift in Sources */,
 				BB96449286273F55FD93D51E /* WeatherChip.swift in Sources */,
+				C47000000000000000000003 /* CameraMirrorRules.swift in Sources */,
+				C47000000000000000000006 /* CameraMirrorService.swift in Sources */,
+				C47000000000000000000008 /* NotchMirrorPageView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3688,6 +3702,10 @@
 				A0000000000000000000103D /* StripItem.swift in Sources */,
 				A000000000000000000019D5 /* LauncherMembershipItem.swift in Sources */,
 				D43D4279B595929A4591022B /* WeatherResponseParsingTests.swift in Sources */,
+				C47000000000000000000002 /* CameraMirrorRules.swift in Sources */,
+				C47000000000000000000005 /* CameraMirrorService.swift in Sources */,
+				C47000000000000000000009 /* NotchMirrorPageView.swift in Sources */,
+				C4700000000000000000000B /* CameraMirrorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
