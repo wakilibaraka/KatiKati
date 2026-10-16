@@ -13,6 +13,9 @@ struct SettingsAppearancePane: View {
     @ObservedObject var store: AppSettingsStore
 
     @Environment(\.colorScheme) private var colorScheme
+    // Phase 32b: `Right FAB Style` moved here from the Widgets page, into the slot the dock-icon row
+    // left when 32d packed it — the dock's FAB is a look, like the icon set beside it.
+    @AppStorage("com.katikati.widgets.fabStyle") private var fabStyleRaw: String = "gauge"
 
     private static let presets: [DockThemeStyle] = [
         .system, .translucent, .crystalClear, .obsidianDark, .monochrome, .titaniumFrost,
@@ -83,6 +86,15 @@ struct SettingsAppearancePane: View {
                     iconPreview(.classic)
                 }
                 SettingsNote(Text("Applies to the trash and the menu bar icon. Independent of the theme."))
+                SettingsDivider()
+                SettingsRow(Text("Right FAB Style")) {
+                    Picker("Right FAB Style", selection: $fabStyleRaw) {
+                        Text("Dynamic Gauge").tag("gauge")
+                        Text("Classic Glyph").tag("classic")
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                .help(Text("The dock's right button: a live gauge or a single glyph."))
             }
 
             wallpaperSection

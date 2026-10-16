@@ -1,0 +1,19 @@
+# Phase 32b, live (2026-10-16): the two Settings rows this slice touched, read off the running app.
+# Launch: DOCK_DEV_SKIP_PERMISSIONS=1 DOCK_OPEN_SETTINGS=widgets <built app> — the switch this slice adds.
+# Probe: swift /tmp/kktabs.swift dump | grep -i  (a real AX read of the front Settings window).
+
+## Widgets page
+AXStaticText	42.0	360.0	Clock Style
+AXStaticText	450.0	360.0	Weather Style
+AXStaticText	42.0	400.0	Now Playing Style
+AXStaticText	450.0	400.0	Dock Motion
+
+## Appearance page (tab pressed by name)
+pressed Appearance
+AXStaticText	42.0	664.0	Icon Set
+AXStaticText	42.0	752.0	Right FAB Style
+AXPopUpButton	714.5	748.0	Dynamic Gauge
+
+## The Dock Motion row's control (Widgets page, same read)
+AXStaticText	450.0	400.0	Dock Motion
+AXPopUpButton	765.0	396.0	Fluid

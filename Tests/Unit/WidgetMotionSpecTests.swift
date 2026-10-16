@@ -1,3 +1,4 @@
+import SwiftUI
 import XCTest
 
 /// Phase 32a: the dock widgets' motion language is data, so it is tested as data — the numbers the
@@ -59,6 +60,16 @@ final class WidgetMotionSpecTests: XCTestCase {
         XCTAssertEqual(WidgetMotionPreset.resolve(defaults: suite, reduceMotion: false), .snappy)
 
         suite.removeObject(forKey: WidgetMotionPreset.storageKey)
+    }
+
+    /// Phase 32b: the bridge the widgets actually call. `Instant` — and therefore Reduce Motion — is
+    /// the absence of motion at the call site, not only a `nil` in the table.
+    func testInstantCutsTheContentAnimationTheWidgetsUse() {
+        XCTAssertNotNil(WidgetMotion.fluid.contentAnimation)
+        XCTAssertNotNil(WidgetMotion.snappy.contentAnimation)
+        XCTAssertNil(WidgetMotion.instant.contentAnimation)
+        XCTAssertEqual(SpringParameters(response: 0.34, dampingRatio: 0.80).animation,
+                       Animation.spring(response: 0.34, dampingFraction: 0.80))
     }
 
     /// Reduce Motion always wins — the same rule the notch's animation preset follows.

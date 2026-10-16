@@ -21,7 +21,10 @@ struct WidgetLookSettingsBlock: View {
     @AppStorage("com.katikati.clock.preset") private var clockPresetRaw: String = ClockPreset.stackedCard.rawValue
     @AppStorage("com.katikati.weather.chipPreset") private var weatherPresetRaw: String = WeatherChipPreset.detailedForecast.rawValue
     @AppStorage("com.katikati.media.preset") private var mediaPresetRaw: String = NowPlayingPreset.expandedCard.rawValue
-    @AppStorage("com.katikati.widgets.fabStyle") private var fabStyleRaw: String = "gauge"
+    // Phase 32b: the dock widgets' motion language. `Right FAB Style` left this page for Appearance
+    // (same swap as 32d's dock-icon row): the Widgets page is 952 pt of the 986 pt cap, so the picker
+    // that replaces it has to take its slot on the pair rather than claim a row of its own.
+    @AppStorage(WidgetMotionPreset.storageKey) private var dockMotion: WidgetMotionPreset = .default
 
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
@@ -105,13 +108,15 @@ struct WidgetLookSettingsBlock: View {
                         }
                     },
                     right: {
-                        SettingsRow(Text("Right FAB Style")) {
-                            Picker("Right FAB Style", selection: $fabStyleRaw) {
-                                Text("Dynamic Gauge").tag("gauge")
-                                Text("Classic Glyph").tag("classic")
+                        SettingsRow(Text("Dock Motion")) {
+                            Picker("Dock Motion", selection: $dockMotion) {
+                                ForEach(WidgetMotionPreset.allCases, id: \.self) { preset in
+                                    Text(preset.title).tag(preset)
+                                }
                             }
                             .labelsHidden().pickerStyle(.menu).fixedSize()
                         }
+                        .help(Text("How the dock widgets' readings move when they change."))
                     }
                 )
             }

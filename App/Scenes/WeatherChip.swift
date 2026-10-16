@@ -201,6 +201,9 @@ public struct WeatherChip: View {
     @EnvironmentObject var weatherService: WeatherService
     @Environment(\.widgetSize) private var widgetSize
     @AppStorage("com.katikati.weather.chipPreset") private var chipPreset: WeatherChipPreset = .detailedForecast
+    // Phase 32b: the reading morphs with the dock's motion preset; Instant, or Reduce Motion, cuts it.
+    @AppStorage(WidgetMotionPreset.storageKey) private var motionPreset: WidgetMotionPreset = .default
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     public init() {}
 
     public var body: some View {
@@ -274,9 +277,11 @@ public struct WeatherChip: View {
     }
 
     private func temperature(state: WeatherState, size: CGFloat) -> some View {
-        HStack(alignment: .top, spacing: 1) {
-            Text(verbatim: "\(Int(round(state.temperatureCelsius)))")
+        let reading = Int(round(state.temperatureCelsius))
+        return HStack(alignment: .top, spacing: 1) {
+            Text(verbatim: "\(reading)")
                 .font(.system(size: size, weight: .semibold, design: .rounded))
+                .dockReadingMorph(motionPreset.effective(reduceMotion: reduceMotion), value: reading)
             // The reference draws the degree as a small ring, not a glyph.
             Circle()
                 .stroke(Color.white.opacity(0.9), lineWidth: 1.4)
@@ -343,6 +348,9 @@ extension EnvironmentValues {
 private struct DetailedWeatherPodView: View {
     let state: WeatherState
     let widgetSize: WidgetSize
+    // Phase 32b: one morph for all three sizes — the plate never changes, its reading does.
+    @AppStorage(WidgetMotionPreset.storageKey) private var motionPreset: WidgetMotionPreset = .default
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isHovered = false
 
     var body: some View {
@@ -365,6 +373,8 @@ private struct DetailedWeatherPodView: View {
             isHovered = hovering
         }
         .contentShape(Rectangle())
+        .dockReadingMorph(motionPreset.effective(reduceMotion: reduceMotion),
+                          value: Int(round(state.temperatureCelsius)))
     }
 
     private var compactDetailedView: some View {

@@ -231,6 +231,8 @@
 		FA33A0000000000000000012 /* NotchMotionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000011 /* NotchMotionSpec.swift */; };
 		FA33A0000000000000000013 /* NotchMotionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000011 /* NotchMotionSpec.swift */; };
 		FA3200000000000000000012 /* WidgetMotionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3200000000000000000011 /* WidgetMotionSpec.swift */; };
+		FA3200000000000000000032 /* WidgetMotionAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3200000000000000000031 /* WidgetMotionAnimation.swift */; };
+		FA3200000000000000000033 /* WidgetMotionAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3200000000000000000031 /* WidgetMotionAnimation.swift */; };
 		FA3200000000000000000013 /* WidgetMotionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3200000000000000000011 /* WidgetMotionSpec.swift */; };
 		FA33A0000000000000000022 /* NotchDesignSpecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000021 /* NotchDesignSpecTests.swift */; };
 		FA3200000000000000000022 /* WidgetMotionSpecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3200000000000000000021 /* WidgetMotionSpecTests.swift */; };
@@ -1204,6 +1206,7 @@
 		FA33A0000000000000000001 /* NotchDesignSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchDesignSpec.swift; path = Core/Support/NotchDesignSpec.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000011 /* NotchMotionSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchMotionSpec.swift; path = Core/Support/NotchMotionSpec.swift; sourceTree = SOURCE_ROOT; };
 		FA3200000000000000000011 /* WidgetMotionSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetMotionSpec.swift; path = Core/Support/WidgetMotionSpec.swift; sourceTree = SOURCE_ROOT; };
+		FA3200000000000000000031 /* WidgetMotionAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetMotionAnimation.swift; path = App/Scenes/WidgetMotionAnimation.swift; sourceTree = SOURCE_ROOT; };
 		FB52C00000000000000000101 /* SettingsMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsMetrics.swift; path = Core/Support/SettingsMetrics.swift; sourceTree = SOURCE_ROOT; };
 		FB52C00000000000000000111 /* SettingsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsCard.swift; path = App/Scenes/SettingsCard.swift; sourceTree = SOURCE_ROOT; };
 		FB52C00000000000000000121 /* SettingsMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsMetricsTests.swift; path = Tests/Unit/SettingsMetricsTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3034,6 +3037,7 @@
 				FA33A0000000000000000002 /* NotchDesignSpec.swift in Sources */,
 				FA33A0000000000000000012 /* NotchMotionSpec.swift in Sources */,
 				FA3200000000000000000012 /* WidgetMotionSpec.swift in Sources */,
+				FA3200000000000000000032 /* WidgetMotionAnimation.swift in Sources */,
 				FA33A0000000000000000032 /* NotchContinuousMaskShape.swift in Sources */,
 				FA33A0000000000000000052 /* NotchSectionPaging.swift in Sources */,
 				FA33A0000000000000000062 /* NotchGestureSupport.swift in Sources */,
@@ -3162,6 +3166,7 @@
 				FA33A0000000000000000003 /* NotchDesignSpec.swift in Sources */,
 				FA33A0000000000000000013 /* NotchMotionSpec.swift in Sources */,
 				FA3200000000000000000013 /* WidgetMotionSpec.swift in Sources */,
+				FA3200000000000000000033 /* WidgetMotionAnimation.swift in Sources */,
 				FA33A0000000000000000033 /* NotchContinuousMaskShape.swift in Sources */,
 				FA33A0000000000000000053 /* NotchSectionPaging.swift in Sources */,
 				FA33A0000000000000000063 /* NotchGestureSupport.swift in Sources */,

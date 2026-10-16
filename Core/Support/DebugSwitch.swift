@@ -193,6 +193,12 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     /// `launchctl setenv DOCK_ICON_FRAME circle` → `open` → `launchctl unsetenv DOCK_ICON_FRAME`.
     case dockIconFrame = "DOCK_ICON_FRAME"
 
+    /// Phase 32b live-check aid: `DOCK_OPEN_SETTINGS=<tab>` (a `SettingsTab` raw value, e.g.
+    /// `widgets`) presents that page at launch, once the strip has started, so a probe can read
+    /// the page's real rows — the AX route through the status item does not raise the window.
+    /// Unset in normal use. Needs `DOCK_DEV_SKIP_PERMISSIONS=1` on this unsigned build.
+    case openSettings = "DOCK_OPEN_SETTINGS"
+
     var kind: Kind {
         switch self {
         case .eventAxAsync, .reconcileSkip, .scanGate, .frontmostCache,
@@ -217,7 +223,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .liquidGlassBorderCut, .liquidGlassBorderSpread, .liquidGlassBorderWidth, .liquidGlassBorderInner,
              .liquidGlassBackgroundOpacity, .liquidGlassWindowBlur, .liquidGlassContentInset,
              .liquidGlassSystemVariant, .stackPopupSnapshot, .dockTheme, .wallpaperPhase,
-             .dockIconFrame:
+             .dockIconFrame, .openSettings:
             return .value
         }
     }

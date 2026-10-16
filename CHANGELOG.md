@@ -4,6 +4,13 @@ All notable changes to KatiKati are documented in this file.
 
 ## [Unreleased] — Phase 32: the dock's motion language, and the circular icon look is packed
 
+### Added
+- **The dock widgets' motion is a choice now: Settings › Widgets › Dock Motion.** *Fluid* is what the bar
+  already moved with, *Snappy* is faster and firmer, *Instant* changes instantly — and Reduce Motion always
+  wins over all three. The first widget wired to it is the weather one: the temperature in the detailed pod
+  and in the classic pill morphs to its new reading instead of snapping. The row takes the right half of the *Now Playing Style*
+  pair; **Right FAB Style** moves to Settings › Appearance.
+
 ### Changed
 - **The dock app icon shape is no longer a setting.** The circular mask was packed on the owner's call
   (2026-10-16): every icon wears the standard macOS squircle again, and the one-click switch left

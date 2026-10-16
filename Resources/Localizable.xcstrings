@@ -67455,6 +67455,237 @@
         "it": {"stringUnit": {"state": "needs_review", "value": "Turn Dynamic Wallpaper on to restore it."}},
         "ko": {"stringUnit": {"state": "needs_review", "value": "Turn Dynamic Wallpaper on to restore it."}}
       }
+    },
+    "Dock Motion": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dock Motion"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "程序坞动效"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "程式塢動效"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "ドックの動き"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Dock-Bewegung"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mouvement du Dock"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Movimiento del Dock"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Movimiento del Dock"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Movimento do Dock"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Movimento do Dock"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Movimento del Dock"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "독 모션"
+          }
+        }
+      }
+    },
+    "How the dock widgets' readings move when they change.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How the dock widgets' readings move when they change."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "小组件读数变化时的动效。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "小工具讀數變化時的動效。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "ウィジェットの数値が変わるときの動き。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Wie sich die Werte der Dock-Widgets bei Änderungen bewegen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Le mouvement des valeurs des widgets du Dock lorsqu’elles changent."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Cómo se mueven las lecturas de los widgets del Dock al cambiar."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Cómo se mueven las lecturas de los widgets del Dock al cambiar."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Como as leituras dos widgets do Dock se movem quando mudam."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Como as leituras dos widgets do Dock se movem quando mudam."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Come si muovono le letture dei widget del Dock quando cambiano."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "위젯 수치가 바뀔 때의 움직임."
+          }
+        }
+      }
+    },
+    "The dock's right button: a live gauge or a single glyph.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The dock's right button: a live gauge or a single glyph."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "程序坞右侧按钮：实时仪表盘或单一图标。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "程式塢右側按鈕：即時儀錶或單一圖示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "ドック右側のボタン：ライブゲージまたは単一グリフ。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Der rechte Dock-Button: eine Live-Anzeige oder ein einzelnes Symbol."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Le bouton droit du Dock : une jauge en direct ou un simple glyphe."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "El botón derecho del Dock: un medidor en vivo o un solo glifo."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "El botón derecho del Dock: un medidor en vivo o un solo glifo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O botão direito do Dock: um medidor ao vivo ou um único glifo."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O botão direito do Dock: um medidor ao vivo ou um único glifo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Il pulsante destro del Dock: un indicatore live o un singolo glifo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "독 오른쪽 버튼: 실시간 게이지 또는 단일 글리프."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

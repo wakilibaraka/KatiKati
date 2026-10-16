@@ -276,6 +276,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         appearanceSubscription = settingsStore.$appearanceMode
             .sink { NSApp.appearance = $0.nsAppearance }
 
+        // 32b live-check aid: `DOCK_OPEN_SETTINGS=<tab>` presents one Settings page once the strip
+        // has started, so an AX probe reads its real rows. Unset does nothing (`DebugSwitch`).
+        if let raw = DebugSwitch.openSettings.value(), let tab = SettingsTab(rawValue: raw) {
+            settingsWindowController.selectBeforePresenting(tab)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
+                self?.openSettings(nil)
+            }
+        }
+
         // 位置分类必须排在接管其他实例和注册热键**之前**。
         // 挂载磁盘映像双击运行时，那份临时副本一旦执行 terminateOtherInstances()，
         // 就会把用户正在用的 /Applications 实例杀掉，自己却只显示一个搬家引导；
