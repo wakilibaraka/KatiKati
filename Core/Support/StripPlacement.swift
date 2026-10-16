@@ -8,16 +8,9 @@ enum StripPlacement: String, CaseIterable, Codable, Sendable {
 
     var isVertical: Bool { self != .bottom }
 
-    /// The layout mode a placement actually renders. A side rail has a short main axis, so the
-    /// five- and four-island splits fold into the three-island split (owner decision 1, 2026-10-13):
-    /// top = launcher + weather, middle = apps (+ media), bottom = clock + widgets.
-    func effectiveMode(_ mode: BarLayoutMode) -> BarLayoutMode {
-        guard isVertical else { return mode }
-        switch mode {
-        case .split4, .split5: return .split3
-        case .windows, .centered, .split3: return mode
-        }
-    }
+    // Phase 41a: a rail renders every layout mode as itself. Phase 18's fold of split4/split5 into
+    // split3 is gone (owner 2026-10-15: "all layout mode changes should also apply vertically"), so a
+    // rail's island count is always `BarLayoutMode.slotCount` — placement only transposes the axis.
 }
 
 /// Global placement plus optional per-display overrides (decision 5: one picker, per-display

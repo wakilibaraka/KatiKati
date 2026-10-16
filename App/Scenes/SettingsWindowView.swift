@@ -600,7 +600,6 @@ struct GlassTilesToggle: View {
 struct WeatherSettingsBlock: View {
     @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
     @AppStorage(WeatherUnits.windKey) private var windUnit: WindSpeedUnit = .kmh
-    @AppStorage(WeatherPrefs.animationsKey) private var animations = true
     @AppStorage(WeatherLayoutPreset.storageKey) private var weatherLayout: WeatherLayoutPreset = .glance
     @AppStorage(WeatherHeroStyle.storageKey) private var heroStyle: WeatherHeroStyle = .scene
     @State private var thresholds = WeatherPrefs.thresholds()
@@ -641,23 +640,31 @@ struct WeatherSettingsBlock: View {
                 }
             }
         )
+        // "Weather Animations" moved to the Widget Appearance card (2026-10-15), where the other
+        // widget-animation row already lives and where it shares a line instead of owning one.
         SettingsDivider()
-        SettingsToggleRow(Text("Weather Animations"), isOn: $animations)
-        SettingsDivider()
-        SettingsStepperRow(
-            Text("Heat Warning (Feels Like)"),
-            value: binding(\.heatFeelsLikeC),
-            in: 25...50,
-            step: 1,
-            readout: "\(Int(thresholds.heatFeelsLikeC))°C"
-        )
-        SettingsDivider()
-        SettingsStepperRow(
-            Text("Wind Warning"),
-            value: binding(\.windKmh),
-            in: 20...120,
-            step: 5,
-            readout: "\(Int(thresholds.windKmh)) km/h"
+        // Two thresholds, one line (`Docs/SETTINGS.md` rule 5): each is a short readout and a
+        // stepper, which fits half a card — measured live 2026-10-15, the label is 156 pt and the
+        // readout under 40. The third stays on its own line.
+        SettingsRowPair(
+            left: {
+                SettingsStepperRow(
+                    Text("Heat Warning (Feels Like)"),
+                    value: binding(\.heatFeelsLikeC),
+                    in: 25...50,
+                    step: 1,
+                    readout: "\(Int(thresholds.heatFeelsLikeC))°C"
+                )
+            },
+            right: {
+                SettingsStepperRow(
+                    Text("Wind Warning"),
+                    value: binding(\.windKmh),
+                    in: 20...120,
+                    step: 5,
+                    readout: "\(Int(thresholds.windKmh)) km/h"
+                )
+            }
         )
         SettingsDivider()
         SettingsStepperRow(

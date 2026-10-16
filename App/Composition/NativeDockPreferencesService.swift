@@ -311,6 +311,54 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
 /// - `com.katikati.nativeDock.restoreDelay.present`
 /// - `com.katikati.nativeDock.restoreDelay.value`
 
+/// 系统 Dock 里钉住的应用（`com.apple.dock` → `persistent-apps`），**Dock 顺序**。
+///
+/// 任务条把它们当成自家的「保留」启动器显示（同一种卡、同一个 `app-\(bid)` id），所以没运行的
+/// 应用也留着图标——就是 Dock 上那一排（owner 2026-10-15：*"use the mac dock spacing and look for
+/// the icons in dock"*）。
+///
+/// 不是我们的设置，也不落盘：记录在系统 Dock 里，用户取消钉住就没了。读不到（沙箱 / 键不存在）
+/// 返回空数组，任务条照旧只有自己的保留列表。
+///
+/// 和 `readAutohideStateFromSystem()` 同一套口径：先 `CFPreferencesAppSynchronize` 再取值——外部
+/// 改动（系统设置 / 拖进 Dock）不会自动进本进程的缓存。
+enum NativeDockPinnedApps {
+    private static let domain = "com.apple.dock" as CFString
+    private static let key = "persistent-apps"
+
+    static func read(
+        synchronize: () -> Bool = { CFPreferencesAppSynchronize(domain) },
+        value: () -> Any? = { CFPreferencesCopyAppValue(key as CFString, domain) },
+        bundleIDForURL: (URL) -> String? = { Bundle(url: $0)?.bundleIdentifier }
+    ) -> [String] {
+        guard synchronize() else { return [] }
+        return decode(value(), bundleIDForURL: bundleIDForURL)
+    }
+
+    /// 纯解码：`tile-data.file-data._CFURLString` → bundle id，保持 Dock 顺序，去重；不是 app 的
+    /// 磁贴（文件夹、网页链接、`Bundle(url:)` 认不出的）直接跳过。
+    static func decode(
+        _ value: Any?,
+        bundleIDForURL: (URL) -> String? = { Bundle(url: $0)?.bundleIdentifier }
+    ) -> [String] {
+        guard let tiles = value as? [[String: Any]] else { return [] }
+        var seen = Set<String>()
+        var result: [String] = []
+        for tile in tiles {
+            // 值里的路径是百分号编码的（`Google%20Chrome.app`），`URL(string:)` 解码后再交给 Bundle。
+            guard let raw = (tile["tile-data"] as? [String: Any])
+                .flatMap({ $0["file-data"] as? [String: Any] })
+                .flatMap({ $0["_CFURLString"] as? String }),
+                let url = URL(string: raw),
+                let bundleID = bundleIDForURL(url) else { continue }
+            let normalized = bundleID.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !normalized.isEmpty, seen.insert(normalized).inserted else { continue }
+            result.append(normalized)
+        }
+        return result
+    }
+}
+
 enum NativeDockPreferencesError: LocalizedError {
     case sandboxed
     case commandFailed(executable: String, status: Int32)

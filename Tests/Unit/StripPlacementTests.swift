@@ -46,13 +46,9 @@ final class StripPlacementTests: XCTestCase {
                                                placement: .right, screen: screen), 62)
     }
 
-    func testSideRailsFoldTheWideSplitsIntoThree() {
-        XCTAssertEqual(StripPlacement.bottom.effectiveMode(.split5), .split5)
-        XCTAssertEqual(StripPlacement.left.effectiveMode(.split5), .split3)
-        XCTAssertEqual(StripPlacement.right.effectiveMode(.split4), .split3)
-        XCTAssertEqual(StripPlacement.left.effectiveMode(.centered), .centered)
-        XCTAssertEqual(StripPlacement.left.effectiveMode(.windows), .windows)
-    }
+    // Phase 41a retired `StripPlacement.effectiveMode` (the rail's fold of split4/split5 into
+    // split3), so there is no placement→mode mapping left to pin here. The property it guaranteed is
+    // now pinned against real rail frames in `RailGeometryTests.testRailsCarryEveryModeWithTheSameSlotCount`.
 
     func testPerDisplayOverridesFallBackToGlobal() {
         var map = StripPlacementMap()

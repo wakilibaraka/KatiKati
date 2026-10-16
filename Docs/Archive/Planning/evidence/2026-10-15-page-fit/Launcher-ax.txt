@@ -1,0 +1,64 @@
+WINDOW	Launcher	405	209	900	1067
+AXStaticText	42.0	102.0	Launcher
+AXStaticText	42.0	140.0	Scroll Direction
+AXRadioGroup	696.0	136.0	
+AXStaticText	42.0	180.0	Hidden Apps
+AXStaticText	274.0	180.0	0
+AXButton	292.5	176.0	
+AXButton	450.0	176.0	
+AXStaticText	42.0	244.0	Search Position
+AXPopUpButton	358.0	240.0	Top
+AXStaticText	450.0	244.0	Theme
+AXPopUpButton	713.5	240.0	System
+AXStaticText	42.0	285.0	Tint
+AXPopUpButton	765.5	281.0	None
+AXStaticText	42.0	346.5	Launcher Icon
+AXButton	334.5	320.0	
+AXButton	418.0	321.0	
+AXButton	499.5	321.0	
+AXButton	566.5	321.0	
+AXButton	626.5	321.0	
+AXButton	686.5	321.0	
+AXButton	746.5	321.0	
+AXButton	806.5	321.0	
+AXStaticText	42.0	444.0	Control Center
+AXStaticText	42.0	482.0	Side
+AXRadioGroup	338.0	478.0	
+AXStaticText	450.0	482.0	Size
+AXRadioGroup	640.5	478.0	
+AXStaticText	42.0	523.0	Anchor
+AXRadioGroup	244.5	519.0	
+AXStaticText	450.0	523.0	Animation
+AXRadioGroup	661.5	519.0	
+AXStaticText	42.0	557.0	Widgets
+AXStaticText	42.0	626.0	Quick Settings
+AXStaticText	42.0	908.0	Launcher
+AXStaticText	42.0	946.0	Script Commands
+AXCheckBox	396.0	942.0	1
+AXStaticText	450.0	946.0	Show Command Hints
+AXCheckBox	804.0	942.0	1
+AXStaticText	42.0	987.0	Fast File Index
+AXCheckBox	804.0	983.0	1
+AXButton	42.0	1024.0	
+AXButton	184.0	1029.5	
+AXCheckBox	42.0	575.0	1
+AXCheckBox	450.0	575.0	1
+AXCheckBox	42.0	599.4	1
+AXCheckBox	42.0	644.0	1
+AXCheckBox	450.0	644.0	1
+AXCheckBox	42.0	668.4	1
+AXCheckBox	450.0	668.4	1
+AXCheckBox	42.0	692.8	1
+AXCheckBox	450.0	692.8	1
+AXCheckBox	42.0	717.3	1
+AXCheckBox	450.0	717.3	1
+AXCheckBox	42.0	741.7	1
+AXCheckBox	450.0	741.7	1
+AXCheckBox	42.0	766.1	1
+AXCheckBox	450.0	766.1	1
+AXCheckBox	42.0	790.5	1
+AXCheckBox	450.0	790.5	1
+AXCheckBox	42.0	814.9	1
+AXCheckBox	450.0	814.9	1
+AXCheckBox	42.0	839.4	1
+AXCheckBox	450.0	839.4	1

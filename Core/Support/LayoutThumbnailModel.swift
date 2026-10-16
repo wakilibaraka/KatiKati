@@ -77,7 +77,7 @@ enum LayoutThumbnailModel {
         let stride = IslandLayoutSolver.tileStride(barHeight: inputs.barHeight)
         let layout = IslandLayoutSolver.layout(
             screenWidth: length,
-            mode: placement.effectiveMode(mode),
+            mode: mode,
             widgetOrder: inputs.widgetOrder,
             widgetWidths: widths,
             tileStride: stride,
@@ -89,7 +89,9 @@ enum LayoutThumbnailModel {
             margin: inputs.margin,
             barHeight: inputs.barHeight,
             bottomMargin: inputs.bottomGap,
-            centeredWidth: inputs.centeredWidth
+            centeredWidth: inputs.centeredWidth,
+            // A rail card previews the rail's own ends (Phase 42), or the card and the bar disagree.
+            contentInset: placement.isVertical ? IslandChrome.railContentInset : IslandChrome.contentInset
         )
         let capsuleSpace = Self.capsuleSpace(barHeight: inputs.barHeight)
         var capsule: CGRect?

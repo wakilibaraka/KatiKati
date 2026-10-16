@@ -10,13 +10,25 @@ struct NotchMusicPanel: View {
 
     var body: some View {
         let state = feed.nowPlayingState
+        // A player we may not read says so, instead of the card claiming nothing is playing (Phase 45).
+        let unreadable = isIdle ? feed.playerAccess.unreadableMessage : nil
         HStack(alignment: .top, spacing: 12) {
-            art(isIdle ? nil : state.artworkData)
+            art(isIdle ? nil : state.artworkData, isPlaying: !isIdle && state.isPlaying)
             VStack(alignment: .leading, spacing: 6) {
                 if isIdle {
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("Not Playing").font(.system(size: 14, weight: .bold, design: .rounded)).lineLimit(1)
-                        Text("Play something to see it here").font(.system(size: 11)).foregroundStyle(.white.opacity(0.55)).lineLimit(1)
+                        Text(unreadable ?? "Not Playing").font(.system(size: 14, weight: .bold, design: .rounded)).lineLimit(1)
+                        if unreadable == nil {
+                            Text("Play something to see it here").font(.system(size: 11)).foregroundStyle(.white.opacity(0.55)).lineLimit(1)
+                        } else {
+                            Button("Open System Settings") {
+                                if let url = PlayerAccess.automationSettingsURL { NSWorkspace.shared.open(url) }
+                            }
+                            .buttonStyle(.plain)
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.9))
+                            .lineLimit(1)
+                        }
                     }
                     Spacer(minLength: 0)
                     transport(state)
@@ -37,14 +49,16 @@ struct NotchMusicPanel: View {
         .foregroundStyle(.white)
     }
 
-    private func art(_ data: Data?) -> some View {
+    /// The player's own artwork when it hands one over; the vinyl otherwise, spinning only while the
+    /// track is playing (Phase 43 — it used to be a static note glyph either way).
+    private func art(_ data: Data?, isPlaying: Bool) -> some View {
         let size = NotchLayoutSpec.albumArtSize
         return Group {
             if let data, let image = NSImage(data: data) {
                 Image(nsImage: image).resizable().aspectRatio(contentMode: .fill)
             } else {
                 LinearGradient(colors: [Color.white.opacity(0.14), Color.white.opacity(0.05)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    .overlay(Image(systemName: "music.note").font(.system(size: 28, weight: .medium)).foregroundStyle(.white.opacity(0.45)))
+                    .overlay(TurntableView(isPlaying: isPlaying).padding(2))
             }
         }
         .frame(width: size, height: size)
@@ -70,7 +84,9 @@ struct NotchMusicPanel: View {
                 HStack {
                     Text(verbatim: NotchLayoutSpec.clockText(elapsed))
                     Spacer()
-                    Text(verbatim: total > 0 ? "-" + NotchLayoutSpec.clockText(total - elapsed) : "")
+                    // Elapsed on the left, the track's own length on the right (Phase 43: this used to
+                    // be the remaining time, which reads as a second countdown rather than a duration).
+                    Text(verbatim: total > 0 ? NotchLayoutSpec.clockText(total) : "")
                 }
                 .font(.system(size: 10, weight: .medium, design: .rounded)).monospacedDigit()
                 .foregroundStyle(.white.opacity(0.6))

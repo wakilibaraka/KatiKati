@@ -1,0 +1,57 @@
+ROLE COUNTS AXButton=22 AXCheckBox=6 AXDisclosureTriangle=2 AXGroup=3 AXPopUpButton=3 AXScrollArea=1 AXStaticText=16 AXTextField=1 AXToolbar=1
+WINDOW 405 209 900 807
+AXStaticText	y    7.0 x  416.0    68.0 x  16.0  Shortcuts
+AXButton	y    8.0 x    8.0    16.0 x  16.0  
+AXButton	y    8.0 x   31.0    16.0 x  16.0  
+AXButton	y    8.0 x   54.0    16.0 x  16.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXToolbar	y   32.0 x    0.0   900.0 x  56.0  
+AXButton	y   32.0 x  108.5    55.0 x  56.0  General
+AXButton	y   32.0 x  164.5    75.0 x  56.0  Appearance
+AXButton	y   32.0 x  240.5    55.5 x  56.0  Widgets
+AXButton	y   32.0 x  297.0    55.0 x  56.0  Notch
+AXButton	y   32.0 x  353.0    65.5 x  56.0  Edge Bars
+AXButton	y   32.0 x  419.5   125.0 x  56.0  Window Management
+AXButton	y   32.0 x  545.5    61.0 x  56.0  Launcher
+AXButton	y   32.0 x  607.5    63.0 x  56.0  Shortcuts
+AXButton	y   32.0 x  671.5    55.0 x  56.0  Tools
+AXButton	y   32.0 x  727.5    64.0 x  56.0  Advanced
+AXGroup	y   88.0 x    0.0   900.0 x 719.0  
+AXScrollArea	y   88.0 x    0.0   900.0 x 719.0  
+AXTextField	y  110.0 x  638.0   220.0 x  24.0  Search Shortcuts
+AXStaticText	y  114.0 x   42.0   105.0 x  16.0  Search Shortcuts
+AXButton	y  115.5 x  154.0    13.0 x  13.0  Pick a shortcut from the list, or press 
+AXDisclosureTriangle	y  147.0 x   19.5    98.0 x  16.0  0
+AXDisclosureTriangle	y  172.0 x   19.5   143.5 x  16.0  0
+AXStaticText	y  172.0 x   53.5    89.5 x  16.0  Snap Hotkeys
+AXButton	y  173.5 x  150.0    13.0 x  13.0  All snap hotkeys default to Off. Press R
+AXStaticText	y  202.0 x   42.0   463.0 x  13.0  Double-tap shortcuts need the Accessibil
+AXStaticText	y  263.0 x   42.0    62.0 x  16.0  Keyboard
+AXCheckBox	y  297.0 x  804.0    54.0 x  24.0  1
+AXStaticText	y  301.0 x   42.0   174.0 x  16.0  Use Caps Lock as Hyper Key
+AXButton	y  302.5 x  223.0    13.0 x  13.0  Hyper turns Caps Lock into ⌃⌥⇧⌘. It list
+AXCheckBox	y  338.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y  342.0 x   42.0    98.0 x  16.0  Pause Keyboard
+AXButton	y  343.5 x  147.0    13.0 x  13.0  While paused, key presses are ignored (t
+AXCheckBox	y  379.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y  383.0 x   42.0    98.5 x  16.0  Hold ⌘Q to Quit
+AXButton	y  384.5 x  147.5    13.0 x  13.0  Press and hold ⌘Q for a moment to quit a
+AXCheckBox	y  420.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y  424.0 x   42.0   125.0 x  16.0  Show Keys You Type
+AXButton	y  425.5 x  174.0    13.0 x  13.0  Shows the keys you press in a small over
+AXCheckBox	y  461.0 x  804.0    54.0 x  24.0  1
+AXStaticText	y  465.0 x   42.0   159.0 x  16.0  Open Launcher with Pinch
+AXButton	y  466.5 x  208.0    13.0 x  13.0  Pinch four or more fingers together on t
+AXButton	y  501.0 x   42.0   170.5 x  24.0  Open Trackpad Settings
+AXStaticText	y  581.0 x   42.0    68.0 x  16.0  Radial Dial
+AXCheckBox	y  615.0 x  804.0    54.0 x  24.0  1
+AXStaticText	y  619.0 x   42.0   108.0 x  16.0  Enable Radial Dial
+AXButton	y  620.5 x  157.0    13.0 x  13.0  Summons a circular pie menu at your curs
+AXPopUpButton	y  656.0 x  715.5   142.5 x  24.0  Lilac Glass
+AXStaticText	y  660.0 x   42.0    42.0 x  16.0  Theme
+AXPopUpButton	y  697.0 x  668.0   190.0 x  24.0  Off
+AXStaticText	y  701.0 x   42.0    87.5 x  16.0  Mouse Trigger
+AXPopUpButton	y  738.0 x  687.5   170.5 x  24.0  Tap / Click to Toggle
+AXStaticText	y  742.0 x   42.0    81.0 x  16.0  Trigger Mode
+AXStaticText	y  780.0 x   42.0   461.0 x  13.0  You can also summon the Radial Dial with

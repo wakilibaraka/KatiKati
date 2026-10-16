@@ -57,6 +57,10 @@ final class CalendarService: ObservableObject {
         requestReminders()
     }
 
+    /// Events only. The strip's clock chip shows the next event and has no surface for reminders, so it
+    /// must not raise the Reminders prompt — the notch/panel entry point keeps `start()`.
+    func startEvents() { requestEvents() }
+
     private func requestEvents() {
         // Never re-prompt a decided status: asking again while the alert is up is what sticks it.
         switch EKEventStore.authorizationStatus(for: .event) {

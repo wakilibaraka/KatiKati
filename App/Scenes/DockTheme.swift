@@ -407,14 +407,21 @@ extension View {
 /// alpha or hover curve, which is how the dock came to read as several docks (Phase 40b/40f). A new tile uses
 /// this modifier; it does not restate the numbers.
 struct DockTileChrome: ViewModifier {
+    /// The dock's own plate colour. One home for the number: the glass weather presets fill the same
+    /// pill with it, and a second copy would be a second dock.
+    static let plate = Color(red: 0.11, green: 0.12, blue: 0.16).opacity(0.88)
+
     let isHovered: Bool
     var cornerRadius: CGFloat = 14
+    /// A tile with a plate of its own (the weather pod's sky). `nil` = the dock plate above, so every
+    /// existing tile is bit-for-bit unchanged (Phase 46).
+    var fill: LinearGradient?
 
     func body(content: Content) -> some View {
         content
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(Color(red: 0.11, green: 0.12, blue: 0.16).opacity(0.88))
+                    .fill(fill.map { AnyShapeStyle($0) } ?? AnyShapeStyle(Self.plate))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -427,8 +434,8 @@ struct DockTileChrome: ViewModifier {
 }
 
 extension View {
-    func dockTileChrome(isHovered: Bool, cornerRadius: CGFloat = 14) -> some View {
-        modifier(DockTileChrome(isHovered: isHovered, cornerRadius: cornerRadius))
+    func dockTileChrome(isHovered: Bool, cornerRadius: CGFloat = 14, fill: LinearGradient? = nil) -> some View {
+        modifier(DockTileChrome(isHovered: isHovered, cornerRadius: cornerRadius, fill: fill))
     }
 
     /// The dock app icon's frame (Phase 32d, **packed**: the Settings row is gone, so `DOCK_ICON_FRAME`

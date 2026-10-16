@@ -62,7 +62,7 @@ final class LayoutThumbnailModelTests: XCTestCase {
         inputs.placement = .left
         for mode in BarLayoutMode.allCases {
             let islands = LayoutThumbnailModel.islands(for: mode, inputs: inputs)
-            XCTAssertEqual(islands.count, BarSection.islands(for: StripPlacement.left.effectiveMode(mode)).count, "\(mode)")
+            XCTAssertEqual(islands.count, BarSection.islands(for: mode).count, "\(mode)")
             for island in islands {
                 XCTAssertLessThan(island.rect.minX, 0.1, "\(mode): hugs the left edge")
                 XCTAssertGreaterThan(island.rect.height, island.rect.width * 0.5, "\(mode): runs vertically")

@@ -2592,15 +2592,16 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   - Suite 2194 green.
 - 2026-10-13 · **Phase 11 closed; branch pushed, main fast-forwarded (ea813ff).**
 - 2026-10-13 · **18a built (pure, no UI).** `Core/Support/StripPlacement.swift`: `StripPlacement`
-  (bottom/left/right; `effectiveMode` folds split4/5 → split3 on a rail), `StripPlacementMap` (global +
+  (bottom/left/right; ~~`effectiveMode` folds split4/5 → split3 on a rail~~ **retired 2026-10-15 in Phase 41a —
+  every mode renders on a rail as itself**), `StripPlacementMap` (global +
   per-display overrides, JSON at `com.katikati.layout.placement.v1`), `StripAxis` (`mainLength`, `map` —
   the solver keeps solving a horizontal strip, `map` turns its frame onto the real edge; **bottom is the
   identity**, so the bottom bar is byte-identical by construction; `reservedInset` for window clearance),
   `BarSection.railTileLength`. Store: `stripPlacementMap`, `stripPlacement(forDisplay:)`, setters. 9 tests;
   suite 2203 green. Nothing reads the placement yet.
 - 2026-10-13 · **18b built (geometry, pure).** `PanelGeometry.stripTargetFrame` — bottom returns
-  `islandTargetFrame` unchanged; a rail folds the mode, solves on a virtual screen as wide as the rail is
-  long (below the menu bar/notch, `railTopInset`) with widgets as compact rail tiles
+  `islandTargetFrame` unchanged; ~~a rail folds the mode~~ (**41a: solves the mode as itself**), solves on a
+  virtual screen as wide as the rail is long (below the menu bar/notch, `railTopInset`) with widgets as compact rail tiles
   (`railWidgetLayout`), then maps plate + shadow padding onto the edge (`railWindowFrame`).
   `stripCapsuleTargetFrame` puts the capsule under the apps island on a rail. 4 tests (bottom identical
   for every mode/slot, rails hug the edge below the menu bar without overlap, capsule placement, top
@@ -2655,13 +2656,14 @@ occupancy (move/merge/hide) · 18h Settings + live check.
   shown when more than one display is connected); Edge Bars gains "Edge Bar on the Dock's Side" (Move
   Across / Hide, disabled while the dock is at the bottom). `DockStyle` carries a placement; new **Side
   Rail** style (split 3, medium, left) — style cards, Settings and the welcome guide show it; a rail
-  style always fits. `LayoutThumbnailModel` solves rails (compact tiles, folded mode, below the reference
+  style always fits. `LayoutThumbnailModel` solves rails (compact tiles, ~~folded mode~~ *41a*, below the reference
   menu bar) and draws the capsule below the apps island; rail thumbnails show the whole screen.
   `DisplayIdentity` added to the test target (pbxproj +2). Strings ×12 drafts
   (`Docs/translation-review-phase18.csv`). Suite 2222 green. **Next: end-of-phase live check.**
 - 2026-10-13 · **Phase 18 live check (Release, ad-hoc, 1710×1112).** Verified on screen: Position Left/Right
   from Settings re-lays the dock live as a rail; Split 3 → three stacked islands (launcher + weather tile,
-  apps, clock HH/MM + Wi-Fi), drawer capsule under the apps island with its badge; Split 5 folds to three;
+  apps, clock HH/MM + Wi-Fi), drawer capsule under the apps island with its badge; ~~Split 5 folds to three~~
+  (**41a: Split 5 is five stacked islands on a rail**);
   Full Width = full-height rail with widgets pinned to both ends; Centered = compact centred rail; Side
   Rail style card selects itself; drawer popup opens inward beside the rail without an arrow; Finder's
   classic menu opens beside the rail; edge bars merge onto the free edge (left bar joined the right one,
@@ -4862,6 +4864,28 @@ To eliminate code thrashing, prevent cross-domain regression, and ensure seamles
 
 - 2026-10-15 · **Installed locally at the owner's request, and what that uncovered.** `/Applications/KatiKati.app` is a Release, universal, stripped, **ad-hoc signed** copy — 0.17.0 (51), `codesign --verify --strict` passes, launched from that path and still alive (the embedded Sparkle loads under an ad-hoc signature, which is why hardened runtime was left off). The bundle proves it is the new build: its `en.lproj/Localizable.strings` carries Vibrancy, Contrast, Commands & Snippets and the command placeholder. Two gates were passed over, deliberately and by owner decision: the installer's signing-identity gate (this machine has **zero** codesigning identities, so `Scripts/install_local_release.sh` refuses by design — ad-hoc was chosen with the consequence stated) and `verify_release_binary`'s symbol-table assertion. **Found, not touched:** that assertion cannot pass on this toolchain — `strip -T -x -S` leaves 1405 exported Swift globals per slice (802 T + 592 S + 11 D, e.g. `_$s04KatiA010WeatherArtO5stops...`) on the staged copy as well as the product binary, so it is the release scripts or the toolchain, not this phase. The coverage-instrumentation and arch checks still ran and passed. Consequence for the owner: TCC grants (Accessibility, Input Monitoring, Screen Recording) follow the CDHash, which an ad-hoc signature moves on every rebuild — expect to re-approve them until a signing certificate is back in the login keychain.
 
+- 2026-10-15 · **Settings Close-out review, and the one serious finding (F1) fixed.** The ten-page Close-out
+  `Docs/SETTINGS.md` §3 owes is measured and written up in
+  `Docs/Archive/Planning/evidence/2026-10-15-close-out/README.md` (after-shots + AX dumps + full frames per
+  page): card content at **42 pt on all ten pages**, every section gap **20.0 pt**, **5 of 10 pages taller than
+  the 1074 pt window** (rule 10's own walls), `check_localization.py` and a fresh VoiceOver label audit re-run
+  on that build (**76 checkboxes across the ten pages, 0 unnamed**). The Better Design MCP tools were
+  unavailable in this session, so the ten rules were applied by hand on rendered evidence (frames, pixels,
+  drawn strings). Four findings: **F1** the Widgets page's reorderable `List` — its own well painted in the
+  window background (luminance 35 against the card's 42), rows at 50 pt against the page's 42, a 38 pt pitch
+  against 41, and the only geometry on the ten pages not derived from `SettingsMetrics`; **F2** General's
+  setup-guide button at the pane margin (deliberate); **F3** two AX-tree traps that are *not* defects (the
+  editor placeholder reports the row's name; a `DisclosureGroup` reports x 19.5 while drawing at 43.5);
+  **F4** the five pages that scroll. **Owner reviewed the findings and asked for F1; it is fixed** in
+  `App/Scenes/SettingsLayoutPane.swift`: `List` + `.onMove` kept (drag reorder verified with a real mouse drag,
+  out and back), background hidden, rows on the grid at a 41 pt pitch derived from `SettingsMetrics`, and the
+  list pulled back by the measured 8 pt an `NSOutlineView` reserves — `.listRowInsets` does not reach a macOS
+  `List`'s rows and `.listRowSpacing` is macOS-unavailable (both checked, the second in the SDK's
+  swiftinterface). Re-shot: `Widgets-after.png`. **Gate:** `xcodebuild test` **2455 tests, 0 failures, TEST
+  SUCCEEDED**; `check_localization.py` 880 × 12; `check_debug_switches.py` 83; `check_availability_warnings.py`
+  clean on a from-scratch build log; no new warnings in the touched file. **Not committed:** the working tree
+  also carries other threads' Phase 41/42 work.
+
 Approved in the same review as Phase 40 and logged here so the tracker carries it. Five decisions recorded: the
 cleaning lock **fails open** after a crash; the theme engine gains **gradient presets plus one Vibrancy slider**;
 gradients draw on **all five themed surfaces** through the shared backdrop; the Notch tints **only as a floating
@@ -4955,3 +4979,481 @@ it. Five decisions: the running dot sits on the **screen edge**, matching the bo
   a 40 pt tile. **40b's specific risk stands:** 44 × 56 → 40 × 40 removed 16 pt of height, so the two-line
   weather/clock tiles are the thing to look at first. No GUI session was available for this build.
 
+---
+
+### Phase 41 — Vertical layout modes, rail space use, tighter gaps (owner 2026-10-15; **built 2026-10-15**, 41e owed)
+
+Owner request: *"all layout mode changes should also apply vertically. design them to look well vertically.
+maximise space use. reduce gaps in all modes while keeping them accurate as per split mode."*
+
+Three decisions taken with the owner before any code (Standing Rules §1.4):
+
+1. **Every mode renders on a rail** — Phase 18's fold of split4/split5 into split3 goes away, so a rail's
+   island count is always `BarLayoutMode.slotCount`.
+2. **The apps island absorbs the rail's slack** (the fixed groups hug the rail's ends), not an even spread.
+3. **Chrome and gaps tighten in every mode, the bottom bar included** — while the solver and the view keep
+   reading one set of numbers (`IslandChrome`, `StripContextMenuZone.dividerGapWidth` mirrored by
+   `DockStripView.Style`, `BarSection.railTileSize` mirrored by `ChipPillMetrics.cardWidth`). That shared
+   source is what "keeping them accurate as per split mode" is pinned to; the geometry tests moved with it.
+
+| Slice | Scope |
+|---|---|
+| **41a** | `StripPlacement.effectiveMode` deleted, `IslandSlotSet.desiredSlots` loses `modeForDisplay`, every call site reads the mode directly. |
+| **41b** | Rail chip stride (44, not the bottom bar's 54), `PanelGeometry.railAppsFillLength`, the `relayout` clamp, and the solver's `appsTrailingClearance`. |
+| **41c** | `IslandChrome.contentInset` 20 → 16, `StripContextMenuZone.dividerGapWidth` 13 → 9, `DockSpacing.comfortable` 10/12 → 8/10, and the fresh-install defaults derived from the preset. |
+| **41d** | Mode cards are portrait on a rail, with a 4 pt thickness floor. |
+| **41e** | Live check + evidence — **NOT DONE**, no GUI session (carries 40g too). Executable runbook, including the `DOCK_LABEL_PROBE` numeric witness, in `Docs/Archive/Planning/2026-10-15-phase-41-log.md` §Open (41e). |
+
+- 2026-10-15 · **41a — every mode on a rail.** `StripPlacement.effectiveMode` is **deleted**, not kept as an
+  identity: with the fold gone there is no placement→mode mapping left to state. `IslandSlotSet.desiredSlots`
+  lost its `modeForDisplay` parameter (it only ever existed to feed that fold), so a per-display rail no
+  longer changes that display's slot count — `IslandSlotSetTests.testPerDisplayRailKeepsTheModesSlotCount`
+  pins the new rule at every mode. `PanelCoordinator+Layout.isCapsuleOwner`, `PanelGeometry.stripTargetFrame`,
+  `LayoutThumbnailModel`, `TaskbarScreenOrchestrator.buildUnits` and `DockStripView+Projection` read the mode.
+  Tests: `RailGeometryTests.testRailsCarryEveryModeWithTheSameSlotCount` (solves **real** rail frames for
+  every mode × both rails: one panel per island, inside the rail, non-overlapping, split5's five islands
+  ordered) replaced the deleted fold test; the thumbnail test now expects the mode's own count.
+- 2026-10-15 · **41b — the rail fills itself, and a real capsule bug fell out of it.** `IslandChrome` gained
+  `railChipSpacing` (4, moved out of `DockStripView.Style`, which now reads it — the view and the solver
+  cannot disagree about the rail's pitch) and `railChipStride(barHeight:)` = (40 + 4) × scale. That stride
+  now reaches `islandTargetFrame` through a new optional parameter, so a rail caps its app tiles with its
+  own 44 pt pitch instead of the bottom bar's 54 — it no longer drops a chip it has room to show.
+  `PanelGeometry.railAppsFillLength` asks the solver for more content than the rail can hold and returns the
+  apps plate it would then take: the span between the fixed groups minus the drawer capsule's slot, computed
+  from the rail's geometry alone (no dependence on what is rendered, which is what makes it a fixed point).
+  `PanelCoordinator+Layout.relayout` clamps only the rail's **apps-hosting** unit to it; the fixed islands
+  stay content-hugging. Tests: fill > content, the filled frame equals the fill when fed back, the capsule
+  slot survives, and the fill is 0 on the bottom bar and in the single-island modes.
+  **The bug:** the solver centres the apps island and only clamped it at `rightEdge − width`, so an island
+  that filled its span could be pushed up to a whole capsule slot to the trailing side — on a rail the
+  drawer capsule is drawn *below* the plate and would then have landed on the clock/widgets island. New
+  `appsTrailingClearance` (default 0, so every existing caller and test is untouched) keeps that room free
+  and pins a filling island flush with the leading group. The bottom bar had the same latent overlap in a
+  near-full bar; it is fixed by the same clamp, which is why `PanelGeometryTests` runs unchanged and green.
+- 2026-10-15 · **41c — tighter chrome and gaps, in all modes.** `IslandChrome.contentInset` 20 → **16**: one
+  plate corner radius (`DockShape.panelCornerRadius`), never less, so the island's clip shape can never cut
+  a chip's corner — `testContentInsetClearsThePlateCorner` states that as the invariant the number exists
+  for. `StripContextMenuZone.dividerGapWidth` 13 → **9** (`2 + (2+1+2) + 2`), threshold 5 pt still strictly
+  between the plain 2 pt gap and the divider gap at every tier, and the 2.5 pt grip clearance still under
+  half the gap even at the 32 pt floor (2.67 pt) — re-verified by the fixture tests, not assumed.
+  `DockSpacing.comfortable` 10/12 → **8/10**; compact 4/6 and airy 18/24 stay, so "roomier" is still a
+  reachable choice. **Root fix, not a second literal:** `AppSettingsStore.defaultIslandGap/Margin` are now
+  derived from `DockSpacing.comfortable`, because while both pairs read 10/12 the fresh install matched the
+  Comfortable card by coincidence and the segmented row would have said **Custom** after this change (it
+  still does for an install that stored 10/12 — the accepted consequence of decision 3).
+- 2026-10-15 · **41d — rail cards are portrait.** `LayoutModePicker` turns its card on its side when the live
+  placement is vertical and floors the rail's thickness at 4 pt. In the landscape card the rail was a ~2 pt
+  sliver at the left edge, so Split 4 and Split 5 — the two modes a rail could not show at all before 41a —
+  were indistinguishable. The style cards stay landscape on purpose: their row must stay a uniform row, and
+  `sideRail` already reads as a rail there.
+- 2026-10-15 · **Gate green.** `xcodebuild test` (CI's exact command, `CODE_SIGNING_ALLOWED=NO`):
+  **TEST SUCCEEDED, 2447 tests, 0 failures** (2443 + the 4 added here); `check_localization.py`
+  (**880 keys × 12 languages** — no new user-facing string, as planned); `check_debug_switches.py` (83);
+  `check_availability_warnings.py` (1 clean log). `project.pbxproj` **not touched**. Two pre-existing test
+  fixtures that hard-coded the old chrome failed on the first run (`DockStyleTests`, `PinnedIslandTests`) and
+  were updated with the new numbers rather than relaxed.
+- 2026-10-15 · **41e — NOT DONE.** Everything above is compile- and unit-verified only. Unverified by
+  construction: that 16 pt of end inset reads tight but not cramped on a real bar; 5 stacked islands on a
+  rail at 40 pt tiles; the portrait mode cards' 4 pt rail and the Settings window's height when the card
+  aspect changes; the capsule-slot fix at a full rail; and the `relayout` clamp itself, which no unit test
+  reaches (panel hosting is AppKit). 40g stays open with it. No GUI session was available for this build.
+
+
+## Phase 42 — the rail packs at the Dock's spacing, and the Dock's own icons are on the bar
+
+> Owner 2026-10-15, attaching two rail screenshots: *"use the mac dock spacing and look for the icons in
+> dock"*. Asked to choose, the owner picked **mirror the system Dock's pinned apps** and **match the Dock's
+> size and pitch** (over "tighten the rail's own numbers" and over "keep the current app set").
+> Log: `Docs/Archive/Planning/2026-10-15-phase-42-log.md`.
+
+The reference is measured, not remembered: the owner's side Dock reports `tilesize = 36` and lays a **38 pt
+tile box** (2 pt between two icons, i.e. the icons touch) with **3.45 pt** clear at the list's ends, read
+straight out of the Dock's accessibility tree (`AXList` children frames). 2 pt is also what the bottom bar
+already leaves between icons (`ChipPillMetrics.chipSpacing`, "aligned with the native icon pitch"), so the
+two axes now pack at one pitch.
+
+| Slice | Scope |
+|---|---|
+| **42a** | `IslandChrome.railChipSpacing` 4 → **2**, new `IslandChrome.railContentInset` = **4**, the rail's fixed-island chrome and the strip's rail padding both read it. |
+| **42b** | `NativeDockPinnedApps` (`com.apple.dock` → `persistent-apps`), `KeptAppStore.dockPinnedBundleIDs`, and the launcher-chip source list in `DockStripView+Projection`. |
+| **42c** | The rail's cards are **square** (`ChipPillMetrics.cardFrameHeight(scale:onRail:)`, read by `ChipView` / `LauncherChip` / `ShelfChip` / `PinnedFolderChip` / the make-way placeholder), so a rail's tray pitch is the bottom bar's 42, not 56. |
+| **42d** | Live check on the owner's own rail **and bottom bar** (AX dump of the running build + the `DOCK_LABEL_PROBE` trace). |
+
+- 2026-10-15 · **42a — the rail's spacing is the Dock's.** `railChipSpacing` **4 → 2**: a vertical run of
+  icons was given "a little more air" in Phase 40d, and the owner's Dock says that air is not there — the
+  Dock's own box is `tilesize + 2`. `IslandChrome.railContentInset` (**4**, the measured 3.45 rounded) is
+  new: it is the rail's end padding, and it replaces the bottom bar's 16 pt plate inset **on the rail only**
+  (`IslandChrome.contentInset` stays 16, because there the inset must be ≥ the plate corner radius or the
+  clip cuts a chip — `testContentInsetClearsThePlateCorner` still states that invariant for the bar).
+  The rail gets away with 4 for a geometric reason, not a stylistic one: a rail's tile is centred across the
+  rail's thickness, so the corner arc already has the slack the bar's tiles do not;
+  `RailGeometryTests.testRailEndInsetKeepsEveryTileClearOfThePlateCorner` recomputes that clearance
+  (`(r−x)² + (r−y)² ≤ r²`) at bar heights 32 / 54 / 90. One source, three readers: `DockStripView.Style`
+  (the strip's own padding), `IslandLayoutSolver.layout(contentInset:)` (every fixed island's width) and
+  `PanelGeometry.stripTargetFrame` (the rail path). `LayoutThumbnailModel` passes it too, so a rail card
+  previews the ends the bar really draws. Tests: the pitch/inset numbers against `ChipPillMetrics`, the
+  fixed island 2 × (16 − 4) shorter with the rail inset, the rail frame equal to the rail-inset solve, and
+  the clearance sweep.
+- 2026-10-15 · **42b — the Dock's pins are on the bar as launcher chips.** `NativeDockPinnedApps.read()`
+  decodes `persistent-apps` (`tile-data.file-data._CFURLString` → `Bundle(url:)`, percent-escapes decoded,
+  duplicates and non-app tiles dropped, `CFPreferencesAppSynchronize` first — the same discipline as the
+  autohide read it sits beside). `KeptAppStore.dockPinnedBundleIDs` is a **second, unpersisted** source
+  beside `bundleIDs` (the user's own "keep in Dock" list): the system Dock is the record, so unpinning there
+  is what removes a chip — "unkeep" in our menu cannot, which is the honest behaviour and is why the two
+  lists stay separate. `AppDelegate.startTaskbarRuntime` reads it **before** the strip is built, and
+  `StripOrderStore`'s providers now include it, so the pins get remembered ranks instead of being treated
+  as brand-new ids and appended after the window chips. The projection folds them into the launcher list it
+  already builds (`keptIDs + dockPins + runningExtras`), de-duplicated against our own kept list, so the
+  chips are the existing `.keptApp` entry with the same `app-<bid>` id — no new `StripEntry` case, no new
+  switch arm, tap-to-launch and the window list come for free. Tests: decode (order, escapes, duplicates,
+  non-app tiles, unreadable prefs) and read() pass-through.
+- 2026-10-15 · **42c — the rail's cards are square** (owner 2026-10-15, after seeing 42a live: *"the bottom
+  dock and vertical docks should look similar for the app tray"*). A card is 40 × 54; laid down a rail its
+  *long* side is the direction the next chip sits in, so the 7 pt of icon margin above and below it became
+  distance **between icons** — the rail's tray was on a 54 + 2 = 56 pt pitch where the bottom bar's is
+  40 + 2 = 42, i.e. 23 pt of visible gap against the bar's 9. `ChipPillMetrics.cardFrameHeight(scale:onRail:)`
+  is the one place that decides it (40 on a rail, `chipHeight` on the bar), and the four card views plus the
+  Finder drag-in make-way gap read it; `railTile` is passed explicitly at every call site (no default — a
+  missed one must be a compile error, same rule as `scale`). 42 is also what `IslandChrome.railChipStride`
+  had *already* been telling the solver a rail spends per chip, so the view and the solver now agree instead
+  of the fill/clamp papers over the difference. Tests: `ChipIconPitchTests.testRailTrayPitchEqualsTheBottomBar`
+  (rail pitch == bar pitch == `railChipStride` == the rail's widget tile, at 32/54/90) — it failed on its
+  first run because a *wrong* expectation of mine was in it (I compared the bar's card *height* to a rail
+  pitch; the bar's tray pitch is the card's **width**), which is the test doing its job.
+- 2026-10-15 · **Gate green.** `xcodebuild test` (CI's exact command): **TEST SUCCEEDED, 2455 tests, 0
+  failures** (2447 + the 7 added here); `check_localization.py` 880 × 12 (no new string, no new switch);
+  `check_availability_warnings.py` clean. Three of the new tests failed on the first run and were fixed as
+  *tests* (a trailing slash `URL.path` keeps, a fixture that had not mirrored production's
+  `railWidgetLayout`) — no assertion was relaxed, and no pre-existing test moved: the rail's 4 → 2 and
+  16 → 4 changed nothing another test had pinned.
+- 2026-10-15 · **42d — live check, and this time the build ran.** `Scripts/build_and_run.sh --launch-trace`
+  with `DOCK_LABEL_PROBE=1`, then an AX dump of the running rail (the repo's evidence format) rather than a
+  screenshot. On the owner's display (1710 × 1112, bar height **46**, so `dockScale = 0.852`):
+  - **The chip pitch is the Dock's.** Consecutive chips measure 47.5 / 48 pt apart = `chipHeight (54) +
+    railChipSpacing (2)` × 0.852 = **47.7** — the 4 pt gap would have been 49.4, and the alternating
+    47.5/48 pattern is what 47.7 rounds to.
+  - **The rail's islands carry the rail's ends.** The launcher+weather island measures **104** pt and the
+    clock+widgets island **114** — exactly the rail-inset solve (103.1 / 113.3 from the tiles, the sections'
+    minimum widths, the 9 pt divider and 2 × 4 pt ends). With the bar's 16 pt inset they would have been
+    123.5 / 133.7, i.e. this phase is worth ~20 pt per island on the owner's rail.
+  - **The rail's tray pitch is now the bottom bar's, measured on both axes in the same build and at the
+    same bar height:** rail chips are **34 × 34 at a 35.5 / 36 pt pitch** (was 34 × 46 at 47.5 / 48); the
+    bottom bar's are **34 × 46 at the same 35.5 / 36** ((40 + 2) × 0.852 = 35.78) — the two trays now differ
+    only in the card's long axis being invisible in a horizontal row. For the comparison the owner's
+    placement was flipped to the bottom for ~40 s and restored byte-for-byte (`{"global":"right",
+    "perDisplay":{}}`, verified back in place), and the Trash kept its 46 × 46 square in both, as on the
+    bar. Against the native Dock itself (38 pt box for a 36 pt icon, 2 pt between icons) the relative gap
+    is 0.05 vs 0.056 — same tightness, and the *same* 2 pt the Dock draws.
+  - **41b's fill holds on real numbers:** the apps island is a 46 × **759** plate, filling the span, with
+    the drawer capsule (46 × 46 = the rail's thickness) in its own slot between it and the group below.
+  - **The Dock's icons are there:** the apps island's chips are Finder, Mail, Safari, …, **WhatsApp**, …,
+    **App Store**, **OpenCode**, … — the three pins that were not already on the bar (the other six were,
+    as window/kept chips or in the messaging zone) in Dock order.
+  - This run also supplies the looking that Phase 41e and 40g were waiting for; the owner's own verdict on
+    the rail still stands as theirs to give, and nothing here is claimed as that verdict.
+- 2026-10-15 · **Scope out.** No new setting or switch, no new user-facing string, no new dependency, no new
+  file (`project.pbxproj` untouched — the reader lives in `NativeDockPreferencesService.swift`, the file that
+  already owns `com.apple.dock` reads). The rail's **tile stays 40**: it is the number the code documents as
+  the native Dock's `tilesize`, and the *proportions* were what was out of line (rail pitch 1.10 × the tile
+  against the Dock's 1.056); re-sizing the rail's tile from the owner's live `tilesize = 36` would have to
+  reach every rail chip (hover thresholds, tooltips, the drawer's cards), which is a design change nobody
+  asked for. Reported as the open item below.
+
+**Open (42e).** Not done, and deliberately: the rail's tile size is not taken from the Dock's `tilesize`
+(see above). If the owner wants the icons themselves 36 rather than 40, that is a phase of its own — the rail
+tile is read by `BarSection.railTileSize`, `ChipPillMetrics.cardWidth`, the chip views' hover/threshold math
+and the solver's stride at once. Also still the owner's to confirm: that 4 pt ends read tight rather than
+cramped on the *small* islands at the 90 pt rail, and that the 2 pt gap is not too tight at 32 pt.
+
+---
+
+## Phase 12 — page fit: the five pages past the 1074 pt clamp come inside it (2026-10-15)
+
+> Hand-off, 2026-10-15: *"Bring the five Settings pages that still run past the 1074 pt window inside it,
+> without dropping sections or controls."* The five are the ones the close-out pass measured clamped
+> (`Docs/Archive/Planning/evidence/2026-10-15-close-out/README.md` §1): **Appearance, Widgets,
+> Window Management, Launcher, Shortcuts**. Evidence: `Docs/Archive/Planning/evidence/2026-10-15-page-fit/`.
+
+| Page | Was | Now | What gave the room |
+|---|---|---|---|
+| Appearance | clamped 1074 | **1066** | Preview + Layout Mode + Size + Fine-tune are one card; icon rows inside the Theme card; sky swatches 22 → 12 pt, 2 pt rows; icon previews 4 pt padding |
+| Widgets | clamped 1074 | **1040** | `Keep Both Widgets Open` with `Weather Animations` on one line; `Widget Styles & Presets` as a sub-header with its ⓘ instead of a 41 pt row; the weather card's two thresholds on one line |
+| Window Management | clamped 1074 | **883** | the six tiling assignments are one collapsed `DisclosureGroup` |
+| Launcher | clamped 1074 | **1067** | `Hidden Apps` (count + Show All) and `Reset App Order` on one line |
+| Shortcuts | clamped 1074 | **807** | the 26 assignments and the four snap groups are two collapsed groups, opened by the page's find field (`expandedWhileFiltering`) |
+
+- 2026-10-15 · **Nothing was dropped, and it is checked row by row.** Every label literal of the five
+  touched files is diffed against `HEAD` — the only two that go are `Text("Preview")` and `Text("Size")`,
+  card headers whose rows are all still on the page — and each page is dumped twice in three states
+  (before / after / every group opened) so a hidden run can be seen coming back: Shortcuts 29 popups
+  before and 29 with the groups open, Widgets identical in every role. The one `-1` button on two pages
+  is a permission-gated row (`Open Input Monitoring Settings`, `Allow Screen Recording`) that is no
+  longer shown because the permission is granted.
+- 2026-10-15 · **One drift found while checking, and fixed:** the Context Presets row paired its two menus
+  with `HStack(spacing: controlSpacing)` around two `halfRowWidth` children — 826 pt inside an 816 pt
+  card — which pushed the row 5 pt off the grid on each side (37 / 863 against 42 / 858). It goes through
+  `SettingsRowPair` (the same halves, no gap) and measures 42 / 450 / 858.
+- 2026-10-15 · **Gate:** `xcodebuild test` green (2455 tests, 0 failures), `check_localization.py`,
+  `check_debug_switches.py` and `check_availability_warnings.py` green. `Docs/SETTINGS.md` rules 5 and 10
+  and §3's Shortcuts row now state the collapse, so the next page near 1070 pt knows what pushed it.
+- 2026-10-15 · **Rule 10 now has a mechanical check, so it stops being measured by hand.**
+  `Scripts/check_settings_page_heights.py` launches the built app once with
+  `DOCK_SETTINGS_PAGE_HEIGHT=1` (a registered `DebugSwitch`); at launch the app measures all ten pages
+  through the **same probe it sizes its window with** —
+  `SettingsWindowController.naturalContentHeight`, the NSHostingView at the window's fixed width that
+  `resizeToFitKeepingTopEdge` already read, now shared by both paths — prints `SETTINGS_CLAMP <上限>`
+  and `SETTINGS_PAGE <标签> <高度>` per tab (`SettingsPageHeightProbe`), and exits. The script fails
+  (exit 1) by page name when a page's content passes 986 pt — a 1074 pt window, 88 pt of chrome, the
+  same arithmetic the close-out review used — and exits 2, never 0, if the app is not built, so a
+  missing build cannot read as a pass. Live: launcher 979 / appearance 978 / widgets 952 / notch 925 /
+  edgeBars 868 / tiling 795 / shortcuts 719 / tools 678 / general 644 / advanced 435, i.e. the
+  tightest page has 7 pt left. Red–green proved: with the Shortcuts run temporarily expanded the gate
+  reports `shortcuts 1338.0 pt ❌` and exits 1, and with it restored it is green again. Wired into
+  `Docs/SETTINGS.md` §5.3 and rule 10's *Check*.
+
+## Phase 43 — the bar's widgets stop inventing data (2026-10-16)
+
+> Owner 2026-10-16, attaching the bar: *"IMPROVE THE WIDGETS. ENSURE THEY DONT USE DEMO DATA. Real data and
+> properly wired."* Asked to choose the scope, the owner picked **all four fixes**, and for the media card the
+> **honest empty state only** (no AppleScript fallback to Spotify/Music).
+
+**Measured before touching anything (the running app, not the source).** Every bar widget was read out of the
+live app's accessibility tree and checked against the system: weather `Juja 18° H:27° L:16° Fri 27/16 Sat 29/17
+Sun 29/16` against Open-Meteo for Juja at the same minute (current 18.3°, today 26.8/15.5, Sat 28.4/16.5) —
+real; clock `01:37 Fri, Oct 16` with `03:22 (in 1h 44m)` against the stored alarm `{hour:3, minute:22,
+label:"Power Nap"}` — real; the RAM/CPU disc at `64` against `top`'s 12 GB of 16 GB — real. **The media card was
+the demo data**: it printed `God's Plan / Drake` while the system's now-playing state was Spotify — "Healing Is
+Here" (paused).
+
+**Why real media data never arrived.** MediaRemote serves now-playing queries only to a trustworthily signed
+process. Same machine, same minute, same code: an ad-hoc CLI gets `pid=0 keys=0 title=nil`, the Apple-signed
+`swift-frontend` gets `pid=467 keys=18 title=Healing Is Here`. Registering for notifications first (what
+`NowPlayingService.init` does) changes nothing. `security find-identity -v -p codesigning` reports **0 valid
+identities**, so the Debug build *and* `/Applications/KatiKati.app` are `flags=0x2(adhoc)` with
+`TeamIdentifier=not set`. A signed (Developer ID) build is the way to get the live track back; until then the
+card says what it knows instead of naming a stranger's song.
+
+- 2026-10-16 · **The media card stops inventing a track.** `God's Plan`/`Drake` and the guessed `0.35` progress
+  are gone from `App/Scenes/NowPlayingChip.swift`; with no title the card reads "Not Playing" (naming the app
+  when it knows it) and `progress(at:)` is optional at the call site, so the scrubber is drawn only for a
+  position the system actually reported. Live on the finished build: the card reads `Not Playing`.
+- 2026-10-16 · **The weather cards stop printing a city the owner never chose.** `WeatherState.defaultRome` is
+  deleted; `WeatherService` starts `.empty` and, when location is refused with no saved city, sets
+  `needsLocation` (the state the panel already renders as its city search) instead of fetching Rome;
+  `threeDayForecast` returns the feed's own days and never tops itself up; the pod's `Today/Tomorrow/Later`
+  columns (`high+1`, `low-1`) are deleted, and an empty forecast draws neither the columns nor their divider.
+  New `WeatherState.hasData` gates the bar chip and the rail tile: with no forecast they show a
+  `location.slash.fill` mark — the bar chip adds "Add City", reusing the panel's existing key — instead of a
+  temperature nobody measured.
+- 2026-10-16 · **The clock card now reads the calendar it displays.** `CalendarService.start()` was called from
+  exactly one place (the notch's calendar page), so a fresh launch showed "No Events" for a calendar nothing had
+  read. The stacked card starts the shared service on appear and, when access is refused, says "Calendar access
+  is off" rather than claiming a clean day. *Scope receipt, one file outside the widget list:*
+  `App/Composition/CalendarService.swift` gains `startEvents()` — events only — because the strip chip has no
+  reminders surface and must not raise the Reminders prompt; the notch/panel entry point keeps `start()`.
+- 2026-10-16 · **Witness + tests.** `SystemGaugeTests.testStripWidgetsHaveNoMockLiterals` scans the four files
+  for the literals that shipped the demo content (the Phase 34 notch witness's pattern);
+  `testThreeDayForecastUsesOnlyFeedDays` and `testWeatherHasDataNeedsARealForecast` replace
+  `testWeatherStateDefaultRome`, which asserted the deleted demo constant.
+- 2026-10-16 · **Live checks on the finished build** (`--verify` build, then the bar read back through AX):
+  media `Not Playing`; weather real (`Juja 18°`, `H:27° L:16°`, three real day columns); with the owner's cache
+  moved aside (`~/Library/Application Support/KatiKati/Weather`) and weather temporarily off, the weather slot
+  reads `—` with the location mark and **no** Rome template — then the cache was moved back, the override key
+  deleted and the real forecast verified back on the bar. The clock's refused-access state is live too: the bar
+  reads `Calendar access is off`. The TCC log shows the chip's request as `AUTHREQ_PROMPTING` for
+  `kTCCServiceCalendar` only (`01:41:59`, the first launch of the `startEvents()` build) — the earlier launches
+  asked for Reminders as well, which is what the narrowing removed. **Owner please note:** with no signing
+  identity TCC cannot match the stored requirement, so an unsigned rebuilt app asks again and the grant does not
+  stick; answer the Calendar prompt (or grant it in System Settings) to see a real next event.
+- 2026-10-16 · **Gate:** `xcodebuild test` green (2457 tests, 0 failures — 2455 + the two new weather tests),
+  `check_localization.py` (880 keys × 12 languages) and `check_debug_switches.py` (84 switches) green,
+  `check_availability_warnings.py` green against the build log (exit 0). `Scripts/check_settings_page_heights.py`
+  not re-run: no Settings page was touched. Not live-checked: the "no place yet" chip variant that needs
+  `needsLocation` (it would take revoking Location), and any now-playing state in a signed build.
+
+
+## Phase 44 — the download hub gets a real BitTorrent engine (2026-10-16)
+
+> Owner 2026-10-16: *"Put a real BitTorrent engine behind the download hub instead of refusing magnet links."*
+> Phase 43 had removed the fabricated swarm and answered magnets with a refusal ("BitTorrent isn't supported —
+> http(s) links only"). This phase replaces the refusal with a real engine.
+
+**Engine choice, measured not assumed.** macOS ships no BitTorrent stack, and the app takes no new linked
+binary dependency (STANDING_RULES §3.5 — Sparkle stays the only one). KatiKati therefore *drives* the
+package-manager standard on macOS, `aria2c` (installed here via Homebrew, 1.37.0), as a loopback-only
+JSON-RPC child process it owns. Nothing about the wire format was written from memory: a live `aria2c` was
+started with the exact argv this code uses and its responses captured (2026-10-16) — every number arrives as
+**a string** (`"totalLength":"276445467"`), a magnet's own GID describes only the 21 307-byte **metadata
+block** it is fetching and names the real download in `followedBy`, a follow-torrent child carries
+`bittorrent.info.name`, and failures come back as `{"error":{"code":1,"message":"GID … is not found"}}`.
+
+- 2026-10-16 · **`Core/Support/Aria2RPC.swift`** (new, pure, dual-compiled): the request shapes
+  (`[token, [uri], {dir}]`), the `tellStatus` → `DownloadItem` mapping, the result/error envelope, and
+  `TorrentEngineClient` — the protocol the hub drives, so a test can inject a fake engine instead of spawning
+  one. The mapping keeps a magnet row **CONNECTING with no size** until the payload GID answers, so the
+  metadata block's 21 KB can never be printed as a 276 MB download.
+- 2026-10-16 · **`App/Composition/TorrentEngine.swift`** (new): finds `aria2c`
+  (`/opt/homebrew`, `/usr/local`, `/opt/local`, `/usr` — first hit wins), picks a free loopback port, spawns it
+  with `--rpc-listen-all=false`, a random per-start `--rpc-secret`, `--dir=<Downloads>` (torrents land where
+  the other two download types do), `--seed-time=0` (no upload after the payload completes),
+  `--file-allocation=none`, and `--stop-with-process=<pid>`. No binary on the machine → `isAvailable == false`
+  and magnets are refused, never answered with numbers nobody measured.
+- 2026-10-16 · **The engine outliving its parent was found by the live test, not by reading code.** The first
+  run of the hub-level live test passed but left an `aria2c` process behind: the test host exited before the
+  fire-and-forget shutdown `Task` ran. A hard-killed app would do the same. `--stop-with-process=<getpid()>`
+  now makes aria2 exit within a few seconds of us (measured: watched pid gone → engine gone in 3 s, 2026-10-16),
+  and `applicationWillTerminate` still shuts it down on a normal quit. The live test now asserts
+  `pgrep -P <pid> -f aria2c` is empty after the last torrent row goes.
+- 2026-10-16 · **`DownloadManagerService`** now accepts magnets and `.torrent` URLs again (`addDownload`), pulls
+  one status per torrent row at 1 Hz while the hub is up (`refreshTorrents`), switches from the magnet's GID to
+  the payload GID once `followedBy` appears, and routes pause / resume / cancel to the engine (cancel drops 
+  both GIDs). The engine is stopped when the last torrent row leaves the hub — a machine that never opens a
+  magnet never runs it (idle posture). One scope receipt: the browser-partial scan now skips 
+  `<name>.aria2`, which is the engine's control file sitting in the Downloads folder, not a browser download.
+- 2026-10-16 · **UI**: the hub card is titled `TORRENT HUB` again, its input bar accepts a magnet / `.torrent`
+  / https link, its empty state points at the engine's real availability ("Install aria2 to download magnet
+  links" when there is none), a CONNECTING torrent can be paused, and a row that failed shows the engine's own
+  reason instead of "FAILED" with nothing behind it.
+- 2026-10-16 · **Witness + tests.** `DownloadManagerTests` now holds the captured aria2 payloads (metadata
+  stage, payload, error envelope) and asserts the mapping; a fake engine drives the whole row life
+  magnet → CONNECTING-without-a-size → real size/peers/ETA → completed → cancelled, with no process and no
+  transfer. Two **opt-in** live tests (`KK_LIVE_TORRENT=1`, skipped by default) do the real thing: one drives
+  `TorrentEngine` and the other drives `DownloadManagerService.addDownload` — the exact call the notch input
+  bar makes — against a real magnet, then clean up after themselves in `~/Downloads`.
+- 2026-10-16 · **Live evidence** (`KK_LIVE_TORRENT=1`, real swarm): engine-level 3.8 s to the payload GID with
+  the magnet's real infoHash, name `Big Buck Bunny`, `totalLength` 276 MB; hub-level 5.1 s through
+  `addDownload` to a row with the same hash, name and a size > 1 MB; after `cancel` — no torrent row, no
+  `aria2c` child, `~/Downloads` clean.
+- 2026-10-16 · **Gate:** `xcodebuild test` green (2467 tests, 1 skipped = the opt-in live pair — 2455 + the
+  new download tests), `check_localization.py` (880 keys × 12 languages — the new hub strings are
+  `Text(verbatim:)` design copy like their neighbours), `check_debug_switches.py` (84 switches — no new switch),
+  `check_availability_warnings.py` green (0 cross-version conformance warnings). Not run:
+  `Scripts/check_settings_page_heights.py` (no Settings page touched). **Not live-checked: the notch page
+  itself** — the hub path was driven through `addDownload` exactly as the input bar does, but no screenshot of
+  the page with a torrent row exists yet.
+- **Deferred:** a `.torrent` URL whose payload never follows (the row would sit CONNECTING; no timeout yet);
+  seeding ratio / upload scheduling (this phase stops uploads at completion); resuming a torrent after an app
+  restart (no session persistence); a Settings affordance for the engine path when `aria2c` is installed
+  somewhere unusual.
+
+
+## Phase 45 — the music surfaces say when the player cannot be read (2026-10-16)
+
+> Owner 2026-10-16: *"Add a player-permission probe that tells the user in the UI when KatiKati cannot read
+> their music player, instead of silently showing nothing."*
+
+**What was silently wrong.** Phase 43 replaced MediaRemote's silence with the AppleScript fallback, but macOS
+gates every Apple event behind a per-pair Automation grant, and this machine has no signing identity
+(`security find-identity` → 0 valid), so the grant cannot stick across a rebuild: KatiKati asks again, and a
+"Don't Allow" leaves the app with an error nobody sees. The reading script's `try` swallowed it and
+`runAppleScript` returned `""` on any failure, so every surface said "Not Playing" while Spotify played.
+
+- 2026-10-16 · **The probe is the reading pass itself**, not a second script: each player branch in
+  `Core/Support/AppleScriptNowPlaying.source` now catches its own error and records
+  `REFUSED <tab> <player> <tab> <error number>`, returned only when nothing else could be read. The read
+  already runs at most once per 2 s and only while the state is empty (Phase 43's throttle), so the verdict
+  costs no extra AppleScript execution and no timer.
+- 2026-10-16 · **Only the two TCC refusals are verdicts.** `Core/Support/PlayerAccess.swift` (new, pure,
+  dual-compiled) maps `errAEEventNotPermitted` (-1743) and `errAEEventWouldRequireUserConsent` (-1742) to
+  `.refused(player:)`; -600 (player not running), -2741 (our own script's error), a plain reading and an empty
+  run all stay `.unknown`, so a surface never blames a permission that is not the problem. `NowPlayingService`
+  publishes the verdict (`.readable` whenever MediaRemote or the script actually answered) and
+  `LiveActivityFeed` passes it through.
+- 2026-10-16 · **Three surfaces speak up, each reusing a line it already had.** The dock/rail media card
+  (`NowPlayingChip`): the title becomes `KatiKati can't read Spotify` and the *empty* artist line becomes the
+  `Open System Settings` door — same height, so the card's fit is untouched. The dock capsule and edge-trio
+  popups (`NowPlayingPopup`) show the same pair. The notch's music card (`NotchMusicPanel`, idle) likewise,
+  in place of "Play something to see it here". The door opens
+  `x-apple.systempreferences:com.apple.preference.security?Privacy_Automation`, inlined like the other
+  permission doors in Scenes (Core may not host AppKit).
+- 2026-10-16 · **Evidence, script first.** The edited script was run through `osascript` unchanged and returned
+  this machine's real Spotify record (`Spotify paused Spiritual Growth …`, byte-for-byte the pre-edit shape) —
+  the reading path is intact. For the refusal path a copy with `error number -1743` forced into the Spotify
+  branch (and the Music branch disabled) returned exactly `REFUSED\tSpotify\t-1743`, which is the literal the
+  parser test feeds `AppleScriptNowPlaying.refusal(in:)` → `PlayerAccess.probe` → `.refused(player: "Spotify")`.
+  **Not reproduced: a real TCC denial** — it needs a click on "Don't Allow" for this app, and `TCC.db` needs
+  Full Disk Access to inspect what the app's Automation rows say (read attempt failed, as expected).
+- 2026-10-16 · **Tests:** five new pure tests in `NowPlayingProgressTests` (marker parsing, the two-error
+  allow-list, the message naming the player plus the settings URL, and a source scan asserting both player
+  branches keep an `on error` handler and the marker — the exact regression that shipped silently before),
+  plus the service test asserting the verdict starts `.unknown` so nothing is accused before a read.
+  `testAppleScriptFallbackCompiles` now also covers the syntax of the new handlers.
+- 2026-10-16 · **Localization:** one new key, `KatiKati can't read %@`, with all 12 values (the button reuses the
+  existing `Open System Settings` key). Per STANDING_RULES 1.7b those twelve values are drafts — one short
+  sentence each, placeholders equal by the gate — and want a speaker pass before merge.
+- 2026-10-16 · **Gate:** `xcodebuild test` green (2472 tests, 0 failures, 2 skipped = the opt-in live torrent
+  pair — 2466 + the six new assertions), `check_localization.py` (881 keys × 12 languages),
+  `check_debug_switches.py` (84 switches — no new switch), `check_availability_warnings.py` green (0
+  cross-version conformance warnings). Not run: `check_settings_page_heights.py` (no Settings page touched).
+- **Deferred:** no Settings-pane row for the Automation grant (the door is on the music surfaces only); the
+  verdict only appears once a fallback read has happened (a refused player with nothing to read keeps
+  "Not Playing"); quitting the refused player clears the message back to "Not Playing" (nothing to explain);
+  only the two scriptable players are probed, so a non-scriptable player that MediaRemote also refuses stays
+  silent.
+
+
+## Phase 46 — the weather widget wears the weather, and the bar hugs the edge (2026-10-16)
+
+> Owner 2026-10-16, attaching two shots of the bar at 03:40: *"fix this weather widget. also. have backgrounds
+> for the screenshots that match weather and time. extra presets"* and *"dock mode- hugging to be the default.
+> not floating"*. Asked which surface the backgrounds belong on (the app has three that follow weather and
+> time — the weather widget's own plate, the dock's phase tint, the desktop wallpaper pack); the owner picked
+> **the weather widget**.
+
+**What was actually wrong in the shot.** At 03:40 the detailed pod printed a **sun**. Nothing in the widget was
+day/night-aware: both the pod and the rail tile drew `WeatherState.symbolName`, which is the *feed's* symbol,
+and Open-Meteo's WMO codes have no night art — the service keeps day and night apart in a separate `is_day`
+flag the widgets ignored. The classic pill and the weather panel had been drawing `WeatherArt`/illustration
+night art all along; only the surfaces added later missed it.
+
+- 2026-10-16 · **`Core/Support/WeatherState.swift`** — `WeatherCondition.symbolName(isNight:)` (the family's
+  art at a time of day, moon variants where SF Symbols has them) and `WeatherState.glyphName` (the reading's
+  own day/night glyph). `WeatherCondition(symbolName:)` maps the night art back to its family too, so a state
+  that drew a moon still themes correctly.
+- 2026-10-16 · **The pod and the rail tile draw `glyphName`** (three sites in `DetailedWeatherPodView`, one in
+  `RailWeatherTile`). Verified live rather than by eye: the bar's accessibility tree reports the pod's glyph as
+  **"Clear Night"** at 04:20, and a scratch probe reads `moon.stars.fill`'s own accessibility description as
+  "clear night" against `sun.max.fill`'s "brightness higher".
+- 2026-10-16 · **The plate now follows the reading.** `WeatherChipPreset` became two layouts × two plates:
+  `classic`/`classicGlass` (pill) and `detailed`/`detailedGlass` (3-day pod), with `usesSkyPlate` deciding
+  which. The **sky is the default look** — the owner's own install pins `detailed`, and the ask was for the
+  widget in the shot to have the background, so the stored value keeps its meaning and the glass look is the
+  extra preset, not the other way round. `DockTileChrome` grew an optional `fill` (and its plate colour became
+  `DockTileChrome.plate`, one home for the number the glass pill also fills with): same radius, stroke, shadow
+  and hover curve, a different plate — a new tile still does not restate the chrome.
+- 2026-10-16 · **The right-click menu lists every preset** (`WeatherChipPreset.allCases` + a menu-title switch)
+  so a new preset cannot be missing from it, which the old hardcoded pair of two would have done.
+- 2026-10-16 · **Every built-in dock style hugs the bottom edge** (`Core/Support/DockStyle.swift`): Islands,
+  Classic, Minimal and Side Rail wrote the 8 pt floating gap, so a style card — or the welcome guide's
+  pre-selected Islands — lifted a bar whose fresh-install default (`PanelLayoutMetrics.huggingBottomGap`, and
+  the one-shot `forceNewLayoutDefaults` migration) is hugging. Fine-tune's Bottom Edge and Distance From Edge
+  are untouched; the owner's own live value was already 2.
+- 2026-10-16 · **Localization:** two new keys, `Glass Forecast` and `Glass Pill` (the menu's short names for
+  the two glass presets), appended at a single anchor in `Localizable.xcstrings` (rule 1.7a) with all 12
+  languages; the 11 non-English values are drafts, `needs_review`, and want a speaker pass. The Settings
+  picker keeps `WeatherChipPreset.title` (short, untranslated) like every neighbouring preset picker.
+- 2026-10-16 · **Live evidence** (`Docs/Archive/Planning/evidence/2026-10-16-phase-46/`): the bar's AX dump
+  (`bar-ax.txt` — the pod's glyph label and the three daily columns), the weather island cropped from a screen
+  shot (`weather-island-sky.png`), and the measured A/B (`weather-plate.txt`). Same screen, same reading, only
+  `com.katikati.weather.chipPreset` changed and the app relaunched: **detailedGlass** weather island mean RGB
+  (49,50,64) with 0 % sky-family pixels — the same plate as the clock island (49,53,64) — against **detailed**
+  (86,90,164) with 64 % sky-family pixels, the apps island (75,86,96) and clock island unchanged in both. The
+  two pill presets were measured the same way over the leftmost island strip, where the pill is narrower than
+  the island the pod fills — `classic` (69,81,106) 23 % sky against `classicGlass` (59,70,78) 4 %, both with the
+  reading's own "Clear sky" and "15" in the accessibility tree, so neither is a blank plate. The reader was
+  fixed first: `sips` writes a BGRx BMP (masks R=FF0000 G=FF00 B=FF) and reading it as RGB turns the
+  night sky into an orange, which is what the first pass of this check wrongly concluded.
+- 2026-10-16 · **Tests:** `testGlyphFollowsTheReadingsTimeOfDay` (the night art for clear/partly cloudy/rain/
+  thunderstorm, the same art day or night for the families SF Symbols gives no moon variant, day art for a
+  pre-4d payload), `testWeatherChipPresetAxes` (both layouts exist on both plates, the two stored raw values
+  keep their order and meaning, the sky stays the default), `testEveryBuiltInHugsTheBottomEdge`, and the two
+  touched DockStyle tests moved to the hugging values. **Gate:** `xcodebuild test` green (2475 tests, 0
+  failures, 2 skipped = the opt-in live torrent pair), `check_localization.py` (883 keys × 12 languages),
+  `check_debug_switches.py` (84 switches — no new switch), `check_availability_warnings.py <build log>` green.
+  Not run: `check_settings_page_heights.py` (no Settings page gained or lost a row).
+- **Deferred:** the rail weather tile (the vertical rail's 40 × 40 tile) still draws the glass plate — no ask,
+  and its space is 40 pt square, where a gradient plate reads as a different dock; the snow and fog skies are
+  light, so the pod's white text sits on them exactly as the classic pill's always has (the sampled reference
+  palette, not a new defect, but a dark-text rule would be the fix); the sky plate is drawn from
+  `WeatherArt`, not the `SkyPalette` the wallpaper and the dock tint share, so the three weather surfaces agree
+  on condition and hour but not on their exact colours.

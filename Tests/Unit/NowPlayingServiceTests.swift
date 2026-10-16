@@ -16,6 +16,9 @@ final class NowPlayingServiceTests: XCTestCase {
         XCTAssertFalse(service.state.isPlaying)
         XCTAssertNil(service.state.title)
         XCTAssertNil(service.state.artist)
+        // Phase 45: the verdict starts "nothing to say" and is only ever raised by a real reading or a
+        // real refusal — the surfaces must not accuse anyone of a missing permission they have not hit.
+        XCTAssertEqual(service.playerAccess, .unknown)
     }
     
     /// Ensure togglePlayPause does not crash.

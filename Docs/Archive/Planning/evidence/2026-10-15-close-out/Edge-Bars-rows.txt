@@ -1,0 +1,99 @@
+ROLE COUNTS AXButton=14 AXCheckBox=11 AXGroup=3 AXOpaqueProviderGroup=1 AXPopUpButton=2 AXRadioButton=14 AXRadioGroup=6 AXScrollArea=1 AXSlider=6 AXStaticText=32 AXToolbar=1 AXValueIndicator=6
+WINDOW 405 38 900 956
+AXStaticText	y    7.0 x  415.0    69.0 x  16.0  Edge Bars
+AXButton	y    8.0 x    8.0    16.0 x  16.0  
+AXButton	y    8.0 x   31.0    16.0 x  16.0  
+AXButton	y    8.0 x   54.0    16.0 x  16.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXToolbar	y   32.0 x    0.0   900.0 x  56.0  
+AXButton	y   32.0 x  108.5    55.0 x  56.0  General
+AXButton	y   32.0 x  164.5    75.0 x  56.0  Appearance
+AXButton	y   32.0 x  240.5    55.5 x  56.0  Widgets
+AXButton	y   32.0 x  297.0    55.0 x  56.0  Notch
+AXButton	y   32.0 x  353.0    65.5 x  56.0  Edge Bars
+AXButton	y   32.0 x  419.5   125.0 x  56.0  Window Management
+AXButton	y   32.0 x  545.5    61.0 x  56.0  Launcher
+AXButton	y   32.0 x  607.5    63.0 x  56.0  Shortcuts
+AXButton	y   32.0 x  671.5    55.0 x  56.0  Tools
+AXButton	y   32.0 x  727.5    64.0 x  56.0  Advanced
+AXGroup	y   88.0 x    0.0   900.0 x 868.0  
+AXScrollArea	y   88.0 x    0.0   900.0 x 868.0  
+AXStaticText	y  102.0 x   42.0    65.0 x  16.0  Edge Bars
+AXPopUpButton	y  136.0 x  695.5   162.5 x  24.0  Productivity + Rest
+AXStaticText	y  140.0 x   42.0    61.5 x  16.0  Edge Bars
+AXRadioGroup	y  177.0 x  247.0   203.0 x  24.0  Edge Bar on the Dock's Side, Edge Bar on
+AXRadioButton	y  177.0 x  247.0   101.5 x  24.0  1
+AXRadioButton	y  177.0 x  348.5   101.5 x  24.0  0
+AXRadioGroup	y  177.0 x  746.0   112.0 x  24.0  Main Side, Main Side
+AXRadioButton	y  177.0 x  746.0    56.0 x  24.0  0
+AXRadioButton	y  177.0 x  802.0    56.0 x  24.0  1
+AXStaticText	y  181.0 x   42.0   172.5 x  16.0  Edge Bar on the Dock's Side
+AXStaticText	y  181.0 x  450.0    59.5 x  16.0  Main Side
+AXCheckBox	y  218.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y  222.0 x   42.0   132.0 x  16.0  Keep Edge Bars Open
+AXStaticText	y  260.0 x   42.0   740.0 x  13.0  Slim bars on the screen edges for notes,
+AXStaticText	y  321.0 x   42.0    54.0 x  16.0  Widgets
+AXOpaqueProviderGroup	y  351.0 x   42.0   503.5 x  41.0  
+AXCheckBox	y  351.0 x   42.0    72.0 x  16.5  1
+AXCheckBox	y  351.0 x  450.0    95.5 x  16.5  1
+AXCheckBox	y  375.4 x   42.0    80.0 x  16.6  1
+AXCheckBox	y  375.4 x  450.0    66.0 x  16.6  1
+AXStaticText	y  444.0 x   42.0   108.5 x  16.0  Size & Behaviour
+AXStaticText	y  478.0 x   42.0    77.0 x  16.0  Left Bar Size
+AXSlider	y  478.0 x  202.0   594.0 x  16.0  1
+AXValueIndicator	y  478.0 x  393.5    20.0 x  16.0  
+AXStaticText	y  478.0 x  821.5    36.5 x  16.0  100%
+AXStaticText	y  510.0 x   42.0    85.0 x  16.0  Right Bar Size
+AXSlider	y  510.0 x  202.0   594.0 x  16.0  1
+AXValueIndicator	y  510.0 x  393.5    20.0 x  16.0  
+AXStaticText	y  510.0 x  821.5    36.5 x  16.0  100%
+AXStaticText	y  542.0 x   42.0    70.5 x  16.0  Open Delay
+AXSlider	y  542.0 x  202.0   594.0 x  16.0  0.4
+AXValueIndicator	y  542.0 x  355.0    20.0 x  16.0  
+AXStaticText	y  542.0 x  819.5    38.5 x  16.0  0.40 s
+AXStaticText	y  574.0 x   42.0    97.0 x  16.0  Edge Sensitivity
+AXSlider	y  574.0 x  202.0   594.0 x  16.0  0.25
+AXValueIndicator	y  574.0 x  345.5    20.0 x  16.0  
+AXStaticText	y  574.0 x  829.5    28.5 x  16.0  25%
+AXStaticText	y  606.0 x   42.0    91.5 x  16.0  Left Bar Height
+AXSlider	y  606.0 x  202.0   594.0 x  16.0  0.5
+AXValueIndicator	y  606.0 x  489.0    20.0 x  16.0  
+AXStaticText	y  606.0 x  829.5    28.5 x  16.0  50%
+AXStaticText	y  638.0 x   42.0    99.5 x  16.0  Right Bar Height
+AXSlider	y  638.0 x  202.0   594.0 x  16.0  0.5
+AXValueIndicator	y  638.0 x  489.0    20.0 x  16.0  
+AXStaticText	y  638.0 x  829.5    28.5 x  16.0  50%
+AXCheckBox	y  670.0 x  396.0    54.0 x  24.0  1
+AXRadioGroup	y  670.0 x  619.5   238.5 x  24.0  Magnify Amount
+AXRadioButton	y  670.0 x  619.5    79.5 x  24.0  0
+AXRadioButton	y  670.0 x  699.0    79.5 x  24.0  0
+AXRadioButton	y  670.0 x  778.5    79.5 x  24.0  1
+AXStaticText	y  674.0 x   42.0   210.0 x  16.0  Magnify Buttons Under the Pointer
+AXStaticText	y  674.0 x  450.0    99.5 x  16.0  Magnify Amount
+AXRadioGroup	y  710.0 x  225.0   225.0 x  24.0  Button Icons
+AXRadioButton	y  710.0 x  225.0    75.0 x  24.0  1
+AXRadioButton	y  710.0 x  300.0    75.0 x  24.0  0
+AXRadioButton	y  710.0 x  375.0    75.0 x  24.0  0
+AXRadioGroup	y  710.0 x  716.0   142.0 x  24.0  Flyout Style
+AXRadioButton	y  710.0 x  716.0    71.0 x  24.0  1
+AXRadioButton	y  710.0 x  787.0    71.0 x  24.0  0
+AXStaticText	y  714.0 x   42.0    76.5 x  16.0  Button Icons
+AXStaticText	y  714.0 x  450.0    71.5 x  16.0  Flyout Style
+AXRadioGroup	y  750.0 x  291.0   159.0 x  24.0  Button Style
+AXRadioButton	y  750.0 x  291.0    79.5 x  24.0  0
+AXRadioButton	y  750.0 x  370.5    79.5 x  24.0  1
+AXPopUpButton	y  750.0 x  729.0   129.0 x  24.0  System
+AXStaticText	y  754.0 x   42.0    74.5 x  16.0  Button Style
+AXStaticText	y  754.0 x  450.0    85.5 x  16.0  Note Tab Font
+AXCheckBox	y  790.0 x  396.0    54.0 x  24.0  1
+AXCheckBox	y  790.0 x  804.0    54.0 x  24.0  1
+AXStaticText	y  794.0 x   42.0   116.0 x  16.0  Open Only on Click
+AXStaticText	y  794.0 x  450.0   181.0 x  16.0  Show Button Names on Hover
+AXCheckBox	y  830.0 x  396.0    54.0 x  24.0  1
+AXCheckBox	y  830.0 x  804.0    54.0 x  24.0  1
+AXStaticText	y  834.0 x   42.0   145.5 x  16.0  Preview Notes on Hover
+AXStaticText	y  834.0 x  450.0   130.5 x  16.0  Open Notes on Hover
+AXButton	y  870.0 x   42.0   141.0 x  24.0  Reset Bar Positions
+AXCheckBox	y  910.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y  914.0 x   42.0   175.5 x  16.0  Sync Notes with iCloud Drive

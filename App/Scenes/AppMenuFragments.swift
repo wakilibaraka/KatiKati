@@ -319,6 +319,18 @@ struct FloatingMenuHost: View {
 /// Right-click menu for a strip widget: size presets, hide, and one-step reordering. Shown through the
 /// floating chip panel (`floatingContextMenu`), where the Size submenu becomes a header plus indented rows.
 enum WidgetMenuBuilder {
+    /// Menu labels for the weather presets. The Settings picker shows `WeatherChipPreset.title`
+    /// (short, untranslated); these are the localized menu names, kept here so the catalog keys stay
+    /// the ones the app already shipped.
+    static func weatherPresetMenuTitle(_ preset: WeatherChipPreset) -> String {
+        switch preset {
+        case .detailedForecast: return String(localized: "Detailed Forecast")
+        case .classicPill: return String(localized: "Classic Pill")
+        case .detailedGlass: return String(localized: "Glass Forecast")
+        case .classicGlassPill: return String(localized: "Glass Pill")
+        }
+    }
+
     @MainActor
     static func menu(for section: BarSection, store: AppSettingsStore) -> NSMenu {
         let menu = NSMenu()
@@ -369,9 +381,10 @@ enum WidgetMenuBuilder {
 
             let currentPreset = UserDefaults.standard.string(forKey: "com.katikati.weather.chipPreset") ?? WeatherChipPreset.detailedForecast.rawValue
             let styleMenu = NSMenu(title: String(localized: "Weather Style"))
-            for (preset, title) in [(WeatherChipPreset.detailedForecast, String(localized: "Detailed Forecast")),
-                                    (WeatherChipPreset.classicPill, String(localized: "Classic Pill"))] {
-                let item = ClosureMenuItem(title) { UserDefaults.standard.set(preset.rawValue, forKey: "com.katikati.weather.chipPreset") }
+            // Every case, so a new preset in `WeatherChipPreset` cannot be missing here (Phase 46
+            // added two and the old hardcoded pair would have hidden them).
+            for preset in WeatherChipPreset.allCases {
+                let item = ClosureMenuItem(Self.weatherPresetMenuTitle(preset)) { UserDefaults.standard.set(preset.rawValue, forKey: "com.katikati.weather.chipPreset") }
                 item.state = preset.rawValue == currentPreset ? .on : .off
                 styleMenu.addItem(item)
             }

@@ -25,8 +25,11 @@ A rule is a defect if a page breaks it unaccountably. "Check" is how to see the 
    on it rather than a guess. **No page invents an
    inset or a spacing.** *Check:* measure the left edge of the first control on each of the ten
    pages — one number, not ten; grep a page for a literal `.padding(` and find none outside a
-   custom control. A `SettingsGrid`'s second column starts at exactly half the card's content
-   width — a grid is still one grid, not a page's own arrangement.
+   custom control — **except** a negative inset that cancels a platform control's own chrome (the
+   Widgets list's `List`, 2026-10-15: `.listRowInsets` does not reach its rows, so it is pulled back
+   by the measured 8 pt it reserves). That is a platform compensation carrying its measurement in a
+   comment, not a page inventing a margin. A `SettingsGrid`'s second column starts at exactly half
+   the card's content width — a grid is still one grid, not a page's own arrangement.
 2. **One container.** Every page renders its sections as `SettingsCard`, and the page's own stack
    is `SettingsPane` — applied **once, by `SettingsWindowContent`**, so a page body renders cards
    and nothing else. There is no second box implementation: the old macOS 12/13+ layout split was
@@ -57,7 +60,9 @@ A rule is a defect if a page breaks it unaccountably. "Check" is how to see the 
    a Record button at 20 pt reading “…” against 67 pt in the other half).
    A row whose control needs the width — a slider, a text field, a row carrying a menu *and* a
    button, a row with a paragraph of its own — never pairs; it is one per line and the page's
-   height is handled another way (Shortcuts carries a find field for exactly that reason).
+   height is handled another way: a run of them longer than the page can show is a
+   `DisclosureGroup` collapsed by default, with the page's find field opening it
+   (`SettingsLayoutPane.expandedWhileFiltering`, 2026-10-15).
    *Check:* count the cards on a page; count `SettingsRow`s inside a headerless card; measure a
    grid's column starts (42 pt and half the card) and a pair's control widths (the two halves match).
 6. **One control per setting, one label per row.** Two controls for the same key, or a row that
@@ -79,8 +84,11 @@ A rule is a defect if a page breaks it unaccountably. "Check" is how to see the 
 10. **The window fits its content.** The window is a fixed 900 pt wide
     (`SettingsWindowView.contentWidth`); pages must not demand more, and a page taller than the
     screen scrolls as a whole (no scrolling inside a card). *Check:* the height probe measures each
-    page; switching pages never moves the left edge. Pages that still exceed the 1074 pt window are
-    the walls §3 names.
+    page; switching pages never moves the left edge. `python3 Scripts/check_settings_page_heights.py`
+    answers the height question by itself (the app's own probe, §5.3) and fails by page name — as of
+    2026-10-15 all ten fit (`evidence/2026-10-15-page-fit/README.md`), the tightest with 7 pt to
+    spare (Launcher, 979 of 986), so a new card or row on Launcher or Appearance is what pushes one
+    back over. The gate is the check; measuring by hand is only for the insets and the row rhythm.
 
 ## 2. The one system
 
@@ -116,20 +124,20 @@ the tools used mid-session are not behind it.
 | Page | Owes | Rules it closes |
 |---|---|---|
 | **General** | Landed (2026-10-15): the About card — version + Check for Updates, auto-update, diagnostics — is this page's third section, so its budget under rule 5 is spent. Nothing owed. | — |
-| **Appearance** | Landed (2026-10-15, 12f with it): the theme grid carries a one-line caption saying the swatches are previews, and the card gained the two plate sliders — **Vibrancy** (0.1–1.0, 55 % = the pre-slider look) and **Contrast** (0.5–2.0×) — shown only for a pinned theme, because Auto and System tint nothing. The two cards under the icon-set picker are previews, not a second control. Landed 2026-10-16: **Dock App Icon Shape is gone** — Phase 32d packed it, so the dock icons' frame is fixed at launch by the `DOCK_ICON_FRAME` switch (unset = today's squircle) and there is nothing left to draw. Landed 2026-10-16 (Phase 32b): **Right FAB Style** moved here from the Widgets page — the dock's right button is a look, like the icon set beside it — into the row 32d freed. | — |
-| **Widgets** | Landed (2026-10-15): the weather rows are on the shared row system inside their own *Weather* card, the appearance rows and the style presets share one card, and the page is **three** sections. The clock tile's row is renamed **Clock Tile Style** so it stops duplicating the dock clock's *Clock Style* (both keys unchanged). Landed 2026-10-16 (Phase 32b): the row pair's right half is now **Dock Motion** (Fluid / Snappy / Instant — how the widgets' readings move when they change), and **Right FAB Style** left for Appearance. A swap on an existing pair, never a net-new row: the page is still 952 pt of the 986 pt cap. | — |
+| **Appearance** | Landed (2026-10-15, 12f with it): the theme grid carries a one-line caption saying the swatches are previews, and the card gained the two plate sliders — **Vibrancy** (0.1–1.0, 55 % = the pre-slider look) and **Contrast** (0.5–2.0×) — shown only for a pinned theme, because Auto and System tint nothing. The two cards under the icon-set picker are previews, not a second control. Landed 2026-10-16: **Dock App Icon Shape is gone** — Phase 32d packed it, so the dock icons' frame is fixed at launch by the `DOCK_ICON_FRAME` switch (unset = today's squircle) and there is nothing left to draw. Landed 2026-10-16 (Phase 32b): **Right FAB Style** moved here from the Widgets page — the dock's right button is a look, like the icon set beside it — into the row 32d freed, so the page is back to the height it had before 32d. | — |
+| **Widgets** | Landed (2026-10-15): the weather rows are on the shared row system inside their own *Weather* card, the appearance rows and the style presets share one card, and the page is **three** sections. The clock tile's row is renamed **Clock Tile Style** so it stops duplicating the dock clock's *Clock Style* (both keys unchanged). Landed 2026-10-16 (Phase 32b): the row pair's right half is now **Dock Motion** (Fluid / Snappy / Instant — how the widgets' readings move when they change), and **Right FAB Style** left for Appearance. A swap on an existing pair, never a new row: the page is still 952 pt of the 986 pt cap. | — |
 | **Notch** | Landed (2026-10-15): the shape preview carries its demo caption. Still owes, jointly with the tracker's **Compact-notch** item (§4), the skin decision before this page is signed off. | §4 |
 | **Edge Bars** | Landed (2026-10-15): three sections — **Edge Bars** (preset, dock-side policy, main side, keep open), **Widgets** (the tile checklist as a grid, or the custom item list on rows) and **Size & Behaviour** — every control on the row system, and the page's paragraph a card note. Nothing owed. | — |
 | **Window Management** | Landed (2026-10-15): the card's four paragraphs are their rows' notes/ⓘ and its three hand-rolled `Toggle`s are `SettingsToggleRow`s (rules 3 and 4), the preview and switch rows pair, the two window behaviours are one line, and the app-override list is on `SettingsRow`. Landed (2026-10-15): **three** sections — one **Tiling** card (Enable, Preset, the two gaps, Floating Applications and Tiling Shortcuts, the last two keeping their own labels inside the card), **Window Chips** and **Window Behaviour**. That was a regroup, not a row change: no row, key or value moved. The tiling assignments stay one per line: a name, a menu and a Record button do not fit half a card (measured). | — |
 | **Launcher** | Landed (2026-10-15): the page is the launcher, the Control Center and the launcher's own rows (`LauncherSettingsBlock`), with the Control Center's widget and quick-setting checklists and the launcher's hidden-app list as two-column grids. Landed (2026-10-15): the hand-off's five steps are **Replace Spotlight**'s ⓘ (`SettingsButtonRow` gained the missing `info:` slot); each step stays a whole literal, joined with newlines rather than assembled. | — |
 | **Tools** | Landed (2026-10-15): clipboard, commands, snippets and shelf, in the slot About left. Landed (2026-10-15): the two editors are one **Commands & Snippets** card (four sections → three) and both carry a placeholder while empty (new `SettingsEditorRow`; rule 8). The Clipboard card's doubled divider is gone. | — |
-| **Shortcuts** | Landed (2026-10-15): the page is three sections — **Shortcuts** (a find field, the eleven feature actions, the fifteen snap zones under their captions), **Keyboard** (the input behaviours) and **Radial Dial** — with every row on the shared system, every long note behind its row's ⓘ, the pickers named for VoiceOver and the four snap captions translated. The 26 assignments were tried two per line and put back: three controls do not fit half a card (measured live 2026-10-15, the Record button squeezed to 20 pt in both halves), which is rule 5's own exception, and the find field is this page's answer to its height. | — |
+| **Shortcuts** | Landed (2026-10-15): the page is three sections — **Shortcuts** (a find field, the eleven feature actions, the fifteen snap zones under their captions), **Keyboard** (the input behaviours) and **Radial Dial** — with every row on the shared system, every long note behind its row's ⓘ, the pickers named for VoiceOver and the four snap captions translated. The 26 assignments were tried two per line and put back: three controls do not fit half a card (measured live 2026-10-15, the Record button squeezed to 20 pt in both halves), which is rule 5's own exception. The assignments and the four snap groups are therefore two `DisclosureGroup`s collapsed by default (2026-10-15), with the find field opening both — the page fits the window at 807 pt. | — |
 | **Advanced** | Landed (2026-10-15): the notification banner paragraph is its row's ⓘ and the row is a `SettingsToggleRow` (rules 3 and 4), **Reset Ignored Apps** says why it is disabled on its own row (rule 7), and the headerless one-row card above the page was folded into **Behaviour** — one row is not a section, and the page owed a title it could not name. Two sections, each with a header; the page fits the window. | — |
 | **About** | Gone as a page (2026-10-15); its four rows are the About card on General, and the tab it freed is Tools. | — |
 | **All pages** | **Accessibility audit — done (2026-10-15), and the earlier note here was wrong.** It claimed ~18 `labelsHidden()` toggles exposed no label; it had been read off `AXTitle`, which a SwiftUI toggle leaves empty while it puts the name on `AXDescription`. Every checkbox on all ten pages was then probed for `AXDescription`/`AXTitle`/`AXHelp` on the running build: **one** control was genuinely unnamed, the Widgets page's **Glass** switch (`GlassTilesToggle`), and it now carries its row's name. Repro: press each tab and read `AXDescription` on every `AXCheckBox` — ten pages, zero empty. Read `AXDescription` when auditing a toggle, not `AXTitle`. | — |
 | **Layout-pane leftovers** | Landed (2026-10-15): the two hand-rolled `HStack` row lists are gone — the window-chip app list (old `:442`) is on `SettingsRow`, the quick-setting list (old `:1267`) and the launcher's hidden-app list are `SettingsGrid`s. Standalone buttons and disclosures inside a card are controls, not rows (rule 3). | — |
 | **Rows two per line** | Landed (2026-10-15, owner: "window management, edge bar etc to use two lines"): every page's narrow rows — menus, segmented pickers, switches, lone buttons — pair, with a pair's halves exactly `halfRowWidth` each; sliders, editors, rows with two controls and rows with a long note stay full width. Measured live against the previous build: Widgets 1440 → 1114 pt, Launcher 1291 → 1132, General 790 → 708, Appearance 1479 → 1400, Edge Bars 955 → 914, Tools 822 → 741, Advanced 521 → 482, Window Management 1357 → 1317. **Appearance (1400), Widgets (1114), Window Management (1317), Launcher (1132) and Shortcuts (1940) still run past the 1074 pt window** — their height is section count and tall controls, not single-column rows. | 5, 10 |
-| **Close-out** | After-shots of the ten pages against the before-set (`Docs/Repository/settings-sweep-2026-10.md` plus the 2026-10-15 capture), measured margins and section gaps (the macOS 12 parity read-through is **retired**: the floor is macOS 15 since 2026-10-15, so there is no 12 path left to check), and the Better Design review the plan asks for. | 1, 10 |
+| **Close-out** | **Done (2026-10-15).** After-shots of the ten pages against the before-set (`Docs/Repository/settings-sweep-2026-10.md` plus the 2026-10-15 capture), measured margins and section gaps (the macOS 12 parity read-through is **retired**: the floor is macOS 15 since 2026-10-15, so there is no 12 path left to check), and the Better Design review the plan asks for — evidence and numbers in `Docs/Archive/Planning/evidence/2026-10-15-close-out/README.md`: card content at **42 pt on all ten pages**, every section gap **20.0 pt**, **5 of 10 pages taller than the window** (rule 10's own walls, §3 above), and its one serious finding — the Widgets page's reorderable `List` painting its own well and drawing its rows 8 pt off the grid — **fixed the same day** (`listRowInsets` does not reach a macOS `List`; the row height now derives from `SettingsMetrics` and drag reordering is unchanged, re-shot in the same directory). | 1, 10 |
 
 ## 4. Where the Compact-notch decision attaches
 
@@ -154,8 +162,13 @@ Until the decision is recorded in the tracker:
    CODE_SIGNING_ALLOWED=NO` — the whole suite, including `SettingsMetricsTests`.
 2. `python3 Scripts/check_localization.py`, `python3 Scripts/check_debug_switches.py` and
    `python3 Scripts/check_availability_warnings.py <clean build log>` — rule 9's mechanical half.
-3. Run the window and measure, don't assume. The 2026-10-15 before-set recorded the card-content
+3. `python3 Scripts/check_settings_page_heights.py` — rule 10's. It launches the built app once
+   (`DOCK_SETTINGS_PAGE_HEIGHT=1`) and the app measures all ten pages through **the same probe it
+   sizes its window with** (`SettingsWindowController.naturalContentHeight`), then exits. Any page
+   whose content is taller than 986 pt — a 1074 pt window — fails the check by name. Build the app
+   first (`Scripts/build_and_run.sh`); without a build the check exits 2, never 0.
+4. Run the window and measure, don't assume. The 2026-10-15 before-set recorded the card-content
    left inset running 20 / 28 / 42 / 108 pt across the ten pages; after the migration it is 42 pt
    on all ten. A number you touch must move toward the grid, not away from it.
-4. Screenshot the page before and after. A UI slice without its shots is unfinished
+5. Screenshot the page before and after. A UI slice without its shots is unfinished
    (`STANDING_RULES.md` §6.5).

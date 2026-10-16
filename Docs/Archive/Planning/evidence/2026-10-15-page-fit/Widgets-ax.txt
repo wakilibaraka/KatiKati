@@ -1,0 +1,71 @@
+WINDOW	Widgets	405	209	900	1040
+AXStaticText	42.0	102.0	Widget Appearance
+AXStaticText	42.0	140.0	Widget Layout
+AXPopUpButton	376.0	136.0	iPad
+AXStaticText	450.0	140.0	Widget Colors
+AXPopUpButton	767.0	136.0	Classic
+AXStaticText	42.0	181.0	Clock Tile Style
+AXPopUpButton	345.0	177.0	Flip clock
+AXStaticText	450.0	181.0	Glass
+AXCheckBox	804.0	177.0	0
+AXStaticText	42.0	222.0	Now Playing Theme
+AXPopUpButton	371.5	218.0	Auto
+AXStaticText	450.0	222.0	Widget Animation
+AXPopUpButton	744.0	218.0	Slide
+AXStaticText	42.0	263.0	Show Notes Widget
+AXCheckBox	396.0	259.0	1
+AXStaticText	450.0	263.0	Show Stopwatch & Countdown
+AXCheckBox	804.0	259.0	1
+AXStaticText	42.0	304.0	Keep Both Widgets Open
+AXCheckBox	396.0	300.0	0
+AXStaticText	450.0	304.0	Weather Animations
+AXCheckBox	804.0	300.0	1
+AXStaticText	42.0	333.5	Widget Styles & Presets
+AXButton	175.5	334.0	
+AXStaticText	42.0	360.0	Clock Style
+AXPopUpButton	275.0	356.0	Stacked Time & Date
+AXStaticText	450.0	360.0	Weather Style
+AXPopUpButton	663.0	356.0	Detailed 3-Day Forecast
+AXStaticText	42.0	400.0	Now Playing Style
+AXPopUpButton	258.5	396.0	Expanded Artwork Card
+AXStaticText	450.0	400.0	Right FAB Style
+AXPopUpButton	714.5	396.0	Dynamic Gauge
+AXStaticText	42.0	476.0	Weather
+AXStaticText	42.0	514.0	Temperature Unit
+AXRadioGroup	371.0	510.0	
+AXStaticText	450.0	514.0	Wind Speed Unit
+AXRadioGroup	696.0	510.0	
+AXStaticText	42.0	555.0	Weather Layout
+AXRadioGroup	315.0	551.0	
+AXStaticText	450.0	555.0	Hero Style
+AXRadioGroup	723.0	551.0	
+AXStaticText	42.0	596.0	Heat Warning (Feels Like)
+AXStaticText	388.0	596.0	35°C
+AXStaticText	450.0	596.0	Wind Warning
+AXStaticText	778.5	596.0	50 km/h
+AXStaticText	42.0	637.0	Snow Warning
+AXStaticText	797.5	637.0	5 cm
+AXStaticText	42.0	713.0	Widgets
+AXTextField	143.5	985.0	
+AXButton	311.5	985.0	
+AXCheckBox	42.0	1009.0	0
+AXButton	430.0	592.0	
+AXButton	430.0	604.0	
+AXButton	838.0	592.0	
+AXButton	838.0	604.0	
+AXButton	838.0	633.0	
+AXButton	838.0	645.0	
+AXStaticText	42.0	751.5	Launcher
+AXButton	838.0	754.0	
+AXStaticText	42.0	792.5	Weather
+AXRadioGroup	609.0	788.5	
+AXButton	838.0	795.0	
+AXStaticText	42.0	833.5	Apps
+AXStaticText	42.0	874.5	Now Playing
+AXRadioGroup	609.0	870.5	
+AXButton	838.0	877.0	
+AXStaticText	42.0	915.5	Clock
+AXRadioGroup	609.0	911.5	
+AXButton	838.0	918.0	
+AXStaticText	42.0	956.5	Widgets
+AXButton	838.0	959.0	

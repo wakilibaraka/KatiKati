@@ -1,0 +1,20 @@
+WINDOW	Advanced	405	38	900	523
+AXStaticText	42.0	102.0	Behaviour
+AXStaticText	42.0	140.0	Predict full-screen transitions to prevent tas
+AXButton	383.5	141.5	
+AXCheckBox	804.0	136.0	1
+AXStaticText	42.0	181.0	Hold Control to Show Memory
+AXCheckBox	804.0	177.0	1
+AXStaticText	42.0	204.0	While the pointer is over the dock, holding Co
+AXStaticText	42.0	238.0	Show System Helpers
+AXCheckBox	804.0	234.0	0
+AXStaticText	42.0	261.0	Background Apps lists running apps that have n
+AXButton	42.0	290.0	
+AXStaticText	42.0	317.0	No background app is ignored right now.
+AXStaticText	42.0	351.0	Show CPU and Memory in the Menu Bar
+AXCheckBox	804.0	347.0	0
+AXStaticText	42.0	374.0	A small CPU and memory readout in the menu bar
+AXStaticText	42.0	443.0	Notifications
+AXStaticText	42.0	481.0	Move Notification Banners
+AXButton	208.5	482.5	
+AXCheckBox	804.0	477.0	0

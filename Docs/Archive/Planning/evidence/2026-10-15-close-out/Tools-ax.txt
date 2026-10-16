@@ -1,0 +1,27 @@
+WINDOW	Tools	405	38	900	766
+AXStaticText	42.0	102.0	Clipboard
+AXStaticText	42.0	140.0	Clean Copied Links
+AXCheckBox	804.0	136.0	0
+AXStaticText	42.0	181.0	Copy Sounds
+AXCheckBox	396.0	177.0	0
+AXStaticText	450.0	181.0	Copy Notifications
+AXCheckBox	804.0	177.0	0
+AXStaticText	42.0	222.0	Ignore Patterns
+AXTextField	638.0	218.0	
+AXStaticText	42.0	298.0	Commands & Snippets
+AXStaticText	42.0	332.0	Custom Commands
+AXStaticText	47.0	359.0	Custom Commands
+AXStaticText	42.0	428.0	Text Snippets
+AXStaticText	47.0	455.0	Text Snippets
+AXStaticText	42.0	563.0	Shelf
+AXStaticText	42.0	601.0	Shake to Shelf
+AXCheckBox	396.0	597.0	1
+AXStaticText	450.0	601.0	Auto-Expire
+AXCheckBox	804.0	597.0	0
+AXStaticText	42.0	642.0	Storage
+AXPopUpButton	742.0	638.0	References
+AXButton	42.0	679.0	
+AXStaticText	42.0	724.0	System Dock
+AXButton	752.5	720.0	
+AXTextArea	42.0	351.0	
+AXTextArea	42.0	447.0	

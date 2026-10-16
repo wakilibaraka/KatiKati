@@ -24,6 +24,11 @@ final class KeptAppStore: ObservableObject {
 
     @Published private(set) var bundleIDs: [String]
 
+    /// 系统 Dock 里钉住的应用（Phase 42）。与 `bundleIDs` **同一用途**（常驻的 app 图标），区别只在
+    /// 来源与生命周期：这份是系统 Dock 的事实，不落盘、不进 `bundleIDs`，所以「取消保留」不会
+    /// 把它抹掉——要拿掉得去系统 Dock 里取消钉住。`adoptDockPins` 在启动时灌一次。
+    @Published private(set) var dockPinnedBundleIDs: [String] = []
+
     private let defaults: UserDefaults
     private let logger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "kept-app-store")
 
@@ -125,6 +130,14 @@ final class KeptAppStore: ObservableObject {
         if bundleIDs.count != previousCount {
             persist()
         }
+    }
+
+    /// 启动时（建条之前）灌入系统 Dock 的钉住列表。放在 `stripOrderStore` 之前：它初始化时就把
+    /// `eligibleOrder` 读走了，晚灌的 id 拿不到名次，第一帧会落在启动器组外面。
+    func adoptDockPins(_ bundleIDs: [String]) {
+        let cleaned = Self.cleaned(bundleIDs)
+        guard cleaned != dockPinnedBundleIDs else { return }
+        dockPinnedBundleIDs = cleaned
     }
 
     private static func cleaned(_ bundleIDs: [String]) -> [String] {

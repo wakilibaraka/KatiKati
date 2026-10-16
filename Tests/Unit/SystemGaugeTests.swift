@@ -37,13 +37,37 @@ final class SystemGaugeTests: XCTestCase {
         XCTAssertEqual(overflow.cpuPressure, 1.0)
     }
 
-    func testWeatherStateDefaultRome() {
-        let state = WeatherState.defaultRome
-        XCTAssertEqual(state.cityName, "Rome")
-        XCTAssertEqual(state.temperatureCelsius, 26)
-        XCTAssertEqual(state.threeDayForecast.count, 3)
-        XCTAssertEqual(state.threeDayForecast[0].date, "Thu")
-        XCTAssertEqual(state.threeDayForecast[0].highCelsius, 30)
+    // The strip widgets used to fill their gaps with demo content: the media card printed a hardcoded
+    // track with a guessed 0.35 progress, the weather cards printed a canned city's forecast. Same
+    // witness idea as `NotchLayoutSpecTests.testNotchPagesHaveNoMockLiterals`.
+    func testStripWidgetsHaveNoMockLiterals() throws {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        for (file, bad) in [("App/Scenes/NowPlayingChip.swift", ["God's Plan", "Drake", "?? 0.35"]),
+                            ("App/Scenes/WeatherChip.swift", ["\"Rome\"", "highCelsius + 1", "highCelsius - 1"]),
+                            ("Core/Support/WeatherState.swift", ["defaultRome"]),
+                            ("App/Composition/WeatherService.swift", ["\"Rome\""])] {
+            let src = try String(contentsOf: root.appendingPathComponent(file), encoding: .utf8)
+            for literal in bad { XCTAssertFalse(src.contains(literal), "\(file) still ships \(literal)") }
+        }
+    }
+
+    func testThreeDayForecastUsesOnlyFeedDays() {
+        let twoDays = WeatherState(cityName: "Juja", temperatureCelsius: 18, conditionText: "Clear",
+                                   symbolName: "sun.max.fill", highCelsius: 27, lowCelsius: 16, hourly: [],
+                                   daily: [DailyForecast(date: "2026-10-16", highCelsius: 27, lowCelsius: 16, symbolName: "sun.max.fill"),
+                                           DailyForecast(date: "2026-10-17", highCelsius: 29, lowCelsius: 17, symbolName: "cloud.fill")],
+                                   isLive: true, lastUpdated: Date())
+        XCTAssertEqual(twoDays.threeDayForecast.count, 2)
+        XCTAssertTrue(WeatherState.empty.threeDayForecast.isEmpty)   // never topped up from a canned city
+    }
+
+    func testWeatherHasDataNeedsARealForecast() {
+        XCTAssertFalse(WeatherState.empty.hasData)
+        let hourlyOnly = WeatherState(cityName: "Juja", temperatureCelsius: 18, conditionText: "Clear",
+                                      symbolName: "sun.max.fill", highCelsius: 27, lowCelsius: 16,
+                                      hourly: [HourlyForecast(id: "2026-10-16T14:00", hour: "14:00", temperatureCelsius: 25, symbolName: "sun.max.fill")],
+                                      daily: [], isLive: true, lastUpdated: Date())
+        XCTAssertTrue(hourlyOnly.hasData)
     }
 
     func testClockPresetStackedCard() {
@@ -54,6 +78,8 @@ final class SystemGaugeTests: XCTestCase {
     func testPresetsTitles() {
         XCTAssertEqual(WeatherChipPreset.classicPill.title, "Classic Weather Pill")
         XCTAssertEqual(WeatherChipPreset.detailedForecast.title, "Detailed 3-Day Forecast")
+        XCTAssertEqual(WeatherChipPreset.classicGlassPill.title, "Glass Weather Pill")
+        XCTAssertEqual(WeatherChipPreset.detailedGlass.title, "Glass 3-Day Forecast")
 
         XCTAssertEqual(NowPlayingPreset.miniChip.title, "Mini Player")
         XCTAssertEqual(NowPlayingPreset.expandedCard.title, "Expanded Artwork Card")
@@ -64,6 +90,18 @@ final class SystemGaugeTests: XCTestCase {
         XCTAssertEqual(DockIconShape.packedValue("squircle"), .squircle)
         XCTAssertEqual(DockIconShape.packedValue("circle"), .circle)
         XCTAssertEqual(DockIconShape.packedValue("hexagon"), .squircle)
+    }
+
+    /// Phase 46: two layouts × two plates. The stored values the app already shipped (`classic`,
+    /// `detailed`) must keep meaning what they meant — the owner's own install pins `detailed`.
+    func testWeatherChipPresetAxes() {
+        XCTAssertEqual(WeatherChipPreset.allCases.count, 4)
+        XCTAssertEqual(WeatherChipPreset.allCases.map(\.rawValue).prefix(2), ["classic", "detailed"])
+        // Both layouts exist on both plates, and the sky stays the default look.
+        XCTAssertEqual(WeatherChipPreset.allCases.filter(\.usesSkyPlate).map(\.isDetailed), [false, true])
+        XCTAssertEqual(WeatherChipPreset.allCases.filter { !$0.usesSkyPlate }.map(\.isDetailed), [false, true])
+        XCTAssertTrue(WeatherChipPreset.detailedForecast.usesSkyPlate)
+        XCTAssertTrue(WeatherChipPreset.classicPill.usesSkyPlate)
     }
 
     func testWiFiVolumeDotsActiveCalculation() {

@@ -208,25 +208,34 @@ public struct WeatherChip: View {
 
     public var body: some View {
         let state = weatherService.currentState
-        if chipPreset == .detailedForecast {
-            DetailedWeatherPodView(state: state, widgetSize: widgetSize)
+        // The reading's own sky — its condition at its hour — is what the widget is *about*, so both
+        // presets that carry it draw the plate from it (Phase 46: the pod used to be plain dock glass
+        // while the pill was already sky, so the same reading looked like two different widgets).
+        let sky = chipPreset.usesSkyPlate
+            ? WeatherArt.gradient(condition: state.conditionFamily, isNight: state.isNight)
+            : nil
+        if !state.hasData {
+            // No place and no cached forecast: say that, instead of a temperature for a city we made up.
+            WeatherNoPlaceHint(needsLocation: weatherService.needsLocation)
+                .onTapGesture { WidgetPanelController.weather.toggle() }
+        } else if chipPreset.isDetailed {
+            DetailedWeatherPodView(state: state, widgetSize: widgetSize, sky: sky)
                 .onTapGesture { WidgetPanelController.weather.toggle() }
         } else {
-            let art = WeatherArt.gradient(condition: state.conditionFamily, isNight: state.isNight)
-
             Group {
                 if widgetSize == .small {
-                    compactPill(state: state, art: art)
+                    compactPill(state: state)
                 } else {
                     ViewThatFits(in: .horizontal) {
-                        fullPill(state: state, art: art)
-                        compactPill(state: state, art: art)
+                        fullPill(state: state)
+                        compactPill(state: state)
                     }
                 }
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(art))
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(sky.map { AnyShapeStyle($0) } ?? AnyShapeStyle(DockTileChrome.plate)))
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -239,7 +248,7 @@ public struct WeatherChip: View {
 
     /// Owner sample: condition over city on the left, temperature with its degree ring, spot
     /// illustration on the right.
-    private func fullPill(state: WeatherState, art: LinearGradient) -> some View {
+    private func fullPill(state: WeatherState) -> some View {
         HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 0) {
                 Text(state.conditionText)
@@ -266,7 +275,7 @@ public struct WeatherChip: View {
 
     /// Narrow widget widths (the Settings slider goes down to 60pt): keep the two load-bearing
     /// elements instead of crushing all four.
-    private func compactPill(state: WeatherState, art: LinearGradient) -> some View {
+    private func compactPill(state: WeatherState) -> some View {
         HStack(spacing: 6) {
             Spacer(minLength: 0)
             temperature(state: state, size: 15)
@@ -298,6 +307,34 @@ public struct WeatherChip: View {
     }
 }
 
+/// No location and no cached forecast: one honest, tappable glyph in the shared dock plate (the tap opens
+/// the panel's city search). Drawn instead of a temperature nobody measured.
+struct WeatherNoPlaceHint: View {
+    let needsLocation: Bool
+    @State private var isHovered = false
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "location.slash.fill")
+                .font(.system(size: 12, weight: .semibold))
+            if needsLocation {
+                Text("Add City")
+                    .font(.system(size: 10.5, weight: .semibold, design: .rounded))
+                    .lineLimit(1)
+            } else {
+                Text(verbatim: "—")
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+            }
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
+        .dockTileChrome(isHovered: isHovered)
+        .contentShape(Rectangle())
+        .onHover { isHovered = $0 }
+    }
+}
+
 // MARK: - Rail tile (Phase 18c)
 
 /// Weather on a side rail: condition glyph over the temperature, in the same 40 × 40 chrome as the app
@@ -311,15 +348,19 @@ struct RailWeatherTile: View {
     var body: some View {
         let state = weatherService.currentState
         VStack(spacing: 1) {
-            Image(systemName: state.symbolName)
+            // Same rule as the bar chip: with no forecast there is no temperature to print, only the
+            // mark that a place is missing (the tap below opens the panel's city search).
+            Image(systemName: state.hasData ? state.glyphName : "location.slash.fill")
                 .symbolRenderingMode(.multicolor)
                 .font(.system(size: 14, weight: .semibold))
-            Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
-                .font(.system(size: 12, weight: .bold, design: .rounded))
-                .monospacedDigit()
-                .foregroundStyle(.white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+            if state.hasData {
+                Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
         }
         .frame(width: BarSection.railTileSize, height: BarSection.railTileSize)
         .dockTileChrome(isHovered: isHovered)
@@ -348,27 +389,41 @@ extension EnvironmentValues {
 private struct DetailedWeatherPodView: View {
     let state: WeatherState
     let widgetSize: WidgetSize
+    /// The reading's condition + hour sky as the pod's plate; `nil` keeps the shared dock glass.
+    let sky: LinearGradient?
     // Phase 32b: one morph for all three sizes — the plate never changes, its reading does.
     @AppStorage(WidgetMotionPreset.storageKey) private var motionPreset: WidgetMotionPreset = .default
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isHovered = false
 
     var body: some View {
+        // The slot is a fixed width (`WidgetSize.widgetWidth`) and this pod's own content can be wider
+        // than it — the three forecast columns used to run past the plate into the widget beside it
+        // (Phase 43). Same auto-degrade the classic pill already uses: draw the widest form that fits
+        // the slot, never a form that overflows it, and never larger than the size the user picked.
         Group {
             switch widgetSize {
             case .small:
                 compactDetailedView
             case .medium:
-                mediumDetailedView
+                ViewThatFits(in: .horizontal) {
+                    mediumDetailedView
+                    compactDetailedView
+                }
             case .large:
-                largeDetailedView
+                ViewThatFits(in: .horizontal) {
+                    largeDetailedView
+                    mediumDetailedView
+                    compactDetailedView
+                }
             }
         }
         .padding(.horizontal, 9)
         .padding(.vertical, 5)
         // Phase 40f: the FABs' own chrome, so the pod and the buttons beside it cannot drift
-        // (it used to hover at 1.02 / damping 0.72 against the FABs' 1.04 / 0.75).
-        .dockTileChrome(isHovered: isHovered)
+        // (it used to hover at 1.02 / damping 0.72 against the FABs' 1.04 / 0.75). Phase 46 hands it
+        // the sky when the preset asks for it — same chrome, same hover, a different plate.
+        .dockTileChrome(isHovered: isHovered, fill: sky)
         .onHover { hovering in
             isHovered = hovering
         }
@@ -385,13 +440,13 @@ private struct DetailedWeatherPodView: View {
                     .foregroundStyle(.white)
                     .lineLimit(1)
 
-                Text(state.cityName.isEmpty ? "Rome" : state.cityName)
+                Text(state.cityName)
                     .font(.system(size: 10, weight: .medium, design: .rounded))
                     .foregroundStyle(Color.white.opacity(0.8))
                     .lineLimit(1)
             }
 
-            Image(systemName: state.symbolName)
+            Image(systemName: state.glyphName)
                 .font(.system(size: 14, weight: .medium))
                 .symbolRenderingMode(.multicolor)
         }
@@ -406,48 +461,50 @@ private struct DetailedWeatherPodView: View {
                         .font(.system(size: 17, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
 
-                    Image(systemName: state.symbolName)
+                    Image(systemName: state.glyphName)
                         .font(.system(size: 11, weight: .medium))
                         .symbolRenderingMode(.multicolor)
                 }
 
-                Text(state.cityName.isEmpty ? "Rome" : state.cityName)
+                Text(state.cityName)
                     .font(.system(size: 10, weight: .medium, design: .rounded))
                     .foregroundStyle(Color.white.opacity(0.80))
                     .lineLimit(1)
             }
 
-            // Divider
-            Rectangle()
-                .fill(Color.white.opacity(0.14))
-                .frame(width: 1, height: 24)
-
-            // Right column: 3-step forecast, one equal-width column each so the two sides balance
+            // Right column: the feed's own days, one equal-width column each so the two sides balance
             // (Phase 40a: `weekdayLabel()`, never the raw API date — that printed as "2026-…").
-            HStack(spacing: 6) {
-                ForEach(forecastItems.prefix(3)) { item in
-                    VStack(spacing: 2) {
-                        Text(verbatim: item.weekdayLabel())
-                            .font(.system(size: 10.5, weight: .semibold, design: .rounded))
-                            .foregroundStyle(Color.white.opacity(0.78))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
+            // No days → no divider and no columns; the temperature and the city stand alone.
+            if !forecastItems.isEmpty {
+                Rectangle()
+                    .fill(Color.white.opacity(0.14))
+                    .frame(width: 1, height: 24)
 
-                        Image(systemName: item.symbolName)
-                            .font(.system(size: 10.5, weight: .medium))
-                            .symbolRenderingMode(.multicolor)
-                            .frame(height: 12)
+                HStack(spacing: 6) {
+                    ForEach(forecastItems) { item in
+                        VStack(spacing: 2) {
+                            Text(verbatim: item.weekdayLabel())
+                                .font(.system(size: 10.5, weight: .semibold, design: .rounded))
+                                .foregroundStyle(Color.white.opacity(0.78))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
 
-                        Text(verbatim: "\(Int(round(item.highCelsius)))°")
-                            .font(.system(size: 10.5, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
+                            Image(systemName: item.symbolName)
+                                .font(.system(size: 10.5, weight: .medium))
+                                .symbolRenderingMode(.multicolor)
+                                .frame(height: 12)
+
+                            Text(verbatim: "\(Int(round(item.highCelsius)))°")
+                                .font(.system(size: 10.5, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+                        }
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
                 }
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity)
         }
     }
 
@@ -460,12 +517,12 @@ private struct DetailedWeatherPodView: View {
                         .font(.system(size: 19, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
 
-                    Image(systemName: state.symbolName)
+                    Image(systemName: state.glyphName)
                         .font(.system(size: 13, weight: .medium))
                         .symbolRenderingMode(.multicolor)
                 }
 
-                Text(state.cityName.isEmpty ? "Rome" : state.cityName)
+                Text(state.cityName)
                     .font(.system(size: 10.5, weight: .medium, design: .rounded))
                     .foregroundStyle(Color.white.opacity(0.82))
                     .lineLimit(1)
@@ -475,54 +532,48 @@ private struct DetailedWeatherPodView: View {
                     .foregroundStyle(Color.white.opacity(0.65))
             }
 
-            // Divider
-            Rectangle()
-                .fill(Color.white.opacity(0.14))
-                .frame(width: 1, height: 26)
-
-            // Right: 3-day forecast, one equal-width column each so the two sides balance
+            // Right: the feed's own days, one equal-width column each so the two sides balance
             // (Phase 40a: `weekdayLabel()`, never the raw API date).
-            HStack(spacing: 6) {
-                ForEach(forecastItems.prefix(3)) { item in
-                    VStack(spacing: 3) {
-                        Text(verbatim: item.weekdayLabel())
-                            .font(.system(size: 11.5, weight: .semibold, design: .rounded))
-                            .foregroundStyle(Color.white.opacity(0.78))
+            // No days → no divider and no columns; the temperature and the city stand alone.
+            if !forecastItems.isEmpty {
+                Rectangle()
+                    .fill(Color.white.opacity(0.14))
+                    .frame(width: 1, height: 26)
+
+                HStack(spacing: 6) {
+                    ForEach(forecastItems) { item in
+                        VStack(spacing: 3) {
+                            Text(verbatim: item.weekdayLabel())
+                                .font(.system(size: 11.5, weight: .semibold, design: .rounded))
+                                .foregroundStyle(Color.white.opacity(0.78))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+
+                            Image(systemName: item.symbolName)
+                                .font(.system(size: 12, weight: .medium))
+                                .symbolRenderingMode(.multicolor)
+                                .frame(height: 13)
+
+                            HStack(spacing: 2) {
+                                Text(verbatim: "\(Int(round(item.highCelsius)))°")
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .foregroundStyle(.white)
+                                Text(verbatim: "\(Int(round(item.lowCelsius)))°")
+                                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                                    .foregroundStyle(Color.white.opacity(0.62))
+                            }
                             .lineLimit(1)
                             .minimumScaleFactor(0.75)
-
-                        Image(systemName: item.symbolName)
-                            .font(.system(size: 12, weight: .medium))
-                            .symbolRenderingMode(.multicolor)
-                            .frame(height: 13)
-
-                        HStack(spacing: 2) {
-                            Text(verbatim: "\(Int(round(item.highCelsius)))°")
-                                .font(.system(size: 11, weight: .bold, design: .rounded))
-                                .foregroundStyle(.white)
-                            Text(verbatim: "\(Int(round(item.lowCelsius)))°")
-                                .font(.system(size: 10, weight: .medium, design: .rounded))
-                                .foregroundStyle(Color.white.opacity(0.62))
                         }
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
                 }
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity)
         }
     }
 
-    private var forecastItems: [DailyForecast] {
-        if !state.threeDayForecast.isEmpty {
-            return state.threeDayForecast
-        }
-        return [
-            DailyForecast(date: "Today", highCelsius: state.highCelsius, lowCelsius: state.lowCelsius, symbolName: state.symbolName),
-            DailyForecast(date: "Tomorrow", highCelsius: state.highCelsius + 1, lowCelsius: state.lowCelsius, symbolName: state.symbolName),
-            DailyForecast(date: "Later", highCelsius: state.highCelsius - 1, lowCelsius: state.lowCelsius - 1, symbolName: state.symbolName)
-        ]
-    }
+    /// The feed's own days — a short or empty forecast shows fewer columns, never invented ones.
+    private var forecastItems: [DailyForecast] { state.threeDayForecast }
 }
 

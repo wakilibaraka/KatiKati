@@ -1,0 +1,52 @@
+ROLE COUNTS AXButton=23 AXCheckBox=2 AXGroup=3 AXPopUpButton=2 AXScrollArea=1 AXStaticText=18 AXToolbar=1
+WINDOW 405 38 900 732
+AXStaticText	y    7.0 x  423.0    55.0 x  16.0  General
+AXButton	y    8.0 x    8.0    16.0 x  16.0  
+AXButton	y    8.0 x   31.0    16.0 x  16.0  
+AXButton	y    8.0 x   54.0    16.0 x  16.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXToolbar	y   32.0 x    0.0   900.0 x  56.0  
+AXButton	y   32.0 x  108.5    55.0 x  56.0  General
+AXButton	y   32.0 x  164.5    75.0 x  56.0  Appearance
+AXButton	y   32.0 x  240.5    55.5 x  56.0  Widgets
+AXButton	y   32.0 x  297.0    55.0 x  56.0  Notch
+AXButton	y   32.0 x  353.0    65.5 x  56.0  Edge Bars
+AXButton	y   32.0 x  419.5   125.0 x  56.0  Window Management
+AXButton	y   32.0 x  545.5    61.0 x  56.0  Launcher
+AXButton	y   32.0 x  607.5    63.0 x  56.0  Shortcuts
+AXButton	y   32.0 x  671.5    55.0 x  56.0  Tools
+AXButton	y   32.0 x  727.5    64.0 x  56.0  Advanced
+AXGroup	y   88.0 x    0.0   900.0 x 644.0  
+AXScrollArea	y   88.0 x    0.0   900.0 x 644.0  
+AXPopUpButton	y  110.0 x  664.0   194.0 x  24.0  English
+AXStaticText	y  114.0 x   42.0    60.0 x  16.0  Language
+AXButton	y  151.0 x  614.0    76.0 x  52.0  System
+AXButton	y  151.0 x  698.0    76.0 x  52.0  Light
+AXButton	y  151.0 x  782.0    76.0 x  52.0  Dark
+AXStaticText	y  169.0 x   42.0    73.0 x  16.0  Appearance
+AXStaticText	y  223.0 x  765.5    53.0 x  18.0  ⌥⇧⌘D
+AXStaticText	y  224.0 x   42.0   166.0 x  16.0  Show/hide taskbar shortcut
+AXPopUpButton	y  261.0 x  370.5    79.5 x  24.0  Right
+AXCheckBox	y  261.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y  265.0 x   42.0    95.0 x  16.0  Drawer Position
+AXStaticText	y  265.0 x  450.0   185.5 x  16.0  Reverse mouse scroll direction
+AXButton	y  266.5 x  642.5    13.0 x  13.0  Flips mouse-wheel scrolling system-wide,
+AXStaticText	y  341.0 x   42.0    79.5 x  16.0  Permissions
+AXStaticText	y  375.0 x   42.0    80.0 x  16.0  Accessibility
+AXButton	y  375.0 x  800.0    58.0 x  24.0  Grant
+AXStaticText	y  394.0 x   42.0   361.5 x  15.0  Shows your open windows as chips and let
+AXStaticText	y  426.0 x   42.0   112.0 x  16.0  Screen Recording
+AXButton	y  426.0 x  800.0    58.0 x  24.0  Grant
+AXStaticText	y  445.0 x   42.0   486.5 x  15.0  Shows live window thumbnails in hover pr
+AXStaticText	y  477.0 x   42.0   105.0 x  16.0  Input Monitoring
+AXButton	y  477.0 x  800.0    58.0 x  24.0  Grant
+AXStaticText	y  496.0 x   42.0   339.0 x  15.0  Only for the optional Hyper key. Skip it
+AXStaticText	y  567.0 x   42.0    39.5 x  16.0  About
+AXButton	y  601.0 x  710.0   148.0 x  24.0  Check for Updates…
+AXStaticText	y  605.0 x   42.0   110.5 x  16.0  Version 0.17.0 (51)
+AXCheckBox	y  642.0 x  396.0    54.0 x  24.0  1
+AXButton	y  642.0 x  802.5    55.5 x  24.0  Copy
+AXStaticText	y  646.0 x   42.0   195.5 x  16.0  Check for updates automatically
+AXStaticText	y  646.0 x  450.0    91.0 x  16.0  Diagnostic Info
+AXButton	y  708.0 x   28.0   173.0 x  24.0  Show Setup Guide Again

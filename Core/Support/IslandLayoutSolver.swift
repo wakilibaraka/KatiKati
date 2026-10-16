@@ -58,6 +58,8 @@ enum IslandLayoutSolver {
     ///   - centeredWidth: Target width for `.centered` mode (default: 720).
     ///   - screenOriginX: Left origin X of the screen (default: 0).
     ///   - screenMinY: Bottom origin Y of the screen (default: 0).
+    ///   - appsTrailingClearance: Room to keep free at the apps island's trailing end for the
+    ///     caller's drawer capsule (default: 0, i.e. no reservation).
     /// - Returns: Complete `IslandLayout` with valid frames and overflow flags.
     static func layout(
         screenWidth: CGFloat,
@@ -75,7 +77,9 @@ enum IslandLayoutSolver {
         bottomMargin: CGFloat,
         centeredWidth: CGFloat = 720,
         screenOriginX: CGFloat = 0,
-        screenMinY: CGFloat = 0
+        screenMinY: CGFloat = 0,
+        appsTrailingClearance: CGFloat = 0,
+        contentInset: CGFloat = IslandChrome.contentInset
     ) -> IslandLayout {
         let effectiveGap = max(0.5, gap)
         let effectiveMargin = max(0, margin)
@@ -115,7 +119,8 @@ enum IslandLayoutSolver {
         // Split modes: the width the strip really draws — content insets + dividers (Phase 11a).
         func fixedIslandWidth(_ sections: [BarSection]) -> CGFloat {
             let (total, count) = sectionsWidth(sections)
-            return IslandChrome.fixedIslandWidth(contentWidth: total, sectionCount: count, scale: chromeScale)
+            return IslandChrome.fixedIslandWidth(contentWidth: total, sectionCount: count,
+                                                 scale: chromeScale, inset: contentInset)
         }
 
         func appsWidth(_ count: Int) -> CGFloat {
@@ -227,7 +232,13 @@ enum IslandLayoutSolver {
 
                 let width = min(appsWidth(visibleApps), available)
                 let centredX = screenOriginX + (screenWidth - width) / 2
-                let x = min(max(centredX, leftEdge), rightEdge - width)
+                // Keep `appsTrailingClearance` free at the apps island's trailing end: the caller's
+                // drawer capsule rides there (beside the island on the bottom bar, below it on a rail),
+                // and `width` already excludes that slot. An island with no room to centre in — a rail's
+                // filled apps island (Phase 41b) — sits flush with the leading group instead, so the
+                // capsule always lands between the apps island and the trailing group, never on it.
+                let clearanceX = max(leftEdge, rightEdge - width - max(0, appsTrailingClearance))
+                let x = min(max(centredX, leftEdge), clearanceX)
                 frames[appsIndex] = CGRect(x: x, y: y, width: width, height: barHeight)
             }
 
@@ -286,24 +297,59 @@ enum IslandLayoutSolver {
 /// the bar height. The solver sizes fixed islands with it so a frame never clips its own content
 /// (Phase 11a: split islands were 8 pt-gap estimates, ~45 pt narrower than what the strip drew).
 enum IslandChrome {
-    /// `DockStripView.Style.chipContentInset` at native scale.
-    static let contentInset: CGFloat = 20
+    /// `DockStripView.Style.chipContentInset` at native scale. **16, not 20** since Phase 41c
+    /// (owner: "reduce gaps in all modes"): one plate corner radius, never less, so the island's
+    /// clip shape cannot cut a chip's own rounded corner. `testContentInsetClearsThePlateCorner` pins it.
+    static let contentInset: CGFloat = 16
+    /// End padding of a **rail** island along the rail's axis (Phase 42). The native Dock keeps
+    /// 3.45 pt between its plate and the first icon at `tilesize = 36` (measured from its own
+    /// accessibility tree), not one plate corner radius — on a rail the tile is centred across the
+    /// thickness, so that rounded corner has room the bottom bar's does not.
+    /// `testRailEndInsetKeepsEveryTileClearOfThePlateCorner` pins the clearance at every bar height.
+    static let railContentInset: CGFloat = 4
     /// Divider gap between sections inside one island (`StripContextMenuZone.dividerGapWidth`).
     static let dividerGap: CGFloat = StripContextMenuZone.dividerGapWidth
     /// The bar height `dockScale` is measured against (`DockPanelHeight.native`).
     static let nativeBarHeight: CGFloat = 54
 
+    /// Gap between two chips stacked on a side rail, at native scale. Rail-only: the bottom bar's
+    /// `ChipPillMetrics.chipSpacing` is shared with the `StripContextMenuZone` thresholds and stays
+    /// put. `DockStripView.Style.railChipSpacing` reads this, so the strip and the solver cannot
+    /// disagree about how long the apps island's content really is.
+    ///
+    /// **2, not 4, since Phase 42** (owner 2026-10-15: "use the mac dock spacing"): 2 is what the
+    /// native Dock itself leaves between two icons — its tile box is `tilesize + 2` (36 → 38 on the
+    /// owner's side dock, measured from the Dock's accessibility tree) — and it is the number the
+    /// bottom bar already uses, so both axes now pack at one pitch.
+    static let railChipSpacing: CGFloat = 2
+
+    /// Native per-chip stride along a **rail's** main axis: the 40 pt rail tile plus the rail's own
+    /// chip gap. The solver caps a rail's app tiles with this instead of the bottom bar's
+    /// `tileStride(barHeight:)`, which is 54 at the native height and would drop a chip the rail can
+    /// actually show (Phase 41b).
+    static func railChipStride(barHeight: CGFloat) -> CGFloat {
+        (BarSection.railTileSize + railChipSpacing) * scale(barHeight: barHeight)
+    }
+
     static func scale(barHeight: CGFloat) -> CGFloat {
         barHeight / nativeBarHeight
     }
 
-    static func fixedIslandWidth(contentWidth: CGFloat, sectionCount: Int, scale: CGFloat) -> CGFloat {
+    /// - Parameter inset: end padding, `contentInset` on the bottom bar and `railContentInset` on a
+    ///   rail (`PanelGeometry` passes the rail's). A rail island sized with the bar's 16 pt would draw
+    ///   the dead ends Phase 42 removed, no matter what the strip pads.
+    static func fixedIslandWidth(contentWidth: CGFloat, sectionCount: Int, scale: CGFloat,
+                                 inset: CGFloat = contentInset) -> CGFloat {
         guard sectionCount > 0 else { return 0 }
-        return contentWidth + 2 * contentInset * scale + CGFloat(sectionCount - 1) * dividerGap * scale
+        return contentWidth + 2 * inset * scale + CGFloat(sectionCount - 1) * dividerGap * scale
     }
 
     /// Chrome + island gaps a mode spends besides the widget widths themselves; feeds the widget
     /// auto-degrade budget so L→M→S kicks in before islands would collide.
+    ///
+    /// Deliberately on the shared `contentInset`: on a rail the real frames are *smaller* than this
+    /// budget assumes (Phase 42's 4 pt ends), so the degrade stays conservative — it can drop a widget
+    /// preset early, never clip one.
     static func overhead(mode: BarLayoutMode, order: [BarSection], gap: CGFloat, scale: CGFloat) -> CGFloat {
         let islands = BarSection.islands(for: mode, order: order)
         var total = CGFloat(max(0, islands.count - 1)) * max(0.5, gap)

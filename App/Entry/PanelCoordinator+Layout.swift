@@ -342,7 +342,7 @@ extension PanelCoordinator {
     /// Whether this coordinator unit hosts the drawer capsule.
     /// Per Appendix A, utilities (drawer, shelf, trash, folders) travel with the apps island.
     var isCapsuleOwner: Bool {
-        let sections = BarSection.islands(for: stripPlacement.effectiveMode(settingsStore.barLayoutMode),
+        let sections = BarSection.islands(for: settingsStore.barLayoutMode,
                                           order: settingsStore.widgetOrder)
         guard islandSlot < sections.count else { return islandSlot == 0 }
         return sections[islandSlot].contains(.apps)
@@ -447,7 +447,23 @@ extension PanelCoordinator {
         // 探针量的就是它 + 宽度到底变没变（没变还跑动画就是纯浪费）。
         let measureStart = CACurrentMediaTime()
         let fitting = hosting.fittingSize
-        let measured = (stripPlacement.isVertical ? fitting.height : fitting.width) - 2 * Self.shadowPadding
+        let screen = panelCurrentScreen(panel: panel)
+        var measured = (stripPlacement.isVertical ? fitting.height : fitting.width) - 2 * Self.shadowPadding
+        // Phase 41b: on a rail the **apps** island fills the span between the fixed groups, not just its
+        // own chips, so the panel must not be re-measured back down to the chips on the next content
+        // change. The fill is solved from the rail's geometry alone, which is what makes this a fixed
+        // point rather than a growing/shrinking loop (testRailAppsFillIsAFixedPoint).
+        if stripPlacement.isVertical, isCapsuleOwner {
+            measured = max(measured, PanelGeometry.railAppsFillLength(
+                mode: settingsStore.barLayoutMode,
+                stripPlacement: stripPlacement,
+                on: Self.screenGeometry(screen),
+                metrics: layoutMetrics,
+                centeredWidth: CGFloat(settingsStore.centeredWidth),
+                gap: CGFloat(settingsStore.islandGap),
+                margin: CGFloat(settingsStore.islandMargin),
+                widgetLayout: settingsStore.widgetLayout))
+        }
         HoverTrace.relayout(measureMs: CACurrentMediaTime() - measureStart,
                             width: measured,
                             changed: measured != lastDesiredWidth,
@@ -456,7 +472,7 @@ extension PanelCoordinator {
         lastDesiredWidth = measured
         // 跨面板转正进行中 → 任务条宽度钳在拖动前的值（窗口卡溢出/留空而非改变面板宽度，owner 2026-06-22）；
         // 松手/还原解钳后，下一次 relayout 用真实测量值把任务条变到最终长度。
-        layoutPanels(contentWidth: measured, on: panelCurrentScreen(panel: panel), animated: animated,
+        layoutPanels(contentWidth: measured, on: screen, animated: animated,
                      batched: batched || interactiveHeightResizeActive)
         if interactiveHeightResizeActive {
             panel.layoutIfNeeded()

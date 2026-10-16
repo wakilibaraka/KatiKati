@@ -121,9 +121,12 @@ final class AppSettingsStore: ObservableObject {
     static let defaultCenteredWidth: CGFloat = 720
     static let minimumCenteredWidth: CGFloat = 360
     static let maximumCenteredWidth: CGFloat = 1600
-    static let defaultIslandGap: CGFloat = 10
+    // Fresh install = the **Comfortable** Spacing card (Phase 41c). Derived, not a literal: while
+    // these said 10/12 and the card said 10/12 the two agreed by coincidence, and the segmented row
+    // reads Custom the moment they drift.
+    static let defaultIslandGap: CGFloat = DockSpacing.comfortable.gap
     static let minimumIslandGap: CGFloat = 0.5
-    static let defaultIslandMargin: CGFloat = 12
+    static let defaultIslandMargin: CGFloat = DockSpacing.comfortable.margin
     static let minimumIslandMargin: CGFloat = 0
 
     @Published private(set) var launchAtLogin: Bool

@@ -2,6 +2,51 @@ import XCTest
 @testable import KatiKati
 
 // The system Dock is given back as the user had it when KatiKati quits (and by "Restore Dock").
+//
+// Phase 42 reads one more thing out of the same domain: the apps the user pinned there
+// (`persistent-apps`), which the bar shows as launcher chips.
+
+final class NativeDockPinnedAppsTests: XCTestCase {
+    private func tile(_ url: String, type: String = "file-tile") -> [String: Any] {
+        ["tile-type": type, "tile-data": ["file-data": ["_CFURLString": url, "_CFURLStringType": 15]]]
+    }
+
+    func testDecodesDockOrderAndPercentEscapedPaths() {
+        var paths: [String] = []
+        let value: [[String: Any]] = [tile("file:///System/Applications/Mail.app/"),
+                                     tile("file:///Applications/Google%20Chrome.app/")]
+        let ids = NativeDockPinnedApps.decode(value) { url in
+            paths.append(url.path)
+            return url.lastPathComponent
+        }
+        XCTAssertEqual(paths, ["/System/Applications/Mail.app", "/Applications/Google Chrome.app"],
+                       "`%20` reaches Bundle(url:) decoded")
+        XCTAssertEqual(ids, ["Mail.app", "Google Chrome.app"], "Dock order kept")
+    }
+
+    func testDropsDuplicatesAndNonAppTiles() {
+        let value: [[String: Any]] = [tile("file:///System/Applications/Mail.app/"),
+                                     tile("file:///System/Applications/Mail.app/"),
+                                     tile("file:///Users/someone/Downloads/", type: "directory-tile"),
+                                     ["tile-type": "file-tile"]]     // no tile-data at all
+        let ids = NativeDockPinnedApps.decode(value) { url in
+            url.path.hasSuffix("Mail.app") ? "com.apple.mail" : nil
+        }
+        XCTAssertEqual(ids, ["com.apple.mail"])
+    }
+
+    func testUnreadablePrefsYieldNoPins() {
+        XCTAssertTrue(NativeDockPinnedApps.decode(nil).isEmpty)
+        XCTAssertTrue(NativeDockPinnedApps.decode("not an array").isEmpty)
+        XCTAssertTrue(NativeDockPinnedApps.read(synchronize: { false }, value: { [] }).isEmpty,
+                      "a failed synchronize means the cached value is not trustworthy")
+        XCTAssertEqual(NativeDockPinnedApps.read(synchronize: { true },
+                                                 value: { [self.tile("file:///Applications/OpenCode.app/")] },
+                                                 bundleIDForURL: { _ in "dev.opencode.app" }),
+                       ["dev.opencode.app"])
+    }
+}
+
 
 @MainActor
 final class NativeDockRestoreTests: XCTestCase {

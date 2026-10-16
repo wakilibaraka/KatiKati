@@ -20,7 +20,7 @@ extension DockStripView {
     /// A 路线) while the pinned messaging zone keeps its own `MessagingAppStore` order —
     /// the two zones never cross (拖动分区内进行).
     func makeProjection() -> StripProjection {
-        let sections = BarSection.islands(for: stripPlacement.effectiveMode(settingsStore.barLayoutMode),
+        let sections = BarSection.islands(for: settingsStore.barLayoutMode,
                                           order: settingsStore.widgetOrder)
         let hostedSections = islandSlot < sections.count ? sections[islandSlot] : [.apps]
 
@@ -123,10 +123,14 @@ extension DockStripView {
         var keptPlaceholders: [StripEntry] = []
         // "Show all running apps": a running app with no window (WhatsApp in the menu bar, a hidden app)
         // gets the same placeholder a kept app does. Not persisted as kept, so quitting the app removes it.
+        // 系统 Dock 钉住的应用走**同一条**启动器路径（Phase 42）：同一张 `LauncherChip`、同一个
+        // `app-\(bid)` id，所以下游没有任何 switch 需要认识新情况。已经在我们保留列表里的去掉，
+        // 否则同一个 id 会出现两张卡（`ForEach` 撞 id）。
+        let launcherIDs = keptIDs + keptAppStore.dockPinnedBundleIDs.filter { !keptIDs.contains($0) }
         let runningExtras: [String] = settingsStore.showAllRunningApps
-            ? runningIDs.subtracting(keptIDs).filter { $0 != Bundle.main.bundleIdentifier }.sorted()
+            ? runningIDs.subtracting(launcherIDs).filter { $0 != Bundle.main.bundleIdentifier }.sorted()
             : []
-        for bid in keptIDs + runningExtras {
+        for bid in launcherIDs + runningExtras {
             guard !drawerStore.contains(bid),
                   !msgSet.contains(bid) else { continue }
             // 访达有意留在 `.window` 兜底卡这条路径上：它带着专属菜单（最近使用的文件夹 /

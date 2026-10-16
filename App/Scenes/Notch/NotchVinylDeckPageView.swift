@@ -4,64 +4,29 @@ import SwiftUI
 
 struct NotchVinylDeckPageView: View {
     @ObservedObject var feed: LiveActivityFeed
+    @StateObject private var status = SystemStatusService()
     @State private var rotationAngle: Double = 0.0
 
     var body: some View {
         let isPlaying = feed.nowPlayingState.isPlaying
         let title = feed.nowPlayingState.title ?? "No Audio Playing"
         let artist = feed.nowPlayingState.artist ?? "Select Music to Play"
+        let artwork = feed.nowPlayingState.artworkData
 
         HStack(spacing: NotchDesignSpec.cardSpacing) {
-            // Card A: Tactile Grooved Vinyl Turntable
+            // Card A: the player's own album art when it hands one over, the turntable otherwise
+            // (Phase 43). Either way the record spins only while a track is playing.
             HStack(spacing: 16) {
                 ZStack {
-                    // Outer vinyl record
-                    Circle()
-                        .fill(RadialGradient(
-                            gradient: Gradient(colors: [
-                                Color(white: 0.12),
-                                Color(white: 0.04),
-                                Color(white: 0.10),
-                                Color(white: 0.02)
-                            ]),
-                            center: .center,
-                            startRadius: 5,
-                            endRadius: 55
-                        ))
-                        .frame(width: 110, height: 110)
-                        .overlay(
-                            // Concentric vinyl sound grooves
-                            ZStack {
-                                Circle().stroke(Color.white.opacity(0.06), lineWidth: 1).frame(width: 95, height: 95)
-                                Circle().stroke(Color.white.opacity(0.08), lineWidth: 1).frame(width: 82, height: 82)
-                                Circle().stroke(Color.white.opacity(0.05), lineWidth: 1).frame(width: 68, height: 68)
-                            }
-                        )
-                        .rotationEffect(.degrees(rotationAngle))
-
-                    // Center label / album artwork
-                    if let artworkData = feed.nowPlayingState.artworkData,
-                       let nsImage = NSImage(data: artworkData) {
+                    if let artwork, let nsImage = NSImage(data: artwork) {
                         Image(nsImage: nsImage)
                             .resizable()
                             .scaledToFill()
-                            .frame(width: 42, height: 42)
-                            .clipShape(Circle())
+                            .frame(width: 110, height: 110)
+                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     } else {
-                        Circle()
-                            .fill(LinearGradient(colors: [Color.pink, Color.orange], startPoint: .topLeading, endPoint: .bottomTrailing))
-                            .frame(width: 42, height: 42)
-                            .overlay(
-                                Image(systemName: "music.note")
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundStyle(.white)
-                            )
+                        vinylRecord(isPlaying: isPlaying)
                     }
-
-                    // Spindle hole
-                    Circle()
-                        .fill(Color.white)
-                        .frame(width: 6, height: 6)
                 }
 
                 // Tone arm indicator
@@ -85,7 +50,9 @@ struct NotchVinylDeckPageView: View {
                         }
                         .foregroundStyle(.cyan.opacity(0.8))
                     } else {
-                        Text(verbatim: "Hi-Fi Turntable")
+                        // The player named no app: say nothing rather than a made-up device name
+                        // (Phase 43; this used to read "Hi-Fi Turntable").
+                        Text(verbatim: "—")
                             .font(.system(size: 10, weight: .medium))
                             .foregroundStyle(.white.opacity(0.4))
                     }
@@ -115,24 +82,35 @@ struct NotchVinylDeckPageView: View {
                         .lineLimit(1)
                 }
 
-                // Interactive scrubber bar
+                // Interactive scrubber bar, elapsed on the left and the track's length on the right
+                // (Phase 43 — the same tracking bar the dock chip carries).
                 if let fraction = feed.nowPlayingState.progress(at: Date()),
                    let duration = feed.nowPlayingState.duration, duration > 0 {
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            Capsule().fill(Color.white.opacity(0.12)).frame(height: 5)
-                            Capsule().fill(Color.pink).frame(width: max(5, geo.size.width * CGFloat(fraction)), height: 5)
+                    VStack(spacing: 3) {
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                Capsule().fill(Color.white.opacity(0.12)).frame(height: 5)
+                                Capsule().fill(Color.pink).frame(width: max(5, geo.size.width * CGFloat(fraction)), height: 5)
+                            }
+                            .contentShape(Rectangle())
+                            .gesture(
+                                DragGesture(minimumDistance: 0)
+                                    .onEnded { value in
+                                        let clickFraction = max(0, min(1, value.location.x / geo.size.width))
+                                        feed.seek(to: Double(clickFraction) * duration)
+                                    }
+                            )
                         }
-                        .contentShape(Rectangle())
-                        .gesture(
-                            DragGesture(minimumDistance: 0)
-                                .onEnded { value in
-                                    let clickFraction = max(0, min(1, value.location.x / geo.size.width))
-                                    feed.seek(to: Double(clickFraction) * duration)
-                                }
-                        )
+                        .frame(height: 5)
+
+                        HStack {
+                            Text(verbatim: NotchLayoutSpec.clockText(fraction * duration))
+                            Spacer()
+                            Text(verbatim: NotchLayoutSpec.clockText(duration))
+                        }
+                        .font(.system(size: 9, weight: .medium, design: .rounded).monospacedDigit())
+                        .foregroundStyle(.white.opacity(0.55))
                     }
-                    .frame(height: 5)
                 }
 
                 Spacer(minLength: 0)
@@ -164,12 +142,12 @@ struct NotchVinylDeckPageView: View {
 
                     Spacer()
 
-                    // Cyan Volume Arc Meter
+                    // Real output volume (Phase 43: this badge used to print a hard-coded "54 dB").
                     HStack(spacing: 6) {
-                        Image(systemName: "speaker.wave.2.fill")
+                        Image(systemName: status.status.volume.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
                             .font(.system(size: 11))
                             .foregroundStyle(.cyan)
-                        Text(verbatim: "54 dB")
+                        Text(verbatim: status.status.volume.isMuted ? "Muted" : "\(status.status.volume.percent)%")
                             .font(.system(size: 12, weight: .bold, design: .monospaced))
                             .foregroundStyle(.cyan)
                     }
@@ -189,12 +167,57 @@ struct NotchVinylDeckPageView: View {
                     )
             )
         }
+        .onAppear { status.acquire() }
+        .onDisappear { status.release() }
+    }
+
+    /// The fallback record: a grooved disc with its label, turning only while a track plays.
+    private func vinylRecord(isPlaying: Bool) -> some View {
+        ZStack {
+            Circle()
+                .fill(RadialGradient(
+                    gradient: Gradient(colors: [
+                        Color(white: 0.12),
+                        Color(white: 0.04),
+                        Color(white: 0.10),
+                        Color(white: 0.02)
+                    ]),
+                    center: .center,
+                    startRadius: 5,
+                    endRadius: 55
+                ))
+                .frame(width: 110, height: 110)
+                .overlay(
+                    // Concentric vinyl sound grooves
+                    ZStack {
+                        Circle().stroke(Color.white.opacity(0.06), lineWidth: 1).frame(width: 95, height: 95)
+                        Circle().stroke(Color.white.opacity(0.08), lineWidth: 1).frame(width: 82, height: 82)
+                        Circle().stroke(Color.white.opacity(0.05), lineWidth: 1).frame(width: 68, height: 68)
+                    }
+                )
+                .rotationEffect(.degrees(rotationAngle))
+
+            Circle()
+                .fill(LinearGradient(colors: [Color.pink, Color.orange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                .frame(width: 42, height: 42)
+                .overlay(
+                    Image(systemName: "music.note")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(.white)
+                )
+
+            // Spindle hole
+            Circle()
+                .fill(Color.white)
+                .frame(width: 6, height: 6)
+        }
+        .animation(isPlaying ? Animation.linear(duration: 6.0).repeatForever(autoreverses: false) : .default,
+                   value: isPlaying)
+        .onChange(of: isPlaying) { playing in
+            if playing { rotationAngle += 360 }
+        }
         .onAppear {
-            if isPlaying {
-                withAnimation(.linear(duration: 4.0).repeatForever(autoreverses: false)) {
-                    rotationAngle = 360.0
-                }
-            }
+            if isPlaying { rotationAngle += 360 }
         }
     }
 }

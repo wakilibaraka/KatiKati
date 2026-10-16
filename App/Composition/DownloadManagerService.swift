@@ -7,10 +7,10 @@ import Foundation
 // Unifies:
 // 1. Live browser downloads watcher (Safari, Chrome, Firefox, Arc, Edge)
 // 2. Direct HTTP/HTTPS link download manager with URLSession and pause/resume
-// 3. BitTorrent / Magnet link ingestion and swarm telemetry
+// 3. Magnet / `.torrent` downloads driven through a real BitTorrent engine (`TorrentEngine`, Phase 44)
 //
 // Adheres to KatiKati zero idle CPU posture: runs ticker/scans only while active downloads exist
-// or while a surface retains this service.
+// or while a surface retains this service, and the engine process exists only while a torrent row does.
 
 @MainActor
 public final class DownloadManagerService: NSObject, ObservableObject {
@@ -32,6 +32,13 @@ public final class DownloadManagerService: NSObject, ObservableObject {
     // Track previous byte counts for speed calculation
     private var previousBytes: [UUID: (bytes: Int64, timestamp: Date)] = [:]
 
+    // BitTorrent (Phase 44): the engine the hub drives, and the GIDs each torrent row is polling. A
+    // magnet row starts on the GID the engine hands to the magnet itself; once the engine has followed it
+    // into the payload, `payloadGIDs` takes over so size/peers/speed describe the real download.
+    private let torrent: TorrentEngineClient
+    private var torrentGIDs: [UUID: String] = [:]
+    private var payloadGIDs: [UUID: String] = [:]
+
     // Browser partial file sizes cache to track delta & speed
     private var knownPartialFiles: [String: (bytes: Int64, modified: Date, id: UUID)] = [:]
 
@@ -40,11 +47,12 @@ public final class DownloadManagerService: NSObject, ObservableObject {
             ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Downloads")
     }
 
-    public override init() {
+    /// `torrent` is injectable so tests can drive the hub with a fake engine instead of spawning one.
+    init(torrent: TorrentEngineClient? = nil) {
+        self.torrent = torrent ?? TorrentEngine.shared
         super.init()
         let config = URLSessionConfiguration.default
         self.urlSession = URLSession(configuration: config, delegate: self, delegateQueue: nil)
-        seedDemoIfEmpty()
     }
 
     // MARK: - Lifecycle & Idle-CPU Gate
@@ -89,59 +97,11 @@ public final class DownloadManagerService: NSObject, ObservableObject {
         }
     }
 
-    // MARK: - Seed Initial Demo Items for First Glance
-
-    private func seedDemoIfEmpty() {
-        guard items.isEmpty else { return }
-        let now = Date()
-
-        // 1. Realistic browser download in-flight
-        let browserItem = DownloadItem(
-            name: "Xcode_16_Beta_4.dmg",
-            type: .browser,
-            state: .active,
-            bytesDownloaded: 8_420_000_000,
-            totalBytes: 12_800_000_000,
-            downloadSpeedBps: 18_400_000,
-            etaSeconds: 238,
-            addedAt: now.addingTimeInterval(-320)
-        )
-
-        // 2. Realistic torrent download in-flight
-        let torrentItem = DownloadItem(
-            name: "ubuntu-24.04-desktop-amd64.iso",
-            type: .torrent,
-            state: .active,
-            infoHash: "C12FE1C06BBA254A9DC9F519B335380DC1F74C38",
-            bytesDownloaded: 3_840_000_000,
-            totalBytes: 5_400_000_000,
-            downloadSpeedBps: 14_200_000,
-            uploadSpeedBps: 2_100_000,
-            seeders: 64,
-            peers: 142,
-            etaSeconds: 110,
-            addedAt: now.addingTimeInterval(-640)
-        )
-
-        // 3. Completed recent download
-        let completedItem = DownloadItem(
-            name: "Rust-1.82.0-aarch64-apple-darwin.tar.gz",
-            type: .directUrl,
-            state: .completed,
-            bytesDownloaded: 248_000_000,
-            totalBytes: 248_000_000,
-            addedAt: now.addingTimeInterval(-3600),
-            completedAt: now.addingTimeInterval(-3200)
-        )
-
-        items = [browserItem, torrentItem, completedItem]
-    }
-
     // MARK: - Periodic Tick & Browser Downloads Scan
 
     private func onTick() {
         scanBrowserDownloads()
-        simulateProgressForActiveDemos()
+        refreshTorrents()
         updateAggregates()
     }
 
@@ -154,29 +114,6 @@ public final class DownloadManagerService: NSObject, ObservableObject {
         }
         aggregateDownloadBps = totalDown
         aggregateUploadBps = totalUp
-    }
-
-    private func simulateProgressForActiveDemos() {
-        for idx in items.indices {
-            var item = items[idx]
-            guard item.state == .active else { continue }
-
-            if item.type == .torrent || (item.type == .directUrl && activeTasks[item.id] == nil) {
-                let chunk = Int64(Double(item.downloadSpeedBps) * Double.random(in: 0.95...1.05))
-                item.bytesDownloaded = min(item.totalBytes, item.bytesDownloaded + chunk)
-                if item.totalBytes > item.bytesDownloaded && item.downloadSpeedBps > 0 {
-                    let remaining = item.totalBytes - item.bytesDownloaded
-                    item.etaSeconds = Int(remaining / item.downloadSpeedBps)
-                }
-
-                if item.bytesDownloaded >= item.totalBytes && item.totalBytes > 0 {
-                    item.state = .completed
-                    item.downloadSpeedBps = 0
-                    item.completedAt = Date()
-                }
-                items[idx] = item
-            }
-        }
     }
 
     private func scanBrowserDownloads() {
@@ -210,9 +147,13 @@ public final class DownloadManagerService: NSObject, ObservableObject {
 
     private func syncBrowserDownloads(_ discovered: [String: (bytes: Int64, modified: Date)]) {
         let now = Date()
+        // The engine keeps a `<name>.aria2` control file next to a running torrent: its bookkeeping, not a
+        // browser download, so it must not become a row of its own (and it would report itself as ~200 B).
+        let torrentNames = Set(items.filter { $0.type == .torrent }.map { $0.name })
 
         for (filename, info) in discovered {
             let cleanName = stripPartialExtension(filename)
+            if filename != cleanName, torrentNames.contains(cleanName) { continue }
 
             if let cached = knownPartialFiles[filename] {
                 // Already known - calculate speed delta
@@ -230,11 +171,11 @@ public final class DownloadManagerService: NSObject, ObservableObject {
                 }
                 knownPartialFiles[filename] = (bytes: info.bytes, modified: now, id: cached.id)
             } else {
-                // New browser partial download discovered!
+                // New browser partial download discovered. A `.download` file exposes no total length,
+                // so none is invented: the row shows the bytes on disk against an unknown total until
+                // the file lands (Phase 43 — this used to guess `bytes * 2` plus a fixed 2.4 MB/s and a
+                // 45 s ETA).
                 let newId = UUID()
-                // Estimate total bytes: usually partial files don't expose total until complete,
-                // so estimate based on current + initial buffer
-                let estimatedTotal = max(info.bytes * 2, 50 * 1024 * 1024)
                 let item = DownloadItem(
                     id: newId,
                     name: cleanName,
@@ -242,9 +183,9 @@ public final class DownloadManagerService: NSObject, ObservableObject {
                     state: .active,
                     destinationURL: downloadsDirectory.appendingPathComponent(cleanName),
                     bytesDownloaded: info.bytes,
-                    totalBytes: estimatedTotal,
-                    downloadSpeedBps: 2_400_000,
-                    etaSeconds: 45,
+                    totalBytes: 0,
+                    downloadSpeedBps: 0,
+                    etaSeconds: nil,
                     addedAt: now
                 )
                 items.insert(item, at: 0)
@@ -279,71 +220,61 @@ public final class DownloadManagerService: NSObject, ObservableObject {
 
     // MARK: - Ingestion (Paste Magnet, Torrent, or Direct URL)
 
+    /// Accepts a magnet link or `.torrent` URL (handed to the BitTorrent engine, when one is installed on
+    /// this machine) or a direct http(s) link. Anything else is refused rather than answered with invented
+    /// numbers: Phase 43 removed the fabricated swarm, Phase 44 makes magnets real.
     @discardableResult
     public func addDownload(input: String) -> Bool {
         let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return false }
 
-        // 1. BitTorrent Magnet link
-        if trimmed.lowercased().hasPrefix("magnet:?") {
-            return addMagnet(trimmed)
+        if trimmed.lowercased().hasPrefix("magnet:") {
+            guard let magnet = MagnetURIParser.parse(trimmed) else { return false }
+            return addTorrent(uri: trimmed, name: magnet.displayName, infoHash: magnet.infoHash)
         }
 
-        // 2. Direct HTTP/HTTPS link or .torrent URL
-        if let url = URL(string: trimmed), let scheme = url.scheme?.lowercased(), scheme == "http" || scheme == "https" {
-            if url.pathExtension.lowercased() == "torrent" {
-                return addTorrentURL(url)
-            } else {
-                return addDirectURL(url)
-            }
+        guard let url = URL(string: trimmed), let scheme = url.scheme?.lowercased(),
+              (scheme == "http" || scheme == "https"), url.host != nil else {
+            return false
         }
-
-        return false
+        if url.pathExtension.lowercased() == "torrent" {
+            return addTorrent(uri: url.absoluteString, name: url.lastPathComponent, infoHash: nil)
+        }
+        return addDirectURL(url)
     }
 
-    private func addMagnet(_ uri: String) -> Bool {
-        guard let parsed = MagnetURIParser.parse(uri) else { return false }
-        let total = parsed.exactLength ?? Int64.random(in: 1_200_000_000...4_800_000_000)
+    /// Hands a magnet / `.torrent` link to the engine. Refused when no engine is installed. The row starts
+    /// CONNECTING: the engine's own poll supplies the name, size, speeds and swarm counts — nothing here is
+    /// guessed.
+    private func addTorrent(uri: String, name: String, infoHash: String?) -> Bool {
+        guard torrent.isAvailable else { return false }
+        let id = UUID()
         let item = DownloadItem(
-            name: parsed.displayName,
-            type: .torrent,
-            state: .active,
-            sourceURL: uri,
-            infoHash: parsed.infoHash,
-            bytesDownloaded: 0,
-            totalBytes: total,
-            downloadSpeedBps: Int64.random(in: 8_000_000...22_000_000),
-            uploadSpeedBps: Int64.random(in: 800_000...3_200_000),
-            seeders: Int.random(in: 28...94),
-            peers: Int.random(in: 48...180),
-            etaSeconds: Int(total / 12_000_000),
-            addedAt: Date()
-        )
-        items.insert(item, at: 0)
-        reconcileTicker()
-        return true
-    }
-
-    private func addTorrentURL(_ url: URL) -> Bool {
-        let name = url.lastPathComponent.replacingOccurrences(of: ".torrent", with: "")
-        let total = Int64.random(in: 1_500_000_000...6_000_000_000)
-        let item = DownloadItem(
+            id: id,
             name: name,
             type: .torrent,
-            state: .active,
-            sourceURL: url.absoluteString,
-            infoHash: UUID().uuidString.replacingOccurrences(of: "-", with: "").uppercased(),
+            state: .initializing,
+            sourceURL: uri,
+            infoHash: infoHash,
             bytesDownloaded: 0,
-            totalBytes: total,
-            downloadSpeedBps: 15_400_000,
-            uploadSpeedBps: 1_800_000,
-            seeders: 42,
-            peers: 89,
-            etaSeconds: Int(total / 15_400_000),
+            totalBytes: 0,
+            downloadSpeedBps: 0,
+            etaSeconds: nil,
             addedAt: Date()
         )
         items.insert(item, at: 0)
         reconcileTicker()
+
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                let gid = try await self.torrent.add(uri: uri, directory: self.downloadsDirectory)
+                self.torrentGIDs[id] = gid
+                await self.poll(gid: gid, item: id)
+            } catch {
+                self.fail(id: id, reason: (error as? TorrentEngineError)?.message ?? error.localizedDescription)
+            }
+        }
         return true
     }
 
@@ -363,8 +294,8 @@ public final class DownloadManagerService: NSObject, ObservableObject {
             sourceURL: url.absoluteString,
             destinationURL: dest,
             bytesDownloaded: 0,
-            totalBytes: 0, // determined once headers arrive
-            downloadSpeedBps: 3_200_000,
+            totalBytes: 0,          // determined once headers arrive
+            downloadSpeedBps: 0,    // the delegate reports the real rate
             etaSeconds: nil,
             addedAt: Date()
         )
@@ -391,13 +322,19 @@ public final class DownloadManagerService: NSObject, ObservableObject {
                 }
             })
         }
+        // A torrent: the engine refuses a transfer it already finished, which the next poll then shows.
+        // The payload GID is the transfer once the engine has followed the magnet into it (pausing the
+        // metadata GID afterwards is meaningless — it has nothing left to do).
+        if let gid = payloadGIDs[id] ?? torrentGIDs[id], items[idx].type == .torrent {
+            Task { [weak self] in try? await self?.torrent.pause(gid: gid) }
+        }
         reconcileTicker()
     }
 
     public func resume(id: UUID) {
         guard let idx = items.firstIndex(where: { $0.id == id }) else { return }
         items[idx].state = .active
-        items[idx].downloadSpeedBps = 4_500_000
+        items[idx].downloadSpeedBps = 0
 
         if items[idx].type == .directUrl {
             if let resumeData = resumeDataMap[id] {
@@ -411,6 +348,9 @@ public final class DownloadManagerService: NSObject, ObservableObject {
                 task.resume()
             }
         }
+        if let gid = payloadGIDs[id] ?? torrentGIDs[id], items[idx].type == .torrent {
+            Task { [weak self] in try? await self?.torrent.unpause(gid: gid) }
+        }
         reconcileTicker()
     }
 
@@ -421,6 +361,7 @@ public final class DownloadManagerService: NSObject, ObservableObject {
         }
         resumeDataMap.removeValue(forKey: id)
         items.removeAll(where: { $0.id == id })
+        dropTorrentGIDs(id)
         reconcileTicker()
     }
 
@@ -435,7 +376,88 @@ public final class DownloadManagerService: NSObject, ObservableObject {
     }
 
     public func clearCompleted() {
+        let finished = items.filter { $0.state.isTerminal }
         items.removeAll(where: { $0.state.isTerminal })
+        for item in finished where item.type == .torrent { dropTorrentGIDs(item.id) }
+        stopEngineIfIdle()
+    }
+
+    // MARK: - BitTorrent Polling
+
+    /// One status per torrent row, 1 Hz while the hub is up. Rows that finished are left alone; a row whose
+    /// GID the engine has not handed back yet has nothing to ask about.
+    func refreshTorrents() {
+        for item in items where item.type == .torrent && !item.state.isTerminal {
+            guard let gid = payloadGIDs[item.id] ?? torrentGIDs[item.id] else { continue }
+            Task { [weak self] in await self?.poll(gid: gid, item: item.id) }
+        }
+    }
+
+    private func poll(gid: String, item id: UUID) async {
+        guard let status = try? await torrent.status(gid: gid) else { return }
+        apply(status, to: id)
+    }
+
+    private func apply(_ status: Aria2RPC.Status, to id: UUID) {
+        if let payload = status.payloadGID { payloadGIDs[id] = payload }
+        guard let idx = items.firstIndex(where: { $0.id == id }) else { return }
+
+        if let name = status.name, !name.isEmpty { items[idx].name = name }
+        if let hash = status.infoHash, !hash.isEmpty { items[idx].infoHash = hash.uppercased() }
+        items[idx].totalBytes = status.totalBytes
+        items[idx].bytesDownloaded = status.completedBytes
+        items[idx].downloadSpeedBps = status.downloadBps
+        items[idx].uploadSpeedBps = status.uploadBps
+        items[idx].seeders = status.seeders
+        items[idx].peers = status.connections
+        items[idx].state = status.state
+        items[idx].etaSeconds = status.downloadBps > 0 && status.totalBytes > status.completedBytes
+            ? Int((status.totalBytes - status.completedBytes) / status.downloadBps)
+            : nil
+        if let path = status.filePaths.first {
+            // A one-file torrent has a file destination; a multi-file torrent is a folder of paths.
+            items[idx].destinationURL = status.filePaths.count == 1
+                ? URL(fileURLWithPath: path)
+                : URL(fileURLWithPath: path).deletingLastPathComponent()
+        }
+        if status.state == .completed { items[idx].completedAt = items[idx].completedAt ?? Date() }
+        if status.state.isTerminal {
+            reconcileTicker()
+            stopEngineIfIdle()
+        }
+    }
+
+    private func fail(id: UUID, reason: String) {
+        guard let idx = items.firstIndex(where: { $0.id == id }) else { return }
+        items[idx].state = .failed(reason)
+        items[idx].downloadSpeedBps = 0
+        items[idx].uploadSpeedBps = 0
+        items[idx].etaSeconds = nil
+        reconcileTicker()
+        stopEngineIfIdle()
+    }
+
+    /// Drops every GID a torrent row owns (the magnet's and, once known, the payload's) from the engine,
+    /// then stops the engine if that was the last row. Dropping runs first so the removals still land
+    /// before the process goes away.
+    private func dropTorrentGIDs(_ id: UUID) {
+        let gids = Set([torrentGIDs[id], payloadGIDs[id]].compactMap { $0 })
+        torrentGIDs.removeValue(forKey: id)
+        payloadGIDs.removeValue(forKey: id)
+        guard !gids.isEmpty else {
+            stopEngineIfIdle()
+            return
+        }
+        Task { [weak self] in
+            for gid in gids { await self?.torrent.remove(gid: gid) }
+            self?.stopEngineIfIdle()
+        }
+    }
+
+    /// The engine only needs to exist while a torrent row does: stopping it when the last one goes keeps the
+    /// idle footprint at zero, and the next magnet starts it again.
+    private func stopEngineIfIdle() {
+        if !items.contains(where: { $0.type == .torrent }) { torrent.shutdown() }
     }
 }
 

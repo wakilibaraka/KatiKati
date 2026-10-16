@@ -13,8 +13,8 @@ struct SettingsAppearancePane: View {
     @ObservedObject var store: AppSettingsStore
 
     @Environment(\.colorScheme) private var colorScheme
-    // Phase 32b: `Right FAB Style` moved here from the Widgets page, into the slot the dock-icon row
-    // left when 32d packed it — the dock's FAB is a look, like the icon set beside it.
+    // Phase 32b: `Right FAB Style` moved here from the Widgets page, into the slot 32d's dock-icon row
+    // freed — the dock's FAB is a look, like the icon set beside it.
     @AppStorage("com.katikati.widgets.fabStyle") private var fabStyleRaw: String = "gauge"
 
     private static let presets: [DockThemeStyle] = [
@@ -40,7 +40,10 @@ struct SettingsAppearancePane: View {
                 // paragraph under the grid, which rule 4 does not allow on a card either.
                 note: Text("Swatches show the dock plate's tint; Auto follows light and dark, set in General.")
             ) {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 88), spacing: 8)], spacing: 10) {
+                // 55 pt of minimum width is what puts the thirteen swatches on one row at the window's
+                // 816 pt (2026-10-15): at 88 they took two rows, 80 pt the page does not have. Same
+                // control, same preview, same names.
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 55), spacing: 8)], spacing: 10) {
                     ForEach(choices, id: \.token) { style in
                         themeCard(style)
                     }
@@ -70,35 +73,44 @@ struct SettingsAppearancePane: View {
                         set: store.setThemeContrast
                     )
                 }
-            }
-
-            SettingsCard {
-                // The picker is the control; the two cards under it are previews, not a second control.
-                SettingsSegmentedRow(
-                    Text("Icon Set"),
-                    selection: Binding(get: { store.iconSet }, set: store.setIconSet)
-                ) {
-                    Text("Modern").tag(IconSet.modern)
-                    Text("Classic").tag(IconSet.classic)
-                }
-                HStack(spacing: 12) {
-                    iconPreview(.modern)
-                    iconPreview(.classic)
-                }
-                SettingsNote(Text("Applies to the trash and the menu bar icon. Independent of the theme."))
+                // The icon rows are inside this card now (2026-10-15): a card of their own cost a
+                // header's worth of padding and a 20 pt section gap — 48 pt of a page that has to
+                // fit the window. Same rows, same previews, same notes.
                 SettingsDivider()
-                SettingsRow(Text("Right FAB Style")) {
-                    Picker("Right FAB Style", selection: $fabStyleRaw) {
-                        Text("Dynamic Gauge").tag("gauge")
-                        Text("Classic Glyph").tag("classic")
-                    }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
-                .help(Text("The dock's right button: a live gauge or a single glyph."))
+                iconRows
             }
 
             wallpaperSection
         }
+    }
+
+    /// The icon rows, rendered inside the Theme card (2026-10-15). **One row now:** the dock app
+    /// icon's shape was a row here until Phase 32d packed it (owner 2026-10-16) — the frame is fixed
+    /// at launch by `DOCK_ICON_FRAME`, so there is no setting left to draw.
+    @ViewBuilder
+    private var iconRows: some View {
+        // The picker is the control; the two cards under it are previews, not a second control.
+        SettingsSegmentedRow(
+            Text("Icon Set"),
+            selection: Binding(get: { store.iconSet }, set: store.setIconSet)
+        ) {
+            Text("Modern").tag(IconSet.modern)
+            Text("Classic").tag(IconSet.classic)
+        }
+        HStack(spacing: 12) {
+            iconPreview(.modern)
+            iconPreview(.classic)
+        }
+        SettingsNote(Text("Applies to the trash and the menu bar icon. Independent of the theme."))
+        SettingsDivider()
+        SettingsRow(Text("Right FAB Style")) {
+            Picker("Right FAB Style", selection: $fabStyleRaw) {
+                Text("Dynamic Gauge").tag("gauge")
+                Text("Classic Glyph").tag("classic")
+            }
+            .labelsHidden().pickerStyle(.menu).fixedSize()
+        }
+        .help(Text("The dock's right button: a live gauge or a single glyph."))
     }
 
     // MARK: - Wallpaper (Phase 10b-3)
@@ -141,29 +153,38 @@ struct SettingsAppearancePane: View {
                 }
             }
             skyPreviewGrid
-            SettingsToggleRow(
-                Text("Tint Dock by Time of Day"),
-                isOn: Binding(get: { store.tintSurfacesByPhase }, set: store.setTintSurfacesByPhase)
+            // Two narrow rows, one line (rule 5): the switch and the button were two lines.
+            SettingsRowPair(
+                left: {
+                    SettingsToggleRow(
+                        Text("Tint Dock by Time of Day"),
+                        isOn: Binding(get: { store.tintSurfacesByPhase }, set: store.setTintSurfacesByPhase)
+                    )
+                },
+                right: {
+                    // Rule 7: disabled with no reason on the row before this.
+                    SettingsButtonRow(
+                        Text("Restore Wallpaper"),
+                        note: store.wallpaperEnabled ? nil : Text("Turn Dynamic Wallpaper on to restore it.")
+                    ) { WallpaperEngine.shared.restoreNow() }
+                        .disabled(!store.wallpaperEnabled)
+                }
             )
-            // Rule 7: disabled with no reason on the row before this.
-            SettingsButtonRow(
-                Text("Restore Wallpaper"),
-                note: store.wallpaperEnabled ? nil : Text("Turn Dynamic Wallpaper on to restore it.")
-            ) { WallpaperEngine.shared.restoreNow() }
-                .disabled(!store.wallpaperEnabled)
         }
     }
 
-    /// 5 phases (rows) × 6 skies (columns) of the built-in pack, straight from `SkyPalette`.
+    /// 5 phases (rows) × 6 skies (columns) of the built-in pack, straight from `SkyPalette`. The
+    /// swatches are 14 pt tall, not 22 (2026-10-15): this preview alone was 122 pt of a page that
+    /// has to fit the window, and the same 30 palettes are still here.
     private var skyPreviewGrid: some View {
-        VStack(spacing: 3) {
+        VStack(spacing: 2) {
             ForEach(SolarPhase.allCases, id: \.self) { phase in
-                HStack(spacing: 3) {
+                HStack(spacing: 2) {
                     ForEach(WallpaperSky.allCases, id: \.self) { sky in
                         let stops = SkyPalette.stops(phase: phase, sky: sky)
                         RoundedRectangle(cornerRadius: 4, style: .continuous)
                             .fill(LinearGradient(colors: [color(stops.top), color(stops.bottom)], startPoint: .top, endPoint: .bottom))
-                            .frame(height: 22)
+                            .frame(height: 12)
                             .help(Text(verbatim: "\(phase.rawValue) · \(sky.rawValue)"))
                     }
                 }
@@ -260,7 +281,9 @@ struct SettingsAppearancePane: View {
             .font(.system(size: 12, weight: .semibold))
         }
         .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        // 4, not 8 (2026-10-15): two of these previews plus their padding were 42 pt of a page that
+        // has to fit the window, and the icons inside are 26 pt tall either way.
+        .padding(.vertical, 4)
         .frame(maxWidth: .infinity)
         .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color.primary.opacity(0.05)))
         .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous)

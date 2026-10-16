@@ -1,0 +1,36 @@
+WINDOW	Notch	405	38	900	1013
+AXStaticText	42.0	102.0	Live Island
+AXButton	130.0	128.0	
+AXStaticText	414.5	326.0	Preview
+AXStaticText	458.5	326.0	·
+AXStaticText	468.0	326.0	Full
+AXStaticText	42.0	351.0	Dock Island
+AXCheckBox	804.0	347.0	1
+AXStaticText	42.0	392.0	Notch Island
+AXCheckBox	804.0	388.0	1
+AXStaticText	42.0	433.0	Notch Style
+AXPopUpButton	755.5	429.0	Full
+AXStaticText	42.0	474.0	Event Alerts
+AXPopUpButton	749.0	470.0	Automatic
+AXStaticText	42.0	515.0	System Banners
+AXCheckBox	804.0	511.0	1
+AXStaticText	42.0	553.0	The shape preview is a demo: the silhouette on
+AXStaticText	42.0	614.0	Daily Helpers
+AXStaticText	42.0	652.0	Hide from Screen Capture
+AXCheckBox	804.0	648.0	0
+AXStaticText	42.0	693.0	Caps Lock Indicator
+AXCheckBox	804.0	689.0	1
+AXStaticText	42.0	734.0	Charge Notices
+AXCheckBox	804.0	730.0	1
+AXStaticText	42.0	775.0	Clean Keyboard
+AXButton	708.5	771.0	
+AXStaticText	42.0	798.0	Keys are off for 60 seconds. Press ⌃⌥⌘P to unl
+AXStaticText	42.0	832.0	Offer to Eject Drives
+AXCheckBox	804.0	828.0	1
+AXStaticText	42.0	873.0	Camera and Mic Indicator
+AXCheckBox	804.0	869.0	0
+AXStaticText	42.0	914.0	Teleprompter
+AXButton	664.5	910.0	
+AXStaticText	42.0	937.0	Opens from ⌘Space (prompter). The window is hi
+AXStaticText	42.0	971.0	Teleprompter Notch Page
+AXCheckBox	804.0	967.0	1

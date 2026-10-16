@@ -17,15 +17,30 @@ final class DockStyleTests: XCTestCase {
     }
 
     func testFreshInstallValuesReadAsIslands() {
-        // Fresh install: split3, native 54 pt, gap 10, margin 12, floating bottom gap.
-        let style = DockStyle.matching(mode: .split3, barHeight: 54, gap: 10, margin: 12,
-                                       bottomGap: PanelLayoutMetrics.floatingBottomGap)
+        // Fresh install: split3, native 54 pt, the Comfortable spacing (8/10 since Phase 41c),
+        // the hugging bottom gap — and those defaults come from `DockSpacing.comfortable` and
+        // `PanelLayoutMetrics` themselves, so this cannot drift into "Custom" on a fresh install again.
+        let style = DockStyle.matching(mode: .split3, barHeight: 54,
+                                       gap: DockSpacing.comfortable.gap,
+                                       margin: DockSpacing.comfortable.margin,
+                                       bottomGap: PanelLayoutMetrics.huggingBottomGap)
         XCTAssertEqual(style?.id, DockStyle.islands.id)
+        XCTAssertEqual(AppSettingsStore.defaultIslandGap, DockSpacing.comfortable.gap)
+        XCTAssertEqual(AppSettingsStore.defaultIslandMargin, DockSpacing.comfortable.margin)
+    }
+
+    /// Owner 2026-10-16: a style card must not lift the bar off the edge — every built-in hugs, the
+    /// way a fresh install and the one-shot migration (`forceNewLayoutDefaults`) already do.
+    func testEveryBuiltInHugsTheBottomEdge() {
+        for style in DockStyle.builtIns {
+            XCTAssertEqual(style.bottomGap, PanelLayoutMetrics.huggingBottomGap, "\(style.id) floats")
+        }
     }
 
     func testHandTunedValuesReadAsCustom() {
-        XCTAssertNil(DockStyle.matching(mode: .split3, barHeight: 54, gap: 9.5, margin: 12, bottomGap: 8))
-        XCTAssertNil(DockStyle.matching(mode: .split3, barHeight: 61, gap: 10, margin: 12, bottomGap: 8))
+        XCTAssertNil(DockStyle.matching(mode: .split3, barHeight: 54, gap: 9.5, margin: 10, bottomGap: 2))
+        // Hand-tuned height with otherwise fresh values: the height alone is enough to read Custom.
+        XCTAssertNil(DockStyle.matching(mode: .split3, barHeight: 61, gap: 8, margin: 10, bottomGap: 2))
     }
 
     func testSizeAndSpacingSteps() {

@@ -131,24 +131,46 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
 
     /// `animated` 只有切页路径传 true（顶边左边固定、底边动画到新页高度）。
     /// `present()` 与授权 sink 走默认 false——与一页式时代的行为一致。
-    private func resizeToFitKeepingTopEdge(animated: Bool = false) {
-        guard let window else { return }
-        // The probe must carry the same fixed width as the real window (`SettingsWindowView` puts
-        // `.frame(width:)` outside its ScrollView). `fittingSize` proposes no width, so without it
-        // every wrapping note measures single-line and the window comes up short by one line per
-        // note that wraps — invisible in English, 30–45pt of clipped content in German and French.
+    /// 一页的自然高度：与窗口自己量高走**同一段代码**，否则门禁量到的不是用户看到的。
+    ///
+    /// The probe must carry the same fixed width as the real window (`SettingsWindowView` puts
+    /// `.frame(width:)` outside its ScrollView). `fittingSize` proposes no width, so without it
+    /// every wrapping note measures single-line and the window comes up short by one line per
+    /// note that wraps — invisible in English, 30–45pt of clipped content in German and French.
+    private func naturalContentHeight(of state: SettingsTabState) -> CGFloat {
         let probe = NSHostingView(
             rootView: SettingsWindowContent(
                 store: store,
                 coordinator: coordinator,
-                tabState: tabState,
+                tabState: state,
                 onShowWelcomeGuide: onShowWelcomeGuide
             )
             .frame(width: SettingsWindowView.contentWidth)
         )
         probe.setFrameSize(NSSize(width: SettingsWindowView.contentWidth, height: 0))
         probe.layoutSubtreeIfNeeded()
-        let naturalHeight = probe.fittingSize.height
+        return probe.fittingSize.height
+    }
+
+    /// 十个标签页各自的自然高度，供 `SettingsPageHeightProbe`（门禁）用。
+    /// 自己一份 `SettingsTabState`：量高不能把用户正在看的页翻到别处。
+    func naturalPageHeights() -> [(tab: SettingsTab, height: CGFloat)] {
+        let probeState = SettingsTabState()
+        return SettingsTab.allCases.map { tab in
+            probeState.selected = tab
+            return (tab, naturalContentHeight(of: probeState))
+        }
+    }
+
+    /// 窗口量高时给内容留的上限（`visibleFrame − 80`，这台机器上 994）。窗口高度再被标题栏 + 工具栏
+    /// 的 88 pt 托上去，两者合起来就是「窗口 1074 pt」这个数。
+    var windowHeightClamp: CGFloat {
+        (preferredScreen()?.visibleFrame.height ?? 900) - 80
+    }
+
+    private func resizeToFitKeepingTopEdge(animated: Bool = false) {
+        guard let window else { return }
+        let naturalHeight = naturalContentHeight(of: tabState)
         let visibleHeight = preferredScreen()?.visibleFrame.height ?? 900
         // 下限 160：320 是一页式的地板，分页后最矮的「高级」页自然高不到它，硬撑会留一段空白。
         let contentHeight = max(160, min(naturalHeight, visibleHeight - 80))
@@ -198,6 +220,24 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
     private func preferredScreen() -> NSScreen? {
         let mouse = NSEvent.mouseLocation
         return NSScreen.screens.first { $0.frame.contains(mouse) } ?? window?.screen ?? NSScreen.main
+    }
+}
+
+/// `DOCK_SETTINGS_PAGE_HEIGHT=1`：量十个设置页的自然高度，逐行打印后退出。
+///
+/// 规则 10（`Docs/SETTINGS.md`）的机械检查：一页高过窗口就会滚动，窗口底下的设置要滚才看得到。量的是
+/// `SettingsWindowController` 给窗口量高的**同一条路径**（`naturalContentHeight`），不是另算一遍。
+/// 输出格式固定，`Scripts/check_settings_page_heights.py` 按行读：
+/// `SETTINGS_CLAMP <上限>` 与 `SETTINGS_PAGE <标签> <高度>`。
+@MainActor
+enum SettingsPageHeightProbe {
+    static func runIfRequested(on controller: SettingsWindowController) {
+        guard DebugSwitch.settingsPageHeight.isEnabled() else { return }
+        print(String(format: "SETTINGS_CLAMP %.1f", controller.windowHeightClamp))
+        for (tab, height) in controller.naturalPageHeights() {
+            print(String(format: "SETTINGS_PAGE %@ %.1f", tab.rawValue, height))
+        }
+        exit(0)
     }
 }
 

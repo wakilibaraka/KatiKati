@@ -416,6 +416,29 @@ final class ScreenRectReaderTests: XCTestCase {
 /// 气泡只有一个发送方，抢占在结构上不可能发生，那套判定连同用例一起删了；
 /// 缝隙与边界现在锁在 `StripHoverResolutionTests` 里。）
 final class ChipIconPitchTests: XCTestCase {
+    /// Phase 42b (owner: "the bottom dock and vertical docks should look similar for the app tray"):
+    /// a card is 40 × 54, so on a rail its long side would run *along* the tray and become distance
+    /// between icons — a 56 pt pitch where the bottom bar's is 42. With the square rail card the two
+    /// axes pack at one pitch, and that pitch is the stride the solver is told (`railChipStride`), the
+    /// widget tile beside them (`BarSection.railTileSize`) and the native Dock's own icon pitch.
+    func testRailTrayPitchEqualsTheBottomBar() {
+        for barHeight: CGFloat in [32, 54, 90] {
+            let scale = barHeight / 54
+            // The bottom bar lays the same card down the x axis, so its tray pitch is the card's
+            // **width**; a rail lays it down y, so its pitch is the frame height this change shrank.
+            let bottom = (ChipPillMetrics.cardWidth + ChipPillMetrics.chipSpacing) * scale
+            let rail = ChipPillMetrics.cardFrameHeight(scale, onRail: true) + IslandChrome.railChipSpacing * scale
+            XCTAssertEqual(rail, bottom, accuracy: 0.0001, "\(barHeight): one tray pitch on both axes")
+            XCTAssertEqual(rail, IslandChrome.railChipStride(barHeight: barHeight), accuracy: 0.0001,
+                           "\(barHeight): the pitch the view draws is the stride the solver sized with")
+            XCTAssertEqual(ChipPillMetrics.cardFrameHeight(scale, onRail: true),
+                           BarSection.railTileSize * scale, accuracy: 0.0001,
+                           "\(barHeight): a rail's app card is its widget tile, square")
+        }
+        XCTAssertEqual(ChipPillMetrics.cardFrameHeight(1, onRail: true), ChipPillMetrics.cardWidth)
+        XCTAssertEqual(ChipPillMetrics.cardFrameHeight(1, onRail: false), ChipPillMetrics.chipHeight)
+    }
+
     func testIconPitchMatchesTheNativeDock() {
         XCTAssertEqual(ChipPillMetrics.iconPitch, 42)
         XCTAssertEqual(ChipPillMetrics.iconPitch,

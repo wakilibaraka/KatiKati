@@ -395,7 +395,9 @@ enum PanelGeometry {
         centeredWidth: CGFloat = 720,
         gap: CGFloat = 8,
         margin: CGFloat = 12,
-        widgetLayout: WidgetLayout? = nil
+        widgetLayout: WidgetLayout? = nil,
+        tileStride: CGFloat? = nil,
+        contentInset: CGFloat = IslandChrome.contentInset
     ) -> CGRect {
         switch mode {
         case .windows:
@@ -428,19 +430,21 @@ enum PanelGeometry {
             )
 
         case .split3, .split4, .split5:
-            let tileStride = IslandLayoutSolver.tileStride(barHeight: metrics.panelHeight)
-            let appCount = max(1, Int((contentWidth / tileStride).rounded()))
+            // `tileStride` override = a rail's own pitch (`IslandChrome.railChipStride`): the bottom
+            // bar's 54 pt stride would drop a chip the rail has room for (Phase 41b).
+            let stride = tileStride ?? IslandLayoutSolver.tileStride(barHeight: metrics.panelHeight)
+            let appCount = max(1, Int((contentWidth / stride).rounded()))
             let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth
             
             // IslandLayoutSolver adds 24 to clusterWidth. 
             // We want appsWidth to be exactly (contentWidth + capsuleSpace).
-            let exactClusterWidth = contentWidth + capsuleSpace - (CGFloat(appCount) * tileStride) - 24
+            let exactClusterWidth = contentWidth + capsuleSpace - (CGFloat(appCount) * stride) - 24
             
             // The live caller passes the store's layout (Phase 11a, B9); the defaults read is the
             // fallback for callers without a store.
             let storedLayout = widgetLayout ?? Self.storedWidgetLayout()
             let fittedLayout = storedLayout.fitted(toBudget: WidgetLayout.widgetBudget(
-                screenWidth: screen.frame.width, margin: margin, gap: gap, tileStride: tileStride,
+                screenWidth: screen.frame.width, margin: margin, gap: gap, tileStride: stride,
                 mode: mode, order: storedLayout.visibleOrder, barHeight: metrics.panelHeight))
             let widgetWidths = fittedLayout.solverWidths()
             
@@ -449,7 +453,7 @@ enum PanelGeometry {
                 mode: mode,
                 widgetOrder: storedLayout.visibleOrder,
                 widgetWidths: widgetWidths,
-                tileStride: tileStride,
+                tileStride: stride,
                 appCount: appCount,
                 weatherWidth: BarSection.weather.defaultWidgetWidth,
                 clockWidth: BarSection.clock.defaultWidgetWidth, // Fixed default width for truncation
@@ -460,7 +464,9 @@ enum PanelGeometry {
                 bottomMargin: metrics.bottomGap,
                 centeredWidth: centeredWidth,
                 screenOriginX: screen.frame.minX,
-                screenMinY: screen.frame.minY
+                screenMinY: screen.frame.minY,
+                appsTrailingClearance: capsuleSpace,
+                contentInset: contentInset
             )
             guard slot < layout.islands.count else {
                 return dockTargetFrame(contentWidth: contentWidth, on: screen, placement: placement, metrics: metrics)
@@ -525,9 +531,9 @@ enum PanelGeometry {
         })
     }
 
-    /// Island window frame for any placement. `.bottom` is exactly `islandTargetFrame`; a rail folds
-    /// the mode (`StripPlacement.effectiveMode`), solves on the virtual screen with rail tiles, and
-    /// maps the result. `contentLength` is the measured main-axis length of this island's content.
+    /// Island window frame for any placement. `.bottom` is exactly `islandTargetFrame`; a rail solves
+    /// the mode as itself (Phase 41a) on the virtual screen with rail tiles, and maps the result.
+    /// `contentLength` is the measured main-axis length of this island's content.
     static func stripTargetFrame(
         slot: Int,
         contentLength: CGFloat,
@@ -548,10 +554,44 @@ enum PanelGeometry {
         let virtual = railVirtualScreen(on: screen, placement: stripPlacement)
         let layout = railWidgetLayout(widgetLayout ?? storedWidgetLayout())
         let solved = islandTargetFrame(slot: slot, contentWidth: contentLength,
-                                       mode: stripPlacement.effectiveMode(mode), on: virtual,
-                                       placement: .right, metrics: metrics, centeredWidth: centeredWidth,
-                                       gap: gap, margin: margin, widgetLayout: layout)
+                                       mode: mode, on: virtual,
+                                       placement: .right, metrics: metrics,
+                                       centeredWidth: centeredWidth,
+                                       gap: gap, margin: margin, widgetLayout: layout,
+                                       tileStride: IslandChrome.railChipStride(barHeight: metrics.panelHeight),
+                                       contentInset: IslandChrome.railContentInset)
         return railWindowFrame(solved, on: screen, placement: stripPlacement, metrics: metrics)
+    }
+
+    /// Length a rail's **apps** island fills (Phase 41b, owner: "maximise space use"). Fixed groups hug
+    /// the rail's ends, so a content-hugging apps island leaves dead space above and below it; the panel
+    /// takes the whole span between them instead. 0 on the bottom bar and in the single-island modes,
+    /// where the frame is already the authority.
+    ///
+    /// Solved by asking for more content than the rail can hold: the apps island then reports the span it
+    /// is *allowed* to fill, minus its own drawer-capsule slot — independent of what is on screen, so the
+    /// panel's measured-content feedback loop has a fixed point (`relayout` clamps to this).
+    static func railAppsFillLength(
+        mode: BarLayoutMode,
+        stripPlacement: StripPlacement,
+        on screen: PanelScreenGeometry,
+        metrics: PanelLayoutMetrics = .tungstenEdge,
+        centeredWidth: CGFloat = 720,
+        gap: CGFloat = 8,
+        margin: CGFloat = 12,
+        widgetLayout: WidgetLayout? = nil
+    ) -> CGFloat {
+        guard stripPlacement.isVertical, mode.isSplit else { return 0 }
+        let islands = BarSection.islands(for: mode)
+        guard let appsSlot = islands.firstIndex(where: { $0.contains(.apps) }) else { return 0 }
+        let length = StripAxis.mainLength(placement: stripPlacement, screen: screen.frame,
+                                          topInset: railTopInset(on: screen))
+        let filled = stripTargetFrame(slot: appsSlot, contentLength: length, mode: mode,
+                                      stripPlacement: stripPlacement, on: screen, metrics: metrics,
+                                      centeredWidth: centeredWidth, gap: gap, margin: margin,
+                                      widgetLayout: widgetLayout)
+        // A rail's main axis is the frame's height; the shadow padding is symmetric.
+        return max(0, filled.height - 2 * metrics.shadowPadding)
     }
 
     /// Capsule window for any placement: right of the bar on the bottom (honouring `drawerPlacement`),

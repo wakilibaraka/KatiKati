@@ -1796,8 +1796,11 @@ final class AppSettingsStoreTests: XCTestCase {
         // single centred island, not the modular three-island layout.
         XCTAssertEqual(store.barLayoutMode, .centered)
         XCTAssertEqual(store.centeredWidth, 720)
-        XCTAssertEqual(store.islandGap, 10)
-        XCTAssertEqual(store.islandMargin, 12)
+        // Phase 41c: the fresh-install gap/margin are the Comfortable card's own values.
+        XCTAssertEqual(store.islandGap, 8)
+        XCTAssertEqual(store.islandMargin, 10)
+        XCTAssertEqual(DockSpacing.matching(gap: store.islandGap, margin: store.islandMargin), .comfortable,
+                       "a fresh install must read as Comfortable, not Custom")
 
         store.setBarLayoutMode(.split3)
         XCTAssertEqual(store.barLayoutMode, .split3)

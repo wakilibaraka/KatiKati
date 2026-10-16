@@ -208,7 +208,7 @@ struct NotchDownloadsPageView: View {
                     Image(systemName: "point.3.connected.trianglepath.dotted")
                         .font(.system(size: 13, weight: .bold))
                         .foregroundStyle(.cyan)
-                    Text(verbatim: "TORRENT & LINK HUB")
+                    Text(verbatim: "TORRENT HUB")
                         .font(.system(size: 10, weight: .heavy, design: .monospaced))
                         .foregroundStyle(.white.opacity(0.8))
                 }
@@ -255,7 +255,9 @@ struct NotchDownloadsPageView: View {
                     Text(verbatim: "No Active Torrents")
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(.white.opacity(0.4))
-                    Text(verbatim: "Paste a magnet link or .torrent URL above")
+                    Text(verbatim: TorrentEngine.shared.isAvailable
+                         ? "Paste a magnet link or .torrent URL above"
+                         : "Install aria2 to download magnet links")
                         .font(.system(size: 9))
                         .foregroundStyle(.white.opacity(0.25))
                     Spacer()
@@ -321,7 +323,7 @@ struct NotchDownloadsPageView: View {
                 }
                 .buttonStyle(.plain)
 
-                if item.state == .active {
+                if item.state == .active || item.state == .initializing {
                     Button {
                         downloadService.pause(id: item.id)
                     } label: {
@@ -387,6 +389,14 @@ struct NotchDownloadsPageView: View {
                     }
                 }
             }
+
+            // Why the engine refused to go on (a dead swarm, a bad magnet): shown, not swallowed.
+            if case .failed(let reason) = item.state {
+                Text(verbatim: reason)
+                    .font(.system(size: 9))
+                    .foregroundStyle(.red.opacity(0.85))
+                    .lineLimit(1)
+            }
         }
         .padding(8)
         .background(
@@ -407,7 +417,7 @@ struct NotchDownloadsPageView: View {
                 TextField(
                     String(""),
                     text: $inputURLText,
-                    prompt: Text(verbatim: "Paste magnet: or https://")
+                    prompt: Text(verbatim: "Paste a magnet, .torrent or https:// link")
                 )
                 .textFieldStyle(.plain)
                 .font(.system(size: 10, design: .monospaced))
@@ -480,7 +490,9 @@ struct NotchDownloadsPageView: View {
                 withAnimation { successToast = nil }
             }
         } else {
-            inputError = "Invalid link: must be magnet: or valid URL"
+            inputError = text.lowercased().hasPrefix("magnet:") && !TorrentEngine.shared.isAvailable
+                ? "Install aria2 to download magnet links"
+                : "Only magnet, .torrent or http(s) links can be downloaded"
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                 withAnimation { inputError = nil }
             }

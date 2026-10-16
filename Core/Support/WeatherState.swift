@@ -30,17 +30,36 @@ public enum WeatherCondition: String, Codable, Sendable, CaseIterable {
 
     /// Legacy cached states predate the stored `condition`; recover the family from the SF Symbol
     /// the old payload carries, so an old cache still themes correctly instead of falling apart.
+    /// The night symbols (below) map back too, so a state that drew a moon still themes as its family.
     public init(symbolName: String) {
         switch symbolName {
-        case "sun.max.fill": self = .clear
-        case "cloud.sun.fill": self = .partlyCloudy
+        case "sun.max.fill", "moon.stars.fill": self = .clear
+        case "cloud.sun.fill", "cloud.moon.fill": self = .partlyCloudy
         case "cloud.fog.fill": self = .fog
         case "cloud.drizzle.fill": self = .drizzle
-        case "cloud.rain.fill": self = .rain
+        case "cloud.rain.fill", "cloud.moon.rain.fill": self = .rain
         case "cloud.snow.fill": self = .snow
         case "cloud.heavyrain.fill": self = .showers
-        case "cloud.bolt.rain.fill": self = .thunderstorm
+        case "cloud.bolt.rain.fill", "cloud.moon.bolt.fill": self = .thunderstorm
         default: self = .cloudy
+        }
+    }
+
+    /// The SF Symbol for this family at a time of day (Phase 46). The feed's own symbol is a *day*
+    /// symbol (Open-Meteo's WMO codes have no night art), so the widgets used to print a **sun** at
+    /// 3 a.m. — the detailed pod and the rail tile draw this instead. Families with no moon variant
+    /// (cloudy, fog, snow) answer the same symbol day and night, exactly as SF Symbols does.
+    public func symbolName(isNight: Bool) -> String {
+        switch self {
+        case .clear: return isNight ? "moon.stars.fill" : "sun.max.fill"
+        case .partlyCloudy: return isNight ? "cloud.moon.fill" : "cloud.sun.fill"
+        case .cloudy: return "cloud.fill"
+        case .fog: return "cloud.fog.fill"
+        case .drizzle: return isNight ? "cloud.moon.rain.fill" : "cloud.drizzle.fill"
+        case .rain: return isNight ? "cloud.moon.rain.fill" : "cloud.rain.fill"
+        case .snow: return "cloud.snow.fill"
+        case .showers: return isNight ? "cloud.moon.rain.fill" : "cloud.heavyrain.fill"
+        case .thunderstorm: return isNight ? "cloud.moon.bolt.fill" : "cloud.bolt.rain.fill"
         }
     }
 }
@@ -105,12 +124,22 @@ public struct WeatherState: Codable, Equatable, Sendable {
     public var latitude: Double?
     public var longitude: Double?
 
+    /// True once this state carries a real forecast (feed or cache). The chips draw their "no place
+    /// yet" state instead of a placeholder temperature while it is false.
+    public var hasData: Bool { detail != nil || !daily.isEmpty || !hourly.isEmpty }
+
     /// Always resolves: stored value, else inferred from the legacy symbol, else `.cloudy`.
     public var conditionFamily: WeatherCondition {
         condition ?? WeatherCondition(symbolName: symbolName)
     }
     /// Unknown day/night reads as day (the pre-4d payload only ever drew day symbols).
     public var isNight: Bool { isDay == false }
+
+    /// The glyph for a reading: this family's art at the reading's own time of day. The feed's
+    /// `symbolName` is day art only (Open-Meteo's WMO codes carry no night variant), so the widgets
+    /// printed a **sun** at 3 a.m. — every surface that draws a single condition now asks this
+    /// instead (Phase 46).
+    public var glyphName: String { conditionFamily.symbolName(isNight: isNight) }
 
     public init(
         cityName: String,
@@ -146,33 +175,9 @@ public struct WeatherState: Codable, Equatable, Sendable {
         self.longitude = longitude
     }
 
-    public static let defaultRome = WeatherState(
-        cityName: "Rome",
-        temperatureCelsius: 26,
-        conditionText: "Clear",
-        symbolName: "sun.max.fill",
-        highCelsius: 30,
-        lowCelsius: 18,
-        hourly: [],
-        daily: [
-            DailyForecast(date: "Thu", highCelsius: 30, lowCelsius: 20, symbolName: "cloud.rain.fill"),
-            DailyForecast(date: "Fri", highCelsius: 30, lowCelsius: 21, symbolName: "cloud.rain.fill"),
-            DailyForecast(date: "Sat", highCelsius: 30, lowCelsius: 19, symbolName: "cloud.rain.fill")
-        ],
-        isLive: false,
-        lastUpdated: Date(),
-        condition: .clear,
-        isDay: true,
-        latitude: 41.8933,
-        longitude: 12.4829
-    )
-
-    public var threeDayForecast: [DailyForecast] {
-        if daily.count >= 3 {
-            return Array(daily.prefix(3))
-        }
-        return Self.defaultRome.daily
-    }
+    /// The feed's next three days, and only those: a short or empty forecast shows fewer columns
+    /// instead of topping itself up from a canned city's numbers.
+    public var threeDayForecast: [DailyForecast] { Array(daily.prefix(3)) }
 
     public static let empty = WeatherState(
         cityName: "Loading...",

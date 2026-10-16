@@ -114,6 +114,29 @@ final class WeatherResponseParsingTests: XCTestCase {
         XCTAssertEqual(state.conditionText, "Clear sky")
     }
 
+    /// Phase 46: the widgets drew `symbolName`, which is *day* art whatever the hour — the pod
+    /// printed a sun at 03:40. `glyphName` is the family's art at the reading's own time of day.
+    func testGlyphFollowsTheReadingsTimeOfDay() {
+        func state(_ condition: WeatherCondition, isDay: Bool) -> WeatherState {
+            WeatherState(cityName: "Juja", temperatureCelsius: 16, conditionText: "Clear",
+                         symbolName: "sun.max.fill", highCelsius: 26, lowCelsius: 15,
+                         hourly: [], daily: [], isLive: true, lastUpdated: Date(),
+                         condition: condition, isDay: isDay)
+        }
+
+        XCTAssertEqual(state(.clear, isDay: false).glyphName, "moon.stars.fill")
+        XCTAssertEqual(state(.clear, isDay: true).glyphName, "sun.max.fill")
+        XCTAssertEqual(state(.partlyCloudy, isDay: false).glyphName, "cloud.moon.fill")
+        XCTAssertEqual(state(.rain, isDay: false).glyphName, "cloud.moon.rain.fill")
+        XCTAssertEqual(state(.thunderstorm, isDay: false).glyphName, "cloud.moon.bolt.fill")
+        XCTAssertEqual(state(.rain, isDay: true).glyphName, "cloud.rain.fill")
+        // Families SF Symbols gives no moon variant answer the same art, day or night.
+        XCTAssertEqual(state(.cloudy, isDay: false).glyphName, "cloud.fill")
+        XCTAssertEqual(state(.snow, isDay: false).glyphName, "cloud.snow.fill")
+        // A reading with no day/night flag (a pre-4d cache) keeps the day art it always drew.
+        XCTAssertEqual(state(.clear, isDay: true).symbolName, "sun.max.fill")
+    }
+
     /// The disk cache survives the 4d shape change: a payload written before `condition`/`isDay`
     /// existed still decodes, and the family is recovered from the old symbol instead of
     /// dropping the whole cached reading.

@@ -1,0 +1,51 @@
+ROLE COUNTS AXButton=15 AXCheckBox=5 AXGroup=3 AXPopUpButton=1 AXScrollArea=3 AXScrollBar=2 AXStaticText=16 AXTextArea=2 AXTextField=1 AXToolbar=1
+WINDOW 405 38 900 766
+AXStaticText	y    7.0 x  430.0    39.0 x  16.0  Tools
+AXButton	y    8.0 x    8.0    16.0 x  16.0  
+AXButton	y    8.0 x   31.0    16.0 x  16.0  
+AXButton	y    8.0 x   54.0    16.0 x  16.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXToolbar	y   32.0 x    0.0   900.0 x  56.0  
+AXButton	y   32.0 x  108.5    55.0 x  56.0  General
+AXButton	y   32.0 x  164.5    75.0 x  56.0  Appearance
+AXButton	y   32.0 x  240.5    55.5 x  56.0  Widgets
+AXButton	y   32.0 x  297.0    55.0 x  56.0  Notch
+AXButton	y   32.0 x  353.0    65.5 x  56.0  Edge Bars
+AXButton	y   32.0 x  419.5   125.0 x  56.0  Window Management
+AXButton	y   32.0 x  545.5    61.0 x  56.0  Launcher
+AXButton	y   32.0 x  607.5    63.0 x  56.0  Shortcuts
+AXButton	y   32.0 x  671.5    55.0 x  56.0  Tools
+AXButton	y   32.0 x  727.5    64.0 x  56.0  Advanced
+AXGroup	y   88.0 x    0.0   900.0 x 678.0  
+AXScrollArea	y   88.0 x    0.0   900.0 x 678.0  
+AXStaticText	y  102.0 x   42.0    63.5 x  16.0  Clipboard
+AXCheckBox	y  136.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y  140.0 x   42.0   116.5 x  16.0  Clean Copied Links
+AXCheckBox	y  177.0 x  396.0    54.0 x  24.0  0
+AXCheckBox	y  177.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y  181.0 x   42.0    80.5 x  16.0  Copy Sounds
+AXStaticText	y  181.0 x  450.0   112.0 x  16.0  Copy Notifications
+AXTextField	y  218.0 x  638.0   220.0 x  24.0  
+AXStaticText	y  222.0 x   42.0    93.0 x  16.0  Ignore Patterns
+AXStaticText	y  298.0 x   42.0   146.5 x  16.0  Commands & Snippets
+AXStaticText	y  332.0 x   42.0   119.0 x  16.0  Custom Commands
+AXScrollBar	y  350.0 x  840.0    19.0 x  62.0  0
+AXScrollArea	y  351.0 x   42.0   816.0 x  60.0  
+AXTextArea	y  351.0 x   42.0   816.0 x  60.0  Custom Commands
+AXStaticText	y  359.0 x   47.0   306.0 x  14.0  Custom Commands
+AXStaticText	y  428.0 x   42.0    82.5 x  16.0  Text Snippets
+AXScrollBar	y  446.0 x  840.0    19.0 x  62.0  0
+AXScrollArea	y  447.0 x   42.0   816.0 x  60.0  
+AXTextArea	y  447.0 x   42.0   816.0 x  60.0  Text Snippets
+AXStaticText	y  455.0 x   47.0   653.0 x  14.0  Text Snippets
+AXStaticText	y  563.0 x   42.0    34.0 x  16.0  Shelf
+AXCheckBox	y  597.0 x  396.0    54.0 x  24.0  1
+AXCheckBox	y  597.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y  601.0 x   42.0    87.5 x  16.0  Shake to Shelf
+AXStaticText	y  601.0 x  450.0    72.0 x  16.0  Auto-Expire
+AXPopUpButton	y  638.0 x  742.0   116.0 x  24.0  References
+AXStaticText	y  642.0 x   42.0    48.0 x  16.0  Storage
+AXButton	y  679.0 x   42.0   118.0 x  24.0  Clear Unpinned
+AXButton	y  720.0 x  752.5   105.5 x  24.0  Restore Dock
+AXStaticText	y  724.0 x   42.0    80.0 x  16.0  System Dock

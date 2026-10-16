@@ -33,6 +33,9 @@ struct LauncherChip: View {
     let scale: CGFloat
     /// Bar card or drawer grid cell. No default, same reason as `scale`.
     let layout: LauncherChipLayout
+    /// 侧边栏上这张卡是**方**的（Phase 42b）：主轴长度 = `cardWidth`，理由见
+    /// `ChipPillMetrics.cardFrameHeight`。**故意不给默认值**——漏传必须是编译错误。
+    let railTile: Bool
     /// 悬停效果档位。**同样故意不给默认值**——漏传必须是编译错误，理由同 `scale`。
     /// 抽屉调用处有意写死 `.quiet`（抽屉不受该设置影响，owner 2026-08-02 / 2026-08-17）。
     let hoverStyle: HoverStyle
@@ -236,7 +239,7 @@ struct LauncherChip: View {
                 Spacer(minLength: 0)
             }
             .frame(width: ChipPillMetrics.cardWidth * scale,
-                   height: ChipPillMetrics.chipHeight * scale)
+                   height: ChipPillMetrics.cardFrameHeight(scale, onRail: railTile))
             .overlay(alignment: runningDotEdge.alignment) {
                 runningDot(visual: visual, diameter: 4, edge: runningDotEdge)
             }

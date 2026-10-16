@@ -8,6 +8,9 @@ struct SettingsTilingPane: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var engine = TilingEngine.shared
     @State private var floatingAppsDraft: String = ""
+    /// The six tiling assignments start collapsed: they are 246 pt of a page that has to fit the
+    /// window, and the same run is collapsed on the Shortcuts page (measured live 2026-10-15).
+    @State private var showsTilingShortcuts = false
 
     var body: some View {
         // One card, not four. Window Management carried **six** sections — Tiling, Layout, Floating
@@ -77,44 +80,51 @@ struct SettingsTilingPane: View {
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 1))
 
                 SettingsDivider()
-                Text("Tiling Shortcuts")
-                    .font(.subheadline)
-                let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
-                let tilingActions: [ShortcutAction] = [
-                    .toggleTiling,
-                    .cycleTilingLayout,
-                    .tilingFocusNext,
-                    .tilingFocusPrevious,
-                    .tilingSwapNext,
-                    .tilingSwapPrevious
-                ]
-                // One per line, like the Shortcuts page: an assignment is a name, a menu and a
-                // Record button, and three controls do not fit half a card (rule 5's
-                // exception; measured live 2026-10-15).
-                ForEach(tilingActions, id: \.self) { action in
-                    SettingsRow(shortcutActionTitle(action)) {
-                        HStack(spacing: SettingsMetrics.controlSpacing) {
-                            if duplicated.contains(action) {
-                                Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                                    .help(Text("Another action uses the same shortcut"))
-                            }
-                            Picker(selection: Binding(
-                                get: { store.shortcutBindings[action] ?? .off },
-                                set: { store.setShortcut(action, $0) }
-                            )) {
-                                Text("Off").tag(ShortcutTrigger.off)
-                                Divider()
-                                ForEach(ShortcutChord.allCases, id: \.self) { Text(verbatim: $0.glyphs).tag(ShortcutTrigger.chord($0)) }
-                                Divider()
-                                if case let .key(custom) = store.shortcutBindings[action] ?? .off {
-                                    Text(verbatim: custom.glyphs).tag(ShortcutTrigger.key(custom))
-                                    Divider()
-                                }
-                            } label: { EmptyView() }
-                            .pickerStyle(.menu).fixedSize()
-                            ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
-                        }
+                DisclosureGroup(isExpanded: $showsTilingShortcuts) {
+                    tilingShortcutRows
+                } label: {
+                    Text("Tiling Shortcuts").font(.subheadline)
+                }
+            }
+        }
+    }
+
+    /// The six tiling assignments, one per line, like the Shortcuts page: an assignment is a name, a
+    /// menu and a Record button, and three controls do not fit half a card (rule 5's exception;
+    /// measured live 2026-10-15). The run is collapsed by default so the page fits the window.
+    @ViewBuilder
+    private var tilingShortcutRows: some View {
+        let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
+        let tilingActions: [ShortcutAction] = [
+            .toggleTiling,
+            .cycleTilingLayout,
+            .tilingFocusNext,
+            .tilingFocusPrevious,
+            .tilingSwapNext,
+            .tilingSwapPrevious
+        ]
+        ForEach(tilingActions, id: \.self) { action in
+            SettingsRow(shortcutActionTitle(action)) {
+                HStack(spacing: SettingsMetrics.controlSpacing) {
+                    if duplicated.contains(action) {
+                        Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                            .help(Text("Another action uses the same shortcut"))
                     }
+                    Picker(selection: Binding(
+                        get: { store.shortcutBindings[action] ?? .off },
+                        set: { store.setShortcut(action, $0) }
+                    )) {
+                        Text("Off").tag(ShortcutTrigger.off)
+                        Divider()
+                        ForEach(ShortcutChord.allCases, id: \.self) { Text(verbatim: $0.glyphs).tag(ShortcutTrigger.chord($0)) }
+                        Divider()
+                        if case let .key(custom) = store.shortcutBindings[action] ?? .off {
+                            Text(verbatim: custom.glyphs).tag(ShortcutTrigger.key(custom))
+                            Divider()
+                        }
+                    } label: { EmptyView() }
+                    .pickerStyle(.menu).fixedSize()
+                    ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
                 }
             }
         }

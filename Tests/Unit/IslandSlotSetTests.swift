@@ -137,13 +137,15 @@ final class IslandSlotSetTests: XCTestCase {
         }
     }
 
-    /// Phase 18: a display whose strip is a side rail renders split5 as three islands.
-    func testPerDisplayModeOverrideChangesThatDisplaysSlotCount() {
-        let slots = IslandSlotSet.desiredSlots(
-            placement: .allScreensPerDisplay, connectedKeys: ["A", "B"], mode: .split5,
-            modeForDisplay: { $0 == "B" ? StripPlacement.left.effectiveMode(.split5) : .split5 })
-        XCTAssertEqual(slots.filter { $0.display == "A" }.count, 5)
-        XCTAssertEqual(slots.filter { $0.display == "B" }.count, 3)
+    /// Phase 41a: a side rail renders the mode as itself, so a per-display placement change no longer
+    /// changes that display's slot count — every display in a mode gets `mode.slotCount` slots.
+    func testPerDisplayRailKeepsTheModesSlotCount() {
+        for mode in BarLayoutMode.allCases {
+            let slots = IslandSlotSet.desiredSlots(
+                placement: .allScreensPerDisplay, connectedKeys: ["A", "B"], mode: mode)
+            XCTAssertEqual(slots.filter { $0.display == "A" }.count, mode.slotCount, "\(mode)")
+            XCTAssertEqual(slots.filter { $0.display == "B" }.count, mode.slotCount, "\(mode)")
+        }
     }
 }
 

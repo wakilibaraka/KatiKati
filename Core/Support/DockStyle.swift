@@ -27,7 +27,9 @@ enum DockSpacing: String, CaseIterable, Codable, Sendable {
     var gap: CGFloat {
         switch self {
         case .compact: return 4
-        case .comfortable: return 10
+        // Phase 41c (owner: "reduce gaps in all modes"): Comfortable was 10/12. Compact and Airy
+        // keep their own values, so "roomier" stays a reachable choice.
+        case .comfortable: return 8
         case .airy: return 18
         }
     }
@@ -35,7 +37,7 @@ enum DockSpacing: String, CaseIterable, Codable, Sendable {
     var margin: CGFloat {
         switch self {
         case .compact: return 6
-        case .comfortable: return 12
+        case .comfortable: return 10
         case .airy: return 24
         }
     }
@@ -72,20 +74,26 @@ struct DockStyle: Equatable, Identifiable, Sendable {
         }
     }
 
+    // Every built-in hugs the bottom edge (owner 2026-10-16: hugging is the default, not floating).
+    // The presets used to write the 8 pt floating gap, so picking one — or accepting the welcome
+    // guide's pre-selected Islands — lifted a bar the fresh install sits on the edge. The gap stays a
+    // free control in Fine-tune (Bottom Edge + Distance From Edge); only the built-ins agree with the
+    // default now.
     static let islands = DockStyle(id: "style.islands", mode: .split3, size: .medium, spacing: .comfortable,
-                                   bottomGap: PanelLayoutMetrics.floatingBottomGap, widgetPresetID: nil)
+                                   bottomGap: PanelLayoutMetrics.huggingBottomGap, widgetPresetID: nil)
     static let classic = DockStyle(id: "style.classic", mode: .centered, size: .medium, spacing: .comfortable,
-                                   bottomGap: PanelLayoutMetrics.floatingBottomGap, widgetPresetID: nil)
+                                   bottomGap: PanelLayoutMetrics.huggingBottomGap, widgetPresetID: nil)
     static let wide = DockStyle(id: "style.wide", mode: .windows, size: .small, spacing: .compact,
                                 bottomGap: PanelLayoutMetrics.huggingBottomGap, widgetPresetID: nil)
     // No built-in applies a widget preset: a style that hid widgets left them hidden after switching
     // to another style (live check 11g) — widgets, like the theme, stay the user's own choice.
     static let minimal = DockStyle(id: "style.minimal", mode: .centered, size: .small, spacing: .compact,
-                                   bottomGap: PanelLayoutMetrics.floatingBottomGap, widgetPresetID: nil)
+                                   bottomGap: PanelLayoutMetrics.huggingBottomGap, widgetPresetID: nil)
 
-    /// Mode-aware rail on the left edge (owner decision 1): three stacked islands, compact tiles.
+    /// Rail on the left edge, in Split 3: three stacked islands with compact tiles. (Phase 41a made
+    /// every mode available on a rail, so this is now a plain style choice, not a special case.)
     static let sideRail = DockStyle(id: "style.sideRail", mode: .split3, size: .medium, spacing: .comfortable,
-                                    bottomGap: PanelLayoutMetrics.floatingBottomGap, widgetPresetID: nil,
+                                    bottomGap: PanelLayoutMetrics.huggingBottomGap, widgetPresetID: nil,
                                     placement: .left)
 
     /// Card order in Settings and the welcome guide. Islands first: it is the fresh-install look.

@@ -50,17 +50,15 @@ enum IslandSlotSet {
     /// and layout mode.
     ///
     /// Expands each display key from `TaskbarDisplaySet.desiredUnitKeys` across `0..<mode.slotCount`.
-    /// `modeForDisplay` lets a display render a different effective mode — a side rail folds
-    /// split4/5 into split3 (Phase 18, `StripPlacement.effectiveMode`). Default: `mode` everywhere.
+    /// Every display renders the same mode, rail or not (Phase 41a removed the per-display fold).
     static func desiredSlots(
         placement: TaskbarScreenPlacement,
         connectedKeys: [String],
-        mode: BarLayoutMode,
-        modeForDisplay: ((String?) -> BarLayoutMode)? = nil
+        mode: BarLayoutMode
     ) -> [SlotKey] {
         let displayKeys = TaskbarDisplaySet.desiredUnitKeys(placement: placement, connectedKeys: connectedKeys)
         return displayKeys.flatMap { display in
-            (0..<max(1, (modeForDisplay?(display) ?? mode).slotCount)).map { slot in
+            (0..<max(1, mode.slotCount)).map { slot in
                 SlotKey(display: display, slot: slot)
             }
         }

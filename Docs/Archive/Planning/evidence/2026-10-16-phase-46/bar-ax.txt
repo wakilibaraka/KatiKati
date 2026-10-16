@@ -1,0 +1,54 @@
+screen (0.0, 0.0, 1710.0, 1112.0)
+AXWindow	y=1063	x=6	271x47	
+AXWindow	y=1043	x=-14	311x87	
+AXGroup	y=1043	x=-14	311x87	
+AXScrollArea	y=1063	x=6	271x47	
+AXImage	y=1080	x=214	12x12	Drizzle
+AXImage	y=1080	x=175	12x12	Drizzle
+AXImage	y=1080	x=135	12x12	Drizzle
+AXImage	y=1070	x=91	11x12	Clear Night
+AXStaticText	y=1065	x=60	26x20	15°
+AXWindow	y=1063	x=354	947x47	
+AXWindow	y=1043	x=334	987x87	
+AXGroup	y=1043	x=334	987x87	
+AXScrollArea	y=1063	x=354	947x47	
+AXButton	y=1078	x=1257	15x15	Forward
+AXButton	y=1076	x=1233	19x19	Play
+AXButton	y=1078	x=1213	15x15	Back
+AXImage	y=1072	x=1096	27x27	
+AXImage	y=1063	x=1030	47x47	Trash
+AXImage	y=1077	x=997	28x21	
+AXImage	y=1072	x=1002	18x26	
+AXImage	y=1071	x=1003	16x22	
+AXImage	y=1063	x=951	35x47	
+AXImage	y=1063	x=914	35x47	
+AXImage	y=1063	x=878	35x47	
+AXImage	y=1063	x=841	35x47	
+AXImage	y=1063	x=805	35x47	
+AXImage	y=1063	x=768	35x47	
+AXImage	y=1063	x=732	34x47	
+AXImage	y=1063	x=695	34x47	
+AXImage	y=1063	x=659	34x47	
+AXImage	y=1063	x=622	35x47	
+AXImage	y=1063	x=585	35x47	
+AXImage	y=1063	x=549	35x47	
+AXImage	y=1063	x=512	35x47	
+AXImage	y=1063	x=476	35x47	
+AXImage	y=1063	x=439	34x47	
+AXImage	y=1063	x=360	35x47	
+AXWindow	y=1043	x=1288	87x87	
+AXGroup	y=1043	x=1288	87x87	
+AXUnknown	y=1086	x=1331	43x43	
+AXUnknown	y=1086	x=1288	43x43	
+AXUnknown	y=1043	x=1331	43x43	
+AXStaticText	y=1071	x=1316	30x30	65
+AXUnknown	y=1043	x=1288	43x43	
+AXWindow	y=1063	x=1450	254x47	
+AXWindow	y=1043	x=1430	294x87	
+AXGroup	y=1043	x=1430	294x87	
+AXScrollArea	y=1063	x=1450	254x47	
+AXImage	y=1069	x=1640	35x35	Wi-Fi
+AXStaticText	y=1075	x=1515	17x13	:40
+AXStaticText	y=1071	x=1467	46x18	04:27
+AXWindow	y=100000	x=-100000	1710x1112	
+walked 80 elements

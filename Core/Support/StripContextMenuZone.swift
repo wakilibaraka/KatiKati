@@ -11,8 +11,10 @@ import Foundation
 /// （而不是那个 app 自己的菜单）比什么都不弹更糟。代价是窄缝右键完全没反应，这是已知取舍。
 ///
 /// 两种缝靠宽度分辨：分割线两侧的空当是
-/// `2(HStack 间距) + 9(1pt 发丝线 + 左右各 4pt 内边距) + 2(HStack 间距) = 13pt`（`dividerGapWidth`），
+/// `2(HStack 间距) + 5(1pt 发丝线 + 左右各 2pt 内边距) + 2(HStack 间距) = 9pt`（`dividerGapWidth`），
 /// 普通 chip 间距只有 `2pt`；阈值取两者之间即可，且随档位一起缩放。
+/// 2026-10-15（Phase 41c，owner「reduce gaps in all modes」）：分割线缝从 13pt 收到 9pt，
+/// 阈值 5pt 仍在两者之间；抓取把手的 2.5pt 净空也仍小于半缝（32pt 档为 2.67pt），把手不会消失。
 ///
 /// **阈值必须严格落在两者之间，改 `Style.chipSpacing` 就要同步改它。**
 /// 2026-08-16 图标间距对齐原生 Dock（中心间距 52→42pt，`chipSpacing` 8→2）时，
@@ -57,8 +59,8 @@ enum StripContextMenuZone {
 
     /// Native-tier width of the gap around a zone divider, chip edge to chip edge: the 1pt
     /// hairline, its side padding and one `chipSpacing` each side. `DockStripView` derives the
-    /// divider's padding from it.
-    static let dividerGapWidth: CGFloat = 13
+    /// divider's padding from it — 9pt since Phase 41c (was 13), so `2 + (2+1+2) + 2 = 9`.
+    static let dividerGapWidth: CGFloat = 9
 
     /// Native-tier clearance the drag-to-resize grip keeps from every chip. Callers pass
     /// `defaultGripChipClearance * scale`. 2.5pt leaves an 8pt band in the divider gap: the ▲▼

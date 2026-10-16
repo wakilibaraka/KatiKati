@@ -1,0 +1,19 @@
+Phase 46 — the weather island's plate, measured from the live screen (2026-10-16 04:2x).
+Reader: sips BMP is BGRx (masks R=FF0000 G=FF00 B=FF, file spells 'BGRs'), so bytes are read B,G,R.
+Islands from CGWindowList, in points, 2x capture: weather x6..277 y1063..1110 · apps x354..1301 · clock x1450..1704.
+
+A/B: same screen, same reading, only com.katikati.weather.chipPreset changed, app relaunched each time.
+
+  detailedGlass  weather mean RGB (49,50,64)    sky pixels 0%    <- dock plate, same as the clock island (49,53,64)
+  detailed       weather mean RGB (86,90,164)   sky pixels 64%   <- the reading's own sky (WeatherArt night-clear 72,105,240 -> 128,114,228)
+
+The neighbours do not move: apps (75,86,96) and clock (49,53,64) in both frames.
+
+The two pill presets, measured the same way over the leftmost island strip (x 0..700 pt, y 1063..1110),
+where the pill is narrower than the island the pod fills:
+
+  classic        mean RGB (69,81,106)   sky-family 23%   AX content rendered: "Clear sky" + "15"
+  classicGlass   mean RGB (59,70,78)    sky-family  4%   AX content rendered: "Clear sky" + "15"
+
+Both show the reading's condition and temperature, so neither preset is a blank plate; only the plate
+differs. The island's own window is 271x47 pt in all four runs.

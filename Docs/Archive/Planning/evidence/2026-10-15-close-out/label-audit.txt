@@ -1,0 +1,86 @@
+PAGE	General
+CHECKBOX	y=261	value=0	name=Reverse mouse scroll direction	help=—
+CHECKBOX	y=642	value=1	name=Check for updates automatically	help=—
+PAGE	Appearance
+CHECKBOX	y=1168	value=1	name=Dynamic Wallpaper	help=—
+CHECKBOX	y=1370	value=1	name=Tint Dock by Time of Day	help=—
+PAGE	Widgets
+CHECKBOX	y=177	value=0	name=Glass	help=—
+CHECKBOX	y=259	value=1	name=Show Notes Widget	help=—
+CHECKBOX	y=259	value=1	name=Show Stopwatch & Countdown	help=—
+CHECKBOX	y=300	value=0	name=Keep Both Widgets Open	help=—
+CHECKBOX	y=609	value=1	name=Weather Animations	help=—
+CHECKBOX	y=1114	value=0	name=Context Presets	help=—
+PAGE	Notch
+CHECKBOX	y=347	value=1	name=Dock Island	help=Shows the Live Island capsule on the dock.
+CHECKBOX	y=388	value=1	name=Notch Island	help=Shows or hides the Live Island at the top of the screen.
+CHECKBOX	y=511	value=1	name=System Banners	help=Also show Live Island alerts as macOS notifications.
+CHECKBOX	y=648	value=0	name=Hide from Screen Capture	help=—
+CHECKBOX	y=689	value=1	name=Caps Lock Indicator	help=—
+CHECKBOX	y=730	value=1	name=Charge Notices	help=—
+CHECKBOX	y=828	value=1	name=Offer to Eject Drives	help=—
+CHECKBOX	y=869	value=0	name=Camera and Mic Indicator	help=—
+CHECKBOX	y=967	value=1	name=Teleprompter Notch Page	help=—
+PAGE	Edge Bars
+CHECKBOX	y=218	value=0	name=Keep Edge Bars Open	help=—
+CHECKBOX	y=670	value=1	name=Magnify Buttons Under the Pointer	help=—
+CHECKBOX	y=790	value=1	name=Open Only on Click	help=—
+CHECKBOX	y=790	value=1	name=Show Button Names on Hover	help=—
+CHECKBOX	y=830	value=1	name=Preview Notes on Hover	help=—
+CHECKBOX	y=830	value=1	name=Open Notes on Hover	help=—
+CHECKBOX	y=910	value=0	name=Sync Notes with iCloud Drive	help=—
+CHECKBOX	y=351	value=1	name=Weather	help=—
+CHECKBOX	y=351	value=1	name=Now Playing	help=—
+CHECKBOX	y=375	value=1	name=Bluetooth	help=—
+CHECKBOX	y=375	value=1	name=System	help=—
+PAGE	Window Management
+CHECKBOX	y=136	value=1	name=Enable Auto-Tiling	help=—
+CHECKBOX	y=800	value=1	name=Show All Running Apps	help=—
+CHECKBOX	y=800	value=1	name=Hover Preview	help=—
+CHECKBOX	y=968	value=1	name=Classic Right-Click Menu	help=—
+CHECKBOX	y=1056	value=1	name=Option-Tab Window Switcher	help=—
+CHECKBOX	y=1056	value=1	name=Restore Window Layout After Sleep	help=—
+PAGE	Launcher
+CHECKBOX	y=966	value=1	name=Script Commands	help=—
+CHECKBOX	y=966	value=1	name=Show Command Hints	help=—
+CHECKBOX	y=1007	value=1	name=Fast File Index	help=—
+CHECKBOX	y=599	value=1	name=Network	help=—
+CHECKBOX	y=599	value=1	name=Battery	help=—
+CHECKBOX	y=623	value=1	name=Batteries	help=—
+CHECKBOX	y=668	value=1	name=Dark Mode	help=—
+CHECKBOX	y=668	value=1	name=Keep Awake	help=—
+CHECKBOX	y=692	value=1	name=Hide Desktop	help=—
+CHECKBOX	y=692	value=1	name=Hidden Files	help=—
+CHECKBOX	y=716	value=1	name=Dock Auto-hide	help=—
+CHECKBOX	y=716	value=1	name=Path Bar	help=—
+CHECKBOX	y=741	value=1	name=Mute Mic	help=—
+CHECKBOX	y=741	value=1	name=Empty Trash	help=—
+CHECKBOX	y=765	value=1	name=Eject Disks	help=—
+CHECKBOX	y=765	value=1	name=Wi-Fi	help=—
+CHECKBOX	y=790	value=1	name=Bluetooth	help=—
+CHECKBOX	y=790	value=1	name=Night Shift	help=—
+CHECKBOX	y=814	value=1	name=True Tone	help=—
+CHECKBOX	y=814	value=1	name=VPN	help=—
+CHECKBOX	y=838	value=1	name=Screen Saver	help=—
+CHECKBOX	y=838	value=1	name=Lock Screen	help=—
+CHECKBOX	y=863	value=1	name=Relaunch Finder	help=—
+CHECKBOX	y=863	value=1	name=Screen Mirroring	help=—
+PAGE	Shortcuts
+CHECKBOX	y=1417	value=1	name=Use Caps Lock as Hyper Key	help=—
+CHECKBOX	y=1498	value=0	name=Pause Keyboard	help=—
+CHECKBOX	y=1539	value=0	name=Hold ⌘Q to Quit	help=—
+CHECKBOX	y=1580	value=0	name=Show Keys You Type	help=—
+CHECKBOX	y=1621	value=1	name=Open Launcher with Pinch	help=—
+CHECKBOX	y=1775	value=1	name=Enable Radial Dial	help=—
+PAGE	Tools
+CHECKBOX	y=136	value=0	name=Clean Copied Links	help=—
+CHECKBOX	y=177	value=0	name=Copy Sounds	help=—
+CHECKBOX	y=177	value=0	name=Copy Notifications	help=—
+CHECKBOX	y=597	value=1	name=Shake to Shelf	help=—
+CHECKBOX	y=597	value=0	name=Auto-Expire	help=—
+PAGE	Advanced
+CHECKBOX	y=136	value=1	name=Predict full-screen transitions to prevent taskbar flicker	help=—
+CHECKBOX	y=177	value=1	name=Hold Control to Show Memory	help=—
+CHECKBOX	y=234	value=0	name=Show System Helpers	help=—
+CHECKBOX	y=347	value=0	name=Show CPU and Memory in the Menu Bar	help=—
+CHECKBOX	y=477	value=0	name=Move Notification Banners	help=—

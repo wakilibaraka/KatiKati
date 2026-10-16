@@ -3,7 +3,7 @@ import XCTest
 
 final class StripContextMenuZoneTests: XCTestCase {
     /// 中档基线的一条典型任务条：内缩 20pt，chip 40 宽、间距 2pt，
-    /// 第 2、3 个 chip 之间夹一条分割线（多占 9pt，缝宽 13pt）。
+    /// 第 2、3 个 chip 之间夹一条分割线（多占 5pt，缝宽 9pt）。
     ///
     /// 数字取自真实布局（`ChipPillMetrics.cardWidth` / `Style.chipSpacing`），
     /// 但**这里刻意写成字面值**：这组夹具是给纯函数喂的输入，写成引用就会跟着实现一起变，
@@ -13,7 +13,7 @@ final class StripContextMenuZoneTests: XCTestCase {
     private let chips: [CGRect] = [
         CGRect(x: 20, y: 0, width: 40, height: 54),    // 20...60
         CGRect(x: 62, y: 0, width: 40, height: 54),    // 62...102 （与上一个间隔 2pt）
-        CGRect(x: 115, y: 0, width: 40, height: 54),   // 115...155（与上一个间隔 13pt：分割线）
+        CGRect(x: 111, y: 0, width: 40, height: 54),   // 111...151（与上一个间隔 9pt：分割线）
     ]
     private let gap = StripContextMenuZone.defaultMinimumGapWidth
 
@@ -35,8 +35,8 @@ final class StripContextMenuZoneTests: XCTestCase {
     }
 
     func testDividerGapClaims() {
-        // 缝是 102...115，正中 108.5。
-        XCTAssertTrue(claims(x: 108))
+        // 缝是 102...111，正中 106.5。
+        XCTAssertTrue(claims(x: 106))
     }
 
     /// 这一条是本次改动的**目的**：瞄图标差几 pt 落进窄缝时，宁可没反应，
@@ -107,10 +107,10 @@ final class StripContextMenuZoneTests: XCTestCase {
             )
         }
     }
-    /// The fixtures above hard-code the 13pt divider gap; this fails when the layout constant
+    /// The fixtures above hard-code the 9pt divider gap; this fails when the layout constant
     /// moves without them.
     func testDividerGapWidthMatchesTheFixtures() {
-        XCTAssertEqual(StripContextMenuZone.dividerGapWidth, 13)
+        XCTAssertEqual(StripContextMenuZone.dividerGapWidth, 9)
         XCTAssertEqual(chips[2].minX - chips[1].maxX, StripContextMenuZone.dividerGapWidth)
     }
 
@@ -126,15 +126,15 @@ final class StripContextMenuZoneTests: XCTestCase {
         )
     }
 
-    /// The divider gap is 102...115; the grip keeps 2.5pt off each chip, leaving 104.5...112.5.
+    /// The divider gap is 102...111; the grip keeps 2.5pt off each chip, leaving 104.5...108.5.
     func testGripClaimsOnlyTheMiddleOfTheDividerGap() {
-        XCTAssertTrue(gripClaims(x: 108.5))
+        XCTAssertTrue(gripClaims(x: 106.5))
         XCTAssertTrue(gripClaims(x: 105))
-        XCTAssertTrue(gripClaims(x: 112))
+        XCTAssertTrue(gripClaims(x: 108))
         XCTAssertFalse(gripClaims(x: 103), "next to the left icon")
-        XCTAssertFalse(gripClaims(x: 114), "next to the right icon")
+        XCTAssertFalse(gripClaims(x: 110), "next to the right icon")
         XCTAssertTrue(claims(x: 103), "right-click keeps the full gap")
-        XCTAssertTrue(claims(x: 114), "right-click keeps the full gap")
+        XCTAssertTrue(claims(x: 110), "right-click keeps the full gap")
     }
 
     /// With a divider on the bar the grip lives in its gap alone; right-click keeps the ends.

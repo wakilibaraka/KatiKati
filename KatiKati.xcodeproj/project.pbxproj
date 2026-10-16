@@ -265,11 +265,19 @@
 		FA33A0000000000000000143 /* DownloadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000141 /* DownloadItem.swift */; };
 		FA33A0000000000000000152 /* DownloadManagerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000151 /* DownloadManagerService.swift */; };
 		FA33A0000000000000000153 /* DownloadManagerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000151 /* DownloadManagerService.swift */; };
+		FA33A00000000000000001B2 /* Aria2RPC.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000001B1 /* Aria2RPC.swift */; };
+		FA33A00000000000000001B3 /* Aria2RPC.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000001B1 /* Aria2RPC.swift */; };
+		FA33A00000000000000001D2 /* PlayerAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000001D1 /* PlayerAccess.swift */; };
+		FA33A00000000000000001D3 /* PlayerAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000001D1 /* PlayerAccess.swift */; };
+		FA33A00000000000000001C2 /* TorrentEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000001C1 /* TorrentEngine.swift */; };
+		FA33A00000000000000001C3 /* TorrentEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000001C1 /* TorrentEngine.swift */; };
 		FA33A0000000000000000162 /* NotchDownloadsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000161 /* NotchDownloadsPageView.swift */; };
 		FA33A0000000000000000172 /* DownloadManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000171 /* DownloadManagerTests.swift */; };
 		7B500000000000000000010D /* NowPlayingProgressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010E /* NowPlayingProgressTests.swift */; };
 		7B500000000000000000010A /* NowPlayingProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010C /* NowPlayingProgress.swift */; };
 		7B500000000000000000010B /* NowPlayingProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010C /* NowPlayingProgress.swift */; };
+		7B50000000000000000001F3 /* AppleScriptNowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000001F5 /* AppleScriptNowPlaying.swift */; };
+		7B50000000000000000001F4 /* AppleScriptNowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000001F5 /* AppleScriptNowPlaying.swift */; };
 		7B5000000000000000000108 /* LiveEventBannerPoster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000109 /* LiveEventBannerPoster.swift */; };
 		7B50000000000000000000B2 /* LiveEventCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000000B1 /* LiveEventCenter.swift */; };
 		7B50000000000000000000B4 /* LiveEventPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000000B3 /* LiveEventPresentation.swift */; };
@@ -1232,10 +1240,14 @@
 		FA33A0000000000000000131 /* NotchFallbackPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchFallbackPlanTests.swift; path = Tests/Unit/NotchFallbackPlanTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000141 /* DownloadItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadItem.swift; path = Core/Support/DownloadManager/DownloadItem.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000151 /* DownloadManagerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadManagerService.swift; path = App/Composition/DownloadManagerService.swift; sourceTree = SOURCE_ROOT; };
+		FA33A00000000000000001B1 /* Aria2RPC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Aria2RPC.swift; path = Core/Support/Aria2RPC.swift; sourceTree = SOURCE_ROOT; };
+		FA33A00000000000000001D1 /* PlayerAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlayerAccess.swift; path = Core/Support/PlayerAccess.swift; sourceTree = SOURCE_ROOT; };
+		FA33A00000000000000001C1 /* TorrentEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TorrentEngine.swift; path = App/Composition/TorrentEngine.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000161 /* NotchDownloadsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchDownloadsPageView.swift; path = App/Scenes/Notch/NotchDownloadsPageView.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000171 /* DownloadManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadManagerTests.swift; path = Tests/Unit/DownloadManagerTests.swift; sourceTree = SOURCE_ROOT; };
 		7B500000000000000000010E /* NowPlayingProgressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingProgressTests.swift; path = Tests/Unit/NowPlayingProgressTests.swift; sourceTree = SOURCE_ROOT; };
 		7B500000000000000000010C /* NowPlayingProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingProgress.swift; path = Core/Support/NowPlayingProgress.swift; sourceTree = SOURCE_ROOT; };
+		7B50000000000000000001F5 /* AppleScriptNowPlaying.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppleScriptNowPlaying.swift; path = Core/Support/AppleScriptNowPlaying.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000109 /* LiveEventBannerPoster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveEventBannerPoster.swift; path = App/Composition/LiveEventBannerPoster.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000000000B1 /* LiveEventCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveEventCenter.swift; path = App/Composition/LiveEventCenter.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000000000B3 /* LiveEventPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveEventPresentation.swift; path = App/Composition/LiveEventPresentation.swift; sourceTree = SOURCE_ROOT; };
@@ -3010,6 +3022,7 @@
 				7B50000000000000000000F2 /* LiveEventDetector.swift in Sources */,
 				7B5000000000000000000101 /* LiveSurfaceRouting.swift in Sources */,
 				7B500000000000000000010A /* NowPlayingProgress.swift in Sources */,
+				7B50000000000000000001F3 /* AppleScriptNowPlaying.swift in Sources */,
 				7B50000000000000000000B2 /* LiveEventCenter.swift in Sources */,
 				7B5000000000000000000262 /* RecentlyClosedStore.swift in Sources */,
 				7B5000000000000000000242 /* RecentlyClosedList.swift in Sources */,
@@ -3053,6 +3066,9 @@
 				FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000142 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000152 /* DownloadManagerService.swift in Sources */,
+				FA33A00000000000000001B2 /* Aria2RPC.swift in Sources */,
+				FA33A00000000000000001D2 /* PlayerAccess.swift in Sources */,
+				FA33A00000000000000001C2 /* TorrentEngine.swift in Sources */,
 				FB37A00000000000001002 /* NotchTeleprompterPageView.swift in Sources */,
 				FB37A00000000000000F02 /* TeleprompterWindowController.swift in Sources */,
 				FB37A00000000000000E02 /* LinkReaderModel.swift in Sources */,
@@ -3177,6 +3193,9 @@
 				FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000143 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000153 /* DownloadManagerService.swift in Sources */,
+				FA33A00000000000000001B3 /* Aria2RPC.swift in Sources */,
+				FA33A00000000000000001D3 /* PlayerAccess.swift in Sources */,
+				FA33A00000000000000001C3 /* TorrentEngine.swift in Sources */,
 				FB37A00000000000001003 /* NotchTeleprompterPageView.swift in Sources */,
 				FB37A00000000000000F03 /* TeleprompterWindowController.swift in Sources */,
 				FB37A00000000000000E03 /* LinkReaderModel.swift in Sources */,
@@ -3202,6 +3221,7 @@
 				7B5000000000000000003013 /* NotchLayoutSpec.swift in Sources */,
 				FB41A00000000000000E03 /* NotchPreview.swift in Sources */,
 				7B500000000000000000010B /* NowPlayingProgress.swift in Sources */,
+				7B50000000000000000001F4 /* AppleScriptNowPlaying.swift in Sources */,
 				7B50000000000000000000B5 /* LiveEventPresentation.swift in Sources */,
 				7B5000000000000000000043 /* WeatherEffects.swift in Sources */,
 				7B5000000000000000000033 /* WeatherLocations.swift in Sources */,

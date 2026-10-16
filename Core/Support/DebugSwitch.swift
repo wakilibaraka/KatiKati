@@ -188,6 +188,10 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     /// Value switch; parsed by `WallpaperDebugOverride`. Unset in normal use.
     case wallpaperPhase = "DOCK_WALLPAPER_PHASE"
 
+    /// `DOCK_SETTINGS_PAGE_HEIGHT=1`: 启动时量十个设置页的自然高度、逐行打印后退出。
+    /// 门禁 `Scripts/check_settings_page_heights.py` 用它检查「十页都放得下窗口」（规则 10）。
+    case settingsPageHeight = "DOCK_SETTINGS_PAGE_HEIGHT"
+
     /// Phase 32d, packed (owner 2026-10-16): the dock app icons' frame, `circle` or unset for the
     /// squircle every icon wears today. Value switch; read once by `DockIconShape.packed`.
     /// `launchctl setenv DOCK_ICON_FRAME circle` → `open` → `launchctl unsetenv DOCK_ICON_FRAME`.
@@ -214,7 +218,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
         case .displayTrace, .launchTrace, .chipProbe, .clickTrace,
              .hoverTrace, .edgehoverTrace, .stripWheelTrace, .chipAnimTrace, .labelProbe,
              .spaceIntentTrace, .scrollReverserTrace, .windowLiftTrace, .minimizeAppFallback,
-             .devSkipPermissions, .edgeBars, .edgeFan, .keyGuardTrace, .keyGuardOff:
+             .devSkipPermissions, .edgeBars, .edgeFan, .keyGuardTrace, .keyGuardOff,
+             .settingsPageHeight:
             return .trace
         case .reconcileAxTimeoutMs, .seedAxTimeoutMs, .dragFlightMs, .labelAnim, .inventoryLog,
              .panelLevel, .panelMaterial, .panelSaturation, .panelThickness,
@@ -222,8 +227,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .liquidGlassWhiteOverlay, .liquidGlassDimming, .liquidGlassBorder, .liquidGlassBorderEdge,
              .liquidGlassBorderCut, .liquidGlassBorderSpread, .liquidGlassBorderWidth, .liquidGlassBorderInner,
              .liquidGlassBackgroundOpacity, .liquidGlassWindowBlur, .liquidGlassContentInset,
-             .liquidGlassSystemVariant, .stackPopupSnapshot, .dockTheme, .wallpaperPhase,
-             .dockIconFrame, .openSettings:
+             .liquidGlassSystemVariant, .stackPopupSnapshot, .dockTheme, .wallpaperPhase, .dockIconFrame, .openSettings:
             return .value
         }
     }

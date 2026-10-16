@@ -1,0 +1,114 @@
+pressed Appearance
+PAGE Appearance expanded=1
+ROLE COUNTS AXButton=34 AXCheckBox=2 AXDisclosureTriangle=1 AXGroup=3 AXOpaqueProviderGroup=1 AXRadioButton=19 AXRadioGroup=7 AXScrollArea=1 AXSlider=5 AXStaticText=31 AXToolbar=1 AXValueIndicator=5
+WINDOW 405 209 900 807
+AXStaticText	y    7.0 x  409.0    82.0 x  16.0  Appearance
+AXButton	y    8.0 x    8.0    16.0 x  16.0  
+AXButton	y    8.0 x   31.0    16.0 x  16.0  
+AXButton	y    8.0 x   54.0    16.0 x  16.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXToolbar	y   32.0 x    0.0   900.0 x  56.0  
+AXButton	y   32.0 x  108.5    55.0 x  56.0  General
+AXButton	y   32.0 x  164.5    75.0 x  56.0  Appearance
+AXButton	y   32.0 x  240.5    55.5 x  56.0  Widgets
+AXButton	y   32.0 x  297.0    55.0 x  56.0  Notch
+AXButton	y   32.0 x  353.0    65.5 x  56.0  Edge Bars
+AXButton	y   32.0 x  419.5   125.0 x  56.0  Window Management
+AXButton	y   32.0 x  545.5    61.0 x  56.0  Launcher
+AXButton	y   32.0 x  607.5    63.0 x  56.0  Shortcuts
+AXButton	y   32.0 x  671.5    55.0 x  56.0  Tools
+AXButton	y   32.0 x  727.5    64.0 x  56.0  Advanced
+AXGroup	y   88.0 x    0.0   900.0 x 978.0  
+AXScrollArea	y   88.0 x    0.0   900.0 x 978.0  
+AXStaticText	y  102.0 x   42.0    83.0 x  16.0  Layout Mode
+AXButton	y  200.0 x   42.0   157.0 x  86.0  Full Width
+AXButton	y  200.0 x  207.0   156.5 x  86.0  Split 3
+AXButton	y  200.0 x  371.5   157.0 x  86.0  Split 4
+AXButton	y  200.0 x  536.5   156.5 x  86.0  Split 5
+AXButton	y  200.0 x  701.0   157.0 x  86.0  Centered
+AXStaticText	y  286.0 x   42.0   381.0 x  13.0  Three islands: launcher and weather, app
+AXRadioGroup	y  325.0 x  244.5   205.5 x  24.0  Position, Position
+AXRadioButton	y  325.0 x  244.5    68.5 x  24.0  1
+AXRadioButton	y  325.0 x  313.0    68.5 x  24.0  0
+AXRadioButton	y  325.0 x  381.5    68.5 x  24.0  0
+AXRadioGroup	y  325.0 x  640.5   217.5 x  24.0  Bar Height, Bar Height
+AXRadioButton	y  325.0 x  640.5    72.5 x  24.0  1
+AXRadioButton	y  325.0 x  713.0    72.5 x  24.0  0
+AXRadioButton	y  325.0 x  785.5    72.5 x  24.0  0
+AXStaticText	y  329.0 x   42.0    48.5 x  16.0  Position
+AXStaticText	y  329.0 x  450.0    64.5 x  16.0  Bar Height
+AXRadioGroup	y  366.0 x  559.5   298.5 x  24.0  Spacing, Spacing
+AXRadioButton	y  366.0 x  559.5    99.5 x  24.0  1
+AXRadioButton	y  366.0 x  659.0    99.5 x  24.0  0
+AXRadioButton	y  366.0 x  758.5    99.5 x  24.0  0
+AXStaticText	y  370.0 x   42.0    49.0 x  16.0  Spacing
+AXDisclosureTriangle	y  403.0 x   19.5    96.5 x  16.0  1
+AXStaticText	y  431.0 x   42.0   379.5 x  13.0  Exact values for power users. Bar height
+AXStaticText	y  462.0 x   42.0    64.5 x  16.0  Bar Height
+AXSlider	y  462.0 x  202.0   594.0 x  16.0  Bar Height
+AXValueIndicator	y  462.0 x  340.5    20.0 x  16.0  
+AXStaticText	y  462.0 x  825.5    32.5 x  16.0  46 pt
+AXStaticText	y  504.0 x   42.0   127.0 x  16.0  Gap Between Islands
+AXSlider	y  504.0 x  202.0   594.0 x  16.0  Gap Between Islands
+AXValueIndicator	y  504.0 x  253.0    20.0 x  16.0  
+AXStaticText	y  504.0 x  833.5    24.5 x  16.0  4 pt
+AXStaticText	y  546.0 x   42.0    72.0 x  16.0  Side Margin
+AXSlider	y  546.0 x  202.0   594.0 x  16.0  Side Margin
+AXValueIndicator	y  546.0 x  245.0    20.0 x  16.0  
+AXStaticText	y  546.0 x  833.5    24.5 x  16.0  6 pt
+AXStaticText	y  588.0 x   42.0    95.5 x  16.0  Centered Width
+AXSlider	y  588.0 x  202.0   594.0 x  16.0  Centered Width
+AXValueIndicator	y  588.0 x  368.5    20.0 x  16.0  
+AXStaticText	y  588.0 x  817.5    40.5 x  16.0  720 pt
+AXRadioGroup	y  630.0 x  631.5   226.5 x  24.0  Bottom Edge
+AXRadioButton	y  630.0 x  631.5    75.5 x  24.0  1
+AXRadioButton	y  630.0 x  707.0    75.5 x  24.0  0
+AXRadioButton	y  630.0 x  782.5    75.5 x  24.0  0
+AXStaticText	y  634.0 x   42.0    78.5 x  16.0  Bottom Edge
+AXStaticText	y  680.0 x   42.0   122.0 x  16.0  Distance From Edge
+AXSlider	y  680.0 x  202.0   594.0 x  16.0  Distance From Edge
+AXValueIndicator	y  680.0 x  584.5    20.0 x  16.0  
+AXStaticText	y  680.0 x  833.5    24.5 x  16.0  8 pt
+AXStaticText	y  714.0 x   42.0   417.0 x  13.0  Floating keeps the bar 8 pt above the sc
+AXStaticText	y  775.0 x   42.0    44.5 x  16.0  Theme
+AXOpaqueProviderGroup	y  801.0 x   38.5   823.0 x 154.0  
+AXButton	y  801.0 x   38.5    62.0 x  72.0  Auto
+AXButton	y  801.0 x  102.0    62.0 x  72.0  System
+AXButton	y  801.0 x  165.5    62.0 x  72.0  Translucent
+AXButton	y  801.0 x  229.0    62.0 x  72.0  Crystal Clear
+AXButton	y  801.0 x  292.0    62.0 x  72.0  Obsidian Dark
+AXButton	y  801.0 x  355.5    62.0 x  72.0  Monochrome
+AXButton	y  801.0 x  419.0    62.0 x  72.0  Titanium Frost
+AXButton	y  801.0 x  482.5    62.0 x  72.0  Aurora Glow
+AXButton	y  801.0 x  546.0    62.0 x  72.0  Deep Ocean
+AXButton	y  801.0 x  609.0    62.0 x  72.0  Forest Moss
+AXButton	y  801.0 x  672.5    62.0 x  72.0  Cyberpunk Glass
+AXButton	y  801.0 x  736.0    62.0 x  72.0  Ember Sunset
+AXButton	y  801.0 x  799.5    62.0 x  72.0  Rose Quartz
+AXButton	y  883.0 x   38.5    62.0 x  72.0  Custom
+AXRadioGroup	y  964.0 x  716.0   142.0 x  24.0  Icon Set, Icon Set
+AXRadioButton	y  964.0 x  716.0    71.0 x  24.0  1
+AXRadioButton	y  964.0 x  787.0    71.0 x  24.0  0
+AXStaticText	y  968.0 x   42.0    49.5 x  16.0  Icon Set
+AXStaticText	y  996.0 x   42.0   402.0 x  34.0  Modern
+AXStaticText	y  996.0 x  456.0   402.0 x  34.0  Classic
+AXStaticText	y 1030.0 x   42.0   339.5 x  13.0  Applies to the trash and the menu bar ic
+AXRadioGroup	y 1052.0 x  711.0   147.0 x  24.0  Dock App Icon Shape, Dock App Icon Shape
+AXRadioButton	y 1052.0 x  711.0    73.5 x  24.0  1
+AXRadioButton	y 1052.0 x  784.5    73.5 x  24.0  0
+AXStaticText	y 1056.0 x   42.0   130.5 x  16.0  Dock App Icon Shape
+AXStaticText	y 1084.0 x   42.0   411.0 x  13.0  Switch dock app icons between standard m
+AXStaticText	y 1107.0 x   42.0   384.0 x  13.0  Swatches show the dock plate's tint; Aut
+AXCheckBox	y 1176.0 x  396.0    54.0 x  24.0  1
+AXRadioGroup	y 1176.0 x  633.0   225.0 x  24.0  Mode, Mode
+AXRadioButton	y 1176.0 x  633.0    75.0 x  24.0  0
+AXRadioButton	y 1176.0 x  708.0    75.0 x  24.0  0
+AXRadioButton	y 1176.0 x  783.0    75.0 x  24.0  1
+AXStaticText	y 1180.0 x   42.0   117.0 x  16.0  Dynamic Wallpaper
+AXStaticText	y 1180.0 x  450.0    34.5 x  16.0  Mode
+AXButton	y 1216.0 x  736.0   122.0 x  24.0  Choose Folder…
+AXStaticText	y 1220.0 x   42.0    69.5 x  16.0  Built-in Sky
+AXCheckBox	y 1324.0 x  396.0    54.0 x  24.0  1
+AXButton	y 1324.0 x  450.0   134.5 x  24.0  Restore Wallpaper
+AXStaticText	y 1328.0 x   42.0   152.5 x  16.0  Tint Dock by Time of Day

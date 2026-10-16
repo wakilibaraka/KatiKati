@@ -8,8 +8,8 @@ All notable changes to KatiKati are documented in this file.
 - **The dock widgets' motion is a choice now: Settings › Widgets › Dock Motion.** *Fluid* is what the bar
   already moved with, *Snappy* is faster and firmer, *Instant* changes instantly — and Reduce Motion always
   wins over all three. The first widget wired to it is the weather one: the temperature in the detailed pod
-  and in the classic pill morphs to its new reading instead of snapping. The row takes the right half of the *Now Playing Style*
-  pair; **Right FAB Style** moves to Settings › Appearance.
+  and in the classic pill morphs to its new reading instead of snapping. The row takes the right half of the
+  *Now Playing Style* pair; **Right FAB Style** moves to Settings › Appearance.
 
 ### Changed
 - **The dock app icon shape is no longer a setting.** The circular mask was packed on the owner's call
@@ -17,6 +17,177 @@ All notable changes to KatiKati are documented in this file.
   Settings › Appearance. The look is not deleted — `DOCK_ICON_FRAME=circle` brings it back for a launch,
   through the app's registered debug switches (`Core/Support/DebugSwitch.swift`), and unset is exactly the
   squircle that ships today. The retired `com.katikati.dock.iconShape` key is simply ignored from now on.
+
+## [Unreleased] — Phase 46: the weather widget wears the weather, and the bar hugs the edge
+
+### Added
+- **The weather widget now has a background that matches the weather and the time.** The detailed 3-day pod
+  used to be plain dock glass while the classic pill beside it already carried the reading's own sky, so the
+  same reading looked like two different widgets. Both now draw the plate from the condition *and* the hour —
+  a clear night is the indigo card, a rainy noon the teal one — and the two glass versions are kept as presets
+  (**Glass 3-Day Forecast**, **Glass Weather Pill**), so the sky is the default look and the old one is one
+  click away. The row is **Weather Style** in Settings › Widgets, and the dock's own right-click menu lists
+  every preset it offers.
+
+### Fixed
+- **The weather widget no longer shows a sun at 3 a.m.** The feed's own symbol is day art (Open-Meteo's WMO
+  codes carry no night variant), so the pod and the rail tile printed a **sun** all night. Both now ask the
+  reading for its glyph — the same condition at the reading's own time of day — which is what the classic pill
+  and the weather panel already did.
+
+### Changed
+- **Every built-in dock style hugs the bottom edge.** Islands, Classic, Minimal and Side Rail used to write the
+  8 pt floating gap, so picking one — or accepting the welcome guide's pre-selected Islands — lifted a bar the
+  fresh install sits on the edge. The gap stays a free control in Fine-tune (Bottom Edge, Distance From Edge).
+
+## [Unreleased] — Phase 45: the music widgets say when they cannot read your player
+
+### Added
+- **The music widgets tell you when macOS is blocking them.** If KatiKati may not control Spotify or Music
+  (Automation permission refused or still unanswered in System Settings › Privacy & Security), the media card,
+  the dock/edge popup and the notch's music card now say **"KatiKati can't read Spotify"** where they used to
+  say "Not Playing", with an **Open System Settings** button that lands on the Automation list. The probe rides
+  the existing read, so it costs nothing extra and never guesses: only a real refusal (AppleScript error
+  -1743 or -1742) raises it, while a stopped or unreadable player leaves the surfaces saying "Not Playing" as
+  before. Once the grant is on, the next read puts the real track back.
+
+## [Unreleased] — Phase 44: magnet links really download
+
+### Added
+- **The download hub runs a real BitTorrent engine.** Pasting a `magnet:` link or a `.torrent` URL into the
+  notch's torrent hub now starts an actual transfer: KatiKati drives `aria2c` (the Homebrew/MacPorts build on
+  your machine) as a private loopback-only child process, and the row shows the engine's own numbers — the
+  torrent's real name once the metadata lands, its real size, download/upload rate, seeders and connections,
+  and the ETA computed from them. Torrents land in your Downloads folder next to the other download types and
+  stop uploading the moment the payload is complete (`--seed-time=0`). The engine starts on the first magnet,
+  is stopped when the last torrent row leaves the hub, is shut down on quit, and exits by itself within a few
+  seconds if the app is force-quit — a machine that never opens a magnet never runs it.
+- **No engine installed is now a stated reason, not a silent no.** With no `aria2c` on the machine the hub says
+  **"Install aria2 to download magnet links"** and still refuses the link — it never invents a swarm.
+
+### Fixed
+- **A magnet row no longer reports the engine's metadata block as the download.** While the engine fetches a
+  torrent's metadata (21 KB in the verified run against a 276 MB payload) the row reads CONNECTING with no size
+  or speed, then switches to the payload download once that begins.
+- **A torrent that fails says why.** The row carries the engine's own message instead of "FAILED" with nothing
+  behind it, and a torrent still connecting can be paused.
+
+## [Unreleased] — Phase 43: the bar's widgets stop inventing data
+
+### Fixed
+- **The now-playing widget no longer shows a song you are not playing.** With no track from the system it
+  printed a hardcoded `God's Plan / Drake` and drew the progress bar at a guessed 35 %; it now reads
+  "Not Playing" (naming the app when it knows it) and draws no bar unless the system reported a position.
+  It had nothing to show because MediaRemote answers now-playing queries only to a trustworthily signed
+  process: with no code-signing identity on this Mac, none of MediaRemote's three callbacks fires at all, so
+  Spotify and Music are read through AppleScript instead. That fallback shipped with an unbalanced `if`, which
+  made every read fail with -2741 — the widget stayed on "Not Playing" while Spotify played. The script
+  compiles now, and the fallback is reached even when MediaRemote answers nothing at all.
+- **The weather widgets no longer print a city you never chose.** The canned "Rome 26°" starting state, the
+  Rome fetch when location is refused with no saved city, the Rome forecast that topped up a short 3-day
+  list and the `Today/Tomorrow/Later` columns that invented ±1° are all gone. A slot with no forecast shows
+  a location mark and "Add City" (the panel's own city search) instead of a temperature nobody measured;
+  a short forecast simply shows fewer columns.
+- **The clock widget now reads the calendar it displays.** Only the notch's calendar page started the shared
+  calendar service, so a fresh launch said "No Events" for a calendar nothing had read; the clock card
+  starts it on appear (events only — it asks for no reminder access) and says "Calendar access is off"
+  instead of claiming an empty day when access is refused.
+- **The tracking bar carries the track's length.** The dock chip's bar and the notch's audio deck now print
+  elapsed on the left and the track's own duration on the right — the deck used to print the remaining time,
+  which reads as a second countdown — and the bar still appears only for a position the player reported.
+- **The now-playing widget's volume page works.** It never started the CoreAudio-backed status service, so it
+  read a default level and every drag was a no-op; the service is now acquired while the chip is on screen
+  (checked end to end: a click on the page's bar moved the Mac's real output volume, and the page read the
+  device's own state back).
+- **The weather pod fits its slot.** The 3-day detail columns used to run past the plate into the widget
+  beside it; the pod now degrades L→M→S exactly like the classic pill, so it never overflows the width the
+  preset allows.
+- **The notch's audio deck shows the record the player is playing.** Album art when the player hands one over,
+  the turntable — spinning only while a track plays — otherwise; the hard-coded "54 dB" badge is the real
+  output volume, "Hi-Fi Turntable" is gone, and the deck's scrubber carries elapsed / duration like the dock.
+- **The alarm page arms a real alarm.** It no longer invents a "Missed" alarm out of the clock (any enabled
+  alarm 0–15 minutes back) and its "+20m nap" shortcut is replaced by a time picker over the same alarm store
+  the calendar panel reads.
+- **The download hub only shows transfers that exist.** The demo seed (a fake in-flight browser download, a
+  fake torrent with seeders and peers, a fake completed file) and the tick that faked their progress are gone;
+  magnet and `.torrent` input is refused rather than answered with a random swarm, and a browser `.download`
+  file reports the bytes on disk instead of a guessed total and a fixed speed.
+
+### Tests
+- `NowPlayingProgressTests` compiles the AppleScript fallback (the `-2741` bug above) and parses its record
+  field by field; `DownloadManagerTests` asserts the manager starts empty and refuses the torrent paths.
+
+## [Unreleased] — Phase 12: the five Settings pages that ran past the window now fit it
+
+### Changed
+- **Appearance, Widgets, Window Management, Launcher and Shortcuts no longer scroll.** They were the
+  five pages taller than the Settings window (1074 pt); all ten pages now size the window to
+  themselves and none scrolls. The room came from grouping, not from dropping anything: the widget
+  style presets moved next to the other widget rows, the icon rows joined the theme card, and the
+  window-management geometry shares one card — the long runs of shortcut rows (26 assignments, the
+  four snap groups, the six tiling assignments) start collapsed, with the Shortcuts page's search
+  box opening them as you type, so every row is still one click or one keystroke away. A handful of
+  unlike rows that each wanted a line now share one (Hidden Apps with Reset App Order, the weather
+  warnings, both widget switches). Nothing was removed: the pass is checked row by row against the
+  previous build in `Docs/Archive/Planning/evidence/2026-10-15-page-fit/README.md`.
+
+## [Unreleased] — Phase 12 close-out: the Settings pages measured, and the widget list back on the grid
+
+### Fixed
+- **The Widgets page's widget list lines up with the rest of Settings.** The reorderable list inside
+  the Widgets card was drawing its own dark well across the card's surface, starting its rows 8 pt to
+  the right of every other row on the page, and running a tighter row rhythm than the rest of the
+  window; it now sits on the same grid, at the same 41 pt row rhythm, with the card's own separators.
+  Dragging a widget to reorder it is unchanged.
+
+## [Unreleased] — Phase 42: the rail packs like your Dock, and your Dock's icons are on the bar
+
+### Added
+- **The apps you pinned in the macOS Dock now keep an icon on the bar** even while they are not running —
+  the same apps, in the same order, as your Dock: the bar reads its pinned list directly. They behave like
+  the apps you "keep in Dock" from our own menu (click to launch, right-click for the same menu), and the
+  system Dock stays the record: unpin an app there and its chip goes away on the next launch.
+
+### Changed
+- **A side rail's app tray now packs exactly like the bottom bar's.** A card is 40 × 54, so on a rail its
+  long side became the direction the next chip sat in — the icons were 56 pt apart vertically against 42 pt
+  horizontally on the bottom bar, which made the same tray look loose running down the screen. A rail's cards
+  are square now, so both axes sit at 42 pt and the icons read the same in either orientation.
+- **A side rail's spacing is the Dock's.** The gap between two chips on a rail is 2 pt instead of 4 (the Dock
+  leaves exactly that between two icons, and the bottom bar already used it), and an island's ends are the
+  Dock's tight 4 pt instead of the bottom bar's 16 pt plate inset — worth about 20 pt of dead space per
+  island on a rail at the default size, most of it on the small launcher/weather and clock/widgets islands.
+  The bottom bar is untouched; its 16 pt ends are what keeps the rounded plate from clipping a chip's corner,
+  a constraint a rail's centred tiles do not have.
+
+## [Unreleased] — Phase 41: every layout on a side rail, a rail that uses its height, tighter gaps
+
+### Added
+- **All five layouts work on a left or right rail.** Split 4 and Split 5 folded into Split 3 there, so two of
+  the five Layout Mode choices did nothing if you kept the dock on a side. A rail now renders whatever you
+  pick: Split 4 is four stacked islands, Split 5 is five, Full Width runs the whole height, Centered stays a
+  centred pill.
+- **The rail's mode cards are portrait,** so Split 4 and Split 5 can actually be told apart before you pick
+  one (in a landscape card the rail was a two-pixel sliver).
+
+### Changed
+- **A rail's app island fills the space it has.** With the launcher/weather group pinned to the top and the
+  clock/widgets group to the bottom, the app row now stretches over everything in between instead of leaving
+  dead bands above and below it — and the drawer capsule keeps its place between the app row and the group
+  below.
+- **Gaps are tighter in every layout, rail or bottom.** An island no longer spends 20 pt at each end (16 now —
+  one plate corner, which is also what stops the rounded clip from cutting a chip), the gap between sections
+  inside an island is 9 pt instead of 13, and the **Comfortable** spacing preset is 8/10 instead of 10/12.
+  Compact and Airy are unchanged, so a roomier bar is still one click away. If you had the old 10/12 stored,
+  the Spacing row reads **Custom** until you pick Comfortable again.
+- **The app row on a rail is measured with the rail's own 40 pt pitch,** not the bottom bar's 54 pt one, so a
+  chip that fits in the rail is no longer dropped.
+
+### Fixed
+- **The drawer capsule can no longer land on the next island.** The app island could be pushed most of a
+  capsule-slot toward the trailing group, which on a rail would have put the capsule on the clock/widgets
+  island; a filling island now sits flush against the group before it. The bottom bar shared the same latent
+  overlap on a nearly full row and is fixed by the same rule.
 
 ## [Unreleased] — Phase 12 close-out: a lock that fails open, a gradient theme engine, a notch theme
 

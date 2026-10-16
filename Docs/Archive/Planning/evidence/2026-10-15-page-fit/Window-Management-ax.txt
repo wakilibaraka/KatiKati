@@ -1,0 +1,43 @@
+WINDOW	Window Management	405	209	900	883
+AXStaticText	42.0	102.0	Tiling
+AXStaticText	42.0	140.0	Enable Auto-Tiling
+AXCheckBox	804.0	136.0	1
+AXStaticText	42.0	163.0	Automatically tile open windows in binary spac
+AXStaticText	42.0	197.0	Preset
+AXRadioGroup	550.5	193.0	
+AXStaticText	42.0	234.0	Inner Gap
+AXSlider	202.0	234.0	
+AXStaticText	833.5	234.0	8 pt
+AXStaticText	42.0	267.0	Outer Gap
+AXSlider	202.0	267.0	
+AXStaticText	833.5	267.0	8 pt
+AXStaticText	42.0	292.0	Floating Applications
+AXStaticText	42.0	306.0	Applications listed below will float and never
+AXStaticText	42.0	470.0	Window Chips
+AXStaticText	42.0	508.0	Multiple Windows
+AXButton	156.0	509.5	
+AXPopUpButton	683.0	504.0	One chip per window
+AXStaticText	42.0	572.0	Show All Running Apps
+AXCheckBox	396.0	568.0	1
+AXStaticText	450.0	572.0	Hover Preview
+AXCheckBox	804.0	568.0	1
+AXStaticText	42.0	595.0	Gives every running app a chip, even when it h
+AXStaticText	42.0	642.0	Preview Delay
+AXRadioGroup	246.0	638.0	
+AXStaticText	450.0	642.0	Preview Size
+AXRadioGroup	640.5	638.0	
+AXStaticText	42.0	683.0	Classic Right-Click Menu
+AXButton	200.5	684.5	
+AXCheckBox	804.0	679.0	1
+AXStaticText	42.0	771.0	Option-Tab Window Switcher
+AXCheckBox	396.0	767.0	1
+AXStaticText	450.0	771.0	Restore Window Layout After Sleep
+AXCheckBox	804.0	767.0	1
+AXStaticText	42.0	794.0	Hold Option and press Tab to pick a window fro
+AXStaticText	450.0	794.0	After the Mac wakes or a display is reconnecte
+AXButton	42.0	837.0	
+AXTextArea	42.0	319.0	com.apple.ActivityMonitor com.apple.DiskUtilit
+AXButton	841.0	319.0	
+AXButton	841.0	319.0	
+AXButton	849.0	384.0	
+AXButton	849.0	322.0	

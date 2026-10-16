@@ -335,6 +335,10 @@ private struct StackedClockCardView: View {
             isHovered = hovering
         }
         .contentShape(Rectangle())
+        // This card shows the next event, so it starts the shared calendar itself: until now only the
+        // notch's calendar page called `start()`, which left a fresh launch showing "No Events" for a
+        // calendar nothing had read. Events only (no reminders prompt) and event-driven — no timer added.
+        .onAppear { if calendarService.eventsAccess == .unknown { calendarService.startEvents() } }
     }
 
     private var compactView: some View {
@@ -488,6 +492,18 @@ private struct StackedClockCardView: View {
                         .font(.system(size: 9, weight: .medium, design: .rounded))
                         .foregroundStyle(Color.white.opacity(0.75))
                         .lineLimit(1)
+                } else if calendarService.eventsAccess == .denied {
+                    // Never "No Events" for a calendar we are not allowed to read.
+                    HStack(spacing: 4) {
+                        Image(systemName: "calendar.badge.exclamationmark")
+                            .font(.system(size: 9))
+                            .foregroundStyle(Color.white.opacity(0.60))
+                        Text("Calendar access is off")
+                            .font(.system(size: 9.5, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.80))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                    }
                 } else {
                     HStack(spacing: 4) {
                         Image(systemName: "calendar")

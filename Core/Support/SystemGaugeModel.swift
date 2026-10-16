@@ -47,15 +47,38 @@ public enum DockIconShape: String, Equatable, Codable, Sendable {
     public static let packed = packedValue(DebugSwitch.dockIconFrame.value())
 }
 
-/// Weather widget presentation preset.
+/// Weather widget presentation preset: two layouts (pill, 3-day pod) × two plates (the reading's own
+/// sky, the dock's glass).
 public enum WeatherChipPreset: String, CaseIterable, Equatable, Codable, Sendable {
     case classicPill = "classic"
     case detailedForecast = "detailed"
+    /// The same two layouts on the shared dock plate instead of the sky (Phase 46).
+    case classicGlassPill = "classicGlass"
+    case detailedGlass = "detailedGlass"
 
     public var title: String {
         switch self {
         case .classicPill: return "Classic Weather Pill"
         case .detailedForecast: return "Detailed 3-Day Forecast"
+        case .classicGlassPill: return "Glass Weather Pill"
+        case .detailedGlass: return "Glass 3-Day Forecast"
+        }
+    }
+
+    /// The 3-day pod (city, columns) rather than the compact pill.
+    public var isDetailed: Bool {
+        switch self {
+        case .detailedForecast, .detailedGlass: return true
+        case .classicPill, .classicGlassPill: return false
+        }
+    }
+
+    /// Whether the condition + hour sky is the plate. The sky is the default look (owner 2026-10-16);
+    /// `false` keeps the dock glass the widget wore before the two glass presets existed.
+    public var usesSkyPlate: Bool {
+        switch self {
+        case .classicPill, .detailedForecast: return true
+        case .classicGlassPill, .detailedGlass: return false
         }
     }
 }

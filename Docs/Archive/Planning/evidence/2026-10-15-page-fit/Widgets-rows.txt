@@ -1,0 +1,128 @@
+ROLE COUNTS AXButton=26 AXCell=6 AXCheckBox=6 AXColumn=1 AXGroup=3 AXIncrementor=3 AXMenuButton=1 AXOutline=1 AXPopUpButton=9 AXRadioButton=18 AXRadioGroup=7 AXRow=6 AXScrollArea=2 AXStaticText=35 AXTextField=1 AXToolbar=1
+WINDOW 405 209 900 1040
+AXStaticText	y    7.0 x  421.0    58.0 x  16.0  Widgets
+AXButton	y    8.0 x    8.0    16.0 x  16.0  
+AXButton	y    8.0 x   31.0    16.0 x  16.0  
+AXButton	y    8.0 x   54.0    16.0 x  16.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXToolbar	y   32.0 x    0.0   900.0 x  56.0  
+AXButton	y   32.0 x  108.5    55.0 x  56.0  General
+AXButton	y   32.0 x  164.5    75.0 x  56.0  Appearance
+AXButton	y   32.0 x  240.5    55.5 x  56.0  Widgets
+AXButton	y   32.0 x  297.0    55.0 x  56.0  Notch
+AXButton	y   32.0 x  353.0    65.5 x  56.0  Edge Bars
+AXButton	y   32.0 x  419.5   125.0 x  56.0  Window Management
+AXButton	y   32.0 x  545.5    61.0 x  56.0  Launcher
+AXButton	y   32.0 x  607.5    63.0 x  56.0  Shortcuts
+AXButton	y   32.0 x  671.5    55.0 x  56.0  Tools
+AXButton	y   32.0 x  727.5    64.0 x  56.0  Advanced
+AXGroup	y   88.0 x    0.0   900.0 x 952.0  
+AXScrollArea	y   88.0 x    0.0   900.0 x 952.0  
+AXStaticText	y  102.0 x   42.0   128.0 x  16.0  Widget Appearance
+AXPopUpButton	y  136.0 x  376.0    74.0 x  24.0  iPad
+AXPopUpButton	y  136.0 x  767.0    91.0 x  24.0  Classic
+AXStaticText	y  140.0 x   42.0    88.0 x  16.0  Widget Layout
+AXStaticText	y  140.0 x  450.0    86.5 x  16.0  Widget Colors
+AXPopUpButton	y  177.0 x  345.0   105.0 x  24.0  Flip clock
+AXCheckBox	y  177.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y  181.0 x   42.0    94.0 x  16.0  Clock Tile Style
+AXStaticText	y  181.0 x  450.0    33.5 x  16.0  Glass
+AXPopUpButton	y  218.0 x  371.5    78.5 x  24.0  Auto
+AXPopUpButton	y  218.0 x  744.0   114.0 x  24.0  Slide
+AXStaticText	y  222.0 x   42.0   119.5 x  16.0  Now Playing Theme
+AXStaticText	y  222.0 x  450.0   108.0 x  16.0  Widget Animation
+AXCheckBox	y  259.0 x  396.0    54.0 x  24.0  1
+AXCheckBox	y  259.0 x  804.0    54.0 x  24.0  1
+AXStaticText	y  263.0 x   42.0   119.5 x  16.0  Show Notes Widget
+AXStaticText	y  263.0 x  450.0   186.5 x  16.0  Show Stopwatch & Countdown
+AXCheckBox	y  300.0 x  396.0    54.0 x  24.0  0
+AXCheckBox	y  300.0 x  804.0    54.0 x  24.0  1
+AXStaticText	y  304.0 x   42.0   152.5 x  16.0  Keep Both Widgets Open
+AXStaticText	y  304.0 x  450.0   122.0 x  16.0  Weather Animations
+AXStaticText	y  333.5 x   42.0   126.5 x  14.0  Widget Styles & Presets
+AXButton	y  334.0 x  175.5    13.0 x  13.0  Switch between custom Phase 32 pods and 
+AXPopUpButton	y  356.0 x  275.0   175.0 x  24.0  Stacked Time & Date
+AXPopUpButton	y  356.0 x  663.0   195.0 x  24.0  Detailed 3-Day Forecast
+AXStaticText	y  360.0 x   42.0    68.5 x  16.0  Clock Style
+AXStaticText	y  360.0 x  450.0    85.0 x  16.0  Weather Style
+AXPopUpButton	y  396.0 x  258.5   191.5 x  24.0  Expanded Artwork Card
+AXPopUpButton	y  396.0 x  714.5   143.5 x  24.0  Dynamic Gauge
+AXStaticText	y  400.0 x   42.0   108.5 x  16.0  Now Playing Style
+AXStaticText	y  400.0 x  450.0    93.5 x  16.0  Right FAB Style
+AXStaticText	y  476.0 x   42.0    54.5 x  16.0  Weather
+AXRadioGroup	y  510.0 x  371.0    79.0 x  24.0  Temperature Unit, Temperature Unit
+AXRadioButton	y  510.0 x  371.0    39.5 x  24.0  1
+AXRadioButton	y  510.0 x  410.5    39.5 x  24.0  0
+AXRadioGroup	y  510.0 x  696.0   162.0 x  24.0  Wind Speed Unit, Wind Speed Unit
+AXRadioButton	y  510.0 x  696.0    54.0 x  24.0  1
+AXRadioButton	y  510.0 x  750.0    54.0 x  24.0  0
+AXRadioButton	y  510.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y  514.0 x   42.0   105.5 x  16.0  Temperature Unit
+AXStaticText	y  514.0 x  450.0   102.0 x  16.0  Wind Speed Unit
+AXRadioGroup	y  551.0 x  315.0   135.0 x  24.0  Weather Layout, Weather Layout
+AXRadioButton	y  551.0 x  315.0    67.5 x  24.0  0
+AXRadioButton	y  551.0 x  382.5    67.5 x  24.0  1
+AXRadioGroup	y  551.0 x  723.0   135.0 x  24.0  Hero Style, Hero Style
+AXRadioButton	y  551.0 x  723.0    67.5 x  24.0  0
+AXRadioButton	y  551.0 x  790.5    67.5 x  24.0  1
+AXStaticText	y  555.0 x   42.0    95.0 x  16.0  Weather Layout
+AXStaticText	y  555.0 x  450.0    63.5 x  16.0  Hero Style
+AXIncrementor	y  592.0 x  430.0    20.0 x  24.0  35
+AXButton	y  592.0 x  430.0    20.0 x  12.0  
+AXIncrementor	y  592.0 x  838.0    20.0 x  24.0  50
+AXButton	y  592.0 x  838.0    20.0 x  12.0  
+AXStaticText	y  596.0 x   42.0   156.0 x  16.0  Heat Warning (Feels Like)
+AXStaticText	y  596.0 x  388.0    32.0 x  16.0  35°C
+AXStaticText	y  596.0 x  450.0    85.0 x  16.0  Wind Warning
+AXStaticText	y  596.0 x  778.5    49.5 x  16.0  50 km/h
+AXButton	y  604.0 x  430.0    20.0 x  12.0  
+AXButton	y  604.0 x  838.0    20.0 x  12.0  
+AXIncrementor	y  633.0 x  838.0    20.0 x  24.0  5
+AXButton	y  633.0 x  838.0    20.0 x  12.0  
+AXStaticText	y  637.0 x   42.0    87.0 x  16.0  Snow Warning
+AXStaticText	y  637.0 x  797.5    30.5 x  16.0  5 cm
+AXButton	y  645.0 x  838.0    20.0 x  12.0  
+AXStaticText	y  713.0 x   42.0    54.0 x  16.0  Widgets
+AXScrollArea	y  739.0 x   34.0   832.0 x 246.0  
+AXOutline	y  739.0 x   34.0   832.0 x 246.0  
+AXRow	y  739.0 x   34.0   832.0 x  41.0  
+AXColumn	y  739.0 x   34.0   832.0 x 246.0  
+AXCell	y  739.0 x   34.0   832.0 x  41.0  
+AXStaticText	y  751.5 x   42.0    56.5 x  16.0  Launcher
+AXButton	y  754.0 x  838.0    17.5 x  11.0  Show
+AXRow	y  780.0 x   34.0   832.0 x  41.0  
+AXCell	y  780.0 x   34.0   832.0 x  41.0  
+AXRadioGroup	y  788.5 x  609.0   217.5 x  24.0  Size
+AXRadioButton	y  788.5 x  609.0    72.5 x  24.0  0
+AXRadioButton	y  788.5 x  681.5    72.5 x  24.0  0
+AXRadioButton	y  788.5 x  754.0    72.5 x  24.0  1
+AXStaticText	y  792.5 x   42.0    51.0 x  16.0  Weather
+AXButton	y  795.0 x  838.0    17.5 x  11.0  Show
+AXRow	y  821.0 x   34.0   832.0 x  41.0  
+AXCell	y  821.0 x   34.0   832.0 x  41.0  
+AXStaticText	y  833.5 x   42.0    31.5 x  16.0  Apps
+AXRow	y  862.0 x   34.0   832.0 x  41.0  
+AXCell	y  862.0 x   34.0   832.0 x  41.0  
+AXRadioGroup	y  870.5 x  609.0   217.5 x  24.0  Size
+AXRadioButton	y  870.5 x  609.0    72.5 x  24.0  0
+AXRadioButton	y  870.5 x  681.5    72.5 x  24.0  0
+AXRadioButton	y  870.5 x  754.0    72.5 x  24.0  1
+AXStaticText	y  874.5 x   42.0    74.5 x  16.0  Now Playing
+AXButton	y  877.0 x  838.0    17.5 x  11.0  Show
+AXRow	y  903.0 x   34.0   832.0 x  41.0  
+AXCell	y  903.0 x   34.0   832.0 x  41.0  
+AXRadioGroup	y  911.5 x  609.0   217.5 x  24.0  Size
+AXRadioButton	y  911.5 x  609.0    72.5 x  24.0  0
+AXRadioButton	y  911.5 x  681.5    72.5 x  24.0  0
+AXRadioButton	y  911.5 x  754.0    72.5 x  24.0  1
+AXStaticText	y  915.5 x   42.0    34.5 x  16.0  Clock
+AXButton	y  918.0 x  838.0    17.5 x  11.0  Show
+AXRow	y  944.0 x   34.0   832.0 x  41.0  
+AXCell	y  944.0 x   34.0   832.0 x  41.0  
+AXStaticText	y  956.5 x   42.0    50.0 x  16.0  Widgets
+AXButton	y  959.0 x  838.0    17.5 x  11.0  Show
+AXMenuButton	y  985.0 x   42.0    93.5 x  24.0  Presets
+AXTextField	y  985.0 x  143.5   160.0 x  24.0  
+AXButton	y  985.0 x  311.5   147.0 x  24.0  Save Current Layout
+AXCheckBox	y 1009.0 x   42.0   118.0 x  16.5  0

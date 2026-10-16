@@ -17,6 +17,9 @@ struct WidgetLookSettingsBlock: View {
     @AppStorage(WidgetExtraPrefs.showNotesKey) private var showNotes = true
     @AppStorage(WidgetExtraPrefs.showStopwatchKey) private var showStopwatch = true
     @AppStorage(WidgetPanelController.keepBothOpenKey) private var keepBoth = false
+    // Moved here from the Weather card (2026-10-15): it was the only row on its line there, and the
+    // animation of a widget tile is this card's subject. Same key, same switch.
+    @AppStorage(WeatherPrefs.animationsKey) private var weatherAnimations = true
 
     @AppStorage("com.katikati.clock.preset") private var clockPresetRaw: String = ClockPreset.stackedCard.rawValue
     @AppStorage("com.katikati.weather.chipPreset") private var weatherPresetRaw: String = WeatherChipPreset.detailedForecast.rawValue
@@ -25,7 +28,6 @@ struct WidgetLookSettingsBlock: View {
     // (same swap as 32d's dock-icon row): the Widgets page is 952 pt of the 986 pt cap, so the picker
     // that replaces it has to take its slot on the pair rather than claim a row of its own.
     @AppStorage(WidgetMotionPreset.storageKey) private var dockMotion: WidgetMotionPreset = .default
-
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
             SettingsCard(Text("Widget Appearance")) {
@@ -66,14 +68,19 @@ struct WidgetLookSettingsBlock: View {
                     right: { SettingsToggleRow(Text("Show Stopwatch & Countdown"), isOn: $showStopwatch) }
                 )
                 SettingsDivider()
-                SettingsToggleRow(Text("Keep Both Widgets Open"), isOn: $keepBoth)
+                // Two toggles, one line (rule 5).
+                SettingsRowPair(
+                    left: { SettingsToggleRow(Text("Keep Both Widgets Open"), isOn: $keepBoth) },
+                    right: { SettingsToggleRow(Text("Weather Animations"), isOn: $weatherAnimations) }
+                )
                 SettingsDivider()
-                // The group's name is a row so its two-line explanation can sit behind the ⓘ instead
-                // of inside the flow (`Docs/SETTINGS.md` rule 4).
-                SettingsRow(
-                    Text("Widget Styles & Presets"),
-                    info: String(localized: "Switch between custom Phase 32 pods and legacy widget presets. You can also switch styles by right-clicking each widget on the dock.")
-                ) { EmptyView() }
+                // The group's name with its ⓘ beside it, as a sub-header rather than a row
+                // (2026-10-15): it carries no control, and a label spending a whole 41 pt row was
+                // 41 pt of a page that has to fit the window. The explanation is unchanged.
+                HStack(spacing: 6) {
+                    Text("Widget Styles & Presets").font(.subheadline)
+                    SettingsInfoButton(text: String(localized: "Switch between custom Phase 32 pods and legacy widget presets. You can also switch styles by right-clicking each widget on the dock."))
+                }
                 SettingsRowPair(
                     left: {
                         SettingsRow(Text("Clock Style")) {

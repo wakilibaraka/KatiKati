@@ -68,10 +68,17 @@ public struct NowPlayingState: Equatable {
     }
 }
 
+// The scriptable-player fallback (`AppleScriptNowPlaying`) lives in its own dual-compiled file,
+// `Core/Support/AppleScriptNowPlaying.swift`, so its parsing and its script syntax are unit-tested.
+
 // MARK: - NowPlayingService
 
 public final class NowPlayingService: ObservableObject {
     @Published public private(set) var state: NowPlayingState = NowPlayingState(isPlaying: false)
+    /// Whether a player can actually be read right now (Phase 45). `.refused` is the case the surfaces
+    /// used to hide: a running Spotify/Music whose Automation grant is missing returned an error that was
+    /// thrown away, so the widget said "Not Playing" while the player was playing.
+    @Published private(set) var playerAccess: PlayerAccess = .unknown
     
     private var mrGetNowPlayingInfo: MRMediaRemoteGetNowPlayingInfoFunction?
     private var mrSendCommand: MRMediaRemoteSendCommandFunction?
@@ -82,6 +89,14 @@ public final class NowPlayingService: ObservableObject {
     private var activePID: pid_t = 0
     private var cachedAppName: String?
     private var cachedBundleId: String?
+    /// Set while the reading comes from the AppleScript fallback, so transport and seek go to that player.
+    private var fallbackApp: String?
+    private var isReadingFallback = false
+    private var lastFallbackRead = Date.distantPast
+    private var artworkCache: [String: Data] = [:]
+    /// AppleScript blocks the thread it runs on, so the fallback is throttled to this interval.
+    private static let fallbackInterval: TimeInterval = 2
+    private static let artworkCacheLimit = 8
     
     public init() {
         // Dynamically load MediaRemote
@@ -145,13 +160,34 @@ public final class NowPlayingService: ObservableObject {
         } else {
             queryNowPlayingInfo()
         }
+        readFallbackIfIdle()
+    }
+
+    /// MediaRemote can stay completely silent for an ad-hoc-signed process — measured 2026-10-16 with a
+    /// minimal `dlopen` probe, none of the three callbacks above fires at all (the earlier measurement
+    /// saw an empty dictionary instead). `queryNowPlayingInfo()` then never runs, so the scriptable
+    /// players are read from here instead, at most once per `fallbackInterval` and only while the state
+    /// is still empty, so MediaRemote's own answer always wins when it does arrive.
+    private func readFallbackIfIdle() {
+        guard state.title?.isEmpty ?? true else { return }
+        readFallback()
     }
 
     private func queryNowPlayingInfo() {
-        guard let getInfo = mrGetNowPlayingInfo else { return }
+        guard let getInfo = mrGetNowPlayingInfo else {
+            readFallback()          // framework missing: the scriptable players are the only route left
+            return
+        }
         getInfo(DispatchQueue.main) { [weak self] info in
             guard let self else { return }
             let title = info[kMRMediaRemoteNowPlayingInfoTitle] as? String
+            guard let title, !title.isEmpty else {
+                // MediaRemote answered nothing (an unsigned process gets an empty dictionary, measured
+                // 2026-10-16): read the scriptable players and leave the transport to them.
+                readFallback()
+                return
+            }
+            self.fallbackApp = nil
             let artist = info[kMRMediaRemoteNowPlayingInfoArtist] as? String
             let album = info[kMRMediaRemoteNowPlayingInfoAlbum] as? String
             let rate = info[kMRMediaRemoteNowPlayingInfoPlaybackRate] as? Double ?? 0.0
@@ -166,6 +202,7 @@ public final class NowPlayingService: ObservableObject {
                 getIsPlaying(DispatchQueue.main) { [weak self] isAppPlaying in
                     guard let self else { return }
                     let playing = isAppPlaying || rate > 0.0
+                    self.playerAccess = .readable
                     self.state = NowPlayingState(
                         isPlaying: playing,
                         title: title,
@@ -182,6 +219,7 @@ public final class NowPlayingService: ObservableObject {
                 }
             } else {
                 let playing = rate > 0.0
+                self.playerAccess = .readable
                 self.state = NowPlayingState(
                     isPlaying: playing,
                     title: title,
@@ -199,16 +237,112 @@ public final class NowPlayingService: ObservableObject {
         }
     }
     
+    // MARK: AppleScript fallback
+
+    /// Runs the script on a background queue and hops back to publish. Called only when MediaRemote
+    /// gave nothing, at most once per `fallbackInterval` and never twice at a time.
+    private func readFallback() {
+        let now = Date()
+        guard !isReadingFallback, now.timeIntervalSince(lastFallbackRead) >= Self.fallbackInterval else { return }
+        isReadingFallback = true
+        lastFallbackRead = now
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            let raw = Self.runAppleScript(AppleScriptNowPlaying.source)
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.isReadingFallback = false
+                guard let reading = AppleScriptNowPlaying.parse(raw) else {
+                    // Nothing scriptable is playing — or a running player refused the ask. The refusal is
+                    // the one case the surfaces must speak up about instead of showing "Not Playing"
+                    // (Phase 45); with no player running there is nothing to explain.
+                    self.playerAccess = PlayerAccess.probe(scriptOutput: raw)
+                    // Drop a stale reading instead of showing a dead track.
+                    guard self.fallbackApp != nil else { return }
+                    self.fallbackApp = nil
+                    self.state = NowPlayingState(isPlaying: false)
+                    return
+                }
+                self.apply(reading)
+            }
+        }
+    }
+
+    private func apply(_ reading: AppleScriptNowPlaying.Reading) {
+        let sameTrack = state.title == reading.title && state.artist == reading.artist
+        playerAccess = .readable
+        fallbackApp = reading.app
+        state = NowPlayingState(
+            isPlaying: reading.isPlaying,
+            title: reading.title,
+            artist: reading.artist,
+            album: reading.album,
+            bundleIdentifier: reading.bundleIdentifier,
+            appName: reading.app,
+            duration: reading.duration > 0 ? reading.duration : nil,
+            elapsed: reading.position,
+            elapsedAsOf: Date(),
+            rate: reading.isPlaying ? 1 : 0,
+            artworkData: sameTrack ? state.artworkData : artworkCache[artworkKey(reading)]
+        )
+        if !sameTrack { loadArtwork(for: reading) }
+    }
+
+    /// Artwork is cached per track, so the 2 s re-read never re-downloads (Spotify) or re-reads (Music).
+    private func artworkKey(_ reading: AppleScriptNowPlaying.Reading) -> String {
+        reading.artworkURL?.absoluteString ?? "\(reading.app)|\(reading.artist)|\(reading.album)|\(reading.title)"
+    }
+
+    private func loadArtwork(for reading: AppleScriptNowPlaying.Reading) {
+        let key = artworkKey(reading)
+        defer {
+            while artworkCache.count > Self.artworkCacheLimit, let oldest = artworkCache.keys.first(where: { $0 != key }) {
+                artworkCache.removeValue(forKey: oldest)
+            }
+        }
+        guard artworkCache[key] == nil else { return }
+        if let url = reading.artworkURL {
+            URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
+                guard let data, !data.isEmpty else { return }
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    self.artworkCache[key] = data
+                    if self.state.title == reading.title { self.state.artworkData = data }
+                }
+            }.resume()
+        } else if let file = reading.artworkFile, let data = try? Data(contentsOf: file), !data.isEmpty {
+            artworkCache[key] = data
+            state.artworkData = data
+            try? FileManager.default.removeItem(at: file)
+        }
+    }
+
+    /// Transport for the fallback player: the private framework command goes nowhere in an unsigned build.
+    private func fallbackTransport(_ command: String) {
+        guard let app = fallbackApp else { return }
+        executeAppleScript("tell application \"" + app + "\" to " + command)
+    }
+
+    /// Synchronous script run, on the calling (background) queue. Empty string on any failure.
+    private static func runAppleScript(_ source: String) -> String {
+        guard let script = NSAppleScript(source: source) else { return "" }
+        var error: NSDictionary?
+        let result = script.executeAndReturnError(&error)
+        guard error == nil else { return "" }
+        return result.stringValue ?? ""
+    }
+
     public func play() {
         if let sendCommand = mrSendCommand {
             _ = sendCommand(0, nil)
         }
+        fallbackTransport("play")
     }
 
     public func pause() {
         if let sendCommand = mrSendCommand {
             _ = sendCommand(1, nil)
         }
+        fallbackTransport("pause")
     }
 
     public func togglePlayPause() {
@@ -248,6 +382,7 @@ public final class NowPlayingService: ObservableObject {
 
     public func seek(to seconds: Double) {
         mrSetElapsedTime?(seconds)
+        fallbackTransport("set player position to " + String(Swift.max(0, seconds)))
     }
 
     private func executeAppleScript(_ source: String) {

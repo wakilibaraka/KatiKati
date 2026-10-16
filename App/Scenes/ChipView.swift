@@ -73,6 +73,10 @@ struct ChipView: View {
     /// 那个窗口，恒 false。**故意不给默认值**——漏传必须是编译错误（同 `scale` 那条铁律）。
     let showsWindowListInMenu: Bool
     var iconOnly: Bool = false
+    /// 侧边栏上这张卡是**方**的（Phase 42b）：主轴长度 = `cardWidth`，不是 `chipHeight`——
+    /// 否则卡的长边（54）会变成图标之间的间距，侧边栏的图标行就比底边条的松。
+    /// **故意不给默认值**——漏传必须是编译错误（同 `scale` 那条铁律）。
+    let railTile: Bool
     /// Phase 18c: the dot sits on the strip's inner edge (bottom bar → bottom; rails → toward the screen).
     @Environment(\.runningDotEdge) private var runningDotEdge
     var showRunningDot: Bool = false
@@ -215,7 +219,7 @@ struct ChipView: View {
             Spacer(minLength: 0)
         }
         .frame(width: ChipPillMetrics.cardWidth * scale,
-               height: ChipPillMetrics.chipHeight * scale)
+               height: ChipPillMetrics.cardFrameHeight(scale, onRail: railTile))
         .overlay(alignment: .topTrailing) {
             if item.isAppGroup, item.memberWindowIDs.count > 1, !isDragCarrierSnapshot {
                 Text(verbatim: "\(item.memberWindowIDs.count)")

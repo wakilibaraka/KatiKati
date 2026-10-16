@@ -1,0 +1,99 @@
+ROLE COUNTS AXButton=25 AXCheckBox=24 AXDisclosureTriangle=1 AXGroup=2 AXOpaqueProviderGroup=2 AXPopUpButton=3 AXRadioButton=13 AXRadioGroup=5 AXScrollArea=1 AXStaticText=20 AXToolbar=1
+WINDOW 405 38 900 1074
+AXStaticText	y    7.0 x  417.0    65.0 x  16.0  Launcher
+AXButton	y    8.0 x    8.0    16.0 x  16.0  
+AXButton	y    8.0 x   31.0    16.0 x  16.0  
+AXButton	y    8.0 x   54.0    16.0 x  16.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXToolbar	y   32.0 x    0.0   900.0 x  56.0  
+AXButton	y   32.0 x  108.5    55.0 x  56.0  General
+AXButton	y   32.0 x  164.5    75.0 x  56.0  Appearance
+AXButton	y   32.0 x  240.5    55.5 x  56.0  Widgets
+AXButton	y   32.0 x  297.0    55.0 x  56.0  Notch
+AXButton	y   32.0 x  353.0    65.5 x  56.0  Edge Bars
+AXButton	y   32.0 x  419.5   125.0 x  56.0  Window Management
+AXButton	y   32.0 x  545.5    61.0 x  56.0  Launcher
+AXButton	y   32.0 x  607.5    63.0 x  56.0  Shortcuts
+AXButton	y   32.0 x  671.5    55.0 x  56.0  Tools
+AXButton	y   32.0 x  727.5    64.0 x  56.0  Advanced
+AXGroup	y   88.0 x    0.0   900.0 x 986.0  
+AXScrollArea	y   88.0 x    0.0   900.0 x 986.0  
+AXStaticText	y  102.0 x   42.0    60.5 x  16.0  Launcher
+AXRadioGroup	y  136.0 x  696.0   162.0 x  24.0  Scroll Direction
+AXRadioButton	y  136.0 x  696.0    81.0 x  24.0  1
+AXRadioButton	y  136.0 x  777.0    81.0 x  24.0  0
+AXStaticText	y  140.0 x   42.0    92.5 x  16.0  Scroll Direction
+AXButton	y  176.0 x  700.5   157.5 x  24.0  Show All Hidden Apps
+AXStaticText	y  180.0 x   42.0    78.5 x  16.0  Hidden Apps
+AXStaticText	y  180.0 x  682.0     8.5 x  16.0  0
+AXButton	y  208.0 x   42.0   125.0 x  24.0  Reset App Order
+AXDisclosureTriangle	y  236.0 x   19.5   173.5 x  16.0  0
+AXPopUpButton	y  264.0 x  358.0    92.0 x  24.0  Top
+AXPopUpButton	y  264.0 x  713.5   144.5 x  24.0  System
+AXStaticText	y  268.0 x   42.0    94.5 x  16.0  Search Position
+AXStaticText	y  268.0 x  450.0    42.0 x  16.0  Theme
+AXPopUpButton	y  305.0 x  765.5    92.5 x  24.0  None
+AXStaticText	y  309.0 x   42.0    23.5 x  16.0  Tint
+AXButton	y  344.0 x  334.5    74.5 x  69.0  Liquid Bento
+AXButton	y  345.0 x  418.0    71.5 x  67.0  Vision Mono
+AXButton	y  345.0 x  499.5    57.0 x  67.0  Starburst
+AXButton	y  345.0 x  566.5    50.0 x  67.0  Glass
+AXButton	y  345.0 x  626.5    50.0 x  67.0  Orbit
+AXButton	y  345.0 x  686.5    50.0 x  67.0  Tiles
+AXButton	y  345.0 x  746.5    50.0 x  67.0  Petal
+AXButton	y  345.0 x  806.5    51.5 x  67.0  Themed
+AXStaticText	y  370.5 x   42.0    86.0 x  16.0  Launcher Icon
+AXStaticText	y  468.0 x   42.0    95.5 x  16.0  Control Center
+AXRadioGroup	y  502.0 x  338.0   112.0 x  24.0  Side, Side
+AXRadioButton	y  502.0 x  338.0    56.0 x  24.0  0
+AXRadioButton	y  502.0 x  394.0    56.0 x  24.0  1
+AXRadioGroup	y  502.0 x  640.5   217.5 x  24.0  Size, Size
+AXRadioButton	y  502.0 x  640.5    72.5 x  24.0  0
+AXRadioButton	y  502.0 x  713.0    72.5 x  24.0  1
+AXRadioButton	y  502.0 x  785.5    72.5 x  24.0  0
+AXStaticText	y  506.0 x   42.0    27.0 x  16.0  Side
+AXStaticText	y  506.0 x  450.0    25.5 x  16.0  Size
+AXRadioGroup	y  543.0 x  244.5   205.5 x  24.0  Anchor, Anchor
+AXRadioButton	y  543.0 x  244.5    68.5 x  24.0  1
+AXRadioButton	y  543.0 x  313.0    68.5 x  24.0  0
+AXRadioButton	y  543.0 x  381.5    68.5 x  24.0  0
+AXRadioGroup	y  543.0 x  661.5   196.5 x  24.0  Animation, Animation
+AXRadioButton	y  543.0 x  661.5    65.5 x  24.0  0
+AXRadioButton	y  543.0 x  727.0    65.5 x  24.0  0
+AXRadioButton	y  543.0 x  792.5    65.5 x  24.0  1
+AXStaticText	y  547.0 x   42.0    43.5 x  16.0  Anchor
+AXStaticText	y  547.0 x  450.0    61.0 x  16.0  Animation
+AXStaticText	y  581.0 x   42.0    43.5 x  14.0  Widgets
+AXOpaqueProviderGroup	y  599.0 x   42.0   473.5 x  41.0  
+AXCheckBox	y  599.0 x   42.0    72.0 x  16.5  1
+AXCheckBox	y  599.0 x  450.0    65.5 x  16.5  1
+AXCheckBox	y  623.4 x   42.0    75.5 x  16.6  1
+AXStaticText	y  650.0 x   42.0    77.0 x  14.0  Quick Settings
+AXOpaqueProviderGroup	y  668.0 x   42.0   530.0 x 212.0  
+AXCheckBox	y  668.0 x   42.0    87.5 x  16.5  1
+AXCheckBox	y  668.0 x  450.0    94.0 x  16.5  1
+AXCheckBox	y  692.4 x   42.0   103.0 x  16.6  1
+AXCheckBox	y  692.4 x  450.0    96.0 x  16.6  1
+AXCheckBox	y  716.8 x   42.0   116.0 x  16.7  1
+AXCheckBox	y  716.8 x  450.0    72.5 x  16.7  1
+AXCheckBox	y  741.3 x   42.0    77.0 x  16.2  1
+AXCheckBox	y  741.3 x  450.0    96.5 x  16.2  1
+AXCheckBox	y  765.7 x   42.0    87.5 x  16.3  1
+AXCheckBox	y  765.7 x  450.0    53.5 x  16.3  1
+AXCheckBox	y  790.1 x   42.0    80.0 x  16.4  1
+AXCheckBox	y  790.1 x  450.0    86.0 x  16.4  1
+AXCheckBox	y  814.5 x   42.0    81.0 x  16.5  1
+AXCheckBox	y  814.5 x  450.0    47.5 x  16.5  1
+AXCheckBox	y  838.9 x   42.0   101.0 x  16.6  1
+AXCheckBox	y  838.9 x  450.0    96.0 x  16.6  1
+AXCheckBox	y  863.4 x   42.0   118.5 x  16.6  1
+AXCheckBox	y  863.4 x  450.0   122.0 x  16.6  1
+AXStaticText	y  932.0 x   42.0    60.5 x  16.0  Launcher
+AXCheckBox	y  966.0 x  396.0    54.0 x  24.0  1
+AXCheckBox	y  966.0 x  804.0    54.0 x  24.0  1
+AXStaticText	y  970.0 x   42.0   108.5 x  16.0  Script Commands
+AXStaticText	y  970.0 x  450.0   134.0 x  16.0  Show Command Hints
+AXCheckBox	y 1007.0 x  804.0    54.0 x  24.0  1
+AXStaticText	y 1011.0 x   42.0    86.5 x  16.0  Fast File Index
+AXButton	y 1048.0 x   42.0   131.0 x  24.0  Replace Spotlight
+AXButton	y 1053.5 x  184.0    13.0 x  13.0  Open System Settings › Keyboard. Click K

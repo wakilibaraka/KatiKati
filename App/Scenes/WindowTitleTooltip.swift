@@ -98,6 +98,20 @@ enum ChipPillMetrics {
     /// 槽位比静息图标小就会让图标整块往下溢出（2026-08-16：图标从 36 改成 40 而槽位仍写死 36，
     /// 实测图标在卡里下移 4pt，上下留白变成 12.5 / 8.0）。两者必须同一个常量。
     static let bareIconSlot: CGFloat = 40
+
+    /// A card's **frame height**: 54 (`chipHeight`) on the bottom bar, where the card is 40 × 54 and
+    /// the row's height is the card's, and 40 (`cardWidth`) on a rail, where the card is square.
+    ///
+    /// Why a rail shrinks it: the rail runs its chips down the y axis, so the card's frame *height* is
+    /// the direction the next chip sits in — the 7 pt the icon leaves above and below it become
+    /// distance **between icons**. That put a rail's icons on a 54 + 2 = 56 pt pitch against the bottom
+    /// bar's 40 + 2 = 42, so the same tray read visibly looser vertically than horizontally (owner
+    /// 2026-10-15: "the bottom dock and vertical docks should look similar for the app tray"). 42 is
+    /// also what `IslandChrome.railChipStride` already tells the solver a rail spends per chip, and what
+    /// the widget tiles beside them draw (`BarSection.railTileSize`).
+    static func cardFrameHeight(_ scale: CGFloat, onRail: Bool) -> CGFloat {
+        (onRail ? cardWidth : chipHeight) * scale
+    }
     /// 图标槽位里**实际画出来的方块**有多大。
     ///
     /// 苹果的图标资源自带约 18% 的透明边距（2026-08-16 实测：40pt 的槽位里可见方块 32.5pt），

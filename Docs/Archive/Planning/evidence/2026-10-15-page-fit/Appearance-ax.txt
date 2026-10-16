@@ -1,0 +1,47 @@
+WINDOW	Appearance	405	209	900	1066
+AXStaticText	42.0	102.0	Layout Mode
+AXButton	42.0	200.0	
+AXButton	207.0	200.0	
+AXButton	371.5	200.0	
+AXButton	536.5	200.0	
+AXButton	701.0	200.0	
+AXStaticText	42.0	286.0	Three islands: launcher and weather, apps and 
+AXStaticText	42.0	329.0	Position
+AXRadioGroup	244.5	325.0	
+AXStaticText	450.0	329.0	Bar Height
+AXRadioGroup	640.5	325.0	
+AXStaticText	42.0	370.0	Spacing
+AXRadioGroup	559.5	366.0	
+AXStaticText	42.0	471.0	Theme
+AXStaticText	42.0	664.0	Icon Set
+AXRadioGroup	716.0	660.0	
+AXStaticText	42.0	692.0	Modern
+AXStaticText	456.0	692.0	Classic
+AXStaticText	42.0	726.0	Applies to the trash and the menu bar icon. In
+AXStaticText	42.0	752.0	Dock App Icon Shape
+AXRadioGroup	711.0	748.0	
+AXStaticText	42.0	780.0	Switch dock app icons between standard macOS s
+AXStaticText	42.0	803.0	Swatches show the dock plate's tint; Auto foll
+AXStaticText	42.0	876.0	Dynamic Wallpaper
+AXCheckBox	396.0	872.0	1
+AXStaticText	450.0	876.0	Mode
+AXRadioGroup	633.0	872.0	
+AXStaticText	42.0	916.0	Built-in Sky
+AXButton	736.0	912.0	
+AXStaticText	42.0	1024.0	Tint Dock by Time of Day
+AXCheckBox	396.0	1020.0	1
+AXButton	450.0	1020.0	
+AXButton	38.5	497.0	
+AXButton	102.0	497.0	
+AXButton	165.5	497.0	
+AXButton	229.0	497.0	
+AXButton	292.0	497.0	
+AXButton	355.5	497.0	
+AXButton	419.0	497.0	
+AXButton	482.5	497.0	
+AXButton	546.0	497.0	
+AXButton	609.0	497.0	
+AXButton	672.5	497.0	
+AXButton	736.0	497.0	
+AXButton	799.5	497.0	
+AXButton	38.5	579.0	

@@ -256,6 +256,8 @@ struct DrawerView: View {
                      // 76pt icon = 1.9 × the bar's 40pt slot (`StackCellMetrics.drawer.iconSize`).
                      scale: 1.9,
                      layout: .stackCell,
+                     // 抽屉的格子是自己的方形度量，与条的主轴无关。
+                     railTile: false,
                      // 抽屉有意不受「悬停效果」设置影响（owner 2026-08-02），但**固定成安静档**
                      // （owner 2026-08-17 要「抽屉图标悬停微微放大」）。
                      //

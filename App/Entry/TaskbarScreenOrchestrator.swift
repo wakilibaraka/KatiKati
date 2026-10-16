@@ -292,12 +292,11 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         cancelInteractiveHeightResize()
         defer { reconcileEdgeBars(connectedKeys: connectedKeys) }
         let mode = settingsStore.barLayoutMode
+        // Phase 41a: every display renders this mode as itself — a rail no longer folds split4/5.
         let desired = IslandSlotSet.desiredSlots(
             placement: settingsStore.taskbarScreenPlacement,
             connectedKeys: connectedKeys,
-            mode: mode,
-            // A side rail folds split4/5 into three islands (Phase 18).
-            modeForDisplay: { [settingsStore] key in settingsStore.stripPlacement(forDisplay: key).effectiveMode(mode) }
+            mode: mode
         )
         let current = units.map(\.slotKey)
         guard desired != current else { return }

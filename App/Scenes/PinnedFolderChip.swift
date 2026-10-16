@@ -26,6 +26,9 @@ struct PinnedFolderChip: View {
     /// 任务条尺寸档位的缩放系数。中档 = 1.0，此时所有尺寸与历史字面值逐像素相同。
     /// **故意不给默认值**——漏传必须是编译错误，见 AGENTS《Taskbar Size Tiers》。
     let scale: CGFloat
+    /// 侧边栏上这张卡是**方**的（Phase 42b），理由见 `ChipPillMetrics.cardFrameHeight`。
+    /// **故意不给默认值**——漏传必须是编译错误。
+    let railTile: Bool
     /// 悬停效果档位。**同样故意不给默认值**——漏传必须是编译错误，理由同 `scale`。
     let hoverStyle: HoverStyle
     /// 指针在不在这张卡上。由任务条整条那块跟踪区算好后传进来（见 `StripHoverResolution`）；
@@ -54,7 +57,7 @@ struct PinnedFolderChip: View {
             Spacer(minLength: 0)
         }
         .frame(width: ChipPillMetrics.cardWidth * scale,
-               height: ChipPillMetrics.chipHeight * scale)
+               height: ChipPillMetrics.cardFrameHeight(scale, onRail: railTile))
         .chipQuietHoverScale(quietHoverFeedback,
                              cardWidth: ChipPillMetrics.cardWidth * scale,
                              scale: scale)

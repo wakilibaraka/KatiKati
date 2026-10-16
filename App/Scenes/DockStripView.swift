@@ -225,7 +225,7 @@ struct DockStripView: View {
                 .frame(minWidth: isRail ? nil : fullWidthContentWidth,
                        minHeight: isRail ? fullWidthContentWidth : nil,
                        alignment: isRail ? .top : .leading)
-                .padding(isRail ? .vertical : .horizontal, Style.chipContentInset * dockScale)
+                .padding(isRail ? .vertical : .horizontal, (isRail ? Style.railContentInset : Style.chipContentInset) * dockScale)
                 .frame(width: isRail ? metrics.panelHeight : nil, height: isRail ? nil : metrics.panelHeight)
                 .animation(frames.renderedCollapsed != dragController.stripSlotCollapsed
                                ? .easeInOut(duration: DrawerAnimation.duration)          // 合拢 / 重开：跟面板走
@@ -1301,7 +1301,7 @@ struct DockStripView: View {
             // 但它单独起不了作用——起作用的是"这个视图真的画了东西"。
             Color.black.opacity(0.001)
                 .frame(width: ChipPillMetrics.cardWidth * dockScale,
-                       height: ChipPillMetrics.chipHeight * dockScale)
+                       height: ChipPillMetrics.cardFrameHeight(dockScale, onRail: isRail))
                 .contentShape(Rectangle())
         }
     }
@@ -1366,6 +1366,7 @@ struct DockStripView: View {
                      showsWindowListInMenu: item.isAppLevelFallback,
                      // A rail is one icon wide: titled pills would spill past it (Phase 18c).
                      iconOnly: isRail,
+                     railTile: isRail,
                      showRunningDot: true,
                      pulseNonce: chipPulseNonces[item.id] ?? 0,
                      badgeText: windowBadge,
@@ -1441,9 +1442,10 @@ struct DockStripView: View {
             // to the left end and the trailing ones to the right end (Appendix A, Phase 11b).
             Spacer(minLength: StripContextMenuZone.dividerGapWidth * dockScale)
         case .divider where isRail:
-            // Phase 40d: `dividerSidePadding` is derived from the bottom bar's 13 pt divider gap; on a rail
-            // that opened a 13 pt hole against 4 pt neighbours, which is what read as uneven spacing. The
-            // rail keeps the hairline marking a group boundary but adds no padding of its own.
+            // Phase 40d: `dividerSidePadding` is derived from the bottom bar's divider gap
+            // (`StripContextMenuZone.dividerGapWidth`, 9 pt since Phase 41c); on a rail that opened a hole
+            // against 4 pt neighbours, which is what read as uneven spacing. The rail keeps the hairline
+            // marking a group boundary but adds no padding of its own.
             Rectangle()
                 .fill(theme.zoneDivider.color)
                 .frame(width: Style.dividerHeight * dockScale, height: 1)
@@ -1469,6 +1471,7 @@ struct DockStripView: View {
                 isDropTarget: externalDropTarget == .moveInto(path: path),
                 showsDownloadActivity: Self.isDownloadsFolder(path) && !pinnedFolderStore.isUnopenedSeed(path),
                 scale: dockScale,
+                railTile: isRail,
                 hoverStyle: hoverStyle,
                 isHovered: hovered
             )
@@ -1484,6 +1487,7 @@ struct DockStripView: View {
                 shakePulse: shelfStore.shakePulse,
                 isDropTargeted: externalDropTarget == .stash,
                 scale: dockScale,
+                railTile: isRail,
                 hoverStyle: hoverStyle,
                 isHovered: hovered,
                 onTap: { shelfChipTapped() },
@@ -1507,7 +1511,7 @@ struct DockStripView: View {
                              isHovered: hovered,
                              // 消息区图标恒代表整个应用（主窗开着也一样），列出全部窗口。
                              showsWindowListInMenu: true,
-                             iconOnly: true, showRunningDot: true,
+                             iconOnly: true, railTile: isRail, showRunningDot: true,
                              badgeText: badge,
                              slotHidden: draggingMessagingBundleID == bid)
                 } else {
@@ -1522,6 +1526,7 @@ struct DockStripView: View {
                                  isLaunching: runtime.launchingBundleIDs.contains(bid),
                                  scale: dockScale,
                                  layout: .bar,
+                                 railTile: isRail,
                                  hoverStyle: hoverStyle,
                                  hoverInput: .resolved(hovered),
                                  windowEntriesProvider: {
@@ -1563,6 +1568,7 @@ struct DockStripView: View {
                 isLaunching: runtime.launchingBundleIDs.contains(bid),
                 scale: dockScale,
                 layout: .bar,
+                railTile: isRail,
                 hoverStyle: hoverStyle,
                 hoverInput: .resolved(hovered),
                 windowEntriesProvider: {
@@ -1609,8 +1615,11 @@ private enum Style {
     /// Rail-only chip gap (Phase 40d). Deliberately **not** `ChipPillMetrics.chipSpacing`: that value is
     /// shared with the bottom bar and its `StripContextMenuZone` thresholds move with it, and a vertical
     /// run of icons wants a little more air than a horizontal one. Rail dividers no longer add padding on
-    /// top of this, so every gap on the rail is this number.
-    static let railChipSpacing: CGFloat  = 4
+    /// top of this, so every gap on the rail is this number. The number lives in Core since Phase 41b, so
+    /// the solver's rail stride (`IslandChrome.railChipStride`) reads the value this strip draws.
+    static let railChipSpacing: CGFloat  = IslandChrome.railChipSpacing
+    /// Rail-only end padding (Phase 42): the Dock's tight ends, not the bar's plate-radius inset.
+    static let railContentInset: CGFloat = IslandChrome.railContentInset
     static let dividerHeight: CGFloat    = 20  // zone divider height (height of a bottom-bar divider; the rail's hairline length)
     /// Each side of the hairline. With `chipSpacing` the divider gap is `StripContextMenuZone.dividerGapWidth`.
     static let dividerSidePadding: CGFloat = (StripContextMenuZone.dividerGapWidth - 1) / 2 - chipSpacing

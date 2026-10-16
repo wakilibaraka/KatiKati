@@ -117,6 +117,10 @@ final class LiveActivityFeed: ObservableObject {
     /// capsule itself renders the resolved `activity`; this is only for the popup's richer view.
     var nowPlayingState: NowPlayingState { nowPlaying.state }
 
+    /// Why the music surfaces may have nothing to show (Phase 45): a running player whose Automation
+    /// grant is missing reads as `.refused`, which the surfaces turn into a line and a door to fix it.
+    var playerAccess: PlayerAccess { nowPlaying.playerAccess }
+
     /// Play/pause pass-through for the capsule's one affordance (music only). Refreshes immediately
     /// so the popup/capsule can flip without waiting a full tick; MediaRemote's own async update
     /// settles the final state on the next tick.

@@ -105,6 +105,7 @@ struct LiveIslandDockCapsule: View {
             NowPlayingPopup(
                 state: feed.nowPlayingState,
                 theme: settingsStore.nowPlayingTheme,
+                access: feed.playerAccess,
                 onToggle: { feed.togglePlayPause() },
                 onNext: { feed.nextTrack() },
                 onPrevious: { feed.previousTrack() }
@@ -250,6 +251,8 @@ struct LiveIslandDockCapsule: View {
 struct NowPlayingPopup: View {
     let state: NowPlayingState
     let theme: NowPlayingTheme
+    /// `.refused` when the player may not be read: the popup says so instead of "Not Playing" (Phase 45).
+    var access: PlayerAccess = .unknown
     let onToggle: () -> Void
     var onNext: () -> Void = {}
     var onPrevious: () -> Void = {}
@@ -286,14 +289,24 @@ struct NowPlayingPopup: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(state.title ?? "Not Playing")
+                        Text(access.unreadableMessage ?? state.title ?? "Not Playing")
                             .font(.system(size: 13, weight: .bold))
                             .foregroundColor(isDarkMode ? .white : .black)
                             .lineLimit(1)
-                        Text(state.artist ?? "Unknown Artist")
-                            .font(.system(size: 12))
-                            .foregroundColor(isDarkMode ? .gray : .secondary)
+                        if access.unreadableMessage == nil {
+                            Text(state.artist ?? "Unknown Artist")
+                                .font(.system(size: 12))
+                                .foregroundColor(isDarkMode ? .gray : .secondary)
+                                .lineLimit(1)
+                        } else {
+                            Button(String(localized: "Open System Settings")) {
+                                if let url = PlayerAccess.automationSettingsURL { NSWorkspace.shared.open(url) }
+                            }
+                            .buttonStyle(.plain)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(isDarkMode ? .white.opacity(0.9) : .black.opacity(0.8))
                             .lineLimit(1)
+                        }
                     }
                     Spacer()
                     // AirPlay Icon
@@ -439,20 +452,27 @@ private struct ExpandedMediaCardView: View {
     @State private var currentPage: Int = 0
     @State private var scrollDirection: Int = 1
     @State private var showPopup = false
+    @State private var armingAlarm = false
+    @State private var alarmDraft = Date()
     @Environment(\.widgetSize) private var widgetSize
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         let state = feed.nowPlayingState
-        let progress = state.progress(at: timelineNow) ?? 0.35
-        let title = (state.title?.isEmpty ?? true) ? "God's Plan" : (state.title ?? "God's Plan")
-        let artist = (state.artist?.isEmpty ?? true) ? "Drake" : (state.artist ?? "Drake")
+        // Never invent a track: with no title from the system the card says so, and the scrubber is
+        // drawn only for a position the system actually reported (it used to show a guessed 0.35).
+        let progress = state.progress(at: timelineNow)
+        let hasTrack = !(state.title?.isEmpty ?? true)
+        // A player we may not read says so, instead of the card claiming nothing is playing (Phase 45).
+        let unreadable = hasTrack ? nil : feed.playerAccess.unreadableMessage
+        let title = hasTrack ? (state.title ?? "") : (unreadable ?? String(localized: "Not Playing"))
+        let artist = hasTrack ? (state.artist ?? "") : (state.appName ?? "")
 
         HStack(spacing: 8) {
             // Paged Content area with vertical sliding animation
             ZStack {
                 if currentPage == 0 {
-                    trackPageView(state: state, progress: progress, title: title, artist: artist)
+                    trackPageView(state: state, progress: progress, title: title, artist: artist, unreadable: unreadable)
                         .transition(.asymmetric(
                             insertion: .move(edge: scrollDirection >= 0 ? .bottom : .top).combined(with: .opacity),
                             removal: .move(edge: scrollDirection >= 0 ? .top : .bottom).combined(with: .opacity)
@@ -544,12 +564,16 @@ private struct ExpandedMediaCardView: View {
                 }
             }
         }
-        .onAppear { feed.retain() }
-        .onDisappear { feed.release() }
+        // The volume page reads and writes the real output device through `SystemStatusService`, which
+        // binds its CoreAudio listeners on `acquire()`: without this the page showed a default level and
+        // every drag was a no-op (Phase 43).
+        .onAppear { feed.retain(); systemStatus.acquire() }
+        .onDisappear { feed.release(); systemStatus.release() }
         .popover(isPresented: $showPopup, arrowEdge: .top) {
             NowPlayingPopup(
                 state: state,
                 theme: .auto,
+                access: feed.playerAccess,
                 onToggle: { feed.togglePlayPause() },
                 onNext: { feed.nextTrack() },
                 onPrevious: { feed.previousTrack() }
@@ -559,7 +583,7 @@ private struct ExpandedMediaCardView: View {
 
     // MARK: - Page 0: Track Info & Transport
 
-    private func trackPageView(state: NowPlayingState, progress: Double, title: String, artist: String) -> some View {
+    private func trackPageView(state: NowPlayingState, progress: Double?, title: String, artist: String, unreadable: String?) -> some View {
         HStack(spacing: 8) {
             // Album Artwork (never clipped)
             ZStack {
@@ -593,30 +617,60 @@ private struct ExpandedMediaCardView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
 
-                Text(artist)
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
-                    .foregroundStyle(Color.white.opacity(0.75))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-
-                // Scrubber Bar
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        Capsule()
-                            .fill(Color.white.opacity(0.18))
-                            .frame(height: 3)
-
-                        Capsule()
-                            .fill(Color.white.opacity(0.88))
-                            .frame(width: max(3, geo.size.width * CGFloat(progress)), height: 3)
-
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 6, height: 6)
-                            .offset(x: max(0, min(geo.size.width - 6, geo.size.width * CGFloat(progress) - 3)))
+                if unreadable == nil {
+                    Text(artist)
+                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.75))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                } else {
+                    // The refused-player line is already the empty artist slot's own height, so the row
+                    // does not grow — and it is the door to the fix, not only the report.
+                    Button(String(localized: "Open System Settings")) {
+                        if let url = PlayerAccess.automationSettingsURL { NSWorkspace.shared.open(url) }
                     }
+                        .buttonStyle(.plain)
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.95))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
-                .frame(height: 6)
+
+                // Tracking bar — only for a real position and a real track length; a track with no
+                // reported elapsed time (or nothing playing) draws no bar rather than a fraction we
+                // made up. Elapsed sits on the left, the duration on the right (Phase 43); the bar
+                // itself is display-only, like the popup's — a drag gesture here would fight the
+                // strip's own horizontal scroll.
+                if let progress, let duration = state.duration, duration > 0 {
+                    let elapsed = NowPlayingProgress.elapsed(at: timelineNow, elapsed: state.elapsed,
+                                                              asOf: state.elapsedAsOf, rate: state.rate,
+                                                              duration: duration) ?? progress * duration
+                    HStack(spacing: 5) {
+                        Text(verbatim: NotchLayoutSpec.clockText(elapsed))
+
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                Capsule()
+                                    .fill(Color.white.opacity(0.18))
+                                    .frame(height: 3)
+
+                                Capsule()
+                                    .fill(Color.white.opacity(0.88))
+                                    .frame(width: max(3, geo.size.width * CGFloat(progress)), height: 3)
+
+                                Circle()
+                                    .fill(Color.white)
+                                    .frame(width: 6, height: 6)
+                                    .offset(x: max(0, min(geo.size.width - 6, geo.size.width * CGFloat(progress) - 3)))
+                            }
+                        }
+                        .frame(height: 6)
+
+                        Text(verbatim: NotchLayoutSpec.clockText(duration))
+                    }
+                    .font(.system(size: 8.5, weight: .medium, design: .rounded).monospacedDigit())
+                    .foregroundStyle(Color.white.opacity(0.62))
+                }
             }
             .frame(minWidth: 55, maxWidth: .infinity, alignment: .leading)
 
@@ -1028,44 +1082,30 @@ private struct ExpandedMediaCardView: View {
 
     private var alarmPageView: some View {
         let nextAlarmTuple = AlarmList.next(in: alarmStore.alarms, after: timelineNow)
-        let missedAlarm = checkMissedAlarm(at: timelineNow)
         let alarmGold = Color(red: 1.0, green: 0.82, blue: 0.25)
-        let alertRed = Color(red: 1.0, green: 0.32, blue: 0.32)
 
         return HStack(spacing: 8) {
-            // Bell / Alarm status squircle
+            // Bell / Alarm status squircle. The armed state is the store's own: the page used to invent
+            // a "Missed" alarm from the clock (any enabled alarm 0–15 minutes back), Phase 43 drops it.
             ZStack {
-                let isMissed = missedAlarm != nil
                 let hasUpcoming = nextAlarmTuple != nil
 
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(isMissed ? alertRed.opacity(0.18) : (hasUpcoming ? alarmGold.opacity(0.15) : Color.white.opacity(0.08)))
+                    .fill(hasUpcoming ? alarmGold.opacity(0.15) : Color.white.opacity(0.08))
                     .frame(width: 32, height: 32)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .stroke(isMissed ? alertRed.opacity(0.40) : (hasUpcoming ? alarmGold.opacity(0.30) : Color.white.opacity(0.16)), lineWidth: 1)
+                            .stroke(hasUpcoming ? alarmGold.opacity(0.30) : Color.white.opacity(0.16), lineWidth: 1)
                     )
 
-                Image(systemName: isMissed ? "bell.badge.fill" : (hasUpcoming ? "alarm.fill" : "alarm"))
+                Image(systemName: hasUpcoming ? "alarm.fill" : "alarm")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(isMissed ? alertRed : (hasUpcoming ? alarmGold : Color.white.opacity(0.45)))
+                    .foregroundStyle(hasUpcoming ? alarmGold : Color.white.opacity(0.45))
             }
 
             // Alarm details / countdown
             VStack(alignment: .leading, spacing: 2) {
-                if let missed = missedAlarm {
-                    HStack(spacing: 4) {
-                        Text("Alarm")
-                            .font(.system(size: 10.5, weight: .bold, design: .rounded))
-                            .foregroundStyle(alertRed)
-                        Text(verbatim: "• Missed")
-                            .font(.system(size: 9.5, weight: .semibold, design: .rounded))
-                            .foregroundStyle(alertRed.opacity(0.9))
-                    }
-                    Text(verbatim: String(format: "At %02d:%02d", missed.hour, missed.minute))
-                        .font(.system(size: 11, weight: .bold, design: .rounded).monospacedDigit())
-                        .foregroundStyle(.white)
-                } else if let (alarm, fireDate) = nextAlarmTuple {
+                if let (alarm, fireDate) = nextAlarmTuple {
                     HStack(spacing: 4) {
                         Text(verbatim: String(format: "%02d:%02d", alarm.hour, alarm.minute))
                             .font(.system(size: 11, weight: .bold, design: .rounded).monospacedDigit())
@@ -1091,27 +1131,36 @@ private struct ExpandedMediaCardView: View {
             }
             .frame(minWidth: 55, maxWidth: .infinity, alignment: .leading)
 
-            // Quick Power Nap + Toggle Alarm controls
+            // Arm a real alarm (the same time-picker + store the calendar panel's alarms tile uses) and
+            // toggle the next armed one. No "+20m nap" shortcut and no invented row (Phase 43).
             HStack(spacing: 5) {
-                // Quick +20m Nap button
-                Button(action: addQuickNap) {
-                    Text(verbatim: "+20m")
-                        .font(.system(size: 9.5, weight: .bold, design: .rounded))
-                        .foregroundStyle(alarmGold)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 2.5)
-                        .background(
-                            Capsule()
-                                .fill(alarmGold.opacity(0.18))
-                        )
-                        .overlay(
-                            Capsule()
-                                .stroke(alarmGold.opacity(0.40), lineWidth: 1)
-                        )
+                Button { armingAlarm = true } label: {
+                    ZStack {
+                        Circle()
+                            .fill(alarmGold.opacity(0.20))
+                            .frame(width: 22, height: 22)
+                        Image(systemName: "plus")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(alarmGold)
+                    }
                 }
                 .buttonStyle(.plain)
+                .help(Text(verbatim: "Arm an alarm"))
+                .popover(isPresented: $armingAlarm, arrowEdge: .top) {
+                    VStack(spacing: 8) {
+                        DatePicker(selection: $alarmDraft, displayedComponents: .hourAndMinute) {
+                            Text("Alarm")
+                        }
+                        .labelsHidden()
+                        Button("Add") {
+                            let parts = Calendar.current.dateComponents([.hour, .minute], from: alarmDraft)
+                            alarmStore.add(hour: parts.hour ?? 7, minute: parts.minute ?? 0)
+                            armingAlarm = false
+                        }
+                    }
+                    .padding(12)
+                }
 
-                // If upcoming alarm exists, toggle its state; otherwise add nap
                 if let (alarm, _) = nextAlarmTuple {
                     Button(action: { alarmStore.setEnabled(!alarm.isEnabled, for: alarm.id) }) {
                         ZStack {
@@ -1124,42 +1173,8 @@ private struct ExpandedMediaCardView: View {
                         }
                     }
                     .buttonStyle(.plain)
-                } else {
-                    Button(action: addQuickNap) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.white.opacity(0.18))
-                                .frame(width: 22, height: 22)
-                            Image(systemName: "plus")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundStyle(.white)
-                        }
-                    }
-                    .buttonStyle(.plain)
                 }
             }
-        }
-    }
-
-    private func addQuickNap() {
-        let napDate = timelineNow.addingTimeInterval(20 * 60)
-        let cal = Calendar.current
-        let h = cal.component(.hour, from: napDate)
-        let m = cal.component(.minute, from: napDate)
-        alarmStore.add(hour: h, minute: m, label: "Power Nap")
-        NSSound(named: "Glass")?.play()
-    }
-
-    private func checkMissedAlarm(at date: Date) -> AlarmItem? {
-        let cal = Calendar.current
-        let nowComps = cal.dateComponents([.hour, .minute], from: date)
-        guard let currentHour = nowComps.hour, let currentMinute = nowComps.minute else { return nil }
-        let nowMinutes = currentHour * 60 + currentMinute
-        return alarmStore.alarms.first { alarm in
-            guard alarm.isEnabled else { return false }
-            let alarmMinutes = alarm.hour * 60 + alarm.minute
-            let diff = nowMinutes - alarmMinutes
-            return diff > 0 && diff <= 15
         }
     }
 

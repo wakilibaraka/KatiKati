@@ -75,6 +75,18 @@ struct LayoutModePicker: View {
     var thumbnailSize = CGSize(width: 88, height: 55)
     let onSelect: (BarLayoutMode) -> Void
 
+    /// A rail runs the screen's **height**, so its card is the same card turned on its side (Phase 41d):
+    /// in the landscape card the rail was a ~2 pt sliver at the left edge, and Split 4 and Split 5 — the
+    /// two modes a rail could not show before Phase 41a — were indistinguishable.
+    private var cardSize: CGSize {
+        inputs.placement.isVertical ? CGSize(width: thumbnailSize.height, height: thumbnailSize.width)
+                                    : thumbnailSize
+    }
+
+    /// The rail is a sliver on a whole-screen card (54 of the reference screen's 1440 pt); floor its
+    /// thickness so a card still reads as a rail rather than a hairline.
+    private var minimumIslandThickness: CGFloat { inputs.placement.isVertical ? 4 : 2 }
+
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             ForEach(BarLayoutMode.allCases) { mode in
@@ -83,8 +95,9 @@ struct LayoutModePicker: View {
                     onSelect(mode)
                 } label: {
                     VStack(spacing: 5) {
-                        LayoutModeThumbnail(mode: mode, inputs: inputs, highlighted: isSelected)
-                            .frame(width: thumbnailSize.width, height: thumbnailSize.height)
+                        LayoutModeThumbnail(mode: mode, inputs: inputs, highlighted: isSelected,
+                                            minimumIslandHeight: minimumIslandThickness)
+                            .frame(width: cardSize.width, height: cardSize.height)
                         LayoutModeTitle(mode: mode)
                             .font(.system(size: 11, weight: isSelected ? .semibold : .regular))
                             .lineLimit(1)
@@ -282,6 +295,12 @@ struct SettingsLayoutPane: View {
     /// The Shortcuts page's find field (Phase 12 A4). Localized titles only, so it matches what
     /// the reader sees in every language.
     @State private var shortcutFilter = ""
+    /// The two long runs on the Shortcuts page start collapsed: the 26 assignments are 1066 pt
+    /// against the page's 986 pt (measured live 2026-10-15), so the page only fits the window with
+    /// them closed. `expandedWhileFiltering` opens them for a find query, so search still reaches
+    /// every row — nothing is dropped, it is one click (or one keystroke) away.
+    @State private var showsFeatureShortcuts = false
+    @State private var showsSnapHotkeys = false
     /// Control Center edge; the panel reads it at each open (Phase 16n). The literal duplicates
     /// `ControlCenterPanelController.sideKey` — that file is app-target-only, and this pane also
     /// compiles into the test target.
@@ -306,17 +325,16 @@ struct SettingsLayoutPane: View {
     @ViewBuilder
     private var geometrySections: some View {
         let inputs = store.layoutThumbnailInputs
-            SettingsCard(Text("Preview")) {
-                // Bottom 22% of the reference screen, drawn at full pane width.
+            // Preview, Layout Mode, Size and Fine-tune are one card (2026-10-15): the page has to fit
+            // the window, and each extra card cost its own header, padding and section gap — 78 pt
+            // each, 156 of them here. Every control and every divider is unchanged.
+            SettingsCard(Text("Layout Mode")) {
                 LayoutModeThumbnail(mode: store.barLayoutMode, inputs: inputs, highlighted: true,
                                     minimumIslandHeight: 3, visibleBottomFraction: Self.previewFraction)
                     // Fixed height (≈ the cropped ratio at the pane's 504pt content width): the
                     // window's height probe proposes no height, so `aspectRatio` would collapse.
                     .frame(maxWidth: .infinity)
                     .frame(height: 72)
-            }
-
-            SettingsCard(Text("Layout Mode")) {
                 LayoutModePicker(selection: store.barLayoutMode, inputs: inputs) { store.setBarLayoutMode($0) }
                 // Fixed two-line box: the window is measured once per tab switch, so the
                 // pane height must not change with the selected mode.
@@ -325,9 +343,7 @@ struct SettingsLayoutPane: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, minHeight: 30, alignment: .topLeading)
-            }
-
-            SettingsCard(Text("Size")) {
+                SettingsDivider()
                 SettingsRowPair(
                     left: {
                         SettingsSegmentedRow(Text("Position"), selection: Binding(
@@ -359,9 +375,7 @@ struct SettingsLayoutPane: View {
                     Text("Comfortable").tag(DockSpacing?.some(.comfortable))
                     Text("Airy").tag(DockSpacing?.some(.airy))
                 }
-            }
-
-            SettingsCard {
+                SettingsDivider()
                 DisclosureGroup(isExpanded: $showsFineTune) {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Exact values for power users. Bar height is capped at what still fits this screen.")
@@ -552,12 +566,21 @@ struct SettingsLayoutPane: View {
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
-                SettingsRow(Text("Hidden Apps")) {
-                    Text(verbatim: "\(launcherHiddenCount)").foregroundStyle(.secondary)
-                    Button("Show All Hidden Apps") { updateLauncherState { $0.hidden = [] } }
-                        .disabled(launcherHiddenCount == 0)
-                }
-                Button("Reset App Order") { updateLauncherState { $0.order = [] } }
+                // Two narrow rows, one line (`Docs/SETTINGS.md` rule 5): the count/button row and
+                // the reset button were two lines, which with the rest of the page ran it 20 pt
+                // past the window (measured live 2026-10-15).
+                SettingsRowPair(
+                    left: {
+                        SettingsRow(Text("Hidden Apps")) {
+                            Text(verbatim: "\(launcherHiddenCount)").foregroundStyle(.secondary)
+                            Button("Show All Hidden Apps") { updateLauncherState { $0.hidden = [] } }
+                                .disabled(launcherHiddenCount == 0)
+                        }
+                    },
+                    right: {
+                        SettingsButtonRow(Text("Reset App Order")) { updateLauncherState { $0.order = [] } }
+                    }
+                )
                 DisclosureGroup("Hide Rarely Used Apps") {
                     HStack {
                         Button("Hide All Suggested") { updateLauncherState { $0.hidden = LauncherHidePresets.hidingAll($0.hidden) } }
@@ -809,11 +832,21 @@ struct SettingsLayoutPane: View {
             List {
                 ForEach(store.widgetLayout.order, id: \.self) { widget in
                     widgetRow(widget)
+                        .listRowInsets(EdgeInsets())
                 }
                 .onMove { store.setWidgetLayout(store.widgetLayout.moving(from: $0, to: $1)) }
             }
             .listStyle(.plain)
-            .frame(height: CGFloat(store.widgetLayout.order.count) * 38 + 24)
+            // Close-out F1 (2026-10-15): the list is a control inside a card, so it may not paint its
+            // own well (luminance 35 across 816 × 186 pt against the card's 42) and its rows may not
+            // sit off the grid (label ink at 50.5 pt against the page's 42, 38 pt pitch against 41).
+            // The reorder itself (`.onMove` above) stays — it is the reason this is still a `List`.
+            .scrollContentBackground(.hidden)
+            // A `List` lays its rows out in an `NSOutlineView`, which reserves 8 pt of leading
+            // indentation that `.listRowInsets` cannot reach (measured on the running app: the row
+            // labels at 50 pt against the page's 42) — the list is pulled back by that much.
+            .padding(.horizontal, -Self.listRowChromeInset)
+            .frame(height: Self.widgetListHeight(count: store.widgetLayout.order.count))
             presetControls
             contextPresetControls
         }
@@ -859,7 +892,8 @@ struct SettingsLayoutPane: View {
     private var shortcutSections: some View {
         let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
         SettingsCard(
-            Text("Shortcuts"),
+            // Headerless: the two disclosure groups below carry the names (the page's toolbar tab
+            // already says "Shortcuts"), so no new string was needed for the grouping.
             note: Text("Double-tap shortcuts need the Accessibility permission. ⌃Space may also switch input sources.")
         ) {
             SettingsRow(
@@ -872,24 +906,31 @@ struct SettingsLayoutPane: View {
                     .accessibilityLabel(Text("Search Shortcuts"))
             }
             SettingsDivider()
-            // One assignment per line, deliberately: an assignment is a name, a menu and a Record
-            // button, and a half of the card cannot hold three controls — measured live
-            // 2026-10-15, the Record button was squeezed to 20 pt and read “…” in both halves. Rule
-            // 5's exception ("a row whose control needs the width never pairs") applies, so the
-            // page's height is handled by the find field above instead.
-            ForEach(filteredFeatureShortcuts, id: \.self) { action in
-                shortcutRow(action, duplicated: duplicated)
-                SettingsDivider()
+            // One assignment per line (an assignment is a name, a menu and a Record button, and a
+            // half of the card cannot hold three controls — measured live 2026-10-15), and the run
+            // starts collapsed so the page fits the window.
+            DisclosureGroup(isExpanded: expandedWhileFiltering($showsFeatureShortcuts)) {
+                ForEach(filteredFeatureShortcuts, id: \.self) { action in
+                    shortcutRow(action, duplicated: duplicated)
+                    SettingsDivider()
+                }
+            } label: {
+                Text("Shortcuts").font(.headline)
             }
             if hasVisibleSnapHotkeys {
-                SettingsRow(
-                    Text("Snap Hotkeys"),
-                    info: String(localized: "All snap hotkeys default to Off. Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘.")
-                ) { EmptyView() }
-                snapHotkeyGroup(title: Text("Halves"), actions: Self.snapHotkeyGroups[0], duplicated: duplicated)
-                snapHotkeyGroup(title: Text("Quarters"), actions: Self.snapHotkeyGroups[1], duplicated: duplicated)
-                snapHotkeyGroup(title: Text("Thirds"), actions: Self.snapHotkeyGroups[2], duplicated: duplicated)
-                snapHotkeyGroup(title: Text("Full"), actions: Self.snapHotkeyGroups[3], duplicated: duplicated)
+                SettingsDivider()
+                DisclosureGroup(isExpanded: expandedWhileFiltering($showsSnapHotkeys)) {
+                    snapHotkeyGroup(title: Text("Halves"), actions: Self.snapHotkeyGroups[0], duplicated: duplicated)
+                    snapHotkeyGroup(title: Text("Quarters"), actions: Self.snapHotkeyGroups[1], duplicated: duplicated)
+                    snapHotkeyGroup(title: Text("Thirds"), actions: Self.snapHotkeyGroups[2], duplicated: duplicated)
+                    snapHotkeyGroup(title: Text("Full"), actions: Self.snapHotkeyGroups[3], duplicated: duplicated)
+                } label: {
+                    // The group's own name, and its explanation stays behind the ⓘ where it was.
+                    HStack(spacing: 6) {
+                        Text("Snap Hotkeys").font(.headline)
+                        SettingsInfoButton(text: String(localized: "All snap hotkeys default to Off. Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘."))
+                    }
+                }
             }
             if filteredFeatureShortcuts.isEmpty, !hasVisibleSnapHotkeys {
                 SettingsNote(Text("No shortcuts match."))
@@ -1054,6 +1095,13 @@ struct SettingsLayoutPane: View {
 
     private func matchesFilter(_ action: ShortcutAction) -> Bool {
         Self.shortcutMatches(Self.shortcutActionName(action), query: shortcutFilter)
+    }
+
+    /// A collapsed group opens as soon as the find field has a query, so the filter still reaches
+    /// the rows it hides (the collapsed state is what makes the page fit the window).
+    private func expandedWhileFiltering(_ expanded: Binding<Bool>) -> Binding<Bool> {
+        Binding(get: { expanded.wrappedValue || !shortcutFilter.isEmpty },
+                set: { expanded.wrappedValue = $0 })
     }
 
     /// One assignment: the action's name, its warning glyph when two actions share a shortcut, the
@@ -1455,8 +1503,14 @@ struct SettingsLayoutPane: View {
             }
             .accessibilityLabel("Context Presets")
             if store.contextPresetsEnabled {
-                contextPicker(Text("Work Hours"), selection: store.contextWorkPresetID, set: store.setContextWorkPreset)
-                contextPicker(Text("Evening"), selection: store.contextEveningPresetID, set: store.setContextEveningPreset)
+                // Two menus, one line (rule 5), through the house pair: an `HStack` with the grid's
+                // control spacing between two `halfRowWidth` children is 10 pt wider than the card,
+                // and the overflow pushed the left label 5 pt off the grid (measured live
+                // 2026-10-15). `SettingsRowPair` is the same two halves with no gap.
+                SettingsRowPair(
+                    left: { contextPicker(Text("Work Hours"), selection: store.contextWorkPresetID, set: store.setContextWorkPreset) },
+                    right: { contextPicker(Text("Evening"), selection: store.contextEveningPresetID, set: store.setContextEveningPreset) }
+                )
                 Text(verbatim: "Mon–Fri 09:00–17:00 · 18:00–23:00")
                     .font(.caption).foregroundStyle(.secondary)
             }
@@ -1509,6 +1563,18 @@ struct SettingsLayoutPane: View {
         }
     }
 
+    /// A reorderable row's own height, and its pitch: one row of the page's grid — a 24 pt control
+    /// (measured on all ten pages, `evidence/2026-10-15-close-out/*-rows.txt`) with the grid's padding
+    /// each side and its 1 pt divider, 41 pt (`Docs/SETTINGS.md` rule 1). Derived from
+    /// `SettingsMetrics`, not fixed, so the list stays on the page's rhythm (F1).
+    private static let widgetRowHeight: CGFloat = 24 + 2 * SettingsMetrics.rowVerticalPadding + 1
+    /// The plain `List`'s own leading indentation, which `.listRowInsets` does not reach.
+    private static let listRowChromeInset: CGFloat = 8
+
+    private static func widgetListHeight(count: Int) -> CGFloat {
+        CGFloat(count) * widgetRowHeight
+    }
+
     /// One reorderable row: name, S/M/L (sizable widgets only), show/hide (never for Apps).
     private func widgetRow(_ widget: BarSection) -> some View {
         let instance = store.widgetLayout.instance(for: widget)
@@ -1540,7 +1606,7 @@ struct SettingsLayoutPane: View {
                 .help(instance.isVisible ? Text("Hide") : Text("Show"))
             }
         }
-        .frame(height: 30)
+        .frame(height: Self.widgetRowHeight)
     }
 
     /// Fine-tune's Bar Height cap on the dock's screen (never below the current value, so the

@@ -12,9 +12,10 @@ final class RailGeometryTests: XCTestCase {
     private let layout = WidgetLayout.default
 
     private func frames(_ mode: BarLayoutMode, _ placement: StripPlacement) -> [CGRect] {
-        let slots = BarSection.islands(for: placement.effectiveMode(mode)).count
-        return (0..<slots).map { slot in
-            PanelGeometry.stripTargetFrame(slot: slot, contentLength: slot == 1 || slots == 1 ? 420 : 120,
+        (0..<mode.slotCount).map { slot in
+            // The apps island's solver width follows its measured content; a fixed island is sized
+            // chrome-true from `widgetLayout`, so this 120 only stands in for a measurement.
+            PanelGeometry.stripTargetFrame(slot: slot, contentLength: BarSection.islands(for: mode)[slot].contains(.apps) ? 420 : 120,
                                            mode: mode, stripPlacement: placement, on: screen,
                                            metrics: metrics, gap: 10, margin: 12, widgetLayout: layout)
         }
@@ -37,7 +38,7 @@ final class RailGeometryTests: XCTestCase {
         for placement in [StripPlacement.left, .right] {
             for mode in BarLayoutMode.allCases {
                 let plates = frames(mode, placement).map { $0.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding) }
-                XCTAssertEqual(plates.count, BarSection.islands(for: placement.effectiveMode(mode)).count)
+                XCTAssertEqual(plates.count, mode.slotCount)
                 for plate in plates {
                     XCTAssertEqual(plate.width, metrics.panelHeight, accuracy: 0.001, "\(placement) \(mode): rail thickness")
                     XCTAssertLessThanOrEqual(plate.maxY, screen.topUsableY + 0.001, "\(placement) \(mode): under the menu bar")
@@ -53,6 +54,117 @@ final class RailGeometryTests: XCTestCase {
                     XCTAssertLessThanOrEqual(lower.maxY, upper.minY + 0.001, "\(placement) \(mode): islands overlap")
                 }
             }
+        }
+    }
+
+    /// Phase 41a: a rail carries **every** mode with the mode's own island count — Phase 18 folded
+    /// split4/split5 into three islands, so two of the five mode choices did nothing on a rail.
+    func testRailsCarryEveryModeWithTheSameSlotCount() {
+        XCTAssertEqual(BarLayoutMode.split4.slotCount, 4)
+        XCTAssertEqual(BarLayoutMode.split5.slotCount, 5)
+        for placement in [StripPlacement.left, .right] {
+            for mode in BarLayoutMode.allCases {
+                let plates = frames(mode, placement).map { $0.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding) }
+                XCTAssertEqual(plates.count, mode.slotCount, "\(placement) \(mode): one panel per island")
+                // Every island lives inside the rail: below the menu bar, above the bottom edge.
+                for plate in plates {
+                    XCTAssertGreaterThanOrEqual(plate.minY, screen.frame.minY - 0.001, "\(placement) \(mode)")
+                    XCTAssertLessThanOrEqual(plate.maxY, screen.topUsableY + 0.001, "\(placement) \(mode)")
+                    XCTAssertEqual(plate.width, metrics.panelHeight, accuracy: 0.001, "\(placement) \(mode): thickness")
+                }
+            }
+        }
+        // Split 5's five islands must not overlap or leave the rail on the long axis.
+        let split5 = frames(.split5, .left).map { $0.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding) }
+            .sorted { $0.maxY > $1.maxY }
+        for (upper, lower) in zip(split5, split5.dropFirst()) {
+            XCTAssertLessThanOrEqual(lower.maxY, upper.minY + 0.001, "split5 rail islands overlap")
+        }
+    }
+
+    /// Phase 41b: a rail's apps island fills the span between the fixed groups instead of hugging its
+    /// chips (owner: "maximise space use"), and the value is a **fixed point** — feeding the filled
+    /// length back as the measured content returns the same frame, which is what keeps the panel's
+    /// measured-content feedback loop from oscillating.
+    func testRailAppsIslandFillsTheSpanAndKeepsTheCapsuleSlotClear() {
+        for placement in [StripPlacement.left, .right] {
+            for mode in [BarLayoutMode.split3, .split4, .split5] {
+                let label = "\(placement) \(mode)"
+                let fill = PanelGeometry.railAppsFillLength(
+                    mode: mode, stripPlacement: placement, on: screen, metrics: metrics,
+                    gap: 10, margin: 12, widgetLayout: layout)
+                let appsSlot = BarSection.islands(for: mode).firstIndex { $0.contains(.apps) }!
+                func plate(_ contentLength: CGFloat) -> CGRect {
+                    PanelGeometry.stripTargetFrame(slot: appsSlot, contentLength: contentLength, mode: mode,
+                                                   stripPlacement: placement, on: screen, metrics: metrics,
+                                                   gap: 10, margin: 12, widgetLayout: layout)
+                        .insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+                }
+                XCTAssertGreaterThan(fill, 420, "\(label): fills past its content")
+                XCTAssertEqual(plate(fill).height, fill, accuracy: 0.5, "\(label): fixed point")
+
+                // The drawer capsule rides below this island, so the gap it leaves to the next island
+                // down is at least the capsule's own slot (gap + width) — never less, or the two overlap.
+                let appsPlate = plate(fill)
+                let others = frames(mode, placement)
+                    .map { $0.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding) }
+                    .filter { $0.maxY <= appsPlate.minY + 0.001 }
+                let nearestBelow = others.map(\.maxY).max() ?? screen.frame.minY
+                XCTAssertGreaterThanOrEqual(appsPlate.minY - nearestBelow,
+                                            metrics.capsuleGap + metrics.capsuleWidth - 0.001,
+                                            "\(label): the capsule slot must survive the fill")
+            }
+        }
+    }
+
+    /// Phase 42: a rail's islands are solved with the rail's own end padding (the Dock's 4 pt), and
+    /// `stripTargetFrame` is the path that carries it — the frame it returns is byte-for-byte the
+    /// rail-inset solve mapped onto the edge.
+    func testRailIslandFramesCarryTheRailEndInset() {
+        let virtual = PanelGeometry.railVirtualScreen(on: screen, placement: .left)
+        func solved(_ inset: CGFloat) -> CGRect {
+            PanelGeometry.islandTargetFrame(slot: 0, contentWidth: 120, mode: .split3, on: virtual,
+                                            placement: .right, metrics: metrics, gap: 10, margin: 12,
+                                            widgetLayout: PanelGeometry.railWidgetLayout(layout),
+                                            tileStride: IslandChrome.railChipStride(barHeight: metrics.panelHeight),
+                                            contentInset: inset)
+        }
+        let rail = PanelGeometry.stripTargetFrame(slot: 0, contentLength: 120, mode: .split3,
+                                                  stripPlacement: .left, on: screen, metrics: metrics,
+                                                  gap: 10, margin: 12, widgetLayout: layout)
+        XCTAssertEqual(rail.height, solved(IslandChrome.railContentInset).width, accuracy: 0.001,
+                       "the rail path is the rail-inset solve")
+        XCTAssertEqual(solved(IslandChrome.contentInset).width - solved(IslandChrome.railContentInset).width,
+                       2 * (IslandChrome.contentInset - IslandChrome.railContentInset), accuracy: 0.001,
+                       "2 × (16 − 4): the dead ends Phase 42 removed")
+    }
+
+    /// Phase 42's 4 pt rail ends are only legal while the end tile stays clear of the island's rounded
+    /// corner. The strip clips its content to that plate, so the bottom bar needs `inset ≥ radius`; on a
+    /// rail the tile is centred across the thickness and has slack on that axis instead — pinned here at
+    /// every bar height, including the S and L ends of the slider.
+    func testRailEndInsetKeepsEveryTileClearOfThePlateCorner() {
+        for barHeight: CGFloat in [32, 54, 90] {
+            let scale = barHeight / 54
+            let radius = DockShape.panelCornerRadius * scale
+            let side = (barHeight - BarSection.railTileSize * scale) / 2   // cross-axis slack
+            let end = IslandChrome.railContentInset * scale
+            // The corner region a rounded rect removes is `(r − x)² + (r − y)² > r²`; the tile's own
+            // corner sits at (side, end) from the plate's.
+            let dx = radius - side
+            let dy = radius - end
+            XCTAssertLessThanOrEqual(dx * dx + dy * dy, radius * radius,
+                                     "\(barHeight): the first rail tile's corner is clipped")
+        }
+    }
+
+    /// The bottom bar has no fill: `railAppsFillLength` reports 0 there, and on the single-island modes.
+    func testAppsFillIsRailAndSplitOnly() {
+        XCTAssertEqual(PanelGeometry.railAppsFillLength(mode: .split3, stripPlacement: .bottom, on: screen),
+                       0, "bottom bar keeps measuring its content")
+        for mode in [BarLayoutMode.windows, .centered] {
+            XCTAssertEqual(PanelGeometry.railAppsFillLength(mode: mode, stripPlacement: .left, on: screen), 0,
+                           "\(mode): the frame is already the authority")
         }
     }
 

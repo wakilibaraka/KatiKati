@@ -1,0 +1,141 @@
+pressed Shortcuts
+PAGE Shortcuts expanded=2
+ROLE COUNTS AXButton=48 AXCheckBox=6 AXDisclosureTriangle=2 AXGroup=3 AXPopUpButton=29 AXScrollArea=1 AXStaticText=46 AXTextField=1 AXToolbar=1
+WINDOW 405 209 900 1067
+AXStaticText	y    7.0 x  416.0    68.0 x  16.0  Shortcuts
+AXButton	y    8.0 x    8.0    16.0 x  16.0  
+AXButton	y    8.0 x   31.0    16.0 x  16.0  
+AXButton	y    8.0 x   54.0    16.0 x  16.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXGroup	y    9.0 x   55.0    14.0 x  14.0  
+AXToolbar	y   32.0 x    0.0   900.0 x  56.0  
+AXButton	y   32.0 x  108.5    55.0 x  56.0  General
+AXButton	y   32.0 x  164.5    75.0 x  56.0  Appearance
+AXButton	y   32.0 x  240.5    55.5 x  56.0  Widgets
+AXButton	y   32.0 x  297.0    55.0 x  56.0  Notch
+AXButton	y   32.0 x  353.0    65.5 x  56.0  Edge Bars
+AXButton	y   32.0 x  419.5   125.0 x  56.0  Window Management
+AXButton	y   32.0 x  545.5    61.0 x  56.0  Launcher
+AXButton	y   32.0 x  607.5    63.0 x  56.0  Shortcuts
+AXButton	y   32.0 x  671.5    55.0 x  56.0  Tools
+AXButton	y   32.0 x  727.5    64.0 x  56.0  Advanced
+AXGroup	y   88.0 x    0.0   900.0 x 719.0  
+AXScrollArea	y   88.0 x    0.0   900.0 x 719.0  
+AXTextField	y  110.0 x  638.0   220.0 x  24.0  Search Shortcuts
+AXStaticText	y  114.0 x   42.0   105.0 x  16.0  Search Shortcuts
+AXButton	y  115.5 x  154.0    13.0 x  13.0  Pick a shortcut from the list, or press 
+AXDisclosureTriangle	y  147.0 x   19.5    98.0 x  16.0  1
+AXPopUpButton	y  175.0 x  627.0   154.0 x  24.0  ⌥Space
+AXButton	y  175.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  179.0 x   42.0    56.5 x  16.0  Launcher
+AXPopUpButton	y  232.0 x  627.0   154.0 x  24.0  ⌃⌥Space
+AXButton	y  232.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  236.0 x   42.0    89.0 x  16.0  Control Center
+AXPopUpButton	y  289.0 x  627.0   154.0 x  24.0  Off
+AXButton	y  289.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  293.0 x   42.0    88.5 x  16.0  Quick Settings
+AXPopUpButton	y  346.0 x  627.0   154.0 x  24.0  Off
+AXButton	y  346.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  350.0 x   42.0    73.0 x  16.0  Keep Awake
+AXPopUpButton	y  403.0 x  627.0   154.0 x  24.0  Off
+AXButton	y  403.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  407.0 x   42.0    43.0 x  16.0  Drawer
+AXPopUpButton	y  460.0 x  627.0   154.0 x  24.0  Off
+AXButton	y  460.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  464.0 x   42.0    72.5 x  16.0  Notch Tools
+AXPopUpButton	y  517.0 x  627.0   154.0 x  24.0  Off
+AXButton	y  517.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  521.0 x   42.0    51.0 x  16.0  Weather
+AXPopUpButton	y  574.0 x  627.0   154.0 x  24.0  Off
+AXButton	y  574.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  578.0 x   42.0    34.5 x  16.0  Clock
+AXPopUpButton	y  631.0 x  627.0   154.0 x  24.0  ⌘Space
+AXButton	y  631.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  635.0 x   42.0    86.0 x  16.0  Command Bar
+AXPopUpButton	y  688.0 x  627.0   154.0 x  24.0  Off
+AXButton	y  688.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  692.0 x   42.0    56.0 x  16.0  Translate
+AXPopUpButton	y  745.0 x  627.0   154.0 x  24.0  Off
+AXButton	y  745.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  749.0 x   42.0    63.5 x  16.0  Radial Dial
+AXDisclosureTriangle	y  791.0 x   19.5   143.5 x  16.0  1
+AXStaticText	y  791.0 x   53.5    89.5 x  16.0  Snap Hotkeys
+AXButton	y  792.5 x  150.0    13.0 x  13.0  All snap hotkeys default to Off. Press R
+AXStaticText	y  813.0 x  433.8    32.5 x  13.0  Halves
+AXPopUpButton	y  840.0 x  627.0   154.0 x  24.0  Off
+AXButton	y  840.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  844.2 x   42.0    86.0 x  16.0  Snap Left Half
+AXPopUpButton	y  888.0 x  627.0   154.0 x  24.0  Off
+AXButton	y  888.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  892.2 x   42.0    94.0 x  16.0  Snap Right Half
+AXPopUpButton	y  936.0 x  627.0   154.0 x  24.0  Off
+AXButton	y  936.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  940.2 x   42.0    85.0 x  16.0  Snap Top Half
+AXPopUpButton	y  984.0 x  627.0   154.0 x  24.0  Off
+AXButton	y  984.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y  988.2 x   42.0   106.5 x  16.0  Snap Bottom Half
+AXStaticText	y 1026.2 x  428.8    42.5 x  13.0  Quarters
+AXPopUpButton	y 1053.5 x  627.0   154.0 x  24.0  Off
+AXButton	y 1053.5 x  791.0    67.0 x  24.0  Record
+AXStaticText	y 1057.5 x   42.0    86.5 x  16.0  Snap Top-Left
+AXPopUpButton	y 1101.5 x  627.0   154.0 x  24.0  Off
+AXButton	y 1101.5 x  791.0    67.0 x  24.0  Record
+AXStaticText	y 1105.5 x   42.0    94.5 x  16.0  Snap Top-Right
+AXPopUpButton	y 1149.5 x  627.0   154.0 x  24.0  Off
+AXButton	y 1149.5 x  791.0    67.0 x  24.0  Record
+AXStaticText	y 1153.5 x   42.0   108.5 x  16.0  Snap Bottom-Left
+AXPopUpButton	y 1197.5 x  627.0   154.0 x  24.0  Off
+AXButton	y 1197.5 x  791.0    67.0 x  24.0  Record
+AXStaticText	y 1201.5 x   42.0   116.5 x  16.0  Snap Bottom-Right
+AXStaticText	y 1239.5 x  434.8    30.5 x  13.0  Thirds
+AXPopUpButton	y 1266.5 x  627.0   154.0 x  24.0  Off
+AXButton	y 1266.5 x  791.0    67.0 x  24.0  Record
+AXStaticText	y 1270.7 x   42.0    93.0 x  16.0  Snap Left Third
+AXPopUpButton	y 1314.5 x  627.0   154.0 x  24.0  Off
+AXButton	y 1314.5 x  791.0    67.0 x  24.0  Record
+AXStaticText	y 1318.7 x   42.0   110.5 x  16.0  Snap Center Third
+AXPopUpButton	y 1362.5 x  627.0   154.0 x  24.0  Off
+AXButton	y 1362.5 x  791.0    67.0 x  24.0  Record
+AXStaticText	y 1366.7 x   42.0   101.0 x  16.0  Snap Right Third
+AXPopUpButton	y 1410.5 x  627.0   154.0 x  24.0  Off
+AXButton	y 1410.5 x  791.0    67.0 x  24.0  Record
+AXStaticText	y 1414.7 x   42.0   129.5 x  16.0  Snap Left Two-Thirds
+AXPopUpButton	y 1458.5 x  627.0   154.0 x  24.0  Off
+AXButton	y 1458.5 x  791.0    67.0 x  24.0  Record
+AXStaticText	y 1462.7 x   42.0   137.5 x  16.0  Snap Right Two-Thirds
+AXStaticText	y 1500.7 x  441.2    17.5 x  13.0  Full
+AXPopUpButton	y 1528.0 x  627.0   154.0 x  24.0  Off
+AXButton	y 1528.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y 1531.9 x   42.0    75.5 x  16.0  Snap Center
+AXPopUpButton	y 1576.0 x  627.0   154.0 x  24.0  Off
+AXButton	y 1576.0 x  791.0    67.0 x  24.0  Record
+AXStaticText	y 1579.9 x   42.0    91.0 x  16.0  Snap Maximize
+AXStaticText	y 1617.9 x   42.0   463.0 x  13.0  Double-tap shortcuts need the Accessibil
+AXStaticText	y 1678.9 x   42.0    62.0 x  16.0  Keyboard
+AXCheckBox	y 1713.0 x  804.0    54.0 x  24.0  1
+AXStaticText	y 1716.9 x   42.0   174.0 x  16.0  Use Caps Lock as Hyper Key
+AXButton	y 1718.5 x  223.0    13.0 x  13.0  Hyper turns Caps Lock into ⌃⌥⇧⌘. It list
+AXCheckBox	y 1754.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y 1757.9 x   42.0    98.0 x  16.0  Pause Keyboard
+AXButton	y 1759.5 x  147.0    13.0 x  13.0  While paused, key presses are ignored (t
+AXCheckBox	y 1795.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y 1798.9 x   42.0    98.5 x  16.0  Hold ⌘Q to Quit
+AXButton	y 1800.5 x  147.5    13.0 x  13.0  Press and hold ⌘Q for a moment to quit a
+AXCheckBox	y 1836.0 x  804.0    54.0 x  24.0  0
+AXStaticText	y 1839.9 x   42.0   125.0 x  16.0  Show Keys You Type
+AXButton	y 1841.5 x  174.0    13.0 x  13.0  Shows the keys you press in a small over
+AXCheckBox	y 1877.0 x  804.0    54.0 x  24.0  1
+AXStaticText	y 1880.9 x   42.0   159.0 x  16.0  Open Launcher with Pinch
+AXButton	y 1882.5 x  208.0    13.0 x  13.0  Pinch four or more fingers together on t
+AXButton	y 1917.0 x   42.0   170.5 x  24.0  Open Trackpad Settings
+AXStaticText	y 1996.9 x   42.0    68.0 x  16.0  Radial Dial
+AXCheckBox	y 2031.0 x  804.0    54.0 x  24.0  1
+AXStaticText	y 2034.9 x   42.0   108.0 x  16.0  Enable Radial Dial
+AXButton	y 2036.5 x  157.0    13.0 x  13.0  Summons a circular pie menu at your curs
+AXPopUpButton	y 2072.0 x  715.5   142.5 x  24.0  Lilac Glass
+AXStaticText	y 2075.9 x   42.0    42.0 x  16.0  Theme
+AXPopUpButton	y 2113.0 x  668.0   190.0 x  24.0  Off
+AXStaticText	y 2116.9 x   42.0    87.5 x  16.0  Mouse Trigger
+AXPopUpButton	y 2154.0 x  687.5   170.5 x  24.0  Tap / Click to Toggle
+AXStaticText	y 2157.9 x   42.0    81.0 x  16.0  Trigger Mode
+AXStaticText	y 2195.9 x   42.0   461.0 x  13.0  You can also summon the Radial Dial with

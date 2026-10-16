@@ -35,10 +35,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let weatherService = WeatherService()
 
     let keptAppStore = KeptAppStore()
+    /// 系统 Dock 的钉住列表也算「记得住顺序的保留应用」（Phase 42）：它们拿到名次才落在启动器组里，
+    /// 而不是被 `StripOrdering` 当成本帧新出现的 id 尾插到窗口卡后面。钉住项排在自家保留项之后。
     lazy var stripOrderStore = StripOrderStore(
-        keptIDsProvider: { [keptAppStore] in Set(keptAppStore.bundleIDs) },
+        keptIDsProvider: { [keptAppStore] in
+            Set(keptAppStore.bundleIDs + keptAppStore.dockPinnedBundleIDs)
+        },
         stableKeptOrderProvider: { [keptAppStore, messagingStore] in
-            keptAppStore.bundleIDs.filter { !messagingStore.contains($0) }
+            (keptAppStore.bundleIDs + keptAppStore.dockPinnedBundleIDs)
+                .filter { !messagingStore.contains($0) }
         },
         inventoryLog: inventoryLog
     )
@@ -275,6 +280,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // current value on subscription, which is what applies it at launch.
         appearanceSubscription = settingsStore.$appearanceMode
             .sink { NSApp.appearance = $0.nsAppearance }
+
+        // 量高门禁：`DOCK_SETTINGS_PAGE_HEIGHT=1` 时量完十页就退出（排在外观应用之后，
+        // 因为字高随外观取值）。正常启动下这一行什么都不做。
+        SettingsPageHeightProbe.runIfRequested(on: settingsWindowController)
 
         // 32b live-check aid: `DOCK_OPEN_SETTINGS=<tab>` presents one Settings page once the strip
         // has started, so an AX probe reads its real rows. Unset does nothing (`DebugSwitch`).
@@ -546,6 +555,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         SystemCursorHider.shared.show()
         trashSettingSubscription = nil
         TrashStateStore.shared.stop()
+        TorrentEngine.shared.shutdown()   // never leave the aria2 child process behind
         edgeToggleHotKey?.stop()
         scrollReverserMonitor?.stop()
         scrollReverserMonitor = nil
@@ -765,6 +775,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func startTaskbarRuntime() {
+        // 系统 Dock 钉住的应用（Phase 42）：读在**建条之前**——`stripOrderStore` 这时才会初始化，
+        // 而它初始化时就把名次名单读走了，晚读的 id 第一帧落不到启动器组里。
+        // shortcut: 只在任务条运行期起步时读一次，运行中在系统 Dock 里新钉的应用要下次启动才出现。
+        keptAppStore.adoptDockPins(NativeDockPinnedApps.read())
         appMembershipController.reconcileInvalidMemberships()
         runningApplicationStore.start()
         runtime.start()
