@@ -140,4 +140,25 @@ final class CalendarPanelModelsTests: XCTestCase {
         XCTAssertEqual(TileKind.parse("battery,bogus,battery,network"), [.battery, .network])
         XCTAssertEqual(TileKind.parse(TileKind.serialize([.topApps, .calculator])), [.topApps, .calculator])
     }
+
+    // MARK: Event tap (Phase 48a)
+    func testEventTapJoinsWebLinksAndFallsBackToTheDay() {
+        let utc = TimeZone(identifier: "UTC")!
+        let start = date(2026, 10, 16, 9, 0, in: utc)
+        let meet = URL(string: "https://meet.google.com/abc-defg-hij")!
+        XCTAssertEqual(AgendaEventAction.target(url: meet, start: start), .join(meet))
+        let zoom = URL(string: "http://zoom.us/j/42")!
+        XCTAssertEqual(AgendaEventAction.target(url: zoom, start: start), .join(zoom), "http counts too")
+        // Not links to join: these reveal the day instead of launching a mail client or opening a file.
+        XCTAssertEqual(AgendaEventAction.target(url: URL(string: "mailto:owner@example.com"), start: start), .calendar(start))
+        XCTAssertEqual(AgendaEventAction.target(url: URL(string: "file:///tmp/note.txt"), start: start), .calendar(start))
+        XCTAssertEqual(AgendaEventAction.target(url: nil, start: start), .calendar(start))
+    }
+
+    func testCalendarFallbackIsSecondsSince2001() {
+        let start = date(2026, 10, 16, 9, 0, in: TimeZone(identifier: "UTC")!)
+        let url = AgendaEventAction.calendarURL(for: start)
+        XCTAssertEqual(url?.scheme, "calshow")
+        XCTAssertEqual(url?.absoluteString, "calshow:\(Int(start.timeIntervalSinceReferenceDate))")
+    }
 }

@@ -141,6 +141,32 @@ struct FocusTimerModel: Equatable {
     }
 }
 
+// MARK: - Event tap (48a)
+
+/// Where a tap on an agenda row goes: the event's own link when it is a web link, otherwise Calendar
+/// opened on the day the event starts. Pure — the decision needs nothing from SwiftUI or EventKit, so
+/// both the floating panel's agenda and the notch page's card open the same thing.
+enum AgendaEventTarget: Equatable {
+    case join(URL)
+    case calendar(Date)
+}
+
+enum AgendaEventAction {
+    /// Only http(s) counts as a link to open. A `mailto:` or `file:` on an event is not a meeting to
+    /// join, and handing it to `NSWorkspace` would launch a mail client nobody asked for.
+    static func target(url: URL?, start: Date) -> AgendaEventTarget {
+        guard let url, let scheme = url.scheme?.lowercased(), scheme == "https" || scheme == "http" else {
+            return .calendar(start)
+        }
+        return .join(url)
+    }
+
+    /// Calendar.app's "show this date" deep link: seconds since 2001, no locale in the payload.
+    static func calendarURL(for date: Date) -> URL? {
+        URL(string: "calshow:\(Int(date.timeIntervalSinceReferenceDate))")
+    }
+}
+
 // MARK: - Alarms (5e-F)
 
 struct AlarmItem: Codable, Identifiable, Equatable {

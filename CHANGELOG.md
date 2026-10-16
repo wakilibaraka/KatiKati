@@ -18,6 +18,22 @@ All notable changes to KatiKati are documented in this file.
   through the app's registered debug switches (`Core/Support/DebugSwitch.swift`), and unset is exactly the
   squircle that ships today. The retired `com.katikati.dock.iconShape` key is simply ignored from now on.
 
+## [Unreleased] — Phase 48: the notch's productivity page runs on your real day, the clock page on your world clocks
+
+### Fixed
+- **The Productivity notch page runs on your real calendar and your real timer.** The agenda card and the
+  focus card were drawn from samples. The agenda now shows the day you pick on a week strip — a tap selects a
+  day, the chevrons walk a week at a time — a tap on an event opens its own meeting link (or Calendar on that
+  day, when the event has none), and a card whose Calendar access is off says so and opens the pane instead
+  of drawing an invented day. The focus card drives the real Pomodoro (25/5/15, four runs to a cycle, with
+  pause, reset and skip) and ticks off your next reminder. The random "decision" spinner is gone: it was the
+  one thing on the page with nothing behind it.
+- **The Retro clock page's second card shows your world clocks, not the local time again.** It repeated what
+  the card above it already flips. It is now the up-to-four clocks you keep in the panel's Time zone card —
+  sun or moon, city, *Tomorrow*/*Yesterday*, offset, time — with **Remove** in a row's own context menu and
+  **Add City** from the same picker the panel uses. Both surfaces edit one store, so a city added in either
+  place shows up in both.
+
 ## [Unreleased] — Phase 47: the music surfaces answer the player, a camera mirror, mirrored notifications
 
 ### Fixed

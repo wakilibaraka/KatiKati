@@ -1,0 +1,16 @@
+panel rows (15):
+     AXStaticText [898,57 36x15] D=text V=Focus
+     AXStaticText [898,57 36x15] D=text V=Focus
+     AXStaticText [588,58 80x13] D=text V=OCTOBER 2026
+     AXStaticText [800,59 30x10] D=text V=TODAY
+     AXImage [568,60 9x8] D=image
+     AXImage [881,60 5x8] D=image
+     AXStaticText [875,74 67x26] D=text V=25:00
+     AXButton [564,76 11x26] D=button
+     AXButton [824,76 11x26] D=button
+     AXStaticText [564,105 49x13] D=text V=No events
+     AXButton [875,110 22x22] D=button
+     AXButton [903,112 18x18] D=button
+     AXButton [927,112 18x18] D=button
+     AXStaticText [890,135 65x13] D=text V=No reminders
+     AXImage [876,137 9x9] D=image

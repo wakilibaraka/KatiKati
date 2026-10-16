@@ -5512,3 +5512,254 @@ night art all along; only the surfaces added later missed it.
     the notifying app; the store's `usda` field (an NSKeyedArchiver archive, not JSON) is not read, so an
     app that keeps its body only there shows a title alone; the notifications page lists the newest four of
     the 40 it reads, because the open notch is about 130 pt tall and does not scroll.
+
+## Phase 48 — the notch pages stop drawing stand-ins (four slices; 48a + 48b built, 48c + 48d planned, 2026-10-16)
+
+> **Written down 2026-10-16, once 48b had landed.** The four slices otherwise lived only in the session
+> that built them: the log below carries 48a's and 48b's records, and the two unbuilt slices had no entry
+> anywhere in this file. Phase shape: **four independent slices, each gated on its own**, with the owner's
+> eyeball between UI-visible ones — the first two landed in one commit rather than two, because both add to
+> `NotchLayoutSpec.swift` and `NotchLayoutSpecTests.swift`, and a split would have left a first commit that
+> does not compile. No slice adds a setting, a page or a toggle —
+> each answers one question: *does this page draw something this machine produced, or a stand-in?* A slice
+> that finds nothing behind a page deletes the page's claim rather than filling it (Phase 33's sample-screen
+> rule, as Phase 43 applied it to the bar). **48c's and 48d's scope is what this phase's own reconnaissance
+> found** in the code and on this machine (cited per slice); neither slice is started. The two built slices'
+> records are the two dated entries below this plan.
+
+**Gate, common to all four** (each slice runs it on its own bytes, not once for the phase):
+`xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath
+build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO` → `TEST SUCCEEDED`;
+`Scripts/check_localization.py` (currently **895 keys × 12**); `Scripts/check_debug_switches.py` (currently
+86/86); `Scripts/check_availability_warnings.py <build log>` clean **on a log that really recompiled the
+changed files** (48a's warning: a test log with no `SwiftCompile` lines makes that gate vacuous);
+`Scripts/check_settings_page_heights.py` only if a Settings page gains or loses a row (none has yet). New
+strings are the exception, not the rule: a slice that needs one adds it at a single anchor with all twelve
+languages, as drafts, and owes `Docs/translation-review-phase48.csv` — **no phase-48 review CSV is owed so
+far, because 48a and 48b added no key.**
+
+### 48a — the Productivity page runs on the real calendar and the real timer (BUILT)
+
+*Detail in the entry below; recorded here so the slice list is complete.* The page's two cards were the last
+place in the notch drawing a sample. **Defect:** both cards were invented — the agenda and the focus card,
+including a random "decision" spinner with nothing behind it. **Scope built:** the selected day's real agenda
+on `NotchLayoutSpec.weekStrip` (seven tappable days + ±7-day chevrons), Card B on the real Pomodoro and
+ticking off the next reminder, `AgendaEvent`/`AgendaEventAction` so a row opens its own link or Calendar on
+both surfaces, and the spinner deleted.
+**Gate:** `xcodebuild test` green — three new cases (2 in `CalendarPanelModelsTests`, 1 in
+`NotchLayoutSpecTests` for the card budgets against `NotchLayoutSpec.pageBodyHeight`) take the suite from
+HEAD's 2494 to **2497**; the run that gated the slice reported **2495**, two cases short, because the last
+two of the three landed after it. The three checkers, and a live walk.
+**Limits, recorded:** TCC attribution decides what a live check can see — a build launched from this agent's
+shell inherits Freebuff as its responsible process, so `kTCCServiceCalendar` is denied outright and Reminders
+prompts against Freebuff (a launchd job or Finder launch gives the binary its own identity, which is how the
+agenda was seen at all); the event row and the reminder row expose **no AX label** (unlike the day cells); the
+countdown `Text` exposes no AX value while it runs; the countdown's rate was measured only under
+instrumentation load, so no rate claim is made.
+
+### 48b — the Retro clock page shows the world clocks the owner picked (BUILT)
+
+*Detail in the entry below.* **Defect:** Card B repeated the local time Card A already flips — a second clock
+with nothing of the owner's in it. **Scope built:** Card B's body is the owner's ≤4 stored clocks (sun/moon
+glyph, city, `Tomorrow`/`Yesterday`, offset, time), `Remove` in a row's context menu, `Add City` opening the
+existing `TimeZonePicker` popover only below the cap, and `ProductivityServices.worldClocks` as the single
+`WorldClockStore` both the panel and the notch write.
+**Gate:** `xcodebuild test` green — 2 new cases for `NotchWorldClockLayout` (including the emptied-store
+case) put the suite at **2499**; the run that gated the slice reported **2497**, and a full run at commit
+time reports **2499 executed, 2 skipped (`KK_LIVE_TORRENT`), 0 failures**. The three checkers, and a live
+walk.
+**Limits, recorded:** the ticking LED line exposes no AX value, so this page's text was read by OCR of its
+pixels; the panel→notch direction of the shared store is verified by construction (one instance, one
+`com.katikati.calendar.timezones` key), not driven live; the picker popover renders outside the notch panel's
+own bounds (240 pt against a 190 pt panel) — it works, but whether a popover hanging off the notch is the
+right shape for that affordance is an **owner call** (see below).
+
+### 48c — AI Mission Control reports every AI tool that records usage (PLANNED — not started)
+
+**The defect.** The model layer already promises four providers — `AgentProvider`
+(`Core/Support/AgentUsage/AgentUsageModels.swift:7`) declares `claude`, `codex`, `opencode`, `copilot`, each
+with a display name and a glyph — and `AgentPricing` already carries the non-Claude rates (`gpt-4o`,
+`o1`, `o3-mini`, even a `defaultCodexRate`). But **one parser exists and one path is read**:
+`AgentClaudeParser` over `~/.claude/projects/*.jsonl` (today's files, last 64 KB) plus Claude's
+`plan-usage-history.json` (`App/Composition/AgentUsageService.swift`). So the page can print a model nothing
+measured — `NotchAIPageView.swift:22` draws `snapshot.activeTurn?.model ?? "Claude 3.7 Sonnet"` — a 5h bar
+that exists only for `.claude`, and a dollar figure that is Claude's alone. **Asked which sources, the owner
+said "all AI tools"** — so this slice is not the four declared providers: it reads every tool on the machine
+whose *own store* records usage.
+
+**What the reconnaissance found on this machine** (each store opened read-only, same minute as the page):
+
+- **Claude — the one path read today.** `~/.claude/projects` (206 MB, **27** `*.jsonl`, last 64 KB of today's,
+  priced by `AgentPricing`) plus `Library/Application Support/Claude/plan-usage-history.json` for the 5h bar.
+- **OpenCode — unread.** `~/.local/share/opencode/opencode.db`: `session` (**30 rows**) and `session_v2`
+  (**4**), each with `cost`, `tokens_input`/`tokens_output`/`tokens_reasoning`/`tokens_cache_read`/
+  `tokens_cache_write`, `model`, and `time_created`/`time_updated` as unix seconds — summing **$2.46 and
+  42,681,007 in+out tokens for today**, none of it on the page. The file is **2.0 GB with a `-wal` beside it**.
+- **GitHub Copilot — unread.** `…/Code/User/globalStorage/github.copilot-chat/session-store.db`: `sessions`
+  and `turns` carry the token columns and **0 rows**.
+- **Codex — absent.** `~/.codex` does not exist here, though `AgentProvider` declares it.
+- **Tools with no accounting to read:** Antigravity (`~/.gemini/antigravity/conversation_summaries.db` — 25
+  summaries carrying `step_count`, titles and timestamps, **no token or cost column**), Continue (`~/.continue`
+  — `sessions.json` is 2 bytes, `index.sqlite` is a code index), OpenCode desktop
+  (`…/ai.opencode.desktop/drafts.sqlite` — draft documents).
+
+**Scope.** A parser per tool that records usage, **discovered rather than hardcoded from a list**, and the page
+names the tools it actually read. A tool that keeps tokens or cost is counted; a tool whose store has no
+accounting (Antigravity, Continue) contributes **nothing rather than a converted guess**; a store that exists
+but is empty (Copilot here) draws nothing rather than a zero. Card A's `"Claude 3.7 Sonnet"` literal is
+deleted, and no bar or dollar figure is drawn for a provider that reported none. **Never open the credentials
+those directories also hold** (`~/.local/share/opencode/auth.json`,
+`~/.gemini/jetski-standalone-oauth-token`) — usage tables only, with a test holding that line.
+
+**Gate (planned).** The witness pattern extended to `NotchAIPageView` (the fallback literal deleted, then
+asserted absent — the Phase 34/43 witness shape), fixture tests per parser **including one that a store with
+no accounting columns yields nothing**, `xcodebuild test`, the three checkers, and a live read-back **on this
+machine**, where OpenCode's store must appear in the total.
+
+**Limits to record at build.** A tool can only be verified against a machine that has its logs — Codex
+(absent) and Copilot (empty) ship fixture-tested, with that stated rather than implied; a store's own `cost`
+column is the tool's number, not a price we computed, and the page should say which of the two it is drawing;
+every store opens read-only, off the main thread, and is never copied (OpenCode's is 2.0 GB); and 33d's
+zero-idle-CPU rule stands — one watcher per store path, with the idle number re-measured, not assumed.
+
+### 48d — the Top Apps rows can end a process (PLANNED — not started)
+
+**The defect.** `TopProcessReader.read(limit:)` (`Platform/SystemStatus/SystemHealthReaders.swift:20`) runs
+`/bin/ps -Ao pcpu=,comm= -r` and hands it to `TopProcessParser.parse` (`Core/Support/SystemMonitorMath.swift:107`),
+which **sums the rows that share a name** into `TopProcess { name, cpu }` (`:102`) — so a row has **no pid and
+cannot be acted on**, which is why the floating panel's Top Apps tile (`App/Scenes/CalendarPanelView.swift:725`)
+can only print a name and a percentage. The confirm-then-end flow the owner already approved exists in exactly
+one place: the Command Bar's `confirmKill(_:)` (`App/Entry/CommandBarPanelController.swift:366`), an `NSAlert`
+with `PID <n>` and Kill (SIGTERM) / Force Quit (SIGKILL) / Cancel, over a `ProcessLister` pid.
+
+**Scope.** The read keeps the pid (the name-summing goes, or becomes a stated per-pid aggregate), a row offers
+the Command Bar's own confirm rather than a second one being written, and the flow is reachable from the
+notch's Hardware HUD card as well as the panel tile.
+
+**Gate (planned).** The parser stays pure and dual-compiled, with a fixture that carries a pid; one test that
+a row without a pid offers no action; `xcodebuild test`; the three checkers; and a live check that the chosen
+process is gone and the list redraws.
+
+**Limits to record at build.** `ps` stays off the main thread (it already is, via `Task.detached`); SIGTERM on
+another user's process fails with `EPERM` and the row must say so rather than pretend; the 1 s
+`SystemMonitorController` is ref-counted (`Platform/SystemMonitor/SystemMonitorController.swift`), so the
+process read must ride the same acquire/release instead of adding a second timer.
+
+### Open under this phase, not in any of its slices
+
+**The launch hang the 48a walk found** (not this phase's code): with `pinnedFolderPaths = ["~/Downloads"]`
+the app blocks **before its first window** — sampled 100 % of the main thread inside `DirectoryWatcher.init`'s
+`open(O_EVTONLY)`, i.e. `PinnedFolderCoverStore.sync` ← `PanelCoordinator`'s Combine sink doing a TCC-gated
+open on the main thread at launch. Nothing has been changed for it; it needs its own slice.
+
+**Owner calls owed:** whether the world-clock picker popover should hang off the 190 pt notch panel (48b);
+and the 48a/48b "owner check owed" notes (the pages have been seen on a real notched display only by this
+agent's walks, never by the owner).
+
+- 2026-10-16 · **Phase 48a — the notch Productivity page carries live agenda and focus data — PASS (code),
+  live walk PARTIAL (recorded below).** The page's two cards were the last place in the notch showing a
+  sample: Card A now draws the selected day's real agenda on a week strip, Card B drives the real Pomodoro
+  and ticks off the next reminder.
+  - **What changed:** `NotchProductivityPageView.swift` (both cards rewritten; the one thing with nothing
+    behind it — the random "decision" spinner — is deleted), `AgendaEvent` gains `url`/`location` from the
+    one `EKEvent`→`AgendaEvent` closure in `CalendarService.refreshAgenda()`, and the open action is a single
+    shared rule (`AgendaEventAction`/`AgendaEventOpener` in `Core/Support/CalendarPanelModels.swift` +
+    `CalendarPanelView.swift`): an event with its own link opens that link, otherwise Calendar on that day.
+    The floating panel's agenda rows got the same tap, so the two surfaces cannot drift.
+  - **Tappable days, not a month grid:** `NotchLayoutSpec.weekStrip(now:)` already returned `now ± 3` with
+    today fourth; the page renders it as seven buttons whose accessible name is the formatted date, plus
+    `chevron.left`/`chevron.right` that move the selection a week at a time. Card budgets are named
+    constants in `NotchProductivityLayout` with `fits(headerHeight:hasReminder:cardPadding:)` asserted
+    against `NotchLayoutSpec.pageBodyHeight` in `NotchLayoutSpecTests` — "does it still fit?" is a test, not
+    an eyeball on a notched display. 2 new tests in `CalendarPanelModelsTests` (the open-action ladder)
+    and 2 in `NotchLayoutSpecTests` (the budgets, with and without a reminder row).
+  - **Strings ×12:** none added — every literal the page uses (`Open Settings`, `No events`, `No reminders`,
+    `Focus`, `Break`, the month/weekday formats) was already in the catalog, so `check_localization.py`
+    stays at 895 keys × 12 and no `Docs/translation-review-phase48.csv` is owed. No new debug switch (86).
+  - **Gate:** `xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug
+    -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO` → **TEST
+    SUCCEEDED, 2495 tests, 0 failures** (the 7 `error:` lines in the log are xctest's `linkd.autoShortcut`
+    connection noise, not failures); `check_localization.py` 895 × 12 matched; `check_debug_switches.py`
+    86/86; `check_availability_warnings.py build/xcodebuild-build48a.log` clean **on a log that really
+    recompiled the changed files** (the test log alone had no compiler output at all, which would have made
+    that gate vacuous — the 7 files were touched and rebuilt to get 22 `SwiftCompile` lines).
+  - **Live walk** (`Docs/Archive/Planning/evidence/2026-10-16-phase-48a/`, Debug build, built-in display):
+    the header chip `H=Obsidian Calendar` reaches the page; the strip reports `Tuesday, October 13 … Monday,
+    October 19` (today fourth, chip `TODAY`); tapping `Wednesday, October 14` moves the chip to `WED` and
+    re-centres the strip on `Sun 11 … Sat 17`; one left chevron lands on `Fri, October 9` with the strip at
+    `Oct 6 … 12` and one right chevron returns to today — exactly ±7 days, and selecting `November 1` makes
+    the header read `NOVEMBER 2026`. Card B: `25:00 / Focus` → play counts down → pause holds the same value
+    across five reads → reset `25:00` → skip `Break 5:00` → skip `Focus 25:00`. A throwaway event carrying
+    `https://example.com/join` rendered as a full-width row (`15:00 Phase 48a live check`) and tapping it put
+    `example.com/join` in Chrome's front tab (the default browser) — the join-link path end to end. A
+    throwaway reminder rendered its own title and `18:00` due time in Card B. All throwaway data was deleted
+    afterwards (verified: `(no events today)`, reminder gone).
+  - **The reminder tick, second pass — verified in the store:** a fresh throwaway reminder read back as
+    `completed=false`; one click on the row at its own AX frame, then the same read-back showed it
+    `completed=true`. The row stays on screen in that test only because the card shows the *next*
+    incomplete reminder and my creation job had left several identical copies (`launchctl submit` re-runs
+    its job, which is also what put five copies of the test event in Calendar) — with one reminder the row
+    disappears. First pass had called this "did not visibly take"; the store says otherwise, so the
+    correction is recorded here rather than left as an open question.
+  - **Limits, recorded (owner check owed):** (1) **TCC attribution decides what a live check can
+    see:** any app launched from this agent's shell inherits Freebuff as its *responsible* process, so
+    `kTCCServiceCalendar` is denied outright by the hardened-runtime policy (no prompt is ever shown) and
+    Reminders prompts are raised against Freebuff — the card then shows its `Open Settings` state and no
+    event can ever appear. Launching the same binary from a launchd job (`launchctl bootstrap gui/$UID`) or
+    from Finder gives it its own identity, which is how the agenda and reminder rows above were seen at all.
+    Everything the walk drove was driven over Accessibility against a build started that way.
+  - **Also recorded while walking (not this phase's code):** with `pinnedFolderPaths =
+    ["~/Downloads"]` the app blocks before its first window — sampled 100% of the main thread inside
+    `DirectoryWatcher.init`'s `open(O_EVTONLY)` (`PinnedFolderCoverStore.sync` ← `PanelCoordinator`'s Combine
+    sink), i.e. a TCC-gated open on the main thread at launch; the walk used `-pinnedFolderPaths "()"` to get
+    past it. Two accessibility gaps in the new rows: the event row and the reminder row are SwiftUI buttons
+    with no AX label at all (`children=0`, no title/description), unlike the day cells, which carry the
+    formatted date as `help`; and the countdown `Text` exposes no value while it is running, only when
+    paused. The countdown's rate was measured only under instrumentation load (21 s in ~28 s of running,
+    with a ~20 s Accessibility dump between the reads) — the tick is a plain 1 s `Timer`, so no rate claim is
+    made here.
+
+- 2026-10-16 · **Phase 48b — the notch's Retro clock page now shows the world clocks the owner picked —
+  PASS (code + live walk).** The page's second card was repeating the local time Card A already flips (a
+  28 pt LED readout plus a complete-date line and a "PRECISION TIME PROTOCOL" footer); it is now the stored
+  world clocks, so `WorldClockStore` finally has a home outside the floating panel and the widget tiles. The
+  notch's header row was rejected as the host: it is 38 pt tall and the middle is kept clear for the cutout,
+  so there is no room for a list, let alone a picker.
+  - **One store, both places:** `ProductivityServices.worldClocks` is now the single `WorldClockStore`, and
+    the panel's `@StateObject` became an `@ObservedObject` on it. There was only ever one instance, but the
+    notch would have created a second that never saw the panel's edits — the tile views already take the
+    store as a parameter, so this was the whole change. `Remove` (a row's context menu) and `Add City` (the
+    "+") write through that object and the `com.katikati.calendar.timezones` array both surfaces read.
+  - **The affordances are the panel's own, not new ones:** `TimeZonePicker` (search field + eight
+    suggestions) as a popover, the rows' `Remove` menu, and `WorldClockModel.reading(for:at:)` for
+    city/time/day-delta/offset with the sun/moon glyph. Card B's LED line keeps `HH:MM:SS` and the local
+    zone abbreviation; the "+" exists only below the four-clock cap, because the store refuses a fifth.
+  - **Budget:** `NotchWorldClockLayout` (header 20 / row 15 / spacing 2) plus `fits`, asserted at headers 38
+    (this machine), 44 and the no-notch fallback, with the empty store still drawing the card. Two new tests
+    in `NotchLayoutSpecTests`; a full store's four rows are 86 pt against a 104 pt budget, which is what lets
+    the page draw every stored clock instead of counting rows at runtime.
+  - **Strings ×12:** none added — `Add City` (the + button's accessible name and help), `Remove` (the row
+    menu) and `Tomorrow`/`Yesterday` were already catalog keys, so `check_localization.py` stays at 895 keys
+    × 12 and no phase-48 review CSV is owed. No new debug switch (86 registered).
+  - **Gate:** `xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug
+    -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO` → **TEST
+    SUCCEEDED, 2497 tests, 0 failures** (48a's 2495 + the 2 new); `check_localization.py` 895 × 12;
+    `check_debug_switches.py` 86/86; `check_availability_warnings.py` clean on both `build/xcodebuild-test48b.log`
+    (**1252 `SwiftCompile` lines** — a real rebuild of every changed file, not a cached no-op) and
+    `build/xcodebuild-test48b-final.log`, the rerun after the last whitespace-only edit (6 lines, as expected).
+  - **Live walk** (`Docs/Archive/Planning/evidence/2026-10-16-phase-48b/`, Debug build started by a launchd
+    job so TCC gives it its own identity): the page drew `• 12:07:12` with `GMT+3` and four rows — `UTC -3h
+    09:07`, `New York -7h 05:07`, `London -2h 10:07`, `Tokyo +6h 18:07` — and **no** "+" (four of four).
+    Right-clicking the London row offered `Remove`; clicking it left three rows, made the "+" appear, and
+    rewrote the stored array to `(UTC, America/New_York, Asia/Tokyo)`. Clicking "+" opened the picker
+    popover — visibly, with its "Search city or zone" field and eight suggestions including
+    `London • Europe/London` — and adding London restored four rows, hid the "+" again, and wrote
+    `(UTC, America/New_York, Asia/Tokyo, Europe/London)`. **The walk's own changes were undone:** the key did
+    not exist before it (the four defaults came from the store's fallback), so it was deleted afterwards and
+    the app quit; no LaunchAgent was left behind.
+  - **Limits, recorded:** the LED line exposes no AX value while it ticks (the same SwiftUI quirk 48a hit with
+    the Pomodoro countdown), so this page's text was read by OCR of its pixels rather than from the AX tree;
+    the panel→notch direction of the shared store is verified by construction (one instance, one key) and was
+    not driven live; and the picker popover renders outside the notch panel's own bounds (240 pt wide against
+    a 190 pt panel) — it appears and works, but whether a popover hanging off the notch is the right shape for
+    this affordance is an owner call.

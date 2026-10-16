@@ -14,6 +14,9 @@ struct AgendaEvent: Identifiable, Equatable {
     let end: Date
     let isAllDay: Bool
     let color: Color
+    /// Phase 48a: the event's own link — for a video meeting that is the join URL — and its place.
+    var url: URL? = nil
+    var location: String? = nil
     static func == (a: AgendaEvent, b: AgendaEvent) -> Bool { a.id == b.id && a.start == b.start && a.title == b.title }
 }
 
@@ -136,7 +139,8 @@ final class CalendarService: ObservableObject {
                 AgendaEvent(
                     id: e.eventIdentifier ?? UUID().uuidString, title: e.title ?? "",
                     start: e.startDate, end: e.endDate, isAllDay: e.isAllDay,
-                    color: Color(nsColor: e.calendar.color ?? .systemBlue)
+                    color: Color(nsColor: e.calendar.color ?? .systemBlue),
+                    url: e.url, location: e.location
                 )
             }
     }

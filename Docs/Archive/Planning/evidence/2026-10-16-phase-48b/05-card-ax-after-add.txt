@@ -1,0 +1,25 @@
+panel rows (24):
+     AXStaticText [564,57 105x13] D=text V=SOLARI FLIP CLOCK
+     AXStaticText [812,57 16x13] D=text V=PM
+     AXStaticText [884,59 49x13] D=text V=12:10:04
+     AXStaticText [1117,60 28x11] D=text V=GMT+3
+     AXStaticText [889,78 19x13] D=text V=UTC
+     AXStaticText [1111,78 34x14] D=text V=09:10
+     AXStaticText [1091,80 15x10] D=text V=-3h
+     AXImage [875,81 8x8] D=image
+     AXStaticText [638,90 39x40] D=text V=12
+     AXStaticText [720,90 41x40] D=text V=10
+     AXStaticText [695,94 8x33] D=text V=:
+     AXStaticText [888,95 49x13] D=text V=New York
+     AXStaticText [1111,95 34x14] D=text V=05:10
+     AXStaticText [1091,97 15x10] D=text V=-7h
+     AXImage [876,98 8x8] D=image
+     AXStaticText [889,112 31x13] D=text V=Tokyo
+     AXStaticText [1111,112 34x14] D=text V=18:10
+     AXStaticText [1091,114 15x10] D=text V=+6h
+     AXImage [875,115 8x8] D=image
+     AXStaticText [889,129 37x13] D=text V=London
+     AXStaticText [1111,129 34x14] D=text V=10:10
+     AXStaticText [1091,131 15x10] D=text V=-2h
+     AXImage [875,132 8x8] D=image
+     AXStaticText [564,156 134x11] D=text V=Split-Flap Electro-Mechanical

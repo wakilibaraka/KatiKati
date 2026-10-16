@@ -106,4 +106,73 @@ enum NotchLayoutSpec {
         let h = total / 3600, m = (total % 3600) / 60, s = total % 60
         return h > 0 ? String(format: "%d:%02d:%02d", h, m, s) : String(format: "%d:%02d", m, s)
     }
+
+    // MARK: page body
+
+    /// The 4 pt gap the page group adds under the header row (`NotchHomeView`).
+    static let pageTopPadding: CGFloat = 4
+
+    /// Height left for a Bento page's cards: the open panel minus the header row that flanks the notch,
+    /// the page gap, and the grid's bottom padding. A card that asks for more than this is clipped by the
+    /// panel with no warning, so the cards' own budgets are asserted against it in the tests.
+    static func pageBodyHeight(headerHeight: CGFloat) -> CGFloat {
+        openSize.height - headerHeight - pageTopPadding - NotchDesignSpec.gridPadding.bottom
+    }
+}
+
+/// Row budget of the Productivity page's two cards (48a). Named constants rather than literals inside the
+/// view, so "does it still fit?" is a unit test instead of an eyeball on a notched display.
+enum NotchProductivityLayout {
+    static let cardHeader: CGFloat = 18
+    static let weekStrip: CGFloat = 26
+    static let agendaRow: CGFloat = 14
+    static let agendaRowCount = 3
+    static let focusTimer: CGFloat = 22
+    static let progress: CGFloat = 6
+    static let controls: CGFloat = 22
+    static let reminderRow: CGFloat = 13
+    static let rowSpacing: CGFloat = 3
+
+    /// Card A: header, the week strip, then the agenda rows.
+    static func cardAContent(rows: Int = agendaRowCount) -> CGFloat {
+        cardHeader + weekStrip + CGFloat(rows) * agendaRow + 2 * rowSpacing
+    }
+
+    /// Card B: header, timer + cycle dots, progress, controls, and a reminder row when one exists.
+    static func cardBContent(hasReminder: Bool) -> CGFloat {
+        let rows: CGFloat = hasReminder ? 5 : 4
+        return cardHeader + focusTimer + progress + controls + (hasReminder ? reminderRow : 0)
+            + (rows - 1) * rowSpacing
+    }
+
+    /// Both cards share one height; the taller one must fit the page body minus the cards' own padding.
+    static func fits(headerHeight: CGFloat, hasReminder: Bool, cardPadding: CGFloat) -> Bool {
+        let budget = NotchLayoutSpec.pageBodyHeight(headerHeight: headerHeight) - 2 * cardPadding
+        return max(cardAContent(), cardBContent(hasReminder: hasReminder)) <= budget
+    }
+}
+
+/// Row budget of the world-clock card (48b) on the Retro clock page: the page's second card traded a
+/// duplicate local readout for the user's stored clocks (`WorldClockStore`, at most
+/// `WorldClockModel.maxClocks`), so "how many clocks fit?" is a test rather than a guess on a notched
+/// display — the card used to hold one 28 pt time plus two lines of chrome.
+enum NotchWorldClockLayout {
+    /// The card's LED line: the local time, with the local zone beside it on the same row.
+    static let header: CGFloat = 20
+    static let row: CGFloat = 15
+    static let rowSpacing: CGFloat = 2
+
+    /// Card content: the LED line, then one row per stored clock.
+    static func content(rows: Int) -> CGFloat {
+        guard rows > 0 else { return header }
+        return header + CGFloat(rows) * row + CGFloat(rows - 1) * rowSpacing
+    }
+
+    /// A full store's worth of rows has to fit the card on the tallest header a display can give — the
+    /// page shows every stored clock rather than counting rows at runtime, so this is the rule that has
+    /// to hold for that to be safe.
+    static func fits(headerHeight: CGFloat, cardPadding: CGFloat) -> Bool {
+        let budget = NotchLayoutSpec.pageBodyHeight(headerHeight: headerHeight) - 2 * cardPadding
+        return content(rows: WorldClockModel.maxClocks) <= budget
+    }
 }

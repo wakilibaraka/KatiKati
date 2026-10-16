@@ -1,0 +1,72 @@
+Phase 48a live walk — raw transcript
+Build: Debug KatiKati.app from build/DerivedData, started via `launchctl bootstrap gui/501` (own TCC
+identity) with -pinnedFolderPaths "()"; driven over Accessibility from /tmp/p47/drive.js.
+Instruments: System Events AX dump of the 640x190 notch panel window, Vision OCR of that window's
+pixels (1280x380 @2x), CGEvent clicks at AX-reported centres.
+
+=== the page is reachable from the header chip ===
+help texts: AI Mission Control | Vinyl Audio Deck | Retro Flip Clock | Downloads & Torrents |
+Obsidian Calendar | Hardware HUD | Teleprompter | Camera Mirror | Notifications | KatiKati Settings
+
+=== Card A / Card B as rendered (AX, page body) ===
+AXStaticText [898,57 36x15] V=Focus            (card title)
+AXStaticText [588,58 80x13] V=OCTOBER 2026
+AXStaticText [800,59 30x10] V=TODAY
+AXStaticText [875,74 67x26] V=25:00            (Pomodoro)
+AXButton [564,76 11x26]   (left chevron)      AXButton [824,76 11x26] (right chevron)
+AXButton [875,110 22x22]  (play/pause)        AXButton [903,112 18x18] (reset)  AXButton [927,112 18x18] (skip)
+AXStaticText [890,135 65x13] V=No reminders   (with a reminder: AXButton [875,135 271x13])
+Day cells (help text = formatted date):
+  AXButton [575,76 35x26] H=Tuesday, October 13 ... AXButton [788,76 35x26] H=Monday, October 19
+
+=== tapping a day (state lines; chip/month/timer/phase/days) ===
+baseline        chip=TODAY month=OCTOBER 2026 timer=24:39 phase=Focus days=[Tue 13 ... Mon 19]
+tap Wed Oct 14  chip=WED   month=OCTOBER 2026 timer=24:39 phase=Focus days=[Sun 11 ... Sat 17]
+one left chevron  -> chip=WED days=[Sun Oct 4 ... Sat Oct 10]      (selection = Oct 7)
+one right chevron -> chip=TODAY days=[Tue Oct 13 ... Mon Oct 19]   (back to today, +7 exactly)
+tap Nov 1 later   -> chip=SUN month=NOVEMBER 2026 (the month header follows the selection across the boundary)
+
+=== Pomodoro (real FocusTimerController) ===
+baseline                       timer=25:00 phase=Focus
+click play (886,121), 20 s     timer=24:39   (paused again; 21 s of countdown over ~24 s of running
+                                              with a ~20 s AX dump in between — see Limits)
+click pause                    timer=24:39
+five further reads             timer=24:39   (paused value holds)
+click reset (912,121)          timer=25:00 phase=Focus
+click skip  (936,121)          timer=5:00  phase=Break
+click skip  (936,121)          timer=25:00 phase=Focus
+
+=== an event with a URL, and the join tap ===
+Created (and later deleted) a throwaway event, calendar "Calendar", 15:00 today, title "Phase 48a live
+check", url https://example.com/join.  Card A then rendered:
+  OCR: 15:00 | Phase 48a live check            AX: AXButton [564,105 270x14], [564,122 270x14], [564,139 270x14]
+  (three rows visible + "+1 more" — my creation script had in fact made five copies; Calendar's own read
+   confirmed five, so the repetition was my test data, not the app)
+Tapping the first row (699,112):
+  Chrome before: w0 title=Google Keep - Google Chrome  fields=[keep.google.com/u/0/#NOTE/...]
+  Chrome after : w0 title=Example Domain - Google Chrome fields=[example.com/join]
+  frontmost app: Google Chrome
+Bare row (no URL) is the other arm of the ladder: it opens Calendar on that day instead.
+
+=== the reminder row, and the tick ===
+First pass — throwaway reminder "Phase 48a tick me", due 18:00.  Card B rendered the reminder's own title
+and due time:
+  OCR: Phase 48a tick me (x≈711) | 18:00 (x≈1163)
+  AX : AXButton [875,135 271x13]
+Five clicks at that frame left the row in place and the read-back of the `completed` flag was TCC-blocked
+at that point, so that pass recorded the tick as unconfirmed.
+
+Second pass — fresh reminder "Phase 48a tick test 2", due 20:00, read out of Reminders before and after a
+single click (launchd job, so the read is not attributed to Freebuff):
+  card row     : OCR "• Phase 48a tick test 2"  AX AXButton [875,135 271x13]
+  before click : Phase 48a tick test 2 completed=false ; ...completed=false ; ...completed=false ;
+  click        : clickat 1010,141 (the row's own AX centre)
+  after click  : Phase 48a tick test 2 completed=false ; ...false ; ...false ; ...completed=TRUE ;
+The extra copies are `launchctl submit` re-running its one-shot job (the same thing that put five copies
+of the test event in Calendar), not the app: with one reminder the row disappears once it is ticked.  Every
+throwaway reminder and event was deleted afterwards (verified: `count of reminders` = 0, `(no events
+today)`).
+
+=== cleanup verification (launchd job, Calendar/Reminders AppleEvents) ===
+Before: 5 x "Phase 48a live check @Friday, October 16, 2026 at 15:00:00 [Calendar]"
+After : (no events today)--- total lines: 1        deleted reminders: 0 (already deleted in the same pass)

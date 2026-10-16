@@ -1,85 +1,40 @@
 import SwiftUI
 
-// Phase 33e — Page 4: Productivity & Calendar (Bento Card A: Obsidian/Scarlet Calendar, Card B: Focus Hourglass & Decision Spinner)
+// Phase 33e — Page 4: Productivity & Calendar (Bento Card A: Calendar, Card B: Focus).
+//
+// Phase 48a — both cards carry live data instead of a sample. Card A is the selected day's agenda on a
+// week strip you can walk a day or a week at a time, and a tap on a row opens the meeting's own link when
+// the event has one (otherwise Calendar on that day) — `AgendaEventAction` decides, one rule, shared with
+// the floating panel. Card B drives the real Pomodoro (`FocusTimerModel`: 25/5/15, four to a cycle) and
+// ticks off the next reminder. The random "decision" spinner that used to sit here is gone: it was the one
+// thing on the page with nothing behind it.
 
 struct NotchProductivityPageView: View {
     @ObservedObject private var agenda = ProductivityServices.shared.calendar
     @ObservedObject private var focus = ProductivityServices.shared.focus
-    @State private var decisionResult: String = "Ready"
-    @State private var spinDegrees: Double = 0.0
 
-    private let decisions = ["Ship It 🚀", "Take a Break ☕", "Refactor 🧹", "Write Tests 🧪", "Deep Focus 🧘"]
+    private let accent = Color(red: 0.95, green: 0.25, blue: 0.30)
+    private let todayAccent = Color(red: 0.90, green: 0.20, blue: 0.25)
 
     var body: some View {
         HStack(spacing: NotchDesignSpec.cardSpacing) {
             calendarCard
             focusCard
         }
-        .onAppear { agenda.start() }
+        .onAppear {
+            agenda.start()
+            if !Calendar.current.isDateInToday(agenda.selectedDate) { agenda.selectedDate = Date() }
+        }
     }
 
-    private var agendaLine: String {
-        if agenda.eventsAccess == .denied { return "Calendar access off" }
-        let upcoming = agenda.events.filter { $0.isAllDay || $0.end > Date() }
-        guard let next = upcoming.first else { return "No events today" }
-        return next.isAllDay ? next.title : "\(next.start.formatted(date: .omitted, time: .shortened)) \(next.title)"
-    }
+    // MARK: - Card A: agenda on a walkable week strip
 
-    // MARK: - Card A: Obsidian / Scarlet Calendar Card
-    @ViewBuilder
     private var calendarCard: some View {
-        let calendar = Calendar.current
-        let today = Date()
-        let dayNumber = calendar.component(.day, from: today)
-
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                ZStack {
-                    Circle()
-                        .fill(Color(red: 0.90, green: 0.20, blue: 0.25))
-                        .frame(width: 22, height: 22)
-                    Image(systemName: "calendar")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(.white)
-                }
-                Text(verbatim: today.formatted(.dateTime.month(.wide).year()).uppercased())
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
-                Spacer()
-                Text(verbatim: "TODAY")
-                    .font(.system(size: 9, weight: .heavy))
-                    .foregroundStyle(Color(red: 0.90, green: 0.20, blue: 0.25))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Capsule().fill(Color(red: 0.90, green: 0.20, blue: 0.25).opacity(0.15)))
-            }
-
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(verbatim: "\(dayNumber)")
-                    .font(.system(size: 38, weight: .heavy, design: .rounded))
-                    .foregroundStyle(Color(red: 0.95, green: 0.25, blue: 0.30))
-
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(verbatim: today.formatted(.dateTime.weekday(.wide)))
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundStyle(.white)
-                    Text(verbatim: agendaLine)
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.5))
-                }
-            }
-
+        VStack(alignment: .leading, spacing: NotchProductivityLayout.rowSpacing) {
+            calendarHeader
+            weekStrip
+            agendaList
             Spacer(minLength: 0)
-
-            // Mini week row dots
-            HStack(spacing: 8) {
-                ForEach(1...7, id: \.self) { day in
-                    let isToday = (day == calendar.component(.weekday, from: today))
-                    Circle()
-                        .fill(isToday ? Color(red: 0.95, green: 0.25, blue: 0.30) : Color.white.opacity(0.15))
-                        .frame(width: isToday ? 8 : 6, height: isToday ? 8 : 6)
-                }
-            }
         }
         .padding(NotchDesignSpec.cardPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -88,88 +43,170 @@ struct NotchProductivityPageView: View {
                 .fill(Color(red: 0.08, green: 0.06, blue: 0.07))
                 .overlay(
                     RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                        .stroke(Color(red: 0.95, green: 0.25, blue: 0.30).opacity(0.25), lineWidth: NotchDesignSpec.cardStrokeWidth)
+                        .stroke(accent.opacity(0.25), lineWidth: NotchDesignSpec.cardStrokeWidth)
                 )
         )
     }
 
-    // MARK: - Card B: Neon Focus Hourglass & Decision Spinner
-    @ViewBuilder
-    private var focusCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                ZStack {
-                    Circle()
-                        .fill(Color.orange)
-                        .frame(width: 22, height: 22)
-                    Image(systemName: "hourglass")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(.white)
-                }
-                Text(verbatim: "Focus & Decision")
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
-                Spacer()
-                Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                        spinDegrees += 720 + Double.random(in: 45...315)
-                        decisionResult = decisions.randomElement() ?? "Ship It 🚀"
-                    }
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.triangle.2.circlepath")
-                            .font(.system(size: 10, weight: .bold))
-                            .rotationEffect(.degrees(spinDegrees))
-                        Text(verbatim: "SPIN")
-                            .font(.system(size: 9, weight: .heavy))
-                    }
-                    .foregroundStyle(.orange)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Capsule().fill(Color.orange.opacity(0.15)))
-                }
-                .buttonStyle(.plain)
+    private var calendarHeader: some View {
+        HStack(spacing: 6) {
+            ZStack {
+                Circle().fill(todayAccent).frame(width: 18, height: 18)
+                Image(systemName: "calendar").font(.system(size: 9, weight: .bold)).foregroundStyle(.white)
             }
-
-            // Decision Roulette banner
-            HStack {
-                Text(verbatim: "Decision:")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.6))
-                Text(verbatim: decisionResult)
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(RoundedRectangle(cornerRadius: 6).fill(Color.white.opacity(0.06)))
-
+            Text(verbatim: agenda.selectedDate.formatted(.dateTime.month(.wide).year()).uppercased())
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+                .lineLimit(1)
             Spacer(minLength: 0)
+            Text(verbatim: selectedDayChip)
+                .font(.system(size: 8, weight: .heavy))
+                .foregroundStyle(todayAccent)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 1)
+                .background(Capsule().fill(todayAccent.opacity(0.15)))
+        }
+        .frame(height: NotchProductivityLayout.cardHeader)
+    }
 
-            // Focus Timer controls
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: String(format: "%d min", focus.model.remaining / 60))
-                        .font(.system(size: 18, weight: .heavy, design: .rounded))
-                        .foregroundStyle(.white)
-                    Text(verbatim: focus.model.isRunning ? "In Session" : "Paused")
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.5))
-                }
+    private var selectedDayChip: String {
+        Calendar.current.isDateInToday(agenda.selectedDate)
+            ? "TODAY"
+            : agenda.selectedDate.formatted(.dateTime.weekday(.abbreviated)).uppercased()
+    }
 
-                Spacer()
-
-                Button {
-                    focus.toggle()
-                } label: {
-                    Image(systemName: focus.model.isRunning ? "pause.fill" : "play.fill")
-                        .font(.system(size: 13, weight: .bold))
-                        .frame(width: 32, height: 32)
-                        .background(Circle().fill(Color.orange))
-                        .foregroundStyle(.white)
-                }
-                .buttonStyle(.plain)
+    private var weekStrip: some View {
+        HStack(spacing: 0) {
+            weekShift(-7, symbol: "chevron.left")
+            ForEach(NotchLayoutSpec.weekStrip(now: agenda.selectedDate), id: \.date) { day in
+                dayCell(day)
             }
+            weekShift(7, symbol: "chevron.right")
+        }
+        .frame(height: NotchProductivityLayout.weekStrip)
+    }
+
+    /// A week at a time, so any day is reachable without a month grid the notch has no room for.
+    private func weekShift(_ days: Int, symbol: String) -> some View {
+        Button {
+            guard let moved = Calendar.current.date(byAdding: .day, value: days, to: agenda.selectedDate) else { return }
+            withAnimation(.easeOut(duration: 0.15)) { agenda.selectedDate = moved }
+        } label: {
+            Image(systemName: symbol)
+                .font(.system(size: 8, weight: .bold))
+                .foregroundStyle(.white.opacity(0.45))
+                .frame(width: 11, height: NotchProductivityLayout.weekStrip)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func dayCell(_ day: NotchLayoutSpec.WeekDay) -> some View {
+        let calendar = Calendar.current
+        let selected = calendar.isDate(day.date, inSameDayAs: agenda.selectedDate)
+        let isToday = calendar.isDateInToday(day.date)
+        return Button {
+            withAnimation(.easeOut(duration: 0.15)) { agenda.selectedDate = day.date }
+        } label: {
+            VStack(spacing: 1) {
+                Text(verbatim: day.date.formatted(.dateTime.weekday(.narrow)))
+                    .font(.system(size: 7, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.45))
+                Text(verbatim: "\(day.dayNumber)")
+                    .font(.system(size: 10, weight: selected ? .heavy : .semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(selected ? .white : .white.opacity(0.8))
+                    .frame(width: 16, height: 16)
+                    .background(Circle().fill(selected ? todayAccent : Color.white.opacity(isToday ? 0.10 : 0)))
+                    .overlay(Circle().stroke(todayAccent.opacity(isToday && !selected ? 0.6 : 0), lineWidth: 1))
+            }
+            .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        // The visible label is the day's number alone, which reads as seven identical "button"s. The
+        // formatted date is the accessible name (and `help` is the idiom this app's other buttons use for
+        // theirs), which localises itself — no catalog key.
+        .accessibilityLabel(Text(day.date.formatted(.dateTime.weekday(.wide).day().month(.wide))))
+        .help(Text(day.date.formatted(.dateTime.weekday(.wide).day().month(.wide))))
+    }
+
+    @ViewBuilder
+    private var agendaList: some View {
+        if agenda.eventsAccess == .denied {
+            // The door to the grant, the same route the floating panel offers.
+            Button("Open Settings") { AgendaPane.openPrivacy("Privacy_Calendars") }
+                .buttonStyle(.plain)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(accent)
+                .frame(height: agendaListHeight, alignment: .top)
+        } else if agenda.events.isEmpty {
+            Text("No events")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(.white.opacity(0.4))
+                .frame(height: agendaListHeight, alignment: .top)
+        } else {
+            let rows = Array(agenda.events.prefix(NotchProductivityLayout.agendaRowCount))
+            ForEach(rows) { event in
+                eventRow(event)
+            }
+            if agenda.events.count > rows.count {
+                Text(verbatim: "+\(agenda.events.count - rows.count) more")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.35))
+            }
+        }
+    }
+
+    private var agendaListHeight: CGFloat {
+        CGFloat(NotchProductivityLayout.agendaRowCount) * NotchProductivityLayout.agendaRow
+    }
+
+    private func eventRow(_ event: AgendaEvent) -> some View {
+        Button { AgendaEventOpener.open(event) } label: {
+            HStack(spacing: 4) {
+                Capsule().fill(event.color).frame(width: 2.5)
+                Text(verbatim: event.isAllDay ? "ALL DAY" : event.start.formatted(date: .omitted, time: .shortened))
+                    .font(.system(size: 8, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white.opacity(0.5))
+                    .frame(width: 38, alignment: .leading)
+                Text(verbatim: event.title)
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+                if event.isJoinable {
+                    Image(systemName: "video.fill")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundStyle(accent)
+                }
+            }
+            .frame(height: NotchProductivityLayout.agendaRow)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Card B: the real Pomodoro, and the next reminder
+
+    private var focusCard: some View {
+        let model = focus.model
+        return VStack(alignment: .leading, spacing: NotchProductivityLayout.rowSpacing) {
+            focusHeader(model)
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text(verbatim: NotchLayoutSpec.clockText(TimeInterval(model.remaining)))
+                    .font(.system(size: 22, weight: .heavy, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                Spacer(minLength: 0)
+                cycleDots(model.completedInCycle)
+            }
+            .frame(height: NotchProductivityLayout.focusTimer)
+            progressBar(model.progress)
+            controls(model)
+            reminderRow
+            Spacer(minLength: 0)
         }
         .padding(NotchDesignSpec.cardPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -181,5 +218,122 @@ struct NotchProductivityPageView: View {
                         .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
                 )
         )
+    }
+
+    private func focusHeader(_ model: FocusTimerModel) -> some View {
+        HStack(spacing: 5) {
+            ZStack {
+                Circle().fill(.orange).frame(width: 18, height: 18)
+                Image(systemName: "hourglass").font(.system(size: 9, weight: .bold)).foregroundStyle(.white)
+            }
+            Text("Focus").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(.white)
+            Spacer(minLength: 0)
+            if !agenda.reminders.isEmpty {
+                // How much is left of the day, on the card that owns ticking it off.
+                HStack(spacing: 2) {
+                    Image(systemName: "checklist").font(.system(size: 8, weight: .bold))
+                    Text(verbatim: "\(agenda.reminders.count)").font(.system(size: 9, weight: .bold)).monospacedDigit()
+                }
+                .foregroundStyle(.white.opacity(0.6))
+                .padding(.horizontal, 5)
+                .padding(.vertical, 1)
+                .background(Capsule().fill(Color.white.opacity(0.10)))
+            }
+            Text(model.phase == .focus ? "Focus" : "Break")
+                .font(.system(size: 8, weight: .heavy))
+                .foregroundStyle(.orange)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(Color.orange.opacity(0.15)))
+        }
+        .frame(height: NotchProductivityLayout.cardHeader)
+    }
+
+    /// Four dots: how far into the cycle the current run is (the fourth ends in the long break).
+    private func cycleDots(_ completed: Int) -> some View {
+        HStack(spacing: 3) {
+            ForEach(0..<FocusTimerModel.cycleLength, id: \.self) { index in
+                Circle()
+                    .fill(index < completed ? Color.orange : Color.white.opacity(0.18))
+                    .frame(width: 4, height: 4)
+            }
+        }
+    }
+
+    private func progressBar(_ progress: Double) -> some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color.white.opacity(0.12))
+                Capsule().fill(Color.orange)
+                    .frame(width: geo.size.width * CGFloat(min(1, max(0, progress))))
+            }
+        }
+        .frame(height: NotchProductivityLayout.progress)
+    }
+
+    private func controls(_ model: FocusTimerModel) -> some View {
+        HStack(spacing: 6) {
+            Button { focus.toggle() } label: {
+                Image(systemName: model.isRunning ? "pause.fill" : "play.fill")
+                    .font(.system(size: 10, weight: .bold))
+                    .frame(width: NotchProductivityLayout.controls, height: NotchProductivityLayout.controls)
+                    .background(Circle().fill(.orange))
+                    .foregroundStyle(.white)
+            }
+            .buttonStyle(.plain)
+            Button { focus.reset() } label: {
+                Image(systemName: "arrow.counterclockwise")
+                    .font(.system(size: 9, weight: .bold))
+                    .frame(width: 18, height: 18)
+                    .background(Circle().fill(Color.white.opacity(0.12)))
+                    .foregroundStyle(.white.opacity(0.85))
+            }
+            .buttonStyle(.plain)
+            Button { focus.skip() } label: {
+                Image(systemName: "forward.end.fill")
+                    .font(.system(size: 9, weight: .bold))
+                    .frame(width: 18, height: 18)
+                    .background(Circle().fill(Color.white.opacity(0.12)))
+                    .foregroundStyle(.white.opacity(0.85))
+            }
+            .buttonStyle(.plain)
+            Spacer(minLength: 0)
+        }
+        .frame(height: NotchProductivityLayout.controls)
+    }
+
+    /// The next reminder due, tapped to tick it off — the whole row is the target, and its label is the
+    /// reminder's own title, which is what a screen reader should hear.
+    @ViewBuilder
+    private var reminderRow: some View {
+        if let reminder = agenda.reminders.first {
+            Button { agenda.complete(reminder) } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: "circle")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.55))
+                    Text(verbatim: reminder.title)
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.8))
+                        .lineLimit(1)
+                    Spacer(minLength: 0)
+                    if let due = reminder.due {
+                        Text(verbatim: due.formatted(date: .omitted, time: .shortened))
+                            .font(.system(size: 9, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(.white.opacity(0.45))
+                    }
+                }
+                .frame(height: NotchProductivityLayout.reminderRow)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        } else {
+            HStack(spacing: 4) {
+                Image(systemName: "checkmark.circle").font(.system(size: 9)).foregroundStyle(.white.opacity(0.35))
+                Text("No reminders").font(.system(size: 10)).foregroundStyle(.white.opacity(0.4))
+            }
+            .frame(height: NotchProductivityLayout.reminderRow)
+        }
     }
 }

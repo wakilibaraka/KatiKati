@@ -1,0 +1,20 @@
+27	41	234	30	Search city or zone
+15	95	124	19	UTC • UTC
+15	135	328	21	New York • America/New_York
+13	175	272	24	London • Europe/London
+13	215	210	21	Tokyo • Asia/Tokyo
+15	255	216	22	Paris • Europe/Paris
+15	295	238	19	Kolkata • Asia/Kolkata
+13	333	285	25	Sydney • Australia/Sydney
+15	375	252	19	Nairobi • Africa/Nairobi
+0	415	128	16	s are now u
+133	416	138	19	c, wew rork,
+289	419	51	11	ОкYО
+402	417	33	14	ine
+481	28	116	24	a time (par
+487	93	109	19	== OCR of
+475	155	122	22	Mechanical
+475	221	122	23	; echo; DO {.
+475	280	122	26	is 'com.ka.
+477	350	120	21	endar.timez.
+466	408	132	33	+" button ap

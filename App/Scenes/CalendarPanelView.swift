@@ -16,7 +16,7 @@ struct CalendarPanelView: View {
     @AppStorage(WidgetExtraPrefs.glassTilesKey) private var glassTiles = false
     @Environment(\.colorScheme) private var colorScheme
     @ObservedObject private var calendarService = ProductivityServices.shared.calendar
-    @StateObject private var clocks = WorldClockStore()
+    @ObservedObject private var clocks = ProductivityServices.shared.worldClocks
     @ObservedObject private var focus = ProductivityServices.shared.focus
     @ObservedObject private var alarms = ProductivityServices.shared.alarms
     @ObservedObject private var timer = ProductivityServices.shared.timer
@@ -276,21 +276,50 @@ struct AgendaPane: View {
     }
 
     private func eventRow(_ e: AgendaEvent) -> some View {
-        HStack(spacing: 6) {
-            RoundedRectangle(cornerRadius: 2).fill(e.color).frame(width: 3, height: 28)
-            VStack(alignment: .leading, spacing: 0) {
-                Text(e.title).font(.system(size: 12, weight: .bold)).lineLimit(1)
-                if !e.isAllDay {
-                    Text(verbatim: "\(e.start.formatted(date: .omitted, time: .shortened)) – \(e.end.formatted(date: .omitted, time: .shortened))")
-                        .font(.system(size: 10)).foregroundColor(env.secondary).lineLimit(1)
+        Button { AgendaEventOpener.open(e) } label: {
+            HStack(spacing: 6) {
+                RoundedRectangle(cornerRadius: 2).fill(e.color).frame(width: 3, height: 28)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(e.title).font(.system(size: 12, weight: .bold)).lineLimit(1)
+                    if !e.isAllDay {
+                        Text(verbatim: "\(e.start.formatted(date: .omitted, time: .shortened)) – \(e.end.formatted(date: .omitted, time: .shortened))")
+                            .font(.system(size: 10)).foregroundColor(env.secondary).lineLimit(1)
+                    }
+                }
+                Spacer(minLength: 0)
+                if e.isJoinable {
+                    Image(systemName: "video.fill").font(.system(size: 10)).foregroundColor(env.accent(.calendar))
                 }
             }
+            .frame(height: 30)
+            .contentShape(Rectangle())
         }
-        .frame(height: 30)
+        .buttonStyle(.plain)
     }
 
     static func openPrivacy(_ pane: String) {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?\(pane)") { NSWorkspace.shared.open(url) }
+    }
+}
+
+/// Phase 48a: the one place a tapped agenda row turns into an actual open, so the panel's agenda and the
+/// notch card cannot drift apart on what a tap means.
+enum AgendaEventOpener {
+    static func open(_ event: AgendaEvent) {
+        switch AgendaEventAction.target(url: event.url, start: event.start) {
+        case .join(let url):
+            NSWorkspace.shared.open(url)
+        case .calendar(let date):
+            if let url = AgendaEventAction.calendarURL(for: date) { NSWorkspace.shared.open(url) }
+        }
+    }
+}
+
+extension AgendaEvent {
+    /// Whether a tap joins a meeting rather than revealing the day.
+    var isJoinable: Bool {
+        if case .join = AgendaEventAction.target(url: url, start: start) { return true }
+        return false
     }
 }
 

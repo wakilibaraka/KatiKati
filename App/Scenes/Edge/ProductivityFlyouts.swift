@@ -6,6 +6,7 @@ import SwiftUI
 final class ProductivityServices {
     static let shared = ProductivityServices()
     let calendar = CalendarService()
+    let worldClocks = WorldClockStore()
     let focus = FocusTimerController()
     let alarms = AlarmStore()
     let timer = CountdownTimerController()

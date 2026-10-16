@@ -76,4 +76,50 @@ final class NotchLayoutSpecTests: XCTestCase {
         XCTAssertNotEqual(LiveEvent.downloadFinished(name: "a.zip").dedupeKey, LiveEvent.downloadFinished(name: "b.zip").dedupeKey)
         XCTAssertEqual(LiveEvent.downloadFinished(name: nil).dedupeKey, "download|")
     }
+
+    // Phase 48a: a card that asks for more height than the page body has is clipped by the panel with no
+    // warning, so the Productivity page's row budget is asserted against the real body instead of eyeballed.
+    func testProductivityCardsFitThePageBody() {
+        XCTAssertEqual(NotchLayoutSpec.pageBodyHeight(headerHeight: 38), 132)
+        // 38 is the menu bar of this machine's notched display; 44 a taller one; 26 the no-notch fallback.
+        for header in [CGFloat(38), 44, NotchLayoutSpec.headerHeight(closedHeight: 20)] {
+            for hasReminder in [true, false] {
+                XCTAssertTrue(
+                    NotchProductivityLayout.fits(headerHeight: header, hasReminder: hasReminder,
+                                                 cardPadding: NotchDesignSpec.cardPadding),
+                    "header \(header) with a reminder: \(hasReminder)"
+                )
+            }
+        }
+        XCTAssertFalse(
+            NotchProductivityLayout.fits(headerHeight: 120, hasReminder: true, cardPadding: NotchDesignSpec.cardPadding),
+            "the guard has to be able to fail"
+        )
+    }
+
+    // Phase 48b: the Retro clock page's second card traded its duplicate local readout for the user's
+    // stored world clocks, and it draws every stored clock rather than counting rows at runtime — so the
+    // full store has to fit every header the page can be given.
+    func testWorldClockCardFitsAFullStore() {
+        for header in [CGFloat(38), 44, NotchLayoutSpec.headerHeight(closedHeight: 20)] {
+            XCTAssertTrue(
+                NotchWorldClockLayout.fits(headerHeight: header, cardPadding: NotchDesignSpec.cardPadding),
+                "header \(header)"
+            )
+        }
+        XCTAssertGreaterThan(
+            NotchWorldClockLayout.content(rows: WorldClockModel.maxClocks),
+            NotchWorldClockLayout.content(rows: 1),
+            "the rows have to be counted, not assumed"
+        )
+        XCTAssertFalse(
+            NotchWorldClockLayout.fits(headerHeight: 120, cardPadding: NotchDesignSpec.cardPadding),
+            "the guard has to be able to fail"
+        )
+    }
+
+    // The LED line is the card's own, so an emptied store still draws a card rather than a gap.
+    func testWorldClockCardKeepsItsLedLineWithNoClocks() {
+        XCTAssertEqual(NotchWorldClockLayout.content(rows: 0), NotchWorldClockLayout.header)
+    }
 }
