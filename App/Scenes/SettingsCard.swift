@@ -16,7 +16,17 @@ private struct SettingsLiveWindowWidthKey: EnvironmentKey {
     static let defaultValue: CGFloat = SettingsMetrics.windowWidth
 }
 
+private struct SettingsStageVisibleKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
 extension EnvironmentValues {
+    /// True while the Settings stage is on screen, so a page can drop its own duplicate preview.
+    var settingsStageVisible: Bool {
+        get { self[SettingsStageVisibleKey.self] }
+        set { self[SettingsStageVisibleKey.self] = newValue }
+    }
+
     var settingsLiveWindowWidth: CGFloat {
         get { self[SettingsLiveWindowWidthKey.self] }
         set { self[SettingsLiveWindowWidthKey.self] = newValue }

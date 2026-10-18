@@ -5,6 +5,7 @@ import SwiftUI
 /// on. Titles are whole literals (localization gate stays one-to-one).
 struct LiveIslandSettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
+    @Environment(\.settingsStageVisible) private var stageVisible
 
     var body: some View {
         // Rule 8: the preview above the rows is a demo, and it says so. The notch page is not signed
@@ -13,7 +14,9 @@ struct LiveIslandSettingsBlock: View {
             Text("Live Island"),
             note: Text("The shape preview is a demo: the silhouette only, never live activity.")
         ) {
-            NotchPreview(skin: store.notchSkin, isEnabled: store.notchIslandEnabled)
+            if !stageVisible {
+                NotchPreview(skin: store.notchSkin, isEnabled: store.notchIslandEnabled)
+            }
             SettingsToggleRow(
                 Text("Dock Island"),
                 isOn: Binding(get: { store.dockIslandEnabled }, set: { store.setDockIslandEnabled($0) })
