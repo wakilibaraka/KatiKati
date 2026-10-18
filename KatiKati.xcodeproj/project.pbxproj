@@ -11,6 +11,9 @@
 		FC11A0000000000000000301 /* SettingsShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000300 /* SettingsShell.swift */; };
 		FC11A0000000000000006001 /* SettingsStagePanels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000006000 /* SettingsStagePanels.swift */; };
 		FC11A0000000000000005901 /* SettingsStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005900 /* SettingsStage.swift */; };
+		FC11A0000000000000000111 /* TimeOfDayPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000110 /* TimeOfDayPalette.swift */; };
+		FC11A0000000000000000112 /* TimeOfDayPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000110 /* TimeOfDayPalette.swift */; };
+		FC11A0000000000000000211 /* TimeOfDayPaletteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000210 /* TimeOfDayPaletteTests.swift */; };
 		FC11A0000000000000000201 /* SettingsLayoutClassTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000200 /* SettingsLayoutClassTests.swift */; };
 		FC11A0000000000000000102 /* SettingsLayoutClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000100 /* SettingsLayoutClass.swift */; };
 		FC11A0000000000000000101 /* SettingsLayoutClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000100 /* SettingsLayoutClass.swift */; };
@@ -1104,6 +1107,8 @@
 		FC11A0000000000000000300 /* SettingsShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsShell.swift; path = App/Scenes/Settings/SettingsShell.swift; sourceTree = SOURCE_ROOT; };
 		FC11A0000000000000006000 /* SettingsStagePanels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsStagePanels.swift; path = App/Scenes/Settings/SettingsStagePanels.swift; sourceTree = SOURCE_ROOT; };
 		FC11A0000000000000005900 /* SettingsStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsStage.swift; path = App/Scenes/Settings/SettingsStage.swift; sourceTree = SOURCE_ROOT; };
+		FC11A0000000000000000110 /* TimeOfDayPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TimeOfDayPalette.swift; path = Core/Support/TimeOfDayPalette.swift; sourceTree = SOURCE_ROOT; };
+		FC11A0000000000000000210 /* TimeOfDayPaletteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TimeOfDayPaletteTests.swift; path = Tests/Unit/TimeOfDayPaletteTests.swift; sourceTree = SOURCE_ROOT; };
 		FC11A0000000000000000200 /* SettingsLayoutClassTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsLayoutClassTests.swift; path = Tests/Unit/SettingsLayoutClassTests.swift; sourceTree = SOURCE_ROOT; };
 		FC11A0000000000000000100 /* SettingsLayoutClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsLayoutClass.swift; path = Core/Support/SettingsLayoutClass.swift; sourceTree = SOURCE_ROOT; };
 		FB37A00000000000001001 /* NotchTeleprompterPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchTeleprompterPageView.swift; path = App/Scenes/Notch/NotchTeleprompterPageView.swift; sourceTree = SOURCE_ROOT; };
@@ -3130,6 +3135,7 @@
 				7B5000000000000000000112 /* NotchGeometry.swift in Sources */,
 				FB52C00000000000000000102 /* SettingsMetrics.swift in Sources */,
 				FC11A0000000000000000101 /* SettingsLayoutClass.swift in Sources */,
+				FC11A0000000000000000111 /* TimeOfDayPalette.swift in Sources */,
 				FB52C00000000000000000112 /* SettingsCard.swift in Sources */,
 				FA33A0000000000000000002 /* NotchDesignSpec.swift in Sources */,
 				FA33A0000000000000000012 /* NotchMotionSpec.swift in Sources */,
@@ -3415,9 +3421,11 @@
 				7B5000000000000000000122 /* NotchGeometryTests.swift in Sources */,
 				FB52C00000000000000000103 /* SettingsMetrics.swift in Sources */,
 				FC11A0000000000000000102 /* SettingsLayoutClass.swift in Sources */,
+				FC11A0000000000000000112 /* TimeOfDayPalette.swift in Sources */,
 				FB52C00000000000000000113 /* SettingsCard.swift in Sources */,
 				FB52C00000000000000000122 /* SettingsMetricsTests.swift in Sources */,
 				FC11A0000000000000000201 /* SettingsLayoutClassTests.swift in Sources */,
+				FC11A0000000000000000211 /* TimeOfDayPaletteTests.swift in Sources */,
 				FB52C00000000000000000132 /* SettingsTabTests.swift in Sources */,
 				FA33A0000000000000000022 /* NotchDesignSpecTests.swift in Sources */,
 				FA3200000000000000000022 /* WidgetMotionSpecTests.swift in Sources */,

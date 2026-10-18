@@ -2,6 +2,12 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Settings redesign, Phase 6: time-of-day glow
+
+### Added
+- `TimeOfDayPalette` (night, dawn, day, dusk, blended by the hour) tints a soft glow at the top of the
+  Settings window and the stage's backdrop. It is off for Reduce Motion and Increase Contrast.
+
 ## [Unreleased] — Settings redesign, Phase 5b: stages for Shortcuts and Downloads
 
 ### Added

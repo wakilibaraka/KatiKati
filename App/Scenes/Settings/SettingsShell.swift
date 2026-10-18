@@ -51,6 +51,12 @@ struct SettingsShell: View {
             }
             .padding(.top, 8)
         }
+        Group { stageLayout(layout: layout, page: page, pageWidth: pageWidth, size: size) }
+            .background(SettingsTimeGlow())
+    }
+
+    @ViewBuilder
+    private func stageLayout<P: View>(layout: SettingsLayoutClass, page: P, pageWidth: CGFloat, size: CGSize) -> some View {
         switch layout.stage {
         case .top:
             let length = SettingsStageSize.length(fraction: stageFraction, available: size.height)

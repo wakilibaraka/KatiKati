@@ -17,6 +17,30 @@ extension SettingsTab {
     }
 }
 
+/// A soft radial wash in the hour's tint (`TimeOfDayPalette`): the stage's vignette and the window's
+/// glow. Off for reduced motion and increased contrast, where a drifting colour is noise.
+struct SettingsTimeGlow: View {
+    var opacity = 0.22
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorSchemeContrast) private var contrast
+
+    var body: some View {
+        if reduceMotion || contrast == .increased {
+            Color.clear
+        } else {
+            TimelineView(.periodic(from: .now, by: 60)) { context in
+                let c = Calendar.current.dateComponents([.hour, .minute], from: context.date)
+                let tint = TimeOfDayPalette(hour: Double(c.hour ?? 0) + Double(c.minute ?? 0) / 60).tint
+                RadialGradient(colors: [Color(red: tint.red, green: tint.green, blue: tint.blue).opacity(opacity), .clear],
+                               center: .top, startRadius: 0, endRadius: 520)
+                    .animation(.easeInOut(duration: 1), value: tint)
+            }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
+    }
+}
+
 /// The live preview: a miniature of the user's desktop with the bar and notch drawn from the same
 /// solver and silhouettes the app uses. Like `NotchPreview` it reads no feed, media or panel and
 /// starts nothing, so it can never pass invented values off as live data or trigger a permission
@@ -33,6 +57,7 @@ struct SettingsStage: View {
     var body: some View {
         ZStack {
             Rectangle().fill(.black.opacity(0.06))
+            SettingsTimeGlow(opacity: 0.35)
             screen
                 .aspectRatio(Self.screenAspect, contentMode: .fit)
                 .padding(14)
