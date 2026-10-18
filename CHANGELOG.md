@@ -2,6 +2,13 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Notch redesign, slices 2–4
+
+### Added
+- Closed notch dock: free storage on the left, battery on the right.
+- Event toasts show as a card with an icon tile and a bar that drains over its 3 s lifetime.
+- Settings → Notch: "Sharp Notch Edges" gives square corners and removes the flared ears.
+
 ## [Unreleased] — Notch redesign, slice 1: Storage page
 
 ### Added

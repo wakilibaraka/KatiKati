@@ -43,6 +43,7 @@ struct NotchIslandView: View {
     @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
     @AppStorage(NotificationMirrorService.enabledKey) private var notificationsPage = false
+    @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
     /// `AppSettingsStore.Keys.themeMaterial`, which is file-private; the key itself is the contract.
     @AppStorage("com.katikati.theme.material") private var themeMaterialToken = DockThemeStyle.auto.token
     let metrics: NotchMetrics
@@ -64,15 +65,14 @@ struct NotchIslandView: View {
         let expanded = model.isExpanded
         let activity = feed.activity
         let boring = model.skin == .boring
-        let open = NotchDesignSpec.openCornerRadii
-        let closed = NotchDesignSpec.closedCornerRadii
+        let edge = NotchEdgeStyle.mask(sharp: sharpEdges, expanded: expanded, hasHardwareNotch: metrics.hasHardwareNotch)
         let spring = expanded ? NotchMotionSpec.openSpring : NotchMotionSpec.closeSpring
         let size = expanded ? model.openSize : model.closedSize
         ZStack(alignment: .top) {
             NotchContinuousMaskShape(
-                topCornerRadius: expanded ? open.topFlaring : closed.topFlaring,
-                bottomCornerRadius: expanded ? open.bottomSquircle : closed.bottomSquircle,
-                flaringTopEars: metrics.hasHardwareNotch
+                topCornerRadius: edge.top,
+                bottomCornerRadius: edge.bottom,
+                flaringTopEars: edge.flares
             )
             .fill(notchTheme.plate.color)
             Group {

@@ -233,6 +233,7 @@ struct NotchHelpersSettingsBlock: View {
     @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
     @AppStorage(NotificationMirrorService.enabledKey) private var notificationsPage = false
+    @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
 
     var body: some View {
         SettingsCard(Text("Daily Helpers")) {
@@ -259,6 +260,8 @@ struct NotchHelpersSettingsBlock: View {
             )
             SettingsDivider()
             SettingsToggleRow(Text("Notifications Notch Page"), isOn: $notificationsPage)
+            SettingsDivider()
+            SettingsToggleRow(Text("Sharp Notch Edges"), isOn: $sharpEdges)
         }
     }
 }

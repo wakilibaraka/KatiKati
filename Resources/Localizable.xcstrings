@@ -239,6 +239,23 @@
         "ko": {"stringUnit": {"state": "needs_review", "value": "아직 알림 없음"}}
       }
     },
+    "Sharp Notch Edges": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Sharp Notch Edges"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "刘海直角边缘"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "瀏海直角邊緣"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "ノッチの角を直角にする"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Scharfe Notch-Kanten"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Bords de l'encoche anguleux"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Bordes angulares del notch"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Bordes angulares del notch"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Bordas retas do notch"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Esquinas retas do notch"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Bordi netti del notch"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "노치 모서리 각지게"}}
+      }
+    },
     "Scanning…": {
       "extractionState": "manual",
       "localizations": {

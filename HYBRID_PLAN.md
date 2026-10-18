@@ -5883,3 +5883,8 @@ Downloads folder.
   - **Files:** `App/Scenes/Notch/NotchEventCard.swift` (tinted icon tile, headline/detail, draining lifetime bar, tap to dismiss), `NotchMotionSpec.eventLifetime` (3 s, shared by the card and `NotchPanelController.show`), `NotchIslandView.openContent` event branch.
   - **Not verified live:** the app builds and launches, but no event was triggered on screen (the clipboard event is off by default), so the card's look is unchecked. Mirrored-notification banners are not redesigned.
   - **Gate:** LiveEventDetector + NotchGeometry tests green; localization/debug switches clean.
+
+- 2026-10-18 · **Notch redesign slice 4 — sharp-edge option.**
+  - **Files:** `Core/Support/NotchEdgeStyle.swift` (+ `NotchEdgeStyleTests`), `NotchIslandView` mask reads `@AppStorage(NotchEdgeStyle.sharpKey)`, "Sharp Notch Edges" toggle in `NotchHelpersSettingsBlock`.
+  - **Behaviour:** sharp zeroes both radii and drops the flared ears; curved is unchanged. `NotchPreview` and `SettingsStage` still draw the curved mask.
+  - **Gate:** NotchEdgeStyle tests green; localization/debug switches clean; live: open notch shows square corners, no flares. The default was reset after the check.
