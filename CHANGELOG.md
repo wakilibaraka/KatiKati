@@ -2,6 +2,17 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Settings redesign, Phase 2b: SettingsLayoutPane split by mode
+
+### Changed
+- `SettingsLayoutPane` (1438 → 226 lines) keeps its state and `body`; each mode's sections and helpers
+  live in `SettingsLayoutPane+Appearance / Widgets / Launcher / ControlCenter / EdgeBars / Shortcuts.swift`.
+  Its stored state is now internal (extensions in other files need it). Pure move: same `@AppStorage`
+  keys, same 246 `Text` keys, 2522 tests green.
+
+### Fixed
+- The ids the Phase 2a files got in `project.pbxproj` were 22 characters, not 24; they are repaired.
+
 ## [Unreleased] — Settings redesign, Phase 2a: the layout pane's helper views move out
 
 ### Changed
