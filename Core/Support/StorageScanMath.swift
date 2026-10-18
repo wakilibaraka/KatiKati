@@ -38,3 +38,53 @@ enum StorageScanMath {
         return !skipped.contains { path == $0 || path.hasPrefix($0 + "/") }
     }
 }
+
+/// What kind of personal file an item is, by extension. Only the kinds the Files half of the Storage page
+/// lists; anything else (code, app data, system files) is not an owner's "file" and returns nil.
+enum StorageCategory: CaseIterable, Sendable {
+    case photos, video, music, documents, archives
+
+    static func of(path: String) -> StorageCategory? {
+        let ext = (path as NSString).pathExtension.lowercased()
+        return allCases.first { $0.extensions.contains(ext) }
+    }
+
+    var extensions: Set<String> {
+        switch self {
+        case .photos: return ["jpg", "jpeg", "png", "heic", "heif", "raw", "cr2", "nef", "arw", "dng", "tiff", "gif", "psd"]
+        case .video: return ["mov", "mp4", "m4v", "mkv", "avi", "webm"]
+        case .music: return ["mp3", "m4a", "aac", "flac", "wav", "aiff", "alac"]
+        case .documents: return ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "pages", "numbers", "key", "txt", "epub"]
+        case .archives: return ["zip", "dmg", "iso", "tar", "gz", "7z", "rar", "pkg"]
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .photos: return "photo"
+        case .video: return "film"
+        case .music: return "music.note"
+        case .documents: return "doc.text"
+        case .archives: return "archivebox"
+        }
+    }
+}
+
+extension StorageScanMath {
+    /// Folders the Files half walks: where a person keeps their own things.
+    static func personalRoots(home: String) -> [String] {
+        ["Desktop", "Documents", "Downloads", "Pictures", "Movies", "Music"].map { home + "/" + $0 }
+    }
+
+    /// Known space hogs for the Developer & Cache half: caches, Xcode and simulator data, package-manager
+    /// caches, the Trash. Fixed paths, so this half needs no deep walk to find them.
+    static func developerTargets(home: String) -> [String] {
+        [
+            "/Library/Caches", "/.Trash", "/Library/Developer/Xcode/DerivedData",
+            "/Library/Developer/Xcode/Archives", "/Library/Developer/Xcode/iOS DeviceSupport",
+            "/Library/Developer/CoreSimulator", "/Library/Logs", "/Library/Application Support/MobileSync/Backup",
+            "/Library/Containers/com.docker.docker", "/.npm", "/.cache", "/.gradle", "/.cargo", "/.m2", "/.pnpm-store",
+            "/Library/Application Support/Code/CachedData",
+        ].map { home + $0 }
+    }
+}

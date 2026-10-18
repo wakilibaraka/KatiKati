@@ -239,6 +239,40 @@
         "ko": {"stringUnit": {"state": "needs_review", "value": "아직 알림 없음"}}
       }
     },
+    "Files": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Files"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "文件"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "檔案"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "ファイル"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Dateien"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Fichiers"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Archivos"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Archivos"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Arquivos"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Ficheiros"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "File"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "파일"}}
+      }
+    },
+    "Developer & Cache": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Developer & Cache"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "开发与缓存"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "開發與快取"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "開発とキャッシュ"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Entwickler & Cache"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Développeur et cache"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Desarrollo y caché"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Desarrollo y caché"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Desenvolvedor e cache"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Programador e cache"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Sviluppo e cache"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "개발 및 캐시"}}
+      }
+    },
     "Sharp Notch Edges": {
       "extractionState": "manual",
       "localizations": {

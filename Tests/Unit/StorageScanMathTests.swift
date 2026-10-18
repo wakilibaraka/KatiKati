@@ -36,4 +36,19 @@ final class StorageScanMathTests: XCTestCase {
     func testNameIsLastComponent() {
         XCTAssertEqual(item("/Users/me/Movies", 1).name, "Movies")
     }
+
+    func testCategoryByExtensionIsCaseInsensitiveAndNilForOthers() {
+        XCTAssertEqual(StorageCategory.of(path: "/a/IMG_1.HEIC"), .photos)
+        XCTAssertEqual(StorageCategory.of(path: "/a/song.flac"), .music)
+        XCTAssertEqual(StorageCategory.of(path: "/a/report.pdf"), .documents)
+        XCTAssertNil(StorageCategory.of(path: "/a/main.swift"))
+        XCTAssertNil(StorageCategory.of(path: "/a/noext"))
+    }
+
+    func testDeveloperTargetsAreUniqueAndNeverNestInEachOther() {
+        let targets = StorageScanMath.developerTargets(home: "/h")
+        XCTAssertEqual(Set(targets).count, targets.count)
+        for a in targets { for b in targets where a != b { XCTAssertFalse(b.hasPrefix(a + "/"), "\(b) nests in \(a)") } }
+        XCTAssertEqual(StorageScanMath.personalRoots(home: "/h").first, "/h/Desktop")
+    }
 }

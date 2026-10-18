@@ -10,24 +10,51 @@ final class StorageScanService: ObservableObject {
 
     enum State: Equatable { case idle, scanning, done }
 
-    @Published private(set) var items: [StorageItem] = []
+    /// Largest personal files (photos, video, music, documents, archives) and the biggest cache and
+    /// developer folders — the two halves of the page.
+    @Published private(set) var files: [StorageItem] = []
+    @Published private(set) var dev: [StorageItem] = []
     @Published private(set) var state: State = .idle
     @Published private(set) var hasFullDiskAccess = true
     private var task: Task<Void, Never>?
 
-    static let listLimit = 5
+    static let listLimit = 4
+    /// Files under this size are not worth a row.
+    static let minFileBytes: Int64 = 5_000_000
 
     func scan() {
         guard state != .scanning else { return }
         hasFullDiskAccess = Self.probeFullDiskAccess()
         state = .scanning
-        items = []
+        files = []
+        dev = []
         task = Task.detached(priority: .utility) { [weak self] in
-            var found: [StorageItem] = []
-            for path in Self.candidates() where !Task.isCancelled {
-                found.append(StorageItem(path: path, bytes: Self.size(of: path)))
-                let top = StorageScanMath.top(found, limit: Self.listLimit)
-                await MainActor.run { self?.items = top }
+            let home = NSHomeDirectory()
+            var devFound: [StorageItem] = []
+            for path in StorageScanMath.developerTargets(home: home) where !Task.isCancelled {
+                guard FileManager.default.fileExists(atPath: path) else { continue }
+                devFound.append(StorageItem(path: path, bytes: Self.size(of: path)))
+                let top = StorageScanMath.top(devFound, limit: Self.listLimit)
+                await MainActor.run { self?.dev = top }
+            }
+            var fileFound: [StorageItem] = []
+            for root in StorageScanMath.personalRoots(home: home) where !Task.isCancelled {
+                let keys: [URLResourceKey] = [.totalFileAllocatedSizeKey, .isRegularFileKey]
+                guard let walker = FileManager.default.enumerator(
+                    at: URL(fileURLWithPath: root), includingPropertiesForKeys: keys,
+                    options: [.skipsHiddenFiles, .skipsPackageDescendants], errorHandler: { _, _ in true }
+                ) else { continue }
+                var changed = false
+                for case let url as URL in walker {
+                    if Task.isCancelled { break }
+                    guard StorageCategory.of(path: url.path) != nil,
+                          let v = try? url.resourceValues(forKeys: Set(keys)), v.isRegularFile == true,
+                          let size = v.totalFileAllocatedSize, Int64(size) >= Self.minFileBytes else { continue }
+                    fileFound = StorageScanMath.top(fileFound + [StorageItem(path: url.path, bytes: Int64(size))],
+                                                    limit: Self.listLimit)
+                    changed = true
+                }
+                if changed { let top = fileFound; await MainActor.run { self?.files = top } }
             }
             let finished = !Task.isCancelled
             await MainActor.run { self?.state = finished ? .done : .idle }
