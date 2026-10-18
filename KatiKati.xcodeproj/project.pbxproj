@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		FC11A0000000000000000401 /* SettingsSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000400 /* SettingsSidebar.swift */; };
 		FC11A0000000000000000301 /* SettingsShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000300 /* SettingsShell.swift */; };
+		FC11A0000000000000005901 /* SettingsStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005900 /* SettingsStage.swift */; };
 		FC11A0000000000000000201 /* SettingsLayoutClassTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000200 /* SettingsLayoutClassTests.swift */; };
 		FC11A0000000000000000102 /* SettingsLayoutClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000100 /* SettingsLayoutClass.swift */; };
 		FC11A0000000000000000101 /* SettingsLayoutClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000100 /* SettingsLayoutClass.swift */; };
@@ -1100,6 +1101,7 @@
 /* Begin PBXFileReference section */
 		FC11A0000000000000000400 /* SettingsSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsSidebar.swift; path = App/Scenes/Settings/SettingsSidebar.swift; sourceTree = SOURCE_ROOT; };
 		FC11A0000000000000000300 /* SettingsShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsShell.swift; path = App/Scenes/Settings/SettingsShell.swift; sourceTree = SOURCE_ROOT; };
+		FC11A0000000000000005900 /* SettingsStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsStage.swift; path = App/Scenes/Settings/SettingsStage.swift; sourceTree = SOURCE_ROOT; };
 		FC11A0000000000000000200 /* SettingsLayoutClassTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsLayoutClassTests.swift; path = Tests/Unit/SettingsLayoutClassTests.swift; sourceTree = SOURCE_ROOT; };
 		FC11A0000000000000000100 /* SettingsLayoutClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsLayoutClass.swift; path = Core/Support/SettingsLayoutClass.swift; sourceTree = SOURCE_ROOT; };
 		FB37A00000000000001001 /* NotchTeleprompterPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchTeleprompterPageView.swift; path = App/Scenes/Notch/NotchTeleprompterPageView.swift; sourceTree = SOURCE_ROOT; };
@@ -2760,6 +2762,7 @@
 				A0000000000000000001F091 /* SettingsTilingPane.swift in Sources */,
 				FC11A0000000000000000401 /* SettingsSidebar.swift in Sources */,
 				FC11A0000000000000000301 /* SettingsShell.swift in Sources */,
+				FC11A0000000000000005901 /* SettingsStage.swift in Sources */,
 				D20000000000000000000003 /* SettingsCoordinator.swift in Sources */,
 				D20000000000000000000004 /* AutoHideToggleMenuModel.swift in Sources */,
 				D20000000000000000000006 /* AccessoryWindowPresentation.swift in Sources */,

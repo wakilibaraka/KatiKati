@@ -2,6 +2,15 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Settings redesign, Phase 3: live stage for Appearance and Widgets
+
+### Added
+- A live preview stage above or beside the controls on Appearance and Widgets: a mini screen on the
+  user's wallpaper with the notch and the bar, redrawn as settings change. It only reads settings
+  (no permission prompt, window move or network call).
+- Header picker for the stage position (Top / Side / Off), a drag handle to resize it (double-click
+  resets), and persistence of both. `SettingsStageSize` (Core) clamps it to 160pt...60% of the window.
+
 ## [Unreleased] — Settings redesign, Phase 2b: SettingsLayoutPane split by mode
 
 ### Changed

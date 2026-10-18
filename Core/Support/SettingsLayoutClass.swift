@@ -54,3 +54,24 @@ struct SettingsLayoutClass: Equatable {
         return SettingsLayoutClass(sidebar: sidebar, stage: stage, columns: columns)
     }
 }
+
+/// How tall (or wide) the stage may be: the user drags it, the window bounds it.
+enum SettingsStageSize {
+    static let minimum: CGFloat = 160
+    static let maxFraction: CGFloat = 0.6
+    static let defaultFraction: CGFloat = 0.36
+
+    /// The stage's length along the split axis for a remembered `fraction` of `available` points.
+    /// Never below `minimum` and never past `maxFraction`; a window too small for the minimum gets
+    /// the cap instead (the layout class hides the stage there anyway).
+    static func length(fraction: CGFloat, available: CGFloat) -> CGFloat {
+        let cap = available * maxFraction
+        return min(cap, max(minimum, available * fraction))
+    }
+
+    /// The fraction a drag to `length` stores, kept inside the same bounds.
+    static func fraction(length: CGFloat, available: CGFloat) -> CGFloat {
+        guard available > 0 else { return defaultFraction }
+        return min(maxFraction, max(minimum / available, length / available))
+    }
+}

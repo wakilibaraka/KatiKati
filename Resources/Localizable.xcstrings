@@ -68350,6 +68350,108 @@
         "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "切换侧栏"}},
         "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "切換側邊欄"}}
       }
+    },
+    "Hide preview": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "needs_review", "value": "Vorschau ausblenden"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Hide preview"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Ocultar la vista previa"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Ocultar la vista previa"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Masquer l’aperçu"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Nascondi anteprima"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "プレビューを隠す"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "미리보기 숨기기"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Ocultar pré-visualização"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Ocultar pré-visualização"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "隐藏预览"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "隱藏預覽"}}
+      }
+    },
+    "Live preview": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "needs_review", "value": "Live-Vorschau"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Live preview"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Vista previa en vivo"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Vista previa en vivo"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Aperçu en direct"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Anteprima dal vivo"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "ライブプレビュー"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "실시간 미리보기"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Pré-visualização ao vivo"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Pré-visualização ao vivo"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "实时预览"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "即時預覽"}}
+      }
+    },
+    "Preview on the side": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "needs_review", "value": "Vorschau seitlich"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Preview on the side"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Vista previa a un lado"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Vista previa a un lado"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Aperçu sur le côté"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Anteprima a lato"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "プレビューを横に表示"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "미리보기를 옆에 표시"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Pré-visualização ao lado"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Pré-visualização ao lado"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "预览放在侧边"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "預覽放在側邊"}}
+      }
+    },
+    "Preview on top": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "needs_review", "value": "Vorschau oben"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Preview on top"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Vista previa arriba"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Vista previa arriba"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Aperçu en haut"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Anteprima in alto"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "プレビューを上に表示"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "미리보기를 위에 표시"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Pré-visualização acima"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Pré-visualização acima"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "预览放在顶部"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "預覽放在頂部"}}
+      }
+    },
+    "Preview position": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "needs_review", "value": "Position der Vorschau"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Preview position"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Posición de la vista previa"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Posición de la vista previa"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Position de l’aperçu"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Posizione dell’anteprima"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "プレビューの位置"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "미리보기 위치"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Posição da pré-visualização"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Posição da pré-visualização"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "预览位置"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "預覽位置"}}
+      }
+    },
+    "Resize preview": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "needs_review", "value": "Vorschau skalieren"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Resize preview"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Cambiar tamaño de la vista previa"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Cambiar tamaño de la vista previa"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Redimensionner l’aperçu"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Ridimensiona anteprima"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "プレビューのサイズを変更"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "미리보기 크기 조절"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Redimensionar pré-visualização"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Redimensionar pré-visualização"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "调整预览大小"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "調整預覽大小"}}
+      }
     }
   },
   "version": "1.0"

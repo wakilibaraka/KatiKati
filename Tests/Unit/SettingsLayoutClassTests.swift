@@ -46,4 +46,19 @@ final class SettingsLayoutClassTests: XCTestCase {
             }
         }
     }
+
+    func testTheStageLengthIsClampedToItsBounds() {
+        XCTAssertEqual(SettingsStageSize.length(fraction: 0.36, available: 700), 252, accuracy: 0.001)
+        XCTAssertEqual(SettingsStageSize.length(fraction: 0.05, available: 700), SettingsStageSize.minimum)
+        XCTAssertEqual(SettingsStageSize.length(fraction: 0.9, available: 700), 420, accuracy: 0.001)
+        XCTAssertEqual(SettingsStageSize.length(fraction: 0.36, available: 200), 120, accuracy: 0.001)
+    }
+
+    func testADragStoresAFractionThatRoundTrips() {
+        let stored = SettingsStageSize.fraction(length: 300, available: 800)
+        XCTAssertEqual(SettingsStageSize.length(fraction: stored, available: 800), 300, accuracy: 0.001)
+        XCTAssertEqual(SettingsStageSize.fraction(length: 10, available: 800), 160.0 / 800, accuracy: 0.001)
+        XCTAssertEqual(SettingsStageSize.fraction(length: 790, available: 800), 0.6, accuracy: 0.001)
+        XCTAssertEqual(SettingsStageSize.fraction(length: 100, available: 0), SettingsStageSize.defaultFraction)
+    }
 }
