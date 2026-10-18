@@ -62,18 +62,15 @@ struct NotchDownloadsPageView: View {
             // Transfer list
             let browserItems = downloadService.items.filter { $0.type == .browser || $0.type == .directUrl }
             if browserItems.isEmpty {
-                VStack(spacing: 6) {
-                    Spacer()
-                    Image(systemName: "tray.fill")
-                        .font(.system(size: 22))
-                        .foregroundStyle(.white.opacity(0.2))
+                VStack(spacing: 3) {
+                    Spacer(minLength: 0)
                     Text(verbatim: "No Active Browser Downloads")
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(.white.opacity(0.4))
                     Text(verbatim: "Downloads from Safari or Chrome appear here live")
                         .font(.system(size: 9))
                         .foregroundStyle(.white.opacity(0.25))
-                    Spacer()
+                    Spacer(minLength: 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -247,11 +244,8 @@ struct NotchDownloadsPageView: View {
             // Active Torrents List
             let torrentItems = downloadService.items.filter { $0.type == .torrent }
             if torrentItems.isEmpty {
-                VStack(spacing: 6) {
-                    Spacer()
-                    Image(systemName: "arrow.down.right.and.arrow.up.left")
-                        .font(.system(size: 20))
-                        .foregroundStyle(.white.opacity(0.2))
+                VStack(spacing: 3) {
+                    Spacer(minLength: 0)
                     Text(verbatim: "No Active Torrents")
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(.white.opacity(0.4))
@@ -260,7 +254,7 @@ struct NotchDownloadsPageView: View {
                          : "Install aria2 to download magnet links")
                         .font(.system(size: 9))
                         .foregroundStyle(.white.opacity(0.25))
-                    Spacer()
+                    Spacer(minLength: 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
