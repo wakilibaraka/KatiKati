@@ -676,3 +676,5 @@ All notable changes to KatiKati are documented in this file.
 - **Sparkle Feed:** Configured appcast feed URL to `https://wakilibaraka.github.io/KatiKati/appcast.xml`.
 - **Legal & Attribution:** Added `NOTICE` with Tungsten Edge GPL-3.0 attribution and SplitBar-old/DockBar placeholders; added KatiKati trademark reservation to `TRADEMARK.md`.
 - **Quality Gates:** 1,552 unit tests passing, zero API availability warnings, 75 debug switches registered.
+
+- Settings: "Revert Changes" appears once something changed since Settings opened; it restores those keys and restarts KatiKati.

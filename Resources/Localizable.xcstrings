@@ -1,6 +1,91 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Revert Changes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Revert Changes"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "还原更改"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "還原更改"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "変更を元に戻す"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Änderungen zurücksetzen"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Annuler les modifications"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Revertir cambios"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Revertir cambios"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Reverter alterações"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Reverter alterações"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Annulla modifiche"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "변경 사항 되돌리기"}}
+      }
+    },
+    "Undo every change made since Settings opened": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Undo every change made since Settings opened"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "撤销自打开设置以来的所有更改"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "復原自開啟設定以來的所有更改"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "設定を開いてからのすべての変更を取り消します"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Alle Änderungen seit dem Öffnen der Einstellungen rückgängig machen"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Annule toutes les modifications faites depuis l’ouverture des réglages"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Deshace todos los cambios hechos desde que se abrieron los ajustes"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Deshace todos los cambios hechos desde que se abrieron los ajustes"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Desfaz todas as alterações feitas desde que os ajustes foram abertos"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Anula todas as alterações feitas desde que as definições foram abertas"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Annulla tutte le modifiche fatte dall’apertura delle impostazioni"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "설정을 연 이후의 모든 변경 사항을 취소합니다"}}
+      }
+    },
+    "Revert all changes?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Revert all changes?"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "要还原所有更改吗？"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "要還原所有更改嗎？"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "すべての変更を元に戻しますか？"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Alle Änderungen zurücksetzen?"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Annuler toutes les modifications ?"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "¿Revertir todos los cambios?"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "¿Revertir todos los cambios?"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Reverter todas as alterações?"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Reverter todas as alterações?"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Annullare tutte le modifiche?"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "모든 변경 사항을 되돌릴까요?"}}
+      }
+    },
+    "Revert and Restart": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Revert and Restart"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "还原并重启"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "還原並重新啟動"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "元に戻して再起動"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Zurücksetzen und neu starten"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Annuler et redémarrer"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Revertir y reiniciar"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Revertir y reiniciar"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Reverter e reiniciar"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Reverter e reiniciar"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Annulla e riavvia"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "되돌리고 다시 시작"}}
+      }
+    },
+    "Settings changed since you opened this window go back to their earlier values. KatiKati restarts to apply them.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Settings changed since you opened this window go back to their earlier values. KatiKati restarts to apply them."}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "自打开此窗口以来更改的设置将恢复为之前的值。KatiKati 将重启以应用。"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "自開啟此視窗以來更改的設定將恢復為之前的值。KatiKati 將重新啟動以套用。"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "このウィンドウを開いてから変更した設定は以前の値に戻ります。適用のため KatiKati を再起動します。"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Seit dem Öffnen dieses Fensters geänderte Einstellungen werden auf ihre früheren Werte zurückgesetzt. KatiKati startet dafür neu."}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Les réglages modifiés depuis l’ouverture de cette fenêtre retrouvent leurs valeurs précédentes. KatiKati redémarre pour les appliquer."}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Los ajustes cambiados desde que abriste esta ventana vuelven a sus valores anteriores. KatiKati se reinicia para aplicarlos."}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Los ajustes cambiados desde que abriste esta ventana vuelven a sus valores anteriores. KatiKati se reinicia para aplicarlos."}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "As configurações alteradas desde que abriu esta janela voltam aos valores anteriores. O KatiKati reinicia para aplicá-las."}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "As definições alteradas desde que abriu esta janela voltam aos valores anteriores. O KatiKati reinicia para as aplicar."}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Le impostazioni modificate da quando hai aperto questa finestra tornano ai valori precedenti. KatiKati si riavvia per applicarle."}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "이 창을 연 이후 변경한 설정이 이전 값으로 돌아갑니다. 적용하려면 KatiKati가 다시 시작됩니다."}}
+      }
+    },
     "Notifications Notch Page": {
       "extractionState": "manual",
       "localizations": {
