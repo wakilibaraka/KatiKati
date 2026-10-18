@@ -43,9 +43,9 @@ struct SettingsShell: View {
     /// ⌘F focuses the sidebar search; ⌘1…⌘9 jump to the first nine sections.
     private var keyboardShortcuts: some View {
         ZStack {
-            Button("") { forcedCompact = false; focusSearch += 1 }.keyboardShortcut("f", modifiers: .command)
+            Button { forcedCompact = false; focusSearch += 1 } label: { EmptyView() }.keyboardShortcut("f", modifiers: .command)
             ForEach(Array(SettingsTab.allCases.prefix(9).enumerated()), id: \.offset) { index, tab in
-                Button("") { tabState.selected = tab }
+                Button { tabState.selected = tab } label: { EmptyView() }
                     .keyboardShortcut(KeyEquivalent(Character(String(index + 1))), modifiers: .command)
             }
         }
