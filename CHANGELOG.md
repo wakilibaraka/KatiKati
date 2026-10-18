@@ -2,6 +2,15 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Settings redesign, Phase 5b: stages for Shortcuts and Downloads
+
+### Added
+- The stage on Shortcuts (keycaps for the feature shortcuts you have bound; reads settings only, no key
+  monitor) and Downloads (a queue silhouette over a 24-hour strip showing the quiet-hours window).
+
+### Changed
+- The BitTorrent rows are full-width (label left, control right) instead of side-by-side pairs.
+
 ## [Unreleased] — Settings redesign, Phase 5a: stages for Window Management, Control Center, Radial Dial
 
 ### Added

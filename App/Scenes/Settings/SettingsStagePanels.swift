@@ -147,3 +147,87 @@ struct StageTiling: View {
         }
     }
 }
+
+/// Shortcuts: keycaps for the feature shortcuts the user has bound. Reads the store only; no key monitor.
+struct StageShortcuts: View {
+    @ObservedObject var store: AppSettingsStore
+
+    private static let features: [ShortcutAction] = [.launcher, .pinboard, .commandBar, .quickSettings, .drawer, .keepAwake, .translate]
+
+    private func glyphs(_ trigger: ShortcutTrigger) -> String? {
+        switch trigger {
+        case .off: return nil
+        case .chord(let c): return c.glyphs
+        case .doubleTap(let k): return "\(k.glyph)\(k.glyph)"
+        case .key(let k): return k.glyphs
+        case .hyper(let code): return "✦" + (ShortcutKeyNames.name(for: code) ?? "?")
+        }
+    }
+
+    var body: some View {
+        let bound = Self.features.compactMap { action in
+            store.shortcutBindings[action].flatMap(glyphs).map { (action, $0) }
+        }
+        VStack(spacing: 6) {
+            ForEach(bound, id: \.0) { action, keys in
+                HStack(spacing: 8) {
+                    Text(verbatim: SettingsLayoutPane.shortcutActionName(action))
+                        .font(.system(size: 9, weight: .medium)).foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                    Text(verbatim: keys)
+                        .font(.system(size: 10, weight: .semibold, design: .rounded)).foregroundStyle(.primary)
+                        .padding(.horizontal, 7).padding(.vertical, 3)
+                        .background(RoundedRectangle(cornerRadius: 5, style: .continuous).fill(.ultraThinMaterial))
+                        .overlay(RoundedRectangle(cornerRadius: 5, style: .continuous).strokeBorder(.white.opacity(0.5), lineWidth: 1))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .animation(.easeOut(duration: 0.2), value: bound.map(\.1))
+    }
+}
+
+/// Downloads: a queue silhouette (no invented file names) over a 24-hour strip with the quiet-hours window.
+struct StageDownloads: View {
+    @AppStorage(TorrentSettings.quietStartHourKey) private var quietStart = 0
+    @AppStorage(TorrentSettings.quietEndHourKey) private var quietEnd = 0
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ForEach([0.8, 0.45, 0.15], id: \.self) { progress in
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .frame(height: 16)
+                    .overlay(alignment: .leading) {
+                        GeometryReader { p in
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                .fill(.white.opacity(0.55))
+                                .frame(width: p.size.width * progress)
+                        }
+                    }
+            }
+            quietStrip
+        }
+        .padding(.horizontal, 24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// Lit cells are the hours when sharing is capped; equal hours means no window.
+    private var quietStrip: some View {
+        HStack(spacing: 1) {
+            ForEach(0..<24, id: \.self) { hour in
+                Rectangle().fill(isQuiet(hour) ? Color.indigo.opacity(0.85) : .white.opacity(0.3)).frame(height: 6)
+            }
+        }
+        .clipShape(Capsule())
+        .animation(.easeOut(duration: 0.2), value: quietStart)
+        .animation(.easeOut(duration: 0.2), value: quietEnd)
+    }
+
+    private func isQuiet(_ hour: Int) -> Bool {
+        if quietStart == quietEnd { return false }
+        return quietStart < quietEnd ? (quietStart..<quietEnd).contains(hour) : (hour >= quietStart || hour < quietEnd)
+    }
+}

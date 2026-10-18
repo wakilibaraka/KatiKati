@@ -3,7 +3,7 @@ import SwiftUI
 extension SettingsTab {
     /// Pages whose settings the stage can show changing.
     var showsStage: Bool { switch self {
-        case .appearance, .widgets, .notch, .edgeBars, .controlCenter, .radialDial, .windowManagement: return true
+        case .appearance, .widgets, .notch, .edgeBars, .controlCenter, .radialDial, .windowManagement, .shortcuts, .downloads: return true
         default: return false
         }
     }
@@ -56,6 +56,8 @@ struct SettingsStage: View {
                 case .controlCenter: StageControlCenter(store: store)
                 case .radialDial: StageRadialDial()
                 case .windowManagement: StageTiling()
+                case .shortcuts: StageShortcuts(store: store)
+                case .downloads: StageDownloads()
                 default: EmptyView()
                 }
             }

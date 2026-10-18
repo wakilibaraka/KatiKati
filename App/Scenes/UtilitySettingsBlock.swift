@@ -136,17 +136,14 @@ struct TorrentSettingsBlock: View {
                 }
             }
             SettingsDivider()
-            SettingsRowPair(
-                left: {
-                    SettingsStepperRow(
+                                SettingsStepperRow(
                         Text("Seed Ratio"),
                         value: $seedRatio,
                         in: 0...50,
                         step: 0.5,
                         readout: seedRatio == 0 ? "0 (stop)" : String(format: "%.1f", seedRatio)
                     )
-                },
-                right: {
+            SettingsDivider()
                     SettingsStepperRow(
                         Text("Seed Minutes"),
                         value: Binding(get: { Double(seedMinutes) }, set: { seedMinutes = Int($0) }),
@@ -154,20 +151,15 @@ struct TorrentSettingsBlock: View {
                         step: 10,
                         readout: seedMinutes == 0 ? "0 (stop)" : "\(seedMinutes)m"
                     )
-                }
-            )
             SettingsDivider()
-            SettingsRowPair(
-                left: {
-                    SettingsStepperRow(
+                                SettingsStepperRow(
                         Text("Max Upload"),
                         value: Binding(get: { Double(maxUploadKBps) }, set: { maxUploadKBps = Int($0) }),
                         in: 0...100_000,
                         step: 50,
                         readout: maxUploadKBps == 0 ? "Unlimited" : "\(maxUploadKBps) KB/s"
                     )
-                },
-                right: {
+            SettingsDivider()
                     SettingsStepperRow(
                         Text("Quiet Upload"),
                         value: Binding(get: { Double(quietUploadKBps) }, set: { quietUploadKBps = Int($0) }),
@@ -176,20 +168,15 @@ struct TorrentSettingsBlock: View {
                         readout: quietUploadKBps == 0 ? "Off" : "\(quietUploadKBps) KB/s",
                         note: Text("Equal hours disables the window. 0 stops sharing at completion.")
                     )
-                }
-            )
             SettingsDivider()
-            SettingsRowPair(
-                left: {
-                    SettingsStepperRow(
+                                SettingsStepperRow(
                         Text("Quiet From"),
                         value: Binding(get: { Double(quietStart) }, set: { quietStart = Int($0) }),
                         in: 0...23,
                         step: 1,
                         readout: "\(quietStart):00"
                     )
-                },
-                right: {
+            SettingsDivider()
                     SettingsStepperRow(
                         Text("Quiet Until"),
                         value: Binding(get: { Double(quietEnd) }, set: { quietEnd = Int($0) }),
@@ -197,8 +184,6 @@ struct TorrentSettingsBlock: View {
                         step: 1,
                         readout: "\(quietEnd):00"
                     )
-                }
-            )
         }
         .onAppear { detectedPath = TorrentEngine.shared.resolvedBinaryPath }
         .onChange(of: seedRatio) { _ in pushPolicy() }
