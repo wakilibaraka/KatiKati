@@ -2,6 +2,14 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Settings redesign: Appearance page refinement
+
+### Changed
+- Appearance: removed the small bar preview under Layout Mode (the stage shows it). Position, Bar Height,
+  Spacing, the chip toggles, preview delay/size, Icon Set / Right FAB Style and the wallpaper rows are
+  now full-width rows (label left, control right) instead of unequal side-by-side pairs; the layout
+  description is centred under the picker.
+
 ## [Unreleased] — Settings redesign, Phase 4: stage on Notch and Edge Bars
 
 ### Added

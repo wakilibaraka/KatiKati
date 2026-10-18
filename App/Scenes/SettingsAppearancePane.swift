@@ -60,28 +60,25 @@ struct SettingsAppearancePane: View {
                     // The two plate knobs share a line (2026-10-18): both are label + track +
                     // readout, which fits half the card, and with them stacked the page ran past
                     // the window whenever a tinted theme was pinned.
-                    SettingsRowPair(
-                        left: {
-                            SettingsSliderRow(
-                                Text("Vibrancy"),
-                                value: store.themeVibrancy,
-                                range: DockThemeStyle.vibrancyRange,
-                                step: 0.05,
-                                valueText: "\(Int((store.themeVibrancy * 100).rounded()))%",
-                                set: store.setThemeVibrancy
-                            )
-                        },
-                        right: {
-                            SettingsSliderRow(
-                                Text("Contrast"),
-                                value: store.themeContrast,
-                                range: DockThemeStyle.contrastRange,
-                                step: 0.1,
-                                valueText: String(format: "%.1f×", Double(store.themeContrast)),
-                                set: store.setThemeContrast
-                            )
-                        }
+                    SettingsSliderRow(
+                        Text("Vibrancy"),
+                        value: store.themeVibrancy,
+                        range: DockThemeStyle.vibrancyRange,
+                        step: 0.05,
+                        valueText: "\(Int((store.themeVibrancy * 100).rounded()))%",
+                        set: store.setThemeVibrancy
                     )
+                
+                    SettingsDivider()
+                    SettingsSliderRow(
+                        Text("Contrast"),
+                        value: store.themeContrast,
+                        range: DockThemeStyle.contrastRange,
+                        step: 0.1,
+                        valueText: String(format: "%.1f×", Double(store.themeContrast)),
+                        set: store.setThemeContrast
+                    )
+                
                 }
                 // The icon rows are inside this card now (2026-10-15): a card of their own cost a
                 // header's worth of padding and a 20 pt section gap — 48 pt of a page that has to
@@ -100,29 +97,26 @@ struct SettingsAppearancePane: View {
     /// The two icon preview tiles and their note went on 2026-10-18: they were 58 pt of a page whose
     /// custom-tint state ran 17 pt past the window, and the segmented control already names and
     /// draws the choice.
+    @ViewBuilder
     private var iconRows: some View {
-        // Both rows are "which glyph does the chrome draw", so they share a line: two menus, one line.
-        SettingsRowPair(
-            left: {
                 SettingsSegmentedRow(
-                    Text("Icon Set"),
-                    selection: Binding(get: { store.iconSet }, set: store.setIconSet)
-                ) {
-                    Text("Modern").tag(IconSet.modern)
-                    Text("Classic").tag(IconSet.classic)
-                }
-            },
-            right: {
-                SettingsRow(Text("Right FAB Style")) {
-                    Picker("Right FAB Style", selection: $fabStyleRaw) {
-                        Text("Dynamic Gauge").tag("gauge")
-                        Text("Classic Glyph").tag("classic")
-                    }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
-                .help(Text("The dock's right button: a live gauge or a single glyph."))
+            Text("Icon Set"),
+            selection: Binding(get: { store.iconSet }, set: store.setIconSet)
+        ) {
+            Text("Modern").tag(IconSet.modern)
+            Text("Classic").tag(IconSet.classic)
+        }
+    
+        SettingsDivider()
+        SettingsRow(Text("Right FAB Style")) {
+            Picker("Right FAB Style", selection: $fabStyleRaw) {
+                Text("Dynamic Gauge").tag("gauge")
+                Text("Classic Glyph").tag("classic")
             }
-        )
+            .labelsHidden().pickerStyle(.menu).fixedSize()
+        }
+        .help(Text("The dock's right button: a live gauge or a single glyph."))
+    
     }
 
     // MARK: - Wallpaper (Phase 10b-3)
@@ -130,27 +124,24 @@ struct SettingsAppearancePane: View {
     private var wallpaperSection: some View {
         SettingsCard {
             // The switch and the mode it governs, one line (`Docs/SETTINGS.md` rule 5).
-            SettingsRowPair(
-                left: {
-                    SettingsToggleRow(
-                        Text("Dynamic Wallpaper"),
-                        isOn: Binding(get: { store.wallpaperEnabled }, set: store.setWallpaperEnabled)
-                    )
-                },
-                right: {
-                    SettingsSegmentedRow(
-                        Text("Mode"),
-                        selection: Binding(
-                            get: { WallpaperMode(rawValue: store.wallpaperMode) ?? .both },
-                            set: store.setWallpaperMode
-                        )
-                    ) {
-                        Text("Time").tag(WallpaperMode.time)
-                        Text("Weather").tag(WallpaperMode.weather)
-                        Text("Both").tag(WallpaperMode.both)
-                    }
-                }
+            SettingsToggleRow(
+                Text("Dynamic Wallpaper"),
+                isOn: Binding(get: { store.wallpaperEnabled }, set: store.setWallpaperEnabled)
             )
+        
+            SettingsDivider()
+            SettingsSegmentedRow(
+                Text("Mode"),
+                selection: Binding(
+                    get: { WallpaperMode(rawValue: store.wallpaperMode) ?? .both },
+                    set: store.setWallpaperMode
+                )
+            ) {
+                Text("Time").tag(WallpaperMode.time)
+                Text("Weather").tag(WallpaperMode.weather)
+                Text("Both").tag(WallpaperMode.both)
+            }
+        
             // The row's label is the source in use; the buttons change it.
             SettingsRow(
                 store.wallpaperFolder.isEmpty
@@ -168,22 +159,19 @@ struct SettingsAppearancePane: View {
             }
             skyPreviewGrid
             // Two narrow rows, one line (rule 5): the switch and the button were two lines.
-            SettingsRowPair(
-                left: {
-                    SettingsToggleRow(
-                        Text("Tint Dock by Time of Day"),
-                        isOn: Binding(get: { store.tintSurfacesByPhase }, set: store.setTintSurfacesByPhase)
-                    )
-                },
-                right: {
-                    // Rule 7: disabled with no reason on the row before this.
-                    SettingsButtonRow(
-                        Text("Restore Wallpaper"),
-                        note: store.wallpaperEnabled ? nil : Text("Turn Dynamic Wallpaper on to restore it.")
-                    ) { WallpaperEngine.shared.restoreNow() }
-                        .disabled(!store.wallpaperEnabled)
-                }
+            SettingsToggleRow(
+                Text("Tint Dock by Time of Day"),
+                isOn: Binding(get: { store.tintSurfacesByPhase }, set: store.setTintSurfacesByPhase)
             )
+        
+            SettingsDivider()
+            // Rule 7: disabled with no reason on the row before this.
+            SettingsButtonRow(
+                Text("Restore Wallpaper"),
+                note: store.wallpaperEnabled ? nil : Text("Turn Dynamic Wallpaper on to restore it.")
+            ) { WallpaperEngine.shared.restoreNow() }
+                .disabled(!store.wallpaperEnabled)
+        
         }
     }
 

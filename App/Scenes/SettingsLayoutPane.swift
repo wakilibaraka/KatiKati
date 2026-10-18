@@ -54,8 +54,6 @@ struct SettingsLayoutPane: View {
     /// Width styles are fitted to: the screen the dock is on (main until it reports).
     var dockScreenWidth: CGFloat { NSScreen.main?.frame.width ?? LayoutThumbnailModel.referenceScreen.width }
 
-    static let previewFraction: CGFloat = 0.22
-
     /// Phase 12e — one pane, several tabs: Appearance embeds the dock geometry, Widgets takes
     /// the widget list, presets and styles.
     enum Mode { case radialDial, shortcuts, widgets, edgeBars, geometry, chips, launcher, controlCenter, notifications }

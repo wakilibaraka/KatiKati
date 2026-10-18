@@ -5,16 +5,10 @@ extension SettingsLayoutPane {
     @ViewBuilder
     var geometrySections: some View {
         let inputs = store.layoutThumbnailInputs
-            // Preview, Layout Mode, Size and Fine-tune are one card (2026-10-15): the page has to fit
+            // Layout Mode, Size and Fine-tune are one card (2026-10-15): the page has to fit
             // the window, and each extra card cost its own header, padding and section gap — 78 pt
             // each, 156 of them here. Every control and every divider is unchanged.
             SettingsCard(Text("Layout Mode")) {
-                LayoutModeThumbnail(mode: store.barLayoutMode, inputs: inputs, highlighted: true,
-                                    minimumIslandHeight: 3, visibleBottomFraction: Self.previewFraction)
-                    // Fixed height (≈ the cropped ratio at the pane's 504pt content width): the
-                    // window's height probe proposes no height, so `aspectRatio` would collapse.
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 72)
                 LayoutModePicker(selection: store.barLayoutMode, inputs: inputs) { store.setBarLayoutMode($0) }
                 // Fixed two-line box: the window is measured once per tab switch, so the
                 // pane height must not change with the selected mode.
@@ -22,30 +16,28 @@ extension SettingsLayoutPane {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
-                    .frame(maxWidth: .infinity, minHeight: 30, alignment: .topLeading)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, minHeight: 30, alignment: .top)
                 SettingsDivider()
-                SettingsRowPair(
-                    left: {
-                        SettingsSegmentedRow(Text("Position"), selection: Binding(
-                            get: { store.stripPlacementMap.global },
-                            set: { store.setStripPlacement($0) }
-                        )) {
-                            Text("Bottom").tag(StripPlacement.bottom)
-                            Text("Left").tag(StripPlacement.left)
-                            Text("Right").tag(StripPlacement.right)
-                        }
-                    },
-                    right: {
-                        SettingsSegmentedRow(Text("Bar Height"), selection: Binding(
-                            get: { DockSizeClass.nearest(to: store.dockPanelHeight.points) },
-                            set: { store.setDockPanelHeight(DockPanelHeight(clamping: $0.barHeight)) }
-                        )) {
-                            Text("Small").tag(DockSizeClass.small)
-                            Text("Medium").tag(DockSizeClass.medium)
-                            Text("Large").tag(DockSizeClass.large)
-                        }
-                    }
-                )
+                // Three full-width rows, label left and control right, so the edges line up
+                // (a side-by-side pair left two unequal controls squeezed against each other).
+                SettingsSegmentedRow(Text("Position"), selection: Binding(
+                    get: { store.stripPlacementMap.global },
+                    set: { store.setStripPlacement($0) }
+                )) {
+                    Text("Bottom").tag(StripPlacement.bottom)
+                    Text("Left").tag(StripPlacement.left)
+                    Text("Right").tag(StripPlacement.right)
+                }
+                SettingsDivider()
+                SettingsSegmentedRow(Text("Bar Height"), selection: Binding(
+                    get: { DockSizeClass.nearest(to: store.dockPanelHeight.points) },
+                    set: { store.setDockPanelHeight(DockPanelHeight(clamping: $0.barHeight)) }
+                )) {
+                    Text("Small").tag(DockSizeClass.small)
+                    Text("Medium").tag(DockSizeClass.medium)
+                    Text("Large").tag(DockSizeClass.large)
+                }
                 SettingsDivider()
                 SettingsSegmentedRow(Text("Spacing"), selection: Binding(
                     get: { DockSpacing.matching(gap: store.islandGap, margin: store.islandMargin) },
@@ -168,51 +160,45 @@ extension SettingsLayoutPane {
                 }
                 .fixedSize()
 
-                SettingsRowPair(
-                    left: {
-                        SettingsToggleRow(
-                            Text("Show All Running Apps"),
-                            isOn: Binding(
-                                get: { store.showAllRunningApps },
-                                set: { store.setShowAllRunningApps($0) }
-                            ),
-                            note: Text("Gives every running app a chip, even when it has no open window — like the system Dock.")
-                        )
-                    },
-                    right: {
-                        SettingsToggleRow(
-                            Text("Hover Preview"),
-                            isOn: Binding(
-                                get: { store.chipPreviewEnabled },
-                                set: { store.setChipPreviewEnabled($0) }
-                            )
-                        )
-                    }
+                SettingsToggleRow(
+                    Text("Show All Running Apps"),
+                    isOn: Binding(
+                        get: { store.showAllRunningApps },
+                        set: { store.setShowAllRunningApps($0) }
+                    ),
+                    note: Text("Gives every running app a chip, even when it has no open window — like the system Dock.")
                 )
+            
+                SettingsDivider()
+                SettingsToggleRow(
+                    Text("Hover Preview"),
+                    isOn: Binding(
+                        get: { store.chipPreviewEnabled },
+                        set: { store.setChipPreviewEnabled($0) }
+                    )
+                )
+            
                 if store.chipPreviewEnabled {
                     SettingsDivider()
-                    SettingsRowPair(
-                        left: {
-                            SettingsSegmentedRow(Text("Preview Delay"), selection: Binding(
-                                get: { store.chipPreviewDelayMs },
-                                set: { store.setChipPreviewDelayMs($0) }
-                            )) {
-                                Text("Fast").tag(150)
-                                Text("Normal").tag(350)
-                                Text("Slow").tag(600)
-                            }
-                        },
-                        right: {
-                            SettingsSegmentedRow(Text("Preview Size"), selection: Binding(
-                                get: { store.chipPreviewThumbWidth },
-                                set: { store.setChipPreviewThumbWidth($0) }
-                            )) {
-                                Text("Small").tag(140)
-                                Text("Medium").tag(180)
-                                Text("Large").tag(240)
-                            }
-                        }
-                    )
+                    SettingsSegmentedRow(Text("Preview Delay"), selection: Binding(
+                        get: { store.chipPreviewDelayMs },
+                        set: { store.setChipPreviewDelayMs($0) }
+                    )) {
+                        Text("Fast").tag(150)
+                        Text("Normal").tag(350)
+                        Text("Slow").tag(600)
+                    }
+                
+                    SettingsDivider()
+                    SettingsSegmentedRow(Text("Preview Size"), selection: Binding(
+                        get: { store.chipPreviewThumbWidth },
+                        set: { store.setChipPreviewThumbWidth($0) }
+                    )) {
+                        Text("Small").tag(140)
+                        Text("Medium").tag(180)
+                        Text("Large").tag(240)
+                    }
+                
                     if !CGPreflightScreenCaptureAccess() {
                         SettingsDivider()
                         SettingsButtonRow(
