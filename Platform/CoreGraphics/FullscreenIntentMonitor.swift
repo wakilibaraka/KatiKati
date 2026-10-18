@@ -936,6 +936,8 @@ final class FullscreenIntentMonitor {
         pid: pid_t,
         screenFrames: [CGRect]
     ) -> AXReadResult? {
+        // Our own windows answer AX in-process, and AppKit asserts main-thread there (crash 2026-10-18).
+        guard pid != ProcessInfo.processInfo.processIdentifier else { return nil }
         let reader = AXWindowReader()
         let app = AXUIElementCreateApplication(pid)
         _ = AXUIElementSetMessagingTimeout(app, 0.1)

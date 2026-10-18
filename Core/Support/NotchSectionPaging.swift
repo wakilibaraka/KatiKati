@@ -3,17 +3,16 @@ import Foundation
 // Phase 33c — NotchSectionPaging: 5-page bento gallery structure, discrete row paging,
 // and context-aware default page opening logic. Dual-compiled.
 
-/// The dedicated pages of the redesigned Dynamic Island Notch bento gallery: six always-on pages, plus
+/// The dedicated pages of the redesigned Dynamic Island Notch bento gallery: five always-on pages, plus
 /// the teleprompter and the camera mirror, which exist only while their own switch is on.
 enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
     case downloadDeck = 0   // Page 1: Download Manager & Torrent Hub
     case storage = 1        // Page 2: Storage Analyzer (largest items on the Mac)
     case aiTracker = 2      // Page 3: AI Mission Control (Claude, Codex, OpenCode, Copilot)
     case audioDeck = 3      // Page 4: Music & Calendar
-    case hardwareHud = 4    // Page 5: Hardware HUD & Sensory Deck
-    case teleprompter = 5   // Only present while the owner turns it on
-    case cameraMirror = 6   // The live camera mirror, only while it is switched on
-    case notifications = 7  // Mirrored notifications, only while it is switched on
+    case teleprompter = 4   // Only present while the owner turns it on
+    case cameraMirror = 5   // The live camera mirror, only while it is switched on
+    case notifications = 6  // Mirrored notifications, only while it is switched on
 
     var id: Int { rawValue }
 
@@ -23,7 +22,6 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         case .audioDeck: return "Music & Calendar"
         case .storage: return String(localized: "Storage")
         case .downloadDeck: return "Downloads & Torrents"
-        case .hardwareHud: return "Hardware HUD"
         case .teleprompter: return "Teleprompter"
         // Localised at the source: the title is rendered as data (`Text(page.title)`), so a bare literal
         // would ship English in every language — and the catalog gate reads it as an unreferenced key.
@@ -38,7 +36,6 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         case .audioDeck: return "music.note"
         case .storage: return "internaldrive.fill"
         case .downloadDeck: return "arrow.down.circle.fill"
-        case .hardwareHud: return "cpu"
         case .teleprompter: return "text.alignleft"
         case .cameraMirror: return "camera.viewfinder"
         case .notifications: return "bell.fill"
@@ -46,7 +43,7 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
     }
 
     /// The pages in paging order. The teleprompter, the camera mirror and the notifications page exist
-    /// only while their own switch is on, so with all three off the gallery is exactly the six pages it
+    /// only while their own switch is on, so with all three off the gallery is exactly the five pages it
     /// always was.
     static func visible(teleprompter: Bool, mirror: Bool = false, notifications: Bool = false) -> [NotchPage] {
         allCases.filter { page in

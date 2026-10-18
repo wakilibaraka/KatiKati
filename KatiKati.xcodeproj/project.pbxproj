@@ -293,7 +293,6 @@
 		5D000000000000000000A061 /* NotchEventCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A060 /* NotchEventCard.swift */; };
 		5D000000000000000000A041 /* StorageScanMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A040 /* StorageScanMathTests.swift */; };
 		FA33A0000000000000000102 /* NotchProductivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000101 /* NotchProductivityPageView.swift */; };
-		FA33A0000000000000000112 /* NotchHardwareHudPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000111 /* NotchHardwareHudPageView.swift */; };
 		FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000121 /* NotchFallbackPlan.swift */; };
 		FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000121 /* NotchFallbackPlan.swift */; };
 		FA33A0000000000000000132 /* NotchFallbackPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000131 /* NotchFallbackPlanTests.swift */; };
@@ -1309,7 +1308,6 @@
 		5D000000000000000000A020 /* StorageScanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StorageScanService.swift; path = App/Composition/StorageScanService.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A040 /* StorageScanMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StorageScanMathTests.swift; path = Tests/Unit/StorageScanMathTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000101 /* NotchProductivityPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchProductivityPageView.swift; path = App/Scenes/Notch/NotchProductivityPageView.swift; sourceTree = SOURCE_ROOT; };
-		FA33A0000000000000000111 /* NotchHardwareHudPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchHardwareHudPageView.swift; path = App/Scenes/Notch/NotchHardwareHudPageView.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000121 /* NotchFallbackPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchFallbackPlan.swift; path = Core/Support/NotchFallbackPlan.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000131 /* NotchFallbackPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchFallbackPlanTests.swift; path = Tests/Unit/NotchFallbackPlanTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000141 /* DownloadItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadItem.swift; path = Core/Support/DownloadManager/DownloadItem.swift; sourceTree = SOURCE_ROOT; };
@@ -3171,7 +3169,6 @@
 				5D000000000000000000A061 /* NotchEventCard.swift in Sources */,
 				5D000000000000000000A071 /* NotchEdgeStyle.swift in Sources */,
 				FA33A0000000000000000102 /* NotchProductivityPageView.swift in Sources */,
-				FA33A0000000000000000112 /* NotchHardwareHudPageView.swift in Sources */,
 				FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000142 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000152 /* DownloadManagerService.swift in Sources */,

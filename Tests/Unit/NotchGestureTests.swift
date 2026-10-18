@@ -193,16 +193,14 @@ final class NotchGestureTests: XCTestCase {
         XCTAssertEqual(p2, .aiTracker)
         let p3 = p2.next()
         XCTAssertEqual(p3, .audioDeck)
-        let p4 = p3.next()
-        XCTAssertEqual(p4, .hardwareHud)
 
         // Wrapping forward
-        XCTAssertEqual(p4.next(wrap: true), .downloadDeck)
+        XCTAssertEqual(p3.next(wrap: true), .downloadDeck)
         // Clamping forward without wrap
-        XCTAssertEqual(p4.next(wrap: false), .hardwareHud)
+        XCTAssertEqual(p3.next(wrap: false), .audioDeck)
 
         // Wrapping backward
-        XCTAssertEqual(p0.previous(wrap: true), .hardwareHud)
+        XCTAssertEqual(p0.previous(wrap: true), .audioDeck)
         // Clamping backward without wrap
         XCTAssertEqual(p0.previous(wrap: false), .downloadDeck)
     }
@@ -239,12 +237,12 @@ final class NotchGestureTests: XCTestCase {
         XCTAssertEqual(s1, -1) // negative delta moves forward, positive moves backward
     }
 
-    // Phase 37c: the teleprompter page is the 6th page only while switched on; off, paging is the original five.
+    // Phase 37c: the teleprompter page is the 5th page only while switched on; off, paging is the original four.
     func testTeleprompterPageIsOptional() {
-        XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 5)
+        XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 4)
         XCTAssertEqual(NotchPage.visible(teleprompter: true).last, .teleprompter)
-        XCTAssertEqual(NotchPage.hardwareHud.next(wrap: true), .downloadDeck)
-        XCTAssertEqual(NotchPage.hardwareHud.next(wrap: true, teleprompter: true), .teleprompter)
+        XCTAssertEqual(NotchPage.audioDeck.next(wrap: true), .downloadDeck)
+        XCTAssertEqual(NotchPage.audioDeck.next(wrap: true, teleprompter: true), .teleprompter)
         XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: true), .downloadDeck)
         XCTAssertEqual(NotchPage.downloadDeck.previous(wrap: true, teleprompter: true), .teleprompter)
         XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: false), .downloadDeck)   // switched off while on it

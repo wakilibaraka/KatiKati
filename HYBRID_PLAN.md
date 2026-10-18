@@ -5898,3 +5898,6 @@ Downloads folder.
   - **Decided:** left half "Files" = the 4 largest personal files (≥5 MB; photos, video, music, documents, archives by extension) under Desktop/Documents/Downloads/Pictures/Movies/Music; right half "Developer & Cache" = the 4 biggest of a fixed list (Caches, Trash, Xcode DerivedData/Archives/DeviceSupport, CoreSimulator, Logs, iOS backups, Docker, npm/cache/gradle/cargo/m2/pnpm, VS Code cache). Fixed paths, no deep search, so the right half fills first.
   - **Files:** `StorageCategory` + `StorageScanMath.personalRoots/developerTargets` (tested), `StorageScanService.files/dev`, `NotchStoragePageView` two cards, 2 new catalog keys.
   - **Not verified live:** a macOS system dialog (CoreLocationAgent / UserNotificationCenter) covered the screen after the rebuild and computer-use may not click it. Not deleted-on-click: rows only reveal in Finder. Whole-disk and Library/Caches-by-app breakdown were dropped from this page.
+
+- Notch: Hardware HUD (RAM/CPU) page removed; four always-on pages remain (Downloads, Storage, AI, Music & Calendar).
+- Crash fix: `FullscreenIntentMonitor.readAXState` skips KatiKati's own pid (AppKit main-thread assertion when AX-reading our own window off-main).

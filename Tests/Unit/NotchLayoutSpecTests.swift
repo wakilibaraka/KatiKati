@@ -63,8 +63,7 @@ final class NotchLayoutSpecTests: XCTestCase {
     // Phase 34 witness: the notch pages must never ship hardcoded demo numbers again.
     func testNotchPagesHaveNoMockLiterals() throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-        for (file, bad) in [("NotchHardwareHudPageView", ["\"14%\"", "\"18.4 GB\"", "38°C"]),
-                            ("NotchProductivityPageView", ["No conflicts today"]),
+        for (file, bad) in [("NotchProductivityPageView", ["No conflicts today"]),
                             ("NotchAIPageView", ["Claude 3.7 Sonnet"])] {
             let src = try String(contentsOf: root.appendingPathComponent("App/Scenes/Notch/\(file).swift"), encoding: .utf8)
             for literal in bad { XCTAssertFalse(src.contains(literal), "\(file) still has \(literal)") }
