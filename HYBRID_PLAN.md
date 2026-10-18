@@ -5873,3 +5873,8 @@ Downloads folder.
   - **Known limits:** the walk is sequential, so the list fills slowly on a large disk and restarts on every open (no cache yet); non-English strings are `needs_review`.
   - **Gate:** targeted `xcodebuild test` (StorageScanMath, NotchGesture, NotchLayoutSpec) green; `check_localization.py` 934 × 12 and `check_debug_switches.py` green; live: page opens from the tab strip and rows fill while scanning.
   - **Next:** slice 2 (storage chip left / battery right in the closed notch and header).
+
+- 2026-10-18 · **Notch redesign slice 2 — closed-notch dock chips.**
+  - **Files:** `App/Scenes/Notch/NotchDockChips.swift` (free storage left, battery right, shown when no live activity wins), `StorageScanMath.compact` (+ test), `StorageScanService.freeBytes`, `NotchIslandView.closedContent` branch, `NotchPanelController.syncModelSizes` (closed capsule is now always wide).
+  - **Known limit:** the open header has no storage chip — its left side is full with the page tabs on a 640 pt panel, so it stays battery-on-right only until a width budget test justifies one.
+  - **Gate:** StorageScanMath + NotchGeometry tests green; localization/debug switches clean; live: "29 GB" left and "52%" right of the hardware notch.

@@ -40,6 +40,12 @@ final class StorageScanService: ObservableObject {
         if state == .scanning { state = .idle }
     }
 
+    /// Free bytes on the startup volume, counting what macOS can purge ("available" in Finder's sense).
+    nonisolated static func freeBytes() -> Int64 {
+        let values = try? URL(fileURLWithPath: "/").resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+        return values?.volumeAvailableCapacityForImportantUsage ?? 0
+    }
+
     /// `~/Library/Safari` is TCC-protected: it lists only when Full Disk Access is on.
     nonisolated static func probeFullDiskAccess() -> Bool {
         let probe = NSHomeDirectory() + "/Library/Safari"

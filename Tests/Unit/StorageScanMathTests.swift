@@ -27,6 +27,12 @@ final class StorageScanMathTests: XCTestCase {
         XCTAssertTrue(StorageScanMath.isScannable("/SystemExtras"), "prefix match must respect the path boundary")
     }
 
+    func testCompactLabelFitsTheClosedSlot() {
+        XCTAssertEqual(StorageScanMath.compact(29_590_000_000), "29 GB")
+        XCTAssertEqual(StorageScanMath.compact(1_250_000_000_000), "1.2 TB")
+        XCTAssertEqual(StorageScanMath.compact(-5), "0 GB")
+    }
+
     func testNameIsLastComponent() {
         XCTAssertEqual(item("/Users/me/Movies", 1).name, "Movies")
     }

@@ -19,6 +19,12 @@ enum StorageScanMath {
             .prefix(limit))
     }
 
+    /// Short free-space label for the closed notch's narrow slot: "30 GB", "1.2 TB", "0 GB".
+    static func compact(_ bytes: Int64) -> String {
+        let gb = Double(max(0, bytes)) / 1_000_000_000
+        return gb >= 1000 ? String(format: "%.1f TB", gb / 1000) : "\(Int(gb)) GB"
+    }
+
     /// Share (0...1) of the biggest item, for the bar lengths; 0 for an empty list.
     static func share(_ item: StorageItem, of largest: StorageItem?) -> Double {
         guard let largest, largest.bytes > 0 else { return 0 }

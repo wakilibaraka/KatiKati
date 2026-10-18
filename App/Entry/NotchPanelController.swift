@@ -208,7 +208,8 @@ final class NotchPanelController: LiveEventSink {
 
     /// Shape sizes the view animates between.
     private func syncModelSizes() {
-        let showsActivity = LiveActivityFeed.shared.activity.kind != .clock
+        // Always wide: when nothing is live the two sides carry the dock chips (storage left, battery right).
+        let showsActivity = true
         let screenWidth = targetScreen()?.frame.width ?? 1440
         model.closedSize = NotchGeometry.closedCapsuleSize(metrics, showsActivity: showsActivity)
         model.openSize = NotchLayoutSpec.fit(NotchGeometry.openSize(for: skin), screenWidth: screenWidth, closedWidth: metrics.closedSize.width)

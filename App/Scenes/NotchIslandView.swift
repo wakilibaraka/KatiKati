@@ -155,6 +155,11 @@ struct NotchIslandView: View {
     // MARK: Closed — glyph left of the notch, value right of it
 
     private func closedContent(_ activity: LiveActivity) -> some View {
+        if activity.kind == .clock { return AnyView(NotchDockChips(metrics: metrics)) }
+        return AnyView(activityContent(activity))
+    }
+
+    private func activityContent(_ activity: LiveActivity) -> some View {
         HStack(spacing: 0) {
             HStack(spacing: 4) {
                 Image(systemName: LiveIslandStyle.symbolName(for: activity.kind))
