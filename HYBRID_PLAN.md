@@ -5888,3 +5888,7 @@ Downloads folder.
   - **Files:** `Core/Support/NotchEdgeStyle.swift` (+ `NotchEdgeStyleTests`), `NotchIslandView` mask reads `@AppStorage(NotchEdgeStyle.sharpKey)`, "Sharp Notch Edges" toggle in `NotchHelpersSettingsBlock`.
   - **Behaviour:** sharp zeroes both radii and drops the flared ears; curved is unchanged. `NotchPreview` and `SettingsStage` still draw the curved mask.
   - **Gate:** NotchEdgeStyle tests green; localization/debug switches clean; live: open notch shows square corners, no flares. The default was reset after the check.
+
+- 2026-10-18 · **Notch redesign slice 5 — Siri-style rim glow.**
+  - **Files:** `App/Scenes/Notch/NotchSiriRim.swift` (rotating angular-gradient stroke inside the mask, clipped to it, static under Reduce Motion), drawn in `NotchIslandView` while expanded.
+  - **Not done:** no blob/fluid body motion, no tests (pure view), no closed-state glow. Live: a soft blue-violet glow is visible on the open edges; colours cycle slowly.

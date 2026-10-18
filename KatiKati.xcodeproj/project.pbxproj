@@ -288,6 +288,7 @@
 		5D000000000000000000A012 /* StorageScanMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A010 /* StorageScanMath.swift */; };
 		5D000000000000000000A021 /* StorageScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A020 /* StorageScanService.swift */; };
 		5D000000000000000000A051 /* NotchDockChips.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A050 /* NotchDockChips.swift */; };
+		5D000000000000000000A091 /* NotchSiriRim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A090 /* NotchSiriRim.swift */; };
 		5D000000000000000000A071 /* NotchEdgeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A070 /* NotchEdgeStyle.swift */; };
 		5D000000000000000000A072 /* NotchEdgeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A070 /* NotchEdgeStyle.swift */; };
 		5D000000000000000000A081 /* NotchEdgeStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A080 /* NotchEdgeStyleTests.swift */; };
@@ -1308,6 +1309,7 @@
 		5D000000000000000000A080 /* NotchEdgeStyleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchEdgeStyleTests.swift; path = Tests/Unit/NotchEdgeStyleTests.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A060 /* NotchEventCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchEventCard.swift; path = App/Scenes/Notch/NotchEventCard.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A050 /* NotchDockChips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchDockChips.swift; path = App/Scenes/Notch/NotchDockChips.swift; sourceTree = SOURCE_ROOT; };
+		5D000000000000000000A090 /* NotchSiriRim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchSiriRim.swift; path = App/Scenes/Notch/NotchSiriRim.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A020 /* StorageScanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StorageScanService.swift; path = App/Composition/StorageScanService.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A040 /* StorageScanMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StorageScanMathTests.swift; path = Tests/Unit/StorageScanMathTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000101 /* NotchProductivityPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchProductivityPageView.swift; path = App/Scenes/Notch/NotchProductivityPageView.swift; sourceTree = SOURCE_ROOT; };
@@ -3171,6 +3173,7 @@
 				5D000000000000000000A011 /* StorageScanMath.swift in Sources */,
 				5D000000000000000000A021 /* StorageScanService.swift in Sources */,
 				5D000000000000000000A051 /* NotchDockChips.swift in Sources */,
+				5D000000000000000000A091 /* NotchSiriRim.swift in Sources */,
 				5D000000000000000000A061 /* NotchEventCard.swift in Sources */,
 				5D000000000000000000A071 /* NotchEdgeStyle.swift in Sources */,
 				FA33A0000000000000000102 /* NotchProductivityPageView.swift in Sources */,

@@ -75,6 +75,7 @@ struct NotchIslandView: View {
                 flaringTopEars: edge.flares
             )
             .fill(notchTheme.plate.color)
+            if expanded { NotchSiriRim(top: edge.top, bottom: edge.bottom, flares: edge.flares).transition(.opacity) }
             Group {
                 if !expanded {
                     closedContent(activity).padding(.horizontal, 14)
