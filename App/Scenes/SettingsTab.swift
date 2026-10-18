@@ -99,6 +99,9 @@ final class SettingsTabState: ObservableObject {
         didSet { UserDefaults.standard.set(selected.rawValue, forKey: Self.defaultsKey) }
     }
 
+    /// The sidebar query that opened this page; the shell scrolls to the first row matching it.
+    @Published var findQuery = ""
+
     init() {
         selected = UserDefaults.standard.string(forKey: Self.defaultsKey).flatMap(SettingsTab.init(rawValue:)) ?? .general
     }

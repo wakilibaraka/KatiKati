@@ -20,7 +20,40 @@ private struct SettingsStageVisibleKey: EnvironmentKey {
     static let defaultValue = false
 }
 
+private struct SettingsPulseRowKey: EnvironmentKey {
+    static let defaultValue: String? = nil
+}
+
+/// Titles of the rows on screen, so the shell can scroll to the one a sidebar search asked for.
+struct SettingsRowTitlesKey: PreferenceKey {
+    static var defaultValue: [String] = []
+    static func reduce(value: inout [String], nextValue: () -> [String]) { value += nextValue() }
+}
+
+extension Text {
+    /// The English key or verbatim string behind a `Text`, for matching search queries.
+    /// shortcut: reads SwiftUI's private layout via Mirror; if it ever returns nil the row just isn't findable.
+    var searchableTitle: String? {
+        func dig(_ value: Any, _ depth: Int) -> String? {
+            if depth > 8 { return nil }
+            if let string = value as? String { return string }
+            for child in Mirror(reflecting: value).children
+            where ["key", "verbatim", "storage", "anyTextStorage", ".0", "some"].contains(child.label ?? "") {
+                if let found = dig(child.value, depth + 1) { return found }
+            }
+            return nil
+        }
+        return dig(self, 0)
+    }
+}
+
 extension EnvironmentValues {
+    /// The row title the shell is pulsing after a search jump.
+    var settingsPulseRow: String? {
+        get { self[SettingsPulseRowKey.self] }
+        set { self[SettingsPulseRowKey.self] = newValue }
+    }
+
     /// True while the Settings stage is on screen, so a page can drop its own duplicate preview.
     var settingsStageVisible: Bool {
         get { self[SettingsStageVisibleKey.self] }
@@ -429,7 +462,31 @@ struct SettingsRow<Control: View>: View {
         .padding(.vertical, SettingsMetrics.rowVerticalPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
+        .settingsFindable(label)
     }
+}
+
+/// Makes a row findable from sidebar search: reports its title, anchors a scroll target, pulses when chosen.
+private struct SettingsFindable: ViewModifier {
+    let label: Text
+    @Environment(\.settingsPulseRow) private var pulseRow
+    private var title: String? { label.searchableTitle }
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color.accentColor.opacity(title != nil && title == pulseRow ? 0.22 : 0))
+                    .padding(.horizontal, -6)
+                    .animation(.easeInOut(duration: 0.35), value: pulseRow)
+            )
+            .background(alignment: .top) { if let title { Color.clear.frame(height: 1).id(title) } }
+            .preference(key: SettingsRowTitlesKey.self, value: title.map { [$0] } ?? [])
+    }
+}
+
+extension View {
+    func settingsFindable(_ label: Text) -> some View { modifier(SettingsFindable(label: label)) }
 }
 
 /// A switch row. The switch is `labelsHidden` and takes its VoiceOver label from the row, so the
@@ -672,6 +729,7 @@ struct SettingsSliderRow<Value: BinaryFloatingPoint>: View where Value.Stride: B
         }
         .padding(.vertical, SettingsMetrics.rowVerticalPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .settingsFindable(label)
     }
 }
 

@@ -39,7 +39,7 @@ struct SettingsSidebar: View {
     @FocusState private var searchFocused: Bool
 
     private var visibleTabs: [SettingsTab] {
-        let q = query.trimmingCharacters(in: .whitespaces)
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty else { return SettingsTab.allCases }
         return SettingsTab.allCases.filter { $0.title.localizedCaseInsensitiveContains(q) || $0.searchTerms.localizedCaseInsensitiveContains(q) }
     }
@@ -52,7 +52,7 @@ struct SettingsSidebar: View {
                     TextField("Search", text: $query)
                         .textFieldStyle(.plain)
                         .focused($searchFocused)
-                        .onSubmit { if let first = visibleTabs.first, !query.isEmpty { tabState.selected = first } }
+                        .onSubmit { if let first = visibleTabs.first, !query.isEmpty { open(first) } }
                         .accessibilityLabel(Text("Search settings"))
                 }
                 .padding(.horizontal, 10)
@@ -93,10 +93,15 @@ struct SettingsSidebar: View {
         .background(.ultraThinMaterial)
     }
 
+    private func open(_ tab: SettingsTab) {
+        tabState.findQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        tabState.selected = tab
+    }
+
     private func row(_ tab: SettingsTab) -> some View {
         let selected = tabState.selected == tab
         return Button {
-            withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) { tabState.selected = tab }
+            withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) { open(tab) }
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: tab.symbolName)

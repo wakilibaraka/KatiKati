@@ -12,6 +12,8 @@ struct SettingsShell: View {
     @State private var focusSearch = 0
     @StateObject private var draft = SettingsDraft()
     @State private var confirmRevert = false
+    @State private var rowTitles: [String] = []
+    @State private var pulseRow: String?
     @AppStorage("com.katikati.settings.sidebarCompact") private var forcedCompact = false
     @AppStorage("com.katikati.settings.stage") private var stageRaw = SettingsStagePreference.top.rawValue
     @AppStorage("com.katikati.settings.stageFraction") private var stageFraction = Double(SettingsStageSize.defaultFraction)
@@ -62,17 +64,24 @@ struct SettingsShell: View {
 
     @ViewBuilder
     private func content(layout: SettingsLayoutClass, pageWidth: CGFloat, size: CGSize) -> some View {
-        let page = ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
-                header
-                SettingsPageColumn(
-                    store: store,
-                    coordinator: coordinator,
-                    tabState: tabState,
-                    onShowWelcomeGuide: onShowWelcomeGuide
-                )
+        let page = ScrollViewReader { reader in
+            ScrollView(.vertical) {
+                VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
+                    header
+                    SettingsPageColumn(
+                        store: store,
+                        coordinator: coordinator,
+                        tabState: tabState,
+                        onShowWelcomeGuide: onShowWelcomeGuide
+                    )
+                }
+                .padding(.top, 8)
             }
-            .padding(.top, 8)
+            .environment(\.settingsPulseRow, pulseRow)
+            .onPreferenceChange(SettingsRowTitlesKey.self) { rowTitles = $0 }
+            // A page that changes the stage layout is a new view, so it sees the query on appear, not as a change.
+            .onAppear { scheduleJump(reader) }
+            .onChange(of: tabState.findQuery) { _ in scheduleJump(reader) }
         }
         Group { stageLayout(layout: layout, page: page, pageWidth: pageWidth, size: size) }
             .background(SettingsTimeGlow())
@@ -98,6 +107,22 @@ struct SettingsShell: View {
         case .hidden:
             page.environment(\.settingsLiveWindowWidth, pageWidth)
         }
+    }
+
+    /// Waits for the new page to lay out so its row titles have been reported.
+    private func scheduleJump(_ reader: ScrollViewProxy) {
+        guard !tabState.findQuery.isEmpty else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { jumpToFoundRow(reader) }
+    }
+
+    /// Scrolls to and pulses the first row whose title matches the query that opened this page.
+    private func jumpToFoundRow(_ reader: ScrollViewProxy) {
+        let query = tabState.findQuery
+        tabState.findQuery = ""
+        guard !query.isEmpty, let title = rowTitles.first(where: { $0.localizedCaseInsensitiveContains(query) }) else { return }
+        withAnimation(.easeInOut(duration: 0.4)) { reader.scrollTo(title, anchor: .center) }
+        pulseRow = title
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { if pulseRow == title { pulseRow = nil } }
     }
 
     private var header: some View {
