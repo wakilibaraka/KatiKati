@@ -90,7 +90,7 @@ final class NotchPanelController: LiveEventSink {
             self?.evaluateHover()
         }
         eventWork = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0, execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + NotchMotionSpec.eventLifetime, execute: work)
     }
 
     // MARK: hover

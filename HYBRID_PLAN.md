@@ -5878,3 +5878,8 @@ Downloads folder.
   - **Files:** `App/Scenes/Notch/NotchDockChips.swift` (free storage left, battery right, shown when no live activity wins), `StorageScanMath.compact` (+ test), `StorageScanService.freeBytes`, `NotchIslandView.closedContent` branch, `NotchPanelController.syncModelSizes` (closed capsule is now always wide).
   - **Known limit:** the open header has no storage chip — its left side is full with the page tabs on a 640 pt panel, so it stays battery-on-right only until a width budget test justifies one.
   - **Gate:** StorageScanMath + NotchGeometry tests green; localization/debug switches clean; live: "29 GB" left and "52%" right of the hardware notch.
+
+- 2026-10-18 · **Notch redesign slice 3 — event toast card.**
+  - **Files:** `App/Scenes/Notch/NotchEventCard.swift` (tinted icon tile, headline/detail, draining lifetime bar, tap to dismiss), `NotchMotionSpec.eventLifetime` (3 s, shared by the card and `NotchPanelController.show`), `NotchIslandView.openContent` event branch.
+  - **Not verified live:** the app builds and launches, but no event was triggered on screen (the clipboard event is off by default), so the card's look is unchecked. Mirrored-notification banners are not redesigned.
+  - **Gate:** LiveEventDetector + NotchGeometry tests green; localization/debug switches clean.

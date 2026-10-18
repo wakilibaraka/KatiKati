@@ -17,6 +17,9 @@ struct SpringParameters: Equatable, Sendable {
 }
 
 enum NotchMotionSpec {
+    /// How long an event toast stays open; its draining bar runs for exactly this long.
+    static let eventLifetime: TimeInterval = 3.0
+
     /// Open transition: organic, tactile expansion with subtle momentum overshoot
     static let openSpring = SpringParameters(response: 0.38, dampingRatio: 0.82)
 

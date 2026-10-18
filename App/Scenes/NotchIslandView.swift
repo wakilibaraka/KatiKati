@@ -191,17 +191,7 @@ struct NotchIslandView: View {
         VStack(spacing: 8) {
             Spacer().frame(height: metrics.closedSize.height - 6)
             if let event = model.event {
-                HStack(spacing: 10) {
-                    Image(systemName: event.symbol).font(.system(size: 18, weight: .semibold))
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(verbatim: event.headline).font(.system(size: 14, weight: .semibold))
-                        if let detail = event.detail, !detail.isEmpty {
-                            Text(verbatim: detail).font(.system(size: 12)).foregroundStyle(.white.opacity(0.7))
-                        }
-                    }
-                    Spacer()
-                }
-                .foregroundStyle(.white)
+                NotchEventCard(event: event, lifetime: NotchMotionSpec.eventLifetime) { model.event = nil }
             } else {
                 HStack(spacing: 10) {
                     Image(systemName: LiveIslandStyle.symbolName(for: activity.kind))
