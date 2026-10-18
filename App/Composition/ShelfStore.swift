@@ -122,7 +122,8 @@ final class ShelfStore: ObservableObject {
     // MARK: copy storage
 
     nonisolated static var shelfFolder: URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        (FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support", isDirectory: true))
             .appendingPathComponent("KatiKati/Shelf", isDirectory: true)
     }
 

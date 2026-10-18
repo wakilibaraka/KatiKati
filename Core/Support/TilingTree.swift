@@ -92,7 +92,11 @@ struct TilingTree: Equatable, Sendable {
             return
         }
 
-        let targetID = (focusedID.flatMap { contains($0) ? $0 : nil }) ?? currentRoot.windowIDs.first!
+        guard let targetID = (focusedID.flatMap { contains($0) ? $0 : nil }) ?? currentRoot.windowIDs.first else {
+            root = .leaf(id)
+            focusedID = id
+            return
+        }
         let (newRoot, _) = insert(newID: id, atTarget: targetID, in: currentRoot, currentDepth: 0)
         root = newRoot
         focusedID = id
