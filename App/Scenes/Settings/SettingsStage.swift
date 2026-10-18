@@ -2,7 +2,19 @@ import SwiftUI
 
 extension SettingsTab {
     /// Pages whose settings the stage can show changing.
-    var showsStage: Bool { self == .appearance || self == .widgets || self == .notch || self == .edgeBars }
+    var showsStage: Bool { switch self {
+        case .appearance, .widgets, .notch, .edgeBars, .controlCenter, .radialDial, .windowManagement: return true
+        default: return false
+        }
+    }
+
+    /// Pages whose stage shows the bar and the notch; the rest draw their own surface instead.
+    var stageShowsBar: Bool {
+        switch self {
+        case .appearance, .widgets, .notch, .edgeBars: return true
+        default: return false
+        }
+    }
 }
 
 /// The live preview: a miniature of the user's desktop with the bar and notch drawn from the same
@@ -13,6 +25,7 @@ struct SettingsStage: View {
     @ObservedObject var store: AppSettingsStore
     /// The Notch page shows the skin's open panel, so its style picker has something to change.
     var expandsNotch = false
+    var tab: SettingsTab = .appearance
     @State private var wallpaper: NSImage?
 
     private static let screenAspect = LayoutThumbnailModel.referenceScreen.width / LayoutThumbnailModel.referenceScreen.height
@@ -35,8 +48,16 @@ struct SettingsStage: View {
             let scale = proxy.size.width / LayoutThumbnailModel.referenceScreen.width
             ZStack(alignment: .top) {
                 backdrop
-                bar(in: proxy.size)
-                notch(scale: scale)
+                if tab.stageShowsBar {
+                    bar(in: proxy.size)
+                    notch(scale: scale)
+                }
+                switch tab {
+                case .controlCenter: StageControlCenter(store: store)
+                case .radialDial: StageRadialDial()
+                case .windowManagement: StageTiling()
+                default: EmptyView()
+                }
             }
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(.white.opacity(0.25), lineWidth: 1))

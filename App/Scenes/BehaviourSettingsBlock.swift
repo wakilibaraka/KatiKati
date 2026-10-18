@@ -67,22 +67,19 @@ struct WindowBehaviourSettingsBlock: View {
         SettingsCard {
             // Two switches on one line (`Docs/SETTINGS.md` rule 5) — this card was the longest
             // run of one-row-per-line switches left on the page.
-            SettingsRowPair(
-                left: {
-                    SettingsToggleRow(
-                        Text("Option-Tab Window Switcher"),
-                        isOn: $switcherEnabled,
-                        note: Text("Hold Option and press Tab to pick a window from a thumbnail grid; release to switch. Shift reverses, Esc cancels.")
-                    )
-                },
-                right: {
-                    SettingsToggleRow(
-                        Text("Restore Window Layout After Sleep"),
-                        isOn: $layoutRestoreEnabled,
-                        note: Text("After the Mac wakes or a display is reconnected, windows that moved are put back where they were. Needs Accessibility access.")
-                    )
-                }
+            SettingsToggleRow(
+                Text("Option-Tab Window Switcher"),
+                isOn: $switcherEnabled,
+                note: Text("Hold Option and press Tab to pick a window from a thumbnail grid; release to switch. Shift reverses, Esc cancels.")
             )
+        
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Restore Window Layout After Sleep"),
+                isOn: $layoutRestoreEnabled,
+                note: Text("After the Mac wakes or a display is reconnected, windows that moved are put back where they were. Needs Accessibility access.")
+            )
+        
             SettingsDivider()
             SettingsButtonRow(Text("Restore Windows From Last Sleep")) {
                 (NSApp.delegate as? AppDelegate)?.layoutRestore.restoreNow()

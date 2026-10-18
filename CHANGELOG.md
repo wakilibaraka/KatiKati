@@ -2,6 +2,17 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Settings redesign, Phase 5a: stages for Window Management, Control Center, Radial Dial
+
+### Added
+- The stage on Window Management (four sample windows laid out by the Preset, with the inner and outer
+  gap), Control Center (the panel at its side, width and anchor, one block per enabled tile) and Radial
+  Dial (the wedge ring in the chosen theme's colours). Each reads settings only.
+
+### Changed
+- Control Center and Window Management rows are full-width (label left, control right) instead of
+  unequal side-by-side pairs.
+
 ## [Unreleased] — Settings redesign: Appearance page refinement
 
 ### Changed

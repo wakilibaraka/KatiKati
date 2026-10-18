@@ -6,50 +6,44 @@ extension SettingsLayoutPane {
     var controlCenterSections: some View {
             SettingsCard(Text("Control Center")) {
                 // Four segmented rows in a row: two per line (`Docs/SETTINGS.md` rule 5).
-                SettingsRowPair(
-                    left: {
-                        SettingsSegmentedRow(Text("Side"), selection: Binding(
-                            get: { EdgeSide(rawValue: controlCenterSideRaw) ?? .right },
-                            set: { controlCenterSideRaw = $0.rawValue }
-                        )) {
-                            Text("Left").tag(EdgeSide.left)
-                            Text("Right").tag(EdgeSide.right)
-                        }
-                    },
-                    right: {
-                        SettingsSegmentedRow(Text("Size"), selection: Binding(
-                            get: { store.controlCenterSize },
-                            set: { store.setControlCenterSize($0) }
-                        )) {
-                            Text("Small").tag(ControlCenterSize.small)
-                            Text("Medium").tag(ControlCenterSize.medium)
-                            Text("Large").tag(ControlCenterSize.large)
-                        }
-                    }
-                )
+                SettingsSegmentedRow(Text("Side"), selection: Binding(
+                    get: { EdgeSide(rawValue: controlCenterSideRaw) ?? .right },
+                    set: { controlCenterSideRaw = $0.rawValue }
+                )) {
+                    Text("Left").tag(EdgeSide.left)
+                    Text("Right").tag(EdgeSide.right)
+                }
+            
                 SettingsDivider()
-                SettingsRowPair(
-                    left: {
-                        SettingsSegmentedRow(Text("Anchor"), selection: Binding(
-                            get: { store.controlCenterAnchor },
-                            set: { store.setControlCenterAnchor($0) }
-                        )) {
-                            Text("Top").tag(ControlCenterAnchor.top)
-                            Text("Center").tag(ControlCenterAnchor.center)
-                            Text("Bottom").tag(ControlCenterAnchor.bottom)
-                        }
-                    },
-                    right: {
-                        SettingsSegmentedRow(Text("Animation"), selection: Binding(
-                            get: { store.controlCenterAnimation },
-                            set: { store.setControlCenterAnimation($0) }
-                        )) {
-                            Text("Instant").tag(ControlCenterAnimation.instant)
-                            Text("Fade").tag(ControlCenterAnimation.fade)
-                            Text("Slide").tag(ControlCenterAnimation.slide)
-                        }
-                    }
-                )
+                SettingsSegmentedRow(Text("Size"), selection: Binding(
+                    get: { store.controlCenterSize },
+                    set: { store.setControlCenterSize($0) }
+                )) {
+                    Text("Small").tag(ControlCenterSize.small)
+                    Text("Medium").tag(ControlCenterSize.medium)
+                    Text("Large").tag(ControlCenterSize.large)
+                }
+            
+                SettingsDivider()
+                SettingsSegmentedRow(Text("Anchor"), selection: Binding(
+                    get: { store.controlCenterAnchor },
+                    set: { store.setControlCenterAnchor($0) }
+                )) {
+                    Text("Top").tag(ControlCenterAnchor.top)
+                    Text("Center").tag(ControlCenterAnchor.center)
+                    Text("Bottom").tag(ControlCenterAnchor.bottom)
+                }
+            
+                SettingsDivider()
+                SettingsSegmentedRow(Text("Animation"), selection: Binding(
+                    get: { store.controlCenterAnimation },
+                    set: { store.setControlCenterAnimation($0) }
+                )) {
+                    Text("Instant").tag(ControlCenterAnimation.instant)
+                    Text("Fade").tag(ControlCenterAnimation.fade)
+                    Text("Slide").tag(ControlCenterAnimation.slide)
+                }
+            
                 Text("Widgets").font(.subheadline).padding(.top, 6)
                 SettingsGrid(TileKind.controlCenterDefault, id: \.self) { kind in
                     SettingsCheckboxRow(controlCenterWidgetTitle(kind), isOn: Binding(
