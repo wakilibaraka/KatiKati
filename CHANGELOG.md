@@ -2,6 +2,12 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Settings redesign, Phase 4: stage on Notch and Edge Bars
+
+### Added
+- The live stage now also appears on Notch (it draws the open panel of the chosen style) and Edge Bars
+  (bar geometry and layout mode redraw as you change them). Same stage position picker and handle.
+
 ## [Unreleased] — Settings redesign, Phase 3: live stage for Appearance and Widgets
 
 ### Added

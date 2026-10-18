@@ -2,7 +2,7 @@ import SwiftUI
 
 extension SettingsTab {
     /// Pages whose settings the stage can show changing.
-    var showsStage: Bool { self == .appearance || self == .widgets }
+    var showsStage: Bool { self == .appearance || self == .widgets || self == .notch || self == .edgeBars }
 }
 
 /// The live preview: a miniature of the user's desktop with the bar and notch drawn from the same
@@ -11,6 +11,8 @@ extension SettingsTab {
 /// prompt; it only redraws when a setting changes.
 struct SettingsStage: View {
     @ObservedObject var store: AppSettingsStore
+    /// The Notch page shows the skin's open panel, so its style picker has something to change.
+    var expandsNotch = false
     @State private var wallpaper: NSImage?
 
     private static let screenAspect = LayoutThumbnailModel.referenceScreen.width / LayoutThumbnailModel.referenceScreen.height
@@ -75,7 +77,7 @@ struct SettingsStage: View {
     }
 
     private func notch(scale: CGFloat) -> some View {
-        let size = NotchGeometry.previewSize(for: store.notchSkin, expanded: false)
+        let size = NotchGeometry.previewSize(for: store.notchSkin, expanded: expandsNotch)
         return NotchContinuousMaskShape(
             topCornerRadius: NotchDesignSpec.closedCornerRadii.topFlaring,
             bottomCornerRadius: NotchDesignSpec.closedCornerRadii.bottomSquircle,
@@ -84,6 +86,7 @@ struct SettingsStage: View {
         .fill(Color.black)
         .frame(width: size.width * scale, height: size.height * scale)
         .opacity(store.notchIslandEnabled ? 1 : 0.3)
+        .animation(.spring(response: 0.34, dampingFraction: 0.86), value: store.notchSkin)
     }
 
     private func loadWallpaper() {

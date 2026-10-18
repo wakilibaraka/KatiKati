@@ -55,7 +55,7 @@ struct SettingsShell: View {
         case .top:
             let length = SettingsStageSize.length(fraction: stageFraction, available: size.height)
             VStack(spacing: 0) {
-                SettingsStage(store: store).frame(height: length)
+                SettingsStage(store: store, expandsNotch: tabState.selected == .notch).frame(height: length)
                 SettingsStageHandle(axis: .horizontal, fraction: $stageFraction, available: size.height, length: length)
                 page.environment(\.settingsLiveWindowWidth, pageWidth)
             }
@@ -64,7 +64,7 @@ struct SettingsShell: View {
             HStack(spacing: 0) {
                 page.environment(\.settingsLiveWindowWidth, pageWidth - stageWidth)
                 SettingsStageHandle(axis: .vertical, fraction: $stageFraction, available: size.width, length: stageWidth)
-                SettingsStage(store: store).frame(width: stageWidth)
+                SettingsStage(store: store, expandsNotch: tabState.selected == .notch).frame(width: stageWidth)
             }
         case .hidden:
             page.environment(\.settingsLiveWindowWidth, pageWidth)
