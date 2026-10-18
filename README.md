@@ -18,7 +18,7 @@ English · [中文](README.zh-CN.md)
 
 <img src="assets/screenshots/bar.png" alt="The KatiKati bar: launcher button, weather, apps, now playing, clock and Control Center button" width="100%" />
 
-> **Beta.** Version 0.17.0 beta 2 is unsigned and not notarized. See [Install](#install). Several new screens were not yet exercised on a real
+> **Beta.** Version 0.17.0 beta 3 is unsigned and not notarized. See [Install](#install). Several new screens were not yet exercised on a real
 > trackpad or across displays, and all new translations are drafts awaiting review. Expect rough edges.
 
 ## What it is
@@ -48,6 +48,12 @@ KatiKati is a fork of [Tungsten Edge](https://github.com/moonbai-studio/tungsten
 - **Multi-display.** One bar that follows your pointer, or one bar per display, each listing only its own windows.
 - **Auto-hide.** Always visible by default; it can also hide and wake from the bottom edge. `⌥⇧⌘D` toggles it.
 - **Blink-free full screen.** The bar steps out of the way before a native full-screen transition (see [Privacy](#privacy)).
+
+### Notch
+
+On Macs with a camera housing, and as a floating island elsewhere, the notch grows into a page deck: Downloads, music and calendar, Storage
+(the largest folders and files, biggest first), productivity, camera mirror and notifications. Closed, it shows free storage on the left and the
+battery on the right; events appear as toast cards. Settings > Notch has the style, page order and **Sharp Notch Edges**.
 
 ### Launcher
 
@@ -105,7 +111,7 @@ America), Português (Brazil and Portugal), Italiano and 한국어. Change it in
 
 Requirements: macOS 15 (Sequoia) or later, Intel or Apple Silicon (universal binary).
 
-1. Download `KatiKati-0.17.0-beta.2.dmg` from the [latest release](https://github.com/wakilibaraka/KatiKati/releases/latest).
+1. Download `KatiKati-0.17.0-beta.3.dmg` from the [latest release](https://github.com/wakilibaraka/KatiKati/releases/latest).
 2. Open the disk image and drag **KatiKati** to **Applications**.
 3. The beta is not notarized, so on first launch **right-click KatiKati and choose Open**, then confirm.
 4. Optional: grant **Accessibility** (System Settings > Privacy & Security > Accessibility) for the per-window cards. Each new unsigned build may need
@@ -133,7 +139,7 @@ The **status menu** (the capsule icon in the menu bar) holds what you change mid
 Taskbar Size, a Layout submenu, Show Shelf, Show Trash, Show app name on hover, Keep maximized windows above the taskbar, Dock Settings and Settings.
 With two or more displays it also offers single- and multi-display modes.
 
-The **Settings window** has five tabs:
+The **Settings window** has a sidebar (search with `⌘F`, sections with `⌘1`...`⌘9`) and a live preview stage on most pages. Its original tabs are:
 
 <img src="assets/screenshots/settings-layout.png" alt="Settings, Layout tab" width="420" />
 

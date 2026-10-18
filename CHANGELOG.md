@@ -2,6 +2,13 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [0.17.0 beta 3] — 2026-10-19
+
+Notch redesign, Settings redesign and stability fixes; see `Docs/Releases/RELEASE_NOTES_v0.17.0-beta.3.md`.
+
+### Fixed
+- `TilingTree.insert` and `ShelfStore.shelfFolder` no longer force-unwrap.
+
 ## [Unreleased] — Notch redesign, slices 2–4
 
 ### Added
