@@ -239,6 +239,57 @@
         "ko": {"stringUnit": {"state": "needs_review", "value": "아직 알림 없음"}}
       }
     },
+    "Scanning…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Scanning…"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "正在扫描…"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "正在掃描…"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "スキャン中…"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Wird gescannt …"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Analyse en cours…"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Analizando…"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Analizando…"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Verificando…"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "A analisar…"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Scansione in corso…"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "검사 중…"}}
+      }
+    },
+    "Nothing Large Found": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Nothing Large Found"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "未发现大文件"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "未發現大型檔案"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "大きな項目は見つかりません"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Nichts Großes gefunden"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Aucun gros élément trouvé"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "No se encontró nada grande"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "No se encontró nada grande"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Nada grande encontrado"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Nada grande encontrado"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Nessun elemento grande trovato"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "큰 항목이 없습니다"}}
+      }
+    },
+    "Allow Full Disk Access for the Whole Disk": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Allow Full Disk Access for the Whole Disk"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "允许完全磁盘访问以扫描整个磁盘"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "允許完整磁碟取用以掃描整個磁碟"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "ディスク全体のためにフルディスクアクセスを許可"}},
+        "de": {"stringUnit": {"state": "needs_review", "value": "Vollzugriff auf die Festplatte für das gesamte Volume erlauben"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Autoriser l'accès complet au disque pour tout le disque"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Permitir acceso total al disco para todo el disco"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Permitir acceso total al disco para todo el disco"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Permitir Acesso Total ao Disco para o disco inteiro"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Permitir Acesso Total ao Disco para todo o disco"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Consenti l'accesso completo al disco per tutto il disco"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "전체 디스크를 위해 전체 디스크 접근 허용"}}
+      }
+    },
     "Full Disk Access Is Off": {
       "extractionState": "manual",
       "localizations": {

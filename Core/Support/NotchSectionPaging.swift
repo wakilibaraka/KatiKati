@@ -8,7 +8,7 @@ import Foundation
 enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
     case aiTracker = 0      // Page 1: AI Mission Control (Claude, Codex, OpenCode, Copilot)
     case audioDeck = 1      // Page 2: Vinyl Turntable & Audio Scrubber Deck
-    case retroClock = 2     // Page 3: Split-Flap Orange Clock & LED Dot Matrix Ticker
+    case storage = 2        // Page 3: Storage Analyzer (largest items on the Mac)
     case downloadDeck = 3   // Page 4: Download Manager & Torrent Hub
     case calendarFocus = 4  // Page 5: Obsidian Calendar & Focus Hourglass / Spinner
     case hardwareHud = 5    // Page 6: Hardware HUD & Sensory Deck
@@ -22,7 +22,7 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         switch self {
         case .aiTracker: return "AI Mission Control"
         case .audioDeck: return "Vinyl Audio Deck"
-        case .retroClock: return "Retro Flip Clock"
+        case .storage: return String(localized: "Storage")
         case .downloadDeck: return "Downloads & Torrents"
         case .calendarFocus: return "Obsidian Calendar"
         case .hardwareHud: return "Hardware HUD"
@@ -38,7 +38,7 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         switch self {
         case .aiTracker: return "sparkles"
         case .audioDeck: return "music.note"
-        case .retroClock: return "clock.fill"
+        case .storage: return "internaldrive.fill"
         case .downloadDeck: return "arrow.down.circle.fill"
         case .calendarFocus: return "calendar"
         case .hardwareHud: return "cpu"

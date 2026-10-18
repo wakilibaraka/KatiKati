@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 /// Open state of the full notch skin: header row on top, flanked by the 5-page Bento Suite,
-/// then the active Bento Page (AI Mission Control, Vinyl Audio Deck, Retro Flip Clock,
+/// then the active Bento Page (AI Mission Control, Vinyl Audio Deck, Storage,
 /// Productivity & Calendar, or Hardware HUD).
 struct NotchHomeView: View {
     @ObservedObject var model: NotchModel
@@ -20,8 +20,8 @@ struct NotchHomeView: View {
                     NotchAIPageView()
                 case .audioDeck:
                     NotchVinylDeckPageView(feed: feed)
-                case .retroClock:
-                    NotchRetroClockPageView()
+                case .storage:
+                    NotchStoragePageView()
                 case .downloadDeck:
                     NotchDownloadsPageView(feed: feed)
                 case .calendarFocus:

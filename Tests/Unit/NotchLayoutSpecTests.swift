@@ -65,7 +65,6 @@ final class NotchLayoutSpecTests: XCTestCase {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         for (file, bad) in [("NotchHardwareHudPageView", ["\"14%\"", "\"18.4 GB\"", "38°C"]),
                             ("NotchProductivityPageView", ["No conflicts today"]),
-                            ("NotchRetroClockPageView", ["UTC+3"]),
                             ("NotchAIPageView", ["Claude 3.7 Sonnet"])] {
             let src = try String(contentsOf: root.appendingPathComponent("App/Scenes/Notch/\(file).swift"), encoding: .utf8)
             for literal in bad { XCTAssertFalse(src.contains(literal), "\(file) still has \(literal)") }
@@ -96,31 +95,5 @@ final class NotchLayoutSpecTests: XCTestCase {
             NotchProductivityLayout.fits(headerHeight: 120, hasReminder: true, cardPadding: NotchDesignSpec.cardPadding),
             "the guard has to be able to fail"
         )
-    }
-
-    // Phase 48b: the Retro clock page's second card traded its duplicate local readout for the user's
-    // stored world clocks, and it draws every stored clock rather than counting rows at runtime — so the
-    // full store has to fit every header the page can be given.
-    func testWorldClockCardFitsAFullStore() {
-        for header in [CGFloat(38), 44, NotchLayoutSpec.headerHeight(closedHeight: 20)] {
-            XCTAssertTrue(
-                NotchWorldClockLayout.fits(headerHeight: header, cardPadding: NotchDesignSpec.cardPadding),
-                "header \(header)"
-            )
-        }
-        XCTAssertGreaterThan(
-            NotchWorldClockLayout.content(rows: WorldClockModel.maxClocks),
-            NotchWorldClockLayout.content(rows: 1),
-            "the rows have to be counted, not assumed"
-        )
-        XCTAssertFalse(
-            NotchWorldClockLayout.fits(headerHeight: 120, cardPadding: NotchDesignSpec.cardPadding),
-            "the guard has to be able to fail"
-        )
-    }
-
-    // The LED line is the card's own, so an emptied store still draws a card rather than a gap.
-    func testWorldClockCardKeepsItsLedLineWithNoClocks() {
-        XCTAssertEqual(NotchWorldClockLayout.content(rows: 0), NotchWorldClockLayout.header)
     }
 }

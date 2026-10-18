@@ -2,6 +2,15 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Notch redesign, slice 1: Storage page
+
+### Added
+- A Storage page in the notch lists the largest folders and files on the Mac, biggest first; click a row to
+  reveal it in Finder. Whole-disk results need Full Disk Access, offered as a link to System Settings.
+
+### Removed
+- The Retro Flip Clock page and its world-clock card (the world clocks stay in the calendar panel).
+
 ## [Unreleased] — Settings redesign, Phase 7: keyboard and search
 
 ### Added

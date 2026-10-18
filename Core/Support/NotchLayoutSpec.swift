@@ -151,28 +151,3 @@ enum NotchProductivityLayout {
         return max(cardAContent(), cardBContent(hasReminder: hasReminder)) <= budget
     }
 }
-
-/// Row budget of the world-clock card (48b) on the Retro clock page: the page's second card traded a
-/// duplicate local readout for the user's stored clocks (`WorldClockStore`, at most
-/// `WorldClockModel.maxClocks`), so "how many clocks fit?" is a test rather than a guess on a notched
-/// display — the card used to hold one 28 pt time plus two lines of chrome.
-enum NotchWorldClockLayout {
-    /// The card's LED line: the local time, with the local zone beside it on the same row.
-    static let header: CGFloat = 20
-    static let row: CGFloat = 15
-    static let rowSpacing: CGFloat = 2
-
-    /// Card content: the LED line, then one row per stored clock.
-    static func content(rows: Int) -> CGFloat {
-        guard rows > 0 else { return header }
-        return header + CGFloat(rows) * row + CGFloat(rows - 1) * rowSpacing
-    }
-
-    /// A full store's worth of rows has to fit the card on the tallest header a display can give — the
-    /// page shows every stored clock rather than counting rows at runtime, so this is the rule that has
-    /// to hold for that to be safe.
-    static func fits(headerHeight: CGFloat, cardPadding: CGFloat) -> Bool {
-        let budget = NotchLayoutSpec.pageBodyHeight(headerHeight: headerHeight) - 2 * cardPadding
-        return content(rows: WorldClockModel.maxClocks) <= budget
-    }
-}

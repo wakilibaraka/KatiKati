@@ -191,7 +191,7 @@ final class NotchGestureTests: XCTestCase {
         XCTAssertEqual(p1, .audioDeck)
 
         let p2 = p1.next()
-        XCTAssertEqual(p2, .retroClock)
+        XCTAssertEqual(p2, .storage)
 
         let p3 = p2.next()
         XCTAssertEqual(p3, .downloadDeck)
@@ -219,9 +219,9 @@ final class NotchGestureTests: XCTestCase {
             nowPlayingActive: true,
             aiTurnActive: true,
             timerActive: true,
-            userPinnedPage: .retroClock
+            userPinnedPage: .storage
         )
-        XCTAssertEqual(pinned, .retroClock)
+        XCTAssertEqual(pinned, .storage)
 
         // AI turn active -> AI Mission Control
         let ai = NotchPagingPolicy.defaultPage(
