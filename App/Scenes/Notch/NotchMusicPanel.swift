@@ -160,7 +160,6 @@ struct NotchQuickActions: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            chip("brain.head.profile", Text("Focus")) { services.focus.toggle() }
             chip("timer", Text("Timer")) { services.timer.set(seconds: 300); services.timer.toggle() }
         }
         .frame(maxWidth: .infinity)

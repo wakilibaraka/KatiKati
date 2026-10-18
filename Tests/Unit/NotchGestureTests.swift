@@ -186,74 +186,40 @@ final class NotchGestureTests: XCTestCase {
     // MARK: - NotchSectionPaging Tests
 
     func testPageNextPreviousNavigation() {
-        let p0 = NotchPage.aiTracker
+        let p0 = NotchPage.downloadDeck
         let p1 = p0.next()
-        XCTAssertEqual(p1, .audioDeck)
-
+        XCTAssertEqual(p1, .storage)
         let p2 = p1.next()
-        XCTAssertEqual(p2, .storage)
-
+        XCTAssertEqual(p2, .aiTracker)
         let p3 = p2.next()
-        XCTAssertEqual(p3, .downloadDeck)
-
+        XCTAssertEqual(p3, .audioDeck)
         let p4 = p3.next()
-        XCTAssertEqual(p4, .calendarFocus)
-
-        let p5 = p4.next()
-        XCTAssertEqual(p5, .hardwareHud)
+        XCTAssertEqual(p4, .hardwareHud)
 
         // Wrapping forward
-        XCTAssertEqual(p5.next(wrap: true), .aiTracker)
+        XCTAssertEqual(p4.next(wrap: true), .downloadDeck)
         // Clamping forward without wrap
-        XCTAssertEqual(p5.next(wrap: false), .hardwareHud)
+        XCTAssertEqual(p4.next(wrap: false), .hardwareHud)
 
         // Wrapping backward
         XCTAssertEqual(p0.previous(wrap: true), .hardwareHud)
         // Clamping backward without wrap
-        XCTAssertEqual(p0.previous(wrap: false), .aiTracker)
+        XCTAssertEqual(p0.previous(wrap: false), .downloadDeck)
     }
 
     func testPagingPolicyContextAwareSelection() {
         // User pinned page takes highest priority
-        let pinned = NotchPagingPolicy.defaultPage(
-            nowPlayingActive: true,
-            aiTurnActive: true,
-            timerActive: true,
-            userPinnedPage: .storage
-        )
+        let pinned = NotchPagingPolicy.defaultPage(nowPlayingActive: true, aiTurnActive: true, userPinnedPage: .storage)
         XCTAssertEqual(pinned, .storage)
 
         // AI turn active -> AI Mission Control
-        let ai = NotchPagingPolicy.defaultPage(
-            nowPlayingActive: true,
-            aiTurnActive: true,
-            timerActive: false
-        )
-        XCTAssertEqual(ai, .aiTracker)
+        XCTAssertEqual(NotchPagingPolicy.defaultPage(nowPlayingActive: true, aiTurnActive: true), .aiTracker)
 
-        // Music playing -> Vinyl Audio Deck
-        let music = NotchPagingPolicy.defaultPage(
-            nowPlayingActive: true,
-            aiTurnActive: false,
-            timerActive: false
-        )
-        XCTAssertEqual(music, .audioDeck)
+        // Music playing -> Music & Calendar
+        XCTAssertEqual(NotchPagingPolicy.defaultPage(nowPlayingActive: true, aiTurnActive: false), .audioDeck)
 
-        // Timer active -> Calendar / Focus
-        let timer = NotchPagingPolicy.defaultPage(
-            nowPlayingActive: false,
-            aiTurnActive: false,
-            timerActive: true
-        )
-        XCTAssertEqual(timer, .calendarFocus)
-
-        // Default idle fallback
-        let idle = NotchPagingPolicy.defaultPage(
-            nowPlayingActive: false,
-            aiTurnActive: false,
-            timerActive: false
-        )
-        XCTAssertEqual(idle, .aiTracker)
+        // Default idle fallback is the first page
+        XCTAssertEqual(NotchPagingPolicy.defaultPage(nowPlayingActive: false, aiTurnActive: false), .downloadDeck)
     }
 
     func testDockCompanionPolicy() {
@@ -273,14 +239,14 @@ final class NotchGestureTests: XCTestCase {
         XCTAssertEqual(s1, -1) // negative delta moves forward, positive moves backward
     }
 
-    // Phase 37c: the teleprompter page is the 7th page only while switched on; off, paging is the original six.
+    // Phase 37c: the teleprompter page is the 6th page only while switched on; off, paging is the original five.
     func testTeleprompterPageIsOptional() {
-        XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 6)
+        XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 5)
         XCTAssertEqual(NotchPage.visible(teleprompter: true).last, .teleprompter)
-        XCTAssertEqual(NotchPage.hardwareHud.next(wrap: true), .aiTracker)
+        XCTAssertEqual(NotchPage.hardwareHud.next(wrap: true), .downloadDeck)
         XCTAssertEqual(NotchPage.hardwareHud.next(wrap: true, teleprompter: true), .teleprompter)
-        XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: true), .aiTracker)
-        XCTAssertEqual(NotchPage.aiTracker.previous(wrap: true, teleprompter: true), .teleprompter)
-        XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: false), .aiTracker)   // switched off while on it
+        XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: true), .downloadDeck)
+        XCTAssertEqual(NotchPage.downloadDeck.previous(wrap: true, teleprompter: true), .teleprompter)
+        XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: false), .downloadDeck)   // switched off while on it
     }
 }

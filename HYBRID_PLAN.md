@@ -5889,6 +5889,7 @@ Downloads folder.
   - **Behaviour:** sharp zeroes both radii and drops the flared ears; curved is unchanged. `NotchPreview` and `SettingsStage` still draw the curved mask.
   - **Gate:** NotchEdgeStyle tests green; localization/debug switches clean; live: open notch shows square corners, no flares. The default was reset after the check.
 
-- 2026-10-18 · **Notch redesign slice 5 — Siri-style rim glow.**
-  - **Files:** `App/Scenes/Notch/NotchSiriRim.swift` (rotating angular-gradient stroke inside the mask, clipped to it, static under Reduce Motion), drawn in `NotchIslandView` while expanded.
-  - **Not done:** no blob/fluid body motion, no tests (pure view), no closed-state glow. Live: a soft blue-violet glow is visible on the open edges; colours cycle slowly.
+- 2026-10-18 · **Notch redesign slice 5 — liquid motion, page order, merged pages (revised after owner review).**
+  - **Removed:** the colour rim glow (owner wanted motion only). **Added:** content now melts in/out with a blur + scale-from-top transition (`NotchIslandView.liquid`), no colour. Springs unchanged (pinned by tests).
+  - **Pages:** order is Downloads, Storage, AI, Music & Calendar, Hardware (+ optional teleprompter/mirror/notifications); the default page when idle is Downloads. `calendarFocus` and the Vinyl Audio Deck page are gone: `NotchProductivityPageView` is now the music card + calendar card. Focus is removed from the notch pages and the idle quick actions (the dead `NotchToolsView` still has one). The reminders row went with the focus card.
+  - **Not done:** no true blob/shape-morph animation; the unused `NotchToolsView` was left alone.

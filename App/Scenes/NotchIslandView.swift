@@ -17,7 +17,7 @@ final class NotchModel: ObservableObject {
     @Published var event: LiveEventPresentation?
     @Published var skin: LiveIslandSkin = .boring
     @Published var tab: NotchTab = .home
-    @Published var activePage: NotchPage = .aiTracker
+    @Published var activePage: NotchPage = .downloadDeck
     var isExpanded: Bool { isOpen || event != nil }
     /// Shape sizes, set by the controller (closed width grows with the activity "sneak"). The window is
     /// as large as the larger of the two while a transition runs, so the shape animates inside it.
@@ -61,6 +61,12 @@ struct NotchIslandView: View {
         )
     }
 
+    /// Content melts in and out of the shape like liquid glass: it scales up from the notch's top edge while
+    /// it blurs into focus, so the surface seems to pour into the new size. No colour, only motion.
+    private static let liquid = AnyTransition.modifier(
+        active: LiquidBlur(amount: 8), identity: LiquidBlur(amount: 0)
+    ).combined(with: .scale(scale: 0.9, anchor: .top)).combined(with: .opacity)
+
     var body: some View {
         let expanded = model.isExpanded
         let activity = feed.activity
@@ -75,19 +81,18 @@ struct NotchIslandView: View {
                 flaringTopEars: edge.flares
             )
             .fill(notchTheme.plate.color)
-            if expanded { NotchSiriRim(top: edge.top, bottom: edge.bottom, flares: edge.flares).transition(.opacity) }
             Group {
                 if !expanded {
-                    closedContent(activity).padding(.horizontal, 14)
+                    closedContent(activity).padding(.horizontal, 14).transition(Self.liquid)
                 } else if boring && model.event == nil {
                     VStack(spacing: 0) {
                         NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
-                            .transition(.opacity)
+                            .transition(Self.liquid)
                         Spacer(minLength: 0)
                         pageIndicatorDots
                     }
                 } else {
-                    openContent(activity).padding(.horizontal, 24)
+                    openContent(activity).padding(.horizontal, 24).transition(Self.liquid)
                 }
             }
         }
@@ -229,4 +234,9 @@ struct NotchIslandView: View {
         .font(.system(size: 14))
         .foregroundStyle(.white)
     }
+}
+
+private struct LiquidBlur: ViewModifier {
+    let amount: CGFloat
+    func body(content: Content) -> some View { content.blur(radius: amount) }
 }

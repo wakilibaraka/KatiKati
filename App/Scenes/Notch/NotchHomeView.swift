@@ -19,13 +19,11 @@ struct NotchHomeView: View {
                 case .aiTracker:
                     NotchAIPageView()
                 case .audioDeck:
-                    NotchVinylDeckPageView(feed: feed)
+                    NotchProductivityPageView(feed: feed)
                 case .storage:
                     NotchStoragePageView()
                 case .downloadDeck:
                     NotchDownloadsPageView(feed: feed)
-                case .calendarFocus:
-                    NotchProductivityPageView()
                 case .hardwareHud:
                     NotchHardwareHudPageView()
                 case .teleprompter:

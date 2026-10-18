@@ -140,11 +140,9 @@ final class NotchPanelController: LiveEventSink {
     private func applyOpenState() {
         if hover.isOpen && !model.isOpen {
             let nowPlaying = LiveActivityFeed.shared.activity.kind == .music
-            let focusOrTimer = [.focus, .countdown, .timer, .stopwatch].contains(LiveActivityFeed.shared.activity.kind)
             model.activePage = NotchPagingPolicy.defaultPage(
                 nowPlayingActive: nowPlaying,
-                aiTurnActive: false,
-                timerActive: focusOrTimer
+                aiTurnActive: false
             )
         }
         model.isOpen = hover.isOpen

@@ -6,25 +6,23 @@ import Foundation
 /// The dedicated pages of the redesigned Dynamic Island Notch bento gallery: six always-on pages, plus
 /// the teleprompter and the camera mirror, which exist only while their own switch is on.
 enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
-    case aiTracker = 0      // Page 1: AI Mission Control (Claude, Codex, OpenCode, Copilot)
-    case audioDeck = 1      // Page 2: Vinyl Turntable & Audio Scrubber Deck
-    case storage = 2        // Page 3: Storage Analyzer (largest items on the Mac)
-    case downloadDeck = 3   // Page 4: Download Manager & Torrent Hub
-    case calendarFocus = 4  // Page 5: Obsidian Calendar & Focus Hourglass / Spinner
-    case hardwareHud = 5    // Page 6: Hardware HUD & Sensory Deck
-    case teleprompter = 6   // Page 7 (Phase 37c): only present while the owner turns it on
-    case cameraMirror = 7   // Page 8 (Phase 47b): the live camera mirror, only while it is switched on
-    case notifications = 8  // Page 9 (Phase 47c): mirrored notifications, only while it is switched on
+    case downloadDeck = 0   // Page 1: Download Manager & Torrent Hub
+    case storage = 1        // Page 2: Storage Analyzer (largest items on the Mac)
+    case aiTracker = 2      // Page 3: AI Mission Control (Claude, Codex, OpenCode, Copilot)
+    case audioDeck = 3      // Page 4: Music & Calendar
+    case hardwareHud = 4    // Page 5: Hardware HUD & Sensory Deck
+    case teleprompter = 5   // Only present while the owner turns it on
+    case cameraMirror = 6   // The live camera mirror, only while it is switched on
+    case notifications = 7  // Mirrored notifications, only while it is switched on
 
     var id: Int { rawValue }
 
     var title: String {
         switch self {
         case .aiTracker: return "AI Mission Control"
-        case .audioDeck: return "Vinyl Audio Deck"
+        case .audioDeck: return "Music & Calendar"
         case .storage: return String(localized: "Storage")
         case .downloadDeck: return "Downloads & Torrents"
-        case .calendarFocus: return "Obsidian Calendar"
         case .hardwareHud: return "Hardware HUD"
         case .teleprompter: return "Teleprompter"
         // Localised at the source: the title is rendered as data (`Text(page.title)`), so a bare literal
@@ -40,7 +38,6 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         case .audioDeck: return "music.note"
         case .storage: return "internaldrive.fill"
         case .downloadDeck: return "arrow.down.circle.fill"
-        case .calendarFocus: return "calendar"
         case .hardwareHud: return "cpu"
         case .teleprompter: return "text.alignleft"
         case .cameraMirror: return "camera.viewfinder"
@@ -84,7 +81,6 @@ enum NotchPagingPolicy {
     static func defaultPage(
         nowPlayingActive: Bool,
         aiTurnActive: Bool,
-        timerActive: Bool,
         downloadsActive: Bool = false,
         userPinnedPage: NotchPage? = nil
     ) -> NotchPage {
@@ -92,8 +88,7 @@ enum NotchPagingPolicy {
         if downloadsActive { return .downloadDeck }
         if aiTurnActive { return .aiTracker }
         if nowPlayingActive { return .audioDeck }
-        if timerActive { return .calendarFocus }
-        return .aiTracker
+        return .downloadDeck
     }
 }
 

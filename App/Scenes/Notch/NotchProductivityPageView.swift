@@ -11,15 +11,15 @@ import SwiftUI
 
 struct NotchProductivityPageView: View {
     @ObservedObject private var agenda = ProductivityServices.shared.calendar
-    @ObservedObject private var focus = ProductivityServices.shared.focus
+    @ObservedObject var feed: LiveActivityFeed
 
     private let accent = Color(red: 0.95, green: 0.25, blue: 0.30)
     private let todayAccent = Color(red: 0.90, green: 0.20, blue: 0.25)
 
     var body: some View {
         HStack(spacing: NotchDesignSpec.cardSpacing) {
+            musicCard
             calendarCard
-            focusCard
         }
         .onAppear {
             agenda.start()
@@ -27,7 +27,23 @@ struct NotchProductivityPageView: View {
         }
     }
 
-    // MARK: - Card A: agenda on a walkable week strip
+    // MARK: - Card A: music (merged in from the old Vinyl Audio Deck page)
+
+    private var musicCard: some View {
+        NotchMusicPanel(feed: feed, isIdle: feed.nowPlayingState.title == nil)
+            .padding(NotchDesignSpec.cardPadding)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background(
+                RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                    .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                            .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
+                    )
+            )
+    }
+
+    // MARK: - Card B: agenda on a walkable week strip
 
     private var calendarCard: some View {
         VStack(alignment: .leading, spacing: NotchProductivityLayout.rowSpacing) {
@@ -186,154 +202,5 @@ struct NotchProductivityPageView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-    }
-
-    // MARK: - Card B: the real Pomodoro, and the next reminder
-
-    private var focusCard: some View {
-        let model = focus.model
-        return VStack(alignment: .leading, spacing: NotchProductivityLayout.rowSpacing) {
-            focusHeader(model)
-            HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Text(verbatim: NotchLayoutSpec.clockText(TimeInterval(model.remaining)))
-                    .font(.system(size: 22, weight: .heavy, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(.white)
-                Spacer(minLength: 0)
-                cycleDots(model.completedInCycle)
-            }
-            .frame(height: NotchProductivityLayout.focusTimer)
-            progressBar(model.progress)
-            controls(model)
-            reminderRow
-            Spacer(minLength: 0)
-        }
-        .padding(NotchDesignSpec.cardPadding)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(
-            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
-                .overlay(
-                    RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                        .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
-                )
-        )
-    }
-
-    private func focusHeader(_ model: FocusTimerModel) -> some View {
-        HStack(spacing: 5) {
-            ZStack {
-                Circle().fill(.orange).frame(width: 18, height: 18)
-                Image(systemName: "hourglass").font(.system(size: 9, weight: .bold)).foregroundStyle(.white)
-            }
-            Text("Focus").font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(.white)
-            Spacer(minLength: 0)
-            if !agenda.reminders.isEmpty {
-                // How much is left of the day, on the card that owns ticking it off.
-                HStack(spacing: 2) {
-                    Image(systemName: "checklist").font(.system(size: 8, weight: .bold))
-                    Text(verbatim: "\(agenda.reminders.count)").font(.system(size: 9, weight: .bold)).monospacedDigit()
-                }
-                .foregroundStyle(.white.opacity(0.6))
-                .padding(.horizontal, 5)
-                .padding(.vertical, 1)
-                .background(Capsule().fill(Color.white.opacity(0.10)))
-            }
-            Text(model.phase == .focus ? "Focus" : "Break")
-                .font(.system(size: 8, weight: .heavy))
-                .foregroundStyle(.orange)
-                .padding(.horizontal, 5)
-                .padding(.vertical, 2)
-                .background(Capsule().fill(Color.orange.opacity(0.15)))
-        }
-        .frame(height: NotchProductivityLayout.cardHeader)
-    }
-
-    /// Four dots: how far into the cycle the current run is (the fourth ends in the long break).
-    private func cycleDots(_ completed: Int) -> some View {
-        HStack(spacing: 3) {
-            ForEach(0..<FocusTimerModel.cycleLength, id: \.self) { index in
-                Circle()
-                    .fill(index < completed ? Color.orange : Color.white.opacity(0.18))
-                    .frame(width: 4, height: 4)
-            }
-        }
-    }
-
-    private func progressBar(_ progress: Double) -> some View {
-        GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                Capsule().fill(Color.white.opacity(0.12))
-                Capsule().fill(Color.orange)
-                    .frame(width: geo.size.width * CGFloat(min(1, max(0, progress))))
-            }
-        }
-        .frame(height: NotchProductivityLayout.progress)
-    }
-
-    private func controls(_ model: FocusTimerModel) -> some View {
-        HStack(spacing: 6) {
-            Button { focus.toggle() } label: {
-                Image(systemName: model.isRunning ? "pause.fill" : "play.fill")
-                    .font(.system(size: 10, weight: .bold))
-                    .frame(width: NotchProductivityLayout.controls, height: NotchProductivityLayout.controls)
-                    .background(Circle().fill(.orange))
-                    .foregroundStyle(.white)
-            }
-            .buttonStyle(.plain)
-            Button { focus.reset() } label: {
-                Image(systemName: "arrow.counterclockwise")
-                    .font(.system(size: 9, weight: .bold))
-                    .frame(width: 18, height: 18)
-                    .background(Circle().fill(Color.white.opacity(0.12)))
-                    .foregroundStyle(.white.opacity(0.85))
-            }
-            .buttonStyle(.plain)
-            Button { focus.skip() } label: {
-                Image(systemName: "forward.end.fill")
-                    .font(.system(size: 9, weight: .bold))
-                    .frame(width: 18, height: 18)
-                    .background(Circle().fill(Color.white.opacity(0.12)))
-                    .foregroundStyle(.white.opacity(0.85))
-            }
-            .buttonStyle(.plain)
-            Spacer(minLength: 0)
-        }
-        .frame(height: NotchProductivityLayout.controls)
-    }
-
-    /// The next reminder due, tapped to tick it off — the whole row is the target, and its label is the
-    /// reminder's own title, which is what a screen reader should hear.
-    @ViewBuilder
-    private var reminderRow: some View {
-        if let reminder = agenda.reminders.first {
-            Button { agenda.complete(reminder) } label: {
-                HStack(spacing: 5) {
-                    Image(systemName: "circle")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.55))
-                    Text(verbatim: reminder.title)
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.8))
-                        .lineLimit(1)
-                    Spacer(minLength: 0)
-                    if let due = reminder.due {
-                        Text(verbatim: due.formatted(date: .omitted, time: .shortened))
-                            .font(.system(size: 9, weight: .semibold, design: .rounded))
-                            .monospacedDigit()
-                            .foregroundStyle(.white.opacity(0.45))
-                    }
-                }
-                .frame(height: NotchProductivityLayout.reminderRow)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-        } else {
-            HStack(spacing: 4) {
-                Image(systemName: "checkmark.circle").font(.system(size: 9)).foregroundStyle(.white.opacity(0.35))
-                Text("No reminders").font(.system(size: 10)).foregroundStyle(.white.opacity(0.4))
-            }
-            .frame(height: NotchProductivityLayout.reminderRow)
-        }
     }
 }
