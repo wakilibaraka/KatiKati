@@ -17,20 +17,50 @@ extension SettingsTab {
     }
 }
 
+/// When the window's colour wash follows: the clock, a fixed time of day, or nothing.
+enum SettingsGlowSchedule: String, CaseIterable {
+    static let defaultsKey = "com.katikati.settings.glow"
+    case clock, dawn, day, dusk, night, off
+
+    /// The hour the palette is read at for the fixed choices; nil follows the clock.
+    var fixedHour: Double? {
+        switch self {
+        case .dawn: return 6
+        case .day: return 12
+        case .dusk: return 18
+        case .night: return 0
+        case .clock, .off: return nil
+        }
+    }
+
+    var title: Text {
+        switch self {
+        case .clock: return Text("Follow the Clock")
+        case .dawn: return Text("Dawn")
+        case .day: return Text("Day")
+        case .dusk: return Text("Dusk")
+        case .night: return Text("Night")
+        case .off: return Text("Off")
+        }
+    }
+}
+
 /// A soft radial wash in the hour's tint (`TimeOfDayPalette`): the stage's vignette and the window's
 /// glow. Off for reduced motion and increased contrast, where a drifting colour is noise.
 struct SettingsTimeGlow: View {
     var opacity = 0.22
+    @AppStorage(SettingsGlowSchedule.defaultsKey) private var scheduleRaw = SettingsGlowSchedule.clock.rawValue
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorSchemeContrast) private var contrast
 
     var body: some View {
-        if reduceMotion || contrast == .increased {
+        let schedule = SettingsGlowSchedule(rawValue: scheduleRaw) ?? .clock
+        if reduceMotion || contrast == .increased || schedule == .off {
             Color.clear
         } else {
             TimelineView(.periodic(from: .now, by: 60)) { context in
                 let c = Calendar.current.dateComponents([.hour, .minute], from: context.date)
-                let tint = TimeOfDayPalette(hour: Double(c.hour ?? 0) + Double(c.minute ?? 0) / 60).tint
+                let tint = TimeOfDayPalette(hour: schedule.fixedHour ?? Double(c.hour ?? 0) + Double(c.minute ?? 0) / 60).tint
                 RadialGradient(colors: [Color(red: tint.red, green: tint.green, blue: tint.blue).opacity(opacity), .clear],
                                center: .top, startRadius: 0, endRadius: 520)
                     .animation(.easeInOut(duration: 1), value: tint)
@@ -172,7 +202,15 @@ struct SettingsStageHandle: View {
                     }
                     .onEnded { _ in dragStart = nil }
             )
-            .onTapGesture(count: 2) { fraction = Double(SettingsStageSize.defaultFraction) }
+            .onTapGesture(count: 2) {
+                fraction = Double(SettingsStageSize.defaultFraction)
+                NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .default)
+            }
             .accessibilityLabel(Text("Resize preview"))
+            .accessibilityValue(Text(verbatim: "\(Int(fraction * 100))%"))
+            .accessibilityAdjustableAction { direction in
+                let step = 0.05
+                fraction = min(Double(SettingsStageSize.maxFraction), max(0.15, fraction + (direction == .increment ? step : -step)))
+            }
     }
 }

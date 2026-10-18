@@ -16,33 +16,24 @@ struct UtilitySettingsBlock: View {
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
             SettingsBentoSplit {
+                // One row per line: this card is a half-width column, where a side-by-side pair
+                // squeezes the labels into a wrapped sliver.
                 SettingsCard(Text("Clipboard")) {
-                    // Cleaning copied links is a clipboard job, so it opens this card rather than
-                    // sitting in a headerless card of its own. One line with the field it feeds
-                    // (2026-10-18): the label and its 220 pt field are 370 pt, half the card is 414.
-                    SettingsRowPair(
-                        left: {
-                            SettingsToggleRow(
-                                Text("Clean Copied Links"),
-                                isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) })
-                            )
-                        },
-                        right: {
-                            SettingsRow(Text("Ignore Patterns")) {
-                                TextField("Ignore Patterns", text: $clipboardIgnorePatterns)
-                                    .textFieldStyle(.roundedBorder).frame(width: 220)
-                            }
-                        }
+                    SettingsToggleRow(
+                        Text("Clean Copied Links"),
+                        isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) })
                     )
                     SettingsDivider()
-                    SettingsRowPair(
-                        left: { SettingsToggleRow(Text("Copy Sounds"), isOn: $clipboardSounds) },
-                        right: { SettingsToggleRow(Text("Copy Notifications"), isOn: $clipboardToast) }
-                    )
+                    SettingsRow(Text("Ignore Patterns")) {
+                        TextField("Ignore Patterns", text: $clipboardIgnorePatterns)
+                            .textFieldStyle(.roundedBorder).frame(width: 200)
+                    }
+                    SettingsDivider()
+                    SettingsToggleRow(Text("Copy Sounds"), isOn: $clipboardSounds)
+                    SettingsDivider()
+                    SettingsToggleRow(Text("Copy Notifications"), isOn: $clipboardToast)
                 }
             } trailing: {
-                // The two editors are one section, not two (`Docs/SETTINGS.md` rule 5's three-section
-                // budget): they are the same kind of thing, and the page was one card over it.
                 SettingsCard(Text("Commands & Snippets")) {
                     SettingsEditorRow(
                         Text("Custom Commands"),
@@ -58,56 +49,44 @@ struct UtilitySettingsBlock: View {
                 }
             }
             SettingsCard(Text("Shelf")) {
-                    SettingsRowPair(
-                        left: {
-                            SettingsToggleRow(
-                                Text("Shake to Shelf"),
-                                isOn: Binding(get: { store.shelfShakeEnabled }, set: { store.setShelfShakeEnabled($0) })
-                            )
-                        },
-                        right: {
-                            SettingsToggleRow(
-                                Text("Auto-Expire"),
-                                isOn: Binding(get: { store.shelfAutoExpire }, set: { store.setShelfAutoExpire($0) })
-                            )
-                        }
-                    )
-                    if store.shelfAutoExpire {
-                        SettingsDivider()
-                        SettingsRow(Text("Expire After")) {
-                            Picker("Expire After", selection: Binding(get: { store.shelfExpiryDays }, set: { store.setShelfExpiryDays($0) })) {
-                                Text("1 day").tag(1)
-                                Text("3 days").tag(3)
-                                Text("7 days").tag(7)
-                            }
-                            .labelsHidden().pickerStyle(.menu).fixedSize()
-                        }
-                    }
+                SettingsToggleRow(
+                    Text("Shake to Shelf"),
+                    isOn: Binding(get: { store.shelfShakeEnabled }, set: { store.setShelfShakeEnabled($0) })
+                )
+                SettingsDivider()
+                SettingsToggleRow(
+                    Text("Auto-Expire"),
+                    isOn: Binding(get: { store.shelfAutoExpire }, set: { store.setShelfAutoExpire($0) })
+                )
+                if store.shelfAutoExpire {
                     SettingsDivider()
-                    // The storage picker and the clear button, one line (2026-10-18).
-                    SettingsRowPair(
-                        left: {
-                            SettingsRow(Text("Storage")) {
-                                Picker("Storage", selection: Binding(get: { store.shelfStorage }, set: { store.setShelfStorage($0) })) {
-                                    Text("References").tag(ShelfStorage.reference)
-                                    Text("Copies").tag(ShelfStorage.copy)
-                                }
-                                .labelsHidden().pickerStyle(.menu).fixedSize()
-                            }
-                        },
-                        right: {
-                            SettingsButtonRow(Text("Clear Unpinned")) { AppDelegate.shared?.shelfStore.clear() }
+                    SettingsRow(Text("Expire After")) {
+                        Picker("Expire After", selection: Binding(get: { store.shelfExpiryDays }, set: { store.setShelfExpiryDays($0) })) {
+                            Text("1 day").tag(1)
+                            Text("3 days").tag(3)
+                            Text("7 days").tag(7)
                         }
-                    )
-                    SettingsDivider()
-                    SettingsRow(Text("System Dock")) {
-                        Button("Restore Dock") { AppDelegate.shared?.restoreNativeDock() }
-                            .buttonStyle(SettingsGelButtonStyle())
+                        .labelsHidden().pickerStyle(.menu).fixedSize()
                     }
                 }
+                SettingsDivider()
+                SettingsRow(Text("Storage")) {
+                    Picker("Storage", selection: Binding(get: { store.shelfStorage }, set: { store.setShelfStorage($0) })) {
+                        Text("References").tag(ShelfStorage.reference)
+                        Text("Copies").tag(ShelfStorage.copy)
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                SettingsDivider()
+                SettingsButtonRow(Text("Clear Unpinned")) { AppDelegate.shared?.shelfStore.clear() }
+                SettingsDivider()
+                SettingsRow(Text("System Dock")) {
+                    Button("Restore Dock") { AppDelegate.shared?.restoreNativeDock() }
+                        .buttonStyle(SettingsGelButtonStyle())
+                }
+            }
         }
     }
-
 }
 
 /// Phase 44b — the BitTorrent hub's policy: custom engine path, seeding limits and a throttled

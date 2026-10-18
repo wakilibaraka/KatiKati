@@ -88,6 +88,7 @@ struct SettingsWindowContent: View {
     let onShowWelcomeGuide: () -> Void
 
     @State private var presentedAlert: SettingsAlert?
+    @AppStorage(SettingsGlowSchedule.defaultsKey) private var glowSchedule = SettingsGlowSchedule.clock.rawValue
 
     var body: some View {
         // The page margin lives here, once for all ten pages; every pane body renders cards only,
@@ -155,6 +156,10 @@ struct SettingsWindowContent: View {
             // AppKit-backed control lacks — the recorder drops below its own label.
             SettingsRow(Text("Appearance")) {
                 appearanceCards
+            }
+            SettingsDivider()
+            SettingsPickerRow(Text("Window Glow"), selection: $glowSchedule, note: Text("The colour wash behind Settings. It follows the time of day unless you pick a fixed time.")) {
+                ForEach(SettingsGlowSchedule.allCases, id: \.rawValue) { $0.title.tag($0.rawValue) }
             }
             SettingsDivider()
             SettingsRow(Text("Show/hide taskbar shortcut")) {

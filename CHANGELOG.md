@@ -678,3 +678,7 @@ All notable changes to KatiKati are documented in this file.
 - **Quality Gates:** 1,552 unit tests passing, zero API availability warnings, 75 debug switches registered.
 
 - Settings: "Revert Changes" appears once something changed since Settings opened; it restores those keys and restarts KatiKati.
+- Settings: opening a page from search scrolls to the matching row and pulses it.
+- Settings: General has a Window Glow picker (follow the clock, dawn, day, dusk, night, off).
+- Settings: the preview resize handle clicks on reset and works with VoiceOver adjust.
+- Settings: Tools lists its rows one per line instead of cramped side-by-side pairs.
