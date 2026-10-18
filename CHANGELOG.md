@@ -2,6 +2,13 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Settings redesign, Phase 2a: the layout pane's helper views move out
+
+### Changed
+- `SettingsLayoutPane.swift` (1782 → 1438 lines) sheds the layout thumbnails/pickers and the shortcut
+  recorder into `LayoutModePickers.swift` and `SettingsLayoutSupport.swift`. Pure move: the set of
+  `@AppStorage` keys is identical, build and all 2522 tests pass.
+
 ## [Unreleased] — Settings redesign, Phase 1: sidebar shell and a freely resizable window
 
 ### Changed

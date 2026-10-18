@@ -55,6 +55,10 @@
 		A0000000000000000001F221 /* DynamicGaugeFABView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F220 /* DynamicGaugeFABView.swift */; };
 		FA33A0000000000000000181 /* WiFiVolumeFABView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000180 /* WiFiVolumeFABView.swift */; };
 		FA33A0000000000000000191 /* LauncherFABView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000190 /* LauncherFABView.swift */; };
+		FC11A00000000000005101 /* LayoutModePickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A00000000000005100 /* LayoutModePickers.swift */; };
+		FC11A00000000000005102 /* LayoutModePickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A00000000000005100 /* LayoutModePickers.swift */; };
+		FC11A00000000000005201 /* SettingsLayoutSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A00000000000005200 /* SettingsLayoutSupport.swift */; };
+		FC11A00000000000005202 /* SettingsLayoutSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A00000000000005200 /* SettingsLayoutSupport.swift */; };
 		A0000000000000000001F091 /* SettingsTilingPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F090 /* SettingsTilingPane.swift */; };
 		A0000000000000000001F092 /* SettingsTilingPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F090 /* SettingsTilingPane.swift */; };
 		A0000000000000000001F081 /* TilingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F080 /* TilingEngine.swift */; };
@@ -1114,6 +1118,8 @@
 		A0000000000000000001F220 /* DynamicGaugeFABView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicGaugeFABView.swift; sourceTree = "<group>"; };
 		FA33A0000000000000000180 /* WiFiVolumeFABView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiVolumeFABView.swift; sourceTree = "<group>"; };
 		FA33A0000000000000000190 /* LauncherFABView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherFABView.swift; sourceTree = "<group>"; };
+		FC11A00000000000005100 /* LayoutModePickers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutModePickers.swift; sourceTree = "<group>"; };
+		FC11A00000000000005200 /* SettingsLayoutSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsLayoutSupport.swift; sourceTree = "<group>"; };
 		A0000000000000000001F090 /* SettingsTilingPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTilingPane.swift; sourceTree = "<group>"; };
 		A0000000000000000001F080 /* TilingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingEngine.swift; path = App/Composition/TilingEngine.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F050 /* TilingPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingPolicy.swift; path = Core/Support/TilingPolicy.swift; sourceTree = SOURCE_ROOT; };
@@ -2043,6 +2049,8 @@
 				D10000000000000000000002 /* SettingsWindowView.swift */,
 				6FE57AFF9460A75564CD22C7 /* SettingsAppearancePane.swift */,
 				97A613F29432B20F1634E08E /* SettingsLayoutPane.swift */,
+				FC11A00000000000005100 /* LayoutModePickers.swift */,
+				FC11A00000000000005200 /* SettingsLayoutSupport.swift */,
 				A0000000000000000001F090 /* SettingsTilingPane.swift */,
 				A0000000000000000001F130 /* RadialSectorShape.swift */,
 				A0000000000000000001F140 /* RadialDialCenterHub.swift */,
@@ -2717,6 +2725,8 @@
 				D20000000000000000000002 /* SettingsWindowView.swift in Sources */,
 				D72D6831819EC1CB40EF3F27 /* SettingsAppearancePane.swift in Sources */,
 				3548F02FB356BA920CE2C9E9 /* SettingsLayoutPane.swift in Sources */,
+				FC11A00000000000005101 /* LayoutModePickers.swift in Sources */,
+				FC11A00000000000005201 /* SettingsLayoutSupport.swift in Sources */,
 				A0000000000000000001F091 /* SettingsTilingPane.swift in Sources */,
 				FC11A0000000000000000401 /* SettingsSidebar.swift in Sources */,
 				FC11A0000000000000000301 /* SettingsShell.swift in Sources */,
@@ -3456,6 +3466,8 @@
 				CC14F71A4D844D747E8C8EB6 /* IconSetTests.swift in Sources */,
 				7CCEA0B12BC6D7CB27B79C8C /* WelcomeGuideOnboardingTests.swift in Sources */,
 				2813AE63913A8DF4A5C68CBE /* SettingsLayoutPane.swift in Sources */,
+				FC11A00000000000005102 /* LayoutModePickers.swift in Sources */,
+				FC11A00000000000005202 /* SettingsLayoutSupport.swift in Sources */,
 				A0000000000000000001F092 /* SettingsTilingPane.swift in Sources */,
 				2E8A037835590C15D95BB4E9 /* WelcomeGuideView.swift in Sources */,
 				FA10A1000000000000000249 /* DisplayIdentity.swift in Sources */,
