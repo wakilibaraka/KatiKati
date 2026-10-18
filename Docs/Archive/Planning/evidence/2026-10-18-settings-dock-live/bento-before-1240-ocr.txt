@@ -1,0 +1,44 @@
+General
+o0
+00
+General
+Appearance
+Widgets
+Notch
+Edge Bars
+Window Management
+Launcher Control Center
+Shortcuts
+ools
+Advanced
+eneral
+@ Appearance
+88 Widgets
+• Notch
+• Edge Bars
+• Window Management
+Q Launcher
+• Control Center
+* Shortcuts
+• Tools & Advanced
+Juage
+English
+earance
+System
+Light
+Dark
+v/hide taskbar shortcut
+Reset to Default
+^TOHD
+ver Position
+Right
+* Reverse mouse scroll direction 1
+rmission
+| About
+Version 0.17.0 (51) • Debug Build
+Check for Update
+Grant
+Check for updates automatically
+Diagnostic Info
+Cc
+Show Setup Guide Again

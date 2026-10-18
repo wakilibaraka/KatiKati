@@ -111,6 +111,7 @@ final class BarLayoutModeTests: XCTestCase {
     func testDefaultWidgetWidths() {
         XCTAssertEqual(BarSection.weather.defaultWidgetWidth, 150)
         XCTAssertEqual(BarSection.apps.defaultWidgetWidth, 0)
+        XCTAssertEqual(BarSection.media.defaultWidgetWidth, 215)
         XCTAssertEqual(BarSection.clock.defaultWidgetWidth, 160)
     }
 

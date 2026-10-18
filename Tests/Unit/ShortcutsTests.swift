@@ -121,7 +121,7 @@ final class ShortcutKeyTriggerTests: XCTestCase {
     func testNewActionsAreOffByDefaultWithUniqueHotKeyIDs() {
         let ids = ShortcutAction.allCases.map(\.hotKeyID)
         XCTAssertEqual(Set(ids).count, ids.count)
-        for a in [ShortcutAction.drawer, .notchTools, .weather, .clock] { XCTAssertEqual(a.defaultTrigger, .off) }
+        for a in [ShortcutAction.drawer, .notchTools, .weather, .clock, .notchPageNext, .notchPagePrevious] { XCTAssertEqual(a.defaultTrigger, .off) }
     }
 
     func testConflictsAcrossTriggerKinds() {

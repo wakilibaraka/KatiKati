@@ -86,9 +86,15 @@ A rule is a defect if a page breaks it unaccountably. "Check" is how to see the 
     screen scrolls as a whole (no scrolling inside a card). *Check:* the height probe measures each
     page; switching pages never moves the left edge. `python3 Scripts/check_settings_page_heights.py`
     answers the height question by itself (the app's own probe, §5.3) and fails by page name — as of
-    2026-10-15 all ten fit (`evidence/2026-10-15-page-fit/README.md`), the tightest with 7 pt to
-    spare (Launcher, 979 of 986), so a new card or row on Launcher or Appearance is what pushes one
-    back over. The gate is the check; measuring by hand is only for the insets and the row rhythm.
+    2026-10-18 all ten fit (`evidence/2026-10-18-settings-dock-live/README.md`), the tightest with
+    35 pt to spare (Widgets, 951 of 986), so a new card or row on Widgets, Edge Bars or Tools is what
+    pushes one back over. The probe measures the **nav bar with the page** since 2026-10-18, so the
+    986 pt limit is the whole content area (`window 1074 − 88` for the title bar and toolbar) and the
+    number cannot hide one of them again. Then the 986's own edge cases: a page that grows when a
+    control is used has to fit in that state too — measured 2026-10-18 for Appearance with a tinted
+    theme (956), Widgets with the context presets armed (975) and Edge Bars on the Custom preset
+    (899, the item list folded behind a disclosure). The gate is the check; measuring by hand is only
+    for the insets and the row rhythm.
 
 ## 2. The one system
 
@@ -118,8 +124,8 @@ The ten pages, in tab order, with the page that owns each remaining slice. This 
 foundation (rules 1–3 on every page); each slice below is its own commit.
 
 The strip reads General · Appearance · Widgets · Notch · Edge Bars · Window Management · Launcher ·
-Shortcuts · **Tools · Advanced**: the one page a user visits once is last (owner, 2026-10-15), so
-the tools used mid-session are not behind it.
+**Control Center** · Shortcuts · **Tools · Advanced**: the one page a user visits once is last (owner, 2026-10-15), so
+the tools used mid-session are not behind it, and Control Center is its own dedicated tab rather than nested inside Launcher.
 
 | Page | Owes | Rules it closes |
 |---|---|---|

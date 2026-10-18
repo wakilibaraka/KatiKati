@@ -1,0 +1,82 @@
+Widgets
+JU
+General
+Appearance
+Widgets
+Notch
+Edge Bars
+Window Management Launcher Control Center Shortcuts
+Tools
+Advanced
+ce
+do Widgets
+Notch
+Edge Bars
+Window Management
+Q Launcher
+- Control Center
+& Shortcuts
+Tools
+Widget Appearance
+Widget Layout
+iPad Widget Colors
+Classic
+Clock Tile Style
+Flip clock
+• Glass
+Now Playing Theme
+Auto
+Widget Animation
+Slide
+Show Notes Widget
+Show Stopwatch & Countdown
+Keep Both Widgets Open
+Weather Animations
+Widget Styles & Presets
+Clock Style
+Stacked Time & Date
+• Weather Style
+Glass 3-Day Forecast
+Now Playing Style
+Expanded Artwork Card
+• Dock Motion
+Fluid
+Weather
+Temperature Unit
+°C
+°F Wind Speed Unit
+km/h
+mph
+m/s
+Weather Layout
+Glance
+Classic
+Hero Style
+Scene
+Classic
+Heat Warning (Feels Like)
+35°C
+Wind Warning
+50 km/h
+v Snow Warning
+5 cm
+Widgets
+Launcher
+Weather
+Small
+Medium
+Large
+Apps
+Now Playing
+Small
+Medium
+Large
+Clock
+Small
+Medium
+Large
+Widgets
+Presets
+Name
+Save Current Layout
+Context Presets

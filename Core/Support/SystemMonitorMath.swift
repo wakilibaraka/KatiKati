@@ -99,27 +99,41 @@ struct BatteryHealth: Equatable, Sendable {
     }
 }
 
-struct TopProcess: Equatable, Sendable {
+struct TopProcess: Equatable, Hashable, Sendable {
+    var pid: Int32?
     var name: String
     var cpu: Double
+
+    /// A row without a pid offers no action — it can only print a name and a percentage.
+    var canAct: Bool { pid != nil }
 }
 
 enum TopProcessParser {
-    /// Parses `ps -Ao pcpu=,comm=` output: sums processes that share a name, highest CPU first, trims to `limit`.
+    /// Parses `ps -Ao pid=,pcpu=,comm= -r` output: one row per pid, highest CPU first,
+    /// trims to `limit`. Same-named processes stay separate rows — summing them would
+    /// destroy the pid the kill flow needs. A line with no parsable pid still draws,
+    /// but with `pid == nil` it offers no action.
     static func parse(_ text: String, limit: Int) -> [TopProcess] {
-        var totals: [String: Double] = [:]
-        var order: [String] = []
+        var rows: [TopProcess] = []
         for line in text.split(separator: "\n") {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
-            guard let space = trimmed.firstIndex(of: " "), let cpu = Double(trimmed[..<space]) else { continue }
-            let path = trimmed[trimmed.index(after: space)...].trimmingCharacters(in: .whitespaces)
-            let name = path.split(separator: "/").last.map(String.init) ?? path
-            guard !name.isEmpty, cpu >= 0 else { continue }
-            if totals[name] == nil { order.append(name) }
-            totals[name, default: 0] += cpu
+            let parts = trimmed.split(separator: " ", omittingEmptySubsequences: true)
+            guard parts.count >= 2 else { continue }
+            // Pid form wins when it parses; otherwise the line is a pid-less reading.
+            if parts.count >= 3, let pid = Int32(parts[0]), let cpu = Double(parts[1]), cpu >= 0 {
+                let name = Self.baseName(of: parts[2...].joined(separator: " "))
+                guard !name.isEmpty else { continue }
+                rows.append(TopProcess(pid: pid, name: name, cpu: cpu))
+            } else if let cpu = Double(parts[0]), cpu >= 0 {
+                let name = Self.baseName(of: parts[1...].joined(separator: " "))
+                guard !name.isEmpty else { continue }
+                rows.append(TopProcess(pid: nil, name: name, cpu: cpu))
+            }
         }
-        return order.map { TopProcess(name: $0, cpu: totals[$0] ?? 0) }
-            .sorted { $0.cpu > $1.cpu }
-            .prefix(max(0, limit)).map { $0 }
+        return rows.sorted { $0.cpu > $1.cpu }.prefix(max(0, limit)).map { $0 }
+    }
+
+    private static func baseName(of path: String) -> String {
+        path.split(separator: "/").last.map(String.init) ?? path
     }
 }

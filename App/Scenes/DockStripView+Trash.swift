@@ -5,6 +5,7 @@ extension DockStripView {
         TrashChip(isFull: trashStore.isFull,
                   isDropTargeted: externalDropTarget == .trash,
                   scale: dockScale,
+                  railTile: isRail,
                   hoverStyle: hoverStyle,
                   isHovered: hovered,
                   menuItems: TrashMenuPlan.items(status: trashStore.status, isEmptying: trashStore.isEmptying),

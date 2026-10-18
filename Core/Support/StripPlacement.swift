@@ -114,18 +114,12 @@ enum StripAxis {
 }
 
 extension BarSection {
-    /// Main-axis length of a widget as a compact square-ish tile on a side rail (decision 1:
-    /// weather = glyph over temperature, clock = HH over MM, media = artwork square, the rest one
-    /// icon slot). Scales with the bar thickness like every other strip metric.
+    /// Main-axis length of a widget as a compact square tile on a side rail (Phase 40b / Phase 49:
+    /// every rail widget tile — weather, clock, media, launcher, widgets — is a 40×40 square matching
+    /// `ChipPillMetrics.cardWidth`). Scales with the bar thickness like every other strip metric.
     func railTileLength(barHeight: CGFloat) -> CGFloat {
         switch self {
-        // Phase 40b: ONE size for every rail tile, because the app chips beside them are already
-        // `ChipPillMetrics.cardWidth` (40) with `iconOnly` — a 56 pt weather tile next to 40 pt icons is
-        // what made the rail look like two docks bolted together. The number is the rail tile's native
-        // size; `DockStripView` scales it by `dockScale` like every other strip metric.
-        case .weather, .clock, .launcher, .widgets: return Self.railTileSize
-        // Live Island: three quick actions stacked (or ring over value) — a tall tile, not a square.
-        case .media: return (barHeight * 1.65).rounded()
+        case .weather, .clock, .media, .launcher, .widgets: return Self.railTileSize
         case .apps: return 0
         }
     }

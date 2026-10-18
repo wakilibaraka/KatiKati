@@ -34,16 +34,92 @@ import SwiftUI
 public struct NowPlayingChip: View {
     @EnvironmentObject var settingsStore: AppSettingsStore
     @AppStorage("com.katikati.media.preset") private var mediaPreset: NowPlayingPreset = .expandedCard
+    @Environment(\.liveIslandVertical) private var isVertical
 
     public init() {}
 
     public var body: some View {
         if settingsStore.dockIslandEnabled {
-            if mediaPreset == .expandedCard {
+            if isVertical {
+                RailMediaTile()
+            } else if mediaPreset == .expandedCard {
                 ExpandedMediaCardView()
             } else {
                 LiveIslandDockCapsule()
             }
+        }
+    }
+}
+
+/// Phase 49 (owner: "Compact vertical tile"): on a vertical rail the wide horizontal media card is
+/// replaced by a 40 × 40 compact tile wearing the shared `DockTileChrome` — album artwork or turntable
+/// disc with a subtle transport badge on hover, tapping to open `NowPlayingPopup`.
+struct RailMediaTile: View {
+    @ObservedObject private var feed = LiveActivityFeed.shared
+    @EnvironmentObject var settingsStore: AppSettingsStore
+    @State private var isHovered = false
+    @State private var showPopup = false
+
+    var body: some View {
+        let state = feed.nowPlayingState
+        let hasTrack = !(state.title?.isEmpty ?? true)
+        let unreadable = hasTrack ? nil : feed.playerAccess.unreadableMessage
+        let title = hasTrack ? (state.title ?? "") : (unreadable ?? String(localized: "Not Playing"))
+
+        ZStack {
+            ZStack {
+                if let data = state.artworkData, let img = NSImage(data: data) {
+                    Image(nsImage: img)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    LinearGradient(
+                        colors: [Color(red: 0.35, green: 0.25, blue: 0.75),
+                                 Color(red: 0.15, green: 0.18, blue: 0.45)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    TurntableView(isPlaying: state.isPlaying)
+                        .padding(2)
+                }
+            }
+            .frame(width: 28, height: 28)
+            .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    .stroke(Color.white.opacity(0.18), lineWidth: 0.75)
+            )
+
+            if isHovered || state.isPlaying {
+                ZStack {
+                    Circle()
+                        .fill(Color.black.opacity(0.55))
+                        .frame(width: 16, height: 16)
+                    Image(systemName: state.isPlaying ? "pause.fill" : "play.fill")
+                        .font(.system(size: 7.5, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+                .offset(x: 8, y: 8)
+            }
+        }
+        .frame(width: BarSection.railTileSize, height: BarSection.railTileSize)
+        .dockTileChrome(isHovered: isHovered)
+        .contentShape(Rectangle())
+        .onHover { isHovered = $0 }
+        .onTapGesture { showPopup.toggle() }
+        .onAppear { feed.retain() }
+        .onDisappear { feed.release() }
+        .help(Text(verbatim: title))
+        .popover(isPresented: $showPopup, arrowEdge: .leading) {
+            NowPlayingPopup(
+                state: state,
+                theme: settingsStore.nowPlayingTheme,
+                access: feed.playerAccess,
+                onToggle: { feed.togglePlayPause() },
+                onNext: { feed.nextTrack() },
+                onPrevious: { feed.previousTrack() },
+                onSeek: { feed.seek(to: $0) }
+            )
         }
     }
 }
@@ -577,19 +653,10 @@ private struct ExpandedMediaCardView: View {
             .padding(.trailing, 1)
         }
         .padding(.horizontal, 9)
-        .padding(.vertical, 5)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(red: 0.11, green: 0.12, blue: 0.16).opacity(0.88))
-        )
+        .padding(.vertical, 4)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(isHovered ? Color.white.opacity(0.28) : Color.white.opacity(0.12), lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(isHovered ? 0.32 : 0.16), radius: isHovered ? 6 : 3, x: 0, y: 2)
-        .scaleEffect(isHovered ? 1.02 : 1.0)
-        .animation(.spring(response: 0.28, dampingFraction: 0.72), value: isHovered)
+        .dockTileChrome(isHovered: isHovered)
         .onHover { isHovered = $0 }
         .overlay(
             VerticalWheelScrollNSViewRepresentable { direction in

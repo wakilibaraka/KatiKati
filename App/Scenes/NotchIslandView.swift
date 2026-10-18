@@ -132,15 +132,21 @@ struct NotchIslandView: View {
         HStack(spacing: 6) {
             ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage,
                                           notifications: notificationsPage)) { page in
-                Capsule()
-                    .fill(model.activePage == page ? Color.white.opacity(0.9) : Color.white.opacity(0.25))
-                    .frame(width: model.activePage == page ? 18 : 6, height: 4)
-                    .contentShape(Rectangle().inset(by: -4))
-                    .onTapGesture {
-                        withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
-                            model.activePage = page
-                        }
+                // A Button, not a capsule with a tap gesture: the gesture shape never surfaced as an
+                // accessibility element, so VoiceOver saw nine nameless dots (live-checked 2026-10-17).
+                Button {
+                    withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
+                        model.activePage = page
                     }
+                } label: {
+                    Capsule()
+                        .fill(model.activePage == page ? Color.white.opacity(0.9) : Color.white.opacity(0.25))
+                        .frame(width: model.activePage == page ? 18 : 6, height: 4)
+                }
+                .buttonStyle(.plain)
+                .contentShape(Rectangle().inset(by: -4))
+                .accessibilityLabel(Text(page.title))
+                .help(Text(page.title))
             }
         }
         .padding(.bottom, 6)
@@ -217,8 +223,11 @@ struct NotchIslandView: View {
     private var transport: some View {
         HStack(spacing: 16) {
             Button { feed.previousTrack() } label: { Image(systemName: "backward.fill") }
+                .accessibilityLabel(Text("Back"))
             Button { feed.togglePlayPause() } label: { Image(systemName: feed.nowPlayingState.isPlaying ? "pause.fill" : "play.fill") }
+                .accessibilityLabel(feed.nowPlayingState.isPlaying ? Text("Pause") : Text("Play"))
             Button { feed.nextTrack() } label: { Image(systemName: "forward.fill") }
+                .accessibilityLabel(Text("Forward"))
         }
         .buttonStyle(.plain)
         .font(.system(size: 14))

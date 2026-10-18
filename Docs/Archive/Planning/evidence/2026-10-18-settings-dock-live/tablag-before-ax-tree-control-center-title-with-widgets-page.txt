@@ -1,0 +1,177 @@
+=== WINDOW 0:  ===
+AXWindow||||
+  AXGroup||||
+    AXImage||Clock||clock
+    AXStaticText|||04:46|
+=== WINDOW 1:  ===
+AXWindow||||
+=== WINDOW 2:  ===
+AXWindow||||
+  AXGroup||||
+    AXUnknown||Edge Bars||
+=== WINDOW 3:  ===
+AXWindow||||
+  AXGroup||||
+    AXUnknown||||
+    AXStaticText|||63|
+    AXUnknown||||
+    AXUnknown||||
+    AXUnknown||||
+=== WINDOW 4:  ===
+AXWindow||||
+  AXGroup||||
+    AXScrollArea||||
+      AXImage||Mostly Cloudy||cloud.fill
+      AXStaticText|||16°|
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||Trash||
+      AXUnknown||||
+      AXStaticText|||04|
+      AXStaticText|||46|
+      AXImage||Wi-Fi||wifi
+=== WINDOW 5:  ===
+AXWindow||||
+=== WINDOW 6: Control Center ===
+AXWindow|Control Center|||
+  AXGroup||||
+    AXScrollArea||||
+    AXScrollArea||||
+      AXStaticText|||Widget Appearance|
+      AXStaticText|||Widget Layout|
+      AXPopUpButton||Widget Layout|iPad|
+      AXStaticText|||Widget Colors|
+      AXPopUpButton||Widget Colors|Classic|
+      AXStaticText|||Clock Tile Style|
+      AXPopUpButton||Clock Style|Flip clock|
+      AXStaticText|||Glass|
+      AXCheckBox||Glass|0|
+      AXStaticText|||Now Playing Theme|
+      AXPopUpButton||Now Playing Theme|Auto|
+      AXStaticText|||Widget Animation|
+      AXPopUpButton||Widget Animation|Slide|
+      AXStaticText|||Show Notes Widget|
+      AXCheckBox||Show Notes Widget|1|
+      AXStaticText|||Show Stopwatch & Countdown|
+      AXCheckBox||Show Stopwatch & Countdown|1|
+      AXStaticText|||Keep Both Widgets Open|
+      AXCheckBox||Keep Both Widgets Open|1|
+      AXStaticText|||Weather Animations|
+      AXCheckBox||Weather Animations|1|
+      AXStaticText|||Widget Styles & Presets|
+      AXButton||Switch between custom Phase 32 pods and legacy widget presets. You can also switch styles by right-clicking each widget on the dock.||questionmark.circle
+      AXStaticText|||Clock Style|
+      AXPopUpButton||Clock Style|Stacked Time & Date|
+      AXStaticText|||Weather Style|
+      AXPopUpButton||Weather Style|Glass 3-Day Forecast|
+      AXStaticText|||Now Playing Style|
+      AXPopUpButton||Now Playing Style|Expanded Artwork Card|
+      AXStaticText|||Dock Motion|
+      AXPopUpButton||Dock Motion|Fluid|
+      AXStaticText|||Weather|
+      AXStaticText|||Temperature Unit|
+      AXRadioGroup||Temperature Unit, Temperature Unit||
+        AXRadioButton||°C|1|
+        AXRadioButton||°F|0|
+      AXStaticText|||Wind Speed Unit|
+      AXRadioGroup||Wind Speed Unit, Wind Speed Unit||
+        AXRadioButton||km/h|1|
+        AXRadioButton||mph|0|
+        AXRadioButton||m/s|0|
+      AXStaticText|||Weather Layout|
+      AXRadioGroup||Weather Layout, Weather Layout||
+        AXRadioButton||Glance|0|
+        AXRadioButton||Classic|1|
+      AXStaticText|||Hero Style|
+      AXRadioGroup||Hero Style, Hero Style||
+        AXRadioButton||Scene|0|
+        AXRadioButton||Classic|1|
+      AXStaticText|||Heat Warning (Feels Like)|
+      AXStaticText|||35°C|
+      AXIncrementor||Heat Warning (Feels Like), Heat Warning (Feels Like)|35|
+        AXButton||||
+        AXButton||||
+      AXStaticText|||Wind Warning|
+      AXStaticText|||50 km/h|
+      AXIncrementor||Wind Warning, Wind Warning|50|
+        AXButton||||
+        AXButton||||
+      AXStaticText|||Snow Warning|
+      AXStaticText|||5 cm|
+      AXIncrementor||Snow Warning, Snow Warning|5|
+        AXButton||||
+        AXButton||||
+      AXStaticText|||Widgets|
+      AXScrollArea||||
+        AXOutline||||
+          AXRow||||
+            AXCell||||
+              AXStaticText|||Launcher|
+              AXButton||Show||
+          AXRow||||
+            AXCell||||
+              AXStaticText|||Weather|
+              AXRadioGroup||Size||
+                AXRadioButton||Small|0|
+                AXRadioButton||Medium|0|
+                AXRadioButton||Large|1|
+              AXButton||Show||
+          AXRow||||
+            AXCell||||
+              AXStaticText|||Apps|
+          AXRow||||
+            AXCell||||
+              AXStaticText|||Now Playing|
+              AXRadioGroup||Size||
+                AXRadioButton||Small|0|
+                AXRadioButton||Medium|0|
+                AXRadioButton||Large|1|
+              AXButton||Show||
+          AXRow||||
+            AXCell||||
+              AXStaticText|||Clock|
+              AXRadioGroup||Size||
+                AXRadioButton||Small|0|
+                AXRadioButton||Medium|0|
+                AXRadioButton||Large|1|
+              AXButton||Show||
+          AXRow||||
+            AXCell||||
+              AXStaticText|||Widgets|
+              AXButton||Show||
+          AXColumn||||ListColumn
+      AXMenuButton|Presets|||
+      AXTextField||||
+      AXButton||Save Current Layout||
+      AXCheckBox||Context Presets|0|
+  AXToolbar||||
+    AXButton|General|||
+    AXButton|Appearance|||
+    AXButton|Widgets|||
+    AXButton|Notch|||
+    AXButton|Edge Bars|||
+    AXButton|Window Management|||
+    AXButton|Launcher|||
+    AXButton|Control Center|||
+    AXButton|Shortcuts|||
+    AXButton|Tools|||
+    AXButton|Advanced|||
+  AXButton||||
+  AXButton||||
+    AXGroup||||
+  AXButton||||
+  AXStaticText|||Control Center|

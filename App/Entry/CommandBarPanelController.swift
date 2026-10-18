@@ -364,18 +364,8 @@ final class CommandBarPanelController {
     }
 
     private func confirmKill(_ entry: ProcessEntry) {
-        let alert = NSAlert()
-        alert.messageText = entry.name
-        alert.informativeText = "PID \(entry.pid)"
-        alert.alertStyle = .warning
-        alert.addButton(withTitle: String(localized: "Kill"))
-        alert.addButton(withTitle: String(localized: "Force Quit"))
-        alert.addButton(withTitle: String(localized: "Cancel"))
-        switch alert.runModal() {
-        case .alertFirstButtonReturn: kill(entry.pid, SIGTERM)
-        case .alertSecondButtonReturn: kill(entry.pid, SIGKILL)
-        default: break
-        }
+        // Phase 48d: the one shared flow (Top Apps tile uses it too) — same buttons, same signals.
+        ProcessKillConfirm.confirm(name: entry.name, pid: entry.pid)
     }
 
     private func confirmQuit(_ ref: RunningAppRef) {

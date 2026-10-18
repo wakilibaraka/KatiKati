@@ -74,6 +74,9 @@ struct LayoutModePicker: View {
     let inputs: LayoutThumbnailModel.Inputs
     var thumbnailSize = CGSize(width: 88, height: 55)
     let onSelect: (BarLayoutMode) -> Void
+    @Environment(\.dockThemeStyle) private var themeStyle
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var hoveredMode: BarLayoutMode?
 
     /// A rail runs the screen's **height**, so its card is the same card turned on its side (Phase 41d):
     /// in the landscape card the rail was a ~2 pt sliver at the left edge, and Split 4 and Split 5 — the
@@ -88,9 +91,11 @@ struct LayoutModePicker: View {
     private var minimumIslandThickness: CGFloat { inputs.placement.isVertical ? 4 : 2 }
 
     var body: some View {
+        let palette = SettingsIridescentPalette.resolve(style: themeStyle, colorScheme: colorScheme)
         HStack(alignment: .top, spacing: 8) {
             ForEach(BarLayoutMode.allCases) { mode in
                 let isSelected = mode == selection
+                let isHovered = hoveredMode == mode
                 Button {
                     onSelect(mode)
                 } label: {
@@ -105,16 +110,29 @@ struct LayoutModePicker: View {
                     .padding(6)
                     .frame(maxWidth: .infinity)
                     .background(
-                        RoundedRectangle(cornerRadius: 9, style: .continuous)
-                            .fill(isSelected ? Color.accentColor.opacity(0.12) : Color.clear)
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(
+                                isSelected
+                                    ? AnyShapeStyle(palette.subtleSurfaceGradient)
+                                    : AnyShapeStyle(Color.primary.opacity(isHovered ? 0.06 : 0.0))
+                            )
                     )
                     .overlay(
-                        RoundedRectangle(cornerRadius: 9, style: .continuous)
-                            .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .strokeBorder(
+                                isSelected
+                                    ? AnyShapeStyle(palette.pillGradient)
+                                    : AnyShapeStyle(Color.primary.opacity(isHovered ? 0.16 : 0.0)),
+                                lineWidth: isSelected ? 2 : 1
+                            )
                     )
+                    .shadow(color: isSelected ? palette.glowColor : .clear, radius: 6, x: 0, y: 2)
+                    .scaleEffect(isHovered ? 1.02 : 1.0)
+                    .animation(.spring(response: 0.24, dampingFraction: 0.75), value: isHovered)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .onHover { inside in hoveredMode = inside ? mode : (hoveredMode == mode ? nil : hoveredMode) }
                 .accessibilityIdentifier("layoutMode.\(mode.rawValue)")
                 .accessibilityAddTraits(isSelected ? .isSelected : [])
             }
@@ -301,6 +319,9 @@ struct SettingsLayoutPane: View {
     /// every row — nothing is dropped, it is one click (or one keystroke) away.
     @State private var showsFeatureShortcuts = false
     @State private var showsSnapHotkeys = false
+    @State private var showsTilingShortcuts = false
+    /// The Edge Bars page's Custom item list (one row per item). Collapsed by default — see its card.
+    @State private var showsEdgeItems = false
     /// Control Center edge; the panel reads it at each open (Phase 16n). The literal duplicates
     /// `ControlCenterPanelController.sideKey` — that file is app-target-only, and this pane also
     /// compiles into the test target.
@@ -319,7 +340,7 @@ struct SettingsLayoutPane: View {
 
     /// Phase 12e — one pane, several tabs: Appearance embeds the dock geometry, Widgets takes
     /// the widget list, presets and styles.
-    enum Mode { case shortcuts, widgets, edgeBars, geometry, chips, launcher, notifications }
+    enum Mode { case radialDial, shortcuts, widgets, edgeBars, geometry, chips, launcher, controlCenter, notifications }
     var mode: Mode = .shortcuts
 
     @ViewBuilder
@@ -644,7 +665,10 @@ struct SettingsLayoutPane: View {
                     }
                 }
             }
+    }
 
+    @ViewBuilder
+    private var controlCenterSections: some View {
             SettingsCard(Text("Control Center")) {
                 // Four segmented rows in a row: two per line (`Docs/SETTINGS.md` rule 5).
                 SettingsRowPair(
@@ -784,21 +808,29 @@ struct SettingsLayoutPane: View {
         // Custom places every item itself; a preset carries a fixed set of tiles. Either way the
         // list is a grid, and the card is absent while the bars are off.
         if store.edgeBarPreset == .custom {
-            SettingsCard(Text("Widgets")) {
-                SettingsGrid(EdgeItem.allCases.filter { $0.isBuilt() }, id: \.self) { item in
-                    SettingsRow(Self.itemTitle(item)) {
-                        Picker(selection: Binding(
-                            get: { store.edgePlacement(of: item) },
-                            set: { store.setEdgePlacement($0, of: item) }
-                        )) {
-                            Text("Left").tag(EdgePlacement.left)
-                            Text("Right").tag(EdgePlacement.right)
-                            Text("Hidden").tag(EdgePlacement.hidden)
-                        } label: { Self.itemTitle(item) }
-                        .labelsHidden()
-                        .pickerStyle(.segmented)
-                        .fixedSize()
+            // Collapsed by default (2026-10-18): this list is one row per item and ran the page 275 pt
+            // past the window with Custom chosen (measured live), which is rule 5's "longer than the
+            // page can show" case — the disclosure is the page's affordance, the way the Shortcuts
+            // assignments use one. Every item and its three-way picker stays.
+            SettingsCard {
+                DisclosureGroup(isExpanded: $showsEdgeItems) {
+                    SettingsGrid(EdgeItem.allCases.filter { $0.isBuilt() }, id: \.self) { item in
+                        SettingsRow(Self.itemTitle(item)) {
+                            Picker(selection: Binding(
+                                get: { store.edgePlacement(of: item) },
+                                set: { store.setEdgePlacement($0, of: item) }
+                            )) {
+                                Text("Left").tag(EdgePlacement.left)
+                                Text("Right").tag(EdgePlacement.right)
+                                Text("Hidden").tag(EdgePlacement.hidden)
+                            } label: { Self.itemTitle(item) }
+                            .labelsHidden()
+                            .pickerStyle(.segmented)
+                            .fixedSize()
+                        }
                     }
+                } label: {
+                    Text("Widgets").font(.headline)
                 }
             }
         } else if store.edgeBarPreset != .off {
@@ -847,8 +879,15 @@ struct SettingsLayoutPane: View {
             // labels at 50 pt against the page's 42) — the list is pulled back by that much.
             .padding(.horizontal, -Self.listRowChromeInset)
             .frame(height: Self.widgetListHeight(count: store.widgetLayout.order.count))
-            presetControls
-            contextPresetControls
+            // The preset row and the switch that arms the context presets are one line (2026-10-18):
+            // two lines of controls were 21 pt this page did not have. The context rows it opens stay
+            // under it.
+            HStack(spacing: SettingsMetrics.controlSpacing) {
+                presetControls
+                Spacer(minLength: SettingsMetrics.controlSpacing)
+                contextPresetsToggle
+            }
+            contextPresetRows
         }
 
         // The style presets moved to `WidgetLookSettingsBlock` (2026-10-15): they are appearance, and
@@ -869,8 +908,12 @@ struct SettingsLayoutPane: View {
                 chipSections
             } else if mode == .launcher {
                 launcherSections
+            } else if mode == .controlCenter {
+                controlCenterSections
             } else if mode == .notifications {
                 notificationSections
+            } else if mode == .radialDial {
+                radialDialSections
             } else {
                 shortcutSections
             }
@@ -932,7 +975,18 @@ struct SettingsLayoutPane: View {
                     }
                 }
             }
-            if filteredFeatureShortcuts.isEmpty, !hasVisibleSnapHotkeys {
+            if !filteredTilingShortcuts.isEmpty {
+                SettingsDivider()
+                DisclosureGroup(isExpanded: expandedWhileFiltering($showsTilingShortcuts)) {
+                    ForEach(filteredTilingShortcuts, id: \.self) { action in
+                        shortcutRow(action, duplicated: duplicated)
+                        SettingsDivider()
+                    }
+                } label: {
+                    Text("Tiling Shortcuts").font(.headline)
+                }
+            }
+            if filteredFeatureShortcuts.isEmpty, !hasVisibleSnapHotkeys, filteredTilingShortcuts.isEmpty {
                 SettingsNote(Text("No shortcuts match."))
             }
         }
@@ -964,6 +1018,11 @@ struct SettingsLayoutPane: View {
                 ),
                 info: String(localized: "While paused, key presses are ignored (the mouse still works). Press ⌃⌥⌘P to unpause. Needs the Input Monitoring permission.")
             )
+            SettingsDivider()
+            SettingsRow(Text("Clean Keyboard"), note: Text("Keys are off for 60 seconds. Press ⌃⌥⌘P to unlock sooner.")) {
+                Button("Lock for 60 Seconds") { KeyGuardService.shared.startCleaningLock() }
+                    .buttonStyle(SettingsGelButtonStyle())
+            }
             SettingsDivider()
             SettingsToggleRow(
                 Text("Hold ⌘Q to Quit"),
@@ -1019,7 +1078,11 @@ struct SettingsLayoutPane: View {
                 if let url = URL(string: "x-apple.systempreferences:com.apple.preference.trackpad") { NSWorkspace.shared.open(url) }
             }
         }
+    }
 
+    /// The Radial Dial page (split from Shortcuts, Phase 1 of the settings redesign).
+    @ViewBuilder
+    private var radialDialSections: some View {
         SettingsCard(
             Text("Radial Dial"),
             note: Text("You can also summon the Radial Dial with the shortcut assigned in the Shortcuts section above.")
@@ -1061,11 +1124,19 @@ struct SettingsLayoutPane: View {
         }
     }
 
-    /// The eleven feature shortcuts (every action that neither snaps nor tiles), filtered by the
+    /// The thirteen feature shortcuts (every action that neither snaps nor tiles), filtered by the
     /// find field. Declaration order is the menu order, so the page never reorders itself.
     private var filteredFeatureShortcuts: [ShortcutAction] {
         ShortcutAction.allCases
             .filter { $0.snapPosition == nil && !$0.isTilingAction }
+            .filter(matchesFilter)
+    }
+
+    /// The six tiling shortcuts, consolidated here from Window Management so every keyboard
+    /// shortcut is searchable and editable in one place.
+    private var filteredTilingShortcuts: [ShortcutAction] {
+        ShortcutAction.allCases
+            .filter(\.isTilingAction)
             .filter(matchesFilter)
     }
 
@@ -1217,6 +1288,8 @@ struct SettingsLayoutPane: View {
         case .tilingSwapNext: return String(localized: "Swap with Next Tile")
         case .tilingSwapPrevious: return String(localized: "Swap with Previous Tile")
         case .radialDial: return String(localized: "Radial Dial")
+        case .notchPageNext: return String(localized: "Next Notch Page")
+        case .notchPagePrevious: return String(localized: "Previous Notch Page")
         }
     }
 
@@ -1495,22 +1568,26 @@ struct SettingsLayoutPane: View {
         }
     }
 
+    /// 10a-7: the switch that arms the time-window presets. It shares its line with the preset row
+    /// above (`widgetSections`); the rows it opens are `contextPresetRows`.
+    private var contextPresetsToggle: some View {
+        Toggle(isOn: Binding(get: { store.contextPresetsEnabled }, set: store.setContextPresetsEnabled)) {
+            Text("Context Presets")
+        }
+        .accessibilityLabel("Context Presets")
+    }
+
     /// 10a-7: pick a preset per time window; fixed windows (Work Hours Mon–Fri 09:00–17:00, Evening 18:00–23:00).
-    private var contextPresetControls: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Toggle(isOn: Binding(get: { store.contextPresetsEnabled }, set: store.setContextPresetsEnabled)) {
-                Text("Context Presets")
-            }
-            .accessibilityLabel("Context Presets")
-            if store.contextPresetsEnabled {
-                // Two menus, one line (rule 5), through the house pair: an `HStack` with the grid's
-                // control spacing between two `halfRowWidth` children is 10 pt wider than the card,
-                // and the overflow pushed the left label 5 pt off the grid (measured live
-                // 2026-10-15). `SettingsRowPair` is the same two halves with no gap.
-                SettingsRowPair(
-                    left: { contextPicker(Text("Work Hours"), selection: store.contextWorkPresetID, set: store.setContextWorkPreset) },
-                    right: { contextPicker(Text("Evening"), selection: store.contextEveningPresetID, set: store.setContextEveningPreset) }
-                )
+    @ViewBuilder
+    private var contextPresetRows: some View {
+        if store.contextPresetsEnabled {
+            // One compact line (2026-10-18): the two menus as a house pair plus a caption under them
+            // were 43 pt, and with the presets armed this page had 32 pt more than the window has.
+            // Both menus, the windows' fixed hours and every option are unchanged.
+            HStack(spacing: 16) {
+                contextPicker(Text("Work Hours"), selection: store.contextWorkPresetID, set: store.setContextWorkPreset)
+                contextPicker(Text("Evening"), selection: store.contextEveningPresetID, set: store.setContextEveningPreset)
+                Spacer(minLength: 8)
                 Text(verbatim: "Mon–Fri 09:00–17:00 · 18:00–23:00")
                     .font(.caption).foregroundStyle(.secondary)
             }
@@ -1567,7 +1644,9 @@ struct SettingsLayoutPane: View {
     /// (measured on all ten pages, `evidence/2026-10-15-close-out/*-rows.txt`) with the grid's padding
     /// each side and its 1 pt divider, 41 pt (`Docs/SETTINGS.md` rule 1). Derived from
     /// `SettingsMetrics`, not fixed, so the list stays on the page's rhythm (F1).
-    private static let widgetRowHeight: CGFloat = 24 + 2 * SettingsMetrics.rowVerticalPadding + 1
+    /// 6 pt each side, not the grid's 8 (2026-10-18): the row's own control is 24 pt either way, and
+    /// at 41 pt per row this list cost the page the 13 pt it was over by with the context presets on.
+    private static let widgetRowHeight: CGFloat = 24 + 2 * 6 + 1
     /// The plain `List`'s own leading indentation, which `.listRowInsets` does not reach.
     private static let listRowChromeInset: CGFloat = 8
 
@@ -1675,6 +1754,7 @@ struct ShortcutRecorderButton: View {
         Button { recording ? stop() : start() } label: {
             if recording { Text("Press keys…") } else { Text("Record") }
         }
+        .buttonStyle(SettingsGelButtonStyle(prominent: recording))
         .onDisappear { stop() }
     }
 

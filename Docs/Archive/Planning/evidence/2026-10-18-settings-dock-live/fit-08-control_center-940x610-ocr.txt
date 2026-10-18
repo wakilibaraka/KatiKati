@@ -1,0 +1,61 @@
+Control Center
+00
+General
+Appearance
+Widgets
+Notch
+Edge Bars
+Window Management
+Launcher
+Control Center
+Shortcuts
+Tools
+Advanced
+ce
+Do Widgets
+Notch
+Edge Bars
+Window Management
+Q Launcher
+& Control Center
+* Shortcuts
+Tools
+Control Center
+Side
+Left
+Right
+Size
+Small
+Medium
+Large
+Anchor
+Top
+Center
+Bottom
+Animation
+Instant
+Fade
+Slide
+Widgets
+Network
+Battery
+Batteries
+Quick Settings
+Dark Mode
+Keep Awake
+Hide Desktop
+Hidden Files
+Dock Auto-hide
+Path Bar
+Mute Mic
+Empty Trash
+Eject Disks
+Wi-Fi
+Bluetooth
+Night Shift
+True Tone
+VPN
+Screen Saver
+Lock Screen
+Relaunch Finder
+Screen Mirroring

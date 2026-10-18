@@ -6,13 +6,33 @@ import Foundation
 /// fd 生命周期：fd 只在 source 的 cancel handler 里 close（绝不先 close 再 cancel，
 /// 否则 fd 可能被复用后误关别人的）；`stop()` 幂等，deinit 兜底。
 final class DirectoryWatcher {
+    /// `open()` 永远不在调用线程跑：TCC 保护的目录（~/Downloads 等）首次 open 会弹系统授权框，
+    /// 而这个调用会阻塞调用线程直到用户作答 —— 老构造器在主线程调它，pinned Downloads 的首启直接
+    /// 冻住首屏（48a walk；`DownloadsMonitor.start` 早就是后台 open 的先例）。所有调用方走 `start(...)`。
+    private static let openQueue = DispatchQueue(label: "com.katikati.directory-watcher-open", qos: .utility)
+
     private var source: DispatchSourceFileSystemObject?
     private var debounceWorkItem: DispatchWorkItem?
     private let debounceInterval: TimeInterval
     private let onChange: () -> Void
 
-    /// 路径打不开（不存在/无权限）返回 nil，调用方自行降级。回调保证在主线程。
-    init?(path: String, debounce: TimeInterval = 0.3, onChange: @escaping () -> Void) {
+    /// fd 在后台队列打开：ready 的 watcher 回主队列，打不开就是 nil —— 调用方照旧按
+    /// “nil = 下一次 sync/display 重试”处理。回调保证在主线程。
+    static func start(
+        path: String,
+        debounce: TimeInterval = 0.3,
+        onChange: @escaping () -> Void,
+        completion: @escaping (DirectoryWatcher?) -> Void
+    ) {
+        openQueue.async {
+            let watcher = DirectoryWatcher(path: path, debounce: debounce, onChange: onChange)
+            DispatchQueue.main.async { completion(watcher) }
+        }
+    }
+
+    /// 同步 open：只许在 `start` 的后台队列里调。source 的队列仍是 main，所以构造完成后
+    /// 的一切接触（事件、防抖、`stop()`、deinit）都在主线程，跨线程的只有这次移交。
+    private init?(path: String, debounce: TimeInterval, onChange: @escaping () -> Void) {
         self.debounceInterval = debounce
         self.onChange = onChange
 

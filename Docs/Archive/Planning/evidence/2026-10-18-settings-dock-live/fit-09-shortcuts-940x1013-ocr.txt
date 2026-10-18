@@ -1,0 +1,48 @@
+Shortcuts
+00
+00
+General
+Appearance
+Widgets
+Notch
+Edge Bars
+Window Management
+Launcher Control Center
+Shortcuts
+Tools
+Advanced
+ce
+88 Widgets
+- Notch
+• Edge Bars
+Window Management
+Q Launcher
+Control Center
+% Shortcuts
+Tools
+Search Shortcuts
+Search Shortcuts
+› Shortcuts
+Snap Hotkeys
+› Tiling Shortcuts
+Double-tap shortcuts need the Accessibility permission. ^Space may also switch input sources.
+Keyboard
+Use Caps Lock as Hyper Key 3
+Open Input Monitoring Settings
+Pause Keyboard 1
+Clean Keyboard
+Lock for 60 Seconds
+Keys are off for 60 seconds. Press ^ 19P to unlock sooner.
+Hold 98Q to Quit
+Show Keys You Type
+Open Launcher with Pinch 1
+Open Trackpad Settings
+Radial Dial
+Enable Radial Dial 3
+Theme
+Lilac Glass
+Mouse Trigger
+Off
+Trigger Mode
+Tap / Click to Toggle
+You can also summon the Radial Dial with the shortcut assigned in the Shortcuts section above.

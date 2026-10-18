@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FC11A0000000000000000401 /* SettingsSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000400 /* SettingsSidebar.swift */; };
+		FC11A0000000000000000301 /* SettingsShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000300 /* SettingsShell.swift */; };
+		FC11A0000000000000000201 /* SettingsLayoutClassTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000200 /* SettingsLayoutClassTests.swift */; };
+		FC11A0000000000000000102 /* SettingsLayoutClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000100 /* SettingsLayoutClass.swift */; };
+		FC11A0000000000000000101 /* SettingsLayoutClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000000100 /* SettingsLayoutClass.swift */; };
 		FB37A00000000000001002 /* NotchTeleprompterPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000001001 /* NotchTeleprompterPageView.swift */; };
 		FB37A00000000000001003 /* NotchTeleprompterPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000001001 /* NotchTeleprompterPageView.swift */; };
 		FB37A00000000000000F02 /* TeleprompterWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB37A00000000000000F01 /* TeleprompterWindowController.swift */; };
@@ -249,6 +254,8 @@
 		FA33A0000000000000000092 /* AgentPricing.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000091 /* AgentPricing.swift */; };
 		FA33A0000000000000000093 /* AgentPricing.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000091 /* AgentPricing.swift */; };
 		FA33A00000000000000000A2 /* AgentClaudeParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000A1 /* AgentClaudeParser.swift */; };
+		FA33A0000000000000000AA2 /* AgentStoreParsers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000AA1 /* AgentStoreParsers.swift */; };
+		FA33A0000000000000000AA3 /* AgentStoreParsers.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000AA1 /* AgentStoreParsers.swift */; };
 		FA33A00000000000000000A3 /* AgentClaudeParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000A1 /* AgentClaudeParser.swift */; };
 		FA33A00000000000000000B2 /* AgentUsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000B1 /* AgentUsageService.swift */; };
 		FA33A00000000000000000B3 /* AgentUsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000B1 /* AgentUsageService.swift */; };
@@ -505,6 +512,7 @@
 		A000000000000000000090B1 /* FullscreenClassificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A000000000000000000090B0 /* FullscreenClassificationTests.swift */; };
 		A00000000000000000009201 /* PinnedFolderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009200 /* PinnedFolderStore.swift */; };
 		A00000000000000000009211 /* DirectoryWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009210 /* DirectoryWatcher.swift */; };
+		A00000000000000000009212 /* DirectoryWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009210 /* DirectoryWatcher.swift */; };
 		A00000000000000000009221 /* FolderContentsLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009220 /* FolderContentsLoader.swift */; };
 		A00000000000000000009222 /* FolderContentsLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009220 /* FolderContentsLoader.swift */; };
 		A00000000000000000009231 /* PinnedFolderCoverStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009230 /* PinnedFolderCoverStore.swift */; };
@@ -1074,6 +1082,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FC11A0000000000000000400 /* SettingsSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsSidebar.swift; path = App/Scenes/Settings/SettingsSidebar.swift; sourceTree = SOURCE_ROOT; };
+		FC11A0000000000000000300 /* SettingsShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsShell.swift; path = App/Scenes/Settings/SettingsShell.swift; sourceTree = SOURCE_ROOT; };
+		FC11A0000000000000000200 /* SettingsLayoutClassTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsLayoutClassTests.swift; path = Tests/Unit/SettingsLayoutClassTests.swift; sourceTree = SOURCE_ROOT; };
+		FC11A0000000000000000100 /* SettingsLayoutClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsLayoutClass.swift; path = Core/Support/SettingsLayoutClass.swift; sourceTree = SOURCE_ROOT; };
 		FB37A00000000000001001 /* NotchTeleprompterPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchTeleprompterPageView.swift; path = App/Scenes/Notch/NotchTeleprompterPageView.swift; sourceTree = SOURCE_ROOT; };
 		FB37A00000000000000F01 /* TeleprompterWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TeleprompterWindowController.swift; path = App/Entry/TeleprompterWindowController.swift; sourceTree = SOURCE_ROOT; };
 		FB37A00000000000000E01 /* LinkReaderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LinkReaderModel.swift; path = App/Composition/LinkReaderModel.swift; sourceTree = SOURCE_ROOT; };
@@ -1243,6 +1255,7 @@
 		FA33A0000000000000000081 /* AgentUsageModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentUsageModels.swift; path = Core/Support/AgentUsage/AgentUsageModels.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000091 /* AgentPricing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentPricing.swift; path = Core/Support/AgentUsage/AgentPricing.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000A1 /* AgentClaudeParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentClaudeParser.swift; path = Core/Support/AgentUsage/AgentClaudeParser.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000AA1 /* AgentStoreParsers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentStoreParsers.swift; path = Core/Support/AgentUsage/AgentStoreParsers.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000B1 /* AgentUsageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentUsageService.swift; path = App/Composition/AgentUsageService.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000C1 /* AgentUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentUsageTests.swift; path = Tests/Unit/AgentUsageTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000D1 /* NotchAIPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchAIPageView.swift; path = App/Scenes/Notch/NotchAIPageView.swift; sourceTree = SOURCE_ROOT; };
@@ -2705,6 +2718,8 @@
 				D72D6831819EC1CB40EF3F27 /* SettingsAppearancePane.swift in Sources */,
 				3548F02FB356BA920CE2C9E9 /* SettingsLayoutPane.swift in Sources */,
 				A0000000000000000001F091 /* SettingsTilingPane.swift in Sources */,
+				FC11A0000000000000000401 /* SettingsSidebar.swift in Sources */,
+				FC11A0000000000000000301 /* SettingsShell.swift in Sources */,
 				D20000000000000000000003 /* SettingsCoordinator.swift in Sources */,
 				D20000000000000000000004 /* AutoHideToggleMenuModel.swift in Sources */,
 				D20000000000000000000006 /* AccessoryWindowPresentation.swift in Sources */,
@@ -3068,6 +3083,7 @@
 				7B5000000000000000000132 /* NotchIslandView.swift in Sources */,
 				7B5000000000000000000112 /* NotchGeometry.swift in Sources */,
 				FB52C00000000000000000102 /* SettingsMetrics.swift in Sources */,
+				FC11A0000000000000000101 /* SettingsLayoutClass.swift in Sources */,
 				FB52C00000000000000000112 /* SettingsCard.swift in Sources */,
 				FA33A0000000000000000002 /* NotchDesignSpec.swift in Sources */,
 				FA33A0000000000000000012 /* NotchMotionSpec.swift in Sources */,
@@ -3079,6 +3095,7 @@
 				FA33A0000000000000000082 /* AgentUsageModels.swift in Sources */,
 				FA33A0000000000000000092 /* AgentPricing.swift in Sources */,
 				FA33A00000000000000000A2 /* AgentClaudeParser.swift in Sources */,
+				FA33A0000000000000000AA2 /* AgentStoreParsers.swift in Sources */,
 				FA33A00000000000000000B2 /* AgentUsageService.swift in Sources */,
 				FA33A00000000000000000D2 /* NotchAIPageView.swift in Sources */,
 				FA33A00000000000000000E2 /* NotchVinylDeckPageView.swift in Sources */,
@@ -3217,6 +3234,7 @@
 				FA33A0000000000000000083 /* AgentUsageModels.swift in Sources */,
 				FA33A0000000000000000093 /* AgentPricing.swift in Sources */,
 				FA33A00000000000000000A3 /* AgentClaudeParser.swift in Sources */,
+				FA33A0000000000000000AA3 /* AgentStoreParsers.swift in Sources */,
 				FA33A00000000000000000B3 /* AgentUsageService.swift in Sources */,
 				FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000143 /* DownloadItem.swift in Sources */,
@@ -3350,8 +3368,10 @@
 				7B50000000000000000001A2 /* DownloadActivityTests.swift in Sources */,
 				7B5000000000000000000122 /* NotchGeometryTests.swift in Sources */,
 				FB52C00000000000000000103 /* SettingsMetrics.swift in Sources */,
+				FC11A0000000000000000102 /* SettingsLayoutClass.swift in Sources */,
 				FB52C00000000000000000113 /* SettingsCard.swift in Sources */,
 				FB52C00000000000000000122 /* SettingsMetricsTests.swift in Sources */,
+				FC11A0000000000000000201 /* SettingsLayoutClassTests.swift in Sources */,
 				FB52C00000000000000000132 /* SettingsTabTests.swift in Sources */,
 				FA33A0000000000000000022 /* NotchDesignSpecTests.swift in Sources */,
 				FA3200000000000000000022 /* WidgetMotionSpecTests.swift in Sources */,
@@ -3487,6 +3507,7 @@
 				A00000000000000000009D02 /* WindowTitleTooltip.swift in Sources */,
 				B71000000000000000000002 /* ScreenRectReader.swift in Sources */,
 				A00000000000000000009D03 /* WindowTitleTooltipTests.swift in Sources */,
+				A00000000000000000009212 /* DirectoryWatcher.swift in Sources */,
 				A00000000000000000009222 /* FolderContentsLoader.swift in Sources */,
 				A00000000000000000009281 /* FolderContentsLoaderTests.swift in Sources */,
 				A00000000000000000009291 /* FolderSortTests.swift in Sources */,

@@ -128,6 +128,88 @@ enum Aria2RPC {
     private static func int(_ value: Any?) -> Int64 { Int64(value as? String ?? "") ?? 0 }
 }
 
+/// Phase 44b — the torrent hub's persisted policy: custom engine path, seeding limits and a
+/// throttled upload window. Pure so the mapping is unit-tested; the engine + Settings read it via
+/// `current()`. Defaults preserve today's behaviour (stop at completion, unlimited upload, no window).
+enum TorrentSettings {
+    static let enginePathKey = "com.katikati.torrent.enginePath"
+    static let seedRatioKey = "com.katikati.torrent.seedRatio"
+    static let seedTimeMinutesKey = "com.katikati.torrent.seedTimeMinutes"
+    static let maxUploadKBpsKey = "com.katikati.torrent.maxUploadKBps"
+    static let quietStartHourKey = "com.katikati.torrent.quietStartHour"
+    static let quietEndHourKey = "com.katikati.torrent.quietEndHour"
+    static let quietUploadKBpsKey = "com.katikati.torrent.quietUploadKBps"
+
+    /// Where a package manager installs `aria2c`: first existing binary wins. The custom path (Settings)
+    /// wins over all of these when it points at an executable file.
+    static let candidatePaths = ["/opt/homebrew/bin/aria2c", "/usr/local/bin/aria2c",
+                                 "/opt/local/bin/aria2c", "/usr/bin/aria2c"]
+
+    struct Snapshot: Equatable {
+        var enginePath = ""
+        var seedRatio = 0.0
+        var seedTimeMinutes = 0
+        var maxUploadKBps = 0
+        var quietStartHour = 0
+        var quietEndHour = 0
+        var quietUploadKBps = 0
+    }
+
+    static func current(defaults: UserDefaults = .standard) -> Snapshot {
+        Snapshot(
+            enginePath: defaults.string(forKey: enginePathKey) ?? "",
+            seedRatio: clampedSeedRatio(defaults.object(forKey: seedRatioKey) as? Double),
+            seedTimeMinutes: max(0, defaults.integer(forKey: seedTimeMinutesKey)),
+            maxUploadKBps: max(0, defaults.integer(forKey: maxUploadKBpsKey)),
+            quietStartHour: clampedHour(defaults.integer(forKey: quietStartHourKey)),
+            quietEndHour: clampedHour(defaults.integer(forKey: quietEndHourKey)),
+            quietUploadKBps: max(0, defaults.integer(forKey: quietUploadKBpsKey))
+        )
+    }
+
+    /// Custom path wins when executable, else the first installed candidate. `isExecutable` is injected
+    /// so tests never touch the filesystem.
+    static func resolveBinary(custom: String?, isExecutable: (String) -> Bool) -> URL? {
+        if let custom, !custom.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+           isExecutable(custom) { return URL(fileURLWithPath: custom) }
+        return candidatePaths.first(where: isExecutable).map { URL(fileURLWithPath: $0) }
+    }
+
+    static func clampedSeedRatio(_ value: Double?) -> Double {
+        guard let value, value.isFinite else { return 0 }
+        return min(max(value, 0), 50)
+    }
+
+    static func clampedHour(_ value: Int) -> Int { min(max(value, 0), 23) }
+
+    /// Inside the quiet window the quiet limit wins (when set); outside, the normal limit. Equal
+    /// start/end disables the window. Wraps past midnight.
+    static func effectiveUploadLimit(maxKBps: Int, quietStart: Int, quietEnd: Int, quietKBps: Int, hour: Int) -> Int {
+        guard quietStart != quietEnd, quietKBps > 0 else { return max(0, maxKBps) }
+        let inWindow = quietStart < quietEnd
+            ? (hour >= quietStart && hour < quietEnd)
+            : (hour >= quietStart || hour < quietEnd)
+        return inWindow ? quietKBps : max(0, maxKBps)
+    }
+
+    /// Global options pushed at spawn and via `changeGlobalOption`. `0` ratio/time = stop at completion
+    /// (today's behaviour); `0` upload = unlimited.
+    static func globalOptions(seedRatio: Double, seedMinutes: Int, uploadKBps: Int) -> [String: String] {
+        ["seed-ratio": String(clampedSeedRatio(seedRatio)),
+         "seed-time": String(max(0, seedMinutes)),
+         "max-upload-limit": String(max(0, uploadKBps) * 1024)]
+    }
+}
+
+/// One torrent row's resumable identity. GIDs die with the engine process, so only the URI is stored —
+/// re-added through the normal path on next launch.
+struct TorrentSessionEntry: Codable, Equatable {
+    var uri: String
+    var name: String
+    var infoHash: String?
+    var addedAt: Date
+}
+
 /// What the download hub needs from a BitTorrent engine. `TorrentEngine` is the aria2c-backed
 /// implementation; unit tests inject a fake so no engine process (and no real transfer) is ever
 /// started from a test.
@@ -151,6 +233,13 @@ protocol TorrentEngineClient: AnyObject {
 
     /// Stops the child process. Called when the last torrent leaves the hub and on app quit.
     func shutdown()
+
+    /// Pushes the current seeding/upload policy to a running engine (no-op while stopped).
+    func applyPolicy() async
+}
+
+extension TorrentEngineClient {
+    func applyPolicy() async {}
 }
 
 enum TorrentEngineError: Error, Equatable {

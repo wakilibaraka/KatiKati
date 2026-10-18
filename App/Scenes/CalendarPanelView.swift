@@ -733,10 +733,7 @@ struct TopAppsTile: View {
         BandTile(env: env, kind: .topApps, width: width, height: height, header: {
             HStack {
                 Text("Top Apps"); Spacer()
-                Button { Task.detached(priority: .utility) {
-                    let top = TopProcessReader.read(limit: 4)
-                    await MainActor.run { rows = top; loading = false }
-                } } label: { Image(systemName: "arrow.clockwise") }
+                Button { refresh() } label: { Image(systemName: "arrow.clockwise") }
                     .buttonStyle(.borderless)
                     .help(Text("Refresh"))
             }
@@ -747,21 +744,41 @@ struct TopAppsTile: View {
                 } else if rows.isEmpty {
                     Text(verbatim: "—").font(.system(size: 12)).foregroundColor(env.secondary)
                 } else {
-                    ForEach(rows.prefix(4), id: \.name) { p in
-                        HStack {
-                            Text(verbatim: p.name).font(.system(size: 11, weight: .medium)).lineLimit(1)
-                            Spacer(minLength: 4)
-                            Text(verbatim: String(format: "%.0f%%", p.cpu))
-                                .font(.system(size: 11, weight: .bold)).monospacedDigit()
+                    // Phase 48d: a row with a pid offers the shared confirm; without one it only prints.
+                    ForEach(rows.prefix(4), id: \.self) { p in
+                        if p.canAct, let pid = p.pid {
+                            Button {
+                                ProcessKillConfirm.confirm(name: p.name, pid: pid)
+                                refresh()
+                            } label: {
+                                rowContent(p)
+                            }
+                            .buttonStyle(.plain)
+                        } else {
+                            rowContent(p)
                         }
                     }
                 }
                 Spacer(minLength: 0)
             }
         })
-        .task {
-            let top = await Task.detached(priority: .utility) { TopProcessReader.read(limit: 4) }.value
-            rows = top; loading = false
+        .task { refresh() }
+    }
+
+    private func rowContent(_ p: TopProcess) -> some View {
+        HStack {
+            Text(verbatim: p.name).font(.system(size: 11, weight: .medium)).lineLimit(1)
+            Spacer(minLength: 4)
+            Text(verbatim: String(format: "%.0f%%", p.cpu))
+                .font(.system(size: 11, weight: .bold)).monospacedDigit()
+        }
+        .contentShape(Rectangle())
+    }
+
+    private func refresh() {
+        Task.detached(priority: .utility) {
+            let top = TopProcessReader.read(limit: 4)
+            await MainActor.run { rows = top; loading = false }
         }
     }
 }

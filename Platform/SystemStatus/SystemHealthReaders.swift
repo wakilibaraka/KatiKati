@@ -21,7 +21,8 @@ enum TopProcessReader {
     static func read(limit: Int) -> [TopProcess] {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/bin/ps")
-        p.arguments = ["-Ao", "pcpu=,comm=", "-r"]
+        // Pid first: the rows stay actionable. Still one shot, still off the main thread at every call site.
+        p.arguments = ["-Ao", "pid=,pcpu=,comm=", "-r"]
         let pipe = Pipe()
         p.standardOutput = pipe
         p.standardError = FileHandle.nullDevice

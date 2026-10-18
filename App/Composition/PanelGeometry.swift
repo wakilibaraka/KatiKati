@@ -563,14 +563,10 @@ enum PanelGeometry {
         return railWindowFrame(solved, on: screen, placement: stripPlacement, metrics: metrics)
     }
 
-    /// Length a rail's **apps** island fills (Phase 41b, owner: "maximise space use"). Fixed groups hug
-    /// the rail's ends, so a content-hugging apps island leaves dead space above and below it; the panel
-    /// takes the whole span between them instead. 0 on the bottom bar and in the single-island modes,
-    /// where the frame is already the authority.
-    ///
-    /// Solved by asking for more content than the rail can hold: the apps island then reports the span it
-    /// is *allowed* to fill, minus its own drawer-capsule slot — independent of what is on screen, so the
-    /// panel's measured-content feedback loop has a fixed point (`relayout` clamps to this).
+    /// Length a rail's **apps** island fills: `0` (Phase 49, owner: "Hug content with balanced insets").
+    /// Previously Phase 41b stretched the apps island across the full span between the fixed end islands,
+    /// leaving a tall empty void below the last icon when apps didn't fill the screen height. Like the
+    /// horizontal bar, the rail's apps island now hugs its measured content.
     static func railAppsFillLength(
         mode: BarLayoutMode,
         stripPlacement: StripPlacement,
@@ -581,17 +577,7 @@ enum PanelGeometry {
         margin: CGFloat = 12,
         widgetLayout: WidgetLayout? = nil
     ) -> CGFloat {
-        guard stripPlacement.isVertical, mode.isSplit else { return 0 }
-        let islands = BarSection.islands(for: mode)
-        guard let appsSlot = islands.firstIndex(where: { $0.contains(.apps) }) else { return 0 }
-        let length = StripAxis.mainLength(placement: stripPlacement, screen: screen.frame,
-                                          topInset: railTopInset(on: screen))
-        let filled = stripTargetFrame(slot: appsSlot, contentLength: length, mode: mode,
-                                      stripPlacement: stripPlacement, on: screen, metrics: metrics,
-                                      centeredWidth: centeredWidth, gap: gap, margin: margin,
-                                      widgetLayout: widgetLayout)
-        // A rail's main axis is the frame's height; the shadow padding is symmetric.
-        return max(0, filled.height - 2 * metrics.shadowPadding)
+        0
     }
 
     /// Capsule window for any placement: right of the bar on the bottom (honouring `drawerPlacement`),

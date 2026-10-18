@@ -33508,83 +33508,6 @@
         }
       }
     },
-    "Applies to the trash and the menu bar icon. Independent of the theme.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Applies to the trash and the menu bar icon. Independent of the theme."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "应用于废纸篓和菜单栏图标，与主题互不影响。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "套用於垃圾桶和選單列圖示，與主題互不影響。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ゴミ箱とメニューバーのアイコンに適用されます。テーマとは独立しています。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gilt für den Papierkorb und das Menüleistensymbol. Unabhängig vom Design."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "S’applique à la corbeille et à l’icône de la barre des menus. Indépendant du thème."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se aplica a la papelera y al icono de la barra de menús. Independiente del tema."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se aplica a la papelera y al ícono de la barra de menús. Independiente del tema."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aplica-se ao lixo e ao ícone da barra de menus. Independente do tema."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aplica-se ao lixo e ao ícone da barra de menus. Independente do tema."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Si applica al cestino e all’icona della barra dei menu. Indipendente dal tema."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "휴지통과 메뉴 막대 아이콘에 적용됩니다. 테마와는 별개입니다."
-          }
-        }
-      }
-    },
     "Aurora Glow": {
       "extractionState": "manual",
       "localizations": {
@@ -68103,6 +68026,329 @@
             "value": "독 오른쪽 버튼: 실시간 게이지 또는 단일 글리프."
           }
         }
+      }
+    },
+    "/opt/homebrew/bin/aria2c": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "/opt/homebrew/bin/aria2c"}},
+        "en": {"stringUnit": {"state": "translated", "value": "/opt/homebrew/bin/aria2c"}},
+        "es": {"stringUnit": {"state": "translated", "value": "/opt/homebrew/bin/aria2c"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "/opt/homebrew/bin/aria2c"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "/opt/homebrew/bin/aria2c"}},
+        "it": {"stringUnit": {"state": "translated", "value": "/opt/homebrew/bin/aria2c"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "/opt/homebrew/bin/aria2c"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "/opt/homebrew/bin/aria2c"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "/opt/homebrew/bin/aria2c"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "/opt/homebrew/bin/aria2c"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "/opt/homebrew/bin/aria2c"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "/opt/homebrew/bin/aria2c"}}
+      }
+    },
+    "BitTorrent": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "BitTorrent"}},
+        "en": {"stringUnit": {"state": "translated", "value": "BitTorrent"}},
+        "es": {"stringUnit": {"state": "translated", "value": "BitTorrent"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "BitTorrent"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "BitTorrent"}},
+        "it": {"stringUnit": {"state": "translated", "value": "BitTorrent"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "BitTorrent"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "BitTorrent"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "BitTorrent"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "BitTorrent"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "BT 下载"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "BT 下載"}}
+      }
+    },
+    "Collapse or expand the sidebar": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "needs_review", "value": "Seitenleiste ein- oder ausklappen"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Collapse or expand the sidebar"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Contraer o expandir la barra lateral"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Contraer o expandir la barra lateral"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Réduire ou développer la barre latérale"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Comprimi o espandi la barra laterale"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "サイドバーを折りたたむ／展開"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "사이드바 접기 또는 펼치기"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Recolher ou expandir a barra lateral"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Recolher ou expandir a barra lateral"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "折叠或展开侧栏"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "摺疊或展開側邊欄"}}
+      }
+    },
+    "Downloads": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "needs_review", "value": "Downloads"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Downloads"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Descargas"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Descargas"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Téléchargements"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Download"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "ダウンロード"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "다운로드"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Downloads"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Transferências"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "下载"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "下載"}}
+      }
+    },
+    "Engine Path": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Engine-Pfad"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Engine Path"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ruta del motor"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ruta del motor"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Chemin du moteur"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Percorso motore"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "エンジンのパス"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "엔진 경로"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Caminho do mecanismo"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Caminho do motor"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "引擎路径"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "引擎路徑"}}
+      }
+    },
+    "Equal hours disables the window. 0 stops sharing at completion.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Gleiche Stunden deaktivieren das Fenster; 0 stoppt das Teilen bei Fertigstellung."}},
+        "en": {"stringUnit": {"state": "translated", "value": "Equal hours disables the window. 0 stops sharing at completion."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Mismas horas desactivan el intervalo; 0 detiene el envío al completar."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Mismas horas desactivan el intervalo; 0 detiene el envío al completar."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Des heures égales désactivent la plage ; 0 arrête le partage à la fin."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ore uguali disattivano la fascia; 0 interrompe la condivisione al completamento."}},
+        "ja": {"stringUnit": {"state": "translated", "value": "開始と終了が同じで無効、0 で完了時に共有停止。"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "시작·종료가 같으면 해제, 0이면 완료 시 공유 중단."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Horas iguais desativam o intervalo; 0 encerra o envio ao concluir."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Horas iguais desativam o intervalo; 0 termina a partilha ao concluir."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "起止相同即关闭该时段，0 表示完成后停止分享。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "起止相同即關閉該時段，0 表示完成後停止分享。"}}
+      }
+    },
+    "Info": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "needs_review", "value": "Info"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Info"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Información"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Información"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Infos"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Info"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "情報"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "정보"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Informações"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Informações"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "信息"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "資訊"}}
+      }
+    },
+    "Max Upload": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Max. Upload"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Max Upload"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Subida máx."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Subida máx."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Envoi max"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Upload max"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "最大アップロード"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "최대 업로드"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Upload máx."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Upload máx."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "上传上限"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "上傳上限"}}
+      }
+    },
+    "Next Notch Page": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Nächste Notch-Seite"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Next Notch Page"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Página siguiente de Notch"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Página siguiente de Notch"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Page Notch suivante"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Pagina Notch successiva"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "次のノッチページ"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "다음 Notch 페이지"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Próxima página do Notch"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Página seguinte do Notch"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "下一个刘海页面"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "下一個瀏海頁面"}}
+      }
+    },
+    "No matching section": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "needs_review", "value": "Kein passender Bereich"}},
+        "en": {"stringUnit": {"state": "translated", "value": "No matching section"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Ninguna sección coincide"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Ninguna sección coincide"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Aucune section correspondante"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Nessuna sezione corrispondente"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "一致する項目がありません"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "일치하는 섹션 없음"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Nenhuma seção correspondente"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Nenhuma secção correspondente"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "没有匹配的分区"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "沒有符合的分區"}}
+      }
+    },
+    "Previous Notch Page": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Vorherige Notch-Seite"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Previous Notch Page"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Página anterior de Notch"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Página anterior de Notch"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Page Notch précédente"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Pagina Notch precedente"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "前のノッチページ"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "이전 Notch 페이지"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Página anterior do Notch"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Página anterior do Notch"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "上一个刘海页面"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "上一個瀏海頁面"}}
+      }
+    },
+    "Quiet From": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Leise ab"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Quiet From"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Límite desde"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Límite desde"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ralenti dès"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Limite dalle"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "低速開始"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "저속 시작"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Limite das"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Limite das"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "限速开始"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "限速開始"}}
+      }
+    },
+    "Quiet Until": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Leise bis"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Quiet Until"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Límite hasta"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Límite hasta"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ralenti jusqu'à"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Limite fino alle"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "低速終了"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "저속 종료"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Limite até"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Limite até"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "限速结束"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "限速結束"}}
+      }
+    },
+    "Quiet Upload": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Leiser Upload"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Quiet Upload"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Subida limitada"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Subida limitada"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Envoi ralenti"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Upload limitato"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "低速アップロード"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "저속 업로드"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Upload limitado"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Upload limitado"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "限速上传"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "限速上傳"}}
+      }
+    },
+    "Search": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "needs_review", "value": "Suchen"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Search"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Buscar"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Buscar"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Rechercher"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Cerca"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "検索"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "검색"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Buscar"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Pesquisar"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "搜索"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "搜尋"}}
+      }
+    },
+    "Search settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "needs_review", "value": "Einstellungen durchsuchen"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Search settings"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Buscar en los ajustes"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Buscar en los ajustes"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Rechercher dans les réglages"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Cerca nelle impostazioni"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "設定を検索"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "설정 검색"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Buscar nos ajustes"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Pesquisar nas definições"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "搜索设置"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "搜尋設定"}}
+      }
+    },
+    "Seed Minutes": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Seed-Dauer"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Seed Minutes"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Minutos compartiendo"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Minutos compartiendo"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Durée de partage"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Minuti di seed"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "シード時間"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "시드 시간(분)"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Minutos de seed"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Minutos de seed"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "做种时长"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "做種時長"}}
+      }
+    },
+    "Seed Ratio": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "translated", "value": "Seed-Ratio"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Seed Ratio"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Proporción de subida"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Proporción de subida"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ratio de partage"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Rapporto seed"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "シード比"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "시드 비율"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Taxa de seed"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Taxa de seed"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "分享率"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "分享率"}}
+      }
+    },
+    "Toggle sidebar": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {"stringUnit": {"state": "needs_review", "value": "Seitenleiste umschalten"}},
+        "en": {"stringUnit": {"state": "translated", "value": "Toggle sidebar"}},
+        "es": {"stringUnit": {"state": "needs_review", "value": "Mostrar u ocultar la barra lateral"}},
+        "es-419": {"stringUnit": {"state": "needs_review", "value": "Mostrar u ocultar la barra lateral"}},
+        "fr": {"stringUnit": {"state": "needs_review", "value": "Afficher/masquer la barre latérale"}},
+        "it": {"stringUnit": {"state": "needs_review", "value": "Mostra o nascondi la barra laterale"}},
+        "ja": {"stringUnit": {"state": "needs_review", "value": "サイドバーを切り替え"}},
+        "ko": {"stringUnit": {"state": "needs_review", "value": "사이드바 전환"}},
+        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Alternar barra lateral"}},
+        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Alternar barra lateral"}},
+        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "切换侧栏"}},
+        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "切換側邊欄"}}
       }
     }
   },

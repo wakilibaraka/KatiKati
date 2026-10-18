@@ -1,0 +1,57 @@
+Tools
+00
+00
+General
+Appearance
+Widgets
+Notch
+Edge Bars
+Window Management
+Launcher Control Center Shortcuts
+Tools
+Advanced
+ce
+Bo Widgets
+Notch
+Edge Bars
+Window Management
+Q Launcher
+• Control Center
+2 Shortcuts
+• Tools
+Clipboard
+Clean Copied Links
+Ignore Patterns
+Ignore Patterns
+Copy Sounds
+Copy Notifications
+Commands & Snippets
+Custom Commands
+One command per line: ¡name = /path/to/script
+Text Snippets
+One per line: ¡sig = Best regards, Sam. Type the trigger in xSpace and press Return to paste it.
+BitTorrent
+Engine Path
+/opt/homebrew/bin/aria2c
+/opt/homebrew/bin/aria2c
+Seed Ratio
+0 (stop)
+Seed Minutes
+0 (stop)
+Max Upload
+Unlimited
+Quiet Upload
+Off
+Equal hours disables the window. O stops sharing at completion.
+Quiet From
+0:00
+Quiet Until
+0:00
+Shelf
+Shake to Shelf
+Auto-Expire
+Storage
+References
+Clear Unpinned
+System Dock
+Restore Dock

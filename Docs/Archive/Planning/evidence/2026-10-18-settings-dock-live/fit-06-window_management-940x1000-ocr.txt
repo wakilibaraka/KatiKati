@@ -1,0 +1,66 @@
+Window Management
+00
+00
+General
+Appearance
+Widgets
+Notch
+Edge Bars
+Window Management
+Launcher
+Control Center Shortcuts
+lOoIS
+Advanced
+ce
+Bo Widgets
+- Notch
+Edge Bars
+E Window Management
+Q Launcher
+• Control Center
+& Shortcuts
+L Tools
+Tiling
+Enable Auto-Tiling
+Automatically tile open windows in binary space partitions or presets. Disabling instantly restores pre-tiling window frames.
+Preset
+BSP
+Main + Stack
+Monocle
+Inner Gap
+8 pt
+Outer Gap
+8 pt
+Floating Applications
+Applications listed below will float and never be tiled (one bundle identifier per line):
+com.apple.ActivityMonitor
+com.apple.DiskUtility
+com.apple.QuickTimePlayerX
+com.apple.archiveutility
+com.apple.calculator
+Window Chips
+Multiple Windows 3
+One chip per window
+Add App...
+Show All Running Apps
+Hover Preview
+Gives every running app a chip, even when it has no open window - like the
+system Dock.
+Preview Delay
+Fast
+Normal
+Slow
+Preview Size
+Small
+Medium
+Large
+Allow Screen Recording
+Window previews need Screen Recording permission. Without it, previews show titles only.
+Classic Right-Click Menu (
+Option-Tab Window Switcher
+Restore Window Layout After Sleep
+Hold Option and press Tab to pick a window from a thumbnail grid; release to switch.
+After the Mac wakes or a display is reconnected, windows that moved are put back
+Shift reverses, Esc cancels.
+where they were. Needs Accessibility access.
+Restore Windows From Last Sleep

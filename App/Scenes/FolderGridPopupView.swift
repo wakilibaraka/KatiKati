@@ -11,6 +11,8 @@ final class FolderPopupModel: ObservableObject {
     @Published private(set) var didFirstLoad = false
 
     private var watcher: DirectoryWatcher?
+    /// 在后台 open 期间又切了目录：只有最后一次 display 的 watcher 留下，旧的落地即丢。
+    private var displayToken = 0
     private var generation = 0
     /// 该文件夹的排序方式（开窗时定死；改排序走协调器原地切换重开,不在窗内热切）。
     var sortOrder: FolderSortOrder = .default
@@ -23,9 +25,22 @@ final class FolderPopupModel: ObservableObject {
 
     func display(url: URL) {
         watcher?.stop()
-        watcher = DirectoryWatcher(path: url.path) { [weak self] in
-            Task { @MainActor [weak self] in self?.reload(url: url) }
-        }
+        watcher = nil
+        displayToken += 1
+        let token = displayToken
+        // open 跑在后台：下钻到 TCC 目录也不会冻住弹窗；nil 照旧由下一次 display 重试。
+        DirectoryWatcher.start(
+            path: url.path,
+            onChange: { [weak self] in
+                Task { @MainActor [weak self] in self?.reload(url: url) }
+            },
+            completion: { [weak self] watcher in
+                Task { @MainActor [weak self] in
+                    guard let self, self.displayToken == token else { return }
+                    self.watcher = watcher
+                }
+            }
+        )
         reload(url: url)
     }
 

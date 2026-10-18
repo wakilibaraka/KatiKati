@@ -1,0 +1,73 @@
+Edge Bars
+00
+a
+General
+Appearance
+Widgets
+Notch
+Edge Bars
+Window Management
+Launcher Control Center Shortcuts
+Tools
+Advanced
+ce
+88 Widgets
+Notch
+B Edge Bars
+Window Management
+Q Launcher
+• Control Center
+& Shortcuts
+Tools
+Edge Bars
+Edge Bars
+Productivity + Rest
+Edge Bar on the Dock's Side
+Move Across
+Hide
+Main Side
+Left
+Right
+Keep Edge Bars Open
+Slim bars on the screen edges for notes, productivity and system status. Pick a layout, flip it to either side, or choose Custom to place each item yourself.
+Widgets
+Weather
+Now Playing
+Bluetooth
+System
+Size & Behaviour
+Left Bar Size
+100%
+Right Bar Size
+100%
+Open Delay
+0.40 s
+Edge Sensitivity
+25%
+Left Bar Height
+50%
+Right Bar Height
+50%
+Magnify Buttons Under the Pointer
+Magnify Amount
+Subtle
+Standard
+Bold
+Button Icons
+Classic
+Modern
+Realistic
+Flyout Style
+Modern
+Glass
+Button Style
+Glass
+Coloured
+Note Tab Font
+System
+Open Only on Click
+Show Button Names on Hover
+Preview Notes on Hover
+Open Notes on Hover
+Reset Bar Positions
+Sync Notes with iCloud Drive

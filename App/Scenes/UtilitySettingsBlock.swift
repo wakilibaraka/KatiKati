@@ -15,83 +15,206 @@ struct UtilitySettingsBlock: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
-            SettingsCard(Text("Clipboard")) {
-                // Cleaning copied links is a clipboard job, so it opens this card rather than
-                // sitting in a headerless card of its own (`Docs/SETTINGS.md` rule 5).
-                SettingsToggleRow(
-                    Text("Clean Copied Links"),
-                    isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) })
-                )
-                SettingsDivider()
-                SettingsRowPair(
-                    left: { SettingsToggleRow(Text("Copy Sounds"), isOn: $clipboardSounds) },
-                    right: { SettingsToggleRow(Text("Copy Notifications"), isOn: $clipboardToast) }
-                )
-                SettingsDivider()
-                SettingsRow(Text("Ignore Patterns")) {
-                    TextField("Ignore Patterns", text: $clipboardIgnorePatterns)
-                        .textFieldStyle(.roundedBorder).frame(width: 220)
+            SettingsBentoSplit {
+                SettingsCard(Text("Clipboard")) {
+                    // Cleaning copied links is a clipboard job, so it opens this card rather than
+                    // sitting in a headerless card of its own. One line with the field it feeds
+                    // (2026-10-18): the label and its 220 pt field are 370 pt, half the card is 414.
+                    SettingsRowPair(
+                        left: {
+                            SettingsToggleRow(
+                                Text("Clean Copied Links"),
+                                isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) })
+                            )
+                        },
+                        right: {
+                            SettingsRow(Text("Ignore Patterns")) {
+                                TextField("Ignore Patterns", text: $clipboardIgnorePatterns)
+                                    .textFieldStyle(.roundedBorder).frame(width: 220)
+                            }
+                        }
+                    )
+                    SettingsDivider()
+                    SettingsRowPair(
+                        left: { SettingsToggleRow(Text("Copy Sounds"), isOn: $clipboardSounds) },
+                        right: { SettingsToggleRow(Text("Copy Notifications"), isOn: $clipboardToast) }
+                    )
                 }
-            }
-            // The two editors are one section, not two (`Docs/SETTINGS.md` rule 5's three-section
-            // budget): they are the same kind of thing, and the page was one card over it.
-            SettingsCard(Text("Commands & Snippets")) {
-                SettingsEditorRow(
-                    Text("Custom Commands"),
-                    text: $customCommands,
-                    placeholder: Text("One command per line: ;name = /path/to/script")
-                )
-                SettingsDivider()
-                SettingsEditorRow(
-                    Text("Text Snippets"),
-                    text: $snippets,
-                    placeholder: Text("One per line: ;sig = Best regards, Sam. Type the trigger in ⌘Space and press Return to paste it.")
-                )
+            } trailing: {
+                // The two editors are one section, not two (`Docs/SETTINGS.md` rule 5's three-section
+                // budget): they are the same kind of thing, and the page was one card over it.
+                SettingsCard(Text("Commands & Snippets")) {
+                    SettingsEditorRow(
+                        Text("Custom Commands"),
+                        text: $customCommands,
+                        placeholder: Text("One command per line: ;name = /path/to/script")
+                    )
+                    SettingsDivider()
+                    SettingsEditorRow(
+                        Text("Text Snippets"),
+                        text: $snippets,
+                        placeholder: Text("One per line: ;sig = Best regards, Sam. Type the trigger in ⌘Space and press Return to paste it.")
+                    )
+                }
             }
             SettingsCard(Text("Shelf")) {
-                SettingsRowPair(
-                    left: {
-                        SettingsToggleRow(
-                            Text("Shake to Shelf"),
-                            isOn: Binding(get: { store.shelfShakeEnabled }, set: { store.setShelfShakeEnabled($0) })
-                        )
-                    },
-                    right: {
-                        SettingsToggleRow(
-                            Text("Auto-Expire"),
-                            isOn: Binding(get: { store.shelfAutoExpire }, set: { store.setShelfAutoExpire($0) })
-                        )
-                    }
-                )
-                if store.shelfAutoExpire {
-                    SettingsDivider()
-                    SettingsRow(Text("Expire After")) {
-                        Picker("Expire After", selection: Binding(get: { store.shelfExpiryDays }, set: { store.setShelfExpiryDays($0) })) {
-                            Text("1 day").tag(1)
-                            Text("3 days").tag(3)
-                            Text("7 days").tag(7)
+                    SettingsRowPair(
+                        left: {
+                            SettingsToggleRow(
+                                Text("Shake to Shelf"),
+                                isOn: Binding(get: { store.shelfShakeEnabled }, set: { store.setShelfShakeEnabled($0) })
+                            )
+                        },
+                        right: {
+                            SettingsToggleRow(
+                                Text("Auto-Expire"),
+                                isOn: Binding(get: { store.shelfAutoExpire }, set: { store.setShelfAutoExpire($0) })
+                            )
                         }
-                        .labelsHidden().pickerStyle(.menu).fixedSize()
+                    )
+                    if store.shelfAutoExpire {
+                        SettingsDivider()
+                        SettingsRow(Text("Expire After")) {
+                            Picker("Expire After", selection: Binding(get: { store.shelfExpiryDays }, set: { store.setShelfExpiryDays($0) })) {
+                                Text("1 day").tag(1)
+                                Text("3 days").tag(3)
+                                Text("7 days").tag(7)
+                            }
+                            .labelsHidden().pickerStyle(.menu).fixedSize()
+                        }
+                    }
+                    SettingsDivider()
+                    // The storage picker and the clear button, one line (2026-10-18).
+                    SettingsRowPair(
+                        left: {
+                            SettingsRow(Text("Storage")) {
+                                Picker("Storage", selection: Binding(get: { store.shelfStorage }, set: { store.setShelfStorage($0) })) {
+                                    Text("References").tag(ShelfStorage.reference)
+                                    Text("Copies").tag(ShelfStorage.copy)
+                                }
+                                .labelsHidden().pickerStyle(.menu).fixedSize()
+                            }
+                        },
+                        right: {
+                            SettingsButtonRow(Text("Clear Unpinned")) { AppDelegate.shared?.shelfStore.clear() }
+                        }
+                    )
+                    SettingsDivider()
+                    SettingsRow(Text("System Dock")) {
+                        Button("Restore Dock") { AppDelegate.shared?.restoreNativeDock() }
+                            .buttonStyle(SettingsGelButtonStyle())
                     }
                 }
-                SettingsDivider()
-                SettingsRow(Text("Storage")) {
-                    Picker("Storage", selection: Binding(get: { store.shelfStorage }, set: { store.setShelfStorage($0) })) {
-                        Text("References").tag(ShelfStorage.reference)
-                        Text("Copies").tag(ShelfStorage.copy)
-                    }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                }
-                SettingsDivider()
-                SettingsButtonRow(Text("Clear Unpinned")) { AppDelegate.shared?.shelfStore.clear() }
-                SettingsDivider()
-                SettingsRow(Text("System Dock")) {
-                    Button("Restore Dock") { AppDelegate.shared?.restoreNativeDock() }
-                }
-            }
         }
     }
 
+}
+
+/// Phase 44b — the BitTorrent hub's policy: custom engine path, seeding limits and a throttled
+/// upload window. Reads the same `com.katikati.torrent.*` keys the engine does, so a change lands
+/// without relaunch; policy pushes live via `applyPolicy()`, a path change applies on next start.
+struct TorrentSettingsBlock: View {
+    @AppStorage(TorrentSettings.enginePathKey) private var enginePath = ""
+    @AppStorage(TorrentSettings.seedRatioKey) private var seedRatio = 0.0
+    @AppStorage(TorrentSettings.seedTimeMinutesKey) private var seedMinutes = 0
+    @AppStorage(TorrentSettings.maxUploadKBpsKey) private var maxUploadKBps = 0
+    @AppStorage(TorrentSettings.quietStartHourKey) private var quietStart = 0
+    @AppStorage(TorrentSettings.quietEndHourKey) private var quietEnd = 0
+    @AppStorage(TorrentSettings.quietUploadKBpsKey) private var quietUploadKBps = 0
+    @State private var detectedPath: String? = nil
+
+    var body: some View {
+        SettingsCard(Text("BitTorrent")) {
+            SettingsRow(Text("Engine Path"), note: Text(statusLine)) {
+                HStack(spacing: 8) {
+                    TextField("/opt/homebrew/bin/aria2c", text: $enginePath)
+                        .textFieldStyle(.roundedBorder).frame(width: 220)
+                    if !enginePath.isEmpty {
+                        Button("Auto") { enginePath = "" }
+                            .buttonStyle(SettingsGelButtonStyle())
+                    }
+                }
+            }
+            SettingsDivider()
+            SettingsRowPair(
+                left: {
+                    SettingsStepperRow(
+                        Text("Seed Ratio"),
+                        value: $seedRatio,
+                        in: 0...50,
+                        step: 0.5,
+                        readout: seedRatio == 0 ? "0 (stop)" : String(format: "%.1f", seedRatio)
+                    )
+                },
+                right: {
+                    SettingsStepperRow(
+                        Text("Seed Minutes"),
+                        value: Binding(get: { Double(seedMinutes) }, set: { seedMinutes = Int($0) }),
+                        in: 0...1440,
+                        step: 10,
+                        readout: seedMinutes == 0 ? "0 (stop)" : "\(seedMinutes)m"
+                    )
+                }
+            )
+            SettingsDivider()
+            SettingsRowPair(
+                left: {
+                    SettingsStepperRow(
+                        Text("Max Upload"),
+                        value: Binding(get: { Double(maxUploadKBps) }, set: { maxUploadKBps = Int($0) }),
+                        in: 0...100_000,
+                        step: 50,
+                        readout: maxUploadKBps == 0 ? "Unlimited" : "\(maxUploadKBps) KB/s"
+                    )
+                },
+                right: {
+                    SettingsStepperRow(
+                        Text("Quiet Upload"),
+                        value: Binding(get: { Double(quietUploadKBps) }, set: { quietUploadKBps = Int($0) }),
+                        in: 0...100_000,
+                        step: 10,
+                        readout: quietUploadKBps == 0 ? "Off" : "\(quietUploadKBps) KB/s",
+                        note: Text("Equal hours disables the window. 0 stops sharing at completion.")
+                    )
+                }
+            )
+            SettingsDivider()
+            SettingsRowPair(
+                left: {
+                    SettingsStepperRow(
+                        Text("Quiet From"),
+                        value: Binding(get: { Double(quietStart) }, set: { quietStart = Int($0) }),
+                        in: 0...23,
+                        step: 1,
+                        readout: "\(quietStart):00"
+                    )
+                },
+                right: {
+                    SettingsStepperRow(
+                        Text("Quiet Until"),
+                        value: Binding(get: { Double(quietEnd) }, set: { quietEnd = Int($0) }),
+                        in: 0...23,
+                        step: 1,
+                        readout: "\(quietEnd):00"
+                    )
+                }
+            )
+        }
+        .onAppear { detectedPath = TorrentEngine.shared.resolvedBinaryPath }
+        .onChange(of: seedRatio) { _ in pushPolicy() }
+        .onChange(of: seedMinutes) { _ in pushPolicy() }
+        .onChange(of: maxUploadKBps) { _ in pushPolicy() }
+        .onChange(of: quietStart) { _ in pushPolicy() }
+        .onChange(of: quietEnd) { _ in pushPolicy() }
+        .onChange(of: quietUploadKBps) { _ in pushPolicy() }
+    }
+
+    private var statusLine: String {
+        if !enginePath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return "Custom path — applies on next start." }
+        return detectedPath ?? "aria2c not found — install aria2 for magnet links."
+    }
+
+    private func pushPolicy() { Task { await TorrentEngine.shared.applyPolicy() } }
 }
 
 /// Phase 12 (2026-10-15) — the launcher's own rows (script commands, command hints, the file
@@ -149,27 +272,27 @@ struct NotchHelpersSettingsBlock: View {
 
     var body: some View {
         SettingsCard(Text("Daily Helpers")) {
-            SettingsToggleRow(Text("Hide from Screen Capture"), isOn: $hideFromCapture)
+            SettingsRowPair(
+                left: { SettingsToggleRow(Text("Hide from Screen Capture"), isOn: $hideFromCapture) },
+                right: { SettingsToggleRow(Text("Caps Lock Indicator"), isOn: $capsLockHUD) }
+            )
             SettingsDivider()
-            SettingsToggleRow(Text("Caps Lock Indicator"), isOn: $capsLockHUD)
-            SettingsDivider()
-            SettingsToggleRow(Text("Charge Notices"), isOn: $batteryNudge)
-            SettingsDivider()
-            SettingsRow(Text("Clean Keyboard"), note: Text("Keys are off for 60 seconds. Press ⌃⌥⌘P to unlock sooner.")) {
-                Button("Lock for 60 Seconds") { KeyGuardService.shared.startCleaningLock() }
-            }
-            SettingsDivider()
-            SettingsToggleRow(Text("Offer to Eject Drives"), isOn: $usbEject)
+            SettingsRowPair(
+                left: { SettingsToggleRow(Text("Charge Notices"), isOn: $batteryNudge) },
+                right: { SettingsToggleRow(Text("Offer to Eject Drives"), isOn: $usbEject) }
+            )
             SettingsDivider()
             SettingsToggleRow(Text("Camera and Mic Indicator"), isOn: $privacyDot)
             SettingsDivider()
             SettingsRow(Text("Teleprompter"), note: Text("Opens from ⌘Space (prompter). The window is hidden from screen recordings and shares.")) {
                 Button("Open Teleprompter Window") { TeleprompterWindowController.shared.show() }
+                    .buttonStyle(SettingsGelButtonStyle())
             }
             SettingsDivider()
-            SettingsToggleRow(Text("Teleprompter Notch Page"), isOn: $teleprompterPage)
-            SettingsDivider()
-            SettingsToggleRow(Text("Camera Mirror Notch Page"), isOn: $cameraMirrorPage)
+            SettingsRowPair(
+                left: { SettingsToggleRow(Text("Teleprompter Notch Page"), isOn: $teleprompterPage) },
+                right: { SettingsToggleRow(Text("Camera Mirror Notch Page"), isOn: $cameraMirrorPage) }
+            )
             SettingsDivider()
             SettingsToggleRow(Text("Notifications Notch Page"), isOn: $notificationsPage)
         }

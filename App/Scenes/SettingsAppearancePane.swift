@@ -13,6 +13,7 @@ struct SettingsAppearancePane: View {
     @ObservedObject var store: AppSettingsStore
 
     @Environment(\.colorScheme) private var colorScheme
+    @State private var hoveredThemeToken: String?
     // Phase 32b: `Right FAB Style` moved here from the Widgets page, into the slot 32d's dock-icon row
     // freed — the dock's FAB is a look, like the icon set beside it.
     @AppStorage("com.katikati.widgets.fabStyle") private var fabStyleRaw: String = "gauge"
@@ -40,10 +41,11 @@ struct SettingsAppearancePane: View {
                 // paragraph under the grid, which rule 4 does not allow on a card either.
                 note: Text("Swatches show the dock plate's tint; Auto follows light and dark, set in General.")
             ) {
-                // 55 pt of minimum width is what puts the thirteen swatches on one row at the window's
-                // 816 pt (2026-10-15): at 88 they took two rows, 80 pt the page does not have. Same
-                // control, same preview, same names.
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 55), spacing: 8)], spacing: 10) {
+                // 48 pt of minimum width, not 55: the swatch draws 48 wide and the cell owes it 4 pt
+                // of padding each side, so a 55 pt cell is 62 pt of ink and only twelve of thirteen
+                // swatches fit — the thirteenth wrapped to a second row (~55 pt the page does not
+                // have). Same control, same preview, same names.
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 48), spacing: 8)], spacing: 10) {
                     ForEach(choices, id: \.token) { style in
                         themeCard(style)
                     }
@@ -55,22 +57,30 @@ struct SettingsAppearancePane: View {
                 // controls that visibly do nothing — they appear with the theme that has a tint.
                 if store.themeMaterial.tintsPlate {
                     SettingsDivider()
-                    SettingsSliderRow(
-                        Text("Vibrancy"),
-                        value: store.themeVibrancy,
-                        range: DockThemeStyle.vibrancyRange,
-                        step: 0.05,
-                        valueText: "\(Int((store.themeVibrancy * 100).rounded()))%",
-                        set: store.setThemeVibrancy
-                    )
-                    SettingsDivider()
-                    SettingsSliderRow(
-                        Text("Contrast"),
-                        value: store.themeContrast,
-                        range: DockThemeStyle.contrastRange,
-                        step: 0.1,
-                        valueText: String(format: "%.1f×", Double(store.themeContrast)),
-                        set: store.setThemeContrast
+                    // The two plate knobs share a line (2026-10-18): both are label + track +
+                    // readout, which fits half the card, and with them stacked the page ran past
+                    // the window whenever a tinted theme was pinned.
+                    SettingsRowPair(
+                        left: {
+                            SettingsSliderRow(
+                                Text("Vibrancy"),
+                                value: store.themeVibrancy,
+                                range: DockThemeStyle.vibrancyRange,
+                                step: 0.05,
+                                valueText: "\(Int((store.themeVibrancy * 100).rounded()))%",
+                                set: store.setThemeVibrancy
+                            )
+                        },
+                        right: {
+                            SettingsSliderRow(
+                                Text("Contrast"),
+                                value: store.themeContrast,
+                                range: DockThemeStyle.contrastRange,
+                                step: 0.1,
+                                valueText: String(format: "%.1f×", Double(store.themeContrast)),
+                                set: store.setThemeContrast
+                            )
+                        }
                     )
                 }
                 // The icon rows are inside this card now (2026-10-15): a card of their own cost a
@@ -87,30 +97,32 @@ struct SettingsAppearancePane: View {
     /// The icon rows, rendered inside the Theme card (2026-10-15). **One row now:** the dock app
     /// icon's shape was a row here until Phase 32d packed it (owner 2026-10-16) — the frame is fixed
     /// at launch by `DOCK_ICON_FRAME`, so there is no setting left to draw.
-    @ViewBuilder
+    /// The two icon preview tiles and their note went on 2026-10-18: they were 58 pt of a page whose
+    /// custom-tint state ran 17 pt past the window, and the segmented control already names and
+    /// draws the choice.
     private var iconRows: some View {
-        // The picker is the control; the two cards under it are previews, not a second control.
-        SettingsSegmentedRow(
-            Text("Icon Set"),
-            selection: Binding(get: { store.iconSet }, set: store.setIconSet)
-        ) {
-            Text("Modern").tag(IconSet.modern)
-            Text("Classic").tag(IconSet.classic)
-        }
-        HStack(spacing: 12) {
-            iconPreview(.modern)
-            iconPreview(.classic)
-        }
-        SettingsNote(Text("Applies to the trash and the menu bar icon. Independent of the theme."))
-        SettingsDivider()
-        SettingsRow(Text("Right FAB Style")) {
-            Picker("Right FAB Style", selection: $fabStyleRaw) {
-                Text("Dynamic Gauge").tag("gauge")
-                Text("Classic Glyph").tag("classic")
+        // Both rows are "which glyph does the chrome draw", so they share a line: two menus, one line.
+        SettingsRowPair(
+            left: {
+                SettingsSegmentedRow(
+                    Text("Icon Set"),
+                    selection: Binding(get: { store.iconSet }, set: store.setIconSet)
+                ) {
+                    Text("Modern").tag(IconSet.modern)
+                    Text("Classic").tag(IconSet.classic)
+                }
+            },
+            right: {
+                SettingsRow(Text("Right FAB Style")) {
+                    Picker("Right FAB Style", selection: $fabStyleRaw) {
+                        Text("Dynamic Gauge").tag("gauge")
+                        Text("Classic Glyph").tag("classic")
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                .help(Text("The dock's right button: a live gauge or a single glyph."))
             }
-            .labelsHidden().pickerStyle(.menu).fixedSize()
-        }
-        .help(Text("The dock's right button: a live gauge or a single glyph."))
+        )
     }
 
     // MARK: - Wallpaper (Phase 10b-3)
@@ -148,8 +160,10 @@ struct SettingsAppearancePane: View {
                 HStack(spacing: 8) {
                     if !store.wallpaperFolder.isEmpty {
                         Button("Built-in Sky") { store.setWallpaperFolder("") }
+                            .buttonStyle(SettingsGelButtonStyle())
                     }
                     Button("Choose Folder…") { chooseWallpaperFolder() }
+                        .buttonStyle(SettingsGelButtonStyle())
                 }
             }
             skyPreviewGrid
@@ -184,7 +198,7 @@ struct SettingsAppearancePane: View {
                         let stops = SkyPalette.stops(phase: phase, sky: sky)
                         RoundedRectangle(cornerRadius: 4, style: .continuous)
                             .fill(LinearGradient(colors: [color(stops.top), color(stops.bottom)], startPoint: .top, endPoint: .bottom))
-                            .frame(height: 12)
+                            .frame(height: 10)
                             .help(Text(verbatim: "\(phase.rawValue) · \(sky.rawValue)"))
                     }
                 }
@@ -207,12 +221,17 @@ struct SettingsAppearancePane: View {
 
     private func themeCard(_ style: DockThemeStyle) -> some View {
         let isSelected = isSame(style, store.themeMaterial)
+        let isHovered = hoveredThemeToken == style.token
+        let palette = SettingsIridescentPalette.resolve(style: style, colorScheme: colorScheme)
         return Button {
-            store.setThemeMaterial(style)
+            withAnimation(.spring(response: 0.26, dampingFraction: 0.76)) {
+                store.setThemeMaterial(style)
+            }
         } label: {
             VStack(spacing: 4) {
                 ThemeSwatch(style: style)
-                    .frame(width: 54, height: 34)
+                    .frame(width: 48, height: 32)
+                    .shadow(color: isSelected ? palette.glowColor : .clear, radius: 5, x: 0, y: 2)
                 ThemeName(style: style)
                     .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
                     .lineLimit(2)
@@ -222,13 +241,31 @@ struct SettingsAppearancePane: View {
             }
             .padding(4)
             .frame(maxWidth: .infinity)
-            .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(isSelected ? Color.accentColor.opacity(0.12) : .clear))
-            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: 2))
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(
+                        isSelected
+                            ? AnyShapeStyle(palette.subtleSurfaceGradient)
+                            : AnyShapeStyle(Color.primary.opacity(isHovered ? 0.06 : 0.0))
+                    )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(
+                        isSelected
+                            ? AnyShapeStyle(palette.pillGradient)
+                            : AnyShapeStyle(Color.primary.opacity(isHovered ? 0.16 : 0.0)),
+                        lineWidth: isSelected ? 2 : 1
+                    )
+            )
+            .scaleEffect(isHovered ? 1.04 : 1.0)
+            .animation(.spring(response: 0.24, dampingFraction: 0.75), value: isHovered)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .onHover { inside in
+            hoveredThemeToken = inside ? style.token : (hoveredThemeToken == style.token ? nil : hoveredThemeToken)
+        }
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
@@ -258,38 +295,6 @@ struct SettingsAppearancePane: View {
 
     // MARK: - Icon set
 
-    private func iconPreview(_ set: IconSet) -> some View {
-        let isSelected = store.iconSet == set
-        return HStack(spacing: 10) {
-            Group {
-                if set == .modern {
-                    Image("TrashEmpty").resizable().aspectRatio(contentMode: .fit)
-                    Image("TrashFull").resizable().aspectRatio(contentMode: .fit)
-                    Image("MenuBarIcon").resizable().renderingMode(.template).aspectRatio(contentMode: .fit)
-                        .padding(4)
-                } else {
-                    Image(systemName: IconSet.classicTrashSymbol(isFull: false)).font(.system(size: 18))
-                    Image(systemName: IconSet.classicTrashSymbol(isFull: true)).font(.system(size: 18))
-                    Image(systemName: IconSet.classicMenuBarSymbol).font(.system(size: 16))
-                }
-            }
-            .frame(width: 26, height: 26)
-            Spacer(minLength: 4)
-            Group {
-                if set == .modern { Text("Modern") } else { Text("Classic") }
-            }
-            .font(.system(size: 12, weight: .semibold))
-        }
-        .padding(.horizontal, 12)
-        // 4, not 8 (2026-10-15): two of these previews plus their padding were 42 pt of a page that
-        // has to fit the window, and the icons inside are 26 pt tall either way.
-        .padding(.vertical, 4)
-        .frame(maxWidth: .infinity)
-        .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color.primary.opacity(0.05)))
-        .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous)
-            .strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: 2))
-        .accessibilityElement(children: .combine)
-    }
 }
 
 /// Localized preset names. Literals, so the localization gate sees every key.

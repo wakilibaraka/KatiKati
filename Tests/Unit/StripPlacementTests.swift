@@ -71,11 +71,11 @@ final class StripPlacementTests: XCTestCase {
         }
     }
 
-    /// Phase 40b: one size for every rail tile but the Live Island, and it is the app chips' own width —
-    /// a 56 pt weather tile beside 40 pt icons is the two-docks defect the owner reported. The tile is
-    /// native-sized and scaled by `dockScale`, so the bar's thickness must not change it.
+    /// Phase 40b / Phase 49: one size for every rail tile (weather, clock, media, launcher, widgets),
+    /// matching the app chips' own 40 pt width. The tile is native-sized and scaled by `dockScale`,
+    /// so the bar's thickness must not change it.
     func testEveryRailTileMatchesTheAppChipsBesideIt() {
-        for section in BarSection.allCases where section != .apps && section != .media {
+        for section in BarSection.allCases where section != .apps {
             XCTAssertEqual(section.railTileLength(barHeight: 54), BarSection.railTileSize, "\(section)")
             XCTAssertEqual(section.railTileLength(barHeight: 30), BarSection.railTileSize,
                            "\(section): native-sized, scaled by dockScale — not by barHeight")

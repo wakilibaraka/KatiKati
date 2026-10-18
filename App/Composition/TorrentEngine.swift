@@ -13,26 +13,28 @@ import Foundation
 ///
 /// No `aria2c` on the machine means `isAvailable == false` and magnet input is refused, never answered
 /// with invented swarm numbers (that is the Phase 43 rule this replaces the refusal with a real engine).
+///
+/// Phase 44b: the binary resolves on every read (custom Settings path wins, else the installed
+/// candidates), so a pasted path works without relaunch; seeding/upload policy comes from the same
+/// settings and is pushed at spawn plus live via `applyPolicy()`.
 @MainActor
 final class TorrentEngine: TorrentEngineClient {
     static let shared = TorrentEngine()
 
-    /// Where a package manager installs `aria2c` on macOS: Homebrew (arm64, then Intel), MacPorts,
-    /// then the system prefix. First existing binary wins.
-    private static let candidatePaths = ["/opt/homebrew/bin/aria2c", "/usr/local/bin/aria2c",
-                                        "/opt/local/bin/aria2c", "/usr/bin/aria2c"]
-
-    private let binary: URL?
     private var process: Process?
     private var port: Int?
     private var secret: String?
     private var nextRequestID = 1
 
-    private init() {
-        binary = Self.candidatePaths
-            .first { FileManager.default.isExecutableFile(atPath: $0) }
-            .map { URL(fileURLWithPath: $0) }
+    private var binary: URL? {
+        let custom = UserDefaults.standard.string(forKey: TorrentSettings.enginePathKey)
+        return TorrentSettings.resolveBinary(custom: custom) {
+            FileManager.default.isExecutableFile(atPath: $0)
+        }
     }
+
+    /// The resolved path for the Settings status line (nil = none found).
+    var resolvedBinaryPath: String? { binary?.path }
 
     var isAvailable: Bool { binary != nil }
 
@@ -71,18 +73,36 @@ final class TorrentEngine: TorrentEngineClient {
 
     // MARK: - Process lifecycle
 
+    /// Pushes the current seeding/upload policy to a running engine. No-op while stopped; a binary-path
+    /// change applies on next start only — never kill a running transfer to switch binaries.
+    func applyPolicy() async {
+        guard process?.isRunning == true, let secret else { return }
+        let policy = TorrentSettings.current()
+        let hour = Calendar.current.component(.hour, from: Date())
+        let limit = TorrentSettings.effectiveUploadLimit(maxKBps: policy.maxUploadKBps, quietStart: policy.quietStartHour, quietEnd: policy.quietEndHour, quietKBps: policy.quietUploadKBps, hour: hour)
+        let options = TorrentSettings.globalOptions(seedRatio: policy.seedRatio, seedMinutes: policy.seedTimeMinutes, uploadKBps: limit)
+        _ = try? await call("aria2.changeGlobalOption", ["token:" + secret, options])
+    }
+
     private func startIfNeeded() async throws {
         if process?.isRunning == true, port != nil { return }
         guard let binary else { throw TorrentEngineError.notInstalled }
         guard let port = Self.freeLoopbackPort() else { throw TorrentEngineError.unreachable("no free loopback port") }
 
+        let policy = TorrentSettings.current()
+        let hour = Calendar.current.component(.hour, from: Date())
+        let limit = TorrentSettings.effectiveUploadLimit(maxKBps: policy.maxUploadKBps, quietStart: policy.quietStartHour, quietEnd: policy.quietEndHour, quietKBps: policy.quietUploadKBps, hour: hour)
+        let options = TorrentSettings.globalOptions(seedRatio: policy.seedRatio, seedMinutes: policy.seedTimeMinutes, uploadKBps: limit)
         let secret = UUID().uuidString
         let process = Process()
         process.executableURL = binary
         process.arguments = ["--no-conf", "--quiet", "--console-log-level=warn",
                             "--enable-rpc=true", "--rpc-listen-all=false",
                             "--rpc-listen-port=\(port)", "--rpc-secret=\(secret)",
-                            "--dir=\(downloadsDirectory.path)", "--seed-time=0",
+                            "--dir=\(downloadsDirectory.path)",
+                            "--seed-ratio=\(options["seed-ratio"] ?? "0")",
+                            "--seed-time=\(options["seed-time"] ?? "0")",
+                            "--max-upload-limit=\(options["max-upload-limit"] ?? "0")",
                             "--file-allocation=none", "--summary-interval=0",
                             // Backstop for a hard kill (SIGKILL/crash), where `applicationWillTerminate`
                             // never runs: aria2 exits within a few seconds of us (measured 2026-10-16).
@@ -100,7 +120,10 @@ final class TorrentEngine: TorrentEngineClient {
 
         // The port is not answering the instant the process starts; poll `getVersion` with a bounded wait.
         for _ in 0..<40 {
-            if (try? await call("aria2.getVersion", ["token:" + secret])) != nil { return }
+            if (try? await call("aria2.getVersion", ["token:" + secret])) != nil {
+                await applyPolicy()
+                return
+            }
             try? await Task.sleep(nanoseconds: 150_000_000)
         }
         shutdown()

@@ -1,0 +1,51 @@
+General
+00
+00
+General
+Appearance
+Widgets
+Notch
+Edge Bars
+Window Management
+Launcher Control Center
+Shortcuts
+Tools
+Advanced
+General
+® Appearance
+88 Widgets
+• Notch
+• Edge Bars
+Window Management
+Q Launcher
+3 Control Center
+& Shortcuts
+• Tools
+& Advanced
+Language
+English
+Appearance
+System
+Light
+Dark
+Show/hide taskbar shortcut
+Reset to Default
+^TOHD
+Drawer Position
+Right
+Reverse mouse scroll direction •
+| Permissions
+About
+Accessibility
+Grant
+Version 0.17.0 (51) • Debug Build
+Check for Updates...
+Shows your open windows as chips and lets you switch to them.
+Check for updates
+Screen Recording
+Diagnostic Info
+Copy
+Grant
+automatically
+Shows live window thumbnails in hover previews. Without it, previews show
+titles only.

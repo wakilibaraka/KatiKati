@@ -47,12 +47,17 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     /// The width this section's S/M/L presets are built on. Phase 4U decision 3 still holds — the order is
     /// hardcoded and widths are settings-only — but the exact-width sliders retired in Phase 40e, so a
     /// preset (or the rail's own geometry) is the only input now; nothing stores an arbitrary number here.
+    ///
+    /// **215 for `.media`** (Phase 49): `NowPlayingPreset.expandedCard` is the default preset and needs
+    /// 215 pt to fit artwork + title + transport controls + pagination dots without cramping the apps
+    /// island. Previously `DockStripView` silently bumped `.media` to 215 pt while the solver assumed 140,
+    /// stealing 75 pt from the apps island.
     var defaultWidgetWidth: CGFloat {
         switch self {
         case .launcher: return 40
         case .weather: return 150
         case .apps: return 0
-        case .media: return 140
+        case .media: return 215
         case .clock: return 160
         case .widgets: return 40
         }

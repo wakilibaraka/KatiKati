@@ -82,42 +82,39 @@ final class RailGeometryTests: XCTestCase {
         }
     }
 
-    /// Phase 41b: a rail's apps island fills the span between the fixed groups instead of hugging its
-    /// chips (owner: "maximise space use"), and the value is a **fixed point** — feeding the filled
-    /// length back as the measured content returns the same frame, which is what keeps the panel's
-    /// measured-content feedback loop from oscillating.
-    func testRailAppsIslandFillsTheSpanAndKeepsTheCapsuleSlotClear() {
+    /// Phase 49 (owner: "Hug content with balanced insets"): a rail's apps island hugs its measured
+    /// content rather than stretching across the empty span between the fixed end islands, and the
+    /// drawer capsule slot below it stays clear of the trailing island.
+    func testRailAppsIslandHugsContentAndKeepsTheCapsuleSlotClear() {
         for placement in [StripPlacement.left, .right] {
             for mode in [BarLayoutMode.split3, .split4, .split5] {
                 let label = "\(placement) \(mode)"
                 let fill = PanelGeometry.railAppsFillLength(
                     mode: mode, stripPlacement: placement, on: screen, metrics: metrics,
                     gap: 10, margin: 12, widgetLayout: layout)
+                XCTAssertEqual(fill, 0, "\(label): rail apps island hugs content instead of filling")
+
                 let appsSlot = BarSection.islands(for: mode).firstIndex { $0.contains(.apps) }!
-                func plate(_ contentLength: CGFloat) -> CGRect {
-                    PanelGeometry.stripTargetFrame(slot: appsSlot, contentLength: contentLength, mode: mode,
-                                                   stripPlacement: placement, on: screen, metrics: metrics,
-                                                   gap: 10, margin: 12, widgetLayout: layout)
-                        .insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
-                }
-                XCTAssertGreaterThan(fill, 420, "\(label): fills past its content")
-                XCTAssertEqual(plate(fill).height, fill, accuracy: 0.5, "\(label): fixed point")
+                let appsPlate = PanelGeometry.stripTargetFrame(slot: appsSlot, contentLength: 420, mode: mode,
+                                                               stripPlacement: placement, on: screen, metrics: metrics,
+                                                               gap: 10, margin: 12, widgetLayout: layout)
+                    .insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+                XCTAssertEqual(appsPlate.height, 420, accuracy: 0.5, "\(label): hugs the 420 pt content")
 
                 // The drawer capsule rides below this island, so the gap it leaves to the next island
                 // down is at least the capsule's own slot (gap + width) — never less, or the two overlap.
-                let appsPlate = plate(fill)
                 let others = frames(mode, placement)
                     .map { $0.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding) }
                     .filter { $0.maxY <= appsPlate.minY + 0.001 }
                 let nearestBelow = others.map(\.maxY).max() ?? screen.frame.minY
                 XCTAssertGreaterThanOrEqual(appsPlate.minY - nearestBelow,
                                             metrics.capsuleGap + metrics.capsuleWidth - 0.001,
-                                            "\(label): the capsule slot must survive the fill")
+                                            "\(label): the capsule slot must stay clear")
             }
         }
     }
 
-    /// Phase 42: a rail's islands are solved with the rail's own end padding (the Dock's 4 pt), and
+    /// Phase 42 / Phase 49: a rail's islands are solved with `IslandChrome.railContentInset` (8 pt), and
     /// `stripTargetFrame` is the path that carries it — the frame it returns is byte-for-byte the
     /// rail-inset solve mapped onto the edge.
     func testRailIslandFramesCarryTheRailEndInset() {
@@ -134,9 +131,9 @@ final class RailGeometryTests: XCTestCase {
                                                   gap: 10, margin: 12, widgetLayout: layout)
         XCTAssertEqual(rail.height, solved(IslandChrome.railContentInset).width, accuracy: 0.001,
                        "the rail path is the rail-inset solve")
-        XCTAssertEqual(solved(IslandChrome.contentInset).width - solved(IslandChrome.railContentInset).width,
-                       2 * (IslandChrome.contentInset - IslandChrome.railContentInset), accuracy: 0.001,
-                       "2 × (16 − 4): the dead ends Phase 42 removed")
+        XCTAssertEqual(solved(16).width - solved(IslandChrome.railContentInset).width,
+                       2 * (16 - IslandChrome.railContentInset), accuracy: 0.001,
+                       "2 × (16 − 8): tightened end insets")
     }
 
     /// Phase 42's 4 pt rail ends are only legal while the end tile stays clear of the island's rounded

@@ -312,6 +312,64 @@ final class DownloadManagerTests: XCTestCase {
         try? FileManager.default.removeItem(at: URL(fileURLWithPath: row.destinationURL?.path ?? "").appendingPathExtension("aria2"))
     }
 
+    // MARK: - Phase 44b: policy + session restore
+
+    func testTorrentSettingsResolveBinaryPrefersCustomPath() {
+        let url = TorrentSettings.resolveBinary(custom: "/custom/aria2c") { $0 == "/custom/aria2c" }
+        XCTAssertEqual(url?.path, "/custom/aria2c")
+        XCTAssertNil(TorrentSettings.resolveBinary(custom: "", isExecutable: { _ in false }))
+        let fallback = TorrentSettings.resolveBinary(custom: "/missing", isExecutable: { $0 == "/usr/bin/aria2c" })
+        XCTAssertEqual(fallback?.path, "/usr/bin/aria2c")
+    }
+
+    func testTorrentSettingsClampAndQuietWindow() {
+        XCTAssertEqual(TorrentSettings.clampedSeedRatio(nil), 0)
+        XCTAssertEqual(TorrentSettings.clampedSeedRatio(.nan), 0)
+        XCTAssertEqual(TorrentSettings.clampedSeedRatio(-1), 0)
+        XCTAssertEqual(TorrentSettings.clampedSeedRatio(99), 50)
+        // Day window: 1–7, hour 3 inside, hour 8 outside.
+        XCTAssertEqual(TorrentSettings.effectiveUploadLimit(maxKBps: 100, quietStart: 1, quietEnd: 7, quietKBps: 10, hour: 3), 10)
+        XCTAssertEqual(TorrentSettings.effectiveUploadLimit(maxKBps: 100, quietStart: 1, quietEnd: 7, quietKBps: 10, hour: 8), 100)
+        // Overnight wrap: 22–6, hour 23 and 5 inside, hour 12 outside.
+        XCTAssertEqual(TorrentSettings.effectiveUploadLimit(maxKBps: 100, quietStart: 22, quietEnd: 6, quietKBps: 10, hour: 23), 10)
+        XCTAssertEqual(TorrentSettings.effectiveUploadLimit(maxKBps: 100, quietStart: 22, quietEnd: 6, quietKBps: 10, hour: 5), 10)
+        XCTAssertEqual(TorrentSettings.effectiveUploadLimit(maxKBps: 100, quietStart: 22, quietEnd: 6, quietKBps: 10, hour: 12), 100)
+        // Disabled window and unset quiet limit fall back to the normal limit.
+        XCTAssertEqual(TorrentSettings.effectiveUploadLimit(maxKBps: 100, quietStart: 0, quietEnd: 0, quietKBps: 10, hour: 3), 100)
+        XCTAssertEqual(TorrentSettings.effectiveUploadLimit(maxKBps: 100, quietStart: 1, quietEnd: 7, quietKBps: 0, hour: 3), 100)
+        let options = TorrentSettings.globalOptions(seedRatio: 1.5, seedMinutes: 30, uploadKBps: 200)
+        XCTAssertEqual(options, ["seed-ratio": "1.5", "seed-time": "30", "max-upload-limit": String(200 * 1024)])
+        let defaults = TorrentSettings.globalOptions(seedRatio: 0, seedMinutes: 0, uploadKBps: 0)
+        XCTAssertEqual(defaults, ["seed-ratio": "0.0", "seed-time": "0", "max-upload-limit": "0"])
+    }
+
+    /// Session round-trip: unfinished rows persist, restore re-adds their URIs, terminal rows are dropped.
+    @MainActor
+    func testTorrentSessionRestoreReAddsUnfinishedRows() async {
+        let defaults = UserDefaults(suiteName: "com.katikati.tests.torrent-session")!
+        defaults.removeObject(forKey: DownloadManagerService.torrentSessionKey)
+        defer { defaults.removeObject(forKey: DownloadManagerService.torrentSessionKey) }
+        let engine = FakeTorrentEngine(available: true)
+        engine.metadataStatus = Self.metadataStatus(seeders: 1, connections: 2)
+        let first = DownloadManagerService(torrent: engine, sessionDefaults: defaults)
+        let magnet = "magnet:?xt=urn:btih:dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c&dn=Big+Buck+Bunny"
+        XCTAssertTrue(first.addDownload(input: magnet))
+        await waitUntil({ engine.addedURIs == [magnet] })
+        XCTAssertNotNil(defaults.data(forKey: DownloadManagerService.torrentSessionKey))
+
+        let secondEngine = FakeTorrentEngine(available: true)
+        secondEngine.metadataStatus = Self.metadataStatus(seeders: 1, connections: 2)
+        let second = DownloadManagerService(torrent: secondEngine, sessionDefaults: defaults)
+        second.restoreTorrentSession()
+        await waitUntil({ secondEngine.addedURIs == [magnet] }, "restore never re-added the URI")
+        XCTAssertEqual(second.items.filter { $0.type == .torrent }.count, 1)
+        // The restored row re-saves its session (it is unfinished again), so a crash after
+        // restore still resumes; cancelling drops it.
+        XCTAssertNotNil(defaults.data(forKey: DownloadManagerService.torrentSessionKey))
+        second.cancel(id: second.items.first { $0.type == .torrent }!.id)
+        XCTAssertNil(defaults.data(forKey: DownloadManagerService.torrentSessionKey))
+    }
+
     /// How many `aria2c` children this process still has — the orphan check.
     private static func engineChildCount() -> Int {
         let process = Process()

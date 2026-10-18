@@ -2,6 +2,42 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Settings redesign, Phase 1: sidebar shell and a freely resizable window
+
+### Changed
+- **Settings is a System Settings-style window.** One sidebar is the only navigation (the toolbar tab
+  strip and the floating nav bar are gone); it collapses to icons under 860 pt or with the toggle.
+- **Resize it to any size ≥ 640 × 440; the size and the selected section are remembered** across
+  relaunches (a frame saved on a missing display is pulled back on-screen). Pages scroll instead of the
+  window auto-fitting each page.
+- **14 sections:** Radial Dial, Downloads and Info are now their own pages (Info holds permissions and
+  About, moved off General).
+
+## [Unreleased] — Phase 12: the Settings window measures what it actually shows, so no page hides its tail
+
+### Fixed
+- **The Settings window no longer cuts off the bottom of a page.** The window sized itself from the page
+  alone, while the floating nav bar lives in the same content area above it — so every page was one nav
+  bar (~54 pt) taller than the window that was meant to show it, and the last row of a page a screenful
+  tall sat below the fold even at the window's maximum. The window now measures the nav bar with the page
+  (General 737 → 818 pt, and `Show Setup Guide Again` is on screen).
+- **Three pages that only overflowed once a control was used are fixed too**, each by pairing or folding
+  rows rather than by removing a control: Appearance with a tinted theme pinned (1003 → 956 pt: the two
+  plate sliders share a line), Widgets with *Context Presets* armed (1018 → 975 pt: the switch, both
+  windows and their fixed hours are one line, and the widget list's rows are 37 pt, not 41), and Edge Bars
+  on the *Custom* preset (1261 → 899 pt: the one-row-per-item list is folded behind a disclosure, collapsed
+  by default, the shape the Shortcuts page's assignments already use).
+
+### Changed
+- **Appearance, Widgets and Tools are compacted to fit with room to spare** (Appearance 1081 → 899 pt,
+  Widgets 993 → 951, Tools 1030 → 948). Narrow rows that each wanted a line now share one (the theme grid
+  onto a single row, the icon set with the right-button style, the three weather warnings, both download
+  ratio pairs), and the platform row's trailing space is a card's, not the page's. The one thing that left
+  the page is the pair of icon-set preview tiles on Appearance (58 pt): the segmented control above them
+  names and draws the same choice. Nothing else was removed — every control, key and value is in its place,
+  and the before/after numbers, captures and the live walk are in
+  `Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/README.md`.
+
 ## [Unreleased] — Phase 32: the dock's motion language, and the circular icon look is packed
 
 ### Added
@@ -33,6 +69,21 @@ All notable changes to KatiKati are documented in this file.
   sun or moon, city, *Tomorrow*/*Yesterday*, offset, time — with **Remove** in a row's own context menu and
   **Add City** from the same picker the panel uses. Both surfaces edit one store, so a city added in either
   place shows up in both.
+- **AI Mission Control now reads every AI tool that records usage, not just Claude.** OpenCode's own
+  session store and Codex rollout logs join the Claude transcripts in the day's tokens and spend, with the
+  page naming the stores it actually read and saying which dollar figure is the tool's own number and which
+  is estimated. Tools whose stores keep no accounting (Copilot's chat store holds message text, not tokens)
+  contribute nothing rather than a converted guess, the invented "Claude 3.7 Sonnet" title is gone, and an
+  empty day draws a dash instead of a zero.
+- **The Top Apps rows can end a process.** Each row keeps its pid, so a tap offers the same
+  Kill / Force Quit confirm the Command Bar uses and the list redraws with the process gone. A row the
+  system won't let you end says why instead of pretending. Rows without a pid still only print.
+- **The weather widget stays inside the dock.** Its forecast form was taller than the dock bar and stuck
+  out over the top. The whole forecast now scales to fit the slot — all three days stay visible, inside.
+- **A pinned Downloads folder no longer freezes the app before its first window.** The folder watcher opened
+  its directory on the main thread, and on a TCC-protected folder that call blocks until the authorization
+  prompt is answered. The open now happens on a background queue; the folder's cover simply arrives a moment
+  later, and an unopenable folder retries on the next sync instead of hanging launch.
 
 ## [Unreleased] — Phase 47: the music surfaces answer the player, a camera mirror, mirrored notifications
 
@@ -103,6 +154,12 @@ All notable changes to KatiKati are documented in this file.
   seconds if the app is force-quit — a machine that never opens a magnet never runs it.
 - **No engine installed is now a stated reason, not a silent no.** With no `aria2c` on the machine the hub says
   **"Install aria2 to download magnet links"** and still refuses the link — it never invents a swarm.
+- **Torrents resume after a restart.** Unfinished torrent rows are saved and re-added through the normal path
+  on next launch (completed and failed rows are not); the engine's GIDs never cross a restart.
+- **Seeding and upload policy, on the Tools page.** A new BitTorrent card carries a custom engine path (blank =
+  auto-detect, applies on next start), a seed ratio and seed minutes (both 0 = stop sharing at completion, as
+  before), a max upload rate (0 = unlimited) and a quiet-hours window with its own upload cap. Policy pushes to
+  a running engine live; the status line names the detected binary or says none was found.
 
 ### Fixed
 - **A magnet row no longer reports the engine's metadata block as the download.** While the engine fetches a

@@ -372,6 +372,23 @@ struct RailWeatherTile: View {
 
 // MARK: - Widget size (Phase 10a-2)
 
+/// The laid-out height of the pod's width-chosen form, so the whole form can scale to the slot.
+/// Measured on an unscaled copy (transforms don't change layout), so the scale never feeds back.
+private struct ContentHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+private struct ContentHeightReader: View {
+    var body: some View {
+        GeometryReader { measure in
+            Color.clear.preference(key: ContentHeightKey.self, value: measure.size.height)
+        }
+    }
+}
+
 private struct WidgetSizeKey: EnvironmentKey {
     static let defaultValue: WidgetSize = .medium
 }
@@ -395,12 +412,43 @@ private struct DetailedWeatherPodView: View {
     @AppStorage(WidgetMotionPreset.storageKey) private var motionPreset: WidgetMotionPreset = .default
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isHovered = false
+    @State private var naturalHeight: CGFloat = 0
 
     var body: some View {
         // The slot is a fixed width (`WidgetSize.widgetWidth`) and this pod's own content can be wider
         // than it — the three forecast columns used to run past the plate into the widget beside it
         // (Phase 43). Same auto-degrade the classic pill already uses: draw the widest form that fits
         // the slot, never a form that overflows it, and never larger than the size the user picked.
+        // The slot is also a fixed height (bar height minus insets, ~40pt on a 47pt bar) and the pod's
+        // forecast forms are taller than that — width-only fitting stuck the pod out over the top of
+        // the dock (2026-10-17). Height is not a second degrade axis: dropping to the compact pill hid
+        // the forecast the dock is for. So width picks the form, height scales it whole to the slot —
+        // the forecast stays, inside the dock, text and spacing proportional.
+        GeometryReader { geo in
+            widthLadder
+                .frame(width: geo.size.width)
+                .background(ContentHeightReader())
+                .scaleEffect(SlotFitScale.scale(naturalHeight: naturalHeight, availableHeight: geo.size.height),
+                             anchor: .center)
+                .frame(width: geo.size.width, height: geo.size.height)
+                .onPreferenceChange(ContentHeightKey.self) { naturalHeight = $0 }
+        }
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
+        // Phase 40f: the FABs' own chrome, so the pod and the buttons beside it cannot drift
+        // (it used to hover at 1.02 / damping 0.72 against the FABs' 1.04 / 0.75). Phase 46 hands it
+        // the sky when the preset asks for it — same chrome, same hover, a different plate.
+        .dockTileChrome(isHovered: isHovered, fill: sky)
+        .onHover { hovering in
+            isHovered = hovering
+        }
+        .contentShape(Rectangle())
+        .dockReadingMorph(motionPreset.effective(reduceMotion: reduceMotion),
+                          value: Int(round(state.temperatureCelsius)))
+    }
+
+    /// Width picks the form (never larger than the size the user picked); height scales it.
+    private var widthLadder: some View {
         Group {
             switch widgetSize {
             case .small:
@@ -418,18 +466,6 @@ private struct DetailedWeatherPodView: View {
                 }
             }
         }
-        .padding(.horizontal, 9)
-        .padding(.vertical, 5)
-        // Phase 40f: the FABs' own chrome, so the pod and the buttons beside it cannot drift
-        // (it used to hover at 1.02 / damping 0.72 against the FABs' 1.04 / 0.75). Phase 46 hands it
-        // the sky when the preset asks for it — same chrome, same hover, a different plate.
-        .dockTileChrome(isHovered: isHovered, fill: sky)
-        .onHover { hovering in
-            isHovered = hovering
-        }
-        .contentShape(Rectangle())
-        .dockReadingMorph(motionPreset.effective(reduceMotion: reduceMotion),
-                          value: Int(round(state.temperatureCelsius)))
     }
 
     private var compactDetailedView: some View {

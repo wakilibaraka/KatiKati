@@ -4304,6 +4304,7 @@ Folds into Phase 12 so it is audited once: **12c** Permissions + Shortcuts secti
 - 2026-10-15 · **Notch-preview slice verification.** `xcodebuild test` (CI's exact command, `CODE_SIGNING_ALLOWED=NO`): **TEST SUCCEEDED, 2429 tests, 0 failures**; `check_localization.py` + `check_debug_switches.py` + `check_availability_warnings.py` all green. Not verified: the live look and the widget-look spacing above (no notched display in this session; the preview draws the notched silhouette regardless of hardware).
 - 2026-10-15 · **Notch-preview slice polish (owner review of the live Notch tab).** Three changes: (1) the demo now draws the **floating-island** silhouette (`flaringTopEars: false`) — in a settings row there is no bezel above the shape, so the hardware notch's flared ears had nothing to meet and read as clipped; (2) its drawing frame is now an explicit `.frame(height:)` instead of a flexible max, because a `Shape` has no intrinsic size and `.fit` therefore solves against whatever the surrounding form proposes — the guard test records that reasoning, but the harness **could not reproduce** the live proportions, so treat the ratio as hardened, not as a proven fix; (3) the demo's own card background was dropped: it stacked a second translucent surface inside the section box, which the Apple materials rule forbids. Separately, **Settings toolbar icons are now drawn into one 18×18 box**: SF Symbols measured 18–22 pt wide × 17–21 pt tall at a single point size, which is what made the tab strip look ragged.
 - 2026-10-15 · **Owner note — the Compact notch needs plan work.** "Compact" is the `classic` skin (`LiveIslandSkin`, `NotchLayoutSpec`); the demo shows it, but its silhouette, sizing and content were never designed against the reference layout the `boring` skin follows. Track it as its own follow-up before the Notch page is signed off, and record the decision in this file when it is made.
+  - 2026-10-17 · **Compact-notch live checks (this machine, 1710×1112 hardware notch, own Debug build).** Closed capsule `[749,0 212×38]` identical for both skins; boring open `[535,0 640×190]` (= `NotchLayoutSpec.openSize`), classic open `[645,0 420×130]` (= `NotchGeometry.classicOpenSize`), both top-centred — sizes match the live code. Content: boring shows header + two bento cards + page dots across the panel; classic idle shows the single activity card (clock icon + label + time, y42–81 of 130, x from 25.5) with no clipping, no transport, no dots. Gaps for the decision: (1) `NotchDesignSpec`'s 660×216 / 520×160 have no live effect — `openPanelSize(isCompact:)` has zero production callers; (2) `NotchPreview` draws identical placeholder plates for both skins, never compact's single card; (3) boring's open plate reads full-bleed to the window edge at mid-height while classic shows the shape code's 22 pt side insets (bottom r26 exact on classic) — same shape function, cause not yet isolated. No redesign in this slice; decision still open.
 - 2026-10-15 · **Phase 12 "form and function" pass — slice 1 (spec + foundation).** `Docs/SETTINGS.md` lands at the path the code already cited (the dangling `settings.md` reference in `SettingsWindowView` now points there). It states ten checkable rules, names the page that owns each remaining slice, and pins where the owner's **Compact-notch** note attaches — the **Notch page**, whose card list is frozen until the skin decision is recorded there. New: `Core/Support/SettingsMetrics.swift` (pure numbers, dual-compiled), `App/Scenes/SettingsCard.swift` (`SettingsPane`, `SettingsCard`, `SettingsRow` + `SettingsToggleRow`/`SettingsPickerRow`/`SettingsSegmentedRow`/`SettingsSliderRow`/`SettingsButtonRow`, `SettingsInfoButton`, `SettingsNote`, `SettingsDivider`), `Tests/Unit/SettingsMetricsTests.swift` (a section must read as a bigger break than a row; a card must still fit label + control at 900 pt). pbxproj entries hand-added. Prerequisite committed first as `53dcb49` (notch preview, uniform toolbar icons, upstream test-target fix).
 - 2026-10-15 · **slice 2 (migration) — the one system is now the only one.** The three boxes (`SettingsLayoutPane.section`, `settingsGroup`, the system grouped `Form`) and the five row idioms (`groupRow`, `edgePrefRow`, `segmentedRow`, `sliderRow`, and the hand-rolled `HStack` rows in the four panes) are gone, and with them the four margins (`paneMargin` 28, `systemFormMargin` 20, `afterFormMargin` 8, the literal 28). `SettingsWindowContent` applies `SettingsPane` **once**, so a page body renders cards and nothing else. **The `#available(macOS 13.0, *)` layout split is deleted from General/Notch/Advanced/About**: one container now serves macOS 12 and 13+, which removes the parity-drift class of bug — the macOS 12 copy of the Drawer Position row had already fixed a duplicate the 13+ copy still had. Permissions' three rows (the welcome guide's shared `PermissionRow`) now take the card's row padding and dividers instead of sitting edge to edge.
 - 2026-10-15 · **Live measurement, before → after (ten pages; Debug build via `Scripts/build_and_run.sh`, AX tree dump + `screencapture`).** Card-content left inset **20 / 28 / 42 / 108 pt → 42 pt on all ten pages**. Window now sizes to its content where the content fits: General 621→598, Advanced 778→587 (the six-line full-screen paragraph became an ⚸ on its row), About 271→256. Section gap: Window Management's card-to-card text-to-text gap measured **72 pt against the grid's predicted 70** (row 11 + card 14 + section 20 + card 14 + row 11); the same page measured 23 / 75 / 67 before. Row count per page is **unchanged** before/after (14, 22, 38, 19, 29, 20, 61, 53, 13→12, 3) — nothing was lost in the migration, and Advanced loses exactly one text: the paragraph. **Duplicate control verified gone live:** `Drawer Position` was two `AXStaticText` labels (x=513 and x=620); it is now one label (x=447) plus the picker (x=1183).
@@ -5335,6 +5336,21 @@ block** it is fetching and names the real download in `followedBy`, a follow-tor
   seeding ratio / upload scheduling (this phase stops uploads at completion); resuming a torrent after an app
   restart (no session persistence); a Settings affordance for the engine path when `aria2c` is installed
   somewhere unusual.
+- 2026-10-17 · **Phase 44b — the three deferred items land.** Pure `TorrentSettings` in
+  `Core/Support/Aria2RPC.swift` (no new file, no pbxproj change): `com.katikati.torrent.*` keys — custom
+  engine path, seed ratio (0–50, default 0), seed minutes, max upload KB/s, quiet-hours start/end + quiet cap
+  (equal hours = disabled, wraps past midnight). `TorrentEngine` resolves the binary on every read (custom
+  path wins, else the four candidates), spawns with the policy argv, and pushes live changes via
+  `aria2.changeGlobalOption` (`applyPolicy()`; a path change applies on next start, never by killing a
+  transfer). `DownloadManagerService` persists unfinished torrent URIs under `com.katikati.torrents.session`
+  and `AppDelegate` restores them once at launch through the normal add path. Tools page gains a BitTorrent
+  card (`TorrentSettingsBlock`, paired steppers). Tests: binary resolution, clamping, quiet-window matrix,
+  `globalOptions` mapping, and a session round-trip (save → fresh service restores the URI → cancel clears).
+  Gate: full `xcodebuild test` green, `check_localization.py` (905 keys × 12 — ten new rows, English +
+  `needs_review` drafts), `check_debug_switches.py`, `check_availability_warnings.py` green;
+  `check_settings_page_heights.py`: Tools 947 pt fits (39 pt margin); notch 1007 pt over is concurrent work
+  on this tree (`NotchAIPageView`), untouched by this diff. Still deferred: the never-following `.torrent`
+  timeout. Not live-checked: a real restart-resume against the swarm.
 
 
 ## Phase 45 — the music surfaces say when the player cannot be read (2026-10-16)
@@ -5513,7 +5529,7 @@ night art all along; only the surfaces added later missed it.
     app that keeps its body only there shows a title alone; the notifications page lists the newest four of
     the 40 it reads, because the open notch is about 130 pt tall and does not scroll.
 
-## Phase 48 — the notch pages stop drawing stand-ins (four slices; 48a + 48b built, 48c + 48d planned, 2026-10-16)
+## Phase 48 — the notch pages stop drawing stand-ins (four slices; all four built, 2026-10-16–17)
 
 > **Written down 2026-10-16, once 48b had landed.** The four slices otherwise lived only in the session
 > that built them: the log below carries 48a's and 48b's records, and the two unbuilt slices had no entry
@@ -5622,6 +5638,32 @@ column is the tool's number, not a price we computed, and the page should say wh
 every store opens read-only, off the main thread, and is never copied (OpenCode's is 2.0 GB); and 33d's
 zero-idle-CPU rule stands — one watcher per store path, with the idle number re-measured, not assumed.
 
+- 2026-10-17 · **48c delivered — PASS (code), live read-back PARTIAL (recorded below).** Mission Control
+  now reads every local store that records usage: Claude transcripts + plan limits (as before), OpenCode's
+  `opencode.db` (`session`/`session_v2`, explicit columns only), Codex rollout JSONL
+  (`sessions/` + `archived_sessions`, tolerant token_count scan, priced here), and Copilot's
+  `session-store.db` (PRAGMA-checked). New `AgentStoreParsers.swift` (dual-compiled, `...AA1/2/3`); snapshot
+  gains `sourcesRead` (stores opened with accounting) + `providerToday` (rows only — absent key draws
+  nothing); the `"Claude 3.7 Sonnet"` literal is deleted (witness extended), the title falls back to the last
+  measured model then "No AI activity today", empty days draw "—" not zero, and the cost card names its
+  basis (`Claude estimated · OpenCode reported`).
+  - **Recon corrections (spec above was wrong in three places):** Copilot's `sessions`/`turns` carry **no**
+    token or cost columns at all (ids, cwd, message text) — checked, never counted, fixture-held; OpenCode
+    times are unix **milliseconds**, not seconds; its `model` is a JSON blob (`{"id":…}`) unpacked for
+    display, and its `cost` reads 0.0 on free-model rows (drawn as the store's number, not repriced).
+    Credentials in those directories (`auth.json`, oauth tokens) are never opened — usage tables only.
+  - **Gate:** 2511 tests / 2 skipped / 0 failures (9 new: millis boundary, blob model, temp-DB reader +
+    day filter, unreadable store, Copilot gate + reader, Codex tolerant line + negative, attribution);
+    localization + debug-switches (86/86) + availability clean.
+  - **Live read-back:** today (Oct 17) has **zero rows in every store** (OpenCode 0, no Claude jsonl in 24h,
+    no `~/.codex`, Copilot 0 turns), so the honest page is "—" + "Sources: Claude · OpenCode". The
+    aggregation shape was verified against real rows instead: Oct 14 = 11 sessions, $0.87 store-reported,
+    7,079,633 tokens via the same millis bounds the reader uses.
+  - **Limits:** Codex/Copilot ship fixture-tested only (absent/empty here); `startMonitoring` is still
+    called by nobody (pre-existing — snapshot refreshes on init, same staleness Claude always had); idle-CPU
+    re-measure with the new watchers owed (no timers added; watchers are event-driven and dormant until
+    monitoring starts).
+
 ### 48d — the Top Apps rows can end a process (PLANNED — not started)
 
 **The defect.** `TopProcessReader.read(limit:)` (`Platform/SystemStatus/SystemHealthReaders.swift:20`) runs
@@ -5645,16 +5687,65 @@ another user's process fails with `EPERM` and the row must say so rather than pr
 `SystemMonitorController` is ref-counted (`Platform/SystemMonitor/SystemMonitorController.swift`), so the
 process read must ride the same acquire/release instead of adding a second timer.
 
+- 2026-10-17 · **48d delivered — PASS (code), live check PARTIAL (recorded below).** The read keeps the
+  pid: `ps -Ao pid=,pcpu=,comm= -r`, one row per pid (the name-summing is deleted — same-named processes
+  stay separate rows, or the kill would land on the wrong pid), `TopProcess.pid: Int32?` + `canAct`, and
+  the panel tile's rows offer the Command Bar's own confirm (`ProcessKillConfirm` in
+  `App/Composition/ProcessLister.swift`: same Kill/Force Quit/Cancel buttons, same SIGTERM/SIGKILL) then
+  re-read, so a ended process redraws itself gone. A refused signal surfaces the system's own reason
+  (`PID <n>: Operation not permitted`) instead of pretending. No new strings, no new timers.
+  - **Recon correction:** the notch Hardware HUD card has **no** process rows (gauges + memory bar only, no
+    room under the page budget) — so "reachable from the HUD" meant the panel tile alone. No HUD change.
+  - **Gate:** clean-build `xcodebuild test` → 2513 tests / 2 skipped / 0 failures (the old sum-and-sort test
+    replaced on purpose — the slice deletes summing — plus pid-keeping, no-pid-no-action, and a live-`ps`
+    test that every real row keeps its pid); localization + debug-switches (86/86) + availability
+    (2156 `SwiftCompile` lines) clean.
+  - **Live check:** sacrificial `sleep` listed as `5805 0.0 sleep` by the tile's exact `ps` args (pid kept),
+    SIGTERM sent, re-read drops it. The modal click-through itself cannot be driven headless — owed below.
+
 ### Open under this phase, not in any of its slices
 
 **The launch hang the 48a walk found** (not this phase's code): with `pinnedFolderPaths = ["~/Downloads"]`
 the app blocks **before its first window** — sampled 100 % of the main thread inside `DirectoryWatcher.init`'s
 `open(O_EVTONLY)`, i.e. `PinnedFolderCoverStore.sync` ← `PanelCoordinator`'s Combine sink doing a TCC-gated
-open on the main thread at launch. Nothing has been changed for it; it needs its own slice.
+open on the main thread at launch. Fixed 2026-10-17 (entry below); the sentence above is the defect as found.
+
+- 2026-10-17 · **Launch-hang fix — FIXED, gate green.** `DirectoryWatcher.init` no longer opens on the
+  caller thread: all construction goes through `DirectoryWatcher.start(path:debounce:onChange:completion:)`,
+  which opens the fd on a shared `.utility` queue and delivers the watcher (or nil for an unopenable path)
+  back on main. The three call sites (`PinnedFolderCoverStore.sync`, `FolderGridPopupView` display task,
+  `DocumentUsageStore.start`) keep their "nil = retry on next sync/display" behavior; a `nil` watcher is no
+  longer a stuck main thread. Contract tests live in `Tests/Unit/FolderContentsLoaderTests.swift`
+  (`DirectoryWatcherStartTests`: live watcher on main for a real dir, nil-once for a missing path, onChange
+  fires on write). `DirectoryWatcher.swift` is now dual-compiled into `KatiKatiTests` (`...09212`, same
+  convention as `FolderContentsLoader`). Gate: 2502 tests / 2 skipped / 0 failures, localization +
+  debug-switches (86/86) + availability all clean. Not yet live-verified with a pinned Downloads folder on a
+  real display — that TCC prompt path still needs an owner-side launch check.
+
+- 2026-10-17 · **Ad-hoc install of the phase-48 tree (0.17.0).** No instance was running; the old
+  `/Applications/KatiKati.app` was removed and replaced. Release universal build SUCCEEDED (freshness
+  proven by relink mtime + new 48c/48d symbols in the pre-strip bytes); staged with the project's strip
+  flags, ad-hoc signed (`codesign --verify --strict` passes), launched — exactly one process.
+  `install_local_release.sh` refused: zero signing identities on this machine, so Developer-ID install
+  was impossible and the Phase-10 ad-hoc precedent was followed — the owner must re-approve
+  Accessibility/Automation (new code identity). **Open:** `verify_release_binary` fails on this toolchain
+  (1421 *global* Swift symbols survive the prescribed `strip -T -x -S`; locals/stabs are gone) — the
+  shared script was left untouched, but its gate needs a revisit before the next shippable release.
+
+- 2026-10-17 · **Weather pod overflow fix (owner screenshot).** The detailed pod's `ViewThatFits` degraded on
+  width only; on the 47pt bar (40pt slot) its three-row large form stuck ~12pt out over the top of the dock
+  (measured live: pod glass top ~25px above the apps island's at 2x). First fix degraded on height too —
+  wrong call: the owner wants the 3-day forecast, not a compact pill. So width picks the form and height
+  scales it whole (`SlotFitScale` in `SystemGaugeModel.swift`, pure + tested; `GeometryReader` + height
+  preference in `DetailedWeatherPodView`, measured unscaled so the scale never feeds back). Witnessed on a
+  live screenshot: launcher + current + all three forecast columns inside the dock-height bar. Gate 2514 /
+  0 failures + three checkers. Rebuilt Release 0.17.0 and reinstalled/verified running.
 
 **Owner calls owed:** whether the world-clock picker popover should hang off the 190 pt notch panel (48b);
-and the 48a/48b "owner check owed" notes (the pages have been seen on a real notched display only by this
-agent's walks, never by the owner).
+the 48a/48b "owner check owed" notes (the pages have been seen on a real notched display only by this
+agent's walks, never by the owner); 48d's row-tap → confirm → Kill on a real Top Apps row (headless-verified
+to the modal's door, never clicked through); the launch-hang fix's TCC-prompt launch with a pinned
+Downloads folder.
 
 - 2026-10-16 · **Phase 48a — the notch Productivity page carries live agenda and focus data — PASS (code),
   live walk PARTIAL (recorded below).** The page's two cards were the last place in the notch showing a
@@ -5763,3 +5854,16 @@ agent's walks, never by the owner).
     not driven live; and the picker popover renders outside the notch panel's own bounds (240 pt wide against
     a 190 pt panel) — it appears and works, but whether a popover hanging off the notch is the right shape for
     this affordance is an owner call.
+
+- 2026-10-18 · **Vertical HIG Layout Mode Design + Neo-Glassmorphic Settings Redesign — PASS (code + tests).**
+  - **Vertical rail geometry & uniform 54pt rail width:**
+    - Removed `TrashChip` from the vertical widget island (`DockStripView.swift`) and added a native `Trash` menu item to the vertical dock's right-click context menu (`DockStripView+Trash.swift`), freeing vertical rail height and keeping Trash accessible from any vertical island.
+    - Fixed `RailGeometry` (`Core/Support/StripPlacement.swift`) so `railThickness` is strictly `54 pt` (`PanelLayoutMetrics.verticalPanelWidth`), `tileBoxWidth` is `40 pt` (`54 - 2 * 7`), and every vertical widget pod (Clock, Weather, Now Playing, Launcher, Wi-Fi/Volume FAB) shares the exact 40pt width and 54pt plate thickness.
+    - Updated `ClockChip`, `NowPlayingChip`, and `DockStripView` vertical rail paths to honour `RailGeometry.tileBoxWidth` (40pt) and compact vertical heights (`clockRailHeight = 52`, `weatherRailHeight = 52`, `nowPlayingRailHeight = 40`), preventing fat uneven pods or horizontal text clipping.
+    - Updated `IslandLayoutSolver` and `PanelCoordinator+Layout` so vertical multi-island modes (`split3`, `split4`, `split5`) and single-bar modes (`windows`, `centered`) clamp every island's span to the screen's `visibleFrame.height` minus menu bar and gaps, proportionately compressing the apps island before secondary islands so islands never overlap or overflow off-screen.
+  - **Settings UI redesign & menu reorganization (owner-queried decisions):**
+    - **Hybrid Toolbar + Floating Glass Bar:** Kept the native macOS `NSToolbar` in `SettingsWindowController` and paired it with `SettingsFloatingNavBar` at the top of the canvas featuring glowing iridescent pills and smooth spring transitions.
+    - **Dynamic Dock-Theme Iridescence & Neo-Glassmorphism:** Added `SettingsIridescentPalette` and `SettingsGelButtonStyle` in `App/Scenes/SettingsCard.swift`, deriving multi-stop iridescent gradients, specular top highlights, glowing active rims, and ambient radial mesh backdrops (`SettingsWindowView.swift`) from the active `DockThemeStyle` (`auroraGlow`, `deepOcean`, `forestMoss`, `cyberpunkGlass`, `emberSunset`, `roseQuartz`, `customRGBA`, and default Vision Pro blue-purple-pink spectrum).
+    - **Menu deduplication & 11-tab split:** Separated **Control Center** into its own top-level tab (`SettingsTab.controlCenter`, symbol `switch.2`); removed the duplicate **Tiling Shortcuts** block from `SettingsTilingPane.swift` and consolidated it into a searchable `Tiling Shortcuts` disclosure group on the `Shortcuts` tab (`SettingsLayoutPane.swift`); moved **Clean Keyboard (Lock for 60 Seconds)** out of `NotchHelpersSettingsBlock` (`UtilitySettingsBlock.swift`) into the `Keyboard` card on the `Shortcuts` tab next to `Pause Keyboard`.
+    - **Resizable Window & Adaptive Bento Grid:** Added `.resizable` to `SettingsWindowController` (`minWindowWidth = 780`, `windowWidth = 940`, `maxWindowWidth = 1320`, `minWindowHeight = 560`) with live width tracking (`SettingsTabState.windowWidth`), `SettingsBentoSplit` two-column adaptive card grids on wide windows (`>= 1040 pt`), and `SettingsRowPair` vertical stacking below `720 pt`.
+  - **Gate:** `xcodebuild test` full suite green; `check_localization.py` 907 × 12 green; `check_debug_switches.py` 86/86 green; `check_availability_warnings.py` clean.

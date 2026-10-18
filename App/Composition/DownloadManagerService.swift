@@ -38,6 +38,9 @@ public final class DownloadManagerService: NSObject, ObservableObject {
     private let torrent: TorrentEngineClient
     private var torrentGIDs: [UUID: String] = [:]
     private var payloadGIDs: [UUID: String] = [:]
+    private let sessionDefaults: UserDefaults
+    /// GIDs die with the engine process, so only the URI survives a restart (Phase 44b).
+    static let torrentSessionKey = "com.katikati.torrents.session"
 
     // Browser partial file sizes cache to track delta & speed
     private var knownPartialFiles: [String: (bytes: Int64, modified: Date, id: UUID)] = [:]
@@ -48,8 +51,9 @@ public final class DownloadManagerService: NSObject, ObservableObject {
     }
 
     /// `torrent` is injectable so tests can drive the hub with a fake engine instead of spawning one.
-    init(torrent: TorrentEngineClient? = nil) {
+    init(torrent: TorrentEngineClient? = nil, sessionDefaults: UserDefaults = .standard) {
         self.torrent = torrent ?? TorrentEngine.shared
+        self.sessionDefaults = sessionDefaults
         super.init()
         let config = URLSessionConfiguration.default
         self.urlSession = URLSession(configuration: config, delegate: self, delegateQueue: nil)
@@ -263,6 +267,7 @@ public final class DownloadManagerService: NSObject, ObservableObject {
             addedAt: Date()
         )
         items.insert(item, at: 0)
+        saveTorrentSession()
         reconcileTicker()
 
         Task { [weak self] in
@@ -276,6 +281,32 @@ public final class DownloadManagerService: NSObject, ObservableObject {
             }
         }
         return true
+    }
+
+    // MARK: - Session restore (Phase 44b)
+
+    /// Re-adds unfinished torrents saved by the previous launch through the normal path. Called once
+    /// from `AppDelegate` at launch — never from `init`, so tests stay hermetic unless they opt in.
+    /// Completed/failed rows are not restored: their files already verified in the engine.
+    public func restoreTorrentSession() {
+        guard torrent.isAvailable else { return }
+        guard let data = sessionDefaults.data(forKey: Self.torrentSessionKey),
+              let entries = try? JSONDecoder().decode([TorrentSessionEntry].self, from: data),
+              !entries.isEmpty else { return }
+        sessionDefaults.removeObject(forKey: Self.torrentSessionKey)
+        for entry in entries { _ = addDownload(input: entry.uri) }
+    }
+
+    private func saveTorrentSession() {
+        let entries = items.filter { $0.type == .torrent && !$0.state.isTerminal }.compactMap { item -> TorrentSessionEntry? in
+            guard let uri = item.sourceURL, !uri.isEmpty else { return nil }
+            return TorrentSessionEntry(uri: uri, name: item.name, infoHash: item.infoHash, addedAt: item.addedAt)
+        }
+        if entries.isEmpty {
+            sessionDefaults.removeObject(forKey: Self.torrentSessionKey)
+        } else if let data = try? JSONEncoder().encode(entries) {
+            sessionDefaults.set(data, forKey: Self.torrentSessionKey)
+        }
     }
 
     private func addDirectURL(_ url: URL) -> Bool {
@@ -362,6 +393,7 @@ public final class DownloadManagerService: NSObject, ObservableObject {
         resumeDataMap.removeValue(forKey: id)
         items.removeAll(where: { $0.id == id })
         dropTorrentGIDs(id)
+        saveTorrentSession()
         reconcileTicker()
     }
 
@@ -379,6 +411,7 @@ public final class DownloadManagerService: NSObject, ObservableObject {
         let finished = items.filter { $0.state.isTerminal }
         items.removeAll(where: { $0.state.isTerminal })
         for item in finished where item.type == .torrent { dropTorrentGIDs(item.id) }
+        saveTorrentSession()
         stopEngineIfIdle()
     }
 
@@ -422,6 +455,7 @@ public final class DownloadManagerService: NSObject, ObservableObject {
         }
         if status.state == .completed { items[idx].completedAt = items[idx].completedAt ?? Date() }
         if status.state.isTerminal {
+            saveTorrentSession()
             reconcileTicker()
             stopEngineIfIdle()
         }
@@ -433,6 +467,7 @@ public final class DownloadManagerService: NSObject, ObservableObject {
         items[idx].downloadSpeedBps = 0
         items[idx].uploadSpeedBps = 0
         items[idx].etaSeconds = nil
+        saveTorrentSession()
         reconcileTicker()
         stopEngineIfIdle()
     }

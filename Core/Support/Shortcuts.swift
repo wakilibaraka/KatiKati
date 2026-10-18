@@ -20,6 +20,9 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case tilingSwapNext, tilingSwapPrevious
     /// Phase 31: the colourful interactive radial dial / pie menu. Default `.off`.
     case radialDial
+    /// Notch bento pages, step by step (live-check follow-up: dots are mouse-only otherwise).
+    /// Both default `.off` — user assigns.
+    case notchPageNext, notchPagePrevious
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -59,6 +62,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .tilingSwapPrevious: return 32
         // Phase 31 radial dial: id 33
         case .radialDial: return 33
+        case .notchPageNext: return 34
+        case .notchPagePrevious: return 35
         }
     }
 
@@ -79,6 +84,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
              .tilingSwapNext, .tilingSwapPrevious: return .off
         // Phase 31 radial dial: off by default, user assigns
         case .radialDial: return .off
+        case .notchPageNext, .notchPagePrevious: return .off
         }
     }
 

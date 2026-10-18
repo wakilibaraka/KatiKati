@@ -43,13 +43,32 @@ enum SettingsMetrics {
     static let rowMinimumLabelGap: CGFloat = 12
     static let dividerOpacity: Double = 0.5
 
-    /// The window's own width; `SettingsWindowView.contentWidth` reads this (rule 10: the window is
-    /// a fixed 900 pt, so a page — and a pair's half — can be arithmetic instead of a guess).
-    static let windowWidth: CGFloat = 900
-    /// The width a card lays its rows out in: the window minus the page margins and card padding.
+    /// The window's default width; `SettingsWindowView.contentWidth` reads this as the initial size
+    /// while allowing free window resize between `minWindowWidth` and the screen.
+    static let windowWidth: CGFloat = 940
+    /// The window is free-resizing (no max): a first launch opens at `idealWindowSize`, the user's
+    /// own size is remembered after that (frame autosave).
+    static let minWindowWidth: CGFloat = 640
+    static let minWindowHeight: CGFloat = 440
+    static let idealWindowWidth: CGFloat = 1080
+    static let idealWindowHeight: CGFloat = 700
+    static let sidebarWidth: CGFloat = 232
+    static let sidebarCollapsedWidth: CGFloat = 64
+    /// Minimum column width before a `SettingsRowPair` stacks vertically on narrow windows.
+    static let pairStackThreshold: CGFloat = 720
+    /// The width a card lays its rows out in at the default window width: the window minus the page
+    /// margins and card padding.
     static let cardContentWidth: CGFloat = windowWidth - 2 * paneMargin - 2 * cardPadding
-    /// One column of a `SettingsRowPair`. A grid sized its columns by their own content, so the half
-    /// holding the wider control took the width and squeezed the other one's control (measured live
-    /// 2026-10-15: the right half's Record button rendered as “…” at 20 pt); a half is exactly half.
+    /// One column of a `SettingsRowPair` at the default window width.
     static let halfRowWidth: CGFloat = cardContentWidth / 2
+
+    /// Computes dynamic card content width for any live window width.
+    static func cardContentWidth(forWindowWidth width: CGFloat) -> CGFloat {
+        max(0, width - 2 * paneMargin - 2 * cardPadding)
+    }
+
+    /// Computes dynamic half-row width for any live window width.
+    static func halfRowWidth(forWindowWidth width: CGFloat) -> CGFloat {
+        cardContentWidth(forWindowWidth: width) / 2
+    }
 }

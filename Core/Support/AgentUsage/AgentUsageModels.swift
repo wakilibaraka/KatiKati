@@ -141,6 +141,15 @@ struct AgentLiveTurn: Equatable, Identifiable, Sendable {
     var isActive: Bool
 }
 
+/// One provider's measured today-total. An absent key means nothing was measured —
+/// the page draws nothing for it, never a zero standing in for a reading.
+struct AgentProviderDay: Equatable, Sendable {
+    var tokens: AgentTokens = AgentTokens()
+    var cost: Double = 0.0
+    /// True when the number is the store's own cost column, false when priced here.
+    var costIsStoreReported: Bool = false
+}
+
 /// Readout snapshot consumed by Notch Bento cards and closed wings.
 struct AgentUsageSnapshot: Equatable, Sendable {
     var todayTokens: AgentTokens = AgentTokens()
@@ -150,6 +159,29 @@ struct AgentUsageSnapshot: Equatable, Sendable {
     var limits: [AgentProvider: AgentLimits] = [:]
     var recentTurns: [AgentLiveTurn] = []
     var weeklyHeatmap: [Double] = Array(repeating: 0.0, count: 7)
+    /// Providers whose own store was opened and has accounting (tokens or cost),
+    /// whether or not it held rows today. The page names exactly these.
+    var sourcesRead: [AgentProvider] = []
+    /// Today's per-provider totals, only for providers with rows.
+    var providerToday: [AgentProvider: AgentProviderDay] = [:]
+
+    /// "Claude · OpenCode" in provider order; empty when nothing was read.
+    var sourceNames: String {
+        sourcesRead.map { $0.displayName }.joined(separator: " · ")
+    }
+
+    /// "Claude estimated · OpenCode reported" for counted providers only.
+    var costBasisLine: String {
+        AgentProvider.allCases.compactMap { provider in
+            guard let day = providerToday[provider] else { return nil }
+            return "\(provider.displayName) \(day.costIsStoreReported ? "reported" : "estimated")"
+        }.joined(separator: " · ")
+    }
+
+    /// Most recent measured model across turns — the idle title. Nil when nothing measured.
+    var lastMeasuredModel: String? {
+        recentTurns.sorted(by: { $0.lastActivity > $1.lastActivity }).first?.model
+    }
 
     /// Formatted cost string, e.g. "$1.42"
     var formattedTodayCost: String {

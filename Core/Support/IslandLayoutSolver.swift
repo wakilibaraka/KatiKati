@@ -297,16 +297,18 @@ enum IslandLayoutSolver {
 /// the bar height. The solver sizes fixed islands with it so a frame never clips its own content
 /// (Phase 11a: split islands were 8 pt-gap estimates, ~45 pt narrower than what the strip drew).
 enum IslandChrome {
-    /// `DockStripView.Style.chipContentInset` at native scale. **16, not 20** since Phase 41c
-    /// (owner: "reduce gaps in all modes"): one plate corner radius, never less, so the island's
-    /// clip shape cannot cut a chip's own rounded corner. `testContentInsetClearsThePlateCorner` pins it.
-    static let contentInset: CGFloat = 16
-    /// End padding of a **rail** island along the rail's axis (Phase 42). The native Dock keeps
-    /// 3.45 pt between its plate and the first icon at `tilesize = 36` (measured from its own
-    /// accessibility tree), not one plate corner radius — on a rail the tile is centred across the
-    /// thickness, so that rounded corner has room the bottom bar's does not.
-    /// `testRailEndInsetKeepsEveryTileClearOfThePlateCorner` pins the clearance at every bar height.
-    static let railContentInset: CGFloat = 4
+    /// `DockStripView.Style.chipContentInset` at native scale. **8, not 16** since Phase 49
+    /// (owner: "Unify chrome, tighten ends & fix media width"): widgets and icons sit 7 pt inside
+    /// the 54 pt bar on the cross axis (`(54 - 40) / 2 = 7`), so an 8 pt main-axis inset puts the
+    /// tile's own 14 pt continuous corner well clear of the island's 16 pt corner arc while
+    /// eliminating the 8 pt of dead end space on each side. `testContentInsetClearsThePlateCorner`
+    /// pins that geometric clearance.
+    static let contentInset: CGFloat = 8
+    /// End padding of a **rail** island along the rail's axis (Phase 49, owner: "Hug content with
+    /// balanced insets"): 8 pt matches the horizontal bar and gives the 40×40 rail tiles breathing
+    /// room from the top and bottom island curves (Phase 42's 4 pt pushed the top/bottom tiles into
+    /// the rounded corners).
+    static let railContentInset: CGFloat = 8
     /// Divider gap between sections inside one island (`StripContextMenuZone.dividerGapWidth`).
     static let dividerGap: CGFloat = StripContextMenuZone.dividerGapWidth
     /// The bar height `dockScale` is measured against (`DockPanelHeight.native`).

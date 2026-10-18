@@ -29,6 +29,8 @@ final class PinnedFolderCoverStore: ObservableObject {
     private var cache: [String: CacheEntry] = [:]
 
     private var watchers: [String: DirectoryWatcher] = [:]
+    /// open 在后台排队时防重入：两次 sync 之间同一路径只开一次，失败（nil）不存、照旧下次重试。
+    private var pendingWatches: Set<String> = []
     private var generations: [String: Int] = [:]
     /// One counter for all folders, never reset: a per-folder count restarts at 1 when a folder
     /// is unpinned and pinned again, and a callback from before would pass the check.
@@ -69,11 +71,25 @@ final class PinnedFolderCoverStore: ObservableObject {
                 covers[path] = FolderCover(layers: [.init(image: Self.icon(forPath: path), isThumbnail: false)])
                 continue
             }
-            if watchers[path] == nil {
-                // DirectoryWatcher 回调已在主线程；Task 包一层过 MainActor 隔离。
-                watchers[path] = DirectoryWatcher(path: path) { [weak self] in
-                    Task { @MainActor [weak self] in self?.refresh(path: path) }
-                }
+            if watchers[path] == nil && !pendingWatches.contains(path) {
+                // open 跑在后台（DirectoryWatcher.start）：TCC 弹框只会卡住后台线程，首屏照出。
+                pendingWatches.insert(path)
+                DirectoryWatcher.start(
+                    path: path,
+                    onChange: { [weak self] in
+                        // DirectoryWatcher 回调已在主线程；Task 包一层过 MainActor 隔离。
+                        Task { @MainActor [weak self] in self?.refresh(path: path) }
+                    },
+                    completion: { [weak self] watcher in
+                        Task { @MainActor [weak self] in
+                            guard let self else { return }
+                            self.pendingWatches.remove(path)
+                            // 花开期间被移出（或已有更新的 watcher）：直接丢掉，deinit 关 fd。
+                            guard let watcher, wanted.contains(path), self.watchers[path] == nil else { return }
+                            self.watchers[path] = watcher
+                        }
+                    }
+                )
             }
             refresh(path: path)
         }

@@ -1,0 +1,43 @@
+Notch
+00
+General
+Appearance
+Widgets
+Notch
+Edge Bars
+Window Management
+Launcher
+Control Center Shortcuts
+Tools
+Advanced
+ce
+88 Widgets
+- Notch
+Edge Bars
+Window Management
+Q Launcher
+S Control Center
+& Shortcuts
+• Tools
+Live Island
+Preview • Full
+Dock Island
+Notch Island
+Notch Style
+Full
+Event Alerts
+Automatic
+System Banners
+The shape preview is a demo: the silhouette only, never live activity.
+Daily Helpers
+Hide from Screen Capture
+Caps Lock Indicator
+Charge Notices
+Offer to Eject Drives
+Camera and Mic Indicator
+Teleprompter
+Open Teleprompter Window
+Opens from Space (prompter). The window is hidden from screen recordings and shares.
+Teleprompter Notch Page
+Camera Mirror Notch Page
+Notifications Notch Page

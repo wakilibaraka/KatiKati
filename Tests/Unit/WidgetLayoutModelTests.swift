@@ -93,7 +93,8 @@ extension WidgetLayoutModelTests {
         var layout = WidgetLayout.default.updating(.weather) { $0.size = .large }.updating(.media) { $0.size = .large }
         XCTAssertEqual(layout.fitted(toBudget: 10_000), layout)
         // weather 230 + media 240 + clock 160 + launcher 40 + widgets 40 = 710
-        let tight = layout.fitted(toBudget: 560)
+        // Stepping down widest (media 240 -> 215) leaves 685; stepping down weather (230 -> 150) leaves 605.
+        let tight = layout.fitted(toBudget: 620)
         XCTAssertEqual(tight.instance(for: .media).size, .medium, "widest (media 240) steps down first")
         XCTAssertLessThanOrEqual(tight.instance(for: .weather).size, .large)
         let floor = layout.fitted(toBudget: 0)

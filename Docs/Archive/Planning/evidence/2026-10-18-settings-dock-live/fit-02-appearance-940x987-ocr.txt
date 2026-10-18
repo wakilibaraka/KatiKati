@@ -1,0 +1,82 @@
+Appearance
+00
+00
+General
+Appearance
+Widgets
+Notch
+Edge Bars
+Window Management
+Launcher
+Control Center
+Shortcuts
+Tools
+Advanced
+ce
+Do Widgets
+Notch
+Edge Bars
+Ш Window Management
+Q Launcher
+• Control Center
+& Shortcuts
+Tools
+Layout Mode
+Full Width
+Split 3
+Split 4
+Split 5
+Centered
+One compact bar floating in the middle.
+Position
+Bottom
+Left
+Right
+Bar Height
+Small
+Medium
+Large
+Spacing
+Compact
+Comfortable
+Airy
+› Fine-tune
+Theme
+Auto
+System
+Translucen
+Crystal
+Obsidian
+Monochro
+Dark
+me
+Titanium
+Frost
+Aurora
+Deep
+Forest
+Cyberpunk
+Glow
+Ocean
+Moss
+Glass
+Ember
+Rose
+Custom
+Clear
+Sunset
+Quartz
+Icon Set
+Modern
+Classic Right FAB Style
+Dynamic Gauge
+Swatches show the dock plate's tint; Auto follows light and dark, set in General.
+Dynamic Wallpaper
+Mode
+Time
+Weather
+Both
+Built-in Sky
+Choose Folder...
+Tint Dock by Time of Day
+Restore Walpaper

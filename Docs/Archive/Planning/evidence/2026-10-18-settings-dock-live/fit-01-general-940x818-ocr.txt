@@ -1,0 +1,48 @@
+General
+00
+General
+Appearance
+Widgets
+Notch
+Edge Bars Window Management
+Launcher Control Center
+Shortcuts
+Tools
+Advanced
+ce
+88 Widgets
+Notch
+Edge Bars
+• Window Management
+Q Launcher
+• Control Center
+& Shortcuts
+Tools
+Language
+English
+Appearance
+System
+Light
+Dark
+Show/hide taskbar shortcut
+Reset to Default
+^08D
+Drawer Position
+Right Reverse mouse scroll direction 1
+Permissions
+Accessibility
+Grant
+Shows your open windows as chips and lets you switch to them.
+Screen Recording
+Grant
+Shows live window thumbnails in hover previews. Without it, previews show titles only.
+Input Monitoring
+Grant
+Only for the optional Hyper key. Skip it if you won't use that.
+About
+Version 0.17.0 (51) • Debug Build
+Check for Updates...
+Check for updates automatically
+Diagnostic Info
+Сopy
+Show Setup Guide Again

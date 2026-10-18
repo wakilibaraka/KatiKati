@@ -19,19 +19,65 @@ struct SettingsWindowView: View {
     /// 会检查 SwiftUI 调用点，给了默认值就等于让"漏传"编译通过（AGENTS.md 的 no-default 铁律）。
     let onShowWelcomeGuide: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        // ScrollView 保留作小屏兜底：每页正常都短于一屏，量高把窗口撑到内容高度，滚动不出现。
-        // **指示器必须关**：滚动条样式为「自动」且接了鼠标时是占位式的，出现时吃掉约 15pt 可视宽，
-        // 切页动画那 0.2 秒内容溢出 → 滚动条在位 → 整页水平平移一下。内层也不许写死宽度（见下）。
-        ScrollView(.vertical, showsIndicators: false) {
-            SettingsWindowContent(
+        let palette = SettingsIridescentPalette.resolve(style: store.themeMaterial, colorScheme: colorScheme)
+        let isDark = colorScheme == .dark
+
+        ZStack(alignment: .top) {
+            // Ambient iridescent mesh backdrop reactive to the active Dock theme
+            ZStack {
+                RadialGradient(
+                    colors: [palette.primaryAccent.opacity(isDark ? 0.14 : 0.10), .clear],
+                    center: .topLeading,
+                    startRadius: 20,
+                    endRadius: 520
+                )
+                RadialGradient(
+                    colors: [palette.secondaryAccent.opacity(isDark ? 0.12 : 0.08), .clear],
+                    center: .topTrailing,
+                    startRadius: 40,
+                    endRadius: 480
+                )
+                RadialGradient(
+                    colors: [palette.tertiaryAccent.opacity(isDark ? 0.10 : 0.07), .clear],
+                    center: .bottom,
+                    startRadius: 60,
+                    endRadius: 540
+                )
+            }
+            .ignoresSafeArea()
+            .allowsHitTesting(false)
+
+            SettingsShell(
                 store: store,
                 coordinator: coordinator,
                 tabState: tabState,
                 onShowWelcomeGuide: onShowWelcomeGuide
             )
         }
-        .frame(width: Self.contentWidth)
+        .environment(\.dockThemeStyle, store.themeMaterial)
+        .frame(minWidth: SettingsMetrics.minWindowWidth, minHeight: SettingsMetrics.minWindowHeight)
+    }
+}
+
+/// A page as the shell holds it: every pane plus the padding the scroll view owes it.
+struct SettingsPageColumn: View {
+    @ObservedObject var store: AppSettingsStore
+    @ObservedObject var coordinator: SettingsCoordinator
+    @ObservedObject var tabState: SettingsTabState
+    let onShowWelcomeGuide: () -> Void
+
+    var body: some View {
+        SettingsWindowContent(
+            store: store,
+            coordinator: coordinator,
+            tabState: tabState,
+            onShowWelcomeGuide: onShowWelcomeGuide
+        )
+        .padding(.top, 8)
+        .padding(.bottom, 20)
     }
 }
 
@@ -59,11 +105,16 @@ struct SettingsWindowContent: View {
             case .appearance: SettingsAppearancePane(store: store)
             case .windowManagement: windowManagementPane
             case .launcher: launcherPane
+            case .controlCenter: controlCenterPane
             case .shortcuts: SettingsLayoutPane(store: store, mode: .shortcuts)
+            case .radialDial: SettingsLayoutPane(store: store, mode: .radialDial)
+            case .downloads: TorrentSettingsBlock()
+            case .info: infoPane
             case .advanced: advancedPane
             case .tools: toolsPane
             }
         }
+        .environment(\.dockThemeStyle, store.themeMaterial)
         // **不许写死宽度**：外面套着 ScrollView，刚性宽度在可视区变窄时会被居中 = 整页平移。
         // 弹性宽度下左边缘恒在 padding 处，最多重排换行。测高探针给的仍是 contentWidth 的提案。
         .alert(item: $presentedAlert) { alert in
@@ -113,17 +164,23 @@ struct SettingsWindowContent: View {
             // Two narrow rows on one line (`Docs/SETTINGS.md` rule 5).
             SettingsRowPair(left: { drawerPlacementPicker }, right: { scrollReverserToggle })
         }
-        // Permissions are a second group, not a setting of the first: its own card, never a
-        // card inside a card.
-        PermissionsSettingsBlock()
-        // What used to be the About page, minus the page: four rows nobody visits are read here,
-        // next to the settings they belong to (`Docs/SETTINGS.md` rule 5 allows three sections).
-        SettingsCard(Text("About")) {
-            aboutVersionRow
-            SettingsDivider()
-            SettingsRowPair(left: { autoUpdateToggle }, right: { diagnosticsRow })
+    }
+
+    /// Info: the version, updates, diagnostics and the permissions the app needs (moved off General).
+    @ViewBuilder
+    private var infoPane: some View {
+        SettingsBentoSplit {
+            PermissionsSettingsBlock()
+        } trailing: {
+            VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
+                SettingsCard(Text("About")) {
+                    aboutVersionRow
+                    SettingsDivider()
+                    SettingsRowPair(left: { autoUpdateToggle }, right: { diagnosticsRow })
+                }
+                welcomeGuideButton
+            }
         }
-        welcomeGuideButton
     }
 
     // 「高级」= 需要额外能力、默认就对、基本不用碰的开关。单独一页不是为了藏，
@@ -147,12 +204,21 @@ struct SettingsWindowContent: View {
         WindowBehaviourSettingsBlock()
     }
 
-    /// 「启动器」页: the launcher and the Control Center, then the launcher's own rows. The tools
-    /// that used to share this page are on their own tab now (`SettingsTab.tools`).
+    /// 「启动器」页: the launcher appearance/apps and the launcher's own rows (`LauncherSettingsBlock`).
+    /// Control Center now lives on its own dedicated tab (`SettingsTab.controlCenter`).
     @ViewBuilder
     private var launcherPane: some View {
-        SettingsLayoutPane(store: store, mode: .launcher)
-        LauncherSettingsBlock()
+        SettingsBentoSplit {
+            SettingsLayoutPane(store: store, mode: .launcher)
+        } trailing: {
+            LauncherSettingsBlock()
+        }
+    }
+
+    /// 「控制中心」页: dedicated page for Control Center placement, size, widgets, and quick settings.
+    @ViewBuilder
+    private var controlCenterPane: some View {
+        SettingsLayoutPane(store: store, mode: .controlCenter)
     }
 
     /// 「工具」页: the clipboard, commands and snippets, in the slot the About page left.
@@ -177,6 +243,7 @@ struct SettingsWindowContent: View {
                 NSPasteboard.general.setString(report.text, forType: .string)
                 Self.presentCopiedDiagnostics(report.text)
             }
+            .buttonStyle(SettingsGelButtonStyle())
         }
     }
 
@@ -340,6 +407,7 @@ struct SettingsWindowContent: View {
     /// 「系统 Dock 已自动隐藏」的存量用户恰好会跳过并把键写回，而存量用户正是这个入口的全部受众。
     private var welcomeGuideButton: some View {
         Button("Show Setup Guide Again") { onShowWelcomeGuide() }
+            .buttonStyle(SettingsGelButtonStyle())
     }
 
     private func applyShortcut(_ stored: StoredHotKeyShortcut?) {
@@ -358,6 +426,7 @@ struct SettingsWindowContent: View {
             Button("Check for Updates…") {
                 coordinator.checkForUpdates()
             }
+            .buttonStyle(SettingsGelButtonStyle(prominent: true))
             .disabled(!coordinator.canCheckForUpdates)
         }
     }
@@ -388,34 +457,63 @@ struct SettingsWindowContent: View {
 private struct AppearanceModeCards: View {
     let selection: AppearanceMode
     let onSelect: (AppearanceMode) -> Void
+    @Environment(\.dockThemeStyle) private var themeStyle
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var hoveredMode: AppearanceMode?
 
     var body: some View {
+        let palette = SettingsIridescentPalette.resolve(style: themeStyle, colorScheme: colorScheme)
         HStack(spacing: 8) {
             ForEach(AppearanceMode.allCases, id: \.self) { mode in
                 let isSelected = mode == selection
+                let isHovered = hoveredMode == mode
                 Button { onSelect(mode) } label: {
                     VStack(spacing: 5) {
                         Image(systemName: Self.symbolName(for: mode))
-                            .font(.system(size: 16))
-                            .foregroundColor(isSelected ? .accentColor : .secondary)
+                            .font(.system(size: 16, weight: isSelected ? .semibold : .regular))
+                            .foregroundStyle(isSelected ? palette.primaryAccent : (isHovered ? Color.primary : Color.secondary))
                             .frame(height: 18)
                         Text(mode.displayName)
-                            .font(.caption)
+                            .font(.system(size: 11, weight: isSelected ? .semibold : .regular))
                     }
-                    .padding(.horizontal, 10)
-                    .frame(minWidth: 76, minHeight: 52)
+                    .padding(.horizontal, 12)
+                    .frame(minWidth: 78, minHeight: 54)
                     .background(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .fill(isSelected ? Color.accentColor.opacity(0.14) : Color.primary.opacity(0.05))
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                                .fill(
+                                    isSelected
+                                        ? AnyShapeStyle(palette.subtleSurfaceGradient)
+                                        : AnyShapeStyle(Color.primary.opacity(isHovered ? 0.08 : 0.04))
+                                )
+                            if isSelected {
+                                RoundedRectangle(cornerRadius: 11, style: .continuous)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color.white.opacity(0.24), .clear],
+                                            startPoint: .top,
+                                            endPoint: .center
+                                        )
+                                    )
+                            }
+                        }
                     )
                     .overlay(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .strokeBorder(Color.accentColor, lineWidth: 1.5)
-                            .opacity(isSelected ? 1 : 0)
+                        RoundedRectangle(cornerRadius: 11, style: .continuous)
+                            .strokeBorder(
+                                isSelected
+                                    ? AnyShapeStyle(palette.pillGradient)
+                                    : AnyShapeStyle(Color.primary.opacity(isHovered ? 0.18 : 0.08)),
+                                lineWidth: isSelected ? 1.75 : 1.0
+                            )
                     )
+                    .shadow(color: isSelected ? palette.glowColor : .clear, radius: 6, x: 0, y: 2)
+                    .scaleEffect(isHovered ? 1.03 : 1.0)
+                    .animation(.spring(response: 0.24, dampingFraction: 0.75), value: isHovered)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .onHover { inside in hoveredMode = inside ? mode : (hoveredMode == mode ? nil : hoveredMode) }
                 .accessibilityAddTraits(isSelected ? .isSelected : [])
             }
         }
@@ -643,9 +741,8 @@ struct WeatherSettingsBlock: View {
         // "Weather Animations" moved to the Widget Appearance card (2026-10-15), where the other
         // widget-animation row already lives and where it shares a line instead of owning one.
         SettingsDivider()
-        // Two thresholds, one line (`Docs/SETTINGS.md` rule 5): each is a short readout and a
-        // stepper, which fits half a card — measured live 2026-10-15, the label is 156 pt and the
-        // readout under 40. The third stays on its own line.
+        // The three thresholds are one line (2026-10-18): the widest label is 156 pt against its
+        // 414 pt third of the card, and the page had no room left for a line of its own.
         SettingsRowPair(
             left: {
                 SettingsStepperRow(
@@ -657,22 +754,27 @@ struct WeatherSettingsBlock: View {
                 )
             },
             right: {
-                SettingsStepperRow(
-                    Text("Wind Warning"),
-                    value: binding(\.windKmh),
-                    in: 20...120,
-                    step: 5,
-                    readout: "\(Int(thresholds.windKmh)) km/h"
+                SettingsRowPair(
+                    left: {
+                        SettingsStepperRow(
+                            Text("Wind Warning"),
+                            value: binding(\.windKmh),
+                            in: 20...120,
+                            step: 5,
+                            readout: "\(Int(thresholds.windKmh)) km/h"
+                        )
+                    },
+                    right: {
+                        SettingsStepperRow(
+                            Text("Snow Warning"),
+                            value: binding(\.snowCmPerDay),
+                            in: 1...30,
+                            step: 1,
+                            readout: "\(Int(thresholds.snowCmPerDay)) cm"
+                        )
+                    }
                 )
             }
-        )
-        SettingsDivider()
-        SettingsStepperRow(
-            Text("Snow Warning"),
-            value: binding(\.snowCmPerDay),
-            in: 1...30,
-            step: 1,
-            readout: "\(Int(thresholds.snowCmPerDay)) cm"
         )
     }
 

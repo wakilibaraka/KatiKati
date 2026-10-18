@@ -42,7 +42,7 @@ extension BarSection {
         case (.clock, .medium): return 160
         case (.clock, .large): return 210
         case (.media, .small): return 72
-        case (.media, .medium): return 140
+        case (.media, .medium): return 215
         case (.media, .large): return 240
         default: return defaultWidgetWidth
         }

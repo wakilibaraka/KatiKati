@@ -83,6 +83,16 @@ public enum WeatherChipPreset: String, CaseIterable, Equatable, Codable, Sendabl
     }
 }
 
+/// Scale that fits a widget form of `naturalHeight` into `availableHeight`: whole-form shrink,
+/// never growth, so a tall form (the weather forecast pod) stays inside its dock slot with text
+/// and spacing proportional instead of overflowing it. 1 when either measure is missing.
+enum SlotFitScale {
+    static func scale(naturalHeight: CGFloat, availableHeight: CGFloat) -> CGFloat {
+        guard naturalHeight > 0, availableHeight > 0 else { return 1 }
+        return min(1, availableHeight / naturalHeight)
+    }
+}
+
 /// Now Playing presentation preset.
 public enum NowPlayingPreset: String, CaseIterable, Equatable, Codable, Sendable {
     case miniChip = "mini"

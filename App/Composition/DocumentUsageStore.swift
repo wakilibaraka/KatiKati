@@ -22,6 +22,8 @@ final class DocumentUsageStore {
 
     private var usageByBundle: [String: BundleDocumentUsage]
     private var watcher: DirectoryWatcher?
+    /// stop 落在后台 open 窗口里：token 失效那一次安装，watcher 不会跨过一次 stop 存活。
+    private var watchToken = 0
     private var activationObserver: NSObjectProtocol?
     /// 目录监视触发时按 mtime 圈出「哪个 bundle 的 sfl 变了」，只重采样变了的那些。
     private var mtimeByFile: [String: Date] = [:]
@@ -37,8 +39,15 @@ final class DocumentUsageStore {
 
     func start() {
         guard watcher == nil else { return }
-        watcher = DirectoryWatcher(path: DocumentUsageDisk.sharedListDir) { [weak self] in
+        watchToken += 1
+        let token = watchToken
+        DirectoryWatcher.start(path: DocumentUsageDisk.sharedListDir) { [weak self] in
             self?.directoryChanged()
+        } completion: { [weak self] watcher in
+            Task { @MainActor [weak self] in
+                guard let self, self.watchToken == token, self.watcher == nil else { return }
+                self.watcher = watcher
+            }
         }
         // 立 mtime 基线（known 为空的那一轮只记不采）。
         directoryChanged()
@@ -54,6 +63,7 @@ final class DocumentUsageStore {
     }
 
     func stop() {
+        watchToken += 1
         watcher?.stop()
         watcher = nil
         if let activationObserver {

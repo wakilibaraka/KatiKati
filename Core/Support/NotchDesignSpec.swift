@@ -37,7 +37,10 @@ struct NotchDesignSpec: Equatable, Sendable {
     static let cardCornerRadius: CGFloat = 18
     static let cardStrokeWidth: CGFloat = 1.0
     static let cardStrokeOpacity: Double = 0.08
-    static let cardFillOpacity: Double = 0.06
+    // 0.10, not 0.06: the paler fill kept white card text unreadable over a busy window behind
+    // the glass (live-checked 2026-10-17 — OCR read the background through the cards). Unpinned
+    // by tests; the plate itself stays solid (`NotchDesignSpecTests` pins plate alpha >= 0.94).
+    static let cardFillOpacity: Double = 0.10
 
     // MARK: - Resolver
     static func resolve(

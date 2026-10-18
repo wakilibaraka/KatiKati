@@ -19,7 +19,7 @@ struct NotchAIPageView: View {
                             .font(.system(size: 11, weight: .bold))
                             .foregroundStyle(.white)
                     }
-                    Text(verbatim: snapshot.activeTurn?.model ?? "Claude 3.7 Sonnet")
+                    Text(verbatim: snapshot.activeTurn?.model ?? snapshot.lastMeasuredModel ?? "No AI activity today")
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                     Spacer()
@@ -39,23 +39,25 @@ struct NotchAIPageView: View {
                     }
                 }
 
-                // Token velocity readout
+                // Token velocity readout — measured rows only; no rows means no number, not a zero.
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: snapshot.formattedTodayTokens)
+                    Text(verbatim: snapshot.providerToday.isEmpty ? "—" : snapshot.formattedTodayTokens)
                         .font(.system(size: 26, weight: .heavy, design: .rounded))
                         .foregroundStyle(.white)
-                    Text(verbatim: "tokens processed today")
+                    Text(verbatim: sourceCaption(snapshot))
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.white.opacity(0.5))
                 }
 
                 Spacer(minLength: 0)
 
-                // Token distribution pills
-                HStack(spacing: 6) {
-                    tokenBadge(label: "In", value: snapshot.todayTokens.input, color: .blue)
-                    tokenBadge(label: "Out", value: snapshot.todayTokens.output, color: .purple)
-                    tokenBadge(label: "Hit", value: Int(snapshot.todayTokens.cacheHitRate * 100), suffix: "%", color: .cyan)
+                // Token distribution pills — only when something was measured.
+                if !snapshot.providerToday.isEmpty {
+                    HStack(spacing: 6) {
+                        tokenBadge(label: "In", value: snapshot.todayTokens.input, color: .blue)
+                        tokenBadge(label: "Out", value: snapshot.todayTokens.output, color: .purple)
+                        tokenBadge(label: "Hit", value: Int(snapshot.todayTokens.cacheHitRate * 100), suffix: "%", color: .cyan)
+                    }
                 }
             }
             .padding(NotchDesignSpec.cardPadding)
@@ -80,7 +82,7 @@ struct NotchAIPageView: View {
                             .font(.system(size: 11, weight: .bold))
                             .foregroundStyle(.white)
                     }
-                    Text(verbatim: "API List Spend")
+                    Text(verbatim: "AI Spend")
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                     Spacer()
@@ -94,12 +96,12 @@ struct NotchAIPageView: View {
                     }
                 }
 
-                // Cost readout
+                // Cost readout — the store's own number where the tool keeps one, priced here otherwise.
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: snapshot.formattedTodayCost)
+                    Text(verbatim: snapshot.providerToday.isEmpty ? "—" : snapshot.formattedTodayCost)
                         .font(.system(size: 26, weight: .heavy, design: .rounded))
                         .foregroundStyle(.white)
-                    Text(verbatim: "estimated value consumed")
+                    Text(verbatim: snapshot.costBasisLine.isEmpty ? sourceCaption(snapshot) : snapshot.costBasisLine)
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.white.opacity(0.5))
                 }
@@ -153,6 +155,11 @@ struct NotchAIPageView: View {
                     )
             )
         }
+    }
+
+    /// Names exactly the stores actually read; nothing measured and nothing read means no claim at all.
+    private func sourceCaption(_ snapshot: AgentUsageSnapshot) -> String {
+        snapshot.sourceNames.isEmpty ? "No usage recorded today" : "Sources: \(snapshot.sourceNames)"
     }
 
     private func tokenBadge(label: String, value: Int, suffix: String = "", color: Color) -> some View {

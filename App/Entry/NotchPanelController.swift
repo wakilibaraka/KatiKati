@@ -152,6 +152,15 @@ final class NotchPanelController: LiveEventSink {
         syncWindow()
     }
 
+    /// Shortcut paging: open the notch if closed, then step one page (the dots' mouse-only gap).
+    func stepPage(forward: Bool) {
+        guard panel != nil else { return }
+        hover.forceOpen()
+        applyOpenState()
+        model.stepPage(forward: forward)
+        startHoverPolling()
+    }
+
     /// Phase 9d shortcut: open the notch on its Tools tab, or close it if it is already showing it.
     func toggleTools() {
         guard panel != nil else { return }

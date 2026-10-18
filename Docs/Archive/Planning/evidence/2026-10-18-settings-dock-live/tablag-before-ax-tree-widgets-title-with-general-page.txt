@@ -1,0 +1,103 @@
+=== WINDOW 0:  ===
+AXWindow||||
+  AXGroup||||
+    AXImage||Clock||clock
+    AXStaticText|||04:47|
+=== WINDOW 1:  ===
+AXWindow||||
+=== WINDOW 2:  ===
+AXWindow||||
+  AXGroup||||
+    AXUnknown||Edge Bars||
+=== WINDOW 3:  ===
+AXWindow||||
+  AXGroup||||
+    AXUnknown||||
+    AXStaticText|||61|
+    AXUnknown||||
+    AXUnknown||||
+    AXUnknown||||
+=== WINDOW 4:  ===
+AXWindow||||
+  AXGroup||||
+    AXScrollArea||||
+      AXImage||Mostly Cloudy||cloud.fill
+      AXStaticText|||16°|
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||Trash||
+      AXUnknown||||
+      AXStaticText|||04|
+      AXStaticText|||47|
+      AXImage||Wi-Fi||wifi
+=== WINDOW 5:  ===
+AXWindow||||
+=== WINDOW 6: Widgets ===
+AXWindow|Widgets|||
+  AXGroup||||
+    AXScrollArea||||
+    AXScrollArea||||
+      AXStaticText|||Language|
+      AXPopUpButton||Language|English|
+      AXStaticText|||Appearance|
+      AXButton||System||
+      AXButton||Light||
+      AXButton||Dark||
+      AXStaticText|||Show/hide taskbar shortcut|
+      AXButton||Reset to Default||
+      AXStaticText|||⌃⌥⇧⌘D|
+      AXStaticText|||Drawer Position|
+      AXPopUpButton||Drawer Position|Right|
+      AXStaticText|||Reverse mouse scroll direction|
+      AXButton||Flips mouse-wheel scrolling system-wide, like Scroll Reverser. Trackpads and Magic Mouse are not affected. KatiKati only inverts the direction values of scroll-wheel events; nothing is recorded or sent anywhere. If Scroll Reverser or Mos is also running, the two cancel out — keep only one.||questionmark.circle
+      AXCheckBox||Reverse mouse scroll direction|0|
+      AXStaticText|||Permissions|
+      AXStaticText|||Accessibility|
+      AXButton||Grant||
+      AXStaticText|||Shows your open windows as chips and lets you switch to them.|
+      AXStaticText|||Screen Recording|
+      AXButton||Grant||
+      AXStaticText|||Shows live window thumbnails in hover previews. Without it, previews show titles only.|
+      AXStaticText|||Input Monitoring|
+      AXButton||Grant||
+      AXStaticText|||Only for the optional Hyper key. Skip it if you won’t use that.|
+      AXStaticText|||About|
+      AXStaticText|||Version 0.17.0 (51) · Debug Build|
+      AXButton||Check for Updates…||
+      AXStaticText|||Check for updates automatically|
+      AXCheckBox||Check for updates automatically|1|
+      AXStaticText|||Diagnostic Info|
+      AXButton||Copy||
+      AXButton||Show Setup Guide Again||
+  AXToolbar||||
+    AXButton|General|||
+    AXButton|Appearance|||
+    AXButton|Widgets|||
+    AXButton|Notch|||
+    AXButton|Edge Bars|||
+    AXButton|Window Management|||
+    AXButton|Launcher|||
+    AXButton|Control Center|||
+    AXButton|Shortcuts|||
+    AXButton|Tools|||
+    AXButton|Advanced|||
+  AXButton||||
+  AXButton||||
+    AXGroup||||
+      AXGroup||||
+  AXButton||||
+  AXStaticText|||Widgets|

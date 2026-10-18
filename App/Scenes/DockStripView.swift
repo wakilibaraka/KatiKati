@@ -1397,11 +1397,11 @@ struct DockStripView: View {
                             widgetChip(section, size: widgetSize)
                         }
                     }
-                    // Refined slot insets: maximize height utilization and eliminate dead horizontal spacing
-                    .padding(.horizontal, (widgetSize == .small ? 2 : 4) * dockScale)
+                    // Refined slot insets: every widget card matches the 40pt height of the FABs
+                    // and app icons beside it (Phase 49).
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .frame(width: section == .apps ? nil : targetWidth * dockScale,
-                           height: max(40, (settingsStore.dockPanelHeight.points - 8)) * dockScale)
+                           height: BarSection.railTileSize * dockScale)
                 }
             }
             .contentShape(Rectangle())

@@ -333,17 +333,25 @@ final class IslandLayoutSolverTests: XCTestCase {
     // MARK: - Phase 11a: chrome-true widths + overlap resolution
 
     func testFixedIslandWidthIncludesStripChrome() {
-        // launcher 40 + weather 150 at native scale: 2×16 inset + one 9 pt divider (Phase 41c).
+        // launcher 40 + weather 150 at native scale: 2×8 inset + one 9 pt divider (Phase 49).
         let width = IslandChrome.fixedIslandWidth(contentWidth: 190, sectionCount: 2, scale: 1)
-        XCTAssertEqual(width, 190 + 32 + 9)
+        XCTAssertEqual(width, 190 + 16 + 9)
         XCTAssertEqual(IslandChrome.fixedIslandWidth(contentWidth: 0, sectionCount: 0, scale: 1), 0)
     }
 
-    /// Phase 41c: the end inset is one plate corner radius and never less — that is the whole
-    /// reason the number exists, because the island clips its content to a rounded rectangle.
+    /// Phase 49: the 8 pt end inset plus the 7 pt cross-axis slack (`(54 - 40) / 2`) keeps a 40×40
+    /// tile clear of the 16 pt plate corner arc (`(16 - 7)^2 + (16 - 8)^2 = 81 + 64 = 145 <= 256`).
     func testContentInsetClearsThePlateCorner() {
-        XCTAssertGreaterThanOrEqual(IslandChrome.contentInset, DockShape.panelCornerRadius,
-                                    "a chip inset past the corner arc would be clipped")
+        for barHeight: CGFloat in [32, 54, 90] {
+            let scale = barHeight / 54
+            let radius = DockShape.panelCornerRadius * scale
+            let side = (barHeight - BarSection.railTileSize * scale) / 2
+            let end = IslandChrome.contentInset * scale
+            let dx = radius - side
+            let dy = radius - end
+            XCTAssertLessThanOrEqual(dx * dx + dy * dy, radius * radius,
+                                     "\(barHeight): a 40×40 end tile's corner is clipped")
+        }
     }
 
     /// Phase 41b: the solver caps a rail's app tiles with the rail's own stride, not the bottom
@@ -360,21 +368,19 @@ final class IslandLayoutSolverTests: XCTestCase {
         }
     }
 
-    /// Phase 42 (owner: "use the mac dock spacing"): a rail packs at the native Dock's own pitch and
-    /// keeps the Dock's tight ends. The numbers come from the Dock's accessibility tree on the owner's
-    /// side dock — `tilesize 36` lays a 38 pt tile box (2 pt between two icons) and keeps 3.45 pt at the
-    /// list's ends — and 2 pt is already what the bottom bar leaves between icons.
+    /// Phase 42 / Phase 49: a rail packs at the native Dock's 2 pt icon pitch and uses balanced 8 pt
+    /// end insets matching the horizontal bar so end tiles clear the rounded island corners.
     func testRailSpacingMatchesTheNativeDock() {
         XCTAssertEqual(IslandChrome.railChipSpacing, 2)
         XCTAssertEqual(IslandChrome.railChipSpacing, ChipPillMetrics.chipSpacing,
                        "both axes pack at one pitch")
-        XCTAssertEqual(IslandChrome.railContentInset, 4)
-        XCTAssertLessThan(IslandChrome.railContentInset, IslandChrome.contentInset,
-                          "the rail's ends are the Dock's, not the bar's plate radius")
+        XCTAssertEqual(IslandChrome.railContentInset, 8)
+        XCTAssertEqual(IslandChrome.railContentInset, IslandChrome.contentInset,
+                       "both axes use the balanced 8 pt end inset")
     }
 
-    /// The rail's end inset reaches the solver: a fixed island is 2 × (16 − 4) shorter on a rail than
-    /// the bottom bar's chrome would make it, and that is exactly what the strip now draws.
+    /// The rail's end inset reaches the solver: passing a custom inset adjusts a fixed island's width
+    /// by 2 × Δinset.
     func testRailFixedIslandsUseTheRailEndInset() {
         func width(_ inset: CGFloat) -> CGFloat {
             IslandLayoutSolver.layout(
@@ -383,8 +389,8 @@ final class IslandLayoutSolverTests: XCTestCase {
                 gap: 10, margin: 12, barHeight: 54, bottomMargin: 8,
                 contentInset: inset).islands[0].frame.width
         }
-        XCTAssertEqual(width(IslandChrome.contentInset) - width(IslandChrome.railContentInset),
-                       2 * (IslandChrome.contentInset - IslandChrome.railContentInset), accuracy: 0.001)
+        XCTAssertEqual(width(16) - width(IslandChrome.railContentInset),
+                       2 * (16 - IslandChrome.railContentInset), accuracy: 0.001)
     }
 
     func testSplitFixedIslandsMatchTheWidthTheStripDraws() {
@@ -394,7 +400,7 @@ final class IslandLayoutSolverTests: XCTestCase {
             gap: 10, margin: 12, barHeight: 54, bottomMargin: 8)
         let left = layout.islands[0]
         XCTAssertEqual(left.sections, [.launcher, .weather])
-        XCTAssertEqual(left.frame.width, 40 + 150 + 32 + 9, accuracy: 0.001)
+        XCTAssertEqual(left.frame.width, 40 + 150 + 16 + 9, accuracy: 0.001)
     }
 
     func testExtremeSettingsNeverOverlapOrLeaveTheScreen() {
@@ -454,8 +460,8 @@ final class IslandLayoutSolverTests: XCTestCase {
                 appCount: 4, weatherWidth: 150, clockWidth: 160, clusterWidth: 120,
                 gap: 10, margin: 12, barHeight: h, bottomMargin: 8).islands[0].frame.width
         }
-        // launcher 40 + weather 150 + chrome 41 (2×16 inset + a 9 pt divider), all × (h / 54).
-        XCTAssertEqual(leftWidth(108), 2 * 231, accuracy: 0.001)
-        XCTAssertEqual(leftWidth(27), 231 / 2, accuracy: 0.001)
+        // launcher 40 + weather 150 + chrome 25 (2×8 inset + a 9 pt divider), all × (h / 54).
+        XCTAssertEqual(leftWidth(108), 2 * 215, accuracy: 0.001)
+        XCTAssertEqual(leftWidth(27), 215 / 2, accuracy: 0.001)
     }
 }

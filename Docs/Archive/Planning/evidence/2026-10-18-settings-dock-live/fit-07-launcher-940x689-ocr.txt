@@ -1,0 +1,50 @@
+Launcher
+00
+General
+Appearance
+Widgets
+Notch
+Edge Bars
+Window Management
+Launcher
+Control Center
+Shortcuts
+Tools
+Advanced
+ce
+Do Widgets
+Notch
+Edge Bars
+Window Management
+Launcher
+3 Control Center
+& Shortcuts
+Tools
+Launcher
+Scroll Direction
+Sideways
+Down
+Hidden Apps
+Show All Hidden Apps
+Reset App Order
+> Hide Rarely Used Apps
+Search Position
+Top
+Theme
+System
+Tint
+None
+Launcher Icon
+Liquid Bento
+Vision Mono
+Starburst
+Glass
+Orbit
+Tiles
+Petal
+Themed
+Launcher
+Script Commands
+Show Command Hints
+Fast File Index
+Replace Spotlight

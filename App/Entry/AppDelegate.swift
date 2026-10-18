@@ -281,10 +281,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         appearanceSubscription = settingsStore.$appearanceMode
             .sink { NSApp.appearance = $0.nsAppearance }
 
-        // 量高门禁：`DOCK_SETTINGS_PAGE_HEIGHT=1` 时量完十页就退出（排在外观应用之后，
-        // 因为字高随外观取值）。正常启动下这一行什么都不做。
-        SettingsPageHeightProbe.runIfRequested(on: settingsWindowController)
-
         // 32b live-check aid: `DOCK_OPEN_SETTINGS=<tab>` presents one Settings page once the strip
         // has started, so an AX probe reads its real rows. Unset does nothing (`DebugSwitch`).
         if let raw = DebugSwitch.openSettings.value(), let tab = SettingsTab(rawValue: raw) {
@@ -336,6 +332,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .quickSettings: self.controlCenterPanel.toggle()
                 case .drawer: self.panelCoordinator?.toggleDrawer()
                 case .notchTools: self.notchPanel.toggleTools()
+                case .notchPageNext: self.notchPanel.stepPage(forward: true)
+                case .notchPagePrevious: self.notchPanel.stepPage(forward: false)
                 case .weather: WidgetPanelController.weather.toggle()
                 case .clock: WidgetPanelController.calendar.toggle()
                 case .keepAwake:
@@ -430,6 +428,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.liveEventCenter.deliver(.downloadFinished(name: name), now: Date())
             }
             RecentlyClosedStore.shared.start()
+            // Phase 44b: unfinished torrents resume through the normal add path (no-op without aria2).
+            DownloadManagerService.shared.restoreTorrentSession()
 
             _ = statusMenuController
 

@@ -5,6 +5,9 @@ struct TrashChip: View {
     let isFull: Bool
     let isDropTargeted: Bool
     let scale: CGFloat
+    /// 侧边栏上这张卡是**方**的（Phase 49），与其余 rail 卡片一致（主轴长度 = `cardWidth`），
+    /// 避免 54pt 的卡片高度在垂直列中撑出多余空隙。**故意不给默认值**——漏传必须是编译错误。
+    let railTile: Bool
     let hoverStyle: HoverStyle
     let isHovered: Bool
     let menuItems: [TrashMenuPlan.Item]
@@ -29,7 +32,8 @@ struct TrashChip: View {
     var body: some View {
         ZStack(alignment: .topTrailing) {
             artwork
-                .frame(width: ChipPillMetrics.chipHeight * scale, height: ChipPillMetrics.chipHeight * scale)
+                .frame(width: ChipPillMetrics.bareIconSlot * scale,
+                       height: ChipPillMetrics.bareIconSlot * scale)
                 
             // Standard macOS red badge (dot) for full state
             if isFull {
@@ -40,10 +44,11 @@ struct TrashChip: View {
                         Circle().stroke(Color.white.opacity(0.8), lineWidth: 1 * scale)
                     )
                     .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
-                    .offset(x: -4 * scale, y: 4 * scale)
+                    .offset(x: -2 * scale, y: 2 * scale)
             }
         }
-        .frame(width: ChipPillMetrics.chipHeight * scale, height: ChipPillMetrics.chipHeight * scale)
+        .frame(width: ChipPillMetrics.cardWidth * scale,
+               height: ChipPillMetrics.cardFrameHeight(scale, onRail: railTile))
         // Add subtle scale/bounce animation on hover
         .scaleEffect(isHovered ? 1.05 : 1.0, anchor: .bottom)
         .scaleEffect(isDropTargeted ? 1.15 : 1.0, anchor: .bottom)

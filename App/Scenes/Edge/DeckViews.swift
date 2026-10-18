@@ -172,6 +172,8 @@ struct DeckPillView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: model.onRight ? .trailing : .leading)
         .padding(model.onRight ? .trailing : .leading, 1)
         .contentShape(Rectangle())
+        .accessibilityLabel(Text("Edge Bars"))
+        .help(Text("Edge Bars"))
         // The panel only accepts mouse events at rest while ⌥ is held over it, so a plain click never lands here.
         .gesture(DragGesture(minimumDistance: 2, coordinateSpace: .global)
             .onChanged { _ in model.onPillDrag(true) }

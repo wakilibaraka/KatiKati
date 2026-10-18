@@ -10,16 +10,17 @@ import XCTest
 // `SettingsMetricsTests`).
 
 final class SettingsTabTests: XCTestCase {
-    func testTheStripIsTenTabsWithOneIdentityEach() {
-        XCTAssertEqual(SettingsTab.allCases.count, 10, "ten pages is the window's shape")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 10,
+    func testTheSidebarIsFourteenTabsWithOneIdentityEach() {
+        XCTAssertEqual(SettingsTab.allCases.count, 14, "fourteen sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 14,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
                        "the page visited once sits at the end; Tools is one before it")
-        XCTAssertEqual(SettingsTab.allCases.dropLast().last, .tools, "Tools takes the slot About left")
+        XCTAssertEqual(SettingsTab.allCases.dropLast().last, .info, "Info sits just before Advanced")
         XCTAssertEqual(SettingsTab(rawValue: "tiling"), .windowManagement,
                        "a stored toolbar identifier must keep resolving after a rename")
+        XCTAssertEqual(SettingsTab(rawValue: "controlCenter"), .controlCenter)
     }
 
     /// The rename that moved the tools off the launcher's page: the old identifier and the removed
@@ -30,10 +31,17 @@ final class SettingsTabTests: XCTestCase {
         XCTAssertEqual(SettingsTab(rawValue: "launcher"), .launcher)
     }
 
+    func testEachSectionHasItsOwnHue() {
+        let hues = SettingsTab.allCases.map { "\($0.hue.red),\($0.hue.green),\($0.hue.blue)" }
+        XCTAssertEqual(Set(hues).count, hues.count, "two sections share a hue")
+    }
+
     func testEveryTabCanBeDrawn() {
         for tab in SettingsTab.allCases {
             XCTAssertFalse(tab.title.isEmpty, "\(tab.rawValue) has no title, so its toolbar item is blank")
             XCTAssertFalse(tab.symbolName.isEmpty, "\(tab.rawValue) has no icon")
+            let h = tab.hue
+            XCTAssertTrue([h.red, h.green, h.blue].allSatisfy { (0...1).contains($0) }, "\(tab.rawValue) hue out of range")
         }
     }
 }

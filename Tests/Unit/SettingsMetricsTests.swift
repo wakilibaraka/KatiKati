@@ -4,9 +4,8 @@ import XCTest
 /// thing worth pinning: a section must read as a bigger break than a row, and a card must still fit
 /// a label plus a control at the window's real width.
 final class SettingsMetricsTests: XCTestCase {
-    /// The settings window's content width (`SettingsWindowView.contentWidth`), duplicated here
-    /// because the view file is app-target-only.
-    private let contentWidth: CGFloat = 900
+    /// The settings window's default content width (`SettingsWindowView.contentWidth`).
+    private let contentWidth: CGFloat = SettingsMetrics.windowWidth
 
     func testSectionReadsAsABiggerBreakThanARow() {
         XCTAssertGreaterThan(SettingsMetrics.sectionSpacing, SettingsMetrics.rowVerticalPadding,
@@ -18,15 +17,16 @@ final class SettingsMetricsTests: XCTestCase {
         XCTAssertGreaterThan(SettingsMetrics.controlSpacing, 0)
     }
 
-    /// A pair's two halves are equal (`Docs/SETTINGS.md` rules 5 and 10): the window is a fixed
-    /// width, and both halves must be the same number of points or one of them squeezes its
-    /// trailing control (measured live 2026-10-15: a Record button at 20 pt reading “…”).
     func testAPairsHalvesSplitTheCardEvenly() {
         XCTAssertEqual(SettingsMetrics.halfRowWidth * 2, SettingsMetrics.cardContentWidth,
                        "two halves must fill one card, no more and no less")
         XCTAssertEqual(SettingsMetrics.cardContentWidth,
                        SettingsMetrics.windowWidth - 2 * SettingsMetrics.paneMargin - 2 * SettingsMetrics.cardPadding,
                        "a card's content is the window minus the page margin and the card's padding")
+        XCTAssertLessThan(SettingsMetrics.minWindowWidth, SettingsMetrics.windowWidth)
+        XCTAssertGreaterThan(SettingsMetrics.idealWindowWidth, SettingsMetrics.minWindowWidth)
+        XCTAssertEqual(SettingsMetrics.halfRowWidth(forWindowWidth: 1100) * 2,
+                       SettingsMetrics.cardContentWidth(forWindowWidth: 1100))
     }
 
     /// A checklist cell is tighter than a settings row (`Docs/SETTINGS.md` rule 5): the grid only

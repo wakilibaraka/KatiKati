@@ -92,6 +92,16 @@ final class SystemGaugeTests: XCTestCase {
         XCTAssertEqual(DockIconShape.packedValue("hexagon"), .squircle)
     }
 
+    /// The forecast pod scales whole to its slot: shrink a tall form, never grow a short one, and 1
+    /// while either measure is missing (first layout pass).
+    func testSlotFitScale() {
+        XCTAssertEqual(SlotFitScale.scale(naturalHeight: 58, availableHeight: 40), 40.0 / 58.0, accuracy: 0.001)
+        XCTAssertEqual(SlotFitScale.scale(naturalHeight: 37, availableHeight: 40), 1)
+        XCTAssertEqual(SlotFitScale.scale(naturalHeight: 40, availableHeight: 40), 1)
+        XCTAssertEqual(SlotFitScale.scale(naturalHeight: 0, availableHeight: 40), 1)
+        XCTAssertEqual(SlotFitScale.scale(naturalHeight: 58, availableHeight: 0), 1)
+    }
+
     /// Phase 46: two layouts × two plates. The stored values the app already shipped (`classic`,
     /// `detailed`) must keep meaning what they meant — the owner's own install pins `detailed`.
     func testWeatherChipPresetAxes() {

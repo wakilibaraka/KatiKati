@@ -1,0 +1,136 @@
+=== WINDOW 0:  ===
+AXWindow||||
+  AXGroup||||
+    AXImage||Clock||clock
+    AXStaticText|||04:46|
+=== WINDOW 1:  ===
+AXWindow||||
+=== WINDOW 2:  ===
+AXWindow||||
+  AXGroup||||
+    AXUnknown||Edge Bars||
+=== WINDOW 3:  ===
+AXWindow||||
+  AXGroup||||
+    AXUnknown||||
+    AXStaticText|||61|
+    AXUnknown||||
+    AXUnknown||||
+    AXUnknown||||
+=== WINDOW 4:  ===
+AXWindow||||
+  AXGroup||||
+    AXScrollArea||||
+      AXImage||Mostly Cloudy||cloud.fill
+      AXStaticText|||16°|
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||||
+      AXImage||Trash||
+      AXUnknown||||
+      AXStaticText|||04|
+      AXStaticText|||47|
+      AXImage||Wi-Fi||wifi
+=== WINDOW 5:  ===
+AXWindow||||
+=== WINDOW 6: Advanced ===
+AXWindow|Advanced|||
+  AXGroup||||
+    AXScrollArea||||
+    AXScrollArea||||
+      AXStaticText|||Clipboard|
+      AXStaticText|||Clean Copied Links|
+      AXCheckBox||Clean Copied Links|0|
+      AXStaticText|||Copy Sounds|
+      AXCheckBox||Copy Sounds|0|
+      AXStaticText|||Copy Notifications|
+      AXCheckBox||Copy Notifications|0|
+      AXStaticText|||Ignore Patterns|
+      AXTextField||||
+      AXStaticText|||Commands & Snippets|
+      AXStaticText|||Custom Commands|
+      AXStaticText|||Custom Commands|
+      AXScrollArea||||
+        AXTextArea||Custom Commands||
+        AXScrollBar|||0|
+      AXStaticText|||Text Snippets|
+      AXStaticText|||Text Snippets|
+      AXScrollArea||||
+        AXTextArea||Text Snippets||
+        AXScrollBar|||0|
+      AXStaticText|||BitTorrent|
+      AXStaticText|||Engine Path|
+      AXTextField||||
+      AXStaticText|||/opt/homebrew/bin/aria2c|
+      AXStaticText|||Seed Ratio|
+      AXStaticText|||0 (stop)|
+      AXIncrementor||Seed Ratio, Seed Ratio|0|
+        AXButton||||
+        AXButton||||
+      AXStaticText|||Seed Minutes|
+      AXStaticText|||0 (stop)|
+      AXIncrementor||Seed Minutes, Seed Minutes|0|
+        AXButton||||
+        AXButton||||
+      AXStaticText|||Max Upload|
+      AXStaticText|||Unlimited|
+      AXIncrementor||Max Upload, Max Upload|0|
+        AXButton||||
+        AXButton||||
+      AXStaticText|||Quiet Upload|
+      AXStaticText|||Off|
+      AXIncrementor||Quiet Upload, Quiet Upload|0|
+        AXButton||||
+        AXButton||||
+      AXStaticText|||Equal hours disables the window. 0 stops sharing at completion.|
+      AXStaticText|||Quiet From|
+      AXStaticText|||0:00|
+      AXIncrementor||Quiet From, Quiet From|0|
+        AXButton||||
+        AXButton||||
+      AXStaticText|||Quiet Until|
+      AXStaticText|||0:00|
+      AXIncrementor||Quiet Until, Quiet Until|0|
+        AXButton||||
+        AXButton||||
+      AXStaticText|||Shelf|
+      AXStaticText|||Shake to Shelf|
+      AXCheckBox||Shake to Shelf|1|
+      AXStaticText|||Auto-Expire|
+      AXCheckBox||Auto-Expire|0|
+      AXStaticText|||Storage|
+      AXPopUpButton||Storage|References|
+      AXButton||Clear Unpinned||
+      AXStaticText|||System Dock|
+      AXButton||Restore Dock||
+  AXToolbar||||
+    AXButton|General|||
+    AXButton|Appearance|||
+    AXButton|Widgets|||
+    AXButton|Notch|||
+    AXButton|Edge Bars|||
+    AXButton|Window Management|||
+    AXButton|Launcher|||
+    AXButton|Control Center|||
+    AXButton|Shortcuts|||
+    AXButton|Tools|||
+    AXButton|Advanced|||
+  AXButton||||
+  AXButton||||
+    AXGroup||||
+      AXGroup||||
+  AXButton||||
+  AXStaticText|||Advanced|
