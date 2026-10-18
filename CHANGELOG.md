@@ -2,6 +2,13 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Settings redesign, Phase 7: keyboard and search
+
+### Added
+- ⌘F focuses the sidebar search and ⌘1…⌘9 jump to the first nine sections.
+- The sidebar search also matches keywords (for example "torrent" finds Downloads), and Return opens the
+  first match.
+
 ## [Unreleased] — Settings redesign, Phase 6: time-of-day glow
 
 ### Added

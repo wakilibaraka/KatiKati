@@ -9,6 +9,7 @@ struct SettingsShell: View {
     @ObservedObject var tabState: SettingsTabState
     let onShowWelcomeGuide: () -> Void
 
+    @State private var focusSearch = 0
     @AppStorage("com.katikati.settings.sidebarCompact") private var forcedCompact = false
     @AppStorage("com.katikati.settings.stage") private var stageRaw = SettingsStagePreference.top.rawValue
     @AppStorage("com.katikati.settings.stageFraction") private var stageFraction = Double(SettingsStageSize.defaultFraction)
@@ -27,7 +28,8 @@ struct SettingsShell: View {
                 SettingsSidebar(
                     tabState: tabState,
                     isCompact: layout.sidebar == .icons,
-                    forcedCompact: $forcedCompact
+                    forcedCompact: $forcedCompact,
+                    focusSearch: focusSearch
                 )
                 Divider()
                 let pageWidth = proxy.size.width - (layout.sidebar == .icons
@@ -35,6 +37,19 @@ struct SettingsShell: View {
                 content(layout: layout, pageWidth: pageWidth, size: CGSize(width: pageWidth, height: proxy.size.height))
             }
         }
+        .background(keyboardShortcuts)
+    }
+
+    /// ⌘F focuses the sidebar search; ⌘1…⌘9 jump to the first nine sections.
+    private var keyboardShortcuts: some View {
+        ZStack {
+            Button("") { forcedCompact = false; focusSearch += 1 }.keyboardShortcut("f", modifiers: .command)
+            ForEach(Array(SettingsTab.allCases.prefix(9).enumerated()), id: \.offset) { index, tab in
+                Button("") { tabState.selected = tab }
+                    .keyboardShortcut(KeyEquivalent(Character(String(index + 1))), modifiers: .command)
+            }
+        }
+        .opacity(0).allowsHitTesting(false).accessibilityHidden(true)
     }
 
     @ViewBuilder

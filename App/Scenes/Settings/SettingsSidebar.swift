@@ -4,19 +4,44 @@ extension SettingsTab {
     var hueColor: Color { Color(red: hue.red, green: hue.green, blue: hue.blue) }
 }
 
+extension SettingsTab {
+    /// Words a reader might search for besides the title (not localized; matched as typed).
+    var searchTerms: String {
+        switch self {
+        case .general: return "launch login language updates menu bar diagnostics"
+        case .appearance: return "theme layout mode position bar height spacing icons dark light colour accent"
+        case .widgets: return "weather clock calendar media now playing look"
+        case .notch: return "island skin style open panel"
+        case .edgeBars: return "dock side bar auto hide edge"
+        case .windowManagement: return "tiling snap gaps preset layout bsp monocle"
+        case .launcher: return "search apps files command bar spotlight"
+        case .controlCenter: return "panel tiles toggles anchor width"
+        case .shortcuts: return "hotkey keyboard keys record hyper caps lock snap"
+        case .radialDial: return "pie menu wheel theme"
+        case .downloads: return "torrent bittorrent seed upload quiet hours aria2"
+        case .tools: return "clipboard color picker teleprompter calculator"
+        case .info: return "about version licence help"
+        case .advanced: return "reset debug permissions accessibility screen recording"
+        }
+    }
+}
+
 /// The Settings window's only navigation (macOS System Settings style): search first, then one row
 /// per section with a hue-coloured icon. Icons-only when the window is narrow or the user collapses it.
 struct SettingsSidebar: View {
     @ObservedObject var tabState: SettingsTabState
     let isCompact: Bool
     @Binding var forcedCompact: Bool
+    /// Bumped by the shell (⌘F) to put the cursor in the search field.
+    var focusSearch = 0
 
     @State private var query = ""
+    @FocusState private var searchFocused: Bool
 
     private var visibleTabs: [SettingsTab] {
         let q = query.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return SettingsTab.allCases }
-        return SettingsTab.allCases.filter { $0.title.localizedCaseInsensitiveContains(q) }
+        return SettingsTab.allCases.filter { $0.title.localizedCaseInsensitiveContains(q) || $0.searchTerms.localizedCaseInsensitiveContains(q) }
     }
 
     var body: some View {
@@ -26,6 +51,8 @@ struct SettingsSidebar: View {
                     Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
                     TextField("Search", text: $query)
                         .textFieldStyle(.plain)
+                        .focused($searchFocused)
+                        .onSubmit { if let first = visibleTabs.first, !query.isEmpty { tabState.selected = first } }
                         .accessibilityLabel(Text("Search settings"))
                 }
                 .padding(.horizontal, 10)
@@ -61,6 +88,7 @@ struct SettingsSidebar: View {
             .padding(.bottom, 8)
         }
         .padding(.top, 8)
+        .onChange(of: focusSearch) { _ in searchFocused = true }
         .frame(width: isCompact ? SettingsMetrics.sidebarCollapsedWidth : SettingsMetrics.sidebarWidth)
         .background(.ultraThinMaterial)
     }
