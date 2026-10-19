@@ -44,6 +44,8 @@ struct NotchIslandView: View {
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
     @AppStorage(NotificationMirrorService.enabledKey) private var notificationsPage = false
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
+    @AppStorage(NotchOpenAnimation.defaultsKey) private var openAnimation = NotchOpenAnimation.boring.rawValue
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// `AppSettingsStore.Keys.themeMaterial`, which is file-private; the key itself is the contract.
     @AppStorage("com.katikati.theme.material") private var themeMaterialToken = DockThemeStyle.auto.token
     let metrics: NotchMetrics
@@ -61,18 +63,30 @@ struct NotchIslandView: View {
         )
     }
 
-    /// Content melts in and out of the shape like liquid glass: it scales up from the notch's top edge while
-    /// it blurs into focus, so the surface seems to pour into the new size. No colour, only motion.
-    private static let liquid = AnyTransition.modifier(
-        active: LiquidBlur(amount: 8), identity: LiquidBlur(amount: 0)
-    ).combined(with: .scale(scale: 0.9, anchor: .top)).combined(with: .opacity)
+    private func openTransition(_ style: NotchOpenAnimation) -> AnyTransition {
+        switch style.reveal {
+        case .fade: return .opacity
+        case .pour:
+            return AnyTransition.modifier(active: LiquidBlur(amount: 8), identity: LiquidBlur(amount: 0))
+                .combined(with: .scale(scale: 0.92, anchor: .top)).combined(with: .opacity)
+        case .drop: return .opacity.combined(with: .offset(y: -6))
+        case .pop: return .scale(scale: 0.85, anchor: .top).combined(with: .opacity)
+        }
+    }
+
+    /// The closed chips only fade: blur or scale on a 32pt strip reads as a jump.
+    private static let closedFade = AnyTransition.opacity
 
     var body: some View {
         let expanded = model.isExpanded
         let activity = feed.activity
         let boring = model.skin == .boring
         let edge = NotchEdgeStyle.mask(sharp: sharpEdges, expanded: expanded, hasHardwareNotch: metrics.hasHardwareNotch)
-        let spring = expanded ? NotchMotionSpec.openSpring : NotchMotionSpec.closeSpring
+        let style = NotchOpenAnimation(rawValue: openAnimation) ?? .boring
+        let spring = expanded ? style.openSpring : style.closeSpring
+        let motion: Animation = reduceMotion
+            ? .easeInOut(duration: NotchMotionSpec.reducedMotionDuration)
+            : .spring(response: spring.response, dampingFraction: spring.dampingRatio)
         let size = expanded ? model.openSize : model.closedSize
         ZStack(alignment: .top) {
             NotchContinuousMaskShape(
@@ -83,16 +97,16 @@ struct NotchIslandView: View {
             .fill(notchTheme.plate.color)
             Group {
                 if !expanded {
-                    closedContent(activity).padding(.horizontal, 14).transition(Self.liquid)
+                    closedContent(activity).padding(.horizontal, 14).transition(Self.closedFade)
                 } else if boring && model.event == nil {
                     VStack(spacing: 0) {
                         NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
-                            .transition(Self.liquid)
+                            .transition(openTransition(style))
                         Spacer(minLength: 0)
                         pageIndicatorDots
                     }
                 } else {
-                    openContent(activity).padding(.horizontal, 24).transition(Self.liquid)
+                    openContent(activity).padding(.horizontal, 24).transition(openTransition(style))
                 }
             }
         }
@@ -128,8 +142,8 @@ struct NotchIslandView: View {
                 Text(verbatim: "KatiKati Settings…")
             }
         }
-        .animation(.spring(response: spring.response, dampingFraction: spring.dampingRatio), value: expanded)
-        .animation(.spring(response: spring.response, dampingFraction: spring.dampingRatio), value: model.closedSize)
+        .animation(motion, value: expanded)
+        .animation(motion, value: model.closedSize)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .colorScheme(notchTheme.prefersDarkContent ? .light : .dark)
     }

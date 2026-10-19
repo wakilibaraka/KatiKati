@@ -49,3 +49,59 @@ enum NotchMotionSpec {
         return current + projectedOffset
     }
 }
+
+/// How the notch opens and closes. `boring` is the default and matches Boring Notch's springs
+/// (open 0.38 / 0.8, close 0.45 / 1.0); the others trade that feel for softer, snappier or bouncier.
+enum NotchOpenAnimation: String, CaseIterable, Identifiable, Sendable {
+    case boring, liquid, snap, bounce
+
+    static let defaultsKey = "com.katikati.notch.openAnimation"
+    var id: String { rawValue }
+
+    var openSpring: SpringParameters {
+        switch self {
+        case .boring: return SpringParameters(response: 0.38, dampingRatio: 0.8)
+        case .liquid: return SpringParameters(response: 0.46, dampingRatio: 0.86)
+        case .snap: return SpringParameters(response: 0.26, dampingRatio: 0.92)
+        case .bounce: return SpringParameters(response: 0.5, dampingRatio: 0.58)
+        }
+    }
+
+    var closeSpring: SpringParameters {
+        switch self {
+        case .boring: return SpringParameters(response: 0.45, dampingRatio: 1.0)
+        case .liquid: return SpringParameters(response: 0.4, dampingRatio: 1.0)
+        case .snap: return SpringParameters(response: 0.22, dampingRatio: 1.0)
+        case .bounce: return SpringParameters(response: 0.42, dampingRatio: 0.9)
+        }
+    }
+
+    /// Open content: plain fade, blur-and-scale pour, fade with a small drop, or a springy pop.
+    enum Reveal: Sendable { case fade, pour, drop, pop }
+    var reveal: Reveal {
+        switch self {
+        case .boring: return .fade
+        case .liquid: return .pour
+        case .snap: return .drop
+        case .bounce: return .pop
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .boring: return "Classic"
+        case .liquid: return "Liquid"
+        case .snap: return "Snap"
+        case .bounce: return "Bounce"
+        }
+    }
+
+    var summary: String {
+        switch self {
+        case .boring: return "Smooth spring, light overshoot"
+        case .liquid: return "Content pours in, soft settle"
+        case .snap: return "Fast and crisp, no overshoot"
+        case .bounce: return "Springy, clear overshoot"
+        }
+    }
+}

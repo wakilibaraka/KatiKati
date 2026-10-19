@@ -38,6 +38,8 @@ struct LiveIslandSettingsBlock: View {
             }
             .help(Text("Full uses a multi-panel layout; Compact uses a simpler player card."))
             SettingsDivider()
+            NotchAnimationPicker()
+            SettingsDivider()
             SettingsRow(Text("Event Alerts")) {
                 Picker("Event Alerts", selection: Binding(get: { store.liveEventRoute }, set: { store.setLiveEventRoute($0) })) {
                     ForEach(LiveEventRoute.allCases, id: \.self) { Self.title(for: $0).tag($0) }
@@ -61,6 +63,85 @@ struct LiveIslandSettingsBlock: View {
         case .dock: return Text("Dock")
         case .both: return Text("Both")
         case .off: return Text("Off")
+        }
+    }
+}
+
+/// Pick how the notch opens. Each card loops a miniature notch on that style's real springs, so the
+/// illustration is the animation itself. The cards sit under one label so the row stays compact.
+private struct NotchAnimationPicker: View {
+    @AppStorage(NotchOpenAnimation.defaultsKey) private var selected = NotchOpenAnimation.boring.rawValue
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(verbatim: "Open Animation").font(.system(size: 13))
+            HStack(spacing: 8) {
+                ForEach(NotchOpenAnimation.allCases) { style in
+                    Button { selected = style.rawValue } label: {
+                        VStack(spacing: 6) {
+                            NotchAnimationDemo(style: style)
+                            Text(verbatim: style.title).font(.system(size: 11, weight: .semibold))
+                            Text(verbatim: style.summary)
+                                .font(.system(size: 9)).foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center).lineLimit(2, reservesSpace: true)
+                        }
+                        .padding(8)
+                        .frame(maxWidth: .infinity)
+                        .background(RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(Color.primary.opacity(selected == style.rawValue ? 0.1 : 0.04)))
+                        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .strokeBorder(Color.accentColor, lineWidth: selected == style.rawValue ? 2 : 0))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Text(verbatim: "\(style.title): \(style.summary)"))
+                    .accessibilityAddTraits(selected == style.rawValue ? .isSelected : [])
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+private struct NotchAnimationDemo: View {
+    let style: NotchOpenAnimation
+    @State private var open = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        let spring = open ? style.openSpring : style.closeSpring
+        ZStack(alignment: .top) {
+            RoundedRectangle(cornerRadius: 5, style: .continuous).fill(Color.primary.opacity(0.06))
+            UnevenRoundedRectangle(bottomLeadingRadius: open ? 10 : 5, bottomTrailingRadius: open ? 10 : 5, style: .continuous)
+                .fill(.black)
+                .frame(width: open ? 74 : 40, height: open ? 38 : 9)
+                .overlay(alignment: .top) {
+                    if open {
+                        VStack(spacing: 3) {
+                            Capsule().fill(.white.opacity(0.85)).frame(width: 40, height: 4)
+                            Capsule().fill(.white.opacity(0.4)).frame(width: 28, height: 3)
+                        }
+                        .padding(.top, 12)
+                        .transition(reveal)
+                    }
+                }
+        }
+        .frame(height: 50)
+        .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+        .animation(reduceMotion ? nil : .spring(response: spring.response, dampingFraction: spring.dampingRatio), value: open)
+        .task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1.3)); open.toggle()
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    private var reveal: AnyTransition {
+        switch style.reveal {
+        case .fade: return .opacity
+        case .pour: return .scale(scale: 0.92, anchor: .top).combined(with: .opacity)
+        case .drop: return .opacity.combined(with: .offset(y: -6))
+        case .pop: return .scale(scale: 0.85, anchor: .top).combined(with: .opacity)
         }
     }
 }

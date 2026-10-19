@@ -24,12 +24,7 @@ struct NotchHeaderView: View {
             HStack(spacing: NotchLayoutSpec.headerSpacing) {
                 volume
                 if let level = power.status.battery.level {
-                    HStack(spacing: 4) {
-                        Text(verbatim: "\(level)%").font(.system(size: 12, weight: .medium)).monospacedDigit()
-                        Image(systemName: Self.batterySymbol(level: level, charging: power.status.battery.isCharging))
-                            .font(.system(size: 14))
-                    }
-                    .foregroundStyle(.white)
+                    NotchBatteryChip(level: level, battery: power.status.battery, scale: 1.25)
                 }
                 Button { model.collapse(); model.openSettings() } label: {
                     Image(systemName: "gearshape.fill").font(.system(size: 12, weight: .semibold))
