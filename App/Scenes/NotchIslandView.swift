@@ -98,13 +98,19 @@ struct NotchIslandView: View {
             Group {
                 if !expanded {
                     closedContent(activity).padding(.horizontal, 14).transition(Self.closedFade)
-                } else if boring && model.event == nil {
+                } else if model.event == nil {
+                    // Compact skin: the same pages, laid out at full size and scaled to the smaller panel.
+                    let full = NotchGeometry.openSize
+                    let scale = boring ? 1 : NotchGeometry.classicOpenSize.width / full.width
                     VStack(spacing: 0) {
                         NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
                             .transition(openTransition(style))
                         Spacer(minLength: 0)
                         pageIndicatorDots
                     }
+                    .frame(width: full.width, height: full.height, alignment: .top)
+                    .scaleEffect(scale, anchor: .top)
+                    .frame(width: full.width * scale, height: full.height * scale, alignment: .top)
                 } else {
                     openContent(activity).padding(.horizontal, 24).transition(openTransition(style))
                 }

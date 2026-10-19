@@ -32,7 +32,7 @@ enum NotchGeometry {
     /// The open (expanded) notch size.
     static let openSize = NotchLayoutSpec.openSize
     /// The original single-row panel's open size (the `classic` skin).
-    static let classicOpenSize = CGSize(width: 420, height: 130)
+    static let classicOpenSize = CGSize(width: 480, height: 142.5)
 
     static func openSize(for skin: LiveIslandSkin) -> CGSize {
         skin == .boring ? openSize : classicOpenSize
