@@ -86,9 +86,9 @@ struct SettingsTilingPane: View {
                 SettingsDivider()
                 // The block inside the card keeps its own label, so the grouping survives the
                 // merge without a second card (rule 5's three-section budget).
-                Text("Floating Applications")
+                Text("App Rules")
                     .font(.subheadline)
-                SettingsNote(Text("Applications listed below will float and never be tiled (one bundle identifier per line):"))
+                SettingsNote(Text("One app per line by bundle identifier. A bare line floats the app. Add =tile to keep it tiled even after you move it, or =display:Name to tile it on that display (e.g. com.apple.Safari=display:LG UltraFine)."))
                 TextEditor(text: Binding(
                     get: { floatingAppsDraft.isEmpty ? engine.policy.serializedPatterns : floatingAppsDraft },
                     set: {

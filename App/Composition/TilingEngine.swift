@@ -213,7 +213,7 @@ final class TilingEngine: ObservableObject {
                             abs(currentBounds.minY - lastApplied.minY) > 10 ||
                             abs(currentBounds.width - lastApplied.width) > 10 ||
                             abs(currentBounds.height - lastApplied.height) > 10
-                if moved && !releasedWindowIDs.contains(cg) {
+                if moved && !releasedWindowIDs.contains(cg) && !policy.alwaysTiles(bundleIdentifier: record.bundleIdentifier) {
                     releasedWindowIDs.insert(cg)
                     // Remove from trees so remaining windows retile smoothly
                     for (screenKey, var tree) in trees {
@@ -257,7 +257,9 @@ final class TilingEngine: ObservableObject {
                 return CGPoint(x: screens[0].frame.midX, y: screens[0].frame.midY)
             }()
 
-            let targetScreen = screens.first { $0.frame.contains(winCenter) } ?? screens[0]
+            let pinned = policy.pinnedDisplay(bundleIdentifier: record.bundleIdentifier)
+            let targetScreen = screens.first { $0.localizedName == pinned }
+                ?? screens.first { $0.frame.contains(winCenter) } ?? screens[0]
             let screenKey = targetScreen.localizedName + "-\(targetScreen.frame.origin)"
             eligibleByScreen[screenKey, default: []].append((record, cg))
 

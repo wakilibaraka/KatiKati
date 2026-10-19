@@ -197,4 +197,13 @@ final class TilingLayoutTests: XCTestCase {
         XCTAssertGreaterThan(wide[a]!.width, wide[b]!.width)
         XCTAssertGreaterThan(wide[a]!.minX, wide[b]!.minX)
     }
+
+    func testPolicyRulesRoundTripAndLegacyLines() {
+        let policy = TilingPolicy.parse(patterns: "com.a\ncom.b=tile\ncom.c=display:LG UltraFine\ncom.d=float")
+        XCTAssertTrue(policy.shouldFloat(bundleIdentifier: "com.a"))
+        XCTAssertTrue(policy.shouldFloat(bundleIdentifier: "com.d"))
+        XCTAssertTrue(policy.alwaysTiles(bundleIdentifier: "com.b"))
+        XCTAssertEqual(policy.pinnedDisplay(bundleIdentifier: "com.c"), "LG UltraFine")
+        XCTAssertEqual(TilingPolicy.parse(patterns: policy.serializedPatterns), policy)
+    }
 }
