@@ -9,12 +9,27 @@ enum TilingLayoutPreset: String, CaseIterable, Sendable, Codable {
     case mainStack
     /// Monocle: every window occupies the full work area.
     case monocle
+    /// Grid: windows fill rows of near-equal cells.
+    case grid
+    /// Spiral (dwindle): each window takes half of the space left, alternating direction.
+    case spiral
+    /// Columns: equal-width full-height slices.
+    case columns
+    /// Rows: equal-height full-width slices.
+    case rows
+    /// Centered Main: primary window in the middle, the rest split to either side.
+    case centeredMain
 
     var localizedTitleKey: String {
         switch self {
         case .bsp: return "BSP"
         case .mainStack: return "Main + Stack"
         case .monocle: return "Monocle"
+        case .grid: return "Grid"
+        case .spiral: return "Spiral"
+        case .columns: return "Columns"
+        case .rows: return "Rows"
+        case .centeredMain: return "Centered Main"
         }
     }
 }
@@ -40,6 +55,9 @@ enum TilingLayout {
 
         case .monocle:
             return resolveMonocle(tree: tree, workArea: workArea, gaps: gaps)
+
+        case .grid, .spiral, .columns, .rows, .centeredMain:
+            return resolveSliced(tree: tree, preset: preset, workArea: workArea, gaps: gaps)
         }
     }
 
@@ -131,6 +149,81 @@ enum TilingLayout {
             result[id] = contentArea
         }
         return result
+    }
+
+    // MARK: - Grid / Spiral / Columns / Rows / Centered Main
+
+    private static func resolveSliced(
+        tree: TilingTree,
+        preset: TilingLayoutPreset,
+        workArea: CGRect,
+        gaps: TilingGaps
+    ) -> [WindowID: CGRect] {
+        let windows = tree.allWindowIDs
+        let outer = gaps.outer
+        let inner = gaps.inner
+        let area = CGRect(
+            x: workArea.minX + outer, y: workArea.minY + outer,
+            width: max(0, workArea.width - 2 * outer), height: max(0, workArea.height - 2 * outer)
+        )
+        let n = windows.count
+        var frames: [CGRect] = []
+
+        switch preset {
+        case .columns:
+            frames = split(area, count: n, horizontal: true, gap: inner)
+        case .rows:
+            frames = split(area, count: n, horizontal: false, gap: inner)
+        case .grid:
+            let cols = Int(ceil(Double(n).squareRoot()))
+            let rowCount = Int(ceil(Double(n) / Double(cols)))
+            for (r, row) in split(area, count: rowCount, horizontal: false, gap: inner).enumerated() {
+                frames += split(row, count: min(cols, n - r * cols), horizontal: true, gap: inner)
+            }
+        case .spiral:
+            var rest = area
+            for i in 0..<n {
+                if i == n - 1 { frames.append(rest); break }
+                let parts = split(rest, count: 2, horizontal: i % 2 == 0, gap: inner)
+                frames.append(parts[0])
+                rest = parts[1]
+            }
+        case .centeredMain:
+            if n <= 2 {
+                frames = split(area, count: n, horizontal: true, gap: inner)
+                break
+            }
+            // Main in the middle (half the width); others alternate right, left.
+            let sideW = max(0, (area.width - area.width * 0.5 - 2 * inner) / 2)
+            let mainW = max(0, area.width - 2 * sideW - 2 * inner)
+            let rightCount = n / 2, leftCount = n - 1 - rightCount
+            let left = CGRect(x: area.minX, y: area.minY, width: sideW, height: area.height)
+            let mid = CGRect(x: left.maxX + inner, y: area.minY, width: mainW, height: area.height)
+            let right = CGRect(x: mid.maxX + inner, y: area.minY, width: sideW, height: area.height)
+            let rights = split(right, count: rightCount, horizontal: false, gap: inner)
+            let lefts = split(left, count: leftCount, horizontal: false, gap: inner)
+            frames = [mid]
+            for i in 0..<(n - 1) { frames.append(i % 2 == 0 ? rights[i / 2] : lefts[i / 2]) }
+        default:
+            break
+        }
+
+        var result: [WindowID: CGRect] = [:]
+        for (id, frame) in zip(windows, frames) { result[id] = pixelAligned(frame) }
+        return result
+    }
+
+    /// Splits `rect` into `count` equal slices: left→right, or top→bottom (Cocoa: top has the highest y).
+    private static func split(_ rect: CGRect, count: Int, horizontal: Bool, gap: CGFloat) -> [CGRect] {
+        guard count > 0 else { return [] }
+        let total = horizontal ? rect.width : rect.height
+        let each = max(0, total - gap * CGFloat(count - 1)) / CGFloat(count)
+        return (0..<count).map { i in
+            let offset = CGFloat(i) * (each + gap)
+            return horizontal
+                ? CGRect(x: rect.minX + offset, y: rect.minY, width: each, height: rect.height)
+                : CGRect(x: rect.minX, y: rect.maxY - offset - each, width: rect.width, height: each)
+        }
     }
 
     private static func pixelAligned(_ rect: CGRect) -> CGRect {

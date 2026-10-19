@@ -36,7 +36,7 @@ struct SettingsTilingPane: View {
 
             if engine.isEnabled {
                 SettingsDivider()
-                SettingsSegmentedRow(
+                SettingsPickerRow(
                     Text("Preset"),
                     selection: Binding(get: { engine.preset }, set: { engine.setPreset($0) })
                 ) {
@@ -122,6 +122,11 @@ struct SettingsTilingPane: View {
         case .bsp: return Text("BSP: each new window takes half of the space left, so four windows form a grid.")
         case .mainStack: return Text("Main + Stack: the first window fills the left 55%; the rest stack on the right.")
         case .monocle: return Text("Monocle: every window is full size. Use Focus Next / Previous to flip between them.")
+        case .grid: return Text("Grid: windows fill evenly sized rows and columns.")
+        case .spiral: return Text("Spiral: each new window takes half of the space left, turning clockwise.")
+        case .columns: return Text("Columns: windows sit side by side, full height.")
+        case .rows: return Text("Rows: windows stack top to bottom, full width.")
+        case .centeredMain: return Text("Centered Main: the first window sits in the middle; the rest flank it.")
         }
     }
 

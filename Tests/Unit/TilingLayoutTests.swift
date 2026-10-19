@@ -168,4 +168,23 @@ final class TilingLayoutTests: XCTestCase {
         XCTAssertFalse(WindowFit.isNativeTile(area, in: area))
         XCTAssertFalse(WindowFit.isNativeTile(CGRect(x: 300, y: 200, width: 800, height: 500), in: area))
     }
+
+    // MARK: - Sliced presets
+
+    func testSlicedPresetsTileInsideWorkAreaWithoutOverlap() {
+        for preset in [TilingLayoutPreset.grid, .spiral, .columns, .rows, .centeredMain] {
+            for n in 1...6 {
+                var tree = TilingTree()
+                for i in 0..<n { tree.insert(WindowID(rawValue: "w\(i)")) }
+                let frames = Array(TilingLayout.resolve(tree: tree, preset: preset, workArea: screen, gaps: defaultGaps).values)
+                XCTAssertEqual(frames.count, n, "\(preset) n=\(n)")
+                for (i, a) in frames.enumerated() {
+                    XCTAssertTrue(screen.insetBy(dx: -1, dy: -1).contains(a), "\(preset) n=\(n) outside")
+                    for b in frames[(i + 1)...] {
+                        XCTAssertTrue(a.intersection(b).width < 1 || a.intersection(b).height < 1, "\(preset) n=\(n) overlap")
+                    }
+                }
+            }
+        }
+    }
 }
