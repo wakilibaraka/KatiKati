@@ -136,4 +136,16 @@ final class TilingLayoutTests: XCTestCase {
             XCTAssertTrue(res.isEmpty, "Preset \(preset) must return empty for empty tree")
         }
     }
+
+    func testDockReserveCutsTheNearestEdge() {
+        let screen = CGRect(x: 0, y: 0, width: 1000, height: 800)
+        let visible = CGRect(x: 0, y: 0, width: 1000, height: 780)
+        XCTAssertEqual(DockReserve.workArea(visible: visible, screen: screen, dock: CGRect(x: 900, y: 200, width: 90, height: 400)),
+                       CGRect(x: 0, y: 0, width: 900, height: 780))
+        XCTAssertEqual(DockReserve.workArea(visible: visible, screen: screen, dock: CGRect(x: 10, y: 200, width: 90, height: 400)),
+                       CGRect(x: 100, y: 0, width: 900, height: 780))
+        XCTAssertEqual(DockReserve.workArea(visible: visible, screen: screen, dock: CGRect(x: 300, y: 8, width: 400, height: 80)),
+                       CGRect(x: 0, y: 88, width: 1000, height: 692))
+        XCTAssertEqual(DockReserve.workArea(visible: visible, screen: screen, dock: nil), visible)
+    }
 }

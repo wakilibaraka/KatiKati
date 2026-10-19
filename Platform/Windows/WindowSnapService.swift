@@ -7,6 +7,9 @@ import ApplicationServices
 enum WindowSnapService {
     enum Outcome { case moved, needsAccessibility, noWindow }
 
+    /// The solid dock's frame on a screen (nil when hidden/auto-hiding); zones stay clear of it.
+    static var dockFrame: (NSScreen) -> CGRect? = { _ in nil }
+
     @discardableResult
     static func apply(_ position: SnapPosition) -> Outcome {
         guard AXIsProcessTrusted() else { return .needsAccessibility }
@@ -20,7 +23,7 @@ enum WindowSnapService {
         let window = windowRef as! AXUIElement
         guard let screen = screenContaining(window, primaryMaxY: primary.maxY) ?? NSScreen.main else { return .noWindow }
 
-        let target = position.frame(in: screen.visibleFrame)
+        let target = position.frame(in: DockReserve.workArea(visible: screen.visibleFrame, screen: screen.frame, dock: dockFrame(screen)))
         var point = SnapPosition.accessibilityOrigin(of: target, primaryMaxY: primary.maxY)
         var size = target.size
         guard let pointValue = AXValueCreate(.cgPoint, &point), let sizeValue = AXValueCreate(.cgSize, &size) else { return .noWindow }

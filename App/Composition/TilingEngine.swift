@@ -10,6 +10,13 @@ import OSLog
 final class TilingEngine: ObservableObject {
     static let shared = TilingEngine()
 
+    /// The solid dock's frame on a screen (nil when hidden/auto-hiding); windows keep clear of it.
+    var dockFrame: (NSScreen) -> CGRect? = { _ in nil }
+
+    private func workArea(of screen: NSScreen) -> CGRect {
+        DockReserve.workArea(visible: screen.visibleFrame, screen: screen.frame, dock: dockFrame(screen))
+    }
+
     // MARK: - UserDefaults Keys
     static let enabledKey = "com.katikati.tiling.enabled"
     static let presetKey = "com.katikati.tiling.preset"
@@ -257,7 +264,7 @@ final class TilingEngine: ObservableObject {
             trees[screenKey] = tree
 
             // Resolve layout geometry
-            let workArea = screen.visibleFrame
+            let workArea = workArea(of: screen)
             let targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps)
 
             // Apply frames via AX
@@ -274,7 +281,7 @@ final class TilingEngine: ObservableObject {
         for screen in screens {
             let screenKey = screen.localizedName + "-\(screen.frame.origin)"
             guard let tree = trees[screenKey], !tree.isEmpty else { continue }
-            let workArea = screen.visibleFrame
+            let workArea = workArea(of: screen)
             let targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps)
 
             applyFrames(targetFrames, records: lastWindows, primaryMaxY: primaryMaxY)

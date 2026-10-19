@@ -860,6 +860,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             displayTopologyStore: displayTopologyStore
         )
         panelCoordinator = coordinator
+        let dockFrame: (NSScreen) -> CGRect? = { [weak self, weak coordinator] screen in
+            guard let self, let coordinator, !self.settingsStore.edgeAutoHideEnabled else { return nil }
+            let frames = coordinator.units().map(\.coordinator.dockVisibleFrame).filter { $0 != .zero && $0.intersects(screen.frame) }
+            return frames.first.map { frames.dropFirst().reduce($0) { $0.union($1) } }
+        }
+        TilingEngine.shared.dockFrame = dockFrame
+        WindowSnapService.dockFrame = dockFrame
         runtime.onToggleDrawer = { [weak coordinator] in coordinator?.toggleDrawer() }
         runtime.onToggleLauncher = { [weak self] in self?.launcherPanel.toggle() }
         runtime.onToggleControlCenter = { [weak self] in self?.controlCenterPanel.toggle() }
