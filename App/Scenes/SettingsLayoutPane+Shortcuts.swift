@@ -47,7 +47,7 @@ extension SettingsLayoutPane {
                     // The group's own name, and its explanation stays behind the ⓘ where it was.
                     HStack(spacing: 6) {
                         Text("Snap Hotkeys").font(.headline)
-                        SettingsInfoButton(text: String(localized: "All snap hotkeys default to Off. Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘."))
+                        SettingsInfoButton(text: String(localized: "Snap hotkeys default to Off, except Maximize (⌃⌥M). Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘."))
                     }
                 }
             }

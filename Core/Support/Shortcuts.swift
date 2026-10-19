@@ -77,7 +77,9 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf,
              .snapTopLeft, .snapTopRight, .snapBottomLeft, .snapBottomRight,
              .snapLeftThird, .snapCenterThird, .snapRightThird, .snapLeftTwoThirds, .snapRightTwoThirds,
-             .snapCenter, .snapMaximize: return .off
+             .snapCenter: return .off
+        // Maximize in place (no new Space) is the one zone worth a default: ⌃⌥M.
+        case .snapMaximize: return .key(ShortcutKey(keyCode: 46, modifiers: ShortcutKey.control | ShortcutKey.option))
         // All tiling actions default to off — user assigns.
         case .toggleTiling, .cycleTilingLayout,
              .tilingFocusNext, .tilingFocusPrevious,

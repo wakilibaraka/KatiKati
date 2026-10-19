@@ -61630,13 +61630,13 @@
         }
       }
     },
-    "All snap hotkeys default to Off. Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘.": {
+    "Snap hotkeys default to Off, except Maximize (⌃⌥M). Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "new",
-            "value": "All snap hotkeys default to Off. Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘."
+            "value": "Snap hotkeys default to Off, except Maximize (⌃⌥M). Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘."
           }
         },
         "ar": {
