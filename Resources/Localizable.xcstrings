@@ -96,6 +96,386 @@
         }
       }
     },
+    "Edge Bar Style": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Edge Bar Style"
+          }
+        }
+      }
+    },
+    "Paper": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Paper"
+          }
+        }
+      }
+    },
+    "Quick Add": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Quick Add"
+          }
+        }
+      }
+    },
+    "Save": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Save"
+          }
+        }
+      }
+    },
     "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was.": {
       "extractionState": "manual",
       "localizations": {
@@ -70586,6 +70966,1070 @@
         "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Redimensionar pré-visualização"}},
         "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "调整预览大小"}},
         "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "調整預覽大小"}}
+      }
+    },
+    "Language, appearance, shortcuts, and the app itself.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "语言、外观、快捷键和应用本身。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language, appearance, shortcuts, and the app itself."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "語言、外觀、捷徑鍵和應用程式本身。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "言語、外観、ショートカット、アプリ本体。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sprache, Erscheinungsbild, Tastenkürzel und die App selbst."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Langue, apparence, raccourcis et l’app elle-même."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Idioma, apariencia, atajos y la propia app."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Idioma, apariencia, atajos y la propia app."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Idioma, aparência, atalhos e o próprio app."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Idioma, aparência, atalhos e a própria app."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Lingua, aspetto, abbreviazioni e l’app stessa."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "언어, 외관, 단축키 및 앱 자체."
+          }
+        }
+      }
+    },
+    "Themes, icons, and wallpaper.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "主题、图标和墙纸。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Themes, icons, and wallpaper."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "主題、圖示和桌布。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "テーマ、アイコン、壁紙。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Themes, Symbole und Hintergrundbild."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Thèmes, icônes et fond d’écran."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Temas, iconos y fondo de pantalla."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Temas, iconos y fondo de pantalla."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Temas, ícones e papel de parede."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Temas, ícones e fundo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Temi, icone e sfondo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "테마, 아이콘 및 배경화면."
+          }
+        }
+      }
+    },
+    "Clock, calendar, weather, and their look.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "时钟、日历、天气及其外观。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clock, calendar, weather, and their look."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "時鐘、日曆、天氣及其外觀。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "時計、カレンダー、天気とその見た目。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Uhr, Kalender, Wetter und deren Aussehen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Horloge, calendrier, météo et leur apparence."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reloj, calendario, clima y su aspecto."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reloj, calendario, clima y su aspecto."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Relógio, calendário, clima e sua aparência."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Relógio, calendário, meteorologia e o seu aspeto."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Orologio, calendario, meteo e il loro aspetto."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "시계, 캘린더, 날씨 및 모양."
+          }
+        }
+      }
+    },
+    "The Live Island: skin, pages, size, and alerts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "实时岛：皮肤、页面、尺寸和提醒。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Live Island: skin, pages, size, and alerts."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "即時島：外觀、頁面、尺寸和提醒。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "ライブアイランド：スキン、ページ、サイズ、通知。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Die Live-Insel: Stil, Seiten, Größe und Hinweise."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "L’îlot en direct : style, pages, taille et alertes."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "La isla en vivo: estilo, páginas, tamaño y alertas."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "La isla en vivo: estilo, páginas, tamaño y alertas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A ilha ao vivo: estilo, páginas, tamanho e alertas."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "A ilha em direto: estilo, páginas, tamanho e alertas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "L’isola live: stile, pagine, dimensioni e avvisi."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "라이브 아일랜드: 스킨, 페이지, 크기 및 알림."
+          }
+        }
+      }
+    },
+    "Side bars: preset, placement, widgets, and size.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "侧边栏：预设、位置、小组件和尺寸。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side bars: preset, placement, widgets, and size."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "側邊欄：預設、位置、小工具和尺寸。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "サイドバー：プリセット、配置、ウィジェット、サイズ。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Seitenleisten: Preset, Position, Widgets und Größe."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Barres latérales : préréglage, position, widgets et taille."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Barras laterales: ajuste, posición, widgets y tamaño."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Barras laterales: ajuste, posición, widgets y tamaño."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Barras laterais: predefinição, posição, widgets e tamanho."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Barras laterais: predefinição, posição, widgets e tamanho."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Barre laterali: preimpostazione, posizione, widget e dimensioni."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "사이드 바: 프리셋, 위치, 위젯 및 크기."
+          }
+        }
+      }
+    },
+    "Tiling, presets, gaps, and floating apps.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "平铺、预设、间隙和浮动应用。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiling, presets, gaps, and floating apps."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "平鋪、預設、間隙和浮動應用程式。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "タイリング、プリセット、隙間、フローティングアプリ。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tiling, Presets, Abstände und schwebende Apps."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mosaïque, préréglages, espacements et apps flottantes."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mosaico, ajustes, espacios y apps flotantes."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mosaico, ajustes, espacios y apps flotantes."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ladrilhamento, predefinições, espaçamentos e apps flutuantes."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mosaico, predefinições, espaçamentos e apps flutuantes."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Affiancamento, preimpostazioni, spazi e app mobili."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "타일링, 프리셋, 간격 및 플로팅 앱."
+          }
+        }
+      }
+    },
+    "Search, results, and hidden apps.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "搜索、结果和隐藏的应用。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search, results, and hidden apps."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "搜尋、結果和隱藏的應用程式。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "検索、結果、非表示のアプリ。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Suche, Ergebnisse und ausgeblendete Apps."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Recherche, résultats et apps masquées."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Búsqueda, resultados y apps ocultas."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Búsqueda, resultados y apps ocultas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Busca, resultados e apps ocultos."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pesquisa, resultados e apps ocultas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ricerca, risultati e app nascoste."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "검색, 결과 및 숨겨진 앱."
+          }
+        }
+      }
+    },
+    "Tiles, quick settings, and placement.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "磁贴、快捷设置和位置。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiles, quick settings, and placement."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "圖磚、快速設定和位置。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "タイル、クイック設定、配置。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Kacheln, Schnelleinstellungen und Anordnung."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tuiles, réglages rapides et disposition."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mosaicos, ajustes rápidos y posición."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mosaicos, ajustes rápidos y posición."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Blocos, ajustes rápidos e posição."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mosaicos, definições rápidas e posição."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Riquadri, impostazioni rapide e posizione."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "타일, 빠른 설정 및 배치."
+          }
+        }
+      }
+    },
+    "Keyboard shortcuts, snap zones, and input.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "键盘快捷键、贴靠区域和输入。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keyboard shortcuts, snap zones, and input."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "鍵盤捷徑鍵、貼靠區域和輸入。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "キーボードショートカット、スナップゾーン、入力。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tastaturkürzel, Snap-Zonen und Eingabe."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Raccourcis clavier, zones d’ancrage et saisie."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Atajos de teclado, zonas de ajuste y entrada."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Atajos de teclado, zonas de ajuste y entrada."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Atalhos de teclado, zonas de ajuste e entrada."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Atalhos de teclado, zonas de ajuste e entrada."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Scorciatoie da tastiera, zone di aggancio e input."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "키보드 단축키, 스냅 영역 및 입력."
+          }
+        }
+      }
+    },
+    "The pie menu: actions, theme, and triggers.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "饼菜单：操作、主题和触发方式。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The pie menu: actions, theme, and triggers."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "圓餅選單：動作、主題和觸發方式。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "パイメニュー：アクション、テーマ、トリガー。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Das Kreismenü: Aktionen, Theme und Auslöser."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Le menu radial : actions, thème et déclencheurs."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "El menú circular: acciones, tema y activadores."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "El menú circular: acciones, tema y activadores."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O menu circular: ações, tema e gatilhos."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "O menu circular: ações, tema e acionadores."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Il menu circolare: azioni, tema e trigger."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "파이 메뉴: 동작, 테마 및 트리거."
+          }
+        }
+      }
+    },
+    "Torrents: speed, schedule, and quiet hours.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "种子：速度、计划和安静时间。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torrents: speed, schedule, and quiet hours."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "種子：速度、排程和安靜時間。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "トレント：速度、スケジュール、クワイエットアワー。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Torrents: Tempo, Zeitplan und Ruhezeiten."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Torrents : vitesse, planification et heures silencieuses."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Torrents: velocidad, horario y horas silenciosas."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Torrents: velocidad, horario y horas silenciosas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Torrents: velocidade, agenda e horário silencioso."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Torrents: velocidade, agenda e horas silenciosas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Torrent: velocità, programmazione e ore silenziose."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "토렌트: 속도, 일정 및 방해 금지 시간."
+          }
+        }
+      }
+    },
+    "Clipboard, commands, snippets, and shelf.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "剪贴板、命令、片段和文件架。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipboard, commands, snippets, and shelf."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "剪貼簿、命令、片段和文件架。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "クリップボード、コマンド、スニペット、シェルフ。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Zwischenablage, Befehle, Snippets und Ablage."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Presse-papiers, commandes, extraits et étagère."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Portapapeles, comandos, fragmentos y estante."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Portapapeles, comandos, fragmentos y estante."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Área de transferência, comandos, trechos e prateleira."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Área de transferência, comandos, fragmentos e prateleira."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Appunti, comandi, frammenti e mensola."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "클립보드, 명령, 스니펫 및 선반."
+          }
+        }
+      }
+    },
+    "Version, updates, diagnostics, and permissions.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "版本、更新、诊断和权限。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version, updates, diagnostics, and permissions."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "版本、更新、診斷和權限。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "バージョン、アップデート、診断、権限。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Version, Updates, Diagnose und Berechtigungen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Version, mises à jour, diagnostics et autorisations."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Versión, actualizaciones, diagnósticos y permisos."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Versión, actualizaciones, diagnósticos y permisos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Versão, atualizações, diagnósticos e permissões."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Versão, atualizações, diagnósticos e permissões."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Versione, aggiornamenti, diagnostica e permessi."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "버전, 업데이트, 진단 및 권한."
+          }
+        }
+      }
+    },
+    "Rarely touched switches that need extra powers.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "很少碰、需要额外权限的开关。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rarely touched switches that need extra powers."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "很少碰、需要額外權限的開關。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "滅多に触らず、特別な権限が必要なスイッチ。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Selten genutzte Schalter, die zusätzliche Rechte brauchen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Interrupteurs rarement utilisés qui exigent des droits supplémentaires."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Interruptores que casi no se tocan y necesitan permisos extra."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Interruptores que casi no se tocan y necesitan permisos extra."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Interruptores raramente usados que precisam de permissões extras."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Interruptores raramente usados que precisam de permissões extra."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Interruttori usati di rado che richiedono permessi extra."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "거의 만지지 않으며 추가 권한이 필요한 스위치."
+          }
+        }
       }
     }
   },

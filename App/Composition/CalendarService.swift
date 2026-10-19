@@ -166,6 +166,19 @@ final class CalendarService: ObservableObject {
         }
     }
 
+    /// Quick Add: a new reminder in the default list. False when access is missing or the save fails.
+    @discardableResult
+    func addReminder(title: String, due: Date?) -> Bool {
+        guard remindersAccess == .granted, let list = store.defaultCalendarForNewReminders() else { return false }
+        let item = EKReminder(eventStore: store)
+        item.title = title
+        item.calendar = list
+        if let due { item.dueDateComponents = calendar.dateComponents([.year, .month, .day], from: due) }
+        guard (try? store.save(item, commit: true)) != nil else { return false }
+        refreshReminders()
+        return true
+    }
+
     func complete(_ reminder: ReminderEntry) {
         guard let item = store.calendarItem(withIdentifier: reminder.id) as? EKReminder else { return }
         item.isCompleted = true

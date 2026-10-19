@@ -14,6 +14,7 @@ final class DeckViewModel: ObservableObject {
     @Published var buttons: [DeckButton] = []
     @Published var tileStyle: EdgeTileStyle = .glass
     @Published var iconSet: EdgeIconSet = .classic
+    @Published var barStyle: EdgeBarStyle = .paper
     @Published var magnifyPeak: CGFloat = DeckMagnification.maxScale
     @Published var scale: Double = 1
     @Published var magnify = true
@@ -153,6 +154,18 @@ struct DeckPillView: View {
         return Array(colors.prefix(m)) + (colors.count > m ? [Color.secondary.opacity(0.5)] : [])
     }
 
+    @ViewBuilder private var pillBackground: some View {
+        if model.barStyle == .liquidGlass {
+            EdgeGlassSurface(shape: Capsule(style: .continuous))
+        } else {
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(Color.black.opacity(0.55))
+                .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(.ultraThinMaterial))
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                .shadow(color: .black.opacity(0.22), radius: 6, x: model.onRight ? -2 : 2, y: 1)
+        }
+    }
+
     var body: some View {
         let m = model.metrics
         VStack(spacing: m.dashGap) {
@@ -162,13 +175,7 @@ struct DeckPillView: View {
         }
         .padding(.vertical, m.pillPad)
         .frame(width: m.pillWidth)
-        .background(
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(Color.black.opacity(0.55))
-                .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(.ultraThinMaterial))
-                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                .shadow(color: .black.opacity(0.22), radius: 6, x: model.onRight ? -2 : 2, y: 1)
-        )
+        .background(pillBackground)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: model.onRight ? .trailing : .leading)
         .padding(model.onRight ? .trailing : .leading, 1)
         .contentShape(Rectangle())
@@ -212,7 +219,7 @@ struct DeckFanView: View {
         return VStack(spacing: spacing) {
             ForEach(Array(visibleTabs.enumerated()), id: \.element.id) { idx, note in
                 DeckTab(note: note, isOpen: model.state.expandedID == note.id, height: layout.itemHeight, strip: layout.pitch,
-                        onRight: model.onRight, metrics: m, deckFont: font, lifted: dragID == note.id,
+                        onRight: model.onRight, metrics: m, deckFont: font, lifted: dragID == note.id, barStyle: model.barStyle,
                         action: { rect in model.onTab(note.id, rect) },
                         menu: { model.onContext($0, note.id) },
                         onDragChanged: { dy in
@@ -238,7 +245,7 @@ struct DeckFanView: View {
                     .staged(index: visibleTabs.count, total: total, revealed: model.revealed, onRight: model.onRight, travel: m.tabWidth + 24)
             }
             ForEach(Array(model.buttons.enumerated()), id: \.element) { i, button in
-                DeckRoundButton(button: button, style: model.tileStyle, iconSet: model.iconSet, peak: model.magnifyPeak,
+                DeckRoundButton(button: button, style: model.tileStyle, iconSet: model.iconSet, barStyle: model.barStyle, peak: model.magnifyPeak,
                                 size: m.buttonSize, onRight: model.onRight,
                                 pointerY: model.magnify ? model.pointerY : nil) { rect in model.onButton(button, rect) }
                     .background(GeometryReader { proxy in
@@ -283,6 +290,7 @@ struct DeckTab: View {
     let metrics: DeckMetrics
     let deckFont: DeckFont
     var lifted = false
+    var barStyle: EdgeBarStyle = .paper
     let action: (CGRect) -> Void
     var menu: (DeckContextAction) -> Void = { _ in }
     var onDragChanged: (CGFloat) -> Void = { _ in }
@@ -296,10 +304,15 @@ struct DeckTab: View {
     var body: some View {
         let palette = NotePalette.entry(at: note.color)
         ZStack(alignment: .top) {
-            EdgeTabShape(onRight: onRight)
-                .fill(palette.paperColor)
-                .shadow(color: .black.opacity(lifted ? 0.42 : (isOpen || hovering ? 0.32 : 0.22)),
-                        radius: lifted ? 16 : (isOpen || hovering ? 9 : 6), x: onRight ? -3 : 3, y: lifted ? 6 : 2)
+            if barStyle == .liquidGlass {
+                EdgeGlassSurface(shape: EdgeTabShape(onRight: onRight), tint: palette.paperColor)
+                    .opacity(isOpen || hovering || lifted ? 1 : 0.92)
+            } else {
+                EdgeTabShape(onRight: onRight)
+                    .fill(palette.paperColor)
+                    .shadow(color: .black.opacity(lifted ? 0.42 : (isOpen || hovering ? 0.32 : 0.22)),
+                            radius: lifted ? 16 : (isOpen || hovering ? 9 : 6), x: onRight ? -3 : 3, y: lifted ? 6 : 2)
+            }
             VerticalTabLabel(title: note.displayTitle, strip: strip, onRight: onRight, ink: palette.inkColor,
                              metrics: metrics, deckFont: deckFont)
                 .offset(x: onRight ? -metrics.bleed / 2 : metrics.bleed / 2)
@@ -410,6 +423,7 @@ struct DeckRoundButton: View {
     let button: DeckButton
     let style: EdgeTileStyle
     var iconSet: EdgeIconSet = .classic
+    var barStyle: EdgeBarStyle = .paper
     var peak: CGFloat = DeckMagnification.maxScale
     let size: CGFloat
     var onRight = true
@@ -426,7 +440,7 @@ struct DeckRoundButton: View {
             } label: {
                 Image(systemName: button.symbol)
                     .font(.system(size: size * 0.43, weight: .semibold))
-                    .foregroundColor(iconSet != .classic || style == .coloured ? .white : Color.primary.opacity(0.78))
+                    .foregroundColor(barStyle == .liquidGlass ? Color.primary.opacity(0.85) : (iconSet != .classic || style == .coloured ? .white : Color.primary.opacity(0.78)))
                     .shadow(color: .black.opacity(iconSet == .realistic ? 0.35 : 0), radius: 1, y: 1)
                     .frame(width: size, height: size)
                     .background(background)
@@ -452,6 +466,14 @@ struct DeckRoundButton: View {
 
     @ViewBuilder private var background: some View {
         let accent = NotePalette.entry(at: button.accent).dashColor
+        if barStyle == .liquidGlass {
+            EdgeGlassSurface(shape: Circle(), tint: accent)
+        } else {
+            paperBackground(accent)
+        }
+    }
+
+    @ViewBuilder private func paperBackground(_ accent: Color) -> some View {
         switch iconSet {
         case .modern:
             // Flat squircle tile with a soft two-stop gradient of the button's accent.

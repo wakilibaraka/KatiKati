@@ -19,6 +19,8 @@ final class EdgeNotesPopupController {
 
     var isShown: Bool { panel?.isVisible ?? false }
 
+    var barStyle: EdgeBarStyle = .paper
+
     func toggle(anchor: CGRect, side: EdgeSide, visibleFrame: CGRect, controller: NotesController, select: String? = nil, tabFont: String = "") {
         if isShown, shownSelection == select { dismiss(); return }
         if isShown { dismiss(notify: false) }
@@ -31,7 +33,7 @@ final class EdgeNotesPopupController {
         guard let noteID = select else { return }
         let host = NSHostingView(rootView: NoteSheetView(
             controller: controller, noteID: noteID, onRight: side == .right, tabFont: tabFont,
-            onClose: { [weak self] in self?.dismiss() }))
+            onClose: { [weak self] in self?.dismiss() }).environment(\.edgeBarStyle, barStyle))
         host.frame = CGRect(origin: .zero, size: frame.size)
         panel.contentView = host
         panel.setFrame(frame, display: true)

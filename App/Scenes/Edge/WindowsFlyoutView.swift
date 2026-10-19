@@ -5,6 +5,7 @@ struct WindowsFlyoutView: View {
     @State private var blocked = false
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.edgeBarStyle) private var barStyle
 
     private struct Zone: Identifiable { let id: SnapPosition; let title: Text }
     private static let rows: [[SnapPosition]] = [
@@ -16,7 +17,7 @@ struct WindowsFlyoutView: View {
 
     var body: some View {
         let size = ProductivityFlyout.size(.windows)
-        let env = TileEnv(palette: palette, isDark: colorScheme == .dark)
+        let env = TileEnv(palette: palette, isDark: colorScheme == .dark, glass: barStyle == .liquidGlass)
         BandTile(env: env, kind: .alarms, width: size.width - 16, height: size.height - 16, header: {
             Text("Windows")
         }, content: {

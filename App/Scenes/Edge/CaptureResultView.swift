@@ -5,10 +5,11 @@ struct CaptureResultView: View {
     @ObservedObject private var capture = ProductivityServices.shared.capture
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.edgeBarStyle) private var barStyle
 
     var body: some View {
         let size = ProductivityFlyout.size(.capture)
-        let env = TileEnv(palette: palette, isDark: colorScheme == .dark)
+        let env = TileEnv(palette: palette, isDark: colorScheme == .dark, glass: barStyle == .liquidGlass)
         BandTile(env: env, kind: .focus, width: size.width - 16, height: size.height - 16, header: {
             Text("Capture")
         }, content: {

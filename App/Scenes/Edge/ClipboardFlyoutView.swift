@@ -5,11 +5,12 @@ struct ClipboardFlyoutView: View {
     @ObservedObject private var monitor = ProductivityServices.shared.clipboard
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.edgeBarStyle) private var barStyle
     @State private var copiedID: UUID?
 
     var body: some View {
         let size = ProductivityFlyout.size(.clipboard)
-        let env = TileEnv(palette: palette, isDark: colorScheme == .dark)
+        let env = TileEnv(palette: palette, isDark: colorScheme == .dark, glass: barStyle == .liquidGlass)
         BandTile(env: env, kind: .countdown, width: size.width - 16, height: size.height - 16, header: {
             HStack {
                 Text("Clipboard")

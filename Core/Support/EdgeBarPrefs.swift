@@ -20,6 +20,10 @@ enum EdgeIconSet: String, CaseIterable, Codable, Sendable { case classic, modern
 /// 13l: the plate behind every edge-bar flyout. `modern` is the default; `glass` is the earlier frosted look as a preset.
 enum EdgeFlyoutStyle: String, CaseIterable, Codable, Sendable { case modern, glass }
 
+/// The one look the whole edge bar wears: tabs, buttons, flyout plates, tile content and note sheets. `paper` is the
+/// original coloured-paper design; `liquidGlass` is the translucent one (frosted on macOS < 26). Raw values are stored.
+enum EdgeBarStyle: String, CaseIterable, Codable, Sendable { case paper, liquidGlass }
+
 struct EdgeBarPrefs: Equatable, Codable, Sendable {
     static let key = "com.katikati.edge.prefs"
     static let openDelayRange: ClosedRange<Double> = 0...1.5
@@ -37,6 +41,23 @@ struct EdgeBarPrefs: Equatable, Codable, Sendable {
     var openOnClick = false
     /// 13b: a small name bubble beside the button under the pointer.
     var hoverLabels = true
+    /// Whole-bar look. Older blobs have no key and keep `paper`.
+    var barStyle = EdgeBarStyle.paper
+
+    init() {}
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let d = EdgeBarPrefs()
+        openDelay = try c.decodeIfPresent(Double.self, forKey: .openDelay) ?? d.openDelay
+        sensitivity = try c.decodeIfPresent(Double.self, forKey: .sensitivity) ?? d.sensitivity
+        magnifyAmount = try c.decodeIfPresent(EdgeMagnifyAmount.self, forKey: .magnifyAmount) ?? d.magnifyAmount
+        iconSet = try c.decodeIfPresent(EdgeIconSet.self, forKey: .iconSet) ?? d.iconSet
+        flyoutStyle = try c.decodeIfPresent(EdgeFlyoutStyle.self, forKey: .flyoutStyle) ?? d.flyoutStyle
+        openOnClick = try c.decodeIfPresent(Bool.self, forKey: .openOnClick) ?? d.openOnClick
+        hoverLabels = try c.decodeIfPresent(Bool.self, forKey: .hoverLabels) ?? d.hoverLabels
+        barStyle = try c.decodeIfPresent(EdgeBarStyle.self, forKey: .barStyle) ?? d.barStyle
+    }
 
     func clamped() -> EdgeBarPrefs {
         var p = self

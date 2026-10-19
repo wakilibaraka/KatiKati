@@ -2,6 +2,11 @@ import SwiftUI
 
 // The EdgeBars mode of `SettingsLayoutPane`; state lives in the main file.
 extension SettingsLayoutPane {
+    static var liquidGlassSupported: Bool {
+        if #available(macOS 26.0, *) { return true }
+        return false
+    }
+
     /// The Edge Bars page (Phase 12 A5). Three sections — the bar, the widgets it carries, and its
     /// size and behaviour — where the page used to be one card of ~28 controls, and the two
     /// checklists are two-column grids: a single column of four or seventeen checkboxes left the
@@ -170,6 +175,12 @@ extension SettingsLayoutPane {
                     }.labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
             }
+            SettingsRow(Text("Edge Bar Style")) {
+                Picker("Edge Bar Style", selection: edgePrefBinding(\.barStyle)) {
+                    Text("Paper").tag(EdgeBarStyle.paper)
+                    Text(Self.liquidGlassSupported ? "Liquid Glass" : "Liquid Glass (frosted on this macOS)").tag(EdgeBarStyle.liquidGlass)
+                }.labelsHidden().pickerStyle(.segmented).fixedSize()
+            }
             SettingsRowPair {
                 SettingsRow(Text("Button Icons")) {
                     Picker("Button Icons", selection: edgePrefBinding(\.iconSet)) {
@@ -177,6 +188,7 @@ extension SettingsLayoutPane {
                         Text("Modern").tag(EdgeIconSet.modern)
                         Text("Realistic").tag(EdgeIconSet.realistic)
                     }.labelsHidden().pickerStyle(.segmented).fixedSize()
+                    .disabled(store.edgePrefs.barStyle == .liquidGlass)
                 }
             } right: {
                 SettingsRow(Text("Flyout Style")) {
@@ -184,6 +196,7 @@ extension SettingsLayoutPane {
                         Text("Modern").tag(EdgeFlyoutStyle.modern)
                         Text("Glass").tag(EdgeFlyoutStyle.glass)
                     }.labelsHidden().pickerStyle(.segmented).fixedSize()
+                    .disabled(store.edgePrefs.barStyle == .liquidGlass)
                 }
             }
             SettingsRowPair {
@@ -193,6 +206,7 @@ extension SettingsLayoutPane {
                         Text("Coloured").tag(EdgeTileStyle.coloured)
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
+                    .disabled(store.edgePrefs.barStyle == .liquidGlass)
                 }
             } right: {
                 SettingsRow(Text("Note Tab Font")) {

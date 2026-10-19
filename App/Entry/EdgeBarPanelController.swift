@@ -154,8 +154,11 @@ final class EdgeBarPanelController {
         model.magnify = settings.magnify
         model.tileStyle = settings.tileStyle
         model.iconSet = settings.prefs.iconSet
+        model.barStyle = settings.prefs.barStyle
         model.magnifyPeak = CGFloat(settings.prefs.magnifyAmount.peak)
         popup.style = settings.prefs.flyoutStyle
+        popup.barStyle = settings.prefs.barStyle
+        notesPopup.barStyle = settings.prefs.barStyle
         model.tabFont = settings.tabFont
 
         var buttons: [DeckButton] = []
@@ -525,6 +528,12 @@ final class EdgeBarPanelController {
         guard let anchor = screenRect(localRect) else { return }
         lastActivity = Date()
         switch button {
+        case .newNote where settings.prefs.barStyle == .liquidGlass:
+            notesPopup.dismiss(notify: false)
+            popup.toggle(id: "quickadd", anchor: anchor, side: side, visibleFrame: visibleFrame, size: GlassQuickAddView.size,
+                         content: AnyView(GlassQuickAddView(notes: { [weak self] in self?.notesProvider() },
+                                                            onDone: { [weak self] in self?.popup.dismiss() })),
+                         takesKey: true)
         case .newNote:
             guard let notes = notesProvider() else { return }
             let note = notes.create()

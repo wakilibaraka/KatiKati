@@ -77,6 +77,18 @@ final class EdgeBarPrefsTests: XCTestCase {
         XCTAssertFalse(ScreenshotCommand.arguments.contains { $0.hasPrefix("/") || $0.hasSuffix(".png") })
     }
 
+    func testBarStyleDefaultsToPaperForOldBlobsAndRoundTrips() throws {
+        let old = #"{"openDelay":1,"sensitivity":0.5,"magnifyAmount":"bold","iconSet":"modern","flyoutStyle":"glass","openOnClick":true,"hoverLabels":false}"#
+        let p = try JSONDecoder().decode(EdgeBarPrefs.self, from: Data(old.utf8))
+        XCTAssertEqual(p.barStyle, .paper)
+        XCTAssertEqual(p.iconSet, .modern)
+        XCTAssertTrue(p.openOnClick)
+        let d = UserDefaults(suiteName: "EdgeBarPrefsTests.\(UUID())")!
+        var q = EdgeBarPrefs(); q.barStyle = .liquidGlass; q.save(d)
+        XCTAssertEqual(EdgeBarPrefs.load(d).barStyle, .liquidGlass)
+        XCTAssertEqual(EdgeBarStyle.allCases.map(\.rawValue), ["paper", "liquidGlass"], "stored ids are frozen")
+    }
+
     func testNewPrefsDefaults() {
         XCTAssertFalse(EdgeBarPrefs().openOnClick)
         XCTAssertTrue(EdgeBarPrefs().hoverLabels)

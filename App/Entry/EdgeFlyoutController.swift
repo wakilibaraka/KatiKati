@@ -20,6 +20,8 @@ final class EdgeFlyoutController {
     private var clickMonitors: [Any] = []
     /// 13l: the plate behind the flyout (read each time a flyout opens).
     var style: EdgeFlyoutStyle = .modern
+    /// Whole-bar look; Liquid Glass overrides `style` with the 26pt glass plate.
+    var barStyle: EdgeBarStyle = .paper
 
     var isShown: Bool { shownID != nil }
     var frame: CGRect { panel?.frame ?? .zero }
@@ -31,9 +33,9 @@ final class EdgeFlyoutController {
         let frame = PanelGeometry.edgeBarPopupFrame(side: side, anchor: anchor, size: size, visibleFrame: visibleFrame)
         let panel = self.panel ?? makePanel(frame: frame)
         self.panel = panel
-        let host = NSHostingView(rootView: content)
+        let host = NSHostingView(rootView: AnyView(content.environment(\.edgeBarStyle, barStyle)))
         host.frame = CGRect(origin: .zero, size: frame.size)
-        panel.contentView = Self.plate(wrapping: host, size: frame.size, style: style)
+        panel.contentView = Self.plate(wrapping: host, size: frame.size, style: style, barStyle: barStyle)
         panel.setFrame(frame, display: true)
         if takesKey { panel.makeKeyAndOrderFront(nil) } else { panel.orderFrontRegardless() }
         shownID = id
@@ -88,10 +90,21 @@ final class EdgeFlyoutController {
         return panel
     }
 
-    static func plate(wrapping content: NSView, size: CGSize, style: EdgeFlyoutStyle) -> NSView {
+    static func plate(wrapping content: NSView, size: CGSize, style: EdgeFlyoutStyle, barStyle: EdgeBarStyle = .paper) -> NSView {
         let plate = NSVisualEffectView(frame: CGRect(origin: .zero, size: size))
         plate.state = .active
         plate.wantsLayer = true
+        if barStyle == .liquidGlass {
+            // shortcut: frosted HUD material on every macOS; an NSGlassEffectView plate is the upgrade for macOS 26.
+            plate.material = .hudWindow
+            plate.layer?.cornerRadius = EdgeStyleTokens.glassRadius
+            plate.layer?.borderWidth = 0.75
+            plate.layer?.borderColor = NSColor.white.withAlphaComponent(0.3).cgColor
+            plate.layer?.masksToBounds = true
+            content.autoresizingMask = [.width, .height]
+            plate.addSubview(content)
+            return plate
+        }
         switch style {
         case .glass:
             plate.material = .hudWindow

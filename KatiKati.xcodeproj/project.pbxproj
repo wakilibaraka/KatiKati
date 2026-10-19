@@ -97,6 +97,7 @@
 		FA10A1000000000000000234 /* LauncherFolders.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000232 /* LauncherFolders.swift */; };
 		FA10A1000000000000000233 /* LauncherFolders.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000232 /* LauncherFolders.swift */; };
 		FA10A1000000000000000230 /* EdgeBarPrefsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000229 /* EdgeBarPrefsTests.swift */; };
+		A00000000000000000C2E20001 /* QuickAddStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000C2E20000 /* QuickAddStateTests.swift */; };
 		FA10A1000000000000000228 /* EdgeBarPrefs.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000226 /* EdgeBarPrefs.swift */; };
 		FA10A1000000000000000227 /* EdgeBarPrefs.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000226 /* EdgeBarPrefs.swift */; };
 		FA10A1000000000000000240 /* DockStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000239 /* DockStyleTests.swift */; };
@@ -401,6 +402,8 @@
 		ED00000000000000000000A1 /* DeckShapes.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000A0 /* DeckShapes.swift */; };
 		ED00000000000000000000A3 /* DeckLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000A2 /* DeckLabel.swift */; };
 		ED00000000000000000000A5 /* DeckViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000A4 /* DeckViews.swift */; };
+		A00000000000000000C2E10001 /* GlassQuickAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000C2E10000 /* GlassQuickAddView.swift */; };
+		A00000000000000000C2E00001 /* EdgeStyleTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000C2E00000 /* EdgeStyleTokens.swift */; };
 		ED00000000000000000000B1 /* DeckPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000B0 /* DeckPreview.swift */; };
 		ED0000000000000000000010 /* SystemStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000F /* SystemStatusService.swift */; };
 		ED000000000000000000000A /* SystemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000009 /* SystemStatus.swift */; };
@@ -1170,6 +1173,7 @@
 		FA10A1000000000000000235 /* LauncherFoldersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherFoldersTests.swift; path = Tests/Unit/LauncherFoldersTests.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000232 /* LauncherFolders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherFolders.swift; path = Core/Support/LauncherFolders.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000229 /* EdgeBarPrefsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EdgeBarPrefsTests.swift; path = Tests/Unit/EdgeBarPrefsTests.swift; sourceTree = SOURCE_ROOT; };
+		A00000000000000000C2E20000 /* QuickAddStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickAddStateTests.swift; path = Tests/Unit/QuickAddStateTests.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000226 /* EdgeBarPrefs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EdgeBarPrefs.swift; path = Core/Support/EdgeBarPrefs.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000239 /* DockStyleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockStyleTests.swift; path = Tests/Unit/DockStyleTests.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000237 /* DockStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockStyle.swift; path = Core/Support/DockStyle.swift; sourceTree = SOURCE_ROOT; };
@@ -1388,6 +1392,8 @@
 		ED00000000000000000000A0 /* DeckShapes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeckShapes.swift; path = App/Scenes/Edge/DeckShapes.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000A2 /* DeckLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeckLabel.swift; path = App/Scenes/Edge/DeckLabel.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000A4 /* DeckViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeckViews.swift; path = App/Scenes/Edge/DeckViews.swift; sourceTree = SOURCE_ROOT; };
+		A00000000000000000C2E10000 /* GlassQuickAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GlassQuickAddView.swift; path = App/Scenes/Edge/GlassQuickAddView.swift; sourceTree = SOURCE_ROOT; };
+		A00000000000000000C2E00000 /* EdgeStyleTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EdgeStyleTokens.swift; path = App/Scenes/Edge/EdgeStyleTokens.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000B0 /* DeckPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeckPreview.swift; path = App/Scenes/Edge/DeckPreview.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000000F /* SystemStatusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatusService.swift; path = Platform/SystemStatus/SystemStatusService.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000009 /* SystemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemStatus.swift; path = Core/Support/SystemStatus.swift; sourceTree = SOURCE_ROOT; };
@@ -2990,6 +2996,8 @@
 				ED00000000000000000000A1 /* DeckShapes.swift in Sources */,
 				ED00000000000000000000A3 /* DeckLabel.swift in Sources */,
 				ED00000000000000000000A5 /* DeckViews.swift in Sources */,
+				A00000000000000000C2E10001 /* GlassQuickAddView.swift in Sources */,
+				A00000000000000000C2E00001 /* EdgeStyleTokens.swift in Sources */,
 				ED0000000000000000000091 /* DeckStateMachine.swift in Sources */,
 				ED0000000000000000000086 /* DeckGeometry.swift in Sources */,
 				ED0000000000000000000081 /* NotePalette.swift in Sources */,
@@ -3555,6 +3563,7 @@
 				FA10A1000000000000000152 /* ProcessMemoryTests.swift in Sources */,
 				FA10A1000000000000000236 /* LauncherFoldersTests.swift in Sources */,
 				FA10A1000000000000000230 /* EdgeBarPrefsTests.swift in Sources */,
+				A00000000000000000C2E20001 /* QuickAddStateTests.swift in Sources */,
 				FA10A1000000000000000240 /* DockStyleTests.swift in Sources */,
 				FA10A1000000000000000245 /* StripPlacementTests.swift in Sources */,
 				FA10A1000000000000000248 /* RailGeometryTests.swift in Sources */,

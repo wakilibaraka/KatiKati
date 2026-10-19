@@ -56,10 +56,11 @@ struct RemindersFlyoutView: View {
     @ObservedObject private var service = ProductivityServices.shared.calendar
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.edgeBarStyle) private var barStyle
 
     var body: some View {
         let size = ProductivityFlyout.size(.reminders)
-        let env = TileEnv(palette: palette, isDark: colorScheme == .dark)
+        let env = TileEnv(palette: palette, isDark: colorScheme == .dark, glass: barStyle == .liquidGlass)
         RemindersTile(env: env, service: service, width: size.width - 16, height: size.height - 16,
                       rows: max(1, Int((size.height - 16 - 40) / 34)), rowHeight: 34)
             .padding(8)
@@ -71,10 +72,11 @@ struct AlarmsFlyoutView: View {
     @ObservedObject private var store = ProductivityServices.shared.alarms
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.edgeBarStyle) private var barStyle
 
     var body: some View {
         let size = ProductivityFlyout.size(.alarms)
-        let env = TileEnv(palette: palette, isDark: colorScheme == .dark)
+        let env = TileEnv(palette: palette, isDark: colorScheme == .dark, glass: barStyle == .liquidGlass)
         AlarmsTile(env: env, store: store, width: size.width - 16, height: size.height - 16,
                    rows: max(1, Int((size.height - 16 - 40) / 34)), rowHeight: 34, band: 30)
             .padding(8)
@@ -92,6 +94,7 @@ struct TimeFlyoutView: View {
     @AppStorage("com.katikati.edge.timeTab") private var tabRaw = Tab.timer.rawValue
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.edgeBarStyle) private var barStyle
 
     private var tab: Binding<Tab> {
         Binding(get: { Tab(rawValue: tabRaw) ?? .timer }, set: { tabRaw = $0.rawValue })
@@ -99,7 +102,7 @@ struct TimeFlyoutView: View {
 
     var body: some View {
         let size = ProductivityFlyout.size(.time)
-        let env = TileEnv(palette: palette, isDark: colorScheme == .dark)
+        let env = TileEnv(palette: palette, isDark: colorScheme == .dark, glass: barStyle == .liquidGlass)
         let w = size.width - 16
         let h = size.height - 16 - 34
         VStack(spacing: 8) {

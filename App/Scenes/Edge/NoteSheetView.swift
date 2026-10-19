@@ -10,6 +10,7 @@ struct NoteSheetView: View {
     let onClose: () -> Void
 
     @State private var pulled = false
+    @Environment(\.edgeBarStyle) private var barStyle
 
     static let size = CGSize(width: 330, height: 300)
 
@@ -36,8 +37,18 @@ struct NoteSheetView: View {
             }
         }
         .frame(width: Self.size.width, height: Self.size.height)
-        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(palette.paperColor))
-        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(palette.inkColor.opacity(0.12), lineWidth: 1))
+        .background {
+            if barStyle == .liquidGlass {
+                EdgeGlassSurface(shape: RoundedRectangle(cornerRadius: EdgeStyleTokens.glassRadius, style: .continuous), tint: palette.paperColor)
+            } else {
+                RoundedRectangle(cornerRadius: 12, style: .continuous).fill(palette.paperColor)
+            }
+        }
+        .overlay {
+            if barStyle == .paper {
+                RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(palette.inkColor.opacity(0.12), lineWidth: 1)
+            }
+        }
         .animation(.easeInOut(duration: 0.15), value: controller.undoableDeletion)
         // The pull: a short slide off the edge, a touch of scale anchored there, and a fade (a full-width slide reads
         // as a window flying in).

@@ -5,11 +5,12 @@ struct TasksFlyoutView: View {
     @ObservedObject private var tasks = ProductivityServices.shared.tasks
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.edgeBarStyle) private var barStyle
     @State private var draft = ""
 
     var body: some View {
         let size = ProductivityFlyout.size(.tasks)
-        let env = TileEnv(palette: palette, isDark: colorScheme == .dark)
+        let env = TileEnv(palette: palette, isDark: colorScheme == .dark, glass: barStyle == .liquidGlass)
         let list = tasks.list
         BandTile(env: env, kind: .reminders, width: size.width - 16, height: size.height - 16, header: {
             HStack {
