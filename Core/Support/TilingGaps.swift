@@ -51,6 +51,17 @@ enum WindowFit {
         return f
     }
 
+    /// True when a frame sits flush in the area as a half or quarter, the way macOS's own window tiling leaves it.
+    static func isNativeTile(_ f: CGRect, in area: CGRect, tolerance: CGFloat = 24) -> Bool {
+        func near(_ a: CGFloat, _ b: CGFloat) -> Bool { abs(a - b) <= tolerance }
+        let fullW = near(f.width, area.width), halfW = near(f.width, area.width / 2)
+        let fullH = near(f.height, area.height), halfH = near(f.height, area.height / 2)
+        guard (fullW || halfW) && (fullH || halfH) && !(fullW && fullH) else { return false }
+        let flushX = near(f.minX, area.minX) || near(f.maxX, area.maxX)
+        let flushY = near(f.minY, area.minY) || near(f.maxY, area.maxY)
+        return flushX && flushY
+    }
+
     /// Smallest tile an app can be expected to use; a layout with anything smaller leaves the extra windows floating.
     static let usableTile = CGSize(width: 360, height: 240)
 

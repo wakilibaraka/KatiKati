@@ -160,4 +160,12 @@ final class TilingLayoutTests: XCTestCase {
         XCTAssertTrue(WindowFit.allUsable([CGRect(x: 0, y: 0, width: 400, height: 300)]))
         XCTAssertFalse(WindowFit.allUsable([CGRect(x: 0, y: 0, width: 400, height: 110)]))
     }
+
+    func testNativeTileDetection() {
+        let area = CGRect(x: 0, y: 38, width: 1600, height: 1000)
+        XCTAssertTrue(WindowFit.isNativeTile(CGRect(x: 0, y: 38, width: 800, height: 1000), in: area))
+        XCTAssertTrue(WindowFit.isNativeTile(CGRect(x: 800, y: 538, width: 800, height: 500), in: area))
+        XCTAssertFalse(WindowFit.isNativeTile(area, in: area))
+        XCTAssertFalse(WindowFit.isNativeTile(CGRect(x: 300, y: 200, width: 800, height: 500), in: area))
+    }
 }

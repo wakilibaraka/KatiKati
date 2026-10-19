@@ -357,7 +357,15 @@ final class TilingEngine: ObservableObject {
 
     private func isTileable(_ record: WindowRecord, _ cg: CGWindowID) -> Bool {
         guard let element = AXElementCache.shared.element(pid: record.pid, cgWindowID: cg) ?? axElement(for: record.pid, cgWindowID: cg) else { return true }
-        return WindowSnapService.isTileable(element)
+        guard WindowSnapService.isTileable(element) else { return false }
+        // A window the user tiled with macOS's own tiling (flush half/quarter we did not place) is left alone.
+        if lastAppliedFrames[cg] == nil, let b = record.bounds, let primary = NSScreen.screens.first?.frame,
+           let screen = NSScreen.screens.first(where: { $0.frame.contains(CGPoint(x: b.midX, y: primary.maxY - b.midY)) }) {
+            let v = screen.visibleFrame
+            let q = CGRect(origin: SnapPosition.accessibilityOrigin(of: v, primaryMaxY: primary.maxY), size: v.size)
+            if WindowFit.isNativeTile(b, in: q) { return false }
+        }
+        return true
     }
 
     private func activeScreenKey() -> String? {
