@@ -100,6 +100,8 @@ struct SettingsSidebar: View {
 
     private func row(_ tab: SettingsTab) -> some View {
         let selected = tabState.selected == tab
+        // A selected full-width row is the hue itself, so its tile goes translucent.
+        let isPill = selected && !isCompact
         return Button {
             withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) { open(tab) }
         } label: {
@@ -108,10 +110,14 @@ struct SettingsSidebar: View {
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(width: 28, height: 28)
-                    .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(tab.hueColor.gradient))
+                    .background(
+                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            .fill(isPill ? AnyShapeStyle(Color.white.opacity(0.22)) : AnyShapeStyle(tab.hueColor.gradient))
+                    )
                 if !isCompact {
                     Text(tab.title)
                         .font(.system(size: 13.5, weight: selected ? .semibold : .regular))
+                        .foregroundStyle(selected ? .white : .primary)
                         .lineLimit(1)
                     Spacer(minLength: 0)
                 }
@@ -120,8 +126,9 @@ struct SettingsSidebar: View {
             .frame(maxWidth: .infinity, minHeight: 40, alignment: isCompact ? .center : .leading)
             .background(
                 RoundedRectangle(cornerRadius: 9, style: .continuous)
-                    .fill(selected ? tab.hueColor.opacity(0.18) : Color.clear)
+                    .fill(selected ? tab.hueColor : Color.clear)
             )
+            .shadow(color: isPill ? tab.hueColor.opacity(0.35) : .clear, radius: 6, x: 0, y: 2)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
