@@ -52,6 +52,8 @@ final class TilingEngine: ObservableObject {
     }
     /// Windows the user moved or resized by hand and that tiling now leaves alone (shown in Settings).
     @Published private(set) var releasedCount = 0
+    /// Windows left floating because tiling them would make every tile too small.
+    @Published private(set) var overflowCount = 0
     /// Latest window records, so a preset/gap/swap change can write real frames without waiting for the next snapshot.
     private var lastWindows: [WindowID: WindowRecord] = [:]
     private var lastSnapshot: DockSnapshot?
@@ -242,6 +244,9 @@ final class TilingEngine: ObservableObject {
             }
         }
 
+        var overflow = 0
+        defer { if overflowCount != overflow { overflowCount = overflow } }
+
         // Reconcile tree for each screen
         for screen in screens {
             let screenKey = screen.localizedName + "-\(screen.frame.origin)"
@@ -270,6 +275,7 @@ final class TilingEngine: ObservableObject {
             let newcomers = eligible.map { $0.0.id }.filter { tree.contains($0) }.reversed()
             for id in newcomers where !WindowFit.allUsable(Array(targetFrames.values)) && tree.count > 1 {
                 tree.remove(id)
+                overflow += 1
                 targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps)
             }
             trees[screenKey] = tree

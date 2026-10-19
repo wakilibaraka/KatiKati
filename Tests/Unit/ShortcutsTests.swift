@@ -49,10 +49,10 @@ final class ShortcutsTests: XCTestCase {
     /// groups have to be every snap zone exactly once.
     func testSnapGroupsCoverEverySnapZoneOnce() {
         let listed = SettingsLayoutPane.snapHotkeyGroups.flatMap { $0 }
-        let zones = ShortcutAction.allCases.filter { $0.snapPosition != nil }
+        let zones = ShortcutAction.allCases.filter { $0.snapPosition != nil } + [.snapNextDisplay]
         XCTAssertEqual(Set(listed), Set(zones))
         XCTAssertEqual(listed.count, zones.count, "no zone twice")
-        XCTAssertEqual(zones.count, 15)
+        XCTAssertEqual(zones.count, 16)
     }
 
     private func tap(_ d: inout ModifierDoubleTapDetector, _ code: UInt16, at t: TimeInterval, hold: TimeInterval = 0.05) -> ShortcutTapKey? {

@@ -44,6 +44,31 @@ enum WindowSnapService {
         return .moved
     }
 
+    /// Moves the focused window to the next display, keeping its relative position and size in the work area.
+    @discardableResult
+    static func moveToNextDisplay() -> Outcome {
+        guard AXIsProcessTrusted() else { return .needsAccessibility }
+        let screens = NSScreen.screens
+        guard screens.count > 1, let primary = screens.first?.frame,
+              let app = NSWorkspace.shared.frontmostApplication,
+              app.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return .noWindow }
+        var ref: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(AXUIElementCreateApplication(app.processIdentifier), kAXFocusedWindowAttribute as CFString, &ref) == .success,
+              let ref, CFGetTypeID(ref) == AXUIElementGetTypeID() else { return .noWindow }
+        let window = ref as! AXUIElement
+        guard isTileable(window), let f = frame(of: window), let from = screenContaining(window, primaryMaxY: primary.maxY),
+              let index = screens.firstIndex(of: from) else { return .noWindow }
+        let to = screens[(index + 1) % screens.count]
+        func area(_ s: NSScreen) -> CGRect { DockReserve.workArea(visible: s.visibleFrame, screen: s.frame, dock: dockFrame(s)) }
+        func quartz(_ r: CGRect) -> CGRect { CGRect(origin: SnapPosition.accessibilityOrigin(of: r, primaryMaxY: primary.maxY), size: r.size) }
+        let a = quartz(area(from)), b = quartz(area(to))
+        let w = min(f.width, b.width), h = min(f.height, b.height)
+        let target = CGRect(x: b.minX + (f.minX - a.minX) / max(a.width, 1) * b.width,
+                            y: b.minY + (f.minY - a.minY) / max(a.height, 1) * b.height, width: w, height: h)
+        place(window, quartzFrame: WindowFit.shifted(target, into: b), within: b)
+        return .moved
+    }
+
     /// Frames to return to after a maximize, keyed by the AX element's hash (shortcut: in memory, lost on relaunch).
     private static var previousFrames: [Int: CGRect] = [:]
 

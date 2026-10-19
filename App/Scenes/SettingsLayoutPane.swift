@@ -97,7 +97,7 @@ struct SettingsLayoutPane: View {
         [.snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf],
         [.snapTopLeft, .snapTopRight, .snapBottomLeft, .snapBottomRight],
         [.snapLeftThird, .snapCenterThird, .snapRightThird, .snapLeftTwoThirds, .snapRightTwoThirds],
-        [.snapCenter, .snapMaximize],
+        [.snapCenter, .snapMaximize, .snapNextDisplay],
     ]
 
     /// Matching is on the localized name, so a search for what the reader sees works in all twelve
@@ -142,6 +142,7 @@ struct SettingsLayoutPane: View {
         case .snapRightTwoThirds: return String(localized: "Snap Right Two-Thirds")
         case .snapCenter: return String(localized: "Snap Center")
         case .snapMaximize: return String(localized: "Snap Maximize")
+        case .snapNextDisplay: return String(localized: "Move to Next Display")
         // Phase 26b tiling actions
         case .toggleTiling: return String(localized: "Toggle Tiling")
         case .cycleTilingLayout: return String(localized: "Cycle Tiling Layout")

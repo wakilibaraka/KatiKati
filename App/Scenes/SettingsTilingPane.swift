@@ -90,6 +90,9 @@ struct SettingsTilingPane: View {
                     action: { engine.retileAll() }
                 )
                 .disabled(engine.releasedCount == 0)
+                if engine.overflowCount > 0 {
+                    SettingsNote(Text("Some windows would end up too small, so the newest ones stay as they are."))
+                }
             }
         }
 

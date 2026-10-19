@@ -761,6 +761,196 @@
         }
       }
     },
+    "Move to Next Display": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move to Next Display"
+          }
+        }
+      }
+    },
+    "Some windows would end up too small, so the newest ones stay as they are.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Some windows would end up too small, so the newest ones stay as they are."
+          }
+        }
+      }
+    },
     "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys.": {
       "extractionState": "manual",
       "localizations": {

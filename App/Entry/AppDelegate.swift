@@ -355,6 +355,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     TilingEngine.shared.swapPrevious()
                 case .radialDial:
                     self.radialDialPanel.toggle()
+                case .snapNextDisplay:
+                    WindowSnapService.moveToNextDisplay()
                 default:
                     // Phase 26a: snap-zone hotkeys — any action with a SnapPosition calls the service.
                     if let position = action.snapPosition {

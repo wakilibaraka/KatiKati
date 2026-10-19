@@ -14,6 +14,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case snapTopLeft, snapTopRight, snapBottomLeft, snapBottomRight
     case snapLeftThird, snapCenterThird, snapRightThird, snapLeftTwoThirds, snapRightTwoThirds
     case snapCenter, snapMaximize
+    /// Sends the focused window to the next display, keeping its relative place. Default `.off`.
+    case snapNextDisplay
     /// Phase 26b tiling actions: master toggle, layout cycle, focus nav, and tile swap. All default `.off`.
     case toggleTiling, cycleTilingLayout
     case tilingFocusNext, tilingFocusPrevious
@@ -64,6 +66,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .radialDial: return 33
         case .notchPageNext: return 34
         case .notchPagePrevious: return 35
+        case .snapNextDisplay: return 36
         }
     }
 
@@ -77,7 +80,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf,
              .snapTopLeft, .snapTopRight, .snapBottomLeft, .snapBottomRight,
              .snapLeftThird, .snapCenterThird, .snapRightThird, .snapLeftTwoThirds, .snapRightTwoThirds,
-             .snapCenter: return .off
+             .snapCenter, .snapNextDisplay: return .off
         // Maximize in place (no new Space) is the one zone worth a default: ⌃⌥M.
         case .snapMaximize: return .key(ShortcutKey(keyCode: 46, modifiers: ShortcutKey.control | ShortcutKey.option))
         // All tiling actions default to off — user assigns.
