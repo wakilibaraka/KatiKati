@@ -70,14 +70,17 @@ struct LiveIslandSettingsBlock: View {
 /// Pick how the notch opens. Each card loops a miniature notch on that style's real springs, so the
 /// illustration is the animation itself. The cards sit under one label so the row stays compact.
 private struct NotchAnimationPicker: View {
-    @AppStorage(NotchOpenAnimation.defaultsKey) private var selected = NotchOpenAnimation.boring.rawValue
+    @AppStorage(NotchOpenAnimation.defaultsKey) private var stored = NotchOpenAnimation.boring.rawValue
+    // The highlight lagged one pick behind the stored value in this pane, so it is local state that the
+    // button sets together with the stored value.
+    @State private var selected = UserDefaults.standard.string(forKey: NotchOpenAnimation.defaultsKey) ?? NotchOpenAnimation.boring.rawValue
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(verbatim: "Open Animation").font(.system(size: 13))
             HStack(spacing: 8) {
                 ForEach(NotchOpenAnimation.allCases) { style in
-                    Button { selected = style.rawValue } label: {
+                    Button { selected = style.rawValue; stored = style.rawValue } label: {
                         VStack(spacing: 6) {
                             NotchAnimationDemo(style: style)
                             Text(verbatim: style.title).font(.system(size: 11, weight: .semibold))
