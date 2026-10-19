@@ -22,6 +22,7 @@ final class TilingEngine: ObservableObject {
     static let presetKey = "com.katikati.tiling.preset"
     static let innerGapKey = "com.katikati.tiling.innerGap"
     static let outerGapKey = "com.katikati.tiling.outerGap"
+    static let displayPresetsKey = "com.katikati.tiling.displayPresets"
     static let mainRatioKey = "com.katikati.tiling.mainRatio"
     static let mirroredKey = "com.katikati.tiling.mirrored"
     static let floatingAppsKey = "com.katikati.tiling.floatingApps"
@@ -30,6 +31,11 @@ final class TilingEngine: ObservableObject {
     @Published private(set) var isEnabled: Bool = UserDefaults.standard.bool(forKey: enabledKey)
     @Published private(set) var preset: TilingLayoutPreset = {
         UserDefaults.standard.string(forKey: presetKey).flatMap(TilingLayoutPreset.init(rawValue:)) ?? .bsp
+    }()
+    /// Per-display overrides of `preset`, keyed by display name.
+    @Published private(set) var displayPresets: [String: TilingLayoutPreset] = {
+        let raw = UserDefaults.standard.dictionary(forKey: displayPresetsKey) as? [String: String] ?? [:]
+        return raw.compactMapValues(TilingLayoutPreset.init(rawValue:))
     }()
     @Published private(set) var gaps: TilingGaps = {
         let inner = UserDefaults.standard.object(forKey: innerGapKey) as? CGFloat ?? 8
@@ -126,6 +132,15 @@ final class TilingEngine: ObservableObject {
         if isEnabled { reapplyLayout() }
     }
 
+    func preset(for screen: NSScreen) -> TilingLayoutPreset { displayPresets[screen.localizedName] ?? preset }
+
+    func setPreset(_ newPreset: TilingLayoutPreset, forDisplay name: String) {
+        guard displayPresets[name] != newPreset else { return }
+        displayPresets[name] = newPreset
+        UserDefaults.standard.set(displayPresets.mapValues(\.rawValue), forKey: Self.displayPresetsKey)
+        if isEnabled { reapplyLayout() }
+    }
+
     func setGaps(_ newGaps: TilingGaps) {
         guard newGaps != gaps else { return }
         gaps = newGaps
@@ -158,10 +173,13 @@ final class TilingEngine: ObservableObject {
     // MARK: - Hotkey Actions
 
     func cycleLayout() {
+        // Cycles the display under the pointer's key window; with one display this is the global preset.
         let all = TilingLayoutPreset.allCases
-        guard let idx = all.firstIndex(of: preset) else { return }
+        let screen = NSScreen.main ?? NSScreen.screens.first
+        let current = screen.map(preset(for:)) ?? preset
+        guard let idx = all.firstIndex(of: current) else { return }
         let next = all[(idx + 1) % all.count]
-        setPreset(next)
+        if NSScreen.screens.count > 1, let screen { setPreset(next, forDisplay: screen.localizedName) } else { setPreset(next) }
     }
 
     func focusNext() {
@@ -296,12 +314,12 @@ final class TilingEngine: ObservableObject {
 
             // Resolve layout geometry; if any tile would be unusably small, the newest windows stay floating.
             let workArea = workArea(of: screen)
-            var targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps, options: options)
+            var targetFrames = TilingLayout.resolve(tree: tree, preset: preset(for: screen), workArea: workArea, gaps: gaps, options: options)
             let newcomers = eligible.map { $0.0.id }.filter { tree.contains($0) }.reversed()
             for id in newcomers where !WindowFit.allUsable(Array(targetFrames.values)) && tree.count > 1 {
                 tree.remove(id)
                 overflow += 1
-                targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps, options: options)
+                targetFrames = TilingLayout.resolve(tree: tree, preset: preset(for: screen), workArea: workArea, gaps: gaps, options: options)
             }
             trees[screenKey] = tree
 
@@ -320,7 +338,7 @@ final class TilingEngine: ObservableObject {
             let screenKey = screen.localizedName + "-\(screen.frame.origin)"
             guard let tree = trees[screenKey], !tree.isEmpty else { continue }
             let workArea = workArea(of: screen)
-            let targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps, options: options)
+            let targetFrames = TilingLayout.resolve(tree: tree, preset: preset(for: screen), workArea: workArea, gaps: gaps, options: options)
 
             applyFrames(targetFrames, records: lastWindows, primaryMaxY: primaryMaxY, area: workArea)
         }

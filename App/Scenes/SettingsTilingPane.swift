@@ -45,6 +45,20 @@ struct SettingsTilingPane: View {
                     }
                 }
                 SettingsNote(presetNote)
+                if NSScreen.screens.count > 1 {
+                    ForEach(NSScreen.screens, id: \.localizedName) { screen in
+                        SettingsDivider()
+                        SettingsPickerRow(
+                            Text(verbatim: screen.localizedName),
+                            selection: Binding(
+                                get: { engine.preset(for: screen) },
+                                set: { engine.setPreset($0, forDisplay: screen.localizedName) }
+                            )
+                        ) {
+                            ForEach(TilingLayoutPreset.allCases, id: \.self) { Text($0.localizedTitleKey).tag($0) }
+                        }
+                    }
+                }
                 if engine.preset == .mainStack || engine.preset == .centeredMain {
                     SettingsDivider()
                     SettingsSliderRow(
