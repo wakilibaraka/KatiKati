@@ -168,8 +168,14 @@ struct NotchIslandView: View {
     private func activityContent(_ activity: LiveActivity) -> some View {
         HStack(spacing: 0) {
             HStack(spacing: 4) {
-                Image(systemName: LiveIslandStyle.symbolName(for: activity.kind))
-                    .foregroundStyle(LiveIslandStyle.tint(for: activity.kind))
+                if let art = musicArtwork(for: activity) {
+                    art.resizable().aspectRatio(contentMode: .fill)
+                        .frame(width: 18, height: 18)
+                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                } else {
+                    Image(systemName: LiveIslandStyle.symbolName(for: activity.kind))
+                        .foregroundStyle(LiveIslandStyle.tint(for: activity.kind))
+                }
                 if let second = feed.secondaryActivity {
                     Image(systemName: LiveIslandStyle.symbolName(for: second.kind))
                         .foregroundStyle(LiveIslandStyle.tint(for: second.kind))
@@ -200,9 +206,15 @@ struct NotchIslandView: View {
                 NotchEventCard(event: event, lifetime: NotchMotionSpec.eventLifetime) { model.event = nil }
             } else {
                 HStack(spacing: 10) {
-                    Image(systemName: LiveIslandStyle.symbolName(for: activity.kind))
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(LiveIslandStyle.tint(for: activity.kind))
+                    if let art = musicArtwork(for: activity) {
+                        art.resizable().aspectRatio(contentMode: .fill)
+                            .frame(width: 36, height: 36)
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    } else {
+                        Image(systemName: LiveIslandStyle.symbolName(for: activity.kind))
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(LiveIslandStyle.tint(for: activity.kind))
+                    }
                     VStack(alignment: .leading, spacing: 1) {
                         LiveIslandStyle.labelText(for: activity.kind)
                             .font(.system(size: 11)).foregroundStyle(.white.opacity(0.6))
@@ -213,12 +225,22 @@ struct NotchIslandView: View {
                     Spacer()
                     if case .music = activity.content { transport }
                 }
-                if case .music = activity.content, let fraction = feed.nowPlayingState.progress(at: Date()) {
-                    ProgressView(value: fraction).progressViewStyle(.linear).tint(.pink)
+                if case .music = activity.content {
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        if let fraction = feed.nowPlayingState.progress(at: context.date) {
+                            ProgressView(value: fraction).progressViewStyle(.linear).tint(.pink)
+                        }
+                    }
                 }
             }
             Spacer(minLength: 0)
         }
+    }
+
+    /// The playing app's own artwork, when the activity is music and the player handed one over.
+    private func musicArtwork(for activity: LiveActivity) -> Image? {
+        guard case .music = activity.content, let data = feed.nowPlayingState.artworkData, let image = NSImage(data: data) else { return nil }
+        return Image(nsImage: image)
     }
 
     private var transport: some View {

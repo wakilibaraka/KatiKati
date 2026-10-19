@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 /// Left card of the full notch skin when music is the winning activity or nothing is active: album art,
-/// title / artist, a thin progress bar with elapsed / remaining time, and the transport row. Idle shows
+/// title / artist, a thin progress bar (no time readout), and the transport row. Idle shows
 /// "Not Playing" with a quick-actions row instead of the progress bar.
 struct NotchMusicPanel: View {
     @ObservedObject var feed: LiveActivityFeed
@@ -71,21 +71,8 @@ struct NotchMusicPanel: View {
         // TimelineView only ticks while music is showing; the bar moves without the feed's own tick.
         TimelineView(.periodic(from: .now, by: 1)) { context in
             let fraction = state.progress(at: context.date) ?? 0
-            let total = state.duration ?? 0
-            let elapsed = fraction * total
-            VStack(spacing: 2) {
-                MusicScrubBar(progress: fraction, duration: total, trackHeight: 4, tint: .white,
-                              onSeek: { feed.seek(to: $0) })
-                HStack {
-                    Text(verbatim: NotchLayoutSpec.clockText(elapsed))
-                    Spacer()
-                    // Elapsed on the left, the track's own length on the right (Phase 43: this used to
-                    // be the remaining time, which reads as a second countdown rather than a duration).
-                    Text(verbatim: total > 0 ? NotchLayoutSpec.clockText(total) : "")
-                }
-                .font(.system(size: 10, weight: .medium, design: .rounded)).monospacedDigit()
-                .foregroundStyle(.white.opacity(0.6))
-            }
+            MusicScrubBar(progress: fraction, duration: state.duration ?? 0, trackHeight: 4, tint: .white,
+                          onSeek: { feed.seek(to: $0) })
         }
     }
 

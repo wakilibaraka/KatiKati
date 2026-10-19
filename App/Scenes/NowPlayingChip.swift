@@ -469,9 +469,13 @@ struct NowPlayingPopup: View {
 
                 // A scrubber, not a ProgressView (Phase 47): the popup is the dock chip's own surface,
                 // so seeking has to work here too.
-                if let fraction = state.progress(at: Date()), let duration = state.duration, duration > 0 {
-                    MusicScrubBar(progress: fraction, duration: duration, trackHeight: 3, tint: .pink,
-                                  onSeek: onSeek)
+                if let duration = state.duration, duration > 0 {
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        if let fraction = state.progress(at: context.date) {
+                            MusicScrubBar(progress: fraction, duration: duration, trackHeight: 3, tint: .pink,
+                                          onSeek: onSeek)
+                        }
+                    }
                 }
             }
         }
