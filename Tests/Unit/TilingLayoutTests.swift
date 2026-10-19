@@ -187,4 +187,14 @@ final class TilingLayoutTests: XCTestCase {
             }
         }
     }
+
+    func testMainStackRatioAndMirror() {
+        var tree = TilingTree()
+        let a = WindowID(rawValue: "a"), b = WindowID(rawValue: "b")
+        tree.insert(a); tree.insert(b)
+        let wide = TilingLayout.resolve(tree: tree, preset: .mainStack, workArea: screen, gaps: defaultGaps,
+                                        options: TilingLayoutOptions(mainRatio: 0.7, mirrored: true))
+        XCTAssertGreaterThan(wide[a]!.width, wide[b]!.width)
+        XCTAssertGreaterThan(wide[a]!.minX, wide[b]!.minX)
+    }
 }

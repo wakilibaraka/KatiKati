@@ -45,6 +45,25 @@ struct SettingsTilingPane: View {
                     }
                 }
                 SettingsNote(presetNote)
+                if engine.preset == .mainStack || engine.preset == .centeredMain {
+                    SettingsDivider()
+                    SettingsSliderRow(
+                        Text("Main Window Size"),
+                        value: engine.options.mainRatio * 100,
+                        range: 30...70,
+                        step: 5,
+                        valueText: "\(Int(engine.options.mainRatio * 100))%",
+                        set: { engine.setOptions(TilingLayoutOptions(mainRatio: CGFloat($0) / 100, mirrored: engine.options.mirrored)) }
+                    )
+                    SettingsDivider()
+                    SettingsToggleRow(
+                        Text("Main Window on the Right"),
+                        isOn: Binding(
+                            get: { engine.options.mirrored },
+                            set: { engine.setOptions(TilingLayoutOptions(mainRatio: engine.options.mainRatio, mirrored: $0)) }
+                        )
+                    )
+                }
                 SettingsDivider()
                 SettingsSliderRow(
                     Text("Inner Gap"),

@@ -34,6 +34,16 @@ enum TilingLayoutPreset: String, CaseIterable, Sendable, Codable {
     }
 }
 
+/// User tuning for layouts with a main window (Main + Stack, Centered Main).
+struct TilingLayoutOptions: Equatable, Sendable {
+    /// Share of the work area given to the main window, clamped to `ratioRange`.
+    var mainRatio: CGFloat = 0.55
+    /// Puts the main window on the right instead of the left.
+    var mirrored = false
+
+    static let ratioRange: ClosedRange<CGFloat> = 0.3...0.7
+}
+
 /// Geometry solver for auto-tiling presets (Phase 26b).
 enum TilingLayout {
     /// Resolves target frames for all windows in `tree` according to `preset`.
@@ -42,7 +52,8 @@ enum TilingLayout {
         tree: TilingTree,
         preset: TilingLayoutPreset,
         workArea: CGRect,
-        gaps: TilingGaps = .default
+        gaps: TilingGaps = .default,
+        options: TilingLayoutOptions = TilingLayoutOptions()
     ) -> [WindowID: CGRect] {
         guard !tree.isEmpty else { return [:] }
 
@@ -51,13 +62,13 @@ enum TilingLayout {
             return tree.resolveTiles(in: workArea, gaps: gaps)
 
         case .mainStack:
-            return resolveMainStack(tree: tree, workArea: workArea, gaps: gaps)
+            return resolveMainStack(tree: tree, workArea: workArea, gaps: gaps, options: options)
 
         case .monocle:
             return resolveMonocle(tree: tree, workArea: workArea, gaps: gaps)
 
         case .grid, .spiral, .columns, .rows, .centeredMain:
-            return resolveSliced(tree: tree, preset: preset, workArea: workArea, gaps: gaps)
+            return resolveSliced(tree: tree, preset: preset, workArea: workArea, gaps: gaps, options: options)
         }
     }
 
@@ -66,7 +77,8 @@ enum TilingLayout {
     private static func resolveMainStack(
         tree: TilingTree,
         workArea: CGRect,
-        gaps: TilingGaps
+        gaps: TilingGaps,
+        options: TilingLayoutOptions
     ) -> [WindowID: CGRect] {
         let windows = tree.allWindowIDs
         guard !windows.isEmpty else { return [:] }
@@ -86,15 +98,16 @@ enum TilingLayout {
 
         var result: [WindowID: CGRect] = [:]
         let inner = gaps.inner
-        let mainRatio: CGFloat = 0.55
+        let mainRatio = options.mainRatio.clamped(to: TilingLayoutOptions.ratioRange)
 
         let availableWidth = max(0, contentArea.width - inner)
         let mainWidth = (availableWidth * mainRatio).rounded()
         let stackWidth = max(0, availableWidth - mainWidth)
 
         // Main window (left side)
+        let mainX = options.mirrored ? contentArea.maxX - mainWidth : contentArea.minX
         let mainRect = CGRect(
-            x: contentArea.minX,
+            x: mainX,
             y: contentArea.minY,
             width: mainWidth,
             height: contentArea.height
@@ -107,7 +120,7 @@ enum TilingLayout {
         let availableHeight = max(0, contentArea.height - totalInnerGaps)
         let eachHeight = (availableHeight / CGFloat(stackCount)).rounded()
 
-        let stackX = contentArea.minX + mainWidth + inner
+        let stackX = options.mirrored ? contentArea.minX : contentArea.minX + mainWidth + inner
         var currentY = contentArea.minY
 
         // Traverse stack windows bottom-to-top so top window lands at maxY
@@ -157,7 +170,8 @@ enum TilingLayout {
         tree: TilingTree,
         preset: TilingLayoutPreset,
         workArea: CGRect,
-        gaps: TilingGaps
+        gaps: TilingGaps,
+        options: TilingLayoutOptions
     ) -> [WindowID: CGRect] {
         let windows = tree.allWindowIDs
         let outer = gaps.outer
@@ -194,7 +208,8 @@ enum TilingLayout {
                 break
             }
             // Main in the middle (half the width); others alternate right, left.
-            let sideW = max(0, (area.width - area.width * 0.5 - 2 * inner) / 2)
+            let ratio = options.mainRatio.clamped(to: TilingLayoutOptions.ratioRange)
+            let sideW = max(0, (area.width - area.width * ratio - 2 * inner) / 2)
             let mainW = max(0, area.width - 2 * sideW - 2 * inner)
             let rightCount = n / 2, leftCount = n - 1 - rightCount
             let left = CGRect(x: area.minX, y: area.minY, width: sideW, height: area.height)
@@ -203,7 +218,7 @@ enum TilingLayout {
             let rights = split(right, count: rightCount, horizontal: false, gap: inner)
             let lefts = split(left, count: leftCount, horizontal: false, gap: inner)
             frames = [mid]
-            for i in 0..<(n - 1) { frames.append(i % 2 == 0 ? rights[i / 2] : lefts[i / 2]) }
+            for i in 0..<(n - 1) { frames.append((i % 2 == 0) != options.mirrored ? rights[i / 2] : lefts[i / 2]) }
         default:
             break
         }
@@ -234,4 +249,8 @@ enum TilingLayout {
             height: max(1, rect.height.rounded())
         )
     }
+}
+
+private extension Comparable {
+    func clamped(to range: ClosedRange<Self>) -> Self { min(max(self, range.lowerBound), range.upperBound) }
 }

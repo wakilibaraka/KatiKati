@@ -353,6 +353,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     TilingEngine.shared.swapNext()
                 case .tilingSwapPrevious:
                     TilingEngine.shared.swapPrevious()
+                case .tilingGrowMain:
+                    TilingEngine.shared.adjustMainRatio(by: 0.05)
+                case .tilingShrinkMain:
+                    TilingEngine.shared.adjustMainRatio(by: -0.05)
+                case .tilingFlipMain:
+                    TilingEngine.shared.setOptions(TilingLayoutOptions(mainRatio: TilingEngine.shared.options.mainRatio, mirrored: !TilingEngine.shared.options.mirrored))
                 case .radialDial:
                     self.radialDialPanel.toggle()
                 case .snapNextDisplay:

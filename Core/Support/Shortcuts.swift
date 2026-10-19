@@ -20,6 +20,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case toggleTiling, cycleTilingLayout
     case tilingFocusNext, tilingFocusPrevious
     case tilingSwapNext, tilingSwapPrevious
+    /// Main-area tuning: widen, narrow, or flip the main window to the other side. Default `.off`.
+    case tilingGrowMain, tilingShrinkMain, tilingFlipMain
     /// Phase 31: the colourful interactive radial dial / pie menu. Default `.off`.
     case radialDial
     /// Notch bento pages, step by step (live-check follow-up: dots are mouse-only otherwise).
@@ -67,6 +69,9 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .notchPageNext: return 34
         case .notchPagePrevious: return 35
         case .snapNextDisplay: return 36
+        case .tilingGrowMain: return 37
+        case .tilingShrinkMain: return 38
+        case .tilingFlipMain: return 39
         }
     }
 
@@ -86,7 +91,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         // All tiling actions default to off — user assigns.
         case .toggleTiling, .cycleTilingLayout,
              .tilingFocusNext, .tilingFocusPrevious,
-             .tilingSwapNext, .tilingSwapPrevious: return .off
+             .tilingSwapNext, .tilingSwapPrevious,
+             .tilingGrowMain, .tilingShrinkMain, .tilingFlipMain: return .off
         // Phase 31 radial dial: off by default, user assigns
         case .radialDial: return .off
         case .notchPageNext, .notchPagePrevious: return .off
@@ -98,7 +104,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         switch self {
         case .toggleTiling, .cycleTilingLayout,
              .tilingFocusNext, .tilingFocusPrevious,
-             .tilingSwapNext, .tilingSwapPrevious: return true
+             .tilingSwapNext, .tilingSwapPrevious,
+             .tilingGrowMain, .tilingShrinkMain, .tilingFlipMain: return true
         default: return false
         }
     }

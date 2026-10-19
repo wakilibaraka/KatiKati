@@ -22,6 +22,8 @@ final class TilingEngine: ObservableObject {
     static let presetKey = "com.katikati.tiling.preset"
     static let innerGapKey = "com.katikati.tiling.innerGap"
     static let outerGapKey = "com.katikati.tiling.outerGap"
+    static let mainRatioKey = "com.katikati.tiling.mainRatio"
+    static let mirroredKey = "com.katikati.tiling.mirrored"
     static let floatingAppsKey = "com.katikati.tiling.floatingApps"
 
     // MARK: - Published State
@@ -33,6 +35,13 @@ final class TilingEngine: ObservableObject {
         let inner = UserDefaults.standard.object(forKey: innerGapKey) as? CGFloat ?? 8
         let outer = UserDefaults.standard.object(forKey: outerGapKey) as? CGFloat ?? 8
         return TilingGaps(inner: inner, outer: outer)
+    }()
+    @Published private(set) var options: TilingLayoutOptions = {
+        let d = UserDefaults.standard
+        return TilingLayoutOptions(
+            mainRatio: d.object(forKey: mainRatioKey) as? CGFloat ?? 0.55,
+            mirrored: d.bool(forKey: mirroredKey)
+        )
     }()
     @Published private(set) var policy: TilingPolicy = {
         if let raw = UserDefaults.standard.string(forKey: floatingAppsKey) {
@@ -123,6 +132,20 @@ final class TilingEngine: ObservableObject {
         UserDefaults.standard.set(Double(newGaps.inner), forKey: Self.innerGapKey)
         UserDefaults.standard.set(Double(newGaps.outer), forKey: Self.outerGapKey)
         if isEnabled { reapplyLayout() }
+    }
+
+    func setOptions(_ new: TilingLayoutOptions) {
+        guard new != options else { return }
+        options = new
+        UserDefaults.standard.set(Double(new.mainRatio), forKey: Self.mainRatioKey)
+        UserDefaults.standard.set(new.mirrored, forKey: Self.mirroredKey)
+        if isEnabled { reapplyLayout() }
+    }
+
+    func adjustMainRatio(by delta: CGFloat) {
+        var new = options
+        new.mainRatio = min(max(options.mainRatio + delta, TilingLayoutOptions.ratioRange.lowerBound), TilingLayoutOptions.ratioRange.upperBound)
+        setOptions(new)
     }
 
     func setPolicy(_ newPolicy: TilingPolicy) {
@@ -271,12 +294,12 @@ final class TilingEngine: ObservableObject {
 
             // Resolve layout geometry; if any tile would be unusably small, the newest windows stay floating.
             let workArea = workArea(of: screen)
-            var targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps)
+            var targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps, options: options)
             let newcomers = eligible.map { $0.0.id }.filter { tree.contains($0) }.reversed()
             for id in newcomers where !WindowFit.allUsable(Array(targetFrames.values)) && tree.count > 1 {
                 tree.remove(id)
                 overflow += 1
-                targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps)
+                targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps, options: options)
             }
             trees[screenKey] = tree
 
@@ -295,7 +318,7 @@ final class TilingEngine: ObservableObject {
             let screenKey = screen.localizedName + "-\(screen.frame.origin)"
             guard let tree = trees[screenKey], !tree.isEmpty else { continue }
             let workArea = workArea(of: screen)
-            let targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps)
+            let targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps, options: options)
 
             applyFrames(targetFrames, records: lastWindows, primaryMaxY: primaryMaxY, area: workArea)
         }
