@@ -24,6 +24,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case tilingGrowMain, tilingShrinkMain, tilingFlipMain
     /// Phase 31: the colourful interactive radial dial / pie menu. Default `.off`.
     case radialDial
+    /// The dial opened straight on its Snapping / Tools page. Both default `.off`.
+    case radialDialSnap, radialDialTools
     /// Notch bento pages, step by step (live-check follow-up: dots are mouse-only otherwise).
     /// Both default `.off` — user assigns.
     case notchPageNext, notchPagePrevious
@@ -72,6 +74,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .tilingGrowMain: return 37
         case .tilingShrinkMain: return 38
         case .tilingFlipMain: return 39
+        case .radialDialSnap: return 40
+        case .radialDialTools: return 41
         }
     }
 
@@ -94,7 +98,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
              .tilingSwapNext, .tilingSwapPrevious,
              .tilingGrowMain, .tilingShrinkMain, .tilingFlipMain: return .off
         // Phase 31 radial dial: off by default, user assigns
-        case .radialDial: return .off
+        case .radialDial, .radialDialSnap, .radialDialTools: return .off
         case .notchPageNext, .notchPagePrevious: return .off
         }
     }

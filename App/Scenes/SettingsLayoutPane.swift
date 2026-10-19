@@ -154,6 +154,8 @@ struct SettingsLayoutPane: View {
         case .tilingShrinkMain: return String(localized: "Shrink Main Tile")
         case .tilingFlipMain: return String(localized: "Flip Main Tile Side")
         case .radialDial: return String(localized: "Radial Dial")
+        case .radialDialSnap: return String(localized: "Radial Dial: Snapping")
+        case .radialDialTools: return String(localized: "Radial Dial: Tools")
         case .notchPageNext: return String(localized: "Next Notch Page")
         case .notchPagePrevious: return String(localized: "Previous Notch Page")
         }

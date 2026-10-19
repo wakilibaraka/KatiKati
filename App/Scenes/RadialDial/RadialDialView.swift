@@ -1,233 +1,122 @@
 import SwiftUI
 
+/// Shared layout constants. The panel is larger than the ring so the drop shadow isn't clipped.
+enum RadialDialMetrics {
+    static let panelSize: CGFloat = 380
+    static let outerRadius: CGFloat = 160
+    static let innerRadius: CGFloat = 52
+    static let hubSize: CGFloat = 100
+    static var center: CGPoint { CGPoint(x: panelSize / 2, y: panelSize / 2) }
+}
+
+/// What the pointer (or keyboard) currently points at. Owned by the panel controller, which feeds it
+/// from global mouse monitors, so hover works with no button held and while a hold-to-open button is down.
+@MainActor
+final class RadialDialState: ObservableObject {
+    @Published var pageIndex = 0
+    @Published var hoveredSector: Int?
+    @Published var isCenterHovered = false
+    /// -1 / 0 / 1: left chevron, hub body, right chevron.
+    @Published var hubZone = 0
+}
+
 /// Top-level interactive radial dial view (Phase 31b).
 struct RadialDialView: View {
     let pages: [RadialDialPage]
-    @Binding var currentPageIndex: Int
+    @ObservedObject var state: RadialDialState
     let theme: RadialDialTheme
-    let onSelectAction: (RadialDialActionType) -> Void
-    let onDismiss: () -> Void
+    let onPointerUp: (CGPoint) -> Void
 
-    @State private var hoveredSector: Int?
-    @State private var isCenterHovered = false
-    @State private var isAppearing = false
-
-    private let dialSize: CGFloat = 340
-    private let outerRadius: CGFloat = 160
-    private let innerRadius: CGFloat = 48
-
-    private var center: CGPoint {
-        CGPoint(x: dialSize / 2, y: dialSize / 2)
-    }
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var appeared = false
 
     private var currentPage: RadialDialPage {
-        guard !pages.isEmpty else {
-            return RadialDialPage(id: .main, title: "main", items: [])
-        }
-        let safeIndex = min(max(currentPageIndex, 0), pages.count - 1)
-        return pages[safeIndex]
+        guard !pages.isEmpty else { return RadialDialPage(id: .main, title: "main", items: []) }
+        return pages[min(max(state.pageIndex, 0), pages.count - 1)]
     }
 
     var body: some View {
+        let outer = RadialDialMetrics.outerRadius
+        let sectors = RadialDialGeometry.sectors(
+            count: currentPage.items.count,
+            innerRadius: RadialDialMetrics.innerRadius,
+            outerRadius: outer
+        )
+
         ZStack {
-            // Backdrop translucent circle
-            Circle()
-                .fill(backdropFill)
-                .frame(width: outerRadius * 2, height: outerRadius * 2)
-                .overlay(
-                    Circle()
-                        .strokeBorder(outerBorderColor, lineWidth: 1.5)
-                )
-                .shadow(color: Color.black.opacity(0.4), radius: 16, x: 0, y: 8)
+            backdrop
 
-            // Wedges
-            let sectors = RadialDialGeometry.sectors(
-                count: currentPage.items.count,
-                innerRadius: innerRadius,
-                outerRadius: outerRadius
-            )
-
-            ForEach(Array(currentPage.items.enumerated()), id: \.element.id) { index, item in
-                if index < sectors.count {
-                    RadialDialWedgeView(
-                        sector: sectors[index],
-                        item: item,
-                        isHovered: hoveredSector == index,
-                        theme: theme,
-                        center: center,
-                        onSelect: {
-                            selectItem(item)
-                        }
-                    )
+            ZStack {
+                ForEach(Array(currentPage.items.enumerated()), id: \.element.id) { index, item in
+                    if index < sectors.count {
+                        RadialDialWedgeView(
+                            sector: sectors[index],
+                            item: item,
+                            isHovered: state.hoveredSector == index,
+                            appeared: appeared,
+                            reduceMotion: reduceMotion,
+                            theme: theme,
+                            center: RadialDialMetrics.center
+                        )
+                    }
                 }
             }
+            // A page change swaps the whole ring: the old one shrinks away, the new one blooms in.
+            .id(currentPage.id)
+            .transition(reduceMotion ? .opacity : .scale(scale: 0.86).combined(with: .opacity))
 
-            // Center hub
             RadialDialCenterHub(
                 title: currentPage.title,
                 pageCount: pages.count,
-                pageIndex: currentPageIndex,
+                pageIndex: state.pageIndex,
                 centerItem: currentPage.centerItem,
-                isHovered: isCenterHovered,
-                theme: theme,
-                onPreviousPage: previousPage,
-                onNextPage: nextPage,
-                onCenterAction: {
-                    if let centerItem = currentPage.centerItem {
-                        selectItem(centerItem)
-                    }
-                }
+                isHovered: state.isCenterHovered,
+                zone: state.hubZone,
+                theme: theme
             )
+            .scaleEffect(appeared ? 1 : 0.4)
+            .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.7), value: appeared)
         }
-        .frame(width: dialSize, height: dialSize)
-        .scaleEffect(isAppearing ? 1.0 : 0.78)
-        .opacity(isAppearing ? 1.0 : 0.0)
+        .frame(width: RadialDialMetrics.panelSize, height: RadialDialMetrics.panelSize)
+        .scaleEffect(appeared || reduceMotion ? 1 : 0.86)
+        .opacity(appeared ? 1 : 0)
         .onAppear {
-            withAnimation(.spring(response: 0.28, dampingFraction: 0.72)) {
-                isAppearing = true
+            withAnimation(reduceMotion ? .easeOut(duration: 0.12) : .spring(response: 0.32, dampingFraction: 0.76)) {
+                appeared = true
             }
         }
-        // Continuous mouse coordinate tracking via DragGesture(minimumDistance: 0) (compatible with macOS 12+)
-        .gesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { value in
-                    handlePointerMove(at: value.location)
-                }
-                .onEnded { value in
-                    handlePointerUp(at: value.location)
-                }
-        )
+        .contentShape(Rectangle())
+        .gesture(DragGesture(minimumDistance: 0).onEnded { onPointerUp($0.location) })
     }
 
-    private func handlePointerMove(at point: CGPoint) {
-        let result = RadialDialGeometry.hitTest(
-            point: point,
-            center: center,
-            count: currentPage.items.count,
-            innerRadius: innerRadius,
-            outerRadius: outerRadius
-        )
-
-        switch result {
-        case .center:
-            hoveredSector = nil
-            isCenterHovered = true
-        case .sector(let idx):
-            hoveredSector = idx
-            isCenterHovered = false
-        case .outside:
-            hoveredSector = nil
-            isCenterHovered = false
-        }
-        updateSnapPreview()
+    private var backdrop: some View {
+        let size = RadialDialMetrics.outerRadius * 2
+        return Circle()
+            .fill(.ultraThinMaterial)
+            .overlay(Circle().fill(backdropTint))
+            .overlay(Circle().strokeBorder(outerBorderColor, lineWidth: 1.5))
+            // Soft inner rim so the ring reads as a lens, not a flat disc.
+            .overlay(Circle().inset(by: 3).strokeBorder(Color.white.opacity(0.06), lineWidth: 1))
+            .frame(width: size, height: size)
+            .shadow(color: .black.opacity(0.38), radius: 18, y: 8)
+            .shadow(color: outerBorderColor.opacity(0.35), radius: 24)
     }
 
-    private func updateSnapPreview() {
-        guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }) ?? NSScreen.main else {
-            RadialSnapPreviewPanelController.shared.hidePreview()
-            return
-        }
-
-        if isCenterHovered, let centerItem = currentPage.centerItem, case .snap(let pos) = centerItem.action {
-            RadialSnapPreviewPanelController.shared.showPreview(for: pos, on: screen, theme: theme)
-        } else if let idx = hoveredSector, idx < currentPage.items.count, case .snap(let pos) = currentPage.items[idx].action {
-            RadialSnapPreviewPanelController.shared.showPreview(for: pos, on: screen, theme: theme)
-        } else {
-            RadialSnapPreviewPanelController.shared.hidePreview()
-        }
-    }
-
-    private func handlePointerUp(at point: CGPoint) {
-        RadialSnapPreviewPanelController.shared.hidePreview()
-        let result = RadialDialGeometry.hitTest(
-            point: point,
-            center: center,
-            count: currentPage.items.count,
-            innerRadius: innerRadius,
-            outerRadius: outerRadius
-        )
-
-        switch result {
-        case .center:
-            if let centerItem = currentPage.centerItem {
-                selectItem(centerItem)
-            }
-        case .sector(let idx):
-            if idx < currentPage.items.count {
-                selectItem(currentPage.items[idx])
-            }
-        case .outside:
-            onDismiss()
-        }
-    }
-
-    private func selectItem(_ item: RadialDialItem) {
-        RadialSnapPreviewPanelController.shared.hidePreview()
-        switch item.action {
-        case .page(let pageID):
-            if let targetIdx = pages.firstIndex(where: { $0.id == pageID }) {
-                withAnimation(.spring(response: 0.25, dampingFraction: 0.78)) {
-                    currentPageIndex = targetIdx
-                    hoveredSector = nil
-                    isCenterHovered = false
-                }
-            }
-        default:
-            onSelectAction(item.action)
-        }
-    }
-
-    private func previousPage() {
-        RadialSnapPreviewPanelController.shared.hidePreview()
-        guard !pages.isEmpty else { return }
-        withAnimation(.spring(response: 0.25, dampingFraction: 0.78)) {
-            currentPageIndex = (currentPageIndex - 1 + pages.count) % pages.count
-            hoveredSector = nil
-            isCenterHovered = false
-        }
-    }
-
-    private func nextPage() {
-        RadialSnapPreviewPanelController.shared.hidePreview()
-        guard !pages.isEmpty else { return }
-        withAnimation(.spring(response: 0.25, dampingFraction: 0.78)) {
-            currentPageIndex = (currentPageIndex + 1) % pages.count
-            hoveredSector = nil
-            isCenterHovered = false
-        }
-    }
-
-    private var backdropFill: some ShapeStyle {
+    private var backdropTint: Color {
         switch theme {
-        case .lilacGlass:
-            return AnyShapeStyle(
-                Color(red: 0.16, green: 0.14, blue: 0.24).opacity(0.85)
-            )
-        case .darkObsidian:
-            return AnyShapeStyle(
-                Color(red: 0.08, green: 0.08, blue: 0.10).opacity(0.90)
-            )
-        case .systemFrosted:
-            return AnyShapeStyle(
-                Color.black.opacity(0.65)
-            )
-        case .neonCyber:
-            return AnyShapeStyle(
-                Color(red: 0.04, green: 0.05, blue: 0.10).opacity(0.92)
-            )
+        case .lilacGlass: return Color(red: 0.16, green: 0.14, blue: 0.24).opacity(0.62)
+        case .darkObsidian: return Color(red: 0.08, green: 0.08, blue: 0.10).opacity(0.78)
+        case .systemFrosted: return Color.black.opacity(0.42)
+        case .neonCyber: return Color(red: 0.04, green: 0.05, blue: 0.10).opacity(0.8)
         }
     }
 
     private var outerBorderColor: Color {
         switch theme {
-        case .lilacGlass:
-            return Color(red: 0.65, green: 0.55, blue: 0.95).opacity(0.35)
-        case .darkObsidian:
-            return Color.white.opacity(0.18)
-        case .systemFrosted:
-            return Color.white.opacity(0.25)
-        case .neonCyber:
-            return Color(red: 0.0, green: 0.85, blue: 0.95).opacity(0.6)
+        case .lilacGlass: return Color(red: 0.65, green: 0.55, blue: 0.95).opacity(0.45)
+        case .darkObsidian: return Color.white.opacity(0.18)
+        case .systemFrosted: return Color.white.opacity(0.25)
+        case .neonCyber: return Color(red: 0.0, green: 0.85, blue: 0.95).opacity(0.6)
         }
     }
 }

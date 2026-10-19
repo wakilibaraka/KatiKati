@@ -361,6 +361,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     TilingEngine.shared.setOptions(TilingLayoutOptions(mainRatio: TilingEngine.shared.options.mainRatio, mirrored: !TilingEngine.shared.options.mirrored))
                 case .radialDial:
                     self.radialDialPanel.toggle()
+                case .radialDialSnap:
+                    self.radialDialPanel.toggle(page: .snapping)
+                case .radialDialTools:
+                    self.radialDialPanel.toggle(page: .tools)
                 case .snapNextDisplay:
                     WindowSnapService.moveToNextDisplay()
                 default:

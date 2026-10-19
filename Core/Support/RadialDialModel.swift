@@ -27,6 +27,10 @@ enum RadialMouseTrigger: String, CaseIterable, Codable, Sendable {
     case optionRightClick
     /// Command + Right Click.
     case commandRightClick
+    /// Shift + Right Click.
+    case shiftRightClick
+    /// Option + Middle Click.
+    case optionMiddleClick
     /// Extra mouse button 4 (Back).
     case button4
     /// Extra mouse button 5 (Forward).
@@ -39,6 +43,8 @@ enum RadialMouseTrigger: String, CaseIterable, Codable, Sendable {
         case .controlRightClick: return "Control + Right Click"
         case .optionRightClick: return "Option + Right Click"
         case .commandRightClick: return "Command + Right Click"
+        case .shiftRightClick: return "Shift + Right Click"
+        case .optionMiddleClick: return "Option + Middle Click"
         case .button4: return "Mouse Button 4"
         case .button5: return "Mouse Button 5"
         }

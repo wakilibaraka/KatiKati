@@ -5,59 +5,97 @@ struct RadialDialWedgeView: View {
     let sector: RadialDialGeometry.Sector
     let item: RadialDialItem
     let isHovered: Bool
+    let appeared: Bool
+    let reduceMotion: Bool
     let theme: RadialDialTheme
     let center: CGPoint
-    let onSelect: () -> Void
+
+    /// Half the angular gap between neighbours; the round-join stroke below closes most of it.
+    private static let halfGap: Double = 0.032
+    private static let corner: CGFloat = 4
+
+    private var accent: Color? { item.accentHex.flatMap { Color(hex: $0) } }
+    private var lift: CGFloat { isHovered && !reduceMotion ? 7 : 0 }
+
+    private var shape: RadialSectorShape {
+        RadialSectorShape(
+            startAngle: Angle(radians: Double(sector.startAngle) + Self.halfGap),
+            endAngle: Angle(radians: Double(sector.endAngle) - Self.halfGap),
+            innerRadius: sector.innerRadius + Self.corner / 2,
+            outerRadius: sector.outerRadius - Self.corner / 2
+        )
+    }
 
     var body: some View {
         ZStack {
-            // Sector background fill
-            RadialSectorShape(
-                startAngle: Angle(radians: Double(sector.startAngle)),
-                endAngle: Angle(radians: Double(sector.endAngle)),
-                innerRadius: sector.innerRadius,
-                outerRadius: sector.outerRadius
-            )
-            .fill(wedgeFill)
+            // Resting tint: each wedge keeps a quiet hint of its own colour.
+            layer(AnyShapeStyle((accent ?? .white).opacity(accent == nil ? 0.06 : 0.16)))
 
-            // Wedge divider / boundary stroke
-            RadialSectorShape(
-                startAngle: Angle(radians: Double(sector.startAngle)),
-                endAngle: Angle(radians: Double(sector.endAngle)),
-                innerRadius: sector.innerRadius,
-                outerRadius: sector.outerRadius
-            )
-            .stroke(Color.white.opacity(isHovered ? 0.35 : 0.12), lineWidth: 1)
+            // Hover tint fades in over the resting one (gradient styles can't cross-animate).
+            layer(hoverFill)
+                .opacity(isHovered ? 1 : 0)
+                .shadow(color: (accent ?? .white).opacity(isHovered ? 0.55 : 0), radius: 12)
 
-            // Content positioned at the geometric sector center
-            let pos = contentPosition
-            VStack(spacing: 2) {
-                iconView(item.icon)
-                    .frame(width: 26, height: 26)
+            shape
+                .stroke(Color.white.opacity(isHovered ? 0.45 : 0.10), lineWidth: 1)
 
-                Text(verbatim: item.title)
-                    .font(.system(size: 10, weight: isHovered ? .bold : .medium, design: .rounded))
-                    .foregroundColor(isHovered ? .white : .white.opacity(0.85))
-                    .lineLimit(1)
-                    .shadow(color: Color.black.opacity(0.6), radius: 2, x: 0, y: 1)
+            content
+        }
+        .offset(x: cos(sector.midAngle) * lift, y: sin(sector.midAngle) * lift)
+        .animation(hoverAnimation, value: isHovered)
+        // Entrance: wedges bloom outward from the hub, one after another.
+        .scaleEffect(appeared ? 1 : 0.55)
+        .opacity(appeared ? 1 : 0)
+        .animation(
+            reduceMotion ? .easeOut(duration: 0.12)
+                : .spring(response: 0.34, dampingFraction: 0.74).delay(Double(sector.index) * 0.02),
+            value: appeared
+        )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: item.title))
+        .accessibilityAddTraits(.isButton)
+    }
 
-                if item.hasSubmenu {
-                    Text(verbatim: "•••")
-                        .font(.system(size: 6, weight: .black))
-                        .foregroundColor(isHovered ? .white : .white.opacity(0.5))
-                        .offset(y: -2)
-                }
-            }
-            .scaleEffect(isHovered ? 1.08 : 1.0)
-            .position(pos)
-            .animation(.spring(response: 0.22, dampingFraction: 0.72), value: isHovered)
+    private var hoverAnimation: Animation {
+        reduceMotion ? .easeOut(duration: 0.1) : .spring(response: 0.24, dampingFraction: 0.68)
+    }
+
+    private func layer(_ style: AnyShapeStyle) -> some View {
+        ZStack {
+            shape.fill(style)
+            shape.stroke(style, style: StrokeStyle(lineWidth: Self.corner, lineJoin: .round))
         }
     }
 
-    private var contentPosition: CGPoint {
-        // Slightly shift outward on hover (spring motion)
-        let fraction: CGFloat = isHovered ? 0.54 : 0.50
-        return sector.centerPoint(in: center, atFraction: fraction)
+    private var content: some View {
+        let pos = sector.centerPoint(in: center, atFraction: 0.46)
+        return VStack(spacing: 3) {
+            iconView(item.icon)
+                .frame(width: 28, height: 28)
+                .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+            Text(verbatim: item.title)
+                .font(.system(size: 10, weight: isHovered ? .bold : .medium, design: .rounded))
+                .foregroundColor(.white.opacity(isHovered ? 1 : 0.85))
+                .lineLimit(1)
+                .shadow(color: .black.opacity(0.55), radius: 2, y: 1)
+            if item.hasSubmenu {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 7, weight: .black))
+                    .foregroundColor(.white.opacity(isHovered ? 0.9 : 0.5))
+            }
+        }
+        .scaleEffect(isHovered && !reduceMotion ? 1.1 : 1)
+        .position(pos)
+        .overlay(alignment: .topLeading) {
+            // Keyboard hint: press 1–9 (0 for the tenth) to pick this wedge.
+            if sector.index < 10 {
+                Text(verbatim: "\((sector.index + 1) % 10)")
+                    .font(.system(size: 8, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white.opacity(isHovered ? 0.8 : 0.32))
+                    .position(sector.centerPoint(in: center, atFraction: 0.9))
+                    .accessibilityHidden(true)
+            }
+        }
     }
 
     @ViewBuilder
@@ -67,74 +105,37 @@ struct RadialDialWedgeView: View {
             Image(systemName: name)
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(iconColor)
+                .foregroundColor(isHovered ? .white : (accent ?? .white.opacity(0.9)))
         case .app(let bundleID):
             if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
                 Image(nsImage: NSWorkspace.shared.icon(forFile: url.path))
                     .resizable()
                     .scaledToFit()
-                    .cornerRadius(5)
-                    .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 1)
             } else {
                 Image(systemName: "app.fill")
                     .resizable()
                     .scaledToFit()
-                    .foregroundColor(iconColor)
+                    .foregroundColor(.white.opacity(0.9))
             }
         }
     }
 
-    private var iconColor: Color {
-        if isHovered { return .white }
-        if let hex = item.accentHex, let color = Color(hex: hex) {
-            return color
-        }
-        return .white.opacity(0.9)
-    }
-
-    private var wedgeFill: some ShapeStyle {
-        if !isHovered {
-            return AnyShapeStyle(Color.white.opacity(0.04))
-        }
-
+    private var hoverFill: AnyShapeStyle {
         switch theme {
-        case .lilacGlass:
-            return AnyShapeStyle(
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.58, green: 0.48, blue: 0.95).opacity(0.85),
-                        Color(red: 0.38, green: 0.28, blue: 0.78).opacity(0.85)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
+        case .lilacGlass, .systemFrosted:
+            let base = accent ?? (theme == .lilacGlass ? Color(red: 0.58, green: 0.48, blue: 0.95) : .accentColor)
+            return AnyShapeStyle(LinearGradient(
+                colors: [base.opacity(0.95), base.opacity(0.62)],
+                startPoint: .topLeading, endPoint: .bottomTrailing))
         case .darkObsidian:
-            return AnyShapeStyle(
-                LinearGradient(
-                    colors: [
-                        Color.white.opacity(0.24),
-                        Color.white.opacity(0.12)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-        case .systemFrosted:
-            return AnyShapeStyle(
-                Color.accentColor.opacity(0.5)
-            )
+            return AnyShapeStyle(LinearGradient(
+                colors: [.white.opacity(0.30), .white.opacity(0.14)],
+                startPoint: .top, endPoint: .bottom))
         case .neonCyber:
-            return AnyShapeStyle(
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.0, green: 0.85, blue: 0.95).opacity(0.75),
-                        Color(red: 0.85, green: 0.15, blue: 0.65).opacity(0.65)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
+            return AnyShapeStyle(LinearGradient(
+                colors: [Color(red: 0.0, green: 0.85, blue: 0.95).opacity(0.8),
+                         Color(red: 0.85, green: 0.15, blue: 0.65).opacity(0.7)],
+                startPoint: .topLeading, endPoint: .bottomTrailing))
         }
     }
 }

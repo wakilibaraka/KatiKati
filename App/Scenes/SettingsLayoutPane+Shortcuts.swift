@@ -310,6 +310,8 @@ extension SettingsLayoutPane {
         case .controlRightClick: return Text("Control + Right Click")
         case .optionRightClick: return Text("Option + Right Click")
         case .commandRightClick: return Text("Command + Right Click")
+        case .shiftRightClick: return Text("Shift + Right Click")
+        case .optionMiddleClick: return Text("Option + Middle Click")
         case .button4: return Text("Mouse Button 4")
         case .button5: return Text("Mouse Button 5")
         }
