@@ -306,7 +306,8 @@ final class TilingEngine: ObservableObject {
             AXUIElementSetAttributeValue(element, kAXPositionAttribute as CFString, pointVal)
             AXUIElementSetAttributeValue(element, kAXSizeAttribute as CFString, sizeVal)
 
-            lastAppliedFrames[cg] = cocoaFrame
+            // Snapshot bounds are Quartz (top-left); store the same space or every window reads as hand-moved.
+            lastAppliedFrames[cg] = CGRect(origin: point, size: size)
         }
     }
 
