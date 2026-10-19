@@ -40,3 +40,21 @@ enum DockReserve {
         return r
     }
 }
+
+/// Keeps a placed window inside the work area. Works in any space where the area and frame agree.
+enum WindowFit {
+    /// Shifts (never resizes) a frame fully inside the area; a frame wider/taller than the area is pinned to its leading edge.
+    static func shifted(_ frame: CGRect, into area: CGRect) -> CGRect {
+        var f = frame
+        f.origin.x = max(area.minX, min(f.origin.x, area.maxX - f.width))
+        f.origin.y = max(area.minY, min(f.origin.y, area.maxY - f.height))
+        return f
+    }
+
+    /// Smallest tile an app can be expected to use; a layout with anything smaller leaves the extra windows floating.
+    static let usableTile = CGSize(width: 360, height: 240)
+
+    static func allUsable(_ frames: [CGRect]) -> Bool {
+        frames.allSatisfy { $0.width >= usableTile.width - 0.5 && $0.height >= usableTile.height - 0.5 }
+    }
+}

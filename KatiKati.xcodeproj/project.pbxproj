@@ -965,6 +965,7 @@
 		ED00000000000000000000C0 /* DeckLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000A2 /* DeckLabel.swift */; };
 		ED00000000000000000000C2 /* WindowSnap.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C1 /* WindowSnap.swift */; };
 		ED00000000000000000000C3 /* WindowSnap.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C1 /* WindowSnap.swift */; };
+		ED0000000000000000000F6A /* WindowSnapService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C4 /* WindowSnapService.swift */; };
 		ED00000000000000000000C5 /* WindowSnapService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C4 /* WindowSnapService.swift */; };
 		ED00000000000000000000C7 /* WindowsFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C6 /* WindowsFlyoutView.swift */; };
 		ED00000000000000000000C9 /* WindowSnapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C8 /* WindowSnapTests.swift */; };
@@ -3616,6 +3617,7 @@
 				A0000000000000000000A282 /* KeyGuardService.swift in Sources */,
 				A0000000000000000000A322 /* NotificationMoveService.swift in Sources */,
 				A0000000000000000001F082 /* TilingEngine.swift in Sources */,
+				ED0000000000000000000F6A /* WindowSnapService.swift in Sources */,
 				A0000000000000000000A292 /* SlowQuitOverlay.swift in Sources */,
 				A0000000000000000000A302 /* KeyVisualizerOverlay.swift in Sources */,
 				A0000000000000000000FA02 /* LauncherChipVisualPlan.swift in Sources */,

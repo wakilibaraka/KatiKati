@@ -571,97 +571,192 @@
         }
       }
     },
-    "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled.": {
+    "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "de": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "es": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "it": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "new",
-            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."
+          }
+        }
+      }
+    },
+    "Snap Maximize fills the screen without opening a new Space; press it again to put the window back.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Maximize fills the screen without opening a new Space; press it again to put the window back."
           }
         }
       }

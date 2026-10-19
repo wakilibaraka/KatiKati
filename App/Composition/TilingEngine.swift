@@ -182,6 +182,8 @@ final class TilingEngine: ObservableObject {
         for (_, record) in snapshot.windows {
             guard let cg = record.cgWindowID, let currentBounds = record.bounds else { continue }
             if let lastApplied = lastAppliedFrames[cg] {
+                // A window that went native-fullscreen (or minimized) changed frame on its own; that is not a hand move.
+                guard isTileable(record, cg) else { lastAppliedFrames[cg] = nil; continue }
                 let moved = abs(currentBounds.minX - lastApplied.minX) > 10 ||
                             abs(currentBounds.minY - lastApplied.minY) > 10 ||
                             abs(currentBounds.width - lastApplied.width) > 10 ||
@@ -218,7 +220,8 @@ final class TilingEngine: ObservableObject {
                   let cg = record.cgWindowID,
                   cg != 0,
                   !releasedWindowIDs.contains(cg),
-                  !policy.shouldFloat(bundleIdentifier: record.bundleIdentifier)
+                  !policy.shouldFloat(bundleIdentifier: record.bundleIdentifier),
+                  isTileable(record, cg)
             else { continue }
 
             // Determine which screen contains this window's center
@@ -261,14 +264,18 @@ final class TilingEngine: ObservableObject {
                 }
             }
 
+            // Resolve layout geometry; if any tile would be unusably small, the newest windows stay floating.
+            let workArea = workArea(of: screen)
+            var targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps)
+            let newcomers = eligible.map { $0.0.id }.filter { tree.contains($0) }.reversed()
+            for id in newcomers where !WindowFit.allUsable(Array(targetFrames.values)) && tree.count > 1 {
+                tree.remove(id)
+                targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps)
+            }
             trees[screenKey] = tree
 
-            // Resolve layout geometry
-            let workArea = workArea(of: screen)
-            let targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps)
-
             // Apply frames via AX
-            applyFrames(targetFrames, records: snapshot.windows, primaryMaxY: primaryMaxY)
+            applyFrames(targetFrames, records: snapshot.windows, primaryMaxY: primaryMaxY, area: workArea)
         }
     }
 
@@ -284,7 +291,7 @@ final class TilingEngine: ObservableObject {
             let workArea = workArea(of: screen)
             let targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps)
 
-            applyFrames(targetFrames, records: lastWindows, primaryMaxY: primaryMaxY)
+            applyFrames(targetFrames, records: lastWindows, primaryMaxY: primaryMaxY, area: workArea)
         }
     }
 
@@ -293,7 +300,8 @@ final class TilingEngine: ObservableObject {
     private func applyFrames(
         _ targetFrames: [WindowID: CGRect],
         records: [WindowID: WindowRecord],
-        primaryMaxY: CGFloat
+        primaryMaxY: CGFloat,
+        area: CGRect
     ) {
         guard !targetFrames.isEmpty else { return }
         isApplyingLayout = true
@@ -303,18 +311,12 @@ final class TilingEngine: ObservableObject {
             guard let record = records[winID], let cg = record.cgWindowID ?? CGWindowID(winID.rawValue) else { continue }
             guard let element = AXElementCache.shared.element(pid: record.pid, cgWindowID: cg) ?? axElement(for: record.pid, cgWindowID: cg) else { continue }
 
-            var point = SnapPosition.accessibilityOrigin(of: cocoaFrame, primaryMaxY: primaryMaxY)
-            var size = cocoaFrame.size
+            let quartz = CGRect(origin: SnapPosition.accessibilityOrigin(of: cocoaFrame, primaryMaxY: primaryMaxY), size: cocoaFrame.size)
+            let quartzArea = CGRect(origin: SnapPosition.accessibilityOrigin(of: area, primaryMaxY: primaryMaxY), size: area.size)
 
-            guard let pointVal = AXValueCreate(.cgPoint, &point),
-                  let sizeVal = AXValueCreate(.cgSize, &size) else { continue }
-
-            AXUIElementSetAttributeValue(element, kAXSizeAttribute as CFString, sizeVal)
-            AXUIElementSetAttributeValue(element, kAXPositionAttribute as CFString, pointVal)
-            AXUIElementSetAttributeValue(element, kAXSizeAttribute as CFString, sizeVal)
-
-            // Snapshot bounds are Quartz (top-left); store the same space or every window reads as hand-moved.
-            lastAppliedFrames[cg] = CGRect(origin: point, size: size)
+            // Snapshot bounds are Quartz (top-left); store what the app really took (it may clamp to a minimum size)
+            // in the same space or the window reads as hand-moved.
+            lastAppliedFrames[cg] = WindowSnapService.place(element, quartzFrame: quartz, within: quartzArea) ?? quartz
         }
     }
 
@@ -346,6 +348,11 @@ final class TilingEngine: ObservableObject {
     }
 
     // MARK: - Helpers
+
+    private func isTileable(_ record: WindowRecord, _ cg: CGWindowID) -> Bool {
+        guard let element = AXElementCache.shared.element(pid: record.pid, cgWindowID: cg) ?? axElement(for: record.pid, cgWindowID: cg) else { return true }
+        return WindowSnapService.isTileable(element)
+    }
 
     private func activeScreenKey() -> String? {
         guard let screen = NSScreen.main ?? NSScreen.screens.first else { return nil }

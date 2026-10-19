@@ -148,4 +148,16 @@ final class TilingLayoutTests: XCTestCase {
                        CGRect(x: 0, y: 88, width: 1000, height: 692))
         XCTAssertEqual(DockReserve.workArea(visible: visible, screen: screen, dock: nil), visible)
     }
+
+    func testShiftedKeepsWindowInsideArea() {
+        let area = CGRect(x: 0, y: 0, width: 1000, height: 800)
+        XCTAssertEqual(WindowFit.shifted(CGRect(x: 800, y: 700, width: 400, height: 300), into: area),
+                       CGRect(x: 600, y: 500, width: 400, height: 300))
+        XCTAssertEqual(WindowFit.shifted(CGRect(x: -50, y: 10, width: 1200, height: 100), into: area).minX, 0)
+    }
+
+    func testAllUsableRejectsTinyTiles() {
+        XCTAssertTrue(WindowFit.allUsable([CGRect(x: 0, y: 0, width: 400, height: 300)]))
+        XCTAssertFalse(WindowFit.allUsable([CGRect(x: 0, y: 0, width: 400, height: 110)]))
+    }
 }

@@ -94,11 +94,12 @@ struct SettingsTilingPane: View {
         }
 
         SettingsCard(Text("How It Works")) {
-            SettingsNote(Text("New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."))
+            SettingsNote(Text("New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled. Full-screen windows are left alone, and windows that would end up too small stay as they are."))
             SettingsNote(Text("Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."))
         }
 
         SettingsCard(Text("Snap Zones")) {
+            SettingsNote(Text("Snap Maximize fills the screen without opening a new Space; press it again to put the window back."))
             if boundSnaps.isEmpty {
                 SettingsNote(Text("No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."))
             } else {

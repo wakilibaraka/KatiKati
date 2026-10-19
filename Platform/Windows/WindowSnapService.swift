@@ -23,13 +23,58 @@ enum WindowSnapService {
         let window = windowRef as! AXUIElement
         guard let screen = screenContaining(window, primaryMaxY: primary.maxY) ?? NSScreen.main else { return .noWindow }
 
-        let target = position.frame(in: DockReserve.workArea(visible: screen.visibleFrame, screen: screen.frame, dock: dockFrame(screen)))
-        var point = SnapPosition.accessibilityOrigin(of: target, primaryMaxY: primary.maxY)
-        var size = target.size
-        guard let pointValue = AXValueCreate(.cgPoint, &point), let sizeValue = AXValueCreate(.cgSize, &size) else { return .noWindow }
+        guard isTileable(window) else { return .noWindow }
+        let area = DockReserve.workArea(visible: screen.visibleFrame, screen: screen.frame, dock: dockFrame(screen))
+        let target = position.frame(in: area)
+        let point = SnapPosition.accessibilityOrigin(of: target, primaryMaxY: primary.maxY)
+        let quartzTarget = CGRect(origin: point, size: target.size)
+        let quartzArea = CGRect(origin: SnapPosition.accessibilityOrigin(of: area, primaryMaxY: primary.maxY), size: area.size)
+
+        // Maximize is a toggle: pressing it on an already-maximized window puts the old frame back.
+        let key = Int(bitPattern: CFHash(window))
+        let current = frame(of: window)
+        if position == .maximize, let current, let saved = previousFrames[key],
+           abs(current.width - quartzTarget.width) <= 2, abs(current.height - quartzTarget.height) <= 2 {
+            previousFrames[key] = nil
+            place(window, quartzFrame: saved, within: nil)
+            return .moved
+        }
+        if let current, !(position == .maximize && previousFrames[key] != nil) { previousFrames[key] = current }
+        place(window, quartzFrame: quartzTarget, within: quartzArea)
+        return .moved
+    }
+
+    /// Frames to return to after a maximize, keyed by the AX element's hash (shortcut: in memory, lost on relaunch).
+    private static var previousFrames: [Int: CGRect] = [:]
+
+    /// A window layout may touch: not native-fullscreen, not minimized, a standard resizable window.
+    static func isTileable(_ window: AXUIElement) -> Bool {
+        func flag(_ name: String) -> Bool {
+            var ref: CFTypeRef?
+            return AXUIElementCopyAttributeValue(window, name as CFString, &ref) == .success && (ref as? Bool) == true
+        }
+        if flag("AXFullScreen") || flag(kAXMinimizedAttribute as String) { return false }
+        var sub: CFTypeRef?
+        if AXUIElementCopyAttributeValue(window, kAXSubroleAttribute as CFString, &sub) == .success,
+           let sub = sub as? String, sub != kAXStandardWindowSubrole as String { return false }
+        var settable: DarwinBoolean = false
+        if AXUIElementIsAttributeSettable(window, kAXSizeAttribute as CFString, &settable) == .success, !settable.boolValue { return false }
+        return true
+    }
+
+    /// Writes a Quartz frame, reads back what the app really took, and shifts it inside `area` if it clamped past the edge.
+    /// Returns the frame the window ended up with.
+    @discardableResult
+    static func place(_ window: AXUIElement, quartzFrame: CGRect, within area: CGRect?) -> CGRect? {
+        var point = quartzFrame.origin
+        var size = quartzFrame.size
+        guard let pointValue = AXValueCreate(.cgPoint, &point), let sizeValue = AXValueCreate(.cgSize, &size) else { return nil }
 
         // "Enhanced user interface" (VoiceOver, some launchers) makes the first frame change land wrong; switch it
         // off while laying out and restore it (the approach Hop's snapper uses).
+        var pid: pid_t = 0
+        AXUIElementGetPid(window, &pid)
+        let appElement = AXUIElementCreateApplication(pid)
         let enhancedKey = "AXEnhancedUserInterface" as CFString
         var enhancedRef: CFTypeRef?
         let hadEnhanced = AXUIElementCopyAttributeValue(appElement, enhancedKey, &enhancedRef) == .success
@@ -45,10 +90,19 @@ enum WindowSnapService {
             if frame(of: window).map({ abs($0.origin.x - point.x) <= 1 && abs($0.origin.y - point.y) <= 1
                                         && abs($0.width - size.width) <= 1 && abs($0.height - size.height) <= 1 }) ?? true { break }
         }
-        return .moved
+        guard var actual = frame(of: window) else { return quartzFrame }
+        if let area {
+            let fixed = WindowFit.shifted(actual, into: area)
+            if fixed.origin != actual.origin {
+                var p = fixed.origin
+                if let v = AXValueCreate(.cgPoint, &p) { AXUIElementSetAttributeValue(window, kAXPositionAttribute as CFString, v) }
+                actual = frame(of: window) ?? fixed
+            }
+        }
+        return actual
     }
 
-    private static func frame(of window: AXUIElement) -> CGRect? {
+    static func frame(of window: AXUIElement) -> CGRect? {
         var posRef: CFTypeRef?, sizeRef: CFTypeRef?
         guard AXUIElementCopyAttributeValue(window, kAXPositionAttribute as CFString, &posRef) == .success,
               AXUIElementCopyAttributeValue(window, kAXSizeAttribute as CFString, &sizeRef) == .success,
