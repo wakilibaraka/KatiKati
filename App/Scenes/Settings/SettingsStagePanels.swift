@@ -122,28 +122,21 @@ struct StageTiling: View {
         .animation(.spring(response: 0.34, dampingFraction: 0.86), value: engine.gaps)
     }
 
-    /// Four windows: BSP halves then quarters, one master with a stack, or all stacked full-size.
+    /// Four sample windows from the engine's own solver, so the preview cannot drift from what tiling does.
+    /// Monocle windows overlap by design, so they are drawn as an offset stack.
     static func rects(preset: TilingLayoutPreset, area: CGRect, gap: CGFloat) -> [CGRect] {
-        let h = gap / 2
-        switch preset {
-        case .monocle:
-            return [area]
-        case .mainStack:
-            let left = CGRect(x: area.minX, y: area.minY, width: area.width / 2 - h, height: area.height)
-            let rowH = (area.height - 2 * gap) / 3
-            let right = (0..<3).map { i in
-                CGRect(x: area.midX + h, y: area.minY + CGFloat(i) * (rowH + gap), width: area.width / 2 - h, height: rowH)
+        if preset == .monocle {
+            return (0..<3).map { i in
+                CGRect(x: area.minX + CGFloat(i) * 8, y: area.minY + CGFloat(i) * 8, width: area.width - 16, height: area.height - 16)
             }
-            return [left] + right
-        case .bsp:
-            let halfW = area.width / 2 - h
-            let halfH = area.height / 2 - h
-            return [
-                CGRect(x: area.minX, y: area.minY, width: halfW, height: area.height),
-                CGRect(x: area.midX + h, y: area.minY, width: halfW, height: halfH),
-                CGRect(x: area.midX + h, y: area.midY + h, width: halfW / 2 - h, height: halfH),
-                CGRect(x: area.midX + h + halfW / 2 + h, y: area.midY + h, width: halfW / 2 - h, height: halfH),
-            ]
+        }
+        var tree = TilingTree()
+        let ids = (0..<4).map { WindowID(rawValue: "preview\($0)") }
+        ids.forEach { tree.insert($0) }
+        let solved = TilingLayout.resolve(tree: tree, preset: preset, workArea: area, gaps: TilingGaps(inner: gap, outer: 0))
+        // Solver output is bottom-left origin; SwiftUI offsets are top-left.
+        return ids.compactMap { solved[$0] }.map {
+            CGRect(x: $0.minX, y: area.minY + area.maxY - $0.maxY, width: $0.width, height: $0.height)
         }
     }
 }

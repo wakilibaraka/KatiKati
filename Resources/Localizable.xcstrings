@@ -1,6 +1,1336 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Allow Accessibility": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Allow Accessibility"
+          }
+        }
+      }
+    },
+    "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was."
+          }
+        }
+      }
+    },
+    "BSP: each new window takes half of the space left, so four windows form a grid.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "BSP: each new window takes half of the space left, so four windows form a grid."
+          }
+        }
+      }
+    },
+    "How It Works": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "How It Works"
+          }
+        }
+      }
+    },
+    "Main + Stack: the first window fills the left 55%; the rest stack on the right.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Main + Stack: the first window fills the left 55%; the rest stack on the right."
+          }
+        }
+      }
+    },
+    "Monocle: every window is full size. Use Focus Next / Previous to flip between them.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Monocle: every window is full size. Use Focus Next / Previous to flip between them."
+          }
+        }
+      }
+    },
+    "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."
+          }
+        }
+      }
+    },
+    "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."
+          }
+        }
+      }
+    },
+    "No windows have been moved by hand.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "No windows have been moved by hand."
+          }
+        }
+      }
+    },
+    "Re-tile Moved Windows": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Re-tile Moved Windows"
+          }
+        }
+      }
+    },
+    "Snap Zones": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap Zones"
+          }
+        }
+      }
+    },
+    "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        }
+      }
+    },
+    "Windows you moved by hand stay put until you press this.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Windows you moved by hand stay put until you press this."
+          }
+        }
+      }
+    },
+    "macOS needs this before KatiKati can move other apps' windows.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "macOS needs this before KatiKati can move other apps' windows."
+          }
+        }
+      }
+    },
     "Window Glow": {
       "extractionState": "manual",
       "localizations": {
@@ -61060,101 +62390,7 @@
         }
       }
     },
-    "Automatically tile open windows in binary space partitions or presets. Disabling instantly restores pre-tiling window frames.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Automatically tile open windows in binary space partitions or presets. Disabling instantly restores pre-tiling window frames."
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ترتيب النوافذ المفتوحة تلقائيًا في تقسيمات ثنائية أو إعدادات مسبقة. يؤدي التعطيل إلى استعادة إطارات النوافذ السابقة فورًا."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Offene Fenster automatisch in binären Raumaufteilungen oder Voreinstellungen anordnen. Beim Deaktivieren werden vorherige Fenstergrößen sofort wiederhergestellt."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Organiza automáticamente las ventanas abiertas en particiones de espacio binario o ajustes preestablecidos. Al desactivar, se restauran de inmediato los marcos anteriores."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Organiza automáticamente las ventanas abiertas en particiones de espacio binario o ajustes preestablecidos. Al desactivar, se restauran de inmediato los marcos anteriores."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pave automatiquement les fenêtres ouvertes en partitions binaires ou selon des préréglages. La désactivation restaure instantanément les dimensions d'origine."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Affianca automaticamente le finestre aperte in partizioni binarie o predefiniti. La disattivazione ripristina all'istante le dimensioni precedenti."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "開いているウィンドウを自動的にバイナリ空間分割やプリセットで整列します。無効にすると直前のウィンドウ枠が即座に復元されます。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "열린 창을 이진 공간 분할 또는 사전 설정으로 자동 정렬합니다. 비활성화하면 타일링 전 창 크기가 즉시 복원됩니다."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rangschik geopende vensters automatisch in binaire ruimtepartities of voorinstellingen. Uitschakelen herstelt vensterkaders direct."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Organiza automaticamente as janelas abertas em partições binárias ou predefinições. Desativar restaura instantaneamente os tamanhos anteriores."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Organiza automaticamente as janelas abertas em partições binárias ou predefinições. Desativar restaura instantaneamente os tamanhos anteriores."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Автоматически размещает открытые окна по бинарным разбиениям или пресетам. Отключение мгновенно возвращает исходные размеры окон."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "自动将打开的窗口以二叉空间分割或预设进行平铺。关闭后立即恢复平铺前的窗口位置与大小。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "自動將開啟的視窗以二元空間分割或預設進行平鋪。關閉後立即恢復平鋪前的視窗位置與大小。"
-          }
-        }
-      }
-    },
+
     "Preset": {
       "extractionState": "manual",
       "localizations": {

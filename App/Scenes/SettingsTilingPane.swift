@@ -1,3 +1,4 @@
+import AppKit
 import ApplicationServices
 import SwiftUI
 
@@ -19,15 +20,19 @@ struct SettingsTilingPane: View {
                 Text("Enable Auto-Tiling"),
                 isOn: Binding(
                     get: { engine.isEnabled },
-                    set: { on in
-                        if on, !AXIsProcessTrusted() {
-                            // Accessibility check
-                        }
-                        engine.setEnabled(on)
-                    }
+                    set: { engine.setEnabled($0) }
                 ),
-                note: Text("Automatically tile open windows in binary space partitions or presets. Disabling instantly restores pre-tiling window frames.")
+                note: Text("Arranges your open windows on this screen without overlap. Turning it off puts every window back where it was.")
             )
+
+            if !axTrusted {
+                SettingsDivider()
+                SettingsButtonRow(
+                    Text("Allow Accessibility"),
+                    note: Text("macOS needs this before KatiKati can move other apps' windows."),
+                    action: { AccessibilitySettingsLink.url.map { NSWorkspace.shared.open($0) } }
+                )
+            }
 
             if engine.isEnabled {
                 SettingsDivider()
@@ -39,6 +44,7 @@ struct SettingsTilingPane: View {
                         Text(preset.localizedTitleKey).tag(preset)
                     }
                 }
+                SettingsNote(presetNote)
                 SettingsDivider()
                 SettingsSliderRow(
                     Text("Inner Gap"),
@@ -74,7 +80,60 @@ struct SettingsTilingPane: View {
                 .font(.system(.body, design: .monospaced))
                 .frame(height: 80)
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 1))
+
+                SettingsDivider()
+                SettingsButtonRow(
+                    Text("Re-tile Moved Windows"),
+                    note: engine.releasedCount == 0
+                        ? Text("No windows have been moved by hand.")
+                        : Text("Windows you moved by hand stay put until you press this."),
+                    action: { engine.retileAll() }
+                )
+                .disabled(engine.releasedCount == 0)
             }
+        }
+
+        SettingsCard(Text("How It Works")) {
+            SettingsNote(Text("New windows join the layout by themselves. Drag or resize a window and it is left alone until you press Re-tile. Apps in the floating list are never tiled."))
+            SettingsNote(Text("Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."))
+        }
+
+        SettingsCard(Text("Snap Zones")) {
+            if boundSnaps.isEmpty {
+                SettingsNote(Text("No snap shortcut is set. Add one under Shortcuts → Snap Hotkeys."))
+            } else {
+                ForEach(boundSnaps, id: \.0) { action, keys in
+                    SettingsRow(Text(verbatim: SettingsLayoutPane.shortcutActionName(action))) {
+                        Text(verbatim: keys).font(.system(.body, design: .rounded)).foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+    }
+
+    private var axTrusted: Bool { AXIsProcessTrusted() }
+
+    private var presetNote: Text {
+        switch engine.preset {
+        case .bsp: return Text("BSP: each new window takes half of the space left, so four windows form a grid.")
+        case .mainStack: return Text("Main + Stack: the first window fills the left 55%; the rest stack on the right.")
+        case .monocle: return Text("Monocle: every window is full size. Use Focus Next / Previous to flip between them.")
+        }
+    }
+
+    private var boundSnaps: [(ShortcutAction, String)] {
+        SettingsLayoutPane.snapHotkeyGroups.flatMap { $0 }.compactMap { action in
+            store.shortcutBindings[action].flatMap(Self.glyphs).map { (action, $0) }
+        }
+    }
+
+    private static func glyphs(_ trigger: ShortcutTrigger) -> String? {
+        switch trigger {
+        case .off: return nil
+        case .chord(let c): return c.glyphs
+        case .doubleTap(let k): return "\(k.glyph)\(k.glyph)"
+        case .key(let k): return k.glyphs
+        case .hyper(let code): return "✦" + (ShortcutKeyNames.name(for: code) ?? "?")
         }
     }
 }

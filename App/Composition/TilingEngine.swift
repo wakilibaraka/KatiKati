@@ -40,7 +40,14 @@ final class TilingEngine: ObservableObject {
     /// Per-display tiling trees, keyed by display screen identifier.
     private var trees: [String: TilingTree] = [:]
     /// Windows manually moved/dragged by the user: released from tiling for the session.
-    private var releasedWindowIDs: Set<CGWindowID> = []
+    private var releasedWindowIDs: Set<CGWindowID> = [] {
+        didSet { releasedCount = releasedWindowIDs.count }
+    }
+    /// Windows the user moved or resized by hand and that tiling now leaves alone (shown in Settings).
+    @Published private(set) var releasedCount = 0
+    /// Latest window records, so a preset/gap/swap change can write real frames without waiting for the next snapshot.
+    private var lastWindows: [WindowID: WindowRecord] = [:]
+    private var lastSnapshot: DockSnapshot?
     /// Last frames set by this engine: used to distinguish engine writes from user drags.
     private var lastAppliedFrames: [CGWindowID: CGRect] = [:]
     /// Re-entrancy guard during AX writes.
@@ -77,13 +84,21 @@ final class TilingEngine: ObservableObject {
 
         if on {
             releasedWindowIDs.removeAll()
-            reapplyLayout()
+            if let snap = lastSnapshot { reconcile(with: snap) } else { reapplyLayout() }
         } else {
             restorePreTilingFrames()
             trees.removeAll()
             releasedWindowIDs.removeAll()
             lastAppliedFrames.removeAll()
         }
+    }
+
+    /// Brings every hand-moved window back under tiling.
+    func retileAll() {
+        guard isEnabled, !releasedWindowIDs.isEmpty else { return }
+        releasedWindowIDs.removeAll()
+        lastAppliedFrames.removeAll()
+        if let snap = lastSnapshot { reconcile(with: snap) }
     }
 
     func setPreset(_ newPreset: TilingLayoutPreset) {
@@ -152,6 +167,8 @@ final class TilingEngine: ObservableObject {
     // MARK: - Snapshot Processing
 
     private func handleSnapshot(_ snapshot: DockSnapshot) {
+        lastWindows = snapshot.windows
+        lastSnapshot = snapshot
         guard isEnabled, !isApplyingLayout else { return }
 
         // Detect user manual moves/resizes: if a window was placed by us but moved by user, release it.
@@ -260,20 +277,7 @@ final class TilingEngine: ObservableObject {
             let workArea = screen.visibleFrame
             let targetFrames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps)
 
-            // Lookup records from cache/running windows
-            var records: [WindowID: WindowRecord] = [:]
-            for winID in tree.allWindowIDs {
-                records[winID] = WindowRecord(
-                    id: winID,
-                    appID: AppID(rawValue: ""),
-                    pid: 0,
-                    bundleIdentifier: nil,
-                    title: "",
-                    bounds: nil,
-                    status: .active
-                )
-            }
-            applyFrames(targetFrames, records: records, primaryMaxY: primaryMaxY)
+            applyFrames(targetFrames, records: lastWindows, primaryMaxY: primaryMaxY)
         }
     }
 
@@ -315,9 +319,6 @@ final class TilingEngine: ObservableObject {
         defer { isApplyingLayout = false }
 
         for (cg, originalCocoa) in preTilingFrames {
-            guard let app = NSWorkspace.shared.runningApplications.first(where: { _ in true }) else { continue }
-            _ = app
-            // Try lookup via cache
             var point = SnapPosition.accessibilityOrigin(of: originalCocoa, primaryMaxY: primaryMaxY)
             var size = originalCocoa.size
             guard let pointVal = AXValueCreate(.cgPoint, &point),
