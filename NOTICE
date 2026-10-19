@@ -87,3 +87,8 @@ This project is derived from and incorporates code from the following works:
 - Description: Reference for the Control Center's system-status reads and the privileged-helper pattern
   (Wi-Fi/Bluetooth/volume/battery, VPN status via SystemConfiguration, Low Power Mode via SMAppService + XPC,
   subprocess `ReadWatchdog` discipline). No Status Trio source is copied.
+
+## vorssaint-utils (Dynamic Island settings)
+- Repository: https://github.com/vorssaint/vorssaint-utils
+- License: GNU General Public License v3.0
+- Description: The island's Behavior, At Rest and Layout settings (open mode, timings, haptics, display choice, low-battery tint, size presets, outline, translucency) follow its Dynamic Island settings design.

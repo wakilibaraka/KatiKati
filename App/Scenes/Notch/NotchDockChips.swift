@@ -6,9 +6,11 @@ struct NotchDockChips: View {
     let metrics: NotchMetrics
     @StateObject private var power = SystemStatusService()
     @State private var free: Int64 = 0
+    @AppStorage(NotchRestContent.defaultsKey) private var rest = NotchRestContent.dockChips.rawValue
 
     var body: some View {
         HStack(spacing: 0) {
+            if rest != NotchRestContent.battery.rawValue {
             HStack(spacing: 3) {
                 Image(systemName: "internaldrive.fill").font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(.cyan)
@@ -19,6 +21,7 @@ struct NotchDockChips: View {
             }
             .frame(width: NotchGeometry.sneakSide - 14, alignment: .leading)
             .accessibilityElement(children: .combine)
+            }
             Spacer(minLength: metrics.closedSize.width - 8)
             if let level = power.status.battery.level {
                 NotchBatteryChip(level: level, battery: power.status.battery)
@@ -44,10 +47,12 @@ struct NotchBatteryChip: View {
     let battery: BatteryStatus
     var scale: CGFloat = 1
     @State private var pulse = false
+    @AppStorage(NotchBehavior.lowBatteryTintKey) private var tintsLow = true
+    @AppStorage(NotchBehavior.lowBatteryThresholdKey) private var threshold = NotchBehavior.defaultLowBatteryThreshold
 
     private var tint: Color {
         if battery.isCharging || (battery.isPluggedIn && level >= 100) { return .green }
-        return level < 20 ? .red : .white
+        return tintsLow && level <= min(NotchBehavior.lowBatteryRange.upperBound, max(NotchBehavior.lowBatteryRange.lowerBound, threshold)) ? .red : .white
     }
 
     var body: some View {

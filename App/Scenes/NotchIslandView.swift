@@ -26,6 +26,8 @@ final class NotchModel: ObservableObject {
     /// Set by the controller: close the notch now (after an action such as opening Settings).
     var collapse: () -> Void = {}
     var openSettings: () -> Void = {}
+    /// Set by the controller: open the notch now (the click-to-open mode).
+    var requestOpen: () -> Void = {}
 
     func stepPage(forward: Bool) {
         let tp = UserDefaults.standard.bool(forKey: TeleprompterModel.enabledKey)
@@ -44,7 +46,10 @@ struct NotchIslandView: View {
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
     @AppStorage(NotificationMirrorService.enabledKey) private var notificationsPage = false
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
+    @AppStorage(NotchRestContent.defaultsKey) private var restContent = NotchRestContent.dockChips.rawValue
     @AppStorage(NotchOpenAnimation.defaultsKey) private var openAnimation = NotchOpenAnimation.boring.rawValue
+    @AppStorage(NotchSizePreset.outlineKey) private var showOutline = false
+    @AppStorage(NotchSizePreset.translucentKey) private var translucent = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// `AppSettingsStore.Keys.themeMaterial`, which is file-private; the key itself is the contract.
     @AppStorage("com.katikati.theme.material") private var themeMaterialToken = DockThemeStyle.auto.token
@@ -94,14 +99,22 @@ struct NotchIslandView: View {
                 bottomCornerRadius: edge.bottom,
                 flaringTopEars: edge.flares
             )
-            .fill(notchTheme.plate.color)
+            .fill(notchTheme.plate.color.opacity(translucent && expanded ? 0.82 : 1))
+            if showOutline {
+                NotchContinuousMaskShape(
+                    topCornerRadius: edge.top,
+                    bottomCornerRadius: edge.bottom,
+                    flaringTopEars: edge.flares
+                )
+                .stroke(Color.white.opacity(0.18), lineWidth: 1)
+            }
             Group {
                 if !expanded {
                     closedContent(activity).padding(.horizontal, 14).transition(Self.closedFade)
                 } else if model.event == nil {
                     // Compact skin: the same pages, laid out at full size and scaled to the smaller panel.
                     let full = NotchGeometry.openSize
-                    let scale = boring ? 1 : NotchGeometry.classicOpenSize.width / full.width
+                    let scale = model.openSize.width / full.width
                     VStack(spacing: 0) {
                         NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
                             .transition(openTransition(style))
@@ -118,6 +131,7 @@ struct NotchIslandView: View {
         }
         .frame(width: size.width, height: size.height, alignment: .top)
         .contentShape(Rectangle())
+        .onTapGesture { if !expanded { model.requestOpen() } }
         .contextMenu {
             Section {
                 ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage,
@@ -181,7 +195,9 @@ struct NotchIslandView: View {
     // MARK: Closed — glyph left of the notch, value right of it
 
     private func closedContent(_ activity: LiveActivity) -> some View {
-        if activity.kind == .clock { return AnyView(NotchDockChips(metrics: metrics)) }
+        if activity.kind == .clock {
+            return restContent == NotchRestContent.nothing.rawValue ? AnyView(Color.clear) : AnyView(NotchDockChips(metrics: metrics))
+        }
         return AnyView(activityContent(activity))
     }
 

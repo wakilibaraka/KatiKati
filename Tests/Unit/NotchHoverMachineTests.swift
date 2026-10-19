@@ -68,4 +68,17 @@ final class NotchHoverMachineTests: XCTestCase {
         XCTAssertTrue(NotchHoverZones.keepOpen(openFrame: open).contains(CGPoint(x: 595, y: 930)))
         XCTAssertFalse(NotchHoverZones.keepOpen(openFrame: open).contains(CGPoint(x: 560, y: 930)))
     }
+
+    func testBehaviorDefaultsAndClamping() {
+        let d = UserDefaults(suiteName: "NotchBehaviorTests")!
+        d.removePersistentDomain(forName: "NotchBehaviorTests")
+        XCTAssertEqual(NotchOpenMode.current(d), .hover)
+        XCTAssertEqual(NotchBehavior.hoverDelay(d), 0.12)
+        d.set(99.0, forKey: NotchBehavior.hoverDelayKey)
+        d.set(0.0, forKey: NotchBehavior.closeDelayKey)
+        d.set("bogus", forKey: NotchOpenMode.defaultsKey)
+        XCTAssertEqual(NotchBehavior.hoverDelay(d), 1.0)
+        XCTAssertEqual(NotchBehavior.closeDelay(d), 0.10)
+        XCTAssertEqual(NotchOpenMode.current(d), .hover)
+    }
 }

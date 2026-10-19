@@ -49,3 +49,4 @@ Docs/Archive/Engineering/
 Docs/Archive/Samples/
 *.log
 .freebuff/
+graphify-out/

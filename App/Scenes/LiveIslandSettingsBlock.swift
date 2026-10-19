@@ -54,6 +54,9 @@ struct LiveIslandSettingsBlock: View {
             )
             .help(Text("Also show Live Island alerts as macOS notifications."))
         }
+        NotchLayoutCard()
+        NotchBehaviorCard()
+        NotchActivityCard()
     }
 
     private static func title(for route: LiveEventRoute) -> Text {
@@ -145,6 +148,157 @@ private struct NotchAnimationDemo: View {
         case .pour: return .scale(scale: 0.92, anchor: .top).combined(with: .opacity)
         case .drop: return .opacity.combined(with: .offset(y: -6))
         case .pop: return .scale(scale: 0.85, anchor: .top).combined(with: .opacity)
+        }
+    }
+}
+
+/// Opening behavior, timings, haptics and display, after vorssaint-utils' Behavior tab. Copy is verbatim
+/// (not localized yet), like the Open Animation picker above.
+private struct NotchBehaviorCard: View {
+    @AppStorage(NotchOpenMode.defaultsKey) private var mode = NotchOpenMode.hover.rawValue
+    @AppStorage(NotchBehavior.hoverDelayKey) private var hoverDelay = NotchBehavior.defaultHoverDelay
+    @AppStorage(NotchBehavior.closeDelayKey) private var closeDelay = NotchBehavior.defaultCloseDelay
+    @AppStorage(NotchBehavior.hapticKey) private var haptic = true
+    @AppStorage(NotchDisplayChoice.defaultsKey) private var display = NotchDisplayChoice.automatic.rawValue
+
+    var body: some View {
+        SettingsCard(Text(verbatim: "Island Behavior")) {
+            SettingsRow(Text(verbatim: "Opening")) {
+                Picker(selection: $mode) {
+                    Text(verbatim: "Expand on hover").tag(NotchOpenMode.hover.rawValue)
+                    Text(verbatim: "Click to open").tag(NotchOpenMode.click.rawValue)
+                } label: { Text(verbatim: "Opening") }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            if mode == NotchOpenMode.hover.rawValue {
+                SettingsDivider()
+                delay("Activation time", "Keep the pointer over the island for this long to open it.",
+                      $hoverDelay, NotchBehavior.hoverDelayRange)
+            }
+            SettingsDivider()
+            delay("Closing time", "Wait this long after the pointer leaves the island before closing it.",
+                  $closeDelay, NotchBehavior.closeDelayRange)
+            SettingsDivider()
+            SettingsToggleRow(Text(verbatim: "Haptic feedback"), isOn: $haptic)
+            SettingsDivider()
+            SettingsRow(Text(verbatim: "Display")) {
+                Picker(selection: $display) {
+                    Text(verbatim: "Automatic").tag(NotchDisplayChoice.automatic.rawValue)
+                    Text(verbatim: "Built-in display").tag(NotchDisplayChoice.builtIn.rawValue)
+                    Text(verbatim: "Main display").tag(NotchDisplayChoice.main.rawValue)
+                } label: { Text(verbatim: "Display") }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+        }
+    }
+
+    private func delay(_ title: String, _ hint: String, _ value: Binding<Double>, _ range: ClosedRange<Double>) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(verbatim: title).font(.system(size: 13))
+                Spacer()
+                Text(verbatim: String(format: "%.2f s", value.wrappedValue)).monospacedDigit().foregroundStyle(.secondary)
+            }
+            Slider(value: value, in: range, step: 0.05) { Text(verbatim: title) }.labelsHidden()
+            Text(verbatim: hint).font(.caption).foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+/// What the closed island shows at rest, and when the charge turns red (vorssaint-utils' Activity tab,
+/// the parts KatiKati has data for; indicators and Lock Screen are not ported).
+private struct NotchActivityCard: View {
+    @AppStorage(NotchRestContent.defaultsKey) private var rest = NotchRestContent.dockChips.rawValue
+    @AppStorage(NotchBehavior.lowBatteryTintKey) private var tintsLow = true
+    @AppStorage(NotchBehavior.lowBatteryThresholdKey) private var threshold = NotchBehavior.defaultLowBatteryThreshold
+
+    var body: some View {
+        SettingsCard(Text(verbatim: "Island At Rest")) {
+            HStack(spacing: 8) {
+                choice(.dockChips, "Storage & battery", "internaldrive")
+                choice(.battery, "Battery", "battery.75percent")
+                choice(.nothing, "Nothing", "minus")
+            }
+            .padding(.vertical, 4)
+            SettingsDivider()
+            SettingsToggleRow(Text(verbatim: "Turn red when low"), isOn: $tintsLow)
+            if tintsLow {
+                SettingsDivider()
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(verbatim: "Low level").font(.system(size: 13))
+                        Spacer()
+                        Text(verbatim: "\(threshold)%").monospacedDigit().foregroundStyle(.secondary)
+                    }
+                    Slider(value: Binding(get: { Double(threshold) }, set: { threshold = Int($0.rounded()) }),
+                           in: Double(NotchBehavior.lowBatteryRange.lowerBound)...Double(NotchBehavior.lowBatteryRange.upperBound),
+                           step: 1) { Text(verbatim: "Low level") }.labelsHidden()
+                    Text(verbatim: "Shows the charge in red at or below this level while on battery.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                .padding(.vertical, 4)
+            }
+        }
+    }
+
+    private func choice(_ value: NotchRestContent, _ title: String, _ symbol: String) -> some View {
+        let selected = rest == value.rawValue
+        return Button { rest = value.rawValue } label: {
+            VStack(spacing: 6) {
+                Image(systemName: symbol).font(.system(size: 18, weight: .medium))
+                Text(verbatim: title).font(.system(size: 11, weight: .semibold))
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(selected ? 0.1 : 0.04)))
+            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.accentColor, lineWidth: selected ? 2 : 0))
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+}
+
+/// Open-panel size, translucency and outline (vorssaint-utils' Layout tab, the parts that map onto
+/// KatiKati's scaled pages; notch/camera fit and the capsule silhouette are not ported).
+private struct NotchLayoutCard: View {
+    @AppStorage(NotchSizePreset.defaultsKey) private var preset = NotchSizePreset.standard.rawValue
+    @AppStorage(NotchSizePreset.customScaleKey) private var customScale = 1.0
+    @AppStorage(NotchSizePreset.outlineKey) private var outline = false
+    @AppStorage(NotchSizePreset.translucentKey) private var translucent = false
+
+    var body: some View {
+        SettingsCard(Text(verbatim: "Island Layout")) {
+            HStack(spacing: 8) {
+                ForEach(NotchSizePreset.allCases, id: \.rawValue) { item in
+                    Button { preset = item.rawValue } label: {
+                        Text(verbatim: item.rawValue.capitalized)
+                            .frame(maxWidth: .infinity).padding(.vertical, 8)
+                            .background(RoundedRectangle(cornerRadius: 8)
+                                .fill(preset == item.rawValue ? Color.accentColor.opacity(0.25) : Color.primary.opacity(0.06)))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(preset == item.rawValue ? .isSelected : [])
+                }
+            }
+            .padding(.vertical, 4)
+            if preset == NotchSizePreset.custom.rawValue {
+                SettingsDivider()
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(verbatim: "Size").font(.system(size: 13))
+                        Spacer()
+                        Text(verbatim: "\(Int((customScale * 100).rounded()))%").monospacedDigit().foregroundStyle(.secondary)
+                    }
+                    Slider(value: $customScale, in: NotchSizePreset.customScaleRange, step: 0.05) { Text(verbatim: "Size") }
+                        .labelsHidden()
+                }
+                .padding(.vertical, 4)
+            }
+            SettingsDivider()
+            SettingsToggleRow(Text(verbatim: "Translucent background"), isOn: $translucent)
+            SettingsDivider()
+            SettingsToggleRow(Text(verbatim: "Show outline"), isOn: $outline)
         }
     }
 }

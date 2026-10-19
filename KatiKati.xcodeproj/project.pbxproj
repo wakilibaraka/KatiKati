@@ -188,7 +188,9 @@
 		7B5000000000000000003612 /* ShelfItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003611 /* ShelfItem.swift */; };
 		7B5000000000000000003512 /* NotchHoverMachineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003511 /* NotchHoverMachineTests.swift */; };
 		7B5000000000000000003413 /* NotchHoverMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003411 /* NotchHoverMachine.swift */; };
+		A00000000000000000B1E00002 /* NotchBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000B1E00000 /* NotchBehavior.swift */; };
 		7B5000000000000000003412 /* NotchHoverMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003411 /* NotchHoverMachine.swift */; };
+		A00000000000000000B1E00001 /* NotchBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000B1E00000 /* NotchBehavior.swift */; };
 		7B5000000000000000003312 /* NativeDockRestoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003311 /* NativeDockRestoreTests.swift */; };
 		7B5000000000000000003242 /* NotchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003241 /* NotchHomeView.swift */; };
 		7B5000000000000000003232 /* NotchCalendarPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003231 /* NotchCalendarPanel.swift */; };
@@ -1234,6 +1236,7 @@
 		7B5000000000000000003611 /* ShelfItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfItem.swift; path = Core/Support/ShelfItem.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003511 /* NotchHoverMachineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchHoverMachineTests.swift; path = Tests/Unit/NotchHoverMachineTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003411 /* NotchHoverMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchHoverMachine.swift; path = Core/Support/NotchHoverMachine.swift; sourceTree = SOURCE_ROOT; };
+		A00000000000000000B1E00000 /* NotchBehavior.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchBehavior.swift; path = Core/Support/NotchBehavior.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003311 /* NativeDockRestoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NativeDockRestoreTests.swift; path = Tests/Unit/NativeDockRestoreTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003241 /* NotchHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchHomeView.swift; path = App/Scenes/Notch/NotchHomeView.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003231 /* NotchCalendarPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchCalendarPanel.swift; path = App/Scenes/Notch/NotchCalendarPanel.swift; sourceTree = SOURCE_ROOT; };
@@ -3206,6 +3209,7 @@
 				7B5000000000000000003812 /* ShakeDetector.swift in Sources */,
 				7B5000000000000000003612 /* ShelfItem.swift in Sources */,
 				7B5000000000000000003412 /* NotchHoverMachine.swift in Sources */,
+				A00000000000000000B1E00001 /* NotchBehavior.swift in Sources */,
 				7B5000000000000000003242 /* NotchHomeView.swift in Sources */,
 				7B5000000000000000003232 /* NotchCalendarPanel.swift in Sources */,
 				7B5000000000000000003222 /* NotchMusicPanel.swift in Sources */,
@@ -3332,6 +3336,7 @@
 				7B5000000000000000003813 /* ShakeDetector.swift in Sources */,
 				7B5000000000000000003613 /* ShelfItem.swift in Sources */,
 				7B5000000000000000003413 /* NotchHoverMachine.swift in Sources */,
+				A00000000000000000B1E00002 /* NotchBehavior.swift in Sources */,
 				7B5000000000000000003013 /* NotchLayoutSpec.swift in Sources */,
 				FB41A00000000000000E03 /* NotchPreview.swift in Sources */,
 				7B500000000000000000010B /* NowPlayingProgress.swift in Sources */,

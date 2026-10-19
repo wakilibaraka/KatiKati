@@ -48,6 +48,7 @@ final class NotchPanelController: LiveEventSink {
         model.skin = skin
         model.collapse = { [weak self] in self?.collapse() }
         model.openSettings = { [weak self] in self?.onOpenSettings() }
+        model.requestOpen = { [weak self] in self?.openByClick() }
         syncModelSizes()
         let window = BoringNotchWindow(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         window.collectionBehavior.remove(.fullScreenAuxiliary)
@@ -63,6 +64,16 @@ final class NotchPanelController: LiveEventSink {
         model.$event.map { $0 != nil }.removeDuplicates().sink { [weak self] _ in self?.syncWindow() }.store(in: &cancellables)
         NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
             .sink { [weak self] _ in self?.screensChanged() }.store(in: &cancellables)
+        // The display choice applies live; re-fit only when it actually points at another screen.
+        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                let scale = NotchSizePreset.current()
+                if scale != self.lastSizeScale { self.lastSizeScale = scale; self.syncModelSizes(); self.syncWindow(immediate: true) }
+                guard let screen = self.targetScreen(), screen.frame != self.panel?.screen?.frame else { return }
+                self.panel?.setFrame(self.windowFrame(on: screen), display: true)
+                self.screensChanged()
+            }.store(in: &cancellables)
     }
 
     private func hide() {
@@ -117,11 +128,15 @@ final class NotchPanelController: LiveEventSink {
         let closed = NotchGeometry.panelFrame(size: model.closedSize, in: screen.frame)
         let open = NotchGeometry.panelFrame(size: model.openSize, in: screen.frame)
         let inTrigger = NotchHoverZones.trigger(closedFrame: closed).contains(cursor)
+        hover.openDelay = NotchBehavior.hoverDelay()
+        hover.closeDelay = NotchBehavior.closeDelay()
+        // Click mode: hovering never opens it (a click does, via `openByClick`); an open panel still closes on leave.
+        let opensOnHover = NotchOpenMode.current() == .hover
         let inKeepOpen = NotchHoverZones.keepOpen(openFrame: open).contains(cursor)
         // A drag that began inside the open panel (volume slider) keeps it open even if the cursor leaves.
         let dragging = hover.isOpen && NSEvent.pressedMouseButtons & 1 != 0
         let wasOpen = hover.isOpen
-        hover.update(inTrigger: inTrigger, inKeepOpen: inKeepOpen, pinned: dragging || model.event != nil, now: now)
+        hover.update(inTrigger: inTrigger && opensOnHover, inKeepOpen: inKeepOpen, pinned: dragging || model.event != nil, now: now)
         if hover.isOpen != wasOpen { applyOpenState() }
         // Poll only while it matters: pointer near the notch, open, or a dwell/grace timer pending.
         if !hover.isOpen, !inTrigger, hover.nextDeadline == nil { stopHoverPolling() }
@@ -139,6 +154,7 @@ final class NotchPanelController: LiveEventSink {
 
     private func applyOpenState() {
         if hover.isOpen && !model.isOpen {
+            if NotchBehavior.haptic() { NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now) }
             let nowPlaying = LiveActivityFeed.shared.activity.kind == .music
             model.activePage = NotchPagingPolicy.defaultPage(
                 nowPlayingActive: nowPlaying,
@@ -169,6 +185,13 @@ final class NotchPanelController: LiveEventSink {
         startHoverPolling()
     }
 
+    private func openByClick() {
+        guard panel != nil else { return }
+        hover.forceOpen()
+        applyOpenState()
+        startHoverPolling()
+    }
+
     func collapse() {
         hover.forceClose()
         model.isOpen = false
@@ -179,7 +202,11 @@ final class NotchPanelController: LiveEventSink {
     // MARK: geometry
 
     private func targetScreen() -> NSScreen? {
-        NSScreen.screens.first(where: { $0.safeAreaInsets.top > 0 }) ?? NSScreen.main
+        let builtIn = NSScreen.screens.first(where: { $0.safeAreaInsets.top > 0 })
+        switch NotchDisplayChoice.current() {
+        case .main: return NSScreen.screens.first ?? NSScreen.main
+        case .builtIn, .automatic: return builtIn ?? NSScreen.main
+        }
     }
 
     private static func metrics(for screen: NSScreen) -> NotchMetrics {
@@ -205,12 +232,16 @@ final class NotchPanelController: LiveEventSink {
     }
 
     /// Shape sizes the view animates between.
+    private var lastSizeScale = NotchSizePreset.current()
+
     private func syncModelSizes() {
         // Always wide: when nothing is live the two sides carry the dock chips (storage left, battery right).
         let showsActivity = true
         let screenWidth = targetScreen()?.frame.width ?? 1440
         model.closedSize = NotchGeometry.closedCapsuleSize(metrics, showsActivity: showsActivity)
-        model.openSize = NotchLayoutSpec.fit(NotchGeometry.openSize(for: skin), screenWidth: screenWidth, closedWidth: metrics.closedSize.width)
+        let base = NotchGeometry.openSize(for: skin)
+        let scaled = CGSize(width: base.width * NotchSizePreset.current(), height: base.height * NotchSizePreset.current())
+        model.openSize = NotchLayoutSpec.fit(scaled, screenWidth: screenWidth, closedWidth: metrics.closedSize.width)
     }
 
     /// The window is as large as the larger of the shapes involved: it grows at once (so the shape never
