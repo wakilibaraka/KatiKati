@@ -10,27 +10,51 @@ struct NotchMirrorPageView: View {
     @ObservedObject private var mirror = CameraMirrorService.shared
 
     var body: some View {
-        VStack(spacing: 8) {
-            header
+        HStack(spacing: NotchDesignSpec.cardSpacing) {
+            clockCard
+            MeetingControlsCard()
             content
+                .aspectRatio(1, contentMode: .fit)
         }
-        .padding(NotchDesignSpec.cardPadding)
-        .background(
-            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
-        )
         .onAppear { mirror.start() }
         .onDisappear { mirror.stop() }
     }
 
-    /// The camera in use on the left, the picker on the right: one row, so the preview keeps the height.
+    /// Time and date on the left (the rail tile's 12/24-hour rule), with the camera name and picker below.
+    private var clockCard: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            TimelineView(.periodic(from: ClockTick.nextMinute(after: Date()), by: 60)) { context in
+                let parts = RailClockTile.hourMinute(context.date)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(verbatim: "\(parts.hour):\(parts.minute)")
+                        .font(.system(size: 44, weight: .semibold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(.white)
+                        .lineLimit(1).minimumScaleFactor(0.6)
+                    Text(verbatim: context.date.formatted(.dateTime.weekday(.wide).day().month(.abbreviated)))
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.6))
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 0)
+            header
+        }
+        .padding(NotchDesignSpec.cardPadding)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(
+            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
+        )
+    }
+
+    /// The camera in use, with the picker beside it.
     private var header: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             Image(systemName: "camera.viewfinder")
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.85))
             Text(verbatim: currentName)
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
                 .foregroundStyle(.white)
                 .lineLimit(1)
             Spacer(minLength: 0)
@@ -42,16 +66,14 @@ struct NotchMirrorPageView: View {
                         Button(device.name) { mirror.select(device.id) }
                     }
                 } label: {
-                    HStack(spacing: 4) {
-                        Text("Choose Camera").font(.system(size: 11, weight: .medium))
-                        Image(systemName: "chevron.up.chevron.down").font(.system(size: 9, weight: .semibold))
-                    }
-                    .padding(.horizontal, 8).padding(.vertical, 3)
-                    .background(Capsule().fill(Color.white.opacity(0.14)))
-                    .foregroundStyle(.white)
+                    Image(systemName: "chevron.up.chevron.down").font(.system(size: 9, weight: .semibold))
+                        .padding(.horizontal, 7).padding(.vertical, 4)
+                        .background(Capsule().fill(Color.white.opacity(0.14)))
+                        .foregroundStyle(.white)
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()
+                .accessibilityLabel(Text("Choose Camera"))
             }
         }
     }
@@ -96,6 +118,84 @@ struct NotchMirrorPageView: View {
 
     private var currentName: String {
         mirror.devices.first { $0.id == mirror.selection }?.name ?? String(localized: "System Default")
+    }
+}
+
+/// The middle pane: what you reach for in a Zoom or Meet call — mute, which mic and speaker, screen brightness.
+private struct MeetingControlsCard: View {
+    @ObservedObject private var toggles = QuickToggleEngine.shared
+    @State private var inputs: [AudioOutputDevice] = []
+    @State private var brightness: Double?
+
+    private var muted: Bool { toggles.states[.muteMic] ?? false }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button { toggles.perform(.muteMic) } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: muted ? "mic.slash.fill" : "mic.fill")
+                    Text(muted ? "Unmute" : "Mute")
+                }
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .frame(maxWidth: .infinity).padding(.vertical, 6)
+                .background(Capsule().fill(muted ? Color.red.opacity(0.85) : Color.white.opacity(0.14)))
+                .foregroundStyle(.white)
+            }
+            .buttonStyle(.plain)
+            micPicker
+            AudioOutputMenu {
+                row("speaker.wave.2.fill", Text("Audio Output"))
+            }
+            if let level = brightness {
+                HStack(spacing: 6) {
+                    Image(systemName: "sun.max.fill").font(.system(size: 10)).foregroundStyle(.white.opacity(0.7))
+                    Slider(value: Binding(get: { level }, set: { brightness = $0; DisplayServicesBrightness.set($0) }), in: 0.05...1)
+                        .controlSize(.mini)
+                        .accessibilityLabel(Text(verbatim: "Brightness"))
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(NotchDesignSpec.cardPadding)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(
+            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
+        )
+        .onAppear {
+            toggles.refresh()
+            inputs = AudioOutputSwitcher.devices(input: true)
+            brightness = DisplayServicesBrightness.current()
+        }
+    }
+
+    private var micPicker: some View {
+        Menu {
+            ForEach(inputs) { device in
+                Button {
+                    AudioOutputSwitcher.setDefault(device.id, input: true)
+                    inputs = AudioOutputSwitcher.devices(input: true)
+                } label: {
+                    if device.isDefault { Label(device.name, systemImage: "checkmark") } else { Text(verbatim: device.name) }
+                }
+            }
+        } label: {
+            row("waveform", Text(verbatim: inputs.first { $0.isDefault }?.name ?? "Microphone"))
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func row(_ symbol: String, _ title: Text) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: symbol).font(.system(size: 10)).foregroundStyle(.white.opacity(0.7)).frame(width: 14)
+            title.font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(.white).lineLimit(1)
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.up.chevron.down").font(.system(size: 8, weight: .semibold)).foregroundStyle(.white.opacity(0.5))
+        }
+        .padding(.horizontal, 8).padding(.vertical, 4)
+        .background(Capsule().fill(Color.white.opacity(0.08)))
     }
 }
 
