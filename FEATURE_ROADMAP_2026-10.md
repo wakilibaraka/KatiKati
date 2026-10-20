@@ -343,7 +343,7 @@ checkers are recorded there too. The live recipes are still owed.
 | ID | Slice | Seam / files | Key / permission | Est. | Done when |
 |---|---|---|---|---|---|
 | 50a | **Done 2026-10-21** (5 tests; app layer not wired, 50c does that). Pure `ArtworkAccent`: reduce an artwork's average colour to a readable accent (clamp saturation/contrast, fallback to theme) | Core `ArtworkAccent.swift` + test; pixel read stays in the app layer | none | ~90 | table test incl. near-black, near-white, grey art |
-| 50b | `NowPlayingTapPolicy`: tap vs double-tap → {play/pause, open player, open source app} | Core pure + test; wire in the chip | `com.katikati.nowplaying.tapAction` | ~120 | policy table-tested; chip honours the setting |
+| 50b | `NowPlayingTapPolicy`: tap vs double-tap → {play/pause, open player, open source app} | Core pure + test; wire in the chip | `com.katikati.nowplaying.tapAction` | ~120 | policy table-tested; chip honours the setting. **Done 2026-10-21** (default click = play/pause, double-click = player; single click waits the double-click interval) |
 | 50c | Accent on the dock chip + progress ring (reuse `NowPlayingProgress`) | `NowPlayingChip` files | none | ~100 | owner screenshot |
 | 50d | Notch: artwork glow on the right ear; drop the song text from the collapsed notch | depends on 51b | `com.katikati.notch.musicGlow` | ~150 | owner screenshot; Reduce Motion path |
 | 50e | `NowPlayingToastPolicy` + compact toast on track change while collapsed | Core pure + test; `NotchMusicPanel` | `com.katikati.notch.trackToast` | ~160 | shown once per track; suppressed in fullscreen/Do Not Disturb (verify how existing code reads those) |

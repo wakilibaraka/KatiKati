@@ -37,6 +37,13 @@ struct WidgetLookSettingsBlock: View {
                     right: { SettingsRow(Text("Glass")) { GlassTilesToggle().accessibilityLabel(Text("Glass")) } }
                 )
                 SettingsDivider()
+                SettingsRow(Text("Now Playing Click")) {
+                    Picker("Now Playing Click", selection: $store.nowPlayingTapPreset) {
+                        ForEach(NowPlayingTapPreset.allCases, id: \.self) { Text($0.displayTitle) }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                SettingsDivider()
                 SettingsRowPair(
                     left: {
                         SettingsRow(Text("Now Playing Theme")) {

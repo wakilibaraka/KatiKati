@@ -25,6 +25,16 @@ enum AppearanceMode: String, CaseIterable {
     }
 }
 
+extension NowPlayingTapPreset {
+    var displayTitle: String {
+        switch self {
+        case .playPauseThenPlayer: return String(localized: "Click: play/pause, double-click: open player")
+        case .playerThenPlayPause: return String(localized: "Click: open player, double-click: play/pause")
+        case .sourceAppThenPlayPause: return String(localized: "Click: open source app, double-click: play/pause")
+        }
+    }
+}
+
 enum NowPlayingTheme: String, CaseIterable {
     case auto
     case light
@@ -140,7 +150,15 @@ final class AppSettingsStore: ObservableObject {
             }
         }
     }
-    
+    /// Single/double-click behaviour of the Now Playing chip (roadmap 50b).
+    @Published var nowPlayingTapPreset: NowPlayingTapPreset {
+        didSet {
+            if nowPlayingTapPreset != oldValue {
+                UserDefaults.standard.set(nowPlayingTapPreset.rawValue, forKey: Keys.nowPlayingTapAction)
+            }
+        }
+    }
+
     @Published private(set) var showTrash: Bool
     /// Live Island on the dock capsule (default ON — today's behaviour).
     @Published private(set) var dockIslandEnabled: Bool
@@ -385,6 +403,7 @@ final class AppSettingsStore: ObservableObject {
         drawerPlacement = DrawerPlacement(rawValue: defaults.string(forKey: Keys.drawerPlacement) ?? "") ?? .right
         showShelf = defaults.bool(forKey: Keys.showShelf)
         nowPlayingTheme = NowPlayingTheme(rawValue: defaults.string(forKey: Keys.nowPlayingTheme) ?? "") ?? .auto
+        nowPlayingTapPreset = NowPlayingTapPreset(rawValue: defaults.string(forKey: Keys.nowPlayingTapAction) ?? "") ?? .default
         showTrash = defaults.bool(forKey: Keys.showTrash)
         dockIslandEnabled = defaults.bool(forKey: Keys.dockIslandEnabled)
         notchIslandEnabled = defaults.bool(forKey: Keys.notchIslandEnabled)
@@ -1443,6 +1462,7 @@ private enum Keys {
     // Never read the retired com.katikati.trash.visible key.
     static let showTrash = "com.katikati.showTrash"
     static let nowPlayingTheme = "com.katikati.nowPlayingTheme"
+    static let nowPlayingTapAction = "com.katikati.nowplaying.tapAction"
     static let dockIslandEnabled = "com.katikati.liveIsland.dock"
     static let notchIslandEnabled = "com.katikati.liveIsland.notch"
     static let notchSkin = "com.katikati.liveIsland.notchSkin"

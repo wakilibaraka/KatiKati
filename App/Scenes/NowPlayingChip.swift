@@ -51,6 +51,21 @@ public struct NowPlayingChip: View {
     }
 }
 
+/// Runs the preset's action for a click on either Now Playing chip.
+@MainActor
+enum NowPlayingTapRunner {
+    static func run(_ taps: Int, preset: NowPlayingTapPreset, state: NowPlayingState?, feed: LiveActivityFeed, popup: Binding<Bool>) {
+        switch preset.action(forTaps: taps) {
+        case .playPause: feed.togglePlayPause()
+        case .openPlayer: popup.wrappedValue.toggle()
+        case .openSourceApp:
+            if let id = state?.bundleIdentifier, let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) {
+                NSWorkspace.shared.openApplication(at: url, configuration: .init())
+            }
+        }
+    }
+}
+
 /// Phase 49 (owner: "Compact vertical tile"): on a vertical rail the wide horizontal media card is
 /// replaced by a 40 × 40 compact tile wearing the shared `DockTileChrome` — album artwork or turntable
 /// disc with a subtle transport badge on hover, tapping to open `NowPlayingPopup`.
@@ -59,6 +74,10 @@ struct RailMediaTile: View {
     @EnvironmentObject var settingsStore: AppSettingsStore
     @State private var isHovered = false
     @State private var showPopup = false
+
+    private func handleTap(_ taps: Int, state: NowPlayingState?) {
+        NowPlayingTapRunner.run(taps, preset: settingsStore.nowPlayingTapPreset, state: state, feed: feed, popup: $showPopup)
+    }
 
     var body: some View {
         let state = feed.nowPlayingState
@@ -106,7 +125,8 @@ struct RailMediaTile: View {
         .dockTileChrome(isHovered: isHovered)
         .contentShape(Rectangle())
         .onHover { isHovered = $0 }
-        .onTapGesture { showPopup.toggle() }
+        .onTapGesture(count: 2) { handleTap(2, state: state) }
+        .onTapGesture { handleTap(1, state: state) }
         .onAppear { feed.retain() }
         .onDisappear { feed.release() }
         .help(Text(verbatim: title))
@@ -170,7 +190,8 @@ struct LiveIslandDockCapsule: View {
         )
         .contentShape(Rectangle())
         .onHover { isHovering = $0 }
-        .onTapGesture { tap(for: activity) }
+        .onTapGesture(count: 2) { tap(for: activity, taps: 2) }
+        .onTapGesture { tap(for: activity, taps: 1) }
         .onAppear { feed.retain() }
         .onDisappear { feed.release() }
         .help(helpText(for: activity))
@@ -314,8 +335,12 @@ struct LiveIslandDockCapsule: View {
     /// The one affordance this slice ships: while a track is winning, tapping opens the music popup
     /// (theme / album art / transport — unchanged from the pre-8b chip). Every other kind is
     /// display-only; its controls live in its own surface.
-    private func tap(for activity: LiveActivity) {
-        if case .music = activity.content { showPopup.toggle() }
+    private func tap(for activity: LiveActivity, taps: Int) {
+        if case .music = activity.content { handleTap(taps, state: feed.nowPlayingState) }
+    }
+
+    private func handleTap(_ taps: Int, state: NowPlayingState?) {
+        NowPlayingTapRunner.run(taps, preset: settingsStore.nowPlayingTapPreset, state: state, feed: feed, popup: $showPopup)
     }
 
     private func helpText(for activity: LiveActivity) -> String {
