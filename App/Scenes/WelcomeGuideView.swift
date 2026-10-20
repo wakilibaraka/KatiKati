@@ -190,11 +190,11 @@ struct WelcomeGuideView: View {
             PermissionRow(title: Text("Screen Recording"),
                           note: Text("Shows live window thumbnails in hover previews. Without it, previews show titles only."),
                           isGranted: screenRecordingGranted,
-                          grant: { _ = CGRequestScreenCaptureAccess(); AgendaPane.openPrivacy("Privacy_ScreenCapture") })
+                          grant: { _ = CGRequestScreenCaptureAccess(); PermissionRow.openPrivacy("Privacy_ScreenCapture") })
             PermissionRow(title: Text("Input Monitoring"),
                           note: Text("Only for the optional Hyper key. Skip it if you won’t use that."),
                           isGranted: inputMonitoringGranted,
-                          grant: { _ = CGRequestListenEventAccess(); AgendaPane.openPrivacy("Privacy_ListenEvent") })
+                          grant: { _ = CGRequestListenEventAccess(); PermissionRow.openPrivacy("Privacy_ListenEvent") })
             Spacer(minLength: 0)
             Divider()
             HStack(spacing: 8) {
@@ -286,6 +286,11 @@ struct PermissionRow: View {
     let note: Text
     let isGranted: Bool
     let grant: () -> Void
+
+    /// A denied permission can't re-prompt, so Grant also sends the user to its Privacy pane.
+    static func openPrivacy(_ pane: String) {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?\(pane)") { NSWorkspace.shared.open(url) }
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
