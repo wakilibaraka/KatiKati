@@ -1005,6 +1005,8 @@
 		ED00000000000000000000FC /* LauncherPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000FB /* LauncherPanelController.swift */; };
 		EE0000000000000000000002 /* CalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000001 /* CalculatorEngine.swift */; };
 		EE0000000000000000000003 /* CalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000001 /* CalculatorEngine.swift */; };
+		AA0100000000000000000002 /* QuickAddState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0100000000000000000001 /* QuickAddState.swift */; };
+		AA0100000000000000000003 /* QuickAddState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0100000000000000000001 /* QuickAddState.swift */; };
 		EE0000000000000000000005 /* CalculatorEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000004 /* CalculatorEngineTests.swift */; };
 		EE0000000000000000000009 /* LauncherLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000008 /* LauncherLayout.swift */; };
 		EE000000000000000000000A /* LauncherLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000008 /* LauncherLayout.swift */; };
@@ -1094,7 +1096,6 @@
 		C47000000000000000000005 /* CameraMirrorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000004 /* CameraMirrorService.swift */; };
 		C47000000000000000000006 /* CameraMirrorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000004 /* CameraMirrorService.swift */; };
 		C47000000000000000000008 /* NotchMirrorPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000007 /* NotchMirrorPageView.swift */; };
-		C47000000000000000000009 /* NotchMirrorPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000007 /* NotchMirrorPageView.swift */; };
 		C4700000000000000000000B /* CameraMirrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4700000000000000000000A /* CameraMirrorTests.swift */; };
 		C4700000000000000000000D /* MirroredNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4700000000000000000000C /* MirroredNotification.swift */; };
 		C4700000000000000000000E /* MirroredNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4700000000000000000000C /* MirroredNotification.swift */; };
@@ -1807,6 +1808,7 @@
 		ED00000000000000000000F9 /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherView.swift; path = App/Scenes/LauncherView.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000FB /* LauncherPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherPanelController.swift; path = App/Entry/LauncherPanelController.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000001 /* CalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalculatorEngine.swift; path = Core/Support/CalculatorEngine.swift; sourceTree = SOURCE_ROOT; };
+		AA0100000000000000000001 /* QuickAddState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickAddState.swift; path = Core/Support/QuickAddState.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000004 /* CalculatorEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalculatorEngineTests.swift; path = Tests/Unit/CalculatorEngineTests.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000008 /* LauncherLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherLayout.swift; path = Core/Support/LauncherLayout.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000000B /* LauncherLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherLayoutTests.swift; path = Tests/Unit/LauncherLayoutTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3060,6 +3062,7 @@
 				EE000000000000000000000E /* LauncherAppearance.swift in Sources */,
 				EE0000000000000000000009 /* LauncherLayout.swift in Sources */,
 				EE0000000000000000000002 /* CalculatorEngine.swift in Sources */,
+				AA0100000000000000000002 /* QuickAddState.swift in Sources */,
 				ED00000000000000000000FA /* LauncherView.swift in Sources */,
 				ED00000000000000000000FC /* LauncherPanelController.swift in Sources */,
 				ED00000000000000000000F2 /* LauncherIndexer.swift in Sources */,
@@ -3378,6 +3381,7 @@
 				EE000000000000000000000A /* LauncherLayout.swift in Sources */,
 				EE000000000000000000000C /* LauncherLayoutTests.swift in Sources */,
 				EE0000000000000000000003 /* CalculatorEngine.swift in Sources */,
+				AA0100000000000000000003 /* QuickAddState.swift in Sources */,
 				EE0000000000000000000005 /* CalculatorEngineTests.swift in Sources */,
 				EE0000000000000000000016 /* LauncherIconView.swift in Sources */,
 				ED00000000000000000000F5 /* LauncherStore.swift in Sources */,
@@ -3836,7 +3840,6 @@
 				D43D4279B595929A4591022B /* WeatherResponseParsingTests.swift in Sources */,
 				C47000000000000000000002 /* CameraMirrorRules.swift in Sources */,
 				C47000000000000000000005 /* CameraMirrorService.swift in Sources */,
-				C47000000000000000000009 /* NotchMirrorPageView.swift in Sources */,
 				C4700000000000000000000B /* CameraMirrorTests.swift in Sources */,
 				C4700000000000000000000D /* MirroredNotification.swift in Sources */,
 				C47000000000000000000011 /* NotificationMirrorService.swift in Sources */,

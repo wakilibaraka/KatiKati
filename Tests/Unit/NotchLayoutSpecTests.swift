@@ -13,7 +13,7 @@ final class NotchLayoutSpecTests: XCTestCase {
     func testOpenSizeIsTheReferenceProportion() {
         XCTAssertEqual(NotchLayoutSpec.openSize, CGSize(width: 640, height: 190))
         XCTAssertEqual(NotchGeometry.openSize(for: .boring), CGSize(width: 640, height: 190))
-        XCTAssertEqual(NotchGeometry.openSize(for: .classic), CGSize(width: 420, height: 130))
+        XCTAssertEqual(NotchGeometry.openSize(for: .classic), CGSize(width: 480, height: 142.5), "0.75× the boring open panel (671b1fa), same proportion")
     }
 
     func testOpenPanelNeverExceedsScreen() {
