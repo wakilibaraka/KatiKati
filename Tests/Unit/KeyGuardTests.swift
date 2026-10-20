@@ -96,7 +96,7 @@ final class KeyGuardSharedTests: XCTestCase {
         XCTAssertTrue(shared.keycaps().isEmpty, "visualizer off by default")
 
         shared.setVisualizer(enabled: true)
-        shared.record(symbol: "a")
+        shared.record(symbol: "a", secureInput: false)
         XCTAssertEqual(shared.keycaps().map(\.symbol), ["a"])
 
         shared.setVisualizer(enabled: false)
@@ -118,7 +118,7 @@ final class KeyGuardSharedTests: XCTestCase {
         for _ in 0..<100_000 {
             let down = shared.decide(.keyDown(keyCode: q, modifiers: [.command]))
             let up = shared.decide(.keyUp(keyCode: q, modifiers: []))
-            shared.record(symbol: "⌘Q")
+            shared.record(symbol: "⌘Q", secureInput: false)
             decisions += 2
             if case .consumeAndFire(.slowQuitPressed) = down.decision { pressed += 1 }
             if case .consumeAndFire(.slowQuitReleased) = up.decision { released += 1 }
@@ -136,9 +136,9 @@ final class KeyGuardSharedTests: XCTestCase {
     func testKeycapBufferStaysBoundedAndCoalesces() {
         let shared = KeyGuardShared()
         shared.setVisualizer(enabled: true)
-        for _ in 0..<20 { shared.record(symbol: "a") }
+        for _ in 0..<20 { shared.record(symbol: "a", secureInput: false) }
         XCTAssertEqual(shared.keycaps().map(\.symbol), ["a"], "a repeat of the newest coalesces")
-        for symbol in ["b", "c", "d", "e", "f", "g", "h"] { shared.record(symbol: symbol) }
+        for symbol in ["b", "c", "d", "e", "f", "g", "h"] { shared.record(symbol: symbol, secureInput: false) }
         XCTAssertEqual(shared.keycaps().count, KeyVisualizerBuffer.capacity)
     }
 

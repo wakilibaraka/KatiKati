@@ -29,9 +29,20 @@ final class HyperkeyService {
     func configure(enabled: Bool, bindings: [UInt16: ShortcutAction]) {
         self.bindings = bindings
         shared.setBindings(bindings)
+        if !enabled, !checkedStaleRemap { clearStaleRemap() }
         guard enabled != self.enabled else { return }
         self.enabled = enabled
         if enabled { start() } else { stop() }
+    }
+
+    /// `kill -9` skips `restoreRemap`, and `hidutil` keeps the Caps Lock → F18 entry until logout; with Hyperkey
+    /// off nothing would handle F18, so Caps Lock would stay dead. Checked once per launch, only while off.
+    private var checkedStaleRemap = false
+    private func clearStaleRemap() {
+        checkedStaleRemap = true
+        let current = Self.currentMapping()
+        guard current.contains(HyperkeyRemap.ours) else { return }
+        _ = Self.setMapping(HyperkeyRemap.removing(from: current))
     }
 
     func tearDown() { enabled = false; stop() }
@@ -74,6 +85,7 @@ final class HyperkeyService {
         if let tap { CGEvent.tapEnable(tap: tap, enable: false) }
         if let loop = tapRunLoop { CFRunLoopStop(loop) }
         tap = nil; tapRunLoop = nil; tapThread = nil
+        shared.port = nil // a late tapDisabled callback must not revive a tap we stopped
         shared.reset()
         restoreRemap()
     }
@@ -120,15 +132,7 @@ final class HyperkeyService {
     }
 
     private static func currentMapping() -> [HyperkeyRemap.Mapping] {
-        guard let text = run(["property", "--get", "UserKeyMapping"]),
-              let data = text.data(using: .utf8),
-              let plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil),
-              let array = plist as? [[String: Any]] else { return [] }
-        return array.compactMap { dict in
-            guard let src = (dict["HIDKeyboardModifierMappingSrc"] as? NSNumber)?.uint64Value,
-                  let dst = (dict["HIDKeyboardModifierMappingDst"] as? NSNumber)?.uint64Value else { return nil }
-            return ["HIDKeyboardModifierMappingSrc": src, "HIDKeyboardModifierMappingDst": dst]
-        }
+        run(["property", "--get", "UserKeyMapping"]).map(HyperkeyRemap.parse) ?? []
     }
 
     private static func setMapping(_ mappings: [HyperkeyRemap.Mapping]) -> Bool {

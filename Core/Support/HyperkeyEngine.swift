@@ -64,6 +64,36 @@ enum HyperkeyRemap {
         current.filter { !($0["HIDKeyboardModifierMappingSrc"] == capsLock && $0["HIDKeyboardModifierMappingDst"] == f18) }
     }
 
+    /// Reads `hidutil property --get UserKeyMapping`. Older macOS prints one bare plist; newer macOS prints a
+    /// `RegistryID  Key  Value` table with one `UserKeyMapping ( … )` block per HID service (`(null)` when empty).
+    /// Every block is parsed and duplicates are dropped, so a mapping set on any service is seen once.
+    static func parse(_ text: String) -> [Mapping] {
+        var blocks = [text]
+        if let regex = try? NSRegularExpression(pattern: #"UserKeyMapping\s+(\(.*?\n?\))"#,
+                                                options: [.dotMatchesLineSeparators]) {
+            let range = NSRange(text.startIndex..., in: text)
+            let found = regex.matches(in: text, range: range).compactMap { Range($0.range(at: 1), in: text).map { String(text[$0]) } }
+            if !found.isEmpty { blocks = found }
+        }
+        var result: [Mapping] = []
+        for block in blocks {
+            guard let data = block.data(using: .utf8),
+                  let plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil),
+                  let array = plist as? [[String: Any]] else { continue }
+            for dict in array {
+                // The ASCII plist hidutil prints has no number type: values arrive as strings.
+                func value(_ key: String) -> UInt64? {
+                    (dict[key] as? NSNumber)?.uint64Value ?? (dict[key] as? String).flatMap { UInt64($0) }
+                }
+                guard let src = value("HIDKeyboardModifierMappingSrc"),
+                      let dst = value("HIDKeyboardModifierMappingDst") else { continue }
+                let mapping: Mapping = ["HIDKeyboardModifierMappingSrc": src, "HIDKeyboardModifierMappingDst": dst]
+                if !result.contains(mapping) { result.append(mapping) }
+            }
+        }
+        return result
+    }
+
     static func json(_ mappings: [Mapping]) -> String {
         let items = mappings.map { m in
             "{" + m.sorted { $0.key < $1.key }.map { "\"\($0.key)\":\($0.value)" }.joined(separator: ",") + "}"

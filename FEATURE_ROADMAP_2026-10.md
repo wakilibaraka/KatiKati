@@ -252,6 +252,10 @@ checkers are recorded there too. The live recipes are still owed.
 4. **Hyperkey remap.** `restoreRemap()` runs on turn-off (`HyperkeyService.swift:103`). UNVERIFIED: after `kill -9`
    with Hyperkey on, does Caps Lock stay F18? If so, restore a stale remap at launch. `HyperkeyEngineTests` lives
    inside `Tests/Unit/ShortcutsTests.swift` — move to its own file (helps parallel edits).
+   **CONFIRMED and FIXED (Q-input, 2026-10-20):** a stale Caps→F18 entry was live on this Mac with Hyperkey off. Two causes: nothing
+   cleared it at launch, and on macOS 27 `hidutil --get` prints a table with string-valued numbers, so `currentMapping()` always
+   returned `[]` (user remaps were never preserved either). Now parsed by `HyperkeyRemap.parse` and cleared once per launch while
+   off; live check: entry present before relaunch, absent after. Tests moved to `Tests/Unit/HyperkeyTests.swift`.
 5. **Clipboard.** Concealed/transient/auto-generated types are skipped (`ClipboardHistory.swift:26`); poll is 0.7 s
    and only while recording. UNVERIFIED: where history persists, clear-on-quit, per-app ignore (`ClipboardIgnoreRules`
    in `ClipboardPlus.swift`). Age-based retention does not exist (grep finds only the 50-unpinned cap and the shelf's own
@@ -277,6 +281,8 @@ checkers are recorded there too. The live recipes are still owed.
 12. **Hypothesis from Vorssaint's changelog: a tap stopped on purpose must stay stopped.** Ours re-enable on
     `tapDisabledByTimeout`/`…ByUserInput` (item 3). Check that this path does not restart a tap that `KeyGuardService` or
     `HyperkeyService` stopped deliberately (permission revoked, quit, cleaning mode). Q-input.
+    **Q-input (inspection only):** `stop()` disabled the tap and stopped its run loop but left `shared.port` set; both services now
+    nil it, so a late callback cannot re-enable. Not reproduced live.
 
 ### 4.5 Per-feature audit rows
 | Lane | Feature | Live recipe | Refinement to evaluate (hypotheses, not claims) |

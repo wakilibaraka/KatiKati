@@ -1042,6 +1042,7 @@
 		EE0000000000000000000038 /* Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000036 /* Shortcuts.swift */; };
 		FA010000000000000000003 /* PinchGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA010000000000000000001 /* PinchGesture.swift */; };
 		EE000000000000000000003A /* ShortcutsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000039 /* ShortcutsTests.swift */; };
+		A0000000000000000000E302 /* HyperkeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000E301 /* HyperkeyTests.swift */; };
 		FA020000000000000000002 /* PinchGestureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA020000000000000000001 /* PinchGestureTests.swift */; };
 		EE000000000000000000003F /* SystemHealthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000003E /* SystemHealthTests.swift */; };
 		EE0000000000000000000045 /* ShortcutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000044 /* ShortcutService.swift */; };
@@ -1847,6 +1848,7 @@
 		EE0000000000000000000036 /* Shortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Shortcuts.swift; path = Core/Support/Shortcuts.swift; sourceTree = SOURCE_ROOT; };
 		FA010000000000000000001 /* PinchGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinchGesture.swift; path = Core/Support/PinchGesture.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000039 /* ShortcutsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutsTests.swift; path = Tests/Unit/ShortcutsTests.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000E301 /* HyperkeyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HyperkeyTests.swift; path = Tests/Unit/HyperkeyTests.swift; sourceTree = SOURCE_ROOT; };
 		FA020000000000000000001 /* PinchGestureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PinchGestureTests.swift; path = Tests/Unit/PinchGestureTests.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000003E /* SystemHealthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemHealthTests.swift; path = Tests/Unit/SystemHealthTests.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000044 /* ShortcutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutService.swift; path = App/Composition/ShortcutService.swift; sourceTree = SOURCE_ROOT; };
@@ -3395,6 +3397,7 @@
 				EE0000000000000000000038 /* Shortcuts.swift in Sources */,
 				FA010000000000000000003 /* PinchGesture.swift in Sources */,
 				EE000000000000000000003A /* ShortcutsTests.swift in Sources */,
+				A0000000000000000000E302 /* HyperkeyTests.swift in Sources */,
 				FA020000000000000000002 /* PinchGestureTests.swift in Sources */,
 				EE000000000000000000003F /* SystemHealthTests.swift in Sources */,
 				EE000000000000000000004A /* QuickToggles.swift in Sources */,

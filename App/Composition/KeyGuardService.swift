@@ -259,6 +259,7 @@ final class KeyGuardService: ObservableObject {
         if let tap { CGEvent.tapEnable(tap: tap, enable: false) }
         if let loop = tapRunLoop { CFRunLoopStop(loop) }
         tap = nil; tapRunLoop = nil; tapThread = nil; started = false
+        shared.port = nil // a late tapDisabled callback must not revive a tap we stopped
         if let frontmostObserver {
             NSWorkspace.shared.notificationCenter.removeObserver(frontmostObserver)
             self.frontmostObserver = nil
