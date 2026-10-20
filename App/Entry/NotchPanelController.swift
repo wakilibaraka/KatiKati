@@ -285,12 +285,14 @@ final class NotchPanelController: LiveEventSink {
         // Always wide: when nothing is live the two sides carry the dock chips (storage left, battery right).
         let showsActivity = true
         let screenWidth = targetScreen()?.frame.width ?? 1440
-        model.closedSize = isWide
-            ? CGSize(width: NotchWideBarSpec.width(screenWidth: screenWidth), height: metrics.closedSize.height)
-            : NotchGeometry.closedCapsuleSize(metrics, showsActivity: showsActivity)
         let base = NotchGeometry.openSize(for: skin)
         let scaled = CGSize(width: base.width * NotchSizePreset.current(), height: base.height * NotchSizePreset.current())
-        model.openSize = NotchLayoutSpec.fit(scaled, screenWidth: screenWidth, closedWidth: isWide ? model.closedSize.width : metrics.closedSize.width)
+        model.openSize = NotchLayoutSpec.fit(scaled, screenWidth: screenWidth, closedWidth: metrics.closedSize.width)
+        // The wide bar is as wide as the open panel (so the user's size preset sets both and opening only
+        // grows downward); the notch capsule keeps its own width.
+        model.closedSize = isWide
+            ? CGSize(width: model.openSize.width, height: metrics.closedSize.height)
+            : NotchGeometry.closedCapsuleSize(metrics, showsActivity: showsActivity)
     }
 
     /// The window is as large as the larger of the shapes involved: it grows at once (so the shape never

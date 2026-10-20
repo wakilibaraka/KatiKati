@@ -36,14 +36,13 @@ enum NotchDesign: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
-/// 51h: the wide bar's size and which items fit at a given width (time is always kept).
+/// 51h: which wide-bar items fit at a given width (the bar is as wide as the open panel: 544 compact, 640 standard, 768 spacious) (time is always kept).
 enum NotchWideBarSpec {
     enum Item: Sendable { case time, battery, status, nowPlaying, timer, weather, storage, system }
-    static func width(screenWidth: CGFloat) -> CGFloat { min(840, max(360, screenWidth - 80)) }
     /// Drop order as the bar narrows: system, storage, weather, timer, now playing, Wi-Fi/volume, battery.
     static func items(width: CGFloat) -> [Item] {
-        let steps: [(CGFloat, Item)] = [(440, .battery), (500, .status), (560, .nowPlaying), (620, .timer),
-                                        (680, .weather), (740, .storage), (800, .system)]
+        let steps: [(CGFloat, Item)] = [(360, .battery), (400, .status), (440, .nowPlaying), (480, .timer),
+                                        (520, .weather), (580, .storage), (700, .system)]
         return [.time] + steps.filter { width >= $0.0 }.map(\.1)
     }
 }
