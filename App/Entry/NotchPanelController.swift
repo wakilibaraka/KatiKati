@@ -101,7 +101,7 @@ final class NotchPanelController: LiveEventSink {
         if case .trackChanged = event {
             model.glowBoost = 1
             withAnimation(.easeOut(duration: 1.4)) { model.glowBoost = 0 }
-            if !model.isExpanded { trackPill.show(below: model.closedSize.height) }
+            if !model.isExpanded, UserDefaults.standard.object(forKey: "com.katikati.notch.trackToast") as? Bool ?? true { trackPill.show(below: model.closedSize.height) }
             return
         }
         model.event = LiveEventPresentation(event)
