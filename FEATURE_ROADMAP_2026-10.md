@@ -2,6 +2,9 @@
 
 > Written 2026-10-20 against `main` @ `dac5606` (clean tree; code identical to `1ce7963` — `dac5606` only touched
 > `.gitattributes` + `graphify-out/*`). Owner: Emmanuel Baraka.
+> **Rev 2, 2026-10-20 (owner decisions):** the settings page-height gate is **abandoned with no replacement** (settings are
+> fluid; see 4.4-2); per-lane string tables and pbxproj synchronized folders are dropped (section 5); a reference-repo
+> licence gate, a secure-input prerequisite, four added slices and a 2–3-lane concurrency cap are in (3.4, 6, 7.1).
 > Companion to `HYBRID_PLAN.md` (the map and tracker), `STANDING_RULES.md` and `BASELINE_RULES.md`.
 > **Location:** repo root, beside those three, on purpose. `.gitignore` excludes `Docs/*.md` (working-tree-only), so a
 > doc under `Docs/` would not exist in the git worktrees the lanes in section 3 use. Committing this file publishes it —
@@ -41,6 +44,7 @@ Four independent `CGEventTap`s: `HyperkeyService`, `KeyGuardService`, `ScrollRev
 | Wishlist item | Status | Evidence / what is left |
 |---|---|---|
 | Per-tool Settings pages, sidebar | BUILT | 18 tabs, `SettingsWindowView.swift` pane switch; no `NavigationSplitView` rewrite needed |
+| Settings page-height gate (1074 pt clamp) | ABANDONED 2026-10-20 | script + probe already deleted in `d0aa73a`; the owner retired the rule, no replacement (4.4-2). Pages scroll; window min 640×440 |
 | SlowQuit (hold ⌘Q) | BUILT | `KeyGuardService`, `KeyGuard.swift` (`SlowQuitTiming`), `SlowQuitOverlay.swift` |
 | KeyCastr-style key overlay | BUILT | `KeyVisualizerBuffer` (`KeyGuard.swift`), `KeyVisualizerOverlay.swift`; secure-input behaviour UNVERIFIED (Q-input) |
 | Input pause / keyboard cleaning | BUILT | `KeyGuardPipeline`, `cleaningTimer` in `KeyGuardService` |
@@ -90,6 +94,14 @@ Four independent `CGEventTap`s: `HyperkeyService`, `KeyGuardService`, `ScrollRev
    behaviour-frozen code, not a refactor; decide from a measurement (53e), not an assumption.
 7. The pasted 6-phase "Claude Code execution plan" ignores that HYBRID_PLAN already holds Phases 0–48 and the
    rules in `STANDING_RULES §1.7`. Numbering here continues at **49**.
+8. "Restore `check_settings_page_heights.py`" / "the 1074 pt limit" — retired. The script was deleted in `d0aa73a` and the
+   owner abandoned the rule on 2026-10-20. Do not restore it, and do not cite 1074 pt as a reason for any design.
+9. "43 dirty files to land first" — stale: the tree is clean at `dac5606` and the work is committed.
+10. The pasted licence list was wrong in places: KatiKati is **GPL-3.0-or-later** (not proprietary/MIT), AirBattery is
+    AGPL-3.0 (not MIT), SlowQuitApps is GPL-2.0 (not 3.0). The corrected table is in 7.1.
+11. "Per-lane string tables" and "pbxproj synchronized folders" — dropped (section 5, "Skipped on purpose").
+12. "Add a 19th Settings tab for gestures" — not needed; a pinch-gesture section already lives in
+    `SettingsLayoutPane+Shortcuts.swift` (~`:148`). See 53h.
 
 ## 3. Parallel-work protocol (several AI IDEs / agents at once)
 
@@ -143,6 +155,26 @@ integrator applies it (or the slice waits).
    `bad2303`) either adopted or removed. Local branches `claude/hopeful-gauss-9a1c88`, `phase-11-18-layout-placement`,
    `fix/force-unwrap-hardening`, `release/0.17.0-beta.3` are all already merged into `main` (`git branch --merged`).
 9. **If a file changed under you** (another agent): stop, re-read, rebase; never overwrite.
+10. **At most 2–3 lanes active at once** (not all six): one integrator owns the hot files (3.3), and which lanes
+    Freebuff or another agent is using is unknown until `LANES.md` exists. Start with two lanes whose files do not
+    touch (e.g. A Notch & Music + D Utilities), add a third only when the integrator is keeping up.
+
+### 3.5 Execution flow
+```
+main (clean)  ──►  Q0  gate on HEAD ............ done: 2548 tests, 0 failures (section 9)
+                   Q1  idle-CPU baseline ........ owed
+                   Q2  gate-text cleanup + sidebar smoke test (no height gate)
+                    │
+                    ▼
+                   Phase 49  49a LANES.md ─► 49b / 49c pure splits ─► 49e batching rule
+                    │
+                    ▼
+        2–3 lanes at a time, one worktree + branch each, claim in LANES.md
+        per lane: its Q-slice first ─► then its feature phase (4 / 6)
+                    │
+                    ▼
+        integrator: rebase ─► merge in the 3.4-5 order ─► gate (section 8) ─► graphify update .
+```
 
 ## 4. Track Q — quality audit of what is already built (past and present)
 
@@ -165,8 +197,8 @@ touches the same files (Q-music → 50, Q-notch → 51, Q-input → 53, Q-bar �
 `be52384` (mic permission; catalogs reconciled) · `1ce7963` (test target: `QuickAddState` dual-compiled,
 `NotchMirrorPageView` membership fixed) · `dac5606` (graph rebuild + `.gitattributes`). The tree is clean.
 **Q0 checks that this HEAD is actually green** — the membership repair in `1ce7963` means the suite was red or
-un-buildable at some point in between. A CI-command run on `1ce7963` was started by this author and had not finished
-when this was written; treat section 9 as **pending**, not as a pass.
+un-buildable at some point in between. The CI-command run on `1ce7963` has since finished green (2548 tests, 2 skipped, 0 failures) — see section 9;
+the three checkers and the live recipes are still to be recorded.
 
 ### 4.3 Past work: checks the repo already admits are owed (HYBRID_PLAN line refs)
 | Where | Not done | Slice |
@@ -183,15 +215,18 @@ when this was written; treat section 9 as **pending**, not as a pass.
 1. **Key visualizer and secure input.** grep finds no secure-input/password handling in `KeyGuard.swift`,
    `KeyGuardService.swift`, `KeyVisualizerOverlay.swift`, and no `IsSecureEventInputEnabled` anywhere in
    `App/Core/Platform`. Verify live what the overlay shows in a password field (macOS may already withhold the text);
-   if it shows anything, suppress + clear the buffer.
-2. **Stale settings gates.** `Scripts/check_settings_page_heights.py` and the `DOCK_SETTINGS_PAGE_HEIGHT` probe were
-   removed by `d0aa73a` (sidebar redesign; window now freely resizable, min 640×440), but `Docs/SETTINGS.md`
-   (`:87`, `:174`), `Docs/DEBUG_SWITCHES.md` (`:17`) and `HYBRID_PLAN.md` still describe them, and the switch is not
-   referenced in code. `Scripts/live_check_settings_tabs.py` clicks `toolbar 1` buttons from a 15-name list; the shell
-   is now a sidebar and `SettingsTab` has 18 cases (`SettingsWindowView.swift:6` still says "ten toolbar items").
-   UNVERIFIED that the script fails today — run it in Q2, then rewrite it to drive the sidebar (or loop
-   `DOCK_OPEN_SETTINGS=<tab>`) from the `SettingsTab` list, and correct the three docs. Decide whether a min-size
-   fit check (every page usable at 640×440) replaces the old clamp rule.
+   if it shows anything, suppress + clear the buffer. **Whatever the overlay does today, the guard is mandatory before
+   any feature that reads typed text (snippet expansion 53c):** slice Q-input-a.
+2. **Settings page-height gate — abandoned (owner, 2026-10-20), no replacement.** `Scripts/check_settings_page_heights.py`
+   and the `DOCK_SETTINGS_PAGE_HEIGHT` probe were removed by `d0aa73a` (sidebar redesign; window resizable, min 640×440,
+   each page in a vertical `ScrollView`: `SettingsShell.swift:68`). What remains is stale text that sends agents to a
+   script that no longer exists: `Docs/SETTINGS.md` (rule 10 `:87`, §5.3 `:174`; published), `Docs/DEBUG_SWITCHES.md`
+   (`:17`), the "ten toolbar items" comment (`SettingsWindowView.swift:6`) and the `live_check_settings_tabs.py`
+   docstring. `HYBRID_PLAN.md` and `CHANGELOG.md` keep it as history (one dated "superseded" line, `STANDING_RULES §6.3`).
+   **Settings stay fluid: no fit, height or clamp rule, and no replacement fit-check.** The `SettingsMetrics` grid
+   (rules 1–9 in `Docs/SETTINGS.md`, pinned by `SettingsMetricsTests`) stays as soft guidance — owner may relax it later.
+   `live_check_settings_tabs.py` clicks `toolbar 1` buttons from a 15-name list, so it is likely broken against the
+   sidebar (UNVERIFIED); Q2 turns it into a smoke test that every tab opens, driven from the `SettingsTab` list.
 3. **Event taps.** All four re-enable on `tapDisabledByTimeout`/`…ByUserInput`. Refinement: surface "tap alive" in
    Advanced and log a one-line note when a tap had to be re-enabled.
 4. **Hyperkey remap.** `restoreRemap()` runs on turn-off (`HyperkeyService.swift:103`). UNVERIFIED: after `kill -9`
@@ -204,9 +239,10 @@ when this was written; treat section 9 as **pending**, not as a pass.
    in source (mostly `ContentView`, `DragController`, `AppTracker`, `DockStripView`) — confirm none is user-visible.
    The checker proves completeness, not quality (`§1.7b`); add a check that flags a translation identical to its
    English source.
-7. **Skipped tests (6).** 4 live-torrent tests need `KK_LIVE_TORRENT=1` + `aria2c`; 1 is CI-only
-   (`DragControllerConversionTests`); 1 is a precondition skip in `WindowLiftAvoidanceTests`. Run the torrent pair
-   before each release.
+7. **Skipped tests.** The CI-command run on `1ce7963` skipped 2: both live-torrent tests in `DownloadManagerTests`
+   (need `KK_LIVE_TORRENT=1` + `aria2c`). An earlier static count of 6 also named a CI-only skip
+   (`DragControllerConversionTests`) and a precondition skip in `WindowLiftAvoidanceTests`; those did not skip in this
+   run — UNVERIFIED why. Run the torrent tests before each release.
 8. **"Service has no test" is not a gap by itself.** Hyperkey, KeyGuard, NotificationMove, StorageScan, AgentUsage,
    Dictionary, Bookmark and others have no test naming the *service* because their decisions live in tested Core
    types. Q checks the Core type is covered and the glue has a live recipe.
@@ -230,16 +266,17 @@ when this was written; treat section 9 as **pending**, not as a pass.
 | D | Shelf, PDF reduce, translate, dictionary | 20 MB PDF; offline translate | cancel + progress, size-saved readout |
 | E | Weather, Calendar panel, calculator, recorder | location denied; offline; EventKit denied; **mic denied** | explicit denied/empty states (Phase 43: never invent data) |
 | B | Dock strip, edge bars, Control Center | multi-display, hover, drag-reorder, CC volume + Bluetooth | the owed owner eyeballs |
-| F | Settings shell (18 tabs), onboarding | repaired live check; Welcome guide with permissions revoked | min-size fit check |
+| F | Settings shell (18 tabs), onboarding | smoke test that every tab opens; Welcome guide with permissions revoked; eyeball a new card at 640×440 | none (no height gate, by owner decision) |
 | all | l10n, a11y, Reduce Motion, idle CPU | scripts + one Instruments run | identical-to-English check |
 
 ### 4.6 Q slices
 | ID | Slice | Lane | Output |
 |---|---|---|---|
-| **Q0** | Gate on HEAD: CI test command + 3 checkers; check `1ce7963`'s pbxproj/test-target state | F + integrator | gate result recorded in section 9 |
+| **Q0** | Gate on HEAD: CI test command + 3 checkers; check `1ce7963`'s pbxproj/test-target state | F + integrator | test command done (section 9); the three checkers still to record |
 | **Q1** | Baseline: one idle-CPU run with defaults (Instruments or `ps`), timers inventory | F | the number every later Resource gate compares to |
-| **Q2** | Repair settings gates: live check reads `SettingsTab`, drives the sidebar; fix `Docs/SETTINGS.md`, `Docs/DEBUG_SWITCHES.md`, the "ten toolbar items" comment; decide min-size fit check | F | green script run over 18 tabs |
-| **Q-input** | KeyGuard + Hyperkey rows; secure-input check; `kill -9` check; move `HyperkeyEngineTests` | C | rows + fixes if confirmed |
+| **Q2** | Retire the page-height gate text (4.4-2): `Docs/SETTINGS.md` rule 10 + §5.3 → one soft line, `Docs/DEBUG_SWITCHES.md` row, "ten toolbar items" comment, `HYBRID_PLAN.md` superseded line; `live_check_settings_tabs.py` becomes a sidebar smoke test over `SettingsTab`. **No fit or height check is added** | F | `git grep check_settings_page_heights` hits history only; smoke run over 18 tabs (OWED if Accessibility is not granted) |
+| **Q-input-a** | Secure-input guard: pure `SecureInputPolicy` (+ test) deciding when typed-key consumers must stay blind; one `IsSecureEventInputEnabled` call in the service; the visualizer clears its buffer under secure input. Hard prerequisite of 53c | C | test table; live check in a password field |
+| **Q-input** | KeyGuard + Hyperkey rows; `kill -9` check; move `HyperkeyEngineTests` | C | rows + fixes if confirmed |
 | **Q-notch** | Phase 48 live check; camera-keepout check on notch + no-notch Macs | A | rows |
 | **Q-music** | which Now Playing source works; tap behaviour today; error states | A | rows |
 | **Q-bar** | owed eyeballs (Phases 7A, 16, 41); Control Center volume/Bluetooth | B | rows |
@@ -254,9 +291,18 @@ when this was written; treat section 9 as **pending**, not as a pass.
 | 49a | Root `LANES.md`: section 3.2/3.3 as the live claim board (one line per active slice). Root, not `Docs/` — see header | F | ~60 | none (docs) | every active agent has a line; file is tracked |
 | 49b | Split `NowPlayingChip.swift` into one file per view (`NowPlayingChip`, `NowPlayingPopup`, `TurntableView`, `ExpandedMediaCardView`, …) — **pure move** | A | ~0 net + ~20 pbxproj | CI command; byte-identical code | no logic diff; `git diff -M` shows moves only |
 | 49c | Move the calculator and recorder tiles out of `CalendarPanelView.swift` into their own files — pure move | E | ~0 net + ~8 pbxproj | CI command | same |
-| 49d | Optional, owner-gated: per-lane string tables (`String(localized:table:)`) + `check_localization.py` scans all tables | F | ~120 | checker green on all tables | owner approves; otherwise skip |
 | 49e | Decide the Settings-registration pattern: batched tab additions through the integrator | F | docs only | — | rule written in `LANES.md` |
-| 49f | Pbxproj synchronized folders — **not recommended** (needs `objectVersion` 77; conflicts with `§1.7a`) | — | — | — | record as rejected unless the owner overrides |
+
+(Ids 49d and 49f are retired, not reused.)
+
+**Skipped on purpose** (each would cost more than it saves; revisit only on a measured problem or an owner override):
+- **Per-lane string tables** (was 49d) — the one-catalog merge is handled by the integrator rule in 3.3; splitting the
+  catalog changes the localization checker and every `String(localized:)` call site.
+- **pbxproj synchronized folders** (was 49f) — needs `objectVersion` 77; conflicts with `STANDING_RULES §1.7a`.
+- **A single event-tap hub** — rewrites behaviour-frozen code; 53e measures first.
+- **`KatiKatiActionRegistry`** — duplicates `ShortcutAction` + `BarActionService` (section 2).
+- **`NavigationSplitView` rewrite of Settings** — the sidebar shell already works.
+- **Settings page-height gate or any replacement fit-check** — abandoned by the owner, 2026-10-20 (4.4-2).
 
 ## 6. Phases 50–58 — new features (each slice ≤ ~300 lines; "Est." is a first guess)
 
@@ -268,7 +314,7 @@ when this was written; treat section 9 as **pending**, not as a pass.
 | 50c | Accent on the dock chip + progress ring (reuse `NowPlayingProgress`) | `NowPlayingChip` files | none | ~100 | owner screenshot |
 | 50d | Notch: artwork glow on the right ear; drop the song text from the collapsed notch | depends on 51b | `com.katikati.notch.musicGlow` | ~150 | owner screenshot; Reduce Motion path |
 | 50e | `NowPlayingToastPolicy` + compact toast on track change while collapsed | Core pure + test; `NotchMusicPanel` | `com.katikati.notch.trackToast` | ~160 | shown once per track; suppressed in fullscreen/Do Not Disturb (verify how existing code reads those) |
-| 50f | Dock/edge chips reuse the accent (consistency pass) | Lane B hot-file touch | — | ~80 | |
+| 50f | Dock/edge chips reuse the accent (consistency pass). **Owner design call first:** a single artwork accent (50a) vs a multi-colour dock palette; the colour-reduction function is 50a either way | Lane B hot-file touch | — | ~80 | owner screenshot; a "none/theme" setting stays |
 | 50g | **Parked:** lyrics, equalizer — no data source / audio tap; revisit with an owner decision | — | would need Screen/Audio capture permission | — | |
 
 ### Phase 51 — Notch geometry, motion, pages (Lane A; after Q-notch)
@@ -293,9 +339,11 @@ when this was written; treat section 9 as **pending**, not as a pass.
 |---|---|---|---|---|---|
 | 53a | Caps Lock protection: ignore a tap shorter than N ms; interplay table with Hyperkey (Caps→F18) | extend `KeyGuardPipeline` + `KeyGuardTests` | `com.katikati.keyguard.capsHold`; Input Monitoring (already used) | ~140 | table covers Hyperkey on/off |
 | 53b | Finder key map (⌘X/⌘V move, Return rename) gated on frontmost = Finder | pure `FinderKeyMap` + test | `com.katikati.keyguard.finderKeys` | ~150 | nothing swallowed when off (`testNothingSwallowedWhenAllGuardsOff` stays) |
-| 53c | System-wide snippet expansion: pure `SnippetExpander` over typed buffer + `CustomCommands.parseSnippets` | Core + test; insertion via pasteboard-and-paste | `com.katikati.snippets.expand` | ~220 | disabled in secure input and for ignored apps; depends on finding 4.4-1 |
+| 53c | System-wide snippet expansion: pure `SnippetExpander` over typed buffer + `CustomCommands.parseSnippets` | Core + test; insertion via pasteboard-and-paste | `com.katikati.snippets.expand` | ~220 | disabled in secure input and for ignored apps; **blocked until Q-input-a is merged** |
 | 53d | Quit-on-last-window-close: pure `QuitOnLastWindowPolicy`, **opt-in per app, default empty** (unsaved work risk) | Core + `AccessibilitySource` observation | `com.katikati.windows.quitOnClose` | ~200 | |
 | 53e | Tap-hub measurement: input latency + CPU with 1 vs 4 taps. **No code.** | notes | — | — | owner decides whether a hub is worth a rewrite |
+| 53g | Paste a clipboard image into the front Finder window as a `.png` file: pure `PasteImageNaming` (unique filename, no overwrite) + test; Finder target-folder lookup and file write in the service. Own slice: touches the user's files | Core + service (Lane D, Finder hot touch with 53b) | `com.katikati.clipboard.pasteImage`; Automation (Apple Events → Finder) | ~150 | never overwrites; clear message when no Finder folder is frontmost; owner sign-off |
+| 53h | Keyboard \| Mouse & Gestures segmented control inside the Shortcuts page (no 19th tab). **Deferred** until ≥ 2 gesture settings exist — today there is one (the four-finger pinch section, `SettingsLayoutPane+Shortcuts.swift` ~`:148`) | Lane F | — | ~80 | |
 
 ### Phase 54 — Window management (Lanes C+B; after Q-bar)
 | ID | Slice | Notes |
@@ -332,11 +380,13 @@ when this was written; treat section 9 as **pending**, not as a pass.
 | 57a | Control Center: scroll-to-volume + Bluetooth icon (verify first) | `ControlCenterLayout.swift`, ~100 |
 | 57b | `LauncherPresentation` (fullscreen / centred / popover) as a pure enum + routing in `LauncherPanelController` | `com.katikati.launcher.presentation`, ~200 |
 | 57c | Orb summon | after 57b; owner screenshot |
+| 57d | **Menu-bar menu cleanup** (`StatusMenuController.swift`). Verified today: `Show Shelf` / `Show Trash` (`:93-94`) are toggled **only** from this menu (no Settings pane has them), so removing them needs a Settings home first (Dock Items page) or users lose the switch. "Show App Name on hover" (`:95`) maps to `hoverStyle`, whose default is `.quiet` **by an owner decision of 2026-09-01** (`AppSettingsStore.swift:64`) — making it default-on reverses that, so it is an owner call (existing users keep their stored value either way). Then move the Dock / KatiKati toggles to General and keep Taskbar Size in Dock Items | `StatusMenuController.swift`, the Settings panes, `SettingsMenu*` tests if any; one slice per move, ≤ ~150 each |
+| 57e | Control Center: swap the RAM / Background Apps slot and redo the icon art | **verify first** — the slot and the icon assets are not located in code yet (UNVERIFIED); owner screenshot |
 
 ### Phase 58 — Onboarding (Lane F)
 | ID | Slice | Notes |
 |---|---|---|
-| 58a | Permissions page after the Phase 9 live test (Accessibility, Screen Recording, Input Monitoring, mic) — already on the owner's list | extend `WelcomeGuideView.swift`; follow `Docs/ONBOARDING_TEST_CHECKLIST.md` |
+| 58a | Permissions page after the Phase 9 live test (Accessibility, Screen Recording, Input Monitoring, mic) — already on the owner's list. **Schedule it before 54b (Screen Recording) and before 53a–53c (Input Monitoring) ship** | extend `WelcomeGuideView.swift`; follow `Docs/ONBOARDING_TEST_CHECKLIST.md` |
 | 58b | Glass intro animation (GlassIntroKit-style) — licence check before any code is borrowed | native re-implementation by default |
 
 ## 7. Owner decisions needed
@@ -346,12 +396,35 @@ when this was written; treat section 9 as **pending**, not as a pass.
 4. Set up the `merge=graphify` driver on each clone/worktree; decide whether `FEATURE_ROADMAP_2026-10.md` and `LANES.md`
    are committed (published) at the root or kept untracked.
 5. Input: extend `KeyGuardPipeline` (recommended) vs build a single tap hub — decide after 53e.
-6. Per-lane string tables (49d): adopt or skip.
-7. Licence/scope calls before any code is borrowed: SlowQuitApps, Maccy, KeyCastr, Loadout, claude-status-bar,
-   GlassIntroKit, Cobalt, LocalSend, AltTabby (Windows-only — design reference). Default: native re-implementation.
+6. ~~Per-lane string tables (49d): adopt or skip.~~ Decided 2026-10-20: skipped (section 5).
+7. Licence/scope calls before any code is borrowed: use the gate in 7.1. Default: native re-implementation.
 8. Privacy-sensitive features: hook-based Claude status (writes `~/.claude`), scheduled cleaner, quit-on-close,
-   fixed Space order (changes a macOS setting). Each needs explicit sign-off.
-9. Priority order of Phases 50–58, and the cut list (suggested cut: 50g, 54c, 54f, 55e, 55f).
+   fixed Space order (changes a macOS setting), paste-image-as-PNG in Finder (53g, writes files). Each needs explicit sign-off.
+9. Priority order of Phases 50–58, and the cut list (suggested cut: 50g, 54c, 54f, 55e, 55f). Recommended order:
+   Q0–Q2 → 49 → **Q-input-a** → 58a → 51 (51b before 50d) → 50 → 53 → 56 → 55 → 54 → 52 → 57 (57d/57e late, they
+   need your calls below). Run at most 2–3 lanes at once (3.4-10).
+10. Design calls the menu-bar cleanup and dock accent need (57d, 50f): is making "Show App Name" default-on a
+    deliberate reversal of the 2026-09-01 quiet default? Where do Show Shelf / Show Trash live once they leave the menu?
+    One artwork accent or a multi-colour dock palette?
+11. Settings grid rules 1–9 (`Docs/SETTINGS.md`): keep as soft guidance (recommended) or relax them too? The height
+    gate itself is already abandoned (4.4-2).
+
+### 7.1 Reference-repo licence gate
+KatiKati is **GPL-3.0-or-later** (`LICENSE`, `NOTICE`, `STANDING_RULES §5.1`). The real gate is already in the repo: a
+donor enters only through a HYBRID_PLAN §5 allow-list row (`STANDING_RULES §2.6`), with a `NOTICE` entry (§5.3) and a
+pinned source commit. Licences below were read from GitHub's API labels on 2026-10-20, **not** from source headers —
+re-check the file header of anything actually borrowed. Not legal advice.
+
+| Project | Licence (API label) | Use |
+|---|---|---|
+| Maccy | MIT | code may be adapted with attribution; clipboard is already built natively |
+| KeyCastr | BSD-3-Clause | same; key overlay is already built natively |
+| Easydict | GPL-3.0 | GPL-compatible; adapt only through the §5 allow-list |
+| SlowQuitApps | **GPL-2.0** | **do not copy** — if the headers say "only", GPL-2.0 cannot be combined into a GPLv3 work; SlowQuit is already built natively |
+| Cobalt | **AGPL-3.0** | **do not copy** — network-use clause would bind the combined work; media download stays parked (55f) |
+| AirBattery | **AGPL-3.0** | **do not copy** — design reference for the battery widget only (56c) |
+| GlassIntroKit | Apache-2.0 (search hit `Jiaxu-Li/GlassIntroKit`; **repo identity unconfirmed**) | GPLv3-compatible; confirm the repo before relying on it; re-implement natively by default (58b) |
+| Loadout, claude-status-bar, LocalSend, PingPlace, AltTabby, Vorssaint | not checked | check before any code is borrowed; AltTabby is Windows-only (design reference) |
 
 ## 8. Gate and evidence checklist (copy into each slice note)
 - [ ] Files touched ⊆ lane list; every outside touch has a scope-receipt line (`§1.7d`).
@@ -366,4 +439,4 @@ when this was written; treat section 9 as **pending**, not as a pass.
 ## 9. Baseline record (Q0 fills this in)
 | Date | HEAD | `xcodebuild test` | Checkers | Idle CPU (Q1) | Notes |
 |---|---|---|---|---|---|
-| 2026-10-20 | `dac5606` (code = `1ce7963`) | _pending — run started on `1ce7963`, not finished when written; see Q0_ | `check_localization.py` ✅ (993 keys × 12; 40 source literals) | _owed_ | |
+| 2026-10-20 | `dac5606` (code = `1ce7963`; `bb3a1f7` adds only this doc) | ✅ `1ce7963`: 2548 tests, 2 skipped (live torrent), 0 failures, exit 0 | `check_localization.py` ✅ (993 keys × 12; 40 source literals); `check_debug_switches.py`, `check_availability_warnings.py` _not yet recorded_ | _owed_ | the 7 `error:` lines in the log are macOS `linkd.autoShortcut` runtime noise, not compile errors |
