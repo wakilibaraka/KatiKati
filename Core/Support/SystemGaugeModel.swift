@@ -97,11 +97,16 @@ enum SlotFitScale {
 public enum NowPlayingPreset: String, CaseIterable, Equatable, Codable, Sendable {
     case miniChip = "mini"
     case expandedCard = "expanded"
+    case accentCard = "accent"
+
+    /// Both card presets share the expanded layout; the accent one adds the artwork wash.
+    public var isCard: Bool { self != .miniChip }
 
     public var title: String {
         switch self {
         case .miniChip: return "Mini Player"
         case .expandedCard: return "Expanded Artwork Card"
+        case .accentCard: return "Accent Wash Card"
         }
     }
 }

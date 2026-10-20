@@ -84,9 +84,9 @@ final class NotchDesignSpecTests: XCTestCase {
     // MARK: - Motion Spec Springs
     func testMotionSpringParameters() {
         // Open spring is under-damped for tactile momentum overshoot
-        XCTAssertLessThan(NotchMotionSpec.openSpring.dampingRatio, 1.0)
+        XCTAssertEqual(NotchMotionSpec.openSpring.dampingRatio, 1.0, "no overshoot")
         XCTAssertEqual(NotchMotionSpec.openSpring.response, 0.38)
-        XCTAssertEqual(NotchMotionSpec.openSpring.dampingRatio, 0.82)
+        XCTAssertEqual(NotchMotionSpec.openSpring.dampingRatio, 1.0)
 
         // Close spring is critically damped (1.0) to prevent bouncing past the screen bezel
         XCTAssertEqual(NotchMotionSpec.closeSpring.dampingRatio, 1.0)
@@ -140,5 +140,12 @@ final class NotchDesignSpecTests: XCTestCase {
         )
         XCTAssertEqual(auto.plate, NotchTheme.blackPlate)
         XCTAssertFalse(auto.prefersDarkContent)
+    }
+
+    func testOnlyBounceStyleOvershoots() {
+        for style in NotchOpenAnimation.allCases where style != .bounce {
+            XCTAssertEqual(style.openSpring.dampingRatio, 1.0, "\(style)")
+            XCTAssertEqual(style.closeSpring.dampingRatio, 1.0, "\(style)")
+        }
     }
 }

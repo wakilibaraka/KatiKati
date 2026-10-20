@@ -54,7 +54,7 @@ final class NotchTrackPillModel: ObservableObject {
     let dismiss: () -> Void
     init(dismiss: @escaping () -> Void) { self.dismiss = dismiss }
 
-    func present() { withAnimation(.spring(response: 0.42, dampingFraction: 0.72)) { shown = true } }
+    func present() { withAnimation(.spring(response: 0.42, dampingFraction: 1.0)) { shown = true } }
     func retract() { withAnimation(.easeIn(duration: 0.28)) { shown = false } }
 }
 
@@ -77,7 +77,7 @@ struct NotchTrackPillView: View {
             .frame(width: 34, height: 34)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             VStack(alignment: .leading, spacing: 1) {
-                Text(verbatim: state.title ?? "").font(.system(size: 12, weight: .bold, design: .rounded)).lineLimit(1)
+                MarqueeText(text: state.title ?? "", font: .system(size: 12, weight: .bold, design: .rounded))
                 Text(verbatim: state.artist ?? "").font(.system(size: 11)).foregroundStyle(.white.opacity(0.6)).lineLimit(1)
             }
             .frame(maxWidth: 170, alignment: .leading)

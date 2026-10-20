@@ -33,7 +33,7 @@ import SwiftUI
 /// the slot renders nothing and holds no tick, so the notch can run alone.
 public struct NowPlayingChip: View {
     @EnvironmentObject var settingsStore: AppSettingsStore
-    @AppStorage("com.katikati.media.preset") private var mediaPreset: NowPlayingPreset = .expandedCard
+    @AppStorage("com.katikati.media.preset") private var mediaPreset: NowPlayingPreset = .accentCard
     @Environment(\.liveIslandVertical) private var isVertical
 
     public init() {}
@@ -42,7 +42,7 @@ public struct NowPlayingChip: View {
         if settingsStore.dockIslandEnabled {
             if isVertical {
                 RailMediaTile()
-            } else if mediaPreset == .expandedCard {
+            } else if mediaPreset.isCard {
                 ExpandedMediaCardView()
             } else {
                 LiveIslandDockCapsule()
@@ -59,11 +59,38 @@ enum NowPlayingTapRunner {
         case .playPause: feed.togglePlayPause()
         case .openPlayer: popup.wrappedValue.toggle()
         case .openSourceApp:
-            if let id = state?.bundleIdentifier, let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) {
-                NSWorkspace.shared.openApplication(at: url, configuration: .init())
-            }
+            NowPlayingTapRunner.openSource(state)
         }
     }
+
+    /// Bundle id first; the player's name when MediaRemote did not report one (Spotify via AppleScript).
+    static func openSource(_ state: NowPlayingState?) {
+        let ws = NSWorkspace.shared
+        if let id = state?.bundleIdentifier, let url = ws.urlForApplication(withBundleIdentifier: id) {
+            ws.openApplication(at: url, configuration: .init())
+        } else if let name = state?.appName, let path = ws.fullPath(forApplication: name) {
+            ws.openApplication(at: URL(fileURLWithPath: path), configuration: .init())
+        }
+    }
+}
+
+/// Artwork and song text open the player's own app; the "needs double-click" setting guards against stray touches.
+struct OpensSourceApp: ViewModifier {
+    let bundleID: String?
+    var appName: String?
+    @AppStorage(NowPlayingOpenTap.doubleTapKey) private var needsDouble = false
+
+    func body(content: Content) -> some View {
+        content
+            .contentShape(Rectangle())
+            .onTapGesture(count: NowPlayingOpenTap.tapCount(needsDouble: needsDouble)) {
+                NowPlayingTapRunner.openSource(NowPlayingState(isPlaying: false, bundleIdentifier: bundleID, appName: appName))
+            }
+    }
+}
+
+extension View {
+    func opensSourceApp(_ bundleID: String?, appName: String? = nil) -> some View { modifier(OpensSourceApp(bundleID: bundleID, appName: appName)) }
 }
 
 /// Phase 49 (owner: "Compact vertical tile"): on a vertical rail the wide horizontal media card is
@@ -414,7 +441,7 @@ enum ArtworkAccentCache {
     private static var value: ArtworkAccent?
 
     static func accent(for data: Data?) -> ArtworkAccent? {
-        guard let data else { return nil }
+        guard NowPlayingArtworkAccent.isOn, let data else { return nil }
         if key == data { return value }
         key = data
         value = average(of: data).flatMap { ArtworkAccent.reduce(red: $0.0, green: $0.1, blue: $0.2) }

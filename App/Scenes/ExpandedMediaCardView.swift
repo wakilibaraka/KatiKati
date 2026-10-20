@@ -26,6 +26,7 @@ struct ExpandedMediaCardView: View {
     @State private var awakeTimerActive: Bool = false
     @State private var isHovered = false
     @State private var timelineNow = Date()
+    @AppStorage("com.katikati.media.preset") private var mediaPreset: NowPlayingPreset = .accentCard
     @State private var currentPage: Int = 0
     @State private var scrollDirection: Int = 1
     @State private var showPopup = false
@@ -105,6 +106,12 @@ struct ExpandedMediaCardView: View {
         .padding(.horizontal, 9)
         .padding(.vertical, 4)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            if mediaPreset == .accentCard, currentPage == 0, let a = ArtworkAccentCache.accent(for: feed.nowPlayingState.artworkData) {
+                Color(red: a.red, green: a.green, blue: a.blue).opacity(0.22)
+                    .animation(.easeInOut(duration: 0.6), value: feed.nowPlayingState.artworkData?.count)
+            }
+        }
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .dockTileChrome(isHovered: isHovered)
         .onHover { isHovered = $0 }
@@ -177,14 +184,13 @@ struct ExpandedMediaCardView: View {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .stroke(Color.white.opacity(0.18), lineWidth: 1)
             )
+            .opensSourceApp(state.bundleIdentifier)
 
             // Track details + Scrubber Bar
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.system(size: 11.5, weight: .bold, design: .rounded))
+                MarqueeText(text: title, font: .system(size: 11.5, weight: .bold, design: .rounded), nearEnd: (progress ?? 0) > 0.88)
                     .foregroundStyle(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .opensSourceApp(state.bundleIdentifier)
 
                 if unreadable == nil {
                     Text(artist)
@@ -192,6 +198,7 @@ struct ExpandedMediaCardView: View {
                         .foregroundStyle(Color.white.opacity(0.75))
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
+                        .opensSourceApp(state.bundleIdentifier)
                 } else {
                     // The refused-player line is already the empty artist slot's own height, so the row
                     // does not grow — and it is the door to the fix, not only the report.
@@ -218,7 +225,8 @@ struct ExpandedMediaCardView: View {
                         Text(verbatim: NotchLayoutSpec.clockText(elapsed))
 
                         MusicScrubBar(progress: progress, duration: duration, trackHeight: 3,
-                                      tint: .white, onSeek: { feed.seek(to: $0) })
+                                      tint: ArtworkAccentCache.accent(for: state.artworkData).map { Color(red: $0.red, green: $0.green, blue: $0.blue) } ?? .white,
+                                      onSeek: { feed.seek(to: $0) })
                             .frame(height: 6)
 
                         Text(verbatim: NotchLayoutSpec.clockText(duration))
@@ -232,7 +240,7 @@ struct ExpandedMediaCardView: View {
             // Playback Transport Controls
             HStack(spacing: 5) {
                 Button(action: { feed.previousTrack() }) {
-                    Image(systemName: "backward.fill")
+                    Image(systemName: "backward.end.fill")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(Color.white.opacity(0.85))
                         .frame(width: 18, height: 18)
@@ -253,7 +261,7 @@ struct ExpandedMediaCardView: View {
                 .buttonStyle(.plain)
 
                 Button(action: { feed.nextTrack() }) {
-                    Image(systemName: "forward.fill")
+                    Image(systemName: "forward.end.fill")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(Color.white.opacity(0.85))
                         .frame(width: 18, height: 18)

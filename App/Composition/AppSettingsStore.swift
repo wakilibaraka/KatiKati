@@ -30,6 +30,7 @@ extension NowPlayingTapPreset {
         switch self {
         case .playPauseThenPlayer: return String(localized: "Click: play/pause, double-click: open player")
         case .playerThenPlayPause: return String(localized: "Click: open player, double-click: play/pause")
+        case .playPauseThenSourceApp: return "Click: play/pause, double-click: open source app"
         case .sourceAppThenPlayPause: return String(localized: "Click: open source app, double-click: play/pause")
         }
     }

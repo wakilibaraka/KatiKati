@@ -20,7 +20,7 @@ struct DockStripView: View {
     @EnvironmentObject var settingsStore: AppSettingsStore
     @EnvironmentObject var displayTopologyStore: DisplayTopologyStore
     @AppStorage("com.katikati.widgets.fabStyle") private var widgetsFABStyle: String = "gauge"
-    @AppStorage("com.katikati.media.preset") private var mediaPreset: NowPlayingPreset = .expandedCard
+    @AppStorage("com.katikati.media.preset") private var mediaPreset: NowPlayingPreset = .accentCard
 
     /// 这条任务条的底板是不是原生 Liquid Glass。由 `PanelCoordinator` 在建面板时一次定死
     /// （背景窗口建成功才为 true），**显式传入、没有默认值**：同 `scale` / `hoverStyle`，
@@ -1379,7 +1379,7 @@ struct DockStripView: View {
             // the chip inside an in-bounds island frame.
             let fitted = settingsStore.fittedWidgetLayout(screenWidth: stripScreenWidth)
             let baseWidth = fitted.width(for: section)
-            let targetWidth = (section == .media && mediaPreset == .expandedCard) ? max(baseWidth, 215) : baseWidth
+            let targetWidth = (section == .media && mediaPreset.isCard) ? max(baseWidth, 215) : baseWidth
             let widgetSize = fitted.instance(for: section).size
 
             Group {

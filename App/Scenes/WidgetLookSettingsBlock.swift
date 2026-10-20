@@ -14,12 +14,14 @@ struct WidgetLookSettingsBlock: View {
     // themselves — the animation they use and whether the notes and stopwatch tiles exist — so they
     // sit with the rest of the appearance rows, not under the weather warning thresholds.
     @AppStorage(WidgetAnimationPreset.storageKey) private var widgetAnimation: WidgetAnimationPreset = .slide
+    @AppStorage(NowPlayingOpenTap.doubleTapKey) private var openNeedsDoubleTap = false
+    @AppStorage(NowPlayingArtworkAccent.key) private var artworkAccent = true
     @AppStorage(WidgetExtraPrefs.showNotesKey) private var showNotes = true
     @AppStorage(WidgetExtraPrefs.showStopwatchKey) private var showStopwatch = true
     @AppStorage(WidgetPanelController.keepBothOpenKey) private var keepBoth = false
 
     @AppStorage("com.katikati.clock.preset") private var clockPresetRaw: String = ClockPreset.stackedCard.rawValue
-    @AppStorage("com.katikati.media.preset") private var mediaPresetRaw: String = NowPlayingPreset.expandedCard.rawValue
+    @AppStorage("com.katikati.media.preset") private var mediaPresetRaw: String = NowPlayingPreset.accentCard.rawValue
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
             SettingsCard(Text("Widget Appearance")) {
@@ -42,6 +44,14 @@ struct WidgetLookSettingsBlock: View {
                         ForEach(NowPlayingTapPreset.allCases, id: \.self) { Text($0.displayTitle) }
                     }
                     .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                SettingsDivider()
+                SettingsRow(Text(verbatim: "Open Player App: Double-Click")) {
+                    Toggle(isOn: $openNeedsDoubleTap) { Text(verbatim: "Open Player App: Double-Click") }.labelsHidden()
+                }
+                SettingsDivider()
+                SettingsRow(Text(verbatim: "Accent From Artwork")) {
+                    Toggle(isOn: $artworkAccent) { Text(verbatim: "Accent From Artwork") }.labelsHidden()
                 }
                 SettingsDivider()
                 SettingsRowPair(

@@ -294,9 +294,9 @@ struct ControlCenterView: View {
                     .font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
             }
             Spacer(minLength: 0)
-            Button { nowPlaying.previousTrack() } label: { Image(systemName: "backward.fill") }.buttonStyle(.plain)
+            Button { nowPlaying.previousTrack() } label: { Image(systemName: "backward.end.fill") }.buttonStyle(.plain)
             Button { nowPlaying.togglePlayPause() } label: { Image(systemName: s.isPlaying ? "pause.fill" : "play.fill") }.buttonStyle(.plain)
-            Button { nowPlaying.nextTrack() } label: { Image(systemName: "forward.fill") }.buttonStyle(.plain)
+            Button { nowPlaying.nextTrack() } label: { Image(systemName: "forward.end.fill") }.buttonStyle(.plain)
         }
         .disabled(!hasTrack)
         .opacity(hasTrack ? 1 : 0.55)

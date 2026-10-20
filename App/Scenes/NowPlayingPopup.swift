@@ -76,7 +76,7 @@ struct NowPlayingPopup: View {
                 // Playback Controls
                 HStack(spacing: 24) {
                     Button(action: onPrevious) {
-                        Image(systemName: "backward.fill")
+                        Image(systemName: "backward.end.fill")
                             .font(.system(size: 14))
                     }
                     .buttonStyle(.plain)
@@ -88,7 +88,7 @@ struct NowPlayingPopup: View {
                     .buttonStyle(.plain)
                     
                     Button(action: onNext) {
-                        Image(systemName: "forward.fill")
+                        Image(systemName: "forward.end.fill")
                             .font(.system(size: 14))
                     }
                     .buttonStyle(.plain)

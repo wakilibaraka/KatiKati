@@ -188,6 +188,12 @@ struct NotchIslandView: View {
         .colorScheme(notchTheme.prefersDarkContent ? .light : .dark)
     }
 
+    /// The playing artwork's accent, white when nothing is playing; tints the page dots on every page.
+    private var pageAccent: Color {
+        ArtworkAccentCache.accent(for: feed.nowPlayingState.isPlaying ? feed.nowPlayingState.artworkData : nil)
+            .map { Color(red: $0.red, green: $0.green, blue: $0.blue) } ?? .white
+    }
+
     private var pageIndicatorDots: some View {
         HStack(spacing: 6) {
             ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage,
@@ -200,7 +206,7 @@ struct NotchIslandView: View {
                     }
                 } label: {
                     Capsule()
-                        .fill(model.activePage == page ? Color.white.opacity(0.9) : Color.white.opacity(0.25))
+                        .fill(model.activePage == page ? pageAccent.opacity(0.95) : Color.white.opacity(0.25))
                         .frame(width: model.activePage == page ? 18 : 6, height: 4)
                 }
                 .buttonStyle(.plain)
@@ -229,6 +235,8 @@ struct NotchIslandView: View {
                     art.resizable().aspectRatio(contentMode: .fill)
                         .frame(width: 18, height: 18)
                         .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    MusicEqualizerBars(isActive: feed.nowPlayingState.isPlaying, tint: .white.opacity(0.85))
+                        .frame(width: 16, height: 12)
                 } else {
                     Image(systemName: LiveIslandStyle.symbolName(for: activity.kind))
                         .foregroundStyle(LiveIslandStyle.tint(for: activity.kind))
@@ -241,7 +249,9 @@ struct NotchIslandView: View {
             .font(.system(size: 12, weight: .semibold))
             .frame(width: NotchGeometry.sneakSide - 14, alignment: .leading)
             Spacer(minLength: metrics.closedSize.width - 8)
-            if let value = LiveIslandStyle.valueText(for: activity) {
+            if case .music = activity.content {
+                NotchLiveBattery().frame(width: NotchGeometry.sneakSide - 14, alignment: .trailing)   // battery stays put while music plays; no song text
+            } else if let value = LiveIslandStyle.valueText(for: activity) {
                 value
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(.white)
@@ -253,10 +263,10 @@ struct NotchIslandView: View {
             }
         }
         .frame(maxHeight: metrics.closedSize.height)
-        .background(alignment: .trailing) { musicGlow(for: activity) }
+        .background(alignment: .leading) { musicGlow(for: activity) }
     }
 
-    /// 50d: the artwork colour glowing behind the right ear while music is the winning activity.
+    /// 50d: the artwork colour glowing behind the artwork on the left ear while music is the winning activity.
     @ViewBuilder
     private func musicGlow(for activity: LiveActivity) -> some View {
         if case .music = activity.content, let accent = ArtworkAccentCache.accent(for: feed.nowPlayingState.artworkData) {
@@ -267,9 +277,9 @@ struct NotchIslandView: View {
                 Group {
                     if style == .edge {
                         Capsule().fill(color).frame(width: NotchGeometry.sneakSide - 12, height: 2)
-                            .frame(maxHeight: .infinity, alignment: .bottom).padding(.trailing, 6)
+                            .frame(maxHeight: .infinity, alignment: .bottom).padding(.leading, 6)
                     } else {
-                        Ellipse().fill(color).frame(width: NotchGeometry.sneakSide, height: metrics.closedSize.height * 0.9)
+                        Ellipse().fill(color).frame(width: 40, height: metrics.closedSize.height * 0.9)
                             .blur(radius: 10)
                     }
                 }
@@ -329,11 +339,11 @@ struct NotchIslandView: View {
 
     private var transport: some View {
         HStack(spacing: 16) {
-            Button { feed.previousTrack() } label: { Image(systemName: "backward.fill") }
+            Button { feed.previousTrack() } label: { Image(systemName: "backward.end.fill") }
                 .accessibilityLabel(Text("Back"))
             Button { feed.togglePlayPause() } label: { Image(systemName: feed.nowPlayingState.isPlaying ? "pause.fill" : "play.fill") }
                 .accessibilityLabel(feed.nowPlayingState.isPlaying ? Text("Pause") : Text("Play"))
-            Button { feed.nextTrack() } label: { Image(systemName: "forward.fill") }
+            Button { feed.nextTrack() } label: { Image(systemName: "forward.end.fill") }
                 .accessibilityLabel(Text("Forward"))
         }
         .buttonStyle(.plain)

@@ -14,7 +14,7 @@ final class NowPlayingTapPolicyTests: XCTestCase {
         }
     }
 
-    func testDefaultIsPlayPauseThenPlayer() {
-        XCTAssertEqual(NowPlayingTapPreset.default, .playPauseThenPlayer)
+    func testDefaultIsPlayPauseThenSourceApp() {
+        XCTAssertEqual(NowPlayingTapPreset.default, .playPauseThenSourceApp)
     }
 }

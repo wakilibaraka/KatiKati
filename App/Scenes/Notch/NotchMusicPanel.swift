@@ -42,9 +42,10 @@ struct NotchMusicPanel: View {
                 } else {
                     HStack(alignment: .top, spacing: 8) {
                         VStack(alignment: .leading, spacing: 1) {
-                            Text(verbatim: state.title ?? "").font(.system(size: 15, weight: .bold, design: .rounded)).lineLimit(1)
+                            MarqueeText(text: state.title ?? "", font: .system(size: 15, weight: .bold, design: .rounded), nearEnd: (state.progress(at: Date()) ?? 0) > 0.88)
                             Text(verbatim: state.artist ?? "").font(.system(size: 12)).foregroundStyle(.white.opacity(0.6)).lineLimit(1)
                         }
+                        .opensSourceApp(state.bundleIdentifier)
                         Spacer(minLength: 0)
                         MusicEqualizerBars(isActive: state.isPlaying && !reduceMotion, tint: accent(state))
                             .frame(width: 18, height: 14)
@@ -58,6 +59,14 @@ struct NotchMusicPanel: View {
         }
         .frame(height: NotchLayoutSpec.albumArtSize)
         .foregroundStyle(.white)
+        .background {
+            if !isIdle {
+                // Artwork wash: the accent fades out left to right behind the card.
+                LinearGradient(colors: [accent(state).opacity(0.30), .clear], startPoint: .leading, endPoint: .trailing)
+                    .padding(-10).blur(radius: 14).allowsHitTesting(false)
+                    .animation(.easeInOut(duration: 0.6), value: state.artworkData?.count)
+            }
+        }
     }
 
     /// The player's own artwork when it hands one over; the vinyl otherwise, spinning only while the
@@ -76,6 +85,7 @@ struct NotchMusicPanel: View {
         .frame(width: size, height: size)
         .clipShape(RoundedRectangle(cornerRadius: NotchLayoutSpec.albumArtCorner, style: .continuous))
         .shadow(color: glow.opacity(0.55), radius: 12, y: 3)
+        .opensSourceApp(isIdle ? nil : feed.nowPlayingState.bundleIdentifier)
     }
 
     @ViewBuilder
@@ -102,14 +112,14 @@ struct NotchMusicPanel: View {
 
     private func transport(_ state: NowPlayingState) -> some View {
         HStack(spacing: 20) {
-            Button { feed.previousTrack() } label: { Image(systemName: "backward.fill").font(.system(size: 15)) }
+            Button { feed.previousTrack() } label: { Image(systemName: "backward.end.fill").font(.system(size: 15)) }
             Button { feed.togglePlayPause() } label: {
                 Image(systemName: state.isPlaying && !isIdle ? "pause.fill" : "play.fill")
                     .font(.system(size: 15, weight: .bold)).foregroundStyle(.black)
                     .frame(width: 32, height: 32)
                     .background(Circle().fill(Color.white))
             }
-            Button { feed.nextTrack() } label: { Image(systemName: "forward.fill").font(.system(size: 15)) }
+            Button { feed.nextTrack() } label: { Image(systemName: "forward.end.fill").font(.system(size: 15)) }
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity)

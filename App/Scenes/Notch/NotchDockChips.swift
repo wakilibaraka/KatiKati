@@ -86,7 +86,7 @@ struct NotchBatteryChip: View {
             }
             .padding(.trailing, 2)
         }
-        .animation(.spring(response: 0.4, dampingFraction: 0.65), value: battery.isPluggedIn)
+        .animation(.spring(response: 0.4, dampingFraction: 1.0), value: battery.isPluggedIn)
         .animation(.easeInOut(duration: 0.4), value: tint)
         .animation(.easeInOut(duration: 0.4), value: level)
         .onAppear { updatePulse() }
@@ -101,5 +101,18 @@ struct NotchBatteryChip: View {
         } else {
             withAnimation(.easeOut(duration: 0.2)) { pulse = false }
         }
+    }
+}
+
+/// The right-ear battery while music is the live activity (the ears never go empty of it).
+struct NotchLiveBattery: View {
+    @StateObject private var power = SystemStatusService()
+
+    var body: some View {
+        Group {
+            if let level = power.status.battery.level { NotchBatteryChip(level: level, battery: power.status.battery) }
+        }
+        .onAppear { power.acquire() }
+        .onDisappear { power.release() }
     }
 }
