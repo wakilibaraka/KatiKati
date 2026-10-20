@@ -73,6 +73,8 @@ struct NotchIslandView: View {
     @AppStorage("com.katikati.theme.material") private var themeMaterialToken = DockThemeStyle.auto.token
     let metrics: NotchMetrics
     let theme: NowPlayingTheme
+    /// 51h: external-display wide bar — the closed state shows `NotchWideBarView` instead of the ear chips.
+    var wideBar = false
 
     /// Phase 12: the plate and content scheme, decided in `NotchTheme` (Core, tested). The island is a
     /// dark surface by design — this view pins `.colorScheme(.dark)` below — so the dark column is the
@@ -213,6 +215,7 @@ struct NotchIslandView: View {
     // MARK: Closed — glyph left of the notch, value right of it
 
     private func closedContent(_ activity: LiveActivity) -> some View {
+        if wideBar { return AnyView(NotchWideBarView(width: model.closedSize.width, height: model.closedSize.height)) }
         if activity.kind == .clock {
             return restContent == NotchRestContent.nothing.rawValue ? AnyView(Color.clear) : AnyView(NotchDockChips(metrics: metrics))
         }

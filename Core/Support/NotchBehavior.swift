@@ -36,6 +36,19 @@ enum NotchDesign: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+/// 51h: the wide bar's size and which items fit at a given width (time is always kept).
+enum NotchWideBarSpec {
+    enum Item: Sendable { case time, nowPlaying, battery, storage }
+    static func width(screenWidth: CGFloat) -> CGFloat { min(720, max(360, screenWidth - 80)) }
+    static func items(width: CGFloat) -> [Item] {
+        var out: [Item] = [.time]
+        if width >= 460 { out.append(.battery) }
+        if width >= 540 { out.append(.nowPlaying) }
+        if width >= 640 { out.append(.storage) }
+        return out
+    }
+}
+
 /// What the closed island shows when nothing is live (vorssaint-utils' "At rest"). `dockChips` is
 /// KatiKati's original storage + battery pair.
 enum NotchRestContent: String, CaseIterable, Identifiable, Sendable {

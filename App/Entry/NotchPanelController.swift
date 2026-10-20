@@ -14,6 +14,7 @@ final class NotchPanelController: LiveEventSink {
     private var panel: BoringNotchWindow?
     /// 51g: one controller per display; the coordinator owns the set.
     let displayID: CGDirectDisplayID
+    let design: NotchDesign
     private let model = NotchModel()
     private var cancellables = Set<AnyCancellable>()
     private var eventWork: DispatchWorkItem?
@@ -35,7 +36,9 @@ final class NotchPanelController: LiveEventSink {
         didSet { guard skin != oldValue else { return }; model.skin = skin; syncModelSizes(); syncWindow() }
     }
 
-    init(displayID: CGDirectDisplayID) { self.displayID = displayID }
+    init(displayID: CGDirectDisplayID, design: NotchDesign) { self.displayID = displayID; self.design = design }
+
+    private var isWide: Bool { design == .wideBar }
 
     /// Whether the panel exists and is on screen — the router's "usable" test for the notch.
     var isUsable: Bool { panel?.isVisible ?? false }
@@ -57,7 +60,7 @@ final class NotchPanelController: LiveEventSink {
         let window = BoringNotchWindow(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         window.collectionBehavior.remove(.fullScreenAuxiliary)
         window.acceptsMouseMovedEvents = true
-        window.contentView = container(for: NotchIslandView(model: model, metrics: metrics, theme: theme()))
+        window.contentView = container(for: NotchIslandView(model: model, metrics: metrics, theme: theme(), wideBar: isWide))
         panel = window
         LiveActivityFeed.shared.retain()
         holdsFeed = true
@@ -266,7 +269,7 @@ final class NotchPanelController: LiveEventSink {
         guard panel != nil, let screen = targetScreen() else { return }
         metrics = Self.metrics(for: screen)
         syncModelSizes()
-        panel?.contentView = container(for: NotchIslandView(model: model, metrics: metrics, theme: theme()))
+        panel?.contentView = container(for: NotchIslandView(model: model, metrics: metrics, theme: theme(), wideBar: isWide))
         syncWindow(immediate: true)
     }
 
@@ -282,10 +285,12 @@ final class NotchPanelController: LiveEventSink {
         // Always wide: when nothing is live the two sides carry the dock chips (storage left, battery right).
         let showsActivity = true
         let screenWidth = targetScreen()?.frame.width ?? 1440
-        model.closedSize = NotchGeometry.closedCapsuleSize(metrics, showsActivity: showsActivity)
+        model.closedSize = isWide
+            ? CGSize(width: NotchWideBarSpec.width(screenWidth: screenWidth), height: metrics.closedSize.height)
+            : NotchGeometry.closedCapsuleSize(metrics, showsActivity: showsActivity)
         let base = NotchGeometry.openSize(for: skin)
         let scaled = CGSize(width: base.width * NotchSizePreset.current(), height: base.height * NotchSizePreset.current())
-        model.openSize = NotchLayoutSpec.fit(scaled, screenWidth: screenWidth, closedWidth: metrics.closedSize.width)
+        model.openSize = NotchLayoutSpec.fit(scaled, screenWidth: screenWidth, closedWidth: isWide ? model.closedSize.width : metrics.closedSize.width)
     }
 
     /// The window is as large as the larger of the shapes involved: it grows at once (so the shape never
@@ -420,6 +425,7 @@ extension NSScreen {
 @MainActor
 final class NotchPanelCoordinator: LiveEventSink {
     private var controllers: [CGDirectDisplayID: NotchPanelController] = [:]
+    private var designs: [CGDirectDisplayID: NotchDesign] = [:]
     private var enabled = false
     private var observers = Set<AnyCancellable>()
     var theme: () -> NowPlayingTheme = { .auto } { didSet { controllers.values.forEach { $0.theme = theme } } }
@@ -449,9 +455,10 @@ final class NotchPanelCoordinator: LiveEventSink {
                 if design != .off { wanted[id] = design }
             }
         }
-        for (id, c) in controllers where wanted[id] == nil { c.setEnabled(false); controllers[id] = nil }
-        for id in wanted.keys where controllers[id] == nil {
-            let c = NotchPanelController(displayID: id)
+        for (id, c) in controllers where wanted[id] != designs[id] { c.setEnabled(false); controllers[id] = nil }
+        designs = wanted
+        for (id, design) in wanted where controllers[id] == nil {
+            let c = NotchPanelController(displayID: id, design: design)
             c.theme = theme; c.onOpenSettings = onOpenSettings; c.skin = skin
             controllers[id] = c
             c.setEnabled(true)
