@@ -37,6 +37,7 @@ FALLBACK_IDENTITY="KatiKati Local Code Signing"
 
 # strip_release_binary / verify_release_binary, shared with package_release.sh.
 source "$ROOT/Scripts/lib/release_binary.sh"
+source "$ROOT/Scripts/lib/clean_stale_install.sh"
 
 # 回退分支是给没有本项目 Developer ID 证书的人留的（仓库是 GPL 公开的、有 fork），
 # 不是给自己用的 —— 掉进回退分支意味着装出来的包和发布包身份不同，授权会打架。
@@ -60,6 +61,8 @@ else
   echo "       没有它就只能 ad-hoc 签名，每次安装都会让辅助功能授权失效。" >&2
   exit 1
 fi
+
+clean_stale_katikati
 
 echo "==> 构建 Release…"
 # Same arch and coverage settings as package_release.sh (see Scripts/lib/release_binary.sh).
