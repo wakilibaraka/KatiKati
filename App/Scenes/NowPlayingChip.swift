@@ -305,20 +305,29 @@ struct LiveIslandDockCapsule: View {
     }
 
     private func glyph(for activity: LiveActivity) -> some View {
-        ZStack {
+        let tint = glyphTint(for: activity)
+        return ZStack {
             if let progress = activity.ringProgress {
-                Circle().stroke(tint(for: activity.kind).opacity(0.2), lineWidth: 2)
+                Circle().stroke(tint.opacity(0.2), lineWidth: 2)
                 Circle()
                     .trim(from: 0, to: progress)
-                    .stroke(tint(for: activity.kind), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                    .stroke(tint, style: StrokeStyle(lineWidth: 2, lineCap: .round))
                     .rotationEffect(.degrees(-90))
             }
             Image(systemName: symbolName(for: activity.kind))
                 .font(.system(size: activity.ringProgress == nil ? 13 : 10, weight: .semibold))
-                .foregroundStyle(tint(for: activity.kind))
+                .foregroundStyle(tint)
         }
         .frame(width: activity.ringProgress == nil ? 16 : 22, height: 22)
         .accessibilityHidden(true)
+    }
+
+    /// 50c: while music wins, the glyph and ring wear the (reduced) artwork colour; grey art falls back to the kind tint.
+    private func glyphTint(for activity: LiveActivity) -> Color {
+        guard case .music = activity.content, let accent = ArtworkAccentCache.accent(for: feed.nowPlayingState.artworkData) else {
+            return tint(for: activity.kind)
+        }
+        return Color(red: accent.red, green: accent.green, blue: accent.blue)
     }
 
     // MARK: - Kind mapping (shared with the notch surface via `LiveIslandStyle`)
@@ -395,5 +404,34 @@ struct MusicScrubBar: View {
             )
         }
         .frame(height: max(trackHeight * 2, 8))
+    }
+}
+
+/// Average artwork colour reduced through `ArtworkAccent`; one entry, because only one track plays at a time.
+@MainActor
+enum ArtworkAccentCache {
+    private static var key: Data?
+    private static var value: ArtworkAccent?
+
+    static func accent(for data: Data?) -> ArtworkAccent? {
+        guard let data else { return nil }
+        if key == data { return value }
+        key = data
+        value = average(of: data).flatMap { ArtworkAccent.reduce(red: $0.0, green: $0.1, blue: $0.2) }
+        return value
+    }
+
+    /// Draws the image into one RGBA pixel, which averages it.
+    private static func average(of data: Data) -> (Double, Double, Double)? {
+        guard let cg = NSImage(data: data)?.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        var px = [UInt8](repeating: 0, count: 4)
+        let drawn = px.withUnsafeMutableBytes { buf -> Bool in
+            guard let ctx = CGContext(data: buf.baseAddress, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+                                      space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) else { return false }
+            ctx.interpolationQuality = .medium
+            ctx.draw(cg, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+            return true
+        }
+        return drawn ? (Double(px[0]) / 255, Double(px[1]) / 255, Double(px[2]) / 255) : nil
     }
 }
