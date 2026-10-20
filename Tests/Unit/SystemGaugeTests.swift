@@ -105,13 +105,19 @@ final class SystemGaugeTests: XCTestCase {
     /// Phase 46: two layouts × two plates. The stored values the app already shipped (`classic`,
     /// `detailed`) must keep meaning what they meant — the owner's own install pins `detailed`.
     func testWeatherChipPresetAxes() {
-        XCTAssertEqual(WeatherChipPreset.allCases.count, 4)
+        XCTAssertEqual(WeatherChipPreset.allCases.count, 5)
         XCTAssertEqual(WeatherChipPreset.allCases.map(\.rawValue).prefix(2), ["classic", "detailed"])
         // Both layouts exist on both plates, and the sky stays the default look.
-        XCTAssertEqual(WeatherChipPreset.allCases.filter(\.usesSkyPlate).map(\.isDetailed), [false, true])
+        XCTAssertEqual(WeatherChipPreset.allCases.filter(\.usesSkyPlate).map(\.isDetailed), [false, true, true])
         XCTAssertEqual(WeatherChipPreset.allCases.filter { !$0.usesSkyPlate }.map(\.isDetailed), [false, true])
         XCTAssertTrue(WeatherChipPreset.detailedForecast.usesSkyPlate)
         XCTAssertTrue(WeatherChipPreset.classicPill.usesSkyPlate)
+    }
+
+    /// Phase 56: only the iPad card is offered; a stored retired style stays listed and decodable.
+    func testWeatherPickerOffersIPadAndKeepsStoredRetired() {
+        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .ipad), [.ipad])
+        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .detailedGlass), [.ipad, .detailedGlass])
     }
 
     func testWiFiVolumeDotsActiveCalculation() {

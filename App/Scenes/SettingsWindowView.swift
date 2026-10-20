@@ -825,7 +825,7 @@ struct WeatherSettingsBlock: View {
             left: {
                 SettingsRow(Text("Weather Style")) {
                     Picker("Weather Style", selection: $weatherPresetRaw) {
-                        ForEach(WeatherChipPreset.allCases, id: \.rawValue) { preset in
+                        ForEach(WeatherChipPreset.pickerCases(current: WeatherChipPreset(rawValue: weatherPresetRaw) ?? .detailedForecast), id: \.rawValue) { preset in
                             Text(preset.title).tag(preset.rawValue)
                         }
                     }

@@ -55,9 +55,12 @@ public enum WeatherChipPreset: String, CaseIterable, Equatable, Codable, Sendabl
     /// The same two layouts on the shared dock plate instead of the sky (Phase 46).
     case classicGlassPill = "classicGlass"
     case detailedGlass = "detailedGlass"
+    /// Phase 56: the iPad-widget sky card (S/M/L ladder). The default once its view lands (W3).
+    case ipad
 
     public var title: String {
         switch self {
+        case .ipad: return "iPad Sky Card"
         case .classicPill: return "Classic Weather Pill"
         case .detailedForecast: return "Detailed 3-Day Forecast"
         case .classicGlassPill: return "Glass Weather Pill"
@@ -68,7 +71,7 @@ public enum WeatherChipPreset: String, CaseIterable, Equatable, Codable, Sendabl
     /// The 3-day pod (city, columns) rather than the compact pill.
     public var isDetailed: Bool {
         switch self {
-        case .detailedForecast, .detailedGlass: return true
+        case .ipad, .detailedForecast, .detailedGlass: return true
         case .classicPill, .classicGlassPill: return false
         }
     }
@@ -77,9 +80,15 @@ public enum WeatherChipPreset: String, CaseIterable, Equatable, Codable, Sendabl
     /// `false` keeps the dock glass the widget wore before the two glass presets existed.
     public var usesSkyPlate: Bool {
         switch self {
-        case .classicPill, .detailedForecast: return true
+        case .ipad, .classicPill, .detailedForecast: return true
         case .classicGlassPill, .detailedGlass: return false
         }
+    }
+
+    /// The styles the pickers offer. The older four stay decodable and renderable but are retired
+    /// from the choice for now (owner 2026-10-21); a stored retired value is still honoured and stays listed so the picker never goes blank.
+    public static func pickerCases(current: WeatherChipPreset) -> [WeatherChipPreset] {
+        current == .ipad ? [.ipad] : [.ipad, current]
     }
 }
 
