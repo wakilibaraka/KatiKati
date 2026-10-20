@@ -78,7 +78,7 @@ struct NotchTrackPillView: View {
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             VStack(alignment: .leading, spacing: 1) {
                 MarqueeText(text: state.title ?? "", font: .system(size: 12, weight: .bold, design: .rounded))
-                Text(verbatim: state.artist ?? "").font(.system(size: 11)).foregroundStyle(.white.opacity(0.6)).lineLimit(1)
+                MarqueeText(text: state.artist ?? "", font: .system(size: 11)).foregroundStyle(.white.opacity(0.6))
             }
             .frame(maxWidth: 170, alignment: .leading)
             MusicEqualizerBars(isActive: state.isPlaying && !reduceMotion, tint: accent)

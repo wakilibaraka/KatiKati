@@ -50,8 +50,24 @@ enum NotchWideBarSpec {
 /// What the closed island shows when nothing is live (vorssaint-utils' "At rest"). `dockChips` is
 /// KatiKati's original storage + battery pair.
 enum NotchRestContent: String, CaseIterable, Identifiable, Sendable {
-    case dockChips, battery, nothing
+    case dockChips, timeBattery, storage, time, battery, nothing
     var id: String { rawValue }
+
+    /// Curated left/right pairs; a pair with no side at all (`nothing`) leaves the bare notch.
+    enum Ear: Sendable { case storage, time, battery }
+    var left: Ear? {
+        switch self {
+        case .dockChips, .storage: return .storage
+        case .timeBattery, .time: return .time
+        case .battery, .nothing: return nil
+        }
+    }
+    var right: Ear? {
+        switch self {
+        case .dockChips, .timeBattery, .battery: return .battery
+        case .storage, .time, .nothing: return nil
+        }
+    }
     static let defaultsKey = "com.katikati.notch.restContent"
     static func current(_ d: UserDefaults = .standard) -> NotchRestContent {
         NotchRestContent(rawValue: d.string(forKey: defaultsKey) ?? "") ?? .dockChips

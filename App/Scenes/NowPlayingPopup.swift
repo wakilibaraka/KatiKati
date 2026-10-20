@@ -43,15 +43,11 @@ struct NowPlayingPopup: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(access.unreadableMessage ?? state.title ?? "Not Playing")
-                            .font(.system(size: 13, weight: .bold))
+                        MarqueeText(text: access.unreadableMessage ?? state.title ?? String(localized: "Not Playing"), font: .system(size: 13, weight: .bold))
                             .foregroundColor(isDarkMode ? .white : .black)
-                            .lineLimit(1)
                         if access.unreadableMessage == nil {
-                            Text(state.artist ?? "Unknown Artist")
-                                .font(.system(size: 12))
+                            MarqueeText(text: state.artist ?? "Unknown Artist", font: .system(size: 12))
                                 .foregroundColor(isDarkMode ? .gray : .secondary)
-                                .lineLimit(1)
                         } else {
                             Button(String(localized: "Open System Settings")) {
                                 if let url = PlayerAccess.automationSettingsURL { NSWorkspace.shared.open(url) }

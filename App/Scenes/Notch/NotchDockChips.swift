@@ -9,21 +9,31 @@ struct NotchDockChips: View {
     @AppStorage(NotchRestContent.defaultsKey) private var rest = NotchRestContent.dockChips.rawValue
 
     var body: some View {
+        let pair = NotchRestContent(rawValue: rest) ?? .dockChips
         HStack(spacing: 0) {
-            if rest != NotchRestContent.battery.rawValue {
-            HStack(spacing: 3) {
-                Image(systemName: "internaldrive.fill").font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(.cyan)
-                Text(verbatim: StorageScanMath.compact(free))
-                    .font(.system(size: 10, weight: .semibold, design: .rounded).monospacedDigit())
-                    .foregroundStyle(.white)
-                    .lineLimit(1).minimumScaleFactor(0.7)
-            }
-            .frame(width: NotchGeometry.sneakSide - 14, alignment: .leading)
-            .accessibilityElement(children: .combine)
+            if let left = pair.left {
+                Group {
+                    if left == .time {
+                        TimelineView(.everyMinute) { ctx in
+                            Text(verbatim: ctx.date.formatted(date: .omitted, time: .shortened))
+                        }
+                    } else {
+                        HStack(spacing: 3) {
+                            Image(systemName: "internaldrive.fill").font(.system(size: 10, weight: .semibold)).foregroundStyle(.cyan)
+                            Text(verbatim: StorageScanMath.compact(free))
+                        }
+                    }
+                }
+                .font(.system(size: 10, weight: .semibold, design: .rounded).monospacedDigit())
+                .foregroundStyle(.white)
+                .lineLimit(1).minimumScaleFactor(0.7)
+                .frame(width: NotchGeometry.sneakSide - 14, alignment: .leading)
+                .accessibilityElement(children: .combine)
+            } else {
+                Color.clear.frame(width: 0)
             }
             Spacer(minLength: metrics.closedSize.width - 8)
-            if let level = power.status.battery.level {
+            if pair.right == .battery, let level = power.status.battery.level {
                 NotchBatteryChip(level: level, battery: power.status.battery)
                     .frame(width: NotchGeometry.sneakSide - 14, alignment: .trailing)
             }

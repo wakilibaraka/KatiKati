@@ -213,10 +213,16 @@ private struct NotchActivityCard: View {
         SettingsCard(Text(verbatim: "Notch At Rest")) {
             HStack(spacing: 8) {
                 choice(.dockChips, "Storage & battery", "internaldrive")
+                choice(.timeBattery, "Time & battery", "clock")
                 choice(.battery, "Battery", "battery.75percent")
-                choice(.nothing, "Nothing", "minus")
             }
             .padding(.vertical, 4)
+            HStack(spacing: 8) {
+                choice(.storage, "Storage", "internaldrive.fill")
+                choice(.time, "Time", "clock.fill")
+                choice(.nothing, "None", "minus")
+            }
+            .padding(.bottom, 4)
             SettingsDivider()
             SettingsRow(Text(verbatim: "Music glow")) {
                 Picker(selection: $glow) {

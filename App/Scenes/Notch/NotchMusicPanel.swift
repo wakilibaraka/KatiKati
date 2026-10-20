@@ -43,7 +43,7 @@ struct NotchMusicPanel: View {
                     HStack(alignment: .top, spacing: 8) {
                         VStack(alignment: .leading, spacing: 1) {
                             MarqueeText(text: state.title ?? "", font: .system(size: 15, weight: .bold, design: .rounded), nearEnd: (state.progress(at: Date()) ?? 0) > 0.88)
-                            Text(verbatim: state.artist ?? "").font(.system(size: 12)).foregroundStyle(.white.opacity(0.6)).lineLimit(1)
+                            MarqueeText(text: state.artist ?? "", font: .system(size: 12)).foregroundStyle(.white.opacity(0.6))
                         }
                         .opensSourceApp(state.bundleIdentifier)
                         Spacer(minLength: 0)

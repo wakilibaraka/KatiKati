@@ -193,11 +193,8 @@ struct ExpandedMediaCardView: View {
                     .opensSourceApp(state.bundleIdentifier)
 
                 if unreadable == nil {
-                    Text(artist)
-                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                    MarqueeText(text: artist, font: .system(size: 10, weight: .medium, design: .rounded))
                         .foregroundStyle(Color.white.opacity(0.75))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
                         .opensSourceApp(state.bundleIdentifier)
                 } else {
                     // The refused-player line is already the empty artist slot's own height, so the row

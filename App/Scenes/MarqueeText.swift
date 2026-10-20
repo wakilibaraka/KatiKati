@@ -28,9 +28,19 @@ struct MarqueeText: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(GeometryReader { Color.clear.preference(key: BoxWidth.self, value: $0.size.width) })
             .clipped()
+            .mask(fade)
             .onPreferenceChange(Width.self) { textW = $0 }
             .onPreferenceChange(BoxWidth.self) { boxW = $0 }
             .task(id: "\(text)|\(nearEnd)|\(Int(overflow))") { await scroll() }
+    }
+
+    /// Soft edges only while the text really overflows; the leading one appears once it has moved.
+    private var fade: some View {
+        HStack(spacing: 0) {
+            LinearGradient(colors: [.black.opacity(overflow > 1 && offset < -1 ? 0 : 1), .black], startPoint: .leading, endPoint: .trailing).frame(width: 8)
+            Color.black
+            LinearGradient(colors: [.black, .black.opacity(overflow > 1 && offset > -overflow + 1 ? 0 : 1)], startPoint: .leading, endPoint: .trailing).frame(width: 8)
+        }
     }
 
     private func scroll() async {
