@@ -1,0 +1,369 @@
+# KatiKati — Feature Roadmap, Quality Audit & Parallel-Work Guide (Phases 49–58, Track Q)
+
+> Written 2026-10-20 against `main` @ `dac5606` (clean tree; code identical to `1ce7963` — `dac5606` only touched
+> `.gitattributes` + `graphify-out/*`). Owner: Emmanuel Baraka.
+> Companion to `HYBRID_PLAN.md` (the map and tracker), `STANDING_RULES.md` and `BASELINE_RULES.md`.
+> **Location:** repo root, beside those three, on purpose. `.gitignore` excludes `Docs/*.md` (working-tree-only), so a
+> doc under `Docs/` would not exist in the git worktrees the lanes in section 3 use. Committing this file publishes it —
+> the owner's call (the ignore comment: a missed ignore "cannot be taken back once pushed"). Same for `LANES.md` (49a).
+> File names below are given bare where unique; find one with `git ls-files | grep <name>`.
+> **This file plans; it changes no code.** Every status below was checked against the tree on the date above.
+> Where something could not be checked without a live run or the owner's eyes it says **UNVERIFIED** or **OWED** —
+> never PASS. The wishlist it grew from (hivinz-style edge bar, Vorssaint, Maccy, SlowQuit, KeyCastr, AltTabby,
+> PingPlace, Loadout, Cobalt, …) was partly stale; section 2 lists the corrections.
+
+## 0. How to use this file
+
+1. **Pick a slice, not a phase.** A slice is one concern, ≤ ~300 diff lines (`STANDING_RULES §1.1`, `§1.7f`),
+   pure logic in `Core/Support` first with a test, then wired into UI (`§2.2`). Over budget → split before starting.
+2. **Slice contract** (every slice below states these):
+   *lane* · *files* · *pure seam + test* · *`com.katikati.*` key (if any)* · *permission (if any)* · *hot-file touches
+   (section 3.3)* · *done when*.
+3. **Ponytail rule for every slice** (smallest complete change): reuse what exists (section 1 names it) before
+   writing anything; no registry, wrapper, option or abstraction nobody asked for; a shortcut with a known limit gets a
+   `shortcut: <limit>, <when to upgrade>` comment; end the slice note with what was skipped / not verified and the risk.
+4. **Per-step notes** go in `HYBRID_PLAN.md` under the phase heading, as the work happens (`§1.8`). That file is a hot
+   file — see 3.3 for who writes it when several agents run.
+5. **Status words:** BUILT · PARTIAL · PLANNED (already in HYBRID_PLAN, not built) · MISSING · UNVERIFIED · OWED.
+6. **Gate** (every slice; section 8): `xcodebuild test` (CI command) + `check_localization.py` +
+   `check_debug_switches.py` + `check_availability_warnings.py`; dev loop only through `Scripts/build_and_run.sh`.
+
+## 1. Ground truth (what the code actually contains)
+
+### 1.1 Shape
+`Core/Support` (pure, no AppKit/AX, dual-compiled into the test target) → `Platform/*` (OS adapters) →
+`App/Composition` (services, stores) → `App/Scenes` (SwiftUI) → `App/Entry` (panel controllers, `AppDelegate`).
+225 test files in `Tests/Unit`. One dependency (Sparkle). 993 localization keys × 12 languages, `check_localization.py`
+green. `SettingsTab` has **18** cases (`App/Scenes/SettingsTab.swift`; sidebar shell in `App/Scenes/Settings/`).
+Four independent `CGEventTap`s: `HyperkeyService`, `KeyGuardService`, `ScrollReverserMonitor`, `FullscreenIntentMonitor`.
+
+### 1.2 Wishlist item → reality
+| Wishlist item | Status | Evidence / what is left |
+|---|---|---|
+| Per-tool Settings pages, sidebar | BUILT | 18 tabs, `SettingsWindowView.swift` pane switch; no `NavigationSplitView` rewrite needed |
+| SlowQuit (hold ⌘Q) | BUILT | `KeyGuardService`, `KeyGuard.swift` (`SlowQuitTiming`), `SlowQuitOverlay.swift` |
+| KeyCastr-style key overlay | BUILT | `KeyVisualizerBuffer` (`KeyGuard.swift`), `KeyVisualizerOverlay.swift`; secure-input behaviour UNVERIFIED (Q-input) |
+| Input pause / keyboard cleaning | BUILT | `KeyGuardPipeline`, `cleaningTimer` in `KeyGuardService` |
+| Hyperkey | BUILT | `HyperkeyService` + pure `Core/Support/HyperkeyEngine.swift`; Caps Lock→F18 via `hidutil`; firing "not live-tested" per HYBRID_PLAN Phase 9 |
+| Caps Lock *protection* (accidental press) | MISSING | no guard in `KeyGuardPipeline` |
+| Finder keys (⌘X / ⌘V move, Return rename) | MISSING | |
+| System-wide snippet expansion | MISSING | snippets exist only as command-bar entries (`CustomCommands.swift`, key `com.katikati.commandbar.snippets`) |
+| "One event tap for everything" | NOT RECOMMENDED YET | rewrites behaviour-frozen code; extend pure `KeyGuardPipeline` instead, measure first (53e) |
+| Action registry (`KatiKatiActionRegistry`) | NOT NEEDED | `ShortcutAction` (`Core/Support/Shortcuts.swift`), `BarActionService`, `LauncherCommands` already route actions |
+| Screenshot CLI wrapper | BUILT as a method | `/usr/sbin/screencapture` already used in `App/Entry/RadialDialPanelController.swift`; text/QR result in `Edge/CaptureResultView.swift` |
+| Notification relocation (PingPlace) | BUILT | `NotificationMoveService`, `NotificationMirrorService` (Phase 25) |
+| Clipboard history (Maccy) | BUILT | `ClipboardHistory.swift`, `ClipboardPlus.swift`, `Platform/Clipboard/ClipboardMonitor.swift`, `Edge/ClipboardFlyoutView.swift`; concealed types skipped. Copy/paste sound + toast MISSING |
+| Command bar (SuperCmd-style) | BUILT | Phases 27–30, `CommandBarTests` |
+| Translate / define | BUILT | `Edge`/`TranslateCardView.swift`, `DictionaryService` |
+| Shelf: reduce PDF, share | BUILT | `PDFReducePlan.swift`, `ShelfActions.swift` (`NSSharingService`). Image reduce, LocalSend MISSING |
+| Tiling, snap, radial dial | BUILT | Phases 26, 31; `TilingTree/Layout`, `SnapRects`, `RadialDial*` tests |
+| Notch pages: AI, storage, downloads, calendar/music, teleprompter, mirror, notifications | BUILT | `Core/Support/NotchSectionPaging.swift` (`NotchPage`, `visible(...)`, `NotchPagingPolicy.defaultPage`), `App/Scenes/Notch/*`. User reorder/remove MISSING |
+| Notch: avoid camera cutout ("ears") | PARTIAL | `NotchGeometry.cameraKeepoutBox` exists; whether views honour it UNVERIFIED (Q-notch) |
+| Notch: battery buddy, artwork glow, compact now-playing toast | MISSING | |
+| Music: tap / double-tap opens player, artwork accent | MISSING | `NowPlayingChip.swift` has the popup/turntable; current tap behaviour UNVERIFIED |
+| Music: lyrics, equalizer | MISSING | no data source / audio tap; parked (50g) |
+| Now Playing source | BUILT, health UNVERIFIED | `NowPlayingService` (isolated MediaRemote, `#available`) + `AppleScriptNowPlaying`; which path works on this macOS is Q-music's first question |
+| AI usage page (Claude/Codex/Copilot/OpenCode) | BUILT | `AgentUsageService`, `Core/Support/AgentUsage/*`, `NotchAIPageView`. Live "status" (working/idle) MISSING; Loadout MISSING |
+| Calendar panel: countdown, alarms, timer, stopwatch, reminders | BUILT | `Docs/WIDGET_INVENTORY.md`, `CalendarPanelModels.swift` (`NextEventCountdown`). **Year-in-progress MISSING** |
+| Calculator keypad tile, mic recorder tile | BUILT (new, `8391671`, `be52384`) | in `CalendarPanelView.swift`; mic permission added; Q-widgets checks the denied-permission path |
+| Weather widget | BUILT | Phases 43/46; 3 size presets UNVERIFIED |
+| Battery / AirBattery-style multi-device | PARTIAL | `Core/Support/BluetoothDevices.swift` parser exists; redesign MISSING |
+| Smart tasks | PARTIAL | `Edge/TasksFlyoutView.swift` exists; smart sorting MISSING |
+| Pause / Hydrate reminders | UNVERIFIED | `DailyHelpersService` (Phase 36) — check what it already covers first |
+| Control Center: scroll to change volume, Bluetooth icon | UNVERIFIED | `ControlCenterLayout.swift`, `SettingsLayoutPane+ControlCenter.swift`, `Platform/SystemStatus/AudioOutputSwitcher.swift` |
+| Dock hover previews, dock-click actions | MISSING | not found in `DockStripView*` |
+| ⌘Tab switcher (AltTabby) | MISSING | AltTabby is Windows-only: design reference, no code to port |
+| Fixed Space order | MISSING | reusable seam: `NativeDockPreferencesService` |
+| Focus-follows-mouse, green-button zoom override, quit-on-last-window-close | MISSING | |
+| Launcher modes (fullscreen / centred / popover), Orb | MISSING | one presentation today (`LauncherView`, `App/Entry/LauncherPanelController.swift`) |
+| First-launch glass intro | MISSING | extends `WelcomeGuideView.swift` |
+| Scheduled cleaner | MISSING | seam: `StorageScanService` + `StorageScanMath.swift` |
+| Cobalt media download, LocalSend | MISSING | licence / network decisions (section 7) |
+
+## 2. Corrections to the pasted plans
+1. "Split Settings into per-tool pages" — already done (18 tabs). Do not re-plan it.
+2. "Add SlowQuit / KeyCastr / Hyperkey" — all three exist. Plan refinements only.
+3. "A single `KatiKatiActionRegistry`" — duplicates `ShortcutAction` + `BarActionService`. Extend those.
+4. "Use `screencapture -i -c`" — already the implementation.
+5. "Add a countdown widget" — a Countdown tile exists; only the year-in-progress ring is new.
+6. "One event tap" — the repo has four, each with its own timeout re-enable (verified). Merging is a rewrite of
+   behaviour-frozen code, not a refactor; decide from a measurement (53e), not an assumption.
+7. The pasted 6-phase "Claude Code execution plan" ignores that HYBRID_PLAN already holds Phases 0–48 and the
+   rules in `STANDING_RULES §1.7`. Numbering here continues at **49**.
+
+## 3. Parallel-work protocol (several AI IDEs / agents at once)
+
+### 3.1 Honest answer
+Yes, but only with discipline. The code is layered well enough that *feature* files rarely collide. Collisions happen on
+a short list of shared files (3.3). One working tree edited by two agents is the failure mode (it happened on
+2026-10-20: Freebuff and Claude Code both active in `main`; four commits landed mid-session — `8569d39`…`1ce7963` —
+and `1ce7963` had to repair test-target membership). The rules below remove that.
+
+### 3.2 Lanes — each lane owns a disjoint file set
+| Lane | Owns |
+|---|---|
+| **A Notch & Music** | `App/Scenes/Notch/*`, `NotchIslandView.swift`, `NotchMusicPanel`, `Core/Support/Notch*`, `NowPlaying*`, `AppleScriptNowPlaying`, `App/Entry/NotchPanelController.swift` |
+| **B Bar, Edge, Launcher, Control Center** | `DockStripView*`, `App/Scenes/Edge/*`, `Launcher*`, `RadialDial*`, `ControlCenter*`, `WindowLift*` (behaviour-frozen: pure-move edits only) |
+| **C Input & Windows engines** | `KeyGuard*`, `Hyperkey*`, `ShortcutService`, `Core/Support/Shortcuts.swift`, `Platform/*`, `Tiling*`, `WindowSnapService`, notification move/mirror |
+| **D Utilities** | clipboard, snippets/`CustomCommands`, command bar, shelf, capture, downloads/torrent, storage/cleaner, translate, agent usage |
+| **E Widgets** | `CalendarPanelView` (+ tiles), weather, battery, tasks, daily helpers |
+| **F Shell & Onboarding** | `SettingsTab`, `SettingsWindowView`, `Settings/*`, `WelcomeGuideView`, `Scripts/*`, `Docs/*` |
+| **Integrator** (one agent or the owner) | the hot files in 3.3 and merges |
+
+A slice never edits a file outside its lane's list; if it must, the touch goes in its *hot-file touches* line and the
+integrator applies it (or the slice waits).
+
+### 3.3 Hot files — one writer at a time (the integrator)
+| File | Why it collides | Protocol |
+|---|---|---|
+| `Resources/Localizable.xcstrings` | one catalog, keys appended unsorted at the tail (993 keys) → two branches append in the same hunk | lane writes its entries on its branch; integrator merges by hand (keep both), then runs `check_localization.py`. **Do not use `merge=union`** — it can corrupt JSON. Translations are human-reviewed drafts (`§1.7b`) |
+| `KatiKati.xcodeproj/project.pbxproj` | 763+ explicit file refs, `objectVersion 56` | hand-append only (`§1.7a`); a file addition ≈ 4 lines; > ~30 lines for one file = reject. Pure moves/splits are their own slice so they never ride along with logic |
+| `AppSettingsStore.swift` (1586 lines, ~86 `@Published`) | every feature adds a key | new features ship as **self-contained** blocks with their own `com.katikati.*` key constants and a tiny observable (patterns: `TorrentSettingsBlock` in `UtilitySettingsBlock.swift`; `CustomCommands`). A store edit is a hot-file touch |
+| `AppComposition.swift` (1170), `App/Entry/AppDelegate.swift` (1281) | service wiring | lazy, gated singletons (`§1.7e`); wiring line goes in the slice's hot-file touches |
+| `SettingsTab.swift` + `SettingsWindowView.swift` | adding a page edits both (and `SettingsTabTests`) | batch new tabs: one integrator slice per release, not per feature |
+| `HYBRID_PLAN.md` (5903 lines) | per-step note log | each lane keeps its notes in its slice commit message + a draft note block; the integrator pastes them under the phase heading in one commit |
+| `graphify-out/*` | rewritten whole on every build (`dac5606`: 9 files, +3597/−1504) | lanes do **not** commit it; integrator runs `graphify update .` once per merge. `.gitattributes` (`graph.json merge=graphify`, committed in `dac5606`) needs the matching local merge driver on each clone, or it silently falls back to a normal merge |
+
+### 3.4 Working rules
+1. **One agent per worktree and branch** (`lane-<x>/<slice-id>`), cut from current `main`. Never two agents in the
+   same checkout. The main checkout is the integrator's.
+2. **One writer per lane at a time.** Two agents in the same lane = serialise.
+3. **Claim before starting:** append one line to `LANES.md` (root, 49a): lane, slice id, branch, files. Claims live on
+   `main`, so the integrator commits them; an agent reads the file from `main`, not from its own stale branch.
+4. **Explicit `git add <paths>`, never `-A`/`.`** (`§1.7c`). Commit message carries scope receipts (`§1.7d`).
+5. **Rebase on `main` before handing to the integrator;** the integrator merges in this order: Core/pure slices →
+   Platform → Composition → Scenes → Settings → strings/pbxproj/graph → docs.
+6. **Pure first:** the Core file + its test can be merged long before the UI slice, which removes most overlap.
+7. **Behaviour-frozen files** (`WindowLiftAvoidanceController` 2754 lines, `AppTracker` 2607, `DragController` 1988,
+   `AccessibilitySource` 1343, `FullscreenIntentMonitor` 1010): bug fixes with a regression test only. Splits are
+   pure-move slices, never mixed with edits.
+8. **Before any lane starts (pre-flight):** `git status` clean on `main` (it is, at `dac5606`); the 2 stale stashes
+   (`phase-12 slice1`, `4u-a-superseded`, both labelled superseded) and the prunable `/private/tmp/kk-tip` worktree
+   (detached `bad2303`) cleared **by the owner**; worktree `.claude/worktrees/hopeful-gauss-9a1c88` (also detached
+   `bad2303`) either adopted or removed. Local branches `claude/hopeful-gauss-9a1c88`, `phase-11-18-layout-placement`,
+   `fix/force-unwrap-hardening`, `release/0.17.0-beta.3` are all already merged into `main` (`git branch --merged`).
+9. **If a file changed under you** (another agent): stop, re-read, rebase; never overwrite.
+
+## 4. Track Q — quality audit of what is already built (past and present)
+
+Q work is read-and-measure first: each slice produces PASS / FIX / OWED rows with the evidence; fixes are separate
+slices ≤ 300 lines. **Q0–Q2 run before any new-feature phase;** the lane Q-slices run ahead of the feature phase that
+touches the same files (Q-music → 50, Q-notch → 51, Q-input → 53, Q-bar → 54/57, Q-widgets → 56).
+
+### 4.1 Four gates for every feature
+1. **Static** — its pure tests exist and the CI command is green; the three checkers are clean.
+2. **Live** — a named recipe on a real build (`Scripts/build_and_run.sh`, then
+   `open --env DOCK_OPEN_SETTINGS=<tab> --env DOCK_DEV_SKIP_PERMISSIONS=1 <app>`), with a screenshot or log.
+   A unit test alone is never PASS for UI or OS behaviour.
+3. **Resource** — idle CPU with the feature on vs off, and every `Timer`/poll it owns (16 timer sites in
+   `App/Composition` + `Platform`; `KeyGuardService` alone has 3: 1 s cleaning, 0.05 s hold, 0.05 s visualizer).
+4. **Care** — permission-denied path, privacy/secrets, Reduce Motion (12 files handle it; 31 `withAnimation` in `App`),
+   VoiceOver (51 `.accessibilityLabel`), 12 languages, multi-display / Spaces / fullscreen.
+
+### 4.2 Present work: the tree was committed by another agent during this investigation
+`8569d39` (Settings tabs split; "Live Island" → "Dynamic Notch") · `8391671` (calculator + mic recorder tiles) ·
+`be52384` (mic permission; catalogs reconciled) · `1ce7963` (test target: `QuickAddState` dual-compiled,
+`NotchMirrorPageView` membership fixed) · `dac5606` (graph rebuild + `.gitattributes`). The tree is clean.
+**Q0 checks that this HEAD is actually green** — the membership repair in `1ce7963` means the suite was red or
+un-buildable at some point in between. A CI-command run on `1ce7963` was started by this author and had not finished
+when this was written; treat section 9 as **pending**, not as a pass.
+
+### 4.3 Past work: checks the repo already admits are owed (HYBRID_PLAN line refs)
+| Where | Not done | Slice |
+|---|---|---|
+| Phase 9 (`:2266`) | Hyper firing, custom-key shortcuts not live-tested | Q-input |
+| Phases 7A/8 (`:1907–1912`) | drag-reorder, ⌥-drag pill, outside-click dismissal, multi-display, fullscreen/Spaces, iCloud, Windows snap on a real window, Capture region selector, Reminders prompt, Instruments idle-CPU number (`:1762`) | Q-bar, Q-widgets, Q1 |
+| Phase 10 (`:2317`) | translation review sheet deferred to a pre-release gate (7 CSVs in `Docs/`) | Q-l10n |
+| Phase 16 (`:2897`) | Control Center live check owed to the owner | Q-bar |
+| Phase 41 (`:4985`) | slice 41e owed | Q-bar |
+| Phase 46 (`:1317`) | weather animations seen live only for Drizzle | Q-widgets |
+| Phase 48 (`:5332`) | notch pages not live-checked | Q-notch |
+
+### 4.4 Findings from this investigation (verified unless marked)
+1. **Key visualizer and secure input.** grep finds no secure-input/password handling in `KeyGuard.swift`,
+   `KeyGuardService.swift`, `KeyVisualizerOverlay.swift`, and no `IsSecureEventInputEnabled` anywhere in
+   `App/Core/Platform`. Verify live what the overlay shows in a password field (macOS may already withhold the text);
+   if it shows anything, suppress + clear the buffer.
+2. **Stale settings gates.** `Scripts/check_settings_page_heights.py` and the `DOCK_SETTINGS_PAGE_HEIGHT` probe were
+   removed by `d0aa73a` (sidebar redesign; window now freely resizable, min 640×440), but `Docs/SETTINGS.md`
+   (`:87`, `:174`), `Docs/DEBUG_SWITCHES.md` (`:17`) and `HYBRID_PLAN.md` still describe them, and the switch is not
+   referenced in code. `Scripts/live_check_settings_tabs.py` clicks `toolbar 1` buttons from a 15-name list; the shell
+   is now a sidebar and `SettingsTab` has 18 cases (`SettingsWindowView.swift:6` still says "ten toolbar items").
+   UNVERIFIED that the script fails today — run it in Q2, then rewrite it to drive the sidebar (or loop
+   `DOCK_OPEN_SETTINGS=<tab>`) from the `SettingsTab` list, and correct the three docs. Decide whether a min-size
+   fit check (every page usable at 640×440) replaces the old clamp rule.
+3. **Event taps.** All four re-enable on `tapDisabledByTimeout`/`…ByUserInput`. Refinement: surface "tap alive" in
+   Advanced and log a one-line note when a tap had to be re-enabled.
+4. **Hyperkey remap.** `restoreRemap()` runs on turn-off (`HyperkeyService.swift:103`). UNVERIFIED: after `kill -9`
+   with Hyperkey on, does Caps Lock stay F18? If so, restore a stale remap at launch. `HyperkeyEngineTests` lives
+   inside `Tests/Unit/ShortcutsTests.swift` — move to its own file (helps parallel edits).
+5. **Clipboard.** Concealed/transient/auto-generated types are skipped (`ClipboardHistory.swift:26`); poll is 0.7 s
+   and only while recording. UNVERIFIED: where history persists, clear-on-quit, per-app ignore (`ClipboardIgnoreRules`
+   in `ClipboardPlus.swift`).
+6. **Localization.** 993 × 12, all present; `check_localization.py` also reports **40 Chinese string literals** left
+   in source (mostly `ContentView`, `DragController`, `AppTracker`, `DockStripView`) — confirm none is user-visible.
+   The checker proves completeness, not quality (`§1.7b`); add a check that flags a translation identical to its
+   English source.
+7. **Skipped tests (6).** 4 live-torrent tests need `KK_LIVE_TORRENT=1` + `aria2c`; 1 is CI-only
+   (`DragControllerConversionTests`); 1 is a precondition skip in `WindowLiftAvoidanceTests`. Run the torrent pair
+   before each release.
+8. **"Service has no test" is not a gap by itself.** Hyperkey, KeyGuard, NotificationMove, StorageScan, AgentUsage,
+   Dictionary, Bookmark and others have no test naming the *service* because their decisions live in tested Core
+   types. Q checks the Core type is covered and the glue has a live recipe.
+9. **File growth.** `CalendarPanelView.swift` grew by 226 lines in `8391671` alone (calculator + recorder tiles);
+   `NowPlayingChip.swift` is 1375 lines holding six views. Both are split by 49b/49c before more lands in them.
+10. **Reduce Motion / VoiceOver** coverage is partial (counts in 4.1); sweep notch, launcher, dock, radial dial,
+    settings, calendar tiles.
+
+### 4.5 Per-feature audit rows
+| Lane | Feature | Live recipe | Refinement to evaluate (hypotheses, not claims) |
+|---|---|---|---|
+| C | KeyGuard: pause, SlowQuit, visualizer | hold ⌘Q 3×; type in a password field; all guards off ⇒ nothing swallowed | secure-input suppression, per-app allow list, tap-health row |
+| C | Hyperkey | Caps Lock→F18, Hyper shortcut fires, `kill -9` recovery | stale-remap restore at launch |
+| C | Notification move/mirror | banner lands in each corner after a fresh macOS banner | auto-disable after repeated AX failures + status line in Settings |
+| C | Tiling, snap, radial dial | 2 displays, Spaces, fullscreen, Accessibility revoked mid-run | clean disable when the grant is revoked |
+| A | Notch (geometry, pages, hover, gestures) | notch Mac, no-notch Mac, external display, fullscreen, menu-bar auto-hide | none until the Phase 48 live check is recorded |
+| A | Now Playing & music surfaces | Spotify, Apple Music, browser audio, nothing playing | which source works; error text; artwork fallback |
+| A/D | Agent usage page | real Claude/Codex/Copilot/OpenCode logs | date-stamp `AgentPricing`; parser fixtures from each tool's current log format |
+| D | Clipboard, command bar, snippets | password-manager copy; 500 items; snippet paste | clear-on-quit, per-app ignore, snippet placeholders |
+| D | Downloads / BitTorrent | the opt-in live test; idle CPU engine off | peer-IP privacy note, port/firewall prompt, bandwidth cap |
+| D | Shelf, PDF reduce, translate, dictionary | 20 MB PDF; offline translate | cancel + progress, size-saved readout |
+| E | Weather, Calendar panel, calculator, recorder | location denied; offline; EventKit denied; **mic denied** | explicit denied/empty states (Phase 43: never invent data) |
+| B | Dock strip, edge bars, Control Center | multi-display, hover, drag-reorder, CC volume + Bluetooth | the owed owner eyeballs |
+| F | Settings shell (18 tabs), onboarding | repaired live check; Welcome guide with permissions revoked | min-size fit check |
+| all | l10n, a11y, Reduce Motion, idle CPU | scripts + one Instruments run | identical-to-English check |
+
+### 4.6 Q slices
+| ID | Slice | Lane | Output |
+|---|---|---|---|
+| **Q0** | Gate on HEAD: CI test command + 3 checkers; check `1ce7963`'s pbxproj/test-target state | F + integrator | gate result recorded in section 9 |
+| **Q1** | Baseline: one idle-CPU run with defaults (Instruments or `ps`), timers inventory | F | the number every later Resource gate compares to |
+| **Q2** | Repair settings gates: live check reads `SettingsTab`, drives the sidebar; fix `Docs/SETTINGS.md`, `Docs/DEBUG_SWITCHES.md`, the "ten toolbar items" comment; decide min-size fit check | F | green script run over 18 tabs |
+| **Q-input** | KeyGuard + Hyperkey rows; secure-input check; `kill -9` check; move `HyperkeyEngineTests` | C | rows + fixes if confirmed |
+| **Q-notch** | Phase 48 live check; camera-keepout check on notch + no-notch Macs | A | rows |
+| **Q-music** | which Now Playing source works; tap behaviour today; error states | A | rows |
+| **Q-bar** | owed eyeballs (Phases 7A, 16, 41); Control Center volume/Bluetooth | B | rows |
+| **Q-widgets** | weather animation sweep; denied-permission states incl. mic | E | rows |
+| **Q-utils** | clipboard privacy; torrent live test; agent-usage fixtures | D | rows + fixtures |
+| **Q-l10n** | identical-to-English check; 40 literals; translation CSV review gate | F | rows |
+| **Q-a11y** | Reduce Motion + VoiceOver sweep | all | rows |
+
+## 5. Phase 49 — Parallel-work foundation (structure only, zero behaviour change)
+| ID | Slice | Lane | Est. | Test / gate | Done when |
+|---|---|---|---|---|---|
+| 49a | Root `LANES.md`: section 3.2/3.3 as the live claim board (one line per active slice). Root, not `Docs/` — see header | F | ~60 | none (docs) | every active agent has a line; file is tracked |
+| 49b | Split `NowPlayingChip.swift` into one file per view (`NowPlayingChip`, `NowPlayingPopup`, `TurntableView`, `ExpandedMediaCardView`, …) — **pure move** | A | ~0 net + ~20 pbxproj | CI command; byte-identical code | no logic diff; `git diff -M` shows moves only |
+| 49c | Move the calculator and recorder tiles out of `CalendarPanelView.swift` into their own files — pure move | E | ~0 net + ~8 pbxproj | CI command | same |
+| 49d | Optional, owner-gated: per-lane string tables (`String(localized:table:)`) + `check_localization.py` scans all tables | F | ~120 | checker green on all tables | owner approves; otherwise skip |
+| 49e | Decide the Settings-registration pattern: batched tab additions through the integrator | F | docs only | — | rule written in `LANES.md` |
+| 49f | Pbxproj synchronized folders — **not recommended** (needs `objectVersion` 77; conflicts with `§1.7a`) | — | — | — | record as rejected unless the owner overrides |
+
+## 6. Phases 50–58 — new features (each slice ≤ ~300 lines; "Est." is a first guess)
+
+### Phase 50 — Music surfaces (Lane A; starts after Q-music, 49b)
+| ID | Slice | Seam / files | Key / permission | Est. | Done when |
+|---|---|---|---|---|---|
+| 50a | Pure `ArtworkAccent`: reduce an artwork's average colour to a readable accent (clamp saturation/contrast, fallback to theme) | Core `ArtworkAccent.swift` + test; pixel read stays in the app layer | none | ~90 | table test incl. near-black, near-white, grey art |
+| 50b | `NowPlayingTapPolicy`: tap vs double-tap → {play/pause, open player, open source app} | Core pure + test; wire in the chip | `com.katikati.nowplaying.tapAction` | ~120 | policy table-tested; chip honours the setting |
+| 50c | Accent on the dock chip + progress ring (reuse `NowPlayingProgress`) | `NowPlayingChip` files | none | ~100 | owner screenshot |
+| 50d | Notch: artwork glow on the right ear; drop the song text from the collapsed notch | depends on 51b | `com.katikati.notch.musicGlow` | ~150 | owner screenshot; Reduce Motion path |
+| 50e | `NowPlayingToastPolicy` + compact toast on track change while collapsed | Core pure + test; `NotchMusicPanel` | `com.katikati.notch.trackToast` | ~160 | shown once per track; suppressed in fullscreen/Do Not Disturb (verify how existing code reads those) |
+| 50f | Dock/edge chips reuse the accent (consistency pass) | Lane B hot-file touch | — | ~80 | |
+| 50g | **Parked:** lyrics, equalizer — no data source / audio tap; revisit with an owner decision | — | would need Screen/Audio capture permission | — | |
+
+### Phase 51 — Notch geometry, motion, pages (Lane A; after Q-notch)
+| ID | Slice | Seam / files | Key | Est. | Done when |
+|---|---|---|---|---|---|
+| 51a | Honour `cameraKeepoutBox` in the views (no content under the cutout) — fix only what Q-notch finds | `NotchHeaderView`/`NotchHomeView`, `NotchGeometryTests` | — | ~100 | live check on a notch Mac |
+| 51b | Split-ear zones: extend the **existing** `NotchLayoutSpec` (153 lines: sizes, `headerHeight`, `openPanelSize`) with a pure "what may sit left/right of the cutout" function; test in the existing `NotchLayoutSpecTests` | `NotchLayoutSpec.swift` + `NotchLayoutSpecTests.swift` | — | ~120 | |
+| 51c | Page order / hide: pure `NotchPageOrder.apply` feeding `NotchPage.visible`; settings list | `NotchSectionPaging.swift` + test | `com.katikati.notch.pageOrder` | ~180 | `defaultPage` still valid when its page is hidden |
+| 51d | Battery buddy on an ear when a Bluetooth device charges/low (reuse `BluetoothDevices`) | Core pure + view | `com.katikati.notch.batteryBuddy` | ~150 | |
+| 51e | Motion tuning in `NotchMotionSpec` (live: `NotchIslandView:105`, `LiveIslandSettingsBlock:117`, pinned by `NotchDesignSpecTests:87-93`) — only against an owner screen recording. **First delete the dead duplicate** `NotchLayoutSpec.openSpring/closeSpring` (0.42/0.8 and 0.45/1.0 — zero references anywhere, and they disagree with the live 0.38/0.82 and 0.32/1.0) | `NotchMotionSpec.swift`, `NotchLayoutSpec.swift` | — | ~40 | owner approves feel; one source of truth for the springs |
+
+### Phase 52 — AI status (Lanes A/D; after Q-utils)
+| ID | Slice | Notes |
+|---|---|---|
+| 52a | Fixture tests per provider parser from current real logs | feeds Q-utils; Core/Tests only, ~150 |
+| 52b | "Working / idle" indicator from transcript file activity (read-only, reuse `AgentClaudeParser` inputs) | **no writing to the user's Claude settings/hooks** in this slice |
+| 52c | Hook-based status (claude-status-bar style) — would write to `~/.claude` config | owner decision + licence check first (outward-facing config change) |
+| 52d | Loadout-style presets — port or skip | owner scope decision |
+
+### Phase 53 — Input features (Lane C; after Q-input; all through the pure `KeyGuardPipeline`)
+| ID | Slice | Seam | Key / permission | Est. | Done when |
+|---|---|---|---|---|---|
+| 53a | Caps Lock protection: ignore a tap shorter than N ms; interplay table with Hyperkey (Caps→F18) | extend `KeyGuardPipeline` + `KeyGuardTests` | `com.katikati.keyguard.capsHold`; Input Monitoring (already used) | ~140 | table covers Hyperkey on/off |
+| 53b | Finder key map (⌘X/⌘V move, Return rename) gated on frontmost = Finder | pure `FinderKeyMap` + test | `com.katikati.keyguard.finderKeys` | ~150 | nothing swallowed when off (`testNothingSwallowedWhenAllGuardsOff` stays) |
+| 53c | System-wide snippet expansion: pure `SnippetExpander` over typed buffer + `CustomCommands.parseSnippets` | Core + test; insertion via pasteboard-and-paste | `com.katikati.snippets.expand` | ~220 | disabled in secure input and for ignored apps; depends on finding 4.4-1 |
+| 53d | Quit-on-last-window-close: pure `QuitOnLastWindowPolicy`, **opt-in per app, default empty** (unsaved work risk) | Core + `AccessibilitySource` observation | `com.katikati.windows.quitOnClose` | ~200 | |
+| 53e | Tap-hub measurement: input latency + CPU with 1 vs 4 taps. **No code.** | notes | — | — | owner decides whether a hub is worth a rewrite |
+
+### Phase 54 — Window management (Lanes C+B; after Q-bar)
+| ID | Slice | Notes |
+|---|---|---|
+| 54a | Dock-click actions: pure `DockClickPolicy` (click frontmost → minimise/hide, modifier variants); first verify today's behaviour | Core + test, ~150 |
+| 54b | Hover previews: ScreenCaptureKit thumbnails, cached, off by default | **Screen Recording permission**; idle-CPU gate vs Q1; spike first |
+| 54c | ⌘Tab switcher | spike only — overriding ⌘Tab is high-risk; decide after 54b |
+| 54d | Fixed Space order via `NativeDockPreferencesService` (`mru-spaces`) | changes a macOS setting → explicit in-app confirmation, restore on off |
+| 54e | Focus-follows-mouse: throttled AX hit-test, idle-CPU rule | pure policy + test, ~180 |
+| 54f | Green-button zoom override | **probe first**; likely private API; owner decision |
+
+### Phase 55 — Clipboard, capture, drawer (Lane D)
+| ID | Slice | Notes |
+|---|---|---|
+| 55a | Copy/paste sound + notch toast on clipboard change (`ClipboardMonitor` event → pure toast policy) | `com.katikati.clipboard.sound`, ~120 |
+| 55b | Extract the `screencapture` runner from `RadialDialPanelController` (pure move) then add a `ShortcutAction` for region→clipboard | lane B/D hot touch, ~100 + ~80 |
+| 55c | Image reduce (`ImageReducePlan`, mirrors `PDFReducePlan`) for the shelf | Core + test, ~150 |
+| 55d | Scheduled cleaner: `StorageScanService` + schedule; **dry-run list first, Trash only, never permanent delete** | owner sign-off, ~220 |
+| 55e | LocalSend / AirDrop-style send | network feature → owner decision + licence; parked |
+| 55f | Cobalt media download | licence/legal decision; parked |
+
+### Phase 56 — Widgets (Lane E; after 49c, Q-widgets)
+| ID | Slice | Notes |
+|---|---|---|
+| 56a | Year-in-progress tile: pure `YearProgress` + test; tile in its own file | ~120 |
+| 56b | Weather size presets (verify the existing 3 first) | UNVERIFIED today |
+| 56c | Battery redesign + multi-device list (reuse `BluetoothDevices`) | ~200 |
+| 56d | Smart tasks: pure due/priority sort over the existing tasks flyout | ~120 |
+| 56e | Pause / Hydrate prompts — first read `DailyHelpersService`; add only what is missing | ~120 |
+
+### Phase 57 — Launcher modes & Control Center (Lane B; after Q-bar)
+| ID | Slice | Notes |
+|---|---|---|
+| 57a | Control Center: scroll-to-volume + Bluetooth icon (verify first) | `ControlCenterLayout.swift`, ~100 |
+| 57b | `LauncherPresentation` (fullscreen / centred / popover) as a pure enum + routing in `LauncherPanelController` | `com.katikati.launcher.presentation`, ~200 |
+| 57c | Orb summon | after 57b; owner screenshot |
+
+### Phase 58 — Onboarding (Lane F)
+| ID | Slice | Notes |
+|---|---|---|
+| 58a | Permissions page after the Phase 9 live test (Accessibility, Screen Recording, Input Monitoring, mic) — already on the owner's list | extend `WelcomeGuideView.swift`; follow `Docs/ONBOARDING_TEST_CHECKLIST.md` |
+| 58b | Glass intro animation (GlassIntroKit-style) — licence check before any code is borrowed | native re-implementation by default |
+
+## 7. Owner decisions needed
+1. Run Q0–Q2 **before** new features (recommended) or in parallel?
+2. Who performs the OWED eyeball/grant checks (4.3)? Agents cannot grant Accessibility/Screen Recording.
+3. Clear the 2 stale stashes, `/private/tmp/kk-tip`, and decide the fate of `.claude/worktrees/hopeful-gauss-9a1c88`.
+4. Set up the `merge=graphify` driver on each clone/worktree; decide whether `FEATURE_ROADMAP_2026-10.md` and `LANES.md`
+   are committed (published) at the root or kept untracked.
+5. Input: extend `KeyGuardPipeline` (recommended) vs build a single tap hub — decide after 53e.
+6. Per-lane string tables (49d): adopt or skip.
+7. Licence/scope calls before any code is borrowed: SlowQuitApps, Maccy, KeyCastr, Loadout, claude-status-bar,
+   GlassIntroKit, Cobalt, LocalSend, AltTabby (Windows-only — design reference). Default: native re-implementation.
+8. Privacy-sensitive features: hook-based Claude status (writes `~/.claude`), scheduled cleaner, quit-on-close,
+   fixed Space order (changes a macOS setting). Each needs explicit sign-off.
+9. Priority order of Phases 50–58, and the cut list (suggested cut: 50g, 54c, 54f, 55e, 55f).
+
+## 8. Gate and evidence checklist (copy into each slice note)
+- [ ] Files touched ⊆ lane list; every outside touch has a scope-receipt line (`§1.7d`).
+- [ ] `xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO` → "Executed N tests, with 0 failures" (CI's exact command, `.github/workflows`).
+- [ ] `python3 Scripts/check_localization.py` · `python3 Scripts/check_debug_switches.py` · `python3 Scripts/check_availability_warnings.py <log>`.
+- [ ] New Core logic has a test; new `DOCK_*` switch registered in `Core/Support/DebugSwitch.swift`; new strings in all 12 languages (human-reviewed).
+- [ ] `git diff --stat` ≤ ~300 lines; pbxproj ≤ ~30 lines per file addition; no regenerated generated files.
+- [ ] Live recipe run and recorded, or marked **OWED** with the reason (never PASS from a unit test alone).
+- [ ] Step note written (3.3); `CHANGELOG.md` updated for user-visible changes.
+- [ ] Ended with: what was skipped / not verified, and the risk.
+
+## 9. Baseline record (Q0 fills this in)
+| Date | HEAD | `xcodebuild test` | Checkers | Idle CPU (Q1) | Notes |
+|---|---|---|---|---|---|
+| 2026-10-20 | `dac5606` (code = `1ce7963`) | _pending — run started on `1ce7963`, not finished when written; see Q0_ | `check_localization.py` ✅ (993 keys × 12; 40 source literals) | _owed_ | |
