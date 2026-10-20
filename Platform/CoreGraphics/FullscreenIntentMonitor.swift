@@ -408,7 +408,7 @@ private final class FullscreenIntentEventTapThread {
             guard let tap = CGEvent.tapCreate(
                 tap: .cgSessionEventTap,
                 place: .headInsertEventTap,
-                options: .defaultTap,
+                options: .listenOnly,   // observes only; a listen-only tap can never stall system input
                 eventsOfInterest: mask,
                 callback: Self.callback,
                 userInfo: Unmanaged.passUnretained(self).toOpaque()
