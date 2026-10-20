@@ -56,6 +56,7 @@ struct LiveIslandSettingsBlock: View {
         }
         NotchLayoutCard()
         NotchBehaviorCard()
+        NotchPagesCard(store: store)
         NotchActivityCard()
     }
 
@@ -313,5 +314,74 @@ private struct NotchLayoutCard: View {
             SettingsDivider()
             SettingsToggleRow(Text(verbatim: "Show outline"), isOn: $outline)
         }
+    }
+}
+
+/// 51c: reorder and hide the notch pages. Hiding the last shown page switches the notch off, after a warning.
+private struct NotchPagesCard: View {
+    @ObservedObject var store: AppSettingsStore
+    @AppStorage(NotchPageLayout.defaultsKey) private var raw = ""
+    @AppStorage(TeleprompterModel.enabledKey) private var teleprompter = false
+    @AppStorage(CameraMirrorService.enabledKey) private var mirror = false
+    @AppStorage(NotificationMirrorService.enabledKey) private var notifications = false
+    @State private var pendingHide: NotchPage?
+
+    private var layout: NotchPageLayout { NotchPageLayout(raw: raw) }
+    /// Every page that exists right now, in the owner's order, hidden ones included.
+    private var pages: [NotchPage] {
+        layout.order.filter { NotchPage.visible(teleprompter: teleprompter, mirror: mirror, notifications: notifications, layout: NotchPageLayout()).contains($0) }
+    }
+
+    var body: some View {
+        SettingsCard(Text(verbatim: "Notch Pages")) {
+            List {
+                ForEach(pages) { page in
+                    HStack {
+                        Image(systemName: "line.3.horizontal").foregroundStyle(.tertiary)
+                        Label { Text(verbatim: page.title) } icon: { Image(systemName: page.symbol) }
+                        Spacer()
+                        Button { toggle(page) } label: {
+                            Image(systemName: layout.hidden.contains(page) ? "eye.slash" : "eye")
+                        }
+                        .buttonStyle(.borderless)
+                        .accessibilityLabel(Text(verbatim: (layout.hidden.contains(page) ? "Show " : "Hide ") + page.title))
+                    }
+                    .opacity(layout.hidden.contains(page) ? 0.45 : 1)
+                }
+                .onMove { from, to in
+                    var moved = pages
+                    moved.move(fromOffsets: from, toOffset: to)
+                    raw = NotchPageLayout(order: moved + layout.order, hidden: layout.hidden).raw
+                }
+            }
+            .listStyle(.plain)
+            .scrollDisabled(true)
+            .frame(height: CGFloat(pages.count) * 32 + 8)
+            if !store.notchIslandEnabled {
+                Text(verbatim: "The notch is off. Show a page to bring it back.").font(.caption).foregroundStyle(.secondary)
+            }
+        }
+        .confirmationDialog(Text(verbatim: "Hide the last page?"), isPresented: Binding(get: { pendingHide != nil }, set: { if !$0 { pendingHide = nil } })) {
+            Button(role: .destructive) { if let page = pendingHide { setHidden(page, true); store.setNotchIslandEnabled(false) } } label: {
+                Text(verbatim: "Hide and turn the notch off")
+            }
+        } message: { Text(verbatim: "With every page hidden the notch has nothing to show, so it will be turned off.") }
+    }
+
+    private func toggle(_ page: NotchPage) {
+        if layout.hidden.contains(page) {
+            setHidden(page, false)
+            if !store.notchIslandEnabled { store.setNotchIslandEnabled(true) }
+        } else if pages.allSatisfy({ $0 == page || layout.hidden.contains($0) }) {
+            pendingHide = page
+        } else {
+            setHidden(page, true)
+        }
+    }
+
+    private func setHidden(_ page: NotchPage, _ hide: Bool) {
+        var next = layout
+        if hide { next.hidden.insert(page) } else { next.hidden.remove(page) }
+        raw = next.raw
     }
 }

@@ -166,10 +166,16 @@ final class NotchPanelController: LiveEventSink {
         if hover.isOpen && !model.isOpen {
             if NotchBehavior.haptic() { NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now) }
             let nowPlaying = LiveActivityFeed.shared.activity.kind == .music
-            model.activePage = NotchPagingPolicy.defaultPage(
+            let wanted = NotchPagingPolicy.defaultPage(
                 nowPlayingActive: nowPlaying,
                 aiTurnActive: false
             )
+            // 51c: a hidden default page falls back to the first shown one.
+            let d = UserDefaults.standard
+            let shown = NotchPage.visible(teleprompter: d.bool(forKey: TeleprompterModel.enabledKey),
+                                          mirror: d.bool(forKey: CameraMirrorService.enabledKey),
+                                          notifications: d.bool(forKey: NotificationMirrorService.enabledKey))
+            model.activePage = shown.contains(wanted) ? wanted : shown[0]
         }
         model.isOpen = hover.isOpen
         LiveActivityFeed.shared.isNotchExpanded = model.isExpanded

@@ -255,4 +255,16 @@ final class NotchGestureTests: XCTestCase {
         XCTAssertEqual(NotchPage.downloadDeck.previous(wrap: true, teleprompter: true), .teleprompter)
         XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: false), .downloadDeck)   // switched off while on it
     }
+
+    func testPageLayoutOrdersHidesAndRoundTrips() {
+        let all = NotchPage.visible(teleprompter: false, layout: NotchPageLayout())
+        XCTAssertEqual(all, [.downloadDeck, .storage, .aiTracker, .audioDeck])
+        var layout = NotchPageLayout(order: [.audioDeck, .aiTracker])
+        layout.hidden = [.storage]
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, layout: layout), [.audioDeck, .aiTracker, .downloadDeck])
+        XCTAssertEqual(NotchPageLayout(raw: layout.raw), layout)
+        XCTAssertEqual(NotchPageLayout(raw: "junk|99,x"), NotchPageLayout())
+        layout.hidden = Set(NotchPage.allCases)
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, layout: layout).count, 4)   // never empty
+    }
 }

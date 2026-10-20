@@ -45,15 +45,16 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
     /// The pages in paging order. The teleprompter, the camera mirror and the notifications page exist
     /// only while their own switch is on, so with all three off the gallery is exactly the five pages it
     /// always was.
-    static func visible(teleprompter: Bool, mirror: Bool = false, notifications: Bool = false) -> [NotchPage] {
-        allCases.filter { page in
+    static func visible(teleprompter: Bool, mirror: Bool = false, notifications: Bool = false,
+                        layout: NotchPageLayout = .stored) -> [NotchPage] {
+        layout.apply(allCases.filter { page in
             switch page {
             case .teleprompter: return teleprompter
             case .cameraMirror: return mirror
             case .notifications: return notifications
             default: return true
             }
-        }
+        })
     }
 
     func next(wrap: Bool = true, teleprompter: Bool = false, mirror: Bool = false,
@@ -70,6 +71,38 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         guard let index = all.firstIndex(of: self) else { return all[0] }
         if index > 0 { return all[index - 1] }
         return wrap ? all[all.count - 1] : self
+    }
+}
+
+/// 51c: the owner's page order and hidden pages, stored as "order|hidden" (raw values, comma separated).
+struct NotchPageLayout: Equatable, Sendable {
+    static let defaultsKey = "com.katikati.notch.pageOrder"
+    static var stored: NotchPageLayout { NotchPageLayout(raw: UserDefaults.standard.string(forKey: defaultsKey) ?? "") }
+
+    /// Always a permutation of every page: unknown or repeated values are dropped, missing pages appended.
+    private(set) var order: [NotchPage]
+    var hidden: Set<NotchPage>
+
+    init(order: [NotchPage] = NotchPage.allCases, hidden: Set<NotchPage> = []) {
+        var seen = Set<NotchPage>()
+        self.order = (order + NotchPage.allCases).filter { seen.insert($0).inserted }
+        self.hidden = hidden
+    }
+
+    init(raw: String) {
+        func pages(_ part: Substring) -> [NotchPage] { part.split(separator: ",").compactMap { Int($0).flatMap(NotchPage.init(rawValue:)) } }
+        let parts = raw.split(separator: "|", maxSplits: 1, omittingEmptySubsequences: false)
+        self.init(order: parts.first.map(pages) ?? [], hidden: Set(parts.count > 1 ? pages(parts[1]) : []))
+    }
+
+    var raw: String { order.map { String($0.rawValue) }.joined(separator: ",") + "|" + hidden.map { String($0.rawValue) }.sorted().joined(separator: ",") }
+
+    /// The pages reordered and minus the hidden ones. Never empty while `pages` is not: when every page is
+    /// hidden the notch is switched off by the settings, and the gallery must still have a page to stand on.
+    func apply(_ pages: [NotchPage]) -> [NotchPage] {
+        let sorted = pages.sorted { order.firstIndex(of: $0)! < order.firstIndex(of: $1)! }
+        let shown = sorted.filter { !hidden.contains($0) }
+        return shown.isEmpty ? sorted : shown
     }
 }
 
