@@ -234,6 +234,84 @@
           }
         }
       }
+    },
+    "NSMicrophoneUsageDescription" : {
+      "comment" : "widget 面板录音机的麦克风权限：录制期间才会开启麦克风。",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Records the takes you start in the widget pane recorder. The microphone is on only while a take is running."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "录制你在 widget 面板录音机中开始的片段。麦克风仅在片段录制期间开启。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "錄製你在 widget 面板錄音機中開始的片段。麥克風僅在片段錄製期間開啟。"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ウィジェットパネルのレコーダーで開始するテイクを録音します。マイクはテイクの実行中のみオンになります。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nimmt die Takes auf, die Sie im Recorder des Widget-Bereichs starten. Das Mikrofon ist nur während eines Takes eingeschaltet."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistre les prises que vous démarrez dans l’enregistreur du panneau de widgets. Le micro n’est actif que pendant une prise."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Graba las tomas que inicias en el grabador del panel de widgets. El micrófono solo está activo mientras se graba una toma."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Graba las tomas que inicias en el grabador del panel de widgets. El micrófono solo está activo mientras se graba una toma."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grava as takes que você inicia no gravador do painel de widgets. O microfone fica ligado apenas durante uma take."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grava as gravações que inicia no gravador do painel de widgets. O microfone está ativo apenas durante uma gravação."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registra le riprese che avvii nel registratore del pannello widget. Il microfono è attivo solo durante una ripresa."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위젯 패널의 레코더에서 시작하는 테이크를 녹음합니다. 마이크는 테이크가 진행되는 동안에만 켜집니다。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -2489,40 +2489,6 @@
         "ko": {"stringUnit": {"state": "needs_review", "value": "카메라 접근이 꺼져 있음"}}
       }
     },
-    "Shows the Live Island capsule on the dock.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Shows the Live Island capsule on the dock."}},
-        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "在程序坞显示实时岛胶囊。"}},
-        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "在 Dock 顯示即時島膠囊。"}},
-        "ja": {"stringUnit": {"state": "needs_review", "value": "Dock に Live Island カプセルを表示します。"}},
-        "de": {"stringUnit": {"state": "needs_review", "value": "Zeigt die Live-Island-Kapsel im Dock."}},
-        "fr": {"stringUnit": {"state": "needs_review", "value": "Affiche la capsule Live Island dans le Dock."}},
-        "es": {"stringUnit": {"state": "needs_review", "value": "Muestra la cápsula Live Island en el Dock."}},
-        "es-419": {"stringUnit": {"state": "needs_review", "value": "Muestra la cápsula Live Island en el Dock."}},
-        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Mostra a cápsula Live Island no Dock."}},
-        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Mostra a cápsula Live Island na Dock."}},
-        "it": {"stringUnit": {"state": "needs_review", "value": "Mostra la capsula Live Island nel Dock."}},
-        "ko": {"stringUnit": {"state": "needs_review", "value": "Dock에 Live Island 캡슐을 표시합니다."}}
-      }
-    },
-    "Shows or hides the Live Island at the top of the screen.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Shows or hides the Live Island at the top of the screen."}},
-        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "显示或隐藏屏幕顶部的实时岛。"}},
-        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "顯示或隱藏螢幕頂端的即時島。"}},
-        "ja": {"stringUnit": {"state": "needs_review", "value": "画面上部の Live Island を表示または非表示にします。"}},
-        "de": {"stringUnit": {"state": "needs_review", "value": "Blendet die Live Island oben auf dem Bildschirm ein oder aus."}},
-        "fr": {"stringUnit": {"state": "needs_review", "value": "Affiche ou masque la Live Island en haut de l’écran."}},
-        "es": {"stringUnit": {"state": "needs_review", "value": "Muestra u oculta Live Island en la parte superior de la pantalla."}},
-        "es-419": {"stringUnit": {"state": "needs_review", "value": "Muestra u oculta Live Island en la parte superior de la pantalla."}},
-        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Mostra ou oculta a Live Island na parte superior da tela."}},
-        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Mostra ou oculta a Live Island na parte superior do ecrã."}},
-        "it": {"stringUnit": {"state": "needs_review", "value": "Mostra o nasconde Live Island nella parte alta dello schermo."}},
-        "ko": {"stringUnit": {"state": "needs_review", "value": "화면 상단에 Live Island를 표시하거나 숨깁니다."}}
-      }
-    },
     "Full uses a multi-panel layout; Compact uses a simpler player card.": {
       "extractionState": "manual",
       "localizations": {
@@ -2538,40 +2504,6 @@
         "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Completo usa vários painéis; Compacto usa um cartão de reprodução simples."}},
         "it": {"stringUnit": {"state": "needs_review", "value": "Completo usa più pannelli; Compatto usa una scheda player più semplice."}},
         "ko": {"stringUnit": {"state": "needs_review", "value": "전체는 여러 패널을, 간결은 단순한 플레이어 카드를 사용합니다."}}
-      }
-    },
-    "Choose where Live Island event alerts appear.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Choose where Live Island event alerts appear."}},
-        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "选择实时岛事件提醒的显示位置。"}},
-        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "選擇即時島事件提醒的顯示位置。"}},
-        "ja": {"stringUnit": {"state": "needs_review", "value": "Live Island のイベント通知を表示する場所を選びます。"}},
-        "de": {"stringUnit": {"state": "needs_review", "value": "Wähle, wo Live-Island-Ereignisse angezeigt werden."}},
-        "fr": {"stringUnit": {"state": "needs_review", "value": "Choisissez où afficher les alertes d’événement Live Island."}},
-        "es": {"stringUnit": {"state": "needs_review", "value": "Elige dónde aparecen las alertas de eventos de Live Island."}},
-        "es-419": {"stringUnit": {"state": "needs_review", "value": "Elige dónde aparecen las alertas de eventos de Live Island."}},
-        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Escolha onde os alertas de eventos da Live Island aparecem."}},
-        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Escolha onde aparecem os alertas de eventos da Live Island."}},
-        "it": {"stringUnit": {"state": "needs_review", "value": "Scegli dove mostrare gli avvisi degli eventi Live Island."}},
-        "ko": {"stringUnit": {"state": "needs_review", "value": "Live Island 이벤트 알림을 표시할 위치를 선택합니다."}}
-      }
-    },
-    "Also show Live Island alerts as macOS notifications.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Also show Live Island alerts as macOS notifications."}},
-        "zh-Hans": {"stringUnit": {"state": "needs_review", "value": "同时将实时岛提醒显示为 macOS 通知。"}},
-        "zh-Hant": {"stringUnit": {"state": "needs_review", "value": "同時將即時島提醒顯示為 macOS 通知。"}},
-        "ja": {"stringUnit": {"state": "needs_review", "value": "Live Island の通知を macOS の通知としても表示します。"}},
-        "de": {"stringUnit": {"state": "needs_review", "value": "Zeigt Live-Island-Hinweise zusätzlich als macOS-Mitteilungen."}},
-        "fr": {"stringUnit": {"state": "needs_review", "value": "Affiche aussi les alertes Live Island dans les notifications macOS."}},
-        "es": {"stringUnit": {"state": "needs_review", "value": "También muestra las alertas de Live Island como notificaciones de macOS."}},
-        "es-419": {"stringUnit": {"state": "needs_review", "value": "También muestra las alertas de Live Island como notificaciones de macOS."}},
-        "pt-BR": {"stringUnit": {"state": "needs_review", "value": "Também mostra alertas da Live Island como notificações do macOS."}},
-        "pt-PT": {"stringUnit": {"state": "needs_review", "value": "Também mostra alertas da Live Island como notificações do macOS."}},
-        "it": {"stringUnit": {"state": "needs_review", "value": "Mostra anche gli avvisi Live Island come notifiche macOS."}},
-        "ko": {"stringUnit": {"state": "needs_review", "value": "Live Island 알림을 macOS 알림으로도 표시합니다."}}
       }
     },
     "Click to expand or collapse the demo preview.": {
@@ -8160,160 +8092,6 @@
         }
       }
     },
-    "Show the Live Island on the notch": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show the Live Island on the notch"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在刘海上显示实时岛"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在瀏海上顯示即時島"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ノッチにライブアイランドを表示"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Live Island an der Notch anzeigen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Afficher la Live Island sur l’encoche"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mostrar la Live Island en el notch"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mostrar la Live Island en el notch"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mostrar a Live Island no notch"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mostrar a Live Island no notch"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mostra la Live Island sul notch"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "노치에 라이브 아일랜드 표시"
-          }
-        }
-      }
-    },
-    "You can change this later in Settings › Live Island.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "You can change this later in Settings › Live Island."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "之后可在“设置 › 实时岛”中更改。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "之後可在「設定 › 即時島」中更改。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "あとで「設定 › ライブアイランド」で変更できます。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Du kannst das später unter Einstellungen › Live Island ändern."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vous pourrez le modifier plus tard dans Réglages › Live Island."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Puedes cambiarlo más tarde en Ajustes › Live Island."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Puedes cambiarlo más tarde en Ajustes › Live Island."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Você pode mudar isso depois em Ajustes › Live Island."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pode alterar isto mais tarde em Definições › Live Island."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Puoi cambiarlo in seguito in Impostazioni › Live Island."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "나중에 설정 › 라이브 아일랜드에서 변경할 수 있습니다."
-          }
-        }
-      }
-    },
     "System Dock": {
       "extractionState": "manual",
       "localizations": {
@@ -9157,237 +8935,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "복사한 링크 정리"
-          }
-        }
-      }
-    },
-    "Live Island": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Live Island"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "实时岛"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "即時島"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ライブアイランド"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Live Island"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Live Island"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Isla en vivo"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Isla en vivo"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ilha ao vivo"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ilha em direto"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Isola live"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "라이브 아일랜드"
-          }
-        }
-      }
-    },
-    "Dock Island": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dock Island"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "底栏岛"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "底欄島"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dock のアイランド"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dock-Island"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Île du Dock"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Isla del Dock"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Isla del Dock"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ilha do Dock"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ilha do Dock"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Isola del Dock"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dock 아일랜드"
-          }
-        }
-      }
-    },
-    "Notch Island": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notch Island"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "刘海岛"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "瀏海島"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ノッチのアイランド"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notch-Island"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Île du notch"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Isla del notch"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Isla del notch"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ilha do notch"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ilha do notch"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Isola del notch"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "노치 아일랜드"
           }
         }
       }
@@ -36887,83 +36434,6 @@
         }
       }
     },
-    "Five islands: launcher, weather, apps and now playing, clock, widgets.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Five islands: launcher, weather, apps and now playing, clock, widgets."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "五个岛：启动器、天气、应用与正在播放、时钟、小组件。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "五個島：啟動器、天氣、App 與正在播放、時鐘、小工具。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "5つのアイランド：ランチャー、天気、アプリと再生中、時計、ウィジェット。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fünf Inseln: Launcher, Wetter, Apps und Wiedergabe, Uhr, Widgets."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cinq îlots : lanceur, météo, apps et lecture en cours, horloge, widgets."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cinco islas: lanzador, tiempo, apps y reproduciendo, reloj, widgets."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cinco islas: lanzador, clima, apps y reproduciendo, reloj, widgets."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cinco ilhas: iniciador, clima, apps e tocando agora, relógio, widgets."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cinco ilhas: iniciador, tempo, apps e a reproduzir, relógio, widgets."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cinque isole: launcher, meteo, app e in riproduzione, orologio, widget."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다섯 개의 섬: 런처, 날씨, 앱과 지금 재생 중, 시계, 위젯."
-          }
-        }
-      }
-    },
     "Floating": {
       "extractionState": "manual",
       "localizations": {
@@ -37195,83 +36665,6 @@
         }
       }
     },
-    "Four islands: launcher and weather, apps, now playing, clock and widgets.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Four islands: launcher and weather, apps, now playing, clock and widgets."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "四个岛：启动器与天气、应用、正在播放、时钟与小组件。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "四個島：啟動器與天氣、App、正在播放、時鐘與小工具。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "4つのアイランド：ランチャーと天気、アプリ、再生中、時計とウィジェット。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vier Inseln: Launcher und Wetter, Apps, Wiedergabe, Uhr und Widgets."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quatre îlots : lanceur et météo, apps, lecture en cours, horloge et widgets."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cuatro islas: lanzador y tiempo, apps, reproduciendo, reloj y widgets."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cuatro islas: lanzador y clima, apps, reproduciendo, reloj y widgets."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quatro ilhas: iniciador e clima, apps, tocando agora, relógio e widgets."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quatro ilhas: iniciador e tempo, apps, a reproduzir, relógio e widgets."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quattro isole: launcher e meteo, app, in riproduzione, orologio e widget."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "네 개의 섬: 런처와 날씨, 앱, 지금 재생 중, 시계와 위젯."
-          }
-        }
-      }
-    },
     "Full Width": {
       "extractionState": "manual",
       "localizations": {
@@ -37345,83 +36738,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "전체 너비"
-          }
-        }
-      }
-    },
-    "Gap Between Islands": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gap Between Islands"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "岛间距"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "島間距"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "アイランド間の間隔"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abstand zwischen Inseln"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Espace entre îlots"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Espacio entre islas"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Espacio entre islas"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Espaço entre ilhas"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Espaço entre ilhas"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spazio tra le isole"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "섬 사이 간격"
           }
         }
       }
@@ -52056,83 +51372,6 @@
         }
       }
     },
-    "Three islands: launcher and weather, apps and now playing, clock and widgets.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Three islands: launcher and weather, apps and now playing, clock and widgets."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "三个岛：启动器与天气、应用与正在播放、时钟与小组件。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "三個島：啟動器與天氣、App 與正在播放、時鐘與小工具。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3つのアイランド：ランチャーと天気、アプリと再生中、時計とウィジェット。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drei Inseln: Launcher und Wetter, Apps und Wiedergabe, Uhr und Widgets."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trois îlots : lanceur et météo, apps et lecture en cours, horloge et widgets."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tres islas: lanzador y tiempo, apps y reproduciendo, reloj y widgets."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tres islas: lanzador y clima, apps y reproduciendo, reloj y widgets."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Três ilhas: iniciador e clima, apps e tocando agora, relógio e widgets."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Três ilhas: iniciador e tempo, apps e a reproduzir, relógio e widgets."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tre isole: launcher e meteo, app e in riproduzione, orologio e widget."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "세 개의 섬: 런처와 날씨, 앱과 지금 재생 중, 시계와 위젯."
-          }
-        }
-      }
-    },
     "Titanium Frost": {
       "extractionState": "manual",
       "localizations": {
@@ -55979,83 +55218,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "마우스를 올리면 버튼 이름 표시"
-          }
-        }
-      }
-    },
-    "Islands": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Islands"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "岛屿"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "島嶼"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "アイランド"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inseln"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Îlots"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Islas"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Islas"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ilhas"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ilhas"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Isole"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "아일랜드"
           }
         }
       }
@@ -63337,196 +62499,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "外部間距"
-          }
-        }
-      }
-    },
-    "Floating Applications": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Floating Applications"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "التطبيقات العائمة"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schwebende Apps"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aplicaciones flotantes"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aplicaciones flotantes"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Applications flottantes"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Applicazioni fluttuanti"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "フローティングアプリ"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "플로팅 애플리케이션"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zwevende programma's"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aplicativos flutuantes"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aplicações flutuantes"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Плавающие приложения"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "浮动应用"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "浮動應用程式"
-          }
-        }
-      }
-    },
-    "Applications listed below will float and never be tiled (one bundle identifier per line):": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Applications listed below will float and never be tiled (one bundle identifier per line):"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ستظل التطبيقات المدرجة أدناه عائمة ولن يتم ترتيبها أبدًا (معرّف حزمة واحد في كل سطر):"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die unten aufgeführten Apps bleiben schwebend und werden nie gekachelt (eine Bundle-ID pro Zeile):"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Las aplicaciones enumeradas a continuación flotarán y nunca se colocarán en mosaico (un identificador de paquete por línea):"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Las aplicaciones enumeradas a continuación flotarán y nunca se colocarán en mosaico (un identificador de paquete por línea):"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les applications répertoriées ci-dessous restent flottantes et ne sont jamais pavées (un identifiant de bundle par ligne) :"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le applicazioni elencate di seguito rimarranno fluttuanti e non saranno mai affiancate (un bundle ID per riga):"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "以下の一覧にあるアプリはフローティングのままとなり、タイリングされません（1行につき1つのバンドルID）:"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "아래 나열된 애플리케이션은 타일링되지 않고 항상 플로팅 상태를 유지합니다(한 줄에 하나의 번들 ID):"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Onderstaande programma's blijven zweven en worden nooit getegeld (één bundel-id per regel):"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Os aplicativos listados abaixo flutuarão e nunca serão organizados em mosaico (um identificador por linha):"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "As aplicações listadas abaixo flutuarão e nunca serão organizadas em mosaico (um identificador por linha):"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Указанные ниже приложения остаются плавающими и не будут тайлиться (по одному идентификатору на строку):"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "下列应用将保持浮动，永不参与平铺（每行一个 Bundle Identifier）："
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "下列應用程式將保持浮動，永不參與平鋪（每行一個 Bundle Identifier）："
           }
         }
       }
@@ -71120,158 +70092,6 @@
         }
       }
     },
-    "Clock, calendar, weather, and their look.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "时钟、日历、天气及其外观。"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clock, calendar, weather, and their look."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "時鐘、日曆、天氣及其外觀。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "時計、カレンダー、天気とその見た目。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Uhr, Kalender, Wetter und deren Aussehen."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Horloge, calendrier, météo et leur apparence."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Reloj, calendario, clima y su aspecto."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Reloj, calendario, clima y su aspecto."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Relógio, calendário, clima e sua aparência."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Relógio, calendário, meteorologia e o seu aspeto."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Orologio, calendario, meteo e il loro aspetto."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "시계, 캘린더, 날씨 및 모양."
-          }
-        }
-      }
-    },
-    "The Live Island: skin, pages, size, and alerts.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "实时岛：皮肤、页面、尺寸和提醒。"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The Live Island: skin, pages, size, and alerts."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "即時島：外觀、頁面、尺寸和提醒。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "ライブアイランド：スキン、ページ、サイズ、通知。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Die Live-Insel: Stil, Seiten, Größe und Hinweise."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "L’îlot en direct : style, pages, taille et alertes."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "La isla en vivo: estilo, páginas, tamaño y alertas."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "La isla en vivo: estilo, páginas, tamaño y alertas."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "A ilha ao vivo: estilo, páginas, tamanho e alertas."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "A ilha em direto: estilo, páginas, tamanho e alertas."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "L’isola live: stile, pagine, dimensioni e avvisi."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "라이브 아일랜드: 스킨, 페이지, 크기 및 알림."
-          }
-        }
-      }
-    },
     "Side bars: preset, placement, widgets, and size.": {
       "localizations": {
         "zh-Hans": {
@@ -71344,82 +70164,6 @@
           "stringUnit": {
             "state": "needs_review",
             "value": "사이드 바: 프리셋, 위치, 위젯 및 크기."
-          }
-        }
-      }
-    },
-    "Tiling, presets, gaps, and floating apps.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "平铺、预设、间隙和浮动应用。"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tiling, presets, gaps, and floating apps."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "平鋪、預設、間隙和浮動應用程式。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "タイリング、プリセット、隙間、フローティングアプリ。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Tiling, Presets, Abstände und schwebende Apps."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Mosaïque, préréglages, espacements et apps flottantes."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Mosaico, ajustes, espacios y apps flotantes."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Mosaico, ajustes, espacios y apps flotantes."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Ladrilhamento, predefinições, espaçamentos e apps flutuantes."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Mosaico, predefinições, espaçamentos e apps flutuantes."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Affiancamento, preimpostazioni, spazi e app mobili."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "타일링, 프리셋, 간격 및 플로팅 앱."
           }
         }
       }
@@ -72030,6 +70774,635 @@
             "value": "거의 만지지 않으며 추가 권한이 필요한 스위치."
           }
         }
+      }
+    },
+    "Also show Dynamic Notch alerts as macOS notifications.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Also show Dynamic Notch alerts as macOS notifications."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "同时将 Dynamic Notch 警告显示为 macOS 通知。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "同時將 Dynamic Notch 警告顯示為 macOS 通知。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Dynamic Notch の警告を macOS の通知としても表示します。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dynamic-Notch-Warnungen auch als macOS-Mitteilungen anzeigen."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Afficher aussi les alertes Dynamic Notch en notifications macOS."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Mostrar también las alertas de Dynamic Notch como notificaciones de macOS."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Mostrar también las alertas de Dynamic Notch como notificaciones de macOS."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Mostrar também os alertas do Dynamic Notch como notificações do macOS."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Mostrar também os alertas do Dynamic Notch como notificações do macOS."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Mostra anche gli avvisi Dynamic Notch come notifiche di macOS."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Dynamic Notch 알림을 macOS 알림으로도 표시합니다."}}
+      }
+    },
+    "App Rules": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "App Rules"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "应用规则"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "應用規則"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "アプリのルール"}},
+        "de": {"stringUnit": {"state": "translated", "value": "App-Regeln"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Règles d’app"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Reglas de apps"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Reglas de apps"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Regras de apps"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Regras de apps"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Regole app"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "앱 규칙"}}
+      }
+    },
+    "Auto-tiling, presets, gaps, and floating apps.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Auto-tiling, presets, gaps, and floating apps."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "自动平铺、预设、间隙与浮动应用。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "自動並排、預設、間距與浮動應用。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "自動タイル、プリセット、間隔、フローティングアプリ。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Auto-Kachelung, Vorgaben, Abstände und schwebende Apps."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Tuilage auto, préréglages, espacements et apps flottantes."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Mosaico automático, ajustes, espaciado y apps flotantes."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Mosaico automático, ajustes, espaciado y apps flotantes."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Mosaico automático, predefinições, espaçamentos e apps flutuantes."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Mosaico automático, predefinições, espaçamentos e apps flutuantes."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Tiling automatico, preset, spaziature e app fluttuanti."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "자동 타일, 프리셋, 간격, 플로팅 앱."}}
+      }
+    },
+    "Centered Main: the first window sits in the middle; the rest flank it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Centered Main: the first window sits in the middle; the rest flank it."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "居中主窗口：第一个窗口放在中央，其余窗口分列两侧。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "置中主視窗：第一個視窗放在中央，其餘視窗分列兩側。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "中央メイン：最初のウィンドウを中央に置き、ほかを両脇に並べます。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zentriertes Hauptfenster: Das erste Fenster sitzt in der Mitte; die übrigen flankieren es."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Fenêtre principale centrée : la première fenêtre occupe le centre ; les autres la flanquent."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ventana principal centrada: la primera ventana queda en el centro; el resto la flanquean."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ventana principal centrada: la primera ventana queda en el centro; el resto la flanquean."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Janela principal centralizada: a primeira janela fica no centro; as outras a ladeiam."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Janela principal centrada: a primeira janela fica ao centro; as outras flankam-na."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Finestra principale centrata: la prima finestra al centro; le altre la fiancheggiano."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "중앙 메인: 첫 번째 창을 가운데에 두고 나머지를 양옆에 배치합니다."}}
+      }
+    },
+    "Choose where Dynamic Notch event alerts appear.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Choose where Dynamic Notch event alerts appear."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "选择 Dynamic Notch 事件警告的显示位置。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "選擇 Dynamic Notch 事件警告的顯示位置。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Dynamic Notch のイベント警告の表示場所を選びます。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Wählen Sie, wo Dynamic-Notch-Ereigniswarnungen erscheinen."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Choisissez où apparaissent les alertes d’événements Dynamic Notch."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Elige dónde aparecen las alertas de eventos de Dynamic Notch."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Elige dónde aparecen las alertas de eventos de Dynamic Notch."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Escolha onde aparecem os alertas de eventos do Dynamic Notch."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Escolha onde aparecem os alertas de eventos do Dynamic Notch."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scegli dove mostrare gli avvisi di eventi Dynamic Notch."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Dynamic Notch 이벤트 알림이 표시될 위치를 선택합니다."}}
+      }
+    },
+    "Columns: windows sit side by side, full height.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Columns: windows sit side by side, full height."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "列：窗口并排排列，占满高度。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "欄：視窗並排排列，佔滿高度。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "列：ウィンドウを全高で横に並べます。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Spalten: Fenster stehen nebeneinander, volle Höhe."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Colonnes : les fenêtres côte à côte, sur toute la hauteur."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Columnas: ventanas lado a lado, a toda altura."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Columnas: ventanas lado a lado, a toda altura."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Colunas: janelas lado a lado, em toda a altura."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Colunas: janelas lado a lado, em toda a altura."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Colonne: finestre affiancate a tutta altezza."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "열: 창을 전체 높이로 나란히 배치합니다."}}
+      }
+    },
+    "Command hints and the command bar.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Command hints and the command bar."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "命令提示与命令栏。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "命令提示與命令列。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "コマンドのヒントとコマンドバー。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Befehlstipps und die Befehlsleiste."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Astuces de commandes et barre de commandes."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sugerencias de comandos y la barra de comandos."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Sugerencias de comandos y la barra de comandos."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Dicas de comandos e a barra de comandos."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Dicas de comandos e a barra de comandos."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Suggerimenti dei comandi e barra dei comandi."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "명령 힌트와 명령 표시줄."}}
+      }
+    },
+    "Dock Items": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Dock Items"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Dock 项目"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Dock 項目"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Dock アイテム"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dock-Elemente"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Éléments du Dock"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Elementos del Dock"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Elementos del Dock"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Itens da Dock"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Itens da Dock"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Elementi del Dock"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Dock 항목"}}
+      }
+    },
+    "Dock widgets: order, size, presets, and motion.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Dock widgets: order, size, presets, and motion."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Dock 小组件：顺序、大小、预设与动效。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Dock 小工具：順序、大小、預設與動效。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Dock ウィジェット：順序、サイズ、プリセット、モーション。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dock-Widgets: Reihenfolge, Größe, Vorgaben und Bewegung."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Widgets du Dock : ordre, taille, préréglages et animations."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Widgets del Dock: orden, tamaño, ajustes y animaciones."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Widgets del Dock: orden, tamaño, ajustes y animaciones."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Widgets da Dock: ordem, tamanho, predefinições e animações."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Widgets da Dock: ordem, tamanho, predefinições e animações."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Widget del Dock: ordine, dimensioni, preset e animazioni."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Dock 위젯: 순서, 크기, 프리셋, 모션."}}
+      }
+    },
+    "Dynamic Notch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Dynamic Notch"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Dynamic Notch"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Dynamic Notch"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Dynamic Notch"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dynamic Notch"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Dynamic Notch"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Dynamic Notch"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Dynamic Notch"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Dynamic Notch"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Dynamic Notch"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Dynamic Notch"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Dynamic Notch"}}
+      }
+    },
+    "Five sections: launcher, weather, apps and now playing, clock, widgets.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Five sections: launcher, weather, apps and now playing, clock, widgets."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "五个分区：启动器、天气、应用与正在播放、时钟、小组件。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "五個分區：啟動器、天氣、應用程式與正在播放、時鐘、小工具。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "5 つのセクション：ランチャー、天気、アプリと再生中、時計、ウィジェット。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Fünf Bereiche: Launcher, Wetter, Apps und Wiedergabe, Uhr, Widgets."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Cinq sections : lanceur, météo, apps et lecture, horloge, widgets."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Cinco secciones: lanzador, tiempo, apps y reproducción, reloj, widgets."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Cinco secciones: lanzador, tiempo, apps y reproducción, reloj, widgets."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Cinco seções: iniciador, clima, apps e reprodução, relógio, widgets."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Cinco seções: iniciador, clima, apps e reprodução, relógio, widgets."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cinque sezioni: launcher, meteo, app e riproduzione, orologio, widget."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "5개 섹션: 런처, 날씨, 앱 및 재생 중, 시계, 위젯."}}
+      }
+    },
+    "Flip Main Tile Side": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Flip Main Tile Side"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "切换主窗口平铺位置"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "切換主視窗並排位置"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "メインタイルの左右を入れ替え"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Hauptkachel-Seite wechseln"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Inverser le côté de la tuile principale"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Cambiar el lado del mosaico principal"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Cambiar el lado del mosaico principal"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Inverter o lado do mosaico principal"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Inverter o lado do mosaico principal"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Inverti lato riquadro principale"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "메인 타일 위치 반전"}}
+      }
+    },
+    "Four sections: launcher and weather, apps, now playing, clock and widgets.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Four sections: launcher and weather, apps, now playing, clock and widgets."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "四个分区：启动器与天气、应用、正在播放、时钟与小组件。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "四個分區：啟動器與天氣、應用程式、正在播放、時鐘與小工具。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "4 つのセクション：ランチャーと天気、アプリ、再生中、時計とウィジェット。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Vier Bereiche: Launcher und Wetter, Apps, Wiedergabe, Uhr und Widgets."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Quatre sections : lanceur et météo, apps, lecture, horloge et widgets."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Cuatro secciones: lanzador y tiempo, apps, reproducción, reloj y widgets."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Cuatro secciones: lanzador y tiempo, apps, reproducción, reloj y widgets."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Quatro seções: iniciador e clima, apps, reprodução, relógio e widgets."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Quatro seções: iniciador e clima, apps, reprodução, relógio e widgets."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Quattro sezioni: launcher e meteo, app, riproduzione, orologio e widget."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "4개 섹션: 런처와 날씨, 앱, 재생 중, 시계와 위젯."}}
+      }
+    },
+    "Grid: windows fill evenly sized rows and columns.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Grid: windows fill evenly sized rows and columns."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "网格：窗口均匀填满行与列。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "格狀：視窗均勻填滿列與欄。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "グリッド：ウィンドウが同じサイズの行と列を埋めます。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Raster: Fenster füllen gleich große Zeilen und Spalten."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Grille : les fenêtres remplissent lignes et colonnes de taille égale."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Cuadrícula: las ventanas llenan filas y columnas del mismo tamaño."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Cuadrícula: las ventanas llenan filas y columnas del mismo tamaño."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Grade: as janelas preenchem linhas e colunas de tamanho igual."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Grelha: as janelas preenchem linhas e colunas de tamanho igual."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Griglia: le finestre riempiono righe e colonne di uguale misura."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "그리드: 창이 같은 크기의 행과 열을 채웁니다."}}
+      }
+    },
+    "Grow Main Tile": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Grow Main Tile"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "增大主平铺"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "增大主並排"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "メインタイルを拡大"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Hauptkachel vergrößern"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Agrandir la tuile principale"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ampliar el mosaico principal"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ampliar el mosaico principal"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ampliar o mosaico principal"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ampliar o mosaico principal"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ingrandisci riquadro principale"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "메인 타일 키우기"}}
+      }
+    },
+    "Main Window Size": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Main Window Size"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "主窗口大小"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "主視窗大小"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "メインウィンドウのサイズ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Größe des Hauptfensters"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Taille de la fenêtre principale"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Tamaño de la ventana principal"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Tamaño de la ventana principal"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Tamanho da janela principal"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Tamanho da janela principal"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Dimensione finestra principale"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "메인 창 크기"}}
+      }
+    },
+    "Main Window on the Right": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Main Window on the Right"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "主窗口在右侧"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "主視窗在右側"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "メインウィンドウを右に"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Hauptfenster rechts"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Fenêtre principale à droite"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ventana principal a la derecha"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ventana principal a la derecha"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Janela principal à direita"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Janela principal à direita"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Finestra principale a destra"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "메인 창을 오른쪽에"}}
+      }
+    },
+    "Microphone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Microphone"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "麦克风"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "麥克風"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "マイク"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Mikrofon"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Microphone"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Micrófono"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Micrófono"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Microfone"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Microfone"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Microfono"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "마이크"}}
+      }
+    },
+    "One app per line by bundle identifier. A bare line floats the app. Add =tile to keep it tiled even after you move it, or =display:Name to tile it on that display (e.g. com.apple.Safari=display:LG UltraFine).": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "One app per line by bundle identifier. A bare line floats the app. Add =tile to keep it tiled even after you move it, or =display:Name to tile it on that display (e.g. com.apple.Safari=display:LG UltraFine)."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "每行一个应用，使用 bundle 标识符。单独一行会让该应用浮动。加 =tile 可在移动后仍保持平铺，加 =display:名称 可将其平铺到该显示器（例如 com.apple.Safari=display:LG UltraFine）。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "每行一個應用程式，使用 bundle 識別符。單獨一行會讓該應用程式浮動。加 =tile 可在移動後仍保持並排，加 =display:名稱 可將其並排到該顯示器（例如 com.apple.Safari=display:LG UltraFine）。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "1 行につき 1 アプリをバンドル識別子で指定します。行だけのアプリはフローティングになります。=tile を付けると移動後もタイルのまま、=display:名前 でそのディスプレイにタイル表示できます（例：com.apple.Safari=display:LG UltraFine）。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Eine App pro Zeile nach Bundle-Kennung. Eine Zeile ohne Zusatz lässt die App schweben. Mit =tile bleibt sie auch nach dem Verschieben gekachelt, mit =display:Name kacheln Sie sie auf diesem Display (z. B. com.apple.Safari=display:LG UltraFine)."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Une app par ligne, identifiant de bundle. Une ligne seule laisse l’app flotter. Ajoutez =tile pour la garder en tuile même après déplacement, ou =display:Nom pour la tuiler sur cet écran (p. ex. com.apple.Safari=display:LG UltraFine)."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Una app por línea con su identificador de paquete. Una línea sola hace flotar la app. Añade =tile para que siga en mosaico aunque la muevas, o =display:Nombre para colocarla en ese monitor (p. ej., com.apple.Safari=display:LG UltraFine)."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Una app por línea con su identificador de paquete. Una línea sola hace flotar la app. Añade =tile para que siga en mosaico aunque la muevas, o =display:Nombre para colocarla en ese monitor (p. ej., com.apple.Safari=display:LG UltraFine)."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Um app por linha com o identificador do bundle. Uma linha simples faz o app flutuar. Adicione =tile para mantê-lo em mosaico mesmo depois de movê-lo, ou =display:Nome para colocá-lo nesse monitor (ex.: com.apple.Safari=display:LG UltraFine)."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Uma app por linha com o identificador do bundle. Uma linha simples faz a app flutuar. Adicione =tile para a manter em mosaico mesmo depois de a mover, ou =display:Nome para colocá-la nesse ecrã (ex.: com.apple.Safari=display:LG UltraFine)."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Un’app per riga con l’identificatore del bundle. Una riga semplice rende l’app fluttuante. Aggiungi =tile per mantenerla in mosaico anche dopo averla spostata, oppure =display:Nome per metterla in mosaico su quel monitor (es. com.apple.Safari=display:LG UltraFine)."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "한 줄에 하나씩 번들 식별자로 앱을 지정합니다. 줄만 적으면 앱이 플로팅됩니다. =tile을 붙이면 이동한 뒤에도 타일로 유지되고, =display:이름을 붙이면 해당 디스플레이에 타일로 배치됩니다(예: com.apple.Safari=display:LG UltraFine)."}}
+      }
+    },
+    "Recorder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Recorder"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "录音机"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "錄音機"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "レコーダー"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Sprachrekorder"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Enregistreur"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Grabadora"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Grabadora"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Gravador"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Gravador"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Registratore"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "레코더"}}
+      }
+    },
+    "Records audio in the widget pane recorder.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Records audio in the widget pane recorder."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在 widget 面板的录音机中录制音频。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "在 widget 面板的錄音機中錄製音訊。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウィジェットパネルのレコーダーで音声を録音します。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Nimmt Audio im Recorder des Widget-Bereichs auf."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Enregistre l’audio dans l’enregistreur du panneau de widgets."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Graba audio en el grabador del panel de widgets."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Graba audio en el grabador del panel de widgets."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Grava áudio no gravador do painel de widgets."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Grava áudio no gravador do painel de widgets."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Registra l’audio nel registratore del pannello widget."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "위젯 패널의 레코더로 오디오를 녹음합니다."}}
+      }
+    },
+    "Rows: windows stack top to bottom, full width.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Rows: windows stack top to bottom, full width."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "行：窗口自上而下堆叠，占满宽度。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "列：視窗由上而下堆疊，佔滿寬度。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "行：ウィンドウを全幅で上下に積み重ねます。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zeilen: Fenster stapeln sich von oben nach unten, volle Breite."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Lignes : les fenêtres s’empilent de haut en bas, sur toute la largeur."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Filas: las ventanas se apilan de arriba abajo, a todo el ancho."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Filas: las ventanas se apilan de arriba abajo, a todo el ancho."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Linhas: as janelas empilham-se de cima para baixo, em toda a largura."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Linhas: as janelas empilham-se de cima para baixo, em toda a largura."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Righe: le finestre si impilano dall’alto in basso, a tutta larghezza."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "행: 창을 전체 폭으로 위에서 아래로 쌓습니다."}}
+      }
+    },
+    "Section Gap": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Section Gap"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "分区间距"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "分區間距"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "セクション間隔"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Abstand zwischen Bereichen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Espacement entre les sections"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Espaciado entre secciones"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Espaciado entre secciones"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Espaçamento entre seções"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Espaçamento entre seções"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Spaziatura tra le sezioni"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "섹션 간격"}}
+      }
+    },
+    "Sections": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Sections"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "分区"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "分區"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "セクション"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Bereiche"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Sections"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Secciones"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Secciones"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Seções"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Seções"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sezioni"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "섹션"}}
+      }
+    },
+    "Show Dock Capsule": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Show Dock Capsule"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "显示 Dock 胶囊"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "顯示 Dock 膠囊"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Dock カプセルを表示"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dock-Kapsel anzeigen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Afficher la capsule du Dock"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Mostrar la cápsula del Dock"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Mostrar la cápsula del Dock"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Mostrar a cápsula da Dock"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Mostrar a cápsula da Dock"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Mostra capsula del Dock"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Dock 캡슐 표시"}}
+      }
+    },
+    "Show on Notch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Show on Notch"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在刘海显示"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "在瀏海顯示"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ノッチに表示"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Im Notch anzeigen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Afficher sur l’encoche"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Mostrar en el notch"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Mostrar en el notch"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Mostrar no notch"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Mostrar no notch"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Mostra sul notch"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "노치에 표시"}}
+      }
+    },
+    "Show the Dynamic Notch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Show the Dynamic Notch"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "显示 Dynamic Notch"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "顯示 Dynamic Notch"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Dynamic Notch を表示"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dynamic Notch anzeigen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Afficher Dynamic Notch"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Mostrar Dynamic Notch"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Mostrar Dynamic Notch"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Mostrar o Dynamic Notch"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Mostrar o Dynamic Notch"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Mostra Dynamic Notch"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Dynamic Notch 표시"}}
+      }
+    },
+    "Shows or hides the Dynamic Notch at the top of the screen.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Shows or hides the Dynamic Notch at the top of the screen."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "显示或隐藏屏幕顶部的 Dynamic Notch。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "顯示或隱藏螢幕頂部的 Dynamic Notch。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "画面上部の Dynamic Notch を表示または非表示にします。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zeigt die Dynamic Notch oben am Bildschirm an oder blendet sie aus."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Affiche ou masque Dynamic Notch en haut de l’écran."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Muestra u oculta Dynamic Notch en la parte superior de la pantalla."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Muestra u oculta Dynamic Notch en la parte superior de la pantalla."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Mostra ou oculta o Dynamic Notch no topo da tela."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Mostra ou oculta o Dynamic Notch no topo do ecrã."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Mostra o nasconde Dynamic Notch nella parte superiore dello schermo."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "화면 상단의 Dynamic Notch를 표시하거나 숨깁니다."}}
+      }
+    },
+    "Shows the widget capsule on the dock.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Shows the widget capsule on the dock."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在 Dock 上显示小组件胶囊。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "在 Dock 上顯示小工具膠囊。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Dock にウィジェットカプセルを表示します。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zeigt die Widget-Kapsel im Dock."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Affiche la capsule de widgets dans le Dock."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Muestra la cápsula de widgets en el Dock."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Muestra la cápsula de widgets en el Dock."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Mostra a cápsula de widgets na Dock."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Mostra a cápsula de widgets na Dock."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Mostra la capsula dei widget nel Dock."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Dock에 위젯 캡슐을 표시합니다."}}
+      }
+    },
+    "Shrink Main Tile": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Shrink Main Tile"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "减小主平铺"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "縮小主並排"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "メインタイルを縮小"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Hauptkachel verkleinern"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Réduire la tuile principale"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Reducir el mosaico principal"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Reducir el mosaico principal"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Reduzir o mosaico principal"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Reduzir o mosaico principal"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Riduci riquadro principale"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "메인 타일 줄이기"}}
+      }
+    },
+    "Spiral: each new window takes half of the space left, turning clockwise.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Spiral: each new window takes half of the space left, turning clockwise."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "螺旋：每个新窗口占据剩余空间的一半，顺时针排列。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "螺旋：每個新視窗佔據剩餘空間的一半，順時針排列。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "スパイラル：新しいウィンドウが空きスペースの半分を占め、時計回りに配置されます。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Spirale: Jedes neue Fenster nimmt die Hälfte des verbleibenden Platzes, im Uhrzeigersinn."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Spirale : chaque nouvelle fenêtre prend la moitié de l’espace restant, dans le sens horaire."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Espiral: cada ventana nueva ocupa la mitad del espacio restante, en sentido horario."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Espiral: cada ventana nueva ocupa la mitad del espacio restante, en sentido horario."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Espiral: cada nova janela ocupa metade do espaço restante, no sentido horário."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Espiral: cada nova janela ocupa metade do espaço restante, no sentido horário."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Spirale: ogni nuova finestra occupa metà dello spazio rimasto, in senso orario."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "나선형: 새 창이 남은 공간의 절반을 차지하며 시계 방향으로 배치됩니다."}}
+      }
+    },
+    "The Dynamic Notch: skin, pages, size, and alerts.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The Dynamic Notch: skin, pages, size, and alerts."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Dynamic Notch：皮肤、页面、大小与警告。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Dynamic Notch：外觀、頁面、大小與警告。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Dynamic Notch：スキン、ページ、サイズ、警告。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Die Dynamic Notch: Skin, Seiten, Größe und Warnungen."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Dynamic Notch : apparence, pages, taille et alertes."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Dynamic Notch: apariencia, páginas, tamaño y alertas."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Dynamic Notch: apariencia, páginas, tamaño y alertas."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Dynamic Notch: aspeto, páginas, tamanho e alertas."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Dynamic Notch: aspeto, páginas, tamanho e alertas."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Dynamic Notch: aspetto, pagine, dimensioni e avvisi."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Dynamic Notch: 스킨, 페이지, 크기, 알림."}}
+      }
+    },
+    "Three sections: launcher and weather, apps and now playing, clock and widgets.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Three sections: launcher and weather, apps and now playing, clock and widgets."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "三个分区：启动器与天气、应用与正在播放、时钟与小组件。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "三個分區：啟動器與天氣、應用程式與正在播放、時鐘與小工具。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "3 つのセクション：ランチャーと天気、アプリと再生中、時計とウィジェット。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Drei Bereiche: Launcher und Wetter, Apps und Wiedergabe, Uhr und Widgets."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Trois sections : lanceur et météo, apps et lecture, horloge et widgets."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Tres secciones: lanzador y tiempo, apps y reproducción, reloj y widgets."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Tres secciones: lanzador y tiempo, apps y reproducción, reloj y widgets."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Três seções: iniciador e clima, apps e reprodução, relógio e widgets."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Três seções: iniciador e clima, apps e reprodução, relógio e widgets."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Tre sezioni: launcher e meteo, app e riproduzione, orologio e widget."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "3개 섹션: 런처와 날씨, 앱 및 재생 중, 시계와 위젯."}}
+      }
+    },
+    "Weather units, layout, and warnings.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Weather units, layout, and warnings."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "天气单位、布局与警告。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "天氣單位、版面與警告。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "天気の単位、レイアウト、警告。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Wettereinheiten, Layout und Warnungen."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Unités météo, disposition et alertes."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Unidades del tiempo, distribución y avisos."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Unidades del tiempo, distribución y avisos."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Unidades do clima, disposição e avisos."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Unidades do clima, disposição e avisos."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Unità meteo, disposizione e avvisi."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "날씨 단위, 레이아웃, 경고."}}
+      }
+    },
+    "Widget panes: layout, colors, and style.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Widget panes: layout, colors, and style."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "小组件面板：布局、颜色与样式。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "小工具面板：版面、顏色與樣式。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウィジェットペイン：レイアウト、色、スタイル。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Widget-Bereiche: Layout, Farben und Stil."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Panneaux de widgets : disposition, couleurs et style."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Paneles de widgets: distribución, colores y estilo."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Paneles de widgets: distribución, colores y estilo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Painéis de widgets: disposição, cores e estilo."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Painéis de widgets: disposição, cores e estilo."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Pannelli widget: disposizione, colori e stile."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "위젯 패널: 레이아웃, 색상, 스타일."}}
+      }
+    },
+    "Window chips and window behaviors.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Window chips and window behaviors."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "窗口胶囊与窗口行为。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "視窗膠囊與視窗行為。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウィンドウチップとウィンドウの動作。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Fenster-Chips und Fensterverhalten."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Jetons de fenêtre et comportements des fenêtres."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Chips de ventanas y comportamientos de ventanas."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Chips de ventanas y comportamientos de ventanas."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Chips de janelas e comportamentos das janelas."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Chips de janelas e comportamentos das janelas."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Chip delle finestre e comportamenti delle finestre."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "창 칩과 창 동작."}}
+      }
+    },
+    "You can change this later in Settings › Notch.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "You can change this later in Settings › Notch."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "之后可在“设置 › Notch”中更改。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "之後可在「設定 › Notch」中更改。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "後で「設定 › Notch」から変更できます。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Sie können das später unter Einstellungen › Notch ändern."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Vous pourrez changer cela plus tard dans Réglages › Notch."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Puedes cambiarlo después en Ajustes › Notch."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Puedes cambiarlo después en Ajustes › Notch."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Você pode mudar isso depois em Ajustes › Notch."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Pode alterar isto mais tarde em Definições › Notch."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Puoi cambiarlo in seguito in Impostazioni › Notch."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "나중에 설정 › Notch에서 변경할 수 있습니다."}}
       }
     }
   },
