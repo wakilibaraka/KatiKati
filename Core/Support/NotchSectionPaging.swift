@@ -73,6 +73,18 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
     }
 }
 
+/// +1 when paging forward, -1 when paging back. Used for directional slide transitions
+/// so a swipe/header/dot jump animates the way the pointer moved.
+enum NotchPageDirection {
+    static func between(from: NotchPage, to: NotchPage, visible: [NotchPage]) -> Int {
+        guard let a = visible.firstIndex(of: from), let b = visible.firstIndex(of: to), a != b else { return 1 }
+        // Wrap jumps (last -> first, first -> last) keep the swipe's wrap direction.
+        if a == visible.count - 1, b == 0 { return 1 }
+        if a == 0, b == visible.count - 1 { return -1 }
+        return b > a ? 1 : -1
+    }
+}
+
 /// Dynamic context-aware default page resolver.
 enum NotchPagingPolicy {
     static func defaultPage(

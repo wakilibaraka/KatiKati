@@ -187,16 +187,12 @@ struct TorrentSettingsBlock: View {
 /// the clipboard nor the shelf.
 struct LauncherSettingsBlock: View {
     @AppStorage(LauncherRunner.enabledKey) private var launcherScripts = false
-    @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
     @AppStorage(FileIndexService.enabledKey) private var fastIndex = true
 
     var body: some View {
         SettingsCard(Text("Launcher")) {
-            // Three switches, two on the first line (`Docs/SETTINGS.md` rule 5).
-            SettingsRowPair(
-                left: { SettingsToggleRow(Text("Script Commands"), isOn: $launcherScripts) },
-                right: { SettingsToggleRow(Text("Show Command Hints"), isOn: $commandHints) }
-            )
+            // Two switches (the command bar's hint switch moved to its own page, 2026-10-20).
+            SettingsToggleRow(Text("Script Commands"), isOn: $launcherScripts)
             SettingsDivider()
             SettingsToggleRow(Text("Fast File Index"), isOn: $fastIndex)
             SettingsDivider()
@@ -218,6 +214,18 @@ struct LauncherSettingsBlock: View {
         case .selectSpotlight: return String(localized: "Select Spotlight in the list.")
         case .uncheckShowSearch: return String(localized: "Turn off Show Spotlight search.")
         case .testHere: return String(localized: "Come back and press ⌘Space to test.")
+        }
+    }
+}
+
+/// The command bar's own rows (2026-10-20): split out of `LauncherSettingsBlock` so the command
+/// bar has a page of its own instead of riding on the launcher's.
+struct CommandBarSettingsBlock: View {
+    @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
+
+    var body: some View {
+        SettingsCard(Text("Command Bar")) {
+            SettingsToggleRow(Text("Show Command Hints"), isOn: $commandHints)
         }
     }
 }

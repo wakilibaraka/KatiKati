@@ -18,6 +18,8 @@ final class NotchModel: ObservableObject {
     @Published var skin: LiveIslandSkin = .boring
     @Published var tab: NotchTab = .home
     @Published var activePage: NotchPage = .downloadDeck
+    /// Last paging direction (+1 forward, -1 back); drives the slide edge in `NotchHomeView`.
+    @Published var pageDirection = 1
     var isExpanded: Bool { isOpen || event != nil }
     /// Shape sizes, set by the controller (closed width grows with the activity "sneak"). The window is
     /// as large as the larger of the two while a transition runs, so the shape animates inside it.
@@ -30,12 +32,24 @@ final class NotchModel: ObservableObject {
     var requestOpen: () -> Void = {}
 
     func stepPage(forward: Bool) {
+        pageDirection = forward ? 1 : -1
         let tp = UserDefaults.standard.bool(forKey: TeleprompterModel.enabledKey)
         let mirror = UserDefaults.standard.bool(forKey: CameraMirrorService.enabledKey)
         let notifications = UserDefaults.standard.bool(forKey: NotificationMirrorService.enabledKey)
         activePage = forward
             ? activePage.next(wrap: true, teleprompter: tp, mirror: mirror, notifications: notifications)
             : activePage.previous(wrap: true, teleprompter: tp, mirror: mirror, notifications: notifications)
+    }
+
+    /// Direct jumps (header icons, dots, context menu) animate toward the target page.
+    func goToPage(_ page: NotchPage) {
+        let tp = UserDefaults.standard.bool(forKey: TeleprompterModel.enabledKey)
+        let mirror = UserDefaults.standard.bool(forKey: CameraMirrorService.enabledKey)
+        let notifications = UserDefaults.standard.bool(forKey: NotificationMirrorService.enabledKey)
+        pageDirection = NotchPageDirection.between(
+            from: activePage, to: page,
+            visible: NotchPage.visible(teleprompter: tp, mirror: mirror, notifications: notifications))
+        activePage = page
     }
 }
 
@@ -138,7 +152,7 @@ struct NotchIslandView: View {
                                           notifications: notificationsPage)) { page in
                     Button {
                         withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
-                            model.activePage = page
+                            model.goToPage(page)
                         }
                     } label: {
                         HStack {
@@ -176,7 +190,7 @@ struct NotchIslandView: View {
                 // accessibility element, so VoiceOver saw nine nameless dots (live-checked 2026-10-17).
                 Button {
                     withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
-                        model.activePage = page
+                        model.goToPage(page)
                     }
                 } label: {
                     Capsule()

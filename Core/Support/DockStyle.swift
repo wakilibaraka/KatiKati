@@ -65,7 +65,8 @@ struct DockStyle: Equatable, Identifiable, Sendable {
     /// Localized card title (literal keys so the localization gate sees them).
     var localizedTitle: String {
         switch id {
-        case "style.islands": return String(localized: "Islands")
+        // Display name only (2026-10-20): dock-facing copy says "sections", never "islands".
+        case "style.islands": return String(localized: "Sections")
         case "style.classic": return String(localized: "Classic")
         case "style.wide": return String(localized: "Wide")
         case "style.minimal": return String(localized: "Minimal")

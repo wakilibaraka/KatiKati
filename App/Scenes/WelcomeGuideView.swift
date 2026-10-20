@@ -152,11 +152,11 @@ struct WelcomeGuideView: View {
         let binding = Binding(get: { notchOn ?? layout.notchEnabled },
                               set: { notchOn = $0; layout.onNotchToggle($0) })
         return VStack(alignment: .leading, spacing: 18) {
-            Text("Live Island")
+            Text("Dynamic Notch")
                 .font(.title2.weight(.semibold))
-            Toggle("Show the Live Island on the notch", isOn: binding)
+            Toggle("Show the Dynamic Notch", isOn: binding)
             NotchPreview(skin: layout.notchSkin, isEnabled: notchOn ?? layout.notchEnabled)
-            Text("You can change this later in Settings › Live Island.")
+            Text("You can change this later in Settings › Notch.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

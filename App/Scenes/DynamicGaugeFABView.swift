@@ -73,7 +73,7 @@ public struct DynamicGaugeFABView: View {
             monitor.release()
             feed.release()
         }
-        .help(isExpanded ? "Live Island • Click to collapse" : "RAM: \(metrics.ramPercentage)% • CPU: \(Int(round(metrics.cpuPressure * 100)))%")
+        .help(isExpanded ? "Dock Widgets • Click to collapse" : "RAM: \(metrics.ramPercentage)% • CPU: \(Int(round(metrics.cpuPressure * 100)))%")
     }
 
     // MARK: - Compact Disc

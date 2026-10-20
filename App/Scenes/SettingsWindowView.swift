@@ -96,16 +96,16 @@ struct SettingsWindowContent: View {
         SettingsPane {
             switch tabState.selected {
             case .general: generalPane
-            case .widgets:
-                // Composed here, not inside the pane: `WidgetLookSettingsBlock` drives the pickers
-                // defined in this app-only file, and the pane also compiles into the test target.
-                WidgetLookSettingsBlock(store: store)
-                SettingsLayoutPane(store: store, mode: .widgets)
+            case .dockItems: SettingsLayoutPane(store: store, mode: .widgets)
+            case .widgets: WidgetLookSettingsBlock(store: store)
+            case .weather: weatherPane
             case .notch: notchPane
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
             case .appearance: SettingsAppearancePane(store: store)
+            case .tiling: SettingsTilingPane(store: store)
             case .windowManagement: windowManagementPane
             case .launcher: launcherPane
+            case .commandBar: commandBarPane
             case .controlCenter: controlCenterPane
             case .shortcuts: SettingsLayoutPane(store: store, mode: .shortcuts)
             case .radialDial: SettingsLayoutPane(store: store, mode: .radialDial)
@@ -201,16 +201,23 @@ struct SettingsWindowContent: View {
         SettingsLayoutPane(store: store, mode: .notifications)
     }
 
-    /// 「窗口管理」页: tiling, window chips, and the two window behaviours.
+    /// 「窗口管理」页: window chips and the two window behaviours (tiling has its own page now).
     @ViewBuilder
     private var windowManagementPane: some View {
-        SettingsTilingPane(store: store)
         SettingsLayoutPane(store: store, mode: .chips)
         WindowBehaviourSettingsBlock()
     }
 
+    /// 「天气」页: the weather widget's units, layout and warning thresholds.
+    private var weatherPane: some View {
+        SettingsCard(Text("Weather")) {
+            WeatherSettingsBlock()
+        }
+    }
+
     /// 「启动器」页: the launcher appearance/apps and the launcher's own rows (`LauncherSettingsBlock`).
-    /// Control Center now lives on its own dedicated tab (`SettingsTab.controlCenter`).
+    /// Control Center now lives on its own dedicated tab (`SettingsTab.controlCenter`),
+    /// and the command bar has its own page (`SettingsTab.commandBar`).
     @ViewBuilder
     private var launcherPane: some View {
         SettingsBentoSplit {
@@ -218,6 +225,11 @@ struct SettingsWindowContent: View {
         } trailing: {
             LauncherSettingsBlock()
         }
+    }
+
+    /// 「命令栏」页: the command bar's own rows (`LauncherSettingsBlock` keeps the launcher rows).
+    private var commandBarPane: some View {
+        CommandBarSettingsBlock()
     }
 
     /// 「控制中心」页: dedicated page for Control Center placement, size, widgets, and quick settings.
@@ -700,17 +712,36 @@ struct GlassTilesToggle: View {
 
 /// Weather widget settings (Phase 5g-G): units, animation, coexistence with the calendar stack and
 /// the forecast-warning thresholds. All plain `@AppStorage` — the tiles read them live.
+/// The style/animation rows moved here from the widget-look block when Weather got its own tab
+/// (2026-10-20); the Weather tab wraps these rows in one card.
 struct WeatherSettingsBlock: View {
     @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
     @AppStorage(WeatherUnits.windKey) private var windUnit: WindSpeedUnit = .kmh
     @AppStorage(WeatherLayoutPreset.storageKey) private var weatherLayout: WeatherLayoutPreset = .glance
     @AppStorage(WeatherHeroStyle.storageKey) private var heroStyle: WeatherHeroStyle = .scene
+    @AppStorage("com.katikati.weather.chipPreset") private var weatherPresetRaw: String = WeatherChipPreset.detailedForecast.rawValue
+    @AppStorage(WeatherPrefs.animationsKey) private var weatherAnimations = true
     @State private var thresholds = WeatherPrefs.thresholds()
 
-    /// Rows only, no card: `WidgetLookSettingsBlock` puts them in the "Weather" section. Every row is
-    /// a shared variant, so a control's alignment follows its type instead of this block's opinion
-    /// (`Docs/SETTINGS.md` rule 3).
+    /// Every row is a shared variant, so a control's alignment follows its type instead of this
+    /// block's opinion (`Docs/SETTINGS.md` rule 3).
     var body: some View {
+        // Weather style and the animation switch, one line (rule 5): they left the Widgets tab
+        // when Weather became a page of its own.
+        SettingsRowPair(
+            left: {
+                SettingsRow(Text("Weather Style")) {
+                    Picker("Weather Style", selection: $weatherPresetRaw) {
+                        ForEach(WeatherChipPreset.allCases, id: \.rawValue) { preset in
+                            Text(preset.title).tag(preset.rawValue)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+            },
+            right: { SettingsToggleRow(Text("Weather Animations"), isOn: $weatherAnimations) }
+        )
+        SettingsDivider()
         // The four unit/layout pickers are two lines, not four (`Docs/SETTINGS.md` rule 5): the
         // thresholds below stay on their own lines, because a stepper needs the card's width.
         SettingsRowPair(

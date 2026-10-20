@@ -60,7 +60,7 @@ struct NotchHeaderView: View {
         let side: CGFloat = 24
         return Button {
             withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
-                model.activePage = page
+                model.goToPage(page)
             }
         } label: {
             Image(systemName: page.symbol)

@@ -133,9 +133,15 @@ struct SettingsShell: View {
                 .foregroundStyle(.white)
                 .frame(width: 40, height: 40)
                 .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(tab.hueColor.gradient))
-            Text(tab.title)
-                .font(.system(size: 24, weight: .bold))
-                .accessibilityAddTraits(.isHeader)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(tab.title)
+                    .font(.system(size: 24, weight: .bold))
+                    .accessibilityAddTraits(.isHeader)
+                // Resolved in `SettingsTab.subtitle`; drawn verbatim, never re-localized.
+                Text(tab.subtitle)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
             Spacer(minLength: 0)
             if !draft.changedKeys.isEmpty {
                 Button("Revert Changes") { confirmRevert = true }

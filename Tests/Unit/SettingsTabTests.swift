@@ -10,16 +10,19 @@ import XCTest
 // `SettingsMetricsTests`).
 
 final class SettingsTabTests: XCTestCase {
-    func testTheSidebarIsFourteenTabsWithOneIdentityEach() {
-        XCTAssertEqual(SettingsTab.allCases.count, 14, "fourteen sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 14,
+    func testTheSidebarIsEighteenTabsWithOneIdentityEach() {
+        XCTAssertEqual(SettingsTab.allCases.count, 18, "eighteen sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 18,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
                        "the page visited once sits at the end; Tools is one before it")
         XCTAssertEqual(SettingsTab.allCases.dropLast().last, .info, "Info sits just before Advanced")
-        XCTAssertEqual(SettingsTab(rawValue: "tiling"), .windowManagement,
-                       "a stored toolbar identifier must keep resolving after a rename")
+        // 2026-10-20 split: the toolbar identifier "tiling" now names the Tiling page itself;
+        // Window Management moved to its own identifier.
+        XCTAssertEqual(SettingsTab(rawValue: "tiling"), .tiling,
+                       "a stored toolbar identifier must keep resolving after a split")
+        XCTAssertEqual(SettingsTab(rawValue: "windowManagement"), .windowManagement)
         XCTAssertEqual(SettingsTab(rawValue: "controlCenter"), .controlCenter)
     }
 

@@ -48,6 +48,8 @@ struct SettingsLayoutPane: View {
     @AppStorage("com.katikati.dial.theme") var dialThemeRaw: String = RadialDialTheme.lilacGlass.rawValue
     @AppStorage("com.katikati.dial.mouseTrigger") var dialMouseTriggerRaw: String = RadialMouseTrigger.off.rawValue
     @AppStorage("com.katikati.dial.triggerMode") var dialTriggerModeRaw: String = RadialTriggerMode.tapToggle.rawValue
+    /// Phase 32b: the dock widgets' motion language (Dock Items tab since 2026-10-20).
+    @AppStorage(WidgetMotionPreset.storageKey) var dockMotion: WidgetMotionPreset = .default
 
 
 

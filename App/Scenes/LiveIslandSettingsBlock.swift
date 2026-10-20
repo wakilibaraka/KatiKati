@@ -11,23 +11,23 @@ struct LiveIslandSettingsBlock: View {
         // Rule 8: the preview above the rows is a demo, and it says so. The notch page is not signed
         // off while the Compact skin's own decision is open (`Docs/SETTINGS.md` §4).
         SettingsCard(
-            Text("Live Island"),
+            Text("Dynamic Notch"),
             note: Text("The shape preview is a demo: the silhouette only, never live activity.")
         ) {
             if !stageVisible {
                 NotchPreview(skin: store.notchSkin, isEnabled: store.notchIslandEnabled)
             }
             SettingsToggleRow(
-                Text("Dock Island"),
+                Text("Show Dock Capsule"),
                 isOn: Binding(get: { store.dockIslandEnabled }, set: { store.setDockIslandEnabled($0) })
             )
-            .help(Text("Shows the Live Island capsule on the dock."))
+            .help(Text("Shows the widget capsule on the dock."))
             SettingsDivider()
             SettingsToggleRow(
-                Text("Notch Island"),
+                Text("Show on Notch"),
                 isOn: Binding(get: { store.notchIslandEnabled }, set: { store.setNotchIslandEnabled($0) })
             )
-            .help(Text("Shows or hides the Live Island at the top of the screen."))
+            .help(Text("Shows or hides the Dynamic Notch at the top of the screen."))
             SettingsDivider()
             SettingsRow(Text("Notch Style")) {
                 Picker("Notch Style", selection: Binding(get: { store.notchSkin }, set: { store.setNotchSkin($0) })) {
@@ -46,13 +46,13 @@ struct LiveIslandSettingsBlock: View {
                 }
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }
-            .help(Text("Choose where Live Island event alerts appear."))
+            .help(Text("Choose where Dynamic Notch event alerts appear."))
             SettingsDivider()
             SettingsToggleRow(
                 Text("System Banners"),
                 isOn: Binding(get: { store.liveEventOSBanners }, set: { store.setLiveEventOSBanners($0) })
             )
-            .help(Text("Also show Live Island alerts as macOS notifications."))
+            .help(Text("Also show Dynamic Notch alerts as macOS notifications."))
         }
         NotchLayoutCard()
         NotchBehaviorCard()
@@ -162,7 +162,7 @@ private struct NotchBehaviorCard: View {
     @AppStorage(NotchDisplayChoice.defaultsKey) private var display = NotchDisplayChoice.automatic.rawValue
 
     var body: some View {
-        SettingsCard(Text(verbatim: "Island Behavior")) {
+        SettingsCard(Text(verbatim: "Notch Behavior")) {
             SettingsRow(Text(verbatim: "Opening")) {
                 Picker(selection: $mode) {
                     Text(verbatim: "Expand on hover").tag(NotchOpenMode.hover.rawValue)
@@ -172,11 +172,11 @@ private struct NotchBehaviorCard: View {
             }
             if mode == NotchOpenMode.hover.rawValue {
                 SettingsDivider()
-                delay("Activation time", "Keep the pointer over the island for this long to open it.",
+                delay("Activation time", "Keep the pointer over the notch for this long to open it.",
                       $hoverDelay, NotchBehavior.hoverDelayRange)
             }
             SettingsDivider()
-            delay("Closing time", "Wait this long after the pointer leaves the island before closing it.",
+            delay("Closing time", "Wait this long after the pointer leaves the notch before closing it.",
                   $closeDelay, NotchBehavior.closeDelayRange)
             SettingsDivider()
             SettingsToggleRow(Text(verbatim: "Haptic feedback"), isOn: $haptic)
@@ -214,7 +214,7 @@ private struct NotchActivityCard: View {
     @AppStorage(NotchBehavior.lowBatteryThresholdKey) private var threshold = NotchBehavior.defaultLowBatteryThreshold
 
     var body: some View {
-        SettingsCard(Text(verbatim: "Island At Rest")) {
+        SettingsCard(Text(verbatim: "Notch At Rest")) {
             HStack(spacing: 8) {
                 choice(.dockChips, "Storage & battery", "internaldrive")
                 choice(.battery, "Battery", "battery.75percent")
@@ -268,7 +268,7 @@ private struct NotchLayoutCard: View {
     @AppStorage(NotchSizePreset.translucentKey) private var translucent = false
 
     var body: some View {
-        SettingsCard(Text(verbatim: "Island Layout")) {
+        SettingsCard(Text(verbatim: "Notch Layout")) {
             HStack(spacing: 8) {
                 ForEach(NotchSizePreset.allCases, id: \.rawValue) { item in
                     Button { preset = item.rawValue } label: {

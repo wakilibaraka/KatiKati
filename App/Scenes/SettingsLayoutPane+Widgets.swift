@@ -6,7 +6,7 @@ extension SettingsLayoutPane {
     var widgetSections: some View {
         // The widget-look block is composed by the Widgets tab instead: its controls live in the
         // app-only `SettingsWindowView`, and this pane also compiles into the test target.
-        SettingsCard(Text("Widgets")) {
+        SettingsCard(Text("Dock Items")) {
             List {
                 ForEach(store.widgetLayout.order, id: \.self) { widget in
                     widgetRow(widget)
@@ -34,6 +34,18 @@ extension SettingsLayoutPane {
                 contextPresetsToggle
             }
             contextPresetRows
+            // Phase 32b's dock motion, moved here from the widget-look block (2026-10-20): it is
+            // how the dock widgets move, so it belongs with the dock's own list.
+            SettingsDivider()
+            SettingsRow(Text("Dock Motion")) {
+                Picker("Dock Motion", selection: $dockMotion) {
+                    ForEach(WidgetMotionPreset.allCases, id: \.self) { preset in
+                        Text(preset.title).tag(preset)
+                    }
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            .help(Text("How the dock widgets' readings move when they change."))
         }
 
         // The style presets moved to `WidgetLookSettingsBlock` (2026-10-15): they are appearance, and

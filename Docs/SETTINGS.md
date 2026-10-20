@@ -1,4 +1,4 @@
-# Settings — the ten pages, and the rules that keep them one window
+# Settings — the pages, and the rules that keep them one window
 
 > The rules the Settings window is built to. `App/Scenes/SettingsWindowView.swift` cites this file
 > (it used to cite a `settings.md` that did not exist). Every rule has a way to check it, so a
@@ -120,11 +120,14 @@ four margins (`paneMargin` 28, `systemFormMargin` 20, `afterFormMargin` 8, the l
 
 ## 3. Slice ownership — who still owes what
 
-The ten pages, in tab order, with the page that owns each remaining slice. This pass landed the
+The pages, in tab order, with the page that owns each remaining slice. This pass landed the
 foundation (rules 1–3 on every page); each slice below is its own commit.
 
-The strip reads General · Appearance · Widgets · Notch · Edge Bars · Window Management · Launcher ·
-**Control Center** · Shortcuts · **Tools · Advanced**: the one page a user visits once is last (owner, 2026-10-15), so
+The strip reads General · Appearance · **Dock Items** · Widgets · **Weather** · Notch · Edge Bars ·
+**Tiling** · Window Management · Launcher · **Command Bar** · **Control Center** · Shortcuts ·
+**Tools · Advanced** (2026-10-20: the dock's list and the widget-look rows split into Dock Items /
+Widgets, Weather got its own page, Window Management split into Tiling + Window Management, and
+Command Bar split off Launcher): the one page a user visits once is last (owner, 2026-10-15), so
 the tools used mid-session are not behind it, and Control Center is its own dedicated tab rather than nested inside Launcher.
 
 | Page | Owes | Rules it closes |

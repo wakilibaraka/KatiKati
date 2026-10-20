@@ -237,6 +237,14 @@ final class NotchGestureTests: XCTestCase {
         XCTAssertEqual(s1, -1) // negative delta moves forward, positive moves backward
     }
 
+    func testPageDirectionFollowsTarget() {
+        let visible = NotchPage.visible(teleprompter: false)
+        XCTAssertEqual(NotchPageDirection.between(from: .downloadDeck, to: .storage, visible: visible), 1)
+        XCTAssertEqual(NotchPageDirection.between(from: .storage, to: .downloadDeck, visible: visible), -1)
+        XCTAssertEqual(NotchPageDirection.between(from: .audioDeck, to: .downloadDeck, visible: visible), 1, "wrap keeps swipe direction")
+        XCTAssertEqual(NotchPageDirection.between(from: .downloadDeck, to: .audioDeck, visible: visible), -1, "wrap keeps swipe direction")
+    }
+
     // Phase 37c: the teleprompter page is the 5th page only while switched on; off, paging is the original four.
     func testTeleprompterPageIsOptional() {
         XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 4)

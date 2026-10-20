@@ -59,7 +59,7 @@ extension SettingsLayoutPane {
                                   range: DockPanelHeight.minimum...fittingMaximumBarHeight, step: 1) {
                             store.setDockPanelHeight(DockPanelHeight(clamping: $0))
                         }
-                        SettingsSliderRow(Text("Gap Between Islands"), value: store.islandGap, range: 0.5...40, step: 0.5) {
+                        SettingsSliderRow(Text("Section Gap"), value: store.islandGap, range: 0.5...40, step: 0.5) {
                             store.setIslandGap($0)
                         }
                         SettingsSliderRow(Text("Side Margin"), value: store.islandMargin, range: 0...80, step: 1) {

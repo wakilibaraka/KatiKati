@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Phase 12 — how the dock widgets look (layout, colours, clock, glass, theme), the style presets
-/// that go with them, and the weather widget's own rows. The ordered widget list stays in
-/// `SettingsLayoutPane(mode: .widgets)`, which the Widgets tab composes under this block.
+/// Phase 12 — how the widget panes look (layout, colours, clock, glass, theme) and the style
+/// presets that go with them. The dock's own list moved to the Dock Items tab, and the weather
+/// rows to the Weather tab (2026-10-20 split).
 /// Renders through the shared card/row system (`SettingsCard.swift`, `Docs/SETTINGS.md` rule 2) and
 /// gives the page at most three sections (rule 5).
 struct WidgetLookSettingsBlock: View {
@@ -17,17 +17,9 @@ struct WidgetLookSettingsBlock: View {
     @AppStorage(WidgetExtraPrefs.showNotesKey) private var showNotes = true
     @AppStorage(WidgetExtraPrefs.showStopwatchKey) private var showStopwatch = true
     @AppStorage(WidgetPanelController.keepBothOpenKey) private var keepBoth = false
-    // Moved here from the Weather card (2026-10-15): it was the only row on its line there, and the
-    // animation of a widget tile is this card's subject. Same key, same switch.
-    @AppStorage(WeatherPrefs.animationsKey) private var weatherAnimations = true
 
     @AppStorage("com.katikati.clock.preset") private var clockPresetRaw: String = ClockPreset.stackedCard.rawValue
-    @AppStorage("com.katikati.weather.chipPreset") private var weatherPresetRaw: String = WeatherChipPreset.detailedForecast.rawValue
     @AppStorage("com.katikati.media.preset") private var mediaPresetRaw: String = NowPlayingPreset.expandedCard.rawValue
-    // Phase 32b: the dock widgets' motion language. `Right FAB Style` left this page for Appearance
-    // (same swap as 32d's dock-icon row): the Widgets page is 952 pt of the 986 pt cap, so the picker
-    // that replaces it has to take its slot on the pair rather than claim a row of its own.
-    @AppStorage(WidgetMotionPreset.storageKey) private var dockMotion: WidgetMotionPreset = .default
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
             SettingsCard(Text("Widget Appearance")) {
@@ -68,11 +60,7 @@ struct WidgetLookSettingsBlock: View {
                     right: { SettingsToggleRow(Text("Show Stopwatch & Countdown"), isOn: $showStopwatch) }
                 )
                 SettingsDivider()
-                // Two toggles, one line (rule 5).
-                SettingsRowPair(
-                    left: { SettingsToggleRow(Text("Keep Both Widgets Open"), isOn: $keepBoth) },
-                    right: { SettingsToggleRow(Text("Weather Animations"), isOn: $weatherAnimations) }
-                )
+                SettingsToggleRow(Text("Keep Both Widgets Open"), isOn: $keepBoth)
                 SettingsDivider()
                 // The group's name with its ⓘ beside it, as a sub-header rather than a row
                 // (2026-10-15): it carries no control, and a label spending a whole 41 pt row was
@@ -93,18 +81,6 @@ struct WidgetLookSettingsBlock: View {
                         }
                     },
                     right: {
-                        SettingsRow(Text("Weather Style")) {
-                            Picker("Weather Style", selection: $weatherPresetRaw) {
-                                ForEach(WeatherChipPreset.allCases, id: \.rawValue) { preset in
-                                    Text(preset.title).tag(preset.rawValue)
-                                }
-                            }
-                            .labelsHidden().pickerStyle(.menu).fixedSize()
-                        }
-                    }
-                )
-                SettingsRowPair(
-                    left: {
                         SettingsRow(Text("Now Playing Style")) {
                             Picker("Now Playing Style", selection: $mediaPresetRaw) {
                                 ForEach(NowPlayingPreset.allCases, id: \.rawValue) { preset in
@@ -113,25 +89,8 @@ struct WidgetLookSettingsBlock: View {
                             }
                             .labelsHidden().pickerStyle(.menu).fixedSize()
                         }
-                    },
-                    right: {
-                        SettingsRow(Text("Dock Motion")) {
-                            Picker("Dock Motion", selection: $dockMotion) {
-                                ForEach(WidgetMotionPreset.allCases, id: \.self) { preset in
-                                    Text(preset.title).tag(preset)
-                                }
-                            }
-                            .labelsHidden().pickerStyle(.menu).fixedSize()
-                        }
-                        .help(Text("How the dock widgets' readings move when they change."))
                     }
                 )
-            }
-
-            // The weather widget's rows, in their own card: units and warning thresholds are not
-            // appearance, and a second header inside one card would not read as a section.
-            SettingsCard(Text("Weather")) {
-                WeatherSettingsBlock()
             }
         }
     }

@@ -258,9 +258,9 @@ struct LayoutModeDetail: View {
     var body: some View {
         switch mode {
         case .windows: Text("One full-width bar across the bottom of the screen.")
-        case .split3: Text("Three islands: launcher and weather, apps and now playing, clock and widgets.")
-        case .split4: Text("Four islands: launcher and weather, apps, now playing, clock and widgets.")
-        case .split5: Text("Five islands: launcher, weather, apps and now playing, clock, widgets.")
+        case .split3: Text("Three sections: launcher and weather, apps and now playing, clock and widgets.")
+        case .split4: Text("Four sections: launcher and weather, apps, now playing, clock and widgets.")
+        case .split5: Text("Five sections: launcher, weather, apps and now playing, clock, widgets.")
         case .centered: Text("One compact bar floating in the middle.")
         }
     }

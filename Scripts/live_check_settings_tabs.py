@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Walk all ten Settings tabs through real AX toolbar clicks and prove each page opens.
+"""Walk the Settings tabs through real AX toolbar clicks and prove each page opens.
 
 Usage:
     python3 Scripts/live_check_settings_tabs.py [--app /path/to/KatiKati.app] [--shots DIR]
@@ -19,8 +19,9 @@ import pathlib
 import subprocess
 import sys
 
-TABS = ['General', 'Appearance', 'Widgets', 'Notch', 'Edge Bars', 'Window Management',
-        'Launcher', 'Control Center', 'Shortcuts', 'Tools', 'Advanced']
+TABS = ['General', 'Appearance', 'Dock Items', 'Widgets', 'Weather', 'Notch', 'Edge Bars',
+        'Tiling', 'Window Management', 'Launcher', 'Command Bar', 'Control Center',
+        'Shortcuts', 'Tools', 'Advanced']
 
 
 def ax(script: str) -> str:

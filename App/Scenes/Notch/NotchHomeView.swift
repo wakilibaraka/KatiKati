@@ -3,12 +3,20 @@ import SwiftUI
 
 /// Open state of the full notch skin: header row on top, flanked by the 5-page Bento Suite,
 /// then the active Bento Page (AI Mission Control, Vinyl Audio Deck, Storage,
-/// Productivity & Calendar).
+/// Productivity & Calendar). The page slide follows the paging direction;
+/// reduced-motion falls back to a plain fade.
 struct NotchHomeView: View {
     @ObservedObject var model: NotchModel
     @ObservedObject var feed: LiveActivityFeed
     let metrics: NotchMetrics
     let calendarEnabled: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    static let forward = AnyTransition.asymmetric(
+        insertion: .move(edge: .trailing).combined(with: .opacity),
+        removal: .move(edge: .leading).combined(with: .opacity))
+    static let backward = AnyTransition.asymmetric(
+        insertion: .move(edge: .leading).combined(with: .opacity),
+        removal: .move(edge: .trailing).combined(with: .opacity))
 
     var body: some View {
         VStack(spacing: 0) {
@@ -34,7 +42,7 @@ struct NotchHomeView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.top, 4)
-            .transition(.opacity)
+            .transition(reduceMotion ? .opacity : (model.pageDirection >= 0 ? Self.forward : Self.backward))
             .id(model.activePage)
         }
         // Inset by flaring top ear radius and horizontal grid padding
