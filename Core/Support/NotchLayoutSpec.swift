@@ -65,6 +65,29 @@ enum NotchLayoutSpec {
         CGSize(width: min(size.width, max(closedWidth, screenWidth - 24)), height: size.height)
     }
 
+    // MARK: ear zones
+
+    /// What may sit left and right of the camera cutout on the collapsed notch, in the capsule's own
+    /// coordinates (origin top-left). Both are `.zero` without hardware: a fake pill has no cutout to flank.
+    struct EarZones: Equatable {
+        var left: CGRect
+        var right: CGRect
+    }
+
+    /// The capsule grows by `sneakSide` on each side while an activity shows, which pushes the keepout
+    /// inward from the capsule edges by the same amount.
+    static func earZones(metrics: NotchMetrics, showsActivity: Bool) -> EarZones {
+        guard metrics.hasHardwareNotch, !metrics.cameraKeepoutBox.isEmpty else { return EarZones(left: .zero, right: .zero) }
+        let sneak = showsActivity ? NotchGeometry.sneakSide : 0
+        let keepout = metrics.cameraKeepoutBox
+        let total = metrics.closedSize.width + 2 * sneak
+        let height = metrics.closedSize.height
+        let leftWidth = keepout.minX + sneak
+        let rightX = keepout.maxX + sneak
+        return EarZones(left: CGRect(x: 0, y: 0, width: leftWidth, height: height),
+                        right: CGRect(x: rightX, y: 0, width: total - rightX, height: height))
+    }
+
     // MARK: panels
 
     enum LeftPanel: Equatable { case music, activity }

@@ -35,6 +35,24 @@ final class NotchLayoutSpecTests: XCTestCase {
         }
     }
 
+    func testEarZonesFlankTheCutoutAndGrowWithTheActivity() {
+        let m = NotchGeometry.metrics(screenWidth: 1710, safeAreaTop: 32, auxLeftWidth: 760, auxRightWidth: 760, menuBarHeight: 32)
+        XCTAssertTrue(m.hasHardwareNotch)
+        let idle = NotchLayoutSpec.earZones(metrics: m, showsActivity: false)
+        let live = NotchLayoutSpec.earZones(metrics: m, showsActivity: true)
+        XCTAssertEqual(idle.left.maxX, m.cameraKeepoutBox.minX)
+        XCTAssertEqual(idle.right.minX, m.cameraKeepoutBox.maxX)
+        XCTAssertEqual(idle.right.maxX, m.closedSize.width, accuracy: 0.001)
+        XCTAssertEqual(live.left.width, idle.left.width + NotchGeometry.sneakSide)
+        XCTAssertEqual(live.right.width, idle.right.width + NotchGeometry.sneakSide, accuracy: 0.001)
+        XCTAssertEqual(live.left.height, m.closedSize.height)
+    }
+
+    func testEarZonesAreEmptyOnAFakeNotch() {
+        let m = NotchGeometry.metrics(screenWidth: 1920, safeAreaTop: 0, auxLeftWidth: nil, auxRightWidth: nil, menuBarHeight: 24)
+        XCTAssertEqual(NotchLayoutSpec.earZones(metrics: m, showsActivity: true), .init(left: .zero, right: .zero))
+    }
+
     func testWeekStripHasSevenDaysTodayInTheMiddle() {
         let now = Date(timeIntervalSince1970: 1_776_000_000) // mid-April 2026
         let strip = NotchLayoutSpec.weekStrip(now: now, calendar: utc)
