@@ -31,6 +31,11 @@ integrator applies it.
 Behaviour-frozen (bug fix + regression test only; splits are pure-move slices): `WindowLiftAvoidanceController`,
 `AppTracker`, `DragController`, `AccessibilitySource`, `FullscreenIntentMonitor`.
 
+## Settings pages: batched (49e)
+A new Settings tab edits `SettingsTab.swift`, `SettingsWindowView.swift` and `SettingsTabTests` together. Lanes therefore
+never add a tab on their own: they ship the page view as a self-contained file in their lane and list "add tab" in their
+hot-file touches. The integrator registers all pending tabs in **one slice per release**.
+
 ## Claims
 One line per active slice: `lane | slice | agent | branch | files | hot-file touches | since`
 
