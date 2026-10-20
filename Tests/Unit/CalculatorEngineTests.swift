@@ -10,6 +10,7 @@ final class CalculatorEngineTests: XCTestCase {
         XCTAssertEqual(CalculatorEngine.evaluate("10/4"), 2.5)
         XCTAssertEqual(CalculatorEngine.evaluate("50%"), 0.5)
         XCTAssertEqual(CalculatorEngine.evaluate("3×4÷2"), 6)
+        XCTAssertEqual(CalculatorEngine.evaluate("5−3"), 2, "the keypad's display minus (U+2212)")
         XCTAssertEqual(CalculatorEngine.evaluate("3x4"), 12)
         XCTAssertEqual(CalculatorEngine.evaluate("1,5+1"), 2.5)
     }

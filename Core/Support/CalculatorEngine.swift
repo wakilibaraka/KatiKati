@@ -23,6 +23,7 @@ enum CalculatorEngine {
     private static func normalise(_ t: String) -> String {
         t.replacingOccurrences(of: "×", with: "*").replacingOccurrences(of: "÷", with: "/")
             .replacingOccurrences(of: "x", with: "*").replacingOccurrences(of: "X", with: "*")
+            .replacingOccurrences(of: "−", with: "-")
             .replacingOccurrences(of: ",", with: ".").filter { !$0.isWhitespace }
     }
 
