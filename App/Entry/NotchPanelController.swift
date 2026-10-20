@@ -12,6 +12,8 @@ import SwiftUI
 @MainActor
 final class NotchPanelController: LiveEventSink {
     private var panel: BoringNotchWindow?
+    /// 51g: one controller per display; the coordinator owns the set.
+    let displayID: CGDirectDisplayID
     private let model = NotchModel()
     private var cancellables = Set<AnyCancellable>()
     private var eventWork: DispatchWorkItem?
@@ -32,6 +34,8 @@ final class NotchPanelController: LiveEventSink {
     var skin: LiveIslandSkin = .boring {
         didSet { guard skin != oldValue else { return }; model.skin = skin; syncModelSizes(); syncWindow() }
     }
+
+    init(displayID: CGDirectDisplayID) { self.displayID = displayID }
 
     /// Whether the panel exists and is on screen — the router's "usable" test for the notch.
     var isUsable: Bool { panel?.isVisible ?? false }
@@ -246,11 +250,7 @@ final class NotchPanelController: LiveEventSink {
     // MARK: geometry
 
     private func targetScreen() -> NSScreen? {
-        let builtIn = NSScreen.screens.first(where: { $0.safeAreaInsets.top > 0 })
-        switch NotchDisplayChoice.current() {
-        case .main: return NSScreen.screens.first ?? NSScreen.main
-        case .builtIn, .automatic: return builtIn ?? NSScreen.main
-        }
+        NSScreen.screens.first { $0.displayID == displayID }
     }
 
     private static func metrics(for screen: NSScreen) -> NotchMetrics {
@@ -406,4 +406,66 @@ final class NotchTrackingContainer: NSView {
         }
         super.scrollWheel(with: event)
     }
+}
+
+extension NSScreen {
+    var displayID: CGDirectDisplayID? {
+        (deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
+    }
+}
+
+/// 51g: keeps one `NotchPanelController` per display whose `NotchDesign` is not `.off`, rebuilt when
+/// displays or the per-display choice change. Events fan out to every panel; shortcuts act on the
+/// panel under the pointer.
+@MainActor
+final class NotchPanelCoordinator: LiveEventSink {
+    private var controllers: [CGDirectDisplayID: NotchPanelController] = [:]
+    private var enabled = false
+    private var observers = Set<AnyCancellable>()
+    var theme: () -> NowPlayingTheme = { .auto } { didSet { controllers.values.forEach { $0.theme = theme } } }
+    var onOpenSettings: () -> Void = {} { didSet { controllers.values.forEach { $0.onOpenSettings = onOpenSettings } } }
+    var skin: LiveIslandSkin = .boring { didSet { controllers.values.forEach { $0.skin = skin } } }
+
+    var isUsable: Bool { controllers.values.contains { $0.isUsable } }
+
+    func setEnabled(_ on: Bool) {
+        enabled = on
+        observers.removeAll()
+        if on {
+            let names: [Notification.Name] = [NSApplication.didChangeScreenParametersNotification, UserDefaults.didChangeNotification]
+            names.forEach { name in NotificationCenter.default.publisher(for: name).sink { [weak self] _ in self?.reconcile() }.store(in: &observers) }
+        }
+        reconcile()
+    }
+
+    /// shortcut: `reconcile` runs on every UserDefaults change (cheap dictionary diff), fine until a hot key writes defaults per frame.
+    private func reconcile() {
+        var wanted: [CGDirectDisplayID: NotchDesign] = [:]
+        if enabled {
+            let stored = NotchDesign.stored()
+            for screen in NSScreen.screens {
+                guard let id = screen.displayID else { continue }
+                let design = NotchDesign.resolve(display: String(id), hasHardwareNotch: screen.safeAreaInsets.top > 0, stored: stored)
+                if design != .off { wanted[id] = design }
+            }
+        }
+        for (id, c) in controllers where wanted[id] == nil { c.setEnabled(false); controllers[id] = nil }
+        for id in wanted.keys where controllers[id] == nil {
+            let c = NotchPanelController(displayID: id)
+            c.theme = theme; c.onOpenSettings = onOpenSettings; c.skin = skin
+            controllers[id] = c
+            c.setEnabled(true)
+        }
+    }
+
+    func show(_ event: LiveEvent) { controllers.values.forEach { $0.show(event) } }
+
+    private var underPointer: NotchPanelController? {
+        let p = NSEvent.mouseLocation
+        let id = NSScreen.screens.first { $0.frame.contains(p) }?.displayID
+        return id.flatMap { controllers[$0] } ?? controllers.values.first
+    }
+
+    func toggleTools() { underPointer?.toggleTools() }
+    func stepPage(forward: Bool) { underPointer?.stepPage(forward: forward) }
 }

@@ -160,7 +160,6 @@ private struct NotchBehaviorCard: View {
     @AppStorage(NotchBehavior.hoverDelayKey) private var hoverDelay = NotchBehavior.defaultHoverDelay
     @AppStorage(NotchBehavior.closeDelayKey) private var closeDelay = NotchBehavior.defaultCloseDelay
     @AppStorage(NotchBehavior.hapticKey) private var haptic = true
-    @AppStorage(NotchDisplayChoice.defaultsKey) private var display = NotchDisplayChoice.automatic.rawValue
 
     var body: some View {
         SettingsCard(Text(verbatim: "Notch Behavior")) {
@@ -182,14 +181,7 @@ private struct NotchBehaviorCard: View {
             SettingsDivider()
             SettingsToggleRow(Text(verbatim: "Haptic feedback"), isOn: $haptic)
             SettingsDivider()
-            SettingsRow(Text(verbatim: "Display")) {
-                Picker(selection: $display) {
-                    Text(verbatim: "Automatic").tag(NotchDisplayChoice.automatic.rawValue)
-                    Text(verbatim: "Built-in display").tag(NotchDisplayChoice.builtIn.rawValue)
-                    Text(verbatim: "Main display").tag(NotchDisplayChoice.main.rawValue)
-                } label: { Text(verbatim: "Display") }
-                .labelsHidden().pickerStyle(.menu).fixedSize()
-            }
+            NotchDisplayRows()
         }
     }
 
@@ -386,5 +378,33 @@ private struct NotchPagesCard: View {
         var next = layout
         if hide { next.hidden.insert(page) } else { next.hidden.remove(page) }
         raw = next.raw
+    }
+}
+
+/// 51g: one row per connected display — Notch, Wide bar or Off. Notch screens default to Notch, others to Wide bar.
+private struct NotchDisplayRows: View {
+    @State private var screens = NSScreen.screens
+    @State private var stored = NotchDesign.stored()
+
+    var body: some View {
+        ForEach(screens, id: \.displayID) { screen in
+            let id = String(screen.displayID ?? 0)
+            let notch = screen.safeAreaInsets.top > 0
+            SettingsRow(Text(verbatim: screen.localizedName)) {
+                Picker(selection: Binding(
+                    get: { NotchDesign.resolve(display: id, hasHardwareNotch: notch, stored: stored).rawValue },
+                    set: { raw in
+                        guard let design = NotchDesign(rawValue: raw) else { return }
+                        NotchDesign.set(design, for: id)
+                        stored = NotchDesign.stored()
+                    })) {
+                    Text(verbatim: "Notch").tag(NotchDesign.notch.rawValue)
+                    Text(verbatim: "Wide bar").tag(NotchDesign.wideBar.rawValue)
+                    Text(verbatim: "Off").tag(NotchDesign.off.rawValue)
+                } label: { Text(verbatim: screen.localizedName) }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in screens = NSScreen.screens }
     }
 }

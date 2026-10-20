@@ -1,7 +1,7 @@
 import Foundation
 
 // Dynamic Island behavior choices (ported in spirit from vorssaint-utils, GPL-3.0): how the island opens,
-// how long it waits, and which screen it lives on. Pure and dual-compiled; the settings pane and
+// how long it waits, and which design each screen gets. Pure and dual-compiled; the settings pane and
 // `NotchPanelController` both read through here.
 
 enum NotchOpenMode: String, CaseIterable, Identifiable, Sendable {
@@ -10,15 +10,6 @@ enum NotchOpenMode: String, CaseIterable, Identifiable, Sendable {
     static let defaultsKey = "com.katikati.notch.openMode"
     static func current(_ d: UserDefaults = .standard) -> NotchOpenMode {
         NotchOpenMode(rawValue: d.string(forKey: defaultsKey) ?? "") ?? .hover
-    }
-}
-
-enum NotchDisplayChoice: String, CaseIterable, Identifiable, Sendable {
-    case automatic, builtIn, main
-    var id: String { rawValue }
-    static let defaultsKey = "com.katikati.notch.display"
-    static func current(_ d: UserDefaults = .standard) -> NotchDisplayChoice {
-        NotchDisplayChoice(rawValue: d.string(forKey: defaultsKey) ?? "") ?? .automatic
     }
 }
 

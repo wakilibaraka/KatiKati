@@ -103,7 +103,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// on a multi-display setup (see `LiveEventCenter`'s header).
     private let liveEventCenter = LiveEventCenter()
     /// Phase 8b-7: the notch skin of the Live Island. Built lazily — only while the setting is on.
-    private let notchPanel = NotchPanelController()
+    private let notchPanel = NotchPanelCoordinator()
     /// Phase 8e menu utilities. The cleaner polls only while its setting is on.
     private let linkCleaner = LinkCleanerService()
     private var linkCleanerSubscription: AnyCancellable?
