@@ -5170,6 +5170,10 @@ cramped on the *small* islands at the 90 pt rail, and that the 2 pt gap is not t
 
 ## Phase 12 — page fit: the five pages past the 1074 pt clamp come inside it (2026-10-15)
 
+> ~~Page-height gate (`Scripts/check_settings_page_heights.py`, `DOCK_SETTINGS_PAGE_HEIGHT`, the 986 / 1074 pt clamp).~~
+> **Superseded 2026-10-20 (owner):** abandoned, no replacement; the sidebar redesign (`d0aa73a`) already made the window
+> resizable (min 640×440) with pages scrolling as a whole. This section and the notes below are kept as history.
+
 > Hand-off, 2026-10-15: *"Bring the five Settings pages that still run past the 1074 pt window inside it,
 > without dropping sections or controls."* The five are the ones the close-out pass measured clamped
 > (`Docs/Archive/Planning/evidence/2026-10-15-close-out/README.md` §1): **Appearance, Widgets,

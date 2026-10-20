@@ -81,20 +81,11 @@ A rule is a defect if a page breaks it unaccountably. "Check" is how to see the 
    takes its label from its row); every user-facing string is a whole literal the localizer can
    see — never a bare `String` interpolated into `Text`, never a label assembled from fragments.
    *Check:* `Scripts/check_localization.py` green, plus the label audit named in §3.
-10. **The window fits its content.** The window is a fixed 900 pt wide
-    (`SettingsWindowView.contentWidth`); pages must not demand more, and a page taller than the
-    screen scrolls as a whole (no scrolling inside a card). *Check:* the height probe measures each
-    page; switching pages never moves the left edge. `python3 Scripts/check_settings_page_heights.py`
-    answers the height question by itself (the app's own probe, §5.3) and fails by page name — as of
-    2026-10-18 all ten fit (`evidence/2026-10-18-settings-dock-live/README.md`), the tightest with
-    35 pt to spare (Widgets, 951 of 986), so a new card or row on Widgets, Edge Bars or Tools is what
-    pushes one back over. The probe measures the **nav bar with the page** since 2026-10-18, so the
-    986 pt limit is the whole content area (`window 1074 − 88` for the title bar and toolbar) and the
-    number cannot hide one of them again. Then the 986's own edge cases: a page that grows when a
-    control is used has to fit in that state too — measured 2026-10-18 for Appearance with a tinted
-    theme (956), Widgets with the context presets armed (975) and Edge Bars on the Custom preset
-    (899, the item list folded behind a disclosure). The gate is the check; measuring by hand is only
-    for the insets and the row rhythm.
+10. **The window is fluid; there is no height gate.** The window resizes freely down to
+    `SettingsMetrics.minWindowWidth × minWindowHeight` (640×440) and each page scrolls as a whole (no
+    scrolling inside a card). The old page-height clamp and its script were retired on 2026-10-20
+    (owner) and nothing replaces them. *Check:* by eye — open the page you changed at the minimum
+    size; switching pages never moves the left edge.
 
 ## 2. The one system
 
@@ -171,13 +162,8 @@ Until the decision is recorded in the tracker:
    CODE_SIGNING_ALLOWED=NO` — the whole suite, including `SettingsMetricsTests`.
 2. `python3 Scripts/check_localization.py`, `python3 Scripts/check_debug_switches.py` and
    `python3 Scripts/check_availability_warnings.py <clean build log>` — rule 9's mechanical half.
-3. `python3 Scripts/check_settings_page_heights.py` — rule 10's. It launches the built app once
-   (`DOCK_SETTINGS_PAGE_HEIGHT=1`) and the app measures all ten pages through **the same probe it
-   sizes its window with** (`SettingsWindowController.naturalContentHeight`), then exits. Any page
-   whose content is taller than 986 pt — a 1074 pt window — fails the check by name. Build the app
-   first (`Scripts/build_and_run.sh`); without a build the check exits 2, never 0.
-4. Run the window and measure, don't assume. The 2026-10-15 before-set recorded the card-content
+3. Run the window and measure, don't assume. The 2026-10-15 before-set recorded the card-content
    left inset running 20 / 28 / 42 / 108 pt across the ten pages; after the migration it is 42 pt
    on all ten. A number you touch must move toward the grid, not away from it.
-5. Screenshot the page before and after. A UI slice without its shots is unfinished
+4. Screenshot the page before and after. A UI slice without its shots is unfinished
    (`STANDING_RULES.md` §6.5).

@@ -3,7 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct SettingsWindowView: View {
-    // Wide enough for ten toolbar items without the overflow chevron. The number lives in
+    // The window's default width (it resizes freely above `minWindowWidth`). The number lives in
     // `SettingsMetrics` because a pair's half is arithmetic on it (`cardContentWidth`).
     static let contentWidth: CGFloat = SettingsMetrics.windowWidth
 

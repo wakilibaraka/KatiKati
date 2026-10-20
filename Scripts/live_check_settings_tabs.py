@@ -1,75 +1,85 @@
 #!/usr/bin/env python3
-"""Walk the Settings tabs through real AX toolbar clicks and prove each page opens.
+"""Smoke test: launched on each Settings page, the app opens a Settings window. Nothing more — there
+is no height or fit rule, and it does not read which page is showing (use --shots and look).
 
 Usage:
-    python3 Scripts/live_check_settings_tabs.py [--app /path/to/KatiKati.app] [--shots DIR]
+    python3 Scripts/live_check_settings_tabs.py --app /path/to/KatiKati.app [--shots DIR]
 
-A manual live-check aid (like Scripts/build_and_run.sh), not a CI step: it needs the app
-running with a window the AX route can raise, so launch it first with e.g.
-`open --env DOCK_OPEN_SETTINGS=general <app>` and grant the terminal Accessibility access.
-For each tab it clicks the toolbar button, asserts the window title follows, and records the
-window frame (pages size themselves to content — a 0-size or missing window fails loudly).
+A manual live-check aid (like Scripts/build_and_run.sh), not a CI step. The tab list is read from
+App/Scenes/SettingsTab.swift, so a new page is covered without editing this file. For each tab it
+launches the app with DOCK_OPEN_SETTINGS=<tab> (the debug switch in Core/Support/DebugSwitch.swift),
+waits for the window, asks System Events for the standard-window sizes (the terminal needs
+Accessibility access), optionally screenshots, then quits the app.
 
-Exit code: 0 all ten pages opened; 1 anything did not; 2 the app/window was not found.
+The app terminates other running instances at launch, so this refuses to run while KatiKati is open.
+
+Exit code: 0 every page opened a window; 1 a page did not; 2 setup problem (app running, no .app).
 """
 from __future__ import annotations
 
 import argparse
 import pathlib
+import re
 import subprocess
 import sys
+import time
 
-TABS = ['General', 'Appearance', 'Dock Items', 'Widgets', 'Weather', 'Notch', 'Edge Bars',
-        'Tiling', 'Window Management', 'Launcher', 'Command Bar', 'Control Center',
-        'Shortcuts', 'Tools', 'Advanced']
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+MIN_W, MIN_H = 600, 400  # a hair under SettingsMetrics.minWindowWidth/Height (640x440)
 
 
-def ax(script: str) -> str:
-    run = subprocess.run(['osascript', '-e', script], capture_output=True, text=True, timeout=30)
-    if run.returncode != 0:
-        raise RuntimeError(run.stderr.strip().splitlines()[-1] if run.stderr.strip() else 'osascript failed')
-    return run.stdout.strip()
+def tabs() -> list[str]:
+    src = (ROOT / 'App/Scenes/SettingsTab.swift').read_text().split('var title')[0]
+    return re.findall(r'^    case (\w+)\s*$', src, re.M)
+
+
+def run(*cmd: str) -> subprocess.CompletedProcess:
+    return subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+
+
+def window_sizes() -> list[tuple[int, int]]:
+    # Only standard windows: the strip, notch and overlays are AXSystemDialog panels (one is screen-sized).
+    script = ('tell application "System Events" to tell (first process whose name is "KatiKati") '
+              'to get size of every window whose subrole is "AXStandardWindow"')
+    out = run('osascript', '-e', script).stdout
+    nums = [int(n) for n in re.findall(r'\d+', out)]
+    return list(zip(nums[0::2], nums[1::2]))
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument('--app', required=True, help='path to the built KatiKati.app')
     parser.add_argument('--shots', help='directory for one screenshot per tab (created if needed)')
     args = parser.parse_args()
 
+    if not pathlib.Path(args.app).is_dir():
+        print(f'❌ no app bundle at {args.app}')
+        return 2
+    if run('pgrep', '-x', 'KatiKati').returncode == 0:
+        print('❌ KatiKati is already running — quit it first (the app would kill it at launch)')
+        return 2
     shots = pathlib.Path(args.shots) if args.shots else None
     if shots is not None:
         shots.mkdir(parents=True, exist_ok=True)
 
-    try:
-        proc = 'tell application "System Events" to tell (first process whose name is "KatiKati")'
-        ax(f'{proc} to get name')
-    except RuntimeError as e:
-        print(f'❌ KatiKati is not running (or AX is denied): {e}')
-        return 2
-
-    current = 'General'
     failures = []
-    for tab in TABS:
-        try:
-            ax(f'{proc} to tell window "{current}" to tell toolbar 1 to click button "{tab}"')
-            import time
-            time.sleep(1.0)
-            rect = ax(f'{proc} to get {{position, size}} of window "{tab}"')
-            x, y, w, h = (p.strip() for p in rect.split(','))
-            if shots is not None:
-                slug = tab.replace(' ', '_')
-                subprocess.run(['screencapture', '-x',
-                                f'-R{int(x) * 2},{int(y) * 2},{int(w) * 2},{int(h) * 2}',
-                                str(shots / f'{slug}.png')], check=False, timeout=30)
-            print(f'  ✅ {tab:<20} {w}×{h} at ({x},{y})')
-            current = tab
-        except (RuntimeError, ValueError) as e:
-            print(f'  ❌ {tab:<20} {e}')
+    for tab in tabs():
+        run('open', '-n', '--env', f'DOCK_OPEN_SETTINGS={tab}', '--env', 'DOCK_DEV_SKIP_PERMISSIONS=1', args.app)
+        time.sleep(7)  # the switch presents the page ~3 s after launch
+        sizes = window_sizes()
+        ok = any(w >= MIN_W and h >= MIN_H for w, h in sizes)
+        if ok and shots is not None:
+            run('screencapture', '-x', str(shots / f'{tab}.png'))
+        print(f'  {"✅" if ok else "❌"} {tab:<18} windows: {sizes or "none"}')
+        if not ok:
             failures.append(tab)
+        run('osascript', '-e', 'tell application "KatiKati" to quit')
+        time.sleep(1.5)
+        run('pkill', '-x', 'KatiKati')  # safe: we refused to start with one running
     if failures:
-        print('❌ these pages did not open: ' + ', '.join(failures))
+        print('❌ these pages did not open a window: ' + ', '.join(failures))
         return 1
-    print('✅ all ten Settings pages opened via their toolbar buttons')
+    print(f'✅ all {len(tabs())} Settings pages opened a window')
     return 0
 
 
