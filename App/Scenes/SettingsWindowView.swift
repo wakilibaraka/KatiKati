@@ -398,8 +398,9 @@ struct SettingsWindowContent: View {
 
     /// 界面语言（2026-08-24 加；Pass 2 加回「System」档——删键即跟随系统，机制本来就在，
     /// 见 `AppLanguageOption` 注释）。写**应用自己域**的 `AppleLanguages`，重启生效。
-    /// 读现状必须走 `CFPreferencesCopyAppValue`——`array(forKey:)` 会继承全局域，
-    /// 分不清「没设过」和「显式设置」。**读取路径绝不许回写**（钉死语言的陷阱）。
+    /// 读现状必须走 `CFPreferencesCopyValue`（精确域）——`array(forKey:)` 和
+    /// `CFPreferencesCopyAppValue` 都会继承全局域，分不清「没设过」和「显式设置」。
+    /// **读取路径绝不许回写**（钉死语言的陷阱）。
     private var languagePicker: some View {
         SettingsPickerRow(
             Text("App language"),
@@ -418,7 +419,10 @@ struct SettingsWindowContent: View {
 
     private static func currentLanguageChoice() -> AppLanguagePickerChoice {
         let bundleID = (Bundle.main.bundleIdentifier ?? "") as CFString
-        let value = CFPreferencesCopyAppValue("AppleLanguages" as CFString, bundleID) as? [String]
+        // ⚠️ 必须 CopyValue + CurrentUser/AnyHost 精确读本域：CopyAppValue（和
+        // `array(forKey:)`）会一路搜到全局域——那里永远有系统语言列表，于是「没选过」
+        // 被误报成「选了系统那门语言」，System 档永远选不中（本机实测撞上）。
+        let value = CFPreferencesCopyValue("AppleLanguages" as CFString, bundleID, kCFPreferencesCurrentUser, kCFPreferencesAnyHost) as? [String]
         return AppLanguagePickerChoice.current(
             appDomainValue: value,
             // 真正加载的那份 .lproj——比推断系统语言准。

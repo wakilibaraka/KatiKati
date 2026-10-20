@@ -36,8 +36,9 @@ enum AppLanguageOption: String, CaseIterable, Equatable {
     ///
     /// - `appDomainValue`: 从**本 app 域**读出的 `AppleLanguages`。⚠️ 调用方不能用
     ///   `UserDefaults.standard.array(forKey:)` 取值——它会继承全局域（系统语言列表永远非空），
-    ///   分不清「没设过」和「显式设置」。要用 `CFPreferencesCopyAppValue` /
-    ///   `persistentDomain(forName:)` 取本域值传进来。
+    ///   分不清「没设过」和「显式设置」。`CFPreferencesCopyAppValue` 同样会搜到全局域
+    ///   （2026-10-20 实测：System 档因此永远选不中）。要用 `CFPreferencesCopyValue`
+    ///   + CurrentUser/AnyHost 精确读本域，或 `persistentDomain(forName:)`。
     /// - `effectiveLocalization`: 此刻**真正加载的那份 `.lproj`**（`Bundle.main.preferredLocalizations.first`）。
     ///   没设过、或域里是我们没有的语言（用户在系统设置里给本 app 选了俄语这类）时按它回答：
     ///   a language we do not ship really falls back to English, so the menu shows English too.

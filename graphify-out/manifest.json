@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1792474669.2638524,
-    "seen": 1792478489.8721,
-    "ast_hash": "01e40c532b4b12d4ab1a820dd7786f1e",
+    "mtime": 1792481034.3817265,
+    "seen": 1792482085.405735,
+    "ast_hash": "0f2bdc317e54c647c4a4588a0ee4087e",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -1488,9 +1488,9 @@
     "semantic_hash": "91ac88b152f882aaf4dfd5731f85cd48"
   },
   "Core/Support/AppLanguageOption.swift": {
-    "mtime": 1792474524.6725945,
-    "seen": 1792478489.872181,
-    "ast_hash": "98db9597cca9ab1e298ccd1aa38a633f",
+    "mtime": 1792481034.384113,
+    "seen": 1792482085.405775,
+    "ast_hash": "bd990a09696597f25d939bdb7727d9c8",
     "semantic_hash": ""
   },
   "Core/Support/AppLaunchTargetDecision.swift": {
