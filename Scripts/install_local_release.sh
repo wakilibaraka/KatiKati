@@ -41,12 +41,19 @@ source "$ROOT/Scripts/lib/release_binary.sh"
 # 回退分支是给没有本项目 Developer ID 证书的人留的（仓库是 GPL 公开的、有 fork），
 # 不是给自己用的 —— 掉进回退分支意味着装出来的包和发布包身份不同，授权会打架。
 IDENTITIES="$(security find-identity -v -p codesigning 2>&1)"
+ENT_SIGN="$ENTITLEMENTS"
 if grep -Fq "\"$DEVELOPER_ID\"" <<<"$IDENTITIES"; then
   IDENTITY="$DEVELOPER_ID"
 elif grep -Fq "\"$FALLBACK_IDENTITY\"" <<<"$IDENTITIES"; then
   IDENTITY="$FALLBACK_IDENTITY"
   echo "warning: 没找到 Developer ID 证书，回退到「${FALLBACK_IDENTITY}」。" >&2
   echo "         装出来的包与发布包身份不同，辅助功能授权会和发布包互相作废。" >&2
+  # 回退身份没有 Team ID，hardened runtime 的库校验会拒载重签的 Sparkle（dyld 报
+  # “different Team IDs”）。只在本地豁免库校验；Developer ID 发布包两边同队，不动。
+  ENT_SIGN="${TMPDIR:-/tmp}/katikati-local-ents.plist"
+  cp "$ENTITLEMENTS" "$ENT_SIGN"
+  /usr/libexec/PlistBuddy -c "Add :com.apple.security.cs.disable-library-validation bool true" "$ENT_SIGN" \
+    || /usr/libexec/PlistBuddy -c "Set :com.apple.security.cs.disable-library-validation true" "$ENT_SIGN"
 else
   echo "error: 找不到任何可用的签名证书。" >&2
   echo "       期望「${DEVELOPER_ID}」或「${FALLBACK_IDENTITY}」。" >&2
@@ -100,7 +107,7 @@ codesign --force \
   --sign "$IDENTITY" \
   --options runtime \
   --timestamp \
-  --entitlements "$ENTITLEMENTS" \
+  --entitlements "$ENT_SIGN" \
   "$APP"
 
 # 主程序和 Sparkle 的 Team ID 必须一致，否则上面说的拒载会在用户机器上重演。
