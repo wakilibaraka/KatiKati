@@ -213,6 +213,7 @@ private struct NotchActivityCard: View {
     @AppStorage(NotchRestContent.defaultsKey) private var rest = NotchRestContent.dockChips.rawValue
     @AppStorage(NotchMusicGlow.defaultsKey) private var glow = NotchMusicGlow.default.rawValue
     @AppStorage("com.katikati.notch.trackToast") private var trackToast = true
+    @AppStorage("com.katikati.notch.batteryBuddy") private var batteryBuddy = true
     @AppStorage(NotchBehavior.lowBatteryTintKey) private var tintsLow = true
     @AppStorage(NotchBehavior.lowBatteryThresholdKey) private var threshold = NotchBehavior.defaultLowBatteryThreshold
 
@@ -235,6 +236,8 @@ private struct NotchActivityCard: View {
             }
             SettingsDivider()
             SettingsToggleRow(Text(verbatim: "New song pill"), isOn: $trackToast)
+            SettingsDivider()
+            SettingsToggleRow(Text(verbatim: "Low Bluetooth battery pill"), isOn: $batteryBuddy)
             SettingsDivider()
             SettingsToggleRow(Text(verbatim: "Turn red when low"), isOn: $tintsLow)
             if tintsLow {

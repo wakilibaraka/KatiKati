@@ -12,11 +12,11 @@ final class NotchTrackPillController {
     private var dismissWork: DispatchWorkItem?
     static let lifetime: TimeInterval = 3.5
 
-    func show(below closedHeight: CGFloat) {
+    func show(below closedHeight: CGFloat, content: (NotchTrackPillModel) -> AnyView) {
         hide(animated: false)
         guard let screen = NSScreen.main else { return }
         let model = NotchTrackPillModel { [weak self] in self?.hide(animated: true) }
-        let host = NSHostingView(rootView: NotchTrackPillView(model: model))
+        let host = NSHostingView(rootView: content(model))
         let size = host.fittingSize
         host.setFrameSize(size)
         let panel = NSPanel(contentRect: NSRect(origin: .zero, size: size), styleMask: [.borderless, .nonactivatingPanel],
@@ -97,6 +97,33 @@ struct NotchTrackPillView: View {
         .onTapGesture { model.dismiss() }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text(verbatim: [state.title, state.artist].compactMap { $0 }.joined(separator: " — ")))
+    }
+}
+
+/// 51d: a connected device has dropped to a low charge.
+struct NotchBatteryPillView: View {
+    @ObservedObject var model: NotchTrackPillModel
+    let device: BluetoothDevice
+
+    var body: some View {
+        let level = device.lowestBattery ?? 0
+        HStack(spacing: 8) {
+            Image(systemName: device.symbolName).font(.system(size: 13, weight: .semibold))
+            Text(verbatim: device.name).font(.system(size: 12, weight: .semibold, design: .rounded)).lineLimit(1).frame(maxWidth: 150)
+            Text(verbatim: "\(level)%").font(.system(size: 12, weight: .bold).monospacedDigit()).foregroundStyle(.red)
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 14).padding(.vertical, 9)
+        .background(Capsule().fill(Color.black))
+        .overlay(Capsule().stroke(Color.red.opacity(0.4), lineWidth: 1))
+        .padding(14)
+        .scaleEffect(model.shown ? 1 : 0.5, anchor: .top)
+        .offset(y: model.shown ? 0 : -18)
+        .opacity(model.shown ? 1 : 0)
+        .contentShape(Capsule())
+        .onTapGesture { model.dismiss() }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text(verbatim: "\(device.name) battery \(level)%"))
     }
 }
 

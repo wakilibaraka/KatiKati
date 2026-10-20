@@ -74,3 +74,15 @@ enum BluetoothDeviceParser {
         return min(100, max(0, n))
     }
 }
+
+/// 51d: which connected devices just fell to a low charge. A device alerts once per dip, and again only
+/// after it has recovered or disconnected. `system_profiler` reports no charging flag, so "charging" is not
+/// a trigger.
+enum BatteryBuddyPolicy {
+    static let lowThreshold = 20
+
+    static func update(alreadyLow: Set<String>, devices: [BluetoothDevice]) -> (alerts: [BluetoothDevice], low: Set<String>) {
+        let low = devices.filter { $0.isConnected && ($0.lowestBattery ?? 100) <= lowThreshold }
+        return (low.filter { !alreadyLow.contains($0.id) }, Set(low.map(\.id)))
+    }
+}

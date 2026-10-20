@@ -59,6 +59,7 @@ final class NotchPanelController: LiveEventSink {
         holdsFeed = true
         window.setFrame(windowFrame(on: screen), display: true)
         window.orderFrontRegardless()
+        startBatteryBuddy()
 
         LiveActivityFeed.shared.$activity.map(\.kind).removeDuplicates().sink { [weak self] _ in self?.activityChanged() }.store(in: &cancellables)
         model.$event.map { $0 != nil }.removeDuplicates().sink { [weak self] _ in self?.syncWindow() }.store(in: &cancellables)
@@ -77,9 +78,36 @@ final class NotchPanelController: LiveEventSink {
     }
 
     private let trackPill = NotchTrackPillController()
+    private let batteryPill = NotchTrackPillController()
+    private var batteryTimer: Timer?
+    private var batteryLow = Set<String>()
+
+    /// 51d: every five minutes, pill any connected Bluetooth device that has just gone low.
+    private func startBatteryBuddy() {
+        guard batteryTimer == nil else { return }
+        let timer = Timer(timeInterval: 300, repeats: true) { [weak self] _ in self?.checkBatteries() }
+        RunLoop.main.add(timer, forMode: .common)
+        batteryTimer = timer
+        checkBatteries()
+    }
+
+    private func checkBatteries() {
+        guard UserDefaults.standard.object(forKey: "com.katikati.notch.batteryBuddy") as? Bool ?? true else { return }
+        Task { @MainActor [weak self] in
+            let devices = await BluetoothDeviceReader.read()
+            guard let self, self.panel != nil else { return }
+            let result = BatteryBuddyPolicy.update(alreadyLow: self.batteryLow, devices: devices)
+            self.batteryLow = result.low
+            if let device = result.alerts.first, !self.model.isExpanded {
+                self.batteryPill.show(below: self.model.closedSize.height) { AnyView(NotchBatteryPillView(model: $0, device: device)) }
+            }
+        }
+    }
 
     private func hide() {
         trackPill.hide(animated: false)
+        batteryPill.hide(animated: false)
+        batteryTimer?.invalidate(); batteryTimer = nil
         cancellables.removeAll()
         stopHoverPolling()
         tickWork?.cancel(); tickWork = nil
@@ -101,7 +129,7 @@ final class NotchPanelController: LiveEventSink {
         if case .trackChanged = event {
             model.glowBoost = 1
             withAnimation(.easeOut(duration: 1.4)) { model.glowBoost = 0 }
-            if !model.isExpanded, UserDefaults.standard.object(forKey: "com.katikati.notch.trackToast") as? Bool ?? true { trackPill.show(below: model.closedSize.height) }
+            if !model.isExpanded, UserDefaults.standard.object(forKey: "com.katikati.notch.trackToast") as? Bool ?? true { trackPill.show(below: model.closedSize.height) { AnyView(NotchTrackPillView(model: $0)) } }
             return
         }
         model.event = LiveEventPresentation(event)

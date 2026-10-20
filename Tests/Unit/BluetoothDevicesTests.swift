@@ -55,4 +55,17 @@ final class BluetoothDevicesTests: XCTestCase {
         let d = BluetoothDevice(name: "X", address: "", isConnected: true)
         XCTAssertEqual(d.id, "X")
     }
+
+    func testBatteryBuddyAlertsOncePerDip() {
+        let low = BluetoothDevice(name: "Pods", address: "A", isConnected: true, batteryMain: 15)
+        let ok = BluetoothDevice(name: "Mouse", address: "B", isConnected: true, batteryMain: 80)
+        let off = BluetoothDevice(name: "Old", address: "C", isConnected: false, batteryMain: 5)
+        let first = BatteryBuddyPolicy.update(alreadyLow: [], devices: [low, ok, off])
+        XCTAssertEqual(first.alerts.map(\.name), ["Pods"])
+        XCTAssertTrue(BatteryBuddyPolicy.update(alreadyLow: first.low, devices: [low]).alerts.isEmpty)
+        var recovered = low; recovered.batteryMain = 60
+        let after = BatteryBuddyPolicy.update(alreadyLow: first.low, devices: [recovered])
+        XCTAssertTrue(after.low.isEmpty)
+        XCTAssertEqual(BatteryBuddyPolicy.update(alreadyLow: after.low, devices: [low]).alerts.count, 1)
+    }
 }
