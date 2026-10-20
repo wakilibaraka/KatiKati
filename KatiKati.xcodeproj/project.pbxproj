@@ -414,6 +414,11 @@
 		ED000000000000000000000D /* SystemStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000C /* SystemStatusTests.swift */; };
 		7D1000000000000000000002 /* NowPlayingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1000000000000000000001 /* NowPlayingService.swift */; };
 		7D2000000000000000000002 /* NowPlayingChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2000000000000000000001 /* NowPlayingChip.swift */; };
+		A0000000000000000000E202 /* CalculatorTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000E201 /* CalculatorTile.swift */; };
+		A0000000000000000000E204 /* AudioRecorderTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000E203 /* AudioRecorderTile.swift */; };
+		A0000000000000000000E206 /* NowPlayingPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000E205 /* NowPlayingPopup.swift */; };
+		A0000000000000000000E208 /* TurntableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000E207 /* TurntableView.swift */; };
+		A0000000000000000000E210 /* ExpandedMediaCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000E209 /* ExpandedMediaCardView.swift */; };
 		7B3000000000000000000002 /* ClockChipContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3000000000000000000001 /* ClockChipContentTests.swift */; };
 		7A0000000000000000000002 /* WeatherResponseParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A284300AD2ED48333C88208 /* WeatherResponseParsing.swift */; };
 		5CB341E082E25B7D7886822F /* WeatherResponseParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A284300AD2ED48333C88208 /* WeatherResponseParsing.swift */; };
@@ -1367,6 +1372,11 @@
 		7B2000000000000000000001 /* ClockChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClockChip.swift; path = App/Scenes/ClockChip.swift; sourceTree = SOURCE_ROOT; };
 		7D1000000000000000000001 /* NowPlayingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingService.swift; path = Core/Support/NowPlayingService.swift; sourceTree = SOURCE_ROOT; };
 		7D2000000000000000000001 /* NowPlayingChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingChip.swift; path = App/Scenes/NowPlayingChip.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000E201 /* CalculatorTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalculatorTile.swift; path = App/Scenes/CalculatorTile.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000E203 /* AudioRecorderTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AudioRecorderTile.swift; path = App/Scenes/AudioRecorderTile.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000E205 /* NowPlayingPopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingPopup.swift; path = App/Scenes/NowPlayingPopup.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000E207 /* TurntableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TurntableView.swift; path = App/Scenes/TurntableView.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000E209 /* ExpandedMediaCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ExpandedMediaCardView.swift; path = App/Scenes/ExpandedMediaCardView.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000012 /* StatusTrioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StatusTrioView.swift; path = App/Scenes/Edge/StatusTrioView.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000014 /* EdgeFlyoutController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EdgeFlyoutController.swift; path = App/Entry/EdgeFlyoutController.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000020 /* NotesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesModel.swift; path = Core/Support/NotesModel.swift; sourceTree = SOURCE_ROOT; };
@@ -3126,6 +3136,11 @@
 				ED0000000000000000000015 /* EdgeFlyoutController.swift in Sources */,
 				7D1000000000000000000002 /* NowPlayingService.swift in Sources */,
 				7D2000000000000000000002 /* NowPlayingChip.swift in Sources */,
+				A0000000000000000000E202 /* CalculatorTile.swift in Sources */,
+				A0000000000000000000E204 /* AudioRecorderTile.swift in Sources */,
+				A0000000000000000000E206 /* NowPlayingPopup.swift in Sources */,
+				A0000000000000000000E208 /* TurntableView.swift in Sources */,
+				A0000000000000000000E210 /* ExpandedMediaCardView.swift in Sources */,
 				7B2000000000000000000002 /* ClockChip.swift in Sources */,
 				7B5000000000000000000092 /* WeatherGlanceView.swift in Sources */,
 				7B5000000000000000000082 /* SkyTint.swift in Sources */,
