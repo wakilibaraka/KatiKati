@@ -267,4 +267,14 @@ final class NotchGestureTests: XCTestCase {
         layout.hidden = Set(NotchPage.allCases)
         XCTAssertEqual(NotchPage.visible(teleprompter: false, layout: layout).count, 4)   // never empty
     }
+
+    func testDisplayDesignDefaultsAndOverrides() {
+        XCTAssertEqual(NotchDesign.resolve(display: "1", hasHardwareNotch: true, stored: [:]), .notch)
+        XCTAssertEqual(NotchDesign.resolve(display: "2", hasHardwareNotch: false, stored: [:]), .wideBar)
+        XCTAssertEqual(NotchDesign.resolve(display: "2", hasHardwareNotch: false, stored: ["2": .off]), .off)
+        let d = UserDefaults(suiteName: "NotchDesignTests")!
+        d.removePersistentDomain(forName: "NotchDesignTests")
+        NotchDesign.set(.notch, for: "2", d)
+        XCTAssertEqual(NotchDesign.stored(d), ["2": .notch])
+    }
 }

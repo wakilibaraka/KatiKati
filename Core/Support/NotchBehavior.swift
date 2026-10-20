@@ -22,6 +22,29 @@ enum NotchDisplayChoice: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+/// 51f: which island design a display gets. A Mac's notch screen defaults to the notch, every other
+/// display to the wide bar (no cutout to hug); the owner overrides per display. Stored as a
+/// `[displayID: rawValue]` dictionary under `defaultsKey`.
+enum NotchDesign: String, CaseIterable, Identifiable, Sendable {
+    case notch, wideBar, off
+    var id: String { rawValue }
+    static let defaultsKey = "com.katikati.notch.displayDesigns"
+
+    static func stored(_ d: UserDefaults = .standard) -> [String: NotchDesign] {
+        (d.dictionary(forKey: defaultsKey) as? [String: String] ?? [:]).compactMapValues(NotchDesign.init(rawValue:))
+    }
+
+    static func set(_ design: NotchDesign, for display: String, _ d: UserDefaults = .standard) {
+        var raw = d.dictionary(forKey: defaultsKey) as? [String: String] ?? [:]
+        raw[display] = design.rawValue
+        d.set(raw, forKey: defaultsKey)
+    }
+
+    static func resolve(display: String, hasHardwareNotch: Bool, stored: [String: NotchDesign]) -> NotchDesign {
+        stored[display] ?? (hasHardwareNotch ? .notch : .wideBar)
+    }
+}
+
 /// What the closed island shows when nothing is live (vorssaint-utils' "At rest"). `dockChips` is
 /// KatiKati's original storage + battery pair.
 enum NotchRestContent: String, CaseIterable, Identifiable, Sendable {
