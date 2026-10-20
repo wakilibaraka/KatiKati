@@ -60,10 +60,10 @@
     "semantic_hash": "bc7ae5307bb41bad473159dec31beacb"
   },
   "App/Composition/CalendarService.swift": {
-    "mtime": 1792144847.823549,
-    "seen": 1792295707.060378,
-    "ast_hash": "6f1a590ef5b3a89502ad9c82465e8c85",
-    "semantic_hash": "6f1a590ef5b3a89502ad9c82465e8c85"
+    "mtime": 1792452265.9793408,
+    "seen": 1792452519.4319072,
+    "ast_hash": "df497b7c30b4d3596ed47223cbc549c1",
+    "semantic_hash": ""
   },
   "App/Composition/CameraMirrorService.swift": {
     "mtime": 1792126656.5390015,
@@ -384,10 +384,10 @@
     "semantic_hash": "67c8ca2b0cb10d9eb96a75f585a43bcc"
   },
   "App/Composition/ShelfStore.swift": {
-    "mtime": 1791999130.8130288,
-    "seen": 1792295707.06041,
-    "ast_hash": "9b40de296d345b74add56f9d68fdcac3",
-    "semantic_hash": "9b40de296d345b74add56f9d68fdcac3"
+    "mtime": 1792361443.452976,
+    "seen": 1792451836.2439659,
+    "ast_hash": "0e67114d09ec1fa4424e193873c447a8",
+    "semantic_hash": ""
   },
   "App/Composition/ShortcutService.swift": {
     "mtime": 1791999130.7990189,
@@ -432,10 +432,10 @@
     "semantic_hash": "6a7dbeaf4505ff3d30dec7758537a75a"
   },
   "App/Composition/TilingEngine.swift": {
-    "mtime": 1791999130.8076508,
-    "seen": 1792295707.060415,
-    "ast_hash": "fd4ed0ea0cf8b4a64deb5c5b90539c20",
-    "semantic_hash": "fd4ed0ea0cf8b4a64deb5c5b90539c20"
+    "mtime": 1792414694.1076744,
+    "seen": 1792451836.243974,
+    "ast_hash": "50c91a44118825de897ed299a96bfcd8",
+    "semantic_hash": ""
   },
   "App/Composition/TorrentEngine.swift": {
     "mtime": 1792261093.5371907,
@@ -492,10 +492,10 @@
     "semantic_hash": "20e32e60027b363670a56a0fe9dd15f9"
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1792268795.3009677,
-    "seen": 1792295707.0604212,
-    "ast_hash": "307b97cd73ccdde8d0f6ced711c4db5f",
-    "semantic_hash": "307b97cd73ccdde8d0f6ced711c4db5f"
+    "mtime": 1792445330.2111828,
+    "seen": 1792451836.2439811,
+    "ast_hash": "530ad1ce67ca977eb9e96df3401e7259",
+    "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
     "mtime": 1792082529.820154,
@@ -510,22 +510,22 @@
     "semantic_hash": "5eaf452d1e8ba1572b4ddf6abc494542"
   },
   "App/Entry/EdgeBarPanelController.swift": {
-    "mtime": 1792038729.166525,
-    "seen": 1792295707.060423,
-    "ast_hash": "795a56011129c2cd9e0b7df9d35877e2",
-    "semantic_hash": "795a56011129c2cd9e0b7df9d35877e2"
+    "mtime": 1792452289.7980163,
+    "seen": 1792452519.431969,
+    "ast_hash": "10d9f31b5c140cfb83f6303c6ef39b7d",
+    "semantic_hash": ""
   },
   "App/Entry/EdgeFlyoutController.swift": {
-    "mtime": 1791999130.7951274,
-    "seen": 1792295707.0604239,
-    "ast_hash": "fbcaf35ea2f760d8ee24c4a4f55d4bfc",
-    "semantic_hash": "fbcaf35ea2f760d8ee24c4a4f55d4bfc"
+    "mtime": 1792452284.8889177,
+    "seen": 1792452519.431969,
+    "ast_hash": "b41819b3e74b39e31ac9ed5592253852",
+    "semantic_hash": ""
   },
   "App/Entry/EdgeNotesPopupController.swift": {
-    "mtime": 1791999130.7941093,
-    "seen": 1792295707.060425,
-    "ast_hash": "d2a057ffff243684c43abbd97a85655c",
-    "semantic_hash": "d2a057ffff243684c43abbd97a85655c"
+    "mtime": 1792452289.7978427,
+    "seen": 1792452519.4319701,
+    "ast_hash": "75e9c9480a49b09dc39575ebd73345b2",
+    "semantic_hash": ""
   },
   "App/Entry/LauncherPanelController.swift": {
     "mtime": 1791999130.7952988,
@@ -546,10 +546,10 @@
     "semantic_hash": "aa05306045ca42105022127ffb45a97f"
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1792268795.3017995,
-    "seen": 1792295707.060427,
-    "ast_hash": "74d5f29e76c6c4a3aef0c02af5e6bf6e",
-    "semantic_hash": "74d5f29e76c6c4a3aef0c02af5e6bf6e"
+    "mtime": 1792446827.7910829,
+    "seen": 1792451836.2439868,
+    "ast_hash": "2d2757f8b7881fdf331eed8b06367877",
+    "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ChipPanel.swift": {
     "mtime": 1792082517.0908165,
@@ -618,10 +618,10 @@
     "semantic_hash": "6033799beafc1152978a855adca9a801"
   },
   "App/Entry/RadialDialPanelController.swift": {
-    "mtime": 1792000628.949715,
-    "seen": 1792295707.060435,
-    "ast_hash": "42be90dc1a32a7e12ce5ab0bdc8f0b05",
-    "semantic_hash": "42be90dc1a32a7e12ce5ab0bdc8f0b05"
+    "mtime": 1792445449.7696416,
+    "seen": 1792451836.243996,
+    "ast_hash": "bde44f43591ffebcc9cdff5062c8000f",
+    "semantic_hash": ""
   },
   "App/Entry/ScreenTimeAlertPresenter.swift": {
     "mtime": 1791999130.7965338,
@@ -630,10 +630,10 @@
     "semantic_hash": "b964370072f09f76bf1831eb1a7c3e30"
   },
   "App/Entry/SettingsWindowController.swift": {
-    "mtime": 1792289570.469215,
-    "seen": 1792295707.060436,
-    "ast_hash": "f27362de8250e0518900954b23030fdc",
-    "semantic_hash": "f27362de8250e0518900954b23030fdc"
+    "mtime": 1792296673.897909,
+    "seen": 1792451836.2439969,
+    "ast_hash": "3a2f544bf84f8be7a10d2bdff2daea32",
+    "semantic_hash": ""
   },
   "App/Entry/ShortcutToastPresenter.swift": {
     "mtime": 1791999130.7935643,
@@ -684,16 +684,16 @@
     "semantic_hash": "674599e2df61d9c7dd83405ee89cde5c"
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
-    "mtime": 1792073390.4637177,
-    "seen": 1792295707.060441,
-    "ast_hash": "48f3af2700638a0d15d9cc9cdc8e187a",
-    "semantic_hash": "48f3af2700638a0d15d9cc9cdc8e187a"
+    "mtime": 1792298851.7262475,
+    "seen": 1792451836.244003,
+    "ast_hash": "2c5e04dc58c5b7b09cc53b7268f0de9e",
+    "semantic_hash": ""
   },
   "App/Scenes/CalendarPanelView.swift": {
-    "mtime": 1792261093.5377734,
-    "seen": 1792295707.0604422,
-    "ast_hash": "de14272153a99551a5e3a84f80e9cd02",
-    "semantic_hash": "de14272153a99551a5e3a84f80e9cd02"
+    "mtime": 1792462744.7833686,
+    "seen": 1792466431.667707,
+    "ast_hash": "cef149b3550bbe5a0495b09ddc0fc09d",
+    "semantic_hash": ""
   },
   "App/Scenes/ChipBadgeView.swift": {
     "mtime": 1791999130.780352,
@@ -828,22 +828,22 @@
     "semantic_hash": "a9783370b1c1c66f8161267e9021faa7"
   },
   "App/Scenes/DynamicGaugeFABView.swift": {
-    "mtime": 1792019327.2345352,
-    "seen": 1792295707.0604548,
-    "ast_hash": "3b82c3b8e047d2878869860f783a2481",
-    "semantic_hash": "3b82c3b8e047d2878869860f783a2481"
+    "mtime": 1792459482.6116483,
+    "seen": 1792466431.667727,
+    "ast_hash": "a142ab00aae01d9c58bb00409bf3ba03",
+    "semantic_hash": ""
   },
   "App/Scenes/Edge/CaptureResultView.swift": {
-    "mtime": 1791999130.7838075,
-    "seen": 1792295707.060456,
-    "ast_hash": "61afc808f3072e8279e84b4ca091cd03",
-    "semantic_hash": "61afc808f3072e8279e84b4ca091cd03"
+    "mtime": 1792452284.8883746,
+    "seen": 1792452519.43201,
+    "ast_hash": "e68f6ed98b748437af71eeaa901b344a",
+    "semantic_hash": ""
   },
   "App/Scenes/Edge/ClipboardFlyoutView.swift": {
-    "mtime": 1791999130.7852557,
-    "seen": 1792295707.060456,
-    "ast_hash": "d578ec55210fa6148d4bbf7f7b3390bc",
-    "semantic_hash": "d578ec55210fa6148d4bbf7f7b3390bc"
+    "mtime": 1792452284.8888118,
+    "seen": 1792452519.432011,
+    "ast_hash": "04e674485b2c96d974648c3dcfde36ab",
+    "semantic_hash": ""
   },
   "App/Scenes/Edge/DeckLabel.swift": {
     "mtime": 1791999130.7831295,
@@ -864,22 +864,22 @@
     "semantic_hash": "7c68b62cf2125911e696a333173f8a74"
   },
   "App/Scenes/Edge/DeckViews.swift": {
-    "mtime": 1792266709.3303413,
-    "seen": 1792295707.060459,
-    "ast_hash": "fe5a015f457f1e1ef8571fa383fbbd6d",
-    "semantic_hash": "fe5a015f457f1e1ef8571fa383fbbd6d"
+    "mtime": 1792452236.1858735,
+    "seen": 1792452519.432014,
+    "ast_hash": "6897593f15a7933655ce4bfc0b91f44f",
+    "semantic_hash": ""
   },
   "App/Scenes/Edge/NoteSheetView.swift": {
-    "mtime": 1792077726.1093354,
-    "seen": 1792295707.060459,
-    "ast_hash": "01a43744a30bad61da23fba2db8addf2",
-    "semantic_hash": "01a43744a30bad61da23fba2db8addf2"
+    "mtime": 1792452284.8891692,
+    "seen": 1792452519.4320178,
+    "ast_hash": "dfc37fa4029c320262064db245062f46",
+    "semantic_hash": ""
   },
   "App/Scenes/Edge/ProductivityFlyouts.swift": {
-    "mtime": 1792144847.82361,
-    "seen": 1792295707.06046,
-    "ast_hash": "97a4275ff94bdb7cc44266243eaf08de",
-    "semantic_hash": "97a4275ff94bdb7cc44266243eaf08de"
+    "mtime": 1792452284.8880792,
+    "seen": 1792452519.432019,
+    "ast_hash": "be8dd2610e086083a959b8ec9b5585e2",
+    "semantic_hash": ""
   },
   "App/Scenes/Edge/ScreenTimeViews.swift": {
     "mtime": 1791999130.7833462,
@@ -900,16 +900,16 @@
     "semantic_hash": "c70d67fd279bdcda190bcbb06ca20518"
   },
   "App/Scenes/Edge/TasksFlyoutView.swift": {
-    "mtime": 1791999130.7850761,
-    "seen": 1792295707.060462,
-    "ast_hash": "13c049c01e55b9c7d97f6a5c04f9d8a4",
-    "semantic_hash": "13c049c01e55b9c7d97f6a5c04f9d8a4"
+    "mtime": 1792452284.8884928,
+    "seen": 1792452519.432022,
+    "ast_hash": "9b9711451c00ddd19deb168c31e9d8ad",
+    "semantic_hash": ""
   },
   "App/Scenes/Edge/WindowsFlyoutView.swift": {
-    "mtime": 1791999130.7854397,
-    "seen": 1792295707.0604632,
-    "ast_hash": "bf4c95d7b2c71ba5beea429417ac8b81",
-    "semantic_hash": "bf4c95d7b2c71ba5beea429417ac8b81"
+    "mtime": 1792452284.8887215,
+    "seen": 1792452519.432023,
+    "ast_hash": "daaa4ad1d9a591ad55bb8b190df4643e",
+    "semantic_hash": ""
   },
   "App/Scenes/FolderGridPopupView.swift": {
     "mtime": 1792261093.5379312,
@@ -966,10 +966,10 @@
     "semantic_hash": "492fae473dac75e00229b843673f105a"
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
-    "mtime": 1792082668.0052633,
-    "seen": 1792295707.060469,
-    "ast_hash": "6c49c17bb966a7900f48c79edf6b1a22",
-    "semantic_hash": "6c49c17bb966a7900f48c79edf6b1a22"
+    "mtime": 1792459482.347695,
+    "seen": 1792466431.6677492,
+    "ast_hash": "045183ea473888f7277b45ce9c6a6991",
+    "semantic_hash": ""
   },
   "App/Scenes/LiveIslandStyle.swift": {
     "mtime": 1791999130.7883143,
@@ -996,40 +996,34 @@
     "semantic_hash": "4a2a76b5f1e788a16b55c9a1c2aa7a39"
   },
   "App/Scenes/Notch/NotchDownloadsPageView.swift": {
-    "mtime": 1792109890.629334,
-    "seen": 1792295707.060472,
-    "ast_hash": "cccf5ee0562c30c9435b1c8c1d8cc689",
-    "semantic_hash": "cccf5ee0562c30c9435b1c8c1d8cc689"
-  },
-  "App/Scenes/Notch/NotchHardwareHudPageView.swift": {
-    "mtime": 1792038729.168757,
-    "seen": 1792295707.060472,
-    "ast_hash": "2f95c852f4763a621ec795188ef82870",
-    "semantic_hash": "2f95c852f4763a621ec795188ef82870"
+    "mtime": 1792351710.8261726,
+    "seen": 1792451836.244042,
+    "ast_hash": "16d4ef41404d747047881fae6f7906c7",
+    "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchHeaderView.swift": {
-    "mtime": 1792126949.358797,
-    "seen": 1792295707.0604732,
-    "ast_hash": "ae5a74c710e5c246871421d0ac3aac24",
-    "semantic_hash": "ae5a74c710e5c246871421d0ac3aac24"
+    "mtime": 1792447914.3544521,
+    "seen": 1792451836.244044,
+    "ast_hash": "b5e229db969df76563146a8d6860d5d9",
+    "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchHomeView.swift": {
-    "mtime": 1792126949.3587034,
-    "seen": 1792295707.0604742,
-    "ast_hash": "2c7007933cee3a3a0b5a828991bf1be2",
-    "semantic_hash": "2c7007933cee3a3a0b5a828991bf1be2"
+    "mtime": 1792448001.5970612,
+    "seen": 1792451836.244045,
+    "ast_hash": "c8c840770dcb6810fd03348aad4fbb6c",
+    "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchMirrorPageView.swift": {
-    "mtime": 1792126656.5391111,
-    "seen": 1792295707.0604742,
-    "ast_hash": "7b363375d290ce9b36216c609e351b9e",
-    "semantic_hash": "7b363375d290ce9b36216c609e351b9e"
+    "mtime": 1792444527.4906356,
+    "seen": 1792451836.244045,
+    "ast_hash": "3105d592796681e473c330bb8c8be7ba",
+    "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchMusicPanel.swift": {
-    "mtime": 1792126431.5968244,
-    "seen": 1792295707.0604749,
-    "ast_hash": "a6a08ce18cca7c1a320816fa6eb1ecaa",
-    "semantic_hash": "a6a08ce18cca7c1a320816fa6eb1ecaa"
+    "mtime": 1792413506.1423075,
+    "seen": 1792451836.244046,
+    "ast_hash": "7bb93af9569e95b37f8535980e44bfa5",
+    "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchNotificationsPageView.swift": {
     "mtime": 1792127096.1420712,
@@ -1038,16 +1032,10 @@
     "semantic_hash": "813b88a29009af952c701d5034ec145b"
   },
   "App/Scenes/Notch/NotchProductivityPageView.swift": {
-    "mtime": 1792144847.823832,
-    "seen": 1792295707.060477,
-    "ast_hash": "3dd9e56b73f94d5ea8e32e2cde4a7f06",
-    "semantic_hash": "3dd9e56b73f94d5ea8e32e2cde4a7f06"
-  },
-  "App/Scenes/Notch/NotchRetroClockPageView.swift": {
-    "mtime": 1792144847.823851,
-    "seen": 1792295707.060477,
-    "ast_hash": "1d2afe0c60038199e6ae6ad7286e7b58",
-    "semantic_hash": "1d2afe0c60038199e6ae6ad7286e7b58"
+    "mtime": 1792351164.2298222,
+    "seen": 1792451836.2440472,
+    "ast_hash": "dd7e1a44175d2acdcb4fa367f50340d0",
+    "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchTeleprompterPageView.swift": {
     "mtime": 1792038729.1786053,
@@ -1061,17 +1049,11 @@
     "ast_hash": "e9116f8dad1d72e00e70ef8a6e82fdd5",
     "semantic_hash": "e9116f8dad1d72e00e70ef8a6e82fdd5"
   },
-  "App/Scenes/Notch/NotchVinylDeckPageView.swift": {
-    "mtime": 1792126431.5970857,
-    "seen": 1792295707.060479,
-    "ast_hash": "2d63fa4f559531d145bef05a591c9c45",
-    "semantic_hash": "2d63fa4f559531d145bef05a591c9c45"
-  },
   "App/Scenes/NotchIslandView.swift": {
-    "mtime": 1792268609.3167002,
-    "seen": 1792295707.06048,
-    "ast_hash": "b68b007da2275850e1b8f0f819a8afcd",
-    "semantic_hash": "b68b007da2275850e1b8f0f819a8afcd"
+    "mtime": 1792447929.1703815,
+    "seen": 1792451836.24405,
+    "ast_hash": "af8019edea3c50445a12409b59fc8f76",
+    "semantic_hash": ""
   },
   "App/Scenes/NotchPreview.swift": {
     "mtime": 1792040954.6894495,
@@ -1080,10 +1062,10 @@
     "semantic_hash": "81aa5a33c887ba1851aed17f461affd6"
   },
   "App/Scenes/NowPlayingChip.swift": {
-    "mtime": 1792272301.6747324,
-    "seen": 1792295707.060481,
-    "ast_hash": "99dc408c81ab35cc896759c7c7d78470",
-    "semantic_hash": "99dc408c81ab35cc896759c7c7d78470"
+    "mtime": 1792413515.042011,
+    "seen": 1792451836.244052,
+    "ast_hash": "67ee85a0c4d84fae55ad6e9c8590d398",
+    "semantic_hash": ""
   },
   "App/Scenes/PermissionOnboardingView.swift": {
     "mtime": 1792077726.1086626,
@@ -1092,10 +1074,10 @@
     "semantic_hash": "ef87f6ba361edf485d8bf56ec45054fa"
   },
   "App/Scenes/PermissionsSettingsBlock.swift": {
-    "mtime": 1792045575.1700878,
-    "seen": 1792295707.060482,
-    "ast_hash": "877f36a59ade9adf275b81f603e66ea8",
-    "semantic_hash": "877f36a59ade9adf275b81f603e66ea8"
+    "mtime": 1792461796.8478956,
+    "seen": 1792466431.667767,
+    "ast_hash": "8d7bbc11c7fba62d2e67ab45c6f1ede1",
+    "semantic_hash": ""
   },
   "App/Scenes/PhaseSurfaceTint.swift": {
     "mtime": 1791999130.7898178,
@@ -1110,22 +1092,22 @@
     "semantic_hash": "c8629f812098d1bd3004a982895bd967"
   },
   "App/Scenes/RadialDial/RadialDialCenterHub.swift": {
-    "mtime": 1791999130.7814329,
-    "seen": 1792295707.0604842,
-    "ast_hash": "18b726d8cb52f0330c7c6c1a40692973",
-    "semantic_hash": "18b726d8cb52f0330c7c6c1a40692973"
+    "mtime": 1792445422.0085917,
+    "seen": 1792451836.244056,
+    "ast_hash": "c66e69b10043a8a05ddce9d27026c129",
+    "semantic_hash": ""
   },
   "App/Scenes/RadialDial/RadialDialView.swift": {
-    "mtime": 1792000199.8132753,
-    "seen": 1792295707.0604842,
-    "ast_hash": "b16d908ef5a1f42b5efaf8a94ea142e8",
-    "semantic_hash": "b16d908ef5a1f42b5efaf8a94ea142e8"
+    "mtime": 1792445422.0127864,
+    "seen": 1792451836.244056,
+    "ast_hash": "577984a9893a7cd121472189b4eae598",
+    "semantic_hash": ""
   },
   "App/Scenes/RadialDial/RadialDialWedgeView.swift": {
-    "mtime": 1791999130.7810636,
-    "seen": 1792295707.0604851,
-    "ast_hash": "504cd36a976877ba8d71bbaf50d02ff5",
-    "semantic_hash": "504cd36a976877ba8d71bbaf50d02ff5"
+    "mtime": 1792445400.0660622,
+    "seen": 1792451836.2440572,
+    "ast_hash": "34fe6630ca61c3ace6fc5e5c9524be18",
+    "semantic_hash": ""
   },
   "App/Scenes/RadialDial/RadialSectorShape.swift": {
     "mtime": 1791999130.7812486,
@@ -1152,40 +1134,40 @@
     "semantic_hash": "336cbfa6769f9a32f2bea78a84b85725"
   },
   "App/Scenes/SettingsAppearancePane.swift": {
-    "mtime": 1792292456.5501099,
-    "seen": 1792295707.060488,
-    "ast_hash": "17cd2d85a84a199b141e5da3c54b6a34",
-    "semantic_hash": "17cd2d85a84a199b141e5da3c54b6a34"
+    "mtime": 1792298637.7654448,
+    "seen": 1792451836.244064,
+    "ast_hash": "7fe55a7f7910b6a23576f1d63e4d817b",
+    "semantic_hash": ""
   },
   "App/Scenes/SettingsCard.swift": {
-    "mtime": 1792288652.3744986,
-    "seen": 1792295707.060488,
-    "ast_hash": "84a32cebacd30407c24c8f795809374a",
-    "semantic_hash": "84a32cebacd30407c24c8f795809374a"
+    "mtime": 1792451351.9273088,
+    "seen": 1792451836.244065,
+    "ast_hash": "59cc1d7b67b96399bade79840a56de2a",
+    "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
-    "mtime": 1792292676.286504,
-    "seen": 1792295707.060489,
-    "ast_hash": "5b189620067b7a58b472453c57d83943",
-    "semantic_hash": "5b189620067b7a58b472453c57d83943"
+    "mtime": 1792459404.989221,
+    "seen": 1792466431.667786,
+    "ast_hash": "29d84d2868544994573d3bebc11bbb80",
+    "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
-    "mtime": 1792276413.075041,
-    "seen": 1792295707.06049,
-    "ast_hash": "36c51199b0d84f32945ecf7e84b0d44f",
-    "semantic_hash": "36c51199b0d84f32945ecf7e84b0d44f"
+    "mtime": 1792457935.9814885,
+    "seen": 1792466431.667787,
+    "ast_hash": "b25764afaa52b5b1ded6ca6c029079c9",
+    "semantic_hash": ""
   },
   "App/Scenes/SettingsTilingPane.swift": {
-    "mtime": 1792276816.4263666,
-    "seen": 1792295707.06049,
-    "ast_hash": "d9cf97a1c90614330ad12c15669c69a1",
-    "semantic_hash": "d9cf97a1c90614330ad12c15669c69a1"
+    "mtime": 1792414694.1078143,
+    "seen": 1792451836.244073,
+    "ast_hash": "a7d66acfcc8f2813e7e5f7f1e192b0fe",
+    "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1792292166.129074,
-    "seen": 1792295707.060491,
-    "ast_hash": "95a2dd7730cf9f1e24a47293bf675ce4",
-    "semantic_hash": "95a2dd7730cf9f1e24a47293bf675ce4"
+    "mtime": 1792459234.934427,
+    "seen": 1792466431.667789,
+    "ast_hash": "0ad1fc126dbcc327073af134a54ab7c9",
+    "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
     "mtime": 1792090570.0142932,
@@ -1308,10 +1290,10 @@
     "semantic_hash": "cce3b50509e62e793a875bc5b2166d6c"
   },
   "App/Scenes/UtilitySettingsBlock.swift": {
-    "mtime": 1792292175.1115086,
-    "seen": 1792295707.060503,
-    "ast_hash": "ce187c3827af8cda11915e5c6d7c3d71",
-    "semantic_hash": "ce187c3827af8cda11915e5c6d7c3d71"
+    "mtime": 1792458120.4204822,
+    "seen": 1792466431.667805,
+    "ast_hash": "0ffa3406282c56e21d90e8c59a970b72",
+    "semantic_hash": ""
   },
   "App/Scenes/WeatherChip.swift": {
     "mtime": 1792261093.5383692,
@@ -1332,10 +1314,10 @@
     "semantic_hash": "6da5bf8a5a4bc7d608b90521f65484e0"
   },
   "App/Scenes/WelcomeGuideView.swift": {
-    "mtime": 1792039190.118091,
-    "seen": 1792295707.0605052,
-    "ast_hash": "e84a23f18c681d74a73ce68ec39d1ea3",
-    "semantic_hash": "e84a23f18c681d74a73ce68ec39d1ea3"
+    "mtime": 1792459550.8067975,
+    "seen": 1792466431.667808,
+    "ast_hash": "9320e33cfbe3ac54181ccc0b06a43579",
+    "semantic_hash": ""
   },
   "App/Scenes/WiFiVolumeFABView.swift": {
     "mtime": 1792079954.2257197,
@@ -1356,10 +1338,10 @@
     "semantic_hash": "927419bc7a295b062a9090be3f057aea"
   },
   "App/Scenes/WidgetLookSettingsBlock.swift": {
-    "mtime": 1792118808.4934971,
-    "seen": 1792295707.060508,
-    "ast_hash": "37a49b3a5745550da009664697c6fc4d",
-    "semantic_hash": "37a49b3a5745550da009664697c6fc4d"
+    "mtime": 1792458805.360051,
+    "seen": 1792466431.667812,
+    "ast_hash": "8196e92c809bfe832af30113ee8d7e59",
+    "semantic_hash": ""
   },
   "App/Scenes/WidgetMotionAnimation.swift": {
     "mtime": 1792118770.1062224,
@@ -1584,10 +1566,10 @@
     "semantic_hash": "fa75e6373d05ab061a5570c0c0e781c3"
   },
   "Core/Support/CalculatorEngine.swift": {
-    "mtime": 1791999130.7650683,
-    "seen": 1792295707.06053,
-    "ast_hash": "a8aa2633e06dae8992a37208b63b49cf",
-    "semantic_hash": "a8aa2633e06dae8992a37208b63b49cf"
+    "mtime": 1792461796.8453233,
+    "seen": 1792466431.667843,
+    "ast_hash": "4e90083c0fdaa3b61e8863dfd0112539",
+    "semantic_hash": ""
   },
   "Core/Support/CalendarPanelModels.swift": {
     "mtime": 1792144847.823869,
@@ -1692,10 +1674,10 @@
     "semantic_hash": "35a46d924193b1b519ef755034990c2b"
   },
   "Core/Support/DebugSwitch.swift": {
-    "mtime": 1792122340.1678855,
-    "seen": 1792295707.060541,
-    "ast_hash": "63857b380594fed14f3b9ce3676be677",
-    "semantic_hash": "63857b380594fed14f3b9ce3676be677"
+    "mtime": 1792296602.5690415,
+    "seen": 1792451836.244137,
+    "ast_hash": "0de206baaaab85012bdd3445c0b74f89",
+    "semantic_hash": ""
   },
   "Core/Support/DeckGeometry.swift": {
     "mtime": 1791999130.7458813,
@@ -1740,10 +1722,10 @@
     "semantic_hash": "2b19067179b52f7586a92a57719350a3"
   },
   "Core/Support/DockStyle.swift": {
-    "mtime": 1792113005.528249,
-    "seen": 1792295707.060545,
-    "ast_hash": "6795d38f348aae4a4de84f2127954451",
-    "semantic_hash": "6795d38f348aae4a4de84f2127954451"
+    "mtime": 1792459646.2757752,
+    "seen": 1792466431.667864,
+    "ast_hash": "f1ced2bb2a65c7a5b77fa245040cc496",
+    "semantic_hash": ""
   },
   "Core/Support/DockThemeStyle.swift": {
     "mtime": 1792083104.7849782,
@@ -1800,10 +1782,10 @@
     "semantic_hash": "7b59cff49ef6fa5abe627a1b0d84d287"
   },
   "Core/Support/EdgeBarPrefs.swift": {
-    "mtime": 1791999130.7627466,
-    "seen": 1792295707.060551,
-    "ast_hash": "49c87a47a7899b7aaaad7a8e38d12037",
-    "semantic_hash": "49c87a47a7899b7aaaad7a8e38d12037"
+    "mtime": 1792452141.2121084,
+    "seen": 1792452519.432152,
+    "ast_hash": "8cf355bdb36de568bfd9080853dafc2e",
+    "semantic_hash": ""
   },
   "Core/Support/EdgeBarSlot.swift": {
     "mtime": 1791999130.760187,
@@ -2070,10 +2052,10 @@
     "semantic_hash": "7b042f2892248af2899795bf4b0901d0"
   },
   "Core/Support/NotchGeometry.swift": {
-    "mtime": 1792039116.9179647,
-    "seen": 1792295707.060579,
-    "ast_hash": "e393559457d5e426e649bc0b3a935afd",
-    "semantic_hash": "e393559457d5e426e649bc0b3a935afd"
+    "mtime": 1792444039.0630896,
+    "seen": 1792451836.2441869,
+    "ast_hash": "bc47fd0778d5599ff13cb9bcd62963b1",
+    "semantic_hash": ""
   },
   "Core/Support/NotchGestureSupport.swift": {
     "mtime": 1792012363.8780172,
@@ -2088,22 +2070,22 @@
     "semantic_hash": "cc6ae7ef2d0404425284191dbed72496"
   },
   "Core/Support/NotchLayoutSpec.swift": {
-    "mtime": 1792144847.823885,
-    "seen": 1792295707.0605812,
-    "ast_hash": "5141db113923d7d6959cf9a6697959f8",
-    "semantic_hash": "5141db113923d7d6959cf9a6697959f8"
+    "mtime": 1792348566.9921947,
+    "seen": 1792451836.244189,
+    "ast_hash": "ac57d5377cbf25d57086c3f0f589cc0a",
+    "semantic_hash": ""
   },
   "Core/Support/NotchMotionSpec.swift": {
-    "mtime": 1792011091.49032,
-    "seen": 1792295707.0605812,
-    "ast_hash": "61191dcbbadd5911e7996f0aea552af4",
-    "semantic_hash": "61191dcbbadd5911e7996f0aea552af4"
+    "mtime": 1792443692.6838865,
+    "seen": 1792451836.24419,
+    "ast_hash": "2efc1a3bfd19ec8dfb77ac293fd91043",
+    "semantic_hash": ""
   },
   "Core/Support/NotchSectionPaging.swift": {
-    "mtime": 1792126949.3585424,
-    "seen": 1792295707.060582,
-    "ast_hash": "fdbad4aa64b062539e0ed1ea92139eeb",
-    "semantic_hash": "fdbad4aa64b062539e0ed1ea92139eeb"
+    "mtime": 1792447898.1435301,
+    "seen": 1792451836.244191,
+    "ast_hash": "c41115d41f43638ae3309d401a0525e4",
+    "semantic_hash": ""
   },
   "Core/Support/NoteCipher.swift": {
     "mtime": 1791999130.7429473,
@@ -2154,10 +2136,10 @@
     "semantic_hash": "2fa1a266f9add3b4158eea4491157825"
   },
   "Core/Support/NowPlayingService.swift": {
-    "mtime": 1792126397.148097,
-    "seen": 1792295707.060587,
-    "ast_hash": "68355a373db587db9974b27dd3f5f1b5",
-    "semantic_hash": "68355a373db587db9974b27dd3f5f1b5"
+    "mtime": 1792413499.3180604,
+    "seen": 1792451836.2441971,
+    "ast_hash": "d680bc3d553a16ca245b649bd95dd11f",
+    "semantic_hash": ""
   },
   "Core/Support/PDFReducePlan.swift": {
     "mtime": 1791999130.7525432,
@@ -2202,10 +2184,10 @@
     "semantic_hash": "b4b98938467477be5665668c19360dee"
   },
   "Core/Support/RadialDialModel.swift": {
-    "mtime": 1792000619.61835,
-    "seen": 1792295707.0605922,
-    "ast_hash": "47623d19f8b47703a165505d2c15ca75",
-    "semantic_hash": "47623d19f8b47703a165505d2c15ca75"
+    "mtime": 1792445330.2116382,
+    "seen": 1792451836.244203,
+    "ast_hash": "e581b98fd4ad6c810456f5002a88ed50",
+    "semantic_hash": ""
   },
   "Core/Support/RadialDialPresets.swift": {
     "mtime": 1791999773.4346356,
@@ -2250,10 +2232,10 @@
     "semantic_hash": "49ed8b06de6e2784f6e5fc7108a2f468"
   },
   "Core/Support/SettingsMetrics.swift": {
-    "mtime": 1792276327.32896,
-    "seen": 1792295707.060597,
-    "ast_hash": "a239151a8ca5169a6363698e6140fd00",
-    "semantic_hash": "a239151a8ca5169a6363698e6140fd00"
+    "mtime": 1792296602.5682046,
+    "seen": 1792451836.24421,
+    "ast_hash": "60ef202a476a74e62850eaaf12fafb14",
+    "semantic_hash": ""
   },
   "Core/Support/ShakeDetector.swift": {
     "mtime": 1791999130.7453113,
@@ -2274,10 +2256,10 @@
     "semantic_hash": "d4d008e338b3db38a676a2ce6d7955c3"
   },
   "Core/Support/Shortcuts.swift": {
-    "mtime": 1792268776.7977996,
-    "seen": 1792295707.0606,
-    "ast_hash": "2f11c045740e84fca447fc3af5f8c777",
-    "semantic_hash": "2f11c045740e84fca447fc3af5f8c777"
+    "mtime": 1792445330.2102537,
+    "seen": 1792451836.244213,
+    "ast_hash": "43f6fee425b4104fd5bc1bf08e38920b",
+    "semantic_hash": ""
   },
   "Core/Support/SkyPalette.swift": {
     "mtime": 1791999130.7506707,
@@ -2424,28 +2406,28 @@
     "semantic_hash": "d8709440a1e4e2f3de8ce0caae7ee1f3"
   },
   "Core/Support/TilingGaps.swift": {
-    "mtime": 1791999130.7559254,
-    "seen": 1792295707.060617,
-    "ast_hash": "010abe828d70c408b9a36ca0eaea6fcd",
-    "semantic_hash": "010abe828d70c408b9a36ca0eaea6fcd"
+    "mtime": 1792413018.6149254,
+    "seen": 1792451836.244232,
+    "ast_hash": "25381de1143068386d111b3f31cf3ab8",
+    "semantic_hash": ""
   },
   "Core/Support/TilingLayout.swift": {
-    "mtime": 1791999130.7582476,
-    "seen": 1792295707.060617,
-    "ast_hash": "2d7ca906759978779d31be9249dfd47e",
-    "semantic_hash": "2d7ca906759978779d31be9249dfd47e"
+    "mtime": 1792414434.8299685,
+    "seen": 1792451836.244233,
+    "ast_hash": "ab370695a7fe8fe71e2088f0080ec057",
+    "semantic_hash": ""
   },
   "Core/Support/TilingPolicy.swift": {
-    "mtime": 1791999130.7425766,
-    "seen": 1792295707.060618,
-    "ast_hash": "21f65970629d360e62cff65dba0df0a5",
-    "semantic_hash": "21f65970629d360e62cff65dba0df0a5"
+    "mtime": 1792414648.5672326,
+    "seen": 1792451836.244234,
+    "ast_hash": "84dd777791ce9185476323d11cc0a56c",
+    "semantic_hash": ""
   },
   "Core/Support/TilingTree.swift": {
-    "mtime": 1791999130.7445045,
-    "seen": 1792295707.060619,
-    "ast_hash": "c9051be8b84ccd8ccb895cd7fbef329e",
-    "semantic_hash": "c9051be8b84ccd8ccb895cd7fbef329e"
+    "mtime": 1792361443.453216,
+    "seen": 1792451836.244235,
+    "ast_hash": "8dff8a058570f6d5c20798c188f9eea5",
+    "semantic_hash": ""
   },
   "Core/Support/Translate.swift": {
     "mtime": 1792077738.9453466,
@@ -2754,10 +2736,10 @@
     "semantic_hash": "f5e51ff74c2597d50be27b8e8e1474ec"
   },
   "Platform/CoreGraphics/FullscreenIntentMonitor.swift": {
-    "mtime": 1791999130.9122493,
-    "seen": 1792295707.0606499,
-    "ast_hash": "fb5ed9a8d4f6534ae3f44fd3368fd7e6",
-    "semantic_hash": "fb5ed9a8d4f6534ae3f44fd3368fd7e6"
+    "mtime": 1792352179.4949615,
+    "seen": 1792451836.244274,
+    "ast_hash": "c895dc2e295e4a37bfc6fda6c97731e4",
+    "semantic_hash": ""
   },
   "Platform/CoreGraphics/FullscreenWindowClassifier.swift": {
     "mtime": 1791999130.9124377,
@@ -2946,10 +2928,10 @@
     "semantic_hash": "cb8399b1d4e61c40309e46ade3900e88"
   },
   "Platform/SystemStatus/AudioOutputSwitcher.swift": {
-    "mtime": 1792038729.202573,
-    "seen": 1792295707.06067,
-    "ast_hash": "0d077fa6e04b683348ac2ff473c613b2",
-    "semantic_hash": "0d077fa6e04b683348ac2ff473c613b2"
+    "mtime": 1792444523.3881173,
+    "seen": 1792451836.244297,
+    "ast_hash": "150a5bf029139da9a0a11bde40f763a1",
+    "semantic_hash": ""
   },
   "Platform/SystemStatus/BluetoothDeviceReader.swift": {
     "mtime": 1791999130.9148073,
@@ -2988,10 +2970,10 @@
     "semantic_hash": "ff91fe3d118e3cb16a04b0c1664b293c"
   },
   "Platform/Windows/WindowSnapService.swift": {
-    "mtime": 1791999130.9237123,
-    "seen": 1792295707.060674,
-    "ast_hash": "9ebdc68ae66d09519ba49d1ce345a607",
-    "semantic_hash": "9ebdc68ae66d09519ba49d1ce345a607"
+    "mtime": 1792412564.984955,
+    "seen": 1792451836.244302,
+    "ast_hash": "acbb331367ccec0f5db515fc9a140983",
+    "semantic_hash": ""
   },
   "Resources/AppIcon.icon/icon.json": {
     "mtime": 1791999130.899494,
@@ -3059,12 +3041,6 @@
     "ast_hash": "dc9319b2df5506c78cd8346c104e6b54",
     "semantic_hash": "dc9319b2df5506c78cd8346c104e6b54"
   },
-  "Scripts/check_settings_page_heights.py": {
-    "mtime": 1792100409.9075887,
-    "seen": 1792295707.060682,
-    "ast_hash": "dfe0628bf11f05f6eb6556c3bf84004b",
-    "semantic_hash": "dfe0628bf11f05f6eb6556c3bf84004b"
-  },
   "Scripts/install_local_release.sh": {
     "mtime": 1791999137.4478946,
     "seen": 1792295707.060682,
@@ -3084,10 +3060,10 @@
     "semantic_hash": "3632e10e5a7ceb335a590dce1b463804"
   },
   "Scripts/live_check_settings_tabs.py": {
-    "mtime": 1792277289.2532105,
-    "seen": 1792295707.060684,
-    "ast_hash": "e1fd8e4d707ae0ec1155fd6ba4aa7723",
-    "semantic_hash": "e1fd8e4d707ae0ec1155fd6ba4aa7723"
+    "mtime": 1792459759.1127102,
+    "seen": 1792466431.668048,
+    "ast_hash": "39c5391f73e3664ccfee77b5678ace11",
+    "semantic_hash": ""
   },
   "Scripts/make_icons.swift": {
     "mtime": 1791999137.4473894,
@@ -3264,10 +3240,10 @@
     "semantic_hash": "56d00ee947f752177a5e38a1280c049c"
   },
   "Tests/Unit/CalculatorEngineTests.swift": {
-    "mtime": 1791999130.934833,
-    "seen": 1792295707.060703,
-    "ast_hash": "8100480d0c7a298c3129963f28de07ce",
-    "semantic_hash": "8100480d0c7a298c3129963f28de07ce"
+    "mtime": 1792466376.0565274,
+    "seen": 1792466431.668074,
+    "ast_hash": "a379d2108e5f706fccb55f96a30e8e6b",
+    "semantic_hash": ""
   },
   "Tests/Unit/CalendarPanelModelsTests.swift": {
     "mtime": 1792144847.823903,
@@ -3276,10 +3252,10 @@
     "semantic_hash": "7090362313b02b342015b8a6e059aa19"
   },
   "Tests/Unit/CameraMirrorTests.swift": {
-    "mtime": 1792126656.5392108,
-    "seen": 1792295707.060704,
-    "ast_hash": "28a8a299fed7ec9142a8d7a983cce92d",
-    "semantic_hash": "28a8a299fed7ec9142a8d7a983cce92d"
+    "mtime": 1792352195.1723905,
+    "seen": 1792451836.244338,
+    "ast_hash": "626568c7bc6fa70fa65422f3d53fba51",
+    "semantic_hash": ""
   },
   "Tests/Unit/CaptureRecognitionTests.swift": {
     "mtime": 1791999130.9628508,
@@ -3462,10 +3438,10 @@
     "semantic_hash": "8f717354445526a7d437563bc5f38fb9"
   },
   "Tests/Unit/EdgeBarPrefsTests.swift": {
-    "mtime": 1791999130.9315667,
-    "seen": 1792295707.0607228,
-    "ast_hash": "83c000042bfda6c047f5862e05751ecc",
-    "semantic_hash": "83c000042bfda6c047f5862e05751ecc"
+    "mtime": 1792452141.232471,
+    "seen": 1792452519.432369,
+    "ast_hash": "4dfc9064ff02dfc05eaf1098e41528f8",
+    "semantic_hash": ""
   },
   "Tests/Unit/EdgeBarSlotTests.swift": {
     "mtime": 1791999130.9465296,
@@ -3846,22 +3822,22 @@
     "semantic_hash": "174a605a5b88ccc5e11bd5c249a09090"
   },
   "Tests/Unit/NotchGestureTests.swift": {
-    "mtime": 1792038729.207258,
-    "seen": 1792295707.0607622,
-    "ast_hash": "6408692f3f5a93852aeca65868934520",
-    "semantic_hash": "6408692f3f5a93852aeca65868934520"
+    "mtime": 1792447935.03339,
+    "seen": 1792451836.244412,
+    "ast_hash": "0c34820bb5610543876524f8784cdf52",
+    "semantic_hash": ""
   },
   "Tests/Unit/NotchHoverMachineTests.swift": {
-    "mtime": 1791999130.938026,
-    "seen": 1792295707.060763,
-    "ast_hash": "342df769f34dc52ffc362633ddeb1e0f",
-    "semantic_hash": "342df769f34dc52ffc362633ddeb1e0f"
+    "mtime": 1792445905.127854,
+    "seen": 1792451836.244412,
+    "ast_hash": "eecddebf1668ba250029852eb76106a9",
+    "semantic_hash": ""
   },
   "Tests/Unit/NotchLayoutSpecTests.swift": {
-    "mtime": 1792261093.5443585,
-    "seen": 1792295707.0607638,
-    "ast_hash": "5e0960abdff18857f48bc2ad17037576",
-    "semantic_hash": "5e0960abdff18857f48bc2ad17037576"
+    "mtime": 1792466262.0907698,
+    "seen": 1792466431.668162,
+    "ast_hash": "da2f051fd7cb6aaa648857fb2ee05e02",
+    "semantic_hash": ""
   },
   "Tests/Unit/NoteDocumentTests.swift": {
     "mtime": 1791999130.952413,
@@ -3900,10 +3876,10 @@
     "semantic_hash": "cffe9d036fa8f6e07cb1bdd960ce7aad"
   },
   "Tests/Unit/NotificationMirrorTests.swift": {
-    "mtime": 1792126937.383321,
-    "seen": 1792295707.060768,
-    "ast_hash": "4304c99196b77ba9ff92d014a8837160",
-    "semantic_hash": "4304c99196b77ba9ff92d014a8837160"
+    "mtime": 1792352391.9896576,
+    "seen": 1792451836.2444181,
+    "ast_hash": "96f09ef57f97245eadccddeddd90b62c",
+    "semantic_hash": ""
   },
   "Tests/Unit/NotificationPlacementTests.swift": {
     "mtime": 1791999130.9280288,
@@ -4044,16 +4020,16 @@
     "semantic_hash": "c743b0affe71e13eff8213cb30d91dfa"
   },
   "Tests/Unit/SettingsMetricsTests.swift": {
-    "mtime": 1792277253.5796535,
-    "seen": 1792295707.0607831,
-    "ast_hash": "4bc5173bd7a2a18e46ece4ad37f1b3c7",
-    "semantic_hash": "4bc5173bd7a2a18e46ece4ad37f1b3c7"
+    "mtime": 1792296602.5686212,
+    "seen": 1792451836.244437,
+    "ast_hash": "65c95e1c602645852246f7c4a370dce6",
+    "semantic_hash": ""
   },
   "Tests/Unit/SettingsTabTests.swift": {
-    "mtime": 1792277208.8201518,
-    "seen": 1792295707.0607831,
-    "ast_hash": "45a5d5debcf9cb82e6863f3f1e7f5ff8",
-    "semantic_hash": "45a5d5debcf9cb82e6863f3f1e7f5ff8"
+    "mtime": 1792459719.1313465,
+    "seen": 1792466431.66819,
+    "ast_hash": "8b4d87d051deb8bd84f01a427a15539e",
+    "semantic_hash": ""
   },
   "Tests/Unit/ShakeDetectorTests.swift": {
     "mtime": 1791999130.939564,
@@ -4080,10 +4056,10 @@
     "semantic_hash": "f1eff661f2afe9a33a028a91fac58b0b"
   },
   "Tests/Unit/ShortcutsTests.swift": {
-    "mtime": 1792268803.8146253,
-    "seen": 1792295707.060786,
-    "ast_hash": "5b6a4802792ade03cfb30d3469c0505a",
-    "semantic_hash": "5b6a4802792ade03cfb30d3469c0505a"
+    "mtime": 1792412659.1498249,
+    "seen": 1792451836.244441,
+    "ast_hash": "14f3005e71c63d02bf0ba7c5fbd2b7d4",
+    "semantic_hash": ""
   },
   "Tests/Unit/SkyPaletteTests.swift": {
     "mtime": 1791999130.9534707,
@@ -4254,10 +4230,10 @@
     "semantic_hash": "afffa1afc3e79b6011f58862e979ac29"
   },
   "Tests/Unit/TilingLayoutTests.swift": {
-    "mtime": 1791999130.9614325,
-    "seen": 1792295707.060809,
-    "ast_hash": "c9f77daf395d88f4ee5483f23d813907",
-    "semantic_hash": "c9f77daf395d88f4ee5483f23d813907"
+    "mtime": 1792414648.567681,
+    "seen": 1792451836.2444642,
+    "ast_hash": "8a6e480488d935a8961834d48d889f2e",
+    "semantic_hash": ""
   },
   "Tests/Unit/TilingTreeTests.swift": {
     "mtime": 1791999130.9573274,
@@ -4576,5 +4552,1817 @@
     "seen": 1792295707.0608408,
     "ast_hash": "e6018d3493d5659ece33e2ee261a1524",
     "semantic_hash": "e6018d3493d5659ece33e2ee261a1524"
+  },
+  "App/Composition/StorageScanService.swift": {
+    "mtime": 1792351893.3744628,
+    "seen": 1792451836.243969,
+    "ast_hash": "b92aed73333bea03540c8f46d234341b",
+    "semantic_hash": ""
+  },
+  "App/Scenes/LayoutModePickers.swift": {
+    "mtime": 1792459482.4068644,
+    "seen": 1792466431.6677482,
+    "ast_hash": "da1fb4481be6ba29bf5a2cab474f45c1",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Notch/NotchDockChips.swift": {
+    "mtime": 1792445993.7481482,
+    "seen": 1792451836.244042,
+    "ast_hash": "453c389791adbdab7b5ae3f394f2196e",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Notch/NotchEventCard.swift": {
+    "mtime": 1792349526.5355542,
+    "seen": 1792451836.244043,
+    "ast_hash": "83333bf3b6a6d70daec5ee085ff9386a",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Notch/NotchStoragePageView.swift": {
+    "mtime": 1792351906.993547,
+    "seen": 1792451836.2440479,
+    "ast_hash": "f6112dadce97cfda1388552a0e955203",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Settings/SettingsShell.swift": {
+    "mtime": 1792451366.8443146,
+    "seen": 1792451836.244061,
+    "ast_hash": "c6e000c419d398849d4d429cc6462859",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Settings/SettingsSidebar.swift": {
+    "mtime": 1792458027.1425798,
+    "seen": 1792466431.667776,
+    "ast_hash": "e24b398a30d67408dbd179567a449c48",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Settings/SettingsStage.swift": {
+    "mtime": 1792459719.1136217,
+    "seen": 1792466431.667777,
+    "ast_hash": "05291f55caec6d1a0f6f62fbf82469d0",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Settings/SettingsStagePanels.swift": {
+    "mtime": 1792409326.1548977,
+    "seen": 1792451836.244063,
+    "ast_hash": "5dc18fbb6c9db87cbe422957f7871628",
+    "semantic_hash": ""
+  },
+  "App/Scenes/SettingsLayoutPane+Appearance.swift": {
+    "mtime": 1792459482.3757534,
+    "seen": 1792466431.667781,
+    "ast_hash": "054632ed2cdc147f31ef7fc344e10b34",
+    "semantic_hash": ""
+  },
+  "App/Scenes/SettingsLayoutPane+ControlCenter.swift": {
+    "mtime": 1792298851.7257304,
+    "seen": 1792451836.244067,
+    "ast_hash": "8e945d3cfd38b9ac8000ac8a24ae3c33",
+    "semantic_hash": ""
+  },
+  "App/Scenes/SettingsLayoutPane+EdgeBars.swift": {
+    "mtime": 1792452302.0362878,
+    "seen": 1792452519.432064,
+    "ast_hash": "fcb4784fe95a497a6db60d480836f413",
+    "semantic_hash": ""
+  },
+  "App/Scenes/SettingsLayoutPane+Launcher.swift": {
+    "mtime": 1792297653.0480485,
+    "seen": 1792451836.2440681,
+    "ast_hash": "03a18085cc7f52ce6530abf381e46bdc",
+    "semantic_hash": ""
+  },
+  "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
+    "mtime": 1792445400.0606413,
+    "seen": 1792451836.244069,
+    "ast_hash": "ea261d66c66b4c6b79e5ee8cb6f030f1",
+    "semantic_hash": ""
+  },
+  "App/Scenes/SettingsLayoutPane+Widgets.swift": {
+    "mtime": 1792459404.9564586,
+    "seen": 1792466431.667785,
+    "ast_hash": "3afafe208f2d129a0002174a9df4dba7",
+    "semantic_hash": ""
+  },
+  "App/Scenes/SettingsLayoutSupport.swift": {
+    "mtime": 1792297460.3675175,
+    "seen": 1792451836.244071,
+    "ast_hash": "8159e195274b0d939d632d11d0258d94",
+    "semantic_hash": ""
+  },
+  "Core/Support/NotchBehavior.swift": {
+    "mtime": 1792446827.098591,
+    "seen": 1792451836.244184,
+    "ast_hash": "8cecd997dbcc08852139fea6d7c91343",
+    "semantic_hash": ""
+  },
+  "Core/Support/NotchEdgeStyle.swift": {
+    "mtime": 1792350024.0646052,
+    "seen": 1792451836.2441862,
+    "ast_hash": "53c8d3490011c8d0799b3388adb0ea0a",
+    "semantic_hash": ""
+  },
+  "Core/Support/SettingsLayoutClass.swift": {
+    "mtime": 1792297925.8244727,
+    "seen": 1792451836.2442088,
+    "ast_hash": "5145990a994d476b5cb6745fefebf047",
+    "semantic_hash": ""
+  },
+  "Core/Support/StorageScanMath.swift": {
+    "mtime": 1792351885.3994536,
+    "seen": 1792451836.244218,
+    "ast_hash": "5d0dacec410e2dc78facd66edd34ae10",
+    "semantic_hash": ""
+  },
+  "Core/Support/TimeOfDayPalette.swift": {
+    "mtime": 1792299226.6171715,
+    "seen": 1792451836.244235,
+    "ast_hash": "e1569f22a2c0763a9f66813598ceb186",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/NotchEdgeStyleTests.swift": {
+    "mtime": 1792350024.0827389,
+    "seen": 1792451836.244409,
+    "ast_hash": "fc3c87f1e4fc970d893e27e07e0edfea",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/SettingsLayoutClassTests.swift": {
+    "mtime": 1792297925.8246229,
+    "seen": 1792451836.244436,
+    "ast_hash": "85f4462d414ddcc9acf883588fe05aae",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/StorageScanMathTests.swift": {
+    "mtime": 1792351885.399905,
+    "seen": 1792451836.244447,
+    "ast_hash": "d9fe4cf5d00cb24d3761e1591c1dcb3f",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/TimeOfDayPaletteTests.swift": {
+    "mtime": 1792299226.620131,
+    "seen": 1792451836.2444658,
+    "ast_hash": "0dbeb010653646f12974f4ac05c5326a",
+    "semantic_hash": ""
+  },
+  ".github/ISSUE_TEMPLATE/bug_report.yml": {
+    "mtime": 1791999137.4504337,
+    "seen": 1792451836.2445061,
+    "ast_hash": "b3fb3abe24e0d6a310eb70085e1084aa",
+    "semantic_hash": ""
+  },
+  ".github/ISSUE_TEMPLATE/config.yml": {
+    "mtime": 1791999137.4513736,
+    "seen": 1792451836.2445068,
+    "ast_hash": "953b1a33ecd30a2d4a094ecdc835ed76",
+    "semantic_hash": ""
+  },
+  ".github/ISSUE_TEMPLATE/feature_request.yml": {
+    "mtime": 1791999137.4500837,
+    "seen": 1792451836.2445078,
+    "ast_hash": "3f6ab95910b0ef9049a7b6ef6a70e0c4",
+    "semantic_hash": ""
+  },
+  ".github/workflows/ci.yml": {
+    "mtime": 1791999137.4496274,
+    "seen": 1792451836.244509,
+    "ast_hash": "ffc18cf4f22e51b4284b2b1b9bb950e3",
+    "semantic_hash": ""
+  },
+  "BASELINE_RULES.md": {
+    "mtime": 1791999137.452302,
+    "seen": 1792451836.244509,
+    "ast_hash": "8356facc1feeba57dcaa7b119aff662a",
+    "semantic_hash": ""
+  },
+  "CHANGELOG.md": {
+    "mtime": 1792362115.39092,
+    "seen": 1792451836.24451,
+    "ast_hash": "7839f184511b923a2da0bf771c5af042",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
+    "mtime": 1791999137.4385269,
+    "seen": 1792451836.244511,
+    "ast_hash": "30495046404d19238843aba42df21139",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/2026-10-08-phase-1-log.md": {
+    "mtime": 1791999137.4299257,
+    "seen": 1792451836.244511,
+    "ast_hash": "aeb4be7ffa5f50a32e433c850f8d98d3",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/2026-10-08-phase-2-log.md": {
+    "mtime": 1791999137.439266,
+    "seen": 1792451836.244512,
+    "ast_hash": "9c15b0347b60263c145162229521d84b",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/2026-10-08-phase-3-log.md": {
+    "mtime": 1791999137.4303021,
+    "seen": 1792451836.244513,
+    "ast_hash": "c684ad17033ffe61b1938826d7d93a1d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/2026-10-09-phase-4-log.md": {
+    "mtime": 1791999137.4310753,
+    "seen": 1792451836.244513,
+    "ast_hash": "5f8cb8b280eaacb6047589f233f1b00c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/2026-10-11-phase-5-log.md": {
+    "mtime": 1791999137.4305856,
+    "seen": 1792451836.244514,
+    "ast_hash": "647263bfff7ff253e927080e3cf10526",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/2026-10-11-phase-6-log.md": {
+    "mtime": 1791999137.4381988,
+    "seen": 1792451836.2445152,
+    "ast_hash": "7f0f96f9bad10f3505c1802b3a05af01",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/2026-10-15-phase-41-log.md": {
+    "mtime": 1792087266.9526796,
+    "seen": 1792451836.2445152,
+    "ast_hash": "0db43e502dad1b64bf2a56d3194f28ab",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/2026-10-15-phase-42-log.md": {
+    "mtime": 1792090821.7620676,
+    "seen": 1792451836.2445161,
+    "ast_hash": "2df89c3ff1cf40009ff7cb5a293fccd2",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/PHASE_0_CHECKLIST.md": {
+    "mtime": 1791999137.43885,
+    "seen": 1792451836.244517,
+    "ast_hash": "91d2050f9155e9ab03489729a55b87e1",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Advanced-ax.txt": {
+    "mtime": 1792075445.995337,
+    "seen": 1792451836.2445178,
+    "ast_hash": "7fe5a18946b12fda92c5906800aca475",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Appearance-ax.txt": {
+    "mtime": 1792075404.6073005,
+    "seen": 1792451836.2445178,
+    "ast_hash": "ed913518795252b9cd47791497b010bc",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Edge-Bars-ax.txt": {
+    "mtime": 1792075419.9698284,
+    "seen": 1792451836.244519,
+    "ast_hash": "7fef7f393103e6d092455965f15e6216",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/General-ax.txt": {
+    "mtime": 1792075399.2700608,
+    "seen": 1792451836.24452,
+    "ast_hash": "ac0be03ca8509ccfabde8ee9f122c42f",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Launcher-ax.txt": {
+    "mtime": 1792075430.1996086,
+    "seen": 1792451836.244521,
+    "ast_hash": "27a7d6f3c232f6917cab949f54f0ab8b",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Notch-ax.txt": {
+    "mtime": 1792075414.8382416,
+    "seen": 1792451836.244522,
+    "ast_hash": "b1f94d2af5b26a11a3bc4d6a2d41aa12",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/README.md": {
+    "mtime": 1792075607.7906094,
+    "seen": 1792451836.244523,
+    "ast_hash": "a74c74c4bfe3c41b4e1a32462df726eb",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Shortcuts-ax.txt": {
+    "mtime": 1792075435.388286,
+    "seen": 1792451836.244523,
+    "ast_hash": "ec70fbf6f9eed5a8eac3de77c22c318d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Tools-ax.txt": {
+    "mtime": 1792075527.5441134,
+    "seen": 1792451836.244524,
+    "ast_hash": "c8f4b4fc8add3ce8fb4251563f3699a4",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Widgets-ax.txt": {
+    "mtime": 1792075409.7334983,
+    "seen": 1792451836.244525,
+    "ast_hash": "7a81fb268f4747ca7e9996be7d093abf",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Window-Management-ax.txt": {
+    "mtime": 1792075425.1396294,
+    "seen": 1792451836.2445261,
+    "ast_hash": "caa8b5dbd80f68d98a404103b022f245",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Advanced-ax.txt": {
+    "mtime": 1792084539.8312767,
+    "seen": 1792451836.2445261,
+    "ast_hash": "bef7f534687099227e3f51b928e43d06",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Advanced-rows.txt": {
+    "mtime": 1792084968.4451191,
+    "seen": 1792451836.244527,
+    "ast_hash": "8a0b280909b5b66da9c4ed3d603f8f7f",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Appearance-ax.txt": {
+    "mtime": 1792084514.277243,
+    "seen": 1792451836.244528,
+    "ast_hash": "04ad07b62e350cb4ee7dbe05c5d18a72",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Appearance-rows.txt": {
+    "mtime": 1792084950.3415842,
+    "seen": 1792451836.244529,
+    "ast_hash": "6ec555198d7f24175320225e628cf36b",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Edge-Bars-ax.txt": {
+    "mtime": 1792084523.7795808,
+    "seen": 1792451836.24453,
+    "ast_hash": "7fef7f393103e6d092455965f15e6216",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Edge-Bars-rows.txt": {
+    "mtime": 1792084957.0157895,
+    "seen": 1792451836.244531,
+    "ast_hash": "dedd1003a34725cdecf6bfb6d9590edc",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/General-ax.txt": {
+    "mtime": 1792084510.9149945,
+    "seen": 1792451836.244531,
+    "ast_hash": "361ba0ef03c4a57b54e1cebb8b6a4280",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/General-rows.txt": {
+    "mtime": 1792084947.8950174,
+    "seen": 1792451836.2445319,
+    "ast_hash": "5fe39ba3cacf11186eb7309249cc922e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Launcher-ax.txt": {
+    "mtime": 1792084530.1839507,
+    "seen": 1792451836.244533,
+    "ast_hash": "ecc1192285649f9f4569bf27cd5b236f",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Launcher-rows.txt": {
+    "mtime": 1792084961.471081,
+    "seen": 1792451836.244534,
+    "ast_hash": "fbb2dedc853734f2db71abaf9eb79d50",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Notch-ax.txt": {
+    "mtime": 1792084520.6419108,
+    "seen": 1792451836.244534,
+    "ast_hash": "91e32e9bba8492054590189ab57c9ff7",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Notch-rows.txt": {
+    "mtime": 1792084954.748532,
+    "seen": 1792451836.244535,
+    "ast_hash": "9b558750fad7ab5ab60a975b3fcb1ede",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/README.md": {
+    "mtime": 1792096432.8730426,
+    "seen": 1792451836.2445362,
+    "ast_hash": "7dfc5c04f7601091b944cee8406d2cdb",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Shortcuts-ax.txt": {
+    "mtime": 1792084533.334703,
+    "seen": 1792451836.244537,
+    "ast_hash": "ec70fbf6f9eed5a8eac3de77c22c318d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Shortcuts-rows.txt": {
+    "mtime": 1792084963.7277248,
+    "seen": 1792451836.244537,
+    "ast_hash": "8592202883c4050b9db86608363f4b49",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Tools-ax.txt": {
+    "mtime": 1792084536.607543,
+    "seen": 1792451836.244538,
+    "ast_hash": "6a29451f6ef78c93daffbd44259af3f0",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Tools-rows.txt": {
+    "mtime": 1792084966.1320825,
+    "seen": 1792451836.2445388,
+    "ast_hash": "7ee5bc5ef88aace7f1004040555600a0",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Widgets-after-ax.txt": {
+    "mtime": 1792096275.606443,
+    "seen": 1792451836.24454,
+    "ast_hash": "84ec25d517fc211181fc429117d49ad7",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Widgets-after-rows.txt": {
+    "mtime": 1792096276.0671656,
+    "seen": 1792451836.24454,
+    "ast_hash": "2b7593bcd9e924c1322aba579ff87d1f",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Widgets-ax.txt": {
+    "mtime": 1792084517.4378483,
+    "seen": 1792451836.244541,
+    "ast_hash": "7a81fb268f4747ca7e9996be7d093abf",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Widgets-rows.txt": {
+    "mtime": 1792084952.5683384,
+    "seen": 1792451836.244542,
+    "ast_hash": "5bbe0186a4ce1da919a59cbc3fa19256",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Window-Management-ax.txt": {
+    "mtime": 1792084527.008627,
+    "seen": 1792451836.244543,
+    "ast_hash": "cd4c615aa87a7c61b016469b168e6148",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Window-Management-rows.txt": {
+    "mtime": 1792084959.3290336,
+    "seen": 1792451836.244543,
+    "ast_hash": "db800a8a2061336969dc53a457ed487b",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/label-audit.txt": {
+    "mtime": 1792085982.5767648,
+    "seen": 1792451836.244544,
+    "ast_hash": "45968ca9d9a7b87adb89ff56a89716c8",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/README.md": {
+    "mtime": 1792054108.2302685,
+    "seen": 1792451836.244545,
+    "ast_hash": "c2af3973a13851402577dbd6ea63cdf4",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/after-Edge-Bars-ax.txt": {
+    "mtime": 1792053269.3954282,
+    "seen": 1792451836.244546,
+    "ast_hash": "24c7b00a7431a0187dc4e53c99c75c29",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/after-Launcher-ax.txt": {
+    "mtime": 1792053269.3975308,
+    "seen": 1792451836.2445471,
+    "ast_hash": "b17750b64b21df3228bdc1826dba0676",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/after-Window-Management-ax.txt": {
+    "mtime": 1792053269.399593,
+    "seen": 1792451836.2445471,
+    "ast_hash": "94d8ab04fdce9c907c27134d9fe11c54",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/before-Edge-Bars-ax.txt": {
+    "mtime": 1792052847.0538526,
+    "seen": 1792451836.244548,
+    "ast_hash": "10a13b5df1f6f7d32c208555329d63d3",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/before-Launcher-ax.txt": {
+    "mtime": 1792052847.0580783,
+    "seen": 1792451836.244549,
+    "ast_hash": "e3c30a37bd91a64f9e5c2141e9e0a324",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/before-Window-Management-ax.txt": {
+    "mtime": 1792052847.066143,
+    "seen": 1792451836.24455,
+    "ast_hash": "69a82ba5d91ed36da54abc4285679d12",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/label-audit.txt": {
+    "mtime": 1792054099.5467532,
+    "seen": 1792451836.244551,
+    "ast_hash": "d5664cc05360c41f238024e895a10a9e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Appearance-ax.txt": {
+    "mtime": 1792099398.8744547,
+    "seen": 1792451836.244552,
+    "ast_hash": "3773f240a4e01d73c0f3d7ebc5600d02",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Appearance-expanded-rows.txt": {
+    "mtime": 1792099770.7997587,
+    "seen": 1792451836.244552,
+    "ast_hash": "4d3e6718413f332011ea9417e694a020",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Appearance-rows.txt": {
+    "mtime": 1792099399.2768047,
+    "seen": 1792451836.2445529,
+    "ast_hash": "a8ddaff68aab91fe2c2c635ec44133fe",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Launcher-ax.txt": {
+    "mtime": 1792099409.9847195,
+    "seen": 1792451836.244554,
+    "ast_hash": "e5bf5fa59f8d03de95f1566133cf90cd",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Launcher-expanded-rows.txt": {
+    "mtime": 1792099777.984474,
+    "seen": 1792451836.244555,
+    "ast_hash": "d929df84b2d9de125b4afdb40e528179",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Launcher-rows.txt": {
+    "mtime": 1792099410.3880894,
+    "seen": 1792451836.244556,
+    "ast_hash": "6ecaee229dfda13321c5eae8d30e7b7e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/README.md": {
+    "mtime": 1792100541.6886592,
+    "seen": 1792451836.244556,
+    "ast_hash": "8978d86657c0027caa5efd65071fa833",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Shortcuts-ax.txt": {
+    "mtime": 1792099413.6854475,
+    "seen": 1792451836.2445571,
+    "ast_hash": "26d04129a3e7d5feae24d54b6f5fd58a",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Shortcuts-expanded-rows.txt": {
+    "mtime": 1792099780.9677737,
+    "seen": 1792451836.244558,
+    "ast_hash": "0a145b25a8581af04169e3bcb9d68a82",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Shortcuts-rows.txt": {
+    "mtime": 1792099414.055919,
+    "seen": 1792451836.244559,
+    "ast_hash": "099fe19468507d7ea72ec62b620694a1",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Widgets-ax.txt": {
+    "mtime": 1792099402.527364,
+    "seen": 1792451836.244559,
+    "ast_hash": "620f97b7d3a7389699e9165b7d1a1017",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Widgets-expanded-rows.txt": {
+    "mtime": 1792099773.0421224,
+    "seen": 1792451836.2445598,
+    "ast_hash": "32704b9a7ccce8bff2b7fcfae48bf9e0",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Widgets-rows.txt": {
+    "mtime": 1792099402.9832196,
+    "seen": 1792451836.2445598,
+    "ast_hash": "0b1ce6f5c31f5756577dcf435d57c3df",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Window-Management-ax.txt": {
+    "mtime": 1792099406.2688048,
+    "seen": 1792451836.244561,
+    "ast_hash": "06e3ccad7a0e79d67c22a908a60e9038",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Window-Management-expanded-rows.txt": {
+    "mtime": 1792099775.5064955,
+    "seen": 1792451836.244562,
+    "ast_hash": "47d5f85c27ef29254bf58370d9d30385",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Window-Management-rows.txt": {
+    "mtime": 1792099406.6688662,
+    "seen": 1792451836.2445629,
+    "ast_hash": "0b33a4fce06454bb6b5b15170203c216",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/README.md": {
+    "mtime": 1792046465.7454367,
+    "seen": 1792451836.2445629,
+    "ast_hash": "aaa57a05766d8fdfb5c5fd3c671413b7",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/after2-grid.txt": {
+    "mtime": 1792046435.926403,
+    "seen": 1792451836.244564,
+    "ast_hash": "2c44f9090ee93439062c42dc7ce14174",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/before-grid.txt": {
+    "mtime": 1792046404.3109658,
+    "seen": 1792451836.244565,
+    "ast_hash": "87e7db41c4aac52be13c9b35e357bb58",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-shortcuts-page/README.md": {
+    "mtime": 1792050605.3139403,
+    "seen": 1792451836.244565,
+    "ast_hash": "95d1fc7e1d9813679c93c2b65e1abbba",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-shortcuts-page/shortcuts-ax-left.txt": {
+    "mtime": 1792050616.5573006,
+    "seen": 1792451836.244566,
+    "ast_hash": "ac20c7c4767b99f50ae427454f85d32c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-shortcuts-page/shortcuts-ax-zzzz.txt": {
+    "mtime": 1792050616.56152,
+    "seen": 1792451836.2445672,
+    "ast_hash": "7a769547b67b220d76e94ab29239d26c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-shortcuts-page/shortcuts-ax.txt": {
+    "mtime": 1792050616.5549293,
+    "seen": 1792451836.244568,
+    "ast_hash": "fabb6be670bf24d1eb7073fccde9054b",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-tools-page/README.md": {
+    "mtime": 1792048186.6926947,
+    "seen": 1792451836.244568,
+    "ast_hash": "27a94d06547d2ac2465d9c86428c9615",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-widgets-page/README.md": {
+    "mtime": 1792048785.9948065,
+    "seen": 1792451836.244569,
+    "ast_hash": "bdd91617c036724ddc9a0dde35aa81e4",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-32/README.md": {
+    "mtime": 1792117610.478352,
+    "seen": 1792451836.24457,
+    "ast_hash": "f3f6d1d6cf1fd4181551d00c1aa480a1",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-32/settings-rows-ax.txt": {
+    "mtime": 1792122904.1025841,
+    "seen": 1792451836.244571,
+    "ast_hash": "55121e7e73947c435c29cca9e76d6f85",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-46/bar-ax.txt": {
+    "mtime": 1792114061.1209784,
+    "seen": 1792451836.244571,
+    "ast_hash": "c95cc6967ad0e88cb544cccdd998dc9e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-46/weather-plate.txt": {
+    "mtime": 1792114309.4002743,
+    "seen": 1792451836.244572,
+    "ast_hash": "4038c6d6cf774ccf81b6603e394d50d7",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48a/00-live-walk-transcript.txt": {
+    "mtime": 1792139266.9508464,
+    "seen": 1792451836.2445729,
+    "ast_hash": "426d1100b7908a6557e940a0ad10c380",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48a/01-notch-productivity-help-texts.txt": {
+    "mtime": 1792139097.6787848,
+    "seen": 1792451836.2445729,
+    "ast_hash": "e825d1139ae40dc8665e2f1ec65cb047",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48a/02-page-ax.txt": {
+    "mtime": 1792139103.466767,
+    "seen": 1792451836.244574,
+    "ast_hash": "5c9856f06d4f3e1021c61d8aed8465fc",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48a/04-page-ocr.txt": {
+    "mtime": 1792139103.8500326,
+    "seen": 1792451836.244575,
+    "ast_hash": "abb4c6f95c53931748281d1ca881fb59",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48b/05-card-ax-after-add.txt": {
+    "mtime": 1792141811.527668,
+    "seen": 1792451836.244575,
+    "ast_hash": "9eeb30b81c66d6d75b5c246c636afc24",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48b/06-picker-ocr.txt": {
+    "mtime": 1792141811.723098,
+    "seen": 1792451836.244576,
+    "ast_hash": "c404164260ed9b1c67677bc404d90e33",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48b/07-card-ocr-after-add.txt": {
+    "mtime": 1792141811.8817809,
+    "seen": 1792451836.244577,
+    "ast_hash": "e0ac1510b03857a58cf158f8468aa652",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase47-live/README.md": {
+    "mtime": 1792130989.198751,
+    "seen": 1792451836.244577,
+    "ast_hash": "ef740c1c6c9468c74aff939ed6456369",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase47-live/camera-mirror-ax.txt": {
+    "mtime": 1792130509.4172962,
+    "seen": 1792451836.2445781,
+    "ast_hash": "55a6db170da14b52b69f7d0c6291f786",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase47-live/notifications-ax.txt": {
+    "mtime": 1792130546.9354577,
+    "seen": 1792451836.244579,
+    "ast_hash": "7ba0f98ac5371152dc6a7c7917963ff3",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/README.md": {
+    "mtime": 1792293652.1248667,
+    "seen": 1792451836.24458,
+    "ast_hash": "fedd5dbd343c7f06c28b1a0e1643becd",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/bento-after-1240-ocr.txt": {
+    "mtime": 1792289141.8454204,
+    "seen": 1792451836.24458,
+    "ast_hash": "2a89da9e3ea182cde85fd4123c493160",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/bento-before-1240-ocr.txt": {
+    "mtime": 1792289141.659775,
+    "seen": 1792451836.2445812,
+    "ast_hash": "fde61dcabdc98ec1faddeb7858445054",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-01-general-940x818-ocr.txt": {
+    "mtime": 1792293464.478006,
+    "seen": 1792451836.244582,
+    "ast_hash": "75398ca6e9c5f107f8df6772003f5ba4",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-02-appearance-940x987-ocr.txt": {
+    "mtime": 1792293468.892513,
+    "seen": 1792451836.244582,
+    "ast_hash": "22a218d01fd5312b2b78d327a207fb98",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-03-widgets-940x1039-ocr.txt": {
+    "mtime": 1792293473.199328,
+    "seen": 1792451836.244583,
+    "ast_hash": "738fe5733372842865d75da0b02a6ce2",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-04-notch-940x997-ocr.txt": {
+    "mtime": 1792293477.1758783,
+    "seen": 1792451836.2445838,
+    "ast_hash": "3fdcb53f8209395929d8c98c400d438f",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-05-edge_bars-940x1038-ocr.txt": {
+    "mtime": 1792293481.4315178,
+    "seen": 1792451836.244585,
+    "ast_hash": "18a570e6b4b2d8661f28b289b0fc7d28",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-06-window_management-940x1000-ocr.txt": {
+    "mtime": 1792293485.85228,
+    "seen": 1792451836.244585,
+    "ast_hash": "973f1efcd809326bf9766f8e7c9b7bc1",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-07-launcher-940x689-ocr.txt": {
+    "mtime": 1792293490.6531527,
+    "seen": 1792451836.244586,
+    "ast_hash": "22e69f6e10faa3929fb834e642fe0a9f",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-08-control_center-940x610-ocr.txt": {
+    "mtime": 1792293494.8871338,
+    "seen": 1792451836.244587,
+    "ast_hash": "130f97cc692aeddbcdf24a4bedad0faa",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-09-shortcuts-940x1013-ocr.txt": {
+    "mtime": 1792293499.2375805,
+    "seen": 1792451836.244587,
+    "ast_hash": "5b6a65ac1503bfadc87fc904e94a2d2c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-10-tools-940x1036-ocr.txt": {
+    "mtime": 1792293503.4838054,
+    "seen": 1792451836.2445881,
+    "ast_hash": "d1012d7a74b65afda110727dabda2ac6",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-11-advanced-940x605-ocr.txt": {
+    "mtime": 1792293507.8017902,
+    "seen": 1792451836.244589,
+    "ast_hash": "b5f2f6636b5a9a7887e9a9172091bf8b",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/state-appearance-tinted-940x-1020-ocr.txt": {
+    "mtime": 1792293577.7102396,
+    "seen": 1792451836.24459,
+    "ast_hash": "61a522f0ce20901fe4d745477d7f9b51",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/state-edge-bars-custom-940x-987-ocr.txt": {
+    "mtime": 1792293547.1274004,
+    "seen": 1792451836.24459,
+    "ast_hash": "7a2ae476c6620eee1d2b517d56d06fe4",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/state-widgets-context-presets-940x-1063-ocr.txt": {
+    "mtime": 1792293562.3032181,
+    "seen": 1792451836.244591,
+    "ast_hash": "d1946ddae48b30cabccd61ebb7c28cde",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/tablag-before-ax-tree-advanced-title-with-tools-page.txt": {
+    "mtime": 1792289171.169703,
+    "seen": 1792451836.2445922,
+    "ast_hash": "d9a7b37ae9d34da5b981c035099f0c60",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/tablag-before-ax-tree-control-center-title-with-widgets-page.txt": {
+    "mtime": 1792289171.166333,
+    "seen": 1792451836.2445922,
+    "ast_hash": "9b64686f9d700854ff1327cec0a34ba3",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/tablag-before-ax-tree-widgets-title-with-general-page.txt": {
+    "mtime": 1792289171.1723695,
+    "seen": 1792451836.244593,
+    "ast_hash": "2ab557d0fe5102521bfc14459fc4af82",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/refs/weather/gallery.html": {
+    "mtime": 1791999137.4368596,
+    "seen": 1792451836.2445939,
+    "ast_hash": "470b63d995b661ad590d817940d54979",
+    "semantic_hash": ""
+  },
+  "Docs/Releases/RELEASE_NOTES_v0.17.0-beta.1.md": {
+    "mtime": 1791999137.4273758,
+    "seen": 1792451836.2445939,
+    "ast_hash": "d6e79259123444c9b1cb8c1dec88d73a",
+    "semantic_hash": ""
+  },
+  "Docs/Releases/RELEASE_NOTES_v0.17.0-beta.2.md": {
+    "mtime": 1791999137.4260879,
+    "seen": 1792451836.244595,
+    "ast_hash": "954e2a243770eed03192ff434a2de0bf",
+    "semantic_hash": ""
+  },
+  "Docs/Releases/RELEASE_NOTES_v0.17.0-beta.3.md": {
+    "mtime": 1792362115.3910687,
+    "seen": 1792451836.244596,
+    "ast_hash": "678092db65e238e2f8f2a45b85fe070f",
+    "semantic_hash": ""
+  },
+  "Docs/Repository/pinboard-retirement.md": {
+    "mtime": 1791999137.4287362,
+    "seen": 1792451836.244596,
+    "ast_hash": "fa4322e001d78c2c15a7223864ce2b6c",
+    "semantic_hash": ""
+  },
+  "Docs/Repository/settings-sweep-2026-10.md": {
+    "mtime": 1792038729.1987045,
+    "seen": 1792451836.244598,
+    "ast_hash": "e91ca23ccaf5c086f76b40767bd59bdf",
+    "semantic_hash": ""
+  },
+  "Docs/SETTINGS.md": {
+    "mtime": 1792459858.1537642,
+    "seen": 1792466431.6683788,
+    "ast_hash": "83470ce917fa22157c3fd908cf3fd606",
+    "semantic_hash": ""
+  },
+  "HYBRID_PLAN.md": {
+    "mtime": 1792459919.7497342,
+    "seen": 1792466431.6683788,
+    "ast_hash": "12a7362b393ce65b85cce3fdfe42be51",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1792362115.3918355,
+    "seen": 1792451836.2446,
+    "ast_hash": "01dd98ebf74b1b92bf2d7e0e41f364bc",
+    "semantic_hash": ""
+  },
+  "README.zh-CN.md": {
+    "mtime": 1792362115.3919775,
+    "seen": 1792451836.2446,
+    "ast_hash": "c76d6b257b6e651521e2b7b9f5c5810a",
+    "semantic_hash": ""
+  },
+  "STANDING_RULES.md": {
+    "mtime": 1792077636.7057924,
+    "seen": 1792451836.244601,
+    "ast_hash": "00f874343c2807ec97cf616dec9419f6",
+    "semantic_hash": ""
+  },
+  "TRADEMARK.md": {
+    "mtime": 1791999153.3443346,
+    "seen": 1792451836.2446022,
+    "ast_hash": "3e2063b10f5d7e31512ef0c11f903464",
+    "semantic_hash": ""
+  },
+  "Tools/WindowLab/Formatting/README.md": {
+    "mtime": 1791999130.7275398,
+    "seen": 1792451836.244603,
+    "ast_hash": "21ac1fb6f1c8cf18eaa917e180cbcd4f",
+    "semantic_hash": ""
+  },
+  "Vendor/boring.notch/MANIFEST.txt": {
+    "mtime": 1791999153.3463953,
+    "seen": 1792451836.244603,
+    "ast_hash": "616e8ebe13dafc5b89dbead119e9b556",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Advanced.png": {
+    "mtime": 1792075447.2606297,
+    "seen": 1792451836.2446039,
+    "ast_hash": "806360778c15f9e86fd1bbfc42676073",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Appearance.png": {
+    "mtime": 1792075405.8988273,
+    "seen": 1792451836.2446048,
+    "ast_hash": "ddec55e8769a19415a173482f2b833cd",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Edge-Bars.png": {
+    "mtime": 1792075421.2572684,
+    "seen": 1792451836.2446048,
+    "ast_hash": "0f04ef8389026be88a0f0e20ab0f89b0",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/General.png": {
+    "mtime": 1792075400.5513108,
+    "seen": 1792451836.244606,
+    "ast_hash": "db6237bc8b0e0fa131a23e1c3698598b",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Launcher.png": {
+    "mtime": 1792075431.501515,
+    "seen": 1792451836.244607,
+    "ast_hash": "679bae4549cb84166332ab136dcb8bf1",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Notch.png": {
+    "mtime": 1792075416.122576,
+    "seen": 1792451836.244608,
+    "ast_hash": "4d064251384719d2a3e401b15aadcba2",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Shortcuts.png": {
+    "mtime": 1792075436.7152922,
+    "seen": 1792451836.244609,
+    "ast_hash": "e80f398ca66e8f45c495a7bd42ca8cfe",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Tools.png": {
+    "mtime": 1792075529.863258,
+    "seen": 1792451836.244609,
+    "ast_hash": "9481c13ae1efad0885b85f0fe1176834",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Widgets.png": {
+    "mtime": 1792075411.0253422,
+    "seen": 1792451836.24461,
+    "ast_hash": "4d6782e7e35b8743f59cbb8bc76290ed",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Window-Management.png": {
+    "mtime": 1792075426.4310238,
+    "seen": 1792451836.244611,
+    "ast_hash": "af1fdc4396cade86f170b51b7f7aba00",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Advanced.png": {
+    "mtime": 1792084539.9322975,
+    "seen": 1792451836.244611,
+    "ast_hash": "4013bdeea7d0cdff47b45b363e4bf4f0",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Appearance.png": {
+    "mtime": 1792084514.4033535,
+    "seen": 1792451836.244612,
+    "ast_hash": "ff19c11ebe6ee6e6e877a99cc643f79c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Edge-Bars.png": {
+    "mtime": 1792084523.9054928,
+    "seen": 1792451836.244612,
+    "ast_hash": "5f9901616c8a97675c2e494bd02e8e5d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/General.png": {
+    "mtime": 1792084511.0493958,
+    "seen": 1792451836.2446132,
+    "ast_hash": "15f26c331e81ca8db5c6c67ad74e6071",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Launcher.png": {
+    "mtime": 1792084530.310643,
+    "seen": 1792451836.244614,
+    "ast_hash": "6b43f00541a72ff7ab3afde0d7fcdfe2",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Notch.png": {
+    "mtime": 1792084520.7550883,
+    "seen": 1792451836.244614,
+    "ast_hash": "00f380aeb8228f8a3fc36480ca92b50e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Shortcuts.png": {
+    "mtime": 1792084533.441978,
+    "seen": 1792451836.2446148,
+    "ast_hash": "7fd169cc41226fe980f3d558875ea8a9",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Tools.png": {
+    "mtime": 1792084536.7170482,
+    "seen": 1792451836.244616,
+    "ast_hash": "8720c58256814426e4c95bb59ce1f687",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Widgets-after.png": {
+    "mtime": 1792096276.1780953,
+    "seen": 1792451836.244616,
+    "ast_hash": "f83a4d26f23d4354b2e23af536f45e31",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Widgets.png": {
+    "mtime": 1792084517.5397964,
+    "seen": 1792451836.244617,
+    "ast_hash": "7f7184ae6a99a22fe26ffba4c7aa3ab1",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-close-out/Window-Management.png": {
+    "mtime": 1792084527.135749,
+    "seen": 1792451836.244618,
+    "ast_hash": "61dbe018486d44c96917575fcc308214",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/after-Edge-Bars.png": {
+    "mtime": 1792053269.3863974,
+    "seen": 1792451836.244618,
+    "ast_hash": "b67b94ba79d22727905e6b44d3e5cf76",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/after-Launcher.png": {
+    "mtime": 1792053269.3900526,
+    "seen": 1792451836.244619,
+    "ast_hash": "fc990e42c1e64ce13962434dd45954a9",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/after-Window-Management.png": {
+    "mtime": 1792053269.39298,
+    "seen": 1792451836.24462,
+    "ast_hash": "660f9654ee82946e1d58af3466240085",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/before-Edge-Bars.png": {
+    "mtime": 1792052847.0236142,
+    "seen": 1792451836.24462,
+    "ast_hash": "afe6586a4b5d16362d46775b1841ac39",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/before-Launcher.png": {
+    "mtime": 1792052847.028958,
+    "seen": 1792451836.244621,
+    "ast_hash": "839aab684359edd8f6e5ce9cdfd043dc",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-density-pass/before-Window-Management.png": {
+    "mtime": 1792052847.0340567,
+    "seen": 1792451836.244621,
+    "ast_hash": "5d054b49633777b957955730ffef6028",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Appearance.png": {
+    "mtime": 1792099399.3732576,
+    "seen": 1792451836.244622,
+    "ast_hash": "02ca8b24170f320d3d0bce6d78c1bd10",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Launcher.png": {
+    "mtime": 1792099410.4903321,
+    "seen": 1792451836.2446232,
+    "ast_hash": "c6b7014872c3ab1eda5c1bef1401ee66",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Shortcuts.png": {
+    "mtime": 1792099414.1472826,
+    "seen": 1792451836.244624,
+    "ast_hash": "8ee28dddec84555e78c11dc82b463b15",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Widgets.png": {
+    "mtime": 1792099403.089667,
+    "seen": 1792451836.244624,
+    "ast_hash": "9bbb67155c5e6359471d7881f02506d3",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-page-fit/Window-Management.png": {
+    "mtime": 1792099406.7712684,
+    "seen": 1792451836.2446249,
+    "ast_hash": "81cace6c060dd2af83d26737fde0d8f3",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/after-about.png": {
+    "mtime": 1792046419.091852,
+    "seen": 1792451836.2446258,
+    "ast_hash": "a2339b5583f978e9cbba9ec17e39f96e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/after-advanced.png": {
+    "mtime": 1792046419.1354377,
+    "seen": 1792451836.2446258,
+    "ast_hash": "b8d1837df40e43527f858df140e5714d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/after-appearance.png": {
+    "mtime": 1792046419.1682808,
+    "seen": 1792451836.244627,
+    "ast_hash": "9d5356dc7a498edaeeee987173748705",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/after-edge_bars.png": {
+    "mtime": 1792046419.2081292,
+    "seen": 1792451836.244628,
+    "ast_hash": "14e13afaac1eeae2089ad5e8d5fd7537",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/after-general.png": {
+    "mtime": 1792046419.2373583,
+    "seen": 1792451836.244628,
+    "ast_hash": "ec0b69d61b3735fc2d08f1367745238c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/after-launcher___tools.png": {
+    "mtime": 1792046419.2724383,
+    "seen": 1792451836.244629,
+    "ast_hash": "0d491c34de2ead3d695d7d6beaf9d5fd",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/after-notch.png": {
+    "mtime": 1792046419.3097456,
+    "seen": 1792451836.24463,
+    "ast_hash": "2b9fa5eefd05c88d17fd486c7032b1c0",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/after-shortcuts.png": {
+    "mtime": 1792046419.3470535,
+    "seen": 1792451836.24463,
+    "ast_hash": "d77b6869e5ced6d29c8333da7bee761a",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/after-widgets.png": {
+    "mtime": 1792046419.3801188,
+    "seen": 1792451836.244631,
+    "ast_hash": "98d1fdc3649af3ce45510258bb443760",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/after-window_management.png": {
+    "mtime": 1792046419.4162328,
+    "seen": 1792451836.244632,
+    "ast_hash": "9c02164d97657919353cf6f92eef65c8",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/before-about.png": {
+    "mtime": 1792046419.460472,
+    "seen": 1792451836.244632,
+    "ast_hash": "34ea4ebe47e69e43b11accb89eca019e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/before-advanced.png": {
+    "mtime": 1792046419.5083606,
+    "seen": 1792451836.2446332,
+    "ast_hash": "dfed903fb339037d0d82b4ec15921da7",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/before-appearance.png": {
+    "mtime": 1792046419.5447013,
+    "seen": 1792451836.2446342,
+    "ast_hash": "39c57a2bcf99a2a3e6af5e97fecf6b82",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/before-edge_bars.png": {
+    "mtime": 1792046419.585011,
+    "seen": 1792451836.2446342,
+    "ast_hash": "3c6b5eb39aefdb8ca1baa2146264d0c5",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/before-general.png": {
+    "mtime": 1792046419.6116288,
+    "seen": 1792451836.2446349,
+    "ast_hash": "7d6a6353cbd5bdd41f9f14907797ff90",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/before-launcher___tools.png": {
+    "mtime": 1792046419.6428778,
+    "seen": 1792451836.2446358,
+    "ast_hash": "1328c6e12ff5d5af76cc8ede121e84c4",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/before-notch.png": {
+    "mtime": 1792046419.675408,
+    "seen": 1792451836.2446358,
+    "ast_hash": "06733bd76161099ffb74f4befb35006b",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/before-shortcuts.png": {
+    "mtime": 1792046419.7074823,
+    "seen": 1792451836.244637,
+    "ast_hash": "ca7fbbd3e93ab689923b2f3a1c6e8036",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/before-widgets.png": {
+    "mtime": 1792046419.7405348,
+    "seen": 1792451836.244638,
+    "ast_hash": "b18e8a1b9684b5cd63dd2b7a9a3a44d9",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-settings-pass/before-window_management.png": {
+    "mtime": 1792046419.77437,
+    "seen": 1792451836.244638,
+    "ast_hash": "a2f2991dffb7a5a3c878e57f77852392",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-shortcuts-page/Shortcuts-empty-state.png": {
+    "mtime": 1792050616.5516791,
+    "seen": 1792451836.244639,
+    "ast_hash": "4d490ee7304cd38cde03eca8d0c3a260",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-shortcuts-page/Shortcuts-filtered-left.png": {
+    "mtime": 1792050616.5508802,
+    "seen": 1792451836.24464,
+    "ast_hash": "34304b3a4d4bbd3b4ac05b0927cb7296",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-shortcuts-page/Shortcuts-full.png": {
+    "mtime": 1792050616.5456092,
+    "seen": 1792451836.24464,
+    "ast_hash": "fbd00a9c5af899c6e50802eaeb809571",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-tools-page/General.png": {
+    "mtime": 1792048178.5172987,
+    "seen": 1792451836.244641,
+    "ast_hash": "11a178eccb07bb0e0acdd58b824f53d5",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-tools-page/Launcher.png": {
+    "mtime": 1792048178.5567234,
+    "seen": 1792451836.244642,
+    "ast_hash": "5b5733ef171997fc235a9a1f271d7380",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-tools-page/Tools.png": {
+    "mtime": 1792048178.6043024,
+    "seen": 1792451836.244642,
+    "ast_hash": "76e33d887abda50d80362d900e8789da",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-15-widgets-page/Widgets.png": {
+    "mtime": 1792048775.7603514,
+    "seen": 1792451836.244643,
+    "ast_hash": "256c7dbb0b2b6383c2bf8dd51466d4de",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-32/dock-icons-env-circle.png": {
+    "mtime": 1792117599.3024616,
+    "seen": 1792451836.2446442,
+    "ast_hash": "8d91c106cf25acebed85eb62a872ba42",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-32/dock-icons-final-build-unset.png": {
+    "mtime": 1792117599.3083684,
+    "seen": 1792451836.2446442,
+    "ast_hash": "a54914a6b886c5f62bdd1d06da45f097",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-32/dock-icons-red-test-drastic-mask.png": {
+    "mtime": 1792117599.3061893,
+    "seen": 1792451836.244645,
+    "ast_hash": "9f8ea40650f801e17dce8e5a9750583d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-32/dock-icons-unset-squircle.png": {
+    "mtime": 1792117599.2987752,
+    "seen": 1792451836.2446458,
+    "ast_hash": "deec68691c0f38880eec9fcf9505b400",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-46/weather-island-sky.png": {
+    "mtime": 1792114061.1577952,
+    "seen": 1792451836.2446458,
+    "ast_hash": "0a393b1a46b6d6dab7dacf0d9391509e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48a/03-page.png": {
+    "mtime": 1792139103.6221735,
+    "seen": 1792451836.244647,
+    "ast_hash": "8114bc183caf34ab3b33f9b939fb4dfe",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48a/05-agenda-with-event.png": {
+    "mtime": 1792139103.8565047,
+    "seen": 1792451836.244648,
+    "ast_hash": "8520ce23ad2f3bf3ef93f05d203f0718",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48a/06-reminder-row.png": {
+    "mtime": 1792139103.8595285,
+    "seen": 1792451836.244648,
+    "ast_hash": "121cb28a067bc71df8742eec5b738dc0",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48a/07-no-events-state.png": {
+    "mtime": 1792139103.8621252,
+    "seen": 1792451836.244649,
+    "ast_hash": "462fed61bdf0130d11c0596d94e000fc",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48b/01-world-clock-card.png": {
+    "mtime": 1792141793.583176,
+    "seen": 1792451836.24465,
+    "ast_hash": "ecf61cb7a6fa31bd4112dc731dacad66",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48b/02-after-remove-plus-appears.png": {
+    "mtime": 1792141793.5854354,
+    "seen": 1792451836.24465,
+    "ast_hash": "8bc04e3889851e699a361d2d4e18f362",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48b/03-add-city-picker.png": {
+    "mtime": 1792141793.5886126,
+    "seen": 1792451836.244651,
+    "ast_hash": "771be5b4eb380970e0e164fd2780742e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase-48b/04-after-add-four-rows.png": {
+    "mtime": 1792141793.5910459,
+    "seen": 1792451836.244652,
+    "ast_hash": "32912568b5ef0345dad2a2a2de4a467f",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase47-live/camera-mirror-1.png": {
+    "mtime": 1792130509.5287924,
+    "seen": 1792451836.244652,
+    "ast_hash": "fedc234387db68e64d3958364de9cdcc",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase47-live/camera-mirror-2.png": {
+    "mtime": 1792130511.6561983,
+    "seen": 1792451836.244653,
+    "ast_hash": "78682fe5039025b17074d716fb7260dd",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase47-live/notifications-1.png": {
+    "mtime": 1792130547.0462146,
+    "seen": 1792451836.2446542,
+    "ast_hash": "1323f43c8a65f523542674f23aaeed09",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-16-phase47-live/notifications-2.png": {
+    "mtime": 1792130549.1659644,
+    "seen": 1792451836.2446542,
+    "ast_hash": "1323f43c8a65f523542674f23aaeed09",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/bento-after-1240.png": {
+    "mtime": 1792289141.3914201,
+    "seen": 1792451836.2446551,
+    "ast_hash": "26c639a6f20daa5a38e3111e5e3eb42e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/bento-after-1320.png": {
+    "mtime": 1792289141.3941777,
+    "seen": 1792451836.244656,
+    "ast_hash": "8dc4e01729c71ff309b59adf7abb6bae",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/bento-after-940.png": {
+    "mtime": 1792289141.388756,
+    "seen": 1792451836.244656,
+    "ast_hash": "cdec25f968d98e141a79f8524ffba68f",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/bento-before-1040.png": {
+    "mtime": 1792289141.3757164,
+    "seen": 1792451836.2446568,
+    "ast_hash": "9251eeadc1d902426ff29e86c979716d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/bento-before-1240.png": {
+    "mtime": 1792289141.3808327,
+    "seen": 1792451836.244658,
+    "ast_hash": "a2d7b3a98c121d92ba8fc47072cb7e5f",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/bento-before-1320.png": {
+    "mtime": 1792289141.3857298,
+    "seen": 1792451836.244658,
+    "ast_hash": "abf51b6bc6cbcd6831afdee23fe3a5fa",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/bento-before-940.png": {
+    "mtime": 1792289141.3709106,
+    "seen": 1792451836.244659,
+    "ast_hash": "9f5a0785eff35b6949d062658872241c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/dock-bottom-fullwidth-panel.png": {
+    "mtime": 1792289141.407764,
+    "seen": 1792451836.24466,
+    "ast_hash": "33c20823c3db6cc4ba92af7bda8adbd5",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/dock-bottom-split3-panel.png": {
+    "mtime": 1792289141.4093654,
+    "seen": 1792451836.24466,
+    "ast_hash": "1d4e0a5ecc3f55d94c0fa1d9ef66363a",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/dock-rail-left-fullwidth-panel.png": {
+    "mtime": 1792289141.3987923,
+    "seen": 1792451836.244661,
+    "ast_hash": "72d394dcd004583d37ca5fc32fe83175",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/dock-rail-left-screen-strip.png": {
+    "mtime": 1792289141.4110656,
+    "seen": 1792451836.244662,
+    "ast_hash": "fa077b0670d1d7460b9eed2bb45e3366",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/dock-rail-left-split5-panel.png": {
+    "mtime": 1792289141.400478,
+    "seen": 1792451836.244662,
+    "ast_hash": "acd8e677b726d0a461bcb280aa8471c7",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/dock-rail-right-fullwidth-panel.png": {
+    "mtime": 1792289141.4043152,
+    "seen": 1792451836.244663,
+    "ast_hash": "d684faea66076cb2f2a96e211f4eac39",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/dock-rail-right-restored-panel.png": {
+    "mtime": 1792289141.4060004,
+    "seen": 1792451836.244664,
+    "ast_hash": "eed25868f6745ee5d5d11cc1c63a20f8",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/dock-rail-right-screen-strip.png": {
+    "mtime": 1792289141.412697,
+    "seen": 1792451836.244664,
+    "ast_hash": "b7c49239bf774935b38eca055483d2fe",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/dock-rail-right-split5-panel.png": {
+    "mtime": 1792289141.4025803,
+    "seen": 1792451836.2446651,
+    "ast_hash": "966c9fd2ef86e502dfe6b9ef77e45640",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-01-general-940x818.png": {
+    "mtime": 1792293464.1504192,
+    "seen": 1792451836.244666,
+    "ast_hash": "97ca912a12282cd22b80587be634bf62",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-02-appearance-940x987.png": {
+    "mtime": 1792293468.5186462,
+    "seen": 1792451836.244666,
+    "ast_hash": "ac56a1000b438aefedaed4a365a2f611",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-03-widgets-940x1039.png": {
+    "mtime": 1792293472.8285406,
+    "seen": 1792451836.2446668,
+    "ast_hash": "f1af92ccd10ae4a2ad55ff12b2cfc8fa",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-04-notch-940x997.png": {
+    "mtime": 1792293476.8858159,
+    "seen": 1792451836.244668,
+    "ast_hash": "e3d1bb0f41ac383fd7edd379f8661744",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-05-edge_bars-940x1038.png": {
+    "mtime": 1792293481.035292,
+    "seen": 1792451836.244668,
+    "ast_hash": "4a754270982bb2345a914442813b499b",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-06-window_management-940x1000.png": {
+    "mtime": 1792293485.4375925,
+    "seen": 1792451836.244669,
+    "ast_hash": "f7c017a636aaf06a5a0120da5688aeaa",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-07-launcher-940x689.png": {
+    "mtime": 1792293490.1760578,
+    "seen": 1792451836.24467,
+    "ast_hash": "ac3d7f64154acc375fc9430f87188704",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-08-control_center-940x610.png": {
+    "mtime": 1792293494.4771497,
+    "seen": 1792451836.24467,
+    "ast_hash": "208cf006dd20910cae4c3cd5b877dd6b",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-09-shortcuts-940x1013.png": {
+    "mtime": 1792293498.8430777,
+    "seen": 1792451836.2446709,
+    "ast_hash": "b113bdd7ef0ac3bd07fd1dfb88b66cc0",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-10-tools-940x1036.png": {
+    "mtime": 1792293503.1236954,
+    "seen": 1792451836.244672,
+    "ast_hash": "09ccad09d6cf25af64762c1fd2b4f9ef",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/fit-11-advanced-940x605.png": {
+    "mtime": 1792293507.4720645,
+    "seen": 1792451836.244672,
+    "ast_hash": "90677ea80d44624242413b571de54dff",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/page-tail-940x1000-same-page-row-visible.png": {
+    "mtime": 1792289225.4728475,
+    "seen": 1792451836.244673,
+    "ast_hash": "22fc42a57bfab296e0bf350abc256efe",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/page-tail-940x737-fitted-row-below-fold.png": {
+    "mtime": 1792289225.4696949,
+    "seen": 1792451836.244674,
+    "ast_hash": "ed472efda0bcbe1bfb9411eac32dd7f7",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-01-general-940x737.png": {
+    "mtime": 1792289141.300266,
+    "seen": 1792451836.244674,
+    "ast_hash": "cdec25f968d98e141a79f8524ffba68f",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-02-appearance-940x1074.png": {
+    "mtime": 1792289141.3069906,
+    "seen": 1792451836.2446752,
+    "ast_hash": "f290e57c6f32a38b9e4afc3002ef05f4",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-03-widgets-940x1040.png": {
+    "mtime": 1792289141.3132777,
+    "seen": 1792451836.244676,
+    "ast_hash": "726ff982266a98a071192ae230f10444",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-04-notch-940x916.png": {
+    "mtime": 1792289141.318566,
+    "seen": 1792451836.244676,
+    "ast_hash": "909e03234d9d18fa77dd9a84e6468002",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-05-edge-bars-940x957.png": {
+    "mtime": 1792289141.324276,
+    "seen": 1792451836.244677,
+    "ast_hash": "5a1db47b0cf638e997c90bd8805751cc",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-06-window-management-940x919.png": {
+    "mtime": 1792289141.3296046,
+    "seen": 1792451836.2446778,
+    "ast_hash": "70075c40473fb74d5cddd3943af26cc3",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-07-launcher-940x608.png": {
+    "mtime": 1792289141.3346176,
+    "seen": 1792451836.2446778,
+    "ast_hash": "e57272744c4abcb52835c34ab224018a",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-08-control-center-940x529.png": {
+    "mtime": 1792289141.3392816,
+    "seen": 1792451836.244679,
+    "ast_hash": "0ef437d7d87afb5767b8630eb73f3609",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-09-shortcuts-940x932.png": {
+    "mtime": 1792289141.34448,
+    "seen": 1792451836.24468,
+    "ast_hash": "d855ff2b14c4c4abcba88b8a569cae87",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-10-tools-940x1037.png": {
+    "mtime": 1792289141.3495417,
+    "seen": 1792451836.24468,
+    "ast_hash": "faf0b565572e0ff7e224e86e4136109d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-11-advanced-940x524.png": {
+    "mtime": 1792289141.3543413,
+    "seen": 1792451836.244681,
+    "ast_hash": "bc6bfd550156fbc0aa59466ce7d78c31",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-wide-appearance-1240.png": {
+    "mtime": 1792289141.3601298,
+    "seen": 1792451836.244682,
+    "ast_hash": "87ed045096f49dd38909a06992f64d02",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-wide-general-1240.png": {
+    "mtime": 1792289141.3569772,
+    "seen": 1792451836.244682,
+    "ast_hash": "26c639a6f20daa5a38e3111e5e3eb42e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-wide-launcher-1240.png": {
+    "mtime": 1792289141.366094,
+    "seen": 1792451836.244683,
+    "ast_hash": "439475e23aa0f43b373e4ae5f57b1819",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/settings-wide-widgets-1240.png": {
+    "mtime": 1792289141.363612,
+    "seen": 1792451836.244684,
+    "ast_hash": "cd75b641dd29f0e197d32f8f1fba9b45",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/state-appearance-tinted-940x-1020.png": {
+    "mtime": 1792293577.235401,
+    "seen": 1792451836.244684,
+    "ast_hash": "63c24f279baccf31c8c20d83208715b1",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/state-edge-bars-custom-940x-987.png": {
+    "mtime": 1792293546.8596144,
+    "seen": 1792451836.2446852,
+    "ast_hash": "0596d526f291529cc7b9dd6f5cf1ccad",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-10-18-settings-dock-live/state-widgets-context-presets-940x-1063.png": {
+    "mtime": 1792293562.0351775,
+    "seen": 1792451836.2446861,
+    "ast_hash": "839d9b099e175373a81a897c5724d7ce",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/refs/weather/1-wide-strip.png": {
+    "mtime": 1791999137.4378672,
+    "seen": 1792451836.2446861,
+    "ast_hash": "90bd658815557d16af478ff380676e73",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/refs/weather/2-screenshot-pill.png": {
+    "mtime": 1791999137.4317186,
+    "seen": 1792451836.244687,
+    "ast_hash": "822a711e17b56b894b4800b33f3b1b9d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/refs/weather/3-card.png": {
+    "mtime": 1791999137.4323115,
+    "seen": 1792451836.2446878,
+    "ast_hash": "3eb370f460114c8aa192e6db002fc231",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/refs/weather/4-card.png": {
+    "mtime": 1791999137.4355986,
+    "seen": 1792451836.2446878,
+    "ast_hash": "3eb370f460114c8aa192e6db002fc231",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/refs/weather/5-pasted-pill.png": {
+    "mtime": 1791999137.4373362,
+    "seen": 1792451836.244689,
+    "ast_hash": "822a711e17b56b894b4800b33f3b1b9d",
+    "semantic_hash": ""
+  },
+  "Resources/AppIcon.icon/Assets/glyph.svg": {
+    "mtime": 1791999130.899864,
+    "seen": 1792451836.24469,
+    "ast_hash": "5771556b80e53f22cb3b17e1cf6c45a4",
+    "semantic_hash": ""
+  },
+  "Resources/Assets.xcassets/LauncherIcon.imageset/launcher.png": {
+    "mtime": 1791999130.876106,
+    "seen": 1792451836.24469,
+    "ast_hash": "1f75c5b8a322fe3535bb256eedcd2a0a",
+    "semantic_hash": ""
+  },
+  "Resources/Assets.xcassets/LauncherIcon.imageset/launcher@2x.png": {
+    "mtime": 1791999130.8786223,
+    "seen": 1792451836.244691,
+    "ast_hash": "a5341f426cb69a5894726cec00f813d8",
+    "semantic_hash": ""
+  },
+  "Resources/Assets.xcassets/LauncherIcon.imageset/launcher@3x.png": {
+    "mtime": 1791999130.877976,
+    "seen": 1792451836.244692,
+    "ast_hash": "0b8021d0ff57b588d4d1353e5819b1d7",
+    "semantic_hash": ""
+  },
+  "Resources/Assets.xcassets/TrashEmpty.imageset/TrashEmpty.png": {
+    "mtime": 1791999130.8847566,
+    "seen": 1792451836.244692,
+    "ast_hash": "c13255a403fc00a4c83cec20cff88428",
+    "semantic_hash": ""
+  },
+  "Resources/Assets.xcassets/TrashFull.imageset/TrashFull.png": {
+    "mtime": 1791999130.8902757,
+    "seen": 1792451836.244693,
+    "ast_hash": "3fda5f0231f64984cb6468d6b59f8be4",
+    "semantic_hash": ""
+  },
+  "Resources/Assets.xcassets/TrashRecycle.imageset/TrashRecycle.png": {
+    "mtime": 1791999130.89426,
+    "seen": 1792451836.244694,
+    "ast_hash": "fd0e10bba3d5312fbfab0f1443bc2461",
+    "semantic_hash": ""
+  },
+  "Resources/LauncherIcon/launcher-1024.png": {
+    "mtime": 1791999130.9025145,
+    "seen": 1792451836.244694,
+    "ast_hash": "5e4f07e7e8e3e6079bce379fb58ad2bb",
+    "semantic_hash": ""
+  },
+  "Resources/LauncherIcon/launcher-512.png": {
+    "mtime": 1791999130.9050992,
+    "seen": 1792451836.244695,
+    "ast_hash": "8f4616b9a84f8fb6e4feedae953d4b0d",
+    "semantic_hash": ""
+  },
+  "assets/icon.png": {
+    "mtime": 1791999153.3397295,
+    "seen": 1792451836.244695,
+    "ast_hash": "963c5a49412fcdf9336b087d9cb362bb",
+    "semantic_hash": ""
+  },
+  "assets/screenshots/bar.png": {
+    "mtime": 1791999153.343944,
+    "seen": 1792451836.2446961,
+    "ast_hash": "8f8efe5455f71561a864e7942e4755b2",
+    "semantic_hash": ""
+  },
+  "assets/screenshots/launcher.png": {
+    "mtime": 1791999153.3418362,
+    "seen": 1792451836.244697,
+    "ast_hash": "05885867382829fa765640ebc6419dd3",
+    "semantic_hash": ""
+  },
+  "assets/screenshots/settings-layout.png": {
+    "mtime": 1791999153.3429859,
+    "seen": 1792451836.244697,
+    "ast_hash": "8785df3c7e65b11f037451d41d6b14b5",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Edge/EdgeStyleTokens.swift": {
+    "mtime": 1792452220.580043,
+    "seen": 1792452519.4320152,
+    "ast_hash": "78a0ed4b0a7429fd5b15d6dd6d98bc2f",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Edge/GlassQuickAddView.swift": {
+    "mtime": 1792465755.602855,
+    "seen": 1792466431.667734,
+    "ast_hash": "a16125bc29d7061809672c131cc0f80f",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/QuickAddStateTests.swift": {
+    "mtime": 1792452309.51295,
+    "seen": 1792452519.432436,
+    "ast_hash": "7c18c27f86985092706506008450be0a",
+    "semantic_hash": ""
+  },
+  "Core/Support/QuickAddState.swift": {
+    "mtime": 1792465755.5985694,
+    "seen": 1792466431.667926,
+    "ast_hash": "9c5442a10e671a3988b7e27905a4ebae",
+    "semantic_hash": ""
   }
 }
