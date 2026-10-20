@@ -46,6 +46,27 @@ extension SettingsLayoutPane {
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }
             .help(Text("How the dock widgets' readings move when they change."))
+            // The menu-bar menu's four switches moved here (2026-10-21).
+            SettingsDivider()
+            SettingsToggleRow(Text("Show Shelf"), isOn: Binding(
+                get: { store.showShelf },
+                set: { store.setShowShelf($0) }
+            ))
+            SettingsDivider()
+            SettingsToggleRow(Text("Show Trash"), isOn: Binding(
+                get: { store.showTrash },
+                set: { store.setShowTrash($0) }
+            ))
+            SettingsDivider()
+            SettingsToggleRow(Text("Show app name on hover"), isOn: Binding(
+                get: { store.hoverStyle.isExpressive },
+                set: { store.setHoverStyle($0 ? .standard : .quiet) }
+            ))
+            SettingsDivider()
+            SettingsToggleRow(Text("Keep windows above the taskbar"), isOn: Binding(
+                get: { store.windowLiftEnabled },
+                set: { store.setWindowLiftEnabled($0) }
+            ))
         }
 
         // The style presets moved to `WidgetLookSettingsBlock` (2026-10-15): they are appearance, and

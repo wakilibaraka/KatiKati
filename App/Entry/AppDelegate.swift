@@ -233,11 +233,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         },
         onRequestAccessibility: { [weak self] in self?.requestAccessibilityFromMenu() },
         onQuit: { NSApp.terminate(nil) },
-        hotKeyGlyphs: { [weak self] in
-            self?.edgeToggleHotKey?.shortcut.displayGlyphs
-                ?? GlobalHotKeyShortcut.edgeAutoHideMode.displayGlyphs
-        },
-        isToggleHotKeyRegistered: { [weak self] in self?.edgeToggleHotKey?.isRegistered ?? false },
         connectedScreens: { DisplayIdentity.connectedScreenOptions() }
     )
 

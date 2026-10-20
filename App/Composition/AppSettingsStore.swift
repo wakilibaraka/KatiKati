@@ -61,9 +61,9 @@ enum HoverStyle: String, CaseIterable {
     case standard
     case quiet
 
-    /// **默认 `.quiet`**（owner 2026-09-01 定，此前是 `.standard`）：全新装上时鼠标划过
-    /// 任务条不弹应用名气泡，只有轻微放大。老用户键里已有值，不受影响。
-    static let `default` = HoverStyle.quiet
+    /// **默认 `.standard`**（owner 2026-10-21 改回；2026-09-01 曾定为 `.quiet`）：鼠标划过
+    /// 任务条弹应用名气泡。老用户键里已有值，不受影响。
+    static let `default` = HoverStyle.standard
 
     /// 悬停是否产生**表现型**变化（名字气泡、文件夹格放大）。chip 视图统一用它做判据，
     /// 不各自比 case；菜单的勾选态也读它（`.on` ⟺ `isExpressive`）。

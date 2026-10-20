@@ -429,17 +429,17 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
-    func testHoverStyleDefaultsToQuietAndPersists() {
+    func testHoverStyleDefaultsToStandardAndPersists() {
         let defaults = makeDefaults()
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).hoverStyle, .quiet, "全新安装不弹应用名气泡（owner 2026-09-01）")
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).hoverStyle, .standard, "全新安装弹应用名气泡（owner 2026-10-21）")
 
         let store = AppSettingsStore(defaults: defaults)
-        store.setHoverStyle(.standard)
-        XCTAssertEqual(store.hoverStyle, .standard)
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).hoverStyle, .standard, "档位要跨重启保持")
-
         store.setHoverStyle(.quiet)
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).hoverStyle, .quiet)
+        XCTAssertEqual(store.hoverStyle, .quiet)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).hoverStyle, .quiet, "档位要跨重启保持")
+
+        store.setHoverStyle(.standard)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).hoverStyle, .standard)
     }
 
     @MainActor
@@ -525,8 +525,8 @@ final class AppSettingsStoreTests: XCTestCase {
     func testHoverStyleRawValuesAreStableAcrossReleases() {
         // 同 dockSize 当年：raw value 进了 UserDefaults，改名等于把所有老用户悄悄重置回标准档。
         XCTAssertEqual(HoverStyle.allCases.map(\.rawValue), ["standard", "quiet"])
-        // 全新安装默认不弹应用名气泡（owner 2026-09-01，此前是 .standard）。
-        XCTAssertEqual(HoverStyle.default, .quiet)
+        // 全新安装默认弹应用名气泡（owner 2026-10-21 改回 .standard；2026-09-01 曾为 .quiet）。
+        XCTAssertEqual(HoverStyle.default, .standard)
         // isExpressive 是所有 chip 视图的唯一判据，也是菜单勾选态的判据，反了就是整档失效。
         XCTAssertTrue(HoverStyle.standard.isExpressive)
         XCTAssertFalse(HoverStyle.quiet.isExpressive)
