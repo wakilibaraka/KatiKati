@@ -76,7 +76,10 @@ final class NotchPanelController: LiveEventSink {
             }.store(in: &cancellables)
     }
 
+    private let trackPill = NotchTrackPillController()
+
     private func hide() {
+        trackPill.hide(animated: false)
         cancellables.removeAll()
         stopHoverPolling()
         tickWork?.cancel(); tickWork = nil
@@ -94,10 +97,11 @@ final class NotchPanelController: LiveEventSink {
 
     func show(_ event: LiveEvent) {
         guard panel != nil else { return }
-        // 50d: a new song brightens the ear glow instead of opening the notch.
+        // 50d/50e: a new song brightens the ear glow and drops a small pill instead of opening the notch.
         if case .trackChanged = event {
             model.glowBoost = 1
             withAnimation(.easeOut(duration: 1.4)) { model.glowBoost = 0 }
+            if !model.isExpanded { trackPill.show(below: model.closedSize.height) }
             return
         }
         model.event = LiveEventPresentation(event)

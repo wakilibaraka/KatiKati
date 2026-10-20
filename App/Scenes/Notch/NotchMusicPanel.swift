@@ -7,6 +7,12 @@ import SwiftUI
 struct NotchMusicPanel: View {
     @ObservedObject var feed: LiveActivityFeed
     var isIdle = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// The artwork's reduced colour, white when the art is grey or missing.
+    private func accent(_ state: NowPlayingState) -> Color {
+        ArtworkAccentCache.accent(for: state.artworkData).map { Color(red: $0.red, green: $0.green, blue: $0.blue) } ?? .white
+    }
 
     var body: some View {
         let state = feed.nowPlayingState
@@ -34,9 +40,14 @@ struct NotchMusicPanel: View {
                     transport(state)
                     NotchQuickActions()
                 } else {
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(verbatim: state.title ?? "").font(.system(size: 14, weight: .bold, design: .rounded)).lineLimit(1)
-                        Text(verbatim: state.artist ?? "").font(.system(size: 12)).foregroundStyle(.white.opacity(0.6)).lineLimit(1)
+                    HStack(alignment: .top, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(verbatim: state.title ?? "").font(.system(size: 15, weight: .bold, design: .rounded)).lineLimit(1)
+                            Text(verbatim: state.artist ?? "").font(.system(size: 12)).foregroundStyle(.white.opacity(0.6)).lineLimit(1)
+                        }
+                        Spacer(minLength: 0)
+                        MusicEqualizerBars(isActive: state.isPlaying && !reduceMotion, tint: accent(state))
+                            .frame(width: 18, height: 14)
                     }
                     Spacer(minLength: 0)
                     progress(state)
@@ -52,6 +63,7 @@ struct NotchMusicPanel: View {
     /// The player's own artwork when it hands one over; the vinyl otherwise, spinning only while the
     /// track is playing (Phase 43 — it used to be a static note glyph either way).
     private func art(_ data: Data?, isPlaying: Bool) -> some View {
+        let glow = ArtworkAccentCache.accent(for: data).map { Color(red: $0.red, green: $0.green, blue: $0.blue) } ?? Color.black
         let size = NotchLayoutSpec.albumArtSize
         return Group {
             if let data, let image = NSImage(data: data) {
@@ -63,7 +75,7 @@ struct NotchMusicPanel: View {
         }
         .frame(width: size, height: size)
         .clipShape(RoundedRectangle(cornerRadius: NotchLayoutSpec.albumArtCorner, style: .continuous))
-        .shadow(color: .black.opacity(0.4), radius: 6, y: 2)
+        .shadow(color: glow.opacity(0.55), radius: 12, y: 3)
     }
 
     @ViewBuilder
@@ -71,9 +83,21 @@ struct NotchMusicPanel: View {
         // TimelineView only ticks while music is showing; the bar moves without the feed's own tick.
         TimelineView(.periodic(from: .now, by: 1)) { context in
             let fraction = state.progress(at: context.date) ?? 0
-            MusicScrubBar(progress: fraction, duration: state.duration ?? 0, trackHeight: 4, tint: .white,
-                          onSeek: { feed.seek(to: $0) })
+            let duration = state.duration ?? 0
+            HStack(spacing: 8) {
+                Text(verbatim: Self.clock(fraction * duration)).frame(minWidth: 30, alignment: .trailing)
+                MusicScrubBar(progress: fraction, duration: duration, trackHeight: 4, tint: accent(state),
+                              onSeek: { feed.seek(to: $0) })
+                Text(verbatim: duration > 0 ? "-" + Self.clock(max(0, duration - fraction * duration)) : "–:––").frame(minWidth: 30, alignment: .leading)
+            }
+            .font(.system(size: 10, weight: .medium).monospacedDigit())
+            .foregroundStyle(.white.opacity(0.55))
         }
+    }
+
+    private static func clock(_ seconds: TimeInterval) -> String {
+        let total = Int(max(0, seconds))
+        return String(format: "%d:%02d", total / 60, total % 60)
     }
 
     private func transport(_ state: NowPlayingState) -> some View {

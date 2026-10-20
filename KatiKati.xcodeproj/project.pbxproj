@@ -325,6 +325,7 @@
 		7C5000000000000000A022 /* NotchMusicGlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C5000000000000000A021 /* NotchMusicGlow.swift */; };
 		7C5000000000000000A023 /* NotchMusicGlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C5000000000000000A021 /* NotchMusicGlow.swift */; };
 		7C5000000000000000A025 /* NotchMusicGlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C5000000000000000A024 /* NotchMusicGlowTests.swift */; };
+		7C5000000000000000A032 /* NotchTrackPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C5000000000000000A031 /* NotchTrackPill.swift */; };
 		7B50000000000000000001F3 /* AppleScriptNowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000001F5 /* AppleScriptNowPlaying.swift */; };
 		7B50000000000000000001F4 /* AppleScriptNowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000000001F5 /* AppleScriptNowPlaying.swift */; };
 		7B5000000000000000000108 /* LiveEventBannerPoster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000109 /* LiveEventBannerPoster.swift */; };
@@ -1357,6 +1358,7 @@
 		7C5000000000000000A014 /* NowPlayingTapPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingTapPolicyTests.swift; path = Tests/Unit/NowPlayingTapPolicyTests.swift; sourceTree = SOURCE_ROOT; };
 		7C5000000000000000A021 /* NotchMusicGlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchMusicGlow.swift; path = Core/Support/NotchMusicGlow.swift; sourceTree = SOURCE_ROOT; };
 		7C5000000000000000A024 /* NotchMusicGlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchMusicGlowTests.swift; path = Tests/Unit/NotchMusicGlowTests.swift; sourceTree = SOURCE_ROOT; };
+		7C5000000000000000A031 /* NotchTrackPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchTrackPill.swift; path = App/Scenes/Notch/NotchTrackPill.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000000001F5 /* AppleScriptNowPlaying.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppleScriptNowPlaying.swift; path = Core/Support/AppleScriptNowPlaying.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000000109 /* LiveEventBannerPoster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveEventBannerPoster.swift; path = App/Composition/LiveEventBannerPoster.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000000000B1 /* LiveEventCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveEventCenter.swift; path = App/Composition/LiveEventCenter.swift; sourceTree = SOURCE_ROOT; };
@@ -3184,6 +3186,7 @@
 				7C5000000000000000A002 /* ArtworkAccent.swift in Sources */,
 				7C5000000000000000A012 /* NowPlayingTapPolicy.swift in Sources */,
 				7C5000000000000000A022 /* NotchMusicGlow.swift in Sources */,
+				7C5000000000000000A032 /* NotchTrackPill.swift in Sources */,
 				7B50000000000000000001F3 /* AppleScriptNowPlaying.swift in Sources */,
 				7B50000000000000000000B2 /* LiveEventCenter.swift in Sources */,
 				7B5000000000000000000262 /* RecentlyClosedStore.swift in Sources */,
