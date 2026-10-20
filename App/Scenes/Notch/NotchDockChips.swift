@@ -29,8 +29,8 @@ struct NotchDockChips: View {
             }
         }
         .frame(maxHeight: metrics.closedSize.height)
-        .onAppear { power.acquire() }
-        .onDisappear { power.release() }
+        // lifecycle on a real view: modifiers on an empty Group never fire
+        .background(Color.clear.onAppear { power.acquire() }.onDisappear { power.release() })
         .task {
             while !Task.isCancelled {
                 free = StorageScanService.freeBytes()
