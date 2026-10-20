@@ -1,4 +1,5 @@
 import AppKit
+import Carbon.HIToolbox
 import CoreGraphics
 import OSLog
 
@@ -364,9 +365,12 @@ final class KeyGuardShared: @unchecked Sendable {
     }
 
     /// Coalesces repeats and drops the oldest past the cap. Idle for >1.5 s clears it (the overlay hides).
-    func record(symbol: String) {
+    /// Under secure input (a password field has focus) nothing is kept and the strip is cleared; the
+    /// probe is an autoclosure so it is read only while the visualizer is on. macOS has no change notification.
+    func record(symbol: String, secureInput: @autoclosure () -> Bool = IsSecureEventInputEnabled()) {
         lock.lock(); defer { lock.unlock() }
         guard visualizerOn else { return }
+        if secureInput() { caps.clear(); return }
         caps.push(symbol: symbol, at: Date())
         let now = Date()
         if now.timeIntervalSince(capsPrunedAt) > 0.5 {

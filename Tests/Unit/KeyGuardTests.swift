@@ -141,6 +141,19 @@ final class KeyGuardSharedTests: XCTestCase {
         for symbol in ["b", "c", "d", "e", "f", "g", "h"] { shared.record(symbol: symbol) }
         XCTAssertEqual(shared.keycaps().count, KeyVisualizerBuffer.capacity)
     }
+
+    /// Secure input (password fields) must leave no keycap behind, and must not even be probed while the visualizer is off.
+    func testSecureInputClearsAndRecordsNothing() {
+        let shared = KeyGuardShared()
+        var probed = false
+        shared.record(symbol: "x", secureInput: { probed = true; return false }())
+        XCTAssertFalse(probed, "probe is not read while the visualizer is off")
+        shared.setVisualizer(enabled: true)
+        shared.record(symbol: "a", secureInput: false)
+        XCTAssertEqual(shared.keycaps().map(\.symbol), ["a"])
+        shared.record(symbol: "b", secureInput: true)
+        XCTAssertTrue(shared.keycaps().isEmpty, "secure input clears the strip and keeps nothing")
+    }
 }
 
 final class KeyVisualizerBufferTests: XCTestCase {

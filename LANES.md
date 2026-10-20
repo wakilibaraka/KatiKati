@@ -34,7 +34,7 @@ Behaviour-frozen (bug fix + regression test only; splits are pure-move slices): 
 ## Claims
 One line per active slice: `lane | slice | agent | branch | files | hot-file touches | since`
 
-- C | Q-input-a | Claude (this session) | main (integrator-direct) | `Core/Support/SecureInputPolicy.swift`, `Tests/Unit/SecureInputPolicyTests.swift`, `App/Composition/KeyGuardService.swift`, `App/Scenes/KeyVisualizerOverlay.swift` | `project.pbxproj` (2 files) | 2026-10-20
+- C | Q-input-a | Claude (this session) | main (integrator-direct) | `App/Composition/KeyGuardService.swift`, `Tests/Unit/KeyGuardTests.swift` | none | 2026-10-20
 
 ## Unknown
 Which lanes Freebuff or another agent is using is not known until they add a line here.
