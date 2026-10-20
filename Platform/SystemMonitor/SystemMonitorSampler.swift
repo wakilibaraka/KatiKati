@@ -1,7 +1,9 @@
 import Darwin
 import Foundation
+import IOKit
 
-/// Reads CPU ticks, memory, disk and network byte counters. Stateless: the controller keeps the previous sample.
+/// Reads CPU ticks, memory, disk, network byte counters, GPU busy share and battery level.
+/// Stateless: the controller keeps the previous sample.
 enum SystemMonitorSampler {
     static func cpuTicks() -> CPUTicks? {
         var info = host_cpu_load_info()
@@ -49,5 +51,45 @@ enum SystemMonitorSampler {
             rx &+= UInt64(d.ifi_ibytes); tx &+= UInt64(d.ifi_obytes)
         }
         return NetCounters(received: rx, sent: tx)
+    }
+
+    /// GPU busy share (0...1) from IOAccelerator's `PerformanceStatistics` — a de-facto but
+    /// undocumented IOKit surface (the same one Stats / iStat Menus read).
+    /// shortcut: no public GPU-utilization API exists; swap this if Apple ships one.
+    /// nil where the machine reports nothing — never faked as 0.
+    static func gpu() -> Double? {
+        var iterator = io_iterator_t()
+        guard IOServiceGetMatchingServices(kIOMainPortDefault, IOServiceMatching("IOAccelerator"), &iterator) == KERN_SUCCESS else { return nil }
+        defer { IOObjectRelease(iterator) }
+        var best: Double?
+        while true {
+            let entry = IOIteratorNext(iterator)
+            guard entry != 0 else { break }
+            defer { IOObjectRelease(entry) }
+            var props: Unmanaged<CFMutableDictionary>?
+            guard IORegistryEntryCreateCFProperties(entry, &props, kCFAllocatorDefault, 0) == KERN_SUCCESS,
+                  let dict = props?.takeRetainedValue() as? [String: Any],
+                  let stats = dict["PerformanceStatistics"] as? [String: Any] else { continue }
+            let raw = (stats["Device Utilization %"] as? Double) ?? (stats["Device Utilization %"] as? Int).map(Double.init)
+            if let raw { best = max(best ?? 0, min(1, raw / 100)) }
+        }
+        return best
+    }
+
+    /// Internal battery level and charger state. nil on desktops and when no internal battery
+    /// is present — the metric row then reads "–" like any other missing reader.
+    static func battery() -> MenuBarBattery? {
+        guard let blob = IOPSCopyPowerSourcesInfo()?.takeRetainedValue(),
+              let list = IOPSCopyPowerSourcesList(blob)?.takeRetainedValue() as? [CFTypeRef] else { return nil }
+        for source in list {
+            guard let desc = IOPSGetPowerSourceDescription(blob, source)?.takeUnretainedValue() as? [String: Any],
+                  desc[kIOPSTypeKey] as? String == kIOPSInternalBatteryType else { continue }
+            let current = (desc[kIOPSCurrentCapacityKey] as? Double) ?? (desc[kIOPSCurrentCapacityKey] as? Int).map(Double.init) ?? 0
+            let max = (desc[kIOPSMaxCapacityKey] as? Double) ?? (desc[kIOPSMaxCapacityKey] as? Int).map(Double.init) ?? 100
+            let charging = (desc[kIOPSIsChargingKey] as? Bool) ?? false
+            guard max > 0 else { return nil }
+            return MenuBarBattery(fraction: min(1, current / max), isCharging: charging)
+        }
+        return nil
     }
 }

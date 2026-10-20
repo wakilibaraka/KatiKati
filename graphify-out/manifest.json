@@ -294,10 +294,10 @@
     "semantic_hash": "46b031a23b71f21274e605b24b2661b8"
   },
   "App/Composition/MenuBarSystemItem.swift": {
-    "mtime": 1791999130.808885,
-    "seen": 1792295707.060402,
-    "ast_hash": "c7250c1c6a3e07a09019631956464ada",
-    "semantic_hash": "c7250c1c6a3e07a09019631956464ada"
+    "mtime": 1792474669.290412,
+    "seen": 1792478489.871843,
+    "ast_hash": "bf5f9ec5301b72cd5a349ed0b1c4214f",
+    "semantic_hash": ""
   },
   "App/Composition/MessagingAppStore.swift": {
     "mtime": 1791999130.814777,
@@ -492,9 +492,9 @@
     "semantic_hash": "20e32e60027b363670a56a0fe9dd15f9"
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1792445330.2111828,
-    "seen": 1792451836.2439811,
-    "ast_hash": "530ad1ce67ca977eb9e96df3401e7259",
+    "mtime": 1792474669.2763343,
+    "seen": 1792478489.871896,
+    "ast_hash": "f771842ca65e555a84b027661b1498f0",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -684,9 +684,9 @@
     "semantic_hash": "674599e2df61d9c7dd83405ee89cde5c"
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
-    "mtime": 1792298851.7262475,
-    "seen": 1792451836.244003,
-    "ast_hash": "2c5e04dc58c5b7b09cc53b7268f0de9e",
+    "mtime": 1792474524.6978626,
+    "seen": 1792478489.871945,
+    "ast_hash": "2a28528cc8b338d365b46ffa1df519b7",
     "semantic_hash": ""
   },
   "App/Scenes/CalendarPanelView.swift": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1792459234.934427,
-    "seen": 1792466431.667789,
-    "ast_hash": "0ad1fc126dbcc327073af134a54ab7c9",
+    "mtime": 1792474669.2638524,
+    "seen": 1792478489.8721,
+    "ast_hash": "01e40c532b4b12d4ab1a820dd7786f1e",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -1488,10 +1488,10 @@
     "semantic_hash": "91ac88b152f882aaf4dfd5731f85cd48"
   },
   "Core/Support/AppLanguageOption.swift": {
-    "mtime": 1791999130.7579052,
-    "seen": 1792295707.060523,
-    "ast_hash": "9c2d53a6c461341410090676eac4d92f",
-    "semantic_hash": "9c2d53a6c461341410090676eac4d92f"
+    "mtime": 1792474524.6725945,
+    "seen": 1792478489.872181,
+    "ast_hash": "98db9597cca9ab1e298ccd1aa38a633f",
+    "semantic_hash": ""
   },
   "Core/Support/AppLaunchTargetDecision.swift": {
     "mtime": 1791999130.770538,
@@ -2922,10 +2922,10 @@
     "semantic_hash": "cf90841594bec1b3d526a7ff493dcb99"
   },
   "Platform/SystemMonitor/SystemMonitorSampler.swift": {
-    "mtime": 1791999130.9155288,
-    "seen": 1792295707.060669,
-    "ast_hash": "cb8399b1d4e61c40309e46ade3900e88",
-    "semantic_hash": "cb8399b1d4e61c40309e46ade3900e88"
+    "mtime": 1792475966.875479,
+    "seen": 1792478489.872562,
+    "ast_hash": "5c3fc0655e4c71410e2502b1524d19b0",
+    "semantic_hash": ""
   },
   "Platform/SystemStatus/AudioOutputSwitcher.swift": {
     "mtime": 1792444523.3881173,
@@ -3042,10 +3042,10 @@
     "semantic_hash": "dc9319b2df5506c78cd8346c104e6b54"
   },
   "Scripts/install_local_release.sh": {
-    "mtime": 1791999137.4478946,
-    "seen": 1792295707.060682,
-    "ast_hash": "61ec8055a79ab4235c8bee83d6399088",
-    "semantic_hash": "61ec8055a79ab4235c8bee83d6399088"
+    "mtime": 1792472147.9027953,
+    "seen": 1792472286.161124,
+    "ast_hash": "aca2db2b1fcf0af329d6c8bba25aa260",
+    "semantic_hash": ""
   },
   "Scripts/lib/pbxproj_add.py": {
     "mtime": 1791999137.4481916,
@@ -3054,15 +3054,15 @@
     "semantic_hash": "95708cf56116b7008440c6b3d842d6df"
   },
   "Scripts/lib/release_binary.sh": {
-    "mtime": 1791999137.448362,
-    "seen": 1792295707.060683,
-    "ast_hash": "3632e10e5a7ceb335a590dce1b463804",
-    "semantic_hash": "3632e10e5a7ceb335a590dce1b463804"
+    "mtime": 1792471343.7994561,
+    "seen": 1792471437.149624,
+    "ast_hash": "228c1142296a84684bec7d66e1c2145b",
+    "semantic_hash": ""
   },
   "Scripts/live_check_settings_tabs.py": {
-    "mtime": 1792459759.1127102,
-    "seen": 1792466431.668048,
-    "ast_hash": "39c5391f73e3664ccfee77b5678ace11",
+    "mtime": 1792471353.3112228,
+    "seen": 1792471437.149625,
+    "ast_hash": "c8ed0ff7755f758705ac1acb58b31696",
     "semantic_hash": ""
   },
   "Scripts/make_icons.swift": {
@@ -5448,15 +5448,15 @@
     "semantic_hash": ""
   },
   "Docs/SETTINGS.md": {
-    "mtime": 1792459858.1537642,
-    "seen": 1792466431.6683788,
-    "ast_hash": "83470ce917fa22157c3fd908cf3fd606",
+    "mtime": 1792470923.04988,
+    "seen": 1792471437.149926,
+    "ast_hash": "f096c7581b8c4bfc98016f91ac4ec1bd",
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1792459919.7497342,
-    "seen": 1792466431.6683788,
-    "ast_hash": "12a7362b393ce65b85cce3fdfe42be51",
+    "mtime": 1792470938.227631,
+    "seen": 1792471437.1499279,
+    "ast_hash": "48db10f3d7c57206245e0bac6d14a472",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6363,6 +6363,36 @@
     "mtime": 1792465755.5985694,
     "seen": 1792466431.667926,
     "ast_hash": "9c5442a10e671a3988b7e27905a4ebae",
+    "semantic_hash": ""
+  },
+  "FEATURE_ROADMAP_2026-10.md": {
+    "mtime": 1792470861.350684,
+    "seen": 1792470899.826111,
+    "ast_hash": "db156cecfa163092423a953506e2db25",
+    "semantic_hash": ""
+  },
+  "Core/Support/MenuBarStatModel.swift": {
+    "mtime": 1792474524.658266,
+    "seen": 1792478489.872315,
+    "ast_hash": "dd6e97713332360ca48e311ee31b2d0b",
+    "semantic_hash": ""
+  },
+  "Core/Support/StartupUIPolicy.swift": {
+    "mtime": 1792476123.9239373,
+    "seen": 1792478489.872399,
+    "ast_hash": "3d30d98e071ad196fbf163b66cec408b",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/MenuBarStatModelTests.swift": {
+    "mtime": 1792476292.0589309,
+    "seen": 1792478489.8727949,
+    "ast_hash": "704cd8a1e37e5b02c1ad517d51a061ae",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/StartupUIPolicyTests.swift": {
+    "mtime": 1792474747.0257597,
+    "seen": 1792478489.872907,
+    "ast_hash": "ac2da0c3819c713c02dbafb83761eb93",
     "semantic_hash": ""
   }
 }

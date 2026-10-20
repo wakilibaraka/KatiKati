@@ -135,3 +135,39 @@ enum AppLanguageOption: String, CaseIterable, Equatable {
         }
     }
 }
+
+/// 选单的档位（Pass 2）：十二档之上加一档「System」。「System」就是**键不存在**——
+/// 从未选过语言的人的真实状态，机制本来就在（见 `AppLanguageOption` 的警告）；
+/// 这里只是把它变成一个可回去的选项，而不是只能一路往下钉死。
+enum AppLanguagePickerChoice: Hashable {
+    case system
+    case option(AppLanguageOption)
+
+    /// 选单当前该显示哪一档。**只读，绝不回写**（理由同 `AppLanguageOption.current`）。
+    static func current(appDomainValue: [String]?, effectiveLocalization: String) -> AppLanguagePickerChoice {
+        guard let first = appDomainValue?.first, !first.isEmpty else { return .system }
+        return .option(AppLanguageOption.current(appDomainValue: appDomainValue, effectiveLocalization: effectiveLocalization))
+    }
+
+    /// 该写入的值：`.system` = 删键（回到跟随系统），其余写显式档位。
+    var appleLanguagesValue: [String]? {
+        switch self {
+        case .system: return nil
+        case let .option(option): return option.appleLanguagesValue
+        }
+    }
+
+    /// 下次启动的界面语言是否真的会变——只有会变才值得提示重启。
+    /// `.system` 按系统的语言偏好列表推算会加载哪份 `.lproj`。
+    func changesLocalization(currentEffective: String, systemPreferred: [String]) -> Bool {
+        let next: String
+        switch self {
+        case .system:
+            let identifiers = AppLanguageOption.allCases.map(\.localizationIdentifier)
+            next = Bundle.preferredLocalizations(from: identifiers, forPreferences: systemPreferred).first ?? "en"
+        case let .option(option):
+            next = option.localizationIdentifier
+        }
+        return next != currentEffective
+    }
+}

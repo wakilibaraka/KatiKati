@@ -588,6 +588,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// `PermissionRecoveryMachine` 里只有 `showGuide` 一条效果——这是对的，那份副本
     /// 卸载就没了，不该教它配置系统。
     private func presentWelcomeGuideIfNeeded() {
+        // Quiet start (General › “Launch hidden at login”): ordinary launches open nothing
+        // (`StartupUIPolicy`). First-run setup is exempt — it shows exactly once.
+        guard StartupUIPolicy.shouldPresentWelcomeGuide(
+            isFirstRun: installLineage == .pristine,
+            launchHidden: UserDefaults.standard.bool(forKey: StartupUIPolicy.launchHiddenKey)
+        ) else { return }
         // 先用不需要 I/O 的两个条件挡一道，省掉绝大多数启动的那次异步读。
         guard !settingsStore.hasSeenWelcome else { return }
 
@@ -935,6 +941,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         badgeStore.start()
         // 任务条真的起来了才谈得上「建议怎么配」。放在这里而不是启动那一刻，是因为
         // 用户得先看见任务条长什么样，那句「它俩都在屏幕底边会互相遮挡」才有所指。
+        applyDockIconPreference()
         presentWelcomeGuideIfNeeded()
         nativeDockPreferencesService.reapplyDesiredIfNeeded()
         // 探针结论（2026-07-06,阶段0探针3）：访达窗口 AX 属性表虽列有 AXDocument 但恒无值
@@ -1086,6 +1093,13 @@ extension AppDelegate: PermissionEffectHandler {
             // 不一定明显的状态栏图标；先用普通应用策略把引导窗口带到前台。
             NSApp.setActivationPolicy(.regular)
         }
+    }
+
+    /// General › “Hide Dock icon”. The permission guide wins while untrusted: it needs
+    /// `.regular` to bring its window forward, and without the grants the app cannot run.
+    func applyDockIconPreference() {
+        let hidden = UserDefaults.standard.bool(forKey: StartupUIPolicy.hideDockIconKey)
+        NSApp.setActivationPolicy(hidden && !isLimitedMode ? .accessory : .regular)
     }
 
     func showGuideWindow() {

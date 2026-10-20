@@ -112,6 +112,8 @@
 		FA10A1000000000000000221 /* LauncherPlus.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000220 /* LauncherPlus.swift */; };
 		FA10A1000000000000000214 /* MenuBarSystemItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000213 /* MenuBarSystemItem.swift */; };
 		FA10A1000000000000000211 /* MenuBarSystemTitleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000210 /* MenuBarSystemTitleTests.swift */; };
+		AB0200000000000000000002 /* MenuBarStatModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0200000000000000000001 /* MenuBarStatModelTests.swift */; };
+		AB0300000000000000000002 /* StartupUIPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0300000000000000000001 /* StartupUIPolicyTests.swift */; };
 		FA10A1000000000000000207 /* WindowLayoutRestoreController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000206 /* WindowLayoutRestoreController.swift */; };
 		FA10A1000000000000000204 /* WindowLayoutMemoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000203 /* WindowLayoutMemoryTests.swift */; };
 		FA10A1000000000000000202 /* WindowLayoutMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000200 /* WindowLayoutMemory.swift */; };
@@ -1005,6 +1007,10 @@
 		ED00000000000000000000FC /* LauncherPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000FB /* LauncherPanelController.swift */; };
 		EE0000000000000000000002 /* CalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000001 /* CalculatorEngine.swift */; };
 		EE0000000000000000000003 /* CalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000001 /* CalculatorEngine.swift */; };
+		AA0200000000000000000002 /* MenuBarStatModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0200000000000000000001 /* MenuBarStatModel.swift */; };
+		AA0200000000000000000003 /* MenuBarStatModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0200000000000000000001 /* MenuBarStatModel.swift */; };
+		AA0300000000000000000002 /* StartupUIPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0300000000000000000001 /* StartupUIPolicy.swift */; };
+		AA0300000000000000000003 /* StartupUIPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0300000000000000000001 /* StartupUIPolicy.swift */; };
 		AA0100000000000000000002 /* QuickAddState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0100000000000000000001 /* QuickAddState.swift */; };
 		AA0100000000000000000003 /* QuickAddState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0100000000000000000001 /* QuickAddState.swift */; };
 		EE0000000000000000000005 /* CalculatorEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000004 /* CalculatorEngineTests.swift */; };
@@ -1185,6 +1191,8 @@
 		FA10A1000000000000000220 /* LauncherPlus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherPlus.swift; path = Core/Support/LauncherPlus.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000213 /* MenuBarSystemItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuBarSystemItem.swift; path = App/Composition/MenuBarSystemItem.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000210 /* MenuBarSystemTitleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuBarSystemTitleTests.swift; path = Tests/Unit/MenuBarSystemTitleTests.swift; sourceTree = SOURCE_ROOT; };
+		AB0200000000000000000001 /* MenuBarStatModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuBarStatModelTests.swift; path = Tests/Unit/MenuBarStatModelTests.swift; sourceTree = SOURCE_ROOT; };
+		AB0300000000000000000001 /* StartupUIPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StartupUIPolicyTests.swift; path = Tests/Unit/StartupUIPolicyTests.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000206 /* WindowLayoutRestoreController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowLayoutRestoreController.swift; path = App/Composition/WindowLayoutRestoreController.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000203 /* WindowLayoutMemoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowLayoutMemoryTests.swift; path = Tests/Unit/WindowLayoutMemoryTests.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000200 /* WindowLayoutMemory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowLayoutMemory.swift; path = Core/Support/WindowLayoutMemory.swift; sourceTree = SOURCE_ROOT; };
@@ -1808,6 +1816,8 @@
 		ED00000000000000000000F9 /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherView.swift; path = App/Scenes/LauncherView.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000FB /* LauncherPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherPanelController.swift; path = App/Entry/LauncherPanelController.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000001 /* CalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalculatorEngine.swift; path = Core/Support/CalculatorEngine.swift; sourceTree = SOURCE_ROOT; };
+		AA0200000000000000000001 /* MenuBarStatModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuBarStatModel.swift; path = Core/Support/MenuBarStatModel.swift; sourceTree = SOURCE_ROOT; };
+		AA0300000000000000000001 /* StartupUIPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StartupUIPolicy.swift; path = Core/Support/StartupUIPolicy.swift; sourceTree = SOURCE_ROOT; };
 		AA0100000000000000000001 /* QuickAddState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickAddState.swift; path = Core/Support/QuickAddState.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000004 /* CalculatorEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalculatorEngineTests.swift; path = Tests/Unit/CalculatorEngineTests.swift; sourceTree = SOURCE_ROOT; };
 		EE0000000000000000000008 /* LauncherLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherLayout.swift; path = Core/Support/LauncherLayout.swift; sourceTree = SOURCE_ROOT; };
@@ -3062,6 +3072,8 @@
 				EE000000000000000000000E /* LauncherAppearance.swift in Sources */,
 				EE0000000000000000000009 /* LauncherLayout.swift in Sources */,
 				EE0000000000000000000002 /* CalculatorEngine.swift in Sources */,
+				AA0200000000000000000002 /* MenuBarStatModel.swift in Sources */,
+				AA0300000000000000000002 /* StartupUIPolicy.swift in Sources */,
 				AA0100000000000000000002 /* QuickAddState.swift in Sources */,
 				ED00000000000000000000FA /* LauncherView.swift in Sources */,
 				ED00000000000000000000FC /* LauncherPanelController.swift in Sources */,
@@ -3381,6 +3393,8 @@
 				EE000000000000000000000A /* LauncherLayout.swift in Sources */,
 				EE000000000000000000000C /* LauncherLayoutTests.swift in Sources */,
 				EE0000000000000000000003 /* CalculatorEngine.swift in Sources */,
+				AA0200000000000000000003 /* MenuBarStatModel.swift in Sources */,
+				AA0300000000000000000003 /* StartupUIPolicy.swift in Sources */,
 				AA0100000000000000000003 /* QuickAddState.swift in Sources */,
 				EE0000000000000000000005 /* CalculatorEngineTests.swift in Sources */,
 				EE0000000000000000000016 /* LauncherIconView.swift in Sources */,
@@ -3573,6 +3587,8 @@
 				FA10A1000000000000000248 /* RailGeometryTests.swift in Sources */,
 				FA10A1000000000000000224 /* LauncherPlusTests.swift in Sources */,
 				FA10A1000000000000000211 /* MenuBarSystemTitleTests.swift in Sources */,
+				AB0200000000000000000002 /* MenuBarStatModelTests.swift in Sources */,
+				AB0300000000000000000002 /* StartupUIPolicyTests.swift in Sources */,
 				FA10A1000000000000000204 /* WindowLayoutMemoryTests.swift in Sources */,
 				FA10A1000000000000000184 /* WindowSwitcherModelTests.swift in Sources */,
 				FA10A10000000000000000C2 /* StackAndContextTests.swift in Sources */,

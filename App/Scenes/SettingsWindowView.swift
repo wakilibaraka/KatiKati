@@ -89,6 +89,9 @@ struct SettingsWindowContent: View {
 
     @State private var presentedAlert: SettingsAlert?
     @AppStorage(SettingsGlowSchedule.defaultsKey) private var glowSchedule = SettingsGlowSchedule.clock.rawValue
+    @AppStorage(StartupUIPolicy.launchHiddenKey) private var launchHidden = false
+    @AppStorage(StartupUIPolicy.hideDockIconKey) private var hideDockIcon = false
+    @AppStorage(MenuBarStatModel.masterEnabledKey) private var menuBarEnabled = false
 
     var body: some View {
         // The page margin lives here, once for all ten pages; every pane body renders cards only,
@@ -149,6 +152,48 @@ struct SettingsWindowContent: View {
     /// behind that row's help button.
     @ViewBuilder
     private var generalPane: some View {
+        // Three sections (`Docs/SETTINGS.md` rule 5): startup, the menu-bar readout, and the
+        // everyday appearance rows that used to be the whole page.
+        SettingsCard(Text("Startup")) {
+            SettingsToggleRow(
+                Text("Launch at login"),
+                isOn: Binding(
+                    get: { coordinator.launchAtLoginState == .on },
+                    set: { enable in
+                        // A denied registration is a state, not a dead row (rule 7): the only
+                        // path forward is System Settings › Login Items, so open it.
+                        if case .failure = coordinator.setLaunchAtLogin(enable) {
+                            coordinator.openLoginItemsSettings()
+                        }
+                    }
+                ),
+                note: Text("Open KatiKati when you sign in.")
+            )
+            SettingsDivider()
+            SettingsRowPair(
+                left: { SettingsToggleRow(Text("Launch hidden at login"), isOn: $launchHidden) },
+                right: {
+                    SettingsToggleRow(Text("Hide Dock icon"), isOn: Binding(
+                        get: { hideDockIcon },
+                        set: {
+                            hideDockIcon = $0
+                            (NSApp.delegate as? AppDelegate)?.applyDockIconPreference()
+                        }
+                    ))
+                }
+            )
+            SettingsDivider()
+            SettingsRowPair(
+                left: { SettingsToggleRow(Text("Menu bar icon"), isOn: $menuBarEnabled, note: Text("Keep a shortcut to these settings in the menu bar.")) },
+                right: { autoUpdateToggle }
+            )
+        }
+        SettingsCard(Text("Menu Bar")) {
+            ForEach(MenuBarMetric.allCases) { metric in
+                if metric != MenuBarMetric.allCases.first { SettingsDivider() }
+                metricRow(metric)
+            }
+        }
         SettingsCard {
             languagePicker
             SettingsDivider()
@@ -168,6 +213,46 @@ struct SettingsWindowContent: View {
             SettingsDivider()
             // Two narrow rows on one line (`Docs/SETTINGS.md` rule 5).
             SettingsRowPair(left: { drawerPlacementPicker }, right: { scrollReverserToggle })
+            SettingsDivider()
+            SettingsButtonRow(Text("Reset All Settings"), note: Text("Restores every default and restarts KatiKati.")) {
+                presentedAlert = SettingsAlert(
+                    title: String(localized: "Reset All Settings"),
+                    message: String(localized: "Every setting goes back to its default and KatiKati restarts."),
+                    actionTitle: String(localized: "Reset"),
+                    action: {
+                        if let domain = Bundle.main.bundleIdentifier {
+                            UserDefaults.standard.removePersistentDomain(forName: domain)
+                        }
+                        Self.relaunch()
+                    }
+                )
+            }
+        }
+    }
+
+    /// One menu-bar metric: what it shows and whether it shows — both on the row, so the
+    /// state is never implied (`Docs/SETTINGS.md` rule 7).
+    private func metricRow(_ metric: MenuBarMetric) -> some View {
+        let styles = MenuBarStatModel.styles(for: metric)
+        return SettingsRow(Text(MenuBarStatModel.displayName(metric))) {
+            HStack(spacing: 8) {
+                if !styles.isEmpty {
+                    Picker(MenuBarStatModel.displayName(metric), selection: Binding(
+                        get: { MenuBarStatModel.style(UserDefaults.standard.string(forKey: MenuBarStatModel.styleKey(metric)), for: metric).rawValue },
+                        set: { UserDefaults.standard.set($0, forKey: MenuBarStatModel.styleKey(metric)) }
+                    )) {
+                        ForEach(styles, id: \.self) { style in
+                            Text(MenuBarStatModel.displayName(style)).tag(style.rawValue)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                Toggle(MenuBarStatModel.displayName(metric), isOn: Binding(
+                    get: { MenuBarStatModel.isEnabled(metric) },
+                    set: { UserDefaults.standard.set($0, forKey: MenuBarStatModel.enabledKey(metric)) }
+                ))
+                .labelsHidden().toggleStyle(.switch)
+            }
         }
     }
 
@@ -181,7 +266,7 @@ struct SettingsWindowContent: View {
                 SettingsCard(Text("About")) {
                     aboutVersionRow
                     SettingsDivider()
-                    SettingsRowPair(left: { autoUpdateToggle }, right: { diagnosticsRow })
+                    diagnosticsRow
                 }
                 welcomeGuideButton
             }
@@ -311,45 +396,49 @@ struct SettingsWindowContent: View {
         }
     }
 
-    /// 界面语言（2026-08-24 加，2026-09-01 由三档收成两档、删掉「跟随系统」，见 `Docs/27`）。
-    /// 写**应用自己域**的 `AppleLanguages`（与 macOS 13+ 逐 App 语言同一个键），重启生效。
+    /// 界面语言（2026-08-24 加；Pass 2 加回「System」档——删键即跟随系统，机制本来就在，
+    /// 见 `AppLanguageOption` 注释）。写**应用自己域**的 `AppleLanguages`，重启生效。
     /// 读现状必须走 `CFPreferencesCopyAppValue`——`array(forKey:)` 会继承全局域，
-    /// 分不清「没设过」和「显式设置」（`AppLanguageOption` 注释是权威）。
-    ///
-    /// ⚠️ 没设过语言的人键是不存在的，此时选单显示的是**推断值**（当前实际加载的那份
-    /// `.lproj`）。**这条读取路径绝不许回写**：一回写就等于替所有从没选过的用户把语言钉死。
+    /// 分不清「没设过」和「显式设置」。**读取路径绝不许回写**（钉死语言的陷阱）。
     private var languagePicker: some View {
         SettingsPickerRow(
-            Text("Language"),
+            Text("App language"),
             selection: Binding(
-                get: { Self.currentLanguageOption() },
+                get: { Self.currentLanguageChoice() },
                 set: { applyLanguage($0) }
-            )
+            ),
+            note: Text("Applies the next time KatiKati starts.")
         ) {
+            Text("System").tag(AppLanguagePickerChoice.system)
             ForEach(AppLanguageOption.allCases, id: \.self) { option in
-                Text(option.displayName).tag(option)
+                Text(option.displayName).tag(AppLanguagePickerChoice.option(option))
             }
         }
     }
 
-    private static func currentLanguageOption() -> AppLanguageOption {
+    private static func currentLanguageChoice() -> AppLanguagePickerChoice {
         let bundleID = (Bundle.main.bundleIdentifier ?? "") as CFString
         let value = CFPreferencesCopyAppValue("AppleLanguages" as CFString, bundleID) as? [String]
-        return AppLanguageOption.current(
+        return AppLanguagePickerChoice.current(
             appDomainValue: value,
-            // 真正加载的那份 .lproj——比推断系统语言准：用户在系统设置里给钨极单独设了
-            // 第三种语言时界面实际回落英文，这里就答 English。
+            // 真正加载的那份 .lproj——比推断系统语言准。
             effectiveLocalization: Bundle.main.preferredLocalizations.first ?? "en"
         )
     }
 
-    /// 选中的档**一律写键**，哪怕点的就是当前显示的那一档——那一档可能只是推断值（键不存在），
-    /// 用户点它的意思是「固定成这个」，不写就还在跟着系统跑。但界面语言没真的变时**不弹重启提示**：
-    /// 什么都没变还要人重启是打扰。
-    private func applyLanguage(_ option: AppLanguageOption) {
-        let previous = Self.currentLanguageOption()
-        UserDefaults.standard.set(option.appleLanguagesValue, forKey: "AppleLanguages")
-        guard option != previous else { return }
+    /// 选中的档**一律写键**；「System」删键（跟随系统）。只有下次启动界面语言真的会变时
+    /// 才提示重启：什么都没变还要人重启是打扰。
+    private func applyLanguage(_ choice: AppLanguagePickerChoice) {
+        let changes = choice.changesLocalization(
+            currentEffective: Bundle.main.preferredLocalizations.first ?? "en",
+            systemPreferred: Locale.preferredLanguages
+        )
+        if let value = choice.appleLanguagesValue {
+            UserDefaults.standard.set(value, forKey: "AppleLanguages")
+        } else {
+            UserDefaults.standard.removeObject(forKey: "AppleLanguages")
+        }
+        guard changes else { return }
         presentedAlert = SettingsAlert(
             title: String(localized: "Language"),
             message: String(localized: "The language change takes effect after KatiKati restarts."),

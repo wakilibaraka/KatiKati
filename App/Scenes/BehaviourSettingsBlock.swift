@@ -10,7 +10,6 @@ struct BehaviourSettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
     @AppStorage(BackgroundAppsStore.showSystemHelpersKey) private var showSystemHelpers = false
     @ObservedObject private var backgroundStore = BackgroundAppsStore.shared
-    @AppStorage(MenuBarSystemItem.enabledKey) private var menuBarSystemEnabled = false
     @AppStorage(MemoryOverlayController.enabledKey) private var memoryOverlayEnabled = true
 
     var body: some View {
@@ -43,12 +42,6 @@ struct BehaviourSettingsBlock: View {
                 note: backgroundStore.ignored.isEmpty ? Text("No background app is ignored right now.") : nil
             ) { backgroundStore.unignoreAll() }
                 .disabled(backgroundStore.ignored.isEmpty)
-            SettingsDivider()
-            SettingsToggleRow(
-                Text("Show CPU and Memory in the Menu Bar"),
-                isOn: $menuBarSystemEnabled,
-                note: Text("A small CPU and memory readout in the menu bar. Click it to open Activity Monitor.")
-            )
         }
     }
 
