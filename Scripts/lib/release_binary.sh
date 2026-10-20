@@ -49,13 +49,15 @@ verify_release_binary() {
     # anything else fails, so a change in nm's format cannot turn every count into 0.
     # strip itself leaves one OPT stab. What -T -x -S leaves among local symbols is
     # <redacted ...> placeholders, Objective-C method names and Objective-C runtime
-    # metadata; any other named local means -x is gone.
+    # metadata; any other named local means -x is gone. Exported symbols are out of
+    # scope: llvm-nm lists the export trie even when the static table is empty, and
+    # that ABI surface (Swift's included) cannot be stripped — only locals count here.
     symbols="$(nm -ap -arch "$arch" "$binary")" || { printf 'nm failed on %s (%s)\n' "$binary" "$arch" >&2; return 1; }
     counts="$(awk '
       $2 == "-" && NF >= 5 { if ($5 != "OPT") stabs++; next }
       NF >= 3 && $1 ~ /^[0-9a-f]+$/ && $2 ~ /^[A-Za-z]$/ {
         defined++
-        if ($3 ~ /^_\$[sS]/) swift++
+        if ($2 ~ /^[a-z]$/ && $3 ~ /^_\$[sS]/) swift++
         else if ($2 ~ /^[a-z]$/ && $3 !~ /^(<redacted|[-+]\[|_OBJC_)/) named++
         next
       }
