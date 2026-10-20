@@ -196,7 +196,7 @@ touches the same files (Q-music → 50, Q-notch → 51, Q-input → 53, Q-bar �
 2. **Live** — a named recipe on a real build (`Scripts/build_and_run.sh`, then
    `open --env DOCK_OPEN_SETTINGS=<tab> --env DOCK_DEV_SKIP_PERMISSIONS=1 <app>`), with a screenshot or log.
    A unit test alone is never PASS for UI or OS behaviour.
-3. **Resource** — idle CPU with the feature on vs off, and every `Timer`/poll it owns (16 timer sites in
+3. **Resource** — idle CPU with the feature on vs off, and every `Timer`/poll it owns (~35 `Timer` sites, incl. one-shots, in
    `App/Composition` + `Platform`; `KeyGuardService` alone has 3: 1 s cleaning, 0.05 s hold, 0.05 s visualizer).
 4. **Care** — permission-denied path, privacy/secrets, Reduce Motion (12 files handle it; 31 `withAnimation` in `App`),
    VoiceOver (51 `.accessibilityLabel`), 12 languages, multi-display / Spaces / fullscreen.
@@ -497,3 +497,4 @@ window, Firefox cover art, window-switcher options.
 |---|---|---|---|---|---|
 | 2026-10-20 | `dac5606` (code = `1ce7963`; `bb3a1f7` adds only this doc) | ✅ `1ce7963`: 2548 tests, 2 skipped (live torrent), 0 failures, exit 0 | `check_localization.py` ✅ (993 keys × 12; 40 source literals); `check_debug_switches.py`, `check_availability_warnings.py` _not yet recorded_ | _owed_ | the 7 `error:` lines in the log are macOS `linkd.autoShortcut` runtime noise, not compile errors |
 | 2026-10-20 | `14092d5` (rev 3) | ✅ 2559 tests, 2 skipped (same two live-torrent tests), 0 failures, `** TEST SUCCEEDED **`, exit 0 | `check_localization.py` ✅ (1013 keys × 12; 40 source literals); `check_debug_switches.py` ✅ (85 switches); `check_availability_warnings.py` ✅ on this run's complete log | _owed_ | the 7 `error:` lines are `[Connection]`/`xctest` runtime noise (`Unable to get synchronousRemoteObjectProxy…`), not compile errors; +11 tests vs `1ce7963`; live smoke run of the 18 tabs still OWED |
+| 2026-10-20 | `c46d6ae` (Q1) | — | — | **Debug build, M3, macOS 27.0.1, `ps %cpu` 60 s after 10 s settle:** defaults avg 17.5 (max 25.4); cpu metric on 15.8; all 5 metrics on 15.4; re-sampled later 18.2. Metric toggles made no visible difference (set via `defaults write`; live pickup unverified). Instruments/Release run _owed_. | Idle ~15-18 % is high. One 3 s `sample` put the hot frames in `WindowLiftAvoidanceController.probeTrackedFrames` → `WindowLiftCGWindowProbe.frames(for:)` (`CGWindowListCopyWindowInfo` per tracked window on a repeating timer, :799). Lead only, not a diagnosis. `git grep` finds 35 `Timer` sites in `App/Composition` + `Platform`, not 16 (includes one-shots). |
