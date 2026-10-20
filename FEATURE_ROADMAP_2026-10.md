@@ -421,7 +421,7 @@ checkers are recorded there too. The live recipes are still owed.
 ### Phase 58 — Onboarding (Lane F)
 | ID | Slice | Notes |
 |---|---|---|
-| 58a | Permissions page after the Phase 9 live test (Accessibility, Screen Recording, Input Monitoring, mic) — already on the owner's list. **Schedule it before 54b (Screen Recording) and before 53a–53c (Input Monitoring) ship** | extend `WelcomeGuideView.swift`; follow `Docs/ONBOARDING_TEST_CHECKLIST.md`; respect `StartupUIPolicy.shouldPresentWelcomeGuide` (guide on first run or when not launching hidden) |
+| 58a | **Mostly built** (`d258b3c` welcome step, `154fa7c` Settings block with mic); 2026-10-21: Grant on Screen Recording / Input Monitoring now also opens the Privacy pane, since the prompt shows only once. Still open: mic row in the welcome step, live check on a fresh TCC reset. Original note: Permissions page after the Phase 9 live test (Accessibility, Screen Recording, Input Monitoring, mic) — already on the owner's list. **Schedule it before 54b (Screen Recording) and before 53a–53c (Input Monitoring) ship** | extend `WelcomeGuideView.swift`; follow `Docs/ONBOARDING_TEST_CHECKLIST.md`; respect `StartupUIPolicy.shouldPresentWelcomeGuide` (guide on first run or when not launching hidden) |
 | 58b | Glass intro animation (GlassIntroKit-style) — licence check before any code is borrowed | native re-implementation by default |
 
 ## 7. Owner decisions needed

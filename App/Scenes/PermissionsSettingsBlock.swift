@@ -27,13 +27,13 @@ struct PermissionsSettingsBlock: View {
             PermissionRow(title: Text("Screen Recording"),
                           note: Text("Shows live window thumbnails in hover previews. Without it, previews show titles only."),
                           isGranted: screenRecordingGranted,
-                          grant: { _ = CGRequestScreenCaptureAccess() })
+                          grant: { _ = CGRequestScreenCaptureAccess(); AgendaPane.openPrivacy("Privacy_ScreenCapture") })
                 .padding(.vertical, SettingsMetrics.rowVerticalPadding)
             SettingsDivider()
             PermissionRow(title: Text("Input Monitoring"),
                           note: Text("Only for the optional Hyper key. Skip it if you won’t use that."),
                           isGranted: inputMonitoringGranted,
-                          grant: { _ = CGRequestListenEventAccess() })
+                          grant: { _ = CGRequestListenEventAccess(); AgendaPane.openPrivacy("Privacy_ListenEvent") })
                 .padding(.vertical, SettingsMetrics.rowVerticalPadding)
             SettingsDivider()
             PermissionRow(title: Text("Microphone"),
