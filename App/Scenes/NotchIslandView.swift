@@ -16,6 +16,8 @@ final class NotchModel: ObservableObject {
     @Published var isOpen = false
     @Published var event: LiveEventPresentation?
     @Published var skin: LiveIslandSkin = .boring
+    /// 0...1 lift of the music glow; the controller sets 1 on a track change and eases it back (50d).
+    @Published var glowBoost = 0.0
     @Published var tab: NotchTab = .home
     @Published var activePage: NotchPage = .downloadDeck
     /// Last paging direction (+1 forward, -1 back); drives the slide edge in `NotchHomeView`.
@@ -64,6 +66,7 @@ struct NotchIslandView: View {
     @AppStorage(NotchOpenAnimation.defaultsKey) private var openAnimation = NotchOpenAnimation.boring.rawValue
     @AppStorage(NotchSizePreset.outlineKey) private var showOutline = false
     @AppStorage(NotchSizePreset.translucentKey) private var translucent = false
+    @AppStorage(NotchMusicGlow.defaultsKey) private var glowStyle = NotchMusicGlow.default.rawValue
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// `AppSettingsStore.Keys.themeMaterial`, which is file-private; the key itself is the contract.
     @AppStorage("com.katikati.theme.material") private var themeMaterialToken = DockThemeStyle.auto.token
@@ -240,10 +243,37 @@ struct NotchIslandView: View {
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
-                    .frame(width: NotchGeometry.sneakSide - 14, alignment: .trailing)
+                    .minimumScaleFactor(0.5)
+                    .truncationMode(.tail)
+                    .frame(width: NotchGeometry.sneakSide - 8, alignment: .trailing)
             }
         }
         .frame(maxHeight: metrics.closedSize.height)
+        .background(alignment: .trailing) { musicGlow(for: activity) }
+    }
+
+    /// 50d: the artwork colour glowing behind the right ear while music is the winning activity.
+    @ViewBuilder
+    private func musicGlow(for activity: LiveActivity) -> some View {
+        if case .music = activity.content, let accent = ArtworkAccentCache.accent(for: feed.nowPlayingState.artworkData) {
+            let style = NotchMusicGlow(rawValue: glowStyle) ?? .default
+            let color = Color(red: accent.red, green: accent.green, blue: accent.blue)
+            TimelineView(.animation(minimumInterval: 1.0 / 20, paused: !style.isAnimated(reduceMotion: reduceMotion))) { context in
+                let level = style.level(at: context.date.timeIntervalSinceReferenceDate, boost: model.glowBoost, reduceMotion: reduceMotion)
+                Group {
+                    if style == .edge {
+                        Capsule().fill(color).frame(width: NotchGeometry.sneakSide - 12, height: 2)
+                            .frame(maxHeight: .infinity, alignment: .bottom).padding(.trailing, 6)
+                    } else {
+                        Ellipse().fill(color).frame(width: NotchGeometry.sneakSide, height: metrics.closedSize.height * 0.9)
+                            .blur(radius: 10)
+                    }
+                }
+                .opacity(level)
+            }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
     }
 
     // MARK: Open — event headline, or the activity with its controls

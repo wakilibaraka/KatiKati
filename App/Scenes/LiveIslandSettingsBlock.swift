@@ -210,6 +210,7 @@ private struct NotchBehaviorCard: View {
 /// the parts KatiKati has data for; indicators and Lock Screen are not ported).
 private struct NotchActivityCard: View {
     @AppStorage(NotchRestContent.defaultsKey) private var rest = NotchRestContent.dockChips.rawValue
+    @AppStorage(NotchMusicGlow.defaultsKey) private var glow = NotchMusicGlow.default.rawValue
     @AppStorage(NotchBehavior.lowBatteryTintKey) private var tintsLow = true
     @AppStorage(NotchBehavior.lowBatteryThresholdKey) private var threshold = NotchBehavior.defaultLowBatteryThreshold
 
@@ -221,6 +222,15 @@ private struct NotchActivityCard: View {
                 choice(.nothing, "Nothing", "minus")
             }
             .padding(.vertical, 4)
+            SettingsDivider()
+            SettingsRow(Text(verbatim: "Music glow")) {
+                Picker(selection: $glow) {
+                    Text(verbatim: "Halo").tag(NotchMusicGlow.halo.rawValue)
+                    Text(verbatim: "Pulse").tag(NotchMusicGlow.pulse.rawValue)
+                    Text(verbatim: "Edge line").tag(NotchMusicGlow.edge.rawValue)
+                } label: { Text(verbatim: "Music glow") }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
             SettingsDivider()
             SettingsToggleRow(Text(verbatim: "Turn red when low"), isOn: $tintsLow)
             if tintsLow {

@@ -94,6 +94,12 @@ final class NotchPanelController: LiveEventSink {
 
     func show(_ event: LiveEvent) {
         guard panel != nil else { return }
+        // 50d: a new song brightens the ear glow instead of opening the notch.
+        if case .trackChanged = event {
+            model.glowBoost = 1
+            withAnimation(.easeOut(duration: 1.4)) { model.glowBoost = 0 }
+            return
+        }
         model.event = LiveEventPresentation(event)
         eventWork?.cancel()
         let work = DispatchWorkItem { [weak self] in
