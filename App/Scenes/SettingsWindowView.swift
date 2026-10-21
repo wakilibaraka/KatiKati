@@ -814,6 +814,7 @@ struct WeatherSettingsBlock: View {
     @AppStorage(WeatherHeroStyle.storageKey) private var heroStyle: WeatherHeroStyle = .scene
     @AppStorage("com.katikati.weather.chipPreset") private var weatherPresetRaw: String = WeatherChipPreset.modern.rawValue
     @AppStorage(WeatherPrefs.animationsKey) private var weatherAnimations = true
+    @AppStorage(WeatherPrefs.onePageKey) private var weatherOnePage = true
     @State private var thresholds = WeatherPrefs.thresholds()
 
     /// Every row is a shared variant, so a control's alignment follows its type instead of this
@@ -868,6 +869,8 @@ struct WeatherSettingsBlock: View {
                 }
             }
         )
+        SettingsDivider()
+        SettingsToggleRow(Text("Show Overview on one page"), isOn: $weatherOnePage)
         // "Weather Animations" moved to the Widget Appearance card (2026-10-15), where the other
         // widget-animation row already lives and where it shares a line instead of owning one.
         SettingsDivider()

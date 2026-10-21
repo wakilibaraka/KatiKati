@@ -13,6 +13,7 @@ enum WeatherPanelHost {
 
 enum WeatherPrefs {
     static let animationsKey = "com.katikati.weather.animationsEnabled"
+    static let onePageKey = "com.katikati.weather.overviewOnePage"
 
     static func thresholds() -> WeatherThresholds {
         UserDefaults.standard.data(forKey: WeatherThresholds.storageKey)
@@ -47,6 +48,7 @@ private struct WeatherTiles: View {
     @AppStorage(WeatherLayoutPreset.storageKey) private var layoutPreset: WeatherLayoutPreset = .fullScreen
     @AppStorage(WeatherHeroStyle.storageKey) private var heroStyle: WeatherHeroStyle = .scene
     @AppStorage(WeatherChipPreset.storageKey) private var chipPreset: WeatherChipPreset = .modern
+    @AppStorage(WeatherPrefs.onePageKey) private var onePage = true
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var panelState: WidgetPanelState
 
@@ -69,7 +71,7 @@ private struct WeatherTiles: View {
             }
             .frame(width: width, height: maxHeight)
             .onAppear { onHeight(maxHeight); Task { await service.refresh() } }
-        } else if chipPreset == .modern, let detail = state.detail {
+        } else if chipPreset == .modern || (onePage && layoutPreset == .glance), let detail = state.detail {
             WeatherModernPanel(service: service, state: state, detail: detail, units: u, width: inner, height: maxHeight - 2 * gutter)
                 .padding(gutter)
                 .frame(width: width, height: maxHeight, alignment: .top)
