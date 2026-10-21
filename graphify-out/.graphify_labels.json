@@ -60,7 +60,6 @@
   "383": "FullscreenIntentDecision (3)",
   "392": "BuildProvenanceTests",
   "408": "FullscreenIntentDecision (4)",
-  "410": "SolarPhaseTests",
   "443": "DockGlassRuntimeBridge",
   "465": "build_and_run",
   "488": "verify_release_hashes",
