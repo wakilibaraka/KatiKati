@@ -8,10 +8,16 @@ enum TrackPillTextMetrics {
     static let cap: CGFloat = 170
     static let floor: CGFloat = 40
 
-    /// Two points of slack: the fonts measured here are the plain system face, the view draws rounded.
+    /// Two points of slack for glyph overhang; the faces are the ones the view draws.
     static func columnWidth(title: String, artist: String) -> CGFloat {
-        let titleWidth = (title as NSString).size(withAttributes: [.font: NSFont.systemFont(ofSize: 12, weight: .bold)]).width
-        let artistWidth = (artist as NSString).size(withAttributes: [.font: NSFont.systemFont(ofSize: 11)]).width
+        let titleWidth = (title as NSString).size(withAttributes: [.font: rounded(12, weight: .bold)]).width
+        let artistWidth = (artist as NSString).size(withAttributes: [.font: rounded(11, weight: .regular)]).width
         return min(cap, max(floor, ceil(max(titleWidth, artistWidth)) + 2))
+    }
+
+    private static func rounded(_ size: CGFloat, weight: NSFont.Weight) -> NSFont {
+        let base = NSFont.systemFont(ofSize: size, weight: weight)
+        guard let descriptor = base.fontDescriptor.withDesign(.rounded) else { return base }
+        return NSFont(descriptor: descriptor, size: size) ?? base
     }
 }
