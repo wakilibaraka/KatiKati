@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		7B50000000000000009A1011 /* WeatherIPadChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1010 /* WeatherIPadChip.swift */; };
 		7B50000000000000009A1001 /* WeatherLayoutSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1000 /* WeatherLayoutSpec.swift */; };
+		7B50000000000000009A1021 /* WeatherDetailBands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1020 /* WeatherDetailBands.swift */; };
+		7B50000000000000009A1022 /* WeatherDetailBands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1020 /* WeatherDetailBands.swift */; };
+		7B50000000000000009A1024 /* WeatherDetailViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1023 /* WeatherDetailViews.swift */; };
 		7B50000000000000009A1002 /* WeatherLayoutSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1000 /* WeatherLayoutSpec.swift */; };
 		7B50000000000000009A2001 /* WeatherLayoutSpecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A2000 /* WeatherLayoutSpecTests.swift */; };
 		7B5000000000000000009902 /* MarqueeText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000009901 /* MarqueeText.swift */; };
@@ -1147,6 +1150,8 @@
 /* Begin PBXFileReference section */
 		7B50000000000000009A1010 /* WeatherIPadChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherIPadChip.swift; path = App/Scenes/Weather/WeatherIPadChip.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000009A1000 /* WeatherLayoutSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherLayoutSpec.swift; path = Core/Support/WeatherLayoutSpec.swift; sourceTree = SOURCE_ROOT; };
+		7B50000000000000009A1020 /* WeatherDetailBands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherDetailBands.swift; path = Core/Support/WeatherDetailBands.swift; sourceTree = SOURCE_ROOT; };
+		7B50000000000000009A1023 /* WeatherDetailViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherDetailViews.swift; path = App/Scenes/Weather/WeatherDetailViews.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000009A2000 /* WeatherLayoutSpecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherLayoutSpecTests.swift; path = Tests/Unit/WeatherLayoutSpecTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000009901 /* MarqueeText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MarqueeText.swift; path = App/Scenes/MarqueeText.swift; sourceTree = SOURCE_ROOT; };
 		FC11A0000000000000000400 /* SettingsSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsSidebar.swift; path = App/Scenes/Settings/SettingsSidebar.swift; sourceTree = SOURCE_ROOT; };
@@ -3296,7 +3301,9 @@
 				7B5000000000000000000052 /* WidgetTileKit.swift in Sources */,
 				7B5000000000000000000042 /* WeatherEffects.swift in Sources */,
 				7B50000000000000009A1001 /* WeatherLayoutSpec.swift in Sources */,
+				7B50000000000000009A1021 /* WeatherDetailBands.swift in Sources */,
 				7B50000000000000009A1011 /* WeatherIPadChip.swift in Sources */,
+				7B50000000000000009A1024 /* WeatherDetailViews.swift in Sources */,
 				7B5000000000000000000032 /* WeatherLocations.swift in Sources */,
 				7B5000000000000000000022 /* WeatherWarnings.swift in Sources */,
 				7B5000000000000000000012 /* WeatherDetail.swift in Sources */,
@@ -3423,6 +3430,7 @@
 				7B50000000000000000000B5 /* LiveEventPresentation.swift in Sources */,
 				7B5000000000000000000043 /* WeatherEffects.swift in Sources */,
 				7B50000000000000009A1002 /* WeatherLayoutSpec.swift in Sources */,
+				7B50000000000000009A1022 /* WeatherDetailBands.swift in Sources */,
 				7B5000000000000000000033 /* WeatherLocations.swift in Sources */,
 				7B5000000000000000000023 /* WeatherWarnings.swift in Sources */,
 				7B5000000000000000000013 /* WeatherDetail.swift in Sources */,

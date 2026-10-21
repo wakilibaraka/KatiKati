@@ -50,4 +50,15 @@ final class WeatherLayoutSpecTests: XCTestCase {
         XCTAssertNil(slots[0].rainPercent)
         XCTAssertTrue(WeatherHourSlot.slots(from: state(hourly: [], detail: nil), count: 5).isEmpty)
     }
+
+    func testDetailBands() {
+        XCTAssertEqual([0.0, 2.9, 3, 6, 8, 11].map { UVLevel(index: $0) }, [.low, .low, .moderate, .high, .veryHigh, .extreme])
+        XCTAssertEqual(UVLevel.fraction(index: 22), 1)
+        XCTAssertEqual(WeatherDetailBands.minutes("2026-10-11T06:41"), 401)
+        XCTAssertNil(WeatherDetailBands.minutes("nope"))
+        XCTAssertEqual(WeatherDetailBands.sunFraction(sunrise: "2026-10-11T06:00", sunset: "2026-10-11T18:00", nowMinutes: 12 * 60), 0.5)
+        XCTAssertEqual(WeatherDetailBands.sunFraction(sunrise: "06:00", sunset: "18:00", nowMinutes: 23 * 60), 1)
+        XCTAssertNil(WeatherDetailBands.sunFraction(sunrise: nil, sunset: "18:00", nowMinutes: 0))
+        XCTAssertEqual([180, 300, 600].map { WeatherDetailBands.columns(forWidth: Double($0)) }, [1, 2, 3])
+    }
 }

@@ -70,8 +70,8 @@ struct WeatherGlanceView: View {
         Group {
             switch segment {
             case .hourly: HourlySegment(env: e, detail: detail, units: units)
-            case .daily: DailySegment(env: e, detail: detail, units: units, height: height)
-            case .details: DetailsSegment(env: e, detail: detail, units: units)
+            case .daily: DailySegment(env: e, detail: detail, units: units, height: height, currentCelsius: state.temperatureCelsius)
+            case .details: DetailGrid(env: e, detail: detail, units: units)
             }
         }
         .foregroundColor(e.text)
@@ -330,14 +330,14 @@ private struct DailySegment: View {
     let detail: WeatherDetail
     let units: Units
     let height: CGFloat
+    let currentCelsius: Double
     @State private var page = 0
 
     var body: some View {
-        let rowH: CGFloat = 28
-        let size = max(5, Int((height - 28 - 30 - 30) / rowH))
+        let rowH = DailyRangeRows.rowHeight
+        let size = max(4, Int((height - 28 - 30 - 30) / rowH))
         let pages = max(1, (detail.daily.count + size - 1) / size)
         let rows = Array(detail.daily.dropFirst(page * size).prefix(size))
-        let lo = detail.daily.map(\.low).min() ?? 0, hi = max(detail.daily.map(\.high).max() ?? 1, lo + 1)
         VStack(spacing: 4) {
             HStack {
                 arrow("chevron.left", enabled: page > 0) { page -= 1 }
@@ -347,26 +347,7 @@ private struct DailySegment: View {
                 arrow("chevron.right", enabled: page < pages - 1) { page += 1 }
             }
             .overlay(Text("Daily Forecast").font(.system(size: 13, weight: .bold)))
-            ForEach(rows) { d in
-                HStack(spacing: 6) {
-                    Group { if d.id == detail.daily.first?.id { Text("Today") } else { Text(verbatim: DailyTile.weekday(d.date)) } }
-                        .font(.system(size: 12, weight: .semibold)).frame(width: 40, alignment: .leading)
-                    Image(systemName: WeatherResponseParsing.mapWeatherCode(code: d.code).symbol)
-                        .symbolRenderingMode(.multicolor).font(.system(size: 16)).frame(width: 24)
-                    Text(verbatim: d.precipProbabilityMax >= 10 ? "\(Int(d.precipProbabilityMax))%" : "")
-                        .font(.system(size: 10, weight: .bold)).foregroundColor(env.secondary).frame(width: 30, alignment: .leading)
-                    Text(verbatim: units.t(d.low)).font(.system(size: 12)).foregroundColor(env.secondary).frame(width: 32, alignment: .trailing)
-                    GeometryReader { geo in
-                        let a = (d.low - lo) / (hi - lo), b = (d.high - lo) / (hi - lo)
-                        ZStack(alignment: .leading) {
-                            Capsule().fill(env.hairline)
-                            Capsule().fill(env.text.opacity(0.85)).frame(width: max(6, geo.size.width * (b - a))).offset(x: geo.size.width * a)
-                        }
-                    }.frame(height: 5)
-                    Text(verbatim: units.t(d.high)).font(.system(size: 12, weight: .bold)).frame(width: 32, alignment: .trailing)
-                }
-                .frame(height: rowH)
-            }
+            DailyRangeRows(env: env, days: rows, units: units, currentCelsius: page == 0 ? currentCelsius : nil)
             Spacer(minLength: 0)
             HStack(spacing: 8) {
                 Image(systemName: "drop.fill"); Text(verbatim: String(format: "%.1f mm", detail.daily.map(\.precipSum).reduce(0, +)))
@@ -381,44 +362,5 @@ private struct DailySegment: View {
             Image(systemName: name).font(.system(size: 12, weight: .bold)).frame(width: 28, height: 24)
                 .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(env.hairline))
         }.buttonStyle(.plain).opacity(enabled ? 1 : 0.35).disabled(!enabled)
-    }
-}
-
-private struct DetailsSegment: View {
-    let env: TileEnv
-    let detail: WeatherDetail
-    let units: Units
-
-    private static func clock(_ iso: String?) -> String { String(iso?.split(separator: "T").last ?? "--:--") }
-
-    var body: some View {
-        let now = Date()
-        let cells: [(String, AnyView, String, String?)] = [
-            ("sun.max.fill", AnyView(Text("UV Index")), String(format: "%.0f", detail.uvIndex), nil),
-            ("wind", AnyView(Text("Wind")), WeatherUnits.wind(detail.windSpeed, units.wind), WeatherUnits.compass(detail.windDirection) + " · " + WeatherUnits.wind(detail.windGusts, units.wind)),
-            ("gauge", AnyView(Text("Pressure")), "\(Int(detail.pressure)) hPa", nil),
-            ("eye.fill", AnyView(Text("Visibility")), String(format: "%.0f km", detail.visibilityMeters / 1000), nil),
-            ("drop.degreesign", AnyView(Text("Dew Point")), units.t(detail.dewPoint), nil),
-            (MoonPhase.symbolName(at: now), AnyView(Text("Moon")), "\(Int((MoonPhase.illumination(at: now) * 100).rounded()))%", nil),
-            ("sunrise.fill", AnyView(Text("Sunrise")), Self.clock(detail.sunrise), nil),
-            ("sunset.fill", AnyView(Text("Sunset")), Self.clock(detail.sunset), nil),
-        ]
-        let rows = stride(from: 0, to: cells.count, by: 2).map { Array(cells[$0..<min($0 + 2, cells.count)]) }
-        VStack(spacing: 0) {
-            ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
-                HStack(alignment: .top, spacing: 12) {
-                    ForEach(Array(row.enumerated()), id: \.offset) { _, c in
-                        VStack(alignment: .leading, spacing: 2) {
-                            HStack(spacing: 5) { Image(systemName: c.0); c.1 }.font(.system(size: 11, weight: .semibold)).foregroundColor(env.secondary)
-                            Text(verbatim: c.2).font(.system(size: 22, weight: .bold)).lineLimit(1).minimumScaleFactor(0.6)
-                            if let sub = c.3 { Text(verbatim: sub).font(.system(size: 10)).foregroundColor(env.secondary).lineLimit(1) }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                }
-                .frame(maxHeight: .infinity, alignment: .center)
-                if row.first?.1 != nil, rows.count > 1 { Divider().opacity(0.25) }
-            }
-        }
     }
 }
