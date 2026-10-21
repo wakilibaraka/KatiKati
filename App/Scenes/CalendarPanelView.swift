@@ -387,13 +387,15 @@ struct MonthGrid: View {
             let isToday = calendar.isDateInToday(day)
             let isSelected = calendar.isDate(day, inSameDayAs: service.selectedDate)
             Text(verbatim: "\(n)")
-                .font(.system(size: fontSize, weight: isToday ? .bold : .semibold))
+                .font(.system(size: fontSize, weight: isToday ? .semibold : .light))
                 .foregroundColor(isToday ? .white : env.text)
                 .frame(maxWidth: .infinity).frame(height: cell)
-                .background(RoundedRectangle(cornerRadius: cell / 3, style: .continuous)
-                    .fill(isToday ? env.accent(.calendar) : heat(service.monthDensity[n] ?? 0)))
-                .overlay(RoundedRectangle(cornerRadius: cell / 3, style: .continuous)
-                    .stroke(isSelected && !isToday ? env.text.opacity(0.55) : .clear, lineWidth: 1))
+                .background(Circle().fill(isToday ? env.accent(.calendar) : .clear).frame(height: min(cell, fontSize * 2)))
+                // Modern: busy days get a dot under the number instead of a tinted block.
+                .overlay(alignment: .bottom) {
+                    Circle().fill(heat(service.monthDensity[n] ?? 0)).frame(width: 3, height: 3).padding(.bottom, 1)
+                }
+                .overlay(Circle().stroke(isSelected && !isToday ? env.text.opacity(0.55) : .clear, lineWidth: 1).frame(height: min(cell, fontSize * 2)))
                 .contentShape(Rectangle())
                 .onTapGesture { service.selectedDate = day }
         } else {
@@ -405,9 +407,9 @@ struct MonthGrid: View {
     private func heat(_ events: Int) -> Color {
         switch events {
         case 0: return .clear
-        case 1: return Color.yellow.opacity(0.30)
-        case 2, 3: return Color.orange.opacity(0.38)
-        default: return Color.red.opacity(0.42)
+        case 1: return Color.yellow.opacity(0.9)
+        case 2, 3: return Color.orange.opacity(0.9)
+        default: return Color.red.opacity(0.9)
         }
     }
 
