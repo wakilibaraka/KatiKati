@@ -9,6 +9,15 @@ Notch redesign, Settings redesign and stability fixes; see `Docs/Releases/RELEAS
 ### Fixed
 - `TilingTree.insert` and `ShelfStore.shelfFolder` no longer force-unwrap.
 
+## [Unreleased] — Phase 53 snippets and Phase 55 utilities
+
+### Added
+- Settings → Tools: "Expand Snippets Anywhere" pastes a snippet's text when you type its trigger plus a
+  space, in any app. Off by default; never active in password fields, password managers or secure input.
+- A "Capture Area" shortcut (default off) runs the same region-to-clipboard capture as the Radial Dial.
+- The shelf can reduce an image: 75 % of the longest edge, re-encoded, saved as `<name> reduced.jpg`
+  (HEIC when it has transparency).
+
 ## [Unreleased] — Phase 53: input guards
 
 ### Added

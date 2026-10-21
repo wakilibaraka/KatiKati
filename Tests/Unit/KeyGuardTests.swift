@@ -140,6 +140,79 @@ final class CapsLockGuardTests: XCTestCase {
     }
 }
 
+/// 53c: the typed-word buffer. A delimiter completes a trigger; everything else just builds the word.
+final class SnippetExpanderTests: XCTestCase {
+    private func triggers(_ raw: String) -> [String: String] {
+        SnippetExpander.triggers(from: CustomCommand.parseSnippets(raw))
+    }
+
+    func testTriggerPlusSpaceExpandsWithTheDelimiter() {
+        var expander = SnippetExpander()
+        expander.setTriggers(triggers("brb = be right back\nsig = Sam"))
+        for ch in "brb" { XCTAssertNil(expander.feed(String(ch)), "nothing fires mid-word") }
+        XCTAssertEqual(expander.feed(" "),
+                       SnippetExpander.Expansion(replacement: "be right back ", triggerCount: 3))
+        XCTAssertNil(expander.feed(" "), "the word started over")
+    }
+
+    func testUnknownWordIsDroppedAtTheDelimiter() {
+        var expander = SnippetExpander()
+        expander.setTriggers(triggers("brb = be right back"))
+        for ch in "nope" { _ = expander.feed(String(ch)) }
+        XCTAssertNil(expander.feed("\n"))
+        for ch in "brb" { _ = expander.feed(String(ch)) }
+        XCTAssertEqual(expander.feed("\t")?.replacement, "be right back\t")
+    }
+
+    func testBackspaceEditsTheWord() {
+        var expander = SnippetExpander()
+        expander.setTriggers(triggers("brb = be right back"))
+        for ch in "brx" { _ = expander.feed(String(ch)) }
+        expander.backspace()
+        _ = expander.feed("b")
+        XCTAssertEqual(expander.feed(" ")?.triggerCount, 3)
+    }
+
+    func testOneCharacterTriggersAndSpacedNamesDoNotFire() {
+        var expander = SnippetExpander()
+        expander.setTriggers(triggers("a = alpha\ntwo words = never"))
+        XCTAssertNil(expander.feed("a"))
+        XCTAssertNil(expander.feed(" "), "a one-character trigger is not worth expanding")
+        for ch in "two words" { _ = expander.feed(String(ch)) }
+        XCTAssertNil(expander.feed(" "), "a name with whitespace can never match a word")
+    }
+
+    func testTheWordIsBounded() {
+        var expander = SnippetExpander()
+        for _ in 0..<(SnippetExpander.maxWord * 3) { _ = expander.feed("x") }
+        XCTAssertEqual(expander.word.count, SnippetExpander.maxWord)
+        expander.reset()
+        XCTAssertTrue(expander.word.isEmpty)
+    }
+
+    func testPasswordManagersAreIgnored() {
+        XCTAssertTrue(SnippetExpander.isIgnored(bundleID: "com.1password.1password"))
+        XCTAssertTrue(SnippetExpander.isIgnored(bundleID: "com.apple.keychainaccess"))
+        XCTAssertFalse(SnippetExpander.isIgnored(bundleID: "com.apple.finder"))
+        XCTAssertFalse(SnippetExpander.isIgnored(bundleID: nil))
+    }
+
+    /// The shared holder only feeds when the service says the frontmost app is allowed, and a secure
+    /// field drops the word instead of letting it complete later.
+    func testSharedFeedNeedsAnActiveStateAndDropsTheWordUnderSecureInput() {
+        let shared = KeyGuardShared()
+        shared.setSnippets(enabled: true, triggers: ["brb": "be right back"])
+        shared.update(state: KeyGuardState(snippetsActive: false))
+        for ch in "brb" { XCTAssertNil(shared.feedSnippet(String(ch), secureInput: false)) }
+
+        shared.update(state: KeyGuardState(snippetsActive: true))
+        for ch in "brb" { _ = shared.feedSnippet(String(ch), secureInput: false) }
+        XCTAssertNil(shared.feedSnippet(" ", secureInput: true), "secure input clears the word")
+        for ch in "brb" { _ = shared.feedSnippet(String(ch), secureInput: false) }
+        XCTAssertEqual(shared.feedSnippet(" ", secureInput: false)?.replacement, "be right back ")
+    }
+}
+
 final class SlowQuitTests: XCTestCase {
     func testTiming() {
         let timing = SlowQuitTiming(threshold: 0.5)

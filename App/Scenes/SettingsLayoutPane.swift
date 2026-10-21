@@ -160,6 +160,7 @@ struct SettingsLayoutPane: View {
         case .radialDialTools: return String(localized: "Radial Dial: Tools")
         case .notchPageNext: return String(localized: "Next Notch Page")
         case .notchPagePrevious: return String(localized: "Previous Notch Page")
+        case .captureArea: return String(localized: "Capture Area")
         }
     }
 

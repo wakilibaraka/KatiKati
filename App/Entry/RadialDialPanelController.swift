@@ -339,19 +339,9 @@ final class RadialDialPanelController: ObservableObject {
         case .mediaPrevious:
             NowPlayingService().previousTrack()
         case .captureArea:
-            Task.detached(priority: .userInitiated) {
-                let process = Process()
-                process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
-                process.arguments = ["-i", "-c"] // Interactive to clipboard
-                try? process.run()
-            }
+            CaptureController.captureAreaToClipboard()
         case .captureWindow:
-            Task.detached(priority: .userInitiated) {
-                let process = Process()
-                process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
-                process.arguments = ["-i", "-w", "-c"] // Window to clipboard
-                try? process.run()
-            }
+            CaptureController.captureWindowToClipboard()
         case .captureOCR:
             BarActionService.run(.ocr)
         case .openShelf:

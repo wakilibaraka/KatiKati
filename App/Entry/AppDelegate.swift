@@ -329,6 +329,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .notchTools: self.notchPanel.toggleTools()
                 case .notchPageNext: self.notchPanel.stepPage(forward: true)
                 case .notchPagePrevious: self.notchPanel.stepPage(forward: false)
+                case .captureArea: CaptureController.captureAreaToClipboard()
                 case .weather: WidgetPanelController.weather.toggle()
                 case .clock: WidgetPanelController.calendar.toggle()
                 case .keepAwake:

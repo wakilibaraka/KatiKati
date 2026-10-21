@@ -37,6 +37,21 @@ final class CaptureController: ObservableObject {
 
     func reset() { state = .idle }
 
+    // MARK: 55b — the dial's and the shortcut's shared screencapture runner
+
+    /// Interactive area selector straight to the clipboard. It waits for the drag, so it never blocks the caller.
+    nonisolated static func captureAreaToClipboard() { run(["-i", "-c"]) }
+    nonisolated static func captureWindowToClipboard() { run(["-i", "-w", "-c"]) }
+
+    nonisolated private static func run(_ arguments: [String]) {
+        Task.detached(priority: .userInitiated) {
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
+            process.arguments = arguments
+            try? process.run()
+        }
+    }
+
     nonisolated static func recognise(_ file: URL) -> (text: String, codes: [String])? {
         guard let image = NSImage(contentsOf: file), let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
             return nil   // Esc in the selector, or Screen Recording is not allowed: no file

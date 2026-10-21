@@ -29,6 +29,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     /// Notch bento pages, step by step (live-check follow-up: dots are mouse-only otherwise).
     /// Both default `.off` — user assigns.
     case notchPageNext, notchPagePrevious
+    /// 55b: the dial's area capture, now also a shortcut. Default `.off` — user assigns.
+    case captureArea
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -76,6 +78,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .tilingFlipMain: return 39
         case .radialDialSnap: return 40
         case .radialDialTools: return 41
+        case .captureArea: return 42
         }
     }
 
@@ -99,7 +102,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
              .tilingGrowMain, .tilingShrinkMain, .tilingFlipMain: return .off
         // Phase 31 radial dial: off by default, user assigns
         case .radialDial, .radialDialSnap, .radialDialTools: return .off
-        case .notchPageNext, .notchPagePrevious: return .off
+        case .notchPageNext, .notchPagePrevious, .captureArea: return .off
         }
     }
 

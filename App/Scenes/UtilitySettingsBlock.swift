@@ -46,6 +46,19 @@ struct UtilitySettingsBlock: View {
                         text: $snippets,
                         placeholder: Text("One per line: ;sig = Best regards, Sam. Type the trigger in ⌘Space and press Return to paste it.")
                     )
+                    .onChange(of: snippets) { _, _ in KeyGuardService.shared.refreshSnippetTriggers() }
+                    SettingsDivider()
+                    SettingsToggleRow(
+                        Text("Expand Snippets Anywhere"),
+                        isOn: Binding(
+                            get: { KeyGuardService.shared.isSnippetExpansionEnabled },
+                            set: { on in
+                                if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
+                                KeyGuardService.shared.setSnippetExpansion(on)
+                            }
+                        ),
+                        info: String(localized: "Type a snippet's trigger and a space in any app to paste its text. It never runs in password fields, in password managers, or while the input is secure, and it needs the Input Monitoring and Accessibility permissions.")
+                    )
                 }
             }
             SettingsCard(Text("Shelf")) {

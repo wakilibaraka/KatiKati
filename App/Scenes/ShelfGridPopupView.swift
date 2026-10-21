@@ -96,6 +96,7 @@ struct ShelfGridPopupView: View {
         let allPinned = urls.allSatisfy { store.isPinned($0.path) }
         let compressible = urls.filter(ShelfActions.canCompress)
         let reducible = urls.filter(ShelfActions.isPDF)
+        let reducibleImages = urls.filter(ShelfActions.isImage)
         func finish() { selected = [] }
         return HStack(spacing: 4) {
             Text(String(format: String(localized: "%d selected"), urls.count))
@@ -112,6 +113,9 @@ struct ShelfGridPopupView: View {
             }
             if !reducible.isEmpty {
                 barButton("arrow.down.doc", help: Text("Compress")) { ShelfActions.reducePDF(reducible, into: store); finish() }
+            }
+            if !reducibleImages.isEmpty {
+                barButton("arrow.down.circle", help: Text("Reduce Image")) { ShelfActions.reduceImage(reducibleImages, into: store); finish() }
             }
             barButton("square.and.arrow.up", help: Text("Share…")) { ShelfActions.share(urls); finish() }
             barButton("airplayaudio", help: Text("AirDrop")) { ShelfActions.airDrop(urls); finish() }
@@ -158,6 +162,9 @@ struct ShelfGridPopupView: View {
         }
         if ShelfActions.isPDF(url) {
             items.append(ClosureMenuItem(String(localized: "Compress")) { ShelfActions.reducePDF([url], into: store) })
+        }
+        if ShelfActions.isImage(url) {
+            items.append(ClosureMenuItem(String(localized: "Reduce Image")) { ShelfActions.reduceImage([url], into: store) })
         }
         items.append(ClosureMenuItem(String(localized: "Zip")) { ShelfActions.zip([url], into: store) })
         if store.itemPaths.count > 1 {

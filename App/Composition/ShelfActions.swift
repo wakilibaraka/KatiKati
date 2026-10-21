@@ -78,6 +78,52 @@ enum ShelfActions {
         }
     }
 
+    // MARK: reduce image
+
+    /// 55c: downscale the longest edge to 75 % and re-encode, landing next to the original. Fail-closed:
+    /// an unreadable image is skipped and nothing is stashed.
+    static func reduceImage(_ urls: [URL], into shelf: ShelfStore) {
+        for url in urls where isImage(url) {
+            let folder = destinationFolder(for: url)
+            Task {
+                do {
+                    let out = try await Task.detached(priority: .userInitiated) { try reduceImageFile(url, in: folder) }.value
+                    shelf.stash(paths: [out.path])
+                } catch {
+                    logger.error("image reduce failed: \(String(describing: error), privacy: .public)")
+                    NSSound.beep()
+                }
+            }
+        }
+    }
+
+    nonisolated private static func reduceImageFile(_ url: URL, in folder: URL) throws -> URL {
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
+              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+              let width = properties[kCGImagePropertyPixelWidth] as? Int,
+              let height = properties[kCGImagePropertyPixelHeight] as? Int, width > 0, height > 0 else {
+            throw Failure.unsupported
+        }
+        let maxPixel = ImageReducePlan.maxPixelSize(longestEdge: max(width, height))
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixel,
+        ]
+        guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            throw Failure.failed
+        }
+        let alpha: Bool
+        switch image.alphaInfo { case .none, .noneSkipFirst, .noneSkipLast: alpha = false; default: alpha = true }
+        let type = alpha ? "public.heic" : "public.jpeg"
+        let ext = alpha ? "heic" : "jpg"
+        let out = uniqueURL(folder.appendingPathComponent("\(url.deletingPathExtension().lastPathComponent) reduced.\(ext)"))
+        guard let dest = CGImageDestinationCreateWithURL(out as CFURL, type as CFString, 1, nil) else { throw Failure.unsupported }
+        CGImageDestinationAddImage(dest, image, [kCGImageDestinationLossyCompressionQuality: ImageReducePlan.quality(ImageReducePlan.defaultQuality)] as CFDictionary)
+        guard CGImageDestinationFinalize(dest) else { throw Failure.failed }
+        return out
+    }
+
     /// JPEG at 60 % quality (HEIC when the image has transparency, since JPEG can't keep it).
     nonisolated private static func compressImage(_ url: URL, in folder: URL) throws -> URL {
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil), let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else {

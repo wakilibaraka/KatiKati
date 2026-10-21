@@ -21,6 +21,7 @@ final class KeyGuardService: ObservableObject {
     static let capsProtectionKey = "com.katikati.keyguard.capsHold"
     static let finderKeysKey = "com.katikati.keyguard.finderKeys"
     static let passthroughAppsKey = "com.katikati.keyguard.passthroughApps"
+    static let snippetExpansionKey = "com.katikati.snippets.expand"
     /// Phase 12: a cleaning lock's deadline, persisted so a crash mid-lock cannot leave the keyboard
     /// disabled until ⌃⌥⌘P (see `CleaningLock.launchDecision`).
     static let cleaningEndKey = "com.katikati.keyguard.cleaningEnd"
@@ -43,6 +44,8 @@ final class KeyGuardService: ObservableObject {
     /// 53i: comma-separated apps whose ⌘Q stays native (remote desktops, virtual machines).
     @Published private(set) var passthroughApps = UserDefaults.standard.string(forKey: KeyGuardService.passthroughAppsKey)
         ?? SlowQuitPassthrough.defaults.joined(separator: ", ")
+    /// 53c: type a snippet trigger plus a space anywhere to paste its text. Off by default.
+    @Published private(set) var isSnippetExpansionEnabled = UserDefaults.standard.bool(forKey: KeyGuardService.snippetExpansionKey)
 
     private let log = Logger(subsystem: "com.katikati.app", category: "keyguard")
     private var tapThread: Thread?
@@ -199,6 +202,16 @@ final class KeyGuardService: ObservableObject {
         refresh()
     }
 
+    func setSnippetExpansion(_ on: Bool) {
+        guard on != isSnippetExpansionEnabled else { return }
+        isSnippetExpansionEnabled = on
+        UserDefaults.standard.set(on, forKey: Self.snippetExpansionKey)
+        refresh()
+    }
+
+    /// The snippet editor writes through `@AppStorage`, so it calls this to re-read the triggers.
+    func refreshSnippetTriggers() { refresh() }
+
     var passthroughPolicy: SlowQuitPassthrough { .parse(passthroughApps) }
 
     /// The SlowQuit allow/deny view the pipeline sees. `deny` = quit instantly, no hold.
@@ -215,7 +228,7 @@ final class KeyGuardService: ObservableObject {
             if started { stop() }
             return
         }
-        if isSlowQuitEnabled || isFinderKeysEnabled, frontmostObserver == nil {
+        if isSlowQuitEnabled || isFinderKeysEnabled || isSnippetExpansionEnabled, frontmostObserver == nil {
             frontmostBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
             frontmostObserver = NSWorkspace.shared.notificationCenter.addObserver(
                 forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
@@ -229,7 +242,11 @@ final class KeyGuardService: ObservableObject {
         // Toggling Caps Lock needs a posted key event; without that permission the guard must stay inert
         // rather than swallowing the key the user cannot toggle any other way.
         shared.setCapsProtection(enabled: isCapsProtectionEnabled && CGPreflightPostEventAccess())
-        let anyOn = isPaused || isSlowQuitEnabled || isVisualizerEnabled || isCapsProtectionEnabled || isFinderKeysEnabled
+        let triggers = SnippetExpander.triggers(from: CustomCommand.parseSnippets(
+            UserDefaults.standard.string(forKey: CustomCommand.snippetsKey) ?? ""))
+        shared.setSnippets(enabled: isSnippetExpansionEnabled, triggers: triggers)
+        let anyOn = isPaused || isSlowQuitEnabled || isVisualizerEnabled || isCapsProtectionEnabled
+            || isFinderKeysEnabled || isSnippetExpansionEnabled
         if anyOn, !started { start() } else if !anyOn, started { stop() }
         updateVisualizerTimer()
     }
@@ -242,13 +259,14 @@ final class KeyGuardService: ObservableObject {
             slowQuitHolding: false,
             unlockKey: keyGuardUnlock,
             slowQuitPassthrough: passthroughPolicy.applies(to: frontmostBundleID),
-            finderKeysActive: isFinderKeysEnabled && frontmostBundleID == "com.apple.finder"
+            finderKeysActive: isFinderKeysEnabled && frontmostBundleID == "com.apple.finder",
+            snippetsActive: isSnippetExpansionEnabled && !SnippetExpander.isIgnored(bundleID: frontmostBundleID)
         )
     }
 
     private func frontmostChanged(_ app: NSRunningApplication?) {
         frontmostBundleID = app?.bundleIdentifier
-        guard isSlowQuitEnabled || isFinderKeysEnabled else { return }
+        guard isSlowQuitEnabled || isFinderKeysEnabled || isSnippetExpansionEnabled else { return }
         shared.update(state: makeState())
     }
 
@@ -260,16 +278,21 @@ final class KeyGuardService: ObservableObject {
             isVisualizerEnabled = false
             isCapsProtectionEnabled = false
             isFinderKeysEnabled = false
+            isSnippetExpansionEnabled = false
             UserDefaults.standard.set(false, forKey: Self.pauseKey)
             UserDefaults.standard.set(false, forKey: Self.slowQuitKey)
             UserDefaults.standard.set(false, forKey: Self.visualizerKey)
             UserDefaults.standard.set(false, forKey: Self.capsProtectionKey)
             UserDefaults.standard.set(false, forKey: Self.finderKeysKey)
+            UserDefaults.standard.set(false, forKey: Self.snippetExpansionKey)
             shared.update(state: makeState())
             return
         }
         shared.onAction = { [weak self] action in
             DispatchQueue.main.async { MainActor.assumeIsolated { self?.handle(action) } }
+        }
+        shared.onExpand = { [weak self] expansion in
+            DispatchQueue.main.async { MainActor.assumeIsolated { self?.insertSnippet(expansion) } }
         }
         let thread = Thread { [shared, weak self] in
             let mask: CGEventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
@@ -359,6 +382,53 @@ final class KeyGuardService: ObservableObject {
         overlay?.hide()
     }
 
+    // MARK: - Snippet insertion (53c)
+
+    /// Replaces the typed trigger with the expansion: the delimiter was swallowed, so the paste carries it.
+    /// If another copy lands on the pasteboard before the paste goes out, the paste is cancelled.
+    private func insertSnippet(_ expansion: SnippetExpander.Expansion) {
+        guard isSnippetExpansionEnabled, CGPreflightPostEventAccess() else { return }
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(expansion.replacement, forType: .string)
+        let ours = pasteboard.changeCount
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self, pasteboard.changeCount == ours else { return }
+                self.postKey(51, times: expansion.triggerCount)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.04) { [weak self] in
+                    MainActor.assumeIsolated {
+                        guard let self, pasteboard.changeCount == ours else { return }
+                        self.postCommandV()
+                    }
+                }
+            }
+        }
+    }
+
+    private func postKey(_ code: CGKeyCode, times: Int) {
+        guard times > 0, let source = CGEventSource(stateID: .combinedSessionState) else { return }
+        for _ in 0..<times {
+            guard let down = CGEvent(keyboardEventSource: source, virtualKey: code, keyDown: true),
+                  let up = CGEvent(keyboardEventSource: source, virtualKey: code, keyDown: false) else { return }
+            postTagged(down); postTagged(up)
+        }
+    }
+
+    private func postCommandV() {
+        guard let source = CGEventSource(stateID: .combinedSessionState),
+              let down = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: true),
+              let up = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: false) else { return }
+        down.flags = .maskCommand; up.flags = .maskCommand
+        postTagged(down); postTagged(up)
+    }
+
+    /// Our own events carry the tag, so the tap lets them through without feeding the guards again.
+    private func postTagged(_ event: CGEvent) {
+        event.setIntegerValueField(.eventSourceUserData, value: KeyGuardShared.syntheticTag)
+        event.post(tap: .cghidEventTap)
+    }
+
     // MARK: - Key visualizer (24d)
 
     /// The tap thread only appends to a bounded buffer; one 20 Hz main-actor read paints it, so typing
@@ -400,6 +470,9 @@ final class KeyGuardShared: @unchecked Sendable {
     private var capsProtectionOn = false
     private var capsGuard = CapsLockGuard()
     private var finderMap = FinderKeyMap()
+    private var snippetsOn = false
+    private var snippetExpander = SnippetExpander()
+    var onExpand: ((SnippetExpander.Expansion) -> Void)?
     /// Marks the caps events we post ourselves so they pass back through this tap untouched.
     static let syntheticTag: Int64 = 0x4B41544931 // "KATI1"
     var port: CFMachPort?
@@ -469,6 +542,33 @@ final class KeyGuardShared: @unchecked Sendable {
         }
     }
 
+    // MARK: 53c Snippet expansion
+
+    func setSnippets(enabled: Bool, triggers: [String: String]) {
+        lock.lock()
+        snippetsOn = enabled
+        snippetExpander.setTriggers(triggers)
+        lock.unlock()
+    }
+
+    /// Feeds one typed character. Nil while off, in an ignored app, or under secure input — and then
+    /// the word is dropped, so nothing typed in a password field can complete a trigger later.
+    func feedSnippet(_ text: String, secureInput: @autoclosure () -> Bool = IsSecureEventInputEnabled())
+        -> SnippetExpander.Expansion? {
+        lock.lock(); defer { lock.unlock() }
+        guard snippetsOn, state.snippetsActive else { snippetExpander.reset(); return nil }
+        if secureInput() { snippetExpander.reset(); return nil }
+        return snippetExpander.feed(text)
+    }
+
+    func snippetBackspace() {
+        lock.lock(); snippetExpander.backspace(); lock.unlock()
+    }
+
+    func resetSnippetWord() {
+        lock.lock(); snippetExpander.reset(); lock.unlock()
+    }
+
     func update(state newState: KeyGuardState) {
         lock.lock()
         var merged = newState
@@ -483,6 +583,7 @@ final class KeyGuardShared: @unchecked Sendable {
         caps.clear()
         capsGuard.reset()
         finderMap.reset()
+        snippetExpander.reset()
         lock.unlock()
     }
 
@@ -518,6 +619,18 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
     }
     let code = UInt16(truncatingIfNeeded: event.getIntegerValueField(.keyboardEventKeycode))
     if shared.handleCapsLock(isDown: type == .keyDown) { return nil }
+    if type == .keyDown {
+        if code == 51 {
+            shared.snippetBackspace()
+        } else if let text = typedText(event) {
+            if let expansion = shared.feedSnippet(text) {
+                shared.onExpand?(expansion)
+                return nil // the delimiter is part of the paste
+            }
+        } else {
+            shared.resetSnippetWord()
+        }
+    }
     let modifiers = keyModifiers(event.flags)
     let keyEvent: KeyGuardEvent = type == .keyDown ? .keyDown(keyCode: code, modifiers: modifiers)
                                                   : .keyUp(keyCode: code, modifiers: modifiers)
@@ -546,6 +659,20 @@ private func cgFlags(_ modifiers: KeyModifiers) -> CGEventFlags {
     if modifiers.contains(.control) { flags.insert(.maskControl) }
     if modifiers.contains(.shift) { flags.insert(.maskShift) }
     return flags
+}
+
+/// The plain character a keyDown produced, or nil when it was a shortcut or a non-typing key
+/// (arrows, escape, function keys). Only used to build the snippet word, never logged.
+private func typedText(_ event: CGEvent) -> String? {
+    let flags = event.flags
+    guard !flags.contains(.maskCommand), !flags.contains(.maskControl), !flags.contains(.maskAlternate) else { return nil }
+    var count = 0
+    var buffer = [UniChar](repeating: 0, count: 4)
+    event.keyboardGetUnicodeString(maxStringLength: 4, actualStringLength: &count, unicodeString: &buffer)
+    guard count == 1 else { return nil }
+    let text = String(utf16CodeUnits: buffer, count: 1)
+    guard let scalar = text.unicodeScalars.first, scalar.value >= 0x20 else { return nil }
+    return text
 }
 
 /// The character a keyDown produced ("a", "⌘A", "→"), or nil for a key that shows nothing worth

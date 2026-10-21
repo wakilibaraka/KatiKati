@@ -73733,6 +73733,74 @@
         "it": {"stringUnit": {"state": "translated", "value": "Queste app mantengono il proprio ⌘Q (desktop remoti e macchine virtuali)."}},
         "ko": {"stringUnit": {"state": "translated", "value": "이 앱들은 자체 ⌘Q를 사용합니다(원격 데스크톱 및 가상 머신용)."}}
       }
+    },
+    "Expand Snippets Anywhere": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Expand Snippets Anywhere"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在任意位置展开文本片段"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "在任何位置展開文字片段"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "どこでもスニペットを展開"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Snippets überall erweitern"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Développer les extraits partout"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Expandir fragmentos en cualquier lugar"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Expandir fragmentos en cualquier lugar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Expandir trechos em qualquer lugar"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Expandir fragmentos em qualquer lugar"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Espandi gli snippet ovunque"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "어디서나 스니펫 확장"}}
+      }
+    },
+    "Type a snippet's trigger and a space in any app to paste its text. It never runs in password fields, in password managers, or while the input is secure, and it needs the Input Monitoring and Accessibility permissions.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Type a snippet's trigger and a space in any app to paste its text. It never runs in password fields, in password managers, or while the input is secure, and it needs the Input Monitoring and Accessibility permissions."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在任意应用中输入片段触发词并加一个空格，即可粘贴其文本。密码输入框、密码管理器和安全输入状态下不会生效；需要输入监控和辅助功能权限。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "在任何 App 中輸入片段觸發詞並加一個空格，即可貼上其文字。密碼欄位、密碼管理器及安全輸入狀態下不會生效；需要輸入監控與輔助使用權限。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "任意のアプリでスニペットのトリガーを入力してスペースを押すと、そのテキストを貼り付けます。パスワード欄、パスワードマネージャー、セキュア入力中には動作しません。入力監視とアクセシビリティの権限が必要です。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Snippet-Trigger plus Leertaste in einer beliebigen App tippen, um den Text einzufügen. In Passwortfeldern, Passwort-Managern und bei sicherer Eingabe nie aktiv; benötigt Bedienungshilfen- und Eingabeüberwachungs-Berechtigung."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Tapez le déclencheur d'un extrait suivi d'un espace dans n'importe quelle app pour coller son texte. Ne s'exécute jamais dans les champs de mot de passe, les gestionnaires de mots de passe ni en saisie sécurisée ; nécessite les autorisations Surveillance des entrées et Accessibilité."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Escribe el disparador de un fragmento y un espacio en cualquier app para pegar su texto. Nunca se ejecuta en campos de contraseña, gestores de contraseñas ni con entrada segura; requiere los permisos de Monitorización de entrada y Accesibilidad."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Escribe el disparador de un fragmento y un espacio en cualquier app para pegar su texto. Nunca se ejecuta en campos de contraseña, gestores de contraseñas ni con entrada segura; requiere los permisos de Monitorización de entrada y Accesibilidad."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Digite o gatilho de um trecho e um espaço em qualquer app para colar o texto. Nunca funciona em campos de senha, gerenciadores de senhas ou com entrada segura; exige as permissões de Monitoramento de Entrada e Acessibilidade."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Escreva o gatilho de um fragmento e um espaço em qualquer app para colar o texto. Nunca funciona em campos de palavra-passe, gestores de palavras-passe ou com entrada segura; requer as permissões de Monitorização de Entrada e Acessibilidade."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Digita il trigger di uno snippet e uno spazio in qualsiasi app per incollare il testo. Non funziona nei campi password, nei gestori di password o con input sicuro; richiede i permessi Monitoraggio input e Accessibilità."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "아무 앱에서 스니펫 트리거를 입력하고 스페이스를 누르면 텍스트가 붙여넣어집니다. 암호 필드, 암호 관리자, 보안 입력 상태에서는 동작하지 않으며 입력 모니터링 및 손쉬운 사용 권한이 필요합니다."}}
+      }
+    },
+    "Reduce Image": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Reduce Image"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "缩小图片"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "縮小圖片"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "画像を縮小"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Bild verkleinern"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Réduire l'image"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Reducir imagen"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Reducir imagen"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Reduzir imagem"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Reduzir imagem"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Riduci immagine"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "이미지 축소"}}
+      }
+    },
+    "Capture Area": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Capture Area"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "截取区域"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "擷取區域"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "範囲をキャプチャ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Bereich aufnehmen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Capturer une zone"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Capturar área"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Capturar área"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Capturar área"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Capturar área"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cattura area"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "영역 캡처"}}
+      }
     }
   },
   "version": "1.0"

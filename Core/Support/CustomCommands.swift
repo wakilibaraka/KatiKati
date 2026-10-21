@@ -51,3 +51,61 @@ extension CustomCommand {
         parse(raw).map { CustomCommand(name: $0.name, target: $0.target.replacingOccurrences(of: "\\n", with: "\n"), kind: .snippet) }
     }
 }
+
+/// 53c: system-wide snippet expansion over the typed buffer. The caller feeds one character at a time;
+/// a delimiter (space, return, tab) completes the current word and either expands a trigger or starts a
+/// new one. Pure — the paste and the trigger deletion live in `KeyGuardService`.
+struct SnippetExpander: Equatable, Sendable {
+    struct Expansion: Equatable, Sendable {
+        /// What to paste: the expansion plus the delimiter the caller swallowed.
+        var replacement: String
+        /// How many characters of the typed trigger the service must delete first.
+        var triggerCount: Int
+    }
+
+    static let maxWord = 40
+
+    /// Triggers are single words: a name with whitespace could never match the buffer.
+    static func triggers(from commands: [CustomCommand]) -> [String: String] {
+        var map: [String: String] = [:]
+        for command in commands where !command.name.contains(where: \.isWhitespace) {
+            map[command.name] = command.target
+        }
+        return map
+    }
+
+    /// Password managers and Keychain: never expand there, even outside a secure field.
+    static let ignoredApps: Set<String> = ["com.1password.1password", "com.agilebits.onepassword7",
+                                          "com.bitwarden.desktop", "com.apple.keychainaccess"]
+    static func isIgnored(bundleID: String?) -> Bool {
+        guard let bundleID else { return false }
+        return ignoredApps.contains(bundleID)
+    }
+
+    private(set) var word = ""
+    private var triggers: [String: String] = [:]
+
+    mutating func setTriggers(_ triggers: [String: String]) {
+        self.triggers = triggers
+        word = ""
+    }
+
+    /// Feeds one typed character (never a shortcut's keycap). Returns an expansion when the character
+    /// completes a trigger; the caller then swallows that character.
+    mutating func feed(_ text: String) -> Expansion? {
+        guard text.count == 1, let char = text.first else { return nil }
+        if char == " " || char == "\n" || char == "\t" {
+            let trigger = word
+            word = ""
+            guard trigger.count >= 2, let expansion = triggers[trigger] else { return nil }
+            return Expansion(replacement: expansion + String(char), triggerCount: trigger.count)
+        }
+        word.append(char)
+        if word.count > Self.maxWord { word.removeFirst() }
+        return nil
+    }
+
+    mutating func backspace() { if !word.isEmpty { word.removeLast() } }
+
+    mutating func reset() { word = "" }
+}

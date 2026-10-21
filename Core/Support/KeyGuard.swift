@@ -53,6 +53,8 @@ struct KeyGuardState: Equatable, Sendable {
     var slowQuitPassthrough = false
     /// 53b: the Finder key map is on and Finder is frontmost.
     var finderKeysActive = false
+    /// 53c: snippet expansion is on and the frontmost app is not on its deny list.
+    var snippetsActive = false
 }
 
 enum KeyGuardPipeline {

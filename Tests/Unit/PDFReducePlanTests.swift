@@ -24,3 +24,21 @@ final class PDFReducePlanTests: XCTestCase {
         XCTAssertEqual(tiny.height, 1)
     }
 }
+
+/// 55c: the image reduce numbers.
+final class ImageReducePlanTests: XCTestCase {
+    func testQualityClampsToLegibleRange() {
+        XCTAssertEqual(ImageReducePlan.quality(0.6), 0.6)
+        XCTAssertEqual(ImageReducePlan.quality(0.01), 0.2)
+        XCTAssertEqual(ImageReducePlan.quality(5), 0.9)
+        XCTAssertEqual(ImageReducePlan.quality(.infinity), ImageReducePlan.defaultQuality)
+    }
+
+    func testPixelCapClampsAndRounds() {
+        XCTAssertEqual(ImageReducePlan.maxPixelSize(longestEdge: 4000), 3000)
+        XCTAssertEqual(ImageReducePlan.maxPixelSize(longestEdge: 1001, scale: 0.5), 501)
+        XCTAssertEqual(ImageReducePlan.maxPixelSize(longestEdge: 4000, scale: 0), 400, "scale floors at 10 %")
+        XCTAssertEqual(ImageReducePlan.maxPixelSize(longestEdge: 1, scale: 0.1), 1)
+        XCTAssertEqual(ImageReducePlan.maxPixelSize(longestEdge: 4000, scale: .nan), 3000)
+    }
+}
