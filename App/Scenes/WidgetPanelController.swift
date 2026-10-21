@@ -42,6 +42,7 @@ final class WidgetPanelController {
     private var panel: WidgetFloatingPanel?
     private var outsideClickMonitor: Any?
     private var layoutShown: CalendarPanelLayout?
+    private var fullScreenShown = false
     private var geometry: PanelScreenGeometry?
     private var isClosing = false
     private var isOpening = false
@@ -121,6 +122,11 @@ final class WidgetPanelController {
         return DeckGeometry.fanWidth(DeckMetrics(scale: CGFloat(scale))) + 8
     }
 
+    /// Phase 56 W11: only the weather stack, and only when its layout is the full-screen Glance.
+    private var wantsFullScreen: Bool {
+        self === Self.weather && UserDefaults.standard.string(forKey: WeatherLayoutPreset.storageKey) == WeatherLayoutPreset.fullScreen.rawValue
+    }
+
     private func show() {
         let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }
             ?? NSScreen.main ?? NSScreen.screens[0]
@@ -129,14 +135,17 @@ final class WidgetPanelController {
             frame: screen.frame, visibleFrame: screen.visibleFrame, safeAreaTop: screen.safeAreaInsets.top
         )
         self.geometry = geometry
-        closeOtherIfNeeded(layout: layout, geometry: geometry)
-        if layoutShown != layout { self.panel?.orderOut(nil); self.panel = nil }
+        let full = wantsFullScreen
+        if full { other.close() } else { closeOtherIfNeeded(layout: layout, geometry: geometry) }
+        if layoutShown != layout || fullScreenShown != full { self.panel?.orderOut(nil); self.panel = nil }
         layoutShown = layout
+        fullScreenShown = full
 
         let panel = self.panel ?? makePanel(layout: layout, geometry: geometry)
         // Start at the tallest allowed frame so the tiles never clip while they measure themselves;
         // the first height report shrinks the window to fit.
-        let target = PanelGeometry.widgetPanelFrame(on: geometry, layout: layout, side: side, contentHeight: .greatestFiniteMagnitude, sideInset: edgeBarInset())
+        let target = full ? PanelGeometry.fullScreenFrame(on: geometry)
+            : PanelGeometry.widgetPanelFrame(on: geometry, layout: layout, side: side, contentHeight: .greatestFiniteMagnitude, sideInset: edgeBarInset())
         let preset = Self.currentAnimation()
         state.animation = preset
         state.entered = false
@@ -166,7 +175,8 @@ final class WidgetPanelController {
             panel.makeKeyAndOrderFront(nil)
         }
         DispatchQueue.main.async { [weak self] in self?.state.entered = true }
-        installOutsideClickMonitor()
+        // A full-screen page has no "outside"; it closes with Esc or its close button.
+        if !full { installOutsideClickMonitor() }
     }
 
     /// One at a time unless "Keep both open" is on and both stacks fit side by side.
@@ -179,6 +189,7 @@ final class WidgetPanelController {
 
     private func resize(toContentHeight height: CGFloat, layout: CalendarPanelLayout) {
         guard let panel, let geometry, height > 0 else { return }
+        if fullScreenShown { return }
         if isOpening { pendingHeight = height; return }
         let frame = PanelGeometry.widgetPanelFrame(on: geometry, layout: layout, side: side, contentHeight: height, sideInset: edgeBarInset())
         if frame != panel.frame { panel.setFrame(frame, display: true) }
@@ -196,8 +207,9 @@ final class WidgetPanelController {
         panel.backgroundColor = .clear
         panel.hasShadow = false
         panel.hidesOnDeactivate = false
-        let width = layout.width(forScreenWidth: geometry.frame.width)
-        let view = makeContent(layout, width, PanelGeometry.widgetPanelMaxHeight(on: geometry), state) { [weak self] h in
+        let full = PanelGeometry.fullScreenFrame(on: geometry)
+        let width = fullScreenShown ? full.width : layout.width(forScreenWidth: geometry.frame.width)
+        let view = makeContent(layout, width, fullScreenShown ? full.height : PanelGeometry.widgetPanelMaxHeight(on: geometry), state) { [weak self] h in
             DispatchQueue.main.async { self?.resize(toContentHeight: h, layout: layout) }
         }
         let hosting = NSHostingView(rootView: view)

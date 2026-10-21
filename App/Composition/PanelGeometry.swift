@@ -651,6 +651,13 @@ enum PanelGeometry {
         return CGRect(x: x, y: top - height, width: width, height: height)
     }
 
+    /// Phase 56 W11: the full-screen Glance page — the whole usable area (below the menu bar/notch, above
+    /// nothing else), so the bar and rail stay reachable only through Esc/close. Pure.
+    static func fullScreenFrame(on screen: PanelScreenGeometry) -> CGRect {
+        let v = screen.visibleFrame
+        return CGRect(x: v.minX, y: v.minY, width: v.width, height: max(0, min(v.maxY, screen.topUsableY) - v.minY))
+    }
+
     /// Height available to the tiles on this screen (same bounds as `widgetPanelFrame`).
     static func widgetPanelMaxHeight(on screen: PanelScreenGeometry, metrics: PanelLayoutMetrics = .tungstenEdge) -> CGFloat {
         widgetPanelFrame(on: screen, layout: .mac, contentHeight: .greatestFiniteMagnitude, metrics: metrics).height

@@ -669,6 +669,16 @@ final class CalendarPanelGeometryTests: XCTestCase {
         XCTAssertEqual(f.height, 500, "content-sized, no stretch to full height")
     }
 
+    func testFullScreenFrameFillsTheUsableArea() {
+        let s = screen()
+        let f = PanelGeometry.fullScreenFrame(on: s)
+        XCTAssertEqual(f.minX, s.visibleFrame.minX)
+        XCTAssertEqual(f.width, s.visibleFrame.width)
+        XCTAssertEqual(f.minY, s.visibleFrame.minY)
+        XCTAssertEqual(f.maxY, min(s.visibleFrame.maxY, s.topUsableY), accuracy: 0.001)
+        XCTAssertTrue(s.frame.contains(f))
+    }
+
     func testLeftSideAnchorsTopLeftAndLeftAndRightStacksFitSideBySide() {
         let s = screen()
         let left = PanelGeometry.widgetPanelFrame(on: s, layout: .ipad, side: .left, contentHeight: 600, metrics: metrics)
