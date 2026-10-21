@@ -50,3 +50,6 @@ Docs/Archive/Samples/
 *.log
 .freebuff/
 graphify-out/
+# Live-check captures (30 MB of full-screen PNGs). Evidence for a roadmap row, not product;
+# the READMEs use assets/screenshots/, which stays tracked.
+screenshots/
