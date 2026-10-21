@@ -19,6 +19,8 @@ struct WeatherGlanceView: View {
     let heroStyle: WeatherHeroStyle
 
     @State private var segment: GlanceSegment = .hourly
+    /// The hour under the pointer in the strip: the hero shows its reading until the pointer leaves.
+    @State private var scrub: WeatherHourPoint?
     private let gap = WidgetMetrics.gap
 
     var body: some View {
@@ -28,7 +30,7 @@ struct WeatherGlanceView: View {
         let panelH = max(220, height - heroH - stripH - segH - 3 * gap)
         VStack(spacing: gap) {
             hero(tint: tint, height: heroH).widgetEntrance(0)
-            HourStrip(env: env.sky(tint, at: 0.30), hours: Array(detail.hourly.prefix(6)), units: units, width: width, height: stripH).widgetEntrance(1)
+            HourStrip(env: env.sky(tint, at: 0.30), hours: Array(detail.hourly.prefix(6)), units: units, width: width, height: stripH, scrub: $scrub).widgetEntrance(1)
             segmentControl(env.sky(tint, at: 0.52), height: segH).widgetEntrance(2)
             panel(env.sky(tint, at: 0.78), height: panelH).widgetEntrance(3)
         }
@@ -39,7 +41,7 @@ struct WeatherGlanceView: View {
 
     @ViewBuilder private func hero(tint: SkyTint, height: CGFloat) -> some View {
         switch heroStyle {
-        case .scene: SceneHero(env: env, service: service, state: state, detail: detail, units: units, tint: tint, width: width, height: height, animate: animate)
+        case .scene: SceneHero(env: env, service: service, state: state, detail: detail, units: units, tint: tint, width: width, height: height, animate: animate, scrub: scrub)
         case .classic: HeroTile(env: env, service: service, state: state, units: units, width: width, height: height, animate: animate)
         }
     }
@@ -93,6 +95,9 @@ struct SceneHero: View {
     let width: CGFloat
     let height: CGFloat
     let animate: Bool
+    var scrub: WeatherHourPoint?
+    @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var searching = false
     @State private var showingWarnings = false
 
@@ -127,9 +132,22 @@ struct SceneHero: View {
                         .buttonStyle(.plain)
                         .popover(isPresented: $searching) { CitySearchPopover(service: service, close: { searching = false }) }
                 }
-                Text(verbatim: units.t(state.temperatureCelsius))
-                    .font(.system(size: 78, weight: .light, design: .rounded)).minimumScaleFactor(0.6).padding(.top, 6)
-                Text(state.conditionText).font(.system(size: 16, weight: .semibold))
+                // Tap the number to flip °C / °F; it counts rather than jumps unless Reduce Motion is on.
+                let shownC = scrub?.temperature ?? state.temperatureCelsius
+                Button { tempUnit = tempUnit == .celsius ? .fahrenheit : .celsius } label: {
+                    Text(verbatim: units.t(shownC))
+                        .font(.system(size: 78, weight: .light, design: .rounded)).minimumScaleFactor(0.6)
+                        .contentTransition(.numericText(value: shownC))
+                }
+                .buttonStyle(.plain).padding(.top, 6)
+                .help(Text("Switch between °C and °F"))
+                .animation(reduceMotion ? nil : .snappy(duration: 0.3), value: shownC)
+                .animation(reduceMotion ? nil : .snappy(duration: 0.3), value: tempUnit)
+                if let scrub {
+                    Text(verbatim: "\(scrub.hourLabel) · \(WeatherResponseParsing.mapWeatherCode(code: scrub.code).text)").font(.system(size: 16, weight: .semibold))
+                } else {
+                    Text(state.conditionText).font(.system(size: 16, weight: .semibold))
+                }
                 HStack(spacing: 6) {
                     Text("Feels Like"); Text(verbatim: units.t(detail.apparent))
                     Text(verbatim: "·")
@@ -208,6 +226,7 @@ private struct HourStrip: View {
     let units: Units
     let width: CGFloat
     let height: CGFloat
+    @Binding var scrub: WeatherHourPoint?
 
     var body: some View {
         HStack(spacing: 0) {
@@ -220,8 +239,14 @@ private struct HourStrip: View {
                     else { Text(verbatim: h.hourLabel).font(.system(size: 10, weight: .medium)).foregroundColor(env.secondary) }
                 }
                 .frame(maxWidth: .infinity)
+                .frame(maxHeight: .infinity)
+                .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(env.text.opacity(scrub?.id == h.id ? 0.14 : 0)))
+                .contentShape(Rectangle())
+                .onHover { inside in if inside { scrub = i == 0 ? nil : h } else if scrub?.id == h.id { scrub = nil } }
+                .accessibilityElement(children: .combine)
             }
         }
+        .padding(.vertical, 4)
         .foregroundColor(env.text)
         .frame(width: width, height: height)
         .tileSurface(env)
