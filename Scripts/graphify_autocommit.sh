@@ -24,9 +24,14 @@ launch_block() {
 # graphify-autocommit: commit the rebuilt graph so it never shows up as stray work.
 # Re-append with: Scripts/graphify_autocommit.sh install   (graphify hook install drops it)
 _gfy_root=$(git rev-parse --show-toplevel 2>/dev/null)
-if [ -n "$_gfy_root" ] && [ -x "$_gfy_root/Scripts/graphify_autocommit.sh" ]; then
-    nohup "$_gfy_root/Scripts/graphify_autocommit.sh" >/dev/null 2>&1 &
-    disown 2>/dev/null || true
+_gfy_ac="$_gfy_root/Scripts/graphify_autocommit.sh"
+if [ -n "$_gfy_root" ] && [ -x "$_gfy_ac" ]; then
+    # Its own session, like the rebuild itself: a waiter must outlive the shell that committed,
+    # and a process-group kill (closing the terminal, a tool cleaning up) must not take it out.
+    python3 -c 'import subprocess, sys
+subprocess.Popen(["/bin/bash", sys.argv[1]], stdin=subprocess.DEVNULL,
+                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)' \
+        "$_gfy_ac" >/dev/null 2>&1 &
 fi
 EOF
 }
@@ -148,6 +153,7 @@ selftest() {
     GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" "$tmp/Scripts/graphify_autocommit.sh" install >/dev/null
     GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" "$tmp/Scripts/graphify_autocommit.sh" install >/dev/null
     [ "$(grep -cF "$MARKER" "$tmp/.git/hooks/post-commit")" = 1 ] && echo "PASS install stays single" || { echo "FAIL install duplicated itself"; fails=1; }
+    grep -q start_new_session "$tmp/.git/hooks/post-commit" && echo "PASS waiter gets its own session" || { echo "FAIL waiter not detached into a session"; fails=1; }
     return "$fails"
 }
 
