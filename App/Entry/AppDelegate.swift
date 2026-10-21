@@ -387,6 +387,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 .sink { [weak self] on in self?.applyPinch(on) }
             KeyGuardService.shared.refresh()
             QuitOnLastWindowService.shared.start()
+            FocusFollowService.shared.startIfEnabled()
             NotificationMoveService.shared.refresh()
             DailyHelpersService.shared.deliver = { [weak self] in self?.liveEventCenter.deliver($0, now: Date()) }
             DailyHelpersService.shared.start()
@@ -944,6 +945,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 探针结论（2026-07-06,阶段0探针3）：访达窗口 AX 属性表虽列有 AXDocument 但恒无值
         // （kAXErrorNoValue），AXProxy/AXTitleUIElement 也只有文件夹名无路径——「拖任务条访达
         // 窗口图标固定文件夹」不可行,已按预案砍掉,拖入固定区只走真实文件 URL（系统拖放）。
+    }
+
+    /// Settings › Fixed Space Order (54d): the Dock's own `mru-spaces` state, nil when unreadable.
+    func fixedSpaceOrderState() async -> Bool? {
+        await nativeDockPreferencesService.fixedSpaceOrderState()
+    }
+
+    func setFixedSpaceOrder(_ fixed: Bool) throws {
+        try nativeDockPreferencesService.setFixedSpaceOrder(fixed)
     }
 
     /// Settings › Restore Dock: show the system Dock again and stop re-hiding it at launch.

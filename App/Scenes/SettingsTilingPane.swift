@@ -9,6 +9,7 @@ struct SettingsTilingPane: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var engine = TilingEngine.shared
     @State private var floatingAppsDraft: String = ""
+    @AppStorage(FocusFollowService.enabledKey) private var focusFollow = false
 
     var body: some View {
         // One card, not four. Window Management carried **six** sections — Tiling, Layout, Floating
@@ -140,6 +141,16 @@ struct SettingsTilingPane: View {
                 .textFieldStyle(.roundedBorder)
                 .frame(width: 220)
             }
+
+            SettingsDivider()
+            // 54e — off by default: it moves another app's window without a click, so it is opt-in and
+            // does nothing at all until Accessibility is granted.
+            SettingsToggleRow(
+                Text("Focus Follows the Mouse"),
+                isOn: $focusFollow,
+                note: Text("Raises the window under the pointer, at most once every 120 ms. It never acts while you drag, while a KatiKati panel has the keyboard, or for the app already in front. Needs Accessibility; off by default.")
+            )
+            .onChange(of: focusFollow) { _, on in FocusFollowService.shared.setEnabled(on) }
         }
 
         SettingsCard(Text("How It Works")) {

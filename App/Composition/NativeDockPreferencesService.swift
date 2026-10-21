@@ -75,9 +75,13 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
     private let sandbox: SandboxEnvironment
     private let runner: ShellRunner
     private let autohideReader: @Sendable () -> NativeDockAutohideState?
+    private let spaceOrderReader: @Sendable () -> Bool?
     private let urlOpener: URLOpener
     private let defaults: UserDefaults
     static let originalKey = "com.katikati.nativeDock.original"
+    /// 54d — the user's own `mru-spaces` before the fixed-order switch was turned on, so turning it off
+    /// puts their setting back instead of guessing.
+    static let spaceOrderOriginalKey = "com.katikati.nativeDock.mruSpacesOriginal"
     /// The slider delay KatiKati last applied; re-applied on the next launch (the Dock is given back on quit).
     static let desiredDelayKey = "com.katikati.nativeDock.desiredDelay"
     private let readerQueue = DispatchQueue(label: "com.caye.macosdockcc.v2.native-dock-reader", qos: .userInitiated)
@@ -85,12 +89,14 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
     init(sandbox: SandboxEnvironment = .current,
          runner: @escaping ShellRunner = NativeDockPreferencesService.runProcess,
          autohideReader: @escaping @Sendable () -> NativeDockAutohideState? = { NativeDockPreferencesService.readAutohideStateFromSystem() },
+         spaceOrderReader: @escaping @Sendable () -> Bool? = { NativeDockPreferencesService.readMruSpacesFromSystem() },
          urlOpener: @escaping URLOpener = NativeDockPreferencesService.openURL,
          defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.sandbox = sandbox
         self.runner = runner
         self.autohideReader = autohideReader
+        self.spaceOrderReader = spaceOrderReader
         self.urlOpener = urlOpener
     }
 
@@ -239,6 +245,69 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
     }
 
     static let restartDockCommand: (executable: String, arguments: [String]) = ("/usr/bin/killall", ["Dock"])
+
+    // MARK: - 54d fixed Space order
+
+    /// Whether Spaces currently keep a fixed order (`mru-spaces false`). nil = unreadable.
+    func fixedSpaceOrderState() async -> Bool? {
+        guard isAvailable else { return nil }
+        let reader = spaceOrderReader
+        let queue = readerQueue
+        return await withCheckedContinuation { continuation in
+            queue.async { continuation.resume(returning: reader().map { !$0 }) }
+        }
+    }
+
+    /// Fixed order on: remember the user's `mru-spaces` once, then write ours. Off: write that value
+    /// back and forget it. With nothing remembered there is nothing to put back, so nothing runs.
+    func setFixedSpaceOrder(_ fixed: Bool) throws {
+        guard isAvailable else { throw NativeDockPreferencesError.sandboxed }
+        let remembered = defaults.object(forKey: Self.spaceOrderOriginalKey) as? Bool
+        if fixed {
+            if remembered == nil, let current = spaceOrderReader() {
+                defaults.set(current, forKey: Self.spaceOrderOriginalKey)
+            }
+        } else if remembered == nil {
+            return
+        }
+        for command in Self.spaceOrderCommands(fixed: fixed, original: remembered) {
+            try runner(command.executable, command.arguments)
+        }
+        if !fixed { defaults.removeObject(forKey: Self.spaceOrderOriginalKey) }
+    }
+
+    /// Pure: one `defaults write` plus exactly one Dock restart. `original` is what the user had before;
+    /// turning the switch off with nothing remembered produces no command at all.
+    nonisolated static func spaceOrderCommands(fixed: Bool, original: Bool?) -> [(executable: String, arguments: [String])] {
+        let mruSpaces: Bool
+        if fixed {
+            mruSpaces = false
+        } else if let original {
+            mruSpaces = original
+        } else {
+            return []
+        }
+        return [
+            ("/usr/bin/defaults", ["write", "com.apple.dock", "mru-spaces", "-bool", mruSpaces ? "true" : "false"]),
+            restartDockCommand,
+        ]
+    }
+
+    nonisolated static func readMruSpacesFromSystem() -> Bool? {
+        let domain = "com.apple.dock" as CFString
+        return readMruSpaces(
+            synchronize: { CFPreferencesAppSynchronize(domain) },
+            valueForKey: { CFPreferencesCopyAppValue($0 as CFString, domain) }
+        )
+    }
+
+    /// Pure decode: an absent key is the system default (automatic), anything that is not a boolean is
+    /// unreadable — never a silent "off".
+    nonisolated static func readMruSpaces(synchronize: () -> Bool, valueForKey: (String) -> Any?) -> Bool? {
+        guard synchronize() else { return nil }
+        guard let value = valueForKey("mru-spaces") else { return true }
+        return strictBooleanValue(value)
+    }
 
     static func commands(for delay: Double) -> [(executable: String, arguments: [String])] {
         autohideWriteCommands(for: delay) + [restartDockCommand]

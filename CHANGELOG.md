@@ -2,6 +2,18 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 54: window management
+
+### Added
+- Settings → Tools (Shelf → System Dock): "Fixed Space Order" stops macOS from rearranging Spaces by
+  most recent use. It changes a macOS setting, so the switch asks first and the Dock restarts once;
+  turning it off puts your earlier setting back.
+- Settings → Tiling: "Focus Follows the Mouse" raises the window under the pointer, at most once every
+  120 ms, never mid-drag, never while a KatiKati panel has the keyboard and never for the app already in
+  front. Off by default; needs Accessibility.
+- Taskbar chips: ⌥-click hides the app, ⌘-click minimises the window. A plain click behaves exactly as
+  before.
+
 ## [Unreleased] — Phase 52c: Claude Code status from a hook
 
 ### Added

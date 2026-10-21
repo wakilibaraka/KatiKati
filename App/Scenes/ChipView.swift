@@ -276,7 +276,20 @@ struct ChipView: View {
 
     /// Click. A grouped app's chip cycles its windows while the app is already in front
     /// (Phase 9a); every other chip toggles its window exactly as before.
+    /// 54a adds the modifier variants; the plain click is untouched. The gesture carries no modifier
+    /// flags, so they are read at tap time.
     private func performPrimaryTap() {
+        let flags = NSEvent.modifierFlags
+        switch DockClickPolicy.action(optionDown: flags.contains(.option), commandDown: flags.contains(.command)) {
+        case .hide:
+            runtime.hide(windowID: item.actionWindowID)
+            return
+        case .minimize:
+            runtime.minimize(windowID: item.actionWindowID)
+            return
+        case .toggle:
+            break
+        }
         if item.isAppGroup, item.memberWindowIDs.count > 1, item.status == WindowStatus.active.rawValue {
             let ids = item.memberWindowIDs
             let front = ids.firstIndex(of: item.actionWindowID)

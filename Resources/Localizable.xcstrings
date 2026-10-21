@@ -422,6 +422,237 @@
         }
       }
     },
+    "Fixed Space Order": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fixed Space Order"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "固定空间顺序"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "固定空間順序"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スペースの並びを固定"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feste Spaces-Reihenfolge"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordre fixe des espaces"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orden fijo de espacios"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orden fijo de espacios"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordem fixa de Spaces"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordem fixa dos Spaces"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordine fisso degli spazi"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공간 순서 고정"
+          }
+        }
+      }
+    },
+    "Focus Follows the Mouse": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Focus Follows the Mouse"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "焦点跟随鼠标"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "焦點跟隨滑鼠"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "マウスにフォーカスを追従"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fokus folgt der Maus"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le focus suit la souris"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El foco sigue al ratón"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El foco sigue al ratón"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foco segue o mouse"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O foco segue o rato"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il focus segue il mouse"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "마우스를 따라 포커스 이동"
+          }
+        }
+      }
+    },
+    "Keep Spaces in a Fixed Order?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep Spaces in a Fixed Order?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保持空间顺序固定？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保持空間順序固定？"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スペースの並びを固定しますか？"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spaces in fester Reihenfolge halten?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conserver un ordre fixe des espaces ?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Mantener los espacios en orden fijo?"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Mantener los espacios en orden fijo?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manter Spaces em ordem fixa?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manter os Spaces em ordem fixa?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenere gli spazi in ordine fisso?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공간 순서를 고정할까요?"
+          }
+        }
+      }
+    },
     "Paper": {
       "extractionState": "manual",
       "localizations": {
@@ -608,6 +839,83 @@
           "stringUnit": {
             "state": "new",
             "value": "Quick Add"
+          }
+        }
+      }
+    },
+    "Raises the window under the pointer, at most once every 120 ms. It never acts while you drag, while a KatiKati panel has the keyboard, or for the app already in front. Needs Accessibility; off by default.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raises the window under the pointer, at most once every 120 ms. It never acts while you drag, while a KatiKati panel has the keyboard, or for the app already in front. Needs Accessibility; off by default."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将指针下的窗口置前，每 120 毫秒最多一次。拖动时、KatiKati 面板持有键盘时，以及目标应用已在前台时都不会触发。需要辅助功能权限；默认关闭。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將指標下的視窗置前，每 120 毫秒最多一次。拖曳時、KatiKati 面板持有鍵盤時，以及目標應用已在前景時都不會觸發。需要輔助使用權限；預設關閉。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ポインタの下のウインドウを前面に出します（最大 120 ミリ秒に 1 回）。ドラッグ中、KatiKati のパネルがキーボードを持っている間、対象のアプリがすでに前面にあるときは動作しません。アクセシビリティが必要です。既定ではオフ。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Holt das Fenster unter dem Zeiger nach vorn, höchstens einmal alle 120 ms. Es greift nicht beim Ziehen, nicht während eine KatiKati-Leiste die Tastatur hat und nicht für die App, die schon vorn ist. Braucht Bedienungshilfen; standardmäßig aus."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Met au premier plan la fenêtre sous le pointeur, au plus une fois toutes les 120 ms. N'agit jamais pendant un glisser, quand un panneau KatiKati a le clavier, ni pour l'app déjà au premier plan. Nécessite l'accessibilité ; désactivé par défaut."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trae al frente la ventana bajo el puntero, como mucho una vez cada 120 ms. No actúa mientras arrastras, cuando un panel de KatiKati tiene el teclado ni para la app que ya está delante. Requiere Accesibilidad; desactivado por defecto."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trae al frente la ventana bajo el puntero, como mucho una vez cada 120 ms. No actúa mientras arrastras, cuando un panel de KatiKati tiene el teclado ni para la app que ya está delante. Requiere Accesibilidad; desactivado por defecto."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traz para a frente a janela sob o ponteiro, no máximo uma vez a cada 120 ms. Não age enquanto você arrasta, enquanto um painel do KatiKati tem o teclado nem para o app que já está na frente. Requer Acessibilidade; desativado por padrão."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traz para a frente a janela sob o ponteiro, no máximo uma vez a cada 120 ms. Não atua enquanto arrasta, enquanto um painel do KatiKati tem o teclado nem para a app que já está à frente. Requer Acessibilidade; desativada por omissão."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Porta in primo piano la finestra sotto il puntatore, al massimo una volta ogni 120 ms. Non agisce durante un trascinamento, quando un pannello KatiKati ha la tastiera, né per l'app già in primo piano. Richiede Accessibilità; disattivato per impostazione predefinita."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "포인터 아래 창을 앞으로 가져옵니다(120ms에 최대 한 번). 드래그 중이거나 KatiKati 패널이 키보드를 가지고 있을 때, 대상 앱이 이미 앞에 있을 때는 동작하지 않습니다. 손쉬운 사용 권한이 필요하며 기본값은 꺼짐입니다."
           }
         }
       }
@@ -2037,6 +2345,83 @@
         }
       }
     },
+    "Stops macOS from rearranging Spaces by most recent use, so they stay in the order you made them. The Dock restarts once. Turning this off puts your earlier setting back.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stops macOS from rearranging Spaces by most recent use, so they stay in the order you made them. The Dock restarts once. Turning this off puts your earlier setting back."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "阻止 macOS 按最近使用重新排列空间，让空间保持你创建时的顺序。程序坞会重启一次。关闭后会恢复你之前的设置。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "阻止 macOS 依最近使用重新排列空間，讓空間保持你建立時的順序。Dock 會重新啟動一次。關閉後會還原你之前的設定。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS が最近使った順にスペースを並べ替えるのを止め、作成した順序を保ちます。Dock は一度だけ再起動します。オフにすると以前の設定に戻ります。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verhindert, dass macOS Spaces nach der letzten Nutzung umsortiert – sie bleiben in der Reihenfolge, in der du sie angelegt hast. Das Dock startet einmal neu. Ausschalten stellt deine frühere Einstellung wieder her."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empêche macOS de réorganiser les espaces selon leur dernière utilisation : ils restent dans l'ordre où vous les avez créés. Le Dock redémarre une fois. Désactiver rétablit votre réglage précédent."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impide que macOS reordene los espacios según su último uso, así que se quedan en el orden en que los creaste. El Dock se reinicia una vez. Al desactivarlo se restaura tu ajuste anterior."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impide que macOS reordene los espacios según su último uso, así que se quedan en el orden en que los creaste. El Dock se reinicia una vez. Al desactivarlo se restaura tu ajuste anterior."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impede o macOS de reorganizar os Spaces pelo uso mais recente, então eles ficam na ordem em que você os criou. O Dock reinicia uma vez. Desativar restaura o ajuste anterior."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impede o macOS de reorganizar os Spaces pela utilização mais recente, por isso ficam na ordem em que os criou. O Dock reinicia uma vez. Desativar repõe a definição anterior."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impedisce a macOS di riordinare gli spazi in base all'uso più recente, così restano nell'ordine in cui li hai creati. Il Dock si riavvia una volta. Disattivando si ripristina l'impostazione precedente."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS가 최근 사용 순서로 공간을 재배열하지 않게 하여, 만든 순서를 유지합니다. Dock이 한 번 재시작됩니다. 끄면 이전 설정으로 돌아갑니다."
+          }
+        }
+      }
+    },
     "Track Turns with a Claude Hook": {
       "extractionState": "manual",
       "localizations": {
@@ -2110,6 +2495,83 @@
           "stringUnit": {
             "state": "translated",
             "value": "Claude 훅으로 턴 추적"
+          }
+        }
+      }
+    },
+    "Turn On": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn On"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開啟"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンにする"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einschalten"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activar"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ativar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ativar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "켜기"
           }
         }
       }
@@ -23310,6 +23772,83 @@
           "stringUnit": {
             "state": "translated",
             "value": "이 동작은 실행 취소할 수 없습니다."
+          }
+        }
+      }
+    },
+    "macOS stops rearranging Spaces by most recent use and the Dock restarts once. Turning this off puts your earlier setting back.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS stops rearranging Spaces by most recent use and the Dock restarts once. Turning this off puts your earlier setting back."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 将不再按最近使用重新排列空间，程序坞会重启一次。关闭后会恢复你之前的设置。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 將不再依最近使用重新排列空間，Dock 會重新啟動一次。關閉後會還原你之前的設定。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS は最近使った順の並べ替えを止め、Dock が一度だけ再起動します。オフにすると以前の設定に戻ります。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS sortiert Spaces nicht mehr nach der letzten Nutzung um, und das Dock startet einmal neu. Ausschalten stellt deine frühere Einstellung wieder her."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS cesse de réorganiser les espaces selon leur dernière utilisation et le Dock redémarre une fois. Désactiver rétablit votre réglage précédent."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS deja de reordenar los espacios según su último uso y el Dock se reinicia una vez. Al desactivarlo se restaura tu ajuste anterior."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS deja de reordenar los espacios según su último uso y el Dock se reinicia una vez. Al desactivarlo se restaura tu ajuste anterior."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O macOS para de reorganizar os Spaces pelo uso mais recente e o Dock reinicia uma vez. Desativar restaura o ajuste anterior."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O macOS deixa de reorganizar os Spaces pela utilização mais recente e o Dock reinicia uma vez. Desativar repõe a definição anterior."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS smette di riordinare gli spazi in base all'uso più recente e il Dock si riavvia una volta. Disattivando si ripristina l'impostazione precedente."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS가 최근 사용 순서로 공간을 재배열하지 않으며 Dock이 한 번 재시작됩니다. 끄면 이전 설정으로 돌아갑니다."
           }
         }
       }

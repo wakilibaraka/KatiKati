@@ -38,6 +38,17 @@ final class WindowSnapTests: XCTestCase {
     }
 }
 
+/// 54a: a plain click keeps its old meaning; the modifiers are the only change.
+final class DockClickPolicyTests: XCTestCase {
+    func testModifierTable() {
+        XCTAssertEqual(DockClickPolicy.action(optionDown: false, commandDown: false), .toggle)
+        XCTAssertEqual(DockClickPolicy.action(optionDown: true, commandDown: false), .hide)
+        XCTAssertEqual(DockClickPolicy.action(optionDown: false, commandDown: true), .minimize)
+        XCTAssertEqual(DockClickPolicy.action(optionDown: true, commandDown: true), .toggle,
+                       "both modifiers are not a third action")
+    }
+}
+
 /// 53d: opt-in per app, empty by default, and only the some-to-none transition quits.
 final class QuitOnLastWindowPolicyTests: XCTestCase {
     func testEmptyListIsOffAndProtectedAppsAreNeverOurs() {

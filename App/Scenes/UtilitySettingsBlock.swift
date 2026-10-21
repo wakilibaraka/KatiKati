@@ -15,6 +15,8 @@ struct UtilitySettingsBlock: View {
     @AppStorage(CustomCommand.snippetsKey) private var snippets = ""
     @AppStorage(ClaudeHookInstaller.enabledKey) private var claudeHook = false
     @State private var claudeHookFailed = false
+    /// 54d — read from the Dock itself, so a change made in System Settings shows here too.
+    @State private var fixedSpaces = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
@@ -116,6 +118,12 @@ struct UtilitySettingsBlock: View {
                     Button("Restore Dock") { AppDelegate.shared?.restoreNativeDock() }
                         .buttonStyle(SettingsGelButtonStyle())
                 }
+                SettingsDivider()
+                SettingsToggleRow(
+                    Text("Fixed Space Order"),
+                    isOn: Binding(get: { fixedSpaces }, set: { confirmFixedSpaces($0) }),
+                    note: Text("Stops macOS from rearranging Spaces by most recent use, so they stay in the order you made them. The Dock restarts once. Turning this off puts your earlier setting back.")
+                )
             }
             // 52c: the one place KatiKati writes into the user's Claude Code settings, so the warning
             // and the restart note sit on the switch itself rather than in a help popover.
@@ -143,6 +151,32 @@ struct UtilitySettingsBlock: View {
                 }
             }
         }
+        .task { fixedSpaces = await AppDelegate.shared?.fixedSpaceOrderState() ?? false }
+    }
+
+    /// 54d: it changes a macOS setting and restarts the Dock, so turning it on asks first. Off only puts
+    /// back the value remembered before, so it runs without a prompt.
+    private func confirmFixedSpaces(_ on: Bool) {
+        guard let delegate = AppDelegate.shared else { return }
+        if !on {
+            do {
+                try delegate.setFixedSpaceOrder(false)
+                fixedSpaces = false
+            } catch { fixedSpaces = true }
+            return
+        }
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Keep Spaces in a Fixed Order?")
+        alert.informativeText = String(localized: "macOS stops rearranging Spaces by most recent use and the Dock restarts once. Turning this off puts your earlier setting back.")
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: String(localized: "Turn On"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        do {
+            try delegate.setFixedSpaceOrder(true)
+            fixedSpaces = true
+        } catch { fixedSpaces = false }
     }
 
     /// 55d: a bulk delete of shelf entries asks first. Single-item remove stays immediate; this one drops

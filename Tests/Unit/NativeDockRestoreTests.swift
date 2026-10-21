@@ -52,12 +52,14 @@ final class NativeDockPinnedAppsTests: XCTestCase {
 final class NativeDockRestoreTests: XCTestCase {
     private var ran: [[String]] = []
 
-    private func make(initial: NativeDockAutohideState?, sandboxed: Bool = false) -> NativeDockPreferencesService {
+    private func make(initial: NativeDockAutohideState?, sandboxed: Bool = false,
+                      mruSpaces: @escaping @Sendable () -> Bool? = { true }) -> NativeDockPreferencesService {
         let defaults = TestDefaults.make("com.katikati.tests.dockrestore", for: self)
         return NativeDockPreferencesService(
             sandbox: SandboxEnvironment(isSandboxed: sandboxed),
             runner: { [unowned self] exe, args in self.ran.append([exe] + args) },
             autohideReader: { initial },
+            spaceOrderReader: mruSpaces,
             defaults: defaults)
     }
 
@@ -133,5 +135,60 @@ final class NativeDockRestoreTests: XCTestCase {
         let service = make(initial: nil, sandboxed: true)
         XCTAssertFalse(service.restoreOriginal())
         XCTAssertTrue(ran.isEmpty)
+    }
+
+    // 54d — fixed Space order: one key write plus exactly one Dock restart, and “off” never guesses.
+    func testSpaceOrderCommandsWriteOnceAndRestartTheDockOnce() {
+        let on = NativeDockPreferencesService.spaceOrderCommands(fixed: true, original: true)
+        XCTAssertEqual(on.map(\.arguments), [["write", "com.apple.dock", "mru-spaces", "-bool", "false"], ["Dock"]])
+        XCTAssertEqual(on.filter { $0.executable == "/usr/bin/killall" }.count, 1)
+
+        let backToAutomatic = NativeDockPreferencesService.spaceOrderCommands(fixed: false, original: true)
+        XCTAssertEqual(backToAutomatic.first?.arguments, ["write", "com.apple.dock", "mru-spaces", "-bool", "true"])
+        XCTAssertEqual(NativeDockPreferencesService.spaceOrderCommands(fixed: false, original: false).first?.arguments,
+                       ["write", "com.apple.dock", "mru-spaces", "-bool", "false"])
+        XCTAssertTrue(NativeDockPreferencesService.spaceOrderCommands(fixed: false, original: nil).isEmpty,
+                      "nothing was remembered, so there is nothing to put back")
+    }
+
+    func testFixedSpaceOrderRemembersTheDockValueOnceAndPutsItBack() throws {
+        var current: Bool? = true
+        let service = make(initial: nil, mruSpaces: { current })
+        try service.setFixedSpaceOrder(true)
+        XCTAssertEqual(ran.map { Array($0.dropFirst()) },
+                       [["write", "com.apple.dock", "mru-spaces", "-bool", "false"], ["Dock"]])
+
+        // A later enable must not overwrite what the user had before the first one.
+        current = false
+        try service.setFixedSpaceOrder(true)
+        ran = []
+        try service.setFixedSpaceOrder(false)
+        XCTAssertEqual(ran.map { Array($0.dropFirst()) },
+                       [["write", "com.apple.dock", "mru-spaces", "-bool", "true"], ["Dock"]])
+    }
+
+    func testTurningFixedOrderOffWithNothingRememberedWritesNothing() throws {
+        let service = make(initial: nil)
+        try service.setFixedSpaceOrder(false)
+        XCTAssertTrue(ran.isEmpty)
+    }
+
+    func testSpaceOrderReadNeedsABooleanAndAMissingKeyMeansAutomatic() async {
+        XCTAssertEqual(NativeDockPreferencesService.readMruSpaces(synchronize: { true }, valueForKey: { _ in nil }), true)
+        XCTAssertEqual(NativeDockPreferencesService.readMruSpaces(synchronize: { true }, valueForKey: { _ in false }), false)
+        XCTAssertNil(NativeDockPreferencesService.readMruSpaces(synchronize: { true }, valueForKey: { _ in "false" }),
+                     "a string is not a boolean")
+        XCTAssertNil(NativeDockPreferencesService.readMruSpaces(synchronize: { false }, valueForKey: { _ in true }),
+                     "an unsynchronised cache is not trustworthy")
+
+        let fixed = make(initial: nil, mruSpaces: { false })
+        let automatic = make(initial: nil, mruSpaces: { true })
+        let unreadable = make(initial: nil, mruSpaces: { nil })
+        let isFixed = await fixed.fixedSpaceOrderState()
+        let isAutomatic = await automatic.fixedSpaceOrderState()
+        let unknown = await unreadable.fixedSpaceOrderState()
+        XCTAssertEqual(isFixed, true)
+        XCTAssertEqual(isAutomatic, false)
+        XCTAssertNil(unknown)
     }
 }
