@@ -141,14 +141,18 @@ run() {
         fi
         if rebuild_running; then
             idle=0
-        else
+        elif ! graph_dirty || graph_quiet; then
             idle=$((idle + 1))
-            # Two consecutive quiet polls: the rebuild is gone and what it wrote is in.
+            # Two consecutive settled polls: the rebuild is gone and what it wrote is in.
+            # "Settled" includes dirty, so the exit never leaves a fresh write uncommitted —
+            # an earlier version did exactly that with manifest.json and stat-index.json.
             if [ "$idle" -ge 2 ]; then
-                if graph_dirty && graph_quiet; then commit_once && trace "committed at exit"; fi
+                if graph_dirty; then commit_once && trace "committed at exit"; fi
                 trace "rebuild finished (dirty=$(graph_dirty && echo yes || echo no))"
                 return 0
             fi
+        else
+            idle=0
         fi
         (( SECONDS >= deadline )) && { trace "deadline (dirty=$(graph_dirty && echo yes || echo no))"; return 0; }
         sleep 1
