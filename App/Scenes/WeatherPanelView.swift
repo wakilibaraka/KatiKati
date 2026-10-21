@@ -46,6 +46,7 @@ private struct WeatherTiles: View {
     @AppStorage(WeatherPrefs.animationsKey) private var animationsEnabled = true
     @AppStorage(WeatherLayoutPreset.storageKey) private var layoutPreset: WeatherLayoutPreset = .glance
     @AppStorage(WeatherHeroStyle.storageKey) private var heroStyle: WeatherHeroStyle = .scene
+    @AppStorage(WeatherChipPreset.storageKey) private var chipPreset: WeatherChipPreset = .modern
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var panelState: WidgetPanelState
 
@@ -58,7 +59,12 @@ private struct WeatherTiles: View {
         let state = service.currentState
         let animate = animationsEnabled && panelState.isVisible && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         let inner = width - 2 * gutter
-        if layoutPreset == .glance, let detail = state.detail {
+        if chipPreset == .modern, let detail = state.detail {
+            WeatherModernPanel(service: service, state: state, detail: detail, units: u, width: inner, height: maxHeight - 2 * gutter)
+                .padding(gutter)
+                .frame(width: width, height: maxHeight, alignment: .top)
+                .onAppear { onHeight(maxHeight); Task { await service.refresh() } }
+        } else if layoutPreset == .glance, let detail = state.detail {
             // Glance never scrolls: it fills the available height exactly.
             WeatherGlanceView(env: env, service: service, state: state, detail: detail, units: u,
                               width: inner, height: maxHeight - 2 * gutter, animate: animate, heroStyle: heroStyle)

@@ -86,7 +86,7 @@ private struct UVBand: View {
         let level = UVLevel(index: index)
         BandCard(env: env, icon: "sun.max.fill", title: Text("UV Index")) {
             Text(verbatim: String(format: "%.0f", index)).font(.system(size: 22, weight: .bold).monospacedDigit())
-            levelName(level).font(.system(size: 11, weight: .semibold)).foregroundColor(env.secondary)
+            level.name.font(.system(size: 11, weight: .semibold)).foregroundColor(env.secondary)
             GeometryReader { geo in
                 Capsule().fill(LinearGradient(colors: [.green, .yellow, .orange, .red, .purple], startPoint: .leading, endPoint: .trailing))
                     .overlay(alignment: .leading) {
@@ -97,8 +97,11 @@ private struct UVBand: View {
         }
     }
 
-    private func levelName(_ l: UVLevel) -> Text {
-        switch l {
+}
+
+extension UVLevel {
+    var name: Text {
+        switch self {
         case .low: return Text("Low")
         case .moderate: return Text("Moderate")
         case .high: return Text("High")

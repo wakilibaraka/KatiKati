@@ -94,10 +94,11 @@ struct WeatherModernChip: View {
     }
 }
 
-/// The hourly line: a thin polyline across the width with an accent dot on the first (current) hour.
-private struct HourLine: View {
+/// The hourly line: a thin polyline across the width with an accent dot on one hour (the first by default).
+struct HourLine: View {
     let fractions: [Double]
     let accent: Color
+    var dot = 0
 
     var body: some View {
         Canvas { ctx, size in
@@ -108,7 +109,7 @@ private struct HourLine: View {
             var path = Path()
             path.addLines(pts)
             ctx.stroke(path, with: .color(.white.opacity(0.5)), style: StrokeStyle(lineWidth: 1.2, lineCap: .round, lineJoin: .round))
-            if let p = pts.first { ctx.fill(Path(ellipseIn: CGRect(x: p.x - 3.5, y: p.y - 3.5, width: 7, height: 7)), with: .color(accent)) }
+            if pts.indices.contains(dot) { let p = pts[dot]; ctx.fill(Path(ellipseIn: CGRect(x: p.x - 3.5, y: p.y - 3.5, width: 7, height: 7)), with: .color(accent)) }
         }
     }
 }

@@ -396,7 +396,7 @@ private struct DailySegment: View {
 // MARK: - States
 
 /// Offline or stale: the forecast stays on screen, dimmed text says how old it is, Retry asks again.
-private struct WeatherNoticeBar: View {
+struct WeatherNoticeBar: View {
     let env: TileEnv
     let notice: WeatherNotice
     let updated: Date
