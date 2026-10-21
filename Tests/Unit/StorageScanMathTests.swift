@@ -52,3 +52,41 @@ final class StorageScanMathTests: XCTestCase {
         XCTAssertEqual(StorageScanMath.personalRoots(home: "/h").first, "/h/Desktop")
     }
 }
+
+/// 55d: the review list only offers stale, large, rebuildable folders.
+final class CleanupPlanTests: XCTestCase {
+    private let now = Date(timeIntervalSince1970: 1_000_000_000)
+
+    private func candidate(_ path: String, _ bytes: Int64, daysOld: Double) -> CleanupCandidate {
+        CleanupCandidate(path: path, bytes: bytes, lastModified: now.addingTimeInterval(-daysOld * 86_400))
+    }
+
+    func testOnlyStaleLargeNonSystemEntriesAreOffered() {
+        let entries = [
+            candidate("/h/Library/Caches/com.example.app", 200_000_000, daysOld: 30),
+            candidate("/h/Library/Caches/com.apple.Safari", 900_000_000, daysOld: 90),
+            candidate("/h/Library/Caches/com.katikati.app", 300_000_000, daysOld: 60),
+            candidate("/h/Library/Caches/tiny", 10_000_000, daysOld: 30),
+            candidate("/h/Library/Caches/fresh", 400_000_000, daysOld: 1),
+            candidate("/h/Library/Caches/marker.noindex", 500_000_000, daysOld: 40),
+        ]
+        let plan = CleanupPlan.candidates(from: entries, now: now)
+        XCTAssertEqual(plan.map(\.path), ["/h/Library/Caches/com.example.app"])
+        XCTAssertEqual(CleanupPlan.totalBytes(plan), 200_000_000)
+    }
+
+    func testSizeThresholdAndAgeBoundary() {
+        let exactly = [candidate("/h/Library/Logs/a", CleanupPlan.minBytes, daysOld: Double(CleanupPlan.minAgeDays))]
+        XCTAssertEqual(CleanupPlan.candidates(from: exactly, now: now).count, 1)
+        let younger = [candidate("/h/Library/Logs/a", CleanupPlan.minBytes, daysOld: Double(CleanupPlan.minAgeDays) - 0.01)]
+        XCTAssertTrue(CleanupPlan.candidates(from: younger, now: now).isEmpty)
+    }
+
+    func testRootsStayInsideTheHomeCachesAndLogs() {
+        let roots = CleanupPlan.roots(home: "/h")
+        XCTAssertTrue(roots.allSatisfy { $0.hasPrefix("/h/") })
+        XCTAssertTrue(roots.contains("/h/Library/Caches"))
+        XCTAssertTrue(roots.contains("/h/Library/Logs"))
+        XCTAssertFalse(roots.contains("/System"))
+    }
+}

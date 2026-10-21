@@ -37,3 +37,24 @@ final class WindowSnapTests: XCTestCase {
         XCTAssertEqual(SnapPosition.allCases.count, 15)
     }
 }
+
+/// 53d: opt-in per app, empty by default, and only the some-to-none transition quits.
+final class QuitOnLastWindowPolicyTests: XCTestCase {
+    func testEmptyListIsOffAndProtectedAppsAreNeverOurs() {
+        XCTAssertFalse(QuitOnLastWindowPolicy.parse("").applies(to: "com.apple.TextEdit"))
+        let policy = QuitOnLastWindowPolicy.parse("com.apple.TextEdit, com.apple.finder, com.katikati.app")
+        XCTAssertTrue(policy.applies(to: "com.apple.TextEdit"))
+        XCTAssertFalse(policy.applies(to: "com.apple.finder"))
+        XCTAssertFalse(policy.applies(to: "com.katikati.app"))
+        XCTAssertFalse(policy.applies(to: nil))
+    }
+
+    func testOnlySomeToNoneQuitsAndAnUnknownReadNeverDoes() {
+        XCTAssertTrue(QuitOnLastWindowPolicy.shouldQuit(hadWindow: true, windowCount: 0))
+        XCTAssertFalse(QuitOnLastWindowPolicy.shouldQuit(hadWindow: true, windowCount: 2))
+        XCTAssertFalse(QuitOnLastWindowPolicy.shouldQuit(hadWindow: false, windowCount: 0),
+                       "an app that never had a window (launch, background activation) is left alone")
+        XCTAssertFalse(QuitOnLastWindowPolicy.shouldQuit(hadWindow: true, windowCount: nil),
+                       "a failed AX read is unknown, never zero")
+    }
+}

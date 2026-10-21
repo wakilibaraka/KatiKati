@@ -73801,6 +73801,312 @@
         "it": {"stringUnit": {"state": "translated", "value": "Cattura area"}},
         "ko": {"stringUnit": {"state": "translated", "value": "영역 캡처"}}
       }
+    },
+    "%d could not be moved.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "%d could not be moved."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "有 %d 项无法移动。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "有 %d 項無法移動。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "%d 件を移動できませんでした。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "%d konnten nicht verschoben werden."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "%d n’ont pas pu être déplacés."}},
+        "es": {"stringUnit": {"state": "translated", "value": "%d no se pudieron mover."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "%d no se pudieron mover."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "%d não puderam ser movidos."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "%d não puderam ser movidos."}},
+        "it": {"stringUnit": {"state": "translated", "value": "%d non è stato possibile spostarli."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "%d개를 이동하지 못했습니다."}}
+      }
+    },
+    "%d items, %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "%d items, %@."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "%d 项，%@。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "%d 項，%@。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "%d 件、%@。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "%d Objekte, %@."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "%d éléments, %@."}},
+        "es": {"stringUnit": {"state": "translated", "value": "%d elementos, %@."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "%d elementos, %@."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "%d itens, %@."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "%d itens, %@."}},
+        "it": {"stringUnit": {"state": "translated", "value": "%d elementi, %@."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "%d개 항목, %@."}}
+      }
+    },
+    "%d items, %@. They are moved to the Trash, so you can put them back; apps rebuild them as needed.\n\n%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "%d items, %@. They are moved to the Trash, so you can put them back; apps rebuild them as needed.\n\n%@"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "%d 项，%@。它们会被移到废纸篓，可随时放回；应用会按需重建。\n\n%@"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "%d 項，%@。它們會被移到垃圾桶，可隨時放回；App 會視需要重建。\n\n%@"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "%d 件、%@。ゴミ箱に移動するので元に戻せます。アプリが必要に応じて再作成します。\n\n%@"}},
+        "de": {"stringUnit": {"state": "translated", "value": "%d Objekte, %@. Sie werden in den Papierkorb gelegt und können zurückgeholt werden; Apps bauen sie bei Bedarf neu auf.\n\n%@"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "%d éléments, %@. Ils sont déplacés vers la corbeille, d’où vous pouvez les remettre ; les apps les recréent au besoin.\n\n%@"}},
+        "es": {"stringUnit": {"state": "translated", "value": "%d elementos, %@. Se mueven a la papelera, así que puedes recuperarlos; las apps los reconstruyen cuando hace falta.\n\n%@"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "%d elementos, %@. Se mueven a la papelera, así que puedes recuperarlos; las apps los reconstruyen cuando hace falta.\n\n%@"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "%d itens, %@. Eles vão para o Lixo, então você pode recuperá-los; os apps os recriam quando necessário.\n\n%@"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "%d itens, %@. São movidos para o Lixo, pelo que pode restaurá-los; as apps recriam-nos quando necessário.\n\n%@"}},
+        "it": {"stringUnit": {"state": "translated", "value": "%d elementi, %@. Vengono spostati nel Cestino, quindi puoi recuperarli; le app li ricreano quando serve.\n\n%@"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "%d개 항목, %@. 휴지통으로 이동하므로 다시 되돌릴 수 있으며, 앱이 필요할 때 다시 만듭니다.\n\n%@"}}
+      }
+    },
+    "30 days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "30 days"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "30 天"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "30 天"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "30 日"}},
+        "de": {"stringUnit": {"state": "translated", "value": "30 Tage"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "30 jours"}},
+        "es": {"stringUnit": {"state": "translated", "value": "30 días"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "30 días"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "30 dias"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "30 dias"}},
+        "it": {"stringUnit": {"state": "translated", "value": "30 giorni"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "30일"}}
+      }
+    },
+    "Caches Moved to the Trash": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Caches Moved to the Trash"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "缓存已移到废纸篓"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "快取已移到垃圾桶"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "キャッシュをゴミ箱に移動しました"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Caches in den Papierkorb gelegt"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Caches déplacés vers la corbeille"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Cachés movidas a la papelera"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Cachés movidos a la papelera"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Caches movidos para o Lixo"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Caches movidos para o Lixo"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cache spostate nel Cestino"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "캐시를 휴지통으로 이동했습니다"}}
+      }
+    },
+    "Forever": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Forever"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "永久"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "永久"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "無期限"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Für immer"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Toujours"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Siempre"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Siempre"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sempre"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sempre"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sempre"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "계속"}}
+      }
+    },
+    "Keep Clipboard History": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Keep Clipboard History"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "保留剪贴板历史"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "保留剪貼簿歷史"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "クリップボード履歴の保存"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zwischenablageverlauf aufbewahren"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Conserver l’historique du presse-papiers"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Conservar historial del portapapeles"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Conservar historial del portapapeles"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Manter histórico da área de transferência"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Manter histórico da área de transferência"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Conserva cronologia appunti"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "클립보드 기록 보관"}}
+      }
+    },
+    "Move Caches to the Trash?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Move Caches to the Trash?"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "将缓存移到废纸篓？"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "將快取移到垃圾桶？"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "キャッシュをゴミ箱に移動しますか？"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Caches in den Papierkorb legen?"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Déplacer les caches vers la corbeille ?"}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Mover cachés a la papelera?"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "¿Mover cachés a la papelera?"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Mover caches para o Lixo?"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Mover caches para o Lixo?"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Spostare le cache nel Cestino?"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "캐시를 휴지통으로 이동할까요?"}}
+      }
+    },
+    "No cache folder older than a week and larger than 50 MB was found.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No cache folder older than a week and larger than 50 MB was found."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "没有找到超过一周且大于 50 MB 的缓存文件夹。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "找不到超過一週且大於 50 MB 的快取資料夾。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "1 週間より古く、50 MB を超えるキャッシュフォルダは見つかりませんでした。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kein Cache-Ordner älter als eine Woche und größer als 50 MB gefunden."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucun dossier de cache de plus d’une semaine et de plus de 50 Mo n’a été trouvé."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se encontró ninguna carpeta de caché de más de una semana y más de 50 MB."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "No se encontró ninguna carpeta de caché de más de una semana y más de 50 MB."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhuma pasta de cache com mais de uma semana e mais de 50 MB foi encontrada."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Não foi encontrada nenhuma pasta de cache com mais de uma semana e mais de 50 MB."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessuna cartella cache più vecchia di una settimana e più grande di 50 MB trovata."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "일주일보다 오래되고 50MB보다 큰 캐시 폴더를 찾지 못했습니다."}}
+      }
+    },
+    "Nothing to Clean": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Nothing to Clean"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无需清理"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "無需清理"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "クリーンアップするものはありません"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Nichts zu bereinigen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Rien à nettoyer"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Nada que limpiar"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Nada que limpiar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nada para limpar"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Nada para limpar"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nulla da pulire"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "정리할 항목 없음"}}
+      }
+    },
+    "One bundle identifier per app, separated by commas. KatiKati quits the app gracefully, so its own save prompt still runs. Empty means off; needs Accessibility.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "One bundle identifier per app, separated by commas. KatiKati quits the app gracefully, so its own save prompt still runs. Empty means off; needs Accessibility."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "每个应用一个 Bundle ID，用逗号分隔。KatiKati 会正常退出应用，因此应用自己的保存提示仍会出现。留空即关闭；需要辅助功能权限。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "每個 App 一個 Bundle ID，以逗號分隔。KatiKati 會正常結束 App，因此 App 本身的儲存提示仍會出現。留空即關閉；需要輔助使用權限。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "アプリごとにバンドル ID を 1 つ、カンマ区切りで入力します。KatiKati はアプリを正常終了させるため、アプリ自身の保存確認は表示されます。空欄はオフです。アクセシビリティ権限が必要です。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Eine Bundle-ID pro App, durch Kommas getrennt. KatiKati beendet die App regulär, daher erscheint deren eigener Sicherungshinweis. Leer bedeutet aus; benötigt Bedienungshilfen."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Un identifiant de bundle par app, séparés par des virgules. KatiKati quitte l’app normalement, donc son invitation à enregistrer s’affiche toujours. Vide signifie désactivé ; nécessite Accessibilité."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Un ID de bundle por app, separados por comas. KatiKati cierra la app de forma normal, así que su propio aviso de guardado sigue apareciendo. Vacío significa desactivado; requiere Accesibilidad."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Un ID de bundle por app, separados por comas. KatiKati cierra la app de forma normal, así que su propio aviso de guardado sigue apareciendo. Vacío significa desactivado; requiere Accesibilidad."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Um ID de bundle por app, separados por vírgulas. O KatiKati encerra o app normalmente, então o próprio aviso de salvar ainda aparece. Vazio significa desligado; requer Acessibilidade."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Um ID de bundle por app, separados por vírgulas. O KatiKati encerra a app normalmente, pelo que o próprio aviso de guardar continua a aparecer. Vazio significa desativado; requer Acessibilidade."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Un ID bundle per app, separati da virgole. KatiKati chiude l’app normalmente, quindi il suo avviso di salvataggio appare comunque. Vuoto significa disattivato; richiede Accessibilità."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "앱마다 번들 ID를 하나씩 쉼표로 구분해 입력하세요. KatiKati는 앱을 정상 종료하므로 앱 자체의 저장 확인이 표시됩니다. 비워 두면 꺼집니다. 손쉬운 사용 권한이 필요합니다."}}
+      }
+    },
+    "Pinned items never expire. History is kept in memory only.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Pinned items never expire. History is kept in memory only."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "置顶项目永不过期。历史仅保存在内存中。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "釘選項目永不過期。歷史僅保存在記憶體中。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ピン留めした項目は期限切れになりません。履歴はメモリ内にのみ保持されます。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Angeheftete Einträge laufen nie ab. Der Verlauf bleibt nur im Arbeitsspeicher."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Les éléments épinglés n’expirent jamais. L’historique reste uniquement en mémoire."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Los elementos fijados nunca caducan. El historial solo se guarda en memoria."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Los elementos fijados nunca caducan. El historial solo se guarda en memoria."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Itens fixados nunca expiram. O histórico fica apenas na memória."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Itens fixados nunca expiram. O histórico fica apenas na memória."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Gli elementi fissati non scadono mai. La cronologia resta solo in memoria."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "고정한 항목은 만료되지 않습니다. 기록은 메모리에만 보관됩니다."}}
+      }
+    },
+    "Quit when the last window closes (bundle IDs)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Quit when the last window closes (bundle IDs)"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "最后一个窗口关闭时退出（Bundle ID）"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "最後一個視窗關閉時結束（Bundle ID）"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "最後のウインドウを閉じたら終了（バンドル ID）"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Beim Schließen des letzten Fensters beenden (Bundle-IDs)"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Quitter à la fermeture de la dernière fenêtre (identifiants de bundle)"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Salir al cerrar la última ventana (ID de bundle)"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Salir al cerrar la última ventana (ID de bundle)"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sair ao fechar a última janela (IDs de bundle)"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sair ao fechar a última janela (IDs de bundle)"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Esci alla chiusura dell’ultima finestra (ID bundle)"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "마지막 윈도우를 닫으면 종료 (번들 ID)"}}
+      }
+    },
+    "Review Caches…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Review Caches…"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "检查缓存…"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "檢查快取…"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "キャッシュを確認…"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Caches prüfen…"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Examiner les caches…"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Revisar cachés…"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Revisar cachés…"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Revisar caches…"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Rever caches…"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Esamina cache…"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "캐시 검토…"}}
+      }
+    },
+    "Clear Clipboard History?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Clear Clipboard History?"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "清除剪贴板历史记录？"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "清除剪貼簿歷史記錄？"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "クリップボード履歴を消去しますか？"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zwischenablageverlauf löschen?"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Effacer l’historique du presse-papiers ?"}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Borrar el historial del portapapeles?"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "¿Borrar el historial del portapapeles?"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Limpar histórico da área de transferência?"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Limpar histórico da área de transferência?"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cancellare la cronologia degli appunti?"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "클립보드 기록을 지울까요?"}}
+      }
+    },
+    "Pinned entries stay; everything else is forgotten. History is never saved to disk.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Pinned entries stay; everything else is forgotten. History is never saved to disk."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "固定项会保留，其余内容会被忘记。历史记录从不写入磁盘。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "固定項目會保留，其餘內容會被忘記。歷史記錄從不寫入磁碟。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ピン留めした項目は残り、それ以外は忘れられます。履歴はディスクに保存されません。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Angeheftete Einträge bleiben, alles andere wird vergessen. Der Verlauf wird nie auf der Festplatte gespeichert."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Les éléments épinglés restent ; le reste est oublié. L’historique n’est jamais enregistré sur le disque."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Los elementos fijados se quedan; el resto se olvida. El historial nunca se guarda en el disco."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Los elementos fijados se quedan; el resto se olvida. El historial nunca se guarda en el disco."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Itens fixados ficam; o resto é esquecido. O histórico nunca é salvo no disco."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Itens fixados ficam; o resto é esquecido. O histórico nunca é guardado no disco."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Gli elementi fissati restano; il resto viene dimenticato. La cronologia non viene mai salvata su disco."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "고정된 항목은 남고 나머지는 사라집니다. 기록은 디스크에 저장되지 않습니다."}}
+      }
+    },
+    "Clear Unpinned Shelf Items?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Clear Unpinned Shelf Items?"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "清除未固定的搁板项目？"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "清除未固定的擱板項目？"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ピン留めされていないシェルフ項目を消去しますか？"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Nicht angeheftete Shelf-Einträge löschen?"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Effacer les éléments non épinglés du plateau ?"}},
+        "es": {"stringUnit": {"state": "translated", "value": "¿Borrar los elementos no fijados del estante?"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "¿Borrar los elementos no fijados del estante?"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Limpar itens não fixados da prateleira?"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Limpar itens não fixados da prateleira?"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cancellare gli elementi non fissati del ripiano?"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "고정되지 않은 선반 항목을 지울까요?"}}
+      }
+    },
+    "Unpinned entries leave the shelf and its own copies are deleted. Pinned items stay.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Unpinned entries leave the shelf and its own copies are deleted. Pinned items stay."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "未固定的项目会离开搁板，其自身副本会被删除。固定项会保留。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "未固定的項目會離開擱板，其自身副本會被刪除。固定項目會保留。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ピン留めされていない項目はシェルフから外れ、自身のコピーは削除されます。ピン留めした項目は残ります。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Nicht angeheftete Einträge verlassen das Shelf und eigene Kopien werden gelöscht. Angeheftete Einträge bleiben."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Les éléments non épinglés quittent le plateau et ses propres copies sont supprimées. Les éléments épinglés restent."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Los elementos no fijados salen del estante y sus propias copias se eliminan. Los elementos fijados se quedan."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Los elementos no fijados salen del estante y sus propias copias se eliminan. Los elementos fijados se quedan."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Itens não fixados saem da prateleira e suas próprias cópias são apagadas. Itens fixados ficam."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Itens não fixados saem da prateleira e as suas próprias cópias são apagadas. Itens fixados ficam."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Gli elementi non fissati lasciano il ripiano e le sue copie vengono eliminate. Gli elementi fissati restano."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "고정되지 않은 항목은 선반에서 사라지고 자체 사본도 삭제됩니다. 고정된 항목은 남습니다."}}
+      }
     }
   },
   "version": "1.0"

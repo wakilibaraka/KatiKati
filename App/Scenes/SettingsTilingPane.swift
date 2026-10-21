@@ -127,6 +127,19 @@ struct SettingsTilingPane: View {
                     SettingsNote(Text("Some windows would end up too small, so the newest ones stay as they are."))
                 }
             }
+
+            SettingsDivider()
+            SettingsRow(
+                Text("Quit when the last window closes (bundle IDs)"),
+                note: Text("One bundle identifier per app, separated by commas. KatiKati quits the app gracefully, so its own save prompt still runs. Empty means off; needs Accessibility.")
+            ) {
+                TextField("Quit when the last window closes (bundle IDs)", text: Binding(
+                    get: { QuitOnLastWindowService.shared.apps },
+                    set: { QuitOnLastWindowService.shared.setApps($0) }
+                ))
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 220)
+            }
         }
 
         SettingsCard(Text("How It Works")) {

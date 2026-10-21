@@ -10,6 +10,7 @@ struct UtilitySettingsBlock: View {
     @AppStorage(ClipboardMonitor.soundsKey) private var clipboardSounds = false
     @AppStorage(ClipboardMonitor.notchToastKey) private var clipboardToast = false
     @AppStorage(ClipboardMonitor.ignorePatternsKey) private var clipboardIgnorePatterns = ""
+    @AppStorage(ClipboardMonitor.keepDaysKey) private var clipboardKeepDays = 0
     @AppStorage(CustomCommand.key) private var customCommands = ""
     @AppStorage(CustomCommand.snippetsKey) private var snippets = ""
 
@@ -32,6 +33,22 @@ struct UtilitySettingsBlock: View {
                     SettingsToggleRow(Text("Copy Sounds"), isOn: $clipboardSounds)
                     SettingsDivider()
                     SettingsToggleRow(Text("Copy Notifications"), isOn: $clipboardToast)
+                    SettingsDivider()
+                    SettingsPickerRow(
+                        Text("Keep Clipboard History"),
+                        selection: Binding(
+                            get: { clipboardKeepDays },
+                            set: { days in
+                                clipboardKeepDays = days
+                                ProductivityServices.shared.clipboard.setRetention(days: days)
+                            }
+                        )
+                    ) {
+                        Text("Forever").tag(0)
+                        Text("7 days").tag(7)
+                        Text("30 days").tag(30)
+                    }
+                    SettingsNote(Text("Pinned items never expire. History is kept in memory only."))
                 }
             } trailing: {
                 SettingsCard(Text("Commands & Snippets")) {
@@ -91,7 +108,7 @@ struct UtilitySettingsBlock: View {
                     .labelsHidden().pickerStyle(.menu).fixedSize()
                 }
                 SettingsDivider()
-                SettingsButtonRow(Text("Clear Unpinned")) { AppDelegate.shared?.shelfStore.clear() }
+                SettingsButtonRow(Text("Clear Unpinned")) { confirmShelfClear() }
                 SettingsDivider()
                 SettingsRow(Text("System Dock")) {
                     Button("Restore Dock") { AppDelegate.shared?.restoreNativeDock() }
@@ -99,6 +116,19 @@ struct UtilitySettingsBlock: View {
                 }
             }
         }
+    }
+
+    /// 55d: a bulk delete of shelf entries asks first. Single-item remove stays immediate; this one drops
+    /// every unpinned entry at once.
+    private func confirmShelfClear() {
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Clear Unpinned Shelf Items?")
+        alert.informativeText = String(localized: "Unpinned entries leave the shelf and its own copies are deleted. Pinned items stay.")
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String(localized: "Clear Unpinned"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        if alert.runModal() == .alertFirstButtonReturn { AppDelegate.shared?.shelfStore.clear() }
     }
 }
 

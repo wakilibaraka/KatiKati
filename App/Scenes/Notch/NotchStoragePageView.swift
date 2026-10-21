@@ -8,6 +8,7 @@ import SwiftUI
 
 struct NotchStoragePageView: View {
     @ObservedObject private var scanner = StorageScanService.shared
+    @ObservedObject private var cleaner = CleanerService.shared
 
     var body: some View {
         HStack(spacing: NotchDesignSpec.cardSpacing) {
@@ -39,6 +40,7 @@ struct NotchStoragePageView: View {
             } else {
                 rows(items)
             }
+            if !showsDoor { reviewCaches }
             if showsDoor && !scanner.hasFullDiskAccess { accessDoor }
         }
         .padding(NotchDesignSpec.cardPadding)
@@ -70,6 +72,56 @@ struct NotchStoragePageView: View {
                 }
                 .buttonStyle(.plain)
             }
+        }
+    }
+
+    /// 55d: dry-run first. The confirmation lists the folders and their total; only its destructive button
+    /// moves them to the Trash. No timer and no automatic deletion.
+    private var reviewCaches: some View {
+        Button { reviewCachesTapped() } label: {
+            cleaner.isScanning ? Text("Scanning…") : Text("Review Caches…")
+        }
+            .buttonStyle(.plain)
+            .font(.system(size: 10, weight: .semibold, design: .rounded))
+            .foregroundStyle(.cyan)
+            .disabled(cleaner.isScanning)
+    }
+
+    private func reviewCachesTapped() {
+        cleaner.scan {
+            let candidates = cleaner.candidates
+            guard !candidates.isEmpty else {
+                let empty = NSAlert()
+                empty.messageText = String(localized: "Nothing to Clean")
+                empty.informativeText = String(localized: "No cache folder older than a week and larger than 50 MB was found.")
+                NSApp.activate(ignoringOtherApps: true)
+                empty.runModal()
+                return
+            }
+            let total = ByteCountFormatter.string(fromByteCount: CleanupPlan.totalBytes(candidates), countStyle: .file)
+            let preview = candidates.prefix(8).map { candidate in
+                "• \(candidate.name) — \(ByteCountFormatter.string(fromByteCount: candidate.bytes, countStyle: .file))"
+            }.joined(separator: "\n")
+            let alert = NSAlert()
+            alert.messageText = String(localized: "Move Caches to the Trash?")
+            alert.informativeText = String(format: String(localized: "%d items, %@. They are moved to the Trash, so you can put them back; apps rebuild them as needed.\n\n%@"),
+                                           candidates.count, total, preview)
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: String(localized: "Move to Trash"))
+            alert.addButton(withTitle: String(localized: "Cancel"))
+            NSApp.activate(ignoringOtherApps: true)
+            guard alert.runModal() == .alertFirstButtonReturn else { return }
+            let outcome = cleaner.clean(candidates)
+            let done = NSAlert()
+            done.messageText = String(localized: "Caches Moved to the Trash")
+            let moved = String(format: String(localized: "%d items, %@."), outcome.moved,
+                               ByteCountFormatter.string(fromByteCount: outcome.bytes, countStyle: .file))
+            let failed = outcome.failed > 0
+                ? " " + String(format: String(localized: "%d could not be moved."), outcome.failed)
+                : ""
+            done.informativeText = moved + failed
+            NSApp.activate(ignoringOtherApps: true)
+            done.runModal()
         }
     }
 

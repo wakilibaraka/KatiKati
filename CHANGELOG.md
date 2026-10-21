@@ -2,6 +2,21 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 53d, 55d and 55g: opt-in quit, cache review, retention
+
+### Added
+- Settings → Tiling: "Quit when the last window closes" takes a comma-separated list of bundle IDs and is
+  empty (off) by default. An app on the list quits after its last window closes, gracefully, so its own
+  save prompt still runs; Finder, the Dock and KatiKati itself are always ignored. Needs Accessibility.
+- Notch → Storage: "Review Caches…" lists stale cache and log folders (7+ days old, 50 MB+), names the
+  total in a confirmation, and moves only the folders you confirm to the Trash. No timer, nothing deleted
+  without the confirmation.
+- Settings → Tools: "Keep Clipboard History" keeps history Forever (default), 7 days or 30 days. Pinned
+  entries never expire.
+
+### Changed
+- Clearing clipboard history and clearing unpinned shelf items now ask for confirmation first.
+
 ## [0.17.0 beta 3] — 2026-10-19
 
 Notch redesign, Settings redesign and stability fixes; see `Docs/Releases/RELEASE_NOTES_v0.17.0-beta.3.md`.

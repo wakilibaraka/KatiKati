@@ -386,6 +386,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] on in self?.applyPinch(on) }
             KeyGuardService.shared.refresh()
+            QuitOnLastWindowService.shared.start()
             NotificationMoveService.shared.refresh()
             DailyHelpersService.shared.deliver = { [weak self] in self?.liveEventCenter.deliver($0, now: Date()) }
             DailyHelpersService.shared.start()

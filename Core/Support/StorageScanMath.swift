@@ -70,6 +70,52 @@ enum StorageCategory: CaseIterable, Sendable {
     }
 }
 
+/// 55d: one cache/log folder the cleaner may offer. Direct children only, so a whole cache tree moves as a
+/// unit and the Trash is still a single Put Back.
+struct CleanupCandidate: Equatable, Identifiable, Sendable {
+    var path: String
+    var bytes: Int64
+    var lastModified: Date
+
+    var id: String { path }
+    var name: String { (path as NSString).lastPathComponent }
+}
+
+/// 55d: which folders a review-first cleaner may list. Caches and logs only, never documents, and only
+/// entries that are both stale and big enough to be worth a decision. The service moves them to the Trash;
+/// nothing here ever unlinks.
+enum CleanupPlan {
+    static let minAgeDays = 7
+    static let minBytes: Int64 = 50_000_000
+
+    /// Roots whose direct children are rebuildable. The app's own caches are filtered out per entry.
+    static func roots(home: String) -> [String] {
+        [home + "/Library/Caches", home + "/Library/Logs", home + "/Library/Developer/Xcode/DerivedData",
+         home + "/.cache", home + "/.npm", home + "/.gradle"]
+    }
+
+    /// Apple's own caches belong to running system services, ours would be recreated under us, and a
+    /// `noindex` entry is a marker, not data.
+    static func isExcluded(_ path: String) -> Bool {
+        let name = (path as NSString).lastPathComponent.lowercased()
+        guard !name.isEmpty else { return true }
+        if name.hasPrefix("com.apple.") || name.hasPrefix("com.katikati.") { return true }
+        return name.hasSuffix(".noindex")
+    }
+
+    /// The list the confirmation shows: stale, big enough, not excluded, biggest first.
+    static func candidates(from entries: [CleanupCandidate], now: Date = Date()) -> [CleanupCandidate] {
+        let cutoff = now.addingTimeInterval(-Double(minAgeDays) * 86_400)
+        return entries
+            .filter { $0.bytes >= minBytes && $0.lastModified <= cutoff && !isExcluded($0.path) }
+            .sorted { $0.bytes != $1.bytes ? $0.bytes > $1.bytes : $0.path < $1.path }
+    }
+
+    static func totalBytes(_ candidates: [CleanupCandidate]) -> Int64 {
+        candidates.reduce(0) { $0 + max(0, $1.bytes) }
+    }
+}
+
 extension StorageScanMath {
     /// Folders the Files half walks: where a person keeps their own things.
     static func personalRoots(home: String) -> [String] {

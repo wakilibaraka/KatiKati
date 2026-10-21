@@ -1144,6 +1144,10 @@
 		C47000000000000000000013 /* NotchNotificationsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000012 /* NotchNotificationsPageView.swift */; };
 		C47000000000000000000014 /* NotchNotificationsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000012 /* NotchNotificationsPageView.swift */; };
 		C47000000000000000000016 /* NotificationMirrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000015 /* NotificationMirrorTests.swift */; };
+		B70000000000000000000101 /* QuitOnLastWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000100 /* QuitOnLastWindow.swift */; };
+		B70000000000000000000102 /* QuitOnLastWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000100 /* QuitOnLastWindow.swift */; };
+		B70000000000000000000111 /* QuitOnLastWindowService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000110 /* QuitOnLastWindowService.swift */; };
+		B70000000000000000000121 /* CleanerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000120 /* CleanerService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1950,6 +1954,9 @@
 		C4700000000000000000000F /* NotificationMirrorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotificationMirrorService.swift; path = App/Composition/NotificationMirrorService.swift; sourceTree = SOURCE_ROOT; };
 		C47000000000000000000012 /* NotchNotificationsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchNotificationsPageView.swift; path = App/Scenes/Notch/NotchNotificationsPageView.swift; sourceTree = SOURCE_ROOT; };
 		C47000000000000000000015 /* NotificationMirrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotificationMirrorTests.swift; path = Tests/Unit/NotificationMirrorTests.swift; sourceTree = SOURCE_ROOT; };
+		B70000000000000000000100 /* QuitOnLastWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuitOnLastWindow.swift; path = Core/Support/QuitOnLastWindow.swift; sourceTree = SOURCE_ROOT; };
+		B70000000000000000000110 /* QuitOnLastWindowService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuitOnLastWindowService.swift; path = App/Composition/QuitOnLastWindowService.swift; sourceTree = SOURCE_ROOT; };
+		B70000000000000000000120 /* CleanerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CleanerService.swift; path = App/Composition/CleanerService.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2103,6 +2110,8 @@
 				A7A500000000000000000003 /* TrashStateStore+Live.swift */,
 				E90000000000000000000002 /* TaskbarDebugSnapshot.swift */,
 				A00000000000000000000003 /* AppComposition.swift */,
+				B70000000000000000000110 /* QuitOnLastWindowService.swift */,
+				B70000000000000000000120 /* CleanerService.swift */,
 				B10000000000000000000136 /* DisplayTopologyStore.swift */,
 				A0000000000000000000006B /* DrawerStore.swift */,
 				A000000000000000000019B0 /* MessagingAppStore.swift */,
@@ -2576,6 +2585,7 @@
 				A0000000000000000000A210 /* Bookmarks.swift */,
 				A0000000000000000000A230 /* FileIndex.swift */,
 				A0000000000000000000A260 /* KeyGuard.swift */,
+				B70000000000000000000100 /* QuitOnLastWindow.swift */,
 				A0000000000000000000A310 /* NotificationPlacement.swift */,
 				A0000000000000000001F000 /* SnapRects.swift */,
 				A0000000000000000001F020 /* TilingGaps.swift */,
@@ -3102,6 +3112,9 @@
 				A0000000000000000000A261 /* KeyGuard.swift in Sources */,
 				A0000000000000000000A311 /* NotificationPlacement.swift in Sources */,
 				A0000000000000000000A281 /* KeyGuardService.swift in Sources */,
+				B70000000000000000000101 /* QuitOnLastWindow.swift in Sources */,
+				B70000000000000000000111 /* QuitOnLastWindowService.swift in Sources */,
+				B70000000000000000000121 /* CleanerService.swift in Sources */,
 				A0000000000000000000A321 /* NotificationMoveService.swift in Sources */,
 				A0000000000000000001F081 /* TilingEngine.swift in Sources */,
 				A0000000000000000000A291 /* SlowQuitOverlay.swift in Sources */,
@@ -3745,6 +3758,8 @@
 				A0000000000000000000A262 /* KeyGuard.swift in Sources */,
 				A0000000000000000000A312 /* NotificationPlacement.swift in Sources */,
 				A0000000000000000000A282 /* KeyGuardService.swift in Sources */,
+				B70000000000000000000102 /* QuitOnLastWindow.swift in Sources */,
+				B70000000000000000000111 /* QuitOnLastWindowService.swift in Sources */,
 				A0000000000000000000A322 /* NotificationMoveService.swift in Sources */,
 				A0000000000000000001F082 /* TilingEngine.swift in Sources */,
 				ED0000000000000000000F6A /* WindowSnapService.swift in Sources */,

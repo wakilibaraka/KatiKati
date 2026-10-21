@@ -9,6 +9,8 @@ final class ClipboardMonitor: ObservableObject {
     static let soundsKey = "com.katikati.clipboard.sounds"
     static let notchToastKey = "com.katikati.clipboard.notchToast"
     static let ignorePatternsKey = "com.katikati.clipboard.ignorePatterns"
+    /// 55g: unpinned entries older than this many days are dropped; 0 (the default) keeps everything.
+    static let keepDaysKey = "com.katikati.clipboard.keepDays"
 
     @Published private(set) var history = ClipboardHistory()
     @Published private(set) var isRecording: Bool
@@ -63,6 +65,12 @@ final class ClipboardMonitor: ObservableObject {
         }
     }
 
+    /// 55g: applies the retention setting to what is already in memory and to every later copy.
+    func setRetention(days: Int) {
+        defaults.set(max(0, days), forKey: Self.keepDaysKey)
+        history.prune(olderThanDays: max(0, days))
+    }
+
     func togglePin(_ id: UUID) { history.togglePin(id) }
     func remove(_ id: UUID) { history.remove(id) }
     func clear() { history.clear() }
@@ -83,6 +91,7 @@ final class ClipboardMonitor: ObservableObject {
         let rules = ClipboardIgnoreRules.parseLines(defaults.string(forKey: Self.ignorePatternsKey) ?? "")
         guard !ClipboardIgnoreRules.matches(text, rules: rules) else { return }
         history.remember(text)
+        history.prune(olderThanDays: defaults.integer(forKey: Self.keepDaysKey))
         if defaults.bool(forKey: Self.soundsKey) { NSSound(named: "Tink")?.play() }
         onRecorded?(text)
     }

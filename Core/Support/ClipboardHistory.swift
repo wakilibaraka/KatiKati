@@ -15,6 +15,16 @@ struct ClipEntry: Equatable, Identifiable, Sendable {
     }
 }
 
+/// 55g: age-based retention. Pinned entries never expire, and `days == 0` means keep everything, which is
+/// the default. The history is in memory only, so this never touches the disk.
+enum ClipboardRetention {
+    static func prune(_ entries: [ClipEntry], now: Date = Date(), days: Int) -> [ClipEntry] {
+        guard days > 0 else { return entries }
+        let cutoff = now.addingTimeInterval(-Double(days) * 86_400)
+        return entries.filter { $0.pinned || $0.date >= cutoff }
+    }
+}
+
 /// Clipboard history rules. Normalisation, case-insensitive-prefix "growing dictation" merge and the one-line
 /// preview follow Hop's clipboard module (MIT, NOTICE §9).
 struct ClipboardHistory: Equatable, Sendable {
@@ -65,6 +75,11 @@ struct ClipboardHistory: Equatable, Sendable {
     }
 
     mutating func remove(_ id: UUID) { entries.removeAll { $0.id == id } }
+
+    /// 55g: drop unpinned entries older than `days`; 0 keeps everything. Pinned entries are never old.
+    mutating func prune(olderThanDays days: Int, now: Date = Date()) {
+        entries = ClipboardRetention.prune(entries, now: now, days: days)
+    }
 
     mutating func clear(keepingPinned: Bool = true) { entries = keepingPinned ? entries.filter(\.pinned) : [] }
 

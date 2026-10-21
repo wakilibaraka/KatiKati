@@ -7,6 +7,7 @@ struct ClipboardFlyoutView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.edgeBarStyle) private var barStyle
     @State private var copiedID: UUID?
+    @State private var confirmingClear = false
 
     var body: some View {
         let size = ProductivityFlyout.size(.clipboard)
@@ -16,7 +17,7 @@ struct ClipboardFlyoutView: View {
                 Text("Clipboard")
                 Spacer()
                 if !monitor.history.entries.isEmpty {
-                    Button { monitor.clear() } label: { Image(systemName: "trash") }
+                    Button { confirmingClear = true } label: { Image(systemName: "trash") }
                         .buttonStyle(.plain).help(Text("Clear History"))
                 }
                 Toggle(isOn: Binding(get: { monitor.isRecording }, set: { monitor.setRecording($0) })) { EmptyView() }
@@ -41,6 +42,12 @@ struct ClipboardFlyoutView: View {
             }
         })
         .padding(8)
+        .confirmationDialog(Text("Clear Clipboard History?"), isPresented: $confirmingClear) {
+            Button("Clear History", role: .destructive) { monitor.clear() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Pinned entries stay; everything else is forgotten. History is never saved to disk.")
+        }
     }
 
     private func row(_ entry: ClipEntry, env: TileEnv) -> some View {

@@ -64,3 +64,30 @@ final class ClipboardHistoryTests: XCTestCase {
         XCTAssertEqual(ClipboardHistory.previewLine("\n\n"), "")
     }
 }
+
+/// 55g: pinned entries never expire; 0 keeps everything.
+final class ClipboardRetentionTests: XCTestCase {
+    private let now = Date(timeIntervalSince1970: 2_000_000_000)
+
+    private func entry(_ text: String, daysOld: Double, pinned: Bool = false) -> ClipEntry {
+        ClipEntry(text: text, pinned: pinned, date: now.addingTimeInterval(-daysOld * 86_400))
+    }
+
+    func testOffKeepsEverything() {
+        let entries = [entry("old", daysOld: 365)]
+        XCTAssertEqual(ClipboardRetention.prune(entries, now: now, days: 0), entries)
+    }
+
+    func testUnpinnedExpireAndPinnedStay() {
+        let entries = [entry("old", daysOld: 40), entry("new", daysOld: 2), entry("pin", daysOld: 400, pinned: true)]
+        XCTAssertEqual(ClipboardRetention.prune(entries, now: now, days: 30).map(\.text), ["new", "pin"])
+    }
+
+    func testHistoryPruneUsesTheSameRule() {
+        var history = ClipboardHistory()
+        history.remember("old", now: now.addingTimeInterval(-40 * 86_400))
+        history.remember("new", now: now)
+        history.prune(olderThanDays: 30, now: now)
+        XCTAssertEqual(history.entries.map(\.text), ["new"])
+    }
+}
