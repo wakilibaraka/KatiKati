@@ -35746,13 +35746,13 @@
         }
       }
     },
-    "Glance": {
+    "Overview": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Glance"
+            "value": "Overview"
           }
         },
         "zh-Hans": {
