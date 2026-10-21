@@ -96,7 +96,7 @@ struct WeatherIPadChip: View {
     private func hourSlot(_ slot: WeatherHourSlot, reservesRain: Bool) -> some View {
         VStack(spacing: 2) {
             Group { if slot.isNow { Text("Now") } else { Text(verbatim: slot.hour) } }
-                .font(.system(size: 11, weight: slot.isNow ? .bold : .medium, design: .rounded)).opacity(0.8)
+                .font(.system(size: 11, weight: slot.isNow ? .bold : .medium, design: .rounded)).opacity(0.8).minimumScaleFactor(0.7)
             Image(systemName: slot.symbolName).symbolRenderingMode(.multicolor).font(.system(size: 12, weight: .medium)).frame(height: 13)
             Text(verbatim: "\(Int(round(slot.temperatureCelsius)))°").font(.system(size: 11, weight: .bold, design: .rounded)).monospacedDigit()
             if reservesRain {
