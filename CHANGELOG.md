@@ -2,6 +2,14 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 58a: the welcome guide names the microphone
+
+### Added
+- The welcome guide's **Permissions** step now lists **Microphone** beside Accessibility, Screen Recording and
+  Input Monitoring. The voice recorder and the camera mirror both need it, and without it macOS answers with
+  silence rather than an error. The step already re-reads every grant once a second, so the row flips to
+  Granted as soon as you allow it.
+
 ## [Unreleased] — Phase 57c: a floating orb for the launcher
 
 ### Added

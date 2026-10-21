@@ -75056,6 +75056,40 @@
         "it": {"stringUnit": {"state": "translated", "value": "Una piccola sfera di vetro sopra le tue finestre: fai clic per aprire il launcher e trascinala dove vuoi."}},
         "ko": {"stringUnit": {"state": "translated", "value": "창 위에 떠 있는 작은 유리 구슬입니다. 클릭하면 런처가 열리고, 끌어서 원하는 곳에 둘 수 있습니다."}}
       }
+    },
+    "Microphone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Microphone"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "麦克风"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "麥克風"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "マイク"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Mikrofon"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Microphone"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Micrófono"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Micrófono"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Microfone"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Microfone"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Microfono"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "마이크"}}
+      }
+    },
+    "Only for the voice recorder and the camera mirror. Nothing records until you start one.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Only for the voice recorder and the camera mirror. Nothing records until you start one."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "只用于录音机与摄像头镜像。你不开始录制，它就不会录音。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "只用於錄音機與相機鏡像。你不開始錄製，它就不會錄音。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ボイスレコーダーとカメラミラー専用です。録音を始めるまで何も記録しません。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Nur für den Sprachrecorder und den Kameraspiegel. Aufgenommen wird erst, wenn du startest."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Uniquement pour l’enregistreur vocal et le miroir de la caméra. Rien n’est enregistré avant que vous ne démarriez."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Solo para la grabadora de voz y el espejo de cámara. No se graba nada hasta que empieces."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Solo para la grabadora de voz y el espejo de cámara. No se graba nada hasta que empieces."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Só para o gravador de voz e o espelho da câmera. Nada é gravado até você iniciar."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Só para o gravador de voz e o espelho da câmara. Nada é gravado até iniciar."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Solo per il registratore vocale e lo specchio della fotocamera. Nulla viene registrato finché non avvii."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "음성 녹음기와 카메라 미러에만 사용됩니다. 시작하기 전에는 아무것도 녹음하지 않습니다."}}
+      }
     }
   },
   "version": "1.0"

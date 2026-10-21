@@ -1,4 +1,5 @@
 import AppKit
+import AVFoundation
 import SwiftUI
 
 /// 窗口根视图。和权限引导同一个结构：滚动条平时不出现，窗口高度由内容自然高度决定，
@@ -65,7 +66,8 @@ struct WelcomeGuideView: View {
     @State private var accessibilityGranted = AXIsProcessTrusted()
     @State private var screenRecordingGranted = CGPreflightScreenCaptureAccess()
     @State private var inputMonitoringGranted = CGPreflightListenEventAccess()
-    /// Re-reads the three grants once a second, only acted on while the Permissions step is showing.
+    @State private var microphoneGranted = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+    /// Re-reads the four grants once a second, only acted on while the Permissions step is showing.
     private let permissionTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     /// 宽度固定：窗口高度由 `fittingSize` 决定，宽度不能跟着文案长短抖。
@@ -195,6 +197,15 @@ struct WelcomeGuideView: View {
                           note: Text("Only for the optional Hyper key. Skip it if you won’t use that."),
                           isGranted: inputMonitoringGranted,
                           grant: { _ = CGRequestListenEventAccess(); PermissionRow.openPrivacy("Privacy_ListenEvent") })
+            // 58a: the fourth grant. Both the recorder and the camera mirror ask for it, and without it macOS
+            // answers with silence rather than an error, so the step has to name it.
+            PermissionRow(title: Text("Microphone"),
+                          note: Text("Only for the voice recorder and the camera mirror. Nothing records until you start one."),
+                          isGranted: microphoneGranted,
+                          grant: {
+                              AVCaptureDevice.requestAccess(for: .audio) { _ in }
+                              PermissionRow.openPrivacy("Privacy_Microphone")
+                          })
             Spacer(minLength: 0)
             Divider()
             HStack(spacing: 8) {
@@ -211,6 +222,7 @@ struct WelcomeGuideView: View {
             accessibilityGranted = AXIsProcessTrusted()
             screenRecordingGranted = CGPreflightScreenCaptureAccess()
             inputMonitoringGranted = CGPreflightListenEventAccess()
+            microphoneGranted = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
         }
     }
 
