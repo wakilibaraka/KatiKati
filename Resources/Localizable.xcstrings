@@ -73631,6 +73631,108 @@
         "it": {"stringUnit": {"state": "translated", "value": "Apri Monitoraggio attività"}},
         "ko": {"stringUnit": {"state": "translated", "value": "활동 모니터 열기"}}
       }
+    },
+    "Protect Caps Lock": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Protect Caps Lock"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "防误触 Caps Lock"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "防誤觸 Caps Lock"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Caps Lock の誤操作防止"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Caps Lock schützen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Protéger Verr. maj."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Proteger Bloq Mayús"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Proteger Bloq Mayús"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Proteger Caps Lock"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Proteger Caps Lock"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Proteggi Bloc Maiusc"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Caps Lock 보호"}}
+      }
+    },
+    "A quick tap on Caps Lock does nothing; hold it briefly to switch Caps Lock. It needs the Accessibility permission to send the toggle, and does nothing while Hyper Key is on because Caps Lock then becomes F18.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "A quick tap on Caps Lock does nothing; hold it briefly to switch Caps Lock. It needs the Accessibility permission to send the toggle, and does nothing while Hyper Key is on because Caps Lock then becomes F18."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "快速轻按 Caps Lock 不会生效；短暂按住即可切换 Caps Lock。发送切换事件需要辅助功能权限；开启 Hyper 键后 Caps Lock 会变为 F18，此功能不生效。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "快速輕按 Caps Lock 不會生效；短暫按住即可切換 Caps Lock。傳送切換事件需要輔助使用權限；開啟 Hyper 鍵後 Caps Lock 會變為 F18，此功能不生效。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Caps Lock をすばやく叩いても何も起こらず、少し長押しすると切り替わります。切り替えの送信にはアクセシビリティ権限が必要です。Hyper キーがオンの間は Caps Lock が F18 になるため、この機能は動作しません。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ein kurzes Tippen auf die Feststelltaste bewirkt nichts; kurz halten schaltet sie um. Das Senden benötigt die Bedienungshilfen-Berechtigung. Bei aktiver Hyper-Taste wird Caps Lock zu F18 und die Funktion ist inaktiv."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Une pression rapide sur Verr. maj. ne fait rien ; maintenez-la brièvement pour basculer. L'envoi nécessite l'autorisation Accessibilité. Quand la touche Hyper est active, Verr. maj. devient F18 et cette fonction est inactive."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Un toque rápido en Bloq Mayús no hace nada; manténlo brevemente para cambiarlo. Enviar el cambio requiere el permiso de Accesibilidad. Con la tecla Hyper activa, Bloq Mayús pasa a ser F18 y esta función no se aplica."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Un toque rápido en Bloq Mayús no hace nada; mantenlo brevemente para cambiarlo. Enviar el cambio requiere el permiso de Accesibilidad. Con la tecla Hyper activa, Bloq Mayús pasa a ser F18 y esta función no se aplica."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Um toque rápido em Caps Lock não faz nada; segure brevemente para alterná-lo. O envio exige a permissão de Acessibilidade. Com a tecla Hyper ativa, o Caps Lock vira F18 e este recurso não se aplica."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Um toque rápido em Caps Lock não faz nada; mantenha brevemente para o alternar. O envio requer a permissão de Acessibilidade. Com a tecla Hyper ativa, o Caps Lock passa a F18 e esta funcionalidade não se aplica."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Un tocco rapido su Bloc Maiusc non fa nulla; tienilo premuto brevemente per attivarlo. L'invio richiede il permesso Accessibilità. Con il tasto Hyper attivo, Bloc Maiusc diventa F18 e questa funzione non si applica."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Caps Lock을 빠르게 누르면 아무 일도 일어나지 않으며, 잠시 길게 누르면 전환됩니다. 전환 이벤트를 보내려면 손쉬운 사용 권한이 필요합니다. Hyper 키가 켜져 있으면 Caps Lock이 F18이 되므로 이 기능은 동작하지 않습니다."}}
+      }
+    },
+    "Finder Keys": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Finder Keys"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "访达按键"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Finder 按鍵"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Finder キー"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Finder-Tasten"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Touches du Finder"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Teclas del Finder"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Teclas del Finder"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Teclas do Finder"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Teclas do Finder"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Tasti del Finder"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Finder 키"}}
+      }
+    },
+    "In Finder, ⌘X copies the selection and marks it for moving, and ⌘V then moves it to the current folder.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "In Finder, ⌘X copies the selection and marks it for moving, and ⌘V then moves it to the current folder."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在访达中，⌘X 会拷贝所选项目并标记为移动，随后按 ⌘V 即可移到当前文件夹。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "在 Finder 中，⌘X 會拷貝所選項目並標記為移動，接著按 ⌘V 即可移到目前檔案夾。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Finder では ⌘X で選択項目をコピーして移動待ちにし、⌘V で現在のフォルダに移動します。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Im Finder kopiert ⌘X die Auswahl und markiert sie zum Verschieben; ⌘V verschiebt sie dann in den aktuellen Ordner."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Dans le Finder, ⌘X copie la sélection et la marque pour un déplacement ; ⌘V la déplace ensuite dans le dossier courant."}},
+        "es": {"stringUnit": {"state": "translated", "value": "En el Finder, ⌘X copia la selección y la marca para moverla; ⌘V la mueve después a la carpeta actual."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "En el Finder, ⌘X copia la selección y la marca para moverla; luego ⌘V la mueve a la carpeta actual."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "No Finder, ⌘X copia a seleção e a marca para mover; ⌘V então a move para a pasta atual."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "No Finder, ⌘X copia a seleção e marca-a para mover; ⌘V move-a depois para a pasta atual."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nel Finder, ⌘X copia la selezione e la contrassegna per lo spostamento; ⌘V la sposta nella cartella corrente."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Finder에서 ⌘X는 선택 항목을 복사하고 이동 대기 상태로 표시하며, ⌘V를 누르면 현재 폴더로 이동합니다."}}
+      }
+    },
+    "Pass ⌘Q through (bundle IDs)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Pass ⌘Q through (bundle IDs)"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "让 ⌘Q 直接传递（Bundle ID）"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "讓 ⌘Q 直接傳遞（Bundle ID）"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "⌘Q をそのまま渡す（バンドル ID）"}},
+        "de": {"stringUnit": {"state": "translated", "value": "⌘Q durchreichen (Bundle-IDs)"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Laisser passer ⌘Q (identifiants de bundle)"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Dejar pasar ⌘Q (ID de bundle)"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Dejar pasar ⌘Q (ID de bundle)"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Deixar ⌘Q passar (IDs de bundle)"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Deixar passar ⌘Q (IDs de bundle)"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Lascia passare ⌘Q (ID bundle)"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "⌘Q 그대로 전달 (번들 ID)"}}
+      }
+    },
+    "These apps keep their own ⌘Q, for remote desktops and virtual machines.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "These apps keep their own ⌘Q, for remote desktops and virtual machines."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "这些应用保留自己的 ⌘Q，适用于远程桌面和虚拟机。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "這些應用程式保留自己的 ⌘Q，適用於遠端桌面和虛擬機器。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "これらのアプリは独自の ⌘Q を使います（リモートデスクトップや仮想マシン向け）。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Diese Apps behalten ihr eigenes ⌘Q – für Remotedesktops und virtuelle Maschinen."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ces apps gardent leur propre ⌘Q (bureaux à distance et machines virtuelles)."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Estas apps conservan su propio ⌘Q (escritorios remotos y máquinas virtuales)."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Estas apps conservan su propio ⌘Q (escritorios remotos y máquinas virtuales)."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Esses apps mantêm o próprio ⌘Q (áreas de trabalho remotas e máquinas virtuais)."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Estas apps mantêm o seu próprio ⌘Q (ambientes de trabalho remotos e máquinas virtuais)."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Queste app mantengono il proprio ⌘Q (desktop remoti e macchine virtuali)."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "이 앱들은 자체 ⌘Q를 사용합니다(원격 데스크톱 및 가상 머신용)."}}
+      }
     }
   },
   "version": "1.0"

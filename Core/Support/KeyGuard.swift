@@ -36,6 +36,8 @@ enum KeyGuardDecision: Equatable, Sendable {
     case swallow
     /// Eat the event and fire the action.
     case consumeAndFire(KeyGuardAction)
+    /// Let the event through under a different key code / extra modifiers (Finder keys). Nothing is synthesized.
+    case rewrite(keyCode: UInt16, addingModifiers: KeyModifiers)
 }
 
 struct KeyGuardState: Equatable, Sendable {
@@ -47,6 +49,10 @@ struct KeyGuardState: Equatable, Sendable {
     var slowQuitHolding = false
     /// The chord that unpauses. Pause swallows everything else.
     var unlockKey: KeyChord?
+    /// 53i: the frontmost app keeps its own ⌘Q (remote desktops, virtual machines).
+    var slowQuitPassthrough = false
+    /// 53b: the Finder key map is on and Finder is frontmost.
+    var finderKeysActive = false
 }
 
 enum KeyGuardPipeline {
@@ -65,7 +71,7 @@ enum KeyGuardPipeline {
             return (.swallow, next)
         }
 
-        guard state.slowQuitEnabled, state.slowQuitApplies else { return (.passThrough, next) }
+        guard state.slowQuitEnabled, state.slowQuitApplies, !state.slowQuitPassthrough else { return (.passThrough, next) }
 
         switch event {
         case .keyDown(quitKeyCode, let mods) where mods.contains(.command):
@@ -82,6 +88,112 @@ enum KeyGuardPipeline {
     static func isUnlock(_ code: UInt16, _ mods: KeyModifiers, _ state: KeyGuardState) -> Bool {
         guard let key = state.unlockKey else { return false }
         return code == key.keyCode && mods == key.modifiers
+    }
+}
+
+/// 53b: Finder has no ⌘X. Rewrite ⌘X to ⌘C (the selection is copied and marked) and ⌘V to ⌘⌥V
+/// ("move item here") while a cut is pending, so the Windows habit works without synthesizing keys.
+/// Return already renames in Finder, so it is left alone.
+/// `shortcut: rewrites inside a Finder text field too (rename / search), upgrade to a focused-element
+/// check if that ever bites.`
+struct FinderKeyMap: Equatable, Sendable {
+    static let cutKey: UInt16 = 7
+    static let copyKey: UInt16 = 8
+    static let pasteKey: UInt16 = 9
+
+    private(set) var cutPending = false
+    private var rewroteCutUp = false
+    private var rewrotePasteUp = false
+
+    mutating func handle(_ event: KeyGuardEvent) -> KeyGuardDecision {
+        switch event {
+        case let .keyDown(code, mods) where mods.contains(.command):
+            switch code {
+            case Self.cutKey:
+                cutPending = true
+                rewroteCutUp = true
+                return .rewrite(keyCode: Self.copyKey, addingModifiers: [])
+            case Self.pasteKey where cutPending:
+                cutPending = false
+                rewrotePasteUp = true
+                return .rewrite(keyCode: Self.pasteKey, addingModifiers: .option)
+            default:
+                return .passThrough
+            }
+        case let .keyUp(code, _):
+            // The key-up must follow the rewritten key-down even if ⌘ was released first.
+            if code == Self.cutKey, rewroteCutUp {
+                rewroteCutUp = false
+                return .rewrite(keyCode: Self.copyKey, addingModifiers: [])
+            }
+            if code == Self.pasteKey, rewrotePasteUp {
+                rewrotePasteUp = false
+                return .rewrite(keyCode: Self.pasteKey, addingModifiers: .option)
+            }
+            return .passThrough
+        default:
+            return .passThrough
+        }
+    }
+
+    mutating func reset() {
+        cutPending = false
+        rewroteCutUp = false
+        rewrotePasteUp = false
+    }
+}
+
+/// 53i: apps where ⌘Q belongs to the remote session, not to the local window. SlowQuit leaves their
+/// ⌘Q untouched instead of swallowing it into a hold.
+/// `shortcut: native ⌘Q, no hold-to-confirm replay (that would need synthetic keys); upgrade if the
+/// owner wants the confirmation kept for these apps.`
+struct SlowQuitPassthrough: Equatable, Sendable {
+    static let defaults = ["com.apple.ScreenSharing", "com.parallels.desktop.console",
+                           "com.vmware.fusion", "com.utmapp.UTM"]
+
+    var bundleIDs: Set<String> = Set(defaults)
+
+    func applies(to bundleID: String?) -> Bool {
+        guard let id = bundleID else { return false }
+        return bundleIDs.contains(id)
+    }
+
+    /// Comma/whitespace separated, the same form the exception list uses. Empty means none.
+    static func parse(_ raw: String) -> SlowQuitPassthrough {
+        SlowQuitPassthrough(bundleIDs: Set(raw.split { $0 == "," || $0.isWhitespace }.map(String.init)))
+    }
+}
+
+/// 53a: Caps Lock protection. A hold past `threshold` toggles Caps Lock once; a shorter tap does
+/// nothing. Hyperkey remaps Caps Lock to F18 before the tap, so the guard is inert while it is on.
+struct CapsLockGuard: Equatable, Sendable {
+    /// Physical Caps Lock.
+    static let keyCode: UInt16 = 57
+
+    var threshold: TimeInterval = 0.15
+    private(set) var isDown = false
+    private(set) var toggled = false
+
+    /// Returns true when the caller must schedule `fireIfStillHeld` after `threshold`.
+    mutating func press() -> Bool {
+        guard !isDown else { return false }
+        isDown = true
+        toggled = false
+        return true
+    }
+
+    /// True exactly once per hold, and only while the key is still down.
+    mutating func fireIfStillHeld() -> Bool {
+        guard isDown, !toggled else { return false }
+        toggled = true
+        return true
+    }
+
+    mutating func release() { isDown = false }
+
+    mutating func reset() {
+        isDown = false
+        toggled = false
     }
 }
 

@@ -84,6 +84,30 @@ extension SettingsLayoutPane {
             }
             SettingsDivider()
             SettingsToggleRow(
+                Text("Protect Caps Lock"),
+                isOn: Binding(
+                    get: { keyGuard.isCapsProtectionEnabled },
+                    set: { on in
+                        if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
+                        keyGuard.setCapsProtection(on)
+                    }
+                ),
+                info: String(localized: "A quick tap on Caps Lock does nothing; hold it briefly to switch Caps Lock. It needs the Accessibility permission to send the toggle, and does nothing while Hyper Key is on because Caps Lock then becomes F18.")
+            )
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Finder Keys"),
+                isOn: Binding(
+                    get: { keyGuard.isFinderKeysEnabled },
+                    set: { on in
+                        if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
+                        keyGuard.setFinderKeys(on)
+                    }
+                ),
+                info: String(localized: "In Finder, ⌘X copies the selection and marks it for moving, and ⌘V then moves it to the current folder.")
+            )
+            SettingsDivider()
+            SettingsToggleRow(
                 Text("Pause Keyboard"),
                 isOn: Binding(
                     get: { keyGuard.isPaused },
@@ -128,6 +152,17 @@ extension SettingsLayoutPane {
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 220)
                 }
+                SettingsRow(
+                    Text("Pass ⌘Q through (bundle IDs)"),
+                    note: Text("These apps keep their own ⌘Q, for remote desktops and virtual machines.")
+                ) {
+                    TextField("Pass ⌘Q through (bundle IDs)", text: Binding(
+                        get: { keyGuard.passthroughApps },
+                        set: { keyGuard.setPassthroughApps($0) }
+                    ))
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 220)
+                }
             }
             SettingsDivider()
             SettingsToggleRow(
@@ -147,7 +182,8 @@ extension SettingsLayoutPane {
                 isOn: Binding(get: { store.launcherPinch }, set: { store.setLauncherPinch($0) }),
                 info: String(localized: "Pinch four or more fingers together on the trackpad. Turn off Launchpad under System Settings > Trackpad > More Gestures, or macOS opens its own app list too.")
             )
-            if keyGuard.isPaused || keyGuard.isSlowQuitEnabled || keyGuard.isVisualizerEnabled, !KeyGuardService.hasPermission {
+            if keyGuard.isPaused || keyGuard.isSlowQuitEnabled || keyGuard.isVisualizerEnabled
+                || keyGuard.isCapsProtectionEnabled || keyGuard.isFinderKeysEnabled, !KeyGuardService.hasPermission {
                 SettingsButtonRow(Text("Open Input Monitoring Settings")) { openInputMonitoringSettings() }
             }
             SettingsButtonRow(Text("Open Trackpad Settings")) {

@@ -18,6 +18,9 @@ final class KeyGuardService: ObservableObject {
     static let slowQuitDurationKey = "com.katikati.keyguard.slowQuitDuration"
     static let slowQuitExceptionsKey = "com.katikati.keyguard.slowQuitExceptions"
     static let visualizerKey = "com.katikati.keyguard.visualizer"
+    static let capsProtectionKey = "com.katikati.keyguard.capsHold"
+    static let finderKeysKey = "com.katikati.keyguard.finderKeys"
+    static let passthroughAppsKey = "com.katikati.keyguard.passthroughApps"
     /// Phase 12: a cleaning lock's deadline, persisted so a crash mid-lock cannot leave the keyboard
     /// disabled until ⌃⌥⌘P (see `CleaningLock.launchDecision`).
     static let cleaningEndKey = "com.katikati.keyguard.cleaningEnd"
@@ -33,6 +36,13 @@ final class KeyGuardService: ObservableObject {
     @Published private(set) var slowQuitExceptions = UserDefaults.standard.string(forKey: KeyGuardService.slowQuitExceptionsKey) ?? ""
     /// Phase 24d: the key visualizer. Off by default (owner override); keycaps are never logged or saved.
     @Published private(set) var isVisualizerEnabled = UserDefaults.standard.bool(forKey: KeyGuardService.visualizerKey)
+    /// 53a: a quick Caps Lock tap does nothing, a short hold toggles. Off by default like the other guards.
+    @Published private(set) var isCapsProtectionEnabled = UserDefaults.standard.bool(forKey: KeyGuardService.capsProtectionKey)
+    /// 53b: ⌘X / ⌘V in Finder act like cut / move. Off by default.
+    @Published private(set) var isFinderKeysEnabled = UserDefaults.standard.bool(forKey: KeyGuardService.finderKeysKey)
+    /// 53i: comma-separated apps whose ⌘Q stays native (remote desktops, virtual machines).
+    @Published private(set) var passthroughApps = UserDefaults.standard.string(forKey: KeyGuardService.passthroughAppsKey)
+        ?? SlowQuitPassthrough.defaults.joined(separator: ", ")
 
     private let log = Logger(subsystem: "com.katikati.app", category: "keyguard")
     private var tapThread: Thread?
@@ -168,6 +178,29 @@ final class KeyGuardService: ObservableObject {
         refresh()
     }
 
+    func setCapsProtection(_ on: Bool) {
+        guard on != isCapsProtectionEnabled else { return }
+        isCapsProtectionEnabled = on
+        UserDefaults.standard.set(on, forKey: Self.capsProtectionKey)
+        refresh()
+    }
+
+    func setFinderKeys(_ on: Bool) {
+        guard on != isFinderKeysEnabled else { return }
+        isFinderKeysEnabled = on
+        UserDefaults.standard.set(on, forKey: Self.finderKeysKey)
+        refresh()
+    }
+
+    func setPassthroughApps(_ raw: String) {
+        guard raw != passthroughApps else { return }
+        passthroughApps = raw
+        UserDefaults.standard.set(raw, forKey: Self.passthroughAppsKey)
+        refresh()
+    }
+
+    var passthroughPolicy: SlowQuitPassthrough { .parse(passthroughApps) }
+
     /// The SlowQuit allow/deny view the pipeline sees. `deny` = quit instantly, no hold.
     var slowQuitPolicy: SlowQuitPolicy {
         let deny = slowQuitExceptions
@@ -182,7 +215,7 @@ final class KeyGuardService: ObservableObject {
             if started { stop() }
             return
         }
-        if isSlowQuitEnabled, frontmostObserver == nil {
+        if isSlowQuitEnabled || isFinderKeysEnabled, frontmostObserver == nil {
             frontmostBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
             frontmostObserver = NSWorkspace.shared.notificationCenter.addObserver(
                 forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
@@ -193,7 +226,10 @@ final class KeyGuardService: ObservableObject {
         }
         shared.update(state: makeState())
         shared.setVisualizer(enabled: isVisualizerEnabled)
-        let anyOn = isPaused || isSlowQuitEnabled || isVisualizerEnabled
+        // Toggling Caps Lock needs a posted key event; without that permission the guard must stay inert
+        // rather than swallowing the key the user cannot toggle any other way.
+        shared.setCapsProtection(enabled: isCapsProtectionEnabled && CGPreflightPostEventAccess())
+        let anyOn = isPaused || isSlowQuitEnabled || isVisualizerEnabled || isCapsProtectionEnabled || isFinderKeysEnabled
         if anyOn, !started { start() } else if !anyOn, started { stop() }
         updateVisualizerTimer()
     }
@@ -204,13 +240,15 @@ final class KeyGuardService: ObservableObject {
             slowQuitEnabled: isSlowQuitEnabled,
             slowQuitApplies: slowQuitPolicy.applies(to: frontmostBundleID),
             slowQuitHolding: false,
-            unlockKey: keyGuardUnlock
+            unlockKey: keyGuardUnlock,
+            slowQuitPassthrough: passthroughPolicy.applies(to: frontmostBundleID),
+            finderKeysActive: isFinderKeysEnabled && frontmostBundleID == "com.apple.finder"
         )
     }
 
     private func frontmostChanged(_ app: NSRunningApplication?) {
         frontmostBundleID = app?.bundleIdentifier
-        guard isSlowQuitEnabled else { return }
+        guard isSlowQuitEnabled || isFinderKeysEnabled else { return }
         shared.update(state: makeState())
     }
 
@@ -220,9 +258,13 @@ final class KeyGuardService: ObservableObject {
             isPaused = false
             isSlowQuitEnabled = false
             isVisualizerEnabled = false
+            isCapsProtectionEnabled = false
+            isFinderKeysEnabled = false
             UserDefaults.standard.set(false, forKey: Self.pauseKey)
             UserDefaults.standard.set(false, forKey: Self.slowQuitKey)
             UserDefaults.standard.set(false, forKey: Self.visualizerKey)
+            UserDefaults.standard.set(false, forKey: Self.capsProtectionKey)
+            UserDefaults.standard.set(false, forKey: Self.finderKeysKey)
             shared.update(state: makeState())
             return
         }
@@ -355,6 +397,11 @@ final class KeyGuardShared: @unchecked Sendable {
     private var caps = KeyVisualizerBuffer()
     private var capsPrunedAt = Date.distantPast
     private var visualizerOn = false
+    private var capsProtectionOn = false
+    private var capsGuard = CapsLockGuard()
+    private var finderMap = FinderKeyMap()
+    /// Marks the caps events we post ourselves so they pass back through this tap untouched.
+    static let syntheticTag: Int64 = 0x4B41544931 // "KATI1"
     var port: CFMachPort?
     var onAction: (KeyGuardAction) -> Void = { _ in }
 
@@ -383,6 +430,45 @@ final class KeyGuardShared: @unchecked Sendable {
     func keycaps() -> [KeycapVisual] { lock.lock(); defer { lock.unlock() }; return caps.items }
     func clearKeycaps() { lock.lock(); caps.clear(); lock.unlock() }
 
+    // MARK: 53a Caps Lock protection
+
+    func setCapsProtection(enabled: Bool) {
+        lock.lock()
+        capsProtectionOn = enabled
+        if !enabled { capsGuard.reset() }
+        lock.unlock()
+    }
+
+    /// True when the caps event is ours to handle (always swallowed while the guard is on).
+    func handleCapsLock(isDown: Bool) -> Bool {
+        lock.lock()
+        // Re-checked per press: if posting was revoked at runtime, swallowing would kill the key.
+        guard capsProtectionOn, CGPreflightPostEventAccess() else { lock.unlock(); return false }
+        let schedule = isDown ? capsGuard.press() : false
+        if !isDown { capsGuard.release() }
+        let threshold = capsGuard.threshold
+        lock.unlock()
+        if schedule {
+            DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + threshold) { [weak self] in
+                self?.fireCapsLockIfHeld()
+            }
+        }
+        return true
+    }
+
+    private func fireCapsLockIfHeld() {
+        lock.lock()
+        let fire = capsProtectionOn && capsGuard.fireIfStillHeld()
+        lock.unlock()
+        guard fire, let source = CGEventSource(stateID: .combinedSessionState),
+              let down = CGEvent(keyboardEventSource: source, virtualKey: CapsLockGuard.keyCode, keyDown: true),
+              let up = CGEvent(keyboardEventSource: source, virtualKey: CapsLockGuard.keyCode, keyDown: false) else { return }
+        for event in [down, up] {
+            event.setIntegerValueField(.eventSourceUserData, value: Self.syntheticTag)
+            event.post(tap: .cghidEventTap)
+        }
+    }
+
     func update(state newState: KeyGuardState) {
         lock.lock()
         var merged = newState
@@ -395,6 +481,8 @@ final class KeyGuardShared: @unchecked Sendable {
         lock.lock()
         state = KeyGuardState(unlockKey: keyGuardUnlock)
         caps.clear()
+        capsGuard.reset()
+        finderMap.reset()
         lock.unlock()
     }
 
@@ -402,7 +490,13 @@ final class KeyGuardShared: @unchecked Sendable {
         lock.lock(); defer { lock.unlock() }
         let outcome = KeyGuardPipeline.reduce(event, state: state)
         state = outcome.state
-        return outcome
+        guard state.finderKeysActive else {
+            finderMap.reset()
+            return outcome
+        }
+        // Pause and SlowQuit win; the Finder map only sees what the pipeline lets through.
+        guard case .passThrough = outcome.decision else { return outcome }
+        return (finderMap.handle(event), state)
     }
 }
 
@@ -418,7 +512,12 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
         return Unmanaged.passUnretained(event)
     }
     guard type == .keyDown || type == .keyUp else { return Unmanaged.passUnretained(event) }
+    // Our own posted Caps Lock toggle: let it through without feeding the pipeline.
+    if event.getIntegerValueField(.eventSourceUserData) == KeyGuardShared.syntheticTag {
+        return Unmanaged.passUnretained(event)
+    }
     let code = UInt16(truncatingIfNeeded: event.getIntegerValueField(.keyboardEventKeycode))
+    if shared.handleCapsLock(isDown: type == .keyDown) { return nil }
     let modifiers = keyModifiers(event.flags)
     let keyEvent: KeyGuardEvent = type == .keyDown ? .keyDown(keyCode: code, modifiers: modifiers)
                                                   : .keyUp(keyCode: code, modifiers: modifiers)
@@ -433,7 +532,20 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
     case .consumeAndFire(let action):
         shared.onAction(action)
         return nil
+    case let .rewrite(code, extra):
+        event.setIntegerValueField(.keyboardEventKeycode, value: Int64(code))
+        event.flags = event.flags.union(cgFlags(extra))
+        return Unmanaged.passUnretained(event)
     }
+}
+
+private func cgFlags(_ modifiers: KeyModifiers) -> CGEventFlags {
+    var flags: CGEventFlags = []
+    if modifiers.contains(.command) { flags.insert(.maskCommand) }
+    if modifiers.contains(.option) { flags.insert(.maskAlternate) }
+    if modifiers.contains(.control) { flags.insert(.maskControl) }
+    if modifiers.contains(.shift) { flags.insert(.maskShift) }
+    return flags
 }
 
 /// The character a keyDown produced ("a", "⌘A", "→"), or nil for a key that shows nothing worth

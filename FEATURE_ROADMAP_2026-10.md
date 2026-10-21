@@ -227,11 +227,9 @@ checkers are recorded there too. The live recipes are still owed.
 | Phase 48 (`:5332`) | notch pages not live-checked | Q-notch |
 
 ### 4.4 Findings from this investigation (verified unless marked)
-1. **Key visualizer and secure input.** grep finds no secure-input/password handling in `KeyGuard.swift`,
-   `KeyGuardService.swift`, `KeyVisualizerOverlay.swift`, and no `IsSecureEventInputEnabled` anywhere in
-   `App/Core/Platform`. Verify live what the overlay shows in a password field (macOS may already withhold the text);
-   if it shows anything, suppress + clear the buffer. **Whatever the overlay does today, the guard is mandatory before
-   any feature that reads typed text (snippet expansion 53c):** slice Q-input-a.
+1. **Key visualizer and secure input.** **Done in `e1a6ec6` (Q-input-a):** `KeyGuardShared.record` reads
+   `IsSecureEventInputEnabled()` only while the visualizer is on and keeps/clears nothing under secure input; the live
+   password-field check is still OWED. Any feature that reads typed text (snippet expansion 53c) sits on that guard.
 2. **Settings page-height gate — abandoned (owner, 2026-10-20), no replacement.** `Scripts/check_settings_page_heights.py`
    and the `DOCK_SETTINGS_PAGE_HEIGHT` probe were removed by `d0aa73a` (sidebar redesign; window resizable, min 640×440,
    each page in a vertical `ScrollView`: `SettingsShell.swift:68`). What remained at rev 2 was stale text that sent agents to a
@@ -308,7 +306,7 @@ checkers are recorded there too. The live recipes are still owed.
 | **Q0** | Gate on HEAD: CI test command + 3 checkers; check `1ce7963`'s pbxproj/test-target state | F + integrator | **done at `14092d5` (rev 3, section 9):** test command and all three checkers |
 | **Q1** | Baseline: one idle-CPU run with defaults (Instruments or `ps`), timers inventory | F | the number every later Resource gate compares to; repeat once with the menu-bar readout's metrics on (4.4-11) |
 | **Q2** | **DONE `896f8f6` (rev 3).** Retire the page-height gate text (4.4-2): `Docs/SETTINGS.md` rule 10 + §5.3 → one soft line, `Docs/DEBUG_SWITCHES.md` row, "ten toolbar items" comment, `HYBRID_PLAN.md` superseded line; `live_check_settings_tabs.py` becomes a sidebar smoke test over `SettingsTab`. **No fit or height check is added** | F | `git grep check_settings_page_heights` hits history only; ✅ checked at `14092d5` (only `Docs/Archive/**`, `HYBRID_PLAN.md`, `CHANGELOG.md` mention it); smoke run over 18 tabs **OWED** (Accessibility) |
-| **Q-input-a** | Secure-input guard: pure `SecureInputPolicy` (+ test) deciding when typed-key consumers must stay blind; one `IsSecureEventInputEnabled` call in the service; the visualizer clears its buffer under secure input. Hard prerequisite of 53c. Design notes from Vorssaint (7.2): macOS posts no change notification for secure input, so read it only while a consumer needs it (visualizer on, expansion on), not on a timer; when Settings names the holder, name the app that was active when it turned on, never KatiKati itself | C | test table; live check in a password field |
+| **Q-input-a** | **Done `e1a6ec6`:** `KeyGuardShared.record` probes `IsSecureEventInputEnabled()` lazily (only while the visualizer is on) and clears/keeps nothing under secure input; `testSecureInputClearsAndRecordsNothing` pins it. Was: pure `SecureInputPolicy` (+ test); the visualizer clears its buffer under secure input. Hard prerequisite of 53c | C | test table; live check in a password field **OWED** |
 | **Q-input** | KeyGuard + Hyperkey rows; `kill -9` check; deliberate-stop vs re-enable check (4.4-12); what hold-⌘Q does with Screen Sharing frontmost (53i); move `HyperkeyEngineTests` | C | rows + fixes if confirmed |
 | **Q-notch** | Phase 48 live check; camera-keepout check on notch + no-notch Macs; hypotheses from Vorssaint's fixes (7.2): menu bar taller than the notch, a no-notch external display, a custom width on every page, closing after a Shelf drag-out | A | rows |
 | **Q-music** | which Now Playing source works; tap behaviour today; error states | A | rows |
@@ -374,14 +372,16 @@ checkers are recorded there too. The live recipes are still owed.
 ### Phase 53 — Input features (Lane C; after Q-input; all through the pure `KeyGuardPipeline`)
 | ID | Slice | Seam | Key / permission | Est. | Done when |
 |---|---|---|---|---|---|
-| 53a | Caps Lock protection: ignore a tap shorter than N ms; interplay table with Hyperkey (Caps→F18) | extend `KeyGuardPipeline` + `KeyGuardTests` | `com.katikati.keyguard.capsHold`; Input Monitoring (already used) | ~140 | table covers Hyperkey on/off |
-| 53b | Finder key map (⌘X/⌘V move, Return rename) gated on frontmost = Finder | pure `FinderKeyMap` + test | `com.katikati.keyguard.finderKeys` | ~150 | nothing swallowed when off (`testNothingSwallowedWhenAllGuardsOff` stays) |
+| 53a | **Done 2026-10-21 (live check owed):** Caps Lock protection — `CapsLockGuard` swallows the key and toggles it once a 0.15 s hold passes; a shorter tap does nothing. The toggle is a posted key event, so the guard stays inert without event-posting permission, and while Hyperkey is on (Caps Lock is F18 before the tap). Was: ignore a tap shorter than N ms; interplay table with Hyperkey (Caps→F18) | `KeyGuard.swift` + `KeyGuardTests`; toggle in `KeyGuardService` | `com.katikati.keyguard.capsHold`; Input Monitoring + event posting | ~140 | table covers Hyperkey on/off |
+| 53b | **Done 2026-10-21 (live check owed):** Finder key map — `FinderKeyMap` rewrites ⌘X → ⌘C and, after a cut, ⌘V → ⌘⌥V, so copy-then-move needs no synthetic keys. Return already renames in Finder, so it is untouched. `shortcut:` the rewrite also hits Finder text fields. Was: Finder key map (⌘X/⌘V move, Return rename) gated on frontmost = Finder | pure `FinderKeyMap` + test; frontmost gate in `KeyGuardService` | `com.katikati.keyguard.finderKeys` | ~150 | nothing swallowed when off (`testNothingSwallowedWhenAllGuardsOff` stays) |
 | 53c | System-wide snippet expansion: pure `SnippetExpander` over typed buffer + `CustomCommands.parseSnippets` | Core + test; insertion via pasteboard-and-paste | `com.katikati.snippets.expand` | ~220 | disabled in secure input and for ignored apps; the paste cancels if a newer copy replaced the pasteboard first (a race Vorssaint fixed); **blocked until Q-input-a is merged** |
 | 53d | Quit-on-last-window-close: pure `QuitOnLastWindowPolicy`, **opt-in per app, default empty** (unsaved work risk) | Core + `AccessibilitySource` observation | `com.katikati.windows.quitOnClose` | ~200 | |
 | 53e | Tap-hub measurement: input latency + CPU with 1 vs 4 taps. **No code.** | notes | — | — | owner decides whether a hub is worth a rewrite |
 | 53g | Paste a clipboard image into the front Finder window as a `.png` file: pure `PasteImageNaming` (unique filename, no overwrite) + test; Finder target-folder lookup and file write in the service. Own slice: touches the user's files | Core + service (Lane D, Finder hot touch with 53b) | `com.katikati.clipboard.pasteImage`; Automation (Apple Events → Finder) | ~150 | never overwrites; clear message when no Finder folder is frontmost; owner sign-off |
 | 53h | Keyboard \| Mouse & Gestures segmented control inside the Shortcuts page (no 19th tab). **Deferred** until ≥ 2 gesture settings exist — today there is one (the four-finger pinch section, `SettingsLayoutPane+Shortcuts.swift` ~`:148`) | Lane F | — | ~80 | |
-| 53i | SlowQuit pass-through (rev 3): when the frontmost app is a remote-desktop or virtual-machine app (Screen Sharing, VM hosts), forward a ⌘Q confirmed by holding or double-pressing to it instead of quitting it. Pure `SlowQuitPassthrough` (app list + decision) + test. **Verify first:** `KeyGuard*` has no remote/VM exclusion (grep), so check what hold-⌘Q does there today | `KeyGuard.swift`, `KeyGuardTests` | `com.katikati.keyguard.passthroughApps` | ~120 | table test; live check with Screen Sharing frontmost; owner picks the default app list |
+| 53i | **Done 2026-10-21 (live check with Screen Sharing owed):** SlowQuit pass-through — `SlowQuitPassthrough` (default: Screen Sharing, Parallels, VMware Fusion, UTM; editable list in Settings) keeps its native ⌘Q instead of holding it. `shortcut:` no hold-to-confirm replay — that would need synthetic keys. Was: forward a ⌘Q confirmed by holding or double-pressing | `KeyGuard.swift`, `KeyGuardTests`, service + Settings row | `com.katikati.keyguard.passthroughApps` | ~120 | table test; live check with Screen Sharing frontmost; owner picks the default app list |
+
+**Phase 53 notes (2026-10-21).** 53a, 53b and 53i are in (`CapsLockGuard`, `FinderKeyMap`, `SlowQuitPassthrough`, 11 new tests; full suite 2613 tests, 2 skipped, 0 failures; three checkers green). Q-input-a was already merged in `e1a6ec6`, so 53c is unblocked but not started. Not verified: all three need a live run (Caps Lock hold in a real field, ⌘X/⌘V in Finder, Screen Sharing frontmost) — that needs the owner and the permissions. Risks: caps protection depends on event-posting trust and is silently inert without it; the Finder rewrite also applies inside Finder's rename/search fields; passthrough is native ⌘Q with no hold confirmation.
 
 ### Phase 54 — Window management (Lanes C+B; after Q-bar)
 | ID | Slice | Notes |
@@ -478,7 +478,7 @@ that our code has the same bug.
 | Vorssaint change | Lands in | Ours today |
 |---|---|---|
 | Clipboard items expire after N days; pinned stay | 55g | no age-based retention; pinned + 50-unpinned cap exist |
-| Secure input has no change notification; sample only while needed; name the app active when it turned on | Q-input-a, 53c | no secure-input code at all (grep) |
+| Secure input has no change notification; sample only while needed; name the app active when it turned on | Q-input-a, 53c | done (`e1a6ec6`): probe only while the visualizer is on |
 | Paste-as-plain-text and snippets cancel if a newer copy replaced the clipboard | 53c, 53g | n/a until those exist |
 | Its ⌘Tab replacement went dead under secure input | 54c | no ⌘Tab replacement |
 | ⌘Q hold / double-press passed through to Screen Sharing and VMs | 53i | no remote/VM exclusion in `KeyGuard*` (grep) |

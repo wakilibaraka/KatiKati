@@ -42,6 +42,104 @@ final class KeyGuardPipelineTests: XCTestCase {
     }
 }
 
+/// 53i: remote desktops and virtual machines keep their own ⌘Q.
+final class SlowQuitPassthroughTests: XCTestCase {
+    private let q = KeyGuardPipeline.quitKeyCode
+
+    func testPassthroughAppsSkipTheHold() {
+        let state = KeyGuardState(slowQuitEnabled: true, slowQuitApplies: true, slowQuitPassthrough: true)
+        XCTAssertEqual(KeyGuardPipeline.reduce(.keyDown(keyCode: q, modifiers: [.command]), state: state).decision, .passThrough)
+        XCTAssertEqual(KeyGuardPipeline.reduce(.keyUp(keyCode: q, modifiers: []), state: state).decision, .passThrough)
+    }
+
+    func testPolicyUsesTheListAndIgnoresUnknownApps() {
+        let policy = SlowQuitPassthrough(bundleIDs: ["com.apple.ScreenSharing"])
+        XCTAssertTrue(policy.applies(to: "com.apple.ScreenSharing"))
+        XCTAssertFalse(policy.applies(to: "com.apple.finder"))
+        XCTAssertFalse(policy.applies(to: nil))
+    }
+
+    func testParseAndTheDefaultList() {
+        XCTAssertTrue(SlowQuitPassthrough.parse("").bundleIDs.isEmpty, "clearing the field means none")
+        XCTAssertEqual(SlowQuitPassthrough.parse("com.a.B, com.c.D").bundleIDs, ["com.a.B", "com.c.D"])
+        XCTAssertTrue(SlowQuitPassthrough.defaults.contains("com.apple.ScreenSharing"))
+    }
+}
+
+/// 53b: ⌘X copies and marks, ⌘V moves, all by rewriting the chord — nothing is synthesized.
+final class FinderKeyMapTests: XCTestCase {
+    private var map = FinderKeyMap()
+
+    func testCutBecomesCopyOnDownAndUp() {
+        XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.cutKey, modifiers: [.command])),
+                       .rewrite(keyCode: FinderKeyMap.copyKey, addingModifiers: []))
+        XCTAssertTrue(map.cutPending)
+        XCTAssertEqual(map.handle(.keyUp(keyCode: FinderKeyMap.cutKey, modifiers: [])),
+                       .rewrite(keyCode: FinderKeyMap.copyKey, addingModifiers: []), "key-up follows even after ⌘ is released")
+    }
+
+    func testPasteMovesOnlyAfterACut() {
+        XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.pasteKey, modifiers: [.command])), .passThrough)
+        _ = map.handle(.keyDown(keyCode: FinderKeyMap.cutKey, modifiers: [.command]))
+        XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.pasteKey, modifiers: [.command])),
+                       .rewrite(keyCode: FinderKeyMap.pasteKey, addingModifiers: .option))
+        XCTAssertFalse(map.cutPending, "the move is used up")
+        XCTAssertEqual(map.handle(.keyUp(keyCode: FinderKeyMap.pasteKey, modifiers: [.command])),
+                       .rewrite(keyCode: FinderKeyMap.pasteKey, addingModifiers: .option))
+        XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.pasteKey, modifiers: [.command])), .passThrough,
+                       "a second paste is a normal paste")
+    }
+
+    func testPlainKeysAndUnmodifiedXPassThrough() {
+        XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.cutKey, modifiers: [])), .passThrough)
+        XCTAssertEqual(map.handle(.keyDown(keyCode: 0, modifiers: [.command])), .passThrough)
+        XCTAssertEqual(map.handle(.keyUp(keyCode: FinderKeyMap.cutKey, modifiers: [])), .passThrough)
+    }
+
+    func testResetDropsAPendingCut() {
+        _ = map.handle(.keyDown(keyCode: FinderKeyMap.cutKey, modifiers: [.command]))
+        map.reset()
+        XCTAssertFalse(map.cutPending)
+        XCTAssertEqual(map.handle(.keyUp(keyCode: FinderKeyMap.cutKey, modifiers: [])), .passThrough)
+        XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.pasteKey, modifiers: [.command])), .passThrough)
+    }
+}
+
+/// 53a: a quick tap does nothing; a hold toggles once, and only while the key is down.
+final class CapsLockGuardTests: XCTestCase {
+    func testShortTapNeverFires() {
+        var guardState = CapsLockGuard()
+        XCTAssertTrue(guardState.press())
+        guardState.release()
+        XCTAssertFalse(guardState.fireIfStillHeld())
+    }
+
+    func testHoldFiresExactlyOnce() {
+        var guardState = CapsLockGuard()
+        XCTAssertTrue(guardState.press())
+        XCTAssertTrue(guardState.fireIfStillHeld())
+        XCTAssertFalse(guardState.fireIfStillHeld(), "the timer may fire late; the toggle still happens once")
+        guardState.release()
+        XCTAssertFalse(guardState.fireIfStillHeld())
+    }
+
+    func testAutoRepeatDoesNotReschedule() {
+        var guardState = CapsLockGuard()
+        XCTAssertTrue(guardState.press())
+        XCTAssertFalse(guardState.press())
+        XCTAssertTrue(guardState.fireIfStillHeld())
+    }
+
+    func testTheNextPressCanFireAgain() {
+        var guardState = CapsLockGuard()
+        _ = guardState.press()
+        _ = guardState.fireIfStillHeld()
+        guardState.release()
+        XCTAssertTrue(guardState.press())
+        XCTAssertTrue(guardState.fireIfStillHeld())
+    }
+}
+
 final class SlowQuitTests: XCTestCase {
     func testTiming() {
         let timing = SlowQuitTiming(threshold: 0.5)

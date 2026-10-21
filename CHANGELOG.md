@@ -9,6 +9,15 @@ Notch redesign, Settings redesign and stability fixes; see `Docs/Releases/RELEAS
 ### Fixed
 - `TilingTree.insert` and `ShelfStore.shelfFolder` no longer force-unwrap.
 
+## [Unreleased] — Phase 53: input guards
+
+### Added
+- Settings → Shortcuts: "Protect Caps Lock" ignores a quick Caps Lock tap; hold it briefly to switch. Off by
+  default, needs event posting, and does nothing while Hyper Key is on.
+- Settings → Shortcuts: "Finder Keys" makes ⌘X copy-and-mark and ⌘V move the selection in Finder.
+- Settings → Shortcuts: "Pass ⌘Q through" lists remote-desktop and VM apps that keep their own ⌘Q while
+  Hold ⌘Q to Quit is on (Screen Sharing, Parallels, VMware Fusion and UTM by default).
+
 ## [Unreleased] — Notch redesign, slices 2–4
 
 ### Added
