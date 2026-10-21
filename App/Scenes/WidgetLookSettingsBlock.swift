@@ -18,6 +18,7 @@ struct WidgetLookSettingsBlock: View {
     @AppStorage(NowPlayingArtworkAccent.key) private var artworkAccent = true
     @AppStorage(WidgetExtraPrefs.showNotesKey) private var showNotes = true
     @AppStorage(WidgetExtraPrefs.showStopwatchKey) private var showStopwatch = true
+    @AppStorage(WidgetExtraPrefs.showYearKey) private var showYear = false
     @AppStorage(WidgetPanelController.keepBothOpenKey) private var keepBoth = false
 
     @AppStorage("com.katikati.clock.preset") private var clockPresetRaw: String = ClockPreset.stackedCard.rawValue
@@ -76,6 +77,8 @@ struct WidgetLookSettingsBlock: View {
                     left: { SettingsToggleRow(Text("Show Notes Widget"), isOn: $showNotes) },
                     right: { SettingsToggleRow(Text("Show Stopwatch & Countdown"), isOn: $showStopwatch) }
                 )
+                SettingsDivider()
+                SettingsToggleRow(Text("Show Year Progress (Tall layout)"), isOn: $showYear)
                 SettingsDivider()
                 SettingsToggleRow(Text("Keep Both Widgets Open"), isOn: $keepBoth)
                 SettingsDivider()

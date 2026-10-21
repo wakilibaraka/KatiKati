@@ -407,7 +407,7 @@ checkers are recorded there too. The live recipes are still owed.
 ### Phase 56 — Widgets (Lane E; after 49c, Q-widgets)
 | ID | Slice | Notes |
 |---|---|---|
-| 56a | Year-in-progress tile: pure `YearProgress` + test; tile in its own file | ~120 |
+| 56a | **Done 2026-10-21 (live check owed):** pure `YearProgress` + 2 tests, `YearProgressTile`, opt-in toggle `com.katikati.widgets.showYearProgress` (default off) adds it to the Tall layout. Was: Year-in-progress tile | ~120 |
 | 56b | **Done 2026-10-21 (Modern chip S/M/L live check owed):** weather size presets verified and reshaped as Phase 56 W0–W13 below | — |
 | 56-W | **Weather redesign, all shipped 2026-10-21, live checks owed.** W0–W7 fixes and tiles (stale/offline notice, detail bands, UV/wind/sun); W8 Modern chip + rail tile (default); W9 Modern panel; W10 `WeatherLayoutPreset.fullScreen` (Glance), old Glance renamed Overview, `WeatherGlanceSpec`, migration `c09189d`; W11 full-screen panel host, `PanelGeometry.fullScreenFrame`, Esc, no outside-click close `5aa06d5`; W12 Glance view + scenery, default layout `e03a688`; W13 Overview shows the one-page panel, setting `com.katikati.weather.overviewOnePage` `65ec146`. Notch/music slices are in Phase 50–51 | tests 2595, 0 failures |
 | 56c | Battery redesign + multi-device list (reuse `BluetoothDevices`) | ~200; Vorssaint's Power card also lists accessory batteries without its menu-bar item (7.2) |

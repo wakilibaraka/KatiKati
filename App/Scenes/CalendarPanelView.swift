@@ -25,6 +25,7 @@ struct CalendarPanelView: View {
     @ObservedObject private var countdowns = ProductivityServices.shared.countdowns
     @AppStorage(WidgetExtraPrefs.showNotesKey) private var showNotes = true
     @AppStorage(WidgetExtraPrefs.showStopwatchKey) private var showStopwatch = true
+    @AppStorage(WidgetExtraPrefs.showYearKey) private var showYear = false
 
     private let gutter: CGFloat = 8
     private let gap: CGFloat = 10
@@ -99,6 +100,7 @@ struct CalendarPanelView: View {
         ]
         if showNotes { defs.append(TallTile("notes", min: 100, ideal: 170, max: 260, flex: 1, optional: 1)) }
         if showStopwatch { defs.append(TallTile("extras", min: 130, ideal: 190, max: 260, flex: 1, optional: 2)) }
+        if showYear { defs.append(TallTile("year", min: 110, ideal: 130, max: 170, flex: 0.5, optional: 3)) }
         let plan = TallLayoutPlanner.plan(defs, available: Double(maxHeight - 2 * gutter), gap: Double(gap))
         let half = (inner - gap) / 2
         return VStack(spacing: gap) {
@@ -118,6 +120,7 @@ struct CalendarPanelView: View {
                             TimerTile(env: env, controller: timer, width: half, height: h)
                         }
                     case "notes": NotesTile(env: env, width: inner, height: h)
+                    case "year": YearProgressTile(env: env, width: inner, height: h)
                     default:
                         HStack(spacing: gap) {
                             StopwatchTile(env: env, controller: stopwatch, width: half, height: h)

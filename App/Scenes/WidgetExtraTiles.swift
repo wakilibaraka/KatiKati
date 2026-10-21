@@ -65,6 +65,7 @@ final class EventCountdownStore: ObservableObject {
 enum WidgetExtraPrefs {
     static let showNotesKey = "com.katikati.widgets.showNotes"
     static let showStopwatchKey = "com.katikati.widgets.showStopwatch"
+    static let showYearKey = "com.katikati.widgets.showYearProgress"
     static let notesKey = "com.katikati.widgets.notes"
     /// Phase 16f: glass/blur tiles in the widget pane (off = solid, the default).
     static let glassTilesKey = "com.katikati.widgets.glass"

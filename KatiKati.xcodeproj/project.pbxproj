@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B50000000000000009A1044 /* YearProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1039 /* YearProgress.swift */; };
+		7B50000000000000009A1042 /* YearProgressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1043 /* YearProgressTests.swift */; };
+		7B50000000000000009A1040 /* YearProgressTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1041 /* YearProgressTile.swift */; };
+		7B50000000000000009A1038 /* YearProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1039 /* YearProgress.swift */; };
 		7B50000000000000009A1036 /* WeatherFullScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1037 /* WeatherFullScreenView.swift */; };
 		7B50000000000000009A1034 /* WeatherScenery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1035 /* WeatherScenery.swift */; };
 		7B50000000000000009A1011 /* WeatherIPadChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1010 /* WeatherIPadChip.swift */; };
@@ -1152,6 +1156,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B50000000000000009A1043 /* YearProgressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = YearProgressTests.swift; path = Tests/Unit/YearProgressTests.swift; sourceTree = SOURCE_ROOT; };
+		7B50000000000000009A1041 /* YearProgressTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = YearProgressTile.swift; path = App/Scenes/YearProgressTile.swift; sourceTree = SOURCE_ROOT; };
+		7B50000000000000009A1039 /* YearProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = YearProgress.swift; path = Core/Support/YearProgress.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000009A1037 /* WeatherFullScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherFullScreenView.swift; path = App/Scenes/Weather/WeatherFullScreenView.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000009A1035 /* WeatherScenery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherScenery.swift; path = App/Scenes/Weather/WeatherScenery.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000009A1010 /* WeatherIPadChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherIPadChip.swift; path = App/Scenes/Weather/WeatherIPadChip.swift; sourceTree = SOURCE_ROOT; };
@@ -3313,6 +3320,8 @@
 				7B50000000000000009A1011 /* WeatherIPadChip.swift in Sources */,
 				7B50000000000000009A1031 /* WeatherModernChip.swift in Sources */,
 				7B50000000000000009A1033 /* WeatherModernPanel.swift in Sources */,
+				7B50000000000000009A1040 /* YearProgressTile.swift in Sources */,
+				7B50000000000000009A1038 /* YearProgress.swift in Sources */,
 				7B50000000000000009A1036 /* WeatherFullScreenView.swift in Sources */,
 				7B50000000000000009A1034 /* WeatherScenery.swift in Sources */,
 				7B50000000000000009A1024 /* WeatherDetailViews.swift in Sources */,
@@ -3442,6 +3451,7 @@
 				7B50000000000000000000B5 /* LiveEventPresentation.swift in Sources */,
 				7B5000000000000000000043 /* WeatherEffects.swift in Sources */,
 				7B50000000000000009A1002 /* WeatherLayoutSpec.swift in Sources */,
+				7B50000000000000009A1044 /* YearProgress.swift in Sources */,
 				7B50000000000000009A1022 /* WeatherDetailBands.swift in Sources */,
 				7B5000000000000000000033 /* WeatherLocations.swift in Sources */,
 				7B5000000000000000000023 /* WeatherWarnings.swift in Sources */,
@@ -3510,6 +3520,7 @@
 				A0000000000000000001F182 /* RadialDialPresets.swift in Sources */,
 				A0000000000000000001F202 /* SystemGaugeModel.swift in Sources */,
 				A0000000000000000001F211 /* SystemGaugeTests.swift in Sources */,
+				7B50000000000000009A1042 /* YearProgressTests.swift in Sources */,
 				ED00000000000000000000C0 /* DeckLabel.swift in Sources */,
 				ED00000000000000000000B6 /* TaskList.swift in Sources */,
 				ED00000000000000000000B9 /* TasksStore.swift in Sources */,
