@@ -83,6 +83,8 @@ final class SystemGaugeTests: XCTestCase {
 
         XCTAssertEqual(NowPlayingPreset.miniChip.title, "Mini Player")
         XCTAssertEqual(NowPlayingPreset.expandedCard.title, "Expanded Artwork Card")
+        XCTAssertTrue(NowPlayingPreset.graphiteCard.isCard)
+        XCTAssertEqual(NowPlayingPreset(rawValue: "graphite"), .graphiteCard)
 
         // Phase 32d: the shape's own labels went with its Settings row. What has to hold now is the
         // packed resolver — the switch's value, and today's squircle for anything unset or unknown.

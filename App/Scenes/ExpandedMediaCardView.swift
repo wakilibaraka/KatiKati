@@ -113,7 +113,7 @@ struct ExpandedMediaCardView: View {
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .dockTileChrome(isHovered: isHovered)
+        .dockTileChrome(isHovered: isHovered, fill: mediaPreset == .graphiteCard ? LinearGradient(colors: [Color(white: 0.085)], startPoint: .top, endPoint: .bottom) : nil)
         .onHover { isHovered = $0 }
         .overlay(
             VerticalWheelScrollNSViewRepresentable { direction in
@@ -188,7 +188,7 @@ struct ExpandedMediaCardView: View {
 
             // Track details + Scrubber Bar
             VStack(alignment: .leading, spacing: 2) {
-                MarqueeText(text: title, font: .system(size: 11.5, weight: .bold, design: .rounded), nearEnd: (progress ?? 0) > 0.88)
+                MarqueeText(text: title, font: .system(size: 11.5, weight: mediaPreset == .graphiteCard ? .regular : .bold, design: .rounded), nearEnd: (progress ?? 0) > 0.88)
                     .foregroundStyle(.white)
                     .opensSourceApp(state.bundleIdentifier)
 

@@ -132,6 +132,7 @@ public enum NowPlayingPreset: String, CaseIterable, Equatable, Codable, Sendable
     case miniChip = "mini"
     case expandedCard = "expanded"
     case accentCard = "accent"
+    case graphiteCard = "graphite"
 
     /// Both card presets share the expanded layout; the accent one adds the artwork wash.
     public var isCard: Bool { self != .miniChip }
@@ -141,6 +142,7 @@ public enum NowPlayingPreset: String, CaseIterable, Equatable, Codable, Sendable
         case .miniChip: return "Mini Player"
         case .expandedCard: return "Expanded Artwork Card"
         case .accentCard: return "Accent Wash Card"
+        case .graphiteCard: return "Graphite Card"
         }
     }
 }
