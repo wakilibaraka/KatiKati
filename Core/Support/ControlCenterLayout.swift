@@ -36,6 +36,35 @@ enum ControlCenterAnchor: String, CaseIterable, Sendable {
     }
 }
 
+/// 57a: wheel travel on the Control Center volume row. Six points of trackpad travel (or half a mouse-wheel
+/// click) is 1.25 % volume, and at most one step per 60 ms so a momentum burst cannot jump the level.
+enum ControlCenterScroll {
+    static let travelPerStep: CGFloat = 6
+    static let volumePerStep: Double = 0.0125
+    static let stepInterval: TimeInterval = 0.06
+    /// A notched wheel has lines, not points; one click counts as two steps' worth of travel.
+    static let notchSteps = 2
+
+    /// What a gesture carries between events. Leftovers under one step are kept, so slow scrolling adds up.
+    struct State: Equatable {
+        var travel: CGFloat = 0
+        var lastStepAt: Date = .distantPast
+    }
+
+    /// Scrolling away from the user (positive `deltaY`) raises the volume. Returns the new level when a step
+    /// is due, nil while travel is still adding up or the rate limit holds it back.
+    static func consume(deltaY: CGFloat, precise: Bool, level: Double, state: inout State,
+                        now: Date = Date()) -> Double? {
+        guard deltaY != 0 else { return nil }
+        state.travel += precise ? deltaY : (deltaY < 0 ? -1 : 1) * CGFloat(notchSteps) * travelPerStep
+        let steps = (state.travel / travelPerStep).rounded(.towardZero)
+        guard steps != 0, now.timeIntervalSince(state.lastStepAt) >= stepInterval else { return nil }
+        state.travel -= steps * travelPerStep
+        state.lastStepAt = now
+        return min(1, max(0, level + Double(steps) * volumePerStep))
+    }
+}
+
 /// Control Center open animation. Instant (default) is the pre-animation behavior.
 enum ControlCenterAnimation: String, CaseIterable, Sendable {
     case instant, fade, slide

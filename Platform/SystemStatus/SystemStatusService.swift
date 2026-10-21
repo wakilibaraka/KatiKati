@@ -171,6 +171,15 @@ final class SystemStatusService: ObservableObject {
         update { $0.volume = VolumeStatus(level: level, isMuted: muted) }
     }
 
+    /// The device's level right now. The published `status.volume` lags a write by one listener hop, and a wheel
+    /// that turns faster than that would read a stale base and lose steps (measured live 2026-10-21: three
+    /// 2.5 % steps moved the volume 3 points instead of 7.5).
+    var currentVolumeLevel: Double {
+        guard audioDevice != kAudioObjectUnknown,
+              let level = Self.readFloat(audioDevice, kAudioDevicePropertyVolumeScalar) else { return Double(status.volume.level) }
+        return Double(level)
+    }
+
     /// Sets the output volume (0...1) on whichever elements the device exposes. Returns success.
     @discardableResult
     func setVolume(_ level: Float) -> Bool {

@@ -316,6 +316,7 @@
 		FA33C0000000000000000033 /* FocusFollowService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000031 /* FocusFollowService.swift */; };
 		FA33C0000000000000000042 /* FocusFollowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000041 /* FocusFollowTests.swift */; };
 		FA33C0000000000000000052 /* NotchTrackPillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000051 /* NotchTrackPillTests.swift */; };
+		FA33D0000000000000000052 /* ControlCenterScrollTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33D0000000000000000051 /* ControlCenterScrollTests.swift */; };
 		FA33B0000000000000000012 /* ClaudeHookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000011 /* ClaudeHookConfig.swift */; };
 		FA33B0000000000000000013 /* ClaudeHookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000011 /* ClaudeHookConfig.swift */; };
 		FA33B0000000000000000022 /* ClaudeHookStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000021 /* ClaudeHookStatus.swift */; };
@@ -1393,6 +1394,7 @@
 		FA33C0000000000000000031 /* FocusFollowService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FocusFollowService.swift; path = App/Composition/FocusFollowService.swift; sourceTree = SOURCE_ROOT; };
 		FA33C0000000000000000041 /* FocusFollowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FocusFollowTests.swift; path = Tests/Unit/FocusFollowTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33C0000000000000000051 /* NotchTrackPillTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchTrackPillTests.swift; path = Tests/Unit/NotchTrackPillTests.swift; sourceTree = SOURCE_ROOT; };
+		FA33D0000000000000000051 /* ControlCenterScrollTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ControlCenterScrollTests.swift; path = Tests/Unit/ControlCenterScrollTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33B0000000000000000011 /* ClaudeHookConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookConfig.swift; path = Core/Support/AgentUsage/ClaudeHookConfig.swift; sourceTree = SOURCE_ROOT; };
 		FA33B0000000000000000021 /* ClaudeHookStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookStatus.swift; path = Core/Support/AgentUsage/ClaudeHookStatus.swift; sourceTree = SOURCE_ROOT; };
 		FA33B0000000000000000031 /* ClaudeHookInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookInstaller.swift; path = App/Composition/ClaudeHookInstaller.swift; sourceTree = SOURCE_ROOT; };
@@ -3467,6 +3469,7 @@
 				FA33A00000000000000000B3 /* AgentUsageService.swift in Sources */,
 				FA33C0000000000000000042 /* FocusFollowTests.swift in Sources */,
 				FA33C0000000000000000052 /* NotchTrackPillTests.swift in Sources */,
+				FA33D0000000000000000052 /* ControlCenterScrollTests.swift in Sources */,
 				FA33C0000000000000000073 /* MarqueeText.swift in Sources */,
 				FA33C0000000000000000083 /* TrackPillTextMetrics.swift in Sources */,
 				FA33C0000000000000000063 /* NotchTrackPillContent.swift in Sources */,

@@ -2,6 +2,18 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 57a: scroll the Control Center volume row
+
+### Added
+- Control Center: scrolling with the pointer anywhere on the volume row nudges the volume — 1.25 % per six
+  points of trackpad travel, one mouse-wheel click counts as 2.5 %, clamped to 0–100 % and rate-limited so a
+  fast flick cannot jump the level. The slider keeps its own drag and clicks.
+
+### Fixed
+- The volume row read a level that lagged a write by one audio listener hop, so rapid wheel steps were computed
+  from a stale base and lost — three 2.5 % steps moved the volume 3 points instead of 7.5. The step now reads
+  the device.
+
 ## [Unreleased] — track pill: readable title and artist
 
 ### Fixed

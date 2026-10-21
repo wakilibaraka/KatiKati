@@ -186,6 +186,8 @@ struct ControlCenterView: View {
     /// Phase 16i: read once on appear; nil when the private API is unavailable (slider hidden).
     @State private var brightness: Double? = DisplayServicesBrightness.current()
     @State private var keyLight: Double? = KeyboardBacklight.isAvailable ? KeyboardBacklight.current() : nil
+    /// 57a: wheel travel left over between events on the volume row.
+    @State private var volumeScroll = ControlCenterScroll.State()
 
     var onSettings: () -> Void = {}
     var onLauncher: () -> Void = {}
@@ -257,6 +259,17 @@ struct ControlCenterView: View {
         let v = status.status.volume
         return slider(icon: v.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill",
                       value: Binding(get: { Double(v.level) }, set: { _ = status.setVolume(Float($0)) }))
+            // Scrolling anywhere on the row nudges the volume. The catcher claims wheel events only, so the
+            // slider underneath keeps its drag and clicks.
+            .overlay {
+                VolumeScrollCatcher { deltaY, precise in
+                    guard let next = ControlCenterScroll.consume(
+                        deltaY: deltaY, precise: precise, level: status.currentVolumeLevel,
+                        state: &volumeScroll) else { return }
+                    _ = status.setVolume(Float(next))
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
     }
 
     private func slider(icon: String, value: Binding<Double>) -> some View {
@@ -381,6 +394,35 @@ struct ControlCenterView: View {
         .buttonStyle(.plain)
         .opacity(gone ? 0.35 : 1)
         .disabled(gone)
+    }
+}
+
+
+/// 57a: takes wheel events over one Control Center row and hands their travel to a closure. Every other event
+/// falls through, so buttons and the volume slider keep working — same `hitTest` shape as
+/// `WheelScrollInterceptorView`, without the scroll-view coupling.
+private struct VolumeScrollCatcher: NSViewRepresentable {
+    let onScroll: (CGFloat, Bool) -> Void
+
+    func makeNSView(context: Context) -> VolumeScrollCatcherView { VolumeScrollCatcherView() }
+
+    func updateNSView(_ nsView: VolumeScrollCatcherView, context: Context) { nsView.onScroll = onScroll }
+}
+
+private final class VolumeScrollCatcherView: NSView {
+    var onScroll: ((CGFloat, Bool) -> Void)?
+
+    /// Flexible, or SwiftUI gives a content-less view a zero frame and it never receives a wheel event.
+    override var intrinsicContentSize: NSSize { NSSize(width: NSView.noIntrinsicMetric, height: NSView.noIntrinsicMetric) }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        guard super.hitTest(point) != nil, NSApp.currentEvent?.type == .scrollWheel else { return nil }
+        return self
+    }
+
+    override func scrollWheel(with event: NSEvent) {
+        guard event.deltaY != 0 else { return super.scrollWheel(with: event) }
+        onScroll?(event.deltaY, event.hasPreciseScrollingDeltas)
     }
 }
 
