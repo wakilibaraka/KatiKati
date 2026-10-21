@@ -65,6 +65,11 @@ public struct ClockChip: View {
         // third preset): they bypass the 8d gradient card entirely.
         if preset == .flipTiles && widgetSize != .small {
             FlipClockChip()
+        } else if preset == .minimal {
+            TimelineView(.periodic(from: ClockTick.nextMinute(after: Date()), by: 60)) { context in
+                MinimalClockCard(content: provider.currentContent(for: context.date), widgetSize: widgetSize)
+            }
+            .onTapGesture { WidgetPanelController.calendar.toggle() }
         } else if preset == .stackedCard {
             TimelineView(.periodic(from: Date(), by: widgetSize == .small ? 60 : 1)) { context in
                 StackedClockCardView(content: provider.currentContent(for: context.date), widgetSize: widgetSize, date: context.date)
@@ -160,7 +165,7 @@ public struct ClockChip: View {
     /// `flipTiles` never reaches here (it bypasses the card in `body`).
     private var timeFont: Font {
         switch preset {
-        case .modernMac, .stackedCard:
+        case .modernMac, .stackedCard, .minimal:
             return .system(size: widgetSize == .large ? 22 : 19, weight: .semibold, design: .rounded).monospacedDigit()
         case .pixelRetro:
             return .system(size: 18, weight: .bold, design: .monospaced)
@@ -171,7 +176,7 @@ public struct ClockChip: View {
 
     private var dateFont: Font {
         switch preset {
-        case .modernMac, .stackedCard:
+        case .modernMac, .stackedCard, .minimal:
             return .system(size: 10, weight: .regular, design: .rounded)
         case .pixelRetro:
             return .system(size: 10, weight: .medium, design: .monospaced)

@@ -6,6 +6,7 @@ public enum ClockPreset: String, CaseIterable, Equatable {
     case pixelRetro = "pixel"
     case flipTiles = "flip"
     case stackedCard = "stacked"
+    case minimal = "minimal"
 
     public var title: String {
         switch self {
@@ -13,6 +14,7 @@ public enum ClockPreset: String, CaseIterable, Equatable {
         case .pixelRetro: return "Pixel Retro"
         case .flipTiles: return "Flip Clock"
         case .stackedCard: return "Stacked Time & Date"
+        case .minimal: return "Minimal"
         }
     }
 }

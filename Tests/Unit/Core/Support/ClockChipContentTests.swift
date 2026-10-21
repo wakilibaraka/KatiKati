@@ -82,11 +82,12 @@ final class ClockChipContentTests: XCTestCase {
     /// cases, stable raw values (old `modern`/`pixel` keys still decode),
     /// and the new `flip` key decodes too.
     func testFlipTilesPresetRoundTrips() {
-        XCTAssertEqual(ClockPreset.allCases.count, 4)
+        XCTAssertEqual(ClockPreset.allCases.count, 5)
         XCTAssertEqual(ClockPreset(rawValue: "modern"), .modernMac)
         XCTAssertEqual(ClockPreset(rawValue: "pixel"), .pixelRetro)
         XCTAssertEqual(ClockPreset(rawValue: "flip"), .flipTiles)
         XCTAssertEqual(ClockPreset(rawValue: "stacked"), .stackedCard)
+        XCTAssertEqual(ClockPreset(rawValue: "minimal"), .minimal)
         XCTAssertEqual(ClockPreset.flipTiles.rawValue, "flip")
     }
 }
