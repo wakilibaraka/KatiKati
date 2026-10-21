@@ -90,6 +90,17 @@ public enum WeatherChipPreset: String, CaseIterable, Equatable, Codable, Sendabl
     public static func pickerCases(current: WeatherChipPreset) -> [WeatherChipPreset] {
         current == .ipad ? [.ipad] : [.ipad, current]
     }
+
+    public static let storageKey = "com.katikati.weather.chipPreset"
+    static let ipadMigrationStamp = "com.katikati.migration.weatherIPadDefault"
+
+    /// Once per install: a stored older style (the owner's pins `detailed`) moves to the iPad card, now
+    /// the default. A later pick sticks, and the retired styles stay decodable.
+    public static func migrateToIPadIfNeeded(defaults: UserDefaults) {
+        guard !defaults.bool(forKey: ipadMigrationStamp) else { return }
+        defaults.set(true, forKey: ipadMigrationStamp)
+        if defaults.string(forKey: storageKey) != nil { defaults.set(Self.ipad.rawValue, forKey: storageKey) }
+    }
 }
 
 /// Scale that fits a widget form of `naturalHeight` into `availableHeight`: whole-form shrink,

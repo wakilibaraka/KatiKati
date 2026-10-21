@@ -320,6 +320,7 @@ final class AppSettingsStore: ObservableObject {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         TungstenDefaultsMigrator.migrateIfNeeded(defaults: defaults)
+        WeatherChipPreset.migrateToIPadIfNeeded(defaults: defaults)
         Self.migrateLegacyEnabledKey(
             defaults: defaults,
             enabledKey: Keys.nativeDockAutoHideEnabled,

@@ -37,4 +37,17 @@ final class WeatherLayoutSpecTests: XCTestCase {
         XCTAssertEqual(WeatherStaleness(age: 2 * 3600), .stale)
         XCTAssertEqual(WeatherStaleness(age: 5 * 3600), .old)
     }
+
+    func testHourSlotsPreferDetailAndNeverInvent() {
+        func state(hourly: [HourlyForecast], detail: WeatherDetail?) -> WeatherState {
+            WeatherState(cityName: "X", temperatureCelsius: 10, conditionText: "", symbolName: "sun.max.fill", highCelsius: 12, lowCelsius: 4,
+                         hourly: hourly, daily: [], isLive: true, lastUpdated: Date(), detail: detail)
+        }
+        let cached = (0..<4).map { HourlyForecast(id: "h\($0)", hour: "\(14 + $0):00", temperatureCelsius: Double($0), symbolName: "cloud.fill") }
+        let slots = WeatherHourSlot.slots(from: state(hourly: cached, detail: nil), count: 3)
+        XCTAssertEqual(slots.map(\.hour), ["14", "15", "16"])
+        XCTAssertEqual(slots.map(\.isNow), [true, false, false])
+        XCTAssertNil(slots[0].rainPercent)
+        XCTAssertTrue(WeatherHourSlot.slots(from: state(hourly: [], detail: nil), count: 5).isEmpty)
+    }
 }

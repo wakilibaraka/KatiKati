@@ -200,7 +200,7 @@ public struct WeatherIllustration: View {
 public struct WeatherChip: View {
     @EnvironmentObject var weatherService: WeatherService
     @Environment(\.widgetSize) private var widgetSize
-    @AppStorage("com.katikati.weather.chipPreset") private var chipPreset: WeatherChipPreset = .detailedForecast
+    @AppStorage(WeatherChipPreset.storageKey) private var chipPreset: WeatherChipPreset = .ipad
     // Phase 32b: the reading morphs with the dock's motion preset; Instant, or Reduce Motion, cuts it.
     @AppStorage(WidgetMotionPreset.storageKey) private var motionPreset: WidgetMotionPreset = .default
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -217,6 +217,9 @@ public struct WeatherChip: View {
         if !state.hasData {
             // No place and no cached forecast: say that, instead of a temperature for a city we made up.
             WeatherNoPlaceHint(needsLocation: weatherService.needsLocation)
+                .onTapGesture { WidgetPanelController.weather.toggle() }
+        } else if chipPreset == .ipad {
+            WeatherIPadChip(state: state, size: widgetSize)
                 .onTapGesture { WidgetPanelController.weather.toggle() }
         } else if chipPreset.isDetailed {
             DetailedWeatherPodView(state: state, widgetSize: widgetSize, sky: sky)
@@ -343,10 +346,18 @@ struct WeatherNoPlaceHint: View {
 /// scales it by `dockScale` like every other rail metric.
 struct RailWeatherTile: View {
     @EnvironmentObject var weatherService: WeatherService
+    @AppStorage(WeatherChipPreset.storageKey) private var chipPreset: WeatherChipPreset = .ipad
     @State private var isHovered = false
 
     var body: some View {
         let state = weatherService.currentState
+        let tint = SkyTint.tint(condition: state.conditionFamily, isNight: state.isNight)
+        // The iPad card's sky plate, with its dark-ink flip on bright skies; no forecast keeps the dock plate.
+        let sky: LinearGradient? = chipPreset == .ipad && state.hasData
+            ? LinearGradient(colors: [Color(red: tint.top.r, green: tint.top.g, blue: tint.top.b),
+                                      Color(red: tint.bottom.r, green: tint.bottom.g, blue: tint.bottom.b)],
+                             startPoint: .top, endPoint: .bottom)
+            : nil
         VStack(spacing: 1) {
             // Same rule as the bar chip: with no forecast there is no temperature to print, only the
             // mark that a place is missing (the tap below opens the panel's city search).
@@ -357,13 +368,13 @@ struct RailWeatherTile: View {
                 Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
                     .font(.system(size: 12, weight: .bold, design: .rounded))
                     .monospacedDigit()
-                    .foregroundStyle(.white)
+                    .foregroundStyle(sky != nil && tint.prefersDarkText ? Color(white: 0.10) : .white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
         }
         .frame(width: BarSection.railTileSize, height: BarSection.railTileSize)
-        .dockTileChrome(isHovered: isHovered)
+        .dockTileChrome(isHovered: isHovered, fill: sky)
         .contentShape(Rectangle())
         .onHover { isHovered = $0 }
         .onTapGesture { WidgetPanelController.weather.toggle() }
@@ -374,14 +385,14 @@ struct RailWeatherTile: View {
 
 /// The laid-out height of the pod's width-chosen form, so the whole form can scale to the slot.
 /// Measured on an unscaled copy (transforms don't change layout), so the scale never feeds back.
-private struct ContentHeightKey: PreferenceKey {
+struct ContentHeightKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = max(value, nextValue())
     }
 }
 
-private struct ContentHeightReader: View {
+struct ContentHeightReader: View {
     var body: some View {
         GeometryReader { measure in
             Color.clear.preference(key: ContentHeightKey.self, value: measure.size.height)

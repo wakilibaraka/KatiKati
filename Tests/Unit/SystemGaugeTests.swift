@@ -120,6 +120,20 @@ final class SystemGaugeTests: XCTestCase {
         XCTAssertEqual(WeatherChipPreset.pickerCases(current: .detailedGlass), [.ipad, .detailedGlass])
     }
 
+    /// Phase 56 W3: a stored older style moves to the iPad card exactly once; a later pick sticks.
+    func testIPadMigrationRunsOnce() {
+        let d = UserDefaults(suiteName: "weather-ipad-migration-\(UUID().uuidString)")!
+        d.set("detailed", forKey: WeatherChipPreset.storageKey)
+        WeatherChipPreset.migrateToIPadIfNeeded(defaults: d)
+        XCTAssertEqual(d.string(forKey: WeatherChipPreset.storageKey), "ipad")
+        d.set("classic", forKey: WeatherChipPreset.storageKey)
+        WeatherChipPreset.migrateToIPadIfNeeded(defaults: d)
+        XCTAssertEqual(d.string(forKey: WeatherChipPreset.storageKey), "classic")
+        let fresh = UserDefaults(suiteName: "weather-ipad-migration-\(UUID().uuidString)")!
+        WeatherChipPreset.migrateToIPadIfNeeded(defaults: fresh)
+        XCTAssertNil(fresh.string(forKey: WeatherChipPreset.storageKey))
+    }
+
     func testWiFiVolumeDotsActiveCalculation() {
         // Muted should always be 0 active dots
         let mutedDots = VolumeStatus(level: 0.8, isMuted: true).isMuted ? 0 : Int(round(0.8 * 12.0))

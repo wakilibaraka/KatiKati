@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B50000000000000009A1011 /* WeatherIPadChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1010 /* WeatherIPadChip.swift */; };
 		7B50000000000000009A1001 /* WeatherLayoutSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1000 /* WeatherLayoutSpec.swift */; };
 		7B50000000000000009A1002 /* WeatherLayoutSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1000 /* WeatherLayoutSpec.swift */; };
 		7B50000000000000009A2001 /* WeatherLayoutSpecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A2000 /* WeatherLayoutSpecTests.swift */; };
@@ -1144,6 +1145,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B50000000000000009A1010 /* WeatherIPadChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherIPadChip.swift; path = App/Scenes/Weather/WeatherIPadChip.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000009A1000 /* WeatherLayoutSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherLayoutSpec.swift; path = Core/Support/WeatherLayoutSpec.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000009A2000 /* WeatherLayoutSpecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherLayoutSpecTests.swift; path = Tests/Unit/WeatherLayoutSpecTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000009901 /* MarqueeText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MarqueeText.swift; path = App/Scenes/MarqueeText.swift; sourceTree = SOURCE_ROOT; };
@@ -3294,6 +3296,7 @@
 				7B5000000000000000000052 /* WidgetTileKit.swift in Sources */,
 				7B5000000000000000000042 /* WeatherEffects.swift in Sources */,
 				7B50000000000000009A1001 /* WeatherLayoutSpec.swift in Sources */,
+				7B50000000000000009A1011 /* WeatherIPadChip.swift in Sources */,
 				7B5000000000000000000032 /* WeatherLocations.swift in Sources */,
 				7B5000000000000000000022 /* WeatherWarnings.swift in Sources */,
 				7B5000000000000000000012 /* WeatherDetail.swift in Sources */,

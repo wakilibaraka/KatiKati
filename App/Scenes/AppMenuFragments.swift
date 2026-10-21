@@ -380,10 +380,10 @@ enum WidgetMenuBuilder {
             unitItem.submenu = unitMenu
             menu.addItem(unitItem)
 
-            let currentPreset = UserDefaults.standard.string(forKey: "com.katikati.weather.chipPreset") ?? WeatherChipPreset.detailedForecast.rawValue
+            let currentPreset = UserDefaults.standard.string(forKey: "com.katikati.weather.chipPreset") ?? WeatherChipPreset.ipad.rawValue
             let styleMenu = NSMenu(title: String(localized: "Weather Style"))
             // The offered styles (retired ones only while one is stored), via `pickerCases`.
-            for preset in WeatherChipPreset.pickerCases(current: WeatherChipPreset(rawValue: currentPreset) ?? .detailedForecast) {
+            for preset in WeatherChipPreset.pickerCases(current: WeatherChipPreset(rawValue: currentPreset) ?? .ipad) {
                 let item = ClosureMenuItem(Self.weatherPresetMenuTitle(preset)) { UserDefaults.standard.set(preset.rawValue, forKey: "com.katikati.weather.chipPreset") }
                 item.state = preset.rawValue == currentPreset ? .on : .off
                 styleMenu.addItem(item)

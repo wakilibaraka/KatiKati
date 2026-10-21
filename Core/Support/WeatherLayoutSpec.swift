@@ -54,3 +54,34 @@ enum WeatherStaleness: Equatable, Sendable {
 
     init(lastUpdated: Date, now: Date = Date()) { self.init(age: now.timeIntervalSince(lastUpdated)) }
 }
+
+/// One slot of the hourly strip: hour, glyph, temperature, and the rain chance only when it is worth a caption.
+struct WeatherHourSlot: Equatable, Identifiable {
+    let id: String
+    let hour: String
+    let symbolName: String
+    let temperatureCelsius: Double
+    let rainPercent: Int?
+    let isNow: Bool
+
+    /// The next `count` hours from the feed, richest source first (the 48-hour detail carries the rain
+    /// chance and day/night art); the cached 3-day hourly list stands in. Never invents hours.
+    static func slots(from state: WeatherState, count: Int) -> [WeatherHourSlot] {
+        let points = state.detail?.hourly ?? []
+        let made: [WeatherHourSlot]
+        if !points.isEmpty {
+            made = points.prefix(count).enumerated().map { i, p in
+                let rain = Int(p.precipProbability.rounded())
+                return WeatherHourSlot(id: p.time, hour: String(p.hourLabel.prefix(2)),
+                                       symbolName: WeatherCondition(code: p.code).symbolName(isNight: !p.isDay),
+                                       temperatureCelsius: p.temperature, rainPercent: rain > 0 ? rain : nil, isNow: i == 0)
+            }
+        } else {
+            made = state.hourly.prefix(count).enumerated().map { i, h in
+                WeatherHourSlot(id: h.id, hour: String(h.hour.prefix(2)), symbolName: h.symbolName,
+                                temperatureCelsius: h.temperatureCelsius, rainPercent: nil, isNow: i == 0)
+            }
+        }
+        return made
+    }
+}

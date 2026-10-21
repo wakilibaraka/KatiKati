@@ -812,7 +812,7 @@ struct WeatherSettingsBlock: View {
     @AppStorage(WeatherUnits.windKey) private var windUnit: WindSpeedUnit = .kmh
     @AppStorage(WeatherLayoutPreset.storageKey) private var weatherLayout: WeatherLayoutPreset = .glance
     @AppStorage(WeatherHeroStyle.storageKey) private var heroStyle: WeatherHeroStyle = .scene
-    @AppStorage("com.katikati.weather.chipPreset") private var weatherPresetRaw: String = WeatherChipPreset.detailedForecast.rawValue
+    @AppStorage("com.katikati.weather.chipPreset") private var weatherPresetRaw: String = WeatherChipPreset.ipad.rawValue
     @AppStorage(WeatherPrefs.animationsKey) private var weatherAnimations = true
     @State private var thresholds = WeatherPrefs.thresholds()
 
@@ -825,7 +825,7 @@ struct WeatherSettingsBlock: View {
             left: {
                 SettingsRow(Text("Weather Style")) {
                     Picker("Weather Style", selection: $weatherPresetRaw) {
-                        ForEach(WeatherChipPreset.pickerCases(current: WeatherChipPreset(rawValue: weatherPresetRaw) ?? .detailedForecast), id: \.rawValue) { preset in
+                        ForEach(WeatherChipPreset.pickerCases(current: WeatherChipPreset(rawValue: weatherPresetRaw) ?? .ipad), id: \.rawValue) { preset in
                             Text(preset.title).tag(preset.rawValue)
                         }
                     }
