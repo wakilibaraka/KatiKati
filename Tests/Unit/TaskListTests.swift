@@ -94,10 +94,29 @@ final class TaskListTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: store.url.appendingPathExtension("bak").path))
     }
 
-    func testSmartOrderRunningImportantOpenDone() {
+    func testSmartOrderRunningDatedImportantOpenDone() {
+        let cal = Calendar(identifier: .gregorian), day = { (n: Int) in cal.date(from: DateComponents(year: 2026, month: 10, day: n))! }
         let a = TaskItem(text: "a"), b = TaskItem(text: "b", important: true), c = TaskItem(text: "c", done: true, important: true)
-        let d = TaskItem(text: "d", runningSince: Date()), e = TaskItem(text: "e"), f = TaskItem(text: "f", important: true)
-        XCTAssertEqual([a, b, c, d, e, f].smartOrdered.map(\.text), ["d", "b", "f", "a", "e", "c"])
+        let d = TaskItem(text: "d", runningSince: Date()), e = TaskItem(text: "e", due: day(25)), f = TaskItem(text: "f", due: day(22))
+        let g = TaskItem(text: "g", important: true, due: day(25))
+        XCTAssertEqual([a, b, c, d, e, f, g].smartOrdered.map(\.text), ["d", "f", "g", "e", "b", "a", "c"])
         XCTAssertTrue([TaskItem]().smartOrdered.isEmpty)
+    }
+
+    func testSetDueStoresStartOfDayAndClears() {
+        var l = TaskList(); let id = l.add(text: "x")!
+        let noon = Date(timeIntervalSince1970: 1_792_000_000)
+        l.setDue(id, noon)
+        XCTAssertEqual(l.items[0].due, Calendar.current.startOfDay(for: noon))
+        let back = try! JSONDecoder().decode(TaskList.self, from: JSONEncoder().encode(l))
+        XCTAssertEqual(back, l)
+        l.setDue(id, nil)
+        XCTAssertNil(l.items[0].due)
+    }
+
+    func testTaskDueStates() {
+        let now = Date(timeIntervalSince1970: 1_792_000_000), cal = Calendar.current
+        let day = { (n: Int) in cal.date(byAdding: .day, value: n, to: now)! }
+        XCTAssertEqual([-1, 0, 1, 2].map { TaskDue(day($0), now: now) }, [.overdue, .today, .tomorrow, .later])
     }
 }

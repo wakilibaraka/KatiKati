@@ -61,6 +61,7 @@ struct TasksFlyoutView: View {
                 .font(.system(size: 12, weight: item.important ? .bold : .semibold))
                 .strikethrough(item.done).opacity(item.done ? 0.45 : 1).lineLimit(1)
             Spacer(minLength: 4)
+            if let due = item.due, !item.done { dueBadge(due, env: env) }
             if !item.done {
                 Button { tasks.toggleTracking(item.id) } label: {
                     HStack(spacing: 3) {
@@ -82,7 +83,25 @@ struct TasksFlyoutView: View {
         .contextMenu {
             if item.important { Button("Unmark Important") { tasks.toggleImportant(item.id) } }
             else { Button("Mark Important") { tasks.toggleImportant(item.id) } }
+            if !item.done {
+                Button("Due Today") { tasks.setDue(item.id, Date()) }
+                Button("Due Tomorrow") { tasks.setDue(item.id, Calendar.current.date(byAdding: .day, value: 1, to: Date())) }
+                if item.due != nil { Button("Clear Due Date") { tasks.setDue(item.id, nil) } }
+            }
             Button("Delete") { tasks.delete(item.id) }
         }
+    }
+
+    @ViewBuilder private func dueBadge(_ due: Date, env: TileEnv) -> some View {
+        let state = TaskDue(due)
+        Group {
+            switch state {
+            case .overdue: Text("Overdue")
+            case .today: Text("Today")
+            case .tomorrow: Text("Tomorrow")
+            case .later: Text(verbatim: due.formatted(.dateTime.month(.abbreviated).day()))
+            }
+        }
+        .font(.system(size: 10, weight: .semibold)).foregroundColor(state == .overdue ? .red : env.secondary)
     }
 }

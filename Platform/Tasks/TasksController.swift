@@ -21,6 +21,7 @@ final class TasksController: ObservableObject {
     func add(_ text: String) { mutate { $0.add(text: text) } }
     func toggle(_ id: UUID) { mutate { $0.toggle(id) } }
     func toggleImportant(_ id: UUID) { mutate { $0.toggleImportant(id) } }
+    func setDue(_ id: UUID, _ day: Date?) { mutate { $0.setDue(id, day) } }
     func delete(_ id: UUID) { mutate { $0.delete(id) } }
     func clearCompleted() { mutate { $0.clearCompleted(before: Date()) } }
 

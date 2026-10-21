@@ -12,9 +12,11 @@ struct TaskItem: Codable, Equatable, Identifiable, Sendable {
     var trackedSeconds: Double
     /// Start of the current run; nil when the tracker is stopped.
     var runningSince: Date?
+    /// Phase 56e: the day the task is due (start of that day); nil = no due date.
+    var due: Date?
 
     init(id: UUID = UUID(), text: String, done: Bool = false, important: Bool = false, doneAt: Date? = nil,
-         trackedSeconds: Double = 0, runningSince: Date? = nil) {
+         trackedSeconds: Double = 0, runningSince: Date? = nil, due: Date? = nil) {
         self.id = id
         self.text = text
         self.done = done
@@ -22,9 +24,10 @@ struct TaskItem: Codable, Equatable, Identifiable, Sendable {
         self.doneAt = doneAt
         self.trackedSeconds = trackedSeconds
         self.runningSince = runningSince
+        self.due = due
     }
 
-    private enum CodingKeys: String, CodingKey { case id, text, done, important, doneAt, trackedSeconds, runningSince }
+    private enum CodingKeys: String, CodingKey { case id, text, done, important, doneAt, trackedSeconds, runningSince, due }
 
     /// Every field after `text` decodes leniently, so an older or hand-edited file still loads.
     init(from decoder: Decoder) throws {
@@ -36,6 +39,7 @@ struct TaskItem: Codable, Equatable, Identifiable, Sendable {
         doneAt = try c.decodeIfPresent(Date.self, forKey: .doneAt)
         trackedSeconds = max(0, try c.decodeIfPresent(Double.self, forKey: .trackedSeconds) ?? 0)
         runningSince = try c.decodeIfPresent(Date.self, forKey: .runningSince)
+        due = try c.decodeIfPresent(Date.self, forKey: .due)
     }
 
     func elapsed(at now: Date) -> Double {
@@ -75,6 +79,12 @@ struct TaskList: Codable, Equatable, Sendable {
     mutating func toggleImportant(_ id: UUID) {
         guard let i = items.firstIndex(where: { $0.id == id }) else { return }
         items[i].important.toggle()
+    }
+
+    /// Sets the due day (stored as that day's start) or clears it with nil.
+    mutating func setDue(_ id: UUID, _ day: Date?, calendar: Calendar = .current) {
+        guard let i = items.firstIndex(where: { $0.id == id }) else { return }
+        items[i].due = day.map { calendar.startOfDay(for: $0) }
     }
 
     mutating func delete(_ id: UUID) { items.removeAll { $0.id == id } }
@@ -117,11 +127,28 @@ enum TaskDisplay {
     }
 }
 
+enum TaskDue: Equatable {
+    case overdue, today, tomorrow, later
+
+    init(_ due: Date, now: Date = Date(), calendar: Calendar = .current) {
+        let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: now), to: calendar.startOfDay(for: due)).day ?? 0
+        self = days < 0 ? .overdue : days == 0 ? .today : days == 1 ? .tomorrow : .later
+    }
+}
+
 extension Array where Element == TaskItem {
-    /// Phase 56d: what to work on first. Running tracker, then important, then the rest, finished last;
-    /// each group keeps its list order. Tasks carry no due date yet, so importance is the only priority.
+    /// Phase 56d/e: what to work on first. Running tracker, then dated tasks (earliest due first, important
+    /// first on a tie), then important undated, then the rest, finished last; list order breaks every tie.
     var smartOrdered: [TaskItem] {
-        func rank(_ t: TaskItem) -> Int { t.done ? 3 : t.runningSince != nil ? 0 : t.important ? 1 : 2 }
-        return enumerated().sorted { (rank($0.element), $0.offset) < (rank($1.element), $1.offset) }.map(\.element)
+        func key(_ t: TaskItem) -> (Int, Date, Int) {
+            if t.done { return (4, .distantPast, 0) }
+            if t.runningSince != nil { return (0, .distantPast, 0) }
+            if let d = t.due { return (1, d, t.important ? 0 : 1) }
+            return (t.important ? 2 : 3, .distantPast, 0)
+        }
+        return enumerated().sorted {
+            let (a, b) = (key($0.element), key($1.element))
+            return (a.0, a.1, a.2, $0.offset) < (b.0, b.1, b.2, $1.offset)
+        }.map(\.element)
     }
 }
