@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1792605161.2424288,
-    "seen": 1792606007.5143082,
-    "ast_hash": "2841d7a0cbd670267d69359ea73d9a46",
+    "mtime": 1792606294.5829546,
+    "seen": 1792606821.785662,
+    "ast_hash": "ed6abfd4891b2f022f4bf8b4e24d7b7b",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": "20e32e60027b363670a56a0fe9dd15f9"
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1792605161.242882,
-    "seen": 1792606007.514375,
-    "ast_hash": "e9c9dce480a448fe9bd0ea5b55abc7d7",
+    "mtime": 1792606324.001778,
+    "seen": 1792606821.785728,
+    "ast_hash": "7e634487a7e32e7061a5d08e3221ae69",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1314,9 +1314,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WelcomeGuideView.swift": {
-    "mtime": 1792531158.676529,
-    "seen": 1792531216.473212,
-    "ast_hash": "2030a3ab96676627feef850b8cba2d04",
+    "mtime": 1792608621.951262,
+    "seen": 1792608736.191952,
+    "ast_hash": "9bffa1fb9e8cc543bf355e08bc963815",
     "semantic_hash": ""
   },
   "App/Scenes/WiFiVolumeFABView.swift": {
@@ -1962,9 +1962,9 @@
     "semantic_hash": "aa033a3eb069df436a646614a2da0ecc"
   },
   "Core/Support/LauncherLayout.swift": {
-    "mtime": 1792605113.8752713,
-    "seen": 1792606007.5145972,
-    "ast_hash": "e5dd5deb8a224d7d60672febe0759b4e",
+    "mtime": 1792606263.770459,
+    "seen": 1792606821.785952,
+    "ast_hash": "7b79df3e12139ac6ed24fab4a34973e4",
     "semantic_hash": ""
   },
   "Core/Support/LauncherMenuPlan.swift": {
@@ -4626,9 +4626,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Launcher.swift": {
-    "mtime": 1792605180.1283622,
-    "seen": 1792606007.514477,
-    "ast_hash": "2e8ae65344ca310ac2f9a127123ad107",
+    "mtime": 1792606324.0310404,
+    "seen": 1792606821.785833,
+    "ast_hash": "3f375935feb93933cc88514ebf077ef6",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792605996.052069,
-    "seen": 1792606007.514959,
-    "ast_hash": "90b9346cba59bbd7c93238775bb2a3c3",
+    "mtime": 1792608631.480842,
+    "seen": 1792608736.192395,
+    "ast_hash": "62a9c741c64091c3623aa174df79373e",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -6366,9 +6366,9 @@
     "semantic_hash": ""
   },
   "FEATURE_ROADMAP_2026-10.md": {
-    "mtime": 1792606021.1264153,
-    "seen": 1792606031.934272,
-    "ast_hash": "77926c88fef1c4dd97b8412cdeeb216a",
+    "mtime": 1792608742.0952013,
+    "seen": 1792608763.193164,
+    "ast_hash": "f19d5d8db4c16bcafb41c208704d1d6e",
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
@@ -6693,6 +6693,42 @@
     "mtime": 1792605837.7038398,
     "seen": 1792606007.515171,
     "ast_hash": "76e8d4a37bb1aad35e333044e42499fc",
+    "semantic_hash": ""
+  },
+  "App/Entry/LauncherOrbController.swift": {
+    "mtime": 1792606263.7718976,
+    "seen": 1792606821.7857332,
+    "ast_hash": "d3bbaba5b2b72d99413ee2c1b193203d",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/LauncherOrbPlacementTests.swift": {
+    "mtime": 1792606364.090154,
+    "seen": 1792606821.78619,
+    "ast_hash": "5e4d457955a3cedc34ef11827dd3c111",
+    "semantic_hash": ""
+  },
+  "screenshots/launcher-orb.png": {
+    "mtime": 1792606727.7594922,
+    "seen": 1792606821.786539,
+    "ast_hash": "6ad37c09e3e2f0ea099a534f23dc95b3",
+    "semantic_hash": ""
+  },
+  "screenshots/welcome-permissions-after-reset.png": {
+    "mtime": 1792607284.5985773,
+    "seen": 1792607771.895395,
+    "ast_hash": "427120a4080c97542dc1de571c8b2377",
+    "semantic_hash": ""
+  },
+  "screenshots/welcome-permissions-window.png": {
+    "mtime": 1792607682.8465636,
+    "seen": 1792607771.895396,
+    "ast_hash": "f0f152408bd2d2d401a9c573595961b0",
+    "semantic_hash": ""
+  },
+  "screenshots/welcome-permissions.png": {
+    "mtime": 1792607578.3471644,
+    "seen": 1792607771.8953972,
+    "ast_hash": "b06b72f3f5cb273ffeafa2f1b9f196f2",
     "semantic_hash": ""
   }
 }
