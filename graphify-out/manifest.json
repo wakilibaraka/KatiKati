@@ -6653,12 +6653,6 @@
     "ast_hash": "79e2bf277d20e1fd717ce28793f578f1",
     "semantic_hash": ""
   },
-  "screenshots/track-pill-fixed.png": {
-    "mtime": 1792602371.1397793,
-    "seen": 1792602473.345762,
-    "ast_hash": "e281623b449666adfc7552177eee657c",
-    "semantic_hash": ""
-  },
   "Tests/Unit/ControlCenterScrollTests.swift": {
     "mtime": 1792603243.6980395,
     "seen": 1792604854.19836,
@@ -6671,30 +6665,6 @@
     "ast_hash": "02ad43aaf192b741f5e8870090c7f127",
     "semantic_hash": ""
   },
-  "screenshots/launcher-centred.png": {
-    "mtime": 1792605770.5801203,
-    "seen": 1792606007.515169,
-    "ast_hash": "bd651ee9961b7a2ddb58f0bf4cee3954",
-    "semantic_hash": ""
-  },
-  "screenshots/launcher-fullscreen.png": {
-    "mtime": 1792605760.3964486,
-    "seen": 1792606007.515169,
-    "ast_hash": "9990c5958ca9dc9c609d3e214c7cedf8",
-    "semantic_hash": ""
-  },
-  "screenshots/launcher-popover.png": {
-    "mtime": 1792605780.7469778,
-    "seen": 1792606007.51517,
-    "ast_hash": "00c77a953e8efd2a8eb230f226d2206d",
-    "semantic_hash": ""
-  },
-  "screenshots/settings-launcher-presentation.png": {
-    "mtime": 1792605837.7038398,
-    "seen": 1792606007.515171,
-    "ast_hash": "76e8d4a37bb1aad35e333044e42499fc",
-    "semantic_hash": ""
-  },
   "App/Entry/LauncherOrbController.swift": {
     "mtime": 1792606263.7718976,
     "seen": 1792606821.7857332,
@@ -6705,30 +6675,6 @@
     "mtime": 1792606364.090154,
     "seen": 1792606821.78619,
     "ast_hash": "5e4d457955a3cedc34ef11827dd3c111",
-    "semantic_hash": ""
-  },
-  "screenshots/launcher-orb.png": {
-    "mtime": 1792606727.7594922,
-    "seen": 1792606821.786539,
-    "ast_hash": "6ad37c09e3e2f0ea099a534f23dc95b3",
-    "semantic_hash": ""
-  },
-  "screenshots/welcome-permissions-after-reset.png": {
-    "mtime": 1792607284.5985773,
-    "seen": 1792607771.895395,
-    "ast_hash": "427120a4080c97542dc1de571c8b2377",
-    "semantic_hash": ""
-  },
-  "screenshots/welcome-permissions-window.png": {
-    "mtime": 1792607682.8465636,
-    "seen": 1792607771.895396,
-    "ast_hash": "f0f152408bd2d2d401a9c573595961b0",
-    "semantic_hash": ""
-  },
-  "screenshots/welcome-permissions.png": {
-    "mtime": 1792607578.3471644,
-    "seen": 1792607771.8953972,
-    "ast_hash": "b06b72f3f5cb273ffeafa2f1b9f196f2",
     "semantic_hash": ""
   }
 }
