@@ -1452,10 +1452,10 @@
     "semantic_hash": "0250995b665de67c6f824caa442b799f"
   },
   "Core/Support/AgentUsage/AgentClaudeParser.swift": {
-    "mtime": 1792013867.3797204,
-    "seen": 1792295707.060519,
-    "ast_hash": "dbdab725d43b7f8ed8a2e63419270f4f",
-    "semantic_hash": "dbdab725d43b7f8ed8a2e63419270f4f"
+    "mtime": 1792581052.4944339,
+    "seen": 1792581247.740671,
+    "ast_hash": "052d39189c77c07495351938fc666f16",
+    "semantic_hash": ""
   },
   "Core/Support/AgentUsage/AgentPricing.swift": {
     "mtime": 1792013853.7096643,
@@ -1464,10 +1464,10 @@
     "semantic_hash": "f86e91927f891eb79b4c020d214cb544"
   },
   "Core/Support/AgentUsage/AgentStoreParsers.swift": {
-    "mtime": 1792254888.9415946,
-    "seen": 1792295707.06052,
-    "ast_hash": "32e9557ffabd84980cdfb3bfb3b517b4",
-    "semantic_hash": "32e9557ffabd84980cdfb3bfb3b517b4"
+    "mtime": 1792581059.7320714,
+    "seen": 1792581247.740673,
+    "ast_hash": "66921dfd3465e9bda44f2effd67b6285",
+    "semantic_hash": ""
   },
   "Core/Support/AgentUsage/AgentUsageModels.swift": {
     "mtime": 1792261093.5387657,
@@ -3108,10 +3108,10 @@
     "semantic_hash": "a1be8ca227bf12eedd4e86ff89c62c04"
   },
   "Tests/Unit/AgentUsageTests.swift": {
-    "mtime": 1792261093.5437677,
-    "seen": 1792295707.060689,
-    "ast_hash": "f8f6e7b5ba90b03d44fe17077cf21c65",
-    "semantic_hash": "f8f6e7b5ba90b03d44fe17077cf21c65"
+    "mtime": 1792581044.8761368,
+    "seen": 1792581247.740907,
+    "ast_hash": "1f6081b692e18a9a738156dec3068cb7",
+    "semantic_hash": ""
   },
   "Tests/Unit/AppFallbackChipDecisionTests.swift": {
     "mtime": 1791999130.9623153,
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792554940.2912602,
-    "seen": 1792555046.632,
-    "ast_hash": "ead87e331fc1061c8cb9f341388b0b21",
+    "mtime": 1792581207.2859943,
+    "seen": 1792581247.741118,
+    "ast_hash": "57a9176ae8c41985bc76c61925570014",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -6366,9 +6366,9 @@
     "semantic_hash": ""
   },
   "FEATURE_ROADMAP_2026-10.md": {
-    "mtime": 1792580217.222263,
-    "seen": 1792580240.736095,
-    "ast_hash": "87fe4a959d1ffbf7ca19c5a35b12de43",
+    "mtime": 1792581255.1712782,
+    "seen": 1792581272.74336,
+    "ast_hash": "31fa3e152699ff75894f74ca29e04411",
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
