@@ -75,7 +75,7 @@ Four independent `CGEventTap`s: `HyperkeyService`, `KeyGuardService`, `ScrollRev
 | Now Playing source | BUILT, health UNVERIFIED | `NowPlayingService` (isolated MediaRemote, `#available`) + `AppleScriptNowPlaying`; which path works on this macOS is Q-music's first question |
 | AI usage page (Claude/Codex/Copilot/OpenCode) | BUILT | `AgentUsageService`, `Core/Support/AgentUsage/*`, `NotchAIPageView`. Live "status" (working/idle) MISSING; Loadout MISSING |
 | Calendar panel: countdown, alarms, timer, stopwatch, reminders | BUILT | `Docs/WIDGET_INVENTORY.md`, `CalendarPanelModels.swift` (`NextEventCountdown`). **Year-in-progress MISSING** |
-| Calculator keypad tile, mic recorder tile | BUILT (new, `8391671`, `be52384`) | in `CalendarPanelView.swift`; mic permission added; Q-widgets checks the denied-permission path |
+| Calculator keypad tile, mic recorder tile | BUILT (new, `8391671`, `be52384`) | `CalculatorTile.swift`, `AudioRecorderTile.swift` (split out of `CalendarPanelView` by 49c, `8d89397`); mic permission added; Q-widgets checks the denied-permission path |
 | Weather widget | BUILT | Phases 43/46; 3 size presets UNVERIFIED |
 | Battery / AirBattery-style multi-device | PARTIAL | `Core/Support/BluetoothDevices.swift` parser exists; redesign MISSING |
 | Smart tasks | PARTIAL | `Edge/TasksFlyoutView.swift` exists; smart sorting MISSING |
@@ -175,7 +175,7 @@ main (clean)  ──►  Q0  gate on HEAD ............ done at `14092d5`: 2559 t
                    Q2  gate-text cleanup + sidebar smoke test ... done (`896f8f6`); live smoke run owed
                     │
                     ▼
-                   Phase 49  49a LANES.md ─► 49b / 49c pure splits ─► 49e batching rule
+                   Phase 49  done (`8d89397`): 49a LANES.md ─► 49b / 49c pure splits ─► 49e batching rule
                     │
                     ▼
         2–3 lanes at a time, one worktree + branch each, claim in LANES.md
@@ -270,7 +270,10 @@ checkers are recorded there too. The live recipes are still owed.
    Dictionary, Bookmark and others have no test naming the *service* because their decisions live in tested Core
    types. Q checks the Core type is covered and the glue has a live recipe.
 9. **File growth.** `CalendarPanelView.swift` grew by 226 lines in `8391671` alone (calculator + recorder tiles);
-   `NowPlayingChip.swift` is 1375 lines holding six views. Both are split by 49b/49c before more lands in them.
+   `NowPlayingChip.swift` was 1375 lines holding six views. **Both split in `8d89397` (49b/49c):** the chip is now
+   `NowPlayingChip` / `NowPlayingPopup` / `TurntableView` / `ExpandedMediaCardView`, the tiles are `CalculatorTile` and
+   `AudioRecorderTile`. Pure move — the only old line not carried over verbatim is `ExpandedMediaCardView`'s `private`,
+   which the split had to drop so the other files can see it.
 10. **Reduce Motion / VoiceOver** coverage is partial (counts in 4.1); sweep notch, launcher, dock, radial dial,
     settings, calendar tiles.
 11. **New since rev 2 — menu-bar readout (`4b3b735`).** `MenuBarSystemItem` samples every 1 s while at least one metric is
@@ -319,12 +322,12 @@ checkers are recorded there too. The live recipes are still owed.
 ## 5. Phase 49 — Parallel-work foundation (structure only, zero behaviour change)
 | ID | Slice | Lane | Est. | Test / gate | Done when |
 |---|---|---|---|---|---|
-| 49a | Root `LANES.md`: section 3.2/3.3 as the live claim board (one line per active slice). Root, not `Docs/` — see header | F | ~60 | none (docs) | every active agent has a line; file is tracked |
-| 49b | Split `NowPlayingChip.swift` into one file per view (`NowPlayingChip`, `NowPlayingPopup`, `TurntableView`, `ExpandedMediaCardView`, …) — **pure move** | A | ~0 net + ~20 pbxproj | CI command; byte-identical code | no logic diff; `git diff -M` shows moves only |
-| 49c | Move the calculator and recorder tiles out of `CalendarPanelView.swift` into their own files — pure move | E | ~0 net + ~8 pbxproj | CI command | same |
-| 49e | Decide the Settings-registration pattern: batched tab additions through the integrator | F | docs only | — | rule written in `LANES.md` |
+| 49a | **Done.** Root `LANES.md`: section 3.2/3.3 as the live claim board (one line per active slice). Root, not `Docs/` — see header | F | ~60 | none (docs) | every active agent has a line; file is tracked |
+| 49b | **Done 2026-10-21** (`8d89397`, together with 49c). Split `NowPlayingChip.swift` into one file per view (`NowPlayingChip`, `NowPlayingPopup`, `TurntableView`, `ExpandedMediaCardView`, …) — **pure move** | A | ~0 net + ~20 pbxproj | CI command | no logic diff: every removed line reappears except the one `private` the split had to drop, and the 27 added lines are file headers/imports |
+| 49c | **Done 2026-10-21, same commit.** Move the calculator and recorder tiles out of `CalendarPanelView.swift` into their own files — pure move | E | ~0 net + ~8 pbxproj | CI command | same |
+| 49e | **Done.** Decide the Settings-registration pattern: batched tab additions through the integrator | F | docs only | — | rule written in `LANES.md` (§ settings pages) |
 
-(Ids 49d and 49f are retired, not reused.)
+(Ids 49d and 49f are retired, not reused. Phase 49 is complete: all four live rows landed.)
 
 **Skipped on purpose** (each would cost more than it saves; revisit only on a measured problem or an owner override):
 - **Per-lane string tables** (was 49d) — the one-catalog merge is handled by the integrator rule in 3.3; splitting the
@@ -425,7 +428,7 @@ checkers are recorded there too. The live recipes are still owed.
 | 57a | Control Center: scroll-to-volume + Bluetooth icon (verify first) | `ControlCenterLayout.swift`, ~100 |
 | 57b | `LauncherPresentation` (fullscreen / centred / popover) as a pure enum + routing in `LauncherPanelController` | `com.katikati.launcher.presentation`, ~200 |
 | 57c | Orb summon | after 57b; owner screenshot |
-| 57d | **Menu-bar menu cleanup** (`StatusMenuController.swift`). Verified today: `Show Shelf` / `Show Trash` (`:93-94`) are toggled **only** from this menu (no Settings pane has them), so removing them needs a Settings home first (Dock Items page) or users lose the switch. "Show App Name on hover" (`:95`) maps to `hoverStyle`, whose default is `.quiet` **by an owner decision of 2026-09-01** (`AppSettingsStore.swift:64`) — making it default-on reverses that, so it is an owner call (existing users keep their stored value either way). Then move the Dock / KatiKati toggles to General and keep Taskbar Size in Dock Items | `StatusMenuController.swift`, the Settings panes, `SettingsMenu*` tests if any; one slice per move, ≤ ~150 each. **Rev 3: half-landed in `4b3b735`** — the General page now holds the Startup (launch hidden) and Hide Dock icon toggles (`SettingsWindowView.swift`, `StartupUIPolicy`), but the menu still carries `Open at Login`, `Show Shelf`, `Show Trash` and `Show app name on hover` (`StatusMenuController.swift:55,93-95`) and Shelf/Trash still have no Settings home. **Rev 4 (2026-10-21), owner-directed:** Show Shelf, Show Trash, Show app name on hover (default flipped to on) and Keep windows above the taskbar now live in Settings › Dock Items; the menu lost those four rows plus the KatiKati / Dock wake-delay sliders and Dock Settings…, and keeps Open at Login, Taskbar Size and Layout. Free-floating (non-tiled) windows under the bar are **not** covered — tiles already lift by default; that needs a new eligibility class in `WindowLiftAvoidance` and a live run |
+| 57d | **Done 2026-10-21, owner-directed.** Menu-bar menu cleanup (`StatusMenuController.swift`). Verified when written (superseded by Rev 4): `Show Shelf` / `Show Trash` (`:93-94`) are toggled **only** from this menu (no Settings pane has them), so removing them needs a Settings home first (Dock Items page) or users lose the switch. "Show App Name on hover" (`:95`) maps to `hoverStyle`, whose default is `.quiet` **by an owner decision of 2026-09-01** (`AppSettingsStore.swift:64`) — making it default-on reverses that, so it is an owner call (existing users keep their stored value either way). Then move the Dock / KatiKati toggles to General and keep Taskbar Size in Dock Items | `StatusMenuController.swift`, the Settings panes, `SettingsMenu*` tests if any; one slice per move, ≤ ~150 each. **Rev 3: half-landed in `4b3b735`** — the General page now holds the Startup (launch hidden) and Hide Dock icon toggles (`SettingsWindowView.swift`, `StartupUIPolicy`), but the menu still carries `Open at Login`, `Show Shelf`, `Show Trash` and `Show app name on hover` (`StatusMenuController.swift:55,93-95`) and Shelf/Trash still have no Settings home. **Rev 4 (2026-10-21), owner-directed:** Show Shelf, Show Trash, Show app name on hover (default flipped to on) and Keep windows above the taskbar now live in Settings › Dock Items; the menu lost those four rows plus the KatiKati / Dock wake-delay sliders and Dock Settings…, and keeps Open at Login, Taskbar Size and Layout. Free-floating (non-tiled) windows under the bar are **not** covered — tiles already lift by default; that needs a new eligibility class in `WindowLiftAvoidance` and a live run. **Status checked in the tree 2026-10-21:** `StatusMenuController.swift` no longer carries any of the four rows, `SettingsLayoutPane+Widgets.swift:51-70` holds the four toggles, and `HoverStyle.default` is `.standard` (`AppSettingsStore.swift:76`). The live run on a free-floating window is still OWED |
 | 57e | Control Center: swap the RAM / Background Apps slot and redo the icon art | **verify first** — ~~the slot and the icon assets are not located in code yet~~ — rev 3 candidates: `DynamicGaugeFABView.swift` (RAM/CPU tooltip), `BackgroundAppsStore.swift`, `BackgroundAppClassifier.swift`, `DrawerView.swift`, `DrawerCapsuleButton.swift`, `BehaviourSettingsBlock.swift`; which surface the owner means is still UNVERIFIED — get a screenshot before touching them |
 
 ### Phase 58 — Onboarding (Lane F)
@@ -448,9 +451,9 @@ checkers are recorded there too. The live recipes are still owed.
 9. Priority order of Phases 50–58, and the cut list (suggested cut: 50g, 54c, 54f, 55e, 55f). Recommended order:
    Q0–Q1 → 49 → **Q-input-a** → 58a → 51 (51b before 50d) → 50 → 53 → 56 → 55 → 54 → 52 → 57 (57d/57e late, they
    need your calls below). Run at most 2–3 lanes at once (3.4-10).
-10. Design calls the menu-bar cleanup and dock accent need (57d, 50f): is making "Show App Name" default-on a
-    deliberate reversal of the 2026-09-01 quiet default? Where do Show Shelf / Show Trash live once they leave the menu?
-    One artwork accent or a multi-colour dock palette?
+10. Design call the dock accent needs (50f): one artwork accent or a multi-colour dock palette? (The 57d questions are
+    answered and landed — "Show app name on hover" default was flipped to on by the owner on 2026-10-21, and Show Shelf /
+    Show Trash now live in Settings › Dock Items.)
 11. Settings grid rules 1–9 (`Docs/SETTINGS.md`): keep as soft guidance (recommended) or relax them too? The height
     gate itself is already abandoned (4.4-2).
 12. Un-park lyrics (50g)? It means an opt-in outbound lookup (`lrclib.net`) and a privacy line in Settings. Default: stay parked.
