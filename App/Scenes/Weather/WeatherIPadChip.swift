@@ -33,7 +33,7 @@ struct WeatherIPadChip: View {
         .background {
             // Static frame in the dock: animated rain on an always-visible chip costs more battery than it earns.
             if WeatherLayoutSpec.showsEffects(for: size) {
-                WeatherEffectsView(plan: .plan(condition: state.conditionFamily, isNight: state.isNight), animate: false, cloudOpacity: 0.45)
+                WeatherEffectsView(plan: .plan(condition: state.conditionFamily, isNight: state.isNight), animate: false, cloudOpacity: 0.25)
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
         }
@@ -51,21 +51,25 @@ struct WeatherIPadChip: View {
             switch size {
             case .small: header(showsRange: false)
             case .medium:
-                ViewThatFits(in: .horizontal) { row(slots: 3, showsRange: false); header(showsRange: false) }
+                ViewThatFits(in: .horizontal) { row(slots: 3, showsRange: false); row(slots: 2, showsRange: false); header(showsRange: false) }
             case .large:
-                ViewThatFits(in: .horizontal) { row(slots: 5, showsRange: true); row(slots: 3, showsRange: false); header(showsRange: false) }
+                ViewThatFits(in: .horizontal) {
+                    row(slots: 5, showsRange: true); row(slots: 4, showsRange: false); row(slots: 3, showsRange: false)
+                    row(slots: 2, showsRange: false); header(showsRange: false)
+                }
             }
         }
     }
 
     private func row(slots count: Int, showsRange: Bool) -> some View {
         let slots = WeatherHourSlot.slots(from: state, count: count)
-        return HStack(spacing: 10) {
+        return HStack(spacing: 8) {
             header(showsRange: showsRange)
             if !slots.isEmpty {
-                Rectangle().fill(ink.opacity(0.18)).frame(width: 1, height: 26)
+                // The divider only earns its 9 pt once there is room (a 2-slot Medium row is 8 pt short with it).
+                if count > 2 { Rectangle().fill(ink.opacity(0.18)).frame(width: 1, height: 26) }
                 let hasRain = slots.contains { $0.rainPercent != nil }
-                HStack(spacing: 4) { ForEach(slots) { slot in hourSlot(slot, reservesRain: hasRain) } }
+                HStack(spacing: 2) { ForEach(slots) { slot in hourSlot(slot, reservesRain: hasRain) } }
                     .frame(maxWidth: .infinity)
             }
         }
