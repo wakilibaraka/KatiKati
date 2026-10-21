@@ -97,6 +97,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Created only while Settings → Shortcuts → Pinch is on.
     private var pinchMonitor: MultitouchPinchMonitor?
     private var pinchSubscription: AnyCancellable?
+    /// 57c: shows/hides the floating launcher orb with its setting.
+    private var launcherOrbSubscription: AnyCancellable?
     private let shortcutToast = ShortcutToastPresenter()
     /// Phase 8b-4B: the Live Island's app-wide event feed. A **single** instance on purpose — each
     /// island has its own rendering feed, so per-island detection would fire the same toast N times
@@ -169,6 +171,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         return panel
+    }()
+    /// 57c: the floating orb that opens the same launcher. Built once; shown only while the setting is on.
+    private lazy var launcherOrb: LauncherOrbController = {
+        let orb = LauncherOrbController()
+        orb.onTap = { [weak self] in self?.launcherPanel.toggle() }
+        orb.iconStyle = { [weak self] in self?.settingsStore.launcherIcon ?? .liquidBento }
+        return orb
     }()
     /// Phase 27: the ⌘Space command bar, kept separate from the full-screen launcher.
     private(set) lazy var commandBarPanel = CommandBarPanelController()
@@ -386,6 +395,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             pinchSubscription = settingsStore.$launcherPinch
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] on in self?.applyPinch(on) }
+            launcherOrbSubscription = settingsStore.$launcherOrbEnabled
+                .removeDuplicates()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] on in
+                    guard let self else { return }
+                    on ? self.launcherOrb.show() : self.launcherOrb.hide()
+                }
             KeyGuardService.shared.refresh()
             QuitOnLastWindowService.shared.start()
             FocusFollowService.shared.startIfEnabled()
@@ -1220,6 +1236,8 @@ extension AppDelegate: PermissionEffectHandler {
         runtime.isKeepAwakeOn = nil
         pinchSubscription?.cancel()
         pinchSubscription = nil
+        launcherOrbSubscription?.cancel()
+        launcherOrbSubscription = nil
         pinchMonitor?.stop()
         pinchMonitor = nil
         shortcutSubscription?.cancel()

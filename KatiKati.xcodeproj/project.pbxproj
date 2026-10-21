@@ -317,6 +317,8 @@
 		FA33C0000000000000000042 /* FocusFollowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000041 /* FocusFollowTests.swift */; };
 		FA33C0000000000000000052 /* NotchTrackPillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000051 /* NotchTrackPillTests.swift */; };
 		FA33D0000000000000000052 /* ControlCenterScrollTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33D0000000000000000051 /* ControlCenterScrollTests.swift */; };
+		FA33F0000000000000000012 /* LauncherOrbController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33F0000000000000000011 /* LauncherOrbController.swift */; };
+		FA33F0000000000000000052 /* LauncherOrbPlacementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33F0000000000000000051 /* LauncherOrbPlacementTests.swift */; };
 		FA33E0000000000000000052 /* LauncherPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33E0000000000000000051 /* LauncherPresentationTests.swift */; };
 		FA33B0000000000000000012 /* ClaudeHookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000011 /* ClaudeHookConfig.swift */; };
 		FA33B0000000000000000013 /* ClaudeHookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000011 /* ClaudeHookConfig.swift */; };
@@ -1396,6 +1398,8 @@
 		FA33C0000000000000000041 /* FocusFollowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FocusFollowTests.swift; path = Tests/Unit/FocusFollowTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33C0000000000000000051 /* NotchTrackPillTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchTrackPillTests.swift; path = Tests/Unit/NotchTrackPillTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33D0000000000000000051 /* ControlCenterScrollTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ControlCenterScrollTests.swift; path = Tests/Unit/ControlCenterScrollTests.swift; sourceTree = SOURCE_ROOT; };
+		FA33F0000000000000000011 /* LauncherOrbController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherOrbController.swift; path = App/Entry/LauncherOrbController.swift; sourceTree = SOURCE_ROOT; };
+		FA33F0000000000000000051 /* LauncherOrbPlacementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherOrbPlacementTests.swift; path = Tests/Unit/LauncherOrbPlacementTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33E0000000000000000051 /* LauncherPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherPresentationTests.swift; path = Tests/Unit/LauncherPresentationTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33B0000000000000000011 /* ClaudeHookConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookConfig.swift; path = Core/Support/AgentUsage/ClaudeHookConfig.swift; sourceTree = SOURCE_ROOT; };
 		FA33B0000000000000000021 /* ClaudeHookStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookStatus.swift; path = Core/Support/AgentUsage/ClaudeHookStatus.swift; sourceTree = SOURCE_ROOT; };
@@ -3185,6 +3189,7 @@
 				AA0100000000000000000002 /* QuickAddState.swift in Sources */,
 				ED00000000000000000000FA /* LauncherView.swift in Sources */,
 				ED00000000000000000000FC /* LauncherPanelController.swift in Sources */,
+				FA33F0000000000000000012 /* LauncherOrbController.swift in Sources */,
 				ED00000000000000000000F2 /* LauncherIndexer.swift in Sources */,
 				ED00000000000000000000F4 /* LauncherStore.swift in Sources */,
 				ED00000000000000000000ED /* LauncherAppIndex.swift in Sources */,
@@ -3472,6 +3477,7 @@
 				FA33C0000000000000000042 /* FocusFollowTests.swift in Sources */,
 				FA33C0000000000000000052 /* NotchTrackPillTests.swift in Sources */,
 				FA33D0000000000000000052 /* ControlCenterScrollTests.swift in Sources */,
+				FA33F0000000000000000052 /* LauncherOrbPlacementTests.swift in Sources */,
 				FA33E0000000000000000052 /* LauncherPresentationTests.swift in Sources */,
 				FA33C0000000000000000073 /* MarqueeText.swift in Sources */,
 				FA33C0000000000000000083 /* TrackPillTextMetrics.swift in Sources */,

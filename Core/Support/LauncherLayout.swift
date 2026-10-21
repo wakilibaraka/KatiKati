@@ -99,6 +99,32 @@ enum LauncherPanelFrame {
     }
 }
 
+/// 57c: where the floating launcher orb sits and what counts as a click on it. Pure so the corner, the clamp against
+/// another display's stored position and the drag slop can be tested without a window.
+enum LauncherOrbPlacement {
+    static let size: CGFloat = 56
+    static let margin: CGFloat = 8
+    /// Travel under this is a click, not a drag.
+    static let clickSlop: CGFloat = 4
+
+    /// Bottom-right of the usable screen, above the dock, on first run.
+    static func defaultOrigin(in visible: CGRect) -> CGPoint {
+        CGPoint(x: visible.maxX - size - margin, y: visible.minY + margin)
+    }
+
+    /// Keeps the whole orb on screen, so a position saved on a display that is now gone still lands somewhere.
+    static func clamp(_ origin: CGPoint, in visible: CGRect) -> CGPoint {
+        let maxX = max(visible.minX + margin, visible.maxX - size - margin)
+        let maxY = max(visible.minY + margin, visible.maxY - size - margin)
+        return CGPoint(x: min(max(origin.x, visible.minX + margin), maxX),
+                       y: min(max(origin.y, visible.minY + margin), maxY))
+    }
+
+    static func isClick(travel: CGPoint) -> Bool {
+        (travel.x * travel.x + travel.y * travel.y).squareRoot() <= clickSlop
+    }
+}
+
 /// Which way the launcher grid scrolls (Phase 7B launcher redo). Raw values are stored in
 /// `com.katikati.launcher.scroll`; never rename them.
 enum LauncherScrollDirection: String, CaseIterable, Sendable {

@@ -2,6 +2,13 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 57c: a floating orb for the launcher
+
+### Added
+- Settings → Launcher: **Floating Orb**, off by default. A small glass orb floats over your windows: click it to
+  open the launcher (click again to close), drag it anywhere and it stays there — across relaunches and display
+  changes. It never takes focus, keeps inside the usable screen, and is a VoiceOver button.
+
 ## [Unreleased] — Phase 57b: the launcher can be a card
 
 ### Added

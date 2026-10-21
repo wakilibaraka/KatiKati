@@ -27,6 +27,11 @@ extension SettingsLayoutPane {
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
+                // 57c: the orb that floats over other windows and opens the launcher on a click.
+                SettingsToggleRow(Text("Floating Orb"), isOn: Binding(
+                    get: { store.launcherOrbEnabled },
+                    set: { store.setLauncherOrbEnabled($0) }
+                ), note: Text("A small glass orb over your windows; click it to open the launcher, drag it anywhere."))
                 // Two narrow rows, one line (`Docs/SETTINGS.md` rule 5): the count/button row and
                 // the reset button were two lines, which with the rest of the page ran it 20 pt
                 // past the window (measured live 2026-10-15).

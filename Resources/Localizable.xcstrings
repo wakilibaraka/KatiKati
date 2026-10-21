@@ -75022,6 +75022,40 @@
         "it": {"stringUnit": {"state": "translated", "value": "Popover"}},
         "ko": {"stringUnit": {"state": "translated", "value": "팝오버"}}
       }
+    },
+    "Floating Orb": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Floating Orb"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "浮动圆球"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "浮動圓球"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "フローティングオーブ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Schwebende Kugel"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Orbe flottante"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Orbe flotante"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Orbe flotante"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Orbe flutuante"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Orbe flutuante"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sfera fluttuante"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "떠 있는 오브"}}
+      }
+    },
+    "A small glass orb over your windows; click it to open the launcher, drag it anywhere.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "A small glass orb over your windows; click it to open the launcher, drag it anywhere."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "悬浮在窗口上方的小圆球：点击打开启动台，拖动可放到任意位置。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "懸浮在視窗上方的小圓球：點擊開啟啟動台，拖曳可放到任意位置。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウィンドウの上に浮かぶ小さな球体。クリックでランチャーを開き、ドラッグで好きな場所に移動できます。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Eine kleine Glaskugel über deinen Fenstern: Klicken öffnet den Launcher, Ziehen verschiebt sie."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Une petite sphère en verre au-dessus de vos fenêtres : cliquez pour ouvrir le lanceur, faites-la glisser où vous voulez."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Una pequeña esfera de cristal sobre tus ventanas: haz clic para abrir el lanzador y arrástrala donde quieras."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Una pequeña esfera de cristal sobre tus ventanas: haz clic para abrir el lanzador y arrástrala donde quieras."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Uma pequena esfera de vidro sobre as suas janelas: clique para abrir o launcher e arraste para onde quiser."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Uma pequena esfera de vidro sobre as suas janelas: clique para abrir o launcher e arraste para onde quiser."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Una piccola sfera di vetro sopra le tue finestre: fai clic per aprire il launcher e trascinala dove vuoi."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "창 위에 떠 있는 작은 유리 구슬입니다. 클릭하면 런처가 열리고, 끌어서 원하는 곳에 둘 수 있습니다."}}
+      }
     }
   },
   "version": "1.0"
