@@ -55,6 +55,16 @@ enum WeatherStaleness: Equatable, Sendable {
     init(lastUpdated: Date, now: Date = Date()) { self.init(age: now.timeIntervalSince(lastUpdated)) }
 }
 
+/// What the panel says above the forecast: nothing while fresh, "offline" when the last refresh failed
+/// (the numbers are the cached ones), otherwise just how old they are.
+enum WeatherNotice: Equatable {
+    case offline, stale
+
+    init?(isLive: Bool, staleness: WeatherStaleness) {
+        if !isLive { self = .offline } else if staleness != .fresh { self = .stale } else { return nil }
+    }
+}
+
 /// One slot of the hourly strip: hour, glyph, temperature, and the rain chance only when it is worth a caption.
 struct WeatherHourSlot: Equatable, Identifiable {
     let id: String

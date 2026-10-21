@@ -70,6 +70,8 @@ private struct WeatherTiles: View {
             VStack(spacing: gap) {
                 if service.needsLocation && state.detail == nil {
                     NeedsLocationTile(env: env, service: service, width: inner)
+                } else if !state.hasData {
+                    WeatherLoadingTile(env: env, width: inner)
                 } else {
                     HeroTile(env: env, service: service, state: state, units: u, width: inner,
                              height: layout == .mac ? 214 : (layout == .ipad ? 236 : 262), animate: animate)

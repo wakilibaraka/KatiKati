@@ -32,6 +32,12 @@ final class WeatherLayoutSpecTests: XCTestCase {
         XCTAssertEqual(r.marker(current: -9, low: 5, high: 15), r.start, accuracy: 1e-9)
     }
 
+    func testNotice() {
+        XCTAssertNil(WeatherNotice(isLive: true, staleness: .fresh))
+        XCTAssertEqual(WeatherNotice(isLive: true, staleness: .stale), .stale)
+        XCTAssertEqual(WeatherNotice(isLive: false, staleness: .fresh), .offline)
+    }
+
     func testStaleness() {
         XCTAssertEqual(WeatherStaleness(age: 60), .fresh)
         XCTAssertEqual(WeatherStaleness(age: 2 * 3600), .stale)

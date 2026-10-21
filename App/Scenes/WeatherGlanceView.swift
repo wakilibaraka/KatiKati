@@ -27,8 +27,11 @@ struct WeatherGlanceView: View {
         let tint = SkyTint.tint(condition: state.conditionFamily, isNight: state.isNight)
         let heroH: CGFloat = heroStyle == .scene ? 262 : 214
         let stripH: CGFloat = 92, segH: CGFloat = 36
-        let panelH = max(220, height - heroH - stripH - segH - 3 * gap)
+        let notice = WeatherNotice(isLive: state.isLive, staleness: WeatherStaleness(lastUpdated: state.lastUpdated))
+        let noticeH: CGFloat = notice == nil ? 0 : 28 + gap
+        let panelH = max(220, height - heroH - stripH - segH - 3 * gap - noticeH)
         VStack(spacing: gap) {
+            if let notice { WeatherNoticeBar(env: env, notice: notice, updated: state.lastUpdated, service: service, width: width) }
             hero(tint: tint, height: heroH).widgetEntrance(0)
             HourStrip(env: env.sky(tint, at: 0.30), hours: Array(detail.hourly.prefix(6)), units: units, width: width, height: stripH, scrub: $scrub).widgetEntrance(1)
             segmentControl(env.sky(tint, at: 0.52), height: segH).widgetEntrance(2)
@@ -387,5 +390,56 @@ private struct DailySegment: View {
             Image(systemName: name).font(.system(size: 12, weight: .bold)).frame(width: 28, height: 24)
                 .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(env.hairline))
         }.buttonStyle(.plain).opacity(enabled ? 1 : 0.35).disabled(!enabled)
+    }
+}
+
+// MARK: - States
+
+/// Offline or stale: the forecast stays on screen, dimmed text says how old it is, Retry asks again.
+private struct WeatherNoticeBar: View {
+    let env: TileEnv
+    let notice: WeatherNotice
+    let updated: Date
+    @ObservedObject var service: WeatherService
+    let width: CGFloat
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: notice == .offline ? "wifi.slash" : "clock.arrow.circlepath").font(.system(size: 11, weight: .semibold))
+            Group { if notice == .offline { Text("Offline, showing the last forecast") } else { Text("Updated") } }
+            Text(updated, format: .relative(presentation: .numeric, unitsStyle: .abbreviated))
+            Spacer(minLength: 0)
+            Button { Task { await service.refresh() } } label: { Text("Retry").font(.system(size: 11, weight: .bold)) }.buttonStyle(.plain)
+        }
+        .font(.system(size: 11, weight: .medium)).lineLimit(1)
+        .foregroundColor(env.text.opacity(0.85))
+        .padding(.horizontal, 12)
+        .frame(width: width, height: 28)
+        .tileSurface(env, radius: 14)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// First launch with a place but no forecast yet: grey blocks where the hero and strip will be, breathing
+/// unless Reduce Motion is on.
+struct WeatherLoadingTile: View {
+    let env: TileEnv
+    let width: CGFloat
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var dim = false
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Text("Loading forecast").font(.system(size: 13, weight: .semibold))
+            RoundedRectangle(cornerRadius: 12, style: .continuous).fill(env.text.opacity(0.12)).frame(height: 120)
+            RoundedRectangle(cornerRadius: 12, style: .continuous).fill(env.text.opacity(0.12)).frame(height: 70)
+        }
+        .foregroundColor(env.text)
+        .padding(16)
+        .frame(width: width)
+        .tileSurface(env)
+        .opacity(dim ? 0.6 : 1)
+        .onAppear { if !reduceMotion { withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) { dim = true } } }
+        .accessibilityElement(children: .combine)
     }
 }
