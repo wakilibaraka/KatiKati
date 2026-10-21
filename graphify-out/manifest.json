@@ -1,9 +1,9 @@
 {
   "App/Composition/AgentUsageService.swift": {
-    "mtime": 1792261093.5363898,
-    "seen": 1792295707.0603678,
-    "ast_hash": "f012f8b3c2fe2f88cbec8fadb8e56d5e",
-    "semantic_hash": "f012f8b3c2fe2f88cbec8fadb8e56d5e"
+    "mtime": 1792597843.183333,
+    "seen": 1792598511.415775,
+    "ast_hash": "d35a3a9716eb219b46e0b0d84e7d141d",
+    "semantic_hash": ""
   },
   "App/Composition/AppComposition.swift": {
     "mtime": 1791999130.8066013,
@@ -1290,9 +1290,9 @@
     "semantic_hash": "cce3b50509e62e793a875bc5b2166d6c"
   },
   "App/Scenes/UtilitySettingsBlock.swift": {
-    "mtime": 1792553852.5619712,
-    "seen": 1792555046.631547,
-    "ast_hash": "ce587782955c233d854e4d390bb6eaa8",
+    "mtime": 1792597857.5794568,
+    "seen": 1792598511.416339,
+    "ast_hash": "e138af49573985cae1a3764d7b75f887",
     "semantic_hash": ""
   },
   "App/Scenes/WeatherChip.swift": {
@@ -3108,9 +3108,9 @@
     "semantic_hash": "a1be8ca227bf12eedd4e86ff89c62c04"
   },
   "Tests/Unit/AgentUsageTests.swift": {
-    "mtime": 1792581044.8761368,
-    "seen": 1792581247.740907,
-    "ast_hash": "1f6081b692e18a9a738156dec3068cb7",
+    "mtime": 1792597885.3974361,
+    "seen": 1792598511.417046,
+    "ast_hash": "c627b0ece39930d647f987491b82cbef",
     "semantic_hash": ""
   },
   "Tests/Unit/AppFallbackChipDecisionTests.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792581207.2859943,
-    "seen": 1792581247.741118,
-    "ast_hash": "57a9176ae8c41985bc76c61925570014",
+    "mtime": 1792598491.3921902,
+    "seen": 1792598511.41761,
+    "ast_hash": "1647c1d379488c429c471a6817c5252e",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -6366,9 +6366,9 @@
     "semantic_hash": ""
   },
   "FEATURE_ROADMAP_2026-10.md": {
-    "mtime": 1792581255.1712782,
-    "seen": 1792581272.74336,
-    "ast_hash": "31fa3e152699ff75894f74ca29e04411",
+    "mtime": 1792598641.427324,
+    "seen": 1792598657.75245,
+    "ast_hash": "2719ba5a086bd5b4832c3883ca85d9d0",
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
@@ -6591,6 +6591,24 @@
     "mtime": 1792552151.4617352,
     "seen": 1792555046.6316748,
     "ast_hash": "a6e493174f6f6539d0e9c49467ea2c03",
+    "semantic_hash": ""
+  },
+  "App/Composition/ClaudeHookInstaller.swift": {
+    "mtime": 1792597956.3420672,
+    "seen": 1792598511.415825,
+    "ast_hash": "cfdc1548e947ef47b7023416b8b6f916",
+    "semantic_hash": ""
+  },
+  "Core/Support/AgentUsage/ClaudeHookConfig.swift": {
+    "mtime": 1792598189.63681,
+    "seen": 1792598511.416426,
+    "ast_hash": "9f7570402a09636743757475ddf9d8ad",
+    "semantic_hash": ""
+  },
+  "Core/Support/AgentUsage/ClaudeHookStatus.swift": {
+    "mtime": 1792597813.8806064,
+    "seen": 1792598511.416429,
+    "ast_hash": "1c0dde5113770af4f3ec0ab39d641c5f",
     "semantic_hash": ""
   }
 }
