@@ -238,6 +238,8 @@ struct NotchHelpersSettingsBlock: View {
     @AppStorage(DailyHelpersService.batteryKey) private var batteryNudge = false
     @AppStorage(DailyHelpersService.ejectKey) private var usbEject = false
     @AppStorage(DailyHelpersService.privacyKey) private var privacyDot = false
+    @AppStorage(DailyHelpersService.hydrateKey) private var hydrate = false
+    @AppStorage(DailyHelpersService.pauseKey) private var pauseReminder = false
     @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
     @AppStorage(NotificationMirrorService.enabledKey) private var notificationsPage = false
@@ -256,6 +258,11 @@ struct NotchHelpersSettingsBlock: View {
             )
             SettingsDivider()
             SettingsToggleRow(Text("Camera and Mic Indicator"), isOn: $privacyDot)
+            SettingsDivider()
+            SettingsRowPair(
+                left: { SettingsToggleRow(Text("Water Reminder"), isOn: $hydrate) },
+                right: { SettingsToggleRow(Text("Break Reminder"), isOn: $pauseReminder) }
+            )
             SettingsDivider()
             SettingsRow(Text("Teleprompter"), note: Text("Opens from ⌘Space (prompter). The window is hidden from screen recordings and shares.")) {
                 Button("Open Teleprompter Window") { TeleprompterWindowController.shared.show() }

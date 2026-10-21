@@ -13,6 +13,8 @@ final class DailyHelpersService {
     static let batteryKey = "com.katikati.helpers.batteryNudge"
     static let ejectKey = "com.katikati.helpers.usbEject"
     static let privacyKey = "com.katikati.helpers.privacyDot"
+    static let hydrateKey = "com.katikati.helpers.hydrate"
+    static let pauseKey = "com.katikati.helpers.pause"
 
     /// Set by `AppDelegate` to `liveEventCenter.deliver`.
     var deliver: (LiveEvent) -> Void = { _ in }
@@ -30,6 +32,7 @@ final class DailyHelpersService {
     private let ejectPill = USBEjectPillController()
     private var privacyTimer: Timer?
     private let privacyDots = PrivacyDotController()
+    private var reminderTimers: [LiveNoticeKind: Timer] = [:]
 
     func start() {
         guard defaultsObserver == nil else { return }
@@ -45,6 +48,24 @@ final class DailyHelpersService {
         applyBattery(UserDefaults.standard.bool(forKey: Self.batteryKey))
         applyEject(UserDefaults.standard.bool(forKey: Self.ejectKey))
         applyPrivacy(UserDefaults.standard.bool(forKey: Self.privacyKey))
+        applyReminder(.hydrate, UserDefaults.standard.bool(forKey: Self.hydrateKey))
+        applyReminder(.pause, UserDefaults.standard.bool(forKey: Self.pauseKey))
+    }
+
+    // MARK: 56e — water and break reminders
+
+    /// One repeating timer per reminder while on; the first notice comes a full interval after switching on.
+    private func applyReminder(_ kind: LiveNoticeKind, _ on: Bool) {
+        guard let interval = kind.reminderInterval else { return }
+        if on, reminderTimers[kind] == nil {
+            let timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+                MainActor.assumeIsolated { self?.deliver(.notice(kind, detail: nil)) }
+            }
+            timer.tolerance = 30
+            reminderTimers[kind] = timer
+        } else if !on, let timer = reminderTimers.removeValue(forKey: kind) {
+            timer.invalidate()
+        }
     }
 
     // MARK: 36d — hide from screen capture

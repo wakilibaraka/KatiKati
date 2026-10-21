@@ -7,6 +7,18 @@ import Foundation
 enum LiveNoticeKind: String, Equatable, Sendable {
     case capsLockOn, capsLockOff
     case batteryHigh, batteryFull
+    case hydrate, pause
+}
+
+/// 56e — wellness reminders. Fixed gaps (no picker): water hourly, a screen break every 50 minutes.
+extension LiveNoticeKind {
+    var reminderInterval: TimeInterval? {
+        switch self {
+        case .hydrate: return 3600
+        case .pause: return 3000
+        default: return nil
+        }
+    }
 }
 
 /// 36a — Caps Lock transitions. The first reading only sets the baseline (no notice at launch).

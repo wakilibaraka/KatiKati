@@ -73,6 +73,8 @@ struct LiveEventPresentation {
             case .capsLockOff: symbol = "capslock"; headline = String(localized: "Caps Lock Off")
             case .batteryHigh: symbol = "battery.75percent"; headline = String(localized: "Battery at 80%")
             case .batteryFull: symbol = "battery.100percent.bolt"; headline = String(localized: "Fully Charged")
+            case .hydrate: symbol = "drop.fill"; headline = String(localized: "Time for Water")
+            case .pause: symbol = "figure.walk"; headline = String(localized: "Take a Break")
             }
         }
     }

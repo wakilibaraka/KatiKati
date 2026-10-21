@@ -70,4 +70,10 @@ final class DailyHelpersRulesTests: XCTestCase {
         XCTAssertTrue(list.allSatisfy { $0.kind == .snippet })
         XCTAssertEqual(CustomCommand.matching(";s", in: list).count, 1)
     }
+
+    func testReminderIntervalsOnlyForWellnessKinds() {
+        XCTAssertEqual(LiveNoticeKind.hydrate.reminderInterval, 3600)
+        XCTAssertEqual(LiveNoticeKind.pause.reminderInterval, 3000)
+        XCTAssertNil(LiveNoticeKind.capsLockOn.reminderInterval)
+    }
 }
