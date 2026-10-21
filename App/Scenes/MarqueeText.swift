@@ -22,11 +22,16 @@ struct MarqueeText: View {
     private var overflow: CGFloat { max(0, textW - boxW) }
 
     var body: some View {
-        Text(verbatim: text).font(font).lineLimit(1).fixedSize()
-            .background(GeometryReader { Color.clear.preference(key: Width.self, value: $0.size.width) })
-            .offset(x: offset)
+        // The box is a hidden one-line spacer that takes the width it is offered; the real text hangs off it, so a
+        // long title can never size the box (it used to, and a `maxWidth` cap above it then clipped nothing).
+        Text(verbatim: " ").font(font).lineLimit(1).hidden()
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(GeometryReader { Color.clear.preference(key: BoxWidth.self, value: $0.size.width) })
+            .overlay(alignment: .leading) {
+                Text(verbatim: text).font(font).lineLimit(1).fixedSize()
+                    .background(GeometryReader { Color.clear.preference(key: Width.self, value: $0.size.width) })
+                    .offset(x: offset)
+            }
             .clipped()
             .mask(fade)
             .onPreferenceChange(Width.self) { textW = $0 }
