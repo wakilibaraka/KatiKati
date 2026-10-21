@@ -51,7 +51,7 @@ final class SkyTintTests: XCTestCase {
 
     func testPresetEnumsKeepBothDesigns() {
         XCTAssertEqual(WeatherHeroStyle.allCases, [.scene, .classic])
-        XCTAssertEqual(WeatherLayoutPreset.allCases, [.glance, .classic])
+        XCTAssertEqual(WeatherLayoutPreset.allCases, [.glance, .fullScreen, .classic])
         XCTAssertEqual(WeatherHeroStyle.storageKey, "com.katikati.weather.heroStyle")
     }
 }

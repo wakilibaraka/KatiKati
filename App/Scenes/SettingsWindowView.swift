@@ -856,7 +856,7 @@ struct WeatherSettingsBlock: View {
         SettingsRowPair(
             left: {
                 SettingsSegmentedRow(Text("Weather Layout"), selection: $weatherLayout) {
-                    Text("Glance").tag(WeatherLayoutPreset.glance)
+                    Text("Overview").tag(WeatherLayoutPreset.glance)
                     Text("Classic").tag(WeatherLayoutPreset.classic)
                 }
             },

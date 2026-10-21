@@ -115,3 +115,35 @@ enum WeatherModernSpec {
         return values.map { ($0 - lo) / (hi - lo) }
     }
 }
+
+/// Phase 56 W10: the full-screen Glance page. Pure: how many columns the window gets, and the vibrant
+/// flat-vector palette per sky. The view only turns these into `Color`s.
+enum WeatherGlanceSpec {
+    /// 3 = hero | 24h + days | (tiles below); 2 = hero over 24h, days beside; 1 = one stacked column.
+    static func columns(forWidth width: Double) -> Int { width >= 1200 ? 3 : width >= 800 ? 2 : 1 }
+
+    struct Palette: Equatable {
+        let skyTop: TileRGB, skyBottom: TileRGB
+        let hills: [TileRGB]   // farthest to nearest
+        let accent: TileRGB
+    }
+
+    static func palette(condition: WeatherCondition, isNight: Bool) -> Palette {
+        func c(_ hex: Int) -> TileRGB { TileRGB(r: Double(hex >> 16 & 255) / 255, g: Double(hex >> 8 & 255) / 255, b: Double(hex & 255) / 255) }
+        if isNight && [.clear, .partlyCloudy].contains(condition) {
+            return Palette(skyTop: c(0x10124A), skyBottom: c(0x3A2C8F), hills: [c(0x1B1B6B), c(0x14124F), c(0x0B0A33)], accent: c(0xE8E6FF))
+        }
+        switch condition {
+        case .clear, .partlyCloudy:
+            return Palette(skyTop: c(0xFF9F43), skyBottom: c(0xFFD166), hills: [c(0xB5179E), c(0x7209B7), c(0x4361EE)], accent: c(0xFFF3B0))
+        case .cloudy, .fog:
+            return Palette(skyTop: c(0x9AA5B1), skyBottom: c(0xCBD2D9), hills: [c(0x7B8794), c(0x616E7C), c(0x52606D)], accent: c(0xF5F7FA))
+        case .drizzle, .rain, .showers:
+            return Palette(skyTop: c(0x2B6CB0), skyBottom: c(0x63B3ED), hills: [c(0x1A4E8A), c(0x12396B), c(0x0C2A52)], accent: c(0xBEE3F8))
+        case .snow:
+            return Palette(skyTop: c(0x8FB8DE), skyBottom: c(0xE6F1FB), hills: [c(0xFFFFFF), c(0xCFE3F5), c(0xA9C9E6)], accent: c(0xFFFFFF))
+        case .thunderstorm:
+            return Palette(skyTop: c(0x2D1B69), skyBottom: c(0x6B3FA0), hills: [c(0x1E1250), c(0x150C3A), c(0x0D0827)], accent: c(0xFFE66D))
+        }
+    }
+}

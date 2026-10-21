@@ -13,11 +13,29 @@ public enum WeatherHeroStyle: String, CaseIterable, Codable, Sendable {
 }
 
 public enum WeatherLayoutPreset: String, CaseIterable, Codable, Sendable {
-    /// One non-scrolling page: hero + hour strip + Hourly | Daily | Details panel (default).
+    /// Hero + hour strip + Hourly | Daily | Details panel in the side panel ("Overview" in Settings).
     case glance
+    /// Phase 56 W10: the full-screen, no-tabs weather page ("Glance" in Settings).
+    case fullScreen
     /// The earlier stacked tiles (Mac / iPad / Tall compositions), kept as a preset.
     case classic
     public static let storageKey = "com.katikati.weather.layout"
+    static let fullScreenMigrationStamp = "com.katikati.migration.weatherGlanceFullScreen"
+
+    public var title: String {
+        switch self {
+        case .fullScreen: return "Glance"
+        case .glance: return "Overview"
+        case .classic: return "Classic"
+        }
+    }
+
+    /// Once per install: a stored layout moves to the full-screen Glance, now the default. A later pick sticks.
+    public static func migrateToFullScreenIfNeeded(defaults: UserDefaults) {
+        guard !defaults.bool(forKey: fullScreenMigrationStamp) else { return }
+        defaults.set(true, forKey: fullScreenMigrationStamp)
+        if defaults.string(forKey: storageKey) != nil { defaults.set(Self.fullScreen.rawValue, forKey: storageKey) }
+    }
 }
 
 public struct SkyTint: Equatable, Sendable {

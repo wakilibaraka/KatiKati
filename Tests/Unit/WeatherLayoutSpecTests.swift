@@ -74,4 +74,27 @@ final class WeatherLayoutSpecTests: XCTestCase {
         XCTAssertNil(WeatherDetailBands.sunFraction(sunrise: nil, sunset: "18:00", nowMinutes: 0))
         XCTAssertEqual([180, 300, 600].map { WeatherDetailBands.columns(forWidth: Double($0)) }, [1, 2, 3])
     }
+
+    func testGlanceColumnsAndPalette() {
+        XCTAssertEqual([1440, 1200, 900, 800, 700].map { WeatherGlanceSpec.columns(forWidth: $0) }, [3, 3, 2, 2, 1])
+        let day = WeatherGlanceSpec.palette(condition: .clear, isNight: false)
+        XCTAssertNotEqual(day, WeatherGlanceSpec.palette(condition: .clear, isNight: true))
+        XCTAssertEqual(day.hills.count, 3)
+        XCTAssertEqual(WeatherGlanceSpec.palette(condition: .rain, isNight: true), WeatherGlanceSpec.palette(condition: .showers, isNight: false))
+    }
+
+    func testFullScreenLayoutNamesAndMigration() {
+        XCTAssertEqual(WeatherLayoutPreset.allCases.map(\.title), ["Overview", "Glance", "Classic"])
+        XCTAssertEqual(WeatherLayoutPreset(rawValue: "glance"), .glance)
+        let d = UserDefaults(suiteName: "weather-glance-migration-\(UUID().uuidString)")!
+        d.set("classic", forKey: WeatherLayoutPreset.storageKey)
+        WeatherLayoutPreset.migrateToFullScreenIfNeeded(defaults: d)
+        XCTAssertEqual(d.string(forKey: WeatherLayoutPreset.storageKey), "fullScreen")
+        d.set("classic", forKey: WeatherLayoutPreset.storageKey)
+        WeatherLayoutPreset.migrateToFullScreenIfNeeded(defaults: d)
+        XCTAssertEqual(d.string(forKey: WeatherLayoutPreset.storageKey), "classic")
+        let fresh = UserDefaults(suiteName: "weather-glance-migration-\(UUID().uuidString)")!
+        WeatherLayoutPreset.migrateToFullScreenIfNeeded(defaults: fresh)
+        XCTAssertNil(fresh.string(forKey: WeatherLayoutPreset.storageKey))
+    }
 }
