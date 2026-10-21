@@ -6366,9 +6366,9 @@
     "semantic_hash": ""
   },
   "FEATURE_ROADMAP_2026-10.md": {
-    "mtime": 1792600441.7285926,
-    "seen": 1792600479.925924,
-    "ast_hash": "c7c7ca95401f56e026c864591cf77b89",
+    "mtime": 1792602039.9454396,
+    "seen": 1792602053.9202628,
+    "ast_hash": "70a1096f72a1ced146c99b0fd515d46d",
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
@@ -6642,15 +6642,21 @@
     "semantic_hash": ""
   },
   "Core/Support/TrackPillTextMetrics.swift": {
-    "mtime": 1792601225.7294157,
-    "seen": 1792601765.332973,
-    "ast_hash": "f371b9b12bc6f2e93b5a4f76e2f51649",
+    "mtime": 1792602198.998905,
+    "seen": 1792602473.345227,
+    "ast_hash": "7e75e66ca9359855674e7bf44cd5cdc9",
     "semantic_hash": ""
   },
   "Tests/Unit/NotchTrackPillTests.swift": {
-    "mtime": 1792601725.9923873,
-    "seen": 1792601765.333163,
+    "mtime": 1792602371.1729105,
+    "seen": 1792602473.345421,
     "ast_hash": "79e2bf277d20e1fd717ce28793f578f1",
+    "semantic_hash": ""
+  },
+  "screenshots/track-pill-fixed.png": {
+    "mtime": 1792602371.1397793,
+    "seen": 1792602473.345762,
+    "ast_hash": "e281623b449666adfc7552177eee657c",
     "semantic_hash": ""
   }
 }
