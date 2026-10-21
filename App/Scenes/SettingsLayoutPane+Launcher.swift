@@ -15,6 +15,18 @@ extension SettingsLayoutPane {
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
+                // 57b: how the launcher takes the screen. Fullscreen is the old behaviour and stays the default.
+                SettingsRow(Text("Presentation")) {
+                    Picker("Presentation", selection: Binding(
+                        get: { store.launcherPresentation },
+                        set: { store.setLauncherPresentation($0) }
+                    )) {
+                        Text("Fullscreen").tag(LauncherPresentation.fullscreen)
+                        Text("Centred").tag(LauncherPresentation.centred)
+                        Text("Popover").tag(LauncherPresentation.popover)
+                    }
+                    .labelsHidden().pickerStyle(.segmented).fixedSize()
+                }
                 // Two narrow rows, one line (`Docs/SETTINGS.md` rule 5): the count/button row and
                 // the reset button were two lines, which with the rest of the page ran it 20 pt
                 // past the window (measured live 2026-10-15).

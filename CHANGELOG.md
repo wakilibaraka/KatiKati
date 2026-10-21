@@ -2,6 +2,13 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 57b: the launcher can be a card
+
+### Added
+- Settings → Launcher: **Presentation** — Fullscreen (the default, unchanged), Centred (four fifths of the
+  screen, never over 1200 × 760) or Popover (a 640 × 520 card hanging under the pointer). The windowed modes
+  keep the desktop visible around a rounded glass card; Escape or ⌥Space still closes them.
+
 ## [Unreleased] — Phase 57a: scroll the Control Center volume row
 
 ### Added

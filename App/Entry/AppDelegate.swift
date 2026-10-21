@@ -153,6 +153,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.searchPosition = { [weak self] in self?.settingsStore.launcherSearchPosition ?? .top }
         panel.scrollDirection = { [weak self] in self?.settingsStore.launcherScrollDirection ?? .horizontal }
         panel.look = { [weak self] in (self?.settingsStore.launcherTheme ?? .system, self?.settingsStore.launcherTint ?? .none) }
+        panel.presentation = { [weak self] in self?.settingsStore.launcherPresentation ?? .fullscreen }
         panel.keptApps = { [weak self] in self?.keptAppStore.bundleIDs ?? [] }
         panel.bottomBarReserve = { [weak self] in
             guard let store = self?.settingsStore, store.stripPlacementMap.global == .bottom else { return 0 }

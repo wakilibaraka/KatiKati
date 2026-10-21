@@ -74954,6 +74954,74 @@
         "it": {"stringUnit": {"state": "translated", "value": "Gli elementi non fissati lasciano il ripiano e le sue copie vengono eliminate. Gli elementi fissati restano."}},
         "ko": {"stringUnit": {"state": "translated", "value": "고정되지 않은 항목은 선반에서 사라지고 자체 사본도 삭제됩니다. 고정된 항목은 남습니다."}}
       }
+    },
+    "Presentation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Presentation"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "呈现方式"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "呈現方式"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "表示方法"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Darstellung"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Présentation"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Presentación"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Presentación"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Apresentação"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Apresentação"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Presentazione"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "표시 방식"}}
+      }
+    },
+    "Fullscreen": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Fullscreen"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "全屏"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "全螢幕"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "フルスクリーン"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Vollbild"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Plein écran"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Pantalla completa"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Pantalla completa"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Tela cheia"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ecrã inteiro"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Schermo intero"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "전체 화면"}}
+      }
+    },
+    "Centred": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Centred"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "居中"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "置中"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "中央"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zentriert"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Centré"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Centrado"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Centrado"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Centralizado"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Centrado"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Centrato"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "가운데"}}
+      }
+    },
+    "Popover": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Popover"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "浮层"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "浮動視窗"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ポップオーバー"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Popover"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Popover"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Popover"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Popover"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Popover"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Popover"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Popover"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "팝오버"}}
+      }
     }
   },
   "version": "1.0"

@@ -256,6 +256,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var controlCenterAnimation: ControlCenterAnimation
     @Published private(set) var shortcutBindings: [ShortcutAction: ShortcutTrigger]
     @Published private(set) var launcherSearchPosition: LauncherSearchPosition
+    /// 57b: fullscreen (default), a centred card or a popover.
+    @Published private(set) var launcherPresentation: LauncherPresentation
     @Published private(set) var deckKeepOpen: Bool
     @Published private(set) var deckOpenOnHover: Bool
     @Published private(set) var deckTabPreview: Bool
@@ -394,6 +396,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.controlCenterAnchor: ControlCenterAnchor.default.rawValue,
             Keys.controlCenterAnimation: ControlCenterAnimation.default.rawValue,
             Keys.launcherSearchPosition: LauncherSearchPosition.default.rawValue,
+            Keys.launcherPresentation: LauncherPresentation.default.rawValue,
             Keys.deckKeepOpen: false,
             Keys.deckOpenOnHover: false,
             Keys.deckTabPreview: true,
@@ -458,6 +461,7 @@ final class AppSettingsStore: ObservableObject {
         deckScaleRight = DeckSettingsRules.clampedScale(Self.storedNumericValue(defaults.object(forKey: Keys.deckScaleRight)) ?? legacyScale)
         deckMagnify = defaults.bool(forKey: Keys.deckMagnify)
         launcherSearchPosition = LauncherSearchPosition.parse(defaults.string(forKey: Keys.launcherSearchPosition))
+        launcherPresentation = LauncherPresentation.parse(defaults.string(forKey: Keys.launcherPresentation))
         controlCenterToggles = QuickToggleID.parse(defaults.string(forKey: Keys.controlCenterToggles))
         controlCenterWidgets = TileKind.parse(defaults.string(forKey: Keys.controlCenterWidgets))
         controlCenterSize = ControlCenterSize.parse(defaults.string(forKey: Keys.controlCenterSize))
@@ -706,6 +710,12 @@ final class AppSettingsStore: ObservableObject {
         guard launcherSearchPosition != value else { return }
         launcherSearchPosition = value
         defaults.set(value.rawValue, forKey: Keys.launcherSearchPosition)
+    }
+
+    func setLauncherPresentation(_ value: LauncherPresentation) {
+        guard launcherPresentation != value else { return }
+        launcherPresentation = value
+        defaults.set(value.rawValue, forKey: Keys.launcherPresentation)
     }
 
     func setControlCenterToggle(_ id: QuickToggleID, enabled: Bool) {
@@ -1548,6 +1558,7 @@ private enum Keys {
     static let controlCenterAnimation = "com.katikati.controlcenter.animation"
     static func shortcut(_ action: ShortcutAction) -> String { "com.katikati.shortcut.\(action.rawValue)" }
     static let launcherSearchPosition = "com.katikati.launcher.searchPosition"
+    static let launcherPresentation = "com.katikati.launcher.presentation"
     static let deckKeepOpen = "com.katikati.edge.alwaysShown"
     static let deckOpenOnHover = "com.katikati.edge.openOnHover"
     static let deckTabPreview = "com.katikati.edge.tabPreview"

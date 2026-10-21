@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 
 /// Where the launcher's search field sits (Phase 7B-L5). Always centred on its side; top is the default.
@@ -46,6 +47,55 @@ enum LauncherScreenInsets {
             leading: clamp(Double(visible.minX - frame.minX) + extraLeading, Double(frame.width)),
             trailing: clamp(Double(frame.maxX - visible.maxX) + extraTrailing, Double(frame.width))
         )
+    }
+}
+
+/// 57b: how the launcher takes the screen. Fullscreen is the pre-57b behaviour and stays the default; the windowed
+/// modes leave the desktop visible around a rounded card. Raw values are stored in
+/// `com.katikati.launcher.presentation`; never rename them.
+enum LauncherPresentation: String, CaseIterable, Sendable {
+    case fullscreen
+    case centred
+    case popover
+
+    static let `default`: LauncherPresentation = .fullscreen
+
+    static func parse(_ stored: String?) -> LauncherPresentation {
+        stored.flatMap(LauncherPresentation.init(rawValue:)) ?? .default
+    }
+}
+
+/// 57b: where that panel sits. Pure, so the three shapes can be checked without opening a window (window and screen
+/// frames share the bottom-left origin, and every shape is pulled inside `visible`).
+enum LauncherPanelFrame {
+    static let centredMax = CGSize(width: 1200, height: 760)
+    static let popoverSize = CGSize(width: 640, height: 520)
+    static let margin: CGFloat = 8
+    static let popoverGap: CGFloat = 12
+
+    static func rect(mode: LauncherPresentation, screen: CGRect, visible: CGRect, anchor: CGPoint?) -> CGRect {
+        switch mode {
+        case .fullscreen: return screen
+        case .centred: return centred(in: visible)
+        case .popover: return popover(in: visible, anchor: anchor)
+        }
+    }
+
+    /// Four fifths of the usable screen, never over `centredMax`.
+    static func centred(in visible: CGRect) -> CGRect {
+        let width = min(centredMax.width, visible.width * 0.8)
+        let height = min(centredMax.height, visible.height * 0.8)
+        return CGRect(x: visible.midX - width / 2, y: visible.midY - height / 2, width: width, height: height)
+    }
+
+    /// Hangs under the summoning point (the pointer, or the FAB that was clicked), pulled back inside the screen.
+    static func popover(in visible: CGRect, anchor: CGPoint?) -> CGRect {
+        let width = min(popoverSize.width, visible.width - 2 * margin)
+        let height = min(popoverSize.height, visible.height - 2 * margin)
+        let point = anchor ?? CGPoint(x: visible.midX, y: visible.minY)
+        let x = min(max(point.x - width / 2, visible.minX + margin), visible.maxX - width - margin)
+        let y = min(max(point.y - height - popoverGap, visible.minY + margin), visible.maxY - height - margin)
+        return CGRect(x: x, y: y, width: width, height: height)
     }
 }
 

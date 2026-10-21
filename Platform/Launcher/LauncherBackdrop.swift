@@ -28,6 +28,14 @@ final class LauncherBackdrop: NSView {
 
     required init?(coder: NSCoder) { fatalError("code-only") }
 
+    /// 57b: 0 keeps the fullscreen square edge; a windowed launcher is a rounded card instead.
+    func setCornerRadius(_ radius: CGFloat) {
+        wantsLayer = true
+        layer?.cornerRadius = radius
+        layer?.cornerCurve = .continuous
+        layer?.masksToBounds = radius > 0
+    }
+
     /// 13g: 0…1 blur strength (1 = the full system blur). Lower values let the desktop show through.
     func setBlurStrength(_ value: Double) {
         let a = 0.3 + 0.7 * min(max(value, 0), 1)

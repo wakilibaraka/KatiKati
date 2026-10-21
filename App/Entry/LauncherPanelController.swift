@@ -17,6 +17,8 @@ final class LauncherPanelController {
     /// Read at each summon so a Settings change applies immediately.
     var searchPosition: () -> LauncherSearchPosition = { .top }
     var scrollDirection: () -> LauncherScrollDirection = { .horizontal }
+    /// 57b: fullscreen (default), a centred card or a popover under the summoning point. Read at each summon.
+    var presentation: () -> LauncherPresentation = { .default }
     var look: () -> (theme: LauncherTheme, tint: LauncherTint) = { (.system, .none) }
     /// Height the KatiKati bottom bar occupies (it floats above `visibleFrame`), so the launcher never sits under it.
     var bottomBarReserve: () -> Double = { 0 }
@@ -42,10 +44,17 @@ final class LauncherPanelController {
         model.state = store.load()
         model.searchPosition = searchPosition()
         model.scrollDirection = scrollDirection()
-        model.screenInsets = LauncherScreenInsets.compute(
-            frame: screen.frame, visible: screen.visibleFrame, safeTop: Double(screen.safeAreaInsets.top),
-            extraBottom: bottomBarReserve(),
-            extraLeading: sideBarReserve().leading, extraTrailing: sideBarReserve().trailing)
+        let mode = presentation()
+        let frame = LauncherPanelFrame.rect(mode: mode, screen: screen.frame, visible: screen.visibleFrame,
+                                            anchor: NSEvent.mouseLocation)
+        // Fullscreen still has to clear the menu bar and notch; a windowed card already sits inside `visibleFrame`.
+        model.screenInsets = mode == .fullscreen
+            ? LauncherScreenInsets.compute(
+                frame: screen.frame, visible: screen.visibleFrame, safeTop: Double(screen.safeAreaInsets.top),
+                extraBottom: bottomBarReserve(),
+                extraLeading: sideBarReserve().leading, extraTrailing: sideBarReserve().trailing)
+            : (top: 0, bottom: bottomBarReserve(),
+               leading: sideBarReserve().leading, trailing: sideBarReserve().trailing)
         model.query = ""
         model.editing = false
         model.focusedID = nil
@@ -59,7 +68,8 @@ final class LauncherPanelController {
         let look = self.look()
         panel.appearance = backdrop?.apply(theme: look.theme, tint: look.tint, screen: screen)
         backdrop?.setBlurStrength(model.prefs.blur)
-        panel.setFrame(screen.frame, display: true)
+        backdrop?.setCornerRadius(mode == .fullscreen ? 0 : 22)
+        panel.setFrame(frame, display: true)
         panel.makeKeyAndOrderFront(nil)
         model.focusNonce += 1
         model.pageIndex = 0
