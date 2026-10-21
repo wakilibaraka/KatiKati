@@ -19,10 +19,7 @@ HOOK="$ROOT/.git/hooks/post-commit"
 MARKER="# graphify-autocommit"
 QUIET="${GRAPHIFY_AUTOCOMMIT_QUIET:-2}"
 TIMEOUT="${GRAPHIFY_AUTOCOMMIT_TIMEOUT:-180}"
-# After a commit the welcome keeps a wider horizon than QUIET: a rebuild often writes,
-# pauses, then writes again, and a two-second gap once left a tree dirty behind a
-# waiter that had already returned.
-SETTLE="${GRAPHIFY_AUTOCOMMIT_SETTLE:-60}"
+ROOT_REAL="$(cd "$ROOT" 2>/dev/null && pwd -P || echo "$ROOT")"
 
 launch_block() {
     cat <<'EOF'
@@ -112,20 +109,48 @@ head_is_graph_only() {
     [ -n "$files" ] && ! printf '%s\n' "$files" | grep -qv '^graphify-out/'
 }
 
-# Why not predict a skipped rebuild from the commit's files? I tried it: a commit that
-# touched only a .sh and a .md still rebuilt and rewrote graph.json ten seconds later, so
-# "no code extension" is not "no rebuild". Only the hook's own change-set check is certain,
-# and that already covers graph-only commits below. Everything else waits for output.
+# Is this checkout's rebuild still running? Every rebuild on the machine has the same argv,
+# so only the working directory tells them apart — which is why the log, shared by all
+# checkouts, was the wrong question to ask. Selftest drives this with a file instead of a
+# process, since a temp repo has no rebuild of its own.
+rebuild_running() {
+    if [ -n "${GRAPHIFY_AUTOCOMMIT_BUSY_FILE:-}" ]; then
+        [ -e "$GRAPHIFY_AUTOCOMMIT_BUSY_FILE" ]
+        return
+    fi
+    local pid cwd
+    for pid in $(ps -Ao pid,command 2>/dev/null | grep -F graphify | grep -v grep |
+                 grep -v graphify_autocommit | awk '{print $1}'); do
+        cwd=$(lsof -a -p "$pid" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p' | head -1)
+        if [ "$cwd" = "$ROOT_REAL" ] || [ "$cwd" = "$ROOT" ]; then return 0; fi
+    done
+    return 1
+}
+
+# Commits what the rebuild leaves, and stops as soon as this checkout's rebuild is gone.
+# It deliberately does not read the rebuild log: that file is shared by every checkout on
+# the machine, so another repo finishing looked like this one finishing.
+# shortcut: a rebuild slower than TIMEOUT leaves its output for the next commit to sweep.
 run() {
     trace "started pid=$$ root=$ROOT"
     head_is_graph_only && { trace "graph-only commit, nothing to sweep"; return 0; }
-    local    deadline=$((SECONDS + TIMEOUT))
+    local deadline=$((SECONDS + TIMEOUT)) idle=0
     while :; do
         if graph_dirty && graph_quiet; then
-            # Keep watching after a commit: the rebuild may still be mid-write.
-            commit_once && { trace "committed"; deadline=$((SECONDS + SETTLE)); }
+            commit_once && trace "committed"
         fi
-        (( SECONDS >= deadline )) && { trace "done (dirty=$(graph_dirty && echo yes || echo no))"; return 0; }
+        if rebuild_running; then
+            idle=0
+        else
+            idle=$((idle + 1))
+            # Two consecutive quiet polls: the rebuild is gone and what it wrote is in.
+            if [ "$idle" -ge 2 ]; then
+                if graph_dirty && graph_quiet; then commit_once && trace "committed at exit"; fi
+                trace "rebuild finished (dirty=$(graph_dirty && echo yes || echo no))"
+                return 0
+            fi
+        fi
+        (( SECONDS >= deadline )) && { trace "deadline (dirty=$(graph_dirty && echo yes || echo no))"; return 0; }
         sleep 1
     done
 }
@@ -182,13 +207,20 @@ selftest() {
     #    tree ends clean — the gap that once left output behind
     printf '{"nodes":[4]}\n' > "$tmp/graphify-out/graph.json"
     git -C "$tmp" commit -q --allow-empty -m "code touch"
+    #    A "rebuild in progress" file stands in for the rebuild process a temp repo has none of.
+    local busy="$tmp/BUSY" before
+    : > "$busy"
+    before=$(git -C "$tmp" rev-list --count HEAD)
     GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" GRAPHIFY_AUTOCOMMIT_QUIET=1 GRAPHIFY_AUTOCOMMIT_TIMEOUT=30 \
-        GRAPHIFY_AUTOCOMMIT_SETTLE=6 "$SELF" >/dev/null &
+        GRAPHIFY_AUTOCOMMIT_BUSY_FILE="$busy" "$SELF" >/dev/null &
     waiter=$!
     sleep 4
     printf '{"nodes":[5]}\n' > "$tmp/graphify-out/graph.json"
+    sleep 3
+    rm -f "$busy"
     wait "$waiter"
     [ -z "$(git -C "$tmp" status --porcelain -- graphify-out)" ] && echo "PASS late write is committed too" || { echo "FAIL late write left behind"; fails=1; }
+    [ "$(( $(git -C "$tmp" rev-list --count HEAD) - before ))" -ge 2 ] && echo "PASS both bursts committed" || { echo "FAIL second burst never committed"; fails=1; }
 
     # 7. install twice → exactly one launcher block, and it survives a refresh
     printf '#!/bin/sh\nexit 0\n' > "$tmp/.git/hooks/post-commit"
