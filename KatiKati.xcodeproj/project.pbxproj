@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B50000000000000009A1036 /* WeatherFullScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1037 /* WeatherFullScreenView.swift */; };
+		7B50000000000000009A1034 /* WeatherScenery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1035 /* WeatherScenery.swift */; };
 		7B50000000000000009A1011 /* WeatherIPadChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1010 /* WeatherIPadChip.swift */; };
 		7B50000000000000009A1031 /* WeatherModernChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1030 /* WeatherModernChip.swift */; };
 		7B50000000000000009A1033 /* WeatherModernPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1032 /* WeatherModernPanel.swift */; };
@@ -1150,6 +1152,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B50000000000000009A1037 /* WeatherFullScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherFullScreenView.swift; path = App/Scenes/Weather/WeatherFullScreenView.swift; sourceTree = SOURCE_ROOT; };
+		7B50000000000000009A1035 /* WeatherScenery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherScenery.swift; path = App/Scenes/Weather/WeatherScenery.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000009A1010 /* WeatherIPadChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherIPadChip.swift; path = App/Scenes/Weather/WeatherIPadChip.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000009A1030 /* WeatherModernChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherModernChip.swift; path = App/Scenes/Weather/WeatherModernChip.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000009A1032 /* WeatherModernPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherModernPanel.swift; path = App/Scenes/Weather/WeatherModernPanel.swift; sourceTree = SOURCE_ROOT; };
@@ -3309,6 +3313,8 @@
 				7B50000000000000009A1011 /* WeatherIPadChip.swift in Sources */,
 				7B50000000000000009A1031 /* WeatherModernChip.swift in Sources */,
 				7B50000000000000009A1033 /* WeatherModernPanel.swift in Sources */,
+				7B50000000000000009A1036 /* WeatherFullScreenView.swift in Sources */,
+				7B50000000000000009A1034 /* WeatherScenery.swift in Sources */,
 				7B50000000000000009A1024 /* WeatherDetailViews.swift in Sources */,
 				7B5000000000000000000032 /* WeatherLocations.swift in Sources */,
 				7B5000000000000000000022 /* WeatherWarnings.swift in Sources */,

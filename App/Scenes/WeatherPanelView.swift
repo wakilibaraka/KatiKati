@@ -44,7 +44,7 @@ private struct WeatherTiles: View {
     @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
     @AppStorage(WeatherUnits.windKey) private var windUnit: WindSpeedUnit = .kmh
     @AppStorage(WeatherPrefs.animationsKey) private var animationsEnabled = true
-    @AppStorage(WeatherLayoutPreset.storageKey) private var layoutPreset: WeatherLayoutPreset = .glance
+    @AppStorage(WeatherLayoutPreset.storageKey) private var layoutPreset: WeatherLayoutPreset = .fullScreen
     @AppStorage(WeatherHeroStyle.storageKey) private var heroStyle: WeatherHeroStyle = .scene
     @AppStorage(WeatherChipPreset.storageKey) private var chipPreset: WeatherChipPreset = .modern
     @Environment(\.colorScheme) private var colorScheme
@@ -59,7 +59,17 @@ private struct WeatherTiles: View {
         let state = service.currentState
         let animate = animationsEnabled && panelState.isVisible && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         let inner = width - 2 * gutter
-        if chipPreset == .modern, let detail = state.detail {
+        if layoutPreset == .fullScreen {
+            Group {
+                if let detail = state.detail {
+                    WeatherFullScreenView(service: service, state: state, detail: detail, units: u, width: width, height: maxHeight, animate: animate)
+                } else {
+                    WeatherFullScreenWaiting(service: service, state: state, width: width, height: maxHeight)
+                }
+            }
+            .frame(width: width, height: maxHeight)
+            .onAppear { onHeight(maxHeight); Task { await service.refresh() } }
+        } else if chipPreset == .modern, let detail = state.detail {
             WeatherModernPanel(service: service, state: state, detail: detail, units: u, width: inner, height: maxHeight - 2 * gutter)
                 .padding(gutter)
                 .frame(width: width, height: maxHeight, alignment: .top)
@@ -660,7 +670,7 @@ private struct DetailsTile: View {
 
 // MARK: - Location
 
-private struct NeedsLocationTile: View {
+struct NeedsLocationTile: View {
     let env: TileEnv
     @ObservedObject var service: WeatherService
     let width: CGFloat

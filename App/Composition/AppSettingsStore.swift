@@ -322,6 +322,7 @@ final class AppSettingsStore: ObservableObject {
         TungstenDefaultsMigrator.migrateIfNeeded(defaults: defaults)
         WeatherChipPreset.migrateToIPadIfNeeded(defaults: defaults)
         WeatherChipPreset.migrateToModernIfNeeded(defaults: defaults)
+        WeatherLayoutPreset.migrateToFullScreenIfNeeded(defaults: defaults)
         Self.migrateLegacyEnabledKey(
             defaults: defaults,
             enabledKey: Keys.nativeDockAutoHideEnabled,

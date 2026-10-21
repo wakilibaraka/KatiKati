@@ -810,7 +810,7 @@ struct GlassTilesToggle: View {
 struct WeatherSettingsBlock: View {
     @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
     @AppStorage(WeatherUnits.windKey) private var windUnit: WindSpeedUnit = .kmh
-    @AppStorage(WeatherLayoutPreset.storageKey) private var weatherLayout: WeatherLayoutPreset = .glance
+    @AppStorage(WeatherLayoutPreset.storageKey) private var weatherLayout: WeatherLayoutPreset = .fullScreen
     @AppStorage(WeatherHeroStyle.storageKey) private var heroStyle: WeatherHeroStyle = .scene
     @AppStorage("com.katikati.weather.chipPreset") private var weatherPresetRaw: String = WeatherChipPreset.modern.rawValue
     @AppStorage(WeatherPrefs.animationsKey) private var weatherAnimations = true
@@ -856,6 +856,7 @@ struct WeatherSettingsBlock: View {
         SettingsRowPair(
             left: {
                 SettingsSegmentedRow(Text("Weather Layout"), selection: $weatherLayout) {
+                    Text("Glance").tag(WeatherLayoutPreset.fullScreen)
                     Text("Overview").tag(WeatherLayoutPreset.glance)
                     Text("Classic").tag(WeatherLayoutPreset.classic)
                 }
