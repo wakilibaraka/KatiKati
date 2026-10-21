@@ -515,7 +515,7 @@ window, Firefox cover art, window-switcher options.
 - [ ] `git diff --stat` ≤ ~300 lines; pbxproj ≤ ~30 lines per file addition; no regenerated generated files.
 - [ ] Live recipe run and recorded, or marked **OWED** with the reason (never PASS from a unit test alone).
 - [ ] Step note written (3.3); `CHANGELOG.md` updated for user-visible changes.
-- [ ] Graph output is committed by the hook, not by hand: `Scripts/graphify_autocommit.sh install` once per checkout (and again after any `graphify hook install`); `Scripts/graphify_autocommit.sh selftest` proves its guards. It skips the wait a rebuild would not earn by reading the commit's file extensions (the manifest is no help — it lists skipped Markdown and PNGs too), so a graph-only, docs-only or script-only commit returns at once, without consulting the rebuild log every checkout shares.
+- [ ] Graph output is committed by the hook, not by hand: `Scripts/graphify_autocommit.sh install` once per checkout (and again after any `graphify hook install`); `Scripts/graphify_autocommit.sh selftest` proves its guards. Only its own graph-only commit exits without waiting: measured, a commit touching just a `.sh` and a `.md` still rebuilt and rewrote `graph.json` ten seconds later, so a commit's file types cannot predict a skipped rebuild, and the shared rebuild log cannot be used to ask (it belongs to every checkout).
 - [ ] Ended with: what was skipped / not verified, and the risk.
 
 ## 9. Baseline record (Q0 fills this in)
