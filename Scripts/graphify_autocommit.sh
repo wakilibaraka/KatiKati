@@ -16,7 +16,7 @@ ROOT="${GRAPHIFY_AUTOCOMMIT_ROOT:-$ROOT}"
 HOOK="$ROOT/.git/hooks/post-commit"
 MARKER="# graphify-autocommit"
 QUIET="${GRAPHIFY_AUTOCOMMIT_QUIET:-2}"
-TIMEOUT="${GRAPHIFY_AUTOCOMMIT_TIMEOUT:-600}"
+TIMEOUT="${GRAPHIFY_AUTOCOMMIT_TIMEOUT:-180}"
 
 launch_block() {
     cat <<'EOF'
@@ -76,33 +76,37 @@ commit_once() {
     echo "graphify-autocommit: committed $(printf '%s\n' "$staged" | wc -l | tr -d ' ') graph file(s)"
 }
 
-# True once the rebuild log has gained a line saying the rebuild ended (or never started).
-# Without it, a commit that only skipped the rebuild would park a sleeper for the timeout.
-log_finished() {
-    local log="$1" start="$2"
-    [ -f "$log" ] || return 1
-    tail -c "+$((start + 1))" "$log" 2>/dev/null | grep -qE \
-        'Rebuilt:|outputs left untouched|skipping rebuild|No tracked code files|Rebuild failed|exceeded'
+graph_dirty() {
+    [ -n "$(git -C "$ROOT" status --porcelain -- graphify-out 2>/dev/null)" ]
 }
 
-# Waits until a rebuild has both written something and stopped writing. A rebuild writes
-# its output at the end, so "quiet" alone would pass before it starts.
+# A rebuild writes its output at the end, so "dirty" alone can be a half-written graph.
+# Ages the four files a rebuild writes; `find -newermt '-2 seconds'` is GNU-only, macOS find
+# rejects the relative date and would call every write quiet.
+graph_quiet() {
+    local f m newest=0 now
+    now=$(date +%s)
+    for f in graph.json GRAPH_REPORT.md graph.html manifest.json; do
+        [ -f "$ROOT/graphify-out/$f" ] || continue
+        m=$(stat -f %m "$ROOT/graphify-out/$f" 2>/dev/null || stat -c %Y "$ROOT/graphify-out/$f" 2>/dev/null) || continue
+        [ -n "${m:-}" ] && [ "$m" -gt "$newest" ] && newest=$m
+    done
+    [ $((now - newest)) -ge "$QUIET" ]
+}
+
+# Waits for the hook's rebuild to leave committed-ready output, then commits it.
+# It deliberately does not read the rebuild log: that file is shared by every checkout on
+# the machine, so another repo finishing looked like this one finishing and the waiter
+# exited before its own output existed.
+# shortcut: a rebuild slower than TIMEOUT leaves its output for the next commit to sweep.
 run() {
-    local log="${GRAPHIFY_REBUILD_LOG:-$HOME/.cache/graphify-rebuild.log}"
-    local start deadline
-    start=$(wc -c < "$log" 2>/dev/null | tr -d ' '); start=${start:-0}
-    deadline=$((SECONDS + TIMEOUT))
-    while (( SECONDS < deadline )); do
-        sleep "$QUIET"
-        if log_finished "$log" "$start"; then
-            commit_once
-            return 0
+    local deadline=$((SECONDS + TIMEOUT))
+    while :; do
+        if graph_dirty && graph_quiet; then
+            commit_once && return 0
         fi
-        if [ -n "$(git -C "$ROOT" status --porcelain -- graphify-out 2>/dev/null)" ] &&
-           [ -z "$(find "$ROOT/graphify-out" -type f -newermt "-${QUIET} seconds" 2>/dev/null | head -1)" ]; then
-            commit_once
-            return 0
-        fi
+        (( SECONDS >= deadline )) && return 0
+        sleep 1
     done
 }
 
@@ -138,14 +142,14 @@ selftest() {
     GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" GRAPHIFY_AUTOCOMMIT_QUIET=0 GRAPHIFY_AUTOCOMMIT_TIMEOUT=5 "$SELF" >/dev/null
     [ "$(git -C "$tmp" rev-list --count HEAD)" = 2 ] && echo "PASS staged work is not folded in" || { echo "FAIL committed over staged work"; fails=1; }
 
-    # 4. a rebuild that skipped itself must not park a sleeper for the whole timeout
+    # 4. output still being written is left alone, and a run with nothing to do returns
+    #    at its deadline instead of committing a half-written graph
     git -C "$tmp" reset -q
-    local flog="$tmp/rebuild.log" began
-    printf '[graphify hook] 1 file(s) changed - rebuilding graph...\n[graphify watch] No tracked code files in change set - skipping rebuild.\n' > "$flog"
-    began=$SECONDS
-    GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" GRAPHIFY_AUTOCOMMIT_QUIET=1 GRAPHIFY_AUTOCOMMIT_TIMEOUT=120 \
-        GRAPHIFY_REBUILD_LOG="$flog" "$SELF" >/dev/null
-    [ $((SECONDS - began)) -le 10 ] && echo "PASS skipped rebuild exits at once" || { echo "FAIL waited $((SECONDS - began))s on a skipped rebuild"; fails=1; }
+    printf '{"nodes":[3]}\n' > "$tmp/graphify-out/graph.json"
+    local began=$SECONDS
+    GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" GRAPHIFY_AUTOCOMMIT_QUIET=30 GRAPHIFY_AUTOCOMMIT_TIMEOUT=3 "$SELF" >/dev/null
+    [ "$(git -C "$tmp" rev-list --count HEAD)" = 2 ] && echo "PASS half-written output is left alone" || { echo "FAIL committed a fresh write"; fails=1; }
+    [ $((SECONDS - began)) -le 10 ] && echo "PASS gives up at the deadline" || { echo "FAIL overran its deadline"; fails=1; }
 
     # 5. install twice → exactly one launcher block, and it survives a refresh
     printf '#!/bin/sh\nexit 0\n' > "$tmp/.git/hooks/post-commit"
