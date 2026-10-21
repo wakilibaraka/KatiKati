@@ -303,6 +303,12 @@
 		FA33A00000000000000000B2 /* AgentUsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000B1 /* AgentUsageService.swift */; };
 		FA33A00000000000000000B3 /* AgentUsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000B1 /* AgentUsageService.swift */; };
 		FA33A00000000000000000C2 /* AgentUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000C1 /* AgentUsageTests.swift */; };
+		FA33B0000000000000000012 /* ClaudeHookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000011 /* ClaudeHookConfig.swift */; };
+		FA33B0000000000000000013 /* ClaudeHookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000011 /* ClaudeHookConfig.swift */; };
+		FA33B0000000000000000022 /* ClaudeHookStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000021 /* ClaudeHookStatus.swift */; };
+		FA33B0000000000000000023 /* ClaudeHookStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000021 /* ClaudeHookStatus.swift */; };
+		FA33B0000000000000000032 /* ClaudeHookInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000031 /* ClaudeHookInstaller.swift */; };
+		FA33B0000000000000000033 /* ClaudeHookInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000031 /* ClaudeHookInstaller.swift */; };
 		FA33A00000000000000000D2 /* NotchAIPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000D1 /* NotchAIPageView.swift */; };
 		FA33A00000000000000000F2 /* NotchStoragePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000F1 /* NotchStoragePageView.swift */; };
 		5D000000000000000000A011 /* StorageScanMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A010 /* StorageScanMath.swift */; };
@@ -1367,6 +1373,9 @@
 		FA33A0000000000000000AA1 /* AgentStoreParsers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentStoreParsers.swift; path = Core/Support/AgentUsage/AgentStoreParsers.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000B1 /* AgentUsageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentUsageService.swift; path = App/Composition/AgentUsageService.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000C1 /* AgentUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentUsageTests.swift; path = Tests/Unit/AgentUsageTests.swift; sourceTree = SOURCE_ROOT; };
+		FA33B0000000000000000011 /* ClaudeHookConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookConfig.swift; path = Core/Support/AgentUsage/ClaudeHookConfig.swift; sourceTree = SOURCE_ROOT; };
+		FA33B0000000000000000021 /* ClaudeHookStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookStatus.swift; path = Core/Support/AgentUsage/ClaudeHookStatus.swift; sourceTree = SOURCE_ROOT; };
+		FA33B0000000000000000031 /* ClaudeHookInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookInstaller.swift; path = App/Composition/ClaudeHookInstaller.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000D1 /* NotchAIPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchAIPageView.swift; path = App/Scenes/Notch/NotchAIPageView.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000F1 /* NotchStoragePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchStoragePageView.swift; path = App/Scenes/Notch/NotchStoragePageView.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A010 /* StorageScanMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StorageScanMath.swift; path = Core/Support/StorageScanMath.swift; sourceTree = SOURCE_ROOT; };
@@ -3273,6 +3282,9 @@
 				FA33A00000000000000000A2 /* AgentClaudeParser.swift in Sources */,
 				FA33A0000000000000000AA2 /* AgentStoreParsers.swift in Sources */,
 				FA33A00000000000000000B2 /* AgentUsageService.swift in Sources */,
+				FA33B0000000000000000032 /* ClaudeHookInstaller.swift in Sources */,
+				FA33B0000000000000000022 /* ClaudeHookStatus.swift in Sources */,
+				FA33B0000000000000000012 /* ClaudeHookConfig.swift in Sources */,
 				FA33A00000000000000000D2 /* NotchAIPageView.swift in Sources */,
 				FA33A00000000000000000F2 /* NotchStoragePageView.swift in Sources */,
 				5D000000000000000000A011 /* StorageScanMath.swift in Sources */,
@@ -3428,6 +3440,9 @@
 				FA33A00000000000000000A3 /* AgentClaudeParser.swift in Sources */,
 				FA33A0000000000000000AA3 /* AgentStoreParsers.swift in Sources */,
 				FA33A00000000000000000B3 /* AgentUsageService.swift in Sources */,
+				FA33B0000000000000000033 /* ClaudeHookInstaller.swift in Sources */,
+				FA33B0000000000000000023 /* ClaudeHookStatus.swift in Sources */,
+				FA33B0000000000000000013 /* ClaudeHookConfig.swift in Sources */,
 				FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000143 /* DownloadItem.swift in Sources */,
 				FA33A0000000000000000153 /* DownloadManagerService.swift in Sources */,

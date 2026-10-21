@@ -13,6 +13,8 @@ struct UtilitySettingsBlock: View {
     @AppStorage(ClipboardMonitor.keepDaysKey) private var clipboardKeepDays = 0
     @AppStorage(CustomCommand.key) private var customCommands = ""
     @AppStorage(CustomCommand.snippetsKey) private var snippets = ""
+    @AppStorage(ClaudeHookInstaller.enabledKey) private var claudeHook = false
+    @State private var claudeHookFailed = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
@@ -113,6 +115,31 @@ struct UtilitySettingsBlock: View {
                 SettingsRow(Text("System Dock")) {
                     Button("Restore Dock") { AppDelegate.shared?.restoreNativeDock() }
                         .buttonStyle(SettingsGelButtonStyle())
+                }
+            }
+            // 52c: the one place KatiKati writes into the user's Claude Code settings, so the warning
+            // and the restart note sit on the switch itself rather than in a help popover.
+            SettingsCard(Text("Claude Code Status")) {
+                SettingsToggleRow(
+                    Text("Track Turns with a Claude Hook"),
+                    isOn: Binding(
+                        get: { claudeHook },
+                        set: { on in
+                            do {
+                                try ClaudeHookInstaller.setEnabled(on)
+                                claudeHook = on
+                                claudeHookFailed = false
+                            } catch {
+                                // An unreadable or invalid settings.json is left alone, so the switch stays put.
+                                claudeHookFailed = true
+                            }
+                        }
+                    ),
+                    note: Text("Adds two hooks to ~/.claude/settings.json: one when a prompt is submitted, one when Claude stops. They append to a local log, so the notch shows ACTIVE while Claude Code works and IDLE as soon as it stops. Your other settings and hooks are kept, and the original file is backed up once. Restart Claude Code after changing this.")
+                )
+                if claudeHookFailed {
+                    SettingsDivider()
+                    SettingsNote(Text("Could not update ~/.claude/settings.json. Nothing was changed."))
                 }
             }
         }

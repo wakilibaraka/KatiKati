@@ -1,6 +1,83 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Adds two hooks to ~/.claude/settings.json: one when a prompt is submitted, one when Claude stops. They append to a local log, so the notch shows ACTIVE while Claude Code works and IDLE as soon as it stops. Your other settings and hooks are kept, and the original file is backed up once. Restart Claude Code after changing this.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adds two hooks to ~/.claude/settings.json: one when a prompt is submitted, one when Claude stops. They append to a local log, so the notch shows ACTIVE while Claude Code works and IDLE as soon as it stops. Your other settings and hooks are kept, and the original file is backed up once. Restart Claude Code after changing this."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "向 ~/.claude/settings.json 添加两个钩子：提交提示词时一个，Claude 停止时一个。它们写入本地日志，因此 Claude Code 工作时刘海显示 ACTIVE，一旦停止立即显示 IDLE。你的其他设置和钩子都会保留，原文件会备份一次。修改后请重启 Claude Code。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 ~/.claude/settings.json 加入兩個掛鉤：送出提示詞時一個，Claude 停止時一個。它們寫入本機日誌，因此 Claude Code 工作時瀏海顯示 ACTIVE，一停止就顯示 IDLE。你的其他設定與掛鉤都會保留，原始檔案會備份一次。修改後請重新啟動 Claude Code。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.claude/settings.json にフックを2つ追加します。プロンプト送信時と Claude の停止時です。ローカルログに追記するので、Claude Code の実行中はノッチに ACTIVE、停止するとすぐ IDLE と表示されます。他の設定とフックはそのまま残り、元のファイルは一度だけバックアップされます。変更後は Claude Code を再起動してください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fügt zwei Hooks in ~/.claude/settings.json ein: einen beim Absenden eines Prompts, einen wenn Claude stoppt. Sie schreiben in ein lokales Protokoll, sodass die Notch ACTIVE zeigt, während Claude Code arbeitet, und IDLE, sobald es stoppt. Deine übrigen Einstellungen und Hooks bleiben erhalten, die Originaldatei wird einmal gesichert. Claude Code danach neu starten."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoute deux hooks dans ~/.claude/settings.json : un à l'envoi d'un prompt, un à l'arrêt de Claude. Ils écrivent dans un journal local, donc l'encoche affiche ACTIVE pendant que Claude Code travaille et IDLE dès qu'il s'arrête. Vos autres réglages et hooks sont conservés, et le fichier d'origine est sauvegardé une fois. Redémarrez Claude Code après ce changement."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade dos hooks a ~/.claude/settings.json: uno al enviar un prompt y otro cuando Claude se detiene. Escriben en un registro local, así que la muesca muestra ACTIVE mientras Claude Code trabaja e IDLE en cuanto se detiene. Tus otros ajustes y hooks se conservan, y el archivo original se respalda una vez. Reinicia Claude Code después de cambiarlo."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade dos hooks a ~/.claude/settings.json: uno al enviar un prompt y otro cuando Claude se detiene. Escriben en un registro local, así que la muesca muestra ACTIVE mientras Claude Code trabaja e IDLE en cuanto se detiene. Tus otros ajustes y hooks se conservan, y el archivo original se respalda una vez. Reinicia Claude Code después de cambiarlo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adiciona dois hooks em ~/.claude/settings.json: um ao enviar um prompt e outro quando o Claude para. Eles gravam em um log local, então o notch mostra ACTIVE enquanto o Claude Code trabalha e IDLE assim que ele para. Suas outras configurações e hooks são mantidos, e o arquivo original é copiado uma vez. Reinicie o Claude Code depois de mudar isso."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adiciona dois hooks em ~/.claude/settings.json: um ao enviar um prompt e outro quando o Claude para. Escrevem num registo local, por isso o notch mostra ACTIVE enquanto o Claude Code trabalha e IDLE assim que para. As restantes definições e hooks são mantidos, e o ficheiro original é copiado uma vez. Reinicie o Claude Code depois de alterar isto."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiunge due hook a ~/.claude/settings.json: uno all'invio di un prompt, uno quando Claude si ferma. Scrivono in un log locale, quindi il notch mostra ACTIVE mentre Claude Code lavora e IDLE appena si ferma. Le altre impostazioni e gli altri hook restano, e il file originale viene salvato una volta. Riavvia Claude Code dopo la modifica."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.claude/settings.json에 훅 두 개를 추가합니다. 프롬프트를 제출할 때와 Claude가 멈출 때입니다. 로컬 로그에 기록하므로 Claude Code가 작업하는 동안 노치에 ACTIVE, 멈추면 바로 IDLE가 표시됩니다. 기존 설정과 훅은 그대로 유지되고 원본 파일은 한 번 백업됩니다. 변경 후 Claude Code를 재시작하세요."
+          }
+        }
+      }
+    },
     "Allow Accessibility": {
       "extractionState": "manual",
       "localizations": {
@@ -92,6 +169,160 @@
           "stringUnit": {
             "state": "new",
             "value": "Allow Accessibility"
+          }
+        }
+      }
+    },
+    "Claude Code Status": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code Status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code 状态"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code 狀態"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code のステータス"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude-Code-Status"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "État de Claude Code"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estado de Claude Code"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estado de Claude Code"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status do Claude Code"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estado do Claude Code"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stato di Claude Code"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code 상태"
+          }
+        }
+      }
+    },
+    "Could not update ~/.claude/settings.json. Nothing was changed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not update ~/.claude/settings.json. Nothing was changed."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法更新 ~/.claude/settings.json。没有做任何更改。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法更新 ~/.claude/settings.json。沒有做任何變更。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.claude/settings.json を更新できませんでした。何も変更されていません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.claude/settings.json konnte nicht aktualisiert werden. Es wurde nichts geändert."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de mettre à jour ~/.claude/settings.json. Rien n'a été modifié."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo actualizar ~/.claude/settings.json. No se cambió nada."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo actualizar ~/.claude/settings.json. No se cambió nada."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível atualizar ~/.claude/settings.json. Nada foi alterado."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível atualizar ~/.claude/settings.json. Nada foi alterado."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile aggiornare ~/.claude/settings.json. Non è stato modificato nulla."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.claude/settings.json을(를) 업데이트할 수 없습니다. 아무것도 변경되지 않았습니다."
           }
         }
       }
@@ -1802,6 +2033,83 @@
           "stringUnit": {
             "state": "new",
             "value": "Snap zones (halves, quarters, thirds) move one window to a spot you pick. They work with tiling on or off; a snapped window stays where you put it."
+          }
+        }
+      }
+    },
+    "Track Turns with a Claude Hook": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Track Turns with a Claude Hook"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用 Claude 钩子跟踪回合"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用 Claude 掛鉤追蹤回合"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude フックでターンを追跡"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turns mit einem Claude-Hook verfolgen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suivre les tours avec un hook Claude"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seguir los turnos con un hook de Claude"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seguir los turnos con un hook de Claude"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acompanhar turnos com um hook do Claude"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acompanhar turnos com um hook do Claude"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monitora i turni con un hook di Claude"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude 훅으로 턴 추적"
           }
         }
       }

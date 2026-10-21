@@ -313,6 +313,108 @@ final class AgentUsageTests: XCTestCase {
         XCTAssertNil(AgentCodexParser.parseJSONLLine(line))
     }
 
+    // Phase 52c — the hook is written into a file the user owns, so install has to be exact:
+    // other settings and hooks survive, a second install changes nothing, removal is narrow.
+    func testClaudeHookInstallKeepsUnknownKeysAndIsIdempotent() throws {
+        let original: [String: Any] = [
+            "model": "opus",
+            "permissions": ["allow": ["Bash(ls)"]],
+            "hooks": ["PreToolUse": [["matcher": "Bash", "hooks": [["type": "command", "command": "echo keep"]]]]]
+        ]
+        let once = try ClaudeHookConfig.install(into: try json(original))
+        XCTAssertEqual(try ClaudeHookConfig.install(into: once), once)
+
+        let installed = try object(once)
+        XCTAssertEqual(installed["model"] as? String, "opus")
+        XCTAssertEqual((installed["permissions"] as? [String: Any])?["allow"] as? [String], ["Bash(ls)"])
+        let hooks = try XCTUnwrap(installed["hooks"] as? [String: Any])
+        XCTAssertEqual((hooks["PreToolUse"] as? [[String: Any]])?.count, 1)
+        for event in ClaudeHookEvent.allCases {
+            let groups = try XCTUnwrap(hooks[event.rawValue] as? [[String: Any]], event.rawValue)
+            XCTAssertEqual(groups.count, 1, event.rawValue)
+            let entries = try XCTUnwrap(groups.first?["hooks"] as? [[String: Any]])
+            XCTAssertEqual(entries.count, 1)
+            let command = try XCTUnwrap(entries.first?["command"] as? String)
+            XCTAssertTrue(command.contains(ClaudeHookConfig.marker))
+            XCTAssertTrue(command.contains(event.rawValue))
+        }
+
+        // Uninstall takes ours and nothing else.
+        let removed = try object(try ClaudeHookConfig.remove(from: once))
+        let remaining = try XCTUnwrap(removed["hooks"] as? [String: Any])
+        XCTAssertNil(remaining["UserPromptSubmit"])
+        XCTAssertNil(remaining["Stop"])
+        XCTAssertEqual((remaining["PreToolUse"] as? [[String: Any]])?.count, 1)
+        XCTAssertEqual(removed["model"] as? String, "opus")
+    }
+
+    func testClaudeHookRemovalKeepsAnotherCommandSharingTheGroup() throws {
+        let ours = ClaudeHookConfig.command(for: .idle)
+        let root: [String: Any] = ["hooks": ["Stop": [["hooks": [
+            ["type": "command", "command": "echo keep"],
+            ["type": "command", "command": ours]
+        ]]]]]
+        let cleaned = try object(try ClaudeHookConfig.remove(from: try json(root)))
+        let groups = try XCTUnwrap((cleaned["hooks"] as? [String: Any])?["Stop"] as? [[String: Any]])
+        XCTAssertEqual(groups.count, 1)
+        XCTAssertEqual((groups[0]["hooks"] as? [[String: Any]])?.compactMap { $0["command"] as? String }, ["echo keep"])
+    }
+
+    func testClaudeHookRefusesMalformedSettings() {
+        XCTAssertThrowsError(try ClaudeHookConfig.install(into: Data("not json".utf8)))
+        XCTAssertThrowsError(try ClaudeHookConfig.install(into: Data("[1]".utf8)))
+        XCTAssertThrowsError(try ClaudeHookConfig.remove(from: Data("".utf8)))
+    }
+
+    func testClaudeHookStatusTable() {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        func line(_ secondsAgo: TimeInterval, _ event: String) -> String {
+            "\(Int(now.timeIntervalSince1970 - secondsAgo)) \(event)\n"
+        }
+        XCTAssertEqual(ClaudeHookStatus.workingOverride(log: line(5, "UserPromptSubmit"), now: now), true)
+        XCTAssertEqual(ClaudeHookStatus.workingOverride(log: line(5, "Stop"), now: now), false)
+        // Older than the 5-minute window: no override, the transcript mtime decides again.
+        XCTAssertNil(ClaudeHookStatus.workingOverride(log: line(301, "Stop"), now: now))
+        XCTAssertNil(ClaudeHookStatus.workingOverride(log: "", now: now))
+        XCTAssertNil(ClaudeHookStatus.workingOverride(log: "garbage\n\n", now: now))
+        XCTAssertNil(ClaudeHookStatus.workingOverride(log: line(5, "SessionEnd"), now: now))
+        // The newest line wins, and a half-written tail is skipped rather than fatal.
+        XCTAssertEqual(ClaudeHookStatus.workingOverride(log: line(60, "UserPromptSubmit") + line(5, "Stop"), now: now), false)
+        XCTAssertEqual(ClaudeHookStatus.workingOverride(log: line(10, "Stop") + "partial", now: now), false)
+        XCTAssertEqual(ClaudeHookStatus.workingOverride(log: line(10, "Stop") + line(2, "UserPromptSubmit"), now: now), true)
+    }
+
+    // The file write itself: one backup of the first real file, and an invalid file is never replaced.
+    @MainActor
+    func testClaudeHookInstallerBacksUpOnceAndRefusesInvalidFile() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let settings = directory.appendingPathComponent("settings.json")
+        try json(["model": "opus"]).write(to: settings)
+
+        try ClaudeHookInstaller.setEnabled(true, settingsURL: settings)
+        try ClaudeHookInstaller.setEnabled(false, settingsURL: settings)
+        try ClaudeHookInstaller.setEnabled(true, settingsURL: settings)
+
+        let backup = try object(try Data(contentsOf: directory.appendingPathComponent("settings.json.katikati-backup")))
+        XCTAssertEqual(backup["model"] as? String, "opus")
+        XCTAssertNil(backup["hooks"])
+
+        let broken = Data("nope".utf8)
+        try broken.write(to: settings)
+        XCTAssertThrowsError(try ClaudeHookInstaller.setEnabled(true, settingsURL: settings))
+        XCTAssertEqual(try Data(contentsOf: settings), broken)
+    }
+
+    private func json(_ object: [String: Any]) throws -> Data {
+        try JSONSerialization.data(withJSONObject: object, options: [.sortedKeys])
+    }
+
+    private func object(_ data: Data) throws -> [String: Any] {
+        try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+    }
+
     private static let iso8601WithMillis: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]

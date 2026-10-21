@@ -107,6 +107,7 @@ final class AgentUsageService: ObservableObject {
 
     private let backgroundQueue = DispatchQueue(label: "com.katikati.agent-usage", qos: .utility)
     private var fileWatchers: [DispatchSourceFileSystemObject] = []
+    private var watchedPaths: Set<String> = []
     private var isMonitoring = false
     private var activeTurnWork: DispatchWorkItem?
 
@@ -124,6 +125,7 @@ final class AgentUsageService: ObservableObject {
         isMonitoring = false
         fileWatchers.forEach { $0.cancel() }
         fileWatchers.removeAll()
+        watchedPaths.removeAll()
         activeTurnWork?.cancel()
         activeTurnWork = nil
     }
@@ -150,6 +152,10 @@ final class AgentUsageService: ObservableObject {
             let isRecent: (Date) -> Bool = { $0.timeIntervalSinceNow > -300 }
 
             // 2. Read Claude Code project transcripts (today's files, last 64 KB)
+            // 52c — the opt-in hook's newest event beats the mtime window: Stop ends a turn at once,
+            // UserPromptSubmit keeps it active while Claude works. No usable event keeps the old rule.
+            let hookLog = (try? String(contentsOf: ClaudeHookConfig.logURL(home: home), encoding: .utf8)) ?? ""
+            let claudeWorking = ClaudeHookStatus.workingOverride(log: hookLog, now: now)
             let claudeProjectsURL = home.appendingPathComponent(".claude/projects")
             let claudeEnumerator = FileManager.default.enumerator(at: claudeProjectsURL, includingPropertiesForKeys: [.contentModificationDateKey], options: [.skipsHiddenFiles])
             if claudeEnumerator != nil {
@@ -197,7 +203,7 @@ final class AgentUsageService: ObservableObject {
                                         lastActivity: modDate,
                                         tokens: parsed.tokens,
                                         cost: c,
-                                        isActive: isRecent(modDate)
+                                        isActive: claudeWorking ?? isRecent(modDate)
                                     ))
                                 }
                             }
@@ -334,23 +340,34 @@ final class AgentUsageService: ObservableObject {
             home.appendingPathComponent(".claude/projects").path,
             home.appendingPathComponent(".local/share/opencode/opencode.db").path,
             home.appendingPathComponent(".codex/sessions").path,
-            home.appendingPathComponent("Library/Application Support/Code/User/globalStorage/github.copilot-chat/session-store.db").path
+            home.appendingPathComponent("Library/Application Support/Code/User/globalStorage/github.copilot-chat/session-store.db").path,
+            ClaudeHookConfig.logURL(home: home).path
         ]
 
-        for path in pathsToWatch {
-            let fd = open(path, O_EVTONLY)
-            guard fd >= 0 else { continue }
+        for path in pathsToWatch { addWatcher(path) }
+    }
 
-            let source = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd, eventMask: [.write, .extend, .attrib], queue: backgroundQueue)
-            source.setEventHandler { [weak self] in
-                self?.scheduleCoalescedRefresh()
-            }
-            source.setCancelHandler {
-                close(fd)
-            }
-            source.resume()
-            fileWatchers.append(source)
+    /// 52c — the hook log only exists after the first hooked turn, so the installer calls this once the
+    /// hook is on; the launch pass above covers every later start.
+    func watchHookLog() {
+        addWatcher(ClaudeHookConfig.logURL().path)
+    }
+
+    private func addWatcher(_ path: String) {
+        guard !watchedPaths.contains(path) else { return }
+        let fd = open(path, O_EVTONLY)
+        guard fd >= 0 else { return }
+        watchedPaths.insert(path)
+
+        let source = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd, eventMask: [.write, .extend, .attrib], queue: backgroundQueue)
+        source.setEventHandler { [weak self] in
+            self?.scheduleCoalescedRefresh()
         }
+        source.setCancelHandler {
+            close(fd)
+        }
+        source.resume()
+        fileWatchers.append(source)
     }
 
     private func scheduleCoalescedRefresh() {

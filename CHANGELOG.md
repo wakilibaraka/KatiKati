@@ -2,6 +2,16 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 52c: Claude Code status from a hook
+
+### Added
+- Settings → Tools: "Track Turns with a Claude Hook", off by default. It adds two hooks to
+  `~/.claude/settings.json` — one when a prompt is submitted, one when Claude stops — that append to a
+  local log, so the notch's AI page says ACTIVE while Claude Code works and IDLE as soon as it stops,
+  instead of waiting five minutes for the transcript to go quiet. Your other settings and hooks are kept,
+  the original file is backed up once, and the switch refuses to touch a settings file it cannot parse.
+  Restart Claude Code after changing it.
+
 ## [Unreleased] — Phase 52a: agent usage reads the current logs
 
 ### Fixed
