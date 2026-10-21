@@ -101,7 +101,16 @@ graph_quiet() {
 # the machine, so another repo finishing looked like this one finishing and the waiter
 # exited before its own output existed.
 # shortcut: a rebuild slower than TIMEOUT leaves its output for the next commit to sweep.
+# A graph-only commit made the hook skip its rebuild, so its waiter has nothing to wait for.
+head_is_graph_only() {
+    local files
+    files=$(git -C "$ROOT" show --pretty=format: --name-only HEAD 2>/dev/null)
+    [ -n "$files" ] && ! printf '%s\n' "$files" | grep -qv '^graphify-out/'
+}
+
 run() {
+    trace "started pid=$$ root=$ROOT"
+    head_is_graph_only && { trace "graph-only commit, nothing to sweep"; return 0; }
     local deadline=$((SECONDS + TIMEOUT))
     while :; do
         if graph_dirty && graph_quiet; then
@@ -153,7 +162,14 @@ selftest() {
     [ "$(git -C "$tmp" rev-list --count HEAD)" = 2 ] && echo "PASS half-written output is left alone" || { echo "FAIL committed a fresh write"; fails=1; }
     [ $((SECONDS - began)) -le 10 ] && echo "PASS gives up at the deadline" || { echo "FAIL overran its deadline"; fails=1; }
 
-    # 5. install twice → exactly one launcher block, and it survives a refresh
+    # 5. a graph-only HEAD is the committer's own commit: the hook skipped its rebuild, so
+    #    the waiter must not sit out the whole timeout
+    git -C "$tmp" add -A -- graphify-out && git -C "$tmp" commit -qm "graphify: test"
+    began=$SECONDS
+    GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" GRAPHIFY_AUTOCOMMIT_QUIET=30 GRAPHIFY_AUTOCOMMIT_TIMEOUT=60 "$SELF" >/dev/null
+    [ $((SECONDS - began)) -le 5 ] && echo "PASS graph-only commit exits at once" || { echo "FAIL sat out the timeout on a graph-only commit"; fails=1; }
+
+    # 6. install twice → exactly one launcher block, and it survives a refresh
     printf '#!/bin/sh\nexit 0\n' > "$tmp/.git/hooks/post-commit"
     mkdir -p "$tmp/Scripts" && cp "$SELF" "$tmp/Scripts/graphify_autocommit.sh"
     GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" "$tmp/Scripts/graphify_autocommit.sh" install >/dev/null
