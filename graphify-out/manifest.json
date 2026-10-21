@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792600311.224217,
-    "seen": 1792600377.3346171,
-    "ast_hash": "78f63c150c980b0e01de2c442291d130",
+    "mtime": 1792601659.0265503,
+    "seen": 1792601765.333269,
+    "ast_hash": "ad2bc4a37a64f9a8a713e5c4ac7f7faf",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -6474,9 +6474,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchTrackPill.swift": {
-    "mtime": 1792538625.5384665,
-    "seen": 1792538686.1188521,
-    "ast_hash": "2bf29540ed7d61a3ef0ab943cb0817c7",
+    "mtime": 1792601287.890675,
+    "seen": 1792601765.3327591,
+    "ast_hash": "e47e4a3e26d6a895c4497b7ad395dbcf",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchWideBarView.swift": {
@@ -6633,6 +6633,24 @@
     "mtime": 1792598922.6428335,
     "seen": 1792600377.334469,
     "ast_hash": "ff82030c76795c69657a2842170b47a5",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Notch/NotchTrackPillContent.swift": {
+    "mtime": 1792601287.8863187,
+    "seen": 1792601765.332761,
+    "ast_hash": "6b9c03b2069af813fecc68c0b74ea5fc",
+    "semantic_hash": ""
+  },
+  "Core/Support/TrackPillTextMetrics.swift": {
+    "mtime": 1792601225.7294157,
+    "seen": 1792601765.332973,
+    "ast_hash": "f371b9b12bc6f2e93b5a4f76e2f51649",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/NotchTrackPillTests.swift": {
+    "mtime": 1792601725.9923873,
+    "seen": 1792601765.333163,
+    "ast_hash": "79e2bf277d20e1fd717ce28793f578f1",
     "semantic_hash": ""
   }
 }
