@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7B50000000000000009A1011 /* WeatherIPadChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1010 /* WeatherIPadChip.swift */; };
+		7B50000000000000009A1031 /* WeatherModernChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1030 /* WeatherModernChip.swift */; };
 		7B50000000000000009A1001 /* WeatherLayoutSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1000 /* WeatherLayoutSpec.swift */; };
 		7B50000000000000009A1021 /* WeatherDetailBands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1020 /* WeatherDetailBands.swift */; };
 		7B50000000000000009A1022 /* WeatherDetailBands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50000000000000009A1020 /* WeatherDetailBands.swift */; };
@@ -1149,6 +1150,7 @@
 
 /* Begin PBXFileReference section */
 		7B50000000000000009A1010 /* WeatherIPadChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherIPadChip.swift; path = App/Scenes/Weather/WeatherIPadChip.swift; sourceTree = SOURCE_ROOT; };
+		7B50000000000000009A1030 /* WeatherModernChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherModernChip.swift; path = App/Scenes/Weather/WeatherModernChip.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000009A1000 /* WeatherLayoutSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherLayoutSpec.swift; path = Core/Support/WeatherLayoutSpec.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000009A1020 /* WeatherDetailBands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherDetailBands.swift; path = Core/Support/WeatherDetailBands.swift; sourceTree = SOURCE_ROOT; };
 		7B50000000000000009A1023 /* WeatherDetailViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherDetailViews.swift; path = App/Scenes/Weather/WeatherDetailViews.swift; sourceTree = SOURCE_ROOT; };
@@ -3303,6 +3305,7 @@
 				7B50000000000000009A1001 /* WeatherLayoutSpec.swift in Sources */,
 				7B50000000000000009A1021 /* WeatherDetailBands.swift in Sources */,
 				7B50000000000000009A1011 /* WeatherIPadChip.swift in Sources */,
+				7B50000000000000009A1031 /* WeatherModernChip.swift in Sources */,
 				7B50000000000000009A1024 /* WeatherDetailViews.swift in Sources */,
 				7B5000000000000000000032 /* WeatherLocations.swift in Sources */,
 				7B5000000000000000000022 /* WeatherWarnings.swift in Sources */,

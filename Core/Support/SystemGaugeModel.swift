@@ -57,9 +57,12 @@ public enum WeatherChipPreset: String, CaseIterable, Equatable, Codable, Sendabl
     case detailedGlass = "detailedGlass"
     /// Phase 56: the iPad-widget sky card (S/M/L ladder). The default once its view lands (W3).
     case ipad
+    /// Phase 56 W8: the flat graphite card (hairlines, light numerals, one accent). The default.
+    case modern
 
     public var title: String {
         switch self {
+        case .modern: return "Modern"
         case .ipad: return "iPad Sky Card"
         case .classicPill: return "Classic Weather Pill"
         case .detailedForecast: return "Detailed 3-Day Forecast"
@@ -71,7 +74,7 @@ public enum WeatherChipPreset: String, CaseIterable, Equatable, Codable, Sendabl
     /// The 3-day pod (city, columns) rather than the compact pill.
     public var isDetailed: Bool {
         switch self {
-        case .ipad, .detailedForecast, .detailedGlass: return true
+        case .modern, .ipad, .detailedForecast, .detailedGlass: return true
         case .classicPill, .classicGlassPill: return false
         }
     }
@@ -81,6 +84,7 @@ public enum WeatherChipPreset: String, CaseIterable, Equatable, Codable, Sendabl
     public var usesSkyPlate: Bool {
         switch self {
         case .ipad, .classicPill, .detailedForecast: return true
+        case .modern: return false
         case .classicGlassPill, .detailedGlass: return false
         }
     }
@@ -88,11 +92,12 @@ public enum WeatherChipPreset: String, CaseIterable, Equatable, Codable, Sendabl
     /// The styles the pickers offer. The older four stay decodable and renderable but are retired
     /// from the choice for now (owner 2026-10-21); a stored retired value is still honoured and stays listed so the picker never goes blank.
     public static func pickerCases(current: WeatherChipPreset) -> [WeatherChipPreset] {
-        current == .ipad ? [.ipad] : [.ipad, current]
+        [.modern, .ipad].contains(current) ? [.modern, .ipad] : [.modern, .ipad, current]
     }
 
     public static let storageKey = "com.katikati.weather.chipPreset"
     static let ipadMigrationStamp = "com.katikati.migration.weatherIPadDefault"
+    static let modernMigrationStamp = "com.katikati.migration.weatherModernDefault"
 
     /// Once per install: a stored older style (the owner's pins `detailed`) moves to the iPad card, now
     /// the default. A later pick sticks, and the retired styles stay decodable.
@@ -100,6 +105,15 @@ public enum WeatherChipPreset: String, CaseIterable, Equatable, Codable, Sendabl
         guard !defaults.bool(forKey: ipadMigrationStamp) else { return }
         defaults.set(true, forKey: ipadMigrationStamp)
         if defaults.string(forKey: storageKey) != nil { defaults.set(Self.ipad.rawValue, forKey: storageKey) }
+    }
+}
+
+extension WeatherChipPreset {
+    /// Once per install: any stored style moves to Modern, now the default (owner 2026-10-21). A later pick sticks.
+    public static func migrateToModernIfNeeded(defaults: UserDefaults) {
+        guard !defaults.bool(forKey: modernMigrationStamp) else { return }
+        defaults.set(true, forKey: modernMigrationStamp)
+        if defaults.string(forKey: storageKey) != nil { defaults.set(Self.modern.rawValue, forKey: storageKey) }
     }
 }
 

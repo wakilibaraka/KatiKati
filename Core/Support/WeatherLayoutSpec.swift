@@ -95,3 +95,23 @@ struct WeatherHourSlot: Equatable, Identifiable {
         return made
     }
 }
+
+/// Phase 56 W8, the Modern style: one accent per reading (the only colour on a flat graphite card)
+/// and the hourly line as 0...1 heights, so the view draws a path and nothing else.
+enum WeatherModernSpec {
+    static func accent(condition: WeatherCondition, isNight: Bool) -> TileRGB {
+        switch condition {
+        case .clear, .partlyCloudy: return isNight ? TileRGB(r: 0.60, g: 0.65, b: 1.00) : TileRGB(r: 0.95, g: 0.72, b: 0.29)
+        case .cloudy, .fog: return TileRGB(r: 0.70, g: 0.74, b: 0.79)
+        case .drizzle, .rain, .showers: return TileRGB(r: 0.37, g: 0.66, b: 1.00)
+        case .snow: return TileRGB(r: 0.78, g: 0.90, b: 1.00)
+        case .thunderstorm: return TileRGB(r: 0.76, g: 0.55, b: 1.00)
+        }
+    }
+
+    /// 0 = the coldest hour, 1 = the warmest; a flat run sits mid-height instead of dividing by zero.
+    static func fractions(_ values: [Double]) -> [Double] {
+        guard let lo = values.min(), let hi = values.max(), hi > lo else { return values.map { _ in 0.5 } }
+        return values.map { ($0 - lo) / (hi - lo) }
+    }
+}

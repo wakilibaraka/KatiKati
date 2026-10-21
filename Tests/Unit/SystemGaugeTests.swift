@@ -105,19 +105,34 @@ final class SystemGaugeTests: XCTestCase {
     /// Phase 46: two layouts × two plates. The stored values the app already shipped (`classic`,
     /// `detailed`) must keep meaning what they meant — the owner's own install pins `detailed`.
     func testWeatherChipPresetAxes() {
-        XCTAssertEqual(WeatherChipPreset.allCases.count, 5)
+        XCTAssertEqual(WeatherChipPreset.allCases.count, 6)
         XCTAssertEqual(WeatherChipPreset.allCases.map(\.rawValue).prefix(2), ["classic", "detailed"])
         // Both layouts exist on both plates, and the sky stays the default look.
         XCTAssertEqual(WeatherChipPreset.allCases.filter(\.usesSkyPlate).map(\.isDetailed), [false, true, true])
-        XCTAssertEqual(WeatherChipPreset.allCases.filter { !$0.usesSkyPlate }.map(\.isDetailed), [false, true])
+        XCTAssertEqual(WeatherChipPreset.allCases.filter { !$0.usesSkyPlate }.map(\.isDetailed), [false, true, true])
         XCTAssertTrue(WeatherChipPreset.detailedForecast.usesSkyPlate)
         XCTAssertTrue(WeatherChipPreset.classicPill.usesSkyPlate)
     }
 
-    /// Phase 56: only the iPad card is offered; a stored retired style stays listed and decodable.
-    func testWeatherPickerOffersIPadAndKeepsStoredRetired() {
-        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .ipad), [.ipad])
-        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .detailedGlass), [.ipad, .detailedGlass])
+    /// Phase 56 W8: Modern and the iPad card are offered; a stored retired style stays listed and decodable.
+    func testWeatherPickerOffersModernAndIPadAndKeepsStoredRetired() {
+        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .modern), [.modern, .ipad])
+        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .ipad), [.modern, .ipad])
+        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .detailedGlass), [.modern, .ipad, .detailedGlass])
+    }
+
+    /// Phase 56 W8: a stored style moves to Modern exactly once; a later pick sticks.
+    func testModernMigrationRunsOnce() {
+        let d = UserDefaults(suiteName: "weather-modern-migration-\(UUID().uuidString)")!
+        d.set("ipad", forKey: WeatherChipPreset.storageKey)
+        WeatherChipPreset.migrateToModernIfNeeded(defaults: d)
+        XCTAssertEqual(d.string(forKey: WeatherChipPreset.storageKey), "modern")
+        d.set("ipad", forKey: WeatherChipPreset.storageKey)
+        WeatherChipPreset.migrateToModernIfNeeded(defaults: d)
+        XCTAssertEqual(d.string(forKey: WeatherChipPreset.storageKey), "ipad")
+        let fresh = UserDefaults(suiteName: "weather-modern-migration-\(UUID().uuidString)")!
+        WeatherChipPreset.migrateToModernIfNeeded(defaults: fresh)
+        XCTAssertNil(fresh.string(forKey: WeatherChipPreset.storageKey))
     }
 
     /// Phase 56 W3: a stored older style moves to the iPad card exactly once; a later pick sticks.

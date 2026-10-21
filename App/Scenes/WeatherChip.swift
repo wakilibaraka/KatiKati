@@ -200,7 +200,7 @@ public struct WeatherIllustration: View {
 public struct WeatherChip: View {
     @EnvironmentObject var weatherService: WeatherService
     @Environment(\.widgetSize) private var widgetSize
-    @AppStorage(WeatherChipPreset.storageKey) private var chipPreset: WeatherChipPreset = .ipad
+    @AppStorage(WeatherChipPreset.storageKey) private var chipPreset: WeatherChipPreset = .modern
     // Phase 32b: the reading morphs with the dock's motion preset; Instant, or Reduce Motion, cuts it.
     @AppStorage(WidgetMotionPreset.storageKey) private var motionPreset: WidgetMotionPreset = .default
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -217,6 +217,9 @@ public struct WeatherChip: View {
         if !state.hasData {
             // No place and no cached forecast: say that, instead of a temperature for a city we made up.
             WeatherNoPlaceHint(needsLocation: weatherService.needsLocation)
+                .onTapGesture { WidgetPanelController.weather.toggle() }
+        } else if chipPreset == .modern {
+            WeatherModernChip(state: state, size: widgetSize)
                 .onTapGesture { WidgetPanelController.weather.toggle() }
         } else if chipPreset == .ipad {
             WeatherIPadChip(state: state, size: widgetSize)
@@ -346,14 +349,16 @@ struct WeatherNoPlaceHint: View {
 /// scales it by `dockScale` like every other rail metric.
 struct RailWeatherTile: View {
     @EnvironmentObject var weatherService: WeatherService
-    @AppStorage(WeatherChipPreset.storageKey) private var chipPreset: WeatherChipPreset = .ipad
+    @AppStorage(WeatherChipPreset.storageKey) private var chipPreset: WeatherChipPreset = .modern
     @State private var isHovered = false
 
     var body: some View {
         let state = weatherService.currentState
         let tint = SkyTint.tint(condition: state.conditionFamily, isNight: state.isNight)
         // The iPad card's sky plate, with its dark-ink flip on bright skies; no forecast keeps the dock plate.
-        let sky: LinearGradient? = chipPreset == .ipad && state.hasData
+        let sky: LinearGradient? = chipPreset == .modern && state.hasData
+            ? LinearGradient(colors: [Color(white: 0.085), Color(white: 0.085)], startPoint: .top, endPoint: .bottom)
+            : chipPreset == .ipad && state.hasData
             ? LinearGradient(colors: [Color(red: tint.top.r, green: tint.top.g, blue: tint.top.b),
                                       Color(red: tint.bottom.r, green: tint.bottom.g, blue: tint.bottom.b)],
                              startPoint: .top, endPoint: .bottom)
@@ -361,14 +366,19 @@ struct RailWeatherTile: View {
         VStack(spacing: 1) {
             // Same rule as the bar chip: with no forecast there is no temperature to print, only the
             // mark that a place is missing (the tap below opens the panel's city search).
-            Image(systemName: state.hasData ? state.glyphName : "location.slash.fill")
-                .symbolRenderingMode(.multicolor)
-                .font(.system(size: 14, weight: .semibold))
+            if chipPreset == .modern && state.hasData {
+                let a = WeatherModernSpec.accent(condition: state.conditionFamily, isNight: state.isNight)
+                Circle().fill(Color(red: a.r, green: a.g, blue: a.b)).frame(width: 6, height: 6)
+            } else {
+                Image(systemName: state.hasData ? state.glyphName : "location.slash.fill")
+                    .symbolRenderingMode(.multicolor)
+                    .font(.system(size: 14, weight: .semibold))
+            }
             if state.hasData {
                 Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .font(.system(size: 12, weight: chipPreset == .modern ? .regular : .bold, design: chipPreset == .modern ? .default : .rounded))
                     .monospacedDigit()
-                    .foregroundStyle(sky != nil && tint.prefersDarkText ? Color(white: 0.10) : .white)
+                    .foregroundStyle(chipPreset == .modern ? Color(white: 0.96) : sky != nil && tint.prefersDarkText ? Color(white: 0.10) : .white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
