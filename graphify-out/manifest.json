@@ -888,9 +888,9 @@
     "semantic_hash": "b523821d46732464f415384d53e0dd13"
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1792547539.0330455,
-    "seen": 1792547601.380356,
-    "ast_hash": "ebc50526438293a311a3d957245a42ee",
+    "mtime": 1792604748.7909536,
+    "seen": 1792604854.1979818,
+    "ast_hash": "d111e455c92f9a0d8bef2e012a1a71ff",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -1656,10 +1656,10 @@
     "semantic_hash": "3303919dc1af4fbbd8415d39cae3c7c8"
   },
   "Core/Support/ControlCenterLayout.swift": {
-    "mtime": 1791999130.7612598,
-    "seen": 1792295707.0605388,
-    "ast_hash": "9608dbdd502eed75394862a3fbc58762",
-    "semantic_hash": "9608dbdd502eed75394862a3fbc58762"
+    "mtime": 1792603243.696568,
+    "seen": 1792604854.198117,
+    "ast_hash": "3f7329a27dad13e477c0257f427df1a5",
+    "semantic_hash": ""
   },
   "Core/Support/CustomCommands.swift": {
     "mtime": 1792550790.542129,
@@ -2952,10 +2952,10 @@
     "semantic_hash": "4cb4851e0bd129df436fbb3199654e6b"
   },
   "Platform/SystemStatus/SystemStatusService.swift": {
-    "mtime": 1791999130.9149997,
-    "seen": 1792295707.060672,
-    "ast_hash": "66a408dc562619c3603617750897d08f",
-    "semantic_hash": "66a408dc562619c3603617750897d08f"
+    "mtime": 1792604485.2284777,
+    "seen": 1792604854.19831,
+    "ast_hash": "9f05f34af2721cdfe45961d4ba996b01",
+    "semantic_hash": ""
   },
   "Platform/Tasks/TasksController.swift": {
     "mtime": 1792546311.1520374,
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792601659.0265503,
-    "seen": 1792601765.333269,
-    "ast_hash": "ad2bc4a37a64f9a8a713e5c4ac7f7faf",
+    "mtime": 1792604823.016047,
+    "seen": 1792604854.198546,
+    "ast_hash": "9c372465850c71bfd3696be6ce1c2614",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -6366,9 +6366,9 @@
     "semantic_hash": ""
   },
   "FEATURE_ROADMAP_2026-10.md": {
-    "mtime": 1792602498.1050453,
-    "seen": 1792602555.269314,
-    "ast_hash": "5d9fc297f3c586e85ff8691603282875",
+    "mtime": 1792604861.8244557,
+    "seen": 1792604872.9827788,
+    "ast_hash": "ba0fee62587bf7c92c4422a35d848825",
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
@@ -6657,6 +6657,12 @@
     "mtime": 1792602371.1397793,
     "seen": 1792602473.345762,
     "ast_hash": "e281623b449666adfc7552177eee657c",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/ControlCenterScrollTests.swift": {
+    "mtime": 1792603243.6980395,
+    "seen": 1792604854.19836,
+    "ast_hash": "2ab73f2e862eabb548f4febec7dd025f",
     "semantic_hash": ""
   }
 }
