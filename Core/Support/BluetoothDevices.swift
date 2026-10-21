@@ -21,6 +21,14 @@ struct BluetoothDevice: Equatable, Identifiable, Sendable {
     /// Lowest known level — what a single "battery" badge should show.
     var lowestBattery: Int? { [batteryMain, batteryLeft, batteryRight, batteryCase].compactMap { $0 }.min() }
 
+    /// Phase 56c: "L 80 · R 75 · C 60" for earbuds and their case; nil when the device reports one number.
+    var batteryBreakdown: String? {
+        let parts = [("L", batteryLeft), ("R", batteryRight), ("C", batteryCase)].compactMap { label, v in v.map { "\(label) \($0)" } }
+        return parts.count > 1 ? parts.joined(separator: " · ") : nil
+    }
+
+    var isLowBattery: Bool { (lowestBattery ?? 100) <= 20 }
+
     var symbolName: String {
         switch kind?.lowercased() {
         case "headphones", "headset": return "headphones"

@@ -68,4 +68,13 @@ final class BluetoothDevicesTests: XCTestCase {
         XCTAssertTrue(after.low.isEmpty)
         XCTAssertEqual(BatteryBuddyPolicy.update(alreadyLow: after.low, devices: [low]).alerts.count, 1)
     }
+
+    func testBreakdownAndLowFlag() {
+        let pods = BluetoothDevice(name: "Pods", address: "a", isConnected: true, kind: nil, batteryMain: nil, batteryLeft: 80, batteryRight: 15, batteryCase: 60)
+        XCTAssertEqual(pods.batteryBreakdown, "L 80 · R 15 · C 60")
+        XCTAssertTrue(pods.isLowBattery)
+        let mouse = BluetoothDevice(name: "M", address: "b", isConnected: true, kind: nil, batteryMain: 50, batteryLeft: nil, batteryRight: nil, batteryCase: nil)
+        XCTAssertNil(mouse.batteryBreakdown)
+        XCTAssertFalse(mouse.isLowBattery)
+    }
 }

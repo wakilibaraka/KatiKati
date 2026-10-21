@@ -446,7 +446,7 @@ private struct ControlCenterBatteryCard: View {
                 if loading {
                     ProgressView().controlSize(.small)
                 } else {
-                    ForEach(devices.prefix(2)) { d in line(d.symbolName, Text(verbatim: d.name), d.lowestBattery ?? 0) }
+                    ForEach(devices.prefix(4)) { d in line(d.symbolName, Text(verbatim: d.name), d.lowestBattery ?? 0, detail: d.batteryBreakdown, low: d.isLowBattery) }
                     if devices.isEmpty {
                         Text("No connected devices report a battery").font(.system(size: 11)).foregroundStyle(.secondary)
                     }
@@ -459,12 +459,15 @@ private struct ControlCenterBatteryCard: View {
         .task { await load() }
     }
 
-    private func line(_ symbol: String, _ name: Text, _ level: Int) -> some View {
+    private func line(_ symbol: String, _ name: Text, _ level: Int, detail: String? = nil, low: Bool = false) -> some View {
         HStack(spacing: 8) {
             Image(systemName: symbol).font(.system(size: 12)).frame(width: 20)
-            name.font(.system(size: 12, weight: .medium)).lineLimit(1)
+            VStack(alignment: .leading, spacing: 0) {
+                name.font(.system(size: 12, weight: .medium)).lineLimit(1)
+                if let detail { Text(verbatim: detail).font(.system(size: 10)).foregroundStyle(.secondary).monospacedDigit().lineLimit(1) }
+            }
             Spacer(minLength: 4)
-            Text(verbatim: "\(level)%").font(.system(size: 12, weight: .bold)).monospacedDigit()
+            Text(verbatim: "\(level)%").font(.system(size: 12, weight: .bold)).monospacedDigit().foregroundStyle(low ? Color.red : Color.primary)
         }
     }
 
