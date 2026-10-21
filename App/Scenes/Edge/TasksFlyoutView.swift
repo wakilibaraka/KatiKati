@@ -39,7 +39,7 @@ struct TasksFlyoutView: View {
                 } else {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 0) {
-                            ForEach(list.items) { item in row(item, env: env) }
+                            ForEach(list.items.smartOrdered) { item in row(item, env: env) }
                         }
                     }
                 }

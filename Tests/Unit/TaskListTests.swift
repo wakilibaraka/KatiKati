@@ -93,4 +93,11 @@ final class TaskListTests: XCTestCase {
         XCTAssertTrue(store.load().items.isEmpty)
         XCTAssertTrue(FileManager.default.fileExists(atPath: store.url.appendingPathExtension("bak").path))
     }
+
+    func testSmartOrderRunningImportantOpenDone() {
+        let a = TaskItem(text: "a"), b = TaskItem(text: "b", important: true), c = TaskItem(text: "c", done: true, important: true)
+        let d = TaskItem(text: "d", runningSince: Date()), e = TaskItem(text: "e"), f = TaskItem(text: "f", important: true)
+        XCTAssertEqual([a, b, c, d, e, f].smartOrdered.map(\.text), ["d", "b", "f", "a", "e", "c"])
+        XCTAssertTrue([TaskItem]().smartOrdered.isEmpty)
+    }
 }

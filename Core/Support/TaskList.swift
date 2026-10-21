@@ -116,3 +116,12 @@ enum TaskDisplay {
         return h > 0 ? String(format: "%d:%02d:%02d", h, m, s) : String(format: "%d:%02d", m, s)
     }
 }
+
+extension Array where Element == TaskItem {
+    /// Phase 56d: what to work on first. Running tracker, then important, then the rest, finished last;
+    /// each group keeps its list order. Tasks carry no due date yet, so importance is the only priority.
+    var smartOrdered: [TaskItem] {
+        func rank(_ t: TaskItem) -> Int { t.done ? 3 : t.runningSince != nil ? 0 : t.important ? 1 : 2 }
+        return enumerated().sorted { (rank($0.element), $0.offset) < (rank($1.element), $1.offset) }.map(\.element)
+    }
+}
