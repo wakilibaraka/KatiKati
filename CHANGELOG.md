@@ -2,6 +2,16 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 52a: agent usage reads the current logs
+
+### Fixed
+- AI usage: Codex's current `token_count` event was read as the session's running total, so a
+  long session could add its whole total again on every turn. The per-turn figure is counted now.
+- AI usage: Claude Code cache writes whose parent total is zero are counted from their
+  breakdown, and `<synthetic>` zero-token lines no longer appear as turns.
+- AI usage: Claude Code turn start times come from the transcript's millisecond timestamp
+  instead of falling back to the file's modification time.
+
 ## [Unreleased] — Phase 53d, 55d and 55g: opt-in quit, cache review, retention
 
 ### Added

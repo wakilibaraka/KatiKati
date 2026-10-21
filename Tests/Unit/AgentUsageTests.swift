@@ -209,6 +209,116 @@ final class AgentUsageTests: XCTestCase {
         XCTAssertEqual(snapshot.lastMeasuredModel, "space-bunny-free")
     }
 
+    // Phase 52a — fixtures below follow the shapes actually on disk in October 2026
+    // (Claude Code 2.1.300 transcripts, Codex 0.144 rollouts), not the shapes the parsers
+    // were first written against. Values are synthetic; only the envelopes are real.
+    func testClaudeCurrentTranscriptLineCountsCacheOnce() throws {
+        // Real assistant lines nest cache_creation and output_tokens_details beside the
+        // parent totals; the parent cache_creation_input_tokens already includes the breakdown.
+        let line = #"""
+        {"type":"assistant","uuid":"00000000-0000-0000-0000-000000000000","timestamp":"2026-10-20T09:15:00.000Z","sessionId":"fixture","cwd":"/tmp/project","message":{"model":"claude-sonnet-5-5","usage":{"input_tokens":12,"cache_creation_input_tokens":900,"cache_read_input_tokens":5400,"output_tokens":300,"cache_creation":{"ephemeral_1h_input_tokens":900,"ephemeral_5m_input_tokens":0},"output_tokens_details":{"thinking_tokens":120},"service_tier":"standard"}}}
+        """#
+        let parsed = try XCTUnwrap(AgentClaudeParser.parseJSONLLine(line))
+        XCTAssertEqual(parsed.model, "claude-sonnet-5-5")
+        XCTAssertEqual(parsed.tokens.input, 12)
+        XCTAssertEqual(parsed.tokens.cacheWrite, 900)
+        XCTAssertEqual(parsed.tokens.cacheRead, 5400)
+        XCTAssertEqual(parsed.tokens.output, 300)
+        // Thinking tokens stay inside output_tokens: adding them again would inflate cost.
+        XCTAssertEqual(parsed.tokens.total, 6612)
+        // Real timestamps carry milliseconds; the plain ISO8601 parse returns nil for them.
+        let expected = try XCTUnwrap(Self.iso8601WithMillis.date(from: "2026-10-20T09:15:00.000Z"))
+        XCTAssertEqual(parsed.timestamp?.timeIntervalSince1970, expected.timeIntervalSince1970)
+    }
+
+    func testClaudeCacheWriteFallsBackToBreakdown() {
+        // 6 of 7,920 real lines carry cache_creation_input_tokens 0 beside a non-zero 1h
+        // ephemeral count; reading only the parent silently drops those writes.
+        let line = #"{"type":"assistant","message":{"model":"claude-sonnet-5-5","usage":{"input_tokens":5,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":1,"cache_creation":{"ephemeral_1h_input_tokens":1249,"ephemeral_5m_input_tokens":0}}}}"#
+        let parsed = AgentClaudeParser.parseJSONLLine(line)
+        XCTAssertEqual(parsed?.tokens.cacheWrite, 1249)
+        XCTAssertEqual(parsed?.tokens.total, 1255)
+    }
+
+    func testClaudeSyntheticLineIsNotATurn() {
+        // Claude Code writes `<synthetic>` assistant lines with an all-zero usage block;
+        // they are not API turns and must not become zero-token entries.
+        let line = #"{"type":"assistant","message":{"model":"<synthetic>","usage":{"input_tokens":0,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":0}},"timestamp":"2026-10-20T09:15:00.000Z"}"#
+        XCTAssertNil(AgentClaudeParser.parseJSONLLine(line))
+    }
+
+    func testClaudePlanHistoryUsesTheLatestSample() throws {
+        // The real file is append-ordered; the newest sample is last and wins.
+        let json = #"""
+        {"version":2,"samples":[
+          {"t":1792397400000,"org":"org-a","u":{"fh":25,"sd":80}},
+          {"t":1792487700000,"org":"org-b","u":{"fh":12,"sd":63}}
+        ]}
+        """#
+        let now = Date(timeIntervalSince1970: 1792487700)
+        let limits = try XCTUnwrap(AgentClaudeParser.parsePlanUsageHistory(data: Data(json.utf8), now: now))
+        XCTAssertEqual(limits.observedAt, now)
+        let session = try XCTUnwrap(limits.windows.first { $0.kind == .session })
+        let weekly = try XCTUnwrap(limits.windows.first { $0.kind == .weekly })
+        XCTAssertEqual(session.usedPercent, 12)
+        XCTAssertEqual(weekly.usedPercent, 63)
+        XCTAssertEqual(session.resetsAt?.timeIntervalSince1970, now.addingTimeInterval(300 * 60).timeIntervalSince1970)
+        XCTAssertEqual(weekly.resetsAt?.timeIntervalSince1970, now.addingTimeInterval(7 * 86_400).timeIntervalSince1970)
+    }
+
+    // Codex's rollout envelope as written in 2026: ordinal + payload, usage only in token_count.
+    func testCodexCurrentRolloutLinesWithoutTokensYieldNothing() {
+        let lines = [
+            #"{"ordinal":1,"type":"session_meta","payload":{"id":"fixture","cli_version":"0.144.1","context_window":272000}}"#,
+            #"{"ordinal":2,"type":"event_msg","payload":{"type":"task_started","model_context_window":272000,"turn_id":"t1"}}"#,
+            #"{"ordinal":3,"type":"response_item","payload":{"type":"message","role":"assistant","content":[{"type":"output_text","text":"ok"}]}}"#,
+            #"{"ordinal":4,"type":"event_msg","payload":{"type":"item_completed","thread_id":"th","turn_id":"t1","item":{"type":"reasoning"}}}"#,
+            #"{"ordinal":5,"type":"event_msg","payload":{"type":"task_complete","turn_id":"t1","duration_ms":1000}}"#
+        ]
+        for line in lines {
+            XCTAssertNil(AgentCodexParser.parseJSONLLine(line), line)
+        }
+    }
+
+    func testCodexTokenCountCountsTheTurnNotTheSessionTotal() throws {
+        // Current protocol: info.last_token_usage is this turn, info.total_token_usage is the
+        // whole session. The service sums lines, so reading the total would multiply usage by
+        // the turn index. Keys are the current `cached_input_tokens` / `reasoning_output_tokens`.
+        let line = #"{"ordinal":42,"type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":880000,"cached_input_tokens":640000,"cache_write_input_tokens":0,"output_tokens":52000,"reasoning_output_tokens":9000,"total_tokens":941000},"last_token_usage":{"input_tokens":120,"cached_input_tokens":20,"cache_write_input_tokens":7,"output_tokens":30,"reasoning_output_tokens":10,"total_tokens":177},"model_context_window":272000},"rate_limits":null}}"#
+        let parsed = try XCTUnwrap(AgentCodexParser.parseJSONLLine(line))
+        XCTAssertEqual(parsed.tokens.input, 120)
+        XCTAssertEqual(parsed.tokens.cacheRead, 20)
+        XCTAssertEqual(parsed.tokens.cacheWrite, 7)
+        XCTAssertEqual(parsed.tokens.reasoning, 10)
+        XCTAssertEqual(parsed.tokens.total, 177)
+    }
+
+    func testCodexTokenCountIsIndependentOfKeyOrder() throws {
+        // The two usage objects used to be picked by dictionary order, so the same event could
+        // read as the session total or as one turn depending on how JSONSerialization ordered it.
+        let last = #"{"input_tokens":120,"output_tokens":30}"#
+        let total = #"{"input_tokens":880000,"output_tokens":52000}"#
+        for info in ["{\"last_token_usage\":\(last),\"total_token_usage\":\(total)}",
+                     "{\"total_token_usage\":\(total),\"last_token_usage\":\(last)}"] {
+            let line = "{\"type\":\"event_msg\",\"payload\":{\"type\":\"token_count\",\"info\":\(info)}}"
+            let parsed = try XCTUnwrap(AgentCodexParser.parseJSONLLine(line))
+            XCTAssertEqual(parsed.tokens.input, 120, line)
+            XCTAssertEqual(parsed.tokens.output, 30, line)
+        }
+    }
+
+    func testCodexTokenCountWithoutInfoYieldsNothing() {
+        // Rate-limit-only updates carry no usable info block.
+        let line = #"{"type":"event_msg","payload":{"type":"token_count","info":null,"rate_limits":{"primary_used_percent":12}}}"#
+        XCTAssertNil(AgentCodexParser.parseJSONLLine(line))
+    }
+
+    private static let iso8601WithMillis: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
     func testSnapshotFormatting() {
         var snapshot = AgentUsageSnapshot()
         snapshot.todayTokens = AgentTokens(input: 120_000, cacheWrite: 10_000, cacheRead: 50_000, output: 25_000, reasoning: 0)

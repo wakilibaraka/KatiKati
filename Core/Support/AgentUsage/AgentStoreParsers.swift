@@ -58,31 +58,39 @@ enum AgentCodexParser {
               let json = try? JSONSerialization.jsonObject(with: data) else {
             return nil
         }
-        guard let usage = firstTokenDict(in: json) else { return nil }
+        guard let usage = tokenUsage(in: json) else { return nil }
         let tokens = AgentTokens(
             input: int(usage, keys: ["input_tokens", "inputTokens"]),
-            cacheWrite: int(usage, keys: ["cache_creation_input_tokens", "cacheCreationTokens"]),
-            cacheRead: int(usage, keys: ["cache_read_input_tokens", "cached_tokens", "cacheReadTokens"]),
+            cacheWrite: int(usage, keys: ["cache_creation_input_tokens", "cacheCreationTokens", "cache_write_input_tokens"]),
+            cacheRead: int(usage, keys: ["cache_read_input_tokens", "cached_tokens", "cached_input_tokens", "cacheReadTokens"]),
             output: int(usage, keys: ["output_tokens", "outputTokens"]),
-            reasoning: int(usage, keys: ["reasoning_tokens", "reasoningTokens"])
+            reasoning: int(usage, keys: ["reasoning_tokens", "reasoningTokens", "reasoning_output_tokens"])
         )
         guard tokens.total > 0 else { return nil }
         return (tokens, firstModel(in: json))
     }
 
-    private static func firstTokenDict(in node: Any) -> [String: Any]? {
+    /// A `token_count` event nests the session's cumulative `total_token_usage` beside the turn's
+    /// `last_token_usage`. Callers sum lines, so the turn value is the one to count; the total is
+    /// only a fallback for an envelope without a per-turn object. Picking by dictionary order (as
+    /// this used to) meant the same event could read as one turn or as the whole session.
+    /// shortcut: a rate-limit-only re-emit repeats the previous last_token_usage and counts that
+    /// turn twice; upgrade when Codex stops advancing total_token_usage on real turns.
+    private static func tokenUsage(in node: Any) -> [String: Any]? {
         if let dict = node as? [String: Any] {
+            if let last = dict["last_token_usage"] as? [String: Any] { return last }
+            if let total = dict["total_token_usage"] as? [String: Any] { return total }
             let keys = Set(dict.keys.map { $0.lowercased() })
             if keys.contains("input_tokens") || keys.contains("inputtokens")
                 || keys.contains("output_tokens") || keys.contains("outputtokens") {
                 return dict
             }
             for value in dict.values {
-                if let found = firstTokenDict(in: value) { return found }
+                if let found = tokenUsage(in: value) { return found }
             }
         } else if let array = node as? [Any] {
             for value in array {
-                if let found = firstTokenDict(in: value) { return found }
+                if let found = tokenUsage(in: value) { return found }
             }
         }
         return nil

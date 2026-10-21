@@ -88,7 +88,7 @@ enum AgentClaudeParser {
         var model = json["model"] as? String
         var timestamp: Date? = nil
         if let ts = json["timestamp"] as? String {
-            timestamp = ISO8601DateFormatter().date(from: ts)
+            timestamp = dateFromISOTimestamp(ts)
         }
 
         // Check if usage is embedded directly or inside message
@@ -103,7 +103,12 @@ enum AgentClaudeParser {
         let input = (usage["input_tokens"] as? NSNumber)?.intValue ?? 0
         let output = (usage["output_tokens"] as? NSNumber)?.intValue ?? 0
         let cacheRead = (usage["cache_read_input_tokens"] as? NSNumber)?.intValue ?? 0
-        let cacheWrite = (usage["cache_creation_input_tokens"] as? NSNumber)?.intValue ?? 0
+        // The parent total omits 1h-only cache writes on some real lines, so take the larger of
+        // the total and its breakdown — never both, or the writes would count twice.
+        let cacheWriteTotal = (usage["cache_creation_input_tokens"] as? NSNumber)?.intValue ?? 0
+        let cacheWriteBreakdown = (usage["cache_creation"] as? [String: Any])?
+            .values.compactMap { ($0 as? NSNumber)?.intValue }.reduce(0, +) ?? 0
+        let cacheWrite = max(cacheWriteTotal, cacheWriteBreakdown)
 
         let tokens = AgentTokens(
             input: input,
@@ -113,6 +118,18 @@ enum AgentClaudeParser {
             reasoning: 0
         )
 
+        // Claude Code writes `<synthetic>` assistant lines with an all-zero usage block. They are
+        // not API turns: counting them adds zero-token entries that can win "last measured model".
+        guard tokens.total > 0 else { return nil }
+
         return (tokens, model, timestamp)
+    }
+
+    /// Transcript timestamps carry milliseconds (`…T09:15:00.000Z`); the plain ISO8601 parse
+    /// returns nil for those, which silently dropped every real turn's start time.
+    private static func dateFromISOTimestamp(_ text: String) -> Date? {
+        let withMillis = ISO8601DateFormatter()
+        withMillis.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return withMillis.date(from: text) ?? ISO8601DateFormatter().date(from: text)
     }
 }
