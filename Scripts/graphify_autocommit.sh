@@ -19,6 +19,10 @@ HOOK="$ROOT/.git/hooks/post-commit"
 MARKER="# graphify-autocommit"
 QUIET="${GRAPHIFY_AUTOCOMMIT_QUIET:-2}"
 TIMEOUT="${GRAPHIFY_AUTOCOMMIT_TIMEOUT:-180}"
+# After a commit the welcome keeps a wider horizon than QUIET: a rebuild often writes,
+# pauses, then writes again, and a two-second gap once left a tree dirty behind a
+# waiter that had already returned.
+SETTLE="${GRAPHIFY_AUTOCOMMIT_SETTLE:-60}"
 
 launch_block() {
     cat <<'EOF'
@@ -115,12 +119,13 @@ head_is_graph_only() {
 run() {
     trace "started pid=$$ root=$ROOT"
     head_is_graph_only && { trace "graph-only commit, nothing to sweep"; return 0; }
-    local deadline=$((SECONDS + TIMEOUT))
+    local    deadline=$((SECONDS + TIMEOUT))
     while :; do
         if graph_dirty && graph_quiet; then
-            commit_once && { trace "committed"; return 0; }
+            # Keep watching after a commit: the rebuild may still be mid-write.
+            commit_once && { trace "committed"; deadline=$((SECONDS + SETTLE)); }
         fi
-        (( SECONDS >= deadline )) && { trace "deadline reached (dirty=$(graph_dirty && echo yes || echo no))"; return 0; }
+        (( SECONDS >= deadline )) && { trace "done (dirty=$(graph_dirty && echo yes || echo no))"; return 0; }
         sleep 1
     done
 }
@@ -173,7 +178,19 @@ selftest() {
     GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" GRAPHIFY_AUTOCOMMIT_QUIET=30 GRAPHIFY_AUTOCOMMIT_TIMEOUT=60 "$SELF" >/dev/null
     [ $((SECONDS - began)) -le 5 ] && echo "PASS graph-only commit exits at once" || { echo "FAIL sat out the timeout on a graph-only commit"; fails=1; }
 
-    # 6. install twice → exactly one launcher block, and it survives a refresh
+    # 6. a rebuild that writes again after the first commit gets a second one, and the
+    #    tree ends clean — the gap that once left output behind
+    printf '{"nodes":[4]}\n' > "$tmp/graphify-out/graph.json"
+    git -C "$tmp" commit -q --allow-empty -m "code touch"
+    GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" GRAPHIFY_AUTOCOMMIT_QUIET=1 GRAPHIFY_AUTOCOMMIT_TIMEOUT=30 \
+        GRAPHIFY_AUTOCOMMIT_SETTLE=6 "$SELF" >/dev/null &
+    waiter=$!
+    sleep 4
+    printf '{"nodes":[5]}\n' > "$tmp/graphify-out/graph.json"
+    wait "$waiter"
+    [ -z "$(git -C "$tmp" status --porcelain -- graphify-out)" ] && echo "PASS late write is committed too" || { echo "FAIL late write left behind"; fails=1; }
+
+    # 7. install twice → exactly one launcher block, and it survives a refresh
     printf '#!/bin/sh\nexit 0\n' > "$tmp/.git/hooks/post-commit"
     mkdir -p "$tmp/Scripts" && cp "$SELF" "$tmp/Scripts/graphify_autocommit.sh"
     GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" "$tmp/Scripts/graphify_autocommit.sh" install >/dev/null
