@@ -66,25 +66,14 @@ struct NotchTrackPillView: View {
     var body: some View {
         let state = feed.nowPlayingState
         let accent = ArtworkAccentCache.accent(for: state.artworkData).map { Color(red: $0.red, green: $0.green, blue: $0.blue) } ?? .white
-        HStack(spacing: 10) {
-            Group {
-                if let data = state.artworkData, let image = NSImage(data: data) {
-                    Image(nsImage: image).resizable().aspectRatio(contentMode: .fill)
-                } else {
-                    Color.white.opacity(0.12).overlay(Image(systemName: "music.note").foregroundStyle(.white.opacity(0.7)))
-                }
-            }
-            .frame(width: 34, height: 34)
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            VStack(alignment: .leading, spacing: 1) {
-                MarqueeText(text: state.title ?? "", font: .system(size: 12, weight: .bold, design: .rounded))
-                MarqueeText(text: state.artist ?? "", font: .system(size: 11)).foregroundStyle(.white.opacity(0.6))
-            }
-            .frame(maxWidth: 170, alignment: .leading)
-            MusicEqualizerBars(isActive: state.isPlaying && !reduceMotion, tint: accent)
-                .frame(width: 18, height: 16)
-        }
-        .foregroundStyle(.white)
+        NotchTrackPillContent(
+            title: state.title ?? "",
+            artist: state.artist ?? "",
+            artwork: state.artworkData.flatMap(NSImage.init(data:)),
+            isPlaying: state.isPlaying,
+            accent: accent,
+            reduceMotion: reduceMotion
+        )
         .padding(.leading, 8).padding(.trailing, 14).padding(.vertical, 7)
         .background(Capsule().fill(Color.black))
         .overlay(Capsule().stroke(accent.opacity(0.35), lineWidth: 1))
@@ -127,22 +116,3 @@ struct NotchBatteryPillView: View {
     }
 }
 
-/// Four bars that dance while music plays and rest flat otherwise (also the Reduce Motion path).
-struct MusicEqualizerBars: View {
-    let isActive: Bool
-    var tint: Color = .white
-
-    var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 15, paused: !isActive)) { context in
-            let t = context.date.timeIntervalSinceReferenceDate
-            HStack(alignment: .bottom, spacing: 2) {
-                ForEach(0..<4, id: \.self) { i in
-                    let wave = isActive ? 0.35 + 0.65 * abs(sin(t * (2.1 + Double(i) * 0.7) + Double(i))) : 0.25
-                    Capsule().fill(tint).frame(width: 2.5, height: 16 * wave)
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-        }
-        .accessibilityHidden(true)
-    }
-}

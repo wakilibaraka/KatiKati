@@ -2,6 +2,13 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — track pill: readable title and artist
+
+### Fixed
+- The pill that announces a new song rendered its title and artist as thin slivers: the text column had
+  no width of its own inside a pill that sizes to its contents. The pill now sizes itself to the longer
+  line, capped at 170 pt, where a long title scrolls instead of stretching the pill.
+
 ## [Unreleased] — Phase 54: window management
 
 ### Added

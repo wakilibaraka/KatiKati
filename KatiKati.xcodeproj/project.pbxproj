@@ -302,7 +302,12 @@
 		FA33A00000000000000000A3 /* AgentClaudeParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000A1 /* AgentClaudeParser.swift */; };
 		FA33A00000000000000000B2 /* AgentUsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000B1 /* AgentUsageService.swift */; };
 		FA33A00000000000000000B3 /* AgentUsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000B1 /* AgentUsageService.swift */; };
+		FA33C0000000000000000073 /* MarqueeText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000009901 /* MarqueeText.swift */; };
 		FA33A00000000000000000C2 /* AgentUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000C1 /* AgentUsageTests.swift */; };
+		FA33C0000000000000000082 /* TrackPillTextMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000081 /* TrackPillTextMetrics.swift */; };
+		FA33C0000000000000000083 /* TrackPillTextMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000081 /* TrackPillTextMetrics.swift */; };
+		FA33C0000000000000000062 /* NotchTrackPillContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000061 /* NotchTrackPillContent.swift */; };
+		FA33C0000000000000000063 /* NotchTrackPillContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000061 /* NotchTrackPillContent.swift */; };
 		FA33C0000000000000000012 /* DockClickPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000011 /* DockClickPolicy.swift */; };
 		FA33C0000000000000000013 /* DockClickPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000011 /* DockClickPolicy.swift */; };
 		FA33C0000000000000000022 /* FocusFollowPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000021 /* FocusFollowPolicy.swift */; };
@@ -310,6 +315,7 @@
 		FA33C0000000000000000032 /* FocusFollowService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000031 /* FocusFollowService.swift */; };
 		FA33C0000000000000000033 /* FocusFollowService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000031 /* FocusFollowService.swift */; };
 		FA33C0000000000000000042 /* FocusFollowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000041 /* FocusFollowTests.swift */; };
+		FA33C0000000000000000052 /* NotchTrackPillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000051 /* NotchTrackPillTests.swift */; };
 		FA33B0000000000000000012 /* ClaudeHookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000011 /* ClaudeHookConfig.swift */; };
 		FA33B0000000000000000013 /* ClaudeHookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000011 /* ClaudeHookConfig.swift */; };
 		FA33B0000000000000000022 /* ClaudeHookStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000021 /* ClaudeHookStatus.swift */; };
@@ -1380,10 +1386,13 @@
 		FA33A0000000000000000AA1 /* AgentStoreParsers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentStoreParsers.swift; path = Core/Support/AgentUsage/AgentStoreParsers.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000B1 /* AgentUsageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentUsageService.swift; path = App/Composition/AgentUsageService.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000C1 /* AgentUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentUsageTests.swift; path = Tests/Unit/AgentUsageTests.swift; sourceTree = SOURCE_ROOT; };
+		FA33C0000000000000000081 /* TrackPillTextMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TrackPillTextMetrics.swift; path = Core/Support/TrackPillTextMetrics.swift; sourceTree = SOURCE_ROOT; };
+		FA33C0000000000000000061 /* NotchTrackPillContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchTrackPillContent.swift; path = App/Scenes/Notch/NotchTrackPillContent.swift; sourceTree = SOURCE_ROOT; };
 		FA33C0000000000000000011 /* DockClickPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockClickPolicy.swift; path = Core/Support/DockClickPolicy.swift; sourceTree = SOURCE_ROOT; };
 		FA33C0000000000000000021 /* FocusFollowPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FocusFollowPolicy.swift; path = Core/Support/FocusFollowPolicy.swift; sourceTree = SOURCE_ROOT; };
 		FA33C0000000000000000031 /* FocusFollowService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FocusFollowService.swift; path = App/Composition/FocusFollowService.swift; sourceTree = SOURCE_ROOT; };
 		FA33C0000000000000000041 /* FocusFollowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FocusFollowTests.swift; path = Tests/Unit/FocusFollowTests.swift; sourceTree = SOURCE_ROOT; };
+		FA33C0000000000000000051 /* NotchTrackPillTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchTrackPillTests.swift; path = Tests/Unit/NotchTrackPillTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33B0000000000000000011 /* ClaudeHookConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookConfig.swift; path = Core/Support/AgentUsage/ClaudeHookConfig.swift; sourceTree = SOURCE_ROOT; };
 		FA33B0000000000000000021 /* ClaudeHookStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookStatus.swift; path = Core/Support/AgentUsage/ClaudeHookStatus.swift; sourceTree = SOURCE_ROOT; };
 		FA33B0000000000000000031 /* ClaudeHookInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookInstaller.swift; path = App/Composition/ClaudeHookInstaller.swift; sourceTree = SOURCE_ROOT; };
@@ -3293,6 +3302,8 @@
 				FA33A00000000000000000A2 /* AgentClaudeParser.swift in Sources */,
 				FA33A0000000000000000AA2 /* AgentStoreParsers.swift in Sources */,
 				FA33A00000000000000000B2 /* AgentUsageService.swift in Sources */,
+				FA33C0000000000000000082 /* TrackPillTextMetrics.swift in Sources */,
+				FA33C0000000000000000062 /* NotchTrackPillContent.swift in Sources */,
 				FA33C0000000000000000032 /* FocusFollowService.swift in Sources */,
 				FA33C0000000000000000022 /* FocusFollowPolicy.swift in Sources */,
 				FA33C0000000000000000012 /* DockClickPolicy.swift in Sources */,
@@ -3455,6 +3466,10 @@
 				FA33A0000000000000000AA3 /* AgentStoreParsers.swift in Sources */,
 				FA33A00000000000000000B3 /* AgentUsageService.swift in Sources */,
 				FA33C0000000000000000042 /* FocusFollowTests.swift in Sources */,
+				FA33C0000000000000000052 /* NotchTrackPillTests.swift in Sources */,
+				FA33C0000000000000000073 /* MarqueeText.swift in Sources */,
+				FA33C0000000000000000083 /* TrackPillTextMetrics.swift in Sources */,
+				FA33C0000000000000000063 /* NotchTrackPillContent.swift in Sources */,
 				FA33C0000000000000000033 /* FocusFollowService.swift in Sources */,
 				FA33C0000000000000000023 /* FocusFollowPolicy.swift in Sources */,
 				FA33C0000000000000000013 /* DockClickPolicy.swift in Sources */,
