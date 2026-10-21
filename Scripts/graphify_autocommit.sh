@@ -114,11 +114,12 @@ head_is_graph_only() {
 # script-only commit is a skip, not a rebuild.
 GRAPHIFY_CODE_EXT='swift|m|mm|h|hpp|c|cc|cpp|cs|py|pyi|js|mjs|cjs|ts|tsx|jsx|go|rs|java|kt|kts|rb|php|scala|lua|pl|r|sql|vue|svelte|dart|ex|exs|erl|hs|clj|zig|nim|jl|sol|tf|proto|graphql'
 
-# Will this commit's rebuild touch anything? Either the file is already in graphify's own
-# manifest (so it is indexed), or it carries a code extension (so a new file would be).
+# Will this commit's rebuild touch anything? Only a code extension says so: the manifest is
+# no use here, it records skipped PNGs and Markdown too, so membership means nothing.
 # Files under graphify-out are excluded: a graph-only commit is the committer's own.
+# shortcut: a language outside GRAPHIFY_CODE_EXT costs an idle wait, never a missed sweep.
 commit_touches_graph() {
-    local changed f manifest="$ROOT/graphify-out/manifest.json"
+    local changed f
     changed=$(git -C "$ROOT" show --pretty=format: --name-only HEAD 2>/dev/null)
     [ -n "$changed" ] || return 1
     while IFS= read -r f; do
@@ -126,7 +127,6 @@ commit_touches_graph() {
         case "$f" in graphify-out/*) continue ;; esac
         # =~ not case: a variable in a case pattern is matched literally, never as alternation.
         [[ "$f" =~ \.($GRAPHIFY_CODE_EXT)$ ]] && return 0
-        [ -f "$manifest" ] && grep -qF "\"$f\":" "$manifest" && return 0
     done <<< "$changed"
     return 1
 }
