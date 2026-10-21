@@ -437,8 +437,15 @@ private struct ControlCenterBatteryCard: View {
                 Spacer(minLength: 0)
                 // Fixed slot: a missing reading must not change the row height (panel pulse).
                 Text(verbatim: status.status.battery.level.map { "\($0)%" } ?? "–")
-                    .font(.system(size: 15, weight: .bold)).monospacedDigit()
+                    .font(.system(size: 20, weight: .light)).monospacedDigit()
             }
+            // Always drawn (empty without a reading) so the card height never changes.
+            Capsule().fill(Color.primary.opacity(0.12)).frame(height: 3)
+                .overlay(alignment: .leading) {
+                    GeometryReader { geo in
+                        Capsule().fill(thisMacTint).frame(width: geo.size.width * CGFloat(status.status.battery.level ?? 0) / 100)
+                    }
+                }
             if showsThisMac, let level = status.status.battery.level {
                 line("laptopcomputer", Text("This Mac"), level)
             }
@@ -457,6 +464,12 @@ private struct ControlCenterBatteryCard: View {
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
         .task { await load() }
+    }
+
+    private var thisMacTint: Color {
+        let b = status.status.battery
+        if b.isCharging { return .green }
+        return (b.level ?? 100) <= 20 ? .red : .primary.opacity(0.7)
     }
 
     private func line(_ symbol: String, _ name: Text, _ level: Int, detail: String? = nil, low: Bool = false) -> some View {
