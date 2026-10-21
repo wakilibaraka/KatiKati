@@ -14,6 +14,61 @@ struct WelcomeGuideWindowContent: View {
             WelcomeGuideView(layout: layout, onApply: onApply, onDismiss: onDismiss)
         }
         .frame(width: WelcomeGuideView.contentWidth)
+        // 58b: an overlay on purpose — the window height is measured once at open, so the intro may not add a row.
+        .overlay { WelcomeIntroGlass() }
+    }
+}
+
+/// 58b: the welcome window's native glass intro. A small lens springs open into the card and dissolves, revealing
+/// the first step; a click or the 1.2 s run ends it (keys still reach the step behind it, so Return keeps working).
+/// Reduce Motion gets a plain 0.2 s fade instead of motion.
+/// No third-party code: a material, a gradient ring and one spring.
+struct WelcomeIntroGlass: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var open = false
+    @State private var gone = false
+
+    var body: some View {
+        if !gone {
+            GeometryReader { geo in
+                let size = geo.size
+                let lens = min(size.width, size.height) * 0.22
+                ZStack {
+                    RoundedRectangle(cornerRadius: open ? 18 : lens / 2, style: .continuous)
+                        .fill(.ultraThinMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: open ? 18 : lens / 2, style: .continuous)
+                                .strokeBorder(LinearGradient(colors: [.white.opacity(0.55), .white.opacity(0.10)],
+                                                             startPoint: .topLeading, endPoint: .bottomTrailing),
+                                              lineWidth: 1)
+                        )
+                        .frame(width: open ? size.width : lens, height: open ? size.height : lens)
+                        .shadow(color: .black.opacity(open ? 0.04 : 0.28), radius: open ? 6 : 22, y: 5)
+                }
+                .frame(width: size.width, height: size.height)
+                .contentShape(Rectangle())
+                .onTapGesture { end() }
+            }
+            .accessibilityHidden(true)
+            .task { await play() }
+        }
+    }
+
+    private func play() async {
+        if reduceMotion {
+            withAnimation(.easeOut(duration: 0.2)) { open = true }
+            try? await Task.sleep(for: .seconds(0.2))
+            end()
+            return
+        }
+        withAnimation(.spring(response: 0.52, dampingFraction: 0.74)) { open = true }
+        try? await Task.sleep(for: .seconds(0.8))
+        end()
+    }
+
+    private func end() {
+        guard !gone else { return }
+        withAnimation(.easeOut(duration: 0.3)) { gone = true }
     }
 }
 

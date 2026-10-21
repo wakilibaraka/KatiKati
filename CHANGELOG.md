@@ -2,6 +2,14 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 58b: the welcome guide opens behind a glass lens
+
+### Added
+- The welcome guide's first appearance is now a native glass intro: a lens springs open into a frosted card, holds
+  for a beat and dissolves onto **Pick a Layout**. Clicking it ends it early; Reduce Motion gets a plain fade
+  instead of the spring. Nothing behind it can be clicked while it is up. No third-party code: one material, one
+  gradient ring, one spring.
+
 ## [Unreleased] — Phase 58a: the welcome guide names the microphone
 
 ### Added
