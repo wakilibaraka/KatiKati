@@ -11,6 +11,8 @@
 set -uo pipefail
 
 SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+# A silent background committer needs a trail; set GRAPHIFY_AUTOCOMMIT_LOG to a file to read it.
+trace() { [ -n "${GRAPHIFY_AUTOCOMMIT_LOG:-}" ] && echo "$(date +%H:%M:%S) $*" >> "$GRAPHIFY_AUTOCOMMIT_LOG"; return 0; }
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ROOT="${GRAPHIFY_AUTOCOMMIT_ROOT:-$ROOT}"
 HOOK="$ROOT/.git/hooks/post-commit"
@@ -61,16 +63,16 @@ install() {
 # One commit of graph output only. Returns 1 when it declined, so selftest can assert.
 commit_once() {
     local staged
-    [ -n "${GRAPHIFY_AUTOCOMMIT_RUNNING:-}" ] && return 1   # our own commit re-entered the hook
+    [ -n "${GRAPHIFY_AUTOCOMMIT_RUNNING:-}" ] && { trace "skip: re-entered"; return 1; }   # our own commit re-entered the hook
     local marker
     for marker in MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD rebase-merge rebase-apply; do
-        [ -e "$ROOT/.git/$marker" ] && return 1
+        [ -e "$ROOT/.git/$marker" ] && { trace "skip: $marker"; return 1; }
     done
     # Staged work belongs to whoever staged it; never fold it into a graph commit.
-    [ -n "$(git -C "$ROOT" diff --cached --name-only)" ] && return 1
+    [ -n "$(git -C "$ROOT" diff --cached --name-only)" ] && { trace "skip: index has staged work"; return 1; }
     git -C "$ROOT" add -u -- graphify-out 2>/dev/null || return 1
     staged="$(git -C "$ROOT" diff --cached --name-only)"
-    [ -z "$staged" ] && return 1
+    [ -z "$staged" ] && { trace "skip: nothing staged after add -u"; return 1; }
     GRAPHIFY_AUTOCOMMIT_RUNNING=1 git -C "$ROOT" commit --no-verify -q \
         -m "graphify: rebuild after $(git -C "$ROOT" rev-parse --short HEAD)" || return 1
     echo "graphify-autocommit: committed $(printf '%s\n' "$staged" | wc -l | tr -d ' ') graph file(s)"
@@ -103,9 +105,9 @@ run() {
     local deadline=$((SECONDS + TIMEOUT))
     while :; do
         if graph_dirty && graph_quiet; then
-            commit_once && return 0
+            commit_once && { trace "committed"; return 0; }
         fi
-        (( SECONDS >= deadline )) && return 0
+        (( SECONDS >= deadline )) && { trace "deadline reached (dirty=$(graph_dirty && echo yes || echo no))"; return 0; }
         sleep 1
     done
 }
