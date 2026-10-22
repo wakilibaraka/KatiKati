@@ -678,9 +678,9 @@
     "semantic_hash": "dfb22b35e47af4d2a9ce82268479613f"
   },
   "App/Scenes/AppMenuFragments.swift": {
-    "mtime": 1792547454.5482423,
-    "seen": 1792547511.412322,
-    "ast_hash": "fb01f6c091a414641839cfe0c89ad5be",
+    "mtime": 1792690889.420049,
+    "seen": 1792691659.8866382,
+    "ast_hash": "b70ee6c3a0dbc4854f3068ca1af0f19c",
     "semantic_hash": ""
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
@@ -720,9 +720,9 @@
     "semantic_hash": "12cd1551b6e625ea172af6c8a788e53d"
   },
   "App/Scenes/ChipView.swift": {
-    "mtime": 1792598865.9323354,
-    "seen": 1792600377.334072,
-    "ast_hash": "3fe24e95de4f91518dd8eabccb929280",
+    "mtime": 1792690889.421303,
+    "seen": 1792691659.886645,
+    "ast_hash": "3da84d8f77ede28d8a2cdb8894eb6ae5",
     "semantic_hash": ""
   },
   "App/Scenes/ClockChip.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1792688125.7283325,
-    "seen": 1792689772.289415,
-    "ast_hash": "9a9e9bb1a358c78e0f27452a23a28c81",
+    "mtime": 1792691636.7843404,
+    "seen": 1792691659.887201,
+    "ast_hash": "57f637b7ac3aefe68450bc0defc19689",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -6366,9 +6366,9 @@
     "semantic_hash": ""
   },
   "FEATURE_ROADMAP_2026-10.md": {
-    "mtime": 1792689473.0151534,
-    "seen": 1792689772.289509,
-    "ast_hash": "df37eb6ef340702c987a0586f56e8378",
+    "mtime": 1792691636.7930188,
+    "seen": 1792691659.887295,
+    "ast_hash": "2c9f788045b395d74f45c187c5eda347",
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
@@ -6717,6 +6717,24 @@
     "mtime": 1792686698.7948642,
     "seen": 1792689772.289324,
     "ast_hash": "a1f69e2cd97dd07482c82988c19ca3f9",
+    "semantic_hash": ""
+  },
+  "Core/Support/AppNewMenuPlan.swift": {
+    "mtime": 1792690834.3623903,
+    "seen": 1792691659.886774,
+    "ast_hash": "b979b24caa4ecd765d24ebc11d1a0e85",
+    "semantic_hash": ""
+  },
+  "Platform/Accessibility/AppMenuBarReader.swift": {
+    "mtime": 1792690929.004228,
+    "seen": 1792691659.88693,
+    "ast_hash": "b5b1179ff9800382428bd08db4559e41",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/AppNewMenuPlanTests.swift": {
+    "mtime": 1792690834.3647487,
+    "seen": 1792691659.887,
+    "ast_hash": "7421f8c7c99d70338b50dcfed3ef4454",
     "semantic_hash": ""
   }
 }
