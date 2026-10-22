@@ -510,8 +510,16 @@ struct ChipView: View {
         } else {
             AppMenuBuilder.appendRecentDocuments(to: menu, bundleID: bid)
         }
+        // The app's own new-window / new-tab rows, as the macOS Dock lists them. This is the one AX
+        // read on the right-click path (bounded by the reader's timeout); the generic New Window below
+        // is the fallback when the app's menu yields nothing.
+        let appNewRows = bid.map { AppMenuBuilder.appendAppNewItems(to: menu, bundleID: $0) } ?? false
+        if appNewRows { menu.addItem(.separator()) }
         if item.isAppLevelFallback {
             if isFinderChip { AppMenuBuilder.appendFinderItems(to: menu) }
+            if !appNewRows {
+                menu.addItem(ClosureMenuItem(String(localized: "New Window")) { runtime.newWindow(windowID: item.actionWindowID) })
+            }
             if effectiveStatus == "hidden" {
                 menu.addItem(ClosureMenuItem(String(localized: "Show")) { runtime.activate(windowID: item.actionWindowID) })
             } else {
@@ -525,7 +533,9 @@ struct ChipView: View {
             }
         } else {
             if isFinderChip { AppMenuBuilder.appendFinderItems(to: menu) }
-            menu.addItem(ClosureMenuItem(String(localized: "New Window")) { runtime.newWindow(windowID: item.actionWindowID) })
+            if !appNewRows {
+                menu.addItem(ClosureMenuItem(String(localized: "New Window")) { runtime.newWindow(windowID: item.actionWindowID) })
+            }
             if effectiveStatus == "minimized" {
                 menu.addItem(ClosureMenuItem(String(localized: "Restore")) { runtime.activate(windowID: item.actionWindowID) })
             } else {

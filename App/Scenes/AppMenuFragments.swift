@@ -258,6 +258,20 @@ enum AppMenuBuilder {
         menu.addItem(.separator())
     }
 
+    /// The app's own "new window / new tab" rows, in its words — the macOS Dock's own menu, as far as
+    /// one app may read another's. The AX read happens here, at right-click time, once: a normal File
+    /// menu answers in milliseconds and the reader's 0.35 s timeout bounds a busy one. Returns whether
+    /// anything was added, so the caller can keep its generic New Window as the fallback.
+    @discardableResult
+    static func appendAppNewItems(to menu: NSMenu, bundleID: String) -> Bool {
+        guard let app = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first else { return false }
+        let rows = AppMenuBarReader.rows(pid: app.processIdentifier)
+        for row in rows {
+            menu.addItem(ClosureMenuItem(row.title) { AppMenuBarReader.press(row) })
+        }
+        return !rows.isEmpty
+    }
+
     // Key codes from HIToolbox/Events.h — defined locally to avoid a Carbon dependency
     private static let keyG: CGKeyCode = 0x05  // kVK_ANSI_G
     private static let keyK: CGKeyCode = 0x28  // kVK_ANSI_K

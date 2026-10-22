@@ -1152,6 +1152,10 @@
 		EE000000000000000000004A /* QuickToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000048 /* QuickToggles.swift */; };
 		EE000000000000000000004C /* QuickTogglesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004B /* QuickTogglesTests.swift */; };
 		EE000000000000000000004E /* SystemHealthReaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004D /* SystemHealthReaders.swift */; };
+		FB0000000000000000000102 /* AppNewMenuPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000101 /* AppNewMenuPlan.swift */; };
+		FB0000000000000000000103 /* AppNewMenuPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000101 /* AppNewMenuPlan.swift */; };
+		FB0000000000000000000105 /* AppNewMenuPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000104 /* AppNewMenuPlanTests.swift */; };
+		FB0000000000000000000107 /* AppMenuBarReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000106 /* AppMenuBarReader.swift */; };
 		EE0000000000000000000A1 /* SystemHealthReaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004D /* SystemHealthReaders.swift */; };
 		EE0000000000000000000050 /* ControlCenterLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004F /* ControlCenterLayout.swift */; };
 		EE0000000000000000000051 /* ControlCenterLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004F /* ControlCenterLayout.swift */; };
@@ -1991,6 +1995,9 @@
 		EE0000000000000000000048 /* QuickToggles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickToggles.swift; path = Core/Support/QuickToggles.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000004B /* QuickTogglesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuickTogglesTests.swift; path = Tests/Unit/QuickTogglesTests.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000004D /* SystemHealthReaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemHealthReaders.swift; path = Platform/SystemStatus/SystemHealthReaders.swift; sourceTree = SOURCE_ROOT; };
+		FB0000000000000000000101 /* AppNewMenuPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppNewMenuPlan.swift; path = Core/Support/AppNewMenuPlan.swift; sourceTree = SOURCE_ROOT; };
+		FB0000000000000000000104 /* AppNewMenuPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppNewMenuPlanTests.swift; path = Tests/Unit/AppNewMenuPlanTests.swift; sourceTree = SOURCE_ROOT; };
+		FB0000000000000000000106 /* AppMenuBarReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppMenuBarReader.swift; path = Platform/Accessibility/AppMenuBarReader.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000004F /* ControlCenterLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ControlCenterLayout.swift; path = Core/Support/ControlCenterLayout.swift; sourceTree = SOURCE_ROOT; };
 		FA4400000000000000000F0 /* PowerNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PowerNotifications.swift; path = Core/Support/PowerNotifications.swift; sourceTree = SOURCE_ROOT; };
 		FA4400000000000000000FB /* PowerFacts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PowerFacts.swift; path = Core/Support/PowerFacts.swift; sourceTree = SOURCE_ROOT; };
@@ -3187,6 +3194,8 @@
 				EE000000000000000000002B /* QuickToggleEngine.swift in Sources */,
 				EE0000000000000000000049 /* QuickToggles.swift in Sources */,
 				EE000000000000000000004E /* SystemHealthReaders.swift in Sources */,
+				FB0000000000000000000102 /* AppNewMenuPlan.swift in Sources */,
+				FB0000000000000000000107 /* AppMenuBarReader.swift in Sources */,
 				EE0000000000000000000050 /* ControlCenterLayout.swift in Sources */,
 				FA4400000000000000000F1 /* PowerNotifications.swift in Sources */,
 				FA4400000000000000000FC /* PowerFacts.swift in Sources */,
@@ -3569,6 +3578,8 @@
 				EE0000000000000000000051 /* ControlCenterLayout.swift in Sources */,
 				FA4400000000000000000F2 /* PowerNotifications.swift in Sources */,
 				EE0000000000000000000A1 /* SystemHealthReaders.swift in Sources */,
+				FB0000000000000000000103 /* AppNewMenuPlan.swift in Sources */,
+				FB0000000000000000000105 /* AppNewMenuPlanTests.swift in Sources */,
 				FA4400000000000000000FD /* PowerFacts.swift in Sources */,
 				FA4400000000000000000FF /* PowerFactsTests.swift in Sources */,
 				FA4400000000000000000FA /* PowerNotificationsTests.swift in Sources */,

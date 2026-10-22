@@ -2,6 +2,15 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Dock chips offer the app's own New Window / New Tab
+
+### Added
+- A dock chip's right-click menu now carries the app's own "new" rows, read from that app's File menu over
+  Accessibility: Finder shows **New Finder Window** and **New Tab**, Terminal **New Window** and **New Tab**,
+  in the app's own words and with its own order. At most three rows, and ⇧⌘N's New Folder is not one of them.
+- Both app-level and window chips get them; the generic **New Window** remains only as the fallback when an
+  app's menu reports nothing, so no chip lists it twice.
+
 ## [Unreleased] — Phase 59b–59h: the battery tells time, and the alerts have a style
 
 ### Added
