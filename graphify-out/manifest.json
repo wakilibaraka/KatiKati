@@ -6684,9 +6684,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PowerNotificationCenter.swift": {
-    "mtime": 1792630107.763547,
-    "seen": 1792630179.526092,
-    "ast_hash": "43e8c90444b1910a1afe16a125f8b64c",
+    "mtime": 1792635438.480986,
+    "seen": 1792635911.4954472,
+    "ast_hash": "9a1615017d1569476828b015312d47a0",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsNotificationsPane.swift": {
@@ -6696,15 +6696,15 @@
     "semantic_hash": ""
   },
   "Core/Support/PowerNotifications.swift": {
-    "mtime": 1792625265.6430163,
-    "seen": 1792626111.719993,
-    "ast_hash": "a0f9b1a4a8c2a88c4383783b502c0e5a",
+    "mtime": 1792635415.4296432,
+    "seen": 1792635911.4956841,
+    "ast_hash": "d92e23ed0bbac5119be59397be670120",
     "semantic_hash": ""
   },
   "Tests/Unit/PowerNotificationsTests.swift": {
-    "mtime": 1792632881.3243184,
-    "seen": 1792634530.484822,
-    "ast_hash": "99124f0950c9ba39c39a26e6fbeea628",
+    "mtime": 1792635476.90181,
+    "seen": 1792635911.495928,
+    "ast_hash": "7f50494b38c219e1c862f314248aad46",
     "semantic_hash": ""
   }
 }
