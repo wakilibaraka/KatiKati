@@ -27,7 +27,7 @@ struct BluetoothDevice: Equatable, Identifiable, Sendable {
         return parts.count > 1 ? parts.joined(separator: " · ") : nil
     }
 
-    var isLowBattery: Bool { (lowestBattery ?? 100) <= 20 }
+    var isLowBattery: Bool { (lowestBattery ?? 100) <= PowerNotificationPolicy.peripheralLowLevel }
 
     var symbolName: String {
         switch kind?.lowercased() {
@@ -122,10 +122,10 @@ enum BluetoothDeviceParser {
 /// after it has recovered or disconnected. `system_profiler` reports no charging flag, so "charging" is not
 /// a trigger.
 enum BatteryBuddyPolicy {
-    static let lowThreshold = 20
+    static let lowThreshold = PowerNotificationPolicy.peripheralLowLevel
 
     static func update(alreadyLow: Set<String>, devices: [BluetoothDevice]) -> (alerts: [BluetoothDevice], low: Set<String>) {
-        let low = devices.filter { $0.isConnected && ($0.lowestBattery ?? 100) <= lowThreshold }
+        let low = PowerNotificationPolicy.lowDevices(devices)
         return (low.filter { !alreadyLow.contains($0.id) }, Set(low.map(\.id)))
     }
 }

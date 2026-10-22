@@ -11,6 +11,8 @@ enum MenuBarMetric: String, CaseIterable, Identifiable, Sendable {
 
 enum MenuBarMetricStyle: String, CaseIterable, Sendable {
     case percentage, barGraph, pieChart, available, used, iconOnly
+    /// 59d: the battery's own readings, after BeteriApp's display types.
+    case remainingTime, watts
 }
 
 /// One tick of readings for every metric. `gpu` and `battery` are optional on purpose: a reader
@@ -30,6 +32,9 @@ struct MenuBarStatValues: Equatable, Sendable {
 struct MenuBarBattery: Equatable, Sendable {
     var fraction = 0.0
     var isCharging = false
+    /// 59c/59d: seconds to empty or full, and the watts going in.
+    var secondsRemaining: Int?
+    var watts: Double?
 }
 
 enum MenuBarStatModel {
@@ -69,6 +74,8 @@ enum MenuBarStatModel {
         case .available: return String(localized: "Available")
         case .used: return String(localized: "Used")
         case .iconOnly: return String(localized: "Icon Only")
+        case .remainingTime: return String(localized: "Time Remaining")
+        case .watts: return String(localized: "Watts")
         }
     }
 
@@ -76,7 +83,7 @@ enum MenuBarStatModel {
         switch metric {
         case .cpu, .memory, .gpu: return [.percentage, .barGraph, .pieChart]
         case .storage: return [.percentage, .available, .used]
-        case .battery: return [.percentage, .iconOnly]
+        case .battery: return [.percentage, .remainingTime, .watts, .iconOnly]
         case .network: return []
         }
     }
@@ -115,6 +122,10 @@ enum MenuBarStatModel {
             return SystemMonitorFormat.bytes(values.storageFreeBytes)
         case .used:
             return SystemMonitorFormat.bytes(Double(values.storageTotalBytes) - values.storageFreeBytes)
+        case .remainingTime:
+            return PowerFacts.durationText(values.battery?.secondsRemaining) ?? "–"
+        case .watts:
+            return values.battery?.watts.map { String(format: "%.1f W", $0) } ?? "–"
         }
     }
 
@@ -128,7 +139,9 @@ enum MenuBarStatModel {
             let used = fraction(metric: .storage, values: values).map(SystemMonitorFormat.percent) ?? "–"
             return "\(used) · \(SystemMonitorFormat.bytes(values.storageFreeBytes))"
         case .battery:
-            return fraction(metric: .battery, values: values).map(SystemMonitorFormat.percent) ?? "–"
+            let reading = fraction(metric: .battery, values: values).map(SystemMonitorFormat.percent) ?? "–"
+            guard let facts = PowerFacts.durationText(values.battery?.secondsRemaining) else { return reading }
+            return "\(reading) · \(facts)"
         case .network:
             return "↓\(SystemMonitorFormat.bytes(values.down))/s ↑\(SystemMonitorFormat.bytes(values.up))/s"
         }

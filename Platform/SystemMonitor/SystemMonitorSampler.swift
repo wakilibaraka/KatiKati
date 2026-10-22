@@ -88,7 +88,9 @@ enum SystemMonitorSampler {
             let max = (desc[kIOPSMaxCapacityKey] as? Double) ?? (desc[kIOPSMaxCapacityKey] as? Int).map(Double.init) ?? 100
             let charging = (desc[kIOPSIsChargingKey] as? Bool) ?? false
             guard max > 0 else { return nil }
-            return MenuBarBattery(fraction: min(1, current / max), isCharging: charging)
+            let facts = PowerFactsReader.read(isCharging: charging)
+            return MenuBarBattery(fraction: min(1, current / max), isCharging: charging,
+                                  secondsRemaining: facts.secondsRemaining, watts: facts.watts)
         }
         return nil
     }

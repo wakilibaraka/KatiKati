@@ -7,7 +7,7 @@ import IOKit
 ///
 /// 2026-10-22: the profiler leaves the battery out for some HID accessories (BLE mice, keyboards and
 /// headsets are the common case) while the HID driver still publishes it. The registry pass below is
-/// taken from BeteriApp's `BBBluetoothManager` (BatteryBoi fork, MIT): services of class
+/// taken from BeteriApp's `BBBluetoothManager` (a BatteryBoi fork, GPL-3.0 like BeteriApp): services of class
 /// `AppleDeviceManagementHIDEventService` carry `BatteryPercent` next to `DeviceAddress`/`Product`.
 /// Neither source is authoritative for every device, so their readings are merged, not replaced.
 enum BluetoothDeviceReader {

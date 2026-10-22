@@ -38,10 +38,26 @@ struct PowerNotification: Codable, Equatable, Identifiable, Sendable {
     var id: String { "\(kind.rawValue)|\(title)|\(date.timeIntervalSince1970)" }
 }
 
+/// Where an alert appears. The pill is the compact capsule beside the menu bar; the banner is a wide
+/// card under the notch, for people who want the alert to look like the island's own toasts.
+enum PowerNotificationStyle: String, CaseIterable, Sendable {
+    case pill, banner
+
+    var name: String {
+        switch self {
+        case .pill: return String(localized: "Compact Pill")
+        case .banner: return String(localized: "Banner")
+        }
+    }
+}
+
 /// The thresholds and switches, persisted beside the app's other defaults.
 struct PowerNotificationRules: Equatable {
     enum Storage {
         static let lowThreshold = "com.katikati.notifications.lowThreshold"
+        static let lowSteps = "com.katikati.notifications.lowSteps"
+        static let sound = "com.katikati.notifications.sound"
+        static let style = "com.katikati.notifications.style"
         static let milestones = "com.katikati.notifications.milestones"
         static let chargingChanges = "com.katikati.notifications.chargingChanges"
         static let peripheralAlerts = "com.katikati.notifications.peripheralAlerts"
@@ -51,6 +67,12 @@ struct PowerNotificationRules: Equatable {
 
     /// nil = the low-battery alert is off. BeteriApp's picker, 10…50.
     var lowThreshold: Int? = 20
+    /// BeteriApp's fixed 25 / 10 / 5 / 1 crossings, off by default, each once per dip.
+    var lowSteps: Set<Int> = []
+    /// A system sound with every alert. Off by default.
+    var soundEnabled = false
+    /// Where an alert appears: the compact pill, or a banner under the notch.
+    var style: PowerNotificationStyle = .pill
     /// Percentages that fire once per charge session. Empty = off.
     var chargeMilestones: Set<Int> = [80, 100]
     /// Plugged in / unplugged while the battery moves.
@@ -61,6 +83,7 @@ struct PowerNotificationRules: Equatable {
     var retentionHours = 24
 
     static let lowThresholdChoices = [10, 15, 20, 25, 30, 40, 50]
+    static let lowStepChoices = [25, 10, 5, 1]
     static let retentionChoices = [24, 24 * 7]
 
     static func load(_ defaults: UserDefaults = .standard) -> PowerNotificationRules {
@@ -69,6 +92,15 @@ struct PowerNotificationRules: Equatable {
         // "unset" from "0" (0 = off).
         if let raw = defaults.object(forKey: Storage.lowThreshold) as? Int {
             rules.lowThreshold = raw == 0 ? nil : min(50, max(5, raw))
+        }
+        if let raw = defaults.string(forKey: Storage.lowSteps) {
+            rules.lowSteps = Set(raw.split(separator: ",").compactMap { Int($0) }.filter { lowStepChoices.contains($0) })
+        }
+        if defaults.object(forKey: Storage.sound) != nil {
+            rules.soundEnabled = defaults.bool(forKey: Storage.sound)
+        }
+        if let raw = defaults.string(forKey: Storage.style), let style = PowerNotificationStyle(rawValue: raw) {
+            rules.style = style
         }
         if let raw = defaults.string(forKey: Storage.milestones) {
             rules.chargeMilestones = Set(raw.split(separator: ",").compactMap { Int($0) }.filter { (1...100).contains($0) })
@@ -86,6 +118,9 @@ struct PowerNotificationRules: Equatable {
 
     func save(_ defaults: UserDefaults = .standard) {
         defaults.set(lowThreshold ?? 0, forKey: Storage.lowThreshold)
+        defaults.set(lowSteps.sorted().map(String.init).joined(separator: ","), forKey: Storage.lowSteps)
+        defaults.set(soundEnabled, forKey: Storage.sound)
+        defaults.set(style.rawValue, forKey: Storage.style)
         defaults.set(chargeMilestones.sorted().map(String.init).joined(separator: ","), forKey: Storage.milestones)
         defaults.set(chargingChanges, forKey: Storage.chargingChanges)
         defaults.set(peripheralAlerts, forKey: Storage.peripheralAlerts)
@@ -113,11 +148,18 @@ enum PowerNotificationPolicy {
     /// low-battery alert once, and a peripheral warns once per fall.
     struct Fired: Equatable {
         var low = false
+        var lowSteps: Set<Int> = []
         var milestones: Set<Int> = []
         var lowPeripherals: Set<String> = []
     }
 
     static let peripheralLowLevel = 20
+
+    /// The one "peripheral is low" rule: the notch battery buddy (51d) and the peripheral alert above
+    /// both read it, so a threshold change cannot leave the two disagreeing.
+    static func lowDevices(_ devices: [BluetoothDevice]) -> [BluetoothDevice] {
+        devices.filter { $0.isConnected && ($0.lowestBattery ?? 100) <= peripheralLowLevel }
+    }
 
     /// A charge milestone's wording: 100 % is a finished charge, anything below is a milestone on the way.
     static func milestoneTitle(_ milestone: Int) -> String {
@@ -145,6 +187,22 @@ enum PowerNotificationPolicy {
                     events.append(PowerNotification(kind: .lowBattery,
                                                     title: String(localized: "Battery Low"),
                                                     detail: "\(level)%", date: now))
+                }
+            }
+
+            // BeteriApp's extra crossings. Each step fires once per dip: recovering above every step
+            // re-arms the set, so a battery bouncing off 5 % does not alert on every sample.
+            if let highest = rules.lowSteps.max(), level > highest { fired.lowSteps = [] }
+            if new.isCharging { fired.lowSteps = [] }
+            if !new.isCharging {
+                for step in rules.lowSteps.sorted(by: >)
+                where oldLevel > step && level <= step && !fired.lowSteps.contains(step) {
+                    fired.lowSteps.insert(step)
+                    // The step it crossed, not the current level: a 10 → 0 drop crosses two steps and
+                    // "0%" twice would say nothing about which line was passed.
+                    events.append(PowerNotification(kind: .lowBattery,
+                                                    title: String(localized: "Battery Low"),
+                                                    detail: "\(step)%", date: now))
                 }
             }
 

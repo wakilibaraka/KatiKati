@@ -12,7 +12,7 @@ final class MenuBarStatModelTests: XCTestCase {
         XCTAssertEqual(MenuBarStatModel.styles(for: .memory), [.percentage, .barGraph, .pieChart])
         XCTAssertEqual(MenuBarStatModel.styles(for: .gpu), [.percentage, .barGraph, .pieChart])
         XCTAssertEqual(MenuBarStatModel.styles(for: .storage), [.percentage, .available, .used])
-        XCTAssertEqual(MenuBarStatModel.styles(for: .battery), [.percentage, .iconOnly])
+        XCTAssertEqual(MenuBarStatModel.styles(for: .battery), [.percentage, .remainingTime, .watts, .iconOnly])
         XCTAssertEqual(MenuBarStatModel.styles(for: .network), [], "the network readout is speed text, no style")
         for metric in MenuBarMetric.allCases {
             XCTAssertTrue(MenuBarStatModel.styles(for: metric).contains(MenuBarStatModel.defaultStyle(for: metric)) || MenuBarStatModel.styles(for: metric).isEmpty)
@@ -42,7 +42,7 @@ final class MenuBarStatModelTests: XCTestCase {
         values.storageUsed = 0.5
         values.storageFreeBytes = 320_000_000_000
         values.storageTotalBytes = 500_000_000_000
-        values.battery = MenuBarBattery(fraction: 0.86, isCharging: true)
+        values.battery = MenuBarBattery(fraction: 0.86, isCharging: true, secondsRemaining: 5040, watts: 18.2)
         values.down = 1_200_000
         values.up = 300_000
 
@@ -54,6 +54,12 @@ final class MenuBarStatModelTests: XCTestCase {
         XCTAssertEqual(MenuBarStatModel.statusText(metric: .battery, style: .iconOnly, values: values), "")
         XCTAssertEqual(MenuBarStatModel.statusText(metric: .gpu, style: .percentage, values: values), "–", "no GPU reader result must not read as 0%")
         XCTAssertEqual(MenuBarStatModel.statusText(metric: .battery, style: .percentage, values: values), "86%")
+        XCTAssertEqual(MenuBarStatModel.statusText(metric: .battery, style: .remainingTime, values: values), "1h 24m")
+        XCTAssertEqual(MenuBarStatModel.statusText(metric: .battery, style: .watts, values: values), "18.2 W")
+        // A battery with no estimate reads as missing, never as 0.
+        values.battery = MenuBarBattery(fraction: 0.86, isCharging: false)
+        XCTAssertEqual(MenuBarStatModel.statusText(metric: .battery, style: .remainingTime, values: values), "–")
+        XCTAssertEqual(MenuBarStatModel.statusText(metric: .battery, style: .watts, values: values), "–")
     }
 
     func testMenuRowsReadNaturally() {

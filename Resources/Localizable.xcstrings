@@ -75532,6 +75532,278 @@
         "it": {"stringUnit": {"state": "translated", "value": "Traguardo di carica"}},
         "ko": {"stringUnit": {"state": "translated", "value": "충전 단계"}}
       }
+    },
+    "to full": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "to full"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "充满"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "充滿"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "満充電まで"}},
+        "de": {"stringUnit": {"state": "translated", "value": "bis voll"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "jusqu'à charge complète"}},
+        "es": {"stringUnit": {"state": "translated", "value": "hasta carga completa"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "hasta carga completa"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "até carga completa"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "até carga completa"}},
+        "it": {"stringUnit": {"state": "translated", "value": "a carica completa"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "완충까지"}}
+      }
+    },
+    "left": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "left"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "剩余"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "剩餘"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "残り"}},
+        "de": {"stringUnit": {"state": "translated", "value": "verbleibend"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "restant"}},
+        "es": {"stringUnit": {"state": "translated", "value": "restante"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "restante"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "restante"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "restante"}},
+        "it": {"stringUnit": {"state": "translated", "value": "rimanente"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "남음"}}
+      }
+    },
+    "Nominal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Nominal"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "正常"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "正常"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "標準"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Normal"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Normal"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Normal"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Normal"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Normal"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Normal"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Normale"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "보통"}}
+      }
+    },
+    "Fair": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Fair"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "一般"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "一般"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "やや高い"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Mäßig"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Modéré"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Moderado"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Moderado"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Moderado"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Moderado"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Moderato"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "다소 높음"}}
+      }
+    },
+    "Serious": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Serious"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "严重"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "嚴重"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "高い"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ernst"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Élevé"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Serio"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Serio"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sério"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sério"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Serio"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "심각"}}
+      }
+    },
+    "Critical": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Critical"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "危急"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "危急"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "危険"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kritisch"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Critique"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Crítico"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Crítico"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Crítico"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Crítico"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Critico"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "위험"}}
+      }
+    },
+    "Low Power Mode": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Low Power Mode"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "低电量模式"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "低電量模式"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "低電力モード"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Energiesparmodus"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Mode économie d'énergie"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Modo de bajo consumo"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Modo de bajo consumo"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Modo de Poupança de Energia"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Modo de Poupança de Energia"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Modalità risparmio energia"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "저전력 모드"}}
+      }
+    },
+    "Compact Pill": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Compact Pill"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "紧凑胶囊"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "緊湊膠囊"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "コンパクトピル"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kompakte Pille"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Pastille compacte"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Píldora compacta"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Píldora compacta"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Pastilha compacta"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Pastilha compacta"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Pillola compatta"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "컴팩트 필"}}
+      }
+    },
+    "Banner": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Banner"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "横幅"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "橫幅"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "バナー"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Banner"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Bannière"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Banner"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Banner"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Faixa"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Faixa"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Banner"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "배너"}}
+      }
+    },
+    "Alert at 25% and below": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Alert at 25% and below"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "电量 25% 及以下提醒"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "電量 25% 及以下提醒"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "25%以下で通知"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Hinweis bei 25 % und darunter"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Alerte à 25 % et en dessous"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Aviso al 25 % y menos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Aviso al 25 % y menos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Alerta a 25% e abaixo"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Alerta a 25% e abaixo"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Avviso al 25% e sotto"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "25% 이하 알림"}}
+      }
+    },
+    "Alert Style": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Alert Style"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "提醒样式"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "提醒樣式"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "通知スタイル"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Hinweisstil"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Style d'alerte"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Estilo del aviso"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Estilo del aviso"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Estilo do alerta"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Estilo do alerta"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Stile dell'avviso"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "알림 스타일"}}
+      }
+    },
+    "Play a Sound": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Play a Sound"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "播放声音"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "播放聲音"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "サウンドを再生"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ton abspielen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Jouer un son"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Reproducir un sonido"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Reproducir un sonido"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Reproduzir um som"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Reproduzir um som"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Riproduci un suono"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "소리 재생"}}
+      }
+    },
+    "Time Remaining": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Time Remaining"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "剩余时间"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "剩餘時間"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "残り時間"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Restzeit"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Temps restant"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Tiempo restante"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Tiempo restante"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Tempo restante"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Tempo restante"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Tempo rimanente"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "남은 시간"}}
+      }
+    },
+    "Watts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Watts"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "瓦特"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "瓦特"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ワット"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Watt"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Watts"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Vatios"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Vatios"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Watts"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Watts"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Watt"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "와트"}}
+      }
+    },
+    "Low Power": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Low Power"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "低电量"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "低電量"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "低電力"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Niedrigenergie"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Économie d'énergie"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Bajo consumo"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Bajo consumo"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Poupança de energia"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Poupança de energia"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Risparmio energetico"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "저전력"}}
+      }
+    },
+    "A system sound plays with every alert when it is on.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "A system sound plays with every alert when it is on."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "开启后每条提醒都会播放系统提示音。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "開啟後每則提醒都會播放系統提示音。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "オンにすると、すべての通知でシステムサウンドが鳴ります。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Wenn aktiviert, ertönt bei jedem Hinweis ein Systemton."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Lorsque cette option est activée, chaque alerte joue un son système."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Con la opción activada, cada aviso reproduce un sonido del sistema."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Con la opción activada, cada aviso reproduce un sonido del sistema."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Com esta opção ativa, cada alerta reproduz um som do sistema."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Com esta opção ativa, cada alerta reproduz um som do sistema."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Se attivo, ogni avviso riproduce un suono di sistema."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "켜면 모든 알림에서 시스템 소리가 재생됩니다."}}
+      }
     }
   },
   "version": "1.0"

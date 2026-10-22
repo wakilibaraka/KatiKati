@@ -69,7 +69,9 @@ final class PowerNotificationCenter: ObservableObject {
                                              : titles[kind] ?? ""
                 let demo = PowerNotification(kind: kind, title: title,
                                              detail: "\(percent ?? 80)%", date: Date())
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in self?.presenter.show(demo) }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+                    self?.presenter.show(demo, style: self?.rules.style ?? .pill)
+                }
             }
         }
     }
@@ -142,7 +144,9 @@ final class PowerNotificationCenter: ObservableObject {
                                                          retentionHours: rules.retentionHours)
         }
         PowerNotificationHistory.save(history)
-        presenter.show(events.first)
+        // 59f: one system sound for every alert (`shortcut:` per-alert sounds if anyone asks).
+        if rules.soundEnabled { NSSound(named: "Glass")?.play() }
+        presenter.show(events.first, style: rules.style)
     }
 }
 
@@ -155,9 +159,11 @@ final class PowerNotificationPillPresenter {
     private var panel: NSPanel?
     private var hideWork: DispatchWorkItem?
 
-    func show(_ notification: PowerNotification?) {
+    /// 59g: the pill sits at the top right; the banner sits top centre under the notch, wide enough for
+    /// the same two lines. One panel and one view, so the two styles cannot drift apart.
+    func show(_ notification: PowerNotification?, style: PowerNotificationStyle = .pill) {
         guard let notification, let screen = NSScreen.main else { return }
-        let host = NSHostingView(rootView: PowerNotificationPillView(notification: notification))
+        let host = NSHostingView(rootView: PowerNotificationPillView(notification: notification, style: style))
         let size = host.fittingSize
         let panel = self.panel ?? {
             let p = NSPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel],
@@ -174,8 +180,8 @@ final class PowerNotificationPillPresenter {
         self.panel = panel
         panel.contentView = host
         let frame = screen.visibleFrame
-        panel.setFrame(NSRect(x: frame.maxX - size.width - 12,
-                              y: frame.maxY - size.height - 6,
+        panel.setFrame(NSRect(x: style == .banner ? frame.midX - size.width / 2 : frame.maxX - size.width - 12,
+                              y: frame.maxY - size.height - (style == .banner ? 4 : 6),
                               width: size.width, height: size.height), display: true)
         panel.alphaValue = 1
         panel.orderFrontRegardless()
@@ -192,6 +198,7 @@ final class PowerNotificationPillPresenter {
 
 private struct PowerNotificationPillView: View {
     let notification: PowerNotification
+    var style: PowerNotificationStyle = .pill
 
     private var accent: Color {
         switch notification.kind {
@@ -224,12 +231,27 @@ private struct PowerNotificationPillView: View {
                         .lineLimit(1)
                 }
             }
-            .frame(maxWidth: 260, alignment: .leading)
+            .frame(maxWidth: style == .banner ? 300 : 260, alignment: .leading)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Capsule().fill(Color.black.opacity(0.82)))
-        .overlay(Capsule().strokeBorder(Color.white.opacity(0.16), lineWidth: 1))
+        // A two-word alert must still read as a card, not a capsule that happens to be wider.
+        .frame(minWidth: style == .banner ? 300 : 0, alignment: .leading)
+        .padding(.horizontal, style == .banner ? 16 : 10)
+        .padding(.vertical, style == .banner ? 10 : 6)
+        .background {
+            if style == .banner {
+                RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.black.opacity(0.82))
+            } else {
+                Capsule().fill(Color.black.opacity(0.82))
+            }
+        }
+        .overlay {
+            if style == .banner {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
+            } else {
+                Capsule().strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
+            }
+        }
         .padding(6)
     }
 }

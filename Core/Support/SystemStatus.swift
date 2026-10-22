@@ -8,6 +8,9 @@ struct BatteryStatus: Equatable, Sendable {
     var level: Int?
     var isCharging: Bool
     var isPluggedIn: Bool
+    /// 59c: time to empty or full, charging watts, thermal state, Low Power Mode. Empty on a Mac with
+    /// no battery, and every field stays optional so the UI can hide what this machine cannot report.
+    var facts = PowerFacts.empty
 
     static let noBattery = BatteryStatus(level: nil, isCharging: false, isPluggedIn: true)
 

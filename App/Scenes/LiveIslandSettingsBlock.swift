@@ -207,7 +207,12 @@ private struct NotchActivityCard: View {
     @AppStorage("com.katikati.notch.trackToast") private var trackToast = true
     @AppStorage("com.katikati.notch.batteryBuddy") private var batteryBuddy = true
     @AppStorage(NotchBehavior.lowBatteryTintKey) private var tintsLow = true
-    @AppStorage(NotchBehavior.lowBatteryThresholdKey) private var threshold = NotchBehavior.defaultLowBatteryThreshold
+    // 59b: the same low level the Notifications page edits, not a second one.
+    @ObservedObject private var alerts = PowerNotificationCenter.shared
+
+    private var threshold: Int {
+        alerts.rules.lowThreshold ?? NotchBehavior.defaultLowBatteryThreshold
+    }
 
     var body: some View {
         SettingsCard(Text(verbatim: "Notch At Rest")) {
@@ -246,7 +251,8 @@ private struct NotchActivityCard: View {
                         Spacer()
                         Text(verbatim: "\(threshold)%").monospacedDigit().foregroundStyle(.secondary)
                     }
-                    Slider(value: Binding(get: { Double(threshold) }, set: { threshold = Int($0.rounded()) }),
+                    Slider(value: Binding(get: { Double(threshold) },
+                                          set: { level in alerts.updateRules { $0.lowThreshold = Int(level.rounded()) } }),
                            in: Double(NotchBehavior.lowBatteryRange.lowerBound)...Double(NotchBehavior.lowBatteryRange.upperBound),
                            step: 1) { Text(verbatim: "Low level") }.labelsHidden()
                     Text(verbatim: "Shows the charge in red at or below this level while on battery.")

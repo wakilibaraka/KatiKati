@@ -2,6 +2,24 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 59b–59h: the battery tells time, and the alerts have a style
+
+### Added
+- **Time to empty / to full, charging watts, thermal state and Low Power Mode** (`PowerFacts`, IOKit only, no shell):
+  the menu-bar battery item can now show **Time Remaining** or **Watts** instead of a percentage, Control Center's
+  *This Mac* row carries the one-line reading, and the notch battery chip shows it on hover.
+- Extra low-battery steps at **25 / 10 / 5 / 1 %**, off by default and each fired once per dip, a system-sound toggle,
+  and an **Alert Style** row: Compact Pill (as before) or a wider Banner under the notch.
+
+### Changed
+- **One low level for the Mac.** The Notifications page owns it; the notch's battery tint and its own slider read that
+  same value, and a level stored by the Notifications page's predecessor is still honoured. A peripheral's "low" is
+  likewise defined once, shared by the notch battery buddy and the peripheral alert.
+
+### Fixed
+- An 80 % charge milestone and a full charge no longer both read "Battery Charged": the milestone is **Charge
+  Milestone**, only a finished charge says **Battery Charged**.
+
 ## [Unreleased] — Phase 59a: notifications are a pill, and their own page
 
 ### Added

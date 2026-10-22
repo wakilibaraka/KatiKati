@@ -1152,13 +1152,17 @@
 		EE000000000000000000004A /* QuickToggles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0000000000000000000048 /* QuickToggles.swift */; };
 		EE000000000000000000004C /* QuickTogglesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004B /* QuickTogglesTests.swift */; };
 		EE000000000000000000004E /* SystemHealthReaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004D /* SystemHealthReaders.swift */; };
+		EE0000000000000000000A1 /* SystemHealthReaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004D /* SystemHealthReaders.swift */; };
 		EE0000000000000000000050 /* ControlCenterLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004F /* ControlCenterLayout.swift */; };
 		EE0000000000000000000051 /* ControlCenterLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004F /* ControlCenterLayout.swift */; };
 		FA4400000000000000000F1 /* PowerNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4400000000000000000F0 /* PowerNotifications.swift */; };
+		FA4400000000000000000FC /* PowerFacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4400000000000000000FB /* PowerFacts.swift */; };
+		FA4400000000000000000FD /* PowerFacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4400000000000000000FB /* PowerFacts.swift */; };
 		FA4400000000000000000F2 /* PowerNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4400000000000000000F0 /* PowerNotifications.swift */; };
 		FA4400000000000000000F4 /* PowerNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4400000000000000000F3 /* PowerNotificationCenter.swift */; };
 		FA4400000000000000000F6 /* SettingsNotificationsPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4400000000000000000F5 /* SettingsNotificationsPane.swift */; };
 		FA4400000000000000000FA /* PowerNotificationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4400000000000000000F9 /* PowerNotificationsTests.swift */; };
+		FA4400000000000000000FF /* PowerFactsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4400000000000000000FE /* PowerFactsTests.swift */; };
 		C47000000000000000000002 /* CameraMirrorRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000001 /* CameraMirrorRules.swift */; };
 		C47000000000000000000003 /* CameraMirrorRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000001 /* CameraMirrorRules.swift */; };
 		C47000000000000000000005 /* CameraMirrorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47000000000000000000004 /* CameraMirrorService.swift */; };
@@ -1989,9 +1993,11 @@
 		EE000000000000000000004D /* SystemHealthReaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemHealthReaders.swift; path = Platform/SystemStatus/SystemHealthReaders.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000004F /* ControlCenterLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ControlCenterLayout.swift; path = Core/Support/ControlCenterLayout.swift; sourceTree = SOURCE_ROOT; };
 		FA4400000000000000000F0 /* PowerNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PowerNotifications.swift; path = Core/Support/PowerNotifications.swift; sourceTree = SOURCE_ROOT; };
+		FA4400000000000000000FB /* PowerFacts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PowerFacts.swift; path = Core/Support/PowerFacts.swift; sourceTree = SOURCE_ROOT; };
 		FA4400000000000000000F3 /* PowerNotificationCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PowerNotificationCenter.swift; path = App/Entry/PowerNotificationCenter.swift; sourceTree = SOURCE_ROOT; };
 		FA4400000000000000000F5 /* SettingsNotificationsPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsNotificationsPane.swift; path = App/Scenes/SettingsNotificationsPane.swift; sourceTree = SOURCE_ROOT; };
 		FA4400000000000000000F9 /* PowerNotificationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PowerNotificationsTests.swift; path = Tests/Unit/PowerNotificationsTests.swift; sourceTree = SOURCE_ROOT; };
+		FA4400000000000000000FE /* PowerFactsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PowerFactsTests.swift; path = Tests/Unit/PowerFactsTests.swift; sourceTree = SOURCE_ROOT; };
 		C47000000000000000000001 /* CameraMirrorRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraMirrorRules.swift; path = Core/Support/CameraMirrorRules.swift; sourceTree = SOURCE_ROOT; };
 		C47000000000000000000004 /* CameraMirrorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CameraMirrorService.swift; path = App/Composition/CameraMirrorService.swift; sourceTree = SOURCE_ROOT; };
 		C47000000000000000000007 /* NotchMirrorPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchMirrorPageView.swift; path = App/Scenes/Notch/NotchMirrorPageView.swift; sourceTree = SOURCE_ROOT; };
@@ -3183,6 +3189,7 @@
 				EE000000000000000000004E /* SystemHealthReaders.swift in Sources */,
 				EE0000000000000000000050 /* ControlCenterLayout.swift in Sources */,
 				FA4400000000000000000F1 /* PowerNotifications.swift in Sources */,
+				FA4400000000000000000FC /* PowerFacts.swift in Sources */,
 				FA4400000000000000000F4 /* PowerNotificationCenter.swift in Sources */,
 				FA4400000000000000000F6 /* SettingsNotificationsPane.swift in Sources */,
 				FA030000000000000000002 /* MultitouchPinchMonitor.swift in Sources */,
@@ -3561,6 +3568,9 @@
 				EE000000000000000000004A /* QuickToggles.swift in Sources */,
 				EE0000000000000000000051 /* ControlCenterLayout.swift in Sources */,
 				FA4400000000000000000F2 /* PowerNotifications.swift in Sources */,
+				EE0000000000000000000A1 /* SystemHealthReaders.swift in Sources */,
+				FA4400000000000000000FD /* PowerFacts.swift in Sources */,
+				FA4400000000000000000FF /* PowerFactsTests.swift in Sources */,
 				FA4400000000000000000FA /* PowerNotificationsTests.swift in Sources */,
 				EE000000000000000000004C /* QuickTogglesTests.swift in Sources */,
 				EE000000000000000000001E /* ScreenTimeStore.swift in Sources */,

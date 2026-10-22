@@ -24,6 +24,13 @@ struct SettingsNotificationsPane: View {
             }
 
             SettingsDivider()
+            // 59f: BeteriApp's fixed steps, all four or none — each still fires once per dip.
+            SettingsToggleRow(Text("Alert at 25% and below"), isOn: Binding(
+                get: { !center.rules.lowSteps.isEmpty },
+                set: { on in center.updateRules { $0.lowSteps = on ? Set(PowerNotificationRules.lowStepChoices) : [] } }
+            ))
+
+            SettingsDivider()
             SettingsRow(Text("Charge Milestones")) {
                 HStack(spacing: 14) {
                     milestone(80)
@@ -45,6 +52,23 @@ struct SettingsNotificationsPane: View {
             SettingsToggleRow(Text("Peripheral Alerts"), isOn: Binding(
                 get: { center.rules.peripheralAlerts },
                 set: { on in center.updateRules { $0.peripheralAlerts = on } }
+            ))
+        }
+
+        SettingsCard(Text("Appearance"), note: Text("A system sound plays with every alert when it is on.")) {
+            SettingsSegmentedRow(Text("Alert Style"), selection: Binding(
+                get: { center.rules.style },
+                set: { style in center.updateRules { $0.style = style } }
+            )) {
+                ForEach(PowerNotificationStyle.allCases, id: \.self) { style in
+                    Text(verbatim: style.name).tag(style)
+                }
+            }
+
+            SettingsDivider()
+            SettingsToggleRow(Text("Play a Sound"), isOn: Binding(
+                get: { center.rules.soundEnabled },
+                set: { on in center.updateRules { $0.soundEnabled = on } }
             ))
         }
 

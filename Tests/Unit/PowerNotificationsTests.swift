@@ -123,6 +123,24 @@ final class PowerNotificationsTests: XCTestCase {
                                rules: rules, fired: &fired).map(\.detail), ["80%"])
     }
 
+    /// 59f: BeteriApp's fixed 25 / 10 / 5 / 1 crossings, each once per dip, one jump can cross several.
+    func testExtraLowStepsFireOncePerDip() {
+        var fired = PowerNotificationPolicy.Fired()
+        var rules = PowerNotificationRules()
+        rules.lowThreshold = nil
+        rules.lowSteps = [25, 10, 5, 1]
+        XCTAssertEqual(events(snapshot(30), snapshot(25), rules: rules, fired: &fired).map(\.detail), ["25%"])
+        XCTAssertEqual(events(snapshot(25), snapshot(24), rules: rules, fired: &fired), [])
+        XCTAssertEqual(events(snapshot(24), snapshot(10), rules: rules, fired: &fired).map(\.detail), ["10%"])
+        XCTAssertEqual(events(snapshot(10), snapshot(0), rules: rules, fired: &fired).map(\.detail), ["5%", "1%"])
+        XCTAssertEqual(events(snapshot(0), snapshot(0), rules: rules, fired: &fired), [])
+        // Back above every step re-arms them; a step that is switched off never fires.
+        _ = events(snapshot(0), snapshot(30), rules: rules, fired: &fired)
+        XCTAssertEqual(events(snapshot(30), snapshot(25), rules: rules, fired: &fired).map(\.detail), ["25%"])
+        rules.lowSteps = [10]
+        XCTAssertEqual(events(snapshot(30), snapshot(20), rules: rules, fired: &fired), [])
+    }
+
     func testPeripheralsConnectDisconnectAndWarnOncePerFall() {
         var fired = PowerNotificationPolicy.Fired()
         let rules = PowerNotificationRules()
@@ -177,6 +195,9 @@ final class PowerNotificationsTests: XCTestCase {
         rules.lowThreshold = nil
         rules.chargeMilestones = [100]
         rules.peripheralAlerts = false
+        rules.lowSteps = [25, 1]
+        rules.soundEnabled = true
+        rules.style = .banner
         rules.retentionHours = 24 * 7
         rules.save(defaults)
         let loaded = PowerNotificationRules.load(defaults)

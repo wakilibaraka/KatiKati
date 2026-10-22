@@ -92,3 +92,20 @@ This project is derived from and incorporates code from the following works:
 - Repository: https://github.com/vorssaint/vorssaint-utils
 - License: GNU General Public License v3.0
 - Description: The island's Behavior, At Rest and Layout settings (open mode, timings, haptics, display choice, low-battery tint, size presets, outline, translucency) follow its Dynamic Island settings design.
+
+## BeteriApp (retired 2026-10-22 — power behaviour studied, code re-derived)
+- Repository: https://github.com/wakilibaraka/BeteriApp
+- Copyright (C) Emmanuel Baraka
+- License: GNU General Public License v3.0
+- Description: The power alerts, the time-to-empty/full and charging-watt readings, and the extra 25 / 10 / 5 / 1 %
+  low-battery steps in `Core/Support/PowerNotifications.swift` and `Core/Support/PowerFacts.swift` follow BeteriApp's
+  behaviour (a simplified fork of BatteryBoi). No BeteriApp source is copied: its `pmset` / `system_profiler` shell
+  scrapes are replaced by IOKit and `ProcessInfo` reads, and the policy, parsers and views are KatiKati's.
+
+## BatteryBoi (Phase 7A-8b — registry pass re-derived)
+- Repository: https://github.com/thebarbican19/BatteryBoi
+- Copyright (C) thebarbican19
+- License: GNU General Public License v3.0
+- Description: The Bluetooth registry pass in `Platform/SystemStatus/BluetoothDeviceReader.swift` (services of class
+  `AppleDeviceManagementHIDEventService` carry `BatteryPercent`) follows BatteryBoi's `BBBluetoothManager`, read through
+  BeteriApp's fork and re-implemented here; the profiler remains the primary source and the registry only fills gaps.

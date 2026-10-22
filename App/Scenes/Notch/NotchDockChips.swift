@@ -58,10 +58,12 @@ struct NotchBatteryChip: View {
     var scale: CGFloat = 1
     @State private var pulse = false
     @AppStorage(NotchBehavior.lowBatteryTintKey) private var tintsLow = true
-    @AppStorage(NotchBehavior.lowBatteryThresholdKey) private var threshold = NotchBehavior.defaultLowBatteryThreshold
+    // 59b: the Notifications page owns the low level; this reads the same value.
+    @ObservedObject private var alerts = PowerNotificationCenter.shared
 
     private var tint: Color {
         if battery.isCharging || (battery.isPluggedIn && level >= 100) { return .green }
+        let threshold = alerts.rules.lowThreshold ?? NotchBehavior.defaultLowBatteryThreshold
         return tintsLow && level <= min(NotchBehavior.lowBatteryRange.upperBound, max(NotchBehavior.lowBatteryRange.lowerBound, threshold)) ? .red : .white
     }
 
@@ -103,6 +105,8 @@ struct NotchBatteryChip: View {
         .onChange(of: battery.isCharging) { _, _ in updatePulse() }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: "Battery \(level)%\(battery.isCharging ? ", charging" : battery.isPluggedIn ? ", plugged in" : "")"))
+        // 59d: the chip is too small for time and watts, so hovering it reads them out.
+        .help(Text(verbatim: battery.facts.summary ?? ""))
     }
 
     private func updatePulse() {

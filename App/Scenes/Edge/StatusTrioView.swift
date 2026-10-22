@@ -364,6 +364,7 @@ struct ControlCenterView: View {
         .padding(.vertical, 3)
         .background(Capsule().fill(Color.primary.opacity(0.08)))
         .overlay(Capsule().strokeBorder(cardStroke, lineWidth: 0.5))
+        .help(Text(verbatim: battery.facts.summary ?? ""))
     }
 
     // MARK: - System & peripherals
@@ -387,6 +388,15 @@ struct ControlCenterView: View {
                                 .padding(.vertical, 1)
                                 .background(Capsule().fill(Color.green.opacity(0.14)))
                         }
+                        // 59e: the OS's own power saving, shown where the reading is.
+                        if status.status.battery.facts.isLowPowerMode {
+                            Text("Low Power")
+                                .font(.system(size: 9, weight: .semibold))
+                                .foregroundStyle(Color.orange)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 1)
+                                .background(Capsule().fill(Color.orange.opacity(0.14)))
+                        }
                         Spacer(minLength: 0)
                         Button { Task { await refreshPeripherals() } } label: {
                             HStack(spacing: 4) {
@@ -404,7 +414,8 @@ struct ControlCenterView: View {
                     if showsThisMac {
                         deviceRow(symbol: "laptopcomputer",
                                   name: String(localized: "This Mac"),
-                                  detail: nil,
+                                  // 59d: time to empty/full, charging watts, heat.
+                                  detail: status.status.battery.facts.summary,
                                   level: status.status.battery.level,
                                   charging: status.status.battery.isCharging,
                                   low: (status.status.battery.level ?? 100) <= 20 && !status.status.battery.isCharging)

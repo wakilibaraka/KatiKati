@@ -478,6 +478,30 @@ Goal: `wakilibaraka/BeteriApp` (a simplified fork of BatteryBoi, 7.3k lines Swif
 | 59g | **Alert style.** Setting `com.katikati.notifications.style`: island banner (existing `LiveEventPresentation` toast) or pill. Pill gains BeteriApp's glow and countdown-bar look; the island path adds nothing new. No second HUD window | `App/Entry/PowerNotificationCenter.swift`, `App/Composition/LiveEventPresentation.swift`, Notifications pane | the island needs to be on for the banner option; fall back to the pill when it is off |
 | 59h | **Retire BeteriApp.** Add `NOTICE` entries for BeteriApp and BatteryBoi (**neither is in `NOTICE` today**; `BluetoothDeviceReader.swift:10` calls BatteryBoi "MIT" while BeteriApp's `LICENSE` is GPL-3 — read upstream `thebarbican19/BatteryBoi` and fix whichever is wrong), put a pointer to KatiKati in BeteriApp's README (its Releases link points at `Baraka254/BeteriApp`, not `wakilibaraka`), then archive the repo | repo root | owner's click: archiving is outward-facing; do last |
 
+**Phase 59 notes (2026-10-22).** 59b, 59c, 59e, 59f, 59g and 59h are in; 59d landed on two of its three surfaces.
+**59b:** one low level — `NotchBehavior.lowBatteryThreshold` reads `com.katikati.notifications.lowThreshold` first and
+falls back to the notch key it used before, and the notch slider writes through `PowerNotificationCenter`, so there is
+one setting and no second picker; `BatteryBuddyPolicy` and `BluetoothDevice.isLowBattery` now share
+`PowerNotificationPolicy.peripheralLowLevel`/`lowDevices`. **59c:** `Core/Support/PowerFacts.swift` (time to empty/full
+with the 65535/-1 sentinels, signed-wrap watts, thermal, Low Power Mode) plus `PowerFactsReader` in
+`Platform/SystemStatus/SystemHealthReaders.swift`; `BatteryStatus.facts` carries it, and the app still compiles nothing
+that shells out. **59d:** the menu-bar battery item gained **Time Remaining** and **Watts** styles (its style list comes
+from `MenuBarStatModel.styles(for:)`, so Settings needed no change), and Control Center's *This Mac* row shows the
+facts line; **the notch battery popover was not built** — the chip is 50 pt wide inside the hover panel, so its facts
+are a `.help` tooltip for now. **59e:** a **Low Power** badge in the Control Center header; the control is the existing
+tap-through to the Battery pane (no `pmset`, no admin prompt). **59f/59g:** `lowSteps` (25/10/5/1, once per dip),
+`soundEnabled`, and `PowerNotificationStyle` (.pill / .banner) drawn by the same presenter and view. **59h:** `NOTICE`
+entries for BeteriApp and BatteryBoi, and `BluetoothDeviceReader`'s licence comment corrected from MIT to GPL-3.0
+(BatteryBoi's GitHub API label read 2026-10-22). **Gate:** 2699 tests, 2 skipped (live torrent), 0 failures, exit 0;
+`check_localization.py` ✅ (1126 keys × 12), `check_debug_switches.py` ✅ (86 switches), `check_availability_warnings.py` ✅.
+**Live:** the Notifications page renders the new **Alert at 25% and below** toggle, the **Appearance** card
+(**Compact Pill** / **Banner**, **Play a Sound**) and a history row reading **Charge Milestone 80%**; the demo hook showed
+`Charge Milestone / 80%` and `Battery Charged / 100%` as pills with visibly different text, and the banner style as a
+wider card under the menu bar at top centre; the menu-bar battery item read **3h 56m** in the Time Remaining style.
+**OWED:** the Watts style read **–** in its live run because the Mac had switched to battery power by then (on battery
+it is correct to show nothing), a low-step alert was never fired live (needs a battery below 25 %), and the notch
+popover above was not built. The BeteriApp README pointer and archive are the owner's outward-facing click.
+
 #### 59.3 Not ported, with the reason
 Hero ring (owner: skip) · pinned window · BeteriApp's network and update managers · the committed `.app` bundle · FluidGradient / EnalogSwift / DynamicColor dependencies · `pmset` admin toggle · `system_profiler` text scrape · 17 `.strings` files.
 

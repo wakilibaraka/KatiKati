@@ -79,8 +79,11 @@ enum NotchBehavior {
     static let lowBatteryThresholdKey = "com.katikati.notch.lowBatteryThreshold"
     static let defaultLowBatteryThreshold = 20
     static let lowBatteryRange = 5...50
+    /// 59b: one low level for the Mac. The Notifications page owns it; a value stored here before that
+    /// page existed is still read, so upgrading does not silently change a user's tint level.
     static func lowBatteryThreshold(_ d: UserDefaults = .standard) -> Int {
-        let v = d.object(forKey: lowBatteryThresholdKey) as? Int ?? defaultLowBatteryThreshold
+        let shared = (d.object(forKey: PowerNotificationRules.Storage.lowThreshold) as? Int).flatMap { $0 == 0 ? nil : $0 }
+        let v = shared ?? (d.object(forKey: lowBatteryThresholdKey) as? Int) ?? defaultLowBatteryThreshold
         return min(lowBatteryRange.upperBound, max(lowBatteryRange.lowerBound, v))
     }
 

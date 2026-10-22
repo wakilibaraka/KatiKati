@@ -85,7 +85,7 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
             return Self.pieImage(MenuBarStatModel.imageFraction(metric: metric, values: values))
         case .iconOnly:
             return NSImage(systemSymbolName: MenuBarStatModel.batterySymbol(values.battery), accessibilityDescription: nil)
-        case .percentage, .available, .used:
+        case .percentage, .available, .used, .remainingTime, .watts:
             return NSImage(systemSymbolName: MenuBarStatModel.symbolName(metric: metric), accessibilityDescription: nil)
         }
     }
