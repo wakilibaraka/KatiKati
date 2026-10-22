@@ -48,6 +48,11 @@ extension SettingsLayoutPane {
             .help(Text("How the dock widgets' readings move when they change."))
             // The menu-bar menu's four switches moved here (2026-10-21).
             SettingsDivider()
+            SettingsToggleRow(Text("Control Centre on the right"), isOn: Binding(
+                get: { store.controlCentreTrailing },
+                set: { store.setControlCentreTrailing($0) }
+            ))
+            SettingsDivider()
             SettingsToggleRow(Text("Show Shelf"), isOn: Binding(
                 get: { store.showShelf },
                 set: { store.setShowShelf($0) }

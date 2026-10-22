@@ -169,17 +169,22 @@ struct BluetoothFlyoutView: View {
     }
 }
 
-/// Phase 16h: the Control Center content — iPad-style layout: a connectivity cluster, a volume slider,
-/// a now-playing card, the one-tap switch grid, and a bottom utility row. All through the shared
-/// `QuickToggleEngine` / `SystemStatusService` / `NowPlayingService`. The brightness/cluster extras land in 16i.
+/// Phase 16h / redesigned 2026-10-22 (owner screenshot): the Control Center content.
+///
+/// **The chrome is the dock's.** `\.dockThemeStyle` and `\.themeTuning` are injected by the host, so
+/// every preset the Appearance page offers — plus the vibrancy/contrast knobs — restyles this panel
+/// the way it restyles the bar: the plate takes that preset's own overlay tint and rim, cards wear
+/// the same `SettingsIridescentPalette` the Appearance swatches are drawn from, and text takes the
+/// dock's label tints. Nothing here picks its own accent.
+///
+/// Layout, top to bottom: header (clock + battery), system & peripherals with live percentages,
+/// Wi-Fi / Bluetooth bento, now playing, the switch grid (4 or 5 per row, see `ControlCenterGrid`),
+/// the network row, three sliders, the utility row and the account footer.
 struct ControlCenterView: View {
     @ObservedObject var engine: QuickToggleEngine
     let order: [QuickToggleID]
-    /// Phase 16l: user widgets (compact rows) hosted below the switch grid.
+    /// Phase 16l/16n: user widgets. Battery/batteries drive the peripherals card, network the row.
     let widgetTiles: [TileKind]
-    /// Phase 16r: cap for the content-sized no-scroll panel; reports `min(content, maxHeight)`.
-    let maxHeight: CGFloat
-    var onHeight: (CGFloat) -> Void = { _ in }
     @StateObject private var status = SystemStatusService()
     @StateObject private var nowPlaying = NowPlayingService()
     @State private var confirming: QuickToggleID?
@@ -188,6 +193,10 @@ struct ControlCenterView: View {
     @State private var keyLight: Double? = KeyboardBacklight.isAvailable ? KeyboardBacklight.current() : nil
     /// 57a: wheel travel left over between events on the volume row.
     @State private var volumeScroll = ControlCenterScroll.State()
+    /// Connected Bluetooth devices that report a battery. Read once per open and on demand — the read
+    /// shells out to `system_profiler`, so it is never polled.
+    @State private var peripherals: [BluetoothDevice] = []
+    @State private var peripheralsLoading = true
 
     var onSettings: () -> Void = {}
     var onLauncher: () -> Void = {}
@@ -195,176 +204,472 @@ struct ControlCenterView: View {
     var onDrawer: () -> Void = {}
     var onQuit: () -> Void = {}
 
+    /// Shared with the host so the panel's plate and this wash cannot drift apart.
+    static let cornerRadius: CGFloat = 22
+
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    @Environment(\.themeTuning) private var themeTuning
+    @Environment(\.colorScheme) private var colorScheme
+
+    private enum Metrics {
+        static let padding: CGFloat = 12
+        static let sectionGap: CGFloat = 9
+        static let cardRadius: CGFloat = 16
+        static let cardPadding: CGFloat = 10
+        static let circle: CGFloat = 38
+        static let gridGap: CGFloat = 7
+        /// One switch row: circle + gap + label. The grid's capacity is measured in these.
+        static let gridPitch: CGFloat = 61
+        static let rowGap: CGFloat = 7
+        static let barHeight: CGFloat = 3
+    }
+
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
+    private var palette: SettingsIridescentPalette { .resolve(style: dockThemeStyle, colorScheme: colorScheme) }
+    /// Dock label tints: black on the light column, white on the dark one, so text flips with the plate.
+    private var ink: Color { theme.labelActive.color }
+    private var inkSoft: Color { theme.labelSubtitle.color }
+
     private var connectivity: [QuickToggleID] { [.wifi, .bluetooth] }
     private var quickActions: [QuickToggleID] { order.filter { !connectivity.contains($0) } }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Quick Settings").font(.headline)
-            batteryCard
-            HStack(spacing: 10) {
-                ForEach(connectivity, id: \.self) { id in tile(id) }
+        VStack(alignment: .leading, spacing: Metrics.sectionGap) {
+            header
+            peripheralsCard
+            HStack(spacing: 8) {
+                ForEach(connectivity, id: \.self) { id in connectivityCard(id) }
             }
             nowPlayingCard
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 12) {
-                ForEach(quickActions, id: \.self) { id in cell(id) }
+            switchGrid
+            if widgetTiles.contains(.network) {
+                card(padding: 9) { ControlCenterNetworkRow() }
             }
-            widgetsSection
-            volumeRow
-            if let brightness {
-                slider(icon: "sun.max.fill", value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayServicesBrightness.set($0) }))
-            }
-            if let keyLight {
-                slider(icon: "keyboard", value: Binding(get: { keyLight }, set: { self.keyLight = $0; KeyboardBacklight.set($0) }))
-            }
-            Spacer(minLength: 0)
+            sliderRows
             utilityRow
-            accountRow
+            card(padding: 8) { ControlCenterAccountRow() }
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-        .background(GeometryReader { Color.clear.preference(key: PanelHeightKey.self, value: $0.size.height) })
-        .onPreferenceChange(PanelHeightKey.self) { onHeight(min($0, maxHeight)) }
+        .padding(Metrics.padding)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(plateWash)
+        .overlay(plateRim)
         .onAppear { engine.refresh(); status.acquire() }
         .onDisappear { status.release() }
+        .task { await refreshPeripherals() }
     }
 
-    private func tile(_ id: QuickToggleID) -> some View {
-        let on = engine.states[id] ?? false
-        return Button { engine.perform(id) } label: {
-            VStack(alignment: .leading, spacing: 6) {
-                Image(systemName: id.symbolName).font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(on ? .white : .primary)
-                    .frame(width: 40, height: 40)
-                    .background(Circle().fill(on ? Color.accentColor : Color.primary.opacity(0.10)))
-                id.title.font(.system(size: 13, weight: .semibold))
-                subtitle(id).font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
-            }
+    // MARK: - Panel chrome (the dock theme's own)
+
+    /// The preset's plate tint, exactly as the bar's backdrop computes it (`DockPanelBackdrop`).
+    /// `nil` for Auto/System: those presets tint nothing, so neither does this panel.
+    @ViewBuilder
+    private var plateWash: some View {
+        if let top = dockThemeStyle.plateOverlay(baseTint: theme.styleTokens.baseTint,
+                                                 vibrancy: themeTuning.vibrancy,
+                                                 contrast: themeTuning.contrast) {
+            RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
+                .fill(DockGlassBackdrop.overlayPaint(
+                    top: top,
+                    bottom: dockThemeStyle.plateOverlayBottom(
+                        baseTintBottom: theme.styleTokens.baseTintBottom,
+                        vibrancy: themeTuning.vibrancy,
+                        contrast: themeTuning.contrast)))
+                .allowsHitTesting(false)
+        }
+    }
+
+    private var plateRim: some View {
+        RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
+            .strokeBorder(theme.panelRimStyle, lineWidth: theme.panelRimLineWidth)
+            .padding(0.25)
+            .allowsHitTesting(false)
+    }
+
+    private var cardStroke: Color { Color.primary.opacity(colorScheme == .dark ? 0.10 : 0.07) }
+
+    private var cardFill: AnyShapeStyle {
+        AnyShapeStyle(LinearGradient(colors: [Color.primary.opacity(colorScheme == .dark ? 0.07 : 0.05),
+                                              palette.cardTintBottom],
+                                     startPoint: .topLeading, endPoint: .bottomTrailing))
+    }
+
+    private var activeFill: AnyShapeStyle {
+        AnyShapeStyle(LinearGradient(colors: [palette.primaryAccent.opacity(0.30), palette.secondaryAccent.opacity(0.13)],
+                                     startPoint: .topLeading, endPoint: .bottomTrailing))
+    }
+
+    private func card<Content: View>(active: Bool = false, padding: CGFloat = Metrics.cardPadding,
+                                     @ViewBuilder _ content: () -> Content) -> some View {
+        content()
+            .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(12)
-            .background(RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(on ? Color.accentColor.opacity(0.16) : Color.primary.opacity(0.06)))
+            .background(
+                RoundedRectangle(cornerRadius: Metrics.cardRadius, style: .continuous)
+                    .fill(active ? activeFill : cardFill)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Metrics.cardRadius, style: .continuous)
+                    .strokeBorder(active ? AnyShapeStyle(palette.primaryAccent.opacity(0.45))
+                                         : AnyShapeStyle(cardStroke),
+                                  lineWidth: 1)
+            )
+    }
+
+    // MARK: - Header
+
+    private var header: some View {
+        HStack(spacing: 7) {
+            Text("Quick Settings")
+                .font(.system(size: 15, weight: .bold))
+                .foregroundStyle(ink)
+            clockPill
+            Spacer(minLength: 4)
+            batteryPill
         }
-        .buttonStyle(.plain)
+        .padding(.horizontal, 1)
     }
 
-    private func subtitle(_ id: QuickToggleID) -> Text {
-        guard id == .wifi else { return Text(verbatim: "") }
-        let w = status.status.wifi
-        if w.isPoweredOn, let ssid = w.ssid, w.isConnected { return Text(verbatim: ssid) }
-        return Text("Not Connected")
-    }
-
-    private var volumeRow: some View {
-        let v = status.status.volume
-        return slider(icon: v.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill",
-                      value: Binding(get: { Double(v.level) }, set: { _ = status.setVolume(Float($0)) }))
-            // Scrolling anywhere on the row nudges the volume. The catcher claims wheel events only, so the
-            // slider underneath keeps its drag and clicks.
-            .overlay {
-                VolumeScrollCatcher { deltaY, precise in
-                    guard let next = ControlCenterScroll.consume(
-                        deltaY: deltaY, precise: precise, level: status.currentVolumeLevel,
-                        state: &volumeScroll) else { return }
-                    _ = status.setVolume(Float(next))
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-    }
-
-    private func slider(icon: String, value: Binding<Double>) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon).font(.system(size: 14)).frame(width: 22)
-            Slider(value: value, in: 0...1)
-            Text(verbatim: "\(Int((value.wrappedValue * 100).rounded()))").font(.system(size: 12)).monospacedDigit()
-                .foregroundStyle(.secondary).frame(width: 28, alignment: .trailing)
+    private var clockPill: some View {
+        TimelineView(.periodic(from: .now, by: 30)) { context in
+            Text(verbatim: Self.clockFormatter.string(from: context.date))
+                .font(.system(size: 10, weight: .medium))
+                .monospacedDigit()
+                .foregroundStyle(inkSoft)
+                .padding(.horizontal, 7)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(Color.primary.opacity(0.07)))
         }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
     }
 
-    /// The card keeps the same shape with and without a track (two text lines + transport row):
-    /// a flapping MediaRemote state must never change its height, or the live panel resize pulses.
-    private var nowPlayingCard: some View {
-        let s = nowPlaying.state
-        let hasTrack = s.title != nil
-        return HStack(spacing: 12) {
-            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.10))
-                .frame(width: 46, height: 46).overlay(Image(systemName: "music.note").foregroundStyle(.secondary))
-            VStack(alignment: .leading, spacing: 2) {
-                Group {
-                    if hasTrack {
-                        Text(verbatim: s.title ?? "")
-                    } else {
-                        Text("Nothing Playing")
+    private static let clockFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        formatter.dateStyle = .none
+        return formatter
+    }()
+
+    private var batteryPill: some View {
+        let battery = status.status.battery
+        return HStack(spacing: 4) {
+            Image(systemName: battery.isCharging ? "bolt.fill" : "battery.75")
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(battery.isCharging ? Color.green : palette.primaryAccent)
+            // Fixed slot: a missing reading must not resize the header.
+            Text(verbatim: battery.level.map { "\($0)%" } ?? "–")
+                .font(.system(size: 11.5, weight: .semibold))
+                .monospacedDigit()
+                .foregroundStyle(ink)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 3)
+        .background(Capsule().fill(Color.primary.opacity(0.08)))
+        .overlay(Capsule().strokeBorder(cardStroke, lineWidth: 0.5))
+    }
+
+    // MARK: - System & peripherals
+
+    @ViewBuilder
+    private var peripheralsCard: some View {
+        let showsThisMac = widgetTiles.contains(.battery)
+        let showsDevices = widgetTiles.contains(.batteries)
+        if showsThisMac || showsDevices {
+            card {
+                VStack(alignment: .leading, spacing: Metrics.rowGap) {
+                    HStack(spacing: 6) {
+                        Text("System & Peripherals")
+                            .font(.system(size: 12.5, weight: .semibold))
+                            .foregroundStyle(ink)
+                        if status.status.battery.isCharging {
+                            Text("Charging")
+                                .font(.system(size: 9, weight: .semibold))
+                                .foregroundStyle(Color.green)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 1)
+                                .background(Capsule().fill(Color.green.opacity(0.14)))
+                        }
+                        Spacer(minLength: 0)
+                        Button { Task { await refreshPeripherals() } } label: {
+                            HStack(spacing: 4) {
+                                Text(verbatim: deviceCount(peripheralCount))
+                                    .font(.system(size: 10.5, weight: .medium))
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.system(size: 9, weight: .semibold))
+                            }
+                            .foregroundStyle(inkSoft)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .help(Text("Refresh"))
+                    }
+                    if showsThisMac {
+                        deviceRow(symbol: "laptopcomputer",
+                                  name: String(localized: "This Mac"),
+                                  detail: nil,
+                                  level: status.status.battery.level,
+                                  charging: status.status.battery.isCharging,
+                                  low: (status.status.battery.level ?? 100) <= 20 && !status.status.battery.isCharging)
+                    }
+                    if showsDevices {
+                        if peripheralsLoading && peripherals.isEmpty {
+                            ProgressView().controlSize(.small)
+                        } else {
+                            ForEach(peripherals) { device in
+                                deviceRow(symbol: device.symbolName,
+                                          name: device.name,
+                                          detail: device.batteryBreakdown,
+                                          level: device.lowestBattery,
+                                          charging: false,
+                                          low: device.isLowBattery)
+                            }
+                            if peripherals.isEmpty {
+                                Text("No connected devices report a battery")
+                                    .font(.system(size: 10.5))
+                                    .foregroundStyle(inkSoft)
+                            }
+                        }
                     }
                 }
-                .font(.system(size: 13, weight: hasTrack ? .semibold : .regular))
-                .foregroundStyle(hasTrack ? Color.primary : Color.secondary)
-                .lineLimit(1)
-                // Non-breaking space: keeps the second line (and the card height) when no artist.
-                Text(verbatim: s.artist ?? " ")
-                    .font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
             }
-            Spacer(minLength: 0)
-            Button { nowPlaying.previousTrack() } label: { Image(systemName: "backward.end.fill") }.buttonStyle(.plain)
-            Button { nowPlaying.togglePlayPause() } label: { Image(systemName: s.isPlaying ? "pause.fill" : "play.fill") }.buttonStyle(.plain)
-            Button { nowPlaying.nextTrack() } label: { Image(systemName: "forward.end.fill") }.buttonStyle(.plain)
+        }
+    }
+
+    private var peripheralCount: Int {
+        (widgetTiles.contains(.battery) && status.status.battery.level != nil ? 1 : 0) + peripherals.count
+    }
+
+    private func deviceRow(symbol: String, name: String, detail: String?, level: Int?,
+                           charging: Bool, low: Bool) -> some View {
+        VStack(spacing: 3) {
+            HStack(spacing: 6) {
+                Image(systemName: symbol)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(inkSoft)
+                    .frame(width: 18)
+                Text(verbatim: name)
+                    .font(.system(size: 11.5, weight: .semibold))
+                    .lineLimit(1)
+                    .foregroundStyle(ink)
+                if let detail {
+                    Text(verbatim: "· " + detail)
+                        .font(.system(size: 9.5))
+                        .lineLimit(1)
+                        .foregroundStyle(inkSoft)
+                }
+                Spacer(minLength: 4)
+                if charging {
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 8.5, weight: .bold))
+                        .foregroundStyle(Color.green)
+                }
+                Text(verbatim: level.map { "\($0)%" } ?? "–")
+                    .font(.system(size: 11, weight: .semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(low ? Color.red : ink)
+            }
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.primary.opacity(0.10))
+                    Capsule()
+                        .fill(levelGradient(charging: charging, low: low))
+                        .frame(width: proxy.size.width * CGFloat(level ?? 0) / 100)
+                }
+            }
+            .frame(height: Metrics.barHeight)
+            .padding(.leading, 24)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private func levelGradient(charging: Bool, low: Bool) -> LinearGradient {
+        let colors: [Color] = charging ? [Color(red: 0.20, green: 0.78, blue: 0.45), Color(red: 0.13, green: 0.66, blue: 0.40)]
+            : low ? [Color(red: 0.95, green: 0.30, blue: 0.30), Color(red: 0.98, green: 0.55, blue: 0.25)]
+            : [palette.primaryAccent, palette.secondaryAccent]
+        return LinearGradient(colors: colors, startPoint: .leading, endPoint: .trailing)
+    }
+
+    private func accentIcon(symbol: String, on: Bool, size: CGFloat = 32) -> some View {
+        Image(systemName: symbol)
+            .font(.system(size: size * 0.44, weight: .semibold))
+            .foregroundStyle(on ? Color.white : inkSoft)
+            .frame(width: size, height: size)
+            .background(Circle().fill(on ? AnyShapeStyle(palette.pillGradient)
+                                          : AnyShapeStyle(Color.primary.opacity(0.09))))
+            .overlay(Circle().strokeBorder(on ? Color.white.opacity(0.35) : Color.white.opacity(0.06), lineWidth: 1))
+            .shadow(color: on ? palette.glowColor : .clear, radius: 6, y: 2)
+    }
+
+    // MARK: - Wi-Fi / Bluetooth
+
+    private func connectivityCard(_ id: QuickToggleID) -> some View {
+        let on = engine.states[id] ?? false
+        return card(active: on, padding: 0) {
+            ZStack(alignment: .topTrailing) {
+                Button { engine.perform(id) } label: {
+                    VStack(alignment: .leading, spacing: 6) {
+                        accentIcon(symbol: id.symbolName, on: on)
+                        VStack(alignment: .leading, spacing: 1) {
+                            id.title
+                                .font(.system(size: 12.5, weight: .semibold))
+                                .foregroundStyle(ink)
+                                .lineLimit(1)
+                            Text(verbatim: connectivityDetail(id, on: on))
+                                .font(.system(size: 10.5))
+                                .foregroundStyle(inkSoft)
+                                .lineLimit(1)
+                        }
+                    }
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                Button { openSettings(for: id) } label: {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 9.5, weight: .semibold))
+                        .foregroundStyle(inkSoft)
+                        .padding(9)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .help(Text("Open System Settings…"))
+            }
+        }
+    }
+
+    private func connectivityDetail(_ id: QuickToggleID, on: Bool) -> String {
+        guard on else { return String(localized: "Off") }
+        switch id {
+        case .wifi:
+            let wifi = status.status.wifi
+            guard wifi.isPoweredOn else { return String(localized: "Off") }
+            return wifi.ssid.flatMap { $0.isEmpty ? nil : $0 } ?? String(localized: "Not Connected")
+        case .bluetooth:
+            return deviceCount(peripherals.count)
+        default:
+            return ""
+        }
+    }
+
+    /// "1 Device" / "4 Devices" — the count plus a localized noun.
+    private func deviceCount(_ count: Int) -> String {
+        let noun = count == 1 ? String(localized: "Device") : String(localized: "Devices")
+        return "\(count) " + noun
+    }
+
+    private func openSettings(for id: QuickToggleID) {
+        let raw = id == .wifi ? "x-apple.systempreferences:com.apple.wifi-settings-extension"
+                              : "x-apple.systempreferences:com.apple.BluetoothSettings"
+        guard let url = URL(string: raw) else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    // MARK: - Now playing
+
+    private var nowPlayingCard: some View {
+        let state = nowPlaying.state
+        let hasTrack = state.title != nil
+        return card(padding: 9) {
+            VStack(spacing: 6) {
+                HStack(spacing: 9) {
+                    artwork(state)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Group {
+                            if let title = state.title {
+                                Text(verbatim: title)
+                            } else {
+                                Text("Nothing Playing")
+                            }
+                        }
+                        .font(.system(size: 12.5, weight: hasTrack ? .semibold : .regular))
+                        .foregroundStyle(hasTrack ? ink : inkSoft)
+                        .lineLimit(1)
+                        // Non-breaking space: keeps the second line (and the card height) when no artist.
+                        Text(verbatim: state.artist ?? " ")
+                            .font(.system(size: 10.5))
+                            .foregroundStyle(inkSoft)
+                            .lineLimit(1)
+                    }
+                    Spacer(minLength: 4)
+                    transport("backward.end.fill", String(localized: "Previous")) { nowPlaying.previousTrack() }
+                    transport(state.isPlaying ? "pause.fill" : "play.fill",
+                              String(localized: state.isPlaying ? "Pause" : "Play")) { nowPlaying.togglePlayPause() }
+                    transport("forward.end.fill", String(localized: "Next")) { nowPlaying.nextTrack() }
+                }
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    GeometryReader { proxy in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(Color.primary.opacity(0.10))
+                            Capsule()
+                                .fill(LinearGradient(colors: [palette.primaryAccent, palette.secondaryAccent],
+                                                     startPoint: .leading, endPoint: .trailing))
+                                .frame(width: proxy.size.width * CGFloat((state.progress(at: context.date) ?? 0)))
+                        }
+                    }
+                    .frame(height: 3)
+                }
+                .opacity(hasTrack ? 1 : 0)
+            }
         }
         .disabled(!hasTrack)
-        .opacity(hasTrack ? 1 : 0.55)
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
+        .opacity(hasTrack ? 1 : 0.85)
     }
 
-    /// Phase 16s: battery + batteries as one topmost card. Either Settings pick shows the card;
-    /// the This Mac section follows the battery pick, the device rows follow the batteries pick.
-    private var batteryCard: some View {
-        Group {
-            if widgetTiles.contains(.battery) || widgetTiles.contains(.batteries) {
-                ControlCenterBatteryCard(
-                    status: status,
-                    showsThisMac: widgetTiles.contains(.battery),
-                    showsDevices: widgetTiles.contains(.batteries))
-            }
-        }
+    private func artwork(_ state: NowPlayingState) -> some View {
+        RoundedRectangle(cornerRadius: 9, style: .continuous)
+            .fill(LinearGradient(colors: [palette.primaryAccent.opacity(0.9), palette.secondaryAccent.opacity(0.8)],
+                                 startPoint: .topLeading, endPoint: .bottomTrailing))
+            .frame(width: 38, height: 38)
+            .overlay(
+                Group {
+                    if let data = state.artworkData, let image = NSImage(data: data) {
+                        Image(nsImage: image).resizable().scaledToFill()
+                    } else {
+                        Image(systemName: "music.note")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+            )
     }
 
-    /// Phase 16r: compact widget rows — the panel is a no-scroll screen, so full tiles don't fit.
-    /// Battery + batteries render as one topmost card (`batteryCard`); only network rows live here.
-    private var widgetsSection: some View {
-        Group {
-            if widgetTiles.contains(.network) {
-                ControlCenterNetworkRow()
-            }
-        }
-    }
-
-    /// Phase 16u: the account row at the very bottom — avatar + name + gear opens Users & Groups.
-    private var accountRow: some View {
-        ControlCenterAccountRow()
-    }
-
-    private var utilityRow: some View {
-        HStack(spacing: 6) {
-            utility("gearshape", "KatiKati Settings", onSettings)
-            utility("square.grid.2x2", "Launcher", onLauncher)
-            utility("camera.viewfinder", "Capture", onCapture)
-            utility("rectangle.stack", "Drawer", onDrawer)
-            utility("power", "Quit", onQuit)
-        }
-    }
-
-    private func utility(_ symbol: String, _ label: LocalizedStringKey, _ action: @escaping () -> Void) -> some View {
+    private func transport(_ symbol: String, _ label: String, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: symbol).font(.system(size: 16))
-                Text(label).font(.system(size: 9)).lineLimit(1).minimumScaleFactor(0.7)
-            }
-            .frame(maxWidth: .infinity).padding(.vertical, 8)
-            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.06)))
+            Image(systemName: symbol)
+                .font(.system(size: 12.5, weight: .semibold))
+                .foregroundStyle(ink)
+                .frame(width: 26, height: 24)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(Text(verbatim: label))
+        .accessibilityLabel(Text(verbatim: label))
+    }
+
+    // MARK: - Switch grid
+
+    /// The grid is the panel's spring: it takes whatever height the fixed sections leave (the panel
+    /// fills the space between the menu bar and the dock) and its rows sit centred in it. When that
+    /// height cannot hold four rows at four per row, the grid goes five per row instead — that is the
+    /// 4→5 step, measured here rather than guessed from the screen size.
+    private var switchGrid: some View {
+        GeometryReader { proxy in
+            let rowsFit = max(1, Int(proxy.size.height / Metrics.gridPitch))
+            let columns = ControlCenterGrid.columns(count: quickActions.count, rowsFit: rowsFit)
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: columns),
+                      alignment: .center,
+                      spacing: Metrics.gridGap) {
+                ForEach(quickActions, id: \.self) { id in cell(id) }
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .center)
+        }
+        .frame(minHeight: gridMinHeight, maxHeight: .infinity)
+        .animation(.easeOut(duration: 0.18), value: quickActions.count)
+    }
+
+    /// Never collapse to nothing on a short screen: the grid keeps the height four rows need.
+    private var gridMinHeight: CGFloat {
+        CGFloat(ControlCenterGrid.rows(count: quickActions.count, columns: ControlCenterGrid.baseColumns)) * Metrics.gridPitch
     }
 
     private func cell(_ id: QuickToggleID) -> some View {
@@ -382,18 +687,129 @@ struct ControlCenterView: View {
         } label: {
             VStack(spacing: 4) {
                 Image(systemName: engine.flash == id ? "checkmark" : id.symbolName)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(on || armed ? .white : .primary)
-                    .frame(width: 44, height: 44)
-                    .background(Circle().fill(armed ? Color.red.opacity(0.9) : (on ? Color.accentColor : Color.primary.opacity(0.10))))
-                    .overlay(armed ? Image(systemName: "exclamationmark").font(.system(size: 9, weight: .heavy)).foregroundColor(.white).offset(x: 14, y: -14) : nil)
-                id.title.font(.system(size: 9, weight: .medium)).lineLimit(1).minimumScaleFactor(0.7)
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(on || armed ? Color.white : ink)
+                    .frame(width: Metrics.circle, height: Metrics.circle)
+                    .background(Circle().fill(armed ? AnyShapeStyle(Color.red.opacity(0.9))
+                                                    : on ? AnyShapeStyle(palette.pillGradient)
+                                                         : AnyShapeStyle(Color.primary.opacity(0.09))))
+                    .overlay(Circle().strokeBorder(on || armed ? Color.white.opacity(0.30)
+                                                               : Color.white.opacity(0.06),
+                                                   lineWidth: 1))
+                    .overlay(armed ? Image(systemName: "exclamationmark")
+                        .font(.system(size: 8, weight: .heavy))
+                        .foregroundStyle(.white)
+                        .offset(x: 13, y: -13) : nil)
+                    .shadow(color: on || armed ? palette.glowColor : .clear, radius: 6, y: 2)
+                    .scaleEffect(armed ? 1.06 : 1)
+                id.title
+                    .font(.system(size: 9.5, weight: .medium))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.62)
+                    .foregroundStyle(inkSoft)
             }
+            .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .opacity(gone ? 0.35 : 1)
         .disabled(gone)
+        .animation(.spring(response: 0.28, dampingFraction: 0.78), value: on)
+        .accessibilityAddTraits(on ? .isSelected : [])
+    }
+
+    // MARK: - Sliders
+
+    @ViewBuilder
+    private var sliderRows: some View {
+        VStack(spacing: 6) {
+            volumeRow
+            if let brightness {
+                sliderRow(icon: "sun.max.fill",
+                          value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayServicesBrightness.set($0) }))
+            }
+            if let keyLight {
+                sliderRow(icon: "keyboard",
+                          value: Binding(get: { keyLight }, set: { self.keyLight = $0; KeyboardBacklight.set($0) }))
+            }
+        }
+    }
+
+    private var volumeRow: some View {
+        let volume = status.status.volume
+        return sliderRow(icon: volume.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill",
+                         value: Binding(get: { Double(volume.level) }, set: { _ = status.setVolume(Float($0)) }))
+            // Scrolling anywhere on the row nudges the volume. The catcher claims wheel events only, so the
+            // slider underneath keeps its drag and clicks.
+            .overlay {
+                VolumeScrollCatcher { deltaY, precise in
+                    guard let next = ControlCenterScroll.consume(
+                        deltaY: deltaY, precise: precise, level: status.currentVolumeLevel,
+                        state: &volumeScroll) else { return }
+                    _ = status.setVolume(Float(next))
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+    }
+
+    private func sliderRow(icon: String, value: Binding<Double>) -> some View {
+        card(padding: 8) {
+            HStack(spacing: 9) {
+                Image(systemName: icon)
+                    .font(.system(size: 12))
+                    .foregroundStyle(inkSoft)
+                    .frame(width: 18)
+                Slider(value: value, in: 0...1)
+                    .controlSize(.small)
+                    .tint(palette.primaryAccent)
+                Text(verbatim: "\(Int((value.wrappedValue * 100).rounded()))")
+                    .font(.system(size: 11, weight: .medium))
+                    .monospacedDigit()
+                    .foregroundStyle(inkSoft)
+                    .frame(width: 26, alignment: .trailing)
+            }
+        }
+    }
+
+    // MARK: - Bottom rows
+
+    private var utilityRow: some View {
+        HStack(spacing: 6) {
+            utility("gearshape", "KatiKati Settings", onSettings)
+            utility("square.grid.2x2", "Launcher", onLauncher)
+            utility("camera.viewfinder", "Capture", onCapture)
+            utility("rectangle.stack", "Drawer", onDrawer)
+            utility("power", "Quit", onQuit)
+        }
+    }
+
+    private func utility(_ symbol: String, _ label: LocalizedStringKey, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 3) {
+                Image(systemName: symbol).font(.system(size: 14, weight: .medium))
+                Text(label)
+                    .font(.system(size: 9, weight: .medium))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.62)
+            }
+            .foregroundStyle(ink)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 7)
+            .background(RoundedRectangle(cornerRadius: 11, style: .continuous).fill(cardFill))
+            .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous).strokeBorder(cardStroke, lineWidth: 1))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Peripherals
+
+    /// Connected peripherals with a battery reading, at most four (the card is a list, not a scroll view).
+    @MainActor private func refreshPeripherals() async {
+        peripheralsLoading = true
+        let all = await BluetoothDeviceReader.read()
+        peripherals = Array(all.filter { $0.isConnected && $0.lowestBattery != nil }.prefix(4))
+        peripheralsLoading = false
     }
 }
 
@@ -428,110 +844,23 @@ private final class VolumeScrollCatcherView: NSView {
 
 // MARK: - Control Center compact widget rows (Phase 16r)
 
-/// Shared card chrome for the compact rows (matches the slider rows).
-private struct ControlCenterRow<Content: View>: View {
-    @ViewBuilder var content: () -> Content
-
-    var body: some View {
-        HStack(spacing: 10) { content() }
-            .padding(12)
-            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
-    }
-}
-
-/// Live down/up rates; samples only while the row is on screen.
+/// Live down/up rates; samples only while the row is on screen. The parent card supplies the chrome.
 private struct ControlCenterNetworkRow: View {
     @ObservedObject private var monitor = ProductivityServices.shared.systemMonitor
 
     var body: some View {
-        let s = monitor.snapshot
-        ControlCenterRow {
-            Image(systemName: "arrow.down.up").font(.system(size: 14)).frame(width: 22)
-            Text("Network").font(.system(size: 13, weight: .semibold))
+        let snapshot = monitor.snapshot
+        HStack(spacing: 8) {
+            Image(systemName: "arrow.down.up").font(.system(size: 12, weight: .medium)).frame(width: 18)
+            Text("Network").font(.system(size: 12, weight: .semibold))
             Spacer(minLength: 0)
-            Image(systemName: "arrow.down").font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
-            Text(verbatim: SystemMonitorFormat.bytes(s.down) + "/s").font(.system(size: 12)).monospacedDigit()
-            Image(systemName: "arrow.up").font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
-            Text(verbatim: SystemMonitorFormat.bytes(s.up) + "/s").font(.system(size: 12)).monospacedDigit()
+            Image(systemName: "arrow.down").font(.system(size: 10, weight: .bold)).foregroundStyle(.secondary)
+            Text(verbatim: SystemMonitorFormat.bytes(snapshot.down) + "/s").font(.system(size: 11)).monospacedDigit()
+            Image(systemName: "arrow.up").font(.system(size: 10, weight: .bold)).foregroundStyle(.secondary)
+            Text(verbatim: SystemMonitorFormat.bytes(snapshot.up) + "/s").font(.system(size: 11)).monospacedDigit()
         }
         .onAppear { monitor.acquire() }
         .onDisappear { monitor.release() }
-    }
-}
-
-/// Battery + batteries as one card (Phase 16s): This Mac level plus connected Bluetooth devices
-/// that report a battery. Devices are read once per open; the shared status service is the parent's.
-/// Either Settings pick shows the card; the This Mac section follows the battery pick, the device
-/// rows follow the batteries pick.
-private struct ControlCenterBatteryCard: View {
-    @ObservedObject var status: SystemStatusService
-    let showsThisMac: Bool
-    let showsDevices: Bool
-    @State private var devices: [BluetoothDevice] = []
-    @State private var loading = true
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: status.status.battery.isCharging ? "battery.100.bolt" : "battery.75")
-                    .font(.system(size: 14)).frame(width: 22)
-                Text("Battery").font(.system(size: 13, weight: .semibold))
-                Spacer(minLength: 0)
-                // Fixed slot: a missing reading must not change the row height (panel pulse).
-                Text(verbatim: status.status.battery.level.map { "\($0)%" } ?? "–")
-                    .font(.system(size: 20, weight: .light)).monospacedDigit()
-            }
-            // Always drawn (empty without a reading) so the card height never changes.
-            Capsule().fill(Color.primary.opacity(0.12)).frame(height: 3)
-                .overlay(alignment: .leading) {
-                    GeometryReader { geo in
-                        Capsule().fill(thisMacTint).frame(width: geo.size.width * CGFloat(status.status.battery.level ?? 0) / 100)
-                    }
-                }
-            if showsThisMac, let level = status.status.battery.level {
-                line("laptopcomputer", Text("This Mac"), level)
-            }
-            if showsDevices {
-                if loading {
-                    ProgressView().controlSize(.small)
-                } else {
-                    ForEach(devices.prefix(4)) { d in line(d.symbolName, Text(verbatim: d.name), d.lowestBattery ?? 0, detail: d.batteryBreakdown, low: d.isLowBattery) }
-                    if devices.isEmpty {
-                        Text("No connected devices report a battery").font(.system(size: 11)).foregroundStyle(.secondary)
-                    }
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
-        .task { await load() }
-    }
-
-    private var thisMacTint: Color {
-        let b = status.status.battery
-        if b.isCharging { return .green }
-        return (b.level ?? 100) <= 20 ? .red : .primary.opacity(0.7)
-    }
-
-    private func line(_ symbol: String, _ name: Text, _ level: Int, detail: String? = nil, low: Bool = false) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: symbol).font(.system(size: 12)).frame(width: 20)
-            VStack(alignment: .leading, spacing: 0) {
-                name.font(.system(size: 12, weight: .medium)).lineLimit(1)
-                if let detail { Text(verbatim: detail).font(.system(size: 10)).foregroundStyle(.secondary).monospacedDigit().lineLimit(1) }
-            }
-            Spacer(minLength: 4)
-            Text(verbatim: "\(level)%").font(.system(size: 12, weight: .bold)).monospacedDigit().foregroundStyle(low ? Color.red : Color.primary)
-        }
-    }
-
-    private func load() async {
-        guard showsDevices else { return }
-        loading = true
-        let all = await BluetoothDeviceReader.read()
-        devices = all.filter { $0.isConnected && $0.lowestBattery != nil }
-        loading = false
     }
 }
 
@@ -544,19 +873,18 @@ private struct ControlCenterAccountRow: View {
 
     var body: some View {
         Button(action: CurrentUserReader.openUsersGroups) {
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 avatar
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 1) {
                     Text(verbatim: user?.fullName ?? NSUserName())
-                        .font(.system(size: 14, weight: .semibold)).lineLimit(1)
-                    Text("Manage accounts").font(.system(size: 11)).foregroundStyle(.secondary)
+                        .font(.system(size: 12.5, weight: .semibold)).lineLimit(1)
+                    Text("Manage accounts").font(.system(size: 10.5)).foregroundStyle(.secondary)
                 }
                 Spacer(minLength: 0)
-                Image(systemName: "gearshape").font(.system(size: 16)).foregroundStyle(.secondary)
+                Image(systemName: "gearshape").font(.system(size: 13)).foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(12)
-            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.06)))
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .task { user = CurrentUserReader.read() }
@@ -567,12 +895,12 @@ private struct ControlCenterAccountRow: View {
         if let data = user?.avatar, let image = NSImage(data: data) {
             Image(nsImage: image)
                 .resizable().scaledToFill()
-                .frame(width: 44, height: 44)
+                .frame(width: 36, height: 36)
                 .clipShape(Circle())
         } else {
             Image(systemName: "person.crop.circle.fill")
-                .font(.system(size: 40)).foregroundStyle(.secondary)
-                .frame(width: 44, height: 44)
+                .font(.system(size: 33)).foregroundStyle(.secondary)
+                .frame(width: 36, height: 36)
         }
     }
 }

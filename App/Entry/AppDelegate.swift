@@ -127,6 +127,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.panelSize = { [weak self] in self?.settingsStore.controlCenterSize ?? .default }
         panel.panelAnchor = { [weak self] in self?.settingsStore.controlCenterAnchor ?? .default }
         panel.panelAnimation = { [weak self] in self?.settingsStore.controlCenterAnimation ?? .default }
+        // The panel wears the dock's theme, not a look of its own (2026-10-22).
+        panel.themeStyle = { [weak self] in self?.settingsStore.themeMaterial ?? .auto }
+        panel.themeTuning = { [weak self] in self?.settingsStore.themeTuning ?? .identity }
         panel.bottomReserve = { [weak self] in
             guard let store = self?.settingsStore, store.stripPlacementMap.global == .bottom else { return 0 }
             return Double(store.dockPanelHeight.points + store.bottomGap + 8)
@@ -136,6 +139,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.onCapture = { ScreenshotCommand.run() }
         panel.onDrawer = { [weak self] in self?.panelCoordinator?.toggleDrawer() }
         panel.onQuit = { NSApp.terminate(nil) }
+        // The Control Centre panel is a window of its own: showing or hiding it reorders the window
+        // list, and the drawer capsule shares the dock's plate — put it back on top every time.
+        panel.onSurfaceChanged = { [weak self] in self?.panelCoordinator?.reassertUtilitySurfaces() }
         return panel
     }()
     /// Shown from the edge deck's wifi button (`AppDelegate.shared?.toggleControlCenter()`).
@@ -406,6 +412,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             QuitOnLastWindowService.shared.start()
             FocusFollowService.shared.startIfEnabled()
             NotificationMoveService.shared.refresh()
+            PowerNotificationCenter.shared.start()
             DailyHelpersService.shared.deliver = { [weak self] in self?.liveEventCenter.deliver($0, now: Date()) }
             DailyHelpersService.shared.start()
 
@@ -1246,6 +1253,7 @@ extension AppDelegate: PermissionEffectHandler {
         hyperkeyService.tearDown()
         KeyGuardService.shared.tearDown()
         NotificationMoveService.shared.tearDown()
+        PowerNotificationCenter.shared.stop()
         TilingEngine.shared.stop()
         radialDialPanel.tearDown()
         scrollReverserSettingSubscription?.cancel()

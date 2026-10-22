@@ -1,8 +1,8 @@
 import Combine
 import Foundation
 
-/// 设置窗口的十八个标签页（2026-10-20：坞站小组件/小组件拆页、天气独立成页、窗口管理拆成
-/// 平铺+窗口管理、启动器拆出命令栏）。标题复用原分区标题的
+/// 设置窗口的十九个标签页（2026-10-20：坞站小组件/小组件拆页、天气独立成页、窗口管理拆成
+/// 平铺+窗口管理、启动器拆出命令栏；2026-10-22：通知从「高级」独立成页）。标题复用原分区标题的
 /// 本地化 key；图标全部 macOS 11 起可用（对照 CoreGlyphs name_availability 核过）。
 /// 纯 Foundation/Combine——测试 target 也编译它，别引 AppKit。
 enum SettingsTab: String, CaseIterable {
@@ -14,6 +14,8 @@ enum SettingsTab: String, CaseIterable {
     case widgets
     case weather
     case notch
+    // Battery, charging and peripheral alerts, their history, and where macOS banners land.
+    case notifications
     case edgeBars
     // Raw value stays "tiling": it is the toolbar item identifier.
     case tiling
@@ -41,6 +43,7 @@ enum SettingsTab: String, CaseIterable {
         case .widgets: return String(localized: "Widgets")
         case .weather: return String(localized: "Weather")
         case .notch: return String(localized: "Notch")
+        case .notifications: return String(localized: "Notifications")
         case .edgeBars: return String(localized: "Edge Bars")
         case .appearance: return String(localized: "Appearance")
         case .tiling: return String(localized: "Tiling")
@@ -67,6 +70,7 @@ enum SettingsTab: String, CaseIterable {
         case .widgets: return String(localized: "Widget panes: layout, colors, and style.")
         case .weather: return String(localized: "Weather units, layout, and warnings.")
         case .notch: return String(localized: "The Dynamic Notch: skin, pages, size, and alerts.")
+        case .notifications: return String(localized: "Battery, charging, peripherals, and banner placement.")
         case .edgeBars: return String(localized: "Side bars: preset, placement, widgets, and size.")
         case .tiling: return String(localized: "Auto-tiling, presets, gaps, and floating apps.")
         case .windowManagement: return String(localized: "Window chips and window behaviors.")
@@ -89,6 +93,7 @@ enum SettingsTab: String, CaseIterable {
         case .widgets: return "square.grid.2x2"
         case .weather: return "cloud.sun"
         case .notch: return "capsule.tophalf.filled"
+        case .notifications: return "bell"
         case .edgeBars: return "sidebar.right"
         case .appearance: return "paintpalette"
         case .tiling: return "rectangle.split.2x2"
@@ -117,6 +122,7 @@ enum SettingsTab: String, CaseIterable {
         case .widgets: return (0.58, 0.40, 0.93)
         case .weather: return (0.30, 0.72, 0.78)
         case .notch: return (0.30, 0.30, 0.34)
+        case .notifications: return (0.96, 0.46, 0.24)
         case .edgeBars: return (0.10, 0.70, 0.66)
         case .tiling: return (0.20, 0.52, 0.98)
         case .windowManagement: return (0.25, 0.35, 0.65)

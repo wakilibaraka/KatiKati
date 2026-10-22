@@ -63,7 +63,7 @@ extension SettingsLayoutPane {
 
     @ViewBuilder
     var notificationSections: some View {
-            SettingsCard(Text("Notifications")) {
+            SettingsCard(Text("Banners")) {
                 // The paragraph this card used to hold is the row's own explanation now (rule 4),
                 // and the hand-rolled `Toggle` beside it was the last row on the page not built
                 // from the shared set (rule 3) — it read as a bare control with no note beside it.

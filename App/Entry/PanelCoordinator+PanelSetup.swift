@@ -150,6 +150,20 @@ extension PanelCoordinator {
         if let background = dockGlassBackgroundPanel, let dock = dockPanel {
             background.order(.below, relativeTo: dock.windowNumber)
         }
+        // With the Control Centre at the trailing end the capsule sits *inside* the plate, so the
+        // surface order has to put it past the plate it overlaps — otherwise the disc covers it.
+        if let capsule = capsulePanel, capsule.isVisible, let dock = dockPanel {
+            capsule.order(.above, relativeTo: dock.windowNumber)
+        }
+    }
+
+    /// Puts the drawer capsule back above the plate it shares with the Control Centre disc. Any
+    /// surface that reorders windows (the Control Centre panel, a visibility flip) can bury it, and
+    /// the disc then covers it — the tile looks like it vanished.
+    func reassertCapsuleSurface() {
+        guard panelsAreVisible, isCapsuleOwner, let dock = dockPanel, let capsule = capsulePanel else { return }
+        if !capsule.isVisible { capsule.orderFrontRegardless() }
+        capsule.order(.above, relativeTo: dock.windowNumber)
     }
 
     func orderDockSurfaceOut() {

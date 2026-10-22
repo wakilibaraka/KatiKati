@@ -397,15 +397,20 @@ enum PanelGeometry {
         margin: CGFloat = 12,
         widgetLayout: WidgetLayout? = nil,
         tileStride: CGFloat? = nil,
-        contentInset: CGFloat = IslandChrome.contentInset
+        contentInset: CGFloat = IslandChrome.contentInset,
+        controlCentreTrailing: Bool = false
     ) -> CGRect {
         switch mode {
         case .windows:
             // Full Width is a true edge-to-edge bar inside the side margins (the capsule keeps its
             // slot at the end), never a hug bar — that was indistinguishable from Centered (Phase 11b).
+            // With the Control Centre at the trailing end the plate takes that slot over and the
+            // capsule moves inside it (`controlCentreTrailing`).
             let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth
-            let panelWidth = max(fullWidthPlateWidth(screenWidth: screen.frame.width, margin: margin, metrics: metrics),
-                                 metrics.minimumDockWidth)
+            let plateWidth = controlCentreTrailing
+                ? screen.frame.width - 2 * max(0, margin)
+                : fullWidthPlateWidth(screenWidth: screen.frame.width, margin: margin, metrics: metrics)
+            let panelWidth = max(plateWidth, metrics.minimumDockWidth)
             let panelX = screen.frame.minX + max(0, margin) + (placement == .left ? capsuleSpace : 0)
             return CGRect(
                 x: panelX - metrics.shadowPadding,
@@ -415,7 +420,7 @@ enum PanelGeometry {
             )
 
         case .centered:
-            let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth
+            let capsuleSpace = controlCentreTrailing ? 0 : metrics.capsuleGap + metrics.capsuleWidth
             let maxWidth = screen.frame.width - 2 * max(0, margin) - capsuleSpace
             let targetWidth = min(maxWidth, max(min(centeredWidth, maxWidth), contentWidth))
             let panelWidth = max(targetWidth, metrics.minimumDockWidth)
@@ -434,7 +439,7 @@ enum PanelGeometry {
             // bar's 54 pt stride would drop a chip the rail has room for (Phase 41b).
             let stride = tileStride ?? IslandLayoutSolver.tileStride(barHeight: metrics.panelHeight)
             let appCount = max(1, Int((contentWidth / stride).rounded()))
-            let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth
+            let capsuleSpace = controlCentreTrailing ? 0 : metrics.capsuleGap + metrics.capsuleWidth
             
             // IslandLayoutSolver adds 24 to clusterWidth. 
             // We want appsWidth to be exactly (contentWidth + capsuleSpace).
@@ -544,12 +549,14 @@ enum PanelGeometry {
         centeredWidth: CGFloat = 720,
         gap: CGFloat = 8,
         margin: CGFloat = 12,
-        widgetLayout: WidgetLayout? = nil
+        widgetLayout: WidgetLayout? = nil,
+        controlCentreTrailing: Bool = false
     ) -> CGRect {
         guard stripPlacement.isVertical else {
             return islandTargetFrame(slot: slot, contentWidth: contentLength, mode: mode, on: screen,
                                      placement: .right, metrics: metrics, centeredWidth: centeredWidth,
-                                     gap: gap, margin: margin, widgetLayout: widgetLayout)
+                                     gap: gap, margin: margin, widgetLayout: widgetLayout,
+                                     controlCentreTrailing: controlCentreTrailing)
         }
         let virtual = railVirtualScreen(on: screen, placement: stripPlacement)
         let layout = railWidgetLayout(widgetLayout ?? storedWidgetLayout())
@@ -587,10 +594,12 @@ enum PanelGeometry {
         stripPlacement: StripPlacement,
         on screen: PanelScreenGeometry,
         drawerPlacement: DrawerPlacement,
-        metrics: PanelLayoutMetrics = .tungstenEdge
+        metrics: PanelLayoutMetrics = .tungstenEdge,
+        controlCentreTrailing: Bool = false
     ) -> CGRect {
         guard stripPlacement.isVertical else {
-            return capsuleTargetFrame(forDock: dockFrame, on: screen, placement: drawerPlacement, metrics: metrics)
+            return capsuleTargetFrame(forDock: dockFrame, on: screen, placement: drawerPlacement,
+                                      metrics: metrics, controlCentreTrailing: controlCentreTrailing)
         }
         let plate = dockFrame.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
         let side = metrics.capsuleWidth
@@ -606,15 +615,33 @@ enum PanelGeometry {
             ?? WidgetLayout.migrating(legacyWidths: defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:])
     }
 
+    /// Width the strip leaves empty for the capsule when the Control Centre disc takes the trailing
+    /// end: the capsule's own side plus the gap on each side, so the two tiles read as neighbours.
+    static func controlCentreHole(metrics: PanelLayoutMetrics) -> CGFloat {
+        metrics.capsuleWidth + 2 * metrics.capsuleGap
+    }
+
     static func capsuleTargetFrame(
         forDock dockFrame: CGRect,
         on screen: PanelScreenGeometry,
         placement: DrawerPlacement,
-        metrics: PanelLayoutMetrics = .tungstenEdge
+        metrics: PanelLayoutMetrics = .tungstenEdge,
+        controlCentreTrailing: Bool = false
     ) -> CGRect {
-        let rawX = placement == .left
-            ? dockFrame.minX + metrics.shadowPadding - metrics.capsuleGap - metrics.capsuleWidth
-            : dockFrame.maxX - metrics.shadowPadding + metrics.capsuleGap
+        let rawX: CGFloat
+        if controlCentreTrailing {
+            // One slot in from the plate's trailing end, centred in the hole the strip reserves
+            // there: `inset + disc + gap + capsule`, measured from the plate's trailing edge.
+            let scale = metrics.panelHeight / IslandChrome.nativeBarHeight
+            let plate = dockFrame.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+            rawX = plate.maxX - IslandChrome.contentInset * scale
+                - BarSection.widgets.defaultWidgetWidth * scale
+                - metrics.capsuleGap - metrics.capsuleWidth
+        } else {
+            rawX = placement == .left
+                ? dockFrame.minX + metrics.shadowPadding - metrics.capsuleGap - metrics.capsuleWidth
+                : dockFrame.maxX - metrics.shadowPadding + metrics.capsuleGap
+        }
         let rawY = dockFrame.minY + metrics.shadowPadding + (metrics.panelHeight - metrics.capsuleWidth) / 2
         let clampedX = min(max(rawX, screen.frame.minX), screen.frame.maxX - metrics.capsuleWidth)
         let clampedY = min(max(rawY, screen.frame.minY), screen.frame.maxY - metrics.capsuleWidth)

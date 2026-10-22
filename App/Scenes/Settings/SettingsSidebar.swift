@@ -14,6 +14,7 @@ extension SettingsTab {
         case .widgets: return "pane tiles calendar glass clock tile colors notes stopwatch look"
         case .weather: return "units temperature wind forecast warnings hero animations"
         case .notch: return "island skin style open panel"
+        case .notifications: return "battery charging low power peripheral bluetooth history banners"
         case .edgeBars: return "dock side bar auto hide edge"
         case .tiling: return "tiling snap gaps preset layout bsp monocle"
         case .windowManagement: return "window chips floating apps behaviour"

@@ -10,9 +10,9 @@ import XCTest
 // `SettingsMetricsTests`).
 
 final class SettingsTabTests: XCTestCase {
-    func testTheSidebarIsEighteenTabsWithOneIdentityEach() {
-        XCTAssertEqual(SettingsTab.allCases.count, 18, "eighteen sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 18,
+    func testTheSidebarIsNineteenTabsWithOneIdentityEach() {
+        XCTAssertEqual(SettingsTab.allCases.count, 19, "nineteen sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 19,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
@@ -24,6 +24,8 @@ final class SettingsTabTests: XCTestCase {
                        "a stored toolbar identifier must keep resolving after a split")
         XCTAssertEqual(SettingsTab(rawValue: "windowManagement"), .windowManagement)
         XCTAssertEqual(SettingsTab(rawValue: "controlCenter"), .controlCenter)
+        XCTAssertEqual(SettingsTab(rawValue: "notifications"), .notifications,
+                       "2026-10-22: notifications left Advanced for a page of their own")
     }
 
     /// The rename that moved the tools off the launcher's page: the old identifier and the removed

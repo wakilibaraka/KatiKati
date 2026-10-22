@@ -42,6 +42,41 @@ struct BluetoothDevice: Equatable, Identifiable, Sendable {
     }
 }
 
+/// The two sources of a device list — `system_profiler` and the HID driver's registry — merged into
+/// one, plus the product-name → kind rule. Pure, so the merge is tested without running either source.
+enum BluetoothDeviceRegistry {
+    /// The registry's levels fill the profiler's gaps; a device only one source knows is added once.
+    static func merge(_ devices: [BluetoothDevice], _ registry: [BluetoothDevice]) -> [BluetoothDevice] {
+        var merged = devices
+        for candidate in registry {
+            let sameAddress = candidate.address.isEmpty ? nil : merged.firstIndex {
+                $0.address.caseInsensitiveCompare(candidate.address) == .orderedSame
+            }
+            if let index = sameAddress {
+                if merged[index].batteryMain == nil { merged[index].batteryMain = candidate.batteryMain }
+            } else if !merged.contains(where: { $0.name.caseInsensitiveCompare(candidate.name) == .orderedSame }) {
+                merged.append(candidate)
+            }
+        }
+        return merged.sorted {
+            if $0.isConnected != $1.isConnected { return $0.isConnected }
+            return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+        }
+    }
+
+    /// `BluetoothDevice.symbolName` keys on these words.
+    static func kind(of product: String) -> String? {
+        let name = product.lowercased()
+        if name.contains("mouse") { return "Mouse" }
+        if name.contains("keyboard") { return "Keyboard" }
+        if name.contains("trackpad") { return "Trackpad" }
+        if name.contains("airpods") || name.contains("headphone") || name.contains("earbud") { return "Headphones" }
+        if name.contains("speaker") { return "Speaker" }
+        if name.contains("gamepad") || name.contains("controller") { return "Gamepad" }
+        return nil
+    }
+}
+
 enum BluetoothDeviceParser {
     /// Connected devices first, then by name (case-insensitive). Malformed JSON → empty.
     static func parse(_ data: Data) -> [BluetoothDevice] {

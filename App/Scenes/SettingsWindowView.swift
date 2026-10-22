@@ -103,6 +103,7 @@ struct SettingsWindowContent: View {
             case .widgets: WidgetLookSettingsBlock(store: store)
             case .weather: weatherPane
             case .notch: notchPane
+            case .notifications: SettingsNotificationsPane(store: store)
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
             case .appearance: SettingsAppearancePane(store: store)
             case .tiling: SettingsTilingPane(store: store)
@@ -283,7 +284,6 @@ struct SettingsWindowContent: View {
     @ViewBuilder
     private var advancedPane: some View {
         BehaviourSettingsBlock(store: store)
-        SettingsLayoutPane(store: store, mode: .notifications)
     }
 
     /// 「窗口管理」页: window chips and the two window behaviours (tiling has its own page now).

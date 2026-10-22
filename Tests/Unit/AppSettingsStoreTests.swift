@@ -1920,6 +1920,28 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.widgetLayout.instance(for: .clock).size, .medium)
     }
 
+    /// Control Centre at the trailing end (2026-10-22) is off on a fresh install, and only the
+    /// one-plate bars take it: a split bar's capsule came back blank once it moved into the Widgets
+    /// island's plate, so those modes keep the arrangement that has shipped for months.
+    func testControlCentreTrailingIsOptInAndOnePlateOnly() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertFalse(store.controlCentreTrailing)
+        XCTAssertFalse(store.controlCentreAtTrailingEnd, "off by default = the stable arrangement")
+
+        store.setControlCentreTrailing(true)
+        XCTAssertTrue(store.controlCentreAtTrailingEnd)
+        XCTAssertTrue(AppSettingsStore(defaults: defaults).controlCentreTrailing, "and it persists")
+
+        store.setBarLayoutMode(.split4)
+        XCTAssertFalse(store.controlCentreAtTrailingEnd, "split bars keep the old arrangement")
+        store.setBarLayoutMode(.windows)
+        XCTAssertTrue(store.controlCentreAtTrailingEnd)
+
+        store.setDrawerPlacement(.left)
+        XCTAssertFalse(store.controlCentreAtTrailingEnd, "the capsule's slot is on the right")
+    }
+
     private func makeDefaults() -> UserDefaults {
         let defaults = TestDefaults.make("com.katikati.tests", for: self)
         return defaults

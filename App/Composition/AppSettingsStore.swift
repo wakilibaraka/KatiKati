@@ -199,6 +199,19 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var widgetOrder: [BarSection]
     /// Phase 10a widget arrangement (order / size / visibility). Not yet consumed by the strip.
     @Published private(set) var widgetLayout: WidgetLayout
+    /// Where the Control Centre disc lives. On (default): it holds the bar's trailing end and the
+    /// drawer capsule moves one slot in. Off: the capsule keeps the trailing end (pre-2026-10-21).
+    @Published private(set) var controlCentreTrailing: Bool
+
+    /// What the two panels actually do: the swap needs `widgets` to be the last visible section —
+    /// with anything after it there is no trailing end for the disc to take — and the drawer on the
+    /// right, where the capsule's slot is.
+    var controlCentreAtTrailingEnd: Bool {
+        guard controlCentreTrailing, drawerPlacement == .right, widgetOrder.last == .widgets else { return false }
+        // shortcut: a split bar's capsule came back blank once it moved into the Widgets island's plate
+        // (2026-10-22), so the swap stays on the one-plate bars until that is understood.
+        return barLayoutMode == .centered || barLayoutMode == .windows
+    }
     /// Phase 18: which edge the strip sits on, globally and per display (default bottom).
     @Published private(set) var stripPlacementMap: StripPlacementMap
     /// 10b: weather/time reactive desktop wallpaper (off by default), its mode (`WallpaperMode` raw) and optional custom folder.
@@ -349,6 +362,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.drawerPlacement: DrawerPlacement.right.rawValue,
             Keys.showShelf: true,
             Keys.showTrash: true,
+            Keys.controlCentreTrailing: false,
             Keys.fullscreenIntentEnabled: true,
             Keys.nativeDockAutoHideDelay: Self.defaultNativeDockAutoHideDelay,
             // 首次安装 = 常驻；remembered 的种子仍是有限档，见常量注释。
@@ -415,6 +429,7 @@ final class AppSettingsStore: ObservableObject {
         nowPlayingTheme = NowPlayingTheme(rawValue: defaults.string(forKey: Keys.nowPlayingTheme) ?? "") ?? .auto
         nowPlayingTapPreset = NowPlayingTapPreset(rawValue: defaults.string(forKey: Keys.nowPlayingTapAction) ?? "") ?? .default
         showTrash = defaults.bool(forKey: Keys.showTrash)
+        controlCentreTrailing = defaults.bool(forKey: Keys.controlCentreTrailing)
         dockIslandEnabled = defaults.bool(forKey: Keys.dockIslandEnabled)
         notchIslandEnabled = defaults.bool(forKey: Keys.notchIslandEnabled)
         shelfShakeEnabled = defaults.bool(forKey: ShelfStore.shakeKey)
@@ -1221,6 +1236,12 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.showTrash)
     }
 
+    func setControlCentreTrailing(_ value: Bool) {
+        guard controlCentreTrailing != value else { return }
+        controlCentreTrailing = value
+        defaults.set(value, forKey: Keys.controlCentreTrailing)
+    }
+
     /// Seeds "lift maximized windows clear of the taskbar" to on for a fresh install (owner 2026-09-01).
     ///
     /// **Only `AppDelegate` may call this, once.** The verdict is `InstallLineage`: a snapshot of the
@@ -1483,6 +1504,7 @@ private enum Keys {
     static let huggingCentredDefaultsStamp = "com.katikati.migration.huggingCentredDefaults"
     static let drawerPlacement = "com.katikati.drawerPlacement"
     static let showShelf = "com.katikati.showShelf"
+    static let controlCentreTrailing = "com.katikati.dock.controlCentreTrailing"
     // Never read the retired com.katikati.trash.visible key.
     static let showTrash = "com.katikati.showTrash"
     static let nowPlayingTheme = "com.katikati.nowPlayingTheme"

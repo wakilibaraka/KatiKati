@@ -1,0 +1,137 @@
+import XCTest
+
+// Phase 59a — the battery and peripheral notification policy. The rule that matters is that these are
+// *transitions*: a Mac sitting at 18 % on battery must notify once, not on every sample, and each
+// milestone fires once per charge session rather than on every read above it.
+
+final class PowerNotificationsTests: XCTestCase {
+    private func snapshot(_ level: Int?, charging: Bool = false, plugged: Bool = false,
+                          devices: [BluetoothDevice] = []) -> PowerNotificationPolicy.Snapshot {
+        PowerNotificationPolicy.Snapshot(level: level, isCharging: charging, isPluggedIn: plugged, devices: devices)
+    }
+
+    private func events(_ old: PowerNotificationPolicy.Snapshot, _ new: PowerNotificationPolicy.Snapshot,
+                        rules: PowerNotificationRules = PowerNotificationRules(),
+                        fired: inout PowerNotificationPolicy.Fired) -> [PowerNotification] {
+        PowerNotificationPolicy.events(from: old, to: new, rules: rules, fired: &fired)
+    }
+
+    func testLowBatteryFiresOncePerDip() {
+        var fired = PowerNotificationPolicy.Fired()
+        let rules = PowerNotificationRules()
+        XCTAssertEqual(events(snapshot(30), snapshot(20), rules: rules, fired: &fired).map(\.kind), [.lowBattery])
+        XCTAssertEqual(events(snapshot(20), snapshot(19), rules: rules, fired: &fired), [])
+        XCTAssertEqual(events(snapshot(19), snapshot(18), rules: rules, fired: &fired), [])
+        // Recovering above the line re-arms it.
+        _ = events(snapshot(18), snapshot(30), rules: rules, fired: &fired)
+        XCTAssertEqual(events(snapshot(30), snapshot(20), rules: rules, fired: &fired).map(\.kind), [.lowBattery])
+    }
+
+    func testNoLowBatteryAlertWhileChargingOrWhenTurnedOff() {
+        var fired = PowerNotificationPolicy.Fired()
+        // Plugging in at 19 %: the plug change is news, the low-battery alert is not.
+        XCTAssertEqual(events(snapshot(30), snapshot(19, charging: true, plugged: true), fired: &fired).map(\.kind),
+                       [.charging])
+        // Below the threshold and still charging: neither a low alert nor a second plug event.
+        XCTAssertTrue(events(snapshot(19, charging: true, plugged: true), snapshot(15, charging: true, plugged: true),
+                             fired: &fired).isEmpty)
+        var off = PowerNotificationRules()
+        off.lowThreshold = nil
+        var offFired = PowerNotificationPolicy.Fired()
+        XCTAssertEqual(events(snapshot(40), snapshot(10), rules: off, fired: &offFired)
+                        .filter { $0.kind == .lowBattery }, [])
+    }
+
+    func testChargeMilestonesFireOncePerSession() {
+        var fired = PowerNotificationPolicy.Fired()
+        let rules = PowerNotificationRules()
+        _ = events(snapshot(60, charging: true, plugged: true), snapshot(61, charging: true, plugged: true),
+                   rules: rules, fired: &fired)
+        XCTAssertEqual(events(snapshot(79, charging: true, plugged: true), snapshot(80, charging: true, plugged: true),
+                               rules: rules, fired: &fired).map(\.detail), ["80%"])
+        XCTAssertEqual(events(snapshot(80, charging: true, plugged: true), snapshot(85, charging: true, plugged: true),
+                               rules: rules, fired: &fired), [])
+        XCTAssertEqual(events(snapshot(99, charging: true, plugged: true), snapshot(100, charging: true, plugged: true),
+                               rules: rules, fired: &fired).map(\.detail), ["100%"])
+        // A fresh session at 50 % may announce 80 % again.
+        _ = events(snapshot(100, charging: true, plugged: true), snapshot(99, charging: false, plugged: false),
+                   rules: rules, fired: &fired)
+        _ = events(snapshot(50, charging: false, plugged: false), snapshot(50, charging: true, plugged: true),
+                   rules: rules, fired: &fired)
+        XCTAssertEqual(events(snapshot(79, charging: true, plugged: true), snapshot(80, charging: true, plugged: true),
+                               rules: rules, fired: &fired).map(\.detail), ["80%"])
+    }
+
+    func testPlugChangesReportOnce() {
+        var fired = PowerNotificationPolicy.Fired()
+        let rules = PowerNotificationRules()
+        XCTAssertEqual(events(snapshot(50), snapshot(50, charging: true, plugged: true), rules: rules, fired: &fired)
+                        .map(\.kind), [.charging])
+        XCTAssertEqual(events(snapshot(50, charging: true, plugged: true), snapshot(50), rules: rules, fired: &fired)
+                        .map(\.kind), [.unplugged])
+        var quiet = PowerNotificationRules()
+        quiet.chargingChanges = false
+        XCTAssertEqual(events(snapshot(50), snapshot(50, charging: true, plugged: true), rules: quiet, fired: &fired), [])
+    }
+
+    func testPeripheralsConnectDisconnectAndWarnOncePerFall() {
+        var fired = PowerNotificationPolicy.Fired()
+        let rules = PowerNotificationRules()
+        let mouse = BluetoothDevice(name: "Mouse", address: "AA:01", isConnected: true, batteryMain: 15)
+        let keyboard = BluetoothDevice(name: "Keyboard", address: "AA:02", isConnected: true, batteryMain: 90)
+
+        let arrival = events(snapshot(80), snapshot(80, devices: [mouse, keyboard]), rules: rules, fired: &fired)
+        XCTAssertEqual(arrival.filter { $0.kind == .peripheralConnected }.map(\.title), ["Keyboard", "Mouse"])
+        XCTAssertEqual(arrival.filter { $0.kind == .peripheralLowBattery }.map(\.title), ["Mouse"])
+
+        XCTAssertEqual(events(snapshot(80, devices: [mouse, keyboard]), snapshot(80, devices: [mouse, keyboard]),
+                               rules: rules, fired: &fired), [])
+
+        let departure = events(snapshot(80, devices: [mouse, keyboard]), snapshot(80, devices: [keyboard]),
+                               rules: rules, fired: &fired)
+        XCTAssertEqual(departure.map(\.kind), [.peripheralDisconnected])
+        XCTAssertEqual(departure.first?.title, "Mouse")
+
+        // Back above the line and down again: the warning is re-armed.
+        var charged = mouse; charged.batteryMain = 60
+        _ = events(snapshot(80, devices: [keyboard]), snapshot(80, devices: [charged]), rules: rules, fired: &fired)
+        var low = charged; low.batteryMain = 10
+        XCTAssertEqual(events(snapshot(80, devices: [charged]), snapshot(80, devices: [low]), rules: rules, fired: &fired)
+                        .map(\.kind), [.peripheralLowBattery])
+    }
+
+    func testPeripheralAlertsCanBeTurnedOff() {
+        var fired = PowerNotificationPolicy.Fired()
+        var rules = PowerNotificationRules()
+        rules.peripheralAlerts = false
+        let mouse = BluetoothDevice(name: "Mouse", address: "AA:01", isConnected: true, batteryMain: 10)
+        XCTAssertEqual(events(snapshot(80), snapshot(80, devices: [mouse]), rules: rules, fired: &fired), [])
+    }
+
+    func testHistoryPrunesToTheWindowAndKeepsNewestFirst() {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let old = PowerNotification(kind: .lowBattery, title: "Old", date: now.addingTimeInterval(-25 * 3600))
+        let fresh = PowerNotification(kind: .charging, title: "Fresh", date: now.addingTimeInterval(-3600))
+        let kept = PowerNotificationHistory.prune([old, fresh], now: now, retentionHours: 24)
+        XCTAssertEqual(kept.map(\.title), ["Fresh"])
+        XCTAssertEqual(PowerNotificationHistory.prune([old, fresh], now: now, retentionHours: 24 * 7).map(\.title),
+                       ["Fresh", "Old"])
+        let appended = PowerNotificationHistory.appending(
+            PowerNotification(kind: .charged, title: "New", date: now), to: [fresh], now: now, retentionHours: 24)
+        XCTAssertEqual(appended.map(\.title), ["New", "Fresh"])
+    }
+
+    func testRulesSurviveARoundTrip() {
+        let defaults = UserDefaults(suiteName: "PowerNotificationsTests")!
+        defaults.removePersistentDomain(forName: "PowerNotificationsTests")
+        var rules = PowerNotificationRules()
+        rules.lowThreshold = nil
+        rules.chargeMilestones = [100]
+        rules.peripheralAlerts = false
+        rules.retentionHours = 24 * 7
+        rules.save(defaults)
+        let loaded = PowerNotificationRules.load(defaults)
+        XCTAssertEqual(loaded, rules)
+        defaults.removePersistentDomain(forName: "PowerNotificationsTests")
+    }
+}

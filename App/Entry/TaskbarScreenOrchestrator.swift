@@ -284,6 +284,12 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         units.forEach { $0.coordinator.setTaskbarMenuOpen(open) }
     }
 
+    /// Panels that raise themselves (the Control Centre) push the whole window list around; every
+    /// bar puts its drawer capsule back above the plate it shares with the disc.
+    func reassertUtilitySurfaces() {
+        units.forEach { $0.coordinator.reassertCapsuleSurface() }
+    }
+
     // MARK: - 单元集合
 
     /// 按当前设置、布局模式与屏集合建 / 拆单元。目标 slotKey 列表没变就什么都不做（幂等，可在任何通知里调）。

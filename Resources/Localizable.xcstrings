@@ -75090,6 +75090,431 @@
         "it": {"stringUnit": {"state": "translated", "value": "Solo per il registratore vocale e lo specchio della fotocamera. Nulla viene registrato finché non avvii."}},
         "ko": {"stringUnit": {"state": "translated", "value": "음성 녹음기와 카메라 미러에만 사용됩니다. 시작하기 전에는 아무것도 녹음하지 않습니다."}}
       }
+    },
+    "24 Hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "24 Hours"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "24 小时"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "24 小時"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "24時間"}},
+        "de": {"stringUnit": {"state": "translated", "value": "24 Stunden"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "24 heures"}},
+        "es": {"stringUnit": {"state": "translated", "value": "24 horas"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "24 horas"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "24 horas"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "24 horas"}},
+        "it": {"stringUnit": {"state": "translated", "value": "24 ore"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "24시간"}}
+      }
+    },
+    "7 Days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "7 Days"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "7 天"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "7 天"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "7日間"}},
+        "de": {"stringUnit": {"state": "translated", "value": "7 Tage"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "7 jours"}},
+        "es": {"stringUnit": {"state": "translated", "value": "7 días"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "7 días"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "7 dias"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "7 dias"}},
+        "it": {"stringUnit": {"state": "translated", "value": "7 giorni"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "7일"}}
+      }
+    },
+    "Alerts fire when a level is crossed, not while it sits there.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Alerts fire when a level is crossed, not while it sits there."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "电量越过阈值时才提醒，停在阈值上不会重复提醒。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "電量越過門檻時才提醒，停在門檻上不會重複提醒。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "しきい値を超えたときに通知し、そのまま留まっている間は通知しません。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Hinweise kommen beim Überschreiten einer Schwelle, nicht solange sie gehalten wird."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Les alertes se déclenchent au franchissement d’un seuil, pas tant qu’il est atteint."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Los avisos saltan al cruzar un umbral, no mientras se mantiene."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Los avisos saltan al cruzar un umbral, no mientras se mantiene."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Os avisos disparam ao cruzar um limite, não enquanto ele é mantido."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Os avisos surgem ao cruzar um limite, não enquanto este se mantém."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Gli avvisi scattano al superamento di una soglia, non finché resta tale."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "임계값을 넘을 때만 알리고, 머무는 동안에는 알리지 않습니다."}}
+      }
+    },
+    "Arriving, leaving, and a peripheral that falls to 20%.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Arriving, leaving, and a peripheral that falls to 20%."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "连接、断开，以及外设电量降到 20%。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "連線、中斷，以及周邊電量降到 20%。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "接続、切断、そして周辺機器の残量が 20% になったとき。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Verbinden, Trennen und Zubehör, das auf 20 % fällt."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Connexion, déconnexion, et un accessoire qui tombe à 20 %."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Conexión, desconexión y un accesorio que baja al 20 %."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Conexión, desconexión y un accesorio que baja al 20 %."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Conexão, desconexão e um acessório que chega a 20%."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ligação, desligação e um acessório que desce aos 20%."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Connessione, disconnessione e un accessorio che scende al 20%."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "연결, 해제, 그리고 주변 기기 배터리가 20%로 떨어질 때."}}
+      }
+    },
+    "Banners": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Banners"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "横幅"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "橫幅"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "バナー"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Banner"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Bannières"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Avisos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Avisos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Avisos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Avisos"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Avvisi"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "배너"}}
+      }
+    },
+    "Battery Charged": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Battery Charged"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "电池已充满"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "電池已充飽"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "バッテリー充電完了"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Batterie geladen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Batterie chargée"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Batería cargada"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Batería cargada"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Bateria carregada"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Bateria carregada"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Batteria carica"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "배터리 충전 완료"}}
+      }
+    },
+    "Battery Low": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Battery Low"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "电量不足"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "電量不足"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "バッテリー残量低下"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Batterie fast leer"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Batterie faible"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Batería baja"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Batería baja"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Bateria fraca"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Bateria fraca"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Batteria scarica"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "배터리 부족"}}
+      }
+    },
+    "Battery, charging, peripherals, and banner placement.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Battery, charging, peripherals, and banner placement."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "电池、充电、外设，以及横幅位置。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "電池、充電、周邊，以及橫幅位置。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "バッテリー、充電、周辺機器、バナーの位置。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Batterie, Laden, Zubehör und Bannerposition."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Batterie, charge, accessoires et position des bannières."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Batería, carga, accesorios y posición de los avisos."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Batería, carga, accesorios y posición de los avisos."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Bateria, carregamento, acessórios e posição dos avisos."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Bateria, carregamento, acessórios e posição dos avisos."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Batteria, ricarica, accessori e posizione degli avvisi."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "배터리, 충전, 주변 기기, 배너 위치."}}
+      }
+    },
+    "Charge Milestones": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Charge Milestones"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "充电里程碑"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "充電里程碑"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "充電の節目"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Lade-Meilensteine"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Paliers de charge"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Hitos de carga"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Hitos de carga"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Marcos de carga"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Marcos de carga"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Traguardi di carica"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "충전 단계"}}
+      }
+    },
+    "Charging & Unplugged": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Charging & Unplugged"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "开始充电与拔电"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "開始充電與拔電"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "充電開始と取り外し"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Laden & Ausstecken"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Charge et débranchement"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Carga y desconexión"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Carga y desconexión"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Carregar e desligar"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Carregar e desligar"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ricarica e scollegamento"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "충전 및 분리"}}
+      }
+    },
+    "Connected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Connected"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "已连接"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "已連線"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "接続しました"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Verbunden"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Connecté"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Conectado"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Conectado"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Conectado"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ligado"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Connesso"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "연결됨"}}
+      }
+    },
+    "Control Centre on the right": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Control Centre on the right"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "控制中心在右侧"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "控制中心在右側"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "コントロールセンターを右端に"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kontrollzentrum rechts"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Centre de contrôle à droite"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Centro de control a la derecha"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Centro de control a la derecha"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Central de Controle à direita"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Centro de controlo à direita"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Centro di Controllo a destra"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "제어 센터를 오른쪽에"}}
+      }
+    },
+    "Device": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Device"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "设备"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "裝置"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "デバイス"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Gerät"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Appareil"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Dispositivo"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Dispositivo"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Dispositivo"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Dispositivo"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Dispositivo"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "기기"}}
+      }
+    },
+    "Devices": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Devices"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "设备"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "裝置"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "デバイス"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Geräte"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Appareils"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Dispositivos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Dispositivos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Dispositivos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Dispositivos"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Dispositivi"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "기기"}}
+      }
+    },
+    "Disconnected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Disconnected"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "已断开"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "已中斷"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "切断しました"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Getrennt"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Déconnecté"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Desconectado"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Desconectado"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Desconectado"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Desligado"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sconnesso"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "연결 해제됨"}}
+      }
+    },
+    "Low Battery": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Low Battery"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "电量低"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "電量低"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "バッテリー残量低下"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Batterie schwach"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Batterie faible"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Batería baja"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Batería baja"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Bateria fraca"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Bateria fraca"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Batteria scarica"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "배터리 부족"}}
+      }
+    },
+    "Low Battery Alert": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Low Battery Alert"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "低电量提醒"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "低電量提醒"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "バッテリー低下の通知"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Warnung bei schwacher Batterie"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Alerte batterie faible"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Aviso de batería baja"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Aviso de batería baja"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Alerta de bateria fraca"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Alerta de bateria fraca"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Avviso batteria scarica"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "배터리 부족 알림"}}
+      }
+    },
+    "Next": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Next"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "下一个"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "下一個"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "次へ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Weiter"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Suivant"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Siguiente"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Siguiente"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Próxima"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Seguinte"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Successivo"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "다음"}}
+      }
+    },
+    "Notification History": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Notification History"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "通知历史"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "通知記錄"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "通知の履歴"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Mitteilungsverlauf"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Historique des notifications"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Historial de avisos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Historial de avisos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Histórico de notificações"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Histórico de notificações"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cronologia notifiche"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "알림 기록"}}
+      }
+    },
+    "Peripheral Alerts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Peripheral Alerts"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "外设提醒"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "周邊提醒"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "周辺機器の通知"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zubehör-Hinweise"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Alertes accessoires"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Avisos de accesorios"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Avisos de accesorios"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Alertas de acessórios"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Alertas de acessórios"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Avvisi accessori"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "주변 기기 알림"}}
+      }
+    },
+    "Peripherals": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Peripherals"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "外设"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "周邊裝置"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "周辺機器"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zubehör"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Accessoires"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Accesorios"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Accesorios"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Acessórios"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Acessórios"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Accessori"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "주변 기기"}}
+      }
+    },
+    "Previous": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Previous"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "上一个"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "上一個"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "前へ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zurück"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Précédent"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Anterior"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Anterior"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Anterior"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Anterior"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Precedente"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "이전"}}
+      }
+    },
+    "Retention": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Retention"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "保留时长"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "保留時間"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "保存期間"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Aufbewahrung"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Conservation"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Retención"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Retención"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Retenção"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Retenção"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Conservazione"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "보관 기간"}}
+      }
+    },
+    "System & Peripherals": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "System & Peripherals"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "系统与外围设备"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "系統與周邊裝置"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "システムと周辺機器"}},
+        "de": {"stringUnit": {"state": "translated", "value": "System & Zubehör"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Système et périphériques"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sistema y periféricos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Sistema y periféricos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sistema e periféricos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sistema e periféricos"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sistema e periferiche"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "시스템 및 주변 기기"}}
+      }
+    },
+    "Unplugged": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Unplugged"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "已拔电"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "已拔電"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "電源を外しました"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ausgesteckt"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Débranché"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Desconectado de la corriente"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Desenchufado"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Desconectado da energia"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Desligado da corrente"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scollegato"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "전원 분리됨"}}
+      }
     }
   },
   "version": "1.0"

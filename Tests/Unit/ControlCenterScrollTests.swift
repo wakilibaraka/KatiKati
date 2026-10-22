@@ -57,3 +57,30 @@ final class ControlCenterScrollTests: XCTestCase {
         XCTAssertEqual(state, ControlCenterScroll.State())
     }
 }
+
+/// The switch grid's 4-or-5-per-row choice.
+final class ControlCenterGridTests: XCTestCase {
+    func testRowsRoundUp() {
+        XCTAssertEqual(ControlCenterGrid.rows(count: 16, columns: 4), 4)
+        XCTAssertEqual(ControlCenterGrid.rows(count: 16, columns: 5), 4)
+        XCTAssertEqual(ControlCenterGrid.rows(count: 17, columns: 4), 5)
+        XCTAssertEqual(ControlCenterGrid.rows(count: 17, columns: 5), 4)
+        XCTAssertEqual(ControlCenterGrid.rows(count: 0, columns: 4), 0)
+    }
+
+    /// Room for four rows keeps the balanced 4 × 4 grid.
+    func testFourFittingRowsKeepFourAcross() {
+        XCTAssertEqual(ControlCenterGrid.columns(count: 16, rowsFit: 4), 4)
+        XCTAssertEqual(ControlCenterGrid.columns(count: 16, rowsFit: 6), 4)
+    }
+
+    /// A short panel that can only hold three rows goes five per row.
+    func testThreeFittingRowsGoFiveAcross() {
+        XCTAssertEqual(ControlCenterGrid.columns(count: 16, rowsFit: 3), 5)
+    }
+
+    func testEmptyGridAndZeroRowsFallBackToFour() {
+        XCTAssertEqual(ControlCenterGrid.columns(count: 0, rowsFit: 4), 4)
+        XCTAssertEqual(ControlCenterGrid.columns(count: 16, rowsFit: 0), 4)
+    }
+}

@@ -134,10 +134,6 @@ final class ControlCenterPanelController {
 
     private var panel: KeyableFlyoutPanel?
     private var outsideMonitor: Any?
-    /// The screen the live panel was built for. `resize` reuses it instead of re-reading the mouse
-    /// position — an async height report landing after the pointer moved displays must not jump the
-    /// panel across screens (that read as a bottom-edge glitch).
-    private var shownScreen: NSScreen?
 
     /// Which edge the panel hugs; read each time it opens so a Settings change applies immediately.
     var side: () -> EdgeSide = {
@@ -160,6 +156,13 @@ final class ControlCenterPanelController {
     var onCapture: () -> Void = {}
     var onDrawer: () -> Void = {}
     var onQuit: () -> Void = {}
+    /// Called after the panel is shown or hidden: raising it moves the whole window list, and the
+    /// drawer capsule shares the dock's plate, so the bars put it back on top (`reassertUtilitySurfaces`).
+    var onSurfaceChanged: () -> Void = {}
+    /// The dock's own theme (`com.katikati.theme.material`) and its two plate knobs. Read at each open,
+    /// so the panel always wears the preset the bar is wearing.
+    var themeStyle: () -> DockThemeStyle = { .auto }
+    var themeTuning: () -> ThemeTuning = { .identity }
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -168,19 +171,21 @@ final class ControlCenterPanelController {
     func show() {
         guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) })
                 ?? NSScreen.main ?? NSScreen.screens.first else { return }
-        shownScreen = screen
         let maxHeight = max(240, screen.visibleFrame.height - 24 - CGFloat(bottomReserve()))
         let width = panelSize().width
+        // The panel fills the height between the menu bar and the dock (owner 2026-10-22), and its
+        // grid spreads into whatever that leaves.
         let size = CGSize(width: width, height: maxHeight)
         let frame = panelFrame(on: screen, size: size)
         let panel = self.panel ?? makePanel()
         self.panel = panel
         let hosting = NSHostingView(rootView: AnyView(ControlCenterView(
             engine: .shared, order: toggleOrder(),
-            widgetTiles: widgets(), maxHeight: maxHeight,
-            onHeight: { [weak self] h in DispatchQueue.main.async { self?.resize(toContentHeight: h) } },
+            widgetTiles: widgets(),
             onSettings: onSettings, onLauncher: onLauncher, onCapture: onCapture,
-            onDrawer: onDrawer, onQuit: onQuit)))
+            onDrawer: onDrawer, onQuit: onQuit)
+            .environment(\.dockThemeStyle, themeStyle())
+            .environment(\.themeTuning, themeTuning())))
         hosting.frame = CGRect(origin: .zero, size: size)
         panel.contentView = Self.floatingPlate(wrapping: hosting, size: size)
         switch panelAnimation() {
@@ -211,23 +216,7 @@ final class ControlCenterPanelController {
             })
         }
         installOutsideMonitor()
-    }
-
-    /// Shrinks (or grows, as async rows load) the live panel to the reported content height.
-    /// The 0.5 pt dead band stops the report → relayout → report feedback loop from jittering the
-    /// bottom edge on live updates (sliders, now-playing, monitor ticks all re-layout the view).
-    private func resize(toContentHeight height: CGFloat) {
-        guard let panel, height > 0 else { return }
-        let screen = shownScreen
-            ?? NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) })
-            ?? NSScreen.main ?? NSScreen.screens.first
-        guard let screen else { return }
-        let maxHeight = max(240, screen.visibleFrame.height - 24 - CGFloat(bottomReserve()))
-        let width = panelSize().width
-        let size = CGSize(width: width, height: min(height, maxHeight))
-        let frame = panelFrame(on: screen, size: size)
-        guard abs(frame.height - panel.frame.height) > 0.5 else { return }
-        panel.setFrame(frame, display: true)
+        onSurfaceChanged()
     }
 
     /// Borderless floating plate (Phase 16r): near-opaque surface, large radius, soft system shadow
@@ -238,7 +227,7 @@ final class ControlCenterPanelController {
         plate.blendingMode = .withinWindow
         plate.state = .active
         plate.wantsLayer = true
-        plate.layer?.cornerRadius = 22
+        plate.layer?.cornerRadius = ControlCenterView.cornerRadius
         plate.layer?.masksToBounds = true
         content.autoresizingMask = [.width, .height]
         plate.addSubview(content)
@@ -250,6 +239,7 @@ final class ControlCenterPanelController {
         // Drop the content so hidden samplers (system monitor, etc.) stop with the view tree.
         panel?.contentView = nil
         removeOutsideMonitor()
+        onSurfaceChanged()
     }
 
     func tearDown() { hide(); panel = nil }

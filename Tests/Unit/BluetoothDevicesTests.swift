@@ -69,6 +69,33 @@ final class BluetoothDevicesTests: XCTestCase {
         XCTAssertEqual(BatteryBuddyPolicy.update(alreadyLow: after.low, devices: [low]).alerts.count, 1)
     }
 
+    /// BeteriApp's registry pass fills the level the profiler omitted, without duplicating the device.
+    func testRegistryLevelFillsAProfilerGap() {
+        let profiled = [BluetoothDevice(name: "BT5.4 Mouse", address: "aa:01", isConnected: true, kind: "Mouse", batteryMain: nil)]
+        let registry = [BluetoothDevice(name: "BT5.4 Mouse", address: "AA:01", isConnected: true, kind: "Mouse", batteryMain: 64)]
+        let merged = BluetoothDeviceRegistry.merge(profiled, registry)
+        XCTAssertEqual(merged.count, 1)
+        XCTAssertEqual(merged.first?.batteryMain, 64)
+    }
+
+    func testRegistryAddsDevicesTheProfilerMissedButNotTwinsByName() {
+        let profiled = [BluetoothDevice(name: "Magic Keyboard", address: "aa:02", isConnected: true, batteryMain: 80)]
+        let registry = [
+            BluetoothDevice(name: "Magic Keyboard", address: "bb:09", isConnected: true, batteryMain: 20),
+            BluetoothDevice(name: "Studio Buds", address: "cc:03", isConnected: true, kind: "Headphones", batteryMain: 55),
+        ]
+        let merged = BluetoothDeviceRegistry.merge(profiled, registry)
+        XCTAssertEqual(merged.map(\.name), ["Magic Keyboard", "Studio Buds"])
+        XCTAssertEqual(merged.first?.batteryMain, 80, "a level already read is never overwritten")
+    }
+
+    func testRegistryProductNamesMapToDeviceKinds() {
+        XCTAssertEqual(BluetoothDeviceRegistry.kind(of: "BT5.4 Mouse"), "Mouse")
+        XCTAssertEqual(BluetoothDeviceRegistry.kind(of: "Magic Keyboard with Touch ID"), "Keyboard")
+        XCTAssertEqual(BluetoothDeviceRegistry.kind(of: "AirPods Pro"), "Headphones")
+        XCTAssertNil(BluetoothDeviceRegistry.kind(of: "Wakili's S22+"))
+    }
+
     func testBreakdownAndLowFlag() {
         let pods = BluetoothDevice(name: "Pods", address: "a", isConnected: true, kind: nil, batteryMain: nil, batteryLeft: 80, batteryRight: 15, batteryCase: 60)
         XCTAssertEqual(pods.batteryBreakdown, "L 80 · R 15 · C 60")

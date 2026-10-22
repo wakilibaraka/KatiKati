@@ -585,6 +585,46 @@ final class PanelGeometryTests: XCTestCase {
         }
     }
 
+    /// Control Centre at the trailing end (2026-10-21): the plate takes over the slot it used to
+    /// reserve for the capsule, and the capsule sits one slot in — a `capsuleGap` short of the disc.
+    func testControlCentreTrailingPutsTheCapsuleOneSlotIn() {
+        let screen = screen(frame: CGRect(x: 0, y: 0, width: 1728, height: 982))
+        for height in sampleHeights {
+            let m = height.metrics
+            let scale = m.panelHeight / IslandChrome.nativeBarHeight
+            let dock = PanelGeometry.dockTargetFrame(contentWidth: 1000, on: screen, metrics: m)
+            let capsule = PanelGeometry.capsuleTargetFrame(forDock: dock, on: screen, placement: .right,
+                                                           metrics: m, controlCentreTrailing: true)
+            let plate = dock.insetBy(dx: m.shadowPadding, dy: m.shadowPadding)
+            let visible = capsule.insetBy(dx: m.shadowPadding, dy: m.shadowPadding)
+            // The disc keeps the plate's trailing inset; the capsule ends one gap short of it.
+            let discLeading = plate.maxX - IslandChrome.contentInset * scale
+                - BarSection.widgets.defaultWidgetWidth * scale
+            XCTAssertEqual(discLeading - visible.maxX, m.capsuleGap, accuracy: 0.5, "\(height.points)pt 胶囊间距")
+            XCTAssertLessThan(visible.maxX, plate.maxX, "\(height.points)pt 胶囊在板内")
+            XCTAssertEqual(capsule.midY, dock.midY, accuracy: 0.5, "\(height.points)pt 垂直对齐")
+            // The hole the strip leaves is exactly the capsule plus its two gaps.
+            XCTAssertEqual(PanelGeometry.controlCentreHole(metrics: m),
+                           visible.width + 2 * m.capsuleGap, accuracy: 0.5)
+        }
+    }
+
+    /// The swap must not move the bar: the plate grows by the slot it takes over, so the centred
+    /// group keeps its position and the disc ends where the capsule's trailing edge used to be.
+    func testControlCentreTrailingKeepsTheBarCentred() {
+        let screen = screen(frame: CGRect(x: 0, y: 0, width: 1728, height: 982))
+        let m = DockPanelHeight.native.metrics
+        let slot = m.capsuleGap + m.capsuleWidth
+        let off = PanelGeometry.islandTargetFrame(slot: 0, contentWidth: 900, mode: .centered, on: screen,
+                                                  placement: .right, metrics: m, centeredWidth: 900)
+        // The strip's measured content grows by the hole it now draws the disc in.
+        let on = PanelGeometry.islandTargetFrame(slot: 0, contentWidth: 900 + slot, mode: .centered, on: screen,
+                                                 placement: .right, metrics: m, centeredWidth: 900,
+                                                 controlCentreTrailing: true)
+        XCTAssertEqual(on.minX, off.minX, accuracy: 0.5)
+        XCTAssertEqual(on.maxX - off.maxX, slot, accuracy: 0.5)
+    }
+
     func testLiftTargetTracksBarHeight() {
         // 最大化避让的 taskbarTop = 屏幕底 + bottomGap + panelHeight，条高一变必须跟着变，
         // 否则被抬起的窗口底边和新任务条对不上。

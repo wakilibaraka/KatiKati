@@ -199,6 +199,12 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     /// Unset in normal use. Needs `DOCK_DEV_SKIP_PERMISSIONS=1` on this unsigned build.
     case openSettings = "DOCK_OPEN_SETTINGS"
 
+    /// 59a live-check aid: `DOCK_NOTIFY_DEMO=<PowerNotificationKind raw value>` (e.g. `lowBattery`,
+    /// `charged`, `peripheralConnected`) shows that pill once at launch, so its size and placement can be
+    /// looked at without waiting for a real battery event. It is not written to the history. Unset in
+    /// normal use.
+    case powerNotificationDemo = "DOCK_NOTIFY_DEMO"
+
     var kind: Kind {
         switch self {
         case .eventAxAsync, .reconcileSkip, .scanGate, .frontmostCache,
@@ -222,7 +228,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .liquidGlassWhiteOverlay, .liquidGlassDimming, .liquidGlassBorder, .liquidGlassBorderEdge,
              .liquidGlassBorderCut, .liquidGlassBorderSpread, .liquidGlassBorderWidth, .liquidGlassBorderInner,
              .liquidGlassBackgroundOpacity, .liquidGlassWindowBlur, .liquidGlassContentInset,
-             .liquidGlassSystemVariant, .stackPopupSnapshot, .dockTheme, .wallpaperPhase, .dockIconFrame, .openSettings:
+             .liquidGlassSystemVariant, .stackPopupSnapshot, .dockTheme, .wallpaperPhase, .dockIconFrame, .openSettings,
+             .powerNotificationDemo:
             return .value
         }
     }

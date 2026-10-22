@@ -185,6 +185,13 @@ extension PanelCoordinator {
             .sink { [weak self] _ in
                 DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
             }
+        controlCentreTrailingSubscription = settingsStore.$controlCentreTrailing
+            .removeDuplicates()
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
+            }
     }
 
     /// A height change is a **transaction**, not a content change: panel height, capsule width
@@ -322,7 +329,8 @@ extension PanelCoordinator {
                 centeredWidth: CGFloat(settingsStore.centeredWidth),
                 gap: CGFloat(settingsStore.islandGap),
                 margin: CGFloat(settingsStore.islandMargin),
-                widgetLayout: settingsStore.widgetLayout
+                widgetLayout: settingsStore.widgetLayout,
+                controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd
             )
         }
         return PanelGeometry.stripTargetFrame(
@@ -335,7 +343,8 @@ extension PanelCoordinator {
             centeredWidth: CGFloat(settingsStore.centeredWidth),
             gap: CGFloat(settingsStore.islandGap),
             margin: CGFloat(settingsStore.islandMargin),
-            widgetLayout: settingsStore.widgetLayout
+            widgetLayout: settingsStore.widgetLayout,
+            controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd
         )
     }
 
@@ -352,7 +361,8 @@ extension PanelCoordinator {
     private func capsuleTargetFrame(forDock dockFrame: NSRect, on screen: NSScreen) -> NSRect {
         PanelGeometry.stripCapsuleTargetFrame(forDock: dockFrame, stripPlacement: stripPlacement,
                                               on: Self.screenGeometry(screen),
-                                              drawerPlacement: settingsStore.drawerPlacement, metrics: layoutMetrics)
+                                              drawerPlacement: settingsStore.drawerPlacement, metrics: layoutMetrics,
+                                              controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd)
     }
 
     /// 抽屉目标 frame（右边贴胶囊右边、**底边硬锚在胶囊上方、向上长**）。只依赖传入的胶囊 **目标** frame + 抽屉尺寸。
@@ -428,6 +438,12 @@ extension PanelCoordinator {
         // out; nothing else re-shows it until the next visibility flip (Phase 11-0, B2).
         if capsuleOwner, panelsAreVisible, !capsule.isVisible, !isSuspendedForPermissionLoss {
             capsule.orderFrontRegardless()
+        }
+        // The capsule overlaps the plate when the Control Centre holds the trailing end, and the
+        // plate's windows are raised by the surface order (and by visibility flips) — so every
+        // layout commit puts the capsule back on top of the plate it now sits inside.
+        if capsuleOwner, settingsStore.controlCentreAtTrailingEnd {
+            reassertCapsuleSurface()
         }
         if drawerWantsOpen { syncDrawerArrow(after: commit) }
     }

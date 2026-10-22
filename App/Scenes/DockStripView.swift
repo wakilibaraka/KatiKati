@@ -1381,6 +1381,11 @@ struct DockStripView: View {
             let baseWidth = fitted.width(for: section)
             let targetWidth = (section == .media && mediaPreset.isCard) ? max(baseWidth, 215) : baseWidth
             let widgetSize = fitted.instance(for: section).size
+            // Control Centre at the trailing end (2026-10-21): the disc sits where the drawer capsule
+            // used to, so its slot grows by the hole the capsule panel now fills — same number the
+            // panel's frame is solved from, so the two cannot drift apart.
+            let controlCentreHole = section == .widgets && settingsStore.controlCentreAtTrailingEnd && !isRail
+                ? PanelGeometry.controlCentreHole(metrics: metrics) : 0
 
             Group {
                 if isRail {
@@ -1391,6 +1396,7 @@ struct DockStripView: View {
                                height: section.railTileLength(barHeight: IslandChrome.nativeBarHeight) * dockScale)
                 } else {
                     HStack(spacing: 6 * dockScale) {
+                        if controlCentreHole > 0 { Color.clear.frame(width: controlCentreHole) }
                         if section.supportsWidgetSizes, let members = settingsStore.widgetLayout.instance(for: section).stack, members.count > 1 {
                             SmartStackSlot(host: section, members: members) { widgetChip($0, size: widgetSize) }
                         } else {
@@ -1400,7 +1406,7 @@ struct DockStripView: View {
                     // Refined slot insets: every widget card matches the 40pt height of the FABs
                     // and app icons beside it (Phase 49).
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .frame(width: section == .apps ? nil : targetWidth * dockScale,
+                    .frame(width: section == .apps ? nil : targetWidth * dockScale + controlCentreHole,
                            height: BarSection.railTileSize * dockScale)
                 }
             }

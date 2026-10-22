@@ -2,6 +2,58 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 59a: notifications are a pill, and their own page
+
+### Added
+- Settings → **Notifications**, its own sidebar page next to Notch: a low-battery alert at 10–50 % (or Off),
+  80 % / 100 % charge milestones, Charging & Unplugged, peripheral alerts, the history the page lists, and a
+  24-hour-or-7-day retention picker with **Clear History**. The banner-placement rows that sat at the end of
+  Advanced moved here with it.
+- Battery, charge-milestone, plug-change and peripheral (connected / disconnected / low) notifications, fired from
+  `PowerNotificationPolicy`: transitions only, one alert per dip and one per milestone per charge session, so a
+  battery sitting at 20 % is not announced on every sample. The rules are BeteriApp's settings.
+- Peripherals the Bluetooth profiler lists without a charge get it from the HID driver's registry
+  (`AppleDeviceManagementHIDEventService`'s `BatteryPercent`, BeteriApp's second source), merged into the profiler's
+  list rather than replacing it.
+
+### Changed
+- A notification arrives as the compact capsule the track pill uses, pinned under the menu bar's centre — not the notch
+  island, which takes the menu bar's width and much of the screen for one line of text.
+- **Quick Settings fills the height between the menu bar and the dock** instead of opening at its content's height: the
+  panel is sized to that gap, the switch grid goes five per row only when four would overflow, and the network row,
+  sliders and footer sit at the bottom of the panel.
+
+## [Unreleased] — Phase 58d: the Control Center wears the dock's theme
+
+### Changed
+- Control Center content rebuilt to the owner's design: a clock and battery header, a **System & Peripherals** card
+  with a live percentage bar per device (This Mac plus connected Bluetooth peripherals, refreshed on demand), Wi-Fi
+  and Bluetooth as accent bento cards, now playing with artwork and a live progress bar, the switch grid, the network
+  row, the three sliders, the utility row and the account footer.
+- Its chrome is the dock's: the plate takes the selected preset's own tint and rim (vibrancy/contrast included), cards
+  and active accents come from the same `SettingsIridescentPalette` the Appearance swatches are drawn from, and text
+  uses the dock's label tints — so Aurora, Ember, Rose Quartz and the light presets restyle panel and bar together.
+- The panel opens at its content's height instead of the screen cap, so no transparent band sits under the last card
+  while the first height report is in flight.
+
+### Added
+- The switch grid picks 4 or 5 cells per row from the measured panel height (`ControlCenterGrid`, unit-tested): five
+  only when the panel overflows and five removes a row.
+
+## [Unreleased] — Phase 58c: an option to put the Control Centre at the dock's right end
+
+### Added
+- Settings → Dock Items → **Control Centre on the right**, off by default. Turned on, the Wi-Fi / Control Centre
+  button takes the far right of the bar and the drawer capsule moves one slot in, wired as a pair of tiles — the gap
+  between them is the same 8 pt the capsule keeps from the bar. The bar keeps its length and position: the plate
+  grows by the slot the disc takes over and the capsule moves inside it. One-plate bars only (Centred, Full Width);
+  the split layouts, a side rail, a left-side drawer and a widget order with something after Widgets keep the
+  arrangement that has shipped for months.
+
+### Fixed
+- The drawer capsule can no longer be buried by the plate: every layout commit and every Control Centre open or
+  close puts it back above the bar's windows, so the tile stops vanishing when a panel is raised.
+
 ## [Unreleased] — Phase 58b: the welcome guide opens behind a glass lens
 
 ### Added

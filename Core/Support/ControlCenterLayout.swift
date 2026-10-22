@@ -65,6 +65,27 @@ enum ControlCenterScroll {
     }
 }
 
+/// The Control Center's switch grid: four toggles per row normally, five when four would run past the
+/// screen and five saves a row. Pure so the choice is unit-tested instead of being eyeballed.
+enum ControlCenterGrid {
+    static let baseColumns = 4
+    static let wideColumns = 5
+
+    /// Rows the grid needs for `count` cells at `columns` per row. 0 for an empty grid.
+    static func rows(count: Int, columns: Int) -> Int {
+        guard count > 0, columns > 0 else { return 0 }
+        return (count + columns - 1) / columns
+    }
+
+    /// Cells per row for a grid that has room for `rowsFit` rows. Four while the panel's height can
+    /// hold that many; five when it cannot, so the grid narrows its rows instead of running off the
+    /// panel. `rowsFit` is measured from the grid's own height, not from the screen.
+    static func columns(count: Int, rowsFit: Int) -> Int {
+        guard count > 0, rowsFit > 0 else { return baseColumns }
+        return count <= rowsFit * baseColumns ? baseColumns : wideColumns
+    }
+}
+
 /// Control Center open animation. Instant (default) is the pre-animation behavior.
 enum ControlCenterAnimation: String, CaseIterable, Sendable {
     case instant, fade, slide
