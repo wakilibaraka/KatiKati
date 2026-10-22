@@ -75515,6 +75515,23 @@
         "it": {"stringUnit": {"state": "translated", "value": "Scollegato"}},
         "ko": {"stringUnit": {"state": "translated", "value": "전원 분리됨"}}
       }
+    },
+    "Charge Milestone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Charge Milestone"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "充电里程碑"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "充電里程碑"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "充電マイルストーン"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Lade-Meilenstein"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Palier de charge"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Hito de carga"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Hito de carga"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Marco de carga"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Marco de carga"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Traguardo di carica"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "충전 단계"}}
+      }
     }
   },
   "version": "1.0"

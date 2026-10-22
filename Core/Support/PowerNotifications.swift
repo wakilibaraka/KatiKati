@@ -119,6 +119,11 @@ enum PowerNotificationPolicy {
 
     static let peripheralLowLevel = 20
 
+    /// A charge milestone's wording: 100 % is a finished charge, anything below is a milestone on the way.
+    static func milestoneTitle(_ milestone: Int) -> String {
+        milestone >= 100 ? String(localized: "Battery Charged") : String(localized: "Charge Milestone")
+    }
+
     /// Events for the move from `old` to `new`. Ordered most-urgent first: low battery, then a
     /// milestone, then the plug state, then peripherals.
     static func events(from old: Snapshot, to new: Snapshot, rules: PowerNotificationRules,
@@ -147,9 +152,7 @@ enum PowerNotificationPolicy {
                 for milestone in rules.chargeMilestones.sorted()
                 where oldLevel < milestone && level >= milestone && !fired.milestones.contains(milestone) {
                     fired.milestones.insert(milestone)
-                    events.append(PowerNotification(kind: .charged,
-                                                    title: level >= 100 ? String(localized: "Battery Charged")
-                                                                        : String(localized: "Battery Charged"),
+                    events.append(PowerNotification(kind: .charged, title: milestoneTitle(milestone),
                                                     detail: "\(milestone)%", date: now))
                 }
             }

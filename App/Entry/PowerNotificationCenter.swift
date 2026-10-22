@@ -51,18 +51,26 @@ final class PowerNotificationCenter: ObservableObject {
         deviceTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.refreshDevices() }
         }
-        // 59a live-check aid: `DOCK_NOTIFY_DEMO=<kind>` shows one pill at launch (not in the history).
-        if let raw = DebugSwitch.powerNotificationDemo.value(), let kind = PowerNotificationKind(rawValue: raw) {
-            let titles: [PowerNotificationKind: String] = [
-                .lowBattery: String(localized: "Battery Low"), .charged: String(localized: "Battery Charged"),
-                .charging: String(localized: "Charging"), .unplugged: String(localized: "Unplugged"),
-                .pluggedIn: String(localized: "Plugged In"),
-                .peripheralConnected: String(localized: "Connected"),
-                .peripheralDisconnected: String(localized: "Disconnected"),
-                .peripheralLowBattery: String(localized: "Low Battery"),
-            ]
-            let demo = PowerNotification(kind: kind, title: titles[kind] ?? "", detail: "80%", date: Date())
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in self?.presenter.show(demo) }
+        // 59a live-check aid: `DOCK_NOTIFY_DEMO=<kind>` or `charged:<percent>` shows one pill at launch
+        // (never written to the history); the percent picks a charge milestone's wording.
+        if let raw = DebugSwitch.powerNotificationDemo.value() {
+            let parts = raw.split(separator: ":")
+            if let kind = PowerNotificationKind(rawValue: String(parts[0])) {
+                let percent = parts.count > 1 ? Int(parts[1]) : nil
+                let titles: [PowerNotificationKind: String] = [
+                    .lowBattery: String(localized: "Battery Low"),
+                    .charging: String(localized: "Charging"), .unplugged: String(localized: "Unplugged"),
+                    .pluggedIn: String(localized: "Plugged In"),
+                    .peripheralConnected: String(localized: "Connected"),
+                    .peripheralDisconnected: String(localized: "Disconnected"),
+                    .peripheralLowBattery: String(localized: "Low Battery"),
+                ]
+                let title = kind == .charged ? PowerNotificationPolicy.milestoneTitle(percent ?? 100)
+                                             : titles[kind] ?? ""
+                let demo = PowerNotification(kind: kind, title: title,
+                                             detail: "\(percent ?? 80)%", date: Date())
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in self?.presenter.show(demo) }
+            }
         }
     }
 

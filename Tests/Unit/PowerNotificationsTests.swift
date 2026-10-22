@@ -47,12 +47,16 @@ final class PowerNotificationsTests: XCTestCase {
         let rules = PowerNotificationRules()
         _ = events(snapshot(60, charging: true, plugged: true), snapshot(61, charging: true, plugged: true),
                    rules: rules, fired: &fired)
-        XCTAssertEqual(events(snapshot(79, charging: true, plugged: true), snapshot(80, charging: true, plugged: true),
-                               rules: rules, fired: &fired).map(\.detail), ["80%"])
+        let midMilestone = events(snapshot(79, charging: true, plugged: true),
+                                  snapshot(80, charging: true, plugged: true), rules: rules, fired: &fired)
+        XCTAssertEqual(midMilestone.map(\.detail), ["80%"])
+        XCTAssertEqual(midMilestone.map(\.title), ["Charge Milestone"], "80 % is not a finished charge")
         XCTAssertEqual(events(snapshot(80, charging: true, plugged: true), snapshot(85, charging: true, plugged: true),
                                rules: rules, fired: &fired), [])
-        XCTAssertEqual(events(snapshot(99, charging: true, plugged: true), snapshot(100, charging: true, plugged: true),
-                               rules: rules, fired: &fired).map(\.detail), ["100%"])
+        let full = events(snapshot(99, charging: true, plugged: true), snapshot(100, charging: true, plugged: true),
+                          rules: rules, fired: &fired)
+        XCTAssertEqual(full.map(\.detail), ["100%"])
+        XCTAssertEqual(full.map(\.title), ["Battery Charged"])
         // A fresh session at 50 % may announce 80 % again.
         _ = events(snapshot(100, charging: true, plugged: true), snapshot(99, charging: false, plugged: false),
                    rules: rules, fired: &fired)
