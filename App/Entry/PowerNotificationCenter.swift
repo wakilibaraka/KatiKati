@@ -56,6 +56,7 @@ final class PowerNotificationCenter: ObservableObject {
             let titles: [PowerNotificationKind: String] = [
                 .lowBattery: String(localized: "Battery Low"), .charged: String(localized: "Battery Charged"),
                 .charging: String(localized: "Charging"), .unplugged: String(localized: "Unplugged"),
+                .pluggedIn: String(localized: "Plugged In"),
                 .peripheralConnected: String(localized: "Connected"),
                 .peripheralDisconnected: String(localized: "Disconnected"),
                 .peripheralLowBattery: String(localized: "Low Battery"),
@@ -189,6 +190,8 @@ private struct PowerNotificationPillView: View {
         case .lowBattery, .peripheralLowBattery: return Color(red: 0.98, green: 0.45, blue: 0.28)
         case .charged: return Color(red: 0.30, green: 0.80, blue: 0.48)
         case .charging: return Color(red: 0.34, green: 0.72, blue: 0.98)
+        // Power arrived with nothing to fill: the charging blue, muted.
+        case .pluggedIn: return Color(red: 0.52, green: 0.64, blue: 0.82)
         case .unplugged, .peripheralDisconnected: return Color(red: 0.62, green: 0.62, blue: 0.68)
         case .peripheralConnected: return Color(red: 0.42, green: 0.60, blue: 0.98)
         }

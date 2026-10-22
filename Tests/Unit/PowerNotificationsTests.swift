@@ -74,6 +74,51 @@ final class PowerNotificationsTests: XCTestCase {
         XCTAssertEqual(events(snapshot(50), snapshot(50, charging: true, plugged: true), rules: quiet, fired: &fired), [])
     }
 
+    /// The plug-in everybody does: a full battery, so the Mac is not charging. Keying the alert on
+    /// `isCharging` left this one — and the unplug from it — silent.
+    func testPlugAndUnplugAlertAtFullCharge() {
+        var fired = PowerNotificationPolicy.Fired()
+        let rules = PowerNotificationRules()
+        let plugged = events(snapshot(100), snapshot(100, plugged: true), rules: rules, fired: &fired)
+        XCTAssertEqual(plugged.map(\.kind), [.pluggedIn], "a full battery is plugged in, not charging")
+        XCTAssertEqual(plugged.first?.title, "Plugged In")
+        XCTAssertEqual(plugged.first?.detail, "100%")
+        XCTAssertTrue(events(snapshot(100, plugged: true), snapshot(100, plugged: true), rules: rules, fired: &fired).isEmpty,
+                      "staying on power is not an event")
+        let unplugged = events(snapshot(100, plugged: true), snapshot(100), rules: rules, fired: &fired)
+        XCTAssertEqual(unplugged.map(\.kind), [.unplugged])
+        XCTAssertEqual(unplugged.first?.detail, "100%")
+    }
+
+    func testFullChargePlugAlertsFollowTheSwitch() {
+        var rules = PowerNotificationRules()
+        rules.chargingChanges = false
+        var fired = PowerNotificationPolicy.Fired()
+        XCTAssertTrue(events(snapshot(100), snapshot(100, plugged: true), rules: rules, fired: &fired).isEmpty)
+        XCTAssertTrue(events(snapshot(100, plugged: true), snapshot(100), rules: rules, fired: &fired).isEmpty)
+    }
+
+    /// Charging starting on a Mac that is already on power is not a second plug-in.
+    func testChargingStartOnPowerIsNotASecondPlugAlert() {
+        var fired = PowerNotificationPolicy.Fired()
+        let rules = PowerNotificationRules()
+        XCTAssertTrue(events(snapshot(90, plugged: true), snapshot(90, charging: true, plugged: true),
+                             rules: rules, fired: &fired).isEmpty)
+        XCTAssertTrue(events(snapshot(90, charging: true, plugged: true), snapshot(95, charging: true, plugged: true),
+                             rules: rules, fired: &fired).isEmpty)
+    }
+
+    /// Plugging in starts a new charge session, so a milestone the last session announced can fire again.
+    func testPluggingInStartsANewMilestoneSession() {
+        var fired = PowerNotificationPolicy.Fired()
+        fired.milestones = [80, 100]
+        let rules = PowerNotificationRules()
+        _ = events(snapshot(79, charging: true, plugged: true), snapshot(79), rules: rules, fired: &fired)
+        _ = events(snapshot(79), snapshot(79, charging: true, plugged: true), rules: rules, fired: &fired)
+        XCTAssertEqual(events(snapshot(79, charging: true, plugged: true), snapshot(80, charging: true, plugged: true),
+                               rules: rules, fired: &fired).map(\.detail), ["80%"])
+    }
+
     func testPeripheralsConnectDisconnectAndWarnOncePerFall() {
         var fired = PowerNotificationPolicy.Fired()
         let rules = PowerNotificationRules()

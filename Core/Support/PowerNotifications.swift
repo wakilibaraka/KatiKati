@@ -12,7 +12,7 @@ import Foundation
 
 /// What happened. The pill and the history both read this to pick an icon.
 enum PowerNotificationKind: String, Codable, Sendable {
-    case lowBattery, charged, charging, unplugged
+    case lowBattery, charged, charging, pluggedIn, unplugged
     case peripheralConnected, peripheralDisconnected, peripheralLowBattery
 
     var symbol: String {
@@ -20,7 +20,8 @@ enum PowerNotificationKind: String, Codable, Sendable {
         case .lowBattery, .peripheralLowBattery: return "battery.25"
         case .charged: return "battery.100.bolt"
         case .charging: return "bolt.fill"
-        case .unplugged: return "powerplug"
+        // Power arrived but the battery is full, so nothing is flowing: macOS shows a plug here too.
+        case .pluggedIn, .unplugged: return "powerplug"
         case .peripheralConnected, .peripheralDisconnected: return "dot.radiowaves.left.and.right"
         }
     }
@@ -126,8 +127,11 @@ enum PowerNotificationPolicy {
         let level = new.level
 
         if let oldLevel = old.level, let level {
-            // Charging sessions reset what the previous one already announced.
-            if !old.isCharging, new.isCharging { fired.milestones = [] }
+            // A charge session starts when power arrives, or when a Mac already on power starts
+            // charging; each milestone is announced once per session.
+            if (!old.isPluggedIn && new.isPluggedIn) || (!old.isCharging && new.isCharging) {
+                fired.milestones = []
+            }
 
             if let threshold = rules.lowThreshold {
                 if new.isCharging || level > threshold { fired.low = false }
@@ -151,11 +155,16 @@ enum PowerNotificationPolicy {
             }
         }
 
-        if rules.chargingChanges, old.isCharging != new.isCharging {
-            if new.isCharging {
-                events.append(PowerNotification(kind: .charging, title: String(localized: "Charging"),
+        // Keyed on the power source, not on charging: a Mac plugged in at 100 % is not charging, and
+        // that plug-in is the most common one there is. "Charging" while current flows, "Plugged In"
+        // when the battery is already full.
+        if rules.chargingChanges, old.isPluggedIn != new.isPluggedIn {
+            if new.isPluggedIn {
+                events.append(PowerNotification(kind: new.isCharging ? .charging : .pluggedIn,
+                                                title: new.isCharging ? String(localized: "Charging")
+                                                                      : String(localized: "Plugged In"),
                                                 detail: level.map { "\($0)%" }, date: now))
-            } else if !new.isPluggedIn {
+            } else {
                 events.append(PowerNotification(kind: .unplugged, title: String(localized: "Unplugged"),
                                                 detail: level.map { "\($0)%" }, date: now))
             }
