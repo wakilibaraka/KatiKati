@@ -6702,9 +6702,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/PowerNotificationsTests.swift": {
-    "mtime": 1792626448.0655901,
-    "seen": 1792630179.526589,
-    "ast_hash": "1361a66783e8160938debe4ed229c1af",
+    "mtime": 1792632881.3243184,
+    "seen": 1792634530.484822,
+    "ast_hash": "99124f0950c9ba39c39a26e6fbeea628",
     "semantic_hash": ""
   }
 }
