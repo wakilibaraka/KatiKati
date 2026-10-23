@@ -75804,6 +75804,57 @@
         "it": {"stringUnit": {"state": "translated", "value": "Se attivo, ogni avviso riproduce un suono di sistema."}},
         "ko": {"stringUnit": {"state": "translated", "value": "켜면 모든 알림에서 시스템 소리가 재생됩니다."}}
       }
+    },
+    "Thermal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Thermal"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "温度"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "溫度"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "温度"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Temperatur"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Température"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Temperatura"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Temperatura"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Temperatura"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Temperatura"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Temperatura"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "온도"}}
+      }
+    },
+    "Health": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Health"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "健康度"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "健康度"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "健全性"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zustand"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Santé"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Salud"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Salud"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Saúde"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Saúde"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Salute"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "상태"}}
+      }
+    },
+    "Cycles": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Cycles"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "循环次数"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "循環次數"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "サイクル数"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ladezyklen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Cycles"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ciclos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ciclos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ciclos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ciclos"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cicli"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "사이클 수"}}
+      }
     }
   },
   "version": "1.0"

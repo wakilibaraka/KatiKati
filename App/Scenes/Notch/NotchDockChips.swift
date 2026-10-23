@@ -105,7 +105,8 @@ struct NotchBatteryChip: View {
         .onChange(of: battery.isCharging) { _, _ in updatePulse() }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: "Battery \(level)%\(battery.isCharging ? ", charging" : battery.isPluggedIn ? ", plugged in" : "")"))
-        // 59d: the chip is too small for time and watts, so hovering it reads them out.
+        // 59d: the chip is too small for time and watts; the open header's card carries them, and this
+        // one-line tooltip stays for the places that have no room for a card (dock chips, wide bar).
         .help(Text(verbatim: battery.facts.summary ?? ""))
     }
 
@@ -114,6 +115,100 @@ struct NotchBatteryChip: View {
             withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) { pulse = true }
         } else {
             withAnimation(.easeOut(duration: 0.2)) { pulse = false }
+        }
+    }
+}
+
+/// 59d — the numbers the 50 pt chip has no room for: macOS's own time estimate, the watts flowing in,
+/// thermal pressure, health and cycle count. Read-only and drawn over the open panel's page area (the
+/// header's tap toggles it), so it never intercepts a click meant for the page. Everything is optional:
+/// a key this Mac does not publish hides its row instead of printing a zero.
+struct NotchBatteryDetail: View {
+    let level: Int
+    let battery: BatteryStatus
+    /// Read fresh when the card appears: `battery.facts` only refreshes on a power-source change, so a
+    /// card that reused it could still show the time or wattage from the last plug event.
+    @State private var fresh: PowerFacts?
+    @State private var health: BatteryHealth?
+
+    private var facts: PowerFacts { fresh ?? battery.facts }
+
+    private var timeText: String? {
+        guard let duration = PowerFacts.durationText(facts.secondsRemaining) else { return nil }
+        return facts.isCharging ? "\(duration) \(String(localized: "to full"))" : "\(duration) \(String(localized: "left"))"
+    }
+
+    private var hasRows: Bool {
+        timeText != nil || facts.watts != nil || facts.thermal != .nominal
+            || health?.healthPercent != nil || health?.cycleCount != nil
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Text(verbatim: "\(level)%")
+                    .font(.system(size: 15, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.white)
+                stateLabel
+                Spacer(minLength: 6)
+                if facts.isLowPowerMode {
+                    Text("Low Power Mode")
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(Color.yellow)
+                        .padding(.horizontal, 6).padding(.vertical, 2)
+                        .background(Capsule().fill(Color.yellow.opacity(0.22)))
+                }
+            }
+            if hasRows {
+                Divider().overlay(Color.white.opacity(0.12))
+                if let time = timeText { row(Text("Time Remaining"), time) }
+                if let watts = facts.watts { row(Text("Watts"), String(format: "%.1f W", watts)) }
+                if facts.thermal != .nominal { row(Text("Thermal"), facts.thermal.name) }
+                if let percent = health?.healthPercent { row(Text("Health"), "\(percent)%") }
+                if let cycles = health?.cycleCount { row(Text("Cycles"), "\(cycles)") }
+            }
+        }
+        .padding(12)
+        .frame(width: 232, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: NotchLayoutSpec.cardRadius, style: .continuous)
+                .fill(Color.black.opacity(0.82))
+                .overlay(
+                    RoundedRectangle(cornerRadius: NotchLayoutSpec.cardRadius, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.12), lineWidth: 1)
+                )
+        )
+        .onAppear {
+            fresh = PowerFactsReader.read(isCharging: battery.isCharging)
+            health = BatteryHealthReader.read()
+        }
+    }
+
+    /// Charging / plugged in / on battery, as three literal `Text`s so the localization checker sees all
+    /// three keys (a `String`-returning helper would hide them from it).
+    @ViewBuilder private var stateLabel: some View {
+        Group {
+            if battery.isCharging {
+                Text("Charging")
+            } else if battery.isPluggedIn {
+                Text("Plugged In")
+            } else {
+                Text("On Battery")
+            }
+        }
+        .font(.system(size: 10, weight: .medium))
+        .foregroundStyle(.white.opacity(0.6))
+    }
+
+    private func row(_ label: Text, _ value: String) -> some View {
+        HStack(spacing: 8) {
+            label
+                .font(.system(size: 11))
+                .foregroundStyle(.white.opacity(0.55))
+            Spacer(minLength: 8)
+            Text(verbatim: value)
+                .font(.system(size: 11, weight: .medium).monospacedDigit())
+                .foregroundStyle(.white)
         }
     }
 }

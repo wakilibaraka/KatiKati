@@ -20,7 +20,9 @@ struct NotchHomeView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // 59d: the battery card hangs out of the header, so the header must draw above the page.
             NotchHeaderView(model: model, metrics: metrics)
+                .zIndex(1)
 
             Group {
                 switch model.activePage {

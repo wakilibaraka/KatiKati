@@ -44,9 +44,10 @@ enum NotchLayoutSpec {
     static let headerButtonSize: CGFloat = 26
     static let progressHeight: CGFloat = 10
 
-    // MARK: animation (response, damping)
-    static let openSpring = (response: 0.42, damping: 0.8)
-    static let closeSpring = (response: 0.45, damping: 1.0)
+    // MARK: animation
+    // The springs live in `NotchMotionSpec` only (51e): the pair that used to sit here (0.42/0.8 open,
+    // 0.45/1.0 close) had no reference anywhere and disagreed with the 0.38/1.0 and 0.32/1.0 the views
+    // actually run, so it was a second source of truth for the feel.
 
     /// Header is as tall as the closed notch (it flanks it) — never shorter than the buttons.
     static func headerHeight(closedHeight: CGFloat) -> CGFloat {

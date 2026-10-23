@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """核对本地化 key 与 Localizable.xcstrings 是否一一对应，并统计还剩多少中文没翻。
 
-用法：python3 Scripts/check_localization.py [--remaining]
+用法：python3 Scripts/check_localization.py [--remaining] [--identical]
+
+--remaining  列出源码里剩余的中文字面量（位置 + 原文）
+--identical  列出译文与英文一字不差的条目（Q-l10n：用来找“照抄英文没翻”）
 
 漏一条 = 非英文用户在那个位置突然看到英文，编译期完全不报错。
 每种语言都要有值：LANGUAGES 与 `AppLanguageOption.localizationIdentifier`、
@@ -131,6 +134,23 @@ def placeholder_mismatches(catalog):
     return out
 
 
+def identical_to_english(catalog):
+    """译文与英文一字不差的条目。短词和专有名词照抄是对的（Watts、GitHub），整句照抄就是没翻，
+    而 catalog 只会说“有值”，不会说“翻译过”——Q-l10n 要的就是这份名单。报告，不进 gate。"""
+    out = []
+    for key, entry in catalog.items():
+        english = (value_of(entry, 'en') or '').strip()
+        if not english:
+            continue
+        for lang in LANGUAGES:
+            if lang == 'en':
+                continue
+            value = (value_of(entry, lang) or '').strip()
+            if value and value == english:
+                out.append((key, lang))
+    return out
+
+
 def main():
     catalog = json.loads(CATALOG.read_text(encoding='utf-8'))['strings']
     used, chinese = scan()
@@ -141,9 +161,13 @@ def main():
     infoplist = json.loads(INFOPLIST_CATALOG.read_text(encoding='utf-8'))['strings']
     infoplist_untranslated = {lang: [k for k, v in infoplist.items() if not value_of(v, lang)] for lang in LANGUAGES}
     placeholder_drift = placeholder_mismatches(catalog)
+    identical = identical_to_english(catalog)
     chinese_key = [k for k in used if re.search(r'[一-龥]', k)]
 
     print(f'代码引用 {len(used)} 个 key ｜ catalog {len(catalog)} 条 × {len(LANGUAGES)} 种语言 ｜ 源码剩余中文字面量 {len(chinese)} 处\n')
+    if identical:
+        keys = {k for k, _ in identical}
+        print(f'ℹ️  {len(identical)} 处译文与英文一字不差，涉及 {len(keys)} 个 key（专有名词照抄正常，整句照抄就是没翻；--identical 看名单）\n')
 
     ok = True
     if missing:
@@ -176,6 +200,11 @@ def main():
         print(f'\n❌ catalog 里 {len(unused)} 条没被引用（死条目或扫描盲区，两种都要查）：')
         for k in unused:
             print(f'   {k[:70]!r}')
+
+    if '--identical' in sys.argv and identical:
+        print(f'\n--- 译文与英文相同 {len(identical)} 处（逐条） ---')
+        for key, lang in identical:
+            print(f'   [{lang}] {key[:70]!r}')
 
     if '--remaining' in sys.argv and chinese:
         print(f'\n--- 剩余中文字面量 {len(chinese)} 处 ---')

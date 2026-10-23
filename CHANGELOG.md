@@ -2,6 +2,14 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — Phase 59d: the notch battery card
+
+### Added
+- Click the battery in the **open** notch header and a small card shows what the percentage cannot: **Time Remaining**
+  (or the time to full while charging), the **Watts** going in, **Thermal** pressure once the Mac is running warm,
+  **Health** and **Cycles**, plus a **Low Power Mode** badge. A number this Mac cannot report — a desktop Mac, a
+  registry without the key, macOS's "still calculating" sentinel — leaves its row out instead of printing a zero.
+
 ## [Unreleased] — Dock chips offer the app's own New Window / New Tab
 
 ### Added

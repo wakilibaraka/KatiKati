@@ -11,6 +11,9 @@ struct NotchHeaderView: View {
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
     @AppStorage(NotificationMirrorService.enabledKey) private var notificationsPage = false
     @AppStorage(NotchPageLayout.defaultsKey) private var pageLayoutRaw = ""   // re-renders the page strip
+    /// 59d: the battery card hangs under the chip, over the page area. Read-only, so it never takes a
+    /// click the page wanted; the chip's own tap toggles it.
+    @State private var showsBatteryDetail = false
 
     var body: some View {
         let side = NotchLayoutSpec.headerButtonSize
@@ -25,7 +28,20 @@ struct NotchHeaderView: View {
             HStack(spacing: NotchLayoutSpec.headerSpacing) {
                 volume
                 if let level = power.status.battery.level {
-                    NotchBatteryChip(level: level, battery: power.status.battery, scale: 1.25)
+                    Button {
+                        withAnimation(.easeOut(duration: 0.15)) { showsBatteryDetail.toggle() }
+                    } label: {
+                        NotchBatteryChip(level: level, battery: power.status.battery, scale: 1.25)
+                    }
+                    .buttonStyle(.plain)
+                    .overlay(alignment: .topTrailing) {
+                        if showsBatteryDetail {
+                            NotchBatteryDetail(level: level, battery: power.status.battery)
+                                .offset(y: NotchLayoutSpec.headerHeight(closedHeight: metrics.closedSize.height) + 6)
+                                .allowsHitTesting(false)
+                                .transition(.opacity)
+                        }
+                    }
                 }
                 Button { model.collapse(); model.openSettings() } label: {
                     Image(systemName: "gearshape.fill").font(.system(size: 12, weight: .semibold))
