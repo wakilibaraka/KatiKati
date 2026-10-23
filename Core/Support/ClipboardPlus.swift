@@ -42,3 +42,17 @@ enum ClipboardIgnoreRules {
 enum ClipboardToastPolicy {
     static func shouldToast(_ text: String) -> Bool { !ClipboardHistory.previewLine(text).isEmpty }
 }
+
+/// 53g — a file name for the image pasted into Finder that cannot overwrite anything:
+/// `Clipboard Image.png`, then `Clipboard Image 2.png`, `Clipboard Image 3.png`… Names are compared
+/// case-insensitively because APFS is case-insensitive by default, so "image.PNG" is already taken.
+enum PasteImageNaming {
+    static func uniqueName(base: String, fileExtension: String, existing: Set<String>) -> String {
+        let taken = Set(existing.map { $0.lowercased() })
+        let first = "\(base).\(fileExtension)"
+        guard taken.contains(first.lowercased()) else { return first }
+        var n = 2
+        while taken.contains("\(base) \(n).\(fileExtension)".lowercased()) { n += 1 }
+        return "\(base) \(n).\(fileExtension)"
+    }
+}

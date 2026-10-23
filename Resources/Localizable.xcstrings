@@ -75855,6 +75855,108 @@
         "it": {"stringUnit": {"state": "translated", "value": "Cicli"}},
         "ko": {"stringUnit": {"state": "translated", "value": "사이클 수"}}
       }
+    },
+    "Clipboard Image": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Clipboard Image"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "剪贴板图片"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "剪貼板圖片"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "クリップボードの画像"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zwischenablage-Bild"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Image du presse-papiers"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Imagen del portapapeles"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Imagen del portapapeles"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Imagem da área de transferência"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Imagem da área de transferência"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Immagine dagli appunti"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "클립보드 이미지"}}
+      }
+    },
+    "Paste Image Into Finder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Paste Image Into Finder"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "将图像粘贴到访达"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "將圖像貼到 Finder"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "画像を Finder にペースト"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Bild im Finder sichern"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Coller l’image dans le Finder"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Pegar la imagen en el Finder"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Pegar la imagen en el Finder"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Colar a imagem no Finder"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Colar a imagem no Finder"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Incolla l’immagine nel Finder"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "이미지를 Finder에 붙여넣기"}}
+      }
+    },
+    "The clipboard has no image.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The clipboard has no image."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "剪贴板里没有图像。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "剪貼板裡沒有圖像。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "クリップボードに画像がありません。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Die Zwischenablage enthält kein Bild."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Le presse-papiers ne contient pas d’image."}},
+        "es": {"stringUnit": {"state": "translated", "value": "El portapapeles no contiene ninguna imagen."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "El portapapeles no contiene ninguna imagen."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "A área de transferência não tem imagem."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "A área de transferência não tem imagem."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Gli appunti non contengono un’immagine."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "클립보드에 이미지가 없습니다."}}
+      }
+    },
+    "No Finder window is in front.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No Finder window is in front."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "前台没有访达窗口。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "前台沒有 Finder 視窗。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "最前面に Finder ウインドウがありません。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kein Finder-Fenster ist im Vordergrund."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucune fenêtre du Finder n’est au premier plan."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No hay ninguna ventana del Finder al frente."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "No hay ninguna ventana del Finder al frente."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhuma janela do Finder está à frente."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Nenhuma janela do Finder está à frente."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessuna finestra del Finder è in primo piano."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "앞에 Finder 윈도우가 없습니다."}}
+      }
+    },
+    "Allow KatiKati to control Finder in System Settings.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Allow KatiKati to control Finder in System Settings."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在“系统设置”中允许 KatiKati 控制访达。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "在「系統設定」中允許 KatiKati 控制 Finder。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "「システム設定」で KatiKati に Finder の制御を許可してください。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Erlaube KatiKati in den Systemeinstellungen, den Finder zu steuern."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Autorisez KatiKati à contrôler le Finder dans Réglages Système."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Permite que KatiKati controle el Finder en Ajustes del Sistema."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Permite que KatiKati controle el Finder en Ajustes del Sistema."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Permita que o KatiKati controle o Finder nos Ajustes do Sistema."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Permita que o KatiKati controle o Finder nas Definições do Sistema."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Consenti a KatiKati di controllare il Finder nelle Impostazioni di Sistema."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "시스템 설정에서 KatiKati가 Finder를 제어하도록 허용하세요."}}
+      }
+    },
+    "The image could not be written.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "The image could not be written."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无法写入图像。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "無法寫入圖像。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "画像を書き出せませんでした。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das Bild konnte nicht geschrieben werden."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "L’image n’a pas pu être écrite."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No se pudo escribir la imagen."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "No se pudo escribir la imagen."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Não foi possível gravar a imagem."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Não foi possível gravar a imagem."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impossibile scrivere l’immagine."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "이미지를 저장하지 못했습니다."}}
+      }
     }
   },
   "version": "1.0"

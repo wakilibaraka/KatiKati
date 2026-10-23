@@ -346,6 +346,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .notchPageNext: self.notchPanel.stepPage(forward: true)
                 case .notchPagePrevious: self.notchPanel.stepPage(forward: false)
                 case .captureArea: CaptureController.captureAreaToClipboard()
+                case .pasteImageToFinder:
+                    // 53g: the toast is the whole report — the file appearing in Finder is the success case.
+                    switch ClipboardImagePaster.paste() {
+                    case .success(let url): self.shortcutToast.show(url.lastPathComponent, symbol: "photo.on.rectangle")
+                    case .failure(let failure): self.shortcutToast.show(failure.message, symbol: "exclamationmark.triangle.fill")
+                    }
                 case .weather: WidgetPanelController.weather.toggle()
                 case .clock: WidgetPanelController.calendar.toggle()
                 case .keepAwake:

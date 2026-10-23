@@ -98,3 +98,72 @@ final class ClipboardMonitor: ObservableObject {
 
     deinit { timer?.invalidate() }
 }
+
+/// 53g — paste the clipboard image into the front Finder window as a `.png`. Finder's target folder
+/// comes over Apple Events, so the first paste asks for the Automation grant; the write never
+/// overwrites (see `PasteImageNaming`), and the caller only has to report what failed.
+enum ClipboardImagePaster {
+    enum Failure: Error, Equatable {
+        case noImage
+        case noFinderWindow
+        case automationRefused
+        case writeFailed
+
+        /// One plain sentence: this is shown as a shortcut toast, not in a dialog.
+        var message: String {
+            switch self {
+            case .noImage: return String(localized: "The clipboard has no image.")
+            case .noFinderWindow: return String(localized: "No Finder window is in front.")
+            case .automationRefused: return String(localized: "Allow KatiKati to control Finder in System Settings.")
+            case .writeFailed: return String(localized: "The image could not be written.")
+            }
+        }
+    }
+
+    /// Main thread: `NSAppleScript` blocks while Finder answers, and this is a user-initiated action.
+    static func paste() -> Result<URL, Failure> {
+        guard let png = pngData() else { return .failure(.noImage) }
+        let folder: URL
+        switch frontFolder() {
+        case .success(let url): folder = url
+        case .failure(let failure): return .failure(failure)
+        }
+        let existing = (try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? []
+        let name = PasteImageNaming.uniqueName(base: String(localized: "Clipboard Image"),
+                                               fileExtension: "png",
+                                               existing: Set(existing))
+        let url = folder.appendingPathComponent(name)
+        do {
+            try png.write(to: url, options: [.atomic, .withoutOverwriting])
+            return .success(url)
+        } catch {
+            return .failure(.writeFailed)
+        }
+    }
+
+    /// PNG straight off the pasteboard; a TIFF-only copy (most screenshots and Safari images) is
+    /// re-encoded once instead of being refused.
+    private static func pngData() -> Data? {
+        let board = NSPasteboard.general
+        if let png = board.data(forType: .png) { return png }
+        guard let tiff = board.data(forType: .tiff),
+              let rep = NSBitmapImageRep(data: tiff) else { return nil }
+        return rep.representation(using: .png, properties: [:])
+    }
+
+    /// The front Finder window's target folder, over Apple Events. Finder closed, no window open and
+    /// a refused grant are three different answers, and the toast says which.
+    private static func frontFolder() -> Result<URL, Failure> {
+        let source = "tell application \"Finder\" to if (count of windows) > 0 then POSIX path of (target of front window as alias)"
+        guard let script = NSAppleScript(source: source) else { return .failure(.noFinderWindow) }
+        var error: NSDictionary?
+        let result = script.executeAndReturnError(&error)
+        if let error {
+            // -1743: the user said no to "KatiKati wants to control Finder".
+            let code = (error[NSAppleScript.errorNumber] as? Int) ?? 0
+            return .failure(code == -1743 ? .automationRefused : .noFinderWindow)
+        }
+        guard let path = result.stringValue, !path.isEmpty else { return .failure(.noFinderWindow) }
+        return .success(URL(fileURLWithPath: path, isDirectory: true))
+    }
+}

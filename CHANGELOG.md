@@ -2,6 +2,21 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — background apps in the capsule, and a paste-to-Finder shortcut
+
+### Added
+- **Paste Image Into Finder** (Settings › Shortcuts, unassigned by default): saves the image on the clipboard
+  into the front Finder window's folder as a `.png`, named `Clipboard Image.png`, then `Clipboard Image 2.png`
+  and up — it never overwrites, and the toast says what happened, including when the Finder Automation grant is
+  still missing.
+
+### Changed
+- The drawer capsule's empty state now shows **how many background apps** the drawer is holding, with the RAM
+  and CPU reading moved into its tooltip. A drawer with nothing in the background keeps the RAM/CPU disc.
+
+### Removed
+- The unused `DynamicGaugeFABView` wrapper (40 pt gauge FAB, no call sites); its compact disc is unchanged.
+
 ## [Unreleased] — Phase 59d: the notch battery card
 
 ### Added

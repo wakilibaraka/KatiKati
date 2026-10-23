@@ -91,8 +91,16 @@ struct DrawerCapsuleButton: View {
             // Hover and press feedback move only the cell under the pointer; the outer frame
             // (backdrop + rim) stays still.
             if ids.isEmpty {
-                DynamicGaugeCompactDiscView(scale: dockScale)
-                    .cellFeedback(hovered: hoverEnabled && hoveredCell != nil, pressed: pressedCell != nil)
+                // 57e: with apps held in the background the empty state says how many; with none it
+                // keeps the RAM / CPU disc, which would otherwise be lost with nothing to replace it.
+                Group {
+                    if backgroundCount > 0 {
+                        DrawerCapsuleBackgroundDiscView(count: backgroundCount, scale: dockScale)
+                    } else {
+                        DynamicGaugeCompactDiscView(scale: dockScale)
+                    }
+                }
+                .cellFeedback(hovered: hoverEnabled && hoveredCell != nil, pressed: pressedCell != nil)
             } else {
                 pagedPreview(ids: ids, pageCount: pageCount, page: page, hitPage: hitPage)
             }

@@ -31,6 +31,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case notchPageNext, notchPagePrevious
     /// 55b: the dial's area capture, now also a shortcut. Default `.off` — user assigns.
     case captureArea
+    /// 53g: save the clipboard image into the front Finder window as a `.png`. Default `.off` — user assigns.
+    case pasteImageToFinder
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -79,6 +81,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .radialDialSnap: return 40
         case .radialDialTools: return 41
         case .captureArea: return 42
+        case .pasteImageToFinder: return 43
         }
     }
 
@@ -102,7 +105,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
              .tilingGrowMain, .tilingShrinkMain, .tilingFlipMain: return .off
         // Phase 31 radial dial: off by default, user assigns
         case .radialDial, .radialDialSnap, .radialDialTools: return .off
-        case .notchPageNext, .notchPagePrevious, .captureArea: return .off
+        case .notchPageNext, .notchPagePrevious, .captureArea, .pasteImageToFinder: return .off
         }
     }
 

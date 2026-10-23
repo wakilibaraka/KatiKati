@@ -41,3 +41,32 @@ final class ClipboardToastPolicyTests: XCTestCase {
         XCTAssertTrue(ClipboardToastPolicy.shouldToast("hello"))
     }
 }
+
+final class PasteImageNamingTests: XCTestCase {
+
+    private func name(_ existing: Set<String>) -> String {
+        PasteImageNaming.uniqueName(base: "Clipboard Image", fileExtension: "png", existing: existing)
+    }
+
+    func testPlainNameWhenNothingExists() {
+        XCTAssertEqual(name([]), "Clipboard Image.png")
+    }
+
+    func testCountsUpPastEveryTakenName() {
+        XCTAssertEqual(name(["Clipboard Image.png", "Clipboard Image 2.png"]), "Clipboard Image 3.png")
+    }
+
+    func testExistingNamesAreMatchedCaseInsensitively() {
+        XCTAssertEqual(name(["clipboard image.PNG"]), "Clipboard Image 2.png")
+    }
+
+    func testNeverHandsBackATakenName() {
+        var existing = Set<String>()
+        for _ in 0..<5 {
+            let next = name(existing)
+            XCTAssertFalse(existing.contains(next.lowercased()), next)
+            existing.insert(next.lowercased())
+        }
+        XCTAssertEqual(existing.count, 5)
+    }
+}
