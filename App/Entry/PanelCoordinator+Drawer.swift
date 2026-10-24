@@ -8,7 +8,18 @@ import os
 // PanelCoordinator · 抽屉：开合、host 复用、拖动投放区几何、弹簧文件夹自动弹开。
 // 2026-09-05 从 PanelCoordinator.swift 按 extension 拆出，只搬不改。
 extension PanelCoordinator {
-    func openDrawer() {
+    /// The capsule's background-app count disc: opens the drawer on that section. While the drawer is
+    /// already open this is the capsule's usual toggle, so a second click closes it.
+    func toggleDrawerShowingBackgroundApps() {
+        if drawerWantsOpen { closeDrawer() } else { openDrawer(revealingBackgroundApps: true) }
+    }
+
+    /// - Parameter revealingBackgroundApps: the capsule asked for the drawer's background-app section.
+    ///   Only the drawer's empty state can ask (the count disc is drawn when the drawer holds no apps),
+    ///   so that section is the whole grid — but the grid can still be taller than the plate, and a
+    ///   scrolled grid always opens at its top (`StackPopupChrome`), which would hide the section's
+    ///   end. The scroll itself happens in the chrome, once the panel is on screen.
+    func openDrawer(revealingBackgroundApps: Bool = false) {
         guard let mainPanel = dockPanel, capsulePanel != nil else { return }
         onAccessoryWillOpen?(self, .drawer)
         drawerActionCloseToken += 1  // 旧点击排队的 delayed close 捕获旧 token，不匹配则丢弃
@@ -50,6 +61,9 @@ extension PanelCoordinator {
         HoverTrace.action("drawerOpen", phase: "ordered")
         pinOverlappingPanelIfNeeded(panel)
         HoverTrace.action("drawerOpen", phase: "shown")
+        // Counted, not flagged, and cleared by every open that did not ask: a request is spent by the
+        // open it belongs to, so scrolling to the grid's end never leaks into the next plain toggle.
+        drawerArrow.revealTailGeneration = revealingBackgroundApps ? drawerArrow.revealTailGeneration &+ 1 : 0
         // 弹出后复测 fittingSize 重新布局（瞬时,刚弹出不滑）——同步量偏差时的兜底校正。
         DispatchQueue.main.async { [weak self] in
             HoverTrace.action("drawerOpen", phase: "turn1")
@@ -248,6 +262,10 @@ extension PanelCoordinator {
                 guard let self, !self.drawerWantsOpen else { return }   // 淡出中又开了 → 别 orderOut
                 panel.orderOut(nil)
                 self.drawerArrow.scrollGeneration &+= 1   // next open starts at the grid's top
+                // …and the rebuild that comes with it must not replay a tail request from this showing:
+                // that ScrollView's `onAppear` runs while the panel is hidden and would leave the next
+                // plain open scrolled to the end.
+                self.drawerArrow.revealTailGeneration = 0
             }
         })
     }
@@ -270,6 +288,7 @@ extension PanelCoordinator {
         drawerPanel?.alphaValue = 0
         drawerPanel?.orderOut(nil)
         drawerArrow.scrollGeneration &+= 1
+        drawerArrow.revealTailGeneration = 0   // same reason as `closeDrawer`
     }
 
     private func dismissDrawerIfOutside() {

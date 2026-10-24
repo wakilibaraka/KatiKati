@@ -29,6 +29,9 @@ struct DrawerCapsuleButton: View {
     let usesLiquidGlass: Bool
     /// Toggles the full drawer: the bottom-trailing cell, and any cell that holds no app.
     let action: () -> Void
+    /// The empty state's count disc: opens the drawer on its **background-app section** instead of
+    /// the grid's top. No default — without it the disc would quietly fall back to the plain toggle.
+    let onShowBackgroundApps: () -> Void
     /// An app cell dispatched an "open" (launch / unhide): an open drawer closes, exactly as
     /// after a tap inside it. No default — an omission would leave the drawer open.
     let onPrimaryAction: () -> Void
@@ -82,6 +85,9 @@ struct DrawerCapsuleButton: View {
         // the resting page while a trackpad gesture holds the capsule on its neighbour.
         let hitPage = DrawerCapsulePaging.hitPage(page: pager.page, drag: pager.drag, pageCount: pageCount)
         let apps = DrawerCapsulePaging.apps(page: hitPage, members: ids)
+        // 57e: with apps held in the background the empty state says how many; with none it keeps the
+        // RAM / CPU disc, which would otherwise be lost with nothing to replace it.
+        let showsBackgroundDisc = ids.isEmpty && backgroundCount > 0
         return ZStack {
             DockPanelBackdrop(theme: theme,
                               cornerRadius: DockShape.panelCornerRadius * dockScale,
@@ -91,10 +97,8 @@ struct DrawerCapsuleButton: View {
             // Hover and press feedback move only the cell under the pointer; the outer frame
             // (backdrop + rim) stays still.
             if ids.isEmpty {
-                // 57e: with apps held in the background the empty state says how many; with none it
-                // keeps the RAM / CPU disc, which would otherwise be lost with nothing to replace it.
                 Group {
-                    if backgroundCount > 0 {
+                    if showsBackgroundDisc {
                         DrawerCapsuleBackgroundDiscView(count: backgroundCount, scale: dockScale)
                     } else {
                         DynamicGaugeCompactDiscView(scale: dockScale)
@@ -120,7 +124,7 @@ struct DrawerCapsuleButton: View {
         .padding(PanelCoordinator.shadowPadding)
         // The hit cells split the whole padded frame into quadrants, so each target is as large
         // as the capsule allows and reaches the screen edge.
-        .overlay(hitGrid(apps: apps))
+        .overlay(hitGrid(apps: apps, opensBackgroundApps: showsBackgroundDisc))
         // Takes scroll events only (see `DrawerCapsuleScrollView.hitTest`); clicks fall through.
         .overlay(DrawerCapsuleScrollReceiver(enabled: hoverEnabled && pageCount > 1) { event in
             switch event {
@@ -181,21 +185,22 @@ struct DrawerCapsuleButton: View {
 
     // MARK: Hit cells
 
-    private func hitGrid(apps: [String]) -> some View {
+    private func hitGrid(apps: [String], opensBackgroundApps: Bool) -> some View {
         let columns = DrawerCapsulePreviewMetrics.columns
         return VStack(spacing: 0) {
             ForEach(0..<columns, id: \.self) { row in
                 HStack(spacing: 0) {
                     ForEach(0..<columns, id: \.self) { column in
                         let index = row * columns + column
-                        hitCell(index, bundleID: index < apps.count ? apps[index] : nil)
+                        hitCell(index, bundleID: index < apps.count ? apps[index] : nil,
+                                opensBackgroundApps: opensBackgroundApps)
                     }
                 }
             }
         }
     }
 
-    private func hitCell(_ index: Int, bundleID: String?) -> some View {
+    private func hitCell(_ index: Int, bundleID: String?, opensBackgroundApps: Bool) -> some View {
         let isLaunching = bundleID.map { runtime.launchingBundleIDs.contains($0) } ?? false
         // Mid-turn an app slot shows the leaving and the arriving page at once, whatever the
         // arriving page holds there (an app or nothing): a click then would be a guess. Gated by
@@ -209,7 +214,11 @@ struct DrawerCapsuleButton: View {
             }
             .onTapGesture {
                 guard !isMidTurn else { return }
-                if let bundleID { activate(bundleID) } else { action() }
+                // A cell over the count disc is the disc itself: the same click, but it wants the
+                // drawer's background section rather than the plain toggle.
+                if let bundleID { activate(bundleID) }
+                else if opensBackgroundApps { onShowBackgroundApps() }
+                else { action() }
             }
             // A tap during a launch session or a turn is a no-op, so it gets no press feedback either.
             .chipPressGesture(
@@ -220,7 +229,10 @@ struct DrawerCapsuleButton: View {
                     }),
                 isEnabled: !isLaunching && !isMidTurn
             )
-            .help(bundleID.map { AppDisplayNameResolver.displayName(for: $0) } ?? "")
+            // Only a cell that has an app has a name. An empty string would install a tooltip over
+            // the empty state and shadow the disc's own — the only place the RAM / CPU reading is
+            // still shown (57e).
+            .modifier(ChipNameTooltip(name: bundleID.map { AppDisplayNameResolver.displayName(for: $0) }))
     }
 
     /// Same default tap as a drawer icon: launch / bring forward / hide when frontmost.
@@ -246,6 +258,16 @@ private extension View {
         scaleEffect(hovered ? DrawerCapsulePreviewMetrics.hoverScale : 1.0)
             .animation(.easeOut(duration: 0.12), value: hovered)
             .chipPressScale(pressed)
+    }
+}
+
+/// A tooltip only where there is something to say.
+private struct ChipNameTooltip: ViewModifier {
+    let name: String?
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if let name { content.help(Text(verbatim: name)) } else { content }
     }
 }
 

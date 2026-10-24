@@ -207,6 +207,7 @@ extension PanelCoordinator {
                 },
                 usesLiquidGlass: usesLiquidGlass,
                 action: { [weak self] in self?.toggleDrawer() },
+                onShowBackgroundApps: { [weak self] in self?.toggleDrawerShowingBackgroundApps() },
                 onPrimaryAction: { [weak self] in self?.closeDrawerAfterAction() }
             )
                 .environmentObject(runtime)

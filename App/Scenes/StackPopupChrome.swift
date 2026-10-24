@@ -13,6 +13,10 @@ final class StackPopupArrowModel: ObservableObject {
     /// Bumped by a host that outlives one showing (the drawer) each time the plate goes away:
     /// a scrolled grid is rebuilt at its top while nobody is looking, never at the next open.
     @Published var scrollGeneration = 0
+    /// Bumped when the host opens the plate on the grid's **tail** rather than its top — the drawer's
+    /// capsule carries the background-app count, and its click asks for exactly that section. A count,
+    /// not a flag: every open that asks scrolls once, and an open that does not ask changes nothing.
+    @Published var revealTailGeneration = 0
 }
 
 /// What the coordinator knows and a popup's content needs: how large the grid may get on this
@@ -162,6 +166,15 @@ struct StackPopupChrome<Grid: View>: View {
             .frame(width: plateSize.width, height: Metrics.noteHeight)
     }
 
+    /// Scrolls the grid to its tail when the host has asked for it — a generation of zero is "no
+    /// request", and one that was already consumed must not drag a later open to the bottom.
+    private func scrollToTail(_ proxy: ScrollViewProxy) {
+        guard arrow.revealTailGeneration > 0 else { return }
+        withTransaction(Transaction(animation: nil)) {
+            proxy.scrollTo(StackPopupScrollAnchor.tail, anchor: .bottom)
+        }
+    }
+
     @ViewBuilder
     private var gridArea: some View {
         let columns = Array(repeating: GridItem(.fixed(plate.cell.cellSize.width), spacing: 0), count: layout.columns)
@@ -169,19 +182,38 @@ struct StackPopupChrome<Grid: View>: View {
             .frame(width: gridWidth, alignment: .leading)
             .animation(gridAnimation, value: gridAnimationKey)
         if layout.scrolls {
-            ScrollView(.vertical, showsIndicators: true) {
-                // Flexible, not the scroll view's width: an always-shown scroller takes its width
-                // out of the content area, and wider content would be centred, sliding the grid left.
-                cells.frame(maxWidth: .infinity, alignment: .leading)
+            ScrollViewReader { proxy in
+                ScrollView(.vertical, showsIndicators: true) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        // Flexible, not the scroll view's width: an always-shown scroller takes its width
+                        // out of the content area, and wider content would be centred, sliding the grid left.
+                        cells.frame(maxWidth: .infinity, alignment: .leading)
+                        // Zero height, so nothing about the grid's layout moves: an anchor the host can
+                        // scroll to when it opens the plate on the tail (see `revealTailGeneration`).
+                        Color.clear.frame(height: 0).id(StackPopupScrollAnchor.tail)
+                    }
+                }
+                .frame(width: gridWidth + plate.scrollerGutter,
+                       height: gridHeight + (plate.scrollsToBottomEdge ? plate.bottomPadding : 0))
+                .padding(.leading, plate.sidePadding)
+                .id(arrow.scrollGeneration)
+                // No animation, for the same reason the drawer has none on open (owner 2026-09-04):
+                // this scroll is part of that one reveal, and easing it would play a second motion.
+                .onChange(of: arrow.revealTailGeneration) { _, _ in scrollToTail(proxy) }
+                // A host that builds its plate while the request is already standing (no prewarm, or a
+                // new row limit) gets no change event, so the appear is the other half.
+                .onAppear { scrollToTail(proxy) }
             }
-            .frame(width: gridWidth + plate.scrollerGutter,
-                   height: gridHeight + (plate.scrollsToBottomEdge ? plate.bottomPadding : 0))
-            .padding(.leading, plate.sidePadding)
-            .id(arrow.scrollGeneration)
         } else {
             cells
                 .frame(height: gridHeight, alignment: .top)
                 .padding(.leading, plate.sidePadding)
         }
     }
+}
+
+/// The grid scroller's end marker. A file-scope enum because `StackPopupChrome` is generic and
+/// Swift has no static stored properties in a generic type.
+private enum StackPopupScrollAnchor {
+    static let tail = "stack-popup-grid-tail"
 }

@@ -13,6 +13,9 @@ All notable changes to KatiKati are documented in this file.
 ### Changed
 - The drawer capsule's empty state now shows **how many background apps** the drawer is holding, with the RAM
   and CPU reading moved into its tooltip. A drawer with nothing in the background keeps the RAM/CPU disc.
+- Clicking that count **opens the drawer on its background-app section**, and the list lands at its end when it is
+  taller than the plate — a scrolled drawer otherwise always opens at the grid's top. The disc's tooltip, now the
+  only place the RAM / CPU reading is shown, is no longer shadowed by an empty one from the cells above it.
 
 ### Removed
 - The unused `DynamicGaugeFABView` wrapper (40 pt gauge FAB, no call sites); its compact disc is unchanged.
