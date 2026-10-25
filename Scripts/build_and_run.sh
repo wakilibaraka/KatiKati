@@ -13,7 +13,16 @@ APP_EXECUTABLE="$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 DEVELOPER_ID="${DEVELOPER_ID_APPLICATION:-}"
 FALLBACK_SIGNING_IDENTITY="KatiKati Local Code Signing"
 
+# One KatiKati on disk: other copies share the bundle id and fight over the same permission record.
+remove_other_copies() {
+  pkill -x "$APP_NAME" >/dev/null 2>&1 || true
+  rm -rf "/Applications/$APP_NAME.app" \
+         "$DERIVED_DATA_DIR/../LocalReleaseDD/Build/Products/Release/$APP_NAME.app" \
+         "$HOME"/Library/Developer/Xcode/DerivedData/KatiKati-*/Build/Products/*/"$APP_NAME.app"
+}
+
 build_app() {
+  remove_other_copies
   # Force the universal product to be re-created on every build. After an `xcodebuild test` has
   # already relinked the per-arch binaries, a plain build can skip CreateUniversalBinary and leave
   # the previous executable in the .app (re-signed below, so its mtime looks fresh) — the launched
