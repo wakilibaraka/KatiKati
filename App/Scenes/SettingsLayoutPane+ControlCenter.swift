@@ -6,6 +6,15 @@ extension SettingsLayoutPane {
     var controlCenterSections: some View {
             SettingsCard(Text("Control Center")) {
                 // Four segmented rows in a row: two per line (`Docs/SETTINGS.md` rule 5).
+                SettingsSegmentedRow(Text("Style"), selection: Binding(
+                    get: { store.controlCenterStyle },
+                    set: { store.setControlCenterStyle($0) }
+                )) {
+                    Text("Classic").tag(ControlCenterStyle.classic)
+                    Text("iPadOS").tag(ControlCenterStyle.ipad)
+                }
+
+                SettingsDivider()
                 SettingsSegmentedRow(Text("Side"), selection: Binding(
                     get: { EdgeSide(rawValue: controlCenterSideRaw) ?? .right },
                     set: { controlCenterSideRaw = $0.rawValue }

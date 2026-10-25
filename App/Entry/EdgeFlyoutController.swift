@@ -147,6 +147,7 @@ final class ControlCenterPanelController {
     var panelSize: () -> ControlCenterSize = { .default }
     var panelAnchor: () -> ControlCenterAnchor = { .default }
     var panelAnimation: () -> ControlCenterAnimation = { .default }
+    var panelStyle: () -> ControlCenterStyle = { .default }
     /// Height the KatiKati bottom bar occupies, so the panel floats above the dock (wired by
     /// `AppDelegate`; 0 when the strip is not at the bottom).
     var bottomReserve: () -> Double = { 0 }
@@ -181,13 +182,13 @@ final class ControlCenterPanelController {
         self.panel = panel
         let hosting = NSHostingView(rootView: AnyView(ControlCenterView(
             engine: .shared, order: toggleOrder(),
-            widgetTiles: widgets(),
+            widgetTiles: widgets(), style: panelStyle(),
             onSettings: onSettings, onLauncher: onLauncher, onCapture: onCapture,
             onDrawer: onDrawer, onQuit: onQuit)
             .environment(\.dockThemeStyle, themeStyle())
             .environment(\.themeTuning, themeTuning())))
         hosting.frame = CGRect(origin: .zero, size: size)
-        panel.contentView = Self.floatingPlate(wrapping: hosting, size: size)
+        panel.contentView = Self.floatingPlate(wrapping: hosting, size: size, style: panelStyle())
         switch panelAnimation() {
         case .instant:
             panel.alphaValue = 1
@@ -221,13 +222,13 @@ final class ControlCenterPanelController {
 
     /// Borderless floating plate (Phase 16r): near-opaque surface, large radius, soft system shadow
     /// from the panel itself — no hairline, so the panel reads as floating, not framed.
-    private static func floatingPlate(wrapping content: NSView, size: CGSize) -> NSView {
+    private static func floatingPlate(wrapping content: NSView, size: CGSize, style: ControlCenterStyle) -> NSView {
         let plate = NSVisualEffectView(frame: CGRect(origin: .zero, size: size))
-        plate.material = .popover
+        plate.material = style == .ipad ? .hudWindow : .popover
         plate.blendingMode = .withinWindow
         plate.state = .active
         plate.wantsLayer = true
-        plate.layer?.cornerRadius = ControlCenterView.cornerRadius
+        plate.layer?.cornerRadius = style == .ipad ? ControlCenterView.ipadCornerRadius : ControlCenterView.cornerRadius
         plate.layer?.masksToBounds = true
         content.autoresizingMask = [.width, .height]
         plate.addSubview(content)

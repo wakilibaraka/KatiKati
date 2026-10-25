@@ -126,6 +126,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.toggleOrder = { [weak self] in self?.settingsStore.controlCenterToggles ?? QuickToggleID.defaultOrder }
         panel.panelSize = { [weak self] in self?.settingsStore.controlCenterSize ?? .default }
         panel.panelAnchor = { [weak self] in self?.settingsStore.controlCenterAnchor ?? .default }
+        panel.panelStyle = { [weak self] in self?.settingsStore.controlCenterStyle ?? .default }
         panel.panelAnimation = { [weak self] in self?.settingsStore.controlCenterAnimation ?? .default }
         // The panel wears the dock's theme, not a look of its own (2026-10-22).
         panel.themeStyle = { [weak self] in self?.settingsStore.themeMaterial ?? .auto }

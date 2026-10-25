@@ -36,6 +36,18 @@ enum ControlCenterAnchor: String, CaseIterable, Sendable {
     }
 }
 
+/// Visual preset of the Control Center: the original dock-themed panel, or the iPadOS-style glass bento.
+enum ControlCenterStyle: String, CaseIterable, Sendable {
+    case classic, ipad
+
+    static let `default`: ControlCenterStyle = .classic
+    static let storageKey = "com.katikati.controlcenter.style"
+
+    static func parse(_ raw: String?) -> ControlCenterStyle {
+        raw.flatMap(ControlCenterStyle.init(rawValue:)) ?? .default
+    }
+}
+
 /// 57a: wheel travel on the Control Center volume row. Six points of trackpad travel (or half a mouse-wheel
 /// click) is 1.25 % volume, and at most one step per 60 ms so a momentum burst cannot jump the level.
 enum ControlCenterScroll {

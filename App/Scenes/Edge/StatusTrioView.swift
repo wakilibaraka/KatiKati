@@ -185,6 +185,7 @@ struct ControlCenterView: View {
     let order: [QuickToggleID]
     /// Phase 16l/16n: user widgets. Battery/batteries drive the peripherals card, network the row.
     let widgetTiles: [TileKind]
+    var style: ControlCenterStyle = .classic
     @StateObject private var status = SystemStatusService()
     @StateObject private var nowPlaying = NowPlayingService()
     @State private var confirming: QuickToggleID?
@@ -206,6 +207,10 @@ struct ControlCenterView: View {
 
     /// Shared with the host so the panel's plate and this wash cannot drift apart.
     static let cornerRadius: CGFloat = 22
+    static let ipadCornerRadius: CGFloat = 30
+    private var isPad: Bool { style == .ipad }
+    private var panelRadius: CGFloat { isPad ? Self.ipadCornerRadius : Self.cornerRadius }
+    private var cardRadius: CGFloat { isPad ? 20 : Metrics.cardRadius }
 
     @Environment(\.dockThemeStyle) private var dockThemeStyle
     @Environment(\.themeTuning) private var themeTuning
@@ -264,10 +269,10 @@ struct ControlCenterView: View {
     /// `nil` for Auto/System: those presets tint nothing, so neither does this panel.
     @ViewBuilder
     private var plateWash: some View {
-        if let top = dockThemeStyle.plateOverlay(baseTint: theme.styleTokens.baseTint,
+        if !isPad, let top = dockThemeStyle.plateOverlay(baseTint: theme.styleTokens.baseTint,
                                                  vibrancy: themeTuning.vibrancy,
                                                  contrast: themeTuning.contrast) {
-            RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: panelRadius, style: .continuous)
                 .fill(DockGlassBackdrop.overlayPaint(
                     top: top,
                     bottom: dockThemeStyle.plateOverlayBottom(
@@ -279,16 +284,19 @@ struct ControlCenterView: View {
     }
 
     private var plateRim: some View {
-        RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
+        RoundedRectangle(cornerRadius: panelRadius, style: .continuous)
             .strokeBorder(theme.panelRimStyle, lineWidth: theme.panelRimLineWidth)
             .padding(0.25)
             .allowsHitTesting(false)
     }
 
-    private var cardStroke: Color { Color.primary.opacity(colorScheme == .dark ? 0.10 : 0.07) }
+    private var cardStroke: Color {
+        isPad ? Color.white.opacity(colorScheme == .dark ? 0.10 : 0.65) : Color.primary.opacity(colorScheme == .dark ? 0.10 : 0.07)
+    }
 
     private var cardFill: AnyShapeStyle {
-        AnyShapeStyle(LinearGradient(colors: [Color.primary.opacity(colorScheme == .dark ? 0.07 : 0.05),
+        if isPad { return AnyShapeStyle(Color.white.opacity(colorScheme == .dark ? 0.08 : 0.55)) }
+        return AnyShapeStyle(LinearGradient(colors: [Color.primary.opacity(colorScheme == .dark ? 0.07 : 0.05),
                                               palette.cardTintBottom],
                                      startPoint: .topLeading, endPoint: .bottomTrailing))
     }
@@ -304,11 +312,11 @@ struct ControlCenterView: View {
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: Metrics.cardRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
                     .fill(active ? activeFill : cardFill)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: Metrics.cardRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: cardRadius, style: .continuous)
                     .strokeBorder(active ? AnyShapeStyle(palette.primaryAccent.opacity(0.45))
                                          : AnyShapeStyle(cardStroke),
                                   lineWidth: 1)
@@ -720,6 +728,11 @@ struct ControlCenterView: View {
                     .foregroundStyle(inkSoft)
             }
             .frame(maxWidth: .infinity)
+            .padding(.vertical, isPad ? 6 : 0)
+            .background(isPad ? RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(on ? activeFill : cardFill) : nil)
+            .overlay(isPad ? RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(on ? palette.primaryAccent.opacity(0.45) : cardStroke, lineWidth: 1) : nil)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -763,7 +776,45 @@ struct ControlCenterView: View {
             }
     }
 
+    /// iPadOS skin: a thick capsule whose fill is the value, icon on the left and number on the right.
+    private func padSliderRow(icon: String, value: Binding<Double>) -> some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule().fill(colorScheme == .dark ? Color.white.opacity(0.12) : Color.black.opacity(0.08))
+                Capsule()
+                    .fill(LinearGradient(colors: [palette.primaryAccent, palette.secondaryAccent],
+                                         startPoint: .leading, endPoint: .trailing))
+                    .frame(width: max(44, proxy.size.width * CGFloat(value.wrappedValue)))
+                HStack {
+                    Image(systemName: icon).font(.system(size: 15, weight: .semibold))
+                    Spacer()
+                    Text(verbatim: "\(Int((value.wrappedValue * 100).rounded()))")
+                        .font(.system(size: 12, weight: .semibold)).monospacedDigit()
+                }
+                .foregroundStyle(ink)
+                .padding(.horizontal, 14)
+                .allowsHitTesting(false)
+            }
+            .contentShape(Capsule())
+            .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
+                value.wrappedValue = Double(min(1, max(0, drag.location.x / proxy.size.width)))
+            })
+        }
+        .frame(height: 44)
+        .accessibilityElement()
+        .accessibilityValue(Text(verbatim: "\(Int((value.wrappedValue * 100).rounded()))"))
+        .accessibilityAdjustableAction { direction in
+            let step = direction == .increment ? 0.05 : -0.05
+            value.wrappedValue = min(1, max(0, value.wrappedValue + step))
+        }
+    }
+
     private func sliderRow(icon: String, value: Binding<Double>) -> some View {
+        if isPad { return AnyView(padSliderRow(icon: icon, value: value)) }
+        return AnyView(sliderRowClassic(icon: icon, value: value))
+    }
+
+    private func sliderRowClassic(icon: String, value: Binding<Double>) -> some View {
         card(padding: 8) {
             HStack(spacing: 9) {
                 Image(systemName: icon)

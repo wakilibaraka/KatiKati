@@ -825,6 +825,12 @@ final class CalendarPanelGeometryTests: XCTestCase {
         XCTAssertEqual(ControlCenterSize.large.width, 440)
         XCTAssertEqual(ControlCenterAnchor.parse(nil), .top)
         XCTAssertEqual(ControlCenterAnchor.parse("bogus"), .top)
+        XCTAssertEqual(ControlCenterStyle.parse(nil), .classic)
+        XCTAssertEqual(ControlCenterStyle.parse("ipad"), .ipad)
+        XCTAssertEqual(ControlCenterStyle.parse("bogus"), .classic)
+        XCTAssertEqual(ControlCenterStyle.parse(nil), .classic)
+        XCTAssertEqual(ControlCenterStyle.parse("ipad"), .ipad)
+        XCTAssertEqual(ControlCenterStyle.parse("bogus"), .classic)
         XCTAssertEqual(ControlCenterAnimation.parse(nil), .instant)
         XCTAssertEqual(ControlCenterAnimation.parse("bogus"), .instant)
     }

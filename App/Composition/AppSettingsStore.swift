@@ -266,6 +266,7 @@ final class AppSettingsStore: ObservableObject {
     /// Phase 16v: Control Center size preset, vertical anchor and open animation.
     @Published private(set) var controlCenterSize: ControlCenterSize
     @Published private(set) var controlCenterAnchor: ControlCenterAnchor
+    @Published private(set) var controlCenterStyle: ControlCenterStyle
     @Published private(set) var controlCenterAnimation: ControlCenterAnimation
     @Published private(set) var shortcutBindings: [ShortcutAction: ShortcutTrigger]
     @Published private(set) var launcherSearchPosition: LauncherSearchPosition
@@ -410,6 +411,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.controlCenterWidgets: TileKind.serialize(TileKind.controlCenterDefault),
             Keys.controlCenterSize: ControlCenterSize.default.rawValue,
             Keys.controlCenterAnchor: ControlCenterAnchor.default.rawValue,
+            Keys.controlCenterStyle: ControlCenterStyle.default.rawValue,
             Keys.controlCenterAnimation: ControlCenterAnimation.default.rawValue,
             Keys.launcherSearchPosition: LauncherSearchPosition.default.rawValue,
             Keys.launcherPresentation: LauncherPresentation.default.rawValue,
@@ -485,6 +487,7 @@ final class AppSettingsStore: ObservableObject {
         controlCenterWidgets = TileKind.parse(defaults.string(forKey: Keys.controlCenterWidgets))
         controlCenterSize = ControlCenterSize.parse(defaults.string(forKey: Keys.controlCenterSize))
         controlCenterAnchor = ControlCenterAnchor.parse(defaults.string(forKey: Keys.controlCenterAnchor))
+        controlCenterStyle = ControlCenterStyle.parse(defaults.string(forKey: Keys.controlCenterStyle))
         controlCenterAnimation = ControlCenterAnimation.parse(defaults.string(forKey: Keys.controlCenterAnimation))
         shortcutBindings = Dictionary(uniqueKeysWithValues: ShortcutAction.allCases.map {
             ($0, ShortcutTrigger.parse(defaults.string(forKey: Keys.shortcut($0))) ?? $0.defaultTrigger)
@@ -774,6 +777,12 @@ final class AppSettingsStore: ObservableObject {
         guard controlCenterAnchor != value else { return }
         controlCenterAnchor = value
         defaults.set(value.rawValue, forKey: Keys.controlCenterAnchor)
+    }
+
+    func setControlCenterStyle(_ value: ControlCenterStyle) {
+        guard controlCenterStyle != value else { return }
+        controlCenterStyle = value
+        defaults.set(value.rawValue, forKey: Keys.controlCenterStyle)
     }
 
     func setControlCenterAnimation(_ value: ControlCenterAnimation) {
@@ -1588,6 +1597,7 @@ private enum Keys {
     static let controlCenterSize = "com.katikati.controlcenter.size"
     static let controlCenterAnchor = "com.katikati.controlcenter.anchor"
     static let controlCenterAnimation = "com.katikati.controlcenter.animation"
+    static let controlCenterStyle = "com.katikati.controlcenter.style"
     static func shortcut(_ action: ShortcutAction) -> String { "com.katikati.shortcut.\(action.rawValue)" }
     static let launcherSearchPosition = "com.katikati.launcher.searchPosition"
     static let launcherPresentation = "com.katikati.launcher.presentation"
