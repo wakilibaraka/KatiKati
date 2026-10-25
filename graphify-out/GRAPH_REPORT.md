@@ -6,12 +6,12 @@
 - Unclassified: 24 file(s) not represented in the graph (top: .csv 7, (none) 6, .plist 2)
 
 ## Summary
-- 17498 nodes · 48375 edges · 559 communities (464 shown, 95 thin omitted)
-- Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 7313 edges (avg confidence: 0.87)
+- 17522 nodes · 48375 edges · 570 communities (457 shown, 113 thin omitted)
+- Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 7312 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ff7300ae`
+- Built from commit: `d0cfb830`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -25,10 +25,10 @@
 - NowPlayingProgressTests
 - PanelCoordinator
 - AXWindowReader
-- Phase 51 — Notch geometry, motion, pages (Lane A; after Q-notch)
+- NotchMetrics
 - AppRuntime
-- SystemStatusService
-- Phase 35 — Phase 12 code share (decided now, built with Phase 12)
+- ObservableObject
+- Text
 - Edge Bar Slots
 - .contains
 - BarLayoutMode
@@ -37,19 +37,19 @@
 - Drag Conversion Tests
 - AgentUsageService
 - Debug Switches
-- Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)
+- DeckMetrics
 - Status Menu
 - DownloadManagerTests
 - SettingsLayoutPane
-- Phase 26 — Tiling (snap hotkeys → BSP engine) — hardest, uses existing Accessibility
+- WeatherState
 - Equatable
 - .isEligible
 - CalendarService
 - NotesSyncIndex
 - String
-- .body
-- AXWindowFrameWriteFailure
-- ShortcutTrigger
+- .applyFullscreenVisibility
+- AXWindowFrameAttribute
+- ShortcutTapKey
 - TaskDue
 - .mainWindowID
 - Equatable
@@ -69,11 +69,11 @@
 - PanelVisibilityState
 - BatteryStatus
 - WindowID
-- .islandTargetFrame
+- .islands
 - .page
-- .verdict
+- .release
 - WindowLiftAvoidanceTests
-- LaunchGateDecision
+- LaunchGateDecisionTests
 - WeatherEffects
 - AppWindowObserver
 - WindowLiftAvoidance
@@ -83,22 +83,22 @@
 - .verdict
 - LiveSurfaceRouting
 - EdgeBarPanelController
-- String
+- .displayName
 - .evaluate
 - StripItem
-- WidgetLayout
+- .verdict
 - LiveActivityFeed
 - LaunchAtLoginService
-- 1.2 Wishlist item → reality
+- Sendable
 - DrawerView
 - LauncherFolder
 - HyperkeyService
-- PanelGeometryTests
+- DragCarrierGeometryTests
 - SavedCity
 - WindowTitleTooltip.swift
 - QuickToggleID
 - TaskbarDebugCard
-- Text
+- View
 - NativeDockPreferencesService
 - EdgeSide
 - FocusFollowService
@@ -121,9 +121,9 @@
 - Phase 8 — Interior content rework (deferred: mini-plan each — owner 2026-10-11: "we will plan it out when we get there")
 - KeyGuardService
 - PinnedFolderCoverStore
-- 7. Phases (each = shippable, testable slice)
-- LiveEventCenter
-- PinnedFolderStore
+- RunningDotEdge
+- PreferenceSliderMenuItemView
+- String
 - FileMover
 - TrashStateStore
 - Identifiable
@@ -142,12 +142,12 @@
 - DockPanelHeight
 - Phase 11 + 18 — detailed plan (owner 2026-10-13: "execute 11 and 18 together"; plan file approved)
 - DockTint
-- DrawerCapsuleButton
+- .parse
 - FullscreenClassificationTests
 - .makeCoordinator
 - SparkleUpdateService
 - PowerNotificationCenter
-- ProcessIdentity
+- ShortcutTrigger
 - CleanupCandidate
 - DrawerView
 - .verdict
@@ -155,12 +155,12 @@
 - WelcomeGuideDecisionTests
 - DockSnapshot
 - WindowSubscriptionLedger
-- SkyTint
-- .run
+- VerticalLabelRun
+- ClockPreset
 - Changelog
 - .evaluate
 - MemoryOverlayController
-- TrashStateReducer
+- FinderTrashTests
 - FullscreenIntentDecisionTests
 - SettingsWindowController
 - DownloadManagerService
@@ -178,11 +178,11 @@
 - IntentFeedbackState
 - StatusTrioView
 - .snapshot
-- NotchDesignSpec
+- .resolve
 - AppTrackerCGWindowSnapshot
 - .snapDelay
 - NotificationMoveService
-- DynamicGaugeCompactDiscView
+- DragLandingFlight
 - AccessibilityPermissionModel
 - AppLanguageOption
 - AppMembershipProjectionTests
@@ -213,7 +213,7 @@
 - SnippetExpander
 - StripDropRouting
 - .input
-- Page fit — the five pages past the 1074 pt clamp, brought inside it (2026-10-15)
+- WindowDisplayAttribution
 - DragShakeWatcher
 - AppTrackerDisplayAttributionTests
 - StackPopupBackdrop
@@ -227,49 +227,49 @@
 - FullscreenIntentEventBridge
 - ChipSnapshotter
 - RunningApplicationStore
-- .fallbacks
+- NotchOpenAnimation
 - PermissionRecoveryCoordinator
 - DockGlassRefractionObserver
 - StripWheelScrollInterceptor
-- ChipPillMetricsTests
+- CGFloat
 - CodingKeys
-- SettingsBentoSplit
-- LiveActivityKind
+- 2026-10-18 — live walk of the redesigned Settings window and the vertical dock rails
+- ClaudeHookConfig
 - ShelfActions
 - Phase 53 — Input features (Lane C; after Q-input; all through the pure `KeyGuardPipeline`)
 - RadialDialPanelController
 - YearProgress
 - StripResizeGrip
-- RunningStateSweepDecision
+- .sync
 - StopwatchModel
 - .run
 - FinderTrashClient
 - LauncherState
 - CommandBarResult
-- 4.4 Findings from this investigation (verified unless marked)
+- SettingsTabTests
 - FrontmostWindowGeometryObserver
-- Where everything went
+- Target
 - .record
 - MenuBarMetric
 - TaskList
 - StripContextMenuZoneTests
-- KatiKati — Feature Roadmap, Quality Audit & Parallel-Work Guide (Phases 49–59, Track Q)
+- 6. Phases 50–58 — new features (each slice ≤ ~300 lines; "Est." is a first guess)
 - FolderChipDropZoneTests
-- .rect
+- InventoryAdmissionProbeVerdict
 - DispatchWorkItem
 - .isEnabled
 - ScrollReverserEventTapThread
-- SettingsShell
+- SettingsGlowSchedule
 - WeatherState
-- TeleprompterTests
-- DrawerCapsuleScrollView
+- .extract
+- DrawerCapsuleButton
 - RecentlyClosedStore
 - WindowInventoryAnomalyLog
 - StripOrderStore
 - QuickAddState
 - NotchMusicGlow
 - WeatherService
-- AppLaunchTargetDecisionTests
+- AppLaunchTargetDecision
 - Sub-slices
 - LauncherSearchField
 - NotesSyncPlanTests
@@ -288,34 +288,34 @@
 - TimeOfDayPalette
 - SettingsCoordinator
 - PrivacyDots
-- IconSet
-- FocusFollowService
+- .make
+- MenuBarSystemItem
 - TaskbarPerDisplaySeedController
 - KatiKati
 - RadialDialPage
 - ChipPanelLayout
 - DockBadgeReader
-- .cancelTerminationRecheck
+- AppTrackerProcessProviding
 - SystemMonitorController
 - package_release
 - NotesStore
 - StripDisplayFilter
-- TorrentEngineClient
+- HyperkeyEngineTests
 - KatiKati
-- CameraMirrorService
+- SolarPhase
 - ScrollWheelDeltas
 - Phase 29 — Command bar, learned from Snap / Cling / oil-find (owner 2026-10-14; PLAN ONLY, no code)
 - WindowLayoutMemory
-- SolarPhase
+- WallpaperSky
 - LauncherMenuPlan
-- SettingsWindowContent
+- GlassQuickAddView
 - TasksController
-- LauncherSearchPosition
-- TaskItem
+- CaseIterable
+- DeckLayout
 - SpaceLayoutDirectory
 - RadialDialWedgeView
 - ChipPanelHoverMachine
-- VolumeScrollCatcherView
+- .frontmostLiftCandidate
 - .entry
 - DownloadsMonitor
 - RadialDialTheme
@@ -323,18 +323,18 @@
 - PinnedFolderCoverStore
 - AppMembershipMenuPlan
 - QuitAppRules
-- TimeInterval
+- Sub-slices
 - LauncherIconView
 - .make
 - EffectSpy
 - LiveActivity
-- ClipEntry
+- ClipboardMonitor
 - FileDragItemProviderTests
 - .validate
-- .columns
+- .configurePanel
 - FullscreenIntentRequest
 - RadialDialView
-- ActionExecutionSwitchesTests
+- .resolve
 - AXWindowReadResult
 - HoverPollThrottle
 - ControlCenterScroll
@@ -347,14 +347,14 @@
 - UnsmoothedLabel
 - Runtime
 - AudioOutputDevice
-- CustomCommand
+- WindowSnapService
 - RadialDialActionType
 - .parse
 - WindowSwitcherModelTests
 - .hitTest
 - .rows
 - FinderTrashOutcome
-- SettingsIridescentPalette
+- Bool
 - USBEjectPill
 - WallpaperEngine
 - ProcessEnvironmentScrubTests
@@ -364,51 +364,52 @@
 - WeatherChipPreset
 - FolderGridCell
 - Rule
-- AppSettingsStore.swift
+- WidgetAnimationPreset
 - StripWheelScrollTests
 - .desiredUnitKeys
 - ExpandedMediaCardView
-- FullscreenIntentEventTapThread
+- .warnings
 - NSView
-- ClipboardMonitor
-- Stage
+- WidgetTallTests
+- SettingsShell
 - LauncherChip
 - NotchRestContent
 - StripHoverResolutionTests
-- UVLevel
+- DeckGeometry
 - .verdict
-- WidgetRecorderModel
-- StatusKind
+- .decide
+- 4.4 Findings from this investigation (verified unless marked)
 - Launch
 - PowerNotificationPolicy
-- TaskbarScreenMenuPresentation
-- .widgetPanelFrame
+- SettingsMetricsTests
+- ScreenTimeSummaryView
 - WindowLayoutRestoreController
 - NotesStore
-- Availability
+- CameraMirrorService
 - DownloadActivity
 - TaskbarScreenPlacementTests
 - GestureMonitorInstaller
 - DragVisualKind
-- LaunchGateDecisionTests
+- ChipPressFeedbackTests
 - EdgeNotesPopupController
 - DockPanelMaterial
 - WindowSubscriptionLedger.swift
 - TaskbarScreenMode
 - .entries
 - .evaluate
-- .feed
+- Step
 - FullscreenIntentDecision (3)
-- AccessibilitySource.swift
-- DiagnosticReport
+- .clamp
+- ShortcutChord
 - LinkReaderModel
-- Known Layout Defects (Logged 2026-10-08)
-- DrawerCapsulePager
+- ShelfTrayArt
+- DockLiquidGlassConfigurationTests
 - SettingsDraft
 - ValidationStage
 - keyGuardTapCallback
 - BuildProvenanceTests
 - VPNServiceParser
+- ShortcutsTests
 - View
 - IslandLayoutSolverTests
 - IslandSlotSet
@@ -423,18 +424,18 @@
 - .read
 - DockThemeStyle
 - FullscreenIntentDecision (4)
-- CommandGeneratorTests
+- CommandGenerator
 - Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)
 - DockShapeToken
 - StubBadgeReader
-- .display
+- CountdownTimerModel
 - WeatherWarningKind
 - AppInstallLocation
 - .record
-- Item
+- SolarPhaseTests
 - .dockPanelRim
 - .menu
-- LinkCleanerService
+- DisplayTopologyStore
 - .parseSFL
 - 7. Phases (each = shippable, testable slice)
 - StripPointerBoxTests
@@ -443,72 +444,69 @@
 - Error
 - Mode
 - FileReachability
-- AppLaunchTargetDecision
+- TeleprompterView
 - KatiKati — Baseline Rules (Phase 0 import contract)
 - StorageScanService
-- StorageItem
-- CaseIterable
-- SnapPosition
+- AgentPricing
+- WelcomeGuideStep
+- PowerNotificationKind
 - MessagingWindowOrderingTests
-- NotchFallbackPlan
+- UnitBezierEase
 - ResizeCursorGlyph
 - WidgetEditOverlay
-- .evaluate
+- Context
 - FinderWindowContentsError
-- BackgroundAppsStore
+- LiveNoticeKind
 - .make
 - DockGlassRuntimeBridge
 - [Unreleased] — Phase 53d, 55d and 55g: opt-in quit, cache review, retention
 - make_icons.swift
 - CameraMirrorPreview
 - KatiKati — Standing Rules
-- ShelfTrayArt
+- DockEdgePreset
 - .entries
-- FinderTrashTests
+- TrashChangeStamp
 - RadialMouseTrigger
-- SlowQuitOverlayController
+- CleanerService
 - Phase 6 Log: Settings Layout Tab, Welcome Step & Polish
-- WiFiVolumeFABView
-- .prune
+- HoldReason
+- InventorySeatCreationReason
 - .mask
 - LauncherSortMode
 - Phase 16 (continued) — Control Center side panel (owner 2026-10-13; "still Phase 16, not 17")
-- LaunchSessionTokenRegistry
+- ShelfLogicTests
 - StorageCategory
 - NotesStoreTests
-- StripPlacementMap
+- .render
 - graphify_autocommit.sh
-- QuickToggleEngine.swift
+- TranslateCardView
 - build_and_run
-- .generation
+- WidgetTileKit.swift
 - Result
-- LaunchSessionTokenRegistryTests
+- .finiteNumericValue
 - StorageCategory
-- .confirm
-- ReleaseReason
+- Phase 32 — Dock/widget motion language + circular icon look (owner 2026-10-14; ~~PROPOSED — suggestion only, not scheduled~~ **SCHEDULED 2026-10-16** — owner: "pack the circular dock, remove it from settings for now, implement the rest of phase 32"; one slice per commit, owner eyeball after every UI-visible one)
+- LabMode
 - RadialDialCenterHub
 - .refreshSpaceLayout
-- .notification
-- View
+- Native
+- Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)
 - Action
-- .dismissWindowTitleTooltip
 - Settings sweep — baseline (2026-10-15, installed Release 0.17.0 (51))
-- NotchNotificationsPageView
-- LauncherChipVisualPlan
-- NotificationMoveGuard
+- FolderPrimaryAction
+- SettingsStagePreference
+- .beginIfNeeded
 - BarSection
 - [Unreleased] — Phase 41: every layout on a side rail, a rail that uses its height, tighter gaps
-- Phase 55 — Clipboard, capture, drawer (Lane D)
+- Reveal
 - DockWidgetLogicTests
-- .frame
-- WindowThumbnailCapture
 - verify_release_hashes
-- .startTime
+- 3.2 Lanes — each lane owns a disjoint file set
 - .closeFolderPopup
 - Content
 - .isTrackable
-- SyncPassSchedulerTests
-- LauncherPresentation
+- SettingsNotificationsPane
+- Due
 - WindowSubscriptionItem
 - 1. Scope & Execution Summary
 - HistoryState
@@ -526,41 +524,40 @@
 - .hex
 - Foundation
 - .matchScore
-- NotchOpenAnimation
-- The density pass + the Edge Bars page — live evidence (2026-10-15, plan step A5)
-- LaunchSessionTokenRegistryTests
+- WidgetMotionPreset
+- Marker
+- .normalizedTitlesMatch
 - [0.17.0-beta.1] — 2026-10-12 — Phase 7: edge decks, launcher, Pinboard
-- FailedMoveVerdict
-- ThemeTuning
+- InventoryReconcileSource
 - [Unreleased] — background apps in the capsule, and a paste-to-Finder shortcut
-- FinderAutomationStatus
+- TrashPermissionTrigger
 - [Unreleased] — Phase 6: Layout + Appearance settings
-- ShortcutRecorderButton
+- .release
 - [Unreleased] — one app table for every quit rule
-- CrossPanelConversion
+- [Unreleased] — Settings redesign, Phase 5b: stages for Shortcuts and Downloads
 - [0.17.0-beta.2] — 2026-10-12
-- EnvironmentValues
-- [Unreleased] — Phase 57a: scroll the Control Center volume row
+- [Unreleased] — Phase 4: Widgets, Popups, and Layout
+- Zone
 - [Unreleased] — Notch redesign, slice 1: Storage page
 - Form
 - AccessoryKind
 - [Unreleased] — Phase 46: the weather widget wears the weather, and the bar hugs the edge
+- CaptureRecognitionTests.swift
 - [Unreleased] — Phase 16: widget pane + wifi Quick Settings
-- EnvironmentValues
-- .body
+- [Unreleased] — Phase 57c: a floating orb for the launcher
+- [Unreleased] — Phase 57b: the launcher can be a card
 - Save
-- Kind
+- [Unreleased] — Settings redesign, Phase 7: keyboard and search
 - SystemMonitorController
-- DrawerCapsulePreviewMetrics
+- [Unreleased] — Dock chips offer the app's own New Window / New Tab
 - Kind
+- [Unreleased] — Settings redesign, Phase 1: sidebar shell and a freely resizable window
 - [Unreleased] — Phase 32: the dock's motion language, and the circular icon look is packed
 - [Unreleased] — Phase 44: magnet links really download
-- [Unreleased] — Phase 5: Hardening + Floating Widgets
+- [Unreleased] — Phase 52a: agent usage reads the current logs
 - [Unreleased] — Phase 47: the music surfaces answer the player, a camera mirror, mirrored notifications
-- Slice 32d — the circular icon look is packed (commit `9cfe9bf`)
-- [Unreleased] — Phase 42: the rail packs like your Dock, and your Dock's icons are on the bar
+- [Unreleased] — Phase 12 close-out: the Settings pages measured, and the widget list back on the grid
 - [Unreleased] — Phase 12 close-out: a lock that fails open, a gradient theme engine, a notch theme
-- LandingAnchorOwner
 - [Unreleased] — Phase 12: the Settings window measures what it actually shows, so no page hides its tail
 - [Unreleased] — Phase 40: vertical dock geometry & widget readability
 - DockThemeTests.swift
@@ -583,73 +580,73 @@
 10. `AppTracker` - 149 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `Summary` --references--> `IslandLayoutSolver`  [INFERRED]
+  Docs/Archive/Planning/2026-10-09-phase-4-log.md → Core/Support/IslandLayoutSolver.swift
+- `9. Acceptance criteria` --references--> `IslandLayoutSolver`  [INFERRED]
+  HYBRID_PLAN.md → Core/Support/IslandLayoutSolver.swift
 - `4.1 Four gates for every feature` --references--> `KeyGuardService`  [INFERRED]
   FEATURE_ROADMAP_2026-10.md → App/Composition/KeyGuardService.swift
-- `Rationale` --references--> `PanelGeometry`  [INFERRED]
-  HYBRID_PLAN.md → App/Composition/PanelGeometry.swift
-- `5d. Explicitly NOT ported` --references--> `WallpaperEngine`  [INFERRED]
-  HYBRID_PLAN.md → App/Composition/WallpaperEngine.swift
-- `Developers` --references--> `AppDelegate`  [INFERRED]
-  README.md → App/Entry/AppDelegate.swift
-- `开发者` --references--> `AppDelegate`  [INFERRED]
-  README.zh-CN.md → App/Entry/AppDelegate.swift
+- `2. What each page gave up — cards, not controls` --references--> `SettingsRowPair`  [INFERRED]
+  Docs/Archive/Planning/evidence/2026-10-15-page-fit/README.md → App/Scenes/SettingsCard.swift
+- `Phase 35 — Phase 12 code share (decided now, built with Phase 12)` --references--> `WidgetExtraPrefs`  [INFERRED]
+  HYBRID_PLAN.md → App/Scenes/WidgetExtraTiles.swift
 
 ## Import Cycles
 - None detected.
 
-## Communities (559 total, 95 thin omitted)
+## Communities (570 total, 113 thin omitted)
 
 ### Community 0 - "Settings Store & Layout Pane"
-Cohesion: 0.04
-Nodes (11): AppSettingsStore, .controlCentreAtTrailingEnd, .edgeActiveSides, .edgeAutoHideEnabled, .hasStoredTaskbarScreenChoice, .nativeDockAutoHideEnabled, .nowPlayingTapPreset, .nowPlayingTheme (+3 more)
+Cohesion: 0.03
+Nodes (13): AppSettingsStore, .controlCentreAtTrailingEnd, .edgeActiveSides, .edgeAutoHideEnabled, .hasStoredTaskbarScreenChoice, .layoutMetrics, .nativeDockAutoHideEnabled, .nowPlayingTapPreset (+5 more)
 
 ### Community 1 - "XCTest"
 Cohesion: 0.03
-Nodes (4): CoreImage, CryptoKit, KatiKati, XCTest
+Nodes (3): CryptoKit, KatiKati, XCTest
 
 ### Community 2 - "App Tracker & AX Cache"
 Cohesion: 0.06
-Nodes (20): AppEntry, AppTracker, AppTrackerProcessProviding, CGSnapshotAcquisition, CGSnapshotReuseTicket, DisplayKeyHold, brief, none (+12 more)
+Nodes (15): AppTrackerWindowReading, AppEntry, AppTracker, CGSnapshotAcquisition, CGSnapshotReuseTicket, EventReadLanding, reconciled, skipped (+7 more)
 
 ### Community 3 - "Platform Services (Finder/Calendar/Shelf/Sparkle)"
-Cohesion: 0.03
-Nodes (14): PanelCollectionBehavior, AppKit, AVFAudio, AVFoundation, Combine, EventKit, ImageIO, os (+6 more)
+Cohesion: 0.04
+Nodes (15): PanelCollectionBehavior, AppKit, ApplicationServices, Carbon, Combine, CoreWLAN, ImageIO, os (+7 more)
 
 ### Community 4 - "Drag Controller & Carrier"
 Cohesion: 0.04
-Nodes (36): Candidate, CarrierContainerView, CarrierSurface, DragController, .carriedPayload, .carriedScale, .carrierContainer, .carrierLayer (+28 more)
+Nodes (42): Candidate, CarrierContainerView, CarrierSurface, CrossPanelConversion, drawerToMessaging, drawerToStrip, messagingToDrawer, stripToDrawer (+34 more)
 
 ### Community 5 - "DockStripView"
-Cohesion: 0.04
-Nodes (46): ChipHoverRequest, DockStripView, DockStripView, .body, .chipFrames, .dockScale, .draggingFolderPath, .draggingMessagingBundleID (+38 more)
+Cohesion: 0.03
+Nodes (43): .visibleStatusCount, DockStripView, .body, .chipFrames, .dockScale, .draggingFolderPath, .draggingMessagingBundleID, .folderChipFrames (+35 more)
 
 ### Community 6 - "NowPlayingProgressTests"
-Cohesion: 0.05
-Nodes (18): Fixed, Tests, [Unreleased] — Phase 43: the bar's widgets stop inventing data, AppleScriptNowPlaying, .source, .transientArtworkPath, Reading, .bundleIdentifier (+10 more)
+Cohesion: 0.10
+Nodes (9): Fixed, Tests, [Unreleased] — Phase 43: the bar's widgets stop inventing data, PlayerAccess, readable, refused, unknown, .unreadableMessage (+1 more)
 
 ### Community 7 - "PanelCoordinator"
-Cohesion: 0.03
-Nodes (27): .chipPanelIsShowing, FullscreenIntentTransaction, FullscreenSpaceHold, FrameCommit, animated, instant, unchanged, .isLabelFollowActive (+19 more)
+Cohesion: 0.04
+Nodes (25): .chipPanelIsShowing, FrameCommit, animated, instant, unchanged, .isLabelFollowActive, .stripPlacement, PanelCoordinator (+17 more)
 
 ### Community 8 - "AXWindowReader"
 Cohesion: 0.07
-Nodes (23): AXWindowAttributeSettableStatus, .isSettable, notSettable, settable, unread, AXWindowFrameSettableStatus, .canSetFrame, .canSetSize (+15 more)
+Nodes (30): AXWindowAttributeSettableStatus, .isSettable, notSettable, settable, unread, AXWindowFrameRollbackResult, failed, notRequested (+22 more)
 
-### Community 9 - "Phase 51 — Notch geometry, motion, pages (Lane A; after Q-notch)"
-Cohesion: 0.06
-Nodes (15): .size, NotchGeometry, NotchMetrics, EarZones, LeftPanel, activity, music, NotchLayoutSpec (+7 more)
+### Community 9 - "NotchMetrics"
+Cohesion: 0.13
+Nodes (4): NotchGeometry, NotchMetrics, NotchDesignSpecTests, NotchGeometryTests
 
 ### Community 10 - "AppRuntime"
-Cohesion: 0.04
-Nodes (37): AppRuntime, .isRunning, DebugRuntimeState, HeldAction, LaunchProcessIdentity, LaunchSession, LaunchWindowIdentity, IntentPipeline (+29 more)
-
-### Community 11 - "SystemStatusService"
 Cohesion: 0.07
-Nodes (17): .body, .volumeRow, NotchBatteryChip, .body, .tint, NotchDockChips, .body, NotchLiveBattery (+9 more)
+Nodes (10): AppRuntime, .isRunning, DebugRuntimeState, HeldAction, LaunchProcessIdentity, LaunchSession, LaunchWindowIdentity, DebugConsoleView (+2 more)
 
-### Community 12 - "Phase 35 — Phase 12 code share (decided now, built with Phase 12)"
-Cohesion: 0.06
-Nodes (74): .body, .body, .body, .body, NotchBehaviorCard, .body, NotchLayoutCard, .body (+66 more)
+### Community 11 - "ObservableObject"
+Cohesion: 0.02
+Nodes (67): .body, .volumePageView, NotchBatteryChip, .body, .tint, NotchBatteryDetail, .body, .facts (+59 more)
+
+### Community 12 - "Text"
+Cohesion: 0.02
+Nodes (175): BehaviourSettingsBlock, .body, .fullscreenIntentNote, WindowBehaviourSettingsBlock, .body, LiveIslandSettingsBlock, .body, NotchActivityCard (+167 more)
 
 ### Community 13 - "Edge Bar Slots"
 Cohesion: 0.03
@@ -657,139 +654,139 @@ Nodes (62): .customRows, EdgeBarComposition, EdgeBarContent, newNote, notes, pro
 
 ### Community 14 - ".contains"
 Cohesion: 0.09
-Nodes (6): AppMembershipController, DrawerStore, MessagingAppStore, LauncherMembershipItem, AppMembershipControllerTests, AppMembershipInvariantTests
+Nodes (4): AppMembershipController, DrawerStore, AppMembershipControllerTests, AppMembershipInvariantTests
 
 ### Community 15 - "BarLayoutMode"
-Cohesion: 0.05
-Nodes (46): DockStylePicker, .body, LayoutModeDetail, .body, LayoutModePicker, .body, .cardSize, .minimumIslandThickness (+38 more)
+Cohesion: 0.03
+Nodes (59): .currentDockStyle, .layoutThumbnailInputs, DockStylePicker, .body, LayoutModeDetail, .body, LayoutModePicker, .body (+51 more)
 
 ### Community 16 - "ShortcutAction"
-Cohesion: 0.03
-Nodes (54): Keys, StageShortcuts, .body, ShortcutAction, captureArea, clock, commandBar, cycleTilingLayout (+46 more)
+Cohesion: 0.04
+Nodes (48): .filteredFeatureShortcuts, .filteredTilingShortcuts, ShortcutAction, captureArea, clock, commandBar, cycleTilingLayout, drawer (+40 more)
+
+### Community 18 - "Drag Conversion Tests"
+Cohesion: 0.08
+Nodes (4): LandingAnchorOwner, drawer, strip, DragControllerConversionTests
 
 ### Community 19 - "AgentUsageService"
-Cohesion: 0.07
-Nodes (11): AgentUsageService, ClaudeHookInstaller, .settingsURL, ClaudeHookConfig, ClaudeHookConfigError, notAJSONObject, ClaudeHookEvent, idle (+3 more)
+Cohesion: 0.11
+Nodes (5): AgentUsageService, ClaudeHookInstaller, .settingsURL, ClaudeHookStatus, Phase 52 — AI status (Lanes A/D; after Q-utils)
 
 ### Community 20 - "Debug Switches"
 Cohesion: 0.02
 Nodes (88): DebugSwitch, axElementCache, badgePause, badgeTargeted, cgSnapshotReuse, chipAnimTrace, chipPillFill, chipPressDown (+80 more)
 
-### Community 21 - "Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)"
-Cohesion: 0.03
-Nodes (62): .weekdaySymbols, DeckFont, .font, .measure, .nsFont, .size, .tracking, DeckLabelWidthCache (+54 more)
+### Community 21 - "DeckMetrics"
+Cohesion: 0.14
+Nodes (24): .weekdaySymbols, DeckMetrics, .bleed, .buttonGap, .buttonSize, .chipGap, .chipHeight, .chipWidth (+16 more)
+
+### Community 22 - "Status Menu"
+Cohesion: 0.07
+Nodes (3): LaunchAtLoginMenuModel, RecentlyClosedEntry, StatusMenuController
 
 ### Community 23 - "DownloadManagerTests"
-Cohesion: 0.09
+Cohesion: 0.11
 Nodes (4): paused, DownloadManagerTests, FakeTorrentEngine, failed
 
 ### Community 24 - "SettingsLayoutPane"
-Cohesion: 0.05
-Nodes (14): BottomEdgeChoice, custom, floating, hugging, .liquidGlassSupported, SettingsLayoutPane, .dockScreenWidth, .filteredFeatureShortcuts (+6 more)
+Cohesion: 0.29
+Nodes (4): SettingsLayoutPane, .contextPresetRows, .contextPresetsToggle, .presetControls
 
-### Community 25 - "Phase 26 — Tiling (snap hotkeys → BSP engine) — hardest, uses existing Accessibility"
-Cohesion: 0.14
-Nodes (9): KeyGuardShared, KeycapVisual, KeyGuardState, KeyVisualizerBuffer, 4.6 Q slices, Phase 26 — Tiling (snap hotkeys → BSP engine) — hardest, uses existing Accessibility, KeyGuardPipelineTests, KeyGuardSharedTests (+1 more)
+### Community 25 - "WeatherState"
+Cohesion: 0.05
+Nodes (35): RangeBar, .body, WeatherPreviewCard, .body, .tabs, DetailedWeatherPodView, .compactDetailedView, .forecastItems (+27 more)
 
 ### Community 26 - "Equatable"
-Cohesion: 0.06
-Nodes (45): AgentClaudeParser, AppSample, AgentPricing, AgentRate, AgentLimits, AgentLimitWindow, .remainingFraction, .usedFraction (+37 more)
+Cohesion: 0.10
+Nodes (31): AgentLimits, AgentLimitWindow, .remainingFraction, .usedFraction, AgentLiveTurn, AgentProvider, claude, codex (+23 more)
 
 ### Community 27 - ".isEligible"
-Cohesion: 0.06
-Nodes (20): 3.1 Honest answer, 3.4 Working rules, 3.5 Execution flow, 3. Parallel-work protocol (several AI IDEs / agents at once), AccessibilitySource, CGWindowSnapshot, CoreGraphicsSource, Application (+12 more)
+Cohesion: 0.05
+Nodes (16): AccessibilitySource, CGWindowSnapshot, CoreGraphicsSource, Application, AppTrackerWindowEligibility, AXTaskbarWindowRules, Candidate, Decision (+8 more)
 
 ### Community 28 - "CalendarService"
 Cohesion: 0.03
-Nodes (67): CalendarAccess, denied, granted, unknown, CalendarService, .displayedMonth, .selectedDate, ReminderEntry (+59 more)
+Nodes (60): AgendaEvent, CalendarAccess, denied, granted, unknown, CalendarService, .displayedMonth, .selectedDate (+52 more)
 
 ### Community 29 - "NotesSyncIndex"
-Cohesion: 0.12
-Nodes (7): Entry, NotesSyncIndex, NotesSyncIndexStore, NotesSyncService, PassJob, SyncPassScheduler, .isRunning
+Cohesion: 0.11
+Nodes (7): NotesSyncIndex, NotesSyncIndexStore, NotesSyncService, PassJob, SyncPassScheduler, .isRunning, SyncPassSchedulerTests
 
 ### Community 30 - "String"
-Cohesion: 0.05
-Nodes (30): IdentityMemory, IdentityResolution, RememberedIdentityLookup, conflict, matched, none, RememberedMatchKind, coarse (+22 more)
+Cohesion: 0.06
+Nodes (21): IdentityMemory, IdentityResolution, RememberedIdentityLookup, conflict, matched, none, RememberedMatchKind, coarse (+13 more)
 
-### Community 31 - ".body"
-Cohesion: 0.08
-Nodes (19): LiveIslandSettingsBlock, NotchActivityCard, .threshold, NotchAnimationDemo, .body, .reveal, NotchAnimationPicker, .body (+11 more)
+### Community 32 - "AXWindowFrameAttribute"
+Cohesion: 0.67
+Nodes (3): AXWindowFrameAttribute, position, size
 
-### Community 32 - "AXWindowFrameWriteFailure"
-Cohesion: 0.07
-Nodes (31): OperationOutcome, cancelled, completed, externalFrame, failed, reliftLimitReached, transientValidation, unsupportedValidation (+23 more)
-
-### Community 33 - "ShortcutTrigger"
-Cohesion: 0.04
-Nodes (43): ShortcutService, SettingsTilingPane, .axTrusted, .boundSnaps, .presetNote, ModifierDoubleTapDetector, .defaultTrigger, ShortcutChord (+35 more)
+### Community 33 - "ShortcutTapKey"
+Cohesion: 0.10
+Nodes (14): ShortcutService, ModifierDoubleTapDetector, ShortcutConflicts, ShortcutKeyNames, ShortcutTapKey, .glyph, .isRight, .keyCode (+6 more)
 
 ### Community 34 - "TaskDue"
-Cohesion: 0.22
-Nodes (6): TaskDue, later, overdue, today, tomorrow, Phase 56 — Widgets (Lane E; after 49c, Q-widgets)
+Cohesion: 0.15
+Nodes (9): Array, .smartOrdered, TaskDisplay, TaskDue, later, overdue, today, tomorrow (+1 more)
 
 ### Community 35 - ".mainWindowID"
-Cohesion: 0.08
-Nodes (11): MessagingMainWindowDecision, WindowFact, WindowChipGrouping, WindowChipGroupingPlan, .isInert, WindowChipGroupPolicy, grouped, separate (+3 more)
+Cohesion: 0.06
+Nodes (18): AppFallbackChipDecision, Fallback, GroupKey, bundle, unbundled, Process, MessagingMainWindowDecision, WindowFact (+10 more)
 
 ### Community 36 - "Equatable"
-Cohesion: 0.03
-Nodes (115): Sidebar, full, icons, DockIconShape, circle, squircle, Envelope, Event (+107 more)
+Cohesion: 0.05
+Nodes (74): Entry, PhantomSeatDecision, Envelope, Event, attempt, destroyNotified, leftCG, InventoryAdmissionProbePayload (+66 more)
 
 ### Community 37 - "App Tracker Batching"
 Cohesion: 0.10
 Nodes (15): AppTrackerPeriodicBatchTests, BatchFixedProcessProvider, BatchMutableProcessProvider, CGCallCounters, .captures, .probes, PeriodicBatchReader, .readCount (+7 more)
 
 ### Community 38 - "Live Activity Sources"
-Cohesion: 0.05
-Nodes (19): LiveEventPresentation, NotchEventCard, .tint, LiveActivitySources, LiveIslandFormat, LiveEvent, clipboardCopied, countdownReachedToday (+11 more)
+Cohesion: 0.06
+Nodes (17): LiveEventPresentation, LiveActivitySources, LiveIslandFormat, LiveEvent, clipboardCopied, countdownReachedToday, downloadFinished, focusCycleCompleted (+9 more)
 
 ### Community 39 - "NotchPage"
-Cohesion: 0.06
-Nodes (28): NotchPagesCard, .body, .layout, NotchHeaderView, .body, NotchModel, .isExpanded, NotchTab (+20 more)
+Cohesion: 0.07
+Nodes (23): .currentPage, NotchPagesCard, .body, .layout, .pages, .currentPage, NotchDockCompanionPolicy, NotchPage (+15 more)
 
 ### Community 40 - ".installFixtureForTesting"
 Cohesion: 0.10
 Nodes (6): AppTrackerReadSemanticsTests, ControlledAppTrackerReader, .readCount, .untimedReadCount, FixedAppTrackerProcessProvider, MutableAppTrackerProcessProvider
 
 ### Community 41 - "SettingsTab"
-Cohesion: 0.04
-Nodes (38): SettingsSidebar, .visibleTabs, .hueColor, .searchTerms, .showsStage, .stageShowsBar, SettingsTab, advanced (+30 more)
+Cohesion: 0.06
+Nodes (32): SettingsSidebar, .body, .visibleTabs, .hueColor, .searchTerms, .showsStage, .stageShowsBar, SettingsTab (+24 more)
 
 ### Community 42 - "TaskbarScreenOrchestrator"
-Cohesion: 0.05
-Nodes (26): CarrierLayerActionGate, DragHost, .stashTargetFrame, TaskbarScreenOrchestrator, .currentPanelScreenCGFrames, .hoverMonitorsNeeded, .onAddFolder, .onRequestTaskbarMenu (+18 more)
+Cohesion: 0.07
+Nodes (10): DragHost, .stashTargetFrame, TaskbarScreenOrchestrator, .currentPanelScreenCGFrames, .hoverMonitorsNeeded, .onAddFolder, .onRequestTaskbarMenu, Unit (+2 more)
 
 ### Community 43 - ".evaluate"
-Cohesion: 0.10
-Nodes (12): .result, CalculatorEngine, Parser, .atEnd, .peek, LauncherAnswers, LauncherCommandParser, Phase 21 — Launcher superpowers (extends 7B) — easiest, no new permission (+4 more)
-
-### Community 44 - "PermissionRecoveryCoordinator"
-Cohesion: 0.09
-Nodes (13): PermissionPhase, idle, onboarding, relaunchFailed, relaunching, restoringWindows, running, suspended (+5 more)
+Cohesion: 0.11
+Nodes (11): .result, CalculatorEngine, Parser, .atEnd, .peek, LauncherAnswers, LauncherCommandParser, Phase 21 — Launcher superpowers (extends 7B) — easiest, no new permission (+3 more)
 
 ### Community 45 - "FinderWindowContentsReader"
 Cohesion: 0.07
 Nodes (11): AEFinderWindow, AEFinderWindowParseResult, FinderAppleEventMatcher, FinderWindowAppleEventsTarget, AXFinderWindow, FinderWindowContentsReader, FinderWindowContentsTarget, appleEvents (+3 more)
 
 ### Community 46 - "QuitOnLastWindowService"
-Cohesion: 0.12
-Nodes (5): quitOnLastWindowCallback(), QuitOnLastWindowService, .isEnabled, QuitOnLastWindowPolicy, QuitOnLastWindowPolicyTests
+Cohesion: 0.13
+Nodes (4): quitOnLastWindowCallback(), QuitOnLastWindowService, .isEnabled, QuitOnLastWindowPolicyTests
 
 ### Community 47 - "DownloadItem"
 Cohesion: 0.09
 Nodes (20): DownloadItem, .formattedETA, .formattedSizeProgress, .formattedSpeed, .fraction, .seedRatio, DownloadItemState, active (+12 more)
 
 ### Community 48 - "ObservationAdmissionGate"
-Cohesion: 0.07
-Nodes (24): ActionKind, activateWindow, closeWindow, hideApp, minimizeWindow, newWindow, quitApp, ClusterKey (+16 more)
+Cohesion: 0.05
+Nodes (31): BottomEdgeChoice, custom, floating, hugging, IdentityRuleEngine, ObservationKind, appeared, disappeared (+23 more)
 
 ### Community 49 - "CGRect"
 Cohesion: 0.03
-Nodes (21): ShelfFramePreferenceKey, TrashFramePreferenceKey, AccessoryWindowPresentation, DragLandingCurve, DragLandingFlight, .isStationary, DragLandingPlan, LauncherOrbPlacement (+13 more)
+Nodes (23): DrawerChipFramePreferenceKey, TabFramesKey, BoxWidth, ChipFramePreferenceKey, FolderChipFramePreferenceKey, MessagingChipFramePreferenceKey, SectionFramePreferenceKey, ShelfFramePreferenceKey (+15 more)
 
 ### Community 50 - "PanelVisibilityState"
 Cohesion: 0.07
-Nodes (21): AllSpacesMembership, EdgeAutoHideInhibitor, dragging, drawerOpen, folderPopupOpen, interactiveResize, taskbarMenuOpen, EdgeAutoHideRuntimeRules (+13 more)
+Nodes (20): AllSpacesMembership, EdgeAutoHideInhibitor, dragging, drawerOpen, folderPopupOpen, interactiveResize, taskbarMenuOpen, EdgeAutoHideRuntimeRules (+12 more)
 
 ### Community 51 - "BatteryStatus"
 Cohesion: 0.11
@@ -797,47 +794,51 @@ Nodes (13): BatteryStatus, .hasBattery, .symbolName, SystemStatus, VolumeStatus,
 
 ### Community 52 - "WindowID"
 Cohesion: 0.09
-Nodes (17): WindowID, result, TilingGaps, TilingLayout, TilingSplitAxis, horizontal, vertical, TilingTree (+9 more)
+Nodes (19): WindowID, result, TilingGaps, Comparable, TilingLayout, TilingLayoutOptions, TilingSplitAxis, horizontal (+11 more)
 
-### Community 53 - ".islandTargetFrame"
-Cohesion: 0.05
-Nodes (16): Added, Phase 2 — Island Panels (One Display, Tungsten Construction) (2026-10-08), .slotCount, Decisions taken with the owner (before any code, Standing Rules §1.4), Evidence, Notes, Open (41e) — owed to the owner, Phase 41 — Vertical layout modes, rail space use, tighter gaps (+8 more)
+### Community 53 - ".islands"
+Cohesion: 0.11
+Nodes (3): .slotCount, BarLayoutModeTests, IslandStripProjectionTests
 
 ### Community 54 - ".page"
-Cohesion: 0.06
-Nodes (24): .isCapsuleOwner, .currentPage, .matches, .pages, LauncherAppIndex, LauncherGrid, LauncherOrdering, LauncherPage (+16 more)
+Cohesion: 0.07
+Nodes (14): .isCapsuleOwner, .matches, LauncherAppIndex, LauncherGrid, LauncherOrdering, LauncherPage, LauncherPaging, LauncherPresets (+6 more)
 
-### Community 55 - ".verdict"
-Cohesion: 0.05
-Nodes (25): AXPresentSeat, Evaluation, HoldReason, absenceGraceNotElapsed, cgMissing, everSeenVisible, noAXPresentSibling, noEligibleWindows (+17 more)
+### Community 55 - ".release"
+Cohesion: 0.09
+Nodes (15): AXPresentSeat, PlacedSeat, Reason, exactFrame, membership, sameSize, shadowPool, TabFoldDecision (+7 more)
 
 ### Community 56 - "WindowLiftAvoidanceTests"
 Cohesion: 0.03
-Nodes (24): AbandonedSession, AbandonReason, reliftLimitReached, writeFailed, Event, maximizedDetected, nonMaximizedObserved, reliftLimitReached (+16 more)
+Nodes (54): AbandonedSession, AbandonReason, reliftLimitReached, writeFailed, AnimationWriteFailure, initialFrameMismatch, terminalWriteFailure, AnimationWriteFailureDecision (+46 more)
 
-### Community 57 - "LaunchGateDecision"
-Cohesion: 0.20
-Nodes (8): ActivationPolicy, accessory, prohibited, regular, unknown, LaunchGateDecision, Observation, ProcessObservation
+### Community 57 - "LaunchGateDecisionTests"
+Cohesion: 0.06
+Nodes (26): ActivationPolicy, accessory, prohibited, regular, unknown, LaunchGateDecision, LaunchSessionTokenRegistry, .bundleIDs (+18 more)
 
 ### Community 58 - "WeatherEffects"
-Cohesion: 0.17
-Nodes (9): .body, Cloud, Drop, Flake, Star, WeatherEffectPlan, .isStatic, WeatherEffects (+1 more)
+Cohesion: 0.18
+Nodes (8): Cloud, Drop, Flake, Star, WeatherEffectPlan, .isStatic, WeatherEffects, WeatherEffectsTests
 
 ### Community 59 - "AppWindowObserver"
 Cohesion: 0.12
 Nodes (9): AppWindowObserver, .isActive, AXElementKey, Registration, attempted, none, retryDue, WindowSubscriptionAttemptReport (+1 more)
 
 ### Community 60 - "WindowLiftAvoidance"
-Cohesion: 0.06
-Nodes (18): ManagedFrames, RestoreOutcome, handled, unreachable, SuppressionRequest, none, untilNative, WindowLiftAvoidanceController (+10 more)
+Cohesion: 0.05
+Nodes (22): ManagedFrames, OperationOutcome, cancelled, completed, externalFrame, failed, reliftLimitReached, transientValidation (+14 more)
 
 ### Community 61 - "NSScreen"
-Cohesion: 0.12
-Nodes (3): .currentScreen, Slice 3c — Multi-Display Reflow & Hover Switch Sizing (`43f8371`), DisplayIdentity
+Cohesion: 0.11
+Nodes (5): NSScreen, .displayID, .currentScreen, .stripMainLength, DisplayIdentity
 
 ### Community 62 - "LauncherView"
-Cohesion: 0.10
-Nodes (20): LauncherActions, LauncherModel, .prefs, .query, LauncherView, .answers, .answerSection, .body (+12 more)
+Cohesion: 0.08
+Nodes (26): LauncherActions, LauncherModel, .query, LauncherView, .answers, .answerSection, .body, .commandSection (+18 more)
+
+### Community 63 - "KeptAppStore"
+Cohesion: 0.13
+Nodes (4): KeptAppStore, 20a — Drawer becomes the Background Apps drawer, Phase 20 (proposed, owner 2026-10-13) — Background Apps drawer · hold-Control memory overlay · DeskBar survey, KeptAppStoreTests
 
 ### Community 64 - ".verdict"
 Cohesion: 0.11
@@ -851,89 +852,85 @@ Nodes (16): LiveEventDeduper, LiveEventDispatcher, LiveEventRoute, automatic, bo
 Cohesion: 0.11
 Nodes (4): DeckSettings, EdgeBarPanelController, .allSpacesPanels, .effectiveRatio
 
-### Community 67 - "String"
-Cohesion: 0.03
-Nodes (36): GeneratorService, .appName, AppIconResolver, DrawerChipFramePreferenceKey, TabFramesKey, AppDisplayNameResolver, .displayName, BoxWidth (+28 more)
+### Community 67 - ".displayName"
+Cohesion: 0.11
+Nodes (8): .appName, AppDisplayNameResolver, .displayName, MessagingZoneDiagnostics, AppDisplayNameCache, AppNameRegistry, Entry, AppDisplayNameCacheTests
 
 ### Community 68 - ".evaluate"
-Cohesion: 0.07
+Cohesion: 0.08
 Nodes (5): .stripItems, .windowBackedIDs, WindowIdentityEngine, AppID, FinderP0Tests
 
 ### Community 69 - "StripItem"
-Cohesion: 0.11
-Nodes (12): .stableKeptRanks, .visibleStatusCount, Placement, PlacementReason, headPreferred, sameAppSibling, stableKeptRank, tail (+4 more)
-
-### Community 70 - "WidgetLayout"
-Cohesion: 0.09
-Nodes (6): WidgetInstance, WidgetLayout, .hiddenSections, .order, .visibleOrder, WidgetLayoutModelTests
+Cohesion: 0.21
+Nodes (9): .stableKeptRanks, Placement, PlacementReason, headPreferred, sameAppSibling, stableKeptRank, tail, ReconcileResult (+1 more)
 
 ### Community 71 - "LiveActivityFeed"
-Cohesion: 0.10
-Nodes (12): LiveActivityFeed, .isTicking, .nowPlayingState, .playerAccess, .body, .transport, .body, .body (+4 more)
+Cohesion: 0.07
+Nodes (14): LiveActivityFeed, .isTicking, .nowPlayingState, .playerAccess, LiveEventBannerPoster, LiveEventCenter, LiveEventSink, LiveEventToastPresenter (+6 more)
 
 ### Community 72 - "LaunchAtLoginService"
-Cohesion: 0.08
-Nodes (14): LaunchAtLoginBackend, LaunchAtLoginMenuModel, LaunchAtLoginMenuPresentation, LaunchAtLoginService, LaunchAtLoginServicing, LaunchAtLoginState, off, on (+6 more)
+Cohesion: 0.07
+Nodes (15): LaunchAtLoginBackend, LaunchAtLoginMenuPresentation, LaunchAtLoginService, LaunchAtLoginServicing, LaunchAtLoginState, off, on, requiresApproval (+7 more)
 
-### Community 73 - "1.2 Wishlist item → reality"
-Cohesion: 0.08
-Nodes (25): FinderKeyMap, KeyChord, KeyGuardAction, slowQuitPressed, slowQuitReleased, unlock, KeyGuardDecision, consumeAndFire (+17 more)
+### Community 73 - "Sendable"
+Cohesion: 0.04
+Nodes (42): KeyGuardShared, FinderKeyMap, KeycapVisual, KeyChord, KeyGuardAction, slowQuitPressed, slowQuitReleased, unlock (+34 more)
 
 ### Community 74 - "DrawerView"
-Cohesion: 0.18
-Nodes (8): BackgroundAppClassifier, Context, Policy, accessory, prohibited, regular, Process, BackgroundAppClassifierTests
+Cohesion: 0.11
+Nodes (12): BackgroundAppsStore, Fact, .backgroundCount, .backgroundMembers, BackgroundAppClassifier, Context, Policy, accessory (+4 more)
 
 ### Community 75 - "LauncherFolder"
-Cohesion: 0.12
-Nodes (7): LauncherIconCache, LauncherFocus, LauncherFolder, LauncherFolders, Position, 20c — DeskBar survey: what else is worth taking (status vs KatiKati today), LauncherFoldersTests
+Cohesion: 0.16
+Nodes (4): LauncherIconCache, LauncherFolder, LauncherFolders, LauncherFoldersTests
 
 ### Community 76 - "HyperkeyService"
-Cohesion: 0.06
-Nodes (13): HyperkeyService, .hasPermission, HyperkeyShared, hyperkeyTapCallback(), Decision, fire, passThrough, swallow (+5 more)
+Cohesion: 0.12
+Nodes (4): HyperkeyService, .hasPermission, HyperkeyShared, hyperkeyTapCallback()
 
-### Community 77 - "PanelGeometryTests"
-Cohesion: 0.10
-Nodes (3): .layoutMetrics, .metrics, PanelGeometryTests
+### Community 77 - "DragCarrierGeometryTests"
+Cohesion: 0.12
+Nodes (3): DragCarrierGeometry, PickUpPose, DragCarrierGeometryTests
 
 ### Community 78 - "SavedCity"
 Cohesion: 0.12
 Nodes (11): Response, Result, SavedCities, SavedCity, .subtitle, WeatherGeocoding, WeatherLocationSelection, city (+3 more)
 
 ### Community 79 - "WindowTitleTooltip.swift"
-Cohesion: 0.07
-Nodes (17): ChipAnimationTrace, ChipAnimationTraceBuffer, ChipAnimationTraceEvent, ChipAnimationTraceSample, ChipAnimationTraceState, ChipHoverVisual, Curve, LabelWidthAnimation (+9 more)
+Cohesion: 0.05
+Nodes (29): ChipView, .animationTraceKind, .body, .displayTitle, .effectiveIsOnDesktop, .effectiveStatus, .isFinderChip, .isMessagingAppWindow (+21 more)
 
 ### Community 80 - "QuickToggleID"
-Cohesion: 0.08
-Nodes (24): .quickActions, .title, QuickToggleID, bluetooth, darkMode, dockAutoHide, ejectDisks, emptyTrash (+16 more)
+Cohesion: 0.07
+Nodes (26): .quickActions, .title, ShortcutRecorderButton, .body, QuickToggleID, bluetooth, darkMode, dockAutoHide (+18 more)
 
 ### Community 81 - "TaskbarDebugCard"
-Cohesion: 0.11
-Nodes (9): TaskbarDebugCard, TaskbarDebugDuplicateGroup, TaskbarDebugLiveWindow, TaskbarDebugRect, .cgRect, TaskbarDebugReport, TaskbarDebugSnapshotExporter, AppFallbackRetentionPolicy (+1 more)
+Cohesion: 0.14
+Nodes (7): TaskbarDebugCard, TaskbarDebugDuplicateGroup, TaskbarDebugLiveWindow, TaskbarDebugRect, .cgRect, TaskbarDebugReport, TaskbarDebugSnapshotExporter
 
-### Community 82 - "Text"
+### Community 82 - "View"
 Cohesion: 0.02
-Nodes (103): LiveEventToastView, .body, ToastView, .body, .body, CalculatorTile, .body, .body (+95 more)
+Nodes (104): LiveEventToastView, .body, ToastView, .body, ChipBadgeView, .body, .bareIconChip, RailClockTile (+96 more)
 
 ### Community 83 - "NativeDockPreferencesService"
 Cohesion: 0.09
-Nodes (7): NativeDockAutohideState, NativeDockOriginal, NativeDockPreferencesService, .hasCapturedOriginal, .isAvailable, SandboxEnvironment, .current
+Nodes (9): NativeDockAutohideState, NativeDockOriginal, NativeDockPreferencesService, .hasCapturedOriginal, .isAvailable, NativeDockPreferencesServicing, SandboxEnvironment, .current (+1 more)
 
 ### Community 84 - "EdgeSide"
 Cohesion: 0.11
 Nodes (4): DeckSettingsRules, EdgeSide, left, right
 
+### Community 85 - "FocusFollowService"
+Cohesion: 0.10
+Nodes (5): FocusFollowService, .isEnabled, Target, FocusFollowPolicy, FocusFollowPolicyTests
+
 ### Community 86 - "AppDelegate"
-Cohesion: 0.05
+Cohesion: 0.04
 Nodes (7): ColorPickerService, AppDelegate, .localizedDisplayName, ShortcutToastPresenter, Key Changes, Phase 1 Log: Settings & Base Infrastructure, Summary
 
 ### Community 87 - "Task"
-Cohesion: 0.09
+Cohesion: 0.10
 Nodes (8): MainQueueScreenRectDeliveryScheduler, ScreenRectDeliveryScheduling, ScreenRectDeliveryTask, ScreenRectReader, TrackingView, Scheduled, Scheduler, ScreenRectReaderTests
-
-### Community 88 - "CapsLockGuard"
-Cohesion: 0.23
-Nodes (3): CapsLockGuard, SlowQuitTiming, CapsLockGuardTests
 
 ### Community 89 - "GlobalHotKeyMonitor"
 Cohesion: 0.17
@@ -941,23 +938,23 @@ Nodes (4): GlobalHotKeyMonitor, FakeHotKeyBackend, GlobalHotKeyMonitorTests, .cu
 
 ### Community 90 - "NotchPanelController"
 Cohesion: 0.07
-Nodes (21): NowPlayingTheme, auto, dark, .displayTitle, light, NotchPanelController, .isUsable, .isWide (+13 more)
+Nodes (16): NotchPanelController, .isUsable, .isWide, .skin, NotchPanelCoordinator, .isUsable, .onOpenSettings, .skin (+8 more)
 
 ### Community 91 - ".applicationDidFinishLaunching"
-Cohesion: 0.05
-Nodes (26): TilingEngine, .releasedWindowIDs, StallProbeClock, NSScreen, .displayID, .body, Comparable, TilingLayoutOptions (+18 more)
+Cohesion: 0.06
+Nodes (15): TilingEngine, .releasedWindowIDs, StallProbeClock, TilingLayoutPreset, bsp, centeredMain, columns, grid (+7 more)
 
 ### Community 92 - "DockThemeTests"
-Cohesion: 0.05
-Nodes (11): ClockPreset, flipTiles, minimal, modernMac, pixelRetro, stackedCard, .title, Phase 4U — Phase 4 upgraded: code-integrity check pass (owner 2026-10-09) (+3 more)
+Cohesion: 0.07
+Nodes (3): Phase 4U — Phase 4 upgraded: code-integrity check pass (owner 2026-10-09), DockThemeStyleTokensTests, DockThemeTests
 
 ### Community 93 - "TranslatePanelController"
 Cohesion: 0.10
-Nodes (10): TranslatePanel, .canBecomeKey, TranslatePanelController, .isShown, DictionaryCardModel, TranslateRequest, Phase 23 — Translate & Define (offline) — medium, no new permission, NaturalLanguage (+2 more)
+Nodes (9): TranslatePanel, .canBecomeKey, TranslatePanelController, .isShown, DictionaryCardModel, TranslateRequest, NaturalLanguage, DictionaryCardModelTests (+1 more)
 
 ### Community 94 - "DockThemeTokens"
 Cohesion: 0.07
-Nodes (15): DockEffectSwitches, DockShadowModifier, DockThemeTokens, .drawsEffectiveThickness, .effectiveBackdropSaturation, .effectiveChipPillFill, .effectiveLabelInactive, .effectivePanelMaterial (+7 more)
+Nodes (17): DockEffectSwitches, DockShelfTileStyle, .glyphColor, DockThemeTokens, .drawsEffectiveThickness, .effectiveBackdropSaturation, .effectiveChipPillFill, .effectiveLabelInactive (+9 more)
 
 ### Community 95 - "ScanAdmissionDecisionTests"
 Cohesion: 0.10
@@ -968,68 +965,72 @@ Cohesion: 0.08
 Nodes (20): CGSnapshotReuseDecision, FreshReason, absenceClockRunning, cachedCaptureFailed, cacheExpired, disabled, eventSinceCache, noCache (+12 more)
 
 ### Community 97 - "CommandBarPanelController"
-Cohesion: 0.09
-Nodes (9): CommandBarPanel, .canBecomeKey, CommandBarPanelController, .isShown, CommandBarModel, CommandBarRowItem, CommandBarView, .body (+1 more)
+Cohesion: 0.07
+Nodes (13): ProcessKillConfirm, ProcessLister, CommandBarPanel, .canBecomeKey, CommandBarPanelController, .isShown, CommandBarModel, CommandBarRowItem (+5 more)
 
 ### Community 99 - "AXElementCache"
-Cohesion: 0.18
-Nodes (5): AXElementCache, .countForTesting, AXElementCacheRetention, Key, AXElementCacheTests
+Cohesion: 0.19
+Nodes (4): AXElementCache, .countForTesting, Key, AXElementCacheTests
 
 ### Community 100 - "check_localization"
 Cohesion: 0.09
 Nodes (21): main(), main(), swift_files(), eval_multiline(), extract_multiline(), identical_to_english(), lineno_of(), main() (+13 more)
 
 ### Community 102 - "StackPopupGeometry"
-Cohesion: 0.10
-Nodes (10): DrawerGridShape, Limits, Result, StackCellMetrics, StackGridLayout, StackPlateMetrics, StackPopupMetrics, StackPopupOutline (+2 more)
+Cohesion: 0.11
+Nodes (8): DrawerGridShape, Limits, Result, StackCellMetrics, StackGridLayout, StackPlateMetrics, StackPopupOutline, StackPopupGeometryTests
 
 ### Community 103 - "Phase 8 — Interior content rework (deferred: mini-plan each — owner 2026-10-11: "we will plan it out when we get there")"
-Cohesion: 0.15
-Nodes (14): CountdownContent, FocusContent, LiveActivityPolicy, LiveActivitySnapshot, LiveFocusPhase, focus, longBreak, shortBreak (+6 more)
+Cohesion: 0.14
+Nodes (13): CountdownContent, FocusContent, LiveActivityPolicy, LiveActivitySnapshot, LiveFocusPhase, focus, longBreak, shortBreak (+5 more)
 
 ### Community 104 - "KeyGuardService"
-Cohesion: 0.08
-Nodes (4): KeyGuardService, .hasPermission, .passthroughPolicy, .slowQuitPolicy
+Cohesion: 0.07
+Nodes (7): KeyGuardService, .hasPermission, .passthroughPolicy, .slowQuitPolicy, SlowQuitHoldModel, SlowQuitHoldView, SlowQuitOverlayController
 
 ### Community 105 - "PinnedFolderCoverStore"
-Cohesion: 0.10
-Nodes (16): CacheEntry, FolderCover, Layer, PinnedFolderCoverStore, PinnedFolderChip, .coverSlot, .folderName, .theme (+8 more)
+Cohesion: 0.09
+Nodes (17): CacheEntry, FolderCover, Layer, PinnedFolderCoverStore, PinnedFolderChip, .body, .coverSlot, .folderName (+9 more)
 
-### Community 106 - "7. Phases (each = shippable, testable slice)"
-Cohesion: 0.06
-Nodes (17): .alignment, .paddingEdge, EdgeOccupancy, RunningDotEdge, bottom, leading, trailing, StripPointerBox (+9 more)
+### Community 106 - "RunningDotEdge"
+Cohesion: 0.22
+Nodes (6): .alignment, .paddingEdge, RunningDotEdge, bottom, leading, trailing
 
-### Community 107 - "LiveEventCenter"
-Cohesion: 0.13
-Nodes (5): LiveEventBannerPoster, LiveEventCenter, LiveEventSink, LiveEventToastPresenter, UserNotifications
+### Community 107 - "PreferenceSliderMenuItemView"
+Cohesion: 0.14
+Nodes (8): EndpointDotView, .isFlipped, .isOn, PreferenceSliderCommitTracker, .hasPending, PreferenceSliderMenuItemView, .hasDraft, StatusMenuLayout
+
+### Community 108 - "String"
+Cohesion: 0.04
+Nodes (18): DiagnosticReport, .text, GlassReading, PinnedFolderStore, EnvironmentValues, .labelBoxWidthTick, .runningDotEdge, LabelBoxWidthTickKey (+10 more)
 
 ### Community 109 - "FileMover"
 Cohesion: 0.11
 Nodes (7): BatchResult, .hasIssues, FileMover, FileMovingFileSystem, LiveFileMovingFileSystem, FakeFileSystem, FileMoverTests
 
 ### Community 110 - "TrashStateStore"
-Cohesion: 0.12
-Nodes (3): FinderTrashClienting, TrashStateStore, .active
+Cohesion: 0.11
+Nodes (4): FinderTrashClienting, TrashStateStore, .active, Phase 30 — App management, Trash, and the remaining Sol + 29 gaps (owner 2026-10-14; PLAN ONLY)
 
 ### Community 111 - "Identifiable"
-Cohesion: 0.08
-Nodes (27): ChipPanelAction, ChipPanelContent, .showsHeader, ChipPanelMenuBridge, ChipPanelMode, menu, preview, ChipPanelModel (+19 more)
+Cohesion: 0.09
+Nodes (25): ChipPanelAction, ChipPanelContent, .showsHeader, ChipPanelMode, menu, preview, ChipPanelModel, .plateSize (+17 more)
 
 ### Community 112 - "BadgeStore"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (4): BadgeStore, .isReadingForTesting, .isTimerRunningForTesting, .shouldPauseTimer
 
 ### Community 113 - ".init"
 Cohesion: 0.05
-Nodes (20): ControlCenterAnchor, bottom, center, top, ControlCenterAnimation, fade, instant, slide (+12 more)
+Nodes (24): .themeTuning, .gridMinHeight, Added, Changed, [Unreleased] — Phase 58d: the Control Center wears the dock's theme, ControlCenterAnchor, bottom, center (+16 more)
 
 ### Community 114 - "DragConversionPlanTests"
 Cohesion: 0.07
 Nodes (17): DragConversionPlan, DragSource, drawer, folder, messaging, strip, DrawerDragOutMode, keepPlacement (+9 more)
 
 ### Community 115 - "ControlCenterPanelController"
-Cohesion: 0.11
-Nodes (8): .side, ControlCenterPanelController, .isShown, EdgeFlyoutController, .frame, .isShown, KeyableFlyoutPanel, .canBecomeKey
+Cohesion: 0.10
+Nodes (11): .side, ControlCenterPanelController, .isShown, EdgeFlyoutController, .frame, .isShown, KeyableFlyoutPanel, .canBecomeKey (+3 more)
 
 ### Community 116 - "DeckStateMachine"
 Cohesion: 0.08
@@ -1037,22 +1038,22 @@ Nodes (21): DeckContext, .restingState, DeckEvent, escape, hoverRested, idle, ke
 
 ### Community 117 - "Note"
 Cohesion: 0.08
-Nodes (9): .visibleTabs, Array, Note, .displayTitle, .hasCustomTitle, NoteOrdering, NotesController, LoadResult (+1 more)
+Nodes (8): .visibleTabs, Array, Note, .displayTitle, .hasCustomTitle, NoteOrdering, NotesController, NotePaletteTests
 
 ### Community 118 - "NowPlayingService"
-Cohesion: 0.08
-Nodes (7): NowPlayingFlyoutView, .body, NowPlayingHelper, NowPlayingService, NowPlayingState, Phase 46 — the weather widget wears the weather, and the bar hugs the edge (2026-10-16), NowPlayingServiceTests
+Cohesion: 0.05
+Nodes (15): BarActionService, NowPlayingFlyoutView, .body, AppleScriptNowPlaying, .source, .transientArtworkPath, Reading, .bundleIdentifier (+7 more)
 
 ### Community 119 - "EdgeBarPrefs"
-Cohesion: 0.08
-Nodes (16): EdgeBarPrefs, .zoneInset, EdgeDwell, EdgeFlyoutStyle, glass, modern, EdgeIconSet, classic (+8 more)
+Cohesion: 0.09
+Nodes (13): EdgeBarPrefs, .zoneInset, EdgeDwell, EdgeIconSet, classic, modern, realistic, EdgeMagnifyAmount (+5 more)
 
 ### Community 120 - "PreferenceSliderMenuItemView"
-Cohesion: 0.05
-Nodes (15): EndpointDotView, .isFlipped, .isOn, MenuActionButton, .intrinsicContentSize, .isHovering, .isPressed, MenuTrackingSlider (+7 more)
+Cohesion: 0.06
+Nodes (7): MenuActionButton, .intrinsicContentSize, .isHovering, .isPressed, MenuTrackingSlider, NativeDockApplyRowView, TaskbarSizeMenuItemView
 
 ### Community 121 - "TrashStateStoreTests"
-Cohesion: 0.13
+Cohesion: 0.15
 Nodes (3): FakeClient, StampBox, TrashStateStoreTests
 
 ### Community 122 - "WindowSwitcherController"
@@ -1060,51 +1061,47 @@ Cohesion: 0.10
 Nodes (7): SwitcherPanel, .canBecomeKey, Tile, WindowSwitcherController, .isEnabled, WindowSwitcherView, .body
 
 ### Community 123 - "ChipPanelController"
-Cohesion: 0.09
-Nodes (6): ChipPanelController, .isMenuOpen, .isVisible, .shownChipID, .chipPanel, .usesLiquidGlass
+Cohesion: 0.08
+Nodes (8): WindowThumbnailCapture, .isAuthorized, ChipPanelController, .isMenuOpen, .isVisible, .shownChipID, .usesLiquidGlass, ChipHoverRequest
 
 ### Community 124 - "DockPanelHeight"
 Cohesion: 0.11
 Nodes (13): ManualPanelHost, .fittingSize, PanelHeightResizePresentation, FittingProbeView, .fittingSize, .intrinsicContentSize, HeightChangesModel, ManualPanelHostTests (+5 more)
 
 ### Community 125 - "Phase 11 + 18 — detailed plan (owner 2026-10-13: "execute 11 and 18 together"; plan file approved)"
-Cohesion: 0.07
-Nodes (18): PanelGeometry, PanelLayoutMetrics, PanelScreenGeometry, .topUsableY, StackPopupScreenMargins, .stripMainLength, .previewEdge, StripAxis (+10 more)
+Cohesion: 0.03
+Nodes (57): DockPanelHeight, .metrics, .scale, PanelGeometry, PanelLayoutMetrics, PanelScreenGeometry, .topUsableY, StackPopupScreenMargins (+49 more)
 
 ### Community 126 - "DockTint"
 Cohesion: 0.07
-Nodes (36): .color, .glyphColor, .transparent, .liquidBentoIcon, DockChipPillGlass, DockEdgePreset, bottomEdgeAnchored, bottomFloating (+28 more)
+Nodes (30): DockShadowModifier, .liquidBentoIcon, DockThemeStyleTokens, DockChipPillGlass, DockRGB, .luminance, DockShadow, .verticalExtent (+22 more)
 
-### Community 127 - "DrawerCapsuleButton"
+### Community 127 - ".parse"
 Cohesion: 0.13
-Nodes (11): ChipNameTooltip, DrawerCapsuleAppIcon, .body, DrawerCapsuleButton, .body, .capsuleSide, .dockScale, .hoverEnabled (+3 more)
+Nodes (8): Current, CurrentWeather, Daily, Hourly, OpenMeteoResponse, WeatherResponseParsing, WeatherDetailTests, WeatherResponseParsingTests
 
 ### Community 128 - "FullscreenClassificationTests"
 Cohesion: 0.10
 Nodes (6): FullscreenAXVerdict, fullscreen, notOnThisScreen, windowed, FullscreenWindowClassifier, FullscreenClassificationTests
 
-### Community 129 - ".makeCoordinator"
-Cohesion: 0.09
-Nodes (11): StoredHotKeyShortcut, HotKeyChangeError, registrationFailed, rejected, NativeDockApplyOutcome, LaunchServiceStub, NativeDockServiceStub, SettingsCoordinatorTests (+3 more)
-
 ### Community 130 - "SparkleUpdateService"
-Cohesion: 0.07
-Nodes (10): SparkleUpdateService, .automaticallyChecksForUpdates, .changes, .supportsGentleScheduledUpdateReminders, Outcome, announce, deferToSparkle, remindQuietly (+2 more)
+Cohesion: 0.12
+Nodes (4): SparkleUpdateService, .automaticallyChecksForUpdates, .changes, .supportsGentleScheduledUpdateReminders
 
 ### Community 131 - "PowerNotificationCenter"
-Cohesion: 0.07
-Nodes (29): PowerNotificationCenter, PowerNotificationPillPresenter, BatteryBuddyPolicy, Fired, PowerNotification, .id, PowerNotificationHistory, PowerNotificationKind (+21 more)
+Cohesion: 0.08
+Nodes (17): PowerNotificationCenter, PowerNotificationPillPresenter, BatteryBuddyPolicy, Fired, PowerNotification, .id, PowerNotificationHistory, PowerNotificationRules (+9 more)
 
-### Community 132 - "ProcessIdentity"
-Cohesion: 0.32
-Nodes (4): PolicyObservation, PolicyRecheck, ProcessIdentity, ProcessState
+### Community 132 - "ShortcutTrigger"
+Cohesion: 0.11
+Nodes (12): .defaultTrigger, ShortcutKey, .glyphs, .isValid, ShortcutTrigger, chord, doubleTap, hyper (+4 more)
 
 ### Community 133 - "CleanupCandidate"
 Cohesion: 0.13
-Nodes (7): CleanerService, Outcome, CleanupCandidate, .id, .name, CleanupPlan, CleanupPlanTests
+Nodes (8): CleanupCandidate, .id, .name, CleanupPlan, StorageItem, .id, .name, CleanupPlanTests
 
 ### Community 134 - "DrawerView"
-Cohesion: 0.09
+Cohesion: 0.10
 Nodes (8): DrawerOrderStore, .memberIDs, DrawerRootView, .body, DrawerView, .body, .displayOrder, DrawerOrderStoreTests
 
 ### Community 135 - ".verdict"
@@ -1112,143 +1109,147 @@ Cohesion: 0.10
 Nodes (18): Input, PeriodicReconcileSkipDecision, Reason, absenceClockRunning, captureFailed, cgSetChanged, dirtyEvents, lastReadUnread (+10 more)
 
 ### Community 136 - "NotificationSlot"
-Cohesion: 0.10
+Cohesion: 0.11
 Nodes (19): Column, center, left, right, NotificationSlot, bottomCenter, bottomLeft, bottomRight (+11 more)
 
 ### Community 137 - "WelcomeGuideDecisionTests"
-Cohesion: 0.11
-Nodes (5): NativeDockRecommendations, .isEmpty, WelcomeGuideSelection, .isEmpty, WelcomeGuideDecisionTests
+Cohesion: 0.06
+Nodes (16): WelcomeIntroGlass, .body, StartupUIPolicy, Outcome, present, skipAndMarkSeen, skipWithoutMarking, WelcomeGuideDecision (+8 more)
 
 ### Community 138 - "DockSnapshot"
-Cohesion: 0.11
-Nodes (12): LifecycleActionPlanner, OptimisticWindowState, WindowStatus, active, closedPending, disappeared, hidden, inactive (+4 more)
+Cohesion: 0.12
+Nodes (9): LifecycleActionPlanner, OptimisticWindowState, WindowStatus, active, closedPending, disappeared, hidden, inactive (+1 more)
 
 ### Community 139 - "WindowSubscriptionLedger"
 Cohesion: 0.19
 Nodes (4): Record, WindowSubscriptionInstanceIDs, WindowSubscriptionLedger, .backoff
 
-### Community 140 - "SkyTint"
-Cohesion: 0.08
-Nodes (18): MountainScene, .body, SceneHero, .body, TileRGB, SceneGeometry, SkyTint, .luminance (+10 more)
+### Community 140 - "VerticalLabelRun"
+Cohesion: 0.15
+Nodes (9): .usesUpright, DeckMagnification, VerticalLabelLayout, VerticalLabelMeasure, VerticalLabelOrientation, rotated, upright, VerticalLabelRun (+1 more)
 
-### Community 141 - ".run"
-Cohesion: 0.12
-Nodes (9): BarActionService, Phase 55 — Clipboard, capture, drawer (Lane D), CaptureController, State, cancelled, done, idle, working (+1 more)
+### Community 141 - "ClockPreset"
+Cohesion: 0.09
+Nodes (11): ClockPreset, flipTiles, minimal, modernMac, pixelRetro, stackedCard, .title, StandardClockProvider (+3 more)
 
 ### Community 142 - "Changelog"
-Cohesion: 0.03
-Nodes (60): [0.17.0 beta 3] — 2026-10-19, Added, Added, Added, Added, Added, Added, Added (+52 more)
+Cohesion: 0.04
+Nodes (47): [0.17.0 beta 3] — 2026-10-19, Added, Added, Added, Added, Added, Added, Added (+39 more)
 
 ### Community 143 - ".evaluate"
-Cohesion: 0.13
-Nodes (12): ChromiumIdentityRule, FeishuIdentityRule, FinderIdentityRule, IdentityFallback, IdentityRule, IdentityRuleEngine, IdentityRuleResult, WeChatIdentityRule (+4 more)
+Cohesion: 0.21
+Nodes (7): ChromiumIdentityRule, FeishuIdentityRule, FinderIdentityRule, IdentityFallback, IdentityRule, IdentityRuleResult, WeChatIdentityRule
 
 ### Community 144 - "MemoryOverlayController"
-Cohesion: 0.16
-Nodes (9): MemoryPill, .body, Proc, ProcessMemory, Tier, high, low, medium (+1 more)
+Cohesion: 0.14
+Nodes (10): MemoryPill, .body, View, Proc, ProcessMemory, Tier, high, low (+2 more)
 
-### Community 145 - "TrashStateReducer"
-Cohesion: 0.33
-Nodes (5): TrashRefreshSource, external, postMutation, TrashStateReducer, .isMutating
+### Community 145 - "FinderTrashTests"
+Cohesion: 0.12
+Nodes (15): FinderAutomationStatus, denied, granted, notDetermined, unavailable, Item, empty, open (+7 more)
 
 ### Community 146 - "FullscreenIntentDecisionTests"
-Cohesion: 0.12
+Cohesion: 0.14
 Nodes (3): FullscreenEventTapRecoveryPolicy, SpaceSwipeTracker, FullscreenIntentDecisionTests
 
 ### Community 148 - "DownloadManagerService"
-Cohesion: 0.12
-Nodes (3): DownloadManagerService, .downloadsDirectory, .body
+Cohesion: 0.10
+Nodes (3): DownloadManagerService, .downloadsDirectory, TorrentEngineClient
 
 ### Community 149 - "AccessibilityWindowActionExecutor"
-Cohesion: 0.13
-Nodes (7): AccessibilityWindowActionExecutor, ActionExecution, Handoff, HandoffPatience, PlatformActionExecutor, WindowHandle, WindowTarget
+Cohesion: 0.07
+Nodes (17): AccessibilityWindowActionExecutor, ActionExecution, ActionExecutionSwitches, axBoolAttribute(), axCopyAttributeValue(), axElementAttribute(), axFrame(), axStringAttribute() (+9 more)
 
 ### Community 150 - "NotchGestureSupport"
-Cohesion: 0.12
-Nodes (16): Axis, horizontal, vertical, HorizontalMode, pageNavigation, trackSkip, NotchGestureAction, close (+8 more)
+Cohesion: 0.14
+Nodes (13): HorizontalMode, pageNavigation, trackSkip, NotchGestureAction, close, nextPage, nextTrack, open (+5 more)
 
 ### Community 151 - "Aria2RPC"
-Cohesion: 0.19
+Cohesion: 0.18
 Nodes (5): Aria2RPC, Outcome, failure, Status, .payload
 
 ### Community 152 - "Aria2RPC"
-Cohesion: 0.11
-Nodes (12): TorrentEngine, .downloadsDirectory, .isAvailable, .resolvedBinaryPath, Snapshot, TorrentEngineError, engine, .message (+4 more)
+Cohesion: 0.08
+Nodes (14): TorrentEngine, .binary, .downloadsDirectory, .isAvailable, .resolvedBinaryPath, Snapshot, TorrentEngineError, engine (+6 more)
 
 ### Community 153 - "PermissionOnboardingView"
 Cohesion: 0.10
-Nodes (20): PermissionOnboardingView, .header, .message, .presentation, .settingsPath, .subtitle, .symbolName, .title (+12 more)
+Nodes (21): PermissionOnboardingView, .header, .message, .presentation, .quitButton, .settingsPath, .subtitle, .symbolName (+13 more)
 
 ### Community 154 - "BarMacro"
 Cohesion: 0.04
 Nodes (56): BarMacro, bluetooth, cleanKeyboard, darkMode, dockAutoHide, eject, emptyTrash, hideDesktopIcons (+48 more)
 
+### Community 155 - "DrawerCapsulePaging"
+Cohesion: 0.11
+Nodes (7): DrawerCapsulePaging, IconPose, .body, DrawerCapsuleFlow, .animatableData, DrawerCapsulePager, .pointerAway
+
 ### Community 157 - "GlobalHotKeyMonitor"
-Cohesion: 0.10
+Cohesion: 0.11
 Nodes (11): CarbonHotKeyBackend, GlobalHotKeyShortcut, .hotKeyID, HotKeyBackend, HotKeyEvent, pressed, released, RegistrationStatus (+3 more)
 
-### Community 158 - "LiveNoticeKind"
-Cohesion: 0.09
-Nodes (13): DailyHelpersService, BatteryNoticeRule, CapsLockTracker, EjectPolicy, LiveNoticeKind, batteryFull, batteryHigh, capsLockOff (+5 more)
-
 ### Community 160 - "IntentFeedbackState"
-Cohesion: 0.14
-Nodes (16): Entry, FeedbackPhase, failure, pending, .retention, success, IntentFeedbackState, UserIntentAction (+8 more)
+Cohesion: 0.05
+Nodes (39): Entry, FeedbackPhase, failure, pending, .retention, success, IntentFeedbackState, IntentPipeline (+31 more)
 
 ### Community 161 - "StatusTrioView"
-Cohesion: 0.09
-Nodes (13): .glyph, BluetoothFlyoutView, .body, BluetoothDevice, .batteryBreakdown, .id, .isLowBattery, .lowestBattery (+5 more)
+Cohesion: 0.10
+Nodes (11): .glyph, BluetoothDevice, .batteryBreakdown, .id, .isLowBattery, .lowestBattery, .symbolName, BluetoothDeviceParser (+3 more)
 
 ### Community 162 - ".snapshot"
 Cohesion: 0.23
 Nodes (4): Entry, Harness, ManualSeedRetryScheduler, TaskbarPerDisplaySeedControllerTests
 
-### Community 163 - "NotchDesignSpec"
-Cohesion: 0.11
-Nodes (5): .notchTheme, NotchDesignSpec, NotchTheme, Resolution, NotchDesignSpecTests
+### Community 163 - ".resolve"
+Cohesion: 0.32
+Nodes (3): .notchTheme, NotchTheme, Resolution
 
-### Community 167 - "DynamicGaugeCompactDiscView"
-Cohesion: 0.15
-Nodes (9): DrawerCapsuleBackgroundDiscView, .body, DynamicGaugeCompactDiscView, .body, WideBarSystem, .body, WideBarTimer, .body (+1 more)
+### Community 166 - "NotificationMoveService"
+Cohesion: 0.08
+Nodes (10): NotificationMoveService, NotificationMoveGuard, NotificationPlacement, NotificationUICapability, NotificationUIObservation, Phase 23 — Translate & Define (offline) — medium, no new permission, Phase 25 — Notification relocation — hard (fragile), uses existing Accessibility, Phases 21–26 — System-utility suite (proposed + planned, owner 2026-10-14; plan only, no code) (+2 more)
+
+### Community 167 - "DragLandingFlight"
+Cohesion: 0.14
+Nodes (5): DragLandingCurve, DragLandingFlight, .isStationary, DragLandingPlan, DragLandingSwitches
 
 ### Community 168 - "AccessibilityPermissionModel"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (4): AccessibilityPermissionModel, PermissionService, PermissionSpy, .service
 
 ### Community 169 - "AppLanguageOption"
-Cohesion: 0.09
-Nodes (17): AppLanguageOption, .appleLanguagesValue, .displayName, english, french, german, italian, japanese (+9 more)
+Cohesion: 0.06
+Nodes (22): AppLanguageOption, .appleLanguagesValue, .displayName, english, french, german, italian, japanese (+14 more)
 
 ### Community 170 - "AppMembershipProjectionTests"
-Cohesion: 0.11
-Nodes (6): AppMembershipProjection, .allMembers, .visibleMembers, 20a — Drawer becomes the Background Apps drawer, Phase 20 (proposed, owner 2026-10-13) — Background Apps drawer · hold-Control memory overlay · DeskBar survey, AppMembershipProjectionTests
+Cohesion: 0.14
+Nodes (4): AppMembershipProjection, .allMembers, .visibleMembers, AppMembershipProjectionTests
 
 ### Community 171 - "SystemResizeCursor"
-Cohesion: 0.12
-Nodes (7): SystemCursorHider, .isHidden, Native, SystemResizeCursor, .isActive, .isAvailable, ResizeCursorTests
+Cohesion: 0.14
+Nodes (6): SystemCursorHider, .isHidden, SystemResizeCursor, .isActive, .isAvailable, ResizeCursorTests
 
 ### Community 172 - "PermissionEffect"
-Cohesion: 0.07
-Nodes (27): PermissionActivationPolicy, accessory, regular, PermissionEffect, cancelRecoveryTask, closeGuide, freezeLift, launchNewInstance (+19 more)
+Cohesion: 0.04
+Nodes (47): PermissionEffect, cancelRecoveryTask, closeGuide, freezeLift, launchNewInstance, recheckNow, registerHotKey, releaseHotKey (+39 more)
 
 ### Community 173 - "ChipPressGestureModifier"
-Cohesion: 0.12
-Nodes (6): ChipPressAnimation, ChipPressDecision, ChipPressGestureModifier, ChipPressSwitches, View, ChipPressFeedbackTests
+Cohesion: 0.24
+Nodes (4): ChipPressAnimation, ChipPressGestureModifier, ChipPressSwitches, View
 
 ### Community 174 - "LauncherIconStyle"
-Cohesion: 0.07
+Cohesion: 0.08
 Nodes (24): LauncherIconStyle, glass, liquidBento, orbit, petal, starburstAperture, themed, tiles (+16 more)
 
 ### Community 175 - ".recognise"
-Cohesion: 0.07
-Nodes (14): Block, CaptureRules, SpotlightHandoff, Step, openKeyboard, openShortcuts, selectSpotlight, testHere (+6 more)
+Cohesion: 0.08
+Nodes (12): Block, CaptureRules, Phase 55 — Clipboard, capture, drawer (Lane D), CaptureController, State, cancelled, done, idle (+4 more)
 
 ### Community 176 - "NotchHoverMachine"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (9): NotchHoverMachine, .nextDeadline, NotchHoverZones, Camera mirror (page 8, `com.katikati.notch.mirror`), How it was driven, Notifications (page 9, `com.katikati.notch.notifications`), Phase 47b/47c — a live walk of the two new notch pages (2026-10-16), What is still unproven (+1 more)
 
 ### Community 177 - "NotesSyncFolder"
-Cohesion: 0.14
+Cohesion: 0.15
 Nodes (6): File, NotesSyncFolder, .exists, Scan, NotesSyncRunner, Report
 
 ### Community 178 - "NoteCipher"
@@ -1257,22 +1258,22 @@ Nodes (9): InMemoryNoteKeyProvider, NoteCipher, NoteKeyProviding, KeychainError,
 
 ### Community 179 - "DockLiquidGlassConfiguration"
 Cohesion: 0.08
-Nodes (13): DockTaskbarLiquidGlassBackgroundView, DockLiquidGlassConfiguration, DockLiquidGlassPanelGeometry, DockLiquidGlassPanelLifecyclePlan, DockLiquidGlassPanelRole, background, content, DockLiquidGlassRenderPath (+5 more)
+Nodes (14): .shouldAttemptTaskbarComposite, DockTaskbarLiquidGlassBackgroundView, DockLiquidGlassConfiguration, DockLiquidGlassPanelGeometry, DockLiquidGlassPanelLifecyclePlan, DockLiquidGlassPanelRole, background, content (+6 more)
 
 ### Community 180 - "Phase 16 (continued) — Control Center side panel (owner 2026-10-13; "still Phase 16, not 17")"
-Cohesion: 0.17
-Nodes (5): .body, NightShift, QuickToggleEngine, .keepAwakeOn, TrueTone
+Cohesion: 0.12
+Nodes (8): CoreBluetooth, IOKit.pwr_mgt, BluetoothPower, NightShift, QuickToggleEngine, .keepAwakeOn, TrueTone, VPNService
 
 ### Community 182 - "WindowDisplayTitleTests"
-Cohesion: 0.18
+Cohesion: 0.16
 Nodes (3): .fullTitle, WindowDisplayTitleTests, WindowDisplayTitle
 
 ### Community 183 - "LauncherOrbController"
-Cohesion: 0.13
-Nodes (3): LauncherOrbController, .isShown, OrbHitView
+Cohesion: 0.12
+Nodes (5): LauncherOrbController, .isShown, LauncherOrbView, OrbHitView, Phase 57 — Launcher modes & Control Center (Lane B; after Q-bar)
 
 ### Community 184 - "WidgetPreset"
-Cohesion: 0.19
+Cohesion: 0.21
 Nodes (5): WidgetPreset, .isBuiltIn, .localizedTitle, WidgetPresets, WidgetPresetTests
 
 ### Community 185 - "ContextPresetRules"
@@ -1281,7 +1282,7 @@ Nodes (5): ContextPresetController, ContextPresetRule, ContextPresetRules, Conte
 
 ### Community 186 - "LauncherQuery"
 Cohesion: 0.07
-Nodes (18): LauncherRunner, .isEnabled, .routed, LauncherCommandPrefixes, LauncherQuery, apps, math, path (+10 more)
+Nodes (17): LauncherRunner, .isEnabled, .routed, LauncherQuery, apps, math, path, process (+9 more)
 
 ### Community 187 - "HotKeyRecorderNSView"
 Cohesion: 0.12
@@ -1292,72 +1293,72 @@ Cohesion: 0.22
 Nodes (3): Candidate, FolderDropPlan, FolderDropPlanTests
 
 ### Community 189 - "Open under this phase, not in any of its slices"
-Cohesion: 0.04
-Nodes (32): AgendaEvent, AlarmStore, WorldClockStore, .isJoinable, AgendaEventOpener, .body, .body, TimeZonePicker (+24 more)
-
-### Community 190 - "StripDropRoutingTests"
-Cohesion: 0.06
-Nodes (13): OpenFolderGap, StripDropGhost, Target, keepApp, moveInto, none, pin, stash (+5 more)
+Cohesion: 0.05
+Nodes (20): AlarmStore, .body, AgendaEventAction, AgendaEventTarget, calendar, join, AgendaFitting, AlarmItem (+12 more)
 
 ### Community 191 - "FullscreenIntentMonitor"
-Cohesion: 0.17
+Cohesion: 0.15
 Nodes (6): AXReadResult, ContextChange, activeApplication, focusedWindow, windowDestroyed, FullscreenIntentMonitor
 
 ### Community 192 - "ShelfStore"
-Cohesion: 0.07
-Nodes (14): ShelfStore, .autoExpire, .expiryDays, .introSeen, .itemPaths, .shelfFolder, .storage, ShelfItem (+6 more)
+Cohesion: 0.08
+Nodes (10): ShelfStore, .autoExpire, .expiryDays, .introSeen, .itemPaths, .shelfFolder, .storage, ShelfItem (+2 more)
 
 ### Community 193 - "StripPointerTracker"
 Cohesion: 0.14
-Nodes (4): .body, PointerBox, StripPointerTracker, TrackingView
+Nodes (3): PointerBox, StripPointerTracker, TrackingView
 
 ### Community 194 - "ScreenTimeController"
 Cohesion: 0.05
-Nodes (18): ScreenTimeAlertPresenter, ScreenTimeAlertView, .body, .title, days, ScreenTimeLedger, ScreenTimeLimitAction, reached (+10 more)
+Nodes (19): ScreenTimeAlertPresenter, ScreenTimeAlertView, .body, .title, days, ScreenTimeLedger, ScreenTimeLimitAction, reached (+11 more)
 
 ### Community 195 - "SnippetExpander"
-Cohesion: 0.23
-Nodes (3): Expansion, SnippetExpander, SnippetExpanderTests
+Cohesion: 0.11
+Nodes (10): CustomCommand, .id, Expansion, Kind, command, link, snippet, SnippetExpander (+2 more)
 
 ### Community 196 - "StripDropRouting"
-Cohesion: 0.12
-Nodes (6): DockStripView, DragPasteboardInspector, ResultBox, Session, StripFileDropDelegate, StripDropRouting
+Cohesion: 0.26
+Nodes (4): .shelfFrame, .trashFrame, StripFileDropDelegate, StripDropRouting
 
 ### Community 197 - ".input"
 Cohesion: 0.13
 Nodes (11): BadgeReadPlan, Input, Verdict, fullWalk, pause, targeted, WalkReason, noCache (+3 more)
 
-### Community 198 - "Page fit — the five pages past the 1074 pt clamp, brought inside it (2026-10-15)"
-Cohesion: 0.40
-Nodes (4): 1. Heights (rule 10), 2. What each page gave up — cards, not controls, 5. How this was verified, Page fit — the five pages past the 1074 pt clamp, brought inside it (2026-10-15)
+### Community 198 - "WindowDisplayAttribution"
+Cohesion: 0.13
+Nodes (7): Display, Table, .connectedUUIDs, WindowDisplayAttribution, TableBox, WindowDisplayAttributionTests, WindowDisplayMoveTests
 
 ### Community 199 - "DragShakeWatcher"
-Cohesion: 0.10
-Nodes (7): DragShakeWatcher, .leftDown, ShelfDropTargetModel, ShelfDropTargetPanel, ShelfDropTargetView, .body, ShakeDetector
+Cohesion: 0.07
+Nodes (8): DragShakeWatcher, .leftDown, ShelfDropTargetModel, ShelfDropTargetPanel, ShelfDropTargetView, .body, ShakeDetector, ShakeDetectorTests
 
 ### Community 200 - "AppTrackerDisplayAttributionTests"
-Cohesion: 0.14
-Nodes (8): Display, Table, .connectedUUIDs, WindowDisplayAttribution, AppTrackerDisplayAttributionTests, DisplayAttributionFixedProcessProvider, DisplayAttributionNoopReader, TableBox
+Cohesion: 0.19
+Nodes (3): AppTrackerDisplayAttributionTests, DisplayAttributionFixedProcessProvider, DisplayAttributionNoopReader
 
 ### Community 201 - "StackPopupBackdrop"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (8): StackFrostedPlate, StackGlassContainer, StackGlassPlate, StackPopupBackdrop, .body, .theme, StackPopupShape, .body
 
 ### Community 202 - "TeleprompterModel"
-Cohesion: 0.08
-Nodes (18): TeleprompterModel, .fontSize, .mirrored, .script, .wpm, TeleprompterWindowController, .body, TeleprompterView (+10 more)
+Cohesion: 0.11
+Nodes (9): TeleprompterModel, .fontSize, .mirrored, .script, .wpm, TeleprompterScroll, Phase 37 — Teleprompter with link reader (notch page + floating window), Phase 38 — Lock-screen notch (EXPERIMENTAL; probe first, then owner decides) (+1 more)
+
+### Community 203 - "NotificationMirrorService"
+Cohesion: 0.22
+Nodes (3): NotificationMirrorService, .canReadBanners, .body
 
 ### Community 204 - "DockTheme.swift"
-Cohesion: 0.14
-Nodes (16): PanelHeightResizingKey, RunningDotEdgeKey, ChipPillUsesGlassKey, DockThemeStyleKey, DragCarrierSnapshotKey, EnvironmentValues, .chipPillUsesGlass, .dockThemeStyle (+8 more)
+Cohesion: 0.08
+Nodes (25): PanelHeightResizingKey, RunningDotEdgeKey, ChipPillUsesGlassKey, DockPanelMaterial, .nsMaterial, DockRGB, .color, DockRGBA (+17 more)
 
 ### Community 205 - "TaskbarScreenPlacement"
-Cohesion: 0.16
-Nodes (10): PinnedScreenSelection, TaskbarScreenPlacement, .allowsHoverScreenSwitching, allScreens, allScreensPerDisplay, followMouse, .mode, pinned (+2 more)
+Cohesion: 0.13
+Nodes (14): Item, Row, header, option, separator, TaskbarScreenPlacement, .allowsHoverScreenSwitching, allScreens (+6 more)
 
 ### Community 206 - "FileIndex"
-Cohesion: 0.10
-Nodes (8): DirectoryScanner, FileIndexService, .isEnabled, Entry, FileIndex, .count, Phase 30 — App management, Trash, and the remaining Sol + 29 gaps (owner 2026-10-14; PLAN ONLY), FileIndexTests
+Cohesion: 0.11
+Nodes (7): DirectoryScanner, FileIndexService, .isEnabled, Entry, FileIndex, .count, FileIndexTests
 
 ### Community 207 - "FileNoteKeyProvider"
 Cohesion: 0.16
@@ -1368,56 +1369,56 @@ Cohesion: 0.14
 Nodes (7): WindowLiftRecoveryEntry, WindowLiftRecoveryRect, .cgRect, WindowLiftRecoverySnapshot, WindowLiftRecoveryStore, .defaultURL, WindowLiftRecoveryTests
 
 ### Community 209 - "FullscreenIntentEventBridge"
-Cohesion: 0.15
-Nodes (5): SpaceSwitchDirection, left, right, FullscreenIntentAtomicState, FullscreenIntentEventBridge
+Cohesion: 0.12
+Nodes (3): FullscreenIntentAtomicState, FullscreenIntentEventBridge, FullscreenIntentEventTapThread
 
 ### Community 210 - "ChipSnapshotter"
 Cohesion: 0.18
 Nodes (5): ChipSnapshotter, SnapshotRoot, .body, StackPopupSnapshotProbe, Phase 9 — Strip semantics, interaction & summoning — DONE 2026-10-13 (9a–9e; owner sign-off; Hyper firing and custom-key shortcuts not live-tested, see check-log)
 
 ### Community 211 - "RunningApplicationStore"
-Cohesion: 0.17
-Nodes (3): RunningApplicationStore, Box, RunningApplicationStoreSweepTests
+Cohesion: 0.07
+Nodes (21): PolicyObservation, PolicyRecheck, ProcessIdentity, ProcessState, RunningApplicationStore, TerminationRecheck, ActivationPolicy, nonRegular (+13 more)
 
-### Community 212 - ".fallbacks"
-Cohesion: 0.17
-Nodes (7): AppFallbackChipDecision, Fallback, GroupKey, bundle, unbundled, Process, AppFallbackChipDecisionTests
+### Community 212 - "NotchOpenAnimation"
+Cohesion: 0.10
+Nodes (15): .animation, View, NotchMotionSpec, NotchOpenAnimation, boring, bounce, .closeSpring, .id (+7 more)
 
 ### Community 213 - "PermissionRecoveryCoordinator"
-Cohesion: 0.06
-Nodes (6): .actions, .quitButton, PermissionEffectHandler, PermissionRecoveryCoordinator, .phase, PermissionWatchdogGate
+Cohesion: 0.07
+Nodes (5): .actions, PermissionEffectHandler, PermissionRecoveryCoordinator, .phase, PermissionWatchdogGate
 
 ### Community 214 - "DockGlassRefractionObserver"
-Cohesion: 0.09
-Nodes (13): DockGlassPresentation, .shouldAttemptTaskbarComposite, .usesSystemVariant, DockGlassRefractionObserver, DockGlassRim, .body, .cornerModulation, DockLiquidGlassPlate (+5 more)
+Cohesion: 0.08
+Nodes (16): DockGlassBackdrop, .body, .overlayFill, DockGlassPresentation, .usesSystemVariant, DockGlassRefractionObserver, DockGlassRim, .body (+8 more)
 
 ### Community 215 - "StripWheelScrollInterceptor"
 Cohesion: 0.19
 Nodes (3): WheelScrollInterceptorRepresentable, WheelScrollInterceptorView, .intrinsicContentSize
 
-### Community 216 - "ChipPillMetricsTests"
-Cohesion: 0.14
-Nodes (4): ChipPillMetrics, WindowTitleTextMetrics, ChipPillMetricsTests, WindowTitleTooltipTests
+### Community 216 - "CGFloat"
+Cohesion: 0.03
+Nodes (37): CGFloat, .clampedToAtLeastOne, DrawerCapsulePreviewMetrics, .contentWidth, .miniGridWidth, .multiWindowChip, .pillEmphasisBackground, LabelBoxWidthDriver (+29 more)
 
 ### Community 217 - "CodingKeys"
 Cohesion: 0.10
 Nodes (19): CodingKeys, archived, body, color, created, id, modified, order (+11 more)
 
-### Community 218 - "SettingsBentoSplit"
-Cohesion: 0.07
-Nodes (25): SettingsBentoSplit, .body, .launcherPane, Advanced is the last tab, Reproducing the numbers, Slice 6 — the Shortcuts pane, and Layout emptied: verified, no work needed, Slice 7 — the Advanced/About tidy, Slices 6 + 7, two rows to a line, and Advanced last — live evidence (2026-10-15) (+17 more)
+### Community 218 - "2026-10-18 — live walk of the redesigned Settings window and the vertical dock rails"
+Cohesion: 0.12
+Nodes (15): LauncherFocus, Position, 2026-10-18 — live walk of the redesigned Settings window and the vertical dock rails, How it was driven, Open items — both fixed the same day (see the next section), Re-run after the pass, The dock in both vertical placements, The eleven pages (window 940 pt wide, as the window sizes itself) (+7 more)
 
-### Community 219 - "LiveActivityKind"
-Cohesion: 0.11
-Nodes (14): LiveIslandStyle, .body, LiquidBlur, NotchIslandView, .body, LiveActivity, .ringProgress, LiveActivityKind (+6 more)
+### Community 219 - "ClaudeHookConfig"
+Cohesion: 0.16
+Nodes (6): ClaudeHookConfig, ClaudeHookConfigError, notAJSONObject, ClaudeHookEvent, idle, working
 
 ### Community 220 - "ShelfActions"
-Cohesion: 0.14
-Nodes (3): ShelfActions, ShelfGridPopupView, .body
+Cohesion: 0.11
+Nodes (5): ShelfActions, ImageReducePlan, PDFReducePlan, ImageReducePlanTests, PDFReducePlanTests
 
 ### Community 221 - "Phase 53 — Input features (Lane C; after Q-input; all through the pure `KeyGuardPipeline`)"
-Cohesion: 0.21
-Nodes (7): ClipboardImagePaster, Failure, automationRefused, .message, noFinderWindow, noImage, writeFailed
+Cohesion: 0.12
+Nodes (9): PasteImageNaming, ClipboardImagePaster, Failure, automationRefused, .message, noFinderWindow, noImage, writeFailed (+1 more)
 
 ### Community 222 - "RadialDialPanelController"
 Cohesion: 0.11
@@ -1428,16 +1429,12 @@ Cohesion: 0.13
 Nodes (6): YearProgress, .daysLeft, .fraction, .percent, YearProgressTests, .cal
 
 ### Community 224 - "StripResizeGrip"
-Cohesion: 0.16
+Cohesion: 0.14
 Nodes (8): StripResizeGripController, StripResizeGripEvent, began, changed, ended, hover, StripResizeGripHost, StripResizeGripView
 
-### Community 225 - "RunningStateSweepDecision"
-Cohesion: 0.23
-Nodes (12): ActivationPolicy, nonRegular, regular, Generation, Observation, Plan, Removal, RemovalReason (+4 more)
-
 ### Community 226 - "StopwatchModel"
-Cohesion: 0.07
-Nodes (15): CountdownTimerModel, .progress, EventCountdown, StopwatchModel, .isRunning, .splits, TallLayoutPlanner, TallTile (+7 more)
+Cohesion: 0.25
+Nodes (4): EventCountdown, StopwatchModel, .isRunning, .splits
 
 ### Community 227 - ".run"
 Cohesion: 0.09
@@ -1449,63 +1446,63 @@ Nodes (5): .body, LauncherState, LauncherStore, .defaultURL, LauncherStoreTests
 
 ### Community 230 - "CommandBarResult"
 Cohesion: 0.05
-Nodes (32): BookmarkService, Bookmark, BookmarkImport, CommandBarResult, action, answer, app, bookmark (+24 more)
+Nodes (33): BookmarkService, Bookmark, BookmarkImport, CommandBarResult, action, answer, app, bookmark (+25 more)
 
-### Community 231 - "4.4 Findings from this investigation (verified unless marked)"
-Cohesion: 0.05
-Nodes (27): ContentView, .body, MarqueeText, .body, .fade, .overflow, NotchMusicPanel, .body (+19 more)
+### Community 231 - "SettingsTabTests"
+Cohesion: 0.14
+Nodes (8): Claims, Hot files (integrator only), How to use, LANES.md — live claim board, Lanes (what each owns), Settings pages: batched (49e), Unknown, SettingsTabTests
 
 ### Community 232 - "FrontmostWindowGeometryObserver"
 Cohesion: 0.15
 Nodes (6): Event, focusedWindowChanged, geometryChanged, windowCreated, windowDestroyed, FrontmostWindowGeometryObserver
 
-### Community 233 - "Where everything went"
-Cohesion: 0.20
-Nodes (8): ControlCenterAccountRow, .avatar, .body, Pinboard retirement (Phase 16m, 2026-10-13, owner-ordered full delete), Strings, Where everything went, CurrentUser, CurrentUserReader
+### Community 233 - "Target"
+Cohesion: 0.11
+Nodes (8): OpenFolderGap, Target, keepApp, moveInto, none, pin, stash, trash
 
 ### Community 234 - ".record"
-Cohesion: 0.23
-Nodes (7): MinimizeHandoffTarget, Verdict, none, siblingTakesOver, switchTo, ZOrderedWindow, MinimizeHandoffTargetTests
+Cohesion: 0.12
+Nodes (9): AppFallbackRetentionPolicy, WindowRecord, MinimizeHandoffTarget, Verdict, none, siblingTakesOver, switchTo, ZOrderedWindow (+1 more)
 
 ### Community 235 - "MenuBarMetric"
-Cohesion: 0.06
-Nodes (22): MenuBarSystemItem, MenuBarBattery, MenuBarMetric, battery, cpu, gpu, .id, memory (+14 more)
+Cohesion: 0.08
+Nodes (21): MenuBarBattery, MenuBarMetric, battery, cpu, gpu, .id, memory, network (+13 more)
 
 ### Community 236 - "TaskList"
-Cohesion: 0.30
-Nodes (3): items, TaskList, TaskListTests
+Cohesion: 0.18
+Nodes (6): items, TaskItem, TaskList, .openCount, .runningID, TaskListTests
 
-### Community 237 - "StripContextMenuZoneTests"
-Cohesion: 0.16
-Nodes (3): DockPanelHeight, .scale, StripContextMenuZoneTests
-
-### Community 238 - "KatiKati — Feature Roadmap, Quality Audit & Parallel-Work Guide (Phases 49–59, Track Q)"
-Cohesion: 0.07
-Nodes (22): StartupUIPolicy, Outcome, present, skipAndMarkSeen, skipWithoutMarking, WelcomeGuideDecision, 0. How to use this file, 1.1 Shape (+14 more)
+### Community 238 - "6. Phases 50–58 — new features (each slice ≤ ~300 lines; "Est." is a first guess)"
+Cohesion: 0.12
+Nodes (16): 0. How to use this file, 1.1 Shape, 1. Ground truth (what the code actually contains), 2. Corrections to the pasted plans, 4.1 Four gates for every feature, 4.3 Past work: checks the repo already admits are owed (HYBRID_PLAN line refs), 4.5 Per-feature audit rows, 4. Track Q — quality audit of what is already built (past and present) (+8 more)
 
 ### Community 239 - "FolderChipDropZoneTests"
-Cohesion: 0.14
-Nodes (6): FolderChipDropGeometry, FolderChipDropZone, folderZone, liveZone, outsideStrip, FolderChipDropZoneTests
+Cohesion: 0.13
+Nodes (7): .folderZoneMinX, FolderChipDropGeometry, FolderChipDropZone, folderZone, liveZone, outsideStrip, FolderChipDropZoneTests
+
+### Community 240 - "InventoryAdmissionProbeVerdict"
+Cohesion: 0.09
+Nodes (21): InventoryAdmissionProbeVerdict, admit, admitFinderPersistent, skipAlreadyTracked, skipIdentityMismatch, skipNoEligible, skipNotRegular, skipProcessUnavailable (+13 more)
 
 ### Community 241 - "DispatchWorkItem"
-Cohesion: 0.19
-Nodes (4): DispatchWorkItem, DirectoryWatcher, wait, DirectoryWatcherStartTests
+Cohesion: 0.18
+Nodes (3): DirectoryWatcher, wait, DirectoryWatcherStartTests
 
-### Community 242 - ".isEnabled"
-Cohesion: 0.13
-Nodes (3): .skipsPermissionGate, DebugSwitchTests, DockLiquidGlassConfigurationTests
-
-### Community 244 - "SettingsShell"
-Cohesion: 0.04
-Nodes (42): SettingsShell, .body, .header, .keyboardShortcuts, .stagePicker, .stagePreference, SettingsGlowSchedule, clock (+34 more)
+### Community 244 - "SettingsGlowSchedule"
+Cohesion: 0.12
+Nodes (16): SettingsGlowSchedule, clock, dawn, day, dusk, .fixedHour, night, off (+8 more)
 
 ### Community 245 - "WeatherState"
 Cohesion: 0.03
-Nodes (75): .accent, .topBar, WeatherIPadChip, .body, .ink, .ladder, .reading, .tint (+67 more)
+Nodes (54): .accent, WeatherIPadChip, .body, .ink, .ladder, .reading, .tint, HourLine (+46 more)
 
-### Community 247 - "DrawerCapsuleScrollView"
-Cohesion: 0.15
-Nodes (8): DrawerCapsuleScrollEvent, drag, dragEnded, step, DrawerCapsuleScrollReceiver, DrawerCapsuleScrollView, .enabled, .isPointerInside
+### Community 246 - ".extract"
+Cohesion: 0.11
+Nodes (10): .links, LinkFetchPolicy, ReadableText, ScriptLinks, TeleprompterSpeed, Verdict, allowed, insecure (+2 more)
+
+### Community 247 - "DrawerCapsuleButton"
+Cohesion: 0.06
+Nodes (21): AppIconResolver, ChipNameTooltip, DrawerCapsuleAppIcon, .body, DrawerCapsuleButton, .capsuleSide, .dockScale, .hoverEnabled (+13 more)
 
 ### Community 248 - "RecentlyClosedStore"
 Cohesion: 0.14
@@ -1515,57 +1512,57 @@ Nodes (3): RecentlyClosedStore, RecentlyClosedList, RecentlyClosedListTests
 Cohesion: 0.14
 Nodes (5): WindowInventoryAnomalyLog, .currentFileURL, .isEnabled, .lockFileURL, WindowInventoryLogConfiguration
 
-### Community 250 - "StripOrderStore"
-Cohesion: 0.07
-Nodes (6): StripOrderStore, .isInventoryLogEnabled, KeptAppPositionTests, TimeBox, BundleObserver, TestDefaults
-
 ### Community 251 - "QuickAddState"
-Cohesion: 0.09
-Nodes (17): GlassQuickAddView, .body, .menu, .morph, .saveBubble, Kind, note, reminder (+9 more)
+Cohesion: 0.13
+Nodes (12): Kind, note, reminder, task, QuickAddState, .canSave, .kind, .trimmed (+4 more)
 
 ### Community 252 - "NotchMusicGlow"
 Cohesion: 0.17
 Nodes (6): NotchMusicGlow, edge, halo, .id, pulse, NotchMusicGlowTests
 
 ### Community 253 - "WeatherService"
-Cohesion: 0.08
-Nodes (9): WeatherService, .isEnabled, CitySearchPopover, .body, .body, .body, WeatherCache, .standard (+1 more)
+Cohesion: 0.07
+Nodes (14): WeatherService, .isEnabled, .topBar, .header, WeatherNoticeBar, .body, CitySearchPopover, .body (+6 more)
+
+### Community 254 - "AppLaunchTargetDecision"
+Cohesion: 0.16
+Nodes (5): AppLaunchOpenConfiguration, AppLaunchTargetDecision, Candidate, .isEligibleMainApplication, AppLaunchTargetDecisionTests
 
 ### Community 255 - "Sub-slices"
-Cohesion: 0.05
-Nodes (35): CalendarClockStylePicker, .body, CalendarLayoutPicker, .body, CalendarPalettePicker, .body, SettingsPageColumn, WeatherPanelView (+27 more)
+Cohesion: 0.06
+Nodes (20): CalendarLayoutPicker, .body, .body, WidgetFloatingPanel, .canBecomeKey, WidgetPanelController, .isVisible, .other (+12 more)
 
 ### Community 257 - "NotesSyncPlanTests"
-Cohesion: 0.21
+Cohesion: 0.20
 Nodes (4): NotesSyncPlan, RemoteFile, .effectiveModified, NotesSyncPlanTests
 
 ### Community 258 - "SettingsCoordinatorTests.swift"
-Cohesion: 0.18
-Nodes (4): ControlledLaunchService, ControlledLaunchStateReader, ControlledNativeDockService, ControlledNativeDockStateReader
+Cohesion: 0.12
+Nodes (6): ControlledLaunchService, ControlledLaunchStateReader, ControlledNativeDockService, ControlledNativeDockStateReader, UpdateControlStub, .changes
 
 ### Community 259 - ".mainWindowIdentifiableBundleIDs"
 Cohesion: 0.25
 Nodes (3): MessagingZoneAdmission, WindowFact, MessagingZoneAdmissionTests
 
 ### Community 260 - "EdgeBarStyle"
-Cohesion: 0.12
-Nodes (16): .body, EdgeStyleTokens, .ink, .isGlass, .plateRadius, .rim, .secondaryInk, .shadow (+8 more)
+Cohesion: 0.13
+Nodes (13): .body, EdgeStyleTokens, .ink, .isGlass, .plateRadius, .rim, .secondaryInk, .shadow (+5 more)
 
 ### Community 261 - "20c — DeskBar survey: what else is worth taking (status vs KatiKati today)"
-Cohesion: 0.10
-Nodes (10): .body, Polar, day, night, SolarPhaseResolver, SunCalculator, SunTimes, SolarPhaseTests (+2 more)
+Cohesion: 0.14
+Nodes (9): PhaseSurfaceTint, .body, Polar, day, night, SolarPhaseResolver, SunCalculator, SunTimes (+1 more)
 
 ### Community 262 - "ControlCenterView"
-Cohesion: 0.05
-Nodes (38): ControlCenterView, .batteryPill, .cardFill, .cardRadius, .cardStroke, .clockPill, .connectivity, .header (+30 more)
+Cohesion: 0.03
+Nodes (68): ControlCenterAccountRow, .avatar, .body, ControlCenterNetworkRow, .body, ControlCenterView, .activeFill, .batteryPill (+60 more)
 
 ### Community 263 - "FinderNewWindowTargetTests"
 Cohesion: 0.06
 Nodes (19): Answer, directory, notDirectory, unknown, BoundedDirectoryProbe, FinderNewWindowTarget, folder, home (+11 more)
 
 ### Community 264 - "AgentUsageTests"
-Cohesion: 0.07
-Nodes (5): AgentCodexParser, AgentCopilotParser, AgentOpenCodeParser, AgentStoreRow, AgentUsageTests
+Cohesion: 0.06
+Nodes (8): AgentClaudeParser, AppSample, AgentCodexParser, AgentCopilotParser, AgentOpenCodeParser, AgentStoreRow, 48c — AI Mission Control reports every AI tool that records usage (PLANNED — not started), AgentUsageTests
 
 ### Community 265 - "DocumentUsageRecord"
 Cohesion: 0.10
@@ -1576,12 +1573,12 @@ Cohesion: 0.15
 Nodes (3): .raw, StripSharedAffixTrim, StripSharedAffixTrimTests
 
 ### Community 267 - "TopProcess"
-Cohesion: 0.13
-Nodes (6): BatteryHealth, TopProcess, .canAct, BatteryHealthReader, TopProcessReader, SystemHealthTests
+Cohesion: 0.27
+Nodes (5): TopAppsTile, .body, TopProcess, .canAct, TopProcessReader
 
 ### Community 268 - "HoverStyle"
-Cohesion: 0.07
-Nodes (18): HoverStyle, .isExpressive, quiet, standard, .quietHoverFeedback, .showsHover, .quietHoverFeedback, .showsHover (+10 more)
+Cohesion: 0.05
+Nodes (23): HoverStyle, .isExpressive, quiet, standard, .quietHoverFeedback, .showsHover, .quietHoverFeedback, .showsHover (+15 more)
 
 ### Community 269 - "AppRemoval"
 Cohesion: 0.16
@@ -1592,44 +1589,36 @@ Cohesion: 0.15
 Nodes (10): Added, [Unreleased] — Settings redesign, Phase 6: time-of-day glow, Phase, dawn, day, dusk, night, RGB (+2 more)
 
 ### Community 271 - "SettingsCoordinator"
-Cohesion: 0.14
-Nodes (7): NativeDockPreferencesServicing, SettingsCoordinator, .automaticallyChecksForUpdates, .canCheckForUpdates, .pendingUpdateVersion, .versionTitle, UpdateControlling
+Cohesion: 0.10
+Nodes (10): HotKeyChangeError, registrationFailed, rejected, NativeDockApplyOutcome, SettingsCoordinator, .automaticallyChecksForUpdates, .canCheckForUpdates, .pendingUpdateVersion (+2 more)
 
 ### Community 272 - "PrivacyDots"
 Cohesion: 0.18
-Nodes (8): PrivacyDots, .isEmpty, CoreAudio, CoreMediaIO, PrivacyDotController, PrivacyDotsView, .body, PrivacyUseProbe
+Nodes (10): EjectPolicy, PrivacyDots, .isEmpty, CoreAudio, CoreMediaIO, Phase 36 — Small daily features (all cheap; each its own slice, own toggle, default off), PrivacyDotController, PrivacyDotsView (+2 more)
 
-### Community 273 - "IconSet"
-Cohesion: 0.16
-Nodes (5): .artwork, IconSet, classic, modern, IconSetTests
-
-### Community 274 - "FocusFollowService"
-Cohesion: 0.11
-Nodes (10): FocusFollowService, .isEnabled, Target, Action, hide, minimize, toggle, DockClickPolicy (+2 more)
-
-### Community 275 - "TaskbarPerDisplaySeedController"
-Cohesion: 0.14
-Nodes (5): DisplayTopologyStore, ScreenTopologySnapshot, TaskbarPerDisplaySeedController, 0. Sources at a glance, DisplayTopologyStoreTests
+### Community 273 - ".make"
+Cohesion: 0.13
+Nodes (4): CarrierLayerActionGate, BundleObserver, TestDefaults, WidgetPanelSettingsTests
 
 ### Community 276 - "KatiKati"
 Cohesion: 0.12
 Nodes (17): Control Center, Credits, Developers, Features, Install, KatiKati, Languages, Launcher (+9 more)
 
 ### Community 277 - "RadialDialPage"
-Cohesion: 0.14
-Nodes (17): RadialDialIcon, app, sfSymbol, system, RadialDialItem, RadialDialPage, RadialDialPageID, apps (+9 more)
-
-### Community 278 - "ChipPanelLayout"
-Cohesion: 0.20
-Nodes (4): ChipPanelLayout, Placement, PreviewGrid, ChipPanelLayoutTests
+Cohesion: 0.19
+Nodes (13): RadialDialItem, RadialDialPage, RadialDialPageID, apps, main, snapping, tools, RadialTriggerMode (+5 more)
 
 ### Community 279 - "DockBadgeReader"
-Cohesion: 0.18
-Nodes (8): AttributeRead, readError, value, DockBadgeReader, DockBadgeTargetedOutcome, cacheInvalid, ok, DockItemCache
+Cohesion: 0.28
+Nodes (4): AttributeRead, readError, value, DockBadgeReader
+
+### Community 280 - "AppTrackerProcessProviding"
+Cohesion: 0.13
+Nodes (11): AppTrackerProcessProviding, LiveAppTrackerProcessProvider, NonRegularEvictionDecision, Verdict, evict, keepFinder, keepHasSeats, keepIdentityChanged (+3 more)
 
 ### Community 281 - "SystemMonitorController"
-Cohesion: 0.08
-Nodes (19): FocusTimerController, .body, ProductivityServices, NotchActivityPanel, .controls, NotchQuickActions, .body, cardTitle() (+11 more)
+Cohesion: 0.07
+Nodes (22): FocusTimerController, .body, DrawerCapsuleBackgroundDiscView, .body, DynamicGaugeCompactDiscView, .body, cardTitle(), chip() (+14 more)
 
 ### Community 282 - "package_release"
 Cohesion: 0.19
@@ -1639,77 +1628,81 @@ Nodes (19): install_local_release.sh script, clean_stale_katikati(), clean_stale
 Cohesion: 0.18
 Nodes (6): StripDisplayFilter, Subject, launcher, runningWithoutWindow, window, StripDisplayFilterTests
 
-### Community 285 - "TorrentEngineClient"
-Cohesion: 0.11
-Nodes (3): .binary, TorrentEngineClient, TorrentSessionEntry
+### Community 285 - "HyperkeyEngineTests"
+Cohesion: 0.16
+Nodes (6): Decision, fire, passThrough, swallow, HyperkeyEngine, HyperkeyEngineTests
 
 ### Community 286 - "KatiKati"
 Cohesion: 0.12
 Nodes (16): KatiKati, 任务栏, 功能, 启动台, 安装, 开发者, 快捷键与手势, 控制中心 (+8 more)
 
-### Community 287 - "CameraMirrorService"
-Cohesion: 0.13
-Nodes (9): CameraMirrorService, .isAuthorized, MeetingControlsCard, .muted, NotchMirrorPageView, .body, .content, .currentName (+1 more)
+### Community 287 - "SolarPhase"
+Cohesion: 0.19
+Nodes (9): SkyPalette, SkyRGB, SolarPhase, dawn, day, dusk, golden, night (+1 more)
 
 ### Community 288 - "ScrollWheelDeltas"
-Cohesion: 0.17
+Cohesion: 0.18
 Nodes (3): ScrollReverserDecision, ScrollWheelDeltas, ScrollReverserDecisionTests
 
 ### Community 289 - "Phase 29 — Command bar, learned from Snap / Cling / oil-find (owner 2026-10-14; PLAN ONLY, no code)"
 Cohesion: 0.16
-Nodes (6): FileSearchService, FileEntry, FileQuery, .isValid, Phase 29 — Command bar, learned from Snap / Cling / oil-find (owner 2026-10-14; PLAN ONLY, no code), FileQueryTests
+Nodes (5): FileSearchService, FileQuery, .isValid, Phase 29 — Command bar, learned from Snap / Cling / oil-find (owner 2026-10-14; PLAN ONLY, no code), FileQueryTests
 
 ### Community 290 - "WindowLayoutMemory"
-Cohesion: 0.21
+Cohesion: 0.19
 Nodes (5): Move, Window, .key, WindowLayoutMemory, WindowLayoutMemoryTests
 
-### Community 291 - "SolarPhase"
-Cohesion: 0.06
-Nodes (32): SkyPalette, SkyRGB, SolarPhase, dawn, day, dusk, golden, night (+24 more)
+### Community 291 - "WallpaperSky"
+Cohesion: 0.10
+Nodes (14): WallpaperDebugOverride, WallpaperMode, both, time, weather, WallpaperSelector, WallpaperSky, clear (+6 more)
 
 ### Community 292 - "LauncherMenuPlan"
 Cohesion: 0.14
 Nodes (10): LauncherMenuItemKind, hide, membership, open, quit, recentDocuments, show, windowList (+2 more)
 
-### Community 293 - "SettingsWindowContent"
-Cohesion: 0.06
-Nodes (27): BehaviourSettingsBlock, .fullscreenIntentNote, WindowBehaviourSettingsBlock, SettingsGelButtonStyle, AppearanceModeCards, .body, SettingsAlert, .body (+19 more)
+### Community 293 - "GlassQuickAddView"
+Cohesion: 0.21
+Nodes (5): GlassQuickAddView, .body, .menu, .morph, .saveBubble
 
-### Community 295 - "LauncherSearchPosition"
-Cohesion: 0.14
-Nodes (8): LauncherScreenInsets, LauncherSearchPosition, bottom, .fieldWidth, left, right, top, LauncherLayoutTests
+### Community 295 - "CaseIterable"
+Cohesion: 0.03
+Nodes (50): AppearanceMode, dark, .displayName, light, system, DrawerPlacement, left, right (+42 more)
 
-### Community 296 - "TaskItem"
-Cohesion: 0.17
-Nodes (6): Array, .smartOrdered, TaskDisplay, TaskItem, .openCount, .runningID
+### Community 296 - "DeckLayout"
+Cohesion: 0.16
+Nodes (6): DeckLayout, .cap, .overflows, .spacing, .stackHeight, DeckGeometryTests
 
 ### Community 297 - "SpaceLayoutDirectory"
-Cohesion: 0.22
-Nodes (5): Entry, SpaceLayoutDirectory, .hasAnyFullscreenNeighbor, SpaceLayoutSnapshot, .hasAnyFullscreenNeighbor
+Cohesion: 0.16
+Nodes (8): Entry, SpaceLayoutDirectory, .hasAnyFullscreenNeighbor, SpaceLayoutSnapshot, .hasAnyFullscreenNeighbor, SpaceSwitchDirection, left, right
 
 ### Community 298 - "RadialDialWedgeView"
-Cohesion: 0.11
-Nodes (9): RadialDialWedgeView, .accent, .body, .hoverAnimation, .hoverFill, .lift, .shape, RadialSectorShape (+1 more)
+Cohesion: 0.10
+Nodes (10): RadialDialWedgeView, .accent, .body, .content, .hoverAnimation, .hoverFill, .lift, .shape (+2 more)
 
 ### Community 299 - "ChipPanelHoverMachine"
 Cohesion: 0.19
 Nodes (8): ChipPanelHoverMachine, .isIdle, Output, close, none, open, switchTo, ChipPanelHoverMachineTests
 
-### Community 300 - "VolumeScrollCatcherView"
-Cohesion: 0.15
-Nodes (4): DockVisualEffectView, VolumeScrollCatcher, VolumeScrollCatcherView, .intrinsicContentSize
+### Community 300 - ".frontmostLiftCandidate"
+Cohesion: 0.32
+Nodes (3): WindowLiftCGCandidate, WindowLiftCGScanResult, WindowLiftCGWindowProbe
 
 ### Community 301 - ".entry"
 Cohesion: 0.23
 Nodes (3): AppNewMenuPlan, Entry, AppNewMenuPlanTests
 
 ### Community 303 - "RadialDialTheme"
-Cohesion: 0.18
+Cohesion: 0.20
 Nodes (11): PreviewView, .body, .fillColor, .strokeColor, RadialSnapPreviewPanelController, RadialDialTheme, darkObsidian, lilacGlass (+3 more)
 
+### Community 304 - ".isAlive"
+Cohesion: 0.15
+Nodes (4): Entry, ProcessGenerationCache, ProcessLiveness, ProcessLivenessTests
+
 ### Community 305 - "PinnedFolderCoverStore"
-Cohesion: 0.10
-Nodes (3): Entry, FolderContentsLoaderTests, FolderSortTests
+Cohesion: 0.09
+Nodes (6): ShelfGridPopupView, .body, Entry, FolderContentsLoader, FolderContentsLoaderTests, FolderSortTests
 
 ### Community 306 - "AppMembershipMenuPlan"
 Cohesion: 0.16
@@ -1719,49 +1712,49 @@ Nodes (8): AppMembershipMenuPlan, Item, keep, messaging, Surface, drawer, strip,
 Cohesion: 0.08
 Nodes (22): Candidate, .id, QuitAppRulesTable, .addition, .body, .explanation, .header, .rules (+14 more)
 
-### Community 308 - "TimeInterval"
-Cohesion: 0.05
-Nodes (35): Action, abandon, clear, none, schedule, start, write, AnimationWriteFailure (+27 more)
+### Community 308 - "Sub-slices"
+Cohesion: 0.08
+Nodes (19): Action, abandon, clear, none, schedule, start, write, EventPollCoalescer (+11 more)
 
 ### Community 309 - "LauncherIconView"
-Cohesion: 0.12
-Nodes (12): LauncherOrbView, .body, LauncherFABView, .body, LauncherIconView, .body, .gradientIcon, .mark (+4 more)
+Cohesion: 0.08
+Nodes (18): .body, LauncherFABView, .body, LauncherIconView, .body, .gradientIcon, .mark, .starburstApertureIcon (+10 more)
+
+### Community 311 - "EffectSpy"
+Cohesion: 0.08
+Nodes (4): PermissionActivationPolicy, accessory, regular, EffectSpy
 
 ### Community 312 - "LiveActivity"
-Cohesion: 0.08
-Nodes (14): LiveIslandDockCapsule, MusicScrubBar, .body, .body, NowPlayingTapRunner, OpensSourceApp, RailMediaTile, View (+6 more)
+Cohesion: 0.06
+Nodes (27): LiveIslandStyle, .body, LiveIslandDockCapsule, .body, MusicScrubBar, .body, NowPlayingTapRunner, OpensSourceApp (+19 more)
 
-### Community 313 - "ClipEntry"
-Cohesion: 0.20
-Nodes (4): ClipboardHistory, .displayOrder, ClipEntry, ClipboardHistoryTests
+### Community 313 - "ClipboardMonitor"
+Cohesion: 0.09
+Nodes (7): ClipboardHistory, .displayOrder, ClipboardRetention, ClipEntry, ClipboardMonitor, ClipboardHistoryTests, ClipboardRetentionTests
 
 ### Community 314 - "FileDragItemProviderTests"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (3): .body, FileDragItemProvider, FileDragItemProviderTests
 
 ### Community 315 - ".validate"
-Cohesion: 0.13
-Nodes (8): HotKeyShortcutRejection, forbiddenKey, missingPrimaryModifier, reservedBySystem, unreliableModifiers, HotKeyShortcutValidation, Carbon.HIToolbox, HotKeyShortcutValidationTests
-
-### Community 316 - ".columns"
-Cohesion: 0.19
-Nodes (7): .gridMinHeight, .switchGrid, Added, Changed, [Unreleased] — Phase 58d: the Control Center wears the dock's theme, ControlCenterGrid, ControlCenterGridTests
+Cohesion: 0.09
+Nodes (10): HotKeyGlyphs, HotKeyShortcutRejection, forbiddenKey, missingPrimaryModifier, reservedBySystem, unreliableModifiers, HotKeyShortcutValidation, Carbon.HIToolbox (+2 more)
 
 ### Community 317 - "FullscreenIntentRequest"
-Cohesion: 0.15
+Cohesion: 0.17
 Nodes (8): FullscreenIntentCacheDecision, FullscreenIntentDecision, FullscreenIntentRequest, FullscreenIntentSnapshot, FullscreenIntentSource, greenButton, keyboardShortcut, FullscreenSpaceSwitchDecision
 
 ### Community 318 - "RadialDialView"
-Cohesion: 0.20
-Nodes (8): RadialDialMetrics, .center, RadialDialState, RadialDialView, .backdrop, .backdropTint, .currentPage, .outerBorderColor
+Cohesion: 0.22
+Nodes (7): RadialDialMetrics, .center, RadialDialState, RadialDialView, .backdrop, .backdropTint, .outerBorderColor
 
-### Community 319 - "ActionExecutionSwitchesTests"
+### Community 319 - ".resolve"
 Cohesion: 0.16
-Nodes (3): ActionExecutionSwitches, WindowHandleCapturePlan, ActionExecutionSwitchesTests
+Nodes (5): .body, Added, [Unreleased] — Settings redesign, Phase 3: live stage for Appearance and Widgets, SettingsStageSize, SettingsLayoutClassTests
 
 ### Community 320 - "AXWindowReadResult"
 Cohesion: 0.08
-Nodes (18): AppTrackerWindowReading, AXWindowReadResult, .isSuccess, success, unread, .windowsOrEmpty, NonRegularEvictionDecision, Verdict (+10 more)
+Nodes (16): AXWindowReadResult, .isSuccess, success, unread, .windowsOrEmpty, AXWindowSnapshot, .title, AXWindowTitleRead (+8 more)
 
 ### Community 321 - "HoverPollThrottle"
 Cohesion: 0.23
@@ -1776,20 +1769,20 @@ Cohesion: 0.22
 Nodes (3): BadgeStoreTests, BadgeUptimeBox, .value
 
 ### Community 324 - "NowPlayingTapPreset"
-Cohesion: 0.08
-Nodes (18): .displayTitle, .pageAccent, ArtworkAccentCache, ArtworkAccent, NowPlayingArtworkAccent, .isOn, NowPlayingOpenTap, NowPlayingTapAction (+10 more)
+Cohesion: 0.10
+Nodes (13): .pageAccent, ArtworkAccentCache, ArtworkAccent, NowPlayingProgress, NowPlayingArtworkAccent, .isOn, NowPlayingOpenTap, NowPlayingTapAction (+5 more)
 
 ### Community 325 - "Phase 42 — the rail packs at the Dock's spacing, and the Dock's own icons are on the bar"
 Cohesion: 0.13
-Nodes (12): Style, Decisions taken with the owner (before any code, Standing Rules §1.4), Evidence, Notes, Open, Phase 42 — the rail packs at the Dock's spacing, the Dock's icons on the bar, Scope in, Scope out (+4 more)
+Nodes (12): NativeDockPinnedApps, Style, Decisions taken with the owner (before any code, Standing Rules §1.4), Evidence, Notes, Open, Phase 42 — the rail packs at the Dock's spacing, the Dock's icons on the bar, Scope in (+4 more)
 
 ### Community 326 - "NotchContinuousMaskShape"
 Cohesion: 0.22
 Nodes (4): NotchContinuousMaskShape, .animatableData, .silhouette, NotchContinuousMaskShapeTests
 
 ### Community 327 - "MemoryOverlayController"
-Cohesion: 0.19
-Nodes (5): MemoryOverlayController, .isEnabled, ProcessMemoryReader, View, 20b — Hold Control → memory (RAM) per app on the dock
+Cohesion: 0.23
+Nodes (4): MemoryOverlayController, .isEnabled, ProcessMemoryReader, 20b — Hold Control → memory (RAM) per app on the dock
 
 ### Community 329 - "UnsmoothedLabel"
 Cohesion: 0.19
@@ -1800,43 +1793,43 @@ Cohesion: 0.23
 Nodes (4): ClickLatencyTrace, Runtime, Session, ms
 
 ### Community 331 - "AudioOutputDevice"
-Cohesion: 0.33
-Nodes (6): .micPicker, AudioToolbox, AudioOutputDevice, AudioOutputMenu, .body, AudioOutputSwitcher
+Cohesion: 0.24
+Nodes (9): MeetingControlsCard, .body, .micPicker, .muted, AudioToolbox, AudioOutputDevice, AudioOutputMenu, .body (+1 more)
 
-### Community 332 - "CustomCommand"
-Cohesion: 0.18
-Nodes (7): CustomCommand, .id, Kind, command, link, snippet, CustomCommandTests
+### Community 332 - "WindowSnapService"
+Cohesion: 0.24
+Nodes (6): .area, Outcome, moved, needsAccessibility, noWindow, WindowSnapService
 
 ### Community 333 - "RadialDialActionType"
-Cohesion: 0.14
-Nodes (14): RadialDialActionType, captureArea, captureOCR, captureWindow, clipboard, custom, launchApp, mediaNext (+6 more)
+Cohesion: 0.10
+Nodes (18): RadialDialActionType, captureArea, captureOCR, captureWindow, clipboard, custom, launchApp, mediaNext (+10 more)
 
 ### Community 334 - ".parse"
 Cohesion: 0.17
 Nodes (4): Key, NoteDocument, Parsed, NoteDocumentTests
 
 ### Community 336 - ".hitTest"
-Cohesion: 0.15
-Nodes (9): .body, .content, HitResult, center, outside, sector, RadialDialGeometry, Sector (+1 more)
+Cohesion: 0.16
+Nodes (8): .body, HitResult, center, outside, sector, RadialDialGeometry, Sector, RadialDialGeometryTests
 
 ### Community 338 - "FinderTrashOutcome"
-Cohesion: 0.14
-Nodes (12): FinderTrashOutcome, cancelled, count, denied, failed, finderUnavailable, needsInteraction, .permission (+4 more)
+Cohesion: 0.08
+Nodes (19): FinderTrashEvent, FinderTrashOutcome, cancelled, count, denied, failed, finderUnavailable, needsInteraction (+11 more)
 
-### Community 339 - "SettingsIridescentPalette"
-Cohesion: 0.15
-Nodes (9): .activeFill, .body, .body, SettingsFindable, .title, SettingsIridescentPalette, .pillGradient, .rimGradient (+1 more)
+### Community 339 - "Bool"
+Cohesion: 0.27
+Nodes (3): DragPasteboardInspector, ResultBox, Session
 
 ### Community 340 - "USBEjectPill"
-Cohesion: 0.18
-Nodes (8): State, ejected, failed, ready, USBEjectPillController, USBEjectPillModel, USBEjectPillView, .body
+Cohesion: 0.36
+Nodes (3): USBEjectPillController, USBEjectPillModel, USBEjectPillView
 
 ### Community 341 - "WallpaperEngine"
-Cohesion: 0.15
-Nodes (4): Saved, SkyPackRenderer, WallpaperEngine, .options
+Cohesion: 0.18
+Nodes (3): Saved, WallpaperEngine, 5d. Explicitly NOT ported
 
 ### Community 342 - "ProcessEnvironmentScrubTests"
-Cohesion: 0.15
+Cohesion: 0.16
 Nodes (4): MacOSDockCCV2App, .body, ProcessEnvironmentScrub, ProcessEnvironmentScrubTests
 
 ### Community 343 - "NotesSyncRunnerTests"
@@ -1844,8 +1837,8 @@ Cohesion: 0.24
 Nodes (3): Device, NotesSyncRunnerTests, SymmetricKeyBox
 
 ### Community 344 - "FinderTrashOutcome"
-Cohesion: 0.11
-Nodes (15): TrashGridPopupView, .body, .canEmpty, .items, .layout, .note, .tailCellCount, TrashItemIcon (+7 more)
+Cohesion: 0.17
+Nodes (9): TrashGridPopupView, .body, .canEmpty, .items, .layout, .note, .tailCellCount, TrashItemIcon (+1 more)
 
 ### Community 345 - "NotchTrackPillModel"
 Cohesion: 0.20
@@ -1853,19 +1846,19 @@ Nodes (6): NotchBatteryPillView, .body, NotchTrackPillController, NotchTrackPill
 
 ### Community 346 - "WeatherChipPreset"
 Cohesion: 0.05
-Nodes (24): NowPlayingPreset, accentCard, expandedCard, graphiteCard, .isCard, miniChip, .title, PressureLevel (+16 more)
+Nodes (27): DockIconShape, circle, squircle, NowPlayingPreset, accentCard, expandedCard, graphiteCard, .isCard (+19 more)
 
 ### Community 347 - "FolderGridCell"
-Cohesion: 0.09
-Nodes (22): FolderGridCell, .core, .iconImage, .theme, .thumbnailID, FolderGridPopupView, .body, .currentURL (+14 more)
+Cohesion: 0.07
+Nodes (29): FolderGridCell, .core, .iconImage, .theme, .thumbnailID, FolderGridPopupView, .body, .currentURL (+21 more)
 
 ### Community 348 - "Rule"
-Cohesion: 0.11
-Nodes (9): ClipboardIgnoreRules, ClipboardToastPolicy, PasteImageNaming, Rule, regex, substring, ClipboardIgnoreRulesTests, ClipboardToastPolicyTests (+1 more)
+Cohesion: 0.17
+Nodes (7): ClipboardIgnoreRules, ClipboardToastPolicy, Rule, regex, substring, ClipboardIgnoreRulesTests, ClipboardToastPolicyTests
 
-### Community 349 - "AppSettingsStore.swift"
-Cohesion: 0.15
-Nodes (10): TungstenDefaultsMigrator, Baseline Import & Neutral Rebrand (Phase 0), [v0.0.0-baseline] — 2026-10-08, 1. Scope & Execution Summary, 2. Verification & Quality Gates (Slice 0c), 3. Deferred Items (Explicitly NOT in Phase 0), Phase 0 Log — Baseline Import and Rebrand, Slice 0a — Baseline Import (`9186e9b`) (+2 more)
+### Community 349 - "WidgetAnimationPreset"
+Cohesion: 0.18
+Nodes (5): WidgetAnimationPreset, instant, slide, springPop, WidgetAnimationTiming
 
 ### Community 350 - "StripWheelScrollTests"
 Cohesion: 0.26
@@ -1876,52 +1869,60 @@ Cohesion: 0.24
 Nodes (3): Diff, TaskbarDisplaySet, TaskbarDisplaySetTests
 
 ### Community 352 - "ExpandedMediaCardView"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (13): EnvironmentValues, .liveIslandVertical, LiveIslandVerticalKey, StayAwakePreset, h1, h2, indefinite, .label (+5 more)
 
-### Community 356 - "Stage"
-Cohesion: 0.50
-Nodes (4): Stage, hidden, side, top
+### Community 355 - "WidgetTallTests"
+Cohesion: 0.25
+Nodes (3): TallLayoutPlanner, TallTile, WidgetTallTests
+
+### Community 356 - "SettingsShell"
+Cohesion: 0.12
+Nodes (13): SettingsShell, .header, .keyboardShortcuts, .stagePicker, .stagePreference, SettingsLayoutClass, Sidebar, full (+5 more)
 
 ### Community 357 - "LauncherChip"
-Cohesion: 0.07
+Cohesion: 0.10
 Nodes (13): DictionaryService, LauncherChip, .body, .faceWidth, .isHovering, .theme, LauncherChipLayout, bar (+5 more)
 
 ### Community 358 - "NotchRestContent"
-Cohesion: 0.06
-Nodes (31): NotchDisplayRows, .body, Ear, battery, storage, time, NotchBehavior, NotchDesign (+23 more)
+Cohesion: 0.04
+Nodes (41): NotchDisplayRows, .body, Ear, battery, storage, time, Item, battery (+33 more)
 
-### Community 359 - "StripHoverResolutionTests"
-Cohesion: 0.15
-Nodes (5): ChipHoverInput, resolved, selfTracked, StripHoverResolution, StripHoverResolutionTests
+### Community 362 - ".decide"
+Cohesion: 0.19
+Nodes (6): Outcome, announce, deferToSparkle, remindQuietly, ScheduledUpdatePresentation, ScheduledUpdatePresentationTests
 
-### Community 360 - "UVLevel"
-Cohesion: 0.12
-Nodes (11): SunArcShape, .body, .name, .nowMinutes, UVLevel, extreme, high, low (+3 more)
-
-### Community 363 - "StatusKind"
-Cohesion: 0.25
-Nodes (6): StatusKind, battery, .popupSize, .settingsURL, volume, wifi
+### Community 363 - "4.4 Findings from this investigation (verified unless marked)"
+Cohesion: 0.23
+Nodes (4): HyperkeyRemap, .ours, 4.4 Findings from this investigation (verified unless marked), HyperkeyRemapTests
 
 ### Community 364 - "Launch"
-Cohesion: 0.20
-Nodes (4): CleaningLock, Launch, release, resume
+Cohesion: 0.14
+Nodes (6): BatteryNoticeRule, CleaningLock, Launch, release, resume, DailyHelpersRulesTests
 
-### Community 366 - "TaskbarScreenMenuPresentation"
-Cohesion: 0.20
-Nodes (8): Item, Row, header, option, separator, TaskbarScreenMenuPresentation, .items, .pinnedTitlePrefix
+### Community 366 - "SettingsMetricsTests"
+Cohesion: 0.15
+Nodes (8): Advanced is the last tab, Reproducing the numbers, Slice 6 — the Shortcuts pane, and Layout emptied: verified, no work needed, Slice 7 — the Advanced/About tidy, Slices 6 + 7, two rows to a line, and Advanced last — live evidence (2026-10-15), Still owed (not claimed), Two rows to a line, SettingsMetricsTests
+
+### Community 367 - "ScreenTimeSummaryView"
+Cohesion: 0.23
+Nodes (8): .body, ScreenTimeFlyoutView, .body, .limitsSection, ScreenTimeSummaryView, .body, WeekStrip, .body
 
 ### Community 368 - "WindowLayoutRestoreController"
 Cohesion: 0.20
 Nodes (3): WindowLayoutRestoreController, .isEnabled, .topologyKey
 
-### Community 370 - "Availability"
-Cohesion: 0.17
-Nodes (7): Availability, denied, noCameras, ready, CameraMirrorDevice, CameraMirrorRules, CameraMirrorTests
+### Community 370 - "CameraMirrorService"
+Cohesion: 0.09
+Nodes (11): CameraMirrorService, .isAuthorized, .body, Availability, denied, noCameras, ready, CameraMirrorDevice (+3 more)
 
 ### Community 371 - "DownloadActivity"
 Cohesion: 0.20
 Nodes (3): DownloadActivity, Entry, DownloadActivityTests
+
+### Community 372 - "TaskbarScreenPlacementTests"
+Cohesion: 0.13
+Nodes (5): PinnedScreenSelection, TaskbarScreenMenuPresentation, .items, .pinnedTitlePrefix, TaskbarScreenPlacementTests
 
 ### Community 374 - "DragVisualKind"
 Cohesion: 0.33
@@ -1932,52 +1933,48 @@ Cohesion: 0.24
 Nodes (4): EdgeNotesPopupController, .isShown, NotesFlyoutPanel, .canBecomeKey
 
 ### Community 377 - "DockPanelMaterial"
-Cohesion: 0.09
-Nodes (20): DockGlassBackdrop, .body, .overlayFill, .nsMaterial, .plateWash, DockPanelMaterial, contentBackground, fullScreenUI (+12 more)
+Cohesion: 0.11
+Nodes (16): DockVisualEffectView, DockPanelMaterial, contentBackground, fullScreenUI, headerView, hudWindow, menu, popover (+8 more)
 
 ### Community 378 - "WindowSubscriptionLedger.swift"
 Cohesion: 0.17
 Nodes (11): Step, send, skip, stop, WindowSubscriptionAttemptPolicy, WindowSubscriptionItemState, done, failed (+3 more)
 
 ### Community 379 - "TaskbarScreenMode"
-Cohesion: 0.14
+Cohesion: 0.12
 Nodes (12): Outcome, fallback, matched, TaskbarScreenMode, allScreens, allScreensPerDisplay, followMouse, pinned (+4 more)
 
 ### Community 380 - ".entries"
-Cohesion: 0.23
-Nodes (7): Marker, front, minimized, none, WindowListMenuPlan, WindowMenuEntry, WindowListMenuPlanTests
+Cohesion: 0.09
+Nodes (12): Action, hide, minimize, toggle, DockClickPolicy, TrashWindowAbsorption, TrashWindowLookup, WindowListMenuPlan (+4 more)
 
 ### Community 381 - ".evaluate"
 Cohesion: 0.14
 Nodes (6): Outcome, consumeWithoutSeeding, inert, seedPerDisplay, TaskbarPerDisplaySeed, TaskbarPerDisplaySeedTests
 
+### Community 382 - "Step"
+Cohesion: 0.18
+Nodes (8): SpotlightHandoff, Step, openKeyboard, openShortcuts, selectSpotlight, testHere, uncheckShowSearch, SpotlightHandoffTests
+
 ### Community 383 - "FullscreenIntentDecision (3)"
 Cohesion: 0.27
 Nodes (7): FullscreenIntentHandoffGate, .currentState, State, cancelled, completed, executing, pending
 
-### Community 384 - "AccessibilitySource.swift"
-Cohesion: 0.31
-Nodes (7): axBoolAttribute(), axCopyAttributeValue(), axElementAttribute(), axFrame(), axStringAttribute(), MinimizedRestorePreActivation, windows()
-
-### Community 385 - "DiagnosticReport"
-Cohesion: 0.31
-Nodes (3): DiagnosticReport, .text, GlassReading
+### Community 385 - "ShortcutChord"
+Cohesion: 0.17
+Nodes (12): ShortcutChord, commandSpace, controlOptionSpace, controlShiftSpace, controlSpace, .glyphs, optionShiftSpace, optionSpace (+4 more)
 
 ### Community 386 - "LinkReaderModel"
+Cohesion: 0.12
+Nodes (12): LinkReaderModel, .isActive, LinkReaderPane, .body, State, failed, idle, loaded (+4 more)
+
+### Community 387 - "ShelfTrayArt"
 Cohesion: 0.10
-Nodes (16): LinkReaderModel, .isActive, LinkReaderPane, .body, State, failed, idle, loaded (+8 more)
-
-### Community 387 - "Known Layout Defects (Logged 2026-10-08)"
-Cohesion: 0.07
-Nodes (21): LiveIslandMenuBuilder, WidgetMenuBuilder, ClockArt, .shelfIcon, ClockArtPhase, dawn, day, dusk (+13 more)
-
-### Community 388 - "DrawerCapsulePager"
-Cohesion: 0.27
-Nodes (4): DrawerCapsuleFlow, .animatableData, DrawerCapsulePager, .pointerAway
+Nodes (13): .shelfIcon, PocketShape, ShelfTrayArt, .backPlate, .body, .frontPocket, .papers, ShelfIconState (+5 more)
 
 ### Community 389 - "SettingsDraft"
-Cohesion: 0.24
-Nodes (5): Tab, daily, hourly, now, SettingsDraft
+Cohesion: 0.27
+Nodes (3): now, SettingsDraft, .body
 
 ### Community 390 - "ValidationStage"
 Cohesion: 0.13
@@ -1988,27 +1985,27 @@ Cohesion: 0.26
 Nodes (5): cgFlags(), keycapSymbol(), keyGuardTapCallback(), keyModifiers(), typedText()
 
 ### Community 393 - "VPNServiceParser"
-Cohesion: 0.15
-Nodes (4): Entry, VPNServiceParser, VPNService, QuickTogglesTests
+Cohesion: 0.20
+Nodes (3): Entry, VPNServiceParser, QuickTogglesTests
 
 ### Community 395 - "View"
-Cohesion: 0.03
-Nodes (65): RangeBar, .body, WeatherPreviewCard, .body, .tabs, WideBarWeather, .body, .weatherPane (+57 more)
+Cohesion: 0.02
+Nodes (113): WeatherSettingsBlock, BandCard, .body, DailyRangeRows, .body, DetailGrid, .body, NumberBand (+105 more)
 
 ### Community 396 - "IslandLayoutSolverTests"
-Cohesion: 0.08
-Nodes (13): .layoutThumbnailInputs, .fittingMaximumBarHeight, DockStyleFit, Island, IslandChrome, IslandLayout, IslandLayoutSolver, Completed (Post-Audit) (+5 more)
+Cohesion: 0.09
+Nodes (11): Island, IslandLayout, IslandLayoutSolver, 1. Scope & Execution Summary, 2. Invariants Preserved, 3. Idle CPU Measurement (Phase 2 Baseline vs Split4), Phase 2 Log — Island Panels (One Display, Tungsten Construction), Slice 2b — Per-Slot Panel Geometry & Capsule Ownership (`aefd875`) (+3 more)
 
 ### Community 397 - "IslandSlotSet"
-Cohesion: 0.10
-Nodes (18): Diff, IslandSlotSet, SlotKey, .description, 1. Scope & Execution Summary, 2. Invariants Preserved, 3. Idle CPU Measurement (Phase 2 Baseline vs Split4), Phase 2 Log — Island Panels (One Display, Tungsten Construction) (+10 more)
+Cohesion: 0.09
+Nodes (18): Added, [Unreleased] — Phase 3: Flyouts, Fullscreen, Multi-Display & Space Survival, Diff, IslandSlotSet, SlotKey, .description, Slice 2a — `IslandSlotSet` & Slot-Keyed Rebuild Units (`7d1141d`), Decisions taken with the owner (before any code, Standing Rules §1.4) (+10 more)
 
 ### Community 398 - "NativeMenuHost"
-Cohesion: 0.10
-Nodes (11): AppMenuBuilder, ChipMenuPresenterKey, ClosureMenuItem, EnvironmentValues, .chipMenuPresenter, FloatingMenuHost, .body, MenuHostNSView (+3 more)
+Cohesion: 0.09
+Nodes (13): .chipPanel, AppMenuBuilder, ChipMenuPresenterKey, ClosureMenuItem, EnvironmentValues, .chipMenuPresenter, FloatingMenuHost, .body (+5 more)
 
 ### Community 400 - ".shouldTick"
-Cohesion: 0.24
+Cohesion: 0.22
 Nodes (3): FeedbackTickPolicy, DockSnapshotEqualityTests, FeedbackTickPolicyTests
 
 ### Community 401 - "StackPopupChrome"
@@ -2020,8 +2017,8 @@ Cohesion: 0.07
 Nodes (7): LauncherPanel, .canBecomeKey, LauncherPanelController, .isShown, LauncherApp, LauncherBackdrop, LauncherIndexer
 
 ### Community 403 - "NonConstrainingPanel"
-Cohesion: 0.08
-Nodes (9): DockLiquidGlassPanel, EnvironmentValues, .isPanelHeightResizing, NonConstrainingPanel, PanelHeightResizeModifier, Added, [Unreleased] — Phase 3: Flyouts, Fullscreen, Multi-Display & Space Survival, 1. Goal (+1 more)
+Cohesion: 0.13
+Nodes (4): DockLiquidGlassPanel, EnvironmentValues, .isPanelHeightResizing, NonConstrainingPanelTests
 
 ### Community 404 - "Selection"
 Cohesion: 0.22
@@ -2032,48 +2029,60 @@ Cohesion: 0.44
 Nodes (4): KeyVisualizerController, KeyVisualizerModel, KeyVisualizerView, .body
 
 ### Community 407 - "DockThemeStyle"
-Cohesion: 0.04
-Nodes (38): AppearanceMode, dark, .displayName, light, system, .nsAppearance, .color, ThemeSwatch (+30 more)
+Cohesion: 0.05
+Nodes (29): ThemeSwatch, .body, DockThemeStyle, auroraGlow, auto, crystalClear, customRGBA, cyberpunkGlass (+21 more)
 
 ### Community 408 - "FullscreenIntentDecision (4)"
 Cohesion: 0.35
 Nodes (5): Completion, idle, ignored, start, FullscreenIntentRefreshCoalescer
 
+### Community 409 - "CommandGenerator"
+Cohesion: 0.09
+Nodes (14): GeneratorService, CommandGenerator, .displayName, formatJSON, ipAddress, .isSystemBacked, .keyword, loremIpsum (+6 more)
+
 ### Community 410 - "Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)"
-Cohesion: 0.04
-Nodes (62): PowerNotificationPillView, .accent, .body, DeckPreviewCard, .body, .lines, .palette, .dashColor (+54 more)
+Cohesion: 0.03
+Nodes (87): PowerNotificationPillView, .accent, .body, DeckFont, .font, .measure, .nsFont, .size (+79 more)
 
 ### Community 411 - "DockShapeToken"
 Cohesion: 0.18
 Nodes (9): DockShapeToken, beveledWell, .hasDebossedBevel, .innerShadowRadius, .isSegmented, liquidSquircle, pill, .rimHighlightOpacity (+1 more)
 
 ### Community 412 - "StubBadgeReader"
-Cohesion: 0.16
-Nodes (9): DockBadgeReading, DockBadgeWalkOutcome, StubBadgeReader, .fullWalkCount, .fullWalkResult, .legacyCount, .legacyResult, .targetedCount (+1 more)
+Cohesion: 0.14
+Nodes (13): DockBadgeReading, DockBadgeTargetedOutcome, cacheInvalid, ok, DockBadgeWalkOutcome, DockItemCache, StubBadgeReader, .fullWalkCount (+5 more)
 
 ### Community 414 - "WeatherWarningKind"
-Cohesion: 0.11
-Nodes (18): WeatherThresholds, WeatherWarning, .id, WeatherWarningEngine, WeatherWarningKind, freeze, heat, heavyRain (+10 more)
+Cohesion: 0.12
+Nodes (16): WeatherWarning, .id, WeatherWarningEngine, WeatherWarningKind, freeze, heat, heavyRain, snow (+8 more)
 
 ### Community 415 - "AppInstallLocation"
-Cohesion: 0.06
-Nodes (29): AccessibilitySettingsLink, AppInstallLocation, .allowsAccessibilityPrompt, applications, appTranslocation, .isTransient, other, readOnlyVolume (+21 more)
+Cohesion: 0.08
+Nodes (18): AccessibilitySettingsLink, AppInstallLocation, .allowsAccessibilityPrompt, applications, appTranslocation, .isTransient, other, readOnlyVolume (+10 more)
 
-### Community 417 - "Item"
-Cohesion: 0.18
-Nodes (10): Item, battery, nowPlaying, status, storage, system, time, timer (+2 more)
+### Community 416 - ".record"
+Cohesion: 0.16
+Nodes (5): MirroredNotification, .detail, NotificationBannerText, NotificationRecord, NotificationMirrorTests
 
-### Community 422 - "7. Phases (each = shippable, testable slice)"
-Cohesion: 0.20
-Nodes (3): StripBlockLanding, Phase 18 — Strip placement: bottom / left / right (planned 2026-10-13; deferred — mini-plan sign-off before any code), StripBlockLandingTests
+### Community 417 - "SolarPhaseTests"
+Cohesion: 0.29
+Nodes (3): SolarPhaseTests, .set, .times
+
+### Community 420 - "DisplayTopologyStore"
+Cohesion: 0.31
+Nodes (3): DisplayTopologyStore, 0. Sources at a glance, DisplayTopologyStoreTests
 
 ### Community 423 - "StripPointerBoxTests"
-Cohesion: 0.19
-Nodes (6): Profile, drawerConversion, stripPresence, .topEnter, .topOut, StripPointerBoxTests
+Cohesion: 0.17
+Nodes (7): Profile, drawerConversion, stripPresence, .topEnter, .topOut, StripPointerBox, StripPointerBoxTests
+
+### Community 424 - ".clean"
+Cohesion: 0.11
+Nodes (3): LinkCleanerService, URLCleaner, URLCleanerTests
 
 ### Community 425 - "7. Phases (each = shippable, testable slice)"
-Cohesion: 0.14
-Nodes (5): InstallLineage, priorUse, pristine, 6. Build, identity, licensing, InstallLineageTests
+Cohesion: 0.19
+Nodes (4): InstallLineage, priorUse, pristine, InstallLineageTests
 
 ### Community 426 - "Error"
 Cohesion: 0.18
@@ -2087,9 +2096,9 @@ Nodes (10): Mode, chips, controlCenter, edgeBars, geometry, launcher, notificati
 Cohesion: 0.28
 Nodes (4): FileReachability, exists, inaccessible, missing
 
-### Community 429 - "AppLaunchTargetDecision"
-Cohesion: 0.42
-Nodes (3): AppLaunchTargetDecision, Candidate, .isEligibleMainApplication
+### Community 429 - "TeleprompterView"
+Cohesion: 0.29
+Nodes (5): TeleprompterWindowController, .body, TeleprompterView, .controls, .linkChips
 
 ### Community 430 - "KatiKati — Baseline Rules (Phase 0 import contract)"
 Cohesion: 0.29
@@ -2099,37 +2108,33 @@ Nodes (6): 1. What the baseline is, 2. Directory and target contract, 3. Forbidd
 Cohesion: 0.18
 Nodes (4): State, idle, scanning, StorageScanService
 
-### Community 432 - "StorageItem"
-Cohesion: 0.31
-Nodes (4): NotchStoragePageView, .accessDoor, .body, .reviewCaches
+### Community 433 - "WelcomeGuideStep"
+Cohesion: 0.25
+Nodes (7): WelcomeGuideStep, dockSettings, liveIsland, .next, permissions, pickLayout, .previous
 
-### Community 433 - "CaseIterable"
-Cohesion: 0.05
-Nodes (32): .currentDockStyle, DrawerPlacement, left, right, Tab, countdown, focus, stopwatch (+24 more)
-
-### Community 434 - "SnapPosition"
-Cohesion: 0.11
-Nodes (17): SnapPosition, bottomHalf, bottomLeft, bottomRight, center, centerThird, leftHalf, leftThird (+9 more)
+### Community 434 - "PowerNotificationKind"
+Cohesion: 0.20
+Nodes (10): PowerNotificationKind, charged, charging, lowBattery, peripheralConnected, peripheralDisconnected, peripheralLowBattery, pluggedIn (+2 more)
 
 ### Community 437 - "ResizeCursorGlyph"
-Cohesion: 0.22
+Cohesion: 0.14
 Nodes (5): ResizeCursorGlyph, .body, .hotSpot, .image, .size
 
 ### Community 438 - "WidgetEditOverlay"
-Cohesion: 0.17
+Cohesion: 0.21
 Nodes (4): WidgetEditMode, WidgetEditOverlay, .body, .compact
 
-### Community 439 - ".evaluate"
-Cohesion: 0.33
-Nodes (3): NotificationUICapability, NotificationUIObservation, NotificationUICapabilityTests
+### Community 439 - "Context"
+Cohesion: 0.25
+Nodes (7): ChipPanelMenuBridge, Context, Critical files, How to start this in a fresh chat, Phase 10 — detailed plan (owner answers 2026-10-13; **planned, not started**), Phase 10 — Widget presets + wallpaper integration — DONE 2026-10-13 (owner sign-off; Space-change re-apply confirmed by owner; translation sheet `Docs/translation-review-phase10.csv` deferred to a pre-release gate), Verification
 
 ### Community 440 - "FinderWindowContentsError"
 Cohesion: 0.12
 Nodes (13): NativeDockPreferencesError, commandFailed, .errorDescription, sandboxed, FinderWindowContentsError, automationPermissionRequired, .errorDescription, missingAccessibilityPermission (+5 more)
 
-### Community 441 - "BackgroundAppsStore"
-Cohesion: 0.24
-Nodes (4): BackgroundAppsStore, Fact, .backgroundCount, .backgroundMembers
+### Community 441 - "LiveNoticeKind"
+Cohesion: 0.22
+Nodes (8): LiveNoticeKind, batteryFull, batteryHigh, capsLockOff, capsLockOn, hydrate, pause, .reminderInterval
 
 ### Community 443 - "DockGlassRuntimeBridge"
 Cohesion: 0.22
@@ -2143,45 +2148,45 @@ Nodes (3): Added, Changed, [Unreleased] — Phase 53d, 55d and 55g: opt-in quit,
 Cohesion: 0.29
 Nodes (6): capsulePath(), cgCapsule(), circlePath(), Glyph, makeMenuBarPDF(), makeSVG()
 
+### Community 446 - "CameraMirrorPreview"
+Cohesion: 0.21
+Nodes (3): CameraMirrorPreview, MirrorPreviewView, AVFoundation
+
 ### Community 447 - "KatiKati — Standing Rules"
 Cohesion: 0.21
 Nodes (7): 1. Session discipline (slow, incremental, always shippable), 3. Compatibility and identity rules, 4. Quality gates (every slice, every phase), 5. Licensing and trademark (absolute), 6. Documentation and visibility, KatiKati — Standing Rules, Trademarks
 
-### Community 448 - "ShelfTrayArt"
-Cohesion: 0.29
-Nodes (6): PocketShape, ShelfTrayArt, .backPlate, .body, .frontPocket, .papers
+### Community 448 - "DockEdgePreset"
+Cohesion: 0.22
+Nodes (9): DockEdgePreset, bottomEdgeAnchored, bottomFloating, .defaultBottomGap, .isFloating, .isNotchCompanion, .placement, sideVerticalRail (+1 more)
 
 ### Community 449 - ".entries"
 Cohesion: 0.18
 Nodes (5): Entry, Policy, WindowTitleSettle, .nextReleaseAt, WindowTitleSettleTests
 
-### Community 450 - "FinderTrashTests"
-Cohesion: 0.10
-Nodes (6): FinderTrashEvent, TrashChangeStamp, TrashPath, TrashWindowAbsorption, TrashWindowLookup, FinderTrashTests
-
 ### Community 451 - "RadialMouseTrigger"
-Cohesion: 0.17
+Cohesion: 0.18
 Nodes (11): RadialMouseTrigger, button4, button5, commandRightClick, controlRightClick, middleClick, off, optionMiddleClick (+3 more)
 
 ### Community 453 - "Phase 6 Log: Settings Layout Tab, Welcome Step & Polish"
 Cohesion: 0.40
 Nodes (4): Gate (independent closure re-run, 2026-10-11), Open (owner, non-blocking), Phase 6 Log: Settings Layout Tab, Welcome Step & Polish, Summary
 
-### Community 454 - "WiFiVolumeFABView"
-Cohesion: 0.24
-Nodes (7): WiFiVolumeFABView, 1. Bilateral Dock Symmetry & Launcher Aesthetic Presets, 2. Dock Button Placement Swap & Quick Settings Wi-Fi Volume FAB, 3. Unified 5-Page Multi-Utility Capsule Widget (`App/Scenes/NowPlayingChip.swift`), 4. Adaptive Space-Filling for Clock and Weather Widgets (`App/Scenes/ClockChip.swift`, `App/Scenes/WeatherChip.swift`), 5. Recent Git Commits Reference, Recent User Refinements & Enhancements (Post-Phase 33 / Pre-Phase 12, Oct 15 2026)
+### Community 454 - "HoldReason"
+Cohesion: 0.25
+Nodes (7): Evaluation, HoldReason, absenceGraceNotElapsed, cgMissing, everSeenVisible, noAXPresentSibling, noEligibleWindows
+
+### Community 455 - "InventorySeatCreationReason"
+Cohesion: 0.25
+Nodes (6): InventorySeatCreationReason, firstSeat, minimizedFoldMiss, offscreenNonMinimized, tearOut, visibleUnclaimed
 
 ### Community 457 - "LauncherSortMode"
-Cohesion: 0.11
-Nodes (16): .hiddenSuggested, Entry, LauncherAppGroup, LauncherHidePresets, .bundleIDs, LauncherPrefs, LauncherQuickAction, open (+8 more)
+Cohesion: 0.08
+Nodes (18): .hiddenSuggested, .prefs, Entry, LauncherCategory, LauncherHidePresets, .bundleIDs, LauncherPrefs, LauncherQuickAction (+10 more)
 
 ### Community 458 - "Phase 16 (continued) — Control Center side panel (owner 2026-10-13; "still Phase 16, not 17")"
-Cohesion: 0.16
-Nodes (7): .sliderRows, ScreenshotCommand, Phase 16 (continued) — Control Center side panel (owner 2026-10-13; "still Phase 16, not 17"), BluetoothPower, DisplayServicesBrightness, KeyboardBacklight, .isAvailable
-
-### Community 459 - "LaunchSessionTokenRegistry"
-Cohesion: 0.29
-Nodes (4): LaunchSessionTokenRegistry, .bundleIDs, .currentEntries, StoredEntry
+Cohesion: 0.20
+Nodes (6): .sliderRows, ScreenshotCommand, Phase 16 (continued) — Control Center side panel (owner 2026-10-13; "still Phase 16, not 17"), DisplayServicesBrightness, KeyboardBacklight, .isAvailable
 
 ### Community 460 - "StorageCategory"
 Cohesion: 0.22
@@ -2191,141 +2196,133 @@ Nodes (8): StorageCategory, archives, documents, .extensions, music, photos, .sy
 Cohesion: 0.33
 Nodes (11): commit_once(), graph_dirty(), graph_quiet(), head_is_graph_only(), install(), launch_block(), rebuild_running(), run() (+3 more)
 
-### Community 464 - "QuickToggleEngine.swift"
-Cohesion: 0.22
-Nodes (5): CoreBluetooth, CoreWLAN, IOKit.ps, IOKit.pwr_mgt, OpenDirectory
+### Community 464 - "TranslateCardView"
+Cohesion: 0.33
+Nodes (5): TranslateCardView, .body, TranslationSection, .body, Translation
 
 ### Community 465 - "build_and_run"
 Cohesion: 0.44
 Nodes (8): build_app(), open_app(), remove_other_copies(), run_cli(), build_and_run.sh script, sign_app(), wait_for_app(), wait_for_exit()
 
+### Community 466 - "WidgetTileKit.swift"
+Cohesion: 0.33
+Nodes (3): WidgetPanelState, WidgetEntrance, WidgetMetrics
+
 ### Community 467 - "Result"
 Cohesion: 0.28
 Nodes (5): NotificationHistoryReader, Result, entries, noAccess, unsupported
 
-### Community 469 - "StorageCategory"
-Cohesion: 0.15
-Nodes (5): StorageItem, .id, .name, StorageScanMath, StorageScanMathTests
+### Community 470 - "Phase 32 — Dock/widget motion language + circular icon look (owner 2026-10-14; ~~PROPOSED — suggestion only, not scheduled~~ **SCHEDULED 2026-10-16** — owner: "pack the circular dock, remove it from settings for now, implement the rest of phase 32"; one slice per commit, owner eyeball after every UI-visible one)"
+Cohesion: 0.29
+Nodes (5): ChipHoverInput, resolved, selfTracked, StripHoverResolution, Phase 32 — Dock/widget motion language + circular icon look (owner 2026-10-14; ~~PROPOSED — suggestion only, not scheduled~~ **SCHEDULED 2026-10-16** — owner: "pack the circular dock, remove it from settings for now, implement the rest of phase 32"; one slice per commit, owner eyeball after every UI-visible one)
 
-### Community 470 - ".confirm"
-Cohesion: 0.22
-Nodes (4): ProcessKillConfirm, ProcessLister, kill, 48d — the Top Apps rows can end a process (PLANNED — not started)
-
-### Community 471 - "ReleaseReason"
-Cohesion: 0.22
-Nodes (9): ReleaseReason, accessoryProcess, openFailed, processGone, realWindow, timeout, Verdict, hold (+1 more)
+### Community 471 - "LabMode"
+Cohesion: 0.29
+Nodes (7): LabMode, closeTarget, minimizeRestore, observe, placementReplay, replay, transitionReplay
 
 ### Community 472 - "RadialDialCenterHub"
 Cohesion: 0.32
 Nodes (3): RadialDialCenterHub, .body, .hubBackground
 
-### Community 474 - ".notification"
-Cohesion: 0.42
-Nodes (3): MirroredNotification, .detail, NotificationRecord
-
-### Community 475 - "View"
-Cohesion: 0.03
-Nodes (106): CGFloat, .clampedToAtLeastOne, AudioRecorderTile, AgendaPane, .body, AlarmsTile, AnalogFace, .body (+98 more)
+### Community 475 - "Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)"
+Cohesion: 0.02
+Nodes (104): WorldClockStore, AudioRecorderTile, .body, WidgetRecorderModel, .recordingsDir, CalculatorTile, .body, AgendaEventOpener (+96 more)
 
 ### Community 476 - "Action"
 Cohesion: 0.22
 Nodes (8): Action, adopt, conflict, deleteLocal, deleteRemote, pull, push, reindex
 
-### Community 477 - ".dismissWindowTitleTooltip"
-Cohesion: 0.19
-Nodes (3): WindowTitleTooltipEvent, update, WindowTitleTooltipRequest
-
 ### Community 478 - "Settings sweep — baseline (2026-10-15, installed Release 0.17.0 (51))"
 Cohesion: 0.50
 Nodes (3): Findings, Not yet exercised (next sweep pass), Settings sweep — baseline (2026-10-15, installed Release 0.17.0 (51))
 
-### Community 479 - "NotchNotificationsPageView"
-Cohesion: 0.39
-Nodes (4): NotchNotificationsPageView, .body, .content, .header
+### Community 479 - "FolderPrimaryAction"
+Cohesion: 0.40
+Nodes (5): FolderInteraction, .primaryAction, FolderPrimaryAction, openFinderWindow, preview
 
-### Community 480 - "LauncherChipVisualPlan"
-Cohesion: 0.32
-Nodes (3): LauncherChipVisualPlan, Visual, LauncherChipVisualPlanTests
+### Community 480 - "SettingsStagePreference"
+Cohesion: 0.33
+Nodes (4): SettingsStagePreference, off, side, top
 
 ### Community 482 - "BarSection"
-Cohesion: 0.06
-Nodes (27): SmartStackState, BarSection, apps, calendar, clock, .defaultWidgetWidth, devices, .id (+19 more)
+Cohesion: 0.03
+Nodes (61): WidgetMenuBuilder, .fullWidthFlexibleDividerIDs, SmartStackState, EnvironmentValues, .widgetSize, BarSection, apps, calendar (+53 more)
 
 ### Community 483 - "[Unreleased] — Phase 41: every layout on a side rail, a rail that uses its height, tighter gaps"
 Cohesion: 0.50
 Nodes (4): Added, Changed, Fixed, [Unreleased] — Phase 41: every layout on a side rail, a rail that uses its height, tighter gaps
 
-### Community 484 - "Phase 55 — Clipboard, capture, drawer (Lane D)"
-Cohesion: 0.18
-Nodes (4): ImageReducePlan, PDFReducePlan, ImageReducePlanTests, PDFReducePlanTests
+### Community 484 - "Reveal"
+Cohesion: 0.40
+Nodes (5): Reveal, drop, fade, pop, pour
 
 ### Community 485 - "DockWidgetLogicTests"
-Cohesion: 0.07
+Cohesion: 0.06
 Nodes (14): MeetingLink, MeetingProvider, googleMeet, .symbolName, teams, zoom, SampleHistory, .latest (+6 more)
-
-### Community 486 - ".frame"
-Cohesion: 0.32
-Nodes (3): NotificationPlacement, Phase 25 — Notification relocation — hard (fragile), uses existing Accessibility, NotificationPlacementTests
 
 ### Community 488 - "verify_release_hashes"
 Cohesion: 0.70
 Nodes (4): bad(), note(), verify_release_hashes.sh script, sha_of()
 
+### Community 489 - "3.2 Lanes — each lane owns a disjoint file set"
+Cohesion: 0.40
+Nodes (5): 3.1 Honest answer, 3.2 Lanes — each lane owns a disjoint file set, 3.4 Working rules, 3.5 Execution flow, 3. Parallel-work protocol (several AI IDEs / agents at once)
+
 ### Community 490 - ".closeFolderPopup"
-Cohesion: 0.08
-Nodes (7): DrawerAnimation, PopoverAnimation, PopupContent, folder, shelf, trash, UnitBezierEase
+Cohesion: 0.11
+Nodes (6): DrawerAnimation, PopoverAnimation, PopupContent, folder, shelf, trash
 
 ### Community 491 - "Content"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (10): .body, StripEntranceModifier, View, Content, clock, countdown, focus, music (+2 more)
 
-### Community 494 - "LauncherPresentation"
-Cohesion: 0.29
-Nodes (4): LauncherPresentation, centred, fullscreen, popover
+### Community 494 - "Due"
+Cohesion: 0.50
+Nodes (4): Due, none, today, tomorrow
 
 ### Community 495 - "WindowSubscriptionItem"
 Cohesion: 0.25
 Nodes (8): .notificationName, WindowSubscriptionItem, deminiaturized, destroyed, .isCritical, .logName, miniaturized, titleChanged
 
 ### Community 496 - "1. Scope & Execution Summary"
-Cohesion: 0.29
-Nodes (6): 1. Scope & Execution Summary, 2. Invariants Preserved, 3. Idle CPU Measurement (Phase 3 Multi-Display & Space Lifecycle), Phase 3 Log — Flyouts, Fullscreen, Multi-Display & Space Survival, Slice 3a — Island Anchors, Popups & Tooltips (`43ca505`), Slice 3d — CPU Benchmark Backfill & Log Lock
+Cohesion: 0.25
+Nodes (7): 1. Scope & Execution Summary, 2. Invariants Preserved, 3. Idle CPU Measurement (Phase 3 Multi-Display & Space Lifecycle), Phase 3 Log — Flyouts, Fullscreen, Multi-Display & Space Survival, Slice 3a — Island Anchors, Popups & Tooltips (`43ca505`), Slice 3c — Multi-Display Reflow & Hover Switch Sizing (`43f8371`), Slice 3d — CPU Benchmark Backfill & Log Lock
 
 ### Community 497 - "HistoryState"
 Cohesion: 0.33
 Nodes (6): HistoryState, idle, loaded, loading, noAccess, unsupported
 
 ### Community 498 - "main.swift"
-Cohesion: 0.05
-Nodes (61): exit, LifecycleTransitionEngine, DecisionKind, ambiguous, knownWindow, newWindow, IdentityDecision, LifecycleDecision (+53 more)
+Cohesion: 0.06
+Nodes (53): exit, LifecycleTransitionEngine, Confidence, high, low, medium, DecisionKind, ambiguous (+45 more)
 
 ### Community 510 - "Foundation"
-Cohesion: 0.02
-Nodes (20): AgentCopilotReader, AgentOpenCodeReader, ApplicationServices, Carbon, FilePathNormalization, FolderInteraction, .primaryAction, FolderPrimaryAction (+12 more)
+Cohesion: 0.04
+Nodes (17): AgentCopilotReader, AgentOpenCodeReader, FilePathNormalization, StripBlockLanding, WindowDisplayMove, CoreGraphics, Darwin, EventKit (+9 more)
 
-### Community 512 - "NotchOpenAnimation"
-Cohesion: 0.05
-Nodes (30): .animation, View, .contentAnimation, NotchMotionSpec, NotchOpenAnimation, boring, bounce, .closeSpring (+22 more)
+### Community 512 - "WidgetMotionPreset"
+Cohesion: 0.11
+Nodes (10): .contentAnimation, WidgetMotion, .morphsContent, WidgetMotionPreset, fluid, instant, .motion, snappy (+2 more)
 
-### Community 513 - "The density pass + the Edge Bars page — live evidence (2026-10-15, plan step A5)"
-Cohesion: 0.25
-Nodes (6): WidgetLookSettingsBlock, How the two sides were produced, Measured, before → after, Still owed on these pages (not claimed here), The density pass + the Edge Bars page — live evidence (2026-10-15, plan step A5), The label audit this slice owed, and its result (rule 9)
+### Community 513 - "Marker"
+Cohesion: 0.50
+Nodes (4): Marker, front, minimized, none
 
 ### Community 515 - "[0.17.0-beta.1] — 2026-10-12 — Phase 7: edge decks, launcher, Pinboard"
 Cohesion: 0.50
 Nodes (4): [0.17.0-beta.1] — 2026-10-12 — Phase 7: edge decks, launcher, Pinboard, Added, Changed, Removed
 
-### Community 516 - "FailedMoveVerdict"
-Cohesion: 0.50
-Nodes (4): FailedMoveVerdict, pinnedToTarget, rolledBack, seatGone
+### Community 516 - "InventoryReconcileSource"
+Cohesion: 0.10
+Nodes (17): DisplayKeyHold, brief, none, untilVisible, FailedMoveVerdict, pinnedToTarget, rolledBack, seatGone (+9 more)
 
 ### Community 518 - "[Unreleased] — background apps in the capsule, and a paste-to-Finder shortcut"
 Cohesion: 0.50
 Nodes (4): Added, Changed, Removed, [Unreleased] — background apps in the capsule, and a paste-to-Finder shortcut
 
-### Community 519 - "FinderAutomationStatus"
-Cohesion: 0.10
-Nodes (16): FinderAutomationStatus, denied, granted, notDetermined, unavailable, Item, empty, open (+8 more)
+### Community 519 - "TrashPermissionTrigger"
+Cohesion: 0.25
+Nodes (7): TrashPermissionTrigger, appActivated, emptyCommand, inAppTrash, launch, ownDrop, panelOpened
 
 ### Community 520 - "[Unreleased] — Phase 6: Layout + Appearance settings"
 Cohesion: 0.67
@@ -2335,21 +2332,21 @@ Nodes (3): Added, Fixed, [Unreleased] — Phase 6: Layout + Appearance settings
 Cohesion: 0.67
 Nodes (3): Changed, Removed, [Unreleased] — one app table for every quit rule
 
-### Community 523 - "CrossPanelConversion"
-Cohesion: 0.40
-Nodes (5): CrossPanelConversion, drawerToMessaging, drawerToStrip, messagingToDrawer, stripToDrawer
+### Community 523 - "[Unreleased] — Settings redesign, Phase 5b: stages for Shortcuts and Downloads"
+Cohesion: 0.67
+Nodes (3): Added, Changed, [Unreleased] — Settings redesign, Phase 5b: stages for Shortcuts and Downloads
 
 ### Community 524 - "[0.17.0-beta.2] — 2026-10-12"
 Cohesion: 0.67
 Nodes (3): [0.17.0-beta.2] — 2026-10-12, Added, Fixed
 
-### Community 525 - "EnvironmentValues"
-Cohesion: 0.40
-Nodes (4): EnvironmentValues, .labelBoxWidthTick, .runningDotEdge, LabelBoxWidthTickKey
-
-### Community 526 - "[Unreleased] — Phase 57a: scroll the Control Center volume row"
+### Community 525 - "[Unreleased] — Phase 4: Widgets, Popups, and Layout"
 Cohesion: 0.67
-Nodes (3): Added, Fixed, [Unreleased] — Phase 57a: scroll the Control Center volume row
+Nodes (3): Added, Removed, [Unreleased] — Phase 4: Widgets, Popups, and Layout
+
+### Community 526 - "Zone"
+Cohesion: 0.67
+Nodes (3): Zone, folder, live
 
 ### Community 527 - "[Unreleased] — Notch redesign, slice 1: Storage page"
 Cohesion: 0.67
@@ -2371,29 +2368,13 @@ Nodes (4): Added, Changed, Fixed, [Unreleased] — Phase 46: the weather widget 
 Cohesion: 0.50
 Nodes (4): Added, Changed, Fixed, [Unreleased] — Phase 16: widget pane + wifi Quick Settings
 
-### Community 533 - "EnvironmentValues"
-Cohesion: 0.50
-Nodes (4): EnvironmentValues, .settingsLiveWindowWidth, .settingsPulseRow, .settingsStageVisible
-
-### Community 534 - ".body"
-Cohesion: 0.07
-Nodes (23): SettingsEditorRow, .body, .commandBarPane, .toolsPane, CommandBarSettingsBlock, TorrentSettingsBlock, .body, .statusLine (+15 more)
-
 ### Community 535 - "Save"
 Cohesion: 0.50
 Nodes (4): Save, idle, saved, saving
 
-### Community 536 - "Kind"
-Cohesion: 0.67
-Nodes (3): Kind, returnToSlot, stash
-
 ### Community 537 - "SystemMonitorController"
-Cohesion: 0.08
-Nodes (18): SystemMonitorFlyoutView, .body, CPUTicks, .total, DiskCounters, DiskUsage, .usedFraction, MemoryUsage (+10 more)
-
-### Community 538 - "DrawerCapsulePreviewMetrics"
-Cohesion: 0.67
-Nodes (3): DrawerCapsulePreviewMetrics, .contentWidth, .miniGridWidth
+Cohesion: 0.06
+Nodes (22): SystemMonitorFlyoutView, .body, BatteryHealth, CPUTicks, .total, DiskCounters, DiskUsage, .usedFraction (+14 more)
 
 ### Community 539 - "Kind"
 Cohesion: 0.50
@@ -2407,25 +2388,13 @@ Nodes (3): Added, Changed, [Unreleased] — Phase 32: the dock's motion language
 Cohesion: 0.67
 Nodes (3): Added, Fixed, [Unreleased] — Phase 44: magnet links really download
 
-### Community 543 - "[Unreleased] — Phase 5: Hardening + Floating Widgets"
-Cohesion: 0.67
-Nodes (3): Added, Fixed, [Unreleased] — Phase 5: Hardening + Floating Widgets
-
 ### Community 544 - "[Unreleased] — Phase 47: the music surfaces answer the player, a camera mirror, mirrored notifications"
 Cohesion: 0.67
 Nodes (3): Added, Fixed, [Unreleased] — Phase 47: the music surfaces answer the player, a camera mirror, mirrored notifications
 
-### Community 546 - "[Unreleased] — Phase 42: the rail packs like your Dock, and your Dock's icons are on the bar"
-Cohesion: 0.67
-Nodes (3): Added, Changed, [Unreleased] — Phase 42: the rail packs like your Dock, and your Dock's icons are on the bar
-
 ### Community 547 - "[Unreleased] — Phase 12 close-out: a lock that fails open, a gradient theme engine, a notch theme"
 Cohesion: 0.50
 Nodes (4): Added, Changed, Fixed, [Unreleased] — Phase 12 close-out: a lock that fails open, a gradient theme engine, a notch theme
-
-### Community 548 - "LandingAnchorOwner"
-Cohesion: 0.67
-Nodes (3): LandingAnchorOwner, drawer, strip
 
 ### Community 549 - "[Unreleased] — Phase 12: the Settings window measures what it actually shows, so no page hides its tail"
 Cohesion: 0.67
@@ -2448,32 +2417,32 @@ Cohesion: 0.67
 Nodes (3): Added, Changed, [Unreleased] — Settings redesign, Phase 4: stage on Notch and Edge Bars
 
 ### Community 559 - "PowerFacts"
-Cohesion: 0.06
-Nodes (20): NotchBatteryDetail, .body, .facts, .hasRows, .stateLabel, .timeText, Added, Changed (+12 more)
+Cohesion: 0.08
+Nodes (14): Added, Changed, Fixed, [Unreleased] — Phase 59b–59h: the battery tells time, and the alerts have a style, PowerFacts, .summary, PowerThermal, critical (+6 more)
 
 ### Community 595 - "ClockChip"
-Cohesion: 0.06
-Nodes (24): ClockChip, .body, .dateFont, .timeFont, DayCell, .body, FlipClockChip, .body (+16 more)
+Cohesion: 0.05
+Nodes (29): ClockArt, ClockChip, .body, .dateFont, .timeFont, DayCell, .body, FlipClockChip (+21 more)
 
 ## Knowledge Gaps
-- **2468 isolated node(s):** `.isRunning`, `system`, `light`, `dark`, `.displayName` (+2463 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 4281 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **95 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **2467 isolated node(s):** `.chipMenuPresenter`, `.ownsActiveDrag`, `.metrics`, `.dockScale`, `.taskbarCornerRadius` (+2462 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 4293 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **113 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `String` connect `String` to `Settings Store & Layout Pane`, `App Tracker & AX Cache`, `Drag Controller & Carrier`, `DockStripView`, `NowPlayingProgressTests`, `PanelCoordinator`, `AXWindowReader`, `Phase 51 — Notch geometry, motion, pages (Lane A; after Q-notch)`, `AppRuntime`, `SystemStatusService`, `Phase 35 — Phase 12 code share (decided now, built with Phase 12)`, `Edge Bar Slots`, `.contains`, `BarLayoutMode`, `ShortcutAction`, `MessagingAppStore`, `Drag Conversion Tests`, `AgentUsageService`, `Debug Switches`, `Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)`, `Status Menu`, `DownloadManagerTests`, `SettingsLayoutPane`, `Phase 26 — Tiling (snap hotkeys → BSP engine) — hardest, uses existing Accessibility`, `Equatable`, `.isEligible`, `CalendarService`, `NotesSyncIndex`, `String`, `.body`, `ShortcutTrigger`, `.mainWindowID`, `Equatable`, `App Tracker Batching`, `Live Activity Sources`, `NotchPage`, `.installFixtureForTesting`, `SettingsTab`, `TaskbarScreenOrchestrator`, `.evaluate`, `PermissionRecoveryCoordinator`, `FinderWindowContentsReader`, `QuitOnLastWindowService`, `DownloadItem`, `ObservationAdmissionGate`, `CGRect`, `BatteryStatus`, `WindowID`, `.page`, `.verdict`, `WindowLiftAvoidance`, `NSScreen`, `LauncherView`, `KeptAppStore`, `.verdict`, `LiveSurfaceRouting`, `EdgeBarPanelController`, `.evaluate`, `StripItem`, `WidgetLayout`, `LiveActivityFeed`, `LaunchAtLoginService`, `1.2 Wishlist item → reality`, `DrawerView`, `LauncherFolder`, `HyperkeyService`, `SavedCity`, `WindowTitleTooltip.swift`, `QuickToggleID`, `TaskbarDebugCard`, `Text`, `NativeDockPreferencesService`, `EdgeSide`, `AppDelegate`, `GlobalHotKeyMonitor`, `NotchPanelController`, `.applicationDidFinishLaunching`, `DockThemeTests`, `TranslatePanelController`, `DockThemeTokens`, `ScanAdmissionDecisionTests`, `CommandBarPanelController`, `HoverTrace`, `.relayout`, `StackPopupGeometry`, `Phase 8 — Interior content rework (deferred: mini-plan each — owner 2026-10-11: "we will plan it out when we get there")`, `KeyGuardService`, `PinnedFolderCoverStore`, `PinnedFolderStore`, `FileMover`, `Identifiable`, `BadgeStore`, `.init`, `DragConversionPlanTests`, `ControlCenterPanelController`, `DeckStateMachine`, `Note`, `NowPlayingService`, `EdgeBarPrefs`, `PreferenceSliderMenuItemView`, `TrashStateStoreTests`, `WindowSwitcherController`, `ChipPanelController`, `Phase 11 + 18 — detailed plan (owner 2026-10-13: "execute 11 and 18 together"; plan file approved)`, `DockTint`, `DrawerCapsuleButton`, `FullscreenClassificationTests`, `.makeCoordinator`, `SparkleUpdateService`, `PowerNotificationCenter`, `ProcessIdentity`, `CleanupCandidate`, `DrawerView`, `.verdict`, `NotificationSlot`, `WelcomeGuideDecisionTests`, `DockSnapshot`, `SkyTint`, `.run`, `.evaluate`, `MemoryOverlayController`, `DownloadManagerService`, `AccessibilityWindowActionExecutor`, `Aria2RPC`, `Aria2RPC`, `PermissionOnboardingView`, `BarMacro`, `DrawerCapsulePaging`, `WindowInventoryAnomalyLogTests`, `GlobalHotKeyMonitor`, `LiveNoticeKind`, `Env`, `IntentFeedbackState`, `StatusTrioView`, `.snapshot`, `AppTrackerCGWindowSnapshot`, `.snapDelay`, `NotificationMoveService`, `AppLanguageOption`, `AppMembershipProjectionTests`, `SystemResizeCursor`, `LauncherIconStyle`, `.recognise`, `NotesSyncFolder`, `NoteCipher`, `DockLiquidGlassConfiguration`, `Phase 16 (continued) — Control Center side panel (owner 2026-10-13; "still Phase 16, not 17")`, `WindowSubscriptionLedgerTests`, `WindowDisplayTitleTests`, `LauncherOrbController`, `WidgetPreset`, `ContextPresetRules`, `LauncherQuery`, `HotKeyRecorderNSView`, `.eligibleSources`, `Open under this phase, not in any of its slices`, `StripDropRoutingTests`, `FullscreenIntentMonitor`, `ShelfStore`, `ScreenTimeController`, `SnippetExpander`, `StripDropRouting`, `.input`, `AppTrackerDisplayAttributionTests`, `TeleprompterModel`, `NotificationMirrorService`, `DockTheme.swift`, `TaskbarScreenPlacement`, `FileIndex`, `FullscreenIntentEventBridge`, `RunningApplicationStore`, `.fallbacks`, `ChipPillMetricsTests`, `CodingKeys`, `LiveActivityKind`, `ShelfActions`, `Phase 53 — Input features (Lane C; after Q-input; all through the pure `KeyGuardPipeline`)`, `RunningStateSweepDecision`, `StopwatchModel`, `FinderTrashClient`, `LauncherState`, `CommandBarResult`, `4.4 Findings from this investigation (verified unless marked)`, `Where everything went`, `.record`, `MenuBarMetric`, `TaskList`, `DispatchWorkItem`, `.isEnabled`, `SettingsShell`, `WeatherState`, `TeleprompterTests`, `RecentlyClosedStore`, `WindowInventoryAnomalyLog`, `StripOrderStore`, `QuickAddState`, `NotchMusicGlow`, `WeatherService`, `AppLaunchTargetDecisionTests`, `Sub-slices`, `LauncherSearchField`, `NotesSyncPlanTests`, `.mainWindowIdentifiableBundleIDs`, `EdgeBarStyle`, `20c — DeskBar survey: what else is worth taking (status vs KatiKati today)`, `ControlCenterView`, `FinderNewWindowTargetTests`, `AgentUsageTests`, `DocumentUsageRecord`, `.trimmingSharedAffixes`, `TopProcess`, `HoverStyle`, `AppRemoval`, `TimeOfDayPalette`, `SettingsCoordinator`, `IconSet`, `TaskbarPerDisplaySeedController`, `RadialDialPage`, `DockBadgeReader`, `SystemMonitorController`, `StripDisplayFilter`, `TorrentEngineClient`, `CameraMirrorService`, `ScrollWheelDeltas`, `Phase 29 — Command bar, learned from Snap / Cling / oil-find (owner 2026-10-14; PLAN ONLY, no code)`, `WindowLayoutMemory`, `SolarPhase`, `SettingsWindowContent`, `TasksController`, `LauncherSearchPosition`, `TaskItem`, `SpaceLayoutDirectory`, `ChipPanelHoverMachine`, `.entry`, `DownloadsMonitor`, `RadialDialTheme`, `PinnedFolderCoverStore`, `QuitAppRules`, `.make`, `EffectSpy`, `LiveActivity`, `ClipEntry`, `FileDragItemProviderTests`, `FullscreenIntentRequest`, `ActionExecutionSwitchesTests`, `AXWindowReadResult`, `.updateMessagingContext`, `NowPlayingTapPreset`, `MemoryOverlayController`, `UnsmoothedLabel`, `Runtime`, `AudioOutputDevice`, `CustomCommand`, `RadialDialActionType`, `.parse`, `WindowSwitcherModelTests`, `.rows`, `SettingsIridescentPalette`, `USBEjectPill`, `WallpaperEngine`, `ProcessEnvironmentScrubTests`, `NotesSyncRunnerTests`, `FinderTrashOutcome`, `WeatherChipPreset`, `FolderGridCell`, `Rule`, `AppSettingsStore.swift`, `.desiredUnitKeys`, `ExpandedMediaCardView`, `ClipboardMonitor`, `LauncherChip`, `NotchRestContent`, `StripHoverResolutionTests`, `UVLevel`, `WidgetRecorderModel`, `TaskbarScreenMenuPresentation`, `WindowLayoutRestoreController`, `NotesStore`, `Availability`, `DownloadActivity`, `TaskbarScreenPlacementTests`, `EdgeNotesPopupController`, `TaskbarScreenMode`, `.entries`, `FullscreenIntentDecision (3)`, `AccessibilitySource.swift`, `DiagnosticReport`, `LinkReaderModel`, `SettingsDraft`, `ValidationStage`, `keyGuardTapCallback`, `BuildProvenanceTests`, `VPNServiceParser`, `View`, `IslandSlotSet`, `NativeMenuHost`, `StackPopupChrome`, `LauncherApp`, `NonConstrainingPanel`, `Selection`, `KeyVisualizerController`, `.read`, `DockThemeStyle`, `CommandGeneratorTests`, `Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)`, `DockShapeToken`, `StubBadgeReader`, `.display`, `WeatherWarningKind`, `AppInstallLocation`, `.record`, `.menu`, `LinkCleanerService`, `.parseSFL`, `7. Phases (each = shippable, testable slice)`, `.clean`, `7. Phases (each = shippable, testable slice)`, `FileReachability`, `AppLaunchTargetDecision`, `StorageScanService`, `StorageItem`, `CaseIterable`, `SnapPosition`, `MessagingWindowOrderingTests`, `WidgetEditOverlay`, `.evaluate`, `FinderWindowContentsError`, `BackgroundAppsStore`, `.make`, `make_icons.swift`, `.entries`, `FinderTrashTests`, `RadialMouseTrigger`, `.prune`, `LauncherSortMode`, `LaunchSessionTokenRegistry`, `StorageCategory`, `StripPlacementMap`, `StorageCategory`, `.confirm`, `RadialDialCenterHub`, `.refreshSpaceLayout`, `.notification`, `View`, `Action`, `.dismissWindowTitleTooltip`, `NotchNotificationsPageView`, `BarSection`, `DockWidgetLogicTests`, `.closeFolderPopup`, `Content`, `.isTrackable`, `LauncherPresentation`, `WindowSubscriptionItem`, `main.swift`, `.hex`, `Foundation`, `.matchScore`, `NotchOpenAnimation`, `The density pass + the Edge Bars page — live evidence (2026-10-15, plan step A5)`, `LaunchSessionTokenRegistryTests`, `CrossPanelConversion`, `EnvironmentValues`, `.delay`, `EnvironmentValues`, `.body`, `SystemMonitorController`, `.isScannable`, `PowerFacts`, `ClockChip`?**
-  _High betweenness centrality (0.532) - this node is a cross-community bridge._
+- **Why does `String` connect `String` to `Settings Store & Layout Pane`, `App Tracker & AX Cache`, `Drag Controller & Carrier`, `DockStripView`, `NowPlayingProgressTests`, `PanelCoordinator`, `AXWindowReader`, `AppRuntime`, `ObservableObject`, `Text`, `Edge Bar Slots`, `.contains`, `BarLayoutMode`, `ShortcutAction`, `MessagingAppStore`, `Drag Conversion Tests`, `AgentUsageService`, `Debug Switches`, `Status Menu`, `DownloadManagerTests`, `SettingsLayoutPane`, `WeatherState`, `Equatable`, `.isEligible`, `CalendarService`, `NotesSyncIndex`, `String`, `.applyFullscreenVisibility`, `ShortcutTapKey`, `.mainWindowID`, `Equatable`, `App Tracker Batching`, `Live Activity Sources`, `NotchPage`, `.installFixtureForTesting`, `SettingsTab`, `TaskbarScreenOrchestrator`, `.evaluate`, `PermissionRecoveryCoordinator`, `FinderWindowContentsReader`, `QuitOnLastWindowService`, `DownloadItem`, `ObservationAdmissionGate`, `CGRect`, `BatteryStatus`, `WindowID`, `.page`, `.release`, `LaunchGateDecisionTests`, `WindowLiftAvoidance`, `NSScreen`, `LauncherView`, `KeptAppStore`, `.verdict`, `LiveSurfaceRouting`, `EdgeBarPanelController`, `.displayName`, `.evaluate`, `StripItem`, `.verdict`, `LaunchAtLoginService`, `Sendable`, `DrawerView`, `LauncherFolder`, `HyperkeyService`, `SavedCity`, `WindowTitleTooltip.swift`, `QuickToggleID`, `TaskbarDebugCard`, `View`, `NativeDockPreferencesService`, `EdgeSide`, `AppDelegate`, `GlobalHotKeyMonitor`, `.applicationDidFinishLaunching`, `TranslatePanelController`, `DockThemeTokens`, `ScanAdmissionDecisionTests`, `CommandBarPanelController`, `HoverTrace`, `.relayout`, `StackPopupGeometry`, `Phase 8 — Interior content rework (deferred: mini-plan each — owner 2026-10-11: "we will plan it out when we get there")`, `KeyGuardService`, `PinnedFolderCoverStore`, `PreferenceSliderMenuItemView`, `FileMover`, `Identifiable`, `BadgeStore`, `.init`, `DragConversionPlanTests`, `ControlCenterPanelController`, `DeckStateMachine`, `Note`, `NowPlayingService`, `EdgeBarPrefs`, `PreferenceSliderMenuItemView`, `TrashStateStoreTests`, `WindowSwitcherController`, `ChipPanelController`, `Phase 11 + 18 — detailed plan (owner 2026-10-13: "execute 11 and 18 together"; plan file approved)`, `DockTint`, `.parse`, `FullscreenClassificationTests`, `SparkleUpdateService`, `PowerNotificationCenter`, `ShortcutTrigger`, `CleanupCandidate`, `DrawerView`, `.verdict`, `NotificationSlot`, `WelcomeGuideDecisionTests`, `DockSnapshot`, `VerticalLabelRun`, `ClockPreset`, `.evaluate`, `MemoryOverlayController`, `DownloadManagerService`, `AccessibilityWindowActionExecutor`, `Aria2RPC`, `Aria2RPC`, `PermissionOnboardingView`, `BarMacro`, `DrawerCapsulePaging`, `WindowInventoryAnomalyLogTests`, `GlobalHotKeyMonitor`, `Env`, `IntentFeedbackState`, `StatusTrioView`, `.snapshot`, `AppTrackerCGWindowSnapshot`, `.snapDelay`, `NotificationMoveService`, `DragLandingFlight`, `AppLanguageOption`, `AppMembershipProjectionTests`, `SystemResizeCursor`, `PermissionEffect`, `LauncherIconStyle`, `.recognise`, `NotesSyncFolder`, `NoteCipher`, `DockLiquidGlassConfiguration`, `Phase 16 (continued) — Control Center side panel (owner 2026-10-13; "still Phase 16, not 17")`, `WindowSubscriptionLedgerTests`, `WindowDisplayTitleTests`, `LauncherOrbController`, `WidgetPreset`, `ContextPresetRules`, `LauncherQuery`, `HotKeyRecorderNSView`, `.eligibleSources`, `Open under this phase, not in any of its slices`, `StripDropRoutingTests`, `FullscreenIntentMonitor`, `ShelfStore`, `ScreenTimeController`, `SnippetExpander`, `StripDropRouting`, `.input`, `WindowDisplayAttribution`, `AppTrackerDisplayAttributionTests`, `TeleprompterModel`, `NotificationMirrorService`, `DockTheme.swift`, `TaskbarScreenPlacement`, `FileIndex`, `FullscreenIntentEventBridge`, `RunningApplicationStore`, `NotchOpenAnimation`, `CGFloat`, `CodingKeys`, `2026-10-18 — live walk of the redesigned Settings window and the vertical dock rails`, `ClaudeHookConfig`, `ShelfActions`, `Phase 53 — Input features (Lane C; after Q-input; all through the pure `KeyGuardPipeline`)`, `.sync`, `StopwatchModel`, `FinderTrashClient`, `LauncherState`, `CommandBarResult`, `Target`, `.record`, `MenuBarMetric`, `TaskList`, `InventoryAdmissionProbeVerdict`, `DispatchWorkItem`, `.isEnabled`, `SettingsGlowSchedule`, `WeatherState`, `.extract`, `DrawerCapsuleButton`, `RecentlyClosedStore`, `WindowInventoryAnomalyLog`, `StripOrderStore`, `QuickAddState`, `NotchMusicGlow`, `WeatherService`, `AppLaunchTargetDecision`, `Sub-slices`, `LauncherSearchField`, `NotesSyncPlanTests`, `SettingsCoordinatorTests.swift`, `.mainWindowIdentifiableBundleIDs`, `20c — DeskBar survey: what else is worth taking (status vs KatiKati today)`, `ControlCenterView`, `FinderNewWindowTargetTests`, `AgentUsageTests`, `DocumentUsageRecord`, `.trimmingSharedAffixes`, `TopProcess`, `HoverStyle`, `AppRemoval`, `TimeOfDayPalette`, `SettingsCoordinator`, `.make`, `MenuBarSystemItem`, `TaskbarPerDisplaySeedController`, `RadialDialPage`, `DockBadgeReader`, `SystemMonitorController`, `StripDisplayFilter`, `SolarPhase`, `ScrollWheelDeltas`, `Phase 29 — Command bar, learned from Snap / Cling / oil-find (owner 2026-10-14; PLAN ONLY, no code)`, `WindowLayoutMemory`, `WallpaperSky`, `GlassQuickAddView`, `TasksController`, `CaseIterable`, `SpaceLayoutDirectory`, `ChipPanelHoverMachine`, `.frontmostLiftCandidate`, `.entry`, `DownloadsMonitor`, `RadialDialTheme`, `PinnedFolderCoverStore`, `QuitAppRules`, `.make`, `EffectSpy`, `LiveActivity`, `ClipboardMonitor`, `FileDragItemProviderTests`, `.validate`, `.configurePanel`, `FullscreenIntentRequest`, `AXWindowReadResult`, `.updateMessagingContext`, `Phase 42 — the rail packs at the Dock's spacing, and the Dock's own icons are on the bar`, `MemoryOverlayController`, `UnsmoothedLabel`, `Runtime`, `AudioOutputDevice`, `RadialDialActionType`, `.parse`, `WindowSwitcherModelTests`, `.rows`, `FinderTrashOutcome`, `Bool`, `USBEjectPill`, `WallpaperEngine`, `ProcessEnvironmentScrubTests`, `NotesSyncRunnerTests`, `FinderTrashOutcome`, `WeatherChipPreset`, `FolderGridCell`, `Rule`, `WidgetAnimationPreset`, `.desiredUnitKeys`, `ExpandedMediaCardView`, `WidgetTallTests`, `SettingsShell`, `LauncherChip`, `NotchRestContent`, `StripHoverResolutionTests`, `.decide`, `4.4 Findings from this investigation (verified unless marked)`, `ScreenTimeSummaryView`, `WindowLayoutRestoreController`, `NotesStore`, `CameraMirrorService`, `DownloadActivity`, `TaskbarScreenPlacementTests`, `EdgeNotesPopupController`, `TaskbarScreenMode`, `.entries`, `Step`, `FullscreenIntentDecision (3)`, `ShortcutChord`, `LinkReaderModel`, `DockLiquidGlassConfigurationTests`, `SettingsDraft`, `ValidationStage`, `keyGuardTapCallback`, `BuildProvenanceTests`, `VPNServiceParser`, `View`, `IslandSlotSet`, `NativeMenuHost`, `StackPopupChrome`, `LauncherApp`, `Selection`, `KeyVisualizerController`, `.read`, `DockThemeStyle`, `CommandGenerator`, `Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)`, `DockShapeToken`, `StubBadgeReader`, `CountdownTimerModel`, `WeatherWarningKind`, `AppInstallLocation`, `.record`, `.menu`, `DisplayTopologyStore`, `.parseSFL`, `7. Phases (each = shippable, testable slice)`, `.clean`, `7. Phases (each = shippable, testable slice)`, `FileReachability`, `StorageScanService`, `AgentPricing`, `PowerNotificationKind`, `MessagingWindowOrderingTests`, `WidgetEditOverlay`, `FinderWindowContentsError`, `LiveNoticeKind`, `.make`, `make_icons.swift`, `DockEdgePreset`, `.entries`, `TrashChangeStamp`, `RadialMouseTrigger`, `HoldReason`, `InventorySeatCreationReason`, `LauncherSortMode`, `ShelfLogicTests`, `StorageCategory`, `.render`, `TranslateCardView`, `StorageCategory`, `LabMode`, `RadialDialCenterHub`, `.refreshSpaceLayout`, `Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)`, `Action`, `SettingsStagePreference`, `.beginIfNeeded`, `BarSection`, `DockWidgetLogicTests`, `.closeFolderPopup`, `Content`, `.isTrackable`, `Due`, `WindowSubscriptionItem`, `main.swift`, `.hex`, `Foundation`, `.matchScore`, `WidgetMotionPreset`, `.normalizedTitlesMatch`, `InventoryReconcileSource`, `.layout`, `Zone`, `SystemMonitorController`, `PowerFacts`, `ClockChip`?**
+  _High betweenness centrality (0.553) - this node is a cross-community bridge._
 - **Are the 204 inferred relationships involving `CGRect` (e.g. with `.detached()` and `.hostWindow()`) actually correct?**
   _`CGRect` has 204 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `.isRunning`, `system`, `light` to the rest of the system?**
-  _2468 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `.chipMenuPresenter`, `.ownsActiveDrag`, `.metrics` to the rest of the system?**
+  _2467 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Settings Store & Layout Pane` be split into smaller, more focused modules?**
-  _Cohesion score 0.03899489104368679 - nodes in this community are weakly interconnected._
-- **Why does `CGFloat` connect `View` to `Settings Store & Layout Pane`, `Platform Services (Finder/Calendar/Shelf/Sparkle)`, `Drag Controller & Carrier`, `ThemeTuning`, `DockStripView`, `PanelCoordinator`, `AXWindowReader`, `Phase 51 — Notch geometry, motion, pages (Lane A; after Q-notch)`, `AppRuntime`, `SystemStatusService`, `Phase 35 — Phase 12 code share (decided now, built with Phase 12)`, `EnvironmentValues`, `BarLayoutMode`, `Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)`, `Status Menu`, `EnvironmentValues`, `.body`, `SettingsLayoutPane`, `DrawerCapsulePreviewMetrics`, `CalendarService`, `String`, `AXWindowFrameWriteFailure`, `.mainWindowID`, `NotchPage`, `.screen`, `FinderWindowContentsReader`, `ObservationAdmissionGate`, `CGRect`, `WindowID`, `.islandTargetFrame`, `WindowLiftAvoidanceTests`, `WindowLiftAvoidance`, `NSScreen`, `LauncherView`, `EdgeBarPanelController`, `String`, `.evaluate`, `WidgetLayout`, `PanelGeometryTests`, `WindowTitleTooltip.swift`, `Text`, `EdgeSide`, `.applicationDidFinishLaunching`, `DockThemeTests`, `DockThemeTokens`, `HoverTrace`, `.relayout`, `StackPopupGeometry`, `PinnedFolderCoverStore`, `7. Phases (each = shippable, testable slice)`, `Identifiable`, `.init`, `ControlCenterPanelController`, `PreferenceSliderMenuItemView`, `ChipPanelController`, `DockPanelHeight`, `Phase 11 + 18 — detailed plan (owner 2026-10-13: "execute 11 and 18 together"; plan file approved)`, `DockTint`, `DrawerCapsuleButton`, `FullscreenClassificationTests`, `.makeCoordinator`, `DockSnapshot`, `SkyTint`, `PermissionOnboardingView`, `DrawerCapsulePaging`, `.snapshot`, `NotchDesignSpec`, `DynamicGaugeCompactDiscView`, `ChipPressGestureModifier`, `.recognise`, `DockLiquidGlassConfiguration`, `Open under this phase, not in any of its slices`, `StripDropRoutingTests`, `StripDropRouting`, `StackPopupBackdrop`, `DockTheme.swift`, `ChipSnapshotter`, `DockGlassRefractionObserver`, `StripWheelScrollInterceptor`, `ChipPillMetricsTests`, `SettingsBentoSplit`, `LiveActivityKind`, `4.4 Findings from this investigation (verified unless marked)`, `StripContextMenuZoneTests`, `FolderChipDropZoneTests`, `SettingsShell`, `WeatherState`, `DrawerCapsuleScrollView`, `Sub-slices`, `EdgeBarStyle`, `ControlCenterView`, `HoverStyle`, `ChipPanelLayout`, `WindowLayoutMemory`, `RadialDialWedgeView`, `VolumeScrollCatcherView`, `QuitAppRules`, `TimeInterval`, `LauncherIconView`, `LiveActivity`, `RadialDialView`, `ControlCenterScroll`, `Phase 42 — the rail packs at the Dock's spacing, and the Dock's own icons are on the bar`, `NotchContinuousMaskShape`, `UnsmoothedLabel`, `.hitTest`, `NotchTrackPillModel`, `FolderGridCell`, `StripWheelScrollTests`, `ExpandedMediaCardView`, `LauncherChip`, `NotchRestContent`, `StripHoverResolutionTests`, `WidgetRecorderModel`, `.widgetPanelFrame`, `DockPanelMaterial`, `DrawerCapsulePager`, `View`, `IslandLayoutSolverTests`, `DockHeightDragSession`, `StackPopupChrome`, `LauncherApp`, `DockThemeStyle`, `Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)`, `DockShapeToken`, `Item`, `.dockPanelRim`, `7. Phases (each = shippable, testable slice)`, `StripPointerBoxTests`, `CaseIterable`, `NotchFallbackPlan`, `WidgetEditOverlay`, `ShelfTrayArt`, `.mask`, `BarSection`, `DockWidgetLogicTests`, `.frame`, `.closeFolderPopup`?**
-  _High betweenness centrality (0.098) - this node is a cross-community bridge._
+  _Cohesion score 0.03372529805650825 - nodes in this community are weakly interconnected._
+- **Why does `CGFloat` connect `CGFloat` to `Settings Store & Layout Pane`, `Platform Services (Finder/Calendar/Shelf/Sparkle)`, `Drag Controller & Carrier`, `DockStripView`, `.layout`, `PanelCoordinator`, `AXWindowReader`, `NotchMetrics`, `ObservableObject`, `Text`, `BarLayoutMode`, `DeckMetrics`, `Status Menu`, `WeatherState`, `CalendarService`, `String`, `.mainWindowID`, `NotchPage`, `FinderWindowContentsReader`, `ObservationAdmissionGate`, `CGRect`, `WindowID`, `WindowLiftAvoidanceTests`, `WindowLiftAvoidance`, `NSScreen`, `LauncherView`, `EdgeBarPanelController`, `.evaluate`, `Sendable`, `DragCarrierGeometryTests`, `WindowTitleTooltip.swift`, `View`, `EdgeSide`, `NotchPanelController`, `.applicationDidFinishLaunching`, `DockThemeTests`, `DockThemeTokens`, `HoverTrace`, `.relayout`, `StackPopupGeometry`, `PinnedFolderCoverStore`, `PreferenceSliderMenuItemView`, `String`, `Identifiable`, `.init`, `ControlCenterPanelController`, `PreferenceSliderMenuItemView`, `ChipPanelController`, `DockPanelHeight`, `Phase 11 + 18 — detailed plan (owner 2026-10-13: "execute 11 and 18 together"; plan file approved)`, `DockTint`, `FullscreenClassificationTests`, `.makeCoordinator`, `DockSnapshot`, `VerticalLabelRun`, `PermissionOnboardingView`, `DrawerCapsulePaging`, `.snapshot`, `NotificationMoveService`, `DragLandingFlight`, `.recognise`, `DockLiquidGlassConfiguration`, `Open under this phase, not in any of its slices`, `StripDropRoutingTests`, `StripDropRouting`, `StackPopupBackdrop`, `DockTheme.swift`, `ChipSnapshotter`, `DockGlassRefractionObserver`, `StripWheelScrollInterceptor`, `Target`, `StripContextMenuZoneTests`, `FolderChipDropZoneTests`, `SettingsGlowSchedule`, `WeatherState`, `DrawerCapsuleButton`, `WeatherService`, `Sub-slices`, `EdgeBarStyle`, `20c — DeskBar survey: what else is worth taking (status vs KatiKati today)`, `ControlCenterView`, `TopProcess`, `HoverStyle`, `SystemMonitorController`, `WindowLayoutMemory`, `DeckLayout`, `RadialDialWedgeView`, `QuitAppRules`, `Sub-slices`, `LauncherIconView`, `LiveActivity`, `RadialDialView`, `.resolve`, `ControlCenterScroll`, `Phase 42 — the rail packs at the Dock's spacing, and the Dock's own icons are on the bar`, `NotchContinuousMaskShape`, `UnsmoothedLabel`, `WindowSnapService`, `.hitTest`, `NotchTrackPillModel`, `FolderGridCell`, `StripWheelScrollTests`, `ExpandedMediaCardView`, `SettingsShell`, `LauncherChip`, `NotchRestContent`, `StripHoverResolutionTests`, `DeckGeometry`, `SettingsMetricsTests`, `ChipPressFeedbackTests`, `.clamp`, `ShelfTrayArt`, `View`, `IslandLayoutSolverTests`, `NativeMenuHost`, `DockHeightDragSession`, `StackPopupChrome`, `LauncherApp`, `DockThemeStyle`, `Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)`, `DockShapeToken`, `.dockPanelRim`, `7. Phases (each = shippable, testable slice)`, `StripPointerBoxTests`, `WidgetEditOverlay`, `DockEdgePreset`, `.mask`, `LauncherSortMode`, `WidgetTileKit.swift`, `Phase 32 — Dock/widget motion language + circular icon look (owner 2026-10-14; ~~PROPOSED — suggestion only, not scheduled~~ **SCHEDULED 2026-10-16** — owner: "pack the circular dock, remove it from settings for now, implement the rest of phase 32"; one slice per commit, owner eyeball after every UI-visible one)`, `Phase 7B — Launchers & FAB payloads (deferred; start after Phase 6)`, `SettingsStagePreference`, `BarSection`, `DockWidgetLogicTests`?**
+  _High betweenness centrality (0.081) - this node is a cross-community bridge._
 - **Are the 15 inferred relationships involving `CGFloat` (e.g. with `.chipPanel` and `.removePlatedRepresentations()`) actually correct?**
   _`CGFloat` has 15 INFERRED edges - model-reasoned connections that need verification._
 - **Should `XCTest` be split into smaller, more focused modules?**
-  _Cohesion score 0.027869343721905904 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.025722664432341853 - nodes in this community are weakly interconnected._
