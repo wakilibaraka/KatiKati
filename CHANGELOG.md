@@ -16,6 +16,10 @@ All notable changes to KatiKati are documented in this file.
 - Clicking that count **opens the drawer on its background-app section**, and the list lands at its end when it is
   taller than the plate — a scrolled drawer otherwise always opens at the grid's top. The disc's tooltip, now the
   only place the RAM / CPU reading is shown, is no longer shadowed by an empty one from the cells above it.
+- The drawer now **rules off those background apps**: a hairline and a small **Background Apps** label sit between
+  the apps held in the drawer's order and the ones it lists because they have no window. The plate's title reads
+  **Drawer** in both cases — it used to rename the whole drawer once a single background app appeared — and the
+  drawer's row budget leaves room for the rule, so the tallest grid still clears the top of the screen.
 
 ### Removed
 - The unused `DynamicGaugeFABView` wrapper (40 pt gauge FAB, no call sites); its compact disc is unchanged.

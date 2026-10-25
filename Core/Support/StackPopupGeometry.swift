@@ -27,6 +27,11 @@ enum StackPopupMetrics {
 
     /// A status line between title and grid (no native counterpart: empty shelf, Trash state).
     static let noteHeight: CGFloat = 36
+    /// A ruled section break inside a grid: a hairline and a small label on one line. Not a native
+    /// measurement — the Dock's stack grid has one section. The drawer needs it to keep the apps it
+    /// holds in the background apart from the rest.
+    static let sectionRuleHeight: CGFloat = 18
+    static let sectionLabelSize: CGFloat = 10
 
     static let arrowHeight: CGFloat = 8
     /// Height the arrow would have with a sharp tip; its sides run at 45°.
@@ -179,7 +184,12 @@ enum StackGridLayout {
         let fitColumns = Int(((screenSize.width - 2 * StackPopupMetrics.screenMargin - plate.sidePadding
                                - plate.scrollingTrailingPadding) / cell.width).rounded(.down))
         func rows(in height: CGFloat) -> Int {
-            let fit = Int(((height - plate.gridTop - plate.bottomPadding) / cell.height).rounded(.down))
+            // A drawer holding both stashed and background apps carries a `sectionRuleHeight` rule the
+            // row math cannot see; it comes off the budget here, so the tallest plate still clears the
+            // top of the screen instead of having its last row clipped. A drawer without one simply
+            // keeps the row it would have had unless the space is within 18pt of the next one.
+            let fit = Int(((height - plate.gridTop - plate.bottomPadding - StackPopupMetrics.sectionRuleHeight)
+                           / cell.height).rounded(.down))
             return max(1, min(StackPlateMetrics.drawerMaxRows, fit))
         }
         return Limits(maxColumns: max(1, min(StackPlateMetrics.drawerMaxColumns, fitColumns)),

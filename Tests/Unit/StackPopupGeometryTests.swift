@@ -151,6 +151,21 @@ final class StackPopupGeometryTests: XCTestCase {
         XCTAssertLessThanOrEqual(plate.plateSize(columns: 7, rows: short.fitRows, hasNote: false, scrolls: true).height, 400)
     }
 
+    /// A drawer holding stashed apps and background apps at once carries a ruled section line the
+    /// row math cannot see. Its room comes out of the same budget, so the tallest ruled plate still
+    /// fits the space the limits were read from. (One row is the floor: below ~188pt the plate is
+    /// already at its smallest and the rule is the part that has to go.)
+    func testARuledDrawerStillFitsItsBudget() {
+        let plate = StackPlateMetrics.drawer
+        for height in stride(from: 190.0, through: 900.0, by: 7.0) {
+            let limits = StackGridLayout.drawerLimits(screenSize: CGSize(width: 1512, height: 982),
+                                                      availablePlateHeight: CGFloat(height))
+            let ruled = plate.plateSize(columns: 7, rows: limits.fitRows, hasNote: false, scrolls: true).height
+                + StackPopupMetrics.sectionRuleHeight
+            XCTAssertLessThanOrEqual(ruled, CGFloat(height), "\(height)pt of space")
+        }
+    }
+
     func testSizesAreDerivedFromTheShape() {
         // The native 4×3 plate measured 546 wide (+ hairline) and 428 tall.
         let plate = StackPopupMetrics.plateSize(columns: 4, rows: 3, hasNote: false)

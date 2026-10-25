@@ -137,7 +137,11 @@ struct DrawerView: View {
         let backgroundIDs = backgroundMembers
         let ids = stashedIDs + backgroundIDs
         let shape = gridShape(cellIDs: ids)
-        return StackPopupChrome(title: backgroundIDs.isEmpty ? String(localized: "Drawer") : String(localized: "Background Apps"),
+        // The title names the plate, not half of it: both kinds of cell can be in the grid at once, and
+        // the ruled line now says where the background apps start (it used to be the title's job, which
+        // renamed the whole drawer once a single background app showed up).
+        let backgroundSectionTitle = backgroundIDs.isEmpty ? nil : String(localized: "Background Apps")
+        return StackPopupChrome(title: String(localized: "Drawer"),
                                 note: shape.showsHint ? String(localized: "Drag apps here from the taskbar") : nil,
                                 layout: shape.layout,
                                 plate: .drawer,
@@ -145,9 +149,18 @@ struct DrawerView: View {
                                 arrow: arrow,
                                 onPanelSizeChange: onPanelSizeChange,
                                 gridAnimation: .easeInOut(duration: DrawerAnimation.duration),
-                                gridAnimationKey: ids) {
+                                gridAnimationKey: ids,
+                                gridExtraHeight: backgroundSectionTitle == nil ? 0 : StackPopupMetrics.sectionRuleHeight) {
             ForEach(stashedIDs, id: \.self) { drawerChip($0, running: showsAsRunning($0)).memoryPill($0, overlay: memoryOverlay) }
-            ForEach(backgroundIDs, id: \.self) { backgroundChip($0).memoryPill($0, overlay: memoryOverlay) }
+            // Background apps are not placements and cannot be dragged, so they are their own section
+            // rather than more cells in the drawer's order.
+            if let backgroundSectionTitle {
+                Section {
+                    ForEach(backgroundIDs, id: \.self) { backgroundChip($0).memoryPill($0, overlay: memoryOverlay) }
+                } header: {
+                    StackSectionRuleLabel(title: backgroundSectionTitle)
+                }
+            }
         }
         .onHover { MemoryOverlayController.shared.pointer(inside: $0) }
         // 抽屉根视图的屏幕 frame（AppKit 换算,绕开 .global/y 翻转/shadowPadding 的坑,Codex 二审 P1-3）。

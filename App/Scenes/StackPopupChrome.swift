@@ -51,6 +51,11 @@ struct StackPopupChrome<Grid: View>: View {
     /// Replaces the note line's text with a custom view (the shelf's multi-select action bar). `note` must be
     /// non-nil so the layout reserves the line.
     var noteAccessory: AnyView?
+    /// Vertical space the `grid` closure spends that `layout` does not know about — the drawer's section
+    /// rule (`StackSectionRuleLabel`). The plate and the grid area both grow by it, so a grid that does not
+    /// scroll still shows every row. The drawer's row budget reserves the same amount
+    /// (`StackGridLayout.drawerLimits`), so the taller plate still clears the top of the screen.
+    var gridExtraHeight: CGFloat = 0
     /// The cells; they land in a `LazyVGrid` of `layout.columns` fixed columns.
     @ViewBuilder let grid: () -> Grid
 
@@ -60,7 +65,9 @@ struct StackPopupChrome<Grid: View>: View {
     private typealias Metrics = StackPopupMetrics
 
     private var plateSize: CGSize {
-        plate.plateSize(columns: layout.columns, rows: layout.visibleRows, hasNote: note != nil, scrolls: layout.scrolls)
+        let base = plate.plateSize(columns: layout.columns, rows: layout.visibleRows,
+                                  hasNote: note != nil, scrolls: layout.scrolls)
+        return CGSize(width: base.width, height: base.height + gridExtraHeight)
     }
     private var gridWidth: CGFloat { CGFloat(layout.columns) * plate.cell.cellSize.width }
     private var gridHeight: CGFloat { CGFloat(layout.visibleRows) * plate.cell.cellSize.height }
@@ -194,7 +201,7 @@ struct StackPopupChrome<Grid: View>: View {
                     }
                 }
                 .frame(width: gridWidth + plate.scrollerGutter,
-                       height: gridHeight + (plate.scrollsToBottomEdge ? plate.bottomPadding : 0))
+                       height: gridHeight + gridExtraHeight + (plate.scrollsToBottomEdge ? plate.bottomPadding : 0))
                 .padding(.leading, plate.sidePadding)
                 .id(arrow.scrollGeneration)
                 // No animation, for the same reason the drawer has none on open (owner 2026-09-04):
@@ -206,9 +213,42 @@ struct StackPopupChrome<Grid: View>: View {
             }
         } else {
             cells
-                .frame(height: gridHeight, alignment: .top)
+                .frame(height: gridHeight + gridExtraHeight, alignment: .top)
                 .padding(.leading, plate.sidePadding)
         }
+    }
+}
+
+/// A ruled break between two groups of cells: a hairline across the grid and a small label under
+/// it, the way the system's own panels divide one list from the next. Its height has to agree with
+/// the space a host reserves (`StackPopupMetrics.sectionRuleHeight`, passed to the chrome as
+/// `gridExtraHeight`), which is why both read the one constant.
+struct StackSectionRuleLabel: View {
+    let title: String
+
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Rectangle()
+                .fill(theme.stackPopupSeparator.color)
+                .frame(height: 1)
+            Spacer(minLength: 0)
+            Text(title)
+                .font(.system(size: StackPopupMetrics.sectionLabelSize, weight: .medium))
+                .foregroundStyle(theme.stackPopupNote.color)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .padding(.leading, 2)
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(height: StackPopupMetrics.sectionRuleHeight)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: title))
+        .accessibilityAddTraits(.isHeader)
     }
 }
 
