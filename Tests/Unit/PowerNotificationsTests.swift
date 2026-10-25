@@ -188,6 +188,20 @@ final class PowerNotificationsTests: XCTestCase {
         XCTAssertEqual(appended.map(\.title), ["New", "Fresh"])
     }
 
+    /// The history is bounded as well as aged: a long session on a charger must not grow the stored
+    /// list without end (59b's cap).
+    func testHistoryKeepsAtMostItsCap() {
+        let now = Date(timeIntervalSince1970: 2_000_000)
+        let many = (0..<(PowerNotificationHistory.cap + 25)).map { offset in
+            PowerNotification(kind: .charging, title: "N\(offset)",
+                              date: now.addingTimeInterval(-Double(offset)))
+        }
+        let kept = PowerNotificationHistory.prune(many, now: now, retentionHours: 24 * 7)
+        XCTAssertEqual(kept.count, PowerNotificationHistory.cap)
+        XCTAssertEqual(kept.first?.title, "N0", "newest first")
+        XCTAssertEqual(kept.last?.title, "N\(PowerNotificationHistory.cap - 1)", "the oldest are dropped")
+    }
+
     func testRulesSurviveARoundTrip() {
         let defaults = UserDefaults(suiteName: "PowerNotificationsTests")!
         defaults.removePersistentDomain(forName: "PowerNotificationsTests")
