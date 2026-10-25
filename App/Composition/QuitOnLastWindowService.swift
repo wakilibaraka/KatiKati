@@ -1,5 +1,6 @@
 import AppKit
 import ApplicationServices
+import Combine
 import OSLog
 
 /// 53d: quit an opted-in app after its last window closes. Off by default and list-driven, because leaving
@@ -9,8 +10,11 @@ import OSLog
 /// on each window. A quit needs a *successful* read that went from at least one window to zero; an AX read
 /// failure is treated as unknown and never quits. `terminate()` is the graceful path, so the app's save
 /// prompt still runs. Needs Accessibility; without it every AX call fails and the service does nothing.
+///
+/// The list is `@Published` because the app-rules table in Settings edits it and draws one switch per
+/// app outside this service's own writes; without that, a row added in Settings would not redraw.
 @MainActor
-final class QuitOnLastWindowService {
+final class QuitOnLastWindowService: ObservableObject {
     static let shared = QuitOnLastWindowService()
     static let key = "com.katikati.windows.quitOnClose"
 
@@ -21,7 +25,8 @@ final class QuitOnLastWindowService {
     private var workspaceObservers: [NSObjectProtocol] = []
     private var pendingChecks: [pid_t: DispatchWorkItem] = [:]
 
-    var apps: String { UserDefaults.standard.string(forKey: Self.key) ?? "" }
+    /// Comma/whitespace separated bundle IDs, the same form the key-guard lists use.
+    @Published private(set) var apps: String = UserDefaults.standard.string(forKey: QuitOnLastWindowService.key) ?? ""
     var isEnabled: Bool { !policy.bundleIDs.isEmpty }
 
     // MARK: lifecycle
@@ -78,6 +83,7 @@ final class QuitOnLastWindowService {
 
     func setApps(_ raw: String) {
         guard raw != apps else { return }
+        apps = raw
         UserDefaults.standard.set(raw, forKey: Self.key)
         refresh()
     }

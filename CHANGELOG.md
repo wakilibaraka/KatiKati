@@ -2,6 +2,23 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased] — one app table for every quit rule
+
+### Changed
+- **Quitting is one table now** (Settings › Shortcuts, beside Hold ⌘Q to Quit): every app with a quit rule of its own
+  is one row with three switches — **Skip Hold** (⌘Q quits at once), **Own ⌘Q** (the app keeps its own ⌘Q, for remote
+  desktops and virtual machines) and **Quit on Close** (quit once its last window closes). Apps are added by name from
+  the ones that are running, or by bundle ID for one that is not, and a typed ID is checked first — the four
+  comma-separated fields this replaces each swallowed a typo without a word. Skip Hold and Own ⌘Q cannot both be on,
+  because the key tap reads Own ⌘Q first and the other switch would have been a lie. Turning an app's last switch off
+  takes its row away, and the table names the app instead of asking you to remember `com.company.App`.
+- **Quit when the last window closes** left Settings › Tiling: it was never a tiling setting, and it is the third
+  column of that table now. Finder, the Dock and KatiKati itself are not offered that column; the row says why.
+
+### Removed
+- The four per-app bundle-ID text fields ("Quit instantly, no hold", "Pass ⌘Q through", "Quit when the last window
+  closes"). Their values are kept — the table reads and writes the same three keys.
+
 ## [Unreleased] — background apps in the capsule, and a paste-to-Finder shortcut
 
 ### Added

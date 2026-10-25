@@ -136,6 +136,7 @@ extension SettingsLayoutPane {
                 info: String(localized: "Press and hold ⌘Q for a moment to quit an app; releasing early cancels it. Apps listed below quit instantly instead.")
             )
             if keyGuard.isSlowQuitEnabled {
+                SettingsDivider()
                 SettingsSliderRow(
                     Text("Hold duration"),
                     value: keyGuard.slowQuitDuration,
@@ -144,26 +145,12 @@ extension SettingsLayoutPane {
                     valueText: String(format: "%.1fs", keyGuard.slowQuitDuration),
                     set: { keyGuard.setSlowQuitDuration($0) }
                 )
-                SettingsRow(Text("Quit instantly, no hold (bundle IDs)")) {
-                    TextField("Quit instantly, no hold (bundle IDs)", text: Binding(
-                        get: { keyGuard.slowQuitExceptions },
-                        set: { keyGuard.setSlowQuitExceptions($0) }
-                    ))
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 220)
-                }
-                SettingsRow(
-                    Text("Pass ⌘Q through (bundle IDs)"),
-                    note: Text("These apps keep their own ⌘Q, for remote desktops and virtual machines.")
-                ) {
-                    TextField("Pass ⌘Q through (bundle IDs)", text: Binding(
-                        get: { keyGuard.passthroughApps },
-                        set: { keyGuard.setPassthroughApps($0) }
-                    ))
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 220)
-                }
             }
+            // 24c, 53d and 53i used to be four comma-separated fields on two pages; they are one
+            // table now, and it stays visible whether or not the hold is on, because the
+            // quit-on-close column does not depend on it.
+            SettingsDivider()
+            QuitAppRulesTable()
             SettingsDivider()
             SettingsToggleRow(
                 Text("Show Keys You Type"),
@@ -358,5 +345,238 @@ extension SettingsLayoutPane {
         case .tapToggle: return Text("Tap / Click to Toggle")
         case .holdRelease: return Text("Hold & Release")
         }
+    }
+}
+
+/// The quitting table: one row per app, three columns. It replaces four comma-separated fields that
+/// lived on two pages (24c's instant-quit list, 53i's pass-through list and 53d's quit-on-close list)
+/// and each failed silently on a typo — nothing said "that is not an app".
+///
+/// The columns *are* the three stored lists, read through `QuitAppRules`, so the table and the key tap
+/// cannot disagree; every edit writes all three back through `apply`. A table rather than a row per app
+/// because three switches and a remove button do not fit a row's trailing column, and the column
+/// captions have to stay above the columns they name (the row-content exemption in `Docs/SETTINGS.md`
+/// rule 3, as with `AppearanceModeCards`).
+struct QuitAppRulesTable: View {
+    @ObservedObject var keyGuard = KeyGuardService.shared
+    @ObservedObject var quitOnClose = QuitOnLastWindowService.shared
+    /// The typed bundle ID. Only ever a candidate: nothing is written until Add.
+    @State private var draft = ""
+
+    /// Wide enough for the longest caption ("Quit on Close") at `.caption`, so the header and its
+    /// switches share one centre line.
+    private static let columnWidth: CGFloat = 92
+    private static let removeWidth: CGFloat = 16
+
+    private struct Candidate: Identifiable {
+        let bundleID: String
+        let name: String
+        var id: String { bundleID }
+    }
+
+    private var rules: QuitAppRules {
+        .parse(skipHold: keyGuard.slowQuitExceptions,
+               ownQuitKey: keyGuard.passthroughApps,
+               quitOnClose: quitOnClose.apps)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SettingsMetrics.rowNoteSpacing) {
+            header
+            if rules.rows.isEmpty {
+                SettingsNote(Text("No apps yet. Add one below to change how it quits."))
+            }
+            ForEach(rules.rows) { row in
+                SettingsDivider()
+                appRow(row)
+            }
+            SettingsDivider()
+            addRow
+        }
+        .padding(.vertical, SettingsMetrics.rowVerticalPadding)
+    }
+
+    // MARK: header
+
+    private var header: some View {
+        HStack(spacing: SettingsMetrics.controlSpacing) {
+            HStack(spacing: 6) {
+                Text("Apps")
+                SettingsInfoButton(text: Self.explanation)
+            }
+            Spacer(minLength: SettingsMetrics.rowMinimumLabelGap)
+            HStack(spacing: SettingsMetrics.controlSpacing) {
+                ForEach(QuitAppRules.Option.allCases) { option in
+                    Text(verbatim: Self.caption(option))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .frame(width: Self.columnWidth)
+                }
+            }
+            Color.clear.frame(width: Self.removeWidth)
+        }
+        .accessibilityElement(children: .contain)
+        // The page's find field and the sidebar search both walk row titles; the table's rows have
+        // none of their own, so the table answers to its header.
+        .settingsFindable(Text("Apps"))
+    }
+
+    // MARK: rows
+
+    private func appRow(_ row: QuitAppRules.Row) -> some View {
+        VStack(alignment: .leading, spacing: SettingsMetrics.rowNoteSpacing) {
+            HStack(spacing: SettingsMetrics.controlSpacing) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: Self.displayName(for: row.bundleID))
+                        .lineLimit(1)
+                    Text(verbatim: row.bundleID)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                Spacer(minLength: SettingsMetrics.rowMinimumLabelGap)
+                ForEach(QuitAppRules.Option.allCases) { option in
+                    toggle(option, row: row)
+                }
+                Button {
+                    apply { $0.remove(row.bundleID) }
+                } label: {
+                    Image(systemName: "xmark")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .frame(width: Self.removeWidth)
+                .help(Text("Remove"))
+                .accessibilityLabel(Text("Remove"))
+                // The label is the same on every row; the app it belongs to is the hint.
+                .accessibilityHint(Text(verbatim: Self.displayName(for: row.bundleID)))
+            }
+            // Rule 7: a disabled control says why on its own row, not only in the ⓘ above.
+            if !QuitOnLastWindowPolicy.allowsQuitOnClose(row.bundleID) {
+                SettingsNote(Text("Finder, the Dock and KatiKati itself are always left alone."))
+            }
+        }
+        .padding(.vertical, SettingsMetrics.rowVerticalPadding)
+    }
+
+    /// One switch. The tooltip and the VoiceOver label are the caption above it, so a column can never
+    /// be named one thing in the header and another to a screen reader (rule 9).
+    private func toggle(_ option: QuitAppRules.Option, row: QuitAppRules.Row) -> some View {
+        let caption = Self.caption(option)
+        return Toggle(isOn: Binding(
+            get: { rules.row(row.bundleID)?.isOn(option) ?? false },
+            set: { on in apply { $0.set(option, for: row.bundleID, to: on) } }
+        )) {
+            Text(verbatim: caption)
+        }
+        .toggleStyle(.switch)
+        .controlSize(.mini)
+        .labelsHidden()
+        .frame(width: Self.columnWidth)
+        .disabled(option == .quitOnClose && !QuitOnLastWindowPolicy.allowsQuitOnClose(row.bundleID))
+        .help(Text(verbatim: caption))
+        .accessibilityLabel(Text(verbatim: caption))
+    }
+
+    // MARK: adding
+
+    private var addRow: some View {
+        VStack(alignment: .leading, spacing: SettingsMetrics.rowNoteSpacing) {
+            HStack(spacing: SettingsMetrics.controlSpacing) {
+                HStack(spacing: 6) {
+                    Text("Add App")
+                    SettingsInfoButton(text: Self.addition)
+                }
+                Spacer(minLength: SettingsMetrics.rowMinimumLabelGap)
+                TextField("Bundle ID", text: $draft)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 170)
+                    .accessibilityLabel(Text("Bundle ID"))
+                Button("Add") { add(draft) }
+                    .buttonStyle(SettingsGelButtonStyle())
+                    .disabled(!QuitAppRules.isPlausibleBundleID(draft))
+                // Running apps carry their real names, which is the point: a bundle ID is not
+                // something to remember. Apps that are not running are added by bundle ID above.
+                Menu {
+                    ForEach(runningApps) { app in
+                        Button { add(app.bundleID) } label: { Text(verbatim: app.name) }
+                    }
+                } label: {
+                    Image(systemName: "list.bullet")
+                }
+                .menuStyle(.borderlessButton)
+                .fixedSize()
+                .disabled(runningApps.isEmpty)
+                .help(Text("Running Apps"))
+                .accessibilityLabel(Text("Running Apps"))
+            }
+            if !draft.isEmpty, !QuitAppRules.isPlausibleBundleID(draft) {
+                SettingsNote(Text("That is not a bundle ID. Use the form com.company.AppName."))
+            }
+        }
+        .padding(.vertical, SettingsMetrics.rowVerticalPadding)
+    }
+
+    private func add(_ raw: String) {
+        guard QuitAppRules.isPlausibleBundleID(raw) else { return }
+        let id = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        // 53i: a new app starts in Own ⌘Q — its ⌘Q exactly as macOS has it — because every other
+        // column changes something. The ⓘ says so, and the switches are one click away.
+        apply { $0.set(.ownQuitKey, for: id, to: true) }
+        draft = ""
+    }
+
+    /// One write path: read the three lists, change the table, write all three back. Writing one
+    /// column on its own would leave the table and the services disagreeing about an app.
+    private func apply(_ edit: (inout QuitAppRules) -> Void) {
+        var updated = rules
+        edit(&updated)
+        keyGuard.setSlowQuitExceptions(updated.skipHoldList)
+        keyGuard.setPassthroughApps(updated.ownQuitKeyList)
+        quitOnClose.setApps(updated.quitOnCloseList)
+    }
+
+    // MARK: names
+
+    /// The app's own name when the system can find it, its bundle ID when it cannot — an app that is
+    /// not installed still has to be recognisable in the list.
+    static func displayName(for bundleID: String) -> String {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else {
+            return bundleID
+        }
+        return url.deletingPathExtension().lastPathComponent
+    }
+
+    /// One string per column, shared by the caption, the tooltip and the VoiceOver label.
+    static func caption(_ option: QuitAppRules.Option) -> String {
+        switch option {
+        case .skipHold: return String(localized: "Skip Hold")
+        case .ownQuitKey: return String(localized: "Own ⌘Q")
+        case .quitOnClose: return String(localized: "Quit on Close")
+        }
+    }
+
+    private var runningApps: [Candidate] {
+        let known = Set(rules.rows.map(\.bundleID))
+        return NSWorkspace.shared.runningApplications
+            .filter { $0.activationPolicy == .regular }
+            .compactMap { app -> Candidate? in
+                guard let id = app.bundleIdentifier, !known.contains(id),
+                      QuitAppRules.isPlausibleBundleID(id) else { return nil }
+                return Candidate(bundleID: id, name: app.localizedName ?? Self.displayName(for: id))
+            }
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+
+    // MARK: explanations (rule 4: a row's note stays one line, the rest is behind the ⓘ)
+
+    private static var explanation: String {
+        String(localized: "Skip Hold quits that app the moment you press ⌘Q. Own ⌘Q leaves its own ⌘Q alone, for remote desktops and virtual machines, and cannot be on at the same time as Skip Hold. Quit on Close ends the app after its last window closes; it asks the app to quit, so a save prompt still runs, and it needs the Accessibility permission. Pausing the keyboard does not stop it.")
+    }
+
+    private static var addition: String {
+        String(localized: "Pick a running app, or type the bundle ID of one that is not running. A new app starts in Own ⌘Q — its ⌘Q unchanged — so switch on the column you want, and turn that one off if the app should need the hold.")
     }
 }

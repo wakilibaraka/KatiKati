@@ -61618,83 +61618,6 @@
         }
       }
     },
-    "Quit instantly, no hold (bundle IDs)": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quit instantly, no hold (bundle IDs)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "立即退出，不需按住（Bundle ID）"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "立即結束，不需按住（Bundle ID）"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "長押しせず即時に終了（バンドル ID）"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sofort beenden, ohne Halten (Bundle-ID)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quitter immédiatement, sans maintien (ID de bundle)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salir al instante, sin mantener (ID de paquete)"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salir al instante, sin mantener (ID de paquete)"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sair imediatamente, sem segurar (ID do bundle)"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sair de imediato, sem premir (ID do bundle)"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Esci subito, senza premere (ID bundle)"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "길게 누르지 않고 즉시 종료(ID 번호)"
-          }
-        }
-      }
-    },
     "Show Keys You Type": {
       "extractionState": "manual",
       "localizations": {
@@ -74547,40 +74470,6 @@
         "ko": {"stringUnit": {"state": "translated", "value": "Finder에서 ⌘X는 선택 항목을 복사하고 이동 대기 상태로 표시하며, ⌘V를 누르면 현재 폴더로 이동합니다."}}
       }
     },
-    "Pass ⌘Q through (bundle IDs)": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Pass ⌘Q through (bundle IDs)"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "让 ⌘Q 直接传递（Bundle ID）"}},
-        "zh-Hant": {"stringUnit": {"state": "translated", "value": "讓 ⌘Q 直接傳遞（Bundle ID）"}},
-        "ja": {"stringUnit": {"state": "translated", "value": "⌘Q をそのまま渡す（バンドル ID）"}},
-        "de": {"stringUnit": {"state": "translated", "value": "⌘Q durchreichen (Bundle-IDs)"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Laisser passer ⌘Q (identifiants de bundle)"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Dejar pasar ⌘Q (ID de bundle)"}},
-        "es-419": {"stringUnit": {"state": "translated", "value": "Dejar pasar ⌘Q (ID de bundle)"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Deixar ⌘Q passar (IDs de bundle)"}},
-        "pt-PT": {"stringUnit": {"state": "translated", "value": "Deixar passar ⌘Q (IDs de bundle)"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Lascia passare ⌘Q (ID bundle)"}},
-        "ko": {"stringUnit": {"state": "translated", "value": "⌘Q 그대로 전달 (번들 ID)"}}
-      }
-    },
-    "These apps keep their own ⌘Q, for remote desktops and virtual machines.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "These apps keep their own ⌘Q, for remote desktops and virtual machines."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "这些应用保留自己的 ⌘Q，适用于远程桌面和虚拟机。"}},
-        "zh-Hant": {"stringUnit": {"state": "translated", "value": "這些應用程式保留自己的 ⌘Q，適用於遠端桌面和虛擬機器。"}},
-        "ja": {"stringUnit": {"state": "translated", "value": "これらのアプリは独自の ⌘Q を使います（リモートデスクトップや仮想マシン向け）。"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Diese Apps behalten ihr eigenes ⌘Q – für Remotedesktops und virtuelle Maschinen."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Ces apps gardent leur propre ⌘Q (bureaux à distance et machines virtuelles)."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Estas apps conservan su propio ⌘Q (escritorios remotos y máquinas virtuales)."}},
-        "es-419": {"stringUnit": {"state": "translated", "value": "Estas apps conservan su propio ⌘Q (escritorios remotos y máquinas virtuales)."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Esses apps mantêm o próprio ⌘Q (áreas de trabalho remotas e máquinas virtuais)."}},
-        "pt-PT": {"stringUnit": {"state": "translated", "value": "Estas apps mantêm o seu próprio ⌘Q (ambientes de trabalho remotos e máquinas virtuais)."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Queste app mantengono il proprio ⌘Q (desktop remoti e macchine virtuali)."}},
-        "ko": {"stringUnit": {"state": "translated", "value": "이 앱들은 자체 ⌘Q를 사용합니다(원격 데스크톱 및 가상 머신용)."}}
-      }
-    },
     "Expand Snippets Anywhere": {
       "extractionState": "manual",
       "localizations": {
@@ -74819,23 +74708,6 @@
         "ko": {"stringUnit": {"state": "translated", "value": "정리할 항목 없음"}}
       }
     },
-    "One bundle identifier per app, separated by commas. KatiKati quits the app gracefully, so its own save prompt still runs. Empty means off; needs Accessibility.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "One bundle identifier per app, separated by commas. KatiKati quits the app gracefully, so its own save prompt still runs. Empty means off; needs Accessibility."}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "每个应用一个 Bundle ID，用逗号分隔。KatiKati 会正常退出应用，因此应用自己的保存提示仍会出现。留空即关闭；需要辅助功能权限。"}},
-        "zh-Hant": {"stringUnit": {"state": "translated", "value": "每個 App 一個 Bundle ID，以逗號分隔。KatiKati 會正常結束 App，因此 App 本身的儲存提示仍會出現。留空即關閉；需要輔助使用權限。"}},
-        "ja": {"stringUnit": {"state": "translated", "value": "アプリごとにバンドル ID を 1 つ、カンマ区切りで入力します。KatiKati はアプリを正常終了させるため、アプリ自身の保存確認は表示されます。空欄はオフです。アクセシビリティ権限が必要です。"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Eine Bundle-ID pro App, durch Kommas getrennt. KatiKati beendet die App regulär, daher erscheint deren eigener Sicherungshinweis. Leer bedeutet aus; benötigt Bedienungshilfen."}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Un identifiant de bundle par app, séparés par des virgules. KatiKati quitte l’app normalement, donc son invitation à enregistrer s’affiche toujours. Vide signifie désactivé ; nécessite Accessibilité."}},
-        "es": {"stringUnit": {"state": "translated", "value": "Un ID de bundle por app, separados por comas. KatiKati cierra la app de forma normal, así que su propio aviso de guardado sigue apareciendo. Vacío significa desactivado; requiere Accesibilidad."}},
-        "es-419": {"stringUnit": {"state": "translated", "value": "Un ID de bundle por app, separados por comas. KatiKati cierra la app de forma normal, así que su propio aviso de guardado sigue apareciendo. Vacío significa desactivado; requiere Accesibilidad."}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Um ID de bundle por app, separados por vírgulas. O KatiKati encerra o app normalmente, então o próprio aviso de salvar ainda aparece. Vazio significa desligado; requer Acessibilidade."}},
-        "pt-PT": {"stringUnit": {"state": "translated", "value": "Um ID de bundle por app, separados por vírgulas. O KatiKati encerra a app normalmente, pelo que o próprio aviso de guardar continua a aparecer. Vazio significa desativado; requer Acessibilidade."}},
-        "it": {"stringUnit": {"state": "translated", "value": "Un ID bundle per app, separati da virgole. KatiKati chiude l’app normalmente, quindi il suo avviso di salvataggio appare comunque. Vuoto significa disattivato; richiede Accessibilità."}},
-        "ko": {"stringUnit": {"state": "translated", "value": "앱마다 번들 ID를 하나씩 쉼표로 구분해 입력하세요. KatiKati는 앱을 정상 종료하므로 앱 자체의 저장 확인이 표시됩니다. 비워 두면 꺼집니다. 손쉬운 사용 권한이 필요합니다."}}
-      }
-    },
     "Pinned items never expire. History is kept in memory only.": {
       "extractionState": "manual",
       "localizations": {
@@ -74851,23 +74723,6 @@
         "pt-PT": {"stringUnit": {"state": "translated", "value": "Itens fixados nunca expiram. O histórico fica apenas na memória."}},
         "it": {"stringUnit": {"state": "translated", "value": "Gli elementi fissati non scadono mai. La cronologia resta solo in memoria."}},
         "ko": {"stringUnit": {"state": "translated", "value": "고정한 항목은 만료되지 않습니다. 기록은 메모리에만 보관됩니다."}}
-      }
-    },
-    "Quit when the last window closes (bundle IDs)": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {"stringUnit": {"state": "translated", "value": "Quit when the last window closes (bundle IDs)"}},
-        "zh-Hans": {"stringUnit": {"state": "translated", "value": "最后一个窗口关闭时退出（Bundle ID）"}},
-        "zh-Hant": {"stringUnit": {"state": "translated", "value": "最後一個視窗關閉時結束（Bundle ID）"}},
-        "ja": {"stringUnit": {"state": "translated", "value": "最後のウインドウを閉じたら終了（バンドル ID）"}},
-        "de": {"stringUnit": {"state": "translated", "value": "Beim Schließen des letzten Fensters beenden (Bundle-IDs)"}},
-        "fr": {"stringUnit": {"state": "translated", "value": "Quitter à la fermeture de la dernière fenêtre (identifiants de bundle)"}},
-        "es": {"stringUnit": {"state": "translated", "value": "Salir al cerrar la última ventana (ID de bundle)"}},
-        "es-419": {"stringUnit": {"state": "translated", "value": "Salir al cerrar la última ventana (ID de bundle)"}},
-        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sair ao fechar a última janela (IDs de bundle)"}},
-        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sair ao fechar a última janela (IDs de bundle)"}},
-        "it": {"stringUnit": {"state": "translated", "value": "Esci alla chiusura dell’ultima finestra (ID bundle)"}},
-        "ko": {"stringUnit": {"state": "translated", "value": "마지막 윈도우를 닫으면 종료 (번들 ID)"}}
       }
     },
     "Review Caches…": {
@@ -75956,6 +75811,193 @@
         "pt-PT": {"stringUnit": {"state": "translated", "value": "Não foi possível gravar a imagem."}},
         "it": {"stringUnit": {"state": "translated", "value": "Impossibile scrivere l’immagine."}},
         "ko": {"stringUnit": {"state": "translated", "value": "이미지를 저장하지 못했습니다."}}
+      }
+    },
+    "Skip Hold": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Skip Hold"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "跳过长按"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "略過長按"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "長押しを省略"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Halten überspringen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Sans maintien"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sin mantener"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Sin mantener"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sem segurar"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sem premir"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Senza pressione"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "길게 누르기 생략"}}
+      }
+    },
+    "Own ⌘Q": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Own ⌘Q"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "自带 ⌘Q"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "自帶 ⌘Q"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "独自の ⌘Q"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Eigenes ⌘Q"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "⌘Q propre"}},
+        "es": {"stringUnit": {"state": "translated", "value": "⌘Q propia"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "⌘Q propia"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "⌘Q próprio"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "⌘Q própria"}},
+        "it": {"stringUnit": {"state": "translated", "value": "⌘Q propria"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "자체 ⌘Q"}}
+      }
+    },
+    "Quit on Close": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Quit on Close"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "关闭即退出"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "關閉即結束"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "閉じたら終了"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Beim Schließen beenden"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Quitter à la fermeture"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Salir al cerrar"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Salir al cerrar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sair ao fechar"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sair ao fechar"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Esci alla chiusura"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "닫으면 종료"}}
+      }
+    },
+    "Add App": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Add App"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "添加 App"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "加入 App"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "アプリを追加"}},
+        "de": {"stringUnit": {"state": "translated", "value": "App hinzufügen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ajouter une app"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Añadir app"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Agregar app"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Adicionar app"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Adicionar app"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Aggiungi app"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "앱 추가"}}
+      }
+    },
+    "Bundle ID": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Bundle ID"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "应用包 ID"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "套件識別碼"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "バンドル ID"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Bundle-ID"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "ID de bundle"}},
+        "es": {"stringUnit": {"state": "translated", "value": "ID de paquete"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "ID de paquete"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "ID do bundle"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "ID do bundle"}},
+        "it": {"stringUnit": {"state": "translated", "value": "ID bundle"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "번들 ID"}}
+      }
+    },
+    "Running Apps": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Running Apps"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "运行中的 App"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "執行中的 App"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "実行中のアプリ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Laufende Apps"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Apps ouvertes"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Apps en ejecución"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Apps en ejecución"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Apps em execução"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Apps em execução"}},
+        "it": {"stringUnit": {"state": "translated", "value": "App in esecuzione"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "실행 중인 앱"}}
+      }
+    },
+    "No apps yet. Add one below to change how it quits.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No apps yet. Add one below to change how it quits."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "还没有 App。在下方添加一个，即可改变它的退出方式。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "還沒有 App。在下方加入一個，即可改變它的結束方式。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "アプリがありません。下で追加すると、終了方法を変更できます。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Noch keine Apps. Unten eine hinzufügen, um ihr Beenden zu ändern."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucune app pour l’instant. Ajoutez-en une ci-dessous pour changer sa façon de quitter."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Aún no hay apps. Añade una abajo para cambiar cómo sale."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Aún no hay apps. Agrega una abajo para cambiar cómo sale."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum app ainda. Adicione um abaixo para mudar como ele sai."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ainda não há apps. Adicione uma abaixo para mudar a forma como sai."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessuna app per ora. Aggiungine una sotto per cambiarne l’uscita."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "아직 앱이 없습니다. 아래에서 추가하면 종료 방식을 바꿀 수 있습니다."}}
+      }
+    },
+    "That is not a bundle ID. Use the form com.company.AppName.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "That is not a bundle ID. Use the form com.company.AppName."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "这不是应用包 ID。格式应为 com.company.AppName。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "這不是套件識別碼。格式應為 com.company.AppName。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "バンドル ID ではありません。com.company.AppName の形式で入力してください。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Das ist keine Bundle-ID. Das Format lautet com.company.AppName."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ce n’est pas un ID de bundle. Utilisez la forme com.company.AppName."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Eso no es un ID de paquete. Usa el formato com.company.AppName."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Eso no es un ID de paquete. Usa el formato com.company.AppName."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Isso não é um ID de bundle. Use o formato com.company.AppName."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Isso não é um ID do bundle. Use o formato com.company.AppName."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Non è un ID bundle. Usa il formato com.company.AppName."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "번들 ID가 아닙니다. com.company.AppName 형식으로 입력하십시오."}}
+      }
+    },
+    "Finder, the Dock and KatiKati itself are always left alone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Finder, the Dock and KatiKati itself are always left alone."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "访达、程序坞和 KatiKati 本身始终不会被退出。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Finder、Dock 和 KatiKati 本身一律不會被結束。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Finder、Dock、KatiKati 自体は常に対象外です。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Finder, das Dock und KatiKati selbst bleiben immer unangetastet."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Le Finder, le Dock et KatiKati lui-même ne sont jamais concernés."}},
+        "es": {"stringUnit": {"state": "translated", "value": "El Finder, el Dock y KatiKati nunca se tocan."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "El Finder, el Dock y KatiKati nunca se tocan."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "O Finder, o Dock e o próprio KatiKati nunca são afetados."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "O Finder, a Dock e o próprio KatiKati nunca são afetados."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Finder, Dock e KatiKati stesso non vengono mai toccati."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Finder, Dock, KatiKati 자체는 항상 제외됩니다."}}
+      }
+    },
+    "Skip Hold quits that app the moment you press ⌘Q. Own ⌘Q leaves its own ⌘Q alone, for remote desktops and virtual machines, and cannot be on at the same time as Skip Hold. Quit on Close ends the app after its last window closes; it asks the app to quit, so a save prompt still runs, and it needs the Accessibility permission. Pausing the keyboard does not stop it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Skip Hold quits that app the moment you press ⌘Q. Own ⌘Q leaves its own ⌘Q alone, for remote desktops and virtual machines, and cannot be on at the same time as Skip Hold. Quit on Close ends the app after its last window closes; it asks the app to quit, so a save prompt still runs, and it needs the Accessibility permission. Pausing the keyboard does not stop it."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "「跳过长按」会让 ⌘Q 一按下就退出该 App。「自带 ⌘Q」保留 App 自己的 ⌘Q，适合远程桌面和虚拟机，不能与「跳过长按」同时开启。「关闭即退出」会在 App 的最后一个窗口关闭后结束它；它会请求 App 退出，因此 App 自己的保存提示仍会出现，并且需要辅助功能权限。暂停键盘不会阻止它。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "「略過長按」會讓 ⌘Q 一按下就結束該 App。「自帶 ⌘Q」保留 App 自己的 ⌘Q，適合遠端桌面與虛擬機，不能與「略過長按」同時開啟。「關閉即結束」會在 App 的最後一個視窗關閉後結束它；它會要求 App 結束，因此 App 自己的儲存提示仍會出現，且需要輔助使用權限。暫停鍵盤不會阻止它。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "「長押しを省略」は ⌘Q を押した瞬間にそのアプリを終了します。「独自の ⌘Q」はアプリ自身の ⌘Q をそのまま使い、リモートデスクトップや仮想マシン向けで、「長押しを省略」とは同時にオンにできません。「閉じたら終了」は最後のウインドウを閉じた後にアプリを終了します。アプリに終了を要求するため保存の確認は表示され、アクセシビリティ権限が必要です。キーボードを一時停止してもこれは止まりません。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "„Halten überspringen“ beendet die App, sobald ⌘Q gedrückt wird. „Eigenes ⌘Q“ lässt der App ihr eigenes ⌘Q, für Remote-Desktops und virtuelle Maschinen, und lässt sich nicht gleichzeitig mit „Halten überspringen“ einschalten. „Beim Schließen beenden“ beendet die App, nachdem ihr letztes Fenster geschlossen wurde; die App wird zum Beenden aufgefordert, ein eigener Speichern-Dialog erscheint also weiterhin, und es braucht die Bedienungshilfen-Berechtigung. Die Tastaturpause hält das nicht auf."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "« Sans maintien » quitte l’app dès que vous appuyez sur ⌘Q. « ⌘Q propre » laisse à l’app son propre ⌘Q, pour les bureaux à distance et les machines virtuelles, et ne peut pas être activé en même temps. « Quitter à la fermeture » quitte l’app une fois sa dernière fenêtre fermée ; l’app est invitée à quitter, donc son invite d’enregistrement s’affiche toujours, et cela demande l’autorisation Accessibilité. La mise en pause du clavier ne l’arrête pas."}},
+        "es": {"stringUnit": {"state": "translated", "value": "«Sin mantener» hace que la app salga en cuanto pulsas ⌘Q. «⌘Q propia» deja a la app con su propia ⌘Q, para escritorios remotos y máquinas virtuales, y no puede estar activa a la vez. «Salir al cerrar» cierra la app cuando se cierra su última ventana; se le pide a la app que salga, así que su aviso de guardado sigue apareciendo, y necesita el permiso de Accesibilidad. Pausar el teclado no lo detiene."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "«Sin mantener» hace que la app salga en cuanto presionas ⌘Q. «⌘Q propia» deja a la app con su propia ⌘Q, para escritorios remotos y máquinas virtuales, y no puede estar activa a la vez. «Salir al cerrar» cierra la app cuando se cierra su última ventana; se le pide a la app que salga, así que su aviso de guardado sigue apareciendo, y necesita el permiso de Accesibilidad. Pausar el teclado no lo detiene."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "“Sem segurar” faz o app sair no momento em que você pressiona ⌘Q. “⌘Q próprio” deixa o app com o próprio ⌘Q, para áreas de trabalho remotas e máquinas virtuais, e não pode ficar ligado ao mesmo tempo. “Sair ao fechar” encerra o app depois que a última janela fecha; ele pede ao app que saia, então o aviso de salvar ainda aparece, e precisa da permissão de Acessibilidade. Pausar o teclado não impede isso."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "«Sem premir» faz a app sair no momento em que prime ⌘Q. «⌘Q própria» deixa a app com o seu próprio ⌘Q, para ambientes de trabalho remotos e máquinas virtuais, e não pode estar ativo ao mesmo tempo. «Sair ao fechar» encerra a app depois de a última janela fechar; pede à app que saia, por isso o aviso de gravação continua a aparecer, e requer a permissão de Acessibilidade. Pausar o teclado não o impede."}},
+        "it": {"stringUnit": {"state": "translated", "value": "«Senza pressione» chiude l’app appena premi ⌘Q. «⌘Q propria» lascia all’app il suo ⌘Q, per desktop remoti e macchine virtuali, e non può essere attiva insieme. «Esci alla chiusura» chiude l’app dopo la chiusura dell’ultima finestra; chiede all’app di uscire, quindi il suo avviso di salvataggio compare ancora, e richiede il permesso Accessibilità. Mettere in pausa la tastiera non lo ferma."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "‘길게 누르기 생략’은 ⌘Q를 누르는 즉시 해당 앱을 종료합니다. ‘자체 ⌘Q’는 앱 고유의 ⌘Q를 그대로 두며 원격 데스크톱과 가상 머신에 쓰이고, ‘길게 누르기 생략’과 동시에 켤 수 없습니다. ‘닫으면 종료’는 앱의 마지막 윈도우가 닫힌 뒤 앱을 종료합니다. 앱에 종료를 요청하므로 앱 자체의 저장 확인은 그대로 표시되며, 손쉬운 사용 권한이 필요합니다. 키보드 일시 정지는 이를 막지 않습니다."}}
+      }
+    },
+    "Pick a running app, or type the bundle ID of one that is not running. A new app starts in Own ⌘Q — its ⌘Q unchanged — so switch on the column you want, and turn that one off if the app should need the hold.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Pick a running app, or type the bundle ID of one that is not running. A new app starts in Own ⌘Q — its ⌘Q unchanged — so switch on the column you want, and turn that one off if the app should need the hold."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "选择一个正在运行的 App，或输入未运行 App 的应用包 ID。新加入的 App 会先处于「自带 ⌘Q」——⌘Q 保持原样——所以请打开你想要的那一列；如果该 App 需要长按，再把这个关掉。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "選擇一個執行中的 App，或輸入未執行 App 的套件識別碼。新加入的 App 會先處於「自帶 ⌘Q」——⌘Q 保持原樣——所以請開啟你想要的那一欄；如果該 App 需要長按，再把這個關掉。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "実行中のアプリを選ぶか、実行していないアプリのバンドル ID を入力します。追加したアプリはまず「独自の ⌘Q」（⌘Q はそのまま）になるので、使いたい列をオンにし、長押しが必要ならこれをオフにしてください。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Eine laufende App auswählen oder die Bundle-ID einer nicht laufenden eingeben. Eine neue App startet mit „Eigenes ⌘Q“ – ihr ⌘Q bleibt unverändert –, also die gewünschte Spalte einschalten und diese hier ausschalten, wenn die App das Halten brauchen soll."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Choisissez une app ouverte ou saisissez l’ID de bundle d’une app fermée. Une nouvelle app démarre en « ⌘Q propre » — son ⌘Q inchangé — activez donc la colonne voulue et désactivez celle-ci si l’app doit demander un maintien."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Elige una app abierta o escribe el ID de paquete de una cerrada. Una app nueva empieza en «⌘Q propia» —su ⌘Q sin cambios—, así que activa la columna que quieras y desactiva esta si la app debe pedir que mantengas pulsado."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Elige una app abierta o escribe el ID de paquete de una cerrada. Una app nueva empieza en «⌘Q propia» —su ⌘Q sin cambios—, así que activa la columna que quieras y desactiva esta si la app debe pedir que mantengas presionado."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Escolha um app aberto ou digite o ID do bundle de um fechado. Um app novo começa em “⌘Q próprio” — o ⌘Q dele sem mudanças — então ligue a coluna que você quer e desligue esta se o app precisar exigir que você segure."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Escolha uma app aberta ou introduza o ID do bundle de uma fechada. Uma app nova começa em «⌘Q própria» — o seu ⌘Q inalterado — por isso ative a coluna que quiser e desative esta se a app dever pedir que prime e mantenha."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scegli un’app aperta o digita l’ID bundle di una chiusa. Una nuova app parte da «⌘Q propria» — il suo ⌘Q invariato — quindi attiva la colonna che vuoi e disattiva questa se l’app deve richiedere la pressione prolungata."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "실행 중인 앱을 고르거나 실행 중이 아닌 앱의 번들 ID를 입력하십시오. 새 앱은 ‘자체 ⌘Q’(⌘Q 그대로)로 시작하므로 원하는 열을 켜고, 길게 눌러야 하는 앱이라면 이 열을 끄십시오."}}
       }
     }
   },

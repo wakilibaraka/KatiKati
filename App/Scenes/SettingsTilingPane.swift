@@ -129,19 +129,9 @@ struct SettingsTilingPane: View {
                 }
             }
 
-            SettingsDivider()
-            SettingsRow(
-                Text("Quit when the last window closes (bundle IDs)"),
-                note: Text("One bundle identifier per app, separated by commas. KatiKati quits the app gracefully, so its own save prompt still runs. Empty means off; needs Accessibility.")
-            ) {
-                TextField("Quit when the last window closes (bundle IDs)", text: Binding(
-                    get: { QuitOnLastWindowService.shared.apps },
-                    set: { QuitOnLastWindowService.shared.setApps($0) }
-                ))
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 220)
-            }
-
+            // 53d's quit-on-last-window list is not a tiling setting: it now shares the app-rules
+            // table on Settings › Shortcuts with the two SlowQuit lists (2026-10-25), so this page
+            // no longer carries a field for it.
             SettingsDivider()
             // 54e — off by default: it moves another app's window without a click, so it is opt-in and
             // does nothing at all until Accessibility is granted.
