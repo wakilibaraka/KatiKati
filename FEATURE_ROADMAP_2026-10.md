@@ -40,58 +40,61 @@
 ### 1.1 Shape
 `Core/Support` (pure, no AppKit/AX, dual-compiled into the test target) → `Platform/*` (OS adapters) →
 `App/Composition` (services, stores) → `App/Scenes` (SwiftUI) → `App/Entry` (panel controllers, `AppDelegate`).
-227 files in `Tests/Unit` (225 at rev 2, plus `MenuBarStatModelTests`, `StartupUIPolicyTests`). One dependency (Sparkle).
-1013 localization keys × 12 languages, `check_localization.py` green at `14092d5`. `SettingsTab` has **18** cases (`App/Scenes/SettingsTab.swift`; sidebar shell in `App/Scenes/Settings/`).
+240 files in `Tests/Unit` (227 at rev 3; the phase-50–59 slices, `MenuBarStatModelTests` and `PowerFactsTests` are the rest). One dependency (Sparkle).
+1135 localization keys × 12 languages, `check_localization.py` green on 2026-10-23 (its identical-to-English report is down to 891 values over 131 keys, a human pass). `SettingsTab` has **19** cases (`App/Scenes/SettingsTab.swift`; sidebar shell in `App/Scenes/Settings/`).
 Four independent `CGEventTap`s: `HyperkeyService`, `KeyGuardService`, `ScrollReverserMonitor`, `FullscreenIntentMonitor`.
 
 ### 1.2 Wishlist item → reality
+Reconciled against the tree on 2026-10-23: every status below is what the code holds now, not what it held when the row was
+written. Where a phase delivered the row, the phase is named; where the row said MISSING and the code has it, the row says so.
+
 | Wishlist item | Status | Evidence / what is left |
 |---|---|---|
-| Per-tool Settings pages, sidebar | BUILT | 18 tabs, `SettingsWindowView.swift` pane switch; no `NavigationSplitView` rewrite needed |
-| Settings page-height gate (1074 pt clamp) | ABANDONED 2026-10-20 | script + probe already deleted in `d0aa73a`; the owner retired the rule, no replacement (4.4-2). Pages scroll; window min 640×440 |
-| Menu-bar system readout (CPU / RAM / disk / network / GPU / battery) | BUILT (new in rev 3, `4b3b735`) | `MenuBarSystemItem.swift`, pure `MenuBarStatModel.swift`, `Platform/SystemMonitor/SystemMonitorSampler.swift`; off by default; its 1 s sampler runs only while at least one metric is on. Idle-CPU cost per metric UNVERIFIED (Q1) |
-| General page: startup, Hide Dock icon, language | BUILT (new in rev 3) | pure `StartupUIPolicy.swift` (`launchHidden`, `hideDockIcon`; the Welcome guide shows on first run or when not launching hidden), `AppLanguageOption.swift`; the panes are in `SettingsWindowView.swift` |
-| SlowQuit (hold ⌘Q) | BUILT | `KeyGuardService`, `KeyGuard.swift` (`SlowQuitTiming`), `SlowQuitOverlay.swift` |
+| Per-tool Settings pages, sidebar | BUILT | 19 tabs (`SettingsTab.swift`: general, appearance, dockItems, widgets, weather, notch, notifications, edgeBars, tiling, windowManagement, launcher, commandBar, controlCenter, shortcuts, radialDial, downloads, tools, info, advanced — this row said 18 before the 2026-10-22 split of Notifications out of Advanced). Pane switch in `SettingsWindowView.swift`, sidebar shell in `App/Scenes/Settings/`. No `NavigationSplitView` rewrite needed |
+| Settings page-height gate (1074 pt clamp) | ABANDONED 2026-10-20 | script + probe already deleted in `d0aa73a`; the owner retired the rule, no replacement (4.4-2). Pages scroll; window min 640×440. Nothing reads a height gate today — Q2 `896f8f6` retired the last of its text |
+| Menu-bar system readout (CPU / RAM / disk / network / GPU / battery) | BUILT | `MenuBarSystemItem.swift`, pure `MenuBarStatModel.swift`, `Platform/SystemMonitor/SystemMonitorSampler.swift`; off by default; its 1 s sampler runs only while at least one metric is on. 59d added the battery's own styles (percent / time / watts, tracked battery glyph); `MenuBarStatModelTests` pins the wording. Idle-CPU cost per metric UNVERIFIED (Q1) |
+| General page: startup, Hide Dock icon, language | BUILT | pure `StartupUIPolicy.swift` (`launchHidden`, `hideDockIcon`; the Welcome guide shows on first run or when not launching hidden) with `StartupUIPolicyTests`, `AppLanguageOption.swift`; the panes are in `SettingsWindowView.swift` |
+| SlowQuit (hold ⌘Q) | BUILT | `KeyGuardService`, `KeyGuard.swift` (`SlowQuitTiming`), `SlowQuitOverlay.swift`; 53i added `SlowQuitPassthrough` so a hold passes through to Screen Sharing and VMs (live check OWED) |
 | KeyCastr-style key overlay | BUILT | `KeyVisualizerBuffer` (`KeyGuard.swift`), `KeyVisualizerOverlay.swift`; secure-input behaviour UNVERIFIED (Q-input) |
 | Input pause / keyboard cleaning | BUILT | `KeyGuardPipeline`, `cleaningTimer` in `KeyGuardService` |
-| Hyperkey | BUILT | `HyperkeyService` + pure `Core/Support/HyperkeyEngine.swift`; Caps Lock→F18 via `hidutil`; firing "not live-tested" per HYBRID_PLAN Phase 9 |
-| Caps Lock *protection* (accidental press) | MISSING | no guard in `KeyGuardPipeline` |
-| Finder keys (⌘X / ⌘V move, Return rename) | MISSING | |
-| System-wide snippet expansion | MISSING | snippets exist only as command-bar entries (`CustomCommands.swift`, key `com.katikati.commandbar.snippets`) |
-| "One event tap for everything" | NOT RECOMMENDED YET | rewrites behaviour-frozen code; extend pure `KeyGuardPipeline` instead, measure first (53e) |
+| Hyperkey | BUILT | `HyperkeyService` + pure `Core/Support/HyperkeyEngine.swift`; Caps Lock→F18 via `hidutil`; firing still not live-tested (HYBRID_PLAN Phase 9, Q-input) |
+| Caps Lock *protection* (accidental press) | BUILT 2026-10-21 (53a) | `CapsLockGuard` in `Core/Support/KeyGuard.swift`, driven by `KeyGuardService`, `KeyGuardTests`; the guard swallows a stray press and toggles on the deliberate one. Live check OWED |
+| Finder keys (⌘X / ⌘V move, Return rename) | BUILT 2026-10-21 (53b) | `FinderKeyMap` in `Core/Support/KeyGuard.swift`: ⌘X becomes ⌘C and, once something was cut, ⌘V becomes a move; tests in `KeyGuardTests`. Live check OWED |
+| System-wide snippet expansion | BUILT 2026-10-21 (53c) | `SnippetExpander` beside `CustomCommands` (the snippets the command bar already kept), driven by `KeyGuardService`; tests in `KeyGuardTests`. Live check OWED |
+| "One event tap for everything" | NOT RECOMMENDED (owner, 2026-10-23) | 53e: no measurement was made and no hub is being built. The four taps stay (`HyperkeyService`, `KeyGuardService`, `ScrollReverserMonitor`, `FullscreenIntentMonitor`); extend pure `KeyGuardPipeline` instead |
 | Action registry (`KatiKatiActionRegistry`) | NOT NEEDED | `ShortcutAction` (`Core/Support/Shortcuts.swift`), `BarActionService`, `LauncherCommands` already route actions |
-| Screenshot CLI wrapper | BUILT as a method | `/usr/sbin/screencapture` already used in `App/Entry/RadialDialPanelController.swift`; text/QR result in `Edge/CaptureResultView.swift` |
+| Screenshot CLI wrapper | BUILT as a method | `/usr/sbin/screencapture` used in `App/Entry/RadialDialPanelController.swift` and `CaptureController`; text/QR result in `Edge/CaptureResultView.swift` |
 | Notification relocation (PingPlace) | BUILT | `NotificationMoveService`, `NotificationMirrorService` (Phase 25) |
-| Clipboard history (Maccy) | BUILT | `ClipboardHistory.swift`, `ClipboardPlus.swift`, `Platform/Clipboard/ClipboardMonitor.swift`, `Edge/ClipboardFlyoutView.swift`; concealed types skipped; pinned entries exist, cap 50 unpinned (`ClipboardHistory.swift:22`). Copy/paste sound + toast MISSING; age-based retention MISSING (55g) |
+| Clipboard history (Maccy) | BUILT | `ClipboardHistory.swift`, `ClipboardPlus.swift`, `Platform/Clipboard/ClipboardMonitor.swift`, `Edge/ClipboardFlyoutView.swift`; concealed types skipped; pinned entries kept. The two gaps this row listed are closed: copy/paste sound + toast (`ClipboardToastPolicy`, 55a) and age-based retention (`ClipboardRetention.prune`, 55g). 53g added Paste Image Into Finder |
 | Command bar (SuperCmd-style) | BUILT | Phases 27–30, `CommandBarTests` |
 | Translate / define | BUILT | `Edge`/`TranslateCardView.swift`, `DictionaryService` |
-| Shelf: reduce PDF, share | BUILT | `PDFReducePlan.swift`, `ShelfActions.swift` (`NSSharingService`). Image reduce, LocalSend MISSING |
+| Shelf: reduce PDF, share | BUILT | `PDFReducePlan.swift`, `ShelfActions.swift` (`NSSharingService`); the image half this row called MISSING shipped in 55c (`ImageReducePlan`). LocalSend stays parked (55e) |
 | Tiling, snap, radial dial | BUILT | Phases 26, 31; `TilingTree/Layout`, `SnapRects`, `RadialDial*` tests |
-| Notch pages: AI, storage, downloads, calendar/music, teleprompter, mirror, notifications | BUILT | `Core/Support/NotchSectionPaging.swift` (`NotchPage`, `visible(...)`, `NotchPagingPolicy.defaultPage`), `App/Scenes/Notch/*`. User reorder/remove MISSING |
-| Notch: avoid camera cutout ("ears") | PARTIAL | `NotchGeometry.cameraKeepoutBox` exists; whether views honour it UNVERIFIED (Q-notch) |
-| Notch: battery buddy, artwork glow, compact now-playing toast | MISSING | |
-| Music: tap / double-tap opens player, artwork accent | MISSING | `NowPlayingChip.swift` has the popup/turntable; current tap behaviour UNVERIFIED |
-| Music: lyrics, equalizer | MISSING | ~~no data source~~ (rev 3: Vorssaint's lyrics are an opt-in `lrclib.net` lookup, so a source exists — a network + privacy call, 7.2); the equalizer needs an audio tap. Parked (50g) |
+| Notch pages: AI, storage, downloads, calendar/music, teleprompter, mirror, notifications | BUILT | `Core/Support/NotchSectionPaging.swift` (`NotchPage`, `visible(...)`, `NotchPagingPolicy.defaultPage`), `App/Scenes/Notch/*`. User reorder and hide now exist too (51c: `NotchPageLayout(order:hidden:)`, drag list + eye in Settings), so the MISSING half of this row is gone |
+| Notch: avoid camera cutout ("ears") | PARTIAL | `NotchMetrics.cameraKeepoutBox` (declared in `Core/Support/NotchGeometry.swift`, filled by `NotchDesignSpec`) feeds `NotchLayoutSpec.earZones`, so the closed notch can keep both ears clear of the camera. 51a audited 2026-10-21 that header, ears and rest chips already leave `closedSize.width` clear. Live check on a notch Mac **and** on a no-notch display is UNVERIFIED (Q-notch) |
+| Notch: battery buddy, artwork glow, compact now-playing toast | BUILT 2026-10-21 | 51d `BatteryBuddyPolicy` + the pill under the notch, 50d the artwork glow (halo / pulse / edge style), 50e `NotchTrackPill` for a track change. Screenshots OWED |
+| Music: tap / double-tap opens player, artwork accent | BUILT 2026-10-21 (50b, 50c) | `Core/Support/NowPlayingTapPolicy.swift` holds `NowPlayingTapPreset`, which maps one and two taps onto play/pause, open player or open source app — four presets, tested in `NowPlayingTapPolicyTests` — chosen by the **Now Playing Click** picker and honoured by the chip, with a separate **Open Player App: Double-Click** toggle for the old habit. **The record needs a fix, not the code:** 50b's row says the default is "click = play/pause, double-click = player"; the default in the tree is `.playPauseThenSourceApp`. `ArtworkAccent` + `ArtworkAccentCache` drive the chip's glyph, progress ring and the edge bar. Screenshot OWED |
+| Music: lyrics, equalizer | MISSING (parked 2026-10-23) | 50g. Lyrics have a source — Vorssaint's opt-in `lrclib.net` lookup — but that is an outbound request naming the track and needs a privacy line; the equalizer needs an audio tap. Owner decision: stay parked |
 | Now Playing source | BUILT, health UNVERIFIED | `NowPlayingService` (isolated MediaRemote, `#available`) + `AppleScriptNowPlaying`; which path works on this macOS is Q-music's first question |
-| AI usage page (Claude/Codex/Copilot/OpenCode) | BUILT | `AgentUsageService`, `Core/Support/AgentUsage/*`, `NotchAIPageView`. Live "status" (working/idle) MISSING; Loadout MISSING |
-| Calendar panel: countdown, alarms, timer, stopwatch, reminders | BUILT | `Docs/WIDGET_INVENTORY.md`, `CalendarPanelModels.swift` (`NextEventCountdown`). **Year-in-progress MISSING** |
+| AI usage page (Claude/Codex/Copilot/OpenCode) | BUILT | `AgentUsageService`, `Core/Support/AgentUsage/*`, `NotchAIPageView`. The live ACTIVE/IDLE badge is in (`AgentUsageModels.isActive`, 52b); what is still unverified is the per-account depth (Codex account limits, Claude limits via Claude Code — 52a / Q-utils). Loadout-style presets skipped by the owner (52d) |
+| Calendar panel: countdown, alarms, timer, stopwatch, reminders | BUILT | `Docs/WIDGET_INVENTORY.md`, `CalendarPanelModels.swift` (`NextEventCountdown`). Year-in-progress, which this row called MISSING, shipped as `YearProgressTile` (56a) |
 | Calculator keypad tile, mic recorder tile | BUILT (new, `8391671`, `be52384`) | `CalculatorTile.swift`, `AudioRecorderTile.swift` (split out of `CalendarPanelView` by 49c, `8d89397`); mic permission added; Q-widgets checks the denied-permission path |
-| Weather widget | BUILT | Phases 43/46; 3 size presets UNVERIFIED |
-| Battery / AirBattery-style multi-device | PARTIAL | `Core/Support/BluetoothDevices.swift` parser exists; redesign MISSING |
-| Smart tasks | PARTIAL | `Edge/TasksFlyoutView.swift` exists; smart sorting MISSING |
-| Pause / Hydrate reminders | UNVERIFIED | `DailyHelpersService` (Phase 36) — check what it already covers first |
-| Control Center: scroll to change volume, Bluetooth icon | UNVERIFIED | `ControlCenterLayout.swift`, `SettingsLayoutPane+ControlCenter.swift`, `Platform/SystemStatus/AudioOutputSwitcher.swift` |
-| Dock hover previews, dock-click actions | MISSING | not found in `DockStripView*` |
-| ⌘Tab switcher (AltTabby) | MISSING | AltTabby is Windows-only: design reference, no code to port |
-| Fixed Space order | MISSING | reusable seam: `NativeDockPreferencesService` |
-| Focus-follows-mouse, green-button zoom override, quit-on-last-window-close | MISSING | |
-| Launcher modes (fullscreen / centred / popover), Orb | MISSING | one presentation today (`LauncherView`, `App/Entry/LauncherPanelController.swift`) |
-| First-launch glass intro | MISSING | extends `WelcomeGuideView.swift` |
-| Scheduled cleaner | MISSING | seam: `StorageScanService` + `StorageScanMath.swift` |
-| Cobalt media download, LocalSend | MISSING | licence / network decisions (section 7) |
+| Weather widget | BUILT | Phases 43/46 and the 56-W redesign; chip size presets S/M/L shipped, plus the full-screen Glance panel. Live checks OWED (56-W) |
+| Battery / AirBattery-style multi-device | BUILT 2026-10-21 (56c) | `Core/Support/BluetoothDevices.swift` parser plus the redesign: the battery card lists connected accessories beside this Mac, and the notch battery card carries 59d's facts. The "redesign MISSING" this row recorded is done |
+| Smart tasks | BUILT 2026-10-21 (56d, 56d2) | `TaskItem.smartOrdered` (running, dated, important, rest, done) drives `Edge/TasksFlyoutView.swift`, and 56d2 added `TaskItem.due` with Due Today / Due Tomorrow / Clear and a due badge. No date picker or notification yet |
+| Pause / Hydrate reminders | BUILT 2026-10-21 (56e) | `DailyHelpersService` + its Settings block; it was read first and only the missing half was added. Live check OWED |
+| Control Center: scroll to change volume, Bluetooth icon | BUILT 2026-10-21 (57a) | `ControlCenterScroll` (6 pt of precise travel = 1.25 %) wired to the volume row by `VolumeScrollCatcher`, which claims only `.scrollWheel`; the `.bluetooth` tile draws its own symbol and dims when the private IOBluetooth symbol is absent. The **device gesture is OWED**: synthetic scroll never reached the app, so the arithmetic is tested and the delivery is unproven |
+| Dock hover previews, dock-click actions | PARTIAL | Dock-click actions: the window-chip modifier click landed in 54a (live check OWED). Hover previews: **MISSING** — no preview code exists (no `DockPreview` / hover-preview symbols); what is there is the title tooltip and the window list in a chip's menu |
+| ⌘Tab switcher (AltTabby) | MISSING (declined 2026-10-21) | 54c probe: overriding ⌘Tab needs a session-level `CGEventTap` with `.headInsertEventTap` and dies under secure input. Recommendation was do not build; AltTabby is Windows-only, so there was never code to port |
+| Fixed Space order | BUILT 2026-10-21 (54d) | `NativeDockPreferencesService.spaceOrderCommands(fixed:original:)` — one `defaults write` on the Dock, live-checked |
+| Focus-follows-mouse, green-button zoom override, quit-on-last-window-close | BUILT except the green-button override | `FocusFollowService` + pure `FocusFollowPolicy` (54e, raise live check OWED), `QuitOnLastWindowPolicy` + service (53d, runtime check OWED). The green-button override was probed in 54f — reachable over AX, recommendation was no override, so it stays unbuilt by decision |
+| Launcher modes (fullscreen / centred / popover), Orb | BUILT 2026-10-21 (57b, 57c) | `LauncherPresentation` + `LauncherPanelFrame.rect(mode:screen:visible:anchor:)` (frames live-verified at 1710×1112, 1200×760 and 640×520) and `LauncherOrbController` (draggable 56 pt orb, opt-in, default off, position persisted) |
+| First-launch glass intro | BUILT 2026-10-21 (58b) | native overlay + dissolve in the welcome guide, owner-chosen over borrowing GlassIntroKit; the overlay swallows the first click. The four permission Grants are still OWED to the owner (58a) |
+| Scheduled cleaner | BUILT 2026-10-21 (55d) | review-first: `CleanupPlan` + `CleanerService` over the user cache/log roots, nothing deleted without the review list |
+| Cobalt media download, LocalSend | MISSING (parked 2026-10-23) | Cobalt is AGPL-3.0, which the licence gate forbids copying into a GPLv3 work; LocalSend is a whole network protocol. The shelf already sends through `NSSharingService` (AirDrop / Mail) |
 
 ## 2. Corrections to the pasted plans
-1. "Split Settings into per-tool pages" — already done (18 tabs). Do not re-plan it.
+1. "Split Settings into per-tool pages" — already done (19 tabs). Do not re-plan it.
 2. "Add SlowQuit / KeyCastr / Hyperkey" — all three exist. Plan refinements only.
 3. "A single `KatiKatiActionRegistry`" — duplicates `ShortcutAction` + `BarActionService`. Extend those.
 4. "Use `screencapture -i -c`" — already the implementation.
@@ -137,7 +140,7 @@ integrator applies it (or the slice waits).
 ### 3.3 Hot files — one writer at a time (the integrator)
 | File | Why it collides | Protocol |
 |---|---|---|
-| `Resources/Localizable.xcstrings` | one catalog, keys appended unsorted at the tail (1013 keys) → two branches append in the same hunk | lane writes its entries on its branch; integrator merges by hand (keep both), then runs `check_localization.py`. **Do not use `merge=union`** — it can corrupt JSON. Translations are human-reviewed drafts (`§1.7b`) |
+| `Resources/Localizable.xcstrings` | one catalog, keys appended unsorted at the tail (1135 keys) → two branches append in the same hunk | lane writes its entries on its branch; integrator merges by hand (keep both), then runs `check_localization.py`. **Do not use `merge=union`** — it can corrupt JSON. Translations are human-reviewed drafts (`§1.7b`) |
 | `KatiKati.xcodeproj/project.pbxproj` | 765 `PBXFileReference` entries, `objectVersion 56` | hand-append only (`§1.7a`); a file addition ≈ 4 lines; > ~30 lines for one file = reject. Pure moves/splits are their own slice so they never ride along with logic |
 | `AppSettingsStore.swift` (1586 lines, ~86 `@Published`) | every feature adds a key | new features ship as **self-contained** blocks with their own `com.katikati.*` key constants and a tiny observable (patterns: `TorrentSettingsBlock` in `UtilitySettingsBlock.swift`; `CustomCommands`). A store edit is a hot-file touch |
 | `AppComposition.swift` (1170), `App/Entry/AppDelegate.swift` (1295) | service wiring | lazy, gated singletons (`§1.7e`); wiring line goes in the slice's hot-file touches |
@@ -243,7 +246,7 @@ checkers are recorded there too. The live recipes are still owed.
    **Done in `896f8f6` (rev 3):** `Docs/SETTINGS.md` rule 10 now says the window is fluid and §5.3 is gone; the dated
    superseded line is in `HYBRID_PLAN.md`; `live_check_settings_tabs.py` reads its tab names from `SettingsTab.swift`, opens
    each with `DOCK_OPEN_SETTINGS=<tab>` and checks a window of at least 600×400 (it does not read which page is showing).
-   Its live run over the 18 tabs is **OWED** (needs the Accessibility grant for the terminal). `Docs/DEBUG_SWITCHES.md`
+   Its live run over the 19 tabs is **OWED** (needs the Accessibility grant for the terminal). `Docs/DEBUG_SWITCHES.md`
    no longer lists `DOCK_SETTINGS_PAGE_HEIGHT`; the remaining hits are `Docs/Archive/**` evidence, kept as history.
 3. **Event taps.** All four re-enable on `tapDisabledByTimeout`/`…ByUserInput`. Refinement: surface "tap alive" in
    Advanced and log a one-line note when a tap had to be re-enabled.
@@ -258,7 +261,7 @@ checkers are recorded there too. The live recipes are still owed.
    and only while recording. UNVERIFIED: where history persists, clear-on-quit, per-app ignore (`ClipboardIgnoreRules`
    in `ClipboardPlus.swift`). Age-based retention does not exist (grep finds only the 50-unpinned cap and the shelf's own
    auto-expire); Vorssaint added "keep items N days, pinned stay" (7.2) → slice 55g.
-6. **Localization.** 1013 × 12, all present (re-run at `14092d5`, still 40 literals); `check_localization.py` also reports **40 Chinese string literals** left
+6. **Localization.** 1135 × 12, all present (re-verified 2026-10-23, still 40 literals); `check_localization.py` also reports **40 Chinese string literals** left
    in source (mostly `ContentView`, `DragController`, `AppTracker`, `DockStripView`) — confirm none is user-visible.
    The checker proves completeness, not quality (`§1.7b`); add a check that flags a translation identical to its
    English source.
@@ -300,7 +303,7 @@ checkers are recorded there too. The live recipes are still owed.
 | D | Shelf, PDF reduce, translate, dictionary | 20 MB PDF; offline translate | cancel + progress, size-saved readout |
 | E | Weather, Calendar panel, calculator, recorder | location denied; offline; EventKit denied; **mic denied** | explicit denied/empty states (Phase 43: never invent data) |
 | B | Dock strip, edge bars, Control Center | multi-display, hover, drag-reorder, CC volume + Bluetooth | the owed owner eyeballs |
-| F | Settings shell (18 tabs), General page, menu-bar readout, onboarding | smoke test that every tab opens; readout metrics on/off against idle CPU; Welcome guide with permissions revoked; eyeball a new card at 640×440 | none (no height gate, by owner decision) |
+| F | Settings shell (19 tabs), General page, menu-bar readout, onboarding | smoke test that every tab opens; readout metrics on/off against idle CPU; Welcome guide with permissions revoked; eyeball a new card at 640×440 | none (no height gate, by owner decision) |
 | all | l10n, a11y, Reduce Motion, idle CPU | scripts + one Instruments run | identical-to-English check |
 
 ### 4.6 Q slices
@@ -344,7 +347,7 @@ checkers are recorded there too. The live recipes are still owed.
 | ID | Slice | Seam / files | Key / permission | Est. | Done when |
 |---|---|---|---|---|---|
 | 50a | **Done 2026-10-21** (5 tests; app layer not wired, 50c does that). Pure `ArtworkAccent`: reduce an artwork's average colour to a readable accent (clamp saturation/contrast, fallback to theme) | Core `ArtworkAccent.swift` + test; pixel read stays in the app layer | none | ~90 | table test incl. near-black, near-white, grey art |
-| 50b | `NowPlayingTapPolicy`: tap vs double-tap → {play/pause, open player, open source app} | Core pure + test; wire in the chip | `com.katikati.nowplaying.tapAction` | ~120 | policy table-tested; chip honours the setting. **Done 2026-10-21** (default click = play/pause, double-click = player; single click waits the double-click interval) |
+| 50b | `NowPlayingTapPolicy`: tap vs double-tap → {play/pause, open player, open source app} | Core pure + test; wire in the chip | `com.katikati.nowplaying.tapAction` | ~120 | policy table-tested; chip honours the setting. **Done 2026-10-21** (~~default click = play/pause, double-click = player~~ **corrected 2026-10-23:** the shipped default is `NowPlayingTapPreset.playPauseThenSourceApp` — click = play/pause, double click = the source app — and which pair is used is the **Now Playing Click** picker's choice; `com.katikati.nowplaying.tapAction` holds it. A single click waits the double-click interval, and `NowPlayingOpenTap` is the separate double-click-opens-the-player toggle) |
 | 50c | Accent on the dock chip + progress ring (reuse `NowPlayingProgress`) | `NowPlayingChip` files | none | ~100 | owner screenshot. **Done 2026-10-21** (capsule glyph + ring; screenshot owed) |
 | 50d | Notch: artwork glow on the right ear; drop the song text from the collapsed notch | depends on 51b | `com.katikati.notch.musicGlow` | ~150 | owner screenshot; Reduce Motion path. **Done 2026-10-21, reshaped by owner**: song text kept (fits better); track-change popup replaced by a brightening glow; style halo/pulse/edge, default halo (screenshot owed) |
 | 50e | **Done 2026-10-21 (reshaped, screenshots owed):** track change drops a USB-eject-style pill (`NotchTrackPill`) under the notch, skipped while expanded; music page gains accent progress, elapsed/remaining times and an equalizer. Policy/setting not built. Was: `NowPlayingToastPolicy` + compact toast on track change while collapsed | Core pure + test; `NotchMusicPanel` | `com.katikati.notch.trackToast` | ~160 | shown once per track; suppressed in fullscreen/Do Not Disturb (verify how existing code reads those) |
