@@ -207,6 +207,11 @@ public struct WeatherChip: View {
     public init() {}
 
     public var body: some View {
+        chip.dockHoverPreview { WeatherPreviewCard().environmentObject(weatherService) }
+    }
+
+    @ViewBuilder
+    private var chip: some View {
         let state = weatherService.currentState
         // The reading's own sky — its condition at its hour — is what the widget is *about*, so both
         // presets that carry it draw the plate from it (Phase 46: the pod used to be plain dock glass
@@ -388,6 +393,7 @@ struct RailWeatherTile: View {
         .contentShape(Rectangle())
         .onHover { isHovered = $0 }
         .onTapGesture { WidgetPanelController.weather.toggle() }
+        .dockHoverPreview { WeatherPreviewCard().environmentObject(weatherService) }
     }
 }
 
