@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1792620838.411836,
-    "seen": 1792621609.169779,
-    "ast_hash": "49bf031e25023dc4a36ef99c830bbaa4",
+    "mtime": 1792926806.4490418,
+    "seen": 1792927148.818149,
+    "ast_hash": "0ad061228aaddfbb37d79a7bb50c1214",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": "20e32e60027b363670a56a0fe9dd15f9"
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1792926135.9812865,
-    "seen": 1792926143.606411,
-    "ast_hash": "f9174d58b4163a4a5e75ef187e16f847",
+    "mtime": 1792926806.4492795,
+    "seen": 1792927148.818215,
+    "ast_hash": "80636273d980da575fd4abcc8bba3815",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -516,9 +516,9 @@
     "semantic_hash": ""
   },
   "App/Entry/EdgeFlyoutController.swift": {
-    "mtime": 1792624980.6126986,
-    "seen": 1792626111.71956,
-    "ast_hash": "0232b69c88d814958aadb22a98b7be3f",
+    "mtime": 1792926848.0046344,
+    "seen": 1792927148.818217,
+    "ast_hash": "66590ceef8bf5094d32ede0edf47f379",
     "semantic_hash": ""
   },
   "App/Entry/EdgeNotesPopupController.swift": {
@@ -888,9 +888,9 @@
     "semantic_hash": "b523821d46732464f415384d53e0dd13"
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1792686580.683271,
-    "seen": 1792689772.288888,
-    "ast_hash": "ac8eef9b73c76dc9a38be11f84c2348f",
+    "mtime": 1792926857.6230354,
+    "seen": 1792927148.81827,
+    "ast_hash": "2ab2530bd9b542197008697efc1ee942",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -1656,9 +1656,9 @@
     "semantic_hash": "3303919dc1af4fbbd8415d39cae3c7c8"
   },
   "Core/Support/ControlCenterLayout.swift": {
-    "mtime": 1792625013.9381742,
-    "seen": 1792626111.7198741,
-    "ast_hash": "495789bfb972f94995d010b73d40da33",
+    "mtime": 1792926806.4477122,
+    "seen": 1792927148.818399,
+    "ast_hash": "5596dc590384f7dd83b172868e179cc5",
     "semantic_hash": ""
   },
   "Core/Support/CustomCommands.swift": {
@@ -3906,9 +3906,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/PanelGeometryTests.swift": {
-    "mtime": 1792617231.553245,
-    "seen": 1792618429.4326751,
-    "ast_hash": "5fcb567770b7690e1215015a42663160",
+    "mtime": 1792927041.8876684,
+    "seen": 1792927148.81871,
+    "ast_hash": "ff1a1a8e56700e6057a5937f97ce6f4b",
     "semantic_hash": ""
   },
   "Tests/Unit/PeriodicReconcileSkipDecisionTests.swift": {
@@ -4614,9 +4614,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+ControlCenter.swift": {
-    "mtime": 1792625598.1159513,
-    "seen": 1792626111.7197351,
-    "ast_hash": "88bd751d16fe2c0a6658489983292b3a",
+    "mtime": 1792926827.7105308,
+    "seen": 1792927148.8183172,
+    "ast_hash": "6761fe046ee39f7644f6b77b536debdb",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+EdgeBars.swift": {
