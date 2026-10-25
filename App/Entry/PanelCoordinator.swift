@@ -64,7 +64,8 @@ final class PanelCoordinator: NSObject {
     /// 实验开关：`DOCK_PANEL_LEVEL=<raw>` 覆盖三块任务条面板的窗口层级（默认 .floating=3）。
     /// 用途：验证「层级足够高的窗口（系统 Dock=20、菜单栏更高）是否免于被 WindowServer
     /// 烤进桌面滑动的过渡快照」——2026-08-30 连拍实锤了灰罩 = 条被烤进两侧快照后叠加滑动。
-    static let panelLevelOverride: NSWindow.Level? = DebugSwitch.panelLevel.value().flatMap(Int.init).map { NSWindow.Level(rawValue: $0) }
+    /// 默认 20 = 系统 Dock 的层级：其他 app 的悬浮窗（画中画等，层级 3）不再能按先后顺序盖住任务条。
+    static let panelLevelOverride: NSWindow.Level? = NSWindow.Level(rawValue: DebugSwitch.panelLevel.value().flatMap(Int.init) ?? 20)
 
     var taskbarPlateCornerRadius: CGFloat {
         DockShape.panelCornerRadius * settingsStore.dockPanelHeight.scale
