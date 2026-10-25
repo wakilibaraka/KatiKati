@@ -29,6 +29,19 @@ struct NetCounters: Equatable, Sendable {
     }
 }
 
+/// Cumulative bytes read from / written to storage (IOBlockStorageDriver statistics).
+struct DiskCounters: Equatable, Sendable {
+    var read: UInt64, written: UInt64
+
+    /// Bytes per second between two samples; a counter that went down (a drive was unplugged) reads as 0.
+    static func rate(from a: DiskCounters, to b: DiskCounters, seconds: Double) -> (read: Double, write: Double) {
+        guard seconds > 0 else { return (0, 0) }
+        let r = b.read >= a.read ? Double(b.read - a.read) / seconds : 0
+        let w = b.written >= a.written ? Double(b.written - a.written) / seconds : 0
+        return (r, w)
+    }
+}
+
 struct MemoryUsage: Equatable, Sendable {
     var used: UInt64
     var total: UInt64
@@ -48,6 +61,9 @@ struct SystemSnapshot: Equatable, Sendable {
     var disk = DiskUsage(free: 0, total: 0)
     var down: Double = 0
     var up: Double = 0
+    /// Storage throughput in bytes per second.
+    var diskRead: Double = 0
+    var diskWrite: Double = 0
 }
 
 enum SystemMonitorFormat {

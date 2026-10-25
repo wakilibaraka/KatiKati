@@ -9,6 +9,7 @@ final class SystemMonitorController: ObservableObject {
     private var holders = 0
     private var lastCPU: CPUTicks?
     private var lastNet: NetCounters?
+    private var lastDisk: DiskCounters?
     private var lastTime = Date()
 
     func acquire() {
@@ -16,6 +17,7 @@ final class SystemMonitorController: ObservableObject {
         guard timer == nil else { return }
         lastCPU = SystemMonitorSampler.cpuTicks()
         lastNet = SystemMonitorSampler.network()
+        lastDisk = SystemMonitorSampler.diskCounters()
         lastTime = Date()
         refresh()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
@@ -44,6 +46,12 @@ final class SystemMonitorController: ObservableObject {
             next.down = r.down; next.up = r.up
         }
         lastNet = net
+        let disk = SystemMonitorSampler.diskCounters()
+        if let last = lastDisk {
+            let r = DiskCounters.rate(from: last, to: disk, seconds: now.timeIntervalSince(lastTime))
+            next.diskRead = r.read; next.diskWrite = r.write
+        }
+        lastDisk = disk
         lastTime = now
         next.memory = SystemMonitorSampler.memory()
         next.disk = SystemMonitorSampler.disk()

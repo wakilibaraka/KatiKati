@@ -53,6 +53,24 @@ enum SystemMonitorSampler {
         return NetCounters(received: rx, sent: tx)
     }
 
+    /// Bytes read / written across every block-storage driver (the internal SSD plus any external drive).
+    static func diskCounters() -> DiskCounters {
+        var iterator: io_iterator_t = 0
+        guard IOServiceGetMatchingServices(kIOMainPortDefault, IOServiceMatching("IOBlockStorageDriver"), &iterator) == KERN_SUCCESS else {
+            return DiskCounters(read: 0, written: 0)
+        }
+        defer { IOObjectRelease(iterator) }
+        var read: UInt64 = 0, written: UInt64 = 0
+        while case let entry = IOIteratorNext(iterator), entry != 0 {
+            defer { IOObjectRelease(entry) }
+            guard let stats = IORegistryEntryCreateCFProperty(entry, "Statistics" as CFString, kCFAllocatorDefault, 0)?
+                .takeRetainedValue() as? [String: Any] else { continue }
+            read &+= (stats["Bytes (Read)"] as? NSNumber)?.uint64Value ?? 0
+            written &+= (stats["Bytes (Write)"] as? NSNumber)?.uint64Value ?? 0
+        }
+        return DiskCounters(read: read, written: written)
+    }
+
     /// GPU busy share (0...1) from IOAccelerator's `PerformanceStatistics` — a de-facto but
     /// undocumented IOKit surface (the same one Stats / iStat Menus read).
     /// shortcut: no public GPU-utilization API exists; swap this if Apple ships one.
