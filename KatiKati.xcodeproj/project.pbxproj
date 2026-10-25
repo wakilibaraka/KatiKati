@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		DD000000000000000000001A /* WidgetLook.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000018 /* WidgetLook.swift */; };
 		DD0000000000000000000019 /* WidgetLook.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000018 /* WidgetLook.swift */; };
+		DD0000000000000000000013 /* DevicesDockWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000012 /* DevicesDockWidget.swift */; };
+		DD000000000000000000000F /* CalendarDockWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000000000000000000000E /* CalendarDockWidget.swift */; };
+		DD000000000000000000000D /* DockWidgetKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000000000000000000000C /* DockWidgetKit.swift */; };
 		DD000000000000000000000B /* DockWidgetFeeds.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD000000000000000000000A /* DockWidgetFeeds.swift */; };
 		DD0000000000000000000009 /* SampleHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000007 /* SampleHistory.swift */; };
 		DD0000000000000000000008 /* SampleHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000007 /* SampleHistory.swift */; };
@@ -1207,6 +1210,9 @@
 
 /* Begin PBXFileReference section */
 		DD0000000000000000000018 /* WidgetLook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetLook.swift; path = Core/Support/WidgetLook.swift; sourceTree = SOURCE_ROOT; };
+		DD0000000000000000000012 /* DevicesDockWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DevicesDockWidget.swift; path = App/Scenes/DockWidgets/DevicesDockWidget.swift; sourceTree = SOURCE_ROOT; };
+		DD000000000000000000000E /* CalendarDockWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CalendarDockWidget.swift; path = App/Scenes/DockWidgets/CalendarDockWidget.swift; sourceTree = SOURCE_ROOT; };
+		DD000000000000000000000C /* DockWidgetKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockWidgetKit.swift; path = App/Scenes/DockWidgets/DockWidgetKit.swift; sourceTree = SOURCE_ROOT; };
 		DD000000000000000000000A /* DockWidgetFeeds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockWidgetFeeds.swift; path = App/Composition/DockWidgetFeeds.swift; sourceTree = SOURCE_ROOT; };
 		DD0000000000000000000007 /* SampleHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SampleHistory.swift; path = Core/Support/SampleHistory.swift; sourceTree = SOURCE_ROOT; };
 		DD0000000000000000000004 /* EventTimeUntil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EventTimeUntil.swift; path = Core/Support/EventTimeUntil.swift; sourceTree = SOURCE_ROOT; };
@@ -3214,6 +3220,9 @@
 				DD0000000000000000000005 /* EventTimeUntil.swift in Sources */,
 				DD0000000000000000000008 /* SampleHistory.swift in Sources */,
 				DD000000000000000000000B /* DockWidgetFeeds.swift in Sources */,
+				DD000000000000000000000D /* DockWidgetKit.swift in Sources */,
+				DD000000000000000000000F /* CalendarDockWidget.swift in Sources */,
+				DD0000000000000000000013 /* DevicesDockWidget.swift in Sources */,
 				DD0000000000000000000019 /* WidgetLook.swift in Sources */,
 				EE0000000000000000000050 /* ControlCenterLayout.swift in Sources */,
 				FA4400000000000000000F1 /* PowerNotifications.swift in Sources */,
