@@ -33,6 +33,9 @@ final class CalendarService: ObservableObject {
     @Published private(set) var eventsAccess: CalendarAccess = .unknown
     @Published private(set) var remindersAccess: CalendarAccess = .unknown
     @Published private(set) var events: [AgendaEvent] = []
+    /// The next ~36 hours of timed events (running ones included) with their video-call links — the dock's
+    /// Calendar widget and its hover preview. Independent of `selectedDate`.
+    @Published private(set) var upcoming: [DockEvent] = []
     @Published private(set) var reminders: [ReminderEntry] = []
     /// Day-of-month → event count for the displayed month (heat tint on the grid).
     @Published private(set) var monthDensity: [Int: Int] = [:]
@@ -129,7 +132,22 @@ final class CalendarService: ObservableObject {
             .map { EventEntry(id: $0.eventIdentifier ?? UUID().uuidString, title: $0.title ?? "", start: $0.startDate, allDay: $0.isAllDay) }
     }
 
+    func refreshUpcoming(now: Date = Date()) {
+        guard eventsAccess == .granted, let end = calendar.date(byAdding: .hour, value: 36, to: now) else { upcoming = []; return }
+        let found = store.events(matching: store.predicateForEvents(withStart: now, end: end, calendars: nil)).map { e in
+            let rgb = (e.calendar.color ?? .systemBlue).usingColorSpace(.sRGB)
+            return DockEvent(
+                id: (e.eventIdentifier ?? UUID().uuidString) + "@\(Int(e.startDate.timeIntervalSince1970))",
+                title: e.title ?? "", start: e.startDate, end: e.endDate, isAllDay: e.isAllDay,
+                link: MeetingLink.detect(in: [e.url?.absoluteString, e.location, e.notes]),
+                location: e.location,
+                colorRGB: [rgb?.redComponent ?? 0, rgb?.greenComponent ?? 0.5, rgb?.blueComponent ?? 1].map(Double.init))
+        }
+        upcoming = UpcomingEvents.select(found, now: now, limit: 8)
+    }
+
     func refreshAgenda() {
+        refreshUpcoming()
         guard eventsAccess == .granted else { events = []; return }
         let day = calendar.startOfDay(for: selectedDate)
         let end = calendar.date(byAdding: .day, value: 1, to: day)!
