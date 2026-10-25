@@ -15,7 +15,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     ) -> IslandLayoutSolver.IslandLayout {
         IslandLayoutSolver.layout(
             screenWidth: screenWidth,
-            mode: .split3, widgetOrder: BarSection.canonicalOrder, widgetWidths: [:],
+            mode: .split3, widgetOrder: BarSection.defaultOrder, widgetWidths: [:],
             tileStride: 46,
             appCount: appCount,
             weatherWidth: 200,
@@ -40,7 +40,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     ) -> IslandLayoutSolver.IslandLayout {
         IslandLayoutSolver.layout(
             screenWidth: screenWidth,
-            mode: .split4, widgetOrder: BarSection.canonicalOrder, widgetWidths: [:],
+            mode: .split4, widgetOrder: BarSection.defaultOrder, widgetWidths: [:],
             tileStride: 46,
             appCount: appCount,
             weatherWidth: 200,
@@ -56,7 +56,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     func testSplitModesExposeExpectedIslands() {
         let windowsLayout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .windows, widgetOrder: BarSection.canonicalOrder, widgetWidths: [:],
+            mode: .windows, widgetOrder: BarSection.defaultOrder, widgetWidths: [:],
             tileStride: 46,
             appCount: 9,
             weatherWidth: 200,
@@ -77,7 +77,7 @@ final class IslandLayoutSolverTests: XCTestCase {
 
         let centeredLayout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .centered, widgetOrder: BarSection.canonicalOrder, widgetWidths: [:],
+            mode: .centered, widgetOrder: BarSection.defaultOrder, widgetWidths: [:],
             tileStride: 46,
             appCount: 9,
             weatherWidth: 200,
@@ -95,7 +95,7 @@ final class IslandLayoutSolverTests: XCTestCase {
         for mode in BarLayoutMode.allCases {
             let layout = IslandLayoutSolver.layout(
                 screenWidth: 1728,
-                mode: mode, widgetOrder: BarSection.canonicalOrder, widgetWidths: [:],
+                mode: mode, widgetOrder: BarSection.defaultOrder, widgetWidths: [:],
                 tileStride: 46,
                 appCount: 9,
                 weatherWidth: 200,
@@ -107,7 +107,7 @@ final class IslandLayoutSolverTests: XCTestCase {
                 bottomMargin: 8
             )
             let covered = Set(layout.islands.flatMap { $0.sections })
-            XCTAssertEqual(covered, Set(BarSection.allCases), "Mode \(mode) missed sections")
+            XCTAssertEqual(covered, Set(BarSection.defaultOrder), "Mode \(mode) missed sections")
         }
     }
 
@@ -172,7 +172,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     func testWindowsModeProducesSingleFullWidthIsland() {
         let layout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .windows, widgetOrder: BarSection.canonicalOrder, widgetWidths: [:],
+            mode: .windows, widgetOrder: BarSection.defaultOrder, widgetWidths: [:],
             tileStride: 46,
             appCount: 10,
             weatherWidth: 200,
@@ -186,7 +186,7 @@ final class IslandLayoutSolverTests: XCTestCase {
         XCTAssertEqual(layout.islands.count, 1)
         XCTAssertFalse(layout.showsOverflow)
         let island = layout.islands[0]
-        XCTAssertEqual(island.sections, BarSection.canonicalOrder)
+        XCTAssertEqual(island.sections, BarSection.defaultOrder)
         XCTAssertEqual(island.frame.minX, 12)
         XCTAssertEqual(island.frame.width, 1728 - 24)
         XCTAssertEqual(island.frame.minY, 8)
@@ -197,7 +197,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     func testCenteredModeProducesCenteredIsland() {
         let layout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .centered, widgetOrder: BarSection.canonicalOrder, widgetWidths: [:],
+            mode: .centered, widgetOrder: BarSection.defaultOrder, widgetWidths: [:],
             tileStride: 46,
             appCount: 5,
             weatherWidth: 200,
@@ -211,7 +211,7 @@ final class IslandLayoutSolverTests: XCTestCase {
         )
         XCTAssertEqual(layout.islands.count, 1)
         let island = layout.islands[0]
-        XCTAssertEqual(island.sections, BarSection.canonicalOrder)
+        XCTAssertEqual(island.sections, BarSection.defaultOrder)
         XCTAssertEqual(island.frame.minY, 8)
         XCTAssertEqual(island.frame.height, 46)
 
@@ -225,7 +225,7 @@ final class IslandLayoutSolverTests: XCTestCase {
         // Very small user width expands to fit intrinsic content
         let smallWidthLayout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .centered, widgetOrder: BarSection.canonicalOrder, widgetWidths: [:],
+            mode: .centered, widgetOrder: BarSection.defaultOrder, widgetWidths: [:],
             tileStride: 46,
             appCount: 8,
             weatherWidth: 200,
@@ -242,7 +242,7 @@ final class IslandLayoutSolverTests: XCTestCase {
         // Huge user width clamps to screen minus margins
         let hugeWidthLayout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .centered, widgetOrder: BarSection.canonicalOrder, widgetWidths: [:],
+            mode: .centered, widgetOrder: BarSection.defaultOrder, widgetWidths: [:],
             tileStride: 46,
             appCount: 5,
             weatherWidth: 200,
@@ -296,7 +296,7 @@ final class IslandLayoutSolverTests: XCTestCase {
     func testStaleClockOverrideFloorsAtIntrinsicMinimum() {
         let layout = IslandLayoutSolver.layout(
             screenWidth: 1728,
-            mode: .split3, widgetOrder: BarSection.canonicalOrder,
+            mode: .split3, widgetOrder: BarSection.defaultOrder,
             widgetWidths: [.clock: 40],
             tileStride: 46,
             appCount: 9,
@@ -315,7 +315,7 @@ final class IslandLayoutSolverTests: XCTestCase {
 
     func testSplit5IslandsStayInsideTheScreenInOrder() {
         let layout = IslandLayoutSolver.layout(
-            screenWidth: 1728, mode: .split5, widgetOrder: BarSection.canonicalOrder, widgetWidths: [:],
+            screenWidth: 1728, mode: .split5, widgetOrder: BarSection.defaultOrder, widgetWidths: [:],
             tileStride: 46, appCount: 9, clusterWidth: 140,
             gap: 10, margin: 12, barHeight: 46, bottomMargin: 8,
             screenOriginX: 0

@@ -119,7 +119,7 @@ extension BarSection {
     /// `ChipPillMetrics.cardWidth`). Scales with the bar thickness like every other strip metric.
     func railTileLength(barHeight: CGFloat) -> CGFloat {
         switch self {
-        case .weather, .clock, .media, .launcher, .widgets: return Self.railTileSize
+        case .weather, .clock, .media, .launcher, .widgets, .calendar, .system, .devices: return Self.railTileSize
         case .apps: return 0
         }
     }

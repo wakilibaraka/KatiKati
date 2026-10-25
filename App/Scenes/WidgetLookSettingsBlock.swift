@@ -21,6 +21,7 @@ struct WidgetLookSettingsBlock: View {
     @AppStorage(WidgetExtraPrefs.showYearKey) private var showYear = false
     @AppStorage(WidgetPanelController.keepBothOpenKey) private var keepBoth = false
 
+    @AppStorage(WidgetLook.storageKey) private var lookRaw = WidgetLook.default.rawValue
     @AppStorage("com.katikati.clock.preset") private var clockPresetRaw: String = ClockPreset.stackedCard.rawValue
     @AppStorage("com.katikati.media.preset") private var mediaPresetRaw: String = NowPlayingPreset.accentCard.rawValue
     var body: some View {
@@ -28,6 +29,11 @@ struct WidgetLookSettingsBlock: View {
             SettingsCard(Text("Widget Appearance")) {
                 // Menus and switches, two rows per line (`Docs/SETTINGS.md` rule 5): this card was
                 // ten rows deep, one narrow control each.
+                SettingsPickerRow(Text("Widget Look"), selection: $lookRaw) {
+                    Text("Classic").tag(WidgetLook.classic.rawValue)
+                    Text("Tiles").tag(WidgetLook.tiles.rawValue)
+                }
+                SettingsDivider()
                 SettingsRowPair(
                     left: { SettingsRow(Text("Widget Layout")) { CalendarLayoutPicker() } },
                     right: { SettingsRow(Text("Widget Colors")) { CalendarPalettePicker() } }

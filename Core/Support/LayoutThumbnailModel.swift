@@ -24,7 +24,7 @@ enum LayoutThumbnailModel {
         var bottomGap: CGFloat = PanelLayoutMetrics.floatingBottomGap
         var widgetWidths: [BarSection: CGFloat] = [:]
         /// Visible widget order (hidden widgets dropped) — the preview follows Settings › Widgets.
-        var widgetOrder: [BarSection] = BarSection.canonicalOrder
+        var widgetOrder: [BarSection] = BarSection.defaultOrder
         /// Phase 18h: which edge the strip sits on.
         var placement: StripPlacement = .bottom
         /// Representative app count: enough to show the apps island's weight, few enough

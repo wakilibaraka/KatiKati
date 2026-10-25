@@ -445,6 +445,20 @@ enum WidgetMenuBuilder {
             }
             stackItem.state = stacked ? .on : .off
             menu.addItem(stackItem)
+            if StackRelevance.defaultMembers.contains(section) {
+                let glance = StackRelevance.glanceMembers
+                let members = layout.instance(for: section).stack ?? []
+                let glanceOn = glance.allSatisfy(members.contains)
+                let glanceItem = ClosureMenuItem(String(localized: "Calendar, System & Devices in Stack")) {
+                    store.setWidgetLayout(store.widgetLayout.updating(section) {
+                        let base = $0.stack ?? [section]
+                        $0.stack = glanceOn ? base.filter { !glance.contains($0) } : base + glance.filter { !base.contains($0) }
+                        if $0.stack?.count ?? 0 < 2 { $0.stack = nil }
+                    })
+                }
+                glanceItem.state = glanceOn ? .on : .off
+                menu.addItem(glanceItem)
+            }
             if stacked, let members = layout.instance(for: section).stack {
                 menu.addItem(ClosureMenuItem(String(localized: "Show Next in Stack")) {
                     SmartStackState.shared.showNext(host: section, members: members)

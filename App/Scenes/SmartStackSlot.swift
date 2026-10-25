@@ -27,22 +27,46 @@ struct SmartStackSlot<Content: View>: View {
 
     @ObservedObject private var feed = LiveActivityFeed.shared
     @ObservedObject private var state = SmartStackState.shared
+    @ObservedObject private var calendarFeed = DockCalendarFeed.shared
+    @ObservedObject private var systemFeed = DockSystemFeed.shared
+    @ObservedObject private var devicesFeed = DockDevicesFeed.shared
     @EnvironmentObject private var weatherService: WeatherService
     @State private var current: BarSection?
 
     var body: some View {
-        let signals = StackSignals(liveKind: feed.activity.kind, weatherCondition: weatherService.currentState.conditionFamily)
+        let now = Date()
+        let signals = StackSignals(
+            liveKind: feed.activity.kind, weatherCondition: weatherService.currentState.conditionFamily,
+            meetingSoon: members.contains(.calendar) && calendarFeed.upcoming.contains {
+                EventTimeUntil.isJoinable(start: $0.start, end: $0.end, now: now)
+            },
+            systemBusy: members.contains(.system) && (systemFeed.snapshot.cpu > 0.8 || systemFeed.snapshot.memory.fraction > 0.9),
+            deviceLow: members.contains(.devices) && devicesFeed.devices.contains { ($0.lowestBattery ?? 100) <= 20 })
         let shown = StackRelevance.resolve(members: members, signals: signals, current: current,
-                                           override: state.overrides[host], now: Date())
+                                           override: state.overrides[host], now: now)
         content(shown)
             .id(shown)
             .transition(.opacity)
             .animation(.easeInOut(duration: 0.2), value: shown)
-            .onAppear { feed.retain(); current = shown; state.recordShown(shown, for: host) }
-            .onDisappear { feed.release() }
+            .onAppear { retainFeeds(); current = shown; state.recordShown(shown, for: host) }
+            .onDisappear { releaseFeeds() }
             .onChange(of: shown) { newValue in
                 current = newValue
                 state.recordShown(newValue, for: host)
             }
+    }
+
+    private func retainFeeds() {
+        feed.retain()
+        if members.contains(.calendar) { calendarFeed.retain() }
+        if members.contains(.system) { systemFeed.retain() }
+        if members.contains(.devices) { devicesFeed.retain() }
+    }
+
+    private func releaseFeeds() {
+        feed.release()
+        if members.contains(.calendar) { calendarFeed.release() }
+        if members.contains(.system) { systemFeed.release() }
+        if members.contains(.devices) { devicesFeed.release() }
     }
 }

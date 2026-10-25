@@ -411,6 +411,9 @@ struct DockTileChrome: ViewModifier {
     /// pill with it, and a second copy would be a second dock.
     static let plate = Color(red: 0.11, green: 0.12, blue: 0.16).opacity(0.88)
 
+    /// Widget Look (Settings > Widgets): Tiles swaps the dock plate for the graphite square on every tile.
+    @AppStorage(WidgetLook.storageKey) private var lookRaw = WidgetLook.default.rawValue
+
     let isHovered: Bool
     var cornerRadius: CGFloat = 14
     /// A tile with a plate of its own (the weather pod's sky). `nil` = the dock plate above, so every
@@ -421,7 +424,8 @@ struct DockTileChrome: ViewModifier {
         content
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(fill.map { AnyShapeStyle($0) } ?? AnyShapeStyle(Self.plate))
+                    .fill(fill.map { AnyShapeStyle($0) } ?? (lookRaw == WidgetLook.tiles.rawValue
+                        ? AnyShapeStyle(Color(white: 0.085)) : AnyShapeStyle(Self.plate)))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)

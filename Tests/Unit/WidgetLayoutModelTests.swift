@@ -5,7 +5,7 @@ final class WidgetLayoutModelTests: XCTestCase {
     func testDefaultLayoutReproducesTodaysBehaviour() {
         let layout = WidgetLayout.default
         XCTAssertEqual(layout.order, BarSection.canonicalOrder)
-        XCTAssertTrue(layout.hiddenSections.isEmpty)
+        XCTAssertEqual(layout.hiddenSections, [.calendar, .system, .devices], "new widgets are opt-in")
         XCTAssertEqual(layout.solverWidths(), [:])
     }
 
@@ -41,7 +41,7 @@ final class WidgetLayoutModelTests: XCTestCase {
         let layout = WidgetLayout(instances: [
             WidgetInstance(section: .clock), WidgetInstance(section: .clock), WidgetInstance(section: .weather)
         ])
-        XCTAssertEqual(layout.order, [.clock, .weather, .launcher, .apps, .media, .widgets])
+        XCTAssertEqual(layout.order, [.clock, .weather, .launcher, .apps, .media, .calendar, .system, .devices, .widgets])
     }
 
     func testCodableRoundTrip() throws {
@@ -50,7 +50,7 @@ final class WidgetLayoutModelTests: XCTestCase {
         let layout = WidgetLayout(instances: [inst])
         let decoded = WidgetLayout.decode(layout.encoded())
         XCTAssertEqual(decoded, layout)
-        XCTAssertEqual(decoded?.hiddenSections, [.media])
+        XCTAssertEqual(decoded?.hiddenSections, [.media, .calendar, .system, .devices])
         XCTAssertNil(WidgetLayout.decode(Data("junk".utf8)))
     }
 
@@ -77,9 +77,9 @@ extension WidgetLayoutModelTests {
 extension WidgetLayoutModelTests {
     func testMovingFollowsOnMoveSemantics() {
         let moved = WidgetLayout.default.moving(from: IndexSet(integer: 4), to: 1) // clock before weather
-        XCTAssertEqual(moved.order, [.launcher, .clock, .weather, .apps, .media, .widgets])
+        XCTAssertEqual(moved.order, [.launcher, .clock, .weather, .apps, .media, .calendar, .system, .devices, .widgets])
         let down = WidgetLayout.default.moving(from: IndexSet(integer: 0), to: 3) // launcher after weather+apps
-        XCTAssertEqual(down.order, [.weather, .apps, .launcher, .media, .clock, .widgets])
+        XCTAssertEqual(down.order, [.weather, .apps, .launcher, .media, .clock, .calendar, .system, .devices, .widgets])
     }
 
     func testVisibleOrderDropsHiddenButNeverApps() {

@@ -19,7 +19,7 @@ final class LayoutThumbnailModelTests: XCTestCase {
                 XCTAssertGreaterThan(island.rect.width, 0)
             }
             XCTAssertEqual(islands.flatMap(\.sections).sorted { $0.rawValue < $1.rawValue },
-                           BarSection.canonicalOrder.sorted { $0.rawValue < $1.rawValue }, "\(mode)")
+                           BarSection.defaultOrder.sorted { $0.rawValue < $1.rawValue }, "\(mode)")
         }
     }
 

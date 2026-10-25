@@ -16,6 +16,8 @@ struct WidgetPreset: Codable, Equatable, Identifiable, Sendable {
         case "builtin.music": return String(localized: "Music")
         case "builtin.focus": return String(localized: "Focus")
         case "builtin.full": return String(localized: "Full")
+        case "builtin.agenda": return String(localized: "Agenda")
+        case "builtin.monitor": return String(localized: "Monitor")
         default: return name
         }
     }
@@ -25,10 +27,11 @@ enum WidgetPresets {
     static let builtInPrefix = "builtin."
     static let defaultsKey = "com.katikati.widgets.presets.v1"
 
-    private static func layout(hidden: Set<BarSection> = [],
+    private static func layout(hidden: Set<BarSection> = [], stacks: [BarSection: [BarSection]] = [:],
                                sizes: [BarSection: WidgetSize] = [:]) -> WidgetLayout {
         WidgetLayout(instances: BarSection.canonicalOrder.map {
-            WidgetInstance(section: $0, size: sizes[$0] ?? .medium, isVisible: !hidden.contains($0))
+            WidgetInstance(section: $0, size: sizes[$0] ?? .medium, isVisible: !hidden.contains($0) && !$0.startsHidden,
+                           stack: stacks[$0])
         })
     }
 
@@ -43,6 +46,12 @@ enum WidgetPresets {
         WidgetPreset(id: "builtin.focus", name: "Focus",
                      layout: layout(hidden: [.weather, .widgets], sizes: [.media: .medium, .clock: .small])),
         WidgetPreset(id: "builtin.full", name: "Full", layout: .default),
+        WidgetPreset(id: "builtin.agenda", name: "Agenda",
+                     layout: layout(hidden: [.media, .widgets], stacks: [.clock: [.clock, .calendar, .devices]],
+                                    sizes: [.weather: .small])),
+        WidgetPreset(id: "builtin.monitor", name: "Monitor",
+                     layout: layout(hidden: [.media, .widgets], stacks: [.clock: [.clock, .system, .devices]],
+                                    sizes: [.weather: .small])),
     ]
 
     /// Appends a user preset; a blank name is rejected, a duplicate name replaces that preset.

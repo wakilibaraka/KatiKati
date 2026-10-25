@@ -1391,7 +1391,13 @@ struct DockStripView: View {
                 if isRail {
                     // Side rail: one size for every tile (Phase 40b), so a widget matches the app chips
                     // beside it — `BarSection.railTileLength` is the rail's own square measure.
-                    railWidgetTile(section)
+                    Group {
+                        if section.supportsWidgetSizes, let members = settingsStore.widgetLayout.instance(for: section).stack, members.count > 1 {
+                            SmartStackSlot(host: section, members: members) { railWidgetTile($0) }
+                        } else {
+                            railWidgetTile(section)
+                        }
+                    }
                         .frame(width: BarSection.railTileSize * dockScale,
                                height: section.railTileLength(barHeight: IslandChrome.nativeBarHeight) * dockScale)
                 } else {
@@ -1413,7 +1419,8 @@ struct DockStripView: View {
             .contentShape(Rectangle())
             // Phase 6: hover title per island section (system tooltip; a chip's own `.help`
             // still wins inside it).
-            .help(Self.sectionHoverTitle(section))
+            // A stack's slot rotates, so a fixed title would name the wrong widget.
+            .help(settingsStore.widgetLayout.instance(for: section).stack.map { $0.count > 1 } == true ? "" : Self.sectionHoverTitle(section))
             .overlay {
                 if section != .apps && editMode.isEditing {
                     WidgetEditOverlay(section: section, width: targetWidth * dockScale)
@@ -1645,6 +1652,9 @@ extension DockStripView {
         case .media: return String(localized: "Now Playing")
         case .clock: return String(localized: "Clock")
         case .widgets: return String(localized: "Widgets")
+        case .calendar: return String(localized: "Calendar")
+        case .system: return String(localized: "System")
+        case .devices: return String(localized: "Devices")
         case .apps: return ""
         }
     }
@@ -1722,8 +1732,17 @@ extension DockStripView {
                                     topInset: PanelGeometry.railTopInset(on: geometry))
     }
 
-    @ViewBuilder
+    /// Widgets open their hover preview away from the screen edge the dock hugs.
     func railWidgetTile(_ section: BarSection) -> some View {
+        railWidgetTileContent(section).environment(\.dockPopoverEdge, stripPlacement.previewEdge)
+    }
+
+    func widgetChip(_ section: BarSection, size widgetSize: WidgetSize) -> some View {
+        widgetChipContent(section, size: widgetSize).environment(\.dockPopoverEdge, stripPlacement.previewEdge)
+    }
+
+    @ViewBuilder
+    private func railWidgetTileContent(_ section: BarSection) -> some View {
         switch section {
         case .weather:
             RailWeatherTile().nativeScaled(dockScale)
@@ -1735,6 +1754,12 @@ extension DockStripView {
             NowPlayingChip()
                 .environment(\.liveIslandVertical, true)
                 .nativeScaled(dockScale)
+        case .calendar:
+            RailCalendarTile().nativeScaled(dockScale)
+        case .system:
+            RailSystemTile().nativeScaled(dockScale)
+        case .devices:
+            RailDevicesTile().nativeScaled(dockScale)
         case .launcher, .widgets, .apps:
             widgetChip(section, size: .small)
         }
@@ -1758,7 +1783,7 @@ extension DockStripView {
     }
 
     @ViewBuilder
-    func widgetChip(_ section: BarSection, size widgetSize: WidgetSize) -> some View {
+    private func widgetChipContent(_ section: BarSection, size widgetSize: WidgetSize) -> some View {
         switch section {
         case .weather:
             WeatherChip()
@@ -1770,6 +1795,18 @@ extension DockStripView {
                 .nativeScaled(dockScale)
         case .clock:
             ClockChip()
+                .environment(\.widgetSize, widgetSize)
+                .nativeScaled(dockScale)
+        case .calendar:
+            CalendarDockChip()
+                .environment(\.widgetSize, widgetSize)
+                .nativeScaled(dockScale)
+        case .system:
+            SystemDockChip()
+                .environment(\.widgetSize, widgetSize)
+                .nativeScaled(dockScale)
+        case .devices:
+            DevicesDockChip()
                 .environment(\.widgetSize, widgetSize)
                 .nativeScaled(dockScale)
         case .launcher:

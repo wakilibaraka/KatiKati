@@ -6,6 +6,10 @@ struct StackSignals: Equatable, Sendable {
     /// The winning live activity; `.clock` means nothing is live.
     var liveKind: LiveActivityKind
     var weatherCondition: WeatherCondition?
+    /// A meeting starts within `EventTimeUntil.joinLeadTime`, or is running.
+    var meetingSoon = false
+    var systemBusy = false
+    var deviceLow = false
 }
 
 /// A manual pick that wins over relevance until `until`.
@@ -17,6 +21,8 @@ struct StackOverride: Equatable, Sendable {
 enum StackRelevance {
     /// What a stack holds when switched on: the three widgets that have something to say.
     static let defaultMembers: [BarSection] = [.weather, .media, .clock]
+    /// The extra widgets that rotate through one existing slot instead of taking slots of their own.
+    static let glanceMembers: [BarSection] = [.calendar, .system, .devices]
     /// A challenger must beat the current member by more than this to take over (no flapping).
     static let switchMargin = 15
     static let overrideDuration: TimeInterval = 10 * 60
@@ -26,6 +32,9 @@ enum StackRelevance {
         case .media: return signals.liveKind == .clock ? 0 : 100
         case .weather: return isWet(signals.weatherCondition) ? 80 : 10
         case .clock: return 20
+        case .calendar: return signals.meetingSoon ? 90 : 15
+        case .system: return signals.systemBusy ? 70 : 12
+        case .devices: return signals.deviceLow ? 85 : 8
         case .launcher, .apps, .widgets: return 0
         }
     }

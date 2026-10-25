@@ -4,8 +4,8 @@ import XCTest
 final class WidgetPresetTests: XCTestCase {
     func testBuiltInsAreStableAndFullIsDefault() {
         XCTAssertEqual(WidgetPresets.builtIns.map(\.id),
-                       ["builtin.minimal", "builtin.commuter", "builtin.music", "builtin.focus", "builtin.full"])
-        XCTAssertEqual(WidgetPresets.builtIns.last?.layout, .default)
+                       ["builtin.minimal", "builtin.commuter", "builtin.music", "builtin.focus", "builtin.full", "builtin.agenda", "builtin.monitor"])
+        XCTAssertEqual(WidgetPresets.builtIns.first { $0.id == "builtin.full" }?.layout, .default)
         XCTAssertTrue(WidgetPresets.builtIns.allSatisfy(\.isBuiltIn))
     }
 

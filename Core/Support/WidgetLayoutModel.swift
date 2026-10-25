@@ -24,7 +24,7 @@ extension BarSection {
     /// Sections that offer S/M/L presets. The others keep a single fixed width.
     var supportsWidgetSizes: Bool {
         switch self {
-        case .weather, .media, .clock: return true
+        case .weather, .media, .clock, .calendar, .system, .devices: return true
         case .launcher, .apps, .widgets: return false
         }
     }
@@ -44,6 +44,11 @@ extension BarSection {
         case (.media, .small): return 72
         case (.media, .medium): return 215
         case (.media, .large): return 240
+        case (.calendar, .small), (.system, .small), (.devices, .small): return 56
+        case (.calendar, .medium): return 170
+        case (.calendar, .large): return 230
+        case (.system, .medium), (.devices, .medium): return 150
+        case (.system, .large), (.devices, .large): return 230
         default: return defaultWidgetWidth
         }
     }
@@ -80,14 +85,14 @@ struct WidgetLayout: Codable, Equatable, Sendable {
     private(set) var instances: [WidgetInstance]
 
     /// Today's behaviour: canonical order, every widget visible at medium, no overrides.
-    static let `default` = WidgetLayout(instances: BarSection.canonicalOrder.map { WidgetInstance(section: $0) })
+    static let `default` = WidgetLayout(instances: BarSection.canonicalOrder.map { WidgetInstance(section: $0, isVisible: !$0.startsHidden) })
 
     /// Always a permutation of all sections: unknown/duplicate entries dropped, missing appended.
     init(instances: [WidgetInstance]) {
         var seen = Set<BarSection>()
         var normalized = instances.filter { seen.insert($0.section).inserted }
         for section in BarSection.canonicalOrder where !seen.contains(section) {
-            normalized.append(WidgetInstance(section: section))
+            normalized.append(WidgetInstance(section: section, isVisible: !section.startsHidden))
         }
         self.instances = normalized
     }
@@ -95,7 +100,7 @@ struct WidgetLayout: Codable, Equatable, Sendable {
     var order: [BarSection] { instances.map(\.section) }
 
     func instance(for section: BarSection) -> WidgetInstance {
-        instances.first { $0.section == section } ?? WidgetInstance(section: section)
+        instances.first { $0.section == section } ?? WidgetInstance(section: section, isVisible: !section.startsHidden)
     }
 
     /// Order handed to the island solver / strip: hidden widgets dropped (`apps` can't be hidden).
@@ -172,7 +177,7 @@ struct WidgetLayout: Codable, Equatable, Sendable {
     /// (`IslandChrome.overhead`), so widgets degrade before split islands could collide (Phase 11a);
     /// the result is in native-scale points, the unit widget widths are authored in.
     static func widgetBudget(screenWidth: CGFloat, margin: CGFloat, gap: CGFloat, tileStride: CGFloat,
-                             mode: BarLayoutMode? = nil, order: [BarSection] = BarSection.canonicalOrder,
+                             mode: BarLayoutMode? = nil, order: [BarSection] = BarSection.defaultOrder,
                              barHeight: CGFloat = IslandChrome.nativeBarHeight) -> CGFloat {
         let apps = 6 * tileStride + 24
         guard let mode else { return screenWidth - 2 * margin - 5 * gap - apps }
@@ -185,7 +190,7 @@ struct WidgetLayout: Codable, Equatable, Sendable {
     /// First-run migration from the legacy `widgetWidths` slider overrides.
     static func migrating(legacyWidths: [String: CGFloat]) -> WidgetLayout {
         WidgetLayout(instances: BarSection.canonicalOrder.map { section in
-            var inst = WidgetInstance(section: section)
+            var inst = WidgetInstance(section: section, isVisible: !section.startsHidden)
             if let width = legacyWidths[section.rawValue] { inst.exactWidth = width }
             return inst
         })

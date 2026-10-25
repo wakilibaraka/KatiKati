@@ -56,7 +56,7 @@ final class DockStyleTests: XCTestCase {
 
     func testStylesFitALaptopScreenUnchanged() {
         for style in DockStyle.builtIns {
-            let fitted = DockStyleFit.resolve(style, screenWidth: 1440, widgetOrder: BarSection.canonicalOrder)
+            let fitted = DockStyleFit.resolve(style, screenWidth: 1440, widgetOrder: BarSection.defaultOrder)
             XCTAssertEqual(fitted, style, "\(style.id) should fit 1440 pt as authored")
         }
     }
@@ -65,7 +65,7 @@ final class DockStyleTests: XCTestCase {
         var big = DockStyle.islands
         big.size = .large
         big.spacing = .airy
-        let fitted = DockStyleFit.resolve(big, screenWidth: 800, widgetOrder: BarSection.canonicalOrder,
+        let fitted = DockStyleFit.resolve(big, screenWidth: 800, widgetOrder: BarSection.defaultOrder,
                                           widgetWidths: [.weather: 230, .clock: 210, .media: 240])
         XCTAssertLessThan(fitted.size.barHeight, big.size.barHeight)
         XCTAssertEqual(fitted.mode, big.mode, "fitting never changes the layout mode")
@@ -74,11 +74,11 @@ final class DockStyleTests: XCTestCase {
     func testMaximumBarHeightIsCappedByWhatFits() {
         let roomy = DockStyleFit.maximumBarHeight(
             mode: .split3, gap: 10, margin: 12, bottomGap: 8, screenWidth: 2560,
-            widgetOrder: BarSection.canonicalOrder, range: 32...90)
+            widgetOrder: BarSection.defaultOrder, range: 32...90)
         XCTAssertEqual(roomy, 90)
         let tight = DockStyleFit.maximumBarHeight(
             mode: .split5, gap: 40, margin: 80, bottomGap: 8, screenWidth: 1024,
-            widgetOrder: BarSection.canonicalOrder, range: 32...90)
+            widgetOrder: BarSection.defaultOrder, range: 32...90)
         XCTAssertLessThan(tight, 90)
         XCTAssertGreaterThanOrEqual(tight, 32)
     }

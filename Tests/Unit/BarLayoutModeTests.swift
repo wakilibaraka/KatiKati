@@ -58,7 +58,7 @@ final class BarLayoutModeTests: XCTestCase {
     func testSectionIslandsPerMode() {
         let windowsIslands = BarSection.islands(for: .windows)
         XCTAssertEqual(windowsIslands.count, 1)
-        XCTAssertEqual(windowsIslands[0], BarSection.canonicalOrder)
+        XCTAssertEqual(windowsIslands[0], BarSection.defaultOrder)
 
         let split3Islands = BarSection.islands(for: .split3)
         XCTAssertEqual(split3Islands.count, 3)
@@ -75,15 +75,15 @@ final class BarLayoutModeTests: XCTestCase {
 
         let centeredIslands = BarSection.islands(for: .centered)
         XCTAssertEqual(centeredIslands.count, 1)
-        XCTAssertEqual(centeredIslands[0], BarSection.canonicalOrder)
+        XCTAssertEqual(centeredIslands[0], BarSection.defaultOrder)
     }
 
     func testEverySectionLivesInExactlyOneIslandPerMode() {
         for mode in BarLayoutMode.allCases {
             let groups = BarSection.islands(for: mode)
             let flattened = groups.flatMap { $0 }
-            XCTAssertEqual(flattened.count, BarSection.allCases.count)
-            XCTAssertEqual(Set(flattened), Set(BarSection.allCases))
+            XCTAssertEqual(flattened.count, BarSection.defaultOrder.count)
+            XCTAssertEqual(Set(flattened), Set(BarSection.defaultOrder))
         }
     }
 
@@ -104,8 +104,8 @@ final class BarLayoutModeTests: XCTestCase {
 
     func testCanonicalOrderIsHardcoded() {
         // Declaration order IS the canonical widget order: no reader, no writer.
-        XCTAssertEqual(BarSection.allCases, [.launcher, .weather, .apps, .media, .clock, .widgets])
-        XCTAssertEqual(BarSection.canonicalOrder, BarSection.allCases)
+        XCTAssertEqual(BarSection.allCases, BarSection.canonicalOrder)
+        XCTAssertEqual(BarSection.defaultOrder, [.launcher, .weather, .apps, .media, .clock, .widgets])
     }
 
     func testDefaultWidgetWidths() {

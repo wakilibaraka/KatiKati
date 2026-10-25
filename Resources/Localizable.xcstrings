@@ -76153,6 +76153,312 @@
         "it": {"stringUnit": {"state": "translated", "value": "Scegli un’app aperta o digita l’ID bundle di una chiusa. Una nuova app parte da «⌘Q propria» — il suo ⌘Q invariato — quindi attiva la colonna che vuoi e disattiva questa se l’app deve richiedere la pressione prolungata."}},
         "ko": {"stringUnit": {"state": "translated", "value": "실행 중인 앱을 고르거나 실행 중이 아닌 앱의 번들 ID를 입력하십시오. 새 앱은 ‘자체 ⌘Q’(⌘Q 그대로)로 시작하므로 원하는 열을 켜고, 길게 눌러야 하는 앱이라면 이 열을 끄십시오."}}
       }
+    },
+    "Agenda": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Agenda"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "日程"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "日程"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "予定"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Agenda"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Agenda"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Agenda"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Agenda"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Agenda"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Agenda"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Agenda"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "일정"}}
+      }
+    },
+    "Monitor": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Monitor"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "监控"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "監控"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "モニター"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Monitor"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Moniteur"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Monitor"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Monitor"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Monitor"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Monitor"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Monitor"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "모니터"}}
+      }
+    },
+    "Calendar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Calendar"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "日历"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "行事曆"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "カレンダー"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kalender"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Calendrier"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Calendario"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Calendario"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Calendário"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Calendário"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Calendario"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "캘린더"}}
+      }
+    },
+    "Direction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Direction"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "风向"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "風向"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "風向"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Richtung"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Direction"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Dirección"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Dirección"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Direção"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Direção"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Direzione"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "풍향"}}
+      }
+    },
+    "Feels like": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Feels like"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "体感"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "體感"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "体感"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Gefühlt"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ressenti"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sensación"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Sensación"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sensação"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sensação"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Percepita"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "체감"}}
+      }
+    },
+    "Join": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Join"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "加入"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "加入"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "参加"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Beitreten"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Rejoindre"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Unirse"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Unirse"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Entrar"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Entrar"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Partecipa"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "참여"}}
+      }
+    },
+    "No devices": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No devices"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "无设备"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "無裝置"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "デバイスなし"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Keine Geräte"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucun appareil"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sin dispositivos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Sin dispositivos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sem dispositivos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sem dispositivos"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessun dispositivo"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "기기 없음"}}
+      }
+    },
+    "No forecast yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No forecast yet"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "暂无预报"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "尚無預報"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "予報はまだありません"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Noch keine Vorhersage"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Pas encore de prévisions"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Aún no hay pronóstico"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Aún no hay pronóstico"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ainda sem previsão"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ainda sem previsão"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessuna previsione"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "아직 예보 없음"}}
+      }
+    },
+    "RAM": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "RAM"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "内存"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "記憶體"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "メモリ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "RAM"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "RAM"}},
+        "es": {"stringUnit": {"state": "translated", "value": "RAM"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "RAM"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "RAM"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "RAM"}},
+        "it": {"stringUnit": {"state": "translated", "value": "RAM"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "메모리"}}
+      }
+    },
+    "SSD Read": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "SSD Read"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "SSD 读取"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "SSD 讀取"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "SSD 読み込み"}},
+        "de": {"stringUnit": {"state": "translated", "value": "SSD Lesen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Lecture SSD"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Lectura SSD"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Lectura SSD"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Leitura SSD"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Leitura SSD"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Lettura SSD"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "SSD 읽기"}}
+      }
+    },
+    "SSD Write": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "SSD Write"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "SSD 写入"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "SSD 寫入"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "SSD 書き込み"}},
+        "de": {"stringUnit": {"state": "translated", "value": "SSD Schreiben"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Écriture SSD"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Escritura SSD"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Escritura SSD"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Gravação SSD"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Gravação SSD"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scrittura SSD"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "SSD 쓰기"}}
+      }
+    },
+    "Upcoming": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Upcoming"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "即将开始"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "即將開始"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "今後の予定"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Anstehend"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "À venir"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Próximos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Próximos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Próximos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Próximos"}},
+        "it": {"stringUnit": {"state": "translated", "value": "In arrivo"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "예정"}}
+      }
+    },
+    "in %lldm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "in %lldm"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "%lld分钟后"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "%lld 分鐘後"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "%lld分後"}},
+        "de": {"stringUnit": {"state": "translated", "value": "in %lld Min."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "dans %lld min"}},
+        "es": {"stringUnit": {"state": "translated", "value": "en %lld min"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "en %lld min"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "em %lld min"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "em %lld min"}},
+        "it": {"stringUnit": {"state": "translated", "value": "tra %lld min"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "%lld분 후"}}
+      }
+    },
+    "in %lldh": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "in %lldh"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "%lld小时后"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "%lld 小時後"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "%lld時間後"}},
+        "de": {"stringUnit": {"state": "translated", "value": "in %lld Std."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "dans %lld h"}},
+        "es": {"stringUnit": {"state": "translated", "value": "en %lld h"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "en %lld h"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "em %lld h"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "em %lld h"}},
+        "it": {"stringUnit": {"state": "translated", "value": "tra %lld h"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "%lld시간 후"}}
+      }
+    },
+    "in %lldh %lldm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "in %lldh %lldm"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "%lld小时%lld分钟后"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "%lld 小時 %lld 分鐘後"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "%lld時間%lld分後"}},
+        "de": {"stringUnit": {"state": "translated", "value": "in %lld Std. %lld Min."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "dans %lld h %lld min"}},
+        "es": {"stringUnit": {"state": "translated", "value": "en %lld h %lld min"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "en %lld h %lld min"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "em %lld h %lld min"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "em %lld h %lld min"}},
+        "it": {"stringUnit": {"state": "translated", "value": "tra %lld h %lld min"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "%lld시간 %lld분 후"}}
+      }
+    },
+    "in %lldd": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "in %lldd"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "%lld天后"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "%lld 天後"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "%lld日後"}},
+        "de": {"stringUnit": {"state": "translated", "value": "in %lld Tg."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "dans %lld j"}},
+        "es": {"stringUnit": {"state": "translated", "value": "en %lld d"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "en %lld d"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "em %lld d"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "em %lld d"}},
+        "it": {"stringUnit": {"state": "translated", "value": "tra %lld g"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "%lld일 후"}}
+      }
+    },
+    "Widget Look": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Widget Look"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "小组件外观"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "小工具外觀"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウィジェットの外観"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Widget-Look"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Style des widgets"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Aspecto de widgets"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Aspecto de widgets"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Aparência dos widgets"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Aspeto dos widgets"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Aspetto dei widget"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "위젯 모양"}}
+      }
+    },
+    "Calendar, System & Devices in Stack": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Calendar, System & Devices in Stack"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "在叠放中加入日历、系统和设备"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "在堆疊中加入行事曆、系統和裝置"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "カレンダー・システム・デバイスをスタックに含める"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kalender, System & Geräte im Stapel"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Calendrier, Système et Appareils dans la pile"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Calendario, Sistema y Dispositivos en la pila"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Calendario, Sistema y Dispositivos en la pila"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Calendário, Sistema e Dispositivos na pilha"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Calendário, Sistema e Dispositivos na pilha"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Calendario, Sistema e Dispositivi nello stack"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "스택에 캘린더, 시스템, 기기 포함"}}
+      }
     }
   },
   "version": "1.0"

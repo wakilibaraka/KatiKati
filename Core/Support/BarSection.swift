@@ -22,10 +22,27 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     case apps
     case media
     case clock
+    /// Date badge + next meeting with its countdown; hover lists upcoming meetings with a Join button.
+    case calendar
+    /// CPU / RAM / SSD at a glance; hover shows the four sparklines.
+    case system
+    /// Battery levels of connected AirPods / mouse / keyboard.
+    case devices
     case widgets
 
     /// Canonical left-to-right order (Phase 4U-A).
-    static let canonicalOrder: [BarSection] = [.launcher, .weather, .apps, .media, .clock, .widgets]
+    static let canonicalOrder: [BarSection] = [.launcher, .weather, .apps, .media, .clock, .calendar, .system, .devices, .widgets]
+
+    /// The six sections a fresh dock shows: what every layout API assumes unless it is handed a real order.
+    static let defaultOrder: [BarSection] = canonicalOrder.filter { !$0.startsHidden }
+
+    /// Widgets added after the original six start hidden, so a dock upgraded in place looks exactly as it did.
+    var startsHidden: Bool {
+        switch self {
+        case .calendar, .system, .devices: return true
+        case .launcher, .weather, .apps, .media, .clock, .widgets: return false
+        }
+    }
 
     var id: String { rawValue }
 
@@ -36,6 +53,9 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .apps: return "Apps"
         case .media: return "Now Playing"
         case .clock: return "Clock"
+        case .calendar: return "Calendar"
+        case .system: return "System"
+        case .devices: return "Devices"
         case .widgets: return "Widgets"
         }
     }
@@ -59,6 +79,9 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .apps: return 0
         case .media: return 215
         case .clock: return 160
+        case .calendar: return 170
+        case .system: return 150
+        case .devices: return 150
         case .widgets: return 40
         }
     }
@@ -74,6 +97,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .apps: return 0
         case .media: return 72
         case .clock: return 76
+        case .calendar, .system, .devices: return 56
         case .widgets: return 40
         }
     }
@@ -89,8 +113,26 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         }
     }
 
+    /// Widgets added after the six original sections: in the split modes they share the island of the section
+    /// before them, so a mode keeps its slot count whichever of them are shown.
+    private var joinsPreviousIsland: Bool { startsHidden }
+
     /// Grouping of sections into island slots for each layout mode.
-    static func islands(for mode: BarLayoutMode, order: [BarSection] = BarSection.canonicalOrder) -> [[BarSection]] {
+    static func islands(for mode: BarLayoutMode, order: [BarSection] = BarSection.defaultOrder) -> [[BarSection]] {
+        let groups = rawIslands(for: mode, order: order)
+        guard mode.isSplit else { return groups }
+        var merged: [[BarSection]] = []
+        for group in groups {
+            if group.allSatisfy(\.joinsPreviousIsland), !merged.isEmpty {
+                merged[merged.count - 1] += group
+            } else {
+                merged.append(group)
+            }
+        }
+        return merged
+    }
+
+    private static func rawIslands(for mode: BarLayoutMode, order: [BarSection]) -> [[BarSection]] {
         switch mode {
         case .windows, .centered:
             return [order]
@@ -121,7 +163,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     }
 
     /// The 0-based slot index that hosts this section in the given layout mode.
-    func slotIndex(for mode: BarLayoutMode, order: [BarSection] = BarSection.canonicalOrder) -> Int {
+    func slotIndex(for mode: BarLayoutMode, order: [BarSection] = BarSection.defaultOrder) -> Int {
         let islandGroups = Self.islands(for: mode, order: order)
         for (index, group) in islandGroups.enumerated() {
             if group.contains(self) {

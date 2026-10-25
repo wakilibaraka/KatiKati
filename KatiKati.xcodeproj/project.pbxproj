@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		DD000000000000000000001A /* WidgetLook.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000018 /* WidgetLook.swift */; };
 		DD0000000000000000000019 /* WidgetLook.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000018 /* WidgetLook.swift */; };
+		DD0000000000000000000017 /* DockWidgetLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000016 /* DockWidgetLogicTests.swift */; };
 		DD0000000000000000000015 /* WeatherPreviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000014 /* WeatherPreviewCard.swift */; };
 		DD0000000000000000000013 /* DevicesDockWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000012 /* DevicesDockWidget.swift */; };
 		DD0000000000000000000011 /* SystemDockWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000010 /* SystemDockWidget.swift */; };
@@ -1212,6 +1213,7 @@
 
 /* Begin PBXFileReference section */
 		DD0000000000000000000018 /* WidgetLook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetLook.swift; path = Core/Support/WidgetLook.swift; sourceTree = SOURCE_ROOT; };
+		DD0000000000000000000016 /* DockWidgetLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockWidgetLogicTests.swift; path = Tests/Unit/DockWidgetLogicTests.swift; sourceTree = SOURCE_ROOT; };
 		DD0000000000000000000014 /* WeatherPreviewCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherPreviewCard.swift; path = App/Scenes/DockWidgets/WeatherPreviewCard.swift; sourceTree = SOURCE_ROOT; };
 		DD0000000000000000000012 /* DevicesDockWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DevicesDockWidget.swift; path = App/Scenes/DockWidgets/DevicesDockWidget.swift; sourceTree = SOURCE_ROOT; };
 		DD0000000000000000000010 /* SystemDockWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemDockWidget.swift; path = App/Scenes/DockWidgets/SystemDockWidget.swift; sourceTree = SOURCE_ROOT; };
@@ -3814,6 +3816,7 @@
 				A0000000000000000001F092 /* SettingsTilingPane.swift in Sources */,
 				2E8A037835590C15D95BB4E9 /* WelcomeGuideView.swift in Sources */,
 				FA10A1000000000000000249 /* DisplayIdentity.swift in Sources */,
+				DD0000000000000000000017 /* DockWidgetLogicTests.swift in Sources */,
 				BB0000000000000000000008 /* BarLayoutModeTests.swift in Sources */,
 				FA10A1000000000000000012 /* WidgetLayoutModelTests.swift in Sources */,
 				FA10A1000000000000000042 /* LiveIdleActionTests.swift in Sources */,

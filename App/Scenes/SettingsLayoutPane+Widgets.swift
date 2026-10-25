@@ -87,6 +87,9 @@ extension SettingsLayoutPane {
         case .apps: return Text("Apps")
         case .widgets: return Text("Widgets")
         case .clock: return Text("Clock")
+        case .calendar: return Text("Calendar")
+        case .system: return Text("System")
+        case .devices: return Text("Devices")
         }
     }
 
