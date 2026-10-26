@@ -46,8 +46,13 @@ final class SpaceTransitionController {
         effect = SpaceTransitionSettings.effect()
         duration = SpaceTransitionSettings.duration()
         let screen = Self.screenUnderPointer() ?? NSScreen.main
-        guard let screen,
-              let plan = Self.plan(on: screen, direction: direction, wrap: wrap) else { return }
+        guard let screen else { return }
+        // An unreadable layout is not a reason to do nothing: the direction is already known, so
+        // this posts the one-step Dock gesture exactly like the other fallback below.
+        guard let plan = Self.plan(on: screen, direction: direction, wrap: wrap) else {
+            _ = DockSwipeEventPoster.post(direction, steps: 1)
+            return
+        }
 
         guard effect == .fade, Self.isSupported, Self.canPostEvents, Self.canCaptureScreen,
               let before = await Self.capture(screen) else {
