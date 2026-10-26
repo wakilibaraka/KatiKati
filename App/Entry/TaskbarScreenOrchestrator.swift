@@ -180,6 +180,22 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         observeMenuTracking()
         reconcileHoverMouseMonitors()
         reconcileFullscreenIntentMonitor()
+
+        // Wire DockWindowManager with the orchestrator's managed panels and slide actions
+        DockWindowManager.shared.managedPanelsProvider = { [weak self] in
+            self?.units.compactMap { $0.coordinator.dockPanel } ?? []
+        }
+        DockWindowManager.shared.managedBackgroundPanelsProvider = { [weak self] in
+            self?.units.compactMap { $0.coordinator.dockGlassBackgroundPanel } ?? []
+        }
+        DockWindowManager.shared.managedCapsulePanelsProvider = { [weak self] in
+            self?.units.compactMap { $0.coordinator.capsulePanel } ?? []
+        }
+        DockWindowManager.shared.onSlideStateChanged = { [weak self] hidden in
+            self?.units.forEach { $0.coordinator.animateDockDodgeSlide(hidden: hidden) }
+        }
+        DockWindowManager.shared.start()
+
         placementSubscription = settingsStore.$taskbarScreenPlacement
             .removeDuplicates()
             .dropFirst()
@@ -244,6 +260,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     func suspendAndRelease() {
         guard !isSuspended else { return }
         isSuspended = true
+        DockWindowManager.shared.stop()
         cancelInteractiveHeightResize()
         setSettingsHeightSessionActive(false)
         // 先回滚未提交的跨面板拖拽事务，再拆监视器；常驻的载体面板也要显式收掉。
@@ -897,6 +914,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     }
 
     private func pollAllUnits() {
+        DockWindowManager.shared.handleMouseMoved()
         units.forEach { $0.coordinator.pollMousePosition() }
         if !edgeControllers.isEmpty {
             let mouse = NSEvent.mouseLocation

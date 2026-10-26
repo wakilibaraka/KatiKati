@@ -1891,19 +1891,25 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.themeTuning, .identity)
         XCTAssertEqual(store.themeVibrancy, DockThemeStyle.identityVibrancy)
         XCTAssertEqual(store.themeContrast, 1)
+        XCTAssertEqual(store.themeTranslucency, DockThemeStyle.identityTranslucency)
 
         store.setThemeVibrancy(5)
         store.setThemeContrast(0.01)
+        store.setThemeTranslucency(0)
         XCTAssertEqual(store.themeVibrancy, DockThemeStyle.vibrancyRange.upperBound)
         XCTAssertEqual(store.themeContrast, DockThemeStyle.contrastRange.lowerBound)
+        XCTAssertEqual(store.themeTranslucency, DockThemeStyle.translucencyRange.lowerBound)
 
         let reloaded = AppSettingsStore(defaults: defaults)
         XCTAssertEqual(reloaded.themeVibrancy, DockThemeStyle.vibrancyRange.upperBound)
         XCTAssertEqual(reloaded.themeContrast, DockThemeStyle.contrastRange.lowerBound)
+        XCTAssertEqual(reloaded.themeTranslucency, DockThemeStyle.translucencyRange.lowerBound)
 
         // A hand-edited key cannot put the plate outside what the sliders can express.
         defaults.set(99.0, forKey: "com.katikati.theme.vibrancy")
+        defaults.set(-1.0, forKey: "com.katikati.theme.translucency")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).themeVibrancy, DockThemeStyle.vibrancyRange.upperBound)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).themeTranslucency, DockThemeStyle.translucencyRange.lowerBound)
     }
 
     func testSetWidgetSizeClearsAnyWidthOverride() {

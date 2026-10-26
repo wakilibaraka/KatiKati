@@ -4,6 +4,64 @@ import SwiftUI
 extension SettingsLayoutPane {
     @ViewBuilder
     var widgetSections: some View {
+        // The dock's own four choices, in one card (2026-10-26, Dockey-shaped): position, hide,
+        // reveal delay and animation speed used to be spread over Appearance, the status menu's
+        // auto-hide slider and this page's motion row. Same setters, no new engine — the dock is on
+        // screen and relayouts on every one of these `@Published` writes, so the card is its own
+        // live preview. "Reset" puts back a fresh install's four values.
+        SettingsCard(Text("Dock")) {
+            SettingsSegmentedRow(Text("Position"), selection: Binding(
+                get: { store.stripPlacementMap.global },
+                set: { store.setStripPlacement($0) }
+            )) {
+                Text("Bottom").tag(StripPlacement.bottom)
+                Text("Left").tag(StripPlacement.left)
+                Text("Right").tag(StripPlacement.right)
+            }
+            SettingsDivider()
+            // Hide/Show rather than a toggle: the same pair Dockey shows, and the value is the
+            // store's own `edgeAutoHideEnabled` (delay == neverHide), never a copy of it.
+            SettingsSegmentedRow(Text("Hide Dock"), selection: Binding(
+                get: { store.edgeAutoHideEnabled },
+                set: { hidden in
+                    if hidden != store.edgeAutoHideEnabled { store.toggleEdgeAutoHideMode() }
+                }
+            )) {
+                Text("Hide").tag(true)
+                Text("Show").tag(false)
+            }
+            SettingsDivider()
+            // Delay only exists while the dock hides; while it is always visible the row would
+            // write a delay nothing reads, so it is disabled instead.
+            SettingsSegmentedRow(Text("Animation Delay"), selection: Binding(
+                get: { DockRevealDelayPreset.matching(store.lastEnabledEdgeAutoHideDelay) ?? .none },
+                set: { store.setEdgeAutoHideDelay($0.seconds) }
+            )) {
+                ForEach(DockRevealDelayPreset.allCases, id: \.self) { preset in
+                    Text(preset.title).tag(preset)
+                }
+            }
+            .disabled(!store.edgeAutoHideEnabled)
+            SettingsDivider()
+            SettingsSegmentedRow(Text("Animation Speed"), selection: $dockMotion) {
+                ForEach(Self.dockSpeedOrder, id: \.self) { preset in
+                    Text(preset.title).tag(preset)
+                }
+            }
+            .help(Text("How the dock widgets' readings move when they change."))
+            SettingsDivider()
+            SettingsRow(Text("Restore")) {
+                Button {
+                    store.setStripPlacement(.bottom)
+                    store.setEdgeAutoHideDelay(AppSettingsStore.firstRunEdgeAutoHideDelay)
+                    dockMotion = .default
+                } label: {
+                    Text("Reset")
+                }
+                .controlSize(.small)
+            }
+        }
+
         // The widget-look block is composed by the Widgets tab instead: its controls live in the
         // app-only `SettingsWindowView`, and this pane also compiles into the test target.
         SettingsCard(Text("Dock Items")) {
@@ -34,19 +92,8 @@ extension SettingsLayoutPane {
                 contextPresetsToggle
             }
             contextPresetRows
-            // Phase 32b's dock motion, moved here from the widget-look block (2026-10-20): it is
-            // how the dock widgets move, so it belongs with the dock's own list.
-            SettingsDivider()
-            SettingsRow(Text("Dock Motion")) {
-                Picker("Dock Motion", selection: $dockMotion) {
-                    ForEach(WidgetMotionPreset.allCases, id: \.self) { preset in
-                        Text(preset.title).tag(preset)
-                    }
-                }
-                .labelsHidden().pickerStyle(.menu).fixedSize()
-            }
-            .help(Text("How the dock widgets' readings move when they change."))
-            // The menu-bar menu's four switches moved here (2026-10-21).
+            // The menu-bar menu's four switches moved here (2026-10-21). Dock motion moved into
+            // the Dock card above, where it is Animation Speed.
             SettingsDivider()
             SettingsToggleRow(Text("Control Centre on the right"), isOn: Binding(
                 get: { store.controlCentreTrailing },
@@ -79,6 +126,10 @@ extension SettingsLayoutPane {
         // Same keys, same controls.
     }
 
+    /// Fast → slow. `WidgetMotionPreset.allCases` is storage order (Fluid first, Slow last), which
+    /// is not a scale; the row is.
+    static let dockSpeedOrder: [WidgetMotionPreset] = [.instant, .snappy, .fluid, .slow]
+
     func widgetLabel(_ widget: BarSection) -> Text {
         switch widget {
         case .weather: return Text("Weather")
@@ -90,6 +141,7 @@ extension SettingsLayoutPane {
         case .calendar: return Text("Calendar")
         case .system: return Text("System")
         case .devices: return Text("Devices")
+        case .drives: return Text("Drives")
         }
     }
 

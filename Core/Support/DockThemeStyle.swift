@@ -9,14 +9,18 @@ struct ThemeTuning: Equatable {
     /// `1` = the preset's own colours; above it separates the tint from the wallpaper, below it
     /// flattens the preset.
     var contrast: CGFloat = 1
+    /// `1` = the plate's tint as it was before this knob existed; lower lays the tint down thicker
+    /// until the plate reads solid.
+    var translucency: CGFloat = DockThemeStyle.identityTranslucency
 
     static let identity = ThemeTuning()
 
     /// Whatever the store or a stale key hands over, clamped to the sliders' own range.
-    static func resolved(vibrancy: CGFloat, contrast: CGFloat) -> ThemeTuning {
+    static func resolved(vibrancy: CGFloat, contrast: CGFloat, translucency: CGFloat = DockThemeStyle.identityTranslucency) -> ThemeTuning {
         ThemeTuning(
             vibrancy: min(max(vibrancy, DockThemeStyle.vibrancyRange.lowerBound), DockThemeStyle.vibrancyRange.upperBound),
-            contrast: min(max(contrast, DockThemeStyle.contrastRange.lowerBound), DockThemeStyle.contrastRange.upperBound)
+            contrast: min(max(contrast, DockThemeStyle.contrastRange.lowerBound), DockThemeStyle.contrastRange.upperBound),
+            translucency: min(max(translucency, DockThemeStyle.translucencyRange.lowerBound), DockThemeStyle.translucencyRange.upperBound)
         )
     }
 }
@@ -124,6 +128,13 @@ extension DockThemeStyle {
     static let identityVibrancy: CGFloat = plateOverlayStrength
     static let vibrancyRange: ClosedRange<CGFloat> = 0.1 ... 1.0
     static let contrastRange: ClosedRange<CGFloat> = 0.5 ... 2.0
+    /// The third plate knob (2026-10-26). `translucency` scales the tint's alpha the way `vibrancy`
+    /// does, but in the other direction: **1 is today's plate**, and toward 0 the tint is laid down
+    /// up to twice as thick, which is what makes the plate read solid over whatever backdrop is
+    /// behind it (the native glass takes no tint of its own — see `DockLiquidGlassConfiguration`).
+    /// Multiplying by exactly 1 is bit-exact, so the default leaves every existing plate untouched.
+    static let identityTranslucency: CGFloat = 1
+    static let translucencyRange: ClosedRange<CGFloat> = 0.2 ... 1.0
 
     /// Colour laid over the dock plate on the system-glass and pre-26 paths, which otherwise drop
     /// the preset tint entirely — the reason picking a theme changed nothing visible (Phase 11c, B6).
@@ -139,10 +150,11 @@ extension DockThemeStyle {
     func plateOverlay(
         baseTint: DockRGBA,
         vibrancy: CGFloat = identityVibrancy,
-        contrast: CGFloat = 1
+        contrast: CGFloat = 1,
+        translucency: CGFloat = identityTranslucency
     ) -> DockRGBA? {
         guard tintsPlate else { return nil }
-        return Self.plateTint(baseTint, vibrancy: vibrancy, contrast: contrast)
+        return Self.plateTint(baseTint, vibrancy: vibrancy, contrast: contrast, translucency: translucency)
     }
 
     /// The gradient's bottom stop (`DockGradientPreset`), through the same vibrancy/contrast pass as
@@ -151,24 +163,28 @@ extension DockThemeStyle {
     func plateOverlayBottom(
         baseTintBottom: DockRGBA?,
         vibrancy: CGFloat = identityVibrancy,
-        contrast: CGFloat = 1
+        contrast: CGFloat = 1,
+        translucency: CGFloat = identityTranslucency
     ) -> DockRGBA? {
         guard tintsPlate, let bottom = baseTintBottom else { return nil }
-        return Self.plateTint(bottom, vibrancy: vibrancy, contrast: contrast)
+        return Self.plateTint(bottom, vibrancy: vibrancy, contrast: contrast, translucency: translucency)
     }
 
-    private static func plateTint(_ colour: DockRGBA, vibrancy: CGFloat, contrast: CGFloat) -> DockRGBA {
+    private static func plateTint(_ colour: DockRGBA, vibrancy: CGFloat, contrast: CGFloat,
+                                  translucency: CGFloat) -> DockRGBA {
+        // Translucency 1 is the identity: `a * 1` is bit-exact, so an untouched slider cannot
+        // move a pixel. Lower values lay the same colour down thicker, clamped at opaque.
+        let alpha = min(colour.a * vibrancy * (2 - translucency), 1)
         // `contrast == 1` leaves the channels bit-for-bit alone: `0.5 + (v - 0.5) * 1` is *not* exactly
         // `v` in binary floating point (0.05 comes back as 0.04999999999999999), and "a user who never
         // moved the slider sees the plate they had before it existed" is a promise about pixels.
         guard contrast != 1 else {
-            return DockRGBA(r: colour.r, g: colour.g, b: colour.b, a: colour.a * vibrancy)
+            return DockRGBA(r: colour.r, g: colour.g, b: colour.b, a: alpha)
         }
         func push(_ channel: CGFloat) -> CGFloat {
             min(max(0.5 + (channel - 0.5) * contrast, 0), 1)
         }
-        return DockRGBA(r: push(colour.r), g: push(colour.g), b: push(colour.b),
-                        a: colour.a * vibrancy)
+        return DockRGBA(r: push(colour.r), g: push(colour.g), b: push(colour.b), a: alpha)
     }
 }
 

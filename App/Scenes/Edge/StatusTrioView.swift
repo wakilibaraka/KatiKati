@@ -271,14 +271,16 @@ struct ControlCenterView: View {
     private var plateWash: some View {
         if !isPad, let top = dockThemeStyle.plateOverlay(baseTint: theme.styleTokens.baseTint,
                                                  vibrancy: themeTuning.vibrancy,
-                                                 contrast: themeTuning.contrast) {
+                                                 contrast: themeTuning.contrast,
+                                                 translucency: themeTuning.translucency) {
             RoundedRectangle(cornerRadius: panelRadius, style: .continuous)
                 .fill(DockGlassBackdrop.overlayPaint(
                     top: top,
                     bottom: dockThemeStyle.plateOverlayBottom(
                         baseTintBottom: theme.styleTokens.baseTintBottom,
                         vibrancy: themeTuning.vibrancy,
-                        contrast: themeTuning.contrast)))
+                        contrast: themeTuning.contrast,
+                        translucency: themeTuning.translucency)))
                 .allowsHitTesting(false)
         }
     }

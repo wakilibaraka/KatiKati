@@ -10,6 +10,8 @@ struct StackSignals: Equatable, Sendable {
     var meetingSoon = false
     var systemBusy = false
     var deviceLow = false
+    /// A volume past 90 %: the one moment the Drives widget has something to say.
+    var diskNearlyFull = false
 }
 
 /// A manual pick that wins over relevance until `until`.
@@ -22,6 +24,8 @@ enum StackRelevance {
     /// What a stack holds when switched on: the three widgets that have something to say.
     static let defaultMembers: [BarSection] = [.weather, .media, .clock]
     /// The extra widgets that rotate through one existing slot instead of taking slots of their own.
+    /// `.drives` is not here: it is opt-in, and a stack the user configured must not start showing a
+    /// widget they never added (the score arm below still ranks it once it is a member).
     static let glanceMembers: [BarSection] = [.calendar, .system, .devices]
     /// A challenger must beat the current member by more than this to take over (no flapping).
     static let switchMargin = 15
@@ -35,6 +39,7 @@ enum StackRelevance {
         case .calendar: return signals.meetingSoon ? 90 : 15
         case .system: return signals.systemBusy ? 70 : 12
         case .devices: return signals.deviceLow ? 85 : 8
+        case .drives: return signals.diskNearlyFull ? 88 : 6
         case .launcher, .apps, .widgets: return 0
         }
     }

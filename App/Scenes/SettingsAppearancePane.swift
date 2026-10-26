@@ -17,6 +17,8 @@ struct SettingsAppearancePane: View {
     // Phase 32b: `Right FAB Style` moved here from the Widgets page, into the slot 32d's dock-icon row
     // freed — the dock's FAB is a look, like the icon set beside it.
     @AppStorage("com.katikati.widgets.fabStyle") private var fabStyleRaw: String = "gauge"
+    @AppStorage(SpaceTransitionSettings.effectKey) private var spaceEffectRaw = SpaceTransitionEffect.fade.rawValue
+    @AppStorage(SpaceTransitionSettings.durationKey) private var spaceDuration = SpaceTransitionSettings.defaultDuration
 
     private static let presets: [DockThemeStyle] = [
         .system, .translucent, .crystalClear, .obsidianDark, .monochrome, .titaniumFrost,
@@ -78,6 +80,19 @@ struct SettingsAppearancePane: View {
                         valueText: String(format: "%.1f×", Double(store.themeContrast)),
                         set: store.setThemeContrast
                     )
+
+                    // 2026-10-26. Same knob family as the two above and the one translucency
+                    // handle that reaches every plate: the tint is drawn over the backdrop, so
+                    // thickening it is what makes the plate read solid.
+                    SettingsDivider()
+                    SettingsSliderRow(
+                        Text("Translucency"),
+                        value: store.themeTranslucency,
+                        range: DockThemeStyle.translucencyRange,
+                        step: 0.05,
+                        valueText: "\(Int((store.themeTranslucency * 100).rounded()))%",
+                        set: store.setThemeTranslucency
+                    )
                 
                 }
                 // The icon rows are inside this card now (2026-10-15): a card of their own cost a
@@ -88,6 +103,39 @@ struct SettingsAppearancePane: View {
             }
 
             wallpaperSection
+
+            spaceSwitchingCard
+        }
+    }
+
+    // MARK: - Space switching (ported from Spacewalk)
+
+    /// The two knobs the transition controller reads straight from the defaults on every switch, so
+    /// they apply without a restart and without touching the settings store.
+    private var spaceSwitchingCard: some View {
+        SettingsCard(
+            Text("Space Switching"),
+            note: Text("Freezes the picture, lets the Dock switch underneath, then plays the effect. Needs macOS 26 or newer, Screen Recording and Accessibility; older systems post the switch plain.")
+        ) {
+            SettingsSegmentedRow(
+                Text("Effect"),
+                selection: Binding(
+                    get: { SpaceTransitionEffect(rawValue: spaceEffectRaw) ?? .fade },
+                    set: { spaceEffectRaw = $0.rawValue }
+                )
+            ) {
+                Text("Instant").tag(SpaceTransitionEffect.instant)
+                Text("Fade").tag(SpaceTransitionEffect.fade)
+            }
+            SettingsDivider()
+            SettingsSliderRow(
+                Text("Duration"),
+                value: spaceDuration,
+                range: SpaceTransitionSettings.durationRange,
+                step: 0.02,
+                valueText: "\(Int((spaceDuration * 1000).rounded())) ms",
+                set: { spaceDuration = $0 }
+            )
         }
     }
 

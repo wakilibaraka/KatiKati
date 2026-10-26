@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import QuartzCore
 import XCTest
 
 /// 跨面板转换状态机的转换/回滚/落定/取消全矩阵（Codex 评审 2026-07-11 P2-6）。
@@ -31,7 +32,8 @@ final class DragControllerConversionTests: XCTestCase {
             messagingStore: messaging,
             membershipController: membership,
             dropZonesProvider: { [dropZone] _ in [dropZone] },
-            screensProvider: { NSScreen.screens }
+            screensProvider: { NSScreen.screens },
+            pressedButtonsProvider: { 1 }   // 按钮按着：真拖动期间轮询不会收掉它
         )
     }
 
@@ -72,7 +74,11 @@ final class DragControllerConversionTests: XCTestCase {
     }
 
     /// 跑 run loop 直到条件成立（最多 `timeout`）。按时间推迟的那几步用它，别赌一个固定的等待时长。
-    private func waitUntil(_ timeout: TimeInterval = 1, _ condition: () -> Bool) {
+    ///
+    /// 默认 5 秒而不是 1 秒：这些门是按 60Hz 显示帧计的（`pickUpSettle` 34ms + `liftDelay` 34ms），
+    /// 全量跑里主线程被别的测试占住时，1 秒能整段饿过去（2026-10-25 全量跑实测 1.77s 才轮到）。
+    /// 放宽的只是等待上限，条件本身照旧由后面的 `XCTAssert` 判。
+    private func waitUntil(_ timeout: TimeInterval = 5, _ condition: () -> Bool) {
         let until = Date(timeIntervalSinceNow: timeout)
         while !condition() && Date() < until {
             RunLoop.main.run(mode: .default, before: Date(timeIntervalSinceNow: 0.005))
@@ -218,18 +224,18 @@ final class DragControllerConversionTests: XCTestCase {
     /// 所以没预热过时 `beginDrag` 当轮只把载体摆到卡槽原位，**过两个显示帧**（按时间，不按
     /// run loop 轮次——真机 1ms 一个鼠标事件，下一轮往往还在同一帧里）才同时藏卡 + 抬起。
     func testSlotStaysFilledUntilTheCarrierHasHadAFrame() {
+        let began = CACurrentMediaTime()
         begin(.strip, "app", at: outsideZone)
         XCTAssertNotNil(controller.draggingPayload, "拖动本身立刻开始")
         XCTAssertNil(controller.hiddenSlotPayload, "但这一轮条上那格还不能空")
         XCTAssertTrue(controller.hoverFrozen, "这几帧悬停原地冻结，卡不能变形")
 
-        // 下一轮 run loop 还不够——那正是第一版露一帧空档的原因。
-        let nextTurn = expectation(description: "下一轮 run loop")
-        DispatchQueue.main.async { nextTurn.fulfill() }
-        wait(for: [nextTurn], timeout: 1)
-        XCTAssertNil(controller.hiddenSlotPayload, "下一轮 run loop 仍不放行")
-
+        // 门**按时间**开（`pickUpSettle`），所以这里也按时间钉：藏卡那一刻离起拖不得早于两个显示帧。
+        // 原来量的是「下一轮 run loop 仍不放行」——主线程一忙，一轮 turn 自己就超过 34ms，
+        // 门开了本是正确行为，断言却红（2026-10-25 全量跑 0.257s 那一次）。
         waitUntil { controller.hiddenSlotPayload != nil }
+        XCTAssertGreaterThanOrEqual(CACurrentMediaTime() - began, DragLandingPlan.pickUpSettle,
+                                    "藏卡不得早于两个显示帧")
         XCTAssertEqual(controller.hiddenSlotPayload?.bundleID, "app", "两个显示帧后才空出来")
         XCTAssertFalse(controller.hoverFrozen)
         XCTAssertTrue(controller.hoverSuppressed, "藏卡之后悬停改为压制")
@@ -440,7 +446,8 @@ final class DragControllerConversionTests: XCTestCase {
         DragController(drawerStore: drawer, messagingStore: messaging, membershipController: membership,
                        dropZonesProvider: { [dropZone] _ in [dropZone] },
                        screensProvider: { NSScreen.screens },
-                       stashTargetProvider: { CGRect(x: 40, y: 40, width: 20, height: 20) })
+                       stashTargetProvider: { CGRect(x: 40, y: 40, width: 20, height: 20) },
+                       pressedButtonsProvider: { 1 })
     }
 
     func testStripDropOnCapsuleFliesIntoTheCapsuleAndNeverRetargets() {

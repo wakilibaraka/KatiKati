@@ -99,3 +99,30 @@ final class DockDevicesFeed: ObservableObject {
         }
     }
 }
+
+/// Mounted drives with their free space. Reading the mount table is a handful of syscalls, so the
+/// 10 s poll only runs while a Drives widget or rail tile is on screen.
+@MainActor
+final class DockDrivesFeed: ObservableObject {
+    static let shared = DockDrivesFeed()
+
+    @Published private(set) var volumes: [DriveVolume] = []
+    private var timer: Timer?
+    private var holders = 0
+
+    func retain() {
+        holders += 1
+        guard timer == nil else { return }
+        volumes = DriveInventory.volumes()
+        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.volumes = DriveInventory.volumes() }
+        }
+    }
+
+    func release() {
+        holders = max(0, holders - 1)
+        guard holders == 0 else { return }
+        timer?.invalidate()
+        timer = nil
+    }
+}

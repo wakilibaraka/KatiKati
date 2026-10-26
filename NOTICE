@@ -109,3 +109,22 @@ This project is derived from and incorporates code from the following works:
 - Description: The Bluetooth registry pass in `Platform/SystemStatus/BluetoothDeviceReader.swift` (services of class
   `AppleDeviceManagementHIDEventService` carry `BatteryPercent`) follows BatteryBoi's `BBBluetoothManager`, read through
   BeteriApp's fork and re-implemented here; the profiler remains the primary source and the registry only fills gaps.
+
+## Spacewalk (2026-10-26 — Space transitions ported)
+- Repository: https://github.com/InsaneArts/Spacewalk
+- Copyright (C) 2026 InsaneArts
+- License: MIT License
+- Description: The Space transition in `App/Composition/SpaceTransitionController.swift`, the Dock-swipe
+  event synthesis in `Platform/CoreGraphics/DockSwipeEventPoster.swift` and the switch arithmetic in
+  `Core/Support/SpaceSwitchPlan.swift` are ported from Spacewalk's `Switcher.swift`, `OverlayWindow.swift`,
+  `DockSwipe.swift` and `SpaceEngine.Plan`, cut down to `instant` and `fade`. Not ported: the continuous
+  ScreenCaptureKit stream, prediction and wallpaper compositing, the other ten effects, the Overview grid,
+  the Spaces bar, the menu-bar indicator, finger-driven scrubbing, the CLI, TOML config and the updater.
+
+## SketchyBar & AltTab (2026-10-26 — Window layering & SkyLight symbols)
+- Repositories: https://github.com/felixkratz/sketchybar, https://github.com/lwouis/alt-tab-macos
+- License: GPL-3.0 / MIT
+- Description: The SkyLight WindowServer function declarations (`CGSMainConnectionID`, `CGSSetWindowLevel`,
+  `CGSOrderWindow`) and zero-permission Quartz window inspection patterns in `App/Composition/DockWindowManager.swift`
+  follow standard implementations from SketchyBar and AltTab for robust window order enforcement on macOS.
+

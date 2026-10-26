@@ -89,8 +89,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 后者在权限引导完成前是 nil，settingsStore 从 AppDelegate 构造起即存在。
     private var edgeToggleHotKey: GlobalHotKeyMonitor?
     private lazy var menuBarSystem = MenuBarSystemItem()
+    /// DiskView's menu-bar item: drives with their capacity bars (off until the Settings › Advanced
+    /// Menu Bar row turns it on).
+    private lazy var driveMenuBar = DriveMenuBarItem()
     private lazy var windowSwitcher = WindowSwitcherController(runtime: runtime)
     private(set) lazy var layoutRestore = WindowLayoutRestoreController(runtime: runtime, displayTable: { [displayTopologyStore] in displayTopologyStore.table })
+    /// Space transitions (ported from Spacewalk). Reads its effect and duration from the defaults on
+    /// every switch, so Settings › Appearance needs no plumbing through the store.
+    private let spaceTransition = SpaceTransitionController()
     private let shortcutService = ShortcutService()
     private let hyperkeyService = HyperkeyService()
     private var hyperkeySubscription: AnyCancellable?
@@ -386,6 +392,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     self.radialDialPanel.toggle(page: .tools)
                 case .snapNextDisplay:
                     WindowSnapService.moveToNextDisplay()
+                case .spaceNext:
+                    self.spaceTransition.switchSpace(.right)
+                case .spacePrevious:
+                    self.spaceTransition.switchSpace(.left)
                 default:
                     // Phase 26a: snap-zone hotkeys — any action with a SnapPosition calls the service.
                     if let position = action.snapPosition {
@@ -833,6 +843,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         layoutRestore.start()
         TilingEngine.shared.start(snapshotStream: runtime.$snapshot)
         menuBarSystem.start()
+        driveMenuBar.start()
 
         // Auto tier of the messaging list: register an app only when it both matches the
         // whitelist / social-networking category **and** currently has an identifiable main

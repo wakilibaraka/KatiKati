@@ -120,11 +120,13 @@ struct DockPanelBackdrop: View {
                           baseTint: theme.styleTokens.baseTint,
                           plateOverlay: dockThemeStyle.plateOverlay(baseTint: theme.styleTokens.baseTint,
                                                                    vibrancy: themeTuning.vibrancy,
-                                                                   contrast: themeTuning.contrast),
+                                                                   contrast: themeTuning.contrast,
+                                                                   translucency: themeTuning.translucency),
                           plateOverlayBottom: dockThemeStyle.plateOverlayBottom(
                             baseTintBottom: theme.styleTokens.baseTintBottom,
                             vibrancy: themeTuning.vibrancy,
-                            contrast: themeTuning.contrast))
+                            contrast: themeTuning.contrast,
+                            translucency: themeTuning.translucency))
             .padding(-DockLiquidGlassConfiguration.backdropOutset(
                 usesLiquidGlass: usesLiquidGlass,
                 usesSystemVariant: DockGlassPresentation.usesSystemVariant))

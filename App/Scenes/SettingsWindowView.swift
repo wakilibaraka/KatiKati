@@ -194,6 +194,13 @@ struct SettingsWindowContent: View {
                 if metric != MenuBarMetric.allCases.first { SettingsDivider() }
                 metricRow(metric)
             }
+            // DiskView's item (2026-10-26): every mounted drive with its capacity bar, rather than
+            // one aggregate reading — so it is a row here, not another `MenuBarMetric`.
+            SettingsDivider()
+            SettingsToggleRow(Text("Drives"), isOn: Binding(
+                get: { UserDefaults.standard.bool(forKey: DriveMenuBarItem.enabledKey) },
+                set: { UserDefaults.standard.set($0, forKey: DriveMenuBarItem.enabledKey) }
+            ), note: Text("Free space of every mounted drive in the menu bar, one bar each."))
         }
         SettingsCard {
             languagePicker
@@ -290,6 +297,7 @@ struct SettingsWindowContent: View {
     @ViewBuilder
     private var windowManagementPane: some View {
         SettingsLayoutPane(store: store, mode: .chips)
+        DockLayeringSettingsBlock(store: store)
         WindowBehaviourSettingsBlock()
     }
 

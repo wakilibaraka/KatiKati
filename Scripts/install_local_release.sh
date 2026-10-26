@@ -62,6 +62,11 @@ else
   exit 1
 fi
 
+TIMESTAMP_OPT=(--timestamp)
+if [[ "$IDENTITY" == "$FALLBACK_IDENTITY" ]]; then
+  TIMESTAMP_OPT=(--timestamp=none)
+fi
+
 clean_stale_katikati
 
 echo "==> 构建 Release…"
@@ -101,15 +106,15 @@ rm -rf "$SPARKLE/Versions/B/XPCServices"
 echo "==> 由内向外签 Sparkle 的嵌套代码…"
 for nested in "$SPARKLE/Versions/B/Updater.app" "$SPARKLE/Versions/B/Autoupdate"; do
   [[ -e "$nested" ]] || { echo "error: Sparkle 缺少预期的嵌套代码：$nested" >&2; exit 1; }
-  codesign --force --sign "$IDENTITY" --options runtime --timestamp "$nested"
+  codesign --force --sign "$IDENTITY" --options runtime "${TIMESTAMP_OPT[@]}" "$nested"
 done
-codesign --force --sign "$IDENTITY" --options runtime --timestamp "$SPARKLE"
+codesign --force --sign "$IDENTITY" --options runtime "${TIMESTAMP_OPT[@]}" "$SPARKLE"
 
 echo "==> 用「${IDENTITY}」签名（hardened runtime + entitlements）…"
 codesign --force \
   --sign "$IDENTITY" \
   --options runtime \
-  --timestamp \
+  "${TIMESTAMP_OPT[@]}" \
   --entitlements "$ENT_SIGN" \
   "$APP"
 

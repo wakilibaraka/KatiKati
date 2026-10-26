@@ -239,6 +239,7 @@ extension PanelCoordinator {
         } else {
             capsule.orderOut(nil)
         }
+        DockWindowManager.shared.evaluateWindowLayering()
     }
 
     /// `usesLiquidGlass` 由调用方显式传：`setupDockPanel` 里玻璃底板刚建好、还没赋给

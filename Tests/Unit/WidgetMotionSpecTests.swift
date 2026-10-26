@@ -34,12 +34,62 @@ final class WidgetMotionSpecTests: XCTestCase {
     }
 
     func testEveryPresetHasItsOwnMotionAndATitle() {
-        XCTAssertEqual(WidgetMotionPreset.allCases.count, 3)
+        XCTAssertEqual(WidgetMotionPreset.allCases.count, 4)
         XCTAssertEqual(WidgetMotionPreset.default, .fluid)
-        XCTAssertEqual(WidgetMotionPreset.allCases.map(\.title), ["Fluid", "Snappy", "Instant"])
+        XCTAssertEqual(WidgetMotionPreset.allCases.map(\.title), ["Fluid", "Snappy", "Instant", "Slow"])
         XCTAssertEqual(WidgetMotionPreset.fluid.motion, .fluid)
         XCTAssertEqual(WidgetMotionPreset.snappy.motion, .snappy)
         XCTAssertEqual(WidgetMotionPreset.instant.motion, .instant)
+        XCTAssertEqual(WidgetMotionPreset.slow.motion, .slow)
+    }
+
+    /// Slow is slow in both directions — it is the far end of Animation Speed, not a second Fluid.
+    func testSlowIsSlowerAndSofterThanFluid() {
+        let fluid = WidgetMotion.fluid, slow = WidgetMotion.slow
+        XCTAssertGreaterThan(slow.hoverSpring!.response, fluid.hoverSpring!.response)
+        XCTAssertLessThan(slow.hoverSpring!.dampingRatio, fluid.hoverSpring!.dampingRatio)
+        XCTAssertGreaterThan(slow.contentSpring!.response, fluid.contentSpring!.response)
+        XCTAssertGreaterThanOrEqual(slow.hoverScale, fluid.hoverScale)
+        XCTAssertTrue(slow.morphsContent)
+    }
+
+    /// The Settings card's speed row is a scale, so it may not just be `allCases` in storage order.
+    func testDockSpeedOrderRunsFastToSlow() {
+        let order = [WidgetMotionPreset.instant, .snappy, .fluid, .slow]
+        XCTAssertEqual(order, WidgetMotionPreset.allCases.sorted { lhs, rhs in
+            (lhs.motion.hoverSpring?.response ?? 0) < (rhs.motion.hoverSpring?.response ?? 0)
+        })
+        XCTAssertEqual(Set(order), Set(WidgetMotionPreset.allCases))
+    }
+
+    // MARK: - Animation Delay presets
+
+    /// Every preset is a stop on the auto-hide slider's 0.1 s grid inside its finite range, so
+    /// selecting one writes the number the slider would have written.
+    func testDelayPresetsAreOnTheStoresDelayGrid() {
+        for preset in DockRevealDelayPreset.allCases {
+            XCTAssertGreaterThanOrEqual(preset.seconds, 0.1)
+            XCTAssertLessThanOrEqual(preset.seconds, 3.0)
+            XCTAssertEqual(preset.seconds, (preset.seconds * 10).rounded() / 10, accuracy: 0.0001)
+        }
+    }
+
+    func testDelayPresetsRunFromNoneToALot() {
+        XCTAssertEqual(DockRevealDelayPreset.allCases.map(\.seconds),
+                       DockRevealDelayPreset.allCases.map(\.seconds).sorted())
+        XCTAssertEqual(Set(DockRevealDelayPreset.allCases.map(\.title)).count,
+                       DockRevealDelayPreset.allCases.count)
+    }
+
+    /// The stored delay comes back as the nearest preset; `neverHideDelay` (-1, always visible) has
+    /// no delay at all, and neither does a nonsense value.
+    func testDelayMatchingPicksTheNearestPreset() {
+        XCTAssertEqual(DockRevealDelayPreset.matching(0.3), .little)
+        XCTAssertEqual(DockRevealDelayPreset.matching(0.31), .little)
+        XCTAssertEqual(DockRevealDelayPreset.matching(1.2), .aLot)
+        XCTAssertEqual(DockRevealDelayPreset.matching(2.5), .aLot)
+        XCTAssertNil(DockRevealDelayPreset.matching(-1))  // the store's "never hide" sentinel
+        XCTAssertNil(DockRevealDelayPreset.matching(.nan))
     }
 
     /// The key is a contract with the stored preference, the Settings row and any menu that offers the

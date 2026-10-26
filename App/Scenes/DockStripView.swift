@@ -1655,6 +1655,7 @@ extension DockStripView {
         case .calendar: return String(localized: "Calendar")
         case .system: return String(localized: "System")
         case .devices: return String(localized: "Devices")
+        case .drives: return String(localized: "Drives")
         case .apps: return ""
         }
     }
@@ -1760,6 +1761,8 @@ extension DockStripView {
             RailSystemTile().nativeScaled(dockScale)
         case .devices:
             RailDevicesTile().nativeScaled(dockScale)
+        case .drives:
+            RailDrivesTile().nativeScaled(dockScale)
         case .launcher, .widgets, .apps:
             widgetChip(section, size: .small)
         }
@@ -1807,6 +1810,10 @@ extension DockStripView {
                 .nativeScaled(dockScale)
         case .devices:
             DevicesDockChip()
+                .environment(\.widgetSize, widgetSize)
+                .nativeScaled(dockScale)
+        case .drives:
+            DrivesDockChip()
                 .environment(\.widgetSize, widgetSize)
                 .nativeScaled(dockScale)
         case .launcher:

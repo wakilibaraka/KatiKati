@@ -210,6 +210,26 @@ final class DockThemeStyleTokensTests: XCTestCase {
                        DockRGBA(r: 0.05, g: 0.15, b: 0.25, a: 0.7 * DockThemeStyle.plateOverlayStrength))
     }
 
+    /// The third plate knob (2026-10-26): 1 is bit-for-bit the plate that existed before it, lower
+    /// lays the same colour down thicker (up to 2×), and the alpha stops at opaque.
+    func testTranslucencyThickensTheTintAndClampsAtOpaque() {
+        let tint = DockRGBA(r: 0.05, g: 0.15, b: 0.25, a: 0.4)
+        func overlay(_ translucency: CGFloat) -> DockRGBA? {
+            DockThemeStyle.deepOcean.plateOverlay(baseTint: tint, vibrancy: 1, translucency: translucency)
+        }
+        XCTAssertEqual(DockThemeStyle.identityTranslucency, 1)
+        XCTAssertEqual(DockThemeStyle.translucencyRange, 0.2 ... 1.0)
+        XCTAssertEqual(overlay(1)?.a, 0.4)                                    // identity
+        XCTAssertEqual(overlay(0.5)?.a ?? -1, 0.6, accuracy: 0.000_001)       // 0.4 × 1.5
+        XCTAssertEqual(overlay(0.2)?.a ?? -1, 0.72, accuracy: 0.000_001)      // 0.4 × 1.8
+        XCTAssertEqual(overlay(0.5)?.r, 0.05)                                 // the colour is untouched
+        // Two knobs multiply into the same alpha, so the product can cross 1 and must not.
+        XCTAssertEqual(DockThemeStyle.deepOcean.plateOverlay(
+            baseTint: DockRGBA(r: 0, g: 0, b: 0, a: 0.9), vibrancy: 1, translucency: 0.2)?.a, 1)
+        // Auto/System tint nothing, so the knob has nothing to thicken.
+        XCTAssertNil(DockThemeStyle.auto.plateOverlay(baseTint: tint, translucency: 0.2))
+    }
+
     /// The gradient stop is only drawn by a style that tints at all, and it takes the same
     /// vibrancy/contrast pass as the top stop.
     func testGradientStopIsDroppedWhereThePlateIsUntinted() {

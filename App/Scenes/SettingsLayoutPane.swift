@@ -162,6 +162,8 @@ struct SettingsLayoutPane: View {
         case .notchPagePrevious: return String(localized: "Previous Notch Page")
         case .captureArea: return String(localized: "Capture Area")
         case .pasteImageToFinder: return String(localized: "Paste Image Into Finder")
+        case .spaceNext: return String(localized: "Next Space")
+        case .spacePrevious: return String(localized: "Previous Space")
         }
     }
 

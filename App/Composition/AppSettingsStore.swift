@@ -290,10 +290,17 @@ final class AppSettingsStore: ObservableObject {
     /// `ThemeTuning.identity`），所以从没碰过它们的人看到的底板逐像素不变。
     @Published private(set) var themeVibrancy: CGFloat
     @Published private(set) var themeContrast: CGFloat
+    @Published private(set) var themeTranslucency: CGFloat
     /// 图标集（modern 3D / classic SF Symbols），与主题互相独立。缺键 = modern。
     @Published private(set) var iconSet: IconSet
     /// 悬停效果档位。只影响条内 chip 的悬停视觉，静息布局逐像素不变（因此无需 relayout）。
     @Published private(set) var hoverStyle: HoverStyle
+    /// Dock window layering mode: controls how standard application windows interact with the dock.
+    @Published private(set) var dockLayeringMode: DockLayeringMode
+    /// Whether private SkyLight WindowServer compositor ordering is used for sub-frame z-order commits.
+    @Published private(set) var dockSkyLightReinforcement: Bool
+    /// Whether AppleScript System Events resize fallback is enabled for non-standard / Electron windows.
+    @Published private(set) var dockAppleScriptFallback: Bool
     /// 最大化窗口避让任务条（菜单「最大化窗口避开任务条」）。
     /// **全新安装播种为开，老用户维持关**（owner 2026-09-01；此前所有人默认关）——
     /// 它配的是同一轮定的「任务条默认常驻」：常驻会压住最大化窗口的底边，避让正好补上。
@@ -385,6 +392,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.notchSkin: LiveIslandSkin.boring.rawValue,
             Keys.themeVibrancy: Double(DockThemeStyle.identityVibrancy),
             Keys.themeContrast: 1.0,
+            Keys.themeTranslucency: Double(DockThemeStyle.identityTranslucency),
             ShelfStore.shakeKey: true,
             ShelfStore.autoExpireKey: false,
             ShelfStore.expiryDaysKey: 1,
@@ -532,6 +540,12 @@ final class AppSettingsStore: ObservableObject {
             vibrancy: DockThemeStyle.identityVibrancy,
             contrast: Self.storedNumericValue(defaults.object(forKey: Keys.themeContrast)).map { CGFloat($0) } ?? 1
         ).contrast
+        themeTranslucency = ThemeTuning.resolved(
+            vibrancy: DockThemeStyle.identityVibrancy,
+            contrast: 1,
+            translucency: Self.storedNumericValue(defaults.object(forKey: Keys.themeTranslucency)).map { CGFloat($0) }
+                ?? DockThemeStyle.identityTranslucency
+        ).translucency
         iconSet = IconSet(storedValue: defaults.string(forKey: Keys.iconSet))
         // 有意**不**进上面的 register：缺键即 false = 老用户维持关。
         // 全新安装那一次由 `seedWindowLiftEnabledForFreshInstall()` 显式写成 true——
@@ -604,12 +618,26 @@ final class AppSettingsStore: ObservableObject {
         } else {
             lastEnabledEdgeAutoHideDelay = edgeDelay
         }
+        let storedLayeringModeRaw = defaults.string(forKey: Keys.dockLayeringMode)
+        let initialLayeringMode = storedLayeringModeRaw.flatMap(DockLayeringMode.init(rawValue:)) ?? .alwaysOnTop
+        dockLayeringMode = initialLayeringMode
+
+        let storedSkyLight = defaults.object(forKey: Keys.dockSkyLightReinforcement) as? Bool ?? true
+        dockSkyLightReinforcement = storedSkyLight
+
+        let storedAppleScript = defaults.object(forKey: Keys.dockAppleScriptFallback) as? Bool ?? false
+        dockAppleScriptFallback = storedAppleScript
+
         defaults.set(Double(dockPanelHeight.points), forKey: Keys.dockPanelHeight)
         defaults.set(hoverStyle.rawValue, forKey: Keys.hoverStyle)
         defaults.set(nativeDelay, forKey: Keys.nativeDockAutoHideDelay)
         defaults.set(lastEnabledNativeDockAutoHideDelay, forKey: Keys.nativeDockAutoHideLastEnabledDelay)
         defaults.set(edgeDelay, forKey: Keys.edgeAutoHideDelay)
         defaults.set(lastEnabledEdgeAutoHideDelay, forKey: Keys.edgeAutoHideLastEnabledDelay)
+
+        DockWindowManager.shared.layeringMode = initialLayeringMode
+        DockWindowManager.shared.useSkyLightFallbackReinforcement = storedSkyLight
+        DockWindowManager.shared.useAppleScriptResizeFallback = storedAppleScript
     }
 
     /// Called on every accepted tick of a height drag (the drag decision already dedupes to
@@ -1003,9 +1031,18 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(Double(clamped), forKey: Keys.themeContrast)
     }
 
+    func setThemeTranslucency(_ value: CGFloat) {
+        let clamped = ThemeTuning.resolved(vibrancy: themeVibrancy, contrast: themeContrast,
+                                           translucency: value).translucency
+        guard themeTranslucency != clamped else { return }
+        themeTranslucency = clamped
+        defaults.set(Double(clamped), forKey: Keys.themeTranslucency)
+    }
+
     /// What the themed surfaces read, one value for the environment (`\.themeTuning`).
     var themeTuning: ThemeTuning {
-        ThemeTuning.resolved(vibrancy: themeVibrancy, contrast: themeContrast)
+        ThemeTuning.resolved(vibrancy: themeVibrancy, contrast: themeContrast,
+                             translucency: themeTranslucency)
     }
 
     func setScrollReverserEnabled(_ value: Bool) {
@@ -1271,6 +1308,27 @@ final class AppSettingsStore: ObservableObject {
         guard lineage == .pristine else { return }
         guard defaults.object(forKey: Keys.windowLiftEnabled) == nil else { return }
         setWindowLiftEnabled(true)
+    }
+
+    func setDockLayeringMode(_ mode: DockLayeringMode) {
+        guard mode != dockLayeringMode else { return }
+        dockLayeringMode = mode
+        defaults.set(mode.rawValue, forKey: Keys.dockLayeringMode)
+        DockWindowManager.shared.layeringMode = mode
+    }
+
+    func setDockSkyLightReinforcement(_ enabled: Bool) {
+        guard enabled != dockSkyLightReinforcement else { return }
+        dockSkyLightReinforcement = enabled
+        defaults.set(enabled, forKey: Keys.dockSkyLightReinforcement)
+        DockWindowManager.shared.useSkyLightFallbackReinforcement = enabled
+    }
+
+    func setDockAppleScriptFallback(_ enabled: Bool) {
+        guard enabled != dockAppleScriptFallback else { return }
+        dockAppleScriptFallback = enabled
+        defaults.set(enabled, forKey: Keys.dockAppleScriptFallback)
+        DockWindowManager.shared.useAppleScriptResizeFallback = enabled
     }
 
     func setWindowLiftEnabled(_ value: Bool) {
@@ -1539,6 +1597,10 @@ private enum Keys {
     static let contextWorkPreset = "com.katikati.widgets.contextPresets.work"
     static let contextEveningPreset = "com.katikati.widgets.contextPresets.evening"
 
+    static let dockLayeringMode = "com.katikati.dock.layeringMode"
+    static let dockSkyLightReinforcement = "com.katikati.dock.skyLightReinforcement"
+    static let dockAppleScriptFallback = "com.katikati.dock.appleScriptFallback"
+
     /// Continuous bar height in points (since the drag-to-resize release).
     static let dockPanelHeight = "com.katikati.dockPanelHeight"
     /// Legacy four-tier raw string. **Read once for migration, never written or removed.**
@@ -1614,6 +1676,7 @@ private enum Keys {
     static let themeMaterial = "com.katikati.theme.material"
     static let themeVibrancy = "com.katikati.theme.vibrancy"
     static let themeContrast = "com.katikati.theme.contrast"
+    static let themeTranslucency = "com.katikati.theme.translucency"
 }
 
 /// One-way first-run migrator from legacy Tungsten Edge (`com.tungsten.edge.*`) defaults

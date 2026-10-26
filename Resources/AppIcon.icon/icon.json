@@ -1,49 +1,77 @@
 {
-  "fill": {
-    "solid": "srgb:0.07000,0.50000,0.58000,1.00000"
+  "fill" : {
+    "solid" : "srgb:0.07000,0.50000,0.58000,1.00000"
   },
-  "groups": [
+  "groups" : [
     {
-      "layers": [
+      "layers" : [
         {
-          "image-name": "glyph.svg",
-          "name": "glyph",
-          "fill-specializations": [
+          "fill-specializations" : [
             {
-              "appearance": "dark",
-              "value": {
-                "solid": "srgb:1.00000,1.00000,1.00000,1.00000"
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "srgb:1.00000,1.00000,1.00000,1.00000"
               }
             },
             {
-              "appearance": "tinted",
-              "value": {
-                "solid": "srgb:1.00000,1.00000,1.00000,1.00000"
+              "appearance" : "tinted",
+              "value" : {
+                "solid" : "srgb:1.00000,1.00000,1.00000,1.00000"
               }
             }
-          ]
+          ],
+          "image-name" : "glyph.svg",
+          "name" : "glyph"
         }
       ],
-      "shadow": {
-        "kind": "neutral",
-        "opacity": 0.5
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
       },
-      "translucency": {
-        "enabled": false,
-        "value": 0.5
-      }
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      },
+      "translucency-specializations" : [
+        {
+          "value" : {
+            "enabled" : true,
+            "value" : 0.5
+          }
+        },
+        {
+          "appearance" : "dark",
+          "value" : {
+            "enabled" : true,
+            "value" : 0.55
+          }
+        },
+        {
+          "appearance" : "tinted",
+          "value" : {
+            "enabled" : true,
+            "value" : 0.45
+          }
+        }
+      ]
     }
   ],
-  "supported-platforms": {
-    "squares": [
+  "supported-platforms" : {
+    "squares" : [
       "macOS"
     ]
   },
-  "fill-specializations": [
+  "fill-specializations" : [
     {
-      "appearance": "dark",
-      "value": {
-        "solid": "srgb:0.03000,0.17000,0.21000,1.00000"
+      "appearance" : "dark",
+      "value" : {
+        "solid" : "srgb:0.03000,0.17000,0.21000,1.00000"
+      }
+    },
+    {
+      "appearance" : "tinted",
+      "value" : {
+        "solid" : "srgb:0.07000,0.50000,0.58000,1.00000"
       }
     }
   ]

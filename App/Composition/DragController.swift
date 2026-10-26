@@ -888,13 +888,16 @@ final class DragController: ObservableObject {
     private var localMonitor: Any?
     private var globalMonitor: Any?
     private var pollTimer: Timer?
+    /// 轮询读的「按键还按着吗」。测试里注入恒按，否则 80ms 的轮询会把拖动当场收掉。
+    private let pressedButtonsProvider: () -> Int
 
     init(drawerStore: DrawerStore,
          messagingStore: MessagingAppStore,
          membershipController: AppMembershipController,
          dropZonesProvider: @escaping (DragSource) -> [CGRect],
          screensProvider: @escaping () -> [NSScreen],
-         stashTargetProvider: @escaping () -> CGRect? = { nil }) {
+         stashTargetProvider: @escaping () -> CGRect? = { nil },
+         pressedButtonsProvider: @escaping () -> Int = { NSEvent.pressedMouseButtons }) {
         self.pointerMoves = pointerSubject.eraseToAnyPublisher()
         self.carrierClicks = carrierClickSubject.eraseToAnyPublisher()
         self.drawerStore = drawerStore
@@ -903,6 +906,7 @@ final class DragController: ObservableObject {
         self.dropZonesProvider = dropZonesProvider
         self.screensProvider = screensProvider
         self.stashTargetProvider = stashTargetProvider
+        self.pressedButtonsProvider = pressedButtonsProvider
     }
 
     // MARK: - 起拖
@@ -1975,7 +1979,7 @@ final class DragController: ObservableObject {
         let timer = Timer(timeInterval: 0.08, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self, self.draggingPayload != nil else { return }
-                if NSEvent.pressedMouseButtons == 0 { self.endDrag() }
+                if self.pressedButtonsProvider() == 0 { self.endDrag() }
             }
         }
         timer.tolerance = 0.02

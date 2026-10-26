@@ -80,3 +80,60 @@ struct WindowBehaviourSettingsBlock: View {
         }
     }
 }
+
+/// Dock window layering and multi-tier reliability controls.
+struct DockLayeringSettingsBlock: View {
+    @ObservedObject var store: AppSettingsStore
+
+    var body: some View {
+        SettingsCard(Text("Dock Window Layering")) {
+            SettingsPickerRow(
+                Text("Layering Mode"),
+                selection: Binding(
+                    get: { store.dockLayeringMode },
+                    set: { store.setDockLayeringMode($0) }
+                ),
+                note: Text(store.dockLayeringMode.subtitle)
+            ) {
+                ForEach(DockLayeringMode.allCases) { mode in
+                    Text(mode.title).tag(mode)
+                }
+            }
+
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("SkyLight Compositor Fast Path"),
+                isOn: Binding(
+                    get: { store.dockSkyLightReinforcement },
+                    set: { store.setDockSkyLightReinforcement($0) }
+                ),
+                note: Text("Instructs WindowServer to commit window level changes in the same screen refresh frame.")
+            )
+
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("AppleScript Window Resize Fallback"),
+                isOn: Binding(
+                    get: { store.dockAppleScriptFallback },
+                    set: { store.setDockAppleScriptFallback($0) }
+                ),
+                note: Text("Uses System Events automation to resize non-standard or Electron application windows when direct Accessibility fails.")
+            )
+
+            SettingsDivider()
+            SettingsButtonRow(Text("Install Keep-Alive Watchdog")) {
+                try? DockWindowManager.installKeepAliveLaunchAgent(executablePath: Bundle.main.executablePath ?? "")
+            }
+
+            SettingsDivider()
+            SettingsButtonRow(Text("Suppress Native macOS Dock")) {
+                DockWindowManager.suppressNativeMacDock(suppress: true)
+            }
+
+            SettingsDivider()
+            SettingsButtonRow(Text("Restore Native macOS Dock")) {
+                DockWindowManager.suppressNativeMacDock(suppress: false)
+            }
+        }
+    }
+}

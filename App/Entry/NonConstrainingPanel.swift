@@ -48,6 +48,21 @@ struct PanelHeightResizeModifier: ViewModifier {
     }
 }
 
+/// Container view that accepts the very first mouse click without requiring the non-activating panel
+/// to steal focus or require an activating click from the user.
+final class FirstMouseContainerView: NSView {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
+}
+
+/// NSHostingView subclass that accepts the very first mouse click for non-activating panels.
+public final class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
+    public override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
+}
+
 /// Hosts manually sized panel content without letting the hosted view become the
 /// window's content view and participate in automatic window sizing.
 @MainActor
@@ -59,7 +74,7 @@ final class ManualPanelHost {
 
         let initialSize = panel.contentView?.bounds.size
             ?? panel.contentRect(forFrameRect: panel.frame).size
-        let container = NSView(frame: NSRect(origin: .zero, size: initialSize))
+        let container = FirstMouseContainerView(frame: NSRect(origin: .zero, size: initialSize))
         panel.contentView = container
 
         contentView.frame = container.bounds

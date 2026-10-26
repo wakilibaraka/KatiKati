@@ -96,7 +96,7 @@ enum IslandLayoutSolver {
             switch section {
             case .weather: return weatherWidth
             case .clock: return clockWidth
-            case .media, .launcher, .widgets, .calendar, .system, .devices: return section.defaultWidgetWidth
+            case .media, .launcher, .widgets, .calendar, .system, .devices, .drives: return section.defaultWidgetWidth
 
             case .apps: return 0
             }

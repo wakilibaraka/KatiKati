@@ -4,6 +4,32 @@ All notable changes to KatiKati are documented in this file.
 
 ## [Unreleased] — one app table for every quit rule
 
+### Added
+- **Hybrid Dock Window Layering Engine (`DockWindowManager`)**: Settings › Window Management now has a **Dock Layering** section offering 8 selectable layering and interaction modes:
+  1. *Always on Top* (Legacy preset: window level 20, always above all windows)
+  2. *Dynamic Smart Z-Order* (Intellilevel: level 20 when idle, drops to level -1 under overlapping windows, peeks on 0.14s bottom edge dwell)
+  3. *Same-Level Relative Order* (Keeps dock on normal level 0 and orders strictly below the covering frontmost window)
+  4. *Always Below Windows with Edge Peek* (Sub-normal level -1, peeking on bottom edge dwell)
+  5. *Native Auto-Hide Dodge* (Smoothly slides the dock off-screen via `NSAnimationContext` when a window overlaps the dock frame)
+  6. *Click-Through Ghost Mode* (Marks dock transparent and click-through on window overlap, restoring on bottom-edge dwell)
+  7. *Native Dock visibleFrame Piggyback* (Aligns at level 21 over native Dock to reserve `visibleFrame` without requiring Accessibility permissions)
+  8. *Working-Area Strut Clamping* (Clamps overlapping windows to stop above the dock, with automated fallback cascade to Smart Z-Order when Accessibility is not granted)
+  Zero-permission fallbacks (`CGWindowListCopyWindowInfo` geometry and 20 Hz `NSEvent.mouseLocation` polling) keep the engine fully functional without TCC prompts, while private SkyLight WindowServer fast paths and AppleScript `System Events` fallbacks reinforce reliability when permissions or helper services are enabled. First-mouse responsiveness (`acceptsFirstMouse`) is enabled across all panels so dock items respond immediately on the first click without stealing app focus.
+- **Space switching with a transition**, ported from [Spacewalk](https://github.com/InsaneArts/Spacewalk) (MIT):
+  Settings › Appearance has an **Effect** (Instant / Fade) and a **Duration**, and Settings › Shortcuts has **Next
+  Space** / **Previous Space** (both unbound until you assign them, so the system's own ⌃← / ⌃→ keep working). A switch
+  freezes the picture, lets the Dock change Space underneath it, then fades the picture that actually arrived in — so
+  the transition is ours and the Dock still owns the switch. Needs macOS 26 or newer, Screen Recording and Accessibility;
+  anywhere else, and with Instant picked, the switch is posted plain. Not ported from Spacewalk: the other ten effects,
+  the Overview grid, the Spaces bar, the menu-bar indicator, finger-driven scrubbing, the CLI/TOML config and the updater.
+- **Translucency** in Settings › Appearance, beside Vibrancy and Contrast: 100 % is the plate as it was, and lowering it
+  lays the theme's tint down thicker until the plate reads solid. The tint is drawn over the backdrop, so the slider also
+  reaches the macOS 26 glass, which takes no tint of its own. Only shown for a pinned theme — Auto and System tint nothing.
+- **A Drives widget and a Drives menu-bar item**, after [DiskView](https://apps.apple.com/us/app/diskview/id6627346631): the dock widget shows the boot drive's free space and, on hover, the DiskView panel — one row per mounted volume with its used / total pair and a blue capacity bar that turns red past 90 %, and removable volumes carry an inline Eject. Settings › Dock Items lists it with the other dock widgets (hidden by default), it joins the Smart Stack's glance rotation and scores high when a volume passes 90 %, and Settings › Advanced › Menu Bar has a **Drives** switch for the status item, which shows the boot drive's free space and lists every drive with its bar in its menu. Free space is `volumeAvailableCapacityForImportantUsage`, the figure Finder shows.
+- **The app icon now renders in every macOS 26 icon style.** Translucency was off in `Resources/AppIcon.icon`, so the
+  Clear style fell back to an opaque plate; it is on now, with light/dark/tinted strengths, and the Tinted style keeps the
+  teal fill instead of going white.
+
 ### Changed
 - **Quitting is one table now** (Settings › Shortcuts, beside Hold ⌘Q to Quit): every app with a quit rule of its own
   is one row with three switches — **Skip Hold** (⌘Q quits at once), **Own ⌘Q** (the app keeps its own ⌘Q, for remote

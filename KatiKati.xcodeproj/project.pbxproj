@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DD0000000000000000000027 /* DockWindowManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000026 /* DockWindowManagerTests.swift */; };
+		DD0000000000000000000021 /* DockLayeringMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000020 /* DockLayeringMode.swift */; };
+		DD0000000000000000000022 /* DockLayeringMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000020 /* DockLayeringMode.swift */; };
+		DD0000000000000000000024 /* DockWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000023 /* DockWindowManager.swift */; };
+		DD0000000000000000000025 /* DockWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000023 /* DockWindowManager.swift */; };
 		DD000000000000000000001A /* WidgetLook.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000018 /* WidgetLook.swift */; };
 		DD0000000000000000000019 /* WidgetLook.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000018 /* WidgetLook.swift */; };
 		DD0000000000000000000017 /* DockWidgetLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000016 /* DockWidgetLogicTests.swift */; };
@@ -1199,6 +1204,15 @@
 		B70000000000000000000102 /* QuitOnLastWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000100 /* QuitOnLastWindow.swift */; };
 		B70000000000000000000111 /* QuitOnLastWindowService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000110 /* QuitOnLastWindowService.swift */; };
 		B70000000000000000000121 /* CleanerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000120 /* CleanerService.swift */; };
+		A20000000000002001 /* SpaceTransitionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000002000 /* SpaceTransitionController.swift */; };
+		A20000000000002003 /* SpaceSwitchPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000002002 /* SpaceSwitchPlan.swift */; };
+		A20000000000002005 /* DockSwipeEventPoster.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000002004 /* DockSwipeEventPoster.swift */; };
+		A20000000000002007 /* SpaceSwitchPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000002006 /* SpaceSwitchPlanTests.swift */; };
+		A20000000000002009 /* DriveInventory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000002008 /* DriveInventory.swift */; };
+		A20000000000002011 /* DrivesDockWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000002010 /* DrivesDockWidget.swift */; };
+		A20000000000002013 /* DriveMenuBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000002012 /* DriveMenuBarItem.swift */; };
+		A20000000000002015 /* DriveInventoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000002014 /* DriveInventoryTests.swift */; };
+		A20000000000002017 /* DriveInventory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000002008 /* DriveInventory.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1212,6 +1226,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		DD0000000000000000000026 /* DockWindowManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockWindowManagerTests.swift; path = Tests/Unit/DockWindowManagerTests.swift; sourceTree = SOURCE_ROOT; };
+		DD0000000000000000000020 /* DockLayeringMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockLayeringMode.swift; path = Core/Support/DockLayeringMode.swift; sourceTree = SOURCE_ROOT; };
+		DD0000000000000000000023 /* DockWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockWindowManager.swift; path = App/Composition/DockWindowManager.swift; sourceTree = SOURCE_ROOT; };
 		DD0000000000000000000018 /* WidgetLook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetLook.swift; path = Core/Support/WidgetLook.swift; sourceTree = SOURCE_ROOT; };
 		DD0000000000000000000016 /* DockWidgetLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockWidgetLogicTests.swift; path = Tests/Unit/DockWidgetLogicTests.swift; sourceTree = SOURCE_ROOT; };
 		DD0000000000000000000014 /* WeatherPreviewCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherPreviewCard.swift; path = App/Scenes/DockWidgets/WeatherPreviewCard.swift; sourceTree = SOURCE_ROOT; };
@@ -2042,6 +2059,14 @@
 		B70000000000000000000100 /* QuitOnLastWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuitOnLastWindow.swift; path = Core/Support/QuitOnLastWindow.swift; sourceTree = SOURCE_ROOT; };
 		B70000000000000000000110 /* QuitOnLastWindowService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = QuitOnLastWindowService.swift; path = App/Composition/QuitOnLastWindowService.swift; sourceTree = SOURCE_ROOT; };
 		B70000000000000000000120 /* CleanerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CleanerService.swift; path = App/Composition/CleanerService.swift; sourceTree = SOURCE_ROOT; };
+		A10000000000002000 /* SpaceTransitionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceTransitionController.swift; sourceTree = "<group>"; };
+		A10000000000002002 /* SpaceSwitchPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceSwitchPlan.swift; sourceTree = "<group>"; };
+		A10000000000002004 /* DockSwipeEventPoster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockSwipeEventPoster.swift; sourceTree = "<group>"; };
+		A10000000000002006 /* SpaceSwitchPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceSwitchPlanTests.swift; sourceTree = "<group>"; };
+		A10000000000002008 /* DriveInventory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveInventory.swift; sourceTree = "<group>"; };
+		A10000000000002010 /* DrivesDockWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DrivesDockWidget.swift; path = App/Scenes/DockWidgets/DrivesDockWidget.swift; sourceTree = SOURCE_ROOT; };
+		A10000000000002012 /* DriveMenuBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveMenuBarItem.swift; sourceTree = "<group>"; };
+		A10000000000002014 /* DriveInventoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveInventoryTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2191,6 +2216,8 @@
 		A00000000000000000000025 /* Composition */ = {
 			isa = PBXGroup;
 			children = (
+				A10000000000002000 /* SpaceTransitionController.swift */,
+				A10000000000002012 /* DriveMenuBarItem.swift */,
 				A7A500000000000000000002 /* TrashStateStore.swift */,
 				A7A500000000000000000003 /* TrashStateStore+Live.swift */,
 				E90000000000000000000002 /* TaskbarDebugSnapshot.swift */,
@@ -2389,6 +2416,7 @@
 		A00000000000000000000031 /* CoreGraphics */ = {
 			isa = PBXGroup;
 			children = (
+				A10000000000002004 /* DockSwipeEventPoster.swift */,
 				E90000000000000000000003 /* FullscreenWindowClassifier.swift */,
 				F10000000000000000000010 /* FullscreenIntentDecision.swift */,
 				F10000000000000000000011 /* FullscreenIntentMonitor.swift */,
@@ -2471,6 +2499,8 @@
 		A00000000000000000000057 /* Unit */ = {
 			isa = PBXGroup;
 			children = (
+				A10000000000002006 /* SpaceSwitchPlanTests.swift */,
+				A10000000000002014 /* DriveInventoryTests.swift */,
 				A7A500000000000000000008 /* FinderTrashTests.swift */,
 				F1D0A0000000000000000003 /* FinderNewWindowTargetTests.swift */,
 				A7A500000000000000000009 /* TrashStateStoreTests.swift */,
@@ -2638,6 +2668,8 @@
 		A000000000000000000019E2 /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				A10000000000002002 /* SpaceSwitchPlan.swift */,
+				A10000000000002008 /* DriveInventory.swift */,
 				A7A500000000000000000001 /* FinderTrash.swift */,
 				F1D0A0000000000000000001 /* FinderNewWindowTarget.swift */,
 				E90000000000000000000007 /* DebugSwitch.swift */,
@@ -2893,6 +2925,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A20000000000002001 /* SpaceTransitionController.swift in Sources */,
+				A20000000000002003 /* SpaceSwitchPlan.swift in Sources */,
+				A20000000000002005 /* DockSwipeEventPoster.swift in Sources */,
+				A20000000000002009 /* DriveInventory.swift in Sources */,
+				A20000000000002011 /* DrivesDockWidget.swift in Sources */,
+				A20000000000002013 /* DriveMenuBarItem.swift in Sources */,
 				A7A500000000000000000065 /* FinderTrash.swift in Sources */,
 				F1D0A0000000000000000011 /* FinderNewWindowTarget.swift in Sources */,
 				F1D0A0000000000000000013 /* FinderNewWindowOpener.swift in Sources */,
@@ -3232,6 +3270,8 @@
 				DD0000000000000000000013 /* DevicesDockWidget.swift in Sources */,
 				DD0000000000000000000015 /* WeatherPreviewCard.swift in Sources */,
 				DD0000000000000000000019 /* WidgetLook.swift in Sources */,
+				DD0000000000000000000021 /* DockLayeringMode.swift in Sources */,
+				DD0000000000000000000024 /* DockWindowManager.swift in Sources */,
 				EE0000000000000000000050 /* ControlCenterLayout.swift in Sources */,
 				FA4400000000000000000F1 /* PowerNotifications.swift in Sources */,
 				FA4400000000000000000FC /* PowerFacts.swift in Sources */,
@@ -3511,6 +3551,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A20000000000002003 /* SpaceSwitchPlan.swift in Sources */,
+				A20000000000002005 /* DockSwipeEventPoster.swift in Sources */,
+				A20000000000002017 /* DriveInventory.swift in Sources */,
+				A20000000000002015 /* DriveInventoryTests.swift in Sources */,
+				A20000000000002007 /* SpaceSwitchPlanTests.swift in Sources */,
 				7A0000000000000000000001 /* WeatherState.swift in Sources */,
 				FA040000000000000000002 /* WeatherCache.swift in Sources */,
 				7B1000000000000000000003 /* ClockChipContent.swift in Sources */,
@@ -3615,6 +3660,9 @@
 				DD0000000000000000000006 /* EventTimeUntil.swift in Sources */,
 				DD0000000000000000000009 /* SampleHistory.swift in Sources */,
 				DD000000000000000000001A /* WidgetLook.swift in Sources */,
+				DD0000000000000000000022 /* DockLayeringMode.swift in Sources */,
+				DD0000000000000000000025 /* DockWindowManager.swift in Sources */,
+				DD0000000000000000000027 /* DockWindowManagerTests.swift in Sources */,
 				EE0000000000000000000051 /* ControlCenterLayout.swift in Sources */,
 				FA4400000000000000000F2 /* PowerNotifications.swift in Sources */,
 				EE0000000000000000000A1 /* SystemHealthReaders.swift in Sources */,

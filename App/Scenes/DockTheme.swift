@@ -414,6 +414,15 @@ struct DockTileChrome: ViewModifier {
     /// Widget Look (Settings > Widgets): Tiles swaps the dock plate for the graphite square on every tile.
     @AppStorage(WidgetLook.storageKey) private var lookRaw = WidgetLook.default.rawValue
 
+    /// The dock's Animation Speed (Dock > Animation Speed): the one stored motion preset, so the
+    /// picker finally changes what the tiles do. Reduce Motion wins, as everywhere else.
+    @AppStorage(WidgetMotionPreset.storageKey) private var motionRaw = WidgetMotionPreset.default.rawValue
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var motion: WidgetMotion {
+        (WidgetMotionPreset(rawValue: motionRaw) ?? WidgetMotionPreset.default).effective(reduceMotion: reduceMotion)
+    }
+
     let isHovered: Bool
     var cornerRadius: CGFloat = 14
     /// A tile with a plate of its own (the weather pod's sky). `nil` = the dock plate above, so every
@@ -432,8 +441,8 @@ struct DockTileChrome: ViewModifier {
                     .stroke(isHovered ? Color.white.opacity(0.28) : Color.white.opacity(0.12), lineWidth: 1)
             )
             .shadow(color: Color.black.opacity(isHovered ? 0.32 : 0.16), radius: isHovered ? 6 : 3, x: 0, y: 2)
-            .scaleEffect(isHovered ? 1.04 : 1.0)
-            .animation(.spring(response: 0.28, dampingFraction: 0.75), value: isHovered)
+            .scaleEffect(isHovered ? motion.hoverScale : 1.0)
+            .animation(motion.hoverSpring?.animation, value: isHovered)
     }
 }
 

@@ -592,6 +592,21 @@ final class PanelCoordinator: NSObject {
         return queried != .zero ? queried : dockVisibleFrame
     }
 
+    /// Smoothly slides the dock panels off-screen or restores them on-screen for `.nativeAutoHideDodge`.
+    func animateDockDodgeSlide(hidden: Bool) {
+        guard let panel = dockPanel, let screen = panel.screen ?? NSScreen.main else { return }
+        let panels = [dockGlassBackgroundPanel, dockPanel, capsulePanel].compactMap { $0 }
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.18
+            context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            for p in panels {
+                var targetFrame = p.frame
+                targetFrame.origin.y = hidden ? (screen.frame.origin.y - p.frame.height) : p.frame.origin.y
+                p.animator().setFrame(targetFrame, display: true)
+            }
+        }
+    }
+
     // MARK: - Window title tooltip
 
     /// 离开宽限：`.exit` 之后不立刻收，等这么久。**这条是「跟手」的关键。**

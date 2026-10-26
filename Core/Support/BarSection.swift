@@ -28,10 +28,12 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     case system
     /// Battery levels of connected AirPods / mouse / keyboard.
     case devices
+    /// Free space of every mounted drive, and the DiskView panel on hover.
+    case drives
     case widgets
 
     /// Canonical left-to-right order (Phase 4U-A).
-    static let canonicalOrder: [BarSection] = [.launcher, .weather, .apps, .media, .clock, .calendar, .system, .devices, .widgets]
+    static let canonicalOrder: [BarSection] = [.launcher, .weather, .apps, .media, .clock, .calendar, .system, .devices, .drives, .widgets]
 
     /// The six sections a fresh dock shows: what every layout API assumes unless it is handed a real order.
     static let defaultOrder: [BarSection] = canonicalOrder.filter { !$0.startsHidden }
@@ -39,7 +41,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     /// Widgets added after the original six start hidden, so a dock upgraded in place looks exactly as it did.
     var startsHidden: Bool {
         switch self {
-        case .calendar, .system, .devices: return true
+        case .calendar, .system, .devices, .drives: return true
         case .launcher, .weather, .apps, .media, .clock, .widgets: return false
         }
     }
@@ -56,6 +58,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .calendar: return "Calendar"
         case .system: return "System"
         case .devices: return "Devices"
+        case .drives: return "Drives"
         case .widgets: return "Widgets"
         }
     }
@@ -82,6 +85,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .calendar: return 170
         case .system: return 150
         case .devices: return 150
+        case .drives: return 130
         case .widgets: return 40
         }
     }
@@ -97,7 +101,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .apps: return 0
         case .media: return 72
         case .clock: return 76
-        case .calendar, .system, .devices: return 56
+        case .calendar, .system, .devices, .drives: return 56
         case .widgets: return 40
         }
     }
