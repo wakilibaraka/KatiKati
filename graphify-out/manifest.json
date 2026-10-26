@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+PanelSetup.swift": {
-    "mtime": 1793035976.5801885,
-    "seen": 1793037457.981697,
-    "ast_hash": "8c3a0d92e9f2cf7271418579460b08c9",
+    "mtime": 1793039069.064741,
+    "seen": 1793039369.458167,
+    "ast_hash": "ca2fc0808cf522b0511410b01cacafa7",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Popups.swift": {
@@ -654,9 +654,9 @@
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
-    "mtime": 1793035965.1114101,
-    "seen": 1793037457.981708,
-    "ast_hash": "ac95d619f430d4a6bcac6a25396332ab",
+    "mtime": 1793039081.3031216,
+    "seen": 1793039369.458178,
+    "ast_hash": "6d82a995844d8ab9f845db489e74f744",
     "semantic_hash": ""
   },
   "App/Entry/TeleprompterWindowController.swift": {
@@ -6852,9 +6852,9 @@
     "semantic_hash": ""
   },
   "App/Composition/DockWindowManager.swift": {
-    "mtime": 1793035474.742817,
-    "seen": 1793037457.981627,
-    "ast_hash": "3673110fa69fc963bc0dbec4f4025205",
+    "mtime": 1793039157.5473297,
+    "seen": 1793039369.458102,
+    "ast_hash": "431d73174ae58d5fee8a8d315addaac8",
     "semantic_hash": ""
   },
   "Core/Support/DockLayeringMode.swift": {
@@ -6864,9 +6864,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWindowManagerTests.swift": {
-    "mtime": 1793036153.745258,
-    "seen": 1793037457.982135,
-    "ast_hash": "e0f9c8f871db43689a2f91847d34daa6",
+    "mtime": 1793039243.1890926,
+    "seen": 1793039369.4586089,
+    "ast_hash": "aa1538800f34a31c4ab8d0a2876dbe5c",
     "semantic_hash": ""
   }
 }
