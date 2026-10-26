@@ -28,7 +28,7 @@ extension PanelCoordinator {
         let panel = makeFloatingPanel(contentRect: legacyInitialFrame, usesLiquidGlass: usesLiquidGlass)
         configurePanel(panel, backgroundColor: NSColor(white: 1.0, alpha: 0.0), appliesLevelOverride: true)
 
-        let hosting = NSHostingView(rootView: DockStripView(
+        let hosting = FirstMouseHostingView(rootView: DockStripView(
             usesLiquidGlass: usesLiquidGlass,
             stripSurfaceID: stripSurfaceID,
             displayUUID: fixedUnitDisplayUUID,
@@ -200,7 +200,7 @@ extension PanelCoordinator {
             usesLiquidGlass: usesLiquidGlass
         )
         configurePanel(panel, backgroundColor: NSColor(white: 1.0, alpha: 0.0), appliesLevelOverride: true)
-        let hosting = NSHostingView(rootView:
+        let hosting = FirstMouseHostingView(rootView:
             DrawerCapsuleButton(
                 onRequestTaskbarMenu: { [weak self] event, view in
                     self?.onRequestTaskbarMenu?(event, view)

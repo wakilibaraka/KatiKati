@@ -337,6 +337,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         logger.info("units rebuilt reason=\(reason, privacy: .public) count=\(self.units.count, privacy: .public)")
         pushPanelScreensToIntentMonitor()
         reconcileBadgeGate()
+        DockWindowManager.shared.evaluateWindowLayering()
     }
 
     // MARK: - Edge bars (Phase 7A) — separate from `units`; island loops never see them

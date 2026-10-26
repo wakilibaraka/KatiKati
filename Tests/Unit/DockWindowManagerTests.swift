@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 import XCTest
 @testable import KatiKati
 
@@ -116,5 +117,18 @@ final class DockWindowManagerTests: XCTestCase {
         if !manager.hasAccessibilityPermission {
             XCTAssertTrue(manager.layeringMode == .reserveScreenSpaceStrut)
         }
+    }
+
+    func testFirstMouseHostingViewAcceptsFirstMouse() {
+        let hostingView = FirstMouseHostingView(rootView: Text("Test"))
+        XCTAssertTrue(hostingView.acceptsFirstMouse(for: nil))
+
+        let containerView = FirstMouseContainerView(frame: NSRect(x: 0, y: 0, width: 100, height: 100))
+        XCTAssertTrue(containerView.acceptsFirstMouse(for: nil))
+    }
+
+    func testDockSuppressionIntegrationDoesNotCrash() {
+        // Must execute safely across both sandboxed and unsandboxed runtimes
+        DockWindowManager.suppressNativeMacDock(suppress: false)
     }
 }

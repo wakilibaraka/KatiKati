@@ -145,22 +145,51 @@ public final class DockWindowManager: ObservableObject {
     public func evaluateWindowLayering() {
         hasAccessibilityPermission = AXIsProcessTrusted()
 
-        guard let screen = NSScreen.main ?? NSScreen.screens.first else { return }
-
-        let visibleDockFrame = NSRect(
-            x: screen.frame.origin.x,
-            y: screen.frame.origin.y,
-            width: screen.frame.width,
-            height: dockHeight
-        )
-
-        let overlapResult = findOverlappingStandardWindow(dockFrame: visibleDockFrame, on: screen)
-        let overlapping = overlapResult.isOverlapping
-        self.isOverlappedByWindow = overlapping
-
         let dockPanels = managedPanelsProvider?() ?? []
         let bgPanels = managedBackgroundPanelsProvider?() ?? []
         let capsulePanels = managedCapsulePanelsProvider?() ?? []
+
+        let targetScreens: [NSScreen]
+        if !dockPanels.isEmpty {
+            targetScreens = Array(Set(dockPanels.compactMap { $0.screen }))
+        } else {
+            targetScreens = [NSScreen.main ?? NSScreen.screens.first].compactMap { $0 }
+        }
+
+        var isAnyOverlapping = false
+        var topOverlappingWID: CGWindowID?
+        var primaryClampingDockFrame: NSRect?
+        var primaryClampingScreen: NSScreen?
+
+        for screen in targetScreens {
+            let visibleDockFrame = NSRect(
+                x: screen.frame.origin.x,
+                y: screen.frame.origin.y,
+                width: screen.frame.width,
+                height: dockHeight
+            )
+            let result = findOverlappingStandardWindow(dockFrame: visibleDockFrame, on: screen)
+            if result.isOverlapping {
+                isAnyOverlapping = true
+                if topOverlappingWID == nil {
+                    topOverlappingWID = result.topOverlappingWindowID
+                    primaryClampingDockFrame = visibleDockFrame
+                    primaryClampingScreen = screen
+                }
+            }
+        }
+
+        if primaryClampingDockFrame == nil, let firstScreen = targetScreens.first {
+            primaryClampingDockFrame = NSRect(
+                x: firstScreen.frame.origin.x,
+                y: firstScreen.frame.origin.y,
+                width: firstScreen.frame.width,
+                height: dockHeight
+            )
+            primaryClampingScreen = firstScreen
+        }
+
+        self.isOverlappedByWindow = isAnyOverlapping
 
         // Reset click-through & alpha unless in `.clickThroughGhostFallback`
         if layeringMode != .clickThroughGhostFallback {
@@ -187,7 +216,7 @@ public final class DockWindowManager: ObservableObject {
             setDockSlideHidden(false)
             if isElevatedByHover {
                 applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
-            } else if overlapping {
+            } else if isAnyOverlapping {
                 applyDockLevel(MacDockWindowLevel.belowNormalWindows, orderAbove: false)
             } else {
                 applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
@@ -197,9 +226,9 @@ public final class DockWindowManager: ObservableObject {
             setDockSlideHidden(false)
             if isElevatedByHover {
                 applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
-            } else if overlapping, let coveringWID = overlapResult.topOverlappingWindowID {
+            } else if isAnyOverlapping, let coveringWID = topOverlappingWID {
                 applySameLevelOrderBelow(coveringWID: coveringWID)
-            } else if overlapping {
+            } else if isAnyOverlapping {
                 applyDockLevel(MacDockWindowLevel.normalWindow, orderAbove: false)
             } else {
                 applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
@@ -207,7 +236,7 @@ public final class DockWindowManager: ObservableObject {
 
         case .clickThroughGhostFallback:
             setDockSlideHidden(false)
-            if isElevatedByHover || !overlapping {
+            if isElevatedByHover || !isAnyOverlapping {
                 for panel in dockPanels + capsulePanels {
                     panel.ignoresMouseEvents = false
                     panel.alphaValue = 1.0
@@ -230,23 +259,25 @@ public final class DockWindowManager: ObservableObject {
             if isElevatedByHover {
                 setDockSlideHidden(false)
             } else {
-                setDockSlideHidden(overlapping)
+                setDockSlideHidden(isAnyOverlapping)
             }
 
         case .reserveScreenSpaceStrut:
             setDockSlideHidden(false)
-            if hasAccessibilityPermission {
-                applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
-                clampFrontmostWindowAboveDock(dockFrame: visibleDockFrame, on: screen)
-            } else if useAppleScriptResizeFallback {
-                applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
-                clampFrontmostWindowViaAppleScriptFallback(dockFrame: visibleDockFrame, on: screen)
-            } else {
-                // Automatic Zero-Permission Fallback Cascade
-                if isElevatedByHover || !overlapping {
+            if let clampingFrame = primaryClampingDockFrame, let clampingScreen = primaryClampingScreen {
+                if hasAccessibilityPermission {
                     applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
+                    clampFrontmostWindowAboveDock(dockFrame: clampingFrame, on: clampingScreen)
+                } else if useAppleScriptResizeFallback {
+                    applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
+                    clampFrontmostWindowViaAppleScriptFallback(dockFrame: clampingFrame, on: clampingScreen)
                 } else {
-                    applyDockLevel(MacDockWindowLevel.belowNormalWindows, orderAbove: false)
+                    // Automatic Zero-Permission Fallback Cascade
+                    if isElevatedByHover || !isAnyOverlapping {
+                        applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
+                    } else {
+                        applyDockLevel(MacDockWindowLevel.belowNormalWindows, orderAbove: false)
+                    }
                 }
             }
         }
@@ -434,8 +465,12 @@ public final class DockWindowManager: ObservableObject {
     }
 
     public func handleMouseMoved() {
-        guard let screen = NSScreen.main ?? NSScreen.screens.first else { return }
         let mouseLoc = NSEvent.mouseLocation
+        guard let screen = NSScreen.screens.first(where: { $0.frame.contains(mouseLoc) }) ?? NSScreen.main ?? NSScreen.screens.first else { return }
+
+        let dockPanels = managedPanelsProvider?() ?? []
+        let dockScreens = dockPanels.compactMap { $0.screen }
+        let isScreenHostingDock = dockScreens.isEmpty || dockScreens.contains(screen)
 
         let edgeTriggerZone = NSRect(
             x: screen.frame.origin.x,
@@ -459,7 +494,7 @@ public final class DockWindowManager: ObservableObject {
                 evaluateWindowLayering()
             }
         } else {
-            if edgeTriggerZone.contains(mouseLoc) {
+            if isScreenHostingDock && edgeTriggerZone.contains(mouseLoc) {
                 if edgeHoverTimer == nil {
                     edgeHoverTimer = Timer.scheduledTimer(withTimeInterval: edgeDwellDelay, repeats: false) { [weak self] _ in
                         Task { @MainActor in
@@ -725,6 +760,16 @@ public final class DockWindowManager: ObservableObject {
     }
 
     public static func suppressNativeMacDock(suppress: Bool) {
+        let service = NativeDockPreferencesService()
+        if service.isAvailable {
+            if suppress {
+                try? service.apply(delay: NativeDockPreferencesService.noWakeDelay)
+            } else {
+                service.restoreOriginal(forget: true)
+            }
+            return
+        }
+
         let task = Process()
         task.launchPath = "/bin/zsh"
         if suppress {
