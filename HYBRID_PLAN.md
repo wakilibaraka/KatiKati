@@ -5905,3 +5905,5 @@ Downloads folder.
 
 - Notch: Hardware HUD (RAM/CPU) page removed; four always-on pages remain (Downloads, Storage, AI, Music & Calendar).
 - Crash fix: `FullscreenIntentMonitor.readAXState` skips KatiKati's own pid (AppKit main-thread assertion when AX-reading our own window off-main).
+
+- Port plan #2a (settings backup model): `SettingsBackup.swift` classifies `UserDefaults` keys by family into settings/bar/tasks/notes, excludes stamps, migrations and secret-looking names, and defines the typed `.katikati` JSON file with filtered, path-safe restore. Pure; the service (2b) and UI (2c) follow. Decision (owner 2026-10-27): restore overwrites after an automatic "Before restore" backup; notes only with a password.
