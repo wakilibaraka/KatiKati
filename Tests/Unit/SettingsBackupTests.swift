@@ -141,5 +141,6 @@ final class SettingsBackupTests: XCTestCase {
         XCTAssertEqual(SettingsBackupFile.category(ofFile: "tasks.json"), .tasks)
         XCTAssertEqual(SettingsBackupFile.category(ofFile: "Notes/x"), .notes)
         XCTAssertNil(SettingsBackupFile.category(ofFile: "other.bin"))
+        XCTAssertNil(SettingsBackupFile.category(ofFile: "note.key"), "a backup must never replace the notes key")
     }
 }

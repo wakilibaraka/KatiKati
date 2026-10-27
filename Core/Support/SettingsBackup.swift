@@ -224,9 +224,15 @@ struct SettingsBackupFile: Codable, Equatable, Sendable {
         }
     }
 
+    /// The password-sealed notes envelope (`NotesBackupEnvelope`). It is never written to disk as a file:
+    /// the service opens it and re-saves each note through the notes store.
+    static let sealedNotesFileName = "Notes/notes.sealed"
+
+    /// `note.key` is deliberately not a category: a backup must never be able to replace the key that
+    /// protects the notes already on this Mac.
     static func category(ofFile name: String) -> BackupCategory? {
         if name == "tasks.json" { return .tasks }
-        if name.hasPrefix("Notes/") || name == "note.key" { return .notes }
+        if name.hasPrefix("Notes/") { return .notes }
         return nil
     }
 

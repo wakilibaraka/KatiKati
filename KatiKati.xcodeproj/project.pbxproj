@@ -440,6 +440,9 @@
 		ED000000000000000000002C /* NotesSyncPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000002B /* NotesSyncPlanTests.swift */; };
 		ED0000000000000000000031 /* NoteCipher.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000030 /* NoteCipher.swift */; };
 		ED0000000000000000000032 /* NoteCipher.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000030 /* NoteCipher.swift */; };
+		FB0000000000000000000060 /* NotesBackupEnvelope.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000062 /* NotesBackupEnvelope.swift */; };
+		FB0000000000000000000061 /* NotesBackupEnvelope.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000062 /* NotesBackupEnvelope.swift */; };
+		FB0000000000000000000063 /* NotesBackupEnvelopeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000064 /* NotesBackupEnvelopeTests.swift */; };
 		ED0000000000000000000034 /* KeychainNoteKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000033 /* KeychainNoteKeyProvider.swift */; };
 		ED0000000000000000000035 /* KeychainNoteKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000033 /* KeychainNoteKeyProvider.swift */; };
 		ED0000000000000000000037 /* NotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000036 /* NotesStore.swift */; };
@@ -1541,6 +1544,8 @@
 		ED0000000000000000000029 /* NoteDocumentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NoteDocumentTests.swift; path = Tests/Unit/NoteDocumentTests.swift; sourceTree = SOURCE_ROOT; };
 		ED000000000000000000002B /* NotesSyncPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesSyncPlanTests.swift; path = Tests/Unit/NotesSyncPlanTests.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000030 /* NoteCipher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NoteCipher.swift; path = Core/Support/NoteCipher.swift; sourceTree = SOURCE_ROOT; };
+		FB0000000000000000000062 /* NotesBackupEnvelope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesBackupEnvelope.swift; path = Core/Support/NotesBackupEnvelope.swift; sourceTree = SOURCE_ROOT; };
+		FB0000000000000000000064 /* NotesBackupEnvelopeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesBackupEnvelopeTests.swift; path = Tests/Unit/NotesBackupEnvelopeTests.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000033 /* KeychainNoteKeyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeychainNoteKeyProvider.swift; path = Platform/Notes/KeychainNoteKeyProvider.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000036 /* NotesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesStore.swift; path = Platform/Notes/NotesStore.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000039 /* NotesStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesStoreTests.swift; path = Tests/Unit/NotesStoreTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3348,6 +3353,7 @@
 				ED0000000000000000000044 /* NotesSyncFolder.swift in Sources */,
 				ED0000000000000000000047 /* NotesSyncRunner.swift in Sources */,
 				ED0000000000000000000031 /* NoteCipher.swift in Sources */,
+				FB0000000000000000000060 /* NotesBackupEnvelope.swift in Sources */,
 				ED0000000000000000000034 /* KeychainNoteKeyProvider.swift in Sources */,
 				ED0000000000000000000037 /* NotesStore.swift in Sources */,
 				ED0000000000000000000021 /* NotesModel.swift in Sources */,
@@ -3753,6 +3759,8 @@
 				ED0000000000000000000048 /* NotesSyncRunner.swift in Sources */,
 				ED000000000000000000004A /* NotesSyncRunnerTests.swift in Sources */,
 				ED0000000000000000000032 /* NoteCipher.swift in Sources */,
+				FB0000000000000000000061 /* NotesBackupEnvelope.swift in Sources */,
+				FB0000000000000000000063 /* NotesBackupEnvelopeTests.swift in Sources */,
 				ED0000000000000000000035 /* KeychainNoteKeyProvider.swift in Sources */,
 				ED0000000000000000000038 /* NotesStore.swift in Sources */,
 				ED000000000000000000003A /* NotesStoreTests.swift in Sources */,
