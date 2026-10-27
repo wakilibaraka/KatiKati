@@ -5905,3 +5905,10 @@ Downloads folder.
 
 - Notch: Hardware HUD (RAM/CPU) page removed; four always-on pages remain (Downloads, Storage, AI, Music & Calendar).
 - Crash fix: `FullscreenIntentMonitor.readAXState` skips KatiKati's own pid (AppKit main-thread assertion when AX-reading our own window off-main).
+
+- 2026-10-27 · **Port plan #3 — menu-bar search (slices 3a + 3b, one PR).**
+  - **Files:** `Core/Support/MenuSearch.swift` (pure ranking + ⌃⌥⇧⌘ glyphs; leaf-title matches outrank path-only, disabled sink, app order breaks ties), `Platform/Accessibility/AppMenuSearchReader.swift` (full-depth AX walk, depth 4 / 1500 items / 1.5 s budget; activation re-resolves the title path and presses it, so a changed menu presses nothing), `CommandBarMode.menu` (`m ` / `menu `), `CommandBarResult.menuItem`, row in `CommandBarView`, target frozen at summon in `CommandBarPanelController`, `Tests/Unit/MenuSearchTests.swift` (17 tests), 3 pbxproj entries appended by hand.
+  - **Not ported:** SuperCmd's `menu-item-search.swift` (MIT) — the existing reader already covers the AX side, so nothing was copied and there is no NOTICE row. Tinycast's menu-search spec was read as a design reference only.
+  - **No new strings:** rows show the app's own menu text; `check_localization.py` unchanged and green.
+  - **Not verified live:** needs Accessibility and a real app; Electron apps expose menus only after `AXManualAccessibility`, a follow-up.
+

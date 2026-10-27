@@ -25,6 +25,7 @@ final class CommandBarModel: ObservableObject {
     var clips: [ClipEntry] = []
     var bookmarks: [Bookmark] = []
     var events: [EventEntry] = []
+    var menuItems: [MenuSearchEntry] = []
 
     private var cachedWifi: (password: String, date: Date)?
     private var isFetchingWifiPassword = false
@@ -64,7 +65,7 @@ final class CommandBarModel: ObservableObject {
         lastQuery = query
         results = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
                                           custom: custom, processes: processes, files: files, clips: clips,
-                                          bookmarks: bookmarks, events: events,
+                                          bookmarks: bookmarks, events: events, menuItems: menuItems,
                                           generate: { [weak self] in self?.generateValue(for: $0) ?? "" })
         var seen = [String: Int]()
         rowItems = results.enumerated().map { index, result in
@@ -258,6 +259,16 @@ struct CommandBarView: View {
                 Text(verbatim: event.start.formatted(date: .abbreviated, time: event.allDay ? .omitted : .shortened))
                     .font(.system(size: 11)).foregroundColor(.secondary)
                 Spacer(minLength: 0)
+            case .menuItem(let entry):
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: entry.title).lineLimit(1)
+                    Text(verbatim: entry.breadcrumb).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
+                }
+                .opacity(entry.isEnabled ? 1 : 0.45)
+                Spacer(minLength: 0)
+                if let shortcut = entry.shortcut {
+                    Text(verbatim: shortcut).font(.system(size: 12, design: .rounded)).foregroundColor(.secondary)
+                }
             }
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
@@ -307,6 +318,8 @@ struct CommandBarView: View {
             Image(systemName: "bookmark").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .event:
             Image(systemName: "calendar").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .menuItem:
+            Image(systemName: "filemenu.and.selection").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         }
     }
 }
