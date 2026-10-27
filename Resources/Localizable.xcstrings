@@ -93467,6 +93467,237 @@
           }
         }
       }
+    },
+    "Change your macOS Dock settings?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change your macOS Dock settings?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要更改苹果系统 Dock 的设置吗？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要變更蘋果系統 Dock 的設定嗎？"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "システムDockの設定を変更しますか？"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen des macOS-Docks ändern?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier les réglages du Dock de macOS ?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cambiar los ajustes del Dock de macOS?"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cambiar la configuración del Dock de macOS?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar os ajustes do Dock do macOS?"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar as definições do Dock do macOS?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modificare le impostazioni del Dock di macOS?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS 독 설정을 변경할까요?"
+          }
+        }
+      }
+    },
+    "Change Dock Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Dock Settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改 Dock 设置"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "變更 Dock 設定"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dockの設定を変更"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dock-Einstellungen ändern"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier les réglages du Dock"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar ajustes del Dock"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar configuración del Dock"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar ajustes do Dock"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar definições do Dock"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifica impostazioni del Dock"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "독 설정 변경"
+          }
+        }
+      }
+    },
+    "This mode keeps Apple's Dock visible at the bottom, under KatiKati: it turns off Dock auto-hide and magnification, sets the Dock's icon size, and restarts the Dock. KatiKati puts your Dock settings back when you choose another mode.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This mode keeps Apple's Dock visible at the bottom, under KatiKati: it turns off Dock auto-hide and magnification, sets the Dock's icon size, and restarts the Dock. KatiKati puts your Dock settings back when you choose another mode."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此模式会让苹果系统 Dock 保持显示在屏幕底部、KatiKati 下方：关闭 Dock 的自动隐藏和放大效果，设置 Dock 图标大小，并重启 Dock。切换到其他模式时，KatiKati 会恢复你原来的 Dock 设置。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此模式會讓蘋果系統 Dock 保持顯示在螢幕底部、KatiKati 下方：關閉 Dock 的自動隱藏和放大效果，設定 Dock 圖示大小，並重新啟動 Dock。切換到其他模式時，KatiKati 會還原你原本的 Dock 設定。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このモードでは、システムDockを画面下部のKatiKatiの下に表示したままにします。Dockの自動非表示と拡大をオフにし、アイコンサイズを設定して、Dockを再起動します。別のモードを選ぶと、KatiKatiが元のDock設定に戻します。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Modus lässt das Apple-Dock unten unter KatiKati sichtbar: Automatisches Ausblenden und Vergrößerung werden ausgeschaltet, die Symbolgröße wird festgelegt und das Dock neu gestartet. Wählst du einen anderen Modus, stellt KatiKati deine Dock-Einstellungen wieder her."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce mode garde le Dock d'Apple visible en bas, sous KatiKati : il désactive le masquage automatique et l'agrandissement du Dock, règle la taille de ses icônes et redémarre le Dock. KatiKati rétablit vos réglages du Dock lorsque vous choisissez un autre mode."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este modo mantiene el Dock de Apple visible en la parte inferior, debajo de KatiKati: desactiva la ocultación automática y la ampliación del Dock, ajusta el tamaño de sus iconos y reinicia el Dock. KatiKati restaura tus ajustes del Dock cuando eliges otro modo."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este modo mantiene el Dock de Apple visible en la parte inferior, debajo de KatiKati: desactiva el ocultamiento automático y la ampliación del Dock, ajusta el tamaño de sus íconos y reinicia el Dock. KatiKati restaura tu configuración del Dock cuando eliges otro modo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este modo mantém o Dock da Apple visível na parte inferior, sob o KatiKati: desativa a ocultação automática e a ampliação do Dock, define o tamanho dos ícones e reinicia o Dock. O KatiKati restaura seus ajustes do Dock quando você escolhe outro modo."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este modo mantém o Dock da Apple visível na parte inferior, sob o KatiKati: desativa a ocultação automática e a ampliação do Dock, define o tamanho dos ícones e reinicia o Dock. O KatiKati repõe as suas definições do Dock quando escolher outro modo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa modalità mantiene il Dock di Apple visibile in basso, sotto KatiKati: disattiva l'occultamento automatico e l'ingrandimento del Dock, imposta la dimensione delle icone e riavvia il Dock. KatiKati ripristina le impostazioni del Dock quando scegli un'altra modalità."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 모드는 Apple 독을 화면 하단, KatiKati 아래에 계속 표시합니다. 독 자동 숨기기와 확대를 끄고, 아이콘 크기를 설정한 뒤 독을 다시 시작합니다. 다른 모드를 선택하면 KatiKati가 원래 독 설정으로 되돌립니다."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

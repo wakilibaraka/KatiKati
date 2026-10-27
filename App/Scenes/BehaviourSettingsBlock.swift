@@ -84,6 +84,10 @@ struct WindowBehaviourSettingsBlock: View {
 /// Dock window layering and multi-tier reliability controls.
 struct DockLayeringSettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
+    /// The piggyback mode rewrites the native Dock's settings and restarts it, so picking it asks first
+    /// (owner 2026-10-27: keep the mode, behind a confirm-and-restore step). The picker stays on the
+    /// current mode until the user confirms.
+    @State private var confirmingPiggyback = false
 
     var body: some View {
         SettingsCard(Text("Dock Window Layering")) {
@@ -91,7 +95,13 @@ struct DockLayeringSettingsBlock: View {
                 Text("Layering Mode"),
                 selection: Binding(
                     get: { store.dockLayeringMode },
-                    set: { store.setDockLayeringMode($0) }
+                    set: { mode in
+                        if mode == .nativeDockVisibleFramePiggyback, store.dockLayeringMode != mode {
+                            confirmingPiggyback = true
+                        } else {
+                            store.setDockLayeringMode(mode)
+                        }
+                    }
                 ),
                 note: Text(store.dockLayeringMode.subtitle)
             ) {
@@ -134,6 +144,12 @@ struct DockLayeringSettingsBlock: View {
             SettingsButtonRow(Text("Restore Native macOS Dock")) {
                 DockWindowManager.suppressNativeMacDock(suppress: false)
             }
+        }
+        .alert(Text("Change your macOS Dock settings?"), isPresented: $confirmingPiggyback) {
+            Button("Change Dock Settings") { store.setDockLayeringMode(.nativeDockVisibleFramePiggyback) }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This mode keeps Apple's Dock visible at the bottom, under KatiKati: it turns off Dock auto-hide and magnification, sets the Dock's icon size, and restarts the Dock. KatiKati puts your Dock settings back when you choose another mode.")
         }
     }
 }
