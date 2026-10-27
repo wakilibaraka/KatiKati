@@ -13,13 +13,19 @@ struct SettingsBackupService {
     }
 
     let defaults: UserDefaults
+    /// The domain `defaults` persists to. Reads go through `persistentDomain(forName:)`, not
+    /// `dictionaryRepresentation()`, which also returns every registered default (so a backup would
+    /// carry values the person never set).
+    let domainName: String
     /// Application Support/KatiKati: where `tasks.json` lives and where `Backups/` is created.
     let supportDirectory: URL
     let appVersion: String
     private let now: () -> Date
 
-    init(defaults: UserDefaults = .standard, supportDirectory: URL, appVersion: String, now: @escaping () -> Date = Date.init) {
+    init(defaults: UserDefaults = .standard, domainName: String? = nil, supportDirectory: URL, appVersion: String,
+         now: @escaping () -> Date = Date.init) {
         self.defaults = defaults
+        self.domainName = domainName ?? Bundle.main.bundleIdentifier ?? ""
         self.supportDirectory = supportDirectory
         self.appVersion = appVersion
         self.now = now
@@ -30,10 +36,14 @@ struct SettingsBackupService {
     // MARK: - Export
 
     /// A backup of the ticked categories as they are now. `.notes` is ignored until slice 2d.
+    private func storedValues() -> [String: Any] {
+        defaults.persistentDomain(forName: domainName) ?? [:]
+    }
+
     func makeBackup(categories wanted: Set<BackupCategory>) -> SettingsBackupFile {
         let categories = BackupCategory.allCases.filter { wanted.contains($0) && $0 != .notes }
         var values: [String: BackupValue] = [:]
-        let all = defaults.dictionaryRepresentation()
+        let all = storedValues()
         for key in SettingsBackupKeys.keys(in: Set(categories), from: Array(all.keys)) {
             if let value = all[key].flatMap(BackupValue.init(propertyList:)) { values[key] = value }
         }
@@ -61,7 +71,7 @@ struct SettingsBackupService {
         let safety = try writeSafetyBackup(categories: categories)
 
         var removed = 0
-        let existing = Array(defaults.dictionaryRepresentation().keys)
+        let existing = Array(storedValues().keys)
         for key in SettingsBackupKeys.keys(in: categories, from: existing) where incoming[key] == nil {
             defaults.removeObject(forKey: key)
             removed += 1

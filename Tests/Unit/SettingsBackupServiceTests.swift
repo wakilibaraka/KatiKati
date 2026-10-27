@@ -19,7 +19,7 @@ final class SettingsBackupServiceTests: XCTestCase {
     }
 
     private func service() -> SettingsBackupService {
-        SettingsBackupService(defaults: defaults, supportDirectory: dir, appVersion: "1.0")
+        SettingsBackupService(defaults: defaults, domainName: suiteName, supportDirectory: dir, appVersion: "1.0")
     }
 
     func testBackupCarriesOnlyTickedCategories() {
@@ -28,6 +28,13 @@ final class SettingsBackupServiceTests: XCTestCase {
         defaults.set("x", forKey: "com.katikati.ai.apiKey")
         let file = service().makeBackup(categories: [.barAndLauncher])
         XCTAssertEqual(Set(file.defaults.keys), ["keptAppBundleIDsV3"])
+    }
+
+    func testRegisteredDefaultsAreNotBackedUp() {
+        defaults.register(defaults: ["com.katikati.layout.mode": "registered", "com.katikati.notch.enabled": true])
+        defaults.set(["a"], forKey: "keptAppBundleIDsV3")
+        let file = service().makeBackup(categories: [.settingsAndShortcuts, .barAndLauncher])
+        XCTAssertEqual(Set(file.defaults.keys), ["keptAppBundleIDsV3"], "only values the person set")
     }
 
     func testNotesAreLeftOutOfTheBackup() {
