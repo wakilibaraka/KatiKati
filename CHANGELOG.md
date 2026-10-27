@@ -20,7 +20,7 @@ All notable changes to KatiKati are documented in this file.
   6. *Click-Through Ghost Mode* (Marks dock transparent and click-through on window overlap, restoring on bottom-edge dwell)
   7. *Native Dock visibleFrame Piggyback* (Aligns at level 21 over native Dock to reserve `visibleFrame` without requiring Accessibility permissions)
   8. *Working-Area Strut Clamping* (Clamps overlapping windows to stop above the dock, with automated fallback cascade to Smart Z-Order when Accessibility is not granted)
-  Zero-permission fallbacks (`CGWindowListCopyWindowInfo` geometry and 20 Hz `NSEvent.mouseLocation` polling) keep the engine fully functional without TCC prompts, while private SkyLight WindowServer fast paths and AppleScript `System Events` fallbacks reinforce reliability when permissions or helper services are enabled. First-mouse responsiveness (`acceptsFirstMouse`) is enabled across all panels so dock items respond immediately on the first click without stealing app focus.
+  Zero-permission fallbacks (`CGWindowListCopyWindowInfo` geometry and the mouse-moved monitor, with 20 Hz `NSEvent.mouseLocation` polling only if the monitor cannot be installed) keep the engine fully functional without TCC prompts, while private SkyLight WindowServer fast paths and AppleScript `System Events` fallbacks reinforce reliability when permissions or helper services are enabled. First-mouse responsiveness (`acceptsFirstMouse`) is enabled across all panels so dock items respond immediately on the first click without stealing app focus.
 - **Space switching with a transition**, ported from [Spacewalk](https://github.com/InsaneArts/Spacewalk) (MIT):
   Settings › Appearance has an **Effect** (Instant / Fade) and a **Duration**, and Settings › Shortcuts has **Next
   Space** / **Previous Space** (both unbound until you assign them, so the system's own ⌃← / ⌃→ keep working). A switch
@@ -46,6 +46,27 @@ All notable changes to KatiKati are documented in this file.
   takes its row away, and the table names the app instead of asking you to remember `com.company.App`.
 - **Quit when the last window closes** left Settings › Tiling: it was never a tiling setting, and it is the third
   column of that table now. Finder, the Dock and KatiKati itself are not offered that column; the row says why.
+
+### Fixed
+- **The dock no longer comes back over fullscreen apps.** The layering engine re-applied the dock's level every 0.35 s
+  and, in the default mode, ordered the dock to the front each time, which put back a dock that had just been hidden for
+  fullscreen, a Space switch or auto-hide. It also set every surface opaque and clickable on each tick, cutting the
+  fullscreen fade short and making the click-through glass plate catch clicks. It now changes a level only when it
+  differs, never orders in a hidden surface, and in Click-Through Ghost mode restores exactly what it changed.
+- **The layering engine is idle in the default mode.** Always on Top and Piggyback no longer run the window-list poll,
+  the per-app Accessibility observers or the mouse sensor; the other modes run only what they read, with one mouse
+  source instead of a monitor, a 20 Hz timer and a fifth event tap all at once.
+- **Layering follows the real dock**: a left or right rail, a custom bar height, a floating gap and a bar on a second
+  display are tested where they are, not as a 52 pt strip at the bottom of the main screen. Strut clamping only acts on
+  a bottom bar.
+- **Native Auto-Hide (Dodge Windows) brings the dock back.** Sliding back reused the off-screen position, so the dock
+  never returned; it also slid down even on a side rail. It now slides out through the edge it hugs and returns with a
+  normal relayout.
+- **Native Dock visibleFrame Piggyback asks first and gives your Dock back.** Choosing it shows what it will change
+  (Dock position, auto-hide, magnification and icon size, plus a Dock restart); your own values are recorded first and
+  written back when you choose another mode. It no longer rewrites the Dock and restarts it on every launch.
+- A unit test called the real native-Dock service and could restore a developer's Dock; the Dock helpers now take an
+  injected service, and the shell fallback that ran `killall Dock` from a sandbox is gone.
 
 ### Removed
 - The four per-app bundle-ID text fields ("Quit instantly, no hold", "Pass ⌘Q through", "Quit when the last window

@@ -598,16 +598,32 @@ final class PanelCoordinator: NSObject {
     }
 
     /// Smoothly slides the dock panels off-screen or restores them on-screen for `.nativeAutoHideDodge`.
+    /// `DockLayeringMode.nativeAutoHideDodge`: slide the surfaces out through the edge they hug, or
+    /// back. Coming back is a normal animated relayout, because the resting frames are computed, not
+    /// remembered (the old version kept the off-screen y on the way back, so the dock never returned).
+    /// Every surface moves by the same offset, the one that clears the furthest-reaching of them, so
+    /// the plate, the strip and the capsule keep their arrangement while they are away.
     func animateDockDodgeSlide(hidden: Bool) {
+        guard hidden else {
+            relayout(animated: true)
+            return
+        }
         guard let panel = dockPanel, let screen = panel.screen ?? NSScreen.main else { return }
         let panels = [dockGlassBackgroundPanel, dockPanel, capsulePanel].compactMap { $0 }
+        let bounds = screen.frame
+        let edge = DockScreenEdge.nearest(to: panel.frame, in: bounds)
+        let offset: CGSize
+        switch edge {
+        case .bottom: offset = CGSize(width: 0, height: -((panels.map(\.frame.maxY).max() ?? panel.frame.maxY) - bounds.minY))
+        case .top: offset = CGSize(width: 0, height: bounds.maxY - (panels.map(\.frame.minY).min() ?? panel.frame.minY))
+        case .left: offset = CGSize(width: -((panels.map(\.frame.maxX).max() ?? panel.frame.maxX) - bounds.minX), height: 0)
+        case .right: offset = CGSize(width: bounds.maxX - (panels.map(\.frame.minX).min() ?? panel.frame.minX), height: 0)
+        }
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.18
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             for p in panels {
-                var targetFrame = p.frame
-                targetFrame.origin.y = hidden ? (screen.frame.origin.y - p.frame.height) : p.frame.origin.y
-                p.animator().setFrame(targetFrame, display: true)
+                p.animator().setFrame(p.frame.offsetBy(dx: offset.width, dy: offset.height), display: true)
             }
         }
     }

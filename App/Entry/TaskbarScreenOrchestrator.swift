@@ -194,6 +194,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         DockWindowManager.shared.onSlideStateChanged = { [weak self] hidden in
             self?.units.forEach { $0.coordinator.animateDockDodgeSlide(hidden: hidden) }
         }
+        DockWindowManager.shared.nativeDockService = NativeDockPreferencesService()
         DockWindowManager.shared.start()
 
         placementSubscription = settingsStore.$taskbarScreenPlacement
