@@ -193,7 +193,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return orb
     }()
     /// Phase 27: the ⌘Space command bar, kept separate from the full-screen launcher.
-    private(set) lazy var commandBarPanel = CommandBarPanelController()
+    private(set) lazy var commandBarPanel: CommandBarPanelController = {
+        let panel = CommandBarPanelController()
+        panel.barProfiles = barProfileService
+        return panel
+    }()
+    /// Port plan #4b: bar profiles. Lazy and inert until a profile is listed, saved or applied.
+    private(set) lazy var barProfileService = BarProfileService(kept: keptAppStore, folders: pinnedFolderStore, settings: settingsStore)
     /// Phase 31: the colourful interactive radial dial / pie menu.
     private(set) lazy var radialDialPanel = RadialDialPanelController.shared
     /// Phase 23: the define/translate card for the current selection.
@@ -209,6 +215,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var workspaceObservers: [NSObjectProtocol] = []
     private var messagingAutoRegisterSubscription: AnyCancellable?
     private var badgeContextSubscription: AnyCancellable?
+    /// Keeps the drawer pop's app items equal to the stashed apps (`PopStore.syncApps`).
+    private var popAppsSubscription: AnyCancellable?
     private var windowLiftSettingSubscription: AnyCancellable?
     private var trashSettingSubscription: AnyCancellable?
     /// 全局反转鼠标滚轮。active tap 需要辅助功能授权，所以挂在任务条运行期
@@ -268,6 +276,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 日志要攒满缓冲区才落盘。改成行缓冲后每条 print 立即写出，便于实时读日志。
         setvbuf(stdout, nil, _IOLBF, 0)
         installTerminationSignalHandlers()
+        ClaudeApprovalService.shared.startIfEnabled()
 
         startMainLoopStallProbeIfTracing()
         StackPopupSnapshotProbe.runIfRequested()
@@ -899,6 +908,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 runningBundleIDs: running
             )
         }
+
+        // The drawer pop shows the stashed apps beside its files and folders. `DrawerStore` stays the
+        // authority for which apps are stashed (strip exclusion, drag conversion); the pop mirrors it.
+        popAppsSubscription = drawerStore.$bundleIDs
+            .receive(on: DispatchQueue.main)
+            .sink { ids in PopStore.shared.syncApps(drawerBundleIDs: ids) }
 
         let coordinator = TaskbarScreenOrchestrator(
             runtime: runtime,

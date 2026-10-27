@@ -17,6 +17,8 @@ struct DockStripView: View {
     @EnvironmentObject var folderCoverStore: PinnedFolderCoverStore
     @EnvironmentObject var shelfStore: ShelfStore
     @ObservedObject var trashStore = TrashStateStore.shared
+    /// The drawer pop: the tail zone's first chip and its popup's list.
+    @ObservedObject var popStore = PopStore.shared
     @EnvironmentObject var settingsStore: AppSettingsStore
     @EnvironmentObject var displayTopologyStore: DisplayTopologyStore
     @AppStorage("com.katikati.widgets.fabStyle") private var widgetsFABStyle: String = "gauge"
@@ -70,6 +72,10 @@ struct DockStripView: View {
     var onShelfPopupToggle: (CGRect) -> Void = { _ in }
     /// 废纸篓点击 → 废纸篓弹窗 toggle（chip 可视矩形·屏幕坐标）。PanelCoordinator 注入。
     var onTrashPopupToggle: (CGRect) -> Void = { _ in }
+    /// The drawer pop chip was clicked: the screen rect to anchor its popup on.
+    var onPopPopupToggle: (CGRect) -> Void = { _ in }
+    /// Where the pop chip sits on screen, for the coordinator's stash drop zone. Written by this view.
+    var popChipFrameSink: PopChipFrameSink?
     /// 「添加文件夹…」统一入口（NSOpenPanel 归 AppDelegate 管）。
     var onAddFolder: () -> Void = {}
     /// 外部文件命中固定文件夹 chip 后，上抛给 composition 层在后台执行搬运。
@@ -129,6 +135,7 @@ struct DockStripView: View {
     /// 文件夹 chip,后续还喂文件夹重排 hit-test,不能混 sentinel）。喂中转弹窗锚点 + drop 路由。
     var shelfFrame: CGRect { frames.shelfFrame }
     var trashFrame: CGRect { frames.trashFrame }
+    var popFrame: CGRect { frames.popFrame }
 
     /// 外部文件拖入的实时落点目标（悬停高亮用;nil = 没有外部拖拽悬停）。
     @State var externalDropTarget: StripDropRouting.Target?
@@ -354,6 +361,7 @@ struct DockStripView: View {
             // move (`StripFrameBox`), so a value captured now would route a later drop by stale geometry.
             shelfFrame: { [frames, showShelf = settingsStore.showShelf] in showShelf ? frames.shelfFrame : nil },
             trashFrame: { [frames, showTrash = settingsStore.showTrash] in showTrash ? frames.trashFrame : nil },
+            popFrame: { [frames] in frames.popFrame },
             folderFrames: { [frames] in frames.folderChipFrames },
             orderedPaths: pinnedFolderStore.folderPaths,
             // chip 间距随档位缩放，「插到最前面」那段 slack 也得跟着缩，否则小档时它相对更宽、
@@ -373,6 +381,7 @@ struct DockStripView: View {
             onCommitApplications: { urls, location in
                 handleExternalApplicationDrop(urls, atX: mainAxis(location))
             },
+            onCommitToPop: { urls in addExternalItemsToPop(urls) },
             onGhostMoved: { target, bundleID, pinsFolder, location in
                 updateExternalDropGhost(target: target, bundleID: bundleID,
                                         pinsFolder: pinsFolder, atX: mainAxis(location))
@@ -392,6 +401,7 @@ struct DockStripView: View {
             HoverTrace.stripInput("stripRect", surface: stripSurfaceID, changed: rect != frames.stripRootScreenRect)
             guard rect != frames.stripRootScreenRect else { return }
             frames.stripRootScreenRect = rect
+            popChipFrameSink?.stripRootScreenRect = rect
             refreshHoveredEntry(frames: stripHoverFrames, origin: rect)
             updateLandingAnchor()
         })
@@ -530,8 +540,12 @@ struct DockStripView: View {
             HoverTrace.stripInput("trashFrame", surface: stripSurfaceID, changed: $0 != frames.trashFrame)
             frames.trashFrame = $0
         }
+        .onPreferenceChange(PopFramePreferenceKey.self) {
+            frames.popFrame = $0
+            popChipFrameSink?.stripFrame = $0
+        }
         .onChange(of: pinnedFolderStore.folderPaths) { currentPaths in
-            let validIDs = Set(["shelf", "trash"] + currentPaths.map { "folder-\($0)" })
+            let validIDs = Set(["shelf", "pop", "trash"] + currentPaths.map { "folder-\($0)" })
             animatedEntryIDs.formIntersection(validIDs)
         }
         // 中转格显隐会改变整个固定区的落点几何：正在进行的外部拖放悬停立即收掉，不留高亮。
@@ -734,7 +748,7 @@ struct DockStripView: View {
             }
         case let .keptApp(bid):
             launcherTap(bid, hasRealWindow: false)   // 保留占位只在没有真窗口时存在
-        case .pinnedFolder, .shelf, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
+        case .pinnedFolder, .shelf, .pop, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return   // 空档不可拖，也就不会有飞行中的载荷指向它
         }
     }
@@ -849,7 +863,7 @@ struct DockStripView: View {
                 : nil
             return DragCarrierGeometry.pickUpPose(chipHeight: height, pressedScale: nil,
                                                   hoverScale: hoverScale)
-        case .shelf, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
+        case .shelf, .pop, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return .resting
         }
     }
@@ -1298,6 +1312,14 @@ struct DockStripView: View {
                     Color.clear.preference(key: TrashFramePreferenceKey.self,
                                            value: geo.frame(in: .named("strip")))
                 })
+        case .pop:
+            // Fixed place, not draggable; its frame is the popup anchor, the drop route and the stash
+            // zone (`PopFramePreferenceKey`).
+            stripEntryView(entry, projection: projection)
+                .background(GeometryReader { geo in
+                    Color.clear.preference(key: PopFramePreferenceKey.self,
+                                           value: geo.frame(in: .named("strip")))
+                })
         case .divider, .sectionPlaceholder:
             stripEntryView(entry, projection: projection)
         case .externalDropGhost:
@@ -1509,6 +1531,19 @@ struct DockStripView: View {
             trashChip(hovered: hovered)
                 .stripEntrance(id: entrance ? entry.id : nil, delay: 0,
                                animatedEntryIDs: $animatedEntryIDs)
+        case .pop:
+            PopChip(
+                popStore: popStore,
+                isDropTargeted: externalDropTarget == .addToPop || dragController.isOverStashZone,
+                scale: dockScale,
+                railTile: isRail,
+                hoverStyle: hoverStyle,
+                isHovered: hovered,
+                onTap: { popChipTapped() },
+                onAddFolder: onAddFolder
+            )
+            .stripEntrance(id: entrance ? entry.id : nil, delay: 0,
+                           animatedEntryIDs: $animatedEntryIDs)
         case .shelf:
             ShelfChip(
                 itemCount: shelfStore.itemPaths.count,

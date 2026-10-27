@@ -39,6 +39,17 @@ hot-file touches. The integrator registers all pending tabs in **one slice per r
 ## Claims
 One line per active slice: `lane | slice | agent | branch | files | hot-file touches | since`
 
+- F | port-1a/1b benchmark | Claude (cloud) | lane-f/port-bench | `Tools/Bench/benchtool.swift`, `Scripts/bench_katikati.sh`, `.github/workflows/bench.yml` | `NOTICE`, `HYBRID_PLAN.md` §5f | 2026-10-27
+- D | port-3a/3b menu search | Claude (cloud) | lane-d/port-menu-search | `Core/Support/MenuSearch.swift`, `Platform/Accessibility/AppMenuSearchReader.swift`, `CommandBar*.swift`, `CommandBarPanelController.swift` | pbxproj (3 entries) | 2026-10-27
+- B | port-4a profile model | Claude (cloud) | lane-b/port-profiles | `Core/Support/BarProfile.swift`, `Tests/Unit/BarProfileTests.swift` | pbxproj (4 entries) | 2026-10-27
+- B | port-4b/c profile service + command bar | Claude (cloud) | lane-b/port-profile-service (stacked on port-menu-search + port-profiles) | `App/Composition/BarProfileService.swift`, `Tests/Unit/BarProfileCommandTests.swift` | CommandBar* (4 files), AppDelegate (lazy vars), xcstrings (2 keys), pbxproj (6 entries) | 2026-10-27
+- F | port-2a backup model | Claude (cloud) | lane-f/port-backup-model | `Core/Support/SettingsBackup.swift`, `Tests/Unit/SettingsBackupTests.swift` | pbxproj (8 entries) | 2026-10-27
+- F | port-2b backup service | Claude (cloud) | lane-f/port-backup-service (stacked on port-backup-model) | `Platform/Backup/SettingsBackupService.swift`, `Tests/Unit/SettingsBackupServiceTests.swift` | pbxproj (6 entries) | 2026-10-27
+- F | port-2c backup UI | Claude (cloud) | lane-f/port-backup-ui (stacked on port-backup-service) | `App/Scenes/BackupSettingsBlock.swift` | SettingsWindowView (1 line), Localizable.xcstrings (11 keys), pbxproj (3 entries) | 2026-10-27
+- F | port-2d backup notes | Claude (cloud) | lane-f/port-backup-notes (stacked on port-backup-ui) | `Core/Support/NotesBackupEnvelope.swift`, `Tests/Unit/NotesBackupEnvelopeTests.swift`, SettingsBackupService/Block, NotesStore (additive) | xcstrings (9 keys), pbxproj (7 entries) | 2026-10-27
+- A | port-5a approvals model | Claude (cloud) | lane-a/port-approvals-model | `Core/Support/AgentUsage/AgentApproval.swift`, `Tests/Unit/AgentApprovalTests.swift`, `ClaudeHookConfig.swift` (additive) | pbxproj (7 entries) | 2026-10-27
+- A | port-5b/c approvals service + card | Claude (cloud) | lane-a/port-approvals-service (stacked on port-approvals-model) | `App/Composition/ClaudeApprovalService.swift`, `ClaudeHookInstaller.swift` (additive), `UtilitySettingsBlock.swift`, `AppDelegate.swift` (1 line) | xcstrings (5 keys), pbxproj (3 entries) | 2026-10-27
+- D | port-4a quicklinks template | Claude (cloud) | lane-d/port-quicklinks | `Core/Support/QuicklinkTemplate.swift`, `Tests/Unit/QuicklinkTemplateTests.swift` | pbxproj (5 entries) | 2026-10-27
 - C | Q-input-a | Claude (this session) | main (integrator-direct) | `App/Composition/KeyGuardService.swift`, `Tests/Unit/KeyGuardTests.swift` | none | 2026-10-20
 
 ## Unknown

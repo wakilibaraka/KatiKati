@@ -425,6 +425,16 @@ tests. License/attribution checks stay (entries in `NOTICE` when behavior is der
 
 Explicitly NOT ported: EdgeDeckBar `SegmentPanelManager`/stores/settings, AI Usage (Claude/Codex quota, token chart, Ollama, multi-account Keychain switching), Dispatch-to-agent, Terminal automation; noty site/cask/Sparkle wiring/`.stickies` JSON; arc Jev-cloud; Volant sandbox/WASM/Herdr/ACP; Liftoff grid.
 
+### 5f. Port-plan donors (owner 2026-10-27)
+
+Ranked in the port plan (https://claude.ai/artifact/EB9sx8HHhg2djFQ4QZwU51). Code enters only through a row here.
+
+| Source | Target in this repo | Notes |
+|---|---|---|
+| Asyar `Xoshbin/asyar` GPL-3.0 @ `334c8fa` — `benchmarks/benchtool.swift`, `benchmarks/bench.sh` (powermetrics parser) | `Tools/Bench/benchtool.swift`, `Scripts/bench_katikati.sh`, `.github/workflows/bench.yml` | Dev tool, not in the app target. Window detection changed for the always-on bar; NOTICE entry added |
+| SuperCmd `SuperCmdLabs/SuperCmd` MIT @ `2da7b9e` — `src/native/*.swift` helpers | not ported yet | Reference for menu search (#3) and hold-to-dictate (#14); a row is added before any code lands |
+| Tinycast `abue-ammar/tinycast` AGPL-3.0 @ `37e6043` | none | Design reference only (roadmap §7.1 bars AGPL donors); its `docs/features/*.md` specs may be read, never its code |
+
 ## 6. Build, identity, licensing
 
 - **Repo**: `/Users/baraka/Desktop/Splitbar`, branch `main`. **Build system follows the
@@ -5905,3 +5915,34 @@ Downloads folder.
 
 - Notch: Hardware HUD (RAM/CPU) page removed; four always-on pages remain (Downloads, Storage, AI, Music & Calendar).
 - Crash fix: `FullscreenIntentMonitor.readAXState` skips KatiKati's own pid (AppKit main-thread assertion when AX-reading our own window off-main).
+
+- 2026-10-27 · **Port plan #1 — idle and latency benchmark (slices 1a + 1b).**
+  - **Files:** `Tools/Bench/benchtool.swift` (vendored from Asyar @ `334c8fa`, GPL-3.0; window detection now skips windows already on screen when a run starts, and the launcher-size floor is 300×200 so the bar never counts), `Scripts/bench_katikati.sh` (full run: cold start, 15 ⌥Space summons, 30 s after activity, 120 s settle + 60 s deep idle; `--idle-only` for CI), `.github/workflows/bench.yml` (manual + on PRs touching the bench files; Release build, ad-hoc signed, idle numbers into the job summary), `NOTICE`, §5f.
+  - **Why CI:** the owner chose cloud slices with no local checks (2026-10-27). The runner has no Accessibility grant, so CI measures idle cost in limited mode only; the hotkey half runs on a Mac with Accessibility for the terminal.
+  - **Gate:** `bash -n` on the script; the bench workflow compiles `benchtool.swift` and runs it. App code untouched, so the unit-test job is unaffected.
+- 2026-10-27 · **Port plan #3 — menu-bar search (slices 3a + 3b, one PR).**
+  - **Files:** `Core/Support/MenuSearch.swift` (pure ranking + ⌃⌥⇧⌘ glyphs; leaf-title matches outrank path-only, disabled sink, app order breaks ties), `Platform/Accessibility/AppMenuSearchReader.swift` (full-depth AX walk, depth 4 / 1500 items / 1.5 s budget; activation re-resolves the title path and presses it, so a changed menu presses nothing), `CommandBarMode.menu` (`m ` / `menu `), `CommandBarResult.menuItem`, row in `CommandBarView`, target frozen at summon in `CommandBarPanelController`, `Tests/Unit/MenuSearchTests.swift` (17 tests), 3 pbxproj entries appended by hand.
+  - **Not ported:** SuperCmd's `menu-item-search.swift` (MIT) — the existing reader already covers the AX side, so nothing was copied and there is no NOTICE row. Tinycast's menu-search spec was read as a design reference only.
+  - **No new strings:** rows show the app's own menu text; `check_localization.py` unchanged and green.
+  - **Not verified live:** needs Accessibility and a real app; Electron apps expose menus only after `AXManualAccessibility`, a follow-up.
+- 2026-10-27 · **Port plan #4a — bar profile model.**
+  - **Files:** `Core/Support/BarProfile.swift` (`BarProfile` Codable with lenient decode; `BarProfilePlan.edits(from:to:isInstalled:folderExists:)` returns kept-app / pinned-folder / widget-preset / layout edits; `snapshot(of:)`), `Tests/Unit/BarProfileTests.swift` (12 tests), 4 pbxproj entries appended by hand.
+  - **Rule under test:** applying a profile edits only kept apps, their order, pinned folders, the widget preset and the layout mode. It has no window vocabulary at all — a running app outside the profile just loses its kept slot. Applying twice is a no-op; apps no longer installed and missing folders are skipped and reported; an unknown layout raw value from a newer build is ignored.
+  - **Not wired yet:** 4b (service + `profiles.json`) and 4c (shortcuts, status menu, command-bar macro) follow. Per the owner's call (2026-10-27) a profile holds kept apps, order, pinned folders, widget preset and layout mode; notch pages stay global. Drawer membership joins after the drawer-pops work lands.
+
+
+- Port plan #4b–c (profile service and command bar): `BarProfileService` stores `profiles.json` and applies a profile (kept apps, pinned folders, layout mode) without touching any window; it is inert until used. The command bar gets `profile <text>` (list and apply) and `profile save <name>` (store the bar under a name, replacing a same-named profile). Decision (owner 2026-10-27): no status-menu or numbered shortcuts yet; the command bar is the one entry, so there is no new global key or CGEventTap. The widget preset is not captured by "save" (the settings store does not record which preset is active); a profile file may still name one. Stacked on #5 and #6.
+- Port plan #2a (settings backup model): `SettingsBackup.swift` classifies `UserDefaults` keys by family into settings/bar/tasks/notes, excludes stamps, migrations and secret-looking names, and defines the typed `.katikati` JSON file with filtered, path-safe restore. Pure; the service (2b) and UI (2c) follow. Decision (owner 2026-10-27): restore overwrites after an automatic "Before restore" backup; notes only with a password.
+
+- Port plan #2b (settings backup service): `SettingsBackupService` makes a backup of ticked categories, exports it, and restores it. Restore first writes `Backups/Before restore <time>.katikati`, then overwrites the ticked categories so the result matches the file (keys the file lacks are removed). Notes are skipped until 2d. Not wired to the UI yet (2c).
+
+- Port plan #2c (settings backup UI): General pane gets a "Backup" card (`BackupSettingsBlock`) with Back Up Settings… and Restore from Backup…. Backs up settings, shortcuts, bar, launcher and tasks (no category checkboxes: one obvious choice; notes join in 2d). Restore offers a Restart afterwards since stores cache their reads. 11 new catalog keys in all 12 languages.
+
+- Port plan #2d (backup with notes): "Include Notes" in the Backup card. Notes are carried *decrypted* inside a password envelope (`NotesBackupEnvelope`: PBKDF2-HMAC-SHA256, 600k rounds → AES-256-GCM) because the on-disk notes and their key sit side by side; restore opens the envelope and re-saves each note under the Mac's own key, so a backup can never replace `note.key` (it is no longer a restorable file) and notes not in the backup stay. A wrong password stops the restore before anything changes. The "Before restore" copy of a notes restore is sealed under the same password. Decision (owner 2026-10-27): notes only with a password. Stacked on #9.
+- Port plan #5a (agent approvals, model): `AgentApproval` parses Claude's `PermissionRequest` hook input into a one-line request, defines the request/decision file protocol under `Application Support/KatiKati/approvals/` and holds the `katikati-approve` hook script text; `ClaudeHookConfig.installApproval/removeApproval` add and remove the one hook entry without touching other hooks or the status hooks. Pure and dual-compiled; nothing writes `~/.claude/settings.json` yet (5b). Decision (owner 2026-10-27): all tools can be approved; if KatiKati is not running or nobody answers within a minute, Claude falls back to its normal terminal prompt.
+
+- Port plan #5b–c (agent approvals, service and card): `ClaudeApprovalService` (opt-in, off by default, key `com.katikati.agent.approvals`) keeps `approvals/alive` fresh, watches `approvals/pending/`, shows a floating non-activating card (tool, one-line summary, folder, Allow/Deny) and writes `approvals/decided/<id>`. Settings > Utilities gets "Approve Claude Code Requests Here"; `ClaudeHookInstaller.setApprovalsEnabled` is still the only code that writes `~/.claude/settings.json`. When off or after Quit nothing runs. The card is its own panel, not part of the notch, so the notch files are untouched and it never takes keyboard focus. Stacked on 5a. 5 catalog keys x 12 languages.
+- 2026-10-27 · **Port plan #4′ — quicklink templates (slice 1 of 2).**
+  - **Files:** `Core/Support/QuicklinkTemplate.swift` (`Quicklink`, `QuicklinkValues`, pure `{query}` `{clipboard}` `{selection}` `{date}` expansion; values are percent-encoded only when the template has a URL scheme), `Tests/Unit/QuicklinkTemplateTests.swift`.
+  - **Decision (owner delegated):** quicklinks sit beside browser bookmarks, not in place of them.
+  - **Next slice:** store, editor UI and command-bar rows. No new strings yet, so the localization gate is unchanged.
