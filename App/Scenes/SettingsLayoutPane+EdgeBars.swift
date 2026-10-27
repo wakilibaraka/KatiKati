@@ -179,6 +179,7 @@ extension SettingsLayoutPane {
                 Picker("Edge Bar Style", selection: edgePrefBinding(\.barStyle)) {
                     Text("Paper").tag(EdgeBarStyle.paper)
                     Text(Self.liquidGlassSupported ? "Liquid Glass" : "Liquid Glass (frosted on this macOS)").tag(EdgeBarStyle.liquidGlass)
+                    Text("Fluid").tag(EdgeBarStyle.fluid)
                 }.labelsHidden().pickerStyle(.segmented).fixedSize()
             }
             SettingsRowPair {
@@ -188,7 +189,7 @@ extension SettingsLayoutPane {
                         Text("Modern").tag(EdgeIconSet.modern)
                         Text("Realistic").tag(EdgeIconSet.realistic)
                     }.labelsHidden().pickerStyle(.segmented).fixedSize()
-                    .disabled(store.edgePrefs.barStyle == .liquidGlass)
+                    .disabled(store.edgePrefs.barStyle != .paper)
                 }
             } right: {
                 SettingsRow(Text("Flyout Style")) {
@@ -196,7 +197,7 @@ extension SettingsLayoutPane {
                         Text("Modern").tag(EdgeFlyoutStyle.modern)
                         Text("Glass").tag(EdgeFlyoutStyle.glass)
                     }.labelsHidden().pickerStyle(.segmented).fixedSize()
-                    .disabled(store.edgePrefs.barStyle == .liquidGlass)
+                    .disabled(store.edgePrefs.barStyle != .paper)
                 }
             }
             SettingsRowPair {
@@ -206,7 +207,7 @@ extension SettingsLayoutPane {
                         Text("Coloured").tag(EdgeTileStyle.coloured)
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
-                    .disabled(store.edgePrefs.barStyle == .liquidGlass)
+                    .disabled(store.edgePrefs.barStyle != .paper)
                 }
             } right: {
                 SettingsRow(Text("Note Tab Font")) {

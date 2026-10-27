@@ -236,6 +236,19 @@ struct DockThemeStyleTokens: Equatable {
         prefersDarkContent: false
     )
 
+    /// The fluid theme's plate stand-in (swatch, and any surface that still draws a rounded plate).
+    /// Dark in both appearances on purpose: the preset is a poured black body, not a tint.
+    static let fluidLight = DockThemeStyleTokens(
+        baseTint: DockRGBA(r: 0.10, g: 0.10, b: 0.12, a: 0.92),
+        gradientSheen: DockRGBA(r: 1.0, g: 1.0, b: 1.0, a: 0.10),
+        glow: DockRGBA(r: 1.0, g: 1.0, b: 1.0, a: 0.0),
+        rim: DockRGBA(r: 1.0, g: 1.0, b: 1.0, a: 0.22),
+        blurRadius: 30.0,
+        prefersDarkContent: false
+    )
+
+    static let fluidDark = fluidLight
+
     /// The one entry point: the frozen column plus the gradient stop its style's preset names.
     static func resolve(style: DockThemeStyle, appearance: AppearanceMode) -> DockThemeStyleTokens {
         column(style: style, appearance: appearance)
@@ -280,6 +293,8 @@ struct DockThemeStyleTokens: Equatable {
             return isDark ? .emberSunsetDark : .emberSunsetLight
         case .roseQuartz:
             return isDark ? .roseQuartzDark : .roseQuartzLight
+        case .fluid:
+            return isDark ? .fluidDark : .fluidLight
         case let .customRGBA(r, g, b, a):
             return DockThemeStyleTokens(
                 baseTint: DockRGBA(r: r, g: g, b: b, a: a),

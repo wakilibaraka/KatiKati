@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F1A1C0DE0000000000000002 /* FluidRailGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A1C0DE0000000000000001 /* FluidRailGeometry.swift */; };
+		F1A1C0DE0000000000000003 /* FluidRailGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A1C0DE0000000000000001 /* FluidRailGeometry.swift */; };
+		F1A1C0DE0000000000000005 /* FluidRailBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A1C0DE0000000000000004 /* FluidRailBody.swift */; };
+		F1A1C0DE0000000000000007 /* FluidRailGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A1C0DE0000000000000006 /* FluidRailGeometryTests.swift */; };
 		DD0000000000000000000027 /* DockWindowManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000026 /* DockWindowManagerTests.swift */; };
 		DD0000000000000000000021 /* DockLayeringMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000020 /* DockLayeringMode.swift */; };
 		DD0000000000000000000022 /* DockLayeringMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0000000000000000000020 /* DockLayeringMode.swift */; };
@@ -1260,6 +1264,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F1A1C0DE0000000000000001 /* FluidRailGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FluidRailGeometry.swift; path = Core/Support/FluidRailGeometry.swift; sourceTree = SOURCE_ROOT; };
+		F1A1C0DE0000000000000004 /* FluidRailBody.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FluidRailBody.swift; path = App/Scenes/FluidRailBody.swift; sourceTree = SOURCE_ROOT; };
+		F1A1C0DE0000000000000006 /* FluidRailGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FluidRailGeometryTests.swift; path = Tests/Unit/FluidRailGeometryTests.swift; sourceTree = SOURCE_ROOT; };
 		DD0000000000000000000026 /* DockWindowManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockWindowManagerTests.swift; path = Tests/Unit/DockWindowManagerTests.swift; sourceTree = SOURCE_ROOT; };
 		DD0000000000000000000020 /* DockLayeringMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockLayeringMode.swift; path = Core/Support/DockLayeringMode.swift; sourceTree = SOURCE_ROOT; };
 		DD0000000000000000000023 /* DockWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockWindowManager.swift; path = App/Composition/DockWindowManager.swift; sourceTree = SOURCE_ROOT; };
@@ -2986,6 +2993,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F1A1C0DE0000000000000002 /* FluidRailGeometry.swift in Sources */,
+				F1A1C0DE0000000000000005 /* FluidRailBody.swift in Sources */,
 				A20000000000002001 /* SpaceTransitionController.swift in Sources */,
 				A20000000000002003 /* SpaceSwitchPlan.swift in Sources */,
 				A20000000000002005 /* DockSwipeEventPoster.swift in Sources */,
@@ -3627,6 +3636,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F1A1C0DE0000000000000003 /* FluidRailGeometry.swift in Sources */,
+				F1A1C0DE0000000000000007 /* FluidRailGeometryTests.swift in Sources */,
 				A20000000000002003 /* SpaceSwitchPlan.swift in Sources */,
 				A20000000000002005 /* DockSwipeEventPoster.swift in Sources */,
 				A20000000000002017 /* DriveInventory.swift in Sources */,

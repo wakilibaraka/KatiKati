@@ -146,26 +146,34 @@ extension View {
     /// 比条大 2pt，`strokeBorder` 向内画的那一圈正好落在被裁掉的 2pt 里 —— 实测把宽度拉到
     /// 4pt 时只露出一半（8px 只见 4px），0.5pt 则完全消失。这里的 overlay 挂在整条 body 上，
     /// 位置就是条的真实边缘。
+    /// `visible: false` is for a surface that draws its own edge (the fluid rail's silhouette):
+    /// a rounded-rect stroke and the glass corner highlight would both hang off that shape.
+    @ViewBuilder
     func dockPanelRim<S: ShapeStyle>(
         cornerRadius: CGFloat,
         style: S,
         lineWidth: CGFloat,
         usesLiquidGlass: Bool,
-        highlighted: Bool = false
+        highlighted: Bool = false,
+        visible: Bool = true
     ) -> some View {
-        let configuration = DockGlassPresentation.configuration
-        let strokeWidth = DockPanelRimPlan.themeStrokeWidth(usesLiquidGlass: usesLiquidGlass,
-                                                            highlighted: highlighted,
-                                                            lineWidth: lineWidth)
-        return overlay {
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .strokeBorder(style, lineWidth: strokeWidth)
-        }
-        .overlay {
-            if DockPanelRimPlan.glassRimVisible(usesLiquidGlass: usesLiquidGlass,
-                                                usesSystemVariant: DockGlassPresentation.usesSystemVariant) {
-                DockGlassRim(cornerRadius: cornerRadius, configuration: configuration)
+        if visible {
+            let configuration = DockGlassPresentation.configuration
+            let strokeWidth = DockPanelRimPlan.themeStrokeWidth(usesLiquidGlass: usesLiquidGlass,
+                                                                highlighted: highlighted,
+                                                                lineWidth: lineWidth)
+            overlay {
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .strokeBorder(style, lineWidth: strokeWidth)
             }
+            .overlay {
+                if DockPanelRimPlan.glassRimVisible(usesLiquidGlass: usesLiquidGlass,
+                                                    usesSystemVariant: DockGlassPresentation.usesSystemVariant) {
+                    DockGlassRim(cornerRadius: cornerRadius, configuration: configuration)
+                }
+            }
+        } else {
+            self
         }
     }
 }
