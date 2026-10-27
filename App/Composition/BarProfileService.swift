@@ -26,7 +26,7 @@ final class BarProfileService {
         self.fileURL = fileURL
     }
 
-    static var defaultURL: URL {
+    nonisolated static var defaultURL: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("KatiKati", isDirectory: true)
             .appendingPathComponent("profiles.json")
