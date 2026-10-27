@@ -49,6 +49,7 @@ One line per active slice: `lane | slice | agent | branch | files | hot-file tou
 - F | port-2d backup notes | Claude (cloud) | lane-f/port-backup-notes (stacked on port-backup-ui) | `Core/Support/NotesBackupEnvelope.swift`, `Tests/Unit/NotesBackupEnvelopeTests.swift`, SettingsBackupService/Block, NotesStore (additive) | xcstrings (9 keys), pbxproj (7 entries) | 2026-10-27
 - A | port-5a approvals model | Claude (cloud) | lane-a/port-approvals-model | `Core/Support/AgentUsage/AgentApproval.swift`, `Tests/Unit/AgentApprovalTests.swift`, `ClaudeHookConfig.swift` (additive) | pbxproj (7 entries) | 2026-10-27
 - A | port-5b/c approvals service + card | Claude (cloud) | lane-a/port-approvals-service (stacked on port-approvals-model) | `App/Composition/ClaudeApprovalService.swift`, `ClaudeHookInstaller.swift` (additive), `UtilitySettingsBlock.swift`, `AppDelegate.swift` (1 line) | xcstrings (5 keys), pbxproj (3 entries) | 2026-10-27
+- D | port-4a quicklinks template | Claude (cloud) | lane-d/port-quicklinks | `Core/Support/QuicklinkTemplate.swift`, `Tests/Unit/QuicklinkTemplateTests.swift` | pbxproj (5 entries) | 2026-10-27
 - C | Q-input-a | Claude (this session) | main (integrator-direct) | `App/Composition/KeyGuardService.swift`, `Tests/Unit/KeyGuardTests.swift` | none | 2026-10-20
 
 ## Unknown
