@@ -66,6 +66,10 @@ enum CommandBarResult: Equatable, Sendable, Identifiable {
     case event(EventEntry)
     /// A menu item of the app that was frontmost when the bar opened (port plan #3): press it.
     case menuItem(MenuSearchEntry)
+    /// A stored bar profile (port plan #4): apply it.
+    case profile(BarProfileSummary)
+    /// `profile save <name>`: store the bar as it is now under that name.
+    case saveProfile(String)
 
     var id: String {
         switch self {
@@ -110,6 +114,10 @@ enum CommandBarResult: Equatable, Sendable, Identifiable {
             return "event:\(event.id)"
         case .menuItem(let entry):
             return "menu:\(entry.id)"
+        case .profile(let summary):
+            return "profile:\(summary.id)"
+        case .saveProfile(let name):
+            return "saveProfile:\(name)"
         }
     }
 }
@@ -214,10 +222,11 @@ enum CommandBarResults {
                       bookmarks: [Bookmark] = [],
                       events: [EventEntry] = [],
                       menuItems: [MenuSearchEntry] = [],
+                      profiles: [BarProfileSummary] = [],
                       generate: (CommandGenerator) -> String = { $0.value() }) -> [CommandBarResult] {
         let keyword = CommandKeyword.parse(query)
         if case .mode(let mode, let argument)? = keyword {
-            return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes, files: files, clips: clips, bookmarks: bookmarks, events: events, menuItems: menuItems)
+            return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes, files: files, clips: clips, bookmarks: bookmarks, events: events, menuItems: menuItems, profiles: profiles)
         }
         let routed = LauncherCommandParser.parse(query)
         switch routed {
@@ -273,11 +282,26 @@ enum CommandBarResults {
 
     /// Rows for a keyword mode. `kill`/`fq` list running apps; `kp` lists processes; `sc` runs a named
     /// Shortcut; `app` forces an app search.
+    /// `profile <text>` lists profiles whose name contains the text; `profile save <name>` offers to store
+    /// the bar under that name (replacing a profile of the same name).
+    static func profileRows(_ argument: String, _ profiles: [BarProfileSummary]) -> [CommandBarResult] {
+        let trimmed = argument.trimmingCharacters(in: .whitespaces)
+        let lower = trimmed.lowercased()
+        if lower == "save" || lower.hasPrefix("save ") {
+            let name = String(trimmed.dropFirst(4)).trimmingCharacters(in: .whitespaces)
+            return name.isEmpty ? [] : [.saveProfile(name)]
+        }
+        return profiles
+            .filter { lower.isEmpty || $0.name.lowercased().contains(lower) }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            .map(CommandBarResult.profile)
+    }
+
     private static func modeRows(_ mode: CommandBarMode, _ argument: String, apps: [LauncherApp],
                                  usage: [String: LauncherUsage], running: [RunningAppRef],
                                  processes: [ProcessEntry], files: [FileEntry], clips: [ClipEntry],
                                  bookmarks: [Bookmark], events: [EventEntry],
-                                 menuItems: [MenuSearchEntry]) -> [CommandBarResult] {
+                                 menuItems: [MenuSearchEntry], profiles: [BarProfileSummary]) -> [CommandBarResult] {
         switch mode {
         case .file, .image:
             return files.map(CommandBarResult.file)
@@ -310,6 +334,8 @@ enum CommandBarResults {
             return appRows(argument, apps: apps, usage: usage, running: running, custom: [], generate: { _ in "" })
         case .menu:
             return MenuSearch.rank(argument, in: menuItems).map(CommandBarResult.menuItem)
+        case .profile:
+            return profileRows(argument, profiles)
         }
     }
 

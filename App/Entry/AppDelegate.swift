@@ -193,7 +193,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return orb
     }()
     /// Phase 27: the ⌘Space command bar, kept separate from the full-screen launcher.
-    private(set) lazy var commandBarPanel = CommandBarPanelController()
+    private(set) lazy var commandBarPanel: CommandBarPanelController = {
+        let panel = CommandBarPanelController()
+        panel.barProfiles = barProfileService
+        return panel
+    }()
+    /// Port plan #4b: bar profiles. Lazy and inert until a profile is listed, saved or applied.
+    private(set) lazy var barProfileService = BarProfileService(kept: keptAppStore, folders: pinnedFolderStore, settings: settingsStore)
     /// Phase 31: the colourful interactive radial dial / pie menu.
     private(set) lazy var radialDialPanel = RadialDialPanelController.shared
     /// Phase 23: the define/translate card for the current selection.
