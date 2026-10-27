@@ -5905,3 +5905,5 @@ Downloads folder.
 
 - Notch: Hardware HUD (RAM/CPU) page removed; four always-on pages remain (Downloads, Storage, AI, Music & Calendar).
 - Crash fix: `FullscreenIntentMonitor.readAXState` skips KatiKati's own pid (AppKit main-thread assertion when AX-reading our own window off-main).
+
+- Port plan #5a (agent approvals, model): `AgentApproval` parses Claude's `PermissionRequest` hook input into a one-line request, defines the request/decision file protocol under `Application Support/KatiKati/approvals/` and holds the `katikati-approve` hook script text; `ClaudeHookConfig.installApproval/removeApproval` add and remove the one hook entry without touching other hooks or the status hooks. Pure and dual-compiled; nothing writes `~/.claude/settings.json` yet (5b). Decision (owner 2026-10-27): all tools can be approved; if KatiKati is not running or nobody answers within a minute, Claude falls back to its normal terminal prompt.

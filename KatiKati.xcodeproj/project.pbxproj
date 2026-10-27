@@ -324,6 +324,7 @@
 		FA33A00000000000000000B3 /* AgentUsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000B1 /* AgentUsageService.swift */; };
 		FA33C0000000000000000073 /* MarqueeText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000009901 /* MarqueeText.swift */; };
 		FA33A00000000000000000C2 /* AgentUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000C1 /* AgentUsageTests.swift */; };
+		FB0000000000000000000043 /* AgentApprovalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000044 /* AgentApprovalTests.swift */; };
 		FA33C0000000000000000082 /* TrackPillTextMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000081 /* TrackPillTextMetrics.swift */; };
 		FA33C0000000000000000083 /* TrackPillTextMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000081 /* TrackPillTextMetrics.swift */; };
 		FA33C0000000000000000062 /* NotchTrackPillContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33C0000000000000000061 /* NotchTrackPillContent.swift */; };
@@ -344,6 +345,8 @@
 		FA33B0000000000000000013 /* ClaudeHookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000011 /* ClaudeHookConfig.swift */; };
 		FA33B0000000000000000022 /* ClaudeHookStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000021 /* ClaudeHookStatus.swift */; };
 		FA33B0000000000000000023 /* ClaudeHookStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000021 /* ClaudeHookStatus.swift */; };
+		FB0000000000000000000040 /* AgentApproval.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000042 /* AgentApproval.swift */; };
+		FB0000000000000000000041 /* AgentApproval.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000042 /* AgentApproval.swift */; };
 		FA33B0000000000000000032 /* ClaudeHookInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000031 /* ClaudeHookInstaller.swift */; };
 		FA33B0000000000000000033 /* ClaudeHookInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000031 /* ClaudeHookInstaller.swift */; };
 		FA33A00000000000000000D2 /* NotchAIPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000D1 /* NotchAIPageView.swift */; };
@@ -1446,6 +1449,7 @@
 		FA33A0000000000000000AA1 /* AgentStoreParsers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentStoreParsers.swift; path = Core/Support/AgentUsage/AgentStoreParsers.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000B1 /* AgentUsageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentUsageService.swift; path = App/Composition/AgentUsageService.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000C1 /* AgentUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentUsageTests.swift; path = Tests/Unit/AgentUsageTests.swift; sourceTree = SOURCE_ROOT; };
+		FB0000000000000000000044 /* AgentApprovalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentApprovalTests.swift; path = Tests/Unit/AgentApprovalTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33C0000000000000000081 /* TrackPillTextMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TrackPillTextMetrics.swift; path = Core/Support/TrackPillTextMetrics.swift; sourceTree = SOURCE_ROOT; };
 		FA33C0000000000000000061 /* NotchTrackPillContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchTrackPillContent.swift; path = App/Scenes/Notch/NotchTrackPillContent.swift; sourceTree = SOURCE_ROOT; };
 		FA33C0000000000000000011 /* DockClickPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockClickPolicy.swift; path = Core/Support/DockClickPolicy.swift; sourceTree = SOURCE_ROOT; };
@@ -1459,6 +1463,7 @@
 		FA33E0000000000000000051 /* LauncherPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherPresentationTests.swift; path = Tests/Unit/LauncherPresentationTests.swift; sourceTree = SOURCE_ROOT; };
 		FA33B0000000000000000011 /* ClaudeHookConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookConfig.swift; path = Core/Support/AgentUsage/ClaudeHookConfig.swift; sourceTree = SOURCE_ROOT; };
 		FA33B0000000000000000021 /* ClaudeHookStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookStatus.swift; path = Core/Support/AgentUsage/ClaudeHookStatus.swift; sourceTree = SOURCE_ROOT; };
+		FB0000000000000000000042 /* AgentApproval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentApproval.swift; path = Core/Support/AgentUsage/AgentApproval.swift; sourceTree = SOURCE_ROOT; };
 		FA33B0000000000000000031 /* ClaudeHookInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookInstaller.swift; path = App/Composition/ClaudeHookInstaller.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000D1 /* NotchAIPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchAIPageView.swift; path = App/Scenes/Notch/NotchAIPageView.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000F1 /* NotchStoragePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchStoragePageView.swift; path = App/Scenes/Notch/NotchStoragePageView.swift; sourceTree = SOURCE_ROOT; };
@@ -3422,6 +3427,7 @@
 				FA33C0000000000000000012 /* DockClickPolicy.swift in Sources */,
 				FA33B0000000000000000032 /* ClaudeHookInstaller.swift in Sources */,
 				FA33B0000000000000000022 /* ClaudeHookStatus.swift in Sources */,
+				FB0000000000000000000040 /* AgentApproval.swift in Sources */,
 				FA33B0000000000000000012 /* ClaudeHookConfig.swift in Sources */,
 				FA33A00000000000000000D2 /* NotchAIPageView.swift in Sources */,
 				FA33A00000000000000000F2 /* NotchStoragePageView.swift in Sources */,
@@ -3596,6 +3602,7 @@
 				FA33C0000000000000000013 /* DockClickPolicy.swift in Sources */,
 				FA33B0000000000000000033 /* ClaudeHookInstaller.swift in Sources */,
 				FA33B0000000000000000023 /* ClaudeHookStatus.swift in Sources */,
+				FB0000000000000000000041 /* AgentApproval.swift in Sources */,
 				FA33B0000000000000000013 /* ClaudeHookConfig.swift in Sources */,
 				FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */,
 				FA33A0000000000000000143 /* DownloadItem.swift in Sources */,
@@ -3771,6 +3778,7 @@
 				FA33A0000000000000000042 /* NotchContinuousMaskShapeTests.swift in Sources */,
 				FA33A0000000000000000072 /* NotchGestureTests.swift in Sources */,
 				FA33A00000000000000000C2 /* AgentUsageTests.swift in Sources */,
+				FB0000000000000000000043 /* AgentApprovalTests.swift in Sources */,
 				FA33A0000000000000000132 /* NotchFallbackPlanTests.swift in Sources */,
 				FA33A0000000000000000172 /* DownloadManagerTests.swift in Sources */,
 				7B5000000000000000040D12 /* FileNoteKeyProviderTests.swift in Sources */,
