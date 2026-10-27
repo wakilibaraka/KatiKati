@@ -29,6 +29,8 @@ final class CommandBarPanelController {
     private var menuTarget: NSRunningApplication?
     private var menuLoadTask: Task<Void, Never>?
     private var menuLoaded = false
+    /// Port plan #4: set by AppDelegate; nil until profiles are wired, in which case `profile ` lists nothing.
+    var barProfiles: BarProfileService?
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -219,6 +221,12 @@ final class CommandBarPanelController {
         case .event:
             dismiss()
             NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Calendar.app"))
+        case .profile(let summary):
+            dismiss()
+            barProfiles?.apply(id: summary.id)
+        case .saveProfile(let name):
+            dismiss()
+            barProfiles?.saveCurrent(named: name)
         case .menuItem(let entry):
             let pid = menuTarget?.processIdentifier
             dismiss()
@@ -328,6 +336,12 @@ final class CommandBarPanelController {
             if model.bookmarks.isEmpty {
                 loadBookmarksAsync()
             }
+        case .profile:
+            fileSearchTask?.cancel()
+            fileSearchTask = nil
+            model.files = []; model.events = []
+            model.profiles = barProfiles?.summaries() ?? []
+            model.refresh()
         case .menu:
             fileSearchTask?.cancel()
             fileSearchTask = nil

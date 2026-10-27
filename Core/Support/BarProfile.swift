@@ -42,6 +42,13 @@ struct BarProfile: Codable, Equatable, Identifiable, Sendable {
     }
 }
 
+/// What the command bar shows for a stored profile.
+struct BarProfileSummary: Equatable, Identifiable, Sendable {
+    var id: String
+    var name: String
+    var appCount: Int
+}
+
 /// What the bar holds right now, in the same shape as a profile.
 struct BarProfileState: Equatable, Sendable {
     var keptApps: [String]

@@ -659,6 +659,7 @@
 		A0000000000000000000D042 /* LauncherAnswers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000D040 /* LauncherAnswers.swift */; };
 		A0000000000000000000D051 /* LauncherAnswersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000D050 /* LauncherAnswersTests.swift */; };
 		A00000000000000000009501 /* KeptAppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009500 /* KeptAppStore.swift */; };
+		FB0000000000000000000030 /* BarProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000031 /* BarProfileService.swift */; };
 		A00000000000000000009502 /* KeptAppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009500 /* KeptAppStore.swift */; };
 		A00000000000000000009511 /* RunningApplicationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009510 /* RunningApplicationStore.swift */; };
 		A00000000000000000009521 /* AppMembershipController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009520 /* AppMembershipController.swift */; };
@@ -879,6 +880,7 @@
 		C90000000000000000000006 /* ClickLatencyTrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90000000000000000000005 /* ClickLatencyTrace.swift */; };
 		C90000000000000000000008 /* ChipPressFeedbackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90000000000000000000007 /* ChipPressFeedbackTests.swift */; };
 		C9000000000000000000000A /* AXElementCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90000000000000000000009 /* AXElementCacheTests.swift */; };
+		FB0000000000000000000032 /* BarProfileCommandTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000033 /* BarProfileCommandTests.swift */; };
 		C9000000000000000000000B /* AXElementCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90000000000000000000003 /* AXElementCache.swift */; };
 		C9000000000000000000000C /* ClickLatencyTrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90000000000000000000005 /* ClickLatencyTrace.swift */; };
 		C9000000000000000000000D /* ChipPressFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90000000000000000000001 /* ChipPressFeedback.swift */; };
@@ -1693,6 +1695,7 @@
 		A0000000000000000000D040 /* LauncherAnswers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherAnswers.swift; sourceTree = "<group>"; };
 		A0000000000000000000D050 /* LauncherAnswersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherAnswersTests.swift; sourceTree = "<group>"; };
 		A00000000000000000009500 /* KeptAppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeptAppStore.swift; sourceTree = "<group>"; };
+		FB0000000000000000000031 /* BarProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BarProfileService.swift; path = App/Composition/BarProfileService.swift; sourceTree = SOURCE_ROOT; };
 		A00000000000000000009510 /* RunningApplicationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningApplicationStore.swift; sourceTree = "<group>"; };
 		A00000000000000000009520 /* AppMembershipController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMembershipController.swift; sourceTree = "<group>"; };
 		A00000000000000000009530 /* KeptAppStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeptAppStoreTests.swift; sourceTree = "<group>"; };
@@ -1843,6 +1846,7 @@
 		C90000000000000000000005 /* ClickLatencyTrace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickLatencyTrace.swift; sourceTree = "<group>"; };
 		C90000000000000000000007 /* ChipPressFeedbackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipPressFeedbackTests.swift; sourceTree = "<group>"; };
 		C90000000000000000000009 /* AXElementCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AXElementCacheTests.swift; sourceTree = "<group>"; };
+		FB0000000000000000000033 /* BarProfileCommandTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BarProfileCommandTests.swift; path = Tests/Unit/BarProfileCommandTests.swift; sourceTree = SOURCE_ROOT; };
 		D10000000000000000000000 /* CarrierSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarrierSnapshot.swift; sourceTree = "<group>"; };
 		D10000000000000000000001 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 		D10000000000000000000002 /* SettingsWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowView.swift; sourceTree = "<group>"; };
@@ -3156,6 +3160,7 @@
 				A00000000000000000009361 /* FolderChipDropZone.swift in Sources */,
 				A00000000000000000009311 /* ShelfStore.swift in Sources */,
 				A00000000000000000009501 /* KeptAppStore.swift in Sources */,
+				FB0000000000000000000030 /* BarProfileService.swift in Sources */,
 				A00000000000000000009511 /* RunningApplicationStore.swift in Sources */,
 				A00000000000000000009521 /* AppMembershipController.swift in Sources */,
 				A00000000000000000009321 /* ShelfChip.swift in Sources */,
@@ -4088,6 +4093,7 @@
 				B73000000000000000000001 /* AppTracker.swift in Sources */,
 				A00000000000000000009E14 /* AXWindowReaderResultTests.swift in Sources */,
 				C9000000000000000000000A /* AXElementCacheTests.swift in Sources */,
+				FB0000000000000000000032 /* BarProfileCommandTests.swift in Sources */,
 				C90000000000000000000008 /* ChipPressFeedbackTests.swift in Sources */,
 				A00000000000000000009E15 /* AXWindowMatchPolicy.swift in Sources */,
 				A00000000000000000009E17 /* ProcessLiveness.swift in Sources */,
