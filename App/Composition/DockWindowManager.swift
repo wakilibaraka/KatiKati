@@ -745,8 +745,11 @@ public final class DockWindowManager: ObservableObject {
     /// either. `service` is injectable so a test never reaches the real Dock.
     static func suppressNativeMacDock(
         suppress: Bool,
-        service: NativeDockPreferencesService = NativeDockPreferencesService()
+        service: NativeDockPreferencesService? = nil
     ) {
+        // Built here rather than as a default argument: the service's init is main-actor isolated
+        // and a default argument is evaluated in a nonisolated context.
+        let service = service ?? NativeDockPreferencesService()
         guard service.isAvailable else { return }
         if suppress {
             try? service.apply(delay: NativeDockPreferencesService.noWakeDelay)
