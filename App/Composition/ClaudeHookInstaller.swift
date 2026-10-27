@@ -42,4 +42,39 @@ enum ClaudeHookInstaller {
         }
         AgentUsageService.shared.refreshAsync()
     }
+
+    /// Port plan #5b: the approval hook and its script. Same rules as `setEnabled` (an unreadable or
+    /// non-object file throws and is left alone; the first real file is backed up once), plus the script
+    /// the hook runs, written to `Application Support/KatiKati/bin/`.
+    static func setApprovalsEnabled(_ on: Bool, settingsURL: URL = settingsURL,
+                                    home: URL = FileManager.default.homeDirectoryForCurrentUser) throws {
+        let fileManager = FileManager.default
+        let scriptURL = home.appendingPathComponent(ClaudeHookConfig.approvalScriptRelativePath)
+        let existing = fileManager.fileExists(atPath: settingsURL.path) ? try Data(contentsOf: settingsURL) : nil
+
+        if on {
+            try fileManager.createDirectory(at: scriptURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try Data(AgentApproval.hookScript.utf8).write(to: scriptURL, options: .atomic)
+            try fileManager.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptURL.path)
+            let updated = try ClaudeHookConfig.installApproval(into: existing ?? Data("{}".utf8))
+            try writeSettings(updated, replacing: existing, at: settingsURL)
+        } else {
+            if let existing {
+                let updated = try ClaudeHookConfig.removeApproval(from: existing)
+                try writeSettings(updated, replacing: existing, at: settingsURL)
+            }
+            try? fileManager.removeItem(at: scriptURL)
+        }
+    }
+
+    private static func writeSettings(_ updated: Data, replacing existing: Data?, at settingsURL: URL) throws {
+        guard updated != existing else { return }
+        let fileManager = FileManager.default
+        let backup = settingsURL.appendingPathExtension("katikati-backup")
+        if let existing, !fileManager.fileExists(atPath: backup.path) {
+            try existing.write(to: backup, options: .atomic)
+        }
+        try fileManager.createDirectory(at: settingsURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try updated.write(to: settingsURL, options: .atomic)
+    }
 }

@@ -274,6 +274,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 日志要攒满缓冲区才落盘。改成行缓冲后每条 print 立即写出，便于实时读日志。
         setvbuf(stdout, nil, _IOLBF, 0)
         installTerminationSignalHandlers()
+        ClaudeApprovalService.shared.startIfEnabled()
 
         startMainLoopStallProbeIfTracing()
         StackPopupSnapshotProbe.runIfRequested()
