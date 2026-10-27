@@ -236,6 +236,7 @@ struct SettingsWindowContent: View {
                 )
             }
         }
+        BackupSettingsBlock()
     }
 
     /// One menu-bar metric: what it shows and whether it shows — both on the row, so the
