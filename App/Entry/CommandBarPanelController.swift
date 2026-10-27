@@ -24,6 +24,11 @@ final class CommandBarPanelController {
     private var isLoadingBookmarks = false
     private var lastProcessListTime: Date?
     private var fileSearchTask: Task<Void, Never>?
+    /// Port plan #3: the app whose menus `m ` searches, frozen when the bar opens (the bar is a
+    /// non-activating panel, so this is still the user's app). Activation never retargets.
+    private var menuTarget: NSRunningApplication?
+    private var menuLoadTask: Task<Void, Never>?
+    private var menuLoaded = false
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -48,6 +53,10 @@ final class CommandBarPanelController {
         guard !isShown else { return }
         guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }) ?? NSScreen.main else { return }
         model.query = ""
+        let front = NSWorkspace.shared.frontmostApplication
+        menuTarget = front?.processIdentifier == ProcessInfo.processInfo.processIdentifier ? nil : front
+        menuLoaded = false
+        model.menuItems = []
         model.usage = store.load().usage
         model.running = Self.runningApps()
         indexer.start()
@@ -79,6 +88,8 @@ final class CommandBarPanelController {
         indexer.stop()
         fileSearchTask?.cancel()
         fileSearchTask = nil
+        menuLoadTask?.cancel()
+        menuLoadTask = nil
         model.query = ""
         removeMonitors()
     }
@@ -208,6 +219,14 @@ final class CommandBarPanelController {
         case .event:
             dismiss()
             NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Calendar.app"))
+        case .menuItem(let entry):
+            let pid = menuTarget?.processIdentifier
+            dismiss()
+            guard let pid, entry.isEnabled else { NSSound.beep(); return }
+            // After the panel is gone, so the item's own window or sheet opens over the app, not under the bar.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if !AppMenuSearchReader.press(path: entry.path, pid: pid) { NSSound.beep() }
+            }
         }
     }
 
@@ -309,10 +328,27 @@ final class CommandBarPanelController {
             if model.bookmarks.isEmpty {
                 loadBookmarksAsync()
             }
+        case .menu:
+            fileSearchTask?.cancel()
+            fileSearchTask = nil
+            model.files = []; model.events = []
+            loadMenuItemsOnce()
         default:
             fileSearchTask?.cancel()
             fileSearchTask = nil
             model.files = []; model.events = []
+        }
+    }
+
+    /// One AX walk per summon, off the main thread; typing after it only re-ranks in memory.
+    private func loadMenuItemsOnce() {
+        guard !menuLoaded, let pid = menuTarget?.processIdentifier else { return }
+        menuLoaded = true
+        menuLoadTask = Task { [weak self] in
+            let entries = await Task.detached(priority: .userInitiated) { AppMenuSearchReader.entries(pid: pid) }.value
+            guard !Task.isCancelled, let self else { return }
+            self.model.menuItems = entries
+            self.model.refresh()
         }
     }
 

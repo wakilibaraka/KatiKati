@@ -64,6 +64,8 @@ enum CommandBarResult: Equatable, Sendable, Identifiable {
     case bookmark(Bookmark)
     /// A calendar event (Phase 30i): open Calendar.
     case event(EventEntry)
+    /// A menu item of the app that was frontmost when the bar opened (port plan #3): press it.
+    case menuItem(MenuSearchEntry)
 
     var id: String {
         switch self {
@@ -106,6 +108,8 @@ enum CommandBarResult: Equatable, Sendable, Identifiable {
             return "bookmark:\(bookmark.title):\(bookmark.url)"
         case .event(let event):
             return "event:\(event.id)"
+        case .menuItem(let entry):
+            return "menu:\(entry.id)"
         }
     }
 }
@@ -209,10 +213,11 @@ enum CommandBarResults {
                       clips: [ClipEntry] = [],
                       bookmarks: [Bookmark] = [],
                       events: [EventEntry] = [],
+                      menuItems: [MenuSearchEntry] = [],
                       generate: (CommandGenerator) -> String = { $0.value() }) -> [CommandBarResult] {
         let keyword = CommandKeyword.parse(query)
         if case .mode(let mode, let argument)? = keyword {
-            return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes, files: files, clips: clips, bookmarks: bookmarks, events: events)
+            return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes, files: files, clips: clips, bookmarks: bookmarks, events: events, menuItems: menuItems)
         }
         let routed = LauncherCommandParser.parse(query)
         switch routed {
@@ -271,7 +276,8 @@ enum CommandBarResults {
     private static func modeRows(_ mode: CommandBarMode, _ argument: String, apps: [LauncherApp],
                                  usage: [String: LauncherUsage], running: [RunningAppRef],
                                  processes: [ProcessEntry], files: [FileEntry], clips: [ClipEntry],
-                                 bookmarks: [Bookmark], events: [EventEntry]) -> [CommandBarResult] {
+                                 bookmarks: [Bookmark], events: [EventEntry],
+                                 menuItems: [MenuSearchEntry]) -> [CommandBarResult] {
         switch mode {
         case .file, .image:
             return files.map(CommandBarResult.file)
@@ -302,6 +308,8 @@ enum CommandBarResults {
             return argument.isEmpty ? [] : [.shortcut(argument)]
         case .apps:
             return appRows(argument, apps: apps, usage: usage, running: running, custom: [], generate: { _ in "" })
+        case .menu:
+            return MenuSearch.rank(argument, in: menuItems).map(CommandBarResult.menuItem)
         }
     }
 

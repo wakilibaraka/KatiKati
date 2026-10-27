@@ -40,6 +40,7 @@ hot-file touches. The integrator registers all pending tabs in **one slice per r
 One line per active slice: `lane | slice | agent | branch | files | hot-file touches | since`
 
 - F | port-1a/1b benchmark | Claude (cloud) | lane-f/port-bench | `Tools/Bench/benchtool.swift`, `Scripts/bench_katikati.sh`, `.github/workflows/bench.yml` | `NOTICE`, `HYBRID_PLAN.md` §5f | 2026-10-27
+- D | port-3a/3b menu search | Claude (cloud) | lane-d/port-menu-search | `Core/Support/MenuSearch.swift`, `Platform/Accessibility/AppMenuSearchReader.swift`, `CommandBar*.swift`, `CommandBarPanelController.swift` | pbxproj (3 entries) | 2026-10-27
 - C | Q-input-a | Claude (this session) | main (integrator-direct) | `App/Composition/KeyGuardService.swift`, `Tests/Unit/KeyGuardTests.swift` | none | 2026-10-20
 
 ## Unknown

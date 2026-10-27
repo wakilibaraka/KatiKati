@@ -1176,6 +1176,10 @@
 		FB0000000000000000000103 /* AppNewMenuPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000101 /* AppNewMenuPlan.swift */; };
 		FB0000000000000000000105 /* AppNewMenuPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000104 /* AppNewMenuPlanTests.swift */; };
 		FB0000000000000000000107 /* AppMenuBarReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000106 /* AppMenuBarReader.swift */; };
+		FB0000000000000000000109 /* MenuSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000108 /* MenuSearch.swift */; };
+		FB000000000000000000010A /* MenuSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000108 /* MenuSearch.swift */; };
+		FB000000000000000000010C /* MenuSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB000000000000000000010B /* MenuSearchTests.swift */; };
+		FB000000000000000000010E /* AppMenuSearchReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB000000000000000000010D /* AppMenuSearchReader.swift */; };
 		EE0000000000000000000A1 /* SystemHealthReaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004D /* SystemHealthReaders.swift */; };
 		EE0000000000000000000050 /* ControlCenterLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004F /* ControlCenterLayout.swift */; };
 		EE0000000000000000000051 /* ControlCenterLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE000000000000000000004F /* ControlCenterLayout.swift */; };
@@ -2041,6 +2045,9 @@
 		FB0000000000000000000101 /* AppNewMenuPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppNewMenuPlan.swift; path = Core/Support/AppNewMenuPlan.swift; sourceTree = SOURCE_ROOT; };
 		FB0000000000000000000104 /* AppNewMenuPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppNewMenuPlanTests.swift; path = Tests/Unit/AppNewMenuPlanTests.swift; sourceTree = SOURCE_ROOT; };
 		FB0000000000000000000106 /* AppMenuBarReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppMenuBarReader.swift; path = Platform/Accessibility/AppMenuBarReader.swift; sourceTree = SOURCE_ROOT; };
+		FB0000000000000000000108 /* MenuSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuSearch.swift; path = Core/Support/MenuSearch.swift; sourceTree = SOURCE_ROOT; };
+		FB000000000000000000010B /* MenuSearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuSearchTests.swift; path = Tests/Unit/MenuSearchTests.swift; sourceTree = SOURCE_ROOT; };
+		FB000000000000000000010D /* AppMenuSearchReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppMenuSearchReader.swift; path = Platform/Accessibility/AppMenuSearchReader.swift; sourceTree = SOURCE_ROOT; };
 		EE000000000000000000004F /* ControlCenterLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ControlCenterLayout.swift; path = Core/Support/ControlCenterLayout.swift; sourceTree = SOURCE_ROOT; };
 		FA4400000000000000000F0 /* PowerNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PowerNotifications.swift; path = Core/Support/PowerNotifications.swift; sourceTree = SOURCE_ROOT; };
 		FA4400000000000000000FB /* PowerFacts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PowerFacts.swift; path = Core/Support/PowerFacts.swift; sourceTree = SOURCE_ROOT; };
@@ -3260,6 +3267,8 @@
 				EE000000000000000000004E /* SystemHealthReaders.swift in Sources */,
 				FB0000000000000000000102 /* AppNewMenuPlan.swift in Sources */,
 				FB0000000000000000000107 /* AppMenuBarReader.swift in Sources */,
+				FB0000000000000000000109 /* MenuSearch.swift in Sources */,
+				FB000000000000000000010E /* AppMenuSearchReader.swift in Sources */,
 				DD0000000000000000000002 /* MeetingLink.swift in Sources */,
 				DD0000000000000000000005 /* EventTimeUntil.swift in Sources */,
 				DD0000000000000000000008 /* SampleHistory.swift in Sources */,
@@ -3668,6 +3677,8 @@
 				EE0000000000000000000A1 /* SystemHealthReaders.swift in Sources */,
 				FB0000000000000000000103 /* AppNewMenuPlan.swift in Sources */,
 				FB0000000000000000000105 /* AppNewMenuPlanTests.swift in Sources */,
+				FB000000000000000000010A /* MenuSearch.swift in Sources */,
+				FB000000000000000000010C /* MenuSearchTests.swift in Sources */,
 				FA4400000000000000000FD /* PowerFacts.swift in Sources */,
 				FA4400000000000000000FF /* PowerFactsTests.swift in Sources */,
 				FA4400000000000000000FA /* PowerNotificationsTests.swift in Sources */,
