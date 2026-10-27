@@ -1143,6 +1143,9 @@
 		A0000000000000000000A1F1 /* AppRemovalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A1F0 /* AppRemovalService.swift */; };
 		A0000000000000000000A201 /* EmojiCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A200 /* EmojiCatalog.swift */; };
 		A0000000000000000000A202 /* EmojiCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A200 /* EmojiCatalog.swift */; };
+		FB00000000000000000000C1 /* QuicklinkTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB00000000000000000000C0 /* QuicklinkTemplate.swift */; };
+		FB00000000000000000000C2 /* QuicklinkTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB00000000000000000000C0 /* QuicklinkTemplate.swift */; };
+		FB00000000000000000000C4 /* QuicklinkTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB00000000000000000000C3 /* QuicklinkTemplateTests.swift */; };
 		A0000000000000000000A211 /* Bookmarks.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A210 /* Bookmarks.swift */; };
 		A0000000000000000000A212 /* Bookmarks.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A210 /* Bookmarks.swift */; };
 		A0000000000000000000A221 /* BookmarkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A220 /* BookmarkService.swift */; };
@@ -2017,6 +2020,8 @@
 		A0000000000000000000A1C0 /* FileSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FileSearchService.swift; path = App/Composition/FileSearchService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A1F0 /* AppRemovalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppRemovalService.swift; path = App/Composition/AppRemovalService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A200 /* EmojiCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiCatalog.swift; sourceTree = "<group>"; };
+		FB00000000000000000000C0 /* QuicklinkTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuicklinkTemplate.swift; sourceTree = "<group>"; };
+		FB00000000000000000000C3 /* QuicklinkTemplateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuicklinkTemplateTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000A210 /* Bookmarks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bookmarks.swift; sourceTree = "<group>"; };
 		A0000000000000000000A220 /* BookmarkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BookmarkService.swift; path = App/Composition/BookmarkService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A230 /* FileIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileIndex.swift; sourceTree = "<group>"; };
@@ -2568,6 +2573,7 @@
 				A0000000000000000000D050 /* LauncherAnswersTests.swift */,
 				A0000000000000000000F010 /* CommandBarTests.swift */,
 				A0000000000000000000A110 /* TranslateTests.swift */,
+				FB00000000000000000000C3 /* QuicklinkTemplateTests.swift */,
 				A0000000000000000000A1E0 /* AppRemovalPlannerTests.swift */,
 				A0000000000000000000A270 /* KeyGuardTests.swift */,
 				A0000000000000000000A330 /* NotificationPlacementTests.swift */,
@@ -2700,6 +2706,7 @@
 				A0000000000000000000A1D0 /* AppRemoval.swift */,
 				A0000000000000000000A200 /* EmojiCatalog.swift */,
 				A0000000000000000000A210 /* Bookmarks.swift */,
+				FB00000000000000000000C0 /* QuicklinkTemplate.swift */,
 				A0000000000000000000A230 /* FileIndex.swift */,
 				A0000000000000000000A260 /* KeyGuard.swift */,
 				B70000000000000000000100 /* QuitOnLastWindow.swift */,
@@ -3228,6 +3235,7 @@
 				A0000000000000000000A1F1 /* AppRemovalService.swift in Sources */,
 				A0000000000000000000A201 /* EmojiCatalog.swift in Sources */,
 				A0000000000000000000A211 /* Bookmarks.swift in Sources */,
+				FB00000000000000000000C1 /* QuicklinkTemplate.swift in Sources */,
 				A0000000000000000000A221 /* BookmarkService.swift in Sources */,
 				A0000000000000000000A231 /* FileIndex.swift in Sources */,
 				A0000000000000000000A241 /* DirectoryScanner.swift in Sources */,
@@ -3938,6 +3946,7 @@
 				A0000000000000000000A1D2 /* AppRemoval.swift in Sources */,
 				A0000000000000000000A202 /* EmojiCatalog.swift in Sources */,
 				A0000000000000000000A212 /* Bookmarks.swift in Sources */,
+				FB00000000000000000000C2 /* QuicklinkTemplate.swift in Sources */,
 				A0000000000000000000A232 /* FileIndex.swift in Sources */,
 				A0000000000000000000A262 /* KeyGuard.swift in Sources */,
 				A0000000000000000000A312 /* NotificationPlacement.swift in Sources */,
@@ -4018,6 +4027,7 @@
 				A0000000000000000000D051 /* LauncherAnswersTests.swift in Sources */,
 				A0000000000000000000F011 /* CommandBarTests.swift in Sources */,
 				A0000000000000000000A111 /* TranslateTests.swift in Sources */,
+				FB00000000000000000000C4 /* QuicklinkTemplateTests.swift in Sources */,
 				A0000000000000000000A1E1 /* AppRemovalPlannerTests.swift in Sources */,
 				A0000000000000000000A271 /* KeyGuardTests.swift in Sources */,
 				A0000000000000000000A331 /* NotificationPlacementTests.swift in Sources */,

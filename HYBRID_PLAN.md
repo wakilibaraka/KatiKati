@@ -5905,3 +5905,8 @@ Downloads folder.
 
 - Notch: Hardware HUD (RAM/CPU) page removed; four always-on pages remain (Downloads, Storage, AI, Music & Calendar).
 - Crash fix: `FullscreenIntentMonitor.readAXState` skips KatiKati's own pid (AppKit main-thread assertion when AX-reading our own window off-main).
+
+- 2026-10-27 · **Port plan #4′ — quicklink templates (slice 1 of 2).**
+  - **Files:** `Core/Support/QuicklinkTemplate.swift` (`Quicklink`, `QuicklinkValues`, pure `{query}` `{clipboard}` `{selection}` `{date}` expansion; values are percent-encoded only when the template has a URL scheme), `Tests/Unit/QuicklinkTemplateTests.swift`.
+  - **Decision (owner delegated):** quicklinks sit beside browser bookmarks, not in place of them.
+  - **Next slice:** store, editor UI and command-bar rows. No new strings yet, so the localization gate is unchanged.
