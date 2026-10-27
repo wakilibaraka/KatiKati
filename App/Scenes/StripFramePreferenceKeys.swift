@@ -50,6 +50,15 @@ struct ShelfFramePreferenceKey: PreferenceKey {
     }
 }
 
+/// The drawer pop chip's frame (single value), kept apart from the folder table like the shelf's.
+struct PopFramePreferenceKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        let next = nextValue()
+        if next != .zero { value = next }
+    }
+}
+
 struct TrashFramePreferenceKey: PreferenceKey {
     static var defaultValue: CGRect = .zero
     static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
@@ -88,6 +97,7 @@ final class StripFrameBox {
     var sectionFrames: [String: CGRect] = [:]
     var shelfFrame: CGRect = .zero
     var trashFrame: CGRect = .zero
+    var popFrame: CGRect = .zero
     /// The content area's frame in screen coordinates (bottom-left); `.zero` until first reported.
     var stripRootScreenRect: CGRect = .zero
     /// The `stripSlotCollapsed` value the last committed body rendered. Written from

@@ -130,6 +130,18 @@ extension DockStripView {
         onShelfPopupToggle(screenRect)
     }
 
+    /// Drawer pop chip click: same screen-rect mapping as the shelf, anchored on the pop's own frame.
+    func popChipTapped() {
+        guard popFrame != .zero, stripRootScreenRect != .zero else { return }
+        let screenRect = CGRect(
+            x: stripRootScreenRect.minX + popFrame.minX,
+            y: stripRootScreenRect.maxY - popFrame.maxY,
+            width: popFrame.width,
+            height: popFrame.height
+        )
+        onPopPopupToggle(screenRect)
+    }
+
     /// Dock-icon-click equivalent: unhide + reopen. The app recreates its main window
     /// even when other windows are visible (verified with WeChat, 2026-06-12).
     /// 消息区图标**认不出主窗口**时的左键（第 3 条兜底，2026-08-23）：

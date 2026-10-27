@@ -66,6 +66,8 @@ extension DockStripView {
         // 右边多一个空位，把「查找」移除也还在）。会话结束后既不能重开空档，也不能把正在
         // 交接的空档抹掉，所以这里是直接返回，不是清空。
         guard externalDropHoverActive else { return }
+        // Over the drawer pop nothing makes way: an app dropped there goes into the pop, not the bar.
+        if target == .addToPop { return setExternalDropGhost(nil) }
         guard let bundleID else {
             let current = externalDropGhost.flatMap { $0.zone == .folder ? $0.insertIndex : nil }
             let index = StripDropRouting.folderGhostIndex(current: current, target: target,
@@ -163,8 +165,33 @@ extension DockStripView {
             // move. An app's gap (mixed drag) is not ours to close — `keepDroppedApplications` does —
             // and neither is the gap of a drag that began hovering before this commit arrived.
             if externalDropGhost?.zone == .folder, !externalDropHoverActive { clearExternalDropGhost() }
-        case .keepApp, .none:
+        case .keepApp, .addToPop, .none:
             break
+        }
+    }
+
+    /// Finder (or any app) dropped onto the drawer pop chip: apps, files and folders join the pop, up to
+    /// `PopPolicy.capacity`. Apps are also stashed (`DrawerStore`, the placement authority), exactly as a
+    /// card dragged from the bar would be; the pop's app items follow it (`PopStore.syncApps`).
+    func addExternalItemsToPop(_ urls: [URL]) {
+        let paths = urls.map(\.path)
+        // Info.plist and directory reads are disk reads: user actions go through `actionQueue`.
+        AppRuntime.actionQueue.async {
+            let items: [PopItem] = paths.compactMap { path in
+                let url = URL(fileURLWithPath: path)
+                let isApp = StripFileDropDelegate.DragPasteboardInspector.isApplication(url)
+                let isDirectory = (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
+                return PopPolicy.item(forPath: path, isDirectory: isDirectory, isApplication: isApp,
+                                      bundleID: isApp ? Bundle(url: url)?.bundleIdentifier : nil)
+            }
+            DispatchQueue.main.async {
+                let store = PopStore.shared
+                store.add(items)
+                if store.lastRejectedForCapacity > 0 { NSSound.beep() }
+                for item in items where item.kind == .app && store.contains(item) {
+                    drawerStore.add(item.reference)
+                }
+            }
         }
     }
 

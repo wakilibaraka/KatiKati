@@ -128,6 +128,8 @@ final class PanelCoordinator: NSObject {
     /// 那套是给全屏和边缘自动隐藏用的，混进来会让底边唤醒把面板又拉回屏幕。
     var isSuspendedForPermissionLoss = false
     var drawerLocalMonitor: Any?
+    /// This unit's drawer pop chip on screen (written by its strip): the stash drop zone.
+    let popChipFrame = PopChipFrameSink()
     var drawerGlobalMonitor: Any?
     // MARK: 文件夹/中转弹窗状态（单面板复用 = 天然「同时只有一个弹窗」）
     /// 共享弹窗当前装的内容：固定文件夹网格或中转网格。
@@ -135,6 +137,8 @@ final class PanelCoordinator: NSObject {
         case folder(path: String)
         case shelf
         case trash
+        /// The drawer pop (`PopGridPopupView`).
+        case pop
     }
     var folderPopupPanel: NSPanel?
     /// 弹窗真正承载 SwiftUI 的 hosting view（contentView 是普通 NSView 容器,fittingSize 读这个）。
@@ -395,7 +399,8 @@ final class PanelCoordinator: NSObject {
         subscribeMessagingStoreWidth()
         subscribeKeptAppStore()
         subscribeRunningApplicationStore()
-        subscribeDragSpringLoad()
+        // No spring-load any more: the capsule is Background Apps only, and the stash target is the
+        // drawer pop chip in the strip (owner 2026-10-27). `subscribeDragSpringLoad` stays unused.
         subscribeDragInhibitor()
         subscribeStripSlotCollapse()
         subscribeSettings()

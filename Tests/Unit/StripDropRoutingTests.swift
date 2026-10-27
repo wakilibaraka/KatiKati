@@ -18,6 +18,29 @@ final class StripDropRoutingTests: XCTestCase {
                 shelfFrame: nil, trashFrame: frame, folderFrames: [:], orderedPaths: []), .none)
         }
     }
+    func testPopChipTakesFilesFoldersAndAppsBeforeTheFolderZone() {
+        let pop = CGRect(x: 240, y: 0, width: 40, height: 54)
+        let folders = ["folder-/Users/me/Downloads": CGRect(x: 284, y: 0, width: 52, height: 52)]
+        let paths = ["/Users/me/Downloads"]
+        let trash = CGRect(x: 344, y: 0, width: 40, height: 54)
+        for isApp in [false, true] {
+            XCTAssertEqual(StripDropRouting.route(location: CGPoint(x: 260, y: 20), isApplicationDrag: isApp, isTrashItemDrag: false,
+                shelfFrame: nil, trashFrame: trash, folderFrames: folders,
+                orderedPaths: paths, popFrame: pop), .addToPop)
+        }
+        // Off the chip the old routing holds: the folder chip, the Trash, and Trash items refused.
+        XCTAssertEqual(StripDropRouting.route(location: CGPoint(x: 300, y: 20), isApplicationDrag: false, isTrashItemDrag: false,
+            shelfFrame: nil, trashFrame: trash, folderFrames: folders,
+            orderedPaths: paths, popFrame: pop), .moveInto(path: "/Users/me/Downloads"))
+        XCTAssertEqual(StripDropRouting.route(location: CGPoint(x: 360, y: 20), isApplicationDrag: false, isTrashItemDrag: false,
+            shelfFrame: nil, trashFrame: trash, folderFrames: [:], orderedPaths: [], popFrame: pop), .trash)
+        XCTAssertEqual(StripDropRouting.route(location: CGPoint(x: 260, y: 20), isApplicationDrag: false, isTrashItemDrag: true,
+            shelfFrame: nil, trashFrame: trash, folderFrames: [:], orderedPaths: [], popFrame: pop), .none)
+        // A pop chip that has not reported its frame yet takes nothing.
+        XCTAssertEqual(StripDropRouting.route(location: CGPoint(x: 260, y: 20), isApplicationDrag: true, isTrashItemDrag: false,
+            shelfFrame: nil, trashFrame: trash, folderFrames: [:], orderedPaths: [], popFrame: .zero), .keepApp)
+    }
+
     private let shelf = CGRect(x: 100, y: 0, width: 44, height: 52)
 
     private func frames(_ paths: [String], startX: CGFloat = 152) -> [String: CGRect] {

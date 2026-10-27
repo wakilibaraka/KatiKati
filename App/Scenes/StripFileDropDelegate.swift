@@ -17,6 +17,8 @@ struct StripFileDropDelegate: DropDelegate {
     /// trash). nil = 中转格被用户关掉（不是「帧还没量到」，后者仍传 `.zero`）。
     let shelfFrame: () -> CGRect?
     let trashFrame: () -> CGRect?
+    /// The drawer pop chip's frame (`.zero` until reported). Read at routing time like the others.
+    let popFrame: () -> CGRect
     let folderFrames: () -> [String: CGRect]
     let orderedPaths: [String]
     var headSlack: CGFloat = StripDropRouting.defaultHeadSlack
@@ -35,6 +37,8 @@ struct StripFileDropDelegate: DropDelegate {
     let onCommit: (StripDropRouting.Target, [URL]) -> Void
     /// 拖进来的应用 bundle + 落点 x（"strip" 空间）。见 `handleExternalApplicationDrop`。
     let onCommitApplications: ([URL], CGPoint) -> Void
+    /// Everything dropped on the drawer pop chip, apps and files together (`.addToPop`).
+    let onCommitToPop: ([URL]) -> Void
     /// 悬停期的让位空档：(悬停目标, 拖的应用的 bundleID 或 nil, 这次拖放是不是只有文件夹, 落点)。
     /// 视图侧负责把它折成锚点并做变化门控——**这里每 ~50ms 就会调一次**。
     let onGhostMoved: (StripDropRouting.Target, String?, Bool, CGPoint) -> Void
@@ -67,6 +71,7 @@ struct StripFileDropDelegate: DropDelegate {
                                trashFrame: trashFrame().map(axis),
                                folderFrames: folderFrames().mapValues(axis),
                                orderedPaths: orderedPaths,
+                               popFrame: axis(popFrame()),
                                headSlack: headSlack,
                                pinEdgeFraction: DragPasteboardInspector.pinsFolders()
                                    ? StripDropRouting.folderPinEdgeFraction : 0,
@@ -170,6 +175,11 @@ struct StripFileDropDelegate: DropDelegate {
                 homeDirectory: FileManager.default.homeDirectoryForCurrentUser
             )
             guard !urls.isEmpty else { return }
+            // The pop takes apps and files alike: no app split, no keep path.
+            if target == .addToPop {
+                onCommitToPop(urls)
+                return
+            }
             // 落定这一刻按**真实 URL** 再判一次应用身份（悬停期读的是拖放剪贴板，只用来
             // 决定高亮和光标）。分流是硬的：`onCommit` 收到的绝不含应用。
             let applications = urls.filter(DragPasteboardInspector.isApplication)

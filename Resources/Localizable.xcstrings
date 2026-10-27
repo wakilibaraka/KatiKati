@@ -327,6 +327,234 @@
         }
       }
     },
+    "Drag apps, files or folders onto the Drawer icon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag apps, files or folders onto the Drawer icon"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把应用、文件或文件夹拖到抽屉图标上"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把App、檔案或檔案夾拖移到抽屜圖像上"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アプリ、ファイル、フォルダをドロワーのアイコンにドラッグ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps, Dateien oder Ordner auf das Schubladensymbol ziehen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites glisser des apps, fichiers ou dossiers sur l’icône du tiroir"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrastra apps, archivos o carpetas al icono del cajón"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrastra apps, archivos o carpetas al ícono del cajón"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arraste apps, arquivos ou pastas para o ícone da Gaveta"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arraste aplicações, ficheiros ou pastas para o ícone da Gaveta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trascina app, file o cartelle sull’icona del cassetto"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱, 파일 또는 폴더를 서랍 아이콘으로 드래그"
+          }
+        }
+      }
+    },
+    "Drawer · %d of %d": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drawer · %d of %d"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "抽屉 · %d / %d"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "抽屜 · %d / %d"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ドロワー · %d / %d"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schublade · %d von %d"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiroir · %d sur %d"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cajón · %d de %d"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cajón · %d de %d"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gaveta · %d de %d"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gaveta · %d de %d"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cassetto · %d di %d"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "서랍 · %d / %d"
+          }
+        }
+      }
+    },
+    "Drawer — drag apps, files or folders here": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drawer — drag apps, files or folders here"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "抽屉 — 把应用、文件或文件夹拖到这里"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "抽屜 — 把App、檔案或檔案夾拖移到這裡"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ドロワー — アプリ、ファイル、フォルダをここにドラッグ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schublade – Apps, Dateien oder Ordner hierher ziehen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiroir — faites glisser des apps, fichiers ou dossiers ici"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cajón: arrastra aquí apps, archivos o carpetas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cajón: arrastra aquí apps, archivos o carpetas"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gaveta — arraste apps, arquivos ou pastas para cá"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gaveta — arraste para aqui aplicações, ficheiros ou pastas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cassetto — trascina qui app, file o cartelle"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "서랍 — 앱, 파일 또는 폴더를 여기로 드래그"
+          }
+        }
+      }
+    },
     "Edge Bar Style": {
       "extractionState": "manual",
       "localizations": {
@@ -653,6 +881,158 @@
         }
       }
     },
+    "No apps are running in the background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No apps are running in the background"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有在后台运行的应用"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有在背景執行的App"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックグラウンドで実行中のアプリはありません"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Apps laufen im Hintergrund"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune app ne s’exécute en arrière-plan"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay apps ejecutándose en segundo plano"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay apps ejecutándose en segundo plano"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhum app em execução em segundo plano"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhuma aplicação em execução em segundo plano"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna app in esecuzione in background"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "백그라운드에서 실행 중인 앱 없음"
+          }
+        }
+      }
+    },
+    "Open Drawer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Drawer"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开抽屉"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開抽屜"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ドロワーを開く"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schublade öffnen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir le tiroir"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir cajón"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir cajón"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Gaveta"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir a gaveta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri il cassetto"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "서랍 열기"
+          }
+        }
+      }
+    },
     "Paper": {
       "extractionState": "manual",
       "localizations": {
@@ -916,6 +1296,82 @@
           "stringUnit": {
             "state": "translated",
             "value": "포인터 아래 창을 앞으로 가져옵니다(120ms에 최대 한 번). 드래그 중이거나 KatiKati 패널이 키보드를 가지고 있을 때, 대상 앱이 이미 앞에 있을 때는 동작하지 않습니다. 손쉬운 사용 권한이 필요하며 기본값은 꺼짐입니다."
+          }
+        }
+      }
+    },
+    "Remove from Drawer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Drawer"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移出抽屉"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移出抽屜"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ドロワーから削除"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus der Schublade entfernen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retirer du tiroir"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitar del cajón"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitar del cajón"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remover da Gaveta"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remover da gaveta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rimuovi dal cassetto"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "서랍에서 제거"
           }
         }
       }
@@ -2418,6 +2874,82 @@
           "stringUnit": {
             "state": "translated",
             "value": "macOS가 최근 사용 순서로 공간을 재배열하지 않게 하여, 만든 순서를 유지합니다. Dock이 한 번 재시작됩니다. 끄면 이전 설정으로 돌아갑니다."
+          }
+        }
+      }
+    },
+    "The Drawer is full (%d items)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Drawer is full (%d items)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "抽屉已满（%d 项）"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "抽屜已滿（%d 個項目）"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ドロワーがいっぱいです（%d 項目）"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Schublade ist voll (%d Objekte)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le tiroir est plein (%d éléments)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El cajón está lleno (%d ítems)"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El cajón está lleno (%d ítems)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Gaveta está cheia (%d itens)"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A gaveta está cheia (%d itens)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il cassetto è pieno (%d elementi)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "서랍이 가득 찼습니다(%d개 항목)"
           }
         }
       }
@@ -16134,83 +16666,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "샌드박스 환경에서는 Dock 설정을 직접 변경할 수 없습니다."
-          }
-        }
-      }
-    },
-    "Drag apps here from the taskbar": {
-      "comment": "抽屉为空时的提示文字",
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "从KatiKati Dock 栏把应用拖到这里"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drag apps here from the taskbar"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "從工作列把App拖移到這裡"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "タスクバーからアプリをドラッグ"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apps aus der Taskleiste ziehen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Faites glisser des apps ici\ndepuis la barre des tâches"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arrastra aquí las apps desde la barra de tareas"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arrastra aquí las apps desde la barra de tareas"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arraste apps da barra de tarefas para cá"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arraste para aqui as aplicações da barra de tarefas"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trascina qui le app\ndalla barra delle applicazioni"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "작업 표시줄에서 앱을 여기로 드래그"
           }
         }
       }
@@ -93468,79 +93923,79 @@
         }
       }
     },
-    "Change your macOS Dock settings?": {
+    "This mode keeps Apple's Dock visible at the bottom, under KatiKati: it turns off Dock auto-hide and magnification, sets the Dock's icon size, and restarts the Dock. KatiKati puts your Dock settings back when you choose another mode.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Change your macOS Dock settings?"
+            "value": "This mode keeps Apple's Dock visible at the bottom, under KatiKati: it turns off Dock auto-hide and magnification, sets the Dock's icon size, and restarts the Dock. KatiKati puts your Dock settings back when you choose another mode."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "要更改苹果系统 Dock 的设置吗？"
+            "value": "此模式会让苹果系统 Dock 保持显示在屏幕底部、KatiKati 下方：关闭 Dock 的自动隐藏和放大效果，设置 Dock 图标大小，并重启 Dock。切换到其他模式时，KatiKati 会恢复你原来的 Dock 设置。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "要變更蘋果系統 Dock 的設定嗎？"
+            "value": "此模式會讓蘋果系統 Dock 保持顯示在螢幕底部、KatiKati 下方：關閉 Dock 的自動隱藏和放大效果，設定 Dock 圖示大小，並重新啟動 Dock。切換到其他模式時，KatiKati 會還原你原本的 Dock 設定。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "システムDockの設定を変更しますか？"
+            "value": "このモードでは、システムDockを画面下部のKatiKatiの下に表示したままにします。Dockの自動非表示と拡大をオフにし、アイコンサイズを設定して、Dockを再起動します。別のモードを選ぶと、KatiKatiが元のDock設定に戻します。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Einstellungen des macOS-Docks ändern?"
+            "value": "Dieser Modus lässt das Apple-Dock unten unter KatiKati sichtbar: Automatisches Ausblenden und Vergrößerung werden ausgeschaltet, die Symbolgröße wird festgelegt und das Dock neu gestartet. Wählst du einen anderen Modus, stellt KatiKati deine Dock-Einstellungen wieder her."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modifier les réglages du Dock de macOS ?"
+            "value": "Ce mode garde le Dock d'Apple visible en bas, sous KatiKati : il désactive le masquage automatique et l'agrandissement du Dock, règle la taille de ses icônes et redémarre le Dock. KatiKati rétablit vos réglages du Dock lorsque vous choisissez un autre mode."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Cambiar los ajustes del Dock de macOS?"
+            "value": "Este modo mantiene el Dock de Apple visible en la parte inferior, debajo de KatiKati: desactiva la ocultación automática y la ampliación del Dock, ajusta el tamaño de sus iconos y reinicia el Dock. KatiKati restaura tus ajustes del Dock cuando eliges otro modo."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Cambiar la configuración del Dock de macOS?"
+            "value": "Este modo mantiene el Dock de Apple visible en la parte inferior, debajo de KatiKati: desactiva el ocultamiento automático y la ampliación del Dock, ajusta el tamaño de sus íconos y reinicia el Dock. KatiKati restaura tu configuración del Dock cuando eliges otro modo."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alterar os ajustes do Dock do macOS?"
+            "value": "Este modo mantém o Dock da Apple visível na parte inferior, sob o KatiKati: desativa a ocultação automática e a ampliação do Dock, define o tamanho dos ícones e reinicia o Dock. O KatiKati restaura seus ajustes do Dock quando você escolhe outro modo."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alterar as definições do Dock do macOS?"
+            "value": "Este modo mantém o Dock da Apple visível na parte inferior, sob o KatiKati: desativa a ocultação automática e a ampliação do Dock, define o tamanho dos ícones e reinicia o Dock. O KatiKati repõe as suas definições do Dock quando escolher outro modo."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modificare le impostazioni del Dock di macOS?"
+            "value": "Questa modalità mantiene il Dock di Apple visibile in basso, sotto KatiKati: disattiva l'occultamento automatico e l'ingrandimento del Dock, imposta la dimensione delle icone e riavvia il Dock. KatiKati ripristina le impostazioni del Dock quando scegli un'altra modalità."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "macOS 독 설정을 변경할까요?"
+            "value": "이 모드는 Apple 독을 화면 하단, KatiKati 아래에 계속 표시합니다. 독 자동 숨기기와 확대를 끄고, 아이콘 크기를 설정한 뒤 독을 다시 시작합니다. 다른 모드를 선택하면 KatiKati가 원래 독 설정으로 되돌립니다."
           }
         }
       }
@@ -93622,79 +94077,2235 @@
         }
       }
     },
-    "This mode keeps Apple's Dock visible at the bottom, under KatiKati: it turns off Dock auto-hide and magnification, sets the Dock's icon size, and restarts the Dock. KatiKati puts your Dock settings back when you choose another mode.": {
+    "Change your macOS Dock settings?": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This mode keeps Apple's Dock visible at the bottom, under KatiKati: it turns off Dock auto-hide and magnification, sets the Dock's icon size, and restarts the Dock. KatiKati puts your Dock settings back when you choose another mode."
+            "value": "Change your macOS Dock settings?"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此模式会让苹果系统 Dock 保持显示在屏幕底部、KatiKati 下方：关闭 Dock 的自动隐藏和放大效果，设置 Dock 图标大小，并重启 Dock。切换到其他模式时，KatiKati 会恢复你原来的 Dock 设置。"
+            "value": "要更改苹果系统 Dock 的设置吗？"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "此模式會讓蘋果系統 Dock 保持顯示在螢幕底部、KatiKati 下方：關閉 Dock 的自動隱藏和放大效果，設定 Dock 圖示大小，並重新啟動 Dock。切換到其他模式時，KatiKati 會還原你原本的 Dock 設定。"
+            "value": "要變更蘋果系統 Dock 的設定嗎？"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このモードでは、システムDockを画面下部のKatiKatiの下に表示したままにします。Dockの自動非表示と拡大をオフにし、アイコンサイズを設定して、Dockを再起動します。別のモードを選ぶと、KatiKatiが元のDock設定に戻します。"
+            "value": "システムDockの設定を変更しますか？"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dieser Modus lässt das Apple-Dock unten unter KatiKati sichtbar: Automatisches Ausblenden und Vergrößerung werden ausgeschaltet, die Symbolgröße wird festgelegt und das Dock neu gestartet. Wählst du einen anderen Modus, stellt KatiKati deine Dock-Einstellungen wieder her."
+            "value": "Einstellungen des macOS-Docks ändern?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ce mode garde le Dock d'Apple visible en bas, sous KatiKati : il désactive le masquage automatique et l'agrandissement du Dock, règle la taille de ses icônes et redémarre le Dock. KatiKati rétablit vos réglages du Dock lorsque vous choisissez un autre mode."
+            "value": "Modifier les réglages du Dock de macOS ?"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Este modo mantiene el Dock de Apple visible en la parte inferior, debajo de KatiKati: desactiva la ocultación automática y la ampliación del Dock, ajusta el tamaño de sus iconos y reinicia el Dock. KatiKati restaura tus ajustes del Dock cuando eliges otro modo."
+            "value": "¿Cambiar los ajustes del Dock de macOS?"
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Este modo mantiene el Dock de Apple visible en la parte inferior, debajo de KatiKati: desactiva el ocultamiento automático y la ampliación del Dock, ajusta el tamaño de sus íconos y reinicia el Dock. KatiKati restaura tu configuración del Dock cuando eliges otro modo."
+            "value": "¿Cambiar la configuración del Dock de macOS?"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Este modo mantém o Dock da Apple visível na parte inferior, sob o KatiKati: desativa a ocultação automática e a ampliação do Dock, define o tamanho dos ícones e reinicia o Dock. O KatiKati restaura seus ajustes do Dock quando você escolhe outro modo."
+            "value": "Alterar os ajustes do Dock do macOS?"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Este modo mantém o Dock da Apple visível na parte inferior, sob o KatiKati: desativa a ocultação automática e a ampliação do Dock, define o tamanho dos ícones e reinicia o Dock. O KatiKati repõe as suas definições do Dock quando escolher outro modo."
+            "value": "Alterar as definições do Dock do macOS?"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Questa modalità mantiene il Dock di Apple visibile in basso, sotto KatiKati: disattiva l'occultamento automatico e l'ingrandimento del Dock, imposta la dimensione delle icone e riavvia il Dock. KatiKati ripristina le impostazioni del Dock quando scegli un'altra modalità."
+            "value": "Modificare le impostazioni del Dock di macOS?"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 모드는 Apple 독을 화면 하단, KatiKati 아래에 계속 표시합니다. 독 자동 숨기기와 확대를 끄고, 아이콘 크기를 설정한 뒤 독을 다시 시작합니다. 다른 모드를 선택하면 KatiKati가 원래 독 설정으로 되돌립니다."
+            "value": "macOS 독 설정을 변경할까요?"
+          }
+        }
+      }
+    },
+    "Bar profile": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bar profile"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任务条方案"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作列設定檔"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バープロファイル"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leistenprofil"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil de barre"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfil de barra"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfil de barra"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfil da barra"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfil da barra"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profilo della barra"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "바 프로필"
+          }
+        }
+      }
+    },
+    "Save current bar as profile": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save current bar as profile"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将当前任务条存为方案"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將目前工作列存為設定檔"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のバーをプロファイルとして保存"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktuelle Leiste als Profil sichern"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer la barre actuelle comme profil"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar la barra actual como perfil"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar la barra actual como perfil"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvar a barra atual como perfil"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar a barra atual como perfil"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salva la barra attuale come profilo"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "현재 바를 프로필로 저장"
+          }
+        }
+      }
+    },
+    "The passwords do not match.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The passwords do not match."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "两次输入的密码不一致。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "兩次輸入的密碼不一致。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードが一致しません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Passwörter stimmen nicht überein."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les mots de passe ne correspondent pas."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las contraseñas no coinciden."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las contraseñas no coinciden."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As senhas não coincidem."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As palavras-passe não coincidem."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le password non corrispondono."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호가 일치하지 않습니다."
+          }
+        }
+      }
+    },
+    "Backup Failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup Failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备份失败"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "備份失敗"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップに失敗しました"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup fehlgeschlagen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de la sauvegarde"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error al hacer la copia"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Falló el respaldo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Falha no backup"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Falha na cópia de segurança"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup non riuscito"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "백업 실패"
+          }
+        }
+      }
+    },
+    "Back Up Settings…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back Up Settings…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备份设置…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "備份設定…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定をバックアップ…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen sichern …"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sauvegarder les réglages…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hacer copia de los ajustes…"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respaldar ajustes…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fazer backup das configurações…"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fazer cópia das definições…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esegui il backup delle impostazioni…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정 백업…"
+          }
+        }
+      }
+    },
+    "Enter a password.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a password."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入密码。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請輸入密碼。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードを入力してください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geben Sie ein Passwort ein."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisissez un mot de passe."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduce una contraseña."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduce una contraseña."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digite uma senha."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduza uma palavra-passe."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inserisci una password."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호를 입력하세요."
+          }
+        }
+      }
+    },
+    "Saves your settings, shortcuts, bar layout and tasks to one file.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saves your settings, shortcuts, bar layout and tasks to one file."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把设置、快捷键、任务条布局和任务保存到一个文件。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將設定、快速鍵、工作列配置和任務儲存到一個檔案。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定、ショートカット、バーのレイアウト、タスクを1つのファイルに保存します。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speichert Einstellungen, Kurzbefehle, Leistenlayout und Aufgaben in einer Datei."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistre vos réglages, raccourcis, la disposition de la barre et vos tâches dans un seul fichier."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guarda tus ajustes, atajos, la disposición de la barra y las tareas en un solo archivo."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guarda tus ajustes, atajos, la disposición de la barra y las tareas en un solo archivo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salva suas configurações, atalhos, o layout da barra e as tarefas em um único arquivo."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guarda as suas definições, atalhos, a disposição da barra e as tarefas num único ficheiro."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salva impostazioni, scorciatoie, layout della barra e attività in un unico file."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정, 단축키, 바 레이아웃, 할 일을 하나의 파일로 저장합니다."
+          }
+        }
+      }
+    },
+    "Restore from Backup…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore from Backup…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从备份恢复…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從備份還原…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップから復元…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus Backup wiederherstellen …"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurer depuis une sauvegarde…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar desde una copia…"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar desde un respaldo…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar de um backup…"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repor a partir de uma cópia…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ripristina da backup…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "백업에서 복원…"
+          }
+        }
+      }
+    },
+    "Password": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密码"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密碼"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワード"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwort"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraseña"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraseña"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senha"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Palavra-passe"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호"
+          }
+        }
+      }
+    },
+    "Include Notes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Include Notes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "包含笔记"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "包含筆記"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモを含める"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notizen einschließen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inclure les notes"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incluir notas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incluir notas"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incluir notas"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incluir notas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Includi le note"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 포함"
+          }
+        }
+      }
+    },
+    "This backup was made by a newer version of KatiKati. Update KatiKati and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This backup was made by a newer version of KatiKati. Update KatiKati and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个备份由更新版本的 KatiKati 创建。请更新 KatiKati 后重试。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這個備份由較新版本的 KatiKati 建立。請更新 KatiKati 後再試一次。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このバックアップは新しいバージョンの KatiKati で作成されました。KatiKati をアップデートしてからもう一度お試しください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Backup wurde mit einer neueren Version von KatiKati erstellt. Aktualisieren Sie KatiKati und versuchen Sie es erneut."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette sauvegarde a été créée par une version plus récente de KatiKati. Mettez KatiKati à jour et réessayez."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta copia se hizo con una versión más reciente de KatiKati. Actualiza KatiKati e inténtalo de nuevo."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este respaldo se hizo con una versión más reciente de KatiKati. Actualiza KatiKati e inténtalo de nuevo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este backup foi criado por uma versão mais recente do KatiKati. Atualize o KatiKati e tente novamente."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta cópia foi criada por uma versão mais recente do KatiKati. Atualize o KatiKati e tente novamente."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo backup è stato creato da una versione più recente di KatiKati. Aggiorna KatiKati e riprova."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 백업은 더 최신 버전의 KatiKati에서 만들어졌습니다. KatiKati를 업데이트한 후 다시 시도하세요."
+          }
+        }
+      }
+    },
+    "Protected by a password you choose. You need it to restore the notes.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protected by a password you choose. You need it to restore the notes."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "由你设置的密码保护。恢复笔记时需要这个密码。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "由你設定的密碼保護。還原筆記時需要這個密碼。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自分で決めたパスワードで保護されます。メモを復元するときに必要です。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durch ein von Ihnen gewähltes Passwort geschützt. Sie brauchen es, um die Notizen wiederherzustellen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protégées par un mot de passe de votre choix. Il est nécessaire pour restaurer les notes."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protegidas con una contraseña que tú eliges. La necesitas para restaurar las notas."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protegidas con una contraseña que tú eliges. La necesitas para restaurar las notas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protegidas por uma senha que você escolhe. Você precisa dela para restaurar as notas."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protegidas por uma palavra-passe à sua escolha. Precisa dela para repor as notas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protette da una password che scegli tu. Ti serve per ripristinare le note."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "직접 정한 비밀번호로 보호됩니다. 메모를 복원할 때 필요합니다."
+          }
+        }
+      }
+    },
+    "Enter the password you chose when you backed up your notes.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the password you chose when you backed up your notes."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入备份笔记时设置的密码。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請輸入備份筆記時設定的密碼。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモをバックアップしたときに決めたパスワードを入力してください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geben Sie das Passwort ein, das Sie beim Sichern der Notizen gewählt haben."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisissez le mot de passe choisi lors de la sauvegarde de vos notes."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduce la contraseña que elegiste al hacer la copia de tus notas."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduce la contraseña que elegiste al respaldar tus notas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digite a senha que você escolheu ao fazer o backup das notas."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduza a palavra-passe que escolheu ao fazer a cópia das notas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inserisci la password scelta quando hai fatto il backup delle note."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모를 백업할 때 정한 비밀번호를 입력하세요."
+          }
+        }
+      }
+    },
+    "Restore Failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复失败"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "還原失敗"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "復元に失敗しました"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wiederherstellung fehlgeschlagen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de la restauration"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error al restaurar"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Falló la restauración"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Falha na restauração"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Falha na reposição"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ripristino non riuscito"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "복원 실패"
+          }
+        }
+      }
+    },
+    "That file is not a KatiKati backup.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That file is not a KatiKati backup."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个文件不是 KatiKati 备份。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這個檔案不是 KatiKati 備份。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このファイルは KatiKati のバックアップではありません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Datei ist kein KatiKati-Backup."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce fichier n’est pas une sauvegarde KatiKati."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese archivo no es una copia de KatiKati."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese archivo no es un respaldo de KatiKati."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esse arquivo não é um backup do KatiKati."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esse ficheiro não é uma cópia de segurança do KatiKati."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo file non è un backup di KatiKati."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 파일은 KatiKati 백업이 아닙니다."
+          }
+        }
+      }
+    },
+    "Backup": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备份"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "備份"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sauvegarde"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copia de seguridad"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respaldo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cópia de segurança"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "백업"
+          }
+        }
+      }
+    },
+    "Your previous settings were saved to the Backups folder first. Restart KatiKati to finish applying the restored ones.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your previous settings were saved to the Backups folder first. Restart KatiKati to finish applying the restored ones."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复前已先把原有设置保存到“Backups”文件夹。重启 KatiKati 即可完成应用。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "還原前已先將原有設定儲存到「Backups」資料夾。重新啟動 KatiKati 即可完成套用。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "復元の前に、以前の設定を Backups フォルダに保存しました。KatiKati を再起動すると復元した設定が反映されます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ihre bisherigen Einstellungen wurden zuvor im Ordner „Backups“ gesichert. Starten Sie KatiKati neu, um die wiederhergestellten Einstellungen zu übernehmen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos réglages précédents ont d’abord été enregistrés dans le dossier Backups. Redémarrez KatiKati pour appliquer les réglages restaurés."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus ajustes anteriores se guardaron antes en la carpeta Backups. Reinicia KatiKati para terminar de aplicar los restaurados."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus ajustes anteriores se guardaron antes en la carpeta Backups. Reinicia KatiKati para terminar de aplicar los restaurados."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suas configurações anteriores foram salvas antes na pasta Backups. Reinicie o KatiKati para concluir a aplicação das restauradas."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As suas definições anteriores foram guardadas primeiro na pasta Backups. Reinicie o KatiKati para concluir a aplicação das repostas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le impostazioni precedenti sono state salvate prima nella cartella Backups. Riavvia KatiKati per applicare quelle ripristinate."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이전 설정은 먼저 Backups 폴더에 저장되었습니다. KatiKati를 다시 시작하면 복원된 설정이 적용됩니다."
+          }
+        }
+      }
+    },
+    "Repeat Password": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeat Password"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再次输入密码"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再次輸入密碼"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードを再入力"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwort wiederholen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Répéter le mot de passe"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repetir contraseña"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repetir contraseña"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repetir senha"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repetir palavra-passe"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ripeti password"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호 확인"
+          }
+        }
+      }
+    },
+    "Settings Restored": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings Restored"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置已恢复"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定已還原"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定を復元しました"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen wiederhergestellt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages restaurés"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes restaurados"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes restaurados"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurações restauradas"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Definições repostas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impostazioni ripristinate"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정이 복원되었습니다"
+          }
+        }
+      }
+    },
+    "Choose a password to protect your notes in this backup.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a password to protect your notes in this backup."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请设置一个密码来保护此备份中的笔记。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請設定一個密碼來保護此備份中的筆記。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このバックアップ内のメモを保護するパスワードを決めてください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wählen Sie ein Passwort, das die Notizen in diesem Backup schützt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez un mot de passe pour protéger les notes de cette sauvegarde."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una contraseña para proteger las notas de esta copia."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una contraseña para proteger las notas de este respaldo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha uma senha para proteger as notas deste backup."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha uma palavra-passe para proteger as notas desta cópia de segurança."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli una password per proteggere le note in questo backup."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 백업의 메모를 보호할 비밀번호를 정하세요."
+          }
+        }
+      }
+    },
+    "Password for Notes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password for Notes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "笔记密码"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "筆記密碼"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモのパスワード"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwort für Notizen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe des notes"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraseña de las notas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraseña de las notas"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senha das notas"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Palavra-passe das notas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password delle note"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 비밀번호"
+          }
+        }
+      }
+    },
+    "The password is wrong, so nothing was restored.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The password is wrong, so nothing was restored."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密码不对，所以没有恢复任何内容。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密碼不對，所以沒有還原任何內容。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワードが違うため、何も復元されませんでした。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Passwort ist falsch, daher wurde nichts wiederhergestellt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le mot de passe est incorrect, rien n’a donc été restauré."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La contraseña es incorrecta, así que no se restauró nada."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La contraseña es incorrecta, así que no se restauró nada."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A senha está errada, então nada foi restaurado."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A palavra-passe está errada, por isso nada foi reposto."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La password è errata, quindi non è stato ripristinato nulla."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호가 틀려서 아무것도 복원되지 않았습니다."
+          }
+        }
+      }
+    },
+    "Choose a KatiKati backup to restore": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a KatiKati backup to restore"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择要恢复的 KatiKati 备份"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選擇要還原的 KatiKati 備份"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "復元する KatiKati のバックアップを選択"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KatiKati-Backup zum Wiederherstellen auswählen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez une sauvegarde KatiKati à restaurer"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una copia de KatiKati para restaurar"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige un respaldo de KatiKati para restaurar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha um backup do KatiKati para restaurar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha uma cópia de segurança do KatiKati para repor"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli un backup di KatiKati da ripristinare"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "복원할 KatiKati 백업 선택"
+          }
+        }
+      }
+    },
+    "Claude Code asks to use": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code asks to use"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code 请求使用"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code 請求使用"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code が使用を求めています："
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code möchte verwenden:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code demande à utiliser :"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code pide usar:"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code pide usar:"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Claude Code pede para usar:"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Claude Code pede para usar:"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code chiede di usare:"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code가 사용을 요청합니다:"
+          }
+        }
+      }
+    },
+    "Deny": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deny"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒绝"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒絕"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒否"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ablehnen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refuser"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denegar"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denegar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recusar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nega"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "거부"
+          }
+        }
+      }
+    },
+    "Allow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允許"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "許可"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erlauben"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "허용"
+          }
+        }
+      }
+    },
+    "Adds a permission hook to ~/.claude/settings.json. When Claude Code asks before running a tool, a card appears at the top of your screen with Allow and Deny. If KatiKati is closed or you do not answer within a minute, Claude Code asks in the terminal as usual. Your other settings and hooks are kept. Restart Claude Code after changing this.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adds a permission hook to ~/.claude/settings.json. When Claude Code asks before running a tool, a card appears at the top of your screen with Allow and Deny. If KatiKati is closed or you do not answer within a minute, Claude Code asks in the terminal as usual. Your other settings and hooks are kept. Restart Claude Code after changing this."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 ~/.claude/settings.json 中添加一个权限钩子。Claude Code 在运行工具前询问时，屏幕顶部会出现带“允许”和“拒绝”的卡片。如果 KatiKati 未运行，或你一分钟内没有回应，Claude Code 会照常在终端里询问。你的其他设置和钩子都会保留。更改后请重启 Claude Code。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 ~/.claude/settings.json 中加入一個權限掛鉤。Claude Code 在執行工具前詢問時，螢幕頂部會出現帶有「允許」和「拒絕」的卡片。如果 KatiKati 未執行，或你一分鐘內沒有回應，Claude Code 會照常在終端機裡詢問。你的其他設定和掛鉤都會保留。變更後請重新啟動 Claude Code。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.claude/settings.json に権限フックを追加します。Claude Code がツールの実行前に確認すると、画面上部に「許可」と「拒否」のカードが表示されます。KatiKati が終了している場合や1分以内に応答しない場合は、これまでどおりターミナルで確認されます。ほかの設定やフックはそのまま残ります。変更後は Claude Code を再起動してください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fügt ~/.claude/settings.json einen Berechtigungs-Hook hinzu. Fragt Claude Code vor dem Ausführen eines Werkzeugs nach, erscheint oben auf dem Bildschirm eine Karte mit „Erlauben“ und „Ablehnen“. Ist KatiKati beendet oder antworten Sie innerhalb einer Minute nicht, fragt Claude Code wie gewohnt im Terminal. Ihre übrigen Einstellungen und Hooks bleiben erhalten. Starten Sie Claude Code nach der Änderung neu."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoute un hook d’autorisation à ~/.claude/settings.json. Quand Claude Code demande avant d’exécuter un outil, une carte apparaît en haut de l’écran avec Autoriser et Refuser. Si KatiKati est fermé ou si vous ne répondez pas en une minute, Claude Code demande dans le terminal comme d’habitude. Vos autres réglages et hooks sont conservés. Redémarrez Claude Code après ce changement."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade un hook de permisos a ~/.claude/settings.json. Cuando Claude Code pregunta antes de ejecutar una herramienta, aparece una tarjeta en la parte superior de la pantalla con Permitir y Denegar. Si KatiKati está cerrado o no respondes en un minuto, Claude Code pregunta en la terminal como siempre. Tus demás ajustes y hooks se conservan. Reinicia Claude Code tras el cambio."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade un hook de permisos a ~/.claude/settings.json. Cuando Claude Code pregunta antes de ejecutar una herramienta, aparece una tarjeta en la parte superior de la pantalla con Permitir y Denegar. Si KatiKati está cerrado o no respondes en un minuto, Claude Code pregunta en la terminal como siempre. Tus demás ajustes y hooks se conservan. Reinicia Claude Code tras el cambio."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adiciona um hook de permissão ao ~/.claude/settings.json. Quando o Claude Code pergunta antes de executar uma ferramenta, um cartão aparece no topo da tela com Permitir e Negar. Se o KatiKati estiver fechado ou você não responder em um minuto, o Claude Code pergunta no terminal como de costume. Suas outras configurações e hooks são mantidos. Reinicie o Claude Code após a mudança."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adiciona um hook de permissão ao ~/.claude/settings.json. Quando o Claude Code pergunta antes de executar uma ferramenta, aparece um cartão no topo do ecrã com Permitir e Recusar. Se o KatiKati estiver fechado ou não responder num minuto, o Claude Code pergunta no terminal como de costume. As suas outras definições e hooks são mantidos. Reinicie o Claude Code após a alteração."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiunge un hook di autorizzazione a ~/.claude/settings.json. Quando Claude Code chiede prima di eseguire uno strumento, in alto sullo schermo compare una scheda con Consenti e Nega. Se KatiKati è chiuso o non rispondi entro un minuto, Claude Code chiede nel terminale come al solito. Le altre impostazioni e gli altri hook vengono mantenuti. Riavvia Claude Code dopo la modifica."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.claude/settings.json에 권한 훅을 추가합니다. Claude Code가 도구를 실행하기 전에 묻으면 화면 상단에 허용/거부 카드가 나타납니다. KatiKati가 종료되었거나 1분 안에 응답하지 않으면 Claude Code는 평소처럼 터미널에서 묻습니다. 다른 설정과 훅은 그대로 유지됩니다. 변경 후 Claude Code를 다시 시작하세요."
+          }
+        }
+      }
+    },
+    "Approve Claude Code Requests Here": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve Claude Code Requests Here"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在此批准 Claude Code 的请求"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在此核准 Claude Code 的請求"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code のリクエストをここで承認"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude-Code-Anfragen hier genehmigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approuver ici les demandes de Claude Code"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprobar aquí las solicitudes de Claude Code"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprobar aquí las solicitudes de Claude Code"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprovar aqui os pedidos do Claude Code"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprovar aqui os pedidos do Claude Code"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approva qui le richieste di Claude Code"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여기서 Claude Code 요청 승인"
           }
         }
       }

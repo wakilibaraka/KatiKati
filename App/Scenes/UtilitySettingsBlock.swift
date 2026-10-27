@@ -15,6 +15,8 @@ struct UtilitySettingsBlock: View {
     @AppStorage(CustomCommand.snippetsKey) private var snippets = ""
     @AppStorage(ClaudeHookInstaller.enabledKey) private var claudeHook = false
     @State private var claudeHookFailed = false
+    @AppStorage(ClaudeApprovalService.enabledKey) private var claudeApprovals = false
+    @State private var claudeApprovalsFailed = false
     /// 54d — read from the Dock itself, so a change made in System Settings shows here too.
     @State private var fixedSpaces = false
 
@@ -146,6 +148,28 @@ struct UtilitySettingsBlock: View {
                     note: Text("Adds two hooks to ~/.claude/settings.json: one when a prompt is submitted, one when Claude stops. They append to a local log, so the notch shows ACTIVE while Claude Code works and IDLE as soon as it stops. Your other settings and hooks are kept, and the original file is backed up once. Restart Claude Code after changing this.")
                 )
                 if claudeHookFailed {
+                    SettingsDivider()
+                    SettingsNote(Text("Could not update ~/.claude/settings.json. Nothing was changed."))
+                }
+                SettingsDivider()
+                SettingsToggleRow(
+                    Text("Approve Claude Code Requests Here"),
+                    isOn: Binding(
+                        get: { claudeApprovals },
+                        set: { on in
+                            do {
+                                try ClaudeHookInstaller.setApprovalsEnabled(on)
+                                claudeApprovals = on
+                                claudeApprovalsFailed = false
+                                if on { ClaudeApprovalService.shared.start() } else { ClaudeApprovalService.shared.stop() }
+                            } catch {
+                                claudeApprovalsFailed = true
+                            }
+                        }
+                    ),
+                    note: Text("Adds a permission hook to ~/.claude/settings.json. When Claude Code asks before running a tool, a card appears at the top of your screen with Allow and Deny. If KatiKati is closed or you do not answer within a minute, Claude Code asks in the terminal as usual. Your other settings and hooks are kept. Restart Claude Code after changing this.")
+                )
+                if claudeApprovalsFailed {
                     SettingsDivider()
                     SettingsNote(Text("Could not update ~/.claude/settings.json. Nothing was changed."))
                 }
