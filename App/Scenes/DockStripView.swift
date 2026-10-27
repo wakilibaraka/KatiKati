@@ -199,17 +199,31 @@ struct DockStripView: View {
         // 任何一个 `@Published` 变化都会打翻整条。默认关，`DOCK_HOVER_TRACE=1` 才记。
         let _ = HoverTrace.stripBody(items: projection.entries.count, surface: stripSurfaceID)
         return ZStack {
-            // macOS 26 的 Liquid Glass 由统一底板接管；默认关闭，旧系统与未开关时仍是原毛玻璃。
-            DockPanelBackdrop(theme: theme,
-                              cornerRadius: taskbarCornerRadius,
-                              usesLiquidGlass: usesLiquidGlass,
-                              matchesDockRefraction: true)
+            // The fluid theme draws its own silhouette (`FluidRailBody`): a rounded plate cannot
+            // swell around the chip under the pointer, so this one preset skips the glass/plate
+            // path entirely and every other theme keeps the pixels it had.
+            if fluidTheme {
+                FluidRailBody(centers: fluidItemCentres,
+                              radius: metrics.panelHeight / 2,
+                              swells: FluidRailGeometry.swells(centers: fluidItemCentres,
+                                                               pointer: fluidHoverCentre,
+                                                               radius: metrics.panelHeight / 2),
+                              vertical: isRail,
+                              lightAtStart: stripPlacement == .left,
+                              crest: fluidHoverCentre)
+            } else {
+                // macOS 26 的 Liquid Glass 由统一底板接管；默认关闭，旧系统与未开关时仍是原毛玻璃。
+                DockPanelBackdrop(theme: theme,
+                                  cornerRadius: taskbarCornerRadius,
+                                  usesLiquidGlass: usesLiquidGlass,
+                                  matchesDockRefraction: true)
+            }
 
             // 玻璃厚度感：材质之上、内容之下。**默认关**，`DOCK_PANEL_THICKNESS=1` 才开
             //（未验收的效果一律 opt-in，见 DockEffectSwitches）。深色则两层保险都不画，
             // 整层不进视图树，保证深色逐像素冻结。
             // 原生玻璃有真的边缘处理，这层「假厚度」叠上去没有意义，玻璃态一律不画。
-            if theme.drawsEffectiveThickness && !usesLiquidGlass {
+            if theme.drawsEffectiveThickness && !usesLiquidGlass && !fluidTheme {
                 theme.panelThicknessLayer(cornerRadius: taskbarCornerRadius)
             }
 
@@ -319,7 +333,8 @@ struct DockStripView: View {
             cornerRadius: taskbarCornerRadius,
             style: theme.panelRimStyle(highlighted: false),
             lineWidth: theme.panelRimLineWidth(highlighted: false),
-            usesLiquidGlass: usesLiquidGlass
+            usesLiquidGlass: usesLiquidGlass,
+            visible: !fluidTheme
         )
         // 外部拖放悬停期冻住条宽（理由见 `frozenStripWidth`）。**必须在下面那层
         // `.coordinateSpace(name: "strip")` 之前**：坐标空间视图的宽度因此在整段悬停里恒定，
@@ -1858,6 +1873,34 @@ private struct NativeScaled: ViewModifier {
 
 extension View {
     func nativeScaled(_ scale: CGFloat) -> some View { modifier(NativeScaled(scale: scale)) }
+}
+
+// MARK: - Fluid body
+
+extension DockStripView {
+    /// The poured theme. Everything else — every plate, rim, glass path and chip — is untouched.
+    var fluidTheme: Bool { settingsStore.themeMaterial.resolved(for: .system).isFluid }
+
+    /// Every chip on this strip, centred along its long axis, in the body's own (top-leading)
+    /// space. The same frames the hover and drop hit-tests use, so the lobes and the chips can
+    /// never disagree.
+    var fluidItemCentres: [CGFloat] {
+        var rects = Array(chipFrames.values)
+        rects.append(contentsOf: folderChipFrames.values)
+        rects.append(contentsOf: messagingChipFrames.values)
+        rects.append(contentsOf: frames.sectionFrames.values)
+        if shelfFrame != .zero { rects.append(shelfFrame) }
+        if settingsStore.showTrash, trashFrame != .zero { rects.append(trashFrame) }
+        return rects.map { isRail ? $0.midY : $0.midX }.sorted()
+    }
+
+    /// The chip under the pointer, along the same axis; the lobe that crests.
+    var fluidHoverCentre: CGFloat? {
+        guard let id = hoveredEntryID,
+              let frame = chipFrames[id] ?? folderChipFrames[id] ?? messagingChipFrames[id]
+                            ?? frames.sectionFrames[id] else { return nil }
+        return isRail ? frame.midY : frame.midX
+    }
 }
 
 /// HStack on the bottom bar, VStack on a side rail (Phase 18c). `AnyLayout` would do this in one

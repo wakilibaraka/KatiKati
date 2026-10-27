@@ -8,6 +8,8 @@ struct EdgeStyleTokens {
     let reduceTransparency: Bool
 
     var isGlass: Bool { style == .liquidGlass }
+    /// The poured body: dark in both appearances, white ink, one blob shape instead of a plate.
+    var isFluid: Bool { style == .fluid }
     /// Real `glassEffect` only on macOS 26 and only when transparency is allowed; otherwise frosted material or a solid fill.
     var usesSystemGlass: Bool {
         guard isGlass, !reduceTransparency else { return false }
@@ -15,13 +17,16 @@ struct EdgeStyleTokens {
         return false
     }
 
-    var ink: Color { isDark ? .white : Color(white: 0.08) }
-    var secondaryInk: Color { isDark ? Color(white: 0.68) : Color(white: 0.40) }
-    var rim: Color { Color.white.opacity(isDark ? 0.16 : 0.55) }
-    var plateRadius: CGFloat { isGlass ? Self.glassRadius : 20 }
-    var shadow: Color { .black.opacity(isGlass ? 0.18 : 0.22) }
+    var ink: Color { isFluid ? .white : (isDark ? .white : Color(white: 0.08)) }
+    var secondaryInk: Color { isFluid ? Color(white: 0.66) : (isDark ? Color(white: 0.68) : Color(white: 0.40)) }
+    var rim: Color { Color.white.opacity(isFluid ? 0.22 : (isDark ? 0.16 : 0.55)) }
+    var plateRadius: CGFloat { isGlass || isFluid ? Self.glassRadius : 20 }
+    var shadow: Color { .black.opacity(isFluid ? 0.35 : (isGlass ? 0.18 : 0.22)) }
     /// Solid stand-in under Reduce Transparency.
-    var solid: Color { isDark ? Color(red: 0.16, green: 0.16, blue: 0.18) : Color(white: 0.96) }
+    var solid: Color {
+        isFluid ? Color(red: 0.07, green: 0.07, blue: 0.08)
+                : (isDark ? Color(red: 0.16, green: 0.16, blue: 0.18) : Color(white: 0.96))
+    }
 
     static let glassRadius: CGFloat = 26
     static let morphSpring = Animation.spring(response: 0.4, dampingFraction: 0.82)
