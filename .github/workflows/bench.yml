@@ -1,0 +1,65 @@
+# Idle benchmark (port plan #1, 2026-10-27).
+#
+# Builds KatiKati, launches it on the runner and measures what an idle bar costs: process-group CPU
+# and memory after a 120 s settle, plus powermetrics CPU ms/s and interrupt wakeups/s (the runner has
+# passwordless sudo). The runner grants no Accessibility, so KatiKati starts in limited mode and the
+# hotkey-latency half of Scripts/bench_katikati.sh is skipped (--idle-only). Numbers land in the job
+# summary. Run it from the Actions tab before and after a change that touches timers or polling.
+name: Bench
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Tools/Bench/**'
+      - 'Scripts/bench_katikati.sh'
+      - '.github/workflows/bench.yml'
+
+concurrency:
+  group: bench-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  idle:
+    name: Idle CPU, wakeups and memory
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select newest Xcode 26
+        run: |
+          XCODE="$(ls -d /Applications/Xcode_26*.app | sort -V | tail -n 1)"
+          echo "Using $XCODE"
+          sudo xcode-select -s "$XCODE"
+
+      - name: Build KatiKati (Release, ad-hoc signed)
+        run: |
+          set -o pipefail
+          mkdir -p build
+          xcodebuild build \
+            -project KatiKati.xcodeproj \
+            -scheme KatiKati \
+            -configuration Release \
+            -derivedDataPath build/DerivedData \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee build/xcodebuild-build.log | grep -E 'error:|\*\* BUILD' || true
+          grep -q '\*\* BUILD SUCCEEDED \*\*' build/xcodebuild-build.log
+          APP="build/DerivedData/Build/Products/Release/KatiKati.app"
+          codesign --force --deep --sign - "$APP"
+          echo "APP=$PWD/$APP" >> "$GITHUB_ENV"
+
+      - name: Measure idle
+        run: |
+          BENCH_OUT="$PWD/build/bench" Scripts/bench_katikati.sh --idle-only "$APP"
+          cat build/bench/*.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload bench log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench
+          path: build/bench/
+          if-no-files-found: ignore

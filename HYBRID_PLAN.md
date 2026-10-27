@@ -425,6 +425,16 @@ tests. License/attribution checks stay (entries in `NOTICE` when behavior is der
 
 Explicitly NOT ported: EdgeDeckBar `SegmentPanelManager`/stores/settings, AI Usage (Claude/Codex quota, token chart, Ollama, multi-account Keychain switching), Dispatch-to-agent, Terminal automation; noty site/cask/Sparkle wiring/`.stickies` JSON; arc Jev-cloud; Volant sandbox/WASM/Herdr/ACP; Liftoff grid.
 
+### 5f. Port-plan donors (owner 2026-10-27)
+
+Ranked in the port plan (https://claude.ai/artifact/EB9sx8HHhg2djFQ4QZwU51). Code enters only through a row here.
+
+| Source | Target in this repo | Notes |
+|---|---|---|
+| Asyar `Xoshbin/asyar` GPL-3.0 @ `334c8fa` — `benchmarks/benchtool.swift`, `benchmarks/bench.sh` (powermetrics parser) | `Tools/Bench/benchtool.swift`, `Scripts/bench_katikati.sh`, `.github/workflows/bench.yml` | Dev tool, not in the app target. Window detection changed for the always-on bar; NOTICE entry added |
+| SuperCmd `SuperCmdLabs/SuperCmd` MIT @ `2da7b9e` — `src/native/*.swift` helpers | not ported yet | Reference for menu search (#3) and hold-to-dictate (#14); a row is added before any code lands |
+| Tinycast `abue-ammar/tinycast` AGPL-3.0 @ `37e6043` | none | Design reference only (roadmap §7.1 bars AGPL donors); its `docs/features/*.md` specs may be read, never its code |
+
 ## 6. Build, identity, licensing
 
 - **Repo**: `/Users/baraka/Desktop/Splitbar`, branch `main`. **Build system follows the
@@ -5905,3 +5915,8 @@ Downloads folder.
 
 - Notch: Hardware HUD (RAM/CPU) page removed; four always-on pages remain (Downloads, Storage, AI, Music & Calendar).
 - Crash fix: `FullscreenIntentMonitor.readAXState` skips KatiKati's own pid (AppKit main-thread assertion when AX-reading our own window off-main).
+
+- 2026-10-27 · **Port plan #1 — idle and latency benchmark (slices 1a + 1b).**
+  - **Files:** `Tools/Bench/benchtool.swift` (vendored from Asyar @ `334c8fa`, GPL-3.0; window detection now skips windows already on screen when a run starts, and the launcher-size floor is 300×200 so the bar never counts), `Scripts/bench_katikati.sh` (full run: cold start, 15 ⌥Space summons, 30 s after activity, 120 s settle + 60 s deep idle; `--idle-only` for CI), `.github/workflows/bench.yml` (manual + on PRs touching the bench files; Release build, ad-hoc signed, idle numbers into the job summary), `NOTICE`, §5f.
+  - **Why CI:** the owner chose cloud slices with no local checks (2026-10-27). The runner has no Accessibility grant, so CI measures idle cost in limited mode only; the hotkey half runs on a Mac with Accessibility for the terminal.
+  - **Gate:** `bash -n` on the script; the bench workflow compiles `benchtool.swift` and runs it. App code untouched, so the unit-test job is unaffected.
