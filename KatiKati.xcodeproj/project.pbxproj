@@ -226,6 +226,9 @@
 		7B5000000000000000003712 /* ShelfPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003711 /* ShelfPolicyTests.swift */; };
 		7B5000000000000000003613 /* ShelfItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003611 /* ShelfItem.swift */; };
 		7B5000000000000000003612 /* ShelfItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003611 /* ShelfItem.swift */; };
+		7B5000000000000000041012 /* PopItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000041011 /* PopItem.swift */; };
+		7B5000000000000000041013 /* PopItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000041011 /* PopItem.swift */; };
+		7B5000000000000000041112 /* PopPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000041111 /* PopPolicyTests.swift */; };
 		7B5000000000000000003512 /* NotchHoverMachineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003511 /* NotchHoverMachineTests.swift */; };
 		7B5000000000000000003413 /* NotchHoverMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003411 /* NotchHoverMachine.swift */; };
 		A00000000000000000B1E00002 /* NotchBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000B1E00000 /* NotchBehavior.swift */; };
@@ -1404,6 +1407,8 @@
 		7B5000000000000000003811 /* ShakeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShakeDetector.swift; path = Core/Support/ShakeDetector.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003711 /* ShelfPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfPolicyTests.swift; path = Tests/Unit/ShelfPolicyTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003611 /* ShelfItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfItem.swift; path = Core/Support/ShelfItem.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000041011 /* PopItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PopItem.swift; path = Core/Support/PopItem.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000041111 /* PopPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PopPolicyTests.swift; path = Tests/Unit/PopPolicyTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003511 /* NotchHoverMachineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchHoverMachineTests.swift; path = Tests/Unit/NotchHoverMachineTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003411 /* NotchHoverMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchHoverMachine.swift; path = Core/Support/NotchHoverMachine.swift; sourceTree = SOURCE_ROOT; };
 		A00000000000000000B1E00000 /* NotchBehavior.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchBehavior.swift; path = Core/Support/NotchBehavior.swift; sourceTree = SOURCE_ROOT; };
@@ -3524,6 +3529,7 @@
 				7B5000000000000000003A12 /* ShelfActions.swift in Sources */,
 				7B5000000000000000003812 /* ShakeDetector.swift in Sources */,
 				7B5000000000000000003612 /* ShelfItem.swift in Sources */,
+				7B5000000000000000041012 /* PopItem.swift in Sources */,
 				7B5000000000000000003412 /* NotchHoverMachine.swift in Sources */,
 				A00000000000000000B1E00001 /* NotchBehavior.swift in Sources */,
 				7B5000000000000000003242 /* NotchHomeView.swift in Sources */,
@@ -3684,6 +3690,7 @@
 				7B5000000000000000003B13 /* ShelfIconState.swift in Sources */,
 				7B5000000000000000003813 /* ShakeDetector.swift in Sources */,
 				7B5000000000000000003613 /* ShelfItem.swift in Sources */,
+				7B5000000000000000041013 /* PopItem.swift in Sources */,
 				7B5000000000000000003413 /* NotchHoverMachine.swift in Sources */,
 				A00000000000000000B1E00002 /* NotchBehavior.swift in Sources */,
 				7B5000000000000000003013 /* NotchLayoutSpec.swift in Sources */,
@@ -3849,6 +3856,7 @@
 				7B5000000000000000003B52 /* ShelfIconStateTests.swift in Sources */,
 				7B5000000000000000003912 /* ShakeDetectorTests.swift in Sources */,
 				7B5000000000000000003712 /* ShelfPolicyTests.swift in Sources */,
+				7B5000000000000000041112 /* PopPolicyTests.swift in Sources */,
 				7B5000000000000000003512 /* NotchHoverMachineTests.swift in Sources */,
 				7B5000000000000000003312 /* NativeDockRestoreTests.swift in Sources */,
 				7B5000000000000000003112 /* NotchLayoutSpecTests.swift in Sources */,
