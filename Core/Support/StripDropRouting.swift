@@ -19,6 +19,9 @@ enum StripDropRouting {
         case moveInto(path: String)
         /// 落在文件夹区 → 固定目录到显示序 index 位（仅目录有效，由调用方过滤）。
         case pin(insertIndex: Int)
+        /// Dropped on the drawer pop chip → apps, files and folders join the pop (`PopPolicy`).
+        /// Checked before the app gate: an app dropped **on the pop** goes into it, DockPops-style.
+        case addToPop
         /// 拖的是应用 bundle → 勾「在程序坞中保留」+ 落到光标那个位置。**整条都是它的落点**，
         /// 不带 index：live 区的插入位由 `StripBlockLanding` 按 `chipFrames` 算（见 `handleExternalApplicationDrop`）。
         case keepApp
@@ -60,12 +63,19 @@ enum StripDropRouting {
                       trashFrame: CGRect?,
                       folderFrames: [String: CGRect],
                       orderedPaths: [String],
+                      popFrame: CGRect? = nil,
                       headSlack: CGFloat = defaultHeadSlack,
                       tailSlack: CGFloat = 24,
                       pinEdgeFraction: CGFloat = 0,
                       openGap: OpenFolderGap? = nil) -> Target {
         // Trash items are refused everywhere on the bar, the Trash chip and app landing included.
         if isTrashItemDrag { return .none }
+
+        // The drawer pop chip takes anything dropped on it, apps included, so it is checked before the
+        // app gate. Horizontal only, like every other target here.
+        if let popFrame, popFrame != .zero, location.x >= popFrame.minX, location.x <= popFrame.maxX {
+            return .addToPop
+        }
 
         // ⚠️ 安全闸，紧跟废纸篓那一句：应用永远走保留，绝不落到 .moveInto / .pin / .stash。
         // 整条任务条都是它的落点——用户的直觉是「拖到 Dock 上」，落在窗口区必须算数。
@@ -158,7 +168,7 @@ extension StripDropRouting {
         switch target {
         case let .pin(insertIndex): return insertIndex
         case .moveInto: return current
-        case .stash, .trash, .keepApp, .none: return nil
+        case .stash, .trash, .keepApp, .addToPop, .none: return nil
         }
     }
 

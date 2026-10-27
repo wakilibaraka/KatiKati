@@ -308,18 +308,17 @@ extension PanelCoordinator {
         func target(_ stored: NSRect, _ live: NSRect?) -> NSRect? { stored != .zero ? stored : live }
         switch source {
         case .strip, .messaging:
+            // The stash target is the drawer pop chip (owner 2026-10-27), plus the open pop itself. The
+            // capsule and its panel are Background Apps only and take no stash. A little slack around the
+            // chip, like the capsule had, so a carrier offset from the pointer still lands.
+            // A full pop takes no more stashes (DockPops' 25), so the card simply returns to its slot.
+            guard !PopStore.shared.isFull else { return [] }
             var zones: [CGRect] = []
-            if let c = target(lastCapsuleTargetFrame, capsulePanel?.frame) {
-                zones.append(c.insetBy(dx: Self.shadowPadding - 8, dy: Self.shadowPadding - 8))
+            if let chip = popChipFrame.screenRect {
+                zones.append(chip.insetBy(dx: -4, dy: -8))
             }
-            if let drawer = drawerPanel, drawer.isVisible, let d = target(lastDrawerTargetFrame, drawer.frame) {
-                // 抽屉只向上长：投放区**上沿拉到屏幕顶**,只认固定的底边+宽度,不随面板增高/缩短而变。
-                // 否则"投放区尺寸→是否插空格→面板增高→投放区尺寸"成反馈环,空格闪烁、面板动画被高频打断
-                // 而过冲向下（owner 2026-06-21"先向下扩展再上移"的真因）。
-                let inset = Self.drawerPlateFrame(d)   // bottom = arrow tip, 3pt above the bar's top
-                // 投放区向上延伸到与抽屉一致的顶部上限：避让菜单栏/刘海，但不避让原生 Dock。
-                let top = Self.screenGeometry(panelCurrentScreen(panel: drawer)).topUsableY
-                zones.append(CGRect(x: inset.minX, y: inset.minY, width: inset.width, height: max(inset.height, top - inset.minY)))
+            if folderPopupWantsOpen, openPopupContent == .pop, let panel = folderPopupPanel, panel.isVisible {
+                zones.append(PanelGeometry.folderPopupPlateFrame(panelFrame: target(lastPopupTargetFrame, panel.frame) ?? panel.frame))
             }
             return zones
         case .drawer:
