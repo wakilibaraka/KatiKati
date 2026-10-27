@@ -51,11 +51,27 @@ final class PopPolicyTests: XCTestCase {
         XCTAssertEqual(PopPolicy.adding([.app("one-more")], to: PopPolicy.migrating(legacyBundleIDs: ids, legacyOrder: [])).rejectedForCapacity, 1)
     }
 
+    func testSyncingAppsDropsUnstashedAddsNewKeepsFilesAndOrder() {
+        let items: [PopItem] = [.app("a"), .folder("/x"), .app("b"), .file("/y")]
+        XCTAssertEqual(PopPolicy.syncingApps(items, drawerBundleIDs: ["b", "c", "c"]),
+                       [.folder("/x"), .app("b"), .file("/y"), .app("c")])
+        XCTAssertEqual(PopPolicy.syncingApps(items, drawerBundleIDs: ["a", "b"]), items)
+    }
+
+    func testSyncingAppsIsNotCapped() {
+        let full = (0..<25).map { PopItem.file("/f\($0)") }
+        XCTAssertEqual(PopPolicy.syncingApps(full, drawerBundleIDs: ["stashed"]).count, 26)
+    }
+
     func testClassifyingDroppedPaths() {
-        XCTAssertEqual(PopPolicy.item(forPath: "/Applications/Safari.app", isDirectory: true, bundleID: "com.apple.Safari"), .app("com.apple.Safari"))
-        XCTAssertEqual(PopPolicy.item(forPath: "/Applications/Odd.app", isDirectory: true, bundleID: nil), .file("/Applications/Odd.app"))
-        XCTAssertEqual(PopPolicy.item(forPath: "/Users/me/Projects", isDirectory: true, bundleID: nil), .folder("/Users/me/Projects"))
-        XCTAssertEqual(PopPolicy.item(forPath: "/Users/me/a.pdf", isDirectory: false, bundleID: nil), .file("/Users/me/a.pdf"))
-        XCTAssertNil(PopPolicy.item(forPath: "", isDirectory: false, bundleID: nil))
+        XCTAssertEqual(PopPolicy.item(forPath: "/Applications/Safari.app", isDirectory: true, isApplication: true,
+                                      bundleID: "com.apple.Safari"), .app("com.apple.Safari"))
+        XCTAssertEqual(PopPolicy.item(forPath: "/Applications/Odd.app", isDirectory: true, isApplication: true,
+                                      bundleID: nil), .file("/Applications/Odd.app"))
+        XCTAssertEqual(PopPolicy.item(forPath: "/Users/me/Projects", isDirectory: true, isApplication: false,
+                                      bundleID: nil), .folder("/Users/me/Projects"))
+        XCTAssertEqual(PopPolicy.item(forPath: "/Users/me/a.pdf", isDirectory: false, isApplication: false,
+                                      bundleID: nil), .file("/Users/me/a.pdf"))
+        XCTAssertNil(PopPolicy.item(forPath: "", isDirectory: false, isApplication: false, bundleID: nil))
     }
 }

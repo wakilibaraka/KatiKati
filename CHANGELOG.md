@@ -5,6 +5,12 @@ All notable changes to KatiKati are documented in this file.
 ## [Unreleased] — one app table for every quit rule
 
 ### Added
+- **The Drawer is now a DockPops-style pop with its own dock icon**, at the head of the tail zone, left of
+  Downloads and the Trash. It holds up to 25 apps, files and folders: drop anything on the icon from Finder or
+  anywhere else, or drag a window card onto it to stash its app as before. Click the icon to open the pop; apps
+  open or come forward, files open, and a folder is browsed right inside the pop with a back button. Existing
+  stashed apps move in on first launch. The capsule beside the bar is now **Background Apps** only — its preview
+  and its panel show running apps with no window, and nothing is stashed there any more.
 - **Hybrid Dock Window Layering Engine (`DockWindowManager`)**: Settings › Window Management now has a **Dock Layering** section offering 8 selectable layering and interaction modes:
   1. *Always on Top* (Legacy preset: window level 20, always above all windows)
   2. *Dynamic Smart Z-Order* (Intellilevel: level 20 when idle, drops to level -1 under overlapping windows, peeks on 0.14s bottom edge dwell)

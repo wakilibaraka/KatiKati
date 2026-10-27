@@ -66,6 +66,8 @@ extension PanelCoordinator {
             toggleShelfPopup(anchorVisibleRect: screenAnchor)
         case .trash:
             toggleTrashPopup(anchorVisibleRect: screenAnchor)
+        case .pop:
+            togglePopPopup(anchorVisibleRect: screenAnchor)
         }
     }
 
@@ -79,6 +81,8 @@ extension PanelCoordinator {
             toggleShelfPopup(anchorVisibleRect: anchor)
         case .trash:
             toggleTrashPopup(anchorVisibleRect: anchor)
+        case .pop:
+            togglePopPopup(anchorVisibleRect: anchor)
         }
     }
 
@@ -159,6 +163,35 @@ extension PanelCoordinator {
             closeFolderPopup()
         } else {
             openTrashPopup(anchorVisibleRect: anchorVisibleRect)
+        }
+    }
+
+    /// Drawer pop chip click:再点 = 收起；从别的弹窗切过来 = 原地切换（同单面板语义）。
+    func togglePopPopup(anchorVisibleRect: CGRect) {
+        if folderPopupWantsOpen, openPopupContent == .pop {
+            closeFolderPopup()
+        } else {
+            openPopPopup(anchorVisibleRect: anchorVisibleRect)
+        }
+    }
+
+    private func openPopPopup(anchorVisibleRect: CGRect) {
+        let store = PopStore.shared
+        // 同 openFolderPopup：首帧图标全亮,不逐个浮现。
+        FolderIconResolver.warm(paths: store.items.prefix(Self.popupWarmCount).compactMap(\.iconPath), timeout: 0.1)
+
+        presentPopup(content: .pop, anchorVisibleRect: anchorVisibleRect) { [weak self, drawerStore] context in
+            NSHostingView(rootView: PopGridPopupView(
+                popStore: store,
+                context: context,
+                usesLiquidGlass: usesLiquidGlass,
+                onClosePopup: { [weak self] in self?.closeFolderPopup() },
+                onContentResize: { [weak self] size in self?.repositionFolderPopup(animated: true, contentSize: size) },
+                onRemoveApp: { drawerStore.remove($0) },
+                onPinFolder: { [weak self] url in self?.pinnedFolderStore.add(url.path) },
+                isFolderPinned: { [weak self] url in self?.pinnedFolderStore.contains(url.path) ?? true }
+            ).environment(\.dockThemeStyle, settingsStore.themeMaterial)
+             .environment(\.themeTuning, settingsStore.themeTuning))
         }
     }
 

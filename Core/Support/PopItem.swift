@@ -72,11 +72,26 @@ enum PopPolicy {
         return ordered.filter { !$0.isEmpty && seen.insert($0).inserted }.map(PopItem.app)
     }
 
-    /// Classifies a dropped URL: `.app` bundles become app items (by bundle id when it can be read),
-    /// directories become folders, everything else is a file. `bundleID` is passed in so this stays pure.
-    static func item(forPath path: String, isDirectory: Bool, bundleID: String?) -> PopItem? {
+    /// Mirrors the stashed apps (`DrawerStore`, the authority for app placement) into the pop: app items
+    /// no longer stashed leave, newly stashed apps join at the end. Files and folders are untouched.
+    /// Not capped: a stash from the strip already happened, and the pop must show it.
+    static func syncingApps(_ items: [PopItem], drawerBundleIDs: [String]) -> [PopItem] {
+        let stashed = Set(drawerBundleIDs)
+        var result = items.filter { $0.kind != .app || stashed.contains($0.reference) }
+        let present = Set(result.filter { $0.kind == .app }.map(\.reference))
+        var seen = Set<String>()
+        for id in drawerBundleIDs where !id.isEmpty && !present.contains(id) && seen.insert(id).inserted {
+            result.append(.app(id))
+        }
+        return result
+    }
+
+    /// Classifies a dropped URL: application bundles become app items (by bundle id; one whose id
+    /// cannot be read is kept as a plain file, never browsed as a folder), directories become folders,
+    /// everything else is a file. The disk facts are passed in so this stays pure.
+    static func item(forPath path: String, isDirectory: Bool, isApplication: Bool, bundleID: String?) -> PopItem? {
         guard !path.isEmpty else { return nil }
-        if path.hasSuffix(".app") || path.hasSuffix(".app/") {
+        if isApplication {
             if let bundleID, !bundleID.isEmpty { return .app(bundleID) }
             return .file(path)
         }

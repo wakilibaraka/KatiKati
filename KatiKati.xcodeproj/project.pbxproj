@@ -232,6 +232,8 @@
 		7B5000000000000000041212 /* PopStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000041211 /* PopStore.swift */; };
 		7B5000000000000000041213 /* PopStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000041211 /* PopStore.swift */; };
 		7B5000000000000000041312 /* PopStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000041311 /* PopStoreTests.swift */; };
+		7B5000000000000000041412 /* PopChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000041411 /* PopChip.swift */; };
+		7B5000000000000000041512 /* PopGridPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000041511 /* PopGridPopupView.swift */; };
 		7B5000000000000000003512 /* NotchHoverMachineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003511 /* NotchHoverMachineTests.swift */; };
 		7B5000000000000000003413 /* NotchHoverMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000003411 /* NotchHoverMachine.swift */; };
 		A00000000000000000B1E00002 /* NotchBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000B1E00000 /* NotchBehavior.swift */; };
@@ -1414,6 +1416,8 @@
 		7B5000000000000000041111 /* PopPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PopPolicyTests.swift; path = Tests/Unit/PopPolicyTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000041211 /* PopStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PopStore.swift; path = App/Composition/PopStore.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000041311 /* PopStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PopStoreTests.swift; path = Tests/Unit/PopStoreTests.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000041411 /* PopChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PopChip.swift; path = App/Scenes/PopChip.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000041511 /* PopGridPopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PopGridPopupView.swift; path = App/Scenes/PopGridPopupView.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003511 /* NotchHoverMachineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchHoverMachineTests.swift; path = Tests/Unit/NotchHoverMachineTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003411 /* NotchHoverMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchHoverMachine.swift; path = Core/Support/NotchHoverMachine.swift; sourceTree = SOURCE_ROOT; };
 		A00000000000000000B1E00000 /* NotchBehavior.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchBehavior.swift; path = Core/Support/NotchBehavior.swift; sourceTree = SOURCE_ROOT; };
@@ -3536,6 +3540,8 @@
 				7B5000000000000000003612 /* ShelfItem.swift in Sources */,
 				7B5000000000000000041012 /* PopItem.swift in Sources */,
 				7B5000000000000000041212 /* PopStore.swift in Sources */,
+				7B5000000000000000041412 /* PopChip.swift in Sources */,
+				7B5000000000000000041512 /* PopGridPopupView.swift in Sources */,
 				7B5000000000000000003412 /* NotchHoverMachine.swift in Sources */,
 				A00000000000000000B1E00001 /* NotchBehavior.swift in Sources */,
 				7B5000000000000000003242 /* NotchHomeView.swift in Sources */,

@@ -7,6 +7,10 @@ import Foundation
 /// pop. The legacy keys are left in place so a downgrade still finds its drawer.
 @MainActor
 final class PopStore: ObservableObject {
+    /// The one drawer pop. Shared like `BackgroundAppsStore` / `TrashStateStore`: the strip chip, its
+    /// popup and the stash sync (`AppDelegate`) all read the same list.
+    static let shared = PopStore()
+
     @Published private(set) var items: [PopItem] = []
     /// How many items the last `add` could not fit; the UI reads it to say "Pop is full".
     @Published private(set) var lastRejectedForCapacity = 0
@@ -41,6 +45,12 @@ final class PopStore: ObservableObject {
 
     func remove(_ id: String) {
         let next = PopPolicy.removing(id, from: items)
+        if next != items { items = next; persist() }
+    }
+
+    /// Called whenever the stashed apps change (`PopPolicy.syncingApps`).
+    func syncApps(drawerBundleIDs: [String]) {
+        let next = PopPolicy.syncingApps(items, drawerBundleIDs: drawerBundleIDs)
         if next != items { items = next; persist() }
     }
 

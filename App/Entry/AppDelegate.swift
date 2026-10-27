@@ -215,6 +215,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var workspaceObservers: [NSObjectProtocol] = []
     private var messagingAutoRegisterSubscription: AnyCancellable?
     private var badgeContextSubscription: AnyCancellable?
+    /// Keeps the drawer pop's app items equal to the stashed apps (`PopStore.syncApps`).
+    private var popAppsSubscription: AnyCancellable?
     private var windowLiftSettingSubscription: AnyCancellable?
     private var trashSettingSubscription: AnyCancellable?
     /// 全局反转鼠标滚轮。active tap 需要辅助功能授权，所以挂在任务条运行期
@@ -906,6 +908,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 runningBundleIDs: running
             )
         }
+
+        // The drawer pop shows the stashed apps beside its files and folders. `DrawerStore` stays the
+        // authority for which apps are stashed (strip exclusion, drag conversion); the pop mirrors it.
+        popAppsSubscription = drawerStore.$bundleIDs
+            .receive(on: DispatchQueue.main)
+            .sink { ids in PopStore.shared.syncApps(drawerBundleIDs: ids) }
 
         let coordinator = TaskbarScreenOrchestrator(
             runtime: runtime,
