@@ -102,7 +102,7 @@ if [[ $IDLE_ONLY == 0 ]]; then
   "$BENCHTOOL" hotkey "$APP" "$HOTKEY" "$RUNS" | tee -a "$LOG"
   echo "== after activity (30 s)" | tee -a "$LOG"
   "$BENCHTOOL" mem "$APP" | sed 's/^total_mb=/active_total_mb=/' | tee -a "$LOG"
-  "$BENCHTOOL" cpu "$APP" 30 | sed 's/^cpu_pct=/active_cpu_pct=/' | tee -a "$LOG"
+  "$BENCHTOOL" cpu "$APP" 30 | sed -e 's/^cpu_pct=/active_cpu_pct=/' -e 's/^cpu_proc /active_cpu_proc /' | tee -a "$LOG"
 else
   if [[ -z "$(group_pids 2>/dev/null || true)" ]]; then
     open "$APP"
@@ -123,7 +123,7 @@ if command -v sudo >/dev/null && sudo -n /usr/bin/powermetrics --samplers cpu_po
   sudo -n powermetrics --samplers tasks --show-process-energy -i 1000 -n "$DEEP_IDLE_SECONDS" > "$PM_RAW" 2>&1 &
   PM_JOB=$!
 fi
-"$BENCHTOOL" cpu "$APP" "$DEEP_IDLE_SECONDS" | sed 's/^cpu_pct=/idle_cpu_pct=/' | tee -a "$LOG"
+"$BENCHTOOL" cpu "$APP" "$DEEP_IDLE_SECONDS" | sed -e 's/^cpu_pct=/idle_cpu_pct=/' -e 's/^cpu_proc /idle_cpu_proc /' | tee -a "$LOG"
 "$BENCHTOOL" mem "$APP" | sed 's/^total_mb=/idle_total_mb=/' | tee -a "$LOG"
 if [[ -n "$PM_JOB" ]] && wait "$PM_JOB" && parse_powermetrics "$PM_RAW" "${PIDS[@]}" >> "$LOG"; then
   :
@@ -150,6 +150,10 @@ SIZE_MB="$(du -sm "$APP" | awk '{print $1}')"
   echo "| Interrupt wakeups/s, deep idle | $(extract "$LOG" pm_wakeups_s) |"
   echo "| Memory, deep idle | $(extract "$LOG" idle_total_mb) MB |"
   echo "| App size on disk | $SIZE_MB MB |"
+  echo
+  echo "Who spent the idle CPU (top 3, % of one core):"
+  echo
+  { grep '^idle_cpu_proc ' "$LOG" || true; } | head -3 | sed 's/^idle_cpu_proc /- /'
   echo
   echo "<sub>$(sw_vers -productName) $(sw_vers -productVersion), $(sysctl -n machdep.cpu.brand_string). CPU % is of one core.</sub>"
 } > "$REPORT"

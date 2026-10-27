@@ -334,14 +334,24 @@ func cmdCpu(_ bundle: String, seconds: Int) {
     sleep(UInt32(seconds))
     let wallNs = nowNs() - t0
     var deltaNs: UInt64 = 0
+    var perProcess: [(pid: pid_t, ns: UInt64)] = []
     for pid in Set(processGroup(bundlePath: bundle)) {
         guard let end = cpuTimeNs(pid) else { continue }
+        var delta: UInt64 = 0
         if let start = startNs[pid] {
-            if end > start { deltaNs += end - start }  // end < start ⇒ reused PID; skip
+            if end > start { delta = end - start }  // end < start ⇒ reused PID; skip
         } else {
             // born during the window, so all of its CPU time counts
-            deltaNs += end
+            delta = end
         }
+        deltaNs += delta
+        perProcess.append((pid, delta))
+    }
+    // The total includes child processes the app starts (an interpreter running a helper script shows up
+    // here), so print who spent it: a high total is only actionable with the culprit named.
+    for item in perProcess.sorted(by: { $0.ns > $1.ns }) {
+        let share = Double(item.ns) / Double(wallNs) * 100
+        print("cpu_proc pid=\(item.pid) name=\(procName(item.pid)) pct=\(String(format: "%.2f", share))")
     }
     // Processes that exited during the window are undercounted slightly;
     // for an idle measurement that error is negligible and conservative.
