@@ -93467,6 +93467,391 @@
           }
         }
       }
+    },
+    "Allow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允許"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "許可"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erlauben"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "허용"
+          }
+        }
+      }
+    },
+    "Deny": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deny"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒绝"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒絕"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒否"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ablehnen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refuser"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denegar"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denegar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recusar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nega"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "거부"
+          }
+        }
+      }
+    },
+    "Claude Code asks to use": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code asks to use"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code 请求使用"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code 請求使用"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code が使用を求めています："
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code möchte verwenden:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code demande à utiliser :"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code pide usar:"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code pide usar:"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Claude Code pede para usar:"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Claude Code pede para usar:"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code chiede di usare:"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code가 사용을 요청합니다:"
+          }
+        }
+      }
+    },
+    "Approve Claude Code Requests Here": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve Claude Code Requests Here"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在此批准 Claude Code 的请求"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在此核准 Claude Code 的請求"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code のリクエストをここで承認"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude-Code-Anfragen hier genehmigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approuver ici les demandes de Claude Code"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprobar aquí las solicitudes de Claude Code"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprobar aquí las solicitudes de Claude Code"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprovar aqui os pedidos do Claude Code"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprovar aqui os pedidos do Claude Code"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approva qui le richieste di Claude Code"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여기서 Claude Code 요청 승인"
+          }
+        }
+      }
+    },
+    "Adds a permission hook to ~/.claude/settings.json. When Claude Code asks before running a tool, a card appears at the top of your screen with Allow and Deny. If KatiKati is closed or you do not answer within a minute, Claude Code asks in the terminal as usual. Your other settings and hooks are kept. Restart Claude Code after changing this.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adds a permission hook to ~/.claude/settings.json. When Claude Code asks before running a tool, a card appears at the top of your screen with Allow and Deny. If KatiKati is closed or you do not answer within a minute, Claude Code asks in the terminal as usual. Your other settings and hooks are kept. Restart Claude Code after changing this."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 ~/.claude/settings.json 中添加一个权限钩子。Claude Code 在运行工具前询问时，屏幕顶部会出现带“允许”和“拒绝”的卡片。如果 KatiKati 未运行，或你一分钟内没有回应，Claude Code 会照常在终端里询问。你的其他设置和钩子都会保留。更改后请重启 Claude Code。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 ~/.claude/settings.json 中加入一個權限掛鉤。Claude Code 在執行工具前詢問時，螢幕頂部會出現帶有「允許」和「拒絕」的卡片。如果 KatiKati 未執行，或你一分鐘內沒有回應，Claude Code 會照常在終端機裡詢問。你的其他設定和掛鉤都會保留。變更後請重新啟動 Claude Code。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.claude/settings.json に権限フックを追加します。Claude Code がツールの実行前に確認すると、画面上部に「許可」と「拒否」のカードが表示されます。KatiKati が終了している場合や1分以内に応答しない場合は、これまでどおりターミナルで確認されます。ほかの設定やフックはそのまま残ります。変更後は Claude Code を再起動してください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fügt ~/.claude/settings.json einen Berechtigungs-Hook hinzu. Fragt Claude Code vor dem Ausführen eines Werkzeugs nach, erscheint oben auf dem Bildschirm eine Karte mit „Erlauben“ und „Ablehnen“. Ist KatiKati beendet oder antworten Sie innerhalb einer Minute nicht, fragt Claude Code wie gewohnt im Terminal. Ihre übrigen Einstellungen und Hooks bleiben erhalten. Starten Sie Claude Code nach der Änderung neu."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoute un hook d’autorisation à ~/.claude/settings.json. Quand Claude Code demande avant d’exécuter un outil, une carte apparaît en haut de l’écran avec Autoriser et Refuser. Si KatiKati est fermé ou si vous ne répondez pas en une minute, Claude Code demande dans le terminal comme d’habitude. Vos autres réglages et hooks sont conservés. Redémarrez Claude Code après ce changement."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade un hook de permisos a ~/.claude/settings.json. Cuando Claude Code pregunta antes de ejecutar una herramienta, aparece una tarjeta en la parte superior de la pantalla con Permitir y Denegar. Si KatiKati está cerrado o no respondes en un minuto, Claude Code pregunta en la terminal como siempre. Tus demás ajustes y hooks se conservan. Reinicia Claude Code tras el cambio."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade un hook de permisos a ~/.claude/settings.json. Cuando Claude Code pregunta antes de ejecutar una herramienta, aparece una tarjeta en la parte superior de la pantalla con Permitir y Denegar. Si KatiKati está cerrado o no respondes en un minuto, Claude Code pregunta en la terminal como siempre. Tus demás ajustes y hooks se conservan. Reinicia Claude Code tras el cambio."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adiciona um hook de permissão ao ~/.claude/settings.json. Quando o Claude Code pergunta antes de executar uma ferramenta, um cartão aparece no topo da tela com Permitir e Negar. Se o KatiKati estiver fechado ou você não responder em um minuto, o Claude Code pergunta no terminal como de costume. Suas outras configurações e hooks são mantidos. Reinicie o Claude Code após a mudança."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adiciona um hook de permissão ao ~/.claude/settings.json. Quando o Claude Code pergunta antes de executar uma ferramenta, aparece um cartão no topo do ecrã com Permitir e Recusar. Se o KatiKati estiver fechado ou não responder num minuto, o Claude Code pergunta no terminal como de costume. As suas outras definições e hooks são mantidos. Reinicie o Claude Code após a alteração."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiunge un hook di autorizzazione a ~/.claude/settings.json. Quando Claude Code chiede prima di eseguire uno strumento, in alto sullo schermo compare una scheda con Consenti e Nega. Se KatiKati è chiuso o non rispondi entro un minuto, Claude Code chiede nel terminale come al solito. Le altre impostazioni e gli altri hook vengono mantenuti. Riavvia Claude Code dopo la modifica."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~/.claude/settings.json에 권한 훅을 추가합니다. Claude Code가 도구를 실행하기 전에 묻으면 화면 상단에 허용/거부 카드가 나타납니다. KatiKati가 종료되었거나 1분 안에 응답하지 않으면 Claude Code는 평소처럼 터미널에서 묻습니다. 다른 설정과 훅은 그대로 유지됩니다. 변경 후 Claude Code를 다시 시작하세요."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
