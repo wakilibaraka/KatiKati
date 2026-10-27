@@ -39,6 +39,7 @@ hot-file touches. The integrator registers all pending tabs in **one slice per r
 ## Claims
 One line per active slice: `lane | slice | agent | branch | files | hot-file touches | since`
 
+- B | port-4a profile model | Claude (cloud) | lane-b/port-profiles | `Core/Support/BarProfile.swift`, `Tests/Unit/BarProfileTests.swift` | pbxproj (4 entries) | 2026-10-27
 - C | Q-input-a | Claude (this session) | main (integrator-direct) | `App/Composition/KeyGuardService.swift`, `Tests/Unit/KeyGuardTests.swift` | none | 2026-10-20
 
 ## Unknown

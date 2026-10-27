@@ -5905,3 +5905,9 @@ Downloads folder.
 
 - Notch: Hardware HUD (RAM/CPU) page removed; four always-on pages remain (Downloads, Storage, AI, Music & Calendar).
 - Crash fix: `FullscreenIntentMonitor.readAXState` skips KatiKati's own pid (AppKit main-thread assertion when AX-reading our own window off-main).
+
+- 2026-10-27 · **Port plan #4a — bar profile model.**
+  - **Files:** `Core/Support/BarProfile.swift` (`BarProfile` Codable with lenient decode; `BarProfilePlan.edits(from:to:isInstalled:folderExists:)` returns kept-app / pinned-folder / widget-preset / layout edits; `snapshot(of:)`), `Tests/Unit/BarProfileTests.swift` (12 tests), 4 pbxproj entries appended by hand.
+  - **Rule under test:** applying a profile edits only kept apps, their order, pinned folders, the widget preset and the layout mode. It has no window vocabulary at all — a running app outside the profile just loses its kept slot. Applying twice is a no-op; apps no longer installed and missing folders are skipped and reported; an unknown layout raw value from a newer build is ignored.
+  - **Not wired yet:** 4b (service + `profiles.json`) and 4c (shortcuts, status menu, command-bar macro) follow. Per the owner's call (2026-10-27) a profile holds kept apps, order, pinned folders, widget preset and layout mode; notch pages stay global. Drawer membership joins after the drawer-pops work lands.
+
