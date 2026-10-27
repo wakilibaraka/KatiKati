@@ -21,8 +21,9 @@ enum EdgeIconSet: String, CaseIterable, Codable, Sendable { case classic, modern
 enum EdgeFlyoutStyle: String, CaseIterable, Codable, Sendable { case modern, glass }
 
 /// The one look the whole edge bar wears: tabs, buttons, flyout plates, tile content and note sheets. `paper` is the
-/// original coloured-paper design; `liquidGlass` is the translucent one (frosted on macOS < 26). Raw values are stored.
-enum EdgeBarStyle: String, CaseIterable, Codable, Sendable { case paper, liquidGlass }
+/// original coloured-paper design; `liquidGlass` is the translucent one (frosted on macOS < 26); `fluid` is the
+/// poured body (`FluidRailBody`) the dock's fluid preset also wears. Raw values are stored.
+enum EdgeBarStyle: String, CaseIterable, Codable, Sendable { case paper, liquidGlass, fluid }
 
 struct EdgeBarPrefs: Equatable, Codable, Sendable {
     static let key = "com.katikati.edge.prefs"

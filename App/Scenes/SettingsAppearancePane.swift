@@ -22,7 +22,7 @@ struct SettingsAppearancePane: View {
 
     private static let presets: [DockThemeStyle] = [
         .system, .translucent, .crystalClear, .obsidianDark, .monochrome, .titaniumFrost,
-        .auroraGlow, .deepOcean, .forestMoss, .cyberpunkGlass, .emberSunset, .roseQuartz,
+        .auroraGlow, .deepOcean, .forestMoss, .cyberpunkGlass, .emberSunset, .roseQuartz, .fluid,
     ]
     private static let defaultCustom = DockThemeStyle.customRGBA(r: 0.23, g: 0.43, b: 0.65, a: 0.7)
 
@@ -352,6 +352,7 @@ private struct ThemeName: View {
         case .cyberpunkGlass: Text("Cyberpunk Glass")
         case .emberSunset: Text("Ember Sunset")
         case .roseQuartz: Text("Rose Quartz")
+        case .fluid: Text("Fluid")
         case .customRGBA: Text("Custom")
         }
     }

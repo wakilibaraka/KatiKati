@@ -39,6 +39,10 @@ enum DockThemeStyle: Equatable, Codable {
     case cyberpunkGlass
     case emberSunset
     case roseQuartz
+    /// The poured body: one near-black mass whose outline swells around the item under the
+    /// pointer (`FluidRailBody`). The plate tint below only feeds the swatch and the surfaces that
+    /// still draw a rounded plate; the rail itself draws its own silhouette.
+    case fluid
     
     case customRGBA(r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat)
     case auto
@@ -57,6 +61,7 @@ enum DockThemeStyle: Equatable, Codable {
         case .cyberpunkGlass: return "cyberpunkGlass"
         case .emberSunset: return "emberSunset"
         case .roseQuartz: return "roseQuartz"
+        case .fluid: return "fluid"
         case .auto: return "auto"
         case .customRGBA(let r, let g, let b, let a):
             return "custom:\(r),\(g),\(b),\(a)"
@@ -77,6 +82,7 @@ enum DockThemeStyle: Equatable, Codable {
         case "cyberpunkGlass": self = .cyberpunkGlass
         case "emberSunset": self = .emberSunset
         case "roseQuartz": self = .roseQuartz
+        case "fluid": self = .fluid
         case "auto": self = .auto
         default:
             if token.hasPrefix("custom:") {
@@ -146,6 +152,10 @@ extension DockThemeStyle {
         default: return true
         }
     }
+
+    /// The poured-body theme. Only the rail and the drawer capsule draw a fluid body; every other
+    /// surface keeps the rounded plate this file has always produced.
+    var isFluid: Bool { self == .fluid }
 
     func plateOverlay(
         baseTint: DockRGBA,

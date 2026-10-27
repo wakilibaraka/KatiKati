@@ -86,7 +86,9 @@ final class EdgeBarPrefsTests: XCTestCase {
         let d = UserDefaults(suiteName: "EdgeBarPrefsTests.\(UUID())")!
         var q = EdgeBarPrefs(); q.barStyle = .liquidGlass; q.save(d)
         XCTAssertEqual(EdgeBarPrefs.load(d).barStyle, .liquidGlass)
-        XCTAssertEqual(EdgeBarStyle.allCases.map(\.rawValue), ["paper", "liquidGlass"], "stored ids are frozen")
+        q.barStyle = .fluid; q.save(d)
+        XCTAssertEqual(EdgeBarPrefs.load(d).barStyle, .fluid)
+        XCTAssertEqual(EdgeBarStyle.allCases.map(\.rawValue), ["paper", "liquidGlass", "fluid"], "stored ids are frozen")
     }
 
     func testNewPrefsDefaults() {

@@ -64,6 +64,9 @@ struct DrawerCapsuleButton: View {
     /// 否则换档时任务条变了、胶囊里的四宫格还停在旧尺寸。
     private var dockScale: CGFloat { settingsStore.dockPanelHeight.scale }
 
+    /// The poured theme: the capsule is the little blob under the rail, so it wears the same body.
+    private var fluidTheme: Bool { settingsStore.themeMaterial.resolved(for: .system).isFluid }
+
     /// While a card is dragged, hover gives way to the drop feedback (the drag wins).
     private var hoverEnabled: Bool { !isPanelHeightResizing && dragController.draggingPayload == nil }
 
@@ -79,10 +82,15 @@ struct DrawerCapsuleButton: View {
         // lost with nothing to replace it. (The count disc is gone: the apps themselves are the preview.)
         let showsBackgroundDisc = false
         return ZStack {
-            DockPanelBackdrop(theme: theme,
-                              cornerRadius: DockShape.panelCornerRadius * dockScale,
-                              usesLiquidGlass: usesLiquidGlass,
-                              matchesDockRefraction: true)
+            if fluidTheme {
+                FluidRailBody(centers: [], radius: dockScale * 27, vertical: true,
+                              lightAtStart: settingsStore.stripPlacement(forDisplay: nil) == .left)
+            } else {
+                DockPanelBackdrop(theme: theme,
+                                  cornerRadius: DockShape.panelCornerRadius * dockScale,
+                                  usesLiquidGlass: usesLiquidGlass,
+                                  matchesDockRefraction: true)
+            }
 
             // Hover and press feedback move only the cell under the pointer; the outer frame
             // (backdrop + rim) stays still.
@@ -96,7 +104,8 @@ struct DrawerCapsuleButton: View {
         .dockPanelRim(cornerRadius: DockShape.panelCornerRadius * dockScale,
                       style: theme.panelRimStyle,
                       lineWidth: theme.panelRimLineWidth,
-                      usesLiquidGlass: usesLiquidGlass)
+                      usesLiquidGlass: usesLiquidGlass,
+                      visible: !fluidTheme)
         // No stash glow here any more: the stash target is the drawer pop chip (`PopChip`).
         .dockShadow(theme.stripShadow,
                     visible: DockLiquidGlassConfiguration.stripShadowVisible(
