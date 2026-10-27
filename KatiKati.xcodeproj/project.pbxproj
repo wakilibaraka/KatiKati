@@ -1045,9 +1045,12 @@
 		ED00000000000000000000B6 /* TaskList.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000B4 /* TaskList.swift */; };
 		ED00000000000000000000B8 /* TasksStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000B7 /* TasksStore.swift */; };
 		ED00000000000000000000B9 /* TasksStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000B7 /* TasksStore.swift */; };
+		FB000000000000000000001B /* SettingsBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB000000000000000000001E /* SettingsBackupService.swift */; };
+		FB000000000000000000001C /* SettingsBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB000000000000000000001E /* SettingsBackupService.swift */; };
 		ED00000000000000000000BB /* TasksController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000BA /* TasksController.swift */; };
 		ED00000000000000000000BD /* TasksFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000BC /* TasksFlyoutView.swift */; };
 		ED00000000000000000000BF /* TaskListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000BE /* TaskListTests.swift */; };
+		FB000000000000000000001D /* SettingsBackupServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB000000000000000000001F /* SettingsBackupServiceTests.swift */; };
 		ED00000000000000000000C0 /* DeckLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000A2 /* DeckLabel.swift */; };
 		ED00000000000000000000C2 /* WindowSnap.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C1 /* WindowSnap.swift */; };
 		ED00000000000000000000C3 /* WindowSnap.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C1 /* WindowSnap.swift */; };
@@ -1949,9 +1952,11 @@
 		F3A0000000000000000000B0 /* DiagnosticReportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticReportTests.swift; sourceTree = "<group>"; };
 		ED00000000000000000000B4 /* TaskList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TaskList.swift; path = Core/Support/TaskList.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000B7 /* TasksStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TasksStore.swift; path = Platform/Tasks/TasksStore.swift; sourceTree = SOURCE_ROOT; };
+		FB000000000000000000001E /* SettingsBackupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsBackupService.swift; path = Platform/Backup/SettingsBackupService.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000BA /* TasksController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TasksController.swift; path = Platform/Tasks/TasksController.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000BC /* TasksFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TasksFlyoutView.swift; path = App/Scenes/Edge/TasksFlyoutView.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000BE /* TaskListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TaskListTests.swift; path = Tests/Unit/TaskListTests.swift; sourceTree = SOURCE_ROOT; };
+		FB000000000000000000001F /* SettingsBackupServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsBackupServiceTests.swift; path = Tests/Unit/SettingsBackupServiceTests.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000C1 /* WindowSnap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSnap.swift; path = Core/Support/WindowSnap.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000C4 /* WindowSnapService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSnapService.swift; path = Platform/Windows/WindowSnapService.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000C6 /* WindowsFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowsFlyoutView.swift; path = App/Scenes/Edge/WindowsFlyoutView.swift; sourceTree = SOURCE_ROOT; };
@@ -3330,6 +3335,7 @@
 				ED00000000000000000000C7 /* WindowsFlyoutView.swift in Sources */,
 				ED00000000000000000000B5 /* TaskList.swift in Sources */,
 				ED00000000000000000000B8 /* TasksStore.swift in Sources */,
+				FB000000000000000000001B /* SettingsBackupService.swift in Sources */,
 				ED00000000000000000000BB /* TasksController.swift in Sources */,
 				ED00000000000000000000BD /* TasksFlyoutView.swift in Sources */,
 				ED00000000000000000000B3 /* ProductivityFlyouts.swift in Sources */,
@@ -3730,7 +3736,9 @@
 				ED00000000000000000000C0 /* DeckLabel.swift in Sources */,
 				ED00000000000000000000B6 /* TaskList.swift in Sources */,
 				ED00000000000000000000B9 /* TasksStore.swift in Sources */,
+				FB000000000000000000001C /* SettingsBackupService.swift in Sources */,
 				ED00000000000000000000BF /* TaskListTests.swift in Sources */,
+				FB000000000000000000001D /* SettingsBackupServiceTests.swift in Sources */,
 				ED0000000000000000000072 /* BluetoothDevices.swift in Sources */,
 				ED0000000000000000000076 /* BluetoothDevicesTests.swift in Sources */,
 				ED0000000000000000000066 /* NotesSyncService.swift in Sources */,
