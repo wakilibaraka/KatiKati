@@ -49,9 +49,9 @@ final class DockWindowManagerTests: XCTestCase {
 
         let store = AppSettingsStore(defaults: defaults)
 
-        // Verifies legacy preset preservation: default is .reserveScreenSpaceStrut
-        XCTAssertEqual(store.dockLayeringMode, .reserveScreenSpaceStrut)
-        XCTAssertEqual(DockWindowManager.shared.layeringMode, .reserveScreenSpaceStrut)
+        // Verifies legacy preset preservation: default is .alwaysOnTop
+        XCTAssertEqual(store.dockLayeringMode, .alwaysOnTop)
+        XCTAssertEqual(DockWindowManager.shared.layeringMode, .alwaysOnTop)
         XCTAssertTrue(store.dockSkyLightReinforcement)
         XCTAssertFalse(store.dockAppleScriptFallback)
 
