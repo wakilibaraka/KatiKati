@@ -301,7 +301,9 @@ public final class DockWindowManager: ObservableObject {
 
         for panel in dockPanels {
             panel.level = level
-            if orderAbove {
+            // Only re-raise a panel the coordinator has on screen: forcing a logically hidden (edge
+            // auto-hide / fullscreen) dock back made it reappear without its capsule.
+            if orderAbove, panel.isVisible {
                 panel.orderFrontRegardless()
             }
             if useSkyLightFallbackReinforcement, panel.windowNumber > 0 {
@@ -318,7 +320,7 @@ public final class DockWindowManager: ObservableObject {
 
         // Maintain relative sub-ordering between glass background and content
         for (bg, dock) in zip(bgPanels, dockPanels) {
-            bg.order(.below, relativeTo: dock.windowNumber)
+            if bg.isVisible { bg.order(.below, relativeTo: dock.windowNumber) }
         }
         for (capsule, dock) in zip(capsulePanels, dockPanels) {
             if capsule.isVisible {
@@ -334,6 +336,7 @@ public final class DockWindowManager: ObservableObject {
 
         for panel in dockPanels + bgPanels {
             panel.level = MacDockWindowLevel.normalWindow
+            guard panel.isVisible else { continue }
             panel.order(.below, relativeTo: Int(coveringWID))
             if useSkyLightFallbackReinforcement, panel.windowNumber > 0 {
                 let wid = CGWindowID(panel.windowNumber)
