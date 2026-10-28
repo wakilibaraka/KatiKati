@@ -619,7 +619,7 @@ final class AppSettingsStore: ObservableObject {
             lastEnabledEdgeAutoHideDelay = edgeDelay
         }
         let storedLayeringModeRaw = defaults.string(forKey: Keys.dockLayeringMode)
-        let initialLayeringMode = storedLayeringModeRaw.flatMap(DockLayeringMode.init(rawValue:)) ?? .alwaysOnTop
+        let initialLayeringMode = storedLayeringModeRaw.flatMap(DockLayeringMode.init(rawValue:)) ?? .reserveScreenSpaceStrut
         dockLayeringMode = initialLayeringMode
 
         let storedSkyLight = defaults.object(forKey: Keys.dockSkyLightReinforcement) as? Bool ?? true
