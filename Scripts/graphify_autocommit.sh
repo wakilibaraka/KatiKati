@@ -19,6 +19,9 @@ HOOK="$ROOT/.git/hooks/post-commit"
 MARKER="# graphify-autocommit"
 QUIET="${GRAPHIFY_AUTOCOMMIT_QUIET:-2}"
 TIMEOUT="${GRAPHIFY_AUTOCOMMIT_TIMEOUT:-180}"
+# An unstarted rebuild looks exactly like a finished one, and the hook spawns it a beat after
+# this waiter; without a grace window the waiter read the gap as "done" and exited.
+GRACE="${GRAPHIFY_AUTOCOMMIT_GRACE:-15}"
 ROOT_REAL="$(cd "$ROOT" 2>/dev/null && pwd -P || echo "$ROOT")"
 
 launch_block() {
@@ -133,28 +136,49 @@ rebuild_running() {
 # shortcut: a rebuild slower than TIMEOUT leaves its output for the next commit to sweep.
 run() {
     trace "started pid=$$ root=$ROOT"
-    head_is_graph_only && { trace "graph-only commit, nothing to sweep"; return 0; }
-    local deadline=$((SECONDS + TIMEOUT)) idle=0
+    local began=$SECONDS
+    if head_is_graph_only; then
+        # The hook skips its rebuild for a graph-only commit, so there is normally nothing here —
+        # but an earlier waiter that died, timed out or lost its rebuild leaves dirty output, and
+        # returning without looking is what carried it past one more commit. Sweep it.
+        if graph_dirty && graph_quiet; then
+            commit_once && trace "swept a dead run's output"
+        fi
+        trace "graph-only commit, nothing else to sweep"
+        return 0
+    fi
+    local deadline=$((SECONDS + TIMEOUT)) idle=0 seen=0
     while :; do
         if graph_dirty && graph_quiet; then
             commit_once && trace "committed"
         fi
         if rebuild_running; then
+            seen=1
             idle=0
         elif ! graph_dirty || graph_quiet; then
-            idle=$((idle + 1))
-            # Two consecutive settled polls: the rebuild is gone and what it wrote is in.
-            # "Settled" includes dirty, so the exit never leaves a fresh write uncommitted —
-            # an earlier version did exactly that with manifest.json and stat-index.json.
-            if [ "$idle" -ge 2 ]; then
-                if graph_dirty; then commit_once && trace "committed at exit"; fi
-                trace "rebuild finished (dirty=$(graph_dirty && echo yes || echo no))"
-                return 0
+            # Count a settled poll only once the rebuild has been seen or the grace window has
+            # passed; before that, "no process and nothing written" is a rebuild that has not
+            # started, not one that has finished.
+            if [ "$seen" -eq 1 ] || [ $((SECONDS - began)) -ge "$GRACE" ]; then
+                idle=$((idle + 1))
+                # Two consecutive settled polls: the rebuild is gone and what it wrote is in.
+                # "Settled" includes dirty, so the exit never leaves a fresh write uncommitted —
+                # an earlier version did exactly that with manifest.json and stat-index.json.
+                if [ "$idle" -ge 2 ]; then
+                    if graph_dirty; then commit_once && trace "committed at exit"; fi
+                    trace "rebuild finished (dirty=$(graph_dirty && echo yes || echo no))"
+                    return 0
+                fi
             fi
         else
             idle=0
         fi
-        (( SECONDS >= deadline )) && { trace "deadline (dirty=$(graph_dirty && echo yes || echo no))"; return 0; }
+        if (( SECONDS >= deadline )); then
+            # Never walk away from output that is sitting there finished.
+            if graph_dirty && graph_quiet; then commit_once && trace "committed at deadline"; fi
+            trace "deadline (dirty=$(graph_dirty && echo yes || echo no))"
+            return 0
+        fi
         sleep 1
     done
 }
@@ -233,6 +257,29 @@ selftest() {
     GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" "$tmp/Scripts/graphify_autocommit.sh" install >/dev/null
     [ "$(grep -cF "$MARKER" "$tmp/.git/hooks/post-commit")" = 1 ] && echo "PASS install stays single" || { echo "FAIL install duplicated itself"; fails=1; }
     grep -q start_new_session "$tmp/.git/hooks/post-commit" && echo "PASS waiter gets its own session" || { echo "FAIL waiter not detached into a session"; fails=1; }
+
+    # 8. a waiter that died before committing leaves dirty output behind a graph-only HEAD;
+    #    that early return is exactly what carried it past the next commit, so it must sweep
+    printf '{"nodes":[6]}\n' > "$tmp/graphify-out/graph.json"
+    git -C "$tmp" add -A -- graphify-out && git -C "$tmp" commit -qm "graphify: test 2"
+    printf '{"nodes":[7]}\n' > "$tmp/graphify-out/graph.json"
+    GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" GRAPHIFY_AUTOCOMMIT_QUIET=0 GRAPHIFY_AUTOCOMMIT_TIMEOUT=5 "$SELF" >/dev/null
+    [ -z "$(git -C "$tmp" status --porcelain -- graphify-out)" ] && echo "PASS leftover swept on a graph-only HEAD" || { echo "FAIL leftover left uncommitted behind a graph-only HEAD"; fails=1; }
+
+    # 9. a rebuild that has not appeared in the process table yet must not be read as finished;
+    #    the old waiter polled twice, saw nothing, and exited before the rebuild started
+    printf '{"nodes":[8]}\n' > "$tmp/graphify-out/graph.json"
+    git -C "$tmp" add -A -- graphify-out && git -C "$tmp" commit -qm "graphify: test 3"
+    git -C "$tmp" commit -q --allow-empty -m "code touch 3"
+    printf '{"nodes":[9]}\n' > "$tmp/graphify-out/graph.json"
+    local busy2="$tmp/BUSY2"
+    # The marker must appear after the old waiter's second empty poll (~2 s), or the race is not
+    # reproduced: with a 3 s delay the old code saw the process in time and passed.
+    ( sleep 4; : > "$busy2"; sleep 2; printf '{"nodes":[10]}\n' > "$tmp/graphify-out/graph.json"; sleep 1; rm -f "$busy2" ) &
+    GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" GRAPHIFY_AUTOCOMMIT_QUIET=1 GRAPHIFY_AUTOCOMMIT_TIMEOUT=40 \
+        GRAPHIFY_AUTOCOMMIT_GRACE=10 GRAPHIFY_AUTOCOMMIT_BUSY_FILE="$busy2" "$SELF" >/dev/null
+    wait
+    [ -z "$(git -C "$tmp" status --porcelain -- graphify-out)" ] && echo "PASS late-starting rebuild is waited for" || { echo "FAIL exited before the rebuild had written"; fails=1; }
     return "$fails"
 }
 
