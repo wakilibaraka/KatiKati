@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1793191167.7013998,
-    "seen": 1793191441.0042298,
-    "ast_hash": "448f3f39385430c817186f3155ac6c80",
+    "mtime": 1793192955.2166374,
+    "seen": 1793192959.620801,
+    "ast_hash": "2a4b3555fc023527cf9195f9e3821cd9",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -6864,9 +6864,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWindowManagerTests.swift": {
-    "mtime": 1793191197.6423712,
-    "seen": 1793191441.0047731,
-    "ast_hash": "ec77cdfaab5664c05fa03bf0ccc9b87e",
+    "mtime": 1793192955.2195468,
+    "seen": 1793192959.62137,
+    "ast_hash": "8fc109f2ea7894b5e6506d4f11c44c71",
     "semantic_hash": ""
   },
   "App/Scenes/FluidRailBody.swift": {
