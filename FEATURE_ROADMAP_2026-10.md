@@ -34,14 +34,17 @@
 5. **Status words:** BUILT · PARTIAL · PLANNED (already in HYBRID_PLAN, not built) · MISSING · UNVERIFIED · OWED.
 6. **Gate** (every slice; section 8): `xcodebuild test` (CI command) + `check_localization.py` +
    `check_debug_switches.py` + `check_availability_warnings.py`; dev loop only through `Scripts/build_and_run.sh`.
+7. **This file is not the whole open surface either.** It plans Phases 49–59 and Track Q; the **port-plan** backlog —
+   quicklink templates slice 2, hold-to-dictate, and the eight items only the external artifact defines — is in
+   `HYBRID_PLAN.md` §5g, which is the backlog of record for anything ported from a donor.
 
 ## 1. Ground truth (what the code actually contains)
 
 ### 1.1 Shape
 `Core/Support` (pure, no AppKit/AX, dual-compiled into the test target) → `Platform/*` (OS adapters) →
 `App/Composition` (services, stores) → `App/Scenes` (SwiftUI) → `App/Entry` (panel controllers, `AppDelegate`).
-240 files in `Tests/Unit` (227 at rev 3; the phase-50–59 slices, `MenuBarStatModelTests` and `PowerFactsTests` are the rest). One dependency (Sparkle).
-1141 localization keys × 12 languages, `check_localization.py` green on 2026-10-25 (its identical-to-English report is down to 891 values over 131 keys, a human pass). `SettingsTab` has **19** cases (`App/Scenes/SettingsTab.swift`; sidebar shell in `App/Scenes/Settings/`).
+255 files in `Tests/Unit` (measured 2026-10-28; 240 at the port wave, 227 at rev 3). One dependency (Sparkle).
+1237 localization keys × 12 languages, `check_localization.py` green on 2026-10-28 (its identical-to-English report stands at 935 values over 139 keys — the port wave added strings faster than the human pass retired them). `SettingsTab` has **19** cases (`App/Scenes/SettingsTab.swift`; sidebar shell in `App/Scenes/Settings/`).
 Four independent `CGEventTap`s: `HyperkeyService`, `KeyGuardService`, `ScrollReverserMonitor`, `FullscreenIntentMonitor`.
 
 ### 1.2 Wishlist item → reality
@@ -161,11 +164,10 @@ integrator applies it (or the slice waits).
 7. **Behaviour-frozen files** (`WindowLiftAvoidanceController` 2754 lines, `AppTracker` 2607, `DragController` 1988,
    `AccessibilitySource` 1343, `FullscreenIntentMonitor` 1010): bug fixes with a regression test only. Splits are
    pure-move slices, never mixed with edits.
-8. **Before any lane starts (pre-flight):** `git status` clean on `main` (it is, at `14092d5`, apart from `graphify-out/*`, which every build rewrites); the 2 stale stashes
-   (`phase-12 slice1`, `4u-a-superseded`, both labelled superseded) and the prunable `/private/tmp/kk-tip` worktree
-   (detached `bad2303`) cleared **by the owner**; worktree `.claude/worktrees/hopeful-gauss-9a1c88` (also detached
-   `bad2303`) either adopted or removed. Local branches `claude/hopeful-gauss-9a1c88`, `phase-11-18-layout-placement`,
-   `fix/force-unwrap-hardening`, `release/0.17.0-beta.3` are all already merged into `main` (`git branch --merged`).
+8. **Before any lane starts (pre-flight):** **cleared 2026-10-28.** `main` == `origin/main`, the tree is clean, no stashes
+   remain, `git worktree list` shows only the integrator's checkout, and the four merged branches this row named
+   (`claude/hopeful-gauss-9a1c88`, `phase-11-18-layout-placement`, `fix/force-unwrap-hardening`, `release/0.17.0-beta.3`)
+   no longer exist. A lane starts by cutting from the tag `base/post-port-wave`, not from a moving `main`.
 9. **If a file changed under you** (another agent): stop, re-read, rebase; never overwrite.
 10. **At most 2–3 lanes active at once** (not all six): one integrator owns the hot files (3.3), and which lanes
     Freebuff or another agent is using is unknown until `LANES.md` exists. Start with two lanes whose files do not
@@ -551,7 +553,9 @@ real drawer with background apps, and a 53g paste with the Automation grant (fir
 ## 7. Owner decisions needed
 1. Run Q0–Q1 **before** new features (recommended) or in parallel? (Q2 is done, `896f8f6`; Q0's test command and checkers are recorded in section 9.)
 2. Who performs the OWED eyeball/grant checks (4.3)? Agents cannot grant Accessibility/Screen Recording.
-3. Clear the 2 stale stashes, `/private/tmp/kk-tip`, and decide the fate of `.claude/worktrees/hopeful-gauss-9a1c88`.
+3. ~~Clear the 2 stale stashes, `/private/tmp/kk-tip`, and decide the fate of `.claude/worktrees/hopeful-gauss-9a1c88`.~~
+   **Done 2026-10-28:** the stash was dropped after its patch was saved to `~/Desktop/katikati-stash-backup.patch`, the
+   stale worktree is gone, no other worktree is registered, and `base/post-port-wave` tags the verified base.
 4. Set up the `merge=graphify` driver on each clone/worktree; decide whether `FEATURE_ROADMAP_2026-10.md` and `LANES.md`
    are committed (published) at the root or kept untracked.
 5. Input: extend `KeyGuardPipeline` (recommended) vs build a single tap hub — decide after 53e.
@@ -595,18 +599,18 @@ that our code has the same bug.
 
 | Vorssaint change | Lands in | Ours today |
 |---|---|---|
-| Clipboard items expire after N days; pinned stay | 55g | no age-based retention; pinned + 50-unpinned cap exist |
+| Clipboard items expire after N days; pinned stay | 55g | **done:** `ClipboardRetention.prune` (pinned never pruned, 0 = off) behind **Keep Clipboard History**, Forever by default |
 | Secure input has no change notification; sample only while needed; name the app active when it turned on | Q-input-a, 53c | done (`e1a6ec6`): probe only while the visualizer is on |
-| Paste-as-plain-text and snippets cancel if a newer copy replaced the clipboard | 53c, 53g | n/a until those exist |
+| Paste-as-plain-text and snippets cancel if a newer copy replaced the clipboard | 53c, 53g | **done:** 53c cancels the paste when a newer copy replaced the pasteboard; 53g writes with `.withoutOverwriting` |
 | Its ⌘Tab replacement went dead under secure input | 54c | no ⌘Tab replacement |
-| ⌘Q hold / double-press passed through to Screen Sharing and VMs | 53i | no remote/VM exclusion in `KeyGuard*` (grep) |
-| Focus-follows-mouse keeps pop-ups open | 54e | feature MISSING |
+| ⌘Q hold / double-press passed through to Screen Sharing and VMs | 53i | **done:** `SlowQuitPassthrough.defaults` = Screen Sharing, Parallels, VMware Fusion, UTM, editable as the **Own ⌘Q** column |
+| Focus-follows-mouse keeps pop-ups open | 54e | **built** (`FocusFollowService` + `FocusFollowPolicy` + tests); keeping pop-ups open is the one part still open |
 | Dock Preview / switcher: pause capture on a slow permission check, display sleep or lock; do not wait on a frozen app; right process instance | 54a, 54b | features MISSING |
 | Input taps stopped for cleanup or shutdown no longer restart | 4.4-12, Q-input | hypothesis |
 | Notch: not below the physical notch when the menu bar is taller; custom width on every page; no-notch display options; close after a Shelf drag-out | Q-notch | hypothesis |
 | Lyrics via opt-in `lrclib.net` (+ optional `musicbrainz.org`) with a privacy note | 50g | parked; owner call (7, item 12) |
 | AI Agents: per-Codex-account limits; Claude limits via Claude Code | 52a, Q-utils | parsers in `AgentStoreParsers.swift`; hypothesis |
-| Power card lists accessory batteries without the menu-bar item | 56c, 51d | `BluetoothDevices` parser exists; redesign MISSING |
+| Power card lists accessory batteries without the menu-bar item | 56c, 51d | **built:** `BluetoothDevices` + the battery card's accessory list (Bluetooth flyout in `StatusTrioView`) |
 | Command Bar keeps meaningful digits in large calculator results | Q-utils | `CalculatorEngine` — hypothesis |
 
 Not mapped (not on the wishlist, no roadmap item): volume mixer, screenshot-editor tools, App Updates catalog, What's New
@@ -625,10 +629,11 @@ window, Firefox cover art, window-switcher options.
 
 ## 9. Baseline record (Q0 fills this in)
 | Date | HEAD | `xcodebuild test` | Checkers | Idle CPU (Q1) | Notes |
+|---|---|---|---|---|---|
+| 2026-10-28 | `33108e8` (tag `base/post-port-wave`; last code commit `7496d71`) | ✅ 2899 tests, 2 skipped (live torrent), 0 failures, `** TEST SUCCEEDED **`, exit 0 | `check_localization.py` ✅ (1237 keys × 12); `check_debug_switches.py` ✅ (86 switches); `check_availability_warnings.py` **not run** — it needs a build log as its argument | _owed_ | Port-wave consolidation, no code change in this pass (`33108e8` only rebuilds `graphify-out`): `main` == `origin/main`, the 3.4-8 pre-flight is cleared, and this is the base tag. All 15 PRs are contained in `main`, including the five closed ones that landed through `integration/plan-all`. |
 | 2026-10-21 | `351009c` (Phase 58b) | ✅ 2672 tests, 2 skipped (live torrent), 0 failures, `** TEST SUCCEEDED **`, exit 0 | `check_localization.py` ✅ (1084 keys × 12); `check_debug_switches.py` ✅ (85 switches); `check_availability_warnings.py` ✅ on this run's log | _owed_ | No new tests: the change is one SwiftUI overlay with no decision to test — the evidence is the live run, not a unit test. Frames from `screencapture -l` on the guide window (14 @ 85 ms): covered at 1.3–1.7 s (OCR reads only the title), dissolved by 2.2 s, frame 520 × 485 throughout, and an early click on Continue was swallowed while the same click after the settle advanced the step. **Not exercised:** Reduce Motion (changing `com.apple.universalaccess` is a machine-wide toggle, left alone) and the 58a microphone row live, which is the owner's grant to give. |
 | 2026-10-21 | `0de204a` (Phase 57b) | ✅ 2667 tests, 2 skipped (live torrent), 0 failures, `** TEST SUCCEEDED **`, exit 0 | `check_localization.py` ✅ (1081 keys × 12); `check_debug_switches.py` ✅ (85 switches); `check_availability_warnings.py` ✅ on this run's log | _owed_ | 7 new tests. Live: the three panel frames read from `CGWindowList` — fullscreen 1710 × 1112 at 0,0; centred 1200 × 760 at 255,195; popover 640 × 520 at 585,468 — and a screenshot of each mode shows the grid and search field drawn (the Launcher settings page is captured too). **Not exercised:** clicking the new segmented **Presentation** row itself (System Events exposes no walkable AX tree inside this window on macOS 27 — `entire contents` returns 0), so the store setter is verified by code and by writing the same default the picker writes. |
 | 2026-10-21 | `4b87483` (Phase 57a) | ✅ 2660 tests, 2 skipped (live torrent), 0 failures, `** TEST SUCCEEDED **`, exit 0 | `check_localization.py` ✅ (1077 keys × 12); `check_debug_switches.py` ✅ (85 switches); `check_availability_warnings.py` ✅ on this run's log | _owed_ | 6 new tests. Live in the running app: the catcher lands on the volume row at **408 × 40** (it was **171.5 × 40** before the flexible-size fix) and driving the real catcher moved the system volume 50→58 (3 notched up), 50→42 (3 down), 50→53 (4 × 3 pt precise), 0→0 and 100→100 (clamp). **OWED:** a physical wheel/trackpad gesture over the panel — synthetic scroll CGEvents are not delivered to the app on this macOS 27 (the app's own global scroll monitor logged nothing with the panel open, and `NSApp.postEvent` of a scroll never reached `hitTest`), so AppKit's routing to the overlay is the one link the probe could not exercise; it called `scrollWheel(with:)` on the live view instead. |
-|---|---|---|---|---|---|
 | 2026-10-20 | `dac5606` (code = `1ce7963`; `bb3a1f7` adds only this doc) | ✅ `1ce7963`: 2548 tests, 2 skipped (live torrent), 0 failures, exit 0 | `check_localization.py` ✅ (993 keys × 12; 40 source literals); `check_debug_switches.py`, `check_availability_warnings.py` _not yet recorded_ | _owed_ | the 7 `error:` lines in the log are macOS `linkd.autoShortcut` runtime noise, not compile errors |
 | 2026-10-20 | `14092d5` (rev 3) | ✅ 2559 tests, 2 skipped (same two live-torrent tests), 0 failures, `** TEST SUCCEEDED **`, exit 0 | `check_localization.py` ✅ (1013 keys × 12; 40 source literals); `check_debug_switches.py` ✅ (85 switches); `check_availability_warnings.py` ✅ on this run's complete log | _owed_ | the 7 `error:` lines are `[Connection]`/`xctest` runtime noise (`Unable to get synchronousRemoteObjectProxy…`), not compile errors; +11 tests vs `1ce7963`; live smoke run of the 18 tabs still OWED |
 | 2026-10-20 | `c46d6ae` (Q1) | — | — | **Debug build, M3, macOS 27.0.1, `ps %cpu` 60 s after 10 s settle:** defaults avg 17.5 (max 25.4); cpu metric on 15.8; all 5 metrics on 15.4; re-sampled later 18.2. Metric toggles made no visible difference (set via `defaults write`; live pickup unverified). Instruments/Release run _owed_. | Idle ~15-18 % is high. One 3 s `sample` put the hot frames in `WindowLiftAvoidanceController.probeTrackedFrames` → `WindowLiftCGWindowProbe.frames(for:)` (`CGWindowListCopyWindowInfo` per tracked window on a repeating timer, :799). Lead only, not a diagnosis. `git grep` finds 35 `Timer` sites in `App/Composition` + `Platform`, not 16 (includes one-shots). |

@@ -451,6 +451,8 @@ What is still unbuilt:
 
 Each item still enters through a §5f donor row and one `LANES.md` claim, and gets its own dated entry below when it lands. Before the next slice starts, clear the 2026-10-27 claim lines still in `LANES.md` — every slice they name is already merged.
 
+**§5g is not the whole open surface.** It covers only work that ports from a donor. The verification debt and the feature slices live in `FEATURE_ROADMAP_2026-10.md`: Q1's idle-CPU baseline (Release/Instruments still owed), the Q-l10n human pass (935 values still identical to English), Q-a11y's Reduce Motion/VoiceOver sweep, the per-phase live checks marked OWED, and the owner-only steps (58a's four Grant clicks, 59h's BeteriApp README pointer and archive). A slice that is not a port belongs there, not here.
+
 ## 6. Build, identity, licensing
 
 - **Repo**: `/Users/baraka/Desktop/Splitbar`, branch `main`. **Build system follows the
