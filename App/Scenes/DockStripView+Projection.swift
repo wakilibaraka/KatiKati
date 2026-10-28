@@ -246,7 +246,8 @@ extension DockStripView {
         // Folders sit at the bar's tail in one zone with the Trash, as on the native Dock: no
         // divider between them.
         let headEntries = messaging + (settingsStore.showShelf ? [StripEntry.shelf] : [])
-        let tailEntries = pinnedEntries + (settingsStore.showTrash ? [StripEntry.trash] : [])
+        // The drawer pop heads the tail zone: left of the pinned folders (Downloads) and the Trash.
+        let tailEntries = [StripEntry.pop] + pinnedEntries + (settingsStore.showTrash ? [StripEntry.trash] : [])
         var zones = [headEntries, liveWithGhost, tailEntries]
             .map { zone in zone.filter { $0.id != collapsedEntryID } }
             .filter { !$0.isEmpty }

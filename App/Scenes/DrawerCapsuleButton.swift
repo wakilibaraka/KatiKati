@@ -45,27 +45,17 @@ struct DrawerCapsuleButton: View {
 
     private var iconSize: CGFloat { DrawerCapsulePreviewMetrics.iconSize * dockScale }
 
-    /// Every visible drawer app in the order the open drawer reads (`DrawerView.visibleMembers`):
-    /// drawer order alone, never regrouped by running state, or the capsule pages disagree with
-    /// the drawer.
-    private var memberIDs: [String] {
-        let placements = AppMembershipProjection.drawerMembers(drawerIDs: drawerStore.bundleIDs)
-        return AppMembershipProjection.visibleDrawerIDs(
-            drawerIDs: drawerOrderStore.reconciled(members: placements),
-            keptIDs: keptAppStore.bundleIDs,
-            runningIDs: runningApplicationStore.runningBundleIDs
-        )
-    }
-
     @ObservedObject private var backgroundStore = BackgroundAppsStore.shared
     @AppStorage(BackgroundAppsStore.showSystemHelpersKey) private var showSystemHelpers = false
 
-    /// Phase 20a: how many background apps the drawer holds, shown as a small badge on the capsule.
-    private var backgroundCount: Int {
+    /// The capsule is the **Background Apps** button (owner 2026-10-27): its preview is the background
+    /// apps in the order the open panel reads (`DrawerView.backgroundMembers`). Stashed apps live in the
+    /// drawer pop, its own dock icon, and never show here.
+    private var memberIDs: [String] {
         let windowBacked = Set(StripItem.items(from: runtime.snapshot).filter { !$0.isAppLevelFallback }.compactMap(\.bundleIdentifier))
         return backgroundStore.backgroundIDs(
             windowBacked: windowBacked, kept: Set(keptAppStore.bundleIDs), messaging: Set(messagingStore.bundleIDs),
-            stashed: Set(drawerStore.bundleIDs), showSystemHelpers: showSystemHelpers).count
+            stashed: Set(drawerStore.bundleIDs), showSystemHelpers: showSystemHelpers)
     }
 
     private var capsuleSide: CGFloat { settingsStore.layoutMetrics.capsuleWidth }
@@ -73,6 +63,9 @@ struct DrawerCapsuleButton: View {
     /// 胶囊是**另一棵**长期存活的 NSHostingView 根视图，必须自己观察同一个 store，
     /// 否则换档时任务条变了、胶囊里的四宫格还停在旧尺寸。
     private var dockScale: CGFloat { settingsStore.dockPanelHeight.scale }
+
+    /// The poured theme: the capsule is the little blob under the rail, so it wears the same body.
+    private var fluidTheme: Bool { settingsStore.themeMaterial.resolved(for: .system).isFluid }
 
     /// While a card is dragged, hover gives way to the drop feedback (the drag wins).
     private var hoverEnabled: Bool { !isPanelHeightResizing && dragController.draggingPayload == nil }
@@ -85,26 +78,25 @@ struct DrawerCapsuleButton: View {
         // the resting page while a trackpad gesture holds the capsule on its neighbour.
         let hitPage = DrawerCapsulePaging.hitPage(page: pager.page, drag: pager.drag, pageCount: pageCount)
         let apps = DrawerCapsulePaging.apps(page: hitPage, members: ids)
-        // 57e: with apps held in the background the empty state says how many; with none it keeps the
-        // RAM / CPU disc, which would otherwise be lost with nothing to replace it.
-        let showsBackgroundDisc = ids.isEmpty && backgroundCount > 0
+        // 57e: with no background apps the capsule keeps the RAM / CPU disc, which would otherwise be
+        // lost with nothing to replace it. (The count disc is gone: the apps themselves are the preview.)
+        let showsBackgroundDisc = false
         return ZStack {
-            DockPanelBackdrop(theme: theme,
-                              cornerRadius: DockShape.panelCornerRadius * dockScale,
-                              usesLiquidGlass: usesLiquidGlass,
-                              matchesDockRefraction: true)
+            if fluidTheme {
+                FluidRailBody(centers: [], radius: dockScale * 27, vertical: true,
+                              lightAtStart: settingsStore.stripPlacement(forDisplay: nil) == .left)
+            } else {
+                DockPanelBackdrop(theme: theme,
+                                  cornerRadius: DockShape.panelCornerRadius * dockScale,
+                                  usesLiquidGlass: usesLiquidGlass,
+                                  matchesDockRefraction: true)
+            }
 
             // Hover and press feedback move only the cell under the pointer; the outer frame
             // (backdrop + rim) stays still.
             if ids.isEmpty {
-                Group {
-                    if showsBackgroundDisc {
-                        DrawerCapsuleBackgroundDiscView(count: backgroundCount, scale: dockScale)
-                    } else {
-                        DynamicGaugeCompactDiscView(scale: dockScale)
-                    }
-                }
-                .cellFeedback(hovered: hoverEnabled && hoveredCell != nil, pressed: pressedCell != nil)
+                DynamicGaugeCompactDiscView(scale: dockScale)
+                    .cellFeedback(hovered: hoverEnabled && hoveredCell != nil, pressed: pressedCell != nil)
             } else {
                 pagedPreview(ids: ids, pageCount: pageCount, page: page, hitPage: hitPage)
             }
@@ -112,11 +104,9 @@ struct DrawerCapsuleButton: View {
         .dockPanelRim(cornerRadius: DockShape.panelCornerRadius * dockScale,
                       style: theme.panelRimStyle,
                       lineWidth: theme.panelRimLineWidth,
-                      usesLiquidGlass: usesLiquidGlass)
-        // 拖卡悬到胶囊上：**微微发光 + 极轻微放大**（去掉原来生硬的白圈描边,owner 2026-06-21）。
-        .scaleEffect(dragController.isOverStashZone ? 1.04 : 1.0)
-        .dockGlow(theme.capsuleStashGlow, radius: 5, active: dragController.isOverStashZone)
-        .animation(.easeInOut(duration: DrawerAnimation.duration), value: dragController.isOverStashZone)
+                      usesLiquidGlass: usesLiquidGlass,
+                      visible: !fluidTheme)
+        // No stash glow here any more: the stash target is the drawer pop chip (`PopChip`).
         .dockShadow(theme.stripShadow,
                     visible: DockLiquidGlassConfiguration.stripShadowVisible(
                         usesLiquidGlass: usesLiquidGlass,

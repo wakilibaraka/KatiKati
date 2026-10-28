@@ -5,6 +5,10 @@ import Foundation
 /// Learned from Snap (keyword+argument actions) and Cling/oil-find (short filter words).
 enum CommandBarMode: CaseIterable, Sendable {
     case file, image, clipboard, emoji, bookmark, event, kill, forceQuit, killProcess, shortcut, apps
+    /// Port plan #3: the frontmost app's menu items (`AppMenuSearchReader` + `MenuSearch`).
+    case menu
+    /// Port plan #4: bar profiles. `profile work` applies Work; `profile save work` stores the bar as Work.
+    case profile
 
     var keywords: [String] {
         switch self {
@@ -19,6 +23,8 @@ enum CommandBarMode: CaseIterable, Sendable {
         case .killProcess: return ["kp"]
         case .shortcut: return ["sc", "shortcut"]
         case .apps: return ["app"]
+        case .menu: return ["m", "menu"]
+        case .profile: return ["profile"]
         }
     }
 }

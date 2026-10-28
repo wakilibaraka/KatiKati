@@ -7,7 +7,7 @@ final class DockThemeStyleTests: XCTestCase {
         let presets: [DockThemeStyle] = [
             .system, .translucent, .crystalClear, .obsidianDark, .monochrome,
             .titaniumFrost, .auroraGlow, .deepOcean, .forestMoss, .cyberpunkGlass,
-            .emberSunset, .roseQuartz, .auto
+            .emberSunset, .roseQuartz, .fluid, .auto
         ]
         
         for preset in presets {
@@ -58,6 +58,9 @@ final class DockThemeStyleTests: XCTestCase {
         XCTAssertFalse(DockThemeStyle.auto.tintsPlate)
         XCTAssertFalse(DockThemeStyle.system.tintsPlate)
         XCTAssertTrue(DockThemeStyle.deepOcean.tintsPlate)
+        XCTAssertTrue(DockThemeStyle.fluid.tintsPlate, "its plate stand-in is the swatch's near-black tint")
+        XCTAssertTrue(DockThemeStyle.fluid.isFluid)
+        XCTAssertFalse(DockThemeStyle.roseQuartz.isFluid)
         XCTAssertTrue(DockThemeStyle.customRGBA(r: 1, g: 0, b: 0, a: 1).tintsPlate)
     }
 

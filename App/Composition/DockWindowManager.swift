@@ -53,7 +53,8 @@ public final class DockWindowManager: ObservableObject {
     // MARK: Published State
     @Published public var layeringMode: DockLayeringMode = .alwaysOnTop {
         didSet {
-            configureModeSideEffects()
+            guard oldValue != layeringMode else { return }
+            handleModeTransition(from: oldValue)
             evaluateWindowLayering()
         }
     }
@@ -79,6 +80,11 @@ public final class DockWindowManager: ObservableObject {
     public var managedCapsulePanelsProvider: (() -> [NSPanel])?
     public var onSlideStateChanged: ((Bool) -> Void)?
 
+    /// Writes and restores the native Dock settings the piggyback mode needs. Only the app's shared
+    /// instance gets one (`TaskbarScreenOrchestrator`); a manager without it never touches the Dock,
+    /// which is what keeps tests and previews off the user's real Dock.
+    var nativeDockService: NativeDockPreferencesService?
+
     // MARK: Stability & Concurrency Primitives
     private let axQueue = DispatchQueue(label: "com.katikati.ax.serial", qos: .userInteractive)
     private var axObservers: [pid_t: AXObserver] = [:]
@@ -88,9 +94,11 @@ public final class DockWindowManager: ObservableObject {
     private var mousePollingFallbackTimer: Timer?
     private var edgeHoverTimer: Timer?
     private var overlapPollTimer: Timer?
-    private var passiveEventTap: CFMachPort?
-    private var passiveEventTapRunLoopSource: CFRunLoopSource?
     private var screenReconfigDebounceWorkItem: DispatchWorkItem?
+    private var isStarted = false
+    /// Panels the ghost mode made click-through and faint, with what they had before, so leaving the
+    /// ghost puts back exactly that instead of forcing every surface interactive and opaque.
+    private var ghostedPanels: [ObjectIdentifier: (panel: NSPanel, ignoresMouseEvents: Bool, alpha: CGFloat)] = [:]
 
     public init() {
         self.hasAccessibilityPermission = AXIsProcessTrusted()
@@ -100,44 +108,44 @@ public final class DockWindowManager: ObservableObject {
 
     public func start() {
         self.hasAccessibilityPermission = AXIsProcessTrusted()
+        isStarted = true
         registerSystemNotifications()
-        startMouseEdgeMonitoringWithZeroPermissionFallback()
-        startWindowOverlapPolling()
-        setupAccessibilityObserversForRunningApps()
-        setupOptionalPassiveHIDEventTap()
+        reconcileSensors()
+        if layeringMode == .nativeDockVisibleFramePiggyback {
+            // Idempotent: writes (and restarts the Dock) only if the Dock drifted from the mode's values.
+            _ = try? nativeDockService?.applyPiggyback(height: Int(dockHeight))
+        }
         evaluateWindowLayering()
     }
 
     public func stop() {
+        isStarted = false
         workspaceCancellables.removeAll()
-        if let g = globalMouseMonitor { NSEvent.removeMonitor(g); globalMouseMonitor = nil }
-        if let l = localMouseMonitor { NSEvent.removeMonitor(l); localMouseMonitor = nil }
-        mousePollingFallbackTimer?.invalidate()
-        mousePollingFallbackTimer = nil
-        edgeHoverTimer?.invalidate()
-        edgeHoverTimer = nil
-        overlapPollTimer?.invalidate()
-        overlapPollTimer = nil
+        stopEdgeSensor()
+        stopOverlapWatch()
         screenReconfigDebounceWorkItem?.cancel()
         screenReconfigDebounceWorkItem = nil
-
-        if let tap = passiveEventTap {
-            CGEvent.tapEnable(tap: tap, enable: false)
-            passiveEventTap = nil
-        }
-        if let source = passiveEventTapRunLoopSource {
-            CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes)
-            passiveEventTapRunLoopSource = nil
-        }
-        for (pid, _) in axObservers {
-            removeAXObserver(for: pid)
-        }
+        restoreGhostedPanels()
     }
 
-    private func configureModeSideEffects() {
-        if layeringMode == .nativeDockVisibleFramePiggyback {
-            Self.configureNativeDockForVisibleFramePiggyback(height: Int(dockHeight))
+    private func handleModeTransition(from oldMode: DockLayeringMode) {
+        if oldMode == .clickThroughGhostFallback { restoreGhostedPanels() }
+        if oldMode == .nativeAutoHideDodge { setDockSlideHidden(false) }
+        if oldMode == .nativeDockVisibleFramePiggyback {
+            nativeDockService?.restorePiggyback()
         }
+        if layeringMode == .nativeDockVisibleFramePiggyback, isStarted {
+            _ = try? nativeDockService?.applyPiggyback(height: Int(dockHeight))
+        }
+        if isElevatedByHover, !layeringMode.watchesScreenEdge { isElevatedByHover = false }
+        if isStarted { reconcileSensors() }
+    }
+
+    /// Runs only the sensors the current mode reads. In the default `.alwaysOnTop` that is none: the
+    /// dock then costs nothing between real events (app activation, Space change, display change).
+    private func reconcileSensors() {
+        if layeringMode.watchesScreenEdge { startEdgeSensor() } else { stopEdgeSensor() }
+        if layeringMode.watchesWindowOverlap { startOverlapWatch() } else { stopOverlapWatch() }
     }
 
     // MARK: - Core Z-Order, Relative Ordering & Fallback Cascade
@@ -146,58 +154,29 @@ public final class DockWindowManager: ObservableObject {
         hasAccessibilityPermission = AXIsProcessTrusted()
 
         let dockPanels = managedPanelsProvider?() ?? []
-        let bgPanels = managedBackgroundPanelsProvider?() ?? []
         let capsulePanels = managedCapsulePanelsProvider?() ?? []
-
-        let targetScreens: [NSScreen]
-        if !dockPanels.isEmpty {
-            targetScreens = Array(Set(dockPanels.compactMap { $0.screen }))
-        } else {
-            targetScreens = [NSScreen.main ?? NSScreen.screens.first].compactMap { $0 }
-        }
 
         var isAnyOverlapping = false
         var topOverlappingWID: CGWindowID?
         var primaryClampingDockFrame: NSRect?
         var primaryClampingScreen: NSScreen?
 
-        for screen in targetScreens {
-            let visibleDockFrame = NSRect(
-                x: screen.frame.origin.x,
-                y: screen.frame.origin.y,
-                width: screen.frame.width,
-                height: dockHeight
-            )
-            let result = findOverlappingStandardWindow(dockFrame: visibleDockFrame, on: screen)
-            if result.isOverlapping {
-                isAnyOverlapping = true
-                if topOverlappingWID == nil {
-                    topOverlappingWID = result.topOverlappingWindowID
-                    primaryClampingDockFrame = visibleDockFrame
-                    primaryClampingScreen = screen
+        // Modes that never read the overlap skip the window-list copy entirely.
+        if layeringMode.watchesWindowOverlap {
+            for (zone, screen) in dockRestingZones() {
+                let result = findOverlappingStandardWindow(dockFrame: zone, on: screen)
+                if result.isOverlapping {
+                    isAnyOverlapping = true
+                    if topOverlappingWID == nil {
+                        topOverlappingWID = result.topOverlappingWindowID
+                        primaryClampingDockFrame = zone
+                        primaryClampingScreen = screen
+                    }
                 }
             }
         }
 
-        if primaryClampingDockFrame == nil, let firstScreen = targetScreens.first {
-            primaryClampingDockFrame = NSRect(
-                x: firstScreen.frame.origin.x,
-                y: firstScreen.frame.origin.y,
-                width: firstScreen.frame.width,
-                height: dockHeight
-            )
-            primaryClampingScreen = firstScreen
-        }
-
         self.isOverlappedByWindow = isAnyOverlapping
-
-        // Reset click-through & alpha unless in `.clickThroughGhostFallback`
-        if layeringMode != .clickThroughGhostFallback {
-            for panel in dockPanels + bgPanels + capsulePanels {
-                panel.ignoresMouseEvents = false
-                panel.alphaValue = 1.0
-            }
-        }
 
         switch layeringMode {
         case .alwaysOnTop:
@@ -237,16 +216,10 @@ public final class DockWindowManager: ObservableObject {
         case .clickThroughGhostFallback:
             setDockSlideHidden(false)
             if isElevatedByHover || !isAnyOverlapping {
-                for panel in dockPanels + capsulePanels {
-                    panel.ignoresMouseEvents = false
-                    panel.alphaValue = 1.0
-                }
+                restoreGhostedPanels()
                 applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
             } else {
-                for panel in dockPanels + capsulePanels {
-                    panel.ignoresMouseEvents = true
-                    panel.alphaValue = 0.08
-                }
+                ghost(dockPanels + capsulePanels)
                 applyDockLevel(MacDockWindowLevel.belowNormalWindows, orderAbove: false)
             }
 
@@ -264,79 +237,73 @@ public final class DockWindowManager: ObservableObject {
 
         case .reserveScreenSpaceStrut:
             setDockSlideHidden(false)
-            if let clampingFrame = primaryClampingDockFrame, let clampingScreen = primaryClampingScreen {
-                if hasAccessibilityPermission {
-                    applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
-                    clampFrontmostWindowAboveDock(dockFrame: clampingFrame, on: clampingScreen)
-                } else if useAppleScriptResizeFallback {
-                    applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
-                    clampFrontmostWindowViaAppleScriptFallback(dockFrame: clampingFrame, on: clampingScreen)
-                } else {
-                    // Automatic Zero-Permission Fallback Cascade
-                    if isElevatedByHover || !isAnyOverlapping {
-                        applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
+            if hasAccessibilityPermission || useAppleScriptResizeFallback {
+                applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
+                // Clamping shortens a window's height, so it only means something for a bottom bar.
+                if let clampingFrame = primaryClampingDockFrame, let clampingScreen = primaryClampingScreen,
+                   DockScreenEdge.nearest(to: clampingFrame, in: clampingScreen.frame) == .bottom {
+                    if hasAccessibilityPermission {
+                        clampFrontmostWindowAboveDock(dockFrame: clampingFrame, on: clampingScreen)
                     } else {
-                        applyDockLevel(MacDockWindowLevel.belowNormalWindows, orderAbove: false)
+                        clampFrontmostWindowViaAppleScriptFallback(dockFrame: clampingFrame, on: clampingScreen)
                     }
                 }
+            } else if isElevatedByHover || !isAnyOverlapping {
+                // Automatic Zero-Permission Fallback Cascade
+                applyDockLevel(MacDockWindowLevel.nativeDock, orderAbove: true)
+            } else {
+                applyDockLevel(MacDockWindowLevel.belowNormalWindows, orderAbove: false)
             }
         }
     }
 
     /// Sets the AppKit `NSWindow.Level` and optionally reinforces it via private SkyLight `CGSSetWindowLevel`
     /// so WindowServer immediately updates compositing order without waiting for an AppKit flush.
+    ///
+    /// Runs on every poll tick and workspace event, so it only acts on a change: a level already in
+    /// place is left alone, and nothing is ever ordered in. `orderFrontRegardless()` / `order(_:relativeTo:)`
+    /// on a panel that `PanelCoordinator` ordered out (fullscreen, hide, Space switch) puts it back on
+    /// screen, which is how the dock used to reappear over fullscreen apps within 0.35 s.
     public func applyDockLevel(_ level: NSWindow.Level, orderAbove: Bool) {
         let dockPanels = managedPanelsProvider?() ?? []
         let bgPanels = managedBackgroundPanelsProvider?() ?? []
         let capsulePanels = managedCapsulePanelsProvider?() ?? []
 
         let cid = useSkyLightFallbackReinforcement ? CGSMainConnectionID() : 0
+        var changed = false
 
-        for panel in bgPanels {
+        for panel in bgPanels + dockPanels + capsulePanels where panel.level != level {
             panel.level = level
+            changed = true
             if useSkyLightFallbackReinforcement, panel.windowNumber > 0 {
                 CGSSetWindowLevel(cid, CGWindowID(panel.windowNumber), Int32(level.rawValue))
             }
         }
+        guard changed else { return }
 
-        for panel in dockPanels {
-            panel.level = level
-            // Only re-raise a panel the coordinator has on screen: forcing a logically hidden (edge
-            // auto-hide / fullscreen) dock back made it reappear without its capsule.
-            if orderAbove, panel.isVisible {
+        if orderAbove {
+            for panel in dockPanels where panel.isVisible {
                 panel.orderFrontRegardless()
-            }
-            if useSkyLightFallbackReinforcement, panel.windowNumber > 0 {
-                CGSSetWindowLevel(cid, CGWindowID(panel.windowNumber), Int32(level.rawValue))
-            }
-        }
-
-        for panel in capsulePanels {
-            panel.level = level
-            if useSkyLightFallbackReinforcement, panel.windowNumber > 0 {
-                CGSSetWindowLevel(cid, CGWindowID(panel.windowNumber), Int32(level.rawValue))
             }
         }
 
         // Maintain relative sub-ordering between glass background and content
-        for (bg, dock) in zip(bgPanels, dockPanels) {
-            if bg.isVisible { bg.order(.below, relativeTo: dock.windowNumber) }
+        for (bg, dock) in zip(bgPanels, dockPanels) where bg.isVisible && dock.isVisible {
+            bg.order(.below, relativeTo: dock.windowNumber)
         }
-        for (capsule, dock) in zip(capsulePanels, dockPanels) {
-            if capsule.isVisible {
-                capsule.order(.above, relativeTo: dock.windowNumber)
-            }
+        for (capsule, dock) in zip(capsulePanels, dockPanels) where capsule.isVisible && dock.isVisible {
+            capsule.order(.above, relativeTo: dock.windowNumber)
         }
     }
 
+    /// Visible panels only, for the same reason as `applyDockLevel`: ordering a hidden panel shows it.
     private func applySameLevelOrderBelow(coveringWID: CGWindowID) {
         let dockPanels = managedPanelsProvider?() ?? []
         let bgPanels = managedBackgroundPanelsProvider?() ?? []
         let cid = useSkyLightFallbackReinforcement ? CGSMainConnectionID() : 0
 
-        for panel in dockPanels + bgPanels {
+        for panel in dockPanels + bgPanels where panel.isVisible {
             panel.level = MacDockWindowLevel.normalWindow
-            guard panel.isVisible else { continue }
             panel.order(.below, relativeTo: Int(coveringWID))
             if useSkyLightFallbackReinforcement, panel.windowNumber > 0 {
                 let wid = CGWindowID(panel.windowNumber)
@@ -344,6 +311,49 @@ public final class DockWindowManager: ObservableObject {
                 CGSOrderWindow(cid, wid, kCGSOrderBelow, coveringWID)
             }
         }
+    }
+
+    // MARK: - Ghost bookkeeping
+
+    /// Makes `panels` click-through and faint, remembering each one's own state the first time.
+    private func ghost(_ panels: [NSPanel]) {
+        for panel in panels {
+            let id = ObjectIdentifier(panel)
+            if ghostedPanels[id] == nil {
+                ghostedPanels[id] = (panel: panel, ignoresMouseEvents: panel.ignoresMouseEvents, alpha: panel.alphaValue)
+            }
+            panel.ignoresMouseEvents = true
+            panel.alphaValue = 0.08
+        }
+    }
+
+    /// Puts back what `ghost(_:)` changed, and touches nothing it did not change.
+    private func restoreGhostedPanels() {
+        for (_, saved) in ghostedPanels {
+            saved.panel.ignoresMouseEvents = saved.ignoresMouseEvents
+            saved.panel.alphaValue = saved.alpha
+        }
+        ghostedPanels.removeAll()
+    }
+
+    // MARK: - Dock geometry
+
+    /// Each visible dock panel's resting zone on its own screen: the band its edge would hold it in,
+    /// from the panel's real frame (bar or rail, any height, any display).
+    private func dockRestingZones() -> [(zone: NSRect, screen: NSScreen)] {
+        (managedPanelsProvider?() ?? []).compactMap { panel in
+            guard panel.isVisible, let screen = self.screen(for: panel) else { return nil }
+            let edge = DockScreenEdge.nearest(to: panel.frame, in: screen.frame)
+            return (edge.restingZone(of: panel.frame, in: screen.frame), screen)
+        }
+    }
+
+    /// `panel.screen` is nil while a dodge slide has the panel off-screen; fall back to the screen
+    /// whose edge it slid through.
+    private func screen(for panel: NSPanel) -> NSScreen? {
+        if let screen = panel.screen { return screen }
+        let probe = panel.frame.insetBy(dx: -panel.frame.width, dy: -panel.frame.height)
+        return NSScreen.screens.first { $0.frame.intersects(probe) } ?? NSScreen.main
     }
 
     // MARK: - Zero-Permission Window Overlap Inspection (`CGWindowListCopyWindowInfo`)
@@ -407,97 +417,64 @@ public final class DockWindowManager: ObservableObject {
         onSlideStateChanged?(hidden)
     }
 
-    // MARK: - Screen-Edge Sensor + Zero-Permission 20 FPS Mouse Polling Fallback
+    // MARK: - Screen-Edge Sensor
 
-    private func startMouseEdgeMonitoringWithZeroPermissionFallback() {
-        let handler: (NSEvent?) -> Void = { [weak self] _ in
-            Task { @MainActor in
-                self?.handleMouseMoved()
-            }
+    /// One mouse source: the global + local mouse-moved monitors, which need no permission. The old
+    /// engine also ran a 20 Hz timer and a fifth HID event tap that both called the same handler on
+    /// top of the monitors, so the pointer was read up to three times per move and 20 times a second
+    /// at rest. The timer survives only as the fallback for a monitor that could not be installed.
+    private func startEdgeSensor() {
+        guard globalMouseMonitor == nil, mousePollingFallbackTimer == nil else { return }
+        globalMouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved]) { [weak self] _ in
+            Task { @MainActor in self?.handleMouseMoved() }
         }
-        globalMouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved], handler: handler)
-        localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved]) { event in
-            handler(event)
+        localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved]) { [weak self] event in
+            Task { @MainActor in self?.handleMouseMoved() }
             return event
         }
-
-        // Zero-permission fallback timer: `NSEvent.mouseLocation` is always readable without TCC permissions.
-        mousePollingFallbackTimer?.invalidate()
-        mousePollingFallbackTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.handleMouseMoved()
+        if globalMouseMonitor == nil {
+            mousePollingFallbackTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+                Task { @MainActor in self?.handleMouseMoved() }
             }
         }
     }
 
-    /// Optional With-Permission Fallback: Passive `CGEventTap` on `.cghidEventTap` (`listenOnly`)
-    private func setupOptionalPassiveHIDEventTap() {
-        guard AXIsProcessTrusted(), passiveEventTap == nil else { return }
-
-        let mask = (1 << CGEventType.mouseMoved.rawValue)
-        let callback: CGEventTapCallBack = { _, type, event, refcon in
-            guard let refcon = refcon else { return Unmanaged.passUnretained(event) }
-            let manager = Unmanaged<DockWindowManager>.fromOpaque(refcon).takeUnretainedValue()
-            if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-                if let tap = manager.passiveEventTap {
-                    CGEvent.tapEnable(tap: tap, enable: true)
-                }
-                return Unmanaged.passUnretained(event)
-            }
-            Task { @MainActor in
-                manager.handleMouseMoved()
-            }
-            return Unmanaged.passUnretained(event)
-        }
-
-        let selfPtr = Unmanaged.passUnretained(self).toOpaque()
-        if let tap = CGEvent.tapCreate(
-            tap: .cghidEventTap,
-            place: .headInsertEventTap,
-            options: .listenOnly,
-            eventsOfInterest: CGEventMask(mask),
-            callback: callback,
-            userInfo: selfPtr
-        ) {
-            let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
-            CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
-            CGEvent.tapEnable(tap: tap, enable: true)
-            self.passiveEventTap = tap
-            self.passiveEventTapRunLoopSource = source
-        }
+    private func stopEdgeSensor() {
+        if let g = globalMouseMonitor { NSEvent.removeMonitor(g); globalMouseMonitor = nil }
+        if let l = localMouseMonitor { NSEvent.removeMonitor(l); localMouseMonitor = nil }
+        mousePollingFallbackTimer?.invalidate()
+        mousePollingFallbackTimer = nil
+        edgeHoverTimer?.invalidate()
+        edgeHoverTimer = nil
     }
 
     public func handleMouseMoved() {
         let mouseLoc = NSEvent.mouseLocation
-        guard let screen = NSScreen.screens.first(where: { $0.frame.contains(mouseLoc) }) ?? NSScreen.main ?? NSScreen.screens.first else { return }
 
-        let dockPanels = managedPanelsProvider?() ?? []
-        let dockScreens = dockPanels.compactMap { $0.screen }
-        let isScreenHostingDock = dockScreens.isEmpty || dockScreens.contains(screen)
-
-        let edgeTriggerZone = NSRect(
-            x: screen.frame.origin.x,
-            y: screen.frame.origin.y,
-            width: screen.frame.width,
-            height: edgeTriggerHeight + 2.0
-        )
-
-        let fullDockZone = NSRect(
-            x: screen.frame.origin.x,
-            y: screen.frame.origin.y,
-            width: screen.frame.width,
-            height: dockHeight + 8.0
-        )
+        // The edge each dock panel hugs, on its own screen: a left rail peeks from the left edge, a
+        // bar on the second display from that display's bottom.
+        let docks: [(edge: DockScreenEdge, screen: NSRect, depth: CGFloat)] =
+            (managedPanelsProvider?() ?? []).compactMap { panel in
+                guard panel.isVisible, let screen = self.screen(for: panel) else { return nil }
+                let edge = DockScreenEdge.nearest(to: panel.frame, in: screen.frame)
+                return (edge, screen.frame, edge.depth(of: panel.frame, in: screen.frame))
+            }
+        let inTriggerZone = docks.contains {
+            $0.edge.band(in: $0.screen, depth: edgeTriggerHeight + 2.0).contains(mouseLoc)
+        }
+        let inFullDockZone = docks.contains {
+            $0.edge.band(in: $0.screen, depth: $0.depth + 8.0).contains(mouseLoc)
+        }
 
         if isElevatedByHover {
-            if !fullDockZone.contains(mouseLoc) {
+            if !inFullDockZone {
                 edgeHoverTimer?.invalidate()
                 edgeHoverTimer = nil
                 isElevatedByHover = false
                 evaluateWindowLayering()
             }
         } else {
-            if isScreenHostingDock && edgeTriggerZone.contains(mouseLoc) {
+            if inTriggerZone {
                 if edgeHoverTimer == nil {
                     edgeHoverTimer = Timer.scheduledTimer(withTimeInterval: edgeDwellDelay, repeats: false) { [weak self] _ in
                         Task { @MainActor in
@@ -672,12 +649,23 @@ public final class DockWindowManager: ObservableObject {
             .store(in: &workspaceCancellables)
     }
 
-    private func startWindowOverlapPolling() {
-        overlapPollTimer?.invalidate()
+    /// The 0.35 s window-list poll plus the per-app AX observers, for the modes that react to a
+    /// covering window (`DockLayeringMode.watchesWindowOverlap`).
+    private func startOverlapWatch() {
+        setupAccessibilityObserversForRunningApps()
+        guard overlapPollTimer == nil else { return }
         overlapPollTimer = Timer.scheduledTimer(withTimeInterval: 0.35, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 self?.evaluateWindowLayering()
             }
+        }
+    }
+
+    private func stopOverlapWatch() {
+        overlapPollTimer?.invalidate()
+        overlapPollTimer = nil
+        for pid in Array(axObservers.keys) {
+            removeAXObserver(for: pid)
         }
     }
 
@@ -700,7 +688,7 @@ public final class DockWindowManager: ObservableObject {
     }
 
     private func attachAXObserver(for pid: pid_t) {
-        guard AXIsProcessTrusted(),
+        guard layeringMode.watchesWindowOverlap, AXIsProcessTrusted(),
               pid != ProcessInfo.processInfo.processIdentifier,
               axObservers[pid] == nil else { return }
 
@@ -751,42 +739,23 @@ public final class DockWindowManager: ObservableObject {
 
     // MARK: - Zero-Permission Native Dock Piggyback & Suppression Utilities
 
-    public static func configureNativeDockForVisibleFramePiggyback(height: Int = 48) {
-        let clampedTileSize = max(16, min(128, height - 8))
-        let task = Process()
-        task.launchPath = "/bin/zsh"
-        task.arguments = [
-            "-c",
-            "defaults write com.apple.dock orientation -string bottom && defaults write com.apple.dock autohide -bool false && defaults write com.apple.dock tilesize -int \(clampedTileSize) && defaults write com.apple.dock magnification -bool false && killall Dock"
-        ]
-        try? task.run()
-    }
-
-    public static func suppressNativeMacDock(suppress: Bool) {
-        let service = NativeDockPreferencesService()
-        if service.isAvailable {
-            if suppress {
-                try? service.apply(delay: NativeDockPreferencesService.noWakeDelay)
-            } else {
-                service.restoreOriginal(forget: true)
-            }
-            return
-        }
-
-        let task = Process()
-        task.launchPath = "/bin/zsh"
+    /// Hides or gives back the native Dock through `NativeDockPreferencesService`, the one path that
+    /// records the user's own setting first and can put it back. There is no shell fallback: the
+    /// service is unavailable only in a sandbox, where `defaults write com.apple.dock` cannot work
+    /// either. `service` is injectable so a test never reaches the real Dock.
+    static func suppressNativeMacDock(
+        suppress: Bool,
+        service: NativeDockPreferencesService? = nil
+    ) {
+        // Built here rather than as a default argument: the service's init is main-actor isolated
+        // and a default argument is evaluated in a nonisolated context.
+        let service = service ?? NativeDockPreferencesService()
+        guard service.isAvailable else { return }
         if suppress {
-            task.arguments = [
-                "-c",
-                "defaults write com.apple.dock autohide -bool true && defaults write com.apple.dock autohide-delay -float 1000 && defaults write com.apple.dock no-bouncing -bool true && killall Dock"
-            ]
+            try? service.apply(delay: NativeDockPreferencesService.noWakeDelay)
         } else {
-            task.arguments = [
-                "-c",
-                "defaults delete com.apple.dock autohide-delay; defaults write com.apple.dock autohide -bool false && killall Dock"
-            ]
+            service.restoreOriginal(forget: true)
         }
-        try? task.run()
     }
 
     public static func installKeepAliveLaunchAgent(bundleIdentifier: String = "com.katikati.app", executablePath: String) throws {

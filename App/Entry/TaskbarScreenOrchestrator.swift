@@ -131,7 +131,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             // 一块屏一套载体面板（`DragController.CarrierSurface`），按指针所在屏切换——
             // 「显示器具有单独的空间」下一个窗口只属于一块屏，铺并集反而在另一块屏上画不出来。
             screensProvider: { NSScreen.screens },
-            // 松在胶囊上收纳时图标吸进这里（鼠标所在屏那个单元的胶囊可视帧）。
+            // A stash flies into the drawer pop chip of the unit under the pointer (owner 2026-10-27).
             stashTargetProvider: { [weak dragHost] in dragHost?.stashTargetFrame }
         )
         super.init()
@@ -157,7 +157,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         }
         var stashTargetFrame: CGRect? {
             guard let owner else { return nil }
-            return (owner.unitContainingMouse() ?? owner.units.first)?.coordinator.capsuleVisibleFrame
+            return (owner.unitContainingMouse() ?? owner.units.first)?.coordinator.popChipFrame.screenRect
         }
     }
     private let dragHost = DragHost()
@@ -194,6 +194,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         DockWindowManager.shared.onSlideStateChanged = { [weak self] hidden in
             self?.units.forEach { $0.coordinator.animateDockDodgeSlide(hidden: hidden) }
         }
+        DockWindowManager.shared.nativeDockService = NativeDockPreferencesService()
         DockWindowManager.shared.start()
 
         placementSubscription = settingsStore.$taskbarScreenPlacement

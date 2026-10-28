@@ -133,3 +133,97 @@ public enum MacDockWindowLevel {
         NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.statusWindow)) + 1)
     }
 }
+
+// MARK: - What each mode has to watch
+
+extension DockLayeringMode {
+    /// The mode reacts to a window covering the dock, so it needs the window-list scan, its 0.35 s
+    /// poll and the per-app AX observers. The rest never read the result: running them anyway was a
+    /// window-list copy three times a second for nothing.
+    public var watchesWindowOverlap: Bool {
+        switch self {
+        case .alwaysOnTop, .alwaysBelowWindowsWithEdgePeek, .nativeDockVisibleFramePiggyback:
+            return false
+        case .dynamicSmartZOrder, .sameLevelRelativeOrder, .nativeAutoHideDodge,
+             .clickThroughGhostFallback, .reserveScreenSpaceStrut:
+            return true
+        }
+    }
+
+    /// The mode raises or reveals the dock when the pointer rests on the screen edge, so it needs the
+    /// mouse-moved monitor.
+    public var watchesScreenEdge: Bool {
+        switch self {
+        case .alwaysOnTop, .nativeDockVisibleFramePiggyback:
+            return false
+        case .dynamicSmartZOrder, .sameLevelRelativeOrder, .alwaysBelowWindowsWithEdgePeek,
+             .nativeAutoHideDodge, .clickThroughGhostFallback, .reserveScreenSpaceStrut:
+            return true
+        }
+    }
+}
+
+// MARK: - Dock geometry against its screen edge
+
+/// The screen edge a dock surface hugs, and the bands the layering engine tests against it. Pure
+/// geometry in AppKit coordinates (origin bottom-left), so a bottom bar, a side rail and a bar on a
+/// second display all go through the same arithmetic instead of a hard-coded bottom strip.
+public enum DockScreenEdge: Equatable, Sendable {
+    case bottom, top, left, right
+
+    /// The edge closest to the dock's centre. A slid-off dock (centre outside the screen) still
+    /// resolves to the edge it slid through, because distances are taken as magnitudes.
+    public static func nearest(to dock: CGRect, in screen: CGRect) -> DockScreenEdge {
+        let candidates: [(DockScreenEdge, CGFloat)] = [
+            (.bottom, abs(dock.midY - screen.minY)),
+            (.top, abs(screen.maxY - dock.midY)),
+            (.left, abs(dock.midX - screen.minX)),
+            (.right, abs(screen.maxX - dock.midX)),
+        ]
+        return candidates.min { $0.1 < $1.1 }?.0 ?? .bottom
+    }
+
+    public var isVertical: Bool { self == .left || self == .right }
+
+    /// The dock's thickness across this edge (height for a bar, width for a rail).
+    public func thickness(of dock: CGRect) -> CGFloat {
+        isVertical ? dock.width : dock.height
+    }
+
+    /// A band `depth` deep along the whole edge of `screen`.
+    public func band(in screen: CGRect, depth: CGFloat) -> CGRect {
+        switch self {
+        case .bottom: return CGRect(x: screen.minX, y: screen.minY, width: screen.width, height: depth)
+        case .top: return CGRect(x: screen.minX, y: screen.maxY - depth, width: screen.width, height: depth)
+        case .left: return CGRect(x: screen.minX, y: screen.minY, width: depth, height: screen.height)
+        case .right: return CGRect(x: screen.maxX - depth, y: screen.minY, width: depth, height: screen.height)
+        }
+    }
+
+    /// How far the dock reaches in from the edge: to its far side when it is on screen (so a floating
+    /// gap is included), and never less than its own thickness (so a dock that slid out through the
+    /// edge still claims the band it will come back to).
+    public func depth(of dock: CGRect, in screen: CGRect) -> CGFloat {
+        let reach: CGFloat
+        switch self {
+        case .bottom: reach = dock.maxY - screen.minY
+        case .top: reach = screen.maxY - dock.minY
+        case .left: reach = dock.maxX - screen.minX
+        case .right: reach = screen.maxX - dock.minX
+        }
+        return max(thickness(of: dock), reach)
+    }
+
+    /// Where the dock sits when shown: its own span along the edge, `depth` deep from the edge.
+    /// Taken from the edge rather than from the dock's frame, so a dock that slid away to dodge a
+    /// window is still tested where it would come back (otherwise it would bounce in and out).
+    public func restingZone(of dock: CGRect, in screen: CGRect) -> CGRect {
+        let zoneDepth = self.depth(of: dock, in: screen)
+        switch self {
+        case .bottom: return CGRect(x: dock.minX, y: screen.minY, width: dock.width, height: zoneDepth)
+        case .top: return CGRect(x: dock.minX, y: screen.maxY - zoneDepth, width: dock.width, height: zoneDepth)
+        case .left: return CGRect(x: screen.minX, y: dock.minY, width: zoneDepth, height: dock.height)
+        case .right: return CGRect(x: screen.maxX - zoneDepth, y: dock.minY, width: zoneDepth, height: dock.height)
+        }
+    }
+}

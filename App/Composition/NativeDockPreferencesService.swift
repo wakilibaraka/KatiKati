@@ -37,6 +37,58 @@ struct NativeDockOriginal: Codable, Equatable {
     }
 }
 
+/// The four native-Dock keys the piggyback layering mode sets (Apple's Dock kept visible at the
+/// bottom under KatiKati, so macOS subtracts it from `visibleFrame`). A nil field is a key that is
+/// absent, i.e. the system default, which a restore puts back by deleting the key.
+struct NativeDockPiggybackKeys: Codable, Equatable {
+    var orientation: String?
+    var autohide: Bool?
+    var tilesize: Int?
+    var magnification: Bool?
+
+    /// What the mode writes for a bar `height` points tall.
+    static func target(height: Int) -> NativeDockPiggybackKeys {
+        NativeDockPiggybackKeys(orientation: "bottom", autohide: false,
+                                tilesize: max(16, min(128, height - 8)), magnification: false)
+    }
+
+    /// Whether the Dock already shows what `target` asks for. An absent key reads as the system
+    /// default: bottom, no autohide, no magnification (tile size has no default worth trusting).
+    func satisfies(_ target: NativeDockPiggybackKeys) -> Bool {
+        (orientation ?? "bottom") == (target.orientation ?? "bottom")
+            && (autohide ?? false) == (target.autohide ?? false)
+            && tilesize == target.tilesize
+            && (magnification ?? false) == (target.magnification ?? false)
+    }
+
+    /// `defaults write` for every set key and `defaults delete` for every absent one, then one
+    /// `killall Dock`. Used both to apply the target and to restore the user's original. A delete
+    /// exits non-zero when the key is already gone, so callers treat a failed delete as done.
+    func commands() -> [(executable: String, arguments: [String])] {
+        func write(_ key: String, _ type: String, _ value: String?) -> (executable: String, arguments: [String]) {
+            guard let value else { return ("/usr/bin/defaults", ["delete", "com.apple.dock", key]) }
+            return ("/usr/bin/defaults", ["write", "com.apple.dock", key, type, value])
+        }
+        return [
+            write("orientation", "-string", orientation),
+            write("autohide", "-bool", autohide.map { $0 ? "true" : "false" }),
+            write("tilesize", "-int", tilesize.map(String.init)),
+            write("magnification", "-bool", magnification.map { $0 ? "true" : "false" }),
+            ("/usr/bin/killall", ["Dock"]),
+        ]
+    }
+
+    /// Lenient decode of the raw `com.apple.dock` values: a value of the wrong type counts as absent.
+    static func decode(orientation: Any?, autohide: Any?, tilesize: Any?, magnification: Any?) -> NativeDockPiggybackKeys {
+        NativeDockPiggybackKeys(
+            orientation: orientation as? String,
+            autohide: DefaultsValueParsing.strictBooleanValue(autohide),
+            tilesize: DefaultsValueParsing.finiteNumericValue(tilesize).map { Int($0.rounded()) },
+            magnification: DefaultsValueParsing.strictBooleanValue(magnification)
+        )
+    }
+}
+
 /// 写系统 Dock 只剩 `apply(delay:)` 一条路径（owner 2026-08-01 定）：菜单里的显隐命令已删掉，
 /// 整组由滑块 + 确认行表达——滑块能表达全部状态（常驻 / 秒数 / 不唤醒），命令是冗余的，
 /// 而它只切 `autohide` 不碰 `autohide-delay`，字面承诺的「隐藏」大于实际效果，反而误导。
@@ -78,7 +130,12 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
     private let spaceOrderReader: @Sendable () -> Bool?
     private let urlOpener: URLOpener
     private let defaults: UserDefaults
+    private let piggybackReader: @Sendable () -> NativeDockPiggybackKeys?
     static let originalKey = "com.katikati.nativeDock.original"
+    /// The user's own orientation / autohide / tile size / magnification before the piggyback layering
+    /// mode first changed them; leaving the mode writes them back (kept until then, so a crash or quit
+    /// in between loses nothing).
+    static let piggybackOriginalKey = "com.katikati.nativeDock.piggybackOriginal"
     /// 54d — the user's own `mru-spaces` before the fixed-order switch was turned on, so turning it off
     /// puts their setting back instead of guessing.
     static let spaceOrderOriginalKey = "com.katikati.nativeDock.mruSpacesOriginal"
@@ -91,8 +148,10 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
          autohideReader: @escaping @Sendable () -> NativeDockAutohideState? = { NativeDockPreferencesService.readAutohideStateFromSystem() },
          spaceOrderReader: @escaping @Sendable () -> Bool? = { NativeDockPreferencesService.readMruSpacesFromSystem() },
          urlOpener: @escaping URLOpener = NativeDockPreferencesService.openURL,
-         defaults: UserDefaults = .standard) {
+         defaults: UserDefaults = .standard,
+         piggybackReader: @escaping @Sendable () -> NativeDockPiggybackKeys? = { NativeDockPreferencesService.readPiggybackKeysFromSystem() }) {
         self.defaults = defaults
+        self.piggybackReader = piggybackReader
         self.sandbox = sandbox
         self.runner = runner
         self.autohideReader = autohideReader
@@ -245,6 +304,55 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
     }
 
     static let restartDockCommand: (executable: String, arguments: [String]) = ("/usr/bin/killall", ["Dock"])
+
+    // MARK: - Piggyback layering mode (confirmed by the user in Settings before it is selected)
+
+    /// Sets the Dock up for the piggyback mode. Records the user's own values once, the first time,
+    /// and writes (restarting the Dock) only when the Dock does not already match, so re-selecting
+    /// the mode or relaunching with it on does not flash the Dock.
+    /// - Returns: whether anything was written.
+    @discardableResult
+    func applyPiggyback(height: Int) throws -> Bool {
+        guard isAvailable else { throw NativeDockPreferencesError.sandboxed }
+        let target = NativeDockPiggybackKeys.target(height: height)
+        let current = piggybackReader()
+        if let current, current.satisfies(target) { return false }
+        if defaults.data(forKey: Self.piggybackOriginalKey) == nil {
+            // Never change what could not be put back.
+            guard let current, let data = try? JSONEncoder().encode(current) else { return false }
+            defaults.set(data, forKey: Self.piggybackOriginalKey)
+        }
+        for command in target.commands() {
+            try runner(command.executable, command.arguments)
+        }
+        return true
+    }
+
+    /// Leaving the piggyback mode: put back what `applyPiggyback` recorded, then forget it.
+    /// - Returns: whether there was anything to restore.
+    @discardableResult
+    func restorePiggyback() -> Bool {
+        guard isAvailable,
+              let data = defaults.data(forKey: Self.piggybackOriginalKey),
+              let original = try? JSONDecoder().decode(NativeDockPiggybackKeys.self, from: data) else { return false }
+        for command in original.commands() {
+            if command.arguments.first == "delete" {
+                try? runner(command.executable, command.arguments)
+            } else {
+                do { try runner(command.executable, command.arguments) } catch { return false }
+            }
+        }
+        defaults.removeObject(forKey: Self.piggybackOriginalKey)
+        return true
+    }
+
+    nonisolated static func readPiggybackKeysFromSystem() -> NativeDockPiggybackKeys? {
+        let domain = "com.apple.dock" as CFString
+        guard CFPreferencesAppSynchronize(domain) else { return nil }
+        func value(_ key: String) -> Any? { CFPreferencesCopyAppValue(key as CFString, domain) }
+        return NativeDockPiggybackKeys.decode(orientation: value("orientation"), autohide: value("autohide"),
+                                              tilesize: value("tilesize"), magnification: value("magnification"))
+    }
 
     // MARK: - 54d fixed Space order
 

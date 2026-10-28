@@ -194,6 +194,9 @@ struct FolderGridPopupView: View {
     /// 「Pin」 on a directory cell's menu. nil = not offered.
     var onPinFolder: ((URL) -> Void)?
     var isFolderPinned: ((URL) -> Bool)?
+    /// A back button at the root folder too, for a folder browsed from inside another popup (the
+    /// drawer pop). nil = the root has no back button, as for a pinned folder.
+    var onBackAtRoot: (() -> Void)?
 
     @StateObject private var model: FolderPopupModel
     /// Empty = the root folder.
@@ -209,8 +212,10 @@ struct FolderGridPopupView: View {
          onFileOpened: @escaping () -> Void = {},
          onContentResize: @escaping (CGSize) -> Void = { _ in },
          onPinFolder: ((URL) -> Void)? = nil,
-         isFolderPinned: ((URL) -> Bool)? = nil) {
+         isFolderPinned: ((URL) -> Bool)? = nil,
+         onBackAtRoot: (() -> Void)? = nil) {
         self.rootURL = rootURL
+        self.onBackAtRoot = onBackAtRoot
         self.context = context
         self.usesLiquidGlass = usesLiquidGlass
         self.onFileOpened = onFileOpened
@@ -243,7 +248,7 @@ struct FolderGridPopupView: View {
                          usesLiquidGlass: usesLiquidGlass,
                          arrow: context.arrow,
                          onPanelSizeChange: onContentResize,
-                         onBack: drillStack.isEmpty ? nil : { _ = drillStack.removeLast() },
+                         onBack: drillStack.isEmpty ? onBackAtRoot : { _ = drillStack.removeLast() },
                          gridAnimation: animatesGridChanges ? .easeInOut(duration: DrawerAnimation.duration) : nil,
                          gridAnimationKey: model.entries.map(\.url.path)) {
             ForEach(model.entries, id: \.url) { entry in

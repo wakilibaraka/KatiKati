@@ -155,7 +155,11 @@ struct DeckPillView: View {
     }
 
     @ViewBuilder private var pillBackground: some View {
-        if model.barStyle == .liquidGlass {
+        if model.barStyle == .fluid {
+            // One droplet, no dashes cut out of it: the note colours ride on top as glowing dots.
+            FluidRailBody(centers: [], radius: model.metrics.pillWidth / 2, vertical: true,
+                          lightAtStart: !model.onRight)
+        } else if model.barStyle == .liquidGlass {
             EdgeGlassSurface(shape: Capsule(style: .continuous))
         } else {
             RoundedRectangle(cornerRadius: 6, style: .continuous)
@@ -304,7 +308,16 @@ struct DeckTab: View {
     var body: some View {
         let palette = NotePalette.entry(at: note.color)
         ZStack(alignment: .top) {
-            if barStyle == .liquidGlass {
+            if barStyle == .fluid {
+                // A dark shard with the note's own colour as its edge stripe, so colour still says
+                // which note this is without a paper tab in the middle of a black rail.
+                ZStack(alignment: onRight ? .leading : .trailing) {
+                    EdgeTabShape(onRight: onRight)
+                        .fill(Color(red: 0.07, green: 0.07, blue: 0.08).opacity(isOpen || hovering ? 0.98 : 0.9))
+                    Rectangle().fill(palette.dashColor).frame(width: 2.5).padding(.vertical, 5)
+                }
+                .shadow(color: .black.opacity(lifted ? 0.42 : 0.28), radius: lifted ? 16 : 8, x: onRight ? -3 : 3, y: 2)
+            } else if barStyle == .liquidGlass {
                 EdgeGlassSurface(shape: EdgeTabShape(onRight: onRight), tint: palette.paperColor)
                     .opacity(isOpen || hovering || lifted ? 1 : 0.92)
             } else {
@@ -313,7 +326,8 @@ struct DeckTab: View {
                     .shadow(color: .black.opacity(lifted ? 0.42 : (isOpen || hovering ? 0.32 : 0.22)),
                             radius: lifted ? 16 : (isOpen || hovering ? 9 : 6), x: onRight ? -3 : 3, y: lifted ? 6 : 2)
             }
-            VerticalTabLabel(title: note.displayTitle, strip: strip, onRight: onRight, ink: palette.inkColor,
+            VerticalTabLabel(title: note.displayTitle, strip: strip, onRight: onRight,
+                             ink: barStyle == .fluid ? Color.white.opacity(0.9) : palette.inkColor,
                              metrics: metrics, deckFont: deckFont)
                 .offset(x: onRight ? -metrics.bleed / 2 : metrics.bleed / 2)
         }
@@ -440,7 +454,9 @@ struct DeckRoundButton: View {
             } label: {
                 Image(systemName: button.symbol)
                     .font(.system(size: size * 0.43, weight: .semibold))
-                    .foregroundColor(barStyle == .liquidGlass ? Color.primary.opacity(0.85) : (iconSet != .classic || style == .coloured ? .white : Color.primary.opacity(0.78)))
+                    .foregroundColor(barStyle == .fluid ? .white
+                                     : (barStyle == .liquidGlass ? Color.primary.opacity(0.85)
+                                        : (iconSet != .classic || style == .coloured ? .white : Color.primary.opacity(0.78))))
                     .shadow(color: .black.opacity(iconSet == .realistic ? 0.35 : 0), radius: 1, y: 1)
                     .frame(width: size, height: size)
                     .background(background)
@@ -466,7 +482,15 @@ struct DeckRoundButton: View {
 
     @ViewBuilder private var background: some View {
         let accent = NotePalette.entry(at: button.accent).dashColor
-        if barStyle == .liquidGlass {
+        if barStyle == .fluid {
+            // A bead on the rail: the ring is the button, the interior stays the bar's own body.
+            Circle().strokeBorder(
+                LinearGradient(colors: [accent.opacity(0.85), Color.white.opacity(0.18)],
+                               startPoint: .top, endPoint: .bottom),
+                lineWidth: 1.5
+            )
+            .background(Circle().fill(Color.white.opacity(hovering ? 0.10 : 0.04)))
+        } else if barStyle == .liquidGlass {
             EdgeGlassSurface(shape: Circle(), tint: accent)
         } else {
             paperBackground(accent)

@@ -83,4 +83,22 @@ final class NotesStore {
         }
         return LoadResult(notes: notes.inListOrder(), unreadable: unreadable)
     }
+
+    /// Port plan #2d: every readable note as plaintext JSON, for a password-sealed backup.
+    func exportPlaintext() -> [Data] {
+        loadAll().notes.compactMap { try? Self.encoder().encode($0) }
+    }
+
+    /// Saves backed-up notes under this Mac's own key. A note with the same id is replaced; notes that
+    /// are not in the backup stay. Documents that do not decode are skipped; returns how many were saved.
+    @discardableResult
+    func importPlaintext(_ documents: [Data]) throws -> Int {
+        var saved = 0
+        for document in documents {
+            guard let note = try? Self.decoder().decode(Note.self, from: document) else { continue }
+            try save(note)
+            saved += 1
+        }
+        return saved
+    }
 }

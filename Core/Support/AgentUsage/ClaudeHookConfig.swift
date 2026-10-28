@@ -88,13 +88,13 @@ enum ClaudeHookConfig {
     /// Drops our entries from every matcher group. A group that held other commands keeps them; a group
     /// that was only ours disappears. `removedAny` is what removal needs: a group can stay while its
     /// contents change, so counting groups would miss it.
-    private static func strippingOurHooks(from groups: [Any]) -> (groups: [Any], removedAny: Bool) {
+    private static func strippingOurHooks(from groups: [Any], marker: String = ClaudeHookConfig.marker) -> (groups: [Any], removedAny: Bool) {
         var removedAny = false
         let kept = groups.compactMap { group -> Any? in
             guard var dictionary = group as? [String: Any], let hooks = dictionary["hooks"] as? [Any] else {
                 return group
             }
-            let remaining = hooks.filter { !isOurs(entry: $0) }
+            let remaining = hooks.filter { !isOurs(entry: $0, marker: marker) }
             guard remaining.count != hooks.count else { return group }
             removedAny = true
             guard !remaining.isEmpty else { return nil }
@@ -104,8 +104,41 @@ enum ClaudeHookConfig {
         return (kept, removedAny)
     }
 
-    private static func isOurs(entry: Any) -> Bool {
+    private static func isOurs(entry: Any, marker: String = ClaudeHookConfig.marker) -> Bool {
         guard let entry = entry as? [String: Any], let command = entry["command"] as? String else { return false }
         return command.contains(marker)
+    }
+
+    // MARK: - Approvals (port plan #5)
+
+    /// The one extra event: Claude asks before running a tool the user's rules do not already allow.
+    static let approvalEvent = "PermissionRequest"
+    /// Present in the approval command, and nowhere in the status commands, so each removes only its own.
+    static let approvalMarker = "katikati-approve"
+    static let approvalScriptRelativePath = "Library/Application Support/KatiKati/bin/katikati-approve"
+    /// How long Claude waits for the script. The script gives up a little earlier and hands the question
+    /// back to the terminal prompt, so a missed card never leaves Claude stuck.
+    static let approvalHookTimeoutSeconds = 70
+
+    static func approvalCommand() -> String { "\"$HOME/\(approvalScriptRelativePath)\"" }
+
+    static func installApproval(into data: Data) throws -> Data {
+        var root = try rootObject(from: data)
+        var hooks = root["hooks"] as? [String: Any] ?? [:]
+        var groups = strippingOurHooks(from: hooks[approvalEvent] as? [Any] ?? [], marker: approvalMarker).groups
+        groups.append(["hooks": [["type": "command", "command": approvalCommand(), "timeout": approvalHookTimeoutSeconds]]])
+        hooks[approvalEvent] = groups
+        root["hooks"] = hooks
+        return try serialize(root)
+    }
+
+    static func removeApproval(from data: Data) throws -> Data {
+        var root = try rootObject(from: data)
+        guard var hooks = root["hooks"] as? [String: Any], let existing = hooks[approvalEvent] as? [Any] else { return data }
+        let result = strippingOurHooks(from: existing, marker: approvalMarker)
+        guard result.removedAny else { return data }
+        if result.groups.isEmpty { hooks.removeValue(forKey: approvalEvent) } else { hooks[approvalEvent] = result.groups }
+        if hooks.isEmpty { root.removeValue(forKey: "hooks") } else { root["hooks"] = hooks }
+        return try serialize(root)
     }
 }
