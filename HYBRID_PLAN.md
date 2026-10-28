@@ -435,6 +435,22 @@ Ranked in the port plan (https://claude.ai/artifact/EB9sx8HHhg2djFQ4QZwU51). Cod
 | SuperCmd `SuperCmdLabs/SuperCmd` MIT @ `2da7b9e` — `src/native/*.swift` helpers | not ported yet | Reference for menu search (#3) and hold-to-dictate (#14); a row is added before any code lands |
 | Tinycast `abue-ammar/tinycast` AGPL-3.0 @ `37e6043` | none | Design reference only (roadmap §7.1 bars AGPL donors); its `docs/features/*.md` specs may be read, never its code |
 
+### 5g. Open port-plan surface (as of 2026-10-28)
+
+Landed from the ranked port plan and merged to `main`: **#1** bench, **#2a–d** settings backup, **#3** menu search, **#4a–c** bar profiles, **#4′ slice 1 of 2** quicklink templates, **#5a–c** agent approvals. First verified base tag: `base/post-port-wave` (2899 unit tests, 0 failures).
+
+What is still unbuilt:
+
+| Item | State | What remains |
+|---|---|---|
+| **#4′ slice 2** | Model only | `QuicklinkTemplate.swift` expands `{query}`/`{clipboard}`/`{selection}`/`{date}` and is tested, but nothing stores, edits or runs a quicklink: there is no `quicklinks.json`, no store, no editor UI and no command-bar row. Needs those three, their catalog keys (localization gate) and hand-appended pbxproj entries. |
+| **#14 hold-to-dictate** | Not started | No code: no recorder, no `SFSpeech`/`AVAudioEngine` path, no key. §5f's SuperCmd row is the donor and still says "not ported yet", so a §5f row naming the exact file and citation is added before the first line lands. |
+| **#6–#13** | **Not recoverable from this repo** | Eight ranked items exist in the external artifact (§5f) but are named nowhere here: no commit, file or PR description says what they are, and no code implements them. Checked, not assumed — `git log --all -S` and `git grep` across every revision find no "port plan #6"…"#13", and the §5f table has carried the "#14 hold-to-dictate" reference since the first port-plan commit (`8a43826`) without ever listing 6–13. Their scope is therefore unknown; do not guess it from the ranking. |
+
+**Two numbering systems, one trap.** Wave 1's *PR* numbers run #5–#14 and they do **not** match the port-plan item numbers: PR #5 = plan #3 (menu search), PR #6/#10 = #4a/#4b–c (profiles), PR #7/#8/#9/#13 = #2a–d (backup), PR #11/#12 = #5a–c (approvals), PR #14 = #4′ slice 1 (quicklinks). That mapping comes from the PR titles and #15's body, not inference. So a "#7" or "#13" in a wave-1 context means a **backup** PR, not a port-plan item — which is why the eight missing rows cannot be rebuilt from the merge history. Add them here only from the artifact itself.
+
+Each item still enters through a §5f donor row and one `LANES.md` claim, and gets its own dated entry below when it lands. Before the next slice starts, clear the 2026-10-27 claim lines still in `LANES.md` — every slice they name is already merged.
+
 ## 6. Build, identity, licensing
 
 - **Repo**: `/Users/baraka/Desktop/Splitbar`, branch `main`. **Build system follows the
