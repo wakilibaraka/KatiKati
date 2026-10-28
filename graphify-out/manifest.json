@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1793206855.6285772,
-    "seen": 1793206952.3678012,
-    "ast_hash": "6ed649899167c4a6d48c0c7db47f45b8",
+    "mtime": 1793208423.5540855,
+    "seen": 1793209501.82447,
+    "ast_hash": "83db7b71ab2cc4716132e30b531fd746",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6366,9 +6366,9 @@
     "semantic_hash": ""
   },
   "FEATURE_ROADMAP_2026-10.md": {
-    "mtime": 1792926135.9889855,
-    "seen": 1792926143.607187,
-    "ast_hash": "1c78285484b388bc58ac87f3926b2345",
+    "mtime": 1793208423.5684893,
+    "seen": 1793209501.8244622,
+    "ast_hash": "1ec7a25c78ee033a8af09ad7d80b595b",
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
