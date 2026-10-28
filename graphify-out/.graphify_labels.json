@@ -39,7 +39,6 @@
   "222": "RadialDialPanelController",
   "224": "StripResizeGrip",
   "228": "FinderTrashClient",
-  "232": "FrontmostWindowGeometryObserver",
   "239": "FolderChipDropZoneTests",
   "248": "RecentlyClosedStore",
   "257": "NotesSyncPlanTests",
