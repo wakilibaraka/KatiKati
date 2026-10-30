@@ -195,7 +195,11 @@ grant follows the signing identity):
 ```bash
 ./Scripts/build_and_run.sh          # dev loop
 ./Scripts/build_and_run.sh --lab    # window-lab diagnostic CLI
+./Scripts/install_local_release.sh  # signed Release into /Applications, then launches it
 ```
+
+Only one KatiKati may exist on the Mac. Both scripts delete every other `KatiKati.app` macOS knows about (old build folders, `/Applications`,
+Xcode DerivedData) and unregister copies in the Trash, because copies share the bundle id and fight over the Accessibility grant.
 
 **Tests** (about 1,900 XCTest cases; the same commands CI runs on every push):
 

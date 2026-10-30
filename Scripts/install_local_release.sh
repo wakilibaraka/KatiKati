@@ -155,4 +155,5 @@ BUILD="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$DEST/Contents/Inf
 echo "==> 完成：$VER ($BUILD)"
 # 注意 --deep 校验抓不到嵌套代码签错身份（.claude/rules/auto-update.md），真正的闸门是上面的 Team ID 比对。
 codesign --verify --strict "$DEST" && echo "    签名校验通过"
-echo "    启动：open \"$DEST\""
+echo "==> 启动 ${DEST}…"
+open "$DEST"
