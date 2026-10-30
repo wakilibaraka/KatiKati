@@ -12,13 +12,12 @@ APP_EXECUTABLE="$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 # 共用一条辅助功能授权记录，两边身份不一致就会互相作废。
 DEVELOPER_ID="${DEVELOPER_ID_APPLICATION:-}"
 FALLBACK_SIGNING_IDENTITY="KatiKati Local Code Signing"
+source "$(dirname "${BASH_SOURCE[0]}")/lib/clean_stale_install.sh"
 
 # One KatiKati on disk: other copies share the bundle id and fight over the same permission record.
 remove_other_copies() {
   pkill -x "$APP_NAME" >/dev/null 2>&1 || true
-  rm -rf "/Applications/$APP_NAME.app" \
-         "$DERIVED_DATA_DIR/../LocalReleaseDD/Build/Products/Release/$APP_NAME.app" \
-         "$HOME"/Library/Developer/Xcode/DerivedData/KatiKati-*/Build/Products/*/"$APP_NAME.app"
+  remove_other_katikati_copies "$APP_BUNDLE"
 }
 
 build_app() {
