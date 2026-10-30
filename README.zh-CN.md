@@ -18,7 +18,7 @@
 
 <img src="assets/screenshots/bar.png" alt="KatiKati 栏：启动台按钮、天气、应用、正在播放、时钟和控制中心按钮" width="100%" />
 
-> **测试版。** 0.17.0 beta 3 未签名、未公证，见[安装](#安装)。部分新界面尚未在真实触控板和多显示器上充分验证，所有新增翻译均为待审校的草稿，可能有粗糙之处。
+> **测试版。** 0.17.0 beta 4 未签名、未公证，见[安装](#安装)。部分新界面尚未在真实触控板和多显示器上充分验证，所有新增翻译均为待审校的草稿，可能有粗糙之处。
 >
 > *本中文页为英文 README 的翻译草稿，以英文版为准。*
 
@@ -86,7 +86,7 @@ KatiKati 在你授予辅助功能之前也能启动。这种*有限模式*下，
 
 系统要求：macOS 12（Monterey）及以上，Intel 与 Apple 芯片均可（通用二进制）。
 
-1. 从[最新发布](https://github.com/wakilibaraka/KatiKati/releases/latest)下载 `KatiKati-0.17.0-beta.3.dmg`。
+1. 从[最新发布](https://github.com/wakilibaraka/KatiKati/releases/latest)下载 `KatiKati-0.17.0-beta.4.dmg`。
 2. 打开磁盘映像，把 **KatiKati** 拖到 **应用程序**。
 3. 测试版未经公证，首次启动请**右键点击 KatiKati，选择“打开”**，然后确认。
 4. 可选：授予**辅助功能**（系统设置 > 隐私与安全性 > 辅助功能）以启用逐窗口卡片。每个新的未签名版本可能需要重新授权。

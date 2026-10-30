@@ -2,6 +2,11 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [0.17.0 beta 4] — 2026-10-30
+
+Drawer pop, dock layering fixes, command-bar menu search and profiles, settings backup, and Claude Code approvals; see
+`Docs/Releases/RELEASE_NOTES_v0.17.0-beta.4.md`.
+
 ## [Unreleased] — one app table for every quit rule
 
 ### Added
