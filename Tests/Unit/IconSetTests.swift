@@ -1,9 +1,10 @@
 import XCTest
 
 final class IconSetTests: XCTestCase {
-    func testMissingOrUnknownValueFallsBackToModern() {
-        XCTAssertEqual(IconSet(storedValue: nil), .modern)
-        XCTAssertEqual(IconSet(storedValue: "neon"), .modern)
+    func testMissingOrUnknownValueFallsBackToSystem() {
+        XCTAssertEqual(IconSet(storedValue: nil), .system)
+        XCTAssertEqual(IconSet(storedValue: "neon"), .system)
+        XCTAssertEqual(IconSet(storedValue: "modern"), .modern)
         XCTAssertEqual(IconSet(storedValue: "classic"), .classic)
     }
 
@@ -16,7 +17,7 @@ final class IconSetTests: XCTestCase {
     func testStorePersistsIconSetIndependentlyOfTheme() {
         let defaults = TestDefaults.make("IconSetTests", for: self)
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertEqual(store.iconSet, .modern)
+        XCTAssertEqual(store.iconSet, .system)
         store.setThemeMaterial(.deepOcean)
         store.setIconSet(.classic)
         let reloaded = AppSettingsStore(defaults: defaults)

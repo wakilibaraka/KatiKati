@@ -36,7 +36,7 @@ struct TrashChip: View {
                        height: ChipPillMetrics.bareIconSlot * scale)
                 
             // Standard macOS red badge (dot) for full state
-            if isFull {
+            if isFull && iconSet != .system {
                 Circle()
                     .fill(Color.red)
                     .frame(width: 10 * scale, height: 10 * scale)
@@ -69,6 +69,15 @@ struct TrashChip: View {
     @ViewBuilder
     private var artwork: some View {
         switch iconSet {
+        case .system:
+            if let image = NSImage(named: isFull ? NSImage.trashFullName : NSImage.trashEmptyName) {
+                Image(nsImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            } else {
+                Image(systemName: IconSet.classicTrashSymbol(isFull: isFull))
+                    .font(.system(size: 22 * scale, weight: .regular))
+            }
         case .modern:
             Image(currentImage)
                 .resizable()

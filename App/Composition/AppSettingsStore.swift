@@ -161,6 +161,10 @@ final class AppSettingsStore: ObservableObject {
     }
 
     @Published private(set) var showTrash: Bool
+    /// The drawer pop chip in the strip; its own toggle on the Dock Items page.
+    @Published private(set) var showDrawer: Bool
+    /// The background-apps capsule; off leaves the drawer to the menu and shortcut only.
+    @Published private(set) var showBackgroundApps: Bool
     /// Live Island on the dock capsule (default ON — today's behaviour).
     @Published private(set) var dockIslandEnabled: Bool
     /// Live Island on the notch (default ON; the welcome guide offers a switch to turn it off).
@@ -256,6 +260,8 @@ final class AppSettingsStore: ObservableObject {
     /// Dock-style magnification of the round buttons under the pointer.
     @Published private(set) var deckMagnify: Bool
     @Published private(set) var launcherScrollDirection: LauncherScrollDirection
+    /// Start-page pinned row above All Apps (on by default).
+    @Published private(set) var launcherPinnedRow: Bool
     @Published private(set) var launcherPinch: Bool
     @Published private(set) var launcherTheme: LauncherTheme
     @Published private(set) var launcherTint: LauncherTint
@@ -370,6 +376,8 @@ final class AppSettingsStore: ObservableObject {
             Keys.drawerPlacement: DrawerPlacement.right.rawValue,
             Keys.showShelf: true,
             Keys.showTrash: true,
+            Keys.showDrawer: true,
+            Keys.showBackgroundApps: true,
             Keys.controlCentreTrailing: false,
             Keys.fullscreenIntentEnabled: true,
             Keys.nativeDockAutoHideDelay: Self.defaultNativeDockAutoHideDelay,
@@ -411,6 +419,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
             Keys.launcherScroll: LauncherScrollDirection.default.rawValue,
+            Keys.launcherPinnedRow: true,
             Keys.launcherPinch: false,
             Keys.launcherTheme: LauncherTheme.default.rawValue,
             Keys.launcherTint: LauncherTint.default.rawValue,
@@ -439,6 +448,8 @@ final class AppSettingsStore: ObservableObject {
         nowPlayingTheme = NowPlayingTheme(rawValue: defaults.string(forKey: Keys.nowPlayingTheme) ?? "") ?? .auto
         nowPlayingTapPreset = NowPlayingTapPreset(rawValue: defaults.string(forKey: Keys.nowPlayingTapAction) ?? "") ?? .default
         showTrash = defaults.bool(forKey: Keys.showTrash)
+        showDrawer = defaults.bool(forKey: Keys.showDrawer)
+        showBackgroundApps = defaults.bool(forKey: Keys.showBackgroundApps)
         controlCentreTrailing = defaults.bool(forKey: Keys.controlCentreTrailing)
         dockIslandEnabled = defaults.bool(forKey: Keys.dockIslandEnabled)
         notchIslandEnabled = defaults.bool(forKey: Keys.notchIslandEnabled)
@@ -504,6 +515,7 @@ final class AppSettingsStore: ObservableObject {
         launcherTint = LauncherTint.parse(defaults.string(forKey: Keys.launcherTint))
         launcherIcon = LauncherIconStyle.parse(defaults.string(forKey: Keys.launcherIcon))
         launcherScrollDirection = LauncherScrollDirection.parse(defaults.string(forKey: Keys.launcherScroll))
+        launcherPinnedRow = defaults.object(forKey: Keys.launcherPinnedRow) as? Bool ?? true
         launcherPinch = defaults.bool(forKey: Keys.launcherPinch)
         deckKeepOpen = defaults.bool(forKey: Keys.deckKeepOpen)
         deckOpenOnHover = defaults.bool(forKey: Keys.deckOpenOnHover)
@@ -853,6 +865,12 @@ final class AppSettingsStore: ObservableObject {
         guard launcherScrollDirection != value else { return }
         launcherScrollDirection = value
         defaults.set(value.rawValue, forKey: Keys.launcherScroll)
+    }
+
+    func setLauncherPinnedRow(_ value: Bool) {
+        guard launcherPinnedRow != value else { return }
+        launcherPinnedRow = value
+        defaults.set(value, forKey: Keys.launcherPinnedRow)
     }
 
     func setDeckMagnify(_ value: Bool) {
@@ -1282,6 +1300,18 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.showTrash)
     }
 
+    func setShowDrawer(_ value: Bool) {
+        guard showDrawer != value else { return }
+        showDrawer = value
+        defaults.set(value, forKey: Keys.showDrawer)
+    }
+
+    func setShowBackgroundApps(_ value: Bool) {
+        guard showBackgroundApps != value else { return }
+        showBackgroundApps = value
+        defaults.set(value, forKey: Keys.showBackgroundApps)
+    }
+
     func setControlCentreTrailing(_ value: Bool) {
         guard controlCentreTrailing != value else { return }
         controlCentreTrailing = value
@@ -1574,6 +1604,8 @@ private enum Keys {
     static let controlCentreTrailing = "com.katikati.dock.controlCentreTrailing"
     // Never read the retired com.katikati.trash.visible key.
     static let showTrash = "com.katikati.showTrash"
+    static let showDrawer = "com.katikati.showDrawer"
+    static let showBackgroundApps = "com.katikati.showBackgroundApps"
     static let nowPlayingTheme = "com.katikati.nowPlayingTheme"
     static let nowPlayingTapAction = "com.katikati.nowplaying.tapAction"
     static let dockIslandEnabled = "com.katikati.liveIsland.dock"
@@ -1650,6 +1682,7 @@ private enum Keys {
     static let deckScaleRight = "com.katikati.edge.deckScale.right"
     static let deckMagnify = "com.katikati.edge.magnify"
     static let launcherScroll = "com.katikati.launcher.scroll"
+    static let launcherPinnedRow = "com.katikati.launcher.pinnedRow"
     static let launcherPinch = "com.katikati.launcher.pinch"
     static let launcherTheme = "com.katikati.launcher.theme"
     static let launcherTint = "com.katikati.launcher.tint"

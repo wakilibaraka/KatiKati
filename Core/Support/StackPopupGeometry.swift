@@ -89,6 +89,9 @@ struct StackCellMetrics: Equatable {
     static let drawer = StackCellMetrics(cellSize: CGSize(width: 112.5, height: 102), iconSize: 76, iconTop: 5,
                                          labelGap: 2, labelSize: 13, labelWidth: 104, labelHeight: 16,
                                          truncatesLabelTail: true)
+    static let backgroundApp = StackCellMetrics(cellSize: CGSize(width: 34, height: 48), iconSize: 28, iconTop: 10,
+                                                labelGap: 0, labelSize: 0, labelWidth: 0, labelHeight: 0,
+                                                truncatesLabelTail: true)
 }
 
 /// The plate around a grid: everything but the cells. `stack` is the native Dock's stack grid
@@ -128,6 +131,11 @@ struct StackPlateMetrics: Equatable {
         cell: .drawer, sidePadding: 20, scrollingTrailingPadding: 36.5, scrollerGutter: 36,
         headerHeight: 56.5, titleCenterY: 28, hasSeparator: true, gridTop: 61.5,
         bottomPadding: 6.5, scrollsToBottomEdge: true)
+
+    static let backgroundApps = StackPlateMetrics(
+        cell: .backgroundApp, sidePadding: 6, scrollingTrailingPadding: 20, scrollerGutter: 14,
+        headerHeight: 0, titleCenterY: 0, hasSeparator: false, gridTop: 0,
+        bottomPadding: 0, scrollsToBottomEdge: false)
 
     /// The drawer's grid never grows past the Apps panel's 7 × 5.
     static let drawerMaxColumns = 7
@@ -239,6 +247,13 @@ enum StackGridLayout {
 /// grid on that (4 cells are 2 × 2, 5 are 3 × 2) would resize the plate under the pointer and
 /// flip the enter / leave test that caused it.
 enum DrawerGridShape {
+    static func backgroundApps(count: Int, limits: StackGridLayout.Limits) -> StackGridLayout.Result {
+        let columns = min(max(1, count), max(1, limits.maxColumns))
+        let rows = max(1, (max(0, count) + columns - 1) / columns)
+        let visibleRows = min(rows, max(1, limits.fitRows))
+        return .init(columns: columns, visibleRows: visibleRows, scrolls: rows > visibleRows)
+    }
+
     struct Result: Equatable {
         var layout: StackGridLayout.Result
         /// The empty drawer's hint line.

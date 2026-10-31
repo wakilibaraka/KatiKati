@@ -10,6 +10,13 @@ final class StackPopupGeometryTests: XCTestCase {
         DrawerGridShape.resolve(settledCount: settled, actualCount: actual, limits: drawerLimits)
     }
 
+    func testBackgroundAppsPreferOneRowAndScrollWithinLimits() {
+        XCTAssertEqual(DrawerGridShape.backgroundApps(count: 5, limits: drawerLimits),
+                       .init(columns: 5, visibleRows: 1, scrolls: false))
+        XCTAssertEqual(DrawerGridShape.backgroundApps(count: 40, limits: drawerLimits),
+                       .init(columns: 7, visibleRows: 5, scrolls: true))
+    }
+
     func testDrawerGridAtRestIsTheStackRule() {
         for count in 1...40 {
             XCTAssertEqual(drawerShape(settled: count, actual: count).layout,

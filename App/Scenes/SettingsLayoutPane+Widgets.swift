@@ -110,6 +110,33 @@ extension SettingsLayoutPane {
                 set: { store.setShowTrash($0) }
             ))
             SettingsDivider()
+            SettingsToggleRow(Text("Drawer"), isOn: Binding(
+                get: { store.showDrawer },
+                set: { store.setShowDrawer($0) }
+            ))
+            SettingsDivider()
+            SettingsToggleRow(Text("Background Apps"), isOn: Binding(
+                get: { store.showBackgroundApps },
+                set: { store.setShowBackgroundApps($0) }
+            ))
+            SettingsDivider()
+            SettingsSegmentedRow(Text("Icon Set"), selection: Binding(
+                get: { store.iconSet }, set: store.setIconSet
+            )) {
+                Text("System").tag(IconSet.system)
+                Text("Modern").tag(IconSet.modern)
+                Text("Classic").tag(IconSet.classic)
+            }
+            SettingsDivider()
+            SettingsRow(Text("Right FAB Style")) {
+                Picker("Right FAB Style", selection: $fabStyleRaw) {
+                    Text("Dynamic Gauge").tag("gauge")
+                    Text("Classic Glyph").tag("classic")
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            .help(Text("The dock's right button: a live gauge or a single glyph."))
+            SettingsDivider()
             SettingsToggleRow(Text("Show app name on hover"), isOn: Binding(
                 get: { store.hoverStyle.isExpressive },
                 set: { store.setHoverStyle($0 ? .standard : .quiet) }

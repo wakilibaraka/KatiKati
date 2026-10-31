@@ -31,6 +31,24 @@ final class LauncherStoreTests: XCTestCase {
                       "found \(apps.count): \(apps.prefix(5).map(\.bundleID))")
     }
 
+    func testScanFindsNestedAndMenuBarAppsWithoutEnteringBundles() throws {
+        let root = tempURL().deletingLastPathComponent()
+        defer { try? FileManager.default.removeItem(at: root) }
+        func makeApp(_ path: String, id: String, agent: Bool = false, background: Bool = false) throws {
+            let contents = root.appendingPathComponent(path).appendingPathComponent("Contents")
+            try FileManager.default.createDirectory(at: contents, withIntermediateDirectories: true)
+            let info: [String: Any] = ["CFBundleIdentifier": id, "CFBundlePackageType": "APPL",
+                                       "LSUIElement": agent, "LSBackgroundOnly": background]
+            let data = try PropertyListSerialization.data(fromPropertyList: info, format: .xml, options: 0)
+            try data.write(to: contents.appendingPathComponent("Info.plist"))
+        }
+        try makeApp("Vendor/Tool.app", id: "test.tool", agent: true)
+        try makeApp("Vendor/Helper.app", id: "test.helper", background: true)
+        try makeApp("Vendor/Tool.app/Contents/Nested.app", id: "test.nested")
+        let ids = Set(LauncherIndexer.scanDirectories(roots: [root.path]).map(\.bundleID))
+        XCTAssertEqual(ids, ["test.tool"])
+    }
+
     func testOldFileWithoutHiddenAndOrderStillLoads() throws {
         let url = tempURL()
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)

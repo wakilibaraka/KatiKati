@@ -15,6 +15,7 @@ import SwiftUI
 enum LauncherChipLayout {
     case bar
     case stackCell
+    case backgroundApp
 }
 
 struct LauncherChip: View {
@@ -192,6 +193,7 @@ struct LauncherChip: View {
         switch layout {
         case .bar: return ChipPillMetrics.cardWidth * scale
         case .stackCell: return StackCellMetrics.drawer.cellSize.width
+        case .backgroundApp: return StackCellMetrics.backgroundApp.cellSize.width
         }
     }
 
@@ -243,6 +245,10 @@ struct LauncherChip: View {
             .overlay(alignment: runningDotEdge.alignment) {
                 runningDot(visual: visual, diameter: 4, edge: runningDotEdge)
             }
+        case .backgroundApp:
+            let cell = StackCellMetrics.backgroundApp
+            icon(size: cell.iconSize, bounceLift: 6 * scale)
+                .frame(width: cell.cellSize.width, height: cell.cellSize.height)
         case .stackCell:
             // The folder popup's cell with an app in it. The dot sits in the icon's own
             // transparent bottom margin, between the artwork and the name.

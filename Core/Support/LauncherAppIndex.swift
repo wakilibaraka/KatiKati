@@ -295,7 +295,11 @@ enum LauncherSearch {
     /// Matching apps, best first; ties by usage count then name.
     static func search(_ query: String, in apps: [LauncherApp], usage: [String: LauncherUsage], limit: Int = 50) -> [LauncherApp] {
         let scored: [(LauncherApp, Int)] = apps.compactMap { app in
-            score(query: query, name: app.name).map { (app, $0) }
+            let nameScore = score(query: query, name: app.name)
+            let bundleScore = score(query: query, name: app.bundleID).map { min($0, 250) }
+            let filename = URL(fileURLWithPath: app.path).deletingPathExtension().lastPathComponent
+            let filenameScore = score(query: query, name: filename).map { min($0, 500) }
+            return [nameScore, filenameScore, bundleScore].compactMap { $0 }.max().map { (app, $0) }
         }
         return scored.sorted { a, b in
             if a.1 != b.1 { return a.1 > b.1 }

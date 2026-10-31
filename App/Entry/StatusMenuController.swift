@@ -506,7 +506,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     /// 的高亮底上图标都会糊掉。所以用「先挖空一圈、再填实心点」的画法让它和图形本体分开，
     /// 靠形状而不是颜色让人看见。
     private static func statusItemImage(badged: Bool, iconSet: IconSet) -> NSImage? {
-        let drawn = iconSet == .modern ? NSImage(named: "MenuBarIcon") : nil
+        let drawn = iconSet != .classic ? NSImage(named: "MenuBarIcon") : nil
         let base = drawn
             ?? NSImage(systemSymbolName: iconSet == .classic ? IconSet.classicMenuBarSymbol : "rectangle.3.offgrid.fill",
                        accessibilityDescription: "KatiKati")

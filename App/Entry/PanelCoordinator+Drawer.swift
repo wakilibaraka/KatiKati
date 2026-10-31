@@ -94,7 +94,7 @@ extension PanelCoordinator {
     }
 
     /// Smaller than any plate means the host has not laid out yet, never a real size.
-    static func isPlausibleDrawerSize(_ size: CGSize) -> Bool { size.width >= 160 && size.height >= 100 }
+    static func isPlausibleDrawerSize(_ size: CGSize) -> Bool { size.width >= 120 && size.height >= 100 }
 
     /// The drawer's visible part for a window frame: plate plus arrow strip, without the 40pt
     /// transparent border.
@@ -150,7 +150,7 @@ extension PanelCoordinator {
         guard let capsule, let drawer, capsule != .zero, drawer != .zero else { return }
         let offset = capsule.midX - drawer.midX   // the capsule's visible rect is inset symmetrically
         if drawerArrow.offsetFromCenter != offset { drawerArrow.offsetFromCenter = offset }
-        let hidesArrow = stripPlacement.isVertical
+        let hidesArrow = true
         if drawerArrow.isHidden != hidesArrow { drawerArrow.isHidden = hidesArrow }
     }
 

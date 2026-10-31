@@ -56,12 +56,14 @@ enum LauncherScreenInsets {
 enum LauncherPresentation: String, CaseIterable, Sendable {
     case fullscreen
     case centred
-    case popover
+    case floatingDock = "dock"
 
-    static let `default`: LauncherPresentation = .fullscreen
+    static let `default`: LauncherPresentation = .floatingDock
 
+    /// A stored `popover` (the 57b preset this replaced) keeps a floating card.
     static func parse(_ stored: String?) -> LauncherPresentation {
-        stored.flatMap(LauncherPresentation.init(rawValue:)) ?? .default
+        if stored == "popover" { return .floatingDock }
+        return stored.flatMap(LauncherPresentation.init(rawValue:)) ?? .default
     }
 }
 
@@ -69,15 +71,17 @@ enum LauncherPresentation: String, CaseIterable, Sendable {
 /// frames share the bottom-left origin, and every shape is pulled inside `visible`).
 enum LauncherPanelFrame {
     static let centredMax = CGSize(width: 1200, height: 760)
-    static let popoverSize = CGSize(width: 640, height: 520)
+    static let dockSize = CGSize(width: 720, height: 580)
     static let margin: CGFloat = 8
-    static let popoverGap: CGFloat = 12
 
-    static func rect(mode: LauncherPresentation, screen: CGRect, visible: CGRect, anchor: CGPoint?) -> CGRect {
+    /// `dockReserve` is the KatiKati bottom bar height; `leading` / `trailing` are side rail widths.
+    static func rect(mode: LauncherPresentation, screen: CGRect, visible: CGRect,
+                     dockReserve: CGFloat = 0, leading: CGFloat = 0, trailing: CGFloat = 0) -> CGRect {
         switch mode {
         case .fullscreen: return screen
         case .centred: return centred(in: visible)
-        case .popover: return popover(in: visible, anchor: anchor)
+        case .floatingDock:
+            return floatingDock(in: visible, dockReserve: dockReserve, leading: leading, trailing: trailing)
         }
     }
 
@@ -88,13 +92,15 @@ enum LauncherPanelFrame {
         return CGRect(x: visible.midX - width / 2, y: visible.midY - height / 2, width: width, height: height)
     }
 
-    /// Hangs under the summoning point (the pointer, or the FAB that was clicked), pulled back inside the screen.
-    static func popover(in visible: CGRect, anchor: CGPoint?) -> CGRect {
-        let width = min(popoverSize.width, visible.width - 2 * margin)
-        let height = min(popoverSize.height, visible.height - 2 * margin)
-        let point = anchor ?? CGPoint(x: visible.midX, y: visible.minY)
-        let x = min(max(point.x - width / 2, visible.minX + margin), visible.maxX - width - margin)
-        let y = min(max(point.y - height - popoverGap, visible.minY + margin), visible.maxY - height - margin)
+    /// Bottom-centre of the space above the KatiKati bottom bar and between the side rails, so it never covers the Dock
+    /// or a bar. Capped at 80 % of the usable width and height.
+    static func floatingDock(in visible: CGRect, dockReserve: CGFloat, leading: CGFloat, trailing: CGFloat) -> CGRect {
+        let area = CGRect(x: visible.minX + leading, y: visible.minY + dockReserve,
+                          width: visible.width - leading - trailing, height: visible.height - dockReserve)
+        let width = min(dockSize.width, area.width * 0.8)
+        let height = min(dockSize.height, area.height * 0.8)
+        let x = min(max(area.midX - width / 2, area.minX + margin), area.maxX - width - margin)
+        let y = area.minY + margin
         return CGRect(x: x, y: y, width: width, height: height)
     }
 }

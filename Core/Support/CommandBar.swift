@@ -224,6 +224,15 @@ enum CommandBarResults {
                       menuItems: [MenuSearchEntry] = [],
                       profiles: [BarProfileSummary] = [],
                       generate: (CommandGenerator) -> String = { $0.value() }) -> [CommandBarResult] {
+        if query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return apps.filter { (usage[$0.bundleID]?.launches ?? 0) > 0 }
+                .sorted { a, b in
+                    let left = usage[a.bundleID]!, right = usage[b.bundleID]!
+                    if left.launches != right.launches { return left.launches > right.launches }
+                    if left.lastLaunched != right.lastLaunched { return left.lastLaunched > right.lastLaunched }
+                    return LauncherAppIndex.nameOrder(a, b)
+                }.prefix(8).map(CommandBarResult.app)
+        }
         let keyword = CommandKeyword.parse(query)
         if case .mode(let mode, let argument)? = keyword {
             return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes, files: files, clips: clips, bookmarks: bookmarks, events: events, menuItems: menuItems, profiles: profiles)

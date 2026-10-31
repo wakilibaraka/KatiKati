@@ -1516,7 +1516,7 @@ struct DockStripView: View {
                 onPreview: { folderShowPreview(path) },
                 onOpenInFinder: { openFolderInFinder(path) },
                 onAddFolder: onAddFolder,
-                onRemove: { pinnedFolderStore.remove(path) },
+                onRemove: { removePinnedFolder(path) },
                 onSetSortOrder: { pinnedFolderStore.setSortOrder($0, for: path) },
                 isDropTarget: externalDropTarget == .moveInto(path: path),
                 showsDownloadActivity: Self.isDownloadsFolder(path) && !pinnedFolderStore.isUnopenedSeed(path),

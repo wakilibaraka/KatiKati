@@ -45,6 +45,14 @@ final class CommandBarTests: XCTestCase {
         XCTAssertTrue(CommandBarResults.build(query: "   ", apps: [], usage: [:], running: []).isEmpty)
     }
 
+    func testEmptyQuerySuggestsFrequentlyLaunchedApps() {
+        let safari = app("s", "Safari"), notes = app("n", "Notes"), unused = app("u", "Unused")
+        let usage = ["s": LauncherUsage(launches: 2, lastLaunched: .distantPast),
+                     "n": LauncherUsage(launches: 4, lastLaunched: .distantPast)]
+        XCTAssertEqual(CommandBarResults.build(query: "", apps: [safari, notes, unused], usage: usage, running: []),
+                       [.app(notes), .app(safari)])
+    }
+
     func testQuitRowsAreBestMatchFirst() {
         let canary = RunningAppRef(bundleID: "a", name: "Chrome Canary", pid: 1, path: "/a.app")
         let chrome = RunningAppRef(bundleID: "b", name: "Chrome", pid: 2, path: "/b.app")

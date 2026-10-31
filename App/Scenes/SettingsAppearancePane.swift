@@ -1,8 +1,8 @@
 import AppKit
 import SwiftUI
 
-// Phase 6 Appearance tab: the Phase-4 theme presets (`com.katikati.theme.material`) and the
-// icon set (`com.katikati.iconSet`). Light/dark itself stays on General › Appearance
+// Phase 6 Appearance tab: the Phase-4 theme presets (`com.katikati.theme.material`).
+// Light/dark itself stays on General › Appearance
 // (`appearanceMode`) — this page never duplicates that control.
 //
 // Phase 12 (2026-10-15): renders through `SettingsCard`/`SettingsRow` only, and only cards — the
@@ -14,9 +14,6 @@ struct SettingsAppearancePane: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @State private var hoveredThemeToken: String?
-    // Phase 32b: `Right FAB Style` moved here from the Widgets page, into the slot 32d's dock-icon row
-    // freed — the dock's FAB is a look, like the icon set beside it.
-    @AppStorage("com.katikati.widgets.fabStyle") private var fabStyleRaw: String = "gauge"
     @AppStorage(SpaceTransitionSettings.effectKey) private var spaceEffectRaw = SpaceTransitionEffect.fade.rawValue
     @AppStorage(SpaceTransitionSettings.durationKey) private var spaceDuration = SpaceTransitionSettings.defaultDuration
 
@@ -95,11 +92,6 @@ struct SettingsAppearancePane: View {
                     )
                 
                 }
-                // The icon rows are inside this card now (2026-10-15): a card of their own cost a
-                // header's worth of padding and a 20 pt section gap — 48 pt of a page that has to
-                // fit the window. Same rows, same previews, same notes.
-                SettingsDivider()
-                iconRows
             }
 
             wallpaperSection
@@ -137,34 +129,6 @@ struct SettingsAppearancePane: View {
                 set: { spaceDuration = $0 }
             )
         }
-    }
-
-    /// The icon rows, rendered inside the Theme card (2026-10-15). **One row now:** the dock app
-    /// icon's shape was a row here until Phase 32d packed it (owner 2026-10-16) — the frame is fixed
-    /// at launch by `DOCK_ICON_FRAME`, so there is no setting left to draw.
-    /// The two icon preview tiles and their note went on 2026-10-18: they were 58 pt of a page whose
-    /// custom-tint state ran 17 pt past the window, and the segmented control already names and
-    /// draws the choice.
-    @ViewBuilder
-    private var iconRows: some View {
-                SettingsSegmentedRow(
-            Text("Icon Set"),
-            selection: Binding(get: { store.iconSet }, set: store.setIconSet)
-        ) {
-            Text("Modern").tag(IconSet.modern)
-            Text("Classic").tag(IconSet.classic)
-        }
-    
-        SettingsDivider()
-        SettingsRow(Text("Right FAB Style")) {
-            Picker("Right FAB Style", selection: $fabStyleRaw) {
-                Text("Dynamic Gauge").tag("gauge")
-                Text("Classic Glyph").tag("classic")
-            }
-            .labelsHidden().pickerStyle(.menu).fixedSize()
-        }
-        .help(Text("The dock's right button: a live gauge or a single glyph."))
-    
     }
 
     // MARK: - Wallpaper (Phase 10b-3)
@@ -328,8 +292,6 @@ struct SettingsAppearancePane: View {
             ), in: 0.2...1)
         }
     }
-
-    // MARK: - Icon set
 
 }
 

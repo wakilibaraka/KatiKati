@@ -26,6 +26,22 @@ extension DockStripView {
         }
     }
 
+    /// 固定文件夹右键「从任务条移除」的唯一入口。Downloads 是内置固定项：先警告，再决定。
+    func removePinnedFolder(_ path: String) {
+        guard pinnedFolderStore.isBuiltin(path) else {
+            pinnedFolderStore.remove(path)
+            return
+        }
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = String(localized: "Remove Downloads from the dock?")
+        alert.informativeText = String(localized: "It stays pinned until you remove it here.")
+        alert.addButton(withTitle: String(localized: "Remove"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        pinnedFolderStore.removeBuiltin(path)
+    }
+
     /// 打开该路径的访达窗口（best-effort；左键与右键「在访达中打开」共用此入口）。
     func openFolderInFinder(_ path: String) {
         NSWorkspace.shared.open(URL(fileURLWithPath: path))

@@ -247,7 +247,8 @@ extension DockStripView {
         // divider between them.
         let headEntries = messaging + (settingsStore.showShelf ? [StripEntry.shelf] : [])
         // The drawer pop heads the tail zone: left of the pinned folders (Downloads) and the Trash.
-        let tailEntries = [StripEntry.pop] + pinnedEntries + (settingsStore.showTrash ? [StripEntry.trash] : [])
+        let tailEntries = (settingsStore.showDrawer ? [StripEntry.pop] : []) + pinnedEntries
+            + (settingsStore.showTrash ? [StripEntry.trash] : [])
         var zones = [headEntries, liveWithGhost, tailEntries]
             .map { zone in zone.filter { $0.id != collapsedEntryID } }
             .filter { !$0.isEmpty }

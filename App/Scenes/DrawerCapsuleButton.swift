@@ -72,15 +72,6 @@ struct DrawerCapsuleButton: View {
 
     var body: some View {
         let ids = memberIDs
-        let pageCount = DrawerCapsulePaging.pageCount(memberCount: ids.count)
-        let page = DrawerCapsulePaging.clampedPage(pager.page, pageCount: pageCount)
-        // Clicks, hover and press follow the page nearest to what is on screen, which differs from
-        // the resting page while a trackpad gesture holds the capsule on its neighbour.
-        let hitPage = DrawerCapsulePaging.hitPage(page: pager.page, drag: pager.drag, pageCount: pageCount)
-        let apps = DrawerCapsulePaging.apps(page: hitPage, members: ids)
-        // 57e: with no background apps the capsule keeps the RAM / CPU disc, which would otherwise be
-        // lost with nothing to replace it. (The count disc is gone: the apps themselves are the preview.)
-        let showsBackgroundDisc = false
         return ZStack {
             if fluidTheme {
                 FluidRailBody(centers: [], radius: dockScale * 27, vertical: true,
@@ -98,7 +89,16 @@ struct DrawerCapsuleButton: View {
                 DynamicGaugeCompactDiscView(scale: dockScale)
                     .cellFeedback(hovered: hoverEnabled && hoveredCell != nil, pressed: pressedCell != nil)
             } else {
-                pagedPreview(ids: ids, pageCount: pageCount, page: page, hitPage: hitPage)
+                LazyVGrid(columns: Array(repeating: GridItem(.fixed(9 * dockScale), spacing: 4 * dockScale), count: 3),
+                          alignment: .leading, spacing: 4 * dockScale) {
+                    ForEach(Array(ids.prefix(9)), id: \.self) { id in
+                        Image(nsImage: AppIconResolver.icon(for: id))
+                            .resizable().aspectRatio(contentMode: .fit)
+                            .frame(width: 9 * dockScale, height: 9 * dockScale)
+                    }
+                }
+                .frame(width: 35 * dockScale, height: 35 * dockScale, alignment: .center)
+                .accessibilityHidden(true)
             }
         }
         .dockPanelRim(cornerRadius: DockShape.panelCornerRadius * dockScale,
@@ -114,19 +114,11 @@ struct DrawerCapsuleButton: View {
         .padding(PanelCoordinator.shadowPadding)
         // The hit cells split the whole padded frame into quadrants, so each target is as large
         // as the capsule allows and reaches the screen edge.
-        .overlay(hitGrid(apps: apps, opensBackgroundApps: showsBackgroundDisc))
-        // Takes scroll events only (see `DrawerCapsuleScrollView.hitTest`); clicks fall through.
-        .overlay(DrawerCapsuleScrollReceiver(enabled: hoverEnabled && pageCount > 1) { event in
-            switch event {
-            case .step(let direction): pager.step(direction, pageCount: pageCount)
-            case .drag(let points): pager.drag(points: points, side: capsuleSide)
-            case .dragEnded: pager.endDrag(pageCount: pageCount)
-            }
-        })
-        // The three slots are worth their fixed places: once the pointer has left, the capsule
-        // goes back to the first page.
-        .onChange(of: hoveredCell == nil) { away in
-            pager.pointerAway = away
+        .overlay {
+            Button(action: action) { Color.clear.contentShape(Rectangle()) }
+                .buttonStyle(.plain)
+                .help(Text("Background Apps"))
+                .accessibilityLabel(Text("Background Apps"))
         }
         // MenuHostNSView takes only right / Control-clicks and lets left clicks through to the
         // cells above, so a right click anywhere on the capsule is the Tungsten menu — the

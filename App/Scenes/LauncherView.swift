@@ -133,6 +133,22 @@ struct LauncherView: View {
                     .background(Capsule().fill(model.editing ? Color.accentColor.opacity(0.35) : Color.primary.opacity(0.12)))
             }
             .buttonStyle(.plain)
+            Menu {
+                Picker("Sort By", selection: $model.prefs.sort) {
+                    Text("Custom Order").tag(LauncherSortMode.custom)
+                    Text("Name").tag(LauncherSortMode.name)
+                    Text("Most Used").tag(LauncherSortMode.mostUsed)
+                    Text("Recently Added").tag(LauncherSortMode.recentlyAdded)
+                    Text("Category").tag(LauncherSortMode.category)
+                }
+                .pickerStyle(.inline)
+            } label: {
+                Image(systemName: "arrow.up.arrow.down").font(.system(size: 13, weight: .semibold))
+                    .frame(width: 30, height: 30).background(Circle().fill(Color.primary.opacity(0.12)))
+            }
+            .menuStyle(.borderlessButton).fixedSize()
+            .help(Text("Sort By"))
+            .accessibilityLabel(Text("Sort By"))
             Button { showGear.toggle() } label: {
                 Image(systemName: "gearshape.fill").font(.system(size: 14, weight: .semibold))
                     .frame(width: 30, height: 30).background(Circle().fill(Color.primary.opacity(0.12)))
@@ -182,10 +198,11 @@ struct LauncherView: View {
         GeometryReader { proxy in
             let m = metrics(width: Double(proxy.size.width))
             if model.query.isEmpty {
-                let page = LauncherAppIndex.page(apps: indexer.apps, usage: model.state.usage, pinned: model.state.pinned,
+                let page = LauncherAppIndex.page(apps: indexer.apps, usage: model.state.usage,
+                                                 pinned: model.pinnedRow ? model.state.pinned : [],
                                                  columns: m.columns, now: Date(),
                                                  hidden: Set(model.state.hidden), order: model.state.order,
-                                                 keptIDs: model.keptIDs, separatePinned: true,
+                                                 keptIDs: model.pinnedRow ? model.keptIDs : [], separatePinned: true,
                                                  sort: model.prefs.sort, groupByCategory: model.prefs.groupByCategory,
                                                  folders: model.state.folders)
                 if model.scrollDirection == .horizontal {
@@ -616,6 +633,7 @@ final class LauncherModel: ObservableObject {
     @Published var focusNonce = 0
     @Published var searchPosition: LauncherSearchPosition = .top
     @Published var scrollDirection: LauncherScrollDirection = .horizontal
+    @Published var pinnedRow = true
     @Published var pageIndex = 0
     /// Page requests from the keyboard, scroll wheel and search field (the view clamps them to the page count).
     let pageTurns = PassthroughSubject<Int, Never>()

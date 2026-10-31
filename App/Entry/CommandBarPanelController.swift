@@ -161,6 +161,9 @@ final class CommandBarPanelController {
             if let q = LauncherQuickAction.resolve(query), case let .webSearch(url) = q { NSWorkspace.shared.open(url) }
             else if let url = URL(string: "https://duckduckgo.com/?q=" + (query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")) { NSWorkspace.shared.open(url) }
         case .app(let app):
+            var state = store.load()
+            LauncherAppIndex.recordLaunch(&state.usage, bundleID: app.bundleID, at: Date())
+            try? store.save(state)
             dismiss()
             NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: app.path), configuration: NSWorkspace.OpenConfiguration())
         case .quit(let ref):

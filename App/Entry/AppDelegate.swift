@@ -167,8 +167,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let panel = LauncherPanelController()
         panel.searchPosition = { [weak self] in self?.settingsStore.launcherSearchPosition ?? .top }
         panel.scrollDirection = { [weak self] in self?.settingsStore.launcherScrollDirection ?? .horizontal }
+        panel.pinnedRow = { [weak self] in self?.settingsStore.launcherPinnedRow ?? true }
         panel.look = { [weak self] in (self?.settingsStore.launcherTheme ?? .system, self?.settingsStore.launcherTint ?? .none) }
-        panel.presentation = { [weak self] in self?.settingsStore.launcherPresentation ?? .fullscreen }
+        panel.presentation = { [weak self] in self?.settingsStore.launcherPresentation ?? .default }
         panel.keptApps = { [weak self] in self?.keptAppStore.bundleIDs ?? [] }
         panel.bottomBarReserve = { [weak self] in
             guard let store = self?.settingsStore, store.stripPlacementMap.global == .bottom else { return 0 }
@@ -285,10 +286,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let isFreshInstall = installLineage == .pristine
         // 全新安装把最大化避让播种为开；老用户维持关（它会改写别人应用的窗口尺寸，
         // 不能靠一次升级静默打开）。理由见 `AppSettingsStore.seedWindowLiftEnabledForFreshInstall`。
+        // Downloads is part of the dock on every launch, not just a fresh install (owner 2026-10-31).
+        pinnedFolderStore.ensureBuiltins()
         if isFreshInstall {
             settingsStore.seedWindowLiftEnabledForFreshInstall(lineage: installLineage)
             settingsStore.armTaskbarPerDisplaySeedForFreshInstall(lineage: installLineage)
-            pinnedFolderStore.seedDownloadsForFreshInstall(lineage: installLineage)
             keptAppStore.seedDefaultAppsForFreshInstall(lineage: installLineage) {
                 NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0) != nil
             }

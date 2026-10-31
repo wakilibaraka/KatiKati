@@ -23,10 +23,14 @@ extension SettingsLayoutPane {
                     )) {
                         Text("Fullscreen").tag(LauncherPresentation.fullscreen)
                         Text("Centred").tag(LauncherPresentation.centred)
-                        Text("Popover").tag(LauncherPresentation.popover)
+                        Text("Floating on dock").tag(LauncherPresentation.floatingDock)
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }
+                SettingsToggleRow(Text("Pinned Row"), isOn: Binding(
+                    get: { store.launcherPinnedRow },
+                    set: { store.setLauncherPinnedRow($0) }
+                ), note: Text("Show your pinned apps in a row above All Apps."))
                 // 57c: the orb that floats over other windows and opens the launcher on a click.
                 SettingsToggleRow(Text("Floating Orb"), isOn: Binding(
                     get: { store.launcherOrbEnabled },

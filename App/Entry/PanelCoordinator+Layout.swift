@@ -351,6 +351,7 @@ extension PanelCoordinator {
     /// Whether this coordinator unit hosts the drawer capsule.
     /// Per Appendix A, utilities (drawer, shelf, trash, folders) travel with the apps island.
     var isCapsuleOwner: Bool {
+        guard settingsStore.showBackgroundApps else { return false }
         let sections = BarSection.islands(for: settingsStore.barLayoutMode,
                                           order: settingsStore.widgetOrder)
         guard islandSlot < sections.count else { return islandSlot == 0 }

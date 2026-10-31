@@ -130,6 +130,15 @@ final class LauncherAppIndexTests: XCTestCase {
         XCTAssertEqual(LauncherSearch.score(query: "cafe", name: "Café"), 1000)
     }
 
+    func testSearchMatchesBundleIdentifierAndFilenameWithoutOutrankingNames() {
+        let named = app("com.example.other", "Code")
+        let renamed = LauncherApp(bundleID: "com.microsoft.VSCode", name: "Visual Studio Code",
+                                  path: "/Applications/Code.app", installedAt: now)
+        XCTAssertEqual(LauncherSearch.search("code", in: [renamed, named], usage: [:]).map(\.bundleID),
+                       [named.bundleID, renamed.bundleID])
+        XCTAssertEqual(LauncherSearch.search("microsoft", in: [renamed], usage: [:]).map(\.bundleID), [renamed.bundleID])
+    }
+
     func testSearchRanksPrefixOverSubstringAndUsageBreaksTies() {
         let apps = [app("1", "Notes Pro"), app("2", "Keynote"), app("3", "Notion")]
         let usage = ["3": LauncherUsage(launches: 5, lastLaunched: now)]

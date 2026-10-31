@@ -68,11 +68,11 @@ struct DrawerView: View {
 
     var body: some View {
         let ids = backgroundMembers
-        let shape = DrawerGridShape.resolve(settledCount: ids.count, actualCount: ids.count, limits: limits)
-        return StackPopupChrome(title: String(localized: "Background Apps"),
-                                note: shape.showsHint ? String(localized: "No apps are running in the background") : nil,
-                                layout: shape.layout,
-                                plate: .drawer,
+        let layout = DrawerGridShape.backgroundApps(count: ids.count, limits: limits)
+        return StackPopupChrome(title: "",
+                                note: ids.isEmpty ? String(localized: "No apps are running in the background") : nil,
+                                layout: ids.isEmpty ? .init(columns: min(3, limits.maxColumns), visibleRows: 0, scrolls: false) : layout,
+                                plate: ids.isEmpty ? .drawer : .backgroundApps,
                                 usesLiquidGlass: usesLiquidGlass,
                                 arrow: arrow,
                                 onPanelSizeChange: onPanelSizeChange,
@@ -104,9 +104,8 @@ struct DrawerView: View {
                      isHidden: isHiddenInSnapshot(id),
                      finderHasRealWindow: finderHasRealWindow(id),
                      isLaunching: runtime.launchingBundleIDs.contains(id),
-                     // 76pt icon = 1.9 × the bar's 40pt slot (`StackCellMetrics.drawer.iconSize`).
-                     scale: 1.9,
-                     layout: .stackCell,
+                     scale: 0.7,
+                     layout: .backgroundApp,
                      railTile: false,
                      // 面板固定安静档（owner 2026-08-17：悬停微微放大，不冒名字）。
                      hoverStyle: .quiet,
