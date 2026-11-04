@@ -7066,5 +7066,17 @@
     "seen": 1793827878.423369,
     "ast_hash": "c840bf1cf96cd540592ef2816c50ba1c",
     "semantic_hash": ""
+  },
+  "Core/Support/LayoutCatalog.swift": {
+    "mtime": 1793830137.475714,
+    "seen": 1793830986.7490041,
+    "ast_hash": "93fced54b59f3dc053f07c27aee26670",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/LayoutCatalogTests.swift": {
+    "mtime": 1793830137.5034935,
+    "seen": 1793830986.749801,
+    "ast_hash": "8201f714667f8f690d8843e1ba0b8bc5",
+    "semantic_hash": ""
   }
 }
