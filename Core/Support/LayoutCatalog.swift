@@ -35,6 +35,20 @@ enum LayoutCatalog: String, CaseIterable, Sendable {
         }
     }
 
+    var title: String {
+        switch self {
+        case .staged: return "Staged"
+        case .fullscreen: return "Fullscreen"
+        case .halves: return "Halves"
+        case .twoThirdsOneThird: return "2/3 – 1/3"
+        case .thirds: return "Thirds"
+        case .quarters: return "Quarters"
+        case .stacked: return "Stacked"
+        case .mainLeft: return "Main Left"
+        case .mainRight: return "Main Right"
+        }
+    }
+
     /// Shown under the layout name in the picker.
     var summary: String {
         switch self {

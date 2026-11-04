@@ -26,6 +26,7 @@ final class TilingEngine: ObservableObject {
     static let mainRatioKey = "com.katikati.tiling.mainRatio"
     static let mirroredKey = "com.katikati.tiling.mirrored"
     static let floatingAppsKey = "com.katikati.tiling.floatingApps"
+    static let displayLayoutsKey = "com.katikati.tiling.displayLayouts"
 
     // MARK: - Published State
     @Published private(set) var isEnabled: Bool = UserDefaults.standard.bool(forKey: enabledKey)
@@ -36,6 +37,11 @@ final class TilingEngine: ObservableObject {
     @Published private(set) var displayPresets: [String: TilingLayoutPreset] = {
         let raw = UserDefaults.standard.dictionary(forKey: displayPresetsKey) as? [String: String] ?? [:]
         return raw.compactMapValues(TilingLayoutPreset.init(rawValue:))
+    }()
+    /// Per-display catalog layout (slot-capped); wins over `displayPresets`/`preset` on that display.
+    @Published private(set) var displayLayouts: [String: LayoutCatalog] = {
+        let raw = UserDefaults.standard.dictionary(forKey: displayLayoutsKey) as? [String: String] ?? [:]
+        return raw.compactMapValues(LayoutCatalog.init(rawValue:))
     }()
     @Published private(set) var gaps: TilingGaps = {
         let inner = UserDefaults.standard.object(forKey: innerGapKey) as? CGFloat ?? 8
@@ -137,8 +143,28 @@ final class TilingEngine: ObservableObject {
     func setPreset(_ newPreset: TilingLayoutPreset, forDisplay name: String) {
         guard displayPresets[name] != newPreset else { return }
         displayPresets[name] = newPreset
+        if displayLayouts.removeValue(forKey: name) != nil {
+            UserDefaults.standard.set(displayLayouts.mapValues(\.rawValue), forKey: Self.displayLayoutsKey)
+        }
         UserDefaults.standard.set(displayPresets.mapValues(\.rawValue), forKey: Self.displayPresetsKey)
         if isEnabled { reapplyLayout() }
+    }
+
+    func layout(for screen: NSScreen) -> LayoutCatalog? { displayLayouts[screen.localizedName] }
+
+    /// Picks a catalog layout for one display and turns tiling on; `nil` goes back to the display's plain preset.
+    func setLayout(_ layout: LayoutCatalog?, forDisplay name: String) {
+        displayLayouts[name] = layout
+        UserDefaults.standard.set(displayLayouts.mapValues(\.rawValue), forKey: Self.displayLayoutsKey)
+        if layout != nil, !isEnabled { setEnabled(true) } else if isEnabled { reapplyLayout() }
+    }
+
+    /// Frames for one display's tree: a catalog layout caps the slots, otherwise the preset tiles everything.
+    private func resolveFrames(_ tree: TilingTree, on screen: NSScreen, workArea: CGRect) -> [WindowID: CGRect] {
+        if let layout = layout(for: screen) {
+            return layout.frames(for: tree.allWindowIDs, workArea: workArea, gaps: gaps)
+        }
+        return TilingLayout.resolve(tree: tree, preset: preset(for: screen), workArea: workArea, gaps: gaps, options: options)
     }
 
     func setGaps(_ newGaps: TilingGaps) {
@@ -314,12 +340,12 @@ final class TilingEngine: ObservableObject {
 
             // Resolve layout geometry; if any tile would be unusably small, the newest windows stay floating.
             let workArea = workArea(of: screen)
-            var targetFrames = TilingLayout.resolve(tree: tree, preset: preset(for: screen), workArea: workArea, gaps: gaps, options: options)
+            var targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
             let newcomers = eligible.map { $0.0.id }.filter { tree.contains($0) }.reversed()
             for id in newcomers where !WindowFit.allUsable(Array(targetFrames.values)) && tree.count > 1 {
                 tree.remove(id)
                 overflow += 1
-                targetFrames = TilingLayout.resolve(tree: tree, preset: preset(for: screen), workArea: workArea, gaps: gaps, options: options)
+                targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
             }
             trees[screenKey] = tree
 
@@ -338,7 +364,7 @@ final class TilingEngine: ObservableObject {
             let screenKey = screen.localizedName + "-\(screen.frame.origin)"
             guard let tree = trees[screenKey], !tree.isEmpty else { continue }
             let workArea = workArea(of: screen)
-            let targetFrames = TilingLayout.resolve(tree: tree, preset: preset(for: screen), workArea: workArea, gaps: gaps, options: options)
+            let targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
 
             applyFrames(targetFrames, records: lastWindows, primaryMaxY: primaryMaxY, area: workArea)
         }

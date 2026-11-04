@@ -3,6 +3,8 @@ import SwiftUI
 /// Window zones (Phase 7A-P6): a grid of small zone icons; a press moves the window you were working in.
 struct WindowsFlyoutView: View {
     @State private var blocked = false
+    @State private var showLayouts = false
+    @ObservedObject private var tiling = TilingEngine.shared
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.edgeBarStyle) private var barStyle
@@ -22,16 +24,12 @@ struct WindowsFlyoutView: View {
             Text("Windows")
         }, content: {
             VStack(spacing: 10) {
-                ForEach(Array(Self.rows.enumerated()), id: \.offset) { _, row in
-                    HStack(spacing: 10) {
-                        ForEach(row, id: \.self) { zone in
-                            Button { press(zone) } label: { icon(zone, env: env) }
-                                .buttonStyle(.plain)
-                                .help(Self.title(zone))
-                        }
-                        Spacer(minLength: 0)
-                    }
+                Picker("Mode", selection: $showLayouts) {
+                    Text("Zones").tag(false)
+                    Text("Layouts").tag(true)
                 }
+                .labelsHidden().pickerStyle(.segmented).controlSize(.small)
+                if showLayouts { layoutsGrid(env: env) } else { zonesGrid(env: env) }
                 if blocked {
                     Text("Windows needs Accessibility access.").font(.system(size: 11)).foregroundColor(env.secondary)
                     Button("Open Settings") { AgendaPane.openPrivacy("Privacy_Accessibility") }.font(.system(size: 11))
@@ -41,6 +39,75 @@ struct WindowsFlyoutView: View {
             .padding(.top, 8)
         })
         .padding(8)
+    }
+
+    private func zonesGrid(env: TileEnv) -> some View {
+        VStack(spacing: 10) {
+            ForEach(Array(Self.rows.enumerated()), id: \.offset) { _, row in
+                HStack(spacing: 10) {
+                    ForEach(row, id: \.self) { zone in
+                        Button { press(zone) } label: { icon(zone, env: env) }
+                            .buttonStyle(.plain)
+                            .help(Self.title(zone))
+                    }
+                    Spacer(minLength: 0)
+                }
+            }
+        }
+    }
+
+    /// The display the pointer is on: that is where the drawer opened.
+    private var targetScreen: NSScreen? {
+        NSScreen.screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.main
+    }
+
+    private func layoutsGrid(env: TileEnv) -> some View {
+        let screen = targetScreen
+        let current = screen.flatMap { tiling.layout(for: $0) }
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 3)
+        return VStack(spacing: 8) {
+            LazyVGrid(columns: columns, spacing: 8) {
+                ForEach(LayoutCatalog.allCases, id: \.self) { layout in
+                    Button {
+                        guard AXIsProcessTrusted() else { blocked = true; return }
+                        blocked = false
+                        if let screen { tiling.setLayout(layout, forDisplay: screen.localizedName) }
+                    } label: {
+                        VStack(spacing: 3) {
+                            layoutIcon(layout, env: env, selected: layout == current && tiling.isEnabled)
+                            Text(layout.title).font(.system(size: 10)).foregroundColor(env.secondary).lineLimit(1)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .help(layout.summary)
+                }
+            }
+            if let current, tiling.isEnabled {
+                HStack {
+                    Text("\(current.title) is on").font(.system(size: 11))
+                    Spacer()
+                    Button("Turn Off") { tiling.setEnabled(false) }.font(.system(size: 11))
+                }
+            }
+        }
+    }
+
+    /// Miniature of the layout with four sample windows, so parked ones show as missing slots.
+    private func layoutIcon(_ layout: LayoutCatalog, env: TileEnv, selected: Bool) -> some View {
+        let w: CGFloat = 70, h: CGFloat = 44
+        let ids = (1...4).map { WindowID(rawValue: "s\($0)") }
+        let frames = layout.frames(for: ids, workArea: CGRect(x: 0, y: 0, width: w, height: h),
+                                   gaps: TilingGaps(inner: 2, outer: 2))
+        return ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 4).fill(selected ? env.accent(.alarms).opacity(0.25) : env.hairline)
+            ForEach(ids.filter { frames[$0] != nil }, id: \.self) { id in
+                let f = frames[id]!
+                RoundedRectangle(cornerRadius: 2).fill(env.accent(.alarms))
+                    .frame(width: f.width, height: f.height)
+                    .offset(x: f.minX, y: h - f.maxY)
+            }
+        }
+        .frame(width: w, height: h)
     }
 
     private func press(_ zone: SnapPosition) {
