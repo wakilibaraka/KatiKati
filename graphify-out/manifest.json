@@ -2610,10 +2610,10 @@
     "semantic_hash": "56364c96692e99f21abbb13ce0b36db3"
   },
   "Platform/Accessibility/AccessibilitySource.swift": {
-    "mtime": 1791999130.9240623,
-    "seen": 1792295707.060637,
-    "ast_hash": "9610c322c62f6dadfe245d2011c1aedc",
-    "semantic_hash": "9610c322c62f6dadfe245d2011c1aedc"
+    "mtime": 1793822512.9382963,
+    "seen": 1793827878.423299,
+    "ast_hash": "91944015bd4e5cd8d7a485a0ef12c3a8",
+    "semantic_hash": ""
   },
   "Platform/Accessibility/DockBadgeReader.swift": {
     "mtime": 1791999130.9248312,
@@ -2772,8 +2772,8 @@
     "semantic_hash": "f793197b182f8234d7020174b8567d99"
   },
   "Platform/Finder/FinderNewWindowOpener.swift": {
-    "mtime": 1791999130.9226935,
-    "seen": 1792295707.0606542,
+    "mtime": 1793822514.0513883,
+    "seen": 1793827878.4233248,
     "ast_hash": "d121a652a960fc84b9c1520f315e5ecb",
     "semantic_hash": "d121a652a960fc84b9c1520f315e5ecb"
   },
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1793820784.6636348,
-    "seen": 1793821372.7244318,
-    "ast_hash": "ac0cfe4617dbc0e98cec028aca54f093",
+    "mtime": 1793827827.3228428,
+    "seen": 1793827878.423601,
+    "ast_hash": "617cb59046c07de1eb76fb355fb047fa",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -7062,9 +7062,9 @@
     "semantic_hash": ""
   },
   "Scripts/live_check_chip.py": {
-    "mtime": 1793819946.2693658,
-    "seen": 1793821372.724187,
-    "ast_hash": "f62d25bbf7b4a552f43ebb1451d6aa5f",
+    "mtime": 1793821668.313439,
+    "seen": 1793827878.423369,
+    "ast_hash": "c840bf1cf96cd540592ef2816c50ba1c",
     "semantic_hash": ""
   }
 }
