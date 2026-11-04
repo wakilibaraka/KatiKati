@@ -1146,9 +1146,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
-    "mtime": 1793834901.409603,
-    "seen": 1793835598.1131341,
-    "ast_hash": "c3571d51e1fe3eb38ffa5fbe00b4717d",
+    "mtime": 1793835661.653377,
+    "seen": 1793835846.92147,
+    "ast_hash": "d1f3aebaa2eda835e300084d381198ee",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
@@ -3642,9 +3642,9 @@
     "semantic_hash": "7b2f6d50c3dd6e28e38a71e7e8ec10e3"
   },
   "Tests/Unit/LauncherAppIndexTests.swift": {
-    "mtime": 1793802310.7012415,
-    "seen": 1793805182.753427,
-    "ast_hash": "8b5ae01e24f5849654036e4744c351e6",
+    "mtime": 1793835825.0720448,
+    "seen": 1793835846.9225621,
+    "ast_hash": "0f8dcd3301e955e77c570bd747659f28",
     "semantic_hash": ""
   },
   "Tests/Unit/LauncherAppearanceTests.swift": {
@@ -4626,9 +4626,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Launcher.swift": {
-    "mtime": 1793307550.987291,
-    "seen": 1793373444.962305,
-    "ast_hash": "a7ec8582e946248b14c7df2c0e921154",
+    "mtime": 1793835661.652248,
+    "seen": 1793835846.921463,
+    "ast_hash": "1f9cdb1e923e4c7d71ef8604147d3ec9",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
