@@ -336,15 +336,15 @@
     "semantic_hash": "929476631486ebc331fbc2a812aea63a"
   },
   "App/Composition/PinnedFolderCoverStore.swift": {
-    "mtime": 1792261093.5369244,
-    "seen": 1792295707.060406,
-    "ast_hash": "ff50c50896b8241ef8ffad60226a83a1",
-    "semantic_hash": "ff50c50896b8241ef8ffad60226a83a1"
+    "mtime": 1793828839.9145389,
+    "seen": 1793829921.514484,
+    "ast_hash": "a7577336f86655fb63d5dd91b45b1ed0",
+    "semantic_hash": ""
   },
   "App/Composition/PinnedFolderStore.swift": {
-    "mtime": 1793477816.032454,
-    "seen": 1793478532.637279,
-    "ast_hash": "363b7e99dd6a731436101a9a28d83217",
+    "mtime": 1793829645.9224167,
+    "seen": 1793829921.514486,
+    "ast_hash": "8bb80c9553f5073d2c91b0532dccba9d",
     "semantic_hash": ""
   },
   "App/Composition/ProcessLister.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": "20e32e60027b363670a56a0fe9dd15f9"
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1793767996.0948892,
-    "seen": 1793768667.147371,
-    "ast_hash": "5c3d3c88a09c9950a0c01af9eb71a116",
+    "mtime": 1793828846.09772,
+    "seen": 1793829921.514545,
+    "ast_hash": "a0fc86faa2a7586fb3048ddc214afcb5",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -582,9 +582,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Popups.swift": {
-    "mtime": 1793765880.1582417,
-    "seen": 1793768667.147393,
-    "ast_hash": "799deca8ec7ce41b127f733c1d42418a",
+    "mtime": 1793829633.65747,
+    "seen": 1793829921.514575,
+    "ast_hash": "c154ce69aeca98e05478689b1dad49db",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ResizeCursor.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1793819944.28515,
-    "seen": 1793821372.723802,
-    "ast_hash": "e2152ed3a4729552d80f43d8782a2d1c",
+    "mtime": 1793828855.4226024,
+    "seen": 1793829921.514644,
+    "ast_hash": "5b3884425e29ea67c0b9583a6cba068f",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -810,10 +810,10 @@
     "semantic_hash": "7eded62ab2d6c3c1902f265131f570d6"
   },
   "App/Scenes/DownloadsActivityBadge.swift": {
-    "mtime": 1791999130.7772908,
-    "seen": 1792295707.0604532,
-    "ast_hash": "9331b34d91a178b23d909ccebc7517b9",
-    "semantic_hash": "9331b34d91a178b23d909ccebc7517b9"
+    "mtime": 1793828860.599562,
+    "seen": 1793829921.5146618,
+    "ast_hash": "dce4abd8fa6b432d98f16fdb516b0c19",
+    "semantic_hash": ""
   },
   "App/Scenes/DrawerCapsuleButton.swift": {
     "mtime": 1793366435.4311643,
@@ -1854,9 +1854,9 @@
     "semantic_hash": "9c73f11229ab321d6891c37ea5073678"
   },
   "Core/Support/FolderContentsLoader.swift": {
-    "mtime": 1793769505.9637642,
-    "seen": 1793801122.028407,
-    "ast_hash": "2b68a2f7da386d7090bcc5b73f905118",
+    "mtime": 1793829439.9919124,
+    "seen": 1793829921.515085,
+    "ast_hash": "d05862759ba7decb3f60a1c7bfdc6f32",
     "semantic_hash": ""
   },
   "Core/Support/FolderDropPlan.swift": {
@@ -3396,10 +3396,10 @@
     "semantic_hash": "3613393d4b45e4874c211e9ec5abfe3a"
   },
   "Tests/Unit/DownloadActivityTests.swift": {
-    "mtime": 1791999130.9290051,
-    "seen": 1792295707.060718,
-    "ast_hash": "eb3367f6afff7c54e11836ae9a7d5170",
-    "semantic_hash": "eb3367f6afff7c54e11836ae9a7d5170"
+    "mtime": 1793829458.9056098,
+    "seen": 1793829921.515648,
+    "ast_hash": "2031fba6f59f089d2b62d3653f9cd4de",
+    "semantic_hash": ""
   },
   "Tests/Unit/DownloadManagerTests.swift": {
     "mtime": 1792261093.5439982,
@@ -3522,8 +3522,8 @@
     "semantic_hash": "b12bf9a4d824126b49b9715365ad44f0"
   },
   "Tests/Unit/FolderSortTests.swift": {
-    "mtime": 1791999130.9452643,
-    "seen": 1792295707.060732,
+    "mtime": 1793829131.1948519,
+    "seen": 1793829921.515696,
     "ast_hash": "7249a55c11c8d12a3325534bee4b52c0",
     "semantic_hash": "7249a55c11c8d12a3325534bee4b52c0"
   },
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1793827827.3228428,
-    "seen": 1793827878.423601,
-    "ast_hash": "617cb59046c07de1eb76fb355fb047fa",
+    "mtime": 1793829878.4557233,
+    "seen": 1793829921.516128,
+    "ast_hash": "f258e03be845d01567128dcb4483e304",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
