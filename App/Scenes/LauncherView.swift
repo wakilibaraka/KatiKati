@@ -347,7 +347,11 @@ struct LauncherView: View {
         recordLayout(pages, columns: m.columns)
         return ZStack(alignment: .bottom) {
             HStack(alignment: .top, spacing: 0) {
-                ForEach(Array(pages.enumerated()), id: \.offset) { _, sections in
+                ForEach(Array(pages.enumerated()), id: \.offset) { pageNumber, sections in
+                    if abs(pageNumber - index) > 1 {
+                        // Far pages stay empty: with hundreds of apps, building every page's icons at once is the cost.
+                        Color.clear.frame(width: size.width, height: size.height - Self.dotsHeight)
+                    } else {
                     VStack(alignment: .leading, spacing: 0) {
                         ForEach(Array(sections.enumerated()), id: \.offset) { _, section in
                             sectionView(section, m, slot: true).padding(.bottom, 4)
@@ -356,6 +360,7 @@ struct LauncherView: View {
                     }
                     .frame(width: CGFloat(m.width), height: CGFloat(blockHeight), alignment: .topLeading)
                     .frame(width: size.width, height: size.height - Self.dotsHeight, alignment: .center)
+                    }
                 }
             }
             .frame(width: size.width, alignment: .leading)

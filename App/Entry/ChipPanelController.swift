@@ -112,6 +112,9 @@ final class ChipPanelController {
         }
         if overPanel, !lastPanelHover { model.expanded = true; reposition() }
         lastPanelHover = overPanel
+        // Watchdog: the strip's tracking area drops fast exits, which would leave `hoverChip` set and
+        // keep the preview open. The real pointer is the authority.
+        if hoverChip != nil, !ChipPanelHoverMachine.pointerOnChip(mouse, anchor: hoverAnchor) { hoverChip = nil }
 
         let blocked = !previewEnabled() || (!isVisible && NSEvent.pressedMouseButtons != 0)
         machine.openDelay = openDelay()

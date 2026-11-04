@@ -57,6 +57,15 @@ final class ChipPanelHoverMachineTests: XCTestCase {
     }
 }
 
+final class ChipPanelWatchdogTests: XCTestCase {
+    func testPointerOnChipHasSlackButNotFarOff() {
+        let chip = CGRect(x: 100, y: 0, width: 40, height: 40)
+        XCTAssertTrue(ChipPanelHoverMachine.pointerOnChip(CGPoint(x: 120, y: 20), anchor: chip))
+        XCTAssertTrue(ChipPanelHoverMachine.pointerOnChip(CGPoint(x: 143, y: 20), anchor: chip))
+        XCTAssertFalse(ChipPanelHoverMachine.pointerOnChip(CGPoint(x: 400, y: 300), anchor: chip), "a missed exit must not hold the preview open")
+    }
+}
+
 final class ChipPanelLayoutTests: XCTestCase {
     func testPreviewGridWrapsAndCaps() {
         XCTAssertEqual(ChipPanelLayout.previewGrid(count: 0), .init(columns: 0, rows: 0, shown: 0, hidden: 0))

@@ -5,6 +5,11 @@ import Foundation
 // the panel keeps it open) are all unit-tested without a clock. Same shape as `NotchHoverMachine`.
 
 struct ChipPanelHoverMachine {
+    /// Whether the pointer is still on the chip it was last reported over (a few points of slack for the gap between chips).
+    static func pointerOnChip(_ mouse: CGPoint, anchor: CGRect, slack: CGFloat = 6) -> Bool {
+        anchor.insetBy(dx: -slack, dy: -slack).contains(mouse)
+    }
+
     enum Output: Equatable {
         case none
         case open(chipID: String)
