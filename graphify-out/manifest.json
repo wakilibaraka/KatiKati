@@ -432,9 +432,9 @@
     "semantic_hash": "6a7dbeaf4505ff3d30dec7758537a75a"
   },
   "App/Composition/TilingEngine.swift": {
-    "mtime": 1792414694.1076744,
-    "seen": 1792451836.243974,
-    "ast_hash": "50c91a44118825de897ed299a96bfcd8",
+    "mtime": 1793831501.1386642,
+    "seen": 1793832369.595793,
+    "ast_hash": "8dfb13f386520e9f5c605c8bb478cd59",
     "semantic_hash": ""
   },
   "App/Composition/TorrentEngine.swift": {
@@ -876,9 +876,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/ProductivityFlyouts.swift": {
-    "mtime": 1792452284.8880792,
-    "seen": 1792452519.432019,
-    "ast_hash": "be8dd2610e086083a959b8ec9b5585e2",
+    "mtime": 1793831571.3466694,
+    "seen": 1793832369.595894,
+    "ast_hash": "0e06aeedfccf2810f8c9032e66afcbce",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/ScreenTimeViews.swift": {
@@ -906,9 +906,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/WindowsFlyoutView.swift": {
-    "mtime": 1792452284.8887215,
-    "seen": 1792452519.432023,
-    "ast_hash": "daaa4ad1d9a591ad55bb8b190df4643e",
+    "mtime": 1793831571.3243892,
+    "seen": 1793832369.5958998,
+    "ast_hash": "284ec6a40f20009cd961bf234d218275",
     "semantic_hash": ""
   },
   "App/Scenes/FolderGridPopupView.swift": {
@@ -7068,9 +7068,9 @@
     "semantic_hash": ""
   },
   "Core/Support/LayoutCatalog.swift": {
-    "mtime": 1793830137.475714,
-    "seen": 1793830986.7490041,
-    "ast_hash": "93fced54b59f3dc053f07c27aee26670",
+    "mtime": 1793831571.3311768,
+    "seen": 1793832369.596163,
+    "ast_hash": "7a48a6086cdb24a9737ece46f4c087a3",
     "semantic_hash": ""
   },
   "Tests/Unit/LayoutCatalogTests.swift": {
