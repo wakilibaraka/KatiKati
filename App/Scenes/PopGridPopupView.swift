@@ -48,14 +48,27 @@ struct PopGridPopupView: View {
         let note: String? = items.isEmpty
             ? String(localized: "Drag apps, files or folders onto the Drawer icon")
             : (popStore.isFull ? String(format: String(localized: "The Drawer is full (%d items)"), PopPolicy.capacity) : nil)
+        let mode = popStore.viewMode
         // An empty pop is the status line alone, like the empty shelf.
-        let layout = items.isEmpty
+        let layout: StackGridLayout.Result = items.isEmpty
             ? StackGridLayout.Result(columns: StackGridLayout.noteMinColumns, visibleRows: 0, scrolls: false)
-            : StackGridLayout.resolve(cellCount: items.count, limits: context.limits, hasNote: note != nil)
+            : {
+                switch mode {
+                case .grid:
+                    return StackGridLayout.resolve(cellCount: items.count, limits: context.limits, hasNote: note != nil)
+                case .tiles:
+                    let rows = min(items.count, StackPlateMetrics.tilesRows)
+                    return .init(columns: StackPlateMetrics.tilesColumns, visibleRows: rows, scrolls: items.count > rows)
+                case .list:
+                    // List rows are 34pt, so the native grid's 128pt row budget says nothing about them.
+                    let rows = min(items.count, 8)
+                    return .init(columns: 1, visibleRows: rows, scrolls: items.count > rows)
+                }
+            }()
         return StackPopupChrome(title: String(localized: "Drawer"),
                                 note: note,
                                 layout: layout,
-                                plate: .stack,
+                                plate: mode == .list ? .list : .stack,
                                 usesLiquidGlass: usesLiquidGlass,
                                 arrow: context.arrow,
                                 onPanelSizeChange: onContentResize,
@@ -63,12 +76,20 @@ struct PopGridPopupView: View {
                                 gridAnimationKey: items.map(\.id)) {
             ForEach(items) { item in
                 let path = item.iconPath
-                FolderGridCell(iconPath: path,
+                if mode == .list {
+                    PopListRow(iconPath: path,
                                staticIcon: path == nil ? Self.missingAppIcon : nil,
                                label: item.displayName,
-                               preview: item.kind == .file ? .init(stamp: nil) : nil,
                                dragURL: item.kind == .app ? nil : URL(fileURLWithPath: item.reference),
                                contextMenu: { menu(for: item) }) { open(item) }
+                } else {
+                    FolderGridCell(iconPath: path,
+                                   staticIcon: path == nil ? Self.missingAppIcon : nil,
+                                   label: item.displayName,
+                                   preview: item.kind == .file ? .init(stamp: nil) : nil,
+                                   dragURL: item.kind == .app ? nil : URL(fileURLWithPath: item.reference),
+                                   contextMenu: { menu(for: item) }) { open(item) }
+                }
             }
         }
     }
@@ -130,4 +151,47 @@ struct PopGridPopupView: View {
 
     /// An app whose bundle can no longer be found (uninstalled): a generic app icon, still removable.
     private static let missingAppIcon = NSWorkspace.shared.icon(for: .applicationBundle)
+}
+
+/// One row of the pop's List view: the item's icon, then its name — the layout DockPops calls List.
+private struct PopListRow: View {
+    let iconPath: String?
+    let staticIcon: NSImage?
+    let label: String
+    let dragURL: URL?
+    let contextMenu: () -> NSMenu
+    let onTap: () -> Void
+
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    private typealias Cell = StackCellMetrics
+
+    var body: some View {
+        let row = HStack(spacing: 8) {
+            Image(nsImage: iconPath.map { FolderIconResolver.resolve($0) } ?? staticIcon ?? Self.placeholder)
+                .resizable()
+                .interpolation(.high)
+                .aspectRatio(contentMode: .fit)
+                .frame(width: Cell.list.iconSize, height: Cell.list.iconSize)
+            Text(label)
+                .font(.system(size: Cell.list.labelSize))
+                .foregroundStyle(DockThemeTokens.resolved(for: colorScheme, style: dockThemeStyle).stackPopupText.color)
+                .lineLimit(1)
+                .truncationMode(.tail)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 6)
+        .frame(width: Cell.list.cellSize.width, height: Cell.list.cellSize.height, alignment: .leading)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onTap)
+        .nativeContextMenu { contextMenu() }
+        .help(label)
+        if let dragURL {
+            row.onDrag { FileDragItemProvider.make(for: dragURL) }
+        } else {
+            row
+        }
+    }
+
+    private static let placeholder = NSWorkspace.shared.icon(for: .data)
 }

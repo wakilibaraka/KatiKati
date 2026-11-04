@@ -582,9 +582,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Popups.swift": {
-    "mtime": 1793190233.6039753,
-    "seen": 1793190252.336477,
-    "ast_hash": "86a620a8aa5bc42d45fbad40c19edbd0",
+    "mtime": 1793764386.8616085,
+    "seen": 1793764772.5669298,
+    "ast_hash": "799deca8ec7ce41b127f733c1d42418a",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ResizeCursor.swift": {
@@ -642,10 +642,10 @@
     "semantic_hash": "53538e63c61d51fa9ed05b4db2a159c9"
   },
   "App/Entry/StackPopupSnapshotProbe.swift": {
-    "mtime": 1791999130.7949388,
-    "seen": 1792295707.060437,
-    "ast_hash": "c1d44fcec21af958881090c28cf72538",
-    "semantic_hash": "c1d44fcec21af958881090c28cf72538"
+    "mtime": 1793764073.5380867,
+    "seen": 1793764772.566953,
+    "ast_hash": "486af92561ecefc514c1d309eefdfade",
+    "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
     "mtime": 1793367845.0672393,
@@ -762,9 +762,9 @@
     "semantic_hash": "6b4c10242a927738cfda6aa4593e031b"
   },
   "App/Scenes/DockStripView+Actions.swift": {
-    "mtime": 1793477775.970318,
-    "seen": 1793478532.637341,
-    "ast_hash": "e169fb825d73f4d4ab3434ebc8b64da8",
+    "mtime": 1793764402.7798164,
+    "seen": 1793764772.567001,
+    "ast_hash": "5fdae75f8a2737ace967431b9bfb260e",
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+ExternalDrop.swift": {
@@ -774,8 +774,8 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Hover.swift": {
-    "mtime": 1793190233.6081624,
-    "seen": 1793190252.336503,
+    "mtime": 1793764386.8635104,
+    "seen": 1793764772.567005,
     "ast_hash": "4be158fc9a86f5d1c1510c4ce7e31051",
     "semantic_hash": ""
   },
@@ -792,8 +792,8 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1793477775.973722,
-    "seen": 1793478532.637345,
+    "mtime": 1793764386.862426,
+    "seen": 1793764772.5670102,
     "ast_hash": "7032735e6487d7098c41afafb21441e7",
     "semantic_hash": ""
   },
@@ -1134,9 +1134,9 @@
     "semantic_hash": "336cbfa6769f9a32f2bea78a84b85725"
   },
   "App/Scenes/SettingsAppearancePane.swift": {
-    "mtime": 1793367975.9430275,
-    "seen": 1793373444.962301,
-    "ast_hash": "7afa8fabdf43213dff59f9a64a39fba8",
+    "mtime": 1793482105.1927114,
+    "seen": 1793764772.567225,
+    "ast_hash": "27e05b4a7ac96f38e2039556ebc7fee6",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsCard.swift": {
@@ -1728,9 +1728,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DockThemeStyle.swift": {
-    "mtime": 1793190233.616397,
-    "seen": 1793190252.3366709,
-    "ast_hash": "40b713a1af2c153921c6da1532ba608f",
+    "mtime": 1793482097.9152718,
+    "seen": 1793764772.567449,
+    "ast_hash": "b843602794c7064baa1033648a3d04c5",
     "semantic_hash": ""
   },
   "Core/Support/DockThemeStyleTokens.swift": {
@@ -2286,9 +2286,9 @@
     "semantic_hash": "135d17d7fccb8aab0e3d66748fee5056"
   },
   "Core/Support/StackPopupGeometry.swift": {
-    "mtime": 1793366609.8623662,
-    "seen": 1793373444.962485,
-    "ast_hash": "b4528bda60e59daa5feb6ed2dc796fa2",
+    "mtime": 1793482116.5411012,
+    "seen": 1793764772.56767,
+    "ast_hash": "a89af5fd6199434bd69218a93de5c877",
     "semantic_hash": ""
   },
   "Core/Support/StackRelevance.swift": {
@@ -6900,9 +6900,9 @@
     "semantic_hash": ""
   },
   "App/Composition/PopStore.swift": {
-    "mtime": 1793190233.6026316,
-    "seen": 1793190252.336442,
-    "ast_hash": "54e72c13cc231b883e119be316228480",
+    "mtime": 1793482084.6261995,
+    "seen": 1793764772.5667899,
+    "ast_hash": "927795b55849f77e81d0ff184211fe87",
     "semantic_hash": ""
   },
   "App/Scenes/BackupSettingsBlock.swift": {
@@ -6912,15 +6912,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/PopChip.swift": {
-    "mtime": 1793190233.60991,
-    "seen": 1793190252.336562,
-    "ast_hash": "36da2669b0ca31bf16a80e21129804c4",
+    "mtime": 1793482161.7041497,
+    "seen": 1793764772.567199,
+    "ast_hash": "5ee885e05971585795b44c1e4c5ffd3e",
     "semantic_hash": ""
   },
   "App/Scenes/PopGridPopupView.swift": {
-    "mtime": 1793190233.6106372,
-    "seen": 1793190252.3365629,
-    "ast_hash": "d0f4dbf98f758e8caf225cc0a71544a1",
+    "mtime": 1793482289.2578497,
+    "seen": 1793764772.5672011,
+    "ast_hash": "a46649ac1def7abefc6c2772f11466d1",
     "semantic_hash": ""
   },
   "Core/Support/AgentUsage/AgentApproval.swift": {
@@ -7020,9 +7020,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/PopStoreTests.swift": {
-    "mtime": 1793190233.6328804,
-    "seen": 1793190252.337007,
-    "ast_hash": "f7c27fd9589366199a023f15b4fd70a7",
+    "mtime": 1793482254.3528965,
+    "seen": 1793764772.56828,
+    "ast_hash": "40d766aa7a85c5e9e25e12623e2ca572",
     "semantic_hash": ""
   },
   "Tests/Unit/QuicklinkTemplateTests.swift": {

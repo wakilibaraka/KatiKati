@@ -186,3 +186,4 @@ extension DockStripView {
         NSWorkspace.shared.openApplication(at: url, configuration: .init(), completionHandler: nil)
     }
 }
+

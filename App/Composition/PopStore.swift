@@ -1,5 +1,20 @@
 import Foundation
 
+/// How the drawer pop lays its items out, the three views DockPops calls Grid / List / Tiles.
+enum PopViewMode: String, Codable, CaseIterable, Identifiable {
+    case grid, list, tiles
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .grid: return String(localized: "Grid")
+        case .list: return String(localized: "List")
+        case .tiles: return String(localized: "Tiles")
+        }
+    }
+}
+
 /// Persistence for the DockPops-style drawer pop: an ordered list of `PopItem`s (apps, files, folders),
 /// at most `PopPolicy.capacity`. Every list decision is `PopPolicy`'s; this class only loads and saves.
 ///
@@ -14,8 +29,14 @@ final class PopStore: ObservableObject {
     @Published private(set) var items: [PopItem] = []
     /// How many items the last `add` could not fit; the UI reads it to say "Pop is full".
     @Published private(set) var lastRejectedForCapacity = 0
+    /// Grid / List / Tiles, the pop's own view (right-click the drawer icon → View).
+    @Published private(set) var viewMode: PopViewMode = .grid
+    /// The pop's own theme; nil follows the app's Appearance theme.
+    @Published private(set) var theme: DockThemeStyle?
 
     nonisolated static let itemsKey = "com.katikati.drawer.popItems"
+    nonisolated static let viewModeKey = "com.katikati.drawer.popViewMode"
+    nonisolated static let themeKey = "com.katikati.drawer.popTheme"
     private static let legacyBundleIDsKey = "drawerBundleIDs"
     private static let legacyOrderKey = "drawerDisplayOrder"
     private let defaults: UserDefaults
@@ -31,9 +52,31 @@ final class PopStore: ObservableObject {
                 legacyOrder: defaults.stringArray(forKey: Self.legacyOrderKey) ?? [])
             persist()
         }
+        if let raw = defaults.string(forKey: Self.viewModeKey), let mode = PopViewMode(rawValue: raw) {
+            viewMode = mode
+        }
+        if let data = defaults.data(forKey: Self.themeKey) {
+            theme = try? JSONDecoder().decode(DockThemeStyle.self, from: data)
+        }
     }
 
     var isFull: Bool { items.count >= PopPolicy.capacity }
+
+    func setViewMode(_ mode: PopViewMode) {
+        guard mode != viewMode else { return }
+        viewMode = mode
+        defaults.set(mode.rawValue, forKey: Self.viewModeKey)
+    }
+
+    func setTheme(_ style: DockThemeStyle?) {
+        guard style != theme else { return }
+        theme = style
+        if let data = style.flatMap({ try? JSONEncoder().encode($0) }) {
+            defaults.set(data, forKey: Self.themeKey)
+        } else {
+            defaults.removeObject(forKey: Self.themeKey)
+        }
+    }
 
     func contains(_ item: PopItem) -> Bool { items.contains { $0.id == item.id } }
 

@@ -17,16 +17,12 @@ struct SettingsAppearancePane: View {
     @AppStorage(SpaceTransitionSettings.effectKey) private var spaceEffectRaw = SpaceTransitionEffect.fade.rawValue
     @AppStorage(SpaceTransitionSettings.durationKey) private var spaceDuration = SpaceTransitionSettings.defaultDuration
 
-    private static let presets: [DockThemeStyle] = [
-        .system, .translucent, .crystalClear, .obsidianDark, .monochrome, .titaniumFrost,
-        .auroraGlow, .deepOcean, .forestMoss, .cyberpunkGlass, .emberSunset, .roseQuartz, .fluid,
-    ]
     private static let defaultCustom = DockThemeStyle.customRGBA(r: 0.23, g: 0.43, b: 0.65, a: 0.7)
 
     private var choices: [DockThemeStyle] {
         let custom: DockThemeStyle
         if case .customRGBA = store.themeMaterial { custom = store.themeMaterial } else { custom = Self.defaultCustom }
-        return [.auto] + Self.presets + [custom]
+        return [.auto] + DockThemeStyle.presets + [custom]
     }
 
     var body: some View {
@@ -300,22 +296,6 @@ private struct ThemeName: View {
     let style: DockThemeStyle
 
     var body: some View {
-        switch style {
-        case .auto: Text("Auto")
-        case .system: Text("System")
-        case .translucent: Text("Translucent")
-        case .crystalClear: Text("Crystal Clear")
-        case .obsidianDark: Text("Obsidian Dark")
-        case .monochrome: Text("Monochrome")
-        case .titaniumFrost: Text("Titanium Frost")
-        case .auroraGlow: Text("Aurora Glow")
-        case .deepOcean: Text("Deep Ocean")
-        case .forestMoss: Text("Forest Moss")
-        case .cyberpunkGlass: Text("Cyberpunk Glass")
-        case .emberSunset: Text("Ember Sunset")
-        case .roseQuartz: Text("Rose Quartz")
-        case .fluid: Text("Fluid")
-        case .customRGBA: Text("Custom")
-        }
+        Text(style.menuTitle)
     }
 }

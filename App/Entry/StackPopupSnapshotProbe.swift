@@ -15,7 +15,7 @@ enum StackPopupSnapshotProbe {
     static func runIfRequested() {
         guard let folder = DebugSwitch.stackPopupSnapshot.value(), !folder.isEmpty else { return }
         let url = URL(fileURLWithPath: folder)
-        let isFolder = folder != "shelf" && folder != "trash"
+        let isFolder = !["shelf", "trash", "pop"].contains(folder)
         let entries = isFolder
             ? FolderContentsLoader.sorted((try? FolderContentsLoader.load(directory: url)) ?? [], by: .name)
             : []
@@ -28,11 +28,26 @@ enum StackPopupSnapshotProbe {
         let lock = NSLock()
         FolderIconResolver.onThumbnailFailure = { line in lock.lock(); failures.append(line); lock.unlock() }
         let content: AnyView
+        // The drawer pop is driven by its store, so the two env knobs let one run draw each View mode
+        // and theme; both are put back before the snapshot is written, so the real app keeps its own.
+        let popStore = PopStore.shared
+        let savedMode = popStore.viewMode
+        let savedTheme = popStore.theme
         switch folder {
         case "shelf":
             content = AnyView(ShelfGridPopupView(shelfStore: ShelfStore(), context: context, usesLiquidGlass: false))
         case "trash":
             content = AnyView(TrashGridPopupView(trashStore: .shared, context: context, usesLiquidGlass: false))
+        case "pop":
+            if let mode = ProcessInfo.processInfo.environment["DOCK_STACK_POPUP_MODE"].flatMap(PopViewMode.init(rawValue:)) {
+                popStore.setViewMode(mode)
+            }
+            if let style = ProcessInfo.processInfo.environment["DOCK_STACK_POPUP_THEME"].flatMap(DockThemeStyle.init(token:)) {
+                popStore.setTheme(style)
+            }
+            content = AnyView(PopGridPopupView(popStore: popStore, context: context, usesLiquidGlass: false,
+                                               onRemoveApp: { _ in })
+                .environment(\.dockThemeStyle, popStore.theme ?? .system))
         default:
             content = AnyView(FolderGridPopupView(rootURL: url, initialEntries: entries, sortOrder: .name,
                                                   context: context, usesLiquidGlass: false))
@@ -55,11 +70,13 @@ enum StackPopupSnapshotProbe {
                 try? rep.representation(using: .png, properties: [:])?.write(to: output)
             }
             lock.lock()
-            let report = (["\(entries.count) entries, window \(size.width)x\(size.height), scale \(hosting.window?.backingScaleFactor ?? 0)"] + failures)
+            let report = (["\(isFolder ? entries.count : popStore.items.count) entries, window \(size.width)x\(size.height), scale \(hosting.window?.backingScaleFactor ?? 0)"] + failures)
                 .joined(separator: "\n")
             lock.unlock()
             try? report.write(to: output.deletingPathExtension().appendingPathExtension("txt"), atomically: true, encoding: .utf8)
             FolderIconResolver.onThumbnailFailure = nil
+            popStore.setViewMode(savedMode)
+            popStore.setTheme(savedTheme)
             window.orderOut(nil)
             Self.window = nil
         }

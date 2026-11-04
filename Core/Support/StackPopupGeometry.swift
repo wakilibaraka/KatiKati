@@ -92,6 +92,10 @@ struct StackCellMetrics: Equatable {
     static let backgroundApp = StackCellMetrics(cellSize: CGSize(width: 34, height: 48), iconSize: 28, iconTop: 10,
                                                 labelGap: 0, labelSize: 0, labelWidth: 0, labelHeight: 0,
                                                 truncatesLabelTail: true)
+    /// The drawer pop's List view: one item per row — icon, then name on the same line.
+    static let list = StackCellMetrics(cellSize: CGSize(width: 300, height: 34), iconSize: 22, iconTop: 6,
+                                       labelGap: 0, labelSize: 13, labelWidth: 250, labelHeight: 18,
+                                       truncatesLabelTail: true)
 }
 
 /// The plate around a grid: everything but the cells. `stack` is the native Dock's stack grid
@@ -136,6 +140,17 @@ struct StackPlateMetrics: Equatable {
         cell: .backgroundApp, sidePadding: 6, scrollingTrailingPadding: 20, scrollerGutter: 14,
         headerHeight: 0, titleCenterY: 0, hasSeparator: false, gridTop: 0,
         bottomPadding: 0, scrollsToBottomEdge: false)
+
+    /// The drawer pop's List view: a single column of `StackCellMetrics.list` rows.
+    static let list = StackPlateMetrics(
+        cell: .list, sidePadding: 12, scrollingTrailingPadding: 26, scrollerGutter: 14,
+        headerHeight: StackPopupMetrics.headerHeight, titleCenterY: StackPopupMetrics.titleCenterY,
+        hasSeparator: false, gridTop: StackPopupMetrics.headerHeight,
+        bottomPadding: StackPopupMetrics.bottomPadding, scrollsToBottomEdge: false)
+
+    /// The drawer pop's Tiles view: the same cells two to a row, so each one reads as a tile.
+    static let tilesColumns = 2
+    static let tilesRows = 3
 
     /// The drawer's grid never grows past the Apps panel's 7 × 5.
     static let drawerMaxColumns = 7

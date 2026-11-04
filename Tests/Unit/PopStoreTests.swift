@@ -38,6 +38,24 @@ final class PopStoreTests: XCTestCase {
         XCTAssertEqual(PopStore(defaults: defaults).items, [.folder("/y"), .app("com.a")])
     }
 
+    func testViewModeAndThemePersistAcrossLaunches() {
+        let defaults = makeDefaults()
+        let store = PopStore(defaults: defaults)
+        XCTAssertEqual(store.viewMode, .grid)
+        XCTAssertNil(store.theme)
+
+        store.setViewMode(.tiles)
+        store.setTheme(.deepOcean)
+
+        let reloaded = PopStore(defaults: defaults)
+        XCTAssertEqual(reloaded.viewMode, .tiles)
+        XCTAssertEqual(reloaded.theme, .deepOcean)
+
+        // Match App clears the override instead of storing a copy of it.
+        reloaded.setTheme(nil)
+        XCTAssertNil(PopStore(defaults: defaults).theme)
+    }
+
     func testAddPastCapacityReportsRejectedCount() {
         let store = PopStore(defaults: makeDefaults())
         store.add((0..<26).map { PopItem.file("/f\($0)") })

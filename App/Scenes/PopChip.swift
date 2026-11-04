@@ -61,8 +61,8 @@ struct PopChip: View {
             RoundedRectangle(cornerRadius: art * 0.215, style: .continuous)
                 .fill(colorScheme == .dark ? Color(white: 0.28) : Color(white: 0.93))
             RoundedRectangle(cornerRadius: art * 0.215, style: .continuous)
-                .strokeBorder(isDropTargeted ? Color.accentColor : Color.black.opacity(0.12),
-                              lineWidth: isDropTargeted ? 2 : 0.5)
+                .strokeBorder(isDropTargeted ? Color.accentColor : themeRing,
+                              lineWidth: isDropTargeted ? 2 : (popStore.theme == nil ? 0.5 : 1.5))
             if preview.isEmpty {
                 Image(systemName: "square.grid.2x2")
                     .resizable()
@@ -95,12 +95,40 @@ struct PopChip: View {
                height: ChipPillMetrics.bareIconSlot * scale)
     }
 
+    /// The pop's own theme tint on the tile, so the Dock icon matches the pop it opens
+    /// (DockPops); a plain rim while the pop follows the app's theme.
+    private var themeRing: Color {
+        guard let style = popStore.theme else { return Color.black.opacity(0.12) }
+        return DockThemeTokens.resolved(for: colorScheme, style: style).panelRimHighlighted.color
+    }
+
     private func buildMenu() -> NSMenu {
         let menu = NSMenu()
         menu.addItem(ClosureMenuItem(String(localized: "Open Drawer")) { onTap() })
         menu.addItem(.separator())
+        menu.addItem(submenu(String(localized: "View"), items: PopViewMode.allCases.map { mode in
+            (title: mode.title, checked: popStore.viewMode == mode, action: { popStore.setViewMode(mode) })
+        }))
+        menu.addItem(submenu(String(localized: "Theme"), items: [
+            (title: String(localized: "Match App"), checked: popStore.theme == nil, action: { popStore.setTheme(nil) }),
+        ] + DockThemeStyle.presets.map { style in
+            (title: style.menuTitle, checked: popStore.theme == style, action: { popStore.setTheme(style) })
+        }))
+        menu.addItem(.separator())
         menu.addItem(ClosureMenuItem(String(localized: "Add Folder…")) { onAddFolder() })
         return menu
+    }
+
+    private func submenu(_ title: String, items: [(title: String, checked: Bool, action: () -> Void)]) -> NSMenuItem {
+        let menu = NSMenu()
+        for entry in items {
+            let item = ClosureMenuItem(entry.title) { entry.action() }
+            item.state = entry.checked ? .on : .off
+            menu.addItem(item)
+        }
+        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        item.submenu = menu
+        return item
     }
 }
 

@@ -67,6 +67,34 @@ enum DockThemeStyle: Equatable, Codable {
             return "custom:\(r),\(g),\(b),\(a)"
         }
     }
+
+    /// The presets the Appearance pane and the drawer pop's Theme menu both offer (`.auto` and the
+    /// custom colour stay out: the pane builds those separately).
+    static let presets: [DockThemeStyle] = [
+        .system, .translucent, .crystalClear, .obsidianDark, .monochrome, .titaniumFrost,
+        .auroraGlow, .deepOcean, .forestMoss, .cyberpunkGlass, .emberSunset, .roseQuartz, .fluid,
+    ]
+
+    /// The preset's name as a menu item and as the Appearance pane's caption.
+    var menuTitle: String {
+        switch self {
+        case .auto: return String(localized: "Auto")
+        case .system: return String(localized: "System")
+        case .translucent: return String(localized: "Translucent")
+        case .crystalClear: return String(localized: "Crystal Clear")
+        case .obsidianDark: return String(localized: "Obsidian Dark")
+        case .monochrome: return String(localized: "Monochrome")
+        case .titaniumFrost: return String(localized: "Titanium Frost")
+        case .auroraGlow: return String(localized: "Aurora Glow")
+        case .deepOcean: return String(localized: "Deep Ocean")
+        case .forestMoss: return String(localized: "Forest Moss")
+        case .cyberpunkGlass: return String(localized: "Cyberpunk Glass")
+        case .emberSunset: return String(localized: "Ember Sunset")
+        case .roseQuartz: return String(localized: "Rose Quartz")
+        case .fluid: return String(localized: "Fluid")
+        case .customRGBA: return String(localized: "Custom")
+        }
+    }
     
     init?(token: String) {
         switch token {
