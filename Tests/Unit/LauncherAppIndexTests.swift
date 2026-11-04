@@ -130,6 +130,15 @@ final class LauncherAppIndexTests: XCTestCase {
         XCTAssertEqual(LauncherSearch.score(query: "cafe", name: "Café"), 1000)
     }
 
+    func testPinyinFullAndInitialsMatchChineseNames() {
+        XCTAssertNotNil(LauncherMatch.score(query: "weixin", name: "微信"))
+        XCTAssertNotNil(LauncherMatch.score(query: "wei", name: "微信"))
+        XCTAssertNotNil(LauncherMatch.score(query: "wx", name: "微信"))
+        XCTAssertNil(LauncherMatch.score(query: "qq", name: "微信"))
+        XCTAssertEqual(LauncherMatch.score(query: "微信", name: "微信"), 1000, "the real name still wins")
+        XCTAssertNil(LauncherMatch.pinyin("Safari"), "Latin names are untouched")
+    }
+
     func testSearchMatchesBundleIdentifierAndFilenameWithoutOutrankingNames() {
         let named = app("com.example.other", "Code")
         let renamed = LauncherApp(bundleID: "com.microsoft.VSCode", name: "Visual Studio Code",

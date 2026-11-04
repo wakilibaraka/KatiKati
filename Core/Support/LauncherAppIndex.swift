@@ -283,6 +283,24 @@ enum LauncherAppIndex {
 enum LauncherMatch {
     /// Nanolight's tiers, in its own points. `nil` = the query's letters are not all there.
     static func score(query: String, name: String) -> Int? {
+        let base = coreScore(query: query, name: name)
+        guard let py = pinyin(name) else { return base }
+        // Pinyin hits rank just under the same hit on the real name.
+        let viaPinyin = [coreScore(query: query, name: py.spaced), coreScore(query: query, name: py.joined)]
+            .compactMap { $0 }.max().map { $0 - 20 }
+        return [base, viaPinyin].compactMap { $0 }.max()
+    }
+
+    /// Latin reading of a name with Han characters ("微信" → "wei xin" / "weixin"); nil when it has none.
+    /// shortcut: Mandarin readings only, no per-character polyphone choice, when users ask for more.
+    static func pinyin(_ name: String) -> (spaced: String, joined: String)? {
+        guard name.unicodeScalars.contains(where: { (0x4E00...0x9FFF).contains($0.value) || (0x3400...0x4DBF).contains($0.value) }),
+              let latin = name.applyingTransform(.toLatin, reverse: false)?.applyingTransform(.stripDiacritics, reverse: false)
+        else { return nil }
+        return (latin, latin.replacingOccurrences(of: " ", with: ""))
+    }
+
+    private static func coreScore(query: String, name: String) -> Int? {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, !name.isEmpty else { return nil }
         let q = trimmed.map(fold)

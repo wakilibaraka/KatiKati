@@ -88,6 +88,17 @@ extension SettingsLayoutPane {
                         }
                     }
                 )
+                SettingsPickerRow(Text("Columns"), selection: Binding(
+                    get: { launcherPrefs.columns },
+                    set: { launcherPrefs.columns = $0; launcherPrefs.save() }
+                )) {
+                    Text("Auto").tag(0)
+                    ForEach(LauncherPrefs.columnRange, id: \.self) { Text(verbatim: "\($0)").tag($0) }
+                }
+                SettingsSliderRow(Text("Icon Size"), value: launcherPrefs.iconScale, range: LauncherPrefs.iconScaleRange, step: 0.05,
+                                  valueText: "\(Int((launcherPrefs.iconScale * 100).rounded()))%") {
+                    launcherPrefs.iconScale = $0; launcherPrefs.save()
+                }
                 SettingsDivider()
                 SettingsRow(Text("Tint")) {
                     Picker("Tint", selection: Binding(get: { store.launcherTint }, set: { store.setLauncherTint($0) })) {

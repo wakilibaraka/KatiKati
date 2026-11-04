@@ -181,6 +181,7 @@ struct SettingsLayoutPane: View {
     }
 
     @State var launcherHiddenCount = 0
+    @State var launcherPrefs = LauncherPrefs.load()
     @State var launcherHiddenIDs: Set<String> = []
 
     static func itemTitle(_ item: EdgeItem) -> Text {
