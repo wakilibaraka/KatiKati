@@ -492,8 +492,8 @@
     "semantic_hash": "20e32e60027b363670a56a0fe9dd15f9"
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1793477745.3809328,
-    "seen": 1793478532.637302,
+    "mtime": 1793767996.0948892,
+    "seen": 1793768667.147371,
     "ast_hash": "5c3d3c88a09c9950a0c01af9eb71a116",
     "semantic_hash": ""
   },
@@ -582,8 +582,8 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Popups.swift": {
-    "mtime": 1793764386.8616085,
-    "seen": 1793764772.5669298,
+    "mtime": 1793765880.1582417,
+    "seen": 1793768667.147393,
     "ast_hash": "799deca8ec7ce41b127f733c1d42418a",
     "semantic_hash": ""
   },
@@ -678,8 +678,8 @@
     "semantic_hash": "dfb22b35e47af4d2a9ce82268479613f"
   },
   "App/Scenes/AppMenuFragments.swift": {
-    "mtime": 1792932151.0624278,
-    "seen": 1792933113.613121,
+    "mtime": 1793767996.096201,
+    "seen": 1793768667.147416,
     "ast_hash": "94472c0a6b732e2e6e121665f6cf74c1",
     "semantic_hash": ""
   },
@@ -762,8 +762,8 @@
     "semantic_hash": "6b4c10242a927738cfda6aa4593e031b"
   },
   "App/Scenes/DockStripView+Actions.swift": {
-    "mtime": 1793764402.7798164,
-    "seen": 1793764772.567001,
+    "mtime": 1793767996.0966156,
+    "seen": 1793768667.1474402,
     "ast_hash": "5fdae75f8a2737ace967431b9bfb260e",
     "semantic_hash": ""
   },
@@ -774,9 +774,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Hover.swift": {
-    "mtime": 1793764386.8635104,
-    "seen": 1793764772.567005,
-    "ast_hash": "4be158fc9a86f5d1c1510c4ce7e31051",
+    "mtime": 1793767702.2852225,
+    "seen": 1793768667.1474419,
+    "ast_hash": "bf3718897b2d2bc02e1a81af6f07737c",
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Projection.swift": {
@@ -792,8 +792,8 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1793764386.862426,
-    "seen": 1793764772.5670102,
+    "mtime": 1793767996.0972195,
+    "seen": 1793768667.147446,
     "ast_hash": "7032735e6487d7098c41afafb21441e7",
     "semantic_hash": ""
   },
@@ -1248,8 +1248,8 @@
     "semantic_hash": ""
   },
   "App/Scenes/StripResizeGrip.swift": {
-    "mtime": 1791999130.7753253,
-    "seen": 1792295707.060499,
+    "mtime": 1793767996.0979464,
+    "seen": 1793768667.147598,
     "ast_hash": "717402a24a46a7dc79bb42d492ae3d43",
     "semantic_hash": "717402a24a46a7dc79bb42d492ae3d43"
   },
