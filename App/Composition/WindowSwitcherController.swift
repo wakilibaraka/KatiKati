@@ -36,6 +36,7 @@ final class WindowSwitcherController: ObservableObject {
     private var defaultsObserver: NSObjectProtocol?
     private var forward: GlobalHotKeyMonitor?
     private var backward: GlobalHotKeyMonitor?
+    private var appliedKey: ShortcutKey?
     private var panel: SwitcherPanel?
     private var modifierTimer: Timer?
     private let log = Logger(subsystem: "com.caye.macosdockcc.v2", category: "switcher")
@@ -61,24 +62,51 @@ final class WindowSwitcherController: ObservableObject {
 
     private func applyEnabled() {
         commandTab.setEnabled(isEnabled && UserDefaults.standard.bool(forKey: CommandTabTakeover.enabledKey))
-        if isEnabled {
-            guard forward == nil else { return }
-            forward = makeMonitor(id: 20, reverse: false)
-            backward = makeMonitor(id: 21, reverse: true)
-        } else {
-            forward?.stop(); backward?.stop()
-            forward = nil; backward = nil
+        let key = isEnabled ? boundKey : nil
+        guard key != appliedKey || (key != nil && forward == nil) else { return }   // already live for this key
+        forward?.stop(); backward?.stop()
+        forward = nil; backward = nil
+        appliedKey = key
+        guard let key else {
             if panel != nil { cancel() }
+            return
+        }
+        forward = makeMonitor(key, id: ShortcutAction.windowSwitcher.hotKeyID, reverse: false)
+        // Shift reverses; a binding that already uses Shift has no spare modifier for it.
+        if key.modifiers & ShortcutKey.shift == 0 {
+            backward = makeMonitor(key, id: ShortcutAction.windowSwitcher.hotKeyID + 1, reverse: true)
         }
     }
 
-    private func makeMonitor(id: UInt32, reverse: Bool) -> GlobalHotKeyMonitor? {
-        var mods = UInt32(optionKey)
+    /// The Settings › Shortcuts binding (default ⌥Tab); nil when set to Off.
+    private var boundKey: ShortcutKey? {
+        let stored = ShortcutTrigger.parse(UserDefaults.standard.string(forKey: "com.katikati.shortcut.\(ShortcutAction.windowSwitcher.rawValue)"))
+        return (stored ?? ShortcutAction.windowSwitcher.defaultTrigger).switcherKey
+    }
+
+    /// Every bound modifier must stay down; releasing any one commits.
+    private static func holdFlags(_ key: ShortcutKey) -> NSEvent.ModifierFlags {
+        var flags: NSEvent.ModifierFlags = []
+        if key.modifiers & ShortcutKey.control != 0 { flags.insert(.control) }
+        if key.modifiers & ShortcutKey.option != 0 { flags.insert(.option) }
+        if key.modifiers & ShortcutKey.command != 0 { flags.insert(.command) }
+        return flags.isEmpty ? .shift : flags   // a Shift-only binding is held by Shift
+    }
+
+    private func makeMonitor(_ key: ShortcutKey, id: UInt32, reverse: Bool) -> GlobalHotKeyMonitor? {
+        var mods: UInt32 = 0
+        if key.modifiers & ShortcutKey.control != 0 { mods |= UInt32(controlKey) }
+        if key.modifiers & ShortcutKey.option != 0 { mods |= UInt32(optionKey) }
+        if key.modifiers & ShortcutKey.shift != 0 { mods |= UInt32(shiftKey) }
+        if key.modifiers & ShortcutKey.command != 0 { mods |= UInt32(cmdKey) }
         if reverse { mods |= UInt32(shiftKey) }
-        let shortcut = GlobalHotKeyShortcut(keyCode: UInt32(kVK_Tab), carbonModifiers: mods,
-                                            displayGlyphs: reverse ? "⌥⇧Tab" : "⌥Tab",
+        let shortcut = GlobalHotKeyShortcut(keyCode: UInt32(key.keyCode), carbonModifiers: mods,
+                                            displayGlyphs: reverse ? "⇧" + key.glyphs : key.glyphs,
                                             signature: 0x5467_4567, id: id)
-        let monitor = GlobalHotKeyMonitor(shortcut: shortcut) { [weak self] in self?.pressed(reverse: reverse) }
+        let holdFlags = Self.holdFlags(key)
+        let monitor = GlobalHotKeyMonitor(shortcut: shortcut) { [weak self] in
+            self?.pressed(reverse: reverse, trigger: holdFlags)
+        }
         let status = monitor.start()
         guard status == .registered else {
             log.warning("Window switcher \(shortcut.displayGlyphs, privacy: .public) not registered: \(String(describing: status), privacy: .public)")

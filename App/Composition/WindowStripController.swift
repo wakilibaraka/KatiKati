@@ -7,8 +7,8 @@ import SwiftUI
 // shortcut: primary display and left edge only; other edges/displays when someone asks.
 @MainActor
 final class WindowStripController: ObservableObject {
-    static let enabledKey = "com.katikati.strip.enabled"
-    static let width: CGFloat = 56
+    static let enabledKey = WindowStripReserve.enabledKey
+    static let width = WindowStripReserve.width
 
     struct Item: Identifiable, Equatable {
         let id: String
@@ -25,11 +25,6 @@ final class WindowStripController: ObservableObject {
     private var defaultsObserver: NSObjectProtocol?
 
     init(runtime: AppRuntime) { self.runtime = runtime }
-
-    /// Width the tiling work area gives up on `screen`; zero unless the strip is on and this is the primary display.
-    static func reserve(for screen: NSScreen) -> CGFloat {
-        UserDefaults.standard.bool(forKey: enabledKey) && screen == NSScreen.screens.first ? width : 0
-    }
 
     func start() {
         sinks.append(runtime.$snapshot.sink { [weak self] in self?.update($0) })

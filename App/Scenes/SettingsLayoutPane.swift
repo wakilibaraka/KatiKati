@@ -165,6 +165,7 @@ struct SettingsLayoutPane: View {
         case .pasteImageToFinder: return String(localized: "Paste Image Into Finder")
         case .spaceNext: return String(localized: "Next Space")
         case .spacePrevious: return String(localized: "Previous Space")
+        case .windowSwitcher: return String(localized: "Window Switcher")
         }
     }
 

@@ -23,7 +23,7 @@ final class ShortcutService {
         removeEventMonitors()
         tapActions = [:]
         detector.reset()
-        for action in ShortcutAction.allCases {
+        for action in ShortcutAction.allCases where action != .windowSwitcher {
             switch bindings[action] ?? .off {
             case .off: break
             case .chord(let chord):

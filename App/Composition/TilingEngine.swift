@@ -15,7 +15,8 @@ final class TilingEngine: ObservableObject {
 
     private func workArea(of screen: NSScreen) -> CGRect {
         var visible = screen.visibleFrame
-        let strip = WindowStripController.reserve(for: screen)
+        let strip: CGFloat = UserDefaults.standard.bool(forKey: WindowStripReserve.enabledKey)
+            && screen == NSScreen.screens.first ? WindowStripReserve.width : 0
         visible.origin.x += strip; visible.size.width -= strip
         return DockReserve.workArea(visible: visible, screen: screen.frame, dock: dockFrame(screen))
     }

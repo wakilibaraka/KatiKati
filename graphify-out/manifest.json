@@ -390,10 +390,10 @@
     "semantic_hash": ""
   },
   "App/Composition/ShortcutService.swift": {
-    "mtime": 1791999130.7990189,
-    "seen": 1792295707.060411,
-    "ast_hash": "88daf65e452ae0c1f72238f07c8161fd",
-    "semantic_hash": "88daf65e452ae0c1f72238f07c8161fd"
+    "mtime": 1793834901.4005952,
+    "seen": 1793835598.1128168,
+    "ast_hash": "e9a90d0e4e7a83099955e346c5a6fa21",
+    "semantic_hash": ""
   },
   "App/Composition/SparkleUpdateService.swift": {
     "mtime": 1791999130.8033164,
@@ -432,9 +432,9 @@
     "semantic_hash": "6a7dbeaf4505ff3d30dec7758537a75a"
   },
   "App/Composition/TilingEngine.swift": {
-    "mtime": 1793831501.1386642,
-    "seen": 1793832369.595793,
-    "ast_hash": "8dfb13f386520e9f5c605c8bb478cd59",
+    "mtime": 1793835068.0449758,
+    "seen": 1793835598.1128361,
+    "ast_hash": "66fe9d5be9b0212e61716aa4aa5abe23",
     "semantic_hash": ""
   },
   "App/Composition/TorrentEngine.swift": {
@@ -480,9 +480,9 @@
     "semantic_hash": "1d6ce0d90daf500a7629c2ba2598e618"
   },
   "App/Composition/WindowSwitcherController.swift": {
-    "mtime": 1793833161.9745514,
-    "seen": 1793834590.48671,
-    "ast_hash": "94693f2a1112bd06062b1f90e28fc007",
+    "mtime": 1793834901.4015224,
+    "seen": 1793835598.112858,
+    "ast_hash": "1a466fefbc10e70f6cd96f225387bcab",
     "semantic_hash": ""
   },
   "App/Composition/WindowThumbnailCapture.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": "20e32e60027b363670a56a0fe9dd15f9"
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1793834552.2886255,
-    "seen": 1793834590.4867148,
-    "ast_hash": "d5e07cfc4641d5cd74e8ab81c1e74e23",
+    "mtime": 1793834611.4171693,
+    "seen": 1793834900.332139,
+    "ast_hash": "5d9fe46c53297acc7420a30b21309176",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -684,9 +684,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
-    "mtime": 1793833145.4709098,
-    "seen": 1793834590.4867961,
-    "ast_hash": "8c2d9ffc12e90d8bb831300315032dc2",
+    "mtime": 1793834611.4185617,
+    "seen": 1793834900.3322601,
+    "ast_hash": "9da271dd561534cdea36432f498699e2",
     "semantic_hash": ""
   },
   "App/Scenes/CalendarPanelView.swift": {
@@ -906,9 +906,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/WindowsFlyoutView.swift": {
-    "mtime": 1793831571.3243892,
-    "seen": 1793832369.5958998,
-    "ast_hash": "284ec6a40f20009cd961bf234d218275",
+    "mtime": 1793834647.2824671,
+    "seen": 1793834900.332408,
+    "ast_hash": "5b4c146afb4b5b4707027ab0efedf55b",
     "semantic_hash": ""
   },
   "App/Scenes/FolderGridPopupView.swift": {
@@ -1146,9 +1146,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
-    "mtime": 1793368012.216399,
-    "seen": 1793373444.962307,
-    "ast_hash": "1e108d69c20d26b76e18d332007c9264",
+    "mtime": 1793834901.409603,
+    "seen": 1793835598.1131341,
+    "ast_hash": "c3571d51e1fe3eb38ffa5fbe00b4717d",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
@@ -2256,9 +2256,9 @@
     "semantic_hash": "d4d008e338b3db38a676a2ce6d7955c3"
   },
   "Core/Support/Shortcuts.swift": {
-    "mtime": 1793813524.1262054,
-    "seen": 1793814325.990787,
-    "ast_hash": "f52cb49e8e6489c847b625403487d612",
+    "mtime": 1793834901.4129765,
+    "seen": 1793835598.11379,
+    "ast_hash": "9e98f1c30a0b058a611b05734df73dfc",
     "semantic_hash": ""
   },
   "Core/Support/SkyPalette.swift": {
@@ -2406,9 +2406,9 @@
     "semantic_hash": "d8709440a1e4e2f3de8ce0caae7ee1f3"
   },
   "Core/Support/TilingGaps.swift": {
-    "mtime": 1792413018.6149254,
-    "seen": 1792451836.244232,
-    "ast_hash": "25381de1143068386d111b3f31cf3ab8",
+    "mtime": 1793835068.0278194,
+    "seen": 1793835598.113845,
+    "ast_hash": "f75170ea29a0e004aa7e3e94d724f508",
     "semantic_hash": ""
   },
   "Core/Support/TilingLayout.swift": {
@@ -4056,9 +4056,9 @@
     "semantic_hash": "f1eff661f2afe9a33a028a91fac58b0b"
   },
   "Tests/Unit/ShortcutsTests.swift": {
-    "mtime": 1792528007.140596,
-    "seen": 1792528257.908212,
-    "ast_hash": "013e54f4e50a95d779a6f5518db740a4",
+    "mtime": 1793834901.414526,
+    "seen": 1793835598.114469,
+    "ast_hash": "7612f5ffc6123e23fd806eefce1296ed",
     "semantic_hash": ""
   },
   "Tests/Unit/SkyPaletteTests.swift": {
@@ -7083,6 +7083,18 @@
     "mtime": 1793833145.4393392,
     "seen": 1793834590.486531,
     "ast_hash": "4b48a2595ddf5340d2363ffb9409a7ea",
+    "semantic_hash": ""
+  },
+  "App/Composition/WindowDrawerController.swift": {
+    "mtime": 1793834647.2836971,
+    "seen": 1793834900.332109,
+    "ast_hash": "9f756bd2327f348a38357ad36ce40ae7",
+    "semantic_hash": ""
+  },
+  "App/Composition/WindowStripController.swift": {
+    "mtime": 1793835075.9195082,
+    "seen": 1793835598.1128561,
+    "ast_hash": "26459c737c040f3eae682e7c427a9b6b",
     "semantic_hash": ""
   }
 }

@@ -95,6 +95,36 @@ final class ShortcutsTests: XCTestCase {
 
 // MARK: - Phase 9d / 9e
 
+final class WindowSwitcherShortcutTests: XCTestCase {
+    func testDefaultIsOptionTab() {
+        XCTAssertEqual(ShortcutAction.windowSwitcher.defaultTrigger.switcherKey,
+                       ShortcutKey(keyCode: 48, modifiers: ShortcutKey.option))
+        XCTAssertEqual(ShortcutAction.windowSwitcher.defaultTrigger.switcherKey?.glyphs, "⌥Tab")
+    }
+
+    func testOffMeansNoHotKey() {
+        XCTAssertNil(ShortcutTrigger.off.switcherKey)
+    }
+
+    func testBindingsWithNothingToHoldFallBackToDefault() {
+        let fallback = ShortcutKey(keyCode: 48, modifiers: ShortcutKey.option)
+        XCTAssertEqual(ShortcutTrigger.doubleTap(.leftOption).switcherKey, fallback)
+        XCTAssertEqual(ShortcutTrigger.hyper(13).switcherKey, fallback)
+    }
+
+    func testCustomKeyAndChordAreUsedAsBound() {
+        let custom = ShortcutKey(keyCode: 50, modifiers: ShortcutKey.control)   // ⌃`
+        XCTAssertEqual(ShortcutTrigger.key(custom).switcherKey, custom)
+        XCTAssertEqual(ShortcutTrigger.chord(.optionShiftSpace).switcherKey,
+                       ShortcutKey(keyCode: 49, modifiers: ShortcutKey.option | ShortcutKey.shift))
+    }
+
+    func testTabSurvivesSerialization() {
+        let raw = ShortcutAction.windowSwitcher.defaultTrigger.serialized
+        XCTAssertEqual(ShortcutTrigger.parse(raw), ShortcutAction.windowSwitcher.defaultTrigger)
+    }
+}
+
 final class ShortcutKeyTriggerTests: XCTestCase {
     func testKeyTriggerRoundTrips() {
         let t = ShortcutTrigger.key(ShortcutKey(keyCode: 2, modifiers: ShortcutKey.control | ShortcutKey.option))

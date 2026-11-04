@@ -21,6 +21,12 @@ struct TilingGaps: Equatable, Sendable, Codable {
 
 /// Trims a screen's work area so windows stay clear of a solid KatiKati dock, the way the system Dock
 /// shrinks `visibleFrame`. Cocoa (bottom-left) coordinates throughout.
+/// Space the always-visible window strip takes from the primary display's left edge.
+enum WindowStripReserve {
+    static let enabledKey = "com.katikati.strip.enabled"
+    static let width: CGFloat = 56
+}
+
 enum DockReserve {
     /// Cuts `visible` on the screen edge nearest `dock`, up to the dock's inner edge. A dock that does not
     /// touch the work area (or nil) leaves it unchanged.
