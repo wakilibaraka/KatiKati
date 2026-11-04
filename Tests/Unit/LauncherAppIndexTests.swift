@@ -197,7 +197,7 @@ final class LauncherAppIndexTests: XCTestCase {
         XCTAssertEqual(score("微信", "微信"), 1000)
         XCTAssertNotNil(score("微", "微信"))
         XCTAssertNotNil(score("信", "微信"))
-        XCTAssertNil(score("wx", "微信"))
+        XCTAssertNotNil(score("wx", "微信"), "pinyin initials match")
     }
 
     func testUsageBoostFollowsNanolight() {
