@@ -68,6 +68,9 @@ All notable changes to KatiKati are documented in this file.
   session. Opening the calendar panel (or the notch's calendar page) is what asks now: one prompt, for events. The
   card carries an **Allow calendar access** row while the answer is still unknown, prompting reminders waits for the
   panel's own reminders tile, and a denied calendar shows its explanation instead of an empty agenda.
+- **A Finder chip brings Finder forward.** Clicking it with no Finder window open did open one — and left
+  whatever was in front exactly where it was, because the opener's own activation reports success without
+  raising the app. The chip now raises Finder the way every other app chip's click does, then opens the window.
 - **A chip cannot be click-dead any more.** Every chip published its frame into its own table and the hit-test read
   a hand-written union of those tables, so a chip that was never added to the union still hovered and still showed
   its tooltip while every click fell through. One registry now carries every chip's frame and zone, and the menu

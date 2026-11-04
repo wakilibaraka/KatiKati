@@ -144,7 +144,26 @@ def main() -> int:
         print(f'❌ the strip never wrote {frames_file} — is DOCK_CHIP_FRAMES_OUT plumbed through `open`?')
         return 2
 
-    left, top = frames['rootLeft'], frames['rootTop']
+    def point_of(name: str):
+        """The chip's click point, re-read from the app every single time.
+
+        The strip re-centres while a plate opens and closes, so a coordinate cached at launch
+        points at a neighbour a few clicks later: the first all-chip pass clicked WhatsApp and
+        opened the shelf's plate, then clicked where the shelf had been and hit nothing.
+        """
+        nonlocal frames
+        try:
+            current = json.loads(frames_file.read_text())
+            if current.get('chips'):
+                frames = current
+        except (OSError, json.JSONDecodeError):
+            pass
+        chip = next((c for c in frames['chips'] if c['id'] == name), None)
+        if chip is None:
+            return None
+        return (frames['rootLeft'] + chip['x'] + chip['w'] / 2,
+                frames['rootTop'] + chip['y'] + chip['h'] / 2, chip)
+
     chips = {chip['id']: chip for chip in frames['chips']}
     wanted = [name.strip() for name in args.chip.split(',') if name.strip()] or list(chips)
     missing = [name for name in wanted if name not in chips]
@@ -154,9 +173,12 @@ def main() -> int:
 
     failures = []
     for name in wanted:
-        chip = chips[name]
-        x = left + chip['x'] + chip['w'] / 2
-        y = top + chip['y'] + chip['h'] / 2
+        point = point_of(name)
+        if point is None:
+            print(f'  ❌ {name:<22} left the registry after a reflow')
+            failures.append(name)
+            continue
+        x, y, chip = point
         before, before_front = window_set(binary), front(binary)
         if shots is not None:
             run('screencapture', '-x', str(shots / f'{name}-before.png'))
@@ -173,8 +195,11 @@ def main() -> int:
               f'front={before_front}→{after_front}')
         if not fired:
             failures.append(name)
-        # A chip that opened something must close it, or the next click lands on the plate.
-        run(str(binary), 'click', f'{x:.1f}', f'{y:.1f}')
+        # A chip that opened something must close it, or the next click lands on the plate —
+        # and it must close at the chip's *current* point, for the reason above.
+        closing = point_of(name)
+        if closing is not None:
+            run(str(binary), 'click', f'{closing[0]:.1f}', f'{closing[1]:.1f}')
         time.sleep(0.9)
 
     if not args.keep:

@@ -1207,10 +1207,17 @@ struct PlatformActionExecutor {
 
         switch request.kind {
         case .activateWindow:
-            // Finder persistent chip (no open windows): open a new Finder window where Finder's own
-            // "New Finder windows show" setting points, as the system Dock does.
+            // Finder persistent chip: bring Finder forward, and open a window where Finder's own
+            // "New Finder windows show" setting points when it has none, as the system Dock does.
+            //
+            // Finder goes through the same activation every other chip uses *before* the opener: a
+            // bare `NSRunningApplication.activate` (all the opener itself does) reports `true` here
+            // and leaves the front app untouched — measured on this Mac as a 19.6 ms "success" with
+            // Safari still front, while the WhatsApp chip's identical click moved the front app. The
+            // AX raise Finder was missing is what makes it take.
             if record.id.rawValue.hasPrefix("app-"),
                FinderWindowRules.isFinder(bundleIdentifier: record.bundleIdentifier) {
+                _ = windowExecutor.activateAppWithWindowRecovery(pid: record.pid, runningApp: runningApp)
                 FinderNewWindowOpener.openNewWindow()
                 return true
             }
