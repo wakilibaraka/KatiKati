@@ -1932,9 +1932,9 @@
     "semantic_hash": "69c737ca36e3dec3427b6009d39a033a"
   },
   "Core/Support/LauncherAppIndex.swift": {
-    "mtime": 1793801779.1908267,
-    "seen": 1793805182.752904,
-    "ast_hash": "3b95154d39098e00edef1d5d0bdc64b3",
+    "mtime": 1793835642.3251145,
+    "seen": 1793835649.022075,
+    "ast_hash": "2dbd3a601018fad8a9116494d0aa39ea",
     "semantic_hash": ""
   },
   "Core/Support/LauncherAppearance.swift": {
