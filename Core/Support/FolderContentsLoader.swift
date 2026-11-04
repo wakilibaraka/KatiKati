@@ -71,6 +71,14 @@ enum FolderContentsLoader {
         }
     }
 
+    /// A privacy-protected folder (Downloads, Desktop, Documents) answers `EPERM` / `EACCES`
+    /// until the user allows it under Files & Folders — a state to explain, never an empty folder.
+    static func isPermissionDenied(_ error: Error) -> Bool {
+        if (error as? CocoaError)?.code == .fileReadNoPermission { return true }
+        let code = (error as NSError).code
+        return code == Int(EPERM) || code == Int(EACCES)
+    }
+
     /// 加入日期降序（最新在前）；网络卷等场景 dateAdded 可能为 nil，用修改日期兜底；
     /// 同刻再按本地化文件名升序破平，保证排序稳定。
     static func sortedByDateAdded(_ entries: [Entry]) -> [Entry] {

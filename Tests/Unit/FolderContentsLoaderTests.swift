@@ -51,6 +51,21 @@ final class FolderContentsLoaderTests: XCTestCase {
         ])
         XCTAssertEqual(sorted.map(\.name), ["alpha", "zeta"])
     }
+
+    /// A privacy-protected folder answers EPERM / EACCES until the user allows it; that must read
+    /// as "needs permission" so the popup explains itself instead of showing an empty folder.
+    func testPermissionErrorsAreToldApartFromAMissingFolder() {
+        XCTAssertTrue(FolderContentsLoader.isPermissionDenied(
+            NSError(domain: NSPOSIXErrorDomain, code: Int(EPERM))))
+        XCTAssertTrue(FolderContentsLoader.isPermissionDenied(
+            NSError(domain: NSPOSIXErrorDomain, code: Int(EACCES))))
+        XCTAssertTrue(FolderContentsLoader.isPermissionDenied(
+            CocoaError(.fileReadNoPermission)))
+        XCTAssertFalse(FolderContentsLoader.isPermissionDenied(
+            NSError(domain: NSPOSIXErrorDomain, code: Int(ENOENT))))
+        XCTAssertFalse(FolderContentsLoader.isPermissionDenied(
+            CocoaError(.fileNoSuchFile)))
+    }
 }
 
 /// `DirectoryWatcher.start` 的契约：fd 在后台开、watcher（打不开就是 nil）回主队列。

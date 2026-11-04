@@ -9,11 +9,18 @@ final class FolderPopupModel: ObservableObject {
     @Published private(set) var entries: [FolderContentsLoader.Entry] = []
     @Published private(set) var loadFailed = false
     @Published private(set) var didFirstLoad = false
+    /// The read is waiting on the system's Files & Folders prompt (or was refused). The plate says
+    /// so instead of looking like an empty folder, and fills itself in when the answer arrives.
+    @Published private(set) var needsPermission = false
 
     private var watcher: DirectoryWatcher?
     /// 在后台 open 期间又切了目录：只有最后一次 display 的 watcher 留下，旧的落地即丢。
     private var displayToken = 0
     private var generation = 0
+    private var currentURL: URL?
+    private var retryTimer: Timer?
+    private var retryAttempts = 0
+    private var activationObserver: NSObjectProtocol?
     /// 该文件夹的排序方式（开窗时定死；改排序走协调器原地切换重开,不在窗内热切）。
     var sortOrder: FolderSortOrder = .default
 
@@ -26,6 +33,11 @@ final class FolderPopupModel: ObservableObject {
     func display(url: URL) {
         watcher?.stop()
         watcher = nil
+        currentURL = url
+        retryTimer?.invalidate()
+        retryAttempts = 0
+        needsPermission = false
+        observeActivation()
         displayToken += 1
         let token = displayToken
         // open 跑在后台：下钻到 TCC 目录也不会冻住弹窗；nil 照旧由下一次 display 重试。
@@ -47,6 +59,25 @@ final class FolderPopupModel: ObservableObject {
     func stop() {
         watcher?.stop()
         watcher = nil
+        retryTimer?.invalidate()
+        retryTimer = nil
+        if let activationObserver { NotificationCenter.default.removeObserver(activationObserver) }
+        activationObserver = nil
+    }
+
+    /// Coming back from System Settings is the documented recovery path, so re-read on activation
+    /// while the popup still needs the grant.
+    private func observeActivation() {
+        guard activationObserver == nil else { return }
+        activationObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self, self.needsPermission, let url = self.currentURL else { return }
+                self.retryAttempts = 0
+                self.reload(url: url)
+            }
+        }
     }
 
     /// 目录读取走自己的串行队列而不是 `Task.detached`：点开弹窗是用户动作，扔进 Swift 协作线程池
@@ -54,9 +85,32 @@ final class FolderPopupModel: ObservableObject {
     private static let reloadQueue = DispatchQueue(label: "com.caye.macosdockcc.v2.folder-popup-reload",
                                                    qos: .userInitiated)
 
+    /// Bounded retries while the prompt is up: the grant lands, the next attempt fills the grid.
+    private func scheduleRetry() {
+        retryTimer?.invalidate()
+        guard retryAttempts < 5 else { return }
+        retryAttempts += 1
+        retryTimer = Timer.scheduledTimer(withTimeInterval: 1.2, repeats: false) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self, self.needsPermission, let url = self.currentURL else { return }
+                self.reload(url: url)
+            }
+        }
+    }
+
     private func reload(url: URL) {
         generation += 1
         let expected = generation
+        currentURL = url
+        // A read of an unauthorised folder blocks inside the system prompt: without this probe the
+        // plate sits on "loading" for as long as the prompt is up, then reads as an empty folder.
+        if !didFirstLoad {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                guard let self, self.generation == expected, !self.didFirstLoad else { return }
+                self.needsPermission = true
+                self.scheduleRetry()
+            }
+        }
         Self.reloadQueue.async { [weak self] in
             let result = Result { try FolderContentsLoader.load(directory: url) }
             Task { @MainActor [weak self] in
@@ -68,9 +122,18 @@ final class FolderPopupModel: ObservableObject {
                     let sorted = FolderContentsLoader.sorted(list, by: self.sortOrder)
                     if sorted != self.entries { self.entries = sorted }
                     if self.loadFailed { self.loadFailed = false }
-                case .failure:
-                    if !self.entries.isEmpty { self.entries = [] }
+                    if self.needsPermission {
+                        self.needsPermission = false
+                        self.retryTimer?.invalidate()
+                    }
+                case .failure(let error):
+                    // Never wipe what is already on screen: a folder that was readable a moment ago
+                    // and is not now is a failure to report, not an empty folder.
                     if !self.loadFailed { self.loadFailed = true }
+                    if FolderContentsLoader.isPermissionDenied(error) {
+                        self.needsPermission = true
+                        self.scheduleRetry()
+                    }
                 }
                 if !self.didFirstLoad { self.didFirstLoad = true }
             }
@@ -237,7 +300,10 @@ struct FolderGridPopupView: View {
         StackGridLayout.resolve(cellCount: model.entries.count + 1, limits: context.limits, hasNote: note != nil)
     }
     private var note: String? {
-        model.loadFailed ? String(localized: "Can’t read this folder") : nil
+        if model.needsPermission {
+            return String(localized: "Allow folder access in System Settings")
+        }
+        return model.loadFailed ? String(localized: "Can’t read this folder") : nil
     }
 
     var body: some View {
