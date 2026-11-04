@@ -912,9 +912,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/FolderGridPopupView.swift": {
-    "mtime": 1793190233.6098351,
-    "seen": 1793190252.3365288,
-    "ast_hash": "af7f3ee52b7c31408a2560f250503e66",
+    "mtime": 1793769581.6142502,
+    "seen": 1793801122.028251,
+    "ast_hash": "4eef48a9bfebe6c4600aa8802fc3bac3",
     "semantic_hash": ""
   },
   "App/Scenes/GestureMonitorInstaller.swift": {
@@ -1854,10 +1854,10 @@
     "semantic_hash": "9c73f11229ab321d6891c37ea5073678"
   },
   "Core/Support/FolderContentsLoader.swift": {
-    "mtime": 1791999130.7366529,
-    "seen": 1792295707.060558,
-    "ast_hash": "02e76093a17a10e847aa3817bf1e8a80",
-    "semantic_hash": "02e76093a17a10e847aa3817bf1e8a80"
+    "mtime": 1793769505.9637642,
+    "seen": 1793801122.028407,
+    "ast_hash": "2b68a2f7da386d7090bcc5b73f905118",
+    "semantic_hash": ""
   },
   "Core/Support/FolderDropPlan.swift": {
     "mtime": 1791999130.7571917,
@@ -3510,10 +3510,10 @@
     "semantic_hash": "0b312300d462d8d92ca552faaf2fe01e"
   },
   "Tests/Unit/FolderContentsLoaderTests.swift": {
-    "mtime": 1792261093.5441854,
-    "seen": 1792295707.0607302,
-    "ast_hash": "870e2f8b9a51becbbc9b41ef448d3528",
-    "semantic_hash": "870e2f8b9a51becbbc9b41ef448d3528"
+    "mtime": 1793770289.7267296,
+    "seen": 1793801122.028652,
+    "ast_hash": "ff0103aca8395dd580d30938b27f916e",
+    "semantic_hash": ""
   },
   "Tests/Unit/FolderDropPlanTests.swift": {
     "mtime": 1791999130.9533007,
