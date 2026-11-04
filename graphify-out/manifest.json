@@ -294,9 +294,9 @@
     "semantic_hash": "46b031a23b71f21274e605b24b2661b8"
   },
   "App/Composition/MenuBarSystemItem.swift": {
-    "mtime": 1792686439.280261,
-    "seen": 1792689772.288806,
-    "ast_hash": "8af695e777236d8e32fefe1ba0b4491c",
+    "mtime": 1793819860.8702917,
+    "seen": 1793821372.723727,
+    "ast_hash": "cd09d7c35b4299cc16bfbfa15729b241",
     "semantic_hash": ""
   },
   "App/Composition/MessagingAppStore.swift": {
@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
-    "mtime": 1793367845.0672393,
-    "seen": 1793373444.962214,
-    "ast_hash": "77607dcd915e4e387c197c2661a1733a",
+    "mtime": 1793819888.5843225,
+    "seen": 1793821372.723779,
+    "ast_hash": "ad7a3d15533dfd20072937926d36684e",
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
@@ -690,9 +690,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/CalendarPanelView.swift": {
-    "mtime": 1793810662.1015298,
-    "seen": 1793814325.990527,
-    "ast_hash": "b0edd0cfb07d37ee29a63db064472b28",
+    "mtime": 1793820287.607486,
+    "seen": 1793821372.723788,
+    "ast_hash": "6520d075e6e52adb0aa55dd9c1ab1f0a",
     "semantic_hash": ""
   },
   "App/Scenes/ChipBadgeView.swift": {
@@ -774,9 +774,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Hover.swift": {
-    "mtime": 1793805712.2850456,
-    "seen": 1793814325.990537,
-    "ast_hash": "6efc1df94dc93d25c55a914c60975ce0",
+    "mtime": 1793819945.2185674,
+    "seen": 1793821372.723799,
+    "ast_hash": "f3684fc98ce708657823c3b6f2266bb7",
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Projection.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1793805709.7760684,
-    "seen": 1793814325.990539,
-    "ast_hash": "02750d4a7b11a88d37dda9fe49d611fe",
+    "mtime": 1793819944.28515,
+    "seen": 1793821372.723802,
+    "ast_hash": "e2152ed3a4729552d80f43d8782a2d1c",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -1200,10 +1200,10 @@
     "semantic_hash": ""
   },
   "App/Scenes/StackPopupBackdrop.swift": {
-    "mtime": 1791999130.7818453,
-    "seen": 1792295707.0604942,
-    "ast_hash": "0e39ebf554562f144b88d9133a17e83c",
-    "semantic_hash": "0e39ebf554562f144b88d9133a17e83c"
+    "mtime": 1793819844.7989504,
+    "seen": 1793821372.7238882,
+    "ast_hash": "0142d26033103ef0652c26ada7017837",
+    "semantic_hash": ""
   },
   "App/Scenes/StackPopupChrome.swift": {
     "mtime": 1792926135.9863086,
@@ -1674,9 +1674,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DebugSwitch.swift": {
-    "mtime": 1793814833.2899032,
-    "seen": 1793814877.863759,
-    "ast_hash": "1e187215396736ae8fe904dcebdf337d",
+    "mtime": 1793819943.1827023,
+    "seen": 1793821372.723966,
+    "ast_hash": "dba4e8ec9c6f5dad3752fa2209b77eb6",
     "semantic_hash": ""
   },
   "Core/Support/DeckGeometry.swift": {
@@ -1878,10 +1878,10 @@
     "semantic_hash": "f69b0fc08e90412cacfa140c148c04bd"
   },
   "Core/Support/HoverTrace.swift": {
-    "mtime": 1791999130.7464895,
-    "seen": 1792295707.060561,
-    "ast_hash": "7d56d50456184f2414376e6d59956f5c",
-    "semantic_hash": "7d56d50456184f2414376e6d59956f5c"
+    "mtime": 1793819845.6641815,
+    "seen": 1793821372.723998,
+    "ast_hash": "4165366671c683917e4e446bd4d867dd",
+    "semantic_hash": ""
   },
   "Core/Support/HyperkeyEngine.swift": {
     "mtime": 1792528182.746936,
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1793813678.3220885,
-    "seen": 1793814325.9911292,
-    "ast_hash": "7ef209f804d1758df291339a28f59f9b",
+    "mtime": 1793820784.6636348,
+    "seen": 1793821372.7244318,
+    "ast_hash": "ac0cfe4617dbc0e98cec028aca54f093",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -6828,9 +6828,9 @@
     "semantic_hash": ""
   },
   "App/Composition/DriveMenuBarItem.swift": {
-    "mtime": 1793022911.2509158,
-    "seen": 1793025187.338957,
-    "ast_hash": "d6d655f6660e886097d7b1e4bffc111b",
+    "mtime": 1793819859.772716,
+    "seen": 1793821372.723707,
+    "ast_hash": "54bf65d40ba45a20b95e98418286ff4a",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DrivesDockWidget.swift": {
@@ -7059,6 +7059,12 @@
     "mtime": 1793769244.1931038,
     "seen": 1793769319.70769,
     "ast_hash": "1b24d86233c35403e8988b7939612c68",
+    "semantic_hash": ""
+  },
+  "Scripts/live_check_chip.py": {
+    "mtime": 1793819946.2693658,
+    "seen": 1793821372.724187,
+    "ast_hash": "f62d25bbf7b4a552f43ebb1451d6aa5f",
     "semantic_hash": ""
   }
 }
