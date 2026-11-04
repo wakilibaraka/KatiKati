@@ -160,3 +160,13 @@ final class ShortcutKeyTriggerTests: XCTestCase {
         XCTAssertEqual(ShortcutConflicts.duplicated([.drawer: .hyper(2), .weather: .hyper(2)]), [.drawer, .weather])
     }
 }
+
+final class PeekHoldTests: XCTestCase {
+    func testQuickTapKeepsOpenLongHoldHides() {
+        XCTAssertEqual(PeekHold.outcome(heldFor: 0.1), .keepOpen)
+        XCTAssertEqual(PeekHold.outcome(heldFor: 0.6), .hide)
+    }
+    func testPeekHasNoDefaultKey() {
+        XCTAssertEqual(ShortcutAction.peek.defaultTrigger, .off)
+    }
+}

@@ -166,6 +166,7 @@ struct SettingsLayoutPane: View {
         case .spaceNext: return String(localized: "Next Space")
         case .spacePrevious: return String(localized: "Previous Space")
         case .windowSwitcher: return String(localized: "Window Switcher")
+        case .peek: return String(localized: "Peek")
         }
     }
 

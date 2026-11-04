@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A0000000000000000000B111 /* PeekController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000B110 /* PeekController.swift */; };
+		A0000000000000000000B102 /* PeekHold.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000B100 /* PeekHold.swift */; };
+		A0000000000000000000B101 /* PeekHold.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000B100 /* PeekHold.swift */; };
 		A0000000000000000001F0A1 /* LayoutCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F0A0 /* LayoutCatalog.swift */; };
 		A0000000000000000001F0A2 /* LayoutCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F0A0 /* LayoutCatalog.swift */; };
 		A0000000000000000001F0B1 /* LayoutCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F0B0 /* LayoutCatalogTests.swift */; };
@@ -1270,6 +1273,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A0000000000000000000B110 /* PeekController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PeekController.swift; path = App/Composition/PeekController.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000B100 /* PeekHold.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PeekHold.swift; path = Core/Support/PeekHold.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F0A0 /* LayoutCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LayoutCatalog.swift; path = Core/Support/LayoutCatalog.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F0B0 /* LayoutCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutCatalogTests.swift; sourceTree = "<group>"; };
 		F1A1C0DE0000000000000001 /* FluidRailGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FluidRailGeometry.swift; path = Core/Support/FluidRailGeometry.swift; sourceTree = SOURCE_ROOT; };
@@ -3328,6 +3333,7 @@
 				A0000000000000000001F081 /* TilingEngine.swift in Sources */,
 				A0000000000000000000A291 /* SlowQuitOverlay.swift in Sources */,
 				A0000000000000000000A301 /* KeyVisualizerOverlay.swift in Sources */,
+				A0000000000000000000B111 /* PeekController.swift in Sources */,
 				A0000000000000000000A1D1 /* AppRemoval.swift in Sources */,
 				A0000000000000000000A121 /* SelectedTextReader.swift in Sources */,
 				A0000000000000000000A131 /* DictionaryService.swift in Sources */,
@@ -3557,6 +3563,7 @@
 				7B5000000000000000040512 /* WindowThumbnailCapture.swift in Sources */,
 				7B5000000000000000040312 /* ChipPanelLayout.swift in Sources */,
 				7B5000000000000000040212 /* ChipPanelHoverMachine.swift in Sources */,
+				A0000000000000000000B101 /* PeekHold.swift in Sources */,
 				7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B12 /* ShelfIconState.swift in Sources */,
 				7B5000000000000000003A32 /* NotchToolsView.swift in Sources */,
@@ -3726,6 +3733,7 @@
 				7B5000000000000000040513 /* WindowThumbnailCapture.swift in Sources */,
 				7B5000000000000000040313 /* ChipPanelLayout.swift in Sources */,
 				7B5000000000000000040213 /* ChipPanelHoverMachine.swift in Sources */,
+				A0000000000000000000B102 /* PeekHold.swift in Sources */,
 				7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B13 /* ShelfIconState.swift in Sources */,
 				7B5000000000000000003813 /* ShakeDetector.swift in Sources */,

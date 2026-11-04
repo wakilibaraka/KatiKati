@@ -93,6 +93,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Menu Bar row turns it on).
     private lazy var driveMenuBar = DriveMenuBarItem()
     private lazy var windowSwitcher = WindowSwitcherController(runtime: runtime)
+    private let peek = PeekController()
     private lazy var windowStrip = WindowStripController(runtime: runtime)
     private lazy var windowDrawer = WindowDrawerController(
         runtime: runtime,
@@ -375,6 +376,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     case .success(let url): self.shortcutToast.show(url.lastPathComponent, symbol: "photo.on.rectangle")
                     case .failure(let failure): self.shortcutToast.show(failure.message, symbol: "exclamationmark.triangle.fill")
                     }
+                case .peek: self.peek.pressed()
                 case .weather: WidgetPanelController.weather.toggle()
                 case .clock: WidgetPanelController.calendar.toggle()
                 case .keepAwake:

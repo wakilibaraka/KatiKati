@@ -41,6 +41,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     /// The window switcher's key (default ⌥Tab). Owned by `WindowSwitcherController`, which needs the
     /// held modifier to commit; `ShortcutService` skips it, and Shift added to the combination reverses.
     case windowSwitcher
+    /// Hold to peek at the Weather and Calendar panels; a quick tap keeps them open. No default key.
+    case peek
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -93,6 +95,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .spaceNext: return 44
         case .spacePrevious: return 45
         case .windowSwitcher: return 46   // 47 is the switcher's reverse key, not an action
+        case .peek: return 48
         }
     }
 
@@ -117,7 +120,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         // Phase 31 radial dial: off by default, user assigns
         case .radialDial, .radialDialSnap, .radialDialTools: return .off
         case .notchPageNext, .notchPagePrevious, .captureArea, .pasteImageToFinder: return .off
-        case .spaceNext, .spacePrevious: return .off
+        case .spaceNext, .spacePrevious, .peek: return .off
         case .windowSwitcher: return .key(ShortcutKey(keyCode: 48, modifiers: ShortcutKey.option))
         }
     }
