@@ -107,9 +107,12 @@ extension PanelCoordinator {
     private func openFolderPopup(path: String, anchorVisibleRect: CGRect) {
         let rootURL = URL(fileURLWithPath: path)
         let sortOrder = pinnedFolderStore.sortOrder(for: path)
-        // First open of a folder we pinned ourselves (Downloads on a fresh install): only now may
-        // it be read, so the system's access prompt follows the user's own click.
-        if pinnedFolderStore.noteOpened(path) {
+        // First open of a folder nothing was allowed to read yet — one we pinned ourselves (Downloads on
+        // a fresh install) or the builtin since this launch: only now may it be read, so the system's
+        // access prompt follows the user's own click, and the chip's cover can be built from it.
+        let wasUnread = pinnedFolderStore.isUnreadUntilOpened(path)
+        pinnedFolderStore.noteOpened(path)
+        if wasUnread {
             folderCoverStore.sync(paths: pinnedFolderStore.folderPaths)
         }
         // 混合兜底：先查热缓存（0ms，且校验了排序一致性），Miss 则回退到短时 preload（最多阻塞 150ms），确保首帧完整。

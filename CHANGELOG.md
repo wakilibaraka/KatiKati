@@ -63,6 +63,12 @@ All notable changes to KatiKati are documented in this file.
 - **A pop's plate takes the theme's tint.** Choosing a theme re-tinted the drawer chip but left the pop's own
   plate exactly as it was, so two presets looked identical on the surface the setting is named after. The plate now
   takes the same tint the dock plate takes, through the same helper, arrows included.
+- **The Downloads prompt waits for the Downloads chip.** Nothing read the folder before its chip was clicked on a
+  fresh install, but once you had opened it, every launch read it again — so "KatiKati would like to access files
+  in your Downloads folder" arrived over the desktop with no click behind it. The chip now shows its plain folder
+  icon, and no download badge, until you open it once in a session; from that click on the cover, the watcher and
+  the badge read it as before. (Files & Folders records its grant against a code signature, so an unsigned build
+  is asked again after every rebuild — the reason a launch-time read could never be silent there.)
 - **The calendar prompt waits for the calendar.** It was raised on launch, because the clock card on the bar asked
   for access the moment it appeared — a system prompt with no user action behind it, in the first seconds of a
   session. Opening the calendar panel (or the notch's calendar page) is what asks now: one prompt, for events. The

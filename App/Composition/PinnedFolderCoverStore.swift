@@ -40,14 +40,14 @@ final class PinnedFolderCoverStore: ObservableObject {
     /// 逐文件夹排序方式（AppDelegate 注入,读 PinnedFolderStore）：封面 = 当前排序下最前的几项,
     /// 与弹窗网格同口径（原生 Stacks 同款：改排序,chip 封面跟着换）。
     private let sortOrderProvider: (String) -> FolderSortOrder
-    /// `PinnedFolderStore.isUnopenedSeed`: such a folder shows its plain icon and is not read or
+    /// `PinnedFolderStore.isUnreadUntilOpened`: such a folder shows its plain icon and is not read or
     /// watched until the user opens it (reading Downloads raises the system's access prompt).
-    private let isUnopenedSeed: (String) -> Bool
+    private let isUnreadUntilOpened: (String) -> Bool
 
     init(sortOrderProvider: @escaping (String) -> FolderSortOrder = { _ in .default },
-         isUnopenedSeed: @escaping (String) -> Bool = { _ in false }) {
+         isUnreadUntilOpened: @escaping (String) -> Bool = { _ in false }) {
         self.sortOrderProvider = sortOrderProvider
-        self.isUnopenedSeed = isUnopenedSeed
+        self.isUnreadUntilOpened = isUnreadUntilOpened
     }
 
     /// 提取命中且排序一致的热缓存。如果为 nil，调用方应执行同步的 preload 兜底。
@@ -67,7 +67,7 @@ final class PinnedFolderCoverStore: ObservableObject {
             generations[gone] = nil
         }
         for path in paths {
-            if isUnopenedSeed(path) {
+            if isUnreadUntilOpened(path) {
                 covers[path] = FolderCover(layers: [.init(image: Self.icon(forPath: path), isThumbnail: false)])
                 continue
             }

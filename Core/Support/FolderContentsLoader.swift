@@ -39,6 +39,26 @@ enum FileReachability: Equatable {
     }
 }
 
+/// When a pinned folder may be read at all — asked by the cover enumeration, the directory watcher and
+/// the download badge before any of them touches the folder.
+///
+/// Two answers hold a read back. The folder was never opened (`seeds`): a folder we pin ourselves, like
+/// Downloads on a fresh install, must not be read until the user asks for it. Or it is the builtin
+/// (`builtin`) and has not been opened since this launch: Downloads is privacy-protected, and Files &
+/// Folders records its grant against a code signature — an unsigned build gets a new one on every
+/// rebuild — so a read at launch raises the system's access prompt over the desktop with no user action
+/// behind it. Reading after the click that opens the folder is the same rule the seed already follows,
+/// made per launch, so a prompt can only ever follow the click that caused it.
+enum PinnedFolderReadRule {
+    static func isUnreadUntilOpened(path: String, seeds: Set<String>, openedThisSession: Set<String>,
+                                    builtin: String?) -> Bool {
+        let key = FilePathNormalization.normalized(path)
+        if seeds.contains(key) { return true }
+        guard let builtin else { return false }
+        return key == FilePathNormalization.normalized(builtin) && !openedThisSession.contains(key)
+    }
+}
+
 /// 固定文件夹/废纸篓内容读取与排序。`load` 走文件系统（调用方放后台队列）；
 /// 排序与选封面是纯函数，进单测。枚举一律跳过隐藏文件。
 enum FolderContentsLoader {

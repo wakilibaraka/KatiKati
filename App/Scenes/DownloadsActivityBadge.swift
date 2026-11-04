@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Phase 8d — a small pulsing count on the Downloads chip while browsers are mid-download. Holds the
 /// shared `DownloadsMonitor` only while on screen, so a folder chip that isn't Downloads (or a Downloads
-/// folder the user hasn't opened yet) costs nothing and reads nothing.
+/// folder the user has not opened since this launch) costs nothing and reads nothing.
 struct DownloadsActivityBadge: View {
     @ObservedObject private var monitor = DownloadsMonitor.shared
     let scale: CGFloat

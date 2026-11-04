@@ -13,6 +13,9 @@ final class PinnedFolderStore: ObservableObject {
     private(set) var unopenedSeedPaths: Set<String> = []
     /// Builtin folders the user removed on purpose, so a launch does not push them back.
     private var removedBuiltins: Set<String> = []
+    /// Folders opened since this launch. Memory only: the seed above is a one-time state, this one is
+    /// per session — see `isUnreadUntilOpened`.
+    private var openedThisSession: Set<String> = []
     private let key = "pinnedFolderPaths"
     private let sortKey = "pinnedFolderSortOrders"
     private let unopenedSeedKey = "pinnedFolderUnopenedSeeds"
@@ -50,15 +53,21 @@ final class PinnedFolderStore: ObservableObject {
         removeNow(normalized)
     }
 
-    func isUnopenedSeed(_ path: String) -> Bool { unopenedSeedPaths.contains(Self.normalized(path)) }
+    /// Whether nothing may read this folder yet — the rule itself lives in `PinnedFolderReadRule`, so
+    /// the cover enumeration, the watcher and the download badge can all be held back by one answer.
+    func isUnreadUntilOpened(_ path: String) -> Bool {
+        PinnedFolderReadRule.isUnreadUntilOpened(path: path, seeds: unopenedSeedPaths,
+                                                openedThisSession: openedThisSession,
+                                                builtin: Self.downloadsPath())
+    }
 
-    /// The user opened the folder: from here on it is read like any other. Returns whether it
-    /// was an unopened seed, so the caller knows to refresh its cover.
-    @discardableResult
-    func noteOpened(_ path: String) -> Bool {
-        guard isUnopenedSeed(path) else { return false }
-        setUnopenedSeeds(unopenedSeedPaths.subtracting([Self.normalized(path)]))
-        return true
+    /// The user opened the folder: from here on it is read like any other, for the rest of this
+    /// launch and every one after it.
+    func noteOpened(_ path: String) {
+        let normalized = Self.normalized(path)
+        openedThisSession.insert(normalized)
+        guard unopenedSeedPaths.contains(normalized) else { return }
+        setUnopenedSeeds(unopenedSeedPaths.subtracting([normalized]))
     }
 
     private func setUnopenedSeeds(_ paths: Set<String>) {
