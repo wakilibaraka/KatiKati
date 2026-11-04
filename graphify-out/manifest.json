@@ -492,9 +492,9 @@
     "semantic_hash": "20e32e60027b363670a56a0fe9dd15f9"
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1793834611.4171693,
-    "seen": 1793834900.332139,
-    "ast_hash": "5d9fe46c53297acc7420a30b21309176",
+    "mtime": 1793836037.0676818,
+    "seen": 1793836297.699958,
+    "ast_hash": "f9e5205b8266cffec21bf0597125421c",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1146,9 +1146,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
-    "mtime": 1793835661.653377,
-    "seen": 1793835846.92147,
-    "ast_hash": "d1f3aebaa2eda835e300084d381198ee",
+    "mtime": 1793836037.0667577,
+    "seen": 1793836297.700225,
+    "ast_hash": "6f0dceeefcf741c1da4e616085228c55",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
@@ -2256,9 +2256,9 @@
     "semantic_hash": "d4d008e338b3db38a676a2ce6d7955c3"
   },
   "Core/Support/Shortcuts.swift": {
-    "mtime": 1793834901.4129765,
-    "seen": 1793835598.11379,
-    "ast_hash": "9e98f1c30a0b058a611b05734df73dfc",
+    "mtime": 1793836037.0665195,
+    "seen": 1793836297.700644,
+    "ast_hash": "d3757a1aa700e4e870b3c071137ba5a4",
     "semantic_hash": ""
   },
   "Core/Support/SkyPalette.swift": {
@@ -4056,9 +4056,9 @@
     "semantic_hash": "f1eff661f2afe9a33a028a91fac58b0b"
   },
   "Tests/Unit/ShortcutsTests.swift": {
-    "mtime": 1793834901.414526,
-    "seen": 1793835598.114469,
-    "ast_hash": "7612f5ffc6123e23fd806eefce1296ed",
+    "mtime": 1793836037.07287,
+    "seen": 1793836297.7013,
+    "ast_hash": "39b7626360b5575b8b1740cbe2fdecb9",
     "semantic_hash": ""
   },
   "Tests/Unit/SkyPaletteTests.swift": {
@@ -7095,6 +7095,18 @@
     "mtime": 1793835075.9195082,
     "seen": 1793835598.1128561,
     "ast_hash": "26459c737c040f3eae682e7c427a9b6b",
+    "semantic_hash": ""
+  },
+  "App/Composition/PeekController.swift": {
+    "mtime": 1793836037.066977,
+    "seen": 1793836297.699894,
+    "ast_hash": "7e213a2e0a54d3204229804ab408bfec",
+    "semantic_hash": ""
+  },
+  "Core/Support/PeekHold.swift": {
+    "mtime": 1793836037.0668924,
+    "seen": 1793836297.700591,
+    "ast_hash": "2d06f4a3c05fe57429b7fc8a2ef1722d",
     "semantic_hash": ""
   }
 }
