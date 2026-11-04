@@ -20,6 +20,44 @@ import Foundation
 /// 2026-08-16 图标间距对齐原生 Dock（中心间距 52→42pt，`chipSpacing` 8→2）时，
 /// 分割线缝从 21pt 缩到 9pt，而阈值还是 12pt —— 那会让分割线那道缝也认不出来，
 /// 于是整条任务条右键完全失效。
+/// Which table a strip chip's frame belongs to. The reorder hit-tests, the popup anchors and the hover
+/// resolution each want a different slice of the same geometry, so the slice is recorded with the frame
+/// instead of being re-derived from the id (window ids are arbitrary strings).
+enum StripChipZone: String, CaseIterable {
+    case window, messaging, folder, section, shelf, trash, pop
+}
+
+/// **The** record of where every strip chip is. One chip, one frame, one place: a `StripEntry` that
+/// draws publishes one of these through `StripChipFramesPreferenceKey`, and every reader — the
+/// taskbar-menu zones, the resize grip, the landing anchors, the fluid lobes — reads it here rather
+/// than keeping a union of its own. A new chip kind either joins `StripChipZone` or is not a chip,
+/// which is what the hand-maintained `allStripChipFrames()` union could never say.
+struct StripChipFrames: Equatable {
+    private(set) var frames: [String: CGRect] = [:]
+    private(set) var zones: [StripChipZone: [String: CGRect]] = [:]
+
+    init() {}
+
+    init(id: String, zone: StripChipZone, frame: CGRect) {
+        frames = [id: frame]
+        zones = [zone: [id: frame]]
+    }
+
+    mutating func merge(_ next: StripChipFrames) {
+        for (zone, table) in next.zones {
+            zones[zone, default: [:]].merge(table) { _, new in new }
+        }
+        for (id, frame) in next.frames { frames[id] = frame }
+    }
+
+    func frames(in zone: StripChipZone) -> [String: CGRect] { zones[zone] ?? [:] }
+    func first(in zone: StripChipZone) -> CGRect? { frames(in: zone).values.first }
+    func frame(of id: String) -> CGRect? { frames[id] }
+
+    /// Every framed chip, in one list — the claim zone, the grip and the fluid lobes all want exactly this.
+    var all: [CGRect] { Array(frames.values) }
+}
+
 enum StripContextMenuZone {
     /// 中档基线。调用方传 `defaultMinimumGapWidth * scale`。
     /// 5pt：大于普通缝 2pt，小于分割线缝 13pt。

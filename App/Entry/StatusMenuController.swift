@@ -102,6 +102,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         self.connectedScreens = connectedScreens
         super.init()
         configureStatusItem()
+        HoverTrace.statusItem(site: "statusMenuController", length: statusItem.length, square: true,
+                              title: statusItem.button?.title ?? "", image: nil)
         configureMenu()
         refreshCheckmarks()
         refreshInstallUpdateItem(allowsLayoutChange: true)

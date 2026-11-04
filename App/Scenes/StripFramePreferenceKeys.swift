@@ -13,57 +13,15 @@ struct StripHoverFramePreferenceKey: PreferenceKey {
     }
 }
 
-/// 文件夹 chip 帧（弹窗锚点 + 外部拖入 pin 路由）。独立于 ChipFramePreferenceKey——后者是
-/// live 窗口区拖拽重排/落点命中的输入,文件夹 id 混进去会被当成落点目标（评审 P1）。
-struct FolderChipFramePreferenceKey: PreferenceKey {
-    static var defaultValue: [String: CGRect] = [:]
-    static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
-        value.merge(nextValue(), uniquingKeysWith: { _, new in new })
-    }
-}
-
-/// 消息区 chip 帧（bundleID → frame）。独立于 ChipFramePreferenceKey——理由同文件夹 chip：
-/// 混进 live 重排/落点命中的输入会让窗口拖动命中消息区、落点 no-op。
-struct MessagingChipFramePreferenceKey: PreferenceKey {
-    static var defaultValue: [String: CGRect] = [:]
-    static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
-        value.merge(nextValue(), uniquingKeysWith: { _, new in new })
-    }
-}
-
-/// Widget-section placeholder frames (weather / now playing / clock / launcher / widgets). Kept out of
-/// every other table; only the taskbar right-click zones read them, so the strip menu never claims a point
-/// that belongs to a widget's own menu (Phase 10 live-check fix).
-struct SectionFramePreferenceKey: PreferenceKey {
-    static var defaultValue: [String: CGRect] = [:]
-    static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
-        value.merge(nextValue(), uniquingKeysWith: { _, new in new })
-    }
-}
-
-/// 中转格 frame（单值）。独立于 FolderChipFramePreferenceKey（评审：文件夹帧字典不混 sentinel）。
-struct ShelfFramePreferenceKey: PreferenceKey {
-    static var defaultValue: CGRect = .zero
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
-        let next = nextValue()
-        if next != .zero { value = next }
-    }
-}
-
-/// The drawer pop chip's frame (single value), kept apart from the folder table like the shelf's.
-struct PopFramePreferenceKey: PreferenceKey {
-    static var defaultValue: CGRect = .zero
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
-        let next = nextValue()
-        if next != .zero { value = next }
-    }
-}
-
-struct TrashFramePreferenceKey: PreferenceKey {
-    static var defaultValue: CGRect = .zero
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
-        let next = nextValue()
-        if next != .zero { value = next }
+/// **The one frame registry.** Every strip chip that draws a frame publishes it here with the zone it
+/// belongs to, and the per-zone tables the reorder and popup code reads are derived from this value.
+/// It replaces seven separate keys (window / kept-app / messaging / folder / section / shelf / trash /
+/// pop) whose union in `allStripChipFrames()` had to be hand-extended for every new chip kind — the
+/// omission that made the drawer-pop chip hit-test-dead for a whole session.
+struct StripChipFramesPreferenceKey: PreferenceKey {
+    static var defaultValue = StripChipFrames()
+    static func reduce(value: inout StripChipFrames, nextValue: () -> StripChipFrames) {
+        value.merge(nextValue())
     }
 }
 
@@ -84,20 +42,21 @@ struct TrashFramePreferenceKey: PreferenceKey {
 /// as `DockStripView.hoveredAnchor` only when the hovered card's screen frame actually moves.
 @MainActor
 final class StripFrameBox {
-    /// Live chip frames by id in the `"strip"` space — the drag-reorder hit-test and landing input.
-    var chipFrames: [String: CGRect] = [:]
+    /// Every chip's frame, by zone — written once from `StripChipFramesPreferenceKey`.
+    var chipRegistry = StripChipFrames()
     /// Hover hit frames for every zone's cards (`StripEntry.id` → frame): "who is under the pointer".
     var stripHoverFrames: [String: CGRect] = [:]
-    /// Pinned-folder chip frames — popup anchors, external pin routing, in-zone reorder. Never merged
-    /// into `chipFrames` (a folder id there becomes a landing target).
-    var folderChipFrames: [String: CGRect] = [:]
+    /// Live window / kept-app chip frames — the drag-reorder hit-test and landing input.
+    var chipFrames: [String: CGRect] { chipRegistry.frames(in: .window) }
+    /// Pinned-folder chip frames — popup anchors, external pin routing, in-zone reorder.
+    var folderChipFrames: [String: CGRect] { chipRegistry.frames(in: .folder) }
     /// Messaging chip frames by bundle id — in-zone reorder and the drawer→messaging release range.
-    var messagingChipFrames: [String: CGRect] = [:]
+    var messagingChipFrames: [String: CGRect] { chipRegistry.frames(in: .messaging) }
     /// Widget-section placeholder frames — excluded from the taskbar-menu claim zone.
-    var sectionFrames: [String: CGRect] = [:]
-    var shelfFrame: CGRect = .zero
-    var trashFrame: CGRect = .zero
-    var popFrame: CGRect = .zero
+    var sectionFrames: [String: CGRect] { chipRegistry.frames(in: .section) }
+    var shelfFrame: CGRect { chipRegistry.first(in: .shelf) ?? .zero }
+    var trashFrame: CGRect { chipRegistry.first(in: .trash) ?? .zero }
+    var popFrame: CGRect { chipRegistry.first(in: .pop) ?? .zero }
     /// The content area's frame in screen coordinates (bottom-left); `.zero` until first reported.
     var stripRootScreenRect: CGRect = .zero
     /// The `stripSlotCollapsed` value the last committed body rendered. Written from
@@ -109,12 +68,3 @@ final class StripFrameBox {
 
 // MARK: - Drag-reorder preference (任务条拖动重排 路线 A 自绘拖动)
 
-/// Collects live chip frames by id in the `"strip"` space — feeds the floating drag copy's
-/// position and the left/right-half landing decision (replaces the old width-only key + the
-/// SwiftUI DropDelegates, now that the drag is a self-rendered in-app gesture).
-struct ChipFramePreferenceKey: PreferenceKey {
-    static var defaultValue: [String: CGRect] = [:]
-    static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
-        value.merge(nextValue(), uniquingKeysWith: { _, new in new })
-    }
-}

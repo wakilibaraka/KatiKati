@@ -12,6 +12,10 @@ struct CalendarPanelView: View {
     let maxHeight: CGFloat
     let onHeight: (CGFloat) -> Void
 
+    /// The panel's host builds this view once and only orders it out, so `onAppear` is not the
+    /// moment of intent. Visibility is: the first open is what asks for the calendar.
+    @EnvironmentObject private var state: WidgetPanelState
+
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
     @AppStorage(CalendarClockStyle.storageKey) private var clockStyle: CalendarClockStyle = .flip
     @AppStorage(WidgetExtraPrefs.glassTilesKey) private var glassTiles = false
@@ -60,7 +64,20 @@ struct CalendarPanelView: View {
             onHeight(min($0, maxHeight))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .onAppear { calendarService.start(); calendarService.refreshAll() }
+        // Opening the panel is the calendar intent, so it is the entry point for the events grant —
+        // one grant, one prompt. Reminders are a second grant with a second prompt, so they belong to
+        // the reminders tile's own action (`RemindersTile`); asking both here gave the user two
+        // stacked prompts for one click, which the live pass measured before this split. Keyed to
+        // visibility because the host creates this view before it is ever shown, and a request made
+        // then is a prompt for a panel nobody opened.
+        .onChange(of: state.isVisible) { _, visible in
+            guard visible else { return }
+            calendarService.start(); calendarService.refreshAll()
+        }
+        .onAppear {
+            guard state.isVisible else { return }
+            calendarService.start(); calendarService.refreshAll()
+        }
     }
 
     // MARK: Layouts
@@ -619,7 +636,13 @@ struct RemindersTile: View {
         BandTile(env: env, kind: .reminders, width: width, height: height, header: {
             HStack { Text("Reminders"); Spacer(); Text(verbatim: "\(service.reminders.count)").opacity(0.8) }
         }, content: {
-            if service.remindersAccess == .denied {
+            if service.remindersAccess == .unknown {
+                // The tile's own `onAppear` would be a prompt while the panel is merely open: the
+                // click on this line is the reminders intent (same rule as the clock card's row).
+                Button("Show reminders") { service.startReminders() }.font(.system(size: 11))
+                    .buttonStyle(.plain).foregroundColor(env.accent(.reminders))
+                    .padding(.top, 4)
+            } else if service.remindersAccess == .denied {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Reminders access is off").font(.system(size: 11)).foregroundColor(env.secondary)
                     Button("Open Settings") { AgendaPane.openPrivacy("Privacy_Reminders") }.font(.system(size: 11))

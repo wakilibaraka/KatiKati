@@ -60,6 +60,18 @@ All notable changes to KatiKati are documented in this file.
   column of that table now. Finder, the Dock and KatiKati itself are not offered that column; the row says why.
 
 ### Fixed
+- **A pop's plate takes the theme's tint.** Choosing a theme re-tinted the drawer chip but left the pop's own
+  plate exactly as it was, so two presets looked identical on the surface the setting is named after. The plate now
+  takes the same tint the dock plate takes, through the same helper, arrows included.
+- **The calendar prompt waits for the calendar.** It was raised on launch, because the clock card on the bar asked
+  for access the moment it appeared — a system prompt with no user action behind it, in the first seconds of a
+  session. Opening the calendar panel (or the notch's calendar page) is what asks now: one prompt, for events. The
+  card carries an **Allow calendar access** row while the answer is still unknown, prompting reminders waits for the
+  panel's own reminders tile, and a denied calendar shows its explanation instead of an empty agenda.
+- **A chip cannot be click-dead any more.** Every chip published its frame into its own table and the hit-test read
+  a hand-written union of those tables, so a chip that was never added to the union still hovered and still showed
+  its tooltip while every click fell through. One registry now carries every chip's frame and zone, and the menu
+  zones, the resize grip, the landing anchors and the fluid lobes all read it, so a new chip kind cannot be left out.
 - **The dock no longer comes back over fullscreen apps.** The layering engine re-applied the dock's level every 0.35 s
   and, in the default mode, ordered the dock to the front each time, which put back a dock that had just been hidden for
   fullscreen, a Space switch or auto-hide. It also set every surface opaque and clickable on each tick, cutting the

@@ -40,6 +40,8 @@ final class DriveMenuBarItem: NSObject, NSMenuDelegate {
 
     private func makeItem() -> NSStatusItem {
         let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        HoverTrace.statusItem(site: "driveMenuBarItem", length: statusItem.length, square: false,
+                              title: statusItem.button?.title ?? "", image: "internaldrive")
         statusItem.button?.font = .monospacedDigitSystemFont(ofSize: 11, weight: .medium)
         statusItem.button?.image = NSImage(systemSymbolName: "internaldrive", accessibilityDescription: nil)
         statusItem.button?.imagePosition = .imageLeading

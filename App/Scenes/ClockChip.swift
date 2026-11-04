@@ -331,10 +331,10 @@ private struct StackedClockCardView: View {
             isHovered = hovering
         }
         .contentShape(Rectangle())
-        // This card shows the next event, so it starts the shared calendar itself: until now only the
-        // notch's calendar page called `start()`, which left a fresh launch showing "No Events" for a
-        // calendar nothing had read. Events only (no reminders prompt) and event-driven — no timer added.
-        .onAppear { if calendarService.eventsAccess == .unknown { calendarService.startEvents() } }
+        // Nothing is requested here on purpose. This card sits on the bar at launch, so asking from
+        // `onAppear` turned the calendar permission into a prompt with no user action. The card offers an
+        // "Allow calendar access" row instead, and tapping through to the panel or the notch page asks
+        // from that click — a calendar-intent action, not a launch.
     }
 
     private var compactView: some View {
@@ -488,6 +488,24 @@ private struct StackedClockCardView: View {
                         .font(.system(size: 9, weight: .medium, design: .rounded))
                         .foregroundStyle(Color.white.opacity(0.75))
                         .lineLimit(1)
+                } else if calendarService.eventsAccess == .unknown {
+                    // Nothing has read the calendar yet, so this is the card's own calendar-intent action:
+                    // the only thing on the bar that raises the prompt, and only because it was clicked.
+                    Button {
+                        calendarService.startEvents()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "calendar.badge.plus")
+                                .font(.system(size: 9))
+                                .foregroundStyle(Color.white.opacity(0.60))
+                            Text("Allow calendar access")
+                                .font(.system(size: 9.5, weight: .semibold, design: .rounded))
+                                .foregroundStyle(Color.white.opacity(0.80))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.6)
+                        }
+                    }
+                    .buttonStyle(.plain)
                 } else if calendarService.eventsAccess == .denied {
                     // Never "No Events" for a calendar we are not allowed to read.
                     HStack(spacing: 4) {

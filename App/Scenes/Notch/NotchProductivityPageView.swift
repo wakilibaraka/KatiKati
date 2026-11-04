@@ -22,7 +22,9 @@ struct NotchProductivityPageView: View {
             calendarCard
         }
         .onAppear {
-            agenda.start()
+            // Events only: the notch's pages are built before the user opens one, so this `onAppear`
+            // fires at launch and must not become a Reminders prompt.
+            agenda.startEvents()
             if !Calendar.current.isDateInToday(agenda.selectedDate) { agenda.selectedDate = Date() }
         }
     }

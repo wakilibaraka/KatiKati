@@ -39,6 +39,8 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
         }
         for metric in wanted where items[metric] == nil {
             let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+            HoverTrace.statusItem(site: "menuBarMetric:\(metric.rawValue)", length: item.length, square: false,
+                                  title: item.button?.title ?? "", image: nil)
             item.button?.font = .monospacedDigitSystemFont(ofSize: 11, weight: .medium)
             let menu = NSMenu()
             menu.delegate = self

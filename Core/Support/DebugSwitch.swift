@@ -141,6 +141,10 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     case stackPopupMode = "DOCK_STACK_POPUP_MODE"
     /// `StackPopupSnapshotProbe`'s `pop` folder: theme token (`DockThemeStyle.token`) for that one capture.
     case stackPopupTheme = "DOCK_STACK_POPUP_THEME"
+    /// A file path: the strip writes its chip registry there (each chip's frame in the `"strip"` space
+    /// plus the strip root in CG screen coordinates) whenever the registry changes, so a live pass can
+    /// click a chip by name instead of rediscovering coordinates — `Scripts/live_check_chip.py` reads it.
+    case chipFramesOut = "DOCK_CHIP_FRAMES_OUT"
     /// Debug hot-swap for DockThemeStyle preset (e.g. "DOCK_THEME=obsidianDark").
     case dockTheme = "DOCK_THEME"
     /// 实验：面板饱和度
@@ -233,7 +237,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .liquidGlassBorderCut, .liquidGlassBorderSpread, .liquidGlassBorderWidth, .liquidGlassBorderInner,
              .liquidGlassBackgroundOpacity, .liquidGlassWindowBlur, .liquidGlassContentInset,
              .liquidGlassSystemVariant, .stackPopupSnapshot, .stackPopupMode, .stackPopupTheme,
-             .dockTheme, .wallpaperPhase, .dockIconFrame, .openSettings,
+             .chipFramesOut, .dockTheme, .wallpaperPhase, .dockIconFrame, .openSettings,
              .powerNotificationDemo:
             return .value
         }

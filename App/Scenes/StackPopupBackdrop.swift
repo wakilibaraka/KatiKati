@@ -15,16 +15,46 @@ struct StackPopupBackdrop: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dockThemeStyle) private var dockThemeStyle
+    @Environment(\.themeTuning) private var themeTuning
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
+
+    /// The preset's plate tint, through the same `DockThemeStyle.plateOverlay` pass every other plate
+    /// takes. Before this the pop only read `DockThemeTokens`, which carries text, separator and fill
+    /// colours but no plate tint — so the pop's theme menu re-tinted the drawer chip and left the plate
+    /// itself identical, which is what the live pass saw as "two presets, no difference".
+    private var plateOverlay: AnyShapeStyle? {
+        guard let top = dockThemeStyle.plateOverlay(
+            baseTint: theme.styleTokens.baseTint,
+            vibrancy: themeTuning.vibrancy,
+            contrast: themeTuning.contrast,
+            translucency: themeTuning.translucency) else { return nil }
+        return DockGlassBackdrop.overlayPaint(
+            top: top,
+            bottom: dockThemeStyle.plateOverlayBottom(
+                baseTintBottom: theme.styleTokens.baseTintBottom,
+                vibrancy: themeTuning.vibrancy,
+                contrast: themeTuning.contrast,
+                translucency: themeTuning.translucency))
+    }
+
+    /// The tint itself, laid on the pop's own outline (plate + arrow) over whichever material drew it.
+    @ViewBuilder
+    private var plateFill: some View {
+        if let paint = plateOverlay {
+            StackPopupShape(plateSize: plateSize, arrowCenterX: arrowCenterX).fill(paint)
+        }
+    }
 
     var body: some View {
         Group {
             if #available(macOS 26.0, *), usesLiquidGlass {
                 StackGlassPlate(plateSize: plateSize, arrowCenterX: arrowCenterX)
+                    .overlay { plateFill }
             } else {
                 let shape = StackPopupShape(plateSize: plateSize, arrowCenterX: arrowCenterX)
                 StackFrostedPlate()
                     .clipShape(shape)
+                    .overlay { plateFill }
                     .overlay(shape.stroke(theme.stackPopupHairline.color, lineWidth: 0.5))
                     .dockShadow(theme.stackPopupShadow)
             }

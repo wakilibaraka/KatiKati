@@ -506,43 +506,22 @@ struct DockStripView: View {
         .onAppear { reconcileLiveOrder(projection) }
         // 卡帧变了就重报落点锚点。**光靠 `globalLocation` 驱动不够**：松手之后指针不再有事件，
         // 而让位弹簧还在跑，卡槽要再过一两百毫秒才停。归位飞行的中途纠偏就靠这条。
-        .onPreferenceChange(ChipFramePreferenceKey.self) { frames in
-            HoverTrace.stripInput("chipFrames", surface: stripSurfaceID, changed: frames != self.frames.chipFrames)
-            self.frames.chipFrames = frames
-            updateLandingAnchor()
+        // One registry, one write. Every chip publishes its frame and its zone through
+        // `StripChipFramesPreferenceKey`; the per-zone tables on `frames` are derived from it, so a new
+        // chip kind cannot be forgotten the way the drawer-pop chip was.
+        .onPreferenceChange(StripChipFramesPreferenceKey.self) { registry in
+            HoverTrace.stripInput("chipFrames", surface: stripSurfaceID, changed: registry != frames.chipRegistry)
+            let moved = registry.all != frames.chipRegistry.all
+            frames.chipRegistry = registry
+            popChipFrameSink?.stripFrame = frames.popFrame
+            if moved { updateLandingAnchor() }
+            dumpChipFramesIfRequested()
         }
         // 条重排 / 换档时指针没动，但它脚下的卡换人了——同一处重判。
         .onPreferenceChange(StripHoverFramePreferenceKey.self) { frames in
             HoverTrace.stripInput("hoverFrames", surface: stripSurfaceID, changed: frames != self.frames.stripHoverFrames)
             self.frames.stripHoverFrames = frames
             refreshHoveredEntry(frames: frames, origin: stripRootScreenRect)
-        }
-        // 这两处的帧同样是落点锚点的输入源（`.folder` / `.messaging` 载荷各取一份），
-        // 变了就得回报——理由同上面的 `ChipFramePreferenceKey`。
-        .onPreferenceChange(FolderChipFramePreferenceKey.self) { frames in
-            HoverTrace.stripInput("folderFrames", surface: stripSurfaceID, changed: frames != self.frames.folderChipFrames)
-            self.frames.folderChipFrames = frames
-            updateLandingAnchor()
-        }
-        .onPreferenceChange(SectionFramePreferenceKey.self) { frames in
-            self.frames.sectionFrames = frames
-        }
-        .onPreferenceChange(MessagingChipFramePreferenceKey.self) { frames in
-            HoverTrace.stripInput("messagingFrames", surface: stripSurfaceID, changed: frames != self.frames.messagingChipFrames)
-            self.frames.messagingChipFrames = frames
-            updateLandingAnchor()
-        }
-        .onPreferenceChange(ShelfFramePreferenceKey.self) {
-            HoverTrace.stripInput("shelfFrame", surface: stripSurfaceID, changed: $0 != frames.shelfFrame)
-            frames.shelfFrame = $0
-        }
-        .onPreferenceChange(TrashFramePreferenceKey.self) {
-            HoverTrace.stripInput("trashFrame", surface: stripSurfaceID, changed: $0 != frames.trashFrame)
-            frames.trashFrame = $0
-        }
-        .onPreferenceChange(PopFramePreferenceKey.self) {
-            frames.popFrame = $0
-            popChipFrameSink?.stripFrame = $0
         }
         .onChange(of: pinnedFolderStore.folderPaths) { currentPaths in
             let validIDs = Set(["shelf", "pop", "trash"] + currentPaths.map { "folder-\($0)" })
@@ -1117,8 +1096,9 @@ struct DockStripView: View {
                 // position and the left/right-half landing decision.
                 .background(
                     GeometryReader { geo in
-                        Color.clear.preference(key: ChipFramePreferenceKey.self,
-                                               value: [item.id: geo.frame(in: .named("strip"))])
+                        Color.clear.preference(key: StripChipFramesPreferenceKey.self,
+                                               value: StripChipFrames(id: item.id, zone: .window,
+                                                                      frame: geo.frame(in: .named("strip"))))
                     }
                 )
                 // simultaneousGesture so the chip's own onTapGesture / contextMenu stay intact.
@@ -1170,8 +1150,9 @@ struct DockStripView: View {
                 .opacity(draggingMessagingBundleID == bid ? 0 : 1)
                 .background(
                     GeometryReader { geo in
-                        Color.clear.preference(key: MessagingChipFramePreferenceKey.self,
-                                               value: [bid: geo.frame(in: .named("strip"))])
+                        Color.clear.preference(key: StripChipFramesPreferenceKey.self,
+                                               value: StripChipFrames(id: bid, zone: .messaging,
+                                                                      frame: geo.frame(in: .named("strip"))))
                     }
                 )
                 // **按下即预备**（`DragController.prepareCandidate`）：mouse-down 那一刻就把这张卡的位图
@@ -1212,8 +1193,9 @@ struct DockStripView: View {
                 .opacity(projection.draggingID == chipID ? 0 : 1)
                 .background(
                     GeometryReader { geo in
-                        Color.clear.preference(key: ChipFramePreferenceKey.self,
-                                               value: [chipID: geo.frame(in: .named("strip"))])
+                        Color.clear.preference(key: StripChipFramesPreferenceKey.self,
+                                               value: StripChipFrames(id: chipID, zone: .window,
+                                                                      frame: geo.frame(in: .named("strip"))))
                     }
                 )
                 // **按下即预备**（`DragController.prepareCandidate`）：mouse-down 那一刻就把这张卡的位图
@@ -1259,8 +1241,9 @@ struct DockStripView: View {
                 .opacity(draggingFolderPath == path ? 0 : 1)
                 .background(
                     GeometryReader { geo in
-                        Color.clear.preference(key: FolderChipFramePreferenceKey.self,
-                                               value: [entry.id: geo.frame(in: .named("strip"))])
+                        Color.clear.preference(key: StripChipFramesPreferenceKey.self,
+                                               value: StripChipFrames(id: entry.id, zone: .folder,
+                                                                      frame: geo.frame(in: .named("strip"))))
                     }
                 )
                 // **按下即预备**（`DragController.prepareCandidate`）：mouse-down 那一刻就把这张卡的位图
@@ -1302,23 +1285,26 @@ struct DockStripView: View {
             stripEntryView(entry, projection: projection)
                 .background(
                     GeometryReader { geo in
-                        Color.clear.preference(key: ShelfFramePreferenceKey.self,
-                                               value: geo.frame(in: .named("strip")))
+                        Color.clear.preference(key: StripChipFramesPreferenceKey.self,
+                                               value: StripChipFrames(id: "shelf", zone: .shelf,
+                                                                      frame: geo.frame(in: .named("strip"))))
                     }
                 )
         case .trash:
             stripEntryView(entry, projection: projection)
                 .background(GeometryReader { geo in
-                    Color.clear.preference(key: TrashFramePreferenceKey.self,
-                                           value: geo.frame(in: .named("strip")))
+                    Color.clear.preference(key: StripChipFramesPreferenceKey.self,
+                                           value: StripChipFrames(id: "trash", zone: .trash,
+                                                                  frame: geo.frame(in: .named("strip"))))
                 })
         case .pop:
             // Fixed place, not draggable; its frame is the popup anchor, the drop route and the stash
             // zone (`PopFramePreferenceKey`).
             stripEntryView(entry, projection: projection)
                 .background(GeometryReader { geo in
-                    Color.clear.preference(key: PopFramePreferenceKey.self,
-                                           value: geo.frame(in: .named("strip")))
+                    Color.clear.preference(key: StripChipFramesPreferenceKey.self,
+                                           value: StripChipFrames(id: "pop", zone: .pop,
+                                                                  frame: geo.frame(in: .named("strip"))))
                 })
         case .divider, .sectionPlaceholder:
             stripEntryView(entry, projection: projection)
@@ -1483,8 +1469,9 @@ struct DockStripView: View {
             }
             .background(
                 GeometryReader { geo in
-                    Color.clear.preference(key: SectionFramePreferenceKey.self,
-                                           value: [section.rawValue: geo.frame(in: .named("strip"))])
+                    Color.clear.preference(key: StripChipFramesPreferenceKey.self,
+                                           value: StripChipFrames(id: section.rawValue, zone: .section,
+                                                                  frame: geo.frame(in: .named("strip"))))
                 }
             )
         case let .divider(id) where fullWidthContentWidth != nil && fullWidthFlexibleDividerIDs.contains(id):
@@ -1920,20 +1907,18 @@ extension DockStripView {
     /// space. The same frames the hover and drop hit-tests use, so the lobes and the chips can
     /// never disagree.
     var fluidItemCentres: [CGFloat] {
-        var rects = Array(chipFrames.values)
-        rects.append(contentsOf: folderChipFrames.values)
-        rects.append(contentsOf: messagingChipFrames.values)
-        rects.append(contentsOf: frames.sectionFrames.values)
-        if shelfFrame != .zero { rects.append(shelfFrame) }
-        if settingsStore.showTrash, trashFrame != .zero { rects.append(trashFrame) }
-        return rects.map { isRail ? $0.midY : $0.midX }.sorted()
+        // The registry is the union. This used to be a second hand-built list that forgot the pop chip,
+        // so the pop's lobe never crested; there is no second list any more.
+        let hiddenTrash = settingsStore.showTrash ? CGRect.zero : frames.trashFrame
+        return frames.chipRegistry.all
+            .filter { hiddenTrash == .zero || $0 != hiddenTrash }
+            .map { isRail ? $0.midY : $0.midX }
+            .sorted()
     }
 
     /// The chip under the pointer, along the same axis; the lobe that crests.
     var fluidHoverCentre: CGFloat? {
-        guard let id = hoveredEntryID,
-              let frame = chipFrames[id] ?? folderChipFrames[id] ?? messagingChipFrames[id]
-                            ?? frames.sectionFrames[id] else { return nil }
+        guard let id = hoveredEntryID, let frame = frames.chipRegistry.frame(of: id) else { return nil }
         return isRail ? frame.midY : frame.midX
     }
 }

@@ -196,4 +196,48 @@ final class StripContextMenuZoneTests: XCTestCase {
             XCTAssertLessThanOrEqual(bandHalfWidth + 4.5, iconArtworkEdge, "glyph overlaps icons at scale=\(scale)")
         }
     }
+
+    // MARK: - One chip-frame registry (livecheck slice 0)
+
+    /// Every chip kind records its frame once, in its own zone, and the middle of every recorded frame
+    /// is never claimed by the strip menu or the resize grip. Before the registry, a chip had to be
+    /// added by hand to `allStripChipFrames()`'s union — the drawer-pop chip was missing from it and was
+    /// hit-test-dead for a whole session while still hovering and still showing its tooltip.
+    func testEveryFramedEntryIsRecordedOnceAndNeverClaimed() {
+        var registry = StripChipFrames()
+        for (index, zone) in StripChipZone.allCases.enumerated() {
+            let frame = CGRect(x: 20 + CGFloat(index) * 50, y: 0, width: 40, height: 54)
+            registry.merge(StripChipFrames(id: "\(zone.rawValue)-entry", zone: zone, frame: frame))
+        }
+        XCTAssertEqual(registry.frames.count, StripChipZone.allCases.count,
+                       "each chip kind records exactly one frame")
+        for zone in StripChipZone.allCases {
+            XCTAssertEqual(registry.frames(in: zone).count, 1, "\(zone) keeps its own table")
+        }
+        let frames = registry.all
+        for frame in frames {
+            let middle = CGPoint(x: frame.midX, y: frame.midY)
+            XCTAssertFalse(
+                StripContextMenuZone.claims(point: middle, chipFrames: frames,
+                                            bounds: bounds, minimumGapWidth: gap),
+                "the middle of \(frame) must not be claimed by the strip menu"
+            )
+            XCTAssertFalse(
+                StripContextMenuZone.gripClaims(point: middle, chipFrames: frames,
+                                                bounds: bounds, minimumGapWidth: gap,
+                                                chipClearance: StripContextMenuZone.defaultGripChipClearance),
+                "the middle of \(frame) must not be claimed by the grip"
+            )
+        }
+    }
+
+    /// The pop chip is the one the second hand-union forgot; the registry has no second list to forget it from.
+    func testPopFrameIsPartOfTheSingleUnion() {
+        let pop = CGRect(x: 120, y: 0, width: 40, height: 54)
+        let registry = StripChipFrames(id: "pop", zone: .pop, frame: pop)
+        XCTAssertEqual(registry.all, [pop])
+        XCTAssertEqual(registry.frame(of: "pop"), pop)
+        XCTAssertEqual(registry.first(in: .pop), pop)
+        XCTAssertEqual(registry.frames(in: .window), [:], "the pop is not a window chip")
+    }
 }

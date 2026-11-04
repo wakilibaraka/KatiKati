@@ -58,10 +58,15 @@ final class CalendarService: ObservableObject {
 
     deinit { if let observer { NotificationCenter.default.removeObserver(observer) } }
 
+    /// What a surface asks for when the user asked for the calendar: events only. Reminders are a
+    /// second grant with a second prompt, so they get their own call — a surface that is built at
+    /// launch (the bar's clock card, the notch pages) must never raise either prompt from `onAppear`.
     func start() {
         requestEvents()
-        requestReminders()
     }
+
+    /// Reminders, asked for by the panel tile that shows them — the click is the intent.
+    func startReminders() { requestReminders() }
 
     /// Events only. The strip's clock chip shows the next event and has no surface for reminders, so it
     /// must not raise the Reminders prompt — the notch/panel entry point keeps `start()`.

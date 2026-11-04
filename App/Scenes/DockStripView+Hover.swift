@@ -175,14 +175,44 @@ extension DockStripView {
         return resizeGripZoneClaims(atScreen: global)
     }
 
+    /// Every chip the strip draws, from the one registry. This used to be a hand-maintained union of
+    /// seven tables, and the chip that was missing from it was hit-test-dead while still hovering and
+    /// still showing its tooltip; there is nothing to extend by hand now.
+    /// Writes the chip registry to `DOCK_CHIP_FRAMES_OUT` so a live pass can click a chip by name.
+    ///
+    /// The frames are in the `"strip"` space; the root rect is converted once to CG screen coordinates
+    /// (top-left origin, the system `CGEvent` takes) so the reader does no geometry of its own. Only when
+    /// the switch is set — an unset run does no file I/O at all.
+    func dumpChipFramesIfRequested() {
+        guard let path = DebugSwitch.chipFramesOut.value() else { return }
+        let root = frames.stripRootScreenRect
+        guard root != .zero else { return }
+        let screen = NSScreen.screens.first { $0.frame.contains(CGPoint(x: root.midX, y: root.midY)) }
+            ?? NSScreen.main
+        let screenHeight = screen?.frame.height ?? 0
+        var chips: [[String: Any]] = []
+        for zone in StripChipZone.allCases {
+            for (id, frame) in frames.chipRegistry.frames(in: zone) {
+                chips.append(["id": id, "zone": zone.rawValue,
+                              "x": frame.minX, "y": frame.minY,
+                              "w": frame.width, "h": frame.height])
+            }
+        }
+        let payload: [String: Any] = [
+            "rootLeft": root.minX,
+            "rootTop": screenHeight - (root.minY + root.height),
+            "rootWidth": root.width,
+            "rootHeight": root.height,
+            "screenHeight": screenHeight,
+            "chips": chips,
+        ]
+        guard let data = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted])
+        else { return }
+        try? data.write(to: URL(fileURLWithPath: path))
+    }
+
     private func allStripChipFrames() -> [CGRect] {
-        var frames = Array(chipFrames.values)
-        frames.append(contentsOf: folderChipFrames.values)
-        frames.append(contentsOf: messagingChipFrames.values)
-        frames.append(contentsOf: self.frames.sectionFrames.values)
-        if popFrame != .zero { frames.append(popFrame) }
-        if shelfFrame != .zero { frames.append(shelfFrame) }
-        if settingsStore.showTrash, trashFrame != .zero { frames.append(trashFrame) }
-        return frames
+        let hiddenTrash = settingsStore.showTrash ? CGRect.zero : frames.trashFrame
+        return frames.chipRegistry.all.filter { hiddenTrash == .zero || $0 != hiddenTrash }
     }
 }

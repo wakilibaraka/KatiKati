@@ -145,6 +145,21 @@ enum HoverTrace {
         Writer.shared.append("{\"t\":\(stamp()),\"kind\":\"framesSkipped\"}")
     }
 
+    /// One `NSStatusItem` this app put in the menu bar, at the moment it was created.
+    ///
+    /// Slice 5 of the livecheck plan exists because a screenshot cannot attribute a menu-bar pill: the
+    /// machine also runs Vorssaint, which draws its own clock and battery at the same positions. With
+    /// this line plus the item's window (owner pid, via `CGWindowList`) each pill has an owner; without
+    /// it "every pill belongs to exactly one process" is an assumption.
+    static func statusItem(site: String, length: CGFloat, square: Bool, title: String, image: String?) {
+        guard isEnabled else { return }
+        Writer.shared.append(
+            "{\"t\":\(stamp()),\"kind\":\"statusItem\",\"site\":\(quote(site))," +
+            "\"len\":\(round(length * 10) / 10),\"square\":\(square),\"title\":\(quote(title))," +
+            "\"image\":\(image.map(quote) ?? "null")}"
+        )
+    }
+
     /// 用户动作的时间窗标记。没有它，日志里一堆卡顿不知道该算在谁头上。
     static func action(_ kind: String, phase: String) {
         guard widthProbesEnabled else { return }
