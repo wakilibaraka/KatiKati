@@ -162,6 +162,7 @@
 		FA10A1000000000000000204 /* WindowLayoutMemoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000203 /* WindowLayoutMemoryTests.swift */; };
 		FA10A1000000000000000202 /* WindowLayoutMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000200 /* WindowLayoutMemory.swift */; };
 		FA10A1000000000000000201 /* WindowLayoutMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000200 /* WindowLayoutMemory.swift */; };
+		A0000000000000000001F0B1 /* CommandTabTakeover.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F0B0 /* CommandTabTakeover.swift */; };
 		FA10A1000000000000000191 /* WindowSwitcherController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000190 /* WindowSwitcherController.swift */; };
 		FA10A1000000000000000184 /* WindowSwitcherModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000183 /* WindowSwitcherModelTests.swift */; };
 		FA10A1000000000000000182 /* WindowSwitcherModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000180 /* WindowSwitcherModel.swift */; };
@@ -1373,6 +1374,7 @@
 		FA10A1000000000000000206 /* WindowLayoutRestoreController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowLayoutRestoreController.swift; path = App/Composition/WindowLayoutRestoreController.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000203 /* WindowLayoutMemoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowLayoutMemoryTests.swift; path = Tests/Unit/WindowLayoutMemoryTests.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000200 /* WindowLayoutMemory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowLayoutMemory.swift; path = Core/Support/WindowLayoutMemory.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000001F0B0 /* CommandTabTakeover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CommandTabTakeover.swift; path = App/Composition/CommandTabTakeover.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000190 /* WindowSwitcherController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSwitcherController.swift; path = App/Composition/WindowSwitcherController.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000183 /* WindowSwitcherModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSwitcherModelTests.swift; path = Tests/Unit/WindowSwitcherModelTests.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000180 /* WindowSwitcherModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSwitcherModel.swift; path = Core/Support/WindowSwitcherModel.swift; sourceTree = SOURCE_ROOT; };
@@ -3452,6 +3454,7 @@
 				FA10A1000000000000000162 /* ProcessMemoryReader.swift in Sources */,
 				FA10A1000000000000000214 /* MenuBarSystemItem.swift in Sources */,
 				FA10A1000000000000000207 /* WindowLayoutRestoreController.swift in Sources */,
+				A0000000000000000001F0B1 /* CommandTabTakeover.swift in Sources */,
 				FA10A1000000000000000191 /* WindowSwitcherController.swift in Sources */,
 				FA10A1000000000000000172 /* MemoryOverlayController.swift in Sources */,
 				7B50000000000000000000E2 /* LiveActivitySources.swift in Sources */,

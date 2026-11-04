@@ -33,6 +33,14 @@ enum WindowSwitcherModel {
         return (selection + (reverse ? count - 1 : 1)) % count
     }
 
+    /// Type-to-search: every whitespace-separated word of `query` must appear in the title or app name.
+    static func matches(query: String, title: String, appName: String) -> Bool {
+        let words = query.lowercased().split(whereSeparator: \.isWhitespace)
+        guard !words.isEmpty else { return true }
+        let haystack = (title + " " + appName).lowercased()
+        return words.allSatisfy { haystack.contains($0) }
+    }
+
     /// Grid column count for `count` tiles: one row up to `maxColumns`, then balanced rows.
     static func columns(count: Int, maxColumns: Int = 6) -> Int {
         guard count > 0 else { return 1 }

@@ -36,6 +36,12 @@ final class WindowSwitcherModelTests: XCTestCase {
         XCTAssertEqual(WindowSwitcherModel.step(selection: 0, count: 0, reverse: false), 0)
     }
 
+    func testSearchMatchesTitleAndAppWordsInAnyOrder() {
+        XCTAssertTrue(WindowSwitcherModel.matches(query: "", title: "x", appName: "y"))
+        XCTAssertTrue(WindowSwitcherModel.matches(query: "SAF doc", title: "Docs", appName: "Safari"))
+        XCTAssertFalse(WindowSwitcherModel.matches(query: "safari mail", title: "Docs", appName: "Safari"))
+    }
+
     func testColumnsBalanceRows() {
         XCTAssertEqual(WindowSwitcherModel.columns(count: 3), 3)
         XCTAssertEqual(WindowSwitcherModel.columns(count: 6), 6)

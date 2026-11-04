@@ -54,6 +54,7 @@ struct BehaviourSettingsBlock: View {
 /// Window Management page.
 struct WindowBehaviourSettingsBlock: View {
     @AppStorage(WindowSwitcherController.enabledKey) private var switcherEnabled = true
+    @AppStorage(CommandTabTakeover.enabledKey) private var commandTabEnabled = false
     @AppStorage(WindowLayoutRestoreController.enabledKey) private var layoutRestoreEnabled = true
 
     var body: some View {
@@ -65,7 +66,14 @@ struct WindowBehaviourSettingsBlock: View {
                 isOn: $switcherEnabled,
                 note: Text("Hold Option and press Tab to pick a window from a thumbnail grid; release to switch. Shift reverses, Esc cancels.")
             )
-        
+
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Use ⌘Tab for the Window Switcher"),
+                isOn: $commandTabEnabled,
+                note: Text("Replaces the system ⌘Tab with the same window grid. Type to search; ⌘W closes, ⌘M minimizes, ⌘Q quits the selected window's app. Needs Accessibility access; turn off to get the system switcher back.")
+            )
+
             SettingsDivider()
             SettingsToggleRow(
                 Text("Restore Window Layout After Sleep"),

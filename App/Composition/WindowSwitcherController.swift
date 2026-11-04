@@ -24,9 +24,14 @@ final class WindowSwitcherController: ObservableObject {
     @Published private(set) var tiles: [Tile] = []
     @Published private(set) var selection = 0
     @Published private(set) var thumbnails: [String: NSImage] = [:]
+    @Published private(set) var query = ""
 
     private let runtime: AppRuntime
     private var mru: [String] = []
+    private var allTiles: [Tile] = []
+    /// The modifier whose release commits: Option for ⌥Tab, Command for the opt-in ⌘Tab.
+    private var trigger: NSEvent.ModifierFlags = .option
+    private let commandTab = CommandTabTakeover()
     private var snapshotSink: AnyCancellable?
     private var defaultsObserver: NSObjectProtocol?
     private var forward: GlobalHotKeyMonitor?
@@ -46,6 +51,7 @@ final class WindowSwitcherController: ObservableObject {
             forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { [weak self] _ in
             Task { @MainActor in self?.applyEnabled() }
         }
+        commandTab.onPress = { [weak self] reverse in self?.pressed(reverse: reverse, trigger: .command) }
         applyEnabled()
     }
 
@@ -54,6 +60,7 @@ final class WindowSwitcherController: ObservableObject {
     }
 
     private func applyEnabled() {
+        commandTab.setEnabled(isEnabled && UserDefaults.standard.bool(forKey: CommandTabTakeover.enabledKey))
         if isEnabled {
             guard forward == nil else { return }
             forward = makeMonitor(id: 20, reverse: false)
@@ -98,11 +105,12 @@ final class WindowSwitcherController: ObservableObject {
 
     // MARK: - Showing
 
-    private func pressed(reverse: Bool) {
+    private func pressed(reverse: Bool, trigger: NSEvent.ModifierFlags = .option) {
         if panel != nil {
             selection = WindowSwitcherModel.step(selection: selection, count: tiles.count, reverse: reverse)
             return
         }
+        self.trigger = trigger
         open(reverse: reverse)
     }
 
@@ -112,13 +120,15 @@ final class WindowSwitcherController: ObservableObject {
         let byID = Dictionary(records.map { ($0.id.rawValue, $0) }, uniquingKeysWith: { a, _ in a })
         let ordered = WindowSwitcherModel.order(candidates: snapshot.orderedWindowIDs.map(\.rawValue).filter { byID[$0] != nil },
                                                 mru: mru)
-        tiles = ordered.compactMap { id in
+        allTiles = ordered.compactMap { id in
             guard let w = byID[id] else { return nil }
             let app = NSRunningApplication(processIdentifier: w.pid)
             return Tile(id: id, title: w.title, appName: app?.localizedName ?? w.bundleIdentifier ?? "",
                         bundleID: w.bundleIdentifier, cgWindowID: w.cgWindowID, isMinimized: w.status == .minimized)
         }
-        guard tiles.count > 1 else { tiles = []; return }
+        guard allTiles.count > 1 else { allTiles = []; return }
+        query = ""
+        tiles = allTiles
         selection = WindowSwitcherModel.initialSelection(count: tiles.count, reverse: reverse)
         thumbnails = [:]
         showPanel()
@@ -131,10 +141,13 @@ final class WindowSwitcherController: ObservableObject {
             self?.selection = i; self?.commit()
         }))
         let size = host.fittingSize
-        let area = (NSScreen.main ?? NSScreen.screens.first)?.visibleFrame ?? .zero
+        // The display under the cursor, not the one holding the menu bar.
+        let mouse = NSEvent.mouseLocation
+        let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main ?? NSScreen.screens.first
+        let area = screen?.visibleFrame ?? .zero
         let panel = SwitcherPanel(frame: NSRect(x: area.midX - size.width / 2, y: area.midY - size.height / 2,
                                                 width: size.width, height: size.height))
-        panel.onKey = { [weak self] code in self?.handleKey(code) }
+        panel.onKey = { [weak self] event in self?.handleKey(event) ?? false }
         panel.contentView = host
         panel.orderFrontRegardless()
         panel.makeKey()
@@ -158,7 +171,7 @@ final class WindowSwitcherController: ObservableObject {
         let timer = Timer(timeInterval: 0.05, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self, self.panel != nil else { return }
-                if !NSEvent.modifierFlags.contains(.option) { self.commit() }
+                if !NSEvent.modifierFlags.contains(self.trigger) { self.commit() }
             }
         }
         timer.tolerance = 0.02
@@ -166,14 +179,59 @@ final class WindowSwitcherController: ObservableObject {
         modifierTimer = timer
     }
 
-    private func handleKey(_ code: UInt16) {
-        switch Int(code) {
+    /// Returns true when the key was used.
+    private func handleKey(_ event: NSEvent) -> Bool {
+        let code = Int(event.keyCode)
+        if event.modifierFlags.contains(.command) {
+            switch code {
+            case kVK_ANSI_W: act(.close)
+            case kVK_ANSI_M: act(.minimize)
+            case kVK_ANSI_Q: act(.quit)
+            default: return false
+            }
+            return true
+        }
+        switch code {
         case kVK_Escape: cancel()
         case kVK_RightArrow: selection = WindowSwitcherModel.step(selection: selection, count: tiles.count, reverse: false)
         case kVK_LeftArrow: selection = WindowSwitcherModel.step(selection: selection, count: tiles.count, reverse: true)
         case kVK_Return: commit()
-        default: break
+        case kVK_Delete:
+            guard !query.isEmpty else { return true }
+            query.removeLast(); applyQuery()
+        default:
+            guard let text = event.charactersIgnoringModifiers, text.count == 1,
+                  let scalar = text.unicodeScalars.first, scalar.value >= 32, scalar.value != 127 else { return false }
+            query += text; applyQuery()
         }
+        return true
+    }
+
+    private func applyQuery() {
+        tiles = allTiles.filter { WindowSwitcherModel.matches(query: query, title: $0.title, appName: $0.appName) }
+        selection = 0
+        resizePanel()
+    }
+
+    private func resizePanel() {
+        guard let panel, let host = panel.contentView as? NSHostingView<WindowSwitcherView> else { return }
+        let size = host.fittingSize
+        let c = CGPoint(x: panel.frame.midX, y: panel.frame.midY)
+        panel.setFrame(NSRect(x: c.x - size.width / 2, y: c.y - size.height / 2, width: size.width, height: size.height),
+                       display: true)
+    }
+
+    enum Action { case close, minimize, quit }
+
+    func act(_ action: Action, on id: String? = nil) {
+        guard let id = id ?? (tiles.indices.contains(selection) ? tiles[selection].id : nil) else { return }
+        switch action {
+        case .close: runtime.close(windowID: id)
+        case .minimize: runtime.minimize(windowID: id)
+        case .quit: runtime.quit(windowID: id)
+        }
+        allTiles.removeAll { $0.id == id }
+        if allTiles.isEmpty { cancel() } else { applyQuery() }
     }
 
     private func commit() {
@@ -187,13 +245,13 @@ final class WindowSwitcherController: ObservableObject {
     private func close() {
         modifierTimer?.invalidate(); modifierTimer = nil
         panel?.orderOut(nil); panel = nil
-        tiles = []; thumbnails = [:]
+        tiles = []; allTiles = []; query = ""; thumbnails = [:]
     }
 }
 
 /// Borderless floating panel that can take key presses (Esc, arrows) without activating KatiKati.
 private final class SwitcherPanel: NSPanel {
-    var onKey: ((UInt16) -> Void)?
+    var onKey: ((NSEvent) -> Bool)?
 
     init(frame: NSRect) {
         super.init(contentRect: frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
@@ -206,7 +264,9 @@ private final class SwitcherPanel: NSPanel {
     }
 
     override var canBecomeKey: Bool { true }
-    override func keyDown(with event: NSEvent) { onKey?(event.keyCode) }
+    override func keyDown(with event: NSEvent) { _ = onKey?(event) }
+    // ⌘W / ⌘M / ⌘Q arrive as key equivalents; claim them so they never reach the app's menu.
+    override func performKeyEquivalent(with event: NSEvent) -> Bool { onKey?(event) ?? false }
 }
 
 private struct WindowSwitcherView: View {
@@ -218,6 +278,9 @@ private struct WindowSwitcherView: View {
         let indexed = Array(controller.tiles.enumerated())
         let rows = stride(from: 0, to: indexed.count, by: columns).map { Array(indexed[$0..<min($0 + columns, indexed.count)]) }
         VStack(spacing: 10) {
+            Text(verbatim: controller.query.isEmpty ? "Type to search · ⌘W close · ⌘M minimize · ⌘Q quit" : "🔍 \(controller.query)")
+                .font(.system(size: 11)).foregroundStyle(.secondary)
+            if controller.tiles.isEmpty { Text("No matching windows").foregroundStyle(.secondary).padding(30) }
             ForEach(rows.indices, id: \.self) { r in
                 HStack(spacing: 10) {
                     ForEach(rows[r], id: \.element.id) { index, tile in
@@ -246,6 +309,16 @@ private struct WindowSwitcherView: View {
                 }
             }
             .frame(height: 104)
+            .overlay(alignment: .topTrailing) {
+                if selected {
+                    Button { controller.act(.close, on: tile.id) } label: {
+                        Image(systemName: "xmark.circle.fill").font(.system(size: 16))
+                            .symbolRenderingMode(.hierarchical)
+                    }
+                    .buttonStyle(.plain).padding(4)
+                    .help("Close window")
+                }
+            }
             HStack(spacing: 5) {
                 if let id = tile.bundleID {
                     Image(nsImage: AppIconResolver.icon(for: id)).resizable().frame(width: 16, height: 16)
