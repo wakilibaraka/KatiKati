@@ -498,10 +498,10 @@
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
-    "mtime": 1792082529.820154,
-    "seen": 1792295707.060422,
-    "ast_hash": "115710aef0aa09ff85c8446450620824",
-    "semantic_hash": "115710aef0aa09ff85c8446450620824"
+    "mtime": 1793835899.2897468,
+    "seen": 1793835900.4237702,
+    "ast_hash": "a460458774f7a9eb34ee6caab792cfa5",
+    "semantic_hash": ""
   },
   "App/Entry/CommandBarPanelController.swift": {
     "mtime": 1793366954.0949068,
@@ -1596,10 +1596,10 @@
     "semantic_hash": "21ab3311cc397423422f9bfc66b31797"
   },
   "Core/Support/ChipPanelHoverMachine.swift": {
-    "mtime": 1791999130.7502267,
-    "seen": 1792295707.060533,
-    "ast_hash": "e5d8ac17caeebfe93507e3cb1c28085a",
-    "semantic_hash": "e5d8ac17caeebfe93507e3cb1c28085a"
+    "mtime": 1793835899.290435,
+    "seen": 1793835900.4242089,
+    "ast_hash": "0f73af7b27bf719cd2ba61394ff39555",
+    "semantic_hash": ""
   },
   "Core/Support/ChipPanelLayout.swift": {
     "mtime": 1791999130.766256,
@@ -3270,10 +3270,10 @@
     "semantic_hash": "284b926ac2a39c174a9634d15fa2d5ee"
   },
   "Tests/Unit/ChipPanelTests.swift": {
-    "mtime": 1791999130.9577234,
-    "seen": 1792295707.0607061,
-    "ast_hash": "40364757bf1484d2c751ba8ee491fa36",
-    "semantic_hash": "40364757bf1484d2c751ba8ee491fa36"
+    "mtime": 1793835899.2908442,
+    "seen": 1793835900.424803,
+    "ast_hash": "8d193ec417c304cd1dabfa66b06e3792",
+    "semantic_hash": ""
   },
   "Tests/Unit/ChipPressFeedbackTests.swift": {
     "mtime": 1791999130.9430652,
