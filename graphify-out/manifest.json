@@ -7054,5 +7054,11 @@
     "seen": 1793190252.3371022,
     "ast_hash": "4b250f09f0dbfc417ae032b4e7f1243b",
     "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/2026-11-04-livecheck-fix-plan.md": {
+    "mtime": 1793769244.1931038,
+    "seen": 1793769319.70769,
+    "ast_hash": "1b24d86233c35403e8988b7939612c68",
+    "semantic_hash": ""
   }
 }
