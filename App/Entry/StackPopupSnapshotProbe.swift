@@ -39,10 +39,11 @@ enum StackPopupSnapshotProbe {
         case "trash":
             content = AnyView(TrashGridPopupView(trashStore: .shared, context: context, usesLiquidGlass: false))
         case "pop":
-            if let mode = ProcessInfo.processInfo.environment["DOCK_STACK_POPUP_MODE"].flatMap(PopViewMode.init(rawValue:)) {
+            // 经登记表读，不直接写字面量：`check_debug_switches.py` 拦的就是这里的裸 env 名。
+            if let mode = DebugSwitch.stackPopupMode.value().flatMap(PopViewMode.init(rawValue:)) {
                 popStore.setViewMode(mode)
             }
-            if let style = ProcessInfo.processInfo.environment["DOCK_STACK_POPUP_THEME"].flatMap(DockThemeStyle.init(token:)) {
+            if let style = DebugSwitch.stackPopupTheme.value().flatMap(DockThemeStyle.init(token:)) {
                 popStore.setTheme(style)
             }
             content = AnyView(PopGridPopupView(popStore: popStore, context: context, usesLiquidGlass: false,

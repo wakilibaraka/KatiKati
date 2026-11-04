@@ -137,6 +137,10 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     case panelMaterial = "DOCK_PANEL_MATERIAL"
     /// A folder path: its popup content is drawn off-screen to a PNG (`StackPopupSnapshotProbe`).
     case stackPopupSnapshot = "DOCK_STACK_POPUP_SNAPSHOT"
+    /// `StackPopupSnapshotProbe`'s `pop` folder: View mode (`PopViewMode` raw value) for that one capture.
+    case stackPopupMode = "DOCK_STACK_POPUP_MODE"
+    /// `StackPopupSnapshotProbe`'s `pop` folder: theme token (`DockThemeStyle.token`) for that one capture.
+    case stackPopupTheme = "DOCK_STACK_POPUP_THEME"
     /// Debug hot-swap for DockThemeStyle preset (e.g. "DOCK_THEME=obsidianDark").
     case dockTheme = "DOCK_THEME"
     /// 实验：面板饱和度
