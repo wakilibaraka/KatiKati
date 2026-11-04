@@ -642,9 +642,9 @@
     "semantic_hash": "53538e63c61d51fa9ed05b4db2a159c9"
   },
   "App/Entry/StackPopupSnapshotProbe.swift": {
-    "mtime": 1793764073.5380867,
-    "seen": 1793764772.566953,
-    "ast_hash": "486af92561ecefc514c1d309eefdfade",
+    "mtime": 1793814481.1754298,
+    "seen": 1793814567.516394,
+    "ast_hash": "795ba28eb7fd3919d5c7d3d5835459bd",
     "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
@@ -1674,9 +1674,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DebugSwitch.swift": {
-    "mtime": 1792629855.3878794,
-    "seen": 1792630179.526264,
-    "ast_hash": "1ccf4ef2fb6844488011404d6ac7b9e0",
+    "mtime": 1793814480.036029,
+    "seen": 1793814567.51657,
+    "ast_hash": "d49ebd6eaef0f604113451bcaf3c54e7",
     "semantic_hash": ""
   },
   "Core/Support/DeckGeometry.swift": {
