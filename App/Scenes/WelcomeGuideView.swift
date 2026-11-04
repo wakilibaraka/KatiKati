@@ -1,6 +1,9 @@
 import AppKit
 import AVFoundation
+import CoreLocation
+import EventKit
 import SwiftUI
+import UserNotifications
 
 /// 窗口根视图。和权限引导同一个结构：滚动条平时不出现，窗口高度由内容自然高度决定，
 /// 只有被屏幕高度截断时才真的需要滚。
@@ -122,6 +125,14 @@ struct WelcomeGuideView: View {
     @State private var screenRecordingGranted = CGPreflightScreenCaptureAccess()
     @State private var inputMonitoringGranted = CGPreflightListenEventAccess()
     @State private var microphoneGranted = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+    @State private var calendarGranted = EKEventStore.authorizationStatus(for: .event) == .fullAccess
+    @State private var remindersGranted = EKEventStore.authorizationStatus(for: .reminder) == .fullAccess
+    @State private var notificationsGranted = false
+    @State private var locationGranted = false
+    /// One onboarding pass asks for everything it needs; panels then never prompt mid-task.
+    @State private var didRequestAllPermissions = false
+    @State private var locationManager = CLLocationManager()
+    private static let eventStore = EKEventStore()
     /// Re-reads the four grants once a second, only acted on while the Permissions step is showing.
     private let permissionTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -261,6 +272,29 @@ struct WelcomeGuideView: View {
                               AVCaptureDevice.requestAccess(for: .audio) { _ in }
                               PermissionRow.openPrivacy("Privacy_Microphone")
                           })
+            // 58c: the four grants that used to pop up later, from whichever panel happened to need
+            // them first (calendar on the panel, location on the weather chip, notifications on the
+            // first alarm). They are asked here, once, so the appearance is predictable.
+            PermissionRow(title: Text("Calendar"),
+                          note: Text("Shows today’s events in the panel, the notch and the command bar."),
+                          isGranted: calendarGranted,
+                          grant: { PermissionRow.openPrivacy("Privacy_Calendars") })
+            PermissionRow(title: Text("Reminders"),
+                          note: Text("Lists your reminders beside today’s events."),
+                          isGranted: remindersGranted,
+                          grant: { PermissionRow.openPrivacy("Privacy_Reminders") })
+            PermissionRow(title: Text("Notifications"),
+                          note: Text("Delivers alarms and live-event banners while KatiKati is in the background."),
+                          isGranted: notificationsGranted,
+                          grant: {
+                              if let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") {
+                                  NSWorkspace.shared.open(url)
+                              }
+                          })
+            PermissionRow(title: Text("Location"),
+                          note: Text("Puts the weather widget on your current city instead of the first saved one."),
+                          isGranted: locationGranted,
+                          grant: { PermissionRow.openPrivacy("Privacy_LocationServices") })
             Spacer(minLength: 0)
             Divider()
             HStack(spacing: 8) {
@@ -278,6 +312,79 @@ struct WelcomeGuideView: View {
             screenRecordingGranted = CGPreflightScreenCaptureAccess()
             inputMonitoringGranted = CGPreflightListenEventAccess()
             microphoneGranted = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+            refreshCalendarGrants()
+            refreshNotificationsGranted()
+            locationGranted = locationManager.authorizationStatus == .authorizedAlways
+        }
+        // 用户停在「Permissions」这一屏就是同意被问：一次把全部权限问完，之后各处不再弹。
+        .task(id: step) {
+            guard step == .permissions else { return }
+            await requestEveryPermissionOnce()
+        }
+    }
+
+    /// 串行请求（macOS 一次只显示一个系统面板，并发请求会被直接丢弃）。每一步都先看状态：
+    /// 已经决定过的权限不再问，所以重开引导、或在已授权的机器上跑，等于什么都没发生。
+    private func requestEveryPermissionOnce() async {
+        guard !didRequestAllPermissions else { return }
+        didRequestAllPermissions = true
+        NSApp.activate(ignoringOtherApps: true)
+
+        func pause(_ nanoseconds: UInt64) async { try? await Task.sleep(nanoseconds: nanoseconds) }
+
+        if !AXIsProcessTrusted() {
+            _ = AXIsProcessTrustedWithOptions(["AXTrustedCheckOptionPrompt": true] as CFDictionary)
+            await pause(900_000_000)
+        }
+        if !CGPreflightScreenCaptureAccess() {
+            _ = CGRequestScreenCaptureAccess()
+            await pause(900_000_000)
+        }
+        if !CGPreflightListenEventAccess() {
+            _ = CGRequestListenEventAccess()
+            await pause(900_000_000)
+        }
+        if AVCaptureDevice.authorizationStatus(for: .audio) == .notDetermined {
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                AVCaptureDevice.requestAccess(for: .audio) { _ in continuation.resume() }
+            }
+            await pause(600_000_000)
+        }
+        if EKEventStore.authorizationStatus(for: .event) == .notDetermined {
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                Self.eventStore.requestFullAccessToEvents { _, _ in continuation.resume() }
+            }
+            await pause(600_000_000)
+        }
+        if EKEventStore.authorizationStatus(for: .reminder) == .notDetermined {
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                Self.eventStore.requestFullAccessToReminders { _, _ in continuation.resume() }
+            }
+            await pause(600_000_000)
+        }
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        if settings.authorizationStatus == .notDetermined {
+            _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
+            await pause(600_000_000)
+        }
+        if locationManager.authorizationStatus == .notDetermined {
+            locationManager.requestAlwaysAuthorization()
+        }
+        refreshCalendarGrants()
+        refreshNotificationsGranted()
+        locationGranted = locationManager.authorizationStatus == .authorizedAlways
+    }
+
+    private func refreshCalendarGrants() {
+        calendarGranted = EKEventStore.authorizationStatus(for: .event) == .fullAccess
+        remindersGranted = EKEventStore.authorizationStatus(for: .reminder) == .fullAccess
+    }
+
+    /// 通知状态只能异步读；每秒一次的轮询里发一个短任务，不阻塞主线程。
+    private func refreshNotificationsGranted() {
+        Task {
+            let settings = await UNUserNotificationCenter.current().notificationSettings()
+            await MainActor.run { notificationsGranted = settings.authorizationStatus == .authorized }
         }
     }
 

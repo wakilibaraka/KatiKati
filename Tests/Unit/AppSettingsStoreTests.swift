@@ -1019,6 +1019,27 @@ final class AppSettingsStoreTests: XCTestCase {
 
     // MARK: - 自定义显隐快捷键存储
 
+    /// ⌘Space / ⌃Space 归 macOS：注册能成功，但按键到不了我们手里，动作永远不触发。
+    /// 存下来的这种组合必须丢掉、回到当前默认值；用户自己选的**非保留**键位一律不动。
+    func testStoredSystemReservedChordFallsBackToDefaultAndCustomBindingsSurvive() {
+        let defaults = makeDefaults()
+        defaults.set(ShortcutTrigger.chord(.commandSpace).serialized, forKey: "com.katikati.shortcut.commandBar")
+        defaults.set(ShortcutTrigger.chord(.optionShiftSpace).serialized, forKey: "com.katikati.shortcut.launcher")
+        let store = AppSettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.shortcutBindings[.commandBar], .chord(.optionShiftSpace), "旧 ⌘Space 要被换成新默认")
+        XCTAssertNil(defaults.string(forKey: "com.katikati.shortcut.commandBar"), "删键，不是把过期值留着")
+        XCTAssertEqual(store.shortcutBindings[.launcher], .chord(.optionShiftSpace), "非系统保留的自定义键位不许被改")
+    }
+
+    func testReservedChordMigrationLeavesNonChordBindingsAlone() {
+        let defaults = makeDefaults()
+        let custom = ShortcutTrigger.key(ShortcutKey(keyCode: 40, modifiers: ShortcutKey.control | ShortcutKey.command))
+        defaults.set(custom.serialized, forKey: "com.katikati.shortcut.snapLeftHalf")
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.shortcutBindings[.snapLeftHalf], custom, "任意键组合与系统保留无关，必须原样保留")
+    }
+
     func testEdgeToggleShortcutDefaultsToNilAndRoundTrips() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)

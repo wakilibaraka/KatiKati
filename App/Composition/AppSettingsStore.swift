@@ -508,9 +508,20 @@ final class AppSettingsStore: ObservableObject {
         controlCenterAnchor = ControlCenterAnchor.parse(defaults.string(forKey: Keys.controlCenterAnchor))
         controlCenterStyle = ControlCenterStyle.parse(defaults.string(forKey: Keys.controlCenterStyle))
         controlCenterAnimation = ControlCenterAnimation.parse(defaults.string(forKey: Keys.controlCenterAnimation))
-        shortcutBindings = Dictionary(uniqueKeysWithValues: ShortcutAction.allCases.map {
-            ($0, ShortcutTrigger.parse(defaults.string(forKey: Keys.shortcut($0))) ?? $0.defaultTrigger)
-        })
+        // 存下来的键位若是 macOS 自己占着的组合（⌘Space = Spotlight，⌃Space = 切换输入法），注册能成功但
+        // 按键到不了我们手里，动作永远不触发。这种陈旧绑定直接丢掉回退当前默认值；**非系统保留的自定义
+        // 键位原样保留**——那是用户自己选的，且确实能用。
+        var loadedShortcutBindings: [ShortcutAction: ShortcutTrigger] = [:]
+        for action in ShortcutAction.allCases {
+            let stored = ShortcutTrigger.parse(defaults.string(forKey: Keys.shortcut(action)))
+            if case let .chord(chord)? = stored, chord.isReservedBySystem {
+                defaults.removeObject(forKey: Keys.shortcut(action))
+                loadedShortcutBindings[action] = action.defaultTrigger
+            } else {
+                loadedShortcutBindings[action] = stored ?? action.defaultTrigger
+            }
+        }
+        shortcutBindings = loadedShortcutBindings
         launcherTheme = LauncherTheme.parse(defaults.string(forKey: Keys.launcherTheme))
         launcherTint = LauncherTint.parse(defaults.string(forKey: Keys.launcherTint))
         launcherIcon = LauncherIconStyle.parse(defaults.string(forKey: Keys.launcherIcon))

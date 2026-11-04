@@ -5,7 +5,9 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case launcher, pinboard, quickSettings, keepAwake
     /// Phase 9d: the drawer, the notch's Tools tab, and the Weather / Clock widgets on their own.
     case drawer, notchTools, weather, clock
-    /// Phase 27: the ⌘Space command bar (a Raycast/Sol-style palette over the same index).
+    /// Phase 27: the command bar (a Raycast/Sol-style palette over the same index). Default
+    /// ⌥⇧Space, **not** ⌘Space: Spotlight owns ⌘Space, and even though Carbon registers the
+    /// combination without error, macOS hands the key to Spotlight first — the bar never opened.
     case commandBar
     /// Phase 23: define/translate the current selection (off by default).
     case translate
@@ -94,7 +96,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         switch self {
         case .launcher: return .chord(.optionSpace)
         case .pinboard: return .chord(.controlOptionSpace)
-        case .commandBar: return .chord(.commandSpace)
+        case .commandBar: return .chord(.optionShiftSpace)
         case .quickSettings, .keepAwake, .drawer, .notchTools, .weather, .clock, .translate: return .off
         // All snap zones default to off — user assigns via Settings › Shortcuts › Snap Hotkeys.
         case .snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf,
@@ -149,9 +151,17 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     }
 }
 
-/// A key chord on Space. Four alternatives per the owner's brief, plus ⌃⌥Space (Control Center) and ⌘Space (Phase 27).
+/// A key chord on Space. Four alternatives per the owner's brief, plus ⌃⌥Space (Control Center) and ⌘Space.
+/// `commandSpace` stays selectable for people who turned Spotlight off, but it is never a default:
+/// macOS delivers it to Spotlight before any app-level hot key (see `isReservedBySystem`).
 enum ShortcutChord: String, CaseIterable, Sendable {
     case optionSpace, controlSpace, optionShiftSpace, controlShiftSpace, controlOptionSpace, commandSpace
+
+    /// Owned by macOS out of the box: ⌘Space is Spotlight, ⌃Space switches input sources. Carbon
+    /// still returns noErr for them (verified), but the system's handler consumes the key first, so a
+    /// default on either one leaves the action silently unreachable. `defaultTrigger` avoids both,
+    /// and `CommandBarTests.testDefaultShortcutChordsAreNotOwnedByMacOS` keeps it that way.
+    var isReservedBySystem: Bool { self == .commandSpace || self == .controlSpace }
 
     var usesControl: Bool { self == .controlSpace || self == .controlShiftSpace || self == .controlOptionSpace }
     var usesOption: Bool { self == .optionSpace || self == .optionShiftSpace || self == .controlOptionSpace }

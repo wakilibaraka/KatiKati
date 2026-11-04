@@ -42,6 +42,13 @@ All notable changes to KatiKati are documented in this file.
   initials (`vsc` finds Visual Studio Code), the query anywhere inside, then letters merely in order — and small
   typos still land (`chorme` finds Google Chrome, `notse` finds Notes). Apps you launch often move up, capped so a
   loose match can never jump an exact one.
+- **The command bar opens on ⌥⇧Space.** Its default was ⌘Space, which macOS hands to Spotlight first, so the bar
+  never appeared on a stock Mac. An install that already stored that chord moves to the new one by itself; custom
+  shortcuts the system does not own are left exactly as they were.
+- **Every permission is asked once, during setup.** The first-run guide's Permissions step now asks for
+  Accessibility, Screen Recording, Input Monitoring, Microphone, Calendar, Reminders, Notifications and Location in
+  one pass (each only when still undecided), so the calendar panel, the weather chip and the first alarm no longer
+  raise their own prompts in the middle of something else.
 - **Quitting is one table now** (Settings › Shortcuts, beside Hold ⌘Q to Quit): every app with a quit rule of its own
   is one row with three switches — **Skip Hold** (⌘Q quits at once), **Own ⌘Q** (the app keeps its own ⌘Q, for remote
   desktops and virtual machines) and **Quit on Close** (quit once its last window closes). Apps are added by name from

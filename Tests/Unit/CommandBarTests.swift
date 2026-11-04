@@ -337,6 +337,17 @@ final class CommandBarResultIdentityTests: XCTestCase {
         let path = CommandBarResult.path("/tmp/folder")
         XCTAssertEqual(path.id, "path:/tmp/folder")
     }
+
+    /// ⌘Space is Spotlight's and ⌃Space switches input sources. Registering them succeeds, but macOS
+    /// consumes the key before the app sees it, so the action never fires; no default may use either.
+    func testDefaultShortcutChordsAreNotOwnedByMacOS() {
+        XCTAssertEqual(ShortcutAction.commandBar.defaultTrigger, .chord(.optionShiftSpace))
+        for action in ShortcutAction.allCases {
+            guard case let .chord(chord) = action.defaultTrigger else { continue }
+            XCTAssertFalse(chord.isReservedBySystem,
+                           "\(action.rawValue) defaults to \(chord.glyphs), a shortcut macOS already owns")
+        }
+    }
 }
 
 
