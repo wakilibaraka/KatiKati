@@ -93,6 +93,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Menu Bar row turns it on).
     private lazy var driveMenuBar = DriveMenuBarItem()
     private lazy var windowSwitcher = WindowSwitcherController(runtime: runtime)
+    private lazy var windowStrip = WindowStripController(runtime: runtime)
+    private lazy var windowDrawer = WindowDrawerController(
+        runtime: runtime,
+        onSearch: { [weak self] in self?.commandBarPanel.toggle() },
+        onApps: { [weak self] in self?.launcherPanel.toggle() })
     private(set) lazy var layoutRestore = WindowLayoutRestoreController(runtime: runtime, displayTable: { [displayTopologyStore] in displayTopologyStore.table })
     /// Space transitions (ported from Spacewalk). Reads its effect and duration from the defaults on
     /// every switch, so Settings › Appearance needs no plumbing through the store.
@@ -851,6 +856,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         runningApplicationStore.start()
         runtime.start()
         windowSwitcher.start()
+        windowDrawer.start()
+        windowStrip.start()
         layoutRestore.start()
         TilingEngine.shared.start(snapshotStream: runtime.$snapshot)
         menuBarSystem.start()

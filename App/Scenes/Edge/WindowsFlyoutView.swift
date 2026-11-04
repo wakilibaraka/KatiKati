@@ -100,14 +100,28 @@ struct WindowsFlyoutView: View {
                                    gaps: TilingGaps(inner: 2, outer: 2))
         return ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 4).fill(selected ? env.accent(.alarms).opacity(0.25) : env.hairline)
-            ForEach(ids.filter { frames[$0] != nil }, id: \.self) { id in
+            ForEach(Array(ids.filter { frames[$0] != nil }.enumerated()), id: \.element) { slot, id in
                 let f = frames[id]!
                 RoundedRectangle(cornerRadius: 2).fill(env.accent(.alarms))
                     .frame(width: f.width, height: f.height)
                     .offset(x: f.minX, y: h - f.maxY)
+                    .onDrop(of: [.plainText], isTargeted: nil) { drop($0, layout: layout, slot: slot) }
             }
         }
         .frame(width: w, height: h)
+    }
+
+    /// A window dragged from the drawer lands in this slot of `layout` on the display under the mouse.
+    private func drop(_ providers: [NSItemProvider], layout: LayoutCatalog, slot: Int) -> Bool {
+        guard let provider = providers.first(where: { $0.canLoadObject(ofClass: NSString.self) }),
+              let screen = targetScreen else { return false }
+        _ = provider.loadObject(ofClass: NSString.self) { object, _ in
+            guard let raw = object as? String else { return }
+            Task { @MainActor in
+                TilingEngine.shared.place(WindowID(rawValue: raw), inSlot: slot, layout: layout, on: screen)
+            }
+        }
+        return true
     }
 
     private func press(_ zone: SnapPosition) {

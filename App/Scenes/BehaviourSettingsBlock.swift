@@ -55,6 +55,7 @@ struct BehaviourSettingsBlock: View {
 struct WindowBehaviourSettingsBlock: View {
     @AppStorage(WindowSwitcherController.enabledKey) private var switcherEnabled = true
     @AppStorage(CommandTabTakeover.enabledKey) private var commandTabEnabled = false
+    @AppStorage(WindowStripController.enabledKey) private var stripEnabled = false
     @AppStorage(WindowLayoutRestoreController.enabledKey) private var layoutRestoreEnabled = true
 
     var body: some View {
@@ -72,6 +73,13 @@ struct WindowBehaviourSettingsBlock: View {
                 Text("Use ⌘Tab for the Window Switcher"),
                 isOn: $commandTabEnabled,
                 note: Text("Replaces the system ⌘Tab with the same window grid. Type to search; ⌘W closes, ⌘M minimizes, ⌘Q quits the selected window's app. Needs Accessibility access; turn off to get the system switcher back.")
+            )
+
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Always-Visible Window Strip"),
+                isOn: $stripEnabled,
+                note: Text("Keeps a narrow column of window icons on the left edge of the main display. Click an icon to bring that window forward. Auto-tiling leaves the strip's space free. Press ⌃⌥W for the full window drawer.")
             )
 
             SettingsDivider()

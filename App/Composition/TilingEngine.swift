@@ -14,8 +14,14 @@ final class TilingEngine: ObservableObject {
     var dockFrame: (NSScreen) -> CGRect? = { _ in nil }
 
     private func workArea(of screen: NSScreen) -> CGRect {
-        DockReserve.workArea(visible: screen.visibleFrame, screen: screen.frame, dock: dockFrame(screen))
+        var visible = screen.visibleFrame
+        let strip = WindowStripController.reserve(for: screen)
+        visible.origin.x += strip; visible.size.width -= strip
+        return DockReserve.workArea(visible: visible, screen: screen.frame, dock: dockFrame(screen))
     }
+
+    /// Re-tiles after something else changed the work area (the window strip turning on or off).
+    func reapplyForWorkAreaChange() { if isEnabled { reapplyLayout() } }
 
     // MARK: - UserDefaults Keys
     static let enabledKey = "com.katikati.tiling.enabled"
@@ -157,6 +163,18 @@ final class TilingEngine: ObservableObject {
         displayLayouts[name] = layout
         UserDefaults.standard.set(displayLayouts.mapValues(\.rawValue), forKey: Self.displayLayoutsKey)
         if layout != nil, !isEnabled { setEnabled(true) } else if isEnabled { reapplyLayout() }
+    }
+
+    /// Drag-to-slot: turns `layout` on for `screen` and puts window `id` in slot `slot` (swapping with its occupant).
+    func place(_ id: WindowID, inSlot slot: Int, layout: LayoutCatalog, on screen: NSScreen) {
+        setLayout(layout, forDisplay: screen.localizedName)
+        let key = screen.localizedName + "-\(screen.frame.origin)"
+        var tree = trees[key] ?? TilingTree()
+        if !tree.contains(id) { tree.insert(id) }
+        let ids = tree.allWindowIDs
+        if ids.indices.contains(slot), ids[slot] != id { tree.swap(id, with: ids[slot]) }
+        trees[key] = tree
+        reapplyLayout()
     }
 
     /// Frames for one display's tree: a catalog layout caps the slots, otherwise the preset tiles everything.
