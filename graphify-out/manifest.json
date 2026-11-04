@@ -480,10 +480,10 @@
     "semantic_hash": "1d6ce0d90daf500a7629c2ba2598e618"
   },
   "App/Composition/WindowSwitcherController.swift": {
-    "mtime": 1792079010.736633,
-    "seen": 1792295707.06042,
-    "ast_hash": "1b005f4c1ead736139d2fb713e759b7b",
-    "semantic_hash": "1b005f4c1ead736139d2fb713e759b7b"
+    "mtime": 1793833161.9745514,
+    "seen": 1793834590.48671,
+    "ast_hash": "94693f2a1112bd06062b1f90e28fc007",
+    "semantic_hash": ""
   },
   "App/Composition/WindowThumbnailCapture.swift": {
     "mtime": 1792079004.6713989,
@@ -492,9 +492,9 @@
     "semantic_hash": "20e32e60027b363670a56a0fe9dd15f9"
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1793828846.09772,
-    "seen": 1793829921.514545,
-    "ast_hash": "a0fc86faa2a7586fb3048ddc214afcb5",
+    "mtime": 1793834552.2886255,
+    "seen": 1793834590.4867148,
+    "ast_hash": "d5e07cfc4641d5cd74e8ab81c1e74e23",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -684,9 +684,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
-    "mtime": 1793190233.6071208,
-    "seen": 1793190252.336492,
-    "ast_hash": "1def888ff4e8fc4e87101e31615b3720",
+    "mtime": 1793833145.4709098,
+    "seen": 1793834590.4867961,
+    "ast_hash": "8c2d9ffc12e90d8bb831300315032dc2",
     "semantic_hash": ""
   },
   "App/Scenes/CalendarPanelView.swift": {
@@ -2580,10 +2580,10 @@
     "semantic_hash": "0d6d97ebb9bacdae46db3bdb8dff4b9a"
   },
   "Core/Support/WindowSwitcherModel.swift": {
-    "mtime": 1791999130.7460818,
-    "seen": 1792295707.0606341,
-    "ast_hash": "62dda9bdbf1b23b0602fe010178f9dec",
-    "semantic_hash": "62dda9bdbf1b23b0602fe010178f9dec"
+    "mtime": 1793833145.39209,
+    "seen": 1793834590.487675,
+    "ast_hash": "e1802d501be617172e406372b1a22f83",
+    "semantic_hash": ""
   },
   "Core/Support/WindowTitleSettle.swift": {
     "mtime": 1791999130.745685,
@@ -4392,10 +4392,10 @@
     "semantic_hash": "2cf6dd41a96a205bce2f265f9f21ca41"
   },
   "Tests/Unit/WindowSwitcherModelTests.swift": {
-    "mtime": 1791999130.945828,
-    "seen": 1792295707.060825,
-    "ast_hash": "9d3700c340030f3414877f7f0db845e0",
-    "semantic_hash": "9d3700c340030f3414877f7f0db845e0"
+    "mtime": 1793833145.421535,
+    "seen": 1793834590.4907079,
+    "ast_hash": "05b7fabcc87ef2985159b22c8aad4af3",
+    "semantic_hash": ""
   },
   "Tests/Unit/WindowTitleSettleTests.swift": {
     "mtime": 1791999130.931021,
@@ -7077,6 +7077,12 @@
     "mtime": 1793830137.5034935,
     "seen": 1793830986.749801,
     "ast_hash": "8201f714667f8f690d8843e1ba0b8bc5",
+    "semantic_hash": ""
+  },
+  "App/Composition/CommandTabTakeover.swift": {
+    "mtime": 1793833145.4393392,
+    "seen": 1793834590.486531,
+    "ast_hash": "4b48a2595ddf5340d2363ffb9409a7ea",
     "semantic_hash": ""
   }
 }
