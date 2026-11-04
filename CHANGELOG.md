@@ -37,6 +37,11 @@ All notable changes to KatiKati are documented in this file.
   teal fill instead of going white.
 
 ### Changed
+- **Search ranks like a launcher should** (⌥Space and the command bar): one matcher now scores every app, window
+  and menu row by nanolight's tiers — the whole name first, then the name's start, a word's start, the words'
+  initials (`vsc` finds Visual Studio Code), the query anywhere inside, then letters merely in order — and small
+  typos still land (`chorme` finds Google Chrome, `notse` finds Notes). Apps you launch often move up, capped so a
+  loose match can never jump an exact one.
 - **Quitting is one table now** (Settings › Shortcuts, beside Hold ⌘Q to Quit): every app with a quit rule of its own
   is one row with three switches — **Skip Hold** (⌘Q quits at once), **Own ⌘Q** (the app keeps its own ⌘Q, for remote
   desktops and virtual machines) and **Quit on Close** (quit once its last window closes). Apps are added by name from

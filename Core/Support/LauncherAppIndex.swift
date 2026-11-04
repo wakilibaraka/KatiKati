@@ -274,32 +274,167 @@ enum LauncherAppIndex {
     }
 }
 
-enum LauncherSearch {
-    /// Score for `query` against `name` (higher is better, nil = no match). Case/diacritic-insensitive:
-    /// exact > prefix > word prefix > substring > in-order letters ("ps" → Photoshop, "vsc" → Visual Studio Code).
+/// Nanolight's matcher, ported from its `src/search.zig` (MIT, github.com/justrach/nanolight) so the
+/// command bar and the launcher rank names the same way its panel does. Case- and diacritic-insensitive;
+/// tiers, best first: the whole name, its start, a word's start, the words' initials ("vsc" for Visual
+/// Studio Code), anywhere inside it, the letters in order (worse the more they spread), then typos —
+/// a name or word that begins like the query but for a letter or two swapped, wrong, missing or extra
+/// ("chorme" for Chrome). The weights are nanolight's own, so the gaps between tiers stay the same.
+enum LauncherMatch {
+    /// Nanolight's tiers, in its own points. `nil` = the query's letters are not all there.
     static func score(query: String, name: String) -> Int? {
-        let q = fold(query)
-        guard !q.isEmpty else { return nil }
-        let n = fold(name)
-        if n == q { return 1000 }
-        if n.hasPrefix(q) { return 800 - min(n.count - q.count, 100) }
-        let words = n.split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init)
-        if let i = words.firstIndex(where: { $0.hasPrefix(q) }) { return 600 - min(i * 10, 90) }
-        if n.contains(q) { return 400 }
-        let initials = String(words.compactMap(\.first))
-        if initials.hasPrefix(q) { return 300 }
-        if isSubsequence(q, of: n) { return 100 }
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, !name.isEmpty else { return nil }
+        let q = trimmed.map(fold)
+        let n = name.map(fold)
+        let slack = min(max(n.count - q.count, 0), 60)
+        if q.count == n.count, matches(n, q, at: 0) { return 1000 }
+        if matches(n, q, at: 0) { return 900 - slack }
+        if let i = wordPrefixIndex(q, n) { return 800 - slack - min(i, 60) }
+        if let initials = initials(q, n) { return initials }
+        if let i = substringIndex(q, n) { return 600 - slack - min(i, 60) }
+        if let inOrder = subsequence(q, n) { return inOrder }
+        return typo(q, n)
+    }
+
+    /// A folded character: case and diacritics gone ("Café" folds to "cafe"). A fold that expands
+    /// ("ß" → "ss") keeps its first character, so offsets stay one-per-name-character.
+    private static func fold(_ c: Character) -> Character {
+        let folded = String(c).folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+        return folded.first ?? c
+    }
+
+    /// Whether `i` starts a word: the name's start, after a space or punctuation, or a capital after a
+    /// lowercase letter (FaceTime).
+    private static func isWordStart(_ n: [Character], _ i: Int) -> Bool {
+        if i == 0 { return true }
+        let prev = n[i - 1], ch = n[i]
+        if prev == " " || prev == "-" || prev == "_" || prev == "." || prev == "/" || prev == "(" {
+            return ch != " "
+        }
+        return prev.isLowercase && ch.isUppercase
+    }
+
+    private static func matches(_ n: [Character], _ q: [Character], at start: Int) -> Bool {
+        guard !q.isEmpty, start >= 0, start + q.count <= n.count else { return false }
+        for k in 0..<q.count where n[start + k] != q[k] { return false }
+        return true
+    }
+
+    private static func wordPrefixIndex(_ q: [Character], _ n: [Character]) -> Int? {
+        for i in n.indices where isWordStart(n, i) && matches(n, q, at: i) { return i }
         return nil
     }
 
-    /// Matching apps, best first; ties by usage count then name.
+    private static func substringIndex(_ q: [Character], _ n: [Character]) -> Int? {
+        guard q.count <= n.count else { return nil }
+        for i in 0...(n.count - q.count) where matches(n, q, at: i) { return i }
+        return nil
+    }
+
+    /// The query as the words' initials, in order, every one of them.
+    private static func initials(_ q: [Character], _ n: [Character]) -> Int? {
+        guard q.count >= 2 else { return nil }
+        var qi = 0
+        for i in n.indices {
+            if qi == q.count { break }
+            guard isWordStart(n, i) else { continue }
+            if n[i] == q[qi] { qi += 1 }
+        }
+        return qi == q.count ? 750 - min(n.count, 60) : nil
+    }
+
+    /// The letters in order anywhere; each on a word's start or right after the last scores more, gaps
+    /// score less.
+    private static func subsequence(_ q: [Character], _ n: [Character]) -> Int? {
+        var score = 300
+        var last: Int?
+        var from = 0
+        for qc in q {
+            if qc == " " { continue }
+            var found: Int?
+            while from < n.count {
+                if n[from] == qc { found = from; break }
+                from += 1
+            }
+            guard let at = found else { return nil }
+            if isWordStart(n, at) { score += 12 }
+            if let previous = last {
+                score += at == previous + 1 ? 8 : -min(at - previous, 20)
+            } else {
+                score -= min(at, 20)
+            }
+            last = at
+            from = at + 1
+        }
+        return score - min(n.count, 60) / 4
+    }
+
+    /// The typos a query of this length may have: none under 4 letters (too many names are a letter
+    /// from "map"), one, then two from 7.
+    private static func allowedEdits(_ length: Int) -> Int { length < 4 ? 0 : (length < 7 ? 1 : 2) }
+
+    /// The query as a misspelt start of the name, or of one of its words: the fewest edits (a character
+    /// put in, left out, changed, or two neighbours swapped) that make the query a prefix of it.
+    private static func typo(_ q: [Character], _ n: [Character]) -> Int? {
+        let most = allowedEdits(q.count)
+        guard most > 0, q.count <= 32 else { return nil }
+        var best: (errs: Int, start: Int)?
+        for start in n.indices where isWordStart(n, start) {
+            let word = Array(n[start..<min(n.count, start + 64)])
+            let distance = prefixDistance(q, word)
+            if distance.errs <= most, best == nil || distance.errs < best!.errs {
+                best = (distance.errs, start)
+            }
+        }
+        guard let best else { return nil }
+        return 260 - 70 * best.errs - min(n.count, 60) / 4 - min(best.start, 20)
+    }
+
+    /// Optimal string alignment (insert, delete, change, swap neighbours) from `q` to every prefix of
+    /// `word`: the fewest edits to any of them, and how long that prefix is.
+    private static func prefixDistance(_ q: [Character], _ word: [Character]) -> (errs: Int, end: Int) {
+        if word.isEmpty { return (q.count, 0) }
+        var previousPrevious = Array(0...word.count)
+        var previous = previousPrevious
+        for i in 1...q.count {
+            var current = [i] + Array(repeating: 0, count: word.count)
+            for j in 1...word.count {
+                let same = q[i - 1] == word[j - 1]
+                var cost = min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + (same ? 0 : 1))
+                if i > 1, j > 1, q[i - 1] == word[j - 2], q[i - 2] == word[j - 1] {
+                    cost = min(cost, previousPrevious[j - 2] + 1)
+                }
+                current[j] = cost
+            }
+            previousPrevious = previous
+            previous = current
+        }
+        var errs = Int.max, end = 0
+        for j in 0...word.count where previous[j] < errs {
+            errs = previous[j]
+            end = j
+        }
+        return (errs, end)
+    }
+}
+
+enum LauncherSearch {
+    /// Score for `query` against `name` (higher is better, nil = no match), by nanolight's matcher.
+    static func score(query: String, name: String) -> Int? {
+        LauncherMatch.score(query: query, name: name)
+    }
+
+    /// Matching apps, best first. A launch count lifts a match by up to 250 (nanolight's own boost), which
+    /// cannot carry a substring match over an exact name; ties by usage count then name.
     static func search(_ query: String, in apps: [LauncherApp], usage: [String: LauncherUsage], limit: Int = 50) -> [LauncherApp] {
         let scored: [(LauncherApp, Int)] = apps.compactMap { app in
-            let nameScore = score(query: query, name: app.name)
-            let bundleScore = score(query: query, name: app.bundleID).map { min($0, 250) }
+            let nameScore = LauncherMatch.score(query: query, name: app.name)
+            let bundleScore = LauncherMatch.score(query: query, name: app.bundleID).map { min($0, 250) }
             let filename = URL(fileURLWithPath: app.path).deletingPathExtension().lastPathComponent
-            let filenameScore = score(query: query, name: filename).map { min($0, 500) }
-            return [nameScore, filenameScore, bundleScore].compactMap { $0 }.max().map { (app, $0) }
+            let filenameScore = LauncherMatch.score(query: query, name: filename).map { min($0, 500) }
+            guard let base = [nameScore, filenameScore, bundleScore].compactMap({ $0 }).max() else { return nil }
+            return (app, base + min((usage[app.bundleID]?.launches ?? 0) * 25, 250))
         }
         return scored.sorted { a, b in
             if a.1 != b.1 { return a.1 > b.1 }
@@ -307,19 +442,5 @@ enum LauncherSearch {
             if ua != ub { return ua > ub }
             return LauncherAppIndex.nameOrder(a.0, b.0)
         }.prefix(max(0, limit)).map(\.0)
-    }
-
-    private static func fold(_ s: String) -> String {
-        s.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
-            .trimmingCharacters(in: .whitespaces)
-    }
-
-    private static func isSubsequence(_ q: String, of n: String) -> Bool {
-        var from = n.startIndex
-        for c in q {
-            guard let hit = n[from...].firstIndex(of: c) else { return false }
-            from = n.index(after: hit)
-        }
-        return true
     }
 }

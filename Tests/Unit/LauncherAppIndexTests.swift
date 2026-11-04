@@ -144,4 +144,62 @@ final class LauncherAppIndexTests: XCTestCase {
         let usage = ["3": LauncherUsage(launches: 5, lastLaunched: now)]
         XCTAssertEqual(LauncherSearch.search("not", in: apps, usage: usage).map(\.bundleID), ["3", "1", "2"])
     }
+
+    // MARK: - Nanolight's matcher (src/search.zig, MIT)
+
+    private func score(_ query: String, _ name: String) -> Int? {
+        LauncherMatch.score(query: query, name: name)
+    }
+
+    func testNanolightTierOrder() {
+        // Nanolight's own assertions, in its own order.
+        XCTAssertGreaterThan(score("safari", "Safari")!, score("saf", "Safari")!)
+        XCTAssertGreaterThan(score("saf", "Safari")!, score("code", "Visual Studio Code")!)
+        XCTAssertGreaterThan(score("code", "Visual Studio Code")!, score("vsc", "Visual Studio Code")!)
+        XCTAssertGreaterThan(score("vsc", "Visual Studio Code")!, score("tudi", "Visual Studio Code")!)
+        XCTAssertGreaterThan(score("tudi", "Visual Studio Code")!, score("vsco", "Visual Studio Code")!)
+        XCTAssertNil(score("xyz", "Safari"))
+        XCTAssertNil(score("", "Safari"))
+    }
+
+    func testNanolightInitialsFromWordsAndCapitals() {
+        XCTAssertNotNil(score("ft", "FaceTime"))
+        XCTAssertNotNil(score("ss", "System Settings"))
+        XCTAssertGreaterThan(score("ss", "System Settings")!, score("st", "System Settings") ?? -1)
+    }
+
+    func testNanolightTypoTolerance() {
+        // Swapped, changed, extra, and two wrong in a long word.
+        XCTAssertNotNil(score("chorme", "Google Chrome"))
+        XCTAssertNotNil(score("notse", "Notes"))
+        XCTAssertNotNil(score("safaro", "Safari"))
+        XCTAssertNotNil(score("safarii", "Safari"))
+        XCTAssertNotNil(score("calandr", "Calendar"))
+        XCTAssertNotNil(score("sistem", "System Settings"))
+        // A typo never outranks the letters in order, and a short query guesses at nothing.
+        XCTAssertLessThan(score("notse", "Notes")!, score("nts", "Notes")!)
+        XCTAssertNil(score("zebra", "Safari"))
+        XCTAssertNil(score("sax", "Safari"))
+        XCTAssertNil(score("mapz", "Mail"))
+    }
+
+    func testNanolightSubsequenceAndUnicodeNames() {
+        XCTAssertNotNil(score("sfr", "Safari"))
+        XCTAssertEqual(score("微信", "微信"), 1000)
+        XCTAssertNotNil(score("微", "微信"))
+        XCTAssertNotNil(score("信", "微信"))
+        XCTAssertNil(score("wx", "微信"))
+    }
+
+    func testUsageBoostFollowsNanolight() {
+        let apps = [app("1", "Notes Helper"), app("2", "Notes")]
+        XCTAssertEqual(LauncherSearch.search("notes", in: apps, usage: [:]).map(\.bundleID), ["2", "1"])
+        // One launch lifts the helper past the prefix match on a shorter query, nanolight's boost.
+        let once = ["1": LauncherUsage(launches: 1, lastLaunched: now)]
+        XCTAssertEqual(LauncherSearch.search("no", in: apps, usage: once).map(\.bundleID), ["1", "2"])
+        // A substring match keeps its place under an exact name even at the boost's cap.
+        let keyed = [app("9", "Note"), app("3", "Keynote")]
+        let heavy = ["3": LauncherUsage(launches: 400, lastLaunched: now)]
+        XCTAssertEqual(LauncherSearch.search("note", in: keyed, usage: heavy).map(\.bundleID), ["9", "3"])
+    }
 }
