@@ -232,7 +232,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .liquidGlassWhiteOverlay, .liquidGlassDimming, .liquidGlassBorder, .liquidGlassBorderEdge,
              .liquidGlassBorderCut, .liquidGlassBorderSpread, .liquidGlassBorderWidth, .liquidGlassBorderInner,
              .liquidGlassBackgroundOpacity, .liquidGlassWindowBlur, .liquidGlassContentInset,
-             .liquidGlassSystemVariant, .stackPopupSnapshot, .dockTheme, .wallpaperPhase, .dockIconFrame, .openSettings,
+             .liquidGlassSystemVariant, .stackPopupSnapshot, .stackPopupMode, .stackPopupTheme,
+             .dockTheme, .wallpaperPhase, .dockIconFrame, .openSettings,
              .powerNotificationDemo:
             return .value
         }
