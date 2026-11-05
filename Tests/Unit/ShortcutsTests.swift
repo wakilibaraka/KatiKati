@@ -199,6 +199,16 @@ final class ShortcutOverhaulTests: XCTestCase {
     }
 }
 
+final class SwitcherRowStepTests: XCTestCase {
+    func testRowStepMovesByColumnsAndStopsAtEdges() {
+        XCTAssertEqual(WindowSwitcherModel.rowStep(selection: 1, count: 8, columns: 4, down: true), 5)
+        XCTAssertEqual(WindowSwitcherModel.rowStep(selection: 5, count: 8, columns: 4, down: false), 1)
+        XCTAssertEqual(WindowSwitcherModel.rowStep(selection: 6, count: 8, columns: 4, down: true), 6)
+        XCTAssertEqual(WindowSwitcherModel.rowStep(selection: 2, count: 8, columns: 4, down: false), 2)
+        XCTAssertEqual(WindowSwitcherModel.rowStep(selection: 3, count: 5, columns: 1, down: true), 4)
+    }
+}
+
 final class PeekHoldTests: XCTestCase {
     func testQuickTapKeepsOpenLongHoldHides() {
         XCTAssertEqual(PeekHold.outcome(heldFor: 0.1), .keepOpen)

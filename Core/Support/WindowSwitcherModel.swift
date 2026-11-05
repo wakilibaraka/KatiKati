@@ -48,4 +48,11 @@ enum WindowSwitcherModel {
         let rows = Int((Double(count) / Double(maxColumns)).rounded(.up))
         return Int((Double(count) / Double(rows)).rounded(.up))
     }
+
+    /// Up/Down: one row at a time, staying put at the first and last row (Left/Right wrap, rows do not).
+    static func rowStep(selection: Int, count: Int, columns: Int, down: Bool) -> Int {
+        guard count > 0 else { return 0 }
+        let next = selection + (down ? columns : -columns)
+        return next >= 0 && next < count ? next : selection
+    }
 }

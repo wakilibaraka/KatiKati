@@ -260,7 +260,10 @@ extension SettingsLayoutPane {
     func shortcutRow(_ action: ShortcutAction, duplicated: Set<ShortcutAction>) -> some View {
         SettingsRow(Text(verbatim: Self.shortcutActionName(action))) {
             HStack(spacing: SettingsMetrics.controlSpacing) {
-                if duplicated.contains(action) {
+                if case .warn(let why) = ShortcutValidator.check(store.shortcutBindings[action] ?? .off, for: action, among: store.shortcutBindings) {
+                    Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                        .help(Text(verbatim: why))
+                } else if duplicated.contains(action) {
                     Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
                         .help(Text("Another action uses the same shortcut"))
                 }

@@ -11,6 +11,9 @@ import SwiftUI
 @MainActor
 final class WindowSwitcherController: ObservableObject {
     static let enabledKey = "com.katikati.switcher.enabled"
+    /// "grid" (default, centred thumbnails) or "sidebar" (a left-docked column like the window drawer).
+    static let layoutKey = "com.katikati.switcher.layout"
+    static let sidebarWidth: CGFloat = 340
 
     struct Tile: Identifiable, Equatable {
         let id: String
@@ -25,6 +28,9 @@ final class WindowSwitcherController: ObservableObject {
     @Published private(set) var selection = 0
     @Published private(set) var thumbnails: [String: NSImage] = [:]
     @Published private(set) var query = ""
+    @Published private(set) var isSidebar = false
+    /// Sidebar only: while on, releasing the modifier no longer commits; Return, a click or Esc ends it.
+    @Published var pinned = false
 
     private let runtime: AppRuntime
     private var mru: [String] = []
@@ -160,6 +166,8 @@ final class WindowSwitcherController: ObservableObject {
         }
         guard allTiles.count > 1 else { allTiles = []; return }
         query = ""
+        isSidebar = UserDefaults.standard.string(forKey: Self.layoutKey) == "sidebar"
+        pinned = false
         tiles = allTiles
         selection = WindowSwitcherModel.initialSelection(count: tiles.count, reverse: reverse)
         thumbnails = [:]
@@ -177,8 +185,10 @@ final class WindowSwitcherController: ObservableObject {
         let mouse = NSEvent.mouseLocation
         let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main ?? NSScreen.screens.first
         let area = screen?.visibleFrame ?? .zero
-        let panel = SwitcherPanel(frame: NSRect(x: area.midX - size.width / 2, y: area.midY - size.height / 2,
-                                                width: size.width, height: size.height))
+        let frame = isSidebar
+            ? NSRect(x: area.minX, y: area.minY, width: Self.sidebarWidth, height: area.height)
+            : NSRect(x: area.midX - size.width / 2, y: area.midY - size.height / 2, width: size.width, height: size.height)
+        let panel = SwitcherPanel(frame: frame)
         panel.onKey = { [weak self] event in self?.handleKey(event) ?? false }
         panel.contentView = host
         panel.orderFrontRegardless()
@@ -203,7 +213,7 @@ final class WindowSwitcherController: ObservableObject {
         let timer = Timer(timeInterval: 0.05, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self, self.panel != nil else { return }
-                if !NSEvent.modifierFlags.contains(self.trigger) { self.commit() }
+                if !self.pinned, !NSEvent.modifierFlags.contains(self.trigger) { self.commit() }
             }
         }
         timer.tolerance = 0.02
@@ -227,6 +237,9 @@ final class WindowSwitcherController: ObservableObject {
         case kVK_Escape: cancel()
         case kVK_RightArrow: selection = WindowSwitcherModel.step(selection: selection, count: tiles.count, reverse: false)
         case kVK_LeftArrow: selection = WindowSwitcherModel.step(selection: selection, count: tiles.count, reverse: true)
+        case kVK_DownArrow, kVK_UpArrow:
+            let columns = isSidebar ? 1 : WindowSwitcherModel.columns(count: tiles.count)
+            selection = WindowSwitcherModel.rowStep(selection: selection, count: tiles.count, columns: columns, down: code == kVK_DownArrow)
         case kVK_Return: commit()
         case kVK_Delete:
             guard !query.isEmpty else { return true }
@@ -246,7 +259,7 @@ final class WindowSwitcherController: ObservableObject {
     }
 
     private func resizePanel() {
-        guard let panel, let host = panel.contentView as? NSHostingView<WindowSwitcherView> else { return }
+        guard !isSidebar, let panel, let host = panel.contentView as? NSHostingView<WindowSwitcherView> else { return }
         let size = host.fittingSize
         let c = CGPoint(x: panel.frame.midX, y: panel.frame.midY)
         panel.setFrame(NSRect(x: c.x - size.width / 2, y: c.y - size.height / 2, width: size.width, height: size.height),
@@ -306,6 +319,46 @@ private struct WindowSwitcherView: View {
     let onPick: (Int) -> Void
 
     var body: some View {
+        if controller.isSidebar { sidebar } else { grid }
+    }
+
+    private var sidebar: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Windows").font(.system(size: 15, weight: .semibold))
+                Spacer()
+                Toggle("Always visible", isOn: $controller.pinned).toggleStyle(.switch).controlSize(.small)
+            }
+            Text(verbatim: controller.query.isEmpty ? "Type to search · ↑↓ choose · ⌘W close" : "🔍 \(controller.query)")
+                .font(.system(size: 11)).foregroundStyle(.secondary)
+                .padding(8).frame(maxWidth: .infinity, alignment: .leading)
+                .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.black.opacity(0.14)))
+            ScrollViewReader { proxy in
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 8) {
+                        if controller.tiles.isEmpty { Text("No matching windows").foregroundStyle(.secondary).padding(30) }
+                        ForEach(Array(controller.tiles.enumerated()), id: \.element.id) { index, tile in
+                            tileView(tile, selected: index == controller.selection, showsAppName: true)
+                                .frame(maxWidth: .infinity)
+                                .id(tile.id)
+                                .onTapGesture { onPick(index) }
+                        }
+                    }
+                }
+                .onChange(of: controller.selection) { _ in
+                    if controller.tiles.indices.contains(controller.selection) {
+                        proxy.scrollTo(controller.tiles[controller.selection].id)
+                    }
+                }
+            }
+        }
+        .padding(14)
+        .frame(width: WindowSwitcherController.sidebarWidth)
+        .frame(maxHeight: .infinity)
+        .background(.regularMaterial)
+    }
+
+    @ViewBuilder private var grid: some View {
         let columns = WindowSwitcherModel.columns(count: controller.tiles.count)
         let indexed = Array(controller.tiles.enumerated())
         let rows = stride(from: 0, to: indexed.count, by: columns).map { Array(indexed[$0..<min($0 + columns, indexed.count)]) }
@@ -327,7 +380,7 @@ private struct WindowSwitcherView: View {
         .padding(20)
     }
 
-    private func tileView(_ tile: WindowSwitcherController.Tile, selected: Bool) -> some View {
+    private func tileView(_ tile: WindowSwitcherController.Tile, selected: Bool, showsAppName: Bool = false) -> some View {
         VStack(spacing: 6) {
             ZStack {
                 RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.black.opacity(0.18))
@@ -355,12 +408,17 @@ private struct WindowSwitcherView: View {
                 if let id = tile.bundleID {
                     Image(nsImage: AppIconResolver.icon(for: id)).resizable().frame(width: 16, height: 16)
                 }
-                Text(verbatim: tile.title.isEmpty ? tile.appName : tile.title)
-                    .font(.system(size: 11, weight: .medium)).lineLimit(1)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(verbatim: tile.title.isEmpty ? tile.appName : tile.title)
+                        .font(.system(size: 11, weight: .medium)).lineLimit(1)
+                    if showsAppName, !tile.title.isEmpty {
+                        Text(verbatim: tile.appName).font(.system(size: 10)).foregroundStyle(.secondary).lineLimit(1)
+                    }
+                }
             }
         }
         .padding(8)
-        .frame(width: 196)
+        .frame(width: showsAppName ? nil : 196)
         .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
             .fill(selected ? Color.accentColor.opacity(0.28) : Color.clear))
         .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)

@@ -55,6 +55,7 @@ struct BehaviourSettingsBlock: View {
 struct WindowBehaviourSettingsBlock: View {
     @AppStorage(WindowSwitcherController.enabledKey) private var switcherEnabled = true
     @AppStorage(CommandTabTakeover.enabledKey) private var commandTabEnabled = false
+    @AppStorage(WindowSwitcherController.layoutKey) private var switcherLayout = "grid"
     @AppStorage(WindowStripController.enabledKey) private var stripEnabled = false
     @AppStorage(WindowBorderController.enabledKey) private var borderEnabled = false
     @AppStorage(WindowDrawerController.edgeHoverKey) private var edgeHoverEnabled = false
@@ -69,6 +70,16 @@ struct WindowBehaviourSettingsBlock: View {
                 isOn: $switcherEnabled,
                 note: Text("Hold Option and press Tab to pick a window from a thumbnail grid; release to switch. Shift reverses, Esc cancels.")
             )
+
+            SettingsDivider()
+            SettingsPickerRow(
+                Text("Window Switcher Layout"),
+                selection: $switcherLayout,
+                note: Text("Grid centres thumbnails on the screen. Sidebar docks a Windows list to the left edge, with an Always visible switch that keeps it open after you release the keys.")
+            ) {
+                Text("Grid").tag("grid")
+                Text("Sidebar").tag("sidebar")
+            }
 
             SettingsDivider()
             SettingsToggleRow(
