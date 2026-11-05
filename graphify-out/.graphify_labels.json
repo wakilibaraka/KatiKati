@@ -13,7 +13,6 @@
   "50": "PanelVisibilityState",
   "65": "LiveSurfaceRouting",
   "72": "LaunchAtLoginService",
-  "83": "NativeDockPreferencesService",
   "95": "ScanAdmissionDecisionTests",
   "100": "check_localization",
   "102": "StackPopupGeometry",
