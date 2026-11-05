@@ -390,9 +390,9 @@
     "semantic_hash": ""
   },
   "App/Composition/ShortcutService.swift": {
-    "mtime": 1793838956.9430218,
-    "seen": 1793839266.392266,
-    "ast_hash": "9c0b766736f773cfd9746c329f9ddffd",
+    "mtime": 1793840527.6106677,
+    "seen": 1793841449.507909,
+    "ast_hash": "8af282c0b01fba691e7316efad4dc68b",
     "semantic_hash": ""
   },
   "App/Composition/SparkleUpdateService.swift": {
@@ -1146,9 +1146,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
-    "mtime": 1793838956.9412658,
-    "seen": 1793839266.392499,
-    "ast_hash": "10c6d6d928ee6d14ac90a703b15bbb23",
+    "mtime": 1793840484.5167572,
+    "seen": 1793841449.508343,
+    "ast_hash": "4a2b4ef368c35747cf88d163559fe66f",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
@@ -2256,9 +2256,9 @@
     "semantic_hash": "d4d008e338b3db38a676a2ce6d7955c3"
   },
   "Core/Support/Shortcuts.swift": {
-    "mtime": 1793839022.2370222,
-    "seen": 1793839266.392797,
-    "ast_hash": "c8d4a4080f3f235e6015e80e090cde92",
+    "mtime": 1793840527.6108103,
+    "seen": 1793841449.508894,
+    "ast_hash": "ba7bcdd435847dc8a338b81070fe6986",
     "semantic_hash": ""
   },
   "Core/Support/SkyPalette.swift": {
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
-    "mtime": 1793839383.589123,
-    "seen": 1793839507.1137621,
-    "ast_hash": "5999f14a08d703064a10e64a1e6703f7",
+    "mtime": 1793840481.2080722,
+    "seen": 1793841449.508338,
+    "ast_hash": "2250d44b45a29144e453b699301f398a",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
