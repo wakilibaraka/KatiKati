@@ -95,6 +95,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var windowSwitcher = WindowSwitcherController(runtime: runtime)
     private let peek = PeekController()
     private lazy var windowStrip = WindowStripController(runtime: runtime)
+    private lazy var windowBorder = WindowBorderController()
     private lazy var windowDrawer = WindowDrawerController(
         runtime: runtime,
         onSearch: { [weak self] in self?.commandBarPanel.toggle() },
@@ -860,6 +861,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         windowSwitcher.start()
         windowDrawer.start()
         windowStrip.start()
+        windowBorder.start()
         layoutRestore.start()
         TilingEngine.shared.start(snapshotStream: runtime.$snapshot)
         menuBarSystem.start()

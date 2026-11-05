@@ -53,6 +53,9 @@ final class WindowSwitcherController: ObservableObject {
             Task { @MainActor in self?.applyEnabled() }
         }
         commandTab.onPress = { [weak self] reverse in self?.pressed(reverse: reverse, trigger: .command) }
+        commandTab.onPressCurrentApp = { [weak self] reverse in
+            self?.pressed(reverse: reverse, trigger: .command, currentAppOnly: true)
+        }
         applyEnabled()
     }
 
@@ -133,18 +136,19 @@ final class WindowSwitcherController: ObservableObject {
 
     // MARK: - Showing
 
-    private func pressed(reverse: Bool, trigger: NSEvent.ModifierFlags = .option) {
+    private func pressed(reverse: Bool, trigger: NSEvent.ModifierFlags = .option, currentAppOnly: Bool = false) {
         if panel != nil {
             selection = WindowSwitcherModel.step(selection: selection, count: tiles.count, reverse: reverse)
             return
         }
         self.trigger = trigger
-        open(reverse: reverse)
+        open(reverse: reverse, currentAppOnly: currentAppOnly)
     }
 
-    private func open(reverse: Bool) {
+    private func open(reverse: Bool, currentAppOnly: Bool = false) {
         let snapshot = runtime.snapshot
-        let records = snapshot.windows.values.filter(Self.isSwitchable)
+        let frontPID = NSWorkspace.shared.frontmostApplication?.processIdentifier
+        let records = snapshot.windows.values.filter(Self.isSwitchable).filter { !currentAppOnly || $0.pid == frontPID }
         let byID = Dictionary(records.map { ($0.id.rawValue, $0) }, uniquingKeysWith: { a, _ in a })
         let ordered = WindowSwitcherModel.order(candidates: snapshot.orderedWindowIDs.map(\.rawValue).filter { byID[$0] != nil },
                                                 mru: mru)

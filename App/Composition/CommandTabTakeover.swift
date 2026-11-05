@@ -11,6 +11,8 @@ final class CommandTabTakeover {
 
     /// Called with `reverse` (Shift held) on every ⌘Tab / ⌘⇧Tab press.
     var onPress: ((Bool) -> Void)?
+    /// Same, for ⌘` : the switcher limited to the frontmost app's windows.
+    var onPressCurrentApp: ((Bool) -> Void)?
 
     private var tap: CFMachPort?
     private var source: CFRunLoopSource?
@@ -62,13 +64,15 @@ private func commandTabCallback(proxy: CGEventTapProxy, type: CGEventType, event
         return Unmanaged.passUnretained(event)
     }
     let flags = event.flags
-    guard type == .keyDown,
-          event.getIntegerValueField(.keyboardEventKeycode) == Int64(kVK_Tab),
+    let key = event.getIntegerValueField(.keyboardEventKeycode)
+    guard type == .keyDown, key == Int64(kVK_Tab) || key == Int64(kVK_ANSI_Grave),
           flags.contains(.maskCommand),
           !flags.contains(.maskAlternate), !flags.contains(.maskControl) else {
         return Unmanaged.passUnretained(event)
     }
     let reverse = flags.contains(.maskShift)
-    MainActor.assumeIsolated { service.onPress?(reverse) }
+    MainActor.assumeIsolated {
+        if key == Int64(kVK_Tab) { service.onPress?(reverse) } else { service.onPressCurrentApp?(reverse) }
+    }
     return nil
 }

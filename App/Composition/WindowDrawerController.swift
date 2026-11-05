@@ -7,10 +7,11 @@ import SwiftUI
 /// Edge drawer: a left icon rail (Windows, Layouts, Clipboard, plus shortcuts to the existing Search and Apps
 /// panels) over a content pane. Windows tab = searchable thumbnail grid. Opened with ⌃⌥W on the display under
 /// the cursor; Esc or a click outside closes it.
-// shortcut: hotkey only; edge-hover opening comes later if wanted.
+// shortcut: edge hover polls the pointer at ~7 Hz and only watches the left edge of each display.
 @MainActor
 final class WindowDrawerController: ObservableObject {
-    enum Tab: String { case windows, layouts, clipboard }
+    enum Tab: String { case windows, layouts, clipboard, emoji }
+    static let edgeHoverKey = "com.katikati.drawer.edgeHover"
 
     struct Item: Identifiable, Equatable {
         let id: String
@@ -32,6 +33,9 @@ final class WindowDrawerController: ObservableObject {
     private var hotKey: GlobalHotKeyMonitor?
     private var panel: DrawerPanel?
     private var clickMonitor: Any?
+    private var edgeTimer: Timer?
+    private var edgeSince: Date?
+    private var defaultsObserver: NSObjectProtocol?
     private let log = Logger(subsystem: "com.caye.macosdockcc.v2", category: "drawer")
 
     init(runtime: AppRuntime, onSearch: @escaping () -> Void, onApps: @escaping () -> Void) {
@@ -45,6 +49,34 @@ final class WindowDrawerController: ObservableObject {
         let status = monitor.start()
         if status == .registered { hotKey = monitor } else {
             log.warning("Drawer ⌃⌥W not registered: \(String(describing: status), privacy: .public)")
+        }
+        defaultsObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.applyEdgeHover() }
+        }
+        applyEdgeHover()
+    }
+
+    private func applyEdgeHover() {
+        let on = UserDefaults.standard.bool(forKey: Self.edgeHoverKey)
+        if on, edgeTimer == nil {
+            edgeTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [weak self] _ in
+                Task { @MainActor in self?.pollEdge() }
+            }
+        } else if !on {
+            edgeTimer?.invalidate(); edgeTimer = nil; edgeSince = nil
+        }
+    }
+
+    /// Opens after the pointer has rested on a display's left edge for 0.4 s.
+    private func pollEdge() {
+        let mouse = NSEvent.mouseLocation
+        let atEdge = panel == nil && NSScreen.screens.contains { $0.frame.contains(mouse) && mouse.x <= $0.frame.minX + 2 }
+        guard atEdge else { edgeSince = nil; return }
+        if let since = edgeSince {
+            if Date().timeIntervalSince(since) >= 0.4 { edgeSince = nil; open() }
+        } else {
+            edgeSince = Date()
         }
     }
 
@@ -157,6 +189,7 @@ private struct WindowDrawerView: View {
                         Spacer(minLength: 0)
                     }
                 case .clipboard: ClipboardFlyoutView()
+                case .emoji: EmojiDrawerPane()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -170,6 +203,7 @@ private struct WindowDrawerView: View {
             railButton("macwindow.on.rectangle", "Windows", selected: controller.tab == .windows) { controller.select(.windows) }
             railButton("square.grid.2x2", "Apps", selected: false) { controller.runApps() }
             railButton("rectangle.split.3x1", "Layouts", selected: controller.tab == .layouts) { controller.select(.layouts) }
+            railButton("face.smiling", "Emoji", selected: controller.tab == .emoji) { controller.select(.emoji) }
             railButton("doc.on.clipboard", "Clipboard", selected: controller.tab == .clipboard) { controller.select(.clipboard) }
             Spacer()
         }
@@ -249,5 +283,38 @@ private struct WindowDrawerView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture { controller.activate(item.id) }
+    }
+}
+
+/// Emoji tab: search by name, click to copy.
+private struct EmojiDrawerPane: View {
+    @State private var query = ""
+    @State private var copied: String?
+    @FocusState private var focused: Bool
+
+    var body: some View {
+        VStack(spacing: 10) {
+            TextField("Search emoji", text: $query).textFieldStyle(.roundedBorder).focused($focused)
+                .onAppear { focused = true }
+            ScrollView {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 7), spacing: 4) {
+                    ForEach(Array(EmojiCatalog.matching(query).prefix(300)), id: \.char) { entry in
+                        Text(verbatim: entry.char).font(.system(size: 24))
+                            .frame(width: 40, height: 40)
+                            .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(copied == entry.char ? Color.accentColor.opacity(0.3) : Color.clear))
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                NSPasteboard.general.clearContents()
+                                NSPasteboard.general.setString(entry.char, forType: .string)
+                                copied = entry.char
+                            }
+                            .help(Text(verbatim: entry.name))
+                    }
+                }
+            }
+            Text(copied == nil ? "Click an emoji to copy it" : "Copied").font(.system(size: 11)).foregroundStyle(.secondary)
+        }
+        .padding(12)
     }
 }

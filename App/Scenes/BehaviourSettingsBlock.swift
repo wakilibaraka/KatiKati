@@ -56,6 +56,8 @@ struct WindowBehaviourSettingsBlock: View {
     @AppStorage(WindowSwitcherController.enabledKey) private var switcherEnabled = true
     @AppStorage(CommandTabTakeover.enabledKey) private var commandTabEnabled = false
     @AppStorage(WindowStripController.enabledKey) private var stripEnabled = false
+    @AppStorage(WindowBorderController.enabledKey) private var borderEnabled = false
+    @AppStorage(WindowDrawerController.edgeHoverKey) private var edgeHoverEnabled = false
     @AppStorage(WindowLayoutRestoreController.enabledKey) private var layoutRestoreEnabled = true
 
     var body: some View {
@@ -72,7 +74,7 @@ struct WindowBehaviourSettingsBlock: View {
             SettingsToggleRow(
                 Text("Use ⌘Tab for the Window Switcher"),
                 isOn: $commandTabEnabled,
-                note: Text("Replaces the system ⌘Tab with the same window grid. Type to search; ⌘W closes, ⌘M minimizes, ⌘Q quits the selected window's app. Needs Accessibility access; turn off to get the system switcher back.")
+                note: Text("Replaces the system ⌘Tab with the same window grid; ⌘` shows only the front app's windows. Type to search; ⌘W closes, ⌘M minimizes, ⌘Q quits the selected window's app. Needs Accessibility access; turn off to get the system switcher back.")
             )
 
             SettingsDivider()
@@ -80,6 +82,20 @@ struct WindowBehaviourSettingsBlock: View {
                 Text("Always-Visible Window Strip"),
                 isOn: $stripEnabled,
                 note: Text("Keeps a narrow column of window icons on the left edge of the main display. Click an icon to bring that window forward. Auto-tiling leaves the strip's space free. Press ⌃⌥W for the full window drawer.")
+            )
+
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Open Window Drawer at Screen Edge"),
+                isOn: $edgeHoverEnabled,
+                note: Text("Rest the pointer on the left edge of a display for a moment to open the drawer. ⌃⌥W always works.")
+            )
+
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Border Around Focused Window"),
+                isOn: $borderEnabled,
+                note: Text("Draws an accent-colored outline around the window you are working in.")
             )
 
             SettingsDivider()

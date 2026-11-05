@@ -148,9 +148,11 @@ final class TilingEngine: ObservableObject {
     func preset(for screen: NSScreen) -> TilingLayoutPreset { displayPresets[screen.localizedName] ?? preset }
 
     func setPreset(_ newPreset: TilingLayoutPreset, forDisplay name: String) {
-        guard displayPresets[name] != newPreset else { return }
+        // Re-picking the current preset still has to clear a catalog layout sitting on top of it.
+        let hadLayout = displayLayouts.removeValue(forKey: name) != nil
+        guard hadLayout || displayPresets[name] != newPreset else { return }
         displayPresets[name] = newPreset
-        if displayLayouts.removeValue(forKey: name) != nil {
+        if hadLayout {
             UserDefaults.standard.set(displayLayouts.mapValues(\.rawValue), forKey: Self.displayLayoutsKey)
         }
         UserDefaults.standard.set(displayPresets.mapValues(\.rawValue), forKey: Self.displayPresetsKey)
