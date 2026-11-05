@@ -7114,5 +7114,17 @@
     "seen": 1793837011.010717,
     "ast_hash": "05536354a7743d8290a4445ef45050ce",
     "semantic_hash": ""
+  },
+  "Core/Support/KeepAwakePolicy.swift": {
+    "mtime": 1793837426.6544287,
+    "seen": 1793837786.770163,
+    "ast_hash": "95c3e09b3e0e8e5d33204db609ebe370",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/KeepAwakePolicyTests.swift": {
+    "mtime": 1793837426.7061415,
+    "seen": 1793837786.7706182,
+    "ast_hash": "4457e2f6027a97c0425c7e0fe9b6bddf",
+    "semantic_hash": ""
   }
 }
