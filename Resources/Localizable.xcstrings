@@ -97814,6 +97814,193 @@
           }
         }
       }
+    },
+    "AI agents": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI agents"
+          }
+        }
+      }
+    },
+    "AI agents are working": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI agents are working"
+          }
+        }
+      }
+    },
+    "Admin approval was not given": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Admin approval was not given"
+          }
+        }
+      }
+    },
+    "Agents just finished": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agents just finished"
+          }
+        }
+      }
+    },
+    "Background run": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background run"
+          }
+        }
+      }
+    },
+    "Battery under %lld%%": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Battery under %lld%%"
+          }
+        }
+      }
+    },
+    "Brewing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brewing"
+          }
+        }
+      }
+    },
+    "Idle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Idle"
+          }
+        }
+      }
+    },
+    "Keep running with the lid shut": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep running with the lid shut"
+          }
+        }
+      }
+    },
+    "Lid closed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lid closed"
+          }
+        }
+      }
+    },
+    "Sleep under battery": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep under battery"
+          }
+        }
+      }
+    },
+    "Sleepy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleepy"
+          }
+        }
+      }
+    },
+    "Stay awake while they work": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stay awake while they work"
+          }
+        }
+      }
+    },
+    "Timer ended": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timer ended"
+          }
+        }
+      }
+    },
+    "Until %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Until %@"
+          }
+        }
+      }
+    },
+    "Until you turn it off": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Until you turn it off"
+          }
+        }
+      }
+    },
+    "Your Mac can sleep": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac can sleep"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

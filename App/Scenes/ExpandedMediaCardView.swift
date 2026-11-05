@@ -604,8 +604,9 @@ struct ExpandedMediaCardView: View {
 
     private func toggleStayAwake() {
         let next = !quickToggles.keepAwakeOn
-        quickToggles.setKeepAwake(next)
         let preset = StayAwakePreset(rawValue: awakePresetRaw) ?? .m30
+        quickToggles.setKeepAwake(next)
+        KeepAwakeService.shared.setManual(next, duration: preset.duration)   // the service owns expiry
         if next {
             if let sec = preset.seconds {
                 awakeRemainingSeconds = sec
@@ -628,6 +629,7 @@ struct ExpandedMediaCardView: View {
         let nextPreset = all[nextIndex]
         awakePresetRaw = nextPreset.rawValue
         if quickToggles.keepAwakeOn {
+            KeepAwakeService.shared.setManual(true, duration: nextPreset.duration)
             if let sec = nextPreset.seconds {
                 awakeRemainingSeconds = sec
                 awakeTimerActive = true
@@ -747,30 +749,6 @@ struct ExpandedMediaCardView: View {
         } else {
             return "in \(max(1, minutes))m"
         }
-    }
-}
-
-// MARK: - Stay Awake Duration Presets
-
-private enum StayAwakePreset: Int, CaseIterable {
-    case m15 = 15
-    case m30 = 30
-    case h1 = 60
-    case h2 = 120
-    case indefinite = 0
-
-    var label: String {
-        switch self {
-        case .m15: return "15m"
-        case .m30: return "30m"
-        case .h1: return "1h"
-        case .h2: return "2h"
-        case .indefinite: return "∞"
-        }
-    }
-
-    var seconds: Int? {
-        rawValue == 0 ? nil : rawValue * 60
     }
 }
 

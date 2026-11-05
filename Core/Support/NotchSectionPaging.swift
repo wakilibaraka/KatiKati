@@ -13,6 +13,7 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
     case teleprompter = 4   // Only present while the owner turns it on
     case cameraMirror = 5   // The live camera mirror, only while it is switched on
     case notifications = 6  // Mirrored notifications, only while it is switched on
+    case keepAwake = 7      // Keep Awake: Brewing card, duration chips, lid + AI-agent rows (always on)
 
     var id: Int { rawValue }
 
@@ -27,6 +28,7 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         // would ship English in every language — and the catalog gate reads it as an unreferenced key.
         case .cameraMirror: return String(localized: "Camera Mirror")
         case .notifications: return String(localized: "Notifications")
+        case .keepAwake: return String(localized: "Keep Awake")
         }
     }
 
@@ -39,6 +41,7 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         case .teleprompter: return "text.alignleft"
         case .cameraMirror: return "camera.viewfinder"
         case .notifications: return "bell.fill"
+        case .keepAwake: return "cup.and.saucer.fill"
         }
     }
 

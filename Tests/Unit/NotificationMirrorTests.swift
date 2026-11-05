@@ -61,9 +61,9 @@ final class NotificationMirrorTests: XCTestCase {
 
     /// The notifications page exists only while its switch is on, after the camera mirror.
     func testTheNotificationsPageJoinsTheGalleryOnlyWhenItIsSwitchedOn() {
-        XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 4)
-        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: true, notifications: true).last, .notifications)
-        XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: true, notifications: true).count, 7)
+        XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 5)
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: true, notifications: true).dropLast().last, .notifications)
+        XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: true, notifications: true).count, 8)
         XCTAssertFalse(NotchPage.visible(teleprompter: true, mirror: true).contains(.notifications))
     }
 }

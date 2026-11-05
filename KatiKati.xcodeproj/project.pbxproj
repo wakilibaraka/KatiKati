@@ -4599,3 +4599,6 @@
 	};
 	rootObject = A0000000000000000000003F /* Project object */;
 }
+		A0000000000000000000C881 /* NotchKeepAwakePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C880 /* NotchKeepAwakePageView.swift */; };
+		A0000000000000000000C880 /* NotchKeepAwakePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchKeepAwakePageView.swift; path = App/Scenes/Notch/NotchKeepAwakePageView.swift; sourceTree = SOURCE_ROOT; };
+				A0000000000000000000C881 /* NotchKeepAwakePageView.swift in Sources */,

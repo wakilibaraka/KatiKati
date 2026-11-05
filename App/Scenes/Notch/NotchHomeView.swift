@@ -40,6 +40,8 @@ struct NotchHomeView: View {
                     NotchMirrorPageView()
                 case .notifications:
                     NotchNotificationsPageView()
+                case .keepAwake:
+                    NotchKeepAwakePageView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

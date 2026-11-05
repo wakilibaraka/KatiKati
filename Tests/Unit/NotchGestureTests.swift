@@ -195,12 +195,14 @@ final class NotchGestureTests: XCTestCase {
         XCTAssertEqual(p3, .audioDeck)
 
         // Wrapping forward
-        XCTAssertEqual(p3.next(wrap: true), .downloadDeck)
+        let p4 = p3.next()
+        XCTAssertEqual(p4, .keepAwake)
+        XCTAssertEqual(p4.next(wrap: true), .downloadDeck)
         // Clamping forward without wrap
-        XCTAssertEqual(p3.next(wrap: false), .audioDeck)
+        XCTAssertEqual(p4.next(wrap: false), .keepAwake)
 
         // Wrapping backward
-        XCTAssertEqual(p0.previous(wrap: true), .audioDeck)
+        XCTAssertEqual(p0.previous(wrap: true), .keepAwake)
         // Clamping backward without wrap
         XCTAssertEqual(p0.previous(wrap: false), .downloadDeck)
     }
@@ -241,31 +243,32 @@ final class NotchGestureTests: XCTestCase {
         let visible = NotchPage.visible(teleprompter: false)
         XCTAssertEqual(NotchPageDirection.between(from: .downloadDeck, to: .storage, visible: visible), 1)
         XCTAssertEqual(NotchPageDirection.between(from: .storage, to: .downloadDeck, visible: visible), -1)
-        XCTAssertEqual(NotchPageDirection.between(from: .audioDeck, to: .downloadDeck, visible: visible), 1, "wrap keeps swipe direction")
-        XCTAssertEqual(NotchPageDirection.between(from: .downloadDeck, to: .audioDeck, visible: visible), -1, "wrap keeps swipe direction")
+        XCTAssertEqual(NotchPageDirection.between(from: .keepAwake, to: .downloadDeck, visible: visible), 1, "wrap keeps swipe direction")
+        XCTAssertEqual(NotchPageDirection.between(from: .downloadDeck, to: .keepAwake, visible: visible), -1, "wrap keeps swipe direction")
     }
 
     // Phase 37c: the teleprompter page is the 5th page only while switched on; off, paging is the original four.
     func testTeleprompterPageIsOptional() {
-        XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 4)
-        XCTAssertEqual(NotchPage.visible(teleprompter: true).last, .teleprompter)
-        XCTAssertEqual(NotchPage.audioDeck.next(wrap: true), .downloadDeck)
+        XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 5)
+        XCTAssertEqual(NotchPage.visible(teleprompter: true).last, .keepAwake)   // Keep Awake is always last
+        XCTAssertEqual(NotchPage.visible(teleprompter: true).dropLast().last, .teleprompter)
+        XCTAssertEqual(NotchPage.keepAwake.next(wrap: true), .downloadDeck)
         XCTAssertEqual(NotchPage.audioDeck.next(wrap: true, teleprompter: true), .teleprompter)
-        XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: true), .downloadDeck)
-        XCTAssertEqual(NotchPage.downloadDeck.previous(wrap: true, teleprompter: true), .teleprompter)
+        XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: true), .keepAwake)
+        XCTAssertEqual(NotchPage.downloadDeck.previous(wrap: true, teleprompter: true), .keepAwake)
         XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: false), .downloadDeck)   // switched off while on it
     }
 
     func testPageLayoutOrdersHidesAndRoundTrips() {
         let all = NotchPage.visible(teleprompter: false, layout: NotchPageLayout())
-        XCTAssertEqual(all, [.downloadDeck, .storage, .aiTracker, .audioDeck])
+        XCTAssertEqual(all, [.downloadDeck, .storage, .aiTracker, .audioDeck, .keepAwake])
         var layout = NotchPageLayout(order: [.audioDeck, .aiTracker])
         layout.hidden = [.storage]
-        XCTAssertEqual(NotchPage.visible(teleprompter: false, layout: layout), [.audioDeck, .aiTracker, .downloadDeck])
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, layout: layout), [.audioDeck, .aiTracker, .downloadDeck, .keepAwake])
         XCTAssertEqual(NotchPageLayout(raw: layout.raw), layout)
         XCTAssertEqual(NotchPageLayout(raw: "junk|99,x"), NotchPageLayout())
         layout.hidden = Set(NotchPage.allCases)
-        XCTAssertEqual(NotchPage.visible(teleprompter: false, layout: layout).count, 4)   // never empty
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, layout: layout).count, 5)   // never empty
     }
 
     func testDisplayDesignDefaultsAndOverrides() {
