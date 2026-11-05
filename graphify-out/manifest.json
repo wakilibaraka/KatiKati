@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1793839070.0410511,
-    "seen": 1793839266.39216,
-    "ast_hash": "4ac20e5babcb687119f1d6b321dfd3b7",
+    "mtime": 1793841630.0608068,
+    "seen": 1793841656.138596,
+    "ast_hash": "aa2bed5093b3dff41eca9636cd5c9ae0",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -7188,9 +7188,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DictionaryTerminalSettingsTests.swift": {
-    "mtime": 1793839093.5126336,
-    "seen": 1793839266.393059,
-    "ast_hash": "68359f56160d512c8c00aa2dca6f9f14",
+    "mtime": 1793841637.3517354,
+    "seen": 1793841656.1391811,
+    "ast_hash": "307400087e16a7b99ba8c6977324665a",
     "semantic_hash": ""
   },
   "Tests/Unit/TerminalTabsTests.swift": {
