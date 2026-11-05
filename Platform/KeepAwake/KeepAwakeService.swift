@@ -49,6 +49,8 @@ final class KeepAwakeService: ObservableObject {
     private var previousCPU: [Int: Double] = [:]
     private var timer: Timer?
     private var scanning = false
+    private var lidEngaged = false
+    @Published private(set) var lidGuardInstalled = false
 
     private init() {
         let d = UserDefaults.standard
@@ -61,6 +63,11 @@ final class KeepAwakeService: ObservableObject {
     func start() {
         guard timer == nil else { return }
         AgentUsageService.shared.startMonitoring()
+        Task.detached(priority: .utility) {
+            LidSleepGuard.revertLeftover()
+            let installed = LidSleepGuard.isInstalled()
+            await MainActor.run { KeepAwakeService.shared.lidGuardInstalled = installed }
+        }
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.tick() }
         }
@@ -74,10 +81,22 @@ final class KeepAwakeService: ObservableObject {
         evaluate()
     }
 
+    /// Turns lid-closed mode on or off. Turning it on the first time asks for the admin password once.
+    func setLidClosed(_ on: Bool) async -> Bool {
+        if on, !lidGuardInstalled {
+            let ok = await Task.detached(priority: .userInitiated) { LidSleepGuard.install() }.value
+            lidGuardInstalled = ok
+            guard ok else { return false }
+        }
+        lidClosedEnabled = on
+        return true
+    }
+
     /// Releases everything (quit): the assertion dies with the process anyway, this keeps the state honest.
     func shutdown() {
         timer?.invalidate(); timer = nil
         apply(nil)
+        if lidEngaged { LidSleepGuard.set(false); lidEngaged = false }
     }
 
     private func tick() {
@@ -125,7 +144,19 @@ final class KeepAwakeService: ObservableObject {
         let next = policy.decide(inputs, now: Date())
         if next.reason == .timerEnded { manualOn = false; manualEnd = nil }
         if next != decision { decision = next }
+        applyLid(next.lidGuard)
         apply(next.hold ? (next.reason == .manual ? "PreventUserIdleDisplaySleep" : "PreventUserIdleSystemSleep") : nil)
+    }
+
+    private func applyLid(_ on: Bool) {
+        guard on != lidEngaged else { return }
+        lidEngaged = on
+        Task.detached(priority: .userInitiated) {
+            if !LidSleepGuard.set(on) && on {
+                // sudo refused (rule removed): fall back to "not engaged" so the next tick retries honestly.
+                await MainActor.run { KeepAwakeService.shared.lidEngaged = false; KeepAwakeService.shared.lidGuardInstalled = false }
+            }
+        }
     }
 
     /// Holds exactly one power assertion of the wanted type, or none.

@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A0000000000000000000C871 /* LidSleepGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C870 /* LidSleepGuard.swift */; };
+		A0000000000000000000C861 /* LidSleepSudoersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C860 /* LidSleepSudoersTests.swift */; };
+		A0000000000000000000C851 /* LidSleepSudoers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C850 /* LidSleepSudoers.swift */; };
+		A0000000000000000000C852 /* LidSleepSudoers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C850 /* LidSleepSudoers.swift */; };
 		A0000000000000000000C841 /* KeepAwakeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C840 /* KeepAwakeService.swift */; };
 		A0000000000000000000C831 /* AgentProcessScanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C830 /* AgentProcessScanTests.swift */; };
 		A0000000000000000000C821 /* AgentProcessScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C820 /* AgentProcessScan.swift */; };
@@ -1281,6 +1285,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A0000000000000000000C870 /* LidSleepGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LidSleepGuard.swift; path = Platform/KeepAwake/LidSleepGuard.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000C860 /* LidSleepSudoersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LidSleepSudoersTests.swift; path = Tests/Unit/LidSleepSudoersTests.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000C850 /* LidSleepSudoers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LidSleepSudoers.swift; path = Core/Support/LidSleepSudoers.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000C840 /* KeepAwakeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeepAwakeService.swift; path = Platform/KeepAwake/KeepAwakeService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000C830 /* AgentProcessScanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentProcessScanTests.swift; path = Tests/Unit/AgentProcessScanTests.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000C820 /* AgentProcessScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentProcessScan.swift; path = Core/Support/AgentProcessScan.swift; sourceTree = SOURCE_ROOT; };
@@ -3025,6 +3032,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0000000000000000000C871 /* LidSleepGuard.swift in Sources */,
+				A0000000000000000000C851 /* LidSleepSudoers.swift in Sources */,
 				A0000000000000000000C841 /* KeepAwakeService.swift in Sources */,
 				A0000000000000000000C821 /* AgentProcessScan.swift in Sources */,
 				A0000000000000000000C801 /* KeepAwakePolicy.swift in Sources */,
@@ -3678,6 +3687,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0000000000000000000C861 /* LidSleepSudoersTests.swift in Sources */,
+				A0000000000000000000C852 /* LidSleepSudoers.swift in Sources */,
 				A0000000000000000000C831 /* AgentProcessScanTests.swift in Sources */,
 				A0000000000000000000C822 /* AgentProcessScan.swift in Sources */,
 				A0000000000000000000C811 /* KeepAwakePolicyTests.swift in Sources */,
