@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A0000000000000000000C811 /* KeepAwakePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C810 /* KeepAwakePolicyTests.swift */; };
+		A0000000000000000000C801 /* KeepAwakePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C800 /* KeepAwakePolicy.swift */; };
+		A0000000000000000000C802 /* KeepAwakePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C800 /* KeepAwakePolicy.swift */; };
 		A0000000000000000000B111 /* PeekController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000B110 /* PeekController.swift */; };
 		A0000000000000000000B102 /* PeekHold.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000B100 /* PeekHold.swift */; };
 		A0000000000000000000B101 /* PeekHold.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000B100 /* PeekHold.swift */; };
@@ -1274,6 +1277,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A0000000000000000000C810 /* KeepAwakePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeepAwakePolicyTests.swift; path = Tests/Unit/KeepAwakePolicyTests.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000C800 /* KeepAwakePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeepAwakePolicy.swift; path = Core/Support/KeepAwakePolicy.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000B110 /* PeekController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PeekController.swift; path = App/Composition/PeekController.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000B100 /* PeekHold.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PeekHold.swift; path = Core/Support/PeekHold.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F0A0 /* LayoutCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LayoutCatalog.swift; path = Core/Support/LayoutCatalog.swift; sourceTree = SOURCE_ROOT; };
@@ -3013,6 +3018,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0000000000000000000C801 /* KeepAwakePolicy.swift in Sources */,
 				F1A1C0DE0000000000000002 /* FluidRailGeometry.swift in Sources */,
 				F1A1C0DE0000000000000005 /* FluidRailBody.swift in Sources */,
 				A20000000000002001 /* SpaceTransitionController.swift in Sources */,
@@ -3663,6 +3669,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0000000000000000000C811 /* KeepAwakePolicyTests.swift in Sources */,
+				A0000000000000000000C802 /* KeepAwakePolicy.swift in Sources */,
 				F1A1C0DE0000000000000003 /* FluidRailGeometry.swift in Sources */,
 				F1A1C0DE0000000000000007 /* FluidRailGeometryTests.swift in Sources */,
 				A20000000000002003 /* SpaceSwitchPlan.swift in Sources */,
