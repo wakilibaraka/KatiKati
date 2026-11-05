@@ -183,13 +183,5 @@ struct SettingsTilingPane: View {
         }
     }
 
-    private static func glyphs(_ trigger: ShortcutTrigger) -> String? {
-        switch trigger {
-        case .off: return nil
-        case .chord(let c): return c.glyphs
-        case .doubleTap(let k): return "\(k.glyph)\(k.glyph)"
-        case .key(let k): return k.glyphs
-        case .hyper(let code): return "✦" + (ShortcutKeyNames.name(for: code) ?? "?")
-        }
-    }
+    private static func glyphs(_ trigger: ShortcutTrigger) -> String? { trigger.displayGlyphs }
 }

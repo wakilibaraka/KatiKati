@@ -9,6 +9,8 @@ final class ShortcutService {
     var onAction: (ShortcutAction) -> Void = { _ in }
     private var hotKeys: [ShortcutAction: GlobalHotKeyMonitor] = [:]
     private var tapActions: [ShortcutTapKey: [ShortcutAction]] = [:]
+    private var holdActions: [ShortcutTapKey: [ShortcutAction]] = [:]
+    private var holdTimer: Timer?
     private var detector = ModifierDoubleTapDetector()
     private var globalMonitor: Any?
     private var localMonitor: Any?
@@ -22,6 +24,8 @@ final class ShortcutService {
         hotKeys = [:]
         removeEventMonitors()
         tapActions = [:]
+        holdActions = [:]
+        cancelHold()
         detector.reset()
         for action in ShortcutAction.allCases where action != .windowSwitcher {
             switch bindings[action] ?? .off {
@@ -38,17 +42,20 @@ final class ShortcutService {
                 if monitor.start() == .registered { hotKeys[action] = monitor } else {
                     log.warning("Shortcut \(key.glyphs, privacy: .public) for \(action.rawValue, privacy: .public) could not be registered")
                 }
+            case .hold(let key):
+                holdActions[key, default: []].append(action)
             case .hyper:
                 break   // fired by `HyperkeyService`, which reads the same bindings
             }
         }
-        if !tapActions.isEmpty { installEventMonitors() }
+        if !tapActions.isEmpty || !holdActions.isEmpty { installEventMonitors() }
     }
 
     func tearDown() {
         hotKeys.values.forEach { $0.stop() }
         hotKeys = [:]
         removeEventMonitors()
+        cancelHold()
         applied = nil
     }
 
@@ -92,21 +99,39 @@ final class ShortcutService {
     }
 
     private func handle(kind: NSEvent.EventType, keyCode: UInt16, flags: NSEvent.ModifierFlags, time: TimeInterval) {
-        guard kind == .flagsChanged else { detector.reset(); return }
-        guard let key = ShortcutTapKey(keyCode: keyCode) else { detector.reset(); return }
+        guard kind == .flagsChanged else { detector.reset(); cancelHold(); return }
+        guard let key = ShortcutTapKey(keyCode: keyCode) else { detector.reset(); cancelHold(); return }
         let family: NSEvent.ModifierFlags = {
             switch key {
             case .leftCommand, .rightCommand: return .command
             case .leftControl, .rightControl: return .control
             case .leftOption, .rightOption: return .option
+            case .fn: return .function
             }
         }()
-        let active = flags.intersection([.command, .control, .option, .shift])
+        let active = flags.intersection([.command, .control, .option, .shift, .function])
         let isDown = active.contains(family)
-        // A chord such as ⌘⇧ is not a tap.
-        if isDown, active != family { detector.reset(); return }
+        // A chord such as ⌘⇧ is neither a tap nor a hold.
+        if isDown, active != family { detector.reset(); cancelHold(); return }
+        if isDown, holdActions[key] != nil { startHold(key) } else { cancelHold() }
         guard let fired = detector.modifierChanged(keyCode: keyCode, isDown: isDown, time: time),
               let actions = tapActions[fired] else { return }
         actions.forEach(onAction)
+    }
+
+    private func startHold(_ key: ShortcutTapKey) {
+        cancelHold()
+        holdTimer = Timer.scheduledTimer(withTimeInterval: ShortcutHold.threshold, repeats: false) { [weak self] _ in
+            Task { @MainActor in
+                guard let self else { return }
+                self.holdTimer = nil
+                self.holdActions[key]?.forEach(self.onAction)
+            }
+        }
+    }
+
+    private func cancelHold() {
+        holdTimer?.invalidate()
+        holdTimer = nil
     }
 }

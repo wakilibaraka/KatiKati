@@ -30,7 +30,6 @@ final class WindowDrawerController: ObservableObject {
     private let runtime: AppRuntime
     private let onSearch: () -> Void
     private let onApps: () -> Void
-    private var hotKey: GlobalHotKeyMonitor?
     private var panel: DrawerPanel?
     private var clickMonitor: Any?
     private var edgeTimer: Timer?
@@ -43,13 +42,6 @@ final class WindowDrawerController: ObservableObject {
     }
 
     func start() {
-        let shortcut = GlobalHotKeyShortcut(keyCode: UInt32(kVK_ANSI_W), carbonModifiers: UInt32(controlKey | optionKey),
-                                            displayGlyphs: "⌃⌥W", signature: 0x5467_4567, id: 22)
-        let monitor = GlobalHotKeyMonitor(shortcut: shortcut) { [weak self] in self?.toggle() }
-        let status = monitor.start()
-        if status == .registered { hotKey = monitor } else {
-            log.warning("Drawer ⌃⌥W not registered: \(String(describing: status), privacy: .public)")
-        }
         defaultsObserver = NotificationCenter.default.addObserver(
             forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { [weak self] _ in
             Task { @MainActor in self?.applyEdgeHover() }

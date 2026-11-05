@@ -161,6 +161,44 @@ final class ShortcutKeyTriggerTests: XCTestCase {
     }
 }
 
+final class ShortcutOverhaulTests: XCTestCase {
+    func testHoldAndFnRoundTrip() {
+        for k in ShortcutTapKey.allCases {
+            XCTAssertEqual(ShortcutTrigger.parse(ShortcutTrigger.hold(k).serialized), .hold(k))
+        }
+        XCTAssertEqual(ShortcutTrigger.parse("tap:fn"), .doubleTap(.fn))
+    }
+
+    func testChordAndKeyForSameCombinationOverlap() {
+        let k = ShortcutTrigger.key(ShortcutKey(keyCode: 49, modifiers: ShortcutKey.option))
+        XCTAssertEqual(ShortcutConflicts.duplicated([.drawer: .chord(.optionSpace), .weather: k]), [.drawer, .weather])
+    }
+
+    func testDefaultsPassTheValidator() {
+        let defaults = Dictionary(uniqueKeysWithValues: ShortcutAction.allCases.map { ($0, $0.defaultTrigger) })
+        for (a, t) in defaults where t != .off {
+            XCTAssertEqual(ShortcutValidator.check(t, for: a, among: defaults), .ok, a.rawValue)
+        }
+    }
+
+    func testReservedAndFnWarnButAreAllowed() {
+        for t in [ShortcutTrigger.chord(.controlSpace), .chord(.commandSpace), .doubleTap(.fn), .hold(.fn)] {
+            guard case .warn = ShortcutValidator.check(t, for: .weather, among: [:]) else { return XCTFail("\(t)") }
+        }
+    }
+
+    func testBareLetterRejectedBareFunctionKeyAllowed() {
+        XCTAssertEqual(ShortcutValidator.check(.key(ShortcutKey(keyCode: 0, modifiers: 0)), for: .weather, among: [:]),
+                       .reject("Add a modifier (⌃ ⌥ ⇧ ⌘) to a plain key."))
+        XCTAssertEqual(ShortcutValidator.check(.key(ShortcutKey(keyCode: 122, modifiers: 0)), for: .weather, among: [:]), .ok)
+    }
+
+    func testDrawerHasItsOwnIdAndDefault() {
+        XCTAssertEqual(ShortcutAction.windowDrawer.defaultTrigger.switcherKey?.glyphs, "⌃⌥W")
+        XCTAssertNotEqual(ShortcutAction.windowDrawer.hotKeyID, ShortcutAction.snapRightThird.hotKeyID)
+    }
+}
+
 final class PeekHoldTests: XCTestCase {
     func testQuickTapKeepsOpenLongHoldHides() {
         XCTAssertEqual(PeekHold.outcome(heldFor: 0.1), .keepOpen)

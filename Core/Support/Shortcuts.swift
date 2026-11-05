@@ -43,6 +43,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case windowSwitcher
     /// Hold to peek at the Weather and Calendar panels; a quick tap keeps them open. No default key.
     case peek
+    /// The window drawer (⌃⌥W). It was a hard-coded Carbon key with id 22, which `snapRightThird` also used.
+    case windowDrawer
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -96,6 +98,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .spacePrevious: return 45
         case .windowSwitcher: return 46   // 47 is the switcher's reverse key, not an action
         case .peek: return 48
+        case .windowDrawer: return 49
         }
     }
 
@@ -122,6 +125,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .notchPageNext, .notchPagePrevious, .captureArea, .pasteImageToFinder: return .off
         case .spaceNext, .spacePrevious, .peek: return .off
         case .windowSwitcher: return .key(ShortcutKey(keyCode: 48, modifiers: ShortcutKey.option))
+        case .windowDrawer: return .key(ShortcutKey(keyCode: 13, modifiers: ShortcutKey.control | ShortcutKey.option))
         }
     }
 
@@ -184,9 +188,12 @@ enum ShortcutChord: String, CaseIterable, Sendable {
 /// A modifier that fires on a quick double tap, left or right side.
 enum ShortcutTapKey: String, CaseIterable, Sendable {
     case leftCommand, rightCommand, leftControl, rightControl, leftOption, rightOption
+    /// fn / Globe. Arrives only as a `flagsChanged` event, so it rides the same detector as the modifiers.
+    case fn
 
     var keyCode: UInt16 {
         switch self {
+        case .fn: return 63
         case .leftCommand: return 55
         case .rightCommand: return 54
         case .leftControl: return 59
@@ -201,6 +208,7 @@ enum ShortcutTapKey: String, CaseIterable, Sendable {
         case .leftCommand, .rightCommand: return "⌘"
         case .leftControl, .rightControl: return "⌃"
         case .leftOption, .rightOption: return "⌥"
+        case .fn: return "fn"
         }
     }
 
@@ -221,7 +229,10 @@ struct ShortcutKey: Equatable, Hashable, Sendable {
     var modifiers: UInt8
 
     /// Needs a modifier (a bare letter would steal typing) and a key we can name.
-    var isValid: Bool { modifiers != 0 && ShortcutKeyNames.name(for: keyCode) != nil }
+    var isValid: Bool {
+        guard ShortcutKeyNames.name(for: keyCode) != nil else { return false }
+        return modifiers != 0 || ShortcutKeyNames.isFunctionKey(keyCode)
+    }
 
     var glyphs: String {
         (modifiers & Self.control != 0 ? "⌃" : "") + (modifiers & Self.option != 0 ? "⌥" : "")
@@ -240,6 +251,8 @@ enum ShortcutKeyNames {
         103: "F11", 111: "F12", 105: "F13", 107: "F14", 113: "F15", 106: "F16", 64: "F17", 79: "F18", 80: "F19",
     ]
     static func name(for keyCode: UInt16) -> String? { table[keyCode] }
+    /// F1–F19 are safe to bind bare: they cannot steal typing.
+    static func isFunctionKey(_ keyCode: UInt16) -> Bool { (table[keyCode].map { $0.hasPrefix("F") && $0.count > 1 } ?? false) }
     /// Letters and digits — what the Hyperkey picker offers.
     static let hyperChoices: [UInt16] = [0, 11, 8, 2, 14, 3, 5, 4, 34, 38, 40, 37, 46, 45, 31, 35, 12, 15, 1, 17, 32, 9, 13, 7, 16, 6]
 }
@@ -252,6 +265,8 @@ enum ShortcutTrigger: Equatable, Hashable, Sendable {
     case key(ShortcutKey)
     /// Phase 9e: Hyper (Caps Lock → ⌃⌥⇧⌘) + a key. Fired by the Hyperkey service, never by Carbon.
     case hyper(UInt16)
+    /// Hold one modifier (or fn) for `ShortcutHold.threshold` without pressing anything else.
+    case hold(ShortcutTapKey)
 
     var serialized: String {
         switch self {
@@ -260,6 +275,7 @@ enum ShortcutTrigger: Equatable, Hashable, Sendable {
         case .doubleTap(let k): return "tap:\(k.rawValue)"
         case .key(let k): return "key:\(k.modifiers):\(k.keyCode)"
         case .hyper(let code): return "hyper:\(code)"
+        case .hold(let k): return "hold:\(k.rawValue)"
         }
     }
 
@@ -270,6 +286,7 @@ enum ShortcutTrigger: Equatable, Hashable, Sendable {
         let parts = raw.split(separator: ":", maxSplits: 1).map(String.init)
         guard parts.count == 2 else { return nil }
         if parts[0] == "chord", let c = ShortcutChord(rawValue: parts[1]) { return .chord(c) }
+        if parts[0] == "hold", let k = ShortcutTapKey(rawValue: parts[1]) { return .hold(k) }
         if parts[0] == "tap", let k = ShortcutTapKey(rawValue: parts[1]) { return .doubleTap(k) }
         if parts[0] == "hyper", let code = UInt16(parts[1]), ShortcutKeyNames.name(for: code) != nil { return .hyper(code) }
         if parts[0] == "key" {
@@ -297,17 +314,74 @@ extension ShortcutTrigger {
             if c.usesShift { mods |= ShortcutKey.shift }
             if c.usesCommand { mods |= ShortcutKey.command }
             return ShortcutKey(keyCode: 49, modifiers: mods)
-        case .doubleTap, .hyper: return ShortcutAction.windowSwitcher.defaultTrigger.switcherKey
+        case .doubleTap, .hyper, .hold: return ShortcutAction.windowSwitcher.defaultTrigger.switcherKey
         }
     }
 }
 
 enum ShortcutConflicts {
-    /// Actions whose (non-off) trigger is shared with another action.
+    /// Actions whose (non-off) trigger is shared with another action. Compared by `overlapKey`, so a
+    /// Space chord and the same combination recorded as a custom key count as one.
     static func duplicated(_ bindings: [ShortcutAction: ShortcutTrigger]) -> Set<ShortcutAction> {
         var byTrigger: [ShortcutTrigger: [ShortcutAction]] = [:]
-        for (a, t) in bindings where t != .off { byTrigger[t, default: []].append(a) }
+        for (a, t) in bindings where t != .off { byTrigger[t.overlapKey, default: []].append(a) }
         return Set(byTrigger.values.filter { $0.count > 1 }.flatMap { $0 })
+    }
+}
+
+extension ShortcutTrigger {
+    /// The one place a trigger becomes display text; `nil` for Off.
+    var displayGlyphs: String? {
+        switch self {
+        case .off: return nil
+        case .chord(let c): return c.glyphs
+        case .doubleTap(let k): return k == .fn ? "fn fn" : "\(k.glyph)\(k.glyph)"
+        case .hold(let k): return "hold " + k.glyph
+        case .key(let k): return k.glyphs
+        case .hyper(let code): return "✦" + (ShortcutKeyNames.name(for: code) ?? "?")
+        }
+    }
+
+    /// The same physical gesture always maps to the same value: a Space chord becomes its `.key` form.
+    var overlapKey: ShortcutTrigger {
+        if case .chord = self, let k = switcherKey { return .key(k) }
+        return self
+    }
+}
+
+/// How long a `.hold` trigger must be held before it fires.
+enum ShortcutHold {
+    static let threshold: TimeInterval = 0.5
+}
+
+/// One verdict for a candidate binding, in one place (the recorder and the settings rows ask this).
+enum ShortcutVerdict: Equatable, Sendable {
+    case ok
+    /// Allowed, but the user should know (macOS owns it, another action has it, fn may be swallowed).
+    case warn(String)
+    case reject(String)
+}
+
+enum ShortcutValidator {
+    static func check(_ trigger: ShortcutTrigger, for action: ShortcutAction,
+                      among bindings: [ShortcutAction: ShortcutTrigger]) -> ShortcutVerdict {
+        let key = trigger.overlapKey
+        if case .key(let k) = key, !k.isValid { return .reject("Add a modifier (⌃ ⌥ ⇧ ⌘) to a plain key.") }
+        if let other = bindings.first(where: { $0.key != action && $0.value != .off && $0.value.overlapKey == key })?.key {
+            return .warn("Already used by \(other.rawValue).")
+        }
+        switch key {
+        case .key(let k) where k.keyCode == 49 && k.modifiers == ShortcutKey.command,
+             .key(let k) where k.keyCode == 49 && k.modifiers == ShortcutKey.control,
+             .key(let k) where k.keyCode == 49 && k.modifiers == ShortcutKey.command | ShortcutKey.option:
+            return .warn("macOS already uses this (Spotlight, input sources or Finder search). Turn it off in System Settings › Keyboard › Shortcuts first.")
+        case .key(let k) where k.keyCode == 48 && k.modifiers == ShortcutKey.command:
+            return .warn("This is the system app switcher. Turn on ⌘Tab for the Window Switcher to replace it.")
+        case .doubleTap(.fn), .hold(.fn):
+            return .warn("macOS may use fn / Globe for dictation or emoji. Set 'Press 🌐 key to' Do Nothing in System Settings › Keyboard.")
+        default:
+            return .ok
+        }
     }
 }
 

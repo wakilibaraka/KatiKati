@@ -279,7 +279,11 @@ extension SettingsLayoutPane {
             ForEach(ShortcutChord.allCases, id: \.self) { Text(verbatim: $0.glyphs).tag(ShortcutTrigger.chord($0)) }
             Divider()
             ForEach(ShortcutTapKey.allCases, id: \.self) { key in
-                (Text("Double-tap") + Text(verbatim: " \(key.glyph) (\(key.isRight ? "R" : "L"))")).tag(ShortcutTrigger.doubleTap(key))
+                (Text("Double-tap") + Text(verbatim: key == .fn ? " fn" : " \(key.glyph) (\(key.isRight ? "R" : "L"))")).tag(ShortcutTrigger.doubleTap(key))
+            }
+            Divider()
+            ForEach(ShortcutTapKey.allCases, id: \.self) { key in
+                (Text("Hold") + Text(verbatim: key == .fn ? " fn" : " \(key.glyph) (\(key.isRight ? "R" : "L"))")).tag(ShortcutTrigger.hold(key))
             }
             if case let .key(custom) = store.shortcutBindings[action] ?? .off {
                 Divider()

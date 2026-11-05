@@ -379,6 +379,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     case .failure(let failure): self.shortcutToast.show(failure.message, symbol: "exclamationmark.triangle.fill")
                     }
                 case .peek: self.peek.pressed()
+                case .windowDrawer: self.windowDrawer.toggle()
                 case .weather: WidgetPanelController.weather.toggle()
                 case .clock: WidgetPanelController.calendar.toggle()
                 case .keepAwake:
