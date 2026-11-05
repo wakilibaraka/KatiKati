@@ -70,6 +70,8 @@ enum CommandBarResult: Equatable, Sendable, Identifiable {
     case profile(BarProfileSummary)
     /// `profile save <name>`: store the bar as it is now under that name.
     case saveProfile(String)
+    /// `define <word>`: open the dictionary panel on the word.
+    case define(String)
 
     var id: String {
         switch self {
@@ -118,6 +120,8 @@ enum CommandBarResult: Equatable, Sendable, Identifiable {
             return "profile:\(summary.id)"
         case .saveProfile(let name):
             return "saveProfile:\(name)"
+        case .define(let word):
+            return "define:\(word)"
         }
     }
 }
@@ -345,6 +349,8 @@ enum CommandBarResults {
             return MenuSearch.rank(argument, in: menuItems).map(CommandBarResult.menuItem)
         case .profile:
             return profileRows(argument, profiles)
+        case .define:
+            return argument.isEmpty ? [] : [.define(argument)]
         }
     }
 

@@ -264,6 +264,10 @@ struct CommandBarView: View {
                 Text(verbatim: summary.name).font(.system(size: 13, weight: .medium)).lineLimit(1)
                 Text("Bar profile").font(.system(size: 11)).foregroundColor(.secondary)
                 Spacer(minLength: 0)
+            case .define(let word):
+                Text(verbatim: word).font(.system(size: 13, weight: .medium)).lineLimit(1)
+                Text("Define in Dictionary").font(.system(size: 11)).foregroundColor(.secondary)
+                Spacer(minLength: 0)
             case .saveProfile(let name):
                 Text("Save current bar as profile").font(.system(size: 13, weight: .medium))
                 Text(verbatim: name).font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
@@ -329,6 +333,8 @@ struct CommandBarView: View {
             Image(systemName: "calendar").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .profile, .saveProfile:
             Image(systemName: "rectangle.3.group").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .define:
+            Image(systemName: "character.book.closed").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .menuItem:
             Image(systemName: "filemenu.and.selection").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         }

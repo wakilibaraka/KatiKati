@@ -9,6 +9,8 @@ enum CommandBarMode: CaseIterable, Sendable {
     case menu
     /// Port plan #4: bar profiles. `profile work` applies Work; `profile save work` stores the bar as Work.
     case profile
+    /// `define <word>` opens the dictionary panel on that word.
+    case define
 
     var keywords: [String] {
         switch self {
@@ -25,6 +27,7 @@ enum CommandBarMode: CaseIterable, Sendable {
         case .apps: return ["app"]
         case .menu: return ["m", "menu"]
         case .profile: return ["profile"]
+        case .define: return ["define", "def"]
         }
     }
 }

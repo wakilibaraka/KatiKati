@@ -31,6 +31,8 @@ final class CommandBarPanelController {
     private var menuLoaded = false
     /// Port plan #4: set by AppDelegate; nil until profiles are wired, in which case `profile ` lists nothing.
     var barProfiles: BarProfileService?
+    /// `define <word>`: opens the dictionary panel (wired by `AppDelegate`).
+    var onDefine: ((String) -> Void)?
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -227,6 +229,9 @@ final class CommandBarPanelController {
         case .profile(let summary):
             dismiss()
             barProfiles?.apply(id: summary.id)
+        case .define(let word):
+            dismiss()
+            onDefine?(word)
         case .saveProfile(let name):
             dismiss()
             barProfiles?.saveCurrent(named: name)

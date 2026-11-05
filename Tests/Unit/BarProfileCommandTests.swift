@@ -39,4 +39,10 @@ final class BarProfileCommandTests: XCTestCase {
     func testRowIdsAreDistinct() {
         XCTAssertNotEqual(CommandBarResult.profile(work).id, CommandBarResult.saveProfile("Work").id)
     }
+
+    func testDefineOffersTheTypedWord() {
+        XCTAssertEqual(rows("define serendipity"), [.define("serendipity")])
+        XCTAssertEqual(rows("def  Word "), [.define("Word")])
+        XCTAssertTrue(rows("define").isEmpty)
+    }
 }

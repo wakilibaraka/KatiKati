@@ -46,6 +46,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case peek
     /// The window drawer (⌃⌥W). It was a hard-coded Carbon key with id 22, which `snapRightThird` also used.
     case windowDrawer
+    /// Open the dictionary panel / toggle the terminal panel. No default key.
+    case openDictionary, toggleTerminal
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -100,6 +102,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .windowSwitcher: return 46   // 47 is the switcher's reverse key, not an action
         case .peek: return 48
         case .windowDrawer: return 49
+        case .openDictionary: return 50
+        case .toggleTerminal: return 51
         }
     }
 
@@ -124,7 +128,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         // Phase 31 radial dial: off by default, user assigns
         case .radialDial, .radialDialSnap, .radialDialTools: return .off
         case .notchPageNext, .notchPagePrevious, .captureArea, .pasteImageToFinder: return .off
-        case .spaceNext, .spacePrevious, .peek: return .off
+        case .spaceNext, .spacePrevious, .peek, .openDictionary, .toggleTerminal: return .off
         case .windowSwitcher: return .key(ShortcutKey(keyCode: 48, modifiers: ShortcutKey.option))
         case .windowDrawer: return .key(ShortcutKey(keyCode: 13, modifiers: ShortcutKey.control | ShortcutKey.option))
         }

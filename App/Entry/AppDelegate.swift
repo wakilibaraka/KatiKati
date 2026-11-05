@@ -204,6 +204,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private(set) lazy var commandBarPanel: CommandBarPanelController = {
         let panel = CommandBarPanelController()
         panel.barProfiles = barProfileService
+        panel.onDefine = { [weak self] word in self?.dictionaryPanel.show(word: word) }
         return panel
     }()
     /// Port plan #4b: bar profiles. Lazy and inert until a profile is listed, saved or applied.
@@ -382,6 +383,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                 case .peek: self.peek.pressed()
                 case .windowDrawer: self.windowDrawer.toggle()
+                case .openDictionary: self.dictionaryPanel.toggle()
+                case .toggleTerminal: self.terminalPanel.toggle()
                 case .weather: WidgetPanelController.weather.toggle()
                 case .clock: WidgetPanelController.calendar.toggle()
                 case .keepAwake:
