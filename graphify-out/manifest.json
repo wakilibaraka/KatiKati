@@ -3018,9 +3018,9 @@
     "semantic_hash": "01c146f36662d628a2479df9d1465576"
   },
   "Scripts/build_and_run.sh": {
-    "mtime": 1793373431.1667728,
-    "seen": 1793373444.9625878,
-    "ast_hash": "d136992b8c09aa6a53f0ba7f34086e60",
+    "mtime": 1793917196.2467062,
+    "seen": 1793917416.7683342,
+    "ast_hash": "9c5c1a1d995af7dacf6964836f62ac97",
     "semantic_hash": ""
   },
   "Scripts/check_availability_warnings.py": {
@@ -3042,9 +3042,9 @@
     "semantic_hash": ""
   },
   "Scripts/install_local_release.sh": {
-    "mtime": 1793373431.1671805,
-    "seen": 1793373444.962592,
-    "ast_hash": "69183eaccdb97a447a97892636168b02",
+    "mtime": 1793917196.2372272,
+    "seen": 1793917416.768338,
+    "ast_hash": "7b52ac92cd194b97d3ecd97b74ae1952",
     "semantic_hash": ""
   },
   "Scripts/lib/pbxproj_add.py": {
