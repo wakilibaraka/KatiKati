@@ -480,9 +480,9 @@
     "semantic_hash": "1d6ce0d90daf500a7629c2ba2598e618"
   },
   "App/Composition/WindowSwitcherController.swift": {
-    "mtime": 1793836829.9969254,
-    "seen": 1793837011.0107331,
-    "ast_hash": "be0d6704c605fcbb3a371bab572cb3e2",
+    "mtime": 1793839491.9323757,
+    "seen": 1793839507.113558,
+    "ast_hash": "7587d4bfa3fc6ac0235205b4c81964d9",
     "semantic_hash": ""
   },
   "App/Composition/WindowThumbnailCapture.swift": {
@@ -684,9 +684,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
-    "mtime": 1793836864.4005086,
-    "seen": 1793837011.010817,
-    "ast_hash": "d3bb1c45f233e658d49f2b0dac651cd5",
+    "mtime": 1793839414.1937735,
+    "seen": 1793839507.11361,
+    "ast_hash": "88c2698d82851b3a643088d624e75a2f",
     "semantic_hash": ""
   },
   "App/Scenes/CalendarPanelView.swift": {
@@ -2580,9 +2580,9 @@
     "semantic_hash": "0d6d97ebb9bacdae46db3bdb8dff4b9a"
   },
   "Core/Support/WindowSwitcherModel.swift": {
-    "mtime": 1793833145.39209,
-    "seen": 1793834590.487675,
-    "ast_hash": "e1802d501be617172e406372b1a22f83",
+    "mtime": 1793839414.1831899,
+    "seen": 1793839507.114174,
+    "ast_hash": "f71fbe067b33f25d2afc27efc5320f6d",
     "semantic_hash": ""
   },
   "Core/Support/WindowTitleSettle.swift": {
@@ -4056,9 +4056,9 @@
     "semantic_hash": "f1eff661f2afe9a33a028a91fac58b0b"
   },
   "Tests/Unit/ShortcutsTests.swift": {
-    "mtime": 1793838969.5611045,
-    "seen": 1793839266.393248,
-    "ast_hash": "feb9005d8ef8f39f697ee72b570889e5",
+    "mtime": 1793839414.1868248,
+    "seen": 1793839507.1145868,
+    "ast_hash": "ffee93e3b4344b59679b57662925e25a",
     "semantic_hash": ""
   },
   "Tests/Unit/SkyPaletteTests.swift": {
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
-    "mtime": 1793838969.560792,
-    "seen": 1793839266.392496,
-    "ast_hash": "10324a7032a8f028d6810f624caa62b7",
+    "mtime": 1793839383.589123,
+    "seen": 1793839507.1137621,
+    "ast_hash": "5999f14a08d703064a10e64a1e6703f7",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
