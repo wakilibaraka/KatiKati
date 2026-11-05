@@ -7134,15 +7134,33 @@
     "semantic_hash": ""
   },
   "Platform/KeepAwake/KeepAwakeService.swift": {
-    "mtime": 1793838088.497979,
-    "seen": 1793838428.257497,
-    "ast_hash": "5b8ffb176d6176f9fa6e8d6818b56b24",
+    "mtime": 1793838434.77762,
+    "seen": 1793838675.829798,
+    "ast_hash": "c3a16f654fa23f6a5b970a47bb60664f",
     "semantic_hash": ""
   },
   "Tests/Unit/AgentProcessScanTests.swift": {
     "mtime": 1793837819.130989,
     "seen": 1793838428.2576158,
     "ast_hash": "cc00e8ecbc374648033ebe85f8eae5e3",
+    "semantic_hash": ""
+  },
+  "Core/Support/LidSleepSudoers.swift": {
+    "mtime": 1793838433.9646468,
+    "seen": 1793838675.829667,
+    "ast_hash": "522ac52ed11c247b5a7e6c6b1940e16c",
+    "semantic_hash": ""
+  },
+  "Platform/KeepAwake/LidSleepGuard.swift": {
+    "mtime": 1793838434.250035,
+    "seen": 1793838675.829799,
+    "ast_hash": "43892d748edb3c7cd6491dbf35a73fa6",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/LidSleepSudoersTests.swift": {
+    "mtime": 1793838434.139178,
+    "seen": 1793838675.829932,
+    "ast_hash": "f8fb0fd23d13c27972c5efe723b5e9b1",
     "semantic_hash": ""
   }
 }
