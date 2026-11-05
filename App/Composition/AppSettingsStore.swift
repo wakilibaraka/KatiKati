@@ -165,6 +165,9 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var showDrawer: Bool
     /// The background-apps capsule; off leaves the drawer to the menu and shortcut only.
     @Published private(set) var showBackgroundApps: Bool
+    /// Dictionary and Terminal dock chips, default ON. Their widgets are `BarSection`s: shown or hidden in the widget layout.
+    @Published private(set) var showDictionaryChip: Bool
+    @Published private(set) var showTerminalChip: Bool
     /// Live Island on the dock capsule (default ON — today's behaviour).
     @Published private(set) var dockIslandEnabled: Bool
     /// Live Island on the notch (default ON; the welcome guide offers a switch to turn it off).
@@ -378,6 +381,8 @@ final class AppSettingsStore: ObservableObject {
             Keys.showTrash: true,
             Keys.showDrawer: true,
             Keys.showBackgroundApps: true,
+            Keys.showDictionaryChip: true,
+            Keys.showTerminalChip: true,
             Keys.controlCentreTrailing: false,
             Keys.fullscreenIntentEnabled: true,
             Keys.nativeDockAutoHideDelay: Self.defaultNativeDockAutoHideDelay,
@@ -450,6 +455,8 @@ final class AppSettingsStore: ObservableObject {
         showTrash = defaults.bool(forKey: Keys.showTrash)
         showDrawer = defaults.bool(forKey: Keys.showDrawer)
         showBackgroundApps = defaults.bool(forKey: Keys.showBackgroundApps)
+        showDictionaryChip = defaults.bool(forKey: Keys.showDictionaryChip)
+        showTerminalChip = defaults.bool(forKey: Keys.showTerminalChip)
         controlCentreTrailing = defaults.bool(forKey: Keys.controlCentreTrailing)
         dockIslandEnabled = defaults.bool(forKey: Keys.dockIslandEnabled)
         notchIslandEnabled = defaults.bool(forKey: Keys.notchIslandEnabled)
@@ -1317,6 +1324,18 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.showDrawer)
     }
 
+    func setShowDictionaryChip(_ value: Bool) {
+        guard showDictionaryChip != value else { return }
+        showDictionaryChip = value
+        defaults.set(value, forKey: Keys.showDictionaryChip)
+    }
+
+    func setShowTerminalChip(_ value: Bool) {
+        guard showTerminalChip != value else { return }
+        showTerminalChip = value
+        defaults.set(value, forKey: Keys.showTerminalChip)
+    }
+
     func setShowBackgroundApps(_ value: Bool) {
         guard showBackgroundApps != value else { return }
         showBackgroundApps = value
@@ -1617,6 +1636,8 @@ private enum Keys {
     static let showTrash = "com.katikati.showTrash"
     static let showDrawer = "com.katikati.showDrawer"
     static let showBackgroundApps = "com.katikati.showBackgroundApps"
+    static let showDictionaryChip = "com.katikati.showDictionaryChip"
+    static let showTerminalChip = "com.katikati.showTerminalChip"
     static let nowPlayingTheme = "com.katikati.nowPlayingTheme"
     static let nowPlayingTapAction = "com.katikati.nowplaying.tapAction"
     static let dockIslandEnabled = "com.katikati.liveIsland.dock"
