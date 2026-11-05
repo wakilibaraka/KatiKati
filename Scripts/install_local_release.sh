@@ -71,7 +71,7 @@ clean_stale_katikati
 
 echo "==> 构建 Release…"
 # Same arch and coverage settings as package_release.sh (see Scripts/lib/release_binary.sh).
-xcodebuild -project "$PROJECT" -scheme "$SCHEME" -configuration Release \
+xcodebuild -project "$PROJECT" -scheme "$SCHEME" -configuration Release -skipPackagePluginValidation \
   -derivedDataPath "$DD" \
   ARCHS="x86_64 arm64" ONLY_ACTIVE_ARCH=NO \
   CLANG_COVERAGE_MAPPING=NO \

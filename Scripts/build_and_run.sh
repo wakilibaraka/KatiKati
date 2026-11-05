@@ -28,7 +28,7 @@ build_app() {
   # the previous executable in the .app (re-signed below, so its mtime looks fresh) — the launched
   # app then runs old code while the build log says BUILD SUCCEEDED.
   rm -f "$APP_EXECUTABLE"
-  xcodebuild -project "$PROJECT_PATH" -scheme "$APP_NAME" -configuration Debug -derivedDataPath "$DERIVED_DATA_DIR" build >/tmp/katikati-build.log 2>&1
+  xcodebuild -project "$PROJECT_PATH" -scheme "$APP_NAME" -configuration Debug -skipPackagePluginValidation -derivedDataPath "$DERIVED_DATA_DIR" build >/tmp/katikati-build.log 2>&1
 }
 
 sign_app() {
@@ -63,7 +63,7 @@ sign_app() {
 }
 
 run_cli() {
-  xcodebuild -project "$PROJECT_PATH" -scheme "$CLI_NAME" -configuration Debug -derivedDataPath "$DERIVED_DATA_DIR" build >/tmp/katikati-build.log 2>&1
+  xcodebuild -project "$PROJECT_PATH" -scheme "$CLI_NAME" -configuration Debug -skipPackagePluginValidation -derivedDataPath "$DERIVED_DATA_DIR" build >/tmp/katikati-build.log 2>&1
   "$DERIVED_DATA_DIR/Build/Products/Debug/$CLI_NAME" "$@"
 }
 
