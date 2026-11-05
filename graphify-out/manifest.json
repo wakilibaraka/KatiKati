@@ -492,9 +492,9 @@
     "semantic_hash": "20e32e60027b363670a56a0fe9dd15f9"
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1793836864.4001753,
-    "seen": 1793837011.010737,
-    "ast_hash": "f32f6bdbdbb978599928227c6c4533cb",
+    "mtime": 1793838067.5394132,
+    "seen": 1793838428.2562182,
+    "ast_hash": "eb607de2a25ef8ccc217cc698220e795",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -2898,10 +2898,10 @@
     "semantic_hash": "7d5d91de074a9d0549099dc278957fde"
   },
   "Platform/Pinboard/QuickToggleEngine.swift": {
-    "mtime": 1791999130.9133086,
-    "seen": 1792295707.060666,
-    "ast_hash": "f89504781b54c159962efefc535e0c85",
-    "semantic_hash": "f89504781b54c159962efefc535e0c85"
+    "mtime": 1793838067.5387642,
+    "seen": 1793838428.257532,
+    "ast_hash": "1b575492eddebcf296ff5c1a360a5e79",
+    "semantic_hash": ""
   },
   "Platform/ScreenTime/ScreenTimeController.swift": {
     "mtime": 1791999130.91297,
@@ -7125,6 +7125,24 @@
     "mtime": 1793837426.7061415,
     "seen": 1793837786.7706182,
     "ast_hash": "4457e2f6027a97c0425c7e0fe9b6bddf",
+    "semantic_hash": ""
+  },
+  "Core/Support/AgentProcessScan.swift": {
+    "mtime": 1793837819.1177642,
+    "seen": 1793838428.256741,
+    "ast_hash": "f845b850d2dedb161babf36945cbf6fc",
+    "semantic_hash": ""
+  },
+  "Platform/KeepAwake/KeepAwakeService.swift": {
+    "mtime": 1793838088.497979,
+    "seen": 1793838428.257497,
+    "ast_hash": "5b8ffb176d6176f9fa6e8d6818b56b24",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/AgentProcessScanTests.swift": {
+    "mtime": 1793837819.130989,
+    "seen": 1793838428.2576158,
+    "ast_hash": "cc00e8ecbc374648033ebe85f8eae5e3",
     "semantic_hash": ""
   }
 }
