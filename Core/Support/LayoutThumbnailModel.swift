@@ -29,7 +29,7 @@ enum LayoutThumbnailModel {
         var placement: StripPlacement = .bottom
         /// Representative app count: enough to show the apps island's weight, few enough
         /// that no reference mode overflows.
-        var appCount: Int = 10
+        var appCount: Int = 7
     }
 
     /// Capsule gap + width (`PanelLayoutMetrics.capsuleGap` + bar height).

@@ -212,6 +212,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private(set) lazy var radialDialPanel = RadialDialPanelController.shared
     /// Phase 23: the define/translate card for the current selection.
     private lazy var translatePanel = TranslatePanelController()
+    private lazy var dictionaryPanel = DictionaryPanelController()
+    private lazy var terminalPanel = TerminalPanelController()
     private var terminationTask: Task<Void, Never>?
     private var terminationSignalSources: [DispatchSourceSignal] = []
     private var debugWindow: NSWindow?
@@ -958,6 +960,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         WindowSnapService.dockFrame = dockFrame
         runtime.onToggleDrawer = { [weak coordinator] in coordinator?.toggleDrawer() }
         runtime.onToggleLauncher = { [weak self] in self?.launcherPanel.toggle() }
+        runtime.onToggleDictionary = { [weak self] in self?.dictionaryPanel.toggle() }
+        runtime.onToggleTerminal = { [weak self] in self?.terminalPanel.toggle() }
         runtime.onToggleControlCenter = { [weak self] in self?.controlCenterPanel.toggle() }
         runtime.onToggleKeepAwake = {
             let engine = QuickToggleEngine.shared
@@ -1287,6 +1291,8 @@ extension AppDelegate: PermissionEffectHandler {
         badgeContextSubscription = nil
         runtime.onToggleDrawer = nil
         runtime.onToggleLauncher = nil
+        runtime.onToggleDictionary = nil
+        runtime.onToggleTerminal = nil
         runtime.onToggleControlCenter = nil
         runtime.onToggleKeepAwake = nil
         runtime.isKeepAwakeOn = nil

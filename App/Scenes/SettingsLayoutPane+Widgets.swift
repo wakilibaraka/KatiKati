@@ -115,6 +115,16 @@ extension SettingsLayoutPane {
                 set: { store.setShowDrawer($0) }
             ))
             SettingsDivider()
+            SettingsToggleRow(Text("Dictionary"), isOn: Binding(
+                get: { store.showDictionaryChip },
+                set: { store.setShowDictionaryChip($0) }
+            ))
+            SettingsDivider()
+            SettingsToggleRow(Text("Terminal"), isOn: Binding(
+                get: { store.showTerminalChip },
+                set: { store.setShowTerminalChip($0) }
+            ))
+            SettingsDivider()
             SettingsToggleRow(Text("Background Apps"), isOn: Binding(
                 get: { store.showBackgroundApps },
                 set: { store.setShowBackgroundApps($0) }
@@ -169,6 +179,8 @@ extension SettingsLayoutPane {
         case .system: return Text("System")
         case .devices: return Text("Devices")
         case .drives: return Text("Drives")
+        case .dictionary: return Text("Dictionary")
+        case .terminal: return Text("Terminal")
         }
     }
 

@@ -24,6 +24,9 @@ enum StripEntry: Identifiable, Hashable {
     /// The drawer pop (DockPops-style): its own icon at the head of the tail zone, left of the pinned
     /// folders (Downloads) and the Trash. Not draggable; drops on it go into the pop.
     case pop
+    /// Dictionary and Terminal dock items: fixed tail-zone chips right of the drawer pop, not draggable.
+    case dictionary
+    case terminal
     case trash
     /// Visual separator between zones. 现在最多两条（消息+中转格|窗口、窗口|文件夹+废纸篓），id 必须唯一。
     case divider(id: String)
@@ -51,6 +54,8 @@ enum StripEntry: Identifiable, Hashable {
         case let .pinnedFolder(path): return "folder-\(path)"
         case .shelf: return "shelf"
         case .pop: return "pop"
+        case .dictionary: return "dictionary"
+        case .terminal: return "terminal"
         case .trash: return "trash"
         case let .divider(id): return id
         case let .externalDropGhost(key): return "extghost-\(key)"
@@ -168,7 +173,7 @@ struct StripLayoutKey: Equatable {
             form = .launcher    // fixed-size kept-app icon chip
         case .pinnedFolder:
             form = .launcher    // fixed-size folder chip
-        case .shelf, .pop, .trash:
+        case .shelf, .pop, .dictionary, .terminal, .trash:
             form = .launcher    // fixed-size shelf chip
         case .divider:
             form = .launcher    // fixed-size separator, no animation form change

@@ -30,10 +30,14 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     case devices
     /// Free space of every mounted drive, and the DiskView panel on hover.
     case drives
+    /// Look-up card for any word: opens the dictionary panel. On by default (owner 2026-11-05).
+    case dictionary
+    /// Shell in a floating panel (SwiftTerm). On by default.
+    case terminal
     case widgets
 
     /// Canonical left-to-right order (Phase 4U-A).
-    static let canonicalOrder: [BarSection] = [.launcher, .weather, .apps, .media, .clock, .calendar, .system, .devices, .drives, .widgets]
+    static let canonicalOrder: [BarSection] = [.launcher, .weather, .apps, .media, .clock, .calendar, .system, .devices, .drives, .dictionary, .terminal, .widgets]
 
     /// The six sections a fresh dock shows: what every layout API assumes unless it is handed a real order.
     static let defaultOrder: [BarSection] = canonicalOrder.filter { !$0.startsHidden }
@@ -42,7 +46,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     var startsHidden: Bool {
         switch self {
         case .calendar, .system, .devices, .drives: return true
-        case .launcher, .weather, .apps, .media, .clock, .widgets: return false
+        case .launcher, .weather, .apps, .media, .clock, .widgets, .dictionary, .terminal: return false
         }
     }
 
@@ -59,6 +63,8 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .system: return "System"
         case .devices: return "Devices"
         case .drives: return "Drives"
+        case .dictionary: return "Dictionary"
+        case .terminal: return "Terminal"
         case .widgets: return "Widgets"
         }
     }
@@ -86,6 +92,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .system: return 150
         case .devices: return 150
         case .drives: return 130
+        case .dictionary, .terminal: return 56
         case .widgets: return 40
         }
     }
@@ -101,7 +108,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .apps: return 0
         case .media: return 72
         case .clock: return 76
-        case .calendar, .system, .devices, .drives: return 56
+        case .calendar, .system, .devices, .drives, .dictionary, .terminal: return 56
         case .widgets: return 40
         }
     }
@@ -119,7 +126,12 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
 
     /// Widgets added after the six original sections: in the split modes they share the island of the section
     /// before them, so a mode keeps its slot count whichever of them are shown.
-    private var joinsPreviousIsland: Bool { startsHidden }
+    private var joinsPreviousIsland: Bool {
+        switch self {
+        case .calendar, .system, .devices, .drives, .dictionary, .terminal: return true
+        default: return false
+        }
+    }
 
     /// Grouping of sections into island slots for each layout mode.
     static func islands(for mode: BarLayoutMode, order: [BarSection] = BarSection.defaultOrder) -> [[BarSection]] {

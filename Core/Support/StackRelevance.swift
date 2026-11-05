@@ -40,7 +40,7 @@ enum StackRelevance {
         case .system: return signals.systemBusy ? 70 : 12
         case .devices: return signals.deviceLow ? 85 : 8
         case .drives: return signals.diskNearlyFull ? 88 : 6
-        case .launcher, .apps, .widgets: return 0
+        case .launcher, .apps, .widgets, .dictionary, .terminal: return 0
         }
     }
 

@@ -25,7 +25,7 @@ extension BarSection {
     var supportsWidgetSizes: Bool {
         switch self {
         case .weather, .media, .clock, .calendar, .system, .devices, .drives: return true
-        case .launcher, .apps, .widgets: return false
+        case .launcher, .apps, .widgets, .dictionary, .terminal: return false
         }
     }
 

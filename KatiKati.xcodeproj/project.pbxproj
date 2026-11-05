@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A0000000000000000000C881 /* NotchKeepAwakePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C880 /* NotchKeepAwakePageView.swift */; };
 		A0000000000000000000C871 /* LidSleepGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C870 /* LidSleepGuard.swift */; };
 		A0000000000000000000C861 /* LidSleepSudoersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C860 /* LidSleepSudoersTests.swift */; };
 		A0000000000000000000C851 /* LidSleepSudoers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C850 /* LidSleepSudoers.swift */; };
@@ -878,6 +879,7 @@
 		B75000000000000000000031 /* WelcomeGuideSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B75000000000000000000033 /* WelcomeGuideSelection.swift */; };
 		B75000000000000000000032 /* WelcomeGuideSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B75000000000000000000033 /* WelcomeGuideSelection.swift */; };
 		B76000000000000000000003 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = B76000000000000000000002 /* Sparkle */; };
+		B78000000000000000000003 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = B78000000000000000000002 /* SwiftTerm */; };
 		B77000000000000000000001 /* SparkleUpdateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B77000000000000000000003 /* SparkleUpdateService.swift */; };
 		BB0000000000000000000002 /* BarLayoutMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000001 /* BarLayoutMode.swift */; };
 		A00720618B65E6161BAACE80 /* WelcomeGuideStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC9F5F9BB45945C4ACF31863 /* WelcomeGuideStep.swift */; };
@@ -1173,17 +1175,24 @@
 		A0000000000000000000F002 /* CommandBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F000 /* CommandBar.swift */; };
 		A0000000000000000000F011 /* CommandBarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F010 /* CommandBarTests.swift */; };
 		A0000000000000000000A101 /* Translate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A100 /* Translate.swift */; };
-		A0000000000000000000A102 /* Translate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A100 /* Translate.swift */; };
 		D1C700000000000000000111 /* TerminalTabs.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000110 /* TerminalTabs.swift */; };
 		D1C700000000000000000101 /* DictionaryEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000100 /* DictionaryEntry.swift */; };
-		A0000000000000000000A111 /* TranslateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A110 /* TranslateTests.swift */; };
+		A0000000000000000000A102 /* Translate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A100 /* Translate.swift */; };
 		D1C700000000000000000112 /* TerminalTabs.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000110 /* TerminalTabs.swift */; };
 		D1C700000000000000000102 /* DictionaryEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000100 /* DictionaryEntry.swift */; };
-		A0000000000000000000A121 /* SelectedTextReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A120 /* SelectedTextReader.swift */; };
+		A0000000000000000000A111 /* TranslateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A110 /* TranslateTests.swift */; };
 		D1C700000000000000000142 /* DictionaryTerminalSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000140 /* DictionaryTerminalSettingsTests.swift */; };
 		D1C700000000000000000132 /* TerminalTabsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000130 /* TerminalTabsTests.swift */; };
 		D1C700000000000000000122 /* DictionaryEntryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000120 /* DictionaryEntryTests.swift */; };
+		A0000000000000000000A121 /* SelectedTextReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A120 /* SelectedTextReader.swift */; };
 		A0000000000000000000A131 /* DictionaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A130 /* DictionaryService.swift */; };
+		D1C700000000000000000201 /* DictionaryPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000200 /* DictionaryPanelView.swift */; };
+		D1C700000000000000000211 /* DictionaryPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000210 /* DictionaryPanelController.swift */; };
+		D1C700000000000000000221 /* ToolChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000220 /* ToolChip.swift */; };
+		D1C700000000000000000231 /* DictionaryTerminalDockWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000230 /* DictionaryTerminalDockWidgets.swift */; };
+		D1C700000000000000000301 /* TerminalSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000300 /* TerminalSession.swift */; };
+		D1C700000000000000000311 /* TerminalPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000310 /* TerminalPanelView.swift */; };
+		D1C700000000000000000321 /* TerminalPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000320 /* TerminalPanelController.swift */; };
 		A0000000000000000000A141 /* TranslatePanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A140 /* TranslatePanelController.swift */; };
 		A0000000000000000000A151 /* TranslateCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A150 /* TranslateCardView.swift */; };
 		A0000000000000000000A161 /* GeneratorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A160 /* GeneratorService.swift */; };
@@ -1292,6 +1301,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A0000000000000000000C880 /* NotchKeepAwakePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchKeepAwakePageView.swift; path = App/Scenes/Notch/NotchKeepAwakePageView.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000C870 /* LidSleepGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LidSleepGuard.swift; path = Platform/KeepAwake/LidSleepGuard.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000C860 /* LidSleepSudoersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LidSleepSudoersTests.swift; path = Tests/Unit/LidSleepSudoersTests.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000C850 /* LidSleepSudoers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LidSleepSudoers.swift; path = Core/Support/LidSleepSudoers.swift; sourceTree = SOURCE_ROOT; };
@@ -2106,14 +2116,21 @@
 		A0000000000000000000F100 /* CommandBarPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CommandBarPanelController.swift; path = App/Entry/CommandBarPanelController.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000F110 /* CommandBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CommandBarView.swift; path = App/Scenes/CommandBarView.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A100 /* Translate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translate.swift; sourceTree = "<group>"; };
-		A0000000000000000000A110 /* TranslateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslateTests.swift; sourceTree = "<group>"; };
-		A0000000000000000000A120 /* SelectedTextReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedTextReader.swift; sourceTree = "<group>"; };
 		D1C700000000000000000140 /* DictionaryTerminalSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryTerminalSettingsTests.swift; sourceTree = "<group>"; };
 		D1C700000000000000000130 /* TerminalTabsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalTabsTests.swift; sourceTree = "<group>"; };
 		D1C700000000000000000120 /* DictionaryEntryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryEntryTests.swift; sourceTree = "<group>"; };
 		D1C700000000000000000110 /* TerminalTabs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalTabs.swift; sourceTree = "<group>"; };
 		D1C700000000000000000100 /* DictionaryEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryEntry.swift; sourceTree = "<group>"; };
+		A0000000000000000000A110 /* TranslateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslateTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000A120 /* SelectedTextReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedTextReader.swift; sourceTree = "<group>"; };
 		A0000000000000000000A130 /* DictionaryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DictionaryService.swift; path = App/Composition/DictionaryService.swift; sourceTree = SOURCE_ROOT; };
+		D1C700000000000000000200 /* DictionaryPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DictionaryPanelView.swift; path = App/Scenes/DictionaryPanelView.swift; sourceTree = SOURCE_ROOT; };
+		D1C700000000000000000210 /* DictionaryPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DictionaryPanelController.swift; path = App/Entry/DictionaryPanelController.swift; sourceTree = SOURCE_ROOT; };
+		D1C700000000000000000220 /* ToolChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ToolChip.swift; path = App/Scenes/ToolChip.swift; sourceTree = SOURCE_ROOT; };
+		D1C700000000000000000230 /* DictionaryTerminalDockWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DictionaryTerminalDockWidgets.swift; path = App/Scenes/DockWidgets/DictionaryTerminalDockWidgets.swift; sourceTree = SOURCE_ROOT; };
+		D1C700000000000000000300 /* TerminalSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TerminalSession.swift; path = Platform/Terminal/TerminalSession.swift; sourceTree = SOURCE_ROOT; };
+		D1C700000000000000000310 /* TerminalPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TerminalPanelView.swift; path = App/Scenes/TerminalPanelView.swift; sourceTree = SOURCE_ROOT; };
+		D1C700000000000000000320 /* TerminalPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TerminalPanelController.swift; path = App/Entry/TerminalPanelController.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A140 /* TranslatePanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TranslatePanelController.swift; path = App/Entry/TranslatePanelController.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A150 /* TranslateCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TranslateCardView.swift; path = App/Scenes/TranslateCardView.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A160 /* GeneratorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GeneratorService.swift; path = App/Composition/GeneratorService.swift; sourceTree = SOURCE_ROOT; };
@@ -2190,6 +2207,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B76000000000000000000003 /* Sparkle in Frameworks */,
+				B78000000000000000000003 /* SwiftTerm in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2684,11 +2702,11 @@
 				A0000000000000000000D050 /* LauncherAnswersTests.swift */,
 				A0000000000000000000F010 /* CommandBarTests.swift */,
 				A0000000000000000000A110 /* TranslateTests.swift */,
-				FB00000000000000000000C3 /* QuicklinkTemplateTests.swift */,
-				A0000000000000000000A1E0 /* AppRemovalPlannerTests.swift */,
 				D1C700000000000000000140 /* DictionaryTerminalSettingsTests.swift */,
 				D1C700000000000000000130 /* TerminalTabsTests.swift */,
 				D1C700000000000000000120 /* DictionaryEntryTests.swift */,
+				FB00000000000000000000C3 /* QuicklinkTemplateTests.swift */,
+				A0000000000000000000A1E0 /* AppRemovalPlannerTests.swift */,
 				A0000000000000000000A270 /* KeyGuardTests.swift */,
 				A0000000000000000000A330 /* NotificationPlacementTests.swift */,
 				A0000000000000000000FA10 /* LauncherChipVisualPlanTests.swift */,
@@ -2814,10 +2832,10 @@
 				A0000000000000000000D040 /* LauncherAnswers.swift */,
 				A0000000000000000000F000 /* CommandBar.swift */,
 				A0000000000000000000A100 /* Translate.swift */,
-				A0000000000000000000A170 /* CustomCommands.swift */,
-				A0000000000000000000A190 /* CommandBarKeywords.swift */,
 				D1C700000000000000000110 /* TerminalTabs.swift */,
 				D1C700000000000000000100 /* DictionaryEntry.swift */,
+				A0000000000000000000A170 /* CustomCommands.swift */,
+				A0000000000000000000A190 /* CommandBarKeywords.swift */,
 				A0000000000000000000A1B0 /* FileQuery.swift */,
 				A0000000000000000000A1D0 /* AppRemoval.swift */,
 				A0000000000000000000A200 /* EmojiCatalog.swift */,
@@ -2937,6 +2955,7 @@
 			name = KatiKati;
 			packageProductDependencies = (
 				B76000000000000000000002 /* Sparkle */,
+				B78000000000000000000002 /* SwiftTerm */,
 			);
 			productName = KatiKati;
 			productReference = A00000000000000000000018 /* KatiKati.app */;
@@ -3018,6 +3037,7 @@
 			mainGroup = A0000000000000000000001C;
 			packageReferences = (
 				B76000000000000000000001 /* XCRemoteSwiftPackageReference "Sparkle" */,
+				B78000000000000000000001 /* XCRemoteSwiftPackageReference "SwiftTerm" */,
 			);
 			productRefGroup = A00000000000000000000023 /* Products */;
 			projectDirPath = "";
@@ -3049,6 +3069,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0000000000000000000C881 /* NotchKeepAwakePageView.swift in Sources */,
 				A0000000000000000000C871 /* LidSleepGuard.swift in Sources */,
 				A0000000000000000000C851 /* LidSleepSudoers.swift in Sources */,
 				A0000000000000000000C841 /* KeepAwakeService.swift in Sources */,
@@ -3353,11 +3374,11 @@
 				A0000000000000000000F101 /* CommandBarPanelController.swift in Sources */,
 				A0000000000000000000F111 /* CommandBarView.swift in Sources */,
 				A0000000000000000000A101 /* Translate.swift in Sources */,
+				D1C700000000000000000111 /* TerminalTabs.swift in Sources */,
+				D1C700000000000000000101 /* DictionaryEntry.swift in Sources */,
 				A0000000000000000000A171 /* CustomCommands.swift in Sources */,
 				A0000000000000000000A191 /* CommandBarKeywords.swift in Sources */,
 				A0000000000000000000A1A1 /* BarActionService.swift in Sources */,
-				D1C700000000000000000111 /* TerminalTabs.swift in Sources */,
-				D1C700000000000000000101 /* DictionaryEntry.swift in Sources */,
 				A0000000000000000000A1B1 /* FileQuery.swift in Sources */,
 				A0000000000000000000A1C1 /* FileSearchService.swift in Sources */,
 				A0000000000000000000A1F1 /* AppRemovalService.swift in Sources */,
@@ -3382,6 +3403,13 @@
 				A0000000000000000000A1D1 /* AppRemoval.swift in Sources */,
 				A0000000000000000000A121 /* SelectedTextReader.swift in Sources */,
 				A0000000000000000000A131 /* DictionaryService.swift in Sources */,
+				D1C700000000000000000201 /* DictionaryPanelView.swift in Sources */,
+				D1C700000000000000000211 /* DictionaryPanelController.swift in Sources */,
+				D1C700000000000000000221 /* ToolChip.swift in Sources */,
+				D1C700000000000000000231 /* DictionaryTerminalDockWidgets.swift in Sources */,
+				D1C700000000000000000301 /* TerminalSession.swift in Sources */,
+				D1C700000000000000000311 /* TerminalPanelView.swift in Sources */,
+				D1C700000000000000000321 /* TerminalPanelController.swift in Sources */,
 				A0000000000000000000A141 /* TranslatePanelController.swift in Sources */,
 				A0000000000000000000A151 /* TranslateCardView.swift in Sources */,
 				A0000000000000000001F131 /* RadialSectorShape.swift in Sources */,
@@ -4114,11 +4142,11 @@
 				A0000000000000000000D042 /* LauncherAnswers.swift in Sources */,
 				A0000000000000000000F002 /* CommandBar.swift in Sources */,
 				A0000000000000000000A102 /* Translate.swift in Sources */,
+				D1C700000000000000000112 /* TerminalTabs.swift in Sources */,
+				D1C700000000000000000102 /* DictionaryEntry.swift in Sources */,
 				A0000000000000000000A172 /* CustomCommands.swift in Sources */,
 				A0000000000000000000A192 /* CommandBarKeywords.swift in Sources */,
 				A0000000000000000000A1B2 /* FileQuery.swift in Sources */,
-				D1C700000000000000000112 /* TerminalTabs.swift in Sources */,
-				D1C700000000000000000102 /* DictionaryEntry.swift in Sources */,
 				A0000000000000000000A1D2 /* AppRemoval.swift in Sources */,
 				A0000000000000000000A202 /* EmojiCatalog.swift in Sources */,
 				A0000000000000000000A212 /* Bookmarks.swift in Sources */,
@@ -4203,12 +4231,12 @@
 				A0000000000000000000D051 /* LauncherAnswersTests.swift in Sources */,
 				A0000000000000000000F011 /* CommandBarTests.swift in Sources */,
 				A0000000000000000000A111 /* TranslateTests.swift in Sources */,
-				FB00000000000000000000C4 /* QuicklinkTemplateTests.swift in Sources */,
-				A0000000000000000000A1E1 /* AppRemovalPlannerTests.swift in Sources */,
-				A0000000000000000000A271 /* KeyGuardTests.swift in Sources */,
 				D1C700000000000000000142 /* DictionaryTerminalSettingsTests.swift in Sources */,
 				D1C700000000000000000132 /* TerminalTabsTests.swift in Sources */,
 				D1C700000000000000000122 /* DictionaryEntryTests.swift in Sources */,
+				FB00000000000000000000C4 /* QuicklinkTemplateTests.swift in Sources */,
+				A0000000000000000000A1E1 /* AppRemovalPlannerTests.swift in Sources */,
+				A0000000000000000000A271 /* KeyGuardTests.swift in Sources */,
 				A0000000000000000000A331 /* NotificationPlacementTests.swift in Sources */,
 				A0000000000000000000FA11 /* LauncherChipVisualPlanTests.swift in Sources */,
 				A0000000000000000000FF11 /* LaunchGateDecisionTests.swift in Sources */,
@@ -4587,6 +4615,14 @@
 				minimumVersion = 2.9.6;
 			};
 		};
+		B78000000000000000000001 /* XCRemoteSwiftPackageReference "SwiftTerm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/migueldeicaza/SwiftTerm";
+			requirement = {
+				kind = exactVersion;
+				version = 1.10.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -4595,10 +4631,12 @@
 			package = B76000000000000000000001 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
 		};
+		B78000000000000000000002 /* SwiftTerm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B78000000000000000000001 /* XCRemoteSwiftPackageReference "SwiftTerm" */;
+			productName = SwiftTerm;
+		};
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A0000000000000000000003F /* Project object */;
 }
-		A0000000000000000000C881 /* NotchKeepAwakePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C880 /* NotchKeepAwakePageView.swift */; };
-		A0000000000000000000C880 /* NotchKeepAwakePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchKeepAwakePageView.swift; path = App/Scenes/Notch/NotchKeepAwakePageView.swift; sourceTree = SOURCE_ROOT; };
-				A0000000000000000000C881 /* NotchKeepAwakePageView.swift in Sources */,

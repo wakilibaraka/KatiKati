@@ -9,7 +9,7 @@ final class BarLayoutModeTests: XCTestCase {
 
     func testSplit5SeparatesEveryOuterSection() {
         let islands = BarSection.islands(for: .split5)
-        XCTAssertEqual(islands, [[.launcher], [.weather], [.apps, .media], [.clock], [.widgets]])
+        XCTAssertEqual(islands, [[.launcher], [.weather], [.apps, .media], [.clock, .dictionary, .terminal], [.widgets]])
         XCTAssertEqual(BarLayoutMode.split5.slotCount, 5)
         XCTAssertTrue(BarLayoutMode.split5.isSplit)
         XCTAssertEqual(BarSection.widgets.slotIndex(for: .split5), 4)
@@ -64,14 +64,14 @@ final class BarLayoutModeTests: XCTestCase {
         XCTAssertEqual(split3Islands.count, 3)
         XCTAssertEqual(split3Islands[0], [.launcher, .weather])
         XCTAssertEqual(split3Islands[1], [.apps, .media])
-        XCTAssertEqual(split3Islands[2], [.clock, .widgets])
+        XCTAssertEqual(split3Islands[2], [.clock, .dictionary, .terminal, .widgets])
 
         let split4Islands = BarSection.islands(for: .split4)
         XCTAssertEqual(split4Islands.count, 4)
         XCTAssertEqual(split4Islands[0], [.launcher, .weather])
         XCTAssertEqual(split4Islands[1], [.apps])
         XCTAssertEqual(split4Islands[2], [.media])
-        XCTAssertEqual(split4Islands[3], [.clock, .widgets])
+        XCTAssertEqual(split4Islands[3], [.clock, .dictionary, .terminal, .widgets])
 
         let centeredIslands = BarSection.islands(for: .centered)
         XCTAssertEqual(centeredIslands.count, 1)
@@ -105,7 +105,7 @@ final class BarLayoutModeTests: XCTestCase {
     func testCanonicalOrderIsHardcoded() {
         // Declaration order IS the canonical widget order: no reader, no writer.
         XCTAssertEqual(BarSection.allCases, BarSection.canonicalOrder)
-        XCTAssertEqual(BarSection.defaultOrder, [.launcher, .weather, .apps, .media, .clock, .widgets])
+        XCTAssertEqual(BarSection.defaultOrder, [.launcher, .weather, .apps, .media, .clock, .dictionary, .terminal, .widgets])
     }
 
     func testDefaultWidgetWidths() {

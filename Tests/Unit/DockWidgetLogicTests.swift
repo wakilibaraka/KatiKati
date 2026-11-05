@@ -111,12 +111,12 @@ final class DockWidgetLogicTests: XCTestCase {
             XCTAssertFalse(layout.instance(for: section).isVisible)
             XCTAssertTrue(section.supportsWidgetSizes)
         }
-        XCTAssertEqual(layout.visibleOrder, [.launcher, .weather, .apps, .media, .clock, .widgets])
+        XCTAssertEqual(layout.visibleOrder, [.launcher, .weather, .apps, .media, .clock, .dictionary, .terminal, .widgets])
     }
 
     func testOldStoredLayoutGainsHiddenNewWidgets() {
         let old = WidgetLayout(instances: [.launcher, .weather, .apps, .media, .clock, .widgets].map { WidgetInstance(section: $0) })
-        XCTAssertEqual(old.visibleOrder, [.launcher, .weather, .apps, .media, .clock, .widgets])
+        XCTAssertEqual(old.visibleOrder, [.launcher, .weather, .apps, .media, .clock, .widgets, .dictionary, .terminal], "Dictionary and Terminal are on by default, appended after an old layout")
         XCTAssertEqual(Set(old.order), Set(BarSection.allCases))
     }
 

@@ -91,6 +91,8 @@ final class AppRuntime: ObservableObject {
     private var startedAt: Date?
     var onToggleDrawer: (() -> Void)?
     var onToggleLauncher: (() -> Void)?
+    var onToggleDictionary: (() -> Void)?
+    var onToggleTerminal: (() -> Void)?
     /// Phase 16l: the right-FAB (widgets section) opens the Control Center.
     var onToggleControlCenter: (() -> Void)?
     /// Toggles Keep Awake and returns the new state (wired by the app delegate; nil in tests).

@@ -727,7 +727,7 @@ struct DockStripView: View {
             }
         case let .keptApp(bid):
             launcherTap(bid, hasRealWindow: false)   // 保留占位只在没有真窗口时存在
-        case .pinnedFolder, .shelf, .pop, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
+        case .pinnedFolder, .shelf, .pop, .dictionary, .terminal, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return   // 空档不可拖，也就不会有飞行中的载荷指向它
         }
     }
@@ -842,7 +842,7 @@ struct DockStripView: View {
                 : nil
             return DragCarrierGeometry.pickUpPose(chipHeight: height, pressedScale: nil,
                                                   hoverScale: hoverScale)
-        case .shelf, .pop, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
+        case .shelf, .pop, .dictionary, .terminal, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return .resting
         }
     }
@@ -1306,7 +1306,7 @@ struct DockStripView: View {
                                            value: StripChipFrames(id: "pop", zone: .pop,
                                                                   frame: geo.frame(in: .named("strip"))))
                 })
-        case .divider, .sectionPlaceholder:
+        case .divider, .sectionPlaceholder, .dictionary, .terminal:
             stripEntryView(entry, projection: projection)
         case .externalDropGhost:
             // 让位空档：**刻意不经 `stripEntryView`**。那个函数是悬停帧的唯一上报口，
@@ -1531,6 +1531,16 @@ struct DockStripView: View {
             )
             .stripEntrance(id: entrance ? entry.id : nil, delay: 0,
                            animatedEntryIDs: $animatedEntryIDs)
+        case .dictionary:
+            ToolChip(symbol: "character.book.closed", tint: Color(red: 0.16, green: 0.40, blue: 0.85),
+                     help: String(localized: "Dictionary"), scale: dockScale, railTile: isRail,
+                     hoverStyle: hoverStyle, isHovered: hovered, onTap: { runtime.onToggleDictionary?() })
+                .stripEntrance(id: entrance ? entry.id : nil, delay: 0, animatedEntryIDs: $animatedEntryIDs)
+        case .terminal:
+            ToolChip(symbol: "terminal", tint: Color(white: 0.14),
+                     help: String(localized: "Terminal"), scale: dockScale, railTile: isRail,
+                     hoverStyle: hoverStyle, isHovered: hovered, onTap: { runtime.onToggleTerminal?() })
+                .stripEntrance(id: entrance ? entry.id : nil, delay: 0, animatedEntryIDs: $animatedEntryIDs)
         case .shelf:
             ShelfChip(
                 itemCount: shelfStore.itemPaths.count,
@@ -1693,6 +1703,8 @@ extension DockStripView {
         case .system: return String(localized: "System")
         case .devices: return String(localized: "Devices")
         case .drives: return String(localized: "Drives")
+        case .dictionary: return String(localized: "Dictionary")
+        case .terminal: return String(localized: "Terminal")
         case .apps: return ""
         }
     }
@@ -1800,6 +1812,10 @@ extension DockStripView {
             RailDevicesTile().nativeScaled(dockScale)
         case .drives:
             RailDrivesTile().nativeScaled(dockScale)
+        case .dictionary:
+            RailDictionaryTile().nativeScaled(dockScale)
+        case .terminal:
+            RailTerminalTile().nativeScaled(dockScale)
         case .launcher, .widgets, .apps:
             widgetChip(section, size: .small)
         }
@@ -1851,6 +1867,14 @@ extension DockStripView {
                 .nativeScaled(dockScale)
         case .drives:
             DrivesDockChip()
+                .environment(\.widgetSize, widgetSize)
+                .nativeScaled(dockScale)
+        case .dictionary:
+            DictionaryDockChip(onOpen: { runtime.onToggleDictionary?() })
+                .environment(\.widgetSize, widgetSize)
+                .nativeScaled(dockScale)
+        case .terminal:
+            TerminalDockChip(onOpen: { runtime.onToggleTerminal?() })
                 .environment(\.widgetSize, widgetSize)
                 .nativeScaled(dockScale)
         case .launcher:

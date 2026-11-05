@@ -75,6 +75,10 @@ extension DockStripView {
             return String(localized: "Trash")
         case .pop:
             return String(localized: "Drawer")
+        case .dictionary:
+            return String(localized: "Dictionary")
+        case .terminal:
+            return String(localized: "Terminal")
         case .shelf:
             let count = shelfStore.itemPaths.count
             return count > 0
