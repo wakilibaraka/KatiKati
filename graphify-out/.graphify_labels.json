@@ -16,7 +16,6 @@
   "95": "ScanAdmissionDecisionTests",
   "100": "check_localization",
   "102": "StackPopupGeometry",
-  "109": "FileMover",
   "110": "TrashStateStore",
   "114": "DragConversionPlanTests",
   "116": "DeckStateMachine",
