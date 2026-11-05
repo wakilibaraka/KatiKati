@@ -20,6 +20,7 @@ final class ShortcutService {
     func apply(_ bindings: [ShortcutAction: ShortcutTrigger]) {
         guard bindings != applied else { return }
         applied = bindings
+        var failed: [ShortcutAction: String] = [:]
         hotKeys.values.forEach { $0.stop() }
         hotKeys = [:]
         removeEventMonitors()
@@ -33,6 +34,7 @@ final class ShortcutService {
             case .chord(let chord):
                 let monitor = GlobalHotKeyMonitor(shortcut: Self.shortcut(for: action, chord: chord)) { [weak self] in self?.onAction(action) }
                 if monitor.start() == .registered { hotKeys[action] = monitor } else {
+                    failed[action] = String(localized: "\(chord.glyphs) is taken by macOS or another app, so it is not active.")
                     log.warning("Shortcut \(chord.glyphs, privacy: .public) for \(action.rawValue, privacy: .public) could not be registered")
                 }
             case .doubleTap(let key):
@@ -40,6 +42,7 @@ final class ShortcutService {
             case .key(let key):
                 let monitor = GlobalHotKeyMonitor(shortcut: Self.shortcut(for: action, key: key)) { [weak self] in self?.onAction(action) }
                 if monitor.start() == .registered { hotKeys[action] = monitor } else {
+                    failed[action] = String(localized: "\(key.glyphs) is taken by macOS or another app, so it is not active.")
                     log.warning("Shortcut \(key.glyphs, privacy: .public) for \(action.rawValue, privacy: .public) could not be registered")
                 }
             case .hold(let key):
@@ -48,6 +51,7 @@ final class ShortcutService {
                 break   // fired by `HyperkeyService`, which reads the same bindings
             }
         }
+        ShortcutRegistrationState.shared.failures = failed
         if !tapActions.isEmpty || !holdActions.isEmpty { installEventMonitors() }
     }
 

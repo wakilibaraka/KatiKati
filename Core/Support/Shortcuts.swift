@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 
 /// What a shortcut does (Phase 7B-V4).
@@ -351,7 +352,12 @@ extension ShortcutTrigger {
 
 /// How long a `.hold` trigger must be held before it fires.
 enum ShortcutHold {
-    static let threshold: TimeInterval = 0.5
+    static let defaultsKey = "com.katikati.shortcut.holdSeconds"
+    static let range: ClosedRange<Double> = 0.3...1.5
+    static var threshold: TimeInterval {
+        let v = UserDefaults.standard.object(forKey: defaultsKey) as? Double ?? 0.5
+        return min(max(v, range.lowerBound), range.upperBound)
+    }
 }
 
 /// One verdict for a candidate binding, in one place (the recorder and the settings rows ask this).
@@ -420,3 +426,11 @@ struct ModifierDoubleTapDetector {
         lastTapEnd.removeAll()
     }
 }
+
+/// Which bindings macOS or another app refused, shown on their Settings rows (it was only a log line).
+@MainActor
+final class ShortcutRegistrationState: ObservableObject {
+    static let shared = ShortcutRegistrationState()
+    @Published internal(set) var failures: [ShortcutAction: String] = [:]
+}
+

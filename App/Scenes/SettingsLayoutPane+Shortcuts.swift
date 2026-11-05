@@ -25,6 +25,16 @@ extension SettingsLayoutPane {
                     .accessibilityLabel(Text("Search Shortcuts"))
             }
             SettingsDivider()
+            SettingsRow(
+                Text("Hold Time"),
+                info: String(localized: "How long a Hold shortcut (such as hold fn) must be held before it fires.")
+            ) {
+                Stepper(value: $holdSeconds, in: ShortcutHold.range, step: 0.1) {
+                    Text(verbatim: String(format: "%.1f s", holdSeconds))
+                }
+                .fixedSize()
+            }
+            SettingsDivider()
             // One assignment per line (an assignment is a name, a menu and a Record button, and a
             // half of the card cannot hold three controls — measured live 2026-10-15), and the run
             // starts collapsed so the page fits the window.
@@ -267,6 +277,7 @@ extension SettingsLayoutPane {
                     Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
                         .help(Text("Another action uses the same shortcut"))
                 }
+                ShortcutFailureIcon(action: action)
                 shortcutPicker(action)
                 ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
             }
@@ -585,5 +596,16 @@ struct QuitAppRulesTable: View {
 
     private static var addition: String {
         String(localized: "Pick a running app, or type the bundle ID of one that is not running. A new app starts in Own ⌘Q — its ⌘Q unchanged — so switch on the column you want, and turn that one off if the app should need the hold.")
+    }
+}
+
+/// Orange stop sign on a row whose binding could not be registered; the previous binding is gone, so say so.
+private struct ShortcutFailureIcon: View {
+    let action: ShortcutAction
+    @ObservedObject private var state = ShortcutRegistrationState.shared
+    var body: some View {
+        if let why = state.failures[action] {
+            Image(systemName: "xmark.octagon.fill").foregroundColor(.red).help(Text(verbatim: why))
+        }
     }
 }

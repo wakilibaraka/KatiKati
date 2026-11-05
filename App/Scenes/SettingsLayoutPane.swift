@@ -35,6 +35,7 @@ struct SettingsLayoutPane: View {
     /// against the page's 986 pt (measured live 2026-10-15), so the page only fits the window with
     /// them closed. `expandedWhileFiltering` opens them for a find query, so search still reaches
     /// every row — nothing is dropped, it is one click (or one keystroke) away.
+    @AppStorage(ShortcutHold.defaultsKey) var holdSeconds = 0.5
     @State var showsFeatureShortcuts = false
     @State var showsSnapHotkeys = false
     @State var showsTilingShortcuts = false
