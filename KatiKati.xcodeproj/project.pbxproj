@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A0000000000000000000C841 /* KeepAwakeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C840 /* KeepAwakeService.swift */; };
+		A0000000000000000000C831 /* AgentProcessScanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C830 /* AgentProcessScanTests.swift */; };
+		A0000000000000000000C821 /* AgentProcessScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C820 /* AgentProcessScan.swift */; };
+		A0000000000000000000C822 /* AgentProcessScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C820 /* AgentProcessScan.swift */; };
 		A0000000000000000000C811 /* KeepAwakePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C810 /* KeepAwakePolicyTests.swift */; };
 		A0000000000000000000C801 /* KeepAwakePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C800 /* KeepAwakePolicy.swift */; };
 		A0000000000000000000C802 /* KeepAwakePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C800 /* KeepAwakePolicy.swift */; };
@@ -1277,6 +1281,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A0000000000000000000C840 /* KeepAwakeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeepAwakeService.swift; path = Platform/KeepAwake/KeepAwakeService.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000C830 /* AgentProcessScanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentProcessScanTests.swift; path = Tests/Unit/AgentProcessScanTests.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000000C820 /* AgentProcessScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentProcessScan.swift; path = Core/Support/AgentProcessScan.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000C810 /* KeepAwakePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeepAwakePolicyTests.swift; path = Tests/Unit/KeepAwakePolicyTests.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000C800 /* KeepAwakePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeepAwakePolicy.swift; path = Core/Support/KeepAwakePolicy.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000B110 /* PeekController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PeekController.swift; path = App/Composition/PeekController.swift; sourceTree = SOURCE_ROOT; };
@@ -3018,6 +3025,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0000000000000000000C841 /* KeepAwakeService.swift in Sources */,
+				A0000000000000000000C821 /* AgentProcessScan.swift in Sources */,
 				A0000000000000000000C801 /* KeepAwakePolicy.swift in Sources */,
 				F1A1C0DE0000000000000002 /* FluidRailGeometry.swift in Sources */,
 				F1A1C0DE0000000000000005 /* FluidRailBody.swift in Sources */,
@@ -3669,6 +3678,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0000000000000000000C831 /* AgentProcessScanTests.swift in Sources */,
+				A0000000000000000000C822 /* AgentProcessScan.swift in Sources */,
 				A0000000000000000000C811 /* KeepAwakePolicyTests.swift in Sources */,
 				A0000000000000000000C802 /* KeepAwakePolicy.swift in Sources */,
 				F1A1C0DE0000000000000003 /* FluidRailGeometry.swift in Sources */,

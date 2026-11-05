@@ -17,10 +17,10 @@ final class QuickToggleEngine: ObservableObject {
     @Published private(set) var states: [QuickToggleID: Bool] = [:]
     @Published private(set) var unavailable: Set<QuickToggleID> = []
     @Published private(set) var flash: QuickToggleID?
-    private var awakeAssertion: IOPMAssertionID = 0
     private var micPrevious = 70
 
-    var keepAwakeOn: Bool { awakeAssertion != 0 }
+    /// The owner's manual switch; agent-driven holds are reported by `KeepAwakeService`.
+    var keepAwakeOn: Bool { KeepAwakeService.shared.manualOn }
 
     func refresh() {
         Task.detached(priority: .utility) {
@@ -56,13 +56,8 @@ final class QuickToggleEngine: ObservableObject {
     }
 
     func setKeepAwake(_ on: Bool) {
-        if on, awakeAssertion == 0 {
-            IOPMAssertionCreateWithName("PreventUserIdleDisplaySleep" as CFString, IOPMAssertionLevel(kIOPMAssertionLevelOn),
-                                        "KatiKati Keep Awake" as CFString, &awakeAssertion)
-        } else if !on, awakeAssertion != 0 {
-            IOPMAssertionRelease(awakeAssertion); awakeAssertion = 0
-        }
-        states[.keepAwake] = keepAwakeOn
+        KeepAwakeService.shared.setManual(on)
+        states[.keepAwake] = on
     }
 
     // MARK: Reading (background)

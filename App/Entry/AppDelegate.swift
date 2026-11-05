@@ -285,6 +285,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         setvbuf(stdout, nil, _IOLBF, 0)
         installTerminationSignalHandlers()
         ClaudeApprovalService.shared.startIfEnabled()
+        KeepAwakeService.shared.start()
 
         startMainLoopStallProbeIfTracing()
         StackPopupSnapshotProbe.runIfRequested()
@@ -618,6 +619,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        KeepAwakeService.shared.shutdown()
         // Give the system Dock back as the user had it before KatiKati hid it (next launch re-hides it).
         nativeDockPreferencesService.restoreOriginal()
         WallpaperEngine.shared.restoreForQuit()
