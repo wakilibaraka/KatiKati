@@ -4380,9 +4380,9 @@
     "semantic_hash": "c761a1854048312afb1b02410e3a9c6e"
   },
   "Tests/Unit/WindowSnapTests.swift": {
-    "mtime": 1794854874.6309853,
-    "seen": 1794855067.095167,
-    "ast_hash": "f09cbf5208a485c0cdcd1ed20b044adc",
+    "mtime": 1794867271.422698,
+    "seen": 1794867470.995541,
+    "ast_hash": "5725d535f8cdfad070b654d8c93fd05b",
     "semantic_hash": ""
   },
   "Tests/Unit/WindowSubscriptionLedgerTests.swift": {
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
-    "mtime": 1794842273.5822444,
-    "seen": 1794844459.764687,
-    "ast_hash": "c7e99d4975776eb6cf30569550eb0c34",
+    "mtime": 1794867261.955925,
+    "seen": 1794867470.9942799,
+    "ast_hash": "4701888b637048f151c34348418f67ce",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
@@ -6582,15 +6582,15 @@
     "semantic_hash": ""
   },
   "App/Composition/QuitOnLastWindowService.swift": {
-    "mtime": 1794854942.6329675,
-    "seen": 1794855067.09439,
-    "ast_hash": "a13dcbaf77e9d113eaba0aca111c0b11",
+    "mtime": 1794867237.0613737,
+    "seen": 1794867470.99399,
+    "ast_hash": "e652c8795d359f41d777ff71cfb2d50a",
     "semantic_hash": ""
   },
   "Core/Support/QuitOnLastWindow.swift": {
-    "mtime": 1794867134.1784978,
-    "seen": 1794867134.436642,
-    "ast_hash": "88675ab738c611ef73a02ddc6e91f474",
+    "mtime": 1794867136.555569,
+    "seen": 1794867470.994637,
+    "ast_hash": "35a36fda159aeffa51a81d583c9442ed",
     "semantic_hash": ""
   },
   "App/Composition/ClaudeHookInstaller.swift": {
@@ -7293,6 +7293,18 @@
     "mtime": 1794864221.967094,
     "seen": 1794865321.6897411,
     "ast_hash": "435346af08cf764c49b7a256c7ed933d",
+    "semantic_hash": ""
+  },
+  "App/Composition/IdleAppNotifier.swift": {
+    "mtime": 1794867162.663663,
+    "seen": 1794867470.9939468,
+    "ast_hash": "d5bbb8c9514d1e457595d1f1b665d4d8",
+    "semantic_hash": ""
+  },
+  "Platform/SystemMonitor/AppMemorySampler.swift": {
+    "mtime": 1794867160.8572452,
+    "seen": 1794867470.9949608,
+    "ast_hash": "0a38bba50c03e139a253dde2a4394faf",
     "semantic_hash": ""
   }
 }
