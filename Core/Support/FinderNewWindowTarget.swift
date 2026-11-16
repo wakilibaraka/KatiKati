@@ -71,7 +71,7 @@ final class BoundedDirectoryProbe {
 
     private let timeout: TimeInterval
     private let isDirectory: (URL) -> Bool
-    private let queue = DispatchQueue(label: "com.caye.macosdockcc.v2.directory-probe", qos: .userInitiated)
+    private let queue = DispatchQueue(label: "com.katikati.app.directory-probe", qos: .userInitiated)
     private let lock = NSLock()
     private var busy = false
 

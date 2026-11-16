@@ -45,4 +45,34 @@ final class QuicklinkTemplateTests: XCTestCase {
         let link = Quicklink(name: "GH", template: "https://github.com/search?q={query}", openWith: "com.apple.Safari")
         XCTAssertEqual(try JSONDecoder().decode(Quicklink.self, from: JSONEncoder().encode(link)), link)
     }
+
+    func testParseAndSerializeLineFormat() {
+        let raw = """
+        gh = https://github.com/search?q={query}
+        daily = https://notes.test/{date}
+        invalid line without equals
+        """
+        let parsed = Quicklink.parse(raw)
+        XCTAssertEqual(parsed.map(\.name), ["gh", "daily"])
+        XCTAssertEqual(parsed.map(\.template), ["https://github.com/search?q={query}", "https://notes.test/{date}"])
+        XCTAssertEqual(Quicklink.serialize(parsed), "gh = https://github.com/search?q={query}\ndaily = https://notes.test/{date}")
+    }
+
+    func testMatchingExtractsQueryArgumentAndPrefixMatches() {
+        let gh = Quicklink(name: "gh", template: "https://github.com/search?q={query}")
+        let docs = Quicklink(name: "github-docs", template: "https://docs.github.com/{clipboard}")
+        let links = [gh, docs]
+
+        // Prefix match without argument
+        let prefixMatches = QuicklinkTemplate.matching("g", in: links)
+        XCTAssertEqual(prefixMatches.map(\.quicklink.name), ["gh", "github-docs"])
+        XCTAssertEqual(prefixMatches.map(\.argument), ["", ""])
+
+        // Exact keyword + space + query argument for a {query} template
+        let argMatches = QuicklinkTemplate.matching("gh swift concurrency", in: links)
+        XCTAssertEqual(argMatches, [Quicklink.Match(quicklink: gh, argument: "swift concurrency")])
+
+        // Non-{query} template does not take trailing arguments
+        XCTAssertTrue(QuicklinkTemplate.matching("github-docs extra", in: links).isEmpty)
+    }
 }

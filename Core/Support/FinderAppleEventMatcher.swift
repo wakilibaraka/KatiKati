@@ -28,7 +28,7 @@ struct AEFinderWindowParseResult {
 /// 依赖拖进测试靶。行为已由 spike#2 真机验证；单测锁住防回归。
 enum FinderAppleEventMatcher {
     private static let logger = Logger(
-        subsystem: Bundle.main.bundleIdentifier ?? "com.caye.macosdockcc.v2",
+        subsystem: Bundle.main.bundleIdentifier ?? "com.katikati.app",
         category: "FinderContents"
     )
 

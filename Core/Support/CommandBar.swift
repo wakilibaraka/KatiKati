@@ -72,6 +72,8 @@ enum CommandBarResult: Equatable, Sendable, Identifiable {
     case saveProfile(String)
     /// `define <word>`: open the dictionary panel on the word.
     case define(String)
+    /// Port plan #4′: a user-defined quicklink template with its optional `{query}` argument.
+    case quicklink(Quicklink, argument: String)
 
     var id: String {
         switch self {
@@ -122,6 +124,8 @@ enum CommandBarResult: Equatable, Sendable, Identifiable {
             return "saveProfile:\(name)"
         case .define(let word):
             return "define:\(word)"
+        case .quicklink(let link, let argument):
+            return "quicklink:\(link.name):\(link.template):\(argument)"
         }
     }
 }
@@ -220,6 +224,7 @@ enum CommandBarResults {
                       usage: [String: LauncherUsage],
                       running: [RunningAppRef],
                       custom: [CustomCommand] = [],
+                      quicklinks: [Quicklink] = [],
                       processes: [ProcessEntry] = [],
                       files: [FileEntry] = [],
                       clips: [ClipEntry] = [],
@@ -255,16 +260,17 @@ enum CommandBarResults {
             return LauncherAnswers.answers(for: routed).map(CommandBarResult.answer)
         case .apps(let term):
             if term.lowercased() == "trash" { return [.trash(.open), .trash(.empty)] }
-            var rows = appRows(term, apps: apps, usage: usage, running: running, custom: custom, generate: generate)
+            var rows = appRows(term, apps: apps, usage: usage, running: running, custom: custom, quicklinks: quicklinks, generate: generate)
             if case .macro(let macro)? = keyword { rows.insert(.action(macro), at: 0) }
             return rows
         }
     }
 
-    /// Answers / generator → custom → app matches, with a running app's Quit row immediately after it
+    /// Answers / generator → custom / quicklinks → app matches, with a running app's Quit row immediately after it
     /// (Phase 29a), then any leftover running match.
     private static func appRows(_ term: String, apps: [LauncherApp], usage: [String: LauncherUsage],
                                 running: [RunningAppRef], custom: [CustomCommand],
+                                quicklinks: [Quicklink] = [],
                                 generate: (CommandGenerator) -> String) -> [CommandBarResult] {
         guard !term.isEmpty else { return [] }
         var out: [CommandBarResult] = []
@@ -273,6 +279,7 @@ enum CommandBarResults {
             if !value.isEmpty { out.append(.generator(generator, value: value)) }
         }
         out += CustomCommand.matching(term, in: custom).map(CommandBarResult.custom)
+        out += QuicklinkTemplate.matching(term, in: quicklinks).map { .quicklink($0.quicklink, argument: $0.argument) }
 
         var used = Set<String>()
         for app in LauncherSearch.search(term, in: apps, usage: usage) {

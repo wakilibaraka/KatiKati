@@ -287,7 +287,7 @@ enum ChipAnimationTrace {
     private static let enabled = DebugSwitch.chipAnimTrace.isEnabled(in: ProcessInfo.processInfo.environment)
     private static let runtime = Runtime()
     private static let logger = Logger(
-        subsystem: Bundle.main.bundleIdentifier ?? "com.caye.macosdockcc.v2",
+        subsystem: Bundle.main.bundleIdentifier ?? "com.katikati.app",
         category: "ChipAnimation"
     )
 
@@ -326,7 +326,7 @@ enum ChipAnimationTrace {
     }
 
     private final class Runtime: @unchecked Sendable {
-        private let queue = DispatchQueue(label: "com.caye.macosdockcc.v2.chip-animation-trace")
+        private let queue = DispatchQueue(label: "com.katikati.app.chip-animation-trace")
         private let fileManager = FileManager.default
         private var buffer = ChipAnimationTraceBuffer(capacity: 4_096)
         private var sessionByChip: [String: UUID] = [:]
@@ -450,7 +450,7 @@ enum ChipAnimationTrace {
                 ?? fileManager.homeDirectoryForCurrentUser.appendingPathComponent("Library", isDirectory: true)
             let directory = library
                 .appendingPathComponent("Logs", isDirectory: true)
-                .appendingPathComponent("com.caye.macosdockcc.v2", isDirectory: true)
+                .appendingPathComponent("com.katikati.app", isDirectory: true)
             try fileManager.createDirectory(
                 at: directory,
                 withIntermediateDirectories: true,

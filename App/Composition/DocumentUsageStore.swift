@@ -28,7 +28,7 @@ final class DocumentUsageStore {
     /// 目录监视触发时按 mtime 圈出「哪个 bundle 的 sfl 变了」，只重采样变了的那些。
     private var mtimeByFile: [String: Date] = [:]
     private var saveWork: DispatchWorkItem?
-    private let ioQueue = DispatchQueue(label: "com.caye.macosdockcc.v2.document-usage", qos: .utility)
+    private let ioQueue = DispatchQueue(label: "com.katikati.app.document-usage", qos: .utility)
 
     private init() {
         // 同步载入：文件封顶数百 KB、一次性，首次访问（右键菜单或 start）付几毫秒可接受。
@@ -194,7 +194,7 @@ private enum DocumentUsageDisk {
     static var storeURL: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSTemporaryDirectory())
-        let bundleID = Bundle.main.bundleIdentifier ?? "com.caye.macosdockcc.v2"
+        let bundleID = Bundle.main.bundleIdentifier ?? "com.katikati.app"
         return base.appendingPathComponent(bundleID, isDirectory: true)
             .appendingPathComponent("document-usage.json")
     }

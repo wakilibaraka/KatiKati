@@ -56,7 +56,7 @@ struct WindowLiftRecoveryStore {
     static var defaultURL: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSTemporaryDirectory())
-        let bundleID = Bundle.main.bundleIdentifier ?? "com.caye.macosdockcc.v2"
+        let bundleID = Bundle.main.bundleIdentifier ?? "com.katikati.app"
         return base.appendingPathComponent(bundleID, isDirectory: true)
             .appendingPathComponent("window-lift-recovery.json")
     }

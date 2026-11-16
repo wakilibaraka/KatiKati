@@ -13,7 +13,7 @@ import OSLog
 @MainActor
 final class HyperkeyService {
     var onAction: (ShortcutAction) -> Void = { _ in }
-    private let log = Logger(subsystem: "com.caye.macosdockcc.v2", category: "hyperkey")
+    private let log = Logger(subsystem: "com.katikati.app", category: "hyperkey")
 
     private var enabled = false
     private var bindings: [UInt16: ShortcutAction] = [:]

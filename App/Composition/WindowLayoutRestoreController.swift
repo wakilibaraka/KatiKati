@@ -19,7 +19,7 @@ final class WindowLayoutRestoreController {
     /// rearranging windows and that arrangement must not overwrite the one worth restoring.
     private var isFrozen = false
     private var settleTask: Task<Void, Never>?
-    private let log = Logger(subsystem: "com.caye.macosdockcc.v2", category: "layout-restore")
+    private let log = Logger(subsystem: "com.katikati.app", category: "layout-restore")
 
     init(runtime: AppRuntime, displayTable: @escaping @MainActor () -> WindowDisplayAttribution.Table) {
         self.runtime = runtime

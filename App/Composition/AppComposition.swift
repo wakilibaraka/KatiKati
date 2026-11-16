@@ -40,7 +40,7 @@ final class AppRuntime: ObservableObject {
     /// 之后由清单里「窗口最后所在的屏」接管。投影层：显式住址 > 清单里的最后所在屏 > 主屏。
     @Published private(set) var noWindowHomeByBundle: [String: String] = [:]
     private static let displayTraceEnabled = DebugSwitch.displayTrace.isEnabled(in: ProcessInfo.processInfo.environment)
-    private let displayTraceLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "display-trace")
+    private let displayTraceLogger = Logger(subsystem: "com.katikati.app", category: "display-trace")
     /// The window gate: an app launched from the drawer is held here until it has a real window.
     /// Its drawer cell keeps the not-running look and keeps bouncing instead of stopping the moment
     /// the process appears (a GUI process being up ≠ its UI being up). `.regular` apps wait for a real
@@ -99,9 +99,9 @@ final class AppRuntime: ObservableObject {
     var onToggleKeepAwake: (() -> Bool)?
     var isKeepAwakeOn: (() -> Bool)?
 
-    private let debugSnapshotLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "debug-snapshot")
-    private let chipProbeLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "ChipProbe")
-    private let launchLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "Launch")
+    private let debugSnapshotLogger = Logger(subsystem: "com.katikati.app", category: "debug-snapshot")
+    private let chipProbeLogger = Logger(subsystem: "com.katikati.app", category: "ChipProbe")
+    private let launchLogger = Logger(subsystem: "com.katikati.app", category: "Launch")
     private static let launchTraceEnabled = DebugSwitch.launchTrace.isEnabled(in: ProcessInfo.processInfo.environment)
     private static let chipProbeEnabled = DebugSwitch.chipProbe.isEnabled(in: ProcessInfo.processInfo.environment)
     /// 最小化沉降门杀开关（默认开）。关掉时既不记 minimize 锚也不 hold，派发路径与旧行为逐位一致。
@@ -372,7 +372,7 @@ final class AppRuntime: ObservableObject {
     /// `.userInitiated`（这是人在等的路径，优先于任何后台盘点）。
     /// 视图层的读盘也走这里（拖应用进条时读 Info.plist），理由同铁律：不占 Swift 协作池。
     static let actionQueue = DispatchQueue(
-        label: "com.caye.macosdockcc.v2.window-action",
+        label: "com.katikati.app.window-action",
         qos: .userInitiated,
         attributes: .concurrent
     )

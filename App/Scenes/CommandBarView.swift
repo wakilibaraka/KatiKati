@@ -20,6 +20,7 @@ final class CommandBarModel: ObservableObject {
     var running: [RunningAppRef] = []
     var usage: [String: LauncherUsage] = [:]
     var custom: [CustomCommand] = []
+    var quicklinks: [Quicklink] = []
     var processes: [ProcessEntry] = []
     var files: [FileEntry] = []
     var clips: [ClipEntry] = []
@@ -65,7 +66,7 @@ final class CommandBarModel: ObservableObject {
         let shouldReset = resetSelection || (query != lastQuery)
         lastQuery = query
         results = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
-                                          custom: custom, processes: processes, files: files, clips: clips,
+                                          custom: custom, quicklinks: quicklinks, processes: processes, files: files, clips: clips,
                                           bookmarks: bookmarks, events: events, menuItems: menuItems, profiles: profiles,
                                           generate: { [weak self] in self?.generateValue(for: $0) ?? "" })
         var seen = [String: Int]()
@@ -282,6 +283,13 @@ struct CommandBarView: View {
                 if let shortcut = entry.shortcut {
                     Text(verbatim: shortcut).font(.system(size: 12, design: .rounded)).foregroundColor(.secondary)
                 }
+            case .quicklink(let link, let argument):
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: link.name).font(.system(size: 13, weight: .medium))
+                    Text(verbatim: argument.isEmpty ? link.template : QuicklinkTemplate.expand(link.template, values: QuicklinkValues(query: argument)))
+                        .font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
+                }
+                Spacer(minLength: 0)
             }
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
@@ -337,6 +345,8 @@ struct CommandBarView: View {
             Image(systemName: "character.book.closed").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .menuItem:
             Image(systemName: "filemenu.and.selection").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .quicklink:
+            Image(systemName: "link").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         }
     }
 }

@@ -45,7 +45,7 @@ final class WindowSwitcherController: ObservableObject {
     private var appliedKey: ShortcutKey?
     private var panel: SwitcherPanel?
     private var modifierTimer: Timer?
-    private let log = Logger(subsystem: "com.caye.macosdockcc.v2", category: "switcher")
+    private let log = Logger(subsystem: "com.katikati.app", category: "switcher")
 
     init(runtime: AppRuntime) {
         self.runtime = runtime

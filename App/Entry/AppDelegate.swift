@@ -242,7 +242,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var permissionCoordinator: PermissionRecoveryCoordinator?
     private var permissionWatchdogTimer: Timer?
     private var permissionWatchdogGate = PermissionWatchdogGate()
-    private let permissionProbeQueue = DispatchQueue(label: "com.caye.macosdockcc.v2.permission-probe", qos: .utility)
+    private let permissionProbeQueue = DispatchQueue(label: "com.katikati.app.permission-probe", qos: .utility)
     private var cachedAccessibilityTrusted = false
     private var hasStartedApp = false
     /// Launched without the Accessibility grant: the bar, launcher and Control Center still run, the status menu asks for the
@@ -250,7 +250,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var isLimitedMode = false
     private var limitedModeTimer: Timer?
     private var skipsPermissionGate: Bool { isLimitedMode || DebugSwitch.devSkipPermissions.isEnabled() }
-    private let permissionLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "permissions")
+    private let permissionLogger = Logger(subsystem: "com.katikati.app", category: "permissions")
     private lazy var statusMenuController = StatusMenuController(
         store: settingsStore,
         settingsCoordinator: settingsCoordinator,
@@ -356,11 +356,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.settingsStore.toggleEdgeAutoHideMode()
             }
             edgeToggleHotKey = hotKey
-            let hotKeyStatus = hotKey.start()
-            if hotKeyStatus != .registered {
-                Logger(subsystem: "com.caye.macosdockcc.v2", category: "hotkey")
-                    .warning("常驻切换全局快捷键注册失败：\(String(describing: hotKeyStatus), privacy: .public)，本次启动不重试")
-            }
+            registerEdgeToggleHotKeyWithRetry(hotKey, remainingAttempts: 8)
 
             shortcutService.onAction = { [weak self] action in
                 guard let self else { return }
@@ -566,10 +562,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .filter { $0.processIdentifier != myPID && !$0.isTerminated }
         guard !others.isEmpty else { return }
 
-        let logger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "instance")
+        let logger = Logger(subsystem: "com.katikati.app", category: "instance")
         for app in others {
             logger.warning("""
-                发现另一个钨极实例，终止它：pid=\(app.processIdentifier, privacy: .public) \
+                发现另一个 KatiKati 实例，终止它：pid=\(app.processIdentifier, privacy: .public) \
                 path=\(app.bundleURL?.path ?? "(unknown)", privacy: .public)
                 """)
             app.terminate()
@@ -580,6 +576,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 logger.error("旧实例 pid=\(app.processIdentifier, privacy: .public) 3 秒内未退出，强制结束")
                 app.forceTerminate()
             }
+        }
+    }
+
+    /// Retries Carbon hotkey registration briefly when an outgoing sibling instance still holds `⌥⇧⌘D` (`-9878`).
+    private func registerEdgeToggleHotKeyWithRetry(_ hotKey: GlobalHotKeyMonitor, remainingAttempts: Int) {
+        guard edgeToggleHotKey === hotKey else { return }
+        let status = hotKey.start()
+        if status == .registered { return }
+        if remainingAttempts > 1 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+                self?.registerEdgeToggleHotKeyWithRetry(hotKey, remainingAttempts: remainingAttempts - 1)
+            }
+        } else {
+            Logger(subsystem: "com.katikati.app", category: "hotkey")
+                .warning("常驻切换全局快捷键注册失败：\(String(describing: status), privacy: .public)")
         }
     }
 

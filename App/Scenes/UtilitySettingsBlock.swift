@@ -350,10 +350,17 @@ struct LauncherSettingsBlock: View {
 /// bar has a page of its own instead of riding on the launcher's.
 struct CommandBarSettingsBlock: View {
     @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
+    @AppStorage(Quicklink.key) private var quicklinks = ""
 
     var body: some View {
         SettingsCard(Text("Command Bar")) {
             SettingsToggleRow(Text("Show Command Hints"), isOn: $commandHints)
+            SettingsDivider()
+            SettingsEditorRow(
+                Text("Quicklinks"),
+                text: $quicklinks,
+                placeholder: Text("One per line: gh = https://github.com/search?q={query} (supports {query}, {clipboard}, {date})")
+            )
         }
     }
 }

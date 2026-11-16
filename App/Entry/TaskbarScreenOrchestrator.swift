@@ -51,7 +51,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     private let displayTopologyStore: DisplayTopologyStore
     private let topologySnapshotProvider: @MainActor () -> ScreenTopologySnapshot
     private let seedRetryScheduler: TaskbarPerDisplaySeedController.ScheduleAfter
-    private let logger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "taskbar-screens")
+    private let logger = Logger(subsystem: "com.katikati.app", category: "taskbar-screens")
 
     var onAddFolder: () -> Void = {} {
         didSet { units.forEach { $0.coordinator.onAddFolder = onAddFolder } }

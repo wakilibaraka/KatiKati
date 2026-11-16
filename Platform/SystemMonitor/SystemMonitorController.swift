@@ -11,6 +11,8 @@ final class SystemMonitorController: ObservableObject {
     private var lastNet: NetCounters?
     private var lastDisk: DiskCounters?
     private var lastTime = Date()
+    private var ticksSinceDiskStat = 0
+    private static let diskStatIntervalTicks = 15
 
     func acquire() {
         holders += 1
@@ -19,6 +21,7 @@ final class SystemMonitorController: ObservableObject {
         lastNet = SystemMonitorSampler.network()
         lastDisk = SystemMonitorSampler.diskCounters()
         lastTime = Date()
+        ticksSinceDiskStat = Self.diskStatIntervalTicks
         refresh()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.refresh() }
@@ -54,7 +57,12 @@ final class SystemMonitorController: ObservableObject {
         lastDisk = disk
         lastTime = now
         next.memory = SystemMonitorSampler.memory()
-        next.disk = SystemMonitorSampler.disk()
+        if ticksSinceDiskStat >= Self.diskStatIntervalTicks || next.disk == nil {
+            next.disk = SystemMonitorSampler.disk()
+            ticksSinceDiskStat = 0
+        } else {
+            ticksSinceDiskStat += 1
+        }
         snapshot = next
     }
 

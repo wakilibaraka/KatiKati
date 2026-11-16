@@ -87,7 +87,7 @@ final class PanelCoordinator: NSObject {
     let runningApplicationStore: RunningApplicationStore
     let appMembershipController: AppMembershipController
     /// 外部文件移入固定文件夹的唯一执行队列：资格判断与磁盘操作都按投放批次串行。
-    let fileDropQueue = DispatchQueue(label: "com.caye.macosdockcc.v2.folder-drop", qos: .userInitiated)
+    let fileDropQueue = DispatchQueue(label: "com.katikati.app.folder-drop", qos: .userInitiated)
     /// 文件夹 chip / 中转格右键「添加文件夹…」入口（AppDelegate 注入，NSOpenPanel 归它管）。
     var onAddFolder: () -> Void = {}
     /// 右键任务条 / 胶囊时弹出钨极菜单。菜单归 `StatusMenuController` 持有，这里只转发事件——
@@ -282,9 +282,9 @@ final class PanelCoordinator: NSObject {
     var lastDrawerTargetFrame: NSRect = .zero
     /// 首帧布局强制瞬时（面板刚建好,别从初始/原点位置滑过来）。
     var didInitialLayout = false
-    let logger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "dock-panel")
+    let logger = Logger(subsystem: "com.katikati.app", category: "dock-panel")
     let fullscreenIntentLogger = Logger(
-        subsystem: "com.caye.macosdockcc.v2",
+        subsystem: "com.katikati.app",
         category: "FullscreenIntent"
     )
     var fullscreenReconcileTimer: Timer?
@@ -695,7 +695,7 @@ final class PanelCoordinator: NSObject {
 
     // MARK: - HoverSwitch Diagnostics
 
-    let hoverLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "HoverSwitch")
+    let hoverLogger = Logger(subsystem: "com.katikati.app", category: "HoverSwitch")
     static let hoverHotZone: CGFloat = 4.0
     static let hoverSwitchDwell: TimeInterval = 0.35   // 光标驻留热区 ≥ 350ms 才切换，路过不算
     static let hoverVerboseLogging = false

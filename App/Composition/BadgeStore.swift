@@ -33,7 +33,7 @@ final class BadgeStore: ObservableObject {
     /// 可读集 = 消息应用身份 ∩ 在跑 − 抽屉（`AppMembershipProjection.badgeEligibleIDs`，AppDelegate 推进来）。
     private var readableMessagingIDs: [String] = []
     private var taskbarVisible = true
-    private let logger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "Badge")
+    private let logger = Logger(subsystem: "com.katikati.app", category: "Badge")
 
     init(
         reader: any DockBadgeReading = DockBadgeReader(),

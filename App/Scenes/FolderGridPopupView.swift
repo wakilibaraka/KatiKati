@@ -82,7 +82,7 @@ final class FolderPopupModel: ObservableObject {
 
     /// 目录读取走自己的串行队列而不是 `Task.detached`：点开弹窗是用户动作，扔进 Swift 协作线程池
     /// 会排在 `AppTracker` 后台 AX 批读（N×100ms 串行）后面（`AGENTS.md` 铁律）。
-    private static let reloadQueue = DispatchQueue(label: "com.caye.macosdockcc.v2.folder-popup-reload",
+    private static let reloadQueue = DispatchQueue(label: "com.katikati.app.folder-popup-reload",
                                                    qos: .userInitiated)
 
     /// Bounded retries while the prompt is up: the grant lands, the next attempt fills the grid.

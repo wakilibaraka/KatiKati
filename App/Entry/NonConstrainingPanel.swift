@@ -110,6 +110,11 @@ class NonConstrainingPanel: NSPanel {
         frameRect
     }
 
+    override func makeKey() {
+        guard canBecomeKey else { return }
+        super.makeKey()
+    }
+
     // `isMovable = false` only stops mouse drags: any process with Accessibility access can still
     // relocate the window through `kAXPositionAttribute`, and `PanelCoordinator` never puts it
     // back (`setFrames` compares targets, not live frames). A window manager reacting to the

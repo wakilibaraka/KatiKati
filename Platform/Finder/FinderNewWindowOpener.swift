@@ -13,7 +13,7 @@ import OSLog
 /// `NSWorkspace.openApplication` is no substitute for step 1: on a windowless Finder it only activates.
 /// Blocks for up to `launchTimeout` + 2 × `reopenTimeout`; never call it on the main thread.
 enum FinderNewWindowOpener {
-    private static let logger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "FinderNewWindow")
+    private static let logger = Logger(subsystem: "com.katikati.app", category: "FinderNewWindow")
     private static let finderBundleID = "com.apple.finder"
     private static let reopenTimeout: TimeInterval = 3
     private static let launchTimeout: TimeInterval = 5

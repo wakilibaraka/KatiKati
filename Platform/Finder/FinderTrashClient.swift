@@ -12,7 +12,7 @@ final class FinderTrashClient: FinderTrashClienting {
     private let listQueue = DispatchQueue(label: "com.katikati.trash-list", qos: .userInitiated)
     private let lock = NSLock()
     private var generation: UInt64 = 0
-    private static let logger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "FinderTrash")
+    private static let logger = Logger(subsystem: "com.katikati.app", category: "FinderTrash")
 
     private func currentGeneration() -> UInt64 {
         lock.lock(); defer { lock.unlock() }

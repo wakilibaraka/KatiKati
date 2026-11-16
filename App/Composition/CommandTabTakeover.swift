@@ -16,7 +16,7 @@ final class CommandTabTakeover {
 
     private var tap: CFMachPort?
     private var source: CFRunLoopSource?
-    private let log = Logger(subsystem: "com.caye.macosdockcc.v2", category: "switcher")
+    private let log = Logger(subsystem: "com.katikati.app", category: "switcher")
 
     var isRunning: Bool { tap != nil }
 

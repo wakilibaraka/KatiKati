@@ -30,7 +30,7 @@ final class KeptAppStore: ObservableObject {
     @Published private(set) var dockPinnedBundleIDs: [String] = []
 
     private let defaults: UserDefaults
-    private let logger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "kept-app-store")
+    private let logger = Logger(subsystem: "com.katikati.app", category: "kept-app-store")
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults

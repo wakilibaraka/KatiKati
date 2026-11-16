@@ -92,7 +92,7 @@ extension DockStripView {
     /// 具体访达窗口 → 反查路径 → 预览。AX 定位 + 权限流在主线程，AppleEvents 枚举放后台，
     /// 成功回主线程开预览；拒授权 / 无唯一匹配 / 超时 → beep + log，不弹空窗（spike#2 已验证）。
     private func previewFinderWindow(_ item: StripItem, anchor: CGRect) {
-        let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.caye.macosdockcc.v2", category: "FinderWindowPreview")
+        let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.katikati.app", category: "FinderWindowPreview")
         let ref = FinderWindowReference(pid: item.pid, cgWindowID: item.cgWindowID, title: item.title, bounds: item.bounds)
         let reader = FinderWindowContentsReader()
         let onToggle = onFolderPopupToggle

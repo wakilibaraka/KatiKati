@@ -141,7 +141,7 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
     static let spaceOrderOriginalKey = "com.katikati.nativeDock.mruSpacesOriginal"
     /// The slider delay KatiKati last applied; re-applied on the next launch (the Dock is given back on quit).
     static let desiredDelayKey = "com.katikati.nativeDock.desiredDelay"
-    private let readerQueue = DispatchQueue(label: "com.caye.macosdockcc.v2.native-dock-reader", qos: .userInitiated)
+    private let readerQueue = DispatchQueue(label: "com.katikati.app.native-dock-reader", qos: .userInitiated)
 
     init(sandbox: SandboxEnvironment = .current,
          runner: @escaping ShellRunner = NativeDockPreferencesService.runProcess,

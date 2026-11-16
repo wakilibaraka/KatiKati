@@ -487,12 +487,14 @@ struct DockStripView: View {
         // `.refresh` 的那一套，连同「谁有资格占用这块面板」的守卫，一起没了：
         // 现在只有一个人能发请求，抢不起来。
         .onChange(of: bubbleRequest(projection: projection)) { request in
-            if let request {
-                onWindowTitleTooltipEvent(.update(request))
-            } else if let previous = bubbleOwnerID {
-                onWindowTitleTooltipEvent(.exit(chipID: previous))
+            Task { @MainActor in
+                if let request {
+                    onWindowTitleTooltipEvent(.update(request))
+                } else if let previous = bubbleOwnerID {
+                    onWindowTitleTooltipEvent(.exit(chipID: previous))
+                }
+                bubbleOwnerID = request?.chipID
             }
-            bubbleOwnerID = request?.chipID
         }
         .onDisappear {
             if let previous = bubbleOwnerID { onWindowTitleTooltipEvent(.exit(chipID: previous)) }

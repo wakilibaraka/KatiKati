@@ -15,7 +15,7 @@ final class ShortcutService {
     private var globalMonitor: Any?
     private var localMonitor: Any?
     private var applied: [ShortcutAction: ShortcutTrigger]?
-    private let log = Logger(subsystem: "com.caye.macosdockcc.v2", category: "hotkey")
+    private let log = Logger(subsystem: "com.katikati.app", category: "hotkey")
 
     func apply(_ bindings: [ShortcutAction: ShortcutTrigger]) {
         guard bindings != applied else { return }

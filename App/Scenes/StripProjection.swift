@@ -134,7 +134,7 @@ struct StripProjection {
 /// 2026-08-23 加：owner 报「微信消息区一张卡、常规区一张卡」，调试台窗口又有一半在屏幕外，
 /// 三轮追问都定不了是「标题不是微信」还是「名字表没认出微信」——有这一行当场就知道。
 enum MessagingZoneDiagnostics {
-    private static let logger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "MessagingZone")
+    private static let logger = Logger(subsystem: "com.katikati.app", category: "MessagingZone")
     private static let lock = NSLock()
     private static var lastSignatureByBundle: [String: String] = [:]
 

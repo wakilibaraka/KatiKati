@@ -104,7 +104,7 @@ final class RunningApplicationStore: ObservableObject {
     private var pendingWorkspaceSweepTask: Task<Void, Never>?
     private var lastWorkspaceSweepAt: TimeInterval?
     private var isStarted = false
-    private let logger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "running-state")
+    private let logger = Logger(subsystem: "com.katikati.app", category: "running-state")
 
     init(
         workspace: NSWorkspace = .shared,

@@ -530,7 +530,7 @@ struct WindowInventoryLogConfiguration {
             enabled: resolvedEnabled(environment: environment, defaults: defaults),
             directoryURL: library
                 .appendingPathComponent("Logs", isDirectory: true)
-                .appendingPathComponent("com.caye.macosdockcc.v2", isDirectory: true),
+                .appendingPathComponent("com.katikati.app", isDirectory: true),
             maxFileSize: 1_048_576,
             archiveCount: 4
         )
@@ -622,7 +622,7 @@ final class WindowInventoryAnomalyLog {
     }
 
     private static let systemLogger = Logger(
-        subsystem: "com.caye.macosdockcc.v2",
+        subsystem: "com.katikati.app",
         category: "window-inventory-log"
     )
     private static let processWriteLock = NSLock()
@@ -655,7 +655,7 @@ final class WindowInventoryAnomalyLog {
             Self.systemLogger.error("inventory log disabled after error: \(message, privacy: .public)")
         }
         if configuration.enabled {
-            self.queue = DispatchQueue(label: "com.caye.macosdockcc.v2.window-inventory-log", qos: .utility)
+            self.queue = DispatchQueue(label: "com.katikati.app.window-inventory-log", qos: .utility)
         } else {
             self.queue = nil
         }

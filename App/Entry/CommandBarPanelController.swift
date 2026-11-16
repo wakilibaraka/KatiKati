@@ -67,6 +67,7 @@ final class CommandBarPanelController {
         model.apps = indexer.apps
         model.custom = CustomCommand.parse(UserDefaults.standard.string(forKey: CustomCommand.key) ?? "")
             + CustomCommand.parseSnippets(UserDefaults.standard.string(forKey: CustomCommand.snippetsKey) ?? "")
+        model.quicklinks = Quicklink.parse(UserDefaults.standard.string(forKey: Quicklink.key) ?? "")
         model.clips = Array(ProductivityServices.shared.clipboard.history.displayOrder.prefix(50))
         model.refresh(resetSelection: true)
         FileIndexService.shared.prepare()
@@ -242,6 +243,18 @@ final class CommandBarPanelController {
             // After the panel is gone, so the item's own window or sheet opens over the app, not under the bar.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 if !AppMenuSearchReader.press(path: entry.path, pid: pid) { NSSound.beep() }
+            }
+        case .quicklink(let link, let argument):
+            let clip = NSPasteboard.general.string(forType: .string) ?? ""
+            let values = QuicklinkValues(query: argument, clipboard: clip, selection: "", date: Date())
+            dismiss()
+            if let url = QuicklinkTemplate.url(link.template, values: values) {
+                if let bundleID = link.openWith,
+                   let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
+                    NSWorkspace.shared.open([url], withApplicationAt: appURL, configuration: NSWorkspace.OpenConfiguration())
+                } else {
+                    NSWorkspace.shared.open(url)
+                }
             }
         }
     }

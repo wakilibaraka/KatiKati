@@ -171,7 +171,7 @@ final class AccessibilitySource {
 struct AccessibilityWindowActionExecutor {
     private let reader: AXWindowReader
     private let chipProbeEnabled: Bool
-    private static let chipProbeLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "ChipProbe")
+    private static let chipProbeLogger = Logger(subsystem: "com.katikati.app", category: "ChipProbe")
 
     init(reader: AXWindowReader = AXWindowReader(), chipProbeEnabled: Bool = false) {
         self.reader = reader
@@ -922,7 +922,7 @@ enum MinimizedRestorePreActivation {
 struct PlatformActionExecutor {
     private let windowExecutor: AccessibilityWindowActionExecutor
     private let switches: ActionExecutionSwitches
-    private static let chipProbeLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "ChipProbe")
+    private static let chipProbeLogger = Logger(subsystem: "com.katikati.app", category: "ChipProbe")
     private static let postMinimizeActivateDelayMicroseconds: useconds_t = 50_000
 
     init(switches: ActionExecutionSwitches = ActionExecutionSwitches()) {

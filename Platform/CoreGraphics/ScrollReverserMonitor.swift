@@ -20,7 +20,7 @@ final class ScrollReverserMonitor {
     func start() {
         guard tapThread == nil else { return }
         let thread = ScrollReverserEventTapThread(
-            logger: Logger(subsystem: "com.caye.macosdockcc.v2", category: "scroll-reverser")
+            logger: Logger(subsystem: "com.katikati.app", category: "scroll-reverser")
         )
         tapThread = thread
         thread.start()
@@ -58,7 +58,7 @@ private final class ScrollReverserEventTapThread {
             guard thread == nil else { return }
             stopping = false
             let thread = Thread { [weak self] in self?.run() }
-            thread.name = "com.caye.macosdockcc.scroll-reverser-tap"
+            thread.name = "com.katikati.app.scroll-reverser-tap"
             thread.qualityOfService = .userInteractive
             self.thread = thread
             thread.start()

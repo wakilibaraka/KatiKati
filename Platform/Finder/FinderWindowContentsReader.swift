@@ -48,7 +48,7 @@ enum FinderWindowContentsError: LocalizedError, Sendable {
 /// 纯匹配/解析逻辑在 `FinderAppleEventMatcher`（可纯单测）。
 struct FinderWindowContentsReader {
     private static let logger = Logger(
-        subsystem: Bundle.main.bundleIdentifier ?? "com.caye.macosdockcc.v2",
+        subsystem: Bundle.main.bundleIdentifier ?? "com.katikati.app",
         category: "FinderContents"
     )
 

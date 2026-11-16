@@ -7,7 +7,7 @@ final class DrawerStore: ObservableObject {
     private let key = "drawerBundleIDs"
     private static let legacyFavoriteKey = "launchFavoriteBundleIDs"
     private let defaults: UserDefaults
-    private let logger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "drawer-store")
+    private let logger = Logger(subsystem: "com.katikati.app", category: "drawer-store")
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults

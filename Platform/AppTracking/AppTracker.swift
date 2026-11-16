@@ -224,7 +224,7 @@ final class AppTracker: ObservableObject {
     private var observerActiveOverridesForTesting: [pid_t: Bool] = [:]
     #endif
     private let windowEligibility = AppTrackerWindowEligibility()
-    private let logger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "app-tracker")
+    private let logger = Logger(subsystem: "com.katikati.app", category: "app-tracker")
     private let inventoryLog: WindowInventoryAnomalyLog
 
     init(
@@ -1108,7 +1108,7 @@ final class AppTracker: ObservableObject {
     }
 
     private static let displayTraceEnabled = DebugSwitch.displayTrace.isEnabled(in: ProcessInfo.processInfo.environment)
-    private let displayTraceLogger = Logger(subsystem: "com.caye.macosdockcc.v2", category: "display-trace")
+    private let displayTraceLogger = Logger(subsystem: "com.katikati.app", category: "display-trace")
 
     @discardableResult
     func noteWindowMoved(pid: pid_t, cgWindowID: CGWindowID, displayUUID: String?, hold: DisplayKeyHold = .brief) -> Bool {

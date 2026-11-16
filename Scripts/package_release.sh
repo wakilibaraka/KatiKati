@@ -17,7 +17,7 @@ PRODUCTS="$DD/Build/Products/Release"
 BUILD_LOG="${TMPDIR:-/tmp}/katikati-package-build.log"
 TEST_LOG="${TMPDIR:-/tmp}/katikati-package-tests.log"
 
-DEVELOPER_ID_APPLICATION="${DEVELOPER_ID_APPLICATION:-Developer ID Application: Suzhou Mubai Creativity Design Co., Ltd. (DRPT2MJQD5)}"
+DEVELOPER_ID_APPLICATION="${DEVELOPER_ID_APPLICATION:-}"
 NOTARY_KEYCHAIN_PROFILE="${NOTARY_KEYCHAIN_PROFILE:-katikati-notary}"
 
 TEMP_ROOT=""

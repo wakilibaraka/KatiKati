@@ -35,7 +35,7 @@ final class WindowDrawerController: ObservableObject {
     private var edgeTimer: Timer?
     private var edgeSince: Date?
     private var defaultsObserver: NSObjectProtocol?
-    private let log = Logger(subsystem: "com.caye.macosdockcc.v2", category: "drawer")
+    private let log = Logger(subsystem: "com.katikati.app", category: "drawer")
 
     init(runtime: AppRuntime, onSearch: @escaping () -> Void, onApps: @escaping () -> Void) {
         self.runtime = runtime; self.onSearch = onSearch; self.onApps = onApps

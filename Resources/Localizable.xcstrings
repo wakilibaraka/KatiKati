@@ -98156,6 +98156,42 @@
         "it": { "stringUnit": { "state": "translated", "value": "Il Mac può andare in stop" } },
         "ko": { "stringUnit": { "state": "translated", "value": "Mac이 잠자기 상태로 전환될 수 있습니다" } }
       }
+    },
+
+    "Quicklinks": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Quicklinks" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "快捷链接" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "快速連結" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "クイックリンク" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schnelllinks" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Liens rapides" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Enlaces rápidos" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Enlaces rápidos" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Links rápidos" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Ligações rápidas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Link rapidi" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "빠른 링크" } }
+      }
+    },
+
+    "One per line: gh = https://github.com/search?q={query} (supports {query}, {clipboard}, {date})": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "One per line: gh = https://github.com/search?q={query} (supports {query}, {clipboard}, {date})" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "每行一条：gh = https://github.com/search?q={query}（支持 {query}、{clipboard}、{date}）" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "每行一條：gh = https://github.com/search?q={query}（支援 {query}、{clipboard}、{date}）" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "1行に1件: gh = https://github.com/search?q={query}（{query}、{clipboard}、{date} に対応）" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Ein Eintrag pro Zeile: gh = https://github.com/search?q={query} (unterstützt {query}, {clipboard}, {date})" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Un par ligne : gh = https://github.com/search?q={query} (prend en charge {query}, {clipboard}, {date})" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Uno por línea: gh = https://github.com/search?q={query} (admite {query}, {clipboard}, {date})" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Uno por línea: gh = https://github.com/search?q={query} (admite {query}, {clipboard}, {date})" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Um por linha: gh = https://github.com/search?q={query} (aceita {query}, {clipboard}, {date})" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Um por linha: gh = https://github.com/search?q={query} (suporta {query}, {clipboard}, {date})" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Uno per riga: gh = https://github.com/search?q={query} (supporta {query}, {clipboard}, {date})" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "한 줄에 하나씩: gh = https://github.com/search?q={query} ({query}, {clipboard}, {date} 지원)" } }
+      }
     }
   },
   "version": "1.0"
