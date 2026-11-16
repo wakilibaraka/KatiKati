@@ -58,7 +58,7 @@ struct LiveEventPresentation {
 
         case let .clipboardCopied(preview):
             symbol = "doc.on.clipboard"
-            headline = String(localized: "Clipboard")
+            headline = ClipboardToastBadge.badge(for: preview)
             detail = preview
 
         case let .downloadFinished(name):

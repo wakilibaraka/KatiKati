@@ -11,6 +11,8 @@ struct UtilitySettingsBlock: View {
     @ObservedObject private var cheatSheet = ShortcutCheatSheetService.shared
     @AppStorage(ClipboardMonitor.soundsKey) private var clipboardSounds = false
     @AppStorage(ClipboardMonitor.notchToastKey) private var clipboardToast = false
+    @AppStorage(ClipboardToastBadge.dockTileKey) private var dockClipboardTile = false
+    @ObservedObject private var tendedero = TendederoClotheslineController.shared
     @AppStorage(ClipboardMonitor.ignorePatternsKey) private var clipboardIgnorePatterns = ""
     @AppStorage(ClipboardMonitor.keepDaysKey) private var clipboardKeepDays = 0
     @AppStorage(CustomCommand.key) private var customCommands = ""
@@ -116,6 +118,16 @@ struct UtilitySettingsBlock: View {
                     SettingsToggleRow(Text("Copy Sounds"), isOn: $clipboardSounds)
                     SettingsDivider()
                     SettingsToggleRow(Text("Copy Notifications"), isOn: $clipboardToast)
+                    SettingsDivider()
+                    SettingsToggleRow(Text("Show Clipboard Tile on Dock"), isOn: $dockClipboardTile)
+                    SettingsDivider()
+                    SettingsToggleRow(
+                        Text("Hang Copied Images & Links on Sidebar"),
+                        isOn: Binding(
+                            get: { tendedero.captureMode == .screenshotsAndAutoClipboard },
+                            set: { tendedero.setCaptureMode($0 ? .screenshotsAndAutoClipboard : .screenshotsAndManualClipboard) }
+                        )
+                    )
                     SettingsDivider()
                     SettingsPickerRow(
                         Text("Keep Clipboard History"),

@@ -26,6 +26,7 @@ struct DockStripView: View {
     @AppStorage(DockBarLayoutStyle.defaultsKey) private var dockBarLayoutStyleRaw: String = DockBarLayoutStyle.unifiedBar.rawValue
     @AppStorage(LumabarSurfaceTheme.defaultsKey) private var lumabarThemeRaw: String = LumabarSurfaceTheme.obsidianBlack.rawValue
     @AppStorage(DockScreenEdge.defaultsKey) private var dockScreenEdgeRaw: String = DockScreenEdge.bottom.rawValue
+    @AppStorage(ClipboardToastBadge.dockTileKey) private var showDockClipboardTile: Bool = false
 
     var dockBarLayoutStyle: DockBarLayoutStyle {
         DockBarLayoutStyle(rawValue: dockBarLayoutStyleRaw) ?? .unifiedBar
@@ -1539,9 +1540,14 @@ struct DockStripView: View {
             .stripEntrance(id: entrance ? entry.id : nil, delay: delay,
                            animatedEntryIDs: $animatedEntryIDs)
         case .trash:
-            trashChip(hovered: hovered)
-                .stripEntrance(id: entrance ? entry.id : nil, delay: 0,
-                               animatedEntryIDs: $animatedEntryIDs)
+            HStack(spacing: 6) {
+                if showDockClipboardTile {
+                    DockClipboardMicroTile()
+                }
+                trashChip(hovered: hovered)
+                    .stripEntrance(id: entrance ? entry.id : nil, delay: 0,
+                                   animatedEntryIDs: $animatedEntryIDs)
+            }
         case .pop:
             PopChip(
                 popStore: popStore,
@@ -1943,6 +1949,46 @@ private struct NativeScaled: ViewModifier {
 
 extension View {
     func nativeScaled(_ scale: CGFloat) -> some View { modifier(NativeScaled(scale: scale)) }
+}
+
+private struct DockClipboardMicroTile: View {
+    @ObservedObject private var monitor = ProductivityServices.shared.clipboard
+    @State private var showFlyout = false
+
+    private var badgeText: String {
+        guard let latest = monitor.history.displayOrder.first else { return "Clip" }
+        return ClipboardToastBadge.badge(for: latest.text)
+    }
+
+    var body: some View {
+        Button {
+            showFlyout.toggle()
+        } label: {
+            VStack(spacing: 2) {
+                Image(systemName: "doc.on.clipboard")
+                    .font(.system(size: 13, weight: .semibold))
+                Text(verbatim: badgeText)
+                    .font(.system(size: 8, weight: .bold, design: .rounded))
+                    .lineLimit(1)
+            }
+            .foregroundStyle(.primary)
+            .frame(width: 36, height: 36)
+            .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(.ultraThinMaterial))
+            .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous).strokeBorder(.quaternary))
+        }
+        .buttonStyle(.plain)
+        .help(Text("Clipboard (Right-click to Paste Latest)"))
+        .popover(isPresented: $showFlyout, arrowEdge: .top) {
+            ClipboardFlyoutView()
+        }
+        .contextMenu {
+            if let latest = monitor.history.displayOrder.first {
+                Button("Paste Latest Plain") { monitor.pastePlain(latest) }
+                Button("Copy Latest") { monitor.copy(latest) }
+            }
+            Button("Open Clipboard") { showFlyout = true }
+        }
+    }
 }
 
 // MARK: - Fluid body

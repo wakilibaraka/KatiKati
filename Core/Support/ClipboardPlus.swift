@@ -138,3 +138,24 @@ struct ClipboardCardMetadata: Equatable, Sendable {
         return nil
     }
 }
+
+/// Slice CS-3: compact content badge for Notch Copy Toast & Dock/EdgeBar Clipboard Micro-Tile.
+enum ClipboardToastBadge {
+    static let dockTileKey = "com.katikati.clipboard.dockTile"
+
+    static func badge(for text: String, linkCleaned: Bool = false) -> String {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let parsed = ClipboardCardMetadata.parseHexColor(trimmed) {
+            return parsed.hex
+        }
+        if linkCleaned {
+            return "Link Cleaned"
+        }
+        let lower = trimmed.lowercased()
+        if (lower.hasPrefix("http://") || lower.hasPrefix("https://")),
+           URL(string: trimmed) != nil {
+            return "URL"
+        }
+        return "\(text.count) ch"
+    }
+}

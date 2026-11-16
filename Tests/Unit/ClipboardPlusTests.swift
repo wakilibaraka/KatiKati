@@ -123,4 +123,11 @@ final class ClipboardCardMetadataTests: XCTestCase {
         let personalMeta = ClipboardCardMetadata.classify(text: "recipe list", originBundleID: "com.apple.Safari", workBundleIDs: workApps)
         XCTAssertEqual(personalMeta.category, .personal)
     }
+
+    func testClipboardToastBadge() {
+        XCTAssertEqual(ClipboardToastBadge.badge(for: "#ff5500"), "#FF5500")
+        XCTAssertEqual(ClipboardToastBadge.badge(for: "https://example.com", linkCleaned: true), "Link Cleaned")
+        XCTAssertEqual(ClipboardToastBadge.badge(for: "https://example.com"), "URL")
+        XCTAssertEqual(ClipboardToastBadge.badge(for: "hello"), "5 ch")
+    }
 }

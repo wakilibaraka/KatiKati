@@ -333,6 +333,12 @@ struct NotchIslandView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     MusicEqualizerBars(isActive: feed.nowPlayingState.isPlaying, tint: .white.opacity(0.85))
                         .frame(width: 16, height: 12)
+                } else if activity.id.hasPrefix("clipboard|"),
+                          let appIcon = NSWorkspace.shared.frontmostApplication?.icon {
+                    Image(nsImage: appIcon)
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
                 } else {
                     Image(systemName: LiveIslandStyle.symbolName(for: activity.kind))
                         .foregroundStyle(LiveIslandStyle.tint(for: activity.kind))
@@ -347,6 +353,20 @@ struct NotchIslandView: View {
             Spacer(minLength: metrics.closedSize.width - 8)
             if case .music = activity.content {
                 NotchLiveBattery().frame(width: NotchGeometry.sneakSide - 14, alignment: .trailing)   // battery stays put while music plays; no song text
+            } else if activity.id.hasPrefix("clipboard|"),
+                      let latest = ProductivityServices.shared.clipboard.history.displayOrder.first {
+                Button {
+                    ProductivityServices.shared.clipboard.pastePlain(latest)
+                } label: {
+                    Text("Paste Plain")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(Color.white.opacity(0.18)))
+                }
+                .buttonStyle(.plain)
+                .frame(width: NotchGeometry.sneakSide - 8, alignment: .trailing)
             } else if let value = LiveIslandStyle.valueText(for: activity) {
                 value
                     .font(.system(size: 11, weight: .semibold))
