@@ -176,4 +176,96 @@ final class GlanceStackTests: XCTestCase {
             XCTAssertTrue(layout.hiddenSections.isSuperset(of: StackRelevance.glanceMembers))
         }
     }
+
+    // MARK: - Notch Call HUD & Meeting Controls (Slice A-CallHUD)
+
+    func testPlatformDisplayNamesAndSymbols() {
+        XCTAssertEqual(MeetingCallPlatform.zoom.displayName, "Zoom")
+        XCTAssertEqual(MeetingCallPlatform.googleMeet.displayName, "Google Meet")
+        XCTAssertEqual(MeetingCallPlatform.teams.displayName, "Microsoft Teams")
+        XCTAssertEqual(MeetingCallPlatform.faceTime.displayName, "FaceTime")
+        XCTAssertEqual(MeetingCallPlatform.webex.displayName, "Webex")
+
+        for platform in MeetingCallPlatform.allCases {
+            XCTAssertFalse(platform.sfSymbol.isEmpty)
+        }
+    }
+
+    func testMeetingShortcutRouting() {
+        // Zoom shortcuts
+        let zoomMute = NotchMeetingControlRouter.shortcut(for: .toggleMute, on: .zoom)
+        XCTAssertEqual(zoomMute.label, "⌘⇧A")
+        let zoomCamera = NotchMeetingControlRouter.shortcut(for: .toggleCamera, on: .zoom)
+        XCTAssertEqual(zoomCamera.label, "⌘⇧V")
+        let zoomEnd = NotchMeetingControlRouter.shortcut(for: .endCall, on: .zoom)
+        XCTAssertEqual(zoomEnd.label, "⌘W")
+
+        // Google Meet shortcuts
+        let meetMute = NotchMeetingControlRouter.shortcut(for: .toggleMute, on: .googleMeet)
+        XCTAssertEqual(meetMute.label, "⌘D")
+        let meetCamera = NotchMeetingControlRouter.shortcut(for: .toggleCamera, on: .googleMeet)
+        XCTAssertEqual(meetCamera.label, "⌘E")
+
+        // Teams shortcuts
+        let teamsMute = NotchMeetingControlRouter.shortcut(for: .toggleMute, on: .teams)
+        XCTAssertEqual(teamsMute.label, "⌘⇧M")
+        let teamsCamera = NotchMeetingControlRouter.shortcut(for: .toggleCamera, on: .teams)
+        XCTAssertEqual(teamsCamera.label, "⌘⇧O")
+
+        // FaceTime shortcuts
+        let ftMute = NotchMeetingControlRouter.shortcut(for: .toggleMute, on: .faceTime)
+        XCTAssertEqual(ftMute.label, "⌘⇧M")
+        let ftCamera = NotchMeetingControlRouter.shortcut(for: .toggleCamera, on: .faceTime)
+        XCTAssertEqual(ftCamera.label, "⌘⇧V")
+    }
+
+    func testMeetingCallStateDurationFormatting() {
+        let start = Date(timeIntervalSince1970: 1000)
+        let state = MeetingCallState(platform: .zoom, startTime: start)
+
+        // 45 seconds later
+        let t1 = Date(timeIntervalSince1970: 1045)
+        XCTAssertEqual(state.formattedDuration(at: t1), "00:45")
+
+        // 12 mins 34 secs later
+        let t2 = Date(timeIntervalSince1970: 1000 + 12 * 60 + 34)
+        XCTAssertEqual(state.formattedDuration(at: t2), "12:34")
+
+        // 1 hour 5 mins 2 secs later
+        let t3 = Date(timeIntervalSince1970: 1000 + 3600 + 5 * 60 + 2)
+        XCTAssertEqual(state.formattedDuration(at: t3), "1:05:02")
+    }
+
+    func testMeetingCallStateToggles() {
+        let state = MeetingCallState(platform: .faceTime, isMicMuted: false, isCameraOff: false)
+        let muted = state.toggledMute()
+        XCTAssertTrue(muted.isMicMuted)
+        XCTAssertFalse(muted.isCameraOff)
+
+        let camOff = muted.toggledCamera()
+        XCTAssertTrue(camOff.isMicMuted)
+        XCTAssertTrue(camOff.isCameraOff)
+
+        let unmuted = camOff.toggledMute()
+        XCTAssertFalse(unmuted.isMicMuted)
+        XCTAssertTrue(unmuted.isCameraOff)
+    }
+
+    func testPlatformDetectionFromBundleIDs() {
+        XCTAssertEqual(
+            MeetingDetectionPolicy.detectPlatform(fromRunningBundleIDs: ["com.apple.finder", "us.zoom.xos"]),
+            .zoom
+        )
+        XCTAssertEqual(
+            MeetingDetectionPolicy.detectPlatform(fromRunningBundleIDs: ["com.apple.FaceTime", "com.google.Chrome"]),
+            .faceTime
+        )
+        XCTAssertEqual(
+            MeetingDetectionPolicy.detectPlatform(fromRunningBundleIDs: ["com.microsoft.teams2"]),
+            .teams
+        )
+        XCTAssertNil(
+            MeetingDetectionPolicy.detectPlatform(fromRunningBundleIDs: ["com.apple.Safari", "com.apple.calculator"])
+        )
+    }
 }
