@@ -412,6 +412,7 @@
 		FA33A00000000000000001C2 /* TorrentEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000001C1 /* TorrentEngine.swift */; };
 		FA33A00000000000000001C3 /* TorrentEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000001C1 /* TorrentEngine.swift */; };
 		FA33A0000000000000000162 /* NotchDownloadsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000161 /* NotchDownloadsPageView.swift */; };
+		FA33A0000000000000000202 /* NotchMeetingControlBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000201 /* NotchMeetingControlBar.swift */; };
 		FA33A0000000000000000172 /* DownloadManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000171 /* DownloadManagerTests.swift */; };
 		7B500000000000000000010D /* NowPlayingProgressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010E /* NowPlayingProgressTests.swift */; };
 		7B500000000000000000010A /* NowPlayingProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010C /* NowPlayingProgress.swift */; };
@@ -1585,6 +1586,7 @@
 		FA33A00000000000000001D1 /* PlayerAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlayerAccess.swift; path = Core/Support/PlayerAccess.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000001C1 /* TorrentEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TorrentEngine.swift; path = App/Composition/TorrentEngine.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000161 /* NotchDownloadsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchDownloadsPageView.swift; path = App/Scenes/Notch/NotchDownloadsPageView.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000201 /* NotchMeetingControlBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchMeetingControlBar.swift; path = App/Scenes/Notch/NotchMeetingControlBar.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000171 /* DownloadManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadManagerTests.swift; path = Tests/Unit/DownloadManagerTests.swift; sourceTree = SOURCE_ROOT; };
 		7B500000000000000000010E /* NowPlayingProgressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingProgressTests.swift; path = Tests/Unit/NowPlayingProgressTests.swift; sourceTree = SOURCE_ROOT; };
 		7B500000000000000000010C /* NowPlayingProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingProgress.swift; path = Core/Support/NowPlayingProgress.swift; sourceTree = SOURCE_ROOT; };
@@ -3630,6 +3632,7 @@
 				FB36A00000000000000B02 /* DailyHelpersRules.swift in Sources */,
 				FB36A00000000000000A02 /* DailyHelpersService.swift in Sources */,
 				FA33A0000000000000000162 /* NotchDownloadsPageView.swift in Sources */,
+				FA33A0000000000000000202 /* NotchMeetingControlBar.swift in Sources */,
 				7B5000000000000000040C12 /* FileNoteKeyProvider.swift in Sources */,
 				7B5000000000000000040B12 /* HyperkeyService.swift in Sources */,
 				7B5000000000000000040A12 /* HyperkeyEngine.swift in Sources */,

@@ -71,10 +71,27 @@ struct NotchIslandView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// `AppSettingsStore.Keys.themeMaterial`, which is file-private; the key itself is the contract.
     @AppStorage("com.katikati.theme.material") private var themeMaterialToken = DockThemeStyle.auto.token
+    @AppStorage(NotchGlassStyle.defaultsKey) private var glassStyleRaw = NotchGlassStyle.dynamicGlass.rawValue
     let metrics: NotchMetrics
     let theme: NowPlayingTheme
     /// 51h: external-display wide bar — the closed state shows `NotchWideBarView` instead of the ear chips.
     var wideBar = false
+
+    private var resolvedGlass: NotchGlassPolicy.ResolvedGlass {
+        let style = NotchGlassStyle(rawValue: glassStyleRaw) ?? .dynamicGlass
+        let isLowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
+        return NotchGlassPolicy.resolve(
+            style: style,
+            isLowPowerMode: isLowPower,
+            hasHardwareNotch: metrics.hasHardwareNotch,
+            isOpen: model.isExpanded
+        )
+    }
+
+    private var detectedMeetingPlatform: MeetingCallPlatform? {
+        let apps = NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier)
+        return MeetingDetectionPolicy.detectPlatform(fromRunningBundleIDs: apps)
+    }
 
     /// Phase 12: the plate and content scheme, decided in `NotchTheme` (Core, tested). The island is a
     /// dark surface by design — this view pins `.colorScheme(.dark)` below — so the dark column is the
@@ -119,14 +136,14 @@ struct NotchIslandView: View {
                 bottomCornerRadius: edge.bottom,
                 flaringTopEars: edge.flares
             )
-            .fill(notchTheme.plate.color.opacity(translucent && expanded ? 0.82 : 1))
-            if showOutline {
+            .fill(notchTheme.plate.color.opacity(resolvedGlass.plateOpacity))
+            if showOutline || resolvedGlass.strokeOpacity > 0 {
                 NotchContinuousMaskShape(
                     topCornerRadius: edge.top,
                     bottomCornerRadius: edge.bottom,
                     flaringTopEars: edge.flares
                 )
-                .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                .stroke(Color.white.opacity(max(showOutline ? 0.18 : 0, resolvedGlass.strokeOpacity)), lineWidth: 1)
             }
             Group {
                 if !expanded {
@@ -222,6 +239,22 @@ struct NotchIslandView: View {
 
     private func closedContent(_ activity: LiveActivity) -> some View {
         if wideBar { return AnyView(NotchWideBarView(width: model.closedSize.width, height: model.closedSize.height)) }
+        if let platform = detectedMeetingPlatform {
+            return AnyView(
+                HStack(spacing: 4) {
+                    Image(systemName: platform.sfSymbol)
+                        .foregroundColor(.green)
+                        .font(.system(size: 11, weight: .bold))
+                    Text(verbatim: platform.displayName)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(.white)
+                    Spacer()
+                    Image(systemName: "waveform")
+                        .foregroundColor(.green)
+                        .font(.system(size: 10))
+                }
+            )
+        }
         if activity.kind == .clock {
             return restContent == NotchRestContent.nothing.rawValue ? AnyView(Color.clear) : AnyView(NotchDockChips(metrics: metrics))
         }
@@ -296,6 +329,9 @@ struct NotchIslandView: View {
     private func openContent(_ activity: LiveActivity) -> some View {
         VStack(spacing: 8) {
             Spacer().frame(height: metrics.closedSize.height - 6)
+            if let platform = detectedMeetingPlatform {
+                NotchMeetingControlBar(call: MeetingCallState(platform: platform))
+            }
             if let event = model.event {
                 NotchEventCard(event: event, lifetime: NotchMotionSpec.eventLifetime) { model.event = nil }
             } else {
