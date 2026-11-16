@@ -106,3 +106,62 @@ final class EdgeBarPrefsTests: XCTestCase {
         XCTAssertTrue(EdgeBarPrefs().edgeSoundEffectsEnabled)
     }
 }
+
+final class TendederoStoreTests: XCTestCase {
+    func testAddDeduplicatesAndTracksUnread() {
+        var store = TendederoStore()
+        let t0 = Date(timeIntervalSince1970: 1000)
+        let first = store.add(kind: .text("hello"), title: "hello", now: t0)
+        _ = store.add(kind: .link(URL(string: "https://example.com")!), title: "example.com", now: t0.addingTimeInterval(1))
+        XCTAssertEqual(store.items.count, 2)
+        XCTAssertEqual(store.unreadCount, 2)
+
+        // Re-adding identical text moves it to the top instead of duplicating
+        _ = store.add(kind: .text("hello"), title: "hello", now: t0.addingTimeInterval(2))
+        XCTAssertEqual(store.items.count, 2)
+        XCTAssertEqual(store.items.first?.id, first.id)
+
+        store.markAllRead()
+        XCTAssertEqual(store.unreadCount, 0)
+    }
+
+    func testPinningPersistsThroughCapacityEvictionAndClearUnpinned() {
+        var store = TendederoStore()
+        store.capacityMode = .capped(maxUnpinned: 2, expireAfter: 3600)
+        let t0 = Date(timeIntervalSince1970: 1000)
+
+        let pinned = store.add(kind: .text("keep me"), title: "keep me", now: t0)
+        store.togglePin(id: pinned.id)
+        XCTAssertTrue(store.items.first?.isPinned == true)
+
+        _ = store.add(kind: .text("u1"), title: "u1", now: t0.addingTimeInterval(1))
+        _ = store.add(kind: .text("u2"), title: "u2", now: t0.addingTimeInterval(2))
+        _ = store.add(kind: .text("u3"), title: "u3", now: t0.addingTimeInterval(3))
+
+        // u1 evicted (FIFO), pinned + u2 + u3 remain
+        XCTAssertEqual(store.items.count, 3)
+        XCTAssertTrue(store.items.contains(where: { $0.id == pinned.id }))
+        XCTAssertFalse(store.items.contains(where: { $0.title == "u1" }))
+
+        store.clearUnpinned()
+        XCTAssertEqual(store.items.map(\.id), [pinned.id])
+    }
+
+    func testExpiryAndUnlimitedModeAndSpringDamping() {
+        var store = TendederoStore()
+        store.capacityMode = .capped(maxUnpinned: 10, expireAfter: 60)
+        let t0 = Date(timeIntervalSince1970: 1000)
+        let old = store.add(kind: .text("old"), title: "old", now: t0)
+        store.pruneExpired(now: t0.addingTimeInterval(120))
+        XCTAssertFalse(store.items.contains(where: { $0.id == old.id }))
+
+        store.capacityMode = .unlimited
+        for i in 0..<25 { _ = store.add(kind: .text("item-\(i)"), title: "item-\(i)", now: t0) }
+        XCTAssertEqual(store.items.count, 25)
+
+        let target = store.items[0].id
+        store.applyImpulse(id: target, degrees: 12)
+        for _ in 0..<240 { store.tickPhysics(dt: 1.0 / 60.0) }
+        XCTAssertEqual(store.items[0].swingAngleDegrees, 0, accuracy: 0.1)
+    }
+}

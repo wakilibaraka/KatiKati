@@ -173,3 +173,167 @@ enum ScreenshotCommand {
         try? task.run()
     }
 }
+
+// MARK: - Slice T-1: Tendedero Hanging Utility Model & Physics Reducer
+
+enum TendederoCaptureMode: String, CaseIterable, Codable, Sendable {
+    case screenshotsAndAutoClipboard
+    case screenshotsAndManualClipboard
+}
+
+enum TendederoCapacityMode: Equatable, Codable, Sendable {
+    case capped(maxUnpinned: Int, expireAfter: TimeInterval?)
+    case unlimited
+
+    static let `default`: TendederoCapacityMode = .capped(maxUnpinned: 20, expireAfter: 86_400)
+}
+
+enum TendederoItemKind: Equatable, Codable, Sendable {
+    case screenshot(url: URL)
+    case imageData(Data)
+    case link(URL)
+    case text(String)
+}
+
+struct TendederoItem: Identifiable, Equatable, Codable, Sendable {
+    let id: UUID
+    var kind: TendederoItemKind
+    var title: String
+    var createdAt: Date
+    var isPinned: Bool
+    var isUnread: Bool
+    var swingAngleDegrees: Double
+    var swingVelocity: Double
+
+    init(
+        id: UUID = UUID(),
+        kind: TendederoItemKind,
+        title: String,
+        createdAt: Date = Date(),
+        isPinned: Bool = false,
+        isUnread: Bool = true,
+        swingAngleDegrees: Double = 0,
+        swingVelocity: Double = 0
+    ) {
+        self.id = id
+        self.kind = kind
+        self.title = title
+        self.createdAt = createdAt
+        self.isPinned = isPinned
+        self.isUnread = isUnread
+        self.swingAngleDegrees = swingAngleDegrees
+        self.swingVelocity = swingVelocity
+    }
+}
+
+enum TendederoSpringPhysics {
+    static let defaultStiffness: Double = 140
+    static let defaultDamping: Double = 10
+
+    static func step(
+        angle: Double,
+        velocity: Double,
+        dt: TimeInterval,
+        stiffness: Double = defaultStiffness,
+        damping: Double = defaultDamping
+    ) -> (angle: Double, velocity: Double) {
+        let clampedDT = min(max(dt, 0), 0.05)
+        guard clampedDT > 0 else { return (angle, velocity) }
+        let accel = (-stiffness * angle) - (damping * velocity)
+        let nextVelocity = velocity + accel * clampedDT
+        let nextAngle = angle + nextVelocity * clampedDT
+        if abs(nextAngle) < 0.05 && abs(nextVelocity) < 0.1 {
+            return (0, 0)
+        }
+        return (min(max(nextAngle, -24), 24), nextVelocity)
+    }
+}
+
+struct TendederoStore: Equatable, Codable, Sendable {
+    private(set) var items: [TendederoItem] = []
+    var capacityMode: TendederoCapacityMode = .default
+
+    var unreadCount: Int { items.filter(\.isUnread).count }
+
+    @discardableResult
+    mutating func add(
+        kind: TendederoItemKind,
+        title: String,
+        now: Date = Date(),
+        initialSwing: Double = 10
+    ) -> TendederoItem {
+        if let existingIndex = items.firstIndex(where: { $0.kind == kind }) {
+            var existing = items.remove(at: existingIndex)
+            existing.createdAt = now
+            existing.isUnread = true
+            existing.swingAngleDegrees = initialSwing
+            items.insert(existing, at: 0)
+            return existing
+        }
+        let item = TendederoItem(
+            kind: kind,
+            title: title,
+            createdAt: now,
+            isPinned: false,
+            isUnread: true,
+            swingAngleDegrees: initialSwing,
+            swingVelocity: 0
+        )
+        items.insert(item, at: 0)
+        enforceConstraints(now: now)
+        return item
+    }
+
+    mutating func togglePin(id: UUID) {
+        guard let idx = items.firstIndex(where: { $0.id == id }) else { return }
+        items[idx].isPinned.toggle()
+        items[idx].swingAngleDegrees = items[idx].isPinned ? -6 : 6
+    }
+
+    mutating func remove(id: UUID) {
+        items.removeAll { $0.id == id }
+    }
+
+    mutating func clearUnpinned() {
+        items.removeAll { !$0.isPinned }
+    }
+
+    mutating func markAllRead() {
+        for idx in items.indices { items[idx].isUnread = false }
+    }
+
+    mutating func applyImpulse(id: UUID, degrees: Double) {
+        guard let idx = items.firstIndex(where: { $0.id == id }) else { return }
+        items[idx].swingVelocity += degrees * 8
+    }
+
+    mutating func tickPhysics(dt: TimeInterval) {
+        for idx in items.indices {
+            guard items[idx].swingAngleDegrees != 0 || items[idx].swingVelocity != 0 else { continue }
+            let next = TendederoSpringPhysics.step(
+                angle: items[idx].swingAngleDegrees,
+                velocity: items[idx].swingVelocity,
+                dt: dt
+            )
+            items[idx].swingAngleDegrees = next.angle
+            items[idx].swingVelocity = next.velocity
+        }
+    }
+
+    mutating func pruneExpired(now: Date = Date()) {
+        enforceConstraints(now: now)
+    }
+
+    private mutating func enforceConstraints(now: Date) {
+        guard case let .capped(maxUnpinned, expireAfter) = capacityMode else { return }
+        if let expireAfter, expireAfter > 0 {
+            items.removeAll { !$0.isPinned && now.timeIntervalSince($0.createdAt) > expireAfter }
+        }
+        let unpinnedIndices = items.indices.filter { !items[$0].isPinned }
+        if unpinnedIndices.count > maxUnpinned {
+            let overflow = unpinnedIndices.count - maxUnpinned
+            let indicesToDrop = Set(unpinnedIndices.suffix(overflow))
+            items = items.enumerated().filter { !indicesToDrop.contains($0.offset) }.map(\.element)
+        }
+    }
+}
