@@ -1620,9 +1620,9 @@
     "semantic_hash": ""
   },
   "Core/Support/ClipboardPlus.swift": {
-    "mtime": 1792926135.9871144,
-    "seen": 1792926143.606617,
-    "ast_hash": "3bd03b88188b1202bbfd410b3b343b35",
+    "mtime": 1794845005.4531622,
+    "seen": 1794845390.595901,
+    "ast_hash": "07cd3be45fafcd71d2ffffa593683d00",
     "semantic_hash": ""
   },
   "Core/Support/ClockChipContent.swift": {
@@ -1734,9 +1734,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DockThemeStyleTokens.swift": {
-    "mtime": 1793190233.6165123,
-    "seen": 1793190252.336672,
-    "ast_hash": "b4721869e1fa9f8eb1b30022c32f3b6c",
+    "mtime": 1794844995.6666183,
+    "seen": 1794845390.5959182,
+    "ast_hash": "00b64e3936ea85ab9050d25cf19e492d",
     "semantic_hash": ""
   },
   "Core/Support/DockThemeTokens.swift": {
@@ -2046,10 +2046,10 @@
     "semantic_hash": "46a097f32e7427f2de688c6b04cfbb08"
   },
   "Core/Support/NotchFallbackPlan.swift": {
-    "mtime": 1792015636.9990227,
-    "seen": 1792295707.060578,
-    "ast_hash": "7b042f2892248af2899795bf4b0901d0",
-    "semantic_hash": "7b042f2892248af2899795bf4b0901d0"
+    "mtime": 1794845289.6119049,
+    "seen": 1794845390.595968,
+    "ast_hash": "2245377f0c33e2fce94aeda334715278",
+    "semantic_hash": ""
   },
   "Core/Support/NotchGeometry.swift": {
     "mtime": 1792444039.0630896,
@@ -3288,9 +3288,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/ClipboardPlusTests.swift": {
-    "mtime": 1792926135.9975116,
-    "seen": 1792926143.6068878,
-    "ast_hash": "579b290aedaeeafa504908d00cabce7f",
+    "mtime": 1794845013.3313994,
+    "seen": 1794845390.596158,
+    "ast_hash": "e8fe93b8cc3a3b2f034419b1b3c8c25e",
     "semantic_hash": ""
   },
   "Tests/Unit/ColorFormatTests.swift": {
