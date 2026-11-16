@@ -56,6 +56,7 @@ struct SettingsWindowView: View {
                 tabState: tabState,
                 onShowWelcomeGuide: onShowWelcomeGuide
             )
+            .ignoresSafeArea(edges: .top)
         }
         .environment(\.dockThemeStyle, store.themeMaterial)
         .frame(minWidth: SettingsMetrics.minWindowWidth, minHeight: SettingsMetrics.minWindowHeight)

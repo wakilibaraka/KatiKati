@@ -94,7 +94,7 @@ struct SettingsSidebar: View {
     }
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             topBar
 
             if !isCompact {
@@ -106,13 +106,16 @@ struct SettingsSidebar: View {
                     if query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isCompact {
                         ForEach(Self.sections) { section in
                             if let header = section.headerText {
-                                header
-                                    .font(.system(size: 10, weight: .semibold))
-                                    .foregroundStyle(.secondary)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal, 10)
-                                    .padding(.top, 8)
-                                    .padding(.bottom, 2)
+                                HStack(spacing: 6) {
+                                    header
+                                        .font(.system(size: 9.5, weight: .bold))
+                                        .foregroundStyle(.secondary)
+                                        .textCase(.uppercase)
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.top, 14)
+                                .padding(.bottom, 2)
                             }
                             ForEach(section.tabs, id: \.self) { tab in
                                 row(tab)
@@ -131,10 +134,11 @@ struct SettingsSidebar: View {
                     }
                 }
                 .padding(.horizontal, 8)
+                .padding(.top, 4)
                 .padding(.bottom, 8)
             }
         }
-        .padding(.top, 4)
+        .padding(.top, 0)
         .onChange(of: focusSearch) { _ in searchFocused = true }
         .frame(width: isCompact ? SettingsMetrics.sidebarCollapsedWidth : SettingsMetrics.sidebarWidth)
         .background(.ultraThinMaterial)
@@ -143,20 +147,21 @@ struct SettingsSidebar: View {
     @ViewBuilder
     private var topBar: some View {
         if isCompact {
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
                 // Reserves top space for macOS traffic lights in fullSizeContentView
-                Color.clear.frame(height: 28)
+                Color.clear.frame(height: 32)
                 toggleButton
             }
+            .padding(.top, 4)
         } else {
             HStack(spacing: 0) {
-                // 74pt reserves safe clearance for the macOS window close/minimize/zoom buttons
-                Spacer().frame(width: 74)
+                // 72pt reserves safe clearance for the macOS window close/minimize/zoom buttons
+                Spacer().frame(width: 72)
                 Spacer()
                 toggleButton
             }
-            .padding(.horizontal, 10)
-            .frame(height: 32)
+            .padding(.trailing, 10)
+            .frame(height: 38)
         }
     }
 
