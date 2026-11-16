@@ -90,3 +90,52 @@ final class CleanupPlanTests: XCTestCase {
         XCTAssertFalse(roots.contains("/System"))
     }
 }
+
+/// Droppy Slice D-AppCleaner: test app leftover scan plan.
+final class AppLeftoverScanPlanTests: XCTestCase {
+    private let home = "/Users/testuser"
+
+    func testProtectedBundleIDsAreRejected() {
+        XCTAssertTrue(AppLeftoverScanPlan.isProtected(bundleID: "com.apple.Safari"))
+        XCTAssertTrue(AppLeftoverScanPlan.isProtected(bundleID: "com.apple.finder"))
+        XCTAssertTrue(AppLeftoverScanPlan.isProtected(bundleID: "com.katikati.app"))
+        XCTAssertTrue(AppLeftoverScanPlan.isProtected(bundleID: ""))
+        XCTAssertFalse(AppLeftoverScanPlan.isProtected(bundleID: "com.spotify.client"))
+        XCTAssertTrue(AppLeftoverScanPlan.expectedCandidatePaths(home: home, bundleID: "com.apple.Safari", appName: "Safari").isEmpty)
+        XCTAssertTrue(AppLeftoverScanPlan.expectedCandidatePaths(home: home, bundleID: "com.katikati.app", appName: "KatiKati").isEmpty)
+    }
+
+    func testExpectedCandidatePathsGenerateStandardRoots() {
+        let paths = AppLeftoverScanPlan.expectedCandidatePaths(home: home, bundleID: "com.spotify.client", appName: "Spotify.app")
+        XCTAssertTrue(paths.contains("/Users/testuser/Library/Application Support/Spotify"))
+        XCTAssertTrue(paths.contains("/Users/testuser/Library/Application Support/com.spotify.client"))
+        XCTAssertTrue(paths.contains("/Users/testuser/Library/Caches/com.spotify.client"))
+        XCTAssertTrue(paths.contains("/Users/testuser/Library/Preferences/com.spotify.client.plist"))
+        XCTAssertTrue(paths.contains("/Users/testuser/Library/Saved Application State/com.spotify.client.savedState"))
+    }
+
+    func testMatchesByBundleIDAndAppName() {
+        XCTAssertTrue(AppLeftoverScanPlan.matches(entryName: "com.spotify.client", bundleID: "com.spotify.client", appName: "Spotify"))
+        XCTAssertTrue(AppLeftoverScanPlan.matches(entryName: "com.spotify.client.plist", bundleID: "com.spotify.client", appName: "Spotify"))
+        XCTAssertTrue(AppLeftoverScanPlan.matches(entryName: "com.spotify.client.savedState", bundleID: "com.spotify.client", appName: "Spotify"))
+        XCTAssertTrue(AppLeftoverScanPlan.matches(entryName: "Spotify", bundleID: "com.spotify.client", appName: "Spotify"))
+        XCTAssertFalse(AppLeftoverScanPlan.matches(entryName: "com.apple.Safari", bundleID: "com.spotify.client", appName: "Spotify"))
+        XCTAssertFalse(AppLeftoverScanPlan.matches(entryName: "UnrelatedApp", bundleID: "com.spotify.client", appName: "Spotify"))
+    }
+
+    func testCandidatePathsFiltersExistingEntries() {
+        let existing = [
+            "/Users/testuser/Library/Application Support/Spotify",
+            "/Users/testuser/Library/Caches/com.spotify.client",
+            "/Users/testuser/Library/Preferences/com.spotify.client.plist",
+            "/Users/testuser/Library/Preferences/com.other.app.plist",
+            "/Users/testuser/Desktop/Spotify.app" // Outside target directories
+        ]
+        let found = AppLeftoverScanPlan.candidatePaths(home: home, existingPaths: existing, bundleID: "com.spotify.client", appName: "Spotify")
+        XCTAssertEqual(found, [
+            "/Users/testuser/Library/Application Support/Spotify",
+            "/Users/testuser/Library/Caches/com.spotify.client",
+            "/Users/testuser/Library/Preferences/com.spotify.client.plist"
+        ])
+    }
+}

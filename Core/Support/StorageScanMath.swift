@@ -134,3 +134,82 @@ extension StorageScanMath {
         ].map { home + $0 }
     }
 }
+
+/// Droppy-inspired Slice D-AppCleaner: Pure leftover path plan for app uninstaller.
+/// Given an .app bundle identifier and name, computes and filters candidate leftover paths
+/// across ~/Library roots, strictly excluding Apple system and KatiKati self paths.
+enum AppLeftoverScanPlan {
+    static func targetDirectories(home: String) -> [String] {
+        [
+            home + "/Library/Application Support",
+            home + "/Library/Caches",
+            home + "/Library/Preferences",
+            home + "/Library/Saved Application State"
+        ]
+    }
+
+    /// Disallowed bundle IDs to protect macOS system and KatiKati itself.
+    static func isProtected(bundleID: String) -> Bool {
+        let lowered = bundleID.trimmingCharacters(in: .whitespaces).lowercased()
+        return lowered.isEmpty
+            || lowered.hasPrefix("com.apple.")
+            || lowered.hasPrefix("com.katikati.")
+            || lowered == "com.apple"
+            || lowered == "com.katikati"
+    }
+
+    /// Tests whether an entry name in a target library directory matches the target app.
+    static func matches(entryName: String, bundleID: String, appName: String) -> Bool {
+        guard !isProtected(bundleID: bundleID) else { return false }
+        let entry = entryName.lowercased()
+        let bID = bundleID.trimmingCharacters(in: .whitespaces).lowercased()
+        let cleanName = appName.trimmingCharacters(in: .whitespaces)
+            .replacingOccurrences(of: ".app", with: "", options: [.caseInsensitive])
+            .lowercased()
+
+        if entry == bID
+            || entry == "\(bID).plist"
+            || entry == "\(bID).savedstate"
+            || entry.hasPrefix("\(bID).") {
+            return true
+        }
+
+        if cleanName.count >= 3 {
+            if entry == cleanName
+                || entry == "\(cleanName).plist"
+                || entry == "\(cleanName).savedstate" {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    /// Returns standard expected candidate paths where an application might leave files.
+    static func expectedCandidatePaths(home: String, bundleID: String, appName: String) -> [String] {
+        guard !isProtected(bundleID: bundleID) else { return [] }
+        let cleanName = appName.trimmingCharacters(in: .whitespaces)
+            .replacingOccurrences(of: ".app", with: "", options: [.caseInsensitive])
+        let candidates = [
+            "\(home)/Library/Application Support/\(cleanName)",
+            "\(home)/Library/Application Support/\(bundleID)",
+            "\(home)/Library/Caches/\(bundleID)",
+            "\(home)/Library/Caches/\(cleanName)",
+            "\(home)/Library/Preferences/\(bundleID).plist",
+            "\(home)/Library/Saved Application State/\(bundleID).savedState"
+        ]
+        return Array(Set(candidates)).sorted()
+    }
+
+    /// Filters a list of existing file/directory paths down to those matching the uninstalled app.
+    static func candidatePaths(home: String, existingPaths: [String], bundleID: String, appName: String) -> [String] {
+        guard !isProtected(bundleID: bundleID) else { return [] }
+        let roots = targetDirectories(home: home)
+        return existingPaths.filter { path in
+            let isUnderTarget = roots.contains { path.hasPrefix($0 + "/") || path == $0 }
+            guard isUnderTarget else { return false }
+            let name = (path as NSString).lastPathComponent
+            return matches(entryName: name, bundleID: bundleID, appName: appName)
+        }.sorted()
+    }
+}
