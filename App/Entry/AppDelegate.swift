@@ -162,6 +162,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func toggleControlCenter() { controlCenterPanel.toggle() }
     /// Shown from the radial dial / command bar (`AppDelegate.shared?.toggleShelf()`).
     func toggleShelf() { panelCoordinator?.toggleShelf() }
+    /// Toggled from double-tap ⌘, shortcut, or search button.
+    func toggleCommandBar() { commandBarPanel.toggle() }
     private func applyPinch(_ on: Bool) {
         guard on else { pinchMonitor?.stop(); pinchMonitor = nil; return }
         guard pinchMonitor == nil else { return }
@@ -448,6 +450,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     guard let self else { return }
                     on ? self.launcherOrb.show() : self.launcherOrb.hide()
                 }
+            KeyGuardService.shared.onCommandBarToggle = { [weak self] in self?.toggleCommandBar() }
             KeyGuardService.shared.refresh()
             QuitOnLastWindowService.shared.start()
             FocusFollowService.shared.startIfEnabled()

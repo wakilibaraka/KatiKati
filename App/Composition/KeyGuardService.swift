@@ -1,4 +1,5 @@
 import AppKit
+import AudioToolbox
 import Carbon.HIToolbox
 import CoreGraphics
 import OSLog
@@ -27,6 +28,7 @@ final class KeyGuardService: ObservableObject {
     static let cleaningEndKey = "com.katikati.keyguard.cleaningEnd"
 
     @Published private(set) var isPaused = UserDefaults.standard.bool(forKey: KeyGuardService.pauseKey)
+    var onCommandBarToggle: (() -> Void)?
     @Published private(set) var isSlowQuitEnabled = UserDefaults.standard.bool(forKey: KeyGuardService.slowQuitKey)
     /// Hold threshold in seconds; persisted, clamped to a sane range.
     @Published private(set) var slowQuitDuration: Double = {
@@ -245,8 +247,12 @@ final class KeyGuardService: ObservableObject {
         let triggers = SnippetExpander.triggers(from: CustomCommand.parseSnippets(
             UserDefaults.standard.string(forKey: CustomCommand.snippetsKey) ?? ""))
         shared.setSnippets(enabled: isSnippetExpansionEnabled, triggers: triggers)
+        let keyAudioOn = UserDefaults.standard.bool(forKey: KeyAudioSoundpack.enabledKey)
+        let doubleTapCmdOn = UserDefaults.standard.bool(forKey: "com.katikati.keyguard.doubleTapCmd")
+        shared.keyAudioEnabled = keyAudioOn
+        shared.keyAudioSoundpack = KeyAudioSoundpack.current()
         let anyOn = isPaused || isSlowQuitEnabled || isVisualizerEnabled || isCapsProtectionEnabled
-            || isFinderKeysEnabled || isSnippetExpansionEnabled
+            || isFinderKeysEnabled || isSnippetExpansionEnabled || keyAudioOn || doubleTapCmdOn
         if anyOn, !started { start() } else if !anyOn, started { stop() }
         updateVisualizerTimer()
     }
@@ -294,8 +300,17 @@ final class KeyGuardService: ObservableObject {
         shared.onExpand = { [weak self] expansion in
             DispatchQueue.main.async { MainActor.assumeIsolated { self?.insertSnippet(expansion) } }
         }
+        shared.onModifierDoubleTap = { [weak self] mod in
+            DispatchQueue.main.async {
+                if mod == .command {
+                    self?.onCommandBarToggle?()
+                }
+            }
+        }
         let thread = Thread { [shared, weak self] in
-            let mask: CGEventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
+            let mask: CGEventMask = (1 << CGEventType.keyDown.rawValue) |
+                                   (1 << CGEventType.keyUp.rawValue) |
+                                   (1 << CGEventType.flagsChanged.rawValue)
             let refcon = Unmanaged.passUnretained(shared).toOpaque()
             guard let port = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
                                                eventsOfInterest: mask, callback: keyGuardTapCallback, userInfo: refcon) else {
@@ -473,6 +488,12 @@ final class KeyGuardShared: @unchecked Sendable {
     private var snippetsOn = false
     private var snippetExpander = SnippetExpander()
     var onExpand: ((SnippetExpander.Expansion) -> Void)?
+    private var lastFlags: CGEventFlags = []
+    private var doubleTapDetector = KeyModifierDoubleTapDetector()
+    var onModifierDoubleTap: ((ModifierKey) -> Void)?
+    var keyAudioEnabled: Bool = false
+    var keyAudioSoundpack: KeyAudioSoundpack = .mechanicalClick
+    var isCallActive: Bool = false
     /// Marks the caps events we post ourselves so they pass back through this tap untouched.
     static let syntheticTag: Int64 = 0x4B41544931 // "KATI1"
     var port: CFMachPort?
@@ -599,6 +620,63 @@ final class KeyGuardShared: @unchecked Sendable {
         guard case .passThrough = outcome.decision else { return outcome }
         return (finderMap.handle(event), state)
     }
+
+    func handleFlagsChanged(flags: CGEventFlags, at date: Date = Date()) {
+        lock.lock()
+        let diff = flags.symmetricDifference(lastFlags)
+        lastFlags = flags
+        let handler = onModifierDoubleTap
+        lock.unlock()
+
+        let mod: ModifierKey? = {
+            if diff.contains(.maskCommand) { return .command }
+            if diff.contains(.maskAlternate) { return .option }
+            if diff.contains(.maskControl) { return .control }
+            if diff.contains(.maskShift) { return .shift }
+            return nil
+        }()
+
+        guard let mod else { return }
+        let isDown: Bool = {
+            switch mod {
+            case .command: return flags.contains(.maskCommand)
+            case .option: return flags.contains(.maskAlternate)
+            case .control: return flags.contains(.maskControl)
+            case .shift: return flags.contains(.maskShift)
+            }
+        }()
+
+        lock.lock()
+        let step = doubleTapDetector.registerModifier(modifier: mod, isDown: isDown, at: date)
+        lock.unlock()
+
+        if case .doubleTap(let tapped) = step {
+            handler?(tapped)
+        }
+    }
+
+    func registerInterveningKey() {
+        lock.lock(); defer { lock.unlock() }
+        doubleTapDetector.registerInterveningKey()
+    }
+
+    func handleKeyAudio(event: KeyGuardEvent) {
+        lock.lock()
+        let enabled = keyAudioEnabled
+        let callActive = isCallActive
+        let paused = state.paused
+        lock.unlock()
+
+        guard KeyAudioPolicy.shouldTrigger(
+            event: event,
+            enabled: enabled,
+            isSecureInput: IsSecureEventInputEnabled(),
+            isCallActive: callActive,
+            isPaused: paused
+        ) else { return }
+
+        AudioServicesPlaySystemSound(1104)
+    }
 }
 
 /// Per-key-event trace (opt-in via `DebugSwitch.keyGuardTrace`); one env lookup, no work when off.
@@ -612,6 +690,10 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
         if let port = shared.port { CGEvent.tapEnable(tap: port, enable: true) }
         return Unmanaged.passUnretained(event)
     }
+    if type == .flagsChanged {
+        shared.handleFlagsChanged(flags: event.flags)
+        return Unmanaged.passUnretained(event)
+    }
     guard type == .keyDown || type == .keyUp else { return Unmanaged.passUnretained(event) }
     // Our own posted Caps Lock toggle: let it through without feeding the pipeline.
     if event.getIntegerValueField(.eventSourceUserData) == KeyGuardShared.syntheticTag {
@@ -619,7 +701,12 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
     }
     let code = UInt16(truncatingIfNeeded: event.getIntegerValueField(.keyboardEventKeycode))
     if shared.handleCapsLock(isDown: type == .keyDown) { return nil }
+    let modifiers = keyModifiers(event.flags)
+    let keyEvent: KeyGuardEvent = type == .keyDown ? .keyDown(keyCode: code, modifiers: modifiers)
+                                                  : .keyUp(keyCode: code, modifiers: modifiers)
     if type == .keyDown {
+        shared.registerInterveningKey()
+        shared.handleKeyAudio(event: keyEvent)
         if code == 51 {
             shared.snippetBackspace()
         } else if let text = typedText(event) {
@@ -631,9 +718,6 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
             shared.resetSnippetWord()
         }
     }
-    let modifiers = keyModifiers(event.flags)
-    let keyEvent: KeyGuardEvent = type == .keyDown ? .keyDown(keyCode: code, modifiers: modifiers)
-                                                  : .keyUp(keyCode: code, modifiers: modifiers)
     if type == .keyDown, let symbol = keycapSymbol(event) { shared.record(symbol: symbol) }
     let outcome = shared.decide(keyEvent)
     if DebugSwitch.keyGuardTrace.isEnabled() {

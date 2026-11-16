@@ -299,3 +299,48 @@ enum KeyAudioPolicy {
         }
     }
 }
+
+// MARK: - SuperCmd v2 / Droppy-Inspired Slice 2.1: Modifier Double-Tap Detector
+
+enum ModifierKey: String, CaseIterable, Sendable, Codable {
+    case command, option, control, shift
+}
+
+struct KeyModifierDoubleTapDetector: Sendable {
+    let timeout: TimeInterval
+
+    init(timeout: TimeInterval = 0.3) {
+        self.timeout = timeout
+    }
+
+    private var lastRelease: (modifier: ModifierKey, time: Date)? = nil
+
+    enum StepResult: Equatable, Sendable {
+        case none
+        case doubleTap(ModifierKey)
+    }
+
+    mutating func registerModifier(modifier: ModifierKey, isDown: Bool, at date: Date = Date()) -> StepResult {
+        if isDown {
+            if let last = lastRelease, last.modifier == modifier {
+                let delta = date.timeIntervalSince(last.time)
+                if delta >= 0 && delta <= timeout {
+                    lastRelease = nil
+                    return .doubleTap(modifier)
+                }
+            }
+            return .none
+        } else {
+            lastRelease = (modifier: modifier, time: date)
+            return .none
+        }
+    }
+
+    mutating func registerInterveningKey() {
+        lastRelease = nil
+    }
+
+    mutating func reset() {
+        lastRelease = nil
+    }
+}

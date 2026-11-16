@@ -417,3 +417,52 @@ final class KeyAudioPolicyTests: XCTestCase {
         ))
     }
 }
+
+final class KeyModifierDoubleTapDetectorTests: XCTestCase {
+
+    func testDoubleTapDetectedWithinTimeout() {
+        var detector = KeyModifierDoubleTapDetector(timeout: 0.3)
+        let t0 = Date(timeIntervalSince1970: 1000)
+
+        XCTAssertEqual(detector.registerModifier(modifier: .command, isDown: true, at: t0), .none)
+        XCTAssertEqual(detector.registerModifier(modifier: .command, isDown: false, at: t0.addingTimeInterval(0.05)), .none)
+
+        let result = detector.registerModifier(modifier: .command, isDown: true, at: t0.addingTimeInterval(0.20))
+        XCTAssertEqual(result, .doubleTap(.command))
+    }
+
+    func testDoubleTapIgnoredBeyondTimeout() {
+        var detector = KeyModifierDoubleTapDetector(timeout: 0.3)
+        let t0 = Date(timeIntervalSince1970: 1000)
+
+        XCTAssertEqual(detector.registerModifier(modifier: .command, isDown: true, at: t0), .none)
+        XCTAssertEqual(detector.registerModifier(modifier: .command, isDown: false, at: t0.addingTimeInterval(0.05)), .none)
+
+        let result = detector.registerModifier(modifier: .command, isDown: true, at: t0.addingTimeInterval(0.40))
+        XCTAssertEqual(result, .none)
+    }
+
+    func testInterveningKeyResetsDoubleTap() {
+        var detector = KeyModifierDoubleTapDetector(timeout: 0.3)
+        let t0 = Date(timeIntervalSince1970: 1000)
+
+        _ = detector.registerModifier(modifier: .command, isDown: true, at: t0)
+        _ = detector.registerModifier(modifier: .command, isDown: false, at: t0.addingTimeInterval(0.05))
+
+        detector.registerInterveningKey()
+
+        let result = detector.registerModifier(modifier: .command, isDown: true, at: t0.addingTimeInterval(0.15))
+        XCTAssertEqual(result, .none)
+    }
+
+    func testDifferentModifiersDoNotTriggerDoubleTap() {
+        var detector = KeyModifierDoubleTapDetector(timeout: 0.3)
+        let t0 = Date(timeIntervalSince1970: 1000)
+
+        _ = detector.registerModifier(modifier: .command, isDown: true, at: t0)
+        _ = detector.registerModifier(modifier: .command, isDown: false, at: t0.addingTimeInterval(0.05))
+
+        let result = detector.registerModifier(modifier: .shift, isDown: true, at: t0.addingTimeInterval(0.15))
+        XCTAssertEqual(result, .none)
+    }
+}
