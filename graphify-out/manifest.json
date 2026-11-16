@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1794870641.8008718,
-    "seen": 1794870861.640026,
-    "ast_hash": "57f17d0060038594b45951d331a1495d",
+    "mtime": 1794871064.3483846,
+    "seen": 1794871163.913878,
+    "ast_hash": "1a910639295b1449ed67f26c6c4dcfb1",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ChipPanel.swift": {
@@ -1050,9 +1050,9 @@
     "semantic_hash": "e9116f8dad1d72e00e70ef8a6e82fdd5"
   },
   "App/Scenes/NotchIslandView.swift": {
-    "mtime": 1794870670.4551191,
-    "seen": 1794870861.6401181,
-    "ast_hash": "94e1413a33ea01accb5f0a35531150e5",
+    "mtime": 1794871035.4998693,
+    "seen": 1794871163.91397,
+    "ast_hash": "6ad4b09464336484470659c9a88a2e07",
     "semantic_hash": ""
   },
   "App/Scenes/NotchPreview.swift": {
@@ -2046,9 +2046,9 @@
     "semantic_hash": "46a097f32e7427f2de688c6b04cfbb08"
   },
   "Core/Support/NotchFallbackPlan.swift": {
-    "mtime": 1794868887.250438,
-    "seen": 1794869132.5382872,
-    "ast_hash": "af0314eeef59a2cedc5bc83c5bfb7a87",
+    "mtime": 1794871003.1811004,
+    "seen": 1794871163.9141471,
+    "ast_hash": "0d4378f062699ee9ac6e11d65657684f",
     "semantic_hash": ""
   },
   "Core/Support/NotchGeometry.swift": {
@@ -2898,9 +2898,9 @@
     "semantic_hash": "7d5d91de074a9d0549099dc278957fde"
   },
   "Platform/Pinboard/QuickToggleEngine.swift": {
-    "mtime": 1794869138.8068848,
-    "seen": 1794869309.185241,
-    "ast_hash": "06920cac5326f235e6a11933ea3d0d61",
+    "mtime": 1794871029.117069,
+    "seen": 1794871163.914284,
+    "ast_hash": "e48f4b6ecdb06f8549ecd8a68d31da3e",
     "semantic_hash": ""
   },
   "Platform/ScreenTime/ScreenTimeController.swift": {
@@ -3810,9 +3810,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NotchFallbackPlanTests.swift": {
-    "mtime": 1794868899.3644726,
-    "seen": 1794869132.538621,
-    "ast_hash": "7db0538f0f74256b55378137465e8afe",
+    "mtime": 1794870986.004398,
+    "seen": 1794871163.91444,
+    "ast_hash": "e2563b3813f502962a6049333d73f410",
     "semantic_hash": ""
   },
   "Tests/Unit/NotchGeometryTests.swift": {
