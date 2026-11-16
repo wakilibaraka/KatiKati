@@ -2430,10 +2430,10 @@
     "semantic_hash": ""
   },
   "Core/Support/Translate.swift": {
-    "mtime": 1792077738.9453466,
-    "seen": 1792295707.060619,
-    "ast_hash": "0175e36cd92b9b91beb0f75869725c14",
-    "semantic_hash": "0175e36cd92b9b91beb0f75869725c14"
+    "mtime": 1794846524.0693438,
+    "seen": 1794846684.228519,
+    "ast_hash": "31b952cf41171d3f1711f9dd7ea73439",
+    "semantic_hash": ""
   },
   "Core/Support/URLCleaner.swift": {
     "mtime": 1791999130.751492,
@@ -4242,10 +4242,10 @@
     "semantic_hash": "7424ad875d404091a841acd0370bb08b"
   },
   "Tests/Unit/TranslateTests.swift": {
-    "mtime": 1792077743.229618,
-    "seen": 1792295707.06081,
-    "ast_hash": "4bfa201640eb5873731939ef52b1a82d",
-    "semantic_hash": "4bfa201640eb5873731939ef52b1a82d"
+    "mtime": 1794846640.442605,
+    "seen": 1794846684.228835,
+    "ast_hash": "843f7934f945286796df3e0812d8920e",
+    "semantic_hash": ""
   },
   "Tests/Unit/TrashStateStoreTests.swift": {
     "mtime": 1791999130.9353611,
