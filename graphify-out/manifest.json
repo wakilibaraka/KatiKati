@@ -504,9 +504,9 @@
     "semantic_hash": ""
   },
   "App/Entry/CommandBarPanelController.swift": {
-    "mtime": 1794848313.3951387,
-    "seen": 1794848521.7888908,
-    "ast_hash": "94b254a27d5e61c0e588d5e34592222d",
+    "mtime": 1794848640.5022745,
+    "seen": 1794848831.45395,
+    "ast_hash": "897adf8d905b6f5f039e150ff35945da",
     "semantic_hash": ""
   },
   "App/Entry/EdgeBarPanelController.swift": {
@@ -732,9 +732,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/CommandBarView.swift": {
-    "mtime": 1794848300.8722465,
-    "seen": 1794848521.788928,
-    "ast_hash": "1123896325d72e13b10715206ab2ec30",
+    "mtime": 1794848604.7099612,
+    "seen": 1794848831.453986,
+    "ast_hash": "a19a8d552e6d2f79f66ce8a5c747fcde",
     "semantic_hash": ""
   },
   "App/Scenes/ContentView.swift": {
@@ -1506,10 +1506,10 @@
     "semantic_hash": "f6dbcba09cb4a696f059fef0ad7b11fd"
   },
   "Core/Support/AppRemoval.swift": {
-    "mtime": 1791999130.737756,
-    "seen": 1792295707.060524,
-    "ast_hash": "730cfc3d4b63af8d27beb713ba3f8aee",
-    "semantic_hash": "730cfc3d4b63af8d27beb713ba3f8aee"
+    "mtime": 1794848720.3409548,
+    "seen": 1794848831.454134,
+    "ast_hash": "b08601c299f2bc3794c2351b8918346a",
+    "semantic_hash": ""
   },
   "Core/Support/AppleScriptNowPlaying.swift": {
     "mtime": 1792126397.1466029,
@@ -1638,9 +1638,9 @@
     "semantic_hash": "bdfcd13a0641436281c4eb25360e5f04"
   },
   "Core/Support/CommandBar.swift": {
-    "mtime": 1794848463.2232418,
-    "seen": 1794848521.789103,
-    "ast_hash": "2d5fb27a58fc0a91171198811e5e66eb",
+    "mtime": 1794848582.0312629,
+    "seen": 1794848831.454156,
+    "ast_hash": "5a6439d78056c8757f91d297a59f13e5",
     "semantic_hash": ""
   },
   "Core/Support/CommandBarKeywords.swift": {
@@ -3300,9 +3300,9 @@
     "semantic_hash": "8db4b44a5d400a761b79c9810d5581f1"
   },
   "Tests/Unit/CommandBarTests.swift": {
-    "mtime": 1794848358.1144629,
-    "seen": 1794848521.789387,
-    "ast_hash": "0825234c9caea74b8eaadfa50fabe418",
+    "mtime": 1794848665.1384282,
+    "seen": 1794848831.454438,
+    "ast_hash": "b4eaf7a3e08759dc627721a28741a7e4",
     "semantic_hash": ""
   },
   "Tests/Unit/Core/Support/ClockChipContentTests.swift": {
