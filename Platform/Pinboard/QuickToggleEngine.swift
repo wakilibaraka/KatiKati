@@ -258,7 +258,9 @@ enum KeyboardBacklight {
     static func set(_ level: Double) {
         guard let client, client.responds(to: setSel) else { return }
         typealias Fn = @convention(c) (AnyObject, Selector, Float, UInt64) -> Bool
-        _ = unsafeBitCast(client.method(for: setSel), to: Fn.self)(client, setSel, Float(min(1, max(0, level))), 1)
+        let clamped = min(1, max(0, level))
+        _ = unsafeBitCast(client.method(for: setSel), to: Fn.self)(client, setSel, Float(clamped), 1)
+        NotificationCenter.default.post(name: Notification.Name("com.katikati.keyboardBrightnessChanged"), object: clamped)
     }
 }
 

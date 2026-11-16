@@ -84,6 +84,11 @@ final class NotchPanelController: LiveEventSink {
             .sink { [weak self] level in
                 self?.showHardwareHUD(id: "hud.brightness", icon: "sun.max.fill", title: "Brightness", level: level)
             }.store(in: &cancellables)
+        NotificationCenter.default.publisher(for: Notification.Name("com.katikati.keyboardBrightnessChanged"))
+            .compactMap { $0.object as? Double }
+            .sink { [weak self] level in
+                self?.showHardwareHUD(id: "hud.keyboard", icon: "light.max", title: "Keyboard", level: level)
+            }.store(in: &cancellables)
         model.$event.map { $0 != nil }.removeDuplicates().sink { [weak self] _ in self?.syncWindow() }.store(in: &cancellables)
         NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
             .sink { [weak self] _ in self?.screensChanged() }.store(in: &cancellables)
@@ -156,7 +161,22 @@ final class NotchPanelController: LiveEventSink {
             if !model.isExpanded, UserDefaults.standard.object(forKey: "com.katikati.notch.trackToast") as? Bool ?? true { trackPill.show(below: model.closedSize.height) { AnyView(NotchTrackPillView(model: $0)) } }
             return
         }
-        model.event = LiveEventPresentation(event)
+        let presentation = LiveEventPresentation(event)
+        model.event = presentation
+        let now = Date()
+        model.activityQueue.enqueue(
+            NotchActivityItem(
+                id: "event.\(presentation.symbol)",
+                priority: .notification,
+                title: presentation.headline,
+                subtitle: presentation.detail,
+                icon: presentation.symbol,
+                timeout: NotchMotionSpec.eventLifetime,
+                createdAt: now
+            ),
+            now: now
+        )
+        scheduleHUDExpiration()
         eventWork?.cancel()
         let work = DispatchWorkItem { [weak self] in
             self?.model.event = nil

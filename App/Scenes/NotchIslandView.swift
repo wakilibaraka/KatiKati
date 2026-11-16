@@ -222,6 +222,7 @@ struct NotchIslandView: View {
         .animation(motion, value: expanded)
         .animation(motion, value: model.closedSize)
         .animation(motion, value: model.activeHUDItem?.id)
+        .animation(reduceMotion ? nil : .interpolatingSpring(stiffness: 240, damping: 26), value: calculatedLayout.bottomCornerRadius)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .colorScheme(notchTheme.prefersDarkContent ? .light : .dark)
     }
@@ -287,7 +288,7 @@ struct NotchIslandView: View {
 
     private func inlineHUDContent(_ hud: NotchActivityItem) -> some View {
         let level = hud.level ?? 0
-        let tint: Color = hud.id == "hud.brightness" ? .yellow : (level <= 0 ? .secondary : .cyan)
+        let tint: Color = hud.id == "hud.brightness" ? .yellow : (hud.id == "hud.keyboard" ? .orange : (level <= 0 ? .secondary : .cyan))
         return HStack(spacing: 6) {
             HStack(spacing: 4) {
                 Image(systemName: hud.icon)
