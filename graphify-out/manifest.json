@@ -726,9 +726,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/ClockChip.swift": {
-    "mtime": 1793804506.4706178,
-    "seen": 1793805182.752498,
-    "ast_hash": "901225c1bb5a684ea6232042e60de532",
+    "mtime": 1794869759.735344,
+    "seen": 1794869839.070121,
+    "ast_hash": "ff259b5f0ad274fe2d183c61f6914c74",
     "semantic_hash": ""
   },
   "App/Scenes/CommandBarView.swift": {
@@ -1296,9 +1296,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WeatherChip.swift": {
-    "mtime": 1792928629.6915448,
-    "seen": 1792933113.614224,
-    "ast_hash": "38e3d131d9a1e4eb8920db6253f45eae",
+    "mtime": 1794869758.3152213,
+    "seen": 1794869839.070239,
+    "ast_hash": "33f8246f17bbe535f7588cd054434d5b",
     "semantic_hash": ""
   },
   "App/Scenes/WeatherGlanceView.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1794844337.1698601,
-    "seen": 1794844459.765353,
-    "ast_hash": "79bcc4094a0f42862240151dad9c7b64",
+    "mtime": 1794869779.1924276,
+    "seen": 1794869839.070864,
+    "ast_hash": "cbc9d4123299afa1785859a14aed51b6",
     "semantic_hash": ""
   },
   "README.md": {
