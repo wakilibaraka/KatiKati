@@ -2046,9 +2046,9 @@
     "semantic_hash": "46a097f32e7427f2de688c6b04cfbb08"
   },
   "Core/Support/NotchFallbackPlan.swift": {
-    "mtime": 1794855997.121701,
-    "seen": 1794856137.4517372,
-    "ast_hash": "d4e1da087fdc1dedde558d5ac1829659",
+    "mtime": 1794868887.250438,
+    "seen": 1794869132.5382872,
+    "ast_hash": "af0314eeef59a2cedc5bc83c5bfb7a87",
     "semantic_hash": ""
   },
   "Core/Support/NotchGeometry.swift": {
@@ -3810,9 +3810,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NotchFallbackPlanTests.swift": {
-    "mtime": 1794845854.9221542,
-    "seen": 1794846332.571809,
-    "ast_hash": "daf6d3692c4e98c0bf933e549882ef6d",
+    "mtime": 1794868899.3644726,
+    "seen": 1794869132.538621,
+    "ast_hash": "7db0538f0f74256b55378137465e8afe",
     "semantic_hash": ""
   },
   "Tests/Unit/NotchGeometryTests.swift": {
