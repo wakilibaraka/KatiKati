@@ -882,10 +882,10 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/ScreenTimeViews.swift": {
-    "mtime": 1791999130.7833462,
-    "seen": 1792295707.06046,
-    "ast_hash": "b523821d46732464f415384d53e0dd13",
-    "semantic_hash": "b523821d46732464f415384d53e0dd13"
+    "mtime": 1794856596.5883362,
+    "seen": 1794856871.784786,
+    "ast_hash": "e85b32130d6e278bc773eba0bd564784",
+    "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
     "mtime": 1794856393.5827687,
@@ -1470,9 +1470,9 @@
     "semantic_hash": ""
   },
   "Core/Support/AgentUsage/AgentUsageModels.swift": {
-    "mtime": 1794847362.8045056,
-    "seen": 1794847518.914078,
-    "ast_hash": "93dc25b7a4bd3712fe98e46af0e7c7ac",
+    "mtime": 1794856577.5579646,
+    "seen": 1794856871.7849011,
+    "ast_hash": "a3bec2124a36cd20caf5369c2ec66222",
     "semantic_hash": ""
   },
   "Core/Support/AppDisplayNameCache.swift": {
@@ -1572,10 +1572,10 @@
     "semantic_hash": ""
   },
   "Core/Support/CalendarPanelModels.swift": {
-    "mtime": 1792144847.823869,
-    "seen": 1792295707.060531,
-    "ast_hash": "a8a5fe2c0a223350754b55fac3796dbb",
-    "semantic_hash": "a8a5fe2c0a223350754b55fac3796dbb"
+    "mtime": 1794856797.4118593,
+    "seen": 1794856871.78492,
+    "ast_hash": "c29fedee7a5be12faa230387a9e138b8",
+    "semantic_hash": ""
   },
   "Core/Support/CameraMirrorRules.swift": {
     "mtime": 1792126656.538825,
@@ -3108,9 +3108,9 @@
     "semantic_hash": "a1be8ca227bf12eedd4e86ff89c62c04"
   },
   "Tests/Unit/AgentUsageTests.swift": {
-    "mtime": 1794847382.0344794,
-    "seen": 1794847518.9143429,
-    "ast_hash": "45a6e2275bfbdef3c77bb83442f8443f",
+    "mtime": 1794856626.792989,
+    "seen": 1794856871.785173,
+    "ast_hash": "e79456b50c500dd8ba6dddb98f55bf3f",
     "semantic_hash": ""
   },
   "Tests/Unit/AppFallbackChipDecisionTests.swift": {
@@ -6798,9 +6798,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWidgetLogicTests.swift": {
-    "mtime": 1794855916.5095356,
-    "seen": 1794856137.451947,
-    "ast_hash": "5dc7064c0eb1587429f091e311f0850b",
+    "mtime": 1794856804.7609773,
+    "seen": 1794856871.785218,
+    "ast_hash": "0079bdb7246cbd79cc23f8d048934064",
     "semantic_hash": ""
   },
   "App/Composition/SpaceTransitionController.swift": {
