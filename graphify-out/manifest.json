@@ -7116,15 +7116,15 @@
     "semantic_hash": ""
   },
   "Core/Support/KeepAwakePolicy.swift": {
-    "mtime": 1793837426.6544287,
-    "seen": 1793837786.770163,
-    "ast_hash": "95c3e09b3e0e8e5d33204db609ebe370",
+    "mtime": 1794844603.0820649,
+    "seen": 1794844784.7493382,
+    "ast_hash": "651e0c0cc8fe540faf75a5e470850adb",
     "semantic_hash": ""
   },
   "Tests/Unit/KeepAwakePolicyTests.swift": {
-    "mtime": 1793837426.7061415,
-    "seen": 1793837786.7706182,
-    "ast_hash": "4457e2f6027a97c0425c7e0fe9b6bddf",
+    "mtime": 1794844603.121278,
+    "seen": 1794844784.7496681,
+    "ast_hash": "44f91647b67a3027192566e54ddd212d",
     "semantic_hash": ""
   },
   "Core/Support/AgentProcessScan.swift": {
