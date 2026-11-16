@@ -368,20 +368,17 @@ struct RailWeatherTile: View {
                                       Color(red: tint.bottom.r, green: tint.bottom.g, blue: tint.bottom.b)],
                              startPoint: .top, endPoint: .bottom)
             : nil
-        VStack(spacing: 1) {
+        VStack(spacing: 1.5) {
             // Same rule as the bar chip: with no forecast there is no temperature to print, only the
             // mark that a place is missing (the tap below opens the panel's city search).
-            if chipPreset == .modern && state.hasData {
-                let a = WeatherModernSpec.accent(condition: state.conditionFamily, isNight: state.isNight)
-                Circle().fill(Color(red: a.r, green: a.g, blue: a.b)).frame(width: 6, height: 6)
-            } else {
-                Image(systemName: state.hasData ? state.glyphName : "location.slash.fill")
-                    .symbolRenderingMode(.multicolor)
-                    .font(.system(size: 14, weight: .semibold))
-            }
+            // Phase 40g refinement: show the weather glyph instead of a 6pt dot in .modern so the
+            // 40×40 rail tile reads unmistakably as weather at a glance.
+            Image(systemName: state.hasData ? state.glyphName : "location.slash.fill")
+                .symbolRenderingMode(.multicolor)
+                .font(.system(size: 14, weight: .semibold))
             if state.hasData {
                 Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
-                    .font(.system(size: 12, weight: chipPreset == .modern ? .regular : .bold, design: chipPreset == .modern ? .default : .rounded))
+                    .font(.system(size: 12, weight: chipPreset == .modern ? .semibold : .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(chipPreset == .modern ? Color(white: 0.96) : sky != nil && tint.prefersDarkText ? Color(white: 0.10) : .white)
                     .lineLimit(1)

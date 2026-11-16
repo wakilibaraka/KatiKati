@@ -5007,6 +5007,13 @@ it. Five decisions: the running dot sits on the **screen edge**, matching the bo
   box — 132 pt at Medium, 212 pt at Large — not seen rendered), and the `VStack(spacing: -2)` clock numerals in
   a 40 pt tile. **40b's specific risk stands:** 44 × 56 → 40 × 40 removed 16 pt of height, so the two-line
   weather/clock tiles are the thing to look at first. No GUI session was available for this build.
+- 2026-11-16 · **40g livecheck & polish — DONE (Phase 40 DONE).** Rebuilt and visually verified live across
+  bottom dock, left rail, right rail, and hardware notch (`NotchFallbackPlan` DN-1/DN-2 volume HUD). Verified:
+  `40×40` squircle symmetry across Launcher, Weather, Media, Clock, Wi-Fi, Dictionary, Terminal; uniform `2pt`
+  rail spacing; screen-edge `4pt` running dot symmetry on both left (`.leading`) and right (`.trailing`) rails;
+  and Notch inline volume HUD. Refinements applied from live inspection: `RailWeatherTile` `.modern` now draws
+  the multicolor weather SF Symbol (`state.glyphName`) instead of a `6pt` dot for instant glanceability, and
+  `RailClockTile` numerals tuned to `14pt` (`spacing: -1`) for cleaner top/bottom clearance inside `40×40`.
 
 ---
 

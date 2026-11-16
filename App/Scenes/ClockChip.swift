@@ -274,12 +274,12 @@ struct RailClockTile: View {
     var body: some View {
         TimelineView(.periodic(from: ClockTick.nextMinute(after: Date()), by: 60)) { context in
             let parts = Self.hourMinute(context.date)
-            VStack(spacing: -2) {
+            VStack(spacing: -1) {
                 Text(verbatim: parts.hour)
                 Text(verbatim: parts.minute)
             }
-            // 15, not the 44 × 56 tile's 17: two lines have to clear 40 pt (Phase 40b).
-            .font(.system(size: 15, weight: .semibold, design: .rounded))
+            // Phase 40g refinement: 14pt with -1pt spacing gives clean top/bottom breathing room inside 40×40.
+            .font(.system(size: 14, weight: .semibold, design: .rounded))
             .monospacedDigit()
             .foregroundStyle(.white)
             .frame(width: BarSection.railTileSize, height: BarSection.railTileSize)
