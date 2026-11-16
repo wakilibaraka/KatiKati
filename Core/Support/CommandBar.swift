@@ -138,6 +138,96 @@ enum CommandBarResult: Equatable, Sendable, Identifiable {
     }
 }
 
+// MARK: - Raycast ⌘K Action System (Slice 1.2)
+
+enum CommandBarActionKind: String, CaseIterable, Sendable {
+    case open
+    case revealInFinder
+    case quickLook
+    case copyPath
+    case copyValue
+    case copyBundleID
+    case uninstallApp
+    case deleteAppData
+    case moveToTrash
+    case pasteDirectly
+    case deleteEntry
+    case killProcess
+    case forceKillProcess
+    case runAction
+}
+
+struct CommandBarActionItem: Equatable, Identifiable, Sendable {
+    let id: String
+    let title: String
+    let kind: CommandBarActionKind
+    let shortcutHint: String?
+    let isDestructive: Bool
+
+    init(id: String = UUID().uuidString, title: String, kind: CommandBarActionKind, shortcutHint: String? = nil, isDestructive: Bool = false) {
+        self.id = id
+        self.title = title
+        self.kind = kind
+        self.shortcutHint = shortcutHint
+        self.isDestructive = isDestructive
+    }
+}
+
+enum CommandBarActionResolver {
+    static func actions(for result: CommandBarResult) -> [CommandBarActionItem] {
+        switch result {
+        case .app:
+            return [
+                CommandBarActionItem(id: "open", title: "Open Application", kind: .open, shortcutHint: "⏎"),
+                CommandBarActionItem(id: "reveal", title: "Reveal in Finder", kind: .revealInFinder, shortcutHint: "⌘⏎"),
+                CommandBarActionItem(id: "copyPath", title: "Copy Path", kind: .copyPath, shortcutHint: "⌘C"),
+                CommandBarActionItem(id: "copyBundleID", title: "Copy Bundle ID", kind: .copyBundleID, shortcutHint: "⌥⌘C"),
+                CommandBarActionItem(id: "uninstall", title: "Uninstall Application...", kind: .uninstallApp, shortcutHint: "⌘⌫", isDestructive: true),
+                CommandBarActionItem(id: "deleteData", title: "Delete App Data & Leftovers...", kind: .deleteAppData, isDestructive: true)
+            ]
+        case .file:
+            return [
+                CommandBarActionItem(id: "open", title: "Open File", kind: .open, shortcutHint: "⏎"),
+                CommandBarActionItem(id: "quickLook", title: "Quick Look", kind: .quickLook, shortcutHint: "⌘Y"),
+                CommandBarActionItem(id: "reveal", title: "Reveal in Finder", kind: .revealInFinder, shortcutHint: "⌘⏎"),
+                CommandBarActionItem(id: "copyPath", title: "Copy File Path", kind: .copyPath, shortcutHint: "⌘C"),
+                CommandBarActionItem(id: "trash", title: "Move to Trash", kind: .moveToTrash, shortcutHint: "⌘⌫", isDestructive: true)
+            ]
+        case .clip:
+            return [
+                CommandBarActionItem(id: "copy", title: "Copy to Clipboard", kind: .copyValue, shortcutHint: "⏎"),
+                CommandBarActionItem(id: "paste", title: "Paste into Active App", kind: .pasteDirectly, shortcutHint: "⌘⏎"),
+                CommandBarActionItem(id: "delete", title: "Delete from History", kind: .deleteEntry, shortcutHint: "⌘⌫", isDestructive: true)
+            ]
+        case .answer(let answer):
+            switch answer {
+            case .math:
+                return [
+                    CommandBarActionItem(id: "copy", title: "Copy Result", kind: .copyValue, shortcutHint: "⏎ / ⌘C")
+                ]
+            case .web:
+                return [
+                    CommandBarActionItem(id: "open", title: "Search in Browser", kind: .open, shortcutHint: "⏎"),
+                    CommandBarActionItem(id: "copy", title: "Copy Query", kind: .copyValue, shortcutHint: "⌘C")
+                ]
+            }
+        case .process:
+            return [
+                CommandBarActionItem(id: "kill", title: "Terminate Process", kind: .killProcess, shortcutHint: "⏎"),
+                CommandBarActionItem(id: "forceKill", title: "Force Kill (SIGKILL)", kind: .forceKillProcess, shortcutHint: "⌘⌫", isDestructive: true)
+            ]
+        case .action:
+            return [
+                CommandBarActionItem(id: "run", title: "Execute Action", kind: .runAction, shortcutHint: "⏎")
+            ]
+        default:
+            return [
+                CommandBarActionItem(id: "open", title: "Open", kind: .open, shortcutHint: "⏎")
+            ]
+        }
+    }
+}
+
 /// Phase 28a: a generator row — type a keyword, get a fresh value to copy. The pure cases make their own
 /// value here; system-backed ones (JSON / IP / Wi-Fi) are filled by the app layer when it calls
 /// `CommandBarResults.build(generate:)`.

@@ -105,20 +105,65 @@ final class CommandBarPanelController {
         guard keyMonitor == nil else { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self, self.isShown else { return event }
+
+            // ⌘1–⌘9 Quick-Run
+            let numberKeyMap: [UInt16: Int] = [18: 0, 19: 1, 20: 2, 21: 3, 23: 4, 22: 5, 26: 6, 28: 7, 25: 8]
+            if event.modifierFlags.contains(.command), let idx = numberKeyMap[event.keyCode], self.model.results.indices.contains(idx) {
+                self.run(self.model.results[idx])
+                return nil
+            }
+
             switch event.keyCode {
-            case 53: self.dismiss(); return nil              // Esc
-            case 125: self.model.move(1); return nil         // ↓
-            case 126: self.model.move(-1); return nil        // ↑
-            case 36, 76:                                     // Return / keypad Enter
+            case 53: // Esc
+                if self.model.isActionPanelPresented {
+                    self.model.isActionPanelPresented = false
+                    return nil
+                }
+                self.dismiss()
+                return nil
+            case 40 where event.modifierFlags.contains(.command): // ⌘K Action Panel Toggle
+                self.model.isActionPanelPresented.toggle()
+                self.model.actionSelection = 0
+                return nil
+            case 16 where event.modifierFlags.contains(.command): // ⌘Y Quick Look
+                return self.quickLookSelected() ? nil : event
+            case 125: // ↓
+                if self.model.isActionPanelPresented {
+                    let count = self.model.currentActions.count
+                    if count > 0 { self.model.actionSelection = (self.model.actionSelection + 1) % count }
+                    return nil
+                }
+                self.model.move(1)
+                return nil
+            case 126: // ↑
+                if self.model.isActionPanelPresented {
+                    let count = self.model.currentActions.count
+                    if count > 0 { self.model.actionSelection = (self.model.actionSelection - 1 + count) % count }
+                    return nil
+                }
+                self.model.move(-1)
+                return nil
+            case 36, 76: // Return / keypad Enter
+                if self.model.isActionPanelPresented {
+                    let actions = self.model.currentActions
+                    if actions.indices.contains(self.model.actionSelection) {
+                        self.performAction(actions[self.model.actionSelection])
+                    }
+                    return nil
+                }
                 if event.modifierFlags.contains(.command) { self.revealSelected() } else { self.runSelected() }
                 return nil
-            case 8 where event.modifierFlags.contains(.command):   // ⌘C
-                self.copyPathSelected(); return nil
-            case 51 where event.modifierFlags.contains(.command):  // ⌘⌫
-                self.trashSelected(); return nil
-            case 49:                                               // Space → Quick Look a file
-                return self.quickLookSelected() ? nil : event
-            default: return event
+            case 8 where event.modifierFlags.contains(.command): // ⌘C Universal Copy
+                self.universalCopySelected()
+                return nil
+            case 51 where event.modifierFlags.contains(.command): // ⌘⌫ Trash
+                self.trashSelected()
+                return nil
+            case 48: // Tab Mode Expansion
+                self.tabExpandMode()
+                return nil
+            default:
+                return event
             }
         }
     }
@@ -283,9 +328,106 @@ final class CommandBarPanelController {
     }
 
     private func revealSelected() {
-        guard let file = selectedFile() else { runSelected(); return }
-        dismiss()
-        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: file.path)])
+        let index = model.selection
+        guard model.results.indices.contains(index) else { runSelected(); return }
+        let path: String?
+        switch model.results[index] {
+        case .file(let entry): path = entry.path
+        case .app(let app): path = app.path
+        default: path = nil
+        }
+        if let path {
+            dismiss()
+            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
+        } else {
+            runSelected()
+        }
+    }
+
+    private func universalCopySelected() {
+        let index = model.selection
+        guard model.results.indices.contains(index) else { return }
+        let result = model.results[index]
+        let str: String?
+        switch result {
+        case .file(let entry): str = entry.path
+        case .app(let app): str = app.path
+        case .clip(let entry): str = entry.text
+        case .answer(let answer):
+            switch answer {
+            case .math(_, let value): str = value
+            case .web(let query): str = query
+            }
+        case .generator(_, let value): str = value
+        case .custom(let cmd): str = cmd.target
+        case .script(let p): str = p
+        case .shortcut(let s): str = s
+        case .path(let p): str = p
+        case .bookmark(let b): str = b.url
+        default: str = nil
+        }
+        if let str, !str.isEmpty {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(str, forType: .string)
+        }
+    }
+
+    private func tabExpandMode() {
+        let q = model.query.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return }
+        if let mode = CommandBarMode.allCases.first(where: { $0.keywords.contains(q.lowercased()) }) {
+            model.query = mode.keywords[0] + " "
+        }
+    }
+
+    private func performAction(_ action: CommandBarActionItem) {
+        model.isActionPanelPresented = false
+        let index = model.selection
+        guard model.results.indices.contains(index) else { return }
+        let result = model.results[index]
+
+        switch action.kind {
+        case .open, .runAction:
+            run(result)
+        case .revealInFinder:
+            revealSelected()
+        case .quickLook:
+            _ = quickLookSelected()
+        case .copyPath, .copyValue:
+            universalCopySelected()
+        case .copyBundleID:
+            if case .app(let app) = result {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(app.bundleID, forType: .string)
+            }
+        case .uninstallApp:
+            if case .app(let app) = result {
+                dismiss()
+                AppRemovalService.confirmAndPerform(bundleID: app.bundleID, name: app.name, appPath: app.path, removal: .uninstall)
+            }
+        case .deleteAppData:
+            if case .app(let app) = result {
+                dismiss()
+                AppRemovalService.confirmAndPerform(bundleID: app.bundleID, name: app.name, appPath: app.path, removal: .deleteData)
+            }
+        case .moveToTrash, .deleteEntry:
+            trashSelected()
+        case .pasteDirectly:
+            if case .clip(let entry) = result {
+                dismiss()
+                pasteSnippet(entry.text)
+            }
+        case .killProcess:
+            if case .process(let entry) = result {
+                dismiss()
+                confirmKill(entry)
+            }
+        case .forceKillProcess:
+            if case .process(let entry) = result {
+                dismiss()
+                kill(pid_t(entry.pid), SIGKILL)
+            }
+        }
     }
 
     private func copyPathSelected() {

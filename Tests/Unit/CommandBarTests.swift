@@ -397,4 +397,28 @@ final class CommandBarResultIdentityTests: XCTestCase {
     }
 }
 
+// MARK: - Raycast ⌘K Action Tests (Slice 1.2)
+
+final class CommandBarActionResolverTests: XCTestCase {
+    func testAppActionsIncludeOpenRevealAndUninstall() {
+        let app = LauncherApp(bundleID: "com.example.app", name: "Example", path: "/Applications/Example.app", installedAt: .distantPast)
+        let actions = CommandBarActionResolver.actions(for: .app(app))
+        XCTAssertEqual(actions.map(\.kind), [.open, .revealInFinder, .copyPath, .copyBundleID, .uninstallApp, .deleteAppData])
+        XCTAssertTrue(actions.contains { $0.kind == .uninstallApp && $0.isDestructive })
+    }
+
+    func testFileActionsIncludeQuickLookAndTrash() {
+        let file = FileEntry(path: "/Users/test/doc.pdf", name: "doc.pdf")
+        let actions = CommandBarActionResolver.actions(for: .file(file))
+        XCTAssertEqual(actions.map(\.kind), [.open, .quickLook, .revealInFinder, .copyPath, .moveToTrash])
+        XCTAssertEqual(actions.first(where: { $0.kind == .quickLook })?.shortcutHint, "⌘Y")
+    }
+
+    func testClipActionsIncludePasteAndCopy() {
+        let clip = ClipEntry(text: "Hello World")
+        let actions = CommandBarActionResolver.actions(for: .clip(clip))
+        XCTAssertEqual(actions.map(\.kind), [.copyValue, .pasteDirectly, .deleteEntry])
+    }
+}
+
 

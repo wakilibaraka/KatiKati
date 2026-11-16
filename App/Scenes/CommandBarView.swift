@@ -15,6 +15,13 @@ final class CommandBarModel: ObservableObject {
     @Published var results: [CommandBarResult] = []
     @Published var rowItems: [CommandBarRowItem] = []
     @Published var selection = 0
+    @Published var isActionPanelPresented: Bool = false
+    @Published var actionSelection = 0
+
+    var currentActions: [CommandBarActionItem] {
+        guard results.indices.contains(selection) else { return [] }
+        return CommandBarActionResolver.actions(for: results[selection])
+    }
     var focusNonce = 0
     var apps: [LauncherApp] = []
     var running: [RunningAppRef] = []

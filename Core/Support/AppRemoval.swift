@@ -34,9 +34,10 @@ enum AppRemovalPlanner {
         return AppRemovalPlan(bundleID: bundleID, name: name, removal: removal, paths: paths)
     }
 
-    /// Standard support-file locations for a bundle id / display name.
+    /// Standard support-file locations for a bundle id / display name, augmented with AppLeftoverScanPlan.
     static func dataPaths(bundleID: String, name: String, home: String = NSHomeDirectory()) -> [String] {
-        [
+        let leftovers = AppLeftoverScanPlan.expectedCandidatePaths(home: home, bundleID: bundleID, appName: name)
+        let standard = [
             "\(home)/Library/Application Support/\(name)",
             "\(home)/Library/Caches/\(bundleID)",
             "\(home)/Library/Preferences/\(bundleID).plist",
@@ -45,5 +46,11 @@ enum AppRemovalPlanner {
             "\(home)/Library/WebKit/\(bundleID)",
             "\(home)/Library/HTTPStorages/\(bundleID)",
         ]
+        var combined: [String] = []
+        var seen = Set<String>()
+        for p in standard + leftovers {
+            if seen.insert(p).inserted { combined.append(p) }
+        }
+        return combined
     }
 }
