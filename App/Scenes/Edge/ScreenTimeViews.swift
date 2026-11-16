@@ -132,7 +132,7 @@ struct DotMatrixProgressTileView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
-            Text(model.label)
+            Text(verbatim: model.label)
                 .font(.system(size: 9.5, weight: .semibold))
                 .foregroundStyle(.secondary)
             HStack(spacing: 2) {
@@ -156,10 +156,10 @@ struct RetroFlipClockTileView: View {
     var body: some View {
         HStack(spacing: 3) {
             card(digits.hourString)
-            Text(":").font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
+            Text(verbatim: ":").font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
             card(digits.minuteString)
             if !digits.amPm.isEmpty {
-                Text(digits.amPm)
+                Text(verbatim: digits.amPm)
                     .font(.system(size: 8, weight: .bold))
                     .foregroundStyle(.secondary)
             }
@@ -171,7 +171,7 @@ struct RetroFlipClockTileView: View {
     }
 
     private func card(_ text: String) -> some View {
-        Text(text)
+        Text(verbatim: text)
             .font(.system(size: 11, weight: .bold, design: .monospaced))
             .padding(.horizontal, 4)
             .padding(.vertical, 2)
@@ -191,10 +191,10 @@ struct InlineFocusTimerPill: View {
                 Image(systemName: "timer")
                     .font(.system(size: 9.5, weight: .semibold))
                     .foregroundStyle(.orange)
-                Text(sessionText)
+                Text(verbatim: sessionText)
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(.secondary)
-                Text(timeRemainingText)
+                Text(verbatim: timeRemainingText)
                     .font(.system(size: 9.5, weight: .bold, design: .monospaced))
                 Image(systemName: isRunning ? "pause.fill" : "play.fill")
                     .font(.system(size: 8))
@@ -218,7 +218,7 @@ struct ScreenTimeHourlyBarTile: View {
             Image(systemName: "hourglass")
                 .font(.system(size: 9, weight: .semibold))
                 .foregroundStyle(.purple)
-            Text(totalText)
+            Text(verbatim: totalText)
                 .font(.system(size: 9.5, weight: .semibold))
             HStack(alignment: .bottom, spacing: 1.5) {
                 ForEach(0..<min(12, hourlyFractions.count), id: \.self) { i in
@@ -246,8 +246,8 @@ struct AILimitDualBarTileView: View {
                 .foregroundStyle(.cyan)
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
-                    Text(summary.providerName).font(.system(size: 9, weight: .bold))
-                    Text(summary.tokenFormatted).font(.system(size: 8)).foregroundStyle(.secondary)
+                    Text(verbatim: summary.providerName).font(.system(size: 9, weight: .bold))
+                    Text(verbatim: summary.tokenFormatted).font(.system(size: 8)).foregroundStyle(.secondary)
                 }
                 HStack(spacing: 4) {
                     bar(fraction: Double(summary.sessionPercent) / 100, label: "S: \(summary.sessionPercent)%", reset: summary.sessionResetCountdown)
@@ -263,11 +263,11 @@ struct AILimitDualBarTileView: View {
 
     private func bar(fraction: Double, label: String, reset: String) -> some View {
         HStack(spacing: 2) {
-            Text(label).font(.system(size: 8, weight: .medium))
+            Text(verbatim: label).font(.system(size: 8, weight: .medium))
             Capsule()
                 .fill(fraction > 0.85 ? Color.red : Color.cyan)
                 .frame(width: max(2, 24 * CGFloat(min(1.0, fraction))), height: 3)
-            Text(reset).font(.system(size: 7)).foregroundStyle(.secondary)
+            Text(verbatim: reset).font(.system(size: 7)).foregroundStyle(.secondary)
         }
     }
 }
