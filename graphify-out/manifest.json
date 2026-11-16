@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1794849725.0812423,
-    "seen": 1794850870.16145,
-    "ast_hash": "7ededb2b4f972c5f78226e08f073e922",
+    "mtime": 1794858565.394701,
+    "seen": 1794858758.740714,
+    "ast_hash": "9dbcc29b8b861fc731466f945052852c",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -4584,15 +4584,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsShell.swift": {
-    "mtime": 1794857938.5868175,
-    "seen": 1794858182.766877,
-    "ast_hash": "301af5f6d74bfb1e4ebf7e993ab65bd6",
+    "mtime": 1794858587.16419,
+    "seen": 1794858758.7407,
+    "ast_hash": "98390f21cc6ede4bfe033b814b772e9b",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsSidebar.swift": {
-    "mtime": 1794857926.168027,
-    "seen": 1794858182.766879,
-    "ast_hash": "e56a6161f91c94c6be5cdbfbe2789a01",
+    "mtime": 1794858602.454324,
+    "seen": 1794858758.740701,
+    "ast_hash": "018fb4fb98a08f2bb04bd0efc0b0e542",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStage.swift": {
