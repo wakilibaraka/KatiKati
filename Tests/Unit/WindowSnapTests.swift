@@ -87,6 +87,44 @@ final class QuitOnLastWindowPolicyTests: XCTestCase {
         XCTAssertFalse(policy.shouldQuit(bundleID: "com.spotify.client", idleDuration: 3600, isAgentWorking: true))
         XCTAssertFalse(policy.shouldQuit(bundleID: "com.apple.Notes", idleDuration: 3600))
     }
+
+    func testQuitOnLastWindowPolicyModesAndWindowFilter() {
+        let offPolicy = QuitOnLastWindowPolicy.parse("com.spotify.client", mode: .off)
+        XCTAssertFalse(offPolicy.applies(to: "com.spotify.client"))
+
+        let globalPolicy = QuitOnLastWindowPolicy.parse("", mode: .allExceptExcluded, excludedRaw: "com.tinyspeck.slackmacgap")
+        XCTAssertTrue(globalPolicy.applies(to: "com.spotify.client"))
+        XCTAssertFalse(globalPolicy.applies(to: "com.tinyspeck.slackmacgap"))
+        XCTAssertFalse(globalPolicy.applies(to: "com.apple.finder"), "system surfaces remain always ignored")
+
+        XCTAssertTrue(QuitOnLastWindowPolicy.isCountableWindow(subrole: "AXStandardWindow", size: CGSize(width: 800, height: 600)))
+        XCTAssertTrue(QuitOnLastWindowPolicy.isCountableWindow(subrole: "AXDialog", size: CGSize(width: 400, height: 300)))
+        XCTAssertFalse(QuitOnLastWindowPolicy.isCountableWindow(subrole: "AXUnknown", size: CGSize(width: 400, height: 300)))
+        XCTAssertFalse(QuitOnLastWindowPolicy.isCountableWindow(subrole: "AXStandardWindow", size: .zero))
+        XCTAssertEqual(QuitOnLastWindowPolicy.clampDelay(0.05), 0.25)
+        XCTAssertEqual(QuitOnLastWindowPolicy.clampDelay(10.0), 5.0)
+    }
+
+    func testIdleAppPolicyActionsMemoryAndPerAppOverrides() {
+        let oneGB: UInt64 = 1024 * 1024 * 1024
+        let overrides = IdleAppAutoQuitPolicy.parsePerAppActions("com.tinyspeck.slackmacgap=keep, com.spotify.client=hide")
+        XCTAssertEqual(IdleAppAutoQuitPolicy.serializePerAppActions(overrides), "com.spotify.client=hide, com.tinyspeck.slackmacgap=keep")
+
+        let policy = IdleAppAutoQuitPolicy(
+            idleThresholdSeconds: 1800,
+            defaultAction: .notify,
+            minMemoryBytes: oneGB,
+            perAppActions: overrides
+        )
+        // Below RAM filter -> nil even when idle
+        XCTAssertNil(policy.resolvedAction(bundleID: "com.google.Chrome", idleDuration: 2400, memoryBytes: 500 * 1024 * 1024))
+        // Idle AND above RAM filter -> .notify
+        XCTAssertEqual(policy.resolvedAction(bundleID: "com.google.Chrome", idleDuration: 2400, memoryBytes: 2 * oneGB), .notify)
+        // Per-app .keep suppresses
+        XCTAssertNil(policy.resolvedAction(bundleID: "com.tinyspeck.slackmacgap", idleDuration: 3600, memoryBytes: 2 * oneGB))
+        // Per-app .hide overrides default .notify
+        XCTAssertEqual(policy.resolvedAction(bundleID: "com.spotify.client", idleDuration: 2400, memoryBytes: 2 * oneGB), .hide)
+    }
 }
 
 /// 24c/53d/53i: the app-rules table Settings draws is a view of the three stored lists, never a fourth

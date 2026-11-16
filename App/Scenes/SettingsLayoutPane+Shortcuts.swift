@@ -151,18 +151,60 @@ extension SettingsLayoutPane {
                         keyGuard.setSlowQuit(on)
                     }
                 ),
-                info: String(localized: "Press and hold ⌘Q for a moment to quit an app; releasing early cancels it. Apps listed below quit instantly instead.")
+                info: String(localized: "Protect ⌘Q with a hold or double-tap so accidental presses never quit an app. Apps listed below can skip or keep their own ⌘Q.")
             )
             if keyGuard.isSlowQuitEnabled {
                 SettingsDivider()
-                SettingsSliderRow(
-                    Text("Hold duration"),
-                    value: keyGuard.slowQuitDuration,
-                    range: 0.2...3,
-                    step: 0.1,
-                    valueText: String(format: "%.1fs", keyGuard.slowQuitDuration),
-                    set: { keyGuard.setSlowQuitDuration($0) }
-                )
+                DisclosureGroup("SlowQuit Options") {
+                    SettingsPickerRow(Text("Trigger Mode"), selection: Binding(
+                        get: { keyGuard.slowQuitMode },
+                        set: { keyGuard.setSlowQuitMode($0) }
+                    )) {
+                        Text("Hold ⌘Q").tag(SlowQuitMode.hold)
+                        Text("Double-Tap ⌘Q").tag(SlowQuitMode.doubleTap)
+                    }
+                    if keyGuard.slowQuitMode == .hold {
+                        SettingsDivider()
+                        SettingsSliderRow(
+                            Text("Hold duration"),
+                            value: keyGuard.slowQuitDuration,
+                            range: 0.2...3,
+                            step: 0.1,
+                            valueText: String(format: "%.1fs", keyGuard.slowQuitDuration),
+                            set: { keyGuard.setSlowQuitDuration($0) }
+                        )
+                    }
+                    SettingsDivider()
+                    SettingsToggleRow(
+                        Text("Show Confirmation Overlay"),
+                        isOn: Binding(
+                            get: { keyGuard.slowQuitShowOverlay },
+                            set: { keyGuard.setSlowQuitShowOverlay($0) }
+                        )
+                    )
+                    if keyGuard.slowQuitShowOverlay {
+                        SettingsDivider()
+                        SettingsPickerRow(Text("Overlay Style"), selection: Binding(
+                            get: { keyGuard.slowQuitOverlayStyle },
+                            set: { keyGuard.setSlowQuitOverlayStyle($0) }
+                        )) {
+                            Text("Ring").tag(SlowQuitOverlayStyle.ring)
+                            Text("Bar").tag(SlowQuitOverlayStyle.bar)
+                        }
+                    }
+                    SettingsDivider()
+                    SettingsPickerRow(Text("App List Mode"), selection: Binding(
+                        get: { keyGuard.slowQuitListMode },
+                        set: { keyGuard.setSlowQuitListMode($0) }
+                    )) {
+                        Text("All Except Listed").tag(SlowQuitListMode.allExceptListed)
+                        Text("Only Listed Apps").tag(SlowQuitListMode.onlyListedApps)
+                    }
+                }
+            }
+            SettingsDivider()
+            DisclosureGroup("Quit on Close & Idle Apps") {
+                QuitLifecycleOptionsView()
             }
             // 24c, 53d and 53i used to be four comma-separated fields on two pages; they are one
             // table now, and it stays visible whether or not the hold is on, because the
@@ -479,6 +521,20 @@ struct QuitAppRulesTable: View {
                 ForEach(QuitAppRules.Option.allCases) { option in
                     toggle(option, row: row)
                 }
+                Menu {
+                    Button(String(localized: "Default")) { quitOnClose.setIdleAction(nil, for: row.bundleID) }
+                    Button(String(localized: "Keep")) { quitOnClose.setIdleAction(.keep, for: row.bundleID) }
+                    Button(String(localized: "Notify")) { quitOnClose.setIdleAction(.notify, for: row.bundleID) }
+                    Button(String(localized: "Hide")) { quitOnClose.setIdleAction(.hide, for: row.bundleID) }
+                    Button(String(localized: "Quit")) { quitOnClose.setIdleAction(.quit, for: row.bundleID) }
+                } label: {
+                    Image(systemName: idleOverrideSymbol(for: row.bundleID))
+                        .foregroundStyle(quitOnClose.idleAction(for: row.bundleID) == nil ? Color.secondary : Color.accentColor)
+                }
+                .menuStyle(.borderlessButton)
+                .fixedSize()
+                .help(Text("Idle App Rule"))
+                .accessibilityLabel(Text("Idle App Rule"))
                 Button {
                     apply { $0.remove(row.bundleID) }
                 } label: {
@@ -617,6 +673,85 @@ struct QuitAppRulesTable: View {
 
     private static var addition: String {
         String(localized: "Pick a running app, or type the bundle ID of one that is not running. A new app starts in Own ⌘Q — its ⌘Q unchanged — so switch on the column you want, and turn that one off if the app should need the hold.")
+    }
+
+    private func idleOverrideSymbol(for bundleID: String) -> String {
+        switch quitOnClose.idleAction(for: bundleID) {
+        case .keep: return "lock.fill"
+        case .notify: return "bell.fill"
+        case .hide: return "eye.slash.fill"
+        case .quit: return "power"
+        case .off, nil: return "clock"
+        }
+    }
+}
+
+private struct QuitLifecycleOptionsView: View {
+    @ObservedObject var quitService = QuitOnLastWindowService.shared
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SettingsPickerRow(Text("Quit on Close"), selection: Binding(
+                get: { quitService.mode },
+                set: { quitService.setMode($0) }
+            )) {
+                Text("Off").tag(QuitOnCloseMode.off)
+                Text("Selected Apps").tag(QuitOnCloseMode.selectedOnly)
+                Text("All Except Excluded").tag(QuitOnCloseMode.allExceptExcluded)
+            }
+            if quitService.mode != .off {
+                SettingsDivider()
+                SettingsSliderRow(
+                    Text("Close Delay"),
+                    value: quitService.quitDelay,
+                    range: 0.25...5.0,
+                    step: 0.25,
+                    valueText: String(format: "%.2fs", quitService.quitDelay),
+                    set: { quitService.setQuitDelay($0) }
+                )
+            }
+            SettingsDivider()
+            SettingsPickerRow(Text("Idle Apps (Leaf / Quitter)"), selection: Binding(
+                get: { quitService.idleThresholdSeconds > 0 ? quitService.idleAction : .off },
+                set: { action in
+                    if action == .off {
+                        quitService.setIdleThresholdSeconds(0)
+                    } else {
+                        if quitService.idleThresholdSeconds <= 0 {
+                            quitService.setIdleThresholdSeconds(1800)
+                        }
+                        quitService.setIdleAction(action)
+                    }
+                }
+            )) {
+                Text("Off").tag(IdleAppAction.off)
+                Text("Notify to Quit").tag(IdleAppAction.notify)
+                Text("Auto-Hide").tag(IdleAppAction.hide)
+                Text("Auto-Quit").tag(IdleAppAction.quit)
+            }
+            if quitService.idleThresholdSeconds > 0 {
+                SettingsDivider()
+                SettingsPickerRow(Text("Idle After"), selection: Binding(
+                    get: { quitService.idleThresholdSeconds },
+                    set: { quitService.setIdleThresholdSeconds($0) }
+                )) {
+                    Text("15 min").tag(TimeInterval(900))
+                    Text("30 min").tag(TimeInterval(1800))
+                    Text("1 hour").tag(TimeInterval(3600))
+                    Text("2 hours").tag(TimeInterval(7200))
+                }
+                SettingsDivider()
+                SettingsPickerRow(Text("Minimum RAM"), selection: Binding(
+                    get: { quitService.idleMinMemoryMB },
+                    set: { quitService.setIdleMinMemoryMB($0) }
+                )) {
+                    Text("Any").tag(0)
+                    Text("500 MB").tag(500)
+                    Text("1 GB").tag(1024)
+                    Text("2 GB").tag(2048)
+                }
+            }
+        }
     }
 }
 

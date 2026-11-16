@@ -1131,6 +1131,10 @@
 		ED00000000000000000000E1 /* SystemMonitorMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E0 /* SystemMonitorMath.swift */; };
 		ED00000000000000000000E2 /* SystemMonitorMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E0 /* SystemMonitorMath.swift */; };
 		ED00000000000000000000E4 /* SystemMonitorSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E3 /* SystemMonitorSampler.swift */; };
+		98E8EBA98C3757EB1083EE57 /* IdleAppNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFE6DC9809708BCA4360FFD /* IdleAppNotifier.swift */; };
+		387C3AC38ECEEB06F70BE4C4 /* AppMemorySampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25CBE0B832BA102D60470DEE /* AppMemorySampler.swift */; };
+		4CF6ECE6EDB4412E06687E19 /* AppMemorySampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25CBE0B832BA102D60470DEE /* AppMemorySampler.swift */; };
+		3261E8C24E9DF3240E74C4B3 /* IdleAppNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFE6DC9809708BCA4360FFD /* IdleAppNotifier.swift */; };
 		ED00000000000000000000E5 /* SystemMonitorSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E3 /* SystemMonitorSampler.swift */; };
 		ED00000000000000000000E7 /* SystemMonitorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E6 /* SystemMonitorController.swift */; };
 		ED00000000000000000000E9 /* SystemMonitorFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000E8 /* SystemMonitorFlyoutView.swift */; };
@@ -2098,6 +2102,8 @@
 		ED00000000000000000000DE /* CaptureRecognitionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CaptureRecognitionTests.swift; path = Tests/Unit/CaptureRecognitionTests.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000E0 /* SystemMonitorMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorMath.swift; path = Core/Support/SystemMonitorMath.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000E3 /* SystemMonitorSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorSampler.swift; path = Platform/SystemMonitor/SystemMonitorSampler.swift; sourceTree = SOURCE_ROOT; };
+		25CBE0B832BA102D60470DEE /* AppMemorySampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppMemorySampler.swift; path = Platform/SystemMonitor/AppMemorySampler.swift; sourceTree = SOURCE_ROOT; };
+		5CFE6DC9809708BCA4360FFD /* IdleAppNotifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = IdleAppNotifier.swift; path = App/Composition/IdleAppNotifier.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000E6 /* SystemMonitorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorController.swift; path = Platform/SystemMonitor/SystemMonitorController.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000E8 /* SystemMonitorFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorFlyoutView.swift; path = App/Scenes/Edge/SystemMonitorFlyoutView.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000EA /* SystemMonitorMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemMonitorMathTests.swift; path = Tests/Unit/SystemMonitorMathTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2378,6 +2384,7 @@
 				E90000000000000000000002 /* TaskbarDebugSnapshot.swift */,
 				A00000000000000000000003 /* AppComposition.swift */,
 				B70000000000000000000110 /* QuitOnLastWindowService.swift */,
+				5CFE6DC9809708BCA4360FFD /* IdleAppNotifier.swift */,
 				B70000000000000000000120 /* CleanerService.swift */,
 				B10000000000000000000136 /* DisplayTopologyStore.swift */,
 				A0000000000000000000006B /* DrawerStore.swift */,
@@ -3498,6 +3505,8 @@
 				ED00000000000000000000ED /* LauncherAppIndex.swift in Sources */,
 				ED00000000000000000000E1 /* SystemMonitorMath.swift in Sources */,
 				ED00000000000000000000E4 /* SystemMonitorSampler.swift in Sources */,
+				387C3AC38ECEEB06F70BE4C4 /* AppMemorySampler.swift in Sources */,
+				3261E8C24E9DF3240E74C4B3 /* IdleAppNotifier.swift in Sources */,
 				ED00000000000000000000E7 /* SystemMonitorController.swift in Sources */,
 				ED00000000000000000000E9 /* SystemMonitorFlyoutView.swift in Sources */,
 				ED00000000000000000000D4 /* CaptureRules.swift in Sources */,
@@ -3926,6 +3935,7 @@
 				ED00000000000000000000F0 /* LauncherAppIndexTests.swift in Sources */,
 				ED00000000000000000000E2 /* SystemMonitorMath.swift in Sources */,
 				ED00000000000000000000E5 /* SystemMonitorSampler.swift in Sources */,
+				4CF6ECE6EDB4412E06687E19 /* AppMemorySampler.swift in Sources */,
 				ED00000000000000000000EB /* SystemMonitorMathTests.swift in Sources */,
 				5D000000000000000000A012 /* StorageScanMath.swift in Sources */,
 				5D000000000000000000A041 /* StorageScanMathTests.swift in Sources */,
@@ -4192,6 +4202,7 @@
 				A0000000000000000000A282 /* KeyGuardService.swift in Sources */,
 				B70000000000000000000102 /* QuitOnLastWindow.swift in Sources */,
 				B70000000000000000000111 /* QuitOnLastWindowService.swift in Sources */,
+				98E8EBA98C3757EB1083EE57 /* IdleAppNotifier.swift in Sources */,
 				A0000000000000000000A322 /* NotificationMoveService.swift in Sources */,
 				A0000000000000000001F082 /* TilingEngine.swift in Sources */,
 				ED0000000000000000000F6A /* WindowSnapService.swift in Sources */,

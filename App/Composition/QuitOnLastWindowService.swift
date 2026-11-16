@@ -17,11 +17,15 @@ import OSLog
 final class QuitOnLastWindowService: ObservableObject {
     static let shared = QuitOnLastWindowService()
     static let key = "com.katikati.windows.quitOnClose"
+    static let modeKey = "com.katikati.windows.quitOnCloseMode"
+    static let excludedKey = "com.katikati.windows.quitOnCloseExcluded"
+    static let delayKey = "com.katikati.windows.quitOnCloseDelay"
 
     private let log = Logger(subsystem: "com.katikati.app", category: "quitOnClose")
     private var policy = QuitOnLastWindowPolicy()
     private var idlePolicy = IdleAppAutoQuitPolicy()
     private var lastActiveTimes: [String: Date] = [:]
+    private var lastNotifiedAt: [String: Date] = [:]
     private var idleTimer: Timer?
     private var observers: [pid_t: AXObserver] = [:]
     private var sawWindow: Set<pid_t> = []
@@ -30,7 +34,30 @@ final class QuitOnLastWindowService: ObservableObject {
 
     /// Comma/whitespace separated bundle IDs, the same form the key-guard lists use.
     @Published private(set) var apps: String = UserDefaults.standard.string(forKey: QuitOnLastWindowService.key) ?? ""
-    var isEnabled: Bool { !policy.bundleIDs.isEmpty }
+    @Published private(set) var mode: QuitOnCloseMode = {
+        QuitOnCloseMode(rawValue: UserDefaults.standard.string(forKey: QuitOnLastWindowService.modeKey) ?? "") ?? .selectedOnly
+    }()
+    @Published private(set) var excludedApps: String = UserDefaults.standard.string(forKey: QuitOnLastWindowService.excludedKey) ?? ""
+    @Published private(set) var quitDelay: Double = {
+        let stored = UserDefaults.standard.double(forKey: QuitOnLastWindowService.delayKey)
+        return stored > 0 ? QuitOnLastWindowPolicy.clampDelay(stored) : 0.5
+    }()
+
+    // Leaf / Quitter Idle & Heavy App settings
+    @Published private(set) var idleThresholdSeconds: TimeInterval = UserDefaults.standard.double(forKey: IdleAppAutoQuitPolicy.defaultsKey)
+    @Published private(set) var idleAction: IdleAppAction = {
+        IdleAppAction(rawValue: UserDefaults.standard.string(forKey: IdleAppAutoQuitPolicy.actionKey) ?? "") ?? .notify
+    }()
+    @Published private(set) var idleMinMemoryMB: Int = UserDefaults.standard.integer(forKey: IdleAppAutoQuitPolicy.minMemoryMBKey)
+    @Published private(set) var idlePerAppRaw: String = UserDefaults.standard.string(forKey: IdleAppAutoQuitPolicy.perAppActionsKey) ?? ""
+
+    var isEnabled: Bool {
+        switch mode {
+        case .off: return false
+        case .selectedOnly: return !policy.bundleIDs.isEmpty
+        case .allExceptExcluded: return true
+        }
+    }
 
     // MARK: lifecycle
 
@@ -77,19 +104,21 @@ final class QuitOnLastWindowService: ObservableObject {
 
     /// Re-read the opt-in list. Called at launch and whenever Settings edits it.
     func refresh() {
-        policy = QuitOnLastWindowPolicy.parse(apps)
+        policy = QuitOnLastWindowPolicy.parse(apps, mode: mode, excludedRaw: excludedApps)
         guard isEnabled, AXIsProcessTrusted() else {
             dropAllObservers()
             return
         }
         for pid in Array(observers.keys) {
             guard let app = NSRunningApplication(processIdentifier: pid),
+                  app.activationPolicy == .regular,
                   policy.applies(to: app.bundleIdentifier) else {
                 dropObserver(pid)
                 continue
             }
         }
-        for app in NSWorkspace.shared.runningApplications where policy.applies(to: app.bundleIdentifier) {
+        for app in NSWorkspace.shared.runningApplications
+            where app.activationPolicy == .regular && policy.applies(to: app.bundleIdentifier) {
             track(app)
         }
     }
@@ -101,20 +130,116 @@ final class QuitOnLastWindowService: ObservableObject {
         refresh()
     }
 
-    // MARK: idle auto-quit (Slice 3.2: SC-AutoQuitIdle)
+    func setMode(_ newMode: QuitOnCloseMode) {
+        guard newMode != mode else { return }
+        mode = newMode
+        UserDefaults.standard.set(newMode.rawValue, forKey: Self.modeKey)
+        refresh()
+    }
 
-    func evaluateIdleApps(now: Date = Date(), isPlayingMedia: Bool = false, isAgentWorking: Bool = false) {
-        let threshold = UserDefaults.standard.double(forKey: IdleAppAutoQuitPolicy.defaultsKey)
-        idlePolicy = IdleAppAutoQuitPolicy(idleThresholdSeconds: threshold)
+    func setExcludedApps(_ raw: String) {
+        guard raw != excludedApps else { return }
+        excludedApps = raw
+        UserDefaults.standard.set(raw, forKey: Self.excludedKey)
+        refresh()
+    }
+
+    func setQuitDelay(_ seconds: Double) {
+        let clamped = QuitOnLastWindowPolicy.clampDelay(seconds)
+        guard clamped != quitDelay else { return }
+        quitDelay = clamped
+        UserDefaults.standard.set(clamped, forKey: Self.delayKey)
+    }
+
+    func setIdleThresholdSeconds(_ seconds: TimeInterval) {
+        guard seconds != idleThresholdSeconds else { return }
+        idleThresholdSeconds = seconds
+        UserDefaults.standard.set(seconds, forKey: IdleAppAutoQuitPolicy.defaultsKey)
+    }
+
+    func setIdleAction(_ action: IdleAppAction) {
+        guard action != idleAction else { return }
+        idleAction = action
+        UserDefaults.standard.set(action.rawValue, forKey: IdleAppAutoQuitPolicy.actionKey)
+        if action == .notify { IdleAppNotifier.shared.registerCategoryIfNeeded() }
+    }
+
+    func setIdleMinMemoryMB(_ mb: Int) {
+        guard mb != idleMinMemoryMB else { return }
+        idleMinMemoryMB = mb
+        UserDefaults.standard.set(mb, forKey: IdleAppAutoQuitPolicy.minMemoryMBKey)
+    }
+
+    func idleAction(for bundleID: String) -> IdleAppAction? {
+        IdleAppAutoQuitPolicy.parsePerAppActions(idlePerAppRaw)[bundleID]
+    }
+
+    func setIdleAction(_ action: IdleAppAction?, for bundleID: String) {
+        var map = IdleAppAutoQuitPolicy.parsePerAppActions(idlePerAppRaw)
+        if let action, action != .off {
+            map[bundleID] = action
+        } else {
+            map.removeValue(forKey: bundleID)
+        }
+        let serialized = IdleAppAutoQuitPolicy.serializePerAppActions(map)
+        guard serialized != idlePerAppRaw else { return }
+        idlePerAppRaw = serialized
+        UserDefaults.standard.set(serialized, forKey: IdleAppAutoQuitPolicy.perAppActionsKey)
+    }
+
+    // MARK: idle & heavy app management (Leaf + Quitter)
+
+    func evaluateIdleApps(now: Date = Date(), isPlayingMedia: Bool? = nil, isAgentWorking: Bool = false) {
+        let threshold = idleThresholdSeconds
+        let minBytes = UInt64(max(0, idleMinMemoryMB)) * 1024 * 1024
+        let perApp = IdleAppAutoQuitPolicy.parsePerAppActions(idlePerAppRaw)
+        idlePolicy = IdleAppAutoQuitPolicy(
+            idleThresholdSeconds: threshold,
+            defaultAction: idleAction,
+            minMemoryBytes: minBytes,
+            perAppActions: perApp
+        )
         guard threshold > 0 else { return }
 
+        let mediaOrCallActive = isPlayingMedia ?? (PrivacyUseProbe.microphoneInUse() || PrivacyUseProbe.cameraInUse())
+
         for app in NSWorkspace.shared.runningApplications {
-            guard let bundleID = app.bundleIdentifier, !app.isActive else { continue }
+            guard app.activationPolicy == .regular,
+                  let bundleID = app.bundleIdentifier,
+                  !app.isActive else { continue }
             let lastActive = lastActiveTimes[bundleID] ?? app.launchDate ?? now
             let idleDuration = now.timeIntervalSince(lastActive)
-            if idlePolicy.shouldQuit(bundleID: bundleID, idleDuration: idleDuration, isPlayingMedia: isPlayingMedia, isAgentWorking: isAgentWorking) {
+            let memoryBytes = AppMemorySampler.physicalFootprintBytes(for: app.processIdentifier)
+
+            guard let resolved = idlePolicy.resolvedAction(
+                bundleID: bundleID,
+                idleDuration: idleDuration,
+                memoryBytes: memoryBytes,
+                isPlayingMedia: mediaOrCallActive,
+                isAgentWorking: isAgentWorking
+            ) else { continue }
+
+            switch resolved {
+            case .quit:
                 log.info("Auto-quitting idle application: \(bundleID, privacy: .public)")
                 app.terminate()
+            case .hide:
+                guard !app.isHidden else { continue }
+                log.info("Auto-hiding idle application: \(bundleID, privacy: .public)")
+                app.hide()
+            case .notify:
+                if let last = lastNotifiedAt[bundleID], now.timeIntervalSince(last) < 1800 { continue }
+                lastNotifiedAt[bundleID] = now
+                let name = app.localizedName ?? bundleID
+                IdleAppNotifier.shared.post(
+                    appName: name,
+                    bundleID: bundleID,
+                    pid: app.processIdentifier,
+                    idleMinutes: max(1, Int(idleDuration / 60)),
+                    memoryBytes: memoryBytes
+                )
+            case .off, .keep:
+                break
             }
         }
     }
@@ -122,7 +247,7 @@ final class QuitOnLastWindowService: ObservableObject {
     // MARK: observation
 
     private func track(_ app: NSRunningApplication?) {
-        guard let app, policy.applies(to: app.bundleIdentifier), AXIsProcessTrusted() else { return }
+        guard let app, app.activationPolicy == .regular, policy.applies(to: app.bundleIdentifier), AXIsProcessTrusted() else { return }
         let pid = app.processIdentifier
         if let observer = observers[pid] {
             watchWindows(of: pid, observer: observer)
@@ -151,6 +276,7 @@ final class QuitOnLastWindowService: ObservableObject {
 
     fileprivate func handleAXEvent(pid: pid_t) {
         guard observers[pid] != nil, let app = NSRunningApplication(processIdentifier: pid),
+              app.activationPolicy == .regular,
               policy.applies(to: app.bundleIdentifier) else { return }
         let windows = Self.windows(of: pid)
         if let windows, !windows.isEmpty {
@@ -165,12 +291,13 @@ final class QuitOnLastWindowService: ObservableObject {
             MainActor.assumeIsolated { self?.quitIfStillWindowless(pid) }
         }
         pendingChecks[pid] = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + quitDelay, execute: work)
     }
 
     private func quitIfStillWindowless(_ pid: pid_t) {
         pendingChecks[pid] = nil
         guard let app = NSRunningApplication(processIdentifier: pid),
+              app.activationPolicy == .regular,
               policy.applies(to: app.bundleIdentifier),
               Self.windows(of: pid).map({ $0.isEmpty }) == true else { return }
         sawWindow.remove(pid)
@@ -203,7 +330,20 @@ final class QuitOnLastWindowService: ObservableObject {
         let app = AXUIElementCreateApplication(pid)
         var value: CFTypeRef?
         guard AXUIElementCopyAttributeValue(app, kAXWindowsAttribute as CFString, &value) == .success else { return nil }
-        return (value as? [AXUIElement]) ?? []
+        let raw = (value as? [AXUIElement]) ?? []
+        return raw.filter { window in
+            var subroleRef: CFTypeRef?
+            let subrole = AXUIElementCopyAttributeValue(window, kAXSubroleAttribute as CFString, &subroleRef) == .success
+                ? (subroleRef as? String)
+                : nil
+            var sizeRef: CFTypeRef?
+            var size = CGSize(width: 100, height: 100)
+            if AXUIElementCopyAttributeValue(window, kAXSizeAttribute as CFString, &sizeRef) == .success,
+               let axValue = sizeRef, CFGetTypeID(axValue) == AXValueGetTypeID() {
+                AXValueGetValue(axValue as! AXValue, .cgSize, &size)
+            }
+            return QuitOnLastWindowPolicy.isCountableWindow(subrole: subrole, size: size)
+        }
     }
 }
 

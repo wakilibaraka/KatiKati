@@ -1,19 +1,35 @@
+import CoreGraphics
 import Foundation
 
-/// 53d: which apps may be quit when their last window closes. Empty by default — quitting can end in the
-/// app's own save prompt, so the owner opts in per bundle ID and the service only acts on a window count
-/// that went from "some" to "none".
+enum QuitOnCloseMode: String, CaseIterable, Identifiable, Sendable {
+    case off
+    case selectedOnly
+    case allExceptExcluded
+    var id: String { rawValue }
+}
+
+/// 53d: which apps may be quit when their last window closes. Off by default and list-driven, because leaving
+/// an app running is the safe default and quitting one can end in the app's own save prompt.
 struct QuitOnLastWindowPolicy: Equatable, Sendable {
     /// Never ours, whatever a stored list says: the Finder and KatiKati itself are system surfaces.
     static let alwaysIgnored: Set<String> = [
         "com.apple.finder", "com.apple.dock", "com.apple.systemuiserver", "com.katikati.app",
     ]
 
+    var mode: QuitOnCloseMode = .selectedOnly
     var bundleIDs: Set<String> = []
+    var excludedBundleIDs: Set<String> = []
 
     func applies(to bundleID: String?) -> Bool {
         guard let id = bundleID, Self.allowsQuitOnClose(id) else { return false }
-        return bundleIDs.contains(id)
+        switch mode {
+        case .off:
+            return false
+        case .selectedOnly:
+            return bundleIDs.contains(id)
+        case .allExceptExcluded:
+            return !excludedBundleIDs.contains(id)
+        }
     }
 
     /// False for the surfaces the service refuses whatever a stored list says. The app-rules table
@@ -24,8 +40,10 @@ struct QuitOnLastWindowPolicy: Equatable, Sendable {
     }
 
     /// Comma/whitespace separated, the same form the key-guard lists use. Empty means off.
-    static func parse(_ raw: String) -> QuitOnLastWindowPolicy {
-        QuitOnLastWindowPolicy(bundleIDs: Set(raw.split { $0 == "," || $0.isWhitespace }.map(String.init)))
+    static func parse(_ raw: String, mode: QuitOnCloseMode = .selectedOnly, excludedRaw: String = "") -> QuitOnLastWindowPolicy {
+        let selected = Set(raw.split { $0 == "," || $0.isWhitespace }.map(String.init))
+        let excluded = Set(excludedRaw.split { $0 == "," || $0.isWhitespace }.map(String.init))
+        return QuitOnLastWindowPolicy(mode: mode, bundleIDs: selected, excludedBundleIDs: excluded)
     }
 
     /// True only for the transition the feature is named after: the app had a window and now has none.
@@ -33,6 +51,17 @@ struct QuitOnLastWindowPolicy: Equatable, Sendable {
     static func shouldQuit(hadWindow: Bool, windowCount: Int?) -> Bool {
         guard let windowCount else { return false }
         return hadWindow && windowCount == 0
+    }
+
+    /// Filters out zero-size or non-standard helper/popover windows (common in Electron/Chromium apps).
+    static func isCountableWindow(subrole: String?, size: CGSize) -> Bool {
+        guard size.width > 1, size.height > 1 else { return false }
+        guard let subrole else { return true }
+        return subrole == "AXStandardWindow" || subrole == "AXDialog"
+    }
+
+    static func clampDelay(_ seconds: TimeInterval) -> TimeInterval {
+        min(max(seconds, 0.25), 5.0)
     }
 }
 
@@ -189,11 +218,23 @@ struct QuitAppRules: Equatable, Sendable {
     }
 }
 
-// MARK: - Idle App Auto-Quit Policy (Slice 3.2: SC-AutoQuitIdle)
+// MARK: - Idle & Heavy App Policy (Leaf + Quitter Integration)
 
-/// Pure policy evaluating automatic termination of idle background applications.
+enum IdleAppAction: String, CaseIterable, Identifiable, Sendable {
+    case off
+    case notify
+    case hide
+    case quit
+    case keep
+    var id: String { rawValue }
+}
+
+/// Pure policy evaluating automatic notification, hiding, or termination of idle background applications.
 struct IdleAppAutoQuitPolicy: Equatable, Sendable {
     static let defaultsKey = "com.katikati.apps.autoQuitIdleSeconds"
+    static let actionKey = "com.katikati.apps.idleAction"
+    static let minMemoryMBKey = "com.katikati.apps.idleMinMemoryMB"
+    static let perAppActionsKey = "com.katikati.apps.idlePerAppActions"
 
     static let protectedPrefixes: [String] = [
         "com.apple.",
@@ -201,9 +242,20 @@ struct IdleAppAutoQuitPolicy: Equatable, Sendable {
     ]
 
     var idleThresholdSeconds: TimeInterval
+    var defaultAction: IdleAppAction
+    var minMemoryBytes: UInt64
+    var perAppActions: [String: IdleAppAction]
 
-    init(idleThresholdSeconds: TimeInterval = 0) {
+    init(
+        idleThresholdSeconds: TimeInterval = 0,
+        defaultAction: IdleAppAction = .quit,
+        minMemoryBytes: UInt64 = 0,
+        perAppActions: [String: IdleAppAction] = [:]
+    ) {
         self.idleThresholdSeconds = idleThresholdSeconds
+        self.defaultAction = defaultAction
+        self.minMemoryBytes = minMemoryBytes
+        self.perAppActions = perAppActions
     }
 
     static func isEligible(bundleID: String?) -> Bool {
@@ -214,15 +266,55 @@ struct IdleAppAutoQuitPolicy: Equatable, Sendable {
         return true
     }
 
+    func resolvedAction(
+        bundleID: String?,
+        idleDuration: TimeInterval,
+        memoryBytes: UInt64 = 0,
+        isPlayingMedia: Bool = false,
+        isAgentWorking: Bool = false
+    ) -> IdleAppAction? {
+        guard idleThresholdSeconds > 0 else { return nil }
+        guard Self.isEligible(bundleID: bundleID), let bundleID else { return nil }
+        guard !isPlayingMedia && !isAgentWorking else { return nil }
+
+        let effective = perAppActions[bundleID] ?? defaultAction
+        guard effective != .off, effective != .keep else { return nil }
+        guard idleDuration >= idleThresholdSeconds else { return nil }
+        if minMemoryBytes > 0, memoryBytes < minMemoryBytes { return nil }
+        return effective
+    }
+
     func shouldQuit(
         bundleID: String?,
         idleDuration: TimeInterval,
         isPlayingMedia: Bool = false,
         isAgentWorking: Bool = false
     ) -> Bool {
-        guard idleThresholdSeconds > 0 else { return false }
-        guard Self.isEligible(bundleID: bundleID) else { return false }
-        guard !isPlayingMedia && !isAgentWorking else { return false }
-        return idleDuration >= idleThresholdSeconds
+        resolvedAction(
+            bundleID: bundleID,
+            idleDuration: idleDuration,
+            isPlayingMedia: isPlayingMedia,
+            isAgentWorking: isAgentWorking
+        ) == .quit
+    }
+
+    static func parsePerAppActions(_ raw: String) -> [String: IdleAppAction] {
+        var result: [String: IdleAppAction] = [:]
+        for entry in raw.split(separator: ",") {
+            let parts = entry.trimmingCharacters(in: .whitespaces).split(separator: "=", maxSplits: 1)
+            guard parts.count == 2 else { continue }
+            let id = String(parts[0]).trimmingCharacters(in: .whitespaces)
+            if let action = IdleAppAction(rawValue: String(parts[1]).trimmingCharacters(in: .whitespaces)) {
+                result[id] = action
+            }
+        }
+        return result
+    }
+
+    static func serializePerAppActions(_ map: [String: IdleAppAction]) -> String {
+        map.keys.sorted().compactMap { key in
+            guard let action = map[key], action != .off else { return nil }
+            return "\(key)=\(action.rawValue)"
+        }.joined(separator: ", ")
     }
 }
