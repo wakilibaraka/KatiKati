@@ -90,9 +90,9 @@
     "semantic_hash": "e3340978a32c952d8d52b586fb0c6d2d"
   },
   "App/Composition/DailyHelpersService.swift": {
-    "mtime": 1792546837.2950015,
-    "seen": 1792546949.4857202,
-    "ast_hash": "7ac2b74e1148cedc4e77d7d457d2b20e",
+    "mtime": 1794856194.6889172,
+    "seen": 1794856351.970565,
+    "ast_hash": "3b12142c453b51c4fdc1d9af1b3ffc40",
     "semantic_hash": ""
   },
   "App/Composition/DiagnosticReport.swift": {
@@ -1668,9 +1668,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DailyHelpersRules.swift": {
-    "mtime": 1794846693.6054142,
-    "seen": 1794846824.511063,
-    "ast_hash": "e47f622dabcc620a7708b5e582c3f487",
+    "mtime": 1794856176.4172292,
+    "seen": 1794856351.970838,
+    "ast_hash": "0afee4b018fce36056e64d1f5d412634",
     "semantic_hash": ""
   },
   "Core/Support/DebugSwitch.swift": {
@@ -3312,9 +3312,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DailyHelpersRulesTests.swift": {
-    "mtime": 1794846710.8844602,
-    "seen": 1794846824.5113442,
-    "ast_hash": "13a2d3e2eb6ad47e372823c34a6b85ea",
+    "mtime": 1794856310.2973492,
+    "seen": 1794856351.971103,
+    "ast_hash": "a411c9e1480e799e26a86cc196613c9a",
     "semantic_hash": ""
   },
   "Tests/Unit/DebugSwitchTests.swift": {
