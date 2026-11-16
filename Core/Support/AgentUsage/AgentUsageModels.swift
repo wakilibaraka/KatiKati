@@ -336,3 +336,35 @@ enum AgentBudgetPreset: String, CaseIterable, Sendable {
         return min(1.0, max(0.0, todayCost / cap))
     }
 }
+
+// MARK: - Lumabar Dual-Bar AI Limit Tile (Slice 4.4)
+
+struct AILimitBarTileSummary: Equatable, Sendable {
+    let providerName: String // "Claude", "ChatGPT", "Gemini", "Cursor", "OpenCode"
+    let sessionPercent: Int // e.g. 74%
+    let sessionResetCountdown: String // e.g. "1h 39m"
+    let weeklyPercent: Int // e.g. 45%
+    let weeklyResetDay: String // e.g. "Fri"
+    let tokenFormatted: String // e.g. "Opus 4.5 • 38.2M"
+
+    static func formatTokens(_ totalTokens: Int, model: String = "Opus 4.5") -> String {
+        let millions = Double(totalTokens) / 1_000_000.0
+        if millions >= 0.1 {
+            return String(format: "%@ • %.1fM", model, millions)
+        } else {
+            let thousands = Double(totalTokens) / 1_000.0
+            return String(format: "%@ • %.0fK", model, thousands)
+        }
+    }
+
+    static func formatCountdown(seconds: TimeInterval) -> String {
+        guard seconds > 0 else { return "0m" }
+        let hours = Int(seconds) / 3600
+        let minutes = (Int(seconds) % 3600) / 60
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else {
+            return "\(max(1, minutes))m"
+        }
+    }
+}

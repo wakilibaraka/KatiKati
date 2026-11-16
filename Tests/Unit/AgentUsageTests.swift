@@ -485,4 +485,27 @@ final class AgentUsageTests: XCTestCase {
         XCTAssertEqual(receipt.items[0].id, "time")
         XCTAssertEqual(receipt.items[1].id, "cost")
     }
+
+    // MARK: - Slice 4.4: Lumabar Dual-Bar AI Limit Tile Tests
+
+    func testAILimitBarTileSummary() {
+        XCTAssertEqual(AILimitBarTileSummary.formatTokens(38_200_000, model: "Opus 4.5"), "Opus 4.5 • 38.2M")
+        XCTAssertEqual(AILimitBarTileSummary.formatTokens(45_000, model: "Sonnet 3.7"), "Sonnet 3.7 • 45K")
+
+        XCTAssertEqual(AILimitBarTileSummary.formatCountdown(seconds: 5940), "1h 39m") // 5940s = 1h 39m
+        XCTAssertEqual(AILimitBarTileSummary.formatCountdown(seconds: 45), "1m")
+        XCTAssertEqual(AILimitBarTileSummary.formatCountdown(seconds: 0), "0m")
+
+        let summary = AILimitBarTileSummary(
+            providerName: "Claude",
+            sessionPercent: 74,
+            sessionResetCountdown: "1h 39m",
+            weeklyPercent: 45,
+            weeklyResetDay: "Fri",
+            tokenFormatted: "Opus 4.5 • 38.2M"
+        )
+        XCTAssertEqual(summary.providerName, "Claude")
+        XCTAssertEqual(summary.sessionPercent, 74)
+        XCTAssertEqual(summary.weeklyPercent, 45)
+    }
 }

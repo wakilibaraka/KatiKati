@@ -311,4 +311,54 @@ final class GlanceStackTests: XCTestCase {
         let topOffset = NotchFallbackPlan.topDockOffset(menuBarHeight: 24, screenEdge: .top)
         XCTAssertEqual(topOffset, 32)
     }
+
+    // MARK: - Slice 4.4: Lumabar Signature Time, Progress & Timeline Tests
+
+    func testDotMatrixProgressModel() {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(secondsFromGMT: 0)!
+        cal.locale = Locale(identifier: "en_US_POSIX")
+        let midMonth = cal.date(from: DateComponents(year: 2026, month: 10, day: 20))!
+
+        let monthModel = DotMatrixProgressModel(scope: .month, date: midMonth, calendar: cal, locale: Locale(identifier: "en_US_POSIX"), dotCount: 20)
+        XCTAssertEqual(monthModel.totalDots, 20)
+        XCTAssertGreaterThan(monthModel.percent, 0)
+        XCTAssertLessThanOrEqual(monthModel.percent, 100)
+        XCTAssertGreaterThan(monthModel.litDots, 0)
+        XCTAssertLessThanOrEqual(monthModel.litDots, 20)
+        XCTAssertTrue(monthModel.label.contains("Oct 2026"))
+
+        let yearModel = DotMatrixProgressModel(scope: .year, date: midMonth, calendar: cal, dotCount: 20)
+        XCTAssertEqual(yearModel.totalDots, 20)
+        XCTAssertGreaterThan(yearModel.percent, 50)
+        XCTAssertTrue(yearModel.label.contains("2026"))
+    }
+
+    func testFlipClockDigitsAndDayTimeline() {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(secondsFromGMT: 0)!
+        let sampleDate = cal.date(from: DateComponents(year: 2026, month: 10, day: 20, hour: 15, minute: 49, second: 0))!
+
+        // 12-hour: 03 | 49 PM
+        let d12 = FlipClockDigits(date: sampleDate, calendar: cal, is24Hour: false)
+        XCTAssertEqual(d12.hourString, "03")
+        XCTAssertEqual(d12.minuteString, "49")
+        XCTAssertEqual(d12.amPm, "PM")
+        XCTAssertEqual(d12.formattedDisplay, "03 | 49 PM")
+
+        // 24-hour: 15 : 49
+        let d24 = FlipClockDigits(date: sampleDate, calendar: cal, is24Hour: true)
+        XCTAssertEqual(d24.hourString, "15")
+        XCTAssertEqual(d24.minuteString, "49")
+        XCTAssertEqual(d24.amPm, "")
+
+        // Timeline Needle
+        let fraction = DayTimelineBarMath.currentNeedleFraction(date: sampleDate, calendar: cal)
+        XCTAssertEqual(fraction, (15.0 * 3600 + 49.0 * 60) / 86400.0, accuracy: 0.001)
+
+        // 7-day week strip
+        let week = DayTimelineBarMath.weekStripDays(around: sampleDate, calendar: cal)
+        XCTAssertEqual(week.count, 7)
+        XCTAssertTrue(week.contains(where: { $0.isToday }))
+    }
 }

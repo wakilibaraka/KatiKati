@@ -387,3 +387,111 @@ enum NextEventCountdown {
         starts.filter { $0 > now }.min()
     }
 }
+
+// MARK: - Lumabar Signature Models (Slice 4.4)
+
+enum ProgressScope: String, CaseIterable, Sendable {
+    case month, year
+}
+
+struct DotMatrixProgressModel: Equatable, Sendable {
+    let scope: ProgressScope
+    let totalDots: Int
+    let litDots: Int
+    let percent: Int
+    let label: String
+
+    init(scope: ProgressScope, date: Date = Date(), calendar: Calendar = .current, locale: Locale = .current, dotCount: Int = 20) {
+        self.scope = scope
+        self.totalDots = max(1, dotCount)
+
+        switch scope {
+        case .month:
+            let day = calendar.component(.day, from: date)
+            let range = calendar.range(of: .day, in: .month, for: date) ?? 1..<31
+            let totalDays = range.count
+            let pct = Double(day) / Double(totalDays)
+            self.percent = Int((pct * 100).rounded())
+            self.litDots = min(self.totalDots, max(0, Int((pct * Double(self.totalDots)).rounded())))
+            var calWithLocale = calendar
+            calWithLocale.locale = locale
+            let monthName = calWithLocale.shortMonthSymbols[calendar.component(.month, from: date) - 1]
+            let year = calendar.component(.year, from: date)
+            self.label = "\(monthName) \(year) • \(self.percent)%"
+        case .year:
+            let dayOfYear = calendar.ordinality(of: .day, in: .year, for: date) ?? 1
+            let totalDays = calendar.range(of: .day, in: .year, for: date)?.count ?? 365
+            let pct = Double(dayOfYear) / Double(totalDays)
+            self.percent = Int((pct * 100).rounded())
+            self.litDots = min(self.totalDots, max(0, Int((pct * Double(self.totalDots)).rounded())))
+            let year = calendar.component(.year, from: date)
+            self.label = "\(year) • \(self.percent)%"
+        }
+    }
+}
+
+struct FlipClockDigits: Equatable, Sendable {
+    let hourString: String
+    let minuteString: String
+    let amPm: String
+
+    init(date: Date = Date(), calendar: Calendar = .current, is24Hour: Bool = false) {
+        let hour = calendar.component(.hour, from: date)
+        let minute = calendar.component(.minute, from: date)
+
+        self.minuteString = String(format: "%02d", minute)
+        if is24Hour {
+            self.hourString = String(format: "%02d", hour)
+            self.amPm = ""
+        } else {
+            let h12 = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour)
+            self.hourString = String(format: "%02d", h12)
+            self.amPm = hour >= 12 ? "PM" : "AM"
+        }
+    }
+
+    var formattedDisplay: String {
+        amPm.isEmpty ? "\(hourString) : \(minuteString)" : "\(hourString) | \(minuteString) \(amPm)"
+    }
+}
+
+struct DayTimelineEventSegment: Equatable, Sendable {
+    let startFraction: Double // 0.0 ... 1.0 (0h to 24h)
+    let endFraction: Double
+    let title: String
+}
+
+struct DayTimelineBarMath: Equatable, Sendable {
+    /// Computes the fraction of the day elapsed for the time needle (0.0 ... 1.0).
+    static func currentNeedleFraction(date: Date = Date(), calendar: Calendar = .current) -> Double {
+        let hour = calendar.component(.hour, from: date)
+        let minute = calendar.component(.minute, from: date)
+        let second = calendar.component(.second, from: date)
+        let totalSeconds = Double(hour * 3600 + minute * 60 + second)
+        return min(max(totalSeconds / 86400.0, 0.0), 1.0)
+    }
+
+    /// Converts a start and end time into 24h fractions.
+    static func eventSegment(start: Date, end: Date, on day: Date, calendar: Calendar = .current) -> (start: Double, end: Double)? {
+        guard let dayStart = calendar.date(from: calendar.dateComponents([.year, .month, .day], from: day)) else { return nil }
+        let s = start.timeIntervalSince(dayStart) / 86400.0
+        let e = end.timeIntervalSince(dayStart) / 86400.0
+        guard e > 0 && s < 1.0 else { return nil }
+        return (start: min(max(s, 0.0), 1.0), end: min(max(e, 0.0), 1.0))
+    }
+
+    /// Formats a 7-day week strip (e.g. "Mo 20 ... Su 26").
+    static func weekStripDays(around date: Date = Date(), calendar: Calendar = .current) -> [(shortDay: String, dayNumber: Int, isToday: Bool)] {
+        guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: date) else { return [] }
+        let todayComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        return (0..<7).compactMap { dayOffset in
+            guard let dayDate = calendar.date(byAdding: .day, value: dayOffset, to: weekInterval.start) else { return nil }
+            let dayNum = calendar.component(.day, from: dayDate)
+            let weekday = calendar.component(.weekday, from: dayDate)
+            let shortName = calendar.shortWeekdaySymbols[weekday - 1]
+            let dayComponents = calendar.dateComponents([.year, .month, .day], from: dayDate)
+            let isToday = dayComponents == todayComponents
+            return (shortDay: String(shortName.prefix(2)), dayNumber: dayNum, isToday: isToday)
+        }
+    }
+}
