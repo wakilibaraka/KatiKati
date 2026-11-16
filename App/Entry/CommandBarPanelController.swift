@@ -256,6 +256,13 @@ final class CommandBarPanelController {
                     NSWorkspace.shared.open(url)
                 }
             }
+        case .searchFilesFallback(let term):
+            model.query = "f \(term)"
+        case .askAI(let term):
+            dismiss()
+            if let url = URL(string: "https://duckduckgo.com/?q=" + (("! " + term).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")) {
+                NSWorkspace.shared.open(url)
+            }
         }
     }
 

@@ -290,6 +290,14 @@ struct CommandBarView: View {
                         .font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1)
                 }
                 Spacer(minLength: 0)
+            case .searchFilesFallback(let term):
+                Text("Search Files")
+                Text(verbatim: term).foregroundColor(.secondary).lineLimit(1)
+                Spacer(minLength: 0)
+            case .askAI(let term):
+                Text("Ask AI")
+                Text(verbatim: term).foregroundColor(.secondary).lineLimit(1)
+                Spacer(minLength: 0)
             }
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
@@ -347,6 +355,10 @@ struct CommandBarView: View {
             Image(systemName: "filemenu.and.selection").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .quicklink:
             Image(systemName: "link").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .searchFilesFallback:
+            Image(systemName: "doc.text.magnifyingglass").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        case .askAI:
+            Image(systemName: "sparkles").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         }
     }
 }

@@ -113,9 +113,10 @@ final class CommandGeneratorTests: XCTestCase {
     func testSystemKeywordsMatch() {
         XCTAssertEqual(CommandGenerator.match("json"), .formatJSON)
         XCTAssertEqual(CommandGenerator.match("ip"), .ipAddress)
-        XCTAssertEqual(CommandGenerator.match("wifi"), .wifiPassword)
+        XCTAssertEqual(CommandGenerator.match("wifipw"), .wifiPassword)
         XCTAssertTrue(CommandGenerator.formatJSON.isSystemBacked)
         XCTAssertFalse(CommandGenerator.uuid.isSystemBacked)
+        XCTAssertFalse(CommandGenerator.matching("pass").isEmpty)
     }
 
     func testPrettyJSON() {
@@ -168,6 +169,46 @@ final class CommandKeywordTests: XCTestCase {
         XCTAssertEqual(CommandKeyword.parse("sc My Shortcut"), .mode(.shortcut, "My Shortcut"))
         XCTAssertNil(CommandKeyword.parse("kill"), "no trailing space → not a mode")
         XCTAssertNil(CommandKeyword.parse("hello world"))
+
+        // Space delimiter allows empty argument to activate mode
+        XCTAssertEqual(CommandKeyword.parse("clip "), .mode(.clipboard, ""))
+        XCTAssertEqual(CommandKeyword.parse("c "), .mode(.clipboard, ""))
+        XCTAssertEqual(CommandKeyword.parse("emoji "), .mode(.emoji, ""))
+        XCTAssertEqual(CommandKeyword.parse("emo "), .mode(.emoji, ""))
+        XCTAssertEqual(CommandKeyword.parse("bm "), .mode(.bookmark, ""))
+        XCTAssertEqual(CommandKeyword.parse("kill "), .mode(.kill, ""))
+        XCTAssertEqual(CommandKeyword.parse("fq "), .mode(.forceQuit, ""))
+        XCTAssertEqual(CommandKeyword.parse("m "), .mode(.menu, ""))
+        XCTAssertEqual(CommandKeyword.parse("profile "), .mode(.profile, ""))
+        XCTAssertEqual(CommandKeyword.parse("bs git"), .mode(.brewSearch, "git"))
+    }
+
+    func testWindowManagementMacros() {
+        XCTAssertEqual(CommandKeyword.parse("left"), .macro(.snapLeft))
+        XCTAssertEqual(CommandKeyword.parse("maximize"), .macro(.snapMaximize))
+        XCTAssertEqual(BarMacro.snapLeft.snapPosition, .leftHalf)
+        XCTAssertEqual(BarMacro.snapMaximize.snapPosition, .maximize)
+        XCTAssertFalse(BarMacro.matching("snap").isEmpty)
+        XCTAssertEqual(BarMacro.snapLeft.title, "Left Half")
+        XCTAssertEqual(BarMacro.snapLeft.subtitle, "Snap Frontmost Window")
+    }
+
+    func testGuardedInlineMath() {
+        XCTAssertEqual(LauncherAnswers.inlineMathAnswer(for: "24 * 7"), .math(expression: "24 * 7", value: "168"))
+        XCTAssertEqual(LauncherAnswers.inlineMathAnswer(for: "100 / 4"), .math(expression: "100 / 4", value: "25"))
+        XCTAssertNil(LauncherAnswers.inlineMathAnswer(for: "claude-3-5-sonnet"))
+        XCTAssertNil(LauncherAnswers.inlineMathAnswer(for: "utf-8"))
+        XCTAssertNil(LauncherAnswers.inlineMathAnswer(for: "gpt-4o-mini"))
+        XCTAssertNil(LauncherAnswers.inlineMathAnswer(for: "safari"))
+    }
+
+    func testFallbackRowsOnNoMatch() {
+        let rows = CommandBarResults.build(query: "xyznonexistent", apps: [], usage: [:], running: [])
+        XCTAssertEqual(rows, [
+            .answer(.web(query: "xyznonexistent")),
+            .searchFilesFallback("xyznonexistent"),
+            .askAI("xyznonexistent")
+        ])
     }
 
     func testMacroRow() {
@@ -336,6 +377,12 @@ final class CommandBarResultIdentityTests: XCTestCase {
 
         let path = CommandBarResult.path("/tmp/folder")
         XCTAssertEqual(path.id, "path:/tmp/folder")
+
+        let searchFallback = CommandBarResult.searchFilesFallback("term")
+        XCTAssertEqual(searchFallback.id, "fallback:files:term")
+
+        let askAI = CommandBarResult.askAI("term")
+        XCTAssertEqual(askAI.id, "fallback:ai:term")
     }
 
     /// ⌘Space is Spotlight's and ⌃Space switches input sources. Registering them succeeds, but macOS

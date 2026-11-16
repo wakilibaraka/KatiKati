@@ -74,6 +74,10 @@ enum CommandBarResult: Equatable, Sendable, Identifiable {
     case define(String)
     /// Port plan #4′: a user-defined quicklink template with its optional `{query}` argument.
     case quicklink(Quicklink, argument: String)
+    /// Fallback row to search files across the system when direct search has no match.
+    case searchFilesFallback(String)
+    /// Fallback row to ask AI when direct search has no match.
+    case askAI(String)
 
     var id: String {
         switch self {
@@ -84,6 +88,10 @@ enum CommandBarResult: Equatable, Sendable, Identifiable {
             case .web(let query):
                 return "answer:web:\(query)"
             }
+        case .searchFilesFallback(let term):
+            return "fallback:files:\(term)"
+        case .askAI(let term):
+            return "fallback:ai:\(term)"
         case .app(let app):
             return "app:\(app.bundleID):\(app.path)"
         case .quit(let ref):
@@ -139,7 +147,7 @@ enum CommandGenerator: String, CaseIterable, Sendable {
     case loremIpsum = "lorem"
     case formatJSON = "json"
     case ipAddress = "ip"
-    case wifiPassword = "wifi"
+    case wifiPassword = "wifipw"
 
     var keyword: String { rawValue }
 
@@ -170,6 +178,15 @@ enum CommandGenerator: String, CaseIterable, Sendable {
         let q = query.trimmingCharacters(in: .whitespaces).lowercased()
         guard !q.isEmpty else { return nil }
         return allCases.first { $0.keyword == q }
+    }
+
+    /// Fuzzy matching for generators by keyword prefix or display name.
+    static func matching(_ query: String) -> [CommandGenerator] {
+        let q = query.trimmingCharacters(in: .whitespaces).lowercased()
+        guard !q.isEmpty else { return [] }
+        return allCases.filter { gen in
+            gen.keyword.hasPrefix(q) || gen.displayName.lowercased().contains(q)
+        }
     }
 
     func value() -> String {
@@ -262,6 +279,19 @@ enum CommandBarResults {
             if term.lowercased() == "trash" { return [.trash(.open), .trash(.empty)] }
             var rows = appRows(term, apps: apps, usage: usage, running: running, custom: custom, quicklinks: quicklinks, generate: generate)
             if case .macro(let macro)? = keyword { rows.insert(.action(macro), at: 0) }
+
+            // Guarded inline math check (e.g. 24 * 7, 100 / 4)
+            if let math = LauncherAnswers.inlineMathAnswer(for: term) {
+                rows.insert(.answer(math), at: 0)
+            }
+
+            // Fallback rows when query produces no direct results (requires letters/digits, excluding lone command prefixes)
+            let isSinglePrefix = term.count == 1 && ["=", "@", "/", ">", ":", "!"].contains(term)
+            if rows.isEmpty && !isSinglePrefix && term.contains(where: { $0.isLetter || $0.isNumber }) {
+                rows.append(.answer(.web(query: term)))
+                rows.append(.searchFilesFallback(term))
+                rows.append(.askAI(term))
+            }
             return rows
         }
     }
@@ -358,6 +388,8 @@ enum CommandBarResults {
             return profileRows(argument, profiles)
         case .define:
             return argument.isEmpty ? [] : [.define(argument)]
+        case .brewSearch:
+            return argument.isEmpty ? [] : [.script("brew search \(argument)")]
         }
     }
 

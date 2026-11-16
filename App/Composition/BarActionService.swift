@@ -12,6 +12,10 @@ enum BarActionService {
             QuickToggleEngine.shared.perform(id)
             return
         }
+        if let snap = macro.snapPosition {
+            WindowSnapService.apply(snap)
+            return
+        }
         switch macro {
         case .ocr:
             runOCR()

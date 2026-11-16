@@ -11,14 +11,16 @@ enum CommandBarMode: CaseIterable, Sendable {
     case profile
     /// `define <word>` opens the dictionary panel on that word.
     case define
+    /// Homebrew search mode (`bs <term>` or `brew <term>`).
+    case brewSearch
 
     var keywords: [String] {
         switch self {
         case .file: return ["f", "file"]
         case .image: return ["img", "image"]
-        case .clipboard: return ["clip", "clipboard"]
-        case .emoji: return ["emoji", "em"]
-        case .bookmark: return ["bm", "bookmark"]
+        case .clipboard: return ["clip", "clipboard", "c"]
+        case .emoji: return ["emoji", "em", "emo"]
+        case .bookmark: return ["bm", "bookmark", "b"]
         case .event: return ["ev", "event"]
         case .kill: return ["kill"]
         case .forceQuit: return ["fq"]
@@ -28,6 +30,7 @@ enum CommandBarMode: CaseIterable, Sendable {
         case .menu: return ["m", "menu"]
         case .profile: return ["profile"]
         case .define: return ["define", "def"]
+        case .brewSearch: return ["brew", "bs"]
         }
     }
 }
@@ -40,6 +43,7 @@ enum BarMacro: CaseIterable, Sendable {
     case emptyTrash, eject, hideDesktopIcons, dockAutoHide, relaunchFinder
     case play, next, previous
     case pauseKeyboard, cleanKeyboard, teleprompter
+    case snapLeft, snapRight, snapTop, snapBottom, snapMaximize, snapCenter, snapNextDisplay
 
     var keywords: [String] {
         switch self {
@@ -71,6 +75,91 @@ enum BarMacro: CaseIterable, Sendable {
         case .pauseKeyboard: return ["pause"]
         case .cleanKeyboard: return ["clean"]
         case .teleprompter: return ["prompter", "tp"]
+        case .snapLeft: return ["left", "snapleft", "lefthalf"]
+        case .snapRight: return ["right", "snapright", "righthalf"]
+        case .snapTop: return ["top", "snaptop", "tophalf"]
+        case .snapBottom: return ["bottom", "snapbottom", "bottomhalf"]
+        case .snapMaximize: return ["maximize", "fullscreen", "max"]
+        case .snapCenter: return ["center", "middle"]
+        case .snapNextDisplay: return ["nextdisplay", "display", "monitor"]
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .ocr: return "Screen OCR"
+        case .shortcutsApp: return "Shortcuts"
+        case .terminal: return "Terminal"
+        case .screensaver: return "Screen Saver"
+        case .lock: return "Lock Screen"
+        case .sleep: return "Sleep"
+        case .restart: return "Restart Mac"
+        case .shutdown: return "Shut Down"
+        case .logout: return "Log Out"
+        case .darkMode: return "Toggle Dark Mode"
+        case .keepAwake: return "Stay Awake"
+        case .muteMic: return "Mute Microphone"
+        case .nightShift: return "Toggle Night Shift"
+        case .trueTone: return "Toggle True Tone"
+        case .wifi: return "Toggle Wi-Fi"
+        case .bluetooth: return "Toggle Bluetooth"
+        case .menuBar: return "Toggle Menu Bar"
+        case .emptyTrash: return "Empty Trash"
+        case .eject: return "Eject All Disks"
+        case .hideDesktopIcons: return "Hide Desktop Icons"
+        case .dockAutoHide: return "Toggle Dock Auto-Hide"
+        case .relaunchFinder: return "Relaunch Finder"
+        case .play: return "Play / Pause"
+        case .next: return "Next Track"
+        case .previous: return "Previous Track"
+        case .pauseKeyboard: return "Pause Keyboard"
+        case .cleanKeyboard: return "Clean Keyboard Mode"
+        case .teleprompter: return "Teleprompter"
+        case .snapLeft: return "Left Half"
+        case .snapRight: return "Right Half"
+        case .snapTop: return "Top Half"
+        case .snapBottom: return "Bottom Half"
+        case .snapMaximize: return "Maximize Window"
+        case .snapCenter: return "Center Window"
+        case .snapNextDisplay: return "Move to Next Display"
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .snapLeft, .snapRight, .snapTop, .snapBottom, .snapMaximize, .snapCenter:
+            return "Snap Frontmost Window"
+        case .snapNextDisplay:
+            return "Window Management"
+        case .ocr, .shortcutsApp, .terminal, .teleprompter:
+            return "Utility"
+        case .play, .next, .previous:
+            return "Media Control"
+        case .pauseKeyboard, .cleanKeyboard:
+            return "KeyGuard"
+        default:
+            return "System Action"
+        }
+    }
+
+    var snapPosition: SnapPosition? {
+        switch self {
+        case .snapLeft: return .leftHalf
+        case .snapRight: return .rightHalf
+        case .snapTop: return .topHalf
+        case .snapBottom: return .bottomHalf
+        case .snapMaximize: return .maximize
+        case .snapCenter: return .center
+        default: return nil
+        }
+    }
+
+    static func matching(_ query: String) -> [BarMacro] {
+        let q = query.trimmingCharacters(in: .whitespaces).lowercased()
+        guard !q.isEmpty else { return [] }
+        return allCases.filter { macro in
+            macro.keywords.contains { $0.hasPrefix(q) || $0.contains(q) } ||
+            macro.title.lowercased().contains(q)
         }
     }
 
@@ -119,6 +208,13 @@ enum BarMacro: CaseIterable, Sendable {
         case .pauseKeyboard: return "pause.circle"
         case .cleanKeyboard: return "sparkles"
         case .teleprompter: return "text.alignleft"
+        case .snapLeft: return "rectangle.lefthalf.inset.filled"
+        case .snapRight: return "rectangle.righthalf.inset.filled"
+        case .snapTop: return "rectangle.tophalf.inset.filled"
+        case .snapBottom: return "rectangle.bottomhalf.inset.filled"
+        case .snapMaximize: return "arrow.up.left.and.arrow.down.right"
+        case .snapCenter: return "rectangle.center.inset.filled"
+        case .snapNextDisplay: return "display.2"
         default: return "bolt"
         }
     }
@@ -130,17 +226,22 @@ enum CommandKeyword {
         case macro(BarMacro)
     }
 
-    /// A bare macro word, or `word ` + argument. Returns nil for everything else (the single-char
-    /// prefixes and plain search carry on).
+    /// A bare macro word, or `word ` + argument. Trims only leading whitespace before checking
+    /// for the space delimiter so "clip ", "emoji ", "bm ", etc. enter mode with an empty argument.
     static func parse(_ query: String) -> Parsed? {
-        let trimmed = query.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return nil }
-        let lower = trimmed.lowercased()
-        if let macro = BarMacro.allCases.first(where: { $0.keywords.contains(lower) }) { return .macro(macro) }
-        guard let space = trimmed.firstIndex(where: { $0 == " " || $0 == "\t" }) else { return nil }
-        let word = String(trimmed[trimmed.startIndex..<space]).lowercased()
-        let argument = String(trimmed[trimmed.index(after: space)...]).trimmingCharacters(in: .whitespaces)
-        if let mode = CommandBarMode.allCases.first(where: { $0.keywords.contains(word) }) { return .mode(mode, argument) }
+        let leadingTrimmed = query.drop(while: { $0 == " " || $0 == "\t" })
+        guard !leadingTrimmed.isEmpty else { return nil }
+        if let space = leadingTrimmed.firstIndex(where: { $0 == " " || $0 == "\t" }) {
+            let word = String(leadingTrimmed[leadingTrimmed.startIndex..<space]).lowercased()
+            let argument = String(leadingTrimmed[leadingTrimmed.index(after: space)...]).trimmingCharacters(in: .whitespaces)
+            if let mode = CommandBarMode.allCases.first(where: { $0.keywords.contains(word) }) {
+                return .mode(mode, argument)
+            }
+        }
+        let lower = leadingTrimmed.trimmingCharacters(in: .whitespaces).lowercased()
+        if let macro = BarMacro.allCases.first(where: { $0.keywords.contains(lower) }) {
+            return .macro(macro)
+        }
         return nil
     }
 }
