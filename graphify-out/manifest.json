@@ -840,9 +840,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/ClipboardFlyoutView.swift": {
-    "mtime": 1794853980.8717146,
-    "seen": 1794854187.925332,
-    "ast_hash": "3aaf2957fa223534187d845b41ef4c98",
+    "mtime": 1794867879.8706355,
+    "seen": 1794868157.307872,
+    "ast_hash": "f06f3db5edddcc3329751ade01ee7e2e",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/DeckLabel.swift": {
@@ -2034,10 +2034,10 @@
     "semantic_hash": "c64d7b838b33e85a97f516bb39efb616"
   },
   "Core/Support/MirroredNotification.swift": {
-    "mtime": 1792126937.3829103,
-    "seen": 1792295707.060577,
-    "ast_hash": "6892ce0e9c66e5e8a41523bda07be0f5",
-    "semantic_hash": "6892ce0e9c66e5e8a41523bda07be0f5"
+    "mtime": 1794867968.805402,
+    "seen": 1794868157.308086,
+    "ast_hash": "b16e4807ea676306f6ee10739fcc80db",
+    "semantic_hash": ""
   },
   "Core/Support/NotchDesignSpec.swift": {
     "mtime": 1792268926.0564806,
@@ -3876,9 +3876,9 @@
     "semantic_hash": "cffe9d036fa8f6e07cb1bdd960ce7aad"
   },
   "Tests/Unit/NotificationMirrorTests.swift": {
-    "mtime": 1793841660.2740984,
-    "seen": 1793841725.296032,
-    "ast_hash": "bd82abe1362cb86fbd625561d782e8fe",
+    "mtime": 1794867979.274123,
+    "seen": 1794868157.308384,
+    "ast_hash": "739044fca2ade5424b15068ebb54cabe",
     "semantic_hash": ""
   },
   "Tests/Unit/NotificationPlacementTests.swift": {
@@ -7086,9 +7086,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WindowDrawerController.swift": {
-    "mtime": 1794840021.678865,
-    "seen": 1794840433.409906,
-    "ast_hash": "0b1a37ec72f8d9cd0e0ae5dcbcd43e02",
+    "mtime": 1794867895.848857,
+    "seen": 1794868157.307808,
+    "ast_hash": "99ebe1c4e3f54b13f4d35c2e6a763e18",
     "semantic_hash": ""
   },
   "App/Composition/WindowStripController.swift": {
