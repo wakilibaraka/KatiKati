@@ -25,15 +25,15 @@ clean_stale_katikati() {
 remove_other_katikati_copies() {
   local keep="${1:-}" p
   local lsr=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
-  { "$lsr" -dump 2>/dev/null | sed -n 's/^path: *\(.*\/KatiKati[^/]*\.app\) (0x.*/\1/p'
+  { "$lsr" -dump 2>/dev/null | sed -n 's/^path: *\(.*\/KatiKati[^/]*\.app\) (0x.*/\1/p' || true
     ls -d /Applications/KatiKati*.app "$HOME"/Applications/KatiKati*.app \
-          "$HOME"/Library/Developer/Xcode/DerivedData/KatiKati-*/Build/Products/*/KatiKati.app 2>/dev/null
+          "$HOME"/Library/Developer/Xcode/DerivedData/KatiKati-*/Build/Products/*/KatiKati.app 2>/dev/null || true
   } | sort -u | while IFS= read -r p; do
-    [[ "$p" == "$keep" ]] && continue
+    if [[ "$p" == "$keep" ]]; then continue; fi
     "$lsr" -u "$p" >/dev/null 2>&1 || true
-    [[ -d "$p" && "$p" != /Volumes/* && "$p" != "$HOME/.Trash/"* ]] || continue
+    if [[ ! -d "$p" || "$p" == /Volumes/* || "$p" == "$HOME/.Trash/"* ]]; then continue; fi
     # Only our own bundle: never delete something that merely shares the name.
-    [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$p/Contents/Info.plist" 2>/dev/null)" == com.katikati.app ]] || continue
+    if [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$p/Contents/Info.plist" 2>/dev/null || true)" != com.katikati.app ]]; then continue; fi
     rm -rf "$p" && echo "    removed old copy $p"
   done
 }
