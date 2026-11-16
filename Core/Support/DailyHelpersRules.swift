@@ -205,3 +205,90 @@ struct BreatherScheduleEngine: Equatable, Sendable {
         }
     }
 }
+
+// MARK: - Slice 4.2: SmartDockAutomationPolicy
+
+enum SmartDockAction: Equatable, Sendable {
+    case pauseMedia
+    case warnAILimit(provider: String, percent: Double, isWeekly: Bool)
+    case notifyAILimitReset(provider: String)
+    case setDockHidden(Bool)
+}
+
+struct SmartDockAutomationSettings: Equatable, Sendable {
+    var pauseMediaBeforeMeeting: Bool = true
+    var warnOnAILimitThreshold: Bool = true
+    var stepAsideOnFullscreen: Bool = true
+
+    static let pauseMediaKey = "com.katikati.dock.autoPauseMedia"
+    static let warnAILimitKey = "com.katikati.dock.warnAILimits"
+    static let stepAsideKey = "com.katikati.dock.stepAsideFullscreen"
+
+    static func current(_ d: UserDefaults = .standard) -> SmartDockAutomationSettings {
+        var s = SmartDockAutomationSettings()
+        if d.object(forKey: pauseMediaKey) != nil {
+            s.pauseMediaBeforeMeeting = d.bool(forKey: pauseMediaKey)
+        }
+        if d.object(forKey: warnAILimitKey) != nil {
+            s.warnOnAILimitThreshold = d.bool(forKey: warnAILimitKey)
+        }
+        if d.object(forKey: stepAsideKey) != nil {
+            s.stepAsideOnFullscreen = d.bool(forKey: stepAsideKey)
+        }
+        return s
+    }
+}
+
+struct SmartDockAutomationPolicy: Equatable, Sendable {
+    var settings: SmartDockAutomationSettings
+
+    init(settings: SmartDockAutomationSettings = SmartDockAutomationSettings()) {
+        self.settings = settings
+    }
+
+    /// Automatically emits `.pauseMedia` when a Calendar event with a meeting link is within 60s of starting and media is playing.
+    func evaluateMeetingMediaPause(
+        secondsUntilMeeting: TimeInterval,
+        hasMeetingLink: Bool,
+        isMediaPlaying: Bool
+    ) -> SmartDockAction? {
+        guard settings.pauseMediaBeforeMeeting else { return nil }
+        guard hasMeetingLink, isMediaPlaying else { return nil }
+        if secondsUntilMeeting > 0 && secondsUntilMeeting <= 60 {
+            return .pauseMedia
+        }
+        return nil
+    }
+
+    /// Emits a warning when any tracked AI provider's sessionPercent or weeklyPercent crosses 85% (or notifies on limit reset).
+    func evaluateAILimitThreshold(
+        provider: String,
+        sessionPercent: Double,
+        weeklyPercent: Double,
+        previousMaxPercent: Double = 0
+    ) -> SmartDockAction? {
+        guard settings.warnOnAILimitThreshold else { return nil }
+        let currentMax = max(sessionPercent, weeklyPercent)
+        if currentMax >= 85.0 {
+            let isWeekly = weeklyPercent >= sessionPercent
+            return .warnAILimit(provider: provider, percent: currentMax, isWeekly: isWeekly)
+        } else if previousMaxPercent >= 85.0 && currentMax < 10.0 {
+            return .notifyAILimitReset(provider: provider)
+        }
+        return nil
+    }
+
+    /// Automatically hides/collapses the dock bar when the active display enters a fullscreen app or video.
+    func evaluateFullscreenStepAside(
+        isFullscreen: Bool,
+        isDockCurrentlyHidden: Bool
+    ) -> SmartDockAction? {
+        guard settings.stepAsideOnFullscreen else { return nil }
+        if isFullscreen && !isDockCurrentlyHidden {
+            return .setDockHidden(true)
+        } else if !isFullscreen && isDockCurrentlyHidden {
+            return .setDockHidden(false)
+        }
+        return nil
+    }
+}

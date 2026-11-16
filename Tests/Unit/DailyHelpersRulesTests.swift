@@ -76,6 +76,75 @@ final class DailyHelpersRulesTests: XCTestCase {
         XCTAssertEqual(LiveNoticeKind.pause.reminderInterval, 3000)
         XCTAssertNil(LiveNoticeKind.capsLockOn.reminderInterval)
     }
+
+    // MARK: - Slice 4.2: SmartDockAutomationPolicy Tests
+
+    func testSmartDockAutomationPauseMedia() {
+        let policy = SmartDockAutomationPolicy()
+
+        // 45s until meeting with link and playing media -> pause
+        XCTAssertEqual(
+            policy.evaluateMeetingMediaPause(secondsUntilMeeting: 45, hasMeetingLink: true, isMediaPlaying: true),
+            .pauseMedia
+        )
+
+        // 120s until meeting -> nil
+        XCTAssertNil(
+            policy.evaluateMeetingMediaPause(secondsUntilMeeting: 120, hasMeetingLink: true, isMediaPlaying: true)
+        )
+
+        // Media not playing -> nil
+        XCTAssertNil(
+            policy.evaluateMeetingMediaPause(secondsUntilMeeting: 30, hasMeetingLink: true, isMediaPlaying: false)
+        )
+
+        // No meeting link -> nil
+        XCTAssertNil(
+            policy.evaluateMeetingMediaPause(secondsUntilMeeting: 30, hasMeetingLink: false, isMediaPlaying: true)
+        )
+    }
+
+    func testSmartDockAutomationAILimits() {
+        let policy = SmartDockAutomationPolicy()
+
+        // Below threshold -> nil
+        XCTAssertNil(
+            policy.evaluateAILimitThreshold(provider: "Claude", sessionPercent: 70, weeklyPercent: 50)
+        )
+
+        // Crosses 85% session -> warning
+        let sessionAction = policy.evaluateAILimitThreshold(provider: "Claude", sessionPercent: 88, weeklyPercent: 50)
+        XCTAssertEqual(sessionAction, .warnAILimit(provider: "Claude", percent: 88, isWeekly: false))
+
+        // Crosses 85% weekly -> weekly warning
+        let weeklyAction = policy.evaluateAILimitThreshold(provider: "Cursor", sessionPercent: 40, weeklyPercent: 92)
+        XCTAssertEqual(weeklyAction, .warnAILimit(provider: "Cursor", percent: 92, isWeekly: true))
+
+        // Reset: went from 92% to 0% -> reset notice
+        let resetAction = policy.evaluateAILimitThreshold(provider: "Cursor", sessionPercent: 0, weeklyPercent: 0, previousMaxPercent: 92)
+        XCTAssertEqual(resetAction, .notifyAILimitReset(provider: "Cursor"))
+    }
+
+    func testSmartDockAutomationFullscreenStepAside() {
+        let policy = SmartDockAutomationPolicy()
+
+        // Enters fullscreen while dock is showing -> hide dock
+        XCTAssertEqual(
+            policy.evaluateFullscreenStepAside(isFullscreen: true, isDockCurrentlyHidden: false),
+            .setDockHidden(true)
+        )
+
+        // Already hidden in fullscreen -> nil
+        XCTAssertNil(
+            policy.evaluateFullscreenStepAside(isFullscreen: true, isDockCurrentlyHidden: true)
+        )
+
+        // Exits fullscreen while dock is hidden -> unhide dock
+        XCTAssertEqual(
+            policy.evaluateFullscreenStepAside(isFullscreen: false, isDockCurrentlyHidden: true),
+            .setDockHidden(false)
+        )
+    }
 }
 
 final class BreatherScheduleEngineTests: XCTestCase {

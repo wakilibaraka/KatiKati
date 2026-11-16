@@ -50,6 +50,7 @@ final class DailyHelpersService {
         applyPrivacy(UserDefaults.standard.bool(forKey: Self.privacyKey))
         applyReminder(.hydrate, UserDefaults.standard.bool(forKey: Self.hydrateKey))
         applyReminder(.pause, UserDefaults.standard.bool(forKey: Self.pauseKey))
+        automationPolicy.settings = SmartDockAutomationSettings.current()
     }
 
     // MARK: 56e — water and break reminders
@@ -178,5 +179,50 @@ final class DailyHelpersService {
 
     private func pollPrivacy() {
         privacyDots.update(PrivacyDots(camera: PrivacyUseProbe.cameraInUse(), microphone: PrivacyUseProbe.microphoneInUse()))
+    }
+
+    // MARK: - Slice 4.2: SmartDockAutomations
+
+    var automationPolicy = SmartDockAutomationPolicy()
+    private var lastAIPercentByProvider: [String: Double] = [:]
+    var onDockHiddenChange: ((Bool) -> Void)?
+    var onPauseMediaRequest: (() -> Void)?
+
+    func evaluateMeetingApproaching(secondsUntilMeeting: TimeInterval, hasMeetingLink: Bool, isMediaPlaying: Bool) {
+        if let action = automationPolicy.evaluateMeetingMediaPause(
+            secondsUntilMeeting: secondsUntilMeeting,
+            hasMeetingLink: hasMeetingLink,
+            isMediaPlaying: isMediaPlaying
+        ), action == .pauseMedia {
+            onPauseMediaRequest?()
+        }
+    }
+
+    func evaluateAIProviderUsage(provider: String, sessionPercent: Double, weeklyPercent: Double) {
+        let prev = lastAIPercentByProvider[provider] ?? 0
+        if let action = automationPolicy.evaluateAILimitThreshold(
+            provider: provider,
+            sessionPercent: sessionPercent,
+            weeklyPercent: weeklyPercent,
+            previousMaxPercent: prev
+        ) {
+            lastAIPercentByProvider[provider] = max(sessionPercent, weeklyPercent)
+            switch action {
+            case .warnAILimit, .notifyAILimitReset:
+                break
+            default: break
+            }
+        }
+    }
+
+    func evaluateFullscreenChange(isFullscreen: Bool, isDockHidden: Bool) {
+        if let action = automationPolicy.evaluateFullscreenStepAside(
+            isFullscreen: isFullscreen,
+            isDockCurrentlyHidden: isDockHidden
+        ) {
+            if case .setDockHidden(let hide) = action {
+                onDockHiddenChange?(hide)
+            }
+        }
     }
 }
