@@ -1,10 +1,8 @@
 import AppKit
 import SwiftUI
 
-/// Phase 12 (2026-10-15) — the Tools page's rows: the clipboard, the command and snippet editors,
-/// and the shelf. It used to also carry the launcher's own rows and to share its page with the
-/// launcher; the tools are their own tab now (`SettingsTab.tools`), and the launcher's rows are in
-/// `LauncherSettingsBlock`. All rows go through the shared system (`Docs/SETTINGS.md` rule 2).
+/// Phase 12 (2026-10-15) — the Tools page's rows: the clipboard and the command and snippet editors.
+/// Separated from Shelf and AI Tracking in the 2026-11 reorganization.
 struct UtilitySettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
     @AppStorage(ClipboardMonitor.soundsKey) private var clipboardSounds = false
@@ -13,12 +11,6 @@ struct UtilitySettingsBlock: View {
     @AppStorage(ClipboardMonitor.keepDaysKey) private var clipboardKeepDays = 0
     @AppStorage(CustomCommand.key) private var customCommands = ""
     @AppStorage(CustomCommand.snippetsKey) private var snippets = ""
-    @AppStorage(ClaudeHookInstaller.enabledKey) private var claudeHook = false
-    @State private var claudeHookFailed = false
-    @AppStorage(ClaudeApprovalService.enabledKey) private var claudeApprovals = false
-    @State private var claudeApprovalsFailed = false
-    /// 54d — read from the Dock itself, so a change made in System Settings shows here too.
-    @State private var fixedSpaces = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
@@ -84,6 +76,38 @@ struct UtilitySettingsBlock: View {
                     )
                 }
             }
+        }
+    }
+}
+
+/// 2026-11 Dedicated section for the edge Drawer, temporary Shelf, and Space pinning.
+struct DrawerShelfSettingsBlock: View {
+    @ObservedObject var store: AppSettingsStore
+    /// 54d — read from the Dock itself, so a change made in System Settings shows here too.
+    @State private var fixedSpaces = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
+            SettingsCard(Text("Drawer")) {
+                SettingsToggleRow(
+                    Text("Drawer"),
+                    isOn: Binding(
+                        get: { store.showDrawer },
+                        set: { store.setShowDrawer($0) }
+                    )
+                )
+                SettingsDivider()
+                SettingsPickerRow(
+                    Text("Drawer Position"),
+                    selection: Binding(
+                        get: { store.drawerPlacement },
+                        set: { store.setDrawerPlacement($0) }
+                    )
+                ) {
+                    Text("Left").tag(DrawerPlacement.left)
+                    Text("Right").tag(DrawerPlacement.right)
+                }
+            }
             SettingsCard(Text("Shelf")) {
                 SettingsToggleRow(
                     Text("Shake to Shelf"),
@@ -127,8 +151,58 @@ struct UtilitySettingsBlock: View {
                     note: Text("Stops macOS from rearranging Spaces by most recent use, so they stay in the order you made them. The Dock restarts once. Turning this off puts your earlier setting back.")
                 )
             }
-            // 52c: the one place KatiKati writes into the user's Claude Code settings, so the warning
-            // and the restart note sit on the switch itself rather than in a help popover.
+        }
+        .task { fixedSpaces = await AppDelegate.shared?.fixedSpaceOrderState() ?? false }
+    }
+
+    /// 54d: it changes a macOS setting and restarts the Dock, so turning it on asks first. Off only puts
+    /// back the value remembered before, so it runs without a prompt.
+    private func confirmFixedSpaces(_ on: Bool) {
+        guard let delegate = AppDelegate.shared else { return }
+        if !on {
+            do {
+                try delegate.setFixedSpaceOrder(false)
+                fixedSpaces = false
+            } catch { fixedSpaces = true }
+            return
+        }
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Keep Spaces in a Fixed Order?")
+        alert.informativeText = String(localized: "macOS stops rearranging Spaces by most recent use and the Dock restarts once. Turning this off puts your earlier setting back.")
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: String(localized: "Turn On"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        do {
+            try delegate.setFixedSpaceOrder(true)
+            fixedSpaces = true
+        } catch { fixedSpaces = false }
+    }
+
+    /// 55d: a bulk delete of shelf entries asks first. Single-item remove stays immediate; this one drops
+    /// every unpinned entry at once.
+    private func confirmShelfClear() {
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Clear Unpinned Shelf Items?")
+        alert.informativeText = String(localized: "Unpinned entries leave the shelf and its own copies are deleted. Pinned items stay.")
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String(localized: "Clear Unpinned"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        if alert.runModal() == .alertFirstButtonReturn { AppDelegate.shared?.shelfStore.clear() }
+    }
+}
+
+/// 2026-11 Dedicated section for Claude Code hooks, tool approvals, and AI agent tracking.
+struct AITrackingSettingsBlock: View {
+    @AppStorage(ClaudeHookInstaller.enabledKey) private var claudeHook = false
+    @State private var claudeHookFailed = false
+    @AppStorage(ClaudeApprovalService.enabledKey) private var claudeApprovals = false
+    @State private var claudeApprovalsFailed = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
             SettingsCard(Text("Claude Code Status")) {
                 SettingsToggleRow(
                     Text("Track Turns with a Claude Hook"),
@@ -175,45 +249,6 @@ struct UtilitySettingsBlock: View {
                 }
             }
         }
-        .task { fixedSpaces = await AppDelegate.shared?.fixedSpaceOrderState() ?? false }
-    }
-
-    /// 54d: it changes a macOS setting and restarts the Dock, so turning it on asks first. Off only puts
-    /// back the value remembered before, so it runs without a prompt.
-    private func confirmFixedSpaces(_ on: Bool) {
-        guard let delegate = AppDelegate.shared else { return }
-        if !on {
-            do {
-                try delegate.setFixedSpaceOrder(false)
-                fixedSpaces = false
-            } catch { fixedSpaces = true }
-            return
-        }
-        let alert = NSAlert()
-        alert.messageText = String(localized: "Keep Spaces in a Fixed Order?")
-        alert.informativeText = String(localized: "macOS stops rearranging Spaces by most recent use and the Dock restarts once. Turning this off puts your earlier setting back.")
-        alert.alertStyle = .informational
-        alert.addButton(withTitle: String(localized: "Turn On"))
-        alert.addButton(withTitle: String(localized: "Cancel"))
-        NSApp.activate(ignoringOtherApps: true)
-        guard alert.runModal() == .alertFirstButtonReturn else { return }
-        do {
-            try delegate.setFixedSpaceOrder(true)
-            fixedSpaces = true
-        } catch { fixedSpaces = false }
-    }
-
-    /// 55d: a bulk delete of shelf entries asks first. Single-item remove stays immediate; this one drops
-    /// every unpinned entry at once.
-    private func confirmShelfClear() {
-        let alert = NSAlert()
-        alert.messageText = String(localized: "Clear Unpinned Shelf Items?")
-        alert.informativeText = String(localized: "Unpinned entries leave the shelf and its own copies are deleted. Pinned items stay.")
-        alert.alertStyle = .warning
-        alert.addButton(withTitle: String(localized: "Clear Unpinned"))
-        alert.addButton(withTitle: String(localized: "Cancel"))
-        NSApp.activate(ignoringOtherApps: true)
-        if alert.runModal() == .alertFirstButtonReturn { AppDelegate.shared?.shelfStore.clear() }
     }
 }
 

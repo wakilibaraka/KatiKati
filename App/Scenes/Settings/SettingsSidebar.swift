@@ -8,9 +8,11 @@ extension SettingsTab {
     /// Words a reader might search for besides the title (not localized; matched as typed).
     var searchTerms: String {
         switch self {
-        case .general: return "launch login language updates menu bar diagnostics"
+        case .general: return "launch login language updates about permissions reset"
+        case .menuBar: return "menu bar cpu memory gpu storage battery network disk drives"
         case .appearance: return "theme layout mode position bar height spacing icons dark light colour accent"
         case .dockItems: return "dock widgets chips order size presets motion reorder"
+        case .drawerShelf: return "drawer shelf shake storage expire unpinned system dock spaces"
         case .widgets: return "pane tiles calendar glass clock tile colors notes stopwatch look"
         case .weather: return "units temperature wind forecast warnings hero animations"
         case .notch: return "island skin style open panel"
@@ -23,45 +25,49 @@ extension SettingsTab {
         case .controlCenter: return "panel tiles toggles anchor width"
         case .shortcuts: return "hotkey keyboard keys record hyper caps lock snap"
         case .radialDial: return "pie menu wheel theme"
+        case .aiTracking: return "ai agent claude codex token budget tracking approval hook"
         case .downloads: return "torrent bittorrent seed upload quiet hours aria2"
-        case .tools: return "clipboard color picker teleprompter calculator"
-        case .info: return "about version licence help"
+        case .tools: return "clipboard color picker teleprompter calculator snippets"
         case .advanced: return "reset debug permissions accessibility screen recording"
         }
     }
 }
 
 private enum SidebarSection: Identifiable {
-    case general([SettingsTab])
+    case system([SettingsTab])
     case surfaces([SettingsTab])
     case workspace([SettingsTab])
-    case tools([SettingsTab])
+    case productivity([SettingsTab])
+    case advanced([SettingsTab])
 
     var id: String {
         switch self {
-        case .general: return "general"
+        case .system: return "system"
         case .surfaces: return "surfaces"
         case .workspace: return "workspace"
-        case .tools: return "tools"
+        case .productivity: return "productivity"
+        case .advanced: return "advanced"
         }
     }
 
     var tabs: [SettingsTab] {
         switch self {
-        case .general(let tabs),
+        case .system(let tabs),
              .surfaces(let tabs),
              .workspace(let tabs),
-             .tools(let tabs):
+             .productivity(let tabs),
+             .advanced(let tabs):
             return tabs
         }
     }
 
     var headerText: Text? {
         switch self {
-        case .general: return nil
-        case .surfaces: return Text("Surfaces & Dock")
+        case .system: return Text("System & Bars")
+        case .surfaces: return Text("Surfaces & Shelves")
         case .workspace: return Text("Window & Workspace")
-        case .tools: return Text("Tools & System")
+        case .productivity: return Text("Productivity & AI")
+        case .advanced: return Text("Advanced")
         }
     }
 }
@@ -81,10 +87,11 @@ struct SettingsSidebar: View {
     @State private var hoveredTab: SettingsTab?
 
     private static let sections: [SidebarSection] = [
-        .general([.general]),
-        .surfaces([.appearance, .dockItems, .widgets, .weather, .notch, .notifications, .edgeBars]),
-        .workspace([.tiling, .windowManagement, .launcher, .commandBar, .controlCenter, .shortcuts, .radialDial]),
-        .tools([.downloads, .tools, .info, .advanced])
+        .system([.general, .menuBar, .appearance, .dockItems]),
+        .surfaces([.drawerShelf, .widgets, .weather, .notch, .notifications, .edgeBars]),
+        .workspace([.tiling, .windowManagement, .launcher, .commandBar, .controlCenter]),
+        .productivity([.shortcuts, .radialDial, .aiTracking, .downloads, .tools]),
+        .advanced([.advanced])
     ]
 
     private var visibleTabs: [SettingsTab] {

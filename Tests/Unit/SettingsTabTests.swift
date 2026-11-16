@@ -3,29 +3,32 @@ import XCTest
 // Phase 12 (2026-10-15) — the Settings window's tab strip is built straight from
 // `SettingsTab.allCases` (`SettingsWindowController.toolbarDefaultItemIdentifiers`), so this list is
 // the window's contract: drop a case and a page disappears; duplicate a raw value and two toolbar
-// items share one identifier, so only one of them can ever highlight. Nothing covered it before the
-// Tools slice, which is why the About page could have been deleted without a single test noticing.
+// items share one identifier, so only one of them can ever highlight.
 //
 // `SettingsTab.swift` is dual-compiled, so this file needs no `import KatiKati` (same as
 // `SettingsMetricsTests`).
 
 final class SettingsTabTests: XCTestCase {
-    func testTheSidebarIsNineteenTabsWithOneIdentityEach() {
-        XCTAssertEqual(SettingsTab.allCases.count, 19, "nineteen sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 19,
+    func testTheSidebarIsTwentyOneTabsWithOneIdentityEach() {
+        XCTAssertEqual(SettingsTab.allCases.count, 21, "twenty-one sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 21,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
                        "the page visited once sits at the end; Tools is one before it")
-        XCTAssertEqual(SettingsTab.allCases.dropLast().last, .info, "Info sits just before Advanced")
+        XCTAssertEqual(SettingsTab.allCases.dropLast().last, .tools, "Tools sits just before Advanced")
         // 2026-10-20 split: the toolbar identifier "tiling" now names the Tiling page itself;
         // Window Management moved to its own identifier.
         XCTAssertEqual(SettingsTab(rawValue: "tiling"), .tiling,
                        "a stored toolbar identifier must keep resolving after a split")
         XCTAssertEqual(SettingsTab(rawValue: "windowManagement"), .windowManagement)
         XCTAssertEqual(SettingsTab(rawValue: "controlCenter"), .controlCenter)
-        XCTAssertEqual(SettingsTab(rawValue: "notifications"), .notifications,
-                       "2026-10-22: notifications left Advanced for a page of their own")
+        XCTAssertEqual(SettingsTab(rawValue: "notifications"), .notifications)
+        // 2026-11 reorganization: Menu Bar, Drawer & Shelf, AI Tracking elevated to dedicated tabs
+        XCTAssertEqual(SettingsTab(rawValue: "menuBar"), .menuBar)
+        XCTAssertEqual(SettingsTab(rawValue: "drawerShelf"), .drawerShelf)
+        XCTAssertEqual(SettingsTab(rawValue: "aiTracking"), .aiTracking)
+        XCTAssertEqual(SettingsTab(rawValue: "info"), .general, "Info maps back to General for compatibility")
     }
 
     /// The rename that moved the tools off the launcher's page: the old identifier and the removed

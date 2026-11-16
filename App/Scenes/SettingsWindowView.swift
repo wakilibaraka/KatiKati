@@ -100,13 +100,15 @@ struct SettingsWindowContent: View {
         SettingsPane {
             switch tabState.selected {
             case .general: generalPane
+            case .menuBar: menuBarPane
+            case .appearance: SettingsAppearancePane(store: store)
             case .dockItems: SettingsLayoutPane(store: store, mode: .widgets)
+            case .drawerShelf: drawerShelfPane
             case .widgets: WidgetLookSettingsBlock(store: store)
             case .weather: weatherPane
             case .notch: notchPane
             case .notifications: SettingsNotificationsPane(store: store)
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
-            case .appearance: SettingsAppearancePane(store: store)
             case .tiling: SettingsTilingPane(store: store)
             case .windowManagement: windowManagementPane
             case .launcher: launcherPane
@@ -114,10 +116,10 @@ struct SettingsWindowContent: View {
             case .controlCenter: controlCenterPane
             case .shortcuts: SettingsLayoutPane(store: store, mode: .shortcuts)
             case .radialDial: SettingsLayoutPane(store: store, mode: .radialDial)
+            case .aiTracking: aiTrackingPane
             case .downloads: TorrentSettingsBlock()
-            case .info: infoPane
-            case .advanced: advancedPane
             case .tools: toolsPane
+            case .advanced: advancedPane
             }
         }
         .environment(\.dockThemeStyle, store.themeMaterial)
@@ -154,8 +156,6 @@ struct SettingsWindowContent: View {
     /// behind that row's help button.
     @ViewBuilder
     private var generalPane: some View {
-        // Three sections (`Docs/SETTINGS.md` rule 5): startup, the menu-bar readout, and the
-        // everyday appearance rows that used to be the whole page.
         SettingsCard(Text("Startup")) {
             SettingsToggleRow(
                 Text("Launch at login"),
@@ -185,23 +185,7 @@ struct SettingsWindowContent: View {
                 }
             )
             SettingsDivider()
-            SettingsRowPair(
-                left: { SettingsToggleRow(Text("Menu bar icon"), isOn: $menuBarEnabled, note: Text("Keep a shortcut to these settings in the menu bar.")) },
-                right: { autoUpdateToggle }
-            )
-        }
-        SettingsCard(Text("Menu Bar")) {
-            ForEach(MenuBarMetric.allCases) { metric in
-                if metric != MenuBarMetric.allCases.first { SettingsDivider() }
-                metricRow(metric)
-            }
-            // DiskView's item (2026-10-26): every mounted drive with its capacity bar, rather than
-            // one aggregate reading — so it is a row here, not another `MenuBarMetric`.
-            SettingsDivider()
-            SettingsToggleRow(Text("Drives"), isOn: Binding(
-                get: { UserDefaults.standard.bool(forKey: DriveMenuBarItem.enabledKey) },
-                set: { UserDefaults.standard.set($0, forKey: DriveMenuBarItem.enabledKey) }
-            ), note: Text("Free space of every mounted drive in the menu bar, one bar each."))
+            autoUpdateToggle
         }
         SettingsCard {
             languagePicker
@@ -220,8 +204,7 @@ struct SettingsWindowContent: View {
                 hotKeyControls
             }
             SettingsDivider()
-            // Two narrow rows on one line (`Docs/SETTINGS.md` rule 5).
-            SettingsRowPair(left: { drawerPlacementPicker }, right: { scrollReverserToggle })
+            scrollReverserToggle
             SettingsDivider()
             SettingsButtonRow(Text("Reset All Settings"), note: Text("Restores every default and restarts KatiKati.")) {
                 presentedAlert = SettingsAlert(
@@ -237,7 +220,36 @@ struct SettingsWindowContent: View {
                 )
             }
         }
+        PermissionsSettingsBlock()
+        SettingsCard(Text("About")) {
+            aboutVersionRow
+            SettingsDivider()
+            diagnosticsRow
+        }
+        welcomeGuideButton
         BackupSettingsBlock()
+    }
+
+    @ViewBuilder
+    private var menuBarPane: some View {
+        SettingsCard(Text("Menu Bar")) {
+            SettingsToggleRow(
+                Text("Menu bar icon"),
+                isOn: $menuBarEnabled,
+                note: Text("Keep a shortcut to these settings in the menu bar.")
+            )
+            SettingsDivider()
+            ForEach(MenuBarMetric.allCases) { metric in
+                metricRow(metric)
+                SettingsDivider()
+            }
+            // DiskView's item (2026-10-26): every mounted drive with its capacity bar, rather than
+            // one aggregate reading — so it is a row here, not another `MenuBarMetric`.
+            SettingsToggleRow(Text("Drives"), isOn: Binding(
+                get: { UserDefaults.standard.bool(forKey: DriveMenuBarItem.enabledKey) },
+                set: { UserDefaults.standard.set($0, forKey: DriveMenuBarItem.enabledKey) }
+            ), note: Text("Free space of every mounted drive in the menu bar, one bar each."))
+        }
     }
 
     /// One menu-bar metric: what it shows and whether it shows — both on the row, so the
@@ -266,21 +278,12 @@ struct SettingsWindowContent: View {
         }
     }
 
-    /// Info: the version, updates, diagnostics and the permissions the app needs (moved off General).
-    @ViewBuilder
-    private var infoPane: some View {
-        SettingsBentoSplit {
-            PermissionsSettingsBlock()
-        } trailing: {
-            VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
-                SettingsCard(Text("About")) {
-                    aboutVersionRow
-                    SettingsDivider()
-                    diagnosticsRow
-                }
-                welcomeGuideButton
-            }
-        }
+    private var drawerShelfPane: some View {
+        DrawerShelfSettingsBlock(store: store)
+    }
+
+    private var aiTrackingPane: some View {
+        AITrackingSettingsBlock()
     }
 
     // 「高级」= 需要额外能力、默认就对、基本不用碰的开关。单独一页不是为了藏，
@@ -385,24 +388,6 @@ struct SettingsWindowContent: View {
             alert.beginSheetModal(for: window)
         } else {
             alert.runModal()
-        }
-    }
-
-    // 登录时启动 2026-08-24 当天两度搬家：随去重进过设置窗口，owner 复议后定为
-    // **只在状态栏菜单（第一项）**。这里不再放它，也不再需要 didBecomeActive 刷新。
-
-    /// One control, one label (rule 6): the picker hides its own label and the row supplies it —
-    /// this row used to read “Drawer Position” twice.
-    private var drawerPlacementPicker: some View {
-        SettingsPickerRow(
-            Text("Drawer Position"),
-            selection: Binding(
-                get: { store.drawerPlacement },
-                set: { store.setDrawerPlacement($0) }
-            )
-        ) {
-            Text("Left").tag(DrawerPlacement.left)
-            Text("Right").tag(DrawerPlacement.right)
         }
     }
 

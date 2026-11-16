@@ -37530,83 +37530,6 @@
         }
       }
     },
-    "Info": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Info"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Info"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Información"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Información"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Infos"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Info"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "情報"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "정보"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Informações"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Informações"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "信息"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "資訊"
-          }
-        }
-      }
-    },
     "Inner Gap": {
       "extractionState": "manual",
       "localizations": {
@@ -40463,82 +40386,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "언어"
-          }
-        }
-      }
-    },
-    "Language, appearance, shortcuts, and the app itself.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "语言、外观、快捷键和应用本身。"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Language, appearance, shortcuts, and the app itself."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "語言、外觀、捷徑鍵和應用程式本身。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "言語、外観、ショートカット、アプリ本体。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Sprache, Erscheinungsbild, Tastenkürzel und die App selbst."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Langue, apparence, raccourcis et l’app elle-même."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Idioma, apariencia, atajos y la propia app."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Idioma, apariencia, atajos y la propia app."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Idioma, aparência, atalhos e o próprio app."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Idioma, aparência, atalhos e a própria app."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Lingua, aspetto, abbreviazioni e l’app stessa."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "언어, 외관, 단축키 및 앱 자체."
           }
         }
       }
@@ -92709,82 +92556,6 @@
         }
       }
     },
-    "Version, updates, diagnostics, and permissions.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "版本、更新、诊断和权限。"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Version, updates, diagnostics, and permissions."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "版本、更新、診斷和權限。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "バージョン、アップデート、診断、権限。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Version, Updates, Diagnose und Berechtigungen."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Version, mises à jour, diagnostics et autorisations."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Versión, actualizaciones, diagnósticos y permisos."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Versión, actualizaciones, diagnósticos y permisos."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Versão, atualizações, diagnósticos e permissões."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Versão, atualizações, diagnósticos e permissões."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Versione, aggiornamenti, diagnostica e permessi."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "버전, 업데이트, 진단 및 권한."
-          }
-        }
-      }
-    },
     "Very High": {
       "extractionState": "manual",
       "localizations": {
@@ -98445,10 +98216,17 @@
         "ko": { "stringUnit": { "state": "translated", "value": "음성 받아쓰기" } }
       }
     },
-    "Surfaces & Dock": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Surfaces & Dock"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"界面与坞站"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"介面與塢站"}},"ja":{"stringUnit":{"state":"translated","value":"サーフェスとDock"}},"de":{"stringUnit":{"state":"translated","value":"Oberflächen & Dock"}},"fr":{"stringUnit":{"state":"translated","value":"Surfaces et Dock"}},"es":{"stringUnit":{"state":"translated","value":"Superficies y Dock"}},"es-419":{"stringUnit":{"state":"translated","value":"Superficies y Dock"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Superfícies e Dock"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Superfícies e Dock"}},"it":{"stringUnit":{"state":"translated","value":"Superfici e Dock"}},"ko":{"stringUnit":{"state":"translated","value":"서피스 및 Dock"}}}},
     "Window & Workspace": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Window & Workspace"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"窗口与工作区"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"視窗與工作區"}},"ja":{"stringUnit":{"state":"translated","value":"ウィンドウとワークスペース"}},"de":{"stringUnit":{"state":"translated","value":"Fenster & Arbeitsbereich"}},"fr":{"stringUnit":{"state":"translated","value":"Fenêtres et espace de travail"}},"es":{"stringUnit":{"state":"translated","value":"Ventanas y espacio de trabajo"}},"es-419":{"stringUnit":{"state":"translated","value":"Ventanas y espacio de trabajo"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Janelas e espaço de trabalho"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Janelas e espaço de trabalho"}},"it":{"stringUnit":{"state":"translated","value":"Finestre e spazio di lavoro"}},"ko":{"stringUnit":{"state":"translated","value":"윈도우 및 작업 공간"}}}},
-    "Tools & System": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Tools & System"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"工具与系统"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"工具與系統"}},"ja":{"stringUnit":{"state":"translated","value":"ツールとシステム"}},"de":{"stringUnit":{"state":"translated","value":"Werkzeuge & System"}},"fr":{"stringUnit":{"state":"translated","value":"Outils et système"}},"es":{"stringUnit":{"state":"translated","value":"Herramientas y sistema"}},"es-419":{"stringUnit":{"state":"translated","value":"Herramientas y sistema"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Ferramentas e sistema"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Ferramentas e sistema"}},"it":{"stringUnit":{"state":"translated","value":"Strumenti e sistema"}},"ko":{"stringUnit":{"state":"translated","value":"도구 및 시스템"}}}},
-    "Clear search": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Clear search"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"清空搜索"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"清空搜尋"}},"ja":{"stringUnit":{"state":"translated","value":"検索を消去"}},"de":{"stringUnit":{"state":"translated","value":"Suchfeld leeren"}},"fr":{"stringUnit":{"state":"translated","value":"Effacer la recherche"}},"es":{"stringUnit":{"state":"translated","value":"Borrar búsqueda"}},"es-419":{"stringUnit":{"state":"translated","value":"Borrar búsqueda"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Limpar busca"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Limpar pesquisa"}},"it":{"stringUnit":{"state":"translated","value":"Cancella ricerca"}},"ko":{"stringUnit":{"state":"translated","value":"검색 지우기"}}}}
+    "Clear search": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Clear search"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"清空搜索"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"清空搜尋"}},"ja":{"stringUnit":{"state":"translated","value":"検索を消去"}},"de":{"stringUnit":{"state":"translated","value":"Suchfeld leeren"}},"fr":{"stringUnit":{"state":"translated","value":"Effacer la recherche"}},"es":{"stringUnit":{"state":"translated","value":"Borrar búsqueda"}},"es-419":{"stringUnit":{"state":"translated","value":"Borrar búsqueda"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Limpar busca"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Limpar pesquisa"}},"it":{"stringUnit":{"state":"translated","value":"Cancella ricerca"}},"ko":{"stringUnit":{"state":"translated","value":"검색 지우기"}}}},
+    "Drawer & Shelf": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Drawer & Shelf"}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "抽屉与暂存架"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "抽屜與暫存架"}}, "ja": {"stringUnit": {"state": "translated", "value": "ドロワーとシェルフ"}}, "de": {"stringUnit": {"state": "translated", "value": "Schublade & Ablage"}}, "fr": {"stringUnit": {"state": "translated", "value": "Tiroir et étagère"}}, "es": {"stringUnit": {"state": "translated", "value": "Cajón y estante"}}, "es-419": {"stringUnit": {"state": "translated", "value": "Cajón y estante"}}, "pt-BR": {"stringUnit": {"state": "translated", "value": "Gaveta e prateleira"}}, "pt-PT": {"stringUnit": {"state": "translated", "value": "Gaveta e prateleira"}}, "it": {"stringUnit": {"state": "translated", "value": "Cassetto e scaffale"}}, "ko": {"stringUnit": {"state": "translated", "value": "서랍 및 선반"}}}},
+    "AI Tracking": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "AI Tracking"}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "AI 追踪"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "AI 追蹤"}}, "ja": {"stringUnit": {"state": "translated", "value": "AIトラッキング"}}, "de": {"stringUnit": {"state": "translated", "value": "KI-Tracking"}}, "fr": {"stringUnit": {"state": "translated", "value": "Suivi de l'IA"}}, "es": {"stringUnit": {"state": "translated", "value": "Seguimiento de IA"}}, "es-419": {"stringUnit": {"state": "translated", "value": "Seguimiento de IA"}}, "pt-BR": {"stringUnit": {"state": "translated", "value": "Rastreamento de IA"}}, "pt-PT": {"stringUnit": {"state": "translated", "value": "Rastreamento de IA"}}, "it": {"stringUnit": {"state": "translated", "value": "Monitoraggio IA"}}, "ko": {"stringUnit": {"state": "translated", "value": "AI 추적"}}}},
+    "System metrics, drive capacity, and status items.": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "System metrics, drive capacity, and status items."}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "系统指标、驱动器容量和状态项。"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "系統指標、驅動器容量和狀態項。"}}, "ja": {"stringUnit": {"state": "translated", "value": "システム指標、ドライブ容量、ステータス項目。"}}, "de": {"stringUnit": {"state": "translated", "value": "Systemmetriken, Laufwerkskapazität und Statuselemente."}}, "fr": {"stringUnit": {"state": "translated", "value": "Métriques système, capacité des disques et éléments d'état."}}, "es": {"stringUnit": {"state": "translated", "value": "Métricas del sistema, capacidad de unidades y elementos de estado."}}, "es-419": {"stringUnit": {"state": "translated", "value": "Métricas del sistema, capacidad de unidades y elementos de estado."}}, "pt-BR": {"stringUnit": {"state": "translated", "value": "Métricas do sistema, capacidade do disco e itens de status."}}, "pt-PT": {"stringUnit": {"state": "translated", "value": "Métricas do sistema, capacidade do disco e itens de estado."}}, "it": {"stringUnit": {"state": "translated", "value": "Metriche di sistema, capacità del disco ed elementi di stato."}}, "ko": {"stringUnit": {"state": "translated", "value": "시스템 지표, 드라이브 용량 및 상태 항목."}}}},
+    "Edge drawers, temporary shelf, and space pinning.": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Edge drawers, temporary shelf, and space pinning."}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "边缘抽屉、临时暂存架和固定空间。"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "邊緣抽屜、臨時暫存架和固定空間。"}}, "ja": {"stringUnit": {"state": "translated", "value": "エッジドロワー、一時シェルフ、スペース固定。"}}, "de": {"stringUnit": {"state": "translated", "value": "Rand-Schubladen, temporäre Ablage und Space-Fixierung."}}, "fr": {"stringUnit": {"state": "translated", "value": "Tiroirs latéraux, étagère temporaire et épinglage d'espace."}}, "es": {"stringUnit": {"state": "translated", "value": "Cajones laterales, estante temporal y fijación de espacios."}}, "es-419": {"stringUnit": {"state": "translated", "value": "Cajones laterales, estante temporal y fijación de espacios."}}, "pt-BR": {"stringUnit": {"state": "translated", "value": "Gavetas de borda, prateleira temporária e fixação de espaços."}}, "pt-PT": {"stringUnit": {"state": "translated", "value": "Gavetas de margem, prateleira temporária e fixação de espaços."}}, "it": {"stringUnit": {"state": "translated", "value": "Cassetti laterali, scaffale temporaneo e blocco spazi."}}, "ko": {"stringUnit": {"state": "translated", "value": "가장자리 서랍, 임시 보관함 및 공간 고정."}}}},
+    "Claude Code hooks, tool approvals, token limits, and telemetry.": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Claude Code hooks, tool approvals, token limits, and telemetry."}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "Claude Code 钩子、工具批准、Token 限额和遥测。"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "Claude Code 鉤子、工具批准、Token 配額和遙測。"}}, "ja": {"stringUnit": {"state": "translated", "value": "Claude Codeフック、ツール承認、トークン制限、テレメトリ。"}}, "de": {"stringUnit": {"state": "translated", "value": "Claude Code-Hooks, Tool-Genehmigungen, Token-Limits und Telemetrie."}}, "fr": {"stringUnit": {"state": "translated", "value": "Crochets Claude Code, approbations d'outils, limites de jetons et télémétrie."}}, "es": {"stringUnit": {"state": "translated", "value": "Ganchos de Claude Code, aprobaciones de herramientas, límites de tokens y telemetría."}}, "es-419": {"stringUnit": {"state": "translated", "value": "Ganchos de Claude Code, aprobaciones de herramientas, límites de tokens y telemetría."}}, "pt-BR": {"stringUnit": {"state": "translated", "value": "Ganchos do Claude Code, aprovações de ferramentas, limites de tokens e telemetria."}}, "pt-PT": {"stringUnit": {"state": "translated", "value": "Ganchos do Claude Code, aprovações de ferramentas, limites de tokens e telemetria."}}, "it": {"stringUnit": {"state": "translated", "value": "Hook di Claude Code, approvazioni di strumenti, limiti di token e telemetria."}}, "ko": {"stringUnit": {"state": "translated", "value": "Claude Code 훅, 도구 승인, 토큰 한도 및 원격 측정."}}}},
+    "Language, startup, permissions, and about.": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Language, startup, permissions, and about."}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "语言、启动、权限和关于。"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "語言、啟動、權限與關於。"}}, "ja": {"stringUnit": {"state": "translated", "value": "言語、起動、アクセス権、バージョン情報。"}}, "de": {"stringUnit": {"state": "translated", "value": "Sprache, Autostart, Berechtigungen und Über."}}, "fr": {"stringUnit": {"state": "translated", "value": "Langue, démarrage, autorisations et à propos."}}, "es": {"stringUnit": {"state": "translated", "value": "Idioma, inicio, permisos y acerca de."}}, "es-419": {"stringUnit": {"state": "translated", "value": "Idioma, inicio, permisos y acerca de."}}, "pt-BR": {"stringUnit": {"state": "translated", "value": "Idioma, inicialização, permissões e sobre."}}, "pt-PT": {"stringUnit": {"state": "translated", "value": "Idioma, arranque, permissões e sobre."}}, "it": {"stringUnit": {"state": "translated", "value": "Lingua, avvio, permessi e informazioni."}}, "ko": {"stringUnit": {"state": "translated", "value": "언어, 시작, 권한 및 정보."}}}},
+    "System & Bars": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "System & Bars"}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "系统与状态栏"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "系統與狀態列"}}, "ja": {"stringUnit": {"state": "translated", "value": "システムとバー"}}, "de": {"stringUnit": {"state": "translated", "value": "System & Leisten"}}, "fr": {"stringUnit": {"state": "translated", "value": "Système et barres"}}, "es": {"stringUnit": {"state": "translated", "value": "Sistema y barras"}}, "es-419": {"stringUnit": {"state": "translated", "value": "Sistema y barras"}}, "pt-BR": {"stringUnit": {"state": "translated", "value": "Sistema e barras"}}, "pt-PT": {"stringUnit": {"state": "translated", "value": "Sistema e barras"}}, "it": {"stringUnit": {"state": "translated", "value": "Sistema e barre"}}, "ko": {"stringUnit": {"state": "translated", "value": "시스템 및 바"}}}},
+    "Surfaces & Shelves": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Surfaces & Shelves"}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "界面与暂存"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "介面與暫存"}}, "ja": {"stringUnit": {"state": "translated", "value": "サーフェスとシェルフ"}}, "de": {"stringUnit": {"state": "translated", "value": "Oberflächen & Ablagen"}}, "fr": {"stringUnit": {"state": "translated", "value": "Surfaces et étagères"}}, "es": {"stringUnit": {"state": "translated", "value": "Superficies y estantes"}}, "es-419": {"stringUnit": {"state": "translated", "value": "Superficies y estantes"}}, "pt-BR": {"stringUnit": {"state": "translated", "value": "Superfícies e prateleiras"}}, "pt-PT": {"stringUnit": {"state": "translated", "value": "Superfícies e prateleiras"}}, "it": {"stringUnit": {"state": "translated", "value": "Superfici e scaffali"}}, "ko": {"stringUnit": {"state": "translated", "value": "서피스 및 선반"}}}},
+    "Productivity & AI": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Productivity & AI"}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "效率与 AI"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "效率與 AI"}}, "ja": {"stringUnit": {"state": "translated", "value": "生産性とAI"}}, "de": {"stringUnit": {"state": "translated", "value": "Produktivität & KI"}}, "fr": {"stringUnit": {"state": "translated", "value": "Productivité et IA"}}, "es": {"stringUnit": {"state": "translated", "value": "Productividad e IA"}}, "es-419": {"stringUnit": {"state": "translated", "value": "Productividad e IA"}}, "pt-BR": {"stringUnit": {"state": "translated", "value": "Produtividade e IA"}}, "pt-PT": {"stringUnit": {"state": "translated", "value": "Produtividade e IA"}}, "it": {"stringUnit": {"state": "translated", "value": "Produttività e IA"}}, "ko": {"stringUnit": {"state": "translated", "value": "생산성 및 AI"}}}}
   },
   "version": "1.0"
 }
