@@ -37,6 +37,35 @@ final class KeepAwakePolicyTests: XCTestCase {
         XCTAssertTrue(p.decide(i, now: t0).hold, "at the floor still holds; below releases")
     }
 
+    func testScrubberTicksSpanOneMinuteToEightHours() {
+        let t = PomodoroScrubberMath.ticks
+        XCTAssertEqual(t.first, 1)
+        XCTAssertEqual(t.last, 480)
+        XCTAssertEqual(t, t.sorted())
+        XCTAssertEqual(Set(t).count, t.count)
+    }
+
+    func testScrubberDragMovesWholeTicksAndClamps() {
+        let p = PomodoroScrubberMath.pointsPerTick
+        XCTAssertEqual(PomodoroScrubberMath.minutes(start: 5, dragDelta: 0), 5)
+        XCTAssertEqual(PomodoroScrubberMath.minutes(start: 5, dragDelta: p * 2), 7)
+        XCTAssertEqual(PomodoroScrubberMath.minutes(start: 10, dragDelta: p), 15, "steps coarsen past 10 min")
+        XCTAssertEqual(PomodoroScrubberMath.minutes(start: 5, dragDelta: -p * 99), 1)
+        XCTAssertEqual(PomodoroScrubberMath.minutes(start: 60, dragDelta: p * 9999), 480)
+        XCTAssertEqual(PomodoroScrubberMath.minutes(start: 25, dragDelta: p * 0.9), 25, "under one tick does not move")
+        XCTAssertEqual(PomodoroScrubberMath.minutes(start: 25, dragDelta: .nan), 25)
+    }
+
+    func testScrubberSnapsOffGridStartAndLabels() {
+        XCTAssertEqual(PomodoroScrubberMath.snap(0), 1)
+        XCTAssertEqual(PomodoroScrubberMath.snap(9999), 480)
+        XCTAssertEqual(PomodoroScrubberMath.snap(27), 25)
+        XCTAssertEqual(PomodoroScrubberMath.label(minutes: 25), "25m")
+        XCTAssertEqual(PomodoroScrubberMath.label(minutes: 60), "1h")
+        XCTAssertEqual(PomodoroScrubberMath.label(minutes: 90), "1h 30m")
+        XCTAssertEqual(PomodoroScrubberMath.label(minutes: 480), "8h")
+    }
+
     func testLidGuardNeedsOptInAndNoExternalDisplay() {
         var p = KeepAwakePolicy()
         var i = KeepAwakeInputs(manualOn: true, lidClosedEnabled: true)

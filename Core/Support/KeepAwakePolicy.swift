@@ -30,6 +30,46 @@ struct KeepAwakeDecision: Equatable, Sendable {
     var lidGuard: Bool
 }
 
+/// Ruler scrubber math for a drag-to-set duration, 1 minute ... 8 hours. Ticks are finer at the short end
+/// (1 min up to 10, 5 min up to 1 h, 15 min up to 3 h, 30 min up to 8 h), and every `pointsPerTick` of
+/// horizontal drag moves one tick. Pure: the view feeds drag deltas, the service gets whole minutes.
+enum PomodoroScrubberMath {
+    static let minMinutes = 1
+    static let maxMinutes = 480
+    static let pointsPerTick: Double = 8
+
+    /// Every selectable value, ascending.
+    static let ticks: [Int] = {
+        var out = Array(1...10)
+        out += stride(from: 15, through: 60, by: 5)
+        out += stride(from: 75, through: 180, by: 15)
+        out += stride(from: 210, through: 480, by: 30)
+        return out
+    }()
+
+    /// The tick closest to `minutes` (clamped into range; ties go to the shorter one).
+    static func snap(_ minutes: Int) -> Int {
+        let m = min(max(minutes, minMinutes), maxMinutes)
+        return ticks.min { abs($0 - m) < abs($1 - m) } ?? m
+    }
+
+    /// Minutes after dragging `delta` points from `start`. Dragging right lengthens; non-finite deltas change nothing.
+    static func minutes(start: Int, dragDelta delta: Double) -> Int {
+        let base = snap(start)
+        guard delta.isFinite, let i = ticks.firstIndex(of: base) else { return base }
+        let moved = i + Int((delta / pointsPerTick).rounded(.towardZero))
+        return ticks[min(max(moved, 0), ticks.count - 1)]
+    }
+
+    /// "25m", "1h", "1h 30m".
+    static func label(minutes: Int) -> String {
+        let m = min(max(minutes, minMinutes), maxMinutes)
+        let h = m / 60, r = m % 60
+        if h == 0 { return "\(r)m" }
+        return r == 0 ? "\(h)h" : "\(h)h \(r)m"
+    }
+}
+
 /// Tracks the last time an agent was seen working so the grace window can outlive the signal.
 struct KeepAwakePolicy: Equatable, Sendable {
     private(set) var lastAgentActivity: Date?
