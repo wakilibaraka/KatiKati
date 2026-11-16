@@ -90,9 +90,9 @@ enum NotchBehavior {
     static let hoverDelayKey = "com.katikati.notch.hoverDelay"
     static let closeDelayKey = "com.katikati.notch.closeDelay"
     static let hapticKey = "com.katikati.notch.haptic"
-    static let defaultHoverDelay = 0.12
+    static let defaultHoverDelay = 0.05
     static let defaultCloseDelay = 0.25
-    static let hoverDelayRange = 0.10...1.0
+    static let hoverDelayRange = 0.0...1.0
     static let closeDelayRange = 0.10...2.0
 
     static func clamp(_ v: Double, _ range: ClosedRange<Double>, fallback: Double) -> Double {

@@ -8,7 +8,7 @@ import Foundation
 
 struct NotchHoverMachine {
     /// How long the cursor must rest on the notch before it opens (a fast pass along the menu bar doesn't).
-    var openDelay: TimeInterval = 0.12
+    var openDelay: TimeInterval = 0.05
     /// How long the cursor may be outside the open panel before it closes (absorbs jitter and overshoot).
     var closeDelay: TimeInterval = 0.25
 

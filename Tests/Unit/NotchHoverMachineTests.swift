@@ -10,8 +10,8 @@ final class NotchHoverMachineTests: XCTestCase {
     func testFastPassDoesNotOpen() {
         var m = NotchHoverMachine()
         XCTAssertFalse(m.update(inTrigger: true, inKeepOpen: false, pinned: false, now: at(0)))
-        XCTAssertFalse(m.update(inTrigger: true, inKeepOpen: false, pinned: false, now: at(0.05)))
-        XCTAssertFalse(m.update(inTrigger: false, inKeepOpen: false, pinned: false, now: at(0.08)))
+        XCTAssertFalse(m.update(inTrigger: true, inKeepOpen: false, pinned: false, now: at(0.02)))
+        XCTAssertFalse(m.update(inTrigger: false, inKeepOpen: false, pinned: false, now: at(0.03)))
         XCTAssertNil(m.nextDeadline, "leaving cancels the pending open")
         XCTAssertFalse(m.update(inTrigger: true, inKeepOpen: false, pinned: false, now: at(0.5)), "the dwell timer restarts")
     }
@@ -19,8 +19,8 @@ final class NotchHoverMachineTests: XCTestCase {
     func testDwellOpens() {
         var m = NotchHoverMachine()
         _ = m.update(inTrigger: true, inKeepOpen: false, pinned: false, now: at(0))
-        XCTAssertEqual(m.nextDeadline, at(0.12))
-        XCTAssertTrue(m.update(inTrigger: true, inKeepOpen: false, pinned: false, now: at(0.12)))
+        XCTAssertEqual(m.nextDeadline, at(0.05))
+        XCTAssertTrue(m.update(inTrigger: true, inKeepOpen: false, pinned: false, now: at(0.06)))
     }
 
     func testCloseWaitsForGracePeriodAndReentryCancelsIt() {
@@ -73,7 +73,7 @@ final class NotchHoverMachineTests: XCTestCase {
         let d = UserDefaults(suiteName: "NotchBehaviorTests")!
         d.removePersistentDomain(forName: "NotchBehaviorTests")
         XCTAssertEqual(NotchOpenMode.current(d), .hover)
-        XCTAssertEqual(NotchBehavior.hoverDelay(d), 0.12)
+        XCTAssertEqual(NotchBehavior.hoverDelay(d), 0.05)
         d.set(99.0, forKey: NotchBehavior.hoverDelayKey)
         d.set(0.0, forKey: NotchBehavior.closeDelayKey)
         d.set("bogus", forKey: NotchOpenMode.defaultsKey)

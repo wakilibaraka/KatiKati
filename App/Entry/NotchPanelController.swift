@@ -229,9 +229,15 @@ final class NotchPanelController: LiveEventSink {
                                           notifications: d.bool(forKey: NotificationMirrorService.enabledKey))
             model.activePage = shown.contains(wanted) ? wanted : shown[0]
         }
+        // Grow the NSPanel synchronously *before* flipping `model.isOpen = true`, so SwiftUI's open
+        // spring never runs inside the 32 pt closed window (which caused top-half vertical clipping).
+        if hover.isOpen, let panel, let screen = targetScreen() {
+            shrinkWork?.cancel(); shrinkWork = nil
+            panel.setFrame(windowFrame(on: screen, expanded: true), display: true)
+        }
         model.isOpen = hover.isOpen
         LiveActivityFeed.shared.isNotchExpanded = model.isExpanded
-        syncWindow()
+        if !hover.isOpen { syncWindow() }
     }
 
     /// Shortcut paging: open the notch if closed, then step one page (the dots' mouse-only gap).
@@ -344,7 +350,8 @@ final class NotchPanelController: LiveEventSink {
 
     /// The window is as large as the larger of the shapes involved: it grows at once (so the shape never
     /// clips while it animates open) and shrinks only after the close spring has finished.
-    private func windowFrame(on screen: NSScreen) -> CGRect {
+    private func windowFrame(on screen: NSScreen, expanded: Bool? = nil) -> CGRect {
+        let isExpanded = expanded ?? model.isExpanded
         if !isWide && !metrics.hasHardwareNotch {
             return NotchGeometryCalculator.calculate(
                 screenBounds: screen.frame,
@@ -352,10 +359,10 @@ final class NotchPanelController: LiveEventSink {
                 menuBarHeight: screen.frame.maxY - screen.visibleFrame.maxY,
                 closedSize: model.closedSize,
                 openSize: model.openSize,
-                isExpanded: model.isExpanded
+                isExpanded: isExpanded
             ).panelFrame
         }
-        let size = model.isExpanded ? model.openSize : model.closedSize
+        let size = isExpanded ? model.openSize : model.closedSize
         return NotchGeometry.panelFrame(size: size, in: screen.frame)
     }
 

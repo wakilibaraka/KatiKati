@@ -20,11 +20,11 @@ enum NotchMotionSpec {
     /// How long an event toast stays open; its draining bar runs for exactly this long.
     static let eventLifetime: TimeInterval = 3.0
 
-    /// Open transition: critically damped so the island settles without bouncing
-    static let openSpring = SpringParameters(response: 0.38, dampingRatio: 1.0)
+    /// Open transition: boring.notch fluid spring (response 0.42, dampingRatio 0.80)
+    static let openSpring = SpringParameters(response: 0.42, dampingRatio: 0.80)
 
     /// Close transition: critically damped (1.0), snaps cleanly home with zero overshoot into bezel
-    static let closeSpring = SpringParameters(response: 0.32, dampingRatio: 1.0)
+    static let closeSpring = SpringParameters(response: 0.45, dampingRatio: 1.0)
 
     /// Sneak wing reveal/expand: snappy, low latency
     static let wingSneakSpring = SpringParameters(response: 0.24, dampingRatio: 1.0)
@@ -60,7 +60,7 @@ enum NotchOpenAnimation: String, CaseIterable, Identifiable, Sendable {
 
     var openSpring: SpringParameters {
         switch self {
-        case .boring: return SpringParameters(response: 0.38, dampingRatio: 1.0)
+        case .boring: return SpringParameters(response: 0.42, dampingRatio: 0.80)
         case .liquid: return SpringParameters(response: 0.46, dampingRatio: 1.0)
         case .snap: return SpringParameters(response: 0.26, dampingRatio: 1.0)
         case .bounce: return SpringParameters(response: 0.5, dampingRatio: 0.58)

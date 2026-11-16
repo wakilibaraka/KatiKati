@@ -117,7 +117,7 @@ struct NotchIslandView: View {
         case .pour:
             return AnyTransition.modifier(active: LiquidBlur(amount: 8), identity: LiquidBlur(amount: 0))
                 .combined(with: .scale(scale: 0.92, anchor: .top)).combined(with: .opacity)
-        case .drop: return .opacity.combined(with: .offset(y: -6))
+        case .drop: return .scale(scale: 0.96, anchor: .top).combined(with: .opacity)
         case .pop: return .scale(scale: 0.85, anchor: .top).combined(with: .opacity)
         }
     }
@@ -138,25 +138,24 @@ struct NotchIslandView: View {
             isExpanded: expanded,
             sharpEdges: sharpEdges
         )
-        // Slice DN-2: Spring-damped jelly-morphing container matching iOS Dynamic Island physics.
+        // boring.notch physics: open spring (0.42 / 0.80) for organic expansion,
+        // close spring (0.45 / 1.0) for critically-damped snap back into bezel.
+        let spring = expanded ? style.openSpring : style.closeSpring
         let motion: Animation = reduceMotion
             ? .easeInOut(duration: NotchMotionSpec.reducedMotionDuration)
-            : .spring(response: 0.32, dampingFraction: 0.88)
+            : .spring(response: spring.response, dampingFraction: spring.dampingRatio)
         let size = expanded ? model.openSize : model.closedSize
+        let maskShape = NotchContinuousMaskShape(
+            topCornerRadius: calculatedLayout.topCornerRadius,
+            bottomCornerRadius: calculatedLayout.bottomCornerRadius,
+            flaringTopEars: calculatedLayout.flaringTopEars
+        )
         ZStack(alignment: .top) {
-            NotchContinuousMaskShape(
-                topCornerRadius: calculatedLayout.topCornerRadius,
-                bottomCornerRadius: calculatedLayout.bottomCornerRadius,
-                flaringTopEars: calculatedLayout.flaringTopEars
-            )
-            .fill(notchTheme.plate.color.opacity(resolvedGlass.plateOpacity))
+            maskShape
+                .fill(notchTheme.plate.color.opacity(resolvedGlass.plateOpacity))
             if showOutline || resolvedGlass.strokeOpacity > 0 {
-                NotchContinuousMaskShape(
-                    topCornerRadius: calculatedLayout.topCornerRadius,
-                    bottomCornerRadius: calculatedLayout.bottomCornerRadius,
-                    flaringTopEars: calculatedLayout.flaringTopEars
-                )
-                .stroke(Color.white.opacity(max(showOutline ? 0.18 : 0, resolvedGlass.strokeOpacity)), lineWidth: 1)
+                maskShape
+                    .stroke(Color.white.opacity(max(showOutline ? 0.18 : 0, resolvedGlass.strokeOpacity)), lineWidth: 1)
             }
             Group {
                 if !expanded {
@@ -178,8 +177,10 @@ struct NotchIslandView: View {
                     openContent(activity).padding(.horizontal, 24).transition(openTransition(style))
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .frame(width: size.width, height: size.height, alignment: .top)
+        .clipShape(maskShape)
         .contentShape(Rectangle())
         .onTapGesture { if !expanded { model.requestOpen() } }
         .contextMenu {
