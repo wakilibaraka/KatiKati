@@ -38,7 +38,19 @@ def run(*cmd: str) -> subprocess.CompletedProcess:
 
 
 def window_sizes() -> list[tuple[int, int]]:
-    # Only standard windows: the strip, notch and overlays are AXSystemDialog panels (one is screen-sized).
+    # Prefer CGWindowList layer-0 KatiKati windows (works without terminal Accessibility grant).
+    helper = ROOT / 'build/live-check/clickwin'
+    if helper.is_file():
+        sizes = []
+        for line in run(str(helper), 'windows').stdout.splitlines():
+            parts = line.split('|')
+            if len(parts) == 4 and parts[1] == 'KatiKati' and parts[2] == '0':
+                coords = [int(n) for n in parts[3].split(',')]
+                if len(coords) == 4:
+                    sizes.append((coords[2], coords[3]))
+        if sizes:
+            return sizes
+    # Fallback: System Events AXStandardWindow (needs Accessibility on the terminal).
     script = ('tell application "System Events" to tell (first process whose name is "KatiKati") '
               'to get size of every window whose subrole is "AXStandardWindow"')
     out = run('osascript', '-e', script).stdout
@@ -65,17 +77,24 @@ def main() -> int:
     failures = []
     for tab in tabs():
         run('open', '-n', '--env', f'DOCK_OPEN_SETTINGS={tab}', '--env', 'DOCK_DEV_SKIP_PERMISSIONS=1', args.app)
-        time.sleep(7)  # the switch presents the page ~3 s after launch
-        sizes = window_sizes()
-        ok = any(w >= MIN_W and h >= MIN_H for w, h in sizes)
+        sizes = []
+        ok = False
+        for _ in range(14):
+            time.sleep(0.5)
+            sizes = window_sizes()
+            if any(w >= MIN_W and h >= MIN_H for w, h in sizes):
+                ok = True
+                break
         if ok and shots is not None:
             run('screencapture', '-x', str(shots / f'{tab}.png'))
-        print(f'  {"✅" if ok else "❌"} {tab:<18} windows: {sizes or "none"}')
+        print(f'  {"✅" if ok else "❌"} {tab:<18} windows: {sizes or "none"}', flush=True)
         if not ok:
             failures.append(tab)
-        run('osascript', '-e', 'tell application "KatiKati" to quit')
-        time.sleep(1.5)
-        run('pkill', '-x', 'KatiKati')  # safe: we refused to start with one running
+        run('pkill', '-x', 'KatiKati')
+        for _ in range(10):
+            if run('pgrep', '-x', 'KatiKati').returncode != 0:
+                break
+            time.sleep(0.2)
     if failures:
         print('❌ these pages did not open a window: ' + ', '.join(failures))
         return 1

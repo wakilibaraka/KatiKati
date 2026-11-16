@@ -10,6 +10,14 @@ extension SettingsLayoutPane {
     @ViewBuilder
     var shortcutSections: some View {
         let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
+        Picker("Shortcuts", selection: $shortcutsSectionFilter) {
+            Text("Keyboard").tag(ShortcutsSectionFilter.keyboard)
+            Text("Mouse & Gestures").tag(ShortcutsSectionFilter.mouseAndGestures)
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+
+        if shortcutsSectionFilter == .keyboard {
         SettingsCard(
             // Headerless: the two disclosure groups below carry the names (the page's toolbar tab
             // already says "Shortcuts"), so no new string was needed for the grouping.
@@ -173,19 +181,32 @@ extension SettingsLayoutPane {
                 ),
                 info: String(localized: "Shows the keys you press in a small overlay. It displays what you type — treat it as a screen-sharing risk. Nothing is logged or saved, and it hides itself a moment after you stop typing.")
             )
-            SettingsDivider()
+            if keyGuard.isPaused || keyGuard.isSlowQuitEnabled || keyGuard.isVisualizerEnabled
+                || keyGuard.isCapsProtectionEnabled || keyGuard.isFinderKeysEnabled, !KeyGuardService.hasPermission {
+                SettingsButtonRow(Text("Open Input Monitoring Settings")) { openInputMonitoringSettings() }
+            }
+        }
+        } else {
+        SettingsCard(Text("Mouse & Gestures")) {
             SettingsToggleRow(
                 Text("Open Launcher with Pinch"),
                 isOn: Binding(get: { store.launcherPinch }, set: { store.setLauncherPinch($0) }),
                 info: String(localized: "Pinch four or more fingers together on the trackpad. Turn off Launchpad under System Settings > Trackpad > More Gestures, or macOS opens its own app list too.")
             )
-            if keyGuard.isPaused || keyGuard.isSlowQuitEnabled || keyGuard.isVisualizerEnabled
-                || keyGuard.isCapsProtectionEnabled || keyGuard.isFinderKeysEnabled, !KeyGuardService.hasPermission {
-                SettingsButtonRow(Text("Open Input Monitoring Settings")) { openInputMonitoringSettings() }
-            }
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Focus Follows the Mouse"),
+                isOn: Binding(
+                    get: { FocusFollowService.shared.isEnabled },
+                    set: { FocusFollowService.shared.setEnabled($0) }
+                ),
+                info: String(localized: "Raises the window under the pointer, at most once every 120 ms. It never acts while you drag, while a KatiKati panel has the keyboard, or for the app already in front. Needs Accessibility; off by default.")
+            )
+            SettingsDivider()
             SettingsButtonRow(Text("Open Trackpad Settings")) {
                 if let url = URL(string: "x-apple.systempreferences:com.apple.preference.trackpad") { NSWorkspace.shared.open(url) }
             }
+        }
         }
     }
 

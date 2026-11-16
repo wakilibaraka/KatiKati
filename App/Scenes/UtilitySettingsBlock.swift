@@ -379,6 +379,7 @@ struct NotchHelpersSettingsBlock: View {
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
     @AppStorage(NotificationMirrorService.enabledKey) private var notificationsPage = false
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
+    @AppStorage(LyricsTrack.enabledKey) private var syncedLyrics = false
 
     var body: some View {
         SettingsCard(Text("Daily Helpers")) {
@@ -412,6 +413,12 @@ struct NotchHelpersSettingsBlock: View {
             SettingsToggleRow(Text("Notifications Notch Page"), isOn: $notificationsPage)
             SettingsDivider()
             SettingsToggleRow(Text("Sharp Notch Edges"), isOn: $sharpEdges)
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Synced Lyrics"),
+                isOn: $syncedLyrics,
+                info: String(localized: "Looks up synced lyrics from lrclib.net by sending the current song title and artist when the music notch card is open.")
+            )
         }
     }
 }

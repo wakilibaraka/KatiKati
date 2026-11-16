@@ -381,6 +381,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .windowDrawer: self.windowDrawer.toggle()
                 case .openDictionary: self.dictionaryPanel.toggle()
                 case .toggleTerminal: self.terminalPanel.toggle()
+                case .dictate: DictationController.shared.toggle()
                 case .weather: WidgetPanelController.weather.toggle()
                 case .clock: WidgetPanelController.calendar.toggle()
                 case .keepAwake:

@@ -48,6 +48,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case windowDrawer
     /// Open the dictionary panel / toggle the terminal panel. No default key.
     case openDictionary, toggleTerminal
+    /// Port plan #14: hold (or toggle) voice dictation into the frontmost app. No default key.
+    case dictate
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -104,6 +106,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .windowDrawer: return 49
         case .openDictionary: return 50
         case .toggleTerminal: return 51
+        case .dictate: return 52
         }
     }
 
@@ -128,7 +131,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         // Phase 31 radial dial: off by default, user assigns
         case .radialDial, .radialDialSnap, .radialDialTools: return .off
         case .notchPageNext, .notchPagePrevious, .captureArea, .pasteImageToFinder: return .off
-        case .spaceNext, .spacePrevious, .peek, .openDictionary, .toggleTerminal: return .off
+        case .spaceNext, .spacePrevious, .peek, .openDictionary, .toggleTerminal, .dictate: return .off
         case .windowSwitcher: return .key(ShortcutKey(keyCode: 48, modifiers: ShortcutKey.option))
         case .windowDrawer: return .key(ShortcutKey(keyCode: 13, modifiers: ShortcutKey.control | ShortcutKey.option))
         }
@@ -436,5 +439,12 @@ struct ModifierDoubleTapDetector {
 final class ShortcutRegistrationState: ObservableObject {
     static let shared = ShortcutRegistrationState()
     @Published internal(set) var failures: [ShortcutAction: String] = [:]
+}
+
+/// Port plan #14: pure transcript normalization for Hold-to-Dictate before clipboard paste.
+enum DictationTranscript {
+    static func cleaned(_ raw: String) -> String {
+        raw.split(whereSeparator: \.isWhitespace).joined(separator: " ")
+    }
 }
 

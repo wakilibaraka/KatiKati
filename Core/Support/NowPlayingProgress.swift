@@ -23,3 +23,47 @@ enum NowPlayingProgress {
         return min(max(current / duration, 0), 1)
     }
 }
+
+// MARK: - Phase 50g: Opt-in Synced Lyrics (lrclib.net)
+
+struct LyricsLine: Equatable, Sendable {
+    var time: TimeInterval
+    var text: String
+}
+
+enum LyricsTrack {
+    static let enabledKey = "com.katikati.notch.lyrics"
+
+    /// Parses standard `[mm:ss.xx]` or `[mm:ss]` LRC lines into sorted `LyricsLine` entries.
+    static func parseLRC(_ raw: String) -> [LyricsLine] {
+        var out: [LyricsLine] = []
+        for rawLine in raw.split(whereSeparator: \.isNewline) {
+            let line = rawLine.trimmingCharacters(in: .whitespaces)
+            guard line.hasPrefix("["), let close = line.firstIndex(of: "]") else { continue }
+            let tag = line[line.index(after: line.startIndex)..<close]
+            let parts = tag.split(separator: ":")
+            guard parts.count == 2,
+                  let minutes = Double(parts[0]),
+                  let seconds = Double(parts[1]),
+                  minutes >= 0, seconds >= 0 else { continue }
+            let lyric = line[line.index(after: close)...].trimmingCharacters(in: .whitespaces)
+            guard !lyric.isEmpty else { continue }
+            out.append(LyricsLine(time: minutes * 60 + seconds, text: lyric))
+        }
+        return out.sorted { $0.time < $1.time }
+    }
+
+    /// Returns the most recent lyric line whose timestamp is `<= elapsed`.
+    static func activeLine(in lines: [LyricsLine], at elapsed: TimeInterval) -> String? {
+        guard !lines.isEmpty, elapsed >= 0 else { return nil }
+        var current: String?
+        for line in lines {
+            if line.time <= elapsed + 0.15 {
+                current = line.text
+            } else {
+                break
+            }
+        }
+        return current ?? lines.first?.text
+    }
+}

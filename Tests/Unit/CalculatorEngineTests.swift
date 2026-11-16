@@ -28,4 +28,10 @@ final class CalculatorEngineTests: XCTestCase {
         XCTAssertEqual(CalculatorEngine.format(-0.25), "-0.25")
         XCTAssertEqual(CalculatorEngine.format(1.0 / 3.0), "0.333333333")
     }
+
+    func testLargeNumbersPreserveAllMeaningfulDigits() {
+        XCTAssertEqual(CalculatorEngine.format(123_456_789_012), "123456789012")
+        XCTAssertEqual(CalculatorEngine.format(999_999_999_999), "999999999999")
+        XCTAssertEqual(CalculatorEngine.format(123_456_789.25), "123456789.25")
+    }
 }

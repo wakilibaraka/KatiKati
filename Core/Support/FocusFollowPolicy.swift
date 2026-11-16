@@ -10,8 +10,8 @@ struct FocusFollowPolicy: Equatable, Sendable {
     var lastRaiseAt: Date?
 
     func allowsRaise(targetPID: pid_t?, frontmostPID: pid_t?, ownPID: pid_t,
-                     mouseButtonDown: Bool, ownPanelIsKey: Bool, now: Date) -> Bool {
-        guard !mouseButtonDown, !ownPanelIsKey else { return false }
+                     mouseButtonDown: Bool, ownPanelIsKey: Bool, ownPopupVisible: Bool = false, now: Date) -> Bool {
+        guard !mouseButtonDown, !ownPanelIsKey, !ownPopupVisible else { return false }
         guard let targetPID, targetPID != ownPID, targetPID != frontmostPID else { return false }
         if let lastRaiseAt, now.timeIntervalSince(lastRaiseAt) < Self.minimumInterval { return false }
         return true

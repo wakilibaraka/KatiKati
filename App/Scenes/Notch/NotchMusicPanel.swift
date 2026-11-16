@@ -6,6 +6,8 @@ import SwiftUI
 /// "Not Playing" with a quick-actions row instead of the progress bar.
 struct NotchMusicPanel: View {
     @ObservedObject var feed: LiveActivityFeed
+    @ObservedObject private var lyricsStore = LyricsStore.shared
+    @AppStorage(LyricsTrack.enabledKey) private var showLyrics = false
     var isIdle = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -94,14 +96,30 @@ struct NotchMusicPanel: View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
             let fraction = state.progress(at: context.date) ?? 0
             let duration = state.duration ?? 0
-            HStack(spacing: 8) {
-                Text(verbatim: Self.clock(fraction * duration)).frame(minWidth: 30, alignment: .trailing)
-                MusicScrubBar(progress: fraction, duration: duration, trackHeight: 4, tint: accent(state),
-                              onSeek: { feed.seek(to: $0) })
-                Text(verbatim: duration > 0 ? "-" + Self.clock(max(0, duration - fraction * duration)) : "–:––").frame(minWidth: 30, alignment: .leading)
+            let elapsed = fraction * duration
+            let lyricLines = showLyrics ? lyricsStore.lines(title: state.title, artist: state.artist) : []
+            VStack(alignment: .leading, spacing: 3) {
+                if showLyrics, let activeLyric = LyricsTrack.activeLine(in: lyricLines, at: elapsed) {
+                    Text(verbatim: activeLyric)
+                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.82))
+                        .lineLimit(1)
+                }
+                HStack(spacing: 8) {
+                    Text(verbatim: Self.clock(elapsed)).frame(minWidth: 30, alignment: .trailing)
+                    MusicScrubBar(progress: fraction, duration: duration, trackHeight: 4, tint: accent(state),
+                                  onSeek: { feed.seek(to: $0) })
+                    Text(verbatim: duration > 0 ? "-" + Self.clock(max(0, duration - elapsed)) : "–:––").frame(minWidth: 30, alignment: .leading)
+                }
+                .font(.system(size: 10, weight: .medium).monospacedDigit())
+                .foregroundStyle(.white.opacity(0.55))
             }
-            .font(.system(size: 10, weight: .medium).monospacedDigit())
-            .foregroundStyle(.white.opacity(0.55))
+            .onAppear {
+                if showLyrics { lyricsStore.loadIfNeeded(title: state.title, artist: state.artist) }
+            }
+            .onChange(of: state.title) { _, _ in
+                if showLyrics { lyricsStore.loadIfNeeded(title: state.title, artist: state.artist) }
+            }
         }
     }
 

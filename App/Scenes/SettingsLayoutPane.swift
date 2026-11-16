@@ -39,6 +39,9 @@ struct SettingsLayoutPane: View {
     @State var showsFeatureShortcuts = false
     @State var showsSnapHotkeys = false
     @State var showsTilingShortcuts = false
+    /// 53h — Keyboard | Mouse & Gestures segmented filter inside the Shortcuts page.
+    enum ShortcutsSectionFilter: String, CaseIterable { case keyboard, mouseAndGestures }
+    @State var shortcutsSectionFilter: ShortcutsSectionFilter = .keyboard
     /// The Edge Bars page's Custom item list (one row per item). Collapsed by default — see its card.
     @State var showsEdgeItems = false
     /// Control Center edge; the panel reads it at each open (Phase 16n). The literal duplicates
@@ -171,6 +174,7 @@ struct SettingsLayoutPane: View {
         case .windowDrawer: return String(localized: "Window Drawer")
         case .openDictionary: return String(localized: "Open Dictionary")
         case .toggleTerminal: return String(localized: "Toggle Terminal")
+        case .dictate: return String(localized: "Hold or Toggle Dictation")
         }
     }
 

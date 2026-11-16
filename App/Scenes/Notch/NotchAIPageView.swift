@@ -4,6 +4,11 @@ import SwiftUI
 
 struct NotchAIPageView: View {
     @ObservedObject private var agentService = AgentUsageService.shared
+    @AppStorage(AgentBudgetPreset.key) private var budgetPresetRaw = AgentBudgetPreset.off.rawValue
+
+    private var budgetPreset: AgentBudgetPreset {
+        AgentBudgetPreset(rawValue: budgetPresetRaw) ?? .off
+    }
 
     var body: some View {
         let snapshot = agentService.snapshot
@@ -86,6 +91,17 @@ struct NotchAIPageView: View {
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                     Spacer()
+                    Button {
+                        budgetPresetRaw = budgetPreset.next.rawValue
+                    } label: {
+                        Text(verbatim: budgetPreset.badgeTitle)
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.75))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.white.opacity(0.08)))
+                    }
+                    .buttonStyle(.plain)
                     if snapshot.todaySavings > 0 {
                         Text(verbatim: String(format: "-$%.2f saved", snapshot.todaySavings))
                             .font(.system(size: 10, weight: .semibold))
@@ -129,6 +145,30 @@ struct NotchAIPageView: View {
                                 Capsule()
                                     .fill(LinearGradient(colors: [Color.cyan, Color.purple], startPoint: .leading, endPoint: .trailing))
                                     .frame(width: max(6, geo.size.width * CGFloat(session.usedFraction)), height: 6)
+                            }
+                        }
+                        .frame(height: 6)
+                    }
+                } else if let fraction = budgetPreset.usedFraction(todayCost: snapshot.todayCost),
+                          let cap = budgetPreset.dailyCapUSD {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text(verbatim: String(format: "Daily Budget ($%.0f)", cap))
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundStyle(.white.opacity(0.7))
+                            Spacer()
+                            Text(verbatim: String(format: "%.0f%%", fraction * 100))
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(fraction > 0.8 ? .orange : .white.opacity(0.8))
+                        }
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                Capsule()
+                                    .fill(Color.white.opacity(0.12))
+                                    .frame(height: 6)
+                                Capsule()
+                                    .fill(LinearGradient(colors: [Color.green, Color.cyan], startPoint: .leading, endPoint: .trailing))
+                                    .frame(width: max(6, geo.size.width * CGFloat(fraction)), height: 6)
                             }
                         }
                         .frame(height: 6)

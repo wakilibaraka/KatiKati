@@ -429,4 +429,14 @@ final class AgentUsageTests: XCTestCase {
         XCTAssertEqual(snapshot.formattedTodayCost, "$1.42")
         XCTAssertEqual(snapshot.formattedTodayTokens, "205.0k")
     }
+
+    func testAgentBudgetPresetFractionAndCycling() {
+        XCTAssertNil(AgentBudgetPreset.off.usedFraction(todayCost: 3.0))
+        XCTAssertEqual(AgentBudgetPreset.light5.usedFraction(todayCost: 2.5) ?? -1, 0.5, accuracy: 1e-6)
+        XCTAssertEqual(AgentBudgetPreset.light5.usedFraction(todayCost: 9.0) ?? -1, 1.0, accuracy: 1e-6)
+        XCTAssertEqual(AgentBudgetPreset.off.next, .light5)
+        XCTAssertEqual(AgentBudgetPreset.light5.next, .standard15)
+        XCTAssertEqual(AgentBudgetPreset.standard15.next, .heavy50)
+        XCTAssertEqual(AgentBudgetPreset.heavy50.next, .off)
+    }
 }

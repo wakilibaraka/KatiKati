@@ -147,4 +147,26 @@ final class NowPlayingProgressTests: XCTestCase {
         XCTAssertTrue(AppleScriptNowPlaying.fallbackIsLive(fallbackApp: nil, title: ""))
         XCTAssertFalse(AppleScriptNowPlaying.fallbackIsLive(fallbackApp: nil, title: "Track"))
     }
+
+    // MARK: Phase 50g — synced LRC lyrics parser & active line lookup
+
+    func testLyricsLRCParsingAndActiveLineSelection() {
+        let lrc = """
+        [ar:Artist]
+        [00:05.50] First line of song
+        [00:12.00] Second line here
+        [01:02.25] Chorus starts
+        """
+        let lines = LyricsTrack.parseLRC(lrc)
+        XCTAssertEqual(lines, [
+            LyricsLine(time: 5.5, text: "First line of song"),
+            LyricsLine(time: 12.0, text: "Second line here"),
+            LyricsLine(time: 62.25, text: "Chorus starts")
+        ])
+        XCTAssertEqual(LyricsTrack.activeLine(in: lines, at: 1.0), "First line of song")
+        XCTAssertEqual(LyricsTrack.activeLine(in: lines, at: 6.0), "First line of song")
+        XCTAssertEqual(LyricsTrack.activeLine(in: lines, at: 15.0), "Second line here")
+        XCTAssertEqual(LyricsTrack.activeLine(in: lines, at: 70.0), "Chorus starts")
+        XCTAssertNil(LyricsTrack.activeLine(in: [], at: 10.0))
+    }
 }

@@ -98192,6 +98192,78 @@
         "it": { "stringUnit": { "state": "translated", "value": "Uno per riga: gh = https://github.com/search?q={query} (supporta {query}, {clipboard}, {date})" } },
         "ko": { "stringUnit": { "state": "translated", "value": "한 줄에 하나씩: gh = https://github.com/search?q={query} ({query}, {clipboard}, {date} 지원)" } }
       }
+    },
+
+    "Hold or Toggle Dictation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Hold or Toggle Dictation" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "按住或切换听写" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "按住或切換聽寫" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "長押しまたは切り替えで音声入力" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Diktat halten oder umschalten" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Maintenir ou basculer la dictée" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mantener o alternar dictado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mantener o alternar dictado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Segurar ou alternar ditado" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Manter premido ou alternar ditado" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Tieni premuto o attiva/disattiva dettatura" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "길게 누르거나 전환하여 받아쓰기" } }
+      }
+    },
+
+    "Mouse & Gestures": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Mouse & Gestures" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "鼠标与手势" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "滑鼠與手勢" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "マウスとジェスチャ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Maus & Gesten" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Souris et gestes" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ratón y gestos" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mouse y gestos" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mouse e gestos" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Rato e gestos" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mouse e gesti" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "마우스 및 제스처" } }
+      }
+    },
+
+    "Synced Lyrics": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Synced Lyrics" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "同步歌词" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "同步歌詞" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "同期歌詞" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Synchronisierte Liedtexte" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Paroles synchronisées" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Letras sincronizadas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Letras sincronizadas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Letras sincronizadas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Letras sincronizadas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Testi sincronizzati" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "동기화된 가사" } }
+      }
+    },
+
+    "Looks up synced lyrics from lrclib.net by sending the current song title and artist when the music notch card is open.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Looks up synced lyrics from lrclib.net by sending the current song title and artist when the music notch card is open." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "打开音乐刘海卡片时，向 lrclib.net 发送当前歌名与歌手以查询同步歌词。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "打開音樂瀏海卡片時，向 lrclib.net 傳送目前歌名與演出者以查詢同步歌詞。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ミュージックのノッチカードを開いているとき、現在の曲名とアーティスト名を lrclib.net に送信して同期歌詞を検索します。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Sucht bei geöffneter Musik-Notch-Karte synchronisierte Liedtexte über lrclib.net, indem der aktuelle Titel und Interpret gesendet werden." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Recherche les paroles synchronisées sur lrclib.net en envoyant le titre et l’artiste actuels lorsque la carte musicale de l’encoche est ouverte." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Busca letras sincronizadas en lrclib.net enviando el título y el artista actuales cuando la tarjeta de música del notch está abierta." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Busca letras sincronizadas en lrclib.net enviando el título y el artista actuales cuando la tarjeta de música del notch está abierta." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Busca letras sincronizadas em lrclib.net enviando o título e o artista atuais quando o cartão de música do notch está aberto." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Procura letras sincronizadas em lrclib.net enviando o título e o artista atuais quando o cartão de música do notch está aberto." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Cerca i testi sincronizzati su lrclib.net inviando il titolo e l'artista attuali quando la scheda musica della tacca è aperta." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "음악 노치 카드가 열려 있을 때 현재 곡 제목과 아티스트를 lrclib.net으로 전송하여 동기화된 가사를 검색합니다." } }
+      }
     }
   },
   "version": "1.0"

@@ -9,11 +9,16 @@ enum CalculatorEngine {
         return v
     }
 
-    /// `0.1 + 0.2` → `0.3`; at most 10 significant digits, no trailing zeros, no exponent for ordinary sizes.
+    /// `0.1 + 0.2` → `0.3`; at most 15 significant digits, no trailing zeros, no exponent for ordinary sizes.
+    /// Integer values up to `9e15` (`2^53 - 1`) are returned directly before scaling by `1e9` so `value * 1e9`
+    /// never overflows IEEE-754 53-bit significand precision on large results.
     static func format(_ value: Double) -> String {
         guard value.isFinite else { return "" }
-        let r = (value * 1e9).rounded() / 1e9
-        if r == r.rounded(), abs(r) < 1e15 { return String(Int64(r)) }
+        if value == value.rounded(), abs(value) < 9e15 { return String(Int64(value)) }
+        let intPart = value.rounded(.towardZero)
+        let fracPart = ((value - intPart) * 1e9).rounded() / 1e9
+        let r = intPart + fracPart
+        if r == r.rounded(), abs(r) < 9e15 { return String(Int64(r)) }
         var s = String(format: "%.9f", r)
         while s.hasSuffix("0") { s.removeLast() }
         if s.hasSuffix(".") { s.removeLast() }

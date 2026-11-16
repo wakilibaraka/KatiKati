@@ -217,4 +217,10 @@ final class PeekHoldTests: XCTestCase {
     func testPeekHasNoDefaultKey() {
         XCTAssertEqual(ShortcutAction.peek.defaultTrigger, .off)
     }
+
+    func testDictationActionAndTranscriptCleaning() {
+        XCTAssertEqual(ShortcutAction.dictate.defaultTrigger, .off)
+        XCTAssertEqual(DictationTranscript.cleaned("  hello   world \n\t from   dictation "), "hello world from dictation")
+        XCTAssertEqual(DictationTranscript.cleaned("   "), "")
+    }
 }

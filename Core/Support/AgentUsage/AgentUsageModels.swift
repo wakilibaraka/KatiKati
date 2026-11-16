@@ -200,3 +200,42 @@ struct AgentUsageSnapshot: Equatable, Sendable {
         }
     }
 }
+
+/// Phase 52d: Daily spend budget presets for the Notch AI page ("Loadout-style" budget caps).
+enum AgentBudgetPreset: String, CaseIterable, Sendable {
+    static let key = "com.katikati.agent.budgetPreset"
+
+    case off = "off"
+    case light5 = "light5"
+    case standard15 = "standard15"
+    case heavy50 = "heavy50"
+
+    var dailyCapUSD: Double? {
+        switch self {
+        case .off: return nil
+        case .light5: return 5.0
+        case .standard15: return 15.0
+        case .heavy50: return 50.0
+        }
+    }
+
+    var badgeTitle: String {
+        switch self {
+        case .off: return "Cap: Off"
+        case .light5: return "Cap: $5/d"
+        case .standard15: return "Cap: $15/d"
+        case .heavy50: return "Cap: $50/d"
+        }
+    }
+
+    var next: AgentBudgetPreset {
+        let all = Self.allCases
+        guard let idx = all.firstIndex(of: self) else { return .off }
+        return all[(idx + 1) % all.count]
+    }
+
+    func usedFraction(todayCost: Double) -> Double? {
+        guard let cap = dailyCapUSD, cap > 0 else { return nil }
+        return min(1.0, max(0.0, todayCost / cap))
+    }
+}

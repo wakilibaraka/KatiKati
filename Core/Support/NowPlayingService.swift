@@ -593,3 +593,56 @@ public final class NowPlayingService: ObservableObject {
     }
 }
 
+// MARK: - Phase 50g: Opt-in Synced Lyrics Store (lrclib.net)
+
+@MainActor
+final class LyricsStore: ObservableObject {
+    static let shared = LyricsStore()
+    @Published private(set) var linesByTrack: [String: [LyricsLine]] = [:]
+    private var inFlight: Set<String> = []
+
+    static func cacheKey(title: String?, artist: String?) -> String? {
+        guard let t = title?.trimmingCharacters(in: .whitespacesAndNewlines), !t.isEmpty else { return nil }
+        let a = artist?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return "\(t.lowercased())|\(a.lowercased())"
+    }
+
+    func lines(title: String?, artist: String?) -> [LyricsLine] {
+        guard let key = Self.cacheKey(title: title, artist: artist) else { return [] }
+        return linesByTrack[key] ?? []
+    }
+
+    func loadIfNeeded(title: String?, artist: String?) {
+        guard UserDefaults.standard.bool(forKey: LyricsTrack.enabledKey),
+              let key = Self.cacheKey(title: title, artist: artist),
+              linesByTrack[key] == nil,
+              !inFlight.contains(key),
+              let cleanTitle = title?.trimmingCharacters(in: .whitespacesAndNewlines), !cleanTitle.isEmpty else { return }
+        let cleanArtist = artist?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        inFlight.insert(key)
+        var comps = URLComponents(string: "https://lrclib.net/api/get")
+        comps?.queryItems = [
+            URLQueryItem(name: "track_name", value: cleanTitle),
+            URLQueryItem(name: "artist_name", value: cleanArtist)
+        ]
+        guard let url = comps?.url else { inFlight.remove(key); return }
+        Task.detached(priority: .utility) {
+            var parsed: [LyricsLine] = []
+            if let (data, response) = try? await URLSession.shared.data(from: url),
+               (response as? HTTPURLResponse)?.statusCode == 200,
+               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                if let synced = json["syncedLyrics"] as? String, !synced.isEmpty {
+                    parsed = LyricsTrack.parseLRC(synced)
+                } else if let plain = json["plainLyrics"] as? String, !plain.isEmpty {
+                    let firstLine = plain.split(whereSeparator: \.isNewline).first.map(String.init) ?? ""
+                    if !firstLine.isEmpty { parsed = [LyricsLine(time: 0, text: firstLine)] }
+                }
+            }
+            await MainActor.run {
+                LyricsStore.shared.inFlight.remove(key)
+                LyricsStore.shared.linesByTrack[key] = parsed
+            }
+        }
+    }
+}
+

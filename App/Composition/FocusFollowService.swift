@@ -49,11 +49,20 @@ final class FocusFollowService {
                                  ownPID: getpid(),
                                  mouseButtonDown: NSEvent.pressedMouseButtons != 0,
                                  ownPanelIsKey: NSApp.keyWindow != nil,
+                                 ownPopupVisible: Self.hasVisibleOwnPopupWindow(),
                                  now: now) else { return }
         policy.lastRaiseAt = now
         NSRunningApplication(processIdentifier: target.pid)?.activate()
         if AXUIElementPerformAction(target.window, kAXRaiseAction as CFString) != .success {
             log.debug("raise failed pid=\(target.pid)")
+        }
+    }
+
+    /// True when any of KatiKati's pop-up / flyout / expanded-notch / settings windows is visible on screen
+    /// (height > 120 pt distinguishes pop-ups and panels from the always-on dock strip and closed notch).
+    private static func hasVisibleOwnPopupWindow() -> Bool {
+        NSApp.windows.contains { window in
+            window.isVisible && window.alphaValue > 0.01 && window.frame.height > 120 && window.frame.width > 120
         }
     }
 

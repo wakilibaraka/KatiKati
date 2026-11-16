@@ -7,20 +7,21 @@ final class FocusFollowPolicyTests: XCTestCase {
     private let now = Date(timeIntervalSince1970: 1_000_000)
 
     private func allows(target: pid_t? = 42, frontmost: pid_t? = 7, buttonDown: Bool = false,
-                        ownPanel: Bool = false, lastRaise: Date? = nil) -> Bool {
+                        ownPanel: Bool = false, ownPopup: Bool = false, lastRaise: Date? = nil) -> Bool {
         var policy = FocusFollowPolicy()
         policy.lastRaiseAt = lastRaise
         return policy.allowsRaise(targetPID: target, frontmostPID: frontmost, ownPID: 99,
-                                  mouseButtonDown: buttonDown, ownPanelIsKey: ownPanel, now: now)
+                                  mouseButtonDown: buttonDown, ownPanelIsKey: ownPanel, ownPopupVisible: ownPopup, now: now)
     }
 
     func testItRaisesAnotherAppsWindow() {
         XCTAssertTrue(allows())
     }
 
-    func testItNeverActsMidDragOrWhileOurPanelHasTheKeyboard() {
+    func testItNeverActsMidDragOrWhileOurPanelOrPopupIsOpen() {
         XCTAssertFalse(allows(buttonDown: true))
         XCTAssertFalse(allows(ownPanel: true))
+        XCTAssertFalse(allows(ownPopup: true))
     }
 
     func testItIgnoresOurOwnWindowsNothingAndTheAppAlreadyInFront() {
