@@ -42,3 +42,52 @@ final class ImageReducePlanTests: XCTestCase {
         XCTAssertEqual(ImageReducePlan.maxPixelSize(longestEdge: 4000, scale: .nan), 3000)
     }
 }
+
+// MARK: - Phase 60: Shelf / File Tray Transforms (Slice D-TrayTransform)
+
+final class FileTransformPlanTests: XCTestCase {
+    func testBackgroundRemovalEligibilityAndDestination() {
+        let png = URL(fileURLWithPath: "/Users/test/photo.png")
+        let heic = URL(fileURLWithPath: "/Users/test/portrait.HEIC")
+        let pdf = URL(fileURLWithPath: "/Users/test/document.pdf")
+
+        XCTAssertTrue(FileTransformPlan.canRemoveBackground(for: png))
+        XCTAssertTrue(FileTransformPlan.canRemoveBackground(for: heic))
+        XCTAssertFalse(FileTransformPlan.canRemoveBackground(for: pdf))
+
+        let noBg = FileTransformPlan.noBackgroundDestination(for: png)
+        XCTAssertEqual(noBg.path, "/Users/test/photo_nobg.png")
+    }
+
+    func testZipDestination() {
+        let single = [URL(fileURLWithPath: "/Users/test/report.docx")]
+        XCTAssertEqual(FileTransformPlan.zipDestination(for: single)?.path, "/Users/test/report.zip")
+
+        let multiple = [
+            URL(fileURLWithPath: "/Users/test/img1.png"),
+            URL(fileURLWithPath: "/Users/test/img2.png")
+        ]
+        XCTAssertEqual(FileTransformPlan.zipDestination(for: multiple)?.path, "/Users/test/Archive.zip")
+
+        XCTAssertNil(FileTransformPlan.zipDestination(for: []))
+    }
+
+    func testImageConversionDestination() {
+        let img = URL(fileURLWithPath: "/Users/test/graphic.png")
+        XCTAssertEqual(FileTransformPlan.convertedDestination(for: img, format: .webp).path, "/Users/test/graphic.webp")
+        XCTAssertEqual(FileTransformPlan.convertedDestination(for: img, format: .jpeg).path, "/Users/test/graphic.jpeg")
+        XCTAssertEqual(ImageTargetFormat.webp.uniformTypeIdentifier, "org.webmproject.webp")
+    }
+
+    func testCombinedPDFDestination() {
+        let single = [URL(fileURLWithPath: "/Users/test/page1.png")]
+        XCTAssertEqual(FileTransformPlan.combinedPDFDestination(for: single)?.path, "/Users/test/page1_combined.pdf")
+
+        let multi = [
+            URL(fileURLWithPath: "/Users/test/page1.png"),
+            URL(fileURLWithPath: "/Users/test/page2.png")
+        ]
+        XCTAssertEqual(FileTransformPlan.combinedPDFDestination(for: multi)?.path, "/Users/test/Combined.pdf")
+        XCTAssertNil(FileTransformPlan.combinedPDFDestination(for: []))
+    }
+}

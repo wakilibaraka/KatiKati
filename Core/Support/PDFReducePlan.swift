@@ -36,3 +36,69 @@ enum ImageReducePlan {
         return max(1, Int((Double(longestEdge) * s).rounded()))
     }
 }
+
+// MARK: - Phase 60: Shelf / File Tray Transforms (Slice D-TrayTransform)
+
+/// Target formats for 1-click shelf image conversion.
+enum ImageTargetFormat: String, CaseIterable, Sendable {
+    case png
+    case jpeg
+    case webp
+
+    var fileExtension: String { rawValue }
+
+    var uniformTypeIdentifier: String {
+        switch self {
+        case .png: return "public.png"
+        case .jpeg: return "public.jpeg"
+        case .webp: return "org.webmproject.webp"
+        }
+    }
+}
+
+/// Pure planning logic for shelf and file tray operations (background removal, zip archive, conversion, PDF combine).
+enum FileTransformPlan {
+    /// Supported image extensions for Vision foreground instance mask background removal.
+    static let bgRemovalExtensions: Set<String> = ["png", "jpg", "jpeg", "heic", "tiff"]
+
+    /// Returns whether a file is eligible for on-device background removal.
+    static func canRemoveBackground(for fileURL: URL) -> Bool {
+        bgRemovalExtensions.contains(fileURL.pathExtension.lowercased())
+    }
+
+    /// Destination URL for background-removed image: "<name>_nobg.png" in the same directory.
+    static func noBackgroundDestination(for fileURL: URL) -> URL {
+        let dir = fileURL.deletingLastPathComponent()
+        let baseName = fileURL.deletingPathExtension().lastPathComponent
+        return dir.appendingPathComponent("\(baseName)_nobg.png")
+    }
+
+    /// Destination URL for archive: single file -> "<name>.zip", multiple -> "Archive.zip".
+    static func zipDestination(for urls: [URL]) -> URL? {
+        guard let first = urls.first else { return nil }
+        let dir = first.deletingLastPathComponent()
+        if urls.count == 1 {
+            let baseName = first.deletingPathExtension().lastPathComponent
+            return dir.appendingPathComponent("\(baseName).zip")
+        }
+        return dir.appendingPathComponent("Archive.zip")
+    }
+
+    /// Destination URL for image format conversion: "<name>.<ext>"
+    static func convertedDestination(for fileURL: URL, format: ImageTargetFormat) -> URL {
+        let dir = fileURL.deletingLastPathComponent()
+        let baseName = fileURL.deletingPathExtension().lastPathComponent
+        return dir.appendingPathComponent("\(baseName).\(format.fileExtension)")
+    }
+
+    /// Destination URL for combined PDF from multiple files.
+    static func combinedPDFDestination(for urls: [URL]) -> URL? {
+        guard let first = urls.first else { return nil }
+        let dir = first.deletingLastPathComponent()
+        if urls.count == 1 {
+            let baseName = first.deletingPathExtension().lastPathComponent
+            return dir.appendingPathComponent("\(baseName)_combined.pdf")
+        }
+        return dir.appendingPathComponent("Combined.pdf")
+    }
+}
