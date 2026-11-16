@@ -40,6 +40,52 @@ final class KeyGuardPipelineTests: XCTestCase {
         XCTAssertEqual(KeyGuardPipeline.reduce(.keyDown(keyCode: q, modifiers: [.command]),
                                                state: KeyGuardState(slowQuitEnabled: true, slowQuitApplies: false)).decision, .passThrough)
     }
+
+    func testSlowQuitIgnoresSystemAndModifiedQuitChords() {
+        let state = KeyGuardState(slowQuitEnabled: true, slowQuitApplies: true)
+        XCTAssertEqual(KeyGuardPipeline.reduce(.keyDown(keyCode: q, modifiers: [.command, .shift]), state: state).decision, .passThrough, "⌘⇧Q Log Out must pass through")
+        XCTAssertEqual(KeyGuardPipeline.reduce(.keyDown(keyCode: q, modifiers: [.command, .control]), state: state).decision, .passThrough, "⌘⌃Q Lock Screen must pass through")
+        XCTAssertEqual(KeyGuardPipeline.reduce(.keyDown(keyCode: q, modifiers: [.command, .option]), state: state).decision, .passThrough, "⌘⌥Q Quit and Keep Windows must pass through")
+    }
+
+    func testSlowQuitSwallowsAutorepeatKeyDown() {
+        let state = KeyGuardState(slowQuitEnabled: true, slowQuitApplies: true, slowQuitHolding: true)
+        let repeated = KeyGuardPipeline.reduce(.keyDown(keyCode: q, modifiers: [.command]), state: state, isRepeat: true)
+        XCTAssertEqual(repeated.decision, .swallow)
+
+        // Even after hold fired and slowQuitHolding cleared, autorepeat while Q is still held must not start a new hold.
+        let postFireState = KeyGuardState(slowQuitEnabled: true, slowQuitApplies: true, slowQuitHolding: false)
+        let postFireRepeat = KeyGuardPipeline.reduce(.keyDown(keyCode: q, modifiers: [.command]), state: postFireState, isRepeat: true)
+        XCTAssertEqual(postFireRepeat.decision, .swallow)
+        XCTAssertFalse(postFireRepeat.state.slowQuitHolding)
+    }
+
+    func testSlowQuitCancelsOnEscapeOrCommandRelease() {
+        let holding = KeyGuardState(slowQuitEnabled: true, slowQuitApplies: true, slowQuitHolding: true)
+        let escaped = KeyGuardPipeline.reduce(.keyDown(keyCode: KeyGuardPipeline.escapeKeyCode, modifiers: []), state: holding)
+        XCTAssertEqual(escaped.decision, .consumeAndFire(.slowQuitReleased))
+        XCTAssertFalse(escaped.state.slowQuitHolding)
+
+        let cmdReleased = KeyGuardPipeline.reduce(.flagsChanged(modifiers: []), state: holding)
+        XCTAssertEqual(cmdReleased.decision, .consumeAndFire(.slowQuitReleased))
+        XCTAssertFalse(cmdReleased.state.slowQuitHolding)
+    }
+
+    func testSlowQuitSkipsWhenSecureInputActive() {
+        let state = KeyGuardState(slowQuitEnabled: true, slowQuitApplies: true, secureInputActive: true)
+        XCTAssertEqual(KeyGuardPipeline.reduce(.keyDown(keyCode: q, modifiers: [.command]), state: state).decision, .passThrough)
+    }
+
+    func testSlowQuitDoubleTapTiming() {
+        var timing = SlowQuitDoubleTapTiming(window: 0.5)
+        let t0 = Date(timeIntervalSince1970: 1000)
+        XCTAssertEqual(timing.registerTap(at: t0), .armed)
+        XCTAssertEqual(timing.registerTap(at: t0.addingTimeInterval(0.3)), .fire)
+        XCTAssertEqual(timing.registerTap(at: t0.addingTimeInterval(0.4)), .armed, "second tap consumed the armed window")
+        XCTAssertEqual(timing.registerTap(at: t0.addingTimeInterval(1.2)), .armed, "expired window re-arms instead of firing")
+        timing.reset()
+        XCTAssertEqual(timing.registerTap(at: t0.addingTimeInterval(1.3)), .armed)
+    }
 }
 
 /// 53i: remote desktops and virtual machines keep their own ⌘Q.

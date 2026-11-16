@@ -9,11 +9,16 @@ final class SlowQuitOverlayController {
     private var panel: NSPanel?
     private let model = SlowQuitHoldModel()
 
-    func show(app: NSRunningApplication, progress: Double) {
+    func show(app: NSRunningApplication, progress: Double, style: SlowQuitOverlayStyle = .ring, mode: SlowQuitMode = .hold) {
         model.name = app.localizedName ?? app.bundleIdentifier ?? ""
         model.icon = app.icon
         model.progress = progress
+        model.style = style
+        model.mode = mode
         let panel = self.panel ?? makePanel()
+        if let fitting = panel.contentView?.fittingSize, fitting.width > 0, fitting.height > 0 {
+            panel.setContentSize(fitting)
+        }
         position(panel)
         panel.orderFrontRegardless()
     }
@@ -23,7 +28,7 @@ final class SlowQuitOverlayController {
     func hide() { panel?.orderOut(nil) }
 
     private func makePanel() -> NSPanel {
-        let panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 280, height: 96),
+        let panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 280, height: 148),
                             styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: true)
         panel.isFloatingPanel = true
         panel.level = .statusBar
@@ -55,18 +60,71 @@ private final class SlowQuitHoldModel: ObservableObject {
     @Published var name = ""
     @Published var icon: NSImage?
     @Published var progress = 0.0
+    @Published var style: SlowQuitOverlayStyle = .ring
+    @Published var mode: SlowQuitMode = .hold
 }
 
 private struct SlowQuitHoldView: View {
     @ObservedObject var model: SlowQuitHoldModel
 
     var body: some View {
-        VStack(spacing: 12) {
+        Group {
+            switch model.style {
+            case .ring:
+                ringBody
+            case .bar:
+                barBody
+            }
+        }
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(.quaternary))
+    }
+
+    private var ringBody: some View {
+        VStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .stroke(Color.primary.opacity(0.14), lineWidth: 4.5)
+                Circle()
+                    .trim(from: 0, to: CGFloat(min(max(model.progress, 0), 1)))
+                    .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 4.5, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .animation(.linear(duration: 0.05), value: model.progress)
+                if let icon = model.icon {
+                    Image(nsImage: icon)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 44, height: 44)
+                }
+            }
+            .frame(width: 68, height: 68)
+
+            VStack(spacing: 2) {
+                Text(model.name)
+                    .font(.headline)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                Text(hintText)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+        .frame(width: 220)
+    }
+
+    private var barBody: some View {
+        VStack(spacing: 10) {
             HStack(spacing: 10) {
                 if let icon = model.icon {
                     Image(nsImage: icon).resizable().aspectRatio(contentMode: .fit).frame(width: 28, height: 28)
                 }
-                Text(model.name).font(.headline).lineLimit(1).truncationMode(.tail)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(model.name).font(.headline).lineLimit(1).truncationMode(.tail)
+                    Text(hintText).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                }
             }
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
@@ -81,7 +139,14 @@ private struct SlowQuitHoldView: View {
         .padding(.horizontal, 18)
         .padding(.vertical, 14)
         .frame(width: 280)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(.quaternary))
+    }
+
+    private var hintText: String {
+        switch model.mode {
+        case .hold:
+            return String(localized: "Hold ⌘Q to quit · Esc to cancel")
+        case .doubleTap:
+            return String(localized: "Press ⌘Q again to quit")
+        }
     }
 }

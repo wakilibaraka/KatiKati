@@ -18,6 +18,10 @@ final class KeyGuardService: ObservableObject {
     static let slowQuitKey = "com.katikati.keyguard.slowQuit"
     static let slowQuitDurationKey = "com.katikati.keyguard.slowQuitDuration"
     static let slowQuitExceptionsKey = "com.katikati.keyguard.slowQuitExceptions"
+    static let slowQuitModeKey = "com.katikati.keyguard.slowQuitMode"
+    static let slowQuitListModeKey = "com.katikati.keyguard.slowQuitListMode"
+    static let slowQuitShowOverlayKey = "com.katikati.keyguard.slowQuitShowOverlay"
+    static let slowQuitOverlayStyleKey = "com.katikati.keyguard.slowQuitOverlayStyle"
     static let visualizerKey = "com.katikati.keyguard.visualizer"
     static let capsProtectionKey = "com.katikati.keyguard.capsHold"
     static let finderKeysKey = "com.katikati.keyguard.finderKeys"
@@ -35,8 +39,21 @@ final class KeyGuardService: ObservableObject {
         let stored = UserDefaults.standard.double(forKey: KeyGuardService.slowQuitDurationKey)
         return stored > 0 ? min(max(stored, 0.2), 5) : SlowQuitTiming().threshold
     }()
-    /// Comma-separated bundle IDs that quit instantly instead of on hold.
+    /// Comma-separated bundle IDs that quit instantly instead of on hold (or only protected apps when inverted).
     @Published private(set) var slowQuitExceptions = UserDefaults.standard.string(forKey: KeyGuardService.slowQuitExceptionsKey) ?? ""
+    @Published private(set) var slowQuitMode: SlowQuitMode = {
+        SlowQuitMode(rawValue: UserDefaults.standard.string(forKey: KeyGuardService.slowQuitModeKey) ?? "") ?? .hold
+    }()
+    @Published private(set) var slowQuitListMode: SlowQuitListMode = {
+        SlowQuitListMode(rawValue: UserDefaults.standard.string(forKey: KeyGuardService.slowQuitListModeKey) ?? "") ?? .allExceptListed
+    }()
+    @Published private(set) var slowQuitShowOverlay: Bool = {
+        if UserDefaults.standard.object(forKey: KeyGuardService.slowQuitShowOverlayKey) == nil { return true }
+        return UserDefaults.standard.bool(forKey: KeyGuardService.slowQuitShowOverlayKey)
+    }()
+    @Published private(set) var slowQuitOverlayStyle: SlowQuitOverlayStyle = {
+        SlowQuitOverlayStyle(rawValue: UserDefaults.standard.string(forKey: KeyGuardService.slowQuitOverlayStyleKey) ?? "") ?? .ring
+    }()
     /// Phase 24d: the key visualizer. Off by default (owner override); keycaps are never logged or saved.
     @Published private(set) var isVisualizerEnabled = UserDefaults.standard.bool(forKey: KeyGuardService.visualizerKey)
     /// 53a: a quick Caps Lock tap does nothing, a short hold toggles. Off by default like the other guards.
@@ -61,6 +78,8 @@ final class KeyGuardService: ObservableObject {
     private var holdStartedAt: Date?
     private var holdTarget: NSRunningApplication?
     private var holdTimer: Timer?
+    private var doubleTapTiming = SlowQuitDoubleTapTiming()
+    private var doubleTapTimeoutWork: DispatchWorkItem?
     private var overlay: SlowQuitOverlayController?
     private var keyOverlay: KeyVisualizerController?
     private var visualizerTimer: Timer?
@@ -176,6 +195,37 @@ final class KeyGuardService: ObservableObject {
         refresh()
     }
 
+    func setSlowQuitMode(_ mode: SlowQuitMode) {
+        guard mode != slowQuitMode else { return }
+        endHold()
+        doubleTapTiming.reset()
+        doubleTapTimeoutWork?.cancel()
+        doubleTapTimeoutWork = nil
+        slowQuitMode = mode
+        UserDefaults.standard.set(mode.rawValue, forKey: Self.slowQuitModeKey)
+        refresh()
+    }
+
+    func setSlowQuitListMode(_ mode: SlowQuitListMode) {
+        guard mode != slowQuitListMode else { return }
+        slowQuitListMode = mode
+        UserDefaults.standard.set(mode.rawValue, forKey: Self.slowQuitListModeKey)
+        refresh()
+    }
+
+    func setSlowQuitShowOverlay(_ show: Bool) {
+        guard show != slowQuitShowOverlay else { return }
+        slowQuitShowOverlay = show
+        UserDefaults.standard.set(show, forKey: Self.slowQuitShowOverlayKey)
+        if !show { overlay?.hide() }
+    }
+
+    func setSlowQuitOverlayStyle(_ style: SlowQuitOverlayStyle) {
+        guard style != slowQuitOverlayStyle else { return }
+        slowQuitOverlayStyle = style
+        UserDefaults.standard.set(style.rawValue, forKey: Self.slowQuitOverlayStyleKey)
+    }
+
     func setVisualizer(_ on: Bool) {
         guard on != isVisualizerEnabled else { return }
         isVisualizerEnabled = on
@@ -216,12 +266,17 @@ final class KeyGuardService: ObservableObject {
 
     var passthroughPolicy: SlowQuitPassthrough { .parse(passthroughApps) }
 
-    /// The SlowQuit allow/deny view the pipeline sees. `deny` = quit instantly, no hold.
+    /// The SlowQuit allow/deny view the pipeline sees.
     var slowQuitPolicy: SlowQuitPolicy {
-        let deny = slowQuitExceptions
+        let listed = Set(slowQuitExceptions
             .split { $0 == "," || $0.isWhitespace }
-            .map(String.init)
-        return SlowQuitPolicy(deny: Set(deny))
+            .map(String.init))
+        switch slowQuitListMode {
+        case .allExceptListed:
+            return SlowQuitPolicy(deny: listed)
+        case .onlyListedApps:
+            return SlowQuitPolicy(allow: listed)
+        }
     }
 
     /// Start the tap when a guard is on, stop it when all are off, and push the current state.
@@ -333,6 +388,10 @@ final class KeyGuardService: ObservableObject {
 
     private func stop() {
         endHold()
+        doubleTapTimeoutWork?.cancel()
+        doubleTapTimeoutWork = nil
+        doubleTapTiming.reset()
+        overlay?.hide()
         visualizerTimer?.invalidate()
         visualizerTimer = nil
         keyOverlay?.hide()
@@ -362,14 +421,43 @@ final class KeyGuardService: ObservableObject {
     // MARK: - SlowQuit hold
 
     private func beginHold() {
-        guard holdStartedAt == nil else { return }
         guard let app = NSWorkspace.shared.frontmostApplication,
               slowQuitPolicy.applies(to: app.bundleIdentifier) else { return }
+
+        if slowQuitMode == .doubleTap {
+            doubleTapTimeoutWork?.cancel()
+            doubleTapTimeoutWork = nil
+            switch doubleTapTiming.registerTap() {
+            case .fire:
+                overlay?.hide()
+                if !app.terminate() { log.warning("SlowQuit could not terminate \(app.bundleIdentifier ?? "?")") }
+            case .armed:
+                if slowQuitShowOverlay {
+                    let overlay = self.overlay ?? SlowQuitOverlayController()
+                    self.overlay = overlay
+                    overlay.show(app: app, progress: 0.5, style: slowQuitOverlayStyle, mode: .doubleTap)
+                }
+                let work = DispatchWorkItem { [weak self] in
+                    MainActor.assumeIsolated {
+                        self?.doubleTapTiming.reset()
+                        self?.doubleTapTimeoutWork = nil
+                        self?.overlay?.hide()
+                    }
+                }
+                doubleTapTimeoutWork = work
+                DispatchQueue.main.asyncAfter(deadline: .now() + doubleTapTiming.window, execute: work)
+            }
+            return
+        }
+
+        guard holdStartedAt == nil else { return }
         holdStartedAt = Date()
         holdTarget = app
-        let overlay = self.overlay ?? SlowQuitOverlayController()
-        self.overlay = overlay
-        overlay.show(app: app, progress: 0)
+        if slowQuitShowOverlay {
+            let overlay = self.overlay ?? SlowQuitOverlayController()
+            self.overlay = overlay
+            overlay.show(app: app, progress: 0, style: slowQuitOverlayStyle, mode: .hold)
+        }
         holdTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.tick() }
         }
@@ -379,7 +467,9 @@ final class KeyGuardService: ObservableObject {
         guard let startedAt = holdStartedAt else { return }
         let elapsed = -startedAt.timeIntervalSinceNow
         if elapsed >= slowQuitDuration { fireHold() }
-        else { overlay?.update(progress: SlowQuitTiming(threshold: slowQuitDuration).progress(heldFor: elapsed)) }
+        else if slowQuitShowOverlay {
+            overlay?.update(progress: SlowQuitTiming(threshold: slowQuitDuration).progress(heldFor: elapsed))
+        }
     }
 
     private func fireHold() {
@@ -389,6 +479,7 @@ final class KeyGuardService: ObservableObject {
     }
 
     private func endHold() {
+        if slowQuitMode == .doubleTap { return }
         guard holdStartedAt != nil else { return }
         holdTimer?.invalidate()
         holdTimer = nil
@@ -608,9 +699,11 @@ final class KeyGuardShared: @unchecked Sendable {
         lock.unlock()
     }
 
-    func decide(_ event: KeyGuardEvent) -> (decision: KeyGuardDecision, state: KeyGuardState) {
+    func decide(_ event: KeyGuardEvent, isRepeat: Bool = false) -> (decision: KeyGuardDecision, state: KeyGuardState) {
         lock.lock(); defer { lock.unlock() }
-        let outcome = KeyGuardPipeline.reduce(event, state: state)
+        var effectiveState = state
+        effectiveState.secureInputActive = IsSecureEventInputEnabled()
+        let outcome = KeyGuardPipeline.reduce(event, state: effectiveState, isRepeat: isRepeat)
         state = outcome.state
         guard state.finderKeysActive else {
             finderMap.reset()
@@ -692,6 +785,10 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
     }
     if type == .flagsChanged {
         shared.handleFlagsChanged(flags: event.flags)
+        let outcome = shared.decide(.flagsChanged(modifiers: keyModifiers(event.flags)))
+        if case .consumeAndFire(let action) = outcome.decision {
+            shared.onAction(action)
+        }
         return Unmanaged.passUnretained(event)
     }
     guard type == .keyDown || type == .keyUp else { return Unmanaged.passUnretained(event) }
@@ -719,7 +816,8 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
         }
     }
     if type == .keyDown, let symbol = keycapSymbol(event) { shared.record(symbol: symbol) }
-    let outcome = shared.decide(keyEvent)
+    let isRepeat = type == .keyDown && event.getIntegerValueField(.keyboardEventAutorepeat) != 0
+    let outcome = shared.decide(keyEvent, isRepeat: isRepeat)
     if DebugSwitch.keyGuardTrace.isEnabled() {
         keyGuardLog.debug("keyguard \(String(describing: keyEvent)) -> \(String(describing: outcome.decision))")
     }

@@ -21,12 +21,31 @@ struct KeyChord: Equatable, Sendable {
 enum KeyGuardEvent: Equatable, Sendable {
     case keyDown(keyCode: UInt16, modifiers: KeyModifiers)
     case keyUp(keyCode: UInt16, modifiers: KeyModifiers)
+    case flagsChanged(modifiers: KeyModifiers)
 }
 
 enum KeyGuardAction: Equatable, Sendable {
     case unlock
     case slowQuitPressed
     case slowQuitReleased
+}
+
+enum SlowQuitMode: String, CaseIterable, Identifiable, Sendable {
+    case hold
+    case doubleTap
+    var id: String { rawValue }
+}
+
+enum SlowQuitListMode: String, CaseIterable, Identifiable, Sendable {
+    case allExceptListed
+    case onlyListedApps
+    var id: String { rawValue }
+}
+
+enum SlowQuitOverlayStyle: String, CaseIterable, Identifiable, Sendable {
+    case ring
+    case bar
+    var id: String { rawValue }
 }
 
 enum KeyGuardDecision: Equatable, Sendable {
@@ -55,14 +74,17 @@ struct KeyGuardState: Equatable, Sendable {
     var finderKeysActive = false
     /// 53c: snippet expansion is on and the frontmost app is not on its deny list.
     var snippetsActive = false
+    /// macOS Secure Input is active (password fields / auth prompts): SlowQuit must not intercept keys.
+    var secureInputActive = false
 }
 
 enum KeyGuardPipeline {
     /// Physical ⌘Q. `shortcut: keyboard-layout-dependent (US = 12); upgrade to keyCode-free matching if
     /// non-US layouts matter.`
     static let quitKeyCode: UInt16 = 12
+    static let escapeKeyCode: UInt16 = 53
 
-    static func reduce(_ event: KeyGuardEvent, state: KeyGuardState) -> (decision: KeyGuardDecision, state: KeyGuardState) {
+    static func reduce(_ event: KeyGuardEvent, state: KeyGuardState, isRepeat: Bool = false) -> (decision: KeyGuardDecision, state: KeyGuardState) {
         var next = state
 
         if state.paused {
@@ -76,10 +98,19 @@ enum KeyGuardPipeline {
         guard state.slowQuitEnabled, state.slowQuitApplies, !state.slowQuitPassthrough else { return (.passThrough, next) }
 
         switch event {
-        case .keyDown(quitKeyCode, let mods) where mods.contains(.command):
+        case .keyDown(quitKeyCode, let mods) where mods == .command && !state.secureInputActive:
+            if isRepeat {
+                return (.swallow, next)
+            }
             next.slowQuitHolding = true
             return (.consumeAndFire(.slowQuitPressed), next)
+        case .keyDown(escapeKeyCode, _) where state.slowQuitHolding:
+            next.slowQuitHolding = false
+            return (.consumeAndFire(.slowQuitReleased), next)
         case .keyUp(quitKeyCode, _) where state.slowQuitHolding:
+            next.slowQuitHolding = false
+            return (.consumeAndFire(.slowQuitReleased), next)
+        case .flagsChanged(let mods) where state.slowQuitHolding && !mods.contains(.command):
             next.slowQuitHolding = false
             return (.consumeAndFire(.slowQuitReleased), next)
         default:
@@ -211,6 +242,28 @@ struct SlowQuitTiming: Equatable, Sendable {
     func shouldFire(heldFor: TimeInterval) -> Bool { heldFor >= threshold }
 }
 
+/// Supercharge-style double-tap ⌘Q timing. First tap arms a short window; second tap within `window` fires.
+struct SlowQuitDoubleTapTiming: Equatable, Sendable {
+    var window: TimeInterval = 0.5
+    private(set) var lastTapAt: Date?
+
+    enum Step: Equatable, Sendable {
+        case armed
+        case fire
+    }
+
+    mutating func registerTap(at now: Date = Date()) -> Step {
+        if let last = lastTapAt, now.timeIntervalSince(last) <= window {
+            lastTapAt = nil
+            return .fire
+        }
+        lastTapAt = now
+        return .armed
+    }
+
+    mutating func reset() { lastTapAt = nil }
+}
+
 /// Phase 24a: which apps SlowQuit applies to. `allow == nil` means "all except `deny`".
 struct SlowQuitPolicy: Equatable, Sendable {
     var allow: Set<String>?
@@ -294,7 +347,7 @@ enum KeyAudioPolicy {
         switch event {
         case .keyDown:
             return true
-        case .keyUp:
+        case .keyUp, .flagsChanged:
             return false
         }
     }
