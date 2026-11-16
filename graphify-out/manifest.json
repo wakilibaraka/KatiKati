@@ -2130,9 +2130,9 @@
     "semantic_hash": "39111617823c4e78ec050dc24220a8d4"
   },
   "Core/Support/NowPlayingProgress.swift": {
-    "mtime": 1794842889.4847777,
-    "seen": 1794844459.764849,
-    "ast_hash": "5336845dc046b12b902f34452d1a6d7b",
+    "mtime": 1794847539.6548471,
+    "seen": 1794847660.5882618,
+    "ast_hash": "fadce49213008ef530dc386eb7104446",
     "semantic_hash": ""
   },
   "Core/Support/NowPlayingService.swift": {
@@ -3888,9 +3888,9 @@
     "semantic_hash": "5a9b16411a27d8ed70a563d5dcd9b371"
   },
   "Tests/Unit/NowPlayingProgressTests.swift": {
-    "mtime": 1794841853.820427,
-    "seen": 1794844459.765141,
-    "ast_hash": "58eece7e44ededf348f0bd018e6403c9",
+    "mtime": 1794847551.6689582,
+    "seen": 1794847660.588542,
+    "ast_hash": "041fae87787be5d05523e1ee5d685db3",
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingServiceTests.swift": {
