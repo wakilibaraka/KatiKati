@@ -49,4 +49,20 @@ final class WindowSwitcherModelTests: XCTestCase {
         XCTAssertEqual(WindowSwitcherModel.columns(count: 13), 5)  // 3 rows
         XCTAssertEqual(WindowSwitcherModel.columns(count: 0), 1)
     }
+
+    func testNumberedWindowSwitcherBadgesAndDigits() {
+        XCTAssertEqual(NumberedWindowSwitcherModel.digitBadge(for: 0), "1")
+        XCTAssertEqual(NumberedWindowSwitcherModel.digitBadge(for: 8), "9")
+        XCTAssertNil(NumberedWindowSwitcherModel.digitBadge(for: 9))
+        XCTAssertNil(NumberedWindowSwitcherModel.digitBadge(for: -1))
+
+        XCTAssertEqual(NumberedWindowSwitcherModel.index(forDigit: 1, count: 5), 0)
+        XCTAssertEqual(NumberedWindowSwitcherModel.index(forDigit: 5, count: 5), 4)
+        XCTAssertNil(NumberedWindowSwitcherModel.index(forDigit: 6, count: 5))
+        XCTAssertNil(NumberedWindowSwitcherModel.index(forDigit: 0, count: 5))
+
+        XCTAssertEqual(NumberedWindowSwitcherModel.digit(fromKeyCode: 18), 1)
+        XCTAssertEqual(NumberedWindowSwitcherModel.digit(fromKeyCode: 25), 9)
+        XCTAssertNil(NumberedWindowSwitcherModel.digit(fromKeyCode: 49)) // Space
+    }
 }

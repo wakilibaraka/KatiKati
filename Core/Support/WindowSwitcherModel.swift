@@ -56,3 +56,37 @@ enum WindowSwitcherModel {
         return next >= 0 && next < count ? next : selection
     }
 }
+
+// MARK: - Numbered Window Switcher Model (Slice 3.1: SC-AltTabNumbered)
+
+/// Pure digit-based direct navigation and shortcut actions for Window Switcher.
+enum NumberedWindowSwitcherModel {
+    /// Returns 1-based digit badge for index 0...8 ("1"..."9"); nil for index >= 9.
+    static func digitBadge(for index: Int) -> String? {
+        guard index >= 0, index < 9 else { return nil }
+        return "\(index + 1)"
+    }
+
+    /// Resolves target selection index from digit (1...9), clamped to available count.
+    static func index(forDigit digit: Int, count: Int) -> Int? {
+        guard digit >= 1, digit <= 9, count > 0 else { return nil }
+        let idx = digit - 1
+        return idx < count ? idx : nil
+    }
+
+    /// Maps standard macOS ANSI number row key codes (1-9) to integer digits.
+    static func digit(fromKeyCode keyCode: UInt16) -> Int? {
+        switch keyCode {
+        case 18: return 1 // 1
+        case 19: return 2 // 2
+        case 20: return 3 // 3
+        case 21: return 4 // 4
+        case 23: return 5 // 5
+        case 22: return 6 // 6
+        case 26: return 7 // 7
+        case 28: return 8 // 8
+        case 25: return 9 // 9
+        default: return nil
+        }
+    }
+}

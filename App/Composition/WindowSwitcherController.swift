@@ -242,9 +242,18 @@ final class WindowSwitcherController: ObservableObject {
             selection = WindowSwitcherModel.rowStep(selection: selection, count: tiles.count, columns: columns, down: code == kVK_DownArrow)
         case kVK_Return: commit()
         case kVK_Delete:
-            guard !query.isEmpty else { return true }
+            guard !query.isEmpty else {
+                act(.close)
+                return true
+            }
             query.removeLast(); applyQuery()
         default:
+            if query.isEmpty, let digit = NumberedWindowSwitcherModel.digit(fromKeyCode: event.keyCode),
+               let idx = NumberedWindowSwitcherModel.index(forDigit: digit, count: tiles.count) {
+                selection = idx
+                commit()
+                return true
+            }
             guard let text = event.charactersIgnoringModifiers, text.count == 1,
                   let scalar = text.unicodeScalars.first, scalar.value >= 32, scalar.value != 127 else { return false }
             query += text; applyQuery()
@@ -329,7 +338,7 @@ private struct WindowSwitcherView: View {
                 Spacer()
                 Toggle("Always visible", isOn: $controller.pinned).toggleStyle(.switch).controlSize(.small)
             }
-            Text(verbatim: controller.query.isEmpty ? "Type to search · ↑↓ choose · ⌘W close" : "🔍 \(controller.query)")
+            Text(verbatim: controller.query.isEmpty ? "1–9 Jump · Type to search · ↑↓ choose · ⌘W close" : "🔍 \(controller.query)")
                 .font(.system(size: 11)).foregroundStyle(.secondary)
                 .padding(8).frame(maxWidth: .infinity, alignment: .leading)
                 .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.black.opacity(0.14)))
@@ -338,7 +347,7 @@ private struct WindowSwitcherView: View {
                     VStack(spacing: 8) {
                         if controller.tiles.isEmpty { Text("No matching windows").foregroundStyle(.secondary).padding(30) }
                         ForEach(Array(controller.tiles.enumerated()), id: \.element.id) { index, tile in
-                            tileView(tile, selected: index == controller.selection, showsAppName: true)
+                            tileView(tile, index: index, selected: index == controller.selection, showsAppName: true)
                                 .frame(maxWidth: .infinity)
                                 .id(tile.id)
                                 .onTapGesture { onPick(index) }
@@ -363,13 +372,13 @@ private struct WindowSwitcherView: View {
         let indexed = Array(controller.tiles.enumerated())
         let rows = stride(from: 0, to: indexed.count, by: columns).map { Array(indexed[$0..<min($0 + columns, indexed.count)]) }
         VStack(spacing: 10) {
-            Text(verbatim: controller.query.isEmpty ? "Type to search · ⌘W close · ⌘M minimize · ⌘Q quit" : "🔍 \(controller.query)")
+            Text(verbatim: controller.query.isEmpty ? "1–9 Jump · Type to search · ⌘W close · ⌘M minimize" : "🔍 \(controller.query)")
                 .font(.system(size: 11)).foregroundStyle(.secondary)
             if controller.tiles.isEmpty { Text("No matching windows").foregroundStyle(.secondary).padding(30) }
             ForEach(rows.indices, id: \.self) { r in
                 HStack(spacing: 10) {
                     ForEach(rows[r], id: \.element.id) { index, tile in
-                        tileView(tile, selected: index == controller.selection)
+                        tileView(tile, index: index, selected: index == controller.selection)
                             .onTapGesture { onPick(index) }
                     }
                 }
@@ -380,7 +389,7 @@ private struct WindowSwitcherView: View {
         .padding(20)
     }
 
-    private func tileView(_ tile: WindowSwitcherController.Tile, selected: Bool, showsAppName: Bool = false) -> some View {
+    private func tileView(_ tile: WindowSwitcherController.Tile, index: Int, selected: Bool, showsAppName: Bool = false) -> some View {
         VStack(spacing: 6) {
             ZStack {
                 RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.black.opacity(0.18))
@@ -394,6 +403,16 @@ private struct WindowSwitcherView: View {
                 }
             }
             .frame(height: 104)
+            .overlay(alignment: .topLeading) {
+                if let badge = NumberedWindowSwitcherModel.digitBadge(for: index) {
+                    Text(verbatim: badge)
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 5).padding(.vertical, 2)
+                        .background(Capsule().fill(Color.black.opacity(0.65)))
+                        .padding(4)
+                }
+            }
             .overlay(alignment: .topTrailing) {
                 if selected {
                     Button { controller.act(.close, on: tile.id) } label: {
