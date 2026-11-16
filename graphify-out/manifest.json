@@ -3810,10 +3810,10 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NotchFallbackPlanTests.swift": {
-    "mtime": 1792015649.7105799,
-    "seen": 1792295707.060761,
-    "ast_hash": "2f79b60f16fdd16e5763473bfcb53273",
-    "semantic_hash": "2f79b60f16fdd16e5763473bfcb53273"
+    "mtime": 1794845854.9221542,
+    "seen": 1794846332.571809,
+    "ast_hash": "daf6d3692c4e98c0bf933e549882ef6d",
+    "semantic_hash": ""
   },
   "Tests/Unit/NotchGeometryTests.swift": {
     "mtime": 1792039121.2790272,
