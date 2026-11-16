@@ -8,6 +8,8 @@ struct NotchMusicPanel: View {
     @ObservedObject var feed: LiveActivityFeed
     @ObservedObject private var lyricsStore = LyricsStore.shared
     @AppStorage(LyricsTrack.enabledKey) private var showLyrics = false
+    @State private var showQueuePopover = false
+    @State private var upcomingQueue: [NowPlayingQueueItem] = []
     var isIdle = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -99,11 +101,17 @@ struct NotchMusicPanel: View {
             let elapsed = fraction * duration
             let lyricLines = showLyrics ? lyricsStore.lines(title: state.title, artist: state.artist) : []
             VStack(alignment: .leading, spacing: 3) {
-                if showLyrics, let activeLyric = LyricsTrack.activeLine(in: lyricLines, at: elapsed) {
-                    Text(verbatim: activeLyric)
-                        .font(.system(size: 10, weight: .medium, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.82))
-                        .lineLimit(1)
+                if showLyrics {
+                    let window = LyricTimelineMatcher.window(in: lyricLines, at: elapsed, windowSize: 2)
+                    VStack(alignment: .leading, spacing: 1) {
+                        ForEach(Array(window.enumerated()), id: \.offset) { _, line in
+                            let isActive = (line.text == LyricsTrack.activeLine(in: lyricLines, at: elapsed))
+                            Text(verbatim: line.text)
+                                .font(.system(size: isActive ? 10.5 : 9, weight: isActive ? .semibold : .regular, design: .rounded))
+                                .foregroundStyle(isActive ? .white : .white.opacity(0.45))
+                                .lineLimit(1)
+                        }
+                    }
                 }
                 HStack(spacing: 8) {
                     Text(verbatim: Self.clock(elapsed)).frame(minWidth: 30, alignment: .trailing)
@@ -129,7 +137,7 @@ struct NotchMusicPanel: View {
     }
 
     private func transport(_ state: NowPlayingState) -> some View {
-        HStack(spacing: 20) {
+        HStack(spacing: 16) {
             Button { feed.previousTrack() } label: { Image(systemName: "backward.end.fill").font(.system(size: 15)) }
             Button { feed.togglePlayPause() } label: {
                 Image(systemName: state.isPlaying && !isIdle ? "pause.fill" : "play.fill")
@@ -138,6 +146,14 @@ struct NotchMusicPanel: View {
                     .background(Circle().fill(Color.white))
             }
             Button { feed.nextTrack() } label: { Image(systemName: "forward.end.fill").font(.system(size: 15)) }
+            Button { showQueuePopover.toggle() } label: {
+                Image(systemName: "list.bullet")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.white.opacity(showQueuePopover ? 1.0 : 0.6))
+            }
+            .popover(isPresented: $showQueuePopover) {
+                NotchQueuePopoverView(queue: $upcomingQueue)
+            }
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity)
@@ -215,5 +231,161 @@ struct NotchQuickActions: View {
             .background(Capsule().fill(Color.white.opacity(0.14)))
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Queue Popover & Detachable Floating Player (Slice 2.4)
+
+struct NotchQueuePopoverView: View {
+    @Binding var queue: [NowPlayingQueueItem]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(verbatim: "Playing Next")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(.secondary)
+            if queue.isEmpty {
+                Text(verbatim: "No upcoming tracks")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.tertiary)
+                    .padding(.vertical, 8)
+            } else {
+                ForEach(queue) { item in
+                    HStack(spacing: 8) {
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(verbatim: item.title)
+                                .font(.system(size: 11, weight: .medium))
+                                .lineLimit(1)
+                            if !item.artist.isEmpty {
+                                Text(verbatim: item.artist)
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                            }
+                        }
+                        Spacer()
+                        Button {
+                            withAnimation(.spring(response: 0.25)) {
+                                queue = NowPlayingQueueReorderPlan.promoteTrackToTop(in: queue, id: item.id)
+                            }
+                        } label: {
+                            Image(systemName: "arrow.up.to.line")
+                                .font(.system(size: 10))
+                        }
+                        .buttonStyle(.plain)
+                        .help("Promote to top of queue")
+                    }
+                    .padding(.vertical, 2)
+                }
+            }
+        }
+        .padding(10)
+        .frame(width: 180)
+    }
+}
+
+/// Detachable floating music player panel supporting 3 responsive sizes (mini, player, expanded).
+struct FloatingPlayerPanel: View {
+    @ObservedObject var feed: LiveActivityFeed
+    @State var size: FloatingPlayerSize = .player
+    @State private var queue: [NowPlayingQueueItem] = []
+    @ObservedObject private var lyricsStore = LyricsStore.shared
+
+    var body: some View {
+        let state = feed.nowPlayingState
+        let dims = size.defaultDimensions
+        ZStack {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+
+            switch size {
+            case .mini:
+                miniContent(state)
+            case .player:
+                playerContent(state)
+            case .expanded:
+                expandedContent(state)
+            }
+        }
+        .frame(width: dims.width, height: dims.height)
+        .shadow(color: Color.black.opacity(0.35), radius: 12, y: 6)
+    }
+
+    private func miniContent(_ state: NowPlayingState) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "music.note")
+                .font(.system(size: 13, weight: .bold))
+                .foregroundColor(.white)
+            Text(verbatim: state.title ?? "Not Playing")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(.white)
+                .lineLimit(1)
+            Spacer()
+            Button { feed.togglePlayPause() } label: {
+                Image(systemName: state.isPlaying ? "pause.fill" : "play.fill")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.white)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 12)
+    }
+
+    private func playerContent(_ state: NowPlayingState) -> some View {
+        HStack(spacing: 12) {
+            if let data = state.artworkData, let img = NSImage(data: data) {
+                Image(nsImage: img).resizable().aspectRatio(contentMode: .fill)
+                    .frame(width: 48, height: 48)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            } else {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color.white.opacity(0.1))
+                    .frame(width: 48, height: 48)
+                    .overlay(Image(systemName: "music.note").foregroundColor(.white.opacity(0.5)))
+            }
+            VStack(alignment: .leading, spacing: 3) {
+                Text(verbatim: state.title ?? "Not Playing")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                Text(verbatim: state.artist ?? "")
+                    .font(.system(size: 11))
+                    .foregroundColor(.white.opacity(0.6))
+                    .lineLimit(1)
+                HStack(spacing: 12) {
+                    Button { feed.previousTrack() } label: { Image(systemName: "backward.fill").font(.system(size: 11)) }
+                    Button { feed.togglePlayPause() } label: { Image(systemName: state.isPlaying ? "pause.fill" : "play.fill").font(.system(size: 13, weight: .bold)) }
+                    Button { feed.nextTrack() } label: { Image(systemName: "forward.fill").font(.system(size: 11)) }
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(.white)
+                .padding(.top, 2)
+            }
+            Spacer()
+        }
+        .padding(12)
+    }
+
+    private func expandedContent(_ state: NowPlayingState) -> some View {
+        VStack(spacing: 8) {
+            playerContent(state)
+            Divider().background(Color.white.opacity(0.1))
+            let lines = lyricsStore.lines(title: state.title, artist: state.artist)
+            let window = LyricTimelineMatcher.window(in: lines, at: state.elapsed ?? 0, windowSize: 3)
+            VStack(spacing: 4) {
+                ForEach(Array(window.enumerated()), id: \.offset) { _, line in
+                    Text(verbatim: line.text)
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.75))
+                        .lineLimit(1)
+                }
+            }
+            .padding(.horizontal, 12)
+            Spacer()
+        }
     }
 }
