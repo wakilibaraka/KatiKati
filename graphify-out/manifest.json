@@ -2142,9 +2142,9 @@
     "semantic_hash": ""
   },
   "Core/Support/PDFReducePlan.swift": {
-    "mtime": 1792551079.0381515,
-    "seen": 1792551640.809668,
-    "ast_hash": "35aacb4e999133b7567184b7c2e518ac",
+    "mtime": 1794847692.6998832,
+    "seen": 1794847806.270176,
+    "ast_hash": "d27c47620acc08cab38246a7554473bd",
     "semantic_hash": ""
   },
   "Core/Support/PinchGesture.swift": {
@@ -3900,9 +3900,9 @@
     "semantic_hash": "52c07ff03b860d17eed002105e1985f0"
   },
   "Tests/Unit/PDFReducePlanTests.swift": {
-    "mtime": 1792551093.8459284,
-    "seen": 1792551640.809907,
-    "ast_hash": "4bd2688e8312d646de2c859fb03bbb05",
+    "mtime": 1794847707.575893,
+    "seen": 1794847806.2704709,
+    "ast_hash": "10c9a412e17dc7839ba8ef65bd9694e4",
     "semantic_hash": ""
   },
   "Tests/Unit/PanelGeometryTests.swift": {
