@@ -170,4 +170,41 @@ final class NotchFallbackPlanTests: XCTestCase {
         XCTAssertEqual(extOpen.topCornerRadius, NotchFallbackPlan.floatingOpenCornerRadius)
         XCTAssertEqual(extOpen.panelFrame, CGRect(x: 660, y: 1080 - 32 - 200, width: 600, height: 200))
     }
+
+    func testActivityQueueFourTierPriorityWithNotifications() {
+        let t0 = Date(timeIntervalSince1970: 3000)
+        var queue = NotchActivityQueue(maxItems: 6)
+
+        queue.enqueue(NotchActivityItem(id: "info", priority: .systemInfo, title: "Volume", icon: "speaker.wave.2.fill", createdAt: t0), now: t0)
+        queue.enqueue(NotchActivityItem(id: "notif", priority: .notification, title: "AirDrop", icon: "airplayaudio", createdAt: t0.addingTimeInterval(1)), now: t0)
+        queue.enqueue(NotchActivityItem(id: "media", priority: .media, title: "Music", icon: "music.note", createdAt: t0.addingTimeInterval(2)), now: t0)
+        queue.enqueue(NotchActivityItem(id: "crit", priority: .critical, title: "Call", icon: "phone.fill", createdAt: t0.addingTimeInterval(3)), now: t0)
+
+        XCTAssertEqual(queue.items.map(\.id), ["crit", "media", "notif", "info"])
+        XCTAssertEqual(queue.items.first(where: { $0.id == "notif" })?.systemImage, "airplayaudio")
+    }
+
+    func testNotchGeometryCalculatorMultiDisplayOffsets() {
+        let closed = CGSize(width: 185, height: 28)
+        let open = CGSize(width: 600, height: 200)
+
+        // Secondary right-side external monitor (non-notched, offset origin)
+        let rightScreen = CGRect(x: 1920, y: 120, width: 2560, height: 1440)
+        let rightLayout = NotchGeometryCalculator.calculate(
+            screenBounds: rightScreen, topInset: 0, menuBarHeight: 24,
+            closedSize: closed, openSize: open, isExpanded: false
+        )
+        XCTAssertEqual(rightLayout.mode, .floatingCapsule)
+        XCTAssertEqual(rightLayout.panelFrame.minX, 1920 + (2560 - 185) / 2)
+        XCTAssertEqual(rightLayout.panelFrame.maxY, 120 + 1440 - 32) // 24pt menu bar + 8pt margin
+
+        // Secondary left-side external monitor (negative X origin)
+        let leftScreen = CGRect(x: -1440, y: 0, width: 1440, height: 900)
+        let leftOpen = NotchGeometryCalculator.calculate(
+            screenBounds: leftScreen, topInset: 0, menuBarHeight: 24,
+            closedSize: closed, openSize: open, isExpanded: true
+        )
+        XCTAssertEqual(leftOpen.panelFrame.minX, -1440 + (1440 - 600) / 2)
+        XCTAssertEqual(leftOpen.panelFrame.maxY, 900 - 32)
+    }
 }

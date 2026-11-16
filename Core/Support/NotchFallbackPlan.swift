@@ -148,9 +148,10 @@ extension NotchFallbackPlan {
 // MARK: - DynamicNotch Priority Queue & Geometry Calculator (Slice DN-1)
 
 /// Priority tiers for DynamicNotch live activities:
-/// Critical calls/timers > Media playback > System info/downloads.
+/// Critical calls/timers > Media playback > Notifications > System info/downloads.
 enum NotchActivityPriority: Int, Comparable, Codable, Sendable {
     case systemInfo = 100
+    case notification = 150
     case media = 200
     case critical = 300
 
@@ -166,6 +167,7 @@ struct NotchActivityItem: Identifiable, Equatable, Sendable {
     let title: String
     let subtitle: String?
     let icon: String
+    var systemImage: String { icon }
     let timeout: TimeInterval?
     let level: Double?
     let createdAt: Date
