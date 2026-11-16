@@ -4584,15 +4584,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsShell.swift": {
-    "mtime": 1792451366.8443146,
-    "seen": 1792451836.244061,
-    "ast_hash": "c6e000c419d398849d4d429cc6462859",
+    "mtime": 1794857938.5868175,
+    "seen": 1794858182.766877,
+    "ast_hash": "301af5f6d74bfb1e4ebf7e993ab65bd6",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsSidebar.swift": {
-    "mtime": 1792626128.9888601,
-    "seen": 1792630179.5261729,
-    "ast_hash": "ac810727194aa1411ec69b4e7353635e",
+    "mtime": 1794857926.168027,
+    "seen": 1794858182.766879,
+    "ast_hash": "e56a6161f91c94c6be5cdbfbe2789a01",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStage.swift": {
