@@ -127,27 +127,44 @@ struct SettingsShell: View {
 
     private var header: some View {
         let tab = tabState.selected
-        return HStack(spacing: 12) {
-            Image(systemName: tab.symbolName)
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 40, height: 40)
-                .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(tab.hueColor.gradient))
-            VStack(alignment: .leading, spacing: 2) {
-                Text(tab.title)
-                    .font(.system(size: 24, weight: .bold))
-                    .accessibilityAddTraits(.isHeader)
-                // Resolved in `SettingsTab.subtitle`; drawn verbatim, never re-localized.
-                Text(tab.subtitle)
-                    .font(.callout)
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 4) {
+                Text(verbatim: "KatiKati")
+                    .font(.system(size: 10.5, weight: .medium))
                     .foregroundStyle(.secondary)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundStyle(.tertiary)
+                Text(tab.title)
+                    .font(.system(size: 10.5, weight: .semibold))
+                    .foregroundStyle(.primary)
             }
-            Spacer(minLength: 0)
-            if !draft.changedKeys.isEmpty {
-                Button("Revert Changes") { confirmRevert = true }
-                    .help(Text("Undo every change made since Settings opened"))
+            .padding(.horizontal, 7)
+            .padding(.vertical, 2.5)
+            .background(Capsule().fill(Color.primary.opacity(0.06)))
+
+            HStack(spacing: 12) {
+                Image(systemName: tab.symbolName)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 40, height: 40)
+                    .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(tab.hueColor.gradient))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(tab.title)
+                        .font(.system(size: 24, weight: .bold))
+                        .accessibilityAddTraits(.isHeader)
+                    // Resolved in `SettingsTab.subtitle`; drawn verbatim, never re-localized.
+                    Text(tab.subtitle)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+                if !draft.changedKeys.isEmpty {
+                    Button("Revert Changes") { confirmRevert = true }
+                        .help(Text("Undo every change made since Settings opened"))
+                }
+                if tab.showsStage { stagePicker }
             }
-            if tab.showsStage { stagePicker }
         }
         .padding(.horizontal, SettingsMetrics.paneMargin)
     }
