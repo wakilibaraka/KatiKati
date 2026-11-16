@@ -8,11 +8,26 @@ import SwiftUI
 
 struct NotchNotificationsPageView: View {
     @ObservedObject private var mirror = NotificationMirrorService.shared
+    @AppStorage(NotificationHistoryStore.StorageKey.quietMode) private var quietMode = false
+    @State private var searchQuery = ""
+    @State private var unreadOnly = false
+
+    private var visibleEntries: [NotificationHistoryEntry] {
+        mirror.historyStore.visibleEntries(
+            query: searchQuery,
+            unreadOnly: unreadOnly,
+            sensitiveBundleIDs: mirror.activeSensitiveBundleIDs(),
+            placeholder: String(localized: "Notification content hidden")
+        )
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 5) {
             header
-            if let live = mirror.live { liveCard(live) }
+            if !mirror.historyStore.entries.isEmpty {
+                searchBar
+            }
+            if !quietMode, let live = mirror.live { liveCard(live) }
             content
         }
         .padding(NotchDesignSpec.cardPadding)
@@ -29,17 +44,80 @@ struct NotchNotificationsPageView: View {
 
     private var header: some View {
         HStack(spacing: 6) {
-            Image(systemName: "bell.fill")
+            Image(systemName: quietMode ? "bell.slash.fill" : "bell.fill")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.85))
             Text("Notifications")
                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .foregroundStyle(.white)
+            if mirror.historyStore.unreadCount > 0 {
+                Text(verbatim: "\(mirror.historyStore.unreadCount)")
+                    .font(.system(size: 10, weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 1)
+                    .background(Capsule().fill(Color.accentColor.opacity(0.85)))
+            }
             Spacer(minLength: 0)
-            Text(verbatim: "\(mirror.history.count)")
-                .font(.system(size: 11, weight: .medium, design: .rounded).monospacedDigit())
-                .foregroundStyle(.white.opacity(0.5))
+            Button {
+                unreadOnly.toggle()
+            } label: {
+                Text("Unread")
+                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+                    .foregroundStyle(unreadOnly ? .black : .white.opacity(0.75))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(unreadOnly ? Color.white : Color.white.opacity(0.12)))
+            }
+            .buttonStyle(.plain)
+            if mirror.historyStore.unreadCount > 0 {
+                Button {
+                    mirror.markAllRead()
+                } label: {
+                    Image(systemName: "checkmark.circle")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.75))
+                }
+                .buttonStyle(.plain)
+                .help(String(localized: "Mark All Read"))
+            }
+            if !mirror.historyStore.entries.isEmpty {
+                Button {
+                    mirror.clearHistoryStore()
+                } label: {
+                    Image(systemName: "trash")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.65))
+                }
+                .buttonStyle(.plain)
+                .help(String(localized: "Clear Inbox"))
+            }
         }
+    }
+
+    private var searchBar: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 10))
+                .foregroundStyle(.white.opacity(0.45))
+            TextField(String(localized: "Search notifications"), text: $searchQuery)
+                .textFieldStyle(.plain)
+                .font(.system(size: 10.5))
+                .foregroundStyle(.white)
+            if !searchQuery.isEmpty {
+                Button {
+                    searchQuery = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 10))
+                        .foregroundStyle(.white.opacity(0.45))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.white.opacity(0.08)))
     }
 
     /// The banner Notification Center is drawing now. It carries no app name: the accessibility tree does
@@ -66,7 +144,9 @@ struct NotchNotificationsPageView: View {
     /// comes before the one that blocks its history, and neither is ever asked for from code.
     @ViewBuilder
     private var content: some View {
-        if !mirror.canReadBanners {
+        if !visibleEntries.isEmpty {
+            rows
+        } else if !mirror.canReadBanners {
             door(Text("Accessibility Is Off"), pane: "Privacy_Accessibility")
         } else {
             switch mirror.historyState {
@@ -74,34 +154,38 @@ struct NotchNotificationsPageView: View {
                 door(Text("Full Disk Access Is Off"), pane: "Privacy_AllFiles")
             case .unsupported:
                 message(Text("Notification History Unavailable"))
-            case .idle, .loading:
+            case .idle, .loading, .loaded:
                 message(Text("No Notifications Yet"))
-            case .loaded:
-                if mirror.history.isEmpty { message(Text("No Notifications Yet")) } else { rows }
             }
         }
     }
 
-    /// The newest few, of the 40 read: the page is 130 pt tall and does not scroll (the notch's own wheel
-    /// steps pages).
+    /// The newest few, of the persisted inbox: the page is 130 pt tall and does not scroll (the notch's
+    /// own wheel steps pages).
     private var rows: some View {
         VStack(alignment: .leading, spacing: 3) {
-            ForEach(mirror.history.prefix(4)) { notification in
-                Button { open(notification.bundleIdentifier) } label: {
+            ForEach(visibleEntries.prefix(3)) { entry in
+                Button {
+                    mirror.markRead(id: entry.id)
+                    open(entry.appBundleId)
+                } label: {
                     HStack(spacing: 6) {
-                        Image(nsImage: NotificationAppIcon.icon(for: notification.bundleIdentifier))
+                        Circle()
+                            .fill(entry.isRead ? Color.clear : Color.accentColor)
+                            .frame(width: 5, height: 5)
+                        Image(nsImage: NotificationAppIcon.icon(for: entry.appBundleId))
                             .resizable().frame(width: 14, height: 14)
-                        Text(verbatim: NotificationAppIcon.name(for: notification.bundleIdentifier))
+                        Text(verbatim: NotificationAppIcon.name(for: entry.appBundleId))
                             .font(.system(size: 10, weight: .semibold, design: .rounded))
                             .foregroundStyle(.white.opacity(0.75))
                             .lineLimit(1).fixedSize()
-                        Text(verbatim: notification.title)
-                            .font(.system(size: 11))
-                            .foregroundStyle(.white)
+                        Text(verbatim: entry.title)
+                            .font(.system(size: 11, weight: entry.isRead ? .regular : .semibold))
+                            .foregroundStyle(.white.opacity(entry.isRead ? 0.72 : 1))
                             .lineLimit(1)
                         Spacer(minLength: 0)
-                        if let detail = notification.detail {
-                            Text(verbatim: detail)
+                        if let body = entry.body {
+                            Text(verbatim: body)
                                 .font(.system(size: 10))
                                 .foregroundStyle(.white.opacity(0.45))
                                 .lineLimit(1)

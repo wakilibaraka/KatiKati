@@ -27,6 +27,7 @@ final class NotificationMirrorService: ObservableObject {
     @Published private(set) var live: MirroredNotification?
     @Published private(set) var history: [MirroredNotification] = []
     @Published private(set) var historyState: HistoryState = .idle
+    @Published private(set) var historyStore: NotificationHistoryStore = NotificationHistoryStore.load()
 
     private var observer: AXObserver?
     private var appElement: AXUIElement?
@@ -89,8 +90,11 @@ final class NotificationMirrorService: ObservableObject {
         for window in windows {
             guard let banner = bannerElement(in: window),
                   let folded = NotificationBannerText.fold(bannerTexts(in: banner)) else { continue }
-            live = MirroredNotification(id: folded.title, bundleIdentifier: nil, title: folded.title,
+            let note = MirroredNotification(id: folded.title, bundleIdentifier: nil, title: folded.title,
                                         subtitle: nil, body: folded.body, date: Date())
+            live = note
+            historyStore.append(NotificationHistoryEntry(from: note))
+            historyStore.save()
             return
         }
     }
@@ -139,10 +143,48 @@ final class NotificationMirrorService: ObservableObject {
 
     private func apply(_ result: NotificationHistoryReader.Result) {
         switch result {
-        case .entries(let rows): history = rows; historyState = .loaded
+        case .entries(let rows):
+            history = rows
+            historyState = .loaded
+            historyStore.append(contentsOf: rows.map { NotificationHistoryEntry(from: $0) })
+            historyStore.save()
         case .noAccess: historyState = .noAccess
         case .unsupported: historyState = .unsupported
         }
+    }
+
+    // MARK: - Persistent History Inbox Actions
+
+    func markRead(id: String) {
+        historyStore.markRead(id: id)
+        historyStore.save()
+    }
+
+    func markAllRead() {
+        historyStore.markAllRead()
+        historyStore.save()
+    }
+
+    func clearHistoryStore() {
+        historyStore.clear()
+        historyStore.save()
+    }
+
+    func setHistoryCapacity(_ capacity: Int) {
+        historyStore.setMaxCapacity(capacity)
+        historyStore.save()
+    }
+
+    func activeSensitiveBundleIDs() -> Set<String> {
+        guard UserDefaults.standard.bool(forKey: NotificationHistoryStore.StorageKey.redactSensitive) else {
+            return []
+        }
+        let customRaw = UserDefaults.standard.string(forKey: NotificationHistoryStore.StorageKey.sensitiveBundles) ?? ""
+        let custom = customRaw
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        return NotificationHistoryStore.defaultSensitiveBundleIDs.union(custom)
     }
 
     // MARK: - Accessibility plumbing (the same minimal reads the window walk uses)

@@ -7,6 +7,10 @@ import SwiftUI
 struct SettingsNotificationsPane: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var center = PowerNotificationCenter.shared
+    @ObservedObject private var mirror = NotificationMirrorService.shared
+    @AppStorage(NotificationHistoryStore.StorageKey.quietMode) private var quietMode = false
+    @AppStorage(NotificationHistoryStore.StorageKey.redactSensitive) private var redactSensitive = true
+    @AppStorage(NotificationHistoryStore.StorageKey.sensitiveBundles) private var sensitiveBundles = ""
 
     var body: some View {
         SettingsCard(
@@ -94,6 +98,59 @@ struct SettingsNotificationsPane: View {
             SettingsDivider()
             SettingsButtonRow(Text("Clear History")) { center.clearHistory() }
                 .disabled(center.history.isEmpty)
+        }
+
+        SettingsCard(Text("System Notifications")) {
+            SettingsSegmentedRow(Text("History Capacity"), selection: Binding(
+                get: { mirror.historyStore.maxCapacity },
+                set: { mirror.setHistoryCapacity($0) }
+            )) {
+                ForEach(NotificationHistoryStore.capacityChoices, id: \.self) { count in
+                    Text(verbatim: "\(count)").tag(count)
+                }
+            }
+
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Quiet Mode"),
+                isOn: $quietMode,
+                note: Text("Mutes notification sounds and live alert banners.")
+            )
+
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Redact Sensitive Apps"),
+                isOn: $redactSensitive,
+                note: Text("Hides notification titles and bodies from password managers and messaging apps.")
+            )
+            if redactSensitive {
+                SettingsDivider()
+                SettingsRow(Text("Extra Redacted Bundles")) {
+                    TextField(text: $sensitiveBundles, prompt: Text(verbatim: "com.example.app, org.app")) {
+                        EmptyView()
+                    }
+                    .labelsHidden()
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 220)
+                }
+            }
+
+            SettingsDivider()
+            SettingsRow(Text("Inbox Actions")) {
+                HStack(spacing: 8) {
+                    Button(String(localized: "Mark All Read")) {
+                        mirror.markAllRead()
+                    }
+                    .buttonStyle(SettingsGelButtonStyle())
+                    .disabled(mirror.historyStore.unreadCount == 0)
+
+                    Button(String(localized: "Clear Inbox")) {
+                        mirror.clearHistoryStore()
+                    }
+                    .buttonStyle(SettingsGelButtonStyle())
+                    .disabled(mirror.historyStore.entries.isEmpty)
+                }
+            }
         }
 
         // Where macOS puts its own banners — the section the Notch page used to carry.
