@@ -77,3 +77,60 @@ final class DailyHelpersRulesTests: XCTestCase {
         XCTAssertNil(LiveNoticeKind.capsLockOn.reminderInterval)
     }
 }
+
+final class BreatherScheduleEngineTests: XCTestCase {
+
+    func testSuppressionDuringCameraMicOrCall() {
+        XCTAssertTrue(BreatherScheduleEngine.shouldSuppress(cameraInUse: true, microphoneInUse: false, callActive: false))
+        XCTAssertTrue(BreatherScheduleEngine.shouldSuppress(cameraInUse: false, microphoneInUse: true, callActive: false))
+        XCTAssertTrue(BreatherScheduleEngine.shouldSuppress(cameraInUse: false, microphoneInUse: false, callActive: true))
+        XCTAssertFalse(BreatherScheduleEngine.shouldSuppress(cameraInUse: false, microphoneInUse: false, callActive: false))
+    }
+
+    func testRingsProgressionAndAllCompleted() {
+        var engine = BreatherScheduleEngine(
+            rings: BreatherRings(
+                eyes: BreatherRingProgress(completed: 0, target: 2),
+                stretch: BreatherRingProgress(completed: 0, target: 1),
+                hydrate: BreatherRingProgress(completed: 0, target: 1)
+            )
+        )
+        XCTAssertFalse(engine.rings.allCompleted)
+
+        engine.completeActivity(.eyes)
+        XCTAssertEqual(engine.rings.eyes.progress, 0.5)
+        XCTAssertFalse(engine.rings.allCompleted)
+
+        engine.completeActivity(.eyes)
+        XCTAssertEqual(engine.rings.eyes.progress, 1.0)
+        engine.completeActivity(.stretch)
+        engine.completeActivity(.hydrate)
+        XCTAssertTrue(engine.rings.allCompleted)
+        XCTAssertEqual(engine.streak.count, 1)
+    }
+
+    func testStreakIncrementsAcrossConsecutiveDays() {
+        var streak = BreatherStreak(count: 0, lastCompletedDate: nil)
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(secondsFromGMT: 0)!
+
+        let day1 = cal.date(from: DateComponents(year: 2026, month: 11, day: 16, hour: 12))!
+        let day2 = cal.date(from: DateComponents(year: 2026, month: 11, day: 17, hour: 14))!
+        let day4 = cal.date(from: DateComponents(year: 2026, month: 11, day: 19, hour: 10))!
+
+        streak.recordCompletion(on: day1, calendar: cal)
+        XCTAssertEqual(streak.count, 1)
+
+        // Multiple completions on the same day do not increase streak count
+        streak.recordCompletion(on: day1.addingTimeInterval(3600), calendar: cal)
+        XCTAssertEqual(streak.count, 1)
+
+        // Consecutive day increments streak
+        streak.recordCompletion(on: day2, calendar: cal)
+        XCTAssertEqual(streak.count, 2)
+
+        // Broken streak resets to 1
+        streak.recordCompletion(on: day4, calendar: cal)
+        XCTAssertEqual(streak.count, 1)
+    }
+}

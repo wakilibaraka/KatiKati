@@ -102,3 +102,106 @@ struct PrivacyDots: Equatable, Sendable {
     var microphone = false
     var isEmpty: Bool { !camera && !microphone }
 }
+
+// MARK: - Droppy-Inspired Slice E-Breather: BreatherWellnessEngine
+
+struct BreatherRingProgress: Equatable, Sendable {
+    var completed: Int
+    var target: Int
+
+    var progress: Double {
+        guard target > 0 else { return 0 }
+        return min(1.0, max(0.0, Double(completed) / Double(target)))
+    }
+}
+
+struct BreatherRings: Equatable, Sendable {
+    var eyes: BreatherRingProgress
+    var stretch: BreatherRingProgress
+    var hydrate: BreatherRingProgress
+
+    var allCompleted: Bool {
+        eyes.progress >= 1.0 && stretch.progress >= 1.0 && hydrate.progress >= 1.0
+    }
+}
+
+struct BreatherStreak: Equatable, Sendable {
+    var count: Int
+    var lastCompletedDate: Date?
+
+    mutating func recordCompletion(on date: Date, calendar: Calendar = .current) {
+        if let last = lastCompletedDate {
+            if calendar.isDate(last, inSameDayAs: date) {
+                return
+            }
+            if let yesterday = calendar.date(byAdding: .day, value: -1, to: date),
+               calendar.isDate(last, inSameDayAs: yesterday) {
+                count += 1
+            } else {
+                count = 1
+            }
+        } else {
+            count = 1
+        }
+        lastCompletedDate = date
+    }
+}
+
+enum BreatherActivityType: String, CaseIterable, Identifiable, Sendable {
+    case eyes
+    case stretch
+    case hydrate
+
+    var id: String { rawValue }
+
+    var intervalSeconds: TimeInterval {
+        switch self {
+        case .eyes: return 1200
+        case .stretch: return 3000
+        case .hydrate: return 3600
+        }
+    }
+}
+
+struct BreatherScheduleEngine: Equatable, Sendable {
+    var rings: BreatherRings
+    var streak: BreatherStreak
+
+    init(
+        rings: BreatherRings = BreatherRings(
+            eyes: BreatherRingProgress(completed: 0, target: 12),
+            stretch: BreatherRingProgress(completed: 0, target: 6),
+            hydrate: BreatherRingProgress(completed: 0, target: 8)
+        ),
+        streak: BreatherStreak = BreatherStreak(count: 0, lastCompletedDate: nil)
+    ) {
+        self.rings = rings
+        self.streak = streak
+    }
+
+    /// Evaluates if a reminder prompt should trigger or be suppressed.
+    /// Strictly suppressed when camera or microphone is in use, or a call is active.
+    static func shouldSuppress(
+        cameraInUse: Bool,
+        microphoneInUse: Bool,
+        callActive: Bool
+    ) -> Bool {
+        cameraInUse || microphoneInUse || callActive
+    }
+
+    /// Logs completion of an activity, advancing the respective ring and updating streaks when all rings are completed.
+    mutating func completeActivity(_ type: BreatherActivityType, date: Date = Date(), calendar: Calendar = .current) {
+        switch type {
+        case .eyes:
+            rings.eyes.completed += 1
+        case .stretch:
+            rings.stretch.completed += 1
+        case .hydrate:
+            rings.hydrate.completed += 1
+        }
+
+        if rings.allCompleted {
+            streak.recordCompletion(on: date, calendar: calendar)
+        }
+    }
+}
