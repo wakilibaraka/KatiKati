@@ -27,7 +27,7 @@ extension SettingsTab {
         case .radialDial: return "pie menu wheel theme"
         case .aiTracking: return "ai agent claude codex token budget tracking approval hook"
         case .downloads: return "torrent bittorrent seed upload quiet hours aria2"
-        case .tools: return "clipboard color picker teleprompter calculator snippets"
+        case .tools: return "clipboard color picker teleprompter calculator snippets keycastr keyclu visualizer cheat sheet"
         case .advanced: return "reset debug permissions accessibility screen recording"
         }
     }

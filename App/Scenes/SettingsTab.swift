@@ -103,7 +103,7 @@ enum SettingsTab: String, CaseIterable {
         case .radialDial: return String(localized: "The pie menu: actions, theme, and triggers.")
         case .aiTracking: return String(localized: "Claude Code hooks, tool approvals, token limits, and telemetry.")
         case .downloads: return String(localized: "Torrents: speed, schedule, and quiet hours.")
-        case .tools: return String(localized: "Clipboard, commands, snippets, and shelf.")
+        case .tools: return String(localized: "Clipboard, commands, snippets, key visualizer, and cheat sheet.")
         case .advanced: return String(localized: "Rarely touched switches that need extra powers.")
         }
     }

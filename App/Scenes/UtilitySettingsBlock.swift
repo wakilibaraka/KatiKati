@@ -1,16 +1,44 @@
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
-/// Phase 12 (2026-10-15) — the Tools page's rows: the clipboard and the command and snippet editors.
-/// Separated from Shelf and AI Tracking in the 2026-11 reorganization.
+/// Phase 12 + Slice CS-2 — the Tools page's rows: Clipboard (with tag pills), structured Commands &
+/// Snippets (with JSON import/export and variable chips), Key Visualizer (KeyCastr), and Shortcut
+/// Cheat Sheet (KeyClu). Bounded inner scroll lists keep total page height ≤ 1074 pt.
 struct UtilitySettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
+    @ObservedObject private var keyGuard = KeyGuardService.shared
+    @ObservedObject private var cheatSheet = ShortcutCheatSheetService.shared
     @AppStorage(ClipboardMonitor.soundsKey) private var clipboardSounds = false
     @AppStorage(ClipboardMonitor.notchToastKey) private var clipboardToast = false
     @AppStorage(ClipboardMonitor.ignorePatternsKey) private var clipboardIgnorePatterns = ""
     @AppStorage(ClipboardMonitor.keepDaysKey) private var clipboardKeepDays = 0
     @AppStorage(CustomCommand.key) private var customCommands = ""
     @AppStorage(CustomCommand.snippetsKey) private var snippets = ""
+
+    @State private var showAddPattern = false
+    @State private var newPattern = ""
+    @State private var showAddCommand = false
+    @State private var editingCommandIndex: Int?
+    @State private var draftCommandName = ""
+    @State private var draftCommandTarget = ""
+    @State private var showSnippetEditor = false
+    @State private var draftSnippet = TextSnippetItem(trigger: "", content: "")
+
+    private var ignoreTags: [String] {
+        clipboardIgnorePatterns
+            .split { $0 == "," || $0 == "\n" }
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+    }
+
+    private var parsedCommands: [CustomCommand] {
+        CustomCommand.parse(customCommands)
+    }
+
+    private var parsedSnippets: [TextSnippetItem] {
+        TextSnippetStore.parse(snippets)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
@@ -23,9 +51,66 @@ struct UtilitySettingsBlock: View {
                         isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) })
                     )
                     SettingsDivider()
-                    SettingsRow(Text("Ignore Patterns")) {
-                        TextField("Ignore Patterns", text: $clipboardIgnorePatterns)
-                            .textFieldStyle(.roundedBorder).frame(width: 200)
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Text("Ignore Patterns").font(.body)
+                            Spacer()
+                            Menu {
+                                ForEach(NSWorkspace.shared.runningApplications.filter { $0.activationPolicy == .regular && $0.bundleIdentifier != nil }, id: \.processIdentifier) { app in
+                                    if let bid = app.bundleIdentifier {
+                                        Button(app.localizedName ?? bid) { addIgnoreTag(bid) }
+                                    }
+                                }
+                                Divider()
+                                Button("Add Pattern…") {
+                                    newPattern = ""
+                                    showAddPattern = true
+                                }
+                            } label: {
+                                Label("Exclude App", systemImage: "plus")
+                                    .font(.caption)
+                            }
+                            .menuStyle(.borderlessButton)
+                            .fixedSize()
+                            .popover(isPresented: $showAddPattern, arrowEdge: .bottom) {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Add Ignore Pattern").font(.headline)
+                                    TextField("Bundle ID or regex", text: $newPattern)
+                                        .textFieldStyle(.roundedBorder)
+                                        .frame(width: 220)
+                                    HStack {
+                                        Spacer()
+                                        Button("Cancel") { showAddPattern = false }
+                                        Button("Add") {
+                                            addIgnoreTag(newPattern)
+                                            showAddPattern = false
+                                        }
+                                        .buttonStyle(.borderedProminent)
+                                        .disabled(newPattern.trimmingCharacters(in: .whitespaces).isEmpty)
+                                    }
+                                }
+                                .padding(12)
+                            }
+                        }
+                        if ignoreTags.isEmpty {
+                            Text("No ignored apps or patterns.").font(.caption).foregroundStyle(.secondary)
+                        } else {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 6) {
+                                    ForEach(ignoreTags, id: \.self) { tag in
+                                        HStack(spacing: 4) {
+                                            Text(verbatim: tag).font(.caption).lineLimit(1)
+                                            Button { removeIgnoreTag(tag) } label: {
+                                                Image(systemName: "xmark.circle.fill").font(.caption2).foregroundStyle(.secondary)
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+                                        .padding(.horizontal, 8).padding(.vertical, 3)
+                                        .background(Capsule().fill(Color.primary.opacity(0.08)))
+                                    }
+                                }
+                            }
+                        }
                     }
                     SettingsDivider()
                     SettingsToggleRow(Text("Copy Sounds"), isOn: $clipboardSounds)
@@ -50,18 +135,111 @@ struct UtilitySettingsBlock: View {
                 }
             } trailing: {
                 SettingsCard(Text("Commands & Snippets")) {
-                    SettingsEditorRow(
-                        Text("Custom Commands"),
-                        text: $customCommands,
-                        placeholder: Text("One command per line: ;name = /path/to/script")
-                    )
+                    HStack {
+                        Text("Custom Commands").font(.subheadline.weight(.medium))
+                        Spacer()
+                        Button {
+                            editingCommandIndex = nil
+                            draftCommandName = ""
+                            draftCommandTarget = ""
+                            showAddCommand = true
+                        } label: {
+                            Label("Add", systemImage: "plus").font(.caption)
+                        }
+                        .buttonStyle(SettingsGelButtonStyle())
+                        .popover(isPresented: $showAddCommand, arrowEdge: .bottom) {
+                            commandEditorPopover
+                        }
+                    }
+                    if parsedCommands.isEmpty {
+                        Text("No custom commands yet.").font(.caption).foregroundStyle(.secondary)
+                    } else {
+                        ScrollView {
+                            VStack(spacing: 4) {
+                                ForEach(Array(parsedCommands.enumerated()), id: \.offset) { idx, cmd in
+                                    HStack(spacing: 6) {
+                                        Text(verbatim: cmd.name)
+                                            .font(.caption.weight(.semibold))
+                                            .padding(.horizontal, 6).padding(.vertical, 2)
+                                            .background(Capsule().fill(Color.accentColor.opacity(0.16)))
+                                        Text(verbatim: cmd.target)
+                                            .font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                                        Spacer(minLength: 4)
+                                        Button {
+                                            editingCommandIndex = idx
+                                            draftCommandName = cmd.name
+                                            draftCommandTarget = cmd.target
+                                            showAddCommand = true
+                                        } label: { Image(systemName: "pencil").font(.caption) }
+                                        .buttonStyle(.plain)
+                                        Button { deleteCommand(at: idx) } label: {
+                                            Image(systemName: "trash").font(.caption).foregroundStyle(.secondary)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                    .padding(.horizontal, 6).padding(.vertical, 3)
+                                    .background(RoundedRectangle(cornerRadius: 6).fill(Color.primary.opacity(0.04)))
+                                }
+                            }
+                        }
+                        .frame(maxHeight: 82)
+                    }
                     SettingsDivider()
-                    SettingsEditorRow(
-                        Text("Text Snippets"),
-                        text: $snippets,
-                        placeholder: Text("One per line: ;sig = Best regards, Sam. Type the trigger in ⌘Space and press Return to paste it.")
-                    )
-                    .onChange(of: snippets) { _, _ in KeyGuardService.shared.refreshSnippetTriggers() }
+                    HStack(spacing: 6) {
+                        Text("Text Snippets").font(.subheadline.weight(.medium))
+                        Spacer()
+                        Button("Import") { importSnippetsJSON() }
+                            .buttonStyle(SettingsGelButtonStyle())
+                        Button("Export") { exportSnippetsJSON() }
+                            .buttonStyle(SettingsGelButtonStyle())
+                        Button {
+                            draftSnippet = TextSnippetItem(trigger: ";", content: "")
+                            showSnippetEditor = true
+                        } label: {
+                            Label("Add", systemImage: "plus").font(.caption)
+                        }
+                        .buttonStyle(SettingsGelButtonStyle())
+                        .popover(isPresented: $showSnippetEditor, arrowEdge: .bottom) {
+                            snippetEditorPopover
+                        }
+                    }
+                    if parsedSnippets.isEmpty {
+                        Text("No snippets yet. Use ;sig, {clipboard}, {date}, or {cursor}.").font(.caption).foregroundStyle(.secondary)
+                    } else {
+                        ScrollView {
+                            VStack(spacing: 4) {
+                                ForEach(parsedSnippets) { item in
+                                    HStack(spacing: 6) {
+                                        Text(verbatim: item.trigger)
+                                            .font(.caption.weight(.semibold))
+                                            .padding(.horizontal, 6).padding(.vertical, 2)
+                                            .background(Capsule().fill(Color.primary.opacity(0.09)))
+                                        Text(verbatim: item.content.replacingOccurrences(of: "\n", with: " ↵ "))
+                                            .font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                                        Spacer(minLength: 4)
+                                        Toggle(isOn: Binding(
+                                            get: { item.isEnabled },
+                                            set: { on in toggleSnippet(item.id, enabled: on) }
+                                        )) { EmptyView() }
+                                        .labelsHidden()
+                                        .controlSize(.small)
+                                        Button {
+                                            draftSnippet = item
+                                            showSnippetEditor = true
+                                        } label: { Image(systemName: "pencil").font(.caption) }
+                                        .buttonStyle(.plain)
+                                        Button { deleteSnippet(item.id) } label: {
+                                            Image(systemName: "trash").font(.caption).foregroundStyle(.secondary)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                    .padding(.horizontal, 6).padding(.vertical, 3)
+                                    .background(RoundedRectangle(cornerRadius: 6).fill(Color.primary.opacity(0.04)))
+                                }
+                            }
+                        }
+                        .frame(maxHeight: 112)
+                    }
                     SettingsDivider()
                     SettingsToggleRow(
                         Text("Expand Snippets Anywhere"),
@@ -72,11 +250,249 @@ struct UtilitySettingsBlock: View {
                                 KeyGuardService.shared.setSnippetExpansion(on)
                             }
                         ),
-                        info: String(localized: "Type a snippet's trigger and a space in any app to paste its text. It never runs in password fields, in password managers, or while the input is secure, and it needs the Input Monitoring and Accessibility permissions.")
+                        info: String(localized: "Type a snippet's trigger in any app to paste its text. Supports {clipboard}, {date}, {time}, and {cursor}. Never runs in password fields.")
                     )
                 }
             }
+            SettingsBentoSplit {
+                SettingsCard(Text("Key Visualizer")) {
+                    SettingsToggleRow(
+                        Text("Show Keys You Type"),
+                        isOn: Binding(
+                            get: { keyGuard.isVisualizerEnabled },
+                            set: { on in
+                                if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
+                                keyGuard.setVisualizer(on)
+                            }
+                        ),
+                        info: String(localized: "KeyCastr-style floating keystroke overlay for screen recordings and demos. Never logs or saves keystrokes, and hides automatically in password fields.")
+                    )
+                    SettingsDivider()
+                    SettingsPickerRow(
+                        Text("Filter Keys"),
+                        selection: Binding(
+                            get: { keyGuard.visualizerFilter },
+                            set: { keyGuard.setVisualizerFilter($0) }
+                        )
+                    ) {
+                        Text("All Keys").tag(KeyVisualizerFilter.allKeys)
+                        Text("Modified Keys").tag(KeyVisualizerFilter.modifiedKeys)
+                        Text("Command Keys Only").tag(KeyVisualizerFilter.commandKeysOnly)
+                    }
+                    SettingsDivider()
+                    SettingsPickerRow(
+                        Text("Overlay Style"),
+                        selection: Binding(
+                            get: { keyGuard.visualizerStyle },
+                            set: { keyGuard.setVisualizerStyle($0) }
+                        )
+                    ) {
+                        Text("Glass Capsule").tag(KeyVisualizerStyle.glassCapsule)
+                        Text("Svelte Compact").tag(KeyVisualizerStyle.svelte)
+                        Text("Dark Bezel").tag(KeyVisualizerStyle.darkBezel)
+                    }
+                    SettingsDivider()
+                    SettingsSliderRow(
+                        Text("Linger Duration"),
+                        value: keyGuard.visualizerLinger,
+                        range: 0.5...4.0,
+                        step: 0.25,
+                        valueText: String(format: "%.2f s", keyGuard.visualizerLinger),
+                        set: { keyGuard.setVisualizerLinger($0) }
+                    )
+                    SettingsDivider()
+                    SettingsSliderRow(
+                        Text("Font Size"),
+                        value: keyGuard.visualizerFontSize,
+                        range: 12...28,
+                        step: 1,
+                        valueText: "\(Int(keyGuard.visualizerFontSize)) pt",
+                        set: { keyGuard.setVisualizerFontSize($0) }
+                    )
+                    SettingsDivider()
+                    SettingsToggleRow(
+                        Text("Unlock Position to Drag"),
+                        isOn: Binding(
+                            get: { keyGuard.visualizerPositionUnlocked },
+                            set: { keyGuard.setVisualizerPositionUnlocked($0) }
+                        ),
+                        info: String(localized: "Drag the floating key strip anywhere on screen, then lock it back when done.")
+                    )
+                    SettingsDivider()
+                    SettingsRow(Text("Overlay Position")) {
+                        Button("Reset Position") { keyGuard.resetVisualizerPosition() }
+                            .buttonStyle(SettingsGelButtonStyle())
+                    }
+                }
+            } trailing: {
+                SettingsCard(Text("Shortcut Cheat Sheet")) {
+                    SettingsPickerRow(
+                        Text("Quick Trigger"),
+                        selection: Binding(
+                            get: { cheatSheet.trigger },
+                            set: { cheatSheet.setTrigger($0) }
+                        ),
+                        note: Text("KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open.")
+                    ) {
+                        Text("Off").tag(ShortcutCheatSheetTrigger.off)
+                        Text("Double-tap & Hold ⌘").tag(ShortcutCheatSheetTrigger.doubleTapCommand)
+                        Text("Hold ⌘").tag(ShortcutCheatSheetTrigger.holdCommand)
+                    }
+                    SettingsDivider()
+                    SettingsRow(Text("Cheat Sheet Overlay"), note: Text("Inspect, search, or export the frontmost app's shortcuts as Markdown.")) {
+                        Button("Open Cheat Sheet") { cheatSheet.toggle(pinned: true) }
+                            .buttonStyle(SettingsGelButtonStyle())
+                    }
+                    if !AXIsProcessTrusted() {
+                        SettingsDivider()
+                        SettingsNote(Text("Accessibility permission is required to read menu bar shortcuts from other apps."))
+                    }
+                }
+            }
         }
+    }
+
+    private var commandEditorPopover: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(editingCommandIndex == nil ? "New Command" : "Edit Command").font(.headline)
+            TextField("Name (e.g. ;build)", text: $draftCommandName)
+                .textFieldStyle(.roundedBorder)
+            TextField("URL or /path/to/script", text: $draftCommandTarget)
+                .textFieldStyle(.roundedBorder)
+            HStack {
+                Spacer()
+                Button("Cancel") { showAddCommand = false }
+                Button("Save") {
+                    saveCommand()
+                    showAddCommand = false
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(draftCommandName.trimmingCharacters(in: .whitespaces).isEmpty
+                          || draftCommandTarget.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+        }
+        .padding(14)
+        .frame(width: 280)
+    }
+
+    private var snippetEditorPopover: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Snippet").font(.headline)
+            HStack(spacing: 8) {
+                TextField("Trigger (e.g. ;sig)", text: $draftSnippet.trigger)
+                    .textFieldStyle(.roundedBorder)
+                Toggle("Require Space", isOn: $draftSnippet.requireDelimiter)
+                    .toggleStyle(.checkbox)
+            }
+            TextEditor(text: $draftSnippet.content)
+                .font(.system(size: 12, design: .monospaced))
+                .frame(height: 90)
+                .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color.primary.opacity(0.15)))
+            HStack(spacing: 6) {
+                ForEach(["{clipboard}", "{date}", "{time}", "{cursor}"], id: \.self) { token in
+                    Button(token) { draftSnippet.content += token }
+                        .buttonStyle(.bordered)
+                        .controlSize(.mini)
+                }
+            }
+            HStack {
+                Spacer()
+                Button("Cancel") { showSnippetEditor = false }
+                Button("Save") {
+                    saveSnippet()
+                    showSnippetEditor = false
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(draftSnippet.trigger.trimmingCharacters(in: .whitespaces).count < 2
+                          || draftSnippet.content.isEmpty)
+            }
+        }
+        .padding(14)
+        .frame(width: 340)
+    }
+
+    private func addIgnoreTag(_ raw: String) {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, !ignoreTags.contains(trimmed) else { return }
+        clipboardIgnorePatterns = (ignoreTags + [trimmed]).joined(separator: ", ")
+    }
+
+    private func removeIgnoreTag(_ tag: String) {
+        clipboardIgnorePatterns = ignoreTags.filter { $0 != tag }.joined(separator: ", ")
+    }
+
+    private func saveCommand() {
+        var list = parsedCommands
+        let entry = CustomCommand(
+            name: draftCommandName.trimmingCharacters(in: .whitespaces),
+            target: draftCommandTarget.trimmingCharacters(in: .whitespaces),
+            kind: CustomCommand.kind(of: draftCommandTarget)
+        )
+        if let idx = editingCommandIndex, list.indices.contains(idx) {
+            list[idx] = entry
+        } else {
+            list.append(entry)
+        }
+        customCommands = CustomCommand.serialize(list)
+    }
+
+    private func deleteCommand(at index: Int) {
+        var list = parsedCommands
+        guard list.indices.contains(index) else { return }
+        list.remove(at: index)
+        customCommands = CustomCommand.serialize(list)
+    }
+
+    private func saveSnippet() {
+        var list = parsedSnippets
+        var clean = draftSnippet
+        clean.trigger = clean.trigger.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let idx = list.firstIndex(where: { $0.id == clean.id }) {
+            list[idx] = clean
+        } else {
+            list.append(clean)
+        }
+        snippets = TextSnippetStore.serialize(list)
+        KeyGuardService.shared.refreshSnippetTriggers()
+    }
+
+    private func toggleSnippet(_ id: UUID, enabled: Bool) {
+        var list = parsedSnippets
+        guard let idx = list.firstIndex(where: { $0.id == id }) else { return }
+        list[idx].isEnabled = enabled
+        snippets = TextSnippetStore.serialize(list)
+        KeyGuardService.shared.refreshSnippetTriggers()
+    }
+
+    private func deleteSnippet(_ id: UUID) {
+        let list = parsedSnippets.filter { $0.id != id }
+        snippets = TextSnippetStore.serialize(list)
+        KeyGuardService.shared.refreshSnippetTriggers()
+    }
+
+    private func exportSnippetsJSON() {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.json]
+        panel.nameFieldStringValue = "katikati-snippets.json"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        let json = TextSnippetStore.serialize(parsedSnippets)
+        try? json.write(to: url, atomically: true, encoding: .utf8)
+    }
+
+    private func importSnippetsJSON() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.json, .plainText]
+        panel.allowsMultipleSelection = false
+        guard panel.runModal() == .OK, let url = panel.url,
+              let raw = try? String(contentsOf: url, encoding: .utf8) else { return }
+        let imported = TextSnippetStore.parse(raw)
+        guard !imported.isEmpty else { return }
+        var merged = parsedSnippets
+        for item in imported where !merged.contains(where: { $0.trigger == item.trigger }) {
+            merged.append(item)
+        }
+        snippets = TextSnippetStore.serialize(merged)
+        KeyGuardService.shared.refreshSnippetTriggers()
     }
 }
 
@@ -250,6 +666,7 @@ struct AITrackingSettingsBlock: View {
             }
         }
     }
+
 }
 
 /// Phase 44b — the BitTorrent hub's policy: custom engine path, seeding limits and a throttled
@@ -379,6 +796,7 @@ struct LauncherSettingsBlock: View {
         case .testHere: return String(localized: "Come back and press ⌘Space to test.")
         }
     }
+
 }
 
 /// The command bar's own rows (2026-10-20): split out of `LauncherSettingsBlock` so the command
@@ -408,6 +826,7 @@ struct CommandBarSettingsBlock: View {
             }
         }
     }
+
 }
 
 /// Phase 12 — the helpers that surface in the notch (indicators, notices, teleprompter page), split
@@ -466,4 +885,5 @@ struct NotchHelpersSettingsBlock: View {
             )
         }
     }
+
 }

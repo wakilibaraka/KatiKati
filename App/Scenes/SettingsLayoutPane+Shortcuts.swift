@@ -87,7 +87,7 @@ extension SettingsLayoutPane {
 
         SettingsCard(Text("Keyboard")) {
             SettingsToggleRow(
-                Text("Use Caps Lock as Hyper Key"),
+                Text("Super / Hyper Key"),
                 isOn: Binding(
                     get: { store.hyperkeyEnabled },
                     set: { on in
@@ -95,8 +95,67 @@ extension SettingsLayoutPane {
                         store.setHyperkeyEnabled(on)
                     }
                 ),
-                info: String(localized: "Hyper turns Caps Lock into ⌃⌥⇧⌘. It listens to keyboard events only, needs the Input Monitoring permission, and Caps Lock is restored when you turn it off or quit.")
+                info: String(localized: "Remaps Caps Lock (or Right ⌘/⌥) into a Hyper (⌃⌥⇧⌘) or Super (⌃⌥⌘) modifier for KatiKati and all apps. Needs Input Monitoring, and restores your key when turned off or quit.")
             )
+            if store.hyperkeyEnabled {
+                SettingsDivider()
+                DisclosureGroup("Super / Hyper Options") {
+                    SettingsPickerRow(Text("Modifier Mode"), selection: Binding(
+                        get: { store.hyperkeyModifierMode },
+                        set: { store.setHyperkeyModifierMode($0) }
+                    )) {
+                        Text("Hyper (⌃⌥⇧⌘)").tag(HyperkeyModifierMode.hyper)
+                        Text("Super (⌃⌥⌘)").tag(HyperkeyModifierMode.superKey)
+                    }
+                    SettingsDivider()
+                    SettingsPickerRow(Text("Source Key"), selection: Binding(
+                        get: { store.hyperkeySourceKey },
+                        set: { store.setHyperkeySourceKey($0) }
+                    )) {
+                        Text("Caps Lock").tag(HyperkeySourceKey.capsLock)
+                        Text("Right ⌘").tag(HyperkeySourceKey.rightCommand)
+                        Text("Right ⌥").tag(HyperkeySourceKey.rightOption)
+                    }
+                    SettingsDivider()
+                    SettingsPickerRow(Text("Tap if Alone"), selection: Binding(
+                        get: { store.hyperkeyTapAction },
+                        set: { store.setHyperkeyTapAction($0) }
+                    )) {
+                        Text("Off").tag(HyperkeyTapAction.off)
+                        Text("Escape (⎋)").tag(HyperkeyTapAction.escape)
+                        Text("Caps Lock (⇪)").tag(HyperkeyTapAction.capsLock)
+                    }
+                    if store.hyperkeyTapAction != .off {
+                        SettingsDivider()
+                        SettingsSliderRow(
+                            Text("Tap Threshold"),
+                            value: store.hyperkeyTapThreshold,
+                            range: 0.08...0.50,
+                            step: 0.02,
+                            valueText: String(format: "%.2f s", store.hyperkeyTapThreshold),
+                            set: { store.setHyperkeyTapThreshold($0) }
+                        )
+                    }
+                    SettingsDivider()
+                    SettingsToggleRow(
+                        Text("Forward to All Apps"),
+                        isOn: Binding(
+                            get: { store.hyperkeyForwardToSystem },
+                            set: { store.setHyperkeyForwardToSystem($0) }
+                        ),
+                        info: String(localized: "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati.")
+                    )
+                    SettingsDivider()
+                    SettingsRow(Text("Excluded Apps"), note: Text("Comma-separated bundle IDs (e.g. com.apple.Terminal).")) {
+                        TextField("com.apple.Terminal", text: Binding(
+                            get: { store.hyperkeyExcludedApps },
+                            set: { store.setHyperkeyExcludedApps($0) }
+                        ))
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 220)
+                    }
+                }
+            }
             if store.hyperkeyEnabled, !HyperkeyService.hasPermission {
                 SettingsButtonRow(Text("Open Input Monitoring Settings")) { openInputMonitoringSettings() }
             }
@@ -110,8 +169,31 @@ extension SettingsLayoutPane {
                         keyGuard.setCapsProtection(on)
                     }
                 ),
-                info: String(localized: "A quick tap on Caps Lock does nothing; hold it briefly to switch Caps Lock. It needs the Accessibility permission to send the toggle, and does nothing while Hyper Key is on because Caps Lock then becomes F18.")
+                info: String(localized: "Prevents accidental Caps Lock toggles. Hold briefly or double-tap to switch Caps Lock. Needs Accessibility to post the toggle, and is inert while Super/Hyper uses Caps Lock.")
             )
+            if keyGuard.isCapsProtectionEnabled {
+                SettingsDivider()
+                DisclosureGroup("Caps Lock Protection Options") {
+                    SettingsPickerRow(Text("Trigger Mode"), selection: Binding(
+                        get: { keyGuard.capsProtectionMode },
+                        set: { keyGuard.setCapsProtectionMode($0) }
+                    )) {
+                        Text("Hold to Toggle").tag(CapsLockProtectionMode.hold)
+                        Text("Double-Tap to Toggle").tag(CapsLockProtectionMode.doubleTap)
+                    }
+                    if keyGuard.capsProtectionMode == .hold {
+                        SettingsDivider()
+                        SettingsSliderRow(
+                            Text("Hold Duration"),
+                            value: keyGuard.capsProtectionThreshold,
+                            range: 0.10...0.50,
+                            step: 0.05,
+                            valueText: String(format: "%.2f s", keyGuard.capsProtectionThreshold),
+                            set: { keyGuard.setCapsProtectionThreshold($0) }
+                        )
+                    }
+                }
+            }
             SettingsDivider()
             SettingsToggleRow(
                 Text("Finder Keys"),
