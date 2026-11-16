@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "App/Composition/KeyGuardService.swift": {
-    "mtime": 1794851235.8015182,
-    "seen": 1794851334.953289,
-    "ast_hash": "2e503c0d690978263db1c87d405d0173",
+    "mtime": 1794866924.015649,
+    "seen": 1794867134.4362218,
+    "ast_hash": "f30c5a14fdf08241282abdde5cf0749d",
     "semantic_hash": ""
   },
   "App/Composition/LaunchAtLoginService.swift": {
@@ -1188,10 +1188,10 @@
     "semantic_hash": "a4718ada26764917f77f664687dc81f0"
   },
   "App/Scenes/SlowQuitOverlay.swift": {
-    "mtime": 1791999130.782032,
-    "seen": 1792295707.060493,
-    "ast_hash": "eb9b4e9b2748d77059aa8de8383fd741",
-    "semantic_hash": "eb9b4e9b2748d77059aa8de8383fd741"
+    "mtime": 1794866806.5790756,
+    "seen": 1794867134.436435,
+    "ast_hash": "565e5c4a075fb8a9a02a84ee1ec6a79c",
+    "semantic_hash": ""
   },
   "App/Scenes/SmartStackSlot.swift": {
     "mtime": 1793022856.8293848,
@@ -1914,9 +1914,9 @@
     "semantic_hash": "404da9ec110c1e60f2a8212e29c24679"
   },
   "Core/Support/KeyGuard.swift": {
-    "mtime": 1794851107.4534354,
-    "seen": 1794851334.953583,
-    "ast_hash": "55518f4c640eccd003b0975c206980ab",
+    "mtime": 1794866907.247832,
+    "seen": 1794867134.4365819,
+    "ast_hash": "5168322e351a52448d168d01c9cad829",
     "semantic_hash": ""
   },
   "Core/Support/LaunchGateDecision.swift": {
@@ -3618,9 +3618,9 @@
     "semantic_hash": "f846229992095675c7a008f1a69dd39c"
   },
   "Tests/Unit/KeyGuardTests.swift": {
-    "mtime": 1794851123.158137,
-    "seen": 1794851334.953859,
-    "ast_hash": "b13b7c9ee53c9d8f21642880cb307fbd",
+    "mtime": 1794866874.8494577,
+    "seen": 1794867134.4369159,
+    "ast_hash": "21a185f4cd73b4e243690a172f382a6e",
     "semantic_hash": ""
   },
   "Tests/Unit/LaunchAtLoginServiceTests.swift": {
@@ -6588,9 +6588,9 @@
     "semantic_hash": ""
   },
   "Core/Support/QuitOnLastWindow.swift": {
-    "mtime": 1794854851.2201543,
-    "seen": 1794855067.094769,
-    "ast_hash": "4ab89fbea28b1a4127811e64bf767b87",
+    "mtime": 1794867134.1784978,
+    "seen": 1794867134.436642,
+    "ast_hash": "88675ab738c611ef73a02ddc6e91f474",
     "semantic_hash": ""
   },
   "App/Composition/ClaudeHookInstaller.swift": {
