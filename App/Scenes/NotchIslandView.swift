@@ -286,40 +286,85 @@ struct NotchIslandView: View {
         return AnyView(activityContent(activity))
     }
 
+    @ViewBuilder
     private func inlineHUDContent(_ hud: NotchActivityItem) -> some View {
-        let level = hud.level ?? 0
-        let tint: Color = hud.id == "hud.brightness" ? .yellow : (hud.id == "hud.keyboard" ? .orange : (level <= 0 ? .secondary : .cyan))
-        return HStack(spacing: 6) {
-            HStack(spacing: 4) {
-                Image(systemName: hud.icon)
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(tint)
-                if !metrics.hasHardwareNotch {
-                    Text(verbatim: hud.title)
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.9))
+        if hud.id.hasPrefix("clipboard|") || hud.icon == "doc.on.clipboard" {
+            clipboardToastContent(hud)
+        } else {
+            let level = hud.level ?? 0
+            let tint: Color = hud.id == "hud.brightness" ? .yellow : (hud.id == "hud.keyboard" ? .orange : (level <= 0 ? .secondary : .cyan))
+            HStack(spacing: 6) {
+                HStack(spacing: 4) {
+                    Image(systemName: hud.icon)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(tint)
+                    if !metrics.hasHardwareNotch {
+                        Text(verbatim: hud.title)
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.9))
+                            .lineLimit(1)
+                    }
+                }
+                .frame(width: metrics.hasHardwareNotch ? NotchGeometry.sneakSide - 14 : nil, alignment: .leading)
+
+                Spacer(minLength: metrics.hasHardwareNotch ? max(0, metrics.closedSize.width - 8) : 8)
+
+                HStack(spacing: 5) {
+                    GeometryReader { proxy in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(Color.white.opacity(0.18))
+                            Capsule().fill(tint)
+                                .frame(width: max(4, proxy.size.width * level))
+                        }
+                    }
+                    .frame(width: 28, height: 4)
+                    Text(verbatim: "\(Int(round(level * 100)))%")
+                        .font(.system(size: 10, weight: .semibold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(.white.opacity(0.85))
                         .lineLimit(1)
                 }
+                .frame(width: NotchGeometry.sneakSide - 6, alignment: .trailing)
             }
-            .frame(width: metrics.hasHardwareNotch ? NotchGeometry.sneakSide - 14 : nil, alignment: .leading)
+            .frame(maxHeight: metrics.closedSize.height)
+        }
+    }
+
+    private func clipboardToastContent(_ hud: NotchActivityItem) -> some View {
+        HStack(spacing: 6) {
+            HStack(spacing: 4) {
+                if let appIcon = NSWorkspace.shared.frontmostApplication?.icon {
+                    Image(nsImage: appIcon)
+                        .resizable()
+                        .frame(width: 15, height: 15)
+                        .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+                } else {
+                    Image(systemName: "doc.on.clipboard")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.cyan)
+                }
+                Text(verbatim: hud.title)
+                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .lineLimit(1)
+            }
+            .frame(width: metrics.hasHardwareNotch ? NotchGeometry.sneakSide - 10 : nil, alignment: .leading)
 
             Spacer(minLength: metrics.hasHardwareNotch ? max(0, metrics.closedSize.width - 8) : 8)
 
-            HStack(spacing: 5) {
-                GeometryReader { proxy in
-                    ZStack(alignment: .leading) {
-                        Capsule().fill(Color.white.opacity(0.18))
-                        Capsule().fill(tint)
-                            .frame(width: max(4, proxy.size.width * level))
-                    }
+            if let latest = ProductivityServices.shared.clipboard.history.displayOrder.first {
+                Button {
+                    ProductivityServices.shared.clipboard.pastePlain(latest)
+                } label: {
+                    Text("Paste Plain")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(Color.white.opacity(0.18)))
                 }
-                .frame(width: 28, height: 4)
-                Text(verbatim: "\(Int(round(level * 100)))%")
-                    .font(.system(size: 10, weight: .semibold, design: .rounded).monospacedDigit())
-                    .foregroundStyle(.white.opacity(0.85))
-                    .lineLimit(1)
+                .buttonStyle(.plain)
+                .frame(width: NotchGeometry.sneakSide - 8, alignment: .trailing)
             }
-            .frame(width: NotchGeometry.sneakSide - 6, alignment: .trailing)
         }
         .frame(maxHeight: metrics.closedSize.height)
     }
@@ -333,12 +378,6 @@ struct NotchIslandView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                     MusicEqualizerBars(isActive: feed.nowPlayingState.isPlaying, tint: .white.opacity(0.85))
                         .frame(width: 16, height: 12)
-                } else if activity.id.hasPrefix("clipboard|"),
-                          let appIcon = NSWorkspace.shared.frontmostApplication?.icon {
-                    Image(nsImage: appIcon)
-                        .resizable()
-                        .frame(width: 16, height: 16)
-                        .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
                 } else {
                     Image(systemName: LiveIslandStyle.symbolName(for: activity.kind))
                         .foregroundStyle(LiveIslandStyle.tint(for: activity.kind))
@@ -353,20 +392,6 @@ struct NotchIslandView: View {
             Spacer(minLength: metrics.closedSize.width - 8)
             if case .music = activity.content {
                 NotchLiveBattery().frame(width: NotchGeometry.sneakSide - 14, alignment: .trailing)   // battery stays put while music plays; no song text
-            } else if activity.id.hasPrefix("clipboard|"),
-                      let latest = ProductivityServices.shared.clipboard.history.displayOrder.first {
-                Button {
-                    ProductivityServices.shared.clipboard.pastePlain(latest)
-                } label: {
-                    Text("Paste Plain")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Capsule().fill(Color.white.opacity(0.18)))
-                }
-                .buttonStyle(.plain)
-                .frame(width: NotchGeometry.sneakSide - 8, alignment: .trailing)
             } else if let value = LiveIslandStyle.valueText(for: activity) {
                 value
                     .font(.system(size: 11, weight: .semibold))
