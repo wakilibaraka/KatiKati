@@ -72,3 +72,200 @@ enum NotificationBannerText {
         return (title, seen.count > 1 ? seen.last : nil)
     }
 }
+
+// MARK: - Persistent Notification History Ring Buffer (Slice N-1)
+
+/// One persisted notification entry in KatiKati's local history inbox.
+struct NotificationHistoryEntry: Identifiable, Codable, Equatable, Sendable {
+    let id: String
+    let timestamp: Date
+    var title: String
+    var body: String?
+    let appBundleId: String?
+    var isRead: Bool
+
+    init(
+        id: String = UUID().uuidString,
+        timestamp: Date = Date(),
+        title: String,
+        body: String? = nil,
+        appBundleId: String? = nil,
+        isRead: Bool = false
+    ) {
+        self.id = id
+        self.timestamp = timestamp
+        self.title = title
+        self.body = body
+        self.appBundleId = appBundleId
+        self.isRead = isRead
+    }
+
+    init(from mirrored: MirroredNotification, fallbackDate: Date = Date(), isRead: Bool = false) {
+        self.id = mirrored.id
+        self.timestamp = mirrored.date ?? fallbackDate
+        self.title = mirrored.title
+        self.body = mirrored.detail
+        self.appBundleId = mirrored.bundleIdentifier
+        self.isRead = isRead
+    }
+}
+
+/// Pure ring-buffer reducer for persistent notification history, filtering, unread state, and redaction.
+struct NotificationHistoryStore: Codable, Equatable, Sendable {
+    static let defaultMaxCapacity = 250
+    static let capacityChoices = [50, 100, 250]
+
+    enum StorageKey {
+        static let entries = "com.katikati.notifications.historyEntries"
+        static let maxCapacity = "com.katikati.notifications.historyCapacity"
+        static let quietMode = "com.katikati.notifications.quietMode"
+        static let redactSensitive = "com.katikati.notifications.redactSensitive"
+        static let sensitiveBundles = "com.katikati.notifications.sensitiveBundles"
+    }
+
+    static let defaultSensitiveBundleIDs: Set<String> = [
+        "com.1password.1password",
+        "com.agilebits.onepassword7",
+        "com.bitwarden.desktop",
+        "com.apple.MobileSMS",
+        "org.whispersystems.signal-desktop",
+        "ru.keepcoder.Telegram",
+        "net.whatsapp.WhatsApp",
+    ]
+
+    private(set) var entries: [NotificationHistoryEntry]
+    private(set) var maxCapacity: Int
+
+    init(entries: [NotificationHistoryEntry] = [], maxCapacity: Int = NotificationHistoryStore.defaultMaxCapacity) {
+        self.maxCapacity = max(1, maxCapacity)
+        self.entries = Array(entries.sorted { $0.timestamp > $1.timestamp }.prefix(self.maxCapacity))
+    }
+
+    var unreadCount: Int {
+        entries.reduce(0) { $0 + ($1.isRead ? 0 : 1) }
+    }
+
+    /// Inserts or updates an entry at the front (newest-first) and evicts oldest items beyond `maxCapacity`.
+    mutating func append(_ entry: NotificationHistoryEntry) {
+        if let existingIndex = entries.firstIndex(where: { $0.id == entry.id }) {
+            let wasRead = entries[existingIndex].isRead
+            entries.remove(at: existingIndex)
+            var updated = entry
+            updated.isRead = entry.isRead || wasRead
+            entries.insert(updated, at: 0)
+        } else {
+            entries.insert(entry, at: 0)
+        }
+        entries.sort { $0.timestamp > $1.timestamp }
+        trimToCapacity()
+    }
+
+    mutating func append(contentsOf newEntries: [NotificationHistoryEntry]) {
+        for entry in newEntries {
+            append(entry)
+        }
+    }
+
+    mutating func setMaxCapacity(_ capacity: Int) {
+        maxCapacity = max(1, capacity)
+        trimToCapacity()
+    }
+
+    mutating func markRead(id: String) {
+        guard let index = entries.firstIndex(where: { $0.id == id }) else { return }
+        entries[index].isRead = true
+    }
+
+    mutating func markAllRead() {
+        for index in entries.indices {
+            entries[index].isRead = true
+        }
+    }
+
+    mutating func clear() {
+        entries.removeAll()
+    }
+
+    /// Returns entries filtered by unread state and search query (`localizedStandardContains`).
+    func filtered(query: String, unreadOnly: Bool) -> [NotificationHistoryEntry] {
+        Self.filter(entries, query: query, unreadOnly: unreadOnly)
+    }
+
+    /// Returns a privacy-redacted copy of all entries for matching sensitive bundle IDs.
+    func redacted(
+        sensitiveBundleIDs: Set<String>,
+        placeholder: String = "Notification content hidden"
+    ) -> [NotificationHistoryEntry] {
+        Self.redact(entries, sensitiveBundleIDs: sensitiveBundleIDs, placeholder: placeholder)
+    }
+
+    /// Redacts sensitive entries first so search queries cannot match hidden content.
+    func visibleEntries(
+        query: String,
+        unreadOnly: Bool,
+        sensitiveBundleIDs: Set<String>,
+        placeholder: String = "Notification content hidden"
+    ) -> [NotificationHistoryEntry] {
+        let safeEntries = redacted(sensitiveBundleIDs: sensitiveBundleIDs, placeholder: placeholder)
+        return Self.filter(safeEntries, query: query, unreadOnly: unreadOnly)
+    }
+
+    private mutating func trimToCapacity() {
+        if entries.count > maxCapacity {
+            entries.removeLast(entries.count - maxCapacity)
+        }
+    }
+
+    static func filter(
+        _ source: [NotificationHistoryEntry],
+        query: String,
+        unreadOnly: Bool
+    ) -> [NotificationHistoryEntry] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        return source.filter { entry in
+            if unreadOnly && entry.isRead { return false }
+            guard !trimmed.isEmpty else { return true }
+            if entry.title.localizedStandardContains(trimmed) { return true }
+            if let body = entry.body, body.localizedStandardContains(trimmed) { return true }
+            if let bundleId = entry.appBundleId, bundleId.localizedStandardContains(trimmed) { return true }
+            return false
+        }
+    }
+
+    static func redact(
+        _ source: [NotificationHistoryEntry],
+        sensitiveBundleIDs: Set<String>,
+        placeholder: String = "Notification content hidden"
+    ) -> [NotificationHistoryEntry] {
+        guard !sensitiveBundleIDs.isEmpty else { return source }
+        return source.map { entry in
+            guard let bundleId = entry.appBundleId, sensitiveBundleIDs.contains(bundleId) else {
+                return entry
+            }
+            return NotificationHistoryEntry(
+                id: entry.id,
+                timestamp: entry.timestamp,
+                title: placeholder,
+                body: nil,
+                appBundleId: bundleId,
+                isRead: entry.isRead
+            )
+        }
+    }
+
+    static func load(defaults: UserDefaults = .standard) -> NotificationHistoryStore {
+        let storedCapacity = defaults.integer(forKey: StorageKey.maxCapacity)
+        let capacity = storedCapacity > 0 ? storedCapacity : defaultMaxCapacity
+        guard let data = defaults.data(forKey: StorageKey.entries),
+              let decoded = try? JSONDecoder().decode([NotificationHistoryEntry].self, from: data) else {
+            return NotificationHistoryStore(maxCapacity: capacity)
+        }
+        return NotificationHistoryStore(entries: decoded, maxCapacity: capacity)
+    }
+
+    func save(defaults: UserDefaults = .standard) {
+        defaults.set(maxCapacity, forKey: StorageKey.maxCapacity)
+        guard let data = try? JSONEncoder().encode(entries) else { return }
+        defaults.set(data, forKey: StorageKey.entries)
+    }
+}

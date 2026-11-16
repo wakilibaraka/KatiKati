@@ -66,4 +66,107 @@ final class NotificationMirrorTests: XCTestCase {
         XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: true, notifications: true).count, 8)
         XCTAssertFalse(NotchPage.visible(teleprompter: true, mirror: true).contains(.notifications))
     }
+
+    // MARK: - NotificationHistoryStore (Slice N-1)
+
+    func testHistoryStoreRingBufferEvictsOldestBeyondCapacity() {
+        var store = NotificationHistoryStore(maxCapacity: 3)
+        let base = Date(timeIntervalSince1970: 1_700_000_000)
+
+        for i in 1...5 {
+            store.append(NotificationHistoryEntry(
+                id: "n-\(i)",
+                timestamp: base.addingTimeInterval(Double(i * 10)),
+                title: "Event \(i)",
+                body: "Body \(i)",
+                appBundleId: "com.example.app"
+            ))
+        }
+
+        XCTAssertEqual(store.entries.map(\.id), ["n-5", "n-4", "n-3"])
+        XCTAssertEqual(store.unreadCount, 3)
+
+        store.setMaxCapacity(2)
+        XCTAssertEqual(store.entries.map(\.id), ["n-5", "n-4"])
+    }
+
+    func testHistoryStoreUnreadMutationsAndSearchFilter() {
+        var store = NotificationHistoryStore(maxCapacity: 50)
+        let base = Date(timeIntervalSince1970: 1_700_000_000)
+
+        store.append(NotificationHistoryEntry(
+            id: "1",
+            timestamp: base,
+            title: "Café Receipt",
+            body: "Order #42 ready",
+            appBundleId: "com.example.coffee"
+        ))
+        store.append(NotificationHistoryEntry(
+            id: "2",
+            timestamp: base.addingTimeInterval(30),
+            title: "Build Succeeded",
+            body: "KatiKati.app",
+            appBundleId: "com.apple.dt.Xcode",
+            isRead: true
+        ))
+        store.append(NotificationHistoryEntry(
+            id: "3",
+            timestamp: base.addingTimeInterval(60),
+            title: "Direct Message",
+            body: "See you at 5pm",
+            appBundleId: "com.tinyspeck.slackmacgap"
+        ))
+
+        XCTAssertEqual(store.unreadCount, 2)
+        XCTAssertEqual(store.filtered(query: "", unreadOnly: true).map(\.id), ["3", "1"])
+        XCTAssertEqual(store.filtered(query: "cafe", unreadOnly: false).map(\.id), ["1"])
+        XCTAssertEqual(store.filtered(query: "xcode", unreadOnly: false).map(\.id), ["2"])
+
+        store.markRead(id: "1")
+        XCTAssertEqual(store.unreadCount, 1)
+        XCTAssertEqual(store.filtered(query: "", unreadOnly: true).map(\.id), ["3"])
+
+        store.markAllRead()
+        XCTAssertEqual(store.unreadCount, 0)
+        XCTAssertTrue(store.filtered(query: "", unreadOnly: true).isEmpty)
+
+        store.clear()
+        XCTAssertTrue(store.entries.isEmpty)
+    }
+
+    func testHistoryStoreRedactsSensitiveBundlesBeforeFiltering() {
+        var store = NotificationHistoryStore(maxCapacity: 50)
+        let base = Date(timeIntervalSince1970: 1_700_000_000)
+
+        store.append(NotificationHistoryEntry(
+            id: "secret",
+            timestamp: base.addingTimeInterval(20),
+            title: "One-Time Code 994120",
+            body: "Use this to sign in",
+            appBundleId: "com.apple.MobileSMS"
+        ))
+        store.append(NotificationHistoryEntry(
+            id: "public",
+            timestamp: base.addingTimeInterval(10),
+            title: "Deploy Finished",
+            body: "All checks green",
+            appBundleId: "com.example.ci"
+        ))
+
+        let sensitive: Set<String> = ["com.apple.MobileSMS"]
+        let redacted = store.redacted(sensitiveBundleIDs: sensitive, placeholder: "Hidden")
+        XCTAssertEqual(redacted.first?.title, "Hidden")
+        XCTAssertNil(redacted.first?.body)
+        XCTAssertEqual(redacted.first?.appBundleId, "com.apple.MobileSMS")
+        XCTAssertEqual(redacted.last?.title, "Deploy Finished")
+
+        // Searching for sensitive body/title must not match redacted notifications.
+        let searchLeakCheck = store.visibleEntries(
+            query: "994120",
+            unreadOnly: false,
+            sensitiveBundleIDs: sensitive,
+            placeholder: "Hidden"
+        )
+        XCTAssertTrue(searchLeakCheck.isEmpty)
+    }
 }
