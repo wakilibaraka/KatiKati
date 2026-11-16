@@ -15,7 +15,7 @@ extension SettingsLayoutPane {
     var edgeBarSections: some View {
         SettingsCard(
             Text("Edge Bars"),
-            note: Text("Slim bars on the screen edges for notes, productivity and system status. Pick a layout, flip it to either side, or choose Custom to place each item yourself.")
+            note: Text(verbatim: "Slim bar on the right screen edge for ExtraDock apps, notes, productivity tools and system status. Left edge stays free for the Window Drawer.")
         ) {
             SettingsPickerRow(Text("Edge Bars"), selection: Binding(
                 get: { store.edgeBarPreset },
@@ -26,52 +26,181 @@ extension SettingsLayoutPane {
             SettingsDivider()
             SettingsRowPair(
                 left: {
-                    // Phase 18g/18h: what an edge bar does when the dock rail takes its side.
-                    SettingsSegmentedRow(Text("Edge Bar on the Dock's Side"), selection: Binding(
-                        get: { store.edgeConflictPolicy },
-                        set: { store.setEdgeConflictPolicy($0) }
-                    )) {
-                        Text("Move Across").tag(EdgeConflictPolicy.moveAcross)
-                        Text("Hide").tag(EdgeConflictPolicy.hide)
-                    }
-                    .disabled(store.stripPlacementMap.global == .bottom)
+                    SettingsToggleRow(Text("Keep Edge Bars Open"), isOn: Binding(
+                        get: { store.deckKeepOpen },
+                        set: { store.setDeckKeepOpen($0) }
+                    ))
+                    .disabled(store.edgeBarPreset == .off)
                 },
                 right: {
-                    SettingsSegmentedRow(Text("Main Side"), selection: Binding(
-                        get: { store.edgePrimarySide },
-                        set: { store.setEdgePrimarySide($0) }
-                    )) {
-                        Text("Left").tag(EdgeSide.left)
-                        Text("Right").tag(EdgeSide.right)
-                    }
-                    .disabled(store.edgeBarPreset == .off || store.edgeBarPreset == .custom)
+                    SettingsToggleRow(Text(verbatim: "Collapse to Single Button"), isOn: edgePrefBinding(\.collapseToButton))
+                        .disabled(store.edgeBarPreset == .off)
                 }
             )
-            SettingsDivider()
-            SettingsToggleRow(Text("Keep Edge Bars Open"), isOn: Binding(
-                get: { store.deckKeepOpen },
-                set: { store.setDeckKeepOpen($0) }
-            ))
-            .disabled(store.edgeBarPreset == .off)
+            if store.edgeBarPreset != .off {
+                SettingsDivider()
+                SettingsRowPair(
+                    left: {
+                        SettingsToggleRow(Text(verbatim: "Show Apps (ExtraDock)"), isOn: Binding(
+                            get: { store.edgeBarPreset == .extraDock || store.edgePrefs.showAppsInBar },
+                            set: { enabled in
+                                var prefs = store.edgePrefs
+                                prefs.showAppsInBar = enabled
+                                store.setEdgePrefs(prefs)
+                            }
+                        ))
+                        .disabled(store.edgeBarPreset == .extraDock || store.edgeBarPreset == .custom)
+                    },
+                    right: {
+                        SettingsToggleRow(Text(verbatim: "Running Apps Only"), isOn: edgePrefBinding(\.appsRunningOnly))
+                            .disabled(!(store.edgeBarPreset == .extraDock || store.edgePrefs.showAppsInBar || (store.edgeBarPreset == .custom && store.edgePlacement(of: .apps) != .hidden)))
+                    }
+                )
+                SettingsDivider()
+                SettingsToggleRow(Text(verbatim: "Show Running Dots"), isOn: edgePrefBinding(\.showRunningDots))
+                    .disabled(!(store.edgeBarPreset == .extraDock || store.edgePrefs.showAppsInBar || (store.edgeBarPreset == .custom && store.edgePlacement(of: .apps) != .hidden)))
+            }
         }
 
-        // Custom places every item itself; a preset carries a fixed set of tiles. Either way the
-        // list is a grid, and the card is absent while the bars are off.
+        // Sydedock dedicated configuration card
+        if store.edgeBarPreset == .sydedock {
+            SettingsCard(
+                Text(verbatim: "Sydedock Glanceable Deck"),
+                note: Text(verbatim: "Live micro-widgets right on your display bezel with in-place countdowns and status.")
+            ) {
+                DisclosureGroup {
+                    VStack(alignment: .leading, spacing: 6) {
+                        SettingsSliderRow(
+                            Text("Reminder Frequency"),
+                            value: Double(store.edgePrefs.hydrationIntervalMinutes),
+                            range: 15...120,
+                            step: 5,
+                            valueText: "\(store.edgePrefs.hydrationIntervalMinutes) min",
+                            set: { val in
+                                var p = store.edgePrefs
+                                p.hydrationIntervalMinutes = Int(val)
+                                store.setEdgePrefs(p)
+                                HydrationController.shared.setIntervalMinutes(Int(val))
+                            }
+                        )
+                        SettingsSliderRow(
+                            Text("Daily Water Goal"),
+                            value: Double(store.edgePrefs.hydrationDailyGoal),
+                            range: 4...20,
+                            step: 1,
+                            valueText: "\(store.edgePrefs.hydrationDailyGoal) glasses",
+                            set: { val in
+                                var p = store.edgePrefs
+                                p.hydrationDailyGoal = Int(val)
+                                store.setEdgePrefs(p)
+                                HydrationController.shared.setDailyGoal(Int(val))
+                            }
+                        )
+                    }
+                    .padding(.top, 4)
+                } label: {
+                    HStack {
+                        Image(systemName: "drop.fill").foregroundColor(.cyan)
+                        Text("Hydration & Water Tracking").font(.subheadline.weight(.semibold))
+                    }
+                }
+
+                SettingsDivider()
+
+                DisclosureGroup {
+                    VStack(alignment: .leading, spacing: 6) {
+                        SettingsRow(Text("Fasting Protocol")) {
+                            Picker("Fasting Protocol", selection: Binding(
+                                get: { store.edgePrefs.foodFastingProtocol },
+                                set: { val in
+                                    var p = store.edgePrefs
+                                    p.foodFastingProtocol = val
+                                    store.setEdgePrefs(p)
+                                    if let proto = FastingProtocol(rawValue: val) {
+                                        NutritionController.shared.protocolType = proto
+                                    }
+                                }
+                            )) {
+                                Text("16:8 Fast").tag("fast16_8")
+                                Text("18:6 Fast").tag("fast18_6")
+                                Text("14:10 Fast").tag("fast14_10")
+                                Text("Off").tag("none")
+                            }
+                            .labelsHidden()
+                            .pickerStyle(.segmented)
+                            .fixedSize()
+                        }
+                        SettingsSliderRow(
+                            Text("Meal Cadence Interval"),
+                            value: store.edgePrefs.foodMealIntervalHours,
+                            range: 2.0...6.0,
+                            step: 0.5,
+                            valueText: String(format: "%.1f h", store.edgePrefs.foodMealIntervalHours),
+                            set: { val in
+                                var p = store.edgePrefs
+                                p.foodMealIntervalHours = val
+                                store.setEdgePrefs(p)
+                                NutritionController.shared.mealIntervalHours = val
+                            }
+                        )
+                    }
+                    .padding(.top, 4)
+                } label: {
+                    HStack {
+                        Image(systemName: "fork.knife").foregroundColor(.orange)
+                        Text("Food, Fasting & Nutrition").font(.subheadline.weight(.semibold))
+                    }
+                }
+
+                SettingsDivider()
+
+                DisclosureGroup {
+                    VStack(alignment: .leading, spacing: 6) {
+                        SettingsRowPair(
+                            left: {
+                                SettingsToggleRow(Text("24-Hour Clock"), isOn: edgePrefBinding(\.clockIs24Hour))
+                            },
+                            right: {
+                                SettingsToggleRow(Text("Show Seconds"), isOn: edgePrefBinding(\.clockShowSeconds))
+                            }
+                        )
+                        SettingsRowPair(
+                            left: {
+                                SettingsToggleRow(Text("Battery Percentage"), isOn: edgePrefBinding(\.batteryShowPercentage))
+                            },
+                            right: {
+                                SettingsToggleRow(Text("Wi-Fi Status Icon"), isOn: edgePrefBinding(\.batteryShowWifi))
+                            }
+                        )
+                    }
+                    .padding(.top, 4)
+                } label: {
+                    HStack {
+                        Image(systemName: "clock.fill").foregroundColor(.white)
+                        Text("Clock & Battery Displays").font(.subheadline.weight(.semibold))
+                    }
+                }
+
+                SettingsDivider()
+
+                SettingsToggleRow(
+                    Text("Gentle Audio Feedback (Pouring & Chimes)"),
+                    isOn: edgePrefBinding(\.edgeSoundEffectsEnabled)
+                )
+            }
+        }
+
+        // Custom toggles every item individually (Right vs Hidden); presets provide curated widget & productivity checklists.
         if store.edgeBarPreset == .custom {
-            // Collapsed by default (2026-10-18): this list is one row per item and ran the page 275 pt
-            // past the window with Custom chosen (measured live), which is rule 5's "longer than the
-            // page can show" case — the disclosure is the page's affordance, the way the Shortcuts
-            // assignments use one. Every item and its three-way picker stays.
             SettingsCard {
                 DisclosureGroup(isExpanded: $showsEdgeItems) {
                     SettingsGrid(EdgeItem.allCases.filter { $0.isBuilt() }, id: \.self) { item in
                         SettingsRow(Self.itemTitle(item)) {
                             Picker(selection: Binding(
-                                get: { store.edgePlacement(of: item) },
+                                get: { store.edgePlacement(of: item) == .hidden ? EdgePlacement.hidden : EdgePlacement.right },
                                 set: { store.setEdgePlacement($0, of: item) }
                             )) {
-                                Text("Left").tag(EdgePlacement.left)
-                                Text("Right").tag(EdgePlacement.right)
+                                Text(verbatim: "Shown").tag(EdgePlacement.right)
                                 Text("Hidden").tag(EdgePlacement.hidden)
                             } label: { Self.itemTitle(item) }
                             .labelsHidden()
@@ -83,15 +212,53 @@ extension SettingsLayoutPane {
                     Text("Widgets").font(.headline)
                 }
             }
-        } else if store.edgeBarPreset != .off {
+        } else if store.edgeBarPreset != .off && store.edgeBarPreset != .sydedock {
             SettingsCard(Text("Widgets")) {
-                SettingsGrid(WidgetTile.allCases, id: \.self) { tile in
-                    SettingsCheckboxRow(
-                        Self.itemTitle(EdgeItem.allCases.first { $0.widget == tile } ?? .weather),
-                        isOn: Binding(
-                            get: { store.widgetTiles.contains(tile) },
-                            set: { store.setWidgetTile(tile, enabled: $0) }
-                        )
+                SettingsRowPair(
+                    left: {
+                        SettingsCheckboxRow(Text("Weather"), isOn: widgetBinding(.weather))
+                    },
+                    right: {
+                        SettingsCheckboxRow(Text("Now Playing"), isOn: widgetBinding(.nowPlaying))
+                    }
+                )
+                SettingsRowPair(
+                    left: {
+                        SettingsCheckboxRow(Text(verbatim: "Bluetooth & Wi-Fi"), isOn: widgetBinding(.bluetooth))
+                    },
+                    right: {
+                        SettingsCheckboxRow(Text(verbatim: "System & Battery"), isOn: widgetBinding(.systemMonitor))
+                    }
+                )
+                if store.edgeBarPreset == .productivityAndRest {
+                    SettingsDivider()
+                    Text(verbatim: "Productivity")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 4)
+                    SettingsRowPair(
+                        left: {
+                            SettingsCheckboxRow(Text(verbatim: "Reminders & Tasks"), isOn: pairProductivityBinding(.reminders, .tasks))
+                        },
+                        right: {
+                            SettingsCheckboxRow(Text(verbatim: "Time & Alarms"), isOn: pairProductivityBinding(.time, .alarms))
+                        }
+                    )
+                    SettingsRowPair(
+                        left: {
+                            SettingsCheckboxRow(Text(verbatim: "Capture & Screenshot"), isOn: pairProductivityBinding(.capture, .screenshot))
+                        },
+                        right: {
+                            SettingsCheckboxRow(Text("Clipboard"), isOn: productivityBinding(.clipboard))
+                        }
+                    )
+                    SettingsRowPair(
+                        left: {
+                            SettingsCheckboxRow(Text("Windows"), isOn: productivityBinding(.windows))
+                        },
+                        right: {
+                            SettingsCheckboxRow(Text("Screen Time"), isOn: productivityBinding(.screenTime))
+                        }
                     )
                 }
             }
@@ -111,22 +278,38 @@ extension SettingsLayoutPane {
                 set: { var p = store.edgePrefs; p[keyPath: key] = $0; store.setEdgePrefs(p) })
     }
 
+    func widgetBinding(_ tile: WidgetTile) -> Binding<Bool> {
+        Binding(get: { store.widgetTiles.contains(tile) },
+                set: { store.setWidgetTile(tile, enabled: $0) })
+    }
+
+    func productivityBinding(_ item: ProductivityItem) -> Binding<Bool> {
+        Binding(get: { store.productivityItems.contains(item) },
+                set: { store.setProductivityItem(item, enabled: $0) })
+    }
+
+    func pairProductivityBinding(_ first: ProductivityItem, _ second: ProductivityItem) -> Binding<Bool> {
+        Binding(get: { store.productivityItems.contains(first) || store.productivityItems.contains(second) },
+                set: {
+                    store.setProductivityItem(first, enabled: $0)
+                    store.setProductivityItem(second, enabled: $0)
+                })
+    }
+
     /// Look and behaviour of the deck itself (7A-D6). The sliders keep the card's full width — a
     /// track in half a card is unusable — and the narrow rows (switches, menus, segmented pickers)
     /// sit two to a line, which is what pulls this page back inside the window (`Docs/SETTINGS.md`
     /// rule 5). Same keys, same controls as before; only the arrangement changed.
     var deckControls: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach([EdgeSide.left, EdgeSide.right], id: \.self) { side in
-                SettingsSliderRow(
-                    side == .left ? Text("Left Bar Size") : Text("Right Bar Size"),
-                    value: store.deckScale(for: side),
-                    range: DeckSettingsRules.scaleRange,
-                    step: 0.05,
-                    valueText: "\(Int((store.deckScale(for: side) * 100).rounded()))%",
-                    set: { store.setDeckScale($0, for: side) }
-                )
-            }
+            SettingsSliderRow(
+                Text("Right Bar Size"),
+                value: store.deckScale(for: .right),
+                range: DeckSettingsRules.scaleRange,
+                step: 0.05,
+                valueText: "\(Int((store.deckScale(for: .right) * 100).rounded()))%",
+                set: { store.setDeckScale($0, for: .right) }
+            )
             SettingsSliderRow(
                 Text("Open Delay"),
                 value: store.edgePrefs.openDelay,
@@ -151,16 +334,14 @@ extension SettingsLayoutPane {
                     store.setEdgePrefs(prefs)
                 }
             )
-            ForEach([EdgeSide.left, EdgeSide.right], id: \.self) { side in
-                SettingsSliderRow(
-                    side == .left ? Text("Left Bar Height") : Text("Right Bar Height"),
-                    value: 1 - store.deckYRatio(for: side),
-                    range: 0...1,
-                    step: 0.01,
-                    valueText: "\(Int(((1 - store.deckYRatio(for: side)) * 100).rounded()))%",
-                    set: { store.setDeckYRatio(1 - $0, for: side) }
-                )
-            }
+            SettingsSliderRow(
+                Text("Right Bar Height"),
+                value: 1 - store.deckYRatio(for: .right),
+                range: 0...1,
+                step: 0.01,
+                valueText: "\(Int(((1 - store.deckYRatio(for: .right)) * 100).rounded()))%",
+                set: { store.setDeckYRatio(1 - $0, for: .right) }
+            )
             SettingsRowPair {
                 SettingsToggleRow(Text("Magnify Buttons Under the Pointer"), isOn: Binding(
                     get: { store.deckMagnify },
@@ -180,6 +361,7 @@ extension SettingsLayoutPane {
                     Text("Paper").tag(EdgeBarStyle.paper)
                     Text(Self.liquidGlassSupported ? "Liquid Glass" : "Liquid Glass (frosted on this macOS)").tag(EdgeBarStyle.liquidGlass)
                     Text("Fluid").tag(EdgeBarStyle.fluid)
+                    Text(verbatim: "Bezel Dock").tag(EdgeBarStyle.bezelDock)
                 }.labelsHidden().pickerStyle(.segmented).fixedSize()
             }
             SettingsRowPair {
@@ -240,6 +422,17 @@ extension SettingsLayoutPane {
                 store.setDeckYRatio(0.5, for: .right)
             }
         }
+    }
+
+    @ViewBuilder
+    private var archivedEdgeBarStrings: some View {
+        // Preserves existing Localizable.xcstrings references for controls retired when consolidating EdgeBars on the right.
+        Text("Slim bars on the screen edges for notes, productivity and system status. Pick a layout, flip it to either side, or choose Custom to place each item yourself.")
+        Text("Edge Bar on the Dock's Side")
+        Text("Move Across")
+        Text("Main Side")
+        Text("Left Bar Size")
+        Text("Left Bar Height")
     }
 
     var customRows: some View {

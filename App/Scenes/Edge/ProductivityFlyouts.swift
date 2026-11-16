@@ -17,6 +17,9 @@ final class ProductivityServices {
     lazy var capture = CaptureController()
     lazy var systemMonitor = SystemMonitorController()
     lazy var screenTime = ScreenTimeController()
+    lazy var hydration = HydrationController.shared
+    lazy var nutrition = NutritionController.shared
+    lazy var habits = HabitStreakStore.shared
     private init() {}
 }
 

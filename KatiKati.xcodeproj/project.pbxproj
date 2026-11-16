@@ -7,6 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ED0000000000000000070003 /* SydedockFlyouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000070001 /* SydedockFlyouts.swift */; };
+		ED0000000000000000080003 /* MergedFlyouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000080001 /* MergedFlyouts.swift */; };
+		ED0000000000000000060003 /* DeckRichCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000060001 /* DeckRichCards.swift */; };
+		ED0000000000000000050004 /* SydedockControllersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000050001 /* SydedockControllersTests.swift */; };
+		ED0000000000000000020003 /* HydrationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000020001 /* HydrationController.swift */; };
+		ED0000000000000000020004 /* HydrationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000020001 /* HydrationController.swift */; };
+		ED0000000000000000030003 /* NutritionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000030001 /* NutritionController.swift */; };
+		ED0000000000000000030004 /* NutritionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000030001 /* NutritionController.swift */; };
+		ED0000000000000000040003 /* HabitStreakStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000040001 /* HabitStreakStore.swift */; };
+		ED0000000000000000040004 /* HabitStreakStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000040001 /* HabitStreakStore.swift */; };
 		A0000000000000000000C881 /* NotchKeepAwakePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C880 /* NotchKeepAwakePageView.swift */; };
 		A0000000000000000000C871 /* LidSleepGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C870 /* LidSleepGuard.swift */; };
 		A0000000000000000000C861 /* LidSleepSudoersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000C860 /* LidSleepSudoersTests.swift */; };
@@ -1304,6 +1314,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		ED0000000000000000070001 /* SydedockFlyouts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SydedockFlyouts.swift; path = App/Scenes/Edge/SydedockFlyouts.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000080001 /* MergedFlyouts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MergedFlyouts.swift; path = App/Scenes/Edge/MergedFlyouts.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000060001 /* DeckRichCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeckRichCards.swift; path = App/Scenes/Edge/DeckRichCards.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000050001 /* SydedockControllersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SydedockControllersTests.swift; path = Tests/Unit/SydedockControllersTests.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000020001 /* HydrationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HydrationController.swift; path = Core/Support/HydrationController.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000030001 /* NutritionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NutritionController.swift; path = Core/Support/NutritionController.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000040001 /* HabitStreakStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HabitStreakStore.swift; path = Core/Support/HabitStreakStore.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000C880 /* NotchKeepAwakePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchKeepAwakePageView.swift; path = App/Scenes/Notch/NotchKeepAwakePageView.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000C870 /* LidSleepGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LidSleepGuard.swift; path = Platform/KeepAwake/LidSleepGuard.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000C860 /* LidSleepSudoersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LidSleepSudoersTests.swift; path = Tests/Unit/LidSleepSudoersTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2887,6 +2904,9 @@
 				BB0000000000000000000005 /* IslandLayoutSolver.swift */,
 				BB0000000000000000000021 /* IslandSlotSet.swift */,
 				ED0000000000000000000001 /* EdgeBarSlot.swift */,
+				ED0000000000000000020001 /* HydrationController.swift */,
+				ED0000000000000000030001 /* NutritionController.swift */,
+				ED0000000000000000040001 /* HabitStreakStore.swift */,
 				BB0000000000000000000036 /* DockThemeStyle.swift */,
 				BB000000000000000000003B /* DockThemeStyleTokens.swift */,
 				B1000000000000000000011C /* TaskbarDisplaySet.swift */,
@@ -3269,6 +3289,9 @@
 				BB0000000000000000000006 /* IslandLayoutSolver.swift in Sources */,
 				BB0000000000000000000022 /* IslandSlotSet.swift in Sources */,
 				ED0000000000000000000003 /* EdgeBarSlot.swift in Sources */,
+				ED0000000000000000020003 /* HydrationController.swift in Sources */,
+				ED0000000000000000030003 /* NutritionController.swift in Sources */,
+				ED0000000000000000040003 /* HabitStreakStore.swift in Sources */,
 				BB0000000000000000000037 /* DockThemeStyle.swift in Sources */,
 				BB000000000000000000003C /* DockThemeStyleTokens.swift in Sources */,
 				B1000000000000000000011D /* TaskbarDisplaySet.swift in Sources */,
@@ -3362,6 +3385,9 @@
 				ED00000000000000000000A1 /* DeckShapes.swift in Sources */,
 				ED00000000000000000000A3 /* DeckLabel.swift in Sources */,
 				ED00000000000000000000A5 /* DeckViews.swift in Sources */,
+				ED0000000000000000070003 /* SydedockFlyouts.swift in Sources */,
+				ED0000000000000000080003 /* MergedFlyouts.swift in Sources */,
+				ED0000000000000000060003 /* DeckRichCards.swift in Sources */,
 				A00000000000000000C2E10001 /* GlassQuickAddView.swift in Sources */,
 				A00000000000000000C2E00001 /* EdgeStyleTokens.swift in Sources */,
 				ED0000000000000000000091 /* DeckStateMachine.swift in Sources */,
@@ -4107,6 +4133,7 @@
 				BB0000000000000000000010 /* IslandLayoutSolverTests.swift in Sources */,
 				BB0000000000000000000025 /* IslandSlotSetTests.swift in Sources */,
 				ED0000000000000000000005 /* EdgeBarSlotTests.swift in Sources */,
+				ED0000000000000000050004 /* SydedockControllersTests.swift in Sources */,
 				BB0000000000000000000027 /* IslandPanelGeometryTests.swift in Sources */,
 				BB0000000000000000000029 /* IslandStripProjectionTests.swift in Sources */,
 				BB0000000000000000000031 /* IslandAnchorTests.swift in Sources */,
@@ -4201,6 +4228,9 @@
 				BB0000000000000000000013 /* IslandLayoutSolver.swift in Sources */,
 				BB0000000000000000000023 /* IslandSlotSet.swift in Sources */,
 				ED0000000000000000000004 /* EdgeBarSlot.swift in Sources */,
+				ED0000000000000000020004 /* HydrationController.swift in Sources */,
+				ED0000000000000000030004 /* NutritionController.swift in Sources */,
+				ED0000000000000000040004 /* HabitStreakStore.swift in Sources */,
 				BB0000000000000000000038 /* DockThemeStyle.swift in Sources */,
 				BB000000000000000000003D /* DockThemeStyleTokens.swift in Sources */,
 				B1000000000000000000011E /* TaskbarDisplaySet.swift in Sources */,

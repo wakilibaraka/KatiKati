@@ -58,6 +58,7 @@ final class EdgeBarPanelController {
     private var dwell = EdgeDwell()
     private var labelIndex: Int?
     private var labelWork: DispatchWorkItem?
+    private var workspaceTokens: [NSObjectProtocol] = []
 
     init(slotKey: EdgeSlotSet.SlotKey, service: SystemStatusService, notes: @escaping () -> NotesController?,
          notesPeek: @escaping () -> NotesController?,
@@ -110,6 +111,7 @@ final class EdgeBarPanelController {
         context.openOnHover = settings.openOnHover
 
         if contentChanged || settingsChanged || panel == nil { rebuildItems() }
+        updateWorkspaceObservation(needed: content.contains(.apps) || settings.prefs.showAppsInBar)
         let panel = self.panel ?? makePanel()
         self.panel = panel
 
@@ -141,6 +143,7 @@ final class EdgeBarPanelController {
         popup.tearDown()
         notesPopup.tearDown()
         stopTimers()
+        stopWorkspaceObservation()
         notesCancellable = nil
         panel?.orderOut(nil)
         panel = nil
@@ -156,6 +159,8 @@ final class EdgeBarPanelController {
         model.iconSet = settings.prefs.iconSet
         model.barStyle = settings.prefs.barStyle
         model.magnifyPeak = CGFloat(settings.prefs.magnifyAmount.peak)
+        model.showRunningDots = settings.prefs.showRunningDots
+        model.collapseToButton = settings.prefs.collapseToButton
         popup.style = settings.prefs.flyoutStyle
         popup.barStyle = settings.prefs.barStyle
         notesPopup.barStyle = settings.prefs.barStyle
@@ -163,14 +168,57 @@ final class EdgeBarPanelController {
 
         var buttons: [DeckButton] = []
         var hasNotes = false
+        var addedApps = false
+        if settings.prefs.showAppsInBar && !content.contains(.apps) {
+            buttons += Self.resolveEdgeApps(runningOnly: settings.prefs.appsRunningOnly).map(DeckButton.app)
+            addedApps = true
+        }
+        var emittedBluetoothWifi = false
+        var emittedRemindersTasks = false
+        var emittedSystemBattery = false
+        var emittedTimeAlarms = false
+        var emittedCaptureScreenshot = false
+
         for item in content {
             switch item {
+            case .apps:
+                guard !addedApps else { continue }
+                buttons += Self.resolveEdgeApps(runningOnly: settings.prefs.appsRunningOnly).map(DeckButton.app)
+                addedApps = true
+            case .focus: buttons.append(.focus)
+            case .clock: buttons.append(.clock)
+            case .batteryWifi: buttons.append(.batteryWifi)
+            case .habits: buttons.append(.habits)
+            case .hydration: buttons.append(.hydration)
+            case .food: buttons.append(.food)
+            case .notesPreview: buttons.append(.notesPreview)
             case .notes: hasNotes = true
             case .newNote: buttons.append(.newNote)
             case .settings: buttons.append(.settings)
-            case .status: buttons += StatusKind.allCases.map(DeckButton.status)
-            case let .widget(tile): buttons.append(.widget(tile))
-            case let .productivity(item): buttons.append(.productivity(item))
+            case .status:
+                if !emittedBluetoothWifi { buttons.append(.bluetoothWifi); emittedBluetoothWifi = true }
+                if !emittedSystemBattery { buttons.append(.systemAndBattery); emittedSystemBattery = true }
+                buttons.append(.status(.volume))
+            case let .widget(tile):
+                switch tile {
+                case .bluetooth:
+                    if !emittedBluetoothWifi { buttons.append(.bluetoothWifi); emittedBluetoothWifi = true }
+                case .systemMonitor:
+                    if !emittedSystemBattery { buttons.append(.systemAndBattery); emittedSystemBattery = true }
+                default:
+                    buttons.append(.widget(tile))
+                }
+            case let .productivity(pItem):
+                switch pItem {
+                case .reminders, .tasks:
+                    if !emittedRemindersTasks { buttons.append(.remindersAndTasks); emittedRemindersTasks = true }
+                case .time, .alarms:
+                    if !emittedTimeAlarms { buttons.append(.timeAndAlarms); emittedTimeAlarms = true }
+                case .capture, .screenshot:
+                    if !emittedCaptureScreenshot { buttons.append(.captureAndScreenshot); emittedCaptureScreenshot = true }
+                default:
+                    buttons.append(.productivity(pItem))
+                }
             }
         }
         model.buttons = buttons
@@ -200,8 +248,9 @@ final class EdgeBarPanelController {
         let frame: CGRect
         if model.showsFan {
             let stack = model.layout(panelHeight: visibleFrame.height).stackHeight
+            let maxWidth: CGFloat? = model.buttons.contains(where: { $0.isRichCard }) ? max(52, m.tabWidth * 1.75) : nil
             frame = DeckGeometry.fanFrame(m, side: side, visible: visibleFrame, stackHeight: stack,
-                                          itemCount: model.pillItemCount, yRatio: effectiveRatio)
+                                          itemCount: model.pillItemCount, yRatio: effectiveRatio, maxWidth: maxWidth)
         } else {
             frame = DeckGeometry.restFrame(m, side: side, visible: visibleFrame, itemCount: model.pillItemCount,
                                            yRatio: effectiveRatio)
@@ -528,6 +577,14 @@ final class EdgeBarPanelController {
         guard let anchor = screenRect(localRect) else { return }
         lastActivity = Date()
         switch button {
+        case let .app(appItem):
+            notesPopup.dismiss(notify: false)
+            popup.dismiss()
+            if let running = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == appItem.bundleID }) {
+                running.activate(options: [.activateAllWindows, .activateIgnoringOtherApps])
+            } else if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: appItem.bundleID) {
+                NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
+            }
         case .newNote where settings.prefs.barStyle == .liquidGlass:
             notesPopup.dismiss(notify: false)
             popup.toggle(id: "quickadd", anchor: anchor, side: side, visibleFrame: visibleFrame, size: GlassQuickAddView.size,
@@ -595,6 +652,127 @@ final class EdgeBarPanelController {
                              size: CGSize(width: 300, height: 120),
                              content: AnyView(NowPlayingFlyoutView(service: nowPlayingProvider())))
             }
+        case .focus:
+            notesPopup.dismiss(notify: false)
+            popup.toggle(id: "sydedock.focus", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: CGSize(width: 320, height: 360), content: AnyView(TasksFlyoutView()), takesKey: true)
+        case .clock:
+            notesPopup.dismiss(notify: false)
+            popup.toggle(id: "sydedock.clock", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: ClockFlyoutView.size, content: AnyView(ClockFlyoutView()))
+        case .batteryWifi:
+            notesPopup.dismiss(notify: false)
+            popup.toggle(id: "sydedock.batteryWifi", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: BluetoothWifiFlyoutView.size, content: AnyView(BluetoothWifiFlyoutView(service: service)))
+        case .habits:
+            notesPopup.dismiss(notify: false)
+            popup.toggle(id: "sydedock.habits", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: HabitsFlyoutView.size, content: AnyView(HabitsFlyoutView()), takesKey: true)
+        case .hydration:
+            notesPopup.dismiss(notify: false)
+            popup.toggle(id: "sydedock.hydration", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: HydrationFlyoutView.size, content: AnyView(HydrationFlyoutView()))
+        case .food:
+            notesPopup.dismiss(notify: false)
+            popup.toggle(id: "sydedock.food", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: FoodFlyoutView.size, content: AnyView(FoodFlyoutView()))
+        case .notesPreview:
+            if let notes = notesProvider() {
+                let firstID = notes.notes.first?.id ?? notes.create().id
+                popup.dismiss()
+                apply(.tabClicked(firstID))
+                notesPopup.toggle(anchor: anchor, side: side, visibleFrame: visibleFrame, controller: notes, select: firstID, tabFont: settings.tabFont)
+            }
+        case .bluetoothWifi:
+            notesPopup.dismiss(notify: false)
+            popup.toggle(id: "merged.bluetoothWifi", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: BluetoothWifiFlyoutView.size, content: AnyView(BluetoothWifiFlyoutView(service: service)))
+        case .remindersAndTasks:
+            notesPopup.dismiss(notify: false)
+            popup.toggle(id: "merged.remindersTasks", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: RemindersTasksFlyoutView.size, content: AnyView(RemindersTasksFlyoutView()), takesKey: true)
+        case .systemAndBattery:
+            notesPopup.dismiss(notify: false)
+            popup.toggle(id: "merged.systemBattery", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: SystemBatteryFlyoutView.size, content: AnyView(SystemBatteryFlyoutView(service: service)))
+        case .timeAndAlarms:
+            notesPopup.dismiss(notify: false)
+            popup.toggle(id: "merged.timeAlarms", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: TimeAlarmsFlyoutView.size, content: AnyView(TimeAlarmsFlyoutView()), takesKey: true)
+        case .captureAndScreenshot:
+            notesPopup.dismiss(notify: false)
+            let onCap = { [weak self] in
+                guard let self else { return }
+                self.popup.dismiss()
+                ProductivityServices.shared.capture.start { [weak self] in
+                    guard let self else { return }
+                    self.popup.toggle(id: "productivity.capture", anchor: anchor, side: self.side, visibleFrame: self.visibleFrame,
+                                      size: ProductivityFlyout.size(.capture), content: AnyView(CaptureResultView()))
+                }
+            }
+            let onShot = { [weak self] in
+                self?.popup.dismiss()
+                let task = Process()
+                task.executableURL = URL(fileURLWithPath: ScreenshotCommand.launchPath)
+                task.arguments = ScreenshotCommand.arguments
+                try? task.run()
+            }
+            popup.toggle(id: "merged.captureScreenshot", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: CaptureScreenshotFlyoutView.size,
+                         content: AnyView(CaptureScreenshotFlyoutView(onCapture: onCap, onScreenshot: onShot)))
         }
+    }
+
+    // MARK: ExtraDock Apps
+
+    private func updateWorkspaceObservation(needed: Bool) {
+        if needed, workspaceTokens.isEmpty {
+            let center = NSWorkspace.shared.notificationCenter
+            let names: [NSNotification.Name] = [
+                NSWorkspace.didLaunchApplicationNotification,
+                NSWorkspace.didTerminateApplicationNotification,
+                NSWorkspace.didActivateApplicationNotification,
+            ]
+            workspaceTokens = names.map { name in
+                center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                    Task { @MainActor in
+                        self?.rebuildItems()
+                        self?.applyFrame()
+                    }
+                }
+            }
+        } else if !needed, !workspaceTokens.isEmpty {
+            stopWorkspaceObservation()
+        }
+    }
+
+    private func stopWorkspaceObservation() {
+        let center = NSWorkspace.shared.notificationCenter
+        workspaceTokens.forEach { center.removeObserver($0) }
+        workspaceTokens = []
+    }
+
+    static func resolveEdgeApps(runningOnly: Bool, maxCount: Int = 8) -> [EdgeAppItem] {
+        var seen = Set<String>()
+        var result: [EdgeAppItem] = []
+        let selfID = Bundle.main.bundleIdentifier
+        for app in NSWorkspace.shared.runningApplications where app.activationPolicy == .regular {
+            guard let bid = app.bundleIdentifier, bid != selfID, seen.insert(bid).inserted else { continue }
+            result.append(EdgeAppItem(bundleID: bid, name: app.localizedName ?? bid, isRunning: true, isActive: app.isActive))
+        }
+        if !runningOnly {
+            let kept = UserDefaults.standard.stringArray(forKey: KeptAppStore.defaultsKey)
+                ?? UserDefaults.standard.stringArray(forKey: "stripKeptAppOrderV1")
+                ?? []
+            for bid in kept where seen.insert(bid).inserted {
+                result.append(EdgeAppItem(
+                    bundleID: bid,
+                    name: SettingsLayoutPane.appName(forBundleID: bid),
+                    isRunning: false,
+                    isActive: false
+                ))
+            }
+        }
+        return Array(result.prefix(maxCount))
     }
 }

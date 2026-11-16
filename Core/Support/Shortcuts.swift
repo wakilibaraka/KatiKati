@@ -7,7 +7,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     /// Phase 9d: the drawer, the notch's Tools tab, and the Weather / Clock widgets on their own.
     case drawer, notchTools, weather, clock
     /// Phase 27: the command bar (a Raycast/Sol-style palette over the same index). Default
-    /// ⌥⇧Space, **not** ⌘Space: Spotlight owns ⌘Space, and even though Carbon registers the
+    /// ⌥Space, **not** ⌘Space: Spotlight owns ⌘Space, and even though Carbon registers the
     /// combination without error, macOS hands the key to Spotlight first — the bar never opened.
     case commandBar
     /// Phase 23: define/translate the current selection (off by default).
@@ -112,9 +112,9 @@ enum ShortcutAction: String, CaseIterable, Sendable {
 
     var defaultTrigger: ShortcutTrigger {
         switch self {
-        case .launcher: return .chord(.optionSpace)
+        case .launcher: return .chord(.optionShiftSpace)
         case .pinboard: return .chord(.controlOptionSpace)
-        case .commandBar: return .chord(.optionShiftSpace)
+        case .commandBar: return .chord(.optionSpace)
         case .quickSettings, .keepAwake, .drawer, .notchTools, .weather, .clock, .translate: return .off
         // All snap zones default to off — user assigns via Settings › Shortcuts › Snap Hotkeys.
         case .snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf,

@@ -22,7 +22,9 @@ final class DeckViewModel: ObservableObject {
     @Published var pointerY: CGFloat?
     @Published var tabFont: String = ""
     @Published var onRight = true
-    /// Pill / tile accent colours when there are no note tabs (left deck).
+    @Published var showRunningDots = true
+    @Published var collapseToButton = false
+    /// Pill / tile accent colours when there are no note tabs.
     @Published var accentDashes: [NotePaletteEntry] = []
 
     /// Tab frames in the panel's top-left view space (published by the tabs themselves); the controller turns the
@@ -50,12 +52,33 @@ final class DeckViewModel: ObservableObject {
         let font = deckFont
         let measure = font.measure
         let longest = visibleTabs.map { measure.total(VerticalLabelLayout.runs(for: $0.displayTitle.uppercased())) }.max() ?? 0
+        let totalBtnHeight: CGFloat?
+        if buttons.contains(where: { $0.isRichCard }) {
+            let h = buttons.map { $0.cardHeight(unit: metrics.buttonSize) }.reduce(0, +)
+            let gaps = CGFloat(max(0, buttons.count - 1)) * 4
+            totalBtnHeight = h + gaps
+        } else {
+            totalBtnHeight = nil
+        }
         return DeckGeometry.layout(metrics, panelHeight: panelHeight, count: visibleTabs.count,
-                                   hasMore: hiddenCount > 0, longestLabel: longest, buttons: buttons.count)
+                                   hasMore: hiddenCount > 0, longestLabel: longest, buttons: buttons.count,
+                                   buttonsHeight: totalBtnHeight)
     }
 
-    /// Items that give the pill its dashes: note tabs, or one accent per tile when there are no notes.
-    var pillItemCount: Int { max(1, tabs.isEmpty ? buttons.count : tabs.count) }
+    /// Items that give the pill its dashes: note tabs + button accents so 1 note never collapses the pill.
+    var pillItemCount: Int {
+        let raw = max(1, tabs.count + buttons.count)
+        return collapseToButton ? min(3, raw) : raw
+    }
+}
+
+/// A live or pinned macOS app shown on the EdgeBar (ExtraDock preset).
+struct EdgeAppItem: Hashable, Identifiable, Sendable {
+    var id: String { bundleID }
+    let bundleID: String
+    let name: String
+    let isRunning: Bool
+    let isActive: Bool
 }
 
 /// Root view of a deck panel: the pill at rest, the fan otherwise.
@@ -87,6 +110,19 @@ private struct TabFramesKey: PreferenceKey {
 
 /// Round buttons stacked under the tabs.
 enum DeckButton: Hashable {
+    case app(EdgeAppItem)
+    case focus
+    case clock
+    case batteryWifi
+    case habits
+    case hydration
+    case food
+    case notesPreview
+    case bluetoothWifi
+    case remindersAndTasks
+    case systemAndBattery
+    case timeAndAlarms
+    case captureAndScreenshot
     case newNote
     case settings
     case status(StatusKind)
@@ -95,6 +131,19 @@ enum DeckButton: Hashable {
 
     var symbol: String {
         switch self {
+        case .app: return "app.fill"
+        case .focus: return "bolt.fill"
+        case .clock: return "clock.fill"
+        case .batteryWifi: return "battery.100.bolt"
+        case .habits: return "square.grid.3x3.fill"
+        case .hydration: return "drop.fill"
+        case .food: return "fork.knife"
+        case .notesPreview: return "note.text"
+        case .bluetoothWifi: return "antenna.radiowaves.left.and.right"
+        case .remindersAndTasks: return "checklist"
+        case .systemAndBattery: return "cpu"
+        case .timeAndAlarms: return "alarm.fill"
+        case .captureAndScreenshot: return "camera.viewfinder"
         case .newNote: return "plus"
         case .settings: return "gearshape"
         case .status(.wifi): return "wifi"
@@ -119,6 +168,19 @@ enum DeckButton: Hashable {
     /// Palette index for the coloured style (stable per button).
     var accent: Int {
         switch self {
+        case .app: return 4
+        case .focus: return 2
+        case .clock: return 5
+        case .batteryWifi: return 4
+        case .habits: return 6
+        case .hydration: return 1
+        case .food: return 3
+        case .notesPreview: return 0
+        case .bluetoothWifi: return 4
+        case .remindersAndTasks: return 3
+        case .systemAndBattery: return 5
+        case .timeAndAlarms: return 6
+        case .captureAndScreenshot: return 2
         case .newNote: return 0
         case .settings: return 7
         case .status(.wifi): return 4
@@ -141,21 +203,75 @@ enum DeckButton: Hashable {
     }
 }
 
+// MARK: - Bezel Dock Shape (ExtraDock)
+
+/// Vertical bezel-melded dock silhouette with concave top and bottom flaring ears flush against the screen edge.
+struct EdgeBezelDockShape: Shape {
+    var onRight: Bool = true
+    var earRadius: CGFloat = 10
+    var cornerRadius: CGFloat = 14
+
+    func path(in rect: CGRect) -> Path {
+        let inset: CGFloat = min(2, rect.width * 0.15)
+        let span = max(1, rect.width - inset)
+        let r = min(cornerRadius, span * 0.55, rect.height * 0.25)
+        let ear = min(earRadius, max(0, span - r), max(0, (rect.height - 2 * r) * 0.25))
+        var p = Path()
+        if onRight {
+            let edgeX = rect.maxX
+            let innerX = rect.minX + inset
+            let topY = rect.minY + ear
+            let botY = rect.maxY - ear
+            p.move(to: CGPoint(x: edgeX, y: rect.minY))
+            p.addQuadCurve(to: CGPoint(x: edgeX - ear, y: topY), control: CGPoint(x: edgeX, y: topY))
+            p.addLine(to: CGPoint(x: innerX + r, y: topY))
+            p.addQuadCurve(to: CGPoint(x: innerX, y: topY + r), control: CGPoint(x: innerX, y: topY))
+            p.addLine(to: CGPoint(x: innerX, y: botY - r))
+            p.addQuadCurve(to: CGPoint(x: innerX + r, y: botY), control: CGPoint(x: innerX, y: botY))
+            p.addLine(to: CGPoint(x: edgeX - ear, y: botY))
+            p.addQuadCurve(to: CGPoint(x: edgeX, y: rect.maxY), control: CGPoint(x: edgeX, y: botY))
+            p.closeSubpath()
+        } else {
+            let edgeX = rect.minX
+            let innerX = rect.maxX - inset
+            let topY = rect.minY + ear
+            let botY = rect.maxY - ear
+            p.move(to: CGPoint(x: edgeX, y: rect.minY))
+            p.addQuadCurve(to: CGPoint(x: edgeX + ear, y: topY), control: CGPoint(x: edgeX, y: topY))
+            p.addLine(to: CGPoint(x: innerX - r, y: topY))
+            p.addQuadCurve(to: CGPoint(x: innerX, y: topY + r), control: CGPoint(x: innerX, y: topY))
+            p.addLine(to: CGPoint(x: innerX, y: botY - r))
+            p.addQuadCurve(to: CGPoint(x: innerX - r, y: botY), control: CGPoint(x: innerX, y: botY))
+            p.addLine(to: CGPoint(x: edgeX + ear, y: botY))
+            p.addQuadCurve(to: CGPoint(x: edgeX, y: rect.maxY), control: CGPoint(x: edgeX, y: botY))
+            p.closeSubpath()
+        }
+        return p
+    }
+}
+
 // MARK: - Pill (at rest)
 
 struct DeckPillView: View {
     @ObservedObject var model: DeckViewModel
 
     private var dashes: [Color] {
-        let colors = model.tabs.isEmpty
-            ? model.accentDashes.map(\.dashColor)
-            : model.tabs.map { NotePalette.entry(at: $0.color).dashColor }
-        let m = DeckGeometry.maxDashes
+        let noteColors = model.tabs.map { NotePalette.entry(at: $0.color).dashColor }
+        let buttonColors = model.accentDashes.map(\.dashColor)
+        let colors = noteColors + buttonColors
+        let m = model.collapseToButton ? 3 : DeckGeometry.maxDashes
         return Array(colors.prefix(m)) + (colors.count > m ? [Color.secondary.opacity(0.5)] : [])
     }
 
     @ViewBuilder private var pillBackground: some View {
-        if model.barStyle == .fluid {
+        if model.barStyle == .bezelDock || model.collapseToButton {
+            EdgeBezelDockShape(onRight: model.onRight, earRadius: 6, cornerRadius: 6)
+                .fill(Color(red: 0.05, green: 0.05, blue: 0.06).opacity(0.95))
+                .overlay(
+                    EdgeBezelDockShape(onRight: model.onRight, earRadius: 6, cornerRadius: 6)
+                        .stroke(Color.white.opacity(0.16), lineWidth: 0.5)
+                )
+        } else if model.barStyle == .fluid {
             // One droplet, no dashes cut out of it: the note colours ride on top as glowing dots.
             FluidRailBody(centers: [], radius: model.metrics.pillWidth / 2, vertical: true,
                           lightAtStart: !model.onRight)
@@ -209,10 +325,27 @@ struct DeckFanView: View {
             let layout = model.layout(panelHeight: max(1, geo.size.height))
             ZStack(alignment: model.onRight ? .topTrailing : .topLeading) {
                 stack(layout: layout, metrics: m, font: font)
-                    .overlay(alignment: model.onRight ? .trailing : .leading) { spine(layout) }
+                    .padding(.vertical, model.barStyle == .bezelDock ? 10 * CGFloat(model.scale) : 0)
+                    .padding(model.onRight ? .leading : .trailing, model.barStyle == .bezelDock ? 6 * CGFloat(model.scale) : 0)
+                    .background(alignment: model.onRight ? .trailing : .leading) {
+                        if model.barStyle == .bezelDock {
+                            EdgeBezelDockShape(onRight: model.onRight, earRadius: 10, cornerRadius: 13)
+                                .fill(Color(red: 0.05, green: 0.05, blue: 0.06).opacity(0.96))
+                                .overlay(
+                                    EdgeBezelDockShape(onRight: model.onRight, earRadius: 10, cornerRadius: 13)
+                                        .stroke(Color.white.opacity(0.14), lineWidth: 0.5)
+                                )
+                                .shadow(color: .black.opacity(0.32), radius: 8, x: model.onRight ? -2 : 2, y: 2)
+                                .opacity(model.revealed ? 1 : 0)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.85), value: model.revealed)
+                        }
+                    }
+                    .overlay(alignment: model.onRight ? .trailing : .leading) {
+                        if model.barStyle != .bezelDock { spine(layout) }
+                    }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: model.onRight ? .topTrailing : .topLeading)
-            .padding(.top, max(0, (geo.size.height - layout.stackHeight) / 2))
+            .padding(.top, max(0, (geo.size.height - (layout.stackHeight + (model.barStyle == .bezelDock ? 20 * CGFloat(model.scale) : 0))) / 2))
         }
     }
 
@@ -249,19 +382,20 @@ struct DeckFanView: View {
                     .staged(index: visibleTabs.count, total: total, revealed: model.revealed, onRight: model.onRight, travel: m.tabWidth + 24)
             }
             ForEach(Array(model.buttons.enumerated()), id: \.element) { i, button in
+                let isCard = button.isRichCard
                 DeckRoundButton(button: button, style: model.tileStyle, iconSet: model.iconSet, barStyle: model.barStyle, peak: model.magnifyPeak,
-                                size: m.buttonSize, onRight: model.onRight,
+                                size: m.buttonSize, onRight: model.onRight, showRunningDots: model.showRunningDots,
                                 pointerY: model.magnify ? model.pointerY : nil) { rect in model.onButton(button, rect) }
                     .background(GeometryReader { proxy in
                         Color.clear.preference(key: ButtonFramesKey.self, value: [i: proxy.frame(in: .global)])
                     })
-                    .padding(.top, (i == 0 && visibleTabs.isEmpty && hiddenCount == 0 ? 0 : m.buttonGap - spacing))
-                    .padding(model.onRight ? .trailing : .leading, (m.tabWidth - m.buttonSize) / 2)
+                    .padding(.top, (i == 0 && visibleTabs.isEmpty && hiddenCount == 0 ? 0 : (isCard ? 4 : m.buttonGap) - spacing))
+                    .padding(model.onRight ? .trailing : .leading, isCard ? 0 : (m.tabWidth - m.buttonSize) / 2)
                     .staged(index: visibleTabs.count + (hiddenCount > 0 ? 1 : 0) + i, total: total, revealed: model.revealed,
                             onRight: model.onRight, travel: m.tabWidth + 24)
             }
         }
-        .frame(width: m.tabWidth)
+        .frame(width: model.buttons.contains { $0.isRichCard } ? max(52, m.tabWidth * 1.75) : m.tabWidth)
         .animation(.easeInOut(duration: 0.18), value: visibleTabs.map(\.id))
         .onPreferenceChange(TabFramesKey.self) { frames in
             if model.tabFrames != frames { model.tabFrames = frames }
@@ -441,6 +575,7 @@ struct DeckRoundButton: View {
     var peak: CGFloat = DeckMagnification.maxScale
     let size: CGFloat
     var onRight = true
+    var showRunningDots = true
     /// Pointer y in panel space (nil = no magnification).
     var pointerY: CGFloat?
     let action: (CGRect) -> Void
@@ -452,27 +587,55 @@ struct DeckRoundButton: View {
             Button {
                 action(proxy.frame(in: .global))
             } label: {
-                Image(systemName: button.symbol)
-                    .font(.system(size: size * 0.43, weight: .semibold))
-                    .foregroundColor(barStyle == .fluid ? .white
-                                     : (barStyle == .liquidGlass ? Color.primary.opacity(0.85)
-                                        : (iconSet != .classic || style == .coloured ? .white : Color.primary.opacity(0.78))))
-                    .shadow(color: .black.opacity(iconSet == .realistic ? 0.35 : 0), radius: 1, y: 1)
-                    .frame(width: size, height: size)
-                    .background(background)
-                    .scaleEffect(hovering ? 1.08 : 1)
-                    .contentShape(Circle())
+                buttonContent
+                    .scaleEffect(magnification(proxy.frame(in: .global).midY), anchor: onRight ? .trailing : .leading)
+                    .animation(.easeOut(duration: 0.1), value: pointerY)
             }
             .buttonStyle(.plain)
             .onHover { hovering = $0 }
             .animation(.easeOut(duration: 0.15), value: hovering)
-            // Dock magnification: grows toward the screen interior (anchored on the edge side).
-            .scaleEffect(magnification(proxy.frame(in: .global).midY), anchor: onRight ? .trailing : .leading)
-            .animation(.easeOut(duration: 0.1), value: pointerY)
         }
+        .frame(width: button.isRichCard ? max(52, size * 1.85) : size,
+               height: button.isRichCard ? button.cardHeight(unit: size) : size)
+        .accessibilityLabel(button.labelText)
+    }
 
-        .frame(width: size, height: size)
-        .accessibilityLabel(label)
+    @ViewBuilder
+    private var buttonContent: some View {
+        if button.isRichCard {
+            DeckRichCardView(button: button, width: max(52, size * 1.85), onRight: onRight, barStyle: barStyle)
+                .scaleEffect(hovering ? 1.03 : 1)
+        } else if case let .app(app) = button {
+            Image(nsImage: AppIconResolver.icon(for: app.bundleID))
+                .resizable()
+                .interpolation(.high)
+                .aspectRatio(contentMode: .fit)
+                .frame(width: size * 0.9, height: size * 0.9)
+                .clipShape(RoundedRectangle(cornerRadius: size * 0.22, style: .continuous))
+                .frame(width: size, height: size)
+                .overlay(alignment: onRight ? .trailing : .leading) {
+                    if showRunningDots && app.isRunning {
+                        let dot = max(4, size * 0.15)
+                        Circle()
+                            .fill(Color.green)
+                            .frame(width: dot, height: dot)
+                            .offset(x: onRight ? 2 : -2)
+                    }
+                }
+                .scaleEffect(hovering ? 1.08 : 1)
+                .contentShape(Rectangle())
+        } else {
+            Image(systemName: button.symbol)
+                .font(.system(size: size * 0.43, weight: .semibold))
+                .foregroundColor(barStyle == .fluid || barStyle == .bezelDock ? .white
+                                 : (barStyle == .liquidGlass ? Color.primary.opacity(0.85)
+                                    : (iconSet != .classic || style == .coloured ? .white : Color.primary.opacity(0.78))))
+                .shadow(color: .black.opacity(iconSet == .realistic ? 0.35 : 0), radius: 1, y: 1)
+                .frame(width: size, height: size)
+                .background(background)
+                .scaleEffect(hovering ? 1.08 : 1)
+                .contentShape(Circle())
+        }
     }
 
     private func magnification(_ centerY: CGFloat) -> CGFloat {
@@ -482,7 +645,14 @@ struct DeckRoundButton: View {
 
     @ViewBuilder private var background: some View {
         let accent = NotePalette.entry(at: button.accent).dashColor
-        if barStyle == .fluid {
+        if barStyle == .bezelDock {
+            RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                .fill(Color.white.opacity(hovering ? 0.18 : 0.10))
+                .overlay(
+                    RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.14), lineWidth: 0.5)
+                )
+        } else if barStyle == .fluid {
             // A bead on the rail: the ring is the button, the interior stays the bar's own body.
             Circle().strokeBorder(
                 LinearGradient(colors: [accent.opacity(0.85), Color.white.opacity(0.18)],
@@ -560,6 +730,19 @@ extension DeckButton {
     /// The button's name (hover bubble, tooltip, VoiceOver).
     var labelText: Text {
         switch self {
+        case let .app(item): return Text(verbatim: item.name)
+        case .focus: return Text("Focus")
+        case .clock: return Text("Clock")
+        case .batteryWifi: return Text("Battery & Wi-Fi")
+        case .habits: return Text("Habits")
+        case .hydration: return Text("Hydration")
+        case .food: return Text("Nutrition")
+        case .notesPreview: return Text("Notes")
+        case .bluetoothWifi: return Text(verbatim: "Bluetooth & Wi-Fi")
+        case .remindersAndTasks: return Text(verbatim: "Reminders & Tasks")
+        case .systemAndBattery: return Text(verbatim: "System & Battery")
+        case .timeAndAlarms: return Text(verbatim: "Time & Alarms")
+        case .captureAndScreenshot: return Text(verbatim: "Capture & Screenshot")
         case .newNote: return Text("New Note")
         case .settings: return Text("KatiKati Settings")
         case .status(.wifi): return Text(verbatim: "Wi-Fi")

@@ -88,11 +88,21 @@ final class EdgeBarPrefsTests: XCTestCase {
         XCTAssertEqual(EdgeBarPrefs.load(d).barStyle, .liquidGlass)
         q.barStyle = .fluid; q.save(d)
         XCTAssertEqual(EdgeBarPrefs.load(d).barStyle, .fluid)
-        XCTAssertEqual(EdgeBarStyle.allCases.map(\.rawValue), ["paper", "liquidGlass", "fluid"], "stored ids are frozen")
+        q.barStyle = .bezelDock; q.save(d)
+        XCTAssertEqual(EdgeBarPrefs.load(d).barStyle, .bezelDock)
+        XCTAssertEqual(EdgeBarStyle.allCases.map(\.rawValue), ["paper", "liquidGlass", "fluid", "bezelDock"], "stored ids are frozen")
     }
 
     func testNewPrefsDefaults() {
         XCTAssertFalse(EdgeBarPrefs().openOnClick)
         XCTAssertTrue(EdgeBarPrefs().hoverLabels)
+        XCTAssertTrue(EdgeBarPrefs().appsRunningOnly)
+        XCTAssertTrue(EdgeBarPrefs().showRunningDots)
+        XCTAssertFalse(EdgeBarPrefs().collapseToButton)
+        XCTAssertFalse(EdgeBarPrefs().showAppsInBar)
+        XCTAssertEqual(EdgeBarPrefs().hydrationIntervalMinutes, 45)
+        XCTAssertEqual(EdgeBarPrefs().hydrationDailyGoal, 8)
+        XCTAssertEqual(EdgeBarPrefs().foodFastingProtocol, "16:8")
+        XCTAssertTrue(EdgeBarPrefs().edgeSoundEffectsEnabled)
     }
 }

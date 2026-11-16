@@ -57,42 +57,46 @@ final class EdgeBarSlotTests: XCTestCase {
 
     func testPresetsResolveContentPerEdge() {
         XCTAssertTrue(resolve(.off, widgets: [.weather]).isEmpty, "off = nothing, widgets included")
+        XCTAssertEqual(resolve(.extraDock, widgets: [.weather]), [.right: [.apps, .widget(.weather), .status, .settings]])
         XCTAssertEqual(resolve(.notes), [.right: [.notes, .newNote, .settings]])
-        XCTAssertEqual(resolve(.status, primary: .left), [.left: [.status]])
+        XCTAssertEqual(resolve(.status, primary: .left), [.right: [.status]])
         XCTAssertEqual(resolve(.notesAndStatus), [.right: [.notes, .newNote, .status, .settings]])
     }
 
-    func testPrimarySideFlipsEveryPreset() {
-        XCTAssertEqual(resolve(.notes, primary: .left), [.left: [.notes, .newNote, .settings]])
+    func testRightOnlyConsolidationMovesAllPresetsToRight() {
+        XCTAssertEqual(resolve(.notes, primary: .left), [.right: [.notes, .newNote, .settings]])
         XCTAssertEqual(resolve(.notesAndStatus, primary: .left, widgets: [.weather]),
-                       [.left: [.notes, .newNote, .status, .settings], .right: [.widget(.weather)]])
+                       [.right: [.notes, .newNote, .widget(.weather), .status, .settings]])
     }
 
     func testProductivityAndRestSplitsTheSides() {
         let r = resolve(.productivityAndRest, widgets: WidgetTile.allCases, productivity: ProductivityItem.allCases,
                         built: [.reminders, .time])
-        XCTAssertEqual(r[.right], [.notes, .newNote, .productivity(.reminders), .productivity(.time), .settings])
-        XCTAssertEqual(r[.left], [.widget(.weather), .widget(.nowPlaying), .widget(.bluetooth), .widget(.systemMonitor), .status])
+        XCTAssertNil(r[.left])
+        XCTAssertEqual(r[.right], [.notes, .newNote, .productivity(.reminders), .productivity(.time),
+                                   .widget(.weather), .widget(.nowPlaying), .widget(.bluetooth), .widget(.systemMonitor),
+                                   .status, .settings])
         let swapped = resolve(.productivityAndRest, primary: .left, widgets: [.bluetooth], productivity: [.time], built: [.time])
-        XCTAssertEqual(swapped[.left], [.notes, .newNote, .productivity(.time), .settings])
-        XCTAssertEqual(swapped[.right], [.widget(.bluetooth), .status])
+        XCTAssertNil(swapped[.left])
+        XCTAssertEqual(swapped[.right], [.notes, .newNote, .productivity(.time), .widget(.bluetooth), .status, .settings])
     }
 
     func testUnbuiltAndDisabledProductivityItemsNeverRender() {
         let none = resolve(.productivityAndRest, productivity: ProductivityItem.allCases)
-        XCTAssertEqual(none[.right], [.notes, .newNote, .settings], "no placeholders for unbuilt items")
+        XCTAssertEqual(none[.right], [.notes, .newNote, .status, .settings], "no placeholders for unbuilt items")
         let off = resolve(.productivityAndRest, productivity: [.time], built: [.time, .tasks])
-        XCTAssertEqual(off[.right], [.notes, .newNote, .productivity(.time), .settings])
+        XCTAssertEqual(off[.right], [.notes, .newNote, .productivity(.time), .status, .settings])
     }
 
     func testCustomLayoutMovesHidesAndFallsBack() {
         let custom: [EdgeItem: EdgePlacement] = [.notes: .left, .newNote: .left, .status: .right, .weather: .hidden, .settings: .hidden]
         let r = resolve(.custom, custom: custom)
-        XCTAssertEqual(r[.left]?.prefix(2), [.notes, .newNote][...])
+        XCTAssertNil(r[.left])
+        XCTAssertEqual(r[.right]?.prefix(2), [.notes, .newNote][...])
         XCTAssertTrue(r[.right]?.contains(.status) ?? false)
         XCTAssertFalse((r[.left] ?? []).contains(.widget(.weather)) || (r[.right] ?? []).contains(.widget(.weather)))
         XCTAssertFalse((r[.left] ?? []).contains(.settings) || (r[.right] ?? []).contains(.settings))
-        XCTAssertTrue(r[.left]?.contains(.widget(.nowPlaying)) ?? false, "missing item uses the Productivity + Rest side")
+        XCTAssertTrue(r[.right]?.contains(.widget(.nowPlaying)) ?? false, "missing item uses the right edge")
     }
 
     func testCustomPlacementsParseAndSerialize() {
@@ -107,16 +111,25 @@ final class EdgeBarSlotTests: XCTestCase {
                        ["reminders", "alarms", "time", "tasks", "clipboard", "capture", "screenshot", "windows", "screenTime"])
         XCTAssertEqual(ProductivityItem.parse("time,bogus,time,tasks"), [.time, .tasks])
         XCTAssertEqual(EdgeBarPreset.allCases.map(\.rawValue),
-                       ["off", "notes", "notesAndStatus", "status", "productivityAndRest", "custom"])
+                       ["off", "sydedock", "extraDock", "notes", "notesAndStatus", "status", "productivityAndRest", "custom"])
         XCTAssertEqual(EdgeBarPreset.default, .productivityAndRest)
-        XCTAssertEqual(EdgeItem.allCases.count, 17)
+        XCTAssertEqual(EdgeItem.allCases.count, 25)
+    }
+
+    func testSydedockPresetResolvesGlanceableCards() {
+        let r = resolve(.sydedock)
+        XCTAssertNil(r[.left])
+        XCTAssertEqual(r[.right], [
+            .apps, .focus, .clock, .batteryWifi, .habits, .hydration, .food, .notesPreview, .settings
+        ])
     }
 
     func testShippedProductivityButtonsAppearOnTheMainSideByDefault() {
         XCTAssertEqual(ProductivityItem.built, Set(ProductivityItem.allCases))
         let r = EdgeBarComposition.resolve(preset: .productivityAndRest, primary: .right, widgets: [],
                                            productivity: ProductivityItem.allCases, custom: [:])
-        XCTAssertEqual(r[.right], [.notes, .newNote, .productivity(.reminders), .productivity(.alarms), .productivity(.time), .productivity(.tasks), .productivity(.clipboard), .productivity(.capture), .productivity(.screenshot), .productivity(.windows), .productivity(.screenTime), .settings])
+        XCTAssertNil(r[.left])
+        XCTAssertEqual(r[.right], [.notes, .newNote, .productivity(.reminders), .productivity(.alarms), .productivity(.time), .productivity(.tasks), .productivity(.clipboard), .productivity(.capture), .productivity(.screenshot), .productivity(.windows), .productivity(.screenTime), .status, .settings])
     }
 
     func testWidgetTileIdsAreFrozenAndParseIsTolerant() {

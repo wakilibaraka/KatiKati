@@ -61,7 +61,7 @@ enum DeckGeometry {
     /// Tab stack metrics. `longestLabel` is the rendered advance of the longest tab title; the uncovered
     /// strip of each tab is sized to it (clamped), and shrinks on short screens (`heightBudget`).
     static func layout(_ m: DeckMetrics, panelHeight: CGFloat, count: Int, hasMore: Bool,
-                       longestLabel: CGFloat = 0, buttons: Int = 0) -> DeckLayout {
+                       longestLabel: CGFloat = 0, buttons: Int = 0, buttonsHeight: CGFloat? = nil) -> DeckLayout {
         let n = max(1, count)    // pitch is solved for at least one tab; `count` stays the real number
         var pitch = min(m.pitchMax, max(m.pitchMin, longestLabel + m.labelPad))
         let reserved = hasMore ? m.moreTabHeight + m.tabGap : 0
@@ -70,7 +70,7 @@ enum DeckGeometry {
             pitch = max(m.pitchFloor, (budget - m.tabLap) / CGFloat(n))
         }
         return DeckLayout(metrics: m, itemHeight: pitch + m.tabLap, pitch: pitch, count: max(0, count),
-                          hasMore: hasMore, panelHeight: panelHeight, buttons: buttons)
+                          hasMore: hasMore, panelHeight: panelHeight, buttons: buttons, buttonsHeight: buttonsHeight)
     }
 
     // MARK: Panel frames (bottom-left origin, ⊆ visibleFrame)
@@ -88,18 +88,24 @@ enum DeckGeometry {
 
     /// The fan: as tall as the stack, centred on the pill's centre, kept `margin` inside the visible area.
     static func fanFrame(_ m: DeckMetrics, side: EdgeSide, visible: CGRect, stackHeight: CGFloat, itemCount: Int,
-                         yRatio: CGFloat, margin: CGFloat = 12) -> CGRect {
+                         yRatio: CGFloat, margin: CGFloat = 12, maxWidth: CGFloat? = nil) -> CGRect {
         let rest = restFrame(m, side: side, visible: visible, itemCount: itemCount, yRatio: yRatio)
         let h = max(0, min(stackHeight + m.shadowRoom, visible.height - 2 * margin))
         let ideal = rest.midY - h / 2
         let y = min(max(visible.minY + margin, ideal), max(visible.minY + margin, visible.maxY - h - margin))
-        let w = fanWidth(m)
+        let w = fanWidth(m, maxWidth: maxWidth)
         let x = side == .right ? visible.maxX - w : visible.minX
         return CGRect(x: x, y: y.rounded(), width: w, height: h)
     }
 
     /// Width of the fanned panel: the room other panels (the weather stack) keep clear of a deck.
-    static func fanWidth(_ m: DeckMetrics) -> CGFloat { m.tabWidth + m.bleed + m.shadowRoom }
+    static func fanWidth(_ m: DeckMetrics) -> CGFloat {
+        fanWidth(m, maxWidth: nil)
+    }
+
+    static func fanWidth(_ m: DeckMetrics, maxWidth: CGFloat?) -> CGFloat {
+        (maxWidth ?? m.tabWidth) + m.bleed + m.shadowRoom
+    }
 
     /// New yRatio when the pill is dragged so its centre sits at `pointerY`.
     static func yRatio(forPointerY pointerY: CGFloat, pillHeight: CGFloat, visible: CGRect) -> CGFloat {
@@ -148,6 +154,7 @@ struct DeckLayout: Equatable, Sendable {
     let panelHeight: CGFloat
     /// Round buttons stacked under the tabs (`+`, settings, status, widgets).
     let buttons: Int
+    var buttonsHeight: CGFloat? = nil
 
     /// Negative for shingled tabs — the VStack spacing that produces the overlap.
     var spacing: CGFloat { pitch - itemHeight }
@@ -155,7 +162,9 @@ struct DeckLayout: Equatable, Sendable {
     var stackHeight: CGFloat {
         var h: CGFloat = count > 0 ? CGFloat(count - 1) * pitch + itemHeight : 0
         if hasMore { h += metrics.tabGap + metrics.moreTabHeight }
-        if buttons > 0 {
+        if let custom = buttonsHeight {
+            h += custom
+        } else if buttons > 0 {
             // A gap precedes every button except the first one of a buttons-only stack.
             let gaps = (count > 0 || hasMore) ? buttons : buttons - 1
             h += CGFloat(buttons) * metrics.buttonSize + CGFloat(gaps) * metrics.buttonGap

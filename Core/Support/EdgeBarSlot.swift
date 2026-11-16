@@ -80,6 +80,15 @@ enum ProductivityItem: String, CaseIterable, Sendable {
 
 /// What an edge bar hosts, in render order.
 enum EdgeBarContent: Equatable, Sendable {
+    case apps
+    /// Sydedock-style glanceable widget cards
+    case focus
+    case clock
+    case batteryWifi
+    case habits
+    case hydration
+    case food
+    case notesPreview
     /// The note tabs.
     case notes
     case newNote
@@ -107,6 +116,8 @@ enum EdgePlacement: String, CaseIterable, Sendable {
 /// Every item a bar can host. Case order = top-to-bottom render order on a bar. Raw values are stored in
 /// `com.katikati.edge.custom`; never rename them.
 enum EdgeItem: String, CaseIterable, Sendable {
+    case apps
+    case focus, clock, batteryWifi, habits, hydration, food, notesPreview
     case notes, newNote
     case reminders, alarms, time, tasks, clipboard, capture, screenshot, windows, screenTime
     case weather, nowPlaying, bluetooth, systemMonitor
@@ -115,6 +126,14 @@ enum EdgeItem: String, CaseIterable, Sendable {
 
     var content: EdgeBarContent {
         switch self {
+        case .apps: return .apps
+        case .focus: return .focus
+        case .clock: return .clock
+        case .batteryWifi: return .batteryWifi
+        case .habits: return .habits
+        case .hydration: return .hydration
+        case .food: return .food
+        case .notesPreview: return .notesPreview
         case .notes: return .notes
         case .newNote: return .newNote
         case .settings: return .settings
@@ -168,8 +187,8 @@ enum EdgeItem: String, CaseIterable, Sendable {
 
 /// Resolves a preset (or the custom layout) into per-edge content.
 enum EdgeBarComposition {
-    /// Where every item sits for the preset. `primary` hosts notes / productivity; the rest goes opposite. Custom
-    /// entries win, and an item missing from the stored layout falls back to the Productivity + Rest placement.
+    /// Where every item sits for the preset. All edge bars now consolidate exclusively on the right edge,
+    /// leaving the left edge free for the window drawer/sidebar. Any legacy `.left` custom placement maps to `.right`.
     static func placements(
         preset: EdgeBarPreset,
         primary: EdgeSide,
@@ -177,8 +196,7 @@ enum EdgeBarComposition {
         productivity: [ProductivityItem],
         custom: [EdgeItem: EdgePlacement]
     ) -> [EdgeItem: EdgePlacement] {
-        let main = EdgePlacement(rawValue: primary.rawValue) ?? .right
-        let other: EdgePlacement = main == .left ? .right : .left
+        let main: EdgePlacement = .right
         var result: [EdgeItem: EdgePlacement] = [:]
         func put(_ items: [EdgeItem], _ place: EdgePlacement) { items.forEach { result[$0] = place } }
         let notesGroup: [EdgeItem] = [.notes, .newNote, .settings]
@@ -186,15 +204,20 @@ enum EdgeBarComposition {
         let productivityItems = EdgeItem.allCases.filter { $0.productivity.map(productivity.contains) ?? false }
         switch preset {
         case .off: break
-        case .notes: put(notesGroup, main); put(widgetItems, other)
-        case .status: put([.status], main); put(widgetItems, other)
-        case .notesAndStatus: put(notesGroup + [.status], main); put(widgetItems, other)
+        case .sydedock:
+            put([.focus, .clock, .batteryWifi, .habits, .hydration, .food, .notesPreview, .apps, .settings], main)
+        case .extraDock:
+            put([.apps] + widgetItems + [.status, .settings], main)
+        case .notes: put(notesGroup + widgetItems, main)
+        case .status: put([.status] + widgetItems, main)
+        case .notesAndStatus: put(notesGroup + [.status] + widgetItems, main)
         case .productivityAndRest:
-            put(notesGroup + productivityItems, main); put([.status] + widgetItems, other)
+            put(notesGroup + productivityItems + [.status] + widgetItems, main)
         case .custom:
-            let fallback = placements(preset: .productivityAndRest, primary: primary, widgets: WidgetTile.allCases,
+            let fallback = placements(preset: .productivityAndRest, primary: .right, widgets: WidgetTile.allCases,
                                       productivity: ProductivityItem.allCases, custom: [:])
-            return fallback.merging(custom) { _, mine in mine }
+            let normalized = custom.mapValues { $0 == .left ? EdgePlacement.right : $0 }
+            return fallback.merging(normalized) { _, mine in mine }
         }
         return result
     }
@@ -210,8 +233,8 @@ enum EdgeBarComposition {
         let map = placements(preset: preset, primary: primary, widgets: widgets, productivity: productivity, custom: custom)
         var result: [EdgeSide: [EdgeBarContent]] = [:]
         for item in EdgeItem.allCases where item.isBuilt(built) {
-            guard let side = map[item]?.side else { continue }
-            result[side, default: []].append(item.content)
+            guard let place = map[item], place != .hidden else { continue }
+            result[.right, default: []].append(item.content)
         }
         return result
     }
@@ -220,6 +243,8 @@ enum EdgeBarComposition {
 /// User-facing edge-bar layouts (Phase 7A-2, 7A-P1). The default is `productivityAndRest`.
 enum EdgeBarPreset: String, CaseIterable, Sendable {
     case off
+    case sydedock
+    case extraDock
     case notes
     case notesAndStatus
     case status

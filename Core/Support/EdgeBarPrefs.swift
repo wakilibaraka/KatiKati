@@ -23,7 +23,7 @@ enum EdgeFlyoutStyle: String, CaseIterable, Codable, Sendable { case modern, gla
 /// The one look the whole edge bar wears: tabs, buttons, flyout plates, tile content and note sheets. `paper` is the
 /// original coloured-paper design; `liquidGlass` is the translucent one (frosted on macOS < 26); `fluid` is the
 /// poured body (`FluidRailBody`) the dock's fluid preset also wears. Raw values are stored.
-enum EdgeBarStyle: String, CaseIterable, Codable, Sendable { case paper, liquidGlass, fluid }
+enum EdgeBarStyle: String, CaseIterable, Codable, Sendable { case paper, liquidGlass, fluid, bezelDock }
 
 struct EdgeBarPrefs: Equatable, Codable, Sendable {
     static let key = "com.katikati.edge.prefs"
@@ -44,6 +44,38 @@ struct EdgeBarPrefs: Equatable, Codable, Sendable {
     var hoverLabels = true
     /// Whole-bar look. Older blobs have no key and keep `paper`.
     var barStyle = EdgeBarStyle.paper
+    /// ExtraDock: show only running applications (true) or pinned + running applications (false).
+    var appsRunningOnly = true
+    /// ExtraDock: show a green running indicator dot on the screen-edge side of running apps.
+    var showRunningDots = true
+    /// ExtraDock: collapse the resting pill into a compact single-ear bezel button when idle.
+    var collapseToButton = false
+    /// ExtraDock: also show running/pinned apps in non-ExtraDock presets when toggled on.
+    var showAppsInBar = false
+    /// Sydedock: enabled glanceable card identifiers
+    var sydedockCards: [String] = ["focus", "clock", "batteryWifi", "habits", "hydration", "food", "notesPreview"]
+    /// Sydedock: hydration reminder interval (minutes)
+    var hydrationIntervalMinutes: Int = 45
+    /// Sydedock: daily hydration goal in glasses
+    var hydrationDailyGoal: Int = 8
+    /// Sydedock: intermittent fasting protocol identifier ("none", "16:8", "18:6", "14:10", "custom")
+    var foodFastingProtocol: String = "16:8"
+    /// Sydedock: meal cadence interval (hours)
+    var foodMealIntervalHours: Double = 3.5
+    /// Sydedock: daily calorie goal
+    var foodDailyCalorieGoal: Int = 2000
+    /// Sydedock: 24-hour clock format toggle
+    var clockIs24Hour: Bool = false
+    /// Sydedock: show seconds on clock card
+    var clockShowSeconds: Bool = false
+    /// Sydedock: show date on clock card
+    var clockShowDate: Bool = true
+    /// Sydedock: show percentage on battery card
+    var batteryShowPercentage: Bool = true
+    /// Sydedock: show Wi-Fi info on battery card
+    var batteryShowWifi: Bool = true
+    /// Sydedock: sound effects (water pour, timer chime) enabled
+    var edgeSoundEffectsEnabled: Bool = true
 
     init() {}
 
@@ -58,6 +90,22 @@ struct EdgeBarPrefs: Equatable, Codable, Sendable {
         openOnClick = try c.decodeIfPresent(Bool.self, forKey: .openOnClick) ?? d.openOnClick
         hoverLabels = try c.decodeIfPresent(Bool.self, forKey: .hoverLabels) ?? d.hoverLabels
         barStyle = try c.decodeIfPresent(EdgeBarStyle.self, forKey: .barStyle) ?? d.barStyle
+        appsRunningOnly = try c.decodeIfPresent(Bool.self, forKey: .appsRunningOnly) ?? d.appsRunningOnly
+        showRunningDots = try c.decodeIfPresent(Bool.self, forKey: .showRunningDots) ?? d.showRunningDots
+        collapseToButton = try c.decodeIfPresent(Bool.self, forKey: .collapseToButton) ?? d.collapseToButton
+        showAppsInBar = try c.decodeIfPresent(Bool.self, forKey: .showAppsInBar) ?? d.showAppsInBar
+        sydedockCards = try c.decodeIfPresent([String].self, forKey: .sydedockCards) ?? d.sydedockCards
+        hydrationIntervalMinutes = try c.decodeIfPresent(Int.self, forKey: .hydrationIntervalMinutes) ?? d.hydrationIntervalMinutes
+        hydrationDailyGoal = try c.decodeIfPresent(Int.self, forKey: .hydrationDailyGoal) ?? d.hydrationDailyGoal
+        foodFastingProtocol = try c.decodeIfPresent(String.self, forKey: .foodFastingProtocol) ?? d.foodFastingProtocol
+        foodMealIntervalHours = try c.decodeIfPresent(Double.self, forKey: .foodMealIntervalHours) ?? d.foodMealIntervalHours
+        foodDailyCalorieGoal = try c.decodeIfPresent(Int.self, forKey: .foodDailyCalorieGoal) ?? d.foodDailyCalorieGoal
+        clockIs24Hour = try c.decodeIfPresent(Bool.self, forKey: .clockIs24Hour) ?? d.clockIs24Hour
+        clockShowSeconds = try c.decodeIfPresent(Bool.self, forKey: .clockShowSeconds) ?? d.clockShowSeconds
+        clockShowDate = try c.decodeIfPresent(Bool.self, forKey: .clockShowDate) ?? d.clockShowDate
+        batteryShowPercentage = try c.decodeIfPresent(Bool.self, forKey: .batteryShowPercentage) ?? d.batteryShowPercentage
+        batteryShowWifi = try c.decodeIfPresent(Bool.self, forKey: .batteryShowWifi) ?? d.batteryShowWifi
+        edgeSoundEffectsEnabled = try c.decodeIfPresent(Bool.self, forKey: .edgeSoundEffectsEnabled) ?? d.edgeSoundEffectsEnabled
     }
 
     func clamped() -> EdgeBarPrefs {

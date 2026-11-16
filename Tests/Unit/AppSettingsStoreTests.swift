@@ -173,13 +173,14 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.edgeGap, 2)
         XCTAssertEqual(store.edgeMargin, 8)
         XCTAssertFalse(store.notesSyncEnabled, "iCloud sync is opt-in")
-        XCTAssertEqual(store.edgeActiveSides, [.left, .right])
+        XCTAssertEqual(store.edgeActiveSides, [.right])
 
         store.setEdgeBarPreset(.off)
         XCTAssertTrue(store.edgeActiveSides.isEmpty, "off = no edge slots")
         store.setEdgeBarPreset(.notes)
         store.setEdgePrimarySide(.left)
-        XCTAssertEqual(store.edgeContent[.left], [.notes, .newNote, .settings])
+        XCTAssertNil(store.edgeContent[.left])
+        XCTAssertEqual(store.edgeContent[.right], [.notes, .newNote, .widget(.weather), .widget(.nowPlaying), .widget(.bluetooth), .widget(.systemMonitor), .settings])
         store.setProductivityItem(.tasks, enabled: false)
         store.setNotesSyncEnabled(true)
         store.setEdgeGap(0)
@@ -203,13 +204,14 @@ final class AppSettingsStoreTests: XCTestCase {
         store.setEdgeBarPreset(.custom)
         XCTAssertEqual(store.edgePlacement(of: .notes), .right)
         XCTAssertEqual(store.edgePlacement(of: .status), .hidden, "Notes preset showed no status, so Custom starts hidden")
-        XCTAssertEqual(store.edgePlacement(of: .weather), .left)
+        XCTAssertEqual(store.edgePlacement(of: .weather), .right)
         store.setEdgePlacement(.left, of: .notes)
         store.setEdgePlacement(.right, of: .status)
-        XCTAssertEqual(store.edgeContent[.left]?.first, .notes)
-        XCTAssertEqual(store.edgeContent[.right], [.newNote, .status, .settings])
+        XCTAssertNil(store.edgeContent[.left])
+        XCTAssertEqual(store.edgeContent[.right]?.first, .notes)
+        XCTAssertTrue(store.edgeContent[.right]?.contains(.status) ?? false)
         let reloaded = AppSettingsStore(defaults: defaults)
-        XCTAssertEqual(reloaded.edgePlacement(of: .notes), .left)
+        XCTAssertEqual(reloaded.edgePlacement(of: .notes), .right)
         XCTAssertEqual(reloaded.edgeContent, store.edgeContent)
         XCTAssertEqual(AppSettingsStore.edgeContent(defaults: defaults), store.edgeContent)
     }
@@ -226,7 +228,12 @@ final class AppSettingsStoreTests: XCTestCase {
         store.setWidgetTile(.nowPlaying, enabled: true)
         store.setWidgetTile(.weather, enabled: true)
         XCTAssertEqual(store.widgetTiles, [.weather, .nowPlaying], "catalog order, not click order")
-        XCTAssertEqual(store.edgeContent[.left], [.widget(.weather), .widget(.nowPlaying), .status])
+        XCTAssertNil(store.edgeContent[.left])
+        let tiles = store.edgeContent[.right]?.compactMap { item -> WidgetTile? in
+            if case let .widget(tile) = item { return tile }
+            return nil
+        }
+        XCTAssertEqual(tiles, [.weather, .nowPlaying])
         store.setWidgetTile(.weather, enabled: false)
         XCTAssertEqual(AppSettingsStore(defaults: defaults).widgetTiles, [.nowPlaying])
     }
@@ -1027,7 +1034,7 @@ final class AppSettingsStoreTests: XCTestCase {
         defaults.set(ShortcutTrigger.chord(.optionShiftSpace).serialized, forKey: "com.katikati.shortcut.launcher")
         let store = AppSettingsStore(defaults: defaults)
 
-        XCTAssertEqual(store.shortcutBindings[.commandBar], .chord(.optionShiftSpace), "旧 ⌘Space 要被换成新默认")
+        XCTAssertEqual(store.shortcutBindings[.commandBar], .chord(.optionSpace), "旧 ⌘Space 要被换成新默认")
         XCTAssertNil(defaults.string(forKey: "com.katikati.shortcut.commandBar"), "删键，不是把过期值留着")
         XCTAssertEqual(store.shortcutBindings[.launcher], .chord(.optionShiftSpace), "非系统保留的自定义键位不许被改")
     }

@@ -216,3 +216,242 @@ struct StageDownloads: View {
         return quietStart < quietEnd ? (quietStart..<quietEnd).contains(hour) : (hour >= quietStart || hour < quietEnd)
     }
 }
+
+/// Edge Bars: miniature Right EdgeBar showing enabled items, style (Paper / Liquid Glass / Fluid / Bezel Dock),
+/// size scale, and vertical edge position in real time.
+struct StageEdgeBars: View {
+    @ObservedObject var store: AppSettingsStore
+
+    private var activeItems: [EdgeBarContent] {
+        guard store.edgeBarPreset != .off else { return [] }
+        var items = store.edgeContent[.right] ?? []
+        if store.edgePrefs.showAppsInBar, !items.contains(.apps) {
+            items.insert(.apps, at: 0)
+        }
+        return items
+    }
+
+    var body: some View {
+        GeometryReader { proxy in
+            let items = activeItems
+            if !items.isEmpty {
+                let scale = proxy.size.width / LayoutThumbnailModel.referenceScreen.width
+                let deckScale = CGFloat(store.deckScale(for: .right))
+                let unit = max(5, 11 * scale * deckScale)
+                let spacing = max(1.5, 2.5 * scale * deckScale)
+                let style = store.edgePrefs.barStyle
+                let topInset = 18 * scale + 6
+                let bottomInset = 26 * scale + 6
+                let yRatio = CGFloat(store.deckYRatio(for: .right))
+
+                GeometryReader { inner in
+                    let barBoxHeight = estimatedHeight(items: items, unit: unit, spacing: spacing, style: style)
+                    let travel = max(0, inner.size.height - barBoxHeight)
+                    // yRatio 1 = top, yRatio 0 = bottom (matching DeckGeometry).
+                    let yOffset = travel * (1 - yRatio)
+                    HStack(spacing: 0) {
+                        Spacer(minLength: 0)
+                        previewStack(items: items, unit: unit, spacing: spacing, style: style)
+                    }
+                    .padding(.top, yOffset)
+                }
+                .padding(.top, topInset)
+                .padding(.bottom, bottomInset)
+            }
+        }
+        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.edgeBarPreset)
+        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.edgePrefs)
+        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.widgetTiles)
+        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.productivityItems)
+        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.edgeTileStyle)
+        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.deckScale(for: .right))
+        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.deckYRatio(for: .right))
+    }
+
+    private func previewStack(items: [EdgeBarContent], unit: CGFloat, spacing: CGFloat, style: EdgeBarStyle) -> some View {
+        VStack(alignment: .trailing, spacing: spacing) {
+            ForEach(Array(items.enumerated()), id: \.offset) { _, content in
+                itemView(content, unit: unit, style: style)
+            }
+        }
+        .padding(.vertical, style == .bezelDock ? max(4, unit * 0.55) : max(2, unit * 0.25))
+        .padding(.leading, max(3, unit * 0.32))
+        .padding(.trailing, max(3, unit * 0.28))
+        .background {
+            if style == .bezelDock {
+                EdgeBezelDockShape(onRight: true, earRadius: max(4, unit * 0.45), cornerRadius: max(5, unit * 0.5))
+                    .fill(Color(red: 0.05, green: 0.05, blue: 0.06).opacity(0.95))
+                    .overlay(
+                        EdgeBezelDockShape(onRight: true, earRadius: max(4, unit * 0.45), cornerRadius: max(5, unit * 0.5))
+                            .stroke(Color.white.opacity(0.18), lineWidth: 0.5)
+                    )
+            } else if style == .fluid {
+                RoundedRectangle(cornerRadius: unit * 0.6, style: .continuous)
+                    .fill(Color(red: 0.07, green: 0.07, blue: 0.09).opacity(0.92))
+                    .overlay(RoundedRectangle(cornerRadius: unit * 0.6, style: .continuous).strokeBorder(.white.opacity(0.22), lineWidth: 0.5))
+            } else if style == .liquidGlass {
+                RoundedRectangle(cornerRadius: unit * 0.6, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .overlay(RoundedRectangle(cornerRadius: unit * 0.6, style: .continuous).strokeBorder(.white.opacity(0.45), lineWidth: 0.5))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func itemView(_ content: EdgeBarContent, unit: CGFloat, style: EdgeBarStyle) -> some View {
+        switch content {
+        case .apps:
+            VStack(spacing: max(1.5, unit * 0.2)) {
+                ForEach(0..<4, id: \.self) { idx in
+                    let appColors: [Color] = [.blue, .orange, .green, .purple]
+                    RoundedRectangle(cornerRadius: max(2, unit * 0.24), style: .continuous)
+                        .fill(appColors[idx].opacity(0.9))
+                        .frame(width: unit, height: unit)
+                        .overlay(alignment: .trailing) {
+                            if store.edgePrefs.showRunningDots && idx < 3 {
+                                Circle()
+                                    .fill(Color.green)
+                                    .frame(width: max(2, unit * 0.22), height: max(2, unit * 0.22))
+                                    .offset(x: 1.5)
+                            }
+                        }
+                }
+            }
+        case .notes:
+            VStack(spacing: -unit * 0.22) {
+                ForEach(0..<3, id: \.self) { idx in
+                    let entry = NotePalette.entry(at: idx)
+                    RoundedRectangle(cornerRadius: 2, style: .continuous)
+                        .fill(style == .fluid || style == .bezelDock ? Color(white: 0.14) : entry.paperColor)
+                        .overlay(alignment: .trailing) {
+                            Rectangle().fill(entry.dashColor).frame(width: 1.5)
+                        }
+                        .frame(width: unit * 1.15, height: unit * 0.95)
+                }
+            }
+        case .status:
+            HStack(spacing: 1.5) {
+                ForEach(0..<3, id: \.self) { _ in
+                    Circle().fill(Color.white.opacity(0.75)).frame(width: max(2, unit * 0.28), height: max(2, unit * 0.28))
+                }
+            }
+        case .focus:
+            VStack(spacing: 1.5) {
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .strokeBorder(Color.blue, lineWidth: 1)
+                    .frame(width: unit * 0.7, height: unit * 0.7)
+                    .overlay(Image(systemName: "bolt.fill").font(.system(size: unit * 0.35)).foregroundColor(.white))
+                RoundedRectangle(cornerRadius: 1.5, style: .continuous).fill(Color.white.opacity(0.3)).frame(width: unit * 0.7, height: unit * 0.25)
+            }
+            .frame(width: unit * 0.95, height: unit * 1.3)
+            .background(RoundedRectangle(cornerRadius: 3, style: .continuous).fill(Color.black.opacity(0.8)))
+        case .clock:
+            VStack(spacing: 1) {
+                RoundedRectangle(cornerRadius: 1, style: .continuous).fill(Color.white.opacity(0.8)).frame(width: unit * 0.65, height: unit * 0.25)
+                RoundedRectangle(cornerRadius: 1, style: .continuous).fill(Color.white.opacity(0.4)).frame(width: unit * 0.5, height: unit * 0.18)
+            }
+            .frame(width: unit * 0.95, height: unit * 0.85)
+            .background(RoundedRectangle(cornerRadius: 3, style: .continuous).fill(Color.black.opacity(0.8)))
+        case .batteryWifi:
+            HStack(spacing: 2) {
+                Circle().strokeBorder(Color.white, lineWidth: 1).frame(width: unit * 0.35, height: unit * 0.35)
+                Image(systemName: "wifi").font(.system(size: unit * 0.3)).foregroundColor(.white)
+            }
+            .frame(width: unit * 0.95, height: unit * 0.5)
+            .background(Capsule().fill(Color.black.opacity(0.8)))
+        case .habits:
+            VStack(spacing: 1.5) {
+                ForEach(0..<3, id: \.self) { _ in
+                    HStack(spacing: 1.5) {
+                        ForEach(0..<4, id: \.self) { _ in
+                            Circle().fill(Color.blue.opacity(0.7)).frame(width: 2, height: 2)
+                        }
+                    }
+                }
+            }
+            .frame(width: unit * 0.95, height: unit * 0.85)
+            .background(RoundedRectangle(cornerRadius: 3, style: .continuous).fill(Color.black.opacity(0.8)))
+        case .hydration:
+            VStack(spacing: 1) {
+                RoundedRectangle(cornerRadius: 1, style: .continuous).fill(Color.cyan.opacity(0.5)).frame(width: unit * 0.5, height: unit * 0.2)
+                RoundedRectangle(cornerRadius: 2, style: .continuous).fill(Color.cyan).frame(width: unit * 0.7, height: unit * 0.4)
+            }
+            .frame(width: unit * 0.95, height: unit * 1.0)
+            .background(RoundedRectangle(cornerRadius: 3, style: .continuous).fill(Color.black.opacity(0.8)))
+        case .food:
+            VStack(spacing: 1.5) {
+                Image(systemName: "fork.knife").font(.system(size: unit * 0.35)).foregroundColor(.orange)
+                RoundedRectangle(cornerRadius: 1, style: .continuous).fill(Color.white.opacity(0.5)).frame(width: unit * 0.5, height: unit * 0.2)
+            }
+            .frame(width: unit * 0.95, height: unit * 0.95)
+            .background(RoundedRectangle(cornerRadius: 3, style: .continuous).fill(Color.black.opacity(0.8)))
+        case .notesPreview:
+            VStack(alignment: .leading, spacing: 1.5) {
+                ForEach(0..<3, id: \.self) { _ in
+                    HStack(spacing: 1.5) {
+                        Circle().strokeBorder(Color.white.opacity(0.4), lineWidth: 0.5).frame(width: 2, height: 2)
+                        RoundedRectangle(cornerRadius: 0.5).fill(Color.white.opacity(0.6)).frame(width: unit * 0.45, height: 1.5)
+                    }
+                }
+            }
+            .frame(width: unit * 0.95, height: unit * 1.1)
+            .background(RoundedRectangle(cornerRadius: 3, style: .continuous).fill(Color.black.opacity(0.8)))
+        case .newNote, .settings, .widget, .productivity:
+            let tint = buttonTint(content)
+            Circle()
+                .fill(style == .bezelDock || style == .fluid ? Color.white.opacity(0.18) : (store.edgeTileStyle == .coloured ? tint : Color.white.opacity(0.45)))
+                .overlay(Circle().strokeBorder(tint.opacity(style == .bezelDock || style == .fluid ? 0.85 : 0.35), lineWidth: 0.75))
+                .frame(width: unit * 0.86, height: unit * 0.86)
+        }
+    }
+
+    private func buttonTint(_ content: EdgeBarContent) -> Color {
+        switch content {
+        case .focus: return .blue
+        case .clock: return .white
+        case .batteryWifi: return .green
+        case .habits: return .purple
+        case .hydration: return .cyan
+        case .food: return .orange
+        case .notesPreview: return .yellow
+        case .newNote: return NotePalette.entry(at: 0).dashColor
+        case .settings: return NotePalette.entry(at: 7).dashColor
+        case let .widget(tile):
+            let idx: Int
+            switch tile {
+            case .weather: idx = 1
+            case .nowPlaying: idx = 2
+            case .bluetooth: idx = 4
+            case .systemMonitor: idx = 6
+            }
+            return NotePalette.entry(at: idx).dashColor
+        case let .productivity(item):
+            let idx: Int
+            switch item {
+            case .reminders: idx = 3
+            case .alarms: idx = 6
+            case .time: idx = 5
+            case .tasks: idx = 2
+            case .clipboard: idx = 1
+            case .capture: idx = 4
+            case .screenshot: idx = 2
+            case .windows: idx = 7
+            case .screenTime: idx = 0
+            }
+            return NotePalette.entry(at: idx).dashColor
+        default: return .white
+        }
+    }
+
+    private func estimatedHeight(items: [EdgeBarContent], unit: CGFloat, spacing: CGFloat, style: EdgeBarStyle) -> CGFloat {
+        let rows = items.reduce(CGFloat(0)) { acc, item in
+            switch item {
+            case .apps: return acc + 4 * unit + 3 * max(1.5, unit * 0.2)
+            case .notes: return acc + 2.5 * unit
+            case .status: return acc + unit * 0.35
+            default: return acc + unit * 0.86
+            }
+        }
+        return rows + CGFloat(max(0, items.count - 1)) * spacing + (style == .bezelDock ? unit * 1.1 : unit * 0.5)
+    }
+}

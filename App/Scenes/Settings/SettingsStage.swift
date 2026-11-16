@@ -108,6 +108,7 @@ struct SettingsStage: View {
                     notch(scale: scale)
                 }
                 switch tab {
+                case .edgeBars: StageEdgeBars(store: store)
                 case .controlCenter: StageControlCenter(store: store)
                 case .radialDial: StageRadialDial()
                 case .tiling: StageTiling()

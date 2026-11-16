@@ -181,6 +181,8 @@ struct SettingsLayoutPane: View {
     static func presetTitle(_ preset: EdgeBarPreset) -> Text {
         switch preset {
         case .off: return Text("Off")
+        case .sydedock: return Text(verbatim: "Sydedock")
+        case .extraDock: return Text(verbatim: "ExtraDock")
         case .notes: return Text("Notes")
         case .notesAndStatus: return Text("Notes & Status")
         case .status: return Text("Status")
@@ -195,6 +197,14 @@ struct SettingsLayoutPane: View {
 
     static func itemTitle(_ item: EdgeItem) -> Text {
         switch item {
+        case .apps: return Text("Apps")
+        case .focus: return Text("Focus & Timer")
+        case .clock: return Text("Clock & Date")
+        case .batteryWifi: return Text("Battery & Wi-Fi")
+        case .habits: return Text("Habits & Streak")
+        case .hydration: return Text("Hydration")
+        case .food: return Text("Food & Fasting")
+        case .notesPreview: return Text("Quick Notes")
         case .notes: return Text("Notes")
         case .newNote: return Text("New Note")
         case .settings: return Text("KatiKati Settings")
