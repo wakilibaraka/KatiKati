@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
-    "mtime": 1792630025.3126347,
-    "seen": 1792630179.526185,
-    "ast_hash": "7f1fef6f4374ddcc0ce9c13965b11c8d",
+    "mtime": 1794859500.7422273,
+    "seen": 1794861110.467587,
+    "ast_hash": "dc4403f10a01a7a1074828283d78c124",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTilingPane.swift": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1794858565.394701,
-    "seen": 1794858758.740714,
-    "ast_hash": "9dbcc29b8b861fc731466f945052852c",
+    "mtime": 1794860715.019616,
+    "seen": 1794861110.4675882,
+    "ast_hash": "f541c725cf8617b02d2e05e927afa61e",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -1290,9 +1290,9 @@
     "semantic_hash": "cce3b50509e62e793a875bc5b2166d6c"
   },
   "App/Scenes/UtilitySettingsBlock.swift": {
-    "mtime": 1794849721.5884883,
-    "seen": 1794850870.161469,
-    "ast_hash": "2afd7489f5f6053db3daf67c50e435d8",
+    "mtime": 1794859952.138885,
+    "seen": 1794861110.467606,
+    "ast_hash": "c435ff56fc1e3424d7e790c63af30cf2",
     "semantic_hash": ""
   },
   "App/Scenes/WeatherChip.swift": {
@@ -4026,9 +4026,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/SettingsTabTests.swift": {
-    "mtime": 1792626143.918527,
-    "seen": 1792630179.526606,
-    "ast_hash": "01ab7d4c08a0d308889d5e16fe34741c",
+    "mtime": 1794859519.8003688,
+    "seen": 1794861110.468044,
+    "ast_hash": "b7e180045af864a7a193d9be172e8500",
     "semantic_hash": ""
   },
   "Tests/Unit/ShakeDetectorTests.swift": {
@@ -4590,9 +4590,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsSidebar.swift": {
-    "mtime": 1794858602.454324,
-    "seen": 1794858758.740701,
-    "ast_hash": "018fb4fb98a08f2bb04bd0efc0b0e542",
+    "mtime": 1794859556.2859428,
+    "seen": 1794861110.467575,
+    "ast_hash": "f92426db4b1ff716ccb01d0902f28068",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStage.swift": {
@@ -6990,8 +6990,8 @@
     "semantic_hash": ""
   },
   "Tests/Unit/BarProfileCommandTests.swift": {
-    "mtime": 1793916800.5620184,
-    "seen": 1793917166.7105951,
+    "mtime": 1794860867.6040533,
+    "seen": 1794861110.467912,
     "ast_hash": "898e019de8b51273d450b8746270e0bf",
     "semantic_hash": ""
   },
