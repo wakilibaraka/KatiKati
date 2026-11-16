@@ -169,4 +169,60 @@ final class NowPlayingProgressTests: XCTestCase {
         XCTAssertEqual(LyricsTrack.activeLine(in: lines, at: 70.0), "Chorus starts")
         XCTAssertNil(LyricsTrack.activeLine(in: [], at: 10.0))
     }
+
+    // MARK: - Phase 60: Queue & Lyric Timeline Tests (Slice A-QueueLyrics)
+
+    func testQueueReorderPlanPromotesAndRemoves() {
+        let q = [
+            NowPlayingQueueItem(id: "1", title: "Track 1"),
+            NowPlayingQueueItem(id: "2", title: "Track 2"),
+            NowPlayingQueueItem(id: "3", title: "Track 3")
+        ]
+
+        // Promote track 3 to top
+        let promoted = NowPlayingQueueReorderPlan.promoteTrackToTop(in: q, id: "3")
+        XCTAssertEqual(promoted.map(\.id), ["3", "1", "2"])
+
+        // Promoting index 0 is no-op
+        let same = NowPlayingQueueReorderPlan.promoteTrackToTop(in: promoted, id: "3")
+        XCTAssertEqual(same.map(\.id), ["3", "1", "2"])
+
+        // Promoting non-existent id is no-op
+        let untouched = NowPlayingQueueReorderPlan.promoteTrackToTop(in: q, id: "non-existent")
+        XCTAssertEqual(untouched.map(\.id), ["1", "2", "3"])
+
+        // Remove track 2
+        let removed = NowPlayingQueueReorderPlan.removeTrack(in: q, id: "2")
+        XCTAssertEqual(removed.map(\.id), ["1", "3"])
+    }
+
+    func testLyricTimelineMatcherWindowAndProgress() {
+        let lines = [
+            LyricsLine(time: 10.0, text: "Line 1"),
+            LyricsLine(time: 20.0, text: "Line 2"),
+            LyricsLine(time: 30.0, text: "Line 3"),
+            LyricsLine(time: 40.0, text: "Line 4"),
+            LyricsLine(time: 50.0, text: "Line 5")
+        ]
+
+        // Active index
+        XCTAssertEqual(LyricTimelineMatcher.activeIndex(in: lines, at: 5.0), 0)
+        XCTAssertEqual(LyricTimelineMatcher.activeIndex(in: lines, at: 15.0), 0)
+        XCTAssertEqual(LyricTimelineMatcher.activeIndex(in: lines, at: 22.0), 1)
+        XCTAssertEqual(LyricTimelineMatcher.activeIndex(in: lines, at: 45.0), 3)
+
+        // Sliding 3-line window centered at Line 3 (index 2)
+        let win = LyricTimelineMatcher.window(in: lines, at: 31.0, windowSize: 3)
+        XCTAssertEqual(win.map(\.text), ["Line 2", "Line 3", "Line 4"])
+
+        // Line progress (midway between 20.0 and 30.0 -> elapsed 25.0 -> 0.5)
+        let prog = LyricTimelineMatcher.lineProgress(in: lines, at: 25.0)
+        XCTAssertEqual(prog, 0.5, accuracy: 0.05)
+    }
+
+    func testFloatingPlayerSizeDimensions() {
+        XCTAssertEqual(FloatingPlayerSize.mini.defaultDimensions.width, 180)
+        XCTAssertEqual(FloatingPlayerSize.player.defaultDimensions.width, 280)
+        XCTAssertEqual(FloatingPlayerSize.expanded.defaultDimensions.width, 340)
+    }
 }

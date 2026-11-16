@@ -67,3 +67,90 @@ enum LyricsTrack {
         return current ?? lines.first?.text
     }
 }
+
+// MARK: - Phase 60: Queue Reorder Intent & Multi-Line Timeline Matcher (Slice A-QueueLyrics)
+
+/// Model representing a track in the playback queue.
+struct NowPlayingQueueItem: Equatable, Sendable, Identifiable {
+    let id: String
+    var title: String
+    var artist: String
+    var duration: TimeInterval?
+
+    init(id: String = UUID().uuidString, title: String, artist: String = "", duration: TimeInterval? = nil) {
+        self.id = id
+        self.title = title
+        self.artist = artist
+        self.duration = duration
+    }
+}
+
+/// Pure queue manipulation logic.
+enum NowPlayingQueueReorderPlan {
+    /// Promotes the given track to the head of the upcoming queue (index 0).
+    static func promoteTrackToTop(in queue: [NowPlayingQueueItem], id: String) -> [NowPlayingQueueItem] {
+        guard let index = queue.firstIndex(where: { $0.id == id }) else { return queue }
+        if index == 0 { return queue }
+        var result = queue
+        let item = result.remove(at: index)
+        result.insert(item, at: 0)
+        return result
+    }
+
+    /// Removes a track by identifier.
+    static func removeTrack(in queue: [NowPlayingQueueItem], id: String) -> [NowPlayingQueueItem] {
+        queue.filter { $0.id != id }
+    }
+}
+
+/// Matcher that computes line windows and progress within the lyric timeline.
+enum LyricTimelineMatcher {
+    /// Finds the index of the active lyric line at the given elapsed time.
+    static func activeIndex(in lines: [LyricsLine], at elapsed: TimeInterval) -> Int? {
+        guard !lines.isEmpty, elapsed >= 0 else { return nil }
+        var activeIdx: Int? = nil
+        for (i, line) in lines.enumerated() {
+            if line.time <= elapsed + 0.15 {
+                activeIdx = i
+            } else {
+                break
+            }
+        }
+        return activeIdx ?? 0
+    }
+
+    /// Returns a sliding window of lyric lines centered on or near the active line.
+    static func window(in lines: [LyricsLine], at elapsed: TimeInterval, windowSize: Int = 3) -> [LyricsLine] {
+        guard !lines.isEmpty else { return [] }
+        guard let active = activeIndex(in: lines, at: elapsed) else { return Array(lines.prefix(windowSize)) }
+        let half = windowSize / 2
+        let start = max(0, min(lines.count - windowSize, active - half))
+        let end = min(lines.count, start + windowSize)
+        return Array(lines[start..<end])
+    }
+
+    /// Progress (0...1) from current line start time to next line start time.
+    static func lineProgress(in lines: [LyricsLine], at elapsed: TimeInterval) -> Double {
+        guard let activeIdx = activeIndex(in: lines, at: elapsed), lines.indices.contains(activeIdx) else { return 0.0 }
+        let currentLine = lines[activeIdx]
+        let nextTime = (activeIdx + 1 < lines.count) ? lines[activeIdx + 1].time : (currentLine.time + 4.0)
+        let span = max(0.5, nextTime - currentLine.time)
+        let prog = (elapsed - currentLine.time) / span
+        return min(max(prog, 0.0), 1.0)
+    }
+}
+
+/// Size profiles for detachable FloatingPlayerPanel.
+enum FloatingPlayerSize: String, CaseIterable, Sendable {
+    case mini
+    case player
+    case expanded
+
+    var defaultDimensions: (width: CGFloat, height: CGFloat) {
+        switch self {
+        case .mini: return (180, 48)
+        case .player: return (280, 120)
+        case .expanded: return (340, 280)
+        }
+    }
+}
