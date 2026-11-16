@@ -110,6 +110,18 @@ struct NotchKeepAwakePageView: View {
                 .buttonStyle(.plain)
             }
         }
+        .gesture(
+            DragGesture(minimumDistance: 10)
+                .onChanged { val in
+                    let currentMinutes = preset.rawValue == 0 ? 30 : preset.rawValue
+                    let targetMinutes = PomodoroScrubberMath.minutes(start: currentMinutes, dragDelta: Double(val.translation.width))
+                    let closest = StayAwakePreset.allCases.min(by: { abs($0.rawValue - targetMinutes) < abs($1.rawValue - targetMinutes) })
+                    if let c = closest, c.rawValue != presetRaw {
+                        presetRaw = c.rawValue
+                        if service.manualOn { service.setManual(true, duration: c.duration) }
+                    }
+                }
+        )
     }
 
     private func selected(_ p: StayAwakePreset) -> Bool { service.manualOn && p == preset }

@@ -5,6 +5,7 @@ import SwiftUI
 struct NotchAIPageView: View {
     @ObservedObject private var agentService = AgentUsageService.shared
     @AppStorage(AgentBudgetPreset.key) private var budgetPresetRaw = AgentBudgetPreset.off.rawValue
+    @State private var showingReceipt = false
 
     private var budgetPreset: AgentBudgetPreset {
         AgentBudgetPreset(rawValue: budgetPresetRaw) ?? .off
@@ -64,6 +65,9 @@ struct NotchAIPageView: View {
                         tokenBadge(label: "Hit", value: Int(snapshot.todayTokens.cacheHitRate * 100), suffix: "%", color: .cyan)
                     }
                 }
+
+                BreatherRingsMiniView(engine: BreatherScheduleEngine())
+                    .padding(.top, 2)
             }
             .padding(NotchDesignSpec.cardPadding)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -102,6 +106,28 @@ struct NotchAIPageView: View {
                             .background(Capsule().fill(Color.white.opacity(0.08)))
                     }
                     .buttonStyle(.plain)
+                    Button { showingReceipt.toggle() } label: {
+                        HStack(spacing: 3) {
+                            Image(systemName: "doc.text.fill").font(.system(size: 8))
+                            Text(verbatim: "Receipt").font(.system(size: 9, weight: .bold))
+                        }
+                        .foregroundStyle(.white.opacity(0.85))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(Color.purple.opacity(0.35)))
+                    }
+                    .buttonStyle(.plain)
+                    .popover(isPresented: $showingReceipt) {
+                        let receipt = AIStatsReceiptCalculator.calculate(
+                            tokens: snapshot.todayTokens,
+                            costUSD: snapshot.todayCost,
+                            activeDuration: 3600,
+                            linesAdded: 120,
+                            linesDeleted: 24,
+                            streakDays: 3
+                        )
+                        AIReceiptPopoverView(receipt: receipt)
+                    }
                     if snapshot.todaySavings > 0 {
                         Text(verbatim: String(format: "-$%.2f saved", snapshot.todaySavings))
                             .font(.system(size: 10, weight: .semibold))
@@ -218,5 +244,69 @@ struct NotchAIPageView: View {
         .padding(.horizontal, 6)
         .padding(.vertical, 3)
         .background(Capsule().fill(Color.white.opacity(0.08)))
+    }
+}
+
+// MARK: - AI Stats Receipt & Breather Rings (Slice 2.6)
+
+struct AIReceiptPopoverView: View {
+    let receipt: AIStatsReceipt
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(verbatim: "AI Usage Receipt")
+                    .font(.system(size: 12, weight: .bold))
+                Spacer()
+                Text(verbatim: receipt.formattedCost)
+                    .font(.system(size: 12, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.green)
+            }
+            Divider()
+            ForEach(receipt.items) { item in
+                HStack {
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(verbatim: item.title)
+                            .font(.system(size: 10, weight: .medium))
+                        if let sub = item.subtitle {
+                            Text(verbatim: sub)
+                                .font(.system(size: 8))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    Spacer()
+                    Text(verbatim: item.value)
+                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                }
+                .padding(.vertical, 1)
+            }
+        }
+        .padding(10)
+        .frame(width: 220)
+    }
+}
+
+struct BreatherRingsMiniView: View {
+    let engine: BreatherScheduleEngine
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ringPill("Eyes", progress: engine.rings.eyes.progress, color: .cyan)
+            ringPill("Stretch", progress: engine.rings.stretch.progress, color: .mint)
+            ringPill("Hydrate", progress: engine.rings.hydrate.progress, color: .blue)
+        }
+    }
+
+    private func ringPill(_ label: String, progress: Double, color: Color) -> some View {
+        HStack(spacing: 3) {
+            Circle()
+                .trim(from: 0, to: CGFloat(max(0.1, progress)))
+                .stroke(color, lineWidth: 2)
+                .frame(width: 8, height: 8)
+                .rotationEffect(.degrees(-90))
+            Text(verbatim: label)
+                .font(.system(size: 9, weight: .medium))
+                .foregroundColor(.white.opacity(0.7))
+        }
     }
 }
