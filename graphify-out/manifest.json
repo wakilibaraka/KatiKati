@@ -6780,9 +6780,9 @@
     "semantic_hash": ""
   },
   "Core/Support/MeetingLink.swift": {
-    "mtime": 1792931361.4487605,
-    "seen": 1792933113.614771,
-    "ast_hash": "499359688508deb4ad72ac15cb7daa81",
+    "mtime": 1794847124.882742,
+    "seen": 1794847293.483406,
+    "ast_hash": "4002f040fc3608eb28a364293a398e04",
     "semantic_hash": ""
   },
   "Core/Support/SampleHistory.swift": {
@@ -6798,9 +6798,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWidgetLogicTests.swift": {
-    "mtime": 1793842091.648243,
-    "seen": 1793842917.227998,
-    "ast_hash": "b9c76886bfc98fec68561212cd970c59",
+    "mtime": 1794847145.9075744,
+    "seen": 1794847293.483634,
+    "ast_hash": "0dd8fa4b2106824369b74c3ec13f2211",
     "semantic_hash": ""
   },
   "App/Composition/SpaceTransitionController.swift": {
