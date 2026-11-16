@@ -56,6 +56,10 @@ struct StackPopupChrome<Grid: View>: View {
     /// scroll still shows every row. The drawer's row budget reserves the same amount
     /// (`StackGridLayout.drawerLimits`), so the taller plate still clears the top of the screen.
     var gridExtraHeight: CGFloat = 0
+    /// Optional trailing control inside the header row (such as the Drawer's Grid/List toggle).
+    var headerAccessory: AnyView? = nil
+    /// Draws a subtle accent highlight around the glass plate when an external drag hovers over it.
+    var isDropTargeted: Bool = false
     /// The cells; they land in a `LazyVGrid` of `layout.columns` fixed columns.
     @ViewBuilder let grid: () -> Grid
 
@@ -102,6 +106,13 @@ struct StackPopupChrome<Grid: View>: View {
         // it. The ideal size is still the content's, which is what `fittingSize` reports.
         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .top)
         .clipShape(RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous))
+        .overlay {
+            if isDropTargeted {
+                RoundedRectangle(cornerRadius: Metrics.cornerRadius, style: .continuous)
+                    .strokeBorder(Color.accentColor.opacity(0.85), lineWidth: 2)
+                    .allowsHitTesting(false)
+            }
+        }
         .background {
             GeometryReader { proxy in
                 StackPopupBackdrop(plateSize: proxy.size,
@@ -123,10 +134,19 @@ struct StackPopupChrome<Grid: View>: View {
             .foregroundStyle(theme.stackPopupText.color)
             .lineLimit(1)
             .truncationMode(.middle)
-            .padding(.horizontal, 44)
+            .padding(.leading, onBack != nil ? 44 : (headerAccessory != nil ? 52 : 44))
+            .padding(.trailing, headerAccessory != nil ? 58 : 44)
             .frame(width: plateSize.width, height: plate.headerHeight)
             .offset(y: plate.titleCenterY - plate.headerHeight / 2)
             .overlay(alignment: .topLeading) { backButton }
+            .overlay(alignment: .topTrailing) {
+                if let headerAccessory {
+                    headerAccessory
+                        .frame(height: plate.headerHeight)
+                        .offset(y: plate.titleCenterY - plate.headerHeight / 2)
+                        .padding(.trailing, max(12, plate.sidePadding))
+                }
+            }
     }
 
     private var separator: some View {

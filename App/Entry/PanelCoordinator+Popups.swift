@@ -191,6 +191,7 @@ extension PanelCoordinator {
                 onClosePopup: { [weak self] in self?.closeFolderPopup() },
                 onContentResize: { [weak self] size in self?.repositionFolderPopup(animated: true, contentSize: size) },
                 onRemoveApp: { drawerStore.remove($0) },
+                onAddApp: { drawerStore.add($0) },
                 onPinFolder: { [weak self] url in self?.pinnedFolderStore.add(url.path) },
                 isFolderPinned: { [weak self] url in self?.pinnedFolderStore.contains(url.path) ?? true }
             ).environment(\.dockThemeStyle, store.theme ?? settingsStore.themeMaterial)

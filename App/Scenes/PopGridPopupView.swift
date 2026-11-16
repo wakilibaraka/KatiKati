@@ -20,11 +20,15 @@ struct PopGridPopupView: View {
     /// Takes an app out of the drawer (`DrawerStore.remove`); the pop follows through `PopStore.syncApps`.
     /// No default: an omission would leave the menu item silently doing nothing.
     let onRemoveApp: (String) -> Void
+    /// Stashes a dropped app in `DrawerStore` so placement and pop stay synced.
+    var onAddApp: ((String) -> Void)? = nil
     var onPinFolder: ((URL) -> Void)?
     var isFolderPinned: ((URL) -> Bool)?
 
     /// The folder being browsed inside the pop; nil = the pop's own grid.
     @State private var browsing: URL?
+    @State private var isDropTargeted = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         if let browsing {
@@ -49,37 +53,40 @@ struct PopGridPopupView: View {
             ? String(localized: "Drag apps, files or folders onto the Drawer icon")
             : (popStore.isFull ? String(format: String(localized: "The Drawer is full (%d items)"), PopPolicy.capacity) : nil)
         let mode = popStore.viewMode
-        // An empty pop is the status line alone, like the empty shelf.
-        let layout: StackGridLayout.Result = items.isEmpty
-            ? StackGridLayout.Result(columns: StackGridLayout.noteMinColumns, visibleRows: 0, scrolls: false)
-            : {
-                switch mode {
-                case .grid:
-                    return StackGridLayout.resolve(cellCount: items.count, limits: context.limits, hasNote: note != nil)
-                case .tiles:
-                    let rows = min(items.count, StackPlateMetrics.tilesRows)
-                    return .init(columns: StackPlateMetrics.tilesColumns, visibleRows: rows, scrolls: items.count > rows)
-                case .list:
-                    // List rows are 34pt, so the native grid's 128pt row budget says nothing about them.
-                    let rows = min(items.count, 8)
-                    return .init(columns: 1, visibleRows: rows, scrolls: items.count > rows)
-                }
-            }()
+        let style: DrawerLayoutStyle = mode == .list ? .list : .grid
+        let plate: StackPlateMetrics = mode == .tiles
+            ? .stack
+            : DrawerLayoutMath.plateMetrics(style: style, labels: items.map(\.displayName))
+        let layout: StackGridLayout.Result = mode == .tiles
+            ? (items.isEmpty
+               ? StackGridLayout.Result(columns: StackGridLayout.noteMinColumns, visibleRows: 0, scrolls: false)
+               : .init(columns: StackPlateMetrics.tilesColumns,
+                       visibleRows: min(items.count, StackPlateMetrics.tilesRows),
+                       scrolls: items.count > min(items.count, StackPlateMetrics.tilesRows)))
+            : DrawerLayoutMath.resolveLayout(itemCount: items.count, style: style, limits: context.limits, hasNote: note != nil)
+
         return StackPopupChrome(title: String(localized: "Drawer"),
                                 note: note,
                                 layout: layout,
-                                plate: mode == .list ? .list : .stack,
+                                plate: plate,
                                 usesLiquidGlass: usesLiquidGlass,
                                 arrow: context.arrow,
                                 onPanelSizeChange: onContentResize,
-                                gridAnimation: .easeInOut(duration: DrawerAnimation.duration),
-                                gridAnimationKey: items.map(\.id)) {
+                                gridAnimation: reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.82),
+                                gridAnimationKey: items.map(\.id) + [mode.rawValue],
+                                headerAccessory: AnyView(DrawerLayoutTogglePill(mode: mode, reduceMotion: reduceMotion) { next in
+                                    withAnimation(reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.82)) {
+                                        popStore.setViewMode(next)
+                                    }
+                                }),
+                                isDropTargeted: isDropTargeted) {
             ForEach(items) { item in
                 let path = item.iconPath
                 if mode == .list {
                     PopListRow(iconPath: path,
                                staticIcon: path == nil ? Self.missingAppIcon : nil,
                                label: item.displayName,
+                               rowWidth: plate.cell.cellSize.width,
                                dragURL: item.kind == .app ? nil : URL(fileURLWithPath: item.reference),
                                contextMenu: { menu(for: item) }) { open(item) }
                 } else {
@@ -92,6 +99,51 @@ struct PopGridPopupView: View {
                 }
             }
         }
+        .contentShape(Rectangle())
+        .onDrop(of: [UTType.fileURL], isTargeted: $isDropTargeted) { handleDrop($0) }
+    }
+
+    private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
+        guard !providers.isEmpty else { return false }
+        let pasteboardURLs = StripFileDropDelegate.DragPasteboardInspector.draggedURLs()
+        let collector = DropURLCollector(count: providers.count)
+        let group = DispatchGroup()
+        for (index, provider) in providers.enumerated() {
+            group.enter()
+            _ = provider.loadObject(ofClass: URL.self) { url, _ in
+                collector.set(url, at: index)
+                group.leave()
+            }
+        }
+        let store = popStore
+        let addApp = onAddApp
+        group.notify(queue: .main) {
+            let urls = StripDropRouting.committedURLs(
+                loaded: collector.urls,
+                pasteboard: pasteboardURLs,
+                homeDirectory: FileManager.default.homeDirectoryForCurrentUser
+            )
+            guard !urls.isEmpty else { return }
+            AppRuntime.actionQueue.async {
+                let payloads: [DrawerItemPayload] = urls.compactMap { url in
+                    let isApp = StripFileDropDelegate.DragPasteboardInspector.isApplication(url)
+                    let isDirectory = (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
+                    let bundleID = isApp ? Bundle(url: url)?.bundleIdentifier : nil
+                    return DrawerItemPayload.classify(url: url, isDirectory: isDirectory, isApplication: isApp, bundleID: bundleID)
+                }
+                DispatchQueue.main.async {
+                    let result = DrawerDropTargetPolicy.validateDrop(payloads: payloads, existing: store.items)
+                    if !result.accepted.isEmpty {
+                        store.add(result.accepted)
+                        for item in result.accepted where item.kind == .app {
+                            addApp?(item.reference)
+                        }
+                    }
+                    if result.rejectedForCapacity > 0 { NSSound.beep() }
+                }
+            }
+        }
+        return true
     }
 
     private func open(_ item: PopItem) {
@@ -117,7 +169,7 @@ struct PopGridPopupView: View {
     }
 
     /// Hand-built `NSMenu` (rule file). Files and folders get the folder popup's menu plus
-    /// 「Remove from Drawer」; apps get Open / Show in Finder / Remove from Drawer.
+    /// 「Remove from Drawer」; apps get Open / Show in Finder / Copy Path / Remove from Drawer.
     private func menu(for item: PopItem) -> NSMenu {
         let store = popStore
         switch item.kind {
@@ -129,6 +181,11 @@ struct PopGridPopupView: View {
                 menu.addItem(ClosureMenuItem(String(localized: "Show in Finder")) {
                     NSWorkspace.shared.activateFileViewerSelecting([url])
                     onClosePopup()
+                })
+                menu.addItem(ClosureMenuItem(String(localized: "Copy Path")) {
+                    let pasteboard = NSPasteboard.general
+                    pasteboard.clearContents()
+                    pasteboard.setString(url.path, forType: .string)
                 })
             }
             menu.addItem(.separator())
@@ -153,17 +210,75 @@ struct PopGridPopupView: View {
     private static let missingAppIcon = NSWorkspace.shared.icon(for: .applicationBundle)
 }
 
+/// Compact iOS/iPadOS-style segmented pill for toggling between Grid and List drawer views.
+private struct DrawerLayoutTogglePill: View {
+    let mode: PopViewMode
+    let reduceMotion: Bool
+    let onSelect: (PopViewMode) -> Void
+
+    @Namespace private var pillSpace
+
+    private var activeStyle: DrawerLayoutStyle { mode == .list ? .list : .grid }
+
+    var body: some View {
+        HStack(spacing: 2) {
+            toggleButton(.grid, symbol: "square.grid.2x2", helpText: String(localized: "Grid view"))
+            toggleButton(.list, symbol: "list.bullet", helpText: String(localized: "List view"))
+        }
+        .padding(2)
+        .background(Capsule(style: .continuous).fill(Color.white.opacity(0.08)))
+        .overlay(Capsule(style: .continuous).strokeBorder(Color.white.opacity(0.14), lineWidth: 0.5))
+        .animation(reduceMotion ? nil : .spring(response: 0.28, dampingFraction: 0.78), value: activeStyle)
+    }
+
+    private func toggleButton(_ style: DrawerLayoutStyle, symbol: String, helpText: String) -> some View {
+        let isSelected = activeStyle == style
+        return Button {
+            onSelect(style == .list ? .list : .grid)
+        } label: {
+            Image(systemName: symbol)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(isSelected ? Color.white : Color.white.opacity(0.6))
+                .frame(width: 20, height: 18)
+                .background {
+                    if isSelected {
+                        Capsule(style: .continuous)
+                            .fill(Color.white.opacity(0.22))
+                            .matchedGeometryEffect(id: "drawerLayoutActivePill", in: pillSpace)
+                    }
+                }
+        }
+        .buttonStyle(.plain)
+        .help(helpText)
+        .accessibilityLabel(Text(helpText))
+    }
+}
+
+/// Thread-safe accumulator for asynchronous `NSItemProvider` URL loads.
+private final class DropURLCollector: @unchecked Sendable {
+    private let lock = NSLock()
+    private(set) var urls: [URL?]
+    init(count: Int) { urls = Array(repeating: nil, count: count) }
+    func set(_ url: URL?, at index: Int) {
+        lock.lock(); defer { lock.unlock() }
+        urls[index] = url
+    }
+}
+
 /// One row of the pop's List view: the item's icon, then its name — the layout DockPops calls List.
 private struct PopListRow: View {
     let iconPath: String?
     let staticIcon: NSImage?
     let label: String
+    let rowWidth: CGFloat
     let dragURL: URL?
     let contextMenu: () -> NSMenu
     let onTap: () -> Void
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dockThemeStyle) private var dockThemeStyle
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isHovered = false
     private typealias Cell = StackCellMetrics
 
     var body: some View {
@@ -181,8 +296,14 @@ private struct PopListRow: View {
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 6)
-        .frame(width: Cell.list.cellSize.width, height: Cell.list.cellSize.height, alignment: .leading)
+        .frame(width: rowWidth, height: Cell.list.cellSize.height, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color.white.opacity(isHovered ? 0.1 : 0))
+        )
         .contentShape(Rectangle())
+        .onHover { hovering in isHovered = hovering }
+        .animation(reduceMotion ? nil : .spring(response: 0.2, dampingFraction: 0.78), value: isHovered)
         .onTapGesture(perform: onTap)
         .nativeContextMenu { contextMenu() }
         .help(label)
