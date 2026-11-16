@@ -480,9 +480,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WindowSwitcherController.swift": {
-    "mtime": 1794840021.6800356,
-    "seen": 1794840433.409909,
-    "ast_hash": "bb14ea3d78c1d4f5405e680848e481bb",
+    "mtime": 1794854707.6198914,
+    "seen": 1794854801.593344,
+    "ast_hash": "be2ff7c361a31c22d32c19622f3721f8",
     "semantic_hash": ""
   },
   "App/Composition/WindowThumbnailCapture.swift": {
@@ -2580,9 +2580,9 @@
     "semantic_hash": "0d6d97ebb9bacdae46db3bdb8dff4b9a"
   },
   "Core/Support/WindowSwitcherModel.swift": {
-    "mtime": 1793839414.1831899,
-    "seen": 1793839507.114174,
-    "ast_hash": "f71fbe067b33f25d2afc27efc5320f6d",
+    "mtime": 1794854634.2371647,
+    "seen": 1794854801.5937102,
+    "ast_hash": "58b4502eba22c44093da105cecd81117",
     "semantic_hash": ""
   },
   "Core/Support/WindowTitleSettle.swift": {
@@ -4392,9 +4392,9 @@
     "semantic_hash": "2cf6dd41a96a205bce2f265f9f21ca41"
   },
   "Tests/Unit/WindowSwitcherModelTests.swift": {
-    "mtime": 1793833145.421535,
-    "seen": 1793834590.4907079,
-    "ast_hash": "05b7fabcc87ef2985159b22c8aad4af3",
+    "mtime": 1794854640.20956,
+    "seen": 1794854801.5939982,
+    "ast_hash": "a9118ee09e1ebdb84c7e11f2b1a2b851",
     "semantic_hash": ""
   },
   "Tests/Unit/WindowTitleSettleTests.swift": {
