@@ -1452,9 +1452,9 @@
     "semantic_hash": "0250995b665de67c6f824caa442b799f"
   },
   "Core/Support/AgentUsage/AgentClaudeParser.swift": {
-    "mtime": 1792581052.4944339,
-    "seen": 1792581247.740671,
-    "ast_hash": "052d39189c77c07495351938fc666f16",
+    "mtime": 1794847371.6505759,
+    "seen": 1794847518.914075,
+    "ast_hash": "8de7cdcdf822d13d1dd847dd7beb31af",
     "semantic_hash": ""
   },
   "Core/Support/AgentUsage/AgentPricing.swift": {
@@ -1470,9 +1470,9 @@
     "semantic_hash": ""
   },
   "Core/Support/AgentUsage/AgentUsageModels.swift": {
-    "mtime": 1794841916.9301193,
-    "seen": 1794844459.764742,
-    "ast_hash": "678611fb904e9cb06e0e8425991f1cd3",
+    "mtime": 1794847362.8045056,
+    "seen": 1794847518.914078,
+    "ast_hash": "93dc25b7a4bd3712fe98e46af0e7c7ac",
     "semantic_hash": ""
   },
   "Core/Support/AppDisplayNameCache.swift": {
@@ -3108,9 +3108,9 @@
     "semantic_hash": "a1be8ca227bf12eedd4e86ff89c62c04"
   },
   "Tests/Unit/AgentUsageTests.swift": {
-    "mtime": 1794841924.3221853,
-    "seen": 1794844459.765012,
-    "ast_hash": "d0e2f553ddaa08b8180757ebdb9ae474",
+    "mtime": 1794847382.0344794,
+    "seen": 1794847518.9143429,
+    "ast_hash": "45a6e2275bfbdef3c77bb83442f8443f",
     "semantic_hash": ""
   },
   "Tests/Unit/AppFallbackChipDecisionTests.swift": {
