@@ -4668,9 +4668,9 @@
     "semantic_hash": ""
   },
   "Core/Support/StorageScanMath.swift": {
-    "mtime": 1792552180.884742,
-    "seen": 1792555046.6316931,
-    "ast_hash": "f03088beb724e3e7b4573ba40834d03e",
+    "mtime": 1794844845.8215191,
+    "seen": 1794844962.414527,
+    "ast_hash": "ccee3b5faf7737fd7ab4b5c8f2e7623d",
     "semantic_hash": ""
   },
   "Core/Support/TimeOfDayPalette.swift": {
@@ -4692,9 +4692,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/StorageScanMathTests.swift": {
-    "mtime": 1792552389.8116918,
-    "seen": 1792555046.631933,
-    "ast_hash": "e83c9fa3d5a3f041c611d64de128ea5d",
+    "mtime": 1794844861.3516297,
+    "seen": 1794844962.414818,
+    "ast_hash": "32d46b852ef5a9b69e3549fcc3835784",
     "semantic_hash": ""
   },
   "Tests/Unit/TimeOfDayPaletteTests.swift": {
