@@ -53,3 +53,86 @@ struct NotchFallbackPlan: Equatable, Sendable {
         }
     }
 }
+
+// MARK: - Droppy-Inspired Slice A-Glass: NotchGlassStyle & NotchGlassPolicy
+
+/// Glass style preferences for the Dynamic Island / Notch
+enum NotchGlassStyle: String, CaseIterable, Identifiable, Codable, Sendable {
+    case dynamicGlass
+    case liquidClear
+    case solidBlack
+
+    var id: String { rawValue }
+    static let defaultsKey = "com.katikati.notch.glassStyle"
+
+    static func current(_ d: UserDefaults = .standard) -> NotchGlassStyle {
+        NotchGlassStyle(rawValue: d.string(forKey: defaultsKey) ?? "") ?? .dynamicGlass
+    }
+}
+
+/// Pure evaluation of glass material and plate styling based on user style, power mode, and hardware notch status.
+enum NotchGlassPolicy {
+    struct ResolvedGlass: Equatable, Sendable {
+        let effectiveStyle: NotchGlassStyle
+        let plateOpacity: Double
+        let blurRadius: CGFloat
+        let strokeOpacity: Double
+        let isPowerSavingOpaque: Bool
+    }
+
+    /// Evaluates effective glass appearance. Low power mode forces solid black to save GPU rendering cost.
+    /// Hardware notch display in closed state also stays solid black to blend with the bezel.
+    static func resolve(
+        style: NotchGlassStyle,
+        isLowPowerMode: Bool,
+        hasHardwareNotch: Bool,
+        isOpen: Bool
+    ) -> ResolvedGlass {
+        if isLowPowerMode {
+            return ResolvedGlass(
+                effectiveStyle: .solidBlack,
+                plateOpacity: 1.0,
+                blurRadius: 0.0,
+                strokeOpacity: 0.08,
+                isPowerSavingOpaque: true
+            )
+        }
+
+        if hasHardwareNotch && !isOpen {
+            return ResolvedGlass(
+                effectiveStyle: .solidBlack,
+                plateOpacity: 1.0,
+                blurRadius: 0.0,
+                strokeOpacity: 0.0,
+                isPowerSavingOpaque: false
+            )
+        }
+
+        switch style {
+        case .dynamicGlass:
+            return ResolvedGlass(
+                effectiveStyle: .dynamicGlass,
+                plateOpacity: 0.82,
+                blurRadius: 24.0,
+                strokeOpacity: 0.16,
+                isPowerSavingOpaque: false
+            )
+        case .liquidClear:
+            return ResolvedGlass(
+                effectiveStyle: .liquidClear,
+                plateOpacity: 0.55,
+                blurRadius: 36.0,
+                strokeOpacity: 0.22,
+                isPowerSavingOpaque: false
+            )
+        case .solidBlack:
+            return ResolvedGlass(
+                effectiveStyle: .solidBlack,
+                plateOpacity: 1.0,
+                blurRadius: 0.0,
+                strokeOpacity: 0.10,
+                isPowerSavingOpaque: false
+            )
+        }
+    }
+}

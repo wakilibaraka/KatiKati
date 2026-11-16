@@ -64,4 +64,29 @@ final class NotchFallbackPlanTests: XCTestCase {
         XCTAssertEqual(externalFrame.width, 185)
         XCTAssertEqual(externalFrame.height, 28)
     }
+
+    func testNotchGlassPolicyResolvesStyles() {
+        // Dynamic Glass open
+        let dynamic = NotchGlassPolicy.resolve(style: .dynamicGlass, isLowPowerMode: false, hasHardwareNotch: false, isOpen: true)
+        XCTAssertEqual(dynamic.effectiveStyle, .dynamicGlass)
+        XCTAssertEqual(dynamic.plateOpacity, 0.82)
+        XCTAssertFalse(dynamic.isPowerSavingOpaque)
+
+        // Liquid Clear open
+        let clear = NotchGlassPolicy.resolve(style: .liquidClear, isLowPowerMode: false, hasHardwareNotch: false, isOpen: true)
+        XCTAssertEqual(clear.effectiveStyle, .liquidClear)
+        XCTAssertEqual(clear.plateOpacity, 0.55)
+
+        // Low Power Mode forces solid black regardless of selected style
+        let lowPower = NotchGlassPolicy.resolve(style: .liquidClear, isLowPowerMode: true, hasHardwareNotch: false, isOpen: true)
+        XCTAssertEqual(lowPower.effectiveStyle, .solidBlack)
+        XCTAssertEqual(lowPower.plateOpacity, 1.0)
+        XCTAssertTrue(lowPower.isPowerSavingOpaque)
+
+        // Hardware notch in closed state forces solid black to seamlessly blend with bezel
+        let hwClosed = NotchGlassPolicy.resolve(style: .dynamicGlass, isLowPowerMode: false, hasHardwareNotch: true, isOpen: false)
+        XCTAssertEqual(hwClosed.effectiveStyle, .solidBlack)
+        XCTAssertEqual(hwClosed.plateOpacity, 1.0)
+        XCTAssertFalse(hwClosed.isPowerSavingOpaque)
+    }
 }
