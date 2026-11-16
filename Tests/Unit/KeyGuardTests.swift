@@ -348,3 +348,72 @@ final class KeyVisualizerBufferTests: XCTestCase {
         XCTAssertTrue(buffer.items.isEmpty)
     }
 }
+
+final class KeyAudioPolicyTests: XCTestCase {
+
+    func testTriggersOnKeyDownWhenEnabledAndUninhibited() {
+        let event = KeyGuardEvent.keyDown(keyCode: 0, modifiers: [])
+        XCTAssertTrue(KeyAudioPolicy.shouldTrigger(
+            event: event,
+            enabled: true,
+            isSecureInput: false,
+            isCallActive: false,
+            isPaused: false
+        ))
+    }
+
+    func testSuppressedOnKeyUp() {
+        let event = KeyGuardEvent.keyUp(keyCode: 0, modifiers: [])
+        XCTAssertFalse(KeyAudioPolicy.shouldTrigger(
+            event: event,
+            enabled: true,
+            isSecureInput: false,
+            isCallActive: false,
+            isPaused: false
+        ))
+    }
+
+    func testSuppressedUnderSecureInput() {
+        let event = KeyGuardEvent.keyDown(keyCode: 0, modifiers: [])
+        XCTAssertFalse(KeyAudioPolicy.shouldTrigger(
+            event: event,
+            enabled: true,
+            isSecureInput: true,
+            isCallActive: false,
+            isPaused: false
+        ), "Must suppress audio feedback in secure input fields (passwords)")
+    }
+
+    func testSuppressedDuringActiveCallOrMic() {
+        let event = KeyGuardEvent.keyDown(keyCode: 0, modifiers: [])
+        XCTAssertFalse(KeyAudioPolicy.shouldTrigger(
+            event: event,
+            enabled: true,
+            isSecureInput: false,
+            isCallActive: true,
+            isPaused: false
+        ), "Must suppress audio feedback when in a meeting or call")
+    }
+
+    func testSuppressedWhenPaused() {
+        let event = KeyGuardEvent.keyDown(keyCode: 0, modifiers: [])
+        XCTAssertFalse(KeyAudioPolicy.shouldTrigger(
+            event: event,
+            enabled: true,
+            isSecureInput: false,
+            isCallActive: false,
+            isPaused: true
+        ), "Must suppress audio feedback when keyboard is paused for cleaning")
+    }
+
+    func testSuppressedWhenDisabled() {
+        let event = KeyGuardEvent.keyDown(keyCode: 0, modifiers: [])
+        XCTAssertFalse(KeyAudioPolicy.shouldTrigger(
+            event: event,
+            enabled: false,
+            isSecureInput: false,
+            isCallActive: false,
+            isPaused: false
+        ))
+    }
+}

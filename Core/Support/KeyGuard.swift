@@ -251,3 +251,51 @@ struct KeyVisualizerBuffer: Equatable, Sendable {
 
     mutating func clear() { items.removeAll() }
 }
+
+// MARK: - Droppy-Inspired Slice C-KeyAudio: Keystroke Audio Feedback
+
+/// Mechanical soundpack selection for keystroke audio feedback.
+enum KeyAudioSoundpack: String, CaseIterable, Identifiable, Codable, Sendable {
+    case mechanicalClick
+    case typewriter
+    case softThud
+    case retroBeep
+
+    var id: String { rawValue }
+    static let defaultsKey = "com.katikati.keyguard.soundpack"
+    static let enabledKey = "com.katikati.keyguard.keyAudio"
+
+    static func current(_ d: UserDefaults = .standard) -> KeyAudioSoundpack {
+        KeyAudioSoundpack(rawValue: d.string(forKey: defaultsKey) ?? "") ?? .mechanicalClick
+    }
+}
+
+/// Evaluates whether a keystroke should trigger low-latency audio feedback based on privacy and context guards.
+enum KeyAudioPolicy {
+    /// Pure decision whether to trigger audio feedback on a key event.
+    /// Strictly suppressed when:
+    /// 1. Audio feedback is turned off
+    /// 2. Not a keyDown event
+    /// 3. Secure event input is enabled (password field protection)
+    /// 4. Microphone / audio call is active (avoid meeting disturbance)
+    /// 5. Keyboard input is paused (cleaning mode)
+    static func shouldTrigger(
+        event: KeyGuardEvent,
+        enabled: Bool,
+        isSecureInput: Bool,
+        isCallActive: Bool,
+        isPaused: Bool
+    ) -> Bool {
+        guard enabled else { return false }
+        guard !isSecureInput else { return false }
+        guard !isCallActive else { return false }
+        guard !isPaused else { return false }
+
+        switch event {
+        case .keyDown:
+            return true
+        case .keyUp:
+            return false
+        }
+    }
+}
