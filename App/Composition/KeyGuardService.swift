@@ -23,7 +23,14 @@ final class KeyGuardService: ObservableObject {
     static let slowQuitShowOverlayKey = "com.katikati.keyguard.slowQuitShowOverlay"
     static let slowQuitOverlayStyleKey = "com.katikati.keyguard.slowQuitOverlayStyle"
     static let visualizerKey = "com.katikati.keyguard.visualizer"
+    static let visualizerFilterKey = "com.katikati.keyguard.visualizerFilter"
+    static let visualizerStyleKey = "com.katikati.keyguard.visualizerStyle"
+    static let visualizerLingerKey = "com.katikati.keyguard.visualizerLinger"
+    static let visualizerFontSizeKey = "com.katikati.keyguard.visualizerFontSize"
+    static let visualizerMouseClicksKey = "com.katikati.keyguard.visualizerMouseClicks"
     static let capsProtectionKey = "com.katikati.keyguard.capsHold"
+    static let capsProtectionModeKey = "com.katikati.keyguard.capsMode"
+    static let capsProtectionThresholdKey = "com.katikati.keyguard.capsThreshold"
     static let finderKeysKey = "com.katikati.keyguard.finderKeys"
     static let passthroughAppsKey = "com.katikati.keyguard.passthroughApps"
     static let snippetExpansionKey = "com.katikati.snippets.expand"
@@ -56,8 +63,31 @@ final class KeyGuardService: ObservableObject {
     }()
     /// Phase 24d: the key visualizer. Off by default (owner override); keycaps are never logged or saved.
     @Published private(set) var isVisualizerEnabled = UserDefaults.standard.bool(forKey: KeyGuardService.visualizerKey)
-    /// 53a: a quick Caps Lock tap does nothing, a short hold toggles. Off by default like the other guards.
+    @Published private(set) var visualizerFilter: KeyVisualizerFilter = {
+        KeyVisualizerFilter(rawValue: UserDefaults.standard.string(forKey: KeyGuardService.visualizerFilterKey) ?? "") ?? .allKeys
+    }()
+    @Published private(set) var visualizerStyle: KeyVisualizerStyle = {
+        KeyVisualizerStyle(rawValue: UserDefaults.standard.string(forKey: KeyGuardService.visualizerStyleKey) ?? "") ?? .glassCapsule
+    }()
+    @Published private(set) var visualizerLinger: Double = {
+        let stored = UserDefaults.standard.double(forKey: KeyGuardService.visualizerLingerKey)
+        return stored > 0 ? min(max(stored, 0.5), 4.0) : 1.5
+    }()
+    @Published private(set) var visualizerFontSize: Double = {
+        let stored = UserDefaults.standard.double(forKey: KeyGuardService.visualizerFontSizeKey)
+        return stored > 0 ? min(max(stored, 12), 28) : 15
+    }()
+    @Published private(set) var visualizerMouseClicks = UserDefaults.standard.bool(forKey: KeyGuardService.visualizerMouseClicksKey)
+    @Published var visualizerPositionUnlocked = false
+    /// 53a: a quick Caps Lock tap does nothing, a short hold (or double-tap) toggles. Off by default.
     @Published private(set) var isCapsProtectionEnabled = UserDefaults.standard.bool(forKey: KeyGuardService.capsProtectionKey)
+    @Published private(set) var capsProtectionMode: CapsLockProtectionMode = {
+        CapsLockProtectionMode(rawValue: UserDefaults.standard.string(forKey: KeyGuardService.capsProtectionModeKey) ?? "") ?? .hold
+    }()
+    @Published private(set) var capsProtectionThreshold: Double = {
+        let stored = UserDefaults.standard.double(forKey: KeyGuardService.capsProtectionThresholdKey)
+        return stored > 0 ? min(max(stored, 0.10), 0.50) : 0.15
+    }()
     /// 53b: ⌘X / ⌘V in Finder act like cut / move. Off by default.
     @Published private(set) var isFinderKeysEnabled = UserDefaults.standard.bool(forKey: KeyGuardService.finderKeysKey)
     /// 53i: comma-separated apps whose ⌘Q stays native (remote desktops, virtual machines).
@@ -233,10 +263,84 @@ final class KeyGuardService: ObservableObject {
         refresh()
     }
 
+    func setVisualizerFilter(_ filter: KeyVisualizerFilter) {
+        guard filter != visualizerFilter else { return }
+        visualizerFilter = filter
+        UserDefaults.standard.set(filter.rawValue, forKey: Self.visualizerFilterKey)
+        refresh()
+    }
+
+    func setVisualizerStyle(_ style: KeyVisualizerStyle) {
+        guard style != visualizerStyle else { return }
+        visualizerStyle = style
+        UserDefaults.standard.set(style.rawValue, forKey: Self.visualizerStyleKey)
+        refreshKeycaps()
+    }
+
+    func setVisualizerLinger(_ seconds: Double) {
+        let clamped = min(max(seconds, 0.5), 4.0)
+        guard abs(visualizerLinger - clamped) > 0.01 else { return }
+        visualizerLinger = clamped
+        UserDefaults.standard.set(clamped, forKey: Self.visualizerLingerKey)
+        refresh()
+    }
+
+    func setVisualizerFontSize(_ size: Double) {
+        let clamped = min(max(size, 12), 28)
+        guard abs(visualizerFontSize - clamped) > 0.1 else { return }
+        visualizerFontSize = clamped
+        UserDefaults.standard.set(clamped, forKey: Self.visualizerFontSizeKey)
+        refreshKeycaps()
+    }
+
+    func setVisualizerMouseClicks(_ on: Bool) {
+        guard on != visualizerMouseClicks else { return }
+        visualizerMouseClicks = on
+        UserDefaults.standard.set(on, forKey: Self.visualizerMouseClicksKey)
+        refresh()
+    }
+
+    func setVisualizerPositionUnlocked(_ unlocked: Bool) {
+        visualizerPositionUnlocked = unlocked
+        let overlay = keyOverlay ?? KeyVisualizerController()
+        keyOverlay = overlay
+        overlay.setPositionUnlocked(unlocked, config: currentVisualizerConfig())
+    }
+
+    func resetVisualizerPosition() {
+        keyOverlay?.resetPosition()
+    }
+
+    private func currentVisualizerConfig() -> KeyVisualizerConfig {
+        KeyVisualizerConfig(
+            filter: visualizerFilter,
+            style: visualizerStyle,
+            lingerDuration: visualizerLinger,
+            fontSize: visualizerFontSize,
+            showMouseClicks: visualizerMouseClicks,
+            isPositionUnlocked: visualizerPositionUnlocked
+        )
+    }
+
     func setCapsProtection(_ on: Bool) {
         guard on != isCapsProtectionEnabled else { return }
         isCapsProtectionEnabled = on
         UserDefaults.standard.set(on, forKey: Self.capsProtectionKey)
+        refresh()
+    }
+
+    func setCapsProtectionMode(_ mode: CapsLockProtectionMode) {
+        guard mode != capsProtectionMode else { return }
+        capsProtectionMode = mode
+        UserDefaults.standard.set(mode.rawValue, forKey: Self.capsProtectionModeKey)
+        refresh()
+    }
+
+    func setCapsProtectionThreshold(_ seconds: Double) {
+        let clamped = min(max(seconds, 0.10), 0.50)
+        guard abs(capsProtectionThreshold - clamped) > 0.005 else { return }
+        capsProtectionThreshold = clamped
+        UserDefaults.standard.set(clamped, forKey: Self.capsProtectionThresholdKey)
         refresh()
     }
 
@@ -295,13 +399,16 @@ final class KeyGuardService: ObservableObject {
             }
         }
         shared.update(state: makeState())
-        shared.setVisualizer(enabled: isVisualizerEnabled)
+        shared.setVisualizer(enabled: isVisualizerEnabled, filter: visualizerFilter, linger: visualizerLinger)
         // Toggling Caps Lock needs a posted key event; without that permission the guard must stay inert
         // rather than swallowing the key the user cannot toggle any other way.
-        shared.setCapsProtection(enabled: isCapsProtectionEnabled && CGPreflightPostEventAccess())
-        let triggers = SnippetExpander.triggers(from: CustomCommand.parseSnippets(
-            UserDefaults.standard.string(forKey: CustomCommand.snippetsKey) ?? ""))
-        shared.setSnippets(enabled: isSnippetExpansionEnabled, triggers: triggers)
+        shared.setCapsProtection(
+            enabled: isCapsProtectionEnabled && CGPreflightPostEventAccess(),
+            mode: capsProtectionMode,
+            threshold: capsProtectionThreshold
+        )
+        let snippetItems = TextSnippetStore.parse(UserDefaults.standard.string(forKey: CustomCommand.snippetsKey) ?? "")
+        shared.setSnippets(enabled: isSnippetExpansionEnabled, items: snippetItems)
         let keyAudioOn = UserDefaults.standard.bool(forKey: KeyAudioSoundpack.enabledKey)
         let doubleTapCmdOn = UserDefaults.standard.bool(forKey: "com.katikati.keyguard.doubleTapCmd")
         shared.keyAudioEnabled = keyAudioOn
@@ -313,7 +420,8 @@ final class KeyGuardService: ObservableObject {
     }
 
     private func makeState() -> KeyGuardState {
-        KeyGuardState(
+        let excluded = TextSnippetStore.parseExcludedApps(UserDefaults.standard.string(forKey: TextSnippetStore.excludedAppsKey) ?? "")
+        return KeyGuardState(
             paused: isPaused,
             slowQuitEnabled: isSlowQuitEnabled,
             slowQuitApplies: slowQuitPolicy.applies(to: frontmostBundleID),
@@ -321,7 +429,7 @@ final class KeyGuardService: ObservableObject {
             unlockKey: keyGuardUnlock,
             slowQuitPassthrough: passthroughPolicy.applies(to: frontmostBundleID),
             finderKeysActive: isFinderKeysEnabled && frontmostBundleID == "com.apple.finder",
-            snippetsActive: isSnippetExpansionEnabled && !SnippetExpander.isIgnored(bundleID: frontmostBundleID)
+            snippetsActive: isSnippetExpansionEnabled && !SnippetExpander.isIgnored(bundleID: frontmostBundleID, extraExcluded: excluded)
         )
     }
 
@@ -493,19 +601,29 @@ final class KeyGuardService: ObservableObject {
     /// Replaces the typed trigger with the expansion: the delimiter was swallowed, so the paste carries it.
     /// If another copy lands on the pasteboard before the paste goes out, the paste is cancelled.
     private func insertSnippet(_ expansion: SnippetExpander.Expansion) {
-        guard isSnippetExpansionEnabled, CGPreflightPostEventAccess() else { return }
+        guard isSnippetExpansionEnabled, !IsSecureEventInputEnabled(), CGPreflightPostEventAccess() else { return }
         let pasteboard = NSPasteboard.general
+        let priorClipboard = pasteboard.string(forType: .string) ?? ""
+        let expanded = SnippetVariableExpander.expand(expansion.replacement, clipboard: priorClipboard)
         pasteboard.clearContents()
-        pasteboard.setString(expansion.replacement, forType: .string)
+        pasteboard.setString(expanded.text, forType: .string)
         let ours = pasteboard.changeCount
+        let deleteCount = expansion.swallowedDelimiter ? expansion.triggerCount : max(0, expansion.triggerCount - 1)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
             MainActor.assumeIsolated {
                 guard let self, pasteboard.changeCount == ours else { return }
-                self.postKey(51, times: expansion.triggerCount)
+                self.postKey(51, times: deleteCount)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.04) { [weak self] in
                     MainActor.assumeIsolated {
                         guard let self, pasteboard.changeCount == ours else { return }
                         self.postCommandV()
+                        if expanded.cursorLeftArrows > 0 {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.04) { [weak self] in
+                                MainActor.assumeIsolated {
+                                    self?.postKey(123, times: expanded.cursorLeftArrows)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -553,13 +671,13 @@ final class KeyGuardService: ObservableObject {
 
     private func refreshKeycaps() {
         let symbols = shared.keycaps().map(\.symbol)
-        if symbols.isEmpty {
+        if symbols.isEmpty && !visualizerPositionUnlocked {
             keyOverlay?.hide()
             return
         }
         let overlay = keyOverlay ?? KeyVisualizerController()
         keyOverlay = overlay
-        overlay.show(symbols)
+        overlay.show(symbols, config: currentVisualizerConfig())
     }
 }
 
@@ -573,7 +691,10 @@ final class KeyGuardShared: @unchecked Sendable {
     private var caps = KeyVisualizerBuffer()
     private var capsPrunedAt = Date.distantPast
     private var visualizerOn = false
+    private var visualizerFilter: KeyVisualizerFilter = .allKeys
+    private var visualizerLinger: TimeInterval = 1.5
     private var capsProtectionOn = false
+    private var capsProtectionMode: CapsLockProtectionMode = .hold
     private var capsGuard = CapsLockGuard()
     private var finderMap = FinderKeyMap()
     private var snippetsOn = false
@@ -590,14 +711,21 @@ final class KeyGuardShared: @unchecked Sendable {
     var port: CFMachPort?
     var onAction: (KeyGuardAction) -> Void = { _ in }
 
-    func setVisualizer(enabled: Bool) {
+    func setVisualizer(enabled: Bool, filter: KeyVisualizerFilter = .allKeys, linger: TimeInterval = 1.5) {
         lock.lock()
         visualizerOn = enabled
+        visualizerFilter = filter
+        visualizerLinger = linger
         if !enabled { caps.clear() }
         lock.unlock()
     }
 
-    /// Coalesces repeats and drops the oldest past the cap. Idle for >1.5 s clears it (the overlay hides).
+    func currentVisualizerFilter() -> KeyVisualizerFilter {
+        lock.lock(); defer { lock.unlock() }
+        return visualizerFilter
+    }
+
+    /// Coalesces repeats and drops the oldest past the cap. Idle for >`visualizerLinger` clears it.
     /// Under secure input (a password field has focus) nothing is kept and the strip is cleared; the
     /// probe is an autoclosure so it is read only while the visualizer is on. macOS has no change notification.
     func record(symbol: String, secureInput: @autoclosure () -> Bool = IsSecureEventInputEnabled()) {
@@ -606,29 +734,44 @@ final class KeyGuardShared: @unchecked Sendable {
         if secureInput() { caps.clear(); return }
         caps.push(symbol: symbol, at: Date())
         let now = Date()
-        if now.timeIntervalSince(capsPrunedAt) > 0.5 {
-            caps.prune(olderThan: 1.5, now: now)
+        if now.timeIntervalSince(capsPrunedAt) > 0.25 {
+            caps.prune(olderThan: visualizerLinger, now: now)
             capsPrunedAt = now
         }
     }
 
-    func keycaps() -> [KeycapVisual] { lock.lock(); defer { lock.unlock() }; return caps.items }
+    func keycaps() -> [KeycapVisual] {
+        lock.lock(); defer { lock.unlock() }
+        if visualizerOn {
+            caps.prune(olderThan: visualizerLinger, now: Date())
+        }
+        return caps.items
+    }
     func clearKeycaps() { lock.lock(); caps.clear(); lock.unlock() }
 
     // MARK: 53a Caps Lock protection
 
-    func setCapsProtection(enabled: Bool) {
+    func setCapsProtection(enabled: Bool, mode: CapsLockProtectionMode = .hold, threshold: TimeInterval = 0.15) {
         lock.lock()
         capsProtectionOn = enabled
+        capsProtectionMode = mode
+        capsGuard.threshold = threshold
         if !enabled { capsGuard.reset() }
         lock.unlock()
     }
 
-    /// True when the caps event is ours to handle (always swallowed while the guard is on).
+    /// Handles physical Caps Lock (`keyCode == 57`) from `.flagsChanged` or `.keyDown`/`.keyUp`.
+    /// Returns true when the event was swallowed by the guard.
     func handleCapsLock(isDown: Bool) -> Bool {
         lock.lock()
-        // Re-checked per press: if posting was revoked at runtime, swallowing would kill the key.
         guard capsProtectionOn, CGPreflightPostEventAccess() else { lock.unlock(); return false }
+        let mode = capsProtectionMode
+        if mode == .doubleTap {
+            let shouldFire = isDown ? capsGuard.registerDoubleTap() : false
+            lock.unlock()
+            if shouldFire { postSyntheticCapsLock() }
+            return true
+        }
         let schedule = isDown ? capsGuard.press() : false
         if !isDown { capsGuard.release() }
         let threshold = capsGuard.threshold
@@ -645,7 +788,12 @@ final class KeyGuardShared: @unchecked Sendable {
         lock.lock()
         let fire = capsProtectionOn && capsGuard.fireIfStillHeld()
         lock.unlock()
-        guard fire, let source = CGEventSource(stateID: .combinedSessionState),
+        guard fire else { return }
+        postSyntheticCapsLock()
+    }
+
+    private func postSyntheticCapsLock() {
+        guard let source = CGEventSource(stateID: .combinedSessionState),
               let down = CGEvent(keyboardEventSource: source, virtualKey: CapsLockGuard.keyCode, keyDown: true),
               let up = CGEvent(keyboardEventSource: source, virtualKey: CapsLockGuard.keyCode, keyDown: false) else { return }
         for event in [down, up] {
@@ -660,6 +808,13 @@ final class KeyGuardShared: @unchecked Sendable {
         lock.lock()
         snippetsOn = enabled
         snippetExpander.setTriggers(triggers)
+        lock.unlock()
+    }
+
+    func setSnippets(enabled: Bool, items: [TextSnippetItem]) {
+        lock.lock()
+        snippetsOn = enabled
+        snippetExpander.setSnippets(items)
         lock.unlock()
     }
 
@@ -784,6 +939,14 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
         return Unmanaged.passUnretained(event)
     }
     if type == .flagsChanged {
+        if event.getIntegerValueField(.eventSourceUserData) == KeyGuardShared.syntheticTag {
+            return Unmanaged.passUnretained(event)
+        }
+        let code = UInt16(truncatingIfNeeded: event.getIntegerValueField(.keyboardEventKeycode))
+        if code == CapsLockGuard.keyCode {
+            let isDown = event.flags.contains(.maskAlphaShift)
+            if shared.handleCapsLock(isDown: isDown) { return nil }
+        }
         shared.handleFlagsChanged(flags: event.flags)
         let outcome = shared.decide(.flagsChanged(modifiers: keyModifiers(event.flags)))
         if case .consumeAndFire(let action) = outcome.decision {
@@ -797,7 +960,7 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
         return Unmanaged.passUnretained(event)
     }
     let code = UInt16(truncatingIfNeeded: event.getIntegerValueField(.keyboardEventKeycode))
-    if shared.handleCapsLock(isDown: type == .keyDown) { return nil }
+    if code == CapsLockGuard.keyCode, shared.handleCapsLock(isDown: type == .keyDown) { return nil }
     let modifiers = keyModifiers(event.flags)
     let keyEvent: KeyGuardEvent = type == .keyDown ? .keyDown(keyCode: code, modifiers: modifiers)
                                                   : .keyUp(keyCode: code, modifiers: modifiers)
@@ -815,7 +978,9 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
             shared.resetSnippetWord()
         }
     }
-    if type == .keyDown, let symbol = keycapSymbol(event) { shared.record(symbol: symbol) }
+    if type == .keyDown, let symbol = keycapSymbol(event, code: code, filter: shared.currentVisualizerFilter()) {
+        shared.record(symbol: symbol)
+    }
     let isRepeat = type == .keyDown && event.getIntegerValueField(.keyboardEventAutorepeat) != 0
     let outcome = shared.decide(keyEvent, isRepeat: isRepeat)
     if DebugSwitch.keyGuardTrace.isEnabled() {
@@ -857,21 +1022,19 @@ private func typedText(_ event: CGEvent) -> String? {
     return text
 }
 
-/// The character a keyDown produced ("a", "⌘A", "→"), or nil for a key that shows nothing worth
-/// putting on a keycap. The visualizer only ever holds these — never a full keystroke log.
-private func keycapSymbol(_ event: CGEvent) -> String? {
+/// The character a keyDown produced ("a", "⌘A", "→"), or nil when filtered out or non-printable.
+/// The visualizer only ever holds these — never a full keystroke log.
+private func keycapSymbol(_ event: CGEvent, code: UInt16, filter: KeyVisualizerFilter) -> String? {
     var count = 0
     var buffer = [UniChar](repeating: 0, count: 4)
     event.keyboardGetUnicodeString(maxStringLength: 4, actualStringLength: &count, unicodeString: &buffer)
-    guard count > 0 else { return nil }
-    let text = String(utf16CodeUnits: buffer, count: count)
-    let mods = keyModifiers(event.flags)
-    var prefix = ""
-    if mods.contains(.control) { prefix += "⌃" }
-    if mods.contains(.option) { prefix += "⌥" }
-    if mods.contains(.shift) { prefix += "⇧" }
-    if mods.contains(.command) { prefix += "⌘" }
-    return prefix.isEmpty ? text : prefix + text
+    let text = count > 0 ? String(utf16CodeUnits: buffer, count: count) : nil
+    return KeyVisualizerSymbol.format(
+        keyCode: code,
+        modifiers: keyModifiers(event.flags),
+        characters: text,
+        filter: filter
+    )
 }
 
 private func keyModifiers(_ flags: CGEventFlags) -> KeyModifiers {

@@ -257,6 +257,51 @@ final class SnippetExpanderTests: XCTestCase {
         for ch in "brb" { _ = shared.feedSnippet(String(ch), secureInput: false) }
         XCTAssertEqual(shared.feedSnippet(" ", secureInput: false)?.replacement, "be right back ")
     }
+
+    func testStructuredSnippetJSONRoundTripAndLegacyMigration() {
+        let legacy = ";sig = Line 1\\nLine 2\n;brb = be right back"
+        let migrated = TextSnippetStore.parse(legacy)
+        XCTAssertEqual(migrated.count, 2)
+        XCTAssertEqual(migrated[0].trigger, ";sig")
+        XCTAssertEqual(migrated[0].content, "Line 1\nLine 2")
+        XCTAssertTrue(migrated[0].isEnabled)
+        XCTAssertTrue(migrated[0].requireDelimiter)
+
+        let item = TextSnippetItem(trigger: ";hi", content: "Hello\nWorld", isEnabled: false, requireDelimiter: false)
+        let json = TextSnippetStore.serialize([item])
+        let decoded = TextSnippetStore.parse(json)
+        XCTAssertEqual(decoded, [item])
+    }
+
+    func testSnippetVariableExpanderClipboardDateTimeAndCursor() {
+        let fixed = Date(timeIntervalSince1970: 1_700_000_000)
+        let res = SnippetVariableExpander.expand(
+            "Link: {clipboard} ({cursor}) on {date} {time}",
+            clipboard: "https://example.com",
+            now: fixed,
+            locale: Locale(identifier: "en_US_POSIX")
+        )
+        XCTAssertTrue(res.text.hasPrefix("Link: https://example.com () on "))
+        XCTAssertFalse(res.text.contains("{cursor}"))
+        XCTAssertGreaterThan(res.cursorLeftArrows, 10)
+    }
+
+    func testImmediateTriggerExpandsWithoutDelimiterAndRespectsDisabled() {
+        var expander = SnippetExpander()
+        expander.setSnippets([
+            TextSnippetItem(trigger: ";now", content: "NOW", isEnabled: true, requireDelimiter: false),
+            TextSnippetItem(trigger: ";off", content: "OFF", isEnabled: false, requireDelimiter: false)
+        ])
+        XCTAssertNil(expander.feed(";"))
+        XCTAssertNil(expander.feed("n"))
+        XCTAssertNil(expander.feed("o"))
+        let hit = expander.feed("w")
+        XCTAssertEqual(hit?.replacement, "NOW")
+        XCTAssertEqual(hit?.triggerCount, 4)
+        XCTAssertEqual(hit?.swallowedDelimiter, false)
+
+        for ch in ";off" { XCTAssertNil(expander.feed(String(ch))) }
+    }
 }
 
 final class SlowQuitTests: XCTestCase {
@@ -510,5 +555,25 @@ final class KeyModifierDoubleTapDetectorTests: XCTestCase {
 
         let result = detector.registerModifier(modifier: .shift, isDown: true, at: t0.addingTimeInterval(0.15))
         XCTAssertEqual(result, .none)
+    }
+
+    func testCapsLockDoubleTapAndVisualizerFilterFormatting() {
+        var guardState = CapsLockGuard()
+        let t0 = Date(timeIntervalSince1970: 1000)
+        XCTAssertFalse(guardState.registerDoubleTap(at: t0))
+        XCTAssertTrue(guardState.registerDoubleTap(at: t0.addingTimeInterval(0.20)))
+        XCTAssertFalse(guardState.registerDoubleTap(at: t0.addingTimeInterval(0.30)))
+
+        // All keys formats special keys cleanly
+        XCTAssertEqual(KeyVisualizerSymbol.format(keyCode: 36, modifiers: [], characters: "\r", filter: .allKeys), "⏎")
+        XCTAssertEqual(KeyVisualizerSymbol.format(keyCode: 49, modifiers: [], characters: " ", filter: .allKeys), "␣")
+
+        // Modified keys drops plain typing, keeps shortcuts and special keys
+        XCTAssertNil(KeyVisualizerSymbol.format(keyCode: 0, modifiers: [], characters: "a", filter: .modifiedKeys))
+        XCTAssertEqual(KeyVisualizerSymbol.format(keyCode: 8, modifiers: [.command], characters: "c", filter: .modifiedKeys), "⌘C")
+
+        // Command keys only drops Control-only and plain keys
+        XCTAssertNil(KeyVisualizerSymbol.format(keyCode: 0, modifiers: [.control], characters: "a", filter: .commandKeysOnly))
+        XCTAssertEqual(KeyVisualizerSymbol.format(keyCode: 8, modifiers: [.command, .shift], characters: "c", filter: .commandKeysOnly), "⇧⌘C")
     }
 }
