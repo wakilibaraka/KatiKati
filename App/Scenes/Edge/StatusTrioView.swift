@@ -968,3 +968,171 @@ private struct ControlCenterAccountRow: View {
         }
     }
 }
+
+// MARK: - OpenTaskbar Inline Micro-Tiles (Slice 4.3)
+
+struct InlineTodoCapsuleView: View {
+    let model: InlineTodoPillModel
+    var onToggle: (String) -> Void = { _ in }
+    var onAdd: () -> Void = {}
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "checklist")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.blue)
+
+            if model.isEmpty {
+                Button(action: onAdd) {
+                    Text(model.emptyStateText)
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            } else {
+                VStack(alignment: .leading, spacing: 1) {
+                    ForEach(model.topTwoItems) { item in
+                        Button { onToggle(item.id) } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: item.isDone ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 8))
+                                    .foregroundStyle(item.isDone ? .green : .secondary)
+                                Text(item.title)
+                                    .font(.system(size: 9.5, weight: .medium))
+                                    .lineLimit(1)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                Text(model.remainingCountBadge)
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 1)
+                    .background(Capsule().fill(Color.primary.opacity(0.08)))
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Capsule().fill(.ultraThinMaterial))
+        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.1), lineWidth: 0.5))
+    }
+}
+
+struct InlineScrubbableSliderBar: View {
+    let icon: String
+    let label: String
+    @Binding var fraction: Double
+    var tintColor: Color = .blue
+    @State private var dragStartFraction: Double?
+
+    var body: some View {
+        GeometryReader { geo in
+            let width = geo.size.width
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color.primary.opacity(0.08))
+                Capsule()
+                    .fill(tintColor.opacity(0.35))
+                    .frame(width: max(0, width * CGFloat(fraction)))
+
+                HStack(spacing: 5) {
+                    Image(systemName: icon)
+                        .font(.system(size: 9.5, weight: .semibold))
+                    Text(verbatim: "\(label) \(InlineBarSliderMath.formattedPercent(fraction))")
+                        .font(.system(size: 9.5, weight: .medium))
+                        .lineLimit(1)
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, 7)
+            }
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 1)
+                    .onChanged { g in
+                        if dragStartFraction == nil { dragStartFraction = fraction }
+                        fraction = InlineBarSliderMath.scrubFraction(
+                            startFraction: dragStartFraction ?? fraction,
+                            dragDeltaX: g.translation.width,
+                            totalWidth: width
+                        )
+                    }
+                    .onEnded { _ in dragStartFraction = nil }
+            )
+        }
+        .frame(height: 22)
+        .clipShape(Capsule())
+        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.1), lineWidth: 0.5))
+    }
+}
+
+struct InlineAudioOutputSwitcher: View {
+    let devices: [String]
+    @Binding var selectedIndex: Int
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Button {
+                selectedIndex = InlineBarSliderMath.cycleAudioDeviceIndex(
+                    currentIndex: selectedIndex,
+                    totalDevices: devices.count,
+                    forward: false
+                )
+            } label: {
+                Image(systemName: "chevron.left").font(.system(size: 8, weight: .bold))
+            }
+            .buttonStyle(.plain)
+
+            Image(systemName: "speaker.wave.2.fill")
+                .font(.system(size: 9, weight: .semibold))
+
+            Text(devices.indices.contains(selectedIndex) ? devices[selectedIndex] : "Speaker")
+                .font(.system(size: 9.5, weight: .medium))
+                .lineLimit(1)
+
+            Button {
+                selectedIndex = InlineBarSliderMath.cycleAudioDeviceIndex(
+                    currentIndex: selectedIndex,
+                    totalDevices: devices.count,
+                    forward: true
+                )
+            } label: {
+                Image(systemName: "chevron.right").font(.system(size: 8, weight: .bold))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background(Capsule().fill(.ultraThinMaterial))
+        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.1), lineWidth: 0.5))
+    }
+}
+
+struct InlineQuickTogglePill: View {
+    @Binding var wifiOn: Bool
+    @Binding var bluetoothOn: Bool
+    @Binding var micMuted: Bool
+    @Binding var dndOn: Bool
+
+    var body: some View {
+        HStack(spacing: 6) {
+            toggleBtn(icon: "wifi", active: wifiOn) { wifiOn.toggle() }
+            toggleBtn(icon: "wave.3.forward", active: bluetoothOn) { bluetoothOn.toggle() }
+            toggleBtn(icon: micMuted ? "mic.slash.fill" : "mic.fill", active: !micMuted) { micMuted.toggle() }
+            toggleBtn(icon: "moon.fill", active: dndOn) { dndOn.toggle() }
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .background(Capsule().fill(.ultraThinMaterial))
+        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.1), lineWidth: 0.5))
+    }
+
+    private func toggleBtn(icon: String, active: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(active ? .blue : .secondary)
+        }
+        .buttonStyle(.plain)
+    }
+}

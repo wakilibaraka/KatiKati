@@ -292,3 +292,67 @@ struct SmartDockAutomationPolicy: Equatable, Sendable {
         return nil
     }
 }
+
+// MARK: - Slice 4.3: OpenTaskbar Inline Micro-Tiles
+
+struct InlineTodoItem: Equatable, Identifiable, Sendable {
+    var id: String
+    var title: String
+    var isDone: Bool
+}
+
+struct InlineTodoPillModel: Equatable, Sendable {
+    var items: [InlineTodoItem]
+
+    var activeItems: [InlineTodoItem] {
+        items.filter { !$0.isDone }
+    }
+
+    var remainingCountBadge: String {
+        "(\(activeItems.count))"
+    }
+
+    var isEmpty: Bool {
+        activeItems.isEmpty
+    }
+
+    var emptyStateText: String {
+        "0 No todos — Click to add one"
+    }
+
+    /// Top 2 active items formatted for 2-line rendering
+    var topTwoItems: [InlineTodoItem] {
+        Array(activeItems.prefix(2))
+    }
+
+    func lineText(at index: Int) -> String {
+        guard index < topTwoItems.count else { return "" }
+        let item = topTwoItems[index]
+        return "\(item.isDone ? "☑" : "☐") \(item.title)"
+    }
+}
+
+struct InlineBarSliderMath: Equatable, Sendable {
+    /// Normalizes horizontal drag delta on a pill of given width into 0...1.0 (0% - 100%).
+    static func scrubFraction(startFraction: Double, dragDeltaX: CGFloat, totalWidth: CGFloat) -> Double {
+        guard totalWidth > 0 else { return startFraction }
+        let change = Double(dragDeltaX / totalWidth)
+        let raw = startFraction + change
+        return min(max(raw, 0.0), 1.0)
+    }
+
+    static func formattedPercent(_ fraction: Double) -> String {
+        let percent = Int((min(max(fraction, 0.0), 1.0) * 100).rounded())
+        return "\(percent)%"
+    }
+
+    /// Audio output device cycling state (< | > navigation)
+    static func cycleAudioDeviceIndex(currentIndex: Int, totalDevices: Int, forward: Bool) -> Int {
+        guard totalDevices > 0 else { return 0 }
+        if forward {
+            return (currentIndex + 1) % totalDevices
+        } else {
+            return (currentIndex - 1 + totalDevices) % totalDevices
+        }
+    }
+}

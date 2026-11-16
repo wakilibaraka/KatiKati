@@ -145,6 +145,57 @@ final class DailyHelpersRulesTests: XCTestCase {
             .setDockHidden(false)
         )
     }
+
+    // MARK: - Slice 4.3: OpenTaskbar Inline Micro-Tiles Tests
+
+    func testInlineTodoPillModel() {
+        let emptyModel = InlineTodoPillModel(items: [])
+        XCTAssertTrue(emptyModel.isEmpty)
+        XCTAssertEqual(emptyModel.remainingCountBadge, "(0)")
+        XCTAssertEqual(emptyModel.emptyStateText, "0 No todos — Click to add one")
+
+        let items = [
+            InlineTodoItem(id: "1", title: "Review PR", isDone: false),
+            InlineTodoItem(id: "2", title: "Fix bug", isDone: true),
+            InlineTodoItem(id: "3", title: "Deploy app", isDone: false),
+            InlineTodoItem(id: "4", title: "Write docs", isDone: false)
+        ]
+        let model = InlineTodoPillModel(items: items)
+        XCTAssertFalse(model.isEmpty)
+        XCTAssertEqual(model.remainingCountBadge, "(3)")
+        XCTAssertEqual(model.topTwoItems.count, 2)
+        XCTAssertEqual(model.topTwoItems[0].title, "Review PR")
+        XCTAssertEqual(model.topTwoItems[1].title, "Deploy app")
+        XCTAssertEqual(model.lineText(at: 0), "☐ Review PR")
+    }
+
+    func testInlineBarSliderMath() {
+        // Scrubbing right by 50pt on 100pt width from 0.5 -> 1.0
+        let s1 = InlineBarSliderMath.scrubFraction(startFraction: 0.5, dragDeltaX: 50, totalWidth: 100)
+        XCTAssertEqual(s1, 1.0)
+
+        // Scrubbing left by 20pt on 100pt width from 0.7 -> 0.5
+        let s2 = InlineBarSliderMath.scrubFraction(startFraction: 0.7, dragDeltaX: -20, totalWidth: 100)
+        XCTAssertEqual(s2, 0.5, accuracy: 0.001)
+
+        // Clamping bounds
+        let s3 = InlineBarSliderMath.scrubFraction(startFraction: 0.2, dragDeltaX: -50, totalWidth: 100)
+        XCTAssertEqual(s3, 0.0)
+
+        XCTAssertEqual(InlineBarSliderMath.formattedPercent(0.67), "67%")
+        XCTAssertEqual(InlineBarSliderMath.formattedPercent(1.0), "100%")
+    }
+
+    func testAudioDeviceCycling() {
+        // 3 devices: 0, 1, 2
+        XCTAssertEqual(InlineBarSliderMath.cycleAudioDeviceIndex(currentIndex: 0, totalDevices: 3, forward: true), 1)
+        XCTAssertEqual(InlineBarSliderMath.cycleAudioDeviceIndex(currentIndex: 1, totalDevices: 3, forward: true), 2)
+        XCTAssertEqual(InlineBarSliderMath.cycleAudioDeviceIndex(currentIndex: 2, totalDevices: 3, forward: true), 0)
+
+        // Backward
+        XCTAssertEqual(InlineBarSliderMath.cycleAudioDeviceIndex(currentIndex: 0, totalDevices: 3, forward: false), 2)
+        XCTAssertEqual(InlineBarSliderMath.cycleAudioDeviceIndex(currentIndex: 2, totalDevices: 3, forward: false), 1)
+    }
 }
 
 final class BreatherScheduleEngineTests: XCTestCase {
