@@ -1,7 +1,7 @@
 import Foundation
 import CoreGraphics
 
-struct DockRGBA: Equatable {
+struct DockRGBA: Equatable, Sendable {
     let r: CGFloat
     let g: CGFloat
     let b: CGFloat

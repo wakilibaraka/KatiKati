@@ -56,3 +56,85 @@ enum PasteImageNaming {
         return "\(base) \(n).\(fileExtension)"
     }
 }
+
+/// Droppy-inspired Slice D-ClipboardBadges: Metadata extraction and classification for clipboard items.
+enum ClipboardCategory: String, CaseIterable, Sendable, Identifiable {
+    case all
+    case work
+    case personal
+
+    var id: String { rawValue }
+}
+
+struct ClipboardCardMetadata: Equatable, Sendable {
+    enum ContentType: Equatable, Sendable {
+        case text(charCount: Int, wordCount: Int)
+        case hexColor(hex: String, color: DockRGBA)
+        case image(width: Int, height: Int)
+    }
+
+    let contentType: ContentType
+    let category: ClipboardCategory
+
+    static func classify(text: String, originBundleID: String? = nil, workBundleIDs: Set<String> = []) -> ClipboardCardMetadata {
+        if let parsedColor = parseHexColor(text) {
+            return ClipboardCardMetadata(
+                contentType: .hexColor(hex: parsedColor.hex, color: parsedColor.color),
+                category: resolveCategory(originBundleID: originBundleID, workBundleIDs: workBundleIDs)
+            )
+        }
+
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let words = trimmed.split { $0.isWhitespace || $0.isNewline }
+        return ClipboardCardMetadata(
+            contentType: .text(charCount: trimmed.count, wordCount: words.count),
+            category: resolveCategory(originBundleID: originBundleID, workBundleIDs: workBundleIDs)
+        )
+    }
+
+    static func classifyImage(width: Int, height: Int, originBundleID: String? = nil, workBundleIDs: Set<String> = []) -> ClipboardCardMetadata {
+        ClipboardCardMetadata(
+            contentType: .image(width: max(0, width), height: max(0, height)),
+            category: resolveCategory(originBundleID: originBundleID, workBundleIDs: workBundleIDs)
+        )
+    }
+
+    static func resolveCategory(originBundleID: String?, workBundleIDs: Set<String>) -> ClipboardCategory {
+        guard let id = originBundleID?.lowercased(), !id.isEmpty else { return .personal }
+        let work = Set(workBundleIDs.map { $0.lowercased() })
+        return work.contains(id) ? .work : .personal
+    }
+
+    /// Validates #RGB, #RRGGBB, or #RRGGBBAA (with or without '#')
+    static func parseHexColor(_ raw: String) -> (hex: String, color: DockRGBA)? {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.hasPrefix("#") || trimmed.count == 6 else { return nil }
+        let clean = trimmed.hasPrefix("#") ? String(trimmed.dropFirst()) : trimmed
+        guard clean.count == 3 || clean.count == 6 || clean.count == 8 else { return nil }
+        guard clean.allSatisfy({ $0.isHexDigit }) else { return nil }
+
+        if clean.count == 6 {
+            guard let val = UInt64(clean, radix: 16) else { return nil }
+            let r = CGFloat((val >> 16) & 0xFF) / 255.0
+            let g = CGFloat((val >> 8) & 0xFF) / 255.0
+            let b = CGFloat(val & 0xFF) / 255.0
+            return (hex: "#" + clean.uppercased(), color: DockRGBA(r: r, g: g, b: b, a: 1.0))
+        } else if clean.count == 3 {
+            var expanded = ""
+            for ch in clean { expanded.append(ch); expanded.append(ch) }
+            guard let val = UInt64(expanded, radix: 16) else { return nil }
+            let r = CGFloat((val >> 16) & 0xFF) / 255.0
+            let g = CGFloat((val >> 8) & 0xFF) / 255.0
+            let b = CGFloat(val & 0xFF) / 255.0
+            return (hex: "#" + expanded.uppercased(), color: DockRGBA(r: r, g: g, b: b, a: 1.0))
+        } else if clean.count == 8 {
+            guard let val = UInt64(clean, radix: 16) else { return nil }
+            let r = CGFloat((val >> 24) & 0xFF) / 255.0
+            let g = CGFloat((val >> 16) & 0xFF) / 255.0
+            let b = CGFloat((val >> 8) & 0xFF) / 255.0
+            let a = CGFloat(val & 0xFF) / 255.0
+            return (hex: "#" + clean.uppercased(), color: DockRGBA(r: r, g: g, b: b, a: a))
+        }
+        return nil
+    }
+}
