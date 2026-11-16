@@ -504,9 +504,9 @@
     "semantic_hash": ""
   },
   "App/Entry/CommandBarPanelController.swift": {
-    "mtime": 1794848640.5022745,
-    "seen": 1794848831.45395,
-    "ast_hash": "897adf8d905b6f5f039e150ff35945da",
+    "mtime": 1794849066.4452865,
+    "seen": 1794849657.6363971,
+    "ast_hash": "45b41b391d558169f743cf48998b37eb",
     "semantic_hash": ""
   },
   "App/Entry/EdgeBarPanelController.swift": {
@@ -732,9 +732,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/CommandBarView.swift": {
-    "mtime": 1794848604.7099612,
-    "seen": 1794848831.453986,
-    "ast_hash": "a19a8d552e6d2f79f66ce8a5c747fcde",
+    "mtime": 1794849331.468806,
+    "seen": 1794849657.636433,
+    "ast_hash": "44701ac493af353498435af60e14e040",
     "semantic_hash": ""
   },
   "App/Scenes/ContentView.swift": {
@@ -1638,15 +1638,15 @@
     "semantic_hash": "bdfcd13a0641436281c4eb25360e5f04"
   },
   "Core/Support/CommandBar.swift": {
-    "mtime": 1794848582.0312629,
-    "seen": 1794848831.454156,
-    "ast_hash": "5a6439d78056c8757f91d297a59f13e5",
+    "mtime": 1794849634.4758508,
+    "seen": 1794849657.636599,
+    "ast_hash": "dabd81c4eb48a124bdf2d882858ae44f",
     "semantic_hash": ""
   },
   "Core/Support/CommandBarKeywords.swift": {
-    "mtime": 1794848220.0025897,
-    "seen": 1794848521.7891042,
-    "ast_hash": "d9c9c2bdc72a33753fe8d65f7c009bdb",
+    "mtime": 1794849625.2896016,
+    "seen": 1794849657.6366,
+    "ast_hash": "ce6b0b84f4b949fe198ef85f38f5b4a4",
     "semantic_hash": ""
   },
   "Core/Support/ContextPresetRules.swift": {
