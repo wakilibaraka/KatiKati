@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1794839893.784608,
-    "seen": 1794840433.4099572,
-    "ast_hash": "4d4e863411a8ce54c5425acd2e37a981",
+    "mtime": 1794855904.6896563,
+    "seen": 1794856137.451512,
+    "ast_hash": "103f3796327d24a60c90dd651c9eb0f1",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -1734,9 +1734,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DockThemeStyleTokens.swift": {
-    "mtime": 1794844995.6666183,
-    "seen": 1794845390.5959182,
-    "ast_hash": "00b64e3936ea85ab9050d25cf19e492d",
+    "mtime": 1794855966.946449,
+    "seen": 1794856137.451686,
+    "ast_hash": "43e2baf95a52a887fe8fe01173ed8747",
     "semantic_hash": ""
   },
   "Core/Support/DockThemeTokens.swift": {
@@ -2046,9 +2046,9 @@
     "semantic_hash": "46a097f32e7427f2de688c6b04cfbb08"
   },
   "Core/Support/NotchFallbackPlan.swift": {
-    "mtime": 1794845289.6119049,
-    "seen": 1794845390.595968,
-    "ast_hash": "2245377f0c33e2fce94aeda334715278",
+    "mtime": 1794855997.121701,
+    "seen": 1794856137.4517372,
+    "ast_hash": "d4e1da087fdc1dedde558d5ac1829659",
     "semantic_hash": ""
   },
   "Core/Support/NotchGeometry.swift": {
@@ -6798,9 +6798,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWidgetLogicTests.swift": {
-    "mtime": 1794847145.9075744,
-    "seen": 1794847293.483634,
-    "ast_hash": "0dd8fa4b2106824369b74c3ec13f2211",
+    "mtime": 1794855916.5095356,
+    "seen": 1794856137.451947,
+    "ast_hash": "5dc7064c0eb1587429f091e311f0850b",
     "semantic_hash": ""
   },
   "App/Composition/SpaceTransitionController.swift": {
@@ -6858,9 +6858,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DockLayeringMode.swift": {
-    "mtime": 1793190233.6162739,
-    "seen": 1793190252.336668,
-    "ast_hash": "dae082008073e140221a016d2631d936",
+    "mtime": 1794855976.327038,
+    "seen": 1794856137.4516811,
+    "ast_hash": "4f77e0f5541bd3dff141341582b33ad5",
     "semantic_hash": ""
   },
   "Tests/Unit/DockWindowManagerTests.swift": {
