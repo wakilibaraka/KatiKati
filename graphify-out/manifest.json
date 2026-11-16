@@ -582,9 +582,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Popups.swift": {
-    "mtime": 1793829633.65747,
-    "seen": 1793829921.514575,
-    "ast_hash": "c154ce69aeca98e05478689b1dad49db",
+    "mtime": 1794865963.1816273,
+    "seen": 1794866106.348643,
+    "ast_hash": "da1b36c701dff8dd2e859f34f5dfae39",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ResizeCursor.swift": {
@@ -1206,9 +1206,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/StackPopupChrome.swift": {
-    "mtime": 1792926135.9863086,
-    "seen": 1792926143.606543,
-    "ast_hash": "a8b532b163e01cfe2940cf8d96be4d97",
+    "mtime": 1794865943.688727,
+    "seen": 1794866106.348869,
+    "ast_hash": "87692ab7e2880d8c07e98b26814ac0c7",
     "semantic_hash": ""
   },
   "App/Scenes/StatusMenuWidgets.swift": {
@@ -6918,9 +6918,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/PopGridPopupView.swift": {
-    "mtime": 1793482289.2578497,
-    "seen": 1793764772.5672011,
-    "ast_hash": "a46649ac1def7abefc6c2772f11466d1",
+    "mtime": 1794865989.0158002,
+    "seen": 1794866106.348822,
+    "ast_hash": "4150076ca036a2f8dec5210facc0006c",
     "semantic_hash": ""
   },
   "Core/Support/AgentUsage/AgentApproval.swift": {
