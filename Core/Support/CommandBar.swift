@@ -136,6 +136,20 @@ enum CommandBarResult: Equatable, Sendable, Identifiable {
             return "quicklink:\(link.name):\(link.template):\(argument)"
         }
     }
+
+    var kindBadge: String {
+        switch self {
+        case .answer(.math): return "Math"; case .answer(.web): return "Web Search"; case .app: return "Application"
+        case .quit: return "Quit"; case .forceQuit: return "Force Quit"; case .action: return "System"
+        case .generator: return "Generator"; case .custom: return "Custom"; case .process: return "Process"
+        case .script: return "Script"; case .shortcut: return "Shortcut"; case .path: return "Path"
+        case .file: return "File"; case .clip: return "Clipboard"; case .trash: return "Trash"
+        case .emoji: return "Emoji"; case .bookmark: return "Bookmark"; case .event: return "Calendar"
+        case .menuItem: return "Menu Item"; case .profile, .saveProfile: return "Profile"
+        case .define: return "Dictionary"; case .quicklink: return "Quicklink"
+        case .searchFilesFallback: return "Search Files"; case .askAI: return "AI"
+        }
+    }
 }
 
 // MARK: - Raycast ⌘K Action System (Slice 1.2)

@@ -33,6 +33,26 @@ enum CommandBarMode: CaseIterable, Sendable {
         case .brewSearch: return ["brew", "bs"]
         }
     }
+
+    var displayName: String {
+        switch self {
+        case .file: return "Files"; case .image: return "Images"; case .clipboard: return "Clipboard"
+        case .emoji: return "Emoji"; case .bookmark: return "Bookmarks"; case .event: return "Calendar"
+        case .kill: return "Quit Apps"; case .forceQuit: return "Force Quit"; case .killProcess: return "Kill Process"
+        case .shortcut: return "Shortcuts"; case .apps: return "Applications"; case .menu: return "Menu Items"
+        case .profile: return "Bar Profiles"; case .define: return "Dictionary"; case .brewSearch: return "Homebrew"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .file: return "doc"; case .image: return "photo"; case .clipboard: return "doc.on.clipboard"
+        case .emoji: return "face.smiling"; case .bookmark: return "bookmark"; case .event: return "calendar"
+        case .kill: return "xmark.circle"; case .forceQuit: return "bolt.slash"; case .killProcess: return "cpu"
+        case .shortcut: return "bolt.fill"; case .apps: return "app.dashed"; case .menu: return "filemenu.and.selection"
+        case .profile: return "rectangle.3.group"; case .define: return "character.book.closed"; case .brewSearch: return "shippingbox"
+        }
+    }
 }
 
 /// A native macOS action run straight from the bar. Most delegate to `QuickToggleEngine`; the rest are

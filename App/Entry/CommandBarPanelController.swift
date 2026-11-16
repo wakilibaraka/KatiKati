@@ -642,7 +642,8 @@ final class CommandBarPanelController {
                                                           onClose: { [weak self] in self?.dismiss() },
                                                           onRemove: { app, removal in
                                                               AppRemovalService.confirmAndPerform(bundleID: app.bundleID, name: app.name, appPath: app.path, removal: removal)
-                                                          }))
+                                                          },
+                                                          onAction: { [weak self] action in self?.performAction(action) }))
         panel.contentView = host
         appsObserver = indexer.$apps.sink { [weak self] apps in
             self?.model.apps = apps
