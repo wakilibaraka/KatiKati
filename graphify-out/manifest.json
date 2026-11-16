@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "App/Entry/LauncherPanelController.swift": {
-    "mtime": 1793307467.5192552,
-    "seen": 1793373444.962198,
-    "ast_hash": "04ab531635625c97f4b2506106bfacc4",
+    "mtime": 1794855326.992276,
+    "seen": 1794855528.9755368,
+    "ast_hash": "c8caa7a1937972e2ac51546d5c293197",
     "semantic_hash": ""
   },
   "App/Entry/MacOSDockCCV2App.swift": {
@@ -960,9 +960,9 @@
     "semantic_hash": "3e789d8d5569ef0a2d6688a50a7b44e5"
   },
   "App/Scenes/LauncherView.swift": {
-    "mtime": 1793835911.5732095,
-    "seen": 1793836013.1608162,
-    "ast_hash": "fd998dd125b5aceebf2c8500fa2fdec5",
+    "mtime": 1794855374.9430122,
+    "seen": 1794855528.975606,
+    "ast_hash": "42d4f113b7e53672de595392ef03e8a0",
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
@@ -1974,10 +1974,10 @@
     "semantic_hash": "f33a29e268b46d08b4822632ffb7de1c"
   },
   "Core/Support/LauncherPlus.swift": {
-    "mtime": 1791999130.7645633,
-    "seen": 1792295707.06057,
-    "ast_hash": "dbc3e27bea186be28ea0cf14d5a6950b",
-    "semantic_hash": "dbc3e27bea186be28ea0cf14d5a6950b"
+    "mtime": 1794855316.5975232,
+    "seen": 1794855528.97578,
+    "ast_hash": "71959031791db978a5f21c5e8ceb8389",
+    "semantic_hash": ""
   },
   "Core/Support/LayoutThumbnailModel.swift": {
     "mtime": 1793842734.326881,
@@ -2352,9 +2352,9 @@
     "semantic_hash": "9ab4100822784c82c54e8aa32cbb0da8"
   },
   "Core/Support/SystemGaugeModel.swift": {
-    "mtime": 1792547454.547683,
-    "seen": 1792547511.412576,
-    "ast_hash": "fd6c18378896fc4b70d3234e943c3eed",
+    "mtime": 1794855410.16604,
+    "seen": 1794855528.975848,
+    "ast_hash": "58c6ae61c1d4a7daef82f0088448abcc",
     "semantic_hash": ""
   },
   "Core/Support/SystemMonitorMath.swift": {
@@ -3684,10 +3684,10 @@
     "semantic_hash": "cb5b81682894e35e75a427e3934a79f1"
   },
   "Tests/Unit/LauncherPlusTests.swift": {
-    "mtime": 1791999130.951801,
-    "seen": 1792295707.060748,
-    "ast_hash": "e7583dab5ce2c13077a76b951130306a",
-    "semantic_hash": "e7583dab5ce2c13077a76b951130306a"
+    "mtime": 1794855392.631943,
+    "seen": 1794855528.97605,
+    "ast_hash": "0eedcc6971d88c17c4e144dcab3941e1",
+    "semantic_hash": ""
   },
   "Tests/Unit/LauncherStoreTests.swift": {
     "mtime": 1793366818.6264737,
@@ -4158,9 +4158,9 @@
     "semantic_hash": "92cb5edef3de63317cb195be1a445fc6"
   },
   "Tests/Unit/SystemGaugeTests.swift": {
-    "mtime": 1792547454.5483584,
-    "seen": 1792547511.412819,
-    "ast_hash": "692c320488be1dfc5d0aea30a8e63dd1",
+    "mtime": 1794855386.0101047,
+    "seen": 1794855528.97613,
+    "ast_hash": "73b4441af6eb5ad9c45a59837472d129",
     "semantic_hash": ""
   },
   "Tests/Unit/SystemHealthTests.swift": {
