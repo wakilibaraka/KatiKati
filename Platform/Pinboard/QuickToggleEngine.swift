@@ -227,7 +227,9 @@ enum DisplayServicesBrightness {
         guard let h = handle, let sym = dlsym(h, "DisplayServicesSetBrightness") else { return }
         let id = builtInDisplay()
         guard id != 0 else { return }
-        _ = unsafeBitCast(sym, to: SetFn.self)(id, Float(min(1, max(0, level))))
+        let clamped = min(1, max(0, level))
+        _ = unsafeBitCast(sym, to: SetFn.self)(id, Float(clamped))
+        NotificationCenter.default.post(name: Notification.Name("com.katikati.displayBrightnessChanged"), object: clamped)
     }
 }
 

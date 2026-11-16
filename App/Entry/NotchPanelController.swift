@@ -18,8 +18,11 @@ final class NotchPanelController: LiveEventSink {
     private let model = NotchModel()
     private var cancellables = Set<AnyCancellable>()
     private var eventWork: DispatchWorkItem?
+    private var hudExpireWork: DispatchWorkItem?
+    private lazy var statusService = SystemStatusService()
     private var metrics = NotchMetrics(closedSize: CGSize(width: NotchGeometry.fallbackNotchWidth, height: NotchGeometry.fallbackHeight), hasHardwareNotch: false)
     private var holdsFeed = false
+    private var holdsStatus = false
     // Hover intent: a pure state machine fed from mouse monitors (see `NotchHoverMachine`). The window is
     // never resized by hover itself, so there is no resize → tracking-area → hover feedback loop.
     private var hover = NotchHoverMachine()
@@ -64,11 +67,23 @@ final class NotchPanelController: LiveEventSink {
         panel = window
         LiveActivityFeed.shared.retain()
         holdsFeed = true
+        statusService.acquire()
+        holdsStatus = true
         window.setFrame(windowFrame(on: screen), display: true)
         window.orderFrontRegardless()
         startBatteryBuddy()
 
         LiveActivityFeed.shared.$activity.map(\.kind).removeDuplicates().sink { [weak self] _ in self?.activityChanged() }.store(in: &cancellables)
+        statusService.$status.map(\.volume).removeDuplicates().dropFirst()
+            .sink { [weak self] volume in
+                let icon = volume.isMuted ? "speaker.slash.fill" : (volume.level > 0.66 ? "speaker.wave.3.fill" : (volume.level > 0.33 ? "speaker.wave.2.fill" : "speaker.wave.1.fill"))
+                self?.showHardwareHUD(id: "hud.volume", icon: icon, title: volume.isMuted ? "Muted" : "Volume", level: volume.isMuted ? 0 : Double(volume.level))
+            }.store(in: &cancellables)
+        NotificationCenter.default.publisher(for: Notification.Name("com.katikati.displayBrightnessChanged"))
+            .compactMap { $0.object as? Double }
+            .sink { [weak self] level in
+                self?.showHardwareHUD(id: "hud.brightness", icon: "sun.max.fill", title: "Brightness", level: level)
+            }.store(in: &cancellables)
         model.$event.map { $0 != nil }.removeDuplicates().sink { [weak self] _ in self?.syncWindow() }.store(in: &cancellables)
         NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
             .sink { [weak self] _ in self?.screensChanged() }.store(in: &cancellables)
@@ -120,12 +135,14 @@ final class NotchPanelController: LiveEventSink {
         tickWork?.cancel(); tickWork = nil
         shrinkWork?.cancel(); shrinkWork = nil
         eventWork?.cancel(); eventWork = nil
+        hudExpireWork?.cancel(); hudExpireWork = nil
         model.event = nil; model.isOpen = false
         LiveActivityFeed.shared.isNotchExpanded = false
         hover.forceClose()
         panel?.orderOut(nil)
         panel = nil
         if holdsFeed { LiveActivityFeed.shared.release(); holdsFeed = false }
+        if holdsStatus { statusService.release(); holdsStatus = false }
     }
 
     // MARK: LiveEventSink
@@ -295,9 +312,49 @@ final class NotchPanelController: LiveEventSink {
             : NotchGeometry.closedCapsuleSize(metrics, showsActivity: showsActivity)
     }
 
+    private func showHardwareHUD(id: String, icon: String, title: String, level: Double) {
+        guard panel != nil else { return }
+        let now = Date()
+        let item = NotchActivityItem(
+            id: id,
+            priority: .systemInfo,
+            title: title,
+            icon: icon,
+            timeout: 1.5,
+            level: level,
+            createdAt: now
+        )
+        model.activityQueue.enqueue(item, now: now)
+        scheduleHUDExpiration()
+    }
+
+    private func scheduleHUDExpiration() {
+        hudExpireWork?.cancel(); hudExpireWork = nil
+        let now = Date()
+        guard let next = model.activityQueue.nextExpirationDate(after: now) else { return }
+        let delay = max(0.05, next.timeIntervalSince(now) + 0.02)
+        let work = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.model.activityQueue.pruneExpired(at: Date())
+            self.scheduleHUDExpiration()
+        }
+        hudExpireWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
+    }
+
     /// The window is as large as the larger of the shapes involved: it grows at once (so the shape never
     /// clips while it animates open) and shrinks only after the close spring has finished.
     private func windowFrame(on screen: NSScreen) -> CGRect {
+        if !isWide && !metrics.hasHardwareNotch {
+            return NotchGeometryCalculator.calculate(
+                screenBounds: screen.frame,
+                topInset: screen.safeAreaInsets.top,
+                menuBarHeight: screen.frame.maxY - screen.visibleFrame.maxY,
+                closedSize: model.closedSize,
+                openSize: model.openSize,
+                isExpanded: model.isExpanded
+            ).panelFrame
+        }
         let size = model.isExpanded ? model.openSize : model.closedSize
         return NotchGeometry.panelFrame(size: size, in: screen.frame)
     }

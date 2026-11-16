@@ -22,6 +22,12 @@ final class NotchModel: ObservableObject {
     @Published var activePage: NotchPage = .downloadDeck
     /// Last paging direction (+1 forward, -1 back); drives the slide edge in `NotchHomeView`.
     @Published var pageDirection = 1
+    /// Slice DN-1/DN-2: Priority-ordered queue for transient hardware HUDs and live activities.
+    @Published var activityQueue = NotchActivityQueue(maxItems: 8)
+    var activeHUDItem: NotchActivityItem? {
+        guard let top = activityQueue.current, top.level != nil else { return nil }
+        return top
+    }
     var isExpanded: Bool { isOpen || event != nil }
     /// Shape sizes, set by the controller (closed width grows with the activity "sneak"). The window is
     /// as large as the larger of the two while a transition runs, so the shape animates inside it.
@@ -122,26 +128,33 @@ struct NotchIslandView: View {
     var body: some View {
         let expanded = model.isExpanded
         let activity = feed.activity
-        let boring = model.skin == .boring
-        let edge = NotchEdgeStyle.mask(sharp: sharpEdges, expanded: expanded, hasHardwareNotch: metrics.hasHardwareNotch)
         let style = NotchOpenAnimation(rawValue: openAnimation) ?? .boring
-        let spring = expanded ? style.openSpring : style.closeSpring
+        let calculatedLayout = NotchGeometryCalculator.calculate(
+            screenBounds: CGRect(origin: .zero, size: model.openSize),
+            topInset: metrics.hasHardwareNotch ? metrics.closedSize.height : 0,
+            menuBarHeight: metrics.closedSize.height,
+            closedSize: model.closedSize,
+            openSize: model.openSize,
+            isExpanded: expanded,
+            sharpEdges: sharpEdges
+        )
+        // Slice DN-2: Spring-damped jelly-morphing container matching iOS Dynamic Island physics.
         let motion: Animation = reduceMotion
             ? .easeInOut(duration: NotchMotionSpec.reducedMotionDuration)
-            : .spring(response: spring.response, dampingFraction: spring.dampingRatio)
+            : .spring(response: 0.32, dampingFraction: 0.88)
         let size = expanded ? model.openSize : model.closedSize
         ZStack(alignment: .top) {
             NotchContinuousMaskShape(
-                topCornerRadius: edge.top,
-                bottomCornerRadius: edge.bottom,
-                flaringTopEars: edge.flares
+                topCornerRadius: calculatedLayout.topCornerRadius,
+                bottomCornerRadius: calculatedLayout.bottomCornerRadius,
+                flaringTopEars: calculatedLayout.flaringTopEars
             )
             .fill(notchTheme.plate.color.opacity(resolvedGlass.plateOpacity))
             if showOutline || resolvedGlass.strokeOpacity > 0 {
                 NotchContinuousMaskShape(
-                    topCornerRadius: edge.top,
-                    bottomCornerRadius: edge.bottom,
-                    flaringTopEars: edge.flares
+                    topCornerRadius: calculatedLayout.topCornerRadius,
+                    bottomCornerRadius: calculatedLayout.bottomCornerRadius,
+                    flaringTopEars: calculatedLayout.flaringTopEars
                 )
                 .stroke(Color.white.opacity(max(showOutline ? 0.18 : 0, resolvedGlass.strokeOpacity)), lineWidth: 1)
             }
@@ -199,8 +212,15 @@ struct NotchIslandView: View {
                 Text(verbatim: "KatiKati Settings…")
             }
         }
+        .shadow(
+            color: metrics.hasHardwareNotch ? .clear : Color.black.opacity(0.32),
+            radius: metrics.hasHardwareNotch ? 0 : 10,
+            x: 0,
+            y: metrics.hasHardwareNotch ? 0 : 4
+        )
         .animation(motion, value: expanded)
         .animation(motion, value: model.closedSize)
+        .animation(motion, value: model.activeHUDItem?.id)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .colorScheme(notchTheme.prefersDarkContent ? .light : .dark)
     }
@@ -238,6 +258,9 @@ struct NotchIslandView: View {
     // MARK: Closed — glyph left of the notch, value right of it
 
     private func closedContent(_ activity: LiveActivity) -> some View {
+        if let hud = model.activeHUDItem {
+            return AnyView(inlineHUDContent(hud))
+        }
         if wideBar { return AnyView(NotchWideBarView(width: model.closedSize.width, height: model.closedSize.height)) }
         if let platform = detectedMeetingPlatform {
             return AnyView(
@@ -259,6 +282,44 @@ struct NotchIslandView: View {
             return restContent == NotchRestContent.nothing.rawValue ? AnyView(Color.clear) : AnyView(NotchDockChips(metrics: metrics))
         }
         return AnyView(activityContent(activity))
+    }
+
+    private func inlineHUDContent(_ hud: NotchActivityItem) -> some View {
+        let level = hud.level ?? 0
+        let tint: Color = hud.id == "hud.brightness" ? .yellow : (level <= 0 ? .secondary : .cyan)
+        return HStack(spacing: 6) {
+            HStack(spacing: 4) {
+                Image(systemName: hud.icon)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(tint)
+                if !metrics.hasHardwareNotch {
+                    Text(verbatim: hud.title)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.9))
+                        .lineLimit(1)
+                }
+            }
+            .frame(width: metrics.hasHardwareNotch ? NotchGeometry.sneakSide - 14 : nil, alignment: .leading)
+
+            Spacer(minLength: metrics.hasHardwareNotch ? max(0, metrics.closedSize.width - 8) : 8)
+
+            HStack(spacing: 5) {
+                GeometryReader { proxy in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(Color.white.opacity(0.18))
+                        Capsule().fill(tint)
+                            .frame(width: max(4, proxy.size.width * level))
+                    }
+                }
+                .frame(width: 28, height: 4)
+                Text(verbatim: "\(Int(round(level * 100)))%")
+                    .font(.system(size: 10, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.white.opacity(0.85))
+                    .lineLimit(1)
+            }
+            .frame(width: NotchGeometry.sneakSide - 6, alignment: .trailing)
+        }
+        .frame(maxHeight: metrics.closedSize.height)
     }
 
     private func activityContent(_ activity: LiveActivity) -> some View {
