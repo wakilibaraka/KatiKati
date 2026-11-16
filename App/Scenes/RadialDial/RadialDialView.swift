@@ -15,6 +15,7 @@ enum RadialDialMetrics {
 final class RadialDialState: ObservableObject {
     @Published var pageIndex = 0
     @Published var hoveredSector: Int?
+    @Published var hoveredOuterSector: Int?
     @Published var isCenterHovered = false
     /// -1 / 0 / 1: left chevron, hub body, right chevron.
     @Published var hubZone = 0
@@ -36,28 +37,59 @@ struct RadialDialView: View {
     }
 
     var body: some View {
-        let outer = RadialDialMetrics.outerRadius
-        let sectors = RadialDialGeometry.sectors(
+        let outerItems = currentPage.outerRingItems ?? []
+        let isDual = !outerItems.isEmpty
+        let dual = isDual ? RadialDialGeometry.dualRingSectors() : nil
+        let single = isDual ? [] : RadialDialGeometry.sectors(
             count: currentPage.items.count,
             innerRadius: RadialDialMetrics.innerRadius,
-            outerRadius: outer
+            outerRadius: RadialDialMetrics.outerRadius
         )
 
         ZStack {
             backdrop
 
             ZStack {
-                ForEach(Array(currentPage.items.enumerated()), id: \.element.id) { index, item in
-                    if index < sectors.count {
-                        RadialDialWedgeView(
-                            sector: sectors[index],
-                            item: item,
-                            isHovered: state.hoveredSector == index,
-                            appeared: appeared,
-                            reduceMotion: reduceMotion,
-                            theme: theme,
-                            center: RadialDialMetrics.center
-                        )
+                if isDual, let dual {
+                    ForEach(Array(currentPage.items.enumerated()), id: \.element.id) { index, item in
+                        if index < dual.inner.count {
+                            RadialDialWedgeView(
+                                sector: dual.inner[index],
+                                item: item,
+                                isHovered: state.hoveredSector == index && state.hoveredOuterSector == nil,
+                                appeared: appeared,
+                                reduceMotion: reduceMotion,
+                                theme: theme,
+                                center: RadialDialMetrics.center
+                            )
+                        }
+                    }
+                    ForEach(Array(outerItems.enumerated()), id: \.element.id) { index, item in
+                        if index < dual.outer.count {
+                            RadialDialWedgeView(
+                                sector: dual.outer[index],
+                                item: item,
+                                isHovered: state.hoveredOuterSector == index,
+                                appeared: appeared,
+                                reduceMotion: reduceMotion,
+                                theme: theme,
+                                center: RadialDialMetrics.center
+                            )
+                        }
+                    }
+                } else {
+                    ForEach(Array(currentPage.items.enumerated()), id: \.element.id) { index, item in
+                        if index < single.count {
+                            RadialDialWedgeView(
+                                sector: single[index],
+                                item: item,
+                                isHovered: state.hoveredSector == index,
+                                appeared: appeared,
+                                reduceMotion: reduceMotion,
+                                theme: theme,
+                                center: RadialDialMetrics.center
+                            )
+                        }
                     }
                 }
             }

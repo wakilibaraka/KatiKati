@@ -78,8 +78,36 @@ enum SelectionAction: String, CaseIterable, Identifiable, Sendable {
     case search
     case translate
     case ai
+    case quickFix
+    case speak
 
     var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .copy: return "Copy"
+        case .cut: return "Cut"
+        case .paste: return "Paste"
+        case .search: return "Search"
+        case .translate: return "Translate"
+        case .ai: return "AI"
+        case .quickFix: return "Quick Fix"
+        case .speak: return "Read Aloud"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .copy: return "doc.on.doc"
+        case .cut: return "scissors"
+        case .paste: return "doc.on.clipboard"
+        case .search: return "magnifyingglass"
+        case .translate: return "character.book.closed"
+        case .ai: return "sparkles"
+        case .quickFix: return "wand.and.stars"
+        case .speak: return "speaker.wave.2.fill"
+        }
+    }
 }
 
 struct SelectionStats: Equatable, Sendable {
@@ -137,8 +165,8 @@ enum DropClipPolicy {
     /// Evaluates which actions are relevant for the given selected text.
     static func actions(for text: String) -> [SelectionAction] {
         guard TranslateRequest.isWorthTranslating(text) else {
-            return [.copy, .search]
+            return [.copy, .search, .speak]
         }
-        return [.copy, .search, .translate, .ai]
+        return [.copy, .search, .translate, .quickFix, .speak, .ai]
     }
 }

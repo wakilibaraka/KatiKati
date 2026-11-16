@@ -254,4 +254,15 @@ enum RadialDialPresets {
 
         return (inner, outer)
     }
+
+    static func makeDualRingDialPage(id: RadialDialPageID = .snapping, title: String = "Snapping & Tools") -> RadialDialPage {
+        let (inner, outer) = dualRingPage()
+        return RadialDialPage(
+            id: id,
+            title: title,
+            centerItem: RadialDialItem(id: "center_undo", title: "Undo", icon: .sfSymbol("arrow.uturn.backward"), accentHex: "#64748B", action: .snap(.center)),
+            items: inner,
+            outerRingItems: outer
+        )
+    }
 }

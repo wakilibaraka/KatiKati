@@ -136,16 +136,19 @@ struct RadialDialPage: Identifiable, Equatable, Sendable {
     let title: String
     let centerItem: RadialDialItem?
     let items: [RadialDialItem]
+    let outerRingItems: [RadialDialItem]?
 
     init(
         id: RadialDialPageID,
         title: String,
         centerItem: RadialDialItem? = nil,
-        items: [RadialDialItem]
+        items: [RadialDialItem],
+        outerRingItems: [RadialDialItem]? = nil
     ) {
         self.id = id
         self.title = title
         self.centerItem = centerItem
         self.items = items
+        self.outerRingItems = outerRingItems
     }
 }

@@ -172,23 +172,37 @@ final class RadialDialPanelController: ObservableObject {
         guard isShown, let panel else { return }
         let mouse = NSEvent.mouseLocation
         let point = CGPoint(x: mouse.x - panel.frame.minX, y: panel.frame.maxY - mouse.y)
-        let hit = RadialDialGeometry.hitTest(
-            point: point,
-            center: RadialDialMetrics.center,
-            count: currentPage.items.count,
-            innerRadius: RadialDialMetrics.innerRadius,
-            outerRadius: RadialDialMetrics.outerRadius
-        )
         var sector: Int?
+        var outerSector: Int?
         var inCenter = false
-        if case .sector(let idx) = hit { sector = idx }
-        if case .center = hit { inCenter = true }
+
+        if let outerItems = currentPage.outerRingItems, !outerItems.isEmpty {
+            let hit = RadialDialGeometry.hitTestDualRing(point: point, center: RadialDialMetrics.center)
+            switch hit {
+            case .center: inCenter = true
+            case .inner(let idx): sector = idx
+            case .outer(let idx): outerSector = idx
+            case .outside: break
+            }
+        } else {
+            let hit = RadialDialGeometry.hitTest(
+                point: point,
+                center: RadialDialMetrics.center,
+                count: currentPage.items.count,
+                innerRadius: RadialDialMetrics.innerRadius,
+                outerRadius: RadialDialMetrics.outerRadius
+            )
+            if case .sector(let idx) = hit { sector = idx }
+            if case .center = hit { inCenter = true }
+        }
+
         let zone = inCenter ? hubZone(for: point) : 0
-        guard sector != state.hoveredSector || inCenter != state.isCenterHovered || zone != state.hubZone else { return }
-        if sector != nil && sector != state.hoveredSector {
+        guard sector != state.hoveredSector || outerSector != state.hoveredOuterSector || inCenter != state.isCenterHovered || zone != state.hubZone else { return }
+        if (sector != nil && sector != state.hoveredSector) || (outerSector != nil && outerSector != state.hoveredOuterSector) {
             NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
         }
         state.hoveredSector = sector
+        state.hoveredOuterSector = outerSector
         state.isCenterHovered = inCenter
         state.hubZone = zone
         updateSnapPreview(screen: panel.screen)
@@ -217,6 +231,22 @@ final class RadialDialPanelController: ObservableObject {
     }
 
     private func pointerUp(at point: CGPoint) {
+        if let outerItems = currentPage.outerRingItems, !outerItems.isEmpty {
+            let hit = RadialDialGeometry.hitTestDualRing(point: point, center: RadialDialMetrics.center)
+            switch hit {
+            case .center:
+                let zone = hubZone(for: point)
+                if zone != 0 { step(zone) } else if let item = currentPage.centerItem { select(item) }
+            case .inner(let idx):
+                if idx < currentPage.items.count { select(currentPage.items[idx]) }
+            case .outer(let idx):
+                if idx < outerItems.count { select(outerItems[idx]) }
+            case .outside:
+                dismiss()
+            }
+            return
+        }
+
         let hit = RadialDialGeometry.hitTest(
             point: point,
             center: RadialDialMetrics.center,

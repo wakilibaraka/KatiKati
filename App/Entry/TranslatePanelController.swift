@@ -1,8 +1,9 @@
 import AppKit
+import AVFoundation
+import Carbon.HIToolbox
 import SwiftUI
 
-/// Phase 23d: shows the define/translate card for the current selection, near the pointer. Non-activating;
-/// Esc or a click outside closes it. Reads the selection once, at summon.
+/// Phase 23d / Slice 2.2: shows the selection action pill and define/translate card for current selection.
 @MainActor
 final class TranslatePanelController {
     private final class TranslatePanel: NonConstrainingPanel {
@@ -15,9 +16,14 @@ final class TranslatePanelController {
 
     var isShown: Bool { panel?.isVisible ?? false }
 
-    /// Reads the frontmost app's selection and shows the card; hides it when nothing is selected.
+    /// Reads the frontmost app's selection and shows the pill; gates by DropClipPolicy.
     func toggleSelection() {
         guard let text = SelectedTextReader.selectedText() else { dismiss(); return }
+        let originID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        guard DropClipPolicy.shouldPresent(text: text, originBundleID: originID, isSecureInput: IsSecureEventInputEnabled()) else {
+            dismiss()
+            return
+        }
         show(request: TranslateRequest.detect(text))
     }
 
@@ -25,7 +31,13 @@ final class TranslatePanelController {
         guard !request.text.isEmpty else { return }
         guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }) ?? NSScreen.main else { return }
         let dictionary = DictionaryCardModel.parse(headword: request.text, payload: DictionaryService.define(request.text))
-        let host = NSHostingView(rootView: TranslateCardView(request: request, dictionary: dictionary))
+        let actions = DropClipPolicy.actions(for: request.text)
+        let host = NSHostingView(rootView: SelectionPillContainerView(
+            request: request,
+            dictionary: dictionary,
+            actions: actions,
+            onAction: { [weak self] action in self?.performAction(action, text: request.text) }
+        ))
         let size = host.fittingSize
         let panel = self.panel ?? makePanel()
         self.panel = panel
@@ -37,6 +49,37 @@ final class TranslatePanelController {
         panel.setFrame(NSRect(x: x, y: y, width: size.width, height: size.height), display: true)
         panel.orderFrontRegardless()
         installOutsideMonitor()
+    }
+
+    private func performAction(_ action: SelectionAction, text: String) {
+        switch action {
+        case .copy:
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(text, forType: .string)
+            dismiss()
+        case .cut, .paste:
+            dismiss()
+        case .search:
+            dismiss()
+            if let url = URL(string: "https://duckduckgo.com/?q=" + (text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")) {
+                NSWorkspace.shared.open(url)
+            }
+        case .translate:
+            break
+        case .speak:
+            dismiss()
+            let utterance = AVSpeechUtterance(string: text)
+            let synth = AVSpeechSynthesizer()
+            synth.speak(utterance)
+        case .quickFix:
+            let fixed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(fixed, forType: .string)
+            dismiss()
+        case .ai:
+            dismiss()
+            AppDelegate.shared?.toggleCommandBar()
+        }
     }
 
     func dismiss() {

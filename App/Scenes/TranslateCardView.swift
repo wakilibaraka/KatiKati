@@ -54,3 +54,61 @@ private struct TranslationSection: View {
         }
     }
 }
+
+/// Floating selection action pill (Slice 2.2).
+struct SelectionActionPillView: View {
+    let actions: [SelectionAction]
+    let onAction: (SelectionAction) -> Void
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(actions) { action in
+                Button {
+                    onAction(action)
+                } label: {
+                    HStack(spacing: 3) {
+                        Image(systemName: action.symbol)
+                            .font(.system(size: 10, weight: .semibold))
+                        Text(verbatim: action.displayName)
+                            .font(.system(size: 11, weight: .medium))
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 4)
+                    .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.primary.opacity(0.06)))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(4)
+        .background(Capsule().fill(.ultraThinMaterial))
+        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.14)))
+        .shadow(color: Color.black.opacity(0.18), radius: 8, y: 3)
+    }
+}
+
+struct SelectionPillContainerView: View {
+    let request: TranslateRequest
+    let dictionary: DictionaryCardModel?
+    let actions: [SelectionAction]
+    let onAction: (SelectionAction) -> Void
+    @State private var showTranslateCard = false
+
+    var body: some View {
+        VStack(spacing: 8) {
+            SelectionActionPillView(actions: actions) { action in
+                if action == .translate {
+                    withAnimation(.spring(response: 0.28, dampingFraction: 0.8)) {
+                        showTranslateCard.toggle()
+                    }
+                } else {
+                    onAction(action)
+                }
+            }
+
+            if showTranslateCard {
+                TranslateCardView(request: request, dictionary: dictionary)
+                    .transition(.asymmetric(insertion: .scale(scale: 0.95).combined(with: .opacity), removal: .opacity))
+            }
+        }
+    }
+}
