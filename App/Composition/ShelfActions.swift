@@ -1,9 +1,11 @@
 import AppKit
 import AVFoundation
+import CoreImage
 import ImageIO
 import OSLog
 import PDFKit
 import UniformTypeIdentifiers
+import Vision
 
 /// Dropover-style actions on shelf items: zip, compress (images via ImageIO, videos via AVFoundation) and
 /// share / AirDrop. Results land back on the shelf. The heavy work runs off the main thread; nothing here
@@ -205,6 +207,74 @@ enum ShelfActions {
 
     static func airDrop(_ urls: [URL]) {
         NSSharingService(named: .sendViaAirDrop)?.perform(withItems: urls)
+    }
+
+    // MARK: remove background (Vision) & image convert (Slice 2.5)
+
+    static func canRemoveBackground(_ url: URL) -> Bool {
+        FileTransformPlan.canRemoveBackground(for: url)
+    }
+
+    static func removeBackground(_ urls: [URL], into shelf: ShelfStore) {
+        for url in urls where canRemoveBackground(url) {
+            Task {
+                do {
+                    let out = try await Task.detached(priority: .userInitiated) {
+                        try performBackgroundRemoval(url: url)
+                    }.value
+                    shelf.stash(paths: [out.path])
+                } catch {
+                    logger.error("background removal failed: \(String(describing: error), privacy: .public)")
+                    NSSound.beep()
+                }
+            }
+        }
+    }
+
+    nonisolated private static func performBackgroundRemoval(url: URL) throws -> URL {
+        let dest = FileTransformPlan.noBackgroundDestination(for: url)
+        if #available(macOS 14.0, *) {
+            guard let ciImage = CIImage(contentsOf: url) else { throw Failure.unsupported }
+            let request = VNGenerateForegroundInstanceMaskRequest()
+            let handler = VNImageRequestHandler(ciImage: ciImage)
+            try handler.perform([request])
+            guard let result = request.results?.first else { throw Failure.failed }
+            let mask = try result.generateScaledMaskForImage(forInstances: result.allInstances, from: handler)
+            let filter = CIFilter(name: "CIBlendWithMask")
+            filter?.setValue(ciImage, forKey: kCIInputImageKey)
+            filter?.setValue(CIImage(cvPixelBuffer: mask), forKey: kCIInputMaskImageKey)
+            filter?.setValue(CIImage.empty(), forKey: kCIInputBackgroundImageKey)
+            guard let outputCI = filter?.outputImage else { throw Failure.failed }
+            let context = CIContext()
+            guard let cg = context.createCGImage(outputCI, from: outputCI.extent) else { throw Failure.failed }
+            guard let destIO = CGImageDestinationCreateWithURL(dest as CFURL, "public.png" as CFString, 1, nil) else { throw Failure.failed }
+            CGImageDestinationAddImage(destIO, cg, nil)
+            guard CGImageDestinationFinalize(destIO) else { throw Failure.failed }
+            return dest
+        } else {
+            try FileManager.default.copyItem(at: url, to: dest)
+            return dest
+        }
+    }
+
+    static func convertImage(_ urls: [URL], format: ImageTargetFormat, into shelf: ShelfStore) {
+        for url in urls where isImage(url) {
+            Task {
+                do {
+                    let dest = FileTransformPlan.convertedDestination(for: url, format: format)
+                    guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
+                          let cg = CGImageSourceCreateImageAtIndex(source, 0, nil),
+                          let destIO = CGImageDestinationCreateWithURL(dest as CFURL, format.uniformTypeIdentifier as CFString, 1, nil) else {
+                        throw Failure.unsupported
+                    }
+                    CGImageDestinationAddImage(destIO, cg, nil)
+                    guard CGImageDestinationFinalize(destIO) else { throw Failure.failed }
+                    shelf.stash(paths: [dest.path])
+                } catch {
+                    logger.error("image format conversion failed: \(String(describing: error), privacy: .public)")
+                }
+            }
+        }
     }
 
     /// The system share sheet, anchored at the pointer through a throwaway invisible window (the shelf

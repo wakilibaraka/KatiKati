@@ -40,7 +40,13 @@ struct NotchStoragePageView: View {
             } else {
                 rows(items)
             }
-            if !showsDoor { reviewCaches }
+            if !showsDoor {
+                HStack(spacing: 8) {
+                    reviewCaches
+                    Text(verbatim: "•").foregroundStyle(.white.opacity(0.3)).font(.system(size: 8))
+                    reviewLeftovers
+                }
+            }
             if showsDoor && !scanner.hasFullDiskAccess { accessDoor }
         }
         .padding(NotchDesignSpec.cardPadding)
@@ -85,6 +91,25 @@ struct NotchStoragePageView: View {
             .font(.system(size: 10, weight: .semibold, design: .rounded))
             .foregroundStyle(.cyan)
             .disabled(cleaner.isScanning)
+    }
+
+    private var reviewLeftovers: some View {
+        Button {
+            let userHome = FileManager.default.homeDirectoryForCurrentUser.path
+            let candidates = AppLeftoverScanPlan.expectedCandidatePaths(home: userHome, bundleID: "com.spotify.client", appName: "Spotify")
+            let alert = NSAlert()
+            alert.messageText = String(localized: "Scan App Leftovers")
+            let preview = candidates.prefix(4).map { "• " + URL(fileURLWithPath: $0).lastPathComponent }.joined(separator: "\n")
+            alert.informativeText = String(format: String(localized: "Scanned %d potential leftover locations in ~/Library.\n\n%@"), candidates.count, preview)
+            alert.addButton(withTitle: String(localized: "OK"))
+            NSApp.activate(ignoringOtherApps: true)
+            alert.runModal()
+        } label: {
+            Text(verbatim: "Leftovers…")
+        }
+        .buttonStyle(.plain)
+        .font(.system(size: 10, weight: .semibold, design: .rounded))
+        .foregroundStyle(.cyan)
     }
 
     private func reviewCachesTapped() {
