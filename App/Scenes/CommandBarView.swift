@@ -286,7 +286,7 @@ struct CommandBarView: View {
 
             if canQuickLook {
                 HStack(spacing: 3) {
-                    Text("⌘Y").font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    Text(verbatim: "⌘Y").font(.system(size: 10, weight: .semibold, design: .monospaced))
                     Text("Quick Look").font(.system(size: 11))
                 }
                 .foregroundColor(.secondary)
@@ -297,7 +297,7 @@ struct CommandBarView: View {
                 model.actionSelection = 0
             } label: {
                 HStack(spacing: 3) {
-                    Text("⌘K").font(.system(size: 10, weight: .bold, design: .monospaced))
+                    Text(verbatim: "⌘K").font(.system(size: 10, weight: .bold, design: .monospaced))
                     Text("Actions").font(.system(size: 11, weight: .semibold))
                 }
                 .foregroundColor(.accentColor)
@@ -439,7 +439,7 @@ struct CommandBarView: View {
                     .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.primary.opacity(selected ? 0.08 : 0.04)))
 
                 if index < 9 {
-                    Text("⌘\(index + 1)")
+                    Text(verbatim: "⌘\(index + 1)")
                         .font(.system(size: 10, weight: .semibold, design: .monospaced))
                         .foregroundColor(.secondary)
                         .padding(.horizontal, 4).padding(.vertical, 2)
@@ -519,11 +519,11 @@ struct CommandBarActionPanelView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack {
-                Text("ACTIONS")
+                Text(verbatim: "ACTIONS")
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(.secondary)
                 Spacer()
-                Text("Esc")
+                Text(verbatim: "Esc")
                     .font(.system(size: 9, design: .monospaced))
                     .foregroundColor(.secondary.opacity(0.7))
             }

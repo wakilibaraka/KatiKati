@@ -323,7 +323,7 @@ struct SettingsWindowContent: View {
 
     /// 「命令栏」页: the command bar's own rows (`LauncherSettingsBlock` keeps the launcher rows).
     private var commandBarPane: some View {
-        CommandBarSettingsBlock()
+        CommandBarSettingsBlock(tabState: tabState)
     }
 
     /// 「控制中心」页: dedicated page for Control Center placement, size, widgets, and quick settings.

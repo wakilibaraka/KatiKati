@@ -349,6 +349,7 @@ struct LauncherSettingsBlock: View {
 /// The command bar's own rows (2026-10-20): split out of `LauncherSettingsBlock` so the command
 /// bar has a page of its own instead of riding on the launcher's.
 struct CommandBarSettingsBlock: View {
+    var tabState: SettingsTabState? = nil
     @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
     @AppStorage(Quicklink.key) private var quicklinks = ""
 
@@ -361,6 +362,15 @@ struct CommandBarSettingsBlock: View {
                 text: $quicklinks,
                 placeholder: Text("One per line: gh = https://github.com/search?q={query} (supports {query}, {clipboard}, {date})")
             )
+            if let tabState {
+                SettingsDivider()
+                SettingsRow(Text("Commands & Snippets"), note: Text("Configure custom scripts and text expansions in Tools.")) {
+                    Button("Open Tools Settings") {
+                        tabState.selected = .tools
+                    }
+                    .buttonStyle(SettingsGelButtonStyle())
+                }
+            }
         }
     }
 }

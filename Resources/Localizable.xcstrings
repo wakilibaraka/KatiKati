@@ -98264,7 +98264,116 @@
         "it": { "stringUnit": { "state": "translated", "value": "Cerca i testi sincronizzati su lrclib.net inviando il titolo e l'artista attuali quando la scheda musica della tacca è aperta." } },
         "ko": { "stringUnit": { "state": "translated", "value": "음악 노치 카드가 열려 있을 때 현재 곡 제목과 아티스트를 lrclib.net으로 전송하여 동기화된 가사를 검색합니다." } }
       }
+    },
+
+    "Actions": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Actions" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "操作" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "操作" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "アクション" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Aktionen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Actions" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Acciones" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Acciones" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ações" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Ações" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Azioni" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "동작" } }
+      }
+    },
+
+    "Ask AI": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Ask AI" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "询问 AI" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "詢問 AI" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "AIに聞く" } },
+        "de": { "stringUnit": { "state": "translated", "value": "KI fragen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Demander à l'IA" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Preguntar a la IA" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Preguntar a la IA" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Perguntar à IA" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Perguntar à IA" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Chiedi all'IA" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "AI에 질문" } }
+      }
+    },
+
+    "Configure custom scripts and text expansions in Tools.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Configure custom scripts and text expansions in Tools." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "在「工具」中配置自定义脚本与文本扩展。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "在「工具」中設定自訂指令碼與文字展開。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "「ツール」でカスタムスクリプトやテキスト展開を設定します。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Benutzerdefinierte Skripte und Texterweiterungen in „Werkzeuge“ konfigurieren." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Configurez des scripts personnalisés et l'extension de texte dans « Outils »." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Configura scripts personalizados y expansiones de texto en «Herramientas»." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Configura scripts personalizados y expansiones de texto en «Herramientas»." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Configure scripts personalizados e expansão de texto em «Ferramentas»." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Configure scripts personalizados e expansão de texto em «Ferramentas»." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Configura script personalizzati ed espansioni di testo in «Strumenti»." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "「도구」에서 사용자 지정 스크립트 및 텍스트 확장을 구성합니다." } }
+      }
+    },
+
+    "Open Tools Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Open Tools Settings" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "打开工具设置" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "打開工具設定" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ツール設定を開く" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Werkzeugeinstellungen öffnen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ouvrir les réglages des outils" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Abrir ajustes de herramientas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Abrir configuración de herramientas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Abrir configurações de ferramentas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Abrir definições de ferramentas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Apri impostazioni strumenti" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "도구 설정 열기" } }
+      }
+    },
+
+    "Quick Look": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Quick Look" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "快速查看" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "快速查看" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "クイックルック" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Übersicht" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Coup d'œil" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Vista Rápida" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Vista Rápida" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Visualização Rápida" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Vista Rápida" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Visualizzazione rapida" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "훑어보기" } }
+      }
+    },
+
+    "Search Files": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Search Files" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "搜索文件" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "搜尋檔案" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ファイルを検索" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Dateien suchen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Rechercher des fichiers" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Buscar archivos" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Buscar archivos" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Buscar arquivos" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pesquisar ficheiros" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Cerca file" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "파일 검색" } }
+      }
     }
+
   },
   "version": "1.0"
 }
