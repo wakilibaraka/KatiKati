@@ -57,7 +57,6 @@ final class ChipPanelModel: ObservableObject {
     /// Preview only: show every window of the app instead of just the chip's own.
     @Published var expanded = false
     @Published var thumbnails: [String: NSImage] = [:]
-    @Published var screenAccess = WindowThumbnailCapture.isAuthorized
     @Published var optionHeld = false
     @Published var thumbWidth: CGFloat = 180
 
@@ -93,7 +92,6 @@ final class ChipPanelModel: ObservableObject {
     var closeWindow: (String) -> Void = { _ in }
     var openRecent: (ChipPanelRecent) -> Void = { _ in }
     var runAction: (ChipPanelAction) -> Void = { _ in }
-    var requestScreenAccess: () -> Void = {}
 }
 
 /// What the strip reports about the window chip under the pointer (independent of the title-bubble style).

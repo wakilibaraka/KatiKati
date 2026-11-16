@@ -465,6 +465,10 @@ final class PanelCoordinator: NSObject {
 
         closeDrawer()
         closeFolderPopup(immediately: true)
+        // The lazy chip panel is retained by this coordinator, so its `deinit` never runs on
+        // permission loss; tear it down explicitly to release its workspace observers.
+        chipPanelStorage?.tearDown()
+        chipPanelStorage = nil
         dismissWindowTitleTooltip()
         cancelHoverSwitch()
         cancelEdgeWake()

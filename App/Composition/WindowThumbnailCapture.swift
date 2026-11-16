@@ -21,6 +21,13 @@ enum WindowThumbnailCapture {
     /// caller's actor; `nil` = nothing to show (minimised / off-space / not authorised / refused).
     static func capture(windowID: CGWindowID, maxPixelSize: CGSize) async -> NSImage? {
         guard isAuthorized else { return nil }
+        return await captureAuthorized(windowID: windowID, maxPixelSize: maxPixelSize)
+    }
+
+    /// Capture after the caller has checked a cached permission verdict. Used by the hover
+    /// panel, whose TCC preflight runs asynchronously on a throttled cadence rather than on
+    /// every 0.5 s capture tick.
+    static func captureAuthorized(windowID: CGWindowID, maxPixelSize: CGSize) async -> NSImage? {
         guard let window = try? await SCShareableContent
             .excludingDesktopWindows(false, onScreenWindowsOnly: false)
             .windows

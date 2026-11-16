@@ -66,6 +66,68 @@ final class ChipPanelWatchdogTests: XCTestCase {
     }
 }
 
+final class ChipPanelCapturePolicyTests: XCTestCase {
+    func testVerdictFollowsOpenPreviewAndAuthorization() {
+        XCTAssertEqual(ChipPanelCapturePolicy.verdict(isOpen: false, isPreview: true, isAuthorized: true), .idle)
+        XCTAssertEqual(ChipPanelCapturePolicy.verdict(isOpen: true, isPreview: false, isAuthorized: true), .idle)
+        XCTAssertEqual(ChipPanelCapturePolicy.verdict(isOpen: true, isPreview: true, isAuthorized: true), .run)
+        XCTAssertEqual(ChipPanelCapturePolicy.verdict(isOpen: true, isPreview: true, isAuthorized: false), .revoked,
+                       "a revoke under an open panel must clear the thumbnails, not keep refreshing")
+    }
+
+    func testAuthorizationRefreshIsThrottledAndSingleFlight() {
+        // The 0.5 s capture tick requests a refresh, but TCC is asked at most every 2 s.
+        XCTAssertFalse(ChipPanelCapturePolicy.shouldCheckAuthorization(now: 1.9, lastCheck: 0,
+                                                                       interval: 2, isInFlight: false))
+        XCTAssertTrue(ChipPanelCapturePolicy.shouldCheckAuthorization(now: 2, lastCheck: 0,
+                                                                      interval: 2, isInFlight: false))
+        XCTAssertFalse(ChipPanelCapturePolicy.shouldCheckAuthorization(now: 4, lastCheck: 0,
+                                                                        interval: 2, isInFlight: true))
+    }
+
+    func testPauseWaitsForEveryIndependentWakeSignal() {
+        XCTAssertFalse(ChipPanelCapturePolicy.isPaused(displayAsleep: false, systemAsleep: false,
+                                                       sessionInactive: false))
+        XCTAssertTrue(ChipPanelCapturePolicy.isPaused(displayAsleep: true, systemAsleep: false,
+                                                      sessionInactive: false))
+        XCTAssertTrue(ChipPanelCapturePolicy.isPaused(displayAsleep: false, systemAsleep: true,
+                                                      sessionInactive: false))
+        XCTAssertTrue(ChipPanelCapturePolicy.isPaused(displayAsleep: false, systemAsleep: false,
+                                                      sessionInactive: true))
+        // Waking the display alone cannot override a still-active system sleep or lock.
+        XCTAssertTrue(ChipPanelCapturePolicy.isPaused(displayAsleep: false, systemAsleep: true,
+                                                      sessionInactive: false))
+        XCTAssertTrue(ChipPanelCapturePolicy.isPaused(displayAsleep: false, systemAsleep: false,
+                                                      sessionInactive: true))
+    }
+
+    func testAuthorizationResultFromBeforeSleepIsRejected() {
+        XCTAssertTrue(ChipPanelCapturePolicy.mayApplyAuthorizationResult(startedGeneration: 5,
+                                                                         currentGeneration: 5))
+        XCTAssertFalse(ChipPanelCapturePolicy.mayApplyAuthorizationResult(startedGeneration: 5,
+                                                                          currentGeneration: 6))
+    }
+
+    func testStaleCaptureCannotApplyAfterHidePauseOrRevoke() {
+        XCTAssertTrue(ChipPanelCapturePolicy.mayApplyCapture(isOpen: true, isAuthorized: true,
+                                                             startedGeneration: 3, currentGeneration: 3))
+        XCTAssertFalse(ChipPanelCapturePolicy.mayApplyCapture(isOpen: false, isAuthorized: true,
+                                                              startedGeneration: 3, currentGeneration: 3))
+        XCTAssertFalse(ChipPanelCapturePolicy.mayApplyCapture(isOpen: true, isAuthorized: false,
+                                                              startedGeneration: 3, currentGeneration: 3))
+        XCTAssertFalse(ChipPanelCapturePolicy.mayApplyCapture(isOpen: true, isAuthorized: true,
+                                                              startedGeneration: 3, currentGeneration: 4))
+    }
+
+    func testHungWindowStaysInFlightUntilItsCaptureReturns() {
+        XCTAssertEqual(ChipPanelCapturePolicy.dueWindowIDs(["a", "a", "b"], inFlight: ["b"]), ["a"])
+        // Repeated ticks and wake events do not stack another capture for a hung id.
+        XCTAssertEqual(ChipPanelCapturePolicy.dueWindowIDs(["a", "b"], inFlight: ["a", "b"]), [])
+        // Once the original operation returns and releases its id, the next tick can retry.
+        XCTAssertEqual(ChipPanelCapturePolicy.dueWindowIDs(["a"], inFlight: []), ["a"])
+    }
+}
+
 final class ChipPanelLayoutTests: XCTestCase {
     func testPreviewGridWrapsAndCaps() {
         XCTAssertEqual(ChipPanelLayout.previewGrid(count: 0), .init(columns: 0, rows: 0, shown: 0, hidden: 0))

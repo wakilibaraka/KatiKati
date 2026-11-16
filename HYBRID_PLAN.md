@@ -5999,6 +5999,50 @@ Downloads folder.
 ### Backlog status reconciliation
 
 - 48c and 48d are BUILT (their 2026-10-17 implementation and live evidence remain in their entries; headings corrected above).
-- 54b hover preview is BUILT from `5353157`; the spike's latency numbers remain design evidence, not evidence of end-to-end permission/sleep/lock correctness, and none of the spike's capture-pause safeguards (display sleep/lock, frozen app, revoke while open) are built — see 54b.
+- 54b hover preview is BUILT from `5353157`; its capture-pause safeguards landed 2026-11-16 in `ChipPanelCapturePolicy` (see the dated entry below). The spike's latency numbers remain design evidence, and the live walkthrough is still owed.
 - Quicklink #4′ slice 2, hold-to-dictate #14, and external port-plan #6–#13 remain unbuilt/unknown as stated in §5g. Do not fill missing port-plan descriptions by inference.
 - The 12 entries in `LANES.md` were old claims for work already merged; they are cleared as of this plan reconciliation. New slices must claim a lane before work starts.
+
+---
+
+## 2026-11-16 — hover-preview capture safeguards (54b completion)
+
+**Why now.** 54b's preview shipped (`5353157`) without the safeguards its own spike called for, and the
+2026-11-15 baseline recorded that honestly instead of claiming them. They are cheap to add and each one
+prevents a visible failure: a frozen app stacking a capture every half second, a stale frame surviving
+display sleep or a lock, and pre-revoke frames staying on screen after Screen Recording is taken away.
+
+- **In-flight guard.** `ChipPanelCapturePolicy.dueWindowIDs` skips captures still running and collapses
+  duplicate IDs. `ChipPanelModel.previewWindows` already limits the visible set to the grid's card cap,
+  so no second per-tick budget is needed. Each id is released only by its own task when the operation
+  returns; a hung operation leaves that card on its icon fallback and is never stacked by ticks or wake.
+  Results also carry a generation and are rejected after hide, pause or revoke. There is deliberately no
+  timeout: without evidence that the original operation ended, starting another would violate no-stacking.
+- **Sleep and lock pause.** `ChipPanelController.observeScreenAvailability` retains six workspace observer
+  tokens. They are removed by the idempotent `removeScreenAvailabilityObservers()`, called from `deinit` and
+  from `ChipPanelController.tearDown()`; `PanelCoordinator.tearDown()` (the permission-loss path) calls that
+  explicitly because the coordinator otherwise retains the panel for the process lifetime. Display sleep,
+  system sleep, and session inactive are independent pause flags; one wake event cannot clear another
+  active pause. Pause clears thumbnails, invalidates in-flight results, and clears the cached authorization
+  verdict. A check already running at pause is discarded by generation; the existing capture tick starts a
+  fresh off-main check after wake. No overlapping TCC calls or new timer.
+- **Permission refresh stays off the hover path.** The existing 0.5 s capture tick requests a refresh, but
+  the request self-throttles to one detached utility task every two seconds and to a single in-flight
+  check; the tick itself only reads the cached verdict. A revoke while authorized is therefore noticed,
+  clears thumbnails and invalidates results; newly authorized state resumes capture. The hover path uses
+  `captureAuthorized` after the cached gate, while drawer/switcher callers retain the self-checking
+  `capture` entry point.
+- **Simplification:** removed the unused ChipPanelModel permission-request callback and `screenAccess`
+  state (no view called either); permission prompting remains in the app's Settings and welcome surfaces.
+- **Files:** `Core/Support/ChipPanelCapturePolicy.swift` (new, pure), `App/Entry/ChipPanelController.swift`,
+  `App/Composition/WindowThumbnailCapture.swift`, `App/Scenes/ChipPanel/ChipPanelModel.swift`,
+  `Tests/Unit/ChipPanelTests.swift`, `KatiKati.xcodeproj/project.pbxproj` (one file, both targets).
+- **Tests:** 6 new policy cases cover cached verdict, throttle/single-flight, independent pause states,
+  stale authorization and capture result rejection, and in-flight/deduplication behavior.
+- **Verify:** documented Debug command → **2,973 tests, 2 skipped, 0 failures** (was 2,967).
+  `ChipPanelCapturePolicyTests`: 6 passed. Localization, debug-switch, availability-warning and
+  `git diff --check` gates passed.
+- **Not verified:** the live walkthrough of all three paths (frozen app, display sleep/lock, revoke while
+  the panel is open), the permission-loss teardown that releases observers (compiled but not exercised),
+  and the `right process instance` check from §7.2; these remain listed as OWED in
+  `FEATURE_ROADMAP_2026-10.md`. No idle-CPU measurement was taken in this slice, so Q1 stays owed.

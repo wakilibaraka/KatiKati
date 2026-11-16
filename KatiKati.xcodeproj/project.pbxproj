@@ -237,6 +237,8 @@
 		7B5000000000000000040312 /* ChipPanelLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040311 /* ChipPanelLayout.swift */; };
 		7B5000000000000000040213 /* ChipPanelHoverMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040211 /* ChipPanelHoverMachine.swift */; };
 		7B5000000000000000040212 /* ChipPanelHoverMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040211 /* ChipPanelHoverMachine.swift */; };
+		7B5000000000000000040E13 /* ChipPanelCapturePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040E11 /* ChipPanelCapturePolicy.swift */; };
+		7B5000000000000000040E12 /* ChipPanelCapturePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040E11 /* ChipPanelCapturePolicy.swift */; };
 		7B5000000000000000040112 /* WindowChipGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040111 /* WindowChipGroupingTests.swift */; };
 		7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
 		7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
@@ -1462,6 +1464,7 @@
 		7B5000000000000000040411 /* ChipPanelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelTests.swift; path = Tests/Unit/ChipPanelTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040311 /* ChipPanelLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelLayout.swift; path = Core/Support/ChipPanelLayout.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040211 /* ChipPanelHoverMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelHoverMachine.swift; path = Core/Support/ChipPanelHoverMachine.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000040E11 /* ChipPanelCapturePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelCapturePolicy.swift; path = Core/Support/ChipPanelCapturePolicy.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040111 /* WindowChipGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGroupingTests.swift; path = Tests/Unit/WindowChipGroupingTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040011 /* WindowChipGrouping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGrouping.swift; path = Core/Support/WindowChipGrouping.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003B51 /* ShelfIconStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfIconStateTests.swift; path = Tests/Unit/ShelfIconStateTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3637,6 +3640,7 @@
 				7B5000000000000000040512 /* WindowThumbnailCapture.swift in Sources */,
 				7B5000000000000000040312 /* ChipPanelLayout.swift in Sources */,
 				7B5000000000000000040212 /* ChipPanelHoverMachine.swift in Sources */,
+				7B5000000000000000040E12 /* ChipPanelCapturePolicy.swift in Sources */,
 				A0000000000000000000B101 /* PeekHold.swift in Sources */,
 				7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B12 /* ShelfIconState.swift in Sources */,
@@ -3813,6 +3817,7 @@
 				7B5000000000000000040513 /* WindowThumbnailCapture.swift in Sources */,
 				7B5000000000000000040313 /* ChipPanelLayout.swift in Sources */,
 				7B5000000000000000040213 /* ChipPanelHoverMachine.swift in Sources */,
+				7B5000000000000000040E13 /* ChipPanelCapturePolicy.swift in Sources */,
 				A0000000000000000000B102 /* PeekHold.swift in Sources */,
 				7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B13 /* ShelfIconState.swift in Sources */,

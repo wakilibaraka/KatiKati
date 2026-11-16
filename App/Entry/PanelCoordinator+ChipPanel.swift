@@ -49,6 +49,7 @@ extension PanelCoordinator {
     /// Strip → panel: the window chip under the pointer (nil = none). Called regardless of the
     /// title-bubble style, so previews work in the default quiet mode too.
     func handleChipHover(_ request: ChipHoverRequest?) {
+        guard !isSuspendedForPermissionLoss else { return }
         guard settingsStore.chipPreviewEnabled || chipPanelStorage != nil else { return }
         chipPanel.hoverChanged(chipID: request?.chipID, anchor: request?.anchorVisibleRect ?? .zero)
     }
