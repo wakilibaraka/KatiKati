@@ -124,3 +124,150 @@ struct ScreenTimeFlyoutView: View {
         return choices
     }
 }
+
+// MARK: - Lumabar Signature Micro-Tiles (Slice 4.4)
+
+struct DotMatrixProgressTileView: View {
+    let model: DotMatrixProgressModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(model.label)
+                .font(.system(size: 9.5, weight: .semibold))
+                .foregroundStyle(.secondary)
+            HStack(spacing: 2) {
+                ForEach(0..<model.totalDots, id: \.self) { i in
+                    Circle()
+                        .fill(i < model.litDots ? Color.accentColor : Color.primary.opacity(0.12))
+                        .frame(width: 4, height: 4)
+                }
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Capsule().fill(.ultraThinMaterial))
+        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.1), lineWidth: 0.5))
+    }
+}
+
+struct RetroFlipClockTileView: View {
+    let digits: FlipClockDigits
+
+    var body: some View {
+        HStack(spacing: 3) {
+            card(digits.hourString)
+            Text(":").font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
+            card(digits.minuteString)
+            if !digits.amPm.isEmpty {
+                Text(digits.amPm)
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .background(RoundedRectangle(cornerRadius: 6).fill(.ultraThinMaterial))
+        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color.primary.opacity(0.1), lineWidth: 0.5))
+    }
+
+    private func card(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 11, weight: .bold, design: .monospaced))
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
+            .background(RoundedRectangle(cornerRadius: 3).fill(Color.primary.opacity(0.08)))
+    }
+}
+
+struct InlineFocusTimerPill: View {
+    let sessionText: String // e.g. "Focus 1/4"
+    let timeRemainingText: String // e.g. "25:00"
+    let isRunning: Bool
+    var onToggle: () -> Void = {}
+
+    var body: some View {
+        Button(action: onToggle) {
+            HStack(spacing: 5) {
+                Image(systemName: "timer")
+                    .font(.system(size: 9.5, weight: .semibold))
+                    .foregroundStyle(.orange)
+                Text(sessionText)
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(.secondary)
+                Text(timeRemainingText)
+                    .font(.system(size: 9.5, weight: .bold, design: .monospaced))
+                Image(systemName: isRunning ? "pause.fill" : "play.fill")
+                    .font(.system(size: 8))
+                    .foregroundStyle(.orange)
+            }
+            .padding(.horizontal, 7)
+            .padding(.vertical, 3)
+            .background(Capsule().fill(.ultraThinMaterial))
+            .overlay(Capsule().strokeBorder(Color.orange.opacity(0.2), lineWidth: 0.5))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct ScreenTimeHourlyBarTile: View {
+    let totalText: String // e.g. "6h 5m"
+    let hourlyFractions: [Double] // 0.0 ... 1.0
+
+    var body: some View {
+        HStack(spacing: 5) {
+            Image(systemName: "hourglass")
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(.purple)
+            Text(totalText)
+                .font(.system(size: 9.5, weight: .semibold))
+            HStack(alignment: .bottom, spacing: 1.5) {
+                ForEach(0..<min(12, hourlyFractions.count), id: \.self) { i in
+                    RoundedRectangle(cornerRadius: 1)
+                        .fill(Color.purple.opacity(0.7))
+                        .frame(width: 2.5, height: max(2, 12 * CGFloat(hourlyFractions[i])))
+                }
+            }
+            .frame(height: 12)
+        }
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background(Capsule().fill(.ultraThinMaterial))
+        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.1), lineWidth: 0.5))
+    }
+}
+
+struct AILimitDualBarTileView: View {
+    let summary: AILimitBarTileSummary
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "sparkle")
+                .font(.system(size: 9, weight: .bold))
+                .foregroundStyle(.cyan)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 4) {
+                    Text(summary.providerName).font(.system(size: 9, weight: .bold))
+                    Text(summary.tokenFormatted).font(.system(size: 8)).foregroundStyle(.secondary)
+                }
+                HStack(spacing: 4) {
+                    bar(fraction: Double(summary.sessionPercent) / 100, label: "S: \(summary.sessionPercent)%", reset: summary.sessionResetCountdown)
+                    bar(fraction: Double(summary.weeklyPercent) / 100, label: "W: \(summary.weeklyPercent)%", reset: summary.weeklyResetDay)
+                }
+            }
+        }
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background(Capsule().fill(.ultraThinMaterial))
+        .overlay(Capsule().strokeBorder(Color.cyan.opacity(0.2), lineWidth: 0.5))
+    }
+
+    private func bar(fraction: Double, label: String, reset: String) -> some View {
+        HStack(spacing: 2) {
+            Text(label).font(.system(size: 8, weight: .medium))
+            Capsule()
+                .fill(fraction > 0.85 ? Color.red : Color.cyan)
+                .frame(width: max(2, 24 * CGFloat(min(1.0, fraction))), height: 3)
+            Text(reset).font(.system(size: 7)).foregroundStyle(.secondary)
+        }
+    }
+}
