@@ -68,6 +68,25 @@ final class QuitOnLastWindowPolicyTests: XCTestCase {
         XCTAssertFalse(QuitOnLastWindowPolicy.shouldQuit(hadWindow: true, windowCount: nil),
                        "a failed AX read is unknown, never zero")
     }
+
+    func testIdleAppAutoQuitPolicyEligibilityAndThresholds() {
+        XCTAssertFalse(IdleAppAutoQuitPolicy.isEligible(bundleID: "com.apple.Safari"))
+        XCTAssertFalse(IdleAppAutoQuitPolicy.isEligible(bundleID: "com.katikati.app"))
+        XCTAssertTrue(IdleAppAutoQuitPolicy.isEligible(bundleID: "com.spotify.client"))
+        XCTAssertTrue(IdleAppAutoQuitPolicy.isEligible(bundleID: "com.google.Chrome"))
+
+        let disabledPolicy = IdleAppAutoQuitPolicy(idleThresholdSeconds: 0)
+        XCTAssertFalse(disabledPolicy.shouldQuit(bundleID: "com.spotify.client", idleDuration: 7200))
+
+        let policy = IdleAppAutoQuitPolicy(idleThresholdSeconds: 1800) // 30 mins
+        XCTAssertFalse(policy.shouldQuit(bundleID: "com.spotify.client", idleDuration: 600))
+        XCTAssertTrue(policy.shouldQuit(bundleID: "com.spotify.client", idleDuration: 1801))
+
+        // Suppressed while playing media or when an AI agent is working
+        XCTAssertFalse(policy.shouldQuit(bundleID: "com.spotify.client", idleDuration: 3600, isPlayingMedia: true))
+        XCTAssertFalse(policy.shouldQuit(bundleID: "com.spotify.client", idleDuration: 3600, isAgentWorking: true))
+        XCTAssertFalse(policy.shouldQuit(bundleID: "com.apple.Notes", idleDuration: 3600))
+    }
 }
 
 /// 24c/53d/53i: the app-rules table Settings draws is a view of the three stored lists, never a fourth

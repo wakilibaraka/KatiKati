@@ -20,6 +20,9 @@ final class QuitOnLastWindowService: ObservableObject {
 
     private let log = Logger(subsystem: "com.katikati.app", category: "quitOnClose")
     private var policy = QuitOnLastWindowPolicy()
+    private var idlePolicy = IdleAppAutoQuitPolicy()
+    private var lastActiveTimes: [String: Date] = [:]
+    private var idleTimer: Timer?
     private var observers: [pid_t: AXObserver] = [:]
     private var sawWindow: Set<pid_t> = []
     private var workspaceObservers: [NSObjectProtocol] = []
@@ -38,7 +41,12 @@ final class QuitOnLastWindowService: ObservableObject {
             forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
         ) { [weak self] note in
             let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
-            MainActor.assumeIsolated { self?.track(app) }
+            MainActor.assumeIsolated {
+                if let id = app?.bundleIdentifier {
+                    self?.lastActiveTimes[id] = Date()
+                }
+                self?.track(app)
+            }
         })
         workspaceObservers.append(center.addObserver(
             forName: NSWorkspace.didTerminateApplicationNotification, object: nil, queue: .main
@@ -47,9 +55,14 @@ final class QuitOnLastWindowService: ObservableObject {
             MainActor.assumeIsolated { self?.forget(app?.processIdentifier) }
         })
         refresh()
+        idleTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.evaluateIdleApps() }
+        }
     }
 
     func tearDown() {
+        idleTimer?.invalidate()
+        idleTimer = nil
         for work in pendingChecks.values { work.cancel() }
         pendingChecks.removeAll()
         for observer in observers.values {
@@ -86,6 +99,24 @@ final class QuitOnLastWindowService: ObservableObject {
         apps = raw
         UserDefaults.standard.set(raw, forKey: Self.key)
         refresh()
+    }
+
+    // MARK: idle auto-quit (Slice 3.2: SC-AutoQuitIdle)
+
+    func evaluateIdleApps(now: Date = Date(), isPlayingMedia: Bool = false, isAgentWorking: Bool = false) {
+        let threshold = UserDefaults.standard.double(forKey: IdleAppAutoQuitPolicy.defaultsKey)
+        idlePolicy = IdleAppAutoQuitPolicy(idleThresholdSeconds: threshold)
+        guard threshold > 0 else { return }
+
+        for app in NSWorkspace.shared.runningApplications {
+            guard let bundleID = app.bundleIdentifier, !app.isActive else { continue }
+            let lastActive = lastActiveTimes[bundleID] ?? app.launchDate ?? now
+            let idleDuration = now.timeIntervalSince(lastActive)
+            if idlePolicy.shouldQuit(bundleID: bundleID, idleDuration: idleDuration, isPlayingMedia: isPlayingMedia, isAgentWorking: isAgentWorking) {
+                log.info("Auto-quitting idle application: \(bundleID, privacy: .public)")
+                app.terminate()
+            }
+        }
     }
 
     // MARK: observation

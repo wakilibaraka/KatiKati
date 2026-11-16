@@ -188,3 +188,41 @@ struct QuitAppRules: Equatable, Sendable {
         rows.filter(\.isActive).sorted { $0.bundleID < $1.bundleID }
     }
 }
+
+// MARK: - Idle App Auto-Quit Policy (Slice 3.2: SC-AutoQuitIdle)
+
+/// Pure policy evaluating automatic termination of idle background applications.
+struct IdleAppAutoQuitPolicy: Equatable, Sendable {
+    static let defaultsKey = "com.katikati.apps.autoQuitIdleSeconds"
+
+    static let protectedPrefixes: [String] = [
+        "com.apple.",
+        "com.katikati."
+    ]
+
+    var idleThresholdSeconds: TimeInterval
+
+    init(idleThresholdSeconds: TimeInterval = 0) {
+        self.idleThresholdSeconds = idleThresholdSeconds
+    }
+
+    static func isEligible(bundleID: String?) -> Bool {
+        guard let id = bundleID?.lowercased().trimmingCharacters(in: .whitespaces), !id.isEmpty else { return false }
+        for prefix in protectedPrefixes {
+            if id.hasPrefix(prefix) { return false }
+        }
+        return true
+    }
+
+    func shouldQuit(
+        bundleID: String?,
+        idleDuration: TimeInterval,
+        isPlayingMedia: Bool = false,
+        isAgentWorking: Bool = false
+    ) -> Bool {
+        guard idleThresholdSeconds > 0 else { return false }
+        guard Self.isEligible(bundleID: bundleID) else { return false }
+        guard !isPlayingMedia && !isAgentWorking else { return false }
+        return idleDuration >= idleThresholdSeconds
+    }
+}
