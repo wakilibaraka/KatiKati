@@ -362,3 +362,109 @@ enum DockGradientPreset: Equatable {
         }
     }
 }
+
+// MARK: - Lumabar & OpenTaskbar Suite (Slice 4.1)
+
+enum DockBarLayoutStyle: String, CaseIterable, Identifiable, Codable, Sendable {
+    case unifiedBar
+    case segmentedIslands
+
+    var id: String { rawValue }
+    static let defaultsKey = "com.katikati.dock.layoutStyle"
+    static let islandGapDefault: CGFloat = 8.0
+
+    static func current(_ d: UserDefaults = .standard) -> DockBarLayoutStyle {
+        DockBarLayoutStyle(rawValue: d.string(forKey: defaultsKey) ?? "") ?? .unifiedBar
+    }
+
+    func islandGap(custom: CGFloat? = nil) -> CGFloat {
+        let gap = custom ?? Self.islandGapDefault
+        return min(max(gap, 6.0), 10.0)
+    }
+}
+
+enum LumabarSurfaceTheme: String, CaseIterable, Identifiable, Codable, Sendable {
+    case obsidianBlack
+    case crispWhite
+    case liquidGlass
+    case iosGlass
+    case midnightBlue
+
+    var id: String { rawValue }
+    static let defaultsKey = "com.katikati.dock.lumabarTheme"
+
+    static func current(_ d: UserDefaults = .standard) -> LumabarSurfaceTheme {
+        LumabarSurfaceTheme(rawValue: d.string(forKey: defaultsKey) ?? "") ?? .obsidianBlack
+    }
+
+    var supportsIdleFrameRestOptimization: Bool {
+        self == .liquidGlass
+    }
+
+    func tokens(isDark: Bool) -> DockThemeStyleTokens {
+        switch self {
+        case .obsidianBlack:
+            return DockThemeStyleTokens(
+                baseTint: DockRGBA(r: 0.05, g: 0.05, b: 0.05, a: 0.90),
+                gradientSheen: DockRGBA(r: 1.0, g: 1.0, b: 1.0, a: 0.06),
+                glow: DockRGBA(r: 1.0, g: 1.0, b: 1.0, a: 0.0),
+                rim: DockRGBA(r: 1.0, g: 1.0, b: 1.0, a: 0.14),
+                blurRadius: 32.0,
+                prefersDarkContent: false
+            )
+        case .crispWhite:
+            return DockThemeStyleTokens(
+                baseTint: DockRGBA(r: 0.98, g: 0.98, b: 0.98, a: 0.88),
+                gradientSheen: DockRGBA(r: 1.0, g: 1.0, b: 1.0, a: 0.40),
+                glow: DockRGBA(r: 0.0, g: 0.0, b: 0.0, a: 0.05),
+                rim: DockRGBA(r: 0.0, g: 0.0, b: 0.0, a: 0.12),
+                blurRadius: 28.0,
+                prefersDarkContent: true
+            )
+        case .liquidGlass:
+            return DockThemeStyleTokens(
+                baseTint: DockRGBA(r: 0.12, g: 0.14, b: 0.18, a: 0.35),
+                gradientSheen: DockRGBA(r: 1.0, g: 1.0, b: 1.0, a: 0.30),
+                glow: DockRGBA(r: 1.0, g: 1.0, b: 1.0, a: 0.10),
+                rim: DockRGBA(r: 1.0, g: 1.0, b: 1.0, a: 0.25),
+                blurRadius: 24.0,
+                prefersDarkContent: false
+            )
+        case .iosGlass:
+            return DockThemeStyleTokens(
+                baseTint: isDark ? DockRGBA(r: 0.16, g: 0.16, b: 0.18, a: 0.55) : DockRGBA(r: 0.92, g: 0.92, b: 0.94, a: 0.55),
+                gradientSheen: DockRGBA(r: 1.0, g: 1.0, b: 1.0, a: isDark ? 0.12 : 0.35),
+                glow: DockRGBA(r: 1.0, g: 1.0, b: 1.0, a: 0.05),
+                rim: DockRGBA(r: 1.0, g: 1.0, b: 1.0, a: isDark ? 0.18 : 0.30),
+                blurRadius: 26.0,
+                prefersDarkContent: !isDark
+            )
+        case .midnightBlue:
+            return DockThemeStyleTokens(
+                baseTint: DockRGBA(r: 0.04, g: 0.07, b: 0.18, a: 0.82),
+                gradientSheen: DockRGBA(r: 0.35, g: 0.55, b: 1.0, a: 0.15),
+                glow: DockRGBA(r: 0.1, g: 0.3, b: 0.9, a: 0.10),
+                rim: DockRGBA(r: 0.3, g: 0.5, b: 0.9, a: 0.22),
+                blurRadius: 30.0,
+                prefersDarkContent: false,
+                baseTintBottom: DockRGBA(r: 0.02, g: 0.03, b: 0.10, a: 0.88)
+            )
+        }
+    }
+}
+
+enum DockBarHeightPreset: String, CaseIterable, Identifiable, Codable, Sendable {
+    case compact // 44pt
+    case regular // 54pt
+    case relaxed // 64pt
+
+    var id: String { rawValue }
+
+    var points: CGFloat {
+        switch self {
+        case .compact: return 44.0
+        case .regular: return 54.0
+        case .relaxed: return 64.0
+        }
+    }
+}

@@ -268,4 +268,47 @@ final class GlanceStackTests: XCTestCase {
             MeetingDetectionPolicy.detectPlatform(fromRunningBundleIDs: ["com.apple.Safari", "com.apple.calculator"])
         )
     }
+
+    // MARK: - Slice 4.1: DockBarLayoutStyle, LumabarSurfaceThemes & Height Presets
+
+    func testDockBarLayoutStyleAndGaps() {
+        XCTAssertEqual(DockBarLayoutStyle.unifiedBar.rawValue, "unifiedBar")
+        XCTAssertEqual(DockBarLayoutStyle.segmentedIslands.rawValue, "segmentedIslands")
+
+        let style = DockBarLayoutStyle.segmentedIslands
+        XCTAssertEqual(style.islandGap(), 8.0)
+        XCTAssertEqual(style.islandGap(custom: 4.0), 6.0) // clamped min
+        XCTAssertEqual(style.islandGap(custom: 15.0), 10.0) // clamped max
+        XCTAssertEqual(style.islandGap(custom: 7.5), 7.5)
+    }
+
+    func testLumabarSurfaceThemes() {
+        let themes: [LumabarSurfaceTheme] = [.obsidianBlack, .crispWhite, .liquidGlass, .iosGlass, .midnightBlue]
+        XCTAssertEqual(themes.count, 5)
+
+        for theme in themes {
+            let darkTokens = theme.tokens(isDark: true)
+            let lightTokens = theme.tokens(isDark: false)
+            XCTAssertGreaterThanOrEqual(darkTokens.baseTint.a, 0.0)
+            XCTAssertGreaterThanOrEqual(lightTokens.baseTint.a, 0.0)
+        }
+
+        XCTAssertTrue(LumabarSurfaceTheme.liquidGlass.supportsIdleFrameRestOptimization)
+        XCTAssertFalse(LumabarSurfaceTheme.obsidianBlack.supportsIdleFrameRestOptimization)
+        XCTAssertFalse(LumabarSurfaceTheme.crispWhite.supportsIdleFrameRestOptimization)
+    }
+
+    func testDockBarHeightPresetsAndScreenEdge() {
+        XCTAssertEqual(DockBarHeightPreset.compact.points, 44.0)
+        XCTAssertEqual(DockBarHeightPreset.regular.points, 54.0)
+        XCTAssertEqual(DockBarHeightPreset.relaxed.points, 64.0)
+
+        XCTAssertEqual(DockScreenEdge.bottom.rawValue, "bottom")
+        XCTAssertEqual(DockScreenEdge.top.rawValue, "top")
+
+        let bottomOffset = NotchFallbackPlan.topDockOffset(menuBarHeight: 24, screenEdge: .bottom)
+        XCTAssertEqual(bottomOffset, 0)
+        let topOffset = NotchFallbackPlan.topDockOffset(menuBarHeight: 24, screenEdge: .top)
+        XCTAssertEqual(topOffset, 32)
+    }
 }

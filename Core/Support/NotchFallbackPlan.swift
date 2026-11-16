@@ -136,3 +136,11 @@ enum NotchGlassPolicy {
         }
     }
 }
+
+extension NotchFallbackPlan {
+    /// Evaluates edge clearance for a top-docked bar vs menu bar / notch
+    static func topDockOffset(menuBarHeight: CGFloat, screenEdge: DockScreenEdge) -> CGFloat {
+        guard screenEdge == .top else { return 0 }
+        return floatingTopOffset(menuBarHeight: menuBarHeight)
+    }
+}

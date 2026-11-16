@@ -23,6 +23,19 @@ struct DockStripView: View {
     @EnvironmentObject var displayTopologyStore: DisplayTopologyStore
     @AppStorage("com.katikati.widgets.fabStyle") private var widgetsFABStyle: String = "gauge"
     @AppStorage("com.katikati.media.preset") private var mediaPreset: NowPlayingPreset = .accentCard
+    @AppStorage(DockBarLayoutStyle.defaultsKey) private var dockBarLayoutStyleRaw: String = DockBarLayoutStyle.unifiedBar.rawValue
+    @AppStorage(LumabarSurfaceTheme.defaultsKey) private var lumabarThemeRaw: String = LumabarSurfaceTheme.obsidianBlack.rawValue
+    @AppStorage(DockScreenEdge.defaultsKey) private var dockScreenEdgeRaw: String = DockScreenEdge.bottom.rawValue
+
+    var dockBarLayoutStyle: DockBarLayoutStyle {
+        DockBarLayoutStyle(rawValue: dockBarLayoutStyleRaw) ?? .unifiedBar
+    }
+    var lumabarTheme: LumabarSurfaceTheme {
+        LumabarSurfaceTheme(rawValue: lumabarThemeRaw) ?? .obsidianBlack
+    }
+    var dockScreenEdge: DockScreenEdge {
+        DockScreenEdge(rawValue: dockScreenEdgeRaw) ?? .bottom
+    }
 
     /// 这条任务条的底板是不是原生 Liquid Glass。由 `PanelCoordinator` 在建面板时一次定死
     /// （背景窗口建成功才为 true），**显式传入、没有默认值**：同 `scale` / `hoverStyle`，
@@ -218,12 +231,21 @@ struct DockStripView: View {
                               vertical: isRail,
                               lightAtStart: stripPlacement == .left,
                               crest: fluidHoverCentre)
+            } else if dockBarLayoutStyle == .segmentedIslands {
+                // Segmented islands: individual floating capsule backdrop per island slot
+                DockPanelBackdrop(theme: theme,
+                                  cornerRadius: min(taskbarCornerRadius, metrics.panelHeight / 2),
+                                  usesLiquidGlass: usesLiquidGlass,
+                                  matchesDockRefraction: true)
+                    .clipShape(Capsule())
+                    .padding(dockScreenEdge == .top ? .bottom : .top, 2)
             } else {
                 // macOS 26 的 Liquid Glass 由统一底板接管；默认关闭，旧系统与未开关时仍是原毛玻璃。
                 DockPanelBackdrop(theme: theme,
                                   cornerRadius: taskbarCornerRadius,
                                   usesLiquidGlass: usesLiquidGlass,
                                   matchesDockRefraction: true)
+                    .padding(dockScreenEdge == .top ? .bottom : .top, 1)
             }
 
             // 玻璃厚度感：材质之上、内容之下。**默认关**，`DOCK_PANEL_THICKNESS=1` 才开

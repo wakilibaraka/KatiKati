@@ -168,8 +168,10 @@ extension DockLayeringMode {
 /// The screen edge a dock surface hugs, and the bands the layering engine tests against it. Pure
 /// geometry in AppKit coordinates (origin bottom-left), so a bottom bar, a side rail and a bar on a
 /// second display all go through the same arithmetic instead of a hard-coded bottom strip.
-public enum DockScreenEdge: Equatable, Sendable {
+public enum DockScreenEdge: String, CaseIterable, Codable, Equatable, Sendable {
     case bottom, top, left, right
+
+    public static let defaultsKey = "com.katikati.dock.screenEdge"
 
     /// The edge closest to the dock's centre. A slid-off dock (centre outside the screen) still
     /// resolves to the edge it slid through, because distances are taken as magnitudes.
