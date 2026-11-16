@@ -4380,9 +4380,9 @@
     "semantic_hash": "c761a1854048312afb1b02410e3a9c6e"
   },
   "Tests/Unit/WindowSnapTests.swift": {
-    "mtime": 1792926136.0011132,
-    "seen": 1792926143.607061,
-    "ast_hash": "82b44afb359b5b440f603dd2f6fe28f6",
+    "mtime": 1794854874.6309853,
+    "seen": 1794855067.095167,
+    "ast_hash": "f09cbf5208a485c0cdcd1ed20b044adc",
     "semantic_hash": ""
   },
   "Tests/Unit/WindowSubscriptionLedgerTests.swift": {
@@ -6582,15 +6582,15 @@
     "semantic_hash": ""
   },
   "App/Composition/QuitOnLastWindowService.swift": {
-    "mtime": 1792926135.9806519,
-    "seen": 1792926143.60639,
-    "ast_hash": "4f5fbe9843eec4484e5de2308ba54cde",
+    "mtime": 1794854942.6329675,
+    "seen": 1794855067.09439,
+    "ast_hash": "a13dcbaf77e9d113eaba0aca111c0b11",
     "semantic_hash": ""
   },
   "Core/Support/QuitOnLastWindow.swift": {
-    "mtime": 1792926135.9879553,
-    "seen": 1792926143.6067069,
-    "ast_hash": "5627ec9b9a221b50c5845e24d11fd4ef",
+    "mtime": 1794854851.2201543,
+    "seen": 1794855067.094769,
+    "ast_hash": "4ab89fbea28b1a4127811e64bf767b87",
     "semantic_hash": ""
   },
   "App/Composition/ClaudeHookInstaller.swift": {
