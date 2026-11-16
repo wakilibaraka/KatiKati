@@ -103,4 +103,91 @@ enum RadialDialGeometry {
             )
         }
     }
+
+    // MARK: - Concentric Dual-Ring (Slice C-DualRing)
+
+    enum DualRingHitResult: Equatable, Sendable {
+        case center
+        case inner(Int)
+        case outer(Int)
+        case outside
+    }
+
+    struct DualRingMetrics: Equatable, Sendable {
+        var hubRadius: CGFloat = 52
+        var innerRingRadius: CGFloat = 110
+        var outerRingRadius: CGFloat = 160
+        var outerSlop: CGFloat = 40
+        var innerCount: Int = 8
+        var outerCount: Int = 6
+        var startOffset: CGFloat = -CGFloat.pi / 2
+    }
+
+    /// Hit-tests a point against concentric dual rings: center hub, inner ring (8 sectors), and outer ring (6 sectors).
+    static func hitTestDualRing(
+        point: CGPoint,
+        center: CGPoint,
+        metrics: DualRingMetrics = DualRingMetrics()
+    ) -> DualRingHitResult {
+        let dx = point.x - center.x
+        let dy = point.y - center.y
+        let distance = sqrt(dx * dx + dy * dy)
+
+        if distance < metrics.hubRadius {
+            return .center
+        }
+
+        if distance > (metrics.outerRingRadius + metrics.outerSlop) {
+            return .outside
+        }
+
+        if distance <= metrics.innerRingRadius {
+            let hit = hitTest(
+                point: point,
+                center: center,
+                count: metrics.innerCount,
+                innerRadius: metrics.hubRadius,
+                outerRadius: metrics.innerRingRadius,
+                startOffset: metrics.startOffset,
+                outerSlop: 0
+            )
+            if case .sector(let idx) = hit {
+                return .inner(idx)
+            }
+            return .center
+        } else {
+            let hit = hitTest(
+                point: point,
+                center: center,
+                count: metrics.outerCount,
+                innerRadius: metrics.innerRingRadius,
+                outerRadius: metrics.outerRingRadius,
+                startOffset: metrics.startOffset,
+                outerSlop: metrics.outerSlop
+            )
+            if case .sector(let idx) = hit {
+                return .outer(idx)
+            }
+            return .outside
+        }
+    }
+
+    /// Computes inner and outer annular sector sets for dual-ring rendering.
+    static func dualRingSectors(
+        metrics: DualRingMetrics = DualRingMetrics()
+    ) -> (inner: [Sector], outer: [Sector]) {
+        let inner = sectors(
+            count: metrics.innerCount,
+            innerRadius: metrics.hubRadius,
+            outerRadius: metrics.innerRingRadius,
+            startOffset: metrics.startOffset
+        )
+        let outer = sectors(
+            count: metrics.outerCount,
+            innerRadius: metrics.innerRingRadius,
+            outerRadius: metrics.outerRingRadius,
+            startOffset: metrics.startOffset
+        )
+        return (inner, outer)
+    }
 }

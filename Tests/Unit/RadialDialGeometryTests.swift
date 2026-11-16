@@ -151,4 +151,43 @@ final class RadialDialGeometryTests: XCTestCase {
         )
         XCTAssertEqual(miss, .outside)
     }
+
+    func testDualRingHitTesting() {
+        let metrics = RadialDialGeometry.DualRingMetrics()
+
+        // 1. Center deadzone (< 45)
+        let centerPoint = center
+        XCTAssertEqual(RadialDialGeometry.hitTestDualRing(point: centerPoint, center: center, metrics: metrics), .center)
+
+        let nearCenter = CGPoint(x: 200 + 20, y: 200) // r = 20 < 45
+        XCTAssertEqual(RadialDialGeometry.hitTestDualRing(point: nearCenter, center: center, metrics: metrics), .center)
+
+        // 2. Inner Ring (45 <= r <= 110, 8 segments)
+        // Sector 0: North (r = 80, dy = -80)
+        let innerNorth = CGPoint(x: 200, y: 120)
+        XCTAssertEqual(RadialDialGeometry.hitTestDualRing(point: innerNorth, center: center, metrics: metrics), .inner(0))
+
+        // Sector 2: East (r = 80, dx = 80)
+        let innerEast = CGPoint(x: 280, y: 200)
+        XCTAssertEqual(RadialDialGeometry.hitTestDualRing(point: innerEast, center: center, metrics: metrics), .inner(2))
+
+        // 3. Outer Ring (110 < r <= 180 + 40 slop = 220, 6 segments)
+        // Sector 0: North (r = 150, dy = -150)
+        let outerNorth = CGPoint(x: 200, y: 50)
+        XCTAssertEqual(RadialDialGeometry.hitTestDualRing(point: outerNorth, center: center, metrics: metrics), .outer(0))
+
+        // Sector 3: South (r = 150, dy = 150)
+        let outerSouth = CGPoint(x: 200, y: 350)
+        XCTAssertEqual(RadialDialGeometry.hitTestDualRing(point: outerSouth, center: center, metrics: metrics), .outer(3))
+
+        // 4. Outside (> 220)
+        let farPoint = CGPoint(x: 200, y: 200 + 250) // r = 250 > 220
+        XCTAssertEqual(RadialDialGeometry.hitTestDualRing(point: farPoint, center: center, metrics: metrics), .outside)
+    }
+
+    func testDualRingPresetComposition() {
+        let preset = RadialDialPresets.dualRingPage()
+        XCTAssertEqual(preset.inner.count, 8, "Inner ring has 8 snap sectors")
+        XCTAssertEqual(preset.outer.count, 6, "Outer ring has 6 capture/utility sectors")
+    }
 }
