@@ -312,10 +312,10 @@
     "semantic_hash": ""
   },
   "App/Composition/NotificationMirrorService.swift": {
-    "mtime": 1792126983.5854087,
-    "seen": 1792295707.0604029,
-    "ast_hash": "3c83f9ec49bb39ffd30ac032721d1c0b",
-    "semantic_hash": "3c83f9ec49bb39ffd30ac032721d1c0b"
+    "mtime": 1794868165.2189553,
+    "seen": 1794868311.4782798,
+    "ast_hash": "ffc0e4e83425c25ec7c3dbf951552af5",
+    "semantic_hash": ""
   },
   "App/Composition/NotificationMoveService.swift": {
     "mtime": 1791999130.8132036,
@@ -1026,10 +1026,10 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchNotificationsPageView.swift": {
-    "mtime": 1792127096.1420712,
-    "seen": 1792295707.0604758,
-    "ast_hash": "813b88a29009af952c701d5034ec145b",
-    "semantic_hash": "813b88a29009af952c701d5034ec145b"
+    "mtime": 1794868198.1467066,
+    "seen": 1794868311.47841,
+    "ast_hash": "3db1689d8d233ff955318cae23e7f177",
+    "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchProductivityPageView.swift": {
     "mtime": 1793804868.8636243,
@@ -6690,9 +6690,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsNotificationsPane.swift": {
-    "mtime": 1792686529.367291,
-    "seen": 1792689772.288939,
-    "ast_hash": "ac67fca7b3cd4d897c4732b1125ffe32",
+    "mtime": 1794868242.3648832,
+    "seen": 1794868311.478441,
+    "ast_hash": "2195b88836ad58a754bd3774f4e41d2f",
     "semantic_hash": ""
   },
   "Core/Support/PowerNotifications.swift": {
