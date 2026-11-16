@@ -98372,6 +98372,78 @@
         "it": { "stringUnit": { "state": "translated", "value": "Cerca file" } },
         "ko": { "stringUnit": { "state": "translated", "value": "파일 검색" } }
       }
+    },
+
+    "Scan App Leftovers": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Scan App Leftovers" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "扫描应用残留文件" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "掃描應用程式殘留檔案" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "アプリの残存ファイルをスキャン" } },
+        "de": { "stringUnit": { "state": "translated", "value": "App-Reste scannen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Analyser les résidus d’apps" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Escanear restos de apps" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Escanear restos de aplicaciones" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Escanear sobras de apps" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Verificar ficheiros residuais de apps" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Scansiona residui app" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "앱 잔여 파일 스캔" } }
+      }
+    },
+
+    "Scanned %d potential leftover locations in ~/Library.\n\n%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Scanned %d potential leftover locations in ~/Library.\n\n%@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "已在 ~/Library 中扫描 %d 处残留位置。\n\n%@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "已在 ~/Library 中掃描 %d 處潛在殘留位置。\n\n%@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "~/Library 内の %d 箇所の残存ファイル候補をスキャンしました。\n\n%@" } },
+        "de": { "stringUnit": { "state": "translated", "value": "%d potenzielle Speicherorte von Restdateien in ~/Library gescannt.\n\n%@" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "%d emplacements de résidus potentiels analysés dans ~/Library.\n\n%@" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Se escanearon %d ubicaciones potenciales de restos en ~/Library.\n\n%@" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Se escanearon %d ubicaciones potenciales de restos en ~/Library.\n\n%@" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Verificou-se %d locais potenciais de sobras em ~/Library.\n\n%@" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Verificados %d locais potenciais de ficheiros residuais em ~/Library.\n\n%@" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Scansionate %d posizioni potenziali di residui in ~/Library.\n\n%@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "~/Library에서 %d개의 잠재적 잔여 파일 위치를 스캔했습니다.\n\n%@" } }
+      }
+    },
+
+    "System Telemetry (CPU · RAM · Disk)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "System Telemetry (CPU · RAM · Disk)" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "系统遥测 (CPU · 内存 · 磁盘)" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "系統遙測 (CPU · 記憶體 · 磁碟)" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "システムテレメトリ (CPU・RAM・ディスク)" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Systemtelemetrie (CPU · RAM · Festplatte)" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Télémétrie système (CPU · RAM · Disque)" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Telemetría del sistema (CPU · RAM · Disco)" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Telemetría del sistema (CPU · RAM · Disco)" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Telemetria do Sistema (CPU · RAM · Disco)" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Telemetria do Sistema (CPU · RAM · Disco)" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Telemetria di sistema (CPU · RAM · Disco)" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "시스템 텔레메트리 (CPU · RAM · 디스크)" } }
+      }
+    },
+
+    "Voice Dictation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Voice Dictation" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "语音听写" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "語音聽寫" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "音声入力" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Sprachdiktat" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Dictée vocale" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Dictado por voz" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Dictado por voz" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ditado por Voz" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Ditado por Voz" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Dettatura vocale" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "음성 받아쓰기" } }
+      }
     }
 
   },
