@@ -98,3 +98,105 @@ enum PopPolicy {
         return isDirectory ? .folder(path) : .file(path)
     }
 }
+
+// MARK: - Drawer Layout & Drop Target Math (Slice D-1)
+
+/// Visual layout style supported by the Drawer popover toggle.
+enum DrawerLayoutStyle: String, Codable, CaseIterable, Sendable {
+    case grid
+    case list
+
+    var toggled: DrawerLayoutStyle { self == .grid ? .list : .grid }
+}
+
+/// Typed payload representing an external or custom item targeted for the Drawer.
+enum DrawerItemPayload: Equatable, Hashable, Sendable {
+    case application(url: URL, bundleID: String?)
+    case file(url: URL)
+    case folder(url: URL)
+    case customShortcut(name: String, target: URL)
+
+    /// Classifies a file system URL using pre-read disk facts so validation stays pure.
+    static func classify(url: URL, isDirectory: Bool, isApplication: Bool, bundleID: String?) -> DrawerItemPayload? {
+        guard url.isFileURL, !url.path.isEmpty else { return nil }
+        if isApplication { return .application(url: url, bundleID: bundleID) }
+        return isDirectory ? .folder(url: url) : .file(url: url)
+    }
+
+    /// Converts this payload into a persistable `PopItem` when representable.
+    var popItem: PopItem? {
+        switch self {
+        case let .application(url, bundleID):
+            return PopPolicy.item(forPath: url.path, isDirectory: false, isApplication: true, bundleID: bundleID)
+        case let .file(url):
+            return PopPolicy.item(forPath: url.path, isDirectory: false, isApplication: false, bundleID: nil)
+        case let .folder(url):
+            return PopPolicy.item(forPath: url.path, isDirectory: true, isApplication: false, bundleID: nil)
+        case let .customShortcut(_, target):
+            guard !target.path.isEmpty else { return nil }
+            return target.hasDirectoryPath ? .folder(target.path) : .file(target.path)
+        }
+    }
+}
+
+/// Ordering strategies for organizing items shown in the Drawer.
+enum DrawerSortOrder: String, Codable, CaseIterable, Sendable {
+    case manual
+    case nameAscending
+    case groupedFoldersFirst
+}
+
+/// Pure drop validation, deduplication, capacity enforcement, and folder grouping for the Drawer.
+enum DrawerDropTargetPolicy {
+    struct ValidationResult: Equatable, Sendable {
+        var accepted: [PopItem]
+        var duplicatesSkipped: Int
+        var rejectedForCapacity: Int
+        var invalidSkipped: Int
+    }
+
+    struct GroupedItems: Equatable, Sendable {
+        var folders: [PopItem]
+        var apps: [PopItem]
+        var files: [PopItem]
+    }
+
+    /// Validates incoming payloads against existing items, filtering duplicates and enforcing capacity.
+    static func validateDrop(payloads: [DrawerItemPayload], existing: [PopItem], capacity: Int = PopPolicy.capacity) -> ValidationResult {
+        var seen = Set(existing.map(\.id))
+        var accepted: [PopItem] = []
+        var duplicatesSkipped = 0, rejectedForCapacity = 0, invalidSkipped = 0
+        var remaining = max(0, capacity - existing.count)
+
+        for payload in payloads {
+            guard let candidate = payload.popItem else { invalidSkipped += 1; continue }
+            guard seen.insert(candidate.id).inserted else { duplicatesSkipped += 1; continue }
+            guard remaining > 0 else { rejectedForCapacity += 1; continue }
+            accepted.append(candidate)
+            remaining -= 1
+        }
+        return ValidationResult(accepted: accepted, duplicatesSkipped: duplicatesSkipped,
+                                rejectedForCapacity: rejectedForCapacity, invalidSkipped: invalidSkipped)
+    }
+
+    /// Partitions drawer items by semantic kind while preserving relative order inside each group.
+    static func groupItems(_ items: [PopItem]) -> GroupedItems {
+        GroupedItems(folders: items.filter { $0.kind == .folder },
+                     apps: items.filter { $0.kind == .app },
+                     files: items.filter { $0.kind == .file })
+    }
+
+    /// Orders drawer items using the given sort mode and display-name provider.
+    static func sort(_ items: [PopItem], by order: DrawerSortOrder, displayName: (PopItem) -> String) -> [PopItem] {
+        let byName: (PopItem, PopItem) -> Bool = {
+            displayName($0).localizedStandardCompare(displayName($1)) == .orderedAscending
+        }
+        switch order {
+        case .manual: return items
+        case .nameAscending: return items.sorted(by: byName)
+        case .groupedFoldersFirst:
+            let g = groupItems(items)
+            return g.folders.sorted(by: byName) + g.apps.sorted(by: byName) + g.files.sorted(by: byName)
+        }
+    }
+}

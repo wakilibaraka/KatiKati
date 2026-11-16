@@ -344,3 +344,64 @@ enum StackPopupOutline {
         return path
     }
 }
+
+// MARK: - Adaptive Drawer Layout Math (Slice D-1)
+
+/// Pure layout calculations for the Drawer popup across Grid and List styles.
+enum DrawerLayoutMath {
+    static let listMinWidth: CGFloat = 200
+    static let listMaxWidth: CGFloat = 340
+    /// Horizontal space reserved inside `PopListRow` besides text (icon 22 + spacing 8 + padding 12 + slack 8).
+    static let listHorizontalChrome: CGFloat = 50
+    static let approxCharacterWidth: CGFloat = 7.5
+    static let defaultMaxListRows = 8
+
+    /// Computes a snug row width for List mode based on item labels, eliminating empty horizontal
+    /// glass while keeping room for the header toggle and capping long names cleanly.
+    static func adaptiveListCellWidth(
+        labels: [String],
+        minWidth: CGFloat = listMinWidth,
+        maxWidth: CGFloat = listMaxWidth
+    ) -> CGFloat {
+        let longestCount = labels.map(\.count).max() ?? 0
+        guard longestCount > 0 else { return minWidth }
+        let estimated = ceil(CGFloat(longestCount) * approxCharacterWidth + listHorizontalChrome)
+        return min(max(estimated, minWidth), maxWidth)
+    }
+
+    /// Resolves columns, visible rows, and scrollability for the requested `DrawerLayoutStyle`.
+    static func resolveLayout(
+        itemCount: Int,
+        style: DrawerLayoutStyle,
+        limits: StackGridLayout.Limits,
+        hasNote: Bool,
+        maxListRows: Int = defaultMaxListRows
+    ) -> StackGridLayout.Result {
+        guard itemCount > 0 else {
+            return StackGridLayout.Result(columns: StackGridLayout.noteMinColumns, visibleRows: 0, scrolls: false)
+        }
+        switch style {
+        case .grid:
+            return StackGridLayout.resolve(cellCount: itemCount, limits: limits, hasNote: hasNote)
+        case .list:
+            let visible = min(itemCount, max(1, maxListRows))
+            return StackGridLayout.Result(columns: 1, visibleRows: visible, scrolls: itemCount > visible)
+        }
+    }
+
+    /// Builds `StackPlateMetrics` tailored to the layout style and current item labels.
+    static func plateMetrics(style: DrawerLayoutStyle, labels: [String]) -> StackPlateMetrics {
+        switch style {
+        case .grid:
+            return .stack
+        case .list:
+            let cellWidth = adaptiveListCellWidth(labels: labels)
+            var cell = StackCellMetrics.list
+            cell.cellSize.width = cellWidth
+            cell.labelWidth = max(80, cellWidth - listHorizontalChrome)
+            var plate = StackPlateMetrics.list
+            plate.cell = cell
+            return plate
+        }
+    }
+}
