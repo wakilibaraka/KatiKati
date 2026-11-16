@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "App/Composition/KeyGuardService.swift": {
-    "mtime": 1792551537.6111064,
-    "seen": 1792551640.809389,
-    "ast_hash": "9cca806ac8c3edcdc8210fdb1765efe0",
+    "mtime": 1794851235.8015182,
+    "seen": 1794851334.953289,
+    "ast_hash": "2e503c0d690978263db1c87d405d0173",
     "semantic_hash": ""
   },
   "App/Composition/LaunchAtLoginService.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1794842002.0115392,
-    "seen": 1794844459.7645671,
-    "ast_hash": "d33a2a2341c5c454ab03eef07ae710cc",
+    "mtime": 1794851239.1783867,
+    "seen": 1794851334.953333,
+    "ast_hash": "6b7d70c75e98985f9981071f8ce067b7",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1914,9 +1914,9 @@
     "semantic_hash": "404da9ec110c1e60f2a8212e29c24679"
   },
   "Core/Support/KeyGuard.swift": {
-    "mtime": 1794846387.0217366,
-    "seen": 1794846499.205954,
-    "ast_hash": "f1313a606dbd78cafdc9689631b0e193",
+    "mtime": 1794851107.4534354,
+    "seen": 1794851334.953583,
+    "ast_hash": "55518f4c640eccd003b0975c206980ab",
     "semantic_hash": ""
   },
   "Core/Support/LaunchGateDecision.swift": {
@@ -3618,9 +3618,9 @@
     "semantic_hash": "f846229992095675c7a008f1a69dd39c"
   },
   "Tests/Unit/KeyGuardTests.swift": {
-    "mtime": 1794846409.5524912,
-    "seen": 1794846499.206229,
-    "ast_hash": "033c17c55096b369927bc3bbc0a3c1a6",
+    "mtime": 1794851123.158137,
+    "seen": 1794851334.953859,
+    "ast_hash": "b13b7c9ee53c9d8f21642880cb307fbd",
     "semantic_hash": ""
   },
   "Tests/Unit/LaunchAtLoginServiceTests.swift": {
