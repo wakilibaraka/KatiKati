@@ -207,7 +207,13 @@ final class LauncherPanelController {
     private func quickAction(_ action: LauncherQuickAction) {
         dismiss()
         switch action {
-        case .open(let url), .webSearch(let url): NSWorkspace.shared.open(url)
+        case .open(let url), .webSearch(let url):
+            NSWorkspace.shared.open(url)
+        case .askAI(let query):
+            let term = query.isEmpty ? "AI Assistant" : query
+            if let url = URL(string: "https://duckduckgo.com/?q=" + (("! " + term).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")) {
+                NSWorkspace.shared.open(url)
+            }
         }
     }
 

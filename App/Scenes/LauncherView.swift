@@ -47,6 +47,7 @@ struct LauncherView: View {
     @ObservedObject var indexer: LauncherIndexer
     @ObservedObject var model: LauncherModel
     let actions: LauncherActions
+    @StateObject private var monitor = SystemMonitorController()
 
     private static let gap = 12.0
     private static let rowSpacing = 20.0
@@ -85,6 +86,8 @@ struct LauncherView: View {
                 .padding(.leading, model.screenInsets.leading).padding(.trailing, model.screenInsets.trailing)
         }
         .background(pageShortcuts)
+        .onAppear { monitor.acquire() }
+        .onDisappear { monitor.release() }
         .accessibilityLabel(Text("Launcher"))
     }
 
@@ -105,28 +108,55 @@ struct LauncherView: View {
 
     private var searchField: some View {
         let p = model.searchPosition
-        return LauncherSearchField(text: $model.query, focusNonce: model.focusNonce,
-                                   onSubmit: {
-                                       if let id = model.focusedID, let item = model.layoutItems[id] { activate(item) }
-                                       else if let answer = answers.first { run(answer) }
-                                       else if isRunnable { _ = LauncherRunner.run(routed) }
-                                       else if let first = matches.first { actions.launch(first) }
-                                       else if let q = LauncherQuickAction.resolve(model.query) { actions.quickAction(q) }
-                                   },
-                                   onCancel: {
-                                       if model.openFolderID != nil { model.openFolderID = nil }
-                                       else if model.editing { model.editing = false }
-                                       else { actions.close() }
-                                   },
-                                   onPage: { model.pageTurns.send($0) },
-                                   onArrow: { arrow(dx: $0, dy: $1) })
-            .frame(width: p.fieldWidth, height: 28)
-            .padding(p == .top ? .top : p == .bottom ? .bottom : p == .left ? .leading : .trailing, 28)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment(p))
+        return HStack(spacing: 8) {
+            LauncherSearchField(text: $model.query, focusNonce: model.focusNonce,
+                                onSubmit: {
+                                    if let id = model.focusedID, let item = model.layoutItems[id] { activate(item) }
+                                    else if let answer = answers.first { run(answer) }
+                                    else if isRunnable { _ = LauncherRunner.run(routed) }
+                                    else if let first = matches.first { actions.launch(first) }
+                                    else if let q = LauncherQuickAction.resolve(model.query) { actions.quickAction(q) }
+                                },
+                                onCancel: {
+                                    if model.openFolderID != nil { model.openFolderID = nil }
+                                    else if model.editing { model.editing = false }
+                                    else { actions.close() }
+                                },
+                                onPage: { model.pageTurns.send($0) },
+                                onArrow: { arrow(dx: $0, dy: $1) })
+                .frame(width: p.fieldWidth, height: 28)
+            Button {
+                actions.quickAction(.askAI(model.query))
+            } label: {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.accentColor)
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(Color.accentColor.opacity(0.15)))
+            }
+            .buttonStyle(.plain)
+            .help(Text("Ask AI"))
+            .accessibilityLabel(Text("Ask AI"))
+            Button {
+                DictationController.shared.toggle()
+            } label: {
+                Image(systemName: "mic.fill")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(DictationController.shared.isRecording ? .red : .secondary)
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(Color.primary.opacity(0.08)))
+            }
+            .buttonStyle(.plain)
+            .help(Text("Voice Dictation"))
+            .accessibilityLabel(Text("Voice Dictation"))
+        }
+        .padding(p == .top ? .top : p == .bottom ? .bottom : p == .left ? .leading : .trailing, 28)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment(p))
     }
 
     private var toolbar: some View {
         HStack(spacing: 10) {
+            LauncherTelemetryPill(monitor: monitor)
             Button { model.editing.toggle(); model.openFolderID = nil } label: {
                 Group { if model.editing { Text("Done") } else { Text("Edit") } }
                     .font(.system(size: 12, weight: .semibold)).padding(.horizontal, 12).frame(height: 30)
@@ -246,6 +276,7 @@ struct LauncherView: View {
                     switch q {
                     case .open: Text("Open in Browser")
                     case .webSearch: Text("Search the Web")
+                    case .askAI: Text("Ask AI")
                     }
                 }
                 .buttonStyle(.borderedProminent)
@@ -789,5 +820,27 @@ struct LauncherWiggle: ViewModifier {
                        value: flip)
             .onChange(of: active) { on in flip = on }
             .onAppear { if active { flip = true } }
+    }
+}
+
+/// Compact CPU · RAM · Disk pill displayed in the Launcher top-right toolbar.
+struct LauncherTelemetryPill: View {
+    @ObservedObject var monitor: SystemMonitorController
+
+    var body: some View {
+        let telemetry = LauncherTelemetrySnapshot.from(snapshot: monitor.snapshot)
+        HStack(spacing: 6) {
+            Image(systemName: "cpu")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(.secondary)
+            Text(verbatim: telemetry.summaryText)
+                .font(.system(size: 11, weight: .medium, design: .rounded).monospacedDigit())
+                .foregroundColor(.primary.opacity(0.85))
+        }
+        .padding(.horizontal, 10)
+        .frame(height: 30)
+        .background(Capsule().fill(Color.primary.opacity(0.08)))
+        .help(Text("System Telemetry (CPU · RAM · Disk)"))
+        .accessibilityLabel(Text(verbatim: telemetry.summaryText))
     }
 }

@@ -192,5 +192,41 @@ final class SystemGaugeTests: XCTestCase {
             XCTAssertLessThanOrEqual(y, 20.0)
         }
     }
+
+    func testLauncherTelemetrySnapshotFormatting() {
+        let snapshot = LauncherTelemetrySnapshot(
+            cpuPercent: 15.4,
+            ramUsedBytes: 8_589_934_592,
+            ramTotalBytes: 17_179_869_184,
+            diskFreeBytes: 128_849_018_880,
+            diskTotalBytes: 536_870_912_000
+        )
+
+        XCTAssertEqual(snapshot.formattedCPU, "15% CPU")
+        XCTAssertEqual(snapshot.formattedRAM, "8.0/16 GB RAM")
+        XCTAssertEqual(snapshot.formattedDiskFree, "120 GB Free")
+        XCTAssertEqual(snapshot.summaryText, "15% CPU · 8.0/16 GB RAM · 120 GB Free")
+        XCTAssertEqual(snapshot.ramPercent, 50)
+
+        let zeroSnapshot = LauncherTelemetrySnapshot(
+            cpuPercent: 0,
+            ramUsedBytes: 0,
+            ramTotalBytes: 0,
+            diskFreeBytes: 0,
+            diskTotalBytes: 0
+        )
+        XCTAssertEqual(zeroSnapshot.ramPercent, 0)
+        XCTAssertEqual(zeroSnapshot.formattedCPU, "0% CPU")
+
+        var sysSnap = SystemSnapshot()
+        sysSnap.cpu = 0.22
+        sysSnap.memory = MemoryUsage(used: 4_294_967_296, total: 17_179_869_184)
+        sysSnap.disk = DiskUsage(free: 64_424_509_440, total: 256_000_000_000)
+
+        let converted = LauncherTelemetrySnapshot.from(snapshot: sysSnap)
+        XCTAssertEqual(converted.formattedCPU, "22% CPU")
+        XCTAssertEqual(converted.formattedRAM, "4.0/16 GB RAM")
+        XCTAssertEqual(converted.formattedDiskFree, "60 GB Free")
+    }
 }
 

@@ -111,6 +111,8 @@ final class LauncherPlusTests: XCTestCase {
             XCTAssertTrue(url.absoluteString.hasPrefix("https://duckduckgo.com/?q=swift"))
         } else { XCTFail("expected a web search") }
         if case .webSearch? = LauncherQuickAction.resolve("v1.2") {} else { XCTFail("a version number is not a URL") }
+        XCTAssertEqual(LauncherQuickAction.resolve("ai explain quantum computing"), .askAI("explain quantum computing"))
+        XCTAssertEqual(LauncherQuickAction.resolve("? what is time"), .askAI("what is time"))
         XCTAssertNil(LauncherQuickAction.resolve("   "))
     }
 }

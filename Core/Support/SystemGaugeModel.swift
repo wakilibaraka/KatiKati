@@ -108,6 +108,63 @@ public enum WeatherChipPreset: String, CaseIterable, Equatable, Codable, Sendabl
     }
 }
 
+/// Pure model for Launcher top bar system telemetry (CPU, RAM, Disk).
+public struct LauncherTelemetrySnapshot: Equatable, Sendable {
+    public let cpuPercent: Double       // e.g. 15.0
+    public let ramUsedBytes: UInt64
+    public let ramTotalBytes: UInt64
+    public let diskFreeBytes: UInt64
+    public let diskTotalBytes: UInt64
+
+    public init(
+        cpuPercent: Double,
+        ramUsedBytes: UInt64,
+        ramTotalBytes: UInt64,
+        diskFreeBytes: UInt64,
+        diskTotalBytes: UInt64
+    ) {
+        self.cpuPercent = max(0.0, cpuPercent)
+        self.ramUsedBytes = ramUsedBytes
+        self.ramTotalBytes = ramTotalBytes
+        self.diskFreeBytes = diskFreeBytes
+        self.diskTotalBytes = diskTotalBytes
+    }
+
+    public var ramPercent: Int {
+        guard ramTotalBytes > 0 else { return 0 }
+        return Int(Double(ramUsedBytes) / Double(ramTotalBytes) * 100.0)
+    }
+
+    public var formattedCPU: String {
+        String(format: "%.0f%% CPU", cpuPercent)
+    }
+
+    public var formattedRAM: String {
+        let usedGB = Double(ramUsedBytes) / 1_073_741_824.0
+        let totalGB = Double(ramTotalBytes) / 1_073_741_824.0
+        return String(format: "%.1f/%.0f GB RAM", usedGB, totalGB)
+    }
+
+    public var formattedDiskFree: String {
+        let freeGB = Double(diskFreeBytes) / 1_073_741_824.0
+        return String(format: "%.0f GB Free", freeGB)
+    }
+
+    public var summaryText: String {
+        "\(formattedCPU) · \(formattedRAM) · \(formattedDiskFree)"
+    }
+
+    static func from(snapshot: SystemSnapshot) -> LauncherTelemetrySnapshot {
+        LauncherTelemetrySnapshot(
+            cpuPercent: snapshot.cpu * 100.0,
+            ramUsedBytes: snapshot.memory.used,
+            ramTotalBytes: snapshot.memory.total,
+            diskFreeBytes: snapshot.disk.free,
+            diskTotalBytes: snapshot.disk.total
+        )
+    }
+}
+
 extension WeatherChipPreset {
     /// Once per install: any stored style moves to Modern, now the default (owner 2026-10-21). A later pick sticks.
     public static func migrateToModernIfNeeded(defaults: UserDefaults) {

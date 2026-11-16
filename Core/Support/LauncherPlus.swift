@@ -140,10 +140,17 @@ enum LauncherHidePresets {
 enum LauncherQuickAction: Equatable, Sendable {
     case open(URL)
     case webSearch(URL)
+    case askAI(String)
 
     static func resolve(_ raw: String) -> LauncherQuickAction? {
         let q = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty else { return nil }
+        if q.lowercased().hasPrefix("ai ") {
+            return .askAI(String(q.dropFirst(3)).trimmingCharacters(in: .whitespaces))
+        }
+        if q.hasPrefix("?") {
+            return .askAI(String(q.dropFirst()).trimmingCharacters(in: .whitespaces))
+        }
         if !q.contains(" "), let url = URL(string: q), let scheme = url.scheme?.lowercased(),
            scheme == "http" || scheme == "https", url.host != nil {
             return .open(url)
