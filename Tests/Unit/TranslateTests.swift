@@ -51,3 +51,58 @@ final class DictionaryCardModelTests: XCTestCase {
         XCTAssertEqual(card?.headword, "query")
     }
 }
+
+final class DropClipPolicyTests: XCTestCase {
+
+    func testStatsCountsWordsAndCharacters() {
+        let stats = DropClipPolicy.stats(for: "Quick brown fox jumps")
+        XCTAssertEqual(stats.charCount, 21)
+        XCTAssertEqual(stats.wordCount, 4)
+    }
+
+    func testShouldPresentEnforcesLengthAndSensitivity() {
+        // Normal text in standard app
+        XCTAssertTrue(DropClipPolicy.shouldPresent(
+            text: "Hello world",
+            originBundleID: "com.apple.Safari",
+            isSecureInput: false
+        ))
+
+        // Suppressed under secure input (password field)
+        XCTAssertFalse(DropClipPolicy.shouldPresent(
+            text: "MySecretPassword123",
+            originBundleID: "com.apple.Safari",
+            isSecureInput: true
+        ))
+
+        // Suppressed in excluded apps (1Password, Bitwarden, etc.)
+        XCTAssertFalse(DropClipPolicy.shouldPresent(
+            text: "Sensitive token",
+            originBundleID: "com.agilebits.onepassword",
+            isSecureInput: false
+        ))
+
+        // Suppressed if text is too short or blank
+        XCTAssertFalse(DropClipPolicy.shouldPresent(
+            text: "a",
+            originBundleID: "com.apple.Safari",
+            isSecureInput: false
+        ))
+        XCTAssertFalse(DropClipPolicy.shouldPresent(
+            text: "   ",
+            originBundleID: "com.apple.Safari",
+            isSecureInput: false
+        ))
+    }
+
+    func testActionsFiltersByContent() {
+        let proseActions = DropClipPolicy.actions(for: "Translate this sentence please")
+        XCTAssertTrue(proseActions.contains(.translate))
+        XCTAssertTrue(proseActions.contains(.copy))
+        XCTAssertTrue(proseActions.contains(.search))
+
+        let urlActions = DropClipPolicy.actions(for: "https://example.com/test")
+        XCTAssertFalse(urlActions.contains(.translate))
+        XCTAssertTrue(urlActions.contains(.copy))
+    }
+}

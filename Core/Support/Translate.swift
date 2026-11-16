@@ -68,3 +68,77 @@ struct DictionaryCardModel: Equatable, Sendable {
         return DictionaryCardModel(headword: head.isEmpty ? fallback : head, senses: senses)
     }
 }
+
+// MARK: - Droppy-Inspired Slice C-DropClip: Selection Action Pill Policy
+
+enum SelectionAction: String, CaseIterable, Identifiable, Sendable {
+    case copy
+    case cut
+    case paste
+    case search
+    case translate
+    case ai
+
+    var id: String { rawValue }
+}
+
+struct SelectionStats: Equatable, Sendable {
+    let charCount: Int
+    let wordCount: Int
+}
+
+enum DropClipPolicy {
+    static let minTextLength = 2
+    static let maxTextLength = 10_000
+    static let enabledKey = "com.katikati.dropclip.enabled"
+
+    static let defaultExcludedBundleIDs: Set<String> = [
+        "com.agilebits.onepassword",
+        "com.agilebits.onepassword7",
+        "com.1password.1password",
+        "com.bitwarden.desktop",
+        "org.keepassxc.keepassxc",
+        "com.apple.keychainaccess"
+    ]
+
+    static func stats(for text: String) -> SelectionStats {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let words = trimmed.split { $0.isWhitespace || $0.isNewline }
+        return SelectionStats(charCount: trimmed.count, wordCount: words.count)
+    }
+
+    /// Evaluates whether the floating action pill should be presented for a selection.
+    /// Strictly suppressed when:
+    /// 1. Secure event input is enabled (passwords, sensitive fields)
+    /// 2. Frontmost app is in the excluded bundle ID list (password managers)
+    /// 3. Text length is below minTextLength or exceeds maxTextLength
+    /// 4. Text consists entirely of whitespace
+    static func shouldPresent(
+        text: String,
+        originBundleID: String?,
+        isSecureInput: Bool,
+        excludedBundleIDs: Set<String> = defaultExcludedBundleIDs
+    ) -> Bool {
+        guard !isSecureInput else { return false }
+
+        if let bundleID = originBundleID?.lowercased() {
+            let excluded = Set(excludedBundleIDs.map { $0.lowercased() })
+            if excluded.contains(bundleID) { return false }
+        }
+
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.count >= minTextLength && trimmed.count <= maxTextLength else {
+            return false
+        }
+
+        return true
+    }
+
+    /// Evaluates which actions are relevant for the given selected text.
+    static func actions(for text: String) -> [SelectionAction] {
+        guard TranslateRequest.isWorthTranslating(text) else {
+            return [.copy, .search]
+        }
+        return [.copy, .search, .translate, .ai]
+    }
+}
