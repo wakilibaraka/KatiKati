@@ -80,5 +80,26 @@ final class NotchHoverMachineTests: XCTestCase {
         XCTAssertEqual(NotchBehavior.hoverDelay(d), 1.0)
         XCTAssertEqual(NotchBehavior.closeDelay(d), 0.10)
         XCTAssertEqual(NotchOpenMode.current(d), .hover)
+        XCTAssertTrue(NotchBehavior.showBatteryDuringMusic(d))
+        d.set(false, forKey: NotchBehavior.musicBatteryKey)
+        XCTAssertFalse(NotchBehavior.showBatteryDuringMusic(d))
+    }
+
+    func testRestContentSingleItemsSplitSymmetrically() {
+        for preset in NotchRestContent.allCases {
+            if preset == .nothing {
+                XCTAssertNil(preset.left)
+                XCTAssertNil(preset.right)
+            } else {
+                XCTAssertNotNil(preset.left, "\(preset) must populate left wing")
+                XCTAssertNotNil(preset.right, "\(preset) must populate right wing")
+            }
+        }
+        XCTAssertEqual(NotchRestContent.battery.left, .batteryIcon)
+        XCTAssertEqual(NotchRestContent.battery.right, .batteryPercent)
+        XCTAssertEqual(NotchRestContent.storage.left, .storageLabel)
+        XCTAssertEqual(NotchRestContent.storage.right, .storage)
+        XCTAssertEqual(NotchRestContent.time.left, .date)
+        XCTAssertEqual(NotchRestContent.time.right, .time)
     }
 }

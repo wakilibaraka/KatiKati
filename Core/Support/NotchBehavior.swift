@@ -53,19 +53,28 @@ enum NotchRestContent: String, CaseIterable, Identifiable, Sendable {
     case dockChips, timeBattery, storage, time, battery, nothing
     var id: String { rawValue }
 
-    /// Curated left/right pairs; a pair with no side at all (`nothing`) leaves the bare notch.
-    enum Ear: Sendable { case storage, time, battery }
+    /// Curated left/right pairs; single-item presets split symmetrically across both wings,
+    /// while `nothing` leaves the bare notch.
+    enum Ear: Equatable, Sendable {
+        case storage, storageLabel, time, date, battery, batteryIcon, batteryPercent
+    }
     var left: Ear? {
         switch self {
-        case .dockChips, .storage: return .storage
-        case .timeBattery, .time: return .time
-        case .battery, .nothing: return nil
+        case .dockChips: return .storage
+        case .timeBattery: return .time
+        case .battery: return .batteryIcon
+        case .storage: return .storageLabel
+        case .time: return .date
+        case .nothing: return nil
         }
     }
     var right: Ear? {
         switch self {
-        case .dockChips, .timeBattery, .battery: return .battery
-        case .storage, .time, .nothing: return nil
+        case .dockChips, .timeBattery: return .battery
+        case .battery: return .batteryPercent
+        case .storage: return .storage
+        case .time: return .time
+        case .nothing: return nil
         }
     }
     static let defaultsKey = "com.katikati.notch.restContent"
@@ -90,6 +99,7 @@ enum NotchBehavior {
     static let hoverDelayKey = "com.katikati.notch.hoverDelay"
     static let closeDelayKey = "com.katikati.notch.closeDelay"
     static let hapticKey = "com.katikati.notch.haptic"
+    static let musicBatteryKey = "com.katikati.notch.musicBattery"
     static let defaultHoverDelay = 0.05
     static let defaultCloseDelay = 0.25
     static let hoverDelayRange = 0.0...1.0
@@ -109,6 +119,10 @@ enum NotchBehavior {
 
     static func haptic(_ d: UserDefaults = .standard) -> Bool {
         d.object(forKey: hapticKey) as? Bool ?? true
+    }
+
+    static func showBatteryDuringMusic(_ d: UserDefaults = .standard) -> Bool {
+        d.object(forKey: musicBatteryKey) as? Bool ?? true
     }
 }
 
