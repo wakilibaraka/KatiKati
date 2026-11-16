@@ -71,7 +71,7 @@ struct WindowsFlyoutView: View {
                     Button {
                         guard AXIsProcessTrusted() else { blocked = true; return }
                         blocked = false
-                        if let screen { tiling.setLayout(layout, forDisplay: screen.localizedName) }
+                        if let screen { tiling.setLayout(layout, for: screen) }
                     } label: {
                         VStack(spacing: 3) {
                             layoutIcon(layout, env: env, selected: layout == current && tiling.isEnabled)

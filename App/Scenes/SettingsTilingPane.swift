@@ -47,18 +47,32 @@ struct SettingsTilingPane: View {
                 }
                 SettingsNote(presetNote)
                 if NSScreen.screens.count > 1 {
-                    ForEach(NSScreen.screens, id: \.localizedName) { screen in
+                    ForEach(NSScreen.screens, id: \.self) { screen in
                         SettingsDivider()
                         SettingsPickerRow(
                             Text(verbatim: screen.localizedName),
                             selection: Binding(
                                 get: { engine.preset(for: screen) },
-                                set: { engine.setPreset($0, forDisplay: screen.localizedName) }
+                                set: { engine.setPreset($0, for: screen) }
                             )
                         ) {
                             ForEach(TilingLayoutPreset.allCases, id: \.self) { Text($0.localizedTitleKey).tag($0) }
                         }
+                        if let activeLayout = engine.layout(for: screen) {
+                            SettingsButtonRow(
+                                Text("Layout Override: \(activeLayout.title)"),
+                                note: Text("Set from the Windows flyout. Resetting returns this display to its preset."),
+                                action: { engine.setLayout(nil, for: screen) }
+                            )
+                        }
                     }
+                } else if let primary = NSScreen.screens.first, let activeLayout = engine.layout(for: primary) {
+                    SettingsDivider()
+                    SettingsButtonRow(
+                        Text("Layout Override: \(activeLayout.title)"),
+                        note: Text("Set from the Windows flyout. Resetting returns this display to its preset."),
+                        action: { engine.setLayout(nil, for: primary) }
+                    )
                 }
                 if engine.preset == .mainStack || engine.preset == .centeredMain {
                     SettingsDivider()

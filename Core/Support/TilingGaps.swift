@@ -74,4 +74,17 @@ enum WindowFit {
     static func allUsable(_ frames: [CGRect]) -> Bool {
         frames.allSatisfy { $0.width >= usableTile.width - 0.5 && $0.height >= usableTile.height - 0.5 }
     }
+
+    /// True when two frames in the same coordinate space match within `tolerance` on origin and size.
+    static func isNearlyEqual(_ a: CGRect, _ b: CGRect, tolerance: CGFloat = 2) -> Bool {
+        abs(a.minX - b.minX) <= tolerance
+            && abs(a.minY - b.minY) <= tolerance
+            && abs(a.width - b.width) <= tolerance
+            && abs(a.height - b.height) <= tolerance
+    }
+
+    /// Converts a Quartz (top-left origin) frame's center to Cocoa (bottom-left origin) coordinates.
+    static func cocoaCenter(ofQuartzFrame frame: CGRect, primaryMaxY: CGFloat) -> CGPoint {
+        CGPoint(x: frame.midX, y: primaryMaxY - frame.midY)
+    }
 }

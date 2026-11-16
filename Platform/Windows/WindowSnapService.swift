@@ -41,6 +41,9 @@ enum WindowSnapService {
         }
         if let current, !(position == .maximize && previousFrames[key] != nil) { previousFrames[key] = current }
         place(window, quartzFrame: quartzTarget, within: quartzArea)
+        if let cgID = AXWindowReader.cgWindowID(for: window) {
+            TilingEngine.shared.releaseWindow(cgWindowID: cgID)
+        }
         return .moved
     }
 

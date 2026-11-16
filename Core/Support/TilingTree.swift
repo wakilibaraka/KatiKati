@@ -213,6 +213,40 @@ struct TilingTree: Equatable, Sendable {
         }
     }
 
+    /// Adjusts the split ratio of the nearest ancestor split containing `id`, growing `id` for positive `delta`.
+    @discardableResult
+    mutating func adjustRatio(for id: WindowID, by delta: CGFloat) -> Bool {
+        guard let currentRoot = root, contains(id) else { return false }
+        let (updated, changed) = adjustRatio(for: id, by: delta, in: currentRoot)
+        root = updated
+        return changed
+    }
+
+    private func adjustRatio(for id: WindowID, by delta: CGFloat, in node: TilingTreeNode) -> (TilingTreeNode, Bool) {
+        switch node {
+        case .leaf:
+            return (node, false)
+        case .split(let axis, let ratio, let first, let second):
+            if case .leaf(let firstID) = first, firstID == id {
+                let clamped = max(0.1, min(0.9, ratio + delta))
+                return (.split(axis: axis, ratio: clamped, first: first, second: second), clamped != ratio)
+            }
+            if case .leaf(let secondID) = second, secondID == id {
+                let clamped = max(0.1, min(0.9, ratio - delta))
+                return (.split(axis: axis, ratio: clamped, first: first, second: second), clamped != ratio)
+            }
+            if first.contains(id) {
+                let (newFirst, changed) = adjustRatio(for: id, by: delta, in: first)
+                return (.split(axis: axis, ratio: ratio, first: newFirst, second: second), changed)
+            }
+            if second.contains(id) {
+                let (newSecond, changed) = adjustRatio(for: id, by: delta, in: second)
+                return (.split(axis: axis, ratio: ratio, first: first, second: newSecond), changed)
+            }
+            return (node, false)
+        }
+    }
+
     // MARK: - Focus & Swap Navigation
 
     /// Advance focus to the next window in traversal order.

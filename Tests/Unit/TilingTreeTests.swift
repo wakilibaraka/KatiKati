@@ -205,4 +205,31 @@ final class TilingTreeTests: XCTestCase {
         tree.insert(w1)
         XCTAssertEqual(tree.count, 1)
     }
+
+    func testAdjustRatioGrowsFocusedFirstAndSecondAndClamps() {
+        var single = TilingTree()
+        let w1 = WindowID(rawValue: "w1")
+        single.insert(w1)
+        XCTAssertFalse(single.adjustRatio(for: w1, by: 0.1))
+
+        var tree = TilingTree()
+        let w2 = WindowID(rawValue: "w2")
+        tree.insert(w1)
+        tree.insert(w2)
+
+        let before = tree.resolveTiles(in: screen, gaps: defaultGaps)
+        XCTAssertTrue(tree.adjustRatio(for: w1, by: 0.1))
+        let grewFirst = tree.resolveTiles(in: screen, gaps: defaultGaps)
+        XCTAssertGreaterThan(grewFirst[w1]!.width, before[w1]!.width)
+        XCTAssertLessThan(grewFirst[w2]!.width, before[w2]!.width)
+
+        XCTAssertTrue(tree.adjustRatio(for: w2, by: 0.2))
+        let grewSecond = tree.resolveTiles(in: screen, gaps: defaultGaps)
+        XCTAssertGreaterThan(grewSecond[w2]!.width, grewFirst[w2]!.width)
+
+        // Clamps cleanly at bounds without crashing or exceeding [0.1, 0.9]
+        for _ in 0..<20 { _ = tree.adjustRatio(for: w1, by: 0.1) }
+        let clamped = tree.resolveTiles(in: screen, gaps: defaultGaps)
+        XCTAssertGreaterThan(clamped[w2]!.width, 100)
+    }
 }

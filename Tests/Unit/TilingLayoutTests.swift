@@ -206,4 +206,17 @@ final class TilingLayoutTests: XCTestCase {
         XCTAssertEqual(policy.pinnedDisplay(bundleIdentifier: "com.c"), "LG UltraFine")
         XCTAssertEqual(TilingPolicy.parse(patterns: policy.serializedPatterns), policy)
     }
+
+    func testWindowFitNearlyEqualAndQuartzToCocoaCenter() {
+        let a = CGRect(x: 100, y: 200, width: 500, height: 400)
+        let b = CGRect(x: 101.5, y: 198.5, width: 501, height: 399)
+        let c = CGRect(x: 105, y: 200, width: 500, height: 400)
+        XCTAssertTrue(WindowFit.isNearlyEqual(a, b, tolerance: 2))
+        XCTAssertFalse(WindowFit.isNearlyEqual(a, c, tolerance: 2))
+
+        // Primary screen height 900: Quartz y=100..300 (midY=200) -> Cocoa midY = 900 - 200 = 700
+        let quartz = CGRect(x: 50, y: 100, width: 200, height: 200)
+        let center = WindowFit.cocoaCenter(ofQuartzFrame: quartz, primaryMaxY: 900)
+        XCTAssertEqual(center, CGPoint(x: 150, y: 700))
+    }
 }

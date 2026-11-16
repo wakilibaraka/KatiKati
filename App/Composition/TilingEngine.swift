@@ -22,7 +22,10 @@ final class TilingEngine: ObservableObject {
     }
 
     /// Re-tiles after something else changed the work area (the window strip turning on or off).
-    func reapplyForWorkAreaChange() { if isEnabled { reapplyLayout() } }
+    func reapplyForWorkAreaChange() {
+        guard isEnabled else { return }
+        reapplyLayout()
+    }
 
     // MARK: - UserDefaults Keys
     static let enabledKey = "com.katikati.tiling.enabled"
@@ -145,24 +148,39 @@ final class TilingEngine: ObservableObject {
         if isEnabled { reapplyLayout() }
     }
 
-    func preset(for screen: NSScreen) -> TilingLayoutPreset { displayPresets[screen.localizedName] ?? preset }
+    func preset(for screen: NSScreen) -> TilingLayoutPreset {
+        displayPresets[screenKey(for: screen)] ?? displayPresets[screen.localizedName] ?? preset
+    }
 
-    func setPreset(_ newPreset: TilingLayoutPreset, forDisplay name: String) {
+    func setPreset(_ newPreset: TilingLayoutPreset, for screen: NSScreen) {
+        setPreset(newPreset, forDisplay: screenKey(for: screen), legacyKey: screen.localizedName)
+    }
+
+    func setPreset(_ newPreset: TilingLayoutPreset, forDisplay name: String, legacyKey: String? = nil) {
         // Re-picking the current preset still has to clear a catalog layout sitting on top of it.
         let hadLayout = displayLayouts.removeValue(forKey: name) != nil
-        guard hadLayout || displayPresets[name] != newPreset else { return }
+        let hadLegacyLayout = legacyKey.flatMap { displayLayouts.removeValue(forKey: $0) } != nil
+        if let legacyKey { displayPresets.removeValue(forKey: legacyKey) }
+        guard hadLayout || hadLegacyLayout || displayPresets[name] != newPreset else { return }
         displayPresets[name] = newPreset
-        if hadLayout {
+        if hadLayout || hadLegacyLayout {
             UserDefaults.standard.set(displayLayouts.mapValues(\.rawValue), forKey: Self.displayLayoutsKey)
         }
         UserDefaults.standard.set(displayPresets.mapValues(\.rawValue), forKey: Self.displayPresetsKey)
         if isEnabled { reapplyLayout() }
     }
 
-    func layout(for screen: NSScreen) -> LayoutCatalog? { displayLayouts[screen.localizedName] }
+    func layout(for screen: NSScreen) -> LayoutCatalog? {
+        displayLayouts[screenKey(for: screen)] ?? displayLayouts[screen.localizedName]
+    }
+
+    func setLayout(_ layout: LayoutCatalog?, for screen: NSScreen) {
+        setLayout(layout, forDisplay: screenKey(for: screen), legacyKey: screen.localizedName)
+    }
 
     /// Picks a catalog layout for one display and turns tiling on; `nil` goes back to the display's plain preset.
-    func setLayout(_ layout: LayoutCatalog?, forDisplay name: String) {
+    func setLayout(_ layout: LayoutCatalog?, forDisplay name: String, legacyKey: String? = nil) {
+        if let legacyKey { displayLayouts.removeValue(forKey: legacyKey) }
         displayLayouts[name] = layout
         UserDefaults.standard.set(displayLayouts.mapValues(\.rawValue), forKey: Self.displayLayoutsKey)
         if layout != nil, !isEnabled { setEnabled(true) } else if isEnabled { reapplyLayout() }
@@ -170,8 +188,8 @@ final class TilingEngine: ObservableObject {
 
     /// Drag-to-slot: turns `layout` on for `screen` and puts window `id` in slot `slot` (swapping with its occupant).
     func place(_ id: WindowID, inSlot slot: Int, layout: LayoutCatalog, on screen: NSScreen) {
-        setLayout(layout, forDisplay: screen.localizedName)
-        let key = screen.localizedName + "-\(screen.frame.origin)"
+        setLayout(layout, for: screen)
+        let key = screenKey(for: screen)
         var tree = trees[key] ?? TilingTree()
         if !tree.contains(id) { tree.insert(id) }
         let ids = tree.allWindowIDs
@@ -205,6 +223,17 @@ final class TilingEngine: ObservableObject {
     }
 
     func adjustMainRatio(by delta: CGFloat) {
+        if isEnabled,
+           let screen = activeScreen(),
+           layout(for: screen) == nil,
+           preset(for: screen) == .bsp {
+            let key = screenKey(for: screen)
+            if var tree = trees[key], let focusedID = tree.focusedID, tree.adjustRatio(for: focusedID, by: delta) {
+                trees[key] = tree
+                reapplyLayout()
+            }
+            return
+        }
         var new = options
         new.mainRatio = min(max(options.mainRatio + delta, TilingLayoutOptions.ratioRange.lowerBound), TilingLayoutOptions.ratioRange.upperBound)
         setOptions(new)
@@ -217,16 +246,30 @@ final class TilingEngine: ObservableObject {
         if isEnabled { reapplyLayout() }
     }
 
+    /// Releases a window from auto-tiling immediately (e.g. after a manual Snap Zone placement).
+    func releaseWindow(cgWindowID: CGWindowID) {
+        guard isEnabled, cgWindowID != 0 else { return }
+        releasedWindowIDs.insert(cgWindowID)
+        lastAppliedFrames.removeValue(forKey: cgWindowID)
+        for (key, var tree) in trees {
+            if let recordID = tree.allWindowIDs.first(where: { lastWindows[$0]?.cgWindowID == cgWindowID || CGWindowID($0.rawValue) == cgWindowID }) {
+                tree.remove(recordID)
+                trees[key] = tree
+            }
+        }
+        reapplyLayout()
+    }
+
     // MARK: - Hotkey Actions
 
     func cycleLayout() {
-        // Cycles the display under the pointer's key window; with one display this is the global preset.
+        // Cycles the display containing the focused window (or pointer); with one display this is the global preset.
         let all = TilingLayoutPreset.allCases
-        let screen = NSScreen.main ?? NSScreen.screens.first
+        let screen = activeScreen()
         let current = screen.map(preset(for:)) ?? preset
         guard let idx = all.firstIndex(of: current) else { return }
         let next = all[(idx + 1) % all.count]
-        if NSScreen.screens.count > 1, let screen { setPreset(next, forDisplay: screen.localizedName) } else { setPreset(next) }
+        if NSScreen.screens.count > 1, let screen { setPreset(next, for: screen) } else { setPreset(next) }
     }
 
     func focusNext() {
@@ -268,23 +311,35 @@ final class TilingEngine: ObservableObject {
         lastSnapshot = snapshot
         guard isEnabled, !isApplyingLayout else { return }
 
-        // Detect user manual moves/resizes: if a window was placed by us but moved by user, release it.
-        for (_, record) in snapshot.windows {
-            guard let cg = record.cgWindowID, let currentBounds = record.bounds else { continue }
-            if let lastApplied = lastAppliedFrames[cg] {
-                // A window that went native-fullscreen (or minimized) changed frame on its own; that is not a hand move.
-                guard isTileable(record, cg) else { lastAppliedFrames[cg] = nil; continue }
-                let moved = abs(currentBounds.minX - lastApplied.minX) > 10 ||
-                            abs(currentBounds.minY - lastApplied.minY) > 10 ||
-                            abs(currentBounds.width - lastApplied.width) > 10 ||
-                            abs(currentBounds.height - lastApplied.height) > 10
-                if moved && !releasedWindowIDs.contains(cg) && !policy.alwaysTiles(bundleIdentifier: record.bundleIdentifier) {
-                    releasedWindowIDs.insert(cg)
-                    // Remove from trees so remaining windows retile smoothly
-                    for (screenKey, var tree) in trees {
-                        if tree.contains(record.id) {
-                            tree.remove(record.id)
-                            trees[screenKey] = tree
+        // Prune state for closed/disappeared windows so long sessions don't leak stale IDs.
+        let liveCGIDs = Set(snapshot.windows.values.compactMap(\.cgWindowID))
+        preTilingFrames = preTilingFrames.filter { liveCGIDs.contains($0.key) }
+        lastAppliedFrames = lastAppliedFrames.filter { liveCGIDs.contains($0.key) }
+        let prunedReleased = releasedWindowIDs.intersection(liveCGIDs)
+        if prunedReleased != releasedWindowIDs {
+            releasedWindowIDs = prunedReleased
+        }
+
+        // Defer hand-move detection while a mouse button is held down so siblings don't jump mid-drag.
+        if NSEvent.pressedMouseButtons == 0 {
+            // Detect user manual moves/resizes: if a window was placed by us but moved by user, release it.
+            for (_, record) in snapshot.windows {
+                guard let cg = record.cgWindowID, let currentBounds = record.bounds else { continue }
+                if let lastApplied = lastAppliedFrames[cg] {
+                    // A window that went native-fullscreen (or minimized) changed frame on its own; that is not a hand move.
+                    guard isTileable(record, cg) else { lastAppliedFrames[cg] = nil; continue }
+                    let moved = abs(currentBounds.minX - lastApplied.minX) > 10 ||
+                                abs(currentBounds.minY - lastApplied.minY) > 10 ||
+                                abs(currentBounds.width - lastApplied.width) > 10 ||
+                                abs(currentBounds.height - lastApplied.height) > 10
+                    if moved && !releasedWindowIDs.contains(cg) && !policy.alwaysTiles(bundleIdentifier: record.bundleIdentifier) {
+                        releasedWindowIDs.insert(cg)
+                        // Remove from trees so remaining windows retile smoothly
+                        for (screenKey, var tree) in trees {
+                            if tree.contains(record.id) {
+                                tree.remove(record.id)
+                                trees[screenKey] = tree
+                            }
                         }
                     }
                 }
@@ -303,6 +358,7 @@ final class TilingEngine: ObservableObject {
 
         // Group eligible windows by screen
         var eligibleByScreen: [String: [(WindowRecord, CGWindowID)]] = [:]
+        var activeIDByScreen: [String: WindowID] = [:]
 
         for id in snapshot.orderedWindowIDs {
             guard let record = snapshot.windows[id],
@@ -314,19 +370,12 @@ final class TilingEngine: ObservableObject {
                   isTileable(record, cg)
             else { continue }
 
-            // Determine which screen contains this window's center
-            let winCenter: CGPoint = {
-                if let b = record.bounds {
-                    return CGPoint(x: b.midX, y: b.midY)
-                }
-                return CGPoint(x: screens[0].frame.midX, y: screens[0].frame.midY)
-            }()
-
-            let pinned = policy.pinnedDisplay(bundleIdentifier: record.bundleIdentifier)
-            let targetScreen = screens.first { $0.localizedName == pinned }
-                ?? screens.first { $0.frame.contains(winCenter) } ?? screens[0]
-            let screenKey = targetScreen.localizedName + "-\(targetScreen.frame.origin)"
-            eligibleByScreen[screenKey, default: []].append((record, cg))
+            let targetScreen = resolveScreen(for: record, screens: screens, primaryMaxY: primaryMaxY)
+            let key = screenKey(for: targetScreen)
+            eligibleByScreen[key, default: []].append((record, cg))
+            if record.status == .active {
+                activeIDByScreen[key] = record.id
+            }
 
             // Snapshot initial frame if not yet recorded
             if preTilingFrames[cg] == nil, let b = record.bounds {
@@ -339,9 +388,9 @@ final class TilingEngine: ObservableObject {
 
         // Reconcile tree for each screen
         for screen in screens {
-            let screenKey = screen.localizedName + "-\(screen.frame.origin)"
-            let eligible = eligibleByScreen[screenKey] ?? []
-            var tree = trees[screenKey] ?? TilingTree()
+            let key = screenKey(for: screen)
+            let eligible = eligibleByScreen[key] ?? []
+            var tree = trees[key] ?? TilingTree()
 
             let eligibleIDs = Set(eligible.map { $0.0.id })
 
@@ -359,16 +408,25 @@ final class TilingEngine: ObservableObject {
                 }
             }
 
+            // Keep tree focus synced with the active window on this screen
+            if let activeID = activeIDByScreen[key], tree.contains(activeID) {
+                tree.focus(activeID)
+            }
+
             // Resolve layout geometry; if any tile would be unusably small, the newest windows stay floating.
             let workArea = workArea(of: screen)
             var targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
-            let newcomers = eligible.map { $0.0.id }.filter { tree.contains($0) }.reversed()
-            for id in newcomers where !WindowFit.allUsable(Array(targetFrames.values)) && tree.count > 1 {
-                tree.remove(id)
-                overflow += 1
-                targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
+            if let catalogLayout = layout(for: screen) {
+                overflow += max(0, eligible.count - catalogLayout.slots)
+            } else {
+                let newcomers = eligible.map { $0.0.id }.filter { tree.contains($0) }.reversed()
+                for id in newcomers where !WindowFit.allUsable(Array(targetFrames.values)) && tree.count > 1 {
+                    tree.remove(id)
+                    overflow += 1
+                    targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
+                }
             }
-            trees[screenKey] = tree
+            trees[key] = tree
 
             // Apply frames via AX
             applyFrames(targetFrames, records: snapshot.windows, primaryMaxY: primaryMaxY, area: workArea)
@@ -382,8 +440,8 @@ final class TilingEngine: ObservableObject {
         let primaryMaxY = screens.first?.frame.maxY ?? 0
 
         for screen in screens {
-            let screenKey = screen.localizedName + "-\(screen.frame.origin)"
-            guard let tree = trees[screenKey], !tree.isEmpty else { continue }
+            let key = screenKey(for: screen)
+            guard let tree = trees[key], !tree.isEmpty else { continue }
             let workArea = workArea(of: screen)
             let targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
 
@@ -405,9 +463,17 @@ final class TilingEngine: ObservableObject {
 
         for (winID, cocoaFrame) in targetFrames {
             guard let record = records[winID], let cg = record.cgWindowID ?? CGWindowID(winID.rawValue) else { continue }
-            guard let element = AXElementCache.shared.element(pid: record.pid, cgWindowID: cg) ?? axElement(for: record.pid, cgWindowID: cg) else { continue }
 
             let quartz = CGRect(origin: SnapPosition.accessibilityOrigin(of: cocoaFrame, primaryMaxY: primaryMaxY), size: cocoaFrame.size)
+
+            // Skip AX IPC when the window is already at the target frame within 2pt tolerance.
+            if let currentBounds = record.bounds, WindowFit.isNearlyEqual(currentBounds, quartz, tolerance: 2) {
+                lastAppliedFrames[cg] = currentBounds
+                continue
+            }
+
+            guard let element = AXElementCache.shared.element(pid: record.pid, cgWindowID: cg) ?? axElement(for: record.pid, cgWindowID: cg) else { continue }
+
             let quartzArea = CGRect(origin: SnapPosition.accessibilityOrigin(of: area, primaryMaxY: primaryMaxY), size: area.size)
 
             // Snapshot bounds are Quartz (top-left); store what the app really took (it may clamp to a minimum size)
@@ -424,9 +490,9 @@ final class TilingEngine: ObservableObject {
         isApplyingLayout = true
         defer { isApplyingLayout = false }
 
-        for (cg, originalCocoa) in preTilingFrames {
-            var point = SnapPosition.accessibilityOrigin(of: originalCocoa, primaryMaxY: primaryMaxY)
-            var size = originalCocoa.size
+        for (cg, originalQuartz) in preTilingFrames {
+            var point = originalQuartz.origin
+            var size = originalQuartz.size
             guard let pointVal = AXValueCreate(.cgPoint, &point),
                   let sizeVal = AXValueCreate(.cgSize, &size) else { continue }
 
@@ -458,9 +524,41 @@ final class TilingEngine: ObservableObject {
         return true
     }
 
+    func screenKey(for screen: NSScreen) -> String {
+        DisplayIdentity.uuidString(for: screen) ?? screen.localizedName
+    }
+
+    private func resolveScreen(for record: WindowRecord, screens: [NSScreen], primaryMaxY: CGFloat) -> NSScreen {
+        if let pinned = policy.pinnedDisplay(bundleIdentifier: record.bundleIdentifier),
+           let match = screens.first(where: { $0.localizedName == pinned || screenKey(for: $0) == pinned }) {
+            return match
+        }
+        if let uuid = record.displayUUID,
+           let match = screens.first(where: { DisplayIdentity.uuidString(for: $0) == uuid }) {
+            return match
+        }
+        if let b = record.bounds {
+            let cocoaCenter = WindowFit.cocoaCenter(ofQuartzFrame: b, primaryMaxY: primaryMaxY)
+            if let match = screens.first(where: { $0.frame.contains(cocoaCenter) }) {
+                return match
+            }
+        }
+        return screens[0]
+    }
+
+    private func activeScreen() -> NSScreen? {
+        let screens = NSScreen.screens
+        guard !screens.isEmpty else { return nil }
+        let primaryMaxY = screens.first?.frame.maxY ?? 0
+        if let activeRecord = lastSnapshot?.windows.values.first(where: { $0.status == .active }) {
+            return resolveScreen(for: activeRecord, screens: screens, primaryMaxY: primaryMaxY)
+        }
+        let mouse = NSEvent.mouseLocation
+        return screens.first { $0.frame.contains(mouse) } ?? NSScreen.main ?? screens.first
+    }
+
     private func activeScreenKey() -> String? {
-        guard let screen = NSScreen.main ?? NSScreen.screens.first else { return nil }
-        return screen.localizedName + "-\(screen.frame.origin)"
+        activeScreen().map(screenKey(for:))
     }
 
     private func axElement(for pid: pid_t, cgWindowID: CGWindowID) -> AXUIElement? {
