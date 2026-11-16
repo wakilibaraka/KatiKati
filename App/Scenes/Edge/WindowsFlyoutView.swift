@@ -84,7 +84,7 @@ struct WindowsFlyoutView: View {
             }
             if let current, tiling.isEnabled {
                 HStack {
-                    Text("\(current.title) is on").font(.system(size: 11))
+                    Text(String(format: String(localized: "%@ is on"), current.title)).font(.system(size: 11))
                     Spacer()
                     Button("Turn Off") { tiling.setEnabled(false) }.font(.system(size: 11))
                 }

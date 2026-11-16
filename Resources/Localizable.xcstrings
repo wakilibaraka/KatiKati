@@ -97815,191 +97815,346 @@
         }
       }
     },
+    "Always visible": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Always visible"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"始终显示"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"永遠顯示"}},"ja":{"stringUnit":{"state":"translated","value":"常に表示"}},"de":{"stringUnit":{"state":"translated","value":"Immer sichtbar"}},"fr":{"stringUnit":{"state":"translated","value":"Toujours visible"}},"es":{"stringUnit":{"state":"translated","value":"Siempre visible"}},"es-419":{"stringUnit":{"state":"translated","value":"Siempre visible"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Sempre visível"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Sempre visível"}},"it":{"stringUnit":{"state":"translated","value":"Sempre visibile"}},"ko":{"stringUnit":{"state":"translated","value":"항상 표시"}}}},
+    "Always-Visible Window Strip": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Always-Visible Window Strip"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"始终显示的窗口栏"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"永遠顯示的視窗列"}},"ja":{"stringUnit":{"state":"translated","value":"常に表示するウィンドウバー"}},"de":{"stringUnit":{"state":"translated","value":"Immer sichtbare Fensterleiste"}},"fr":{"stringUnit":{"state":"translated","value":"Bandeau de fenêtres toujours visible"}},"es":{"stringUnit":{"state":"translated","value":"Barra de ventanas siempre visible"}},"es-419":{"stringUnit":{"state":"translated","value":"Barra de ventanas siempre visible"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Barra de janelas sempre visível"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Barra de janelas sempre visível"}},"it":{"stringUnit":{"state":"translated","value":"Barra finestre sempre visibile"}},"ko":{"stringUnit":{"state":"translated","value":"항상 표시되는 윈도우 막대"}}}},
+    "Border Around Focused Window": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Border Around Focused Window"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"为当前窗口添加边框"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"為目前視窗加上外框"}},"ja":{"stringUnit":{"state":"translated","value":"フォーカス中のウィンドウに枠線を表示"}},"de":{"stringUnit":{"state":"translated","value":"Rahmen um das fokussierte Fenster"}},"fr":{"stringUnit":{"state":"translated","value":"Bordure autour de la fenêtre active"}},"es":{"stringUnit":{"state":"translated","value":"Borde alrededor de la ventana activa"}},"es-419":{"stringUnit":{"state":"translated","value":"Borde alrededor de la ventana activa"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Contorno na janela em foco"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Contorno na janela em foco"}},"it":{"stringUnit":{"state":"translated","value":"Bordo intorno alla finestra attiva"}},"ko":{"stringUnit":{"state":"translated","value":"초점이 맞춰진 윈도우 테두리"}}}},
+    "Copy Definition": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Copy Definition"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"复制释义"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"複製釋義"}},"ja":{"stringUnit":{"state":"translated","value":"定義をコピー"}},"de":{"stringUnit":{"state":"translated","value":"Definition kopieren"}},"fr":{"stringUnit":{"state":"translated","value":"Copier la définition"}},"es":{"stringUnit":{"state":"translated","value":"Copiar definición"}},"es-419":{"stringUnit":{"state":"translated","value":"Copiar definición"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Copiar definição"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Copiar definição"}},"it":{"stringUnit":{"state":"translated","value":"Copia definizione"}},"ko":{"stringUnit":{"state":"translated","value":"정의 복사"}}}},
+    "Define Word": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Define Word"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"查词"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"查詢詞語"}},"ja":{"stringUnit":{"state":"translated","value":"単語を調べる"}},"de":{"stringUnit":{"state":"translated","value":"Wort nachschlagen"}},"fr":{"stringUnit":{"state":"translated","value":"Définir le mot"}},"es":{"stringUnit":{"state":"translated","value":"Definir palabra"}},"es-419":{"stringUnit":{"state":"translated","value":"Definir palabra"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Definir palavra"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Definir palavra"}},"it":{"stringUnit":{"state":"translated","value":"Definisci parola"}},"ko":{"stringUnit":{"state":"translated","value":"단어 뜻 찾기"}}}},
+    "Define in Dictionary": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Define in Dictionary"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在词典中查询"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"在字典中查詢"}},"ja":{"stringUnit":{"state":"translated","value":"辞書で調べる"}},"de":{"stringUnit":{"state":"translated","value":"Im Wörterbuch nachschlagen"}},"fr":{"stringUnit":{"state":"translated","value":"Rechercher dans le dictionnaire"}},"es":{"stringUnit":{"state":"translated","value":"Consultar en el diccionario"}},"es-419":{"stringUnit":{"state":"translated","value":"Consultar en el diccionario"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Consultar no dicionário"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Consultar no dicionário"}},"it":{"stringUnit":{"state":"translated","value":"Cerca nel dizionario"}},"ko":{"stringUnit":{"state":"translated","value":"사전에서 찾기"}}}},
+    "Dictionary": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Dictionary"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"词典"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"字典"}},"ja":{"stringUnit":{"state":"translated","value":"辞書"}},"de":{"stringUnit":{"state":"translated","value":"Wörterbuch"}},"fr":{"stringUnit":{"state":"translated","value":"Dictionnaire"}},"es":{"stringUnit":{"state":"translated","value":"Diccionario"}},"es-419":{"stringUnit":{"state":"translated","value":"Diccionario"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Dicionário"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Dicionário"}},"it":{"stringUnit":{"state":"translated","value":"Dizionario"}},"ko":{"stringUnit":{"state":"translated","value":"사전"}}}},
+    "Draws an accent-colored outline around the window you are working in.": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Draws an accent-colored outline around the window you are working in."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"为当前使用的窗口绘制强调色轮廓。"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"為目前使用中的視窗繪製強調色外框。"}},"ja":{"stringUnit":{"state":"translated","value":"作業中のウィンドウをアクセントカラーの枠で囲みます。"}},"de":{"stringUnit":{"state":"translated","value":"Zeichnet einen Akzentfarbrahmen um das Fenster, mit dem du arbeitest."}},"fr":{"stringUnit":{"state":"translated","value":"Trace un contour de couleur d’accent autour de la fenêtre utilisée."}},"es":{"stringUnit":{"state":"translated","value":"Dibuja un contorno de color de acento alrededor de la ventana activa."}},"es-419":{"stringUnit":{"state":"translated","value":"Dibuja un borde de color de acento alrededor de la ventana activa."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Desenha um contorno na cor de destaque ao redor da janela em uso."}},"pt-PT":{"stringUnit":{"state":"translated","value":"Desenha um contorno na cor de destaque à volta da janela em utilização."}},"it":{"stringUnit":{"state":"translated","value":"Disegna un bordo colorato attorno alla finestra in uso."}},"ko":{"stringUnit":{"state":"translated","value":"사용 중인 윈도우 주위에 강조 색상 윤곽선을 그립니다."}}}},
+    "Drag a window onto a layout slot": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Drag a window onto a layout slot"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"将窗口拖到布局位置上"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"將視窗拖曳到版面配置位置"}},"ja":{"stringUnit":{"state":"translated","value":"ウィンドウをレイアウト枠にドラッグ"}},"de":{"stringUnit":{"state":"translated","value":"Ziehe ein Fenster auf einen Layoutplatz"}},"fr":{"stringUnit":{"state":"translated","value":"Faites glisser une fenêtre vers un emplacement"}},"es":{"stringUnit":{"state":"translated","value":"Arrastra una ventana a una ranura del diseño"}},"es-419":{"stringUnit":{"state":"translated","value":"Arrastra una ventana a un espacio del diseño"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Arraste uma janela para um espaço do layout"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Arraste uma janela para um espaço do esquema"}},"it":{"stringUnit":{"state":"translated","value":"Trascina una finestra in uno spazio del layout"}},"ko":{"stringUnit":{"state":"translated","value":"윈도우를 레이아웃 슬롯으로 드래그"}}}},
+    "Grid centres thumbnails on the screen. Sidebar docks a Windows list to the left edge, with an Always visible switch that keeps it open after you release the keys.": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Grid centres thumbnails on the screen. Sidebar docks a Windows list to the left edge, with an Always visible switch that keeps it open after you release the keys."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"网格会在屏幕中央排列缩略图。侧边栏会将窗口列表停靠在左侧；开启“始终显示”后，松开按键时列表仍会保持打开。"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"網格會在螢幕中央排列縮圖。側邊欄會將視窗清單停靠在左側；開啟「永遠顯示」後，放開按鍵時清單仍會保持開啟。"}},"ja":{"stringUnit":{"state":"translated","value":"グリッドはサムネイルを画面中央に配置します。サイドバーはウィンドウ一覧を左端に表示し、「常に表示」をオンにするとキーを離しても開いたままになります。"}},"de":{"stringUnit":{"state":"translated","value":"Das Raster zentriert Miniaturen auf dem Bildschirm. Die Seitenleiste zeigt links eine Fensterliste; mit „Immer sichtbar“ bleibt sie nach dem Loslassen der Tasten geöffnet."}},"fr":{"stringUnit":{"state":"translated","value":"La grille centre les vignettes à l’écran. La barre latérale ancre la liste des fenêtres à gauche ; l’option « Toujours visible » la laisse ouverte après le relâchement des touches."}},"es":{"stringUnit":{"state":"translated","value":"La cuadrícula centra las miniaturas en la pantalla. La barra lateral acopla una lista de ventanas a la izquierda; «Siempre visible» la mantiene abierta al soltar las teclas."}},"es-419":{"stringUnit":{"state":"translated","value":"La cuadrícula centra las miniaturas en la pantalla. La barra lateral acopla una lista de ventanas a la izquierda; «Siempre visible» la mantiene abierta al soltar las teclas."}},"pt-BR":{"stringUnit":{"state":"translated","value":"A grade centraliza as miniaturas na tela. A barra lateral fixa uma lista de janelas à esquerda; “Sempre visível” mantém a lista aberta após soltar as teclas."}},"pt-PT":{"stringUnit":{"state":"translated","value":"A grelha centra as miniaturas no ecrã. A barra lateral fixa uma lista de janelas à esquerda; «Sempre visível» mantém a lista aberta depois de largar as teclas."}},"it":{"stringUnit":{"state":"translated","value":"La griglia centra le miniature sullo schermo. La barra laterale aggancia l’elenco delle finestre a sinistra; «Sempre visibile» lo mantiene aperto dopo aver rilasciato i tasti."}},"ko":{"stringUnit":{"state":"translated","value":"그리드는 썸네일을 화면 중앙에 배치합니다. 사이드바는 창 목록을 왼쪽에 고정하며, ‘항상 표시’를 켜면 키를 놓은 뒤에도 목록이 열려 있습니다."}}}},
+    "Hide Terminal": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Hide Terminal"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"隐藏终端"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"隱藏終端機"}},"ja":{"stringUnit":{"state":"translated","value":"ターミナルを隠す"}},"de":{"stringUnit":{"state":"translated","value":"Terminal ausblenden"}},"fr":{"stringUnit":{"state":"translated","value":"Masquer le terminal"}},"es":{"stringUnit":{"state":"translated","value":"Ocultar Terminal"}},"es-419":{"stringUnit":{"state":"translated","value":"Ocultar Terminal"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Ocultar Terminal"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Ocultar Terminal"}},"it":{"stringUnit":{"state":"translated","value":"Nascondi Terminale"}},"ko":{"stringUnit":{"state":"translated","value":"터미널 숨기기"}}}},
+    "Hold": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Hold"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"按住"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"按住"}},"ja":{"stringUnit":{"state":"translated","value":"長押し"}},"de":{"stringUnit":{"state":"translated","value":"Halten"}},"fr":{"stringUnit":{"state":"translated","value":"Maintenir"}},"es":{"stringUnit":{"state":"translated","value":"Mantener"}},"es-419":{"stringUnit":{"state":"translated","value":"Mantener"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Manter pressionado"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Manter premido"}},"it":{"stringUnit":{"state":"translated","value":"Tieni premuto"}},"ko":{"stringUnit":{"state":"translated","value":"길게 누르기"}}}},
+    "Hold Time": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Hold Time"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"按住时长"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"按住時間"}},"ja":{"stringUnit":{"state":"translated","value":"長押し時間"}},"de":{"stringUnit":{"state":"translated","value":"Haltedauer"}},"fr":{"stringUnit":{"state":"translated","value":"Durée d’appui"}},"es":{"stringUnit":{"state":"translated","value":"Duración de la pulsación"}},"es-419":{"stringUnit":{"state":"translated","value":"Duración de la pulsación"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Duração do pressionamento"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Duração do premir"}},"it":{"stringUnit":{"state":"translated","value":"Durata della pressione"}},"ko":{"stringUnit":{"state":"translated","value":"길게 누르는 시간"}}}},
+    "How long a Hold shortcut (such as hold fn) must be held before it fires.": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"How long a Hold shortcut (such as hold fn) must be held before it fires."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"按住类快捷键（例如按住 Fn）需要持续多久才会触发。"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"按住類快捷鍵（例如按住 Fn）需要持續多久才會觸發。"}},"ja":{"stringUnit":{"state":"translated","value":"Fn キー長押しなどの長押しショートカットが起動するまでの時間です。"}},"de":{"stringUnit":{"state":"translated","value":"Wie lange ein Haltekurzbefehl (z. B. Fn halten) gedrückt werden muss, bis er ausgelöst wird."}},"fr":{"stringUnit":{"state":"translated","value":"Durée pendant laquelle un raccourci avec maintien (comme maintenir Fn) doit être appuyé avant de se déclencher."}},"es":{"stringUnit":{"state":"translated","value":"Cuánto tiempo debe mantenerse una combinación (por ejemplo, mantener Fn) antes de activarse."}},"es-419":{"stringUnit":{"state":"translated","value":"Cuánto tiempo debe mantenerse una combinación (por ejemplo, mantener Fn) antes de activarse."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Por quanto tempo um atalho de pressionamento (como manter Fn) deve ser mantido antes de ser acionado."}},"pt-PT":{"stringUnit":{"state":"translated","value":"Durante quanto tempo um atalho de pressão (como manter Fn premido) tem de ser mantido para ser acionado."}},"it":{"stringUnit":{"state":"translated","value":"Per quanto tempo tenere premuta una scorciatoia (ad esempio Fn) prima che si attivi."}},"ko":{"stringUnit":{"state":"translated","value":"Fn 길게 누르기와 같은 누르기 단축키가 실행되기까지 유지해야 하는 시간입니다."}}}},
+    "Keeps a narrow column of window icons on the left edge of the main display. Click an icon to bring that window forward. Auto-tiling leaves the strip's space free. Press ⌃⌥W for the full window drawer.": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Keeps a narrow column of window icons on the left edge of the main display. Click an icon to bring that window forward. Auto-tiling leaves the strip's space free. Press ⌃⌥W for the full window drawer."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"在主显示器左侧保留一列窄窄的窗口图标。点按图标可切换到对应窗口。自动平铺会为该栏留出空间。按 ⌃⌥W 打开完整窗口抽屉。"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"在主顯示器左側保留一列窄窄的視窗圖示。點按圖示即可切換至對應視窗。自動平鋪會為此列保留空間。按 ⌃⌥W 開啟完整視窗抽屜。"}},"ja":{"stringUnit":{"state":"translated","value":"メインディスプレイの左端に細いウィンドウアイコン列を表示します。アイコンをクリックするとウィンドウを前面に表示します。自動タイル表示では列の分のスペースを確保します。⌃⌥W でウィンドウドロワーを開きます。"}},"de":{"stringUnit":{"state":"translated","value":"Zeigt links auf dem Hauptdisplay eine schmale Spalte mit Fenstersymbolen. Klicke auf ein Symbol, um das Fenster nach vorn zu holen. Automatisches Kacheln lässt den Platz dafür frei. Mit ⌃⌥W öffnest du den vollständigen Fensterbereich."}},"fr":{"stringUnit":{"state":"translated","value":"Affiche une fine colonne d’icônes de fenêtres à gauche de l’écran principal. Cliquez sur une icône pour afficher la fenêtre. Le mosaïquage automatique réserve l’espace de la barre. Appuyez sur ⌃⌥W pour ouvrir le tiroir complet des fenêtres."}},"es":{"stringUnit":{"state":"translated","value":"Mantiene una columna estrecha de iconos de ventanas en el borde izquierdo de la pantalla principal. Haz clic en un icono para traer esa ventana al frente. El mosaico automático deja espacio para la barra. Pulsa ⌃⌥W para abrir el cajón de ventanas completo."}},"es-419":{"stringUnit":{"state":"translated","value":"Mantiene una columna estrecha de iconos de ventanas en el borde izquierdo de la pantalla principal. Haz clic en un icono para traer esa ventana al frente. El mosaico automático deja espacio para la barra. Pulsa ⌃⌥W para abrir el cajón de ventanas completo."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Mantém uma coluna estreita de ícones de janelas na borda esquerda da tela principal. Clique em um ícone para trazer a janela para frente. O mosaico automático deixa espaço para a barra. Pressione ⌃⌥W para abrir o painel completo de janelas."}},"pt-PT":{"stringUnit":{"state":"translated","value":"Mantém uma coluna estreita de ícones de janelas na margem esquerda do ecrã principal. Clique num ícone para trazer essa janela para a frente. O mosaico automático deixa espaço livre para a barra. Prima ⌃⌥W para abrir o painel completo de janelas."}},"it":{"stringUnit":{"state":"translated","value":"Mantiene una colonna stretta di icone delle finestre sul bordo sinistro del display principale. Fai clic su un’icona per portare la finestra in primo piano. La disposizione automatica lascia libero lo spazio della barra. Premi ⌃⌥W per aprire il pannello completo delle finestre."}},"ko":{"stringUnit":{"state":"translated","value":"주 디스플레이 왼쪽 가장자리에 좁은 창 아이콘 열을 표시합니다. 아이콘을 클릭하면 해당 창을 앞으로 가져옵니다. 자동 타일 배치에서는 이 막대의 공간을 비워 둡니다. ⌃⌥W를 눌러 전체 창 서랍을 여세요."}}}},
+    "Layouts": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Layouts"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"布局"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"版面配置"}},"ja":{"stringUnit":{"state":"translated","value":"レイアウト"}},"de":{"stringUnit":{"state":"translated","value":"Layouts"}},"fr":{"stringUnit":{"state":"translated","value":"Dispositions"}},"es":{"stringUnit":{"state":"translated","value":"Diseños"}},"es-419":{"stringUnit":{"state":"translated","value":"Diseños"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Layouts"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Esquemas"}},"it":{"stringUnit":{"state":"translated","value":"Layout"}},"ko":{"stringUnit":{"state":"translated","value":"레이아웃"}}}},
+    "Look up a word": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Look up a word"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"查询单词"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"查詢單字"}},"ja":{"stringUnit":{"state":"translated","value":"単語を調べる"}},"de":{"stringUnit":{"state":"translated","value":"Wort nachschlagen"}},"fr":{"stringUnit":{"state":"translated","value":"Chercher un mot"}},"es":{"stringUnit":{"state":"translated","value":"Buscar una palabra"}},"es-419":{"stringUnit":{"state":"translated","value":"Buscar una palabra"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Pesquisar uma palavra"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Procurar uma palavra"}},"it":{"stringUnit":{"state":"translated","value":"Cerca una parola"}},"ko":{"stringUnit":{"state":"translated","value":"단어 검색"}}}},
+    "New Tab": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"New Tab"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"新建标签页"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"新增標籤頁"}},"ja":{"stringUnit":{"state":"translated","value":"新しいタブ"}},"de":{"stringUnit":{"state":"translated","value":"Neuer Tab"}},"fr":{"stringUnit":{"state":"translated","value":"Nouvel onglet"}},"es":{"stringUnit":{"state":"translated","value":"Nueva pestaña"}},"es-419":{"stringUnit":{"state":"translated","value":"Nueva pestaña"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nova aba"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Novo separador"}},"it":{"stringUnit":{"state":"translated","value":"Nuova scheda"}},"ko":{"stringUnit":{"state":"translated","value":"새 탭"}}}},
+    "No matching windows": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"No matching windows"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"没有匹配的窗口"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"沒有相符的視窗"}},"ja":{"stringUnit":{"state":"translated","value":"一致するウィンドウはありません"}},"de":{"stringUnit":{"state":"translated","value":"Keine passenden Fenster"}},"fr":{"stringUnit":{"state":"translated","value":"Aucune fenêtre correspondante"}},"es":{"stringUnit":{"state":"translated","value":"No hay ventanas coincidentes"}},"es-419":{"stringUnit":{"state":"translated","value":"No hay ventanas coincidentes"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Nenhuma janela correspondente"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Nenhuma janela correspondente"}},"it":{"stringUnit":{"state":"translated","value":"Nessuna finestra corrispondente"}},"ko":{"stringUnit":{"state":"translated","value":"일치하는 윈도우 없음"}}}},
+    "ORIGIN": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"ORIGIN"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"词源"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"詞源"}},"ja":{"stringUnit":{"state":"translated","value":"語源"}},"de":{"stringUnit":{"state":"translated","value":"WORTHERKUNFT"}},"fr":{"stringUnit":{"state":"translated","value":"ORIGINE"}},"es":{"stringUnit":{"state":"translated","value":"ORIGEN"}},"es-419":{"stringUnit":{"state":"translated","value":"ORIGEN"}},"pt-BR":{"stringUnit":{"state":"translated","value":"ORIGEM"}},"pt-PT":{"stringUnit":{"state":"translated","value":"ORIGEM"}},"it":{"stringUnit":{"state":"translated","value":"ORIGINE"}},"ko":{"stringUnit":{"state":"translated","value":"어원"}}}},
+    "Open Dictionary": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Open Dictionary"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"打开词典"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"開啟字典"}},"ja":{"stringUnit":{"state":"translated","value":"辞書を開く"}},"de":{"stringUnit":{"state":"translated","value":"Wörterbuch öffnen"}},"fr":{"stringUnit":{"state":"translated","value":"Ouvrir le dictionnaire"}},"es":{"stringUnit":{"state":"translated","value":"Abrir diccionario"}},"es-419":{"stringUnit":{"state":"translated","value":"Abrir diccionario"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Abrir dicionário"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Abrir dicionário"}},"it":{"stringUnit":{"state":"translated","value":"Apri dizionario"}},"ko":{"stringUnit":{"state":"translated","value":"사전 열기"}}}},
+    "Open Window Drawer at Screen Edge": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Open Window Drawer at Screen Edge"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"将指针移至屏幕边缘以打开窗口抽屉"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"將指標移至螢幕邊緣以開啟視窗抽屜"}},"ja":{"stringUnit":{"state":"translated","value":"画面端でウィンドウドロワーを開く"}},"de":{"stringUnit":{"state":"translated","value":"Fensterbereich am Bildschirmrand öffnen"}},"fr":{"stringUnit":{"state":"translated","value":"Ouvrir le tiroir des fenêtres au bord de l’écran"}},"es":{"stringUnit":{"state":"translated","value":"Abrir el cajón de ventanas en el borde de la pantalla"}},"es-419":{"stringUnit":{"state":"translated","value":"Abrir el cajón de ventanas en el borde de la pantalla"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Abrir o painel de janelas na borda da tela"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Abrir o painel de janelas na margem do ecrã"}},"it":{"stringUnit":{"state":"translated","value":"Apri il pannello delle finestre sul bordo dello schermo"}},"ko":{"stringUnit":{"state":"translated","value":"화면 가장자리에서 창 서랍 열기"}}}},
+    "Replaces the system ⌘Tab with the same window grid; ⌘` shows only the front app's windows. Type to search; ⌘W closes, ⌘M minimizes, ⌘Q quits the selected window's app. Needs Accessibility access; turn off to get the system switcher back.": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Replaces the system ⌘Tab with the same window grid; ⌘` shows only the front app's windows. Type to search; ⌘W closes, ⌘M minimizes, ⌘Q quits the selected window's app. Needs Accessibility access; turn off to get the system switcher back."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"用相同的窗口网格替代系统 ⌘Tab；⌘` 仅显示当前应用的窗口。输入文字可搜索；⌘W 关闭窗口，⌘M 最小化窗口，⌘Q 退出所选窗口所属的应用。需要辅助功能权限；关闭此选项可恢复系统切换器。"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"以相同的視窗網格取代系統 ⌘Tab；⌘` 僅顯示目前應用程式的視窗。輸入文字即可搜尋；⌘W 關閉視窗，⌘M 最小化視窗，⌘Q 結束所選視窗所屬的應用程式。需要輔助使用權限；關閉此選項即可恢復系統切換器。"}},"ja":{"stringUnit":{"state":"translated","value":"システムの ⌘Tab を同じウィンドウグリッドに置き換えます。⌘` では最前面のアプリのウィンドウのみを表示します。入力して検索し、⌘W で閉じる、⌘M で最小化、⌘Q で選択したウィンドウのアプリを終了できます。アクセシビリティ権限が必要です。オフにするとシステムの切り替えに戻ります。"}},"de":{"stringUnit":{"state":"translated","value":"Ersetzt den System-⌘Tab-Umschalter durch dasselbe Fensterraster; ⌘` zeigt nur Fenster der vordersten App. Tippe zum Suchen; ⌘W schließt, ⌘M minimiert und ⌘Q beendet die App des ausgewählten Fensters. Bedienungshilfen-Zugriff erforderlich; ausschalten, um den Systemumschalter wieder zu verwenden."}},"fr":{"stringUnit":{"state":"translated","value":"Remplace le sélecteur système ⌘Tab par la même grille de fenêtres ; ⌘` n’affiche que les fenêtres de l’app au premier plan. Saisissez du texte pour rechercher ; ⌘W ferme, ⌘M réduit et ⌘Q quitte l’app de la fenêtre sélectionnée. L’accès à l’accessibilité est requis ; désactivez l’option pour retrouver le sélecteur système."}},"es":{"stringUnit":{"state":"translated","value":"Sustituye el selector del sistema ⌘Tab por la misma cuadrícula de ventanas; ⌘` muestra solo las ventanas de la app activa. Escribe para buscar; ⌘W cierra, ⌘M minimiza y ⌘Q sale de la app de la ventana seleccionada. Requiere acceso a Accesibilidad; desactívalo para volver al selector del sistema."}},"es-419":{"stringUnit":{"state":"translated","value":"Reemplaza el selector del sistema ⌘Tab por la misma cuadrícula de ventanas; ⌘` muestra solo las ventanas de la app activa. Escribe para buscar; ⌘W cierra, ⌘M minimiza y ⌘Q sale de la app de la ventana seleccionada. Requiere acceso a Accesibilidad; desactívalo para volver al selector del sistema."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Substitui o seletor do sistema ⌘Tab pela mesma grade de janelas; ⌘` mostra apenas as janelas do app em primeiro plano. Digite para buscar; ⌘W fecha, ⌘M minimiza e ⌘Q encerra o app da janela selecionada. Requer acesso à Acessibilidade; desative para voltar ao seletor do sistema."}},"pt-PT":{"stringUnit":{"state":"translated","value":"Substitui o seletor do sistema ⌘Tab pela mesma grelha de janelas; ⌘` mostra apenas as janelas da app em primeiro plano. Escreva para pesquisar; ⌘W fecha, ⌘M minimiza e ⌘Q termina a app da janela selecionada. Requer acesso à Acessibilidade; desative para voltar ao seletor do sistema."}},"it":{"stringUnit":{"state":"translated","value":"Sostituisce il selettore di sistema ⌘Tab con la stessa griglia di finestre; ⌘` mostra solo le finestre dell’app in primo piano. Digita per cercare; ⌘W chiude, ⌘M minimizza e ⌘Q esce dall’app della finestra selezionata. Richiede Accessibilità; disattivalo per ripristinare il selettore di sistema."}},"ko":{"stringUnit":{"state":"translated","value":"시스템 ⌘Tab을 같은 창 그리드로 대체합니다. ⌘`는 앞에 있는 앱의 창만 표시합니다. 입력하여 검색하고, ⌘W로 닫기, ⌘M으로 최소화, ⌘Q로 선택한 창의 앱을 종료합니다. 손쉬운 사용 권한이 필요하며, 끄면 시스템 전환기로 돌아갑니다."}}}},
+    "Rest the pointer on the left edge of a display for a moment to open the drawer. ⌃⌥W always works.": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Rest the pointer on the left edge of a display for a moment to open the drawer. ⌃⌥W always works."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"将指针在显示器左侧边缘停留片刻即可打开抽屉。⌃⌥W 始终可用。"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"將指標在顯示器左側邊緣停留片刻即可開啟抽屜。⌃⌥W 一直可用。"}},"ja":{"stringUnit":{"state":"translated","value":"ディスプレイの左端にポインタをしばらく置くとドロワーが開きます。⌃⌥W はいつでも使えます。"}},"de":{"stringUnit":{"state":"translated","value":"Halte den Zeiger kurz an den linken Rand eines Displays, um den Bereich zu öffnen. ⌃⌥W funktioniert immer."}},"fr":{"stringUnit":{"state":"translated","value":"Laissez un instant le pointeur sur le bord gauche d’un écran pour ouvrir le tiroir. ⌃⌥W fonctionne toujours."}},"es":{"stringUnit":{"state":"translated","value":"Deja el puntero un momento en el borde izquierdo de una pantalla para abrir el cajón. ⌃⌥W siempre funciona."}},"es-419":{"stringUnit":{"state":"translated","value":"Deja el puntero un momento en el borde izquierdo de una pantalla para abrir el cajón. ⌃⌥W siempre funciona."}},"pt-BR":{"stringUnit":{"state":"translated","value":"Mantenha o ponteiro por um instante na borda esquerda de uma tela para abrir o painel. ⌃⌥W sempre funciona."}},"pt-PT":{"stringUnit":{"state":"translated","value":"Deixe o ponteiro por instantes na margem esquerda de um ecrã para abrir o painel. ⌃⌥W funciona sempre."}},"it":{"stringUnit":{"state":"translated","value":"Sosta per un momento con il puntatore sul bordo sinistro di uno schermo per aprire il pannello. ⌃⌥W funziona sempre."}},"ko":{"stringUnit":{"state":"translated","value":"디스플레이 왼쪽 가장자리에 포인터를 잠시 두면 서랍이 열립니다. ⌃⌥W는 항상 사용할 수 있습니다."}}}},
+    "Search emoji": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Search emoji"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"搜索表情符号"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"搜尋表情符號"}},"ja":{"stringUnit":{"state":"translated","value":"絵文字を検索"}},"de":{"stringUnit":{"state":"translated","value":"Emoji suchen"}},"fr":{"stringUnit":{"state":"translated","value":"Rechercher des emoji"}},"es":{"stringUnit":{"state":"translated","value":"Buscar emoji"}},"es-419":{"stringUnit":{"state":"translated","value":"Buscar emoji"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Buscar emoji"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Pesquisar emoji"}},"it":{"stringUnit":{"state":"translated","value":"Cerca emoji"}},"ko":{"stringUnit":{"state":"translated","value":"이모지 검색"}}}},
+    "Search windows": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Search windows"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"搜索窗口"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"搜尋視窗"}},"ja":{"stringUnit":{"state":"translated","value":"ウィンドウを検索"}},"de":{"stringUnit":{"state":"translated","value":"Fenster suchen"}},"fr":{"stringUnit":{"state":"translated","value":"Rechercher des fenêtres"}},"es":{"stringUnit":{"state":"translated","value":"Buscar ventanas"}},"es-419":{"stringUnit":{"state":"translated","value":"Buscar ventanas"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Buscar janelas"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Pesquisar janelas"}},"it":{"stringUnit":{"state":"translated","value":"Cerca finestre"}},"ko":{"stringUnit":{"state":"translated","value":"윈도우 검색"}}}},
+    "Sidebar": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Sidebar"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"侧边栏"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"側邊欄"}},"ja":{"stringUnit":{"state":"translated","value":"サイドバー"}},"de":{"stringUnit":{"state":"translated","value":"Seitenleiste"}},"fr":{"stringUnit":{"state":"translated","value":"Barre latérale"}},"es":{"stringUnit":{"state":"translated","value":"Barra lateral"}},"es-419":{"stringUnit":{"state":"translated","value":"Barra lateral"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Barra lateral"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Barra lateral"}},"it":{"stringUnit":{"state":"translated","value":"Barra laterale"}},"ko":{"stringUnit":{"state":"translated","value":"사이드바"}}}},
+    "System dictionary": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"System dictionary"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"系统词典"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"系統字典"}},"ja":{"stringUnit":{"state":"translated","value":"システム辞書"}},"de":{"stringUnit":{"state":"translated","value":"Systemwörterbuch"}},"fr":{"stringUnit":{"state":"translated","value":"Dictionnaire système"}},"es":{"stringUnit":{"state":"translated","value":"Diccionario del sistema"}},"es-419":{"stringUnit":{"state":"translated","value":"Diccionario del sistema"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Dicionário do sistema"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Dicionário do sistema"}},"it":{"stringUnit":{"state":"translated","value":"Dizionario di sistema"}},"ko":{"stringUnit":{"state":"translated","value":"시스템 사전"}}}},
+    "Terminal": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Terminal"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"终端"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"終端機"}},"ja":{"stringUnit":{"state":"translated","value":"ターミナル"}},"de":{"stringUnit":{"state":"translated","value":"Terminal"}},"fr":{"stringUnit":{"state":"translated","value":"Terminal"}},"es":{"stringUnit":{"state":"translated","value":"Terminal"}},"es-419":{"stringUnit":{"state":"translated","value":"Terminal"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Terminal"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Terminal"}},"it":{"stringUnit":{"state":"translated","value":"Terminale"}},"ko":{"stringUnit":{"state":"translated","value":"터미널"}}}},
+    "Toggle Terminal": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Toggle Terminal"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"切换终端"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"切換終端機"}},"ja":{"stringUnit":{"state":"translated","value":"ターミナルを切り替え"}},"de":{"stringUnit":{"state":"translated","value":"Terminal ein-/ausblenden"}},"fr":{"stringUnit":{"state":"translated","value":"Afficher/masquer le terminal"}},"es":{"stringUnit":{"state":"translated","value":"Mostrar/ocultar Terminal"}},"es-419":{"stringUnit":{"state":"translated","value":"Mostrar/ocultar Terminal"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Mostrar/ocultar Terminal"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Mostrar/ocultar Terminal"}},"it":{"stringUnit":{"state":"translated","value":"Mostra/nascondi Terminale"}},"ko":{"stringUnit":{"state":"translated","value":"터미널 표시/숨기기"}}}},
+    "Turn Off": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Turn Off"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"关闭"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"關閉"}},"ja":{"stringUnit":{"state":"translated","value":"オフにする"}},"de":{"stringUnit":{"state":"translated","value":"Ausschalten"}},"fr":{"stringUnit":{"state":"translated","value":"Désactiver"}},"es":{"stringUnit":{"state":"translated","value":"Desactivar"}},"es-419":{"stringUnit":{"state":"translated","value":"Desactivar"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Desativar"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Desativar"}},"it":{"stringUnit":{"state":"translated","value":"Disattiva"}},"ko":{"stringUnit":{"state":"translated","value":"끄기"}}}},
+    "Use ⌘Tab for the Window Switcher": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Use ⌘Tab for the Window Switcher"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"使用 ⌘Tab 切换窗口"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"使用 ⌘Tab 切換視窗"}},"ja":{"stringUnit":{"state":"translated","value":"⌘Tab でウィンドウを切り替える"}},"de":{"stringUnit":{"state":"translated","value":"Fenster mit ⌘Tab wechseln"}},"fr":{"stringUnit":{"state":"translated","value":"Utiliser ⌘Tab pour changer de fenêtre"}},"es":{"stringUnit":{"state":"translated","value":"Usar ⌘Tab para cambiar de ventana"}},"es-419":{"stringUnit":{"state":"translated","value":"Usar ⌘Tab para cambiar de ventana"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Usar ⌘Tab para alternar janelas"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Usar ⌘Tab para mudar de janela"}},"it":{"stringUnit":{"state":"translated","value":"Usa ⌘Tab per cambiare finestra"}},"ko":{"stringUnit":{"state":"translated","value":"⌘Tab으로 윈도우 전환"}}}},
+    "Window Drawer": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Window Drawer"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"窗口抽屉"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"視窗抽屜"}},"ja":{"stringUnit":{"state":"translated","value":"ウィンドウドロワー"}},"de":{"stringUnit":{"state":"translated","value":"Fensterbereich"}},"fr":{"stringUnit":{"state":"translated","value":"Tiroir des fenêtres"}},"es":{"stringUnit":{"state":"translated","value":"Cajón de ventanas"}},"es-419":{"stringUnit":{"state":"translated","value":"Cajón de ventanas"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Painel de janelas"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Painel de janelas"}},"it":{"stringUnit":{"state":"translated","value":"Pannello finestre"}},"ko":{"stringUnit":{"state":"translated","value":"창 서랍"}}}},
+    "Window Switcher Layout": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Window Switcher Layout"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"窗口切换器布局"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"視窗切換器版面"}},"ja":{"stringUnit":{"state":"translated","value":"ウィンドウスイッチャーのレイアウト"}},"de":{"stringUnit":{"state":"translated","value":"Fensterwechsel-Layout"}},"fr":{"stringUnit":{"state":"translated","value":"Disposition du sélecteur de fenêtres"}},"es":{"stringUnit":{"state":"translated","value":"Diseño del selector de ventanas"}},"es-419":{"stringUnit":{"state":"translated","value":"Diseño del selector de ventanas"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Layout do seletor de janelas"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Esquema do seletor de janelas"}},"it":{"stringUnit":{"state":"translated","value":"Layout del selettore finestre"}},"ko":{"stringUnit":{"state":"translated","value":"윈도우 전환기 레이아웃"}}}},
+    "Zones": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Zones"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"分区"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"區域"}},"ja":{"stringUnit":{"state":"translated","value":"ゾーン"}},"de":{"stringUnit":{"state":"translated","value":"Zonen"}},"fr":{"stringUnit":{"state":"translated","value":"Zones"}},"es":{"stringUnit":{"state":"translated","value":"Zonas"}},"es-419":{"stringUnit":{"state":"translated","value":"Zonas"}},"pt-BR":{"stringUnit":{"state":"translated","value":"Zonas"}},"pt-PT":{"stringUnit":{"state":"translated","value":"Zonas"}},"it":{"stringUnit":{"state":"translated","value":"Zone"}},"ko":{"stringUnit":{"state":"translated","value":"영역"}}}},
+    "%@ is taken by macOS or another app, so it is not active.": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"%@ is taken by macOS or another app, so it is not active."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%@ 已被 macOS 或其他应用占用，因此未启用。"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"%@ 已被 macOS 或其他應用程式佔用，因此未啟用。"}},"ja":{"stringUnit":{"state":"translated","value":"%@ は macOS または別のアプリで使用中のため、有効になっていません。"}},"de":{"stringUnit":{"state":"translated","value":"%@ wird von macOS oder einer anderen App verwendet und ist daher nicht aktiv."}},"fr":{"stringUnit":{"state":"translated","value":"%@ est utilisé par macOS ou une autre app et n’est donc pas activé."}},"es":{"stringUnit":{"state":"translated","value":"%@ está en uso por macOS u otra app, por lo que no está activo."}},"es-419":{"stringUnit":{"state":"translated","value":"%@ está en uso por macOS u otra app, por lo que no está activo."}},"pt-BR":{"stringUnit":{"state":"translated","value":"%@ está em uso pelo macOS ou por outro app e não está ativo."}},"pt-PT":{"stringUnit":{"state":"translated","value":"%@ está a ser usado pelo macOS ou por outra app e não está ativo."}},"it":{"stringUnit":{"state":"translated","value":"%@ è in uso da macOS o da un’altra app e quindi non è attivo."}},"ko":{"stringUnit":{"state":"translated","value":"%@은(는) macOS 또는 다른 앱에서 사용 중이므로 활성화되지 않았습니다."}}}},
+    "%@ is on": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"%@ is on"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"%@ 已启用"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"%@ 已啟用"}},"ja":{"stringUnit":{"state":"translated","value":"%@ はオンです"}},"de":{"stringUnit":{"state":"translated","value":"%@ ist aktiviert"}},"fr":{"stringUnit":{"state":"translated","value":"%@ est activé"}},"es":{"stringUnit":{"state":"translated","value":"%@ está activado"}},"es-419":{"stringUnit":{"state":"translated","value":"%@ está activado"}},"pt-BR":{"stringUnit":{"state":"translated","value":"%@ está ativado"}},"pt-PT":{"stringUnit":{"state":"translated","value":"%@ está ativo"}},"it":{"stringUnit":{"state":"translated","value":"%@ è attivo"}},"ko":{"stringUnit":{"state":"translated","value":"%@ 켜짐"}}}},
     "AI agents": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "AI agents"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "AI agents" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "AI 助手" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "AI 助理" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "AI エージェント" } },
+        "de": { "stringUnit": { "state": "translated", "value": "KI-Agenten" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Agents IA" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Agentes de IA" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Agentes de IA" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Agentes de IA" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Agentes de IA" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Agenti IA" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "AI 에이전트" } }
       }
     },
+
     "AI agents are working": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "AI agents are working"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "AI agents are working" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "AI 助手正在工作" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "AI 助理正在工作" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "AI エージェントが作業中" } },
+        "de": { "stringUnit": { "state": "translated", "value": "KI-Agenten arbeiten" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Les agents IA travaillent" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Los agentes de IA están trabajando" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Los agentes de IA están trabajando" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Os agentes de IA estão trabalhando" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Os agentes de IA estão a trabalhar" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Gli agenti IA stanno lavorando" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "AI 에이전트가 작업 중" } }
       }
     },
+
     "Admin approval was not given": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Admin approval was not given"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Admin approval was not given" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "未获得管理员批准" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "未取得管理員核准" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "管理者の承認が得られませんでした" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Die Administratorgenehmigung wurde nicht erteilt" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "L’approbation de l’administrateur n’a pas été accordée" } },
+        "es": { "stringUnit": { "state": "translated", "value": "No se concedió la aprobación del administrador" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "No se concedió la aprobación del administrador" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "A aprovação do administrador não foi concedida" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "A aprovação do administrador não foi concedida" } },
+        "it": { "stringUnit": { "state": "translated", "value": "L’approvazione dell’amministratore non è stata concessa" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "관리자 승인이 허용되지 않았습니다" } }
       }
     },
+
     "Agents just finished": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Agents just finished"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Agents just finished" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "助手刚刚完成" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "助理剛剛完成" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "エージェントが完了しました" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Agenten sind gerade fertig geworden" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Les agents viennent de terminer" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Los agentes acaban de terminar" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Los agentes acaban de terminar" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Os agentes acabaram de terminar" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Os agentes acabaram de terminar" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Gli agenti hanno appena terminato" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "에이전트가 방금 완료했습니다" } }
       }
     },
+
     "Background run": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Background run"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Background run" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "后台运行" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "背景執行" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "バックグラウンド実行" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Hintergrundlauf" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Exécution en arrière-plan" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ejecución en segundo plano" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Ejecución en segundo plano" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Execução em segundo plano" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Execução em segundo plano" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Esecuzione in background" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "백그라운드 실행" } }
       }
     },
+
     "Battery under %lld%%": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Battery under %lld%%"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Battery under %lld%%" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "电量低于 %lld%%" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "電量低於 %lld%%" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "バッテリー残量 %lld%% 未満" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Batterie unter %lld%%" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Batterie sous %lld%%" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Batería por debajo del %lld%%" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Batería por debajo del %lld%%" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Bateria abaixo de %lld%%" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Bateria abaixo de %lld%%" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Batteria sotto il %lld%%" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "배터리 %lld%% 미만" } }
       }
     },
+
     "Brewing": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Brewing"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Brewing" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在准备" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "正在準備" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "準備中" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Wird vorbereitet" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "En préparation" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Preparando" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Preparando" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Preparando" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "A preparar" } },
+        "it": { "stringUnit": { "state": "translated", "value": "In preparazione" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "준비 중" } }
       }
     },
+
     "Idle": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Idle"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Idle" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "空闲" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "閒置" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "待機中" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Inaktiv" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Inactif" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Inactivo" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Inactivo" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Inativo" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Inativo" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Inattivo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "대기 중" } }
       }
     },
+
     "Keep running with the lid shut": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keep running with the lid shut"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Keep running with the lid shut" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "合上屏幕时继续运行" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "闔上螢幕時繼續執行" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "画面を閉じても実行を続ける" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Bei geschlossenem Deckel weiterlaufen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Continuer à fonctionner capot fermé" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Seguir funcionando con la tapa cerrada" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Seguir funcionando con la tapa cerrada" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Continuar funcionando com a tampa fechada" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Continuar a funcionar com a tampa fechada" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Continua a funzionare con il coperchio chiuso" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "덮개를 닫아도 계속 실행" } }
       }
     },
+
     "Lid closed": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lid closed"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Lid closed" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "屏幕已合上" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "螢幕已闔上" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "画面が閉じています" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Deckel geschlossen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Capot fermé" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Tapa cerrada" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Tapa cerrada" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Tampa fechada" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Tampa fechada" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Coperchio chiuso" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "덮개 닫힘" } }
       }
     },
+
     "Sleep under battery": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sleep under battery"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Sleep under battery" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "低电量时进入睡眠" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "低電量時進入睡眠" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "バッテリー残量が少ないときにスリープ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Bei niedrigem Batteriestand Ruhezustand aktivieren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Mettre en veille lorsque la batterie est faible" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Poner en reposo con batería baja" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Poner en reposo con batería baja" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Suspender quando a bateria estiver baixa" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Suspender quando a bateria estiver fraca" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Sospendi quando la batteria è scarica" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "배터리 잔량이 낮으면 잠자기" } }
       }
     },
+
     "Sleepy": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sleepy"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Sleepy" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "即将睡眠" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "即將睡眠" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "まもなくスリープ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Müde" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Somnolent" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Con sueño" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Con sueño" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Com sono" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Com sono" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Assonnato" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "절전 임박" } }
       }
     },
+
     "Stay awake while they work": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stay awake while they work"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Stay awake while they work" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "工作期间保持唤醒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "工作期間保持喚醒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "作業中はスリープしない" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Während der Arbeit wach bleiben" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Rester éveillé pendant leur travail" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mantener el Mac activo mientras trabajan" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mantener la Mac activa mientras trabajan" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Manter o Mac ativo enquanto trabalham" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Manter o Mac ativo enquanto trabalham" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mantieni il Mac attivo mentre lavorano" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "작업하는 동안 깨어 있기" } }
       }
     },
+
     "Timer ended": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Timer ended"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Timer ended" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "计时器已结束" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "計時器已結束" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "タイマー終了" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Timer abgelaufen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Minuteur terminé" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Temporizador terminado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Temporizador terminado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Temporizador encerrado" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Temporizador terminado" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Timer terminato" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "타이머 종료" } }
       }
     },
+
     "Until %@": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Until %@"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Until %@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "直到 %@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "直到 %@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@ まで" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Bis %@" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Jusqu’à %@" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Hasta %@" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Hasta %@" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Até %@" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Até %@" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Fino a %@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@까지" } }
       }
     },
+
     "Until you turn it off": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Until you turn it off"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Until you turn it off" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "直到你将其关闭" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "直到你將它關閉" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "オフにするまで" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Bis du es ausschaltest" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Jusqu’à ce que vous le désactiviez" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Hasta que lo desactives" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Hasta que lo desactives" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Até você desativar" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Até o desativar" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Finché non lo disattivi" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "끄기 전까지" } }
       }
     },
+
     "Your Mac can sleep": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your Mac can sleep"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Your Mac can sleep" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Mac 可以进入睡眠" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Mac 可以進入睡眠" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Mac はスリープできます" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Dein Mac kann jetzt schlafen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Votre Mac peut se mettre en veille" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Tu Mac puede entrar en reposo" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Tu Mac puede entrar en reposo" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "O Mac pode entrar em repouso" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "O Mac pode entrar em pausa" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Il Mac può andare in stop" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac이 잠자기 상태로 전환될 수 있습니다" } }
       }
     }
   },

@@ -449,9 +449,9 @@ What is still unbuilt:
 
 **Two numbering systems, one trap.** Wave 1's *PR* numbers run #5–#14 and they do **not** match the port-plan item numbers: PR #5 = plan #3 (menu search), PR #6/#10 = #4a/#4b–c (profiles), PR #7/#8/#9/#13 = #2a–d (backup), PR #11/#12 = #5a–c (approvals), PR #14 = #4′ slice 1 (quicklinks). That mapping comes from the PR titles and #15's body, not inference. So a "#7" or "#13" in a wave-1 context means a **backup** PR, not a port-plan item — which is why the eight missing rows cannot be rebuilt from the merge history. Add them here only from the artifact itself.
 
-Each item still enters through a §5f donor row and one `LANES.md` claim, and gets its own dated entry below when it lands. Before the next slice starts, clear the 2026-10-27 claim lines still in `LANES.md` — every slice they name is already merged.
+Each item enters through a §5f donor row and an active `LANES.md` claim before work starts, then gets its own dated entry below when it lands. The 2026-10-27 stale claims were cleared on 2026-11-15; keep the board limited to active slices.
 
-**§5g is not the whole open surface.** It covers only work that ports from a donor. The verification debt and the feature slices live in `FEATURE_ROADMAP_2026-10.md`: Q1's idle-CPU baseline (Release/Instruments still owed), the Q-l10n human pass (935 values still identical to English), Q-a11y's Reduce Motion/VoiceOver sweep, the per-phase live checks marked OWED, and the owner-only steps (58a's four Grant clicks, 59h's BeteriApp README pointer and archive). A slice that is not a port belongs there, not here.
+**§5g is not the whole open surface.** It covers only work that ports from a donor. The verification debt and the feature slices live in `FEATURE_ROADMAP_2026-10.md`: Q1's idle-CPU baseline (Release/Instruments still owed), the Q-l10n human pass (937 values across 141 keys remained identical to English at the 2026-11-15 baseline), Q-a11y's Reduce Motion/VoiceOver sweep, the per-phase live checks marked OWED, and the owner-only steps (58a's four Grant clicks, 59h's BeteriApp README pointer and archive). A slice that is not a port belongs there, not here.
 
 ## 6. Build, identity, licensing
 
@@ -5572,8 +5572,7 @@ night art all along; only the surfaces added later missed it.
 > each answers one question: *does this page draw something this machine produced, or a stand-in?* A slice
 > that finds nothing behind a page deletes the page's claim rather than filling it (Phase 33's sample-screen
 > rule, as Phase 43 applied it to the bar). **48c's and 48d's scope is what this phase's own reconnaissance
-> found** in the code and on this machine (cited per slice); neither slice is started. The two built slices'
-> records are the two dated entries below this plan.
+> found** in the code and on this machine (cited per slice); neither slice had started when this section was written. The delivered records are the two dated entries below this plan; the corrected status is marked in each heading.
 
 **Gate, common to all four** (each slice runs it on its own bytes, not once for the phase):
 `xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath
@@ -5622,12 +5621,12 @@ pixels; the panel→notch direction of the shared store is verified by construct
 own bounds (240 pt against a 190 pt panel) — it works, but whether a popover hanging off the notch is the
 right shape for that affordance is an **owner call** (see below).
 
-### 48c — AI Mission Control reports every AI tool that records usage (PLANNED — not started)
+### 48c — AI Mission Control reports every AI tool that records usage (BUILT; status corrected 2026-11-15)
 
-**The defect.** The model layer already promises four providers — `AgentProvider`
-(`Core/Support/AgentUsage/AgentUsageModels.swift:7`) declares `claude`, `codex`, `opencode`, `copilot`, each
-with a display name and a glyph — and `AgentPricing` already carries the non-Claude rates (`gpt-4o`,
-`o1`, `o3-mini`, even a `defaultCodexRate`). But **one parser exists and one path is read**:
+**Original investigation (2026-10-16, historical; not current behavior).** The model layer already promised four providers — `AgentProvider`
+(`Core/Support/AgentUsage/AgentUsageModels.swift:7`) declared `claude`, `codex`, `opencode`, `copilot`, each
+with a display name and a glyph — and `AgentPricing` already carried the non-Claude rates (`gpt-4o`,
+`o1`, `o3-mini`, even a `defaultCodexRate`). At that time **one parser existed and one path was read**:
 `AgentClaudeParser` over `~/.claude/projects/*.jsonl` (today's files, last 64 KB) plus Claude's
 `plan-usage-history.json` (`App/Composition/AgentUsageService.swift`). So the page can print a model nothing
 measured — `NotchAIPageView.swift:22` draws `snapshot.activeTurn?.model ?? "Claude 3.7 Sonnet"` — a 5h bar
@@ -5665,10 +5664,13 @@ no accounting columns yields nothing**, `xcodebuild test`, the three checkers, a
 machine**, where OpenCode's store must appear in the total.
 
 **Limits to record at build.** A tool can only be verified against a machine that has its logs — Codex
-(absent) and Copilot (empty) ship fixture-tested, with that stated rather than implied; a store's own `cost`
-column is the tool's number, not a price we computed, and the page should say which of the two it is drawing;
+(absent) and Copilot (empty) ship fixture-tested, with that stated rather than implied; a store's own
+`cost` column is the tool's number, not a price we computed, and the page should say which of the two it is drawing;
 every store opens read-only, off the main thread, and is never copied (OpenCode's is 2.0 GB); and 33d's
 zero-idle-CPU rule stands — one watcher per store path, with the idle number re-measured, not assumed.
+
+**Status correction (2026-11-15):** the implementation and delivery record immediately below supersede
+this original PLANNED section; it is retained as the design history, not an open slice.
 
 - 2026-10-17 · **48c delivered — PASS (code), live read-back PARTIAL (recorded below).** Mission Control
   now reads every local store that records usage: Claude transcripts + plan limits (as before), OpenCode's
@@ -5696,13 +5698,13 @@ zero-idle-CPU rule stands — one watcher per store path, with the idle number r
     re-measure with the new watchers owed (no timers added; watchers are event-driven and dormant until
     monitoring starts).
 
-### 48d — the Top Apps rows can end a process (PLANNED — not started)
+### 48d — the Top Apps rows can end a process (BUILT; status corrected 2026-11-15)
 
-**The defect.** `TopProcessReader.read(limit:)` (`Platform/SystemStatus/SystemHealthReaders.swift:20`) runs
-`/bin/ps -Ao pcpu=,comm= -r` and hands it to `TopProcessParser.parse` (`Core/Support/SystemMonitorMath.swift:107`),
-which **sums the rows that share a name** into `TopProcess { name, cpu }` (`:102`) — so a row has **no pid and
-cannot be acted on**, which is why the floating panel's Top Apps tile (`App/Scenes/CalendarPanelView.swift:725`)
-can only print a name and a percentage. The confirm-then-end flow the owner already approved exists in exactly
+**Original investigation (2026-10-16, historical; not current behavior).** `TopProcessReader.read(limit:)` (`Platform/SystemStatus/SystemHealthReaders.swift:20`) then ran
+`/bin/ps -Ao pcpu=,comm= -r` and handed it to `TopProcessParser.parse` (`Core/Support/SystemMonitorMath.swift:107`),
+which **summed the rows that shared a name** into `TopProcess { name, cpu }` (`:102`) — so a row had **no pid and
+could not be acted on**, which is why the floating panel's Top Apps tile (`App/Scenes/CalendarPanelView.swift:725`)
+then printed only a name and percentage. The confirm-then-end flow the owner had approved existed in exactly
 one place: the Command Bar's `confirmKill(_:)` (`App/Entry/CommandBarPanelController.swift:366`), an `NSAlert`
 with `PID <n>` and Kill (SIGTERM) / Force Quit (SIGKILL) / Cancel, over a `ProcessLister` pid.
 
@@ -5721,8 +5723,8 @@ process read must ride the same acquire/release instead of adding a second timer
 
 - 2026-10-17 · **48d delivered — PASS (code), live check PARTIAL (recorded below).** The read keeps the
   pid: `ps -Ao pid=,pcpu=,comm= -r`, one row per pid (the name-summing is deleted — same-named processes
-  stay separate rows, or the kill would land on the wrong pid), `TopProcess.pid: Int32?` + `canAct`, and
-  the panel tile's rows offer the Command Bar's own confirm (`ProcessKillConfirm` in
+  stay separate rows, or the kill would land on the wrong pid), `TopProcess.pid: Int32?` + `canAct`, and the
+  panel tile's rows offer the Command Bar's own confirm (`ProcessKillConfirm` in
   `App/Composition/ProcessLister.swift`: same Kill/Force Quit/Cancel buttons, same SIGTERM/SIGKILL) then
   re-read, so a ended process redraws itself gone. A refused signal surfaces the system's own reason
   (`PID <n>: Operation not permitted`) instead of pretending. No new strings, no new timers.
@@ -5734,6 +5736,9 @@ process read must ride the same acquire/release instead of adding a second timer
     (2156 `SwiftCompile` lines) clean.
   - **Live check:** sacrificial `sleep` listed as `5805 0.0 sleep` by the tile's exact `ps` args (pid kept),
     SIGTERM sent, re-read drops it. The modal click-through itself cannot be driven headless — owed below.
+
+**Status correction (2026-11-15):** 48d was delivered in 2026-10-17 code and the live check recorded
+above. This original PLANNED section is retained as design history, not an open slice.
 
 ### Open under this phase, not in any of its slices
 
@@ -5964,3 +5969,36 @@ Downloads folder.
   - **Files:** `Core/Support/QuicklinkTemplate.swift` (`Quicklink`, `QuicklinkValues`, pure `{query}` `{clipboard}` `{selection}` `{date}` expansion; values are percent-encoded only when the template has a URL scheme), `Tests/Unit/QuicklinkTemplateTests.swift`.
   - **Decision (owner delegated):** quicklinks sit beside browser bookmarks, not in place of them.
   - **Next slice:** store, editor UI and command-bar rows. No new strings yet, so the localization gate is unchanged.
+
+---
+
+## 2026-11-15 — November feature wave and baseline repair
+
+**Scope recorded:** integrate the delivered 2026-11-04–06 slices into the phase map; restore the required localization gate; make Debug architecture selection explicit for this Apple-Silicon/Xcode 27.2 build. This is a bookkeeping/baseline slice, not a claim that the live UI of every November feature has been validated.
+
+### November feature wave (code landed 2026-11-04–06)
+
+| Area / slice | Shipped behavior | Source record | Verification status |
+|---|---|---|---|
+| Drawer pop / downloads | Dedicated Drawer pop and Grid/List/Tiles views; per-pop themes; Downloads stays pinned and removal warns; unreadable folder is represented honestly; capsule opens the pop | `1223d64`, `e82fadf`, `6313877`, `c63f256`, `6e6fd90` | Changes are in the tree. Review `Docs/Archive/Planning/2026-11-04-livecheck-fix-plan.md` for the prior livecheck close-out; no new live run in this baseline repair. |
+| Launcher | Ranking/search parity improvements, pinyin/initials matching, configurable columns/icon size, nearby-page construction and missed-pointer-exit watchdog | `df74b83`, `350da5b`, `e046e20`, `7966434` | Existing unit/live evidence remains as previously recorded; not re-run in this slice. |
+| Window management | ⌘` front-app switcher, opt-in ⌘Tab switcher, search/actions and rebindable trigger; edge-hover window drawer, always-visible strip, drag-to-layout slots, Emoji pane, focused-window border; per-display layout picker | `ca600d9`, `5512f76`, `0795c33`, `abb0d41`, `7f31f56`, `ed2d948` | Feature code landed. Live behavior, Accessibility-denied behavior and safe-input behavior remain subject to the Q-bar/Q-input recipes; this pass did not exercise them. |
+| Shortcut/input | Hold and Fn triggers, shared shortcut validation, visible registration failures, Hold Time setting; drawer receives its own shortcut identifier | `223ad7c`, `7da5eb7` | Unit/build state covered by the suite; physical key interaction and registration-conflict paths not newly live-checked. |
+| Keep Awake | Pure policy plus agent activity detection, battery floor, lid-closed guard and recovery path | `8284a9d`, `63c4f9a`, `949208d`, `ad477d6` | Code landed. Privileged setup/recovery, lid-close behavior, battery-floor behavior and agent lifecycle need explicit owner/device verification; do not infer PASS from the pure policy tests. |
+| Peek | Hold a bound key to reveal Weather/Calendar panels, tap to keep open; no default key assigned | `091b106` | Code landed; physical hold/release and panel keep-open behavior remain live checks. |
+| Dictionary + Terminal | Parser/tabs model, optional dock chips and widgets, panels, command-bar definition mode and shortcuts; SwiftTerm 1.10.1 | `239e6b7`, `8855ed9`, `6b8640d`; build-script plugin validation fix `37e7812` | Catalog repaired in this baseline slice. Terminal needs Xcode 27 arm64 Debug build; no terminal-session interaction was part of this test run. |
+
+### Baseline fixes and exact evidence
+
+- **Localization:** `Resources/Localizable.xcstrings` now contains all 1,310 keys found by `Scripts/check_localization.py`, with all 12 locales present and placeholder sequences consistent. The 17 previously English-only entries received all non-English values; all 38 previously missing source references are covered (38 references → 37 catalog entries, because the three interpolated messages were consolidated into two format-string keys). New translation values are **drafts**, not native-speaker-reviewed; human review is still required by `STANDING_RULES §1.7b` before release.
+- **Interpolated copy:** the shortcut-registration warning and active-layout label now use localized format strings (`%@`) rather than interpolation embedded in the key, so the catalog/checker can locate and validate them. Placeholder order is checked by the existing localization gate.
+- **Debug architecture:** `ONLY_ACTIVE_ARCH = YES` is set in the Debug project configuration only. On this arm64/Xcode 27.2 host, `-showBuildSettings` now reports Debug `ARCHS = arm64`, `ONLY_ACTIVE_ARCH = YES`; Release remains `ARCHS = arm64 x86_64`, `ONLY_ACTIVE_ARCH = NO`. This fixes the active-architecture SwiftTerm test/build failure without silently dropping the universal Release slice. A universal Release build remains a separate release verification item.
+- **Checks run 2026-11-15:** `xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/BaselineDerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO` → 2,967 tests, 2 skipped, 0 failures; `Scripts/check_localization.py` ✅ (1,310 × 12); `Scripts/check_debug_switches.py` ✅ (89); `Scripts/check_availability_warnings.py build/baseline-tests.log` ✅.
+- **Not checked in this slice:** Release universal build; native review of new translation drafts; owner visual/live checks for the November window, key, Keep Awake, Peek, Dictionary and Terminal behavior; Q1 Release idle CPU; Q-a11y sweep. These remain explicitly open rather than being marked green.
+
+### Backlog status reconciliation
+
+- 48c and 48d are BUILT (their 2026-10-17 implementation and live evidence remain in their entries; headings corrected above).
+- 54b hover preview is BUILT from `5353157`; the spike's latency numbers remain design evidence, not evidence of end-to-end permission/sleep/lock correctness, and none of the spike's capture-pause safeguards (display sleep/lock, frozen app, revoke while open) are built — see 54b.
+- Quicklink #4′ slice 2, hold-to-dictate #14, and external port-plan #6–#13 remain unbuilt/unknown as stated in §5g. Do not fill missing port-plan descriptions by inference.
+- The 12 entries in `LANES.md` were old claims for work already merged; they are cleared as of this plan reconciliation. New slices must claim a lane before work starts.
