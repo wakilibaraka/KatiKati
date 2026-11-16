@@ -439,4 +439,50 @@ final class AgentUsageTests: XCTestCase {
         XCTAssertEqual(AgentBudgetPreset.standard15.next, .heavy50)
         XCTAssertEqual(AgentBudgetPreset.heavy50.next, .off)
     }
+
+    // MARK: - Live Tool Call & AI Receipt Tests (Slice D-AgentLive)
+
+    func testAgentToolCallFormattingAndParsing() {
+        // Direct tool_use JSON
+        let editJSON = """
+        {"type":"tool_use","name":"Edit","input":{"file_path":"/Users/test/Code/File.swift","old_string":"let x = 1\\nlet y = 2","new_string":"let x = 10\\nlet y = 20\\nlet z = 30"}}
+        """
+        let toolCall = AgentClaudeParser.parseToolCallLine(editJSON)
+        XCTAssertNotNil(toolCall)
+        XCTAssertEqual(toolCall?.toolName, "Edit")
+        XCTAssertEqual(toolCall?.targetPath, "/Users/test/Code/File.swift")
+        XCTAssertEqual(toolCall?.addedLines, 3)
+        XCTAssertEqual(toolCall?.deletedLines, 2)
+        XCTAssertEqual(toolCall?.summary, "Edit · File.swift · +3/-2")
+
+        // Bash command JSON
+        let bashJSON = """
+        {"type":"tool_use","name":"Bash","input":{"command":"git status"}}
+        """
+        let bashCall = AgentClaudeParser.parseToolCallLine(bashJSON)
+        XCTAssertNotNil(bashCall)
+        XCTAssertEqual(bashCall?.toolName, "Bash")
+        XCTAssertEqual(bashCall?.summary, "Bash · git status")
+    }
+
+    func testAIStatsReceiptCalculator() {
+        let tokens = AgentTokens(input: 10_000, cacheWrite: 2_000, cacheRead: 5_000, output: 4_000, reasoning: 500)
+        let receipt = AIStatsReceiptCalculator.calculate(
+            tokens: tokens,
+            costUSD: 3.45,
+            activeDuration: 7500, // 2h 5m
+            linesAdded: 150,
+            linesDeleted: 40,
+            streakDays: 5
+        )
+
+        XCTAssertEqual(receipt.formattedDuration, "2h 5m")
+        XCTAssertEqual(receipt.formattedCost, "$3.45")
+        XCTAssertEqual(receipt.estimatedWords, 3000) // 4000 * 0.75
+        XCTAssertEqual(receipt.formattedNetLines, "+150 / -40")
+        XCTAssertEqual(receipt.streakDays, 5)
+        XCTAssertEqual(receipt.items.count, 5)
+        XCTAssertEqual(receipt.items[0].id, "time")
+        XCTAssertEqual(receipt.items[1].id, "cost")
+    }
 }

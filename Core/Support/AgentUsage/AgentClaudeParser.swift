@@ -132,4 +132,49 @@ enum AgentClaudeParser {
         withMillis.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return withMillis.date(from: text) ?? ISO8601DateFormatter().date(from: text)
     }
+
+    // MARK: - Tool Call and Line Delta Extractor (Slice D-AgentLive)
+
+    static func parseToolCallLine(_ line: String) -> AgentToolCall? {
+        guard line.contains("\"tool_use\"") || line.contains("\"name\"") else { return nil }
+        guard let data = line.data(using: .utf8),
+              let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
+            return nil
+        }
+
+        var toolName: String?
+        var inputDict: [String: Any]?
+
+        if let type = json["type"] as? String, type == "tool_use" {
+            toolName = json["name"] as? String
+            inputDict = json["input"] as? [String: Any]
+        } else if let content = json["content"] as? [[String: Any]] {
+            for block in content where block["type"] as? String == "tool_use" {
+                toolName = block["name"] as? String
+                inputDict = block["input"] as? [String: Any]
+                break
+            }
+        }
+
+        guard let name = toolName else { return nil }
+
+        let targetPath = inputDict?["file_path"] as? String ?? inputDict?["path"] as? String ?? inputDict?["command"] as? String
+
+        var added = 0
+        var deleted = 0
+
+        if let newStr = inputDict?["new_string"] as? String ?? inputDict?["content"] as? String {
+            added = newStr.components(separatedBy: "\n").count
+        }
+        if let oldStr = inputDict?["old_string"] as? String {
+            deleted = oldStr.components(separatedBy: "\n").count
+        }
+
+        return AgentToolCall(
+            toolName: name,
+            targetPath: targetPath,
+            addedLines: added,
+            deletedLines: deleted
+        )
+    }
 }

@@ -139,6 +139,103 @@ struct AgentLiveTurn: Equatable, Identifiable, Sendable {
     var tokens: AgentTokens
     var cost: Double
     var isActive: Bool
+    var activeTool: AgentToolCall? = nil
+}
+
+/// Active tool invocation by an agent (e.g., Read, Edit, Bash).
+struct AgentToolCall: Equatable, Sendable, Codable {
+    var toolName: String
+    var targetPath: String?
+    var addedLines: Int = 0
+    var deletedLines: Int = 0
+
+    init(toolName: String, targetPath: String? = nil, addedLines: Int = 0, deletedLines: Int = 0) {
+        self.toolName = toolName
+        self.targetPath = targetPath
+        self.addedLines = addedLines
+        self.deletedLines = deletedLines
+    }
+
+    var summary: String {
+        var parts: [String] = [toolName]
+        if let path = targetPath, !path.isEmpty {
+            let name = (path as NSString).lastPathComponent
+            parts.append(name)
+        }
+        if addedLines > 0 || deletedLines > 0 {
+            parts.append("+\(addedLines)/-\(deletedLines)")
+        }
+        return parts.joined(separator: " · ")
+    }
+}
+
+// MARK: - AI Stats Receipt (Slice D-AgentLive)
+
+struct AIReceiptItem: Equatable, Sendable, Identifiable {
+    let id: String
+    let title: String
+    let value: String
+    let subtitle: String?
+}
+
+struct AIStatsReceipt: Equatable, Sendable {
+    let totalActiveSeconds: TimeInterval
+    let totalCostUSD: Double
+    let totalTokens: Int
+    let estimatedWords: Int
+    let linesAdded: Int
+    let linesDeleted: Int
+    let streakDays: Int
+    let items: [AIReceiptItem]
+
+    var formattedDuration: String {
+        let hours = Int(totalActiveSeconds) / 3600
+        let minutes = (Int(totalActiveSeconds) % 3600) / 60
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        }
+        return "\(minutes)m"
+    }
+
+    var formattedCost: String {
+        String(format: "$%.2f", totalCostUSD)
+    }
+
+    var formattedNetLines: String {
+        "+\(linesAdded) / -\(linesDeleted)"
+    }
+}
+
+enum AIStatsReceiptCalculator {
+    static func calculate(
+        tokens: AgentTokens,
+        costUSD: Double,
+        activeDuration: TimeInterval,
+        linesAdded: Int,
+        linesDeleted: Int,
+        streakDays: Int
+    ) -> AIStatsReceipt {
+        let words = Int(Double(tokens.output) * 0.75)
+
+        var items: [AIReceiptItem] = []
+        let hours = activeDuration / 3600.0
+        items.append(AIReceiptItem(id: "time", title: "Active Time", value: String(format: "%.1f hrs", hours), subtitle: "Coding & planning"))
+        items.append(AIReceiptItem(id: "cost", title: "API Cost Equivalent", value: String(format: "$%.2f", costUSD), subtitle: "At public tier rates"))
+        items.append(AIReceiptItem(id: "words", title: "Words Generated", value: "\(words)", subtitle: "Code & markdown tokens"))
+        items.append(AIReceiptItem(id: "diff", title: "Line Changes", value: "+\(linesAdded)/-\(linesDeleted)", subtitle: "Net code diffs"))
+        items.append(AIReceiptItem(id: "streak", title: "AI Streak", value: "\(streakDays) days", subtitle: "Consecutive coding days"))
+
+        return AIStatsReceipt(
+            totalActiveSeconds: activeDuration,
+            totalCostUSD: costUSD,
+            totalTokens: tokens.total,
+            estimatedWords: words,
+            linesAdded: linesAdded,
+            linesDeleted: linesDeleted,
+            streakDays: streakDays,
+            items: items
+        )
+    }
 }
 
 /// One provider's measured today-total. An absent key means nothing was measured —
