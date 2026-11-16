@@ -34,12 +34,34 @@ _gfy_ac="$_gfy_root/Scripts/graphify_autocommit.sh"
 if [ -n "$_gfy_root" ] && [ -x "$_gfy_ac" ]; then
     # Its own session, like the rebuild itself: a waiter must outlive the shell that committed,
     # and a process-group kill (closing the terminal, a tool cleaning up) must not take it out.
+    # Run python3 synchronously (no trailing &) so Popen(..., start_new_session=True) completes
+    # setsid() before post-commit exits; otherwise a short-lived agent shell can tear down its
+    # process group while python3 is still starting up.
     python3 -c 'import subprocess, sys
 subprocess.Popen(["/bin/bash", sys.argv[1]], stdin=subprocess.DEVNULL,
                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)' \
-        "$_gfy_ac" >/dev/null 2>&1 &
+        "$_gfy_ac" >/dev/null 2>&1
 fi
 EOF
+}
+
+install_into_hook() {
+    local hook="$1"
+    if grep -qF "$MARKER" "$hook"; then
+        # Refresh in place (the block is last), so an edited launcher takes effect and a
+        # graphify upgrade that dropped it is repaired by the same command.
+        local tmp
+        tmp=$(mktemp)
+        awk -v m="$MARKER" 'index($0, m) {exit} {print}' "$hook" > "$tmp"
+        cat "$tmp" > "$hook" && rm -f "$tmp"
+        launch_block >> "$hook"
+        chmod +x "$hook"
+        echo "refreshed in $hook"
+        return 0
+    fi
+    launch_block >> "$hook"
+    chmod +x "$hook"
+    echo "installed in $hook"
 }
 
 install() {
@@ -47,21 +69,10 @@ install() {
         echo "no post-commit hook at $HOOK — run: graphify hook install" >&2
         return 1
     fi
-    if grep -qF "$MARKER" "$HOOK"; then
-        # Refresh in place (the block is last), so an edited launcher takes effect and a
-        # graphify upgrade that dropped it is repaired by the same command.
-        local tmp
-        tmp=$(mktemp)
-        awk -v m="$MARKER" 'index($0, m) {exit} {print}' "$HOOK" > "$tmp"
-        cat "$tmp" > "$HOOK" && rm -f "$tmp"
-        launch_block >> "$HOOK"
-        chmod +x "$HOOK"
-        echo "refreshed in $HOOK"
-        return 0
+    install_into_hook "$HOOK"
+    if [ -f "$ROOT/.git/hooks/post-rewrite" ]; then
+        install_into_hook "$ROOT/.git/hooks/post-rewrite"
     fi
-    launch_block >> "$HOOK"
-    chmod +x "$HOOK"
-    echo "installed in $HOOK"
 }
 
 # One commit of graph output only. Returns 1 when it declined, so selftest can assert.
