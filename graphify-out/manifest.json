@@ -1050,9 +1050,9 @@
     "semantic_hash": "e9116f8dad1d72e00e70ef8a6e82fdd5"
   },
   "App/Scenes/NotchIslandView.swift": {
-    "mtime": 1792538194.6950595,
-    "seen": 1792538251.3999429,
-    "ast_hash": "b922a8056a66ca35efb6a67bb4abf090",
+    "mtime": 1794851912.7705235,
+    "seen": 1794852015.1842618,
+    "ast_hash": "1d3b32e828e08728544bde32be5eeb07",
     "semantic_hash": ""
   },
   "App/Scenes/NotchPreview.swift": {
@@ -7245,6 +7245,12 @@
     "mtime": 1794825380.1795208,
     "seen": 1794825447.310102,
     "ast_hash": "0b3f8aabf68acb8c9e190e39d679806f",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Notch/NotchMeetingControlBar.swift": {
+    "mtime": 1794851916.3413694,
+    "seen": 1794852015.1842518,
+    "ast_hash": "5e1be2a21985469e1373406bb09ab4ba",
     "semantic_hash": ""
   }
 }
