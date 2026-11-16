@@ -618,9 +618,9 @@
     "semantic_hash": ""
   },
   "App/Entry/RadialDialPanelController.swift": {
-    "mtime": 1792551371.1727467,
-    "seen": 1792551640.809439,
-    "ast_hash": "21a128083e2e8090d95e7c8e7ca4b3b9",
+    "mtime": 1794851493.1198835,
+    "seen": 1794851687.1645079,
+    "ast_hash": "c58d5d9027ed9102a3cba502437ca6e1",
     "semantic_hash": ""
   },
   "App/Entry/ScreenTimeAlertPresenter.swift": {
@@ -666,10 +666,10 @@
     "semantic_hash": "9bf59cab2552ce28dde87ffc3fd9971f"
   },
   "App/Entry/TranslatePanelController.swift": {
-    "mtime": 1791999130.7974732,
-    "seen": 1792295707.060439,
-    "ast_hash": "46b2c8ae1426bbf36dda96b03a9bb11d",
-    "semantic_hash": "46b2c8ae1426bbf36dda96b03a9bb11d"
+    "mtime": 1794851559.9350457,
+    "seen": 1794851687.164515,
+    "ast_hash": "ad9bb11582c8e80eee7c8fe9bed093a2",
+    "semantic_hash": ""
   },
   "App/KatiKati-Bridging-Header.h": {
     "mtime": 1791999130.8152483,
@@ -1098,9 +1098,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/RadialDial/RadialDialView.swift": {
-    "mtime": 1792445422.0127864,
-    "seen": 1792451836.244056,
-    "ast_hash": "577984a9893a7cd121472189b4eae598",
+    "mtime": 1794851470.5580103,
+    "seen": 1794851687.164594,
+    "ast_hash": "6d06bd60140f15656ee6c6bc55421cfc",
     "semantic_hash": ""
   },
   "App/Scenes/RadialDial/RadialDialWedgeView.swift": {
@@ -1266,10 +1266,10 @@
     "semantic_hash": "68d44a06bf01c5329a39c3c5985b3a97"
   },
   "App/Scenes/TranslateCardView.swift": {
-    "mtime": 1792077738.9434805,
-    "seen": 1792295707.060501,
-    "ast_hash": "b88ec274bd2a3d5b2ed07d5d633a5399",
-    "semantic_hash": "b88ec274bd2a3d5b2ed07d5d633a5399"
+    "mtime": 1794851524.1632812,
+    "seen": 1794851687.1646268,
+    "ast_hash": "c2f3425d25f67002268980a51a21f080",
+    "semantic_hash": ""
   },
   "App/Scenes/TrashChip.swift": {
     "mtime": 1793367814.969074,
@@ -2184,15 +2184,15 @@
     "semantic_hash": ""
   },
   "Core/Support/RadialDialModel.swift": {
-    "mtime": 1792445330.2116382,
-    "seen": 1792451836.244203,
-    "ast_hash": "e581b98fd4ad6c810456f5002a88ed50",
+    "mtime": 1794851441.989107,
+    "seen": 1794851687.1647801,
+    "ast_hash": "e876ad86e965d52a6f86306d81430b10",
     "semantic_hash": ""
   },
   "Core/Support/RadialDialPresets.swift": {
-    "mtime": 1794846900.4280176,
-    "seen": 1794847033.736068,
-    "ast_hash": "6362ad2433484b0268d0eff3c53924d2",
+    "mtime": 1794851452.1796255,
+    "seen": 1794851687.164781,
+    "ast_hash": "9816618a718e69a4d344062c1d6f3085",
     "semantic_hash": ""
   },
   "Core/Support/RecentDocumentsReader.swift": {
@@ -2430,9 +2430,9 @@
     "semantic_hash": ""
   },
   "Core/Support/Translate.swift": {
-    "mtime": 1794846524.0693438,
-    "seen": 1794846684.228519,
-    "ast_hash": "31b952cf41171d3f1711f9dd7ea73439",
+    "mtime": 1794851507.9731,
+    "seen": 1794851687.164821,
+    "ast_hash": "6dac3f448e4a383b8c8f43cd15d3b681",
     "semantic_hash": ""
   },
   "Core/Support/URLCleaner.swift": {
