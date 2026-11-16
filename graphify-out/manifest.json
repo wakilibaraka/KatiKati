@@ -1782,9 +1782,9 @@
     "semantic_hash": "7b59cff49ef6fa5abe627a1b0d84d287"
   },
   "Core/Support/EdgeBarPrefs.swift": {
-    "mtime": 1794863865.588817,
-    "seen": 1794865321.689346,
-    "ast_hash": "df69470db6704d5d0328ecb12a0113bb",
+    "mtime": 1794867734.6276073,
+    "seen": 1794867869.650028,
+    "ast_hash": "aace7bf9306379ccf16eeed08e4f58c7",
     "semantic_hash": ""
   },
   "Core/Support/EdgeBarSlot.swift": {
@@ -3438,9 +3438,9 @@
     "semantic_hash": "8f717354445526a7d437563bc5f38fb9"
   },
   "Tests/Unit/EdgeBarPrefsTests.swift": {
-    "mtime": 1794864207.3419704,
-    "seen": 1794865321.68962,
-    "ast_hash": "dc5335ddea13186965360e05442c2a9d",
+    "mtime": 1794867735.7883878,
+    "seen": 1794867869.65051,
+    "ast_hash": "33072f00954984c256d80ea2c892ee5c",
     "semantic_hash": ""
   },
   "Tests/Unit/EdgeBarSlotTests.swift": {
