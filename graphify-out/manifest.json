@@ -1290,9 +1290,9 @@
     "semantic_hash": "cce3b50509e62e793a875bc5b2166d6c"
   },
   "App/Scenes/UtilitySettingsBlock.swift": {
-    "mtime": 1794871890.1190488,
-    "seen": 1794872112.138786,
-    "ast_hash": "4f5d30232023bae8a7155a7623a313fe",
+    "mtime": 1794872478.5059214,
+    "seen": 1794872506.474766,
+    "ast_hash": "e213a004cb0086129d20a2390ab5efb4",
     "semantic_hash": ""
   },
   "App/Scenes/WeatherChip.swift": {
