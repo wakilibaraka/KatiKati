@@ -121,7 +121,9 @@ struct SettingsWindowContent: View {
             case .commandBar: commandBarPane
             case .controlCenter: controlCenterPane
             case .shortcuts: SettingsLayoutPane(store: store, mode: .shortcuts)
-            case .radialDial: SettingsLayoutPane(store: store, mode: .radialDial)
+            case .radialDial:
+                SettingsLayoutPane(store: store, mode: .radialDial)
+                    .background(SettingsPageHeightProbe(tab: .radialDial))
             case .aiTracking: aiTrackingPane
             case .downloads: TorrentSettingsBlock()
             case .clipboard: ClipboardSettingsPane(store: store)

@@ -336,7 +336,7 @@ extension SettingsLayoutPane {
         }
     }
 
-    /// The Radial Dial page (split from Shortcuts, Phase 1 of the settings redesign).
+    /// The Radial Dial page (split from Shortcuts, upgraded in SLICE RD-2 with slice customizer & triggers).
     @ViewBuilder
     var radialDialSections: some View {
         SettingsCard(
@@ -350,31 +350,84 @@ extension SettingsLayoutPane {
             )
             if dialEnabled {
                 SettingsDivider()
-                SettingsPickerRow(Text("Theme"), selection: Binding(
-                    get: { RadialDialTheme(rawValue: dialThemeRaw) ?? .lilacGlass },
-                    set: { dialThemeRaw = $0.rawValue }
-                )) {
-                    ForEach(RadialDialTheme.allCases, id: \.self) { theme in
-                        radialDialThemeTitle(theme).tag(theme)
+                SettingsRowPair(
+                    left: {
+                        SettingsPickerRow(Text("Theme"), selection: Binding(
+                            get: { RadialDialTheme(rawValue: dialThemeRaw) ?? .lilacGlass },
+                            set: { dialThemeRaw = $0.rawValue }
+                        )) {
+                            ForEach(RadialDialTheme.allCases, id: \.self) { theme in
+                                radialDialThemeTitle(theme).tag(theme)
+                            }
+                        }
+                    },
+                    right: {
+                        SettingsPickerRow(Text("Trigger Mode"), selection: Binding(
+                            get: { RadialTriggerMode(rawValue: dialTriggerModeRaw) ?? .tapToggle },
+                            set: { dialTriggerModeRaw = $0.rawValue }
+                        )) {
+                            ForEach(RadialTriggerMode.allCases, id: \.self) { mode in
+                                radialTriggerModeTitle(mode).tag(mode)
+                            }
+                        }
                     }
-                }
+                )
                 SettingsDivider()
-                SettingsPickerRow(Text("Mouse Trigger"), selection: Binding(
-                    get: { RadialMouseTrigger(rawValue: dialMouseTriggerRaw) ?? .off },
-                    set: { dialMouseTriggerRaw = $0.rawValue }
-                )) {
-                    ForEach(RadialMouseTrigger.allCases, id: \.self) { trigger in
-                        radialMouseTriggerTitle(trigger).tag(trigger)
+                SettingsRowPair(
+                    left: {
+                        SettingsPickerRow(Text("Mouse Trigger"), selection: Binding(
+                            get: { RadialMouseTrigger(rawValue: dialMouseTriggerRaw) ?? .off },
+                            set: { dialMouseTriggerRaw = $0.rawValue }
+                        )) {
+                            ForEach(RadialMouseTrigger.allCases, id: \.self) { trigger in
+                                radialMouseTriggerTitle(trigger).tag(trigger)
+                            }
+                        }
+                    },
+                    right: {
+                        SettingsPickerRow(Text("Trackpad Edge"), selection: Binding(
+                            get: { RadialTrackpadEdgeTrigger(rawValue: dialTrackpadTriggerRaw) ?? .off },
+                            set: { dialTrackpadTriggerRaw = $0.rawValue }
+                        )) {
+                            ForEach(RadialTrackpadEdgeTrigger.allCases, id: \.self) { edge in
+                                radialTrackpadTriggerTitle(edge).tag(edge)
+                            }
+                        }
                     }
+                )
+            }
+        }
+
+        if dialEnabled {
+            SettingsCard(Text("Slices")) {
+                HStack(spacing: SettingsMetrics.controlSpacing) {
+                    if !dialEditPath.isEmpty {
+                        Button { dialEditPath.removeLast() } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "chevron.left")
+                                Text("Back")
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
+                    Text(verbatim: dialBreadcrumbTitle)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button { addRadialSlice() } label: { Text("Add") }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                        .disabled(currentEditableSlices.count >= 8)
+                    Button { resetRadialSlices() } label: { Text("Reset") }
+                        .buttonStyle(.borderless)
+                        .controlSize(.small)
                 }
-                SettingsDivider()
-                SettingsPickerRow(Text("Trigger Mode"), selection: Binding(
-                    get: { RadialTriggerMode(rawValue: dialTriggerModeRaw) ?? .tapToggle },
-                    set: { dialTriggerModeRaw = $0.rawValue }
-                )) {
-                    ForEach(RadialTriggerMode.allCases, id: \.self) { mode in
-                        radialTriggerModeTitle(mode).tag(mode)
-                    }
+                .padding(.vertical, 4)
+
+                ForEach(Array(currentEditableSlices.enumerated()), id: \.element.id) { index, slice in
+                    SettingsDivider()
+                    radialSliceEditorRow(index: index, slice: slice)
                 }
             }
         }
@@ -510,6 +563,202 @@ extension SettingsLayoutPane {
         case .tapToggle: return Text("Tap / Click to Toggle")
         case .holdRelease: return Text("Hold & Release")
         case .hotkeyHold: return Text("Hotkey Hold & Release")
+        }
+    }
+
+    func radialTrackpadTriggerTitle(_ edge: RadialTrackpadEdgeTrigger) -> Text {
+        switch edge {
+        case .off: return Text("Off")
+        case .leftEdge: return Text("Left Edge")
+        case .rightEdge: return Text("Right Edge")
+        case .bottomEdge: return Text("Bottom Edge")
+        }
+    }
+
+    private static let radialIconChoices = [
+        "rectangle.split.2x1", "wrench.and.screwdriver", "square.grid.2x2",
+        "playpause.fill", "doc.on.clipboard", "tray.and.arrow.down.fill",
+        "camera.viewfinder", "rectangle.split.2x2", "macwindow",
+        "viewfinder.text", "forward.fill", "backward.fill", "sparkles"
+    ]
+
+    private var dialBreadcrumbTitle: String {
+        var titles = ["Main"]
+        var nodes = dialNodes
+        for id in dialEditPath {
+            guard let found = nodes.first(where: { $0.id == id }) else { break }
+            titles.append(found.title)
+            nodes = found.children ?? []
+        }
+        return titles.joined(separator: " › ")
+    }
+
+    private var currentEditableSlices: [RadialSliceNode] {
+        var nodes = dialNodes
+        for id in dialEditPath {
+            nodes = nodes.first(where: { $0.id == id })?.children ?? []
+        }
+        return nodes
+    }
+
+    private func updateEditableSlices(_ mutate: (inout [RadialSliceNode]) -> Void) {
+        func apply(_ list: inout [RadialSliceNode], path: ArraySlice<String>) {
+            guard let id = path.first, let idx = list.firstIndex(where: { $0.id == id }) else {
+                mutate(&list)
+                return
+            }
+            var children = list[idx].children ?? []
+            apply(&children, path: path.dropFirst())
+            list[idx].children = children
+        }
+        apply(&dialNodes, path: dialEditPath[...])
+        RadialDialConfigStore.saveNodes(dialNodes)
+    }
+
+    private func addRadialSlice() {
+        let newSlice = RadialSliceNode(
+            id: "slice_\(UUID().uuidString.prefix(8))",
+            title: String(localized: "Slice"),
+            icon: .sfSymbol("sparkles"),
+            accentHex: "#8B5CF6",
+            action: .clipboard
+        )
+        updateEditableSlices { list in
+            if list.count < 8 { list.append(newSlice) }
+        }
+    }
+
+    private func resetRadialSlices() {
+        dialEditPath = []
+        RadialDialConfigStore.reset()
+        dialNodes = RadialDialPresets.defaultRootNodes()
+    }
+
+    @ViewBuilder
+    private func radialSliceEditorRow(index: Int, slice: RadialSliceNode) -> some View {
+        HStack(spacing: 8) {
+            Text(verbatim: "\(index + 1)")
+                .font(.caption.weight(.bold).monospacedDigit())
+                .foregroundStyle(.secondary)
+                .frame(width: 18)
+
+            Menu {
+                ForEach(Self.radialIconChoices, id: \.self) { symbol in
+                    Button {
+                        updateEditableSlices { list in
+                            if index < list.count { list[index].icon = .sfSymbol(symbol) }
+                        }
+                    } label: {
+                        Label(symbol, systemImage: symbol)
+                    }
+                }
+            } label: {
+                radialSliceIconGlyph(slice.icon)
+                    .frame(width: 22, height: 20)
+            }
+            .menuStyle(.borderlessButton)
+            .fixedSize()
+
+            TextField("Slice", text: Binding(
+                get: { index < currentEditableSlices.count ? currentEditableSlices[index].title : slice.title },
+                set: { val in
+                    updateEditableSlices { list in
+                        if index < list.count { list[index].title = val }
+                    }
+                }
+            ))
+            .textFieldStyle(.roundedBorder)
+            .frame(maxWidth: 150)
+
+            Spacer(minLength: SettingsMetrics.rowMinimumLabelGap)
+
+            Picker(selection: Binding(
+                get: { sliceActionTag(for: slice) },
+                set: { tag in applySliceActionTag(tag, at: index) }
+            )) {
+                Text("Submenu").tag("submenu")
+                Divider()
+                Text("Clipboard").tag("clipboard")
+                Text("Shelf").tag("openShelf")
+                Text("Capture").tag("captureArea")
+                Text("Scan Text").tag("captureOCR")
+                Text("Toggle Tiling").tag("toggleTiling")
+                Divider()
+                Text("Play").tag("mediaPlayPause")
+                Text("Next Track").tag("mediaNext")
+                Text("Previous Track").tag("mediaPrevious")
+                Divider()
+                Text("Maximize").tag("snapMaximize")
+                Text("Left Half").tag("snapLeft")
+                Text("Right Half").tag("snapRight")
+                Text("Top Half").tag("snapTop")
+                Text("Bottom Half").tag("snapBottom")
+            } label: { EmptyView() }
+            .labelsHidden()
+            .pickerStyle(.menu)
+            .fixedSize()
+
+            if slice.isSubmenu {
+                Button { dialEditPath.append(slice.id) } label: {
+                    HStack(spacing: 2) {
+                        Text("Edit")
+                        Image(systemName: "chevron.right").font(.caption2)
+                    }
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+
+            Button {
+                updateEditableSlices { list in
+                    if list.count > 1, index < list.count { list.remove(at: index) }
+                }
+            } label: {
+                Image(systemName: "trash").foregroundStyle(.secondary)
+            }
+            .buttonStyle(.borderless)
+            .disabled(currentEditableSlices.count <= 1)
+            .accessibilityLabel(Text("Remove"))
+        }
+        .padding(.vertical, 4)
+    }
+
+    @ViewBuilder
+    private func radialSliceIconGlyph(_ icon: RadialDialIcon) -> some View {
+        switch icon {
+        case .sfSymbol(let name), .system(let name): Image(systemName: name)
+        case .app: Image(systemName: "app.fill")
+        }
+    }
+
+    private static let sliceActionTable: [(tag: String, action: RadialDialActionType)] = [
+        ("clipboard", .clipboard), ("openShelf", .openShelf), ("captureArea", .captureArea),
+        ("captureOCR", .captureOCR), ("toggleTiling", .toggleTiling), ("mediaPlayPause", .mediaPlayPause),
+        ("mediaNext", .mediaNext), ("mediaPrevious", .mediaPrevious), ("snapMaximize", .snap(.maximize)),
+        ("snapLeft", .snap(.leftHalf)), ("snapRight", .snap(.rightHalf)),
+        ("snapTop", .snap(.topHalf)), ("snapBottom", .snap(.bottomHalf))
+    ]
+
+    private func sliceActionTag(for slice: RadialSliceNode) -> String {
+        if slice.isSubmenu { return "submenu" }
+        return Self.sliceActionTable.first(where: { $0.action == slice.action })?.tag ?? "clipboard"
+    }
+
+    private func applySliceActionTag(_ tag: String, at index: Int) {
+        updateEditableSlices { list in
+            guard index < list.count else { return }
+            if tag == "submenu" {
+                if list[index].children?.isEmpty ?? true {
+                    list[index].children = [
+                        RadialSliceNode(id: "sub_\(UUID().uuidString.prefix(8))", title: String(localized: "Slice"), icon: .sfSymbol("sparkles"), action: .clipboard)
+                    ]
+                }
+                return
+            }
+            if let mapped = Self.sliceActionTable.first(where: { $0.tag == tag }) {
+                list[index].children = nil
+                list[index].action = mapped.action
+            }
         }
     }
 }

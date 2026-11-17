@@ -50,8 +50,13 @@ struct StageControlCenter: View {
 struct StageRadialDial: View {
     @AppStorage("com.katikati.dial.enabled") private var enabled = true
     @AppStorage("com.katikati.dial.theme") private var themeRaw = RadialDialTheme.lilacGlass.rawValue
+    @AppStorage(RadialDialConfigStore.storageKey) private var slicesData = Data()
 
     private var theme: RadialDialTheme { RadialDialTheme(rawValue: themeRaw) ?? .lilacGlass }
+    private var sliceCount: Int {
+        _ = slicesData
+        return max(2, min(10, RadialDialConfigStore.loadNodes().count))
+    }
 
     private var palette: (fill: Color, edge: Color) {
         switch theme {
@@ -65,11 +70,12 @@ struct StageRadialDial: View {
     var body: some View {
         GeometryReader { proxy in
             let d = min(proxy.size.width, proxy.size.height) * 0.62
+            let count = sliceCount
             ZStack {
-                ForEach(0..<8, id: \.self) { i in
-                    Wedge(index: i, count: 8)
+                ForEach(0..<count, id: \.self) { i in
+                    Wedge(index: i, count: count)
                         .fill(palette.fill)
-                        .overlay(Wedge(index: i, count: 8).stroke(palette.edge, lineWidth: 1))
+                        .overlay(Wedge(index: i, count: count).stroke(palette.edge, lineWidth: 1))
                 }
                 Circle().fill(palette.fill).overlay(Circle().stroke(palette.edge, lineWidth: 1)).frame(width: d * 0.3)
             }
@@ -78,6 +84,7 @@ struct StageRadialDial: View {
             .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
         }
         .animation(.easeOut(duration: 0.2), value: themeRaw)
+        .animation(.spring(response: 0.32, dampingFraction: 0.78), value: slicesData)
     }
 
     private struct Wedge: Shape {
