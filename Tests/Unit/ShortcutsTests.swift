@@ -224,3 +224,90 @@ final class PeekHoldTests: XCTestCase {
         XCTAssertEqual(DictationTranscript.cleaned("   "), "")
     }
 }
+
+// MARK: - Slice D: keyboard focus on the dock
+
+final class DockFocusModelTests: XCTestCase {
+    private func model(_ ids: [String] = ["a", "b", "c"]) -> DockFocusModel {
+        DockFocusModel(ids: ids)
+    }
+
+    func testBeginFocusesTheFirstCardAndAnEmptyBarStaysOff() {
+        var m = model()
+        XCTAssertFalse(m.isActive)
+        m.begin()
+        XCTAssertEqual(m.focusedID, "a")
+        var empty = model([])
+        empty.begin()
+        XCTAssertFalse(empty.isActive)
+        XCTAssertNil(empty.focusedID)
+    }
+
+    func testArrowsMoveAndDoNotWrap() {
+        var m = model()
+        m.begin()
+        XCTAssertEqual(m.handle(.left), .none, "left on the first card does not wrap to the last")
+        XCTAssertEqual(m.focusedID, "a")
+        XCTAssertEqual(m.handle(.right), .moved)
+        XCTAssertEqual(m.handle(.right), .moved)
+        XCTAssertEqual(m.focusedID, "c")
+        XCTAssertEqual(m.handle(.right), .none, "right on the last card does not wrap to the first")
+        XCTAssertEqual(m.focusedID, "c")
+    }
+
+    func testHomeAndEndJumpToTheEnds() {
+        var m = model()
+        m.begin()
+        _ = m.handle(.right)
+        XCTAssertEqual(m.handle(.end), .moved)
+        XCTAssertEqual(m.focusedID, "c")
+        XCTAssertEqual(m.handle(.end), .moved, "End on the last card is already there")
+        XCTAssertEqual(m.handle(.home), .moved)
+        XCTAssertEqual(m.focusedID, "a")
+    }
+
+    func testEnterActivatesTheFocusedCardAndEscapeEndsFocus() {
+        var m = model()
+        m.begin()
+        _ = m.handle(.right)
+        XCTAssertEqual(m.handle(.enter), .activated("b"))
+        XCTAssertTrue(m.isActive, "activating does not move the ring by itself")
+        XCTAssertEqual(m.handle(.escape), .ended)
+        XCTAssertFalse(m.isActive)
+        XCTAssertEqual(m.handle(.right), .none, "keys do nothing once focus is gone")
+    }
+
+    func testSyncKeepsTheSameCardAndClampsWithoutWrapping() {
+        var m = model(["a", "b", "c"])
+        m.begin()
+        _ = m.handle(.right)
+        m.sync(["x", "b", "y"])
+        XCTAssertEqual(m.focusedID, "b", "the focused card keeps the keyboard when the strip changes")
+        m.sync(["x", "y"])
+        XCTAssertEqual(m.focusedID, "y", "a vanished card clamps to the nearest remaining one")
+        m.sync([])
+        XCTAssertFalse(m.isActive)
+        m.sync(["only"])
+        XCTAssertFalse(m.isActive, "an unfocused model is not woken by a sync")
+    }
+
+    /// The shortcut owns one hot key id and one store key, and starts off like every assignable action.
+    @MainActor
+    func testDockFocusHasItsOwnHotKeyIDAndStoreKey() {
+        let ids = ShortcutAction.allCases.map(\.hotKeyID)
+        XCTAssertEqual(Set(ids).count, ids.count, "no two actions may share a Carbon hot key id")
+        XCTAssertEqual(ShortcutAction.dockFocus.hotKeyID, 53)
+        XCTAssertEqual(ShortcutAction.dockFocus.defaultTrigger, .off)
+        XCTAssertEqual(ShortcutAction.dockFocus.snapPosition, nil)
+        XCTAssertFalse(ShortcutAction.dockFocus.isTilingAction)
+
+        let suite = "katikati.dockFocus.tests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = AppSettingsStore(defaults: defaults)
+        store.setShortcut(.dockFocus, .key(ShortcutKey(keyCode: 2, modifiers: ShortcutKey.control | ShortcutKey.option)))
+        let raw = defaults.string(forKey: "com.katikati.shortcut.dockFocus")
+        XCTAssertEqual(ShortcutTrigger.parse(raw), .key(ShortcutKey(keyCode: 2, modifiers: ShortcutKey.control | ShortcutKey.option)))
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).shortcutBindings[.dockFocus]?.serialized, raw)
+    }
+}

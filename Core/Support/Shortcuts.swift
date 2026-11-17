@@ -50,6 +50,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case openDictionary, toggleTerminal
     /// Port plan #14: hold (or toggle) voice dictation into the frontmost app. No default key.
     case dictate
+    /// Slice D (OpenTaskbar behavior): take the keyboard onto the dock — arrows, Home/End, Enter, Esc. No default key.
+    case dockFocus
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -107,6 +109,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .openDictionary: return 50
         case .toggleTerminal: return 51
         case .dictate: return 52
+        case .dockFocus: return 53
         }
     }
 
@@ -131,7 +134,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         // Phase 31 radial dial: off by default, user assigns
         case .radialDial, .radialDialSnap, .radialDialTools: return .off
         case .notchPageNext, .notchPagePrevious, .captureArea, .pasteImageToFinder: return .off
-        case .spaceNext, .spacePrevious, .peek, .openDictionary, .toggleTerminal, .dictate: return .off
+        case .spaceNext, .spacePrevious, .peek, .openDictionary, .toggleTerminal, .dictate, .dockFocus: return .off
         case .windowSwitcher: return .key(ShortcutKey(keyCode: 48, modifiers: ShortcutKey.option))
         case .windowDrawer: return .key(ShortcutKey(keyCode: 13, modifiers: ShortcutKey.control | ShortcutKey.option))
         }
@@ -448,3 +451,91 @@ enum DictationTranscript {
     }
 }
 
+
+// MARK: - Slice D: keyboard focus on the dock (OpenTaskbar behavior, MIT — see NOTICE)
+
+/// One key the focused dock understands. AppKit key codes become these in `DockFocusKeyView`; keeping the
+/// model free of AppKit is what lets the rules be tested without a window.
+enum DockFocusKey: String, CaseIterable, Sendable {
+    case left, right, home, end, enter, escape
+}
+
+/// What a key did, so the view knows when to act on the bar rather than just redraw the highlight.
+enum DockFocusEffect: Equatable, Sendable {
+    case none
+    /// The highlight moved (or the model is still on the same card, e.g. Home when already first).
+    case moved
+    /// Enter on a card: the view performs that card's click.
+    case activated(String)
+    case ended
+}
+
+/// Keyboard focus over the strip's cards. **No wrap**: right at the last card and left at the first do
+/// nothing, which is what the owner asked for and what makes the ends of the bar findable by feel.
+struct DockFocusModel: Equatable, Sendable {
+    private(set) var ids: [String] = []
+    private(set) var index: Int?
+
+    init(ids: [String] = [], index: Int? = nil) {
+        self.ids = ids
+        self.index = index
+    }
+
+    var isActive: Bool { index != nil }
+
+    var focusedID: String? {
+        guard let index, ids.indices.contains(index) else { return nil }
+        return ids[index]
+    }
+
+    /// Start on the first card. An empty bar stays unfocused rather than inventing a position.
+    mutating func begin() {
+        guard !ids.isEmpty else { index = nil; return }
+        if let index, ids.indices.contains(index) { return }
+        index = 0
+    }
+
+    mutating func end() {
+        index = nil
+    }
+
+    /// Follow the strip while focused: same card if it survives, else the nearest remaining one (never wraps).
+    mutating func sync(_ newIDs: [String]) {
+        let previous = focusedID
+        let wasActive = isActive
+        ids = newIDs
+        guard wasActive else { index = nil; return }
+        if let previous, let kept = newIDs.firstIndex(of: previous) {
+            index = kept
+            return
+        }
+        guard !newIDs.isEmpty else { index = nil; return }
+        index = min(index ?? 0, newIDs.count - 1)
+    }
+
+    mutating func handle(_ key: DockFocusKey) -> DockFocusEffect {
+        guard isActive, !ids.isEmpty else { return .none }
+        switch key {
+        case .left:
+            guard let index, index > 0 else { return .none }
+            self.index = index - 1
+            return .moved
+        case .right:
+            guard let index, index < ids.count - 1 else { return .none }
+            self.index = index + 1
+            return .moved
+        case .home:
+            index = 0
+            return .moved
+        case .end:
+            index = ids.count - 1
+            return .moved
+        case .enter:
+            guard let id = focusedID else { return .none }
+            return .activated(id)
+        case .escape:
+            end()
+            return .ended
+        }
+    }
+}
