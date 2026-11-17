@@ -864,9 +864,9 @@
     "semantic_hash": "7c68b62cf2125911e696a333173f8a74"
   },
   "App/Scenes/Edge/DeckViews.swift": {
-    "mtime": 1794874897.9936798,
-    "seen": 1794875311.018314,
-    "ast_hash": "db2076b632bae4cd681705993310f4aa",
+    "mtime": 1794879169.4433415,
+    "seen": 1794879470.0128279,
+    "ast_hash": "66dace086c6edbe73295c2ba49b5fa7b",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/NoteSheetView.swift": {
@@ -894,9 +894,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
-    "mtime": 1794878947.0439856,
-    "seen": 1794879089.5630112,
-    "ast_hash": "a8ea8e1113cb681545bde288236a2b3c",
+    "mtime": 1794879254.6344678,
+    "seen": 1794879470.012836,
+    "ast_hash": "6c7360d7aa361d68dfc113d36749f7ff",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/TasksFlyoutView.swift": {
@@ -1668,9 +1668,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DailyHelpersRules.swift": {
-    "mtime": 1794856379.1334553,
-    "seen": 1794856528.9918451,
-    "ast_hash": "161bade7eed0209f828502d60c9fb78c",
+    "mtime": 1794879214.0134547,
+    "seen": 1794879470.012979,
+    "ast_hash": "5e9f62725776512f726030bebf488287",
     "semantic_hash": ""
   },
   "Core/Support/DebugSwitch.swift": {
@@ -1782,9 +1782,9 @@
     "semantic_hash": "7b59cff49ef6fa5abe627a1b0d84d287"
   },
   "Core/Support/EdgeBarPrefs.swift": {
-    "mtime": 1794878663.6626306,
-    "seen": 1794878917.7977421,
-    "ast_hash": "a64adcb7a0ffa0835bfb38acd611e07a",
+    "mtime": 1794879131.3590436,
+    "seen": 1794879470.0129972,
+    "ast_hash": "790bfdee3c0d045d8fe4b13b78180a37",
     "semantic_hash": ""
   },
   "Core/Support/EdgeBarSlot.swift": {
@@ -2352,9 +2352,9 @@
     "semantic_hash": "9ab4100822784c82c54e8aa32cbb0da8"
   },
   "Core/Support/SystemGaugeModel.swift": {
-    "mtime": 1794855410.16604,
-    "seen": 1794855528.975848,
-    "ast_hash": "58c6ae61c1d4a7daef82f0088448abcc",
+    "mtime": 1794879227.519057,
+    "seen": 1794879470.013099,
+    "ast_hash": "2c89181211a6591cb6a2fd570dc339a3",
     "semantic_hash": ""
   },
   "Core/Support/SystemMonitorMath.swift": {
@@ -2916,9 +2916,9 @@
     "semantic_hash": "d9dc4112a15d98a2646fb3c51cac9342"
   },
   "Platform/SystemMonitor/SystemMonitorController.swift": {
-    "mtime": 1794878937.3815937,
-    "seen": 1794879089.56336,
-    "ast_hash": "df3fd6a59ff5f702774e0c9bb89ce9ef",
+    "mtime": 1794879252.9766042,
+    "seen": 1794879470.013185,
+    "ast_hash": "4b271f159def9dfc7a05383c6e9e4aad",
     "semantic_hash": ""
   },
   "Platform/SystemMonitor/SystemMonitorSampler.swift": {
@@ -3312,9 +3312,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DailyHelpersRulesTests.swift": {
-    "mtime": 1794856401.9572282,
-    "seen": 1794856528.9921238,
-    "ast_hash": "1cc27eb33bcce41f341d0733819f44ce",
+    "mtime": 1794879129.914918,
+    "seen": 1794879470.013249,
+    "ast_hash": "0ad09c9811132d26238692ea663b1bb0",
     "semantic_hash": ""
   },
   "Tests/Unit/DebugSwitchTests.swift": {
@@ -4158,9 +4158,9 @@
     "semantic_hash": "92cb5edef3de63317cb195be1a445fc6"
   },
   "Tests/Unit/SystemGaugeTests.swift": {
-    "mtime": 1794878958.9125633,
-    "seen": 1794879089.563565,
-    "ast_hash": "03a28eeccc3a67b14f3f714f0fbf0596",
+    "mtime": 1794879270.5837011,
+    "seen": 1794879470.013391,
+    "ast_hash": "56913106f166a9cadcbaf367878f4668",
     "semantic_hash": ""
   },
   "Tests/Unit/SystemHealthTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1794879073.5635827,
-    "seen": 1794879089.563722,
-    "ast_hash": "e78a31ddec944a1d06205eba619c2e66",
+    "mtime": 1794879454.058508,
+    "seen": 1794879470.013551,
+    "ast_hash": "6d64aa51244faa013645404ecb6d4344",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7086,9 +7086,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WindowDrawerController.swift": {
-    "mtime": 1794878791.8450553,
-    "seen": 1794878917.797504,
-    "ast_hash": "086a7ab78ce2e14d9f06ddca217304d6",
+    "mtime": 1794879294.1347141,
+    "seen": 1794879470.0127602,
+    "ast_hash": "2c6c135d2fd573ee100b5b62bddc9f35",
     "semantic_hash": ""
   },
   "App/Composition/WindowStripController.swift": {
