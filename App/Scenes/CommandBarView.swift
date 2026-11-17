@@ -14,6 +14,8 @@ final class CommandBarModel: ObservableObject {
     @Published var query = ""
     @Published var results: [CommandBarResult] = []
     @Published var rowItems: [CommandBarRowItem] = []
+    @Published var sections: [CommandBarSectionGroup] = []
+    @Published var activeToken: CommandQueryToken?
     @Published var selection = 0
     @Published var isActionPanelPresented: Bool = false
     @Published var actionSelection = 0
@@ -72,23 +74,28 @@ final class CommandBarModel: ObservableObject {
     func refresh(resetSelection: Bool = false) {
         let shouldReset = resetSelection || (query != lastQuery)
         lastQuery = query
-        results = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
-                                          custom: custom, quicklinks: quicklinks, processes: processes, files: files, clips: clips,
-                                          bookmarks: bookmarks, events: events, menuItems: menuItems, profiles: profiles,
-                                          generate: { [weak self] in self?.generateValue(for: $0) ?? "" })
-        var seen = [String: Int]()
-        rowItems = results.enumerated().map { index, result in
-            let base = result.id
-            let count = seen[base, default: 0]
-            seen[base] = count + 1
-            let uniqueID = count == 0 ? base : "\(base)#\(count)"
-            return CommandBarRowItem(id: uniqueID, index: index, result: result)
-        }
+        activeToken = CommandBarQueryParser.parse(query, quicklinks: quicklinks).token
+        let built = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
+                                            custom: custom, quicklinks: quicklinks, processes: processes, files: files, clips: clips,
+                                            bookmarks: bookmarks, events: events, menuItems: menuItems, profiles: profiles,
+                                            generate: { [weak self] in self?.generateValue(for: $0) ?? "" })
+        let isEmptyQuery = query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let grouped = CommandBarSectionStore.group(built, isEmptyQuery: isEmptyQuery)
+        sections = grouped
+        let orderedItems = grouped.flatMap(\.items)
+        results = orderedItems.map(\.result)
+        rowItems = orderedItems.map { CommandBarRowItem(id: $0.id, index: $0.flatIndex, result: $0.result) }
         if shouldReset {
             selection = 0
         } else {
             selection = results.isEmpty ? 0 : min(selection, results.count - 1)
         }
+    }
+
+    func clearActiveToken() {
+        guard let token = activeToken else { return }
+        query = token.remainingQuery
+        refresh(resetSelection: true)
     }
 
     func move(_ delta: Int) {
@@ -107,13 +114,11 @@ struct CommandBarView: View {
     var onAction: ((CommandBarActionItem) -> Void)? = nil
     @FocusState private var focused: Bool
     @AppStorage("com.katikati.commandbar.hints") private var showHints = true
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private var activeModeInfo: (mode: CommandBarMode, argument: String)? {
-        if case .mode(let mode, let arg)? = CommandKeyword.parse(model.query) {
-            return (mode, arg)
-        }
-        return nil
-    }
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
 
     private var primaryActionLabel: String {
         guard model.results.indices.contains(model.selection) else { return "Open" }
@@ -142,24 +147,38 @@ struct CommandBarView: View {
     var body: some View {
         VStack(spacing: 0) {
             searchHeader
-            Divider().opacity(0.25)
+            Divider().opacity(0.22)
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 2) {
-                        ForEach(model.rowItems) { item in
-                            row(item.result, index: item.index, selected: item.index == model.selection)
-                                .id(item.id)
-                                .onTapGesture { onRun(item.result) }
-                                .contextMenu { rowMenu(item.result) }
+                        ForEach(Array(model.sections.enumerated()), id: \.element.id) { sectionIdx, section in
+                            Text(LocalizedStringKey(section.kind.title))
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.secondary.opacity(0.85))
+                                .padding(.horizontal, 10)
+                                .padding(.top, sectionIdx == 0 ? 4 : 10)
+                                .padding(.bottom, 3)
+
+                            ForEach(section.items) { item in
+                                row(item.result, badge: item.metadata.badge, index: item.flatIndex, selected: item.flatIndex == model.selection)
+                                    .id(item.id)
+                                    .onTapGesture { onRun(item.result) }
+                                    .contextMenu { rowMenu(item.result) }
+                            }
                         }
                     }
-                    .padding(6)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
                 }
                 .onChange(of: model.selection) { value in
                     let items = model.rowItems
                     if items.indices.contains(value) {
                         let targetID = items[value].id
-                        withAnimation(.easeOut(duration: 0.12)) { proxy.scrollTo(targetID, anchor: .center) }
+                        if reduceMotion {
+                            proxy.scrollTo(targetID, anchor: .center)
+                        } else {
+                            withAnimation(.easeOut(duration: 0.12)) { proxy.scrollTo(targetID, anchor: .center) }
+                        }
                     }
                 }
                 .onChange(of: model.query) { _ in
@@ -168,11 +187,13 @@ struct CommandBarView: View {
                     }
                 }
             }
+            Divider().opacity(0.22)
             footer
         }
         .frame(width: 640, height: 380)
-        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(.ultraThinMaterial))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.primary.opacity(0.12)))
+        .background(DockPanelBackdrop(theme: theme, cornerRadius: 16, usesLiquidGlass: false))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .dockPanelRim(cornerRadius: 16, style: theme.panelRimStyle, lineWidth: theme.panelRimLineWidth, usesLiquidGlass: false)
         .overlay(alignment: .bottomTrailing) {
             if model.isActionPanelPresented && !model.currentActions.isEmpty {
                 CommandBarActionPanelView(
@@ -184,47 +205,28 @@ struct CommandBarView: View {
                     }
                 )
                 .padding(.trailing, 12)
-                .padding(.bottom, 36)
-                .transition(.asymmetric(insertion: .scale(scale: 0.96, anchor: .bottomTrailing).combined(with: .opacity),
-                                        removal: .opacity))
+                .padding(.bottom, 40)
+                .transition(reduceMotion
+                            ? .opacity
+                            : .asymmetric(insertion: .scale(scale: 0.96, anchor: .bottomTrailing).combined(with: .opacity),
+                                          removal: .opacity))
             }
         }
+        .animation(reduceMotion ? nil : .spring(response: 0.24, dampingFraction: 0.86), value: model.isActionPanelPresented)
         .onAppear { focused = true }
         .onChange(of: model.focusNonce) { _ in focused = true }
         .accessibilityLabel(Text("Command Bar"))
     }
 
     private var searchHeader: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
+        HStack(spacing: 10) {
+            Image(systemName: model.activeToken?.symbol ?? "magnifyingglass")
                 .font(.system(size: 15, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(model.activeToken == nil ? .secondary : .accentColor)
 
-            if let info = activeModeInfo {
-                HStack(spacing: 4) {
-                    Image(systemName: info.mode.symbol)
-                        .font(.system(size: 10, weight: .semibold))
-                    Text(info.mode.displayName)
-                        .font(.system(size: 11, weight: .semibold))
-                    Button {
-                        model.query = info.argument
-                        model.refresh()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 8, weight: .bold))
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.leading, 1)
-                }
-                .padding(.horizontal, 7)
-                .padding(.vertical, 3)
-                .background(Capsule().fill(Color.accentColor.opacity(0.18)))
-                .foregroundColor(.accentColor)
-            }
-
-            TextField(activeModeInfo == nil ? "Command Bar" : "Search \(activeModeInfo!.mode.displayName)...", text: $model.query)
+            TextField("Command Bar", text: $model.query)
                 .textFieldStyle(.plain)
-                .font(.system(size: 18))
+                .font(.system(size: 17))
                 .focused($focused)
                 .onChange(of: model.query) { _ in model.refresh() }
                 .onSubmit {
@@ -235,10 +237,35 @@ struct CommandBarView: View {
                     }
                 }
 
+            if let token = model.activeToken {
+                HStack(spacing: 5) {
+                    Text(LocalizedStringKey(token.title))
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(.primary.opacity(0.85))
+                    Text(LocalizedStringKey(token.badgeLabel))
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(RoundedRectangle(cornerRadius: 5, style: .continuous).fill(Color.primary.opacity(0.10)))
+                    Button {
+                        model.clearActiveToken()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.primary.opacity(0.06)))
+            }
+
             if !model.query.isEmpty {
                 Button {
                     model.query = ""
-                    model.refresh()
+                    model.refresh(resetSelection: true)
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(.secondary.opacity(0.6))
@@ -247,8 +274,8 @@ struct CommandBarView: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 13)
     }
 
     @ViewBuilder private func rowMenu(_ result: CommandBarResult) -> some View {
@@ -264,53 +291,97 @@ struct CommandBarView: View {
     }
 
     private var footer: some View {
-        HStack(spacing: 8) {
-            HStack(spacing: 4) {
-                Image(systemName: "return").font(.system(size: 9, weight: .bold))
-                Text(primaryActionLabel).font(.system(size: 11, weight: .medium))
-            }
-            .foregroundColor(.primary.opacity(0.85))
-            .padding(.horizontal, 6).padding(.vertical, 3)
-            .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.primary.opacity(0.06)))
+        HStack(spacing: 10) {
+            Image(systemName: "command.square.fill")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.secondary.opacity(0.75))
 
             if showHints {
-                ForEach(["f", "clip", "kill", "fq", "sc", "ocr"], id: \.self) { key in
-                    Text(verbatim: key)
-                        .font(.system(size: 10, weight: .medium))
-                        .padding(.horizontal, 5).padding(.vertical, 2)
-                        .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.primary.opacity(0.06)))
+                HStack(spacing: 4) {
+                    ForEach(["g", "calc", "app", "file", "clip"], id: \.self) { key in
+                        Text(verbatim: key)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.secondary.opacity(0.85))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.primary.opacity(0.06)))
+                    }
                 }
             }
 
             Spacer(minLength: 0)
 
-            if canQuickLook {
-                HStack(spacing: 3) {
-                    Text(verbatim: "⌘Y").font(.system(size: 10, weight: .semibold, design: .monospaced))
-                    Text("Quick Look").font(.system(size: 11))
+            Button {
+                if model.results.indices.contains(model.selection) {
+                    onRun(model.results[model.selection])
                 }
-                .foregroundColor(.secondary)
+            } label: {
+                HStack(spacing: 6) {
+                    Text(LocalizedStringKey(primaryActionLabel))
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.primary)
+                    footerKeycap(systemImage: "return")
+                }
             }
+            .buttonStyle(.plain)
+
+            if canQuickLook {
+                footerDivider
+                HStack(spacing: 5) {
+                    Text("Quick Look")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.secondary)
+                    footerKeycap("⌘")
+                    footerKeycap("Y")
+                }
+            }
+
+            footerDivider
 
             Button {
                 model.isActionPanelPresented.toggle()
                 model.actionSelection = 0
             } label: {
-                HStack(spacing: 3) {
-                    Text(verbatim: "⌘K").font(.system(size: 10, weight: .bold, design: .monospaced))
-                    Text("Actions").font(.system(size: 11, weight: .semibold))
+                HStack(spacing: 5) {
+                    Text("Actions")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.secondary)
+                    footerKeycap("⌘")
+                    footerKeycap("K")
                 }
-                .foregroundColor(.accentColor)
-                .padding(.horizontal, 6).padding(.vertical, 2)
-                .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.accentColor.opacity(0.12)))
             }
             .buttonStyle(.plain)
         }
-        .padding(.horizontal, 12).padding(.vertical, 6)
-        .foregroundColor(.secondary)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
     }
 
-    @ViewBuilder private func row(_ result: CommandBarResult, index: Int, selected: Bool) -> some View {
+    private var footerDivider: some View {
+        Rectangle()
+            .fill(Color.primary.opacity(0.14))
+            .frame(width: 1, height: 13)
+    }
+
+    private func footerKeycap(_ text: String? = nil, systemImage: String? = nil) -> some View {
+        Group {
+            if let systemImage {
+                Image(systemName: systemImage)
+                    .font(.system(size: 10, weight: .semibold))
+            } else if let text {
+                Text(verbatim: text)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+            }
+        }
+        .foregroundColor(.secondary)
+        .frame(minWidth: 20, minHeight: 20)
+        .padding(.horizontal, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                .fill(Color.primary.opacity(0.08))
+        )
+    }
+
+    @ViewBuilder private func row(_ result: CommandBarResult, badge: CommandBarResultBadge, index: Int, selected: Bool) -> some View {
         HStack(spacing: 10) {
             icon(result)
             switch result {
@@ -432,13 +503,11 @@ struct CommandBarView: View {
                 Spacer(minLength: 0)
             }
             HStack(spacing: 6) {
-                Text(result.kindBadge)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.secondary.opacity(0.8))
-                    .padding(.horizontal, 5).padding(.vertical, 2)
-                    .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.primary.opacity(selected ? 0.08 : 0.04)))
+                Text(LocalizedStringKey(badge.rawValue))
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.secondary.opacity(selected ? 0.95 : 0.78))
 
-                if index < 9 {
+                if showHints && index < 9 {
                     Text(verbatim: "⌘\(index + 1)")
                         .font(.system(size: 10, weight: .semibold, design: .monospaced))
                         .foregroundColor(.secondary)
@@ -447,8 +516,15 @@ struct CommandBarView: View {
                 }
             }
         }
-        .padding(.horizontal, 10).padding(.vertical, 8)
-        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(selected ? Color.accentColor.opacity(0.22) : Color.clear))
+        .padding(.horizontal, 10).padding(.vertical, 7)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(selected ? Color.primary.opacity(colorScheme == .dark ? 0.14 : 0.09) : Color.clear)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .strokeBorder(selected ? Color.primary.opacity(0.08) : Color.clear, lineWidth: 0.5)
+        )
         .contentShape(Rectangle())
     }
 

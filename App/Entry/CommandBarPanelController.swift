@@ -373,9 +373,11 @@ final class CommandBarPanelController {
     }
 
     private func tabExpandMode() {
-        let q = model.query.trimmingCharacters(in: .whitespaces)
+        let q = model.query.trimmingCharacters(in: .whitespaces).lowercased()
         guard !q.isEmpty else { return }
-        if let mode = CommandBarMode.allCases.first(where: { $0.keywords.contains(q.lowercased()) }) {
+        if q == "g" || q == "calc" {
+            model.query = q + " "
+        } else if let mode = CommandBarMode.allCases.first(where: { $0.keywords.contains(q) }) {
             model.query = mode.keywords[0] + " "
         }
     }
@@ -634,7 +636,7 @@ final class CommandBarPanelController {
         panel.level = .popUpMenu
         panel.isOpaque = false
         panel.backgroundColor = .clear
-        panel.hasShadow = false
+        panel.hasShadow = true
         panel.isReleasedWhenClosed = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         let host = NSHostingView(rootView: CommandBarView(model: model,
