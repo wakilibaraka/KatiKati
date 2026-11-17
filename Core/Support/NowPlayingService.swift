@@ -191,6 +191,11 @@ public final class NowPlayingService: ObservableObject {
     /// used to hide: a running Spotify/Music whose Automation grant is missing returned an error that was
     /// thrown away, so the widget said "Not Playing" while the player was playing.
     @Published private(set) var playerAccess: PlayerAccess = .unknown
+    /// OW-5a: every running scriptable player with a track, pinned one first. One entry means nothing to
+    /// switch between, so the surfaces hide the switcher.
+    @Published private(set) var sessions: [MediaSession] = []
+    /// The player the surfaces follow once the user has cycled; nil = follow the system-wide reading.
+    @Published private(set) var pinnedSessionApp: String?
     
     private var mrGetNowPlayingInfo: MRMediaRemoteGetNowPlayingInfoFunction?
     private var mrSendCommand: MRMediaRemoteSendCommandFunction?
@@ -205,6 +210,9 @@ public final class NowPlayingService: ObservableObject {
     private var fallbackApp: String?
     private var isReadingFallback = false
     private var lastFallbackRead = Date.distantPast
+    private var switcher = MediaSessionSwitcher()
+    private var isReadingSessions = false
+    private var lastSessionsRead = Date.distantPast
     private var artworkCache: [String: Data] = [:]
     private let helper = NowPlayingHelper()
     /// True while the helper's system-wide reading is what the state shows: it then outranks the
@@ -212,6 +220,8 @@ public final class NowPlayingService: ObservableObject {
     private var helperHasTrack = false
     /// AppleScript blocks the thread it runs on, so the fallback is throttled to this interval.
     private static let fallbackInterval: TimeInterval = 2
+    /// Reading every player costs an AppleScript run each; the switcher only needs to know who is alive.
+    private static let sessionsInterval: TimeInterval = 5
     private static let artworkCacheLimit = 8
     
     public init() {
@@ -259,6 +269,7 @@ public final class NowPlayingService: ObservableObject {
         nc.addObserver(self, selector: #selector(nowPlayingInfoDidChange), name: NSNotification.Name("kMRMediaRemoteNowPlayingPlaybackQueueDidChangeNotification"), object: nil)
         
         refresh()
+        refreshSessions()
     }
     
     @objc private func nowPlayingInfoDidChange() {
@@ -284,6 +295,43 @@ public final class NowPlayingService: ObservableObject {
             queryNowPlayingInfo()
         }
         readFallbackIfIdle()
+        refreshSessions()
+    }
+
+    // MARK: - OW-5a: several sessions
+
+    /// Re-reads the running players, at most once per `sessionsInterval` unless forced. A pinned player that
+    /// has gone away clears the pin, so the surfaces fall back to the system-wide reading instead of freezing.
+    public func refreshSessions(force: Bool = false) {
+        guard !isReadingSessions,
+              force || Date().timeIntervalSince(lastSessionsRead) >= Self.sessionsInterval else { return }
+        isReadingSessions = true
+        lastSessionsRead = Date()
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            let raw = Self.runAppleScript(MediaSessions.source)
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.isReadingSessions = false
+                let found = MediaSessions.parse(raw)
+                if let pinned = self.switcher.pinnedBundleID, !found.contains(where: { $0.bundleID == pinned }) {
+                    self.switcher.clearPin()
+                    self.pinnedSessionApp = nil
+                }
+                self.sessions = MediaSessions.ordered(found, pinned: self.switcher.pinnedBundleID)
+            }
+        }
+    }
+
+    /// Cycles the surfaces through the open players, wrapping. The chosen player is read immediately, so the
+    /// card swaps on the press instead of waiting out the fallback interval.
+    public func cycleSession(forward: Bool = true) {
+        guard sessions.count > 1 else { return }
+        guard let bundleID = switcher.cycle(among: sessions, forward: forward) else { return }
+        pinnedSessionApp = MediaSessions.app(forBundleID: bundleID)
+        sessions = MediaSessions.ordered(sessions, pinned: bundleID)
+        lastFallbackRead = .distantPast
+        isReadingFallback = false
+        readFallback()
     }
 
     /// MediaRemote can stay completely silent for an ad-hoc-signed process — measured 2026-10-16 with a
@@ -374,8 +422,10 @@ public final class NowPlayingService: ObservableObject {
         guard !isReadingFallback, now.timeIntervalSince(lastFallbackRead) >= Self.fallbackInterval else { return }
         isReadingFallback = true
         lastFallbackRead = now
+        let pinned = pinnedSessionApp
         DispatchQueue.global(qos: .utility).async { [weak self] in
-            let raw = Self.runAppleScript(AppleScriptNowPlaying.source)
+            // OW-5a: a pinned player is read directly, so the switch is not undone by the next system reading.
+            let raw = Self.runAppleScript(pinned.map(MediaSessions.readingSource(for:)) ?? AppleScriptNowPlaying.source)
             DispatchQueue.main.async {
                 guard let self else { return }
                 self.isReadingFallback = false

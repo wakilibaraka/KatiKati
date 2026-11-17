@@ -121,6 +121,15 @@ final class LiveActivityFeed: ObservableObject {
     /// grant is missing reads as `.refused`, which the surfaces turn into a line and a door to fix it.
     var playerAccess: PlayerAccess { nowPlaying.playerAccess }
 
+    /// OW-5a: the open players, the pinned one first. More than one means the surfaces offer a switch.
+    var mediaSessions: [MediaSession] { nowPlaying.sessions }
+
+    /// Switches which player the surfaces follow, wrapping through the open ones.
+    func cycleMediaSession(forward: Bool = true) {
+        nowPlaying.cycleSession(forward: forward)
+        refresh()
+    }
+
     /// Play/pause pass-through for the capsule's one affordance (music only). Refreshes immediately
     /// so the popup/capsule can flip without waiting a full tick; MediaRemote's own async update
     /// settles the final state on the next tick.

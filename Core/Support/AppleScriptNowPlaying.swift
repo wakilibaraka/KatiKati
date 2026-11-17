@@ -144,3 +144,151 @@ enum AppleScriptNowPlaying {
         fallbackApp != nil || (title?.isEmpty ?? true)
     }
 }
+
+// MARK: - OW-5a: several players, one switcher
+
+/// One running player with a current track. Two players can be open at once (Spotify in the background,
+/// Music in the foreground); the surfaces show one, and this is the unit that says which.
+struct MediaSession: Equatable, Sendable {
+    /// `com.spotify.client` / `com.apple.Music`.
+    let bundleID: String
+    /// The AppleScript application name the reading came from.
+    let app: String
+    let title: String
+    let artist: String
+    let isPlaying: Bool
+}
+
+/// The players the AppleScript fallback can read, in the order a fresh cycle visits them.
+enum MediaSessions {
+    static let known: [(bundleID: String, app: String)] = [
+        ("com.spotify.client", "Spotify"),
+        ("com.apple.Music", "Music"),
+    ]
+
+    static func app(forBundleID bundleID: String?) -> String? {
+        guard let bundleID else { return nil }
+        return known.first { $0.bundleID == bundleID }?.app
+    }
+
+    static func bundleID(forApp app: String?) -> String? {
+        guard let app else { return nil }
+        return known.first { $0.app == app }?.bundleID
+    }
+
+    /// Records joined by newlines: `app <tab> state <tab> title <tab> artist`, one per running player that
+    /// has a track. Empty when neither has one — the surfaces then show nothing, as before.
+    static func parse(_ raw: String) -> [MediaSession] {
+        raw.split(whereSeparator: \.isNewline).compactMap { line in
+            let fields = line.trimmingCharacters(in: .whitespaces).components(separatedBy: "\t")
+            guard fields.count >= 4, fields[0] == "Spotify" || fields[0] == "Music",
+                  let bundleID = bundleID(forApp: fields[0]) else { return nil }
+            let title = fields[2]
+            guard !title.isEmpty else { return nil }
+            return MediaSession(bundleID: bundleID, app: fields[0], title: title,
+                                artist: fields[3], isPlaying: fields[1] == "playing")
+        }
+    }
+
+    /// The pinned player first, then the known order — so the switch is visible at the head of the list and
+    /// clients never re-shuffle what the user just chose.
+    static func ordered(_ sessions: [MediaSession], pinned bundleID: String?) -> [MediaSession] {
+        let rank = known.map(\.bundleID)
+        return sessions.sorted { left, right in
+            if left.bundleID == bundleID { return right.bundleID != bundleID }
+            if right.bundleID == bundleID { return false }
+            let l = rank.firstIndex(of: left.bundleID) ?? rank.count
+            let r = rank.firstIndex(of: right.bundleID) ?? rank.count
+            return l == r ? left.bundleID < right.bundleID : l < r
+        }
+    }
+
+    /// Reads every running player that has a track. Never launches a stopped one (`is running` guards).
+    static var source: String {
+        """
+        set sep to (ASCII character 9)
+        set out to ""
+        if application "Spotify" is running then
+        \ttell application "Spotify"
+        \t\ttry
+        \t\t\tset stateText to (player state as text)
+        \t\t\tset t to current track
+        \t\t\tif (name of t) is not "" then
+        \t\t\t\tset out to out & "Spotify" & sep & stateText & sep & (name of t) & sep & (artist of t) & linefeed
+        \t\t\tend if
+        \t\ton error errMsg number errNum
+        \t\tend try
+        \tend tell
+        end if
+        if application "Music" is running then
+        \ttell application "Music"
+        \t\ttry
+        \t\t\tset stateText to (player state as text)
+        \t\t\tset t to current track
+        \t\t\tif (name of t) is not "" then
+        \t\t\t\tset out to out & "Music" & sep & stateText & sep & (name of t) & sep & (artist of t) & linefeed
+        \t\t\tend if
+        \t\ton error errMsg number errNum
+        \t\tend try
+        \tend tell
+        end if
+        return out
+        """
+    }
+
+    /// One player's record (`Reading` shape) for the pinned session, so the surfaces follow the switch
+    /// instead of whatever the system-wide route reports.
+    static func readingSource(for app: String) -> String {
+        let scriptName = app == "Spotify" ? "Spotify" : "Music"
+        let tail = app == "Spotify"
+            ? "\t\t\tset out to \"Spotify\" & sep & stateText & sep & (name of t) & sep & (artist of t) & sep & (album of t) & sep & ((duration of t) / 1000) & sep & (player position) & sep & (artwork url of t)"
+            : "\t\t\tset out to \"Music\" & sep & stateText & sep & (name of t) & sep & (artist of t) & sep & (album of t) & sep & (duration of t) & sep & (player position)\n\t\t\tif (count of artworks of t) > 0 then\n\t\t\t\tset d to (data of artwork 1 of t)\n\t\t\t\tset f to (open for access (POSIX file \"@ART@\") with write permission)\n\t\t\t\tset eof f to 0\n\t\t\t\twrite d to f\n\t\t\t\tclose access f\n\t\t\t\tset out to out & sep & \"@ART@\"\n\t\t\tend if"
+        let body = """
+        set sep to (ASCII character 9)
+        set out to ""
+        if application "\(scriptName)" is running then
+        \ttell application "\(scriptName)"
+        \t\ttry
+        \t\t\tset stateText to (player state as text)
+        \t\t\tset t to current track
+        \(tail)
+        \t\ton error errMsg number errNum
+        \t\t\treturn "REFUSED" & sep & "\(scriptName)" & sep & errNum
+        \t\tend try
+        \tend tell
+        end if
+        return out
+        """
+        return body.replacingOccurrences(of: "@ART@", with: AppleScriptNowPlaying.transientArtworkPath)
+    }
+}
+
+/// Which player the surfaces show when more than one has a session. Pinned choice wins until it disappears;
+/// cycling **wraps**, because there is no "end" of a set of open players to stop at.
+struct MediaSessionSwitcher: Equatable, Sendable {
+    private(set) var pinnedBundleID: String?
+
+    mutating func clearPin() {
+        pinnedBundleID = nil
+    }
+
+    /// Moves to the next (or previous) session, wrapping at both ends. Returns the chosen bundle id, or nil
+    /// when there is nothing to switch between.
+    @discardableResult
+    mutating func cycle(among sessions: [MediaSession], forward: Bool = true) -> String? {
+        guard !sessions.isEmpty else {
+            pinnedBundleID = nil
+            return nil
+        }
+        let ids = sessions.map(\.bundleID)
+        guard let current = pinnedBundleID.flatMap({ ids.firstIndex(of: $0) }) else {
+            let first = forward ? ids[0] : ids[ids.count - 1]
+            pinnedBundleID = first
+            return first
+        }
+        let step = forward ? 1 : -1
+        let next = (current + step + ids.count) % ids.count
+        pinnedBundleID = ids[next]
+        return ids[next]
+    }
+}

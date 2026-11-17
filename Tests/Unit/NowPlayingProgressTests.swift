@@ -226,3 +226,67 @@ final class NowPlayingProgressTests: XCTestCase {
         XCTAssertEqual(FloatingPlayerSize.expanded.defaultDimensions.width, 340)
     }
 }
+
+// MARK: - OW-5a: several players, one switcher
+
+final class MediaSessionSwitcherTests: XCTestCase {
+    private func session(_ app: String, playing: Bool = true) -> MediaSession {
+        MediaSession(bundleID: MediaSessions.bundleID(forApp: app)!, app: app,
+                     title: app + " Song", artist: "Artist", isPlaying: playing)
+    }
+
+    func testParseReadsOneRecordPerRunningPlayer() {
+        let raw = "Spotify\tplaying\tSong A\tArtist A\nMusic\tpaused\tSong B\tArtist B\n"
+        let sessions = MediaSessions.parse(raw)
+        XCTAssertEqual(sessions.map(\.app), ["Spotify", "Music"])
+        XCTAssertEqual(sessions.map(\.bundleID), ["com.spotify.client", "com.apple.Music"])
+        XCTAssertEqual(sessions.first?.isPlaying, true)
+        XCTAssertEqual(sessions.last?.isPlaying, false)
+        XCTAssertEqual(sessions.first?.title, "Song A")
+        XCTAssertEqual(sessions.last?.artist, "Artist B")
+    }
+
+    func testParseDropsUnknownPlayersEmptyTitlesAndGarbage() {
+        XCTAssertTrue(MediaSessions.parse("").isEmpty)
+        XCTAssertTrue(MediaSessions.parse("VLC\tplaying\tSong\tArtist").isEmpty, "only players we can script")
+        XCTAssertTrue(MediaSessions.parse("Spotify\tplaying\t\tArtist").isEmpty, "no title, no session")
+        XCTAssertTrue(MediaSessions.parse("REFUSED\tMusic\t-1743").isEmpty)
+        XCTAssertEqual(MediaSessions.parse("Spotify\tplaying\tSong\tArtist").count, 1)
+    }
+
+    func testOrderPutsThePinnedPlayerFirstThenKnownOrder() {
+        let found = [session("Music"), session("Spotify")]
+        XCTAssertEqual(MediaSessions.ordered(found, pinned: nil).map(\.app), ["Spotify", "Music"])
+        XCTAssertEqual(MediaSessions.ordered(found, pinned: "com.apple.Music").map(\.app), ["Music", "Spotify"])
+        XCTAssertEqual(MediaSessions.ordered(found, pinned: "missing").map(\.app), ["Spotify", "Music"])
+    }
+
+    func testCycleWrapsBothWaysAndStartsAtEnds() {
+        let sessions = [session("Spotify"), session("Music")]
+        var forward = MediaSessionSwitcher()
+        XCTAssertEqual(forward.cycle(among: sessions), "com.spotify.client", "a fresh cycle starts at the head")
+        XCTAssertEqual(forward.cycle(among: sessions), "com.apple.Music")
+        XCTAssertEqual(forward.cycle(among: sessions), "com.spotify.client", "wraps at the end")
+
+        var backward = MediaSessionSwitcher()
+        XCTAssertEqual(backward.cycle(among: sessions, forward: false), "com.apple.Music", "backward starts at the tail")
+        XCTAssertEqual(backward.cycle(among: sessions, forward: false), "com.spotify.client", "wraps at the head")
+    }
+
+    func testCycleClearsThePinWhenNothingIsOpen() {
+        var switcher = MediaSessionSwitcher()
+        XCTAssertEqual(switcher.cycle(among: [session("Music")]), "com.apple.Music")
+        XCTAssertNil(switcher.cycle(among: []))
+        XCTAssertNil(switcher.pinnedBundleID)
+    }
+
+    func testReadingSourceTargetsExactlyOnePlayer() {
+        let music = MediaSessions.readingSource(for: "Music")
+        XCTAssertTrue(music.contains("tell application \"Music\""))
+        XCTAssertFalse(music.contains("Spotify"), "a pinned read must not touch the other player")
+        let spotify = MediaSessions.readingSource(for: "Spotify")
+        XCTAssertTrue(spotify.contains("tell application \"Spotify\""))
+        XCTAssertTrue(spotify.contains("artwork url"), "Spotify hands out an artwork URL")
+        XCTAssertFalse(spotify.contains("Music"))
+    }
+}

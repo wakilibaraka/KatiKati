@@ -10,6 +10,9 @@ struct NowPlayingPopup: View {
     var onNext: () -> Void = {}
     var onPrevious: () -> Void = {}
     var onSeek: (Double) -> Void = { _ in }
+    /// OW-5a: every open player. Two or more and the header offers the switch; one hides it.
+    var sessions: [MediaSession] = []
+    var onCyclePlayer: () -> Void = {}
 
     @Environment(\.colorScheme) private var colorScheme
     
@@ -66,6 +69,25 @@ struct NowPlayingPopup: View {
                             .foregroundColor(isDarkMode ? .white : .primary)
                             .frame(width: 24, height: 24)
                             .background(Circle().fill(isDarkMode ? Color.white.opacity(0.1) : Color.black.opacity(0.05)))
+                    }
+                    // OW-5a: several players open — one press moves the surfaces to the next one.
+                    if sessions.count > 1 {
+                        Button(action: onCyclePlayer) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.left.arrow.right")
+                                    .font(.system(size: 10, weight: .semibold))
+                                Text(verbatim: state.appName ?? "")
+                                    .font(.system(size: 10, weight: .semibold))
+                                    .lineLimit(1)
+                            }
+                            .foregroundColor(isDarkMode ? .white : .primary)
+                            .padding(.horizontal, 7)
+                            .frame(height: 24)
+                            .background(Capsule().fill(isDarkMode ? Color.white.opacity(0.1) : Color.black.opacity(0.05)))
+                        }
+                        .buttonStyle(.plain)
+                        .help(Text("Switch Player"))
+                        .accessibilityLabel("Switch Player")
                     }
                 }
                 

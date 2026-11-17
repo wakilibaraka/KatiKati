@@ -152,7 +152,9 @@ struct ExpandedMediaCardView: View {
                 onToggle: { feed.togglePlayPause() },
                 onNext: { feed.nextTrack() },
                 onPrevious: { feed.previousTrack() },
-                onSeek: { feed.seek(to: $0) }
+                onSeek: { feed.seek(to: $0) },
+                sessions: feed.mediaSessions,
+                onCyclePlayer: { feed.cycleMediaSession() }
             )
         }
     }

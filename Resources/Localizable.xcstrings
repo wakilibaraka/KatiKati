@@ -1,6 +1,23 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Switch Player": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Switch Player" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "切换播放器" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "切換播放器" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "プレーヤーを切り替え" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Player wechseln" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Changer de lecteur" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cambiar de reproductor" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Cambiar de reproductor" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Trocar de player" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mudar de leitor" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Cambia lettore" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "플레이어 전환" } }
+      }
+    },
     "Focus the Dock with the Keyboard": {
       "extractionState": "manual",
       "localizations": {
