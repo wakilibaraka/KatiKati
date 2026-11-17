@@ -124,6 +124,7 @@ struct SettingsWindowContent: View {
             case .radialDial: SettingsLayoutPane(store: store, mode: .radialDial)
             case .aiTracking: aiTrackingPane
             case .downloads: TorrentSettingsBlock()
+            case .clipboard: ClipboardSettingsPane(store: store)
             case .tools: toolsPane
             case .advanced: advancedPane
             }
@@ -342,7 +343,8 @@ struct SettingsWindowContent: View {
         SettingsLayoutPane(store: store, mode: .controlCenter)
     }
 
-    /// 「工具」页: the clipboard, commands and snippets, in the slot the About page left.
+    /// 「工具」页: commands and snippets, in the slot the About page left. Clipboard has its own page
+    /// since MC-1.
     private var toolsPane: some View {
         UtilitySettingsBlock(store: store)
     }

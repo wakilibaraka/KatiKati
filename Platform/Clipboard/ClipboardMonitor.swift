@@ -21,6 +21,8 @@ final class ClipboardMonitor: ObservableObject {
     private let pasteboard: NSPasteboard
     private var lastChange: Int
     private var timer: Timer?
+    /// MC-1: one-shot "ignore the next copy" latch, set from the Clipboard page.
+    private var skipNextCopy = false
 
     init(defaults: UserDefaults = .standard, pasteboard: NSPasteboard = .general) {
         self.defaults = defaults
@@ -71,6 +73,11 @@ final class ClipboardMonitor: ObservableObject {
         history.prune(olderThanDays: max(0, days))
     }
 
+    /// MC-1: the next external copy is dropped and the latch clears itself.
+    func ignoreNextCopy() { skipNextCopy = true }
+
+    var isSkippingNextCopy: Bool { skipNextCopy }
+
     func togglePin(_ id: UUID) { history.togglePin(id) }
     func remove(_ id: UUID) { history.remove(id) }
     func clear() { history.clear() }
@@ -86,6 +93,7 @@ final class ClipboardMonitor: ObservableObject {
     private func poll() {
         guard pasteboard.changeCount != lastChange else { return }
         lastChange = pasteboard.changeCount
+        if skipNextCopy { skipNextCopy = false; return }
         let types = (pasteboard.types ?? []).map(\.rawValue)
         guard ClipboardHistory.shouldRecord(types: types), let text = pasteboard.string(forType: .string) else { return }
         let rules = ClipboardIgnoreRules.parseLines(defaults.string(forKey: Self.ignorePatternsKey) ?? "")

@@ -151,3 +151,14 @@ This project is derived from and incorporates code from the following works:
   process-group attribution, CPU/memory sampling and hotkey timing intact; window detection was changed to
   ignore KatiKati's always-on bar and notch. `Scripts/bench_katikati.sh` follows Asyar's `benchmarks/bench.sh`
   scenarios and reuses its powermetrics parser. Developer tools only; neither is built into the app.
+
+## p0deje/Maccy (behavior reference, MIT — no code copied)
+- Repository: https://github.com/p0deje/Maccy
+- Copyright (c) Alex Rodionov and Maccy contributors
+- License: MIT License
+- Description: Reference for clipboard *behavior* only, re-implemented in Swift for KatiKati: the pasteboard
+  filter that skips concealed, transient, auto-generated, password-manager and remote (Universal Clipboard)
+  types (`MaccyPasteboardFilter`), the three-state capture mode with a one-shot "ignore next copy" latch
+  (`ClipboardCaptureMode`), stable ⌘1–⌘9 pin slots that leave positions above nine unnumbered
+  (`MaccyPinShortcutAssigner`) and the keyboard command table (`MaccyKeyAction`). Maccy is a Swift/AppKit menu
+  bar app; none of its source, XIB/Storyboard files, assets or project files are included or translated.

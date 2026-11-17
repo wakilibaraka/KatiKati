@@ -9,14 +9,16 @@ import XCTest
 // `SettingsMetricsTests`).
 
 final class SettingsTabTests: XCTestCase {
-    func testTheSidebarIsTwentyOneTabsWithOneIdentityEach() {
-        XCTAssertEqual(SettingsTab.allCases.count, 21, "twenty-one sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 21,
+    func testTheSidebarIsTwentyTwoTabsWithOneIdentityEach() {
+        XCTAssertEqual(SettingsTab.allCases.count, 22, "twenty-two sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 22,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
                        "the page visited once sits at the end; Tools is one before it")
         XCTAssertEqual(SettingsTab.allCases.dropLast().last, .tools, "Tools sits just before Advanced")
+        XCTAssertEqual(SettingsTab.allCases.dropLast(2).last, .clipboard, "Clipboard sits just above Tools")
+        XCTAssertEqual(SettingsTab(rawValue: "clipboard"), .clipboard)
         // 2026-10-20 split: the toolbar identifier "tiling" now names the Tiling page itself;
         // Window Management moved to its own identifier.
         XCTAssertEqual(SettingsTab(rawValue: "tiling"), .tiling,

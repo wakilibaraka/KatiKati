@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-/// 设置窗口的二十一个标签页（2026-11 优化：菜单栏、抽屉暂存架、AI 追踪独立成页，关于页整合入通用页）。
+/// 设置窗口的二十二个标签页（2026-11 优化：菜单栏、抽屉暂存架、AI 追踪独立成页，关于页整合入通用页）。
 /// 纯 Foundation/Combine——测试 target 也编译它，别引 AppKit。
 enum SettingsTab: String, CaseIterable {
     case general
@@ -23,6 +23,7 @@ enum SettingsTab: String, CaseIterable {
     case radialDial
     case aiTracking
     case downloads
+    case clipboard
     case tools
     case advanced
 
@@ -47,6 +48,7 @@ enum SettingsTab: String, CaseIterable {
         case "radialDial": self = .radialDial
         case "aiTracking": self = .aiTracking
         case "downloads": self = .downloads
+        case "clipboard": self = .clipboard
         case "tools": self = .tools
         case "advanced": self = .advanced
         case "info": self = .general
@@ -75,6 +77,7 @@ enum SettingsTab: String, CaseIterable {
         case .radialDial: return String(localized: "Radial Dial")
         case .aiTracking: return String(localized: "AI Tracking")
         case .downloads: return String(localized: "Downloads")
+        case .clipboard: return String(localized: "Clipboard")
         case .tools: return String(localized: "Tools")
         case .advanced: return String(localized: "Advanced")
         }
@@ -103,7 +106,8 @@ enum SettingsTab: String, CaseIterable {
         case .radialDial: return String(localized: "The pie menu: actions, theme, and triggers.")
         case .aiTracking: return String(localized: "Claude Code hooks, tool approvals, token limits, and telemetry.")
         case .downloads: return String(localized: "Torrents: speed, schedule, and quiet hours.")
-        case .tools: return String(localized: "Clipboard, commands, snippets, key visualizer, and cheat sheet.")
+        case .clipboard: return String(localized: "History, privacy, storage, and the popup.")
+        case .tools: return String(localized: "Commands, snippets, key visualizer, and cheat sheet.")
         case .advanced: return String(localized: "Rarely touched switches that need extra powers.")
         }
     }
@@ -129,7 +133,8 @@ enum SettingsTab: String, CaseIterable {
         case .radialDial: return "circle.hexagongrid"
         case .aiTracking: return "brain.head.profile"
         case .downloads: return "arrow.down.circle"
-        case .tools: return "doc.on.clipboard"
+        case .clipboard: return "doc.on.clipboard"
+        case .tools: return "hammer"
         case .advanced: return "wrench.and.screwdriver"
         }
     }
@@ -156,6 +161,7 @@ enum SettingsTab: String, CaseIterable {
         case .radialDial: return (0.92, 0.36, 0.78)
         case .aiTracking: return (0.64, 0.28, 0.92)
         case .downloads: return (0.12, 0.72, 0.88)
+        case .clipboard: return (0.95, 0.62, 0.20)
         case .tools: return (0.20, 0.78, 0.35)
         case .advanced: return (0.42, 0.46, 0.54)
         }

@@ -27,7 +27,8 @@ extension SettingsTab {
         case .radialDial: return "pie menu wheel theme"
         case .aiTracking: return "ai agent claude codex token budget tracking approval hook"
         case .downloads: return "torrent bittorrent seed upload quiet hours aria2"
-        case .tools: return "clipboard color picker teleprompter calculator snippets keycastr keyclu visualizer cheat sheet"
+        case .clipboard: return "clipboard history pin paste plain privacy ignore retention popup shortcuts"
+        case .tools: return "color picker teleprompter calculator snippets keycastr keyclu visualizer cheat sheet"
         case .advanced: return "reset debug permissions accessibility screen recording"
         }
     }
@@ -90,7 +91,7 @@ struct SettingsSidebar: View {
         .system([.general, .menuBar, .appearance, .dockItems]),
         .surfaces([.drawerShelf, .widgets, .weather, .notch, .notifications, .edgeBars]),
         .workspace([.tiling, .windowManagement, .launcher, .commandBar, .controlCenter]),
-        .productivity([.shortcuts, .radialDial, .aiTracking, .downloads, .tools]),
+        .productivity([.shortcuts, .radialDial, .aiTracking, .downloads, .clipboard, .tools]),
         .advanced([.advanced])
     ]
 
