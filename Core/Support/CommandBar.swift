@@ -367,6 +367,16 @@ enum CommandBarResults {
         if case .mode(let mode, let argument)? = keyword {
             return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes, files: files, clips: clips, bookmarks: bookmarks, events: events, menuItems: menuItems, profiles: profiles)
         }
+        if let token = CommandBarQueryParser.parse(query, quicklinks: quicklinks).token {
+            switch token.scope {
+            case .googleSearch:
+                return token.remainingQuery.isEmpty ? [] : [.answer(.web(query: token.remainingQuery))]
+            case .calculator:
+                return token.remainingQuery.isEmpty ? [] : LauncherAnswers.answers(for: .math(token.remainingQuery)).map(CommandBarResult.answer)
+            default:
+                break
+            }
+        }
         let routed = LauncherCommandParser.parse(query)
         switch routed {
         case .process(let term):
@@ -525,4 +535,153 @@ enum SpotlightHandoff {
     static let settingsURL = "x-apple.systempreferences:com.apple.Keyboard-Settings.extension"
 
     static func steps() -> [Step] { Step.allCases }
+}
+
+// MARK: - SuperCmd Tokenized Query & Section Store (SLICE SC-1)
+
+/// Prefix scope recognized by `CommandBarQueryParser` for pill rendering and scoped routing.
+enum CommandQueryScope: Equatable, Sendable {
+    case googleSearch
+    case calculator
+    case applications
+    case files
+    case mode(CommandBarMode)
+    case quicklink(Quicklink)
+}
+
+/// Visual token extracted from a scoped command-bar prefix (e.g., `g `, `calc `, `app `, `file `).
+struct CommandQueryToken: Equatable, Sendable {
+    let scope: CommandQueryScope
+    let trigger: String
+    let title: String
+    let badgeLabel: String
+    let symbol: String
+    let remainingQuery: String
+}
+
+/// Pure prefix-scope parser unifying `g `, `calc `, `app `, `file `, `CommandBarMode` keywords, and `{query}` quicklinks.
+enum CommandBarQueryParser {
+    static func parse(_ query: String, quicklinks: [Quicklink] = []) -> (token: CommandQueryToken?, remainingQuery: String) {
+        let leadingTrimmed = query.drop(while: { $0 == " " || $0 == "\t" })
+        guard let space = leadingTrimmed.firstIndex(where: { $0 == " " || $0 == "\t" }) else {
+            return (nil, String(leadingTrimmed).trimmingCharacters(in: .whitespaces))
+        }
+        let word = String(leadingTrimmed[leadingTrimmed.startIndex..<space]).lowercased()
+        let arg = String(leadingTrimmed[leadingTrimmed.index(after: space)...]).trimmingCharacters(in: .whitespaces)
+
+        if word == "g" {
+            return (CommandQueryToken(scope: .googleSearch, trigger: word, title: "Search Google", badgeLabel: "Query", symbol: "globe", remainingQuery: arg), arg)
+        }
+        if word == "calc" {
+            return (CommandQueryToken(scope: .calculator, trigger: word, title: "Calculator", badgeLabel: "Expression", symbol: "equal", remainingQuery: arg), arg)
+        }
+        if let mode = CommandBarMode.allCases.first(where: { $0.keywords.contains(word) }) {
+            let scope: CommandQueryScope = switch mode {
+            case .apps: .applications
+            case .file: .files
+            default: .mode(mode)
+            }
+            let badgeLabel = mode == .file ? "Query" : "Filter"
+            return (CommandQueryToken(scope: scope, trigger: word, title: mode.displayName, badgeLabel: badgeLabel, symbol: mode.symbol, remainingQuery: arg), arg)
+        }
+        if let link = quicklinks.first(where: { $0.name.lowercased() == word && QuicklinkTemplate.needsQuery($0.template) }) {
+            return (CommandQueryToken(scope: .quicklink(link), trigger: link.name, title: link.name, badgeLabel: "Query", symbol: "link", remainingQuery: arg), arg)
+        }
+        return (nil, String(leadingTrimmed).trimmingCharacters(in: .whitespaces))
+    }
+}
+
+/// Priority sections for grouped SuperCmd-style result presentation.
+enum CommandBarSectionKind: Int, CaseIterable, Comparable, Sendable {
+    case suggestions = 0
+    case commands = 1
+    case applications = 2
+    case files = 3
+
+    static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
+
+    var title: String {
+        switch self {
+        case .suggestions: return "Suggestions"
+        case .commands: return "Commands"
+        case .applications: return "Applications"
+        case .files: return "Files"
+        }
+    }
+}
+
+/// Normalized right-aligned metadata badge for a command bar row.
+enum CommandBarResultBadge: String, Equatable, Sendable {
+    case quicklink = "Quicklink"
+    case application = "Application"
+    case command = "Command"
+    case file = "File"
+}
+
+/// Pure section and badge metadata for a single `CommandBarResult`.
+struct CommandBarResultMetadata: Equatable, Sendable {
+    let section: CommandBarSectionKind
+    let badge: CommandBarResultBadge
+}
+
+/// One row inside a `CommandBarSectionGroup`, carrying its sequential `flatIndex` for keyboard selection.
+struct CommandBarSectionedItem: Equatable, Identifiable, Sendable {
+    let id: String
+    let flatIndex: Int
+    let result: CommandBarResult
+    let metadata: CommandBarResultMetadata
+}
+
+/// A non-empty priority section of results.
+struct CommandBarSectionGroup: Equatable, Identifiable, Sendable {
+    let kind: CommandBarSectionKind
+    let items: [CommandBarSectionedItem]
+    var id: CommandBarSectionKind { kind }
+}
+
+/// Pure categorization and priority grouping store for `CommandBarResult` lists.
+enum CommandBarSectionStore {
+    static func metadata(for result: CommandBarResult, isEmptyQuery: Bool = false) -> CommandBarResultMetadata {
+        switch result {
+        case .app:
+            return CommandBarResultMetadata(section: isEmptyQuery ? .suggestions : .applications, badge: .application)
+        case .quicklink, .answer(.web):
+            return CommandBarResultMetadata(section: .suggestions, badge: .quicklink)
+        case .answer(.math), .askAI:
+            return CommandBarResultMetadata(section: .suggestions, badge: .command)
+        case .file, .path, .searchFilesFallback:
+            return CommandBarResultMetadata(section: .files, badge: .file)
+        case .custom(let command):
+            return CommandBarResultMetadata(section: .commands, badge: command.kind == .link ? .quicklink : .command)
+        case .bookmark:
+            return CommandBarResultMetadata(section: .commands, badge: .quicklink)
+        case .quit, .forceQuit, .action, .generator, .process, .script, .shortcut,
+             .clip, .trash, .emoji, .event, .menuItem, .profile, .saveProfile, .define:
+            return CommandBarResultMetadata(section: .commands, badge: .command)
+        }
+    }
+
+    static func group(_ results: [CommandBarResult], isEmptyQuery: Bool = false) -> [CommandBarSectionGroup] {
+        var buckets: [CommandBarSectionKind: [(result: CommandBarResult, metadata: CommandBarResultMetadata)]] = [:]
+        for result in results {
+            let meta = metadata(for: result, isEmptyQuery: isEmptyQuery)
+            buckets[meta.section, default: []].append((result, meta))
+        }
+
+        var seen = [String: Int]()
+        var flatIndex = 0
+        return CommandBarSectionKind.allCases.compactMap { kind in
+            guard let entries = buckets[kind], !entries.isEmpty else { return nil }
+            let items = entries.map { entry -> CommandBarSectionedItem in
+                let base = entry.result.id
+                let count = seen[base, default: 0]
+                seen[base] = count + 1
+                let uniqueID = count == 0 ? base : "\(base)#\(count)"
+                let item = CommandBarSectionedItem(id: uniqueID, flatIndex: flatIndex, result: entry.result, metadata: entry.metadata)
+                flatIndex += 1
+                return item
+            }
+            return CommandBarSectionGroup(kind: kind, items: items)
+        }
+    }
 }

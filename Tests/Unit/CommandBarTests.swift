@@ -421,4 +421,89 @@ final class CommandBarActionResolverTests: XCTestCase {
     }
 }
 
+// MARK: - SuperCmd Token & Section Store Tests (SLICE SC-1)
+
+final class CommandBarSuperCmdTests: XCTestCase {
+    func testQueryParserExtractsExplicitScopesAndArguments() {
+        let g = CommandBarQueryParser.parse("g swift concurrency")
+        XCTAssertEqual(g.token?.scope, .googleSearch)
+        XCTAssertEqual(g.token?.title, "Search Google")
+        XCTAssertEqual(g.token?.badgeLabel, "Query")
+        XCTAssertEqual(g.remainingQuery, "swift concurrency")
+
+        let calc = CommandBarQueryParser.parse("calc 24 * 7")
+        XCTAssertEqual(calc.token?.scope, .calculator)
+        XCTAssertEqual(calc.token?.badgeLabel, "Expression")
+        XCTAssertEqual(calc.remainingQuery, "24 * 7")
+
+        let app = CommandBarQueryParser.parse("app safari")
+        XCTAssertEqual(app.token?.scope, .applications)
+        XCTAssertEqual(app.remainingQuery, "safari")
+
+        let file = CommandBarQueryParser.parse("file report.pdf")
+        XCTAssertEqual(file.token?.scope, .files)
+        XCTAssertEqual(file.remainingQuery, "report.pdf")
+    }
+
+    func testQueryParserHandlesQuicklinksEmptyArgsAndPlainQueries() {
+        let gh = Quicklink(name: "gh", template: "https://github.com/search?q={query}")
+        let quick = CommandBarQueryParser.parse("gh async", quicklinks: [gh])
+        XCTAssertEqual(quick.token?.scope, .quicklink(gh))
+        XCTAssertEqual(quick.remainingQuery, "async")
+
+        let emptyScope = CommandBarQueryParser.parse("g ")
+        XCTAssertEqual(emptyScope.token?.scope, .googleSearch)
+        XCTAssertEqual(emptyScope.remainingQuery, "")
+
+        let plain = CommandBarQueryParser.parse("safari")
+        XCTAssertNil(plain.token)
+        XCTAssertEqual(plain.remainingQuery, "safari")
+    }
+
+    func testBuildRoutesGoogleAndCalcScopes() {
+        XCTAssertEqual(
+            CommandBarResults.build(query: "g swift", apps: [], usage: [:], running: []),
+            [.answer(.web(query: "swift"))]
+        )
+        XCTAssertEqual(
+            CommandBarResults.build(query: "calc 6 * 7", apps: [], usage: [:], running: []),
+            [.answer(.math(expression: "6 * 7", value: "42"))]
+        )
+        XCTAssertTrue(CommandBarResults.build(query: "g ", apps: [], usage: [:], running: []).isEmpty)
+        XCTAssertTrue(CommandBarResults.build(query: "calc ", apps: [], usage: [:], running: []).isEmpty)
+    }
+
+    func testSectionStoreGroupsPriorityOrderAndAssignsMetadataBadges() {
+        let safari = LauncherApp(bundleID: "com.apple.Safari", name: "Safari", path: "/Applications/Safari.app", installedAt: .distantPast)
+        let runningSafari = RunningAppRef(bundleID: "com.apple.Safari", name: "Safari", pid: 10, path: "/Applications/Safari.app")
+        let link = Quicklink(name: "Search Google", template: "https://google.com/search?q={query}")
+        let doc = FileEntry(path: "/tmp/notes.md", name: "notes.md")
+
+        let input: [CommandBarResult] = [
+            .file(doc),
+            .app(safari),
+            .quit(runningSafari),
+            .quicklink(link, argument: "swift"),
+            .action(.darkMode)
+        ]
+
+        let sections = CommandBarSectionStore.group(input)
+        XCTAssertEqual(sections.map(\.kind), [.suggestions, .commands, .applications, .files])
+        XCTAssertEqual(sections[0].items.map(\.metadata.badge), [.quicklink])
+        XCTAssertEqual(sections[1].items.map(\.metadata.badge), [.command, .command])
+        XCTAssertEqual(sections[2].items.map(\.metadata.badge), [.application])
+        XCTAssertEqual(sections[3].items.map(\.metadata.badge), [.file])
+
+        let flatIndices = sections.flatMap { $0.items.map(\.flatIndex) }
+        XCTAssertEqual(flatIndices, [0, 1, 2, 3, 4])
+    }
+
+    func testSectionStoreTreatsEmptyQueryAppsAsSuggestionsAndOmitsEmptySections() {
+        let safari = LauncherApp(bundleID: "com.apple.Safari", name: "Safari", path: "/Applications/Safari.app", installedAt: .distantPast)
+        let sections = CommandBarSectionStore.group([.app(safari)], isEmptyQuery: true)
+        XCTAssertEqual(sections.map(\.kind), [.suggestions])
+        XCTAssertEqual(sections.first?.items.first?.metadata.badge, .application)
+    }
+}
+
 
