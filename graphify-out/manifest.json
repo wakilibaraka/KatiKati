@@ -1782,9 +1782,9 @@
     "semantic_hash": "7b59cff49ef6fa5abe627a1b0d84d287"
   },
   "Core/Support/EdgeBarPrefs.swift": {
-    "mtime": 1794874750.55408,
-    "seen": 1794875311.018495,
-    "ast_hash": "fef20b59954c810a4a925790ed076e09",
+    "mtime": 1794878663.6626306,
+    "seen": 1794878917.7977421,
+    "ast_hash": "a64adcb7a0ffa0835bfb38acd611e07a",
     "semantic_hash": ""
   },
   "Core/Support/EdgeBarSlot.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1794878448.460526,
-    "seen": 1794878479.161393,
-    "ast_hash": "c2166ef8ecceabb950c9a66d90c37f9f",
+    "mtime": 1794878901.0459914,
+    "seen": 1794878917.7982988,
+    "ast_hash": "656517c8ed97e35537c453564f2360e7",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6798,9 +6798,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWidgetLogicTests.swift": {
-    "mtime": 1794876997.3621972,
-    "seen": 1794877586.105922,
-    "ast_hash": "e7ca2addb4cd94ebbb946c9561054e4b",
+    "mtime": 1794878664.8310485,
+    "seen": 1794878917.798007,
+    "ast_hash": "254d0f95326d3c60bad8495ed95bc799",
     "semantic_hash": ""
   },
   "App/Composition/SpaceTransitionController.swift": {
@@ -7086,9 +7086,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WindowDrawerController.swift": {
-    "mtime": 1794874751.1448224,
-    "seen": 1794875311.018243,
-    "ast_hash": "b09980bb95e56276d7efd029d0481013",
+    "mtime": 1794878791.8450553,
+    "seen": 1794878917.797504,
+    "ast_hash": "086a7ab78ce2e14d9f06ddca217304d6",
     "semantic_hash": ""
   },
   "App/Composition/WindowStripController.swift": {
