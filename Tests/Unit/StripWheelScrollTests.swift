@@ -129,4 +129,20 @@ final class WheelActionMapTests: XCTestCase {
         XCTAssertEqual(WheelWindowCycle.next(ids: ["only"], front: "only", direction: .previous), "only")
         XCTAssertNil(WheelWindowCycle.next(ids: [], front: nil, direction: .next))
     }
+
+    func testWheelVolumeThrottleAccumulatesPreciseDeltasAndRateLimits() {
+        var state = WheelVolumeThrottle.State()
+        let t0 = Date(timeIntervalSince1970: 1000)
+
+        // Precise events (0.02 each) accumulate until reaching 0.05
+        XCTAssertNil(WheelVolumeThrottle.consume(delta: 0.02, state: &state, now: t0))
+        XCTAssertNil(WheelVolumeThrottle.consume(delta: 0.02, state: &state, now: t0.addingTimeInterval(0.01)))
+        XCTAssertEqual(WheelVolumeThrottle.consume(delta: 0.02, state: &state, now: t0.addingTimeInterval(0.02)),
+                       WheelActionMap.preciseVolumeStep)
+
+        // Burst within 60 ms is throttled even if threshold is crossed
+        XCTAssertNil(WheelVolumeThrottle.consume(delta: 0.05, state: &state, now: t0.addingTimeInterval(0.04)))
+        // After 60 ms, a discrete notch passes immediately
+        XCTAssertEqual(WheelVolumeThrottle.consume(delta: 0.05, state: &state, now: t0.addingTimeInterval(0.09)), 0.05)
+    }
 }

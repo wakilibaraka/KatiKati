@@ -29,6 +29,8 @@ struct LauncherChip: View {
     /// Runtime-owned launch session state. The chip only renders this state; it does
     /// not infer readiness from process state or own a second launch timeout.
     let isLaunching: Bool
+    var isFrontmost: Bool = false
+    var windowCount: Int = 1
     /// 高度系数（条内传 `DockPanelHeight.scale`，抽屉恒定 0.7）。**故意不给默认值**——漏传必须是编译错误，
     /// 见 AGENTS《Taskbar Size Tiers》。
     let scale: CGFloat
@@ -247,8 +249,8 @@ struct LauncherChip: View {
             case .windowsPill, .latteBrandLine:
                 let state = DockRunningIndicatorState.state(
                     for: runningIndicatorStyle,
-                    isFrontmost: NSWorkspace.shared.frontmostApplication?.bundleIdentifier == bundleID,
-                    windowCount: 1
+                    isFrontmost: isFrontmost,
+                    windowCount: windowCount
                 )
                 HStack(spacing: 2) {
                     if runningIndicatorStyle == .latteBrandLine {

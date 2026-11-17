@@ -1,4 +1,5 @@
 import CoreGraphics
+import Foundation
 
 /// 任务条横向滚动的纯决策：把一个滚动事件折算成条内的横向位移。
 ///
@@ -123,5 +124,37 @@ enum WheelWindowCycle {
             let base = index ?? 0
             return ids[(base - 1 + ids.count) % ids.count]
         }
+    }
+}
+
+/// Accumulates continuous precise-scroll volume deltas and rate-limits volume steps to once per 60 ms,
+/// matching `ControlCenterScroll` so a single trackpad swipe never slams the system volume.
+enum WheelVolumeThrottle {
+    static let stepInterval: TimeInterval = 0.06
+    static let preciseThreshold: Float = 0.05
+
+    struct State: Equatable, Sendable {
+        var accumulatedDelta: Float = 0
+        var lastStepAt: Date = .distantPast
+    }
+
+    static func consume(delta: Float, state: inout State, now: Date = Date()) -> Float? {
+        guard delta != 0 else { return nil }
+        let isPrecise = abs(delta) < WheelActionMap.volumeStepPerNotch
+        if !isPrecise {
+            guard now.timeIntervalSince(state.lastStepAt) >= stepInterval else { return nil }
+            state.lastStepAt = now
+            state.accumulatedDelta = 0
+            return delta
+        }
+        state.accumulatedDelta += delta
+        guard abs(state.accumulatedDelta) >= preciseThreshold,
+              now.timeIntervalSince(state.lastStepAt) >= stepInterval else {
+            return nil
+        }
+        let step: Float = state.accumulatedDelta > 0 ? WheelActionMap.preciseVolumeStep : -WheelActionMap.preciseVolumeStep
+        state.accumulatedDelta = 0
+        state.lastStepAt = now
+        return step
     }
 }

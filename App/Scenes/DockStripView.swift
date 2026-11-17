@@ -216,6 +216,7 @@ struct DockStripView: View {
 
     /// Slice D: keyboard focus over the cards. `nil` index = the keyboard is not on the bar.
     @State var dockFocus = DockFocusModel()
+    @State private var wheelVolumeState = WheelVolumeThrottle.State()
 
     var body: some View {
         let projectionStart = HoverTrace.now()
@@ -1414,9 +1415,20 @@ struct DockStripView: View {
             guard let target = WheelWindowCycle.next(ids: ids, front: front, direction: direction) else { return }
             runtime.activate(windowID: target)
         case .volume(let delta):
-            let level = Double(wheelVolume.currentVolumeLevel) + Double(delta)
+            guard let step = WheelVolumeThrottle.consume(delta: delta, state: &wheelVolumeState) else { return }
+            let level = Double(wheelVolume.currentVolumeLevel) + Double(step)
             wheelVolume.setVolume(Float(min(1, max(0, level))))
         }
+    }
+
+    static func realWindowCount(for bundleID: String, snapshot: DockSnapshot) -> Int {
+        let count = snapshot.windows.values.reduce(0) { total, w in
+            guard w.bundleIdentifier == bundleID,
+                  w.status != .disappeared,
+                  w.status != .closedPending else { return total }
+            return total + 1
+        }
+        return max(1, count)
     }
 
     /// 悬停命中帧在这里**一处**上报（`StripHoverFramePreferenceKey`），所以四个区不可能漏
@@ -1677,6 +1689,8 @@ struct DockStripView: View {
                                  finderHasRealWindow: false,   // 访达进不了消息区
 
                                  isLaunching: runtime.launchingBundleIDs.contains(bid),
+                                 isFrontmost: runningApplicationStore.frontmostBundleID == bid,
+                                 windowCount: Self.realWindowCount(for: bid, snapshot: runtime.snapshot),
                                  scale: dockScale,
                                  layout: .bar,
                                  railTile: isRail,
@@ -1719,6 +1733,8 @@ struct DockStripView: View {
                 finderHasRealWindow: false,   // 访达有意不走 .keptApp 投影
 
                 isLaunching: runtime.launchingBundleIDs.contains(bid),
+                isFrontmost: runningApplicationStore.frontmostBundleID == bid,
+                windowCount: Self.realWindowCount(for: bid, snapshot: runtime.snapshot),
                 scale: dockScale,
                 layout: .bar,
                 railTile: isRail,

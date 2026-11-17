@@ -11,6 +11,9 @@ struct ClipboardFlyoutView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.edgeBarStyle) private var barStyle
     @State private var copiedID: UUID?
+    @State private var selectedID: UUID?
+    @State private var hoveredEntry: ClipEntry?
+    @State private var hoverWork: DispatchWorkItem?
     @State private var confirmingClear = false
     @State private var selectedCategory: ClipboardCategory = .all
     // Slice MC-3: Maccy's keyboard-first bits — sorting, pin badges, footer hints and auto-paste.
@@ -75,6 +78,17 @@ struct ClipboardFlyoutView: View {
                         ForEach(visibleEntries) { entry in row(entry, env: env) }
                     }
                 }
+                .popover(item: $hoveredEntry, arrowEdge: .trailing) { entry in
+                    ScrollView {
+                        Text(verbatim: entry.text)
+                            .font(.system(size: 12))
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(10)
+                    }
+                    .frame(width: 300)
+                    .frame(maxHeight: 240)
+                }
                 if showFooter {
                     Text(verbatim: "⏎ Copy · ⌥⏎ Paste · ⌥⇧⏎ Plain · ⌥P Pin")
                         .font(.system(size: 9)).foregroundColor(env.secondary).padding(.top, 4)
@@ -84,8 +98,16 @@ struct ClipboardFlyoutView: View {
         .padding(8)
         .focusable()
         .onKeyPress { press in handleKey(press) }
-        .onAppear { refreshPinSlots() }
-        .onChange(of: monitor.history.displayOrder.map(\.id)) { _ in refreshPinSlots() }
+        .onAppear {
+            refreshPinSlots()
+            syncSelection()
+        }
+        .onChange(of: monitor.history.displayOrder.map(\.id)) { _ in
+            refreshPinSlots()
+            syncSelection()
+        }
+        .onChange(of: selectedCategory) { _ in syncSelection() }
+        .onChange(of: query) { _ in syncSelection() }
         .confirmationDialog(Text("Clear Clipboard History?"), isPresented: $confirmingClear) {
             Button("Clear History", role: .destructive) { monitor.clear() }
             Button("Cancel", role: .cancel) {}
@@ -109,11 +131,27 @@ struct ClipboardFlyoutView: View {
         )
     }
 
-    /// MC-3: Maccy's table, applied to the first visible row (the popup has no separate focus ring).
+    private func syncSelection() {
+        let entries = visibleEntries
+        if let selectedID, entries.contains(where: { $0.id == selectedID }) { return }
+        selectedID = entries.first?.id
+    }
+
+    private func moveSelection(by delta: Int) {
+        let entries = visibleEntries
+        guard !entries.isEmpty else { selectedID = nil; return }
+        let current = selectedID.flatMap { id in entries.firstIndex(where: { $0.id == id }) } ?? 0
+        let next = min(max(current + delta, 0), entries.count - 1)
+        selectedID = entries[next].id
+    }
+
+    /// MC-3: Maccy's table, applied to the highlighted row (hover or arrow keys, first row by default).
     private func handleKey(_ press: KeyPress) -> KeyPress.Result {
+        if press.key == .upArrow { moveSelection(by: -1); return .handled }
+        if press.key == .downArrow { moveSelection(by: 1); return .handled }
         guard let action = MaccyKeyAction.action(key: String(press.characters),
                                                  modifiers: MaccyKeyAction.Modifiers(press.modifiers)),
-              let target = visibleEntries.first else { return .ignored }
+              let target = visibleEntries.first(where: { $0.id == selectedID }) ?? visibleEntries.first else { return .ignored }
         switch action {
         case .copy: monitor.copy(target)
         case .paste, .pastePlain: monitor.pastePlain(target)
@@ -175,11 +213,30 @@ struct ClipboardFlyoutView: View {
                     Spacer(minLength: 4)
                     if copiedID == entry.id { Image(systemName: "checkmark").font(.system(size: 10, weight: .bold)) }
                 }
+                .padding(.horizontal, 6)
                 .frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(selectedID == entry.id ? Color.accentColor.opacity(0.18) : Color.clear)
+                )
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help(entry.text)
+            .onHover { hovering in
+                hoverWork?.cancel()
+                if hovering {
+                    selectedID = entry.id
+                    if entry.text.count > 60 || entry.text.contains("\n") {
+                        let work = DispatchWorkItem { hoveredEntry = entry }
+                        hoverWork = work
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: work)
+                    } else {
+                        hoveredEntry = nil
+                    }
+                } else if hoveredEntry?.id == entry.id {
+                    hoveredEntry = nil
+                }
+            }
             .contextMenu {
                 Button("Paste as Plain Text") { monitor.pastePlain(entry) }
                 if entry.pinned { Button("Unpin") { monitor.togglePin(entry.id) } } else { Button("Pin") { monitor.togglePin(entry.id) } }

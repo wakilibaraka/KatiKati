@@ -13,6 +13,7 @@ import os
 final class RunningApplicationStore: ObservableObject {
     @Published private(set) var runningBundleIDs: Set<String> = []
     @Published private(set) var hiddenBundleIDs: Set<String> = []
+    @Published private(set) var frontmostBundleID: String? = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
 
     typealias ProcessGeneration = RunningStateSweepDecision.Generation
 
@@ -193,6 +194,7 @@ final class RunningApplicationStore: ObservableObject {
             guard let application = Self.application(from: notification) else { return }
             Task { @MainActor [weak self] in
                 guard let self, self.isStarted else { return }
+                self.frontmostBundleID = application.bundleIdentifier
                 self.handleAdmissionCandidate(application)
                 self.requestWorkspaceSweep()
             }
@@ -206,6 +208,7 @@ final class RunningApplicationStore: ObservableObject {
             guard let application = Self.application(from: notification) else { return }
             Task { @MainActor [weak self] in
                 guard let self, self.isStarted else { return }
+                self.frontmostBundleID = application.bundleIdentifier
                 self.handleAdmissionCandidate(application)
                 self.requestWorkspaceSweep()
             }
