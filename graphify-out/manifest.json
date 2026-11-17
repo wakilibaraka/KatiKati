@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1794871064.3483846,
-    "seen": 1794871163.913878,
-    "ast_hash": "1a910639295b1449ed67f26c6c4dcfb1",
+    "mtime": 1794873492.5895615,
+    "seen": 1794873740.557158,
+    "ast_hash": "d17b26dae9f04a7a247c82c02838361c",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ChipPanel.swift": {
@@ -966,9 +966,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
-    "mtime": 1792688038.3392124,
-    "seen": 1792689772.288898,
-    "ast_hash": "d49cf3946d12fc8ebae5e0e05ac17bdd",
+    "mtime": 1794873546.4352362,
+    "seen": 1794873740.5572329,
+    "ast_hash": "66128f350a4eab90c809e856a8ac6a73",
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandStyle.swift": {
@@ -1050,9 +1050,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/NotchIslandView.swift": {
-    "mtime": 1794872876.5883992,
-    "seen": 1794873374.5963771,
-    "ast_hash": "7c371d89d743414b09ec24fe7d0c3884",
+    "mtime": 1794873543.489036,
+    "seen": 1794873740.5572531,
+    "ast_hash": "d2580afe181a30d295d671fde749ba68",
     "semantic_hash": ""
   },
   "App/Scenes/NotchPreview.swift": {
@@ -4566,9 +4566,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchDockChips.swift": {
-    "mtime": 1792926135.984122,
-    "seen": 1792926143.606494,
-    "ast_hash": "11e41e5884e583b8ea8470a213aebf06",
+    "mtime": 1794873517.3808851,
+    "seen": 1794873740.55724,
+    "ast_hash": "c6f754522d82a2b473ba8eba2ea7a225",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchEventCard.swift": {
@@ -6474,9 +6474,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchTrackPill.swift": {
-    "mtime": 1792601287.890675,
-    "seen": 1792601765.3327591,
-    "ast_hash": "e47e4a3e26d6a895c4497b7ad395dbcf",
+    "mtime": 1794873491.3429818,
+    "seen": 1794873740.557251,
+    "ast_hash": "99bdbe7bf6987a13c011de055923e27d",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchWideBarView.swift": {
