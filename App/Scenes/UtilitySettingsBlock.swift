@@ -44,108 +44,7 @@ struct UtilitySettingsBlock: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
-            SettingsBentoSplit {
-                // One row per line: this card is a half-width column, where a side-by-side pair
-                // squeezes the labels into a wrapped sliver.
-                SettingsCard(Text("Clipboard")) {
-                    SettingsToggleRow(
-                        Text("Clean Copied Links"),
-                        isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) })
-                    )
-                    SettingsDivider()
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack {
-                            Text("Ignore Patterns").font(.body)
-                            Spacer()
-                            Menu {
-                                ForEach(NSWorkspace.shared.runningApplications.filter { $0.activationPolicy == .regular && $0.bundleIdentifier != nil }, id: \.processIdentifier) { app in
-                                    if let bid = app.bundleIdentifier {
-                                        Button(app.localizedName ?? bid) { addIgnoreTag(bid) }
-                                    }
-                                }
-                                Divider()
-                                Button("Add Pattern…") {
-                                    newPattern = ""
-                                    showAddPattern = true
-                                }
-                            } label: {
-                                Label("Exclude App", systemImage: "plus")
-                                    .font(.caption)
-                            }
-                            .menuStyle(.borderlessButton)
-                            .fixedSize()
-                            .popover(isPresented: $showAddPattern, arrowEdge: .bottom) {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("Add Ignore Pattern").font(.headline)
-                                    TextField("Bundle ID or regex", text: $newPattern)
-                                        .textFieldStyle(.roundedBorder)
-                                        .frame(width: 220)
-                                    HStack {
-                                        Spacer()
-                                        Button("Cancel") { showAddPattern = false }
-                                        Button("Add") {
-                                            addIgnoreTag(newPattern)
-                                            showAddPattern = false
-                                        }
-                                        .buttonStyle(.borderedProminent)
-                                        .disabled(newPattern.trimmingCharacters(in: .whitespaces).isEmpty)
-                                    }
-                                }
-                                .padding(12)
-                            }
-                        }
-                        if ignoreTags.isEmpty {
-                            Text("No ignored apps or patterns.").font(.caption).foregroundStyle(.secondary)
-                        } else {
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 6) {
-                                    ForEach(ignoreTags, id: \.self) { tag in
-                                        HStack(spacing: 4) {
-                                            Text(verbatim: tag).font(.caption).lineLimit(1)
-                                            Button { removeIgnoreTag(tag) } label: {
-                                                Image(systemName: "xmark.circle.fill").font(.caption2).foregroundStyle(.secondary)
-                                            }
-                                            .buttonStyle(.plain)
-                                        }
-                                        .padding(.horizontal, 8).padding(.vertical, 3)
-                                        .background(Capsule().fill(Color.primary.opacity(0.08)))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    SettingsDivider()
-                    SettingsToggleRow(Text("Copy Sounds"), isOn: $clipboardSounds)
-                    SettingsDivider()
-                    SettingsToggleRow(Text("Copy Notifications"), isOn: $clipboardToast)
-                    SettingsDivider()
-                    SettingsToggleRow(Text("Show Clipboard Tile on Dock"), isOn: $dockClipboardTile)
-                    SettingsDivider()
-                    SettingsToggleRow(
-                        Text("Hang Copied Images & Links on Sidebar"),
-                        isOn: Binding(
-                            get: { tendedero.captureMode == .screenshotsAndAutoClipboard },
-                            set: { tendedero.setCaptureMode($0 ? .screenshotsAndAutoClipboard : .screenshotsAndManualClipboard) }
-                        )
-                    )
-                    SettingsDivider()
-                    SettingsPickerRow(
-                        Text("Keep Clipboard History"),
-                        selection: Binding(
-                            get: { clipboardKeepDays },
-                            set: { days in
-                                clipboardKeepDays = days
-                                ProductivityServices.shared.clipboard.setRetention(days: days)
-                            }
-                        )
-                    ) {
-                        Text("Forever").tag(0)
-                        Text("7 days").tag(7)
-                        Text("30 days").tag(30)
-                    }
-                    SettingsNote(Text("Pinned items never expire. History is kept in memory only."))
-                }
-            } trailing: {
+            VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
                 SettingsCard(Text("Commands & Snippets")) {
                     HStack {
                         Text("Custom Commands").font(.subheadline.weight(.medium))
@@ -895,4 +794,215 @@ struct NotchHelpersSettingsBlock: View {
         }
     }
 
+}
+
+/// Slice MC-1 — the Clipboard page, promoted out of Tools. Four cards: behavior, storage & sorting,
+/// privacy & ignore types, and appearance & popup. Every switch writes a `ClipboardSettingsKeys` default
+/// the monitor and the flyout read, so the page never holds state of its own.
+struct ClipboardSettingsPane: View {
+    @ObservedObject var store: AppSettingsStore
+    @ObservedObject private var monitor = ProductivityServices.shared.clipboard
+    @AppStorage(ClipboardMonitor.soundsKey) private var sounds = false
+    @AppStorage(ClipboardMonitor.notchToastKey) private var toast = false
+    @AppStorage(ClipboardToastBadge.dockTileKey) private var dockTile = false
+    @AppStorage(ClipboardMonitor.ignorePatternsKey) private var patterns = ""
+    @AppStorage(ClipboardMonitor.keepDaysKey) private var keepDays = 0
+    @AppStorage(ClipboardSettingsKeys.pasteAutomatically) private var pasteAutomatically = false
+    @AppStorage(ClipboardSettingsKeys.plainTextByDefault) private var plainTextByDefault = false
+    @AppStorage(ClipboardSettingsKeys.pollingIntervalMS) private var pollingIntervalMS = 250
+    @AppStorage(ClipboardSettingsKeys.historyLimit) private var historyLimit = 100
+    @AppStorage(ClipboardSettingsKeys.ignoreConcealed) private var ignoreConcealed = true
+    @AppStorage(ClipboardSettingsKeys.ignoreAutoGenerated) private var ignoreAutoGenerated = true
+    @AppStorage(ClipboardSettingsKeys.ignoreUniversal) private var ignoreUniversal = false
+    @AppStorage(ClipboardSettingsKeys.showFooterShortcuts) private var showFooterShortcuts = true
+    @AppStorage(ClipboardSettingsKeys.showPinShortcuts) private var showPinShortcuts = true
+    @AppStorage(ClipboardSettingsKeys.popupPosition) private var popupPosition = ClipboardPopupPosition.atCursor.rawValue
+    @AppStorage(ClipboardSettingsKeys.sortBy) private var sortBy = ClipboardSortOrder.lastCopied.rawValue
+    @ObservedObject private var tendedero = TendederoClotheslineController.shared
+
+    @State private var showAddPattern = false
+    @State private var newPattern = ""
+
+    private var ignoreTags: [String] {
+        patterns.split { $0 == "," || $0 == "\n" }
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+    }
+
+    var body: some View {
+        SettingsBentoSplit {
+            behaviorCard
+            storageCard
+        } trailing: {
+            privacyCard
+            appearanceCard
+        }
+    }
+
+    private var behaviorCard: some View {
+        SettingsCard(Text("Behavior")) {
+            SettingsToggleRow(Text("Record Clipboard"),
+                              isOn: Binding(get: { monitor.isRecording }, set: { monitor.setRecording($0) }))
+            SettingsDivider()
+            SettingsToggleRow(Text("Paste Automatically"), isOn: $pasteAutomatically)
+            SettingsDivider()
+            SettingsToggleRow(Text("Paste Without Formatting by Default"), isOn: $plainTextByDefault)
+            SettingsDivider()
+            SettingsPickerRow(Text("Polling Interval"), selection: $pollingIntervalMS) {
+                Text(verbatim: "100 ms").tag(100)
+                Text(verbatim: "250 ms").tag(250)
+                Text(verbatim: "500 ms").tag(500)
+            }
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Hang Copied Images & Links on Sidebar"),
+                isOn: Binding(
+                    get: { tendedero.captureMode == .screenshotsAndAutoClipboard },
+                    set: { tendedero.setCaptureMode($0 ? .screenshotsAndAutoClipboard : .screenshotsAndManualClipboard) }
+                )
+            )
+            SettingsDivider()
+            HStack(spacing: 8) {
+                Button("Ignore Next Copy") { monitor.ignoreNextCopy() }
+                    .buttonStyle(SettingsGelButtonStyle())
+                if !monitor.isRecording {
+                    Text("Paused").font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+            }
+            SettingsNote(Text("History is kept in memory only and is never written to disk."))
+        }
+    }
+
+    private var storageCard: some View {
+        SettingsCard(Text("Storage & Sorting")) {
+            SettingsPickerRow(Text("History Limit"), selection: $historyLimit) {
+                ForEach([50, 100, 250, 500], id: \.self) { Text(verbatim: "\($0)").tag($0) }
+            }
+            SettingsDivider()
+            SettingsPickerRow(
+                Text("Keep Clipboard History"),
+                selection: Binding(
+                    get: { keepDays },
+                    set: { days in
+                        keepDays = days
+                        ProductivityServices.shared.clipboard.setRetention(days: days)
+                    }
+                )
+            ) {
+                Text("24 hours").tag(1)
+                Text("7 days").tag(7)
+                Text("30 days").tag(30)
+                Text("Forever").tag(0)
+            }
+            SettingsDivider()
+            SettingsPickerRow(Text("Sort By"), selection: $sortBy) {
+                ForEach(ClipboardSortOrder.allCases) { order in
+                    Text(order == .lastCopied ? "Last Copied"
+                         : order == .firstCopied ? "First Copied" : "Most Used").tag(order.rawValue)
+                }
+            }
+            SettingsDivider()
+            SettingsNote(Text("Pinned items never expire. History is kept in memory only."))
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Clean Copied Links"),
+                isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) })
+            )
+            SettingsDivider()
+            SettingsToggleRow(Text("Copy Sounds"), isOn: $sounds)
+            SettingsDivider()
+            SettingsToggleRow(Text("Copy Notifications"), isOn: $toast)
+            SettingsDivider()
+            SettingsToggleRow(Text("Show Clipboard Tile on Dock"), isOn: $dockTile)
+        }
+    }
+
+    private var privacyCard: some View {
+        SettingsCard(Text("Privacy & Ignore Types")) {
+            SettingsToggleRow(Text("Concealed & Password Managers"), isOn: $ignoreConcealed)
+            SettingsDivider()
+            SettingsToggleRow(Text("Auto-Generated"), isOn: $ignoreAutoGenerated)
+            SettingsDivider()
+            SettingsToggleRow(Text("Universal Clipboard"), isOn: $ignoreUniversal)
+            SettingsDivider()
+            HStack {
+                Text("Ignore Patterns").font(.body)
+                Spacer()
+                Menu {
+                    ForEach(NSWorkspace.shared.runningApplications.filter {
+                        $0.activationPolicy == .regular && $0.bundleIdentifier != nil
+                    }, id: \.processIdentifier) { app in
+                        if let bid = app.bundleIdentifier {
+                            Button(app.localizedName ?? bid) { addIgnoreTag(bid) }
+                        }
+                    }
+                    Divider()
+                    Button("Add Pattern…") { newPattern = ""; showAddPattern = true }
+                } label: {
+                    Label("Exclude App", systemImage: "plus").font(.caption)
+                }
+                .menuStyle(.borderlessButton).fixedSize()
+                .popover(isPresented: $showAddPattern, arrowEdge: .bottom) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Add Ignore Pattern").font(.headline)
+                        TextField("Bundle ID or regex", text: $newPattern)
+                            .textFieldStyle(.roundedBorder).frame(width: 220)
+                        HStack {
+                            Spacer()
+                            Button("Cancel") { showAddPattern = false }
+                            Button("Add") { addIgnoreTag(newPattern); showAddPattern = false }
+                                .buttonStyle(.borderedProminent)
+                                .disabled(newPattern.trimmingCharacters(in: .whitespaces).isEmpty)
+                        }
+                    }
+                    .padding(12)
+                }
+            }
+            if ignoreTags.isEmpty {
+                Text("No ignored apps or patterns.").font(.caption).foregroundStyle(.secondary)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(ignoreTags, id: \.self) { tag in
+                            HStack(spacing: 4) {
+                                Text(verbatim: tag).font(.caption).lineLimit(1)
+                                Button { removeIgnoreTag(tag) } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.caption2).foregroundStyle(.secondary)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            .padding(.horizontal, 8).padding(.vertical, 3)
+                            .background(Capsule().fill(Color.primary.opacity(0.08)))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var appearanceCard: some View {
+        SettingsCard(Text("Appearance & Popup")) {
+            SettingsToggleRow(Text("Show Footer Shortcuts"), isOn: $showFooterShortcuts)
+            SettingsDivider()
+            SettingsToggleRow(Text("Show Pin Shortcuts (⌘1–9)"), isOn: $showPinShortcuts)
+            SettingsDivider()
+            SettingsPickerRow(Text("Popup Position"), selection: $popupPosition) {
+                Text("At Cursor").tag(ClipboardPopupPosition.atCursor.rawValue)
+                Text("Screen Center").tag(ClipboardPopupPosition.screenCenter.rawValue)
+                Text("Under Bar/Notch").tag(ClipboardPopupPosition.underBar.rawValue)
+            }
+        }
+    }
+
+    private func addIgnoreTag(_ raw: String) {
+        let tag = raw.trimmingCharacters(in: .whitespaces)
+        guard !tag.isEmpty, !ignoreTags.contains(tag) else { return }
+        patterns = (ignoreTags + [tag]).joined(separator: "\n")
+    }
+
+    private func removeIgnoreTag(_ tag: String) {
+        patterns = ignoreTags.filter { $0 != tag }.joined(separator: "\n")
+    }
 }
