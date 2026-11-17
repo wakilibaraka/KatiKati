@@ -123,6 +123,7 @@ struct NotchClipboardCard: View {
 
 struct NotchSystemCard: View {
     @ObservedObject var monitor: SystemMonitorController
+    @ObservedObject private var keyGuard = KeyGuardService.shared
 
     var body: some View {
         let snap = monitor.snapshot
@@ -131,6 +132,17 @@ struct NotchSystemCard: View {
             meter("cpu", Text("CPU"), snap.cpu)
             meter("memorychip", Text("Memory"), snap.memory.fraction)
             Spacer(minLength: 0)
+            HStack(spacing: 6) {
+                chip(keyGuard.isVisualizerEnabled ? "Keys On" : "Keys") {
+                    if !keyGuard.isVisualizerEnabled, !KeyGuardService.hasPermission {
+                        KeyGuardService.requestPermission()
+                    }
+                    keyGuard.setVisualizer(!keyGuard.isVisualizerEnabled)
+                }
+                chip("Shortcuts") {
+                    ShortcutCheatSheetService.shared.toggle(pinned: true)
+                }
+            }
         }
         .foregroundStyle(.white)
         .onAppear { monitor.acquire() }

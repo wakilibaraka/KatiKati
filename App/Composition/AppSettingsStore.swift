@@ -192,8 +192,14 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var chipPreviewDelayMs: Int
     @Published private(set) var chipPreviewThumbWidth: Int
     @Published private(set) var chipClassicMenu: Bool
-    /// Phase 9e: Caps Lock as Hyper. Off by default; needs Input Monitoring.
+    /// Phase 9e: Caps Lock as Hyper/Super. Off by default; needs Input Monitoring.
     @Published private(set) var hyperkeyEnabled: Bool
+    @Published private(set) var hyperkeyModifierMode: HyperkeyModifierMode
+    @Published private(set) var hyperkeySourceKey: HyperkeySourceKey
+    @Published private(set) var hyperkeyTapAction: HyperkeyTapAction
+    @Published private(set) var hyperkeyForwardToSystem: Bool
+    @Published private(set) var hyperkeyTapThreshold: Double
+    @Published private(set) var hyperkeyExcludedApps: String
     /// Every running app gets a chip, even with no window (like the system Dock). Default on.
     @Published private(set) var showAllRunningApps: Bool
     /// Strip tracking parameters from copied links (8e). Opt-in, default OFF — it edits the clipboard.
@@ -417,6 +423,12 @@ final class AppSettingsStore: ObservableObject {
             Keys.chipPreviewThumbWidth: 180,
             Keys.chipClassicMenu: false,
             Keys.hyperkeyEnabled: false,
+            Keys.hyperkeyModifierMode: HyperkeyModifierMode.hyper.rawValue,
+            Keys.hyperkeySourceKey: HyperkeySourceKey.capsLock.rawValue,
+            Keys.hyperkeyTapAction: HyperkeyTapAction.off.rawValue,
+            Keys.hyperkeyForwardToSystem: true,
+            Keys.hyperkeyTapThreshold: 0.20,
+            Keys.hyperkeyExcludedApps: "",
             Keys.showAllRunningApps: false,
             Keys.linkCleanerEnabled: false,
             Keys.wallpaperEnabled: false,
@@ -472,6 +484,13 @@ final class AppSettingsStore: ObservableObject {
         chipPreviewThumbWidth = Self.chipPreviewSizeChoices.contains(defaults.integer(forKey: Keys.chipPreviewThumbWidth)) ? defaults.integer(forKey: Keys.chipPreviewThumbWidth) : 180
         chipClassicMenu = defaults.bool(forKey: Keys.chipClassicMenu)
         hyperkeyEnabled = defaults.bool(forKey: Keys.hyperkeyEnabled)
+        hyperkeyModifierMode = HyperkeyModifierMode(rawValue: defaults.string(forKey: Keys.hyperkeyModifierMode) ?? "") ?? .hyper
+        hyperkeySourceKey = HyperkeySourceKey(rawValue: defaults.string(forKey: Keys.hyperkeySourceKey) ?? "") ?? .capsLock
+        hyperkeyTapAction = HyperkeyTapAction(rawValue: defaults.string(forKey: Keys.hyperkeyTapAction) ?? "") ?? .off
+        hyperkeyForwardToSystem = defaults.object(forKey: Keys.hyperkeyForwardToSystem) as? Bool ?? true
+        let storedTapThreshold = defaults.double(forKey: Keys.hyperkeyTapThreshold)
+        hyperkeyTapThreshold = storedTapThreshold > 0 ? min(max(storedTapThreshold, 0.08), 0.50) : 0.20
+        hyperkeyExcludedApps = defaults.string(forKey: Keys.hyperkeyExcludedApps) ?? ""
         showAllRunningApps = defaults.bool(forKey: Keys.showAllRunningApps)
         chipGroupingPlan = WindowChipGroupingPlan(
             defaultPolicy: WindowChipGroupPolicy(rawValue: defaults.string(forKey: Keys.chipGroupingDefault) ?? "") ?? .separate,
@@ -1205,6 +1224,43 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.hyperkeyEnabled)
     }
 
+    func setHyperkeyModifierMode(_ value: HyperkeyModifierMode) {
+        guard hyperkeyModifierMode != value else { return }
+        hyperkeyModifierMode = value
+        defaults.set(value.rawValue, forKey: Keys.hyperkeyModifierMode)
+    }
+
+    func setHyperkeySourceKey(_ value: HyperkeySourceKey) {
+        guard hyperkeySourceKey != value else { return }
+        hyperkeySourceKey = value
+        defaults.set(value.rawValue, forKey: Keys.hyperkeySourceKey)
+    }
+
+    func setHyperkeyTapAction(_ value: HyperkeyTapAction) {
+        guard hyperkeyTapAction != value else { return }
+        hyperkeyTapAction = value
+        defaults.set(value.rawValue, forKey: Keys.hyperkeyTapAction)
+    }
+
+    func setHyperkeyForwardToSystem(_ value: Bool) {
+        guard hyperkeyForwardToSystem != value else { return }
+        hyperkeyForwardToSystem = value
+        defaults.set(value, forKey: Keys.hyperkeyForwardToSystem)
+    }
+
+    func setHyperkeyTapThreshold(_ value: Double) {
+        let clamped = min(max(value, 0.08), 0.50)
+        guard abs(hyperkeyTapThreshold - clamped) > 0.001 else { return }
+        hyperkeyTapThreshold = clamped
+        defaults.set(clamped, forKey: Keys.hyperkeyTapThreshold)
+    }
+
+    func setHyperkeyExcludedApps(_ value: String) {
+        guard hyperkeyExcludedApps != value else { return }
+        hyperkeyExcludedApps = value
+        defaults.set(value, forKey: Keys.hyperkeyExcludedApps)
+    }
+
     func setChipClassicMenu(_ value: Bool) {
         guard chipClassicMenu != value else { return }
         chipClassicMenu = value
@@ -1650,6 +1706,12 @@ private enum Keys {
     static let chipPreviewThumbWidth = "com.katikati.chips.previewThumbWidth"
     static let showAllRunningApps = "com.katikati.strip.showAllRunningApps"
     static let hyperkeyEnabled = "com.katikati.hyperkey.enabled"
+    static let hyperkeyModifierMode = "com.katikati.hyperkey.modifierMode"
+    static let hyperkeySourceKey = "com.katikati.hyperkey.sourceKey"
+    static let hyperkeyTapAction = "com.katikati.hyperkey.tapAction"
+    static let hyperkeyForwardToSystem = "com.katikati.hyperkey.forwardToSystem"
+    static let hyperkeyTapThreshold = "com.katikati.hyperkey.tapThreshold"
+    static let hyperkeyExcludedApps = "com.katikati.hyperkey.excludedApps"
     static let chipClassicMenu = "com.katikati.chips.classicMenu"
     static let chipGroupingDefault = "com.katikati.chips.groupingDefault"
     static let chipGroupingOverrides = "com.katikati.chips.groupingOverrides"

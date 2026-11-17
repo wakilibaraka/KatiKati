@@ -16,33 +16,60 @@ final class HyperkeyService {
     private let log = Logger(subsystem: "com.katikati.app", category: "hyperkey")
 
     private var enabled = false
+    private var sourceKey: HyperkeySourceKey = .capsLock
+    private var config = HyperkeyConfig(forwardToSystem: true)
+    private var excludedBundleIDs: Set<String> = []
     private var bindings: [UInt16: ShortcutAction] = [:]
     private var tapThread: Thread?
     private var tapRunLoop: CFRunLoop?
     private var tap: CFMachPort?
     private let shared = HyperkeyShared()
     private var remapApplied = false
+    private var appliedSourceKey: HyperkeySourceKey?
+    private var frontmostObserver: NSObjectProtocol?
 
     static var hasPermission: Bool { CGPreflightListenEventAccess() }
     @discardableResult static func requestPermission() -> Bool { CGRequestListenEventAccess() }
 
-    func configure(enabled: Bool, bindings: [UInt16: ShortcutAction]) {
+    func configure(
+        enabled: Bool,
+        bindings: [UInt16: ShortcutAction],
+        sourceKey: HyperkeySourceKey = .capsLock,
+        config: HyperkeyConfig = HyperkeyConfig(forwardToSystem: true),
+        excludedBundleIDs: Set<String> = []
+    ) {
         self.bindings = bindings
+        self.config = config
+        self.excludedBundleIDs = excludedBundleIDs
+        let sourceChanged = self.sourceKey != sourceKey
+        self.sourceKey = sourceKey
+
         shared.setBindings(bindings)
+        shared.setConfig(config)
+        shared.setFrontmostExcluded(excludedBundleIDs.contains(NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? ""))
+
         if !enabled, !checkedStaleRemap { clearStaleRemap() }
+
+        if enabled, self.enabled, sourceChanged {
+            restoreRemap()
+            applyRemap()
+            shared.reset()
+        }
+
         guard enabled != self.enabled else { return }
         self.enabled = enabled
         if enabled { start() } else { stop() }
     }
 
-    /// `kill -9` skips `restoreRemap`, and `hidutil` keeps the Caps Lock → F18 entry until logout; with Hyperkey
-    /// off nothing would handle F18, so Caps Lock would stay dead. Checked once per launch, only while off.
+    /// `kill -9` skips `restoreRemap`, and `hidutil` keeps the `→ F18` entry until logout; with Hyperkey
+    /// off nothing would handle F18, so the key would stay dead. Checked once per launch, only while off.
     private var checkedStaleRemap = false
     private func clearStaleRemap() {
         checkedStaleRemap = true
         let current = Self.currentMapping()
-        guard current.contains(HyperkeyRemap.ours) else { return }
-        _ = Self.setMapping(HyperkeyRemap.removing(from: current))
+        let cleaned = HyperkeyRemap.removing(from: current)
+        guard cleaned != current else { return }
+        _ = Self.setMapping(cleaned)
     }
 
     func tearDown() { enabled = false; stop() }
@@ -56,8 +83,12 @@ final class HyperkeyService {
             return
         }
         applyRemap()
+        observeFrontmostApp()
         shared.onFire = { [weak self] code in
             DispatchQueue.main.async { MainActor.assumeIsolated { self?.fire(code) } }
+        }
+        shared.onTapAlone = { [weak self] action in
+            DispatchQueue.main.async { MainActor.assumeIsolated { self?.emitTapAction(action) } }
         }
         let thread = Thread { [shared, weak self] in
             let mask: CGEventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue)
@@ -82,6 +113,10 @@ final class HyperkeyService {
     }
 
     private func stop() {
+        if let obs = frontmostObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(obs)
+            frontmostObserver = nil
+        }
         if let tap { CGEvent.tapEnable(tap: tap, enable: false) }
         if let loop = tapRunLoop { CFRunLoopStop(loop) }
         tap = nil; tapRunLoop = nil; tapThread = nil
@@ -101,20 +136,54 @@ final class HyperkeyService {
         onAction(action)
     }
 
-    // MARK: Caps Lock → F18 (`hidutil`), reversible
+    private func emitTapAction(_ action: HyperkeyTapAction) {
+        guard enabled, CGPreflightPostEventAccess(),
+              let source = CGEventSource(stateID: .combinedSessionState) else { return }
+        let keyCode: CGKeyCode
+        switch action {
+        case .off: return
+        case .escape: keyCode = 53
+        case .capsLock: keyCode = 57
+        }
+        guard let down = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: true),
+              let up = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: false) else { return }
+        for event in [down, up] {
+            event.setIntegerValueField(.eventSourceUserData, value: KeyGuardShared.syntheticTag)
+            event.post(tap: .cghidEventTap)
+        }
+    }
+
+    private func observeFrontmostApp() {
+        guard frontmostObserver == nil else { return }
+        frontmostObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            let bundleID = (note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication)?.bundleIdentifier
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.shared.setFrontmostExcluded(bundleID.map { self.excludedBundleIDs.contains($0) } ?? false)
+            }
+        }
+    }
+
+    // MARK: Source key → F18 (`hidutil`), reversible
 
     private var originalMapping: [HyperkeyRemap.Mapping] = []
 
     private func applyRemap() {
         guard !remapApplied else { return }
         originalMapping = Self.currentMapping()
-        remapApplied = Self.setMapping(HyperkeyRemap.adding(to: originalMapping))
+        appliedSourceKey = sourceKey
+        remapApplied = Self.setMapping(HyperkeyRemap.adding(source: sourceKey.hidUsage, to: originalMapping))
     }
 
     /// Puts back exactly what was there before (minus our entry). Safe to call repeatedly.
     func restoreRemap() {
         guard remapApplied else { return }
         remapApplied = false
+        appliedSourceKey = nil
         _ = Self.setMapping(HyperkeyRemap.removing(from: Self.currentMapping()))
     }
 
@@ -145,18 +214,31 @@ final class HyperkeyShared: @unchecked Sendable {
     private let lock = NSLock()
     private var engine = HyperkeyEngine()
     private var boundKeys = Set<UInt16>()
+    private var config = HyperkeyConfig(forwardToSystem: true)
+    private var frontmostExcluded = false
     var port: CFMachPort?
     var onFire: (UInt16) -> Void = { _ in }
+    var onTapAlone: (HyperkeyTapAction) -> Void = { _ in }
 
     func setBindings(_ b: [UInt16: ShortcutAction]) {
         lock.lock(); boundKeys = Set(b.keys); lock.unlock()
+    }
+    func setConfig(_ c: HyperkeyConfig) {
+        lock.lock(); config = c; lock.unlock()
+    }
+    func setFrontmostExcluded(_ excluded: Bool) {
+        lock.lock()
+        frontmostExcluded = excluded
+        if excluded { engine.reset() }
+        lock.unlock()
     }
     func reset() { lock.lock(); engine.reset(); lock.unlock() }
 
     func decide(keyCode: UInt16, isDown: Bool, isRepeat: Bool) -> HyperkeyEngine.Decision {
         lock.lock(); defer { lock.unlock() }
+        guard !frontmostExcluded else { return .passThrough }
         let keys = boundKeys
-        return engine.handle(keyCode: keyCode, isDown: isDown, isRepeat: isRepeat) { keys.contains($0) }
+        return engine.handle(keyCode: keyCode, isDown: isDown, isRepeat: isRepeat, config: config) { keys.contains($0) }
     }
 }
 
@@ -169,6 +251,9 @@ private func hyperkeyTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
         return Unmanaged.passUnretained(event)
     }
     guard type == .keyDown || type == .keyUp else { return Unmanaged.passUnretained(event) }
+    if event.getIntegerValueField(.eventSourceUserData) == KeyGuardShared.syntheticTag {
+        return Unmanaged.passUnretained(event)
+    }
     let code = UInt16(truncatingIfNeeded: event.getIntegerValueField(.keyboardEventKeycode))
     let isRepeat = event.getIntegerValueField(.keyboardEventAutorepeat) != 0
     switch shared.decide(keyCode: code, isDown: type == .keyDown, isRepeat: isRepeat) {
@@ -176,6 +261,14 @@ private func hyperkeyTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
     case .swallow: return nil
     case let .fire(key):
         shared.onFire(key)
+        return nil
+    case let .forwardWithModifiers(mode):
+        var extra: CGEventFlags = [.maskCommand, .maskControl, .maskAlternate]
+        if mode == .hyper { extra.insert(.maskShift) }
+        event.flags = event.flags.union(extra)
+        return Unmanaged.passUnretained(event)
+    case let .tapIfAlone(action):
+        shared.onTapAlone(action)
         return nil
     }
 }

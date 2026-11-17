@@ -1,8 +1,46 @@
 import Foundation
 
-// Phase 9e — Hyperkey: Caps Lock is remapped to F18 (`hidutil`), and this pure engine turns the F18 /
-// key stream into "fire the action bound to Hyper+<key>" decisions. No AppKit, no event tap — the tap
-// (App layer) only feeds it key events, so the whole behaviour is unit-tested.
+// Phase 9e — Hyperkey / Superkey: a chosen modifier key (Caps Lock by default) is remapped to F18
+// (`hidutil`), and this pure engine turns the F18 / key stream into "fire bound KatiKati action",
+// "forward system-wide Hyper/Super modifiers", or "tap-if-alone" decisions. No AppKit, no event tap —
+// the tap (App layer) only feeds it key events, so the whole behaviour is unit-tested.
+
+enum HyperkeyModifierMode: String, CaseIterable, Identifiable, Sendable {
+    /// ⌃⌥⇧⌘ (all four modifiers).
+    case hyper
+    /// ⌃⌥⌘ (leaves ⇧ free for a second layer).
+    case superKey
+    var id: String { rawValue }
+}
+
+enum HyperkeySourceKey: String, CaseIterable, Identifiable, Sendable {
+    case capsLock
+    case rightCommand
+    case rightOption
+    var id: String { rawValue }
+
+    var hidUsage: UInt64 {
+        switch self {
+        case .capsLock: return HyperkeyRemap.capsLock
+        case .rightCommand: return HyperkeyRemap.rightCommand
+        case .rightOption: return HyperkeyRemap.rightOption
+        }
+    }
+}
+
+enum HyperkeyTapAction: String, CaseIterable, Identifiable, Sendable {
+    case off
+    case escape
+    case capsLock
+    var id: String { rawValue }
+}
+
+struct HyperkeyConfig: Equatable, Sendable {
+    var modifierMode: HyperkeyModifierMode = .hyper
+    var tapAction: HyperkeyTapAction = .off
+    var forwardToSystem: Bool = false
+    var tapThreshold: TimeInterval = 0.20
+}
 
 struct HyperkeyEngine {
     enum Decision: Equatable {
@@ -12,56 +50,96 @@ struct HyperkeyEngine {
         case swallow
         /// Hyper + a bound key went down: consume it and run the action for this key code.
         case fire(keyCode: UInt16)
+        /// Hyper/Super + an unbound key: let the key through with synthesized modifier flags.
+        case forwardWithModifiers(HyperkeyModifierMode)
+        /// F18 was tapped alone within `tapThreshold`: consume F18 and emit the tap action.
+        case tapIfAlone(HyperkeyTapAction)
     }
 
-    /// F18 — what Caps Lock becomes after the remap.
+    /// F18 — what the source key becomes after the remap.
     static let hyperKeyCode: UInt16 = 79
 
     private(set) var isHeld = false
+    private var heldSince: Date?
+    private var didCombineKey = false
     private var swallowedKeys = Set<UInt16>()
 
-    /// - Parameter isBound: whether Hyper+key has an action. Unbound keys pass through, so Hyper+X with no
-    ///   binding does nothing special and never swallows typing.
-    mutating func handle(keyCode: UInt16, isDown: Bool, isRepeat: Bool, isBound: (UInt16) -> Bool) -> Decision {
+    /// - Parameter isBound: whether Hyper+key has an action. Unbound keys either pass through or
+    ///   receive system-wide `Hyper`/`Super` modifier flags when `config.forwardToSystem` is enabled.
+    mutating func handle(
+        keyCode: UInt16,
+        isDown: Bool,
+        isRepeat: Bool,
+        at now: Date = Date(),
+        config: HyperkeyConfig = HyperkeyConfig(),
+        isBound: (UInt16) -> Bool
+    ) -> Decision {
         if keyCode == Self.hyperKeyCode {
-            isHeld = isDown
-            if !isDown { swallowedKeys.removeAll() }
-            return .swallow
+            if isDown {
+                if !isHeld {
+                    isHeld = true
+                    heldSince = now
+                    didCombineKey = false
+                }
+                return .swallow
+            } else {
+                let wasQuickTap = isHeld && !didCombineKey && config.tapAction != .off
+                    && (heldSince.map { now.timeIntervalSince($0) <= config.tapThreshold } ?? false)
+                isHeld = false
+                heldSince = nil
+                didCombineKey = false
+                swallowedKeys.removeAll()
+                return wasQuickTap ? .tapIfAlone(config.tapAction) : .swallow
+            }
         }
         if isDown {
-            guard isHeld, isBound(keyCode) else { return .passThrough }
-            swallowedKeys.insert(keyCode)
-            return isRepeat ? .swallow : .fire(keyCode: keyCode)
+            guard isHeld else { return .passThrough }
+            didCombineKey = true
+            if isBound(keyCode) {
+                swallowedKeys.insert(keyCode)
+                return isRepeat ? .swallow : .fire(keyCode: keyCode)
+            }
+            return config.forwardToSystem ? .forwardWithModifiers(config.modifierMode) : .passThrough
         }
         // Key up: consume the release of a key we consumed on the way down.
-        return swallowedKeys.remove(keyCode) != nil ? .swallow : .passThrough
+        if swallowedKeys.remove(keyCode) != nil { return .swallow }
+        return isHeld && config.forwardToSystem ? .forwardWithModifiers(config.modifierMode) : .passThrough
     }
 
     mutating func reset() {
         isHeld = false
+        heldSince = nil
+        didCombineKey = false
         swallowedKeys.removeAll()
     }
 }
 
-/// Builds and reverses the `hidutil` Caps Lock → F18 mapping without losing the user's own remaps.
+/// Builds and reverses the `hidutil` source-key → F18 mapping without losing the user's own remaps.
 enum HyperkeyRemap {
     static let capsLock: UInt64 = 0x7_0000_0039
+    static let rightCommand: UInt64 = 0x7_0000_00E7
+    static let rightOption: UInt64 = 0x7_0000_00E6
     static let f18: UInt64 = 0x7_0000_006D
 
     typealias Mapping = [String: UInt64]
 
-    static var ours: Mapping {
-        ["HIDKeyboardModifierMappingSrc": capsLock, "HIDKeyboardModifierMappingDst": f18]
+    static var ours: Mapping { mapping(for: capsLock) }
+
+    static func mapping(for source: UInt64) -> Mapping {
+        ["HIDKeyboardModifierMappingSrc": source, "HIDKeyboardModifierMappingDst": f18]
     }
 
-    /// `existing` plus our entry (any previous Caps Lock mapping is replaced).
-    static func adding(to existing: [Mapping]) -> [Mapping] {
-        existing.filter { $0["HIDKeyboardModifierMappingSrc"] != capsLock } + [ours]
+    /// `existing` plus our entry (any previous mapping for `source` or prior `→ F18` entry is replaced).
+    static func adding(source: UInt64 = capsLock, to existing: [Mapping]) -> [Mapping] {
+        let cleaned = existing.filter {
+            $0["HIDKeyboardModifierMappingSrc"] != source && $0["HIDKeyboardModifierMappingDst"] != f18
+        }
+        return cleaned + [mapping(for: source)]
     }
 
-    /// `current` without our entry — restores whatever the user had.
+    /// `current` without our `→ F18` entry — restores whatever the user had.
     static func removing(from current: [Mapping]) -> [Mapping] {
-        current.filter { !($0["HIDKeyboardModifierMappingSrc"] == capsLock && $0["HIDKeyboardModifierMappingDst"] == f18) }
+        current.filter { $0["HIDKeyboardModifierMappingDst"] != f18 }
     }
 
     /// Reads `hidutil property --get UserKeyMapping`. Older macOS prints one bare plist; newer macOS prints a

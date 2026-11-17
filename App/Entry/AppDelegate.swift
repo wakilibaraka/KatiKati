@@ -429,17 +429,42 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             }
             hyperkeyService.onAction = shortcutService.onAction
+            let hyperkeyConfig = Publishers.CombineLatest4(
+                settingsStore.$hyperkeyModifierMode,
+                settingsStore.$hyperkeySourceKey,
+                settingsStore.$hyperkeyTapAction,
+                settingsStore.$hyperkeyForwardToSystem
+            ).combineLatest(
+                settingsStore.$hyperkeyTapThreshold,
+                settingsStore.$hyperkeyExcludedApps
+            )
             hyperkeySubscription = settingsStore.$shortcutBindings
-                .combineLatest(settingsStore.$hyperkeyEnabled)
+                .combineLatest(settingsStore.$hyperkeyEnabled, hyperkeyConfig)
                 .receive(on: DispatchQueue.main)
-                .sink { [weak self] bindings, enabled in
+                .sink { [weak self] bindings, enabled, cfg in
+                    let ((mode, sourceKey, tapAction, forward), threshold, excludedRaw) = cfg
                     var map: [UInt16: ShortcutAction] = [:]
                     for (action, trigger) in bindings { if case let .hyper(code) = trigger { map[code] = action } }
-                    self?.hyperkeyService.configure(enabled: enabled, bindings: map)
+                    let excluded = Set(excludedRaw.split { $0 == "," || $0.isWhitespace }.map(String.init))
+                    self?.hyperkeyService.configure(
+                        enabled: enabled,
+                        bindings: map,
+                        sourceKey: sourceKey,
+                        config: HyperkeyConfig(
+                            modifierMode: mode,
+                            tapAction: tapAction,
+                            forwardToSystem: forward,
+                            tapThreshold: threshold
+                        ),
+                        excludedBundleIDs: excluded
+                    )
                 }
             shortcutSubscription = settingsStore.$shortcutBindings
                 .receive(on: DispatchQueue.main)
-                .sink { [weak self] in self?.shortcutService.apply($0) }
+                .sink { [weak self] in
+                    self?.shortcutService.apply($0)
+                    ShortcutCheatSheetService.shared.setKatiKatiBindings($0)
+                }
             pinchSubscription = settingsStore.$launcherPinch
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] on in self?.applyPinch(on) }

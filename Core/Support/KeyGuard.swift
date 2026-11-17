@@ -197,8 +197,15 @@ struct SlowQuitPassthrough: Equatable, Sendable {
     }
 }
 
-/// 53a: Caps Lock protection. A hold past `threshold` toggles Caps Lock once; a shorter tap does
-/// nothing. Hyperkey remaps Caps Lock to F18 before the tap, so the guard is inert while it is on.
+enum CapsLockProtectionMode: String, CaseIterable, Identifiable, Sendable {
+    case hold
+    case doubleTap
+    var id: String { rawValue }
+}
+
+/// 53a: Caps Lock protection. A hold past `threshold` (or double-tap in `.doubleTap` mode) toggles
+/// Caps Lock once; a shorter single tap does nothing. Hyperkey remaps Caps Lock to F18 before the
+/// tap, so the guard is inert while Hyperkey uses Caps Lock.
 struct CapsLockGuard: Equatable, Sendable {
     /// Physical Caps Lock.
     static let keyCode: UInt16 = 57
@@ -206,6 +213,7 @@ struct CapsLockGuard: Equatable, Sendable {
     var threshold: TimeInterval = 0.15
     private(set) var isDown = false
     private(set) var toggled = false
+    private(set) var lastTapAt: Date?
 
     /// Returns true when the caller must schedule `fireIfStillHeld` after `threshold`.
     mutating func press() -> Bool {
@@ -213,6 +221,16 @@ struct CapsLockGuard: Equatable, Sendable {
         isDown = true
         toggled = false
         return true
+    }
+
+    /// True if two quick taps occur within `window` (for `.doubleTap` mode).
+    mutating func registerDoubleTap(at now: Date = Date(), window: TimeInterval = 0.35) -> Bool {
+        if let last = lastTapAt, now.timeIntervalSince(last) <= window {
+            lastTapAt = nil
+            return true
+        }
+        lastTapAt = now
+        return false
     }
 
     /// True exactly once per hold, and only while the key is still down.
@@ -227,6 +245,7 @@ struct CapsLockGuard: Equatable, Sendable {
     mutating func reset() {
         isDown = false
         toggled = false
+        lastTapAt = nil
     }
 }
 
@@ -274,6 +293,89 @@ struct SlowQuitPolicy: Equatable, Sendable {
         if deny.contains(id) { return false }
         if let allow { return allow.contains(id) }
         return true
+    }
+}
+
+enum KeyVisualizerFilter: String, CaseIterable, Identifiable, Sendable {
+    case allKeys
+    case modifiedKeys
+    case commandKeysOnly
+    var id: String { rawValue }
+}
+
+enum KeyVisualizerStyle: String, CaseIterable, Identifiable, Sendable {
+    case glassCapsule
+    case svelte
+    case darkBezel
+    var id: String { rawValue }
+}
+
+struct KeyVisualizerConfig: Equatable, Sendable {
+    var filter: KeyVisualizerFilter = .allKeys
+    var style: KeyVisualizerStyle = .glassCapsule
+    var lingerDuration: TimeInterval = 1.5
+    var fadeDuration: TimeInterval = 0.15
+    var fontSize: Double = 15
+    var showMouseClicks: Bool = false
+    var isPositionUnlocked: Bool = false
+}
+
+enum KeyVisualizerSymbol {
+    static let specialKeyGlyphs: [UInt16: String] = [
+        36: "⏎",  // Return
+        48: "⇥",  // Tab
+        49: "␣",  // Space
+        51: "⌫",  // Delete
+        53: "⎋",  // Escape
+        76: "⌤",  // Enter (numpad)
+        115: "↖", // Home
+        116: "⇞", // Page Up
+        117: "⌦", // Forward Delete
+        119: "↘", // End
+        121: "⇟", // Page Down
+        123: "←", // Left Arrow
+        124: "→", // Right Arrow
+        125: "↓", // Down Arrow
+        126: "↑", // Up Arrow
+        122: "F1", 120: "F2", 99: "F3", 118: "F4",
+        96: "F5", 97: "F6", 98: "F7", 100: "F8",
+        101: "F9", 109: "F10", 103: "F11", 111: "F12"
+    ]
+
+    static func format(
+        keyCode: UInt16,
+        modifiers: KeyModifiers,
+        characters: String?,
+        filter: KeyVisualizerFilter
+    ) -> String? {
+        switch filter {
+        case .commandKeysOnly:
+            guard modifiers.contains(.command) else { return nil }
+        case .modifiedKeys:
+            let hasShortcutMod = modifiers.contains(.command) || modifiers.contains(.control) || modifiers.contains(.option)
+            if !hasShortcutMod && specialKeyGlyphs[keyCode] == nil {
+                return nil
+            }
+        case .allKeys:
+            break
+        }
+
+        let base: String
+        if let special = specialKeyGlyphs[keyCode] {
+            base = special
+        } else if let chars = characters, !chars.isEmpty,
+                  let scalar = chars.unicodeScalars.first, scalar.value >= 0x20, scalar.value != 0x7F {
+            base = modifiers.isEmpty ? chars : chars.uppercased()
+        } else {
+            return nil
+        }
+
+        var prefix = ""
+        if modifiers.contains(.control) { prefix += "⌃" }
+        if modifiers.contains(.option) { prefix += "⌥" }
+        if modifiers.contains(.shift) { prefix += "⇧" }
+        if modifiers.contains(.command) { prefix += "⌘" }
+        return prefix.isEmpty ? base : prefix + base
     }
 }
 

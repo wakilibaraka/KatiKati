@@ -1248,6 +1248,11 @@
 		A0000000000000000000A291 /* SlowQuitOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A290 /* SlowQuitOverlay.swift */; };
 		A0000000000000000000A292 /* SlowQuitOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A290 /* SlowQuitOverlay.swift */; };
 		A0000000000000000000A301 /* KeyVisualizerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A300 /* KeyVisualizerOverlay.swift */; };
+		C1A700000000000000000002 /* ShortcutCheatSheetModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A700000000000000000001 /* ShortcutCheatSheetModel.swift */; };
+		C1A700000000000000000003 /* ShortcutCheatSheetModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A700000000000000000001 /* ShortcutCheatSheetModel.swift */; };
+		C1A700000000000000000005 /* ShortcutCheatSheetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A700000000000000000004 /* ShortcutCheatSheetService.swift */; };
+		C1A700000000000000000008 /* ShortcutCheatSheetOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A700000000000000000007 /* ShortcutCheatSheetOverlay.swift */; };
+		C1A70000000000000000000B /* ShortcutCheatSheetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A70000000000000000000A /* ShortcutCheatSheetTests.swift */; };
 		A0000000000000000000A302 /* KeyVisualizerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A300 /* KeyVisualizerOverlay.swift */; };
 		A0000000000000000000A1D1 /* AppRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A1D0 /* AppRemoval.swift */; };
 		A0000000000000000000A1D2 /* AppRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A1D0 /* AppRemoval.swift */; };
@@ -2185,6 +2190,10 @@
 		A0000000000000000000A280 /* KeyGuardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeyGuardService.swift; path = App/Composition/KeyGuardService.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A290 /* SlowQuitOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SlowQuitOverlay.swift; path = App/Scenes/SlowQuitOverlay.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A300 /* KeyVisualizerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeyVisualizerOverlay.swift; path = App/Scenes/KeyVisualizerOverlay.swift; sourceTree = SOURCE_ROOT; };
+		C1A700000000000000000001 /* ShortcutCheatSheetModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutCheatSheetModel.swift; path = Core/Support/ShortcutCheatSheetModel.swift; sourceTree = SOURCE_ROOT; };
+		C1A700000000000000000004 /* ShortcutCheatSheetService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutCheatSheetService.swift; path = App/Composition/ShortcutCheatSheetService.swift; sourceTree = SOURCE_ROOT; };
+		C1A700000000000000000007 /* ShortcutCheatSheetOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutCheatSheetOverlay.swift; path = App/Scenes/ShortcutCheatSheetOverlay.swift; sourceTree = SOURCE_ROOT; };
+		C1A70000000000000000000A /* ShortcutCheatSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShortcutCheatSheetTests.swift; path = Tests/Unit/ShortcutCheatSheetTests.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000A1D0 /* AppRemoval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemoval.swift; sourceTree = "<group>"; };
 		A0000000000000000000A1E0 /* AppRemovalPlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRemovalPlannerTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000F000 /* CommandBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandBar.swift; sourceTree = "<group>"; };
@@ -3437,6 +3446,9 @@
 				A0000000000000000001F081 /* TilingEngine.swift in Sources */,
 				A0000000000000000000A291 /* SlowQuitOverlay.swift in Sources */,
 				A0000000000000000000A301 /* KeyVisualizerOverlay.swift in Sources */,
+				C1A700000000000000000002 /* ShortcutCheatSheetModel.swift in Sources */,
+				C1A700000000000000000005 /* ShortcutCheatSheetService.swift in Sources */,
+				C1A700000000000000000008 /* ShortcutCheatSheetOverlay.swift in Sources */,
 				A0000000000000000000B111 /* PeekController.swift in Sources */,
 				A0000000000000000000A1D1 /* AppRemoval.swift in Sources */,
 				A0000000000000000000A121 /* SelectedTextReader.swift in Sources */,
@@ -4286,6 +4298,8 @@
 				FB00000000000000000000C4 /* QuicklinkTemplateTests.swift in Sources */,
 				A0000000000000000000A1E1 /* AppRemovalPlannerTests.swift in Sources */,
 				A0000000000000000000A271 /* KeyGuardTests.swift in Sources */,
+				C1A700000000000000000003 /* ShortcutCheatSheetModel.swift in Sources */,
+				C1A70000000000000000000B /* ShortcutCheatSheetTests.swift in Sources */,
 				A0000000000000000000A331 /* NotificationPlacementTests.swift in Sources */,
 				A0000000000000000000FA11 /* LauncherChipVisualPlanTests.swift in Sources */,
 				A0000000000000000000FF11 /* LaunchGateDecisionTests.swift in Sources */,
