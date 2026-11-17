@@ -123967,6 +123967,227 @@
         "it": {"stringUnit": {"state": "translated", "value": "Scorciatoia da tastiera"}},
         "ko": {"stringUnit": {"state": "translated", "value": "키보드 단축키"}}
       }
+    },
+    "Suggestions": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Suggestions"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "建议"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "建議"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "候補"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Vorschläge"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Suggestions"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sugerencias"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Sugerencias"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sugestões"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sugestões"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Suggerimenti"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "제안"}}
+      }
+    },
+    "Commands": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Commands"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "命令"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "指令"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "コマンド"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Befehle"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Commandes"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Comandos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Comandos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Comandos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Comandos"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Comandi"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "명령"}}
+      }
+    },
+    "Applications": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Applications"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "应用程序"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "應用程式"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "アプリケーション"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Programme"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Applications"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Aplicaciones"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Aplicaciones"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Aplicativos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Aplicações"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Applicazioni"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "응용 프로그램"}}
+      }
+    },
+    "Quicklink": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Quicklink"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "快捷链接"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "快速連結"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "クイックリンク"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Quicklink"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Lien rapide"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Enlace rápido"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Enlace rápido"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Link rápido"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ligação rápida"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Collegamento rapido"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "빠른 링크"}}
+      }
+    },
+    "Application": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Application"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "应用程序"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "應用程式"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "アプリケーション"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Programm"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Application"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Aplicación"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Aplicación"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Aplicativo"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Aplicação"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Applicazione"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "응용 프로그램"}}
+      }
+    },
+    "Command": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Command"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "命令"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "指令"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "コマンド"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Befehl"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Commande"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Comando"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Comando"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Comando"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Comando"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Comando"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "명령"}}
+      }
+    },
+    "File": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "File"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "文件"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "檔案"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ファイル"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Datei"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Fichier"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Archivo"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Archivo"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Arquivo"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ficheiro"}},
+        "it": {"stringUnit": {"state": "translated", "value": "File"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "파일"}}
+      }
+    },
+    "Search Google": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Search Google"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "搜索 Google"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "搜尋 Google"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Google で検索"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Google durchsuchen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Rechercher sur Google"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Buscar en Google"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Buscar en Google"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Pesquisar no Google"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Pesquisar no Google"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cerca su Google"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Google 검색"}}
+      }
+    },
+    "Query": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Query"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "查询"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "查詢"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "クエリ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Abfrage"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Requête"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Consulta"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Consulta"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Consulta"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Consulta"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Richiesta"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "검색어"}}
+      }
+    },
+    "Filter": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Filter"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "筛选"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "篩選"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "フィルター"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Filter"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Filtre"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Filtro"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Filtro"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Filtro"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Filtro"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Filtro"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "필터"}}
+      }
+    },
+    "Run": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Run"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "运行"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "執行"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "実行"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ausführen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Exécuter"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ejecutar"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ejecutar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Executar"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Executar"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Esegui"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "실행"}}
+      }
+    },
+    "Define": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Define"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "查询词典"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "查詢詞典"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "調べる"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Nachschlagen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Définir"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Definir"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Definir"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Definir"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Definir"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Definisci"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "사전 찾기"}}
+      }
+    },
+    "Select": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Select"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "选择"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "選擇"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "選択"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Auswählen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Sélectionner"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Seleccionar"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Seleccionar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Selecionar"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Selecionar"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Seleziona"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "선택"}}
+      }
     }
   },
   "version": "1.0"

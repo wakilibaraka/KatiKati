@@ -121,18 +121,55 @@ struct CommandBarView: View {
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
 
     private var primaryActionLabel: String {
-        guard model.results.indices.contains(model.selection) else { return "Open" }
+        guard model.results.indices.contains(model.selection) else { return String(localized: "Open") }
         switch model.results[model.selection] {
         case .answer(.math), .generator, .clip, .emoji:
-            return "Copy"
+            return String(localized: "Copy")
         case .action, .quit, .forceQuit, .process, .script, .shortcut, .trash, .saveProfile:
-            return "Run"
+            return String(localized: "Run")
         case .define:
-            return "Define"
+            return String(localized: "Define")
         case .menuItem:
-            return "Select"
+            return String(localized: "Select")
         default:
-            return "Open"
+            return String(localized: "Open")
+        }
+    }
+
+    private func sectionTitle(for kind: CommandBarSectionKind) -> String {
+        switch kind {
+        case .suggestions: return String(localized: "Suggestions")
+        case .commands: return String(localized: "Commands")
+        case .applications: return String(localized: "Applications")
+        case .files: return String(localized: "Files")
+        }
+    }
+
+    private func badgeTitle(for badge: CommandBarResultBadge) -> String {
+        switch badge {
+        case .quicklink: return String(localized: "Quicklink")
+        case .application: return String(localized: "Application")
+        case .command: return String(localized: "Command")
+        case .file: return String(localized: "File")
+        }
+    }
+
+    private func tokenTitle(for token: CommandQueryToken) -> String {
+        switch token.scope {
+        case .googleSearch: return String(localized: "Search Google")
+        case .calculator: return String(localized: "Calculator")
+        case .applications: return String(localized: "Applications")
+        case .files: return String(localized: "Files")
+        case .mode(let mode): return mode.displayName
+        case .quicklink(let link): return link.name
+        }
+    }
+
+    private func tokenBadgeTitle(for token: CommandQueryToken) -> String {
+        switch token.scope {
+        case .googleSearch, .files, .quicklink: return String(localized: "Query")
+        case .calculator: return String(localized: "Expression")
+        case .applications, .mode: return String(localized: "Filter")
         }
     }
 
@@ -152,7 +189,7 @@ struct CommandBarView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 2) {
                         ForEach(Array(model.sections.enumerated()), id: \.element.id) { sectionIdx, section in
-                            Text(LocalizedStringKey(section.kind.title))
+                            Text(verbatim: sectionTitle(for: section.kind))
                                 .font(.system(size: 11, weight: .semibold))
                                 .foregroundColor(.secondary.opacity(0.85))
                                 .padding(.horizontal, 10)
@@ -239,10 +276,10 @@ struct CommandBarView: View {
 
             if let token = model.activeToken {
                 HStack(spacing: 5) {
-                    Text(LocalizedStringKey(token.title))
+                    Text(verbatim: tokenTitle(for: token))
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(.primary.opacity(0.85))
-                    Text(LocalizedStringKey(token.badgeLabel))
+                    Text(verbatim: tokenBadgeTitle(for: token))
                         .font(.system(size: 10, weight: .medium))
                         .foregroundColor(.secondary)
                         .padding(.horizontal, 6)
@@ -317,7 +354,7 @@ struct CommandBarView: View {
                 }
             } label: {
                 HStack(spacing: 6) {
-                    Text(LocalizedStringKey(primaryActionLabel))
+                    Text(verbatim: primaryActionLabel)
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(.primary)
                     footerKeycap(systemImage: "return")
@@ -503,7 +540,7 @@ struct CommandBarView: View {
                 Spacer(minLength: 0)
             }
             HStack(spacing: 6) {
-                Text(LocalizedStringKey(badge.rawValue))
+                Text(verbatim: badgeTitle(for: badge))
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.secondary.opacity(selected ? 0.95 : 0.78))
 
