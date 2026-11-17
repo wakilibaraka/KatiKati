@@ -1146,9 +1146,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
-    "mtime": 1794880717.07646,
-    "seen": 1794880980.695294,
-    "ast_hash": "f5ed35a97ffae406ec72dd8d310a89f5",
+    "mtime": 1794906183.451569,
+    "seen": 1794906908.432659,
+    "ast_hash": "3a538521a8a3d856a2b0d1277b84f457",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
@@ -2520,9 +2520,9 @@
     "semantic_hash": ""
   },
   "Core/Support/WidgetPreset.swift": {
-    "mtime": 1793842734.3265848,
-    "seen": 1793842917.22786,
-    "ast_hash": "3a7ccf36fe2af51978e1e6f46c3f6bd9",
+    "mtime": 1794906139.537996,
+    "seen": 1794906908.433084,
+    "ast_hash": "e33de56495a80528cd37fb51b7de3a82",
     "semantic_hash": ""
   },
   "Core/Support/WidgetTall.swift": {
@@ -4314,9 +4314,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/WidgetPresetTests.swift": {
-    "mtime": 1792931390.207202,
-    "seen": 1792933113.616677,
-    "ast_hash": "773783f4e76f0c1d5c25a16033508526",
+    "mtime": 1794906712.4336631,
+    "seen": 1794906908.433602,
+    "ast_hash": "e1923c9871a75e96948e0c100d13920d",
     "semantic_hash": ""
   },
   "Tests/Unit/WidgetTallTests.swift": {
@@ -4638,9 +4638,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
-    "mtime": 1794880790.8989263,
-    "seen": 1794880980.695293,
-    "ast_hash": "1baa2736d7211207e9c8a885581bac44",
+    "mtime": 1794906309.1503968,
+    "seen": 1794906908.432657,
+    "ast_hash": "71026f5ed19daaa717e661523a99b899",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutSupport.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1794905145.2692616,
-    "seen": 1794905888.177253,
-    "ast_hash": "fa4795a2c573e60f5c280524c29e96dc",
+    "mtime": 1794906807.9173527,
+    "seen": 1794906908.4338539,
+    "ast_hash": "2e9f592f5a985eafa035a24bfcecdfad",
     "semantic_hash": ""
   },
   "README.md": {

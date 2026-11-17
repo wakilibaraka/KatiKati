@@ -25,7 +25,6 @@
   "193": "StripPointerTracker",
   "201": "StackPopupBackdrop",
   "208": "WindowLiftRecovery",
-  "215": "StripWheelScrollInterceptor",
   "224": "StripResizeGrip",
   "228": "FinderTrashClient",
   "239": "FolderChipDropZoneTests",
