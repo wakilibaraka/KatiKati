@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Phase 8b-7 — Settings rows for the Live Island: where it shows (dock capsule, notch) and where its
@@ -54,6 +55,7 @@ struct LiveIslandSettingsBlock: View {
             )
             .help(Text("Also show Dynamic Notch alerts as macOS notifications."))
         }
+        NotchAppearanceCard()
         NotchLayoutCard()
         NotchBehaviorCard()
         NotchPagesCard(store: store)
@@ -68,6 +70,100 @@ struct LiveIslandSettingsBlock: View {
         case .both: return Text("Both")
         case .off: return Text("Off")
         }
+    }
+}
+
+/// NS-2: the notch plate's material. Presets are milled colours, the custom swatch is the owner's own
+/// hex, and transparency defaults to 0 % — solid OLED black with no blur pass behind it.
+private struct NotchAppearanceCard: View {
+    @AppStorage(NotchSurfaceAppearance.StorageKey.preset) private var presetRaw = NotchColorPreset.oledBlack.rawValue
+    @AppStorage(NotchSurfaceAppearance.StorageKey.customHex) private var customHex = NotchSurfaceAppearance.defaultCustomHex
+    @AppStorage(NotchSurfaceAppearance.StorageKey.transparency) private var transparency = NotchSurfaceAppearance.defaultTransparency
+
+    private var preset: NotchColorPreset { NotchColorPreset(rawValue: presetRaw) ?? .oledBlack }
+
+    private var appearance: NotchSurfaceAppearance {
+        NotchSurfaceAppearance(preset: preset, customHex: customHex, transparency: transparency)
+    }
+
+    var body: some View {
+        SettingsCard(
+            Text("Notch Appearance"),
+            note: Text("The plate is solid OLED black until you lower its opacity.")
+        ) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Color Preset").font(.system(size: 13))
+                HStack(spacing: 10) {
+                    ForEach(NotchColorPreset.allCases) { swatch($0) }
+                    Spacer(minLength: 0)
+                }
+            }
+            .padding(.vertical, 4)
+            SettingsDivider()
+            SettingsSliderRow(
+                Text("Transparency"),
+                value: appearance.clampedTransparency * 100,
+                range: 0...85,
+                step: 1,
+                valueText: "\(Int((appearance.clampedTransparency * 100).rounded()))%",
+                note: Text("0% keeps the plate solid OLED black; 85% lets the desktop frost through.")
+            ) { percent in
+                transparency = percent / 100
+            }
+            SettingsDivider()
+            HStack {
+                Button("Reset to OLED Black") { reset() }
+                    .buttonStyle(SettingsGelButtonStyle())
+                Spacer(minLength: 0)
+            }
+            .padding(.vertical, 4)
+        }
+    }
+
+    @ViewBuilder private func swatch(_ option: NotchColorPreset) -> some View {
+        if option == .custom {
+            ColorPicker("Custom", selection: customColor, supportsOpacity: false)
+                .labelsHidden()
+                .frame(width: 26, height: 26)
+                .overlay(Circle().strokeBorder(Color.accentColor, lineWidth: 2).padding(-3)
+                    .opacity(preset == .custom ? 1 : 0))
+                .help(Text("Custom"))
+        } else {
+            Button { presetRaw = option.rawValue } label: {
+                Circle()
+                    .fill(option.baseHex.color)
+                    .frame(width: 26, height: 26)
+                    .overlay(Circle().strokeBorder(Color.white.opacity(0.22), lineWidth: 1))
+                    .overlay(Circle().strokeBorder(Color.accentColor, lineWidth: 2.5).padding(-3)
+                        .opacity(preset == option ? 1 : 0))
+            }
+            .buttonStyle(.plain)
+            .help(Text(verbatim: option.title))
+            .accessibilityLabel(Text(verbatim: option.title))
+            .accessibilityAddTraits(preset == option ? .isSelected : [])
+        }
+    }
+
+    /// The custom well writes `#RRGGBB` back into the stored hex, and selects the custom swatch so the
+    /// notch immediately wears the picked colour.
+    private var customColor: Binding<Color> {
+        Binding(
+            get: { NotchHexColor.rgba(customHex).color },
+            set: { newValue in
+                let color = NSColor(newValue).usingColorSpace(.sRGB) ?? .black
+                customHex = String(format: "#%02X%02X%02X",
+                                   Int((color.redComponent * 255).rounded()),
+                                   Int((color.greenComponent * 255).rounded()),
+                                   Int((color.blueComponent * 255).rounded()))
+                presetRaw = NotchColorPreset.custom.rawValue
+            }
+        )
+    }
+
+    private func reset() {
+        presetRaw = NotchColorPreset.oledBlack.rawValue
+        customHex = NotchSurfaceAppearance.defaultCustomHex
+        transparency = NotchSurfaceAppearance.defaultTransparency
     }
 }
 

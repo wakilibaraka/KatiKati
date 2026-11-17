@@ -73,40 +73,28 @@ struct NotchIslandView: View {
     @AppStorage(NotchSizePreset.translucentKey) private var translucent = false
     @AppStorage(NotchMusicGlow.defaultsKey) private var glowStyle = NotchMusicGlow.default.rawValue
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    /// `AppSettingsStore.Keys.themeMaterial`, which is file-private; the key itself is the contract.
-    @AppStorage("com.katikati.theme.material") private var themeMaterialToken = DockThemeStyle.auto.token
-    @AppStorage(NotchGlassStyle.defaultsKey) private var glassStyleRaw = NotchGlassStyle.dynamicGlass.rawValue
+    /// NS-2: the stored plate look, read straight from defaults so Settings repaints the notch live.
+    @AppStorage(NotchSurfaceAppearance.StorageKey.preset) private var surfacePresetRaw = NotchColorPreset.oledBlack.rawValue
+    @AppStorage(NotchSurfaceAppearance.StorageKey.customHex) private var surfaceCustomHex = NotchSurfaceAppearance.defaultCustomHex
+    @AppStorage(NotchSurfaceAppearance.StorageKey.transparency) private var surfaceTransparency = NotchSurfaceAppearance.defaultTransparency
     let metrics: NotchMetrics
     let theme: NowPlayingTheme
     /// 51h: external-display wide bar — the closed state shows `NotchWideBarView` instead of the ear chips.
     var wideBar = false
 
-    private var resolvedGlass: NotchGlassPolicy.ResolvedGlass {
-        let style = NotchGlassStyle(rawValue: glassStyleRaw) ?? .dynamicGlass
-        let isLowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
-        return NotchGlassPolicy.resolve(
-            style: style,
-            isLowPowerMode: isLowPower,
-            hasHardwareNotch: metrics.hasHardwareNotch,
-            isOpen: model.isExpanded
+    /// NS-1/NS-2: the plate actually drawn this frame. Low Power Mode and the clamp live in the pure
+    /// model; this view only reads the three stored values.
+    private var surfaceAppearance: NotchSurfaceAppearance {
+        NotchSurfaceAppearance(
+            preset: NotchColorPreset(rawValue: surfacePresetRaw) ?? .oledBlack,
+            customHex: surfaceCustomHex,
+            transparency: surfaceTransparency
         )
     }
 
     private var detectedMeetingPlatform: MeetingCallPlatform? {
         let apps = NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier)
         return MeetingDetectionPolicy.detectPlatform(fromRunningBundleIDs: apps)
-    }
-
-    /// Phase 12: the plate and content scheme, decided in `NotchTheme` (Core, tested). The island is a
-    /// dark surface by design — this view pins `.colorScheme(.dark)` below — so the dark column is the
-    /// one resolved.
-    private var notchTheme: NotchTheme.Resolution {
-        let style = DockThemeStyle(token: themeMaterialToken) ?? .auto
-        return NotchTheme.resolve(
-            hasHardwareNotch: metrics.hasHardwareNotch,
-            tintsPlate: style.tintsPlate,
-            tokens: DockThemeStyleTokens.resolve(style: style, appearance: .dark)
-        )
     }
 
     private func openTransition(_ style: NotchOpenAnimation) -> AnyTransition {
@@ -143,17 +131,29 @@ struct NotchIslandView: View {
             ? .easeInOut(duration: NotchMotionSpec.reducedMotionDuration)
             : .spring(response: spring.response, dampingFraction: spring.dampingRatio)
         let size = expanded ? model.openSize : model.closedSize
+        let surface = surfaceAppearance.effectiveAppearance(
+            isLowPowerMode: ProcessInfo.processInfo.isLowPowerModeEnabled
+        )
         let maskShape = NotchContinuousMaskShape(
             topCornerRadius: calculatedLayout.topCornerRadius,
             bottomCornerRadius: calculatedLayout.bottomCornerRadius,
             flaringTopEars: calculatedLayout.flaringTopEars
         )
         ZStack(alignment: .top) {
+            // NS-2: vibrancy exists only while the plate is genuinely see-through. The default opaque
+            // OLED black therefore spends no blur pass and has nothing to leak the desktop through.
+            if surface.shouldRenderBlurMaterial {
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .mask(maskShape)
+            }
             maskShape
-                .fill(notchTheme.plate.color.opacity(resolvedGlass.plateOpacity))
-            if showOutline || resolvedGlass.strokeOpacity > 0 {
-                maskShape
-                    .stroke(Color.white.opacity(max(showOutline ? 0.18 : 0, resolvedGlass.strokeOpacity)), lineWidth: 1)
+                .fill(surface.baseColor.color.opacity(surface.baseOpacity))
+            // The 1 pt milled edge: the preset's own rim, subtle enough to read as hardware glass.
+            maskShape
+                .stroke(surface.rimColor.color.opacity(surface.rimOpacity), lineWidth: 1)
+            if showOutline {
+                maskShape.stroke(Color.white.opacity(0.18), lineWidth: 1)
             }
             Group {
                 if !expanded {
@@ -221,7 +221,7 @@ struct NotchIslandView: View {
         .animation(motion, value: model.activeHUDItem?.id)
         .animation(reduceMotion ? nil : .interpolatingSpring(stiffness: 240, damping: 26), value: calculatedLayout.bottomCornerRadius)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .colorScheme(notchTheme.prefersDarkContent ? .light : .dark)
+        .colorScheme(.dark)
     }
 
     /// The playing artwork's accent, white when nothing is playing; tints the page dots on every page.
