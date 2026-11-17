@@ -327,6 +327,8 @@ extension SettingsLayoutPane {
                 info: String(localized: "Raises the window under the pointer, at most once every 120 ms. It never acts while you drag, while a KatiKati panel has the keyboard, or for the app already in front. Needs Accessibility; off by default.")
             )
             SettingsDivider()
+            MultitouchGesturesSection()
+            SettingsDivider()
             SettingsButtonRow(Text("Open Trackpad Settings")) {
                 if let url = URL(string: "x-apple.systempreferences:com.apple.preference.trackpad") { NSWorkspace.shared.open(url) }
             }
@@ -834,6 +836,121 @@ private struct QuitLifecycleOptionsView: View {
                 }
             }
         }
+    }
+}
+
+private struct MultitouchGesturesSection: View {
+    @ObservedObject var dispatcher = GestureDispatcher.shared
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SettingsToggleRow(
+                Text("Multitouch Gestures"),
+                isOn: Binding(get: { dispatcher.isEnabled }, set: { dispatcher.setEnabled($0) }),
+                info: String(localized: "Map 2, 3, and 4-finger trackpad swipes, pinches, and taps to KatiKati actions.")
+            )
+            SettingsDivider()
+            DisclosureGroup("Gesture Mapping & Live Visualizer") {
+                LiveTouchVisualizerBox(dispatcher: dispatcher)
+                SettingsDivider()
+                SettingsSliderRow(
+                    Text("Swipe Sensitivity"),
+                    value: dispatcher.swipeThreshold,
+                    range: 0.06...0.30,
+                    step: 0.02,
+                    valueText: String(format: "%.2f", dispatcher.swipeThreshold),
+                    set: { dispatcher.setSwipeThreshold($0) }
+                )
+                SettingsDivider()
+                SettingsSliderRow(
+                    Text("Flick Velocity"),
+                    value: dispatcher.flickVelocityThreshold,
+                    range: 0.25...1.50,
+                    step: 0.05,
+                    valueText: String(format: "%.2f", dispatcher.flickVelocityThreshold),
+                    set: { dispatcher.setFlickVelocityThreshold($0) }
+                )
+                ForEach(MultitouchGestureKind.allCases) { kind in
+                    SettingsDivider()
+                    SettingsPickerRow(Text(verbatim: gestureTitle(kind)), selection: Binding(
+                        get: { dispatcher.mappings[kind] ?? .none },
+                        set: { dispatcher.setAction($0, for: kind) }
+                    )) {
+                        ForEach(GestureActionTarget.allCases) { action in
+                            Text(verbatim: actionTitle(action)).tag(action)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func gestureTitle(_ kind: MultitouchGestureKind) -> String {
+        switch kind {
+        case .threeFingerSwipeLeft: return String(localized: "3-Finger Swipe Left")
+        case .threeFingerSwipeRight: return String(localized: "3-Finger Swipe Right")
+        case .fourFingerSwipeLeft: return String(localized: "4-Finger Swipe Left")
+        case .fourFingerSwipeRight: return String(localized: "4-Finger Swipe Right")
+        case .pinchIn: return String(localized: "Pinch In")
+        case .pinchOut: return String(localized: "Pinch Out")
+        case .fourFingerTap: return String(localized: "4-Finger Tap")
+        }
+    }
+
+    private func actionTitle(_ action: GestureActionTarget) -> String {
+        switch action {
+        case .none: return String(localized: "None")
+        case .toggleNotch: return String(localized: "Toggle Notch")
+        case .commandBar: return String(localized: "Command Bar")
+        case .launcher: return String(localized: "Launcher")
+        case .spaceLeft: return String(localized: "Space Left")
+        case .spaceRight: return String(localized: "Space Right")
+        case .snapLeft: return String(localized: "Snap Left Half")
+        case .snapRight: return String(localized: "Snap Right Half")
+        }
+    }
+}
+
+private struct LiveTouchVisualizerBox: View {
+    @ObservedObject var dispatcher: GestureDispatcher
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Live Touch Visualizer").font(.caption).foregroundStyle(.secondary)
+                Spacer()
+                if let last = dispatcher.lastGesture {
+                    Text(verbatim: last.rawValue).font(.caption2.monospaced()).foregroundStyle(Color.accentColor)
+                }
+            }
+            GeometryReader { geo in
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(Color.primary.opacity(0.06))
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.14), lineWidth: 1)
+                    if dispatcher.livePoints.isEmpty {
+                        Text("Touch trackpad to preview fingers")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    } else {
+                        ForEach(dispatcher.livePoints, id: \.id) { pt in
+                            Circle()
+                                .fill(Color.accentColor.opacity(0.85))
+                                .frame(width: 16, height: 16)
+                                .position(
+                                    x: max(8, min(geo.size.width - 8, pt.x * geo.size.width)),
+                                    y: max(8, min(geo.size.height - 8, (1 - pt.y) * geo.size.height))
+                                )
+                        }
+                    }
+                }
+            }
+            .frame(height: 92)
+        }
+        .padding(.vertical, 6)
+        .onAppear { dispatcher.beginVisualizer() }
+        .onDisappear { dispatcher.endVisualizer() }
     }
 }
 

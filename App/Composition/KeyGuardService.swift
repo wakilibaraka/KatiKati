@@ -1045,3 +1045,169 @@ private func keyModifiers(_ flags: CGEventFlags) -> KeyModifiers {
     if flags.contains(.maskShift) { modifiers.insert(.shift) }
     return modifiers
 }
+
+// MARK: - Slice GT-2: Gesture Dispatcher Service
+
+@MainActor
+final class GestureDispatcher: ObservableObject {
+    static let shared = GestureDispatcher()
+    static let enabledKey = "com.katikati.gestures.enabled"
+    static let swipeThresholdKey = "com.katikati.gestures.swipeThreshold"
+    static let flickVelocityKey = "com.katikati.gestures.flickVelocity"
+    static let mappingsKey = "com.katikati.gestures.mappings"
+    static let ignoredAppsKey = "com.katikati.gestures.ignoredApps"
+
+    @Published private(set) var isEnabled = UserDefaults.standard.bool(forKey: GestureDispatcher.enabledKey)
+    @Published private(set) var swipeThreshold: Double = {
+        let v = UserDefaults.standard.double(forKey: GestureDispatcher.swipeThresholdKey)
+        return v > 0 ? v : GestureClassificationConfig().swipeThreshold
+    }()
+    @Published private(set) var flickVelocityThreshold: Double = {
+        let v = UserDefaults.standard.double(forKey: GestureDispatcher.flickVelocityKey)
+        return v > 0 ? v : GestureClassificationConfig().flickVelocityThreshold
+    }()
+    @Published private(set) var mappings: [MultitouchGestureKind: GestureActionTarget] = GestureDispatcher.loadMappings()
+    @Published private(set) var ignoredApps: String = UserDefaults.standard.string(forKey: GestureDispatcher.ignoredAppsKey) ?? ""
+    @Published private(set) var livePoints: [MultitouchPoint] = []
+    @Published private(set) var lastGesture: MultitouchGestureKind?
+
+    var onAction: ((GestureActionTarget) -> Void)?
+
+    private var visualizerConsumers = 0
+    private var reducer = GestureClassificationReducer()
+    private var devices: [AnyObject] = []
+    private var stopFn: (@convention(c) (UnsafeMutableRawPointer) -> Void)?
+
+    private typealias Frames = @convention(c) (UnsafeMutableRawPointer?, UnsafeMutableRawPointer?, Int32, Double, Int32) -> Int32
+    private typealias CreateList = @convention(c) () -> Unmanaged<CFArray>
+    private typealias Register = @convention(c) (UnsafeMutableRawPointer, Frames) -> Void
+    private typealias Start = @convention(c) (UnsafeMutableRawPointer, Int32) -> Void
+    private typealias Stop = @convention(c) (UnsafeMutableRawPointer) -> Void
+
+    private struct Touch {
+        var frame: Int32; var timestamp: Double; var path: Int32; var state: Int32; var finger: Int32; var hand: Int32
+        var x: Float; var y: Float; var vx: Float; var vy: Float
+    }
+
+    func setEnabled(_ on: Bool) {
+        isEnabled = on
+        UserDefaults.standard.set(on, forKey: Self.enabledKey)
+        syncMonitor()
+    }
+
+    func setSwipeThreshold(_ value: Double) {
+        swipeThreshold = min(max(value, 0.06), 0.30)
+        UserDefaults.standard.set(swipeThreshold, forKey: Self.swipeThresholdKey)
+    }
+
+    func setFlickVelocityThreshold(_ value: Double) {
+        flickVelocityThreshold = min(max(value, 0.25), 1.50)
+        UserDefaults.standard.set(flickVelocityThreshold, forKey: Self.flickVelocityKey)
+    }
+
+    func setAction(_ action: GestureActionTarget, for gesture: MultitouchGestureKind) {
+        mappings[gesture] = action
+        let raw = mappings.reduce(into: [String: String]()) { $0[$1.key.rawValue] = $1.value.rawValue }
+        if let data = try? JSONEncoder().encode(raw) {
+            UserDefaults.standard.set(data, forKey: Self.mappingsKey)
+        }
+    }
+
+    func setIgnoredApps(_ raw: String) {
+        ignoredApps = raw
+        UserDefaults.standard.set(raw, forKey: Self.ignoredAppsKey)
+    }
+
+    func beginVisualizer() { visualizerConsumers += 1; syncMonitor() }
+    func endVisualizer() { visualizerConsumers = max(0, visualizerConsumers - 1); if visualizerConsumers == 0 { livePoints = [] }; syncMonitor() }
+
+    func syncMonitor() {
+        let needsMonitor = isEnabled || visualizerConsumers > 0
+        if needsMonitor, devices.isEmpty {
+            startMonitor()
+        } else if !needsMonitor, !devices.isEmpty {
+            stopMonitor()
+        }
+    }
+
+    private func startMonitor() {
+        guard let h = dlopen("/System/Library/PrivateFrameworks/MultitouchSupport.framework/MultitouchSupport", RTLD_NOW),
+              let create = dlsym(h, "MTDeviceCreateList"),
+              let reg = dlsym(h, "MTRegisterContactFrameCallback"),
+              let startSym = dlsym(h, "MTDeviceStart"),
+              let stopSym = dlsym(h, "MTDeviceStop") else { return }
+        let list = unsafeBitCast(create, to: CreateList.self)().takeRetainedValue() as [AnyObject]
+        guard !list.isEmpty else { return }
+        stopFn = unsafeBitCast(stopSym, to: Stop.self)
+        let callback: Frames = { _, raw, count, _, _ in
+            guard let raw else { return 0 }
+            let touches = raw.assumingMemoryBound(to: Touch.self)
+            let pts: [MultitouchPoint] = (0..<Int(count)).map {
+                let t = touches[$0]
+                return MultitouchPoint(id: t.finger, x: Double(t.x), y: Double(t.y), vx: Double(t.vx), vy: Double(t.vy))
+            }
+            Task { @MainActor in GestureDispatcher.shared.handle(points: pts) }
+            return 0
+        }
+        for device in list {
+            let p = Unmanaged.passUnretained(device).toOpaque()
+            unsafeBitCast(reg, to: Register.self)(p, callback)
+            unsafeBitCast(startSym, to: Start.self)(p, 0)
+        }
+        devices = list
+    }
+
+    private func stopMonitor() {
+        for device in devices {
+            stopFn?(Unmanaged.passUnretained(device).toOpaque())
+        }
+        devices = []
+    }
+
+    private func handle(points: [MultitouchPoint]) {
+        if visualizerConsumers > 0 { livePoints = points }
+        let config = GestureClassificationConfig(swipeThreshold: swipeThreshold, flickVelocityThreshold: flickVelocityThreshold)
+        guard let gesture = reducer.feed(points: points, config: config) else { return }
+        lastGesture = gesture
+        guard isEnabled else { return }
+        if let frontID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
+            let ignored = Set(ignoredApps.split { $0 == "," || $0.isWhitespace }.map(String.init))
+            if ignored.contains(frontID) { return }
+        }
+        let target = mappings[gesture] ?? .none
+        guard target != .none else { return }
+        dispatch(target)
+    }
+
+    private func dispatch(_ target: GestureActionTarget) {
+        switch target {
+        case .snapLeft: WindowSnapService.apply(.leftHalf)
+        case .snapRight: WindowSnapService.apply(.rightHalf)
+        case .spaceLeft: postSpaceSwitch(left: true)
+        case .spaceRight: postSpaceSwitch(left: false)
+        case .toggleNotch, .commandBar, .launcher: onAction?(target)
+        case .none: break
+        }
+    }
+
+    private func postSpaceSwitch(left: Bool) {
+        let code: CGKeyCode = left ? 123 : 124
+        guard let src = CGEventSource(stateID: .hidSystemState),
+              let down = CGEvent(keyboardEventSource: src, virtualKey: code, keyDown: true),
+              let up = CGEvent(keyboardEventSource: src, virtualKey: code, keyDown: false) else { return }
+        down.flags = .maskControl
+        up.flags = .maskControl
+        down.post(tap: .cghidEventTap)
+        up.post(tap: .cghidEventTap)
+    }
+
+    private static func loadMappings() -> [MultitouchGestureKind: GestureActionTarget] {
+        guard let data = UserDefaults.standard.data(forKey: mappingsKey),
+              let raw = try? JSONDecoder().decode([String: String].self, from: data) else { return [:] }
+        var out: [MultitouchGestureKind: GestureActionTarget] = [:]
+        for (k, v) in raw {
+            if let g = MultitouchGestureKind(rawValue: k), let a = GestureActionTarget(rawValue: v) { out[g] = a }
+        }
+        return out
+    }
+}

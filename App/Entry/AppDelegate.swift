@@ -481,6 +481,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             KeyGuardService.shared.onCommandBarToggle = { [weak self] in self?.toggleCommandBar() }
             KeyGuardService.shared.refresh()
+            GestureDispatcher.shared.onAction = { [weak self] target in
+                guard let self else { return }
+                switch target {
+                case .toggleNotch: self.notchPanel.toggleTools()
+                case .commandBar: self.toggleCommandBar()
+                case .launcher: self.launcherPanel.toggle()
+                case .none, .spaceLeft, .spaceRight, .snapLeft, .snapRight: break
+                }
+            }
+            GestureDispatcher.shared.syncMonitor()
             QuitOnLastWindowService.shared.start()
             FocusFollowService.shared.startIfEnabled()
             NotificationMoveService.shared.refresh()
