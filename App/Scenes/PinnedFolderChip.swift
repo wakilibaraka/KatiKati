@@ -23,6 +23,8 @@ struct PinnedFolderChip: View {
     var isDropTarget = false
     /// Show the in-progress-downloads badge (Downloads folder the user has opened; Phase 8d).
     var showsDownloadActivity = false
+    /// Count of files added/modified since the folder was last opened.
+    var newFileCount = 0
     /// 任务条尺寸档位的缩放系数。中档 = 1.0，此时所有尺寸与历史字面值逐像素相同。
     /// **故意不给默认值**——漏传必须是编译错误，见 AGENTS《Taskbar Size Tiers》。
     let scale: CGFloat
@@ -64,7 +66,17 @@ struct PinnedFolderChip: View {
         .contentShape(Rectangle())
         .onTapGesture { onTap() }
         .overlay(alignment: .topTrailing) {
-            if showsDownloadActivity { DownloadsActivityBadge(scale: scale) }
+            if showsDownloadActivity {
+                DownloadsActivityBadge(scale: scale)
+            } else if newFileCount > 0 {
+                Text(verbatim: newFileCount > 99 ? "99+" : "\(newFileCount)")
+                    .font(.system(size: max(8, 9 * scale), weight: .bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 4 * scale)
+                    .padding(.vertical, 1 * scale)
+                    .background(Capsule().fill(Color.accentColor))
+                    .padding(2 * scale)
+            }
         }
         .floatingContextMenu { buildMenu() }
         .help(folderName)

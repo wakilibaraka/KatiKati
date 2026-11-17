@@ -16,6 +16,7 @@ final class PinnedFolderStore: ObservableObject {
     /// Folders opened since this launch. Memory only: the seed above is a one-time state, this one is
     /// per session — see `isUnreadUntilOpened`.
     private var openedThisSession: Set<String> = []
+    private var lastOpenedAtByPath: [String: Date] = [:]
     private let key = "pinnedFolderPaths"
     private let sortKey = "pinnedFolderSortOrders"
     private let unopenedSeedKey = "pinnedFolderUnopenedSeeds"
@@ -63,11 +64,16 @@ final class PinnedFolderStore: ObservableObject {
 
     /// The user opened the folder: from here on it is read like any other, for the rest of this
     /// launch and every one after it.
-    func noteOpened(_ path: String) {
+    func noteOpened(_ path: String, at date: Date = Date()) {
         let normalized = Self.normalized(path)
         openedThisSession.insert(normalized)
+        lastOpenedAtByPath[normalized] = date
         guard unopenedSeedPaths.contains(normalized) else { return }
         setUnopenedSeeds(unopenedSeedPaths.subtracting([normalized]))
+    }
+
+    func lastOpenedAt(for path: String) -> Date? {
+        lastOpenedAtByPath[Self.normalized(path)]
     }
 
     private func setUnopenedSeeds(_ paths: Set<String>) {

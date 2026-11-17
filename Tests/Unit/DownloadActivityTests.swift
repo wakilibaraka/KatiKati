@@ -70,3 +70,21 @@ final class PinnedFolderReadRuleTests: XCTestCase {
         XCTAssertFalse(PinnedFolderReadRule.isUnreadUntilOpened(path: downloads, seeds: [], openedThisSession: [], builtin: nil))
     }
 }
+
+final class FolderNewFileBadgeModelTests: XCTestCase {
+    func testCountsOnlyItemsNewerThanLastOpenedAt() {
+        let t0 = Date(timeIntervalSince1970: 1000)
+        let entries = [
+            FolderContentsLoader.Entry(url: URL(fileURLWithPath: "/a"), name: "a", isDirectory: false,
+                                       dateAdded: t0.addingTimeInterval(-10), dateModified: t0),
+            FolderContentsLoader.Entry(url: URL(fileURLWithPath: "/b"), name: "b", isDirectory: false,
+                                       dateAdded: t0, dateModified: t0),
+            FolderContentsLoader.Entry(url: URL(fileURLWithPath: "/c"), name: "c", isDirectory: false,
+                                       dateAdded: t0.addingTimeInterval(5), dateModified: t0),
+            FolderContentsLoader.Entry(url: URL(fileURLWithPath: "/d"), name: "d", isDirectory: false,
+                                       dateAdded: nil, dateModified: t0.addingTimeInterval(15)),
+        ]
+        XCTAssertEqual(FolderNewFileBadgeModel.countNew(entries: entries, since: nil), 0)
+        XCTAssertEqual(FolderNewFileBadgeModel.countNew(entries: entries, since: t0), 2)
+    }
+}

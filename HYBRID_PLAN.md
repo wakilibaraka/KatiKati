@@ -487,17 +487,17 @@ Landed from the ranked port plan and merged to `main`: **#1** bench, **#2a–d**
 |---|---|
 | Inline math (`= expr`, `CalculatorEngine`) | BUILT (`LauncherCommands.swift`) |
 | Spotlight file search and hand-off | BUILT (`CommandBar.swift`) |
-| System Settings pane search by name | PARTIAL: only privacy and keyboard URLs found; spot-check |
+| System Settings pane search by name | PARTIAL: `x-apple.systempreferences:` URLs verified for Privacy/Security, Trackpad, Keyboard, Notifications, Wi-Fi, Battery, Sound, Bluetooth, Dock |
 | Live thumbnails, auto-hide, side/multi-display | BUILT |
 | Trash full/empty, folder stacks | BUILT |
 | Stopwatch, year-progress, countdown tiles | BUILT |
 | Profiles | BUILT (`BarProfile`/`BarProfileService`); dropped by decision |
-| Dock `persistent-apps` reader | BUILT (`NativeDockPreferencesService.swift`, `NativeDockPinnedApps`), wired to the strip by Phase 42 but **not** importable into kept apps |
+| Dock `persistent-apps` reader | BUILT (`NativeDockPreferencesService.swift`, `NativeDockPinnedApps`), wired to the strip by Phase 42 and importable into kept apps via Slice B (`KeptAppStore.importDockPins` + Settings **Import from Dock**) |
 | Bar fisheye | PARTIAL (deck buttons only); excluded by decision |
 | Keyboard focus mode on bar | BUILT (Slice D, `DockFocusModel` + `DockStripView`) |
-| Wheel: cycle windows or volume on bar | BUILT (Slice E, `WheelActionMap` + `DockStripView`) |
+| Wheel: cycle windows or volume on bar | BUILT (Slice E, `WheelActionMap` + `WheelVolumeThrottle` + `DockStripView`) |
 | Widget catalog | BUILT (Slice G, `WidgetCatalog` + Dock Items search) |
-| Disk-free tile, folder new-file badge | MISSING (optional follow-on slices) |
+| Disk-free tile, folder new-file badge | BUILT (`BarSection.drives` / `DrivesDockChip` + `FolderNewFileBadgeModel` / `PinnedFolderChip`) |
 | OpenTaskbar attribution | MISSING → added by Slice A |
 
 What is still unbuilt:

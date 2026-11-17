@@ -1617,6 +1617,7 @@ struct DockStripView: View {
                 onSetSortOrder: { pinnedFolderStore.setSortOrder($0, for: path) },
                 isDropTarget: externalDropTarget == .moveInto(path: path),
                 showsDownloadActivity: Self.isDownloadsFolder(path) && !pinnedFolderStore.isUnreadUntilOpened(path),
+                newFileCount: folderCoverStore.newFileCounts[path] ?? 0,
                 scale: dockScale,
                 railTile: isRail,
                 hoverStyle: hoverStyle,

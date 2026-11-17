@@ -203,3 +203,15 @@ enum FolderContentsLoader {
         return box.entries
     }
 }
+
+/// Counts files added/modified in a pinned folder since the last time the user opened its popup.
+enum FolderNewFileBadgeModel {
+    static func countNew(entries: [FolderContentsLoader.Entry], since lastOpenedAt: Date?) -> Int {
+        guard let lastOpenedAt else { return 0 }
+        return entries.reduce(0) { count, entry in
+            let timestamp = entry.dateAdded ?? entry.dateModified
+            guard let timestamp, timestamp > lastOpenedAt else { return count }
+            return count + 1
+        }
+    }
+}

@@ -112,6 +112,7 @@ extension PanelCoordinator {
         // access prompt follows the user's own click, and the chip's cover can be built from it.
         let wasUnread = pinnedFolderStore.isUnreadUntilOpened(path)
         pinnedFolderStore.noteOpened(path)
+        folderCoverStore.clearNewFileBadge(for: path)
         if wasUnread {
             folderCoverStore.sync(paths: pinnedFolderStore.folderPaths)
         }

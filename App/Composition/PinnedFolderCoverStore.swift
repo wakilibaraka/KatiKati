@@ -20,6 +20,7 @@ struct FolderCover: Equatable {
 final class PinnedFolderCoverStore: ObservableObject {
     /// path → cover. Per layer: Quick Look thumbnail → the item's icon; an empty folder shows its own icon.
     @Published private(set) var covers: [String: FolderCover] = [:]
+    @Published private(set) var newFileCounts: [String: Int] = [:]
 
     private struct CacheEntry {
         let order: FolderSortOrder
@@ -43,11 +44,18 @@ final class PinnedFolderCoverStore: ObservableObject {
     /// `PinnedFolderStore.isUnreadUntilOpened`: such a folder shows its plain icon and is not read or
     /// watched until the user opens it (reading Downloads raises the system's access prompt).
     private let isUnreadUntilOpened: (String) -> Bool
+    private let lastOpenedAtProvider: (String) -> Date?
 
     init(sortOrderProvider: @escaping (String) -> FolderSortOrder = { _ in .default },
-         isUnreadUntilOpened: @escaping (String) -> Bool = { _ in false }) {
+         isUnreadUntilOpened: @escaping (String) -> Bool = { _ in false },
+         lastOpenedAtProvider: @escaping (String) -> Date? = { _ in nil }) {
         self.sortOrderProvider = sortOrderProvider
         self.isUnreadUntilOpened = isUnreadUntilOpened
+        self.lastOpenedAtProvider = lastOpenedAtProvider
+    }
+
+    func clearNewFileBadge(for path: String) {
+        newFileCounts[path] = 0
     }
 
     /// 提取命中且排序一致的热缓存。如果为 nil，调用方应执行同步的 preload 兜底。
@@ -63,6 +71,7 @@ final class PinnedFolderCoverStore: ObservableObject {
             watchers[gone]?.stop()
             watchers[gone] = nil
             covers[gone] = nil
+            newFileCounts[gone] = nil
             cache[gone] = nil
             generations[gone] = nil
         }
@@ -109,6 +118,10 @@ final class PinnedFolderCoverStore: ObservableObject {
             await MainActor.run { [weak self] in
                 guard let self, self.generations[path] == generation else { return }
                 self.cache[path] = CacheEntry(order: order, entries: sortedEntries)
+                self.newFileCounts[path] = FolderNewFileBadgeModel.countNew(
+                    entries: sortedEntries,
+                    since: self.lastOpenedAtProvider(path)
+                )
                 self.publishCover(path: path, stack: stack, generation: generation)
             }
         }
