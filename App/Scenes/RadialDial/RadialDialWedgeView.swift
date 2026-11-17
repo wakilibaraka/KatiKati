@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// Single interactive wedge view on the radial dial (Phase 31b).
+/// Single interactive wedge view on the radial dial (SLICE RD-2).
 struct RadialDialWedgeView: View {
     let sector: RadialDialGeometry.Sector
-    let item: RadialDialItem
+    let node: RadialSliceNode
     let isHovered: Bool
     let appeared: Bool
     let reduceMotion: Bool
@@ -14,7 +14,7 @@ struct RadialDialWedgeView: View {
     private static let halfGap: Double = 0.032
     private static let corner: CGFloat = 4
 
-    private var accent: Color? { item.accentHex.flatMap { Color(hex: $0) } }
+    private var accent: Color? { node.accentHex.flatMap { Color(hex: $0) } }
     private var lift: CGFloat { isHovered && !reduceMotion ? 7 : 0 }
 
     private var shape: RadialSectorShape {
@@ -34,25 +34,25 @@ struct RadialDialWedgeView: View {
             // Hover tint fades in over the resting one (gradient styles can't cross-animate).
             layer(hoverFill)
                 .opacity(isHovered ? 1 : 0)
-                .shadow(color: (accent ?? .white).opacity(isHovered ? 0.55 : 0), radius: 12)
+                .shadow(color: (accent ?? .white).opacity(isHovered ? 0.65 : 0), radius: 14)
 
             shape
-                .stroke(Color.white.opacity(isHovered ? 0.45 : 0.10), lineWidth: 1)
+                .stroke(Color.white.opacity(isHovered ? 0.55 : 0.10), lineWidth: isHovered ? 1.5 : 1)
 
             content
         }
         .offset(x: cos(sector.midAngle) * lift, y: sin(sector.midAngle) * lift)
         .animation(hoverAnimation, value: isHovered)
-        // Entrance: wedges bloom outward from the hub, one after another.
+        // Entrance: wedges bloom outward from the hub with RD-2 spring physics.
         .scaleEffect(appeared ? 1 : 0.55)
         .opacity(appeared ? 1 : 0)
         .animation(
             reduceMotion ? .easeOut(duration: 0.12)
-                : .spring(response: 0.34, dampingFraction: 0.74).delay(Double(sector.index) * 0.02),
+                : .spring(response: 0.32, dampingFraction: 0.78).delay(Double(sector.index) * 0.018),
             value: appeared
         )
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(verbatim: item.title))
+        .accessibilityLabel(Text(verbatim: node.title))
         .accessibilityAddTraits(.isButton)
     }
 
@@ -68,31 +68,36 @@ struct RadialDialWedgeView: View {
     }
 
     private var content: some View {
-        let pos = sector.centerPoint(in: center, atFraction: 0.46)
-        return VStack(spacing: 3) {
-            iconView(item.icon)
-                .frame(width: 28, height: 28)
-                .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
-            Text(verbatim: item.title)
-                .font(.system(size: 10, weight: isHovered ? .bold : .medium, design: .rounded))
-                .foregroundColor(.white.opacity(isHovered ? 1 : 0.85))
-                .lineLimit(1)
+        let pos = sector.centerPoint(in: center, atFraction: 0.48)
+        return ZStack {
+            VStack(spacing: 3) {
+                iconView(node.icon)
+                    .frame(width: 26, height: 26)
+                    .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+                HStack(spacing: 2) {
+                    Text(verbatim: node.title)
+                        .font(.system(size: 10, weight: isHovered ? .bold : .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(isHovered ? 1 : 0.88))
+                        .lineLimit(1)
+                    if node.isSubmenu {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 7, weight: .bold))
+                            .foregroundColor(.white.opacity(isHovered ? 0.95 : 0.6))
+                    }
+                }
                 .shadow(color: .black.opacity(0.55), radius: 2, y: 1)
-            if item.hasSubmenu {
-                Image(systemName: "ellipsis")
-                    .font(.system(size: 7, weight: .black))
-                    .foregroundColor(.white.opacity(isHovered ? 0.9 : 0.5))
             }
-        }
-        .scaleEffect(isHovered && !reduceMotion ? 1.1 : 1)
-        .position(pos)
-        .overlay(alignment: .topLeading) {
-            // Keyboard hint: press 1–9 (0 for the tenth) to pick this wedge.
-            if sector.index < 10 {
-                Text(verbatim: "\((sector.index + 1) % 10)")
-                    .font(.system(size: 8, weight: .semibold, design: .rounded))
-                    .foregroundColor(.white.opacity(isHovered ? 0.8 : 0.32))
-                    .position(sector.centerPoint(in: center, atFraction: 0.9))
+            .scaleEffect(isHovered && !reduceMotion ? 1.08 : 1)
+            .position(pos)
+
+            if sector.index < 8 {
+                Text(verbatim: "\(sector.index + 1)")
+                    .font(.system(size: 8.5, weight: .bold, design: .rounded))
+                    .foregroundColor(.white.opacity(isHovered ? 1 : 0.72))
+                    .frame(width: 14, height: 14)
+                    .background(Circle().fill(Color.black.opacity(isHovered ? 0.45 : 0.22)))
+                    .overlay(Circle().strokeBorder(Color.white.opacity(isHovered ? 0.55 : 0.16), lineWidth: 0.75))
+                    .position(sector.centerPoint(in: center, atFraction: 0.86))
                     .accessibilityHidden(true)
             }
         }

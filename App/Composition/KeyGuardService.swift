@@ -1072,11 +1072,14 @@ final class GestureDispatcher: ObservableObject {
     @Published private(set) var lastGesture: MultitouchGestureKind?
 
     var onAction: ((GestureActionTarget) -> Void)?
+    var radialEdgeTrigger: RadialTrackpadEdgeTrigger = .off { didSet { syncMonitor() } }
+    var onRadialEdgeTrigger: (() -> Void)?
 
     private var visualizerConsumers = 0
     private var reducer = GestureClassificationReducer()
     private var devices: [AnyObject] = []
     private var stopFn: (@convention(c) (UnsafeMutableRawPointer) -> Void)?
+    private var lastRadialEdgeAt: Date = .distantPast
 
     private typealias Frames = @convention(c) (UnsafeMutableRawPointer?, UnsafeMutableRawPointer?, Int32, Double, Int32) -> Int32
     private typealias CreateList = @convention(c) () -> Unmanaged<CFArray>
@@ -1122,7 +1125,7 @@ final class GestureDispatcher: ObservableObject {
     func endVisualizer() { visualizerConsumers = max(0, visualizerConsumers - 1); if visualizerConsumers == 0 { livePoints = [] }; syncMonitor() }
 
     func syncMonitor() {
-        let needsMonitor = isEnabled || visualizerConsumers > 0
+        let needsMonitor = isEnabled || visualizerConsumers > 0 || radialEdgeTrigger != .off
         if needsMonitor, devices.isEmpty {
             startMonitor()
         } else if !needsMonitor, !devices.isEmpty {
@@ -1166,6 +1169,7 @@ final class GestureDispatcher: ObservableObject {
 
     private func handle(points: [MultitouchPoint]) {
         if visualizerConsumers > 0 { livePoints = points }
+        checkRadialEdgeGesture(points: points)
         let config = GestureClassificationConfig(swipeThreshold: swipeThreshold, flickVelocityThreshold: flickVelocityThreshold)
         guard let gesture = reducer.feed(points: points, config: config) else { return }
         lastGesture = gesture
@@ -1177,6 +1181,23 @@ final class GestureDispatcher: ObservableObject {
         let target = mappings[gesture] ?? .none
         guard target != .none else { return }
         dispatch(target)
+    }
+
+    private func checkRadialEdgeGesture(points: [MultitouchPoint]) {
+        guard radialEdgeTrigger != .off, (1...2).contains(points.count),
+              Date().timeIntervalSince(lastRadialEdgeAt) >= 0.6 else { return }
+        let matched = points.contains { pt in
+            switch radialEdgeTrigger {
+            case .off: return false
+            case .leftEdge: return pt.x < 0.09 && pt.vx > 0.55
+            case .rightEdge: return pt.x > 0.91 && pt.vx < -0.55
+            case .bottomEdge: return pt.y < 0.11 && pt.vy > 0.55
+            }
+        }
+        if matched {
+            lastRadialEdgeAt = Date()
+            onRadialEdgeTrigger?()
+        }
     }
 
     private func dispatch(_ target: GestureActionTarget) {

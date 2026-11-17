@@ -509,6 +509,7 @@ extension SettingsLayoutPane {
         switch mode {
         case .tapToggle: return Text("Tap / Click to Toggle")
         case .holdRelease: return Text("Hold & Release")
+        case .hotkeyHold: return Text("Hotkey Hold & Release")
         }
     }
 }

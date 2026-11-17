@@ -7,11 +7,14 @@ enum RadialTriggerMode: String, CaseIterable, Codable, Sendable {
     case tapToggle
     /// Hold shortcut/mouse button down, flick towards sector, and release to execute.
     case holdRelease
+    /// Hold a modifier shortcut key, hover a slice, and release the key to execute.
+    case hotkeyHold
 
     var title: String {
         switch self {
         case .tapToggle: return "Tap / Click to Toggle"
         case .holdRelease: return "Hold & Release"
+        case .hotkeyHold: return "Hotkey Hold & Release"
         }
     }
 }

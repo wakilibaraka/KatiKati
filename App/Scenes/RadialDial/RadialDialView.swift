@@ -13,17 +13,15 @@ enum RadialDialMetrics {
 /// from global mouse monitors, so hover works with no button held and while a hold-to-open button is down.
 @MainActor
 final class RadialDialState: ObservableObject {
-    @Published var pageIndex = 0
+    @Published var nav = RadialDialNavigationState(rootTitle: "Main", rootNodes: RadialDialPresets.defaultRootNodes())
     @Published var hoveredSector: Int?
-    @Published var hoveredOuterSector: Int?
     @Published var isCenterHovered = false
     /// -1 / 0 / 1: left chevron, hub body, right chevron.
     @Published var hubZone = 0
 }
 
-/// Top-level interactive radial dial view (Phase 31b).
+/// Top-level interactive radial dial view (SLICE RD-2: Path/Canvas slices, spring summon, breadcrumb sub-menus).
 struct RadialDialView: View {
-    let pages: [RadialDialPage]
     @ObservedObject var state: RadialDialState
     let theme: RadialDialTheme
     let onPointerUp: (CGPoint) -> Void
@@ -31,94 +29,104 @@ struct RadialDialView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var appeared = false
 
-    private var currentPage: RadialDialPage {
-        guard !pages.isEmpty else { return RadialDialPage(id: .main, title: "main", items: []) }
-        return pages[min(max(state.pageIndex, 0), pages.count - 1)]
+    private var summonSpring: Animation {
+        reduceMotion ? .easeOut(duration: 0.12) : .spring(response: 0.32, dampingFraction: 0.78)
     }
 
     var body: some View {
-        let outerItems = currentPage.outerRingItems ?? []
-        let isDual = !outerItems.isEmpty
-        let dual = isDual ? RadialDialGeometry.dualRingSectors() : nil
-        let single = isDual ? [] : RadialDialGeometry.sectors(
-            count: currentPage.items.count,
+        let nodes = state.nav.currentNodes
+        let sectors = RadialDialGeometry.sectors(
+            count: nodes.count,
             innerRadius: RadialDialMetrics.innerRadius,
             outerRadius: RadialDialMetrics.outerRadius
         )
 
         ZStack {
             backdrop
+            canvasOverlay(sectors: sectors)
 
             ZStack {
-                if isDual, let dual {
-                    ForEach(Array(currentPage.items.enumerated()), id: \.element.id) { index, item in
-                        if index < dual.inner.count {
-                            RadialDialWedgeView(
-                                sector: dual.inner[index],
-                                item: item,
-                                isHovered: state.hoveredSector == index && state.hoveredOuterSector == nil,
-                                appeared: appeared,
-                                reduceMotion: reduceMotion,
-                                theme: theme,
-                                center: RadialDialMetrics.center
-                            )
-                        }
-                    }
-                    ForEach(Array(outerItems.enumerated()), id: \.element.id) { index, item in
-                        if index < dual.outer.count {
-                            RadialDialWedgeView(
-                                sector: dual.outer[index],
-                                item: item,
-                                isHovered: state.hoveredOuterSector == index,
-                                appeared: appeared,
-                                reduceMotion: reduceMotion,
-                                theme: theme,
-                                center: RadialDialMetrics.center
-                            )
-                        }
-                    }
-                } else {
-                    ForEach(Array(currentPage.items.enumerated()), id: \.element.id) { index, item in
-                        if index < single.count {
-                            RadialDialWedgeView(
-                                sector: single[index],
-                                item: item,
-                                isHovered: state.hoveredSector == index,
-                                appeared: appeared,
-                                reduceMotion: reduceMotion,
-                                theme: theme,
-                                center: RadialDialMetrics.center
-                            )
-                        }
+                ForEach(Array(nodes.enumerated()), id: \.element.id) { index, node in
+                    if index < sectors.count {
+                        RadialDialWedgeView(
+                            sector: sectors[index],
+                            node: node,
+                            isHovered: state.hoveredSector == index,
+                            appeared: appeared,
+                            reduceMotion: reduceMotion,
+                            theme: theme,
+                            center: RadialDialMetrics.center
+                        )
                     }
                 }
             }
-            // A page change swaps the whole ring: the old one shrinks away, the new one blooms in.
-            .id(currentPage.id)
-            .transition(reduceMotion ? .opacity : .scale(scale: 0.86).combined(with: .opacity))
+            .id(state.nav.breadcrumbs.joined(separator: "/"))
+            .transition(reduceMotion ? .opacity : .scale(scale: 0.88).combined(with: .opacity))
 
             RadialDialCenterHub(
-                title: currentPage.title,
-                pageCount: pages.count,
-                pageIndex: state.pageIndex,
-                centerItem: currentPage.centerItem,
+                title: state.nav.currentTitle,
+                breadcrumbs: state.nav.breadcrumbs,
+                canGoBack: state.nav.canGoBack,
                 isHovered: state.isCenterHovered,
-                zone: state.hubZone,
                 theme: theme
             )
             .scaleEffect(appeared ? 1 : 0.4)
-            .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.7), value: appeared)
+            .animation(summonSpring, value: appeared)
+        }
+        .overlay(alignment: .top) {
+            if state.nav.canGoBack {
+                Text(verbatim: state.nav.breadcrumbs.joined(separator: " › "))
+                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white.opacity(0.92))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .overlay(Capsule().strokeBorder(Color.white.opacity(0.22), lineWidth: 1))
+                    .padding(.top, 6)
+                    .transition(.opacity)
+            }
         }
         .frame(width: RadialDialMetrics.panelSize, height: RadialDialMetrics.panelSize)
         .scaleEffect(appeared || reduceMotion ? 1 : 0.86)
         .opacity(appeared ? 1 : 0)
         .onAppear {
-            withAnimation(reduceMotion ? .easeOut(duration: 0.12) : .spring(response: 0.32, dampingFraction: 0.76)) {
+            withAnimation(summonSpring) {
                 appeared = true
             }
         }
         .contentShape(Rectangle())
         .gesture(DragGesture(minimumDistance: 0).onEnded { onPointerUp($0.location) })
+    }
+
+    private func canvasOverlay(sectors: [RadialDialGeometry.Sector]) -> some View {
+        Canvas { context, size in
+            let center = CGPoint(x: size.width / 2, y: size.height / 2)
+            let inner = RadialDialMetrics.innerRadius
+            let outer = RadialDialMetrics.outerRadius
+
+            for sector in sectors {
+                let startCos = cos(sector.startAngle)
+                let startSin = sin(sector.startAngle)
+                var divider = Path()
+                divider.move(to: CGPoint(x: center.x + inner * startCos, y: center.y + inner * startSin))
+                divider.addLine(to: CGPoint(x: center.x + outer * startCos, y: center.y + outer * startSin))
+                context.stroke(divider, with: .color(.white.opacity(0.12)), lineWidth: 1)
+
+                if state.hoveredSector == sector.index {
+                    var glowSector = Path()
+                    glowSector.addArc(center: center, radius: outer, startAngle: Angle(radians: Double(sector.startAngle)), endAngle: Angle(radians: Double(sector.endAngle)), clockwise: false)
+                    glowSector.addArc(center: center, radius: inner, startAngle: Angle(radians: Double(sector.endAngle)), endAngle: Angle(radians: Double(sector.startAngle)), clockwise: true)
+                    glowSector.closeSubpath()
+                    context.fill(glowSector, with: .radialGradient(
+                        Gradient(colors: [outerBorderColor.opacity(0.45), .clear]),
+                        center: sector.centerPoint(in: center, atFraction: 0.5),
+                        startRadius: 4,
+                        endRadius: 72
+                    ))
+                }
+            }
+        }
+        .allowsHitTesting(false)
     }
 
     private var backdrop: some View {

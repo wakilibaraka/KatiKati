@@ -146,6 +146,9 @@ final class ShortcutService {
             if holdActions[held]?.contains(.dictate) == true {
                 DictationController.shared.stopAndPaste()
             }
+            if holdActions[held]?.contains(where: { $0 == .radialDial || $0 == .radialDialSnap || $0 == .radialDialTools }) == true {
+                RadialDialPanelController.shared.hotkeyReleased()
+            }
         }
     }
 }

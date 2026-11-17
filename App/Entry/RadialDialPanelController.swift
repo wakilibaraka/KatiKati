@@ -30,6 +30,7 @@ final class RadialDialPanelController: ObservableObject {
         didSet {
             UserDefaults.standard.set(isEnabled, forKey: "com.katikati.dial.enabled")
             setupMouseTriggerMonitor()
+            syncTrackpadTrigger()
         }
     }
 
@@ -52,20 +53,30 @@ final class RadialDialPanelController: ObservableObject {
         }
     }
 
-    private var pages: [RadialDialPage] = RadialDialPresets.defaultPages()
+    @Published var trackpadTrigger: RadialTrackpadEdgeTrigger {
+        didSet {
+            UserDefaults.standard.set(trackpadTrigger.rawValue, forKey: RadialDialConfigStore.trackpadTriggerKey)
+            syncTrackpadTrigger()
+        }
+    }
+
+    private var rootNodes: [RadialSliceNode] = RadialDialConfigStore.loadNodes()
 
     init() {
         let storedEnabled = UserDefaults.standard.object(forKey: "com.katikati.dial.enabled") as? Bool ?? true
         let storedThemeRaw = UserDefaults.standard.string(forKey: "com.katikati.dial.theme") ?? RadialDialTheme.lilacGlass.rawValue
         let storedMouseRaw = UserDefaults.standard.string(forKey: "com.katikati.dial.mouseTrigger") ?? RadialMouseTrigger.off.rawValue
         let storedModeRaw = UserDefaults.standard.string(forKey: "com.katikati.dial.triggerMode") ?? RadialTriggerMode.tapToggle.rawValue
+        let storedTrackpadRaw = UserDefaults.standard.string(forKey: RadialDialConfigStore.trackpadTriggerKey) ?? RadialTrackpadEdgeTrigger.off.rawValue
 
         self.isEnabled = storedEnabled
         self.theme = RadialDialTheme(rawValue: storedThemeRaw) ?? .lilacGlass
         self.mouseTrigger = RadialMouseTrigger(rawValue: storedMouseRaw) ?? .off
         self.triggerMode = RadialTriggerMode(rawValue: storedModeRaw) ?? .tapToggle
+        self.trackpadTrigger = RadialTrackpadEdgeTrigger(rawValue: storedTrackpadRaw) ?? .off
 
         setupMouseTriggerMonitor()
+        syncTrackpadTrigger()
         NotificationCenter.default.addObserver(self, selector: #selector(defaultsDidChange), name: UserDefaults.didChangeNotification, object: nil)
     }
 
@@ -74,11 +85,22 @@ final class RadialDialPanelController: ObservableObject {
         let storedThemeRaw = UserDefaults.standard.string(forKey: "com.katikati.dial.theme") ?? RadialDialTheme.lilacGlass.rawValue
         let storedMouseRaw = UserDefaults.standard.string(forKey: "com.katikati.dial.mouseTrigger") ?? RadialMouseTrigger.off.rawValue
         let storedModeRaw = UserDefaults.standard.string(forKey: "com.katikati.dial.triggerMode") ?? RadialTriggerMode.tapToggle.rawValue
+        let storedTrackpadRaw = UserDefaults.standard.string(forKey: RadialDialConfigStore.trackpadTriggerKey) ?? RadialTrackpadEdgeTrigger.off.rawValue
 
         if isEnabled != storedEnabled { isEnabled = storedEnabled }
         if theme.rawValue != storedThemeRaw, let t = RadialDialTheme(rawValue: storedThemeRaw) { theme = t }
         if mouseTrigger.rawValue != storedMouseRaw, let m = RadialMouseTrigger(rawValue: storedMouseRaw) { mouseTrigger = m }
         if triggerMode.rawValue != storedModeRaw, let md = RadialTriggerMode(rawValue: storedModeRaw) { triggerMode = md }
+        if trackpadTrigger.rawValue != storedTrackpadRaw, let tp = RadialTrackpadEdgeTrigger(rawValue: storedTrackpadRaw) { trackpadTrigger = tp }
+        rootNodes = RadialDialConfigStore.loadNodes()
+    }
+
+    private func syncTrackpadTrigger() {
+        let active = isEnabled ? trackpadTrigger : .off
+        GestureDispatcher.shared.radialEdgeTrigger = active
+        GestureDispatcher.shared.onRadialEdgeTrigger = active == .off ? nil : { [weak self] in
+            self?.show(viaMouse: false)
+        }
     }
 
     func toggle(page: RadialDialPageID? = nil, viaMouse: Bool = false) {
@@ -99,13 +121,19 @@ final class RadialDialPanelController: ObservableObject {
         let panel = self.panel ?? makePanel()
         self.panel = panel
 
-        state.pageIndex = page.flatMap { id in pages.firstIndex { $0.id == id } } ?? 0
+        rootNodes = RadialDialConfigStore.loadNodes()
+        state.nav = RadialDialNavigationState(rootTitle: "Main", rootNodes: rootNodes)
+        if let page, page != .main {
+            let targetID = page == .snapping ? "root_snapping" : "root_tools"
+            if let idx = rootNodes.firstIndex(where: { $0.id == targetID && $0.isSubmenu }) {
+                state.nav.selectSlice(at: idx)
+            }
+        }
         state.hoveredSector = nil
         state.isCenterHovered = false
         state.hubZone = 0
 
         let rootView = RadialDialView(
-            pages: pages,
             state: state,
             theme: theme,
             onPointerUp: { [weak self] point in self?.pointerUp(at: point) }
@@ -164,65 +192,39 @@ final class RadialDialPanelController: ObservableObject {
         }
     }
 
-    // MARK: Pointer, paging and keyboard
-
-    private var currentPage: RadialDialPage { pages[min(max(state.pageIndex, 0), pages.count - 1)] }
+    // MARK: Pointer, sub-menus and keyboard
 
     private func trackPointer() {
         guard isShown, let panel else { return }
         let mouse = NSEvent.mouseLocation
         let point = CGPoint(x: mouse.x - panel.frame.minX, y: panel.frame.maxY - mouse.y)
-        var sector: Int?
-        var outerSector: Int?
-        var inCenter = false
+        let dx = point.x - RadialDialMetrics.center.x
+        let dy = point.y - RadialDialMetrics.center.y
+        let inCenter = hypot(dx, dy) < RadialDialMetrics.innerRadius
+        let sector = inCenter ? nil : RadialDialGeometry.resolveSlice(
+            at: point,
+            center: RadialDialMetrics.center,
+            innerRadius: RadialDialMetrics.innerRadius,
+            outerRadius: RadialDialMetrics.outerRadius,
+            totalSlices: state.nav.currentNodes.count,
+            outerSlop: 40
+        )
 
-        if let outerItems = currentPage.outerRingItems, !outerItems.isEmpty {
-            let hit = RadialDialGeometry.hitTestDualRing(point: point, center: RadialDialMetrics.center)
-            switch hit {
-            case .center: inCenter = true
-            case .inner(let idx): sector = idx
-            case .outer(let idx): outerSector = idx
-            case .outside: break
-            }
-        } else {
-            let hit = RadialDialGeometry.hitTest(
-                point: point,
-                center: RadialDialMetrics.center,
-                count: currentPage.items.count,
-                innerRadius: RadialDialMetrics.innerRadius,
-                outerRadius: RadialDialMetrics.outerRadius
-            )
-            if case .sector(let idx) = hit { sector = idx }
-            if case .center = hit { inCenter = true }
-        }
-
-        let zone = inCenter ? hubZone(for: point) : 0
-        guard sector != state.hoveredSector || outerSector != state.hoveredOuterSector || inCenter != state.isCenterHovered || zone != state.hubZone else { return }
-        if (sector != nil && sector != state.hoveredSector) || (outerSector != nil && outerSector != state.hoveredOuterSector) {
+        guard sector != state.hoveredSector || inCenter != state.isCenterHovered else { return }
+        if sector != nil && sector != state.hoveredSector {
             NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
         }
         state.hoveredSector = sector
-        state.hoveredOuterSector = outerSector
         state.isCenterHovered = inCenter
-        state.hubZone = zone
         updateSnapPreview(screen: panel.screen)
     }
 
-    /// Left / right chevron column of the hub, else the hub body.
-    private func hubZone(for point: CGPoint) -> Int {
-        let dx = point.x - RadialDialMetrics.center.x
-        return currentPage.items.isEmpty || pages.count < 2 ? 0 : (dx < -26 ? -1 : (dx > 26 ? 1 : 0))
-    }
-
     private func updateSnapPreview(screen: NSScreen?) {
-        let action: RadialDialActionType?
-        if state.isCenterHovered, state.hubZone == 0 {
-            action = currentPage.centerItem?.action
-        } else if let idx = state.hoveredSector, idx < currentPage.items.count {
-            action = currentPage.items[idx].action
-        } else {
-            action = nil
-        }
+        let nodes = state.nav.currentNodes
+        let action: RadialDialActionType? = {
+            guard let idx = state.hoveredSector, idx < nodes.count, !nodes[idx].isSubmenu else { return nil }
+            return nodes[idx].action
+        }()
         if case .snap(let position)? = action, let screen = screen ?? NSScreen.main {
             RadialSnapPreviewPanelController.shared.showPreview(for: position, on: screen, theme: theme)
         } else {
@@ -231,66 +233,49 @@ final class RadialDialPanelController: ObservableObject {
     }
 
     private func pointerUp(at point: CGPoint) {
-        if let outerItems = currentPage.outerRingItems, !outerItems.isEmpty {
-            let hit = RadialDialGeometry.hitTestDualRing(point: point, center: RadialDialMetrics.center)
-            switch hit {
-            case .center:
-                let zone = hubZone(for: point)
-                if zone != 0 { step(zone) } else if let item = currentPage.centerItem { select(item) }
-            case .inner(let idx):
-                if idx < currentPage.items.count { select(currentPage.items[idx]) }
-            case .outer(let idx):
-                if idx < outerItems.count { select(outerItems[idx]) }
-            case .outside:
-                dismiss()
-            }
+        let dx = point.x - RadialDialMetrics.center.x
+        let dy = point.y - RadialDialMetrics.center.y
+        if hypot(dx, dy) < RadialDialMetrics.innerRadius {
+            if state.nav.canGoBack { goBack() } else { dismiss() }
             return
         }
-
-        let hit = RadialDialGeometry.hitTest(
-            point: point,
+        if let idx = RadialDialGeometry.resolveSlice(
+            at: point,
             center: RadialDialMetrics.center,
-            count: currentPage.items.count,
             innerRadius: RadialDialMetrics.innerRadius,
-            outerRadius: RadialDialMetrics.outerRadius
-        )
-        switch hit {
-        case .center:
-            let zone = hubZone(for: point)
-            if zone != 0 { step(zone) } else if let item = currentPage.centerItem { select(item) }
-        case .sector(let idx):
-            if idx < currentPage.items.count { select(currentPage.items[idx]) }
-        case .outside:
+            outerRadius: RadialDialMetrics.outerRadius,
+            totalSlices: state.nav.currentNodes.count,
+            outerSlop: 40
+        ) {
+            selectSlice(at: idx)
+        } else {
             dismiss()
         }
     }
 
-    private func select(_ item: RadialDialItem) {
+    private func selectSlice(at index: Int) {
         RadialSnapPreviewPanelController.shared.hidePreview()
-        if case .page(let id) = item.action {
-            go(to: id)
-        } else {
-            handleAction(item.action)
+        switch state.nav.selectSlice(at: index) {
+        case .invalid:
+            break
+        case .enteredSubmenu:
+            NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
+            withAnimation(reduceMotion ? .easeOut(duration: 0.1) : .spring(response: 0.32, dampingFraction: 0.78)) {
+                state.hoveredSector = nil
+                state.isCenterHovered = false
+            }
+            trackPointer()
+        case .executed(let action, _):
+            handleAction(action)
         }
     }
 
-    private func go(to id: RadialDialPageID) {
-        guard let index = pages.firstIndex(where: { $0.id == id }) else { return }
-        setPage(index)
-    }
-
-    private func step(_ delta: Int) {
-        guard pages.count > 1 else { return }
-        setPage((state.pageIndex + delta + pages.count) % pages.count)
-    }
-
-    private func setPage(_ index: Int) {
+    private func goBack() {
         RadialSnapPreviewPanelController.shared.hidePreview()
-        withAnimation(reduceMotion ? .easeOut(duration: 0.1) : .spring(response: 0.3, dampingFraction: 0.78)) {
-            state.pageIndex = index
+        withAnimation(reduceMotion ? .easeOut(duration: 0.1) : .spring(response: 0.32, dampingFraction: 0.78)) {
+            _ = state.nav.goBack()
             state.hoveredSector = nil
             state.isCenterHovered = false
-            state.hubZone = 0
         }
         trackPointer()
     }
@@ -300,28 +285,38 @@ final class RadialDialPanelController: ObservableObject {
     private func mouseReleased() {
         guard isShown, openedByMouse, triggerMode == .holdRelease else { return }
         trackPointer()
-        if let idx = state.hoveredSector, idx < currentPage.items.count {
-            select(currentPage.items[idx])
+        if let idx = state.hoveredSector {
+            selectSlice(at: idx)
         } else if Date().timeIntervalSince(shownAt) >= 0.3 {
             dismiss()
         }
     }
 
-    /// 1–9 and 0 pick wedges, ← → / Tab turn the page, Return picks the center, ⌫ goes home.
+    /// Hotkey Hold & Release: releasing the held modifier shortcut commits the hovered slice.
+    func hotkeyReleased() {
+        guard isShown, triggerMode == .hotkeyHold else { return }
+        trackPointer()
+        if let idx = state.hoveredSector {
+            selectSlice(at: idx)
+        } else if Date().timeIntervalSince(shownAt) >= 0.2 {
+            dismiss()
+        }
+    }
+
+    /// 1–8 (and 9/0) pick slices, ← / ⌫ go back up breadcrumb stack, Esc closes.
     private func handleKey(_ event: NSEvent) -> Bool {
         guard event.modifierFlags.intersection([.command, .control, .option]).isEmpty else { return false }
         switch event.keyCode {
         case 53: dismiss()
-        case 123: step(-1)
-        case 124: step(1)
-        case 48: step(event.modifierFlags.contains(.shift) ? -1 : 1)
-        case 36, 76: if let item = currentPage.centerItem { select(item) }
-        case 51: go(to: .main)
+        case 51, 123:
+            if state.nav.canGoBack { goBack() } else { dismiss() }
+        case 36, 76:
+            if state.nav.canGoBack { goBack() }
         default:
             guard let digit = event.charactersIgnoringModifiers.flatMap({ Int($0) }) else { return false }
-            let index = (digit + 9) % 10   // 1 → 0 … 9 → 8, 0 → 9
-            guard index < currentPage.items.count else { return true }
-            select(currentPage.items[index])
+            let index = (digit + 9) % 10
+            guard index < state.nav.currentNodes.count else { return true }
+            selectSlice(at: index)
         }
         return true
     }
