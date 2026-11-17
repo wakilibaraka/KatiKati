@@ -577,3 +577,52 @@ final class KeyModifierDoubleTapDetectorTests: XCTestCase {
         XCTAssertEqual(KeyVisualizerSymbol.format(keyCode: 8, modifiers: [.command, .shift], characters: "c", filter: .commandKeysOnly), "⇧⌘C")
     }
 }
+
+final class MultitouchClassifierTests: XCTestCase {
+    private func cluster(count: Int, cx: Double, cy: Double, spread: Double = 0.08, vx: Double = 0) -> [MultitouchPoint] {
+        (0..<count).map { i in
+            let offset = (Double(i) - Double(count - 1) / 2.0) * spread
+            return MultitouchPoint(id: Int32(i + 1), x: cx + offset, y: cy, vx: vx, vy: 0)
+        }
+    }
+
+    func testThreeAndFourFingerSwipesAndFlickVelocity() {
+        var reducer = GestureClassificationReducer()
+        let t0 = Date(timeIntervalSince1970: 1000)
+
+        // 3-finger travel swipe right
+        XCTAssertNil(reducer.feed(points: cluster(count: 3, cx: 0.40, cy: 0.50), at: t0))
+        XCTAssertEqual(reducer.feed(points: cluster(count: 3, cx: 0.56, cy: 0.50), at: t0.addingTimeInterval(0.05)), .threeFingerSwipeRight)
+        // Same touch stays suppressed
+        XCTAssertNil(reducer.feed(points: cluster(count: 3, cx: 0.72, cy: 0.50), at: t0.addingTimeInterval(0.08)))
+        XCTAssertNil(reducer.feed(points: [], at: t0.addingTimeInterval(0.10)))
+
+        // Debounce blocks immediate re-trigger
+        XCTAssertNil(reducer.feed(points: cluster(count: 4, cx: 0.60, cy: 0.50), at: t0.addingTimeInterval(0.20)))
+        XCTAssertNil(reducer.feed(points: cluster(count: 4, cx: 0.40, cy: 0.50), at: t0.addingTimeInterval(0.22)))
+        XCTAssertNil(reducer.feed(points: [], at: t0.addingTimeInterval(0.24)))
+
+        // After debounce, 4-finger fast flick left fires with shorter travel
+        XCTAssertNil(reducer.feed(points: cluster(count: 4, cx: 0.55, cy: 0.50), at: t0.addingTimeInterval(0.60)))
+        XCTAssertEqual(reducer.feed(points: cluster(count: 4, cx: 0.47, cy: 0.50, vx: -0.9), at: t0.addingTimeInterval(0.63)), .fourFingerSwipeLeft)
+    }
+
+    func testPinchInOutAndFourFingerTap() {
+        var reducer = GestureClassificationReducer()
+        let t0 = Date(timeIntervalSince1970: 2000)
+
+        // Pinch in (spread shrinks > 22%)
+        XCTAssertNil(reducer.feed(points: cluster(count: 4, cx: 0.5, cy: 0.5, spread: 0.12), at: t0))
+        XCTAssertEqual(reducer.feed(points: cluster(count: 4, cx: 0.5, cy: 0.5, spread: 0.06), at: t0.addingTimeInterval(0.08)), .pinchIn)
+        XCTAssertNil(reducer.feed(points: [], at: t0.addingTimeInterval(0.12)))
+
+        // Pinch out after debounce
+        XCTAssertNil(reducer.feed(points: cluster(count: 2, cx: 0.5, cy: 0.5, spread: 0.08), at: t0.addingTimeInterval(0.60)))
+        XCTAssertEqual(reducer.feed(points: cluster(count: 2, cx: 0.5, cy: 0.5, spread: 0.14), at: t0.addingTimeInterval(0.68)), .pinchOut)
+        XCTAssertNil(reducer.feed(points: [], at: t0.addingTimeInterval(0.72)))
+
+        // Four-finger quick tap
+        XCTAssertNil(reducer.feed(points: cluster(count: 4, cx: 0.5, cy: 0.5), at: t0.addingTimeInterval(1.20)))
+        XCTAssertEqual(reducer.feed(points: [], at: t0.addingTimeInterval(1.30)), .fourFingerTap)
+    }
+}
