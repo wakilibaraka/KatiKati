@@ -840,9 +840,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/ClipboardFlyoutView.swift": {
-    "mtime": 1794881863.2054207,
-    "seen": 1794882008.833673,
-    "ast_hash": "15269932c4b6980f5dd11458cd1477b1",
+    "mtime": 1794882055.709857,
+    "seen": 1794882107.3281631,
+    "ast_hash": "004cad2bb0ac44e998b00a6f00e31a06",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/DeckLabel.swift": {
@@ -1290,9 +1290,9 @@
     "semantic_hash": "cce3b50509e62e793a875bc5b2166d6c"
   },
   "App/Scenes/UtilitySettingsBlock.swift": {
-    "mtime": 1794881539.2840714,
-    "seen": 1794881603.484002,
-    "ast_hash": "da615826f08d036c7093141abac7b2e8",
+    "mtime": 1794882016.424251,
+    "seen": 1794882107.3282602,
+    "ast_hash": "e6363f7fdbc6aaab8a5b680e8f054e0d",
     "semantic_hash": ""
   },
   "App/Scenes/WeatherChip.swift": {
