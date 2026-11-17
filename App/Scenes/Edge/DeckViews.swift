@@ -792,7 +792,14 @@ struct ScratchpadPane: View {
                     copied = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { copied = false }
                 } label: {
-                    Text(copied ? "Copied" : "Copy All").font(.system(size: 11, weight: .semibold))
+                    Group {
+                        if copied {
+                            Text("Copied")
+                        } else {
+                            Text("Copy All")
+                        }
+                    }
+                    .font(.system(size: 11, weight: .semibold))
                 }
                 .buttonStyle(.plain)
                 .disabled(store.document.isEmpty)

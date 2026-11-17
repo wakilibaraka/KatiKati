@@ -85732,6 +85732,23 @@
         }
       }
     },
+    "Telemetry slows down while a full-screen app or Low Power Mode is active.": {
+      "comment": "System flyout · throttled badge help",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "全屏应用或低电量模式开启时，遥测采样会放慢。" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Telemetry slows down while a full-screen app or Low Power Mode is active." } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "全螢幕 App 或低耗電模式開啟時，遙測取樣會放慢。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フルスクリーンアプリまたは低電力モード中はテレメトリの更新が遅くなります。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Bei einer Vollbild-App oder im Energiesparmodus wird die Telemetrie langsamer aktualisiert." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "La télémétrie ralentit lorsqu'une app plein écran ou le mode économie d'énergie est actif." } },
+        "es": { "stringUnit": { "state": "translated", "value": "La telemetría se ralentiza con una app a pantalla completa o el modo de bajo consumo activo." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "La telemetría se ralentiza con una app a pantalla completa o el modo de bajo consumo activo." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "A telemetria fica mais lenta com um app em tela cheia ou o modo de baixo consumo ativo." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "A telemetria abranda com uma app em ecrã inteiro ou o modo de poupança de energia ativo." } },
+        "it": { "stringUnit": { "state": "translated", "value": "La telemetria rallenta con un'app a schermo intero o la modalità risparmio energetico attiva." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "전체 화면 앱이나 저전력 모드가 켜져 있으면 원격 측정이 느려집니다." } }
+      }
+    },
     "Teleprompter": {
       "extractionState": "manual",
       "localizations": {
