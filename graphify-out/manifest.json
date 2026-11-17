@@ -1638,9 +1638,9 @@
     "semantic_hash": "bdfcd13a0641436281c4eb25360e5f04"
   },
   "Core/Support/CommandBar.swift": {
-    "mtime": 1794849634.4758508,
-    "seen": 1794849657.636599,
-    "ast_hash": "dabd81c4eb48a124bdf2d882858ae44f",
+    "mtime": 1794923341.5838852,
+    "seen": 1794923603.602848,
+    "ast_hash": "40cb2e48fde6a83cb2fc50c862a91f68",
     "semantic_hash": ""
   },
   "Core/Support/CommandBarKeywords.swift": {
@@ -3300,9 +3300,9 @@
     "semantic_hash": "8db4b44a5d400a761b79c9810d5581f1"
   },
   "Tests/Unit/CommandBarTests.swift": {
-    "mtime": 1794862475.1676502,
-    "seen": 1794863113.700428,
-    "ast_hash": "01eb7affac92e842a0867f6348c7c842",
+    "mtime": 1794923353.4521565,
+    "seen": 1794923603.603123,
+    "ast_hash": "ea0fef2904de32482cfd9300f95a9a9a",
     "semantic_hash": ""
   },
   "Tests/Unit/Core/Support/ClockChipContentTests.swift": {
