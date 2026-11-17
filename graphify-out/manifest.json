@@ -1914,9 +1914,9 @@
     "semantic_hash": "404da9ec110c1e60f2a8212e29c24679"
   },
   "Core/Support/KeyGuard.swift": {
-    "mtime": 1794871510.9565232,
-    "seen": 1794872112.138907,
-    "ast_hash": "91238a660ba83895a35c05fc59934198",
+    "mtime": 1794911114.872897,
+    "seen": 1794911175.5169332,
+    "ast_hash": "99e3ab9adc4d803cbb2bd10fd4da2cfc",
     "semantic_hash": ""
   },
   "Core/Support/LaunchGateDecision.swift": {
@@ -3618,9 +3618,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/KeyGuardTests.swift": {
-    "mtime": 1794872184.0397656,
-    "seen": 1794872315.406285,
-    "ast_hash": "3092686ae833d8b102ee520bac74e949",
+    "mtime": 1794910914.2914956,
+    "seen": 1794911175.517211,
+    "ast_hash": "b7680d515fe28e493f8a72dd9240406d",
     "semantic_hash": ""
   },
   "Tests/Unit/LaunchAtLoginServiceTests.swift": {
