@@ -162,7 +162,6 @@ final class NotchPanelController: LiveEventSink {
             return
         }
         let presentation = LiveEventPresentation(event)
-        model.event = presentation
         let now = Date()
         model.activityQueue.enqueue(
             NotchActivityItem(
@@ -177,13 +176,9 @@ final class NotchPanelController: LiveEventSink {
             now: now
         )
         scheduleHUDExpiration()
-        eventWork?.cancel()
-        let work = DispatchWorkItem { [weak self] in
-            self?.model.event = nil
-            self?.evaluateHover()
+        if !model.isExpanded {
+            trackPill.show(below: model.closedSize.height) { AnyView(NotchEventPillView(model: $0, event: presentation)) }
         }
-        eventWork = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + NotchMotionSpec.eventLifetime, execute: work)
     }
 
     // MARK: hover

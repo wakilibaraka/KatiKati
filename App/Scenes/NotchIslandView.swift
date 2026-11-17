@@ -70,6 +70,7 @@ struct NotchIslandView: View {
     @AppStorage(NotchPageLayout.defaultsKey) private var pageLayoutRaw = ""   // re-renders the page strip
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
     @AppStorage(NotchRestContent.defaultsKey) private var restContent = NotchRestContent.dockChips.rawValue
+    @AppStorage(NotchBehavior.musicBatteryKey) private var musicBattery = true
     @AppStorage(NotchOpenAnimation.defaultsKey) private var openAnimation = NotchOpenAnimation.boring.rawValue
     @AppStorage(NotchSizePreset.outlineKey) private var showOutline = false
     @AppStorage(NotchSizePreset.translucentKey) private var translucent = false
@@ -391,7 +392,9 @@ struct NotchIslandView: View {
             .frame(width: NotchGeometry.sneakSide - 14, alignment: .leading)
             Spacer(minLength: metrics.closedSize.width - 8)
             if case .music = activity.content {
-                NotchLiveBattery().frame(width: NotchGeometry.sneakSide - 14, alignment: .trailing)   // battery stays put while music plays; no song text
+                if musicBattery {
+                    NotchLiveBattery().frame(width: NotchGeometry.sneakSide - 14, alignment: .trailing)   // battery stays put while music plays unless user opts out
+                }
             } else if let value = LiveIslandStyle.valueText(for: activity) {
                 value
                     .font(.system(size: 11, weight: .semibold))

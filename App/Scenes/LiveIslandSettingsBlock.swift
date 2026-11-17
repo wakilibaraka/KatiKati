@@ -206,6 +206,7 @@ private struct NotchActivityCard: View {
     @AppStorage(NotchMusicGlow.defaultsKey) private var glow = NotchMusicGlow.default.rawValue
     @AppStorage("com.katikati.notch.trackToast") private var trackToast = true
     @AppStorage("com.katikati.notch.batteryBuddy") private var batteryBuddy = true
+    @AppStorage(NotchBehavior.musicBatteryKey) private var musicBattery = true
     @AppStorage(NotchBehavior.lowBatteryTintKey) private var tintsLow = true
     // 59b: the same low level the Notifications page edits, not a second one.
     @ObservedObject private var alerts = PowerNotificationCenter.shared
@@ -241,6 +242,8 @@ private struct NotchActivityCard: View {
             SettingsToggleRow(Text(verbatim: "New song pill"), isOn: $trackToast)
             SettingsDivider()
             SettingsToggleRow(Text(verbatim: "Low Bluetooth battery pill"), isOn: $batteryBuddy)
+            SettingsDivider()
+            SettingsToggleRow(Text(verbatim: "Battery during music"), isOn: $musicBattery)
             SettingsDivider()
             SettingsToggleRow(Text(verbatim: "Turn red when low"), isOn: $tintsLow)
             if tintsLow {

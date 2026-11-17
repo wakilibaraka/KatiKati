@@ -12,30 +12,23 @@ struct NotchDockChips: View {
         let pair = NotchRestContent(rawValue: rest) ?? .dockChips
         HStack(spacing: 0) {
             if let left = pair.left {
-                Group {
-                    if left == .time {
-                        TimelineView(.everyMinute) { ctx in
-                            Text(verbatim: ctx.date.formatted(date: .omitted, time: .shortened))
-                        }
-                    } else {
-                        HStack(spacing: 3) {
-                            Image(systemName: "internaldrive.fill").font(.system(size: 10, weight: .semibold)).foregroundStyle(.cyan)
-                            Text(verbatim: StorageScanMath.compact(free))
-                        }
-                    }
-                }
-                .font(.system(size: 10, weight: .semibold, design: .rounded).monospacedDigit())
-                .foregroundStyle(.white)
-                .lineLimit(1).minimumScaleFactor(0.7)
-                .frame(width: NotchGeometry.sneakSide - 14, alignment: .leading)
-                .accessibilityElement(children: .combine)
+                leftEarView(left)
+                    .font(.system(size: 10, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.white)
+                    .lineLimit(1).minimumScaleFactor(0.7)
+                    .frame(width: NotchGeometry.sneakSide - 14, alignment: .leading)
+                    .accessibilityElement(children: .combine)
             } else {
                 Color.clear.frame(width: 0)
             }
             Spacer(minLength: metrics.closedSize.width - 8)
-            if pair.right == .battery, let level = power.status.battery.level {
-                NotchBatteryChip(level: level, battery: power.status.battery)
+            if let right = pair.right {
+                rightEarView(right)
+                    .font(.system(size: 10, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.white)
+                    .lineLimit(1).minimumScaleFactor(0.7)
                     .frame(width: NotchGeometry.sneakSide - 14, alignment: .trailing)
+                    .accessibilityElement(children: .combine)
             }
         }
         .frame(maxHeight: metrics.closedSize.height)
@@ -48,6 +41,59 @@ struct NotchDockChips: View {
             }
         }
     }
+
+    @ViewBuilder
+    private func leftEarView(_ ear: NotchRestContent.Ear) -> some View {
+        switch ear {
+        case .time:
+            TimelineView(.everyMinute) { ctx in
+                Text(verbatim: ctx.date.formatted(date: .omitted, time: .shortened))
+            }
+        case .date:
+            TimelineView(.everyMinute) { ctx in
+                Text(verbatim: ctx.date.formatted(.dateTime.weekday(.abbreviated).day()))
+            }
+        case .storage:
+            HStack(spacing: 3) {
+                Image(systemName: "internaldrive.fill").font(.system(size: 10, weight: .semibold)).foregroundStyle(.cyan)
+                Text(verbatim: StorageScanMath.compact(free))
+            }
+        case .storageLabel:
+            HStack(spacing: 3) {
+                Image(systemName: "internaldrive.fill").font(.system(size: 10, weight: .semibold)).foregroundStyle(.cyan)
+                Text(verbatim: "SSD")
+            }
+        case .batteryIcon:
+            if let level = power.status.battery.level {
+                NotchBatteryChip(level: level, battery: power.status.battery, showsPercentage: false)
+            }
+        case .battery, .batteryPercent:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private func rightEarView(_ ear: NotchRestContent.Ear) -> some View {
+        switch ear {
+        case .battery:
+            if let level = power.status.battery.level {
+                NotchBatteryChip(level: level, battery: power.status.battery)
+            }
+        case .batteryPercent:
+            if let level = power.status.battery.level {
+                Text(verbatim: "\(level)%")
+                    .foregroundStyle(power.status.battery.isCharging ? .green : .white)
+            }
+        case .storage:
+            Text(verbatim: StorageScanMath.compact(free))
+        case .time:
+            TimelineView(.everyMinute) { ctx in
+                Text(verbatim: ctx.date.formatted(date: .omitted, time: .shortened))
+            }
+        case .storageLabel, .date, .batteryIcon:
+            EmptyView()
+        }
+    }
 }
 
 /// Percentage + a drawn battery (the SF glyphs are too wide for the 50pt slot at "100%"). Colour and bolt
@@ -56,6 +102,7 @@ struct NotchBatteryChip: View {
     let level: Int
     let battery: BatteryStatus
     var scale: CGFloat = 1
+    var showsPercentage: Bool = true
     @State private var pulse = false
     @AppStorage(NotchBehavior.lowBatteryTintKey) private var tintsLow = true
     // 59b: the Notifications page owns the low level; this reads the same value.
@@ -69,11 +116,13 @@ struct NotchBatteryChip: View {
 
     var body: some View {
         HStack(spacing: 3) {
-            Text(verbatim: "\(level)%")
-                .font(.system(size: 10 * scale, weight: .semibold, design: .rounded).monospacedDigit())
-                .foregroundStyle(.white)
-                .lineLimit(1).fixedSize()
-                .contentTransition(.numericText(value: Double(level)))
+            if showsPercentage {
+                Text(verbatim: "\(level)%")
+                    .font(.system(size: 10 * scale, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.white)
+                    .lineLimit(1).fixedSize()
+                    .contentTransition(.numericText(value: Double(level)))
+            }
             ZStack {
                 RoundedRectangle(cornerRadius: 2.5, style: .continuous)
                     .strokeBorder(.white.opacity(0.55), lineWidth: 1)
