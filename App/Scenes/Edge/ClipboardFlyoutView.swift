@@ -30,11 +30,10 @@ struct ClipboardFlyoutView: View {
         BandTile(env: env, kind: .countdown, width: size.width - 16, height: size.height - 16, header: {
             HStack {
                 Text("Clipboard")
-                if monitor.captureMode != .active {
-                    Text(monitor.captureMode == .paused ? "Paused" : "Skipping Next Copy")
-                        .font(.system(size: 9, weight: .bold))
-                        .padding(.horizontal, 6).padding(.vertical, 2)
-                        .background(Capsule().fill(env.secondary.opacity(0.18)))
+                if monitor.captureMode == .paused {
+                    capturePill(Text("Paused"), env: env)
+                } else if monitor.captureMode.isSkippingNextCopy {
+                    capturePill(Text("Skipping Next Copy"), env: env)
                 }
                 Spacer()
                 if !monitor.history.entries.isEmpty {
@@ -93,6 +92,13 @@ struct ClipboardFlyoutView: View {
         } message: {
             Text("Pinned entries stay; everything else is forgotten. History is never saved to disk.")
         }
+    }
+
+    private func capturePill(_ title: Text, env: TileEnv) -> some View {
+        title
+            .font(.system(size: 9, weight: .bold))
+            .padding(.horizontal, 6).padding(.vertical, 2)
+            .background(Capsule().fill(env.secondary.opacity(0.18)))
     }
 
     /// MC-3: ⌘1–⌘9 stay with their pin while the history churns; only the gaps move.

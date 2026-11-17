@@ -898,8 +898,12 @@ struct ClipboardSettingsPane: View {
             SettingsDivider()
             SettingsPickerRow(Text("Sort By"), selection: $sortBy) {
                 ForEach(ClipboardSortOrder.allCases) { order in
-                    Text(order == .lastCopied ? "Last Copied"
-                         : order == .firstCopied ? "First Copied" : "Most Used").tag(order.rawValue)
+                    // One literal per branch so the localizer sees all three keys.
+                    switch order {
+                    case .lastCopied: Text("Last Copied").tag(order.rawValue)
+                    case .firstCopied: Text("First Copied").tag(order.rawValue)
+                    case .mostUsed: Text("Most Used").tag(order.rawValue)
+                    }
                 }
             }
             SettingsDivider()
