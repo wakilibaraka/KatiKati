@@ -57,6 +57,10 @@ struct SettingsLayoutPane: View {
     @AppStorage("com.katikati.widgets.fabStyle") var fabStyleRaw: String = "gauge"
     /// Slice B: how many Dock pins the last Import added, and the injected importer itself (nil = hidden row).
     @State var importedDockPinCount = 0
+    /// Slice DA-2: the three dock feedback styles, stored under keys the chips already read.
+    @AppStorage(DockHoverAnimationStyle.defaultsKey) var hoverAnimationRaw = DockHoverAnimationStyle.none.rawValue
+    @AppStorage(DockPressAnimationStyle.defaultsKey) var pressAnimationRaw = DockPressAnimationStyle.tactileSquish.rawValue
+    @AppStorage(DockRunningIndicatorStyle.defaultsKey) var runningIndicatorRaw = DockRunningIndicatorStyle.macDot.rawValue
     @Environment(\.importDockPins) var importDockPins
 
 

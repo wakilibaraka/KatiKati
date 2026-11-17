@@ -76,6 +76,11 @@ struct LauncherChip: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dockThemeStyle) private var dockThemeStyle
+    // Slice DA-2: the three dock feedback styles. Defaults keep today's look; Reduce Motion retires the moving ones.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage(DockHoverAnimationStyle.defaultsKey) private var hoverAnimationRaw = DockHoverAnimationStyle.none.rawValue
+    @AppStorage(DockPressAnimationStyle.defaultsKey) private var pressAnimationRaw = DockPressAnimationStyle.tactileSquish.rawValue
+    @AppStorage(DockRunningIndicatorStyle.defaultsKey) private var runningIndicatorRaw = DockRunningIndicatorStyle.macDot.rawValue
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
     /// 见 `EnvironmentValues.isDragCarrierSnapshot`：拍副本时不画圆点、不烘投影。
     @Environment(\.isDragCarrierSnapshot) private var isDragCarrierSnapshot
@@ -99,6 +104,16 @@ struct LauncherChip: View {
         case let .resolved(value): return value
         case .selfTracked: return selfHovering
         }
+    }
+
+    private var hoverAnimation: DockHoverAnimationStyle {
+        DockMotionPolicy.hoverStyle(DockHoverAnimationStyle(rawValue: hoverAnimationRaw) ?? .none, reduceMotion: reduceMotion)
+    }
+    private var pressAnimation: DockPressAnimationStyle {
+        DockMotionPolicy.pressStyle(DockPressAnimationStyle(rawValue: pressAnimationRaw) ?? .tactileSquish, reduceMotion: reduceMotion)
+    }
+    private var runningIndicatorStyle: DockRunningIndicatorStyle {
+        DockRunningIndicatorStyle(rawValue: runningIndicatorRaw) ?? .macDot
     }
 
     /// 悬停视觉的总闸：「安静」档下恒 false，图标不缩、名字不浮出，连动画事务都不产生。
@@ -209,6 +224,9 @@ struct LauncherChip: View {
         }
 
         shaped
+            .modifier(DockIconHoverEffect(style: hoverAnimation, isActive: showsHover,
+                                          tint: DockDominantColor.color(for: bundleID)))
+            .modifier(DockIconPressEffect(style: pressAnimation, isPressed: isTapPressed))
             .offset(y: bounceUp ? -bounceLift : 0)
             .animation(.easeInOut(duration: 0.25), value: bounceUp)
     }
@@ -218,10 +236,35 @@ struct LauncherChip: View {
     private func runningDot(visual: LauncherChipVisualPlan.Visual, diameter: CGFloat,
                             edge: RunningDotEdge = .bottom) -> some View {
         if visual.showsRunningDot && !isDragCarrierSnapshot {
-            Circle()
-                .fill(theme.runningDot.color)
-                .frame(width: diameter, height: diameter)
+            // Slice DA-2: the indicator the owner picked. `macDot` keeps the old 4 pt circle byte-for-byte and is
+            // the only path that never asks `NSWorkspace` anything.
+            switch runningIndicatorStyle {
+            case .macDot:
+                Circle()
+                    .fill(theme.runningDot.color)
+                    .frame(width: diameter, height: diameter)
+                    .padding(edge.paddingEdge, 2)
+            case .windowsPill, .latteBrandLine:
+                let state = DockRunningIndicatorState.state(
+                    for: runningIndicatorStyle,
+                    isFrontmost: NSWorkspace.shared.frontmostApplication?.bundleIdentifier == bundleID,
+                    windowCount: 1
+                )
+                HStack(spacing: 2) {
+                    if runningIndicatorStyle == .latteBrandLine {
+                        Capsule().fill(DockDominantColor.color(for: bundleID))
+                            .frame(width: state.width, height: 3)
+                            .shadow(color: DockDominantColor.color(for: bundleID).opacity(0.7), radius: 4)
+                    } else {
+                        ForEach(0..<state.pipCount, id: \.self) { _ in
+                            Capsule().fill(theme.runningDot.color)
+                                .frame(width: max(2, state.width / CGFloat(state.pipCount)), height: 3)
+                        }
+                    }
+                }
+                .opacity(state.opacity)
                 .padding(edge.paddingEdge, 2)
+            }
         }
     }
 
@@ -599,6 +642,125 @@ private struct SelfTrackedHover: ViewModifier {
         } else {
             content
         }
+    }
+}
+
+/// Slice DA-2: the selected hover style, applied to the icon only. The slot keeps its size, so the neighbours never
+/// reflow; `Reduce Motion` already turned every moving style into `.colorAura` before this runs.
+struct DockIconHoverEffect: ViewModifier {
+    let style: DockHoverAnimationStyle
+    let isActive: Bool
+    let tint: Color
+
+    func body(content: Content) -> some View {
+        switch style {
+        case .none:
+            content
+        case .magnification:
+            content
+                .scaleEffect(isActive ? 1.18 : 1)
+                .animation(.spring(response: 0.22, dampingFraction: 0.72), value: isActive)
+        case .springLift:
+            content
+                .rotation3DEffect(.degrees(isActive ? 7 : 0), axis: (x: 0, y: 1, z: 0), perspective: 0.35)
+                .offset(y: isActive ? -4 : 0)
+                .shadow(color: .black.opacity(isActive ? 0.28 : 0), radius: isActive ? 6 : 0, y: 3)
+                .animation(.spring(response: 0.28, dampingFraction: 0.66), value: isActive)
+        case .jiggle:
+            content
+                .rotationEffect(.degrees(isActive ? -3.5 : 0))
+                .animation(.spring(response: 0.24, dampingFraction: 0.35), value: isActive)
+        case .colorAura:
+            content
+                .shadow(color: tint.opacity(isActive ? 0.85 : 0), radius: isActive ? 9 : 0)
+                .animation(.easeOut(duration: 0.18), value: isActive)
+        case .slidingPill:
+            content
+                .background {
+                    Capsule()
+                        .fill(tint.opacity(isActive ? 0.2 : 0))
+                        .padding(-3)
+                }
+                .animation(.easeOut(duration: 0.16), value: isActive)
+        case .magneticPull:
+            content
+                .offset(y: isActive ? -2 : 0)
+                .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isActive)
+        }
+    }
+}
+
+/// Slice DA-2: the click style. `launchBounce` leaves the launch animation to `LauncherChip` and only softens the press,
+/// so the two never fight over the same offset.
+struct DockIconPressEffect: ViewModifier {
+    let style: DockPressAnimationStyle
+    let isPressed: Bool
+
+    func body(content: Content) -> some View {
+        switch style {
+        case .tactileSquish:
+            content
+                .scaleEffect(isPressed ? 0.93 : 1)
+                .animation(.spring(response: 0.18, dampingFraction: 0.6), value: isPressed)
+        case .launchBounce:
+            content
+                .scaleEffect(isPressed ? 0.97 : 1)
+                .animation(.spring(response: 0.3, dampingFraction: 0.55), value: isPressed)
+        case .ripple:
+            content.overlay {
+                Circle()
+                    .stroke(Color.white.opacity(isPressed ? 0.5 : 0), lineWidth: 1.5)
+                    .scaleEffect(isPressed ? 1.25 : 0.6)
+                    .animation(.easeOut(duration: 0.25), value: isPressed)
+            }
+        case .flip3D:
+            content
+                .rotation3DEffect(.degrees(isPressed ? 12 : 0), axis: (x: 1, y: 0, z: 0), perspective: 0.4)
+                .animation(.spring(response: 0.22, dampingFraction: 0.7), value: isPressed)
+        }
+    }
+}
+
+/// Slice DA-2: one sampled colour per app icon, kept for the session. The `colorAura` glow and the Latte brand line read
+/// this cache, so no frame ever re-samples an image.
+enum DockDominantColor {
+    private static var cache: [String: Color] = [:]
+    private static let lock = NSLock()
+
+    static func color(for bundleID: String) -> Color {
+        lock.lock()
+        defer { lock.unlock() }
+        if let cached = cache[bundleID] { return cached }
+        let sampled = sample(AppIconResolver.icon(for: bundleID)) ?? .accentColor
+        cache[bundleID] = sampled
+        return sampled
+    }
+
+    /// Averages a coarse grid, skipping transparent, near-black and near-white pixels so a dark glyph on a transparent
+    /// icon does not drag the colour to black.
+    private static func sample(_ image: NSImage) -> Color? {
+        guard let data = image.tiffRepresentation,
+              let rep = NSBitmapImageRep(data: data) else { return nil }
+        let stepX = max(1, rep.pixelsWide / 12)
+        let stepY = max(1, rep.pixelsHigh / 12)
+        var r = 0.0, g = 0.0, b = 0.0, weight = 0.0
+        var y = 0
+        while y < rep.pixelsHigh {
+            var x = 0
+            while x < rep.pixelsWide {
+                guard let pixel = rep.colorAt(x: x, y: y)?.usingColorSpace(.sRGB) else { x += stepX; continue }
+                let alpha = pixel.alphaComponent
+                let lum = 0.2126 * pixel.redComponent + 0.7152 * pixel.greenComponent + 0.0722 * pixel.blueComponent
+                if alpha > 0.5, lum > 0.06, lum < 0.94 {
+                    r += pixel.redComponent; g += pixel.greenComponent; b += pixel.blueComponent
+                    weight += 1
+                }
+                x += stepX
+            }
+            y += stepY
+        }
+        guard weight > 0 else { return nil }
+        return Color(red: r / weight, green: g / weight, blue: b / weight)
     }
 }
 import SwiftUI

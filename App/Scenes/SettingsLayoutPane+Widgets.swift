@@ -78,6 +78,35 @@ extension SettingsLayoutPane {
         // The widget-look block is composed by the Widgets tab instead: its controls live in the
         // app-only `SettingsWindowView`, and this pane also compiles into the test target.
         SettingsCard(Text("Dock Items")) {
+            // Slice DA-2: how the icons answer the pointer and the click, and how a running app is marked. The
+            // list below gives these three rows their height back in `widgetListCap`, so the page keeps its clamp.
+            SettingsRow(Text("Hover Animation")) {
+                Picker("Hover Animation", selection: $hoverAnimationRaw) {
+                    ForEach(DockHoverAnimationStyle.allCases) { style in
+                        hoverAnimationTitle(style).tag(style.rawValue)
+                    }
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            SettingsDivider()
+            SettingsRow(Text("Click Effect")) {
+                Picker("Click Effect", selection: $pressAnimationRaw) {
+                    ForEach(DockPressAnimationStyle.allCases) { style in
+                        pressAnimationTitle(style).tag(style.rawValue)
+                    }
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            SettingsDivider()
+            SettingsRow(Text("Running Indicator")) {
+                Picker("Running Indicator", selection: $runningIndicatorRaw) {
+                    ForEach(DockRunningIndicatorStyle.allCases) { style in
+                        runningIndicatorTitle(style).tag(style.rawValue)
+                    }
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            SettingsDivider()
             List {
                 ForEach(store.widgetLayout.order, id: \.self) { widget in
                     widgetRow(widget)
@@ -281,7 +310,39 @@ extension SettingsLayoutPane {
     /// row its 41 pt back and the page stays inside the 1074 pt clamp either way (measured 1061 pt with
     /// the presets off, `DOCK_SETTINGS_PAGE_HEIGHT`).
     var widgetListCap: CGFloat {
-        Self.widgetListMaxHeight - (store.contextPresetsEnabled ? Self.widgetRowHeight + 4 : 0)
+        // Three feedback pickers (DA-2) sit above the list: give them their 41 pt rows back.
+        let pickerRows = 3 * (Self.widgetRowHeight + 4)
+        return Self.widgetListMaxHeight - pickerRows
+            - (store.contextPresetsEnabled ? Self.widgetRowHeight + 4 : 0)
+    }
+
+    func hoverAnimationTitle(_ style: DockHoverAnimationStyle) -> Text {
+        switch style {
+        case .none: return Text("None")
+        case .magnification: return Text("Magnification")
+        case .springLift: return Text("Spring Lift")
+        case .jiggle: return Text("Jiggle")
+        case .colorAura: return Text("Color Aura")
+        case .slidingPill: return Text("Sliding Pill")
+        case .magneticPull: return Text("Magnetic Pull")
+        }
+    }
+
+    func pressAnimationTitle(_ style: DockPressAnimationStyle) -> Text {
+        switch style {
+        case .tactileSquish: return Text("Tactile Squish")
+        case .launchBounce: return Text("Launch Bounce")
+        case .ripple: return Text("Ripple")
+        case .flip3D: return Text("Flip 3D")
+        }
+    }
+
+    func runningIndicatorTitle(_ style: DockRunningIndicatorStyle) -> Text {
+        switch style {
+        case .macDot: return Text("Dot")
+        case .windowsPill: return Text("Windows Pill")
+        case .latteBrandLine: return Text("Brand Line")
+        }
     }
 
     /// SF Symbol per module, so a row reads as an icon + title like the dock's own tiles.
