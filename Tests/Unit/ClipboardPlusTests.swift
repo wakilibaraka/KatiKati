@@ -131,3 +131,71 @@ final class ClipboardCardMetadataTests: XCTestCase {
         XCTAssertEqual(ClipboardToastBadge.badge(for: "hello"), "5 ch")
     }
 }
+
+/// Slice MC-2 — the Maccy-derived pure rules: pasteboard filter, capture mode, pin slots and key mapping.
+final class MaccyClipboardTests: XCTestCase {
+    func testConcealedAndRemoteCopiesAreFilteredByRule() {
+        XCTAssertFalse(MaccyPasteboardFilter.shouldRecord(types: ["public.utf8-plain-text", "org.nspasteboard.ConcealedType"]))
+        XCTAssertFalse(MaccyPasteboardFilter.shouldRecord(types: ["com.agilebits.onepassword"]))
+        XCTAssertFalse(MaccyPasteboardFilter.shouldRecord(types: ["org.nspasteboard.TransientType"]))
+        XCTAssertTrue(MaccyPasteboardFilter.shouldRecord(types: ["public.utf8-plain-text"]))
+        var rules = MaccyPasteboardFilter.Rules()
+        rules.ignoreConcealed = false
+        XCTAssertTrue(MaccyPasteboardFilter.shouldRecord(types: ["org.nspasteboard.ConcealedType"], rules: rules))
+    }
+
+    func testUniversalClipboardAndUserIgnoresAreOptional() {
+        let types = ["public.utf8-plain-text", "com.apple.is-remote-clipboard"]
+        XCTAssertTrue(MaccyPasteboardFilter.shouldRecord(types: types))
+        var rules = MaccyPasteboardFilter.Rules(ignoreUniversal: true)
+        XCTAssertFalse(MaccyPasteboardFilter.shouldRecord(types: types, rules: rules))
+
+        rules = MaccyPasteboardFilter.Rules(ignoredBundleIDs: ["com.example.Secret"], ignoredPatterns: ["token="])
+        XCTAssertFalse(MaccyPasteboardFilter.shouldRecord(types: ["public.utf8-plain-text"],
+                                                           sourceBundleID: "com.example.Secret", rules: rules))
+        XCTAssertTrue(MaccyPasteboardFilter.shouldRecord(types: ["public.utf8-plain-text"],
+                                                          sourceBundleID: "com.example.Other", text: "hello", rules: rules))
+        XCTAssertFalse(MaccyPasteboardFilter.shouldRecord(types: ["public.utf8-plain-text"],
+                                                           text: "api TOKEN=abc", rules: rules))
+    }
+
+    func testSkipNextCopyIgnoresExactlyOneCopy() {
+        XCTAssertEqual(ClipboardCaptureMode.active.shouldRecordCopy().record, true)
+        XCTAssertEqual(ClipboardCaptureMode.paused.shouldRecordCopy().record, false)
+        XCTAssertEqual(ClipboardCaptureMode.paused.shouldRecordCopy().nextMode, .paused)
+
+        let skipped = ClipboardCaptureMode.skipNextCopy.shouldRecordCopy()
+        XCTAssertFalse(skipped.record)
+        XCTAssertEqual(skipped.nextMode, .active, "the latch clears itself after one copy")
+        XCTAssertEqual(skipped.nextMode.shouldRecordCopy().record, true)
+    }
+
+    func testPinSlotsStayPutAndStopAtNine() {
+        let ids = (1...11).map { _ in UUID() }
+        let first = MaccyPinShortcutAssigner.assign(pinnedIDs: ids)
+        XCTAssertEqual(first[ids[0]], 1)
+        XCTAssertEqual(first[ids[8]], 9)
+        XCTAssertNil(first[ids[9]], "a tenth pin is unnumbered")
+        XCTAssertEqual(MaccyPinShortcutAssigner.assign(pinnedIDs: ids, previous: first), first)
+
+        // Unpin the second: its slot is offered to the next unnumbered pin, everyone else keeps their number.
+        let fewer = ids.enumerated().filter { $0.offset != 1 }.map(\.element)
+        let second = MaccyPinShortcutAssigner.assign(pinnedIDs: fewer, previous: first)
+        XCTAssertEqual(second[ids[0]], 1)
+        XCTAssertNil(second[ids[1]])
+        XCTAssertEqual(second[ids[9]], 2, "the gap left by an unpin is refilled")
+        XCTAssertEqual(second[ids[8]], 9)
+    }
+
+    func testKeyboardTableMatchesMaccy() {
+        XCTAssertEqual(MaccyKeyAction.action(key: "return", modifiers: []), .copy)
+        XCTAssertEqual(MaccyKeyAction.action(key: "\r", modifiers: .option), .paste)
+        XCTAssertEqual(MaccyKeyAction.action(key: "return", modifiers: [.option, .shift]), .pastePlain)
+        XCTAssertEqual(MaccyKeyAction.action(key: "p", modifiers: .option), .togglePin)
+        XCTAssertEqual(MaccyKeyAction.action(key: "delete", modifiers: .option), .delete)
+        XCTAssertEqual(MaccyKeyAction.action(key: "backspace", modifiers: [.option, .command]), .clearUnpinned)
+        XCTAssertEqual(MaccyKeyAction.action(key: "\u{7f}", modifiers: [.shift, .option, .command]), .clearAll)
+        XCTAssertNil(MaccyKeyAction.action(key: "return", modifiers: .command))
+        XCTAssertNil(MaccyKeyAction.action(key: "x", modifiers: .option))
+    }
+}
