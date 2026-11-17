@@ -415,4 +415,61 @@ final class SideDeckLogicTests: XCTestCase {
         selection.move(by: 1, count: 0)
         XCTAssertEqual(selection.index, 0)
     }
+
+    // MARK: Dictionary / Terminal are modules (slice DI-1)
+
+    func testDictionaryAndTerminalAreOneSectionEach() {
+        let toolSections = BarSection.allCases.filter { DockToolDeduplication.bundleIDBySection[$0] != nil }
+        XCTAssertEqual(Set(toolSections), [.dictionary, .terminal], "exactly one module per tool")
+        XCTAssertEqual(BarSection.allCases.count, Set(BarSection.allCases).count)
+        XCTAssertEqual(BarSection.defaultOrder.count, Set(BarSection.defaultOrder).count)
+        XCTAssertEqual(WidgetLayout.default.order.count, Set(WidgetLayout.default.order).count,
+                       "the settings list is a permutation: no row appears twice")
+        XCTAssertEqual(Set(DockToolDeduplication.bundleIDBySection.values).count, 2,
+                       "Dictionary and Terminal never name the same app")
+    }
+
+    func testVisibleModuleSuppressesItsAppIcon() {
+        let both: [BarSection] = [.apps, .dictionary, .terminal]
+        XCTAssertEqual(DockToolDeduplication.suppressedAppBundleIDs(enabledSections: both),
+                       ["com.apple.Dictionary", "com.apple.Terminal"])
+        XCTAssertEqual(DockToolDeduplication.visibleAppBundleIDs(
+            ["com.apple.Terminal", "com.apple.Safari", "com.apple.Dictionary"], enabledSections: both),
+            ["com.apple.Safari"], "the apps strip keeps only what has no module of its own")
+        XCTAssertTrue(DockToolDeduplication.isModuleOwned("com.apple.Terminal", by: ["com.apple.Terminal"]))
+        XCTAssertFalse(DockToolDeduplication.isModuleOwned(nil, by: ["com.apple.Terminal"]))
+    }
+
+    func testHiddenModuleKeepsItsAppIcon() {
+        let appsOnly: [BarSection] = [.apps, .weather, .clock]
+        XCTAssertTrue(DockToolDeduplication.suppressedAppBundleIDs(enabledSections: appsOnly).isEmpty)
+        XCTAssertEqual(DockToolDeduplication.visibleAppBundleIDs(
+            ["com.apple.Terminal", "com.apple.Dictionary"], enabledSections: appsOnly),
+            ["com.apple.Terminal", "com.apple.Dictionary"])
+        // .dictionary off, .terminal on: one icon returns, the other stays suppressed.
+        XCTAssertEqual(DockToolDeduplication.visibleAppBundleIDs(
+            ["com.apple.Terminal", "com.apple.Dictionary"], enabledSections: [.apps, .terminal]),
+            ["com.apple.Dictionary"])
+    }
+
+    @MainActor
+    func testModuleEyeIsTheOnlySwitchTheOldKeysStillReach() {
+        let suite = "DockToolDeduplication.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.removePersistentDomain(forName: suite)
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertTrue(store.showTerminalChip)
+        store.setShowTerminalChip(false)
+        XCTAssertFalse(store.widgetLayout.instance(for: .terminal).isVisible,
+                       "the old setter writes the module, not a second flag")
+        XCTAssertTrue(store.showDictionaryChip, "the other tool is untouched")
+        // A pre-module hide still hides the module when no layout was ever saved.
+        let legacySuite = "DockToolDeduplication.legacy.\(UUID().uuidString)"
+        let legacy = UserDefaults(suiteName: legacySuite)!
+        legacy.removePersistentDomain(forName: legacySuite)
+        legacy.set(false, forKey: "com.katikati.showDictionaryChip")
+        let migrated = AppSettingsStore(defaults: legacy)
+        XCTAssertFalse(migrated.showDictionaryChip)
+        XCTAssertTrue(migrated.showTerminalChip)
+    }
 }

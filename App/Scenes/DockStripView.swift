@@ -752,7 +752,7 @@ struct DockStripView: View {
             }
         case let .keptApp(bid):
             launcherTap(bid, hasRealWindow: false)   // 保留占位只在没有真窗口时存在
-        case .pinnedFolder, .shelf, .pop, .dictionary, .terminal, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
+        case .pinnedFolder, .shelf, .pop, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return   // 空档不可拖，也就不会有飞行中的载荷指向它
         }
     }
@@ -867,7 +867,7 @@ struct DockStripView: View {
                 : nil
             return DragCarrierGeometry.pickUpPose(chipHeight: height, pressedScale: nil,
                                                   hoverScale: hoverScale)
-        case .shelf, .pop, .dictionary, .terminal, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
+        case .shelf, .pop, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return .resting
         }
     }
@@ -1331,7 +1331,7 @@ struct DockStripView: View {
                                            value: StripChipFrames(id: "pop", zone: .pop,
                                                                   frame: geo.frame(in: .named("strip"))))
                 })
-        case .divider, .sectionPlaceholder, .dictionary, .terminal:
+        case .divider, .sectionPlaceholder:
             stripEntryView(entry, projection: projection)
         case .externalDropGhost:
             // 让位空档：**刻意不经 `stripEntryView`**。那个函数是悬停帧的唯一上报口，
@@ -1561,16 +1561,6 @@ struct DockStripView: View {
             )
             .stripEntrance(id: entrance ? entry.id : nil, delay: 0,
                            animatedEntryIDs: $animatedEntryIDs)
-        case .dictionary:
-            ToolChip(symbol: "character.book.closed", tint: Color(red: 0.16, green: 0.40, blue: 0.85),
-                     help: String(localized: "Dictionary"), scale: dockScale, railTile: isRail,
-                     hoverStyle: hoverStyle, isHovered: hovered, onTap: { runtime.onToggleDictionary?() })
-                .stripEntrance(id: entrance ? entry.id : nil, delay: 0, animatedEntryIDs: $animatedEntryIDs)
-        case .terminal:
-            ToolChip(symbol: "terminal", tint: Color(white: 0.14),
-                     help: String(localized: "Terminal"), scale: dockScale, railTile: isRail,
-                     hoverStyle: hoverStyle, isHovered: hovered, onTap: { runtime.onToggleTerminal?() })
-                .stripEntrance(id: entrance ? entry.id : nil, delay: 0, animatedEntryIDs: $animatedEntryIDs)
         case .shelf:
             ShelfChip(
                 itemCount: shelfStore.itemPaths.count,

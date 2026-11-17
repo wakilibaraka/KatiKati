@@ -166,8 +166,6 @@ final class AppSettingsStore: ObservableObject {
     /// The background-apps capsule; off leaves the drawer to the menu and shortcut only.
     @Published private(set) var showBackgroundApps: Bool
     /// Dictionary and Terminal dock chips, default ON. Their widgets are `BarSection`s: shown or hidden in the widget layout.
-    @Published private(set) var showDictionaryChip: Bool
-    @Published private(set) var showTerminalChip: Bool
     /// Live Island on the dock capsule (default ON — today's behaviour).
     @Published private(set) var dockIslandEnabled: Bool
     /// Live Island on the notch (default ON; the welcome guide offers a switch to turn it off).
@@ -212,6 +210,11 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var widgetOrder: [BarSection]
     /// Phase 10a widget arrangement (order / size / visibility). Not yet consumed by the strip.
     @Published private(set) var widgetLayout: WidgetLayout
+
+    /// Slice DI-1: Dictionary and Terminal are `BarSection` modules, so these two switches are a view of
+    /// the module list — one control (the module's eye) and one stored truth, never a second flag.
+    var showDictionaryChip: Bool { widgetLayout.instance(for: .dictionary).isVisible }
+    var showTerminalChip: Bool { widgetLayout.instance(for: .terminal).isVisible }
     /// Where the Control Centre disc lives. On (default): it holds the bar's trailing end and the
     /// drawer capsule moves one slot in. Off: the capsule keeps the trailing end (pre-2026-10-21).
     @Published private(set) var controlCentreTrailing: Bool
@@ -467,8 +470,6 @@ final class AppSettingsStore: ObservableObject {
         showTrash = defaults.bool(forKey: Keys.showTrash)
         showDrawer = defaults.bool(forKey: Keys.showDrawer)
         showBackgroundApps = defaults.bool(forKey: Keys.showBackgroundApps)
-        showDictionaryChip = defaults.bool(forKey: Keys.showDictionaryChip)
-        showTerminalChip = defaults.bool(forKey: Keys.showTerminalChip)
         controlCentreTrailing = defaults.bool(forKey: Keys.controlCentreTrailing)
         dockIslandEnabled = defaults.bool(forKey: Keys.dockIslandEnabled)
         notchIslandEnabled = defaults.bool(forKey: Keys.notchIslandEnabled)
@@ -570,8 +571,16 @@ final class AppSettingsStore: ObservableObject {
         // Phase 40e: the sliders that wrote this legacy dictionary retired, but the migration stays — a
         // stored width still renders as it did, and picking any S/M/L preset clears it (`setWidgetSize`).
         let legacyWidgetWidths = defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:]
-        let storedWidgetLayout = WidgetLayout.decode(defaults.data(forKey: WidgetLayout.defaultsKey))
+        var storedWidgetLayout = WidgetLayout.decode(defaults.data(forKey: WidgetLayout.defaultsKey))
             ?? WidgetLayout.migrating(legacyWidths: legacyWidgetWidths)
+        // Slice DI-1: the two tools used to have `show…Chip` keys of their own. A hide stored under them
+        // still hides the module — read once, and only while no layout has ever been saved, because a
+        // rearranged dock is already the newer truth.
+        if defaults.object(forKey: WidgetLayout.defaultsKey) == nil {
+            storedWidgetLayout = storedWidgetLayout
+                .updating(.dictionary) { $0.isVisible = defaults.bool(forKey: Keys.showDictionaryChip) }
+                .updating(.terminal) { $0.isVisible = defaults.bool(forKey: Keys.showTerminalChip) }
+        }
         widgetLayout = storedWidgetLayout
         widgetOrder = storedWidgetLayout.visibleOrder
         stripPlacementMap = StripPlacementMap.decode(defaults.data(forKey: StripPlacementMap.defaultsKey)) ?? StripPlacementMap()
@@ -1380,16 +1389,14 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.showDrawer)
     }
 
-    func setShowDictionaryChip(_ value: Bool) {
-        guard showDictionaryChip != value else { return }
-        showDictionaryChip = value
-        defaults.set(value, forKey: Keys.showDictionaryChip)
-    }
+    /// Slice DI-1: the modules' own eye toggles write the layout; these two names stay for callers and
+    /// for the old keys' one-time migration, so there is still only one stored switch.
+    func setShowDictionaryChip(_ value: Bool) { setWidgetVisible(value, for: .dictionary) }
+    func setShowTerminalChip(_ value: Bool) { setWidgetVisible(value, for: .terminal) }
 
-    func setShowTerminalChip(_ value: Bool) {
-        guard showTerminalChip != value else { return }
-        showTerminalChip = value
-        defaults.set(value, forKey: Keys.showTerminalChip)
+    func setWidgetVisible(_ isVisible: Bool, for section: BarSection) {
+        guard widgetLayout.instance(for: section).isVisible != isVisible else { return }
+        setWidgetLayout(widgetLayout.updating(section) { $0.isVisible = isVisible })
     }
 
     func setShowBackgroundApps(_ value: Bool) {

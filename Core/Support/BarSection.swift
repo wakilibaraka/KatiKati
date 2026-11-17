@@ -189,3 +189,36 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         return 0
     }
 }
+
+/// Slice DI-1: Dictionary and Terminal are **modules** — one `BarSection`, one glyph, one switch.
+///
+/// Each stands for exactly one app, and that app can also reach the strip as an icon of its own
+/// (Terminal running without a window, a kept app, Dictionary after a lookup). Two glyphs for one
+/// tool read as a bug, so a visible module owns its app's app-level icon and the apps strip drops it.
+/// Hidden modules own nothing: switching the module off brings the app icon straight back.
+enum DockToolDeduplication {
+    /// The app each tool module stands for. The keys are the only two modules that name a bundle.
+    static let bundleIDBySection: [BarSection: String] = [
+        .dictionary: "com.apple.Dictionary",
+        .terminal: "com.apple.Terminal",
+    ]
+
+    /// Bundle IDs whose app-level dock icon a visible module already stands for. Takes the layout's
+    /// `visibleOrder`, so hidden modules (and modules in any island) resolve here, not in the view.
+    static func suppressedAppBundleIDs(enabledSections: [BarSection]) -> Set<String> {
+        Set(enabledSections.compactMap { bundleIDBySection[$0] })
+    }
+
+    /// True when an app-level icon must not be drawn because its module is on the bar.
+    static func isModuleOwned(_ bundleID: String?, by suppressed: Set<String>) -> Bool {
+        guard let bundleID else { return false }
+        return suppressed.contains(bundleID)
+    }
+
+    /// The apps strip's icon list once the visible modules have taken their apps over. Kept pure so the
+    /// rule is testable without `DockStripView`; window chips are not part of this list.
+    static func visibleAppBundleIDs(_ bundleIDs: [String], enabledSections: [BarSection]) -> [String] {
+        let suppressed = suppressedAppBundleIDs(enabledSections: enabledSections)
+        return bundleIDs.filter { !suppressed.contains($0) }
+    }
+}

@@ -72,9 +72,16 @@ extension DockStripView {
         let showsFinderEntry = FinderTaskbarPolicy.showsAppLevelEntry(
             isKept: keptAppStore.contains(FinderTaskbarPolicy.bundleID)
         )
+        // Slice DI-1: a Dictionary / Terminal module is the one glyph for that tool. Its app-level icon
+        // (it may be running with no window, or kept) would be a second one, so it steps aside. Real
+        // window chips stay — those are the app's windows, not another module tile.
+        let moduleOwnedBundleIDs = DockToolDeduplication.suppressedAppBundleIDs(
+            enabledSections: settingsStore.widgetLayout.visibleOrder
+        )
         let items = snapshotItems.filter { item in
             let bid = item.bundleIdentifier ?? ""
             if drawerStore.contains(bid) { return false }
+            if item.isAppLevelFallback, DockToolDeduplication.isModuleOwned(bid, by: moduleOwnedBundleIDs) { return false }
             if item.isAppLevelFallback, FinderTaskbarPolicy.isFinder(bid), !showsFinderEntry { return false }
             return true
         }
@@ -132,7 +139,8 @@ extension DockStripView {
             : []
         for bid in launcherIDs + runningExtras {
             guard !drawerStore.contains(bid),
-                  !msgSet.contains(bid) else { continue }
+                  !msgSet.contains(bid),
+                  !moduleOwnedBundleIDs.contains(bid) else { continue }
             // 访达有意留在 `.window` 兜底卡这条路径上：它带着专属菜单（最近使用的文件夹 /
             // 新建窗口）和「点击开主目录」，换成 .keptApp 的 LauncherChip 会把这些全丢掉。
             // kept 对访达只是上面那道可见性闸门。
@@ -247,9 +255,10 @@ extension DockStripView {
         // divider between them.
         let headEntries = messaging + (settingsStore.showShelf ? [StripEntry.shelf] : [])
         // The drawer pop heads the tail zone: left of the pinned folders (Downloads) and the Trash.
+        // Slice DI-1: the Dictionary / Terminal tail chips retired. They drew the same two tools the
+        // `BarSection` modules already draw (and the modules are the ones Settings can order), so the
+        // bar carried each tool twice before an app icon was even considered.
         let tailEntries = (settingsStore.showDrawer ? [StripEntry.pop] : [])
-            + (settingsStore.showDictionaryChip ? [StripEntry.dictionary] : [])
-            + (settingsStore.showTerminalChip ? [StripEntry.terminal] : [])
             + pinnedEntries
             + (settingsStore.showTrash ? [StripEntry.trash] : [])
         var zones = [headEntries, liveWithGhost, tailEntries]

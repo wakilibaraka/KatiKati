@@ -115,16 +115,6 @@ extension SettingsLayoutPane {
                 set: { store.setShowDrawer($0) }
             ))
             SettingsDivider()
-            SettingsToggleRow(Text("Dictionary"), isOn: Binding(
-                get: { store.showDictionaryChip },
-                set: { store.setShowDictionaryChip($0) }
-            ))
-            SettingsDivider()
-            SettingsToggleRow(Text("Terminal"), isOn: Binding(
-                get: { store.showTerminalChip },
-                set: { store.setShowTerminalChip($0) }
-            ))
-            SettingsDivider()
             SettingsToggleRow(Text("Background Apps"), isOn: Binding(
                 get: { store.showBackgroundApps },
                 set: { store.setShowBackgroundApps($0) }
@@ -279,7 +269,7 @@ extension SettingsLayoutPane {
             }
             if widget != .apps {
                 Button {
-                    store.setWidgetLayout(store.widgetLayout.updating(widget) { $0.isVisible.toggle() })
+                    store.setWidgetVisible(!instance.isVisible, for: widget)
                 } label: {
                     Image(systemName: instance.isVisible ? "eye" : "eye.slash")
                 }
