@@ -366,8 +366,9 @@ final class GlanceStackTests: XCTestCase {
 /// Slice SD-1/SD-2 — the Side Deck's rail tabs, badges and keyboard selection, all pure.
 final class SideDeckLogicTests: XCTestCase {
     func testNotificationsTabSitsRightAfterWindows() {
+        // `scratchpad` (slice OW-3) is appended last, so the bell still sits right after Windows.
         XCTAssertEqual(SideDeckTab.allCases.map(\.rawValue),
-                       ["windows", "notifications", "layouts", "emoji", "clipboard", "tendedero"])
+                       ["windows", "notifications", "layouts", "emoji", "clipboard", "tendedero", "scratchpad"])
         XCTAssertEqual(SideDeckTab.notifications.symbol, "bell.fill")
         XCTAssertEqual(SideDeckTab.notifications.title, "Notifications")
     }
@@ -414,6 +415,65 @@ final class SideDeckLogicTests: XCTestCase {
         XCTAssertEqual(selection.index, 0)
         selection.move(by: 1, count: 0)
         XCTAssertEqual(selection.index, 0)
+    }
+
+    // MARK: Dock motion and indicators (Slice DA-1)
+
+    func testMagnificationPeaksAtThePointerAndSitsAtOneOutsideSpread() {
+        let centers: [CGFloat] = [0, 40, 80, 120]
+        XCTAssertEqual(DockMagnificationMath.scale(forItemAt: 1, cursorX: 40, itemCenters: centers,
+                                                   maxScale: 1.35, spread: 90), 1.35, accuracy: 0.0001)
+        let left = DockMagnificationMath.scale(forItemAt: 1, cursorX: 20, itemCenters: centers)
+        let right = DockMagnificationMath.scale(forItemAt: 1, cursorX: 60, itemCenters: centers)
+        XCTAssertEqual(left, right, accuracy: 0.0001, "the bell is symmetric around the pointer")
+        XCTAssertGreaterThan(left, 1)
+        XCTAssertLessThan(left, 1.35)
+        XCTAssertEqual(DockMagnificationMath.scale(forItemAt: 0, cursorX: 400, itemCenters: centers), 1,
+                       "an item outside the spread is not magnified")
+        XCTAssertEqual(DockMagnificationMath.scale(forItemAt: 9, cursorX: 0, itemCenters: centers), 1)
+    }
+
+    func testTiltAndMagneticPullClampAtTheIconEdge() {
+        XCTAssertEqual(DockTiltMath.tiltAngles(cursorOffset: .zero, iconSize: 40).x, 0)
+        XCTAssertEqual(DockTiltMath.tiltAngles(cursorOffset: .zero, iconSize: 40).y, 0)
+        let far = DockTiltMath.tiltAngles(cursorOffset: CGPoint(x: 500, y: -500), iconSize: 40)
+        XCTAssertEqual(far.y, 10, accuracy: 0.0001)
+        XCTAssertEqual(far.x, 6, accuracy: 0.0001)
+        XCTAssertEqual(DockTiltMath.magneticOffset(cursorOffset: 500, iconSize: 40), 7.2, accuracy: 0.0001)
+        XCTAssertEqual(DockTiltMath.magneticOffset(cursorOffset: -500, iconSize: 40), -7.2, accuracy: 0.0001)
+        XCTAssertEqual(DockTiltMath.magneticOffset(cursorOffset: 4, iconSize: 0), 0)
+    }
+
+    func testReduceMotionRetiresEveryMovingHoverAndKeepsTheTint() {
+        XCTAssertEqual(DockMotionPolicy.hoverStyle(.magnification, reduceMotion: true), .colorAura)
+        XCTAssertEqual(DockMotionPolicy.hoverStyle(.jiggle, reduceMotion: true), .colorAura)
+        XCTAssertEqual(DockMotionPolicy.hoverStyle(.slidingPill, reduceMotion: true), .colorAura)
+        XCTAssertEqual(DockMotionPolicy.hoverStyle(.colorAura, reduceMotion: true), .colorAura)
+        XCTAssertEqual(DockMotionPolicy.hoverStyle(.none, reduceMotion: true), .none)
+        XCTAssertEqual(DockMotionPolicy.hoverStyle(.magnification, reduceMotion: false), .magnification)
+        XCTAssertEqual(DockMotionPolicy.pressStyle(.launchBounce, reduceMotion: true), .ripple)
+        XCTAssertEqual(DockMotionPolicy.pressStyle(.flip3D, reduceMotion: false), .flip3D)
+    }
+
+    func testRunningIndicatorShapesForTheThreeStyles() {
+        let dot = DockRunningIndicatorState.state(for: .macDot, isFrontmost: true, windowCount: 4)
+        XCTAssertEqual(dot.width, 4)
+        XCTAssertEqual(dot.pipCount, 1)
+
+        let front = DockRunningIndicatorState.state(for: .windowsPill, isFrontmost: true, windowCount: 5)
+        XCTAssertEqual(front.width, 16)
+        XCTAssertEqual(front.pipCount, 3, "pips stop at three")
+        let back = DockRunningIndicatorState.state(for: .windowsPill, isFrontmost: false, windowCount: 2)
+        XCTAssertEqual(back.width, 6)
+        XCTAssertEqual(back.pipCount, 2)
+        let single = DockRunningIndicatorState.state(for: .windowsPill, isFrontmost: false, windowCount: 0)
+        XCTAssertEqual(single.pipCount, 1, "a running app always shows at least one pip")
+
+        let latteFront = DockRunningIndicatorState.state(for: .latteBrandLine, isFrontmost: true, windowCount: 1)
+        XCTAssertEqual(latteFront.width, 18)
+        XCTAssertEqual(latteFront.opacity, 0.85, accuracy: 0.0001)
+        let latteBack = DockRunningIndicatorState.state(for: .latteBrandLine, isFrontmost: false, windowCount: 1)
+        XCTAssertEqual(latteBack.opacity, 0.55, accuracy: 0.0001)
     }
 
     // MARK: Dock pin seeding (Slice B)

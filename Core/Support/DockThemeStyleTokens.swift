@@ -453,6 +453,134 @@ enum LumabarSurfaceTheme: String, CaseIterable, Identifiable, Codable, Sendable 
     }
 }
 
+// MARK: - Slice DA-1: dock motion, press feedback and running indicators
+
+/// How an app icon answers the pointer. Pure enum: the view reads it, every curve lives in `DockMagnificationMath` /
+/// `DockTiltMath`, and `DockMotionPolicy` decides what Reduce Motion lets through.
+enum DockHoverAnimationStyle: String, CaseIterable, Identifiable, Codable, Sendable {
+    case none
+    case magnification
+    case springLift
+    case jiggle
+    case colorAura
+    case slidingPill
+    case magneticPull
+
+    static let defaultsKey = "com.katikati.dock.hoverAnimation"
+    var id: String { rawValue }
+
+    /// Styles that move the icon itself; Reduce Motion retires exactly these.
+    var movesTheIcon: Bool {
+        switch self {
+        case .magnification, .springLift, .jiggle, .magneticPull, .slidingPill: return true
+        case .none, .colorAura: return false
+        }
+    }
+}
+
+/// What a click looks like before the window appears.
+enum DockPressAnimationStyle: String, CaseIterable, Identifiable, Codable, Sendable {
+    case tactileSquish
+    case launchBounce
+    case ripple
+    case flip3D
+
+    static let defaultsKey = "com.katikati.dock.pressAnimation"
+    var id: String { rawValue }
+}
+
+/// How a running app is marked under its icon — the three shapes the port covers.
+enum DockRunningIndicatorStyle: String, CaseIterable, Identifiable, Codable, Sendable {
+    /// macOS' own 4 pt circle.
+    case macDot
+    /// Windows 11: a wide 16 pt pill for the frontmost app, a 6 pt pill for background apps, up to three pips.
+    case windowsPill
+    /// KDE Latte: a bottom edge bar tinted with the app's dominant brand colour.
+    case latteBrandLine
+
+    static let defaultsKey = "com.katikati.dock.runningIndicator"
+    var id: String { rawValue }
+}
+
+/// Gaussian neighbour falloff for the magnification style: the item nearest the pointer peaks at `maxScale`, neighbours
+/// fall off by distance, and anything farther than `spread` stays at 1.0 — so the dock never shimmers at rest.
+enum DockMagnificationMath {
+    static func scale(forItemAt index: Int,
+                      cursorX: CGFloat,
+                      itemCenters: [CGFloat],
+                      maxScale: CGFloat = 1.35,
+                      spread: CGFloat = 90) -> CGFloat {
+        guard itemCenters.indices.contains(index), spread > 0 else { return 1 }
+        let distance = abs(cursorX - itemCenters[index])
+        guard distance < spread else { return 1 }
+        // exp(-d² / 2σ²) with σ = spread/1.5: ~0.99 at the pointer, ~0.5 at 0.6·spread, 1.0 outside.
+        let sigma = spread / 1.5
+        let bell = exp(-(distance * distance) / (2 * sigma * sigma))
+        return 1 + (max(1, maxScale) - 1) * bell
+    }
+}
+
+/// iPadOS-style cursor attraction and the 3D tilt used by the spring-lift style. Both clamp, so a pointer at the far edge
+/// of a chip can never ask for a translation or an angle the icon cannot draw.
+enum DockTiltMath {
+    /// Translation toward the pointer, capped at 18 % of the icon size.
+    static func magneticOffset(cursorOffset: CGFloat, iconSize: CGFloat) -> CGFloat {
+        guard iconSize > 0 else { return 0 }
+        let limit = iconSize * 0.18
+        return min(max(cursorOffset * 0.25, -limit), limit)
+    }
+
+    /// Tilt in degrees: ±10° around Y and ±6° around X, scaled by the pointer's offset inside the icon.
+    static func tiltAngles(cursorOffset: CGPoint, iconSize: CGFloat) -> (x: Double, y: Double) {
+        guard iconSize > 0 else { return (0, 0) }
+        let nx = max(-1, min(1, cursorOffset.x / (iconSize / 2)))
+        let ny = max(-1, min(1, cursorOffset.y / (iconSize / 2)))
+        return (x: Double(-ny) * 6, y: Double(nx) * 10)
+    }
+}
+
+/// The state the running indicator draws. Pure so the three styles share one set of tests.
+struct DockRunningIndicatorState: Equatable, Sendable {
+    var width: CGFloat
+    var opacity: Double
+    var pipCount: Int
+
+    /// `windowsPill`: 16 pt and opaque in front, 6 pt and dimmer behind; `latteBrandLine` is a 3 pt full-width line at
+    /// 85 % (front) / 55 % (back); `macDot` keeps today's 4 pt dot.
+    static func state(for style: DockRunningIndicatorStyle,
+                      isFrontmost: Bool,
+                      windowCount: Int) -> DockRunningIndicatorState {
+        let windows = max(1, windowCount)
+        switch style {
+        case .macDot:
+            return DockRunningIndicatorState(width: 4, opacity: isFrontmost ? 1 : 0.7, pipCount: 1)
+        case .windowsPill:
+            return DockRunningIndicatorState(width: isFrontmost ? 16 : 6,
+                                             opacity: isFrontmost ? 1 : 0.8,
+                                             pipCount: min(3, windows))
+        case .latteBrandLine:
+            return DockRunningIndicatorState(width: 18,
+                                             opacity: isFrontmost ? 0.85 : 0.55,
+                                             pipCount: min(3, windows))
+        }
+    }
+}
+
+/// Reduce Motion keeps the feedback but drops the movement: an icon that slides, tilts or jiggles under the pointer falls
+/// back to a plain tint, and the tint-only style stays as it is.
+enum DockMotionPolicy {
+    static func hoverStyle(_ style: DockHoverAnimationStyle, reduceMotion: Bool) -> DockHoverAnimationStyle {
+        guard reduceMotion else { return style }
+        return style.movesTheIcon ? .colorAura : style
+    }
+
+    /// The press keeps its tint ripple; the three that move the icon become a short opacity dip instead.
+    static func pressStyle(_ style: DockPressAnimationStyle, reduceMotion: Bool) -> DockPressAnimationStyle {
+        guard reduceMotion else { return style }
+        return .ripple
+    }
+}
+
 enum DockBarHeightPreset: String, CaseIterable, Identifiable, Codable, Sendable {
     case compact // 44pt
     case regular // 54pt
