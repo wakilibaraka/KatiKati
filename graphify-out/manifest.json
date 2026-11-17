@@ -2178,21 +2178,21 @@
     "semantic_hash": "4aa3d82abc10ebb16b5a24c937afbdd8"
   },
   "Core/Support/RadialDialGeometry.swift": {
-    "mtime": 1794846879.7161832,
-    "seen": 1794847033.736066,
-    "ast_hash": "e30ae3963f533c3d7cceff36699eb5e1",
+    "mtime": 1794917298.7456903,
+    "seen": 1794918101.788361,
+    "ast_hash": "b8e6625d880b00ec02730eaaddde1ff5",
     "semantic_hash": ""
   },
   "Core/Support/RadialDialModel.swift": {
-    "mtime": 1794851441.989107,
-    "seen": 1794851687.1647801,
-    "ast_hash": "e876ad86e965d52a6f86306d81430b10",
+    "mtime": 1794917295.1730301,
+    "seen": 1794918101.788362,
+    "ast_hash": "300e2121b271e5d902406f785fa84437",
     "semantic_hash": ""
   },
   "Core/Support/RadialDialPresets.swift": {
-    "mtime": 1794851452.1796255,
-    "seen": 1794851687.164781,
-    "ast_hash": "9816618a718e69a4d344062c1d6f3085",
+    "mtime": 1794917296.9710584,
+    "seen": 1794918101.788363,
+    "ast_hash": "8aaed3ca68da13e5925891e0d6c88a82",
     "semantic_hash": ""
   },
   "Core/Support/RecentDocumentsReader.swift": {
@@ -2574,10 +2574,10 @@
     "semantic_hash": "d3d06fcee7f66f95d1a7efd64c4820e9"
   },
   "Core/Support/WindowSnap.swift": {
-    "mtime": 1791999130.763751,
-    "seen": 1792295707.0606341,
-    "ast_hash": "0d6d97ebb9bacdae46db3bdb8dff4b9a",
-    "semantic_hash": "0d6d97ebb9bacdae46db3bdb8dff4b9a"
+    "mtime": 1794917293.6834497,
+    "seen": 1794918101.788424,
+    "ast_hash": "5612d8bf7b667f03d32b879268a83087",
+    "semantic_hash": ""
   },
   "Core/Support/WindowSwitcherModel.swift": {
     "mtime": 1794854634.2371647,
@@ -3960,9 +3960,9 @@
     "semantic_hash": "01d129bbe5fe99483e8b38b21311ddd6"
   },
   "Tests/Unit/RadialDialGeometryTests.swift": {
-    "mtime": 1794846988.3303018,
-    "seen": 1794847033.736356,
-    "ast_hash": "74fae84f404fbbd02fcc881f98bc3d7d",
+    "mtime": 1794917300.3826692,
+    "seen": 1794918101.7886531,
+    "ast_hash": "3d4ea607ad87a9bff08f7031c424ee3e",
     "semantic_hash": ""
   },
   "Tests/Unit/RailGeometryTests.swift": {
