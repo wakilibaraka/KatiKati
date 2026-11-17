@@ -6,12 +6,15 @@ struct ClipEntry: Equatable, Identifiable, Sendable {
     var text: String
     var pinned: Bool
     var date: Date
+    /// MC-3: how many times this text has been copied, so "Most Used" has something to sort by.
+    var copyCount: Int
 
-    init(id: UUID = UUID(), text: String, pinned: Bool = false, date: Date = Date()) {
+    init(id: UUID = UUID(), text: String, pinned: Bool = false, date: Date = Date(), copyCount: Int = 1) {
         self.id = id
         self.text = text
         self.pinned = pinned
         self.date = date
+        self.copyCount = copyCount
     }
 }
 
@@ -38,6 +41,8 @@ struct ClipboardHistory: Equatable, Sendable {
     ]
 
     private(set) var entries: [ClipEntry] = []
+    /// MC-3: how many unpinned entries the history keeps; the Clipboard page's History Limit writes this.
+    var limit = ClipboardHistory.maxUnpinned
 
     static func shouldRecord(types: [String]) -> Bool { Set(types).isDisjoint(with: ignoredTypes) }
 
@@ -51,20 +56,24 @@ struct ClipboardHistory: Equatable, Sendable {
             let firstKey = first.text.lowercased()
             if firstKey == key {
                 entries[0].text = text
+                entries[0].copyCount += 1
                 return
             }
             if key.hasPrefix(firstKey) || firstKey.hasPrefix(key) {
                 entries[0].text = text
                 entries[0].date = now
+                entries[0].copyCount += 1
                 return
             }
         }
         var pinned = false
+        var copies = 1
         if let i = entries.firstIndex(where: { $0.text.lowercased() == key }) {
             pinned = entries[i].pinned
+            copies = entries[i].copyCount + 1
             entries.remove(at: i)
         }
-        entries.insert(ClipEntry(text: text, pinned: pinned, date: now), at: 0)
+        entries.insert(ClipEntry(text: text, pinned: pinned, date: now, copyCount: copies), at: 0)
         prune()
     }
 
@@ -91,7 +100,7 @@ struct ClipboardHistory: Equatable, Sendable {
         entries = entries.filter { entry in
             if entry.pinned { return true }
             unpinned += 1
-            return unpinned <= Self.maxUnpinned
+            return unpinned <= limit
         }
     }
 

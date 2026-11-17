@@ -13,6 +13,12 @@ struct ClipboardFlyoutView: View {
     @State private var copiedID: UUID?
     @State private var confirmingClear = false
     @State private var selectedCategory: ClipboardCategory = .all
+    // Slice MC-3: Maccy's keyboard-first bits — sorting, pin badges, footer hints and auto-paste.
+    @AppStorage(ClipboardSettingsKeys.sortBy) private var sortBy = ClipboardSortOrder.lastCopied.rawValue
+    @AppStorage(ClipboardSettingsKeys.showFooterShortcuts) private var showFooter = true
+    @AppStorage(ClipboardSettingsKeys.showPinShortcuts) private var showPinShortcuts = true
+    @AppStorage(ClipboardSettingsKeys.pasteAutomatically) private var pasteAutomatically = false
+    @State private var pinSlots: [UUID: Int] = [:]
 
     init(query: String = "") {
         self.query = query
@@ -24,6 +30,12 @@ struct ClipboardFlyoutView: View {
         BandTile(env: env, kind: .countdown, width: size.width - 16, height: size.height - 16, header: {
             HStack {
                 Text("Clipboard")
+                if monitor.captureMode != .active {
+                    Text(monitor.captureMode == .paused ? "Paused" : "Skipping Next Copy")
+                        .font(.system(size: 9, weight: .bold))
+                        .padding(.horizontal, 6).padding(.vertical, 2)
+                        .background(Capsule().fill(env.secondary.opacity(0.18)))
+                }
                 Spacer()
                 if !monitor.history.entries.isEmpty {
                     Button { confirmingClear = true } label: { Image(systemName: "trash") }
@@ -64,9 +76,17 @@ struct ClipboardFlyoutView: View {
                         ForEach(visibleEntries) { entry in row(entry, env: env) }
                     }
                 }
+                if showFooter {
+                    Text(verbatim: "⏎ Copy · ⌥⏎ Paste · ⌥⇧⏎ Plain · ⌥P Pin")
+                        .font(.system(size: 9)).foregroundColor(env.secondary).padding(.top, 4)
+                }
             }
         })
         .padding(8)
+        .focusable()
+        .onKeyPress { press in handleKey(press) }
+        .onAppear { refreshPinSlots() }
+        .onChange(of: monitor.history.displayOrder.map(\.id)) { _ in refreshPinSlots() }
         .confirmationDialog(Text("Clear Clipboard History?"), isPresented: $confirmingClear) {
             Button("Clear History", role: .destructive) { monitor.clear() }
             Button("Cancel", role: .cancel) {}
@@ -75,10 +95,44 @@ struct ClipboardFlyoutView: View {
         }
     }
 
+    /// MC-3: ⌘1–⌘9 stay with their pin while the history churns; only the gaps move.
+    private func refreshPinSlots() {
+        pinSlots = MaccyPinShortcutAssigner.assign(
+            pinnedIDs: monitor.history.displayOrder.filter(\.pinned).map(\.id),
+            previous: pinSlots
+        )
+    }
+
+    /// MC-3: Maccy's table, applied to the first visible row (the popup has no separate focus ring).
+    private func handleKey(_ press: KeyPress) -> KeyPress.Result {
+        guard let action = MaccyKeyAction.action(key: String(press.characters),
+                                                 modifiers: MaccyKeyAction.Modifiers(press.modifiers)),
+              let target = visibleEntries.first else { return .ignored }
+        switch action {
+        case .copy: monitor.copy(target)
+        case .paste, .pastePlain: monitor.pastePlain(target)
+        case .togglePin: monitor.togglePin(target.id)
+        case .delete: monitor.remove(target.id)
+        case .clearUnpinned: monitor.clearAll(keepingPinned: true)
+        case .clearAll: monitor.clearAll(keepingPinned: false)
+        }
+        return .handled
+    }
+
     private var visibleEntries: [ClipEntry] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return monitor.history.displayOrder }
-        return monitor.history.displayOrder.filter { $0.text.localizedStandardContains(trimmed) }
+        let base = trimmed.isEmpty
+            ? monitor.history.displayOrder
+            : monitor.history.displayOrder.filter { $0.text.localizedStandardContains(trimmed) }
+        // MC-3: pins first in every order; the sort only decides among peers.
+        let pinned = base.filter(\.pinned)
+        var rest = base.filter { !$0.pinned }
+        switch ClipboardSortOrder(rawValue: sortBy) ?? .lastCopied {
+        case .lastCopied: break
+        case .firstCopied: rest.reverse()
+        case .mostUsed: rest.sort { $0.copyCount > $1.copyCount }
+        }
+        return pinned + rest
     }
 
     @ViewBuilder
@@ -86,12 +140,19 @@ struct ClipboardFlyoutView: View {
         let meta = ClipboardCardMetadata.classify(text: entry.text)
         if selectedCategory == .all || meta.category == selectedCategory {
             Button {
-                monitor.copy(entry)
+                if pasteAutomatically { monitor.pastePlain(entry) } else { monitor.copy(entry) }
                 copiedID = entry.id
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) { if copiedID == entry.id { copiedID = nil } }
             } label: {
                 HStack(spacing: 6) {
-                    if entry.pinned { Image(systemName: "pin.fill").font(.system(size: 9)).foregroundColor(env.accent(.countdown)) }
+                    if entry.pinned {
+                        Image(systemName: "pin.fill").font(.system(size: 9)).foregroundColor(env.accent(.countdown))
+                        if showPinShortcuts, let slot = pinSlots[entry.id] {
+                            Text(verbatim: "⌘\(slot)")
+                                .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                                .foregroundColor(env.secondary)
+                        }
+                    }
                     switch meta.contentType {
                     case .hexColor(let hex, let color):
                         RoundedRectangle(cornerRadius: 3)
@@ -112,6 +173,7 @@ struct ClipboardFlyoutView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(entry.text)
             .contextMenu {
                 Button("Paste as Plain Text") { monitor.pastePlain(entry) }
                 if entry.pinned { Button("Unpin") { monitor.togglePin(entry.id) } } else { Button("Pin") { monitor.togglePin(entry.id) } }
@@ -477,5 +539,16 @@ struct LeftSidebarClotheslineView: View {
         case .text:
             Image(systemName: "doc.text").font(.system(size: 15)).frame(width: 32, height: 32)
         }
+    }
+}
+
+extension MaccyKeyAction.Modifiers {
+    /// MC-3: one translation from SwiftUI's flags to the pure table's bits.
+    init(_ flags: EventModifiers) {
+        var set: MaccyKeyAction.Modifiers = []
+        if flags.contains(.option) { set.insert(.option) }
+        if flags.contains(.shift) { set.insert(.shift) }
+        if flags.contains(.command) { set.insert(.command) }
+        self = set
     }
 }

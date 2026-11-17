@@ -6127,3 +6127,10 @@ display sleep or a lock, and pre-revoke frames staying on screen after Screen Re
   with all 24 new strings in 12 locales. `NOTICE` now carries the p0deje/Maccy MIT behavior-reference credit. Not
   yet wired to the monitor: paste-automatically, plain-by-default, polling interval, history limit, sort order,
   popup position and the ignore toggles are stored keys only until MC-3.
+- **2026-11-17 — MC-2/MC-3 (Maccy rules wired, done):** `ClipboardMonitor` now filters every copy through
+  `MaccyPasteboardFilter` with the page's Privacy toggles and ignore patterns, gates recording on
+  `ClipboardCaptureMode` (the "ignore next copy" latch clears itself), honours the Polling Interval and History
+  Limit defaults, and keeps a per-entry `copyCount`. The flyout shows a Paused / Skipping Next Copy pill, sorts by
+  Last/First/Most Used, draws stable ⌘1–⌘9 badges on pins (`MaccyPinShortcutAssigner`), shows the Maccy shortcut
+  footer, pastes into the front app when Paste Automatically is on, and resolves ⏎/⌥⏎/⌥⇧⏎/⌥P/⌥⌫/⌥⌘⌫/⇧⌥⌘⌫ through
+  `MaccyKeyAction`. The hover preview is the native tooltip (full clip text), not a custom popover.

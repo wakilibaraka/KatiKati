@@ -118455,6 +118455,57 @@
         "it": { "stringUnit": { "state": "translated", "value": "Appunti universali" } },
         "ko": { "stringUnit": { "state": "translated", "value": "유니버설 클립보드" } }
       }
+    },
+    "Skipping Next Copy": {
+      "comment": "Clipboard flyout (MC-3)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "跳过下次复制" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Skipping Next Copy" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "跳過下次複製" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "次のコピーをスキップ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Nächste Kopie wird übersprungen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Prochaine copie ignorée" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Se omitirá la próxima copia" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Se omitirá la próxima copia" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ignorando a próxima cópia" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "A ignorar a próxima cópia" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Ignorando la prossima copia" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "다음 복사 건너뜀" } }
+      }
+    },
+    "First Copied": {
+      "comment": "Clipboard flyout (MC-3)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "最早复制" } },
+        "en": { "stringUnit": { "state": "translated", "value": "First Copied" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "最早複製" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "最初にコピー" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Zuerst kopiert" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Copié en premier" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Copiado primero" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Copiado primero" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Copiado primeiro" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Copiado primeiro" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Copiato per primo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "먼저 복사됨" } }
+      }
+    },
+    "Last Copied": {
+      "comment": "Clipboard flyout (MC-3)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "最近复制" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Last Copied" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "最近複製" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "最後にコピー" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Zuletzt kopiert" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Copié en dernier" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Copiado al final" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Copiado al final" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Copiado por último" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Copiado por último" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Copiato per ultimo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "최근 복사됨" } }
+      }
     }
   },
   "version": "1.0"
