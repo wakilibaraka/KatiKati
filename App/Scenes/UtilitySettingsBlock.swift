@@ -830,12 +830,19 @@ struct ClipboardSettingsPane: View {
     }
 
     var body: some View {
-        SettingsBentoSplit {
-            behaviorCard
-            storageCard
-        } trailing: {
-            privacyCard
-            appearanceCard
+        // Two half-width rows: four cards side by side squeeze the labels into wrapped slivers at this
+        // window width (MC-1 screenshot check, 2026-11-17).
+        VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
+            SettingsBentoSplit {
+                behaviorCard
+            } trailing: {
+                storageCard
+            }
+            SettingsBentoSplit {
+                privacyCard
+            } trailing: {
+                appearanceCard
+            }
         }
     }
 

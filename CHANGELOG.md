@@ -2,7 +2,12 @@
 
 All notable changes to KatiKati are documented in this file.
 
-## [Unreleased] — one app table for every quit rule
+## [0.18.0 beta 1] — 2026-11-17
+
+Dock motion styles, a dedicated Clipboard page with Maccy-style keys and privacy, the DockPops drawer, dock layering,
+space-switch transitions and the Drives widget; see `Docs/Releases/RELEASE_NOTES_v0.18.0-beta.1.md`.
+
+### Changed
 
 ### Added
 - **The Dock now has its own hover and click language, plus three running indicators.** Hover Animation picks

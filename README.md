@@ -18,7 +18,7 @@ English · [中文](README.zh-CN.md)
 
 <img src="assets/screenshots/bar.png" alt="The KatiKati bar: launcher button, weather, apps, now playing, clock and Control Center button" width="100%" />
 
-> **Beta.** Version 0.17.0 beta 3 is unsigned and not notarized. See [Install](#install). Several new screens were not yet exercised on a real
+> **Beta.** Version 0.18.0 beta 1 is unsigned and not notarized. See [Install](#install). Several new screens were not yet exercised on a real
 > trackpad or across displays, and all new translations are drafts awaiting review. Expect rough edges.
 
 ## What it is
@@ -42,12 +42,32 @@ KatiKati is a fork of [Tungsten Edge](https://github.com/moonbai-studio/tungsten
   shows when you are offline.
 - **Starter apps.** A fresh install keeps Finder, Safari, System Settings and Messages on the bar so it is never empty.
 - **App drawer, shelf, trash and pinned folders.** Drag cards to reorder them, stash apps in the drawer, drop files on the shelf.
+- **Dock motion styles.** Pick how icons answer the pointer — None, Magnification, Spring Lift, Jiggle, Color Aura, Sliding Pill or
+  Magnetic Pull — and how they answer a click: Tactile Squish, Launch Bounce, Ripple or Flip 3D. The running marker can be the classic dot,
+  a Windows 11 pill (wide for the frontmost app, with one pip per window up to three) or a KDE Latte brand-coloured line tinted to the app's
+  own icon colour. Reduce Motion swaps every moving style for the colour tint. Settings > Dock Items.
 - **Edge decks.** Slim decks on the left and right screen edges hold Notes (encrypted at rest), Reminders, Alarms, Timer and Stopwatch, Tasks,
   Clipboard history (opt-in), Capture (text and QR codes from a screen area), Windows (snap into zones), Screen Time, Weather, Now Playing,
   Bluetooth and a system monitor.
 - **Multi-display.** One bar that follows your pointer, or one bar per display, each listing only its own windows.
 - **Auto-hide.** Always visible by default; it can also hide and wake from the bottom edge. `⌥⇧⌘D` toggles it.
 - **Blink-free full screen.** The bar steps out of the way before a native full-screen transition (see [Privacy](#privacy)).
+
+### Clipboard
+
+Clipboard history is opt-in and lives in memory only — nothing is written to disk. It now has its own page in Settings.
+
+<img src="assets/screenshots/settings-clipboard.png" alt="Settings, Clipboard page: Behavior, Storage & Sorting, Privacy & Ignore Types, and Appearance & Popup" width="100%" />
+
+- **Keyboard first.** `⏎` copies, `⌥⏎` pastes into the app behind the popup, `⌥⇧⏎` pastes as plain text, `⌥P` pins, `⌥⌫` deletes, `⌥⌘⌫` clears
+  everything unpinned and `⇧⌥⌘⌫` clears all. Pinned items keep a permanent `⌘1`–`⌘9` badge.
+- **Privacy.** Concealed and transient copies, 1Password and other password managers, auto-generated copies and (optionally) Universal
+  Clipboard are never recorded; add per-app and pattern ignores, or press **Ignore Next Copy** once.
+- **Storage.** Keep 50, 100, 250 or 500 unpinned entries, drop them after 24 hours, 7 days or 30 days, and sort by last copied, first copied
+  or most used. Polling runs every 100–500 ms while recording.
+- **Appearance.** Show the shortcut footer and pin badges, and choose where the popup opens (at the cursor, screen centre, or under the bar).
+
+The Maccy-derived behaviour is credited in [NOTICE](NOTICE).
 
 ### Notch
 
@@ -111,7 +131,7 @@ America), Português (Brazil and Portugal), Italiano and 한국어. Change it in
 
 Requirements: macOS 15 (Sequoia) or later, Intel or Apple Silicon (universal binary).
 
-1. Download `KatiKati-0.17.0-beta.3.dmg` from the [latest release](https://github.com/wakilibaraka/KatiKati/releases/latest).
+1. Download `KatiKati-0.18.0-beta.1.dmg` from the [latest release](https://github.com/wakilibaraka/KatiKati/releases/latest).
 2. Open the disk image and drag **KatiKati** to **Applications**.
 3. The beta is not notarized, so on first launch **right-click KatiKati and choose Open**, then confirm.
 4. Optional: grant **Accessibility** (System Settings > Privacy & Security > Accessibility) for the per-window cards. Each new unsigned build may need
