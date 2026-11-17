@@ -1734,9 +1734,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DockThemeStyleTokens.swift": {
-    "mtime": 1794855966.946449,
-    "seen": 1794856137.451686,
-    "ast_hash": "43e2baf95a52a887fe8fe01173ed8747",
+    "mtime": 1794880359.2164605,
+    "seen": 1794880608.117433,
+    "ast_hash": "90d985a7f50203b6cd294736e7692bc4",
     "semantic_hash": ""
   },
   "Core/Support/DockThemeTokens.swift": {
@@ -6798,9 +6798,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWidgetLogicTests.swift": {
-    "mtime": 1794879911.8066254,
-    "seen": 1794880268.131135,
-    "ast_hash": "1cad43231aa2b36c99e630ca1107c28b",
+    "mtime": 1794880562.3466725,
+    "seen": 1794880608.117704,
+    "ast_hash": "afd544982245dd680c70d9292392be57",
     "semantic_hash": ""
   },
   "App/Composition/SpaceTransitionController.swift": {
