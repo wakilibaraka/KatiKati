@@ -1,6 +1,23 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Focus the Dock with the Keyboard": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Focus the Dock with the Keyboard" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "用键盘聚焦任务条" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "用鍵盤聚焦工作列" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "キーボードでドックにフォーカス" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Dock mit der Tastatur fokussieren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Cibler le dock au clavier" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Enfocar el dock con el teclado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Enfocar el dock con el teclado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Focar o dock com o teclado" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Focar a dock com o teclado" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Porta il focus sul dock con la tastiera" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "키보드로 독 포커스" } }
+      }
+    },
     "Install": {
       "extractionState": "manual",
       "localizations": {

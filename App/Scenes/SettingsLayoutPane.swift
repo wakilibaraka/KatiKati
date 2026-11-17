@@ -184,6 +184,7 @@ struct SettingsLayoutPane: View {
         case .openDictionary: return String(localized: "Open Dictionary")
         case .toggleTerminal: return String(localized: "Toggle Terminal")
         case .dictate: return String(localized: "Hold or Toggle Dictation")
+        case .dockFocus: return String(localized: "Focus the Dock with the Keyboard")
         }
     }
 

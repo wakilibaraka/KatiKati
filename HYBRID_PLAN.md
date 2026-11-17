@@ -466,7 +466,20 @@ Landed from the ranked port plan and merged to `main`: **#1** bench, **#2a–d**
   Tests: `WidgetCatalogTests` (coverage, install state from existing prefs, search ranking, actions, and a
   store round-trip pinning each utility `prefsKey`). **Not run:** the Settings page on screen — the card's height
   budget is arithmetic, not measured.
-- **D is OWED, not started.** Bar keyboard focus needs its own turn; its claim was released rather than left stale.
+- **D (keyboard focus on the bar, 2026-11-17):** pure `DockFocusModel` in `Core/Support/Shortcuts.swift` —
+  left/right move one card and stop at the ends (**no wrap**), Home/End jump, Enter activates the focused card,
+  Esc gives the keyboard back; `sync` keeps the same card across strip changes, clamps when it vanishes, and
+  never wakes an unfocused model. The shortcut is `ShortcutAction.dockFocus` (Carbon id 53, default off, so it
+  appears in Settings › Shortcuts and stores under `com.katikati.shortcut.dockFocus`). Wiring: the taskbar's
+  panel is now the only keyable one (`DockFocusablePanel`, still `.nonactivatingPanel`, so the app is not
+  activated), and `DockStripView` owns a `DockFocusKeyCatcher` that holds first responder only while focus is
+  on, draws an accent ring on the focused card, and sends Enter through the same click path the pointer uses
+  (windows/apps `runtime.activate(windowID:)`, kept apps `launcherTap`, folders Finder). Dividers and the
+  drag-time drop ghost are never focusable. Tests: `DockFocusModelTests` (begin/end, no-wrap arrows, Home/End,
+  Enter/Esc, sync, hot-key id uniqueness + store round-trip). **Not run:** the real shortcut on a live bar —
+  key codes are mapped but no keyboard was driven here.
+- **Every OpenTaskbar slice asked for is now built** (A, B, C?, E, G, D); profiles (F) and the fisheye stay
+  dropped by decision.
 
 **OpenTaskbar audit (2026-11-17, Slice A).** Source read as behavior only; every row checked in this tree, not assumed.
 
@@ -481,7 +494,7 @@ Landed from the ranked port plan and merged to `main`: **#1** bench, **#2a–d**
 | Profiles | BUILT (`BarProfile`/`BarProfileService`); dropped by decision |
 | Dock `persistent-apps` reader | BUILT (`NativeDockPreferencesService.swift`, `NativeDockPinnedApps`), wired to the strip by Phase 42 but **not** importable into kept apps |
 | Bar fisheye | PARTIAL (deck buttons only); excluded by decision |
-| Keyboard focus mode on bar | MISSING (Slice D) |
+| Keyboard focus mode on bar | BUILT (Slice D, `DockFocusModel` + `DockStripView`) |
 | Wheel: cycle windows or volume on bar | BUILT (Slice E, `WheelActionMap` + `DockStripView`) |
 | Widget catalog | BUILT (Slice G, `WidgetCatalog` + Dock Items search) |
 | Disk-free tile, folder new-file badge | MISSING (optional follow-on slices) |

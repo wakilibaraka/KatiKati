@@ -25,7 +25,7 @@ extension PanelCoordinator {
         // 而且投放区/弹簧区/「鼠标还在条上」这些判定全都按「窗口 frame 减 shadowPadding」
         // 换算（`dragDropZones` / `springZone` / `isMouseOutsideInteractivePanels`）。
         // 缩窗口会让这一整批坐标一起错位。
-        let panel = makeFloatingPanel(contentRect: legacyInitialFrame, usesLiquidGlass: usesLiquidGlass)
+        let panel = makeFloatingPanel(contentRect: legacyInitialFrame, usesLiquidGlass: usesLiquidGlass, keyable: true)
         configurePanel(panel, backgroundColor: NSColor(white: 1.0, alpha: 0.0), appliesLevelOverride: true)
 
         let hosting = FirstMouseHostingView(rootView: DockStripView(
@@ -248,8 +248,14 @@ extension PanelCoordinator {
 
     /// `usesLiquidGlass` 由调用方显式传：`setupDockPanel` 里玻璃底板刚建好、还没赋给
     /// `dockGlassBackgroundPanel`，此时读计算属性会错判成「无玻璃」建出普通面板。
-    func makeFloatingPanel(contentRect: NSRect, usesLiquidGlass: Bool) -> NonConstrainingPanel {
+    func makeFloatingPanel(contentRect: NSRect, usesLiquidGlass: Bool,
+                           keyable: Bool = false) -> NonConstrainingPanel {
         let styleMask: NSWindow.StyleMask = [.borderless, .nonactivatingPanel]
+        // Slice D: only the taskbar's own panel is keyable, and only so the keyboard focus mode can take keys.
+        if keyable {
+            return DockFocusablePanel(contentRect: contentRect, styleMask: styleMask,
+                                      backing: .buffered, defer: false)
+        }
         return usesLiquidGlass
             ? DockLiquidGlassPanel(contentRect: contentRect, styleMask: styleMask,
                                    backing: .buffered, defer: false)

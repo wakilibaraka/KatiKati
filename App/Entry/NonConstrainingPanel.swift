@@ -132,6 +132,13 @@ class NonConstrainingPanel: NSPanel {
     }
 }
 
+/// Slice D: the dock's own panel, keyable only when the keyboard has been taken onto the bar. A
+/// `.nonactivatingPanel` does not activate KatiKati, so making it key hands the arrow keys to the strip
+/// without pulling the frontmost app forward.
+final class DockFocusablePanel: NonConstrainingPanel {
+    override var canBecomeKey: Bool { true }
+}
+
 /// Liquid Glass is hosted in a non-key floating panel. These private AppKit appearance hooks are
 /// the same narrow override used by native-looking third-party docks to keep the material active.
 final class DockLiquidGlassPanel: NonConstrainingPanel {

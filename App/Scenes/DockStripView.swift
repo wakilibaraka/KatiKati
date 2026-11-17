@@ -214,6 +214,9 @@ struct DockStripView: View {
     /// 记录已经播放过入场动画的固定区元素 ID（避免重复播，且支持新增元素播动画）。
     @State private var animatedEntryIDs: Set<String> = []
 
+    /// Slice D: keyboard focus over the cards. `nil` index = the keyboard is not on the bar.
+    @State var dockFocus = DockFocusModel()
+
     var body: some View {
         let projectionStart = HoverTrace.now()
         let projection = makeProjection()
@@ -299,6 +302,9 @@ struct DockStripView: View {
             }
             .clipShape(RoundedRectangle(cornerRadius: taskbarCornerRadius, style: .continuous))
             .defaultScrollAnchor(.leading)
+            .onReceive(NotificationCenter.default.publisher(for: .dockFocusToggle)) { _ in
+                toggleDockFocus()
+            }
             .mask(alignment: .center) {
                 if isRail {
                     VStack(spacing: 0) {
@@ -327,6 +333,13 @@ struct DockStripView: View {
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+            }
+            // Slice D: the focus catcher draws nothing and never takes a click; it only holds first
+            // responder while the keyboard is on the bar, so arrows and Enter reach `DockFocusModel`.
+            .overlay(alignment: .topLeading) {
+                DockFocusKeyCatcher(isActive: dockFocus.isActive, onKey: handleDockFocusKey)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .allowsHitTesting(false)
             }
             // 右键任务条底板弹钨极菜单。
             //
@@ -1424,6 +1437,14 @@ struct DockStripView: View {
     private func stripEntryView(_ entry: StripEntry, projection: StripProjection) -> some View {
         stripEntryContent(entry, projection: projection,
                           hovered: hoveredEntryID == entry.id, entrance: true)
+            // Slice D: the keyboard's card wears the same accent ring wherever the pointer is.
+            .overlay {
+                if dockFocus.focusedID == entry.id {
+                    RoundedRectangle(cornerRadius: taskbarCornerRadius, style: .continuous)
+                        .strokeBorder(Color.accentColor, lineWidth: max(1, 2 * dockScale))
+                        .allowsHitTesting(false)
+                }
+            }
             .overlay(alignment: .top) {
                 if memoryOverlay.controlHeld, let id = Self.memoryBundleID(entry), let bytes = memoryOverlay.memory[id] {
                     MemoryPill(bytes: bytes).offset(y: -2 * dockScale)
@@ -2057,6 +2078,63 @@ extension DockStripView {
         guard let id = hoveredEntryID, let frame = frames.chipRegistry.frame(of: id) else { return nil }
         return isRail ? frame.midY : frame.midX
     }
+
+// MARK: - Slice D: keyboard focus on the dock
+
+    /// The shortcut: hand the keyboard to the first card, or give it back.
+    private func toggleDockFocus() {
+        if dockFocus.isActive {
+            dockFocus.end()
+            return
+        }
+        dockFocus.sync(focusableEntries().map(\.id))
+        dockFocus.begin()
+    }
+
+    /// Cards the keyboard may land on — everything the pointer can click, so dividers and the
+    /// drag-time drop ghost stay out of the ring.
+    private func focusableEntries() -> [StripEntry] {
+        makeProjection().entries.filter {
+            switch $0 {
+            case .divider, .externalDropGhost: return false
+            default: return true
+            }
+        }
+    }
+
+    private func handleDockFocusKey(_ key: DockFocusKey) {
+        if case .activated(let id) = dockFocus.handle(key) {
+            activateFocusedEntry(id)
+        }
+    }
+
+    /// Enter does what the pointer's click would: windows and apps come forward, a folder opens in Finder.
+    /// The ring gives the keyboard back afterwards, exactly like clicking outside would.
+    private func activateFocusedEntry(_ id: String) {
+        guard let entry = focusableEntries().first(where: { $0.id == id }) else {
+            dockFocus.end()
+            return
+        }
+        switch entry {
+        case .window(let item):
+            runtime.activate(windowID: item.actionWindowID)
+        case let .messagingApp(bundleID, mainWindow):
+            if let mainWindow {
+                runtime.activate(windowID: mainWindow.actionWindowID)
+            } else {
+                launcherTap(bundleID, hasRealWindow: false)
+            }
+        case .keptApp(let bundleID):
+            launcherTap(bundleID, hasRealWindow: false)
+        case .pinnedFolder(let path):
+            openFolderInFinder(path)
+        default:
+            return
+        }
+        dockFocus.end()
+    }
+
+
 }
 
 /// HStack on the bottom bar, VStack on a side rail (Phase 18c). `AnyLayout` would do this in one
@@ -2075,3 +2153,70 @@ private struct StripAxisStack<Content: View>: View {
     }
 }
 
+extension Notification.Name {
+    /// Posted by the `dockFocus` shortcut; `DockStripView` owns what it means.
+    static let dockFocusToggle = Notification.Name("com.katikati.dock.focusToggle")
+}
+
+/// Holds first responder while the keyboard is on the bar. A `.nonactivatingPanel` stays inactive, so
+/// making it key hands the keys to the strip without bringing KatiKati forward.
+struct DockFocusKeyCatcher: NSViewRepresentable {
+    var isActive: Bool
+    var onKey: (DockFocusKey) -> Void
+
+    func makeNSView(context: Context) -> DockFocusKeyView {
+        let view = DockFocusKeyView()
+        view.onKey = onKey
+        view.setActive(isActive)
+        return view
+    }
+
+    func updateNSView(_ view: DockFocusKeyView, context: Context) {
+        view.onKey = onKey
+        view.setActive(isActive)
+    }
+}
+
+final class DockFocusKeyView: NSView {
+    var onKey: ((DockFocusKey) -> Void)?
+    private(set) var isActive = false
+
+    override var acceptsFirstResponder: Bool { true }
+
+    /// AppKit key codes → the model's keys. Anything else falls through to the responder chain.
+    static func key(for event: NSEvent) -> DockFocusKey? {
+        switch event.keyCode {
+        case 123: return .left
+        case 124: return .right
+        case 115: return .home
+        case 119: return .end
+        case 36, 76: return .enter
+        case 53: return .escape
+        default: return nil
+        }
+    }
+
+    func setActive(_ active: Bool) {
+        guard active != isActive else { return }
+        isActive = active
+        guard let window else { return }
+        if active {
+            window.makeKey()
+            window.makeFirstResponder(self)
+        } else if window.firstResponder === self {
+            window.makeFirstResponder(nil)
+        }
+    }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        guard isActive, let window else { return }
+        window.makeKey()
+        window.makeFirstResponder(self)
+    }
+
+    override func keyDown(with event: NSEvent) {
+        guard isActive, let key = Self.key(for: event) else { return super.keyDown(with: event) }
+        onKey?(key)
+    }
+}
