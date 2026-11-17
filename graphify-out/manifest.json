@@ -864,9 +864,9 @@
     "semantic_hash": "7c68b62cf2125911e696a333173f8a74"
   },
   "App/Scenes/Edge/DeckViews.swift": {
-    "mtime": 1794879604.1291156,
-    "seen": 1794879657.911935,
-    "ast_hash": "d99f5c0fc4563fb8ab44d548e35c01ee",
+    "mtime": 1794908862.813624,
+    "seen": 1794909452.567942,
+    "ast_hash": "fab1794da7784fa5900094a354c39c5d",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/NoteSheetView.swift": {
@@ -1782,9 +1782,9 @@
     "semantic_hash": "7b59cff49ef6fa5abe627a1b0d84d287"
   },
   "Core/Support/EdgeBarPrefs.swift": {
-    "mtime": 1794879908.9305496,
-    "seen": 1794880268.130854,
-    "ast_hash": "f8dbbf111b53e1b985094df56c527426",
+    "mtime": 1794908862.8126056,
+    "seen": 1794909452.568444,
+    "ast_hash": "5adc7ec9a2bb48806c6dcdde0007b1de",
     "semantic_hash": ""
   },
   "Core/Support/EdgeBarSlot.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1794908656.1908102,
-    "seen": 1794908715.944261,
-    "ast_hash": "c58fd955ea0d39454089c01a2057acff",
+    "mtime": 1794909302.8153677,
+    "seen": 1794909452.5700018,
+    "ast_hash": "de6360bb0ce52475160ba5c45c65d5a8",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6738,9 +6738,9 @@
     "semantic_hash": ""
   },
   "App/Composition/DockWidgetFeeds.swift": {
-    "mtime": 1793022675.8217237,
-    "seen": 1793025187.3389492,
-    "ast_hash": "00d962aaba2303fe63fc07642c6d5d6c",
+    "mtime": 1794908812.058111,
+    "seen": 1794909452.567605,
+    "ast_hash": "5a6820512ec70892e316c809851fd6d8",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/CalendarDockWidget.swift": {
@@ -6798,9 +6798,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWidgetLogicTests.swift": {
-    "mtime": 1794880562.3466725,
-    "seen": 1794880608.117704,
-    "ast_hash": "afd544982245dd680c70d9292392be57",
+    "mtime": 1794909378.5561829,
+    "seen": 1794909452.5691462,
+    "ast_hash": "b445a3e88cafb3e44578e053ddb87f69",
     "semantic_hash": ""
   },
   "App/Composition/SpaceTransitionController.swift": {
@@ -7086,9 +7086,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WindowDrawerController.swift": {
-    "mtime": 1794879294.1347141,
-    "seen": 1794879470.0127602,
-    "ast_hash": "2c6c135d2fd573ee100b5b62bddc9f35",
+    "mtime": 1794908883.8586566,
+    "seen": 1794909452.567775,
+    "ast_hash": "03d56507395eb2dc70c50eb690c301e1",
     "semantic_hash": ""
   },
   "App/Composition/WindowStripController.swift": {
