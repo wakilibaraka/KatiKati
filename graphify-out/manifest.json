@@ -312,9 +312,9 @@
     "semantic_hash": ""
   },
   "App/Composition/NotificationMirrorService.swift": {
-    "mtime": 1794868165.2189553,
-    "seen": 1794868311.4782798,
-    "ast_hash": "ffc0e4e83425c25ec7c3dbf951552af5",
+    "mtime": 1794874155.2723162,
+    "seen": 1794875311.018214,
+    "ast_hash": "ebd943dfb1dde81e6dff81bda394a566",
     "semantic_hash": ""
   },
   "App/Composition/NotificationMoveService.swift": {
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1794873492.5895615,
-    "seen": 1794873740.557158,
-    "ast_hash": "d17b26dae9f04a7a247c82c02838361c",
+    "mtime": 1794874182.5876684,
+    "seen": 1794875311.018259,
+    "ast_hash": "4533133cfee3454a2f184bc11aa3360a",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ChipPanel.swift": {
@@ -840,9 +840,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/ClipboardFlyoutView.swift": {
-    "mtime": 1794867879.8706355,
-    "seen": 1794868157.307872,
-    "ast_hash": "f06f3db5edddcc3329751ade01ee7e2e",
+    "mtime": 1794874753.2652743,
+    "seen": 1794875311.018309,
+    "ast_hash": "b0591070b027c2603a0023273a05ac26",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/DeckLabel.swift": {
@@ -864,9 +864,9 @@
     "semantic_hash": "7c68b62cf2125911e696a333173f8a74"
   },
   "App/Scenes/Edge/DeckViews.swift": {
-    "mtime": 1794865008.3325872,
-    "seen": 1794865321.689179,
-    "ast_hash": "8c7c9cb6c05fb8bf3236de6ec0ac65a7",
+    "mtime": 1794874897.9936798,
+    "seen": 1794875311.018314,
+    "ast_hash": "db2076b632bae4cd681705993310f4aa",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/NoteSheetView.swift": {
@@ -966,9 +966,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
-    "mtime": 1794873546.4352362,
-    "seen": 1794873740.5572329,
-    "ast_hash": "66128f350a4eab90c809e856a8ac6a73",
+    "mtime": 1794874183.2870154,
+    "seen": 1794875311.018334,
+    "ast_hash": "409ba60a3497a2b85d8665db87e69905",
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandStyle.swift": {
@@ -1002,15 +1002,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchHeaderView.swift": {
-    "mtime": 1792926135.9845605,
-    "seen": 1792926143.606497,
-    "ast_hash": "a340ba583b0059dc233476bdd8443ef2",
+    "mtime": 1794874179.596346,
+    "seen": 1794875311.0183418,
+    "ast_hash": "0a766fc60d44274c0564e08dc8cc8a56",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchHomeView.swift": {
-    "mtime": 1793838768.8453743,
-    "seen": 1793839266.392444,
-    "ast_hash": "def965dd1dfa9f87c2be8d92d81c496b",
+    "mtime": 1794874181.875276,
+    "seen": 1794875311.018343,
+    "ast_hash": "bd11b469d18b4c0f6148aa54a1b76df4",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchMirrorPageView.swift": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchNotificationsPageView.swift": {
-    "mtime": 1794868198.1467066,
-    "seen": 1794868311.47841,
-    "ast_hash": "3db1689d8d233ff955318cae23e7f177",
+    "mtime": 1794874897.3451407,
+    "seen": 1794875311.018347,
+    "ast_hash": "1d1f49e0a27f809f2486a14b3366b586",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchProductivityPageView.swift": {
@@ -1050,9 +1050,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/NotchIslandView.swift": {
-    "mtime": 1794873543.489036,
-    "seen": 1794873740.5572531,
-    "ast_hash": "d2580afe181a30d295d671fde749ba68",
+    "mtime": 1794874181.1417696,
+    "seen": 1794875311.018354,
+    "ast_hash": "abaa0e93ff4871c6b7a71d5d6aa19607",
     "semantic_hash": ""
   },
   "App/Scenes/NotchPreview.swift": {
@@ -1290,9 +1290,9 @@
     "semantic_hash": "cce3b50509e62e793a875bc5b2166d6c"
   },
   "App/Scenes/UtilitySettingsBlock.swift": {
-    "mtime": 1794872688.4634883,
-    "seen": 1794872762.57461,
-    "ast_hash": "437da3ccbdfc5d566000d9da9945951d",
+    "mtime": 1794874183.9504733,
+    "seen": 1794875311.018402,
+    "ast_hash": "0b04356c4f0b6fb8c934afad6749c0b7",
     "semantic_hash": ""
   },
   "App/Scenes/WeatherChip.swift": {
@@ -1782,9 +1782,9 @@
     "semantic_hash": "7b59cff49ef6fa5abe627a1b0d84d287"
   },
   "Core/Support/EdgeBarPrefs.swift": {
-    "mtime": 1794867734.6276073,
-    "seen": 1794867869.650028,
-    "ast_hash": "aace7bf9306379ccf16eeed08e4f58c7",
+    "mtime": 1794874750.55408,
+    "seen": 1794875311.018495,
+    "ast_hash": "fef20b59954c810a4a925790ed076e09",
     "semantic_hash": ""
   },
   "Core/Support/EdgeBarSlot.swift": {
@@ -2034,9 +2034,9 @@
     "semantic_hash": "c64d7b838b33e85a97f516bb39efb616"
   },
   "Core/Support/MirroredNotification.swift": {
-    "mtime": 1794867968.805402,
-    "seen": 1794868157.308086,
-    "ast_hash": "b16e4807ea676306f6ee10739fcc80db",
+    "mtime": 1794874154.1179152,
+    "seen": 1794875311.018545,
+    "ast_hash": "e1712664f6792376c4b54a3fb4aeddf5",
     "semantic_hash": ""
   },
   "Core/Support/NotchDesignSpec.swift": {
@@ -2082,9 +2082,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NotchSectionPaging.swift": {
-    "mtime": 1793838737.3924365,
-    "seen": 1793839266.392745,
-    "ast_hash": "c46e7d33d59c5727d93aebdbd1f4a0a6",
+    "mtime": 1794874128.096343,
+    "seen": 1794875311.018555,
+    "ast_hash": "cd661010d319a39cb355196ef612760b",
     "semantic_hash": ""
   },
   "Core/Support/NoteCipher.swift": {
@@ -3828,9 +3828,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NotchHoverMachineTests.swift": {
-    "mtime": 1794872728.5219028,
-    "seen": 1794872762.575043,
-    "ast_hash": "38d14ac5c9cc377a35bd8b53d9162c4e",
+    "mtime": 1794874213.2642243,
+    "seen": 1794875311.018871,
+    "ast_hash": "f661491ee9af3e81ab523e343ed78c6b",
     "semantic_hash": ""
   },
   "Tests/Unit/NotchLayoutSpecTests.swift": {
@@ -3876,9 +3876,9 @@
     "semantic_hash": "cffe9d036fa8f6e07cb1bdd960ce7aad"
   },
   "Tests/Unit/NotificationMirrorTests.swift": {
-    "mtime": 1794867979.274123,
-    "seen": 1794868157.308384,
-    "ast_hash": "739044fca2ade5424b15068ebb54cabe",
+    "mtime": 1794874212.5950007,
+    "seen": 1794875311.018882,
+    "ast_hash": "6f0d65454bdcbbafcdaf70942aafdedb",
     "semantic_hash": ""
   },
   "Tests/Unit/NotificationPlacementTests.swift": {
@@ -6798,9 +6798,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWidgetLogicTests.swift": {
-    "mtime": 1794856804.7609773,
-    "seen": 1794856871.785218,
-    "ast_hash": "0079bdb7246cbd79cc23f8d048934064",
+    "mtime": 1794874267.3747842,
+    "seen": 1794875311.018788,
+    "ast_hash": "d3be17d59bf4b7102d28217e9af9f7e3",
     "semantic_hash": ""
   },
   "App/Composition/SpaceTransitionController.swift": {
@@ -7086,9 +7086,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WindowDrawerController.swift": {
-    "mtime": 1794867895.848857,
-    "seen": 1794868157.307808,
-    "ast_hash": "99ebe1c4e3f54b13f4d35c2e6a763e18",
+    "mtime": 1794874751.1448224,
+    "seen": 1794875311.018243,
+    "ast_hash": "b09980bb95e56276d7efd029d0481013",
     "semantic_hash": ""
   },
   "App/Composition/WindowStripController.swift": {
