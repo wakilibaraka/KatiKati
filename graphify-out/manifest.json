@@ -1290,9 +1290,9 @@
     "semantic_hash": "cce3b50509e62e793a875bc5b2166d6c"
   },
   "App/Scenes/UtilitySettingsBlock.swift": {
-    "mtime": 1794882016.424251,
-    "seen": 1794882107.3282602,
-    "ast_hash": "e6363f7fdbc6aaab8a5b680e8f054e0d",
+    "mtime": 1794882632.511768,
+    "seen": 1794883137.199776,
+    "ast_hash": "91efc8e73b9ac3bb2eaec383e43a6ad2",
     "semantic_hash": ""
   },
   "App/Scenes/WeatherChip.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1794880996.8829415,
-    "seen": 1794881012.2049541,
-    "ast_hash": "5fbd047f1b53487c2039af8d4553d7fa",
+    "mtime": 1794882232.499128,
+    "seen": 1794883137.200329,
+    "ast_hash": "5995e753e494861d8e55217e8353ed7d",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5460,15 +5460,15 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1794838417.1777174,
-    "seen": 1794838460.468769,
-    "ast_hash": "1025a7df5900162074dddc1bd343b68a",
+    "mtime": 1794883060.8481715,
+    "seen": 1794883137.200437,
+    "ast_hash": "7ead0c28bfdb67464d6280fcfe068b23",
     "semantic_hash": ""
   },
   "README.zh-CN.md": {
-    "mtime": 1792362115.3919775,
-    "seen": 1792451836.2446,
-    "ast_hash": "c76d6b257b6e651521e2b7b9f5c5810a",
+    "mtime": 1794883121.4886916,
+    "seen": 1794883137.200437,
+    "ast_hash": "e8175f2362e62fe37939c394b847e822",
     "semantic_hash": ""
   },
   "STANDING_RULES.md": {
@@ -7329,6 +7329,18 @@
     "mtime": 1794871759.6212378,
     "seen": 1794872112.139313,
     "ast_hash": "5f2b284b4eeadc055a59a25b38a36f93",
+    "semantic_hash": ""
+  },
+  "Docs/Releases/RELEASE_NOTES_v0.18.0-beta.1.md": {
+    "mtime": 1794882232.47045,
+    "seen": 1794883137.200431,
+    "ast_hash": "977c9ff16a18e8a157737111700b9031",
+    "semantic_hash": ""
+  },
+  "assets/screenshots/settings-clipboard.png": {
+    "mtime": 1794883121.5746615,
+    "seen": 1794883137.2005608,
+    "ast_hash": "ebd7e79a5f4411e813973f98ab5c18ba",
     "semantic_hash": ""
   }
 }
