@@ -264,10 +264,10 @@
     "semantic_hash": "dcb577c924888cb7f03ed42e7bb0eac5"
   },
   "App/Composition/LiveActivityFeed.swift": {
-    "mtime": 1792111598.7644234,
-    "seen": 1792295707.060399,
-    "ast_hash": "172fb0e2193838628cf9e69466ba81d2",
-    "semantic_hash": "172fb0e2193838628cf9e69466ba81d2"
+    "mtime": 1794908324.4295287,
+    "seen": 1794908715.943255,
+    "ast_hash": "5ba0dab316e05f2afbf7677987fd459d",
+    "semantic_hash": ""
   },
   "App/Composition/LiveEventBannerPoster.swift": {
     "mtime": 1791999130.8149545,
@@ -1512,10 +1512,10 @@
     "semantic_hash": ""
   },
   "Core/Support/AppleScriptNowPlaying.swift": {
-    "mtime": 1792126397.1466029,
-    "seen": 1792295707.060525,
-    "ast_hash": "0d95b0912c8053e0ac77c968611da6a6",
-    "semantic_hash": "0d95b0912c8053e0ac77c968611da6a6"
+    "mtime": 1794908342.6071458,
+    "seen": 1794908715.943478,
+    "ast_hash": "1fe97e3293843c2bbea41c4f51b72b19",
+    "semantic_hash": ""
   },
   "Core/Support/Aria2RPC.swift": {
     "mtime": 1792261093.5389051,
@@ -2136,9 +2136,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NowPlayingService.swift": {
-    "mtime": 1794842890.8377419,
-    "seen": 1794844459.76485,
-    "ast_hash": "b8fda5ed78cc7d3f21d9c8ec03a26576",
+    "mtime": 1794908254.5288672,
+    "seen": 1794908715.943577,
+    "ast_hash": "b4e48e74a056aa377ca6c7215bef3d09",
     "semantic_hash": ""
   },
   "Core/Support/PDFReducePlan.swift": {
@@ -3888,14 +3888,14 @@
     "semantic_hash": "5a9b16411a27d8ed70a563d5dcd9b371"
   },
   "Tests/Unit/NowPlayingProgressTests.swift": {
-    "mtime": 1794847551.6689582,
-    "seen": 1794847660.588542,
-    "ast_hash": "041fae87787be5d05523e1ee5d685db3",
+    "mtime": 1794908625.7740996,
+    "seen": 1794908715.943865,
+    "ast_hash": "75f0696c525a924e421287fdeca34b12",
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingServiceTests.swift": {
-    "mtime": 1792111896.5781333,
-    "seen": 1792295707.06077,
+    "mtime": 1794908625.7151906,
+    "seen": 1794908715.943866,
     "ast_hash": "52c07ff03b860d17eed002105e1985f0",
     "semantic_hash": "52c07ff03b860d17eed002105e1985f0"
   },
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1794907852.570824,
-    "seen": 1794907911.4584599,
-    "ast_hash": "b7a6d49a967fc736ca06ed3c23ce0eaa",
+    "mtime": 1794908656.1908102,
+    "seen": 1794908715.944261,
+    "ast_hash": "c58fd955ea0d39454089c01a2057acff",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6414,15 +6414,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/ExpandedMediaCardView.swift": {
-    "mtime": 1793838799.2966936,
-    "seen": 1793839266.392412,
-    "ast_hash": "3925430465f36e85678810cfbf598281",
+    "mtime": 1794908324.4315448,
+    "seen": 1794908715.943365,
+    "ast_hash": "f811b2acbd55e10587ff2cfa43ff1c32",
     "semantic_hash": ""
   },
   "App/Scenes/NowPlayingPopup.swift": {
-    "mtime": 1792538673.466509,
-    "seen": 1792538686.118856,
-    "ast_hash": "e03ae0a7a195162acf89648f4119f956",
+    "mtime": 1794908324.430108,
+    "seen": 1794908715.943396,
+    "ast_hash": "79b55ec601b178346a3d80d3376bab5b",
     "semantic_hash": ""
   },
   "App/Scenes/TurntableView.swift": {
