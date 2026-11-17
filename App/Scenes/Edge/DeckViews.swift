@@ -1068,3 +1068,84 @@ struct ButtonFramesKey: PreferenceKey {
         value.merge(nextValue()) { $1 }
     }
 }
+
+// MARK: - OW-5b: the FX / Gold / Crypto ticker
+
+/// The ticker is **off until switched on here**, and the badge always says whether the numbers on screen are
+/// live, read back from disk, or unreachable — a stale price with no badge is worse than no price.
+struct TickerPane: View {
+    @ObservedObject private var feed = TickerFeed.shared
+    @AppStorage(TickerCachePolicy.enabledKey) private var enabled = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Toggle(isOn: $enabled) {
+                    Text("Ticker").font(.system(size: 11, weight: .semibold))
+                }
+                .toggleStyle(.switch)
+                .controlSize(.mini)
+                Spacer(minLength: 0)
+                badge
+            }
+            if enabled {
+                if let snapshot = feed.snapshot, !snapshot.quotes.isEmpty {
+                    VStack(spacing: 6) {
+                        ForEach(snapshot.quotes) { quote in
+                            HStack(spacing: 8) {
+                                Text(verbatim: quote.id)
+                                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                                Spacer(minLength: 0)
+                                Text(verbatim: TickerFormat.value(quote))
+                                    .font(.system(size: 12, weight: .semibold, design: .rounded).monospacedDigit())
+                                if let change = TickerFormat.change(quote.changeFraction) {
+                                    Text(verbatim: change)
+                                        .font(.system(size: 10, weight: .semibold, design: .rounded).monospacedDigit())
+                                        .foregroundStyle((quote.changeFraction ?? 0) >= 0 ? Color.green : Color.red)
+                                }
+                            }
+                        }
+                    }
+                    Text(verbatim: snapshot.fetchedAt.formatted(date: .omitted, time: .shortened))
+                        .font(.system(size: 10))
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("No prices yet")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .padding(12)
+        .onAppear {
+            feed.retain()
+            feed.refresh()
+        }
+        .onDisappear { feed.release() }
+        .onChange(of: enabled) { _ in feed.refresh() }
+    }
+
+    private var badge: some View {
+        let label: String = {
+            switch feed.freshness {
+            case .live: return String(localized: "Live")
+            case .cached: return String(localized: "Cached")
+            case .offline: return String(localized: "Offline")
+            }
+        }()
+        let tint: Color = {
+            switch feed.freshness {
+            case .live: return .green
+            case .cached: return .orange
+            case .offline: return .secondary
+            }
+        }()
+        return Text(verbatim: label)
+            .font(.system(size: 9, weight: .bold, design: .rounded))
+            .foregroundStyle(tint)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Capsule().fill(tint.opacity(0.14)))
+            .accessibilityLabel(label)
+    }
+}

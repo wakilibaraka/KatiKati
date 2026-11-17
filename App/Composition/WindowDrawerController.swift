@@ -171,7 +171,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: windowSelection.move(by: delta, count: filtered.count)
         case .notifications: notificationSelection.move(by: delta, count: visibleNotifications.count)
-        case .layouts, .emoji, .clipboard, .tendedero, .scratchpad: break
+        case .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -179,7 +179,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let item = selectedWindow { activate(item.id) }
         case .notifications: if let entry = selectedNotification { openNotification(entry) }
-        case .layouts, .emoji, .clipboard, .tendedero, .scratchpad: break
+        case .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -187,7 +187,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let id = selectedWindow?.id { closeWindow(id) }
         case .notifications: if let entry = selectedNotification { dismissNotification(entry) }
-        case .layouts, .emoji, .clipboard, .tendedero, .scratchpad: break
+        case .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -445,6 +445,7 @@ private struct WindowDrawerView: View {
         case .emoji: EmojiDrawerPane(query: $controller.query)
         case .tendedero: LeftSidebarClotheslineView(query: controller.query)
         case .scratchpad: ScratchpadPane()
+        case .markets: TickerPane()
         }
     }
 

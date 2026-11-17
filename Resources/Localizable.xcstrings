@@ -1,6 +1,108 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Markets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Markets" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "行情" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "行情" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "マーケット" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Märkte" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Marchés" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mercados" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mercados" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mercados" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mercados" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mercati" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "시세" } }
+      }
+    },
+    "Live": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Live" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "实时" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "即時" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ライブ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Live" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "En direct" } },
+        "es": { "stringUnit": { "state": "translated", "value": "En vivo" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "En vivo" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ao vivo" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Ao vivo" } },
+        "it": { "stringUnit": { "state": "translated", "value": "In diretta" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "실시간" } }
+      }
+    },
+    "Cached": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Cached" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "已缓存" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "已快取" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "キャッシュ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Zwischengespeichert" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "En cache" } },
+        "es": { "stringUnit": { "state": "translated", "value": "En caché" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "En caché" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Em cache" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Em cache" } },
+        "it": { "stringUnit": { "state": "translated", "value": "In cache" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "캐시됨" } }
+      }
+    },
+    "Ticker": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Ticker" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "行情条" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "行情列" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ティッカー" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Ticker" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Bandeau" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cinta" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Cinta" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ticker" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Ticker" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Ticker" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "시세 표시" } }
+      }
+    },
+    "Search markets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Search markets" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "搜索行情" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "搜尋行情" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "マーケットを検索" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Märkte suchen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Rechercher des marchés" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Buscar mercados" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Buscar mercados" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pesquisar mercados" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pesquisar mercados" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Cerca mercati" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "시세 검색" } }
+      }
+    },
+    "No prices yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "No prices yet" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "暂无报价" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "尚無報價" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "価格はまだありません" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Noch keine Kurse" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Aucun cours pour l’instant" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Aún sin precios" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Aún sin precios" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ainda sem preços" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Ainda sem preços" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Ancora nessun prezzo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "아직 시세 없음" } }
+      }
+    },
     "Switch Player": {
       "extractionState": "manual",
       "localizations": {

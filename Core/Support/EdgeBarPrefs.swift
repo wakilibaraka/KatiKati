@@ -352,6 +352,8 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
     case tendedero
     /// OW-3: the persistent scratch note.
     case scratchpad
+    /// OW-5b: the opt-in FX / Gold / Crypto ticker.
+    case markets
 
     var id: String { rawValue }
 
@@ -364,6 +366,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         case .clipboard: return String(localized: "Clipboard")
         case .tendedero: return String(localized: "Clothesline")
         case .scratchpad: return String(localized: "Scratchpad")
+        case .markets: return String(localized: "Markets")
         }
     }
 
@@ -376,6 +379,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         case .clipboard: return "doc.on.clipboard"
         case .tendedero: return "paperclip"
         case .scratchpad: return "square.and.pencil"
+        case .markets: return "chart.line.uptrend.xyaxis"
         }
     }
 
@@ -394,6 +398,7 @@ enum SideDeckSearch {
         case .clipboard: return String(localized: "Search clipboard")
         case .tendedero: return String(localized: "Search shelf")
         case .scratchpad: return String(localized: "Scratchpad")
+        case .markets: return String(localized: "Search markets")
         }
     }
 }
@@ -497,5 +502,147 @@ struct SideDeckSelection: Equatable, Sendable {
     mutating func select(_ newIndex: Int, count: Int) {
         index = max(0, newIndex)
         clamp(count: count)
+    }
+}
+
+// MARK: - OW-5b: the FX / Gold / Crypto ticker
+
+/// One line of the ticker. `id` is the pair the row shows (`BTC/USD`, `USD/CNY`, `XAU/USD`), so two feeds
+/// can never collide on a label.
+struct TickerQuote: Codable, Equatable, Sendable, Identifiable {
+    enum Kind: String, Codable, Sendable {
+        case fx
+        case gold
+        case crypto
+    }
+
+    var id: String
+    var kind: Kind
+    var value: Double
+    /// 24-hour change where the feed reports one; nil for FX and gold, which report a spot price only.
+    var changeFraction: Double?
+}
+
+/// What the pane draws and what the disk cache stores.
+struct TickerSnapshot: Codable, Equatable, Sendable {
+    var quotes: [TickerQuote]
+    var fetchedAt: Date
+}
+
+/// The badge the pane must always show: the data's age is not a detail, it is the difference between a
+/// price and a memory of one.
+enum TickerFreshness: String, Equatable, Sendable {
+    case live
+    case cached
+    case offline
+}
+
+enum TickerCachePolicy {
+    /// Opt-in, like the scratch note's neighbours: the ticker is off until the user turns it on.
+    static let enabledKey = "com.katikati.deck.tickerEnabled"
+    /// Younger than this and the data is live; older and it is drawn as cached.
+    static let liveWindow: TimeInterval = 5 * 60
+    /// A disk copy older than a day is not worth showing as a price at all.
+    static let staleWindow: TimeInterval = 24 * 60 * 60
+
+    /// The rule the badge follows. A failed attempt outranks age: the pane says offline even when a disk
+    /// copy is on screen, because the number is not current.
+    static func freshness(fetchedAt: Date?, lastAttemptFailed: Bool, now: Date) -> TickerFreshness {
+        guard let fetchedAt else { return .offline }
+        if lastAttemptFailed { return .offline }
+        return now.timeIntervalSince(fetchedAt) <= liveWindow ? .live : .cached
+    }
+
+    /// Whether a stored snapshot is too old to draw at all.
+    static func isStale(fetchedAt: Date, now: Date) -> Bool {
+        now.timeIntervalSince(fetchedAt) > staleWindow
+    }
+}
+
+/// The local disk copy: one JSON file, written after every successful fetch, read at launch so a cold start
+/// with no network still has prices to show (with the offline badge).
+enum TickerCache {
+    static let fileName = "ticker.json"
+
+    static func url(in directory: URL) -> URL {
+        directory.appendingPathComponent(fileName)
+    }
+
+    static func encode(_ snapshot: TickerSnapshot) -> Data? {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        return try? encoder.encode(snapshot)
+    }
+
+    static func decode(_ data: Data?) -> TickerSnapshot? {
+        guard let data else { return nil }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try? decoder.decode(TickerSnapshot.self, from: data)
+    }
+
+    static func load(from directory: URL) -> TickerSnapshot? {
+        decode(try? Data(contentsOf: url(in: directory)))
+    }
+
+    @discardableResult
+    static func save(_ snapshot: TickerSnapshot, to directory: URL) -> Bool {
+        guard let data = encode(snapshot) else { return false }
+        do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            try data.write(to: url(in: directory), options: .atomic)
+            return true
+        } catch {
+            return false
+        }
+    }
+}
+
+/// Display forms for the pane, pure so the digits and the sign are tested rather than trusted.
+enum TickerFormat {
+    /// Two decimals for a rate, none for a price in the thousands — a ticker row must not change width
+    /// every minute.
+    static func value(_ quote: TickerQuote) -> String {
+        let fraction = quote.value >= 1_000 ? 0 : (quote.value >= 10 ? 2 : 4)
+        return quote.value.formatted(.number.precision(.fractionLength(fraction)).grouping(.automatic))
+    }
+
+    /// `+1.2%` / `−0.4%`; nil when the feed gave no change.
+    static func change(_ fraction: Double?) -> String? {
+        guard let fraction else { return nil }
+        let percent = fraction * 100
+        let sign = percent >= 0 ? "+" : "−"
+        return sign + String(format: "%.1f", abs(percent)) + "%"
+    }
+}
+
+/// Pure parsers for the three keyless feeds, so a shape change is a test failure rather than a blank pane.
+enum TickerFeedParser {
+    static func crypto(from data: Data) -> [TickerQuote] {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return [] }
+        let names: [(id: String, coin: String, pair: String)] = [
+            ("bitcoin", "BTC", "BTC/USD"), ("ethereum", "ETH", "ETH/USD"),
+        ]
+        return names.compactMap { entry in
+            guard let coin = json[entry.id] as? [String: Any], let price = coin["usd"] as? Double else { return nil }
+            return TickerQuote(id: entry.pair, kind: .crypto, value: price,
+                               changeFraction: (coin["usd_24h_change"] as? Double).map { $0 / 100 })
+        }
+    }
+
+    static func fx(from data: Data, pairs: [(code: String, id: String)] = [("CNY", "USD/CNY"), ("EUR", "USD/EUR"), ("JPY", "USD/JPY")]) -> [TickerQuote] {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let rates = json["rates"] as? [String: Double] else { return [] }
+        return pairs.compactMap { pair in
+            guard let rate = rates[pair.code], rate > 0 else { return nil }
+            return TickerQuote(id: pair.id, kind: .fx, value: rate, changeFraction: nil)
+        }
+    }
+
+    static func gold(from data: Data) -> [TickerQuote] {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let items = json["items"] as? [[String: Any]],
+              let price = items.first?["xauPrice"] as? Double, price > 0 else { return [] }
+        return [TickerQuote(id: "XAU/USD", kind: .gold, value: price, changeFraction: nil)]
     }
 }

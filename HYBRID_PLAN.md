@@ -6146,6 +6146,18 @@ display sleep or a lock, and pre-revoke frames staying on screen after Screen Re
   - **OW-3:** `ScratchpadDocument` + `ScratchpadStore` in `Core/Support/DailyHelpersRules.swift` — an injectable directory, atomic writes to `…/KatiKati/scratchpad.txt`, a 0.6 s debounce, word/character counts, `copyAll()` and `clear()`. The Side Deck gained a `.scratchpad` tab (rail button, `ScratchpadPane` in `App/Scenes/Edge/DeckViews.swift`) with a live word/character badge, Copy All and Clear. Tests in `DailyHelpersRulesTests`: counts, save/reload, clear, and a debounce that writes with no explicit flush.
   - **OW-4:** `MacRigSpecSnapshot` in `Core/Support/SystemGaugeModel.swift` (chip, P/E/total cores, optional GPU cores, unified memory, storage, macOS version + build, `coreSummary`, `formattedMarkdownSpec`). `SystemMonitorController` reads it **once** at creation through `sysctlbyname` / `ProcessInfo` / the boot volume's size, and the System flyout's Rig badge shows the chip, core summary, memory and macOS with a **Copy Specs** button. Tests in `SystemGaugeTests` (full inventory, GPU-absent variant, size conversions).  - **OW-5a (multi-session media switcher, 2026-11-17):** pure `MediaSession` / `MediaSessions` (`parse`, `ordered`, `source`, `readingSource(for:)`) and `MediaSessionSwitcher` in `Core/Support/AppleScriptNowPlaying.swift` — every running scriptable player with a track becomes one session, the pinned player heads the list, and cycling **wraps** through them (a set of open players has no end to stop at, unlike the bar's cards). `NowPlayingService` publishes `sessions` + `pinnedSessionApp`, re-reads them at most every 5 s, drops a pin whose player quit, and reads a pinned player through its own one-player script so the switch is not undone by the next system-wide reading; `LiveActivityFeed` passes both through. The Now Playing popup shows a **Switch Player** capsule (player name + arrows) only when two or more sessions are open. One new key × 12 locales. Tests in `NowPlayingProgressTests`: parsing (multi-record, unknown players, empty titles, refusal marker), pin-first ordering, wrap in both directions, pin cleared on empty, and a one-player script check.
 
+- **2026-11-17 — OW-5b (opt-in FX / Gold / Crypto ticker, done):** pure `TickerQuote` / `TickerSnapshot` /
+  `TickerFreshness` / `TickerCachePolicy` / `TickerCache` / `TickerFeedParser` / `TickerFormat` in
+  `Core/Support/EdgeBarPrefs.swift`. Three keyless feeds (CoinGecko crypto with 24 h change, open.er-api FX
+  for USD/CNY, USD/EUR, USD/JPY, goldprice XAU/USD) are parsed by pure functions; one feed failing leaves the
+  others. `TickerFeed` (`App/Composition/DockWidgetFeeds.swift`) fetches every five minutes only while the pane
+  is visible, writes `…/KatiKati/ticker.json` atomically and loads it at launch (a copy older than a day is
+  dropped). The Side Deck gained a **Markets** tab (`SideDeckTab.markets`, `TickerPane`): its switch is off by
+  default, and the badge is always explicit — **Live** under five minutes, **Cached** for older disk data,
+  **Offline** when the last attempt failed (a failure outranks age). Six new strings × 12 locales. Tests in
+  `DockWidgetLogicTests`: the three feed shapes, empty/malformed inputs, the freshness rules, disk round-trip
+  (including corrupt JSON) and the row formats. **Not run:** a live fetch — no endpoint was called from the app
+  in this session.
 - **2026-11-17 — DA-1/DA-2 (Dock motion styles, done):** `DockHoverAnimationStyle`, `DockPressAnimationStyle`,
   `DockRunningIndicatorStyle` plus `DockMagnificationMath` (Gaussian, σ = spread/1.5, 1.0 outside the spread),
   `DockTiltMath` (±10° Y / ±6° X, magnetic offset capped at 18 % of the icon) and `DockMotionPolicy` (Reduce

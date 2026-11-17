@@ -366,9 +366,9 @@ final class GlanceStackTests: XCTestCase {
 /// Slice SD-1/SD-2 — the Side Deck's rail tabs, badges and keyboard selection, all pure.
 final class SideDeckLogicTests: XCTestCase {
     func testNotificationsTabSitsRightAfterWindows() {
-        // `scratchpad` (slice OW-3) is appended last, so the bell still sits right after Windows.
+        // `scratchpad` (OW-3) and `markets` (OW-5b) are appended last, so the bell still sits right after Windows.
         XCTAssertEqual(SideDeckTab.allCases.map(\.rawValue),
-                       ["windows", "notifications", "layouts", "emoji", "clipboard", "tendedero", "scratchpad"])
+                       ["windows", "notifications", "layouts", "emoji", "clipboard", "tendedero", "scratchpad", "markets"])
         XCTAssertEqual(SideDeckTab.notifications.symbol, "bell.fill")
         XCTAssertEqual(SideDeckTab.notifications.title, "Notifications")
     }
@@ -571,5 +571,70 @@ final class SideDeckLogicTests: XCTestCase {
         let migrated = AppSettingsStore(defaults: legacy)
         XCTAssertFalse(migrated.showDictionaryChip)
         XCTAssertTrue(migrated.showTerminalChip)
+    }
+}
+
+// MARK: - OW-5b: FX / Gold / Crypto ticker
+
+final class TickerModelTests: XCTestCase {
+    private func data(_ json: String) -> Data { Data(json.utf8) }
+
+    func testParsersReadTheThreeKeylessShapes() {
+        let crypto = TickerFeedParser.crypto(from: data("{\"bitcoin\":{\"usd\":63120.5,\"usd_24h_change\":1.25},\"ethereum\":{\"usd\":3120.25,\"usd_24h_change\":-0.5}}"))
+        XCTAssertEqual(crypto.map(\.id), ["BTC/USD", "ETH/USD"])
+        XCTAssertEqual(crypto.first?.value, 63120.5)
+        XCTAssertEqual(crypto.first?.changeFraction ?? 0, 0.0125, accuracy: 1e-9)
+        XCTAssertEqual(crypto.last?.changeFraction ?? 0, -0.005, accuracy: 1e-9)
+        XCTAssertEqual(crypto.first?.kind, .crypto)
+
+        let fx = TickerFeedParser.fx(from: data("{\"result\":\"success\",\"rates\":{\"CNY\":7.12,\"EUR\":0.92,\"JPY\":157.1}}"))
+        XCTAssertEqual(fx.map(\.id), ["USD/CNY", "USD/EUR", "USD/JPY"])
+        XCTAssertEqual(fx.first?.value, 7.12)
+        XCTAssertNil(fx.first?.changeFraction)
+        XCTAssertEqual(fx.first?.kind, .fx)
+
+        let gold = TickerFeedParser.gold(from: data("{\"items\":[{\"curr\":\"USD\",\"xauPrice\":2410.55}]}"))
+        XCTAssertEqual(gold, [TickerQuote(id: "XAU/USD", kind: .gold, value: 2410.55, changeFraction: nil)])
+    }
+
+    func testParsersReturnNothingRatherThanGuessing() {
+        XCTAssertTrue(TickerFeedParser.crypto(from: data("{}")).isEmpty)
+        XCTAssertTrue(TickerFeedParser.crypto(from: data("not json")).isEmpty)
+        XCTAssertTrue(TickerFeedParser.fx(from: data("{\"rates\":{}}")).isEmpty)
+        XCTAssertTrue(TickerFeedParser.gold(from: data("{\"items\":[]}")).isEmpty)
+        XCTAssertTrue(TickerFeedParser.gold(from: data("{\"items\":[{\"xauPrice\":0}]}")).isEmpty)
+        XCTAssertTrue(TickerFeedParser.crypto(from: Data()).isEmpty)
+    }
+
+    func testFreshnessBadgeFollowsAgeAndFailures() {
+        let now = Date(timeIntervalSince1970: 10_000)
+        XCTAssertEqual(TickerCachePolicy.freshness(fetchedAt: nil, lastAttemptFailed: false, now: now), .offline)
+        XCTAssertEqual(TickerCachePolicy.freshness(fetchedAt: now.addingTimeInterval(-60), lastAttemptFailed: false, now: now), .live)
+        XCTAssertEqual(TickerCachePolicy.freshness(fetchedAt: now.addingTimeInterval(-600), lastAttemptFailed: false, now: now), .cached)
+        XCTAssertEqual(TickerCachePolicy.freshness(fetchedAt: now.addingTimeInterval(-60), lastAttemptFailed: true, now: now), .offline,
+                       "a failed attempt outranks a young disk copy")
+        XCTAssertFalse(TickerCachePolicy.isStale(fetchedAt: now.addingTimeInterval(-3600), now: now))
+        XCTAssertTrue(TickerCachePolicy.isStale(fetchedAt: now.addingTimeInterval(-25 * 3600), now: now))
+    }
+
+    func testDiskCacheRoundTripsAndSurvivesBadData() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("ticker-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let snapshot = TickerSnapshot(quotes: [TickerQuote(id: "BTC/USD", kind: .crypto, value: 63120.5, changeFraction: 0.0125)],
+                                      fetchedAt: Date(timeIntervalSince1970: 10_000))
+        XCTAssertTrue(TickerCache.save(snapshot, to: dir))
+        XCTAssertEqual(TickerCache.load(from: dir), snapshot)
+        try Data("nonsense".utf8).write(to: TickerCache.url(in: dir))
+        XCTAssertNil(TickerCache.load(from: dir))
+        XCTAssertNil(TickerCache.decode(nil))
+        XCTAssertNil(TickerCache.load(from: dir.appendingPathComponent("missing")))
+    }
+
+    func testFormatsKeepTheRowWidthAndTheSign() {
+        XCTAssertEqual(TickerFormat.value(TickerQuote(id: "XAU/USD", kind: .gold, value: 2410.55, changeFraction: nil)), "2,411")
+        XCTAssertEqual(TickerFormat.value(TickerQuote(id: "USD/CNY", kind: .fx, value: 7.12, changeFraction: nil)), "7.1200")
+        XCTAssertEqual(TickerFormat.change(0.0125), "+1.2%")
+        XCTAssertEqual(TickerFormat.change(-0.004), "−0.4%")
+        XCTAssertNil(TickerFormat.change(nil))
     }
 }
