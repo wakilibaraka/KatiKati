@@ -1,6 +1,59 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Install": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Install" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "安装" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "安裝" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "インストール" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Installieren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Installer" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Instalar" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Instalar" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Instalar" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Instalar" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Installa" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "설치" } }
+      }
+    },
+
+    "Search widgets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Search widgets" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "搜索小组件" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "搜尋小工具" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ウィジェットを検索" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Widgets suchen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Rechercher des widgets" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Buscar widgets" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Buscar widgets" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pesquisar widgets" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pesquisar widgets" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Cerca widget" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "위젯 검색" } }
+      }
+    },
+
+    "No matches": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "No matches" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "没有匹配项" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "沒有符合項目" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "一致する項目なし" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Keine Treffer" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Aucun résultat" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Sin resultados" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Sin resultados" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Nenhum resultado" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Nenhum resultado" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Nessun risultato" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "일치 항목 없음" } }
+      }
+    },
     "OLED Black": {
       "extractionState": "manual",
       "localizations": {

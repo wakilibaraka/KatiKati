@@ -26,6 +26,8 @@ struct SettingsLayoutPane: View {
     @ObservedObject var keyGuard = KeyGuardService.shared
     @ObservedObject var notifMove = NotificationMoveService.shared
     @State var newPresetName = ""
+    /// Slice G: the widget catalog's search query. Empty shows the reorderable module list as before.
+    @State var widgetQuery = ""
     /// Fine-tune starts collapsed: styles + Size/Spacing cover the common choices (Phase 11f).
     @State var showsFineTune = false
     /// The Shortcuts page's find field (Phase 12 A4). Localized titles only, so it matches what

@@ -454,8 +454,19 @@ Landed from the ranked port plan and merged to `main`: **#1** bench, **#2a–d**
   `SystemStatusService.setVolume`. Tests: `WheelActionMapTests` (overflow priority, card cycling, empty-bar
   volume, other chrome, wrap-around) — 12 tests green with the existing `StripWheelScrollTests`. **Not run:** a
   real wheel on the bar (no driver in this session).
-- **G, D are OWED, not started.** The widget catalog and bar keyboard focus need their own turn; their claims were
-  released rather than left stale.
+- **G (widget catalog, 2026-11-17):** pure `WidgetCatalog` in `Core/Support/WidgetPreset.swift` over
+  `WidgetLayout` (each module's existing `isVisible`), the four `show…` utilities (`Shelf`, `Trash`, `Drawer`,
+  `Background Apps`, via `WidgetCatalogUtility.prefsKey`) and `WidgetPresets` — every row carries
+  `id`/title/keywords/`prefsKey`/`isInstalled`, plus the target its buttons act on. Search is
+  case-insensitive over the localized title, the raw value and English keywords, prefix hits first. The Dock
+  Items card gained the search field: while a query is typed the module list is replaced by the catalog rows
+  (`Install`/`Hide`/`Remove`), each editing the preference that already owns the value; the list gives the search
+  row its height back in `widgetListCap`, so the page keeps its clamp. Three catalog keys × 12 locales
+  (`Install`, `Search widgets`, `No matches`); localization gate stays at its 18-missing / 8-unused baseline.
+  Tests: `WidgetCatalogTests` (coverage, install state from existing prefs, search ranking, actions, and a
+  store round-trip pinning each utility `prefsKey`). **Not run:** the Settings page on screen — the card's height
+  budget is arithmetic, not measured.
+- **D is OWED, not started.** Bar keyboard focus needs its own turn; its claim was released rather than left stale.
 
 **OpenTaskbar audit (2026-11-17, Slice A).** Source read as behavior only; every row checked in this tree, not assumed.
 
@@ -472,7 +483,7 @@ Landed from the ranked port plan and merged to `main`: **#1** bench, **#2a–d**
 | Bar fisheye | PARTIAL (deck buttons only); excluded by decision |
 | Keyboard focus mode on bar | MISSING (Slice D) |
 | Wheel: cycle windows or volume on bar | BUILT (Slice E, `WheelActionMap` + `DockStripView`) |
-| Widget catalog | MISSING (Slice G) |
+| Widget catalog | BUILT (Slice G, `WidgetCatalog` + Dock Items search) |
 | Disk-free tile, folder new-file badge | MISSING (optional follow-on slices) |
 | OpenTaskbar attribution | MISSING → added by Slice A |
 

@@ -107,25 +107,38 @@ extension SettingsLayoutPane {
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }
             SettingsDivider()
-            List {
-                ForEach(store.widgetLayout.order, id: \.self) { widget in
-                    widgetRow(widget)
-                        .listRowInsets(EdgeInsets())
-                }
-                .onMove { store.setWidgetLayout(store.widgetLayout.moving(from: $0, to: $1)) }
+            // Slice G: the catalog's search field. While a query is typed the module list is replaced by the
+            // matching catalog rows, so the page keeps its clamp (the list gives this row its height back in
+            // `widgetListCap`).
+            SettingsRow(Text("Search widgets")) {
+                TextField("Search widgets", text: $widgetQuery)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(maxWidth: 220)
             }
-            .listStyle(.plain)
-            // Close-out F1 (2026-10-15): the list is a control inside a card, so it may not paint its
-            // own well (luminance 35 across 816 × 186 pt against the card's 42) and its rows may not
-            // sit off the grid (label ink at 50.5 pt against the page's 42, 38 pt pitch against 41).
-            // The reorder itself (`.onMove` above) stays — it is the reason this is still a `List`.
-            .scrollContentBackground(.hidden)
-            // A `List` lays its rows out in an `NSOutlineView`, which reserves 8 pt of leading
-            // indentation that `.listRowInsets` cannot reach (measured on the running app: the row
-            // labels at 50 pt against the page's 42) — the list is pulled back by that much.
-            .padding(.horizontal, -Self.listRowChromeInset)
-            .frame(height: min(Self.widgetListHeight(count: store.widgetLayout.order.count),
-                               widgetListCap))
+            SettingsDivider()
+            if widgetQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                List {
+                    ForEach(store.widgetLayout.order, id: \.self) { widget in
+                        widgetRow(widget)
+                            .listRowInsets(EdgeInsets())
+                    }
+                    .onMove { store.setWidgetLayout(store.widgetLayout.moving(from: $0, to: $1)) }
+                }
+                .listStyle(.plain)
+                // Close-out F1 (2026-10-15): the list is a control inside a card, so it may not paint its
+                // own well (luminance 35 across 816 × 186 pt against the card's 42) and its rows may not
+                // sit off the grid (label ink at 50.5 pt against the page's 42, 38 pt pitch against 41).
+                // The reorder itself (`.onMove` above) stays — it is the reason this is still a `List`.
+                .scrollContentBackground(.hidden)
+                // A `List` lays its rows out in an `NSOutlineView`, which reserves 8 pt of leading
+                // indentation that `.listRowInsets` cannot reach (measured on the running app: the row
+                // labels at 50 pt against the page's 42) — the list is pulled back by that much.
+                .padding(.horizontal, -Self.listRowChromeInset)
+                .frame(height: min(Self.widgetListHeight(count: store.widgetLayout.order.count),
+                                   widgetListCap))
+            } else {
+                widgetCatalogList
+            }
             // The preset row and the switch that arms the context presets are one line (2026-10-18):
             // two lines of controls were 21 pt this page did not have. The context rows it opens stay
             // under it.
@@ -312,7 +325,9 @@ extension SettingsLayoutPane {
     var widgetListCap: CGFloat {
         // Three feedback pickers (DA-2) sit above the list: give them their 41 pt rows back.
         let pickerRows = 3 * (Self.widgetRowHeight + 4)
-        return Self.widgetListMaxHeight - pickerRows
+        // Slice G's search row sits between the pickers and the list; it takes a row's height from the list.
+        let searchRow = Self.widgetRowHeight + 4
+        return Self.widgetListMaxHeight - pickerRows - searchRow
             - (store.contextPresetsEnabled ? Self.widgetRowHeight + 4 : 0)
     }
 
@@ -406,5 +421,105 @@ extension SettingsLayoutPane {
             }
         }
         .frame(height: Self.widgetRowHeight)
+    }
+
+    // MARK: - Slice G: the widget catalog
+
+    /// Reads the same layout and `show…` values the dock reads, so a row's installed state and the bar can
+    /// never disagree.
+    var widgetCatalogItems: [WidgetCatalogItem] {
+        WidgetCatalog.items(layout: store.widgetLayout,
+                            utilities: WidgetCatalogUtilities(shelf: store.showShelf, trash: store.showTrash,
+                                                              drawer: store.showDrawer,
+                                                              backgroundApps: store.showBackgroundApps),
+                            userPresets: store.userWidgetPresets)
+    }
+
+    var widgetCatalogMatches: [WidgetCatalogItem] {
+        WidgetCatalog.search(widgetQuery, in: widgetCatalogItems)
+    }
+
+    /// Replaces the module list while a query is typed: same height budget, so the page never grows.
+    var widgetCatalogList: some View {
+        let matches = widgetCatalogMatches
+        return List {
+            if matches.isEmpty {
+                SettingsRow(Text("No matches")) { Spacer(minLength: 0) }
+                    .listRowInsets(EdgeInsets())
+            }
+            ForEach(matches) { item in
+                widgetCatalogRow(item)
+                    .listRowInsets(EdgeInsets())
+            }
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .padding(.horizontal, -Self.listRowChromeInset)
+        .frame(height: min(Self.widgetListHeight(count: max(matches.count, 1)), widgetListCap))
+    }
+
+    /// One result: its localized title, its state, and the buttons that state offers (Install, Hide, Remove).
+    func widgetCatalogRow(_ item: WidgetCatalogItem) -> some View {
+        HStack(spacing: 10) {
+            Text(verbatim: item.title)
+                .foregroundStyle(item.isInstalled ? .primary : .secondary)
+            Spacer(minLength: 8)
+            ForEach(WidgetCatalog.actions(for: item), id: \.self) { action in
+                Button {
+                    performCatalogAction(action, on: item)
+                } label: {
+                    catalogActionLabel(action)
+                }
+                .buttonStyle(.borderless)
+                .controlSize(.small)
+            }
+        }
+        .frame(height: Self.widgetRowHeight)
+    }
+
+    func catalogActionLabel(_ action: WidgetCatalogAction) -> Text {
+        switch action {
+        case .install: return Text("Install")
+        case .hide: return Text("Hide")
+        case .remove: return Text("Remove")
+        }
+    }
+
+    /// Every action edits the preference that already owns the value: the widget layout, the `show…` keys, or
+    /// the stored presets.
+    func performCatalogAction(_ action: WidgetCatalogAction, on item: WidgetCatalogItem) {
+        switch action {
+        case .install:
+            switch item.target {
+            case .section(let section):
+                store.setWidgetVisible(true, for: section)
+            case .utility(let utility):
+                setCatalogUtility(utility, to: true)
+            case .preset(let id):
+                if let preset = (WidgetPresets.builtIns + store.userWidgetPresets).first(where: { $0.id == id }) {
+                    store.applyWidgetPreset(preset)
+                }
+            }
+        case .hide:
+            switch item.target {
+            case .section(let section):
+                store.setWidgetVisible(false, for: section)
+            case .utility(let utility):
+                setCatalogUtility(utility, to: false)
+            case .preset:
+                break
+            }
+        case .remove:
+            if case .preset(let id) = item.target { store.deleteWidgetPreset(id: id) }
+        }
+    }
+
+    func setCatalogUtility(_ utility: WidgetCatalogUtility, to value: Bool) {
+        switch utility {
+        case .shelf: store.setShowShelf(value)
+        case .trash: store.setShowTrash(value)
+        case .drawer: store.setShowDrawer(value)
+        case .backgroundApps: store.setShowBackgroundApps(value)
+        }
     }
 }
