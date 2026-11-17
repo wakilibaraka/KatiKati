@@ -772,6 +772,47 @@ extension DeckButton {
 /// draws the persistent history Notification Center has shown (`NotificationMirrorService`) as a vertical
 /// list you can filter, open, mark read and dismiss. The notch keeps only transient event pills and never
 /// draws an inbox inside itself again.
+/// OW-3: the persistent scratch note. Typing goes through `ScratchpadStore`, which debounces the atomic file
+/// write; the badge is the pure count, and Copy All / Clear are the whole feature.
+struct ScratchpadPane: View {
+    @ObservedObject private var store = ScratchpadStore.shared
+    @State private var copied = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Text(verbatim: "\(store.document.wordCount)w · \(store.document.characterCount)c")
+                    .font(.system(size: 11, weight: .medium, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+                Button {
+                    let pasteboard = NSPasteboard.general
+                    pasteboard.clearContents()
+                    pasteboard.setString(store.copyAll(), forType: .string)
+                    copied = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { copied = false }
+                } label: {
+                    Text(copied ? "Copied" : "Copy All").font(.system(size: 11, weight: .semibold))
+                }
+                .buttonStyle(.plain)
+                .disabled(store.document.isEmpty)
+                Button {
+                    store.clear()
+                } label: {
+                    Text("Clear").font(.system(size: 11, weight: .semibold))
+                }
+                .buttonStyle(.plain)
+                .disabled(store.document.isEmpty)
+            }
+            TextEditor(text: Binding(get: { store.document.text }, set: { store.update($0) }))
+                .font(.system(size: 12))
+                .scrollContentBackground(.hidden)
+                .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(0.06)))
+        }
+        .padding(12)
+    }
+}
+
 struct SideDeckNotificationsView: View {
     @ObservedObject var controller: WindowDrawerController
     @ObservedObject private var mirror = NotificationMirrorService.shared

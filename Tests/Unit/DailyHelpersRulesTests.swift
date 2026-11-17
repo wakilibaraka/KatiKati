@@ -253,4 +253,58 @@ final class BreatherScheduleEngineTests: XCTestCase {
         streak.recordCompletion(on: day4, calendar: cal)
         XCTAssertEqual(streak.count, 1)
     }
+
+    // MARK: Scratchpad (slice OW-3)
+
+    private func scratchDirectory() -> URL {
+        FileManager.default.temporaryDirectory.appendingPathComponent("scratchpad-\(UUID().uuidString)")
+    }
+
+    @MainActor
+    func testScratchpadCountsWordsAndCharacters() {
+        let doc = ScratchpadDocument(text: "two words\nand a third")
+        XCTAssertEqual(doc.wordCount, 5)
+        XCTAssertEqual(doc.characterCount, 18)
+        XCTAssertFalse(doc.isEmpty)
+        XCTAssertTrue(ScratchpadDocument(text: "  \n ").isEmpty)
+        XCTAssertEqual(ScratchpadStore.wordCount(in: ""), 0)
+    }
+
+    @MainActor
+    func testScratchpadSavesAtomicallyAndReloads() {
+        let dir = scratchDirectory()
+        let store = ScratchpadStore(directory: dir)
+        store.update("remember the milk")
+        store.flush()
+        let reloaded = ScratchpadStore(directory: dir)
+        XCTAssertEqual(reloaded.document.text, "remember the milk")
+        XCTAssertEqual(reloaded.document.wordCount, 3)
+        XCTAssertEqual(reloaded.copyAll(), "remember the milk")
+        try? FileManager.default.removeItem(at: dir)
+    }
+
+    @MainActor
+    func testScratchpadClearCreatesAnEmptyFile() {
+        let dir = scratchDirectory()
+        let store = ScratchpadStore(directory: dir)
+        store.update("draft")
+        store.clear()
+        XCTAssertTrue(store.document.isEmpty)
+        XCTAssertEqual((try? String(contentsOf: store.fileURL, encoding: .utf8)) ?? "nil", "")
+        try? FileManager.default.removeItem(at: dir)
+    }
+
+    @MainActor
+    func testScratchpadDebounceWritesWithoutAnExplicitFlush() {
+        let dir = scratchDirectory()
+        let store = ScratchpadStore(directory: dir, delay: 0.01)
+        store.update("debounced text")
+        let deadline = Date().addingTimeInterval(2)
+        while Date() < deadline {
+            if (try? String(contentsOf: store.fileURL, encoding: .utf8)) == "debounced text" { break }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.02))
+        }
+        XCTAssertEqual(try? String(contentsOf: store.fileURL, encoding: .utf8), "debounced text")
+        try? FileManager.default.removeItem(at: dir)
+    }
 }

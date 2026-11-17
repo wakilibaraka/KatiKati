@@ -21073,6 +21073,23 @@
         }
       }
     },
+    "Copy All": {
+      "comment": "Scratchpad · copy the whole note",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "全部拷贝" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Copy All" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "全部拷貝" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "すべてコピー" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Alles kopieren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Tout copier" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Copiar todo" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Copiar todo" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Copiar tudo" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Copiar tudo" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Copia tutto" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "모두 복사" } }
+      }
+    },
     "Copy Name": {
       "localizations": {
         "zh-Hans": {
@@ -21454,6 +21471,23 @@
             "value": "복사 소리"
           }
         }
+      }
+    },
+    "Copy Specs": {
+      "comment": "System flyout · rig badge",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "拷贝配置" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Copy Specs" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "拷貝規格" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "スペックをコピー" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Spezifikationen kopieren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Copier les specs" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Copiar especificaciones" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Copiar especificaciones" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Copiar especificações" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Copiar especificações" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Copia specifiche" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "사양 복사" } }
       }
     },
     "Could not update ~/.claude/settings.json. Nothing was changed.": {
@@ -72679,6 +72713,23 @@
             "value": "장면"
           }
         }
+      }
+    },
+    "Scratchpad": {
+      "comment": "Side deck · scratch note tab",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "便笺" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Scratchpad" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "便箋" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "スクラッチパッド" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Notizblock" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Bloc-notes" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Bloc de notas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Bloc de notas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Bloco de notas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Bloco de notas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Blocco note" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "스크래치패드" } }
       }
     },
     "Screen Mirroring": {

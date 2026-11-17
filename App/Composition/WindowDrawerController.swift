@@ -171,7 +171,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: windowSelection.move(by: delta, count: filtered.count)
         case .notifications: notificationSelection.move(by: delta, count: visibleNotifications.count)
-        case .layouts, .emoji, .clipboard, .tendedero: break
+        case .layouts, .emoji, .clipboard, .tendedero, .scratchpad: break
         }
     }
 
@@ -179,7 +179,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let item = selectedWindow { activate(item.id) }
         case .notifications: if let entry = selectedNotification { openNotification(entry) }
-        case .layouts, .emoji, .clipboard, .tendedero: break
+        case .layouts, .emoji, .clipboard, .tendedero, .scratchpad: break
         }
     }
 
@@ -187,7 +187,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let id = selectedWindow?.id { closeWindow(id) }
         case .notifications: if let entry = selectedNotification { dismissNotification(entry) }
-        case .layouts, .emoji, .clipboard, .tendedero: break
+        case .layouts, .emoji, .clipboard, .tendedero, .scratchpad: break
         }
     }
 
@@ -444,6 +444,7 @@ private struct WindowDrawerView: View {
         case .clipboard: ClipboardFlyoutView(query: controller.query)
         case .emoji: EmojiDrawerPane(query: $controller.query)
         case .tendedero: LeftSidebarClotheslineView(query: controller.query)
+        case .scratchpad: ScratchpadPane()
         }
     }
 
@@ -466,6 +467,9 @@ private struct WindowDrawerView: View {
             SideDeckRailButton(symbol: SideDeckTab.tendedero.symbol, title: Text("Clothesline"),
                                selected: controller.tab == .tendedero,
                                badge: controller.stagedShelfCount) { controller.select(.tendedero) }
+            // OW-3: the scratch note, one rail button away.
+            SideDeckRailButton(symbol: SideDeckTab.scratchpad.symbol, title: Text("Scratchpad"),
+                               selected: controller.tab == .scratchpad) { controller.select(.scratchpad) }
             Spacer(minLength: 6)
             Toggle(isOn: $pinned) {
                 Image(systemName: pinned ? "pin.fill" : "pin").font(.system(size: 15))

@@ -356,3 +356,87 @@ struct InlineBarSliderMath: Equatable, Sendable {
         }
     }
 }
+
+// MARK: - Slice OW-3: the scratchpad
+
+/// A scratch note with the two counts the card shows. Pure, so the badge is unit-tested.
+struct ScratchpadDocument: Equatable, Sendable {
+    var text: String = ""
+
+    var characterCount: Int { text.count }
+    var wordCount: Int { ScratchpadStore.wordCount(in: text) }
+    var isEmpty: Bool { text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+}
+
+/// OW-3 (behavior ported from `alztrk/OpenWidget`, MIT — see NOTICE): one persistent scratch note, saved
+/// atomically to `~/Library/Application Support/KatiKati/scratchpad.txt` on a short debounce, so typing never
+/// waits on the disk, with 1-click copy and clear.
+@MainActor
+final class ScratchpadStore: ObservableObject {
+    static let shared = ScratchpadStore()
+    static let fileName = "scratchpad.txt"
+    static let debounce: TimeInterval = 0.6
+
+    @Published private(set) var document = ScratchpadDocument()
+    private let directory: URL
+    private let delay: TimeInterval
+    private var pending: DispatchWorkItem?
+
+    var fileURL: URL { directory.appendingPathComponent(Self.fileName) }
+
+    /// `directory` is injectable so the tests write into a temporary folder, never the owner's note.
+    init(directory: URL? = nil, delay: TimeInterval = ScratchpadStore.debounce) {
+        self.directory = directory ?? Self.applicationSupportDirectory
+        self.delay = delay
+        load()
+    }
+
+    static var applicationSupportDirectory: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("KatiKati", isDirectory: true)
+    }
+
+    nonisolated static func wordCount(in text: String) -> Int {
+        text.split(whereSeparator: { $0.isWhitespace || $0.isNewline }).count
+    }
+
+    /// Typing: the document updates at once, the file follows after the debounce.
+    func update(_ text: String) {
+        guard text != document.text else { return }
+        document.text = text
+        scheduleSave()
+    }
+
+    func scheduleSave() {
+        pending?.cancel()
+        let work = DispatchWorkItem { [weak self] in self?.flush() }
+        pending = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
+    }
+
+    /// Writes now — what the debounce ends in, and what `clear()` uses. Atomic, so a crash mid-write cannot
+    /// leave a half-written note behind.
+    func flush() {
+        pending?.cancel()
+        pending = nil
+        do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            try document.text.write(to: fileURL, atomically: true, encoding: .utf8)
+        } catch {
+            // A failed save keeps the text in memory; the next edit schedules another attempt.
+        }
+    }
+
+    func load() {
+        let stored = (try? String(contentsOf: fileURL, encoding: .utf8)) ?? ""
+        document = ScratchpadDocument(text: stored)
+    }
+
+    /// One-click snapshot: the note exactly as typed.
+    func copyAll() -> String { document.text }
+
+    func clear() {
+        update("")
+        flush()
+    }
+}

@@ -350,6 +350,8 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
     case emoji
     case clipboard
     case tendedero
+    /// OW-3: the persistent scratch note.
+    case scratchpad
 
     var id: String { rawValue }
 
@@ -361,6 +363,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         case .emoji: return String(localized: "Emoji")
         case .clipboard: return String(localized: "Clipboard")
         case .tendedero: return String(localized: "Clothesline")
+        case .scratchpad: return String(localized: "Scratchpad")
         }
     }
 
@@ -372,6 +375,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         case .emoji: return "face.smiling"
         case .clipboard: return "doc.on.clipboard"
         case .tendedero: return "paperclip"
+        case .scratchpad: return "square.and.pencil"
         }
     }
 
@@ -389,6 +393,7 @@ enum SideDeckSearch {
         case .emoji: return String(localized: "Search emoji")
         case .clipboard: return String(localized: "Search clipboard")
         case .tendedero: return String(localized: "Search shelf")
+        case .scratchpad: return String(localized: "Scratchpad")
         }
     }
 }
