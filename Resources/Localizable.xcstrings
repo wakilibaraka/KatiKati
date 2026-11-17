@@ -12352,6 +12352,23 @@
         }
       }
     },
+    "Brand Line": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "品牌色线条" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Brand Line" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "品牌色線條" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ブランドライン" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Markenlinie" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ligne de marque" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Línea de marca" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Línea de marca" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Linha da marca" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Linha da marca" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Linea del marchio" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "브랜드 라인" } }
+      }
+    },
     "Break": {
       "extractionState": "manual",
       "localizations": {
@@ -17734,6 +17751,23 @@
         }
       }
     },
+    "Click Effect": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "点击效果" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Click Effect" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "點擊效果" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "クリック効果" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Klick-Effekt" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Effet au clic" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Efecto al hacer clic" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Efecto al hacer clic" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Efeito ao clicar" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Efeito ao clicar" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Effetto al clic" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "클릭 효과" } }
+      }
+    },
     "Click Keyboard Shortcuts….": {
       "extractionState": "manual",
       "localizations": {
@@ -19268,6 +19302,23 @@
             "value": "색상"
           }
         }
+      }
+    },
+    "Color Aura": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "色彩光晕" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Color Aura" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "色彩光暈" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "カラーオーラ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Farbaura" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Halo coloré" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Aura de color" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Aura de color" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Aura de cor" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Aura de cor" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Aura colorata" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "컬러 오라" } }
       }
     },
     "Coloured": {
@@ -26215,6 +26266,23 @@
         }
       }
     },
+    "Dot": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "圆点" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Dot" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "圓點" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ドット" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Punkt" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Point" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Punto" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Punto" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ponto" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Ponto" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Punto" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "점" } }
+      }
+    },
     "Double-tap": {
       "extractionState": "manual",
       "localizations": {
@@ -31740,6 +31808,23 @@
             "value": "공간 순서 고정"
           }
         }
+      }
+    },
+    "Flip 3D": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "3D 翻转" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Flip 3D" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "3D 翻轉" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "3D フリップ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "3D-Drehung" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Bascule 3D" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Giro 3D" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Giro 3D" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Giro 3D" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Giro 3D" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Capovolgimento 3D" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "3D 뒤집기" } }
       }
     },
     "Flip Main Tile Side": {
@@ -38121,6 +38206,23 @@
         }
       }
     },
+    "Hover Animation": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "悬停动画" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Hover Animation" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "懸停動畫" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ホバーアニメーション" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Hover-Animation" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Animation au survol" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Animación al pasar" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Animación al pasar" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Animação ao passar" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Animação ao passar" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Animazione al passaggio" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "호버 애니메이션" } }
+      }
+    },
     "Hover Preview": {
       "extractionState": "manual",
       "localizations": {
@@ -40035,6 +40137,23 @@
             "value": "항목은 원래 위치에 남아 있습니다. 자동 만료와 복사 저장은 설정 › 선반에 있습니다."
           }
         }
+      }
+    },
+    "Jiggle": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "抖动" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Jiggle" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "抖動" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "揺れ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Wackeln" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Tremblement" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Vibración" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Vibración" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Tremor" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Tremor" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Oscillazione" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "흔들림" } }
       }
     },
     "Join": {
@@ -42414,6 +42533,23 @@
             "value": "오늘 이후"
           }
         }
+      }
+    },
+    "Launch Bounce": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "启动弹跳" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Launch Bounce" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "啟動彈跳" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "起動バウンス" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Start-Federung" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Rebond de lancement" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Rebote de inicio" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Rebote de inicio" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Salto de abertura" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Salto de abertura" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Rimbalzo di avvio" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "실행 바운스" } }
       }
     },
     "Launch at login": {
@@ -44971,6 +45107,40 @@
             "value": "Mac"
           }
         }
+      }
+    },
+    "Magnetic Pull": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "磁吸" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Magnetic Pull" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "磁吸" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "マグネット" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Magnetisch" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Aimantation" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Atracción magnética" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Atracción magnética" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Atração magnética" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Atração magnética" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Attrazione magnetica" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "자석 끌림" } }
+      }
+    },
+    "Magnification": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "放大" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Magnification" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "放大" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "拡大" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Vergrößerung" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Agrandissement" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ampliación" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Ampliación" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ampliação" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Ampliação" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Ingrandimento" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "확대" } }
       }
     },
     "Magnify Amount": {
@@ -71423,6 +71593,23 @@
         }
       }
     },
+    "Ripple": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "涟漪" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Ripple" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "漣漪" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "波紋" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Welle" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Onde" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Onda" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Onda" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Onda" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Onda" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Onda" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "파문" } }
+      }
+    },
     "Rose": {
       "extractionState": "manual",
       "localizations": {
@@ -71883,6 +72070,23 @@
             "value": "실행 중인 앱"
           }
         }
+      }
+    },
+    "Running Indicator": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "运行指示器" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Running Indicator" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "執行指示器" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "実行インジケーター" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Statusanzeige" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Indicateur d'activité" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Indicador de ejecución" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Indicador de ejecución" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Indicador de execução" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Indicador de execução" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Indicatore di esecuzione" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "실행 표시" } }
       }
     },
     "SSD Read": {
@@ -79299,6 +79503,23 @@
         }
       }
     },
+    "Sliding Pill": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "滑动药丸" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Sliding Pill" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "滑動藥丸" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "スライドピル" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Gleitende Pille" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Pilule glissante" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Píldora deslizante" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Píldora deslizante" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pílula deslizante" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pílula deslizante" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Pillola scorrevole" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "슬라이딩 필" } }
+      }
+    },
     "Slim bars on the screen edges for notes, productivity and system status. Pick a layout, flip it to either side, or choose Custom to place each item yourself.": {
       "extractionState": "manual",
       "localizations": {
@@ -82677,6 +82898,23 @@
         }
       }
     },
+    "Spring Lift": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "弹起" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Spring Lift" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "彈起" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "スプリングリフト" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Federnd anheben" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Élévation ressort" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Elevación con muelle" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Elevación con muelle" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Elevação com mola" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Elevação com mola" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Sollevamento elastico" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "스프링 리프트" } }
+      }
+    },
     "Spring Pop": {
       "extractionState": "manual",
       "localizations": {
@@ -85284,6 +85522,23 @@
             "value": "시스템 설정 > 개인정보 보호 및 보안 > 손쉬운 사용"
           }
         }
+      }
+    },
+    "Tactile Squish": {
+      "comment": "Dock Items · motion style",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "触感按压" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Tactile Squish" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "觸感按壓" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "押し込み" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Taktiles Drücken" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Pression tactile" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Presión táctil" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Presión táctil" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pressão tátil" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pressão tátil" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Pressione tattile" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "촉각 눌림" } }
       }
     },
     "Take a Break": {
@@ -117868,6 +118123,23 @@
             "value": "Open Clipboard"
           }
         }
+      }
+    },
+    "Windows Pill": {
+      "comment": "Dock Items · running indicator",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Windows 胶囊" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Windows Pill" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Windows 膠囊" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Windows ピル" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Windows-Pille" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Pilule Windows" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Píldora Windows" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Píldora Windows" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pílula Windows" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pílula Windows" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Pillola Windows" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Windows 필" } }
       }
     }
   },

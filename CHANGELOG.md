@@ -5,6 +5,12 @@ All notable changes to KatiKati are documented in this file.
 ## [Unreleased] — one app table for every quit rule
 
 ### Added
+- **The Dock now has its own hover and click language, plus three running indicators.** Hover Animation picks
+  None, Magnification, Spring Lift, Jiggle, Color Aura, Sliding Pill or Magnetic Pull; Click Effect picks Tactile
+  Squish, Launch Bounce, Ripple or Flip 3D; Running Indicator picks the classic dot, a Windows 11 pill (16 pt for
+  the frontmost app, 6 pt otherwise, one pip per window up to three) or a KDE Latte brand-coloured line. The aura
+  and the brand line use a per-app dominant colour sampled once per session. With Reduce Motion on, every moving
+  style falls back to the colour tint.
 - **The Drawer is now a DockPops-style pop with its own dock icon**, at the head of the tail zone, left of
   Downloads and the Trash. It holds up to 25 apps, files and folders: drop anything on the icon from Finder or
   anywhere else, or drag a window card onto it to stash its app as before. Click the icon to open the pop; apps
