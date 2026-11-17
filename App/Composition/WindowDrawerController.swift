@@ -10,7 +10,9 @@ import SwiftUI
 // shortcut: edge hover polls the pointer at ~7 Hz and only watches the left edge of each display.
 @MainActor
 final class WindowDrawerController: ObservableObject {
-    enum Tab: String { case windows, layouts, clipboard, emoji }
+    /// SD-1/SD-2: the rail's tabs are the pure `SideDeckTab` in `Core/Support/EdgeBarPrefs.swift`, so the
+    /// notch removal, the badges and the search placeholders are unit-tested without a window.
+    typealias Tab = SideDeckTab
     static let edgeHoverKey = "com.katikati.drawer.edgeHover"
 
     struct Item: Identifiable, Equatable {
@@ -23,17 +25,23 @@ final class WindowDrawerController: ObservableObject {
     }
 
     @Published var tab: Tab = .windows
-    @Published var query = ""
+    @Published var query = "" { didSet { selectionChanged() } }
     @Published private(set) var items: [Item] = []
     @Published private(set) var thumbnails: [String: NSImage] = [:]
+    /// SD-2: the bell tab's All/Unread pill, plus one keyboard selection per navigable list.
+    @Published var notificationsUnreadOnly = false
+    @Published private(set) var windowSelection = SideDeckSelection()
+    @Published private(set) var notificationSelection = SideDeckSelection()
 
     private let runtime: AppRuntime
     private let onSearch: () -> Void
     private let onApps: () -> Void
     private var panel: DrawerPanel?
     private var clickMonitor: Any?
+    private var keyMonitor: Any?
     private var edgeTimer: Timer?
     private var edgeSince: Date?
+    private var peekWork: DispatchWorkItem?
     private var defaultsObserver: NSObjectProtocol?
     private let log = Logger(subsystem: "com.katikati.app", category: "drawer")
 
@@ -47,6 +55,32 @@ final class WindowDrawerController: ObservableObject {
             Task { @MainActor in self?.applyEdgeHover() }
         }
         applyEdgeHover()
+        TendederoClotheslineController.shared.onNewScreenshot = { [weak self] in
+            self?.peekTendedero()
+        }
+        TendederoClotheslineController.shared.start()
+    }
+
+    func peekTendedero() {
+        tab = .tendedero
+        if panel == nil { open() }
+        schedulePeekClose()
+    }
+
+    private func schedulePeekClose() {
+        peekWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            Task { @MainActor in
+                guard let self, let panel = self.panel, self.tab == .tendedero, !self.isPinnedOpen else { return }
+                if panel.frame.contains(NSEvent.mouseLocation) {
+                    self.schedulePeekClose()
+                } else {
+                    self.close()
+                }
+            }
+        }
+        peekWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: work)
     }
 
     private func applyEdgeHover() {
@@ -74,7 +108,12 @@ final class WindowDrawerController: ObservableObject {
 
     func toggle() { panel == nil ? open() : close() }
 
-    func select(_ tab: Tab) { self.tab = tab }
+    func select(_ tab: Tab) {
+        self.tab = tab
+        query = ""
+        windowSelection = SideDeckSelection()
+        notificationSelection = SideDeckSelection()
+    }
 
     func runSearch() { close(); onSearch() }
     func runApps() { close(); onApps() }
@@ -88,6 +127,93 @@ final class WindowDrawerController: ObservableObject {
 
     var filtered: [Item] {
         items.filter { WindowSwitcherModel.matches(query: query, title: $0.title, appName: $0.appName) }
+    }
+
+    /// SD-2: the inbox the bell tab draws — the same visible rows the rail's badge counts.
+    var visibleNotifications: [NotificationHistoryEntry] {
+        let mirror = NotificationMirrorService.shared
+        return mirror.historyStore.visibleEntries(
+            query: query,
+            unreadOnly: notificationsUnreadOnly,
+            sensitiveBundleIDs: mirror.activeSensitiveBundleIDs(),
+            placeholder: String(localized: "Notification content hidden")
+        )
+    }
+
+    var unreadNotificationCount: Int {
+        SideDeckBadges.unreadNotificationCount(NotificationMirrorService.shared.historyStore.entries)
+    }
+
+    var stagedShelfCount: Int {
+        SideDeckBadges.stagedShelfCount(TendederoClotheslineController.shared.store.items)
+    }
+
+    var selectedWindow: Item? {
+        filtered.indices.contains(windowSelection.index) ? filtered[windowSelection.index] : nil
+    }
+
+    var selectedNotification: NotificationHistoryEntry? {
+        let rows = visibleNotifications
+        return rows.indices.contains(notificationSelection.index) ? rows[notificationSelection.index] : nil
+    }
+
+    /// The list under a selection changed (a query, a dismissed row): keep the highlight on a real row.
+    private func selectionChanged() {
+        windowSelection.clamp(count: filtered.count)
+        notificationSelection.clamp(count: visibleNotifications.count)
+    }
+
+    var isPinnedOpen: Bool { UserDefaults.standard.bool(forKey: SideDeckPrefs.pinKey) }
+
+    // MARK: - Keyboard (SD-2)
+
+    func moveSelection(_ delta: Int) {
+        switch tab {
+        case .windows: windowSelection.move(by: delta, count: filtered.count)
+        case .notifications: notificationSelection.move(by: delta, count: visibleNotifications.count)
+        case .layouts, .emoji, .clipboard, .tendedero: break
+        }
+    }
+
+    func activateSelection() {
+        switch tab {
+        case .windows: if let item = selectedWindow { activate(item.id) }
+        case .notifications: if let entry = selectedNotification { openNotification(entry) }
+        case .layouts, .emoji, .clipboard, .tendedero: break
+        }
+    }
+
+    func dismissSelection() {
+        switch tab {
+        case .windows: if let id = selectedWindow?.id { closeWindow(id) }
+        case .notifications: if let entry = selectedNotification { dismissNotification(entry) }
+        case .layouts, .emoji, .clipboard, .tendedero: break
+        }
+    }
+
+    /// Opens the notification's app and marks the row read, exactly like a click on its card.
+    func openNotification(_ entry: NotificationHistoryEntry) {
+        NotificationMirrorService.shared.markRead(id: entry.id)
+        guard let bundleIdentifier = entry.appBundleId,
+              let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier) else { return }
+        NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
+    }
+
+    func dismissNotification(_ entry: NotificationHistoryEntry) {
+        NotificationMirrorService.shared.dismiss(id: entry.id)
+        notificationSelection.clamp(count: visibleNotifications.count)
+    }
+
+    /// ⌫ and ⏎ stay out of the way while the search field is being edited; ↑/↓ always move the selection.
+    func handleKey(_ event: NSEvent) -> Bool {
+        let editing = panel?.firstResponder is NSTextView
+        switch event.keyCode {
+        case 126: moveSelection(-1); return true
+        case 125: moveSelection(1); return true
+        case 36, 76: guard !editing else { return false }; activateSelection(); return true
+        case 51: guard !editing else { return false }; dismissSelection(); return true
+        default: return false
+        }
     }
 
     // MARK: - Showing
@@ -105,6 +231,7 @@ final class WindowDrawerController: ObservableObject {
                         bundleID: w.bundleIdentifier, cgWindowID: w.cgWindowID, isMinimized: w.status == .minimized)
         }
         query = ""; tab = .windows; thumbnails = [:]
+        windowSelection = SideDeckSelection(); notificationSelection = SideDeckSelection()
 
         let mouse = NSEvent.mouseLocation
         let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main ?? NSScreen.screens[0]
@@ -118,9 +245,15 @@ final class WindowDrawerController: ObservableObject {
         self.panel = panel
         clickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             Task { @MainActor in
-                guard let self, let panel = self.panel, !panel.frame.contains(NSEvent.mouseLocation) else { return }
+                guard let self, let panel = self.panel, !panel.frame.contains(NSEvent.mouseLocation),
+                      !self.isPinnedOpen else { return }
                 self.close()
             }
+        }
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            var handled = false
+            MainActor.assumeIsolated { handled = self?.handleKey(event) ?? false }
+            return handled ? nil : event
         }
         loadThumbnails()
     }
@@ -140,6 +273,8 @@ final class WindowDrawerController: ObservableObject {
     func close() {
         if let clickMonitor { NSEvent.removeMonitor(clickMonitor) }
         clickMonitor = nil
+        if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
+        keyMonitor = nil
         panel?.orderOut(nil); panel = nil
         items = []; thumbnails = [:]
     }
@@ -164,65 +299,103 @@ private final class DrawerPanel: NSPanel {
 
 private struct WindowDrawerView: View {
     @ObservedObject var controller: WindowDrawerController
+    @ObservedObject private var mirror = NotificationMirrorService.shared
+    @ObservedObject private var shelf = TendederoClotheslineController.shared
+    @AppStorage(SideDeckPrefs.pinKey) private var pinned = false
     @FocusState private var searchFocused: Bool
 
     var body: some View {
-        HStack(spacing: 0) {
-            rail
-            Divider()
-            Group {
-                switch controller.tab {
-                case .windows: windows
-                case .layouts:
-                    VStack(spacing: 8) {
-                        WindowsFlyoutView()
-                        Text("Drag a window onto a layout slot").font(.system(size: 11)).foregroundStyle(.secondary)
-                        dragRow
-                        Spacer(minLength: 0)
-                    }
-                case .clipboard: ClipboardFlyoutView()
-                case .emoji: EmojiDrawerPane()
-                }
+        VStack(spacing: 0) {
+            searchBar
+            HStack(spacing: 0) {
+                rail
+                Divider()
+                content
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .onAppear { searchFocused = true }
+    }
+
+    /// SD-2: one field for every tab. Its placeholder is the pure tab helper, so it always names what
+    /// the list under it actually filters.
+    private var searchBar: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass").font(.system(size: 12)).foregroundStyle(.secondary)
+            TextField(controller.tab.searchPlaceholder, text: $controller.query)
+                .textFieldStyle(.plain)
+                .focused($searchFocused)
+            if !controller.query.isEmpty {
+                Button { controller.query = "" } label: {
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help(Text("Clear"))
+            }
+        }
+        .padding(.horizontal, 10).padding(.vertical, 7)
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(0.06)))
+        .padding(.horizontal, 10).padding(.vertical, 8)
+    }
+
+    @ViewBuilder private var content: some View {
+        switch controller.tab {
+        case .windows: windows
+        case .notifications: SideDeckNotificationsView(controller: controller)
+        case .layouts:
+            VStack(spacing: 8) {
+                WindowsFlyoutView()
+                Text("Drag a window onto a layout slot").font(.system(size: 11)).foregroundStyle(.secondary)
+                dragRow
+                Spacer(minLength: 0)
+            }
+        case .clipboard: ClipboardFlyoutView(query: controller.query)
+        case .emoji: EmojiDrawerPane(query: $controller.query)
+        case .tendedero: LeftSidebarClotheslineView(query: controller.query)
+        }
     }
 
     private var rail: some View {
         VStack(spacing: 6) {
-            railButton("magnifyingglass", "Search", selected: false) { controller.runSearch() }
-            railButton("macwindow.on.rectangle", "Windows", selected: controller.tab == .windows) { controller.select(.windows) }
-            railButton("square.grid.2x2", "Apps", selected: false) { controller.runApps() }
-            railButton("rectangle.split.3x1", "Layouts", selected: controller.tab == .layouts) { controller.select(.layouts) }
-            railButton("face.smiling", "Emoji", selected: controller.tab == .emoji) { controller.select(.emoji) }
-            railButton("doc.on.clipboard", "Clipboard", selected: controller.tab == .clipboard) { controller.select(.clipboard) }
-            Spacer()
+            SideDeckRailButton(symbol: "magnifyingglass", title: Text("Search"), selected: false) { controller.runSearch() }
+            SideDeckRailButton(symbol: SideDeckTab.windows.symbol, title: Text("Windows"),
+                               selected: controller.tab == .windows) { controller.select(.windows) }
+            SideDeckRailButton(symbol: "square.grid.2x2", title: Text("Apps"), selected: false) { controller.runApps() }
+            // SD-1/SD-2: the bell, with the live unread badge the notch inbox used to carry.
+            SideDeckRailButton(symbol: SideDeckTab.notifications.symbol, title: Text("Notifications"),
+                               selected: controller.tab == .notifications,
+                               badge: controller.unreadNotificationCount) { controller.select(.notifications) }
+            SideDeckRailButton(symbol: SideDeckTab.layouts.symbol, title: Text("Layouts"),
+                               selected: controller.tab == .layouts) { controller.select(.layouts) }
+            SideDeckRailButton(symbol: SideDeckTab.emoji.symbol, title: Text("Emoji"),
+                               selected: controller.tab == .emoji) { controller.select(.emoji) }
+            SideDeckRailButton(symbol: SideDeckTab.clipboard.symbol, title: Text("Clipboard"),
+                               selected: controller.tab == .clipboard) { controller.select(.clipboard) }
+            SideDeckRailButton(symbol: SideDeckTab.tendedero.symbol, title: Text("Clothesline"),
+                               selected: controller.tab == .tendedero,
+                               badge: controller.stagedShelfCount) { controller.select(.tendedero) }
+            Spacer(minLength: 6)
+            Toggle(isOn: $pinned) {
+                Image(systemName: pinned ? "pin.fill" : "pin").font(.system(size: 15))
+            }
+            .toggleStyle(.button)
+            .buttonStyle(.plain)
+            .frame(width: 36, height: 36)
+            .help(Text("Pin Strip Open"))
+            .accessibilityLabel(Text("Pin Strip Open"))
         }
         .padding(8)
         .frame(width: 52)
     }
 
-    private func railButton(_ symbol: String, _ title: LocalizedStringKey, selected: Bool,
-                            action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: symbol).font(.system(size: 16))
-                .frame(width: 36, height: 36)
-                .background(RoundedRectangle(cornerRadius: 9, style: .continuous)
-                    .fill(selected ? Color.accentColor.opacity(0.28) : Color.clear))
-        }
-        .buttonStyle(.plain).help(title)
-    }
-
     private var windows: some View {
         VStack(spacing: 10) {
-            TextField("Search windows", text: $controller.query)
-                .textFieldStyle(.roundedBorder)
-                .focused($searchFocused)
-                .onAppear { searchFocused = true }
             ScrollView {
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                    ForEach(controller.filtered) { item in card(item) }
+                    ForEach(Array(controller.filtered.enumerated()), id: \.element.id) { index, item in
+                        card(item, selected: controller.windowSelection.index == index)
+                    }
                 }
             }
             if controller.filtered.isEmpty { Text("No matching windows").foregroundStyle(.secondary) }
@@ -252,7 +425,7 @@ private struct WindowDrawerView: View {
         .frame(height: 40)
     }
 
-    private func card(_ item: WindowDrawerController.Item) -> some View {
+    private func card(_ item: WindowDrawerController.Item, selected: Bool = false) -> some View {
         VStack(spacing: 4) {
             ZStack {
                 RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.black.opacity(0.18))
@@ -273,6 +446,9 @@ private struct WindowDrawerView: View {
             Text(verbatim: item.title.isEmpty ? item.appName : item.title)
                 .font(.system(size: 11, weight: .medium)).lineLimit(1)
         }
+        .padding(2)
+        .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous)
+            .strokeBorder(selected ? Color.accentColor : Color.clear, lineWidth: 2))
         .contentShape(Rectangle())
         .onTapGesture { controller.activate(item.id) }
     }
@@ -280,14 +456,12 @@ private struct WindowDrawerView: View {
 
 /// Emoji tab: search by name, click to copy.
 private struct EmojiDrawerPane: View {
-    @State private var query = ""
+    /// SD-2: the deck's one search field filters emoji by name too.
+    @Binding var query: String
     @State private var copied: String?
-    @FocusState private var focused: Bool
 
     var body: some View {
         VStack(spacing: 10) {
-            TextField("Search emoji", text: $query).textFieldStyle(.roundedBorder).focused($focused)
-                .onAppear { focused = true }
             ScrollView {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 7), spacing: 4) {
                     ForEach(Array(EmojiCatalog.matching(query).prefix(300)), id: \.char) { entry in

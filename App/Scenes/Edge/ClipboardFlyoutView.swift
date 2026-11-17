@@ -1,7 +1,11 @@
+import QuickLookUI
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Clipboard history (Phase 7A-P4): click a row to copy it back. Recording is opt-in and memory-only.
 struct ClipboardFlyoutView: View {
+    /// SD-2: the deck's one search field filters this list too.
+    var query: String = ""
     @ObservedObject private var monitor = ProductivityServices.shared.clipboard
     @AppStorage(TilePalette.storageKey) private var palette: TilePalette = .classic
     @Environment(\.colorScheme) private var colorScheme
@@ -9,6 +13,10 @@ struct ClipboardFlyoutView: View {
     @State private var copiedID: UUID?
     @State private var confirmingClear = false
     @State private var selectedCategory: ClipboardCategory = .all
+
+    init(query: String = "") {
+        self.query = query
+    }
 
     var body: some View {
         let size = ProductivityFlyout.size(.clipboard)
@@ -32,7 +40,7 @@ struct ClipboardFlyoutView: View {
                         .font(.system(size: 11)).foregroundColor(env.secondary).fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.top, 6)
-            } else if monitor.history.entries.isEmpty {
+            } else if visibleEntries.isEmpty {
                 Text("Nothing copied yet").font(.system(size: 12, weight: .semibold)).foregroundColor(env.secondary).padding(.top, 4)
             } else {
                 HStack(spacing: 4) {
@@ -53,7 +61,7 @@ struct ClipboardFlyoutView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        ForEach(monitor.history.displayOrder) { entry in row(entry, env: env) }
+                        ForEach(visibleEntries) { entry in row(entry, env: env) }
                     }
                 }
             }
@@ -65,6 +73,12 @@ struct ClipboardFlyoutView: View {
         } message: {
             Text("Pinned entries stay; everything else is forgotten. History is never saved to disk.")
         }
+    }
+
+    private var visibleEntries: [ClipEntry] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return monitor.history.displayOrder }
+        return monitor.history.displayOrder.filter { $0.text.localizedStandardContains(trimmed) }
     }
 
     @ViewBuilder
@@ -103,6 +117,365 @@ struct ClipboardFlyoutView: View {
                 if entry.pinned { Button("Unpin") { monitor.togglePin(entry.id) } } else { Button("Pin") { monitor.togglePin(entry.id) } }
                 Button("Delete") { monitor.remove(entry.id) }
             }
+        }
+    }
+}
+
+// MARK: - Slice T-2: Tendedero Left Sidebar Clothesline
+
+@MainActor
+final class TendederoClotheslineController: NSObject, ObservableObject, QLPreviewPanelDataSource {
+    static let shared = TendederoClotheslineController()
+    static let captureModeKey = "com.katikati.tendedero.captureMode"
+    static let unlimitedKey = "com.katikati.tendedero.unlimited"
+
+    @Published private(set) var store = TendederoStore()
+    @Published var selectedID: UUID?
+    @Published var copiedID: UUID?
+    @Published var captureMode: TendederoCaptureMode = {
+        TendederoCaptureMode(rawValue: UserDefaults.standard.string(forKey: TendederoClotheslineController.captureModeKey) ?? "") ?? .screenshotsAndAutoClipboard
+    }()
+    @Published var unlimitedCapacity: Bool = UserDefaults.standard.bool(forKey: TendederoClotheslineController.unlimitedKey)
+
+    var onNewScreenshot: (() -> Void)?
+
+    private var started = false
+    private var screenshotQuery: NSMetadataQuery?
+    private var seenScreenshotPaths: Set<String> = []
+    private var pasteboardTimer: Timer?
+    private var lastChangeCount = NSPasteboard.general.changeCount
+    private var physicsTimer: Timer?
+    private var previewURL: URL?
+
+    func start() {
+        guard !started else { return }
+        started = true
+        applyCapacityMode()
+        startScreenshotQuery()
+        startPasteboardWatch()
+    }
+
+    func setCaptureMode(_ mode: TendederoCaptureMode) {
+        captureMode = mode
+        UserDefaults.standard.set(mode.rawValue, forKey: Self.captureModeKey)
+    }
+
+    func setUnlimitedCapacity(_ unlimited: Bool) {
+        unlimitedCapacity = unlimited
+        UserDefaults.standard.set(unlimited, forKey: Self.unlimitedKey)
+        applyCapacityMode()
+    }
+
+    private func applyCapacityMode() {
+        store.capacityMode = unlimitedCapacity ? .unlimited : .default
+        store.pruneExpired()
+    }
+
+    func hangCurrentClipboard() {
+        let pb = NSPasteboard.general
+        lastChangeCount = pb.changeCount
+        if let urls = pb.readObjects(forClasses: [NSURL.self]) as? [URL], let first = urls.first {
+            if first.isFileURL {
+                addAndAnimate(kind: .screenshot(url: first), title: first.lastPathComponent)
+            } else {
+                addAndAnimate(kind: .link(first), title: first.host ?? first.absoluteString)
+            }
+            return
+        }
+        if let image = NSImage(pasteboard: pb), let tiff = image.tiffRepresentation {
+            addAndAnimate(kind: .imageData(tiff), title: "Image \(Int(image.size.width))×\(Int(image.size.height))")
+            return
+        }
+        if let text = pb.string(forType: .string)?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty {
+            addAndAnimate(kind: .text(text), title: String(text.prefix(48)))
+        }
+    }
+
+    func hangDroppedURL(_ url: URL) {
+        if url.isFileURL {
+            addAndAnimate(kind: .screenshot(url: url), title: url.lastPathComponent)
+        } else {
+            addAndAnimate(kind: .link(url), title: url.host ?? url.absoluteString)
+        }
+    }
+
+    func togglePin(_ id: UUID) { store.togglePin(id: id); startPhysicsIfNeeded() }
+    func remove(_ id: UUID) { store.remove(id: id) }
+    func clearUnpinned() { store.clearUnpinned() }
+    func markAllRead() { store.markAllRead() }
+    func hover(_ id: UUID) { store.applyImpulse(id: id, degrees: 5); startPhysicsIfNeeded() }
+
+    func copy(_ item: TendederoItem) {
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        switch item.kind {
+        case .screenshot(let url):
+            if let img = NSImage(contentsOf: url) { pb.writeObjects([img, url as NSURL]) }
+            else { pb.writeObjects([url as NSURL]) }
+        case .imageData(let data):
+            if let img = NSImage(data: data) { pb.writeObjects([img]) }
+        case .link(let url):
+            pb.writeObjects([url as NSURL])
+        case .text(let text):
+            pb.setString(text, forType: .string)
+        }
+        lastChangeCount = pb.changeCount
+        copiedID = item.id
+        store.applyImpulse(id: item.id, degrees: -8)
+        startPhysicsIfNeeded()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
+            if self?.copiedID == item.id { self?.copiedID = nil }
+        }
+    }
+
+    func open(_ item: TendederoItem) {
+        switch item.kind {
+        case .screenshot(let url), .link(let url):
+            NSWorkspace.shared.open(url)
+        case .imageData(let data):
+            if let temp = writeTempFile(data: data, ext: "png") { NSWorkspace.shared.open(temp) }
+        case .text:
+            copy(item)
+        }
+    }
+
+    func quickLook(_ item: TendederoItem) {
+        switch item.kind {
+        case .screenshot(let url): previewURL = url
+        case .link(let url): previewURL = url
+        case .imageData(let data): previewURL = writeTempFile(data: data, ext: "png")
+        case .text(let text): previewURL = writeTempFile(data: Data(text.utf8), ext: "txt")
+        }
+        guard previewURL != nil, let panel = QLPreviewPanel.shared() else { return }
+        panel.dataSource = self
+        if panel.isVisible { panel.reloadData() } else { panel.makeKeyAndOrderFront(nil) }
+    }
+
+    func dragProvider(for item: TendederoItem) -> NSItemProvider {
+        switch item.kind {
+        case .screenshot(let url): return NSItemProvider(object: url as NSURL)
+        case .link(let url): return NSItemProvider(object: url as NSURL)
+        case .imageData(let data):
+            if let img = NSImage(data: data) { return NSItemProvider(object: img) }
+            return NSItemProvider(object: item.title as NSString)
+        case .text(let text): return NSItemProvider(object: text as NSString)
+        }
+    }
+
+    nonisolated func numberOfPreviewItems(in panel: QLPreviewPanel!) -> Int { 1 }
+    nonisolated func previewPanel(_ panel: QLPreviewPanel!, previewItemAt index: Int) -> (any QLPreviewItem)! {
+        MainActor.assumeIsolated { previewURL as NSURL? }
+    }
+
+    private func addAndAnimate(kind: TendederoItemKind, title: String) {
+        _ = store.add(kind: kind, title: title)
+        startPhysicsIfNeeded()
+    }
+
+    private func startPhysicsIfNeeded() {
+        guard physicsTimer == nil else { return }
+        physicsTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self else { return }
+                self.store.tickPhysics(dt: 1.0 / 60.0)
+                let active = self.store.items.contains { $0.swingAngleDegrees != 0 || $0.swingVelocity != 0 }
+                if !active { self.physicsTimer?.invalidate(); self.physicsTimer = nil }
+            }
+        }
+    }
+
+    private func startPasteboardWatch() {
+        pasteboardTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self, self.captureMode == .screenshotsAndAutoClipboard else { return }
+                let count = NSPasteboard.general.changeCount
+                guard count != self.lastChangeCount else { return }
+                self.hangCurrentClipboard()
+            }
+        }
+    }
+
+    private func startScreenshotQuery() {
+        let q = NSMetadataQuery()
+        q.predicate = NSPredicate(format: "kMDItemIsScreenCapture == 1")
+        q.searchScopes = [NSMetadataQueryUserHomeScope]
+        q.sortDescriptors = [NSSortDescriptor(key: kMDItemFSCreationDate as String, ascending: false)]
+        NotificationCenter.default.addObserver(forName: .NSMetadataQueryDidFinishGathering, object: q, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.seedInitialScreenshots(q) }
+        }
+        NotificationCenter.default.addObserver(forName: .NSMetadataQueryDidUpdate, object: q, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.ingestNewScreenshots(q) }
+        }
+        q.start()
+        screenshotQuery = q
+    }
+
+    private func seedInitialScreenshots(_ q: NSMetadataQuery) {
+        q.disableUpdates()
+        defer { q.enableUpdates() }
+        for item in q.results.prefix(30) {
+            if let md = item as? NSMetadataItem, let path = md.value(forAttribute: NSMetadataItemPathKey) as? String {
+                seenScreenshotPaths.insert(path)
+            }
+        }
+    }
+
+    private func ingestNewScreenshots(_ q: NSMetadataQuery) {
+        q.disableUpdates()
+        defer { q.enableUpdates() }
+        var added = false
+        for item in q.results.prefix(10) {
+            guard let md = item as? NSMetadataItem,
+                  let path = md.value(forAttribute: NSMetadataItemPathKey) as? String,
+                  !seenScreenshotPaths.contains(path) else { continue }
+            seenScreenshotPaths.insert(path)
+            let url = URL(fileURLWithPath: path)
+            addAndAnimate(kind: .screenshot(url: url), title: url.lastPathComponent)
+            added = true
+        }
+        if added { onNewScreenshot?() }
+    }
+
+    private func writeTempFile(data: Data, ext: String) -> URL? {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("tendedero-preview.\(ext)")
+        try? data.write(to: url)
+        return url
+    }
+}
+
+struct LeftSidebarClotheslineView: View {
+    /// SD-2: the deck's one search field filters the clothesline by its item titles.
+    var query: String = ""
+    @ObservedObject var controller = TendederoClotheslineController.shared
+
+    init(query: String = "") {
+        self.query = query
+    }
+
+    private var stagedItems: [TendederoItem] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return controller.store.items }
+        return controller.store.items.filter { $0.title.localizedStandardContains(trimmed) }
+    }
+
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                Label("Clothesline", systemImage: "paperclip")
+                    .font(.system(size: 13, weight: .semibold))
+                Spacer()
+                Button { controller.hangCurrentClipboard() } label: { Image(systemName: "plus.circle") }
+                    .buttonStyle(.plain).help(Text("Hang Clipboard"))
+                if controller.store.items.contains(where: { !$0.isPinned }) {
+                    Button { controller.clearUnpinned() } label: { Image(systemName: "trash") }
+                        .buttonStyle(.plain).help(Text("Clear Unpinned"))
+                }
+                Menu {
+                    Picker("Capture", selection: Binding(get: { controller.captureMode }, set: { controller.setCaptureMode($0) })) {
+                        Text("Screenshots + Auto Clipboard").tag(TendederoCaptureMode.screenshotsAndAutoClipboard)
+                        Text("Screenshots + Manual").tag(TendederoCaptureMode.screenshotsAndManualClipboard)
+                    }
+                    Toggle("Unlimited Items", isOn: Binding(get: { controller.unlimitedCapacity }, set: { controller.setUnlimitedCapacity($0) }))
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+                .menuStyle(.borderlessButton).fixedSize()
+            }
+            .padding(.horizontal, 12).padding(.top, 10)
+
+            if stagedItems.isEmpty {
+                VStack(spacing: 6) {
+                    Spacer()
+                    Image(systemName: "paperclip").font(.system(size: 24)).foregroundStyle(.secondary)
+                    Text("No hung items yet").font(.system(size: 12, weight: .medium))
+                    Text("Take a screenshot, copy content, or drop a file here.").font(.system(size: 11)).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                    Spacer()
+                }.padding(16)
+            } else {
+                ScrollView {
+                    ZStack(alignment: .topLeading) {
+                        Rectangle().fill(Color.primary.opacity(0.18)).frame(width: 2).padding(.leading, 14)
+                        VStack(spacing: 12) {
+                            ForEach(stagedItems) { item in hangingCard(item) }
+                        }.padding(.leading, 22).padding(.trailing, 10).padding(.vertical, 6)
+                    }
+                }
+            }
+        }
+        .onAppear { controller.markAllRead() }
+        .onKeyPress(.space) {
+            if let id = controller.selectedID, let item = controller.store.items.first(where: { $0.id == id }) {
+                controller.quickLook(item)
+                return .handled
+            }
+            return .ignored
+        }
+        .onDrop(of: [.fileURL, .url], isTargeted: nil) { providers in
+            for p in providers {
+                _ = p.loadObject(ofClass: URL.self) { url, _ in
+                    if let url { Task { @MainActor in controller.hangDroppedURL(url) } }
+                }
+            }
+            return !providers.isEmpty
+        }
+    }
+
+    private func hangingCard(_ item: TendederoItem) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "paperclip").font(.system(size: 11)).foregroundStyle(.secondary)
+            cardPreview(item)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: item.title).font(.system(size: 11, weight: .medium)).lineLimit(2)
+                if controller.copiedID == item.id {
+                    Text("Copied").font(.system(size: 9, weight: .semibold)).foregroundStyle(.green)
+                }
+            }
+            Spacer(minLength: 4)
+            Button { controller.togglePin(item.id) } label: {
+                Image(systemName: item.isPinned ? "pin.fill" : "pin").font(.system(size: 10))
+                    .foregroundStyle(item.isPinned ? Color.accentColor : Color.secondary)
+            }.buttonStyle(.plain)
+            Button { controller.remove(item.id) } label: {
+                Image(systemName: "xmark").font(.system(size: 10)).foregroundStyle(.secondary)
+            }.buttonStyle(.plain)
+        }
+        .padding(8)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous)
+            .fill(controller.selectedID == item.id ? Color.accentColor.opacity(0.16) : Color.primary.opacity(0.06)))
+        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(.quaternary))
+        .rotationEffect(.degrees(item.swingAngleDegrees), anchor: .topLeading)
+        .onHover { if $0 { controller.hover(item.id) } }
+        .onTapGesture(count: 2) { controller.open(item) }
+        .onTapGesture { controller.selectedID = item.id; controller.copy(item) }
+        .onDrag { controller.dragProvider(for: item) }
+        .contextMenu {
+            Button("Copy") { controller.copy(item) }
+            Button("Quick Look (Space)") { controller.quickLook(item) }
+            Button("Open") { controller.open(item) }
+            Button(item.isPinned ? "Unpin" : "Pin") { controller.togglePin(item.id) }
+            Button("Delete") { controller.remove(item.id) }
+        }
+    }
+
+    @ViewBuilder
+    private func cardPreview(_ item: TendederoItem) -> some View {
+        switch item.kind {
+        case .screenshot(let url):
+            if let img = NSImage(contentsOf: url) {
+                Image(nsImage: img).resizable().aspectRatio(contentMode: .fill).frame(width: 44, height: 34).clipped().cornerRadius(5)
+            } else {
+                Image(systemName: "photo").frame(width: 32, height: 32)
+            }
+        case .imageData(let data):
+            if let img = NSImage(data: data) {
+                Image(nsImage: img).resizable().aspectRatio(contentMode: .fill).frame(width: 44, height: 34).clipped().cornerRadius(5)
+            } else {
+                Image(systemName: "photo").frame(width: 32, height: 32)
+            }
+        case .link:
+            Image(systemName: "link").font(.system(size: 15)).frame(width: 32, height: 32)
+        case .text:
+            Image(systemName: "doc.text").font(.system(size: 15)).frame(width: 32, height: 32)
         }
     }
 }

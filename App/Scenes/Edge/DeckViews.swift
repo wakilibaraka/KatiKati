@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Everything the deck draws is driven by this model (Phase 7A-D2); the controller owns panels, timers and
@@ -762,6 +763,241 @@ extension DeckButton {
         case .productivity(.windows): return Text("Windows")
         case .productivity(.screenTime): return Text("Screen Time")
         }
+    }
+}
+
+// MARK: - Side Deck notification inbox (SD-2)
+
+/// The notification inbox, moved out of the notch and into the Left Edge Bar's Side Deck. The bell tab
+/// draws the persistent history Notification Center has shown (`NotificationMirrorService`) as a vertical
+/// list you can filter, open, mark read and dismiss. The notch keeps only transient event pills and never
+/// draws an inbox inside itself again.
+struct SideDeckNotificationsView: View {
+    @ObservedObject var controller: WindowDrawerController
+    @ObservedObject private var mirror = NotificationMirrorService.shared
+    @AppStorage(NotificationHistoryStore.StorageKey.quietMode) private var quietMode = false
+    @State private var hoveredID: String?
+
+    init(controller: WindowDrawerController) {
+        self.controller = controller
+    }
+
+    private var entries: [NotificationHistoryEntry] { controller.visibleNotifications }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            filterStrip
+            if !quietMode, let live = mirror.live { liveCard(live) }
+            content
+        }
+        .padding(12)
+        .onAppear {
+            mirror.startBanners()
+            mirror.loadHistory()
+        }
+        .onDisappear { mirror.stopBanners() }
+    }
+
+    /// All / Unread plus the two bulk actions. The pills drive the same filter the deck's search bar feeds,
+    /// so typing and the pill always agree on what the list shows.
+    private var filterStrip: some View {
+        HStack(spacing: 6) {
+            filterPill(Text("All"), isOn: !controller.notificationsUnreadOnly) {
+                controller.notificationsUnreadOnly = false
+            }
+            filterPill(Text("Unread"), isOn: controller.notificationsUnreadOnly) {
+                controller.notificationsUnreadOnly = true
+            }
+            Spacer(minLength: 0)
+            Button { mirror.markAllRead() } label: {
+                Image(systemName: "checkmark.circle").font(.system(size: 12, weight: .medium))
+            }
+            .buttonStyle(.plain)
+            .disabled(mirror.historyStore.unreadCount == 0)
+            .help(Text("Mark All Read"))
+            Button { mirror.clearHistoryStore() } label: {
+                Text("Clear").font(.system(size: 11, weight: .semibold))
+            }
+            .buttonStyle(.plain)
+            .disabled(mirror.historyStore.entries.isEmpty)
+            .help(Text("Clear Inbox"))
+        }
+    }
+
+    private func filterPill(_ title: Text, isOn: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            title
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(isOn ? Color.white : Color.secondary)
+                .padding(.horizontal, 9).padding(.vertical, 3)
+                .background(Capsule().fill(isOn ? Color.accentColor : Color.primary.opacity(0.08)))
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// The banner Notification Center is drawing right now. It carries no app name: the accessibility tree
+    /// does not name the notifying app, and this view does not guess one.
+    private func liveCard(_ notification: MirroredNotification) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(verbatim: notification.title)
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .lineLimit(1)
+            if let detail = notification.detail {
+                Text(verbatim: detail).font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 8).padding(.vertical, 5)
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(0.06)))
+    }
+
+    /// One door at a time: the grant that blocks the live banners comes before the one that blocks the
+    /// history, and neither is ever asked for from code.
+    @ViewBuilder
+    private var content: some View {
+        if !entries.isEmpty {
+            rows
+        } else if !controller.query.isEmpty || controller.notificationsUnreadOnly {
+            message(Text("No matching notifications"))
+        } else if !mirror.canReadBanners {
+            door(Text("Accessibility Is Off"), pane: "Privacy_Accessibility")
+        } else {
+            switch mirror.historyState {
+            case .noAccess:
+                door(Text("Full Disk Access Is Off"), pane: "Privacy_AllFiles")
+            case .unsupported:
+                message(Text("Notification History Unavailable"))
+            case .idle, .loading, .loaded:
+                message(Text("No Notifications Yet"))
+            }
+        }
+    }
+
+    private var rows: some View {
+        ScrollView {
+            LazyVStack(spacing: 6) {
+                ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+                    card(entry, selected: controller.notificationSelection.index == index)
+                }
+            }
+            .padding(.bottom, 4)
+        }
+    }
+
+    private func card(_ entry: NotificationHistoryEntry, selected: Bool) -> some View {
+        Button { controller.openNotification(entry) } label: {
+            HStack(alignment: .top, spacing: 8) {
+                Circle()
+                    .fill(entry.isRead ? Color.clear : Color.accentColor)
+                    .frame(width: 6, height: 6)
+                    .padding(.top, 6)
+                Image(nsImage: NotificationAppIcon.icon(for: entry.appBundleId))
+                    .resizable().frame(width: 18, height: 18)
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(verbatim: NotificationAppIcon.name(for: entry.appBundleId))
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.secondary).lineLimit(1)
+                        Spacer(minLength: 0)
+                        Text(verbatim: entry.timestamp.formatted(date: .abbreviated, time: .shortened))
+                            .font(.system(size: 9).monospacedDigit())
+                            .foregroundStyle(.tertiary).lineLimit(1)
+                    }
+                    Text(verbatim: entry.title)
+                        .font(.system(size: 12, weight: entry.isRead ? .regular : .semibold))
+                        .lineLimit(2)
+                    if let body = entry.body {
+                        Text(verbatim: body).font(.system(size: 11))
+                            .foregroundStyle(.secondary).lineLimit(2)
+                    }
+                }
+                if hoveredID == entry.id || selected {
+                    Button { controller.dismissNotification(entry) } label: {
+                        Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .help(Text("Dismiss"))
+                }
+            }
+            .padding(8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(selected ? Color.accentColor.opacity(0.16) : Color.primary.opacity(0.06)))
+            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .strokeBorder(selected ? Color.accentColor : Color.clear, lineWidth: 1.5))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { inside in
+            if inside { hoveredID = entry.id } else if hoveredID == entry.id { hoveredID = nil }
+        }
+        .contextMenu {
+            Button { controller.dismissNotification(entry) } label: { Text("Dismiss") }
+        }
+    }
+
+    private func message(_ text: Text) -> some View {
+        text.font(.system(size: 12, weight: .medium))
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func door(_ text: Text, pane: String) -> some View {
+        VStack(spacing: 5) {
+            text.font(.system(size: 12, weight: .semibold))
+            Button(String(localized: "Open System Settings")) { openPrivacy(pane) }
+                .buttonStyle(.plain)
+                .font(.system(size: 11, weight: .semibold))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// `AgendaPane.openPrivacy`'s route, inlined: this view is part of the deck, not the settings window.
+    private func openPrivacy(_ pane: String) {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?\(pane)") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+}
+
+// MARK: - Side Deck rail (SD-1/SD-2)
+
+/// One button of the Left Edge Bar's Side Deck rail, with an optional count badge: unread notifications
+/// under the bell, staged items under the paperclip.
+struct SideDeckRailButton: View {
+    let symbol: String
+    let title: Text
+    let selected: Bool
+    var badge = 0
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: symbol).font(.system(size: 16))
+                .frame(width: 36, height: 36)
+                .background(RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    .fill(selected ? Color.accentColor.opacity(0.28) : Color.clear))
+                .overlay(alignment: .topTrailing) {
+                    if badge > 0 { SideDeckBadgeCount(count: badge).offset(x: 4, y: -3) }
+                }
+        }
+        .buttonStyle(.plain)
+        .help(title)
+        .accessibilityLabel(title)
+    }
+}
+
+/// The little count capsule the rail and the bell tab share.
+struct SideDeckBadgeCount: View {
+    let count: Int
+
+    var body: some View {
+        Text(verbatim: count > 99 ? "99+" : "\(count)")
+            .font(.system(size: 9, weight: .bold, design: .rounded).monospacedDigit())
+            .foregroundStyle(.white)
+            .padding(.horizontal, 4).padding(.vertical, 1)
+            .background(Capsule().fill(Color.accentColor))
+            .fixedSize()
     }
 }
 
