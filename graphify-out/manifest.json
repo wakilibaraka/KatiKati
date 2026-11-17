@@ -1146,9 +1146,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
-    "mtime": 1794907187.3416057,
-    "seen": 1794907911.4577851,
-    "ast_hash": "caba2c06f020e01fc745745f2b650368",
+    "mtime": 1794918827.7906585,
+    "seen": 1794919054.009996,
+    "ast_hash": "a657490497f98a5b4d8e16fe8370764e",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1794881234.1581805,
-    "seen": 1794881603.483982,
-    "ast_hash": "8942101092acc960fe6799aa9e73f2a4",
+    "mtime": 1794918835.1387436,
+    "seen": 1794919054.010001,
+    "ast_hash": "04001c970910814a2720282ac1a8bb29",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -3960,9 +3960,9 @@
     "semantic_hash": "01d129bbe5fe99483e8b38b21311ddd6"
   },
   "Tests/Unit/RadialDialGeometryTests.swift": {
-    "mtime": 1794917300.3826692,
-    "seen": 1794918101.7886531,
-    "ast_hash": "3d4ea607ad87a9bff08f7031c424ee3e",
+    "mtime": 1794918971.692468,
+    "seen": 1794919054.010508,
+    "ast_hash": "7cefc9f91a9387d9e082466177c0e933",
     "semantic_hash": ""
   },
   "Tests/Unit/RailGeometryTests.swift": {
@@ -4602,9 +4602,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStagePanels.swift": {
-    "mtime": 1794864747.9720414,
-    "seen": 1794865321.689234,
-    "ast_hash": "e02e1616285dbfc48a95d485c3f2d2ac",
+    "mtime": 1794918832.22053,
+    "seen": 1794919054.009988,
+    "ast_hash": "57dd451cea644127db3f71bf675c9fce",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Appearance.swift": {
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
-    "mtime": 1794918289.6999748,
-    "seen": 1794918705.7544808,
-    "ast_hash": "4572c9fc5666f365f7cf750e1b4bae22",
+    "mtime": 1794918940.2203588,
+    "seen": 1794919054.009995,
+    "ast_hash": "ea1bbf0ac439c23c1d20b40fdb164bdd",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
