@@ -102,7 +102,9 @@ struct SettingsWindowContent: View {
             case .general: generalPane
             case .menuBar: menuBarPane
             case .appearance: SettingsAppearancePane(store: store)
-            case .dockItems: SettingsLayoutPane(store: store, mode: .widgets)
+            case .dockItems:
+                SettingsLayoutPane(store: store, mode: .widgets)
+                    .background(SettingsPageHeightProbe(tab: .dockItems))
             case .drawerShelf: drawerShelfPane
             case .widgets: WidgetLookSettingsBlock(store: store)
             case .weather: weatherPane

@@ -207,6 +207,11 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     /// Unset in normal use. Needs `DOCK_DEV_SKIP_PERMISSIONS=1` on this unsigned build.
     case openSettings = "DOCK_OPEN_SETTINGS"
 
+    /// Slice DI-2 live-check aid: `DOCK_SETTINGS_PAGE_HEIGHT=<file>` writes the dock settings page's
+    /// measured content height (`dockItems <pt>`) so the 1074 pt clamp is a number, not an eyeball.
+    /// Unset in normal use.
+    case settingsPageHeight = "DOCK_SETTINGS_PAGE_HEIGHT"
+
     /// 59a live-check aid: `DOCK_NOTIFY_DEMO=<PowerNotificationKind raw value>` (e.g. `lowBattery`,
     /// `charged`, `peripheralConnected`) shows that pill once at launch, so its size and placement can be
     /// looked at without waiting for a real battery event. It is not written to the history. Unset in
@@ -238,7 +243,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .liquidGlassBackgroundOpacity, .liquidGlassWindowBlur, .liquidGlassContentInset,
              .liquidGlassSystemVariant, .stackPopupSnapshot, .stackPopupMode, .stackPopupTheme,
              .chipFramesOut, .dockTheme, .wallpaperPhase, .dockIconFrame, .openSettings,
-             .powerNotificationDemo:
+             .powerNotificationDemo, .settingsPageHeight:
             return .value
         }
     }

@@ -254,5 +254,10 @@ struct SettingsLayoutPane: View {
         CGFloat(count) * widgetRowHeight
     }
 
+    /// Slice DI-2: twelve modules at 37 pt is 444 pt — more than this page can spend beside the preset
+    /// row and the accessory toggles. Past this the list scrolls in its own well instead of pushing
+    /// "Show Shelf" / "Show Trash" / "Drawer" off the bottom of the page.
+    static let widgetListMaxHeight: CGFloat = 340
+
 }
 

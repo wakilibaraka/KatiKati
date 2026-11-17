@@ -17,6 +17,34 @@ extension SettingsTab {
     }
 }
 
+/// Slice DI-2: writes a page's measured content height to the file named by
+/// `DOCK_SETTINGS_PAGE_HEIGHT`, so "the Dock Items page is ≤ 1074 pt" is read, not eyeballed.
+/// Does nothing without the switch.
+struct SettingsPageHeightProbe: View {
+    let tab: SettingsTab
+
+    var body: some View {
+        GeometryReader { geo in
+            Color.clear
+                .onAppear { Self.record(tab: tab, height: geo.size.height) }
+                .onChange(of: geo.size.height) { Self.record(tab: tab, height: $0) }
+        }
+    }
+
+    private static func record(tab: SettingsTab, height: CGFloat) {
+        guard let path = DebugSwitch.settingsPageHeight.value() else { return }
+        let line = "\(tab.rawValue) \(Int(height.rounded()))\n"
+        guard let data = line.data(using: .utf8) else { return }
+        if let handle = FileHandle(forWritingAtPath: path) {
+            handle.seekToEndOfFile()
+            handle.write(data)
+            try? handle.close()
+        } else {
+            try? data.write(to: URL(fileURLWithPath: path))
+        }
+    }
+}
+
 /// When the window's colour wash follows: the clock, a fixed time of day, or nothing.
 enum SettingsGlowSchedule: String, CaseIterable {
     static let defaultsKey = "com.katikati.settings.glow"

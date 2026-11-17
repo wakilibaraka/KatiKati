@@ -82,7 +82,8 @@ extension SettingsLayoutPane {
             // indentation that `.listRowInsets` cannot reach (measured on the running app: the row
             // labels at 50 pt against the page's 42) — the list is pulled back by that much.
             .padding(.horizontal, -Self.listRowChromeInset)
-            .frame(height: Self.widgetListHeight(count: store.widgetLayout.order.count))
+            .frame(height: min(Self.widgetListHeight(count: store.widgetLayout.order.count),
+                               widgetListCap))
             // The preset row and the switch that arms the context presets are one line (2026-10-18):
             // two lines of controls were 21 pt this page did not have. The context rows it opens stay
             // under it.
@@ -246,10 +247,46 @@ extension SettingsLayoutPane {
         }
     }
 
-    /// One reorderable row: name, S/M/L (sizable widgets only), show/hide (never for Apps).
+    /// The list's height bound. Arming Context Presets adds a row under the list, so the list hands that
+    /// row its 41 pt back and the page stays inside the 1074 pt clamp either way (measured 1061 pt with
+    /// the presets off, `DOCK_SETTINGS_PAGE_HEIGHT`).
+    var widgetListCap: CGFloat {
+        Self.widgetListMaxHeight - (store.contextPresetsEnabled ? Self.widgetRowHeight + 4 : 0)
+    }
+
+    /// SF Symbol per module, so a row reads as an icon + title like the dock's own tiles.
+    func widgetSymbol(_ widget: BarSection) -> String {
+        switch widget {
+        case .launcher: return "square.grid.2x2"
+        case .weather: return "cloud.sun"
+        case .apps: return "rectangle.on.rectangle"
+        case .media: return "music.note"
+        case .clock: return "clock"
+        case .calendar: return "calendar"
+        case .system: return "cpu"
+        case .devices: return "headphones"
+        case .drives: return "internaldrive"
+        case .dictionary: return "character.book.closed"
+        case .terminal: return "terminal"
+        case .widgets: return "slider.horizontal.3"
+        }
+    }
+
+    /// One reorderable row: drag handle, module icon + name, S/M/L (sizable widgets only), show/hide
+    /// (never for Apps). Same shape for every module, whatever the module is.
     func widgetRow(_ widget: BarSection) -> some View {
         let instance = store.widgetLayout.instance(for: widget)
         return HStack(spacing: 10) {
+            // The `List`'s drag is the whole row; the handle says so without adding a second gesture.
+            Image(systemName: "line.3.horizontal")
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(.tertiary)
+                .accessibilityHidden(true)
+            Image(systemName: widgetSymbol(widget))
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.secondary)
+                .frame(width: 14)
+                .accessibilityHidden(true)
             widgetLabel(widget)
                 .foregroundStyle(instance.isVisible ? .primary : .secondary)
             Spacer(minLength: 8)
