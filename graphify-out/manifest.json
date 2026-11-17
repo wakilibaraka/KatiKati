@@ -894,10 +894,10 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
-    "mtime": 1791999130.784518,
-    "seen": 1792295707.060462,
-    "ast_hash": "c70d67fd279bdcda190bcbb06ca20518",
-    "semantic_hash": "c70d67fd279bdcda190bcbb06ca20518"
+    "mtime": 1794878947.0439856,
+    "seen": 1794879089.5630112,
+    "ast_hash": "a8ea8e1113cb681545bde288236a2b3c",
+    "semantic_hash": ""
   },
   "App/Scenes/Edge/TasksFlyoutView.swift": {
     "mtime": 1792546311.152182,
@@ -2358,9 +2358,9 @@
     "semantic_hash": ""
   },
   "Core/Support/SystemMonitorMath.swift": {
-    "mtime": 1792928212.7773666,
-    "seen": 1792933113.615076,
-    "ast_hash": "e9ab22422fd6ff335eebee4a8335c9e8",
+    "mtime": 1794878935.6975965,
+    "seen": 1794879089.563275,
+    "ast_hash": "729e4e45fa9c98a56170ae21bcf7c09c",
     "semantic_hash": ""
   },
   "Core/Support/SystemStatus.swift": {
@@ -2916,9 +2916,9 @@
     "semantic_hash": "d9dc4112a15d98a2646fb3c51cac9342"
   },
   "Platform/SystemMonitor/SystemMonitorController.swift": {
-    "mtime": 1794839898.354011,
-    "seen": 1794840433.4103198,
-    "ast_hash": "baf6b944f5aa621a9caf337a6e9c0ade",
+    "mtime": 1794878937.3815937,
+    "seen": 1794879089.56336,
+    "ast_hash": "df3fd6a59ff5f702774e0c9bb89ce9ef",
     "semantic_hash": ""
   },
   "Platform/SystemMonitor/SystemMonitorSampler.swift": {
@@ -4158,9 +4158,9 @@
     "semantic_hash": "92cb5edef3de63317cb195be1a445fc6"
   },
   "Tests/Unit/SystemGaugeTests.swift": {
-    "mtime": 1794855386.0101047,
-    "seen": 1794855528.97613,
-    "ast_hash": "73b4441af6eb5ad9c45a59837472d129",
+    "mtime": 1794878958.9125633,
+    "seen": 1794879089.563565,
+    "ast_hash": "03a28eeccc3a67b14f3f714f0fbf0596",
     "semantic_hash": ""
   },
   "Tests/Unit/SystemHealthTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1794878901.0459914,
-    "seen": 1794878917.7982988,
-    "ast_hash": "656517c8ed97e35537c453564f2360e7",
+    "mtime": 1794879073.5635827,
+    "seen": 1794879089.563722,
+    "ast_hash": "e78a31ddec944a1d06205eba619c2e66",
     "semantic_hash": ""
   },
   "README.md": {
