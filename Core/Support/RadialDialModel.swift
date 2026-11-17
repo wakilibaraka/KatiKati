@@ -80,15 +80,23 @@ enum RadialDialPageID: String, CaseIterable, Codable, Sendable {
     case apps
 }
 
+/// Trackpad edge gesture presets that can summon the radial dial.
+enum RadialTrackpadEdgeTrigger: String, CaseIterable, Codable, Sendable {
+    case off
+    case leftEdge
+    case rightEdge
+    case bottomEdge
+}
+
 /// Icon definition for a radial wedge.
-enum RadialDialIcon: Equatable, Sendable {
+enum RadialDialIcon: Equatable, Hashable, Codable, Sendable {
     case sfSymbol(String)
     case app(bundleID: String)
     case system(String)
 }
 
 /// Action performed when a sector is selected.
-enum RadialDialActionType: Equatable, Sendable {
+enum RadialDialActionType: Equatable, Hashable, Codable, Sendable {
     case snap(SnapPosition)
     case launchApp(bundleID: String, name: String)
     case mediaPlayPause
@@ -102,6 +110,58 @@ enum RadialDialActionType: Equatable, Sendable {
     case page(RadialDialPageID)
     case toggleTiling
     case custom(id: String, title: String)
+}
+
+/// Recursive slice node supporting flat actions and nested radial sub-menus.
+struct RadialSliceNode: Identifiable, Equatable, Codable, Sendable {
+    var id: String
+    var title: String
+    var icon: RadialDialIcon
+    var accentHex: String?
+    var action: RadialDialActionType
+    var children: [RadialSliceNode]?
+
+    var isSubmenu: Bool { !(children?.isEmpty ?? true) }
+
+    init(
+        id: String,
+        title: String,
+        icon: RadialDialIcon,
+        accentHex: String? = nil,
+        action: RadialDialActionType = .custom(id: "submenu", title: "Submenu"),
+        children: [RadialSliceNode]? = nil
+    ) {
+        self.id = id
+        self.title = title
+        self.icon = icon
+        self.accentHex = accentHex
+        self.action = action
+        self.children = children
+    }
+}
+
+/// UserDefaults persistence for customized radial slice trees and trackpad triggers.
+enum RadialDialConfigStore {
+    static let storageKey = "com.katikati.dial.slices.v1"
+    static let trackpadTriggerKey = "com.katikati.dial.trackpadTrigger"
+
+    static func loadNodes(defaults: UserDefaults = .standard) -> [RadialSliceNode] {
+        guard let data = defaults.data(forKey: storageKey),
+              let decoded = try? JSONDecoder().decode([RadialSliceNode].self, from: data),
+              !decoded.isEmpty else {
+            return RadialDialPresets.defaultRootNodes()
+        }
+        return decoded
+    }
+
+    static func saveNodes(_ nodes: [RadialSliceNode], defaults: UserDefaults = .standard) {
+        guard let data = try? JSONEncoder().encode(nodes) else { return }
+        defaults.set(data, forKey: storageKey)
+    }
+
+    static func reset(defaults: UserDefaults = .standard) {
+        defaults.removeObject(forKey: storageKey)
+    }
 }
 
 /// A single interactive sector item on the dial.

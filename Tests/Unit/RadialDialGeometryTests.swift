@@ -190,4 +190,71 @@ final class RadialDialGeometryTests: XCTestCase {
         XCTAssertEqual(preset.inner.count, 8, "Inner ring has 8 snap sectors")
         XCTAssertEqual(preset.outer.count, 6, "Outer ring has 6 capture/utility sectors")
     }
+
+    // MARK: - SLICE RD-1: Polar Hit-Testing & Breadcrumb Navigation
+
+    func testResolveSliceFourSixEightConfigurations() {
+        for count in [4, 6, 8] {
+            let sectors = RadialDialGeometry.sectors(count: count, innerRadius: innerRadius, outerRadius: outerRadius)
+            for sector in sectors {
+                let pt = sector.centerPoint(in: center, atFraction: 0.5)
+                let resolved = RadialDialGeometry.resolveSlice(
+                    at: pt,
+                    center: center,
+                    innerRadius: innerRadius,
+                    outerRadius: outerRadius,
+                    totalSlices: count
+                )
+                XCTAssertEqual(resolved, sector.index, "Expected slice \(sector.index) for \(count)-slice ring")
+            }
+        }
+    }
+
+    func testResolveSliceDeadzoneAndOutsideRejection() {
+        XCTAssertNil(RadialDialGeometry.resolveSlice(at: center, center: center, innerRadius: innerRadius, outerRadius: outerRadius, totalSlices: 8))
+        XCTAssertNil(RadialDialGeometry.resolveSlice(at: CGPoint(x: center.x + 25, y: center.y - 25), center: center, innerRadius: innerRadius, outerRadius: outerRadius, totalSlices: 6))
+        XCTAssertNil(RadialDialGeometry.resolveSlice(at: CGPoint(x: center.x, y: center.y - outerRadius - 5), center: center, innerRadius: innerRadius, outerRadius: outerRadius, totalSlices: 4))
+        XCTAssertNil(RadialDialGeometry.resolveSlice(at: CGPoint(x: center.x, y: center.y - 90), center: center, innerRadius: innerRadius, outerRadius: outerRadius, totalSlices: 0))
+    }
+
+    func testBreadcrumbNavigationDrillDownAndBack() {
+        let leaf = RadialSliceNode(id: "leaf", title: "Maximize", icon: .sfSymbol("arrow.up.left.and.arrow.down.right"), action: .snap(.maximize))
+        let nested = RadialSliceNode(id: "nested", title: "Advanced", icon: .sfSymbol("gear"), children: [leaf])
+        let parent = RadialSliceNode(id: "parent", title: "Window", icon: .sfSymbol("macwindow"), children: [nested])
+        var nav = RadialDialNavigationState(rootTitle: "Main", rootNodes: [parent])
+
+        XCTAssertFalse(nav.canGoBack)
+        XCTAssertEqual(nav.breadcrumbs, ["Main"])
+        XCTAssertEqual(nav.selectSlice(at: 5), .invalid)
+
+        XCTAssertEqual(nav.selectSlice(at: 0), .enteredSubmenu(parent))
+        XCTAssertTrue(nav.canGoBack)
+        XCTAssertEqual(nav.breadcrumbs, ["Main", "Window"])
+
+        XCTAssertEqual(nav.selectSlice(at: 0), .enteredSubmenu(nested))
+        XCTAssertEqual(nav.depth, 2)
+        XCTAssertEqual(nav.breadcrumbs, ["Main", "Window", "Advanced"])
+
+        XCTAssertEqual(nav.selectSlice(at: 0), .executed(.snap(.maximize), leaf))
+        XCTAssertTrue(nav.goBack())
+        XCTAssertEqual(nav.currentTitle, "Window")
+        nav.popToRoot()
+        XCTAssertFalse(nav.canGoBack)
+        XCTAssertFalse(nav.goBack())
+    }
+
+    func testRadialSliceNodeCodableAndConfigStore() {
+        let nodes = RadialDialPresets.defaultRootNodes()
+        XCTAssertEqual(nodes.count, 8)
+        let suiteName = "RadialDialConfigStoreTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        RadialDialConfigStore.saveNodes(nodes, defaults: defaults)
+        let loaded = RadialDialConfigStore.loadNodes(defaults: defaults)
+        XCTAssertEqual(loaded, nodes)
+
+        RadialDialConfigStore.reset(defaults: defaults)
+        XCTAssertEqual(RadialDialConfigStore.loadNodes(defaults: defaults), RadialDialPresets.defaultRootNodes())
+    }
 }

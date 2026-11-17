@@ -265,4 +265,58 @@ enum RadialDialPresets {
             outerRingItems: outer
         )
     }
+
+    /// Default 8-slice recursive root tree with nested Snapping, Tools, Apps, and Media sub-menus.
+    static func defaultRootNodes() -> [RadialSliceNode] {
+        [
+            RadialSliceNode(
+                id: "root_snapping",
+                title: "Snapping",
+                icon: .sfSymbol("rectangle.split.2x1"),
+                accentHex: "#6366F1",
+                children: snappingPage().items.map {
+                    RadialSliceNode(id: $0.id, title: $0.title, icon: $0.icon, accentHex: $0.accentHex, action: $0.action)
+                }
+            ),
+            RadialSliceNode(
+                id: "root_tools",
+                title: "Tools",
+                icon: .sfSymbol("wrench.and.screwdriver"),
+                accentHex: "#EC4899",
+                children: [
+                    RadialSliceNode(id: "sub_capture", title: "Screenshot", icon: .sfSymbol("camera.viewfinder"), accentHex: "#EC4899", action: .captureArea),
+                    RadialSliceNode(id: "sub_window", title: "Window", icon: .sfSymbol("macwindow"), accentHex: "#8B5CF6", action: .captureWindow),
+                    RadialSliceNode(id: "sub_ocr", title: "Scan Text", icon: .sfSymbol("viewfinder.text"), accentHex: "#F59E0B", action: .captureOCR),
+                    RadialSliceNode(id: "sub_tiling", title: "Tiling", icon: .sfSymbol("rectangle.split.2x2"), accentHex: "#6366F1", action: .toggleTiling)
+                ]
+            ),
+            RadialSliceNode(
+                id: "root_apps",
+                title: "Apps",
+                icon: .sfSymbol("square.grid.2x2"),
+                accentHex: "#3B82F6",
+                children: [
+                    RadialSliceNode(id: "app_finder", title: "Finder", icon: .app(bundleID: "com.apple.finder"), action: .launchApp(bundleID: "com.apple.finder", name: "Finder")),
+                    RadialSliceNode(id: "app_safari", title: "Safari", icon: .app(bundleID: "com.apple.Safari"), action: .launchApp(bundleID: "com.apple.Safari", name: "Safari")),
+                    RadialSliceNode(id: "app_terminal", title: "Terminal", icon: .app(bundleID: "com.apple.Terminal"), action: .launchApp(bundleID: "com.apple.Terminal", name: "Terminal")),
+                    RadialSliceNode(id: "app_music", title: "Music", icon: .app(bundleID: "com.apple.Music"), action: .launchApp(bundleID: "com.apple.Music", name: "Music"))
+                ]
+            ),
+            RadialSliceNode(
+                id: "root_media",
+                title: "Media",
+                icon: .sfSymbol("playpause.fill"),
+                accentHex: "#10B981",
+                children: [
+                    RadialSliceNode(id: "media_pp", title: "Play/Pause", icon: .sfSymbol("playpause.fill"), accentHex: "#10B981", action: .mediaPlayPause),
+                    RadialSliceNode(id: "media_next", title: "Next", icon: .sfSymbol("forward.fill"), accentHex: "#3B82F6", action: .mediaNext),
+                    RadialSliceNode(id: "media_prev", title: "Previous", icon: .sfSymbol("backward.fill"), accentHex: "#6366F1", action: .mediaPrevious)
+                ]
+            ),
+            RadialSliceNode(id: "root_clipboard", title: "Clipboard", icon: .sfSymbol("doc.on.clipboard"), accentHex: "#14B8A6", action: .clipboard),
+            RadialSliceNode(id: "root_shelf", title: "Shelf", icon: .sfSymbol("tray.and.arrow.down.fill"), accentHex: "#3B82F6", action: .openShelf),
+            RadialSliceNode(id: "root_capture", title: "Capture", icon: .sfSymbol("camera.viewfinder"), accentHex: "#F59E0B", action: .captureArea),
+            RadialSliceNode(id: "root_tiling", title: "Tiling", icon: .sfSymbol("rectangle.split.2x2"), accentHex: "#8B5CF6", action: .toggleTiling)
+        ]
+    }
 }

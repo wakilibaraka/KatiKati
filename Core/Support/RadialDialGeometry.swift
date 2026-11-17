@@ -190,4 +190,90 @@ enum RadialDialGeometry {
         )
         return (inner, outer)
     }
+
+    // MARK: - Polar Slice Resolution & Breadcrumb Sub-Menus (Slice RD-1)
+
+    /// Resolves the slice index (`0..<totalSlices`) at `point` around `center`,
+    /// rejecting points inside `innerRadius` (center deadzone) or beyond `outerRadius + outerSlop`.
+    static func resolveSlice(
+        at point: CGPoint,
+        center: CGPoint,
+        innerRadius: CGFloat,
+        outerRadius: CGFloat,
+        totalSlices: Int,
+        outerSlop: CGFloat = 0
+    ) -> Int? {
+        guard totalSlices > 0 else { return nil }
+        if case .sector(let index) = hitTest(
+            point: point,
+            center: center,
+            count: totalSlices,
+            innerRadius: innerRadius,
+            outerRadius: outerRadius,
+            outerSlop: outerSlop
+        ) {
+            return index
+        }
+        return nil
+    }
+}
+
+/// Outcome of selecting a slice in `RadialDialNavigationState`.
+enum RadialSliceSelection: Equatable, Sendable {
+    case invalid
+    case enteredSubmenu(RadialSliceNode)
+    case executed(RadialDialActionType, RadialSliceNode)
+}
+
+/// Pure breadcrumb navigation state machine for recursive radial sub-menus (Root -> Submenu -> Back).
+struct RadialDialNavigationState: Equatable, Sendable {
+    var rootTitle: String
+    private(set) var rootNodes: [RadialSliceNode]
+    private(set) var stack: [RadialSliceNode] = []
+
+    init(rootTitle: String = "Main", rootNodes: [RadialSliceNode]) {
+        self.rootTitle = rootTitle
+        self.rootNodes = rootNodes
+    }
+
+    var currentNodes: [RadialSliceNode] { stack.last?.children ?? rootNodes }
+    var canGoBack: Bool { !stack.isEmpty }
+    var depth: Int { stack.count }
+    var breadcrumbs: [String] { [rootTitle] + stack.map(\.title) }
+    var currentTitle: String { stack.last?.title ?? rootTitle }
+
+    @discardableResult
+    mutating func selectSlice(at index: Int) -> RadialSliceSelection {
+        let nodes = currentNodes
+        guard index >= 0, index < nodes.count else { return .invalid }
+        let node = nodes[index]
+        if let children = node.children, !children.isEmpty {
+            stack.append(node)
+            return .enteredSubmenu(node)
+        }
+        return .executed(node.action, node)
+    }
+
+    @discardableResult
+    mutating func goBack() -> Bool {
+        guard !stack.isEmpty else { return false }
+        stack.removeLast()
+        return true
+    }
+
+    mutating func popToRoot() {
+        stack.removeAll()
+    }
+
+    mutating func popToDepth(_ targetDepth: Int) {
+        let clamped = max(0, min(targetDepth, stack.count))
+        if clamped < stack.count {
+            stack.removeLast(stack.count - clamped)
+        }
+    }
+
+    mutating func replaceRootNodes(_ nodes: [RadialSliceNode]) {
+        rootNodes = nodes
+        stack.removeAll()
+    }
 }
