@@ -9,7 +9,6 @@ struct NotchHeaderView: View {
     @StateObject private var power = SystemStatusService()
     @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
-    @AppStorage(NotificationMirrorService.enabledKey) private var notificationsPage = false
     @AppStorage(NotchPageLayout.defaultsKey) private var pageLayoutRaw = ""   // re-renders the page strip
     /// 59d: the battery card hangs under the chip, over the page area. Read-only, so it never takes a
     /// click the page wanted; the chip's own tap toggles it.
@@ -19,8 +18,7 @@ struct NotchHeaderView: View {
         let side = NotchLayoutSpec.headerButtonSize
         HStack(spacing: 0) {
             HStack(spacing: 4) {
-                ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage,
-                                          notifications: notificationsPage)) { page in
+                ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage)) { page in
                     pageButton(page)
                 }
             }

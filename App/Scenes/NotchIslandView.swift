@@ -43,20 +43,18 @@ final class NotchModel: ObservableObject {
         pageDirection = forward ? 1 : -1
         let tp = UserDefaults.standard.bool(forKey: TeleprompterModel.enabledKey)
         let mirror = UserDefaults.standard.bool(forKey: CameraMirrorService.enabledKey)
-        let notifications = UserDefaults.standard.bool(forKey: NotificationMirrorService.enabledKey)
         activePage = forward
-            ? activePage.next(wrap: true, teleprompter: tp, mirror: mirror, notifications: notifications)
-            : activePage.previous(wrap: true, teleprompter: tp, mirror: mirror, notifications: notifications)
+            ? activePage.next(wrap: true, teleprompter: tp, mirror: mirror)
+            : activePage.previous(wrap: true, teleprompter: tp, mirror: mirror)
     }
 
     /// Direct jumps (header icons, dots, context menu) animate toward the target page.
     func goToPage(_ page: NotchPage) {
         let tp = UserDefaults.standard.bool(forKey: TeleprompterModel.enabledKey)
         let mirror = UserDefaults.standard.bool(forKey: CameraMirrorService.enabledKey)
-        let notifications = UserDefaults.standard.bool(forKey: NotificationMirrorService.enabledKey)
         pageDirection = NotchPageDirection.between(
             from: activePage, to: page,
-            visible: NotchPage.visible(teleprompter: tp, mirror: mirror, notifications: notifications))
+            visible: NotchPage.visible(teleprompter: tp, mirror: mirror))
         activePage = page
     }
 }
@@ -66,7 +64,6 @@ struct NotchIslandView: View {
     @ObservedObject private var feed = LiveActivityFeed.shared
     @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
-    @AppStorage(NotificationMirrorService.enabledKey) private var notificationsPage = false
     @AppStorage(NotchPageLayout.defaultsKey) private var pageLayoutRaw = ""   // re-renders the page strip
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
     @AppStorage(NotchRestContent.defaultsKey) private var restContent = NotchRestContent.dockChips.rawValue
@@ -186,8 +183,7 @@ struct NotchIslandView: View {
         .onTapGesture { if !expanded { model.requestOpen() } }
         .contextMenu {
             Section {
-                ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage,
-                                          notifications: notificationsPage)) { page in
+                ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage)) { page in
                     Button {
                         withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
                             model.goToPage(page)
@@ -236,8 +232,7 @@ struct NotchIslandView: View {
 
     private var pageIndicatorDots: some View {
         HStack(spacing: 6) {
-            ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage,
-                                          notifications: notificationsPage)) { page in
+            ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage)) { page in
                 // A Button, not a capsule with a tap gesture: the gesture shape never surfaced as an
                 // accessibility element, so VoiceOver saw nine nameless dots (live-checked 2026-10-17).
                 Button {

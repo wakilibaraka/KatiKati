@@ -12,7 +12,9 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
     case audioDeck = 3      // Page 4: Music & Calendar
     case teleprompter = 4   // Only present while the owner turns it on
     case cameraMirror = 5   // The live camera mirror, only while it is switched on
-    case notifications = 6  // Mirrored notifications, only while it is switched on
+    // 6 belonged to the notifications page. The inbox lives in the Side Deck now (slice SD-1): the notch
+    // keeps only its compact core pages, and never draws a full notification list inside itself. The raw
+    // value stays retired so a stored `com.katikati.notch.pageOrder` keeps meaning what it meant.
     case keepAwake = 7      // Keep Awake: Brewing card, duration chips, lid + AI-agent rows (always on)
 
     var id: Int { rawValue }
@@ -27,7 +29,6 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         // Localised at the source: the title is rendered as data (`Text(page.title)`), so a bare literal
         // would ship English in every language — and the catalog gate reads it as an unreferenced key.
         case .cameraMirror: return String(localized: "Camera Mirror")
-        case .notifications: return String(localized: "Notifications")
         case .keepAwake: return String(localized: "Keep Awake")
         }
     }
@@ -40,37 +41,32 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         case .downloadDeck: return "arrow.down.circle.fill"
         case .teleprompter: return "text.alignleft"
         case .cameraMirror: return "camera.viewfinder"
-        case .notifications: return "bell.fill"
         case .keepAwake: return "cup.and.saucer.fill"
         }
     }
 
-    /// The pages in paging order. The teleprompter, the camera mirror and the notifications page exist
-    /// only while their own switch is on, so with all three off the gallery is exactly the five pages it
-    /// always was.
-    static func visible(teleprompter: Bool, mirror: Bool = false, notifications: Bool = false,
+    /// The pages in paging order. The teleprompter and the camera mirror exist only while their own switch
+    /// is on, so with both off the gallery is exactly the five always-on pages.
+    static func visible(teleprompter: Bool, mirror: Bool = false,
                         layout: NotchPageLayout = .stored) -> [NotchPage] {
         layout.apply(allCases.filter { page in
             switch page {
             case .teleprompter: return teleprompter
             case .cameraMirror: return mirror
-            case .notifications: return notifications
             default: return true
             }
         })
     }
 
-    func next(wrap: Bool = true, teleprompter: Bool = false, mirror: Bool = false,
-              notifications: Bool = false) -> NotchPage {
-        let all = Self.visible(teleprompter: teleprompter, mirror: mirror, notifications: notifications)
+    func next(wrap: Bool = true, teleprompter: Bool = false, mirror: Bool = false) -> NotchPage {
+        let all = Self.visible(teleprompter: teleprompter, mirror: mirror)
         guard let index = all.firstIndex(of: self) else { return all[0] }
         if index + 1 < all.count { return all[index + 1] }
         return wrap ? all[0] : self
     }
 
-    func previous(wrap: Bool = true, teleprompter: Bool = false, mirror: Bool = false,
-                  notifications: Bool = false) -> NotchPage {
-        let all = Self.visible(teleprompter: teleprompter, mirror: mirror, notifications: notifications)
+    func previous(wrap: Bool = true, teleprompter: Bool = false, mirror: Bool = false) -> NotchPage {
+        let all = Self.visible(teleprompter: teleprompter, mirror: mirror)
         guard let index = all.firstIndex(of: self) else { return all[0] }
         if index > 0 { return all[index - 1] }
         return wrap ? all[all.count - 1] : self

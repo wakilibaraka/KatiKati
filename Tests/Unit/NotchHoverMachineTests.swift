@@ -85,6 +85,14 @@ final class NotchHoverMachineTests: XCTestCase {
         XCTAssertFalse(NotchBehavior.showBatteryDuringMusic(d))
     }
 
+    func testNotchPagesNeverIncludeTheNotificationInbox() {
+        let pages = NotchPage.visible(teleprompter: true, mirror: true)
+        XCTAssertEqual(pages.first, .downloadDeck)
+        XCTAssertEqual(pages.last, .keepAwake)
+        XCTAssertFalse(pages.map(\.symbol).contains("bell.fill"), "the inbox moved to the Side Deck (SD-1)")
+        XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 5, "the five always-on pages are untouched")
+    }
+
     func testRestContentSingleItemsSplitSymmetrically() {
         for preset in NotchRestContent.allCases {
             if preset == .nothing {

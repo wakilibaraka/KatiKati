@@ -240,8 +240,7 @@ final class NotchPanelController: LiveEventSink {
             // 51c: a hidden default page falls back to the first shown one.
             let d = UserDefaults.standard
             let shown = NotchPage.visible(teleprompter: d.bool(forKey: TeleprompterModel.enabledKey),
-                                          mirror: d.bool(forKey: CameraMirrorService.enabledKey),
-                                          notifications: d.bool(forKey: NotificationMirrorService.enabledKey))
+                                          mirror: d.bool(forKey: CameraMirrorService.enabledKey))
             model.activePage = shown.contains(wanted) ? wanted : shown[0]
         }
         // Grow the NSPanel synchronously *before* flipping `model.isOpen = true`, so SwiftUI's open

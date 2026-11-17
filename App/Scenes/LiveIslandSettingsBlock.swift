@@ -333,13 +333,12 @@ private struct NotchPagesCard: View {
     @AppStorage(NotchPageLayout.defaultsKey) private var raw = ""
     @AppStorage(TeleprompterModel.enabledKey) private var teleprompter = false
     @AppStorage(CameraMirrorService.enabledKey) private var mirror = false
-    @AppStorage(NotificationMirrorService.enabledKey) private var notifications = false
     @State private var pendingHide: NotchPage?
 
     private var layout: NotchPageLayout { NotchPageLayout(raw: raw) }
     /// Every page that exists right now, in the owner's order, hidden ones included.
     private var pages: [NotchPage] {
-        layout.order.filter { NotchPage.visible(teleprompter: teleprompter, mirror: mirror, notifications: notifications, layout: NotchPageLayout()).contains($0) }
+        layout.order.filter { NotchPage.visible(teleprompter: teleprompter, mirror: mirror, layout: NotchPageLayout()).contains($0) }
     }
 
     var body: some View {

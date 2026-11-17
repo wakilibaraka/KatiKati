@@ -59,12 +59,15 @@ final class NotificationMirrorTests: XCTestCase {
         XCTAssertNil(NotificationBannerText.fold([]))
     }
 
-    /// The notifications page exists only while its switch is on, after the camera mirror.
-    func testTheNotificationsPageJoinsTheGalleryOnlyWhenItIsSwitchedOn() {
+    /// SD-1: the inbox lives in the Side Deck now. The notch gallery keeps its compact core pages and has
+    /// no notification page left to cycle to.
+    func testTheNotificationsInboxIsInTheSideDeckNotTheNotch() {
         XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 5)
-        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: true, notifications: true).dropLast().last, .notifications)
-        XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: true, notifications: true).count, 8)
-        XCTAssertFalse(NotchPage.visible(teleprompter: true, mirror: true).contains(.notifications))
+        XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: true).count, 7)
+        XCTAssertFalse(NotchPage.visible(teleprompter: true, mirror: true).contains { $0.symbol == "bell.fill" })
+        XCTAssertTrue(SideDeckTab.allCases.contains(.notifications))
+        XCTAssertEqual(SideDeckTab.notifications.symbol, "bell.fill")
+        XCTAssertEqual(SideDeckSearch.placeholder(for: .notifications), "Search notifications")
     }
 
     // MARK: - NotificationHistoryStore (Slice N-1)

@@ -853,7 +853,6 @@ struct NotchHelpersSettingsBlock: View {
     @AppStorage(DailyHelpersService.pauseKey) private var pauseReminder = false
     @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
-    @AppStorage(NotificationMirrorService.enabledKey) private var notificationsPage = false
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
     @AppStorage(LyricsTrack.enabledKey) private var syncedLyrics = false
 
@@ -885,8 +884,6 @@ struct NotchHelpersSettingsBlock: View {
                 left: { SettingsToggleRow(Text("Teleprompter Notch Page"), isOn: $teleprompterPage) },
                 right: { SettingsToggleRow(Text("Camera Mirror Notch Page"), isOn: $cameraMirrorPage) }
             )
-            SettingsDivider()
-            SettingsToggleRow(Text("Notifications Notch Page"), isOn: $notificationsPage)
             SettingsDivider()
             SettingsToggleRow(Text("Sharp Notch Edges"), isOn: $sharpEdges)
             SettingsDivider()

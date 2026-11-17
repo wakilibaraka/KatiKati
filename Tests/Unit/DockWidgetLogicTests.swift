@@ -362,3 +362,57 @@ final class GlanceStackTests: XCTestCase {
         XCTAssertTrue(week.contains(where: { $0.isToday }))
     }
 }
+
+/// Slice SD-1/SD-2 — the Side Deck's rail tabs, badges and keyboard selection, all pure.
+final class SideDeckLogicTests: XCTestCase {
+    func testNotificationsTabSitsRightAfterWindows() {
+        XCTAssertEqual(SideDeckTab.allCases.map(\.rawValue),
+                       ["windows", "notifications", "layouts", "emoji", "clipboard", "tendedero"])
+        XCTAssertEqual(SideDeckTab.notifications.symbol, "bell.fill")
+        XCTAssertEqual(SideDeckTab.notifications.title, "Notifications")
+    }
+
+    func testPlaceholdersNameWhatEachTabFilters() {
+        XCTAssertEqual(SideDeckSearch.placeholder(for: .windows), "Search windows")
+        XCTAssertEqual(SideDeckSearch.placeholder(for: .notifications), "Search notifications")
+        XCTAssertEqual(SideDeckSearch.placeholder(for: .clipboard), "Search clipboard")
+        XCTAssertEqual(SideDeckSearch.placeholder(for: .tendedero), "Search shelf")
+        XCTAssertEqual(SideDeckTab.allCases.map(\.searchPlaceholder).count, SideDeckTab.allCases.count)
+    }
+
+    func testUnreadBadgeCountsOnlyUnreadRows() {
+        let now = Date(timeIntervalSince1970: 1_000)
+        let entries = [
+            NotificationHistoryEntry(id: "1", timestamp: now, title: "A"),
+            NotificationHistoryEntry(id: "2", timestamp: now, title: "B", isRead: true),
+            NotificationHistoryEntry(id: "3", timestamp: now, title: "C"),
+        ]
+        XCTAssertEqual(SideDeckBadges.unreadNotificationCount(entries), 2)
+        XCTAssertEqual(SideDeckBadges.unreadNotificationCount([]), 0)
+    }
+
+    func testDismissRemovesOneRowAndKeepsTheRest() {
+        var store = NotificationHistoryStore(maxCapacity: 10)
+        let now = Date(timeIntervalSince1970: 1_000)
+        for i in 1...3 {
+            store.append(NotificationHistoryEntry(id: "n\(i)", timestamp: now.addingTimeInterval(Double(i)), title: "N\(i)"))
+        }
+        store.remove(id: "n2")
+        XCTAssertEqual(store.entries.map(\.id), ["n3", "n1"])
+        XCTAssertEqual(store.unreadCount, 2)
+    }
+
+    func testSelectionWrapsAndClampsWhenTheListShrinks() {
+        var selection = SideDeckSelection()
+        selection.move(by: 1, count: 3)
+        XCTAssertEqual(selection.index, 1)
+        selection.move(by: 2, count: 3)
+        XCTAssertEqual(selection.index, 0, "↓ past the last row wraps to the first")
+        selection.move(by: -1, count: 3)
+        XCTAssertEqual(selection.index, 2)
+        selection.clamp(count: 1)
+        XCTAssertEqual(selection.index, 0)
+        selection.move(by: 1, count: 0)
+        XCTAssertEqual(selection.index, 0)
+    }
+}

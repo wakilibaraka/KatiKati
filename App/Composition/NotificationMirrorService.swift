@@ -13,9 +13,7 @@ import SQLite3
 @MainActor
 final class NotificationMirrorService: ObservableObject {
     static let shared = NotificationMirrorService()
-    /// The notch page's own switch; the page exists only while it is on.
-    static let enabledKey = "com.katikati.notch.notifications"
-    /// The database holds far more; the page shows the newest few and nothing scrolls the store forever.
+    /// The database holds far more; the inbox shows the newest few and nothing scrolls the store forever.
     private static let historyLimit = 40
     private static let notificationCenterBundleID = "com.apple.notificationcenterui"
     /// `AXChildrenChanged` is not exported as a `kAX*` constant; the relocation feature registers the
@@ -32,25 +30,18 @@ final class NotificationMirrorService: ObservableObject {
     private var observer: AXObserver?
     private var appElement: AXUIElement?
     private var isWatching = false
-    private var isEnabled = UserDefaults.standard.bool(forKey: NotificationMirrorService.enabledKey)
 
     private init() {}
 
-    /// Reading banners needs the Accessibility grant; the page says so instead of showing an empty list.
+    /// Reading banners needs the Accessibility grant; the inbox says so instead of showing an empty list.
     var canReadBanners: Bool { AXIsProcessTrusted() }
-
-    func setEnabled(_ on: Bool) {
-        guard isEnabled != on else { return }
-        isEnabled = on
-        UserDefaults.standard.set(on, forKey: Self.enabledKey)
-        if !on { stopBanners() }
-    }
 
     // MARK: - Live banners (Accessibility, event-driven: no timer)
 
-    /// Called when the page appears. One AXObserver on Notification Center; nothing is polled.
+    /// Called when the Side Deck's bell tab appears. One AXObserver on Notification Center; nothing is
+    /// polled, and the observer goes away with the tab (slice SD-1: the inbox left the notch).
     func startBanners() {
-        guard isEnabled, !isWatching, AXIsProcessTrusted(),
+        guard !isWatching, AXIsProcessTrusted(),
               let application = NSRunningApplication
                   .runningApplications(withBundleIdentifier: Self.notificationCenterBundleID).first else { return }
         let element = AXUIElementCreateApplication(application.processIdentifier)
@@ -72,7 +63,7 @@ final class NotificationMirrorService: ObservableObject {
         readBanners()       // a banner may already be on screen when the page opens
     }
 
-    /// Called when the page goes away: the observer is removed with it.
+    /// Called when the tab goes away: the observer is removed with it.
     func stopBanners() {
         guard isWatching else { return }
         if let observer {
@@ -133,7 +124,7 @@ final class NotificationMirrorService: ObservableObject {
     // MARK: - History (Full Disk Access, read only while the page is open)
 
     func loadHistory() {
-        guard isEnabled, historyState != .loading else { return }
+        guard historyState != .loading else { return }
         historyState = .loading
         DispatchQueue.global(qos: .utility).async {
             let result = NotificationHistoryReader.read(limit: Self.historyLimit)
@@ -167,6 +158,12 @@ final class NotificationMirrorService: ObservableObject {
 
     func clearHistoryStore() {
         historyStore.clear()
+        historyStore.save()
+    }
+
+    /// Dismisses one row from the deck; the store is the inbox, so this is the only deletion there is.
+    func dismiss(id: String) {
+        historyStore.remove(id: id)
         historyStore.save()
     }
 

@@ -337,3 +337,96 @@ struct TendederoStore: Equatable, Codable, Sendable {
         }
     }
 }
+
+// MARK: - Slice SD-1: the Side Deck (left edge rail + panel)
+
+/// The rail tabs of the Side Deck — the floating left-edge strip (`WindowDrawerView`) and the panel it
+/// reveals. Case order is rail order: Windows first, then the notification inbox, then the rest. Raw
+/// values are only compared, never stored, but keep them stable anyway.
+enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
+    case windows
+    case notifications
+    case layouts
+    case emoji
+    case clipboard
+    case tendedero
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .windows: return String(localized: "Windows")
+        case .notifications: return String(localized: "Notifications")
+        case .layouts: return String(localized: "Layouts")
+        case .emoji: return String(localized: "Emoji")
+        case .clipboard: return String(localized: "Clipboard")
+        case .tendedero: return String(localized: "Clothesline")
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .windows: return "macwindow.on.rectangle"
+        case .notifications: return "bell.fill"
+        case .layouts: return "rectangle.split.3x1"
+        case .emoji: return "face.smiling"
+        case .clipboard: return "doc.on.clipboard"
+        case .tendedero: return "paperclip"
+        }
+    }
+
+    /// The deck's one search field says what it filters, per tab (SD-2).
+    var searchPlaceholder: String { SideDeckSearch.placeholder(for: self) }
+}
+
+/// One search field, six ways of saying what it searches: a tab can never claim to filter what it cannot.
+enum SideDeckSearch {
+    static func placeholder(for tab: SideDeckTab) -> String {
+        switch tab {
+        case .windows: return String(localized: "Search windows")
+        case .notifications: return String(localized: "Search notifications")
+        case .layouts: return String(localized: "Search layouts")
+        case .emoji: return String(localized: "Search emoji")
+        case .clipboard: return String(localized: "Search clipboard")
+        case .tendedero: return String(localized: "Search shelf")
+        }
+    }
+}
+
+/// SD-2: the deck's own keys, kept here so the view and the controller cannot disagree on them.
+enum SideDeckPrefs {
+    /// Pin Strip Open: while set, the deck never folds when the pointer leaves it.
+    static let pinKey = "com.katikati.drawer.pinned"
+}
+
+/// SD-1: the counts the rail draws as badges.
+enum SideDeckBadges {
+    /// Unread only: an all-read inbox is not news.
+    static func unreadNotificationCount(_ entries: [NotificationHistoryEntry]) -> Int {
+        entries.reduce(0) { $0 + ($1.isRead ? 0 : 1) }
+    }
+
+    /// Everything hanging on the clothesline, pinned included: the number the shelf holds.
+    static func stagedShelfCount(_ items: [TendederoItem]) -> Int { items.count }
+}
+
+/// SD-2: ↑/↓ selection in the deck. Pure, so the wrap and the clamping are tested without a window.
+struct SideDeckSelection: Equatable, Sendable {
+    private(set) var index = 0
+
+    mutating func move(by delta: Int, count: Int) {
+        guard count > 0 else { index = 0; return }
+        index = ((index + delta) % count + count) % count
+    }
+
+    /// The list under the selection changed (a new query, a dismissed row): stay on a real row.
+    mutating func clamp(count: Int) {
+        guard count > 0 else { index = 0; return }
+        index = min(max(index, 0), count - 1)
+    }
+
+    mutating func select(_ newIndex: Int, count: Int) {
+        index = max(0, newIndex)
+        clamp(count: count)
+    }
+}

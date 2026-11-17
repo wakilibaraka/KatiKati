@@ -186,6 +186,11 @@ struct NotificationHistoryStore: Codable, Equatable, Sendable {
         entries.removeAll()
     }
 
+    /// Drops one row (the deck's dismiss). The rest of the inbox keeps its order.
+    mutating func remove(id: String) {
+        entries.removeAll { $0.id == id }
+    }
+
     /// Returns entries filtered by unread state and search query (`localizedStandardContains`).
     func filtered(query: String, unreadOnly: Bool) -> [NotificationHistoryEntry] {
         Self.filter(entries, query: query, unreadOnly: unreadOnly)

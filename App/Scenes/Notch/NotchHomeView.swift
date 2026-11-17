@@ -38,8 +38,6 @@ struct NotchHomeView: View {
                     NotchTeleprompterPageView()
                 case .cameraMirror:
                     NotchMirrorPageView()
-                case .notifications:
-                    NotchNotificationsPageView()
                 case .keepAwake:
                     NotchKeepAwakePageView()
                 }
