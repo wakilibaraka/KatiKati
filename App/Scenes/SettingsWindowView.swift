@@ -18,6 +18,9 @@ struct SettingsWindowView: View {
     /// 「通用」页那颗「重新打开新手引导」按钮的动作。**不给默认值**：这里没有任何测试
     /// 会检查 SwiftUI 调用点，给了默认值就等于让"漏传"编译通过（AGENTS.md 的 no-default 铁律）。
     let onShowWelcomeGuide: () -> Void
+    /// Slice B: the Dock-pin importer, injected by `SettingsWindowController` and handed to the Dock Items
+    /// page through the environment (that pane also compiles into the test target).
+    let onImportDockPins: (() -> Int)?
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -59,6 +62,7 @@ struct SettingsWindowView: View {
             .ignoresSafeArea(edges: .top)
         }
         .environment(\.dockThemeStyle, store.themeMaterial)
+        .environment(\.importDockPins, onImportDockPins)
         .frame(minWidth: SettingsMetrics.minWindowWidth, minHeight: SettingsMetrics.minWindowHeight)
     }
 }

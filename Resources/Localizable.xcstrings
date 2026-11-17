@@ -39138,6 +39138,40 @@
         }
       }
     },
+    "Import from Dock": {
+      "comment": "Settings · Dock Items import row",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "从程序坞导入" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Import from Dock" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "從 Dock 匯入" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Dock から読み込む" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Aus dem Dock importieren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Importer depuis le Dock" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Importar desde el Dock" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Importar desde el Dock" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Importar do Dock" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Importar do Dock" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Importa dal Dock" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Dock에서 가져오기" } }
+      }
+    },
+    "Imported": {
+      "comment": "Settings · Dock import done",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "已导入" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Imported" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "已匯入" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "読み込み済み" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Importiert" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Importé" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Importado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Importado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Importado" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Importado" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Importato" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "가져옴" } }
+      }
+    },
     "In Finder, ⌘X copies the selection and marks it for moving, and ⌘V then moves it to the current folder.": {
       "extractionState": "manual",
       "localizations": {

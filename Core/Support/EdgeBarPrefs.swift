@@ -415,6 +415,27 @@ enum SideDeckBadges {
     static func stagedShelfCount(_ items: [TendederoItem]) -> Int { items.count }
 }
 
+/// Slice B (behavior ported from `alztrk/opentaskbar`, MIT — see NOTICE): seeding KatiKati's kept apps from the
+/// system Dock's `persistent-apps`. Pure: the caller supplies the Dock order and the installed test, so the seed
+/// is deduplicated, trimmed, skips uninstalled apps and skips KatiKati itself, and keeps Dock order.
+enum BarPinSeed {
+    static func keptApps(from bundleIDs: [String],
+                         isInstalled: (String) -> Bool,
+                         excluding excluded: String? = nil) -> [String] {
+        var seen = Set<String>()
+        var result: [String] = []
+        for raw in bundleIDs {
+            let bundleID = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !bundleID.isEmpty,
+                  bundleID != excluded,
+                  isInstalled(bundleID),
+                  seen.insert(bundleID).inserted else { continue }
+            result.append(bundleID)
+        }
+        return result
+    }
+}
+
 /// OW-1 (behavior ported from `alztrk/OpenWidget`, MIT — see NOTICE): the deck's HUD has two densities.
 /// `.compactSingleLine` folds the stack into one horizontal row of live readings; `.expanded` is the pane
 /// as it was. Stored, so the choice survives a relaunch.

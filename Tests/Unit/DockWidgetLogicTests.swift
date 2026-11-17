@@ -416,6 +416,23 @@ final class SideDeckLogicTests: XCTestCase {
         XCTAssertEqual(selection.index, 0)
     }
 
+    // MARK: Dock pin seeding (Slice B)
+
+    func testBarPinSeedDedupesKeepsDockOrderAndDropsUninstalledOrSelf() {
+        let dock = ["com.apple.Safari", " com.apple.mail ", "com.apple.Safari", "",
+                    "com.example.gone", "com.katikati.app", "com.apple.Terminal"]
+        let installed: Set<String> = ["com.apple.Safari", "com.apple.mail", "com.katikati.app", "com.apple.Terminal"]
+        let seeded = BarPinSeed.keptApps(from: dock,
+                                        isInstalled: { installed.contains($0) },
+                                        excluding: "com.katikati.app")
+        XCTAssertEqual(seeded, ["com.apple.Safari", "com.apple.mail", "com.apple.Terminal"])
+    }
+
+    func testBarPinSeedOfAnEmptyDockSeedsNothing() {
+        XCTAssertTrue(BarPinSeed.keptApps(from: [], isInstalled: { _ in true }).isEmpty)
+        XCTAssertTrue(BarPinSeed.keptApps(from: ["com.apple.Safari"], isInstalled: { _ in false }).isEmpty)
+    }
+
     // MARK: HUD density and text scale (slice OW-1)
 
     func testHUDDensityDefaultsToExpandedAndToggles() {

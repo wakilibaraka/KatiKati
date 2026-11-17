@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import os
 
@@ -88,7 +89,27 @@ final class KeptAppStore: ObservableObject {
     func seedDefaultAppsForFreshInstall(lineage: InstallLineage, isInstalled: (String) -> Bool) {
         guard lineage == .pristine else { return }
         for id in Self.freshInstallDefaultApps where isInstalled(id) { add(id) }
+        // Slice B (OpenTaskbar behavior): a fresh install also starts from the system Dock's pins, so the bar
+        // looks like the Dock the user already arranged. Upgraders keep their own list.
+        importDockPins(isInstalled: isInstalled)
         logger.info("seeded default kept apps (fresh install)")
+    }
+
+    /// Slice B (OpenTaskbar behavior, MIT): copy the system Dock's pinned apps into the kept list the bar draws.
+    /// Dedupes against what is already kept, keeps Dock order, skips uninstalled apps and KatiKati itself.
+    /// Returns how many icons were added, so the Settings row can say so.
+    @discardableResult
+    func importDockPins(isInstalled: (String) -> Bool = { NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0) != nil }) -> Int {
+        let seeds = BarPinSeed.keptApps(from: NativeDockPinnedApps.read(),
+                                        isInstalled: isInstalled,
+                                        excluding: Bundle.main.bundleIdentifier)
+        var added = 0
+        for bundleID in seeds where !contains(bundleID) {
+            add(bundleID)
+            added += 1
+        }
+        logger.info("imported \(added) Dock pins into keptAppBundleIDsV3")
+        return added
     }
 
     /// Authoritative messaging names for the kept-V3 seed, independent of store

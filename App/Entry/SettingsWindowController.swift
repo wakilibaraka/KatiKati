@@ -9,6 +9,8 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
     /// 「通用」页那颗「重新打开新手引导」按钮。闭包注入：引导窗归 `AppDelegate` 开
     /// （必须直通 `showWelcomeWindow()`，见那边的注释）。
     private let onShowWelcomeGuide: () -> Void
+    /// Slice B (OpenTaskbar behavior, MIT): copies the system Dock's pins into the kept apps.
+    private let onImportDockPins: (() -> Int)?
     private var window: NSWindow?
     private var hostingView: NSHostingView<SettingsWindowView>?
     private var sessionSubscriptions: Set<AnyCancellable> = []
@@ -20,11 +22,13 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
     init(
         store: AppSettingsStore,
         coordinator: SettingsCoordinator,
-        onShowWelcomeGuide: @escaping () -> Void
+        onShowWelcomeGuide: @escaping () -> Void,
+        onImportDockPins: (() -> Int)?
     ) {
         self.store = store
         self.coordinator = coordinator
         self.onShowWelcomeGuide = onShowWelcomeGuide
+        self.onImportDockPins = onImportDockPins
     }
 
     func present() {
@@ -34,7 +38,8 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
                 store: store,
                 coordinator: coordinator,
                 tabState: tabState,
-                onShowWelcomeGuide: onShowWelcomeGuide
+                onShowWelcomeGuide: onShowWelcomeGuide,
+                onImportDockPins: onImportDockPins
             )
         )
         // The sidebar draws under the titlebar; the hosting view's safe area keeps content clear of it.

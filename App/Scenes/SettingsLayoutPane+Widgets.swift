@@ -1,5 +1,18 @@
 import SwiftUI
 
+/// Slice B (OpenTaskbar behavior, MIT): the app injects the Dock-pin importer once at the Settings root, so this
+/// pane (which also compiles into the test target) never needs `KeptAppStore` — nil hides the row.
+struct SettingsImportDockPinsKey: EnvironmentKey {
+    static let defaultValue: (() -> Int)? = nil
+}
+
+extension EnvironmentValues {
+    var importDockPins: (() -> Int)? {
+        get { self[SettingsImportDockPinsKey.self] }
+        set { self[SettingsImportDockPinsKey.self] = newValue }
+    }
+}
+
 // The Widgets mode of `SettingsLayoutPane`; state lives in the main file.
 extension SettingsLayoutPane {
     @ViewBuilder
@@ -115,6 +128,23 @@ extension SettingsLayoutPane {
                 get: { store.showDrawer },
                 set: { store.setShowDrawer($0) }
             ))
+            // Slice B: the system Dock's pinned apps, adopted into the bar's kept list.
+            if let importDockPins {
+                SettingsDivider()
+                SettingsRow(Text("Import from Dock")) {
+                    Button {
+                        importedDockPinCount = importDockPins()
+                    } label: {
+                        if importedDockPinCount > 0 {
+                            Text("Imported")
+                        } else {
+                            Text("Import")
+                        }
+                    }
+                    .controlSize(.small)
+                    .disabled(importedDockPinCount > 0)
+                }
+            }
             SettingsDivider()
             SettingsToggleRow(Text("Background Apps"), isOn: Binding(
                 get: { store.showBackgroundApps },

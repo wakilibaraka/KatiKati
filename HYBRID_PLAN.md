@@ -440,6 +440,12 @@ Ranked in the port plan (https://claude.ai/artifact/EB9sx8HHhg2djFQ4QZwU51). Cod
 
 Landed from the ranked port plan and merged to `main`: **#1** bench, **#2a–d** settings backup, **#3** menu search, **#4a–c** bar profiles, **#4′ slices 1–2** quicklink templates (model, settings editor, command-bar rows & URL opener), **#5a–c** agent approvals. First verified base tag: `base/post-port-wave` (2899 unit tests, 0 failures).
 
+**OpenTaskbar slices landed (2026-11-17).**
+
+- **A (docs):** NOTICE entry (MIT, behavior reference, no code copied), §5f donor row, the audit table below, and a `LANES.md` claim before any code. Target KatiKati only; 12 locales, no Turkish.
+- **B (Dock pin seed):** pure `BarPinSeed.keptApps(from:isInstalled:excluding:)` in `Core/Support/EdgeBarPrefs.swift` (trim, dedupe, installed-only, KatiKati excluded, Dock order). `KeptAppStore.importDockPins(isInstalled:)` reads the existing `NativeDockPinnedApps` reader and adds only what is not already kept, returning the count. Wired twice: a fresh install seeds from the Dock (`seedDefaultAppsForFreshInstall`, pristine only) and Settings › Dock Items has an **Import from Dock** row fed by the app through a `SettingsImportDockPinsKey` environment closure (the pane also compiles into the test target, so it never touches `KeptAppStore` directly). Tests: `DockWidgetLogicTests` (dedupe/order/uninstalled/self fixture, empty Dock) — 27 tests with `NativeDockRestoreTests`, 0 failures. **Not run:** the Import row on the running app, and the fresh-install path (needs a pristine lineage).
+- **E, G, D are OWED, not started.** Wheel actions, the widget catalog and bar keyboard focus need their own turn; their claims were released rather than left stale.
+
 **OpenTaskbar audit (2026-11-17, Slice A).** Source read as behavior only; every row checked in this tree, not assumed.
 
 | Feature | Status |

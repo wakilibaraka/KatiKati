@@ -55,6 +55,9 @@ struct SettingsLayoutPane: View {
     /// Phase 32b: the dock widgets' motion language (Dock Items tab since 2026-10-20).
     @AppStorage(WidgetMotionPreset.storageKey) var dockMotion: WidgetMotionPreset = .default
     @AppStorage("com.katikati.widgets.fabStyle") var fabStyleRaw: String = "gauge"
+    /// Slice B: how many Dock pins the last Import added, and the injected importer itself (nil = hidden row).
+    @State var importedDockPinCount = 0
+    @Environment(\.importDockPins) var importDockPins
 
 
 

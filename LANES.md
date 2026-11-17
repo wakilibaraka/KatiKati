@@ -39,9 +39,7 @@ hot-file touches. The integrator registers all pending tabs in **one slice per r
 ## Claims
 One line per active slice: `lane | slice | agent | branch | files | hot-file touches | since`
 
-```
-swift-core | OpenTaskbar A/B/E/G/D | Freebuff | main | NOTICE, HYBRID_PLAN.md, LANES.md, Core/Support/*, App/Scenes/*, App/Composition/* | Localizable.xcstrings, DockWidgetLogicTests.swift, SettingsLayoutPane+Widgets.swift, WindowDrawerController.swift | 2026-11-17
-```
+_(OpenTaskbar A and B landed 2026-11-17; E/G/D were never started, so no claim is held. Re-claim before starting them: `Localizable.xcstrings`, `DockWidgetLogicTests.swift`, `SettingsLayoutPane+Widgets.swift` and `DockStripView*` are the hot files.)_
 
 ## Unknown
 Which lanes Freebuff or another agent is using is not known until they add a line here.
