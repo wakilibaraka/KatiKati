@@ -123909,6 +123909,142 @@
         "it": { "stringUnit": { "state": "translated", "value": "Barra larga" } },
         "ko": { "stringUnit": { "state": "translated", "value": "와이드 바" } }
       }
+    },
+    "Hotkey Hold & Release": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Hotkey Hold & Release"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "按住快捷键并松开"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "按住快捷鍵並放開"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ホットキー長押しで離す"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kurzbefehl halten & loslassen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Maintenir et relâcher le raccourci"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Mantener y soltar atajo"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Mantener y soltar atajo"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Segurar e soltar atalho"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Manter e soltar atalho"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Tieni premuto e rilascia scorciatoia"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "단축키 길게 누른 후 놓기"}}
+      }
+    },
+    "Trackpad Edge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Trackpad Edge"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "触控板边缘"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "觸控板邊緣"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "トラックパッド端"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Trackpad-Rand"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Bord du trackpad"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Borde del trackpad"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Borde del trackpad"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Borda do trackpad"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Borda do trackpad"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Bordo del trackpad"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "트랙패드 가장자리"}}
+      }
+    },
+    "Left Edge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Left Edge"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "左边缘"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "左邊緣"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "左端"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Linker Rand"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Bord gauche"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Borde izquierdo"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Borde izquierdo"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Borda esquerda"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Margem esquerda"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Bordo sinistro"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "왼쪽 가장자리"}}
+      }
+    },
+    "Right Edge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Right Edge"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "右边缘"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "右邊緣"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "右端"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Rechter Rand"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Bord droit"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Borde derecho"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Borde derecho"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Borda direita"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Margem direita"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Bordo destro"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "오른쪽 가장자리"}}
+      }
+    },
+    "Slices": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Slices"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "扇区"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "扇區"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "スライス"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Sektoren"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Secteurs"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sectores"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Sectores"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Fatias"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Setores"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Settori"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "슬라이스"}}
+      }
+    },
+    "Submenu": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Submenu"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "子菜单"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "子選單"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "サブメニュー"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Untermenü"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Sous-menu"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Submenú"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Submenú"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Submenu"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Submenu"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sottomenu"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "하위 메뉴"}}
+      }
+    },
+    "Slice": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Slice"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "扇区"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "扇區"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "スライス"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Sektor"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Secteur"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sector"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Sector"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Fatia"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Setor"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Settore"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "슬라이스"}}
+      }
+    },
+    "Scan Text": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Scan Text"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "识别文字"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "辨識文字"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "テキスト認識"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Text scannen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Numériser le texte"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Escanear texto"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Escanear texto"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Escanear texto"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Digitalizar texto"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scansiona testo"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "텍스트 스캔"}}
+      }
     }
   },
   "version": "1.0"

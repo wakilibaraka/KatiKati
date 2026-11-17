@@ -1,5 +1,7 @@
 import XCTest
 import CoreGraphics
+import SwiftUI
+import AppKit
 @testable import KatiKati
 
 final class RadialDialGeometryTests: XCTestCase {
@@ -256,5 +258,24 @@ final class RadialDialGeometryTests: XCTestCase {
 
         RadialDialConfigStore.reset(defaults: defaults)
         XCTAssertEqual(RadialDialConfigStore.loadNodes(defaults: defaults), RadialDialPresets.defaultRootNodes())
+    }
+
+    @MainActor
+    func testRadialDialSettingsPageFitsWithin1074ptClamp() {
+        let suiteName = "RadialDialSettingsHeightTest.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let store = AppSettingsStore(defaults: defaults)
+        let view = SettingsPane {
+            SettingsLayoutPane(store: store, mode: .radialDial)
+        }
+        .frame(width: SettingsMetrics.windowWidth)
+
+        let host = NSHostingView(rootView: view)
+        host.layoutSubtreeIfNeeded()
+        let measuredHeight = host.fittingSize.height
+        XCTAssertGreaterThan(measuredHeight, 200)
+        XCTAssertLessThanOrEqual(measuredHeight, 1074, "Radial Dial Settings pane height (\(measuredHeight) pt) must stay <= 1074 pt")
     }
 }
