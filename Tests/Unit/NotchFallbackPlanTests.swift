@@ -90,6 +90,102 @@ final class NotchFallbackPlanTests: XCTestCase {
         XCTAssertFalse(hwClosed.isPowerSavingOpaque)
     }
 
+    // MARK: - Slice NS-1: Notch surface appearance
+
+    /// The default owner-visible state: opaque OLED black, no blur material, nothing to see through.
+    func testSurfaceDefaultsToOpaqueOLEDBlack() {
+        let appearance = NotchSurfaceAppearance()
+        XCTAssertEqual(appearance.preset, .oledBlack)
+        XCTAssertEqual(appearance.customHex, "#000000")
+        XCTAssertEqual(appearance.transparency, 0.0)
+
+        let resolved = appearance.effectiveAppearance(isLowPowerMode: false)
+        XCTAssertEqual(resolved.preset, .oledBlack)
+        XCTAssertEqual(resolved.transparency, 0.0)
+        XCTAssertEqual(resolved.baseOpacity, 1.0)
+        XCTAssertFalse(resolved.shouldRenderBlurMaterial)
+        XCTAssertFalse(resolved.isPowerSavingOpaque)
+        XCTAssertEqual(resolved.baseColor.r, 0)
+        XCTAssertEqual(resolved.baseColor.g, 0)
+        XCTAssertEqual(resolved.baseColor.b, 0)
+        XCTAssertEqual(resolved.baseColor.a, 1)
+    }
+
+    func testTransparencyClampsAndOnlyThenAsksForBlur() {
+        XCTAssertEqual(NotchSurfaceAppearance(transparency: -1).clampedTransparency, 0.0)
+        XCTAssertEqual(NotchSurfaceAppearance(transparency: 2).clampedTransparency, 0.85)
+        XCTAssertEqual(NotchSurfaceAppearance(transparency: .nan).clampedTransparency, 0.0)
+        XCTAssertEqual(NotchSurfaceAppearance(transparency: .infinity).clampedTransparency, 0.0)
+
+        // Under the 0.1% threshold the plate is opaque in practice, so no vibrancy pass is spent on it.
+        let invisible = NotchSurfaceAppearance(transparency: 0.0005).effectiveAppearance(isLowPowerMode: false)
+        XCTAssertFalse(invisible.shouldRenderBlurMaterial)
+        XCTAssertEqual(invisible.baseOpacity, 1.0, accuracy: 0.001)
+
+        let frosted = NotchSurfaceAppearance(transparency: 0.85).effectiveAppearance(isLowPowerMode: false)
+        XCTAssertTrue(frosted.shouldRenderBlurMaterial)
+        XCTAssertEqual(frosted.baseOpacity, 0.15, accuracy: 0.001)
+        XCTAssertEqual(frosted.transparency, 0.85, accuracy: 0.001)
+    }
+
+    func testPresetHexAndRimResolution() {
+        for preset in NotchColorPreset.allCases where preset != .custom {
+            let resolved = NotchSurfaceAppearance(preset: preset).effectiveAppearance(isLowPowerMode: false)
+            XCTAssertEqual(resolved.baseColor, preset.baseHex, "\(preset) plate must be its own colour")
+            XCTAssertEqual(resolved.rimColor, preset.rimHex, "\(preset) rim must be its own colour")
+            XCTAssertEqual(resolved.rimOpacity, preset.rimOpacity)
+            XCTAssertGreaterThan(resolved.rimOpacity, 0)
+            XCTAssertLessThanOrEqual(resolved.rimOpacity, 1)
+        }
+        // The six presets are distinguishable plates, and only OLED black is pure black.
+        let bases = NotchColorPreset.allCases.filter { $0 != .custom }.map(\.baseHex)
+        XCTAssertEqual(Set(bases.map { "\($0.r),\($0.g),\($0.b)" }).count, bases.count)
+        XCTAssertEqual(NotchColorPreset.oledBlack.baseHex.r, 0)
+    }
+
+    func testCustomHexParsingAndLiftedRim() {
+        XCTAssertEqual(NotchHexColor.rgba("#FF8000").r, 1.0, accuracy: 0.001)
+        XCTAssertEqual(NotchHexColor.rgba("#FF8000").g, 128.0 / 255.0, accuracy: 0.001)
+        XCTAssertEqual(NotchHexColor.rgba("FF8000").b, 0.0, accuracy: 0.001)
+        XCTAssertEqual(NotchHexColor.rgba("#11223380").a, 128.0 / 255.0, accuracy: 0.001)
+        // Malformed input is black, never a crash and never a guess.
+        XCTAssertEqual(NotchHexColor.rgba("nonsense"), DockRGBA(r: 0, g: 0, b: 0, a: 1))
+        XCTAssertEqual(NotchHexColor.rgba("#FFF"), DockRGBA(r: 0, g: 0, b: 0, a: 1))
+
+        let custom = NotchSurfaceAppearance(preset: .custom, customHex: "#FF0000")
+            .effectiveAppearance(isLowPowerMode: false)
+        XCTAssertEqual(custom.baseColor.r, 1.0, accuracy: 0.001)
+        XCTAssertEqual(custom.baseColor.g, 0.0, accuracy: 0.001)
+        XCTAssertGreaterThan(custom.rimColor.g, custom.baseColor.g, "a custom rim is lifted toward white")
+        XCTAssertEqual(custom.rimColor.r, 1.0, accuracy: 0.001)
+        XCTAssertEqual(custom.rimOpacity, NotchColorPreset.custom.rimOpacity)
+    }
+
+    func testLowPowerModeForcesOpaqueOLEDBlack() {
+        let stored = NotchSurfaceAppearance(preset: .midnightIndigo, customHex: "#FF0000", transparency: 0.6)
+        let resolved = stored.effectiveAppearance(isLowPowerMode: true)
+        XCTAssertEqual(resolved.preset, .oledBlack)
+        XCTAssertEqual(resolved.transparency, 0.0)
+        XCTAssertEqual(resolved.baseOpacity, 1.0)
+        XCTAssertEqual(resolved.baseColor, NotchColorPreset.oledBlack.baseHex)
+        XCTAssertEqual(resolved.rimColor, NotchColorPreset.oledBlack.rimHex)
+        XCTAssertFalse(resolved.shouldRenderBlurMaterial)
+        XCTAssertTrue(resolved.isPowerSavingOpaque)
+    }
+
+    func testSurfaceAppearanceRoundTripsThroughDefaults() {
+        let defaults = UserDefaults(suiteName: "NotchSurfaceAppearanceTests.\(UUID())")!
+        XCTAssertEqual(NotchSurfaceAppearance.load(defaults), NotchSurfaceAppearance())
+
+        var stored = NotchSurfaceAppearance(preset: .crimsonVelvet, customHex: "#22AAFF", transparency: 0.4)
+        stored.save(defaults)
+        XCTAssertEqual(NotchSurfaceAppearance.load(defaults), stored)
+
+        // An out-of-range stored value is saved clamped, so the view never reads something the slider cannot.
+        NotchSurfaceAppearance(transparency: 3).save(defaults)
+        XCTAssertEqual(NotchSurfaceAppearance.load(defaults).transparency, 0.85)
+    }
+
     // MARK: - Slice DN-1: Priority Queue & Geometry Calculator
 
     func testActivityQueuePrioritySortingAndEviction() {

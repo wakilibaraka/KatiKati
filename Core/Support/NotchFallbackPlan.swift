@@ -137,6 +137,188 @@ enum NotchGlassPolicy {
     }
 }
 
+// MARK: - Slice NS-1: Notch surface appearance (OLED black by default)
+
+/// The notch plate's colour, chosen as a milled material rather than a plain tint. Raw values are stored;
+/// never rename them.
+enum NotchColorPreset: String, CaseIterable, Identifiable, Codable, Sendable {
+    case oledBlack
+    case graphiteSmoke
+    case midnightIndigo
+    case obsidianEmerald
+    case warmEspresso
+    case crimsonVelvet
+    case custom
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .oledBlack: return String(localized: "OLED Black")
+        case .graphiteSmoke: return String(localized: "Graphite Smoke")
+        case .midnightIndigo: return String(localized: "Midnight Indigo")
+        case .obsidianEmerald: return String(localized: "Obsidian Emerald")
+        case .warmEspresso: return String(localized: "Warm Espresso")
+        case .crimsonVelvet: return String(localized: "Crimson Velvet")
+        case .custom: return String(localized: "Custom")
+        }
+    }
+
+    /// The plate fill. `.custom` reads `NotchSurfaceAppearance.customHex` instead; its value here is only
+    /// the black a custom surface starts from.
+    var baseHex: DockRGBA {
+        switch self {
+        case .oledBlack: return rgba(0x000000)
+        case .graphiteSmoke: return rgba(0x1C1C1E)
+        case .midnightIndigo: return rgba(0x0A0F2C)
+        case .obsidianEmerald: return rgba(0x03130E)
+        case .warmEspresso: return rgba(0x170D08)
+        case .crimsonVelvet: return rgba(0x1C0407)
+        case .custom: return rgba(0x000000)
+        }
+    }
+
+    /// The 1 pt rim: a lifted sibling of the base, so the edge reads as milled glass, not a sticker.
+    var rimHex: DockRGBA {
+        switch self {
+        case .oledBlack: return rgba(0x4A4A4E)
+        case .graphiteSmoke: return rgba(0x8E8E93)
+        case .midnightIndigo: return rgba(0x4E63C8)
+        case .obsidianEmerald: return rgba(0x1F8A66)
+        case .warmEspresso: return rgba(0xB07A4A)
+        case .crimsonVelvet: return rgba(0xB02B42)
+        case .custom: return rgba(0x8E8E93)
+        }
+    }
+
+    /// How hard the rim reads. OLED black barely needs one; the tinted presets lean on it.
+    var rimOpacity: Double {
+        switch self {
+        case .oledBlack: return 0.18
+        case .custom: return 0.30
+        case .graphiteSmoke, .warmEspresso: return 0.30
+        case .midnightIndigo, .obsidianEmerald, .crimsonVelvet: return 0.34
+        }
+    }
+
+    private func rgba(_ hex: UInt32) -> DockRGBA {
+        DockRGBA(r: CGFloat((hex >> 16) & 0xFF) / 255,
+                 g: CGFloat((hex >> 8) & 0xFF) / 255,
+                 b: CGFloat(hex & 0xFF) / 255,
+                 a: 1)
+    }
+}
+
+/// `#RRGGBB` / `#RRGGBBAA` parsing for the custom swatch. Malformed input falls back to black: a hand-typed
+/// or half-written hex must never crash the notch or paint a colour nobody chose.
+enum NotchHexColor {
+    static func rgba(_ hex: String, alpha: CGFloat = 1) -> DockRGBA {
+        var text = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        if text.hasPrefix("#") { text.removeFirst() }
+        guard text.count == 6 || text.count == 8, let value = UInt32(text, radix: 16) else {
+            return DockRGBA(r: 0, g: 0, b: 0, a: alpha)
+        }
+        let hasAlpha = text.count == 8
+        let rgb = hasAlpha ? value >> 8 : value
+        let resolvedAlpha = hasAlpha ? CGFloat(value & 0xFF) / 255 : alpha
+        return DockRGBA(r: CGFloat((rgb >> 16) & 0xFF) / 255,
+                        g: CGFloat((rgb >> 8) & 0xFF) / 255,
+                        b: CGFloat(rgb & 0xFF) / 255,
+                        a: resolvedAlpha)
+    }
+
+    /// A custom plate's rim is the plate lifted toward white, so the edge stays in the same family instead
+    /// of arriving as an unrelated grey line.
+    static func rim(for base: DockRGBA) -> DockRGBA {
+        let lift: CGFloat = 0.55
+        return DockRGBA(r: base.r + (1 - base.r) * lift,
+                        g: base.g + (1 - base.g) * lift,
+                        b: base.b + (1 - base.b) * lift,
+                        a: 1)
+    }
+}
+
+/// What the notch actually draws, after clamping and the Low Power Mode override.
+struct ResolvedNotchSurface: Equatable, Sendable {
+    let preset: NotchColorPreset
+    /// The plate fill at full strength; the view applies `baseOpacity` to it.
+    let baseColor: DockRGBA
+    let baseOpacity: Double
+    let rimColor: DockRGBA
+    let rimOpacity: Double
+    let transparency: Double
+    /// `false` at the default: no vibrancy pass at all, so the opaque plate cannot be seen through.
+    let shouldRenderBlurMaterial: Bool
+    let isPowerSavingOpaque: Bool
+}
+
+/// The notch's stored surface look. Defaults to **fully opaque OLED black**: nothing behind the notch
+/// shows through unless the owner asks for it.
+struct NotchSurfaceAppearance: Equatable, Sendable {
+    static let transparencyRange: ClosedRange<Double> = 0.0...0.85
+    static let defaultTransparency = 0.0
+    static let defaultCustomHex = "#000000"
+
+    enum StorageKey {
+        static let preset = "com.katikati.notch.surface.preset"
+        static let customHex = "com.katikati.notch.surface.customHex"
+        static let transparency = "com.katikati.notch.surface.transparency"
+    }
+
+    var preset: NotchColorPreset
+    var customHex: String
+    var transparency: Double
+
+    init(preset: NotchColorPreset = .oledBlack,
+         customHex: String = NotchSurfaceAppearance.defaultCustomHex,
+         transparency: Double = NotchSurfaceAppearance.defaultTransparency) {
+        self.preset = preset
+        self.customHex = customHex
+        self.transparency = transparency
+    }
+
+    /// Anything stored, however old or hand-edited, lands inside the slider's own range.
+    var clampedTransparency: Double {
+        guard transparency.isFinite else { return Self.defaultTransparency }
+        return min(max(transparency, Self.transparencyRange.lowerBound), Self.transparencyRange.upperBound)
+    }
+
+    /// Low Power Mode is opaque OLED black whatever is stored: no blur pass, no tint. Everything else is
+    /// the clamped stored value, with the blur material existing only once the plate is actually
+    /// see-through.
+    func effectiveAppearance(isLowPowerMode: Bool) -> ResolvedNotchSurface {
+        let preset = isLowPowerMode ? NotchColorPreset.oledBlack : self.preset
+        let transparency = isLowPowerMode ? Self.defaultTransparency : clampedTransparency
+        let base = preset == .custom ? NotchHexColor.rgba(customHex) : preset.baseHex
+        let rim = preset == .custom ? NotchHexColor.rim(for: base) : preset.rimHex
+        let baseOpacity = 1.0 - transparency
+        return ResolvedNotchSurface(
+            preset: preset,
+            baseColor: DockRGBA(r: base.r, g: base.g, b: base.b, a: 1),
+            baseOpacity: baseOpacity,
+            rimColor: DockRGBA(r: rim.r, g: rim.g, b: rim.b, a: 1),
+            rimOpacity: preset.rimOpacity,
+            transparency: transparency,
+            shouldRenderBlurMaterial: transparency > 0.001,
+            isPowerSavingOpaque: isLowPowerMode
+        )
+    }
+
+    static func load(_ defaults: UserDefaults = .standard) -> NotchSurfaceAppearance {
+        NotchSurfaceAppearance(
+            preset: NotchColorPreset(rawValue: defaults.string(forKey: StorageKey.preset) ?? "") ?? .oledBlack,
+            customHex: defaults.string(forKey: StorageKey.customHex) ?? defaultCustomHex,
+            transparency: defaults.object(forKey: StorageKey.transparency) as? Double ?? defaultTransparency
+        )
+    }
+
+    func save(_ defaults: UserDefaults = .standard) {
+        defaults.set(preset.rawValue, forKey: StorageKey.preset)
+        defaults.set(customHex, forKey: StorageKey.customHex)
+        defaults.set(clampedTransparency, forKey: StorageKey.transparency)
+    }
+}
+
 extension NotchFallbackPlan {
     /// Evaluates edge clearance for a top-docked bar vs menu bar / notch
     static func topDockOffset(menuBarHeight: CGFloat, screenEdge: DockScreenEdge) -> CGFloat {
