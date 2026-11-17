@@ -137,6 +137,8 @@ struct DockStripView: View {
     /// chipFrames**——喂消息区内重排 hit-test + 抽屉拖出的"消息区范围"释放判定。
     var messagingChipFrames: [String: CGRect] { frames.messagingChipFrames }
     /// 载体此刻画的是哪张消息区图标（释放回消息区那条路的换图去重）。见 `syncReleasedMessagingCarrier`。
+    /// Slice E: the wheel's volume service — one per strip, like every other strip-owned service.
+    @StateObject private var wheelVolume = SystemStatusService()
     @State private var carriedMessagingChipID: String?
     // 上一轮 body 见到的 `stripSlotCollapsed` 住在 `frames.renderedCollapsed`（`.onChange` 里晚一轮更新）。
     // body 里两者不等 = 这次 `layoutKeys` 变化就是空位合拢 / 重开，条内动画要和面板窗口动画**同一条曲线
@@ -319,8 +321,11 @@ struct DockStripView: View {
             .overlay(alignment: .topLeading) {
                 // Vertical wheel → horizontal scroll is a bottom-bar affordance; a rail scrolls natively.
                 if !isRail {
-                    WheelScrollInterceptorRepresentable()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    WheelScrollInterceptorRepresentable(
+                        resolve: wheelResolver(projection: projection),
+                        perform: wheelPerformer(projection: projection)
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
             // 右键任务条底板弹钨极菜单。
@@ -1351,6 +1356,53 @@ struct DockStripView: View {
                 .frame(width: ChipPillMetrics.cardWidth * dockScale,
                        height: ChipPillMetrics.cardFrameHeight(dockScale, onRail: isRail))
                 .contentShape(Rectangle())
+        }
+    }
+
+    /// Slice E: the two closures live here rather than inline, or the view body's type-check times out.
+    private func wheelResolver(projection: StripProjection) -> (StripWheelScroll.Input, CGFloat) -> WheelAction {
+        let target = wheelTarget(projection: projection)
+        return { input, overflow in
+            WheelActionMap.action(for: input, target: target, stripOverflows: overflow > 0)
+        }
+    }
+
+    private func wheelPerformer(projection: StripProjection) -> (WheelAction) -> Void {
+        { action in performWheelAction(action, projection: projection) }
+    }
+
+    /// Slice E: what sits under the pointer, for the wheel mapping. Same source the hover bubble uses, so a
+    /// wheel over a card acts on that card and a wheel over bare bar acts on the volume.
+    private func wheelTarget(projection: StripProjection) -> WheelTarget {
+        guard let hoveredEntryID,
+              let entry = projection.entries.first(where: { $0.id == hoveredEntryID }) else {
+            return .emptyBar
+        }
+        return Self.memoryBundleID(entry).map(WheelTarget.appCard) ?? .otherSurface
+    }
+
+    /// Slice E: cycle the app's windows in strip order, or step the output volume. Panning never reaches here.
+    private func performWheelAction(_ action: WheelAction, projection: StripProjection) {
+        switch action {
+        case .ignore, .scrollStrip:
+            break
+        case .cycleWindows(let bundleID, let direction):
+            let items = projection.entries.compactMap { entry -> StripItem? in
+                guard case let .window(item) = entry, item.bundleIdentifier == bundleID else { return nil }
+                return item
+            }
+            var ids: [String] = []
+            for item in items {
+                for id in (item.isAppGroup ? item.memberWindowIDs : [item.actionWindowID]) where !ids.contains(id) {
+                    ids.append(id)
+                }
+            }
+            let front = items.first { $0.status == WindowStatus.active.rawValue }?.actionWindowID
+            guard let target = WheelWindowCycle.next(ids: ids, front: front, direction: direction) else { return }
+            runtime.activate(windowID: target)
+        case .volume(let delta):
+            let level = Double(wheelVolume.currentVolumeLevel) + Double(delta)
+            wheelVolume.setVolume(Float(min(1, max(0, level))))
         }
     }
 

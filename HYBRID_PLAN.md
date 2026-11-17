@@ -444,7 +444,18 @@ Landed from the ranked port plan and merged to `main`: **#1** bench, **#2a–d**
 
 - **A (docs):** NOTICE entry (MIT, behavior reference, no code copied), §5f donor row, the audit table below, and a `LANES.md` claim before any code. Target KatiKati only; 12 locales, no Turkish.
 - **B (Dock pin seed):** pure `BarPinSeed.keptApps(from:isInstalled:excluding:)` in `Core/Support/EdgeBarPrefs.swift` (trim, dedupe, installed-only, KatiKati excluded, Dock order). `KeptAppStore.importDockPins(isInstalled:)` reads the existing `NativeDockPinnedApps` reader and adds only what is not already kept, returning the count. Wired twice: a fresh install seeds from the Dock (`seedDefaultAppsForFreshInstall`, pristine only) and Settings › Dock Items has an **Import from Dock** row fed by the app through a `SettingsImportDockPinsKey` environment closure (the pane also compiles into the test target, so it never touches `KeptAppStore` directly). Tests: `DockWidgetLogicTests` (dedupe/order/uninstalled/self fixture, empty Dock) — 27 tests with `NativeDockRestoreTests`, 0 failures. **Not run:** the Import row on the running app, and the fresh-install path (needs a pristine lineage).
-- **E, G, D are OWED, not started.** Wheel actions, the widget catalog and bar keyboard focus need their own turn; their claims were released rather than left stale.
+- **E (wheel actions, 2026-11-17):** pure `WheelAction`/`WheelTarget`/`WheelActionMap` in
+  `Core/Support/StripWheelScroll.swift` plus `WheelWindowCycle`. Horizontal overflow panning keeps priority
+  (the old `StripWheelScroll.horizontalStep` result wins whenever the strip overflows), so nothing about the
+  shipped scroll feel changed; anything else over a card cycles that app's windows in strip order, and over bare
+  bar it steps the volume (5 % per notch, 2 % per precise event, natural scrolling respected). Hooked into
+  `WheelScrollInterceptorView` through optional `resolve`/`perform` closures (`nil` keeps the old behaviour) and
+  wired in `DockStripView` from the same hovered entry the bubble uses; volume goes through
+  `SystemStatusService.setVolume`. Tests: `WheelActionMapTests` (overflow priority, card cycling, empty-bar
+  volume, other chrome, wrap-around) — 12 tests green with the existing `StripWheelScrollTests`. **Not run:** a
+  real wheel on the bar (no driver in this session).
+- **G, D are OWED, not started.** The widget catalog and bar keyboard focus need their own turn; their claims were
+  released rather than left stale.
 
 **OpenTaskbar audit (2026-11-17, Slice A).** Source read as behavior only; every row checked in this tree, not assumed.
 
@@ -460,7 +471,7 @@ Landed from the ranked port plan and merged to `main`: **#1** bench, **#2a–d**
 | Dock `persistent-apps` reader | BUILT (`NativeDockPreferencesService.swift`, `NativeDockPinnedApps`), wired to the strip by Phase 42 but **not** importable into kept apps |
 | Bar fisheye | PARTIAL (deck buttons only); excluded by decision |
 | Keyboard focus mode on bar | MISSING (Slice D) |
-| Wheel: cycle windows or volume on bar | MISSING (Slice E); volume API exists (`SystemStatusService.setVolume(_:)`) |
+| Wheel: cycle windows or volume on bar | BUILT (Slice E, `WheelActionMap` + `DockStripView`) |
 | Widget catalog | MISSING (Slice G) |
 | Disk-free tile, folder new-file badge | MISSING (optional follow-on slices) |
 | OpenTaskbar attribution | MISSING → added by Slice A |

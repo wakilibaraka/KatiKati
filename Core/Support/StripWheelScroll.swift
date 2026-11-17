@@ -52,3 +52,76 @@ enum StripWheelScroll {
         return step == 0 ? nil : step
     }
 }
+
+/// Slice E, ported as behaviour from OpenTaskbar (MIT, NOTICE): a vertical wheel over an app card cycles that
+/// app's windows, over empty bar it turns the volume, and the strip's own horizontal overflow scroll keeps
+/// priority exactly as before.
+enum WheelTarget: Equatable, Sendable {
+    case emptyBar
+    /// A window card, or the card that stands for an app's grouped windows.
+    case appCard(bundleID: String)
+    /// Folder chips, the drawer, the trash, separators — not the bar's own surface.
+    case otherSurface
+}
+
+enum WheelDirection: Equatable, Sendable {
+    case previous
+    case next
+}
+
+enum WheelAction: Equatable, Sendable {
+    case ignore
+    /// Pan the strip. The interceptor owns the `NSScrollView`, so this one never leaves the view.
+    case scrollStrip(by: CGFloat)
+    case cycleWindows(bundleID: String, direction: WheelDirection)
+    case volume(delta: Float)
+}
+
+enum WheelActionMap {
+    /// One notch on a discrete wheel. The strip asks for small steps so a fast spin cannot slam the volume.
+    static let volumeStepPerNotch: Float = 0.05
+    /// Trackpads and smooth-scrolling mice send many events per gesture; each one moves less.
+    static let preciseVolumeStep: Float = 0.02
+
+    /// The decision table. Horizontal overflow panning is checked first and unchanged, so a bar that can
+    /// scroll still scrolls; only an event the strip cannot pan is handed to the card/volume rules.
+    static func action(for input: StripWheelScroll.Input,
+                       target: WheelTarget,
+                       stripOverflows: Bool) -> WheelAction {
+        if stripOverflows, let step = StripWheelScroll.horizontalStep(for: input) {
+            return .scrollStrip(by: step)
+        }
+        guard input.deltaY != 0, abs(input.deltaY) > abs(input.deltaX) else { return .ignore }
+        let sign: CGFloat = input.isDirectionInverted ? -1 : 1
+        let travel = sign * input.deltaY
+        guard travel != 0 else { return .ignore }
+
+        switch target {
+        case .appCard(let bundleID):
+            return .cycleWindows(bundleID: bundleID, direction: travel > 0 ? .next : .previous)
+        case .emptyBar:
+            let step = input.hasPreciseDeltas ? preciseVolumeStep : volumeStepPerNotch
+            return .volume(delta: travel > 0 ? step : -step)
+        case .otherSurface:
+            return .ignore
+        }
+    }
+}
+
+/// Slice E: which window a wheel step lands on. Wraps in both directions and keeps `ids` order, so the strip's
+/// own left-to-right order is the cycle order.
+enum WheelWindowCycle {
+    static func next(ids: [String], front: String?, direction: WheelDirection) -> String? {
+        guard !ids.isEmpty else { return nil }
+        guard ids.count > 1 else { return ids[0] }
+        let index = front.flatMap { ids.firstIndex(of: $0) }
+        switch direction {
+        case .next:
+            let base = index ?? -1
+            return ids[(base + 1 + ids.count) % ids.count]
+        case .previous:
+            let base = index ?? 0
+            return ids[(base - 1 + ids.count) % ids.count]
+        }
+    }
+}

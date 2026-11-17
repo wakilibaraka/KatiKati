@@ -6,11 +6,28 @@ import UniformTypeIdentifiers
 // MARK: - Mouse wheel horizontal strip scrolling
 
 struct WheelScrollInterceptorRepresentable: NSViewRepresentable {
+    /// Slice E: what this wheel event means, given the strip's current overflow. `nil` keeps the old pure
+    /// horizontal-scroll behaviour (tests mount the view without a resolver).
+    var resolve: ((StripWheelScroll.Input, CGFloat) -> WheelAction)?
+    /// Slice E: actions the view cannot perform itself (window cycling, volume).
+    var perform: ((WheelAction) -> Void)?
+
+    init(resolve: ((StripWheelScroll.Input, CGFloat) -> WheelAction)? = nil,
+         perform: ((WheelAction) -> Void)? = nil) {
+        self.resolve = resolve
+        self.perform = perform
+    }
+
     func makeNSView(context: Context) -> WheelScrollInterceptorView {
-        WheelScrollInterceptorView()
+        let view = WheelScrollInterceptorView()
+        view.resolve = resolve
+        view.perform = perform
+        return view
     }
 
     func updateNSView(_ nsView: WheelScrollInterceptorView, context: Context) {
+        nsView.resolve = resolve
+        nsView.perform = perform
         nsView.resolveScrollViewIfNeeded()
     }
 }
@@ -21,6 +38,9 @@ final class WheelScrollInterceptorView: NSView {
 
     private weak var scrollView: NSScrollView?
     private var reportedMissingScrollView = false
+    /// Slice E hooks; see the representable.
+    var resolve: ((StripWheelScroll.Input, CGFloat) -> WheelAction)?
+    var perform: ((WheelAction) -> Void)?
 
     override var intrinsicContentSize: NSSize {
         NSSize(width: NSView.noIntrinsicMetric, height: NSView.noIntrinsicMetric)
@@ -42,24 +62,45 @@ final class WheelScrollInterceptorView: NSView {
     override func hitTest(_ point: NSPoint) -> NSView? {
         guard super.hitTest(point) != nil,
               let event = NSApp.currentEvent,
-              event.type == .scrollWheel,
-              StripWheelScroll.horizontalStep(for: Self.input(from: event)) != nil,
-              overflowExtent() > 0 else {
-            return nil
-        }
-        return self
+              event.type == .scrollWheel else { return nil }
+        return action(for: event) == .ignore ? nil : self
     }
 
     /// 「反转鼠标滚轮方向」开着时**不用管**：那个 tap 插在 session 头部，这里收到的
     /// 已经是反转后的 delta，和别的应用看到的一致——条上的平移方向自然跟着一起反。
     override func scrollWheel(with event: NSEvent) {
         let input = Self.input(from: event)
-        guard let delta = StripWheelScroll.horizontalStep(for: input),
-              let scrollView = resolveScrollViewIfNeeded(),
-              let documentView = scrollView.documentView else {
+        switch action(for: event) {
+        case .ignore:
             super.scrollWheel(with: event)
             return
+        case .cycleWindows, .volume:
+            perform?(action(for: event))
+            return
+        case .scrollStrip(let delta):
+            guard let scrollView = resolveScrollViewIfNeeded(),
+                  let documentView = scrollView.documentView else {
+                super.scrollWheel(with: event)
+                return
+            }
+            scroll(to: delta, in: scrollView, documentView: documentView, input: input)
         }
+    }
+
+    /// Slice E: the old behaviour when nobody supplied a resolver, the mapping otherwise.
+    private func action(for event: NSEvent) -> WheelAction {
+        let input = Self.input(from: event)
+        guard let resolve else {
+            guard let step = StripWheelScroll.horizontalStep(for: input), overflowExtent() > 0 else {
+                return .ignore
+            }
+            return .scrollStrip(by: step)
+        }
+        return resolve(input, overflowExtent())
+    }
+
+    private func scroll(to delta: CGFloat, in scrollView: NSScrollView, documentView: NSView,
+                        input: StripWheelScroll.Input) {
 
         let clipView = scrollView.contentView
         let maxX = max(0, documentView.bounds.width - clipView.bounds.width)

@@ -80,3 +80,53 @@ final class StripWheelScrollTests: XCTestCase {
         XCTAssertEqual(discrete, StripWheelScroll.wheelSpeed)
     }
 }
+
+/// Slice E (OpenTaskbar): the wheel's decision table and the window cycle it lands on.
+final class WheelActionMapTests: XCTestCase {
+    private func input(dx: CGFloat = 0, dy: CGFloat, precise: Bool = false, inverted: Bool = false) -> StripWheelScroll.Input {
+        StripWheelScroll.Input(deltaX: dx, deltaY: dy, hasPreciseDeltas: precise, isDirectionInverted: inverted)
+    }
+
+    func testOverflowScrollingKeepsPriorityOverEveryNewAction() {
+        let step = WheelActionMap.action(for: input(dy: 2),
+                                         target: .appCard(bundleID: "com.apple.Safari"),
+                                         stripOverflows: true)
+        XCTAssertEqual(step, .scrollStrip(by: StripWheelScroll.horizontalStep(for: input(dy: 2))!))
+    }
+
+    func testWheelOverACardCyclesThatAppsWindows() {
+        XCTAssertEqual(WheelActionMap.action(for: input(dy: 1), target: .appCard(bundleID: "com.apple.Safari"),
+                                             stripOverflows: false),
+                       .cycleWindows(bundleID: "com.apple.Safari", direction: .next))
+        XCTAssertEqual(WheelActionMap.action(for: input(dy: -1), target: .appCard(bundleID: "com.apple.Safari"),
+                                             stripOverflows: false),
+                       .cycleWindows(bundleID: "com.apple.Safari", direction: .previous))
+    }
+
+    func testWheelOverEmptyBarTurnsTheVolumeAndRespectsNaturalScrolling() {
+        XCTAssertEqual(WheelActionMap.action(for: input(dy: 1), target: .emptyBar, stripOverflows: false),
+                       .volume(delta: WheelActionMap.volumeStepPerNotch))
+        XCTAssertEqual(WheelActionMap.action(for: input(dy: -1), target: .emptyBar, stripOverflows: false),
+                       .volume(delta: -WheelActionMap.volumeStepPerNotch))
+        XCTAssertEqual(WheelActionMap.action(for: input(dy: 1, inverted: true), target: .emptyBar, stripOverflows: false),
+                       .volume(delta: -WheelActionMap.volumeStepPerNotch))
+        XCTAssertEqual(WheelActionMap.action(for: input(dy: 4, precise: true), target: .emptyBar, stripOverflows: false),
+                       .volume(delta: WheelActionMap.preciseVolumeStep))
+    }
+
+    func testOtherChromeAndHorizontalGesturesAreLeftAlone() {
+        XCTAssertEqual(WheelActionMap.action(for: input(dy: 1), target: .otherSurface, stripOverflows: false), .ignore)
+        XCTAssertEqual(WheelActionMap.action(for: input(dx: 20, dy: 2), target: .emptyBar, stripOverflows: false), .ignore)
+        XCTAssertEqual(WheelActionMap.action(for: input(dx: 20, dy: 0), target: .emptyBar, stripOverflows: false), .ignore)
+    }
+
+    func testWindowCycleWrapsBothWaysAndFallsBackToTheFirstWindow() {
+        let ids = ["a", "b", "c"]
+        XCTAssertEqual(WheelWindowCycle.next(ids: ids, front: "b", direction: .next), "c")
+        XCTAssertEqual(WheelWindowCycle.next(ids: ids, front: "c", direction: .next), "a")
+        XCTAssertEqual(WheelWindowCycle.next(ids: ids, front: "a", direction: .previous), "c")
+        XCTAssertEqual(WheelWindowCycle.next(ids: ids, front: nil, direction: .next), "a")
+        XCTAssertEqual(WheelWindowCycle.next(ids: ["only"], front: "only", direction: .previous), "only")
+        XCTAssertNil(WheelWindowCycle.next(ids: [], front: nil, direction: .next))
+    }
+}
