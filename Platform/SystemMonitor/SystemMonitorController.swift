@@ -6,6 +6,8 @@ import Foundation
 @MainActor
 final class SystemMonitorController: ObservableObject {
     @Published private(set) var snapshot = SystemSnapshot()
+    /// OW-4: read once when the controller is created; the Rig card only formats it after that.
+    @Published private(set) var rigSpec = MacRigSpecSnapshot.current()
     /// OW-2: true while a full-screen app or Low Power Mode has the sampler on its slow cadence.
     @Published private(set) var isThrottled = false
     private var timer: Timer?
@@ -92,6 +94,40 @@ final class SystemMonitorController: ObservableObject {
     }
 
     deinit { timer?.invalidate() }
+}
+
+extension MacRigSpecSnapshot {
+    /// OW-4: one read of the machine (sysctl + ProcessInfo + the boot volume's size), never polled.
+    static func current() -> MacRigSpecSnapshot {
+        let version = ProcessInfo.processInfo.operatingSystemVersion
+        let storage = (try? FileManager.default.attributesOfFileSystem(forPath: "/"))?[.systemSize] as? NSNumber
+        return MacRigSpecSnapshot(
+            chip: sysctlString("machdep.cpu.brand_string") ?? "Apple Silicon",
+            physicalCores: sysctlInt("hw.physicalcpu") ?? ProcessInfo.processInfo.processorCount,
+            efficiencyCores: sysctlInt("hw.perflevel1.physicalcpu") ?? 0,
+            performanceCores: sysctlInt("hw.perflevel0.physicalcpu") ?? 0,
+            gpuCores: sysctlInt("hw.gpu.corecount").flatMap { $0 > 0 ? $0 : nil },
+            unifiedMemoryGB: memoryGB(ProcessInfo.processInfo.physicalMemory),
+            storageGB: storageGB(storage?.int64Value ?? 0),
+            macOSVersion: "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)",
+            macOSBuild: sysctlString("kern.osversion") ?? "-"
+        )
+    }
+
+    private static func sysctlString(_ name: String) -> String? {
+        var size = 0
+        guard sysctlbyname(name, nil, &size, nil, 0) == 0, size > 0 else { return nil }
+        var buffer = [CChar](repeating: 0, count: size)
+        guard sysctlbyname(name, &buffer, &size, nil, 0) == 0 else { return nil }
+        return String(cString: buffer)
+    }
+
+    private static func sysctlInt(_ name: String) -> Int? {
+        var value: Int32 = 0
+        var size = MemoryLayout<Int32>.size
+        guard sysctlbyname(name, &value, &size, nil, 0) == 0 else { return nil }
+        return Int(value)
+    }
 }
 
 /// OW-2: the cheap "another app owns the screen" test, read once per polling tick — a frontmost regular app

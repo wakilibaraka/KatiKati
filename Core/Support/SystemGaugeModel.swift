@@ -30,6 +30,47 @@ public struct SystemGaugeMetrics: Equatable, Sendable {
     }
 }
 
+/// OW-4 (behavior ported from `alztrk/OpenWidget`, MIT — see NOTICE): the machine, written down once. Nothing
+/// here polls: the Platform layer reads the values at startup and this type only formats them, so the Rig card
+/// costs no recurring work.
+struct MacRigSpecSnapshot: Equatable, Sendable {
+    var chip: String
+    var physicalCores: Int
+    var efficiencyCores: Int
+    var performanceCores: Int
+    var gpuCores: Int?
+    var unifiedMemoryGB: Int
+    var storageGB: Int
+    var macOSVersion: String
+    var macOSBuild: String
+
+    /// "10 cores · 6P + 4E" when the machine reports performance/efficiency split, "10 cores" otherwise.
+    var coreSummary: String {
+        var parts = ["\(physicalCores) cores"]
+        if performanceCores > 0 || efficiencyCores > 0 {
+            parts.append("\(performanceCores)P + \(efficiencyCores)E")
+        }
+        return parts.joined(separator: " · ")
+    }
+
+    /// 1-click copy: one Markdown bullet per spec, in the order the card draws them.
+    var formattedMarkdownSpec: String {
+        var lines = [
+            "- **Chip:** \(chip)",
+            "- **CPU:** \(coreSummary)",
+        ]
+        if let gpuCores { lines.append("- **GPU:** \(gpuCores) cores") }
+        lines.append("- **Memory:** \(unifiedMemoryGB) GB unified")
+        lines.append("- **Storage:** \(storageGB) GB")
+        lines.append("- **macOS:** \(macOSVersion) (\(macOSBuild))")
+        return lines.joined(separator: "\n")
+    }
+
+    /// Binary GB for memory (what the machine ships as), decimal GB for storage (what the box says).
+    static func memoryGB(_ bytes: UInt64) -> Int { Int((Double(bytes) / 1_073_741_824).rounded()) }
+    static func storageGB(_ bytes: Int64) -> Int { max(0, Int((Double(bytes) / 1_000_000_000).rounded())) }
+}
+
 /// Dock app icon masking style (Phase 32d). **Packed (owner 2026-10-16):** the Settings row is gone,
 /// so the frame is fixed at launch by the `DOCK_ICON_FRAME` switch — squircle + nothing else set is
 /// what every dock icon wears today. The on-disk key `com.katikati.dock.iconShape` retires with the

@@ -2,7 +2,7 @@ import SwiftUI
 
 /// CPU, memory, disk and network at a glance (Phase 7A-8c). Samples only while open.
 struct SystemMonitorFlyoutView: View {
-    static let size = CGSize(width: 280, height: 232)
+    static let size = CGSize(width: 280, height: 300)
     @ObservedObject private var monitor = ProductivityServices.shared.systemMonitor
 
     var body: some View {
@@ -31,6 +31,27 @@ struct SystemMonitorFlyoutView: View {
                 Label { Text(verbatim: SystemMonitorFormat.bytes(s.up) + "/s") } icon: { Image(systemName: "arrow.up") }
             }
             .font(.callout.monospacedDigit())
+            // OW-4: the Rig badge — the machine's inventory, read at startup and copied in one click.
+            Divider()
+            HStack(alignment: .firstTextBaseline) {
+                Text(monitor.rigSpec.chip).font(.caption.weight(.semibold)).lineLimit(1)
+                Spacer(minLength: 8)
+                Button {
+                    let pasteboard = NSPasteboard.general
+                    pasteboard.clearContents()
+                    pasteboard.setString(monitor.rigSpec.formattedMarkdownSpec, forType: .string)
+                } label: {
+                    Text("Copy Specs")
+                }
+                .controlSize(.mini)
+            }
+            Text(verbatim: monitor.rigSpec.coreSummary
+                 + " · " + "\(monitor.rigSpec.unifiedMemoryGB) GB")
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(.secondary)
+            Text(verbatim: "macOS " + monitor.rigSpec.macOSVersion + " (" + monitor.rigSpec.macOSBuild + ")")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
         }
         .padding(16)
         .frame(width: Self.size.width, height: Self.size.height, alignment: .topLeading)

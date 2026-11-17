@@ -251,5 +251,31 @@ final class SystemGaugeTests: XCTestCase {
         XCTAssertTrue(lowPower.isThrottled)
         XCTAssertEqual(TelemetryPollingPolicy.decision(isFullscreenGame: true, isLowPowerMode: true).interval, 10)
     }
+
+    // MARK: Rig badge (slice OW-4)
+
+    func testRigSpecFormatsTheWholeInventory() {
+        let rig = MacRigSpecSnapshot(chip: "Apple M2 Pro", physicalCores: 10, efficiencyCores: 4,
+                                     performanceCores: 6, gpuCores: 16, unifiedMemoryGB: 16,
+                                     storageGB: 512, macOSVersion: "15.1.1", macOSBuild: "24B91")
+        XCTAssertEqual(rig.coreSummary, "10 cores · 6P + 4E")
+        let markdown = rig.formattedMarkdownSpec
+        XCTAssertTrue(markdown.contains("- **Chip:** Apple M2 Pro"))
+        XCTAssertTrue(markdown.contains("- **CPU:** 10 cores · 6P + 4E"))
+        XCTAssertTrue(markdown.contains("- **GPU:** 16 cores"))
+        XCTAssertTrue(markdown.contains("- **Memory:** 16 GB unified"))
+        XCTAssertTrue(markdown.contains("- **Storage:** 512 GB"))
+        XCTAssertTrue(markdown.contains("- **macOS:** 15.1.1 (24B91)"))
+    }
+
+    func testRigSpecDropsUnknownGPUCoresAndConvertsSizes() {
+        let rig = MacRigSpecSnapshot(chip: "Apple M1", physicalCores: 8, efficiencyCores: 0,
+                                     performanceCores: 0, gpuCores: nil, unifiedMemoryGB: 8,
+                                     storageGB: 256, macOSVersion: "14.0", macOSBuild: "23A")
+        XCTAssertEqual(rig.coreSummary, "8 cores")
+        XCTAssertFalse(rig.formattedMarkdownSpec.contains("GPU"))
+        XCTAssertEqual(MacRigSpecSnapshot.memoryGB(17_179_869_184), 16)
+        XCTAssertEqual(MacRigSpecSnapshot.storageGB(500_277_256_192), 500)
+    }
 }
 
