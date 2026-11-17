@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "App/Composition/KeyGuardService.swift": {
-    "mtime": 1794911434.9903142,
-    "seen": 1794911601.508949,
-    "ast_hash": "4d3fded94cde34afb689d4a0a066e4e7",
+    "mtime": 1794918468.9556704,
+    "seen": 1794918705.754281,
+    "ast_hash": "8bb425ec4e3d3d9ce06c17577b0db6d8",
     "semantic_hash": ""
   },
   "App/Composition/LaunchAtLoginService.swift": {
@@ -390,9 +390,9 @@
     "semantic_hash": ""
   },
   "App/Composition/ShortcutService.swift": {
-    "mtime": 1794841995.0999012,
-    "seen": 1794844459.764548,
-    "ast_hash": "851b123dd9ba1288a58a24f4ccd5c1ba",
+    "mtime": 1794918455.8358743,
+    "seen": 1794918705.7543108,
+    "ast_hash": "2b7c83bdeaf17491924452e18dfcf285",
     "semantic_hash": ""
   },
   "App/Composition/SparkleUpdateService.swift": {
@@ -618,9 +618,9 @@
     "semantic_hash": ""
   },
   "App/Entry/RadialDialPanelController.swift": {
-    "mtime": 1794851493.1198835,
-    "seen": 1794851687.1645079,
-    "ast_hash": "c58d5d9027ed9102a3cba502437ca6e1",
+    "mtime": 1794918525.822556,
+    "seen": 1794918705.754356,
+    "ast_hash": "3a90505ab1ed9d29276c8127b48eb64f",
     "semantic_hash": ""
   },
   "App/Entry/ScreenTimeAlertPresenter.swift": {
@@ -1092,21 +1092,21 @@
     "semantic_hash": ""
   },
   "App/Scenes/RadialDial/RadialDialCenterHub.swift": {
-    "mtime": 1792445422.0085917,
-    "seen": 1792451836.244056,
-    "ast_hash": "c66e69b10043a8a05ddce9d27026c129",
+    "mtime": 1794918298.2103903,
+    "seen": 1794918705.754466,
+    "ast_hash": "073f8101d726f4bc605674f690fdcd41",
     "semantic_hash": ""
   },
   "App/Scenes/RadialDial/RadialDialView.swift": {
-    "mtime": 1794851470.5580103,
-    "seen": 1794851687.164594,
-    "ast_hash": "6d06bd60140f15656ee6c6bc55421cfc",
+    "mtime": 1794918292.8041523,
+    "seen": 1794918705.754467,
+    "ast_hash": "23f2083b163a7f1167f4fbbc5bab97ad",
     "semantic_hash": ""
   },
   "App/Scenes/RadialDial/RadialDialWedgeView.swift": {
-    "mtime": 1792445400.0660622,
-    "seen": 1792451836.2440572,
-    "ast_hash": "34fe6630ca61c3ace6fc5e5c9524be18",
+    "mtime": 1794918295.2591264,
+    "seen": 1794918705.7544682,
+    "ast_hash": "70ef78af2733cbf9f3dd45bfbeaeb9c1",
     "semantic_hash": ""
   },
   "App/Scenes/RadialDial/RadialSectorShape.swift": {
@@ -2184,9 +2184,9 @@
     "semantic_hash": ""
   },
   "Core/Support/RadialDialModel.swift": {
-    "mtime": 1794917295.1730301,
-    "seen": 1794918101.788362,
-    "ast_hash": "300e2121b271e5d902406f785fa84437",
+    "mtime": 1794918283.820906,
+    "seen": 1794918705.754695,
+    "ast_hash": "3fd9099ce0007dba9996d01f9135dc18",
     "semantic_hash": ""
   },
   "Core/Support/RadialDialPresets.swift": {
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
-    "mtime": 1794911255.7035956,
-    "seen": 1794911601.50913,
-    "ast_hash": "a1c8fc5761fb5f532c37722e3b1c2ffb",
+    "mtime": 1794918289.6999748,
+    "seen": 1794918705.7544808,
+    "ast_hash": "4572c9fc5666f365f7cf750e1b4bae22",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
