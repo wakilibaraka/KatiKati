@@ -134,6 +134,15 @@ This project is derived from and incorporates code from the following works:
   `CGSOrderWindow`) and zero-permission Quartz window inspection patterns in `App/Composition/DockWindowManager.swift`
   follow standard implementations from SketchyBar and AltTab for robust window order enforcement on macOS.
 
+## OpenTaskbar (behavior reference, MIT — no code copied)
+- Repository: https://github.com/alztrk/opentaskbar
+- Copyright (c) alztrk
+- License: MIT License
+- Description: Reference for bar *behavior* only, re-implemented in Swift for KatiKati: importing the system Dock's
+  pinned apps (`BarPinSeed`), wheel-over-a-card versus wheel-over-empty-bar actions (`WheelAction`), a searchable
+  widget catalog over existing preferences (`WidgetCatalog`) and keyboard focus on the bar (`DockFocusModel`).
+  OpenTaskbar is C#/WPF; none of its source, XAML, assets or project files are included or translated.
+
 ## Asyar benchmarks (2026-10-27 — idle and latency benchmark)
 - Repository: https://github.com/Xoshbin/asyar (read at `334c8fa`)
 - Copyright (C) Xoshbin

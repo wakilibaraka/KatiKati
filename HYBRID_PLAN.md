@@ -434,10 +434,30 @@ Ranked in the port plan (https://claude.ai/artifact/EB9sx8HHhg2djFQ4QZwU51). Cod
 | Asyar `Xoshbin/asyar` GPL-3.0 @ `334c8fa` — `benchmarks/benchtool.swift`, `benchmarks/bench.sh` (powermetrics parser) | `Tools/Bench/benchtool.swift`, `Scripts/bench_katikati.sh`, `.github/workflows/bench.yml` | Dev tool, not in the app target. Window detection changed for the always-on bar; NOTICE entry added |
 | SuperCmd `SuperCmdLabs/SuperCmd` MIT @ `2da7b9e` — `src/native/*.swift` helpers | not ported yet | Reference for menu search (#3) and hold-to-dictate (#14); a row is added before any code lands |
 | Tinycast `abue-ammar/tinycast` AGPL-3.0 @ `37e6043` | none | Design reference only (roadmap §7.1 bars AGPL donors); its `docs/features/*.md` specs may be read, never its code |
+| OpenTaskbar `alztrk/opentaskbar` MIT (C#/WPF) — bar behavior: Dock-pin import, wheel over cards vs. empty bar, widget catalog search, keyboard focus on the bar | `Core/Support/` (pure models) + `App/Scenes/` (hooks) | Behavior re-implemented in Swift; no source, XAML or assets ported (NOTICE entry). Target is KatiKati only, 12 locales, Turkish not added. Profiling (F) dropped — `BarProfile`/`BarProfileService` exist; bar fisheye excluded (behavior-frozen layout) |
 
 ### 5g. Open port-plan surface (as of 2026-10-28)
 
 Landed from the ranked port plan and merged to `main`: **#1** bench, **#2a–d** settings backup, **#3** menu search, **#4a–c** bar profiles, **#4′ slices 1–2** quicklink templates (model, settings editor, command-bar rows & URL opener), **#5a–c** agent approvals. First verified base tag: `base/post-port-wave` (2899 unit tests, 0 failures).
+
+**OpenTaskbar audit (2026-11-17, Slice A).** Source read as behavior only; every row checked in this tree, not assumed.
+
+| Feature | Status |
+|---|---|
+| Inline math (`= expr`, `CalculatorEngine`) | BUILT (`LauncherCommands.swift`) |
+| Spotlight file search and hand-off | BUILT (`CommandBar.swift`) |
+| System Settings pane search by name | PARTIAL: only privacy and keyboard URLs found; spot-check |
+| Live thumbnails, auto-hide, side/multi-display | BUILT |
+| Trash full/empty, folder stacks | BUILT |
+| Stopwatch, year-progress, countdown tiles | BUILT |
+| Profiles | BUILT (`BarProfile`/`BarProfileService`); dropped by decision |
+| Dock `persistent-apps` reader | BUILT (`NativeDockPreferencesService.swift`, `NativeDockPinnedApps`), wired to the strip by Phase 42 but **not** importable into kept apps |
+| Bar fisheye | PARTIAL (deck buttons only); excluded by decision |
+| Keyboard focus mode on bar | MISSING (Slice D) |
+| Wheel: cycle windows or volume on bar | MISSING (Slice E); volume API exists (`SystemStatusService.setVolume(_:)`) |
+| Widget catalog | MISSING (Slice G) |
+| Disk-free tile, folder new-file badge | MISSING (optional follow-on slices) |
+| OpenTaskbar attribution | MISSING → added by Slice A |
 
 What is still unbuilt:
 
