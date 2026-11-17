@@ -504,9 +504,9 @@
     "semantic_hash": ""
   },
   "App/Entry/CommandBarPanelController.swift": {
-    "mtime": 1794849066.4452865,
-    "seen": 1794849657.6363971,
-    "ast_hash": "45b41b391d558169f743cf48998b37eb",
+    "mtime": 1794923840.9886653,
+    "seen": 1794924121.1521568,
+    "ast_hash": "2b0f51ed0f282eb37737b0ad6cadbc97",
     "semantic_hash": ""
   },
   "App/Entry/EdgeBarPanelController.swift": {
@@ -732,9 +732,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/CommandBarView.swift": {
-    "mtime": 1794849716.1507192,
-    "seen": 1794850870.161361,
-    "ast_hash": "3912c09ade8d7152639c9940b189b73f",
+    "mtime": 1794924046.7185981,
+    "seen": 1794924121.152199,
+    "ast_hash": "3fa01c168a7666747d346c6c026f5d73",
     "semantic_hash": ""
   },
   "App/Scenes/ContentView.swift": {
