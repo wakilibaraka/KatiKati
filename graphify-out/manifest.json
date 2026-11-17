@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
-    "mtime": 1794871720.6053338,
-    "seen": 1794872112.138761,
-    "ast_hash": "64a2af9836bf0c8506b8b9c61273723e",
+    "mtime": 1794881234.1577005,
+    "seen": 1794881603.48398,
+    "ast_hash": "9bc86bdba8674fb08a88ef4e834e3892",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTilingPane.swift": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1794880013.8012705,
-    "seen": 1794880268.130743,
-    "ast_hash": "f0c13eba0620b23257d2706f19804a7f",
+    "mtime": 1794881234.1581805,
+    "seen": 1794881603.483982,
+    "ast_hash": "8942101092acc960fe6799aa9e73f2a4",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -1290,9 +1290,9 @@
     "semantic_hash": "cce3b50509e62e793a875bc5b2166d6c"
   },
   "App/Scenes/UtilitySettingsBlock.swift": {
-    "mtime": 1794874183.9504733,
-    "seen": 1794875311.018402,
-    "ast_hash": "0b04356c4f0b6fb8c934afad6749c0b7",
+    "mtime": 1794881539.2840714,
+    "seen": 1794881603.484002,
+    "ast_hash": "da615826f08d036c7093141abac7b2e8",
     "semantic_hash": ""
   },
   "App/Scenes/WeatherChip.swift": {
@@ -1620,9 +1620,9 @@
     "semantic_hash": ""
   },
   "Core/Support/ClipboardPlus.swift": {
-    "mtime": 1794872577.506134,
-    "seen": 1794872762.574671,
-    "ast_hash": "83d8c0c57fc0468d8087008078ff099f",
+    "mtime": 1794881205.3959634,
+    "seen": 1794881603.484063,
+    "ast_hash": "960490c61850c2f3f61b7f91a9706218",
     "semantic_hash": ""
   },
   "Core/Support/ClockChipContent.swift": {
@@ -2706,9 +2706,9 @@
     "semantic_hash": ""
   },
   "Platform/Clipboard/ClipboardMonitor.swift": {
-    "mtime": 1792926135.9894729,
-    "seen": 1792926143.606806,
-    "ast_hash": "d611148dc057e3e5bfa8917e83c1c488",
+    "mtime": 1794881234.1589875,
+    "seen": 1794881603.4842749,
+    "ast_hash": "f3c3122280a5626d2b2e6190732873fa",
     "semantic_hash": ""
   },
   "Platform/CoreGraphics/CoreGraphicsSource.swift": {
@@ -4026,9 +4026,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/SettingsTabTests.swift": {
-    "mtime": 1794859519.8003688,
-    "seen": 1794861110.468044,
-    "ast_hash": "b7e180045af864a7a193d9be172e8500",
+    "mtime": 1794881234.1585183,
+    "seen": 1794881603.484512,
+    "ast_hash": "fc5c3dcafe8768d5f21e8dce088680c7",
     "semantic_hash": ""
   },
   "Tests/Unit/ShakeDetectorTests.swift": {
@@ -4590,9 +4590,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsSidebar.swift": {
-    "mtime": 1794871721.9144433,
-    "seen": 1794872112.138748,
-    "ast_hash": "ad0abdd1f97fe16bd500b5c5dd9eeea8",
+    "mtime": 1794881333.328772,
+    "seen": 1794881603.483968,
+    "ast_hash": "cc853339913d8f1efcac63cedb357739",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStage.swift": {
