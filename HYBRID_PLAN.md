@@ -6119,3 +6119,11 @@ display sleep or a lock, and pre-revoke frames staying on screen after Screen Re
   ID for the session. Dock Items carries the three pickers (its module list gives up their height, so the page
   height is unchanged), all 15 new strings ship in 12 locales. Known gap: `.slidingPill` is per-icon rather than
   a `matchedGeometryEffect` shared across the strip, so it does not yet glide between neighbours.
+
+- **2026-11-17 — MC-1 (Clipboard Settings tab, done):** Clipboard is its own Settings page above Tools
+  (`SettingsTab.clipboard`, `doc.on.clipboard`, search terms and hue of its own); the card left the Tools page, which
+  now opens with Commands & Snippets. `ClipboardSettingsPane` (`App/Scenes/UtilitySettingsBlock.swift`) lays out
+  Behavior, Storage & Sorting, Privacy & Ignore Types and Appearance & Popup on the existing settings primitives,
+  with all 24 new strings in 12 locales. `NOTICE` now carries the p0deje/Maccy MIT behavior-reference credit. Not
+  yet wired to the monitor: paste-automatically, plain-by-default, polling interval, history limit, sort order,
+  popup position and the ignore toggles are stored keys only until MC-3.

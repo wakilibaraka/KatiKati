@@ -117509,83 +117509,6 @@
         }
       }
     },
-    "Clipboard, commands, snippets, key visualizer, and cheat sheet.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard, commands, snippets, key visualizer, and cheat sheet."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard, commands, snippets, key visualizer, and cheat sheet."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard, commands, snippets, key visualizer, and cheat sheet."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard, commands, snippets, key visualizer, and cheat sheet."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard, commands, snippets, key visualizer, and cheat sheet."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard, commands, snippets, key visualizer, and cheat sheet."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard, commands, snippets, key visualizer, and cheat sheet."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard, commands, snippets, key visualizer, and cheat sheet."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard, commands, snippets, key visualizer, and cheat sheet."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard, commands, snippets, key visualizer, and cheat sheet."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard, commands, snippets, key visualizer, and cheat sheet."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard, commands, snippets, key visualizer, and cheat sheet."
-          }
-        }
-      }
-    },
     "Paste Plain": {
       "extractionState": "manual",
       "localizations": {
@@ -118140,6 +118063,397 @@
         "pt-PT": { "stringUnit": { "state": "translated", "value": "Pílula Windows" } },
         "it": { "stringUnit": { "state": "translated", "value": "Pillola Windows" } },
         "ko": { "stringUnit": { "state": "translated", "value": "Windows 필" } }
+      }
+    },
+    "24 hours": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "24 小时" } },
+        "en": { "stringUnit": { "state": "translated", "value": "24 hours" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "24 小時" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "24時間" } },
+        "de": { "stringUnit": { "state": "translated", "value": "24 Stunden" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "24 heures" } },
+        "es": { "stringUnit": { "state": "translated", "value": "24 horas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "24 horas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "24 horas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "24 horas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "24 ore" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "24시간" } }
+      }
+    },
+    "Appearance & Popup": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "外观与弹窗" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Appearance & Popup" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "外觀與彈窗" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "外観とポップアップ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Darstellung & Pop-up" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Apparence et fenêtre" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Apariencia y ventana" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Apariencia y ventana" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Aparência e janela" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Aparência e janela" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Aspetto e finestra" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "모양 및 팝업" } }
+      }
+    },
+    "At Cursor": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "光标处" } },
+        "en": { "stringUnit": { "state": "translated", "value": "At Cursor" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "游標處" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "カーソル位置" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Am Zeiger" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Au curseur" } },
+        "es": { "stringUnit": { "state": "translated", "value": "En el cursor" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "En el cursor" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "No cursor" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "No cursor" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Al cursore" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "커서 위치" } }
+      }
+    },
+    "Auto-Generated": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "自动生成" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Auto-Generated" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "自動產生" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "自動生成" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Automatisch erzeugt" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Généré automatiquement" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Generado automáticamente" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Generado automáticamente" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Gerado automaticamente" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Gerado automaticamente" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Generato automaticamente" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "자동 생성" } }
+      }
+    },
+    "Behavior": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "行为" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Behavior" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "行為" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "動作" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Verhalten" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Comportement" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Comportamiento" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Comportamiento" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Comportamento" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Comportamento" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Comportamento" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "동작" } }
+      }
+    },
+    "Commands, snippets, key visualizer, and cheat sheet.": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "自定义命令、文本片段、按键可视化与快捷键速查表。" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Commands, snippets, key visualizer, and cheat sheet." } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "自訂指令、文字片段、按鍵視覺化與快速鍵速查表。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "カスタムコマンド、スニペット、キー表示、チートシート。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Befehle, Snippets, Tastenanzeige und Spickzettel." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Commandes, extraits, visualiseur de touches et aide-mémoire." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Comandos, fragmentos, visualizador de teclas y chuleta." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Comandos, fragmentos, visualizador de teclas y chuleta." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Comandos, trechos, visualizador de teclas e cola." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Comandos, trechos, visualizador de teclas e cola." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Comandi, frammenti, visualizzatore tasti e cheat sheet." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "사용자 명령, 텍스트 스니펫, 키 표시, 단축키 치트 시트." } }
+      }
+    },
+    "Concealed & Password Managers": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "隐藏内容与密码管理器" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Concealed & Password Managers" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "隱藏內容與密碼管理器" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "秘匿・パスワードマネージャー" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Verdeckte & Passwortmanager" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Contenu masqué et gestionnaires de mots de passe" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Oculto y gestores de contraseñas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Oculto y gestores de contraseñas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Oculto e gerenciadores de senhas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Oculto e gerenciadores de senhas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Nascosto e gestori di password" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "숨김 및 비밀번호 관리자" } }
+      }
+    },
+    "History Limit": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "历史上限" } },
+        "en": { "stringUnit": { "state": "translated", "value": "History Limit" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "歷史上限" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "履歴の上限" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Verlaufslimit" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Limite d'historique" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Límite del historial" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Límite del historial" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Limite do histórico" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Limite do histórico" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Limite cronologia" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기록 한도" } }
+      }
+    },
+    "History is kept in memory only and is never written to disk.": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "历史仅保存在内存中，绝不写入磁盘。" } },
+        "en": { "stringUnit": { "state": "translated", "value": "History is kept in memory only and is never written to disk." } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "歷史僅保存在記憶體中，絕不寫入磁碟。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "履歴はメモリ上にのみ保持され、ディスクには保存されません。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Der Verlauf liegt nur im Arbeitsspeicher und wird nie auf die Festplatte geschrieben." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "L'historique reste en mémoire et n'est jamais écrit sur le disque." } },
+        "es": { "stringUnit": { "state": "translated", "value": "El historial solo se guarda en memoria y nunca se escribe en el disco." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "El historial solo se guarda en memoria y nunca se escribe en el disco." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "O histórico fica apenas na memória e nunca é gravado no disco." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "O histórico fica apenas na memória e nunca é gravado no disco." } },
+        "it": { "stringUnit": { "state": "translated", "value": "La cronologia resta solo in memoria e non viene mai scritta su disco." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기록은 메모리에만 보관되며 디스크에 저장되지 않습니다." } }
+      }
+    },
+    "History, privacy, storage, and the popup.": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "历史、隐私、存储与弹窗。" } },
+        "en": { "stringUnit": { "state": "translated", "value": "History, privacy, storage, and the popup." } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "歷史、隱私、儲存與彈窗。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "履歴、プライバシー、保存、ポップアップ。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Verlauf, Datenschutz, Speicher und Pop-up." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Historique, confidentialité, stockage et fenêtre." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Historial, privacidad, almacenamiento y ventana." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Historial, privacidad, almacenamiento y ventana." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Histórico, privacidade, armazenamento e janela." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Histórico, privacidade, armazenamento e janela." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Cronologia, privacy, archiviazione e finestra." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기록, 개인정보, 저장 공간, 팝업." } }
+      }
+    },
+    "Ignore Next Copy": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "忽略下次复制" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Ignore Next Copy" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "忽略下次複製" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "次のコピーを無視" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Nächste Kopie ignorieren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ignorer la prochaine copie" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ignorar la próxima copia" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Ignorar la próxima copia" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ignorar a próxima cópia" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Ignorar a próxima cópia" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Ignora la prossima copia" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "다음 복사 무시" } }
+      }
+    },
+    "Paste Automatically": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "自动粘贴" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Paste Automatically" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "自動貼上" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "自動ペースト" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Automatisch einfügen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Coller automatiquement" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Pegar automáticamente" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Pegar automáticamente" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Colar automaticamente" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Colar automaticamente" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Incolla automaticamente" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "자동 붙여넣기" } }
+      }
+    },
+    "Paste Without Formatting by Default": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "默认粘贴为纯文本" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Paste Without Formatting by Default" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "預設貼為純文字" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "既定で書式なしでペースト" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Standardmäßig ohne Formatierung einfügen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Coller sans mise en forme par défaut" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Pegar sin formato por defecto" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Pegar sin formato por defecto" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Colar sem formatação por omissão" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Colar sem formatação por omissão" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Incolla senza formattazione per impostazione predefinita" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기본적으로 서식 없이 붙여넣기" } }
+      }
+    },
+    "Paused": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "已暂停" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Paused" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "已暫停" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "一時停止中" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Pausiert" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "En pause" } },
+        "es": { "stringUnit": { "state": "translated", "value": "En pausa" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "En pausa" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Em pausa" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Em pausa" } },
+        "it": { "stringUnit": { "state": "translated", "value": "In pausa" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "일시 중지됨" } }
+      }
+    },
+    "Polling Interval": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "轮询间隔" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Polling Interval" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "輪詢間隔" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ポーリング間隔" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Abfrageintervall" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Intervalle d'interrogation" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Intervalo de sondeo" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Intervalo de sondeo" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Intervalo de sondagem" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Intervalo de sondagem" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Intervallo di polling" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "폴링 간격" } }
+      }
+    },
+    "Popup Position": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "弹窗位置" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Popup Position" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "彈窗位置" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ポップアップ位置" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Pop-up-Position" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Position de la fenêtre" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Posición de la ventana" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Posición de la ventana" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Posição da janela" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Posição da janela" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Posizione della finestra" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "팝업 위치" } }
+      }
+    },
+    "Privacy & Ignore Types": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "隐私与忽略类型" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Privacy & Ignore Types" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "隱私與忽略類型" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "プライバシーと除外タイプ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Datenschutz & Ignorierte Typen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Confidentialité et types ignorés" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Privacidad y tipos ignorados" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Privacidad y tipos ignorados" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Privacidade e tipos ignorados" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Privacidade e tipos ignorados" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Privacy e tipi ignorati" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "개인정보 및 무시 유형" } }
+      }
+    },
+    "Screen Center": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "屏幕中心" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Screen Center" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "螢幕中央" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "画面中央" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Bildschirmmitte" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Centre de l'écran" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Centro de la pantalla" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Centro de la pantalla" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Centro do ecrã" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Centro do ecrã" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Centro dello schermo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "화면 중앙" } }
+      }
+    },
+    "Show Footer Shortcuts": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "显示页脚快捷键" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Show Footer Shortcuts" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "顯示頁尾快速鍵" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フッターのショートカットを表示" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Fußzeilen-Kürzel anzeigen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Afficher les raccourcis du pied de page" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mostrar atajos del pie" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mostrar atajos del pie" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mostrar atalhos do rodapé" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mostrar atalhos do rodapé" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mostra scorciatoie a piè di pagina" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "하단 단축키 표시" } }
+      }
+    },
+    "Show Pin Shortcuts (⌘1–9)": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "显示固定快捷键（⌘1–9）" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Show Pin Shortcuts (⌘1–9)" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "顯示固定快速鍵（⌘1–9）" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ピン留めショートカット（⌘1–9）を表示" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Pin-Kürzel anzeigen (⌘1–9)" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Afficher les raccourcis d'épinglage (⌘1–9)" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mostrar atajos de fijado (⌘1–9)" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mostrar atajos de fijado (⌘1–9)" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mostrar atalhos de fixação (⌘1–9)" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mostrar atalhos de fixação (⌘1–9)" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mostra scorciatoie di blocco (⌘1–9)" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "고정 단축키 표시(⌘1–9)" } }
+      }
+    },
+    "Storage & Sorting": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "存储与排序" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Storage & Sorting" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "儲存與排序" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "保存と並べ替え" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Speicher & Sortierung" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Stockage et tri" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Almacenamiento y orden" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Almacenamiento y orden" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Armazenamento e ordenação" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Armazenamento e ordenação" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Archiviazione e ordinamento" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "저장 및 정렬" } }
+      }
+    },
+    "Under Bar/Notch": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "任务栏/刘海下方" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Under Bar/Notch" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "工具列/瀏海下方" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "バー/ノッチの下" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Unter Leiste/Kerbe" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Sous la barre/encoche" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Bajo la barra/muesca" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Bajo la barra/muesca" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Sob a barra/entalhe" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Sob a barra/entalhe" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Sotto barra/notch" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "바/노치 아래" } }
+      }
+    },
+    "Universal Clipboard": {
+      "comment": "Clipboard page (MC-1)",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "通用剪贴板" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Universal Clipboard" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "通用剪貼簿" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ユニバーサルクリップボード" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Universelle Zwischenablage" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Presse-papiers universel" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Portapapeles universal" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Portapapeles universal" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Área de transferência universal" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Área de transferência universal" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Appunti universali" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "유니버설 클립보드" } }
       }
     }
   },
