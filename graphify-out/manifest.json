@@ -966,9 +966,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
-    "mtime": 1794874183.2870154,
-    "seen": 1794875311.018334,
-    "ast_hash": "409ba60a3497a2b85d8665db87e69905",
+    "mtime": 1794875898.498397,
+    "seen": 1794876122.647137,
+    "ast_hash": "33bb5db70a20f42ff4d0c5cf1a0ff091",
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandStyle.swift": {
@@ -1050,9 +1050,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/NotchIslandView.swift": {
-    "mtime": 1794874181.1417696,
-    "seen": 1794875311.018354,
-    "ast_hash": "abaa0e93ff4871c6b7a71d5d6aa19607",
+    "mtime": 1794875885.7890067,
+    "seen": 1794876122.647159,
+    "ast_hash": "a99c444601faeeeae3f0599f9ddd3e86",
     "semantic_hash": ""
   },
   "App/Scenes/NotchPreview.swift": {
