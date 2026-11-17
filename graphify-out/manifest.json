@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "App/Composition/KeyGuardService.swift": {
-    "mtime": 1794872171.9973109,
-    "seen": 1794872315.405698,
-    "ast_hash": "afde95638f5d9356c0be8758c00e8248",
+    "mtime": 1794911434.9903142,
+    "seen": 1794911601.508949,
+    "ast_hash": "4d3fded94cde34afb689d4a0a066e4e7",
     "semantic_hash": ""
   },
   "App/Composition/LaunchAtLoginService.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1794910478.9321988,
-    "seen": 1794910722.0206919,
-    "ast_hash": "946b2f57c82fec933024bde1758729ce",
+    "mtime": 1794911329.3292005,
+    "seen": 1794911601.5089972,
+    "ast_hash": "2e3f0c7461184a8e1566d9a193e7a794",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -2892,8 +2892,8 @@
     "semantic_hash": "c4bf0fbfd2405e358487fb356c863b1b"
   },
   "Platform/Pinboard/MultitouchPinchMonitor.swift": {
-    "mtime": 1791999130.9135113,
-    "seen": 1792295707.060666,
+    "mtime": 1794911433.4043102,
+    "seen": 1794911601.509443,
     "ast_hash": "7d5d91de074a9d0549099dc278957fde",
     "semantic_hash": "7d5d91de074a9d0549099dc278957fde"
   },
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
-    "mtime": 1794871893.4226298,
-    "seen": 1794872112.1387572,
-    "ast_hash": "b5b320c2ae06d44453ff32f30a6a6217",
+    "mtime": 1794911255.7035956,
+    "seen": 1794911601.50913,
+    "ast_hash": "a1c8fc5761fb5f532c37722e3b1c2ffb",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
